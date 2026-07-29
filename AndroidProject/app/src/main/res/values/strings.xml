@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Construction Estimator</string>
+    <string name="capture_button">📷 Снять</string>
+    <string name="analyze_button">🔍 Анализ</string>
+    <string name="no_camera_permission">Для работы приложения нужен доступ к камере</string>
+    <string name="photo_captured">✅ Фото сделано! Нажмите Анализ</string>
+    <string name="analyzing">🔍 Анализируем изображение...</string>
+    <string name="no_objects_found">Объекты не обнаружены.\nПопробуйте сфотографировать строительный объект.</string>
+    <string name="model_not_loaded">⚠️ AI модель не загружена.\nДобавьте ssd_mobilenet_v1.tflite в assets</string>
+    <string name="objects_found">🏗️ Обнаружено объектов: %d</string>
+    <string name="total_cost">💰 Итого: %s</string>
+    <string name="landing_subtitle">Умный помощник для расчёта строительных материалов и стоимости работ</string>
+    <string name="start_button">Начать</string>
+    
+    <!-- Engineer UI Strings -->
+    <string name="engineer_cabinet">Кабинет инженера</string>
+    <string name="tab_dashboard">📊 Обзор</string>
+    <string name="tab_requests">📬 Заявки</string>
+    <string name="tab_projects">🗂️ Проекты</string>
+    <string name="tab_profile">👤 Профиль</string>
+    
+    <!-- String Arrays -->
+    <string-array name="request_categories">
+        <item>Все категории</item>
+        <item>🎨 Дизайн-проект</item>
+        <item>📄 Документация</item>
+        <item>🔢 Расчёты</item>
+        <item>🏗️ Проектирование</item>
+    </string-array>
+</resources>

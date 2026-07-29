@@ -1,0 +1,78 @@
+# ═══════════════════════════════════════════════════════════════════
+# QAZGOST AI Service — CPU-only Dockerfile v2
+# For development and CI/CD without GPU
+# ═══════════════════════════════════════════════════════════════════
+
+FROM python:3.11-slim AS builder
+
+# Build dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential gcc g++ \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /build
+
+# Install CPU-only torch first (saves ~1.5GB vs CUDA version)
+RUN pip install --no-cache-dir --user \
+    torch==2.2.0+cpu torchvision==0.17.0+cpu \
+    --index-url https://download.pytorch.org/whl/cpu
+
+# Install remaining dependencies
+COPY requirements.txt .
+# Filter out torch/torchvision (already installed CPU-only above)
+RUN grep -v -E '^(torch|torchvision)' requirements.txt > requirements-filtered.txt && \
+    pip install --no-cache-dir --user -r requirements-filtered.txt
+
+# Also install scipy for photo3d
+RUN pip install --no-cache-dir --user scipy>=1.12.0
+
+# ═══════════════════════════════════════════════════════════════════
+# Production stage
+# ═══════════════════════════════════════════════════════════════════
+FROM python:3.11-slim
+
+# System dependencies for OpenCV + image processing
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
+    libgomp1 \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Copy Python packages from builder
+COPY --from=builder /root/.local /root/.local
+ENV PATH=/root/.local/bin:$PATH
+
+# Copy application code
+COPY app/ ./app/
+COPY data/ ./data/
+
+# Copy photo3d module (SfM photogrammetry)
+# This is sourced from WebVersion/backend/ but we copy it into the container
+COPY photo3d_bundle/ ./photo3d/
+
+# Create required directories
+RUN mkdir -p /app/uploads /app/results /app/models /app/logs
+
+# Environment variables
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    DEVICE=cpu \
+    HOST=0.0.0.0 \
+    PORT=8001 \
+    OLLAMA_HOST=http://ollama:11434 \
+    LOG_LEVEL=INFO
+
+# Healthcheck
+HEALTHCHECK --interval=30s --timeout=10s --start-period=90s --retries=3 \
+    CMD curl -f http://localhost:8001/api/v1/health || exit 1
+
+EXPOSE 8001
+
+# Use JSON exec form to avoid signal issues
+CMD ["python", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8001", "--workers", "1"]

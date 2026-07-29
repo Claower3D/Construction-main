@@ -1,0 +1,12 @@
+# ============================================================
+# .dev.vars — Local development secrets for Wrangler
+# 
+# This file is NOT committed to version control.
+# Copy .dev.vars.example to .dev.vars and fill in your keys.
+# ============================================================
+
+GEMINI_API_KEY=your-gemini-api-key-here
+OPENAI_API_KEY=your-openai-api-key-here
+FREEDOMPAY_MERCHANT_ID=585195
+FREEDOMPAY_SECRET_KEY=your-freedompay-secret-here
+JWT_SECRET=your-jwt-secret-here-min-32-chars

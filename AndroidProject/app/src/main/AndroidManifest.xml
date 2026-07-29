@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" android:required="true" />
+    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
+
+    <application
+        android:allowBackup="true"
+        android:label="@string/app_name"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.ConstructionEstimator"
+        android:hardwareAccelerated="true">
+        
+        <!-- Landing Page - стартовая страница -->
+        <activity 
+            android:name=".LandingActivity"
+            android:exported="true"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.ConstructionEstimator.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Основная Activity с камерой -->
+        <activity 
+            android:name=".MainActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        
+        <!-- История анализов -->
+        <activity 
+            android:name=".HistoryActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:label="История" />
+
+        <!-- Настройки -->
+        <activity 
+            android:name=".SettingsActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:label="Настройки" />
+
+        <!-- Кабинет инженера -->
+        <activity 
+            android:name=".EngineerActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:label="Кабинет инженера"
+            android:theme="@style/Theme.ConstructionEstimator.NoActionBar" />
+
+        <!-- Редактор профиля инженера -->
+        <activity
+            android:name=".EngineerProfileEditorActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:label="Редактировать профиль"
+            android:theme="@style/Theme.ConstructionEstimator.NoActionBar" />
+
+        <!-- Детали заявки -->
+        <activity
+            android:name=".RequestDetailsActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:label="Детали заявки"
+            android:theme="@style/Theme.ConstructionEstimator.NoActionBar" />
+
+        <!-- Детали проекта -->
+        <activity
+            android:name=".ProjectDetailsActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:label="Детали проекта"
+            android:theme="@style/Theme.ConstructionEstimator.NoActionBar" />
+
+        <!-- FileProvider для PDF шаринга -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+        
+    </application>
+
+</manifest>

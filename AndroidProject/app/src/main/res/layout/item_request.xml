@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="12dp"
+    app:cardCornerRadius="12dp"
+    app:cardBackgroundColor="@color/card_bg"
+    app:cardElevation="2dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Header -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/requestCategory"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🎨 Дизайн"
+                android:textSize="12sp"
+                android:textColor="@color/primary"
+                android:background="@drawable/category_badge_bg"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="4dp" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/requestDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="01.01.2024"
+                android:textSize="12sp"
+                android:textColor="@color/text_muted" />
+
+        </LinearLayout>
+
+        <!-- Title -->
+        <TextView
+            android:id="@+id/requestTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Название объекта"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/text"
+            android:maxLines="2"
+            android:ellipsize="end"
+            android:layout_marginTop="12dp" />
+
+        <!-- Address -->
+        <TextView
+            android:id="@+id/requestAddress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="📍 Адрес объекта"
+            android:textSize="13sp"
+            android:textColor="@color/text_muted"
+            android:layout_marginTop="4dp" />
+
+        <!-- Footer -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="12dp">
+
+            <TextView
+                android:id="@+id/requestPrice"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="1 500 000 ₸"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/success" />
+
+            <Button
+                android:id="@+id/takeButton"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:text="Откликнуться"
+                android:textSize="13sp"
+                android:textAllCaps="false"
+                android:backgroundTint="@color/primary" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

@@ -1,0 +1,71 @@
+{
+    "title": "Исходный код — QazGost AI v3.0",
+    "printButton": "🖨️ Печать / Сохранить PDF",
+    "coverTitle": "ИСХОДНЫЙ КОД (ИСХОДНЫЙ ТЕКСТ)\nПРОГРАММЫ ДЛЯ ЭВМ",
+    "coverSubtitle": "«QazGost AI»",
+    "coverPlatform": "AI-платформа для автоматизации строительных смет\nРеспублика Казахстан",
+    "coverVersion": "Версия 3.0",
+    "coverTable": [
+        {"label": "Языки:", "value": "JavaScript (ES2022), Python 3.11"},
+        {"label": "Полный объём:", "value": "153 937 строк в 620 файлах"},
+        {"label": "Представлено:", "value": "8 ключевых модулей ({totalLines} строк)"},
+        {"label": "Дата создания:", "value": "2024–2026"}
+    ],
+    "tocTitle": "СОДЕРЖАНИЕ",
+    "tocHeaders": ["№", "Файл", "Строк", "Язык", "Описание"],
+    "totalLabel": "ИТОГО",
+    "pagesLabel": "листов",
+    "noteTitle": "Примечание",
+    "noteText": "Настоящий документ содержит исходный текст ключевых модулей программы «QazGost AI», демонстрирующих уникальные алгоритмы и логику работы платформы. Полный объём исходного кода составляет 153 937 строк в 620 файлах. Представленные модули выбраны как наиболее характерные для описания архитектуры и уникальных программных решений.",
+    "moduleLabel": "Модуль",
+    "files": [
+        {
+            "path": "WebVersion\\SmartEstimateEngine.js",
+            "name": "SmartEstimateEngine.js",
+            "lang": "JavaScript",
+            "desc": "Движок генерации строительных смет. Региональные ставки для 23 городов Казахстана, коэффициенты потерь по СНиП, матрица работ, материалов и оборудования."
+        },
+        {
+            "path": "WebVersion\\qtoEngine.js",
+            "name": "qtoEngine.js",
+            "lang": "JavaScript",
+            "desc": "QTO Engine. Расчёт объёмов работ по строительным формулам: фундаменты, стены, полы, кровля. Валидация и агрегация."
+        },
+        {
+            "path": "WebVersion\\statusMachine.js",
+            "name": "statusMachine.js",
+            "lang": "JavaScript",
+            "desc": "Конечный автомат заказов, откликов, работ, этапов и дефектов. TimerEngine для автоматических дедлайнов."
+        },
+        {
+            "path": "ai-service\\app\\services\\pipeline.py",
+            "name": "pipeline.py",
+            "lang": "Python",
+            "desc": "AI-пайплайн: 10-шаговый конвейер (RF-DETR, SAM, GroundingDINO, Qwen2.5-VL, калибровка, автосмета)."
+        },
+        {
+            "path": "ai-service\\app\\services\\estimator.py",
+            "name": "estimator.py",
+            "lang": "Python",
+            "desc": "AutoEstimator. Маппинг объектов на сметные позиции. Региональные и сезонные коэффициенты, fuzzy-поиск по базе 24000 позиций."
+        },
+        {
+            "path": "ai-service\\app\\services\\calibrator.py",
+            "name": "calibrator.py",
+            "lang": "Python",
+            "desc": "ScaleCalibrator. 6 методов калибровки масштаба фото: ArUco, A4, карта, EXIF, объекты, fallback."
+        },
+        {
+            "path": "WebVersion\\confidenceGuard.js",
+            "name": "confidenceGuard.js",
+            "lang": "JavaScript",
+            "desc": "AI Confidence Guard. Контроль качества AI: пороги уверенности, расхождения, автоназначение инженера."
+        },
+        {
+            "path": "WebVersion\\aiSmartBrain.js",
+            "name": "aiSmartBrain.js",
+            "lang": "JavaScript",
+            "desc": "AI SmartBrain. Чат-бот с картой приложения, LLM-интеграцией (Gemini), rule-based fallback."
+        }
+    ]
+}

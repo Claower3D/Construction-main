@@ -1,0 +1,10 @@
+# Training labels go here
+# Format: image_name.txt (same name as image)
+
+# YOLO format (per line):
+# class_id center_x center_y width height
+# All values normalized to [0, 1]
+
+# Example:
+# 0 0.5 0.5 0.3 0.2
+# This means: class 0 (trench), center at 50% x 50%, width 30%, height 20%

@@ -1,0 +1,67 @@
+// === КАТАЛОГ РАБОТ: ФАСАДНЫЕ, ОКОННЫЕ, ДВЕРНЫЕ РАБОТЫ (70 позиций) ===
+(function () {
+    window.AI_WORK_FACADE_WINDOWS_CATALOG = {
+        // === ФАСАДНЫЕ РАБОТЫ ===
+        'work_facade_siding_vinyl': { name: 'Монтаж сайдинга винилового', unit: 'м²', price: 300, category: 'work_facade' },
+        'work_facade_siding_metal': { name: 'Монтаж сайдинга металлического', unit: 'м²', price: 350, category: 'work_facade' },
+        'work_facade_siding_fiber': { name: 'Монтаж фиброцементного сайдинга', unit: 'м²', price: 400, category: 'work_facade' },
+        'work_facade_blockhouse': { name: 'Монтаж блок-хауса', unit: 'м²', price: 400, category: 'work_facade' },
+        'work_facade_planken': { name: 'Монтаж планкена', unit: 'м²', price: 450, category: 'work_facade' },
+        'work_facade_hpl': { name: 'Монтаж HPL панелей (вент. фасад)', unit: 'м²', price: 800, category: 'work_facade' },
+        'work_facade_alucobond': { name: 'Монтаж алюкобонда (композит)', unit: 'м²', price: 1000, category: 'work_facade' },
+        'work_facade_keramogranit': { name: 'Монтаж керамогранита на фасад (вент.)', unit: 'м²', price: 1200, category: 'work_facade' },
+        'work_facade_frame_metal': { name: 'Монтаж подсистемы вент. фасада (метал.)', unit: 'м²', price: 300, category: 'work_facade' },
+        'work_facade_clinker': { name: 'Облицовка фасада клинкерной плиткой', unit: 'м²', price: 1000, category: 'work_facade' },
+        'work_facade_thermopanels': { name: 'Монтаж термопанелей', unit: 'м²', price: 600, category: 'work_facade' },
+        // Цоколь
+        'work_facade_tsokol_stone': { name: 'Облицовка цоколя камнем', unit: 'м²', price: 1200, category: 'work_facade' },
+        'work_facade_tsokol_tile': { name: 'Облицовка цоколя плиткой', unit: 'м²', price: 800, category: 'work_facade' },
+        'work_facade_tsokol_panel': { name: 'Монтаж цокольных панелей', unit: 'м²', price: 400, category: 'work_facade' },
+        // Демонтаж фасада
+        'work_facade_demo_siding': { name: 'Демонтаж сайдинга', unit: 'м²', price: 100, category: 'work_facade' },
+        'work_facade_demo_plaster': { name: 'Демонтаж фасадной штукатурки', unit: 'м²', price: 150, category: 'work_facade' },
+        'work_facade_cleaning': { name: 'Мойка фасада (гидроструйная)', unit: 'м²', price: 50, category: 'work_facade' },
+        // === ОКНА ===
+        'work_window_pvc_install': { name: 'Установка ПВХ окна (стандарт)', unit: 'шт', price: 2000, category: 'work_windows' },
+        'work_window_pvc_large': { name: 'Установка ПВХ окна (большое >2м²)', unit: 'шт', price: 3000, category: 'work_windows' },
+        'work_window_pvc_balcony': { name: 'Остекление балкона ПВХ', unit: 'м²', price: 2000, category: 'work_windows' },
+        'work_window_pvc_loggia': { name: 'Остекление лоджии ПВХ', unit: 'м²', price: 1800, category: 'work_windows' },
+        'work_window_aluminum': { name: 'Установка алюминиевого окна', unit: 'шт', price: 3000, category: 'work_windows' },
+        'work_window_aluminum_cold': { name: 'Остекление балкона алюминием (холодн.)', unit: 'м²', price: 1500, category: 'work_windows' },
+        'work_window_wood_install': { name: 'Установка деревянного окна', unit: 'шт', price: 3000, category: 'work_windows' },
+        'work_window_mansard': { name: 'Установка мансардного окна', unit: 'шт', price: 5000, category: 'work_windows' },
+        'work_window_slope_plaster': { name: 'Откосы оконные штукатурные', unit: 'м.п.', price: 350, category: 'work_windows' },
+        'work_window_slope_gkl': { name: 'Откосы оконные из ГКЛ', unit: 'м.п.', price: 400, category: 'work_windows' },
+        'work_window_slope_pvc': { name: 'Откосы оконные пластиковые', unit: 'м.п.', price: 300, category: 'work_windows' },
+        'work_window_slope_sand': { name: 'Откосы сэндвич-панель', unit: 'м.п.', price: 350, category: 'work_windows' },
+        'work_window_sill_pvc': { name: 'Установка подоконника ПВХ', unit: 'м.п.', price: 300, category: 'work_windows' },
+        'work_window_sill_stone': { name: 'Установка подоконника из камня', unit: 'м.п.', price: 800, category: 'work_windows' },
+        'work_window_sill_wood': { name: 'Установка подоконника деревянного', unit: 'м.п.', price: 500, category: 'work_windows' },
+        'work_window_ebb': { name: 'Установка отлива', unit: 'м.п.', price: 150, category: 'work_windows' },
+        'work_window_foam': { name: 'Монтаж окна с пеной + лента', unit: 'шт', price: 500, category: 'work_windows' },
+        'work_window_demo': { name: 'Демонтаж старого окна', unit: 'шт', price: 500, category: 'work_windows' },
+        'work_window_film_tint': { name: 'Тонировка окна плёнкой', unit: 'м²', price: 300, category: 'work_windows' },
+        'work_window_blinds': { name: 'Установка жалюзи / рольштор', unit: 'шт', price: 300, category: 'work_windows' },
+        // === ДВЕРИ ===
+        'work_door_interior_install': { name: 'Установка межкомнатной двери', unit: 'шт', price: 2000, category: 'work_doors' },
+        'work_door_interior_sliding': { name: 'Установка раздвижной двери', unit: 'шт', price: 3000, category: 'work_doors' },
+        'work_door_interior_hidden': { name: 'Установка скрытой двери', unit: 'шт', price: 5000, category: 'work_doors' },
+        'work_door_interior_glass': { name: 'Установка стеклянной двери', unit: 'шт', price: 4000, category: 'work_doors' },
+        'work_door_entry_install': { name: 'Установка входной двери (металл)', unit: 'шт', price: 3000, category: 'work_doors' },
+        'work_door_entry_premium': { name: 'Установка входной двери (премиум)', unit: 'шт', price: 5000, category: 'work_doors' },
+        'work_door_frame_install': { name: 'Установка дверной коробки', unit: 'шт', price: 1000, category: 'work_doors' },
+        'work_door_frame_expand': { name: 'Расширение дверного проёма', unit: 'шт', price: 3000, category: 'work_doors' },
+        'work_door_frame_narrow': { name: 'Сужение дверного проёма', unit: 'шт', price: 2000, category: 'work_doors' },
+        'work_door_slope': { name: 'Отделка дверных откосов', unit: 'м.п.', price: 400, category: 'work_doors' },
+        'work_door_hardware': { name: 'Установка дверной фурнитуры', unit: 'компл.', price: 500, category: 'work_doors' },
+        'work_door_lock': { name: 'Врезка замка', unit: 'шт', price: 500, category: 'work_doors' },
+        'work_door_closer_install': { name: 'Установка доводчика', unit: 'шт', price: 500, category: 'work_doors' },
+        'work_door_demo': { name: 'Демонтаж старой двери', unit: 'шт', price: 300, category: 'work_doors' },
+        // Ворота / секции
+        'work_gate_sectional': { name: 'Установка секционных ворот', unit: 'шт', price: 10000, category: 'work_doors' },
+        'work_gate_sliding': { name: 'Установка откатных ворот', unit: 'шт', price: 15000, category: 'work_doors' },
+        'work_gate_swing': { name: 'Установка распашных ворот', unit: 'шт', price: 8000, category: 'work_doors' },
+        'work_gate_automation': { name: 'Установка автоматики ворот', unit: 'компл.', price: 10000, category: 'work_doors' },
+        'work_wicket_install': { name: 'Установка калитки', unit: 'шт', price: 3000, category: 'work_doors' }
+    };
+})();

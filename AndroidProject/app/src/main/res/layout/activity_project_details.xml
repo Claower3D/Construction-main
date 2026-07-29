@@ -1,0 +1,380 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/background">
+
+    <!-- Header -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="16dp"
+        android:background="@color/primary">
+
+        <ImageButton
+            android:id="@+id/backButton"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_arrow_back"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Back"
+            app:tint="@android:color/white" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Детали проекта"
+            android:textColor="@android:color/white"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginStart="12dp" />
+
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Title Card with Progress -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="12dp"
+                app:cardBackgroundColor="@color/card_bg">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:id="@+id/projectTitle"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Название проекта"
+                            android:textSize="18sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/text" />
+
+                        <TextView
+                            android:id="@+id/projectStatus"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="🔧 В работе"
+                            android:textSize="12sp"
+                            android:textColor="@color/warning"
+                            android:background="@drawable/status_badge_bg"
+                            android:paddingHorizontal="10dp"
+                            android:paddingVertical="4dp" />
+
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/objectAddress"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="📍 Адрес"
+                        android:textSize="14sp"
+                        android:textColor="@color/text_muted"
+                        android:layout_marginTop="8dp" />
+
+                    <TextView
+                        android:id="@+id/projectPrice"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="1 500 000 ₸"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/success"
+                        android:layout_marginTop="12dp" />
+
+                    <!-- Progress -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginTop="16dp">
+
+                        <ProgressBar
+                            android:id="@+id/progressBar"
+                            style="?android:attr/progressBarStyleHorizontal"
+                            android:layout_width="0dp"
+                            android:layout_height="12dp"
+                            android:layout_weight="1"
+                            android:max="100"
+                            android:progress="45"
+                            android:progressDrawable="@drawable/progress_bar_gradient" />
+
+                        <TextView
+                            android:id="@+id/progressText"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="45%"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/primary"
+                            android:layout_marginStart="12dp" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Customer Info -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="12dp"
+                app:cardBackgroundColor="@color/card_bg">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="👤 Заказчик"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text"
+                        android:layout_marginBottom="12dp" />
+
+                    <TextView
+                        android:id="@+id/customerName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="👤 Имя заказчика"
+                        android:textSize="14sp"
+                        android:textColor="@color/text"
+                        android:layout_marginBottom="4dp" />
+
+                    <TextView
+                        android:id="@+id/customerPhone"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="📱 +7 xxx xxx xxxx"
+                        android:textSize="14sp"
+                        android:textColor="@color/text_muted"
+                        android:layout_marginBottom="4dp" />
+
+                    <TextView
+                        android:id="@+id/customerEmail"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="📧 email@example.com"
+                        android:textSize="14sp"
+                        android:textColor="@color/text_muted" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Timeline -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="12dp"
+                app:cardBackgroundColor="@color/card_bg">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="📜 История"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text"
+                        android:layout_marginBottom="12dp" />
+
+                    <LinearLayout
+                        android:id="@+id/timelineContainer"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Files -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="12dp"
+                app:cardBackgroundColor="@color/card_bg">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="12dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="📁 Файлы проекта"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/text" />
+
+                        <Button
+                            android:id="@+id/uploadButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="36dp"
+                            android:text="+ Загрузить"
+                            android:textSize="12sp"
+                            android:textAllCaps="false"
+                            android:backgroundTint="@color/primary" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/filesContainer"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Comments -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="12dp"
+                app:cardBackgroundColor="@color/card_bg">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="💬 Комментарии"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text"
+                        android:layout_marginBottom="12dp" />
+
+                    <LinearLayout
+                        android:id="@+id/commentsContainer"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginBottom="12dp" />
+
+                    <!-- Add Comment -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <EditText
+                            android:id="@+id/commentInput"
+                            android:layout_width="0dp"
+                            android:layout_height="48dp"
+                            android:layout_weight="1"
+                            android:hint="Написать комментарий..."
+                            android:textColorHint="@color/text_muted"
+                            android:textColor="@color/text"
+                            android:background="@drawable/spinner_bg"
+                            android:paddingHorizontal="12dp"
+                            android:layout_marginEnd="8dp" />
+
+                        <Button
+                            android:id="@+id/addCommentButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="48dp"
+                            android:text="📤"
+                            android:backgroundTint="@color/primary"
+                            android:minWidth="0dp"
+                            android:paddingHorizontal="16dp" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+    <!-- Action Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:background="@color/card_bg">
+
+        <Button
+            android:id="@+id/contactButton"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:text="📞 Связаться"
+            android:textAllCaps="false"
+            android:backgroundTint="@color/info"
+            android:layout_marginEnd="8dp" />
+
+        <Button
+            android:id="@+id/submitButton"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:text="📤 Сдать работу"
+            android:textAllCaps="false"
+            android:backgroundTint="@color/success"
+            android:layout_marginStart="8dp" />
+
+    </LinearLayout>
+
+</LinearLayout>

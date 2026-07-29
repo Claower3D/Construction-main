@@ -1,0 +1,543 @@
+/* ============================================================
+   photogrammetry.css  — Модуль 3D-сканирования по фото
+   QAZGOST AI
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+/* ── Root токены ───────────────────────────────────────────── */
+:root {
+    --pg-bg:       #0d1117;
+    --pg-surface:  #161b22;
+    --pg-border:   rgba(255,255,255,0.08);
+    --pg-accent:   #00d9ff;
+    --pg-accent2:  #7c3aed;
+    --pg-green:    #22c55e;
+    --pg-yellow:   #f59e0b;
+    --pg-red:      #ef4444;
+    --pg-text:     #e6edf3;
+    --pg-muted:    #8b949e;
+    --pg-radius:   16px;
+    --pg-shadow:   0 8px 32px rgba(0,0,0,.5);
+}
+
+/* ── Overlay (modal backdrop) ──────────────────────────────── */
+#photoScanOverlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    z-index: 9200;
+    align-items: center;
+    justify-content: center;
+    animation: pgFadeIn .25s ease;
+}
+#photoScanOverlay.active { display: flex; }
+
+@keyframes pgFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+/* ── Modal panel ───────────────────────────────────────────── */
+.pg-modal {
+    background: var(--pg-surface);
+    border: 1px solid var(--pg-border);
+    border-radius: var(--pg-radius);
+    box-shadow: var(--pg-shadow);
+    width: min(600px, 96vw);
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: pgSlideUp .3s cubic-bezier(.23,1,.32,1);
+    font-family: 'Inter', sans-serif;
+    color: var(--pg-text);
+}
+
+@keyframes pgSlideUp {
+    from { opacity: 0; transform: translateY(40px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Header ────────────────────────────────────────────────── */
+.pg-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 22px 24px 16px;
+    border-bottom: 1px solid var(--pg-border);
+}
+.pg-title {
+    font-size: 18px;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--pg-accent), var(--pg-accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+.pg-close-btn {
+    background: none;
+    border: none;
+    color: var(--pg-muted);
+    cursor: pointer;
+    font-size: 22px;
+    line-height: 1;
+    transition: color .2s;
+    padding: 4px 8px;
+}
+.pg-close-btn:hover { color: var(--pg-text); }
+
+/* ── Body ──────────────────────────────────────────────────── */
+.pg-body { padding: 24px; }
+
+/* Инструкция-шаги */
+.pg-steps {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+.pg-step {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    background: rgba(0,217,255,.07);
+    border: 1px solid rgba(0,217,255,.2);
+    border-radius: 8px;
+    font-size: 12px;
+    color: var(--pg-muted);
+    flex: 1;
+    text-align: center;
+    flex-direction: column;
+    transition: background .2s;
+}
+.pg-step.active {
+    background: rgba(0,217,255,.15);
+    border-color: var(--pg-accent);
+    color: var(--pg-text);
+}
+.pg-step .step-num {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: var(--pg-border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700;
+    color: var(--pg-muted);
+}
+.pg-step.active .step-num {
+    background: var(--pg-accent);
+    color: #000;
+}
+
+/* ── Зона загрузки фото ────────────────────────────────────── */
+.pg-upload-zone {
+    border: 2px dashed rgba(0,217,255,.3);
+    border-radius: var(--pg-radius);
+    padding: 36px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color .2s, background .2s;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+}
+.pg-upload-zone::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 50%, rgba(0,217,255,.04), transparent 70%);
+    pointer-events: none;
+}
+.pg-upload-zone:hover,
+.pg-upload-zone.drag-over {
+    border-color: var(--pg-accent);
+    background: rgba(0,217,255,.05);
+}
+.pg-upload-icon {
+    font-size: 40px;
+    margin-bottom: 10px;
+    display: block;
+}
+.pg-upload-label {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--pg-text);
+    margin-bottom: 6px;
+}
+.pg-upload-hint {
+    font-size: 12px;
+    color: var(--pg-muted);
+}
+.pg-upload-counter {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    background: rgba(0,217,255,.1);
+    border: 1px solid rgba(0,217,255,.2);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--pg-accent);
+}
+
+/* ── Превью сетка ──────────────────────────────────────────── */
+.pg-preview-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    margin-bottom: 20px;
+}
+.pg-photo-slot {
+    aspect-ratio: 1;
+    border-radius: 10px;
+    border: 2px dashed var(--pg-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    background: rgba(255,255,255,.02);
+    transition: border-color .2s;
+}
+.pg-photo-slot.filled {
+    border-style: solid;
+    border-color: var(--pg-accent);
+}
+.pg-photo-slot.required {
+    border-color: rgba(0,217,255,.4);
+}
+.pg-photo-slot img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+}
+.pg-photo-slot .slot-num {
+    font-size: 18px;
+    color: var(--pg-border);
+    font-weight: 700;
+}
+.pg-photo-slot .slot-remove {
+    position: absolute;
+    top: 4px; right: 4px;
+    width: 20px; height: 20px;
+    background: var(--pg-red);
+    border: none; border-radius: 50%;
+    color: #fff; font-size: 12px;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    padding: 0;
+}
+.pg-photo-slot.filled .slot-remove { display: flex; }
+
+/* ── Инструкции по съёмке ──────────────────────────────────── */
+.pg-shoot-guide {
+    background: rgba(124,58,237,.08);
+    border: 1px solid rgba(124,58,237,.25);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 20px;
+    font-size: 13px;
+    color: var(--pg-muted);
+}
+.pg-shoot-guide strong {
+    display: block;
+    color: var(--pg-text);
+    margin-bottom: 8px;
+    font-size: 13px;
+}
+.pg-shoot-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 5px;
+}
+.pg-shoot-row:last-child { margin-bottom: 0; }
+.pg-shoot-row span { font-size: 16px; }
+
+/* ── Кнопка анализа ────────────────────────────────────────── */
+.pg-analyze-btn {
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(135deg, var(--pg-accent), var(--pg-accent2));
+    border: none;
+    border-radius: 12px;
+    color: #000;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity .2s, transform .15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+.pg-analyze-btn:hover { opacity: .9; transform: translateY(-1px); }
+.pg-analyze-btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+/* ── Прогресс анализа ──────────────────────────────────────── */
+#pgProgressSection {
+    display: none;
+    padding: 30px 24px;
+    text-align: center;
+}
+#pgProgressSection.active { display: block; }
+
+.pg-scan-anim {
+    width: 80px; height: 80px;
+    margin: 0 auto 20px;
+    position: relative;
+}
+.pg-scan-ring {
+    width: 100%; height: 100%;
+    border-radius: 50%;
+    border: 3px solid var(--pg-border);
+    border-top-color: var(--pg-accent);
+    animation: pgSpin 1.2s linear infinite;
+    position: absolute; inset: 0;
+}
+.pg-scan-ring:nth-child(2) {
+    width: 60%; height: 60%;
+    top: 20%; left: 20%;
+    border-top-color: var(--pg-accent2);
+    animation-duration: 0.8s;
+    animation-direction: reverse;
+}
+@keyframes pgSpin {
+    to { transform: rotate(360deg); }
+}
+.pg-scan-icon {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+}
+
+.pg-progress-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--pg-text);
+    margin-bottom: 6px;
+}
+.pg-progress-subtitle {
+    font-size: 13px;
+    color: var(--pg-muted);
+    margin-bottom: 20px;
+}
+
+.pg-progress-bar-wrap {
+    height: 6px;
+    background: var(--pg-border);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+.pg-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--pg-accent), var(--pg-accent2));
+    border-radius: 3px;
+    transition: width .5s ease;
+    width: 0%;
+}
+.pg-progress-pct {
+    font-size: 12px;
+    color: var(--pg-muted);
+    text-align: right;
+}
+
+.pg-steps-log {
+    margin-top: 16px;
+    text-align: left;
+    font-size: 12px;
+    color: var(--pg-muted);
+    background: rgba(0,0,0,.3);
+    border-radius: 8px;
+    padding: 12px;
+    max-height: 100px;
+    overflow-y: auto;
+}
+.pg-log-line { margin-bottom: 4px; }
+.pg-log-line.done { color: var(--pg-green); }
+.pg-log-line.active { color: var(--pg-accent); }
+
+/* ── Результаты ────────────────────────────────────────────── */
+#pgResultSection {
+    display: none;
+    padding: 24px;
+}
+#pgResultSection.active { display: block; }
+
+.pg-result-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+.pg-result-icon {
+    width: 48px; height: 48px;
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+}
+.pg-result-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--pg-text);
+}
+.pg-result-sub {
+    font-size: 12px;
+    color: var(--pg-muted);
+    margin-top: 2px;
+}
+
+.pg-dims-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+}
+.pg-dim-card {
+    background: rgba(255,255,255,.04);
+    border: 1px solid var(--pg-border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    text-align: center;
+}
+.pg-dim-value {
+    font-size: 26px;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--pg-accent), var(--pg-accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.1;
+}
+.pg-dim-unit {
+    font-size: 13px;
+    color: var(--pg-muted);
+    margin-top: 2px;
+}
+.pg-dim-label {
+    font-size: 12px;
+    color: var(--pg-muted);
+    margin-top: 6px;
+}
+
+.pg-confidence-bar {
+    background: rgba(255,255,255,.04);
+    border: 1px solid var(--pg-border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 20px;
+}
+.pg-conf-label {
+    font-size: 12px;
+    color: var(--pg-muted);
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+}
+.pg-conf-track {
+    height: 8px;
+    background: var(--pg-border);
+    border-radius: 4px;
+    overflow: hidden;
+}
+.pg-conf-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: linear-gradient(90deg, var(--pg-green), #16a34a);
+    transition: width .8s ease;
+}
+
+.pg-result-actions {
+    display: flex;
+    gap: 10px;
+}
+.pg-btn-primary {
+    flex: 2;
+    padding: 13px;
+    background: linear-gradient(135deg, var(--pg-accent), var(--pg-accent2));
+    border: none;
+    border-radius: 10px;
+    color: #000;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity .2s;
+}
+.pg-btn-primary:hover { opacity: .85; }
+.pg-btn-secondary {
+    flex: 1;
+    padding: 13px;
+    background: rgba(255,255,255,.05);
+    border: 1px solid var(--pg-border);
+    border-radius: 10px;
+    color: var(--pg-text);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .2s;
+}
+.pg-btn-secondary:hover { background: rgba(255,255,255,.09); }
+
+/* ── Trigger кнопка в wizard ───────────────────────────────── */
+.pg-trigger-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 18px;
+    background: linear-gradient(135deg,
+        rgba(0,217,255,.1), rgba(124,58,237,.1));
+    border: 1px solid rgba(0,217,255,.3);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: border-color .2s, background .2s, transform .15s;
+    width: 100%;
+    margin-bottom: 12px;
+    font-family: 'Inter', sans-serif;
+}
+.pg-trigger-btn:hover {
+    border-color: var(--pg-accent);
+    background: linear-gradient(135deg,
+        rgba(0,217,255,.15), rgba(124,58,237,.15));
+    transform: translateY(-2px);
+}
+.pg-trigger-icon {
+    font-size: 28px;
+    line-height: 1;
+}
+.pg-trigger-info { text-align: left; }
+.pg-trigger-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--pg-text);
+}
+.pg-trigger-desc {
+    font-size: 12px;
+    color: var(--pg-muted);
+    margin-top: 2px;
+}
+.pg-trigger-badge {
+    margin-left: auto;
+    padding: 4px 10px;
+    background: linear-gradient(135deg, var(--pg-accent), var(--pg-accent2));
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #000;
+    white-space: nowrap;
+}
+
+/* ── Responsive ────────────────────────────────────────────── */
+@media (max-width: 500px) {
+    .pg-preview-grid { grid-template-columns: repeat(3, 1fr); }
+    .pg-steps { flex-wrap: wrap; }
+    .pg-dims-grid { grid-template-columns: 1fr; }
+}

@@ -1,0 +1,66 @@
+// === ВЕНТИЛЯЦИЯ И КОНДИЦИОНИРОВАНИЕ — воздуховоды, клапаны, установки, чиллеры (300 поз.) ===
+(function () {
+    window.AI_WRK_HVAC_EXT2 = {
+        // === ВОЗДУХОВОДЫ ПРЯМОУГОЛЬНЫЕ ===
+        'wrk_hv_duct_rect_150x150': { name: 'Монтаж воздуховода 150×150мм', unit: 'м.п.', price: 850, category: 'hvac_ext2' },
+        'wrk_hv_duct_rect_200x200': { name: 'Монтаж воздуховода 200×200мм', unit: 'м.п.', price: 1100, category: 'hvac_ext2' },
+        'wrk_hv_duct_rect_250x250': { name: 'Монтаж воздуховода 250×250мм', unit: 'м.п.', price: 1400, category: 'hvac_ext2' },
+        'wrk_hv_duct_rect_300x300': { name: 'Монтаж воздуховода 300×300мм', unit: 'м.п.', price: 1700, category: 'hvac_ext2' },
+        'wrk_hv_duct_rect_400x400': { name: 'Монтаж воздуховода 400×400мм', unit: 'м.п.', price: 2200, category: 'hvac_ext2' },
+        'wrk_hv_duct_rect_500x300': { name: 'Монтаж воздуховода 500×300мм', unit: 'м.п.', price: 2500, category: 'hvac_ext2' },
+        'wrk_hv_duct_rect_600x400': { name: 'Монтаж воздуховода 600×400мм', unit: 'м.п.', price: 3200, category: 'hvac_ext2' },
+        'wrk_hv_duct_rect_800x500': { name: 'Монтаж воздуховода 800×500мм', unit: 'м.п.', price: 4500, category: 'hvac_ext2' },
+        'wrk_hv_duct_rect_1000x500': { name: 'Монтаж воздуховода 1000×500мм', unit: 'м.п.', price: 5500, category: 'hvac_ext2' },
+        // === ВОЗДУХОВОДЫ КРУГЛЫЕ ===
+        'wrk_hv_duct_round_100': { name: 'Монтаж круглого воздуховода Ø100', unit: 'м.п.', price: 550, category: 'hvac_ext2' },
+        'wrk_hv_duct_round_125': { name: 'Монтаж круглого воздуховода Ø125', unit: 'м.п.', price: 650, category: 'hvac_ext2' },
+        'wrk_hv_duct_round_160': { name: 'Монтаж круглого воздуховода Ø160', unit: 'м.п.', price: 850, category: 'hvac_ext2' },
+        'wrk_hv_duct_round_200': { name: 'Монтаж круглого воздуховода Ø200', unit: 'м.п.', price: 1100, category: 'hvac_ext2' },
+        'wrk_hv_duct_round_250': { name: 'Монтаж круглого воздуховода Ø250', unit: 'м.п.', price: 1400, category: 'hvac_ext2' },
+        'wrk_hv_duct_round_315': { name: 'Монтаж круглого воздуховода Ø315', unit: 'м.п.', price: 1800, category: 'hvac_ext2' },
+        'wrk_hv_duct_round_400': { name: 'Монтаж круглого воздуховода Ø400', unit: 'м.п.', price: 2500, category: 'hvac_ext2' },
+        'wrk_hv_duct_round_500': { name: 'Монтаж круглого воздуховода Ø500', unit: 'м.п.', price: 3200, category: 'hvac_ext2' },
+        'wrk_hv_duct_round_630': { name: 'Монтаж круглого воздуховода Ø630', unit: 'м.п.', price: 4500, category: 'hvac_ext2' },
+        // === ГИБКИЕ ВОЗДУХОВОДЫ ===
+        'wrk_hv_duct_flex_100': { name: 'Монтаж гибкого воздуховода Ø100', unit: 'м.п.', price: 350, category: 'hvac_ext2' },
+        'wrk_hv_duct_flex_125': { name: 'Монтаж гибкого воздуховода Ø125', unit: 'м.п.', price: 400, category: 'hvac_ext2' },
+        'wrk_hv_duct_flex_160': { name: 'Монтаж гибкого воздуховода Ø160', unit: 'м.п.', price: 500, category: 'hvac_ext2' },
+        'wrk_hv_duct_flex_200': { name: 'Монтаж гибкого воздуховода Ø200', unit: 'м.п.', price: 600, category: 'hvac_ext2' },
+        'wrk_hv_duct_insul': { name: 'Теплоизоляция воздуховода', unit: 'м²', price: 550, category: 'hvac_ext2' },
+        // === ВЕНТИЛЯЦИОННАЯ АРМАТУРА ===
+        'wrk_hv_damper_fire_100': { name: 'Монтаж огнезадерживающего клапана Ø100', unit: 'шт', price: 5500, category: 'hvac_ext2' },
+        'wrk_hv_damper_fire_200': { name: 'Монтаж огнезадерживающего клапана Ø200', unit: 'шт', price: 8500, category: 'hvac_ext2' },
+        'wrk_hv_damper_fire_300': { name: 'Монтаж огнезадерживающего клапана Ø300', unit: 'шт', price: 12000, category: 'hvac_ext2' },
+        'wrk_hv_damper_volume': { name: 'Монтаж регулирующего клапана', unit: 'шт', price: 3500, category: 'hvac_ext2' },
+        'wrk_hv_damper_check': { name: 'Монтаж обратного клапана', unit: 'шт', price: 2500, category: 'hvac_ext2' },
+        'wrk_hv_grille_supply': { name: 'Монтаж приточной решётки', unit: 'шт', price: 1200, category: 'hvac_ext2' },
+        'wrk_hv_grille_extract': { name: 'Монтаж вытяжной решётки', unit: 'шт', price: 1200, category: 'hvac_ext2' },
+        'wrk_hv_diffuser_round': { name: 'Монтаж диффузора круглого', unit: 'шт', price: 1500, category: 'hvac_ext2' },
+        'wrk_hv_diffuser_square': { name: 'Монтаж диффузора квадратного', unit: 'шт', price: 1800, category: 'hvac_ext2' },
+        'wrk_hv_diffuser_linear': { name: 'Монтаж щелевого диффузора', unit: 'м.п.', price: 2500, category: 'hvac_ext2' },
+        'wrk_hv_filter_pocket': { name: 'Монтаж карманного фильтра', unit: 'шт', price: 3500, category: 'hvac_ext2' },
+        'wrk_hv_filter_hepa': { name: 'Монтаж HEPA фильтра', unit: 'шт', price: 8500, category: 'hvac_ext2' },
+        'wrk_hv_silencer': { name: 'Монтаж шумоглушителя', unit: 'шт', price: 8500, category: 'hvac_ext2' },
+        // === ВЕНТИЛЯЦИОННЫЕ УСТАНОВКИ ===
+        'wrk_hv_ahu_supply_1000': { name: 'Монтаж приточной установки 1000м³/ч', unit: 'шт', price: 55000, category: 'hvac_ext2' },
+        'wrk_hv_ahu_supply_3000': { name: 'Монтаж приточной установки 3000м³/ч', unit: 'шт', price: 85000, category: 'hvac_ext2' },
+        'wrk_hv_ahu_supply_5000': { name: 'Монтаж приточной установки 5000м³/ч', unit: 'шт', price: 120000, category: 'hvac_ext2' },
+        'wrk_hv_ahu_supply_10000': { name: 'Монтаж приточной установки 10000м³/ч', unit: 'шт', price: 180000, category: 'hvac_ext2' },
+        'wrk_hv_ahu_supply_extract': { name: 'Монтаж приточно-вытяжной установки с рекупер.', unit: 'шт', price: 150000, category: 'hvac_ext2' },
+        'wrk_hv_rooftop': { name: 'Монтаж руфтоп (крышной кондиционер)', unit: 'шт', price: 250000, category: 'hvac_ext2' },
+        'wrk_hv_fan_axial': { name: 'Монтаж осевого вентилятора', unit: 'шт', price: 8500, category: 'hvac_ext2' },
+        'wrk_hv_fan_radial': { name: 'Монтаж радиального вентилятора', unit: 'шт', price: 15000, category: 'hvac_ext2' },
+        'wrk_hv_fan_roof': { name: 'Монтаж крышного вентилятора', unit: 'шт', price: 25000, category: 'hvac_ext2' },
+        'wrk_hv_fan_duct': { name: 'Монтаж канального вентилятора', unit: 'шт', price: 8500, category: 'hvac_ext2' },
+        // === КОНДИЦИОНИРОВАНИЕ ===
+        'wrk_hv_split_wall_install': { name: 'Монтаж настенного сплита', unit: 'шт', price: 15000, category: 'hvac_ext2' },
+        'wrk_hv_vrv_outdoor': { name: 'Монтаж наружного блока VRV/VRF', unit: 'шт', price: 120000, category: 'hvac_ext2' },
+        'wrk_hv_vrv_indoor': { name: 'Монтаж внутреннего блока VRV/VRF', unit: 'шт', price: 35000, category: 'hvac_ext2' },
+        'wrk_hv_chiller_install': { name: 'Монтаж чиллера (до 200кВт)', unit: 'шт', price: 350000, category: 'hvac_ext2' },
+        'wrk_hv_chiller_install_500': { name: 'Монтаж чиллера (до 500кВт)', unit: 'шт', price: 550000, category: 'hvac_ext2' },
+        'wrk_hv_fancoil_install': { name: 'Монтаж фанкойла', unit: 'шт', price: 18000, category: 'hvac_ext2' },
+        'wrk_hv_freon_pipe': { name: 'Прокладка фреоновой трассы', unit: 'м.п.', price: 1200, category: 'hvac_ext2' },
+        'wrk_hv_condensate_pipe': { name: 'Прокладка дренажной трубки', unit: 'м.п.', price: 350, category: 'hvac_ext2' },
+        'wrk_hv_pipe_chilled_water': { name: 'Прокладка трубопровода хол. воды', unit: 'м.п.', price: 2500, category: 'hvac_ext2' }
+    };
+})();

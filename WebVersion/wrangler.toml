@@ -1,0 +1,29 @@
+# ================================================================
+# QazGost AI — Cloudflare Worker Configuration
+# API Backend: construction-api.kmp99.workers.dev
+# ================================================================
+
+name = "construction-api"
+main = "cloudflare-worker.js"
+compatibility_date = "2024-01-01"
+account_id = "a8acec6f654bc8336455b0a4f1ccd321"
+
+# ── Cloudflare D1 Database ────────────────────────────────────
+[[d1_databases]]
+binding = "DB"
+database_name = "iconstrution-db"
+database_id = "74f643ba-90aa-4435-97b7-6406834447b6"
+
+# ── Cloudflare KV Namespace (сессии) ──────────────────────────
+[[kv_namespaces]]
+binding = "SESSIONS"
+id = "3c48e19f69a5462691f0d24e5a9e592c"
+
+# ── Cloudflare R2 Bucket (файлы/фото) ────────────────────────
+[[r2_buckets]]
+binding = "FILES"
+bucket_name = "iconstrution-files"
+
+# ── Логирование ──────────────────────────────────────────────
+[observability]
+enabled = true

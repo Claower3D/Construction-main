@@ -1,0 +1,110 @@
+// === КАТАЛОГ КОММЕРЧЕСКОГО И ПРОМЫШЛЕННОГО ОБОРУДОВАНИЯ (100 позиций) ===
+(function () {
+    window.AI_MAT_COMMERCIAL_CATALOG = {
+        // Лифты
+        'elevator_pass_400kg_4fl': { name: 'Лифт пассажирский 400кг (4 этажа)', unit: 'шт', price: 1500000, category: 'commercial_catalog' },
+        'elevator_pass_630kg_6fl': { name: 'Лифт пассажирский 630кг (6 этажей)', unit: 'шт', price: 2000000, category: 'commercial_catalog' },
+        'elevator_pass_1000kg_9fl': { name: 'Лифт пассажирский 1000кг (9 этажей)', unit: 'шт', price: 3000000, category: 'commercial_catalog' },
+        'elevator_freight_1000kg': { name: 'Лифт грузовой 1000кг', unit: 'шт', price: 2500000, category: 'commercial_catalog' },
+        'elevator_freight_2000kg': { name: 'Лифт грузовой 2000кг', unit: 'шт', price: 4000000, category: 'commercial_catalog' },
+        'elevator_dumbwaiter_100kg': { name: 'Малый грузовой лифт 100кг', unit: 'шт', price: 500000, category: 'commercial_catalog' },
+        // Эскалаторы
+        'escalator_3m': { name: 'Эскалатор h=3м', unit: 'шт', price: 5000000, category: 'commercial_catalog' },
+        'escalator_6m': { name: 'Эскалатор h=6м', unit: 'шт', price: 8000000, category: 'commercial_catalog' },
+        'travelator_10m': { name: 'Траволатор (движущаяся дорожка) 10м', unit: 'шт', price: 3000000, category: 'commercial_catalog' },
+        // Автоматические двери
+        'autodoor_slide_1200': { name: 'Дверь автоматическая раздвижная 1200мм', unit: 'шт', price: 80000, category: 'commercial_catalog' },
+        'autodoor_slide_1800': { name: 'Дверь автоматическая раздвижная 1800мм', unit: 'шт', price: 100000, category: 'commercial_catalog' },
+        'autodoor_slide_2400': { name: 'Дверь автоматическая раздвижная 2400мм', unit: 'шт', price: 120000, category: 'commercial_catalog' },
+        'autodoor_revolving_3m': { name: 'Дверь автоматич. револьверная Ø3м', unit: 'шт', price: 500000, category: 'commercial_catalog' },
+        'autodoor_swing_motor': { name: 'Привод для распашной двери', unit: 'шт', price: 30000, category: 'commercial_catalog' },
+        // Противопожарные двери
+        'firedoor_ei60_900': { name: 'Дверь противопожарная EI60 900мм', unit: 'шт', price: 15000, category: 'commercial_catalog' },
+        'firedoor_ei60_1200': { name: 'Дверь противопожарная EI60 1200мм', unit: 'шт', price: 20000, category: 'commercial_catalog' },
+        'firedoor_ei60_double': { name: 'Дверь противопожарная EI60 двустворч.', unit: 'шт', price: 30000, category: 'commercial_catalog' },
+        'firedoor_ei90_900': { name: 'Дверь противопожарная EI90 900мм', unit: 'шт', price: 20000, category: 'commercial_catalog' },
+        // Системы пожаротушения
+        'sprinkler_head_68': { name: 'Спринклер 68°С', unit: 'шт', price: 200, category: 'commercial_catalog' },
+        'sprinkler_head_79': { name: 'Спринклер 79°С', unit: 'шт', price: 200, category: 'commercial_catalog' },
+        'sprinkler_head_concealed': { name: 'Спринклер скрытый', unit: 'шт', price: 500, category: 'commercial_catalog' },
+        'fire_pipe_25_dn': { name: 'Труба пожарная Ø25мм (п.м.)', unit: 'п.м.', price: 100, category: 'commercial_catalog' },
+        'fire_pipe_32_dn': { name: 'Труба пожарная Ø32мм (п.м.)', unit: 'п.м.', price: 130, category: 'commercial_catalog' },
+        'fire_pipe_50_dn': { name: 'Труба пожарная Ø50мм (п.м.)', unit: 'п.м.', price: 200, category: 'commercial_catalog' },
+        'fire_pump_station': { name: 'Насосная станция пожаротушения', unit: 'шт', price: 200000, category: 'commercial_catalog' },
+        'fire_extinguish_gas_module': { name: 'Модуль газового пожаротушения', unit: 'шт', price: 50000, category: 'commercial_catalog' },
+        'fire_curtain_5m': { name: 'Противопожарная штора 5м', unit: 'шт', price: 100000, category: 'commercial_catalog' },
+        // Системы дымоудаления
+        'smoke_exhaust_fan_25000': { name: 'Вентилятор дымоудаления 25000м³/ч', unit: 'шт', price: 80000, category: 'commercial_catalog' },
+        'smoke_exhaust_fan_40000': { name: 'Вентилятор дымоудаления 40000м³/ч', unit: 'шт', price: 120000, category: 'commercial_catalog' },
+        'smoke_damper_300x300': { name: 'Клапан дымоудаления 300×300мм', unit: 'шт', price: 5000, category: 'commercial_catalog' },
+        'smoke_damper_500x500': { name: 'Клапан дымоудаления 500×500мм', unit: 'шт', price: 8000, category: 'commercial_catalog' },
+        'fire_damper_300x300': { name: 'Клапан огнезадерживающий 300×300мм', unit: 'шт', price: 3000, category: 'commercial_catalog' },
+        'fire_damper_500x500': { name: 'Клапан огнезадерживающий 500×500мм', unit: 'шт', price: 5000, category: 'commercial_catalog' },
+        // Подвесные потолки коммерческие
+        'ceil_armstrong_600x600': { name: 'Плитка Armstrong 600×600мм', unit: 'шт', price: 100, category: 'commercial_catalog' },
+        'ceil_armstrong_t15_3600': { name: 'Профиль Armstrong T15 (3600мм)', unit: 'шт', price: 50, category: 'commercial_catalog' },
+        'ceil_armstrong_t15_1200': { name: 'Профиль Armstrong T15 (1200мм)', unit: 'шт', price: 30, category: 'commercial_catalog' },
+        'ceil_armstrong_t15_600': { name: 'Профиль Armstrong T15 (600мм)', unit: 'шт', price: 20, category: 'commercial_catalog' },
+        'ceil_armstrong_wall_3000': { name: 'Уголок Armstrong стеновой (3000мм)', unit: 'шт', price: 25, category: 'commercial_catalog' },
+        'ceil_grilyato_cell_50x50': { name: 'Потолок Грильято 50×50мм (м²)', unit: 'м²', price: 500, category: 'commercial_catalog' },
+        'ceil_grilyato_cell_100x100': { name: 'Потолок Грильято 100×100мм (м²)', unit: 'м²', price: 350, category: 'commercial_catalog' },
+        'ceil_metal_strip_85mm': { name: 'Потолок реечный 85мм (м²)', unit: 'м²', price: 400, category: 'commercial_catalog' },
+        'ceil_metal_strip_200mm': { name: 'Потолок реечный 200мм (м²)', unit: 'м²', price: 350, category: 'commercial_catalog' },
+        // Линолеум коммерческий
+        'lino_commercial_2mm': { name: 'Линолеум коммерческий 2мм (м²)', unit: 'м²', price: 400, category: 'commercial_catalog' },
+        'lino_commercial_3mm': { name: 'Линолеум коммерческий 3мм (м²)', unit: 'м²', price: 600, category: 'commercial_catalog' },
+        'lino_antistatic_2mm': { name: 'Линолеум антистатический 2мм (м²)', unit: 'м²', price: 800, category: 'commercial_catalog' },
+        'carpet_tile_500x500': { name: 'Ковровая плитка 500×500мм', unit: 'шт', price: 250, category: 'commercial_catalog' },
+        // Фальшпол
+        'raised_floor_metal_600': { name: 'Плитка фальшпола металл. 600×600мм', unit: 'шт', price: 1000, category: 'commercial_catalog' },
+        'raised_floor_gypsum_600': { name: 'Плитка фальшпола ГВЛ 600×600мм', unit: 'шт', price: 500, category: 'commercial_catalog' },
+        'raised_floor_pedestal_200': { name: 'Стойка фальшпола h=200мм', unit: 'шт', price: 100, category: 'commercial_catalog' },
+        'raised_floor_pedestal_500': { name: 'Стойка фальшпола h=500мм', unit: 'шт', price: 150, category: 'commercial_catalog' },
+        'raised_floor_stringer': { name: 'Стрингер для фальшпола', unit: 'шт', price: 50, category: 'commercial_catalog' },
+        // Перегородки офисные
+        'partition_glass_10mm_m2': { name: 'Перегородка стеклянная 10мм (м²)', unit: 'м²', price: 5000, category: 'commercial_catalog' },
+        'partition_glass_double_m2': { name: 'Перегородка стеклянная двойная (м²)', unit: 'м²', price: 8000, category: 'commercial_catalog' },
+        'partition_aluminum_frame_m': { name: 'Профиль алюминиевый для перегородок (м)', unit: 'м.п.', price: 500, category: 'commercial_catalog' },
+        'partition_gkl_single_m2': { name: 'Перегородка ГКЛ одинарная (м²)', unit: 'м²', price: 1500, category: 'commercial_catalog' },
+        'partition_gkl_double_m2': { name: 'Перегородка ГКЛ двойная (м²)', unit: 'м²', price: 2500, category: 'commercial_catalog' },
+        // Кондиционеры коммерческие
+        'ac_cassette_24000btu': { name: 'Кондиционер кассетный 24000BTU', unit: 'шт', price: 150000, category: 'commercial_catalog' },
+        'ac_cassette_36000btu': { name: 'Кондиционер кассетный 36000BTU', unit: 'шт', price: 200000, category: 'commercial_catalog' },
+        'ac_cassette_48000btu': { name: 'Кондиционер кассетный 48000BTU', unit: 'шт', price: 250000, category: 'commercial_catalog' },
+        'ac_ducted_24000btu': { name: 'Кондиционер канальный 24000BTU', unit: 'шт', price: 130000, category: 'commercial_catalog' },
+        'ac_ducted_36000btu': { name: 'Кондиционер канальный 36000BTU', unit: 'шт', price: 180000, category: 'commercial_catalog' },
+        'ac_ducted_60000btu': { name: 'Кондиционер канальный 60000BTU', unit: 'шт', price: 280000, category: 'commercial_catalog' },
+        'ac_vrf_outdoor_40kw': { name: 'VRF наружный блок 40кВт', unit: 'шт', price: 600000, category: 'commercial_catalog' },
+        'ac_vrf_indoor_wall_3_5kw': { name: 'VRF внутренний блок настенный 3.5кВт', unit: 'шт', price: 30000, category: 'commercial_catalog' },
+        // Вентиляция промышленная
+        'ahu_1000_m3h': { name: 'Приточная установка 1000м³/ч', unit: 'шт', price: 100000, category: 'commercial_catalog' },
+        'ahu_3000_m3h': { name: 'Приточная установка 3000м³/ч', unit: 'шт', price: 200000, category: 'commercial_catalog' },
+        'ahu_6000_m3h': { name: 'Приточно-вытяжная установка 6000м³/ч', unit: 'шт', price: 350000, category: 'commercial_catalog' },
+        'ahu_10000_m3h': { name: 'Приточно-вытяжная установка 10000м³/ч', unit: 'шт', price: 500000, category: 'commercial_catalog' },
+        // Воздуховоды
+        'duct_round_100_1m': { name: 'Воздуховод круглый Ø100мм (1м)', unit: 'шт', price: 100, category: 'commercial_catalog' },
+        'duct_round_150_1m': { name: 'Воздуховод круглый Ø150мм (1м)', unit: 'шт', price: 150, category: 'commercial_catalog' },
+        'duct_round_200_1m': { name: 'Воздуховод круглый Ø200мм (1м)', unit: 'шт', price: 200, category: 'commercial_catalog' },
+        'duct_round_250_1m': { name: 'Воздуховод круглый Ø250мм (1м)', unit: 'шт', price: 300, category: 'commercial_catalog' },
+        'duct_round_315_1m': { name: 'Воздуховод круглый Ø315мм (1м)', unit: 'шт', price: 400, category: 'commercial_catalog' },
+        'duct_rect_200x100_1m': { name: 'Воздуховод прямоуг. 200×100мм (1м)', unit: 'шт', price: 200, category: 'commercial_catalog' },
+        'duct_rect_400x200_1m': { name: 'Воздуховод прямоуг. 400×200мм (1м)', unit: 'шт', price: 400, category: 'commercial_catalog' },
+        'duct_rect_600x300_1m': { name: 'Воздуховод прямоуг. 600×300мм (1м)', unit: 'шт', price: 600, category: 'commercial_catalog' },
+        'duct_flex_102_10m': { name: 'Гибкий воздуховод Ø102мм (10м)', unit: 'шт', price: 300, category: 'commercial_catalog' },
+        'duct_flex_160_10m': { name: 'Гибкий воздуховод Ø160мм (10м)', unit: 'шт', price: 500, category: 'commercial_catalog' },
+        'duct_flex_insul_160_10m': { name: 'Гибкий воздуховод утепл. Ø160мм (10м)', unit: 'шт', price: 800, category: 'commercial_catalog' },
+        // Решётки вентиляционные
+        'grille_supply_300x150': { name: 'Решётка приточная 300×150мм', unit: 'шт', price: 100, category: 'commercial_catalog' },
+        'grille_supply_400x200': { name: 'Решётка приточная 400×200мм', unit: 'шт', price: 150, category: 'commercial_catalog' },
+        'grille_supply_600x300': { name: 'Решётка приточная 600×300мм', unit: 'шт', price: 250, category: 'commercial_catalog' },
+        'diffuser_round_100': { name: 'Диффузор круглый Ø100мм', unit: 'шт', price: 50, category: 'commercial_catalog' },
+        'diffuser_round_150': { name: 'Диффузор круглый Ø150мм', unit: 'шт', price: 80, category: 'commercial_catalog' },
+        'diffuser_round_200': { name: 'Диффузор круглый Ø200мм', unit: 'шт', price: 120, category: 'commercial_catalog' },
+        // Завесы тепловые
+        'air_curtain_800mm_3kw': { name: 'Завеса тепловая 800мм 3кВт', unit: 'шт', price: 5000, category: 'commercial_catalog' },
+        'air_curtain_1000mm_6kw': { name: 'Завеса тепловая 1000мм 6кВт', unit: 'шт', price: 8000, category: 'commercial_catalog' },
+        'air_curtain_1200mm_9kw': { name: 'Завеса тепловая 1200мм 9кВт', unit: 'шт', price: 12000, category: 'commercial_catalog' },
+        'air_curtain_1500mm_12kw': { name: 'Завеса тепловая 1500мм 12кВт', unit: 'шт', price: 18000, category: 'commercial_catalog' },
+        'air_curtain_2000mm_water': { name: 'Завеса тепловая 2000мм водяная', unit: 'шт', price: 25000, category: 'commercial_catalog' }
+    };
+})();

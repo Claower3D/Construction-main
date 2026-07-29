@@ -1,0 +1,119 @@
+# QAZGOST AI Construction Dataset
+# Configuration for YOLOv8
+
+path: ./dataset    # dataset root dir
+train: images/train  # train images (relative to 'path')
+val: images/val      # val images (relative to 'path')
+test: images/test    # test images (optional)
+
+# Classes (20 construction object types)
+nc: 20
+
+names:
+  0: trench
+  1: pipe_pvc
+  2: pipe_metal
+  3: pipe_concrete
+  4: manhole
+  5: foundation
+  6: footing
+  7: rebar
+  8: concrete_pour
+  9: formwork
+  10: excavation
+  11: backfill
+  12: sand_bed
+  13: gravel_bed
+  14: wall_brick
+  15: wall_concrete
+  16: slab
+  17: column
+  18: beam
+  19: person
+
+# Russian names for labels
+names_ru:
+  0: Траншея
+  1: Труба ПВХ
+  2: Труба металлическая
+  3: Труба бетонная
+  4: Люк/колодец
+  5: Фундамент
+  6: Подошва фундамента
+  7: Арматура
+  8: Бетонирование
+  9: Опалубка
+  10: Котлован
+  11: Обратная засыпка
+  12: Песчаная подготовка
+  13: Гравийная подготовка
+  14: Кирпичная стена
+  15: Бетонная стена
+  16: Плита перекрытия
+  17: Колонна
+  18: Балка
+  19: Человек
+
+# Visualization colors (RGB)
+colors:
+  0: [255, 87, 51]    # trench - red-orange
+  1: [0, 179, 134]    # pipe_pvc - teal
+  2: [120, 120, 120]  # pipe_metal - gray
+  3: [169, 169, 169]  # pipe_concrete - dark gray
+  4: [147, 112, 219]  # manhole - purple
+  5: [218, 165, 32]   # foundation - gold
+  6: [245, 222, 179]  # footing - wheat
+  7: [255, 0, 0]      # rebar - red
+  8: [128, 128, 128]  # concrete_pour - gray
+  9: [139, 69, 19]    # formwork - brown
+  10: [194, 178, 128] # excavation - sand
+  11: [160, 82, 45]   # backfill - sienna
+  12: [238, 214, 175] # sand_bed - light sand
+  13: [119, 136, 153] # gravel_bed - light slate gray
+  14: [178, 34, 34]   # wall_brick - firebrick
+  15: [105, 105, 105] # wall_concrete - dim gray
+  16: [70, 130, 180]  # slab - steel blue
+  17: [46, 139, 87]   # column - sea green
+  18: [72, 61, 139]   # beam - dark slate blue
+  19: [255, 192, 203] # person - pink
+
+# Reference sizes for scale calibration (in meters)
+reference_sizes:
+  person:
+    height: 1.75
+    width: 0.45
+  pipe_pvc:
+    diameter: [0.050, 0.110, 0.160, 0.200, 0.250, 0.315]  # standard PVC diameters
+  pipe_concrete:
+    diameter: [0.300, 0.400, 0.500, 0.600, 0.800, 1.000]  # reinforced concrete
+  manhole:
+    diameter: [1.0, 1.5, 2.0]  # standard diameters
+
+# Training hyperparameters
+train_params:
+  epochs: 100
+  batch_size: 16
+  imgsz: 640
+  optimizer: 'Adam'
+  lr0: 0.01
+  lrf: 0.01
+  momentum: 0.937
+  weight_decay: 0.0005
+  warmup_epochs: 3.0
+  warmup_momentum: 0.8
+  
+# Augmentation settings
+augmentation:
+  hsv_h: 0.015  # image HSV-Hue augmentation (fraction)
+  hsv_s: 0.7    # image HSV-Saturation augmentation (fraction)
+  hsv_v: 0.4    # image HSV-Value augmentation (fraction)
+  degrees: 10.0  # image rotation (+/- deg)
+  translate: 0.1  # image translation (+/- fraction)
+  scale: 0.5     # image scale (+/- gain)
+  shear: 0.0     # image shear (+/- deg)
+  perspective: 0.0  # image perspective (+/- fraction)
+  flipud: 0.0    # image flip up-down (probability)
+  fliplr: 0.5    # image flip left-right (probability)
+  mosaic: 1.0    # image mosaic (probability)
+  mixup: 0.0     # image mixup (probability)
+  copy_paste: 0.0  # segment copy-paste (probability)

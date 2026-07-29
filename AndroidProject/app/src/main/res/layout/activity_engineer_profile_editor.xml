@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/background">
+
+    <!-- Header -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="16dp"
+        android:background="@color/primary">
+
+        <ImageButton
+            android:id="@+id/backButton"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_arrow_back"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Back"
+            app:tint="@android:color/white" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="✏️ Редактировать профиль"
+            android:textColor="@android:color/white"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginStart="12dp" />
+
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Personal Info -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="12dp"
+                app:cardBackgroundColor="@color/card_bg">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="👤 Личные данные"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text"
+                        android:layout_marginBottom="16dp" />
+
+                    <EditText
+                        android:id="@+id/nameInput"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:hint="ФИО"
+                        android:textColorHint="@color/text_muted"
+                        android:textColor="@color/text"
+                        android:background="@drawable/spinner_bg"
+                        android:paddingHorizontal="12dp"
+                        android:layout_marginBottom="12dp" />
+
+                    <EditText
+                        android:id="@+id/phoneInput"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:hint="Телефон"
+                        android:inputType="phone"
+                        android:textColorHint="@color/text_muted"
+                        android:textColor="@color/text"
+                        android:background="@drawable/spinner_bg"
+                        android:paddingHorizontal="12dp"
+                        android:layout_marginBottom="12dp" />
+
+                    <EditText
+                        android:id="@+id/emailInput"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:hint="Email"
+                        android:inputType="textEmailAddress"
+                        android:textColorHint="@color/text_muted"
+                        android:textColor="@color/text"
+                        android:background="@drawable/spinner_bg"
+                        android:paddingHorizontal="12dp"
+                        android:layout_marginBottom="12dp" />
+
+                    <EditText
+                        android:id="@+id/cityInput"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:hint="Город"
+                        android:textColorHint="@color/text_muted"
+                        android:textColor="@color/text"
+                        android:background="@drawable/spinner_bg"
+                        android:paddingHorizontal="12dp" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Company -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="12dp"
+                app:cardBackgroundColor="@color/card_bg">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="12dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="🏢 Я представляю компанию"
+                            android:textSize="14sp"
+                            android:textColor="@color/text" />
+
+                        <Switch
+                            android:id="@+id/isCompanySwitch"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+
+                    </LinearLayout>
+
+                    <EditText
+                        android:id="@+id/companyInput"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:hint="Название компании"
+                        android:textColorHint="@color/text_muted"
+                        android:textColor="@color/text"
+                        android:background="@drawable/spinner_bg"
+                        android:paddingHorizontal="12dp"
+                        android:visibility="gone" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Specializations -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="12dp"
+                app:cardBackgroundColor="@color/card_bg">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="🎓 Специализации"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text"
+                        android:layout_marginBottom="12dp" />
+
+                    <LinearLayout
+                        android:id="@+id/specializationsContainer"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Experience & Rate -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="12dp"
+                app:cardBackgroundColor="@color/card_bg">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="💼 Опыт и тариф"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text"
+                        android:layout_marginBottom="16dp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <EditText
+                            android:id="@+id/experienceInput"
+                            android:layout_width="0dp"
+                            android:layout_height="48dp"
+                            android:layout_weight="1"
+                            android:hint="Опыт (лет)"
+                            android:inputType="number"
+                            android:textColorHint="@color/text_muted"
+                            android:textColor="@color/text"
+                            android:background="@drawable/spinner_bg"
+                            android:paddingHorizontal="12dp"
+                            android:layout_marginEnd="8dp" />
+
+                        <EditText
+                            android:id="@+id/rateInput"
+                            android:layout_width="0dp"
+                            android:layout_height="48dp"
+                            android:layout_weight="1"
+                            android:hint="Ставка ₸/час"
+                            android:inputType="number"
+                            android:textColorHint="@color/text_muted"
+                            android:textColor="@color/text"
+                            android:background="@drawable/spinner_bg"
+                            android:paddingHorizontal="12dp"
+                            android:layout_marginStart="8dp" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Description -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="12dp"
+                app:cardBackgroundColor="@color/card_bg">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="📝 О себе"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text"
+                        android:layout_marginBottom="12dp" />
+
+                    <EditText
+                        android:id="@+id/descriptionInput"
+                        android:layout_width="match_parent"
+                        android:layout_height="120dp"
+                        android:hint="Расскажите о своём опыте и достижениях..."
+                        android:textColorHint="@color/text_muted"
+                        android:textColor="@color/text"
+                        android:background="@drawable/spinner_bg"
+                        android:padding="12dp"
+                        android:gravity="top"
+                        android:inputType="textMultiLine" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+    <!-- Save Button -->
+    <Button
+        android:id="@+id/saveButton"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_margin="16dp"
+        android:text="💾 Сохранить"
+        android:textSize="16sp"
+        android:textAllCaps="false"
+        android:backgroundTint="@color/success" />
+
+</LinearLayout>

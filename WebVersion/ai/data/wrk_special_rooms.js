@@ -1,0 +1,56 @@
+// === ФАЗА 3: МЕДИЦИНСКИЕ, ЛАБОРАТОРНЫЕ, СЕРВЕРНЫЕ ПОМЕЩЕНИЯ (100 поз.) ===
+(function () {
+    window.AI_WRK_SPECIAL_ROOMS = {
+        // === МЕДИЦИНСКИЕ ПОМЕЩЕНИЯ ===
+        'wrk_sr_med_wall_antibact': { name: 'Антибактериальная краска (стены)', unit: 'м²', price: 50, category: 'special_rooms' },
+        'wrk_sr_med_wall_hpl': { name: 'HPL панели (медицинские)', unit: 'м²', price: 300, category: 'special_rooms' },
+        'wrk_sr_med_floor_pvc': { name: 'ПВХ покрытие медицинское', unit: 'м²', price: 150, category: 'special_rooms' },
+        'wrk_sr_med_floor_epoxy': { name: 'Эпоксидный пол (медицинский)', unit: 'м²', price: 200, category: 'special_rooms' },
+        'wrk_sr_med_ceil_armstrong': { name: 'Потолок Армстронг (чистый)', unit: 'м²', price: 80, category: 'special_rooms' },
+        'wrk_sr_med_ceil_metal': { name: 'Потолок металлический (гигиен.)', unit: 'м²', price: 150, category: 'special_rooms' },
+        'wrk_sr_med_door_auto': { name: 'Автоматическая дверь (медиц.)', unit: 'шт', price: 10000, category: 'special_rooms' },
+        'wrk_sr_med_gas_o2': { name: 'Медицинский газ O₂ (разводка)', unit: 'точка', price: 2000, category: 'special_rooms' },
+        'wrk_sr_med_gas_vacuum': { name: 'Медицинский вакуум (разводка)', unit: 'точка', price: 2000, category: 'special_rooms' },
+        'wrk_sr_med_gas_n2o': { name: 'N₂O (закись азота) разводка', unit: 'точка', price: 2000, category: 'special_rooms' },
+        'wrk_sr_med_gas_air': { name: 'Сжатый воздух медиц. (разводка)', unit: 'точка', price: 2000, category: 'special_rooms' },
+        'wrk_sr_med_console': { name: 'Консоль медицинская (потол.)', unit: 'шт', price: 5000, category: 'special_rooms' },
+        'wrk_sr_med_wash_surgical': { name: 'Мойка хирургическая (монтаж)', unit: 'шт', price: 3000, category: 'special_rooms' },
+        'wrk_sr_med_radiation': { name: 'Рентгенозащита (свинцовые панели)', unit: 'м²', price: 1000, category: 'special_rooms' },
+        'wrk_sr_med_radiation_glass': { name: 'Рентгенозащитное стекло', unit: 'м²', price: 3000, category: 'special_rooms' },
+
+        // === ЛАБОРАТОРНЫЕ ПОМЕЩЕНИЯ ===
+        'wrk_sr_lab_bench': { name: 'Лабораторный стол (монтаж)', unit: 'м.п.', price: 2000, category: 'special_rooms' },
+        'wrk_sr_lab_bench_island': { name: 'Островной лабор. стол', unit: 'м.п.', price: 3000, category: 'special_rooms' },
+        'wrk_sr_lab_fume_hood': { name: 'Вытяжной шкаф', unit: 'шт', price: 10000, category: 'special_rooms' },
+        'wrk_sr_lab_fume_hood_walk': { name: 'Вытяжной шкаф (шаговый)', unit: 'шт', price: 15000, category: 'special_rooms' },
+        'wrk_sr_lab_sink_pp': { name: 'Мойка лабораторная (ПП)', unit: 'шт', price: 1000, category: 'special_rooms' },
+        'wrk_sr_lab_sink_ss': { name: 'Мойка лабораторная (нерж.)', unit: 'шт', price: 1500, category: 'special_rooms' },
+        'wrk_sr_lab_gas_burner': { name: 'Газовая горелка (разводка)', unit: 'точка', price: 1000, category: 'special_rooms' },
+        'wrk_sr_lab_deionized': { name: 'Деионизированная вода (разводка)', unit: 'точка', price: 2000, category: 'special_rooms' },
+        'wrk_sr_lab_acid_drain': { name: 'Кислотостойкая канализация', unit: 'м.п.', price: 100, category: 'special_rooms' },
+        'wrk_sr_lab_eyewash': { name: 'Аварийный душ/промывка глаз', unit: 'шт', price: 3000, category: 'special_rooms' },
+        'wrk_sr_lab_floor_epoxy': { name: 'Эпоксидный пол (химстойкий)', unit: 'м²', price: 250, category: 'special_rooms' },
+        'wrk_sr_lab_wall_tile_acid': { name: 'Кислотостойкая плитка (стена)', unit: 'м²', price: 200, category: 'special_rooms' },
+
+        // === СЕРВЕРНЫЕ / ЦОД ===
+        'wrk_sr_dc_floor_raised_300': { name: 'Фальшпол 300мм (серверная)', unit: 'м²', price: 300, category: 'special_rooms' },
+        'wrk_sr_dc_floor_raised_600': { name: 'Фальшпол 600мм (серверная)', unit: 'м²', price: 400, category: 'special_rooms' },
+        'wrk_sr_dc_floor_raised_900': { name: 'Фальшпол 900мм (серверная)', unit: 'м²', price: 500, category: 'special_rooms' },
+        'wrk_sr_dc_floor_tile_esd': { name: 'Антистатическая плитка', unit: 'м²', price: 200, category: 'special_rooms' },
+        'wrk_sr_dc_cooling_prec': { name: 'Прецизионный кондиционер', unit: 'шт', price: 30000, category: 'special_rooms' },
+        'wrk_sr_dc_cooling_free': { name: 'Фрикулинг (free cooling)', unit: 'шт', price: 15000, category: 'special_rooms' },
+        'wrk_sr_dc_ups_1kva': { name: 'ИБП 1кВА (онлайн)', unit: 'шт', price: 3000, category: 'special_rooms' },
+        'wrk_sr_dc_ups_3kva': { name: 'ИБП 3кВА (онлайн)', unit: 'шт', price: 5000, category: 'special_rooms' },
+        'wrk_sr_dc_ups_6kva': { name: 'ИБП 6кВА (онлайн)', unit: 'шт', price: 8000, category: 'special_rooms' },
+        'wrk_sr_dc_ups_10kva': { name: 'ИБП 10кВА (онлайн)', unit: 'шт', price: 12000, category: 'special_rooms' },
+        'wrk_sr_dc_ups_20kva': { name: 'ИБП 20кВА (онлайн)', unit: 'шт', price: 20000, category: 'special_rooms' },
+        'wrk_sr_dc_ups_40kva': { name: 'ИБП 40кВА (онлайн)', unit: 'шт', price: 35000, category: 'special_rooms' },
+        'wrk_sr_dc_ups_80kva': { name: 'ИБП 80кВА (онлайн)', unit: 'шт', price: 60000, category: 'special_rooms' },
+        'wrk_sr_dc_battery_rack': { name: 'Батарейный шкаф', unit: 'шт', price: 5000, category: 'special_rooms' },
+        'wrk_sr_dc_pdu_basic': { name: 'PDU базовый', unit: 'шт', price: 500, category: 'special_rooms' },
+        'wrk_sr_dc_pdu_metered': { name: 'PDU с мониторингом', unit: 'шт', price: 1000, category: 'special_rooms' },
+        'wrk_sr_dc_monitoring': { name: 'Мониторинг среды (датчики)', unit: 'комплект', price: 5000, category: 'special_rooms' },
+        'wrk_sr_dc_fire_gas': { name: 'Газовое ПТ серверной', unit: 'объект', price: 30000, category: 'special_rooms' },
+        'wrk_sr_dc_fire_vesda': { name: 'VESDA (раннее обнаружение)', unit: 'шт', price: 10000, category: 'special_rooms' },
+    };
+})();

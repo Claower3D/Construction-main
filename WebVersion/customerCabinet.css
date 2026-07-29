@@ -1,0 +1,909 @@
+/* ========== CUSTOMER CABINET — Premium Styles ========== */
+/* QazGost AI — Кабинет заказчика */
+
+/* ===== CABINET TABS ===== */
+.cab-tabs {
+    display: flex;
+    gap: 0.35rem;
+    padding: 0.35rem;
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 16px;
+    margin-bottom: 1.5rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.cab-tabs::-webkit-scrollbar {
+    display: none;
+}
+
+.cab-tab {
+    flex-shrink: 0;
+    padding: 0.65rem 1.1rem;
+    border: none;
+    border-radius: 12px;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.82rem;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    position: relative;
+}
+
+.cab-tab:hover {
+    color: rgba(255, 255, 255, 0.8);
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.cab-tab.active {
+    color: #f8fafc;
+    background: rgba(139, 92, 246, 0.18);
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.15), inset 0 0 0 1px rgba(139, 92, 246, 0.25);
+}
+
+.cab-tab .tab-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 9px;
+    background: linear-gradient(135deg, #ef4444, #ec4899);
+    color: white;
+    font-size: 0.65rem;
+    font-weight: 700;
+    margin-left: 0.35rem;
+    vertical-align: middle;
+}
+
+.cab-tab .vip-lock {
+    margin-left: 0.3rem;
+    font-size: 0.75rem;
+    opacity: 0.6;
+}
+
+/* ===== STICKY CTA ===== */
+.cab-sticky-cta {
+    position: sticky;
+    bottom: 1rem;
+    z-index: 50;
+    display: flex;
+    justify-content: center;
+    padding: 0.5rem 0;
+    pointer-events: none;
+}
+
+.cab-cta-btn {
+    pointer-events: all;
+    padding: 0.95rem 2rem;
+    border: none;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #8b5cf6, #ec4899);
+    color: white;
+    font-size: 0.95rem;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    box-shadow: 0 8px 32px rgba(139, 92, 246, 0.35), 0 0 0 1px rgba(139, 92, 246, 0.2);
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.cab-cta-btn:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 12px 40px rgba(139, 92, 246, 0.5), 0 0 0 1px rgba(139, 92, 246, 0.4);
+}
+
+.cab-cta-btn::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+    animation: cabImpulse 4s ease-in-out infinite;
+}
+
+@keyframes cabImpulse {
+
+    0%,
+    70%,
+    100% {
+        left: -100%;
+    }
+
+    85% {
+        left: 150%;
+    }
+}
+
+/* ===== CARD BASE ===== */
+.cab-card {
+    background: rgba(15, 23, 42, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 18px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.cab-card:hover {
+    border-color: rgba(139, 92, 246, 0.2);
+    transform: scale(1.008);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+}
+
+.cab-card-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.cab-card-title .icon {
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    background: rgba(139, 92, 246, 0.12);
+    border: 1px solid rgba(139, 92, 246, 0.2);
+}
+
+/* ===== PROJECT CARDS ===== */
+.cab-projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+}
+
+.cab-project-card {
+    background: rgba(15, 23, 42, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 16px;
+    padding: 1.25rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.cab-project-card:hover {
+    border-color: rgba(139, 92, 246, 0.25);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+}
+
+.cab-project-card.default-project {
+    border-color: rgba(6, 182, 212, 0.3);
+    box-shadow: 0 0 20px rgba(6, 182, 212, 0.08);
+}
+
+.cab-prj-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 0.85rem;
+}
+
+.cab-prj-title {
+    font-weight: 700;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.cab-prj-status {
+    padding: 0.25rem 0.65rem;
+    border-radius: 8px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.cab-prj-status.active {
+    background: rgba(34, 197, 94, 0.15);
+    color: #22c55e;
+}
+
+.cab-prj-status.paused {
+    background: rgba(245, 158, 11, 0.15);
+    color: #f59e0b;
+}
+
+.cab-prj-status.completed {
+    background: rgba(6, 182, 212, 0.15);
+    color: #06b6d4;
+}
+
+.cab-prj-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 0.85rem;
+    font-size: 0.78rem;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.cab-prj-meta span {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.cab-prj-progress {
+    height: 5px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.06);
+    overflow: hidden;
+}
+
+.cab-prj-progress-fill {
+    height: 100%;
+    border-radius: 999px;
+    transition: width 0.5s ease;
+    background: linear-gradient(90deg, #8b5cf6, #06b6d4);
+}
+
+.cab-prj-default-badge {
+    position: absolute;
+    top: -1px;
+    right: 12px;
+    padding: 0.2rem 0.6rem;
+    border-radius: 0 0 8px 8px;
+    background: linear-gradient(135deg, #06b6d4, #22c55e);
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: white;
+}
+
+/* ===== EQUIPMENT / PARTNER LISTS ===== */
+.cab-list-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.15rem;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 14px;
+    margin-bottom: 0.5rem;
+    transition: all 0.25s ease;
+}
+
+.cab-list-item:hover {
+    border-color: rgba(139, 92, 246, 0.2);
+    background: rgba(139, 92, 246, 0.03);
+}
+
+.cab-list-info {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    flex: 1;
+    min-width: 0;
+}
+
+.cab-list-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.15rem;
+    flex-shrink: 0;
+    background: rgba(139, 92, 246, 0.1);
+    border: 1px solid rgba(139, 92, 246, 0.15);
+}
+
+.cab-list-text {
+    min-width: 0;
+}
+
+.cab-list-text .name {
+    font-weight: 600;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.cab-list-text .meta {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.45);
+    margin-top: 2px;
+}
+
+.cab-list-actions {
+    display: flex;
+    gap: 0.35rem;
+    flex-shrink: 0;
+}
+
+.cab-list-actions button {
+    padding: 0.4rem 0.65rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+}
+
+.cab-list-actions button:hover {
+    background: rgba(139, 92, 246, 0.1);
+    border-color: rgba(139, 92, 246, 0.3);
+}
+
+.cab-list-actions button.danger:hover {
+    background: rgba(239, 68, 68, 0.12);
+    border-color: rgba(239, 68, 68, 0.3);
+    color: #ef4444;
+}
+
+/* Tags */
+.cab-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    margin-top: 0.3rem;
+}
+
+.cab-tag {
+    padding: 0.15rem 0.5rem;
+    border-radius: 6px;
+    font-size: 0.65rem;
+    font-weight: 600;
+    background: rgba(139, 92, 246, 0.1);
+    color: rgba(139, 92, 246, 0.8);
+    border: 1px solid rgba(139, 92, 246, 0.15);
+}
+
+/* ===== FEED / TIMELINE ===== */
+.cab-feed {
+    position: relative;
+    padding-left: 2rem;
+}
+
+.cab-feed::before {
+    content: '';
+    position: absolute;
+    left: 9px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, rgba(139, 92, 246, 0.3), rgba(139, 92, 246, 0.05));
+}
+
+.cab-feed-item {
+    position: relative;
+    padding: 1rem 1.25rem;
+    margin-bottom: 0.75rem;
+    background: rgba(15, 23, 42, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 14px;
+    transition: all 0.25s ease;
+}
+
+.cab-feed-item:hover {
+    border-color: rgba(139, 92, 246, 0.15);
+}
+
+.cab-feed-item.new {
+    animation: feedPulse 2.5s ease-out;
+}
+
+.cab-feed-dot {
+    position: absolute;
+    left: -2rem;
+    top: 1.2rem;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(139, 92, 246, 0.5);
+    box-shadow: 0 0 10px rgba(139, 92, 246, 0.3);
+    transform: translateX(-1px);
+}
+
+.cab-feed-item.action-required .cab-feed-dot {
+    background: linear-gradient(135deg, #ef4444, #ec4899);
+    box-shadow: 0 0 12px rgba(239, 68, 68, 0.4);
+    animation: dotPulse 2s infinite;
+}
+
+.cab-feed-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.35rem;
+}
+
+.cab-feed-badge {
+    padding: 0.15rem 0.55rem;
+    border-radius: 6px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.cab-feed-badge.estimate {
+    background: rgba(139, 92, 246, 0.15);
+    color: #a78bfa;
+}
+
+.cab-feed-badge.document {
+    background: rgba(6, 182, 212, 0.15);
+    color: #06b6d4;
+}
+
+.cab-feed-badge.status_change {
+    background: rgba(245, 158, 11, 0.15);
+    color: #f59e0b;
+}
+
+.cab-feed-badge.action_required {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+}
+
+.cab-feed-badge.photo {
+    background: rgba(34, 197, 94, 0.15);
+    color: #22c55e;
+}
+
+.cab-feed-badge.system {
+    background: rgba(148, 163, 184, 0.15);
+    color: #94a3b8;
+}
+
+.cab-feed-project {
+    font-size: 0.72rem;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.cab-feed-title {
+    font-weight: 600;
+    font-size: 0.88rem;
+    margin-bottom: 0.2rem;
+}
+
+.cab-feed-text {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.55);
+}
+
+.cab-feed-time {
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.3);
+    margin-top: 0.4rem;
+}
+
+.cab-feed-action {
+    display: inline-block;
+    margin-top: 0.5rem;
+    padding: 0.35rem 0.85rem;
+    border-radius: 8px;
+    background: rgba(139, 92, 246, 0.12);
+    border: 1px solid rgba(139, 92, 246, 0.2);
+    color: #a78bfa;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+}
+
+.cab-feed-action:hover {
+    background: rgba(139, 92, 246, 0.2);
+}
+
+/* Feed Filters */
+.cab-feed-filters {
+    display: flex;
+    gap: 0.35rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+
+.cab-feed-filter {
+    padding: 0.4rem 0.85rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: transparent;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.78rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+}
+
+.cab-feed-filter:hover {
+    border-color: rgba(139, 92, 246, 0.2);
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.cab-feed-filter.active {
+    background: rgba(139, 92, 246, 0.15);
+    border-color: rgba(139, 92, 246, 0.3);
+    color: #f8fafc;
+}
+
+/* Action Required Banner */
+.cab-action-banner {
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.25rem;
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.08), rgba(236, 72, 153, 0.08));
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.cab-action-count {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 1rem;
+    background: linear-gradient(135deg, #ef4444, #ec4899);
+    color: white;
+    flex-shrink: 0;
+}
+
+.cab-action-text {
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.cab-action-text span {
+    color: rgba(255, 255, 255, 0.55);
+    font-weight: 400;
+    font-size: 0.78rem;
+    display: block;
+    margin-top: 2px;
+}
+
+/* ===== PAYWALL CARD ===== */
+.cab-paywall {
+    padding: 2rem;
+    text-align: center;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.08), rgba(236, 72, 153, 0.08));
+    border: 1.5px dashed rgba(139, 92, 246, 0.25);
+    border-radius: 20px;
+}
+
+.cab-paywall-icon {
+    font-size: 3rem;
+    margin-bottom: 0.75rem;
+}
+
+.cab-paywall-title {
+    font-size: 1.15rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+}
+
+.cab-paywall-desc {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.55);
+    margin-bottom: 1.25rem;
+    line-height: 1.6;
+}
+
+.cab-paywall-features {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+}
+
+.cab-paywall-feat {
+    padding: 0.35rem 0.85rem;
+    border-radius: 8px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    background: rgba(139, 92, 246, 0.1);
+    border: 1px solid rgba(139, 92, 246, 0.15);
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.cab-paywall-btn {
+    padding: 0.85rem 2.5rem;
+    border: none;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #8b5cf6, #ec4899);
+    color: white;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    box-shadow: 0 4px 20px rgba(139, 92, 246, 0.3);
+    transition: all 0.3s;
+}
+
+.cab-paywall-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(139, 92, 246, 0.45);
+}
+
+/* ===== EMPTY STATE ===== */
+.cab-empty {
+    text-align: center;
+    padding: 3rem 1.5rem;
+}
+
+.cab-empty-icon {
+    font-size: 3.5rem;
+    margin-bottom: 0.75rem;
+    opacity: 0.6;
+}
+
+.cab-empty-title {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 0.4rem;
+}
+
+.cab-empty-text {
+    font-size: 0.84rem;
+    color: rgba(255, 255, 255, 0.45);
+    margin-bottom: 1.25rem;
+}
+
+.cab-empty-btn {
+    display: inline-block;
+    padding: 0.7rem 1.5rem;
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    border-radius: 12px;
+    background: rgba(139, 92, 246, 0.08);
+    color: #a78bfa;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s;
+    font-family: inherit;
+}
+
+.cab-empty-btn:hover {
+    background: rgba(139, 92, 246, 0.15);
+    border-color: rgba(139, 92, 246, 0.5);
+}
+
+/* ===== SKELETON LOADING ===== */
+.cab-skeleton {
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.04) 25%, rgba(255, 255, 255, 0.08) 50%, rgba(255, 255, 255, 0.04) 75%);
+    background-size: 200% 100%;
+    animation: cabShimmer 1.5s infinite;
+    border-radius: 10px;
+}
+
+.cab-skeleton-card {
+    height: 120px;
+    margin-bottom: 0.75rem;
+    border-radius: 16px;
+}
+
+.cab-skeleton-line {
+    height: 14px;
+    margin-bottom: 0.5rem;
+    border-radius: 7px;
+}
+
+.cab-skeleton-line.short {
+    width: 60%;
+}
+
+@keyframes cabShimmer {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* ===== MODAL SMALL ===== */
+.cab-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9000;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: cabFade 0.25s ease;
+    padding: 1rem;
+}
+
+.cab-modal {
+    background: rgba(15, 23, 42, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 22px;
+    padding: 1.75rem;
+    width: 100%;
+    max-width: 520px;
+    max-height: 85vh;
+    overflow-y: auto;
+    animation: cabModalIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5);
+}
+
+.cab-modal-title {
+    font-size: 1.1rem;
+    font-weight: 800;
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.cab-modal-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+    justify-content: flex-end;
+}
+
+.cab-modal-btn {
+    padding: 0.7rem 1.5rem;
+    border: none;
+    border-radius: 12px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s;
+}
+
+.cab-modal-btn.primary {
+    background: linear-gradient(135deg, #8b5cf6, #ec4899);
+    color: white;
+}
+
+.cab-modal-btn.primary:hover {
+    box-shadow: 0 6px 20px rgba(139, 92, 246, 0.3);
+}
+
+.cab-modal-btn.cancel {
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+@keyframes cabFade {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes cabModalIn {
+    from {
+        opacity: 0;
+        transform: scale(0.92);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes feedPulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.4);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 transparent;
+    }
+}
+
+@keyframes dotPulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+}
+
+/* ===== ADD BUTTON ===== */
+.cab-add-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.85rem;
+    border: 2px dashed rgba(255, 255, 255, 0.1);
+    border-radius: 14px;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.45);
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s;
+    font-family: inherit;
+}
+
+.cab-add-btn:hover {
+    border-color: rgba(139, 92, 246, 0.3);
+    color: rgba(255, 255, 255, 0.7);
+    background: rgba(139, 92, 246, 0.04);
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 640px) {
+    .cab-projects-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .cab-tabs {
+        gap: 0.2rem;
+    }
+
+    .cab-tab {
+        padding: 0.55rem 0.85rem;
+        font-size: 0.75rem;
+    }
+
+    .cab-modal {
+        padding: 1.25rem;
+        border-radius: 18px;
+    }
+
+    .cab-list-item {
+        padding: 0.85rem;
+    }
+
+    .cab-feed {
+        padding-left: 1.5rem;
+    }
+}
+
+/* ===== ANIMATION ENTRANCE ===== */
+.cab-animate-in {
+    animation: cabSlideIn 0.4s ease backwards;
+}
+
+@keyframes cabSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

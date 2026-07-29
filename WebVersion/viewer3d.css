@@ -1,0 +1,243 @@
+/* ========== 3D VIEWER CSS ========== */
+/* Three.js-визуализатор сметы */
+
+.viewer3d-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    background: rgba(8, 15, 30, 0.97);
+    display: flex;
+    flex-direction: column;
+    animation: v3dFadeIn 0.3s ease;
+}
+
+@keyframes v3dFadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.viewer3d-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    background: rgba(15, 23, 42, 0.95);
+    border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+    z-index: 10;
+}
+
+.viewer3d-toolbar h3 {
+    margin: 0;
+    font-size: 16px;
+    color: #f1f5f9;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.viewer3d-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.v3d-btn {
+    padding: 7px 14px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(148, 163, 184, 0.15);
+    color: #94a3b8;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.v3d-btn:hover {
+    background: rgba(59, 130, 246, 0.15);
+    color: #60a5fa;
+    border-color: rgba(59, 130, 246, 0.3);
+}
+
+.v3d-btn.active {
+    background: rgba(59, 130, 246, 0.2);
+    color: #60a5fa;
+    border-color: #3b82f6;
+}
+
+.v3d-close {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: transparent;
+    border: 1px solid rgba(148, 163, 184, 0.15);
+    color: #94a3b8;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.v3d-close:hover {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+}
+
+.viewer3d-canvas-wrap {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+}
+
+.viewer3d-canvas-wrap canvas {
+    width: 100% !important;
+    height: 100% !important;
+    display: block;
+}
+
+/* Info panel */
+.viewer3d-info {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: rgba(15, 23, 42, 0.9);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(148, 163, 184, 0.12);
+    border-radius: 14px;
+    padding: 16px;
+    width: 260px;
+    color: #f1f5f9;
+    z-index: 5;
+}
+
+.viewer3d-info h4 {
+    margin: 0 0 12px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.v3d-info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+    font-size: 13px;
+}
+
+.v3d-info-row .label {
+    color: #94a3b8;
+}
+
+.v3d-info-row .value {
+    color: #f1f5f9;
+    font-weight: 600;
+}
+
+/* Material legend */
+.viewer3d-legend {
+    position: absolute;
+    bottom: 16px;
+    left: 16px;
+    background: rgba(15, 23, 42, 0.9);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(148, 163, 184, 0.12);
+    border-radius: 14px;
+    padding: 14px;
+    z-index: 5;
+}
+
+.v3d-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 4px 0;
+    font-size: 12px;
+    color: #94a3b8;
+}
+
+.v3d-legend-swatch {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
+/* Loading */
+.viewer3d-loading {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(8, 15, 30, 0.95);
+    z-index: 20;
+}
+
+.viewer3d-loading .spinner {
+    width: 60px;
+    height: 60px;
+    border: 3px solid rgba(148, 163, 184, 0.15);
+    border-top-color: #3b82f6;
+    border-radius: 50%;
+    animation: v3dSpin 0.8s linear infinite;
+    margin-bottom: 16px;
+}
+
+@keyframes v3dSpin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.viewer3d-loading p {
+    color: #94a3b8;
+    font-size: 14px;
+    margin: 0;
+}
+
+/* Tooltip on hover */
+.v3d-tooltip {
+    position: absolute;
+    pointer-events: none;
+    background: rgba(15, 23, 42, 0.95);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    border-radius: 8px;
+    padding: 8px 12px;
+    color: #f1f5f9;
+    font-size: 12px;
+    white-space: nowrap;
+    z-index: 15;
+    transform: translate(-50%, -100%);
+    display: none;
+}
+
+@media (max-width: 640px) {
+    .viewer3d-info {
+        width: 200px;
+        right: 8px;
+        top: 8px;
+        padding: 12px;
+    }
+
+    .viewer3d-legend {
+        left: 8px;
+        bottom: 8px;
+        padding: 10px;
+    }
+}

@@ -1,0 +1,195 @@
+# QAZGOST AI Construction Dataset
+# YOLOv8 Training Configuration
+
+# Paths (relative to dataset root)
+path: ./data
+train: train/images
+val: valid/images
+test: test/images
+
+# Classes - 20 construction-related objects
+nc: 20
+names:
+  0: trench              # Траншея
+  1: pit                 # Котлован  
+  2: foundation          # Фундамент
+  3: pipe_pvc            # Труба ПВХ
+  4: pipe_metal          # Труба металлическая
+  5: pipe_hdpe           # Труба ПНД
+  6: manhole             # Люк / колодец
+  7: wall_brick          # Кирпичная стена
+  8: wall_block          # Блочная стена
+  9: concrete_slab       # Бетонная плита
+  10: rebar              # Арматура
+  11: gravel_bed         # Щебёночная подушка
+  12: sand_bed           # Песчаная подушка
+  13: waterproofing      # Гидроизоляция
+  14: insulation         # Утеплитель
+  15: formwork           # Опалубка
+  16: pile               # Свая
+  17: measuring_tape     # Рулетка (для калибровки)
+  18: person             # Человек (для масштаба)
+  19: excavator_bucket   # Ковш экскаватора (для масштаба)
+
+# Class metadata for estimation
+class_meta:
+  trench:
+    type: excavation
+    unit: m3
+    typical_depth: [0.5, 3.0]  # min, max in meters
+    works:
+      - WORK-TRENCH-DIG
+      - WORK-BACKFILL
+    materials:
+      - SAND-RIVER
+      - GRAVEL-20-40
+  
+  pit:
+    type: excavation
+    unit: m3
+    typical_depth: [1.0, 5.0]
+    works:
+      - WORK-EXCAVATION
+      - WORK-SLOPE-REINFORCE
+    materials:
+      - GRAVEL-20-40
+  
+  foundation:
+    type: concrete
+    unit: m3
+    typical_depth: [0.3, 1.5]
+    works:
+      - WORK-CONCRETE-POUR
+      - WORK-FORMWORK
+      - WORK-REBAR
+    materials:
+      - CONCRETE-M200
+      - REBAR-A500
+      - FORMWORK-PLYWOOD
+  
+  pipe_pvc:
+    type: pipe
+    unit: m
+    typical_diameter: [0.05, 0.3]  # 50-300mm
+    works:
+      - WORK-PIPE-LAY
+      - WORK-PIPE-JOIN
+    materials:
+      - PIPE-PVC
+      - SAND-RIVER
+  
+  pipe_metal:
+    type: pipe
+    unit: m
+    typical_diameter: [0.05, 0.5]
+    works:
+      - WORK-PIPE-LAY
+      - WORK-PIPE-WELD
+    materials:
+      - PIPE-STEEL
+  
+  pipe_hdpe:
+    type: pipe
+    unit: m
+    typical_diameter: [0.032, 0.315]
+    works:
+      - WORK-PIPE-LAY
+      - WORK-PIPE-FUSION
+    materials:
+      - PIPE-HDPE
+  
+  manhole:
+    type: structure
+    unit: pcs
+    typical_depth: [1.0, 3.0]
+    works:
+      - WORK-MANHOLE-INSTALL
+      - WORK-EXCAVATION
+    materials:
+      - MANHOLE-CONCRETE
+      - CONCRETE-M200
+  
+  rebar:
+    type: reinforcement
+    unit: kg
+    works:
+      - WORK-REBAR-INSTALL
+    materials:
+      - REBAR-A500
+  
+  gravel_bed:
+    type: bedding
+    unit: m3
+    typical_thickness: [0.1, 0.3]
+    works:
+      - WORK-BEDDING
+      - WORK-COMPACTION
+    materials:
+      - GRAVEL-20-40
+  
+  sand_bed:
+    type: bedding
+    unit: m3
+    typical_thickness: [0.1, 0.2]
+    works:
+      - WORK-BEDDING
+      - WORK-COMPACTION
+    materials:
+      - SAND-RIVER
+  
+  waterproofing:
+    type: coating
+    unit: m2
+    works:
+      - WORK-WATERPROOFING
+    materials:
+      - BITUMEN-MASTIC
+      - MEMBRANE-HDPE
+  
+  insulation:
+    type: coating
+    unit: m2
+    typical_thickness: [0.05, 0.15]
+    works:
+      - WORK-INSULATION
+    materials:
+      - PENOPLEX-50
+      - ROCKWOOL-100
+  
+  formwork:
+    type: temporary
+    unit: m2
+    works:
+      - WORK-FORMWORK
+    materials:
+      - FORMWORK-PLYWOOD
+      - LUMBER
+
+# Reference objects for scale calibration
+reference_objects:
+  measuring_tape:
+    known_size: 1.0  # 1 meter marking
+    dimension: length
+  
+  person:
+    known_size: 1.75  # average height
+    dimension: height
+  
+  excavator_bucket:
+    known_size: 1.2  # typical bucket width
+    dimension: width
+
+# Training augmentation settings
+augmentation:
+  hsv_h: 0.015
+  hsv_s: 0.7
+  hsv_v: 0.4
+  degrees: 0.0
+  translate: 0.1
+  scale: 0.5
+  shear: 0.0
+  perspective: 0.0
+  flipud: 0.0
+  fliplr: 0.5
+  mosaic: 1.0
+  mixup: 0.0

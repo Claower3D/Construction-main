@@ -1,0 +1,25 @@
+# ═══════════════════════════════════════════════════════════════════
+# QAZGOST AI — Prometheus Configuration
+#
+# Scrapes AI service metrics every 15 seconds.
+# Used with: docker compose --profile monitoring up
+# ═══════════════════════════════════════════════════════════════════
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'qazgost-ai'
+    static_configs:
+      - targets: ['ai-service:8001']
+    metrics_path: /metrics
+    scrape_interval: 15s
+    scrape_timeout: 10s
+
+  - job_name: 'ollama'
+    static_configs:
+      - targets: ['ollama:11434']
+    metrics_path: /metrics
+    scrape_interval: 30s
+    scrape_timeout: 10s

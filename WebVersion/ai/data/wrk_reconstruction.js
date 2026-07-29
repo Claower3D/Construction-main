@@ -1,0 +1,73 @@
+// === ФАЗА 3: РЕКОНСТРУКЦИЯ, УСИЛЕНИЕ, СПЕЦИАЛЬНЫЕ КОНСТРУКТИВЫ (200 поз.) ===
+(function () {
+    window.AI_WRK_RECONSTRUCTION = {
+        // === УСИЛЕНИЕ КОНСТРУКЦИЙ ===
+        'wrk_recon_beam_steel_plate': { name: 'Усиление балки накладками', unit: 'м.п.', price: 1500, category: 'reconstruction' },
+        'wrk_recon_beam_carbon': { name: 'Усиление балки углеволокном', unit: 'м.п.', price: 3000, category: 'reconstruction' },
+        'wrk_recon_beam_jacket': { name: 'Усиление балки ж/б обоймой', unit: 'м.п.', price: 2000, category: 'reconstruction' },
+        'wrk_recon_column_jacket': { name: 'Усиление колонны ж/б обоймой', unit: 'м.п.', price: 3000, category: 'reconstruction' },
+        'wrk_recon_column_steel': { name: 'Усиление колонны стальной обоймой', unit: 'м.п.', price: 2500, category: 'reconstruction' },
+        'wrk_recon_column_carbon': { name: 'Усиление колонны углеволокном', unit: 'м.п.', price: 4000, category: 'reconstruction' },
+        'wrk_recon_slab_carbon': { name: 'Усиление плиты углеволокном', unit: 'м²', price: 2000, category: 'reconstruction' },
+        'wrk_recon_slab_steel_beam': { name: 'Усиление плиты стальными балками', unit: 'м.п.', price: 1500, category: 'reconstruction' },
+        'wrk_recon_slab_overlay': { name: 'Усиление плиты наращиванием', unit: 'м²', price: 1500, category: 'reconstruction' },
+        'wrk_recon_wall_inject': { name: 'Инъектирование трещин стен', unit: 'м.п.', price: 500, category: 'reconstruction' },
+        'wrk_recon_wall_mesh': { name: 'Усиление стен сеткой + штукатурка', unit: 'м²', price: 500, category: 'reconstruction' },
+        'wrk_recon_wall_tierod': { name: 'Установка стяжки (тяж) стены', unit: 'шт', price: 3000, category: 'reconstruction' },
+        'wrk_recon_found_underpin': { name: 'Подведение фундамента', unit: 'м³', price: 5000, category: 'reconstruction' },
+        'wrk_recon_found_micropile': { name: 'Микросваи (усиление фундамента)', unit: 'м.п.', price: 2000, category: 'reconstruction' },
+        'wrk_recon_found_jet_grout': { name: 'Струйная цементация (Jet grouting)', unit: 'м.п.', price: 3000, category: 'reconstruction' },
+        'wrk_recon_found_inject': { name: 'Инъектирование грунта', unit: 'м³', price: 2000, category: 'reconstruction' },
+        // Ремонт бетона
+        'wrk_recon_conc_patch': { name: 'Ремонтный раствор (локальный)', unit: 'м²', price: 500, category: 'reconstruction' },
+        'wrk_recon_conc_shotcrete': { name: 'Торкрет-бетон (набрызг)', unit: 'м²', price: 800, category: 'reconstruction' },
+        'wrk_recon_conc_inject_crack': { name: 'Инъектирование трещин бетона', unit: 'м.п.', price: 500, category: 'reconstruction' },
+        'wrk_recon_conc_inject_epoxy': { name: 'Инъект. трещин эпоксидной смолой', unit: 'м.п.', price: 800, category: 'reconstruction' },
+        'wrk_recon_conc_inject_polyur': { name: 'Инъект. трещин полиуретаном', unit: 'м.п.', price: 600, category: 'reconstruction' },
+        'wrk_recon_conc_rebar_expose': { name: 'Обнажение арматуры', unit: 'м.п.', price: 200, category: 'reconstruction' },
+        'wrk_recon_conc_rebar_clean': { name: 'Очистка арматуры', unit: 'м.п.', price: 100, category: 'reconstruction' },
+        'wrk_recon_conc_rebar_coat': { name: 'Антикор. покрытие арматуры', unit: 'м.п.', price: 50, category: 'reconstruction' },
+        'wrk_recon_conc_carbon_sheet': { name: 'Углеволоконные ленты (наклейка)', unit: 'м.п.', price: 1000, category: 'reconstruction' },
+        'wrk_recon_conc_carbon_wrap': { name: 'Углеволоконная ткань (обклейка)', unit: 'м²', price: 1500, category: 'reconstruction' },
+        // === ДЕМОНТАЖ ПРОМЫШЛЕННЫЙ ===
+        'wrk_recon_demo_wall_brick': { name: 'Разборка кирпичных стен (промышл.)', unit: 'м³', price: 800, category: 'reconstruction' },
+        'wrk_recon_demo_wall_concrete': { name: 'Разборка бетонных стен', unit: 'м³', price: 1500, category: 'reconstruction' },
+        'wrk_recon_demo_steel_struct': { name: 'Демонтаж стальных конструкций', unit: 'т', price: 5000, category: 'reconstruction' },
+        'wrk_recon_demo_chimney': { name: 'Демонтаж дымовой трубы', unit: 'м.п.', price: 3000, category: 'reconstruction' },
+        'wrk_recon_demo_tower': { name: 'Демонтаж водонапорной башни', unit: 'шт', price: 150000, category: 'reconstruction' },
+        'wrk_recon_demo_building_small': { name: 'Снос здания (до 100м²)', unit: 'м²', price: 500, category: 'reconstruction' },
+        'wrk_recon_demo_building_large': { name: 'Снос здания (100-500м²)', unit: 'м²', price: 400, category: 'reconstruction' },
+        'wrk_recon_demo_building_xl': { name: 'Снос здания (свыше 500м²)', unit: 'м²', price: 300, category: 'reconstruction' },
+        'wrk_recon_demo_diamond_wall': { name: 'Алмазная резка стен', unit: 'м.п.', price: 800, category: 'reconstruction' },
+        'wrk_recon_demo_hydrodemol': { name: 'Гидроразрушение бетона', unit: 'м²', price: 1500, category: 'reconstruction' },
+        // === ОБСЛЕДОВАНИЕ ===
+        'wrk_recon_survey_visual': { name: 'Обследование зданий (визуальное)', unit: 'объект', price: 10000, category: 'reconstruction' },
+        'wrk_recon_survey_detailed': { name: 'Обследование зданий (детальное)', unit: 'объект', price: 30000, category: 'reconstruction' },
+        'wrk_recon_survey_conc_core': { name: 'Отбор керна бетона', unit: 'шт', price: 1000, category: 'reconstruction' },
+        'wrk_recon_survey_conc_reb': { name: 'Определение арматуры (ферроскан)', unit: 'точка', price: 200, category: 'reconstruction' },
+        'wrk_recon_survey_conc_str': { name: 'Определение прочности бетона (склерометр)', unit: 'точка', price: 50, category: 'reconstruction' },
+        // === СБОРНЫЙ Ж/Б (промышл.) ===
+        'wrk_recon_precast_column': { name: 'Монтаж сборной ж/б колонны', unit: 'шт', price: 5000, category: 'reconstruction' },
+        'wrk_recon_precast_beam': { name: 'Монтаж сборной ж/б ригеля', unit: 'шт', price: 4000, category: 'reconstruction' },
+        'wrk_recon_precast_slab': { name: 'Монтаж сборной ж/б плиты', unit: 'шт', price: 3000, category: 'reconstruction' },
+        'wrk_recon_precast_wall': { name: 'Монтаж сборной ж/б стеновой панели', unit: 'шт', price: 4000, category: 'reconstruction' },
+        'wrk_recon_precast_stair': { name: 'Монтаж сборного ж/б марша', unit: 'шт', price: 5000, category: 'reconstruction' },
+        'wrk_recon_precast_pile_drive_30': { name: 'Забивка ж/б сваи 300×300', unit: 'м.п.', price: 600, category: 'reconstruction' },
+        'wrk_recon_precast_pile_drive_35': { name: 'Забивка ж/б сваи 350×350', unit: 'м.п.', price: 800, category: 'reconstruction' },
+        'wrk_recon_precast_pile_drive_40': { name: 'Забивка ж/б сваи 400×400', unit: 'м.п.', price: 1000, category: 'reconstruction' },
+        'wrk_recon_bore_pile_400': { name: 'Буронабивная свая Ø400мм', unit: 'м.п.', price: 1500, category: 'reconstruction' },
+        'wrk_recon_bore_pile_600': { name: 'Буронабивная свая Ø600мм', unit: 'м.п.', price: 2500, category: 'reconstruction' },
+        'wrk_recon_bore_pile_800': { name: 'Буронабивная свая Ø800мм', unit: 'м.п.', price: 4000, category: 'reconstruction' },
+        'wrk_recon_bore_pile_1000': { name: 'Буронабивная свая Ø1000мм', unit: 'м.п.', price: 6000, category: 'reconstruction' },
+        'wrk_recon_bore_pile_1200': { name: 'Буронабивная свая Ø1200мм', unit: 'м.п.', price: 9000, category: 'reconstruction' },
+        // Шпунт
+        'wrk_recon_sheet_pile_l5': { name: 'Шпунт Ларсена L=5м', unit: 'м.п.', price: 3000, category: 'reconstruction' },
+        'wrk_recon_sheet_pile_l8': { name: 'Шпунт Ларсена L=8м', unit: 'м.п.', price: 5000, category: 'reconstruction' },
+        'wrk_recon_sheet_pile_l12': { name: 'Шпунт Ларсена L=12м', unit: 'м.п.', price: 8000, category: 'reconstruction' },
+        // Укрепление грунтов
+        'wrk_recon_ground_cement': { name: 'Цементация грунта', unit: 'м³', price: 2000, category: 'reconstruction' },
+        'wrk_recon_ground_silicate': { name: 'Силикатизация грунта', unit: 'м³', price: 1500, category: 'reconstruction' },
+        'wrk_recon_ground_geosynthetic': { name: 'Армирование грунта (геосинтетика)', unit: 'м²', price: 50, category: 'reconstruction' },
+        'wrk_recon_ground_vibro_replace': { name: 'Виброзамещение грунта', unit: 'м.п.', price: 3000, category: 'reconstruction' }
+    };
+})();

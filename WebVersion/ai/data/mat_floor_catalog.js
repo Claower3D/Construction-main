@@ -1,0 +1,121 @@
+// === РАСШ. КАТАЛОГ НАПОЛЬНЫХ ПОКРЫТИЙ (160 позиций) ===
+(function () {
+    window.AI_MAT_FLOOR_CATALOG = {
+        // Ламинат 32 класс
+        'lam_32_7mm_oak_light': { name: 'Ламинат 32кл. 7мм дуб светлый', unit: 'м²', price: 450, category: 'floor_catalog' },
+        'lam_32_7mm_oak_natural': { name: 'Ламинат 32кл. 7мм дуб натуральный', unit: 'м²', price: 480, category: 'floor_catalog' },
+        'lam_32_7mm_oak_grey': { name: 'Ламинат 32кл. 7мм дуб серый', unit: 'м²', price: 480, category: 'floor_catalog' },
+        'lam_32_8mm_oak_light': { name: 'Ламинат 32кл. 8мм дуб светлый', unit: 'м²', price: 550, category: 'floor_catalog' },
+        'lam_32_8mm_oak_natural': { name: 'Ламинат 32кл. 8мм дуб натуральный', unit: 'м²', price: 580, category: 'floor_catalog' },
+        'lam_32_8mm_oak_dark': { name: 'Ламинат 32кл. 8мм дуб тёмный', unit: 'м²', price: 580, category: 'floor_catalog' },
+        'lam_32_8mm_walnut': { name: 'Ламинат 32кл. 8мм орех', unit: 'м²', price: 600, category: 'floor_catalog' },
+        'lam_32_8mm_beech': { name: 'Ламинат 32кл. 8мм бук', unit: 'м²', price: 570, category: 'floor_catalog' },
+        'lam_32_8mm_wenge': { name: 'Ламинат 32кл. 8мм венге', unit: 'м²', price: 600, category: 'floor_catalog' },
+        'lam_32_8mm_concrete': { name: 'Ламинат 32кл. 8мм бетон', unit: 'м²', price: 620, category: 'floor_catalog' },
+        // Ламинат 33 класс
+        'lam_33_8mm_oak_light': { name: 'Ламинат 33кл. 8мм дуб светлый', unit: 'м²', price: 700, category: 'floor_catalog' },
+        'lam_33_8mm_oak_natural': { name: 'Ламинат 33кл. 8мм дуб натуральный', unit: 'м²', price: 750, category: 'floor_catalog' },
+        'lam_33_8mm_oak_grey': { name: 'Ламинат 33кл. 8мм дуб серый', unit: 'м²', price: 750, category: 'floor_catalog' },
+        'lam_33_8mm_oak_dark': { name: 'Ламинат 33кл. 8мм дуб тёмный', unit: 'м²', price: 780, category: 'floor_catalog' },
+        'lam_33_10mm_oak_light': { name: 'Ламинат 33кл. 10мм дуб светлый', unit: 'м²', price: 900, category: 'floor_catalog' },
+        'lam_33_10mm_oak_natural': { name: 'Ламинат 33кл. 10мм дуб натуральный', unit: 'м²', price: 950, category: 'floor_catalog' },
+        'lam_33_10mm_walnut': { name: 'Ламинат 33кл. 10мм орех', unit: 'м²', price: 980, category: 'floor_catalog' },
+        'lam_33_12mm_oak_premium': { name: 'Ламинат 33кл. 12мм дуб премиум', unit: 'м²', price: 1200, category: 'floor_catalog' },
+        'lam_33_12mm_herringbone': { name: 'Ламинат 33кл. 12мм ёлочка', unit: 'м²', price: 1400, category: 'floor_catalog' },
+        // Ламинат 34 класс
+        'lam_34_12mm_oak': { name: 'Ламинат 34кл. 12мм дуб', unit: 'м²', price: 1500, category: 'floor_catalog' },
+        'lam_34_12mm_stone': { name: 'Ламинат 34кл. 12мм камень', unit: 'м²', price: 1600, category: 'floor_catalog' },
+        // SPC/кварцвинил
+        'spc_4mm_oak_light': { name: 'SPC ламинат 4мм дуб светлый', unit: 'м²', price: 1200, category: 'floor_catalog' },
+        'spc_4mm_oak_natural': { name: 'SPC ламинат 4мм дуб натуральный', unit: 'м²', price: 1300, category: 'floor_catalog' },
+        'spc_4mm_oak_grey': { name: 'SPC ламинат 4мм дуб серый', unit: 'м²', price: 1300, category: 'floor_catalog' },
+        'spc_4mm_oak_dark': { name: 'SPC ламинат 4мм дуб тёмный', unit: 'м²', price: 1350, category: 'floor_catalog' },
+        'spc_4mm_walnut': { name: 'SPC ламинат 4мм орех', unit: 'м²', price: 1400, category: 'floor_catalog' },
+        'spc_4mm_concrete': { name: 'SPC ламинат 4мм бетон', unit: 'м²', price: 1300, category: 'floor_catalog' },
+        'spc_4mm_marble': { name: 'SPC ламинат 4мм мрамор', unit: 'м²', price: 1500, category: 'floor_catalog' },
+        'spc_5_5mm_oak_light': { name: 'SPC ламинат 5.5мм дуб светлый', unit: 'м²', price: 1500, category: 'floor_catalog' },
+        'spc_5_5mm_oak_natural': { name: 'SPC ламинат 5.5мм дуб натуральный', unit: 'м²', price: 1600, category: 'floor_catalog' },
+        'spc_5_5mm_herringbone': { name: 'SPC ламинат 5.5мм ёлочка', unit: 'м²', price: 1800, category: 'floor_catalog' },
+        // Кварцвиниловая плитка (LVT клеевая)
+        'lvt_glue_2mm_oak': { name: 'Кварцвинил клеевой 2мм дуб', unit: 'м²', price: 800, category: 'floor_catalog' },
+        'lvt_glue_2_5mm_oak': { name: 'Кварцвинил клеевой 2.5мм дуб', unit: 'м²', price: 1000, category: 'floor_catalog' },
+        'lvt_glue_3mm_stone': { name: 'Кварцвинил клеевой 3мм камень', unit: 'м²', price: 1100, category: 'floor_catalog' },
+        'lvt_glue_3mm_concrete': { name: 'Кварцвинил клеевой 3мм бетон', unit: 'м²', price: 1000, category: 'floor_catalog' },
+        // Паркетная доска
+        'parquet_board_oak_1strip': { name: 'Паркетная доска дуб 1-полосная', unit: 'м²', price: 3000, category: 'floor_catalog' },
+        'parquet_board_oak_3strip': { name: 'Паркетная доска дуб 3-полосная', unit: 'м²', price: 2000, category: 'floor_catalog' },
+        'parquet_board_ash_1strip': { name: 'Паркетная доска ясень 1-полосная', unit: 'м²', price: 3200, category: 'floor_catalog' },
+        'parquet_board_walnut_1strip': { name: 'Паркетная доска орех 1-полосная', unit: 'м²', price: 4000, category: 'floor_catalog' },
+        'parquet_board_oak_herring': { name: 'Паркетная доска дуб «ёлочка»', unit: 'м²', price: 4500, category: 'floor_catalog' },
+        'parquet_board_oak_chevron': { name: 'Паркетная доска дуб «французская ёлка»', unit: 'м²', price: 5000, category: 'floor_catalog' },
+        // Штучный паркет
+        'parquet_oak_15mm_m2': { name: 'Паркет штучный дуб 15мм', unit: 'м²', price: 2500, category: 'floor_catalog' },
+        'parquet_oak_22mm_m2': { name: 'Паркет штучный дуб 22мм', unit: 'м²', price: 3500, category: 'floor_catalog' },
+        'parquet_ash_15mm_m2': { name: 'Паркет штучный ясень 15мм', unit: 'м²', price: 2800, category: 'floor_catalog' },
+        // Инженерная доска
+        'eng_board_oak_14mm': { name: 'Инженерная доска дуб 14мм', unit: 'м²', price: 3500, category: 'floor_catalog' },
+        'eng_board_oak_16mm': { name: 'Инженерная доска дуб 16мм', unit: 'м²', price: 4500, category: 'floor_catalog' },
+        'eng_board_oak_herring': { name: 'Инженерная доска дуб ёлочка', unit: 'м²', price: 5000, category: 'floor_catalog' },
+        // Линолеум бытовой
+        'linoleum_byt_21_oak': { name: 'Линолеум бытовой 21кл. дуб (3м)', unit: 'м²', price: 200, category: 'floor_catalog' },
+        'linoleum_byt_22_oak': { name: 'Линолеум бытовой 22кл. дуб (3м)', unit: 'м²', price: 250, category: 'floor_catalog' },
+        'linoleum_byt_23_oak': { name: 'Линолеум бытовой 23кл. дуб (3.5м)', unit: 'м²', price: 300, category: 'floor_catalog' },
+        'linoleum_byt_23_tile': { name: 'Линолеум бытовой 23кл. плитка (3м)', unit: 'м²', price: 280, category: 'floor_catalog' },
+        'linoleum_byt_23_abstract': { name: 'Линолеум бытовой 23кл. абстракция (3м)', unit: 'м²', price: 270, category: 'floor_catalog' },
+        // Линолеум полукоммерческий
+        'linoleum_semi_31_oak': { name: 'Линолеум п/коммерч. 31кл. дуб (3.5м)', unit: 'м²', price: 350, category: 'floor_catalog' },
+        'linoleum_semi_32_oak': { name: 'Линолеум п/коммерч. 32кл. дуб (3.5м)', unit: 'м²', price: 400, category: 'floor_catalog' },
+        'linoleum_semi_33_oak': { name: 'Линолеум п/коммерч. 33кл. дуб (4м)', unit: 'м²', price: 500, category: 'floor_catalog' },
+        'linoleum_semi_32_tile': { name: 'Линолеум п/коммерч. 32кл. плитка (3.5м)', unit: 'м²', price: 380, category: 'floor_catalog' },
+        'linoleum_semi_33_marble': { name: 'Линолеум п/коммерч. 33кл. мрамор (4м)', unit: 'м²', price: 480, category: 'floor_catalog' },
+        // Линолеум коммерческий
+        'linoleum_comm_34_homog': { name: 'Линолеум коммерч. 34кл. гомогенный (2м)', unit: 'м²', price: 600, category: 'floor_catalog' },
+        'linoleum_comm_34_heterog': { name: 'Линолеум коммерч. 34кл. гетерогенный (2м)', unit: 'м²', price: 550, category: 'floor_catalog' },
+        'linoleum_comm_43': { name: 'Линолеум коммерч. 43кл. (2м)', unit: 'м²', price: 800, category: 'floor_catalog' },
+        // Ковролин
+        'carpet_loop_3m': { name: 'Ковролин петлевой (3м)', unit: 'м²', price: 300, category: 'floor_catalog' },
+        'carpet_loop_4m': { name: 'Ковролин петлевой (4м)', unit: 'м²', price: 320, category: 'floor_catalog' },
+        'carpet_cut_pile_3m': { name: 'Ковролин велюр (3м)', unit: 'м²', price: 400, category: 'floor_catalog' },
+        'carpet_cut_pile_4m': { name: 'Ковролин велюр (4м)', unit: 'м²', price: 420, category: 'floor_catalog' },
+        'carpet_tile_50x50': { name: 'Ковровая плитка 50×50см', unit: 'м²', price: 600, category: 'floor_catalog' },
+        'carpet_runner_80cm': { name: 'Ковровая дорожка 80см', unit: 'п.м.', price: 300, category: 'floor_catalog' },
+        'carpet_runner_100cm': { name: 'Ковровая дорожка 100см', unit: 'п.м.', price: 400, category: 'floor_catalog' },
+        // Пробковый пол
+        'cork_floor_click_6mm': { name: 'Пробковый пол замковый 6мм', unit: 'м²', price: 2000, category: 'floor_catalog' },
+        'cork_floor_click_10mm': { name: 'Пробковый пол замковый 10мм', unit: 'м²', price: 3000, category: 'floor_catalog' },
+        'cork_floor_glue_4mm': { name: 'Пробковый пол клеевой 4мм', unit: 'м²', price: 1500, category: 'floor_catalog' },
+        'cork_floor_glue_6mm': { name: 'Пробковый пол клеевой 6мм', unit: 'м²', price: 2000, category: 'floor_catalog' },
+        // Подложка
+        'underlay_pe_2mm_50m2': { name: 'Подложка ПЭ 2мм (50м²)', unit: 'рулон', price: 300, category: 'floor_catalog' },
+        'underlay_pe_3mm_50m2': { name: 'Подложка ПЭ 3мм (50м²)', unit: 'рулон', price: 400, category: 'floor_catalog' },
+        'underlay_xps_3mm_5m2': { name: 'Подложка ЭППС 3мм (5м²)', unit: 'уп.', price: 200, category: 'floor_catalog' },
+        'underlay_xps_5mm_5m2': { name: 'Подложка ЭППС 5мм (5м²)', unit: 'уп.', price: 300, category: 'floor_catalog' },
+        'underlay_cork_2mm_10m2': { name: 'Подложка пробковая 2мм (10м²)', unit: 'рулон', price: 1500, category: 'floor_catalog' },
+        'underlay_cork_3mm_10m2': { name: 'Подложка пробковая 3мм (10м²)', unit: 'рулон', price: 2000, category: 'floor_catalog' },
+        'underlay_tulip_3mm_9_32m2': { name: 'Подложка Tuplex 3мм (9.32м²)', unit: 'рулон', price: 800, category: 'floor_catalog' },
+        'underlay_hps_3mm_10m2': { name: 'Подложка хвойная 3мм (10м²)', unit: 'уп.', price: 600, category: 'floor_catalog' },
+        'underlay_hps_5mm_7m2': { name: 'Подложка хвойная 5мм (7м²)', unit: 'уп.', price: 700, category: 'floor_catalog' },
+        'underlay_hps_7mm_5m2': { name: 'Подложка хвойная 7мм (5м²)', unit: 'уп.', price: 700, category: 'floor_catalog' },
+        // Клей для напольных покрытий
+        'glue_floor_linoleum_3kg': { name: 'Клей для линолеума (3кг)', unit: 'шт', price: 400, category: 'floor_catalog' },
+        'glue_floor_linoleum_7kg': { name: 'Клей для линолеума (7кг)', unit: 'шт', price: 800, category: 'floor_catalog' },
+        'glue_floor_linoleum_14kg': { name: 'Клей для линолеума (14кг)', unit: 'шт', price: 1500, category: 'floor_catalog' },
+        'glue_floor_parquet_15kg': { name: 'Клей для паркета (15кг)', unit: 'шт', price: 3000, category: 'floor_catalog' },
+        'glue_floor_parquet_pu_10kg': { name: 'Клей для паркета полиуретановый (10кг)', unit: 'шт', price: 5000, category: 'floor_catalog' },
+        'glue_floor_carpet_3kg': { name: 'Клей для ковролина (3кг)', unit: 'шт', price: 350, category: 'floor_catalog' },
+        'glue_floor_lvt_6kg': { name: 'Клей для LVT/кварцвинила (6кг)', unit: 'шт', price: 1200, category: 'floor_catalog' },
+        'cold_weld_linoleum': { name: 'Холодная сварка для линолеума (тюбик)', unit: 'шт', price: 200, category: 'floor_catalog' },
+        // Пороги
+        'threshold_alum_30mm_0_9m': { name: 'Порог алюм. 30мм (0.9м)', unit: 'шт', price: 80, category: 'floor_catalog' },
+        'threshold_alum_40mm_0_9m': { name: 'Порог алюм. 40мм (0.9м)', unit: 'шт', price: 100, category: 'floor_catalog' },
+        'threshold_alum_40mm_1_8m': { name: 'Порог алюм. 40мм (1.8м)', unit: 'шт', price: 180, category: 'floor_catalog' },
+        'threshold_alum_50mm_0_9m': { name: 'Порог алюм. 50мм (0.9м)', unit: 'шт', price: 120, category: 'floor_catalog' },
+        'threshold_t_alum_0_9m': { name: 'Порог Т-образный алюм. (0.9м)', unit: 'шт', price: 150, category: 'floor_catalog' },
+        'threshold_level_30mm_0_9m': { name: 'Порог разноуровневый 30мм (0.9м)', unit: 'шт', price: 100, category: 'floor_catalog' },
+        'threshold_end_alum_0_9m': { name: 'Порог завершающий алюм. (0.9м)', unit: 'шт', price: 100, category: 'floor_catalog' },
+        // Скотч / плёнки
+        'tape_duct_48mm_50m': { name: 'Скотч фольгированный 48мм (50м)', unit: 'шт', price: 150, category: 'floor_catalog' },
+        'tape_joint_48mm_50m': { name: 'Скотч для стыков подложки (50м)', unit: 'шт', price: 60, category: 'floor_catalog' },
+        'pe_film_150mk_3x10m': { name: 'Плёнка ПЭ пароизоляционная 150мкм 3×10м', unit: 'шт', price: 200, category: 'floor_catalog' }
+    };
+})();

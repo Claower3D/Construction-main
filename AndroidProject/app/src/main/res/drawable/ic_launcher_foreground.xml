@@ -1,0 +1,25 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Building icon -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M54,24L30,40V84H42V58H54V84H66V58H78V84H78V40L54,24Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M42,46H50V54H42V46Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M58,46H66V54H58V46Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M58,62H66V70H58V62Z" />
+    <path
+        android:fillColor="#03DAC5"
+        android:pathData="M80,70L88,78L82,84H80V70Z" />
+    <path
+        android:fillColor="#03DAC5"
+        android:pathData="M84,72L92,64L92,80L84,88V72Z" />
+</vector>

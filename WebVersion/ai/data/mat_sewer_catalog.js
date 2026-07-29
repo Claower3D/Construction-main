@@ -1,0 +1,100 @@
+// === РАСШ. КАТАЛОГ КАНАЛИЗАЦИИ (100 позиций) ===
+(function () {
+    window.AI_MAT_SEWER_CATALOG = {
+        // Внутренняя канализация ПП (серая) Ø50
+        'sewer_pp_50x150': { name: 'Труба канал. ПП Ø50×150мм', unit: 'шт', price: 15, category: 'sewer_catalog' },
+        'sewer_pp_50x250': { name: 'Труба канал. ПП Ø50×250мм', unit: 'шт', price: 20, category: 'sewer_catalog' },
+        'sewer_pp_50x500': { name: 'Труба канал. ПП Ø50×500мм', unit: 'шт', price: 30, category: 'sewer_catalog' },
+        'sewer_pp_50x750': { name: 'Труба канал. ПП Ø50×750мм', unit: 'шт', price: 40, category: 'sewer_catalog' },
+        'sewer_pp_50x1000': { name: 'Труба канал. ПП Ø50×1000мм', unit: 'шт', price: 50, category: 'sewer_catalog' },
+        'sewer_pp_50x1500': { name: 'Труба канал. ПП Ø50×1500мм', unit: 'шт', price: 70, category: 'sewer_catalog' },
+        'sewer_pp_50x2000': { name: 'Труба канал. ПП Ø50×2000мм', unit: 'шт', price: 90, category: 'sewer_catalog' },
+        'sewer_pp_50x3000': { name: 'Труба канал. ПП Ø50×3000мм', unit: 'шт', price: 130, category: 'sewer_catalog' },
+        // Ø110
+        'sewer_pp_110x250': { name: 'Труба канал. ПП Ø110×250мм', unit: 'шт', price: 40, category: 'sewer_catalog' },
+        'sewer_pp_110x500': { name: 'Труба канал. ПП Ø110×500мм', unit: 'шт', price: 60, category: 'sewer_catalog' },
+        'sewer_pp_110x750': { name: 'Труба канал. ПП Ø110×750мм', unit: 'шт', price: 80, category: 'sewer_catalog' },
+        'sewer_pp_110x1000': { name: 'Труба канал. ПП Ø110×1000мм', unit: 'шт', price: 100, category: 'sewer_catalog' },
+        'sewer_pp_110x1500': { name: 'Труба канал. ПП Ø110×1500мм', unit: 'шт', price: 140, category: 'sewer_catalog' },
+        'sewer_pp_110x2000': { name: 'Труба канал. ПП Ø110×2000мм', unit: 'шт', price: 180, category: 'sewer_catalog' },
+        'sewer_pp_110x3000': { name: 'Труба канал. ПП Ø110×3000мм', unit: 'шт', price: 260, category: 'sewer_catalog' },
+        // Фитинги Ø50
+        'sewer_elbow_50_45': { name: 'Отвод канал. Ø50 45°', unit: 'шт', price: 10, category: 'sewer_catalog' },
+        'sewer_elbow_50_67': { name: 'Отвод канал. Ø50 67°', unit: 'шт', price: 12, category: 'sewer_catalog' },
+        'sewer_elbow_50_87': { name: 'Отвод канал. Ø50 87°', unit: 'шт', price: 12, category: 'sewer_catalog' },
+        'sewer_tee_50_50_45': { name: 'Тройник канал. 50×50 45°', unit: 'шт', price: 15, category: 'sewer_catalog' },
+        'sewer_tee_50_50_87': { name: 'Тройник канал. 50×50 87°', unit: 'шт', price: 15, category: 'sewer_catalog' },
+        'sewer_coupling_50': { name: 'Муфта канал. Ø50', unit: 'шт', price: 8, category: 'sewer_catalog' },
+        'sewer_reducer_110_50': { name: 'Переход канал. 110→50', unit: 'шт', price: 15, category: 'sewer_catalog' },
+        'sewer_plug_50': { name: 'Заглушка канал. Ø50', unit: 'шт', price: 5, category: 'sewer_catalog' },
+        // Фитинги Ø110
+        'sewer_elbow_110_15': { name: 'Отвод канал. Ø110 15°', unit: 'шт', price: 20, category: 'sewer_catalog' },
+        'sewer_elbow_110_30': { name: 'Отвод канал. Ø110 30°', unit: 'шт', price: 20, category: 'sewer_catalog' },
+        'sewer_elbow_110_45': { name: 'Отвод канал. Ø110 45°', unit: 'шт', price: 22, category: 'sewer_catalog' },
+        'sewer_elbow_110_67': { name: 'Отвод канал. Ø110 67°', unit: 'шт', price: 25, category: 'sewer_catalog' },
+        'sewer_elbow_110_87': { name: 'Отвод канал. Ø110 87°', unit: 'шт', price: 25, category: 'sewer_catalog' },
+        'sewer_tee_110_110_45': { name: 'Тройник канал. 110×110 45°', unit: 'шт', price: 30, category: 'sewer_catalog' },
+        'sewer_tee_110_110_87': { name: 'Тройник канал. 110×110 87°', unit: 'шт', price: 30, category: 'sewer_catalog' },
+        'sewer_tee_110_50_45': { name: 'Тройник канал. 110×50 45°', unit: 'шт', price: 25, category: 'sewer_catalog' },
+        'sewer_tee_110_50_87': { name: 'Тройник канал. 110×50 87°', unit: 'шт', price: 25, category: 'sewer_catalog' },
+        'sewer_cross_110_110': { name: 'Крестовина канал. 110×110 45°', unit: 'шт', price: 50, category: 'sewer_catalog' },
+        'sewer_coupling_110': { name: 'Муфта канал. Ø110', unit: 'шт', price: 15, category: 'sewer_catalog' },
+        'sewer_plug_110': { name: 'Заглушка канал. Ø110', unit: 'шт', price: 10, category: 'sewer_catalog' },
+        'sewer_revision_110': { name: 'Ревизия канал. Ø110', unit: 'шт', price: 50, category: 'sewer_catalog' },
+        'sewer_clamp_50': { name: 'Хомут канал. Ø50', unit: 'шт', price: 5, category: 'sewer_catalog' },
+        'sewer_clamp_110': { name: 'Хомут канал. Ø110', unit: 'шт', price: 10, category: 'sewer_catalog' },
+        // Бесшумная канализация
+        'sewer_silent_50x1000': { name: 'Труба бесшумная Ø50×1000мм', unit: 'шт', price: 150, category: 'sewer_catalog' },
+        'sewer_silent_110x1000': { name: 'Труба бесшумная Ø110×1000мм', unit: 'шт', price: 300, category: 'sewer_catalog' },
+        'sewer_silent_110x2000': { name: 'Труба бесшумная Ø110×2000мм', unit: 'шт', price: 550, category: 'sewer_catalog' },
+        'sewer_silent_elbow_110_87': { name: 'Отвод бесшумный Ø110 87°', unit: 'шт', price: 80, category: 'sewer_catalog' },
+        'sewer_silent_tee_110_87': { name: 'Тройник бесшумный 110×110 87°', unit: 'шт', price: 120, category: 'sewer_catalog' },
+        // Наружная канализация (рыжая)
+        'sewer_ext_110x1000': { name: 'Труба канал. наружн. Ø110×1000мм', unit: 'шт', price: 100, category: 'sewer_catalog' },
+        'sewer_ext_110x2000': { name: 'Труба канал. наружн. Ø110×2000мм', unit: 'шт', price: 180, category: 'sewer_catalog' },
+        'sewer_ext_110x3000': { name: 'Труба канал. наружн. Ø110×3000мм', unit: 'шт', price: 260, category: 'sewer_catalog' },
+        'sewer_ext_110x6000': { name: 'Труба канал. наружн. Ø110×6000мм', unit: 'шт', price: 500, category: 'sewer_catalog' },
+        'sewer_ext_160x1000': { name: 'Труба канал. наружн. Ø160×1000мм', unit: 'шт', price: 200, category: 'sewer_catalog' },
+        'sewer_ext_160x2000': { name: 'Труба канал. наружн. Ø160×2000мм', unit: 'шт', price: 380, category: 'sewer_catalog' },
+        'sewer_ext_160x3000': { name: 'Труба канал. наружн. Ø160×3000мм', unit: 'шт', price: 550, category: 'sewer_catalog' },
+        'sewer_ext_160x6000': { name: 'Труба канал. наружн. Ø160×6000мм', unit: 'шт', price: 1000, category: 'sewer_catalog' },
+        'sewer_ext_200x3000': { name: 'Труба канал. наружн. Ø200×3000мм', unit: 'шт', price: 800, category: 'sewer_catalog' },
+        'sewer_ext_200x6000': { name: 'Труба канал. наружн. Ø200×6000мм', unit: 'шт', price: 1500, category: 'sewer_catalog' },
+        // Фитинги наружные
+        'sewer_ext_elbow_110_15': { name: 'Отвод наружн. Ø110 15°', unit: 'шт', price: 30, category: 'sewer_catalog' },
+        'sewer_ext_elbow_110_30': { name: 'Отвод наружн. Ø110 30°', unit: 'шт', price: 35, category: 'sewer_catalog' },
+        'sewer_ext_elbow_110_45': { name: 'Отвод наружн. Ø110 45°', unit: 'шт', price: 35, category: 'sewer_catalog' },
+        'sewer_ext_elbow_110_87': { name: 'Отвод наружн. Ø110 87°', unit: 'шт', price: 40, category: 'sewer_catalog' },
+        'sewer_ext_tee_110_110': { name: 'Тройник наружн. 110×110 45°', unit: 'шт', price: 50, category: 'sewer_catalog' },
+        'sewer_ext_reducer_160_110': { name: 'Переход наружн. 160→110', unit: 'шт', price: 30, category: 'sewer_catalog' },
+        'sewer_ext_coupling_110': { name: 'Муфта наружн. Ø110', unit: 'шт', price: 20, category: 'sewer_catalog' },
+        'sewer_ext_coupling_160': { name: 'Муфта наружн. Ø160', unit: 'шт', price: 40, category: 'sewer_catalog' },
+        'sewer_ext_plug_110': { name: 'Заглушка наружн. Ø110', unit: 'шт', price: 15, category: 'sewer_catalog' },
+        'sewer_ext_revision_110': { name: 'Ревизия наружн. Ø110', unit: 'шт', price: 60, category: 'sewer_catalog' },
+        // Гофра / манжеты
+        'sewer_corrugated_40': { name: 'Гофра для сифона Ø40мм (1.5м)', unit: 'шт', price: 50, category: 'sewer_catalog' },
+        'sewer_corrugated_50': { name: 'Гофра для мойки Ø50мм (1.5м)', unit: 'шт', price: 60, category: 'sewer_catalog' },
+        'sewer_wc_corrugated_110': { name: 'Гофра для унитаза Ø110мм', unit: 'шт', price: 150, category: 'sewer_catalog' },
+        'sewer_wc_eccentric_110': { name: 'Эксцентрик для унитаза Ø110мм', unit: 'шт', price: 100, category: 'sewer_catalog' },
+        'sewer_cuff_50_32': { name: 'Манжета переходная 50→32мм', unit: 'шт', price: 10, category: 'sewer_catalog' },
+        'sewer_cuff_50_40': { name: 'Манжета переходная 50→40мм', unit: 'шт', price: 10, category: 'sewer_catalog' },
+        'sewer_cuff_110_50': { name: 'Манжета переходная 110→50мм (резин.)', unit: 'шт', price: 20, category: 'sewer_catalog' },
+        // Канализационные колодцы (ПП)
+        'sewer_well_315_1m': { name: 'Колодец канал. PE Ø315 (1м)', unit: 'шт', price: 3000, category: 'sewer_catalog' },
+        'sewer_well_400_1m': { name: 'Колодец канал. PE Ø400 (1м)', unit: 'шт', price: 5000, category: 'sewer_catalog' },
+        'sewer_well_cover_315': { name: 'Крышка колодца Ø315 (пласт.)', unit: 'шт', price: 500, category: 'sewer_catalog' },
+        'sewer_well_cover_400': { name: 'Крышка колодца Ø400 (пласт.)', unit: 'шт', price: 800, category: 'sewer_catalog' },
+        // Люки
+        'manhole_cover_a15': { name: 'Люк канализационный A15 (лёгкий)', unit: 'шт', price: 500, category: 'sewer_catalog' },
+        'manhole_cover_b125': { name: 'Люк канализационный B125 (средний)', unit: 'шт', price: 1500, category: 'sewer_catalog' },
+        'manhole_cover_d400': { name: 'Люк канализационный D400 (тяжёлый)', unit: 'шт', price: 5000, category: 'sewer_catalog' },
+        // Насосы/КНС
+        'sewer_pump_submersible': { name: 'Насос фекальный погружной 1.5кВт', unit: 'шт', price: 8000, category: 'sewer_catalog' },
+        'sewer_pump_sololift': { name: 'Канализ. насос. система (Sololift)', unit: 'шт', price: 15000, category: 'sewer_catalog' },
+        // Аэрационные клапаны
+        'sewer_aero_valve_50': { name: 'Обратный (аэрационный) клапан Ø50', unit: 'шт', price: 100, category: 'sewer_catalog' },
+        'sewer_aero_valve_110': { name: 'Обратный (аэрационный) клапан Ø110', unit: 'шт', price: 200, category: 'sewer_catalog' },
+        // Клей/смазка
+        'sewer_lubricant_250g': { name: 'Смазка для канал. труб (250г)', unit: 'шт', price: 100, category: 'sewer_catalog' }
+    };
+})();

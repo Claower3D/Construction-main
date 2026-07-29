@@ -1,0 +1,6 @@
+# Training images go here
+# Format: image_name.jpg
+
+# Supported formats: jpg, jpeg, png, bmp, webp
+# Recommended size: 640x640 or larger
+# Labels should be in ../labels/ with same name + .txt extension

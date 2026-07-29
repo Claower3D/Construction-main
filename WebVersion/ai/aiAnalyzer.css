@@ -1,0 +1,635 @@
+/**
+ * QAZGOST AI - Analyzer Styles
+ * 
+ * Styles for AI photo analyzer UI component
+ */
+
+/* ============================================================
+   VARIABLES
+   ============================================================ */
+
+:root {
+    --ai-primary: #6366f1;
+    --ai-primary-hover: #4f46e5;
+    --ai-success: #22c55e;
+    --ai-warning: #f59e0b;
+    --ai-danger: #ef4444;
+    --ai-bg: #1a1a2e;
+    --ai-bg-secondary: #252542;
+    --ai-bg-tertiary: #2d2d4a;
+    --ai-text: #e5e5e5;
+    --ai-text-muted: #9ca3af;
+    --ai-border: rgba(255, 255, 255, 0.1);
+    --ai-radius: 12px;
+    --ai-transition: all 0.2s ease;
+}
+
+/* ============================================================
+   CONTAINER
+   ============================================================ */
+
+.ai-analyzer {
+    background: var(--ai-bg-secondary);
+    border-radius: var(--ai-radius);
+    padding: 24px;
+    color: var(--ai-text);
+    font-family: 'Inter', -apple-system, sans-serif;
+}
+
+/* ============================================================
+   UPLOAD ZONE
+   ============================================================ */
+
+.ai-upload-zone {
+    border: 2px dashed var(--ai-border);
+    border-radius: var(--ai-radius);
+    padding: 48px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: var(--ai-transition);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.ai-upload-zone:hover,
+.ai-upload-zone.ai-dragover {
+    border-color: var(--ai-primary);
+    background: rgba(99, 102, 241, 0.1);
+}
+
+.ai-upload-icon {
+    color: var(--ai-primary);
+    opacity: 0.8;
+}
+
+.ai-upload-zone h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.ai-upload-zone p {
+    margin: 0;
+    color: var(--ai-text-muted);
+    font-size: 14px;
+}
+
+.ai-upload-hint {
+    font-size: 12px !important;
+    opacity: 0.6;
+}
+
+/* ============================================================
+   PREVIEW
+   ============================================================ */
+
+.ai-preview-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.ai-preview-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.ai-preview-filename {
+    font-size: 14px;
+    color: var(--ai-text-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.ai-preview-image-wrapper {
+    position: relative;
+    border-radius: var(--ai-radius);
+    overflow: hidden;
+    background: var(--ai-bg);
+}
+
+.ai-preview-image {
+    display: block;
+    width: 100%;
+    max-height: 400px;
+    object-fit: contain;
+}
+
+.ai-detection-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+/* Reference Selector */
+.ai-reference-selector {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+}
+
+.ai-reference-selector label {
+    color: var(--ai-text-muted);
+}
+
+.ai-reference-select {
+    flex: 1;
+    max-width: 300px;
+    padding: 8px 12px;
+    background: var(--ai-bg-tertiary);
+    border: 1px solid var(--ai-border);
+    border-radius: 8px;
+    color: var(--ai-text);
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.ai-reference-select:focus {
+    outline: none;
+    border-color: var(--ai-primary);
+}
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+
+.ai-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--ai-transition);
+}
+
+.ai-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.ai-btn-primary {
+    background: var(--ai-primary);
+    color: white;
+}
+
+.ai-btn-primary:hover:not(:disabled) {
+    background: var(--ai-primary-hover);
+}
+
+.ai-btn-secondary {
+    background: var(--ai-bg-tertiary);
+    color: var(--ai-text);
+    border: 1px solid var(--ai-border);
+}
+
+.ai-btn-secondary:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.ai-btn-analyze {
+    width: 100%;
+    background: linear-gradient(135deg, var(--ai-primary), #8b5cf6);
+    color: white;
+    padding: 14px 24px;
+    font-size: 16px;
+}
+
+.ai-btn-analyze:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.ai-btn-icon {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    background: transparent;
+    border: none;
+    color: var(--ai-text-muted);
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--ai-transition);
+}
+
+.ai-btn-icon:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--ai-text);
+}
+
+/* ============================================================
+   LOADING
+   ============================================================ */
+
+.ai-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px;
+    gap: 16px;
+    text-align: center;
+}
+
+.ai-loading-spinner {
+    width: 48px;
+    height: 48px;
+    border: 3px solid var(--ai-border);
+    border-top-color: var(--ai-primary);
+    border-radius: 50%;
+    animation: ai-spin 1s linear infinite;
+}
+
+@keyframes ai-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.ai-loading p {
+    margin: 0;
+    color: var(--ai-text);
+}
+
+.ai-loading-hint {
+    color: var(--ai-text-muted);
+    font-size: 13px;
+}
+
+/* ============================================================
+   UPLOAD BUTTONS
+   ============================================================ */
+
+.ai-upload-buttons {
+    display: flex;
+    gap: 8px;
+    margin: 4px 0;
+}
+
+.ai-camera-btn {
+    padding: 8px 16px !important;
+    font-size: 13px !important;
+    border-radius: 20px !important;
+}
+
+/* ============================================================
+   STEP PROGRESS (v2)
+   ============================================================ */
+
+.ai-steps-progress {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    max-width: 360px;
+}
+
+.ai-step {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    opacity: 0.35;
+    transition: all 0.4s ease;
+}
+
+.ai-step.active {
+    opacity: 1;
+    background: rgba(99, 102, 241, 0.1);
+}
+
+.ai-step.done {
+    opacity: 0.7;
+}
+
+.ai-step-icon {
+    font-size: 20px;
+    min-width: 30px;
+    text-align: center;
+    transition: transform 0.3s;
+}
+
+.ai-step.active .ai-step-icon {
+    animation: ai-step-bounce 0.6s ease-in-out;
+}
+
+@keyframes ai-step-bounce {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.3);
+    }
+}
+
+.ai-step-info {
+    flex: 1;
+}
+
+.ai-step-name {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ai-text-muted);
+    margin-bottom: 4px;
+}
+
+.ai-step.active .ai-step-name {
+    color: var(--ai-text);
+}
+
+.ai-step.done .ai-step-name {
+    color: var(--ai-success);
+}
+
+.ai-step-bar {
+    height: 4px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.ai-step-fill {
+    height: 100%;
+    width: 0;
+    background: linear-gradient(90deg, var(--ai-primary), #a855f7);
+    border-radius: 2px;
+    transition: width 0.8s ease;
+}
+
+.ai-step.active .ai-step-fill {
+    width: 100%;
+    animation: ai-fill-progress 0.8s ease-in-out;
+}
+
+.ai-step.done .ai-step-fill {
+    width: 100%;
+    background: var(--ai-success);
+}
+
+@keyframes ai-fill-progress {
+    from {
+        width: 0;
+    }
+
+    to {
+        width: 100%;
+    }
+}
+
+/* ============================================================
+   RESULTS
+   ============================================================ */
+
+.ai-results {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.ai-result-section {
+    background: var(--ai-bg-tertiary);
+    border-radius: var(--ai-radius);
+    padding: 16px;
+}
+
+.ai-result-section h4 {
+    margin: 0 0 16px 0;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+/* Detected Objects */
+.ai-detected-objects {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.ai-object-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background: rgba(255, 255, 255, 0.1);
+    border-left: 3px solid var(--chip-color, #888);
+    border-radius: 6px;
+    font-size: 13px;
+}
+
+.ai-object-count {
+    background: var(--chip-color, #888);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.ai-no-objects {
+    color: var(--ai-text-muted);
+    font-style: italic;
+    margin: 0;
+}
+
+/* Measurements */
+.ai-measurement-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--ai-border);
+}
+
+.ai-measurement-item:last-child {
+    border-bottom: none;
+}
+
+.ai-measurement-name {
+    font-weight: 500;
+}
+
+.ai-measurement-values {
+    color: var(--ai-text-muted);
+    font-size: 13px;
+}
+
+/* Estimate Table */
+.ai-estimate-table-wrapper {
+    overflow-x: auto;
+}
+
+.ai-estimate-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.ai-estimate-table th,
+.ai-estimate-table td {
+    padding: 10px 8px;
+    text-align: left;
+    border-bottom: 1px solid var(--ai-border);
+}
+
+.ai-estimate-table th {
+    color: var(--ai-text-muted);
+    font-weight: 500;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.ai-estimate-table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.ai-estimate-table tfoot td {
+    border-top: 2px solid var(--ai-border);
+    border-bottom: none;
+    font-weight: 600;
+}
+
+.ai-estimate-total {
+    color: var(--ai-success);
+    font-size: 16px;
+}
+
+.ai-estimate-confidence {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+    font-size: 13px;
+}
+
+.ai-confidence-label {
+    color: var(--ai-text-muted);
+}
+
+.ai-confidence-value {
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+.ai-confidence-value.high {
+    color: var(--ai-success);
+    background: rgba(34, 197, 94, 0.15);
+}
+
+.ai-confidence-value.medium {
+    color: var(--ai-warning);
+    background: rgba(245, 158, 11, 0.15);
+}
+
+.ai-confidence-value.low {
+    color: var(--ai-danger);
+    background: rgba(239, 68, 68, 0.15);
+}
+
+/* Warnings */
+.ai-warnings {
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    border-radius: var(--ai-radius);
+    padding: 12px;
+}
+
+.ai-warning-item {
+    padding: 6px 0;
+    font-size: 13px;
+    color: var(--ai-warning);
+}
+
+/* Actions */
+.ai-result-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+}
+
+/* ============================================================
+   ERROR
+   ============================================================ */
+
+.ai-error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px;
+    gap: 16px;
+    text-align: center;
+}
+
+.ai-error-icon {
+    font-size: 48px;
+}
+
+.ai-error h4 {
+    margin: 0;
+    color: var(--ai-danger);
+}
+
+.ai-error-message {
+    color: var(--ai-text-muted);
+    margin: 0;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 600px) {
+    .ai-analyzer {
+        padding: 16px;
+    }
+
+    .ai-upload-zone {
+        padding: 32px 16px;
+    }
+
+    .ai-reference-selector {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .ai-reference-select {
+        max-width: 100%;
+        width: 100%;
+    }
+
+    .ai-result-actions {
+        flex-direction: column;
+    }
+
+    .ai-result-actions .ai-btn {
+        width: 100%;
+    }
+
+    .ai-estimate-table th,
+    .ai-estimate-table td {
+        padding: 8px 4px;
+        font-size: 12px;
+    }
+}

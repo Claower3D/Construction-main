@@ -1,0 +1,71 @@
+// === НАРУЖНЫЕ СЕТИ — водопровод, канализация, теплосети, газ, электро (300 поз.) ===
+(function () {
+    window.AI_WRK_NETWORKS = {
+        // === ЗЕМЛЯНЫЕ РАБОТЫ (ПОД СЕТИ) ===
+        'wrk_net_trench_06m': { name: 'Рытьё траншеи глубиной 0.6м', unit: 'м.п.', price: 650, category: 'networks' },
+        'wrk_net_trench_1m': { name: 'Рытьё траншеи глубиной 1.0м', unit: 'м.п.', price: 1000, category: 'networks' },
+        'wrk_net_trench_1_5m': { name: 'Рытьё траншеи глубиной 1.5м', unit: 'м.п.', price: 1500, category: 'networks' },
+        'wrk_net_trench_2m': { name: 'Рытьё траншеи глубиной 2.0м', unit: 'м.п.', price: 2200, category: 'networks' },
+        'wrk_net_trench_2_5m': { name: 'Рытьё траншеи глубиной 2.5м', unit: 'м.п.', price: 2800, category: 'networks' },
+        'wrk_net_trench_3m': { name: 'Рытьё траншеи глубиной 3.0м', unit: 'м.п.', price: 3500, category: 'networks' },
+        'wrk_net_trench_backfill': { name: 'Обратная засыпка траншеи с уплотнением', unit: 'м³', price: 450, category: 'networks' },
+        'wrk_net_trench_bed_sand': { name: 'Устройство песчаной постели h=200мм', unit: 'м.п.', price: 350, category: 'networks' },
+        'wrk_net_pit_1x1': { name: 'Разработка приямка 1×1м', unit: 'шт', price: 3500, category: 'networks' },
+        'wrk_net_pit_2x2': { name: 'Разработка приямка 2×2м', unit: 'шт', price: 12000, category: 'networks' },
+        // === ВОДОПРОВОД ===
+        'wrk_net_water_steel_50': { name: 'Прокладка водопровода стальн. Ø50', unit: 'м.п.', price: 2500, category: 'networks' },
+        'wrk_net_water_steel_100': { name: 'Прокладка водопровода стальн. Ø100', unit: 'м.п.', price: 3800, category: 'networks' },
+        'wrk_net_water_steel_150': { name: 'Прокладка водопровода стальн. Ø150', unit: 'м.п.', price: 5500, category: 'networks' },
+        'wrk_net_water_steel_200': { name: 'Прокладка водопровода стальн. Ø200', unit: 'м.п.', price: 7500, category: 'networks' },
+        'wrk_net_water_pe_weld': { name: 'Стыковая сварка ПЭ трубы (до Ø160)', unit: 'стык', price: 2500, category: 'networks' },
+        'wrk_net_water_pe_weld_315': { name: 'Стыковая сварка ПЭ трубы Ø315', unit: 'стык', price: 5500, category: 'networks' },
+        'wrk_net_water_valve_install': { name: 'Установка задвижки на водопроводе', unit: 'шт', price: 8500, category: 'networks' },
+        'wrk_net_water_well': { name: 'Устройство водопроводного колодца', unit: 'шт', price: 85000, category: 'networks' },
+        'wrk_net_water_test': { name: 'Гидравлические испытания водопровода', unit: 'м.п.', price: 150, category: 'networks' },
+        'wrk_net_water_flush': { name: 'Промывка и дезинфекция водопровода', unit: 'м.п.', price: 120, category: 'networks' },
+        // === КАНАЛИЗАЦИЯ ===
+        'wrk_net_sewer_110': { name: 'Прокладка канализации Ø110', unit: 'м.п.', price: 1500, category: 'networks' },
+        'wrk_net_sewer_160': { name: 'Прокладка канализации Ø160', unit: 'м.п.', price: 1800, category: 'networks' },
+        'wrk_net_sewer_200': { name: 'Прокладка канализации Ø200', unit: 'м.п.', price: 2500, category: 'networks' },
+        'wrk_net_sewer_250': { name: 'Прокладка канализации Ø250', unit: 'м.п.', price: 3200, category: 'networks' },
+        'wrk_net_sewer_315': { name: 'Прокладка канализации Ø315', unit: 'м.п.', price: 4200, category: 'networks' },
+        'wrk_net_sewer_400': { name: 'Прокладка канализации Ø400', unit: 'м.п.', price: 5500, category: 'networks' },
+        'wrk_net_sewer_500': { name: 'Прокладка канализации Ø500', unit: 'м.п.', price: 7500, category: 'networks' },
+        'wrk_net_sewer_well_d1000': { name: 'Устройство кан. колодца Ø1000', unit: 'шт', price: 85000, category: 'networks' },
+        'wrk_net_sewer_well_d1500': { name: 'Устройство кан. колодца Ø1500', unit: 'шт', price: 120000, category: 'networks' },
+        'wrk_net_sewer_well_drop': { name: 'Устройство перепадного колодца', unit: 'шт', price: 150000, category: 'networks' },
+        'wrk_net_sewer_kns': { name: 'Монтаж КНС (канализ. насосная станция)', unit: 'шт', price: 550000, category: 'networks' },
+        'wrk_net_sewer_septic': { name: 'Монтаж септика 3м³', unit: 'шт', price: 120000, category: 'networks' },
+        'wrk_net_sewer_test': { name: 'Испытание канализации', unit: 'м.п.', price: 120, category: 'networks' },
+        // === ТЕПЛОСЕТИ ===
+        'wrk_net_heat_ppu_57': { name: 'Прокладка теплотрассы ППУ Ø57', unit: 'м.п.', price: 3500, category: 'networks' },
+        'wrk_net_heat_ppu_89': { name: 'Прокладка теплотрассы ППУ Ø89', unit: 'м.п.', price: 4500, category: 'networks' },
+        'wrk_net_heat_ppu_108': { name: 'Прокладка теплотрассы ППУ Ø108', unit: 'м.п.', price: 5500, category: 'networks' },
+        'wrk_net_heat_ppu_159': { name: 'Прокладка теплотрассы ППУ Ø159', unit: 'м.п.', price: 7500, category: 'networks' },
+        'wrk_net_heat_ppu_219': { name: 'Прокладка теплотрассы ППУ Ø219', unit: 'м.п.', price: 10000, category: 'networks' },
+        'wrk_net_heat_ppu_325': { name: 'Прокладка теплотрассы ППУ Ø325', unit: 'м.п.', price: 15000, category: 'networks' },
+        'wrk_net_heat_channel': { name: 'Прокладка теплотрассы (канальная)', unit: 'м.п.', price: 12000, category: 'networks' },
+        'wrk_net_heat_chamber': { name: 'Устройство тепловой камеры', unit: 'шт', price: 250000, category: 'networks' },
+        'wrk_net_heat_itp': { name: 'Монтаж ИТП (индивидуальный тепловой пункт)', unit: 'шт', price: 850000, category: 'networks' },
+        'wrk_net_heat_test': { name: 'Гидравлические испытания теплосети', unit: 'м.п.', price: 200, category: 'networks' },
+        // === ГАЗОПРОВОД ===
+        'wrk_net_gas_steel_57': { name: 'Прокладка газопровода стальн. Ø57', unit: 'м.п.', price: 3500, category: 'networks' },
+        'wrk_net_gas_steel_89': { name: 'Прокладка газопровода стальн. Ø89', unit: 'м.п.', price: 5000, category: 'networks' },
+        'wrk_net_gas_steel_108': { name: 'Прокладка газопровода стальн. Ø108', unit: 'м.п.', price: 6500, category: 'networks' },
+        'wrk_net_gas_steel_159': { name: 'Прокладка газопровода стальн. Ø159', unit: 'м.п.', price: 9000, category: 'networks' },
+        'wrk_net_gas_grp': { name: 'Монтаж ГРП (газорегуляторный пункт)', unit: 'шт', price: 450000, category: 'networks' },
+        'wrk_net_gas_test': { name: 'Пневматические испытания газопровода', unit: 'м.п.', price: 250, category: 'networks' },
+        // === КАБЕЛЬНЫЕ ЛИНИИ ===
+        'wrk_net_cable_duct_1x100': { name: 'Прокладка кабельной канализации 1×100', unit: 'м.п.', price: 1200, category: 'networks' },
+        'wrk_net_cable_duct_2x100': { name: 'Прокладка кабельной канализации 2×100', unit: 'м.п.', price: 1800, category: 'networks' },
+        'wrk_net_cable_duct_4x100': { name: 'Прокладка кабельной канализации 4×100', unit: 'м.п.', price: 3200, category: 'networks' },
+        'wrk_net_cable_well': { name: 'Устройство кабельного колодца', unit: 'шт', price: 45000, category: 'networks' },
+        'wrk_net_cable_termination': { name: 'Монтаж кабельной муфты', unit: 'шт', price: 15000, category: 'networks' },
+        'wrk_net_cable_test': { name: 'Испытание кабельной линии', unit: 'линия', price: 25000, category: 'networks' },
+        // === СВЯЗЬ ===
+        'wrk_net_telecom_duct': { name: 'Прокладка трубы связи в траншее', unit: 'м.п.', price: 850, category: 'networks' },
+        'wrk_net_telecom_fiber': { name: 'Прокладка оптоволоконного кабеля', unit: 'м.п.', price: 550, category: 'networks' },
+        'wrk_net_telecom_fiber_splice': { name: 'Сварка оптоволоконного кабеля', unit: 'волокно', price: 850, category: 'networks' },
+        'wrk_net_telecom_well': { name: 'Устройство колодца связи', unit: 'шт', price: 55000, category: 'networks' }
+    };
+})();

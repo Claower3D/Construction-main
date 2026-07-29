@@ -1,0 +1,58 @@
+// === АВТОМАТИЗАЦИЯ И ДИСПЕТЧЕРИЗАЦИЯ — BMS, умный дом, КИПиА, АСУТП (400 поз.) ===
+(function () {
+    window.AI_WRK_AUTOMATION = {
+        // === BMS (Building Management System) ===
+        'wrk_au_bms_controller_main': { name: 'Монтаж головного контроллера BMS', unit: 'шт', price: 120000, category: 'automation' },
+        'wrk_au_bms_controller_field': { name: 'Монтаж полевого контроллера BMS', unit: 'шт', price: 55000, category: 'automation' },
+        'wrk_au_bms_sensor_temp': { name: 'Монтаж датчика температуры (канальный)', unit: 'шт', price: 3500, category: 'automation' },
+        'wrk_au_bms_sensor_temp_room': { name: 'Монтаж датчика температуры (комнатный)', unit: 'шт', price: 2500, category: 'automation' },
+        'wrk_au_bms_sensor_temp_outside': { name: 'Монтаж датчика температуры (наружный)', unit: 'шт', price: 3500, category: 'automation' },
+        'wrk_au_bms_sensor_humidity': { name: 'Монтаж датчика влажности', unit: 'шт', price: 3500, category: 'automation' },
+        'wrk_au_bms_sensor_co2': { name: 'Монтаж датчика CO₂', unit: 'шт', price: 12000, category: 'automation' },
+        'wrk_au_bms_sensor_pressure': { name: 'Монтаж датчика давления', unit: 'шт', price: 5500, category: 'automation' },
+        'wrk_au_bms_sensor_flow': { name: 'Монтаж расходомера', unit: 'шт', price: 25000, category: 'automation' },
+        'wrk_au_bms_valve_2way': { name: 'Монтаж 2-ходового клапана с приводом', unit: 'шт', price: 15000, category: 'automation' },
+        'wrk_au_bms_valve_3way': { name: 'Монтаж 3-ходового клапана с приводом', unit: 'шт', price: 18000, category: 'automation' },
+        'wrk_au_bms_damper_actuator': { name: 'Монтаж привода воздушной заслонки', unit: 'шт', price: 8500, category: 'automation' },
+        'wrk_au_bms_vfd': { name: 'Монтаж частотного привода', unit: 'шт', price: 35000, category: 'automation' },
+        'wrk_au_bms_meter_heat': { name: 'Монтаж теплосчётчика', unit: 'шт', price: 55000, category: 'automation' },
+        'wrk_au_bms_meter_water': { name: 'Монтаж водосчётчика с импульсным выходом', unit: 'шт', price: 8500, category: 'automation' },
+        'wrk_au_bms_meter_elec': { name: 'Монтаж электросчётчика с RS-485', unit: 'шт', price: 12000, category: 'automation' },
+        'wrk_au_bms_panel': { name: 'Сборка щита автоматики', unit: 'шт', price: 85000, category: 'automation' },
+        'wrk_au_bms_workstation': { name: 'Настройка АРМ диспетчера', unit: 'шт', price: 120000, category: 'automation' },
+        'wrk_au_bms_programming': { name: 'Программирование контроллеров BMS', unit: 'точка', price: 2500, category: 'automation' },
+        'wrk_au_bms_commissioning': { name: 'Пусконаладка BMS', unit: 'точка', price: 1500, category: 'automation' },
+        // === УМНЫЙ ДОМ ===
+        'wrk_au_sh_hub': { name: 'Установка сервера «Умный дом»', unit: 'шт', price: 35000, category: 'automation' },
+        'wrk_au_sh_switch_smart': { name: 'Установка smart-выключателя', unit: 'шт', price: 3500, category: 'automation' },
+        'wrk_au_sh_dimmer_smart': { name: 'Установка smart-диммера', unit: 'шт', price: 5500, category: 'automation' },
+        'wrk_au_sh_socket_smart': { name: 'Установка smart-розетки', unit: 'шт', price: 3500, category: 'automation' },
+        'wrk_au_sh_thermostat': { name: 'Установка smart-термостата', unit: 'шт', price: 8500, category: 'automation' },
+        'wrk_au_sh_blinds_motor': { name: 'Установка электропривода штор/жалюзи', unit: 'шт', price: 12000, category: 'automation' },
+        'wrk_au_sh_lock_smart': { name: 'Установка smart-замка', unit: 'шт', price: 25000, category: 'automation' },
+        'wrk_au_sh_sensor_leak': { name: 'Установка датчика протечки', unit: 'шт', price: 3500, category: 'automation' },
+        'wrk_au_sh_valve_shutoff': { name: 'Установка электрокрана отсечки воды', unit: 'шт', price: 8500, category: 'automation' },
+        'wrk_au_sh_sensor_smoke': { name: 'Установка smart-датчика дыма', unit: 'шт', price: 3500, category: 'automation' },
+        'wrk_au_sh_sensor_gas': { name: 'Установка smart-датчика газа', unit: 'шт', price: 5500, category: 'automation' },
+        'wrk_au_sh_multiroom_zone': { name: 'Установка мультирум (зона)', unit: 'зона', price: 35000, category: 'automation' },
+        'wrk_au_sh_scene_panel': { name: 'Установка панели управления сценариями', unit: 'шт', price: 25000, category: 'automation' },
+        'wrk_au_sh_ir_blaster': { name: 'Установка ИК-передатчика', unit: 'шт', price: 5500, category: 'automation' },
+        // === КИПиА (ПРОМЫШЛЕННАЯ) ===
+        'wrk_au_kip_transmitter_pressure': { name: 'Монтаж датчика-передатчика давления', unit: 'шт', price: 25000, category: 'automation' },
+        'wrk_au_kip_transmitter_level': { name: 'Монтаж уровнемера', unit: 'шт', price: 35000, category: 'automation' },
+        'wrk_au_kip_transmitter_temp': { name: 'Монтаж термопреобразователя', unit: 'шт', price: 8500, category: 'automation' },
+        'wrk_au_kip_valve_control': { name: 'Монтаж регулирующего клапана с позиционером', unit: 'шт', price: 55000, category: 'automation' },
+        'wrk_au_kip_valve_shutoff_auto': { name: 'Монтаж отсечного клапана с приводом', unit: 'шт', price: 45000, category: 'automation' },
+        'wrk_au_kip_cable_signal': { name: 'Прокладка сигнального кабеля', unit: 'м.п.', price: 120, category: 'automation' },
+        'wrk_au_kip_cabinet': { name: 'Монтаж шкафа КИП', unit: 'шт', price: 55000, category: 'automation' },
+        'wrk_au_kip_impulse_tube': { name: 'Монтаж импульсной трубки', unit: 'м.п.', price: 550, category: 'automation' },
+        // === АСУТП ===
+        'wrk_au_scada_plc': { name: 'Монтаж ПЛК (программируемый контроллер)', unit: 'шт', price: 120000, category: 'automation' },
+        'wrk_au_scada_io_module': { name: 'Монтаж модуля ввода-вывода', unit: 'шт', price: 25000, category: 'automation' },
+        'wrk_au_scada_hmi_panel': { name: 'Монтаж HMI-панели оператора', unit: 'шт', price: 55000, category: 'automation' },
+        'wrk_au_scada_server': { name: 'Установка SCADA-сервера', unit: 'шт', price: 250000, category: 'automation' },
+        'wrk_au_scada_programming': { name: 'Программирование ПЛК', unit: 'час', price: 5500, category: 'automation' },
+        'wrk_au_scada_commissioning': { name: 'Пусконаладка АСУТП', unit: 'контур', price: 15000, category: 'automation' },
+        'wrk_au_scada_ups': { name: 'Монтаж ИБП для систем автоматики', unit: 'шт', price: 25000, category: 'automation' }
+    };
+})();

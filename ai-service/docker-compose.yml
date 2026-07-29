@@ -1,0 +1,266 @@
+# ═══════════════════════════════════════════════════════════════════
+# QAZGOST AI — Full Stack Docker Compose v2
+#
+# Services:
+#   1. ai-service    — FastAPI (RF-DETR + SAM + GroundingDINO + Qwen)
+#   2. ollama        — Ollama LLM server (Qwen2.5-VL backend)
+#   3. ai-service-cpu — CPU-only variant (dev profile)
+#
+# Usage:
+#   GPU mode:     docker compose up -d ai-service ollama
+#   CPU mode:     docker compose --profile cpu up -d
+#   Full stack:   docker compose --profile full up -d
+#   Logs:         docker compose logs -f ai-service
+#   Stop:         docker compose down
+#
+# First run (download Qwen VLM model):
+#   docker compose exec ollama ollama pull qwen2.5vl:7b
+#
+# ═══════════════════════════════════════════════════════════════════
+
+services:
+
+  # ─── AI Service (GPU) ────────────────────────────────────────────
+  ai-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: qazgost-ai
+    restart: unless-stopped
+
+    # NVIDIA GPU support
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [ gpu ]
+
+    ports:
+      - "${AI_PORT:-8001}:8001"
+
+    environment:
+      - DEVICE=auto
+      - DEBUG=${DEBUG:-false}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - OLLAMA_HOST=http://ollama:11434
+      - CORS_ORIGINS=["http://localhost:3000","http://localhost:5173","http://localhost:8080"]
+
+    volumes:
+      - ai-models:/app/models
+      - ai-uploads:/app/uploads
+      - ai-results:/app/results
+      - ai-logs:/app/logs
+
+    depends_on:
+      ollama:
+        condition: service_started
+
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8001/api/v1/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "5"
+
+  # ─── Ollama LLM Server ──────────────────────────────────────────
+  # Provides Qwen2.5-VL multimodal model for scene description
+  # First run:  docker compose exec ollama ollama pull qwen2.5vl:7b
+  ollama:
+    image: ollama/ollama:latest
+    container_name: qazgost-ollama
+    restart: unless-stopped
+
+    # GPU support for Ollama
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [ gpu ]
+
+    ports:
+      - "${OLLAMA_PORT:-11434}:11434"
+
+    volumes:
+      - ollama-data:/root/.ollama
+
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+      - OLLAMA_NUM_PARALLEL=2
+      - OLLAMA_MAX_LOADED_MODELS=2
+
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:11434/" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ─── AI Service (CPU — dev profile) ─────────────────────────────
+  ai-service-cpu:
+    build:
+      context: .
+      dockerfile: Dockerfile.cpu
+    container_name: qazgost-ai-cpu
+    restart: unless-stopped
+    profiles:
+      - cpu
+      - dev
+      - full
+
+    ports:
+      - "${AI_PORT:-8001}:8001"
+
+    environment:
+      - DEVICE=cpu
+      - DEBUG=true
+      - LOG_LEVEL=DEBUG
+      - OLLAMA_HOST=http://ollama-cpu:11434
+      - CORS_ORIGINS=["http://localhost:3000","http://localhost:5173","http://localhost:8080"]
+
+    volumes:
+      - ai-models:/app/models
+      - ai-uploads:/app/uploads
+      - ai-results:/app/results
+      - ai-logs:/app/logs
+
+    depends_on:
+      ollama-cpu:
+        condition: service_started
+
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8001/api/v1/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 90s
+
+  # ─── Ollama CPU (dev profile) ────────────────────────────────────
+  ollama-cpu:
+    image: ollama/ollama:latest
+    container_name: qazgost-ollama-cpu
+    restart: unless-stopped
+    profiles:
+      - cpu
+      - dev
+      - full
+
+    ports:
+      - "${OLLAMA_PORT:-11434}:11434"
+
+    volumes:
+      - ollama-data:/root/.ollama
+
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+      - OLLAMA_NUM_PARALLEL=1
+      - OLLAMA_MAX_LOADED_MODELS=1
+
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:11434/" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  # ─── Model Initializer (one-shot) ───────────────────────────────
+  # Automatically pulls Qwen VLM model on first run
+  model-init:
+    image: curlimages/curl:latest
+    container_name: qazgost-model-init
+    profiles:
+      - init
+      - full
+    depends_on:
+      ollama:
+        condition: service_healthy
+    restart: "no"
+    entrypoint: >
+      sh -c "
+        echo '📦 Pulling Qwen2.5-VL model...' &&
+        curl -s http://ollama:11434/api/pull -d '{\"name\":\"qwen2.5vl:7b\"}' &&
+        echo '✅ Qwen2.5-VL model ready!'
+      "
+
+  # ─── Prometheus (monitoring profile) ────────────────────────────
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: qazgost-prometheus
+    restart: unless-stopped
+    profiles:
+      - monitoring
+      - full
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.retention.time=30d'
+    healthcheck:
+      test: [ "CMD", "wget", "-q", "--spider", "http://localhost:9090/-/healthy" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # ─── Grafana (monitoring profile) ───────────────────────────────
+  grafana:
+    image: grafana/grafana:latest
+    container_name: qazgost-grafana
+    restart: unless-stopped
+    profiles:
+      - monitoring
+      - full
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=qazgost2026
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH=/var/lib/grafana/dashboards/qazgost-ai.json
+    volumes:
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - ./monitoring/grafana/provisioning/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml:ro
+      - ./monitoring/grafana/provisioning/dashboards.yml:/etc/grafana/provisioning/dashboards/dashboards.yml:ro
+      - grafana-data:/var/lib/grafana
+    depends_on:
+      prometheus:
+        condition: service_started
+
+# ─── Volumes ──────────────────────────────────────────────────────
+volumes:
+  ai-models:
+    name: qazgost-ai-models
+  ai-uploads:
+    name: qazgost-ai-uploads
+  ai-results:
+    name: qazgost-ai-results
+  ai-logs:
+    name: qazgost-ai-logs
+  ollama-data:
+    name: qazgost-ollama-data
+  prometheus-data:
+    name: qazgost-prometheus-data
+  grafana-data:
+    name: qazgost-grafana-data
+
+# ─── Networks ─────────────────────────────────────────────────────
+networks:
+  default:
+    name: qazgost-network

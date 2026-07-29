@@ -1,0 +1,890 @@
+/* ========================================
+   CONSTRUCTION TRACKER STYLES v1.0
+   Стили для Live Construction Tracker
+   ======================================== */
+
+/* ============================================================
+   DASHBOARD LAYOUT
+   ============================================================ */
+
+.tracker-dashboard {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 24px;
+    color: #e5e5e5;
+    font-family: 'Inter', -apple-system, sans-serif;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+
+.tracker-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.tracker-title {
+    margin: 0 0 8px 0;
+    font-size: 24px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #6366f1, #a855f7);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.tracker-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    font-size: 13px;
+    color: #9ca3af;
+}
+
+.tracker-days-left {
+    color: #3b82f6;
+    font-weight: 500;
+}
+
+.tracker-days-left.urgent {
+    color: #ef4444;
+    animation: tracker-pulse-text 2s ease-in-out infinite;
+}
+
+@keyframes tracker-pulse-text {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.6;
+    }
+}
+
+.tracker-header-actions {
+    display: flex;
+    gap: 8px;
+}
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+
+.tracker-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 18px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 10px;
+    color: #e5e5e5;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.tracker-btn:hover {
+    background: rgba(255, 255, 255, 0.14);
+    transform: translateY(-1px);
+}
+
+.tracker-btn.primary {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    border-color: transparent;
+    color: white;
+}
+
+.tracker-btn.primary:hover {
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+}
+
+/* ============================================================
+   CARDS
+   ============================================================ */
+
+.tracker-card {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 20px;
+    backdrop-filter: blur(10px);
+    transition: border-color 0.3s ease;
+}
+
+.tracker-card:hover {
+    border-color: rgba(99, 102, 241, 0.3);
+}
+
+.tracker-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.tracker-section-header h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+/* ============================================================
+   TOP ROW LAYOUT
+   ============================================================ */
+
+.tracker-top-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+/* ============================================================
+   CIRCULAR PROGRESS
+   ============================================================ */
+
+.tracker-progress-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+
+.tracker-progress-card h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    width: 100%;
+}
+
+.tracker-circular {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.tracker-circular svg {
+    transform: rotate(0deg);
+}
+
+.tracker-circular-text {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.tracker-circular-value {
+    font-size: 36px;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.tracker-circular-label {
+    font-size: 12px;
+    color: #9ca3af;
+    margin-top: 4px;
+}
+
+.tracker-progress-stats {
+    display: flex;
+    gap: 24px;
+}
+
+.tracker-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.tracker-stat-value {
+    font-size: 22px;
+    font-weight: 700;
+    color: #e5e5e5;
+}
+
+.tracker-stat-label {
+    font-size: 11px;
+    color: #9ca3af;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* ============================================================
+   BUDGET CHART
+   ============================================================ */
+
+.tracker-budget {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.tracker-budget-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.tracker-budget-title {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.tracker-budget-pct {
+    font-size: 14px;
+    color: #3b82f6;
+    font-weight: 600;
+}
+
+.tracker-budget-pct.over {
+    color: #ef4444;
+}
+
+.tracker-budget-bar-bg {
+    height: 20px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+}
+
+.tracker-budget-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #3b82f6, #6366f1);
+    border-radius: 10px;
+    position: relative;
+    transition: width 1.5s ease-in-out;
+}
+
+.tracker-budget-bar-fill.over {
+    background: linear-gradient(90deg, #f59e0b, #ef4444);
+}
+
+.tracker-budget-bar-glow {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 20px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3));
+    border-radius: 0 10px 10px 0;
+    animation: tracker-bar-glow 2s ease-in-out infinite;
+}
+
+@keyframes tracker-bar-glow {
+
+    0%,
+    100% {
+        opacity: 0.5;
+    }
+
+    50% {
+        opacity: 1;
+    }
+}
+
+.tracker-budget-legend {
+    display: flex;
+    gap: 20px;
+    font-size: 13px;
+    color: #9ca3af;
+}
+
+.tracker-budget-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.tracker-budget-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.tracker-budget-dot.plan {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.tracker-budget-dot.spent {
+    background: #6366f1;
+}
+
+.tracker-budget-dot.remain {
+    background: #22c55e;
+}
+
+/* ============================================================
+   STAGES
+   ============================================================ */
+
+.tracker-stage-counter {
+    font-size: 13px;
+    color: #6366f1;
+    font-weight: 600;
+}
+
+.tracker-stages-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.tracker-stage {
+    display: flex;
+    gap: 16px;
+    padding: 8px 0;
+}
+
+.tracker-stage-indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 36px;
+}
+
+.tracker-stage-num {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 600;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+}
+
+.tracker-stage-num.completed {
+    background: #22c55e;
+    color: white;
+}
+
+.tracker-stage-num.in_progress {
+    background: #3b82f6;
+    color: white;
+    box-shadow: 0 0 12px rgba(59, 130, 246, 0.5);
+    animation: tracker-active-pulse 2s ease-in-out infinite;
+}
+
+@keyframes tracker-active-pulse {
+
+    0%,
+    100% {
+        box-shadow: 0 0 8px rgba(59, 130, 246, 0.3);
+    }
+
+    50% {
+        box-shadow: 0 0 16px rgba(59, 130, 246, 0.6);
+    }
+}
+
+.tracker-stage-num.pending {
+    background: rgba(255, 255, 255, 0.08);
+    color: #6b7280;
+    border: 1px dashed rgba(255, 255, 255, 0.15);
+}
+
+.tracker-stage-line {
+    width: 2px;
+    flex: 1;
+    min-height: 20px;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.tracker-stage-line.done {
+    background: #22c55e;
+}
+
+.tracker-stage-content {
+    flex: 1;
+    min-width: 0;
+    padding-bottom: 8px;
+}
+
+.tracker-stage-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+.tracker-stage-name {
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.tracker-stage-badge {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 500;
+}
+
+.tracker-stage-badge.completed {
+    background: rgba(34, 197, 94, 0.15);
+    color: #22c55e;
+}
+
+.tracker-stage-badge.in_progress {
+    background: rgba(59, 130, 246, 0.15);
+    color: #3b82f6;
+}
+
+.tracker-stage-badge.pending {
+    background: rgba(255, 255, 255, 0.06);
+    color: #6b7280;
+}
+
+.tracker-stage-progress-bar {
+    height: 6px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 4px;
+}
+
+.tracker-stage-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #3b82f6, #6366f1);
+    border-radius: 3px;
+    transition: width 1s ease-in-out;
+}
+
+.tracker-stage-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #9ca3af;
+}
+
+/* ============================================================
+   PHOTO TIMELINE
+   ============================================================ */
+
+.tracker-photos-count {
+    font-size: 13px;
+    color: #9ca3af;
+}
+
+.tracker-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    position: relative;
+    padding-left: 20px;
+}
+
+.tracker-timeline::before {
+    content: '';
+    position: absolute;
+    left: 5px;
+    top: 8px;
+    bottom: 8px;
+    width: 2px;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.tracker-timeline-item {
+    position: relative;
+}
+
+.tracker-timeline-dot {
+    position: absolute;
+    left: -18px;
+    top: 16px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    z-index: 1;
+}
+
+.tracker-timeline-dot.pulse {
+    background: #6366f1;
+    animation: tracker-dot-pulse 2s ease-in-out infinite;
+}
+
+@keyframes tracker-dot-pulse {
+
+    0%,
+    100% {
+        box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4);
+    }
+
+    50% {
+        box-shadow: 0 0 0 6px rgba(99, 102, 241, 0);
+    }
+}
+
+.tracker-timeline-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 8px;
+    transition: all 0.2s ease;
+}
+
+.tracker-timeline-card:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(99, 102, 241, 0.2);
+}
+
+.tracker-timeline-item.latest .tracker-timeline-card {
+    border-color: rgba(99, 102, 241, 0.3);
+}
+
+.tracker-timeline-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6px;
+}
+
+.tracker-timeline-date {
+    font-size: 12px;
+    color: #6366f1;
+    font-weight: 500;
+}
+
+.tracker-timeline-photos {
+    font-size: 12px;
+    color: #9ca3af;
+}
+
+.tracker-timeline-title {
+    margin: 0 0 4px 0;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.tracker-timeline-desc {
+    margin: 0 0 6px 0;
+    font-size: 13px;
+    color: #9ca3af;
+}
+
+.tracker-timeline-author {
+    font-size: 11px;
+    color: #6b7280;
+    font-style: italic;
+}
+
+/* ============================================================
+   BOTTOM ROW
+   ============================================================ */
+
+.tracker-bottom-row {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 20px;
+}
+
+.tracker-photos-card {
+    max-height: 450px;
+    overflow-y: auto;
+}
+
+.tracker-side-widgets {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* ============================================================
+   TEAM WIDGET
+   ============================================================ */
+
+.tracker-team-active {
+    font-size: 13px;
+    color: #22c55e;
+    font-weight: 500;
+}
+
+.tracker-team-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.tracker-team-member {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px;
+    border-radius: 10px;
+    transition: background 0.2s;
+}
+
+.tracker-team-member:hover {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.tracker-team-avatar {
+    font-size: 24px;
+}
+
+.tracker-team-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.tracker-team-name {
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.tracker-team-role {
+    font-size: 11px;
+    color: #9ca3af;
+}
+
+.tracker-team-member.pending {
+    opacity: 0.5;
+}
+
+/* ============================================================
+   WEATHER WIDGET
+   ============================================================ */
+
+.tracker-weather-current {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.tracker-weather-forecast {
+    font-size: 13px;
+    color: #9ca3af;
+}
+
+/* ============================================================
+   EMPTY STATE
+   ============================================================ */
+
+.tracker-empty {
+    text-align: center;
+    padding: 32px;
+    color: #6b7280;
+}
+
+.tracker-empty span {
+    font-size: 40px;
+    display: block;
+    margin-bottom: 8px;
+}
+
+/* ============================================================
+   MODAL
+   ============================================================ */
+
+.tracker-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    animation: tracker-fade-in 0.2s ease;
+}
+
+@keyframes tracker-fade-in {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.tracker-modal {
+    background: #1e1e3a;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    width: 90%;
+    max-width: 500px;
+    animation: tracker-slide-up 0.3s ease;
+}
+
+@keyframes tracker-slide-up {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.tracker-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.tracker-modal-header h3 {
+    margin: 0;
+    font-size: 16px;
+}
+
+.tracker-modal-close {
+    background: none;
+    border: none;
+    color: #9ca3af;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+}
+
+.tracker-modal-close:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #e5e5e5;
+}
+
+.tracker-modal-body {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.tracker-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 16px 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.tracker-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.tracker-form-group label {
+    font-size: 13px;
+    color: #9ca3af;
+    font-weight: 500;
+}
+
+.tracker-input,
+.tracker-textarea {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 10px 14px;
+    color: #e5e5e5;
+    font-size: 14px;
+    font-family: inherit;
+    transition: border-color 0.2s;
+}
+
+.tracker-input:focus,
+.tracker-textarea:focus {
+    outline: none;
+    border-color: #6366f1;
+}
+
+.tracker-textarea {
+    min-height: 80px;
+    resize: vertical;
+}
+
+.tracker-upload-zone {
+    border: 2px dashed rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: #9ca3af;
+}
+
+.tracker-upload-zone:hover {
+    border-color: #6366f1;
+    background: rgba(99, 102, 241, 0.05);
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 768px) {
+
+    .tracker-top-row,
+    .tracker-bottom-row {
+        grid-template-columns: 1fr;
+    }
+
+    .tracker-header {
+        flex-direction: column;
+    }
+
+    .tracker-header-actions {
+        width: 100%;
+    }
+
+    .tracker-header-actions .tracker-btn {
+        flex: 1;
+    }
+
+    .tracker-progress-stats {
+        gap: 16px;
+    }
+
+    .tracker-budget-legend {
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .tracker-title {
+        font-size: 20px;
+    }
+}
+
+/* ============================================================
+   SCROLLBAR (for photos)
+   ============================================================ */
+
+.tracker-photos-card::-webkit-scrollbar {
+    width: 6px;
+}
+
+.tracker-photos-card::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.tracker-photos-card::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+}
+
+.tracker-photos-card::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
+}

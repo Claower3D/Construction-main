@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QAZGOST AI — Unit Tests: Photo Estimate v3</title>
+    <style>
+        :root {
+            --pass: #22c55e;
+            --fail: #ef4444;
+            --warn: #f59e0b;
+            --bg: #0f0f23;
+            --card: #1a1a2e;
+            --text: #e0e0f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #4f46e5, #10b981);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 24px;
+        }
+
+        .summary {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .summary .badge {
+            padding: 8px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .badge.pass {
+            background: rgba(34, 197, 94, 0.15);
+            color: var(--pass);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .badge.fail {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--fail);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .badge.total {
+            background: rgba(79, 70, 229, 0.15);
+            color: #818cf8;
+            border: 1px solid rgba(79, 70, 229, 0.3);
+        }
+
+        .group {
+            background: var(--card);
+            border-radius: 12px;
+            margin-bottom: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .group-header {
+            padding: 12px 16px;
+            font-weight: bold;
+            font-size: 15px;
+            background: rgba(79, 70, 229, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .test-row {
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .test-row:last-child {
+            border-bottom: none;
+        }
+
+        .icon {
+            width: 20px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .test-name {
+            flex: 1;
+        }
+
+        .test-time {
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 11px;
+        }
+
+        .test-error {
+            color: var(--fail);
+            font-size: 11px;
+            margin-left: 30px;
+            padding: 4px 0;
+            font-family: monospace;
+        }
+
+        #log {
+            margin-top: 20px;
+            background: var(--card);
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 12px;
+            font-family: monospace;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            white-space: pre-wrap;
+            color: rgba(255, 255, 255, 0.5);
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🧪 QAZGOST AI — Unit Tests</h1>
+    <div class="summary" id="summary"></div>
+    <div id="results"></div>
+    <div id="log"></div>
+
+    <!-- Load modules under test -->
+    <script src="../qtoEngine.js"></script>
+    <script src="../SmartEstimateEngine.js"></script>
+    <script src="../constructionPlanner.js"></script>
+    <script src="../photoEstimateEngine.js"></script>
+
+    <script>
+        (function () {
+            'use strict';
+
+            const results = [];
+            const logEl = document.getElementById('log');
+
+            function log(msg) {
+                logEl.textContent += msg + '\n';
+            }
+
+            function assert(condition, message) {
+                if (!condition) throw new Error(message || 'Assertion failed');
+            }
+
+            function assertClose(actual, expected, tolerance, message) {
+                if (Math.abs(actual - expected) > tolerance) {
+                    throw new Error(`${message || 'assertClose'}: expected ~${expected}, got ${actual} (tolerance: ${tolerance})`);
+                }
+            }
+
+            function assertType(val, type, message) {
+                if (typeof val !== type) {
+                    throw new Error(`${message || 'assertType'}: expected ${type}, got ${typeof val}`);
+                }
+            }
+
+            async function runTest(group, name, fn) {
+                const t0 = performance.now();
+                try {
+                    await fn();
+                    results.push({ group, name, pass: true, time: performance.now() - t0 });
+                } catch (e) {
+                    results.push({ group, name, pass: false, error: e.message, time: performance.now() - t0 });
+                    log(`❌ ${group} / ${name}: ${e.message}`);
+                }
+            }
+
+            // ═══════════════════════════════════════════
+            //  QTO ENGINE TESTS
+            // ═══════════════════════════════════════════
+
+            async function testQTOEngine() {
+                const QTO = window.QTOEngine;
+
+                await runTest('QTO Engine', 'Module loaded', () => {
+                    assert(QTO, 'QTOEngine not loaded');
+                    assert(typeof QTO.calculate === 'function', 'calculate missing');
+                });
+
+                await runTest('QTO Engine', 'Wall area: 10m × 3m = 30m²', () => {
+                    const r = QTO.calculate('wall_area', { length: 10, height: 3 });
+                    assert(r && r.value, 'No result');
+                    assertClose(r.value, 30, 0.01, 'Wall area');
+                    assert(r.unit === 'm2' || r.unit === 'м²', `Unit: ${r.unit}`);
+                });
+
+                await runTest('QTO Engine', 'Floor area: 5m × 4m = 20m²', () => {
+                    const r = QTO.calculate('floor_area', { length: 5, width: 4 });
+                    assert(r && r.value, 'No result');
+                    assertClose(r.value, 20, 0.01, 'Floor area');
+                });
+
+                await runTest('QTO Engine', 'Volume: 5×4×3 = 60m³', () => {
+                    const r = QTO.calculate('volume', { length: 5, width: 4, height: 3 });
+                    assert(r && r.value, 'No result');
+                    assertClose(r.value, 60, 0.01, 'Volume');
+                });
+
+                await runTest('QTO Engine', 'Perimeter: 2×(5+4) = 18m', () => {
+                    const r = QTO.calculate('perimeter', { length: 5, width: 4 });
+                    assert(r && r.value, 'No result');
+                    assertClose(r.value, 18, 0.01, 'Perimeter');
+                });
+
+                await runTest('QTO Engine', 'Invalid formula returns null/error', () => {
+                    const r = QTO.calculate('nonexistent_formula', { x: 1 });
+                    assert(!r || r.error, 'Should return null or error for invalid formula');
+                });
+
+                await runTest('QTO Engine', 'Missing params handled', () => {
+                    try {
+                        const r = QTO.calculate('wall_area', {});
+                        // Should either return error or NaN/0
+                        assert(!r || r.value === 0 || isNaN(r.value) || r.error,
+                            'Should handle missing params');
+                    } catch (e) {
+                        // Throwing is also acceptable
+                        assert(true);
+                    }
+                });
+            }
+
+            // ═══════════════════════════════════════════
+            //  SMART ESTIMATE ENGINE TESTS
+            // ═══════════════════════════════════════════
+
+            async function testSmartEstimateEngine() {
+                const SE = window.SmartEstimateEngine;
+
+                await runTest('SmartEstimate', 'Module loaded', () => {
+                    assert(SE, 'SmartEstimateEngine not loaded');
+                    assert(typeof SE.build === 'function', 'build missing');
+                    assert(typeof SE.buildScenarios === 'function', 'buildScenarios missing');
+                    assert(typeof SE.getHiddenWorks === 'function', 'getHiddenWorks missing');
+                    assert(typeof SE.generateQuestions === 'function', 'generateQuestions missing');
+                });
+
+                await runTest('SmartEstimate', 'Build for wall_repair', () => {
+                    const r = SE.build({
+                        objectType: 'wall_repair',
+                        area: 20,
+                        perimeter: 18,
+                        height: 3,
+                        region: 'almaty',
+                    });
+                    assert(r, 'No result');
+                    assert(r.items && r.items.length > 0, 'No items');
+                    assert(r.total > 0, `Total should be > 0, got ${r.total}`);
+                    log(`  wall_repair: ${r.items.length} items, total=${r.total}`);
+                });
+
+                await runTest('SmartEstimate', 'Build for floor_repair', () => {
+                    const r = SE.build({
+                        objectType: 'floor_repair',
+                        area: 30,
+                        perimeter: 22,
+                        height: 0,
+                        region: 'almaty',
+                    });
+                    assert(r, 'No result');
+                    assert(r.items && r.items.length > 0, 'No items');
+                    assert(r.total > 0, `Total: ${r.total}`);
+                });
+
+                await runTest('SmartEstimate', '3 scenarios: economy < standard < premium', () => {
+                    const base = SE.build({
+                        objectType: 'wall_repair',
+                        area: 20,
+                        perimeter: 18,
+                        height: 3,
+                    });
+                    const scenarios = SE.buildScenarios(base, 20, 18, 3);
+                    assert(scenarios, 'No scenarios');
+                    assert(scenarios.economy, 'No economy');
+                    assert(scenarios.standard, 'No standard');
+                    assert(scenarios.premium, 'No premium');
+                    assert(scenarios.economy.total < scenarios.standard.total,
+                        `economy(${scenarios.economy.total}) should < standard(${scenarios.standard.total})`);
+                    assert(scenarios.standard.total < scenarios.premium.total,
+                        `standard(${scenarios.standard.total}) should < premium(${scenarios.premium.total})`);
+                    log(`  scenarios: E=${scenarios.economy.total}, S=${scenarios.standard.total}, P=${scenarios.premium.total}`);
+                });
+
+                await runTest('SmartEstimate', 'Hidden works', () => {
+                    const hidden = SE.getHiddenWorks('wall_repair', { area: 20, height: 3 }, 1.0);
+                    assert(Array.isArray(hidden), 'Should return array');
+                    assert(hidden.length > 0, 'Should have hidden works');
+                    hidden.forEach(h => {
+                        assert(h.name, 'Hidden work must have name');
+                        assert(h.price >= 0, `Price should be >= 0`);
+                    });
+                    log(`  hidden works: ${hidden.length} items`);
+                });
+
+                await runTest('SmartEstimate', 'Generate questions', () => {
+                    const qs = SE.generateQuestions('wall_repair', { area: 20, height: 3 }, {});
+                    assert(Array.isArray(qs), 'Should return array');
+                    assert(qs.length > 0, 'Should have questions');
+                    qs.forEach(q => {
+                        assert(q.id, 'Question must have id');
+                        assert(q.text || q.question, 'Question must have text');
+                    });
+                    log(`  questions: ${qs.length} items`);
+                });
+
+                await runTest('SmartEstimate', 'WORK_MATRIX has entries', () => {
+                    assert(SE.WORK_MATRIX, 'WORK_MATRIX missing');
+                    const types = Object.keys(SE.WORK_MATRIX);
+                    assert(types.length >= 3, `Should have ≥3 types, got ${types.length}`);
+                    log(`  WORK_MATRIX types: ${types.join(', ')}`);
+                });
+            }
+
+            // ═══════════════════════════════════════════
+            //  CONSTRUCTION PLANNER TESTS
+            // ═══════════════════════════════════════════
+
+            async function testConstructionPlanner() {
+                const CP = window.ConstructionPlanner;
+
+                await runTest('Planner', 'Module loaded', () => {
+                    assert(CP, 'ConstructionPlanner not loaded');
+                    assert(typeof CP.plan === 'function', 'plan missing');
+                    assert(typeof CP.explain === 'function', 'explain missing');
+                    assert(typeof CP.refineWithAnswers === 'function', 'refineWithAnswers missing');
+                });
+
+                await runTest('Planner', 'Plan for wall_repair', () => {
+                    const r = CP.plan({
+                        objectType: 'wall_repair',
+                        confidence: 0.8,
+                        area: 20,
+                        perimeter: 18,
+                        height: 3,
+                        defects: [],
+                    });
+                    assert(r, 'No result');
+                    assert(r.works && r.works.length > 0, 'No works planned');
+                    assert(r.explanation, 'No explanation');
+                    log(`  plan: ${r.works.length} works, explanation: ${r.explanation.slice(0, 60)}...`);
+                });
+
+                await runTest('Planner', 'Plan includes SNiP refs', () => {
+                    const r = CP.plan({
+                        objectType: 'wall_repair',
+                        confidence: 0.8,
+                        area: 20,
+                        perimeter: 18,
+                        height: 3,
+                    });
+                    // SNiP refs may be in result or in rules
+                    const hasSnip = (r.snipRefs && r.snipRefs.length > 0) ||
+                        (r.explanation && r.explanation.includes('СНиП'));
+                    assert(hasSnip, 'Plan should reference SNiP standards');
+                });
+
+                await runTest('Planner', 'Explain returns text', () => {
+                    const text = CP.explain({
+                        objectType: 'wall_repair',
+                        works: [{ name: 'Штукатурка', qty: 20 }],
+                    });
+                    assert(text && text.length > 10, `Explanation too short: "${text}"`);
+                });
+
+                await runTest('Planner', 'refineWithAnswers re-plans', () => {
+                    const initial = CP.plan({
+                        objectType: 'wall_repair',
+                        confidence: 0.8,
+                        area: 20,
+                        perimeter: 18,
+                        height: 3,
+                    });
+                    const refined = CP.refineWithAnswers(initial, {
+                        has_cracks: true,
+                        need_waterproofing: true,
+                    });
+                    assert(refined, 'refineWithAnswers returned null');
+                    assert(refined.works, 'No works after refine');
+                    // Refined should have same or more works (added crack repair + waterproofing)
+                    assert(refined.works.length >= initial.works.length,
+                        `Refined(${refined.works.length}) should >= initial(${initial.works.length})`);
+                });
+            }
+
+            // ═══════════════════════════════════════════
+            //  PHOTO ESTIMATE ENGINE TESTS
+            // ═══════════════════════════════════════════
+
+            async function testPhotoEstimateEngine() {
+                const PE = window.PhotoEstimateEngine;
+
+                await runTest('PhotoEstimate', 'Module loaded', () => {
+                    assert(PE, 'PhotoEstimateEngine not loaded');
+                    assert(typeof PE.buildPlan === 'function', 'buildPlan missing');
+                });
+
+                await runTest('PhotoEstimate', 'buildPlan returns plan object', () => {
+                    const r = PE.buildPlan({
+                        objectType: 'wall_repair',
+                        confidence: 0.85,
+                        area: 25,
+                        perimeter: 20,
+                        height: 3,
+                        analysisSource: 'canvas',
+                    });
+                    assert(r, 'buildPlan returned null');
+                    assert(r.scenarios, 'No scenarios');
+                    assert(r.explanation, 'No explanation');
+                    assert(r.objectType, 'No objectType');
+                    log(`  buildPlan: ${Object.keys(r.scenarios).length} scenarios, confidence=${r.confidence}`);
+                });
+
+                await runTest('PhotoEstimate', 'buildPlan with answers', () => {
+                    const r = PE.buildPlan({
+                        objectType: 'ceiling_repair',
+                        confidence: 0.7,
+                        area: 15,
+                        perimeter: 16,
+                        height: 2.8,
+                        answers: { has_cracks: true },
+                    });
+                    assert(r, 'buildPlan returned null');
+                    assert(r.scenarios, 'No scenarios');
+                });
+
+                await runTest('PhotoEstimate', 'buildEstimate fallback', () => {
+                    const PE2 = window.PhotoEstimateEngine;
+                    if (typeof PE2.buildEstimate !== 'function') {
+                        log('  buildEstimate not exported (OK — may be internal)');
+                        return;
+                    }
+                    const r = PE2.buildEstimate({
+                        objectType: 'wall_repair',
+                        area: 30,
+                        perimeter: 22,
+                        height: 3,
+                    });
+                    assert(r, 'buildEstimate returned null');
+                });
+            }
+
+            // ═══════════════════════════════════════════
+            //  RENDER RESULTS
+            // ═══════════════════════════════════════════
+
+            function render() {
+                const container = document.getElementById('results');
+                const summaryEl = document.getElementById('summary');
+
+                const passed = results.filter(r => r.pass).length;
+                const failed = results.filter(r => !r.pass).length;
+                const total = results.length;
+
+                summaryEl.innerHTML = `
+                <div class="badge total">📊 Total: ${total}</div>
+                <div class="badge pass">✅ Passed: ${passed}</div>
+                <div class="badge fail">❌ Failed: ${failed}</div>
+            `;
+
+                // Group by group name
+                const groups = {};
+                results.forEach(r => {
+                    if (!groups[r.group]) groups[r.group] = [];
+                    groups[r.group].push(r);
+                });
+
+                container.innerHTML = '';
+                Object.entries(groups).forEach(([group, tests]) => {
+                    const groupEl = document.createElement('div');
+                    groupEl.className = 'group';
+
+                    const gPassed = tests.filter(t => t.pass).length;
+                    groupEl.innerHTML = `
+                    <div class="group-header">${group} (${gPassed}/${tests.length})</div>
+                `;
+
+                    tests.forEach(t => {
+                        const row = document.createElement('div');
+                        row.innerHTML = `
+                        <div class="test-row">
+                            <span class="icon">${t.pass ? '✅' : '❌'}</span>
+                            <span class="test-name">${t.name}</span>
+                            <span class="test-time">${t.time.toFixed(1)}ms</span>
+                        </div>
+                        ${t.error ? `<div class="test-error">→ ${t.error}</div>` : ''}
+                    `;
+                        groupEl.appendChild(row);
+                    });
+
+                    container.appendChild(groupEl);
+                });
+
+                document.title = `Tests: ${passed}/${total} ${failed ? '❌' : '✅'}`;
+            }
+
+            // ═══════════════════════════════════════════
+            //  RUN ALL
+            // ═══════════════════════════════════════════
+
+            async function runAll() {
+                log('Starting tests...');
+                const t0 = performance.now();
+
+                await testQTOEngine();
+                await testSmartEstimateEngine();
+                await testConstructionPlanner();
+                await testPhotoEstimateEngine();
+
+                const elapsed = ((performance.now() - t0) / 1000).toFixed(2);
+                log(`\nDone in ${elapsed}s — ${results.filter(r => r.pass).length}/${results.length} passed`);
+
+                render();
+            }
+
+            // Wait for all scripts to load
+            window.addEventListener('load', () => setTimeout(runAll, 100));
+        })();
+    </script>
+</body>
+
+</html>

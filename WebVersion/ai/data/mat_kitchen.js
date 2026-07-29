@@ -1,0 +1,35 @@
+// === КУХНЯ (30 позиций) ===
+(function () {
+    window.AI_MAT_KITCHEN = {
+        'countertop_lam_600': { name: 'Столешница ламинат 600мм (п.м.)', unit: 'п.м.', price: 3000, category: 'kitchen' },
+        'countertop_stone_600': { name: 'Столешница искусственный камень (п.м.)', unit: 'п.м.', price: 12000, category: 'kitchen' },
+        'countertop_quartz_600': { name: 'Столешница кварц (п.м.)', unit: 'п.м.', price: 18000, category: 'kitchen' },
+        'countertop_granite_600': { name: 'Столешница натуральный гранит (п.м.)', unit: 'п.м.', price: 25000, category: 'kitchen' },
+        'sink_kitchen_ss_1bowl': { name: 'Мойка кухонная нерж. 1 чаша', unit: 'шт', price: 6000, category: 'kitchen' },
+        'sink_kitchen_ss_2bowl': { name: 'Мойка кухонная нерж. 2 чаши', unit: 'шт', price: 10000, category: 'kitchen' },
+        'sink_kitchen_granite_1': { name: 'Мойка кухонная гранит 1 чаша', unit: 'шт', price: 15000, category: 'kitchen' },
+        'sink_kitchen_undermount': { name: 'Мойка кухонная подстольная', unit: 'шт', price: 12000, category: 'kitchen' },
+        'hood_standard_60': { name: 'Вытяжка кухонная плоская 60см', unit: 'шт', price: 10000, category: 'kitchen' },
+        'hood_dome_60': { name: 'Вытяжка кухонная купольная 60см', unit: 'шт', price: 20000, category: 'kitchen' },
+        'hood_built_in_60': { name: 'Вытяжка встраиваемая 60см', unit: 'шт', price: 15000, category: 'kitchen' },
+        'hood_island': { name: 'Вытяжка островная', unit: 'шт', price: 40000, category: 'kitchen' },
+        'hob_electric_4': { name: 'Варочная панель электрическая 4 конф.', unit: 'шт', price: 25000, category: 'kitchen' },
+        'hob_induction_4': { name: 'Варочная панель индукционная 4 конф.', unit: 'шт', price: 45000, category: 'kitchen' },
+        'oven_electric_built_in': { name: 'Духовой шкаф электрический встраиваемый', unit: 'шт', price: 40000, category: 'kitchen' },
+        'microwave_built_in': { name: 'Микроволновая печь встраиваемая', unit: 'шт', price: 30000, category: 'kitchen' },
+        'dishwasher_45': { name: 'Посудомоечная машина 45см', unit: 'шт', price: 70000, category: 'kitchen' },
+        'dishwasher_60': { name: 'Посудомоечная машина 60см', unit: 'шт', price: 90000, category: 'kitchen' },
+        'fridge_built_in': { name: 'Холодильник встраиваемый', unit: 'шт', price: 120000, category: 'kitchen' },
+        'apron_tile_m2': { name: 'Фартук кухонный (плитка, м²)', unit: 'м²', price: 3500, category: 'kitchen' },
+        'apron_glass': { name: 'Фартук кухонный стеклянный (скинали, м²)', unit: 'м²', price: 5000, category: 'kitchen' },
+        'kitchen_module_upper_60': { name: 'Модуль кухонный верхний 60см', unit: 'шт', price: 8000, category: 'kitchen' },
+        'kitchen_module_lower_60': { name: 'Модуль кухонный нижний 60см', unit: 'шт', price: 12000, category: 'kitchen' },
+        'kitchen_module_corner': { name: 'Модуль кухонный угловой', unit: 'шт', price: 15000, category: 'kitchen' },
+        'plinth_kitchen_pvc': { name: 'Плинтус кухонный ПВХ (3м)', unit: 'шт', price: 500, category: 'kitchen' },
+        'handle_kitchen_modern': { name: 'Ручка мебельная современная', unit: 'шт', price: 150, category: 'kitchen' },
+        'hinge_soft_close': { name: 'Петля мебельная с доводчиком', unit: 'шт', price: 120, category: 'kitchen' },
+        'drawer_slide_400': { name: 'Направляющая выдвижная 400мм (пара)', unit: 'пара', price: 600, category: 'kitchen' },
+        'drawer_slide_500': { name: 'Направляющая выдвижная 500мм (пара)', unit: 'пара', price: 700, category: 'kitchen' },
+        'water_filter_3stage': { name: 'Фильтр для воды 3-ступенчатый', unit: 'шт', price: 8000, category: 'kitchen' }
+    };
+})();

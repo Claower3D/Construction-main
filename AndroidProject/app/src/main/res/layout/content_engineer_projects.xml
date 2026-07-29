@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/background">
+
+    <!-- Empty State -->
+    <LinearLayout
+        android:id="@+id/emptyState"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="32dp"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="📁"
+            android:textSize="64sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Нет активных проектов"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/text"
+            android:layout_marginTop="16dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Ваши проекты появятся здесь после того, как вы возьмёте заявку"
+            android:textSize="14sp"
+            android:textColor="@color/text_muted"
+            android:gravity="center"
+            android:layout_marginTop="8dp" />
+
+        <Button
+            android:id="@+id/findRequestsButton"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:text="🔍 Найти заявки"
+            android:layout_marginTop="24dp"
+            android:backgroundTint="@color/primary" />
+
+    </LinearLayout>
+
+    <!-- Projects List -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/projectsRecycler"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="16dp"
+        android:clipToPadding="false" />
+
+</LinearLayout>
