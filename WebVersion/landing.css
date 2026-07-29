@@ -2612,8 +2612,16 @@ body.modal-open {
 
 .our-services-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 1.75rem;
+}
+
+.span-col-2 {
+    grid-column: span 2;
+}
+
+.span-col-3 {
+    grid-column: span 3;
 }
 
 .service-card-hybrid {
@@ -2664,6 +2672,12 @@ body.modal-open {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+}
+
+.svc-hybrid-list.cols-2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem 1.5rem;
 }
 
 .svc-hybrid-list li {
@@ -2731,18 +2745,31 @@ body.modal-open {
     box-shadow: 0 0 25px rgba(37, 99, 235, 0.6);
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1100px) {
+    .our-services-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .span-col-2, .span-col-3 {
+        grid-column: span 2;
+    }
+}
+
+@media (max-width: 750px) {
     .our-services-grid {
         grid-template-columns: 1fr;
     }
-
+    .span-col-2, .span-col-3 {
+        grid-column: span 1;
+    }
     .service-card-hybrid {
         flex-direction: column;
     }
-
     .svc-hybrid-right {
         clip-path: none;
         height: 180px;
         flex: none;
+    }
+    .svc-hybrid-list.cols-2 {
+        grid-template-columns: 1fr;
     }
 }
