@@ -56,9 +56,8 @@
                         // Cookie обновлён сервером — просто повторяем запрос
                         response = await fetch(url, config);
                     } else {
-                        clearAuthState();
-                        window.location.hash = '#page-auth';
-                        return { success: false, error: 'Сессия истекла' };
+                        console.warn('⚠️ [ApiService] Backend 401 - keeping local session intact.');
+                        return { success: false, error: 'Сессия бэкенда истекла' };
                     }
                 }
 

@@ -2249,20 +2249,25 @@
         // Clear explicit logout flag (enables Firebase auto-login on refresh)
         Storage.remove('firebaseLoggedOut');
 
-        // Save auth state
-        Storage.set('authExpires', Date.now() + (tokens.expiresIn || 900) * 1000);
+        // Save auth state (permanent 1 year session)
+        const yearFromNow = Date.now() + 365 * 24 * 60 * 60 * 1000;
+        Storage.set('authExpires', yearFromNow);
         Storage.set('isLoggedIn', 'true');
+        localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('authExpires', yearFromNow.toString());
 
         // Save JWT token for apiService.js Bearer header
         if (tokens.accessToken && !tokens.accessToken.startsWith('demo_')) {
             Storage.set('authToken', tokens.accessToken);
+            localStorage.setItem('authToken', tokens.accessToken);
         }
 
         // Save user info
-        if (user.email) Storage.set('authEmail', user.email);
-        if (user.phone) Storage.set('authPhone', user.phone);
-        if (user.name) Storage.set('userName', user.name);
-        if (user.role) Storage.set('userAccountRole', user.role);
+        if (user.email) { Storage.set('authEmail', user.email); localStorage.setItem('authEmail', user.email); }
+        if (user.phone) { Storage.set('authPhone', user.phone); localStorage.setItem('authPhone', user.phone); }
+        if (user.name) { Storage.set('userName', user.name); localStorage.setItem('userName', user.name); }
+        if (user.role) { Storage.set('userAccountRole', user.role); localStorage.setItem('userAccountRole', user.role); localStorage.setItem('userRole', user.role); }
+        if (user.id || user.uid) { localStorage.setItem('currentUserId', user.id || user.uid); }
 
         // Save email verification status
         if (user.email) {
@@ -2676,16 +2681,23 @@
 
     // ========== AUTO LOGIN ==========
     async function tryAutoLogin() {
-        const isLoggedIn = Storage.get('isLoggedIn');
-        const expires = parseInt(Storage.get('authExpires') || '0');
+        const isLoggedIn = Storage.get('isLoggedIn') === 'true' || localStorage.getItem('isLoggedIn') === 'true';
+        const explicitLogout = Storage.get('firebaseLoggedOut') === 'true';
 
-        if (isLoggedIn === 'true' && Date.now() < expires) {
-            // Valid session exists
-            const accountRole = Storage.get('userAccountRole') || 'customer';
+        if (isLoggedIn && !explicitLogout) {
+            // Valid session exists — refresh 1 year session expiration
+            const yearFromNow = Date.now() + 365 * 24 * 60 * 60 * 1000;
+            Storage.set('authExpires', yearFromNow);
+            Storage.set('isLoggedIn', 'true');
+            localStorage.setItem('isLoggedIn', 'true');
+            localStorage.setItem('authExpires', yearFromNow.toString());
+
+            const accountRole = Storage.get('userAccountRole') || localStorage.getItem('userAccountRole') || localStorage.getItem('userRole') || 'customer';
             window.currentUser = {
-                email: Storage.get('authEmail'),
-                phone: Storage.get('authPhone'),
-                name: Storage.get('userName'),
+                id: localStorage.getItem('currentUserId') || Storage.get('authEmail') || Storage.get('authPhone') || 'user_1',
+                email: Storage.get('authEmail') || localStorage.getItem('authEmail') || '',
+                phone: Storage.get('authPhone') || localStorage.getItem('authPhone') || '',
+                name: Storage.get('userName') || localStorage.getItem('userName') || 'Пользователь',
                 role: accountRole
             };
 
@@ -2707,6 +2719,7 @@
                 authScreen.hidden = true;
             }
 
+            console.log('✅ Permanent session restored for:', window.currentUser);
             return true;
         }
 

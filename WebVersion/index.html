@@ -6598,13 +6598,9 @@
 
         // Проверка авторизации
         function isAuthenticated() {
-            // Токены хранятся в HttpOnly cookies — JS не имеет к ним доступа
-            // Проверяем только флаг isLoggedIn + срок действия сессии
-            const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-            const expires = localStorage.getItem('authExpires');
-
-            // User is authenticated if isLoggedIn flag is set AND session not expired
-            return isLoggedIn && (!expires || Date.now() < parseInt(expires));
+            const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true' || (window.AuthEngine && localStorage.getItem('qazgost_isLoggedIn') === 'true');
+            const explicitLogout = localStorage.getItem('qazgost_firebaseLoggedOut') === 'true';
+            return isLoggedIn && !explicitLogout;
         }
 
         // === NAVIGATION HISTORY ===
@@ -10508,18 +10504,21 @@
 
         // Проверка существующей сессии
         function checkExistingSession() {
-            const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-            const expires = localStorage.getItem('authExpires');
+            const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true' || localStorage.getItem('qazgost_isLoggedIn') === 'true';
+            const explicitLogout = localStorage.getItem('qazgost_firebaseLoggedOut') === 'true';
 
-            if (isLoggedIn && expires && Date.now() < parseInt(expires)) {
-                // Сессия валидна — автологин
+            if (isLoggedIn && !explicitLogout) {
+                // Сессия постоянная — продлеваем на 1 год и выполняем автологин
+                const yearFromNow = (Date.now() + 365 * 24 * 60 * 60 * 1000).toString();
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('authExpires', yearFromNow);
+                if (window.AuthEngine) {
+                    window.AuthEngine.tryAutoLogin();
+                }
                 completeAuth();
                 return true;
             }
 
-            // Сессия истекла или отсутствует
-            localStorage.removeItem('isLoggedIn');
-            localStorage.removeItem('authExpires');
             return false;
         }
 
