@@ -1,5 +1,17 @@
 {
+  "name": "qazgost-ai",
+  "version": "2.0.0",
+  "description": "QAZGOST AI - Smart Construction Estimation Platform",
+  "main": "WebVersion/index.html",
+  "scripts": {
+    "start": "npx serve WebVersion -s -l ${PORT:-3030}",
+    "build": "echo 'Build complete'"
+  },
   "dependencies": {
+    "serve": "^14.2.4",
     "stripe": "^21.0.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }
