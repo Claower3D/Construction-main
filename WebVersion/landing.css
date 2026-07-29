@@ -2398,113 +2398,164 @@ body.modal-open {
 }
 
 /* ========================================================
-   НАШИ УСЛУГИ — Dark Glassmorphic Photo Style
+   НАШИ УСЛУГИ — White Cards with Diagonal Photo Cut (Photo 2)
    ======================================================== */
+
+.our-services-container {
+    padding: 3rem 1.5rem;
+    max-width: 1280px;
+    margin: 0 auto;
+}
+
+.our-services-title {
+    text-align: center;
+    font-size: 2.2rem;
+    font-weight: 900;
+    color: #0f172a;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 2rem;
+}
 
 .our-services-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
     gap: 1.5rem;
-    margin-top: 1.5rem;
 }
 
-.svc-wide-card {
+.service-card-photo2 {
+    background: #ffffff;
+    border-radius: 16px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    min-height: 210px;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.service-card-photo2:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 18px 45px rgba(15, 23, 42, 0.12);
+    border-color: #cbd5e1;
+}
+
+.service-card-photo2.full-width {
     grid-column: 1 / -1;
 }
 
-.svc-arrow-badge {
-    position: absolute;
-    top: 1.25rem;
-    right: 1.25rem;
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.18);
-    color: #a78bfa;
+/* Left text content */
+.svc-photo2-left {
+    flex: 1 1 55%;
+    padding: 1.6rem 1.25rem 1.6rem 1.6rem;
     display: flex;
-    align-items: center;
+    flex-direction: column;
     justify-content: center;
-    font-size: 1.15rem;
-    font-weight: 700;
-    backdrop-filter: blur(8px);
-    transition: all 0.3s cubic-bezier(0.2, 0.9, 0.2, 1);
     z-index: 2;
 }
 
-.landing-svc:hover .svc-arrow-badge {
-    background: linear-gradient(135deg, #8b5cf6, #ec4899);
-    color: #ffffff;
-    border-color: rgba(255, 255, 255, 0.4);
-    transform: translate(3px, -3px) rotate(45deg);
-    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+.svc-photo2-title {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1.25;
+    margin: 0 0 0.85rem 0;
+    font-family: inherit;
 }
 
-.svc-features-list {
+.svc-photo2-list {
     list-style: none;
     padding: 0;
-    margin: 0.85rem 0 0 0;
+    margin: 0;
     display: flex;
     flex-direction: column;
     gap: 0.45rem;
 }
 
-.svc-features-list.grid-list {
+.svc-photo2-list.cols-2 {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 0.6rem 1.5rem;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem 1.5rem;
 }
 
-.svc-features-list li {
+.svc-photo2-list li {
     font-size: 0.88rem;
-    line-height: 1.5;
-    color: rgba(248, 250, 252, 0.9);
+    line-height: 1.45;
+    color: #334155;
     display: flex;
     align-items: flex-start;
     gap: 0.5rem;
     font-weight: 500;
 }
 
-.svc-features-list .dot {
-    color: #f43f5e;
-    font-weight: 800;
+.svc-photo2-list .red-bullet {
+    color: #e11d48;
+    font-weight: 900;
     font-size: 1rem;
     line-height: 1;
 }
 
-/* Custom background images with dark cinematic overlays */
-.svc-geology {
-    background:
-        linear-gradient(180deg, rgba(15, 23, 42, 0.84) 0%, rgba(15, 23, 42, 0.68) 100%),
-        url('assets/bg/hero-bg.png') center / cover no-repeat !important;
+/* Right slanted photo container */
+.svc-photo2-right {
+    flex: 0 0 45%;
+    position: relative;
+    clip-path: polygon(25% 0%, 100% 0%, 100% 100%, 0% 100%);
+    background-size: cover;
+    background-position: center;
+    min-height: 100%;
 }
 
-.svc-geodesy {
-    background:
-        linear-gradient(180deg, rgba(15, 23, 42, 0.84) 0%, rgba(15, 23, 42, 0.68) 100%),
-        url('assets/bg/services-bg.png') center / cover no-repeat !important;
+.svc-photo2-right::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.1), rgba(15, 23, 42, 0.25));
 }
 
-.svc-cpt {
-    background:
-        linear-gradient(180deg, rgba(15, 23, 42, 0.84) 0%, rgba(15, 23, 42, 0.68) 100%),
-        url('assets/bg/svc-building.png') center / cover no-repeat !important;
+/* Dotted blue circle arrow badge */
+.blue-arrow-circle {
+    position: absolute;
+    bottom: 1.25rem;
+    right: 1.25rem;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 2px dashed #2563eb;
+    background: rgba(37, 99, 235, 0.15);
+    backdrop-filter: blur(4px);
+    color: #2563eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    font-weight: 800;
+    z-index: 3;
+    transition: all 0.3s ease;
 }
 
-.svc-piles {
-    background:
-        linear-gradient(180deg, rgba(15, 23, 42, 0.84) 0%, rgba(15, 23, 42, 0.68) 100%),
-        url('assets/bg/svc-engineering.png') center / cover no-repeat !important;
+.service-card-photo2:hover .blue-arrow-circle {
+    background: #2563eb;
+    color: #ffffff;
+    border-style: solid;
+    transform: scale(1.1) rotate(45deg);
+    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
 }
 
-.svc-stamp {
-    background:
-        linear-gradient(180deg, rgba(15, 23, 42, 0.84) 0%, rgba(15, 23, 42, 0.68) 100%),
-        url('assets/bg/svc-marketplace.png') center / cover no-repeat !important;
-}
+@media (max-width: 768px) {
+    .service-card-photo2 {
+        flex-direction: column;
+    }
 
-.svc-lab {
-    background:
-        linear-gradient(180deg, rgba(15, 23, 42, 0.86) 0%, rgba(15, 23, 42, 0.70) 100%),
-        url('assets/bg/stats-bg.png') center / cover no-repeat !important;
+    .svc-photo2-right {
+        clip-path: none;
+        height: 160px;
+        flex: none;
+    }
+
+    .svc-photo2-list.cols-2 {
+        grid-template-columns: 1fr;
+    }
 }
