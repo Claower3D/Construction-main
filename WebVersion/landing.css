@@ -2398,7 +2398,7 @@ body.modal-open {
 }
 
 /* ========================================================
-   НАШИ УСЛУГИ — White Cards with Diagonal Photo Cut (Photo 2)
+   DARK GLASSMORPHIC PHOTO CARDS (matching screenshot)
    ======================================================== */
 
 .our-services-container {
@@ -2409,7 +2409,7 @@ body.modal-open {
 
 .our-services-title {
     text-align: center;
-    font-size: 2.5rem;
+    font-size: 2.4rem;
     font-weight: 900;
     color: #ffffff;
     background: linear-gradient(135deg, #ffffff 0%, #a78bfa 50%, #60a5fa 100%);
@@ -2423,146 +2423,171 @@ body.modal-open {
 
 .our-services-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
     gap: 1.75rem;
 }
 
-.service-card-photo2 {
-    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-    border-radius: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.25);
-    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.35), 0 0 20px rgba(139, 92, 246, 0.12);
+.landing-svc {
+    padding: 1.6rem;
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(15, 23, 42, 0.85);
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(16px);
+    transition: all 0.35s cubic-bezier(0.2, 0.9, 0.2, 1);
     position: relative;
     overflow: hidden;
-    display: flex;
-    flex-direction: row;
-    align-items: stretch;
-    min-height: 220px;
-    transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.service-card-photo2:hover {
-    transform: translateY(-6px) scale(1.01);
-    box-shadow: 0 22px 50px rgba(0, 0, 0, 0.45), 0 0 30px rgba(139, 92, 246, 0.25);
-    border-color: rgba(139, 92, 246, 0.4);
-}
-
-/* Left text content */
-.svc-photo2-left {
-    flex: 1 1 58%;
-    padding: 1.75rem 1.25rem 1.75rem 1.75rem;
+    min-height: 210px;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    z-index: 2;
+    justify-content: flex-end;
 }
 
-.svc-photo2-title {
-    font-size: 1.3rem;
-    font-weight: 800;
-    color: #0f172a;
-    line-height: 1.3;
-    margin: 0 0 0.9rem 0;
-    font-family: inherit;
-    letter-spacing: -0.01em;
+.landing-svc:hover {
+    transform: translateY(-6px);
+    border-color: rgba(167, 139, 250, 0.45);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.65), 0 0 35px rgba(139, 92, 246, 0.3);
 }
 
-.svc-photo2-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-.svc-photo2-list.cols-2 {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.5rem 1.25rem;
-}
-
-.svc-photo2-list li {
-    font-size: 0.9rem;
-    line-height: 1.45;
-    color: #334155;
-    display: flex;
-    align-items: flex-start;
-    gap: 0.5rem;
-    font-weight: 600;
-}
-
-.svc-photo2-list .red-bullet {
-    color: #e11d48;
-    font-weight: 900;
-    font-size: 1.05rem;
-    line-height: 1;
-}
-
-/* Right slanted photo container */
-.svc-photo2-right {
-    flex: 0 0 42%;
-    position: relative;
-    clip-path: polygon(18% 0%, 100% 0%, 100% 100%, 0% 100%);
-    background-size: cover;
-    background-position: center;
-    min-height: 100%;
-}
-
-.svc-photo2-right::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, rgba(15, 23, 42, 0.08), rgba(15, 23, 42, 0.22));
-}
-
-/* Dotted blue circle arrow badge */
-.blue-arrow-circle {
-    position: absolute;
-    bottom: 1.25rem;
-    right: 1.25rem;
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    border: 2px dashed #3b82f6;
-    background: rgba(37, 99, 235, 0.22);
-    backdrop-filter: blur(6px);
-    color: #60a5fa;
+/* Icon badge top left */
+.landing-svc .landing-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.4rem;
+    font-size: 1.25rem;
+    margin-bottom: auto;
+    backdrop-filter: blur(10px);
+}
+
+.landing-svc h4 {
+    font-size: 1.25rem;
     font-weight: 800;
-    z-index: 3;
-    transition: all 0.35s ease;
-    box-shadow: 0 0 15px rgba(37, 99, 235, 0.3);
-}
-
-.service-card-photo2:hover .blue-arrow-circle {
-    background: linear-gradient(135deg, #2563eb, #7c3aed);
     color: #ffffff;
-    border-style: solid;
-    border-color: #60a5fa;
-    transform: scale(1.15) rotate(45deg);
-    box-shadow: 0 0 25px rgba(37, 99, 235, 0.6);
+    margin: 1rem 0 0.5rem 0;
+    line-height: 1.3;
 }
 
-@media (max-width: 900px) {
-    .our-services-grid {
-        grid-template-columns: 1fr;
-    }
+.landing-svc p {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.5;
+    margin: 0;
+}
 
-    .service-card-photo2 {
-        flex-direction: column;
-    }
+/* Bullet list inside dark cards */
+.svc-features-list {
+    list-style: none;
+    padding: 0;
+    margin: 0.6rem 0 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+}
 
-    .svc-photo2-right {
-        clip-path: none;
-        height: 180px;
-        flex: none;
-    }
+.svc-features-list li {
+    font-size: 0.88rem;
+    line-height: 1.45;
+    color: rgba(248, 250, 252, 0.9);
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    font-weight: 500;
+}
 
-    .svc-photo2-list.cols-2 {
-        grid-template-columns: 1fr;
-    }
+.svc-features-list .dot {
+    color: #f43f5e;
+    font-weight: 800;
+    font-size: 1rem;
+    line-height: 1;
+}
+
+/* Photo Backgrounds with Dark Gradient Overlays */
+.svc-estimate {
+    background:
+        linear-gradient(180deg, rgba(10, 10, 26, 0.82) 0%, rgba(10, 10, 26, 0.62) 100%),
+        url('assets/bg/svc-estimate.png') center / cover no-repeat !important;
+}
+
+.svc-defects {
+    background:
+        linear-gradient(180deg, rgba(10, 10, 26, 0.82) 0%, rgba(10, 10, 26, 0.62) 100%),
+        url('assets/bg/svc-defects.png') center / cover no-repeat !important;
+}
+
+.svc-orders {
+    background:
+        linear-gradient(180deg, rgba(10, 10, 26, 0.82) 0%, rgba(10, 10, 26, 0.62) 100%),
+        url('assets/bg/svc-orders.png') center / cover no-repeat !important;
+}
+
+.svc-works {
+    background:
+        linear-gradient(180deg, rgba(10, 10, 26, 0.82) 0%, rgba(10, 10, 26, 0.62) 100%),
+        url('assets/bg/svc-myworks.png') center / cover no-repeat !important;
+}
+
+.svc-prices {
+    background:
+        linear-gradient(180deg, rgba(10, 10, 26, 0.82) 0%, rgba(10, 10, 26, 0.62) 100%),
+        url('assets/bg/svc-prices.png') center / cover no-repeat !important;
+}
+
+.svc-building {
+    background:
+        linear-gradient(180deg, rgba(10, 10, 26, 0.82) 0%, rgba(10, 10, 26, 0.62) 100%),
+        url('assets/bg/svc-building.png') center / cover no-repeat !important;
+}
+
+.svc-marketplace {
+    background:
+        linear-gradient(180deg, rgba(10, 10, 26, 0.82) 0%, rgba(10, 10, 26, 0.62) 100%),
+        url('assets/bg/svc-marketplace.png') center / cover no-repeat !important;
+}
+
+.svc-engineering {
+    background:
+        linear-gradient(180deg, rgba(10, 10, 26, 0.82) 0%, rgba(10, 10, 26, 0.62) 100%),
+        url('assets/bg/svc-engineering.png') center / cover no-repeat !important;
+}
+
+/* Our Services photos */
+.svc-geology {
+    background:
+        linear-gradient(180deg, rgba(10, 10, 26, 0.84) 0%, rgba(10, 10, 26, 0.65) 100%),
+        url('assets/bg/hero-bg.png') center / cover no-repeat !important;
+}
+
+.svc-geodesy {
+    background:
+        linear-gradient(180deg, rgba(10, 10, 26, 0.84) 0%, rgba(10, 10, 26, 0.65) 100%),
+        url('assets/bg/services-bg.png') center / cover no-repeat !important;
+}
+
+.svc-cpt {
+    background:
+        linear-gradient(180deg, rgba(10, 10, 26, 0.84) 0%, rgba(10, 10, 26, 0.65) 100%),
+        url('assets/bg/svc-building.png') center / cover no-repeat !important;
+}
+
+.svc-piles {
+    background:
+        linear-gradient(180deg, rgba(10, 10, 26, 0.84) 0%, rgba(10, 10, 26, 0.65) 100%),
+        url('assets/bg/svc-engineering.png') center / cover no-repeat !important;
+}
+
+.svc-stamp {
+    background:
+        linear-gradient(180deg, rgba(10, 10, 26, 0.84) 0%, rgba(10, 10, 26, 0.65) 100%),
+        url('assets/bg/svc-marketplace.png') center / cover no-repeat !important;
+}
+
+.svc-lab {
+    background:
+        linear-gradient(180deg, rgba(10, 10, 26, 0.84) 0%, rgba(10, 10, 26, 0.65) 100%),
+        url('assets/bg/stats-bg.png') center / cover no-repeat !important;
 }
