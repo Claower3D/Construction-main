@@ -4539,6 +4539,21 @@
                         <span class="nav-dropdown-item-text">Договоры</span>
                     </div>
                 </div>
+                </div>
+            </div>
+
+            <!-- Mobile Only Settings Footer -->
+            <div class="mobile-nav-footer">
+                <div class="mobile-nav-settings">
+                    <button class="icon-btn" onclick="document.getElementById('themeBtn').click()" title="Сменить тему">🌙 Тема</button>
+                    <div class="lang-btns" style="display:flex; margin:0">
+                        <button class="lang-btn active" data-lang="ru">RU</button>
+                        <button class="lang-btn" data-lang="en">EN</button>
+                    </div>
+                </div>
+                <button class="mobile-nav-logout" onclick="logout()">
+                    <span style="font-size: 1.2rem">🚪</span> Выйти из аккаунта
+                </button>
             </div>
         </nav>
         <div class="header-actions">
@@ -4549,15 +4564,17 @@
             </button>
             <!-- Уведомления -->
             <div id="notification-bell-container" class="notification-container"></div>
-            <button class="icon-btn" id="themeBtn" title="Сменить тему">🌙</button>
-            <div class="lang-btns"><button class="lang-btn active" data-lang="ru">RU</button><button class="lang-btn"
-                    data-lang="en">EN</button></div>
+            <button class="icon-btn header-theme-btn" id="themeBtn" title="Сменить тему">🌙</button>
+            <div class="lang-btns header-lang-btns">
+                <button class="lang-btn active" data-lang="ru">RU</button>
+                <button class="lang-btn" data-lang="en">EN</button>
+            </div>
             <!-- User info -->
             <div class="header-user-info" id="headerUserInfo">
                 <div class="header-user-avatar">👤<span class="online-dot"></span></div>
                 <span class="header-user-name" id="headerUserName">Пользователь</span>
             </div>
-            <button class="icon-btn" onclick="logout()" title="Выйти" style="margin-left:0.5rem">🚪</button>
+            <button class="icon-btn header-logout-btn" onclick="logout()" title="Выйти" style="margin-left:0.5rem">🚪</button>
             <button class="icon-btn mobile-menu-btn" onclick="toggleMobileMenu()" title="Меню">☰</button>
         </div>
     </header>
