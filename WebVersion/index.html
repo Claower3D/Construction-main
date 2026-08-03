@@ -14217,63 +14217,174 @@ window.toggleMobileMenu = function() {
         if(!container) return;
         
         let stages = [];
+        let loaded = false;
         if(window.DataService && window.DataService.Customer) {
             const res = window.DataService.Customer.getOrderStages(_currentManageOrderId);
             if(res && res.success && res.data) {
                 stages = res.data;
+                loaded = true;
             }
-        } else {
-            // Fallback localStorage
+        }
+        if(!loaded) {
             const key = 'stages_' + _currentManageOrderId;
             stages = JSON.parse(localStorage.getItem(key) || '[]');
         }
         
-        if(stages.length === 0) {
-            container.innerHTML = `<div style="text-align:center; padding: 2rem; color:var(--text-muted); background:rgba(255,255,255,0.02); border-radius:12px; border:1px dashed var(--border);">Нет добавленных этапов</div>`;
-            return;
-        }
+        // Also fetch general order files
+        const filesKey = 'order_files_' + _currentManageOrderId;
+        const orderFiles = JSON.parse(localStorage.getItem(filesKey) || '[]');
         
-        container.innerHTML = stages.map((stage, idx) => `
+        let htmlContent = '';
+        
+        // --- Общие файлы заказа ---
+        htmlContent += `
             <div style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
-                <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                    <div>
-                        <div style="font-weight: 600; font-size: 1.1rem; margin-bottom: 0.3rem;">${idx+1}. ${stage.title || stage.name || 'Этап'}</div>
-                        <div style="font-size: 0.8rem; color: var(--text-muted);">
-                            ${stage.plannedStart ? 'Начало: ' + new Date(stage.plannedStart).toLocaleDateString() : ''}
-                            ${stage.plannedEnd ? ' | Дедлайн: ' + new Date(stage.plannedEnd).toLocaleDateString() : ''}
-                        </div>
-                    </div>
-                    <span style="padding: 0.3rem 0.6rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; background: ${stage.status === 'completed' ? 'rgba(34,197,94,0.1)' : 'rgba(6,182,212,0.1)'}; color: ${stage.status === 'completed' ? '#22c55e' : '#06b6d4'};">
-                        ${stage.status === 'completed' ? 'Выполнено' : 'В процессе'}
-                    </span>
-                </div>
-                
-                <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.05);">
-                    <div style="font-size: 0.85rem; font-weight: 600; margin-bottom: 0.5rem;">Отчёты и файлы:</div>
-                    ${stage.reports && stage.reports.length > 0 ? `
-                        <div style="display:flex; flex-wrap:wrap; gap:0.5rem; margin-bottom: 1rem;">
-                            ${stage.reports.map(r => `
-                                ${r.isImage ? `
-                                    <div style="position:relative; width:60px; height:60px; border-radius:8px; overflow:hidden; border:1px solid rgba(255,255,255,0.1);">
-                                        <img src="${r.data}" style="width:100%; height:100%; object-fit:cover; cursor:pointer;" onclick="window.open('${r.data}', '_blank')">
-                                    </div>
-                                ` : `
-                                    <div style="width:60px; height:60px; background: rgba(255,255,255,0.05); border-radius:8px; display:flex; align-items:center; justify-content:center; border:1px solid rgba(255,255,255,0.1); cursor:pointer;" onclick="window.open('${r.data}', '_blank')" title="${r.name}">
-                                        📄
-                                    </div>
-                                `}
-                            `).join('')}
-                        </div>
-                    ` : `<div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.8rem;">Нет загруженных файлов</div>`}
-                    
-                    <label style="display:inline-block; padding: 0.5rem 1rem; background: rgba(6,182,212,0.15); color: var(--primary); border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s;">
-                        + Загрузить отчёт
-                        <input type="file" accept="image/*,.pdf,.doc,.docx" style="display:none;" onchange="handleStageFileUpload(event, '${stage.id}')" multiple>
+                <div style="font-weight: 600; font-size: 1.1rem; margin-bottom: 0.5rem; display:flex; justify-content:space-between;">
+                    <span>📁 Общие файлы и документы лида</span>
+                    <label style="padding: 0.4rem 0.8rem; background: rgba(34,197,94,0.15); color: #22c55e; border-radius: 6px; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s;">
+                        + Добавить фото/файл
+                        <input type="file" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx" style="display:none;" onchange="handleOrderFileUpload(event)" multiple>
                     </label>
                 </div>
+                
+                ${orderFiles.length > 0 ? `
+                    <div style="display:flex; flex-wrap:wrap; gap:0.5rem; margin-top: 1rem;">
+                        ${orderFiles.map((r, i) => `
+                            ${r.isImage ? `
+                                <div style="position:relative; width:80px; height:80px; border-radius:8px; overflow:hidden; border:1px solid rgba(255,255,255,0.1);">
+                                    <img src="${r.data}" style="width:100%; height:100%; object-fit:cover; cursor:pointer;" onclick="window.open('${r.data}', '_blank')">
+                                    <div onclick="deleteOrderFile(${i})" style="position:absolute; top:2px; right:2px; background:rgba(0,0,0,0.6); color:white; width:20px; height:20px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:12px;">&times;</div>
+                                </div>
+                            ` : `
+                                <div style="position:relative; width:80px; height:80px; background: rgba(255,255,255,0.05); border-radius:8px; display:flex; flex-direction:column; align-items:center; justify-content:center; border:1px solid rgba(255,255,255,0.1); cursor:pointer;" onclick="window.open('${r.data}', '_blank')" title="${r.name}">
+                                    <span style="font-size:1.5rem">📄</span>
+                                    <span style="font-size:0.6rem; text-align:center; word-break:break-all; max-width:100%; padding:0 2px;">${r.name.substring(0,10)}..</span>
+                                    <div onclick="event.stopPropagation(); deleteOrderFile(${i})" style="position:absolute; top:2px; right:2px; background:rgba(0,0,0,0.6); color:white; width:20px; height:20px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:12px;">&times;</div>
+                                </div>
+                            `}
+                        `).join('')}
+                    </div>
+                ` : `<div style="font-size:0.8rem; color:var(--text-muted); margin-top:0.8rem;">Нет загруженных общих файлов</div>`}
             </div>
-        `).join('');
+        `;
+        
+        // --- Этапы ---
+        htmlContent += '<div style="font-weight: 600; margin-top: 1rem; color: var(--text);">📑 Этапы работы:</div>';
+        
+        if(stages.length === 0) {
+            htmlContent += `<div style="text-align:center; padding: 2rem; color:var(--text-muted); background:rgba(255,255,255,0.02); border-radius:12px; border:1px dashed var(--border);">Нет добавленных этапов</div>`;
+        } else {
+            htmlContent += stages.map((stage, idx) => `
+                <div style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                        <div>
+                            <div style="font-weight: 600; font-size: 1.1rem; margin-bottom: 0.3rem;">${idx+1}. ${stage.title || stage.name || 'Этап'}</div>
+                            <div style="font-size: 0.8rem; color: var(--text-muted);">
+                                ${stage.plannedStart ? 'Начало: ' + new Date(stage.plannedStart).toLocaleDateString() : ''}
+                                ${stage.plannedEnd ? ' | Дедлайн: ' + new Date(stage.plannedEnd).toLocaleDateString() : ''}
+                            </div>
+                        </div>
+                        <span style="padding: 0.3rem 0.6rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; background: ${stage.status === 'completed' ? 'rgba(34,197,94,0.1)' : 'rgba(6,182,212,0.1)'}; color: ${stage.status === 'completed' ? '#22c55e' : '#06b6d4'};">
+                            ${stage.status === 'completed' ? 'Выполнено' : 'В процессе'}
+                        </span>
+                    </div>
+                    
+                    <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.05);">
+                        <div style="font-size: 0.85rem; font-weight: 600; margin-bottom: 0.5rem;">Отчёты и файлы этапа:</div>
+                        ${stage.reports && stage.reports.length > 0 ? `
+                            <div style="display:flex; flex-wrap:wrap; gap:0.5rem; margin-bottom: 1rem;">
+                                ${stage.reports.map((r, fi) => `
+                                    ${r.isImage ? `
+                                        <div style="position:relative; width:60px; height:60px; border-radius:8px; overflow:hidden; border:1px solid rgba(255,255,255,0.1);">
+                                            <img src="${r.data}" style="width:100%; height:100%; object-fit:cover; cursor:pointer;" onclick="window.open('${r.data}', '_blank')">
+                                            <div onclick="deleteStageFile('${stage.id}', ${fi})" style="position:absolute; top:2px; right:2px; background:rgba(0,0,0,0.6); color:white; width:16px; height:16px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:10px;">&times;</div>
+                                        </div>
+                                    ` : `
+                                        <div style="position:relative; width:60px; height:60px; background: rgba(255,255,255,0.05); border-radius:8px; display:flex; align-items:center; justify-content:center; border:1px solid rgba(255,255,255,0.1); cursor:pointer;" onclick="window.open('${r.data}', '_blank')" title="${r.name}">
+                                            📄
+                                            <div onclick="event.stopPropagation(); deleteStageFile('${stage.id}', ${fi})" style="position:absolute; top:2px; right:2px; background:rgba(0,0,0,0.6); color:white; width:16px; height:16px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:10px;">&times;</div>
+                                        </div>
+                                    `}
+                                `).join('')}
+                            </div>
+                        ` : `<div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.8rem;">Нет загруженных файлов</div>`}
+                        
+                        <label style="display:inline-block; padding: 0.5rem 1rem; background: rgba(6,182,212,0.15); color: var(--primary); border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s;">
+                            + Загрузить отчёт к этапу
+                            <input type="file" accept="image/*,.pdf,.doc,.docx" style="display:none;" onchange="handleStageFileUpload(event, '${stage.id}')" multiple>
+                        </label>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        container.innerHTML = htmlContent;
     }
+    
+    window.handleOrderFileUpload = function(event) {
+        const files = event.target.files;
+        if(!files || files.length === 0) return;
+        
+        const filesKey = 'order_files_' + _currentManageOrderId;
+        const orderFiles = JSON.parse(localStorage.getItem(filesKey) || '[]');
+        
+        let processed = 0;
+        Array.from(files).forEach(file => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                orderFiles.push({
+                    name: file.name,
+                    data: e.target.result,
+                    isImage: file.type.startsWith('image/')
+                });
+                processed++;
+                if (processed === files.length) {
+                    localStorage.setItem(filesKey, JSON.stringify(orderFiles));
+                    renderOrderStages();
+                }
+            };
+            reader.readAsDataURL(file);
+        });
+    };
+    
+    window.deleteOrderFile = function(idx) {
+        if(!confirm('Удалить файл?')) return;
+        const filesKey = 'order_files_' + _currentManageOrderId;
+        const orderFiles = JSON.parse(localStorage.getItem(filesKey) || '[]');
+        orderFiles.splice(idx, 1);
+        localStorage.setItem(filesKey, JSON.stringify(orderFiles));
+        renderOrderStages();
+    };
+    
+    window.deleteStageFile = function(stageId, idx) {
+        if(!confirm('Удалить отчёт?')) return;
+        
+        let stages = [];
+        let loaded = false;
+        if(window.DataService && window.DataService.Customer) {
+            let res = window.DataService.Customer.getOrderStages(_currentManageOrderId);
+            if(res && res.success && res.data) {
+                stages = res.data;
+                loaded = true;
+            }
+        }
+        
+        const key = 'stages_' + _currentManageOrderId;
+        if (!loaded) {
+            stages = JSON.parse(localStorage.getItem(key) || '[]');
+        }
+        
+        const stage = stages.find(s => s.id === stageId);
+        if(!stage) return;
+        if(stage.reports) {
+            stage.reports.splice(idx, 1);
+        }
+        
+        if(!loaded) {
+            localStorage.setItem(key, JSON.stringify(stages));
+        }
+        renderOrderStages();
+    };
     
     window.addNewStageToOrder = function() {
         const title = document.getElementById('newStageTitle').value.trim();
@@ -14296,13 +14407,16 @@ window.toggleMobileMenu = function() {
         };
         
         // Save to DataService or fallback
+        let saved = false;
         if(window.DataService && window.DataService.Customer) {
-            // we simulate adding stage, Customer service doesn't have addStage natively in the mock but we can push it
             let res = window.DataService.Customer.getOrderStages(_currentManageOrderId);
             if(res && res.success && res.data) {
                 res.data.push(newStage);
+                saved = true;
             }
-        } else {
+        }
+        
+        if (!saved) {
             const key = 'stages_' + _currentManageOrderId;
             let stages = JSON.parse(localStorage.getItem(key) || '[]');
             stages.push(newStage);
@@ -14336,11 +14450,17 @@ window.toggleMobileMenu = function() {
         if(!files || files.length === 0) return;
         
         let stages = [];
-        const key = 'stages_' + _currentManageOrderId;
+        let loaded = false;
         if(window.DataService && window.DataService.Customer) {
             let res = window.DataService.Customer.getOrderStages(_currentManageOrderId);
-            if(res && res.success && res.data) stages = res.data;
-        } else {
+            if(res && res.success && res.data) {
+                stages = res.data;
+                loaded = true;
+            }
+        }
+        
+        const key = 'stages_' + _currentManageOrderId;
+        if (!loaded) {
             stages = JSON.parse(localStorage.getItem(key) || '[]');
         }
         
@@ -14348,6 +14468,7 @@ window.toggleMobileMenu = function() {
         if(!stage) return;
         if(!stage.reports) stage.reports = [];
         
+        let processed = 0;
         Array.from(files).forEach(file => {
             const reader = new FileReader();
             reader.onload = function(e) {
@@ -14356,17 +14477,18 @@ window.toggleMobileMenu = function() {
                     data: e.target.result,
                     isImage: file.type.startsWith('image/')
                 });
-                // force save if localStorage
-                if(!window.DataService) {
-                    localStorage.setItem(key, JSON.stringify(stages));
+                processed++;
+                if (processed === files.length) {
+                    if(!loaded) {
+                        localStorage.setItem(key, JSON.stringify(stages));
+                    }
+                    renderOrderStages();
                 }
-                renderOrderStages();
             };
             reader.readAsDataURL(file);
         });
     };
 </script>
-
 </body>
 
 </html>
