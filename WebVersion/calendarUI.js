@@ -755,23 +755,56 @@
                 </div>
             `;
         } else {
-            eventsHtml = events.map(ev => `
-                <div class="calendar-day-event">
-                    <div class="calendar-day-event-icon ${ev.type}">
-                        ${ev.icon}
-                    </div>
-                    <div class="calendar-day-event-content">
-                        <div class="calendar-day-event-title">${ev.title}</div>
-                        <div class="calendar-day-event-desc">${ev.description}</div>
-                        <div class="calendar-day-event-tags">
-                            ${ev.status ? `<span class="calendar-day-event-tag status">${_getStatusLabel(ev.status)}</span>` : ''}
-                            ${ev.city ? `<span class="calendar-day-event-tag city">📍 ${ev.city}</span>` : ''}
-                            ${ev.budget ? `<span class="calendar-day-event-tag budget">💰 ${_formatMoney(ev.budget)}</span>` : ''}
-                            ${ev.isOverdue ? `<span class="calendar-day-event-tag overdue">⚠️ Просрочен</span>` : ''}
+            eventsHtml = events.map(ev => {
+                let stagesHtml = '';
+                if (ev.stages && ev.stages.length > 0) {
+                    stagesHtml = `
+                        <div style="margin-top: 1rem; border-top: 1px solid var(--border); padding-top: 0.5rem;">
+                            <div style="font-weight:bold; font-size:0.8rem; margin-bottom:0.5rem;">Этапы работ:</div>
+                            ${ev.stages.map((s, idx) => `
+                                <div style="margin-bottom: 0.5rem; background:rgba(255,255,255,0.02); padding:0.5rem; border-radius:8px;">
+                                    <div style="font-size:0.8rem; font-weight:600; color:var(--primary);">${idx+1}. ${s.title || 'Без названия'}</div>
+                                    ${s.attachments && s.attachments.length > 0 ? `
+                                        <div style="display:flex; gap:0.5rem; margin-top:0.5rem; overflow-x:auto;">
+                                            ${s.attachments.map(att => `
+                                                ${att.isImage 
+                                                    ? `<img src="${att.data}" style="width:40px;height:40px;object-fit:cover;border-radius:4px;" onclick="window.open('${att.data}', '_blank')">`
+                                                    : `<div style="width:40px;height:40px;background:#333;display:flex;align-items:center;justify-content:center;border-radius:4px;font-size:0.7rem;" title="${att.name}">📄</div>`
+                                                }
+                                            `).join('')}
+                                        </div>
+                                    ` : '<div style="font-size:0.7rem; color:var(--text-muted);">Нет прикрепленных файлов</div>'}
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                }
+
+                return `
+                <div class="calendar-day-event" style="flex-direction:column; align-items:flex-start;">
+                    <div style="display:flex; gap:1rem; width:100%;">
+                        <div class="calendar-day-event-icon ${ev.type}">
+                            ${ev.icon}
+                        </div>
+                        <div class="calendar-day-event-content" style="flex:1;">
+                            <div class="calendar-day-event-title">${ev.title}</div>
+                            <div class="calendar-day-event-desc">${ev.description || 'Без описания'}</div>
+                            
+                            ${ev.assignedBy ? `<div style="font-size:0.75rem; margin-top:4px; color:var(--text-muted);"><strong>Постановщик:</strong> ${ev.assignedBy}</div>` : ''}
+                            ${ev.assigneeName ? `<div style="font-size:0.75rem; margin-top:2px; color:var(--text-muted);"><strong>Исполнитель:</strong> ${ev.assigneeName} (${ev.assigneeRole || ''})</div>` : ''}
+                            
+                            <div class="calendar-day-event-tags" style="margin-top:0.5rem;">
+                                ${ev.deadline ? `<span class="calendar-day-event-tag deadline">⏰ Дедлайн: ${new Date(ev.deadline).toLocaleDateString()}</span>` : ''}
+                                ${ev.status ? `<span class="calendar-day-event-tag status">${_getStatusLabel(ev.status)}</span>` : ''}
+                                ${ev.city ? `<span class="calendar-day-event-tag city">📍 ${ev.city}</span>` : ''}
+                                ${ev.budget ? `<span class="calendar-day-event-tag budget">💰 ${_formatMoney(ev.budget)}</span>` : ''}
+                                ${ev.isOverdue ? `<span class="calendar-day-event-tag overdue">⚠️ Просрочен</span>` : ''}
+                            </div>
                         </div>
                     </div>
+                    ${stagesHtml}
                 </div>
-            `).join('');
+            `}).join('');
         }
 
         overlay.innerHTML = `
@@ -824,35 +857,73 @@
         overlay.className = 'calendar-day-overlay';
         overlay.id = 'calendarAddEventOverlay';
         
-        // Массив для временного хранения загруженных файлов (Base64)
-        window._tempEventAttachments = [];
+        // Массив для временного хранения этапов
+        window._tempEventStages = [
+            { id: 'stage_' + Date.now(), title: 'Основной этап', attachments: [] }
+        ];
 
         overlay.innerHTML = `
-            <div class="calendar-day-modal" style="max-width:500px; width:95%;">
+            <div class="calendar-day-modal" style="max-width:600px; width:95%; max-height:90vh; display:flex; flex-direction:column;">
                 <div class="calendar-day-modal-header">
-                    <div class="calendar-day-modal-title">➕ Новый лид / Событие</div>
+                    <div class="calendar-day-modal-title">➕ Новая задача / Событие</div>
                     <button class="calendar-day-modal-close" onclick="CalendarUI.closeAddEventModal()">✕</button>
                 </div>
-                <div class="calendar-day-modal-body" style="display:flex; flex-direction:column; gap:1rem;">
-                    <div class="cal-form-group">
-                        <label>Дата</label>
-                        <input type="date" id="calEvDate" class="cal-input" value="${formattedDate}">
+                <div class="calendar-day-modal-body" style="flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:1rem;">
+                    
+                    <!-- Базовая информация -->
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+                        <div class="cal-form-group">
+                            <label>Дата начала</label>
+                            <input type="date" id="calEvDate" class="cal-input" value="${formattedDate}">
+                        </div>
+                        <div class="cal-form-group">
+                            <label style="color:#ef4444;">Дедлайн ⏰</label>
+                            <input type="date" id="calEvDeadline" class="cal-input">
+                        </div>
                     </div>
+                    
                     <div class="cal-form-group">
-                        <label>Название (Обязательно)</label>
+                        <label>Название задачи (Обязательно)</label>
                         <input type="text" id="calEvTitle" class="cal-input" placeholder="Например: Ремонт квартиры" required>
                     </div>
                     <div class="cal-form-group">
-                        <label>Описание</label>
-                        <textarea id="calEvDesc" class="cal-input" rows="3" placeholder="Детали задачи..."></textarea>
+                        <label>Описание задачи</label>
+                        <textarea id="calEvDesc" class="cal-input" rows="2" placeholder="Детали задачи..."></textarea>
                     </div>
+                    
+                    <!-- Исполнители -->
+                    <div style="background:rgba(255,255,255,0.02); padding:1rem; border-radius:12px; border:1px solid rgba(255,255,255,0.05);">
+                        <div style="font-weight:600; margin-bottom:0.75rem; color:var(--text);">Участники</div>
+                        <div class="cal-form-group" style="margin-bottom:0.75rem;">
+                            <label>Кем назначено (Постановщик)</label>
+                            <input type="text" id="calEvAssignedBy" class="cal-input" placeholder="Ваше имя / Роль">
+                        </div>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+                            <div class="cal-form-group">
+                                <label>Имя исполнителя</label>
+                                <input type="text" id="calEvAssigneeName" class="cal-input" placeholder="Например: Алексей">
+                            </div>
+                            <div class="cal-form-group">
+                                <label>Роль исполнителя</label>
+                                <select id="calEvAssigneeRole" class="cal-input" style="background-color: var(--bg-primary);">
+                                    <option value="Мастер">Мастер</option>
+                                    <option value="Прораб">Прораб</option>
+                                    <option value="Инженер">Инженер</option>
+                                    <option value="Техника">Техника</option>
+                                    <option value="Подрядчик">Подрядчик</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Клиент / Бюджет -->
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
                         <div class="cal-form-group">
                             <label>Имя клиента</label>
                             <input type="text" id="calEvName" class="cal-input" placeholder="Иван">
                         </div>
                         <div class="cal-form-group">
-                            <label>Телефон</label>
+                            <label>Телефон клиента</label>
                             <input type="text" id="calEvPhone" class="cal-input" placeholder="+7 700 000 0000">
                         </div>
                     </div>
@@ -861,23 +932,27 @@
                         <input type="number" id="calEvBudget" class="cal-input" placeholder="0">
                     </div>
                     
-                    <div class="cal-form-group">
-                        <label>Прикрепить файлы (Фото/Документы)</label>
-                        <div class="cal-upload-zone" onclick="document.getElementById('calEvFiles').click()">
-                            <div class="cal-upload-icon">📎</div>
-                            <div>Нажмите, чтобы выбрать файлы</div>
-                            <div style="font-size:0.75rem; color:var(--text-muted); margin-top:4px;">До 5 файлов, макс 5МБ</div>
-                            <input type="file" id="calEvFiles" multiple style="display:none;" onchange="CalendarUI.handleEventFileUpload(event)">
+                    <!-- ЭТАПЫ РАБОТ -->
+                    <div style="margin-top: 1rem;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                            <div style="font-weight:600; color:var(--primary);">Этапы работ / Отчёты</div>
+                            <button class="icon-btn" onclick="CalendarUI.addStageToEventModal()" style="font-size:0.8rem; padding:0.3rem 0.6rem;">➕ Добавить этап</button>
                         </div>
-                        <div id="calEvFilesPreview" class="cal-files-preview"></div>
+                        
+                        <div id="calEvStagesContainer">
+                            <!-- Stages will be rendered here -->
+                        </div>
                     </div>
                     
-                    <button class="calendar-today-btn" style="width:100%; margin-top:0.5rem;" onclick="CalendarUI.saveCustomEvent()">Сохранить</button>
+                </div>
+                <div style="padding:1rem; border-top:1px solid var(--border);">
+                    <button class="calendar-today-btn" style="width:100%;" onclick="CalendarUI.saveCustomEvent()">Сохранить задачу</button>
                 </div>
             </div>
         `;
 
         document.body.appendChild(overlay);
+        CalendarUI.renderEventStages();
     }
 
     function closeAddEventModal() {
@@ -885,19 +960,74 @@
         if (overlay) {
             overlay.remove();
         }
-        window._tempEventAttachments = [];
+        window._tempEventStages = [];
     }
 
-    function handleEventFileUpload(e) {
+    // -- STAGE LOGIC --
+    function renderEventStages() {
+        const container = document.getElementById('calEvStagesContainer');
+        if (!container) return;
+        
+        container.innerHTML = window._tempEventStages.map((stage, index) => `
+            <div class="cal-stage-card" style="background:var(--bg-secondary); border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:1rem; margin-bottom:1rem;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+                    <div style="font-weight:bold; font-size:0.9rem;">Этап ${index + 1}</div>
+                    ${window._tempEventStages.length > 1 ? `<button onclick="CalendarUI.removeStageFromEventModal('${stage.id}')" style="background:none;border:none;color:#ef4444;cursor:pointer;">✕</button>` : ''}
+                </div>
+                
+                <input type="text" class="cal-input" placeholder="Название этапа (например: Черновая отделка)" value="${stage.title}" onchange="CalendarUI.updateStageTitle('${stage.id}', this.value)" style="margin-bottom:0.5rem;">
+                
+                <!-- Загрузка файлов -->
+                <div class="cal-upload-zone" onclick="document.getElementById('file_${stage.id}').click()" style="padding: 1rem; margin-top:0.5rem;">
+                    <div class="cal-upload-icon">📎</div>
+                    <div style="font-size:0.8rem;">Прикрепить фото/отчёты к этапу</div>
+                    <input type="file" id="file_${stage.id}" multiple style="display:none;" onchange="CalendarUI.handleStageFileUpload(event, '${stage.id}')">
+                </div>
+                
+                <!-- Превью файлов этапа -->
+                <div class="cal-files-preview" style="margin-top:0.5rem; display:flex; gap:0.5rem; overflow-x:auto;">
+                    ${stage.attachments.map(att => `
+                        <div class="cal-file-item">
+                            ${att.isImage 
+                                ? `<img src="${att.data}" alt="${att.name}">`
+                                : `<div class="cal-file-doc">📄</div>`
+                            }
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function addStageToEventModal() {
+        window._tempEventStages.push({
+            id: 'stage_' + Date.now(),
+            title: '',
+            attachments: []
+        });
+        renderEventStages();
+    }
+    
+    function removeStageFromEventModal(id) {
+        window._tempEventStages = window._tempEventStages.filter(s => s.id !== id);
+        renderEventStages();
+    }
+    
+    function updateStageTitle(id, val) {
+        const s = window._tempEventStages.find(st => st.id === id);
+        if (s) s.title = val;
+    }
+
+    function handleStageFileUpload(e, stageId) {
         const files = e.target.files;
         if (!files || files.length === 0) return;
 
-        const previewContainer = document.getElementById('calEvFilesPreview');
+        const stage = window._tempEventStages.find(s => s.id === stageId);
+        if (!stage) return;
         
         for (let i = 0; i < files.length; i++) {
             const file = files[i];
             
-            // Лимит 5МБ на файл (для base64 localStorage)
             if (file.size > 5 * 1024 * 1024) {
                 if(window.showToast) window.showToast(`❌ Файл ${file.name} слишком большой (макс 5MB)`);
                 continue;
@@ -908,24 +1038,13 @@
                 const base64 = event.target.result;
                 const isImage = file.type.startsWith('image/');
                 
-                const attachment = {
+                stage.attachments.push({
                     name: file.name,
                     type: file.type,
                     data: base64,
                     isImage
-                };
-                
-                window._tempEventAttachments.push(attachment);
-                
-                // Рендер превью
-                const item = document.createElement('div');
-                item.className = 'cal-file-item';
-                if (isImage) {
-                    item.innerHTML = `<img src="${base64}" alt="${file.name}">`;
-                } else {
-                    item.innerHTML = `<div class="cal-file-doc">📄</div>`;
-                }
-                previewContainer.appendChild(item);
+                });
+                renderEventStages();
             };
             reader.readAsDataURL(file);
         }
@@ -939,21 +1058,36 @@
         }
 
         const dateStr = document.getElementById('calEvDate').value;
+        const deadline = document.getElementById('calEvDeadline').value;
         const desc = document.getElementById('calEvDesc').value.trim();
         const name = document.getElementById('calEvName').value.trim();
         const phone = document.getElementById('calEvPhone').value.trim();
         const budget = parseInt(document.getElementById('calEvBudget').value) || 0;
+        
+        const assignedBy = document.getElementById('calEvAssignedBy').value.trim();
+        const assigneeName = document.getElementById('calEvAssigneeName').value.trim();
+        const assigneeRole = document.getElementById('calEvAssigneeRole').value;
+
+        // Фильтруем пустые этапы без фото и названия, если их больше 1
+        let finalStages = window._tempEventStages;
+        if (finalStages.length > 1) {
+             finalStages = finalStages.filter(s => s.title || s.attachments.length > 0);
+        }
 
         const newEvent = {
             id: 'custom_' + Date.now(),
             date: dateStr ? new Date(dateStr).toISOString() : new Date().toISOString(),
+            deadline: deadline ? new Date(deadline).toISOString() : null,
             title,
             description: desc,
             contactName: name,
             contactPhone: phone,
             budget,
             status: 'plan',
-            attachments: window._tempEventAttachments || [],
+            assignedBy,
+            assigneeName,
+            assigneeRole,
+            stages: finalStages,
             createdAt: new Date().toISOString()
         };
 
@@ -963,17 +1097,17 @@
             customEvents.push(newEvent);
             localStorage.setItem('executor_custom_events', JSON.stringify(customEvents));
             
-            if(window.showToast) window.showToast('✅ Лид сохранен!');
+            if(window.showToast) window.showToast('✅ Задача успешно сохранена!');
             
             closeAddEventModal();
             _render(); // Перерендерить календарь
         } catch (e) {
             console.error('[Calendar] Error saving event:', e);
-            if(window.showToast) window.showToast('❌ Ошибка при сохранении (возможно превышен лимит памяти)');
+            if(window.showToast) window.showToast('❌ Ошибка при сохранении (возможно превышен лимит памяти 5MB)');
         }
     }
 
-    // =============================================
+    // // =============================================
     // 9. НАВИГАЦИЯ
     // =============================================
 
@@ -1028,7 +1162,13 @@
         closeDayDetail,
         openAddEventModal,
         closeAddEventModal,
-        handleEventFileUpload,
+
+        renderEventStages,
+        addStageToEventModal,
+        removeStageFromEventModal,
+        updateStageTitle,
+        handleStageFileUpload,
+    
         saveCustomEvent,
 
         // Для тестирования
