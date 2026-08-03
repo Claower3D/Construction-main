@@ -1394,4 +1394,20 @@ body {
   .header-wallet-icon {
     font-size: 0.9rem;
   }
-}
+}
+/* FIX OVERLAPPING ROLE DROPDOWNS IN SIDEBAR */
+.nav-role {
+    flex-wrap: wrap !important;
+    white-space: normal !important;
+    height: auto !important;
+}
+.nav-role .nav-dropdown {
+    flex-basis: 100% !important;
+    min-width: 100% !important;
+    margin-top: 10px;
+}
+.nav-role-left {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
