@@ -1010,6 +1010,10 @@ body {
   opacity: 1;
 }
 
+.mobile-nav-footer {
+  display: none;
+}
+
 /* ============================================
    Mobile Responsive
    ============================================ */
@@ -1026,14 +1030,15 @@ body {
     right: -280px;
     width: 280px;
     height: 100vh;
-    background: var(--card);
+    background: rgba(17, 24, 39, 0.95);
+    backdrop-filter: blur(16px);
     border-left: 1px solid var(--border);
     flex-direction: column;
     padding: 5rem 1.5rem 2rem 1.5rem;
     gap: 1rem;
     z-index: 10000;
     transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: -10px 0 30px rgba(0,0,0,0.2);
+    box-shadow: -10px 0 30px rgba(0,0,0,0.5);
     overflow-y: auto;
     display: flex !important; /* Override if inline hidden */
   }
