@@ -6938,8 +6938,8 @@
                     modulePage.classList.add('active');
                     updateModulesPageTitle('Календарь работ', '📅');
                     const container = $('#moduleContent');
-                    if (container && window.CalendarUI && window.CalendarUI.render) {
-                        window.CalendarUI.render(container);
+                    if (container && window.CalendarUI && window.CalendarUI.open) {
+                        window.CalendarUI.open(container);
                     } else if (container) {
                         container.innerHTML = `
                             <div style="text-align:center;padding:3rem;color:var(--text-muted);">
