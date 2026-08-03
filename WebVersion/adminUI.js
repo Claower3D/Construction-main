@@ -349,23 +349,44 @@
         _containerEl.innerHTML = `
             <!-- Header -->
             <div class="admin-header">
+                <div class="logo admin-logo" onclick="window.showPage && window.showPage('landing')" style="cursor:pointer; display:flex; align-items:center; gap:0.5rem; font-weight:800; font-size:1.4rem; color:#fff;">
+                    <div class="logo-icon" style="width:36px; height:36px; background:linear-gradient(135deg, #8b5cf6, #6366f1); color:white; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1.2rem; font-weight:800; box-shadow:0 4px 15px rgba(139,92,246,0.4);">Q</div>
+                    QazGost <span style="color:#8b5cf6;">AI</span>
+                </div>
                 <div class="admin-header-title">
                     <span>⚙️</span> Панель администратора
                     <span class="admin-badge">ADMIN</span>
                 </div>
-                <div class="admin-tabs">
+                
+                <button class="admin-burger-btn" onclick="AdminUI.toggleMobileMenu()">
+                    <div class="admin-burger-bar"></div>
+                    <div class="admin-burger-bar"></div>
+                    <div class="admin-burger-bar"></div>
+                </button>
+                
+                <div class="admin-mobile-overlay" id="adminMobileOverlay" onclick="AdminUI.toggleMobileMenu()"></div>
+
+                <div class="admin-tabs" id="adminNavTabs">
+                    <div class="admin-drawer-header">
+                        <div class="logo" style="display:flex; align-items:center; gap:0.5rem; font-weight:800; font-size:1.2rem; color:#fff;">
+                            <div class="logo-icon" style="width:32px; height:32px; background:linear-gradient(135deg, #8b5cf6, #6366f1); color:white; border-radius:8px; display:flex; align-items:center; justify-content:center;">Q</div>
+                            QazGost <span style="color:#8b5cf6;">AI</span>
+                        </div>
+                        <button class="admin-drawer-close" onclick="AdminUI.toggleMobileMenu()">✕</button>
+                    </div>
+                    
                     <button class="admin-tab ${_activeTab === 'overview' ? 'active' : ''}"
-                            onclick="AdminUI.setTab('overview')">📊 Обзор</button>
+                            onclick="AdminUI.setTab('overview'); AdminUI.closeMobileMenu();">📊 Обзор</button>
                     <button class="admin-tab ${_activeTab === 'database' ? 'active' : ''}"
-                            onclick="AdminUI.setTab('database')">🗄️ База данных</button>
+                            onclick="AdminUI.setTab('database'); AdminUI.closeMobileMenu();">🗄️ База данных</button>
                     <button class="admin-tab ${_activeTab === 'prices' ? 'active' : ''}"
-                            onclick="AdminUI.setTab('prices')">💰 Цены</button>
+                            onclick="AdminUI.setTab('prices'); AdminUI.closeMobileMenu();">💰 Цены</button>
                     <button class="admin-tab ${_activeTab === 'moderation' ? 'active' : ''}"
-                            onclick="AdminUI.setTab('moderation')">🛡️ Модерация${pendingCount > 0 ? `<span class="tab-badge">${pendingCount}</span>` : ''}</button>
+                            onclick="AdminUI.setTab('moderation'); AdminUI.closeMobileMenu();">🛡️ Модерация${pendingCount > 0 ? `<span class="tab-badge">${pendingCount}</span>` : ''}</button>
                     <button class="admin-tab ${_activeTab === 'users' ? 'active' : ''}"
-                            onclick="AdminUI.setTab('users')">👥 Пользователи</button>
+                            onclick="AdminUI.setTab('users'); AdminUI.closeMobileMenu();">👥 Пользователи</button>
                     <button class="admin-tab ${_activeTab === 'settings' ? 'active' : ''}"
-                            onclick="AdminUI.setTab('settings')">⚙️ Управление</button>
+                            onclick="AdminUI.setTab('settings'); AdminUI.closeMobileMenu();">⚙️ Управление</button>
                 </div>
             </div>
 
@@ -2411,6 +2432,21 @@
     // 15. EXPORT
     // =============================================
 
+    function toggleMobileMenu() {
+        const tabs = document.getElementById('adminNavTabs');
+        const overlay = document.getElementById('adminMobileOverlay');
+        if (!tabs || !overlay) return;
+        tabs.classList.toggle('mobile-active');
+        overlay.classList.toggle('mobile-active');
+    }
+
+    function closeMobileMenu() {
+        const tabs = document.getElementById('adminNavTabs');
+        const overlay = document.getElementById('adminMobileOverlay');
+        if (tabs) tabs.classList.remove('mobile-active');
+        if (overlay) overlay.classList.remove('mobile-active');
+    }
+
     const AdminUI = {
         open,
         setTab,
@@ -2451,6 +2487,8 @@
         exportPricesToExcel,
         importPricesFromExcel,
         resetPriceOverrides,
+        toggleMobileMenu,
+        closeMobileMenu,
         _searchTimeout: null,
         _wbsSearchTimeout: null,
         _usersSearchTimeout: null
