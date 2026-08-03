@@ -2615,30 +2615,34 @@ body.modal-open {
    HYBRID CARDS — Dark Glassmorphism + Slanted Diagonal Photo Cut
    ======================================================== */
 
+/* ========================================================
+   HYBRID CARDS — Ultra-Aesthetic White Cards with Diagonal Photo Cut
+   ======================================================== */
+
 .our-services-container {
     padding: 3.5rem 1.5rem;
-    max-width: 1320px;
+    max-width: 1340px;
     margin: 0 auto;
 }
 
 .our-services-title {
     text-align: center;
-    font-size: 2.5rem;
+    font-size: 2.6rem;
     font-weight: 900;
     color: #ffffff;
-    background: linear-gradient(135deg, #ffffff 0%, #a78bfa 50%, #60a5fa 100%);
+    background: linear-gradient(135deg, #ffffff 0%, #c084fc 50%, #60a5fa 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     text-transform: uppercase;
     letter-spacing: 0.06em;
     margin-bottom: 2.5rem;
-    filter: drop-shadow(0 4px 20px rgba(139, 92, 246, 0.35));
+    filter: drop-shadow(0 4px 25px rgba(168, 85, 247, 0.4));
 }
 
 .our-services-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 1.5rem;
+    gap: 1.75rem;
 }
 
 .span-col-2 {
@@ -2650,29 +2654,29 @@ body.modal-open {
 }
 
 .service-card-hybrid {
-    background: #ffffff !important;
-    border-radius: 16px !important;
-    border: 1px solid #e2e8f0 !important;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08) !important;
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%) !important;
+    border-radius: 22px !important;
+    border: 1px solid rgba(226, 232, 240, 0.9) !important;
+    box-shadow: 0 16px 45px rgba(15, 23, 42, 0.18), 0 0 25px rgba(139, 92, 246, 0.08) !important;
     position: relative !important;
     overflow: hidden !important;
     display: flex !important;
     flex-direction: row !important;
     align-items: stretch !important;
-    min-height: 220px !important;
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    min-height: 225px !important;
+    transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
 .service-card-hybrid:hover {
-    transform: translateY(-5px) !important;
-    box-shadow: 0 20px 45px rgba(15, 23, 42, 0.15) !important;
-    border-color: #cbd5e1 !important;
+    transform: translateY(-6px) scale(1.015) !important;
+    box-shadow: 0 25px 60px rgba(15, 23, 42, 0.28), 0 0 35px rgba(139, 92, 246, 0.22) !important;
+    border-color: #a78bfa !important;
 }
 
 /* Left side text */
 .svc-hybrid-left {
-    flex: 1 1 55% !important;
-    padding: 1.6rem 1.25rem 1.6rem 1.6rem !important;
+    flex: 1 1 58% !important;
+    padding: 1.75rem 1.35rem 1.75rem 1.75rem !important;
     display: flex !important;
     flex-direction: column !important;
     justify-content: center !important;
@@ -2680,12 +2684,13 @@ body.modal-open {
 }
 
 .svc-hybrid-title {
-    font-size: 1.3rem !important;
-    font-weight: 800 !important;
+    font-size: 1.35rem !important;
+    font-weight: 900 !important;
     color: #0f172a !important;
     line-height: 1.25 !important;
-    margin: 0 0 0.85rem 0 !important;
+    margin: 0 0 0.9rem 0 !important;
     font-family: inherit !important;
+    letter-spacing: -0.02em !important;
 }
 
 .svc-hybrid-list {
@@ -2694,37 +2699,38 @@ body.modal-open {
     margin: 0 !important;
     display: flex !important;
     flex-direction: column !important;
-    gap: 0.45rem !important;
+    gap: 0.5rem !important;
 }
 
 .svc-hybrid-list.cols-2 {
     display: grid !important;
     grid-template-columns: repeat(2, 1fr) !important;
-    gap: 0.5rem 1.5rem !important;
+    gap: 0.5rem 1.75rem !important;
 }
 
 .svc-hybrid-list li {
-    font-size: 0.88rem !important;
+    font-size: 0.9rem !important;
     line-height: 1.45 !important;
     color: #334155 !important;
     display: flex !important;
     align-items: flex-start !important;
     gap: 0.5rem !important;
-    font-weight: 500 !important;
+    font-weight: 600 !important;
 }
 
 .svc-hybrid-list .red-bullet {
     color: #e11d48 !important;
     font-weight: 900 !important;
-    font-size: 1rem !important;
+    font-size: 1.1rem !important;
     line-height: 1 !important;
+    filter: drop-shadow(0 2px 4px rgba(225, 29, 72, 0.3)) !important;
 }
 
 /* Right side slanted photo cut */
 .svc-hybrid-right {
-    flex: 0 0 45% !important;
+    flex: 0 0 42% !important;
     position: relative !important;
-    clip-path: polygon(25% 0%, 100% 0%, 100% 100%, 0% 100%) !important;
+    clip-path: polygon(18% 0%, 100% 0%, 100% 100%, 0% 100%) !important;
     background-size: cover !important;
     background-position: center !important;
     min-height: 100% !important;
@@ -2734,10 +2740,10 @@ body.modal-open {
     content: '' !important;
     position: absolute !important;
     inset: 0 !important;
-    background: linear-gradient(135deg, rgba(15, 23, 42, 0.1), rgba(15, 23, 42, 0.25)) !important;
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.05), rgba(15, 23, 42, 0.30)) !important;
 }
 
-/* Dotted blue circle arrow badge on photo */
+/* Glowing Blue-Purple Action Arrow Badge */
 .blue-arrow-circle {
     position: absolute !important;
     bottom: 1.25rem !important;
@@ -2745,25 +2751,24 @@ body.modal-open {
     width: 48px !important;
     height: 48px !important;
     border-radius: 50% !important;
-    border: 2px dashed #2563eb !important;
-    background: rgba(37, 99, 235, 0.15) !important;
-    backdrop-filter: blur(4px) !important;
-    color: #2563eb !important;
+    border: 2px solid rgba(255, 255, 255, 0.85) !important;
+    background: linear-gradient(135deg, #2563eb, #7c3aed) !important;
+    color: #ffffff !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    font-size: 1.4rem !important;
+    font-size: 1.35rem !important;
     font-weight: 800 !important;
     z-index: 3 !important;
-    transition: all 0.3s ease !important;
+    transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    box-shadow: 0 8px 25px rgba(37, 99, 235, 0.5), 0 0 15px rgba(124, 58, 237, 0.4) !important;
 }
 
 .service-card-hybrid:hover .blue-arrow-circle {
-    background: #2563eb !important;
+    background: linear-gradient(135deg, #1d4ed8, #6d28d9) !important;
     color: #ffffff !important;
-    border-style: solid !important;
-    transform: scale(1.1) rotate(45deg) !important;
-    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4) !important;
+    transform: scale(1.18) rotate(45deg) !important;
+    box-shadow: 0 12px 32px rgba(37, 99, 235, 0.75), 0 0 20px rgba(124, 58, 237, 0.6) !important;
 }
 
 @media (max-width: 1100px) {
@@ -2787,7 +2792,7 @@ body.modal-open {
     }
     .svc-hybrid-right {
         clip-path: none !important;
-        height: 180px !important;
+        height: 190px !important;
         flex: none !important;
     }
     .svc-hybrid-list.cols-2 {

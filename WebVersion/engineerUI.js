@@ -1063,7 +1063,10 @@
         const brigadeInfo = o.brigade ? `<div class="eng-brigade-card" style="margin-top:1rem"><div class="eng-brigade-avatar">👷</div><div style="flex:1"><h3 style="margin:0">Бригада: ${o.brigade.name}</h3><p class="text-muted" style="margin:0.25rem 0">${o.brigade.spec} / ${o.brigade.workers} чел.</p><p style="margin:0;font-size:0.85rem">Начало: ${o.brigade.startDate} · ${o.brigade.duration} · ${formatPrice(o.brigade.price)}</p></div></div>` : `<div style="margin-top:1rem"><p class="text-muted">Бригада не назначена</p>${ED.BRIGADES.filter(b=>b.status==='free').map(b=>`<button class="eng-btn eng-btn-primary eng-btn-sm" style="margin:0.25rem" onclick="EngineerUI.assignBrigade('${objId}','${b.id}')">${b.avatar} ${b.name} (${b.spec})</button>`).join('')}</div>`;
         main.innerHTML = `
             <div class="eng-page-header"><h1>🏗️ ${o.client}</h1>
-                <div><button class="eng-btn eng-btn-secondary eng-btn-sm" onclick="EngineerUI.switchTab('objects')">← Назад</button></div></div>
+                <div style="display:flex;gap:0.5rem">
+                    <button class="eng-btn eng-btn-primary eng-btn-sm" onclick="EngineerUI.postDepartureForm('${objId}')">📝 После выезда</button>
+                    <button class="eng-btn eng-btn-secondary eng-btn-sm" onclick="EngineerUI.switchTab('objects')">← Назад</button>
+                </div></div>
             <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1rem">
                 <span class="eng-status eng-status-${ED.STATUS_CSS[o.status]}">${ED.STATUSES[o.status]}</span>
                 <select id="engStatusSelect" onchange="EngineerUI.changeStatus('${objId}',this.value)" style="padding:0.3rem 0.5rem;border-radius:8px;background:var(--bg-card);color:var(--text);border:1px solid var(--border);font-size:0.8rem">${statusOptions}</select>
@@ -1084,7 +1087,27 @@
                     </div>
                     <button class="eng-btn eng-btn-primary eng-btn-sm" style="margin-top:1rem;width:100%" onclick="EngineerUI.editMeasures('${objId}')">✏️ Редактировать замеры</button>
                 </div>
-                <div class="eng-card"><h3>👷 Бригада</h3>${brigadeInfo}</div>
+                <div class="eng-card"><h3>👷 Бригада и Сотрудники</h3>${brigadeInfo}
+                    <div style="margin-top:1rem">
+                        <h4 style="margin:0 0 0.5rem">Назначенные сотрудники</h4>
+                        ${(o.assignedEmployees||[]).length ? (o.assignedEmployees||[]).map(emp => `<div style="padding:0.3rem 0;border-bottom:1px solid var(--border);font-size:0.9rem">${emp}</div>`).join('') : '<p class="text-muted" style="font-size:0.85rem;margin:0">Нет сотрудников</p>'}
+                    </div>
+                </div>
+            </div>
+            <div class="eng-card" style="margin-bottom:1rem">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem">
+                    <h3 style="margin:0">✅ Задачи инженера</h3>
+                    <button class="eng-btn eng-btn-secondary eng-btn-sm" onclick="EngineerUI.addTaskPrompt('${objId}')">+ Добавить задачу</button>
+                </div>
+                <div>${(o.tasks||[]).length ? (o.tasks||[]).map(t => `
+                    <div style="display:flex;justify-content:space-between;align-items:center;padding:0.5rem;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;margin-bottom:0.5rem">
+                        <div>
+                            <strong style="${t.status==='DONE'?'text-decoration:line-through;color:var(--text-muted)':''}">${t.title}</strong>
+                            <div style="font-size:0.75rem;color:var(--text-muted);margin-top:0.25rem">Срок: ${t.deadline} | Приоритет: ${t.priority} | Отв: ${t.responsible||'Инженер'}</div>
+                        </div>
+                        ${t.status!=='DONE' ? `<button class="eng-btn eng-btn-success eng-btn-sm" style="padding:0.2rem 0.5rem" onclick="EngineerUI.completeTask('${objId}','${t.id}')">✓</button>` : '<span style="color:var(--success);font-size:0.85rem">Выполнено</span>'}
+                    </div>
+                `).join('') : '<p class="text-muted" style="font-size:0.85rem;margin:0">Нет активных задач</p>'}</div>
             </div>
             <div class="eng-card"><h3>📜 История действий (${(o.history||[]).length})</h3>
                 <div class="eng-timeline" style="margin-top:0.75rem">${(o.history||[]).slice().reverse().map(h => {
@@ -1115,6 +1138,59 @@
         ED.assignBrigade(objId, brigadeId);
         showToast('✅ Бригада назначена!');
         renderObjectDetail($('#eng-main-content'), objId);
+    }
+
+    function completeTask(objId, taskId) {
+        ED.updateTaskStatus(objId, taskId, 'DONE');
+        showToast('✅ Задача выполнена!');
+        renderObjectDetail($('#eng-main-content'), objId);
+    }
+
+    async function addTaskPrompt(objId) {
+        const p = window.QazUI ? QazUI.prompt.bind(QazUI) : (t,d,o) => Promise.resolve(prompt(d));
+        const title = await p('Новая задача', 'Описание задачи', {icon:'📌', confirmText:'Далее'});
+        if (!title) return;
+        const deadline = await p('Срок', 'YYYY-MM-DD или текст', {icon:'⏰', confirmText:'Далее'});
+        const priority = await p('Приоритет', 'Высокий / Обычный / Низкий', {icon:'🔥', confirmText:'Создать'});
+        ED.addTask(objId, {title, deadline: deadline||new Date().toISOString().split('T')[0], priority: priority||'Обычный', responsible:'Инженер'});
+        renderObjectDetail($('#eng-main-content'), objId);
+    }
+
+    function postDepartureForm(objId) {
+        const o = ED.objects.find(x => x.id === objId);
+        if (!o) return;
+        const overlay = document.createElement('div');
+        overlay.className = 'qaz-modal-overlay';
+        overlay.style.zIndex = '999999';
+        overlay.innerHTML = `
+            <div class="qaz-modal-card" style="text-align:left; max-width:500px">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+                    <h3 style="margin:0;font-size:1.2rem;color:#fff">📝 Отчет после выезда</h3>
+                    <button class="eng-modal-close" onclick="this.closest('.qaz-modal-overlay').remove()" style="background:none;border:none;color:var(--text-muted);font-size:1.5rem;cursor:pointer">&times;</button>
+                </div>
+                <div class="eng-form-group" style="margin-bottom:0.75rem">
+                    <label style="display:block;margin-bottom:0.25rem;font-size:0.85rem;color:var(--text-muted)">Заключение инженера</label>
+                    <textarea id="depConclusion" rows="3" style="width:100%;padding:0.6rem;border-radius:8px;background:rgba(255,255,255,0.05);border:1px solid var(--border);color:#fff"></textarea>
+                </div>
+                <div class="eng-form-group" style="margin-bottom:1rem">
+                    <label style="display:block;margin-bottom:0.25rem;font-size:0.85rem;color:var(--text-muted)">Требуемые материалы / работы</label>
+                    <textarea id="depMaterials" rows="3" style="width:100%;padding:0.6rem;border-radius:8px;background:rgba(255,255,255,0.05);border:1px solid var(--border);color:#fff"></textarea>
+                </div>
+                <div class="qaz-modal-actions" style="margin-top:1.5rem">
+                    <button class="qaz-modal-btn cancel" onclick="this.closest('.qaz-modal-overlay').remove()">Отмена</button>
+                    <button class="qaz-modal-btn confirm" id="depSubmit">Отправить менеджеру</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+        overlay.querySelector('#depSubmit').onclick = () => {
+            const conclusion = document.getElementById('depConclusion').value.trim();
+            ED.updateObjectStatus(objId, 'CALCULATION_REQUIRED');
+            o.history.push({date: new Date().toISOString().split('T')[0], action: 'Отчет после выезда: ' + conclusion, by: 'Инженер'});
+            showToast('✅ Данные переданы менеджеру (Требуется расчёт)');
+            overlay.remove();
+            renderObjectDetail($('#eng-main-content'), objId);
+        };
     }
 
     function editMeasures(objId) {
@@ -1764,6 +1840,7 @@
         addBrigadePrompt, deleteBrigadePrompt,
         addMaterialPrompt, deleteMat,
         openMeasuresFor, getGPS,
+        completeTask, addTaskPrompt, postDepartureForm,
         // API-connected features
         sendEstimateToCustomer
     };

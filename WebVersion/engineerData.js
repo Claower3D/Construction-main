@@ -36,18 +36,31 @@ function today() { return new Date().toISOString().split('T')[0]; }
 
 // === CONSTANTS ===
 const STATUSES = {
-  NEW:'Новая заявка', ASSIGNED:'Назначен инженер', WAITING:'Ожидает выезд',
-  INSPECTED:'Осмотр выполнен', AI_PENDING:'Ожидает AI-просчёт',
-  REVIEW:'На проверке инженера', ESTIMATE_READY:'Смета готова',
-  APPROVAL:'Ожидает согласование', IN_WORK:'В работе',
-  CONTROL:'Нужен контроль', DONE:'Завершено', CLOSED:'Закрыто', PROBLEM:'Проблемный объект'
+  NEW: 'Новая заявка',
+  INSPECTION_REQUIRED: 'Требуется осмотр',
+  DEPARTURE_SCHEDULED: 'Выезд назначен',
+  ENGINEER_DEPARTED: 'Инженер выехал',
+  INSPECTED: 'Осмотр выполнен',
+  CALCULATION_REQUIRED: 'Требуется расчёт',
+  CP_PREPARED: 'Коммерческое предложение подготовлено',
+  AGREED: 'Согласовано с заказчиком',
+  IN_WORK: 'Объект в работе',
+  WORKS_COMPLETED: 'Работы завершены',
+  CLOSED: 'Объект закрыт',
+  CANCELLED: 'Отменено',
+  PROBLEM: 'Проблемный объект'
 };
 const STATUS_CSS = {
-  NEW:'new', ASSIGNED:'assigned', WAITING:'waiting', INSPECTED:'inspected',
-  AI_PENDING:'ai', REVIEW:'review', ESTIMATE_READY:'ready', APPROVAL:'approved',
-  IN_WORK:'work', CONTROL:'control', DONE:'done', CLOSED:'closed', PROBLEM:'problem'
+  NEW: 'new', INSPECTION_REQUIRED: 'waiting', DEPARTURE_SCHEDULED: 'assigned',
+  ENGINEER_DEPARTED: 'assigned', INSPECTED: 'inspected', CALCULATION_REQUIRED: 'ai',
+  CP_PREPARED: 'ready', AGREED: 'approved', IN_WORK: 'work', WORKS_COMPLETED: 'done',
+  CLOSED: 'closed', CANCELLED: 'closed', PROBLEM: 'problem'
 };
-const STATUS_FLOW = ['NEW','ASSIGNED','WAITING','INSPECTED','AI_PENDING','REVIEW','ESTIMATE_READY','APPROVAL','IN_WORK','CONTROL','DONE','CLOSED'];
+const STATUS_FLOW = [
+  'NEW', 'INSPECTION_REQUIRED', 'DEPARTURE_SCHEDULED', 'ENGINEER_DEPARTED',
+  'INSPECTED', 'CALCULATION_REQUIRED', 'CP_PREPARED', 'AGREED', 'IN_WORK',
+  'WORKS_COMPLETED', 'CLOSED'
+];
 const WORK_TYPES = ['Водопровод','Канализация','Септик','Отопление','Дренаж','Ливнёвка','Врезка'];
 const PHOTO_CATS = ['До работ','Замеры','Препятствия','Во время работ','Скрытые работы','После работ','Проблемы'];
 const AI_STEPS = [
@@ -105,7 +118,7 @@ function getDefaultData() {
          {date:daysAgo(5),action:'Бригада назначена, работы начаты',by:'Инженер'}
        ]},
       {id:'obj_2',client:'Дмитрий Ахметов',phone:'+7 702 333 4444',address:'Караганда, пос. Кокпекты, уч.7',
-       type:'Канализация',status:'REVIEW',progress:40,engineer:'Иван',
+       type:'Канализация',status:'CALCULATION_REQUIRED',progress:40,engineer:'Иван',
        budget:1100000,planCost:720000,factCost:0,
        measurements:{length:17,depth:0,diameter:'Ø110',soil:'глина',uklone:'2 см/м',wells:2,
          wellType:'КС10',septic:true,exitDepth:0.8,entryDepth:1.2},
@@ -118,7 +131,7 @@ function getDefaultData() {
          {date:daysAgo(5),action:'AI-просчёт завершён',by:'Система'}
        ]},
       {id:'obj_3',client:'Елена Назарова',phone:'+7 705 111 2222',address:'Караганда, ул. Ермекова, 54',
-       type:'Септик',status:'DONE',progress:100,engineer:'Иван',
+       type:'Септик',status:'WORKS_COMPLETED',progress:100,engineer:'Иван',
        budget:750000,planCost:490000,factCost:530000,
        measurements:{length:12,depth:2.5,diameter:'Ø110',soil:'скальник'},
        brigade:{id:'br_2',name:'Борис',workers:4,spec:'Канализация/Септик',tech:'экскаватор',
@@ -249,7 +262,7 @@ function acceptRequest(reqId) {
     phone: req.phone,
     address: req.address,
     type: req.type,
-    status: 'ASSIGNED',
+    status: 'DEPARTURE_SCHEDULED',
     progress: 5,
     engineer: 'Инженер',
     budget: req.budget || 0,
@@ -265,7 +278,9 @@ function acceptRequest(reqId) {
       {date: new Date().toISOString().split('T')[0], action: 'Заявка принята в работу', by: 'Инженер'}
     ],
     sourceRequest: reqId,
-    comment: req.comment
+    comment: req.comment,
+    tasks: [],
+    assignedEmployees: []
   };
   _data.objects.unshift(newObj);
   addNotification('✅', `Заявка от ${req.client} принята — объект ${newObj.id} создан`);
@@ -292,7 +307,7 @@ function saveMeasurements(objId, measurements) {
   const obj = _data.objects.find(o => o.id === objId);
   if (!obj) return false;
   obj.measurements = { ...obj.measurements, ...measurements };
-  if (obj.status === 'ASSIGNED' || obj.status === 'WAITING') {
+  if (obj.status === 'DEPARTURE_SCHEDULED' || obj.status === 'ENGINEER_DEPARTED' || obj.status === 'INSPECTION_REQUIRED') {
     updateObjectStatus(objId, 'INSPECTED');
   }
   obj.history = obj.history || [];
@@ -318,7 +333,7 @@ function assignBrigade(objId, brigadeId) {
   };
   obj.history = obj.history || [];
   obj.history.push({date: new Date().toISOString().split('T')[0], action: `Бригада "${brigade.name}" назначена`, by: 'Инженер'});
-  if (['ESTIMATE_READY','APPROVAL'].includes(obj.status)) {
+  if (['CP_PREPARED','AGREED'].includes(obj.status)) {
     updateObjectStatus(objId, 'IN_WORK');
   }
   addNotification('👷', `Бригада "${brigade.name}" назначена на объект ${obj.client}`);
@@ -686,6 +701,32 @@ function resetData() {
   saveData();
 }
 
+// === TASK MANAGEMENT ===
+function addTask(objId, task) {
+  const obj = _data.objects.find(o => o.id === objId);
+  if (!obj) return false;
+  obj.tasks = obj.tasks || [];
+  task.id = task.id || genId('task');
+  task.status = task.status || 'PENDING';
+  obj.tasks.push(task);
+  obj.history = obj.history || [];
+  obj.history.push({date: new Date().toISOString().split('T')[0], action: `Добавлена задача: ${task.title}`, by: 'Система'});
+  addNotification('📌', `Новая задача: ${task.title}`);
+  saveData();
+  return task;
+}
+
+function updateTaskStatus(objId, taskId, status) {
+  const obj = _data.objects.find(o => o.id === objId);
+  if (!obj || !obj.tasks) return false;
+  const task = obj.tasks.find(t => t.id === taskId);
+  if (!task) return false;
+  task.status = status;
+  obj.history.push({date: new Date().toISOString().split('T')[0], action: `Статус задачи "${task.title}" изменен на ${status}`, by: 'Инженер'});
+  saveData();
+  return true;
+}
+
 // === PUBLIC API ===
 window.EngineerData = {
   // Constants
@@ -724,6 +765,8 @@ window.EngineerData = {
   addBrigade,
   updateBrigade,
   deleteBrigade,
+  addTask,
+  updateTaskStatus,
   getAllBrigades,
   getEstimateForObject,
   saveEstimateForObject,
