@@ -1182,3 +1182,32 @@
   }
 }
 
+
+/* Update for second screenshot style */
+.tab-arrow {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .admin-tabs {
+    background: #000000 !important;
+    border-left: none !important;
+  }
+  
+  .admin-tab {
+    justify-content: space-between !important;
+    border-bottom: none !important;
+    padding: 1.25rem 2rem !important;
+    font-weight: 700 !important;
+    color: #ffffff !important;
+    font-size: 1.1rem !important;
+  }
+  
+  .admin-tab .tab-arrow {
+    display: block !important;
+    width: 18px;
+    height: 18px;
+    color: #ffffff;
+  }
+}
+

@@ -376,17 +376,35 @@
                     </div>
                     
                     <button class="admin-tab ${_activeTab === 'overview' ? 'active' : ''}"
-                            onclick="AdminUI.setTab('overview'); AdminUI.closeMobileMenu();">📊 Обзор</button>
+                            onclick="AdminUI.setTab('overview'); AdminUI.closeMobileMenu();">
+                        <span class="tab-text">📊 Обзор</span>
+                        <svg class="tab-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                    </button>
                     <button class="admin-tab ${_activeTab === 'database' ? 'active' : ''}"
-                            onclick="AdminUI.setTab('database'); AdminUI.closeMobileMenu();">🗄️ База данных</button>
+                            onclick="AdminUI.setTab('database'); AdminUI.closeMobileMenu();">
+                        <span class="tab-text">🗄️ База данных</span>
+                        <svg class="tab-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                    </button>
                     <button class="admin-tab ${_activeTab === 'prices' ? 'active' : ''}"
-                            onclick="AdminUI.setTab('prices'); AdminUI.closeMobileMenu();">💰 Цены</button>
+                            onclick="AdminUI.setTab('prices'); AdminUI.closeMobileMenu();">
+                        <span class="tab-text">💰 Цены</span>
+                        <svg class="tab-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                    </button>
                     <button class="admin-tab ${_activeTab === 'moderation' ? 'active' : ''}"
-                            onclick="AdminUI.setTab('moderation'); AdminUI.closeMobileMenu();">🛡️ Модерация${pendingCount > 0 ? `<span class="tab-badge">${pendingCount}</span>` : ''}</button>
+                            onclick="AdminUI.setTab('moderation'); AdminUI.closeMobileMenu();">
+                        <span class="tab-text">🛡️ Модерация${pendingCount > 0 ? `<span class="tab-badge">${pendingCount}</span>` : ''}</span>
+                        <svg class="tab-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                    </button>
                     <button class="admin-tab ${_activeTab === 'users' ? 'active' : ''}"
-                            onclick="AdminUI.setTab('users'); AdminUI.closeMobileMenu();">👥 Пользователи</button>
+                            onclick="AdminUI.setTab('users'); AdminUI.closeMobileMenu();">
+                        <span class="tab-text">👥 Пользователи</span>
+                        <svg class="tab-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                    </button>
                     <button class="admin-tab ${_activeTab === 'settings' ? 'active' : ''}"
-                            onclick="AdminUI.setTab('settings'); AdminUI.closeMobileMenu();">⚙️ Управление</button>
+                            onclick="AdminUI.setTab('settings'); AdminUI.closeMobileMenu();">
+                        <span class="tab-text">⚙️ Управление</span>
+                        <svg class="tab-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                    </button>
                 </div>
             </div>
 
