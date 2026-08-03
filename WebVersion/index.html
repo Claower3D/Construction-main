@@ -4267,21 +4267,12 @@
         </div>
         <div class="mobile-menu-overlay" id="mobileMenuOverlay" onclick="toggleMobileMenu()"></div>
         <nav class="nav" id="mainNav">
-            <!-- Mobile Header Drawer Top -->
-            <div class="mobile-nav-header">
-                <div class="logo" onclick="showPage('landing'); closeMobileMenu()" style="cursor:pointer">
-                    <div class="logo-icon">🏗️</div>QazGost <span>AI</span>
-                </div>
-                <button class="mobile-nav-close" onclick="closeMobileMenu()" title="Закрыть">✕</button>
-            </div>
 
             <!-- Заказчик dropdown -->
             <div class="nav-role orderer" id="navRoleOrderer" onclick="setRole('orderer'); toggleMobileAccordion(this, event)">
-                <div class="nav-role-left">
-                    <span class="nav-role-icon">📋</span>
-                    <span class="nav-role-text">Заказчик</span>
-                </div>
-                <span class="nav-role-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></span>
+                <span class="nav-role-icon">📋</span>
+                <span>Заказчик</span>
+                <span class="nav-role-arrow">▼</span>
                 <div class="nav-dropdown" onclick="event.stopPropagation()" style="min-width: 280px;">
                     <!-- Инструменты -->
                     <div
@@ -4360,11 +4351,9 @@
 
             <!-- Исполнитель dropdown -->
             <div class="nav-role contractor" id="navRoleContractor" onclick="setRole('contractor'); toggleMobileAccordion(this, event)">
-                <div class="nav-role-left">
-                    <span class="nav-role-icon" id="contractorRoleIcon">🔧</span>
-                    <span class="nav-role-text" id="contractorRoleLabel">Исполнитель</span>
-                </div>
-                <span class="nav-role-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></span>
+                <span class="nav-role-icon" id="contractorRoleIcon">🔧</span>
+                <span id="contractorRoleLabel">Исполнитель</span>
+                <span class="nav-role-arrow">▼</span>
                 <div class="nav-dropdown" onclick="event.stopPropagation()" style="min-width: 300px;">
                     <!-- Тип организации -->
                     <div id="contractorOrgBadge"
@@ -4468,11 +4457,9 @@
 
             <!-- Роль: Инженер -->
             <div class="nav-role engineer" id="navRoleEngineer" onclick="setRole('engineer'); toggleMobileAccordion(this, event)">
-                <div class="nav-role-left">
-                    <span class="nav-role-icon">👷</span>
-                    <span class="nav-role-text">Инженер</span>
-                </div>
-                <span class="nav-role-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></span>
+                <span class="nav-role-icon">👷</span>
+                <span>Инженер</span>
+                <span class="nav-role-arrow">▼</span>
                 <div class="nav-dropdown" onclick="event.stopPropagation()">
                     <div class="nav-dropdown-item" data-role-page="engineer"
                         onclick="event.stopPropagation(); setRole('engineer'); showPage('engineer'); closeMobileMenu()">
@@ -4508,12 +4495,10 @@
             </div>
 
             <!-- Роль: Администратор -->
-            <div class="nav-role admin" id="navRoleAdmin" onclick="showPage('admin'); toggleMobileAccordion(this, event)">
-                <div class="nav-role-left">
-                    <span class="nav-role-icon">⚙️</span>
-                    <span class="nav-role-text">Администратор</span>
-                </div>
-                <span class="nav-role-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></span>
+            <div class="nav-role" id="navRoleAdmin" onclick="showPage('admin'); toggleMobileAccordion(this, event)">
+                <span class="nav-role-icon">⚙️</span>
+                <span>Админ</span>
+                <span class="nav-role-arrow">▼</span>
                 <div class="nav-dropdown" onclick="event.stopPropagation()" style="min-width: 240px;">
                     <div class="nav-dropdown-item" data-role-page="admin"
                         onclick="event.stopPropagation(); showPage('admin'); setTimeout(() => window.AdminUI && window.AdminUI.setTab('prices'), 50); closeMobileMenu()">
@@ -4559,24 +4544,15 @@
 
             <!-- Mobile Only Settings Footer -->
             <div class="mobile-nav-footer">
-                <div class="mobile-nav-user" id="mobileNavUser">
-                    <div class="mobile-nav-user-avatar">👤<span class="online-dot"></span></div>
-                    <div class="mobile-nav-user-info">
-                        <div class="mobile-nav-user-name" id="mobileUserName">Пользователь</div>
-                        <div class="mobile-nav-user-role" id="mobileUserRole">Система QazGost</div>
-                    </div>
-                </div>
                 <div class="mobile-nav-settings">
-                    <button class="mobile-theme-toggle" onclick="document.getElementById('themeBtn').click()" title="Сменить тему">
-                        <span id="mobileThemeIcon">🌙</span> <span>Тема</span>
-                    </button>
+                    <button class="icon-btn" onclick="document.getElementById('themeBtn').click()" title="Сменить тему">🌙 Тема</button>
                     <div class="lang-btns" style="display:flex; margin:0">
                         <button class="lang-btn active" data-lang="ru">RU</button>
                         <button class="lang-btn" data-lang="en">EN</button>
                     </div>
                 </div>
-                <button class="mobile-nav-logout" onclick="logout(); closeMobileMenu()">
-                    <span style="font-size: 1.1rem">🚪</span> Выйти из аккаунта
+                <button class="mobile-nav-logout" onclick="logout()">
+                    <span style="font-size: 1.2rem">🚪</span> Выйти из аккаунта
                 </button>
             </div>
         </nav>
@@ -4599,11 +4575,7 @@
                 <span class="header-user-name" id="headerUserName">Пользователь</span>
             </div>
             <button class="icon-btn header-logout-btn" onclick="logout()" title="Выйти" style="margin-left:0.5rem">🚪</button>
-            <button class="mobile-menu-btn" id="mobileMenuBtn" onclick="toggleMobileMenu()" title="Меню" aria-label="Открыть меню">
-    <span class="hamburger-bar"></span>
-    <span class="hamburger-bar"></span>
-    <span class="hamburger-bar"></span>
-</button>
+            <button class="icon-btn mobile-menu-btn" onclick="toggleMobileMenu()" title="Меню">☰</button>
         </div>
     </header>
 
@@ -4611,44 +4583,33 @@
         function toggleMobileMenu() {
             const nav = document.getElementById('mainNav');
             const overlay = document.getElementById('mobileMenuOverlay');
-            const btn = document.getElementById('mobileMenuBtn');
-            const isExpanded = nav.classList.contains('mobile-active');
-            if (isExpanded) {
+            if (nav.classList.contains('mobile-active')) {
                 closeMobileMenu();
             } else {
                 nav.classList.add('mobile-active');
                 overlay.classList.add('mobile-active');
-                if (btn) btn.classList.add('active');
-                document.body.style.overflow = 'hidden';
-                const userName = document.getElementById('headerUserName');
-                const mobileName = document.getElementById('mobileUserName');
-                if (userName && mobileName && userName.textContent) {
-                    mobileName.textContent = userName.textContent;
-                }
+                document.body.style.overflow = 'hidden'; // Prevent background scrolling
             }
         }
         
         function closeMobileMenu() {
             const nav = document.getElementById('mainNav');
             const overlay = document.getElementById('mobileMenuOverlay');
-            const btn = document.getElementById('mobileMenuBtn');
-            if (nav) nav.classList.remove('mobile-active');
-            if (overlay) overlay.classList.remove('mobile-active');
-            if (btn) btn.classList.remove('active');
+            nav.classList.remove('mobile-active');
+            overlay.classList.remove('mobile-active');
             document.body.style.overflow = '';
         }
         
         function toggleMobileAccordion(element, event) {
+            // Only trigger on mobile view where nav is vertical
             if (window.innerWidth <= 768) {
-                const wasActive = element.classList.contains('accordion-active');
+                // Toggle active class for accordion
+                element.classList.toggle('accordion-active');
+                
+                // Close other accordions
                 document.querySelectorAll('.nav-role').forEach(el => {
-                    el.classList.remove('accordion-active');
+                    if (el !== element) el.classList.remove('accordion-active');
                 });
-                if (!wasActive) {
-                    element.classList.add('accordion-active');
-                }
-            }
-        });
             }
         }
     </script>
