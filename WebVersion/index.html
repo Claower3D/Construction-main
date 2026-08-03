@@ -10822,7 +10822,7 @@
         let currentInspectionOrderId = null;
         let currentOrdersTab = 'feed'; // feed | my (для исполнителя)
         window.userRole = window.RoleManager ? window.RoleManager.currentUI() : 'orderer'; // Обратная совместимость
-        let ordersCache = [];
+        var ordersCache = [];
 
         // Установка роли — ДЕЛЕГИРУЕМ в RoleManager (единый источник правды)
         // Эта функция может быть перезаписана второй версией ниже, но обе теперь используют RoleManager
@@ -11694,9 +11694,53 @@
 
         // Детали заказа
         function openOrderDetail(orderId) {
-            const order = ordersCache.find(o => o.id === orderId);
-            if (!order) return;
+            let order = ordersCache.find(o => o.id == orderId);
+            
+            // Поиск в кастомных лидах
+            if (!order) {
+                try {
+                    const customEvs = JSON.parse(localStorage.getItem('executor_custom_events') || '[]');
+                    const cev = customEvs.find(c => c.id == orderId);
+                    if (cev) {
+                        order = {
+                            id: cev.id,
+                            title: cev.title,
+                            description: cev.description,
+                            amount: cev.budget,
+                            status: cev.status || 'draft',
+                            address: cev.city,
+                            clientName: cev.contactName + (cev.contactPhone ? ' (' + cev.contactPhone + ')' : ''),
+                            createdAt: cev.date,
+                            proposalsCount: 0,
+                            __isCustomLead: true
+                        };
+                    }
+                } catch(e) {}
+            }
+            
+            // Расширенный поиск для исполнителя: ищем в Моих работах и Откликах
+            if (!order && window.DataService && window.DataService.Executor) {
+                const w = window.DataService.Executor.getMyWorks().data?.find(w => w.orderId == orderId);
+                if (w && w.order) {
+                    order = { ...w.order, __workId: w.id, __workStatus: w.status }; 
+                    if(!order.status) order.status = w.status;
+                }
+                if (!order) {
+                    const a = window.DataService.Executor.getMyApplications().data?.find(a => a.orderId == orderId);
+                    if (a && a.order) {
+                        order = { ...a.order, __appId: a.id, __appStatus: a.status };
+                        if(!order.status) order.status = a.status;
+                    }
+                }
+            }
+            
+            if (!order) {
+                if(window.showToast) window.showToast('Заказ не найден');
+                return;
+            }
 
+            const isActiveWork = order.status === 'in_progress' || order.status === 'in_work' || order.__workId;
+            
             $('#orderDetailTitle').textContent = order.title || 'Заказ #' + order.id;
             $('#orderDetailContent').innerHTML = `
                 <div style="display:flex;flex-direction:column;gap:1rem">
@@ -11710,10 +11754,18 @@
                     </div>
                     ${order.address ? `<div style="display:flex;align-items:center;gap:0.5rem"><span>📍</span><span>${order.address}</span></div>` : ''}
                     <div style="display:flex;gap:1rem;font-size:0.9rem;color:var(--text-muted)">
-                        <span>👤 ${order.clientName}</span>
-                        <span>📅 ${formatDate(order.createdAt || order.date)}</span>
+                        <span>👤 ${order.clientName || order.customerName || 'Заказчик'}</span>
+                        <span>📅 ${formatDate(order.createdAt || order.date || new Date())}</span>
                     </div>
                     ${order.proposalsCount > 0 ? `<div style="color:var(--primary)">📬 ${order.proposalsCount} откликов</div>` : ''}
+                    
+                    ${(isActiveWork || order.__isCustomLead) ? `
+                    <div style="margin-top: 1rem; border-top: 1px solid var(--border); padding-top: 1rem;">
+                        <button onclick="window.openManageStages('${order.id}')" style="width:100%; padding: 0.8rem; background: linear-gradient(135deg, var(--primary), var(--accent)); color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; box-shadow: 0 4px 15px rgba(6,182,212,0.3);">
+                            <span>📊</span> Управление этапами и отчётами
+                        </button>
+                    </div>
+                    ` : ''}
                 </div>
             `;
             $('#orderDetailModal').classList.add('active');
