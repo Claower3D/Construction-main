@@ -789,18 +789,33 @@
         padding: 1rem;
     }
 
+    .calendar-grid-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scroll-snap-type: x mandatory;
+        padding-bottom: 0.25rem;
+    }
+
+    .calendar-weekdays,
+    .calendar-days {
+        min-width: 700px;
+    }
+
+    .calendar-day {
+        min-height: 85px; /* Slightly taller for better touch targets */
+        padding: 0.35rem;
+        scroll-snap-align: start;
+    }
+
     .calendar-stats {
         grid-template-columns: repeat(2, 1fr);
     }
 
-    .calendar-day {
-        min-height: 70px;
-        padding: 0.35rem;
-    }
-
     .calendar-event {
-        font-size: 0.6rem;
-        padding: 1px 4px;
+        font-size: 0.65rem;
+        padding: 2px 4px;
+        white-space: normal;
+        word-break: break-word;
     }
 
     .calendar-header {
@@ -811,6 +826,11 @@
     .calendar-nav {
         width: 100%;
         justify-content: space-between;
+    }
+    
+    /* Make the month label a bit smaller */
+    .calendar-month-label {
+        font-size: 1rem;
     }
 }
 
@@ -827,9 +847,17 @@
         font-size: 0.75rem;
     }
 
-        .calendar-stats {
+    .calendar-stats {
         grid-template-columns: 1fr 1fr;
         gap: 0.5rem;
+    }
+    
+    .calendar-sidebar-card {
+        padding: 0.85rem;
+    }
+    
+    .calendar-upcoming-item {
+        padding: 0.6rem;
     }
 }
 
