@@ -781,7 +781,7 @@
                 }
 
                 return `
-                <div class="calendar-day-event" style="flex-direction:column; align-items:flex-start; ${ev.orderId ? 'cursor:pointer;' : ''}" ${ev.orderId ? `onclick="if(window.openOrderDetail) { window.openOrderDetail('${ev.orderId}'); closeDayDetail(); }"` : ''}>
+                <div class="calendar-day-event" style="flex-direction:column; align-items:flex-start; ${(ev.orderId || ev.type === 'lead') ? 'cursor:pointer;' : ''}" ${(ev.orderId || ev.type === 'lead') ? `onclick="if(window.openOrderDetail) { window.openOrderDetail('${ev.orderId || ev.id}'); const overlay = document.getElementById('calendarDayOverlay'); if(overlay) overlay.remove(); }"` : ''}>
                     <div style="display:flex; gap:1rem; width:100%;">
                         <div class="calendar-day-event-icon ${ev.type}">
                             ${ev.icon}
