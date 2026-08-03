@@ -79,13 +79,13 @@
             'home', 'photo-estimate', 'inspect', 'orders', 'estimates',
             'engineering', 'wallet', 'vip', 'volume', 'equipment',
             'customer-profile', 'catalog', 'customer-cabinet',
-            'disputes', 'contracts'
+            'disputes', 'contracts', 'calendar', 'analytics', 'kpi'
         ],
         [Role.EXECUTOR]: [
             'home', 'photo-estimate', 'inspect', 'orders', 'estimates',
             'engineering', 'wallet', 'vip', 'volume', 'equipment',
             'profile', 'catalog',
-            'disputes', 'contracts'
+            'disputes', 'contracts', 'calendar', 'analytics', 'kpi'
         ],
         [Role.ENGINEER]: [
             'home', 'engineer', 'engineering', 'wallet',
