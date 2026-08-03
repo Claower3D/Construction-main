@@ -607,12 +607,12 @@
             return `<tr style="${bgStyle}border-bottom:1px solid rgba(255,255,255,0.05);transition:all 0.15s ease;"
                 onmouseover="this.style.background='rgba(139,92,246,0.12)';"
                 onmouseout="this.style.background='${idx % 2 === 0 ? 'rgba(255,255,255,0.015)' : 'transparent'}';">
-                <td style="padding:0.8rem 0.75rem;text-align:center;width:110px;">${typeBadge(it._type)}</td>
-                <td style="padding:0.8rem 1.25rem;font-size:0.92rem;color:#f8fafc;font-weight:500;line-height:1.45;word-break:break-word;" title="${it.name}">${it.name}</td>
-                <td style="padding:0.8rem 0.75rem;text-align:center;width:140px;"><span style="font-size:0.78rem;padding:0.25rem 0.6rem;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);border-radius:6px;color:#cbd5e1;font-weight:500;display:inline-block;white-space:nowrap">${it.source}</span></td>
-                <td style="padding:0.8rem 0.75rem;text-align:center;font-size:0.88rem;color:#cbd5e1;font-weight:600;width:90px;">${it.unit}</td>
-                <td style="padding:0.8rem 0.75rem;text-align:center;font-size:0.88rem;white-space:nowrap;width:130px;">${fmtLabor(it.labor, it._type)}</td>
-                <td style="padding:0.8rem 1.5rem;text-align:right;font-weight:700;font-size:1.02rem;color:${it._type === 'work' ? '#4ade80' : '#60a5fa'};white-space:nowrap;width:160px;">
+                <td data-label="Тип" style="padding:0.8rem 0.75rem;text-align:center;width:110px;">${typeBadge(it._type)}</td>
+                <td data-label="Наименование" style="padding:0.8rem 1.25rem;font-size:0.92rem;color:#f8fafc;font-weight:500;line-height:1.45;word-break:break-word;" title="${it.name}">${it.name}</td>
+                <td data-label="Раздел" style="padding:0.8rem 0.75rem;text-align:center;width:140px;"><span style="font-size:0.78rem;padding:0.25rem 0.6rem;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);border-radius:6px;color:#cbd5e1;font-weight:500;display:inline-block;white-space:nowrap">${it.source}</span></td>
+                <td data-label="Ед.изм." style="padding:0.8rem 0.75rem;text-align:center;font-size:0.88rem;color:#cbd5e1;font-weight:600;width:90px;">${it.unit}</td>
+                <td data-label="Трудозатраты" style="padding:0.8rem 0.75rem;text-align:center;font-size:0.88rem;white-space:nowrap;width:130px;">${fmtLabor(it.labor, it._type)}</td>
+                <td data-label="Цена" style="padding:0.8rem 1.5rem;text-align:right;font-weight:700;font-size:1.02rem;color:${it._type === 'work' ? '#4ade80' : '#60a5fa'};white-space:nowrap;width:160px;">
                     ${it.price ? it.price.toLocaleString('ru-RU') + '\u00a0₸' : '<span style="color:rgba(255,255,255,0.25)">—</span>'}</td>
             </tr>`;
         }).join('');
@@ -1344,12 +1344,12 @@
             return `<tr style="${bgStyle}border-bottom:1px solid rgba(255,255,255,0.05);transition:all 0.15s ease;"
                 onmouseover="this.style.background='rgba(139,92,246,0.12)';"
                 onmouseout="this.style.background='${idx % 2 === 0 ? 'rgba(255,255,255,0.015)' : 'transparent'}';">
-                <td style="padding:0.8rem 0.75rem;font-size:0.78rem;color:#94a3b8;font-weight:600;white-space:nowrap;width:110px;text-align:center;">${it.code}</td>
-                <td style="padding:0.8rem 1.25rem;font-size:0.92rem;color:#f8fafc;font-weight:500;line-height:1.45;word-break:break-word;" title="${it.name}">${it.name}</td>
-                <td style="padding:0.8rem 0.75rem;text-align:center;width:140px;"><span style="font-size:0.78rem;padding:0.25rem 0.6rem;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);border-radius:6px;color:#cbd5e1;font-weight:500;display:inline-block;white-space:nowrap">${it.source}</span></td>
-                <td style="padding:0.8rem 0.75rem;text-align:center;font-size:0.88rem;color:#cbd5e1;font-weight:600;width:90px;">${it.unit}</td>
-                <td style="padding:0.8rem 0.75rem;text-align:center;font-size:0.88rem;white-space:nowrap;width:130px;">${fmtLabor(it.labor)}</td>
-                <td style="padding:0.8rem 1.5rem;text-align:right;font-weight:700;font-size:1.02rem;color:${clr};white-space:nowrap;width:160px;">${it.price ? it.price.toLocaleString('ru-RU') + '\u00a0₸' : '<span style="color:rgba(255,255,255,0.25)">—</span>'}</td>
+                <td data-label="Код" style="padding:0.8rem 0.75rem;font-size:0.78rem;color:#94a3b8;font-weight:600;white-space:nowrap;width:110px;text-align:center;">${it.code}</td>
+                <td data-label="Наименование" style="padding:0.8rem 1.25rem;font-size:0.92rem;color:#f8fafc;font-weight:500;line-height:1.45;word-break:break-word;" title="${it.name}">${it.name}</td>
+                <td data-label="Раздел" style="padding:0.8rem 0.75rem;text-align:center;width:140px;"><span style="font-size:0.78rem;padding:0.25rem 0.6rem;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);border-radius:6px;color:#cbd5e1;font-weight:500;display:inline-block;white-space:nowrap">${it.source}</span></td>
+                <td data-label="Ед.изм." style="padding:0.8rem 0.75rem;text-align:center;font-size:0.88rem;color:#cbd5e1;font-weight:600;width:90px;">${it.unit}</td>
+                <td data-label="Трудозатраты" style="padding:0.8rem 0.75rem;text-align:center;font-size:0.88rem;white-space:nowrap;width:130px;">${fmtLabor(it.labor)}</td>
+                <td data-label="Цена" style="padding:0.8rem 1.5rem;text-align:right;font-weight:700;font-size:1.02rem;color:${clr};white-space:nowrap;width:160px;">${it.price ? it.price.toLocaleString('ru-RU') + '\u00a0₸' : '<span style="color:rgba(255,255,255,0.25)">—</span>'}</td>
             </tr>`;
         }).join('');
 
@@ -1961,7 +1961,7 @@
 
             return `<tr style="border-bottom:1px solid rgba(255,255,255,0.04);${blockedStyle}"
                 onmouseover="this.style.background='rgba(255,255,255,0.025)'" onmouseout="this.style.background=''">
-                <td style="padding:0.5rem 0.75rem">
+                <td data-label="Пользователь" style="padding:0.5rem 0.75rem">
                     <div style="display:flex;align-items:center;gap:0.6rem">
                         <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,rgba(139,92,246,0.3),rgba(59,130,246,0.3));display:flex;align-items:center;justify-content:center;font-size:0.9rem;font-weight:700;color:#fff;flex-shrink:0">${(u.name || '?')[0].toUpperCase()}</div>
                         <div>
@@ -1970,10 +1970,10 @@
                         </div>
                     </div>
                 </td>
-                <td style="padding:0.5rem 0.75rem">${_getRoleBadge(u.role)}</td>
-                <td style="padding:0.5rem 0.75rem">${sourceBadge}</td>
-                <td style="padding:0.5rem 0.75rem;font-size:0.78rem;color:rgba(255,255,255,0.45)">${u.createdAt ? _formatDate(u.createdAt) : '—'}</td>
-                <td style="padding:0.5rem 0.75rem">
+                <td data-label="Роль" style="padding:0.5rem 0.75rem">${_getRoleBadge(u.role)}</td>
+                <td data-label="Статус" style="padding:0.5rem 0.75rem">${sourceBadge}</td>
+                <td data-label="Регистрация" style="padding:0.5rem 0.75rem;font-size:0.78rem;color:rgba(255,255,255,0.45)">${u.createdAt ? _formatDate(u.createdAt) : '—'}</td>
+                <td data-label="Действия" style="padding:0.5rem 0.75rem">
                     <div style="display:flex;gap:0.3rem">
                         <button onclick="AdminUI.viewUser('${u.email || u.id}')" style="padding:0.2rem 0.5rem;border-radius:5px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.7);cursor:pointer;font-size:0.72rem" title="Подробнее">👁️</button>
                         <button onclick="AdminUI.changeUserRole('${u.email || u.id}')" style="padding:0.2rem 0.5rem;border-radius:5px;border:1px solid rgba(139,92,246,0.3);background:rgba(139,92,246,0.1);color:#a78bfa;cursor:pointer;font-size:0.72rem" title="Сменить роль">🔄</button>
