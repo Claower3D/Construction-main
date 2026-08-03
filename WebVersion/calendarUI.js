@@ -827,7 +827,7 @@
         // Массив для временного хранения загруженных файлов (Base64)
         window._tempEventAttachments = [];
 
-        overlay.innerHTML = \`
+        overlay.innerHTML = `
             <div class="calendar-day-modal" style="max-width:500px; width:95%;">
                 <div class="calendar-day-modal-header">
                     <div class="calendar-day-modal-title">➕ Новый лид / Событие</div>
@@ -836,7 +836,7 @@
                 <div class="calendar-day-modal-body" style="display:flex; flex-direction:column; gap:1rem;">
                     <div class="cal-form-group">
                         <label>Дата</label>
-                        <input type="date" id="calEvDate" class="cal-input" value="\${formattedDate}">
+                        <input type="date" id="calEvDate" class="cal-input" value="${formattedDate}">
                     </div>
                     <div class="cal-form-group">
                         <label>Название (Обязательно)</label>
@@ -875,7 +875,7 @@
                     <button class="calendar-today-btn" style="width:100%; margin-top:0.5rem;" onclick="CalendarUI.saveCustomEvent()">Сохранить</button>
                 </div>
             </div>
-        \`;
+        `;
 
         document.body.appendChild(overlay);
     }
@@ -899,7 +899,7 @@
             
             // Лимит 5МБ на файл (для base64 localStorage)
             if (file.size > 5 * 1024 * 1024) {
-                if(window.showToast) window.showToast(\`❌ Файл \${file.name} слишком большой (макс 5MB)\`);
+                if(window.showToast) window.showToast(`❌ Файл ${file.name} слишком большой (макс 5MB)`);
                 continue;
             }
 
@@ -921,9 +921,9 @@
                 const item = document.createElement('div');
                 item.className = 'cal-file-item';
                 if (isImage) {
-                    item.innerHTML = \`<img src="\${base64}" alt="\${file.name}">\`;
+                    item.innerHTML = `<img src="${base64}" alt="${file.name}">`;
                 } else {
-                    item.innerHTML = \`<div class="cal-file-doc">📄</div>\`;
+                    item.innerHTML = `<div class="cal-file-doc">📄</div>`;
                 }
                 previewContainer.appendChild(item);
             };
