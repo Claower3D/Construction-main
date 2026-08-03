@@ -11694,7 +11694,7 @@
 
         // Детали заказа
         function openOrderDetail(orderId) {
-            let order = ordersCache.find(o => o.id == orderId);
+            let cache = (typeof ordersCache !== "undefined" && ordersCache) ? ordersCache : []; let order = cache.find(o => o.id == orderId);
             
             // Поиск в кастомных лидах
             if (!order) {
