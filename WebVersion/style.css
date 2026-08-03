@@ -1421,7 +1421,7 @@ body {
     bottom: 0;
     width: 320px;
     max-width: 85vw;
-    background: #000000;
+    background: rgba(15, 23, 42, 0.95);\n    backdrop-filter: blur(20px);
     z-index: 10001;
     transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     overflow: hidden;
