@@ -1411,3 +1411,115 @@ body {
     align-items: center;
     gap: 0.5rem;
 }
+
+/* MOBILE BREADCRUMB NAV (3rd Screenshot Style) */
+.mobile-breadcrumb-nav {
+    display: none;
+    position: fixed;
+    top: 0;
+    right: -320px;
+    bottom: 0;
+    width: 320px;
+    max-width: 85vw;
+    background: #000000;
+    z-index: 10001;
+    transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+    box-shadow: -10px 0 30px rgba(0,0,0,0.5);
+}
+.mobile-breadcrumb-nav.mobile-active {
+    right: 0;
+}
+
+@media (max-width: 900px) {
+    #mainNav {
+        display: none !important;
+    }
+    .mobile-breadcrumb-nav {
+        display: block;
+    }
+}
+
+.mobile-breadcrumb-nav .nav-level {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.3s ease;
+    overflow-y: auto;
+    padding-bottom: 80px;
+}
+
+.mobile-breadcrumb-nav #navLevel0 {
+    transform: translateX(-100%);
+}
+.mobile-breadcrumb-nav #navLevel0.active {
+    transform: translateX(0);
+}
+
+.mobile-breadcrumb-nav #navLevel1 {
+    transform: translateX(100%);
+}
+.mobile-breadcrumb-nav #navLevel1.active {
+    transform: translateX(0);
+}
+
+.nav-role-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem 2rem;
+    font-weight: 700;
+    color: #ffffff;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background 0.2s;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.nav-role-item:active, .nav-role-item:hover {
+    background: rgba(255,255,255,0.05);
+}
+
+.nav-chevron {
+    width: 18px;
+    height: 18px;
+    color: #ffffff;
+}
+
+.nav-back-btn {
+    display: flex;
+    align-items: center;
+    padding: 1.25rem 2rem;
+    color: #ffffff;
+    font-weight: 700;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    margin-bottom: 0.5rem;
+    background: rgba(255,255,255,0.02);
+}
+.nav-back-btn:hover {
+    background: rgba(255,255,255,0.05);
+}
+
+.mobile-breadcrumb-nav .nav-dropdown-item {
+    padding: 1rem 2rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #ffffff;
+    border-radius: 0;
+    display: block;
+}
+.mobile-breadcrumb-nav .nav-dropdown-item:hover {
+    background: rgba(255,255,255,0.05);
+}
+.mobile-breadcrumb-nav .nav-dropdown-divider {
+    margin: 0.5rem 2rem;
+    background: rgba(255,255,255,0.1);
+}
+.mobile-breadcrumb-nav .mobile-nav-footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+}

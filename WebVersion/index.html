@@ -4556,6 +4556,51 @@
                 </button>
             </div>
         </nav>
+
+    <!-- BREADCRUMB MOBILE NAV -->
+    <nav class="mobile-breadcrumb-nav" id="mobileBreadcrumbNav">
+        <div id="navLevel0" class="nav-level active">
+            <div class="nav-role-item" onclick="openNavLevel('orderer')">
+                <span class="nav-role-text">Заказчик</span>
+                <svg class="nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </div>
+            <div class="nav-role-item" onclick="openNavLevel('contractor')">
+                <span class="nav-role-text">Исполнитель</span>
+                <svg class="nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </div>
+            <div class="nav-role-item" onclick="openNavLevel('engineer')">
+                <span class="nav-role-text">Инженер</span>
+                <svg class="nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </div>
+            <div class="nav-role-item" onclick="openNavLevel('admin')">
+                <span class="nav-role-text">Админ</span>
+                <svg class="nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </div>
+            
+            <div class="mobile-nav-footer">
+                <div class="mobile-nav-settings">
+                    <button class="icon-btn" onclick="document.getElementById('themeBtn').click()" title="Сменить тему">🌙 Тема</button>
+                    <div class="lang-btns" style="display:flex; margin:0">
+                        <button class="lang-btn active" data-lang="ru">RU</button>
+                        <button class="lang-btn" data-lang="en">EN</button>
+                    </div>
+                </div>
+                <button class="mobile-nav-logout" onclick="logout()">
+                    <span style="font-size: 1.2rem">🚪</span> Выйти из аккаунта
+                </button>
+            </div>
+        </div>
+        
+        <div id="navLevel1" class="nav-level">
+            <div class="nav-back-btn" onclick="closeNavLevel()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;margin-right:8px;"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                Назад к ролям
+            </div>
+            <div id="navSubmenuContent"></div>
+        </div>
+    </nav>
+
+
         <div class="header-actions">
             <!-- Баланс кошелька (мини) -->
             <button class="header-wallet-btn" id="headerWalletBtn" onclick="showPage('wallet')" title="Мой кошелёк">
@@ -13969,6 +14014,99 @@
 
     <!-- Футер создателя (глобальный, на всех страницах) -->
     <script src="creatorFooter.js"></script>
+
+<script>
+const navMenus = {
+    orderer: `
+        <div class="nav-dropdown-item" onclick="setRole('orderer'); showPage('photo-estimate'); toggleMobileMenu()"><span class="nav-dropdown-item-text">Оценка стоимости</span></div>
+        <div class="nav-dropdown-item" onclick="setRole('orderer'); showPage('inspect'); toggleMobileMenu()"><span class="nav-dropdown-item-text">Проверка дефектов</span></div>
+        <div class="nav-dropdown-item" onclick="setRole('orderer'); showPage('estimates'); toggleMobileMenu()"><span class="nav-dropdown-item-text">Расчёт объёмов</span></div>
+        <div class="nav-dropdown-item" onclick="setRole('orderer'); showPage('engineering'); toggleMobileMenu()"><span class="nav-dropdown-item-text">Инженерные решения</span></div>
+        <div class="nav-dropdown-divider"></div>
+        <div class="nav-dropdown-item" onclick="setRole('orderer'); showPage('calendar'); toggleMobileMenu()"><span class="nav-dropdown-item-text">Календарь</span></div>
+        <div class="nav-dropdown-item" onclick="setRole('orderer'); showPage('orders'); toggleMobileMenu()"><span class="nav-dropdown-item-text">Мои заказы</span></div>
+        <div class="nav-dropdown-item" onclick="setRole('orderer'); showPage('catalog'); toggleMobileMenu()"><span class="nav-dropdown-item-text">Каталог подрядчиков</span></div>
+        <div class="nav-dropdown-item" onclick="setRole('orderer'); showPage('equipment'); toggleMobileMenu()"><span class="nav-dropdown-item-text">Техника / Маркетплейс</span></div>
+        <div class="nav-dropdown-item" onclick="setRole('orderer'); showPage('wallet'); toggleMobileMenu()"><span class="nav-dropdown-item-text">Мой кошелёк</span></div>
+        <div class="nav-dropdown-divider"></div>
+        <div class="nav-dropdown-item" onclick="setRole('orderer'); showPage('customer-profile'); toggleMobileMenu()"><span class="nav-dropdown-item-text">Моя анкета</span></div>
+        <div class="nav-dropdown-item vip" onclick="setRole('orderer'); showPage('vip'); toggleMobileMenu()">
+            <span class="nav-dropdown-item-text">Строительство зданий</span>
+            <span class="nav-dropdown-badge">VIP</span>
+        </div>
+    `,
+    contractor: `
+        <div class="nav-dropdown-item" onclick="setRole('contractor'); showPage('orders'); toggleMobileMenu()"><span class="nav-dropdown-item-text">Лента заказов</span></div>
+        <div class="nav-dropdown-item" onclick="setRole('contractor'); showPage('orders'); setTimeout(()=>window.switchOrdersTab&&window.switchOrdersTab('my'),100); toggleMobileMenu()"><span class="nav-dropdown-item-text">Мои работы</span></div>
+        <div class="nav-dropdown-item" onclick="setRole('contractor'); showPage('calendar'); toggleMobileMenu()"><span class="nav-dropdown-item-text">Календарь работ</span></div>
+        <div class="nav-dropdown-divider"></div>
+        <div class="nav-dropdown-item" onclick="setRole('contractor'); showPage('photo-estimate'); toggleMobileMenu()"><span class="nav-dropdown-item-text">Оценка стоимости</span></div>
+        <div class="nav-dropdown-item" onclick="setRole('contractor'); showPage('inspect'); toggleMobileMenu()"><span class="nav-dropdown-item-text">Проверка дефектов</span></div>
+        <div class="nav-dropdown-item" onclick="setRole('contractor'); showPage('estimates'); toggleMobileMenu()"><span class="nav-dropdown-item-text">Расчёт объёмов</span></div>
+        <div class="nav-dropdown-item" onclick="setRole('contractor'); showPage('engineering'); toggleMobileMenu()"><span class="nav-dropdown-item-text">Инженерные решения</span></div>
+        <div class="nav-dropdown-divider"></div>
+        <div class="nav-dropdown-item" onclick="setRole('contractor'); showPage('catalog'); toggleMobileMenu()"><span class="nav-dropdown-item-text">Каталог подрядчиков</span></div>
+        <div class="nav-dropdown-item" onclick="setRole('contractor'); showPage('equipment'); toggleMobileMenu()"><span class="nav-dropdown-item-text">Техника / Маркетплейс</span></div>
+        <div class="nav-dropdown-item" onclick="setRole('contractor'); showPage('wallet'); toggleMobileMenu()"><span class="nav-dropdown-item-text">Мой кошелёк</span></div>
+        <div class="nav-dropdown-divider"></div>
+        <div class="nav-dropdown-item" onclick="setRole('contractor'); showPage('profile'); toggleMobileMenu()"><span class="nav-dropdown-item-text">Анкета исполнителя</span></div>
+        <div class="nav-dropdown-item vip" onclick="setRole('contractor'); showPage('vip'); toggleMobileMenu()">
+            <span class="nav-dropdown-item-text">Строительство зданий</span>
+            <span class="nav-dropdown-badge">VIP</span>
+        </div>
+        <div class="nav-dropdown-item" onclick="setRole('contractor'); showPage('volume'); toggleMobileMenu()"><span class="nav-dropdown-item-text">Фото-объёмы грунта</span></div>
+    `,
+    engineer: `
+        <div class="nav-dropdown-item" onclick="setRole('engineer'); showPage('engineer'); toggleMobileMenu()"><span class="nav-dropdown-item-text">Главная панель</span></div>
+        <div class="nav-dropdown-item" onclick="setRole('engineer'); showPage('engineer'); setTimeout(()=>window.EngineerUI&&window.EngineerUI.switchTab&&window.EngineerUI.switchTab('requests'),100); toggleMobileMenu()"><span class="nav-dropdown-item-text">Заявки</span></div>
+        <div class="nav-dropdown-item" onclick="setRole('engineer'); showPage('engineer'); setTimeout(()=>window.EngineerUI&&window.EngineerUI.switchTab&&window.EngineerUI.switchTab('objects'),100); toggleMobileMenu()"><span class="nav-dropdown-item-text">Мои объекты</span></div>
+        <div class="nav-dropdown-item" onclick="setRole('engineer'); showPage('engineer'); setTimeout(()=>window.EngineerUI&&window.EngineerUI.switchTab&&window.EngineerUI.switchTab('calendar'),100); toggleMobileMenu()"><span class="nav-dropdown-item-text">Календарь</span></div>
+        <div class="nav-dropdown-item" onclick="setRole('engineer'); showPage('engineer'); setTimeout(()=>window.EngineerUI&&window.EngineerUI.switchTab&&window.EngineerUI.switchTab('ai'),100); toggleMobileMenu()"><span class="nav-dropdown-item-text">AI-просчёт</span></div>
+        <div class="nav-dropdown-item" onclick="setRole('engineer'); showPage('engineer'); setTimeout(()=>window.EngineerUI&&window.EngineerUI.switchTab&&window.EngineerUI.switchTab('expenses'),100); toggleMobileMenu()"><span class="nav-dropdown-item-text">Расходы</span></div>
+    `,
+    admin: `
+        <div class="nav-dropdown-item" onclick="showPage('admin'); setTimeout(()=>window.AdminUI&&window.AdminUI.setTab('prices'),50); toggleMobileMenu()"><span class="nav-dropdown-item-text">Прайсы</span></div>
+        <div class="nav-dropdown-item" onclick="showPage('admin'); setTimeout(()=>window.AdminUI&&window.AdminUI.setTab('moderation'),50); toggleMobileMenu()"><span class="nav-dropdown-item-text">Модерация</span></div>
+        <div class="nav-dropdown-item" onclick="showPage('admin'); setTimeout(()=>window.AdminUI&&window.AdminUI.setTab('regions'),50); toggleMobileMenu()"><span class="nav-dropdown-item-text">Регионы</span></div>
+        <div class="nav-dropdown-divider"></div>
+        <div class="nav-dropdown-item" onclick="showPage('admin'); setTimeout(()=>window.AdminUI&&window.AdminUI.setTab('audit'),50); toggleMobileMenu()"><span class="nav-dropdown-item-text">Журнал действий</span></div>
+        <div class="nav-dropdown-item" onclick="showPage('kpi'); toggleMobileMenu()"><span class="nav-dropdown-item-text">KPI Dashboard</span></div>
+        <div class="nav-dropdown-item" onclick="showPage('analytics'); toggleMobileMenu()"><span class="nav-dropdown-item-text">Аналитика</span></div>
+        <div class="nav-dropdown-divider"></div>
+        <div class="nav-dropdown-item" onclick="showPage('disputes'); toggleMobileMenu()"><span class="nav-dropdown-item-text">Споры и арбитраж</span></div>
+        <div class="nav-dropdown-item" onclick="showPage('contracts'); toggleMobileMenu()"><span class="nav-dropdown-item-text">Договоры</span></div>
+    `
+};
+
+function openNavLevel(roleId) {
+    document.getElementById('navSubmenuContent').innerHTML = navMenus[roleId] || '';
+    document.getElementById('navLevel0').classList.remove('active');
+    document.getElementById('navLevel1').classList.add('active');
+}
+
+function closeNavLevel() {
+    document.getElementById('navLevel1').classList.remove('active');
+    document.getElementById('navLevel0').classList.add('active');
+}
+
+// Override toggleMobileMenu to handle both
+const origToggle = window.toggleMobileMenu;
+window.toggleMobileMenu = function() {
+    if(origToggle) origToggle();
+    else {
+        document.getElementById('mainNav').classList.toggle('mobile-active');
+        document.getElementById('mobileMenuOverlay').classList.toggle('active');
+    }
+    const breadcrumbNav = document.getElementById('mobileBreadcrumbNav');
+    if (breadcrumbNav) breadcrumbNav.classList.toggle('mobile-active');
+    
+    // reset drilldown on close
+    if(!document.getElementById('mobileMenuOverlay').classList.contains('active')) {
+        setTimeout(closeNavLevel, 300);
+    }
+};
+</script>
+
 </body>
 
 </html>
