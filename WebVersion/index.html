@@ -4139,16 +4139,23 @@
             top: calc(100% + 8px);
             left: 50%;
             transform: translateX(-50%) translateY(-10px);
-            background: var(--card);
-            border: 1px solid var(--border);
+            background: rgba(17, 24, 39, 0.85); /* var(--bg-secondary) with opacity */
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 16px;
             padding: 0.75rem;
             min-width: 220px;
             opacity: 0;
             visibility: hidden;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 1000;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255,255,255,0.05);
+        }
+
+        body.light .nav-dropdown {
+            background: rgba(255, 255, 255, 0.85);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
         }
 
         .nav-role:hover .nav-dropdown {
@@ -4196,6 +4203,59 @@
             background: var(--border);
             margin: 0.5rem 0;
         }
+
+        @media (max-width: 768px) {
+            .nav-dropdown {
+                position: relative;
+                top: 0;
+                left: 0;
+                transform: none !important;
+                width: 100%;
+                min-width: 100% !important;
+                box-shadow: none;
+                border: none;
+                background: rgba(0,0,0,0.02);
+                border-radius: 0;
+                padding: 0;
+                max-height: 0;
+                overflow: hidden;
+                opacity: 0;
+                visibility: hidden;
+                transition: max-height 0.3s ease, opacity 0.3s ease, padding 0.3s ease;
+                margin-top: 0;
+            }
+
+            .nav-dropdown::before {
+                display: none;
+            }
+
+            .nav-role {
+                width: 100%;
+            }
+
+            .nav-role.accordion-active .nav-dropdown {
+                max-height: 800px;
+                opacity: 1;
+                visibility: visible;
+                padding: 0.5rem 0;
+                margin-top: 0.5rem;
+            }
+
+            .nav-role:hover .nav-dropdown:not(.accordion-active .nav-dropdown) {
+                /* Disable hover effect on mobile */
+                opacity: 0;
+                visibility: hidden;
+            }
+
+            .nav-role.accordion-active:hover .nav-dropdown {
+                opacity: 1;
+                visibility: visible;
+            }
+
+            .nav-role.accordion-active .nav-role-arrow {
+                transform: rotate(180deg);
+            }
+        }
     </style>
 
     <!-- Animated particles background -->
@@ -4205,10 +4265,11 @@
         <div class="logo" onclick="showPage('landing')" style="cursor:pointer" title="На главную">
             <div class="logo-icon">🏗️</div>QazGost <span>AI</span>
         </div>
-        <nav class="nav">
+        <div class="mobile-menu-overlay" id="mobileMenuOverlay" onclick="toggleMobileMenu()"></div>
+        <nav class="nav" id="mainNav">
 
             <!-- Заказчик dropdown -->
-            <div class="nav-role orderer" id="navRoleOrderer" onclick="setRole('orderer')">
+            <div class="nav-role orderer" id="navRoleOrderer" onclick="setRole('orderer'); toggleMobileAccordion(this, event)">
                 <span class="nav-role-icon">📋</span>
                 <span>Заказчик</span>
                 <span class="nav-role-arrow">▼</span>
@@ -4218,22 +4279,22 @@
                         style="padding: 0.25rem 1rem; font-size: 0.7rem; color: var(--accent-alt); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">
                         🛠 Инструменты</div>
                     <div class="nav-dropdown-item" data-role-page="photo-estimate"
-                        onclick="event.stopPropagation(); setRole('orderer'); showPage('photo-estimate')">
+                        onclick="event.stopPropagation(); setRole('orderer'); showPage('photo-estimate'); closeMobileMenu()">
                         <span class="nav-dropdown-item-icon">📸</span>
                         <span class="nav-dropdown-item-text">Оценка стоимости</span>
                     </div>
                     <div class="nav-dropdown-item" data-role-page="inspect"
-                        onclick="event.stopPropagation(); setRole('orderer'); showPage('inspect')">
+                        onclick="event.stopPropagation(); setRole('orderer'); showPage('inspect'); closeMobileMenu()">
                         <span class="nav-dropdown-item-icon">🔍</span>
                         <span class="nav-dropdown-item-text">Проверка дефектов</span>
                     </div>
                     <div class="nav-dropdown-item" data-role-page="estimates"
-                        onclick="event.stopPropagation(); setRole('orderer'); showPage('estimates')">
+                        onclick="event.stopPropagation(); setRole('orderer'); showPage('estimates'); closeMobileMenu()">
                         <span class="nav-dropdown-item-icon">📏</span>
                         <span class="nav-dropdown-item-text">Расчёт объёмов</span>
                     </div>
                     <div class="nav-dropdown-item" data-role-page="engineering"
-                        onclick="event.stopPropagation(); setRole('orderer'); showPage('engineering')">
+                        onclick="event.stopPropagation(); setRole('orderer'); showPage('engineering'); closeMobileMenu()">
                         <span class="nav-dropdown-item-icon">⚙️</span>
                         <span class="nav-dropdown-item-text">Инженерные решения</span>
                     </div>
@@ -4243,27 +4304,27 @@
                         style="padding: 0.25rem 1rem; font-size: 0.7rem; color: var(--primary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">
                         📂 Управление</div>
                     <div class="nav-dropdown-item" data-role-page="calendar"
-                        onclick="event.stopPropagation(); setRole('orderer'); showPage('calendar')">
+                        onclick="event.stopPropagation(); setRole('orderer'); showPage('calendar'); closeMobileMenu()">
                         <span class="nav-dropdown-item-icon">📅</span>
                         <span class="nav-dropdown-item-text">Календарь</span>
                     </div>
                     <div class="nav-dropdown-item" data-role-page="orders"
-                        onclick="event.stopPropagation(); setRole('orderer'); showPage('orders')">
+                        onclick="event.stopPropagation(); setRole('orderer'); showPage('orders'); closeMobileMenu()">
                         <span class="nav-dropdown-item-icon">📬</span>
                         <span class="nav-dropdown-item-text">Мои заказы</span>
                     </div>
                     <div class="nav-dropdown-item" data-role-page="catalog"
-                        onclick="event.stopPropagation(); setRole('orderer'); showPage('catalog')">
+                        onclick="event.stopPropagation(); setRole('orderer'); showPage('catalog'); closeMobileMenu()">
                         <span class="nav-dropdown-item-icon">📒</span>
                         <span class="nav-dropdown-item-text">Каталог подрядчиков</span>
                     </div>
                     <div class="nav-dropdown-item" data-role-page="equipment"
-                        onclick="event.stopPropagation(); setRole('orderer'); showPage('equipment')">
+                        onclick="event.stopPropagation(); setRole('orderer'); showPage('equipment'); closeMobileMenu()">
                         <span class="nav-dropdown-item-icon">🚜</span>
                         <span class="nav-dropdown-item-text">Техника / Маркетплейс</span>
                     </div>
                     <div class="nav-dropdown-item" data-role-page="wallet"
-                        onclick="event.stopPropagation(); setRole('orderer'); showPage('wallet')">
+                        onclick="event.stopPropagation(); setRole('orderer'); showPage('wallet'); closeMobileMenu()">
                         <span class="nav-dropdown-item-icon">💳</span>
                         <span class="nav-dropdown-item-text">Мой кошелёк</span>
                     </div>
@@ -4273,14 +4334,14 @@
                         style="padding: 0.25rem 1rem; font-size: 0.7rem; color: var(--accent); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">
                         👤 Профиль</div>
                     <div class="nav-dropdown-item" data-role-page="customer-profile"
-                        onclick="event.stopPropagation(); setRole('orderer'); showPage('customer-profile')">
+                        onclick="event.stopPropagation(); setRole('orderer'); showPage('customer-profile'); closeMobileMenu()">
                         <span class="nav-dropdown-item-icon">📝</span>
                         <span class="nav-dropdown-item-text">Моя анкета</span>
                     </div>
 
                     <div class="nav-dropdown-divider"></div>
                     <div class="nav-dropdown-item vip" data-role-page="vip"
-                        onclick="event.stopPropagation(); setRole('orderer'); showPage('vip')">
+                        onclick="event.stopPropagation(); setRole('orderer'); showPage('vip'); closeMobileMenu()">
                         <span class="nav-dropdown-item-icon">🏗️</span>
                         <span class="nav-dropdown-item-text">Строительство зданий</span>
                         <span class="nav-dropdown-badge">VIP</span>
@@ -4288,13 +4349,13 @@
                 </div>
             </div>
 
-            <!-- Исполнитель dropdown (СУПЕРРЕЖИМ - все функции) -->
-            <div class="nav-role contractor" id="navRoleContractor" onclick="setRole('contractor')">
+            <!-- Исполнитель dropdown -->
+            <div class="nav-role contractor" id="navRoleContractor" onclick="setRole('contractor'); toggleMobileAccordion(this, event)">
                 <span class="nav-role-icon" id="contractorRoleIcon">🔧</span>
                 <span id="contractorRoleLabel">Исполнитель</span>
                 <span class="nav-role-arrow">▼</span>
                 <div class="nav-dropdown" onclick="event.stopPropagation()" style="min-width: 300px;">
-                    <!-- Тип организации (ТОО/ИП/Мастер) -->
+                    <!-- Тип организации -->
                     <div id="contractorOrgBadge"
                         style="padding: 0.5rem 1rem; display: flex; align-items: center; gap: 0.5rem; background: linear-gradient(135deg, rgba(139,92,246,0.15), rgba(6,182,212,0.15)); border-radius: 8px; margin: 0.5rem; font-size: 0.85rem;">
                         <span id="contractorOrgIcon" style="font-size: 1.3rem;">🔧</span>
@@ -4305,22 +4366,21 @@
                         </div>
                     </div>
 
-                    <!-- Основные функции исполнителя -->
                     <div
                         style="padding: 0.25rem 1rem; font-size: 0.7rem; color: var(--accent-alt); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">
                         📋 Мои заказы</div>
                     <div class="nav-dropdown-item" data-role-page="orders"
-                        onclick="event.stopPropagation(); setRole('contractor'); showPage('orders')">
+                        onclick="event.stopPropagation(); setRole('contractor'); showPage('orders'); closeMobileMenu()">
                         <span class="nav-dropdown-item-icon">🌐</span>
                         <span class="nav-dropdown-item-text">Лента заказов</span>
                     </div>
                     <div class="nav-dropdown-item" data-role-page="orders"
-                        onclick="event.stopPropagation(); setRole('contractor'); showPage('orders'); setTimeout(() => switchOrdersTab('my'), 100)">
+                        onclick="event.stopPropagation(); setRole('contractor'); showPage('orders'); setTimeout(() => switchOrdersTab('my'), 100); closeMobileMenu()">
                         <span class="nav-dropdown-item-icon">📌</span>
                         <span class="nav-dropdown-item-text">Мои работы</span>
                     </div>
                     <div class="nav-dropdown-item"
-                        onclick="event.stopPropagation(); setRole('contractor'); showPage('calendar')">
+                        onclick="event.stopPropagation(); setRole('contractor'); showPage('calendar'); closeMobileMenu()">
                         <span class="nav-dropdown-item-icon">📅</span>
                         <span class="nav-dropdown-item-text">Календарь работ</span>
                     </div>
@@ -4329,25 +4389,23 @@
                     <div
                         style="padding: 0.25rem 1rem; font-size: 0.7rem; color: var(--primary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">
                         🎯 Инструменты</div>
-
-                    <!-- Инструменты оценки -->
                     <div class="nav-dropdown-item" data-role-page="photo-estimate"
-                        onclick="event.stopPropagation(); setRole('contractor'); showPage('photo-estimate')">
+                        onclick="event.stopPropagation(); setRole('contractor'); showPage('photo-estimate'); closeMobileMenu()">
                         <span class="nav-dropdown-item-icon">📸</span>
                         <span class="nav-dropdown-item-text">Оценка стоимости</span>
                     </div>
                     <div class="nav-dropdown-item" data-role-page="inspect"
-                        onclick="event.stopPropagation(); setRole('contractor'); showPage('inspect')">
+                        onclick="event.stopPropagation(); setRole('contractor'); showPage('inspect'); closeMobileMenu()">
                         <span class="nav-dropdown-item-icon">🔍</span>
                         <span class="nav-dropdown-item-text">Проверка дефектов</span>
                     </div>
                     <div class="nav-dropdown-item" data-role-page="estimates"
-                        onclick="event.stopPropagation(); setRole('contractor'); showPage('estimates')">
+                        onclick="event.stopPropagation(); setRole('contractor'); showPage('estimates'); closeMobileMenu()">
                         <span class="nav-dropdown-item-icon">📏</span>
                         <span class="nav-dropdown-item-text">Расчёт объёмов</span>
                     </div>
                     <div class="nav-dropdown-item" data-role-page="engineering"
-                        onclick="event.stopPropagation(); setRole('contractor'); showPage('engineering')">
+                        onclick="event.stopPropagation(); setRole('contractor'); showPage('engineering'); closeMobileMenu()">
                         <span class="nav-dropdown-item-icon">⚙️</span>
                         <span class="nav-dropdown-item-text">Инженерные решения</span>
                     </div>
@@ -4356,19 +4414,18 @@
                     <div
                         style="padding: 0.25rem 1rem; font-size: 0.7rem; color: var(--accent); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">
                         📂 Сервисы</div>
-
                     <div class="nav-dropdown-item" data-role-page="catalog"
-                        onclick="event.stopPropagation(); setRole('contractor'); showPage('catalog')">
+                        onclick="event.stopPropagation(); setRole('contractor'); showPage('catalog'); closeMobileMenu()">
                         <span class="nav-dropdown-item-icon">📒</span>
                         <span class="nav-dropdown-item-text">Каталог подрядчиков</span>
                     </div>
                     <div class="nav-dropdown-item" data-role-page="equipment"
-                        onclick="event.stopPropagation(); setRole('contractor'); showPage('equipment')">
+                        onclick="event.stopPropagation(); setRole('contractor'); showPage('equipment'); closeMobileMenu()">
                         <span class="nav-dropdown-item-icon">🚜</span>
                         <span class="nav-dropdown-item-text">Техника / Маркетплейс</span>
                     </div>
                     <div class="nav-dropdown-item" data-role-page="wallet"
-                        onclick="event.stopPropagation(); setRole('contractor'); showPage('wallet')">
+                        onclick="event.stopPropagation(); setRole('contractor'); showPage('wallet'); closeMobileMenu()">
                         <span class="nav-dropdown-item-icon">💳</span>
                         <span class="nav-dropdown-item-text">Мой кошелёк</span>
                     </div>
@@ -4378,22 +4435,20 @@
                         style="padding: 0.25rem 1rem; font-size: 0.7rem; color: #22c55e; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">
                         👤 Профиль</div>
                     <div class="nav-dropdown-item" data-role-page="profile"
-                        onclick="event.stopPropagation(); setRole('contractor'); showPage('profile')">
+                        onclick="event.stopPropagation(); setRole('contractor'); showPage('profile'); closeMobileMenu()">
                         <span class="nav-dropdown-item-icon">📝</span>
                         <span class="nav-dropdown-item-text">Анкета исполнителя</span>
                     </div>
 
                     <div class="nav-dropdown-divider"></div>
-
-                    <!-- VIP-модули -->
                     <div class="nav-dropdown-item vip" data-role-page="vip"
-                        onclick="event.stopPropagation(); setRole('contractor'); showPage('vip')">
+                        onclick="event.stopPropagation(); setRole('contractor'); showPage('vip'); closeMobileMenu()">
                         <span class="nav-dropdown-item-icon">🏗️</span>
                         <span class="nav-dropdown-item-text">Строительство зданий</span>
                         <span class="nav-dropdown-badge">VIP</span>
                     </div>
                     <div class="nav-dropdown-item" data-role-page="volume"
-                        onclick="event.stopPropagation(); setRole('contractor'); showPage('volume')">
+                        onclick="event.stopPropagation(); setRole('contractor'); showPage('volume'); closeMobileMenu()">
                         <span class="nav-dropdown-item-icon">📐</span>
                         <span class="nav-dropdown-item-text">Фото-объёмы грунта</span>
                     </div>
@@ -4401,38 +4456,38 @@
             </div>
 
             <!-- Роль: Инженер -->
-            <div class="nav-role engineer" id="navRoleEngineer" onclick="setRole('engineer')">
+            <div class="nav-role engineer" id="navRoleEngineer" onclick="setRole('engineer'); toggleMobileAccordion(this, event)">
                 <span class="nav-role-icon">👷</span>
                 <span>Инженер</span>
                 <span class="nav-role-arrow">▼</span>
                 <div class="nav-dropdown" onclick="event.stopPropagation()">
                     <div class="nav-dropdown-item" data-role-page="engineer"
-                        onclick="event.stopPropagation(); setRole('engineer'); showPage('engineer')">
+                        onclick="event.stopPropagation(); setRole('engineer'); showPage('engineer'); closeMobileMenu()">
                         <span class="nav-dropdown-item-icon">📊</span>
                         <span class="nav-dropdown-item-text">Главная панель</span>
                     </div>
                     <div class="nav-dropdown-item" data-role-page="engineer"
-                        onclick="event.stopPropagation(); setRole('engineer'); showPage('engineer'); setTimeout(() => window.EngineerUI && window.EngineerUI.switchTab && window.EngineerUI.switchTab('requests'), 100)">
+                        onclick="event.stopPropagation(); setRole('engineer'); showPage('engineer'); setTimeout(() => window.EngineerUI && window.EngineerUI.switchTab && window.EngineerUI.switchTab('requests'), 100); closeMobileMenu()">
                         <span class="nav-dropdown-item-icon">📬</span>
                         <span class="nav-dropdown-item-text">Заявки</span>
                     </div>
                     <div class="nav-dropdown-item" data-role-page="engineer"
-                        onclick="event.stopPropagation(); setRole('engineer'); showPage('engineer'); setTimeout(() => window.EngineerUI && window.EngineerUI.switchTab && window.EngineerUI.switchTab('objects'), 100)">
+                        onclick="event.stopPropagation(); setRole('engineer'); showPage('engineer'); setTimeout(() => window.EngineerUI && window.EngineerUI.switchTab && window.EngineerUI.switchTab('objects'), 100); closeMobileMenu()">
                         <span class="nav-dropdown-item-icon">🏗️</span>
                         <span class="nav-dropdown-item-text">Мои объекты</span>
                     </div>
                     <div class="nav-dropdown-item" data-role-page="engineer"
-                        onclick="event.stopPropagation(); setRole('engineer'); showPage('engineer'); setTimeout(() => window.EngineerUI && window.EngineerUI.switchTab && window.EngineerUI.switchTab('calendar'), 100)">
+                        onclick="event.stopPropagation(); setRole('engineer'); showPage('engineer'); setTimeout(() => window.EngineerUI && window.EngineerUI.switchTab && window.EngineerUI.switchTab('calendar'), 100); closeMobileMenu()">
                         <span class="nav-dropdown-item-icon">📅</span>
                         <span class="nav-dropdown-item-text">Календарь</span>
                     </div>
                     <div class="nav-dropdown-item" data-role-page="engineer"
-                        onclick="event.stopPropagation(); setRole('engineer'); showPage('engineer'); setTimeout(() => window.EngineerUI && window.EngineerUI.switchTab && window.EngineerUI.switchTab('ai'), 100)">
+                        onclick="event.stopPropagation(); setRole('engineer'); showPage('engineer'); setTimeout(() => window.EngineerUI && window.EngineerUI.switchTab && window.EngineerUI.switchTab('ai'), 100); closeMobileMenu()">
                         <span class="nav-dropdown-item-icon">🤖</span>
                         <span class="nav-dropdown-item-text">AI-просчёт</span>
                     </div>
                     <div class="nav-dropdown-item" data-role-page="engineer"
-                        onclick="event.stopPropagation(); setRole('engineer'); showPage('engineer'); setTimeout(() => window.EngineerUI && window.EngineerUI.switchTab && window.EngineerUI.switchTab('expenses'), 100)">
+                        onclick="event.stopPropagation(); setRole('engineer'); showPage('engineer'); setTimeout(() => window.EngineerUI && window.EngineerUI.switchTab && window.EngineerUI.switchTab('expenses'), 100); closeMobileMenu()">
                         <span class="nav-dropdown-item-icon">💰</span>
                         <span class="nav-dropdown-item-text">Расходы</span>
                     </div>
@@ -4440,46 +4495,46 @@
             </div>
 
             <!-- Роль: Администратор -->
-            <div class="nav-role" id="navRoleAdmin" onclick="showPage('admin')">
+            <div class="nav-role" id="navRoleAdmin" onclick="showPage('admin'); toggleMobileAccordion(this, event)">
                 <span class="nav-role-icon">⚙️</span>
                 <span>Админ</span>
                 <span class="nav-role-arrow">▼</span>
                 <div class="nav-dropdown" onclick="event.stopPropagation()" style="min-width: 240px;">
                     <div class="nav-dropdown-item" data-role-page="admin"
-                        onclick="event.stopPropagation(); showPage('admin'); setTimeout(() => window.AdminUI && window.AdminUI.setTab('prices'), 50)">
+                        onclick="event.stopPropagation(); showPage('admin'); setTimeout(() => window.AdminUI && window.AdminUI.setTab('prices'), 50); closeMobileMenu()">
                         <span class="nav-dropdown-item-icon">💰</span>
                         <span class="nav-dropdown-item-text">Прайсы</span>
                     </div>
                     <div class="nav-dropdown-item" data-role-page="admin"
-                        onclick="event.stopPropagation(); showPage('admin'); setTimeout(() => window.AdminUI && window.AdminUI.setTab('moderation'), 50)">
+                        onclick="event.stopPropagation(); showPage('admin'); setTimeout(() => window.AdminUI && window.AdminUI.setTab('moderation'), 50); closeMobileMenu()">
                         <span class="nav-dropdown-item-icon">🛡️</span>
                         <span class="nav-dropdown-item-text">Модерация</span>
                     </div>
                     <div class="nav-dropdown-item" data-role-page="admin"
-                        onclick="event.stopPropagation(); showPage('admin'); setTimeout(() => window.AdminUI && window.AdminUI.setTab('regions'), 50)">
+                        onclick="event.stopPropagation(); showPage('admin'); setTimeout(() => window.AdminUI && window.AdminUI.setTab('regions'), 50); closeMobileMenu()">
                         <span class="nav-dropdown-item-icon">🗺️</span>
                         <span class="nav-dropdown-item-text">Регионы</span>
                     </div>
                     <div class="nav-dropdown-divider"></div>
                     <div class="nav-dropdown-item"
-                        onclick="event.stopPropagation(); showPage('admin'); setTimeout(() => window.AdminUI && window.AdminUI.setTab('audit'), 50)">
+                        onclick="event.stopPropagation(); showPage('admin'); setTimeout(() => window.AdminUI && window.AdminUI.setTab('audit'), 50); closeMobileMenu()">
                         <span class="nav-dropdown-item-icon">📜</span>
                         <span class="nav-dropdown-item-text">Журнал действий</span>
                     </div>
-                    <div class="nav-dropdown-item" onclick="event.stopPropagation(); showPage('kpi')">
+                    <div class="nav-dropdown-item" onclick="event.stopPropagation(); showPage('kpi'); closeMobileMenu()">
                         <span class="nav-dropdown-item-icon">📊</span>
                         <span class="nav-dropdown-item-text">KPI Dashboard</span>
                     </div>
-                    <div class="nav-dropdown-item" onclick="event.stopPropagation(); showPage('analytics')">
+                    <div class="nav-dropdown-item" onclick="event.stopPropagation(); showPage('analytics'); closeMobileMenu()">
                         <span class="nav-dropdown-item-icon">📈</span>
                         <span class="nav-dropdown-item-text">Аналитика</span>
                     </div>
                     <div class="nav-dropdown-divider"></div>
-                    <div class="nav-dropdown-item" onclick="event.stopPropagation(); showPage('disputes')">
+                    <div class="nav-dropdown-item" onclick="event.stopPropagation(); showPage('disputes'); closeMobileMenu()">
                         <span class="nav-dropdown-item-icon">⚖️</span>
                         <span class="nav-dropdown-item-text">Споры и арбитраж</span>
                     </div>
-                    <div class="nav-dropdown-item" onclick="event.stopPropagation(); showPage('contracts')">
+                    <div class="nav-dropdown-item" onclick="event.stopPropagation(); showPage('contracts'); closeMobileMenu()">
                         <span class="nav-dropdown-item-icon">📄</span>
                         <span class="nav-dropdown-item-text">Договоры</span>
                     </div>
@@ -4503,8 +4558,44 @@
                 <span class="header-user-name" id="headerUserName">Пользователь</span>
             </div>
             <button class="icon-btn" onclick="logout()" title="Выйти" style="margin-left:0.5rem">🚪</button>
+            <button class="icon-btn mobile-menu-btn" onclick="toggleMobileMenu()" title="Меню">☰</button>
         </div>
     </header>
+
+    <script>
+        function toggleMobileMenu() {
+            const nav = document.getElementById('mainNav');
+            const overlay = document.getElementById('mobileMenuOverlay');
+            if (nav.classList.contains('mobile-active')) {
+                closeMobileMenu();
+            } else {
+                nav.classList.add('mobile-active');
+                overlay.classList.add('mobile-active');
+                document.body.style.overflow = 'hidden'; // Prevent background scrolling
+            }
+        }
+        
+        function closeMobileMenu() {
+            const nav = document.getElementById('mainNav');
+            const overlay = document.getElementById('mobileMenuOverlay');
+            nav.classList.remove('mobile-active');
+            overlay.classList.remove('mobile-active');
+            document.body.style.overflow = '';
+        }
+        
+        function toggleMobileAccordion(element, event) {
+            // Only trigger on mobile view where nav is vertical
+            if (window.innerWidth <= 768) {
+                // Toggle active class for accordion
+                element.classList.toggle('accordion-active');
+                
+                // Close other accordions
+                document.querySelectorAll('.nav-role').forEach(el => {
+                    if (el !== element) el.classList.remove('accordion-active');
+                });
+            }
+        }
+    </script>
 
     <div class="page active" id="page-landing">
         <!-- Landing Page Content -->
