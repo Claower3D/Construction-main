@@ -14109,6 +14109,212 @@ window.toggleMobileMenu = function() {
             <div id="navSubmenuContent"></div>
         </div>
     </nav>
+
+    <!-- Модальное окно: Управление этапами (Executor) -->
+    <div class="modal-overlay" id="manageOrderStagesModal" style="z-index: 100005;">
+        <div class="modal-content" style="max-width:700px; width:95%; max-height:90vh; overflow-y:auto; background: var(--card); border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 10px 40px rgba(0,0,0,0.5);">
+            <div class="modal-title" style="display:flex; justify-content:space-between; align-items:center;">
+                <span id="manageStagesTitle">Управление этапами</span>
+                <button onclick="closeManageStages()" style="background:transparent; border:none; color:var(--text-muted); font-size:1.5rem; cursor:pointer;">&times;</button>
+            </div>
+            
+            <div id="manageStagesContent" style="display:flex; flex-direction:column; gap:1.5rem; margin-top:1rem;">
+                <!-- Список этапов будет здесь -->
+            </div>
+            
+            <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border);">
+                <div style="font-weight: 600; margin-bottom: 0.5rem; color: var(--primary);">➕ Добавить новый этап</div>
+                <div style="display:flex; flex-direction:column; gap:0.8rem; background: rgba(255,255,255,0.02); padding: 1rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+                    <input type="text" id="newStageTitle" class="modal-input" placeholder="Название этапа (например, Подготовка фундамента)" style="margin:0;">
+                    <div style="display:flex; gap:1rem;">
+                        <div style="flex:1;">
+                            <label style="font-size:0.75rem; color:var(--text-muted); display:block; margin-bottom:0.2rem;">Начало</label>
+                            <input type="date" id="newStageStart" class="modal-input" style="margin:0; padding:0.5rem;">
+                        </div>
+                        <div style="flex:1;">
+                            <label style="font-size:0.75rem; color:var(--text-muted); display:block; margin-bottom:0.2rem;">Дедлайн</label>
+                            <input type="date" id="newStageEnd" class="modal-input" style="margin:0; padding:0.5rem;">
+                        </div>
+                    </div>
+                    <button onclick="addNewStageToOrder()" style="padding: 0.7rem; background: rgba(255,255,255,0.1); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s;">
+                        Сохранить этап
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+<script>
+    let _currentManageOrderId = null;
+    
+    window.openManageStages = function(orderId) {
+        _currentManageOrderId = orderId;
+        const modal = document.getElementById('manageOrderStagesModal');
+        modal.classList.add('active');
+        renderOrderStages();
+    };
+    
+    window.closeManageStages = function() {
+        const modal = document.getElementById('manageOrderStagesModal');
+        modal.classList.remove('active');
+    };
+    
+    function renderOrderStages() {
+        const container = document.getElementById('manageStagesContent');
+        if(!container) return;
+        
+        let stages = [];
+        if(window.DataService && window.DataService.Customer) {
+            const res = window.DataService.Customer.getOrderStages(_currentManageOrderId);
+            if(res && res.success && res.data) {
+                stages = res.data;
+            }
+        } else {
+            // Fallback localStorage
+            const key = 'stages_' + _currentManageOrderId;
+            stages = JSON.parse(localStorage.getItem(key) || '[]');
+        }
+        
+        if(stages.length === 0) {
+            container.innerHTML = `<div style="text-align:center; padding: 2rem; color:var(--text-muted); background:rgba(255,255,255,0.02); border-radius:12px; border:1px dashed var(--border);">Нет добавленных этапов</div>`;
+            return;
+        }
+        
+        container.innerHTML = stages.map((stage, idx) => `
+            <div style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                    <div>
+                        <div style="font-weight: 600; font-size: 1.1rem; margin-bottom: 0.3rem;">${idx+1}. ${stage.title || stage.name || 'Этап'}</div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted);">
+                            ${stage.plannedStart ? 'Начало: ' + new Date(stage.plannedStart).toLocaleDateString() : ''}
+                            ${stage.plannedEnd ? ' | Дедлайн: ' + new Date(stage.plannedEnd).toLocaleDateString() : ''}
+                        </div>
+                    </div>
+                    <span style="padding: 0.3rem 0.6rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; background: ${stage.status === 'completed' ? 'rgba(34,197,94,0.1)' : 'rgba(6,182,212,0.1)'}; color: ${stage.status === 'completed' ? '#22c55e' : '#06b6d4'};">
+                        ${stage.status === 'completed' ? 'Выполнено' : 'В процессе'}
+                    </span>
+                </div>
+                
+                <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.05);">
+                    <div style="font-size: 0.85rem; font-weight: 600; margin-bottom: 0.5rem;">Отчёты и файлы:</div>
+                    ${stage.reports && stage.reports.length > 0 ? `
+                        <div style="display:flex; flex-wrap:wrap; gap:0.5rem; margin-bottom: 1rem;">
+                            ${stage.reports.map(r => `
+                                ${r.isImage ? `
+                                    <div style="position:relative; width:60px; height:60px; border-radius:8px; overflow:hidden; border:1px solid rgba(255,255,255,0.1);">
+                                        <img src="${r.data}" style="width:100%; height:100%; object-fit:cover; cursor:pointer;" onclick="window.open('${r.data}', '_blank')">
+                                    </div>
+                                ` : `
+                                    <div style="width:60px; height:60px; background: rgba(255,255,255,0.05); border-radius:8px; display:flex; align-items:center; justify-content:center; border:1px solid rgba(255,255,255,0.1); cursor:pointer;" onclick="window.open('${r.data}', '_blank')" title="${r.name}">
+                                        📄
+                                    </div>
+                                `}
+                            `).join('')}
+                        </div>
+                    ` : `<div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.8rem;">Нет загруженных файлов</div>`}
+                    
+                    <label style="display:inline-block; padding: 0.5rem 1rem; background: rgba(6,182,212,0.15); color: var(--primary); border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s;">
+                        + Загрузить отчёт
+                        <input type="file" accept="image/*,.pdf,.doc,.docx" style="display:none;" onchange="handleStageFileUpload(event, '${stage.id}')" multiple>
+                    </label>
+                </div>
+            </div>
+        `).join('');
+    }
+    
+    window.addNewStageToOrder = function() {
+        const title = document.getElementById('newStageTitle').value.trim();
+        const start = document.getElementById('newStageStart').value;
+        const end = document.getElementById('newStageEnd').value;
+        
+        if(!title) {
+            alert('Введите название этапа!');
+            return;
+        }
+        
+        const newStage = {
+            id: 'stage_' + Date.now(),
+            orderId: _currentManageOrderId,
+            title: title,
+            plannedStart: start || null,
+            plannedEnd: end || null,
+            status: 'plan',
+            reports: []
+        };
+        
+        // Save to DataService or fallback
+        if(window.DataService && window.DataService.Customer) {
+            // we simulate adding stage, Customer service doesn't have addStage natively in the mock but we can push it
+            let res = window.DataService.Customer.getOrderStages(_currentManageOrderId);
+            if(res && res.success && res.data) {
+                res.data.push(newStage);
+            }
+        } else {
+            const key = 'stages_' + _currentManageOrderId;
+            let stages = JSON.parse(localStorage.getItem(key) || '[]');
+            stages.push(newStage);
+            localStorage.setItem(key, JSON.stringify(stages));
+        }
+        
+        // Custom events fallback for calendar sync
+        try {
+            const evs = JSON.parse(localStorage.getItem('executor_custom_events') || '[]');
+            evs.push({
+                id: newStage.id,
+                date: newStage.plannedStart || new Date().toISOString(),
+                title: title,
+                type: 'stage',
+                icon: '📅',
+                orderId: _currentManageOrderId,
+                isCustom: true
+            });
+            localStorage.setItem('executor_custom_events', JSON.stringify(evs));
+        } catch(e) {}
+
+        document.getElementById('newStageTitle').value = '';
+        document.getElementById('newStageStart').value = '';
+        document.getElementById('newStageEnd').value = '';
+        
+        renderOrderStages();
+    };
+    
+    window.handleStageFileUpload = function(event, stageId) {
+        const files = event.target.files;
+        if(!files || files.length === 0) return;
+        
+        let stages = [];
+        const key = 'stages_' + _currentManageOrderId;
+        if(window.DataService && window.DataService.Customer) {
+            let res = window.DataService.Customer.getOrderStages(_currentManageOrderId);
+            if(res && res.success && res.data) stages = res.data;
+        } else {
+            stages = JSON.parse(localStorage.getItem(key) || '[]');
+        }
+        
+        const stage = stages.find(s => s.id === stageId);
+        if(!stage) return;
+        if(!stage.reports) stage.reports = [];
+        
+        Array.from(files).forEach(file => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                stage.reports.push({
+                    name: file.name,
+                    data: e.target.result,
+                    isImage: file.type.startsWith('image/')
+                });
+                // force save if localStorage
+                if(!window.DataService) {
+                    localStorage.setItem(key, JSON.stringify(stages));
+                }
+                renderOrderStages();
+            };
+            reader.readAsDataURL(file);
+        });
+    };
+</script>
+
 </body>
 
 </html>
