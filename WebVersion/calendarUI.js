@@ -191,6 +191,34 @@
             console.warn('[Calendar] Error loading stages:', e);
         }
 
+        // --- Кастомные лиды/события (localStorage) ---
+        try {
+            const customEventsRaw = localStorage.getItem('executor_custom_events');
+            if (customEventsRaw) {
+                const customEvents = JSON.parse(customEventsRaw);
+                customEvents.forEach(cev => {
+                    events.push({
+                        id: cev.id,
+                        date: new Date(cev.date),
+                        title: cev.title || 'Лид',
+                        type: 'lead',
+                        icon: '👤',
+                        status: cev.status || 'plan',
+                        description: cev.description || 'Пользовательское событие',
+                        category: cev.category || '',
+                        city: cev.city || '',
+                        budget: cev.budget || 0,
+                        contactName: cev.contactName || '',
+                        contactPhone: cev.contactPhone || '',
+                        attachments: cev.attachments || [],
+                        isCustom: true
+                    });
+                });
+            }
+        } catch (e) {
+            console.warn('[Calendar] Error loading custom events:', e);
+        }
+
         return events;
     }
 
@@ -750,7 +778,10 @@
             <div class="calendar-day-modal">
                 <div class="calendar-day-modal-header">
                     <div class="calendar-day-modal-title">📅 ${formattedDate}</div>
-                    <button class="calendar-day-modal-close" onclick="CalendarUI.closeDayDetail()">✕</button>
+                    <div style="display:flex; gap:0.5rem;">
+                        <button class="calendar-add-event-btn" onclick="CalendarUI.openAddEventModal('${date.toISOString()}')">➕ Добавить</button>
+                        <button class="calendar-day-modal-close" onclick="CalendarUI.closeDayDetail()">✕</button>
+                    </div>
                 </div>
                 <div class="calendar-day-modal-body">
                     ${eventsHtml}
@@ -775,6 +806,170 @@
         if (overlay) {
             overlay.style.opacity = '0';
             setTimeout(() => overlay.remove(), 200);
+        }
+    }
+
+    // =============================================
+    // 8.5 МОДАЛЬНОЕ ОКНО ДОБАВЛЕНИЯ ЛИДА/СОБЫТИЯ
+    // =============================================
+
+    function openAddEventModal(dateStr) {
+        // Закрываем модалку дня если открыта
+        closeDayDetail();
+
+        const date = dateStr ? new Date(dateStr) : new Date();
+        const formattedDate = date.toISOString().split('T')[0];
+
+        const overlay = document.createElement('div');
+        overlay.className = 'calendar-day-overlay';
+        overlay.id = 'calendarAddEventOverlay';
+        
+        // Массив для временного хранения загруженных файлов (Base64)
+        window._tempEventAttachments = [];
+
+        overlay.innerHTML = \`
+            <div class="calendar-day-modal" style="max-width:500px; width:95%;">
+                <div class="calendar-day-modal-header">
+                    <div class="calendar-day-modal-title">➕ Новый лид / Событие</div>
+                    <button class="calendar-day-modal-close" onclick="CalendarUI.closeAddEventModal()">✕</button>
+                </div>
+                <div class="calendar-day-modal-body" style="display:flex; flex-direction:column; gap:1rem;">
+                    <div class="cal-form-group">
+                        <label>Дата</label>
+                        <input type="date" id="calEvDate" class="cal-input" value="\${formattedDate}">
+                    </div>
+                    <div class="cal-form-group">
+                        <label>Название (Обязательно)</label>
+                        <input type="text" id="calEvTitle" class="cal-input" placeholder="Например: Ремонт квартиры" required>
+                    </div>
+                    <div class="cal-form-group">
+                        <label>Описание</label>
+                        <textarea id="calEvDesc" class="cal-input" rows="3" placeholder="Детали задачи..."></textarea>
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+                        <div class="cal-form-group">
+                            <label>Имя клиента</label>
+                            <input type="text" id="calEvName" class="cal-input" placeholder="Иван">
+                        </div>
+                        <div class="cal-form-group">
+                            <label>Телефон</label>
+                            <input type="text" id="calEvPhone" class="cal-input" placeholder="+7 700 000 0000">
+                        </div>
+                    </div>
+                    <div class="cal-form-group">
+                        <label>Примерный бюджет (₸)</label>
+                        <input type="number" id="calEvBudget" class="cal-input" placeholder="0">
+                    </div>
+                    
+                    <div class="cal-form-group">
+                        <label>Прикрепить файлы (Фото/Документы)</label>
+                        <div class="cal-upload-zone" onclick="document.getElementById('calEvFiles').click()">
+                            <div class="cal-upload-icon">📎</div>
+                            <div>Нажмите, чтобы выбрать файлы</div>
+                            <div style="font-size:0.75rem; color:var(--text-muted); margin-top:4px;">До 5 файлов, макс 5МБ</div>
+                            <input type="file" id="calEvFiles" multiple style="display:none;" onchange="CalendarUI.handleEventFileUpload(event)">
+                        </div>
+                        <div id="calEvFilesPreview" class="cal-files-preview"></div>
+                    </div>
+                    
+                    <button class="calendar-today-btn" style="width:100%; margin-top:0.5rem;" onclick="CalendarUI.saveCustomEvent()">Сохранить</button>
+                </div>
+            </div>
+        \`;
+
+        document.body.appendChild(overlay);
+    }
+
+    function closeAddEventModal() {
+        const overlay = document.getElementById('calendarAddEventOverlay');
+        if (overlay) {
+            overlay.remove();
+        }
+        window._tempEventAttachments = [];
+    }
+
+    function handleEventFileUpload(e) {
+        const files = e.target.files;
+        if (!files || files.length === 0) return;
+
+        const previewContainer = document.getElementById('calEvFilesPreview');
+        
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            
+            // Лимит 5МБ на файл (для base64 localStorage)
+            if (file.size > 5 * 1024 * 1024) {
+                if(window.showToast) window.showToast(\`❌ Файл \${file.name} слишком большой (макс 5MB)\`);
+                continue;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const base64 = event.target.result;
+                const isImage = file.type.startsWith('image/');
+                
+                const attachment = {
+                    name: file.name,
+                    type: file.type,
+                    data: base64,
+                    isImage
+                };
+                
+                window._tempEventAttachments.push(attachment);
+                
+                // Рендер превью
+                const item = document.createElement('div');
+                item.className = 'cal-file-item';
+                if (isImage) {
+                    item.innerHTML = \`<img src="\${base64}" alt="\${file.name}">\`;
+                } else {
+                    item.innerHTML = \`<div class="cal-file-doc">📄</div>\`;
+                }
+                previewContainer.appendChild(item);
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    function saveCustomEvent() {
+        const title = document.getElementById('calEvTitle').value.trim();
+        if (!title) {
+            if(window.showToast) window.showToast('⚠️ Введите название');
+            return;
+        }
+
+        const dateStr = document.getElementById('calEvDate').value;
+        const desc = document.getElementById('calEvDesc').value.trim();
+        const name = document.getElementById('calEvName').value.trim();
+        const phone = document.getElementById('calEvPhone').value.trim();
+        const budget = parseInt(document.getElementById('calEvBudget').value) || 0;
+
+        const newEvent = {
+            id: 'custom_' + Date.now(),
+            date: dateStr ? new Date(dateStr).toISOString() : new Date().toISOString(),
+            title,
+            description: desc,
+            contactName: name,
+            contactPhone: phone,
+            budget,
+            status: 'plan',
+            attachments: window._tempEventAttachments || [],
+            createdAt: new Date().toISOString()
+        };
+
+        try {
+            const raw = localStorage.getItem('executor_custom_events');
+            const customEvents = raw ? JSON.parse(raw) : [];
+            customEvents.push(newEvent);
+            localStorage.setItem('executor_custom_events', JSON.stringify(customEvents));
+            
+            if(window.showToast) window.showToast('✅ Лид сохранен!');
+            
+            closeAddEventModal();
+            _render(); // Перерендерить календарь
+        } catch (e) {
+            console.error('[Calendar] Error saving event:', e);
+            if(window.showToast) window.showToast('❌ Ошибка при сохранении (возможно превышен лимит памяти)');
         }
     }
 
@@ -831,6 +1026,10 @@
         selectDate,
         setView,
         closeDayDetail,
+        openAddEventModal,
+        closeAddEventModal,
+        handleEventFileUpload,
+        saveCustomEvent,
 
         // Для тестирования
         getEvents: () => [..._events],
