@@ -14307,11 +14307,21 @@
                 if (titleEl) titleEl.innerText = catObj.title;
                 if (cardsContainer) {
                     cardsContainer.innerHTML = '';
-                    catObj.items.forEach(item => {
+                    const colors = [
+                        'background: rgba(239,68,68,0.16); border:1px solid rgba(239,68,68,0.35); color: #f87171;',
+                        'background: rgba(168,85,247,0.16); border:1px solid rgba(168,85,247,0.35); color: #c084fc;',
+                        'background: rgba(59,130,246,0.16); border:1px solid rgba(59,130,246,0.35); color: #60a5fa;',
+                        'background: rgba(20,184,166,0.16); border:1px solid rgba(20,184,166,0.35); color: #2dd4bf;',
+                        'background: rgba(234,179,8,0.16); border:1px solid rgba(234,179,8,0.35); color: #facc15;',
+                        'background: rgba(34,197,94,0.16); border:1px solid rgba(34,197,94,0.35); color: #4ade80;'
+                    ];
+
+                    catObj.items.forEach((item, idx) => {
                         const card = document.createElement('div');
                         card.className = 'catalog-card';
+                        const style = colors[idx % colors.length];
                         card.innerHTML = `
-                            <div class="catalog-card-icon">${item.icon}</div>
+                            <div class="catalog-card-icon" style="${style}">${item.icon}</div>
                             <div class="catalog-card-title">${item.title}</div>
                             <div class="catalog-card-arrow">›</div>
                         `;
