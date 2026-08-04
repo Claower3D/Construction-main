@@ -1417,18 +1417,19 @@ body {
     display: none;
     position: fixed;
     top: 0;
-    right: -320px;
+    left: -320px;
     bottom: 0;
     width: 320px;
     max-width: 85vw;
-    background: rgba(15, 23, 42, 0.95);\n    backdrop-filter: blur(20px);
+    background: rgba(15, 23, 42, 0.95);
+    backdrop-filter: blur(20px);
     z-index: 10001;
-    transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     overflow: hidden;
     box-shadow: -10px 0 30px rgba(0,0,0,0.5);
 }
 .mobile-breadcrumb-nav.mobile-active {
-    right: 0;
+    left: 0;
 }
 
 @media (max-width: 900px) {
