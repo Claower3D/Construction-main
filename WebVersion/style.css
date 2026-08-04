@@ -1966,3 +1966,29 @@ body {
     font-size: 1.1rem;
     color: rgba(255, 255, 255, 0.3);
 }
+
+
+/* Hide all scrollbars in mobile nav */
+.mobile-breadcrumb-nav *,
+.mobile-nav-left,
+.mobile-nav-right {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+
+.mobile-nav-left::-webkit-scrollbar,
+.mobile-nav-right::-webkit-scrollbar,
+.mobile-breadcrumb-nav::-webkit-scrollbar,
+.mobile-breadcrumb-nav *::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    background: transparent !important;
+}
+
+/* Move left sidebar content closer to bottom */
+.mobile-nav-left {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-end !important;
+}
