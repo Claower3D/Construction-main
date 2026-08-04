@@ -1684,3 +1684,27 @@ body {
         display: block !important;
     }
 }
+
+/* FIXED MOBILE NAV VISIBILITY */
+.mobile-breadcrumb-nav {
+    display: block !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: -320px !important;
+    bottom: 0 !important;
+    width: 300px !important;
+    max-width: 85vw !important;
+    background: #0a0508 !important;
+    background-image: radial-gradient(circle at top right, rgba(239,68,68,0.08), transparent 40%) !important;
+    z-index: 10001 !important;
+    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    border-right: 1px solid rgba(255,255,255,0.08) !important;
+    padding-top: 1.5rem !important;
+    box-shadow: 10px 0 30px rgba(0,0,0,0.7) !important;
+}
+
+.mobile-breadcrumb-nav.mobile-active {
+    left: 0 !important;
+}

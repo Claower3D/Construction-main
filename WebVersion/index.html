@@ -4585,22 +4585,34 @@
 
     <script>
         function toggleMobileMenu() {
+            const breadcrumb = document.getElementById('mobileBreadcrumbNav');
             const nav = document.getElementById('mainNav');
             const overlay = document.getElementById('mobileMenuOverlay');
-            if (nav.classList.contains('mobile-active')) {
+            
+            const isActive = (breadcrumb && breadcrumb.classList.contains('mobile-active')) || (nav && nav.classList.contains('mobile-active'));
+            
+            if (isActive) {
                 closeMobileMenu();
             } else {
-                nav.classList.add('mobile-active');
-                overlay.classList.add('mobile-active');
-                document.body.style.overflow = 'hidden'; // Prevent background scrolling
+                if (breadcrumb) breadcrumb.classList.add('mobile-active');
+                if (nav) nav.classList.add('mobile-active');
+                if (overlay) overlay.classList.add('active', 'mobile-active');
+                document.body.style.overflow = 'hidden';
+                
+                const curRole = window.userRole || (window.RoleManager && window.RoleManager.current && window.RoleManager.current()) || 'orderer';
+                if (window.updateMobileMenu) {
+                    window.updateMobileMenu(curRole);
+                }
             }
         }
         
         function closeMobileMenu() {
+            const breadcrumb = document.getElementById('mobileBreadcrumbNav');
             const nav = document.getElementById('mainNav');
             const overlay = document.getElementById('mobileMenuOverlay');
-            nav.classList.remove('mobile-active');
-            overlay.classList.remove('mobile-active');
+            if (breadcrumb) breadcrumb.classList.remove('mobile-active');
+            if (nav) nav.classList.remove('mobile-active');
+            if (overlay) overlay.classList.remove('active', 'mobile-active');
             document.body.style.overflow = '';
         }
         
@@ -14231,35 +14243,26 @@
     };
 
     window.updateMobileMenu = function(role) {
+        if (!role) role = 'orderer';
+        if (typeof role === 'object') role = role.name || role.id || 'orderer';
+        role = String(role).toLowerCase();
+        if (role === 'customer') role = 'orderer';
+        if (role === 'executor') role = 'contractor';
+        if (role === 'administrator') role = 'admin';
+
         document.querySelectorAll('.role-category-group').forEach(el => el.style.display = 'none');
         document.querySelectorAll('.role-filter-btn').forEach(el => el.classList.remove('active'));
         
-        const group = document.getElementById('mobileCat' + role.charAt(0).toUpperCase() + role.slice(1));
+        const key = role.charAt(0).toUpperCase() + role.slice(1);
+        const group = document.getElementById('mobileCat' + key);
         if (group) group.style.display = 'block';
         
-        const btn = document.getElementById('mobileRoleBtn' + role.charAt(0).toUpperCase() + role.slice(1));
+        const btn = document.getElementById('mobileRoleBtn' + key);
         if (btn) btn.classList.add('active');
     };
 
     window.toggleMobileMenu = function() {
-        const overlay = document.getElementById('mobileMenuOverlay');
-        const breadcrumb = document.getElementById('mobileBreadcrumbNav');
-        
-        const isActive = breadcrumb && breadcrumb.classList.contains('mobile-active');
-        
-        if (isActive) {
-            if (overlay) overlay.classList.remove('active', 'mobile-active');
-            if (breadcrumb) breadcrumb.classList.remove('mobile-active');
-            document.body.style.overflow = '';
-        } else {
-            if (overlay) overlay.classList.add('active', 'mobile-active');
-            if (breadcrumb) breadcrumb.classList.add('mobile-active');
-            document.body.style.overflow = 'hidden';
-            // Sync with global role if exists
-            if (window.currentRole) {
-                updateMobileMenu(window.currentRole);
-            }
-        }
+        toggleMobileMenu();
     };
 let _currentManageOrderId = null;
     
