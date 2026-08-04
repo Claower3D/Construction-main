@@ -1718,7 +1718,13 @@ body {
     bottom: 0 !important;
     width: 100vw !important;
     max-width: 100vw !important;
-    background: #070407 !important;
+    background: #09050b !important;
+    background-image: 
+        radial-gradient(circle at 15% 85%, rgba(229, 57, 53, 0.25) 0%, transparent 45%),
+        radial-gradient(circle at 85% 15%, rgba(234, 179, 8, 0.2) 0%, transparent 45%),
+        linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px) !important;
+    background-size: 100% 100%, 100% 100%, 32px 32px, 32px 32px !important;
     z-index: 10001 !important;
     transition: left 0.35s cubic-bezier(0.4, 0, 0.2, 1) !important;
     overflow: hidden !important;
@@ -1738,29 +1744,43 @@ body {
     height: 100%;
 }
 
-/* Left Column - Styled 100% identical to Image 2 */
+/* Left Column - Tech blueprint grid & crimson glow */
 .mobile-nav-left {
     position: relative;
     width: 44%;
     max-width: 330px;
     height: 100%;
     overflow-y: auto;
-    padding: 1.4rem 1rem 2rem 1.2rem;
-    border-right: 1px solid rgba(255, 255, 255, 0.06);
-    background: #0b070a;
-    background-image: radial-gradient(circle at bottom left, rgba(229,57,53,0.18), transparent 50%);
+    padding: 1.4rem 1rem 1.5rem 1.2rem;
+    border-right: 1px solid rgba(255, 255, 255, 0.07);
+    background: rgba(12, 7, 14, 0.75);
+    backdrop-filter: blur(12px);
+    background-image: 
+        radial-gradient(circle at bottom left, rgba(229, 57, 53, 0.28), transparent 60%),
+        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+    background-size: 100% 100%, 24px 24px, 24px 24px;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-end !important;
 }
 
-/* Right Column - Catalog Panel */
+/* Right Column - Luxury dark glass with golden halo & micro tech grid */
 .mobile-nav-right {
     position: relative;
     flex: 1;
     height: 100%;
     overflow-y: auto;
     padding: 1.4rem 1.2rem 2rem 1.4rem;
-    background: #0c080e;
-    border-top-left-radius:  50% 90px;
-    border-left: 1px solid rgba(234, 179, 8, 0.3);
+    background: rgba(15, 10, 18, 0.85);
+    backdrop-filter: blur(16px);
+    background-image: 
+        radial-gradient(circle at top right, rgba(234, 179, 8, 0.22), transparent 55%),
+        linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+    background-size: 100% 100%, 24px 24px, 24px 24px;
+    border-top-left-radius: 50% 90px;
+    border-left: 1px solid rgba(234, 179, 8, 0.35);
     box-shadow: -15px 0 35px rgba(0,0,0,0.6);
 }
 
@@ -1771,11 +1791,11 @@ body {
     left: 0;
     width: 140px;
     height: 140px;
-    border-top-left-radius:  50%;
-    border-top: 2px solid rgba(234, 179, 8, 0.7);
-    border-left: 2px solid rgba(234, 179, 8, 0.7);
+    border-top-left-radius: 50%;
+    border-top: 2px solid rgba(234, 179, 8, 0.85);
+    border-left: 2px solid rgba(234, 179, 8, 0.85);
     pointer-events: none;
-    box-shadow: -2px -2px 18px rgba(234, 179, 8, 0.4);
+    box-shadow: -4px -4px 22px rgba(234, 179, 8, 0.5);
 }
 
 .nav-main-title {
@@ -1793,7 +1813,6 @@ body {
     font-weight: 500;
 }
 
-/* Left Category Cards - Exact Match to Image 2 */
 .left-cat-card {
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 14px;
@@ -1828,10 +1847,9 @@ body {
     transition: transform 0.25s ease;
 }
 
-/* OPEN Card State - Sharp Red Outline & Shadow matching Image 2 */
 .left-cat-card.open {
     border: 1px solid #e53935 !important;
-    background: rgba(229, 57, 53, 0.04) !important;
+    background: rgba(229, 57, 53, 0.05) !important;
     box-shadow: 0 0 16px rgba(229, 57, 53, 0.2) !important;
 }
 .left-cat-card.open .left-cat-arrow {
@@ -1852,7 +1870,6 @@ body {
     display: flex;
 }
 
-/* Sub-items with Glowing Red Dots */
 .left-sub-item {
     display: flex;
     align-items: center;
@@ -1879,7 +1896,6 @@ body {
     flex-shrink: 0;
 }
 
-/* Bottom Filter Reset Button */
 .reset-filter-btn {
     display: flex;
     align-items: center;
@@ -1901,7 +1917,6 @@ body {
     color: #fff;
 }
 
-/* Right Catalog Panel */
 .catalog-header {
     display: flex;
     align-items: center;
@@ -1935,16 +1950,25 @@ body {
     padding: 0.85rem 1rem;
     margin-bottom: 0.7rem;
     border-radius: 16px;
-    background: rgba(255, 255, 255, 0.025);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
     cursor: pointer;
     transition: all 0.25s ease;
 }
 .catalog-card:hover {
-    background: rgba(255, 255, 255, 0.06);
-    border-color: rgba(239, 68, 68, 0.3);
+    background: rgba(255, 255, 255, 0.07);
+    border-color: rgba(239, 68, 68, 0.35);
     transform: translateX(4px);
 }
+.catalog-card.active-selected {
+    border: 1px solid #e53935 !important;
+    background: rgba(229, 57, 53, 0.12) !important;
+    box-shadow: 0 0 18px rgba(229, 57, 53, 0.3) !important;
+}
+.catalog-card.active-selected .catalog-card-arrow {
+    color: #e53935 !important;
+}
+
 .catalog-card-icon {
     width: 46px;
     height: 46px;
@@ -1967,7 +1991,6 @@ body {
     color: rgba(255, 255, 255, 0.3);
 }
 
-
 /* Hide all scrollbars in mobile nav */
 .mobile-breadcrumb-nav *,
 .mobile-nav-left,
@@ -1984,21 +2007,4 @@ body {
     width: 0 !important;
     height: 0 !important;
     background: transparent !important;
-}
-
-/* Move left sidebar content closer to bottom */
-.mobile-nav-left {
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: flex-end !important;
-}
-
-
-.catalog-card.active-selected {
-    border: 1px solid #e53935 !important;
-    background: rgba(229, 57, 53, 0.08) !important;
-    box-shadow: 0 0 18px rgba(229, 57, 53, 0.25) !important;
-}
-.catalog-card.active-selected .catalog-card-arrow {
-    color: #e53935 !important;
 }
