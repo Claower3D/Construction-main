@@ -1708,3 +1708,185 @@ body {
 .mobile-breadcrumb-nav.mobile-active {
     left: 0 !important;
 }
+
+/* PERFECT REFERENCE MATCH MOBILE NAVIGATION */
+.mobile-breadcrumb-nav {
+    display: block !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: -340px !important;
+    bottom: 0 !important;
+    width: 310px !important;
+    max-width: 88vw !important;
+    background: #0b070a !important;
+    background-image: radial-gradient(circle at bottom left, rgba(229,57,53,0.12), transparent 50%),
+                      radial-gradient(circle at top right, rgba(229,57,53,0.05), transparent 40%) !important;
+    z-index: 10001 !important;
+    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    border-right: 1px solid rgba(255,255,255,0.08) !important;
+    padding: 1.5rem 1rem 2rem 1rem !important;
+    box-shadow: 15px 0 35px rgba(0,0,0,0.8) !important;
+    font-family: inherit !important;
+}
+
+.mobile-breadcrumb-nav.mobile-active {
+    left: 0 !important;
+}
+
+/* Header title inside panel */
+.nav-main-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 1.2rem;
+    padding-left: 0.2rem;
+    letter-spacing: -0.01em;
+}
+
+.nav-sub-caption {
+    font-size: 0.72rem;
+    color: rgba(255, 255, 255, 0.45);
+    margin: 1rem 0.2rem 0.5rem 0.2rem;
+    font-weight: 500;
+}
+
+/* Role / Filter chips */
+.role-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.2rem;
+}
+.role-filter-btn {
+    padding: 0.45rem 0.75rem;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.65);
+    font-size: 0.78rem;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.02);
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+.role-filter-btn.active {
+    border-color: #e53935 !important;
+    color: #e53935 !important;
+    background: rgba(229, 57, 53, 0.12) !important;
+    box-shadow: 0 0 10px rgba(229, 57, 53, 0.2) !important;
+}
+
+/* Category cards */
+.premium-cat-item {
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 14px;
+    margin-bottom: 0.6rem;
+    background: rgba(255, 255, 255, 0.02);
+    transition: all 0.25s ease;
+    overflow: hidden;
+}
+.cat-header {
+    display: flex;
+    align-items: center;
+    padding: 0.85rem 1rem;
+    cursor: pointer;
+    user-select: none;
+}
+.cat-icon-svg {
+    margin-right: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.cat-text {
+    flex-grow: 1;
+    font-size: 0.88rem;
+    color: rgba(255, 255, 255, 0.85);
+    font-weight: 400;
+}
+.cat-arrow {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.4);
+    transition: transform 0.25s ease;
+}
+
+/* OPEN Card State - Sharp Red Outline matching reference photo 2 */
+.premium-cat-item.open {
+    border: 1px solid #e53935 !important;
+    background: rgba(229, 57, 53, 0.03) !important;
+    box-shadow: 0 0 16px rgba(229, 57, 53, 0.18) !important;
+}
+.premium-cat-item.open .cat-arrow {
+    transform: rotate(180deg);
+    color: #e53935 !important;
+}
+.cat-body {
+    display: none;
+    padding: 0.2rem 1rem 0.9rem 1.2rem;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+.premium-cat-item.open .cat-body {
+    display: flex;
+}
+
+/* Sub-items with glowing red dots */
+.cat-sub-item {
+    display: flex;
+    align-items: center;
+    font-size: 0.82rem;
+    color: rgba(255, 255, 255, 0.65);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.cat-sub-item:hover {
+    color: #ffffff;
+    transform: translateX(3px);
+}
+.cat-sub-bullet {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #e53935;
+    margin-right: 10px;
+    box-shadow: 0 0 6px #e53935;
+    flex-shrink: 0;
+}
+
+/* Bottom action buttons */
+.reset-filter-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    margin-top: 1.2rem;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.03);
+    color: rgba(255, 255, 255, 0.65);
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.reset-filter-btn:hover {
+    background: rgba(255, 255, 255, 0.07);
+    color: #fff;
+}
+.settings-action-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.7rem 0.8rem;
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+.settings-action-btn:hover {
+    color: #fff;
+}
