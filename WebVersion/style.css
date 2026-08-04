@@ -1527,181 +1527,154 @@ body {
 
 
 /* =========================================================
-   PREMIUM MOBILE NAVIGATION (EXACT ALIGNMENT & BORDERS)
+   PERFECT REFERENCE MATCH MOBILE NAVIGATION
    ========================================================= */
 .mobile-breadcrumb-nav {
-    background: #0d0d12 !important; /* Very dark background */
-    border-right: 1px solid rgba(239, 68, 68, 0.3) !important;
-    box-shadow: 2px 0 30px rgba(239, 68, 68, 0.15) !important;
-    color: #e2e8f0;
-    padding: 0;
+    display: none;
+    position: fixed;
+    top: 0;
+    left: -320px;
+    bottom: 0;
+    width: 300px;
+    max-width: 85vw;
+    background: #0a0508; /* Very dark background from reference */
+    background-image: radial-gradient(circle at top right, rgba(239,68,68,0.05), transparent 40%);
+    z-index: 10001;
+    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     overflow-y: auto;
     overflow-x: hidden;
+    border-right: 1px solid rgba(255,255,255,0.05);
+    padding-top: 1.5rem;
+}
+.mobile-breadcrumb-nav.mobile-active {
+    left: 0;
 }
 
-.premium-nav-header {
-    padding: 2rem 1.5rem 1rem;
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #fff;
+/* Section Titles (Фильтр, Категории) */
+.nav-section-title {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.4);
+    margin: 1.5rem 1.2rem 0.8rem 1.2rem;
+    font-weight: 500;
+}
+
+/* Role Filters */
+.role-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    padding: 0 1.2rem;
+    margin-bottom: 1rem;
+}
+.role-filter-btn {
+    padding: 0.5rem 0.8rem;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.8rem;
+    cursor: pointer;
+    background: rgba(255,255,255,0.03);
+    transition: all 0.2s;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    gap: 0.4rem;
+}
+.role-filter-btn.active {
+    border-color: #ef4444;
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.1);
 }
 
-.nav-level-title {
-    font-size: 0.75rem;
-    text-transform: none;
-    color: rgba(255, 255, 255, 0.4);
-    margin: 1.5rem 1.5rem 0.5rem;
+/* Category Items */
+.premium-cat-item {
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    margin: 0 1.2rem 0.6rem 1.2rem;
+    background: rgba(255,255,255,0.02);
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+.cat-header {
+    display: flex;
+    align-items: center;
+    padding: 0.9rem 1rem;
+    cursor: pointer;
+}
+.cat-icon {
+    margin-right: 0.8rem;
+    font-size: 1.1rem;
+    color: #ef4444; /* Reference shows red icons */
+}
+.cat-text {
+    flex-grow: 1;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.8);
     font-weight: 400;
 }
+.cat-arrow {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.3);
+    transition: transform 0.3s;
+}
+.cat-body {
+    display: none;
+    padding: 0 1rem 1rem 1.2rem;
+    flex-direction: column;
+    gap: 0.8rem;
+}
 
-/* Basic Item (Roles & Settings) */
-.premium-nav-item {
+/* Open State */
+.premium-cat-item.open {
+    border: 1px solid #ef4444; /* Exact red border from reference */
+    background: transparent;
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.1);
+}
+.premium-cat-item.open .cat-arrow {
+    transform: rotate(90deg); /* Arrow down */
+    color: #ef4444;
+}
+.premium-cat-item.open .cat-body {
+    display: flex;
+}
+
+/* Sub Items */
+.cat-sub-item {
+    display: flex;
+    align-items: center;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.6);
+    cursor: pointer;
+    transition: color 0.2s;
+}
+.cat-sub-item:hover {
+    color: #fff;
+}
+.cat-sub-bullet {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: #ef4444; /* Red dots */
+    margin-right: 12px;
+    box-shadow: 0 0 6px #ef4444;
+    flex-shrink: 0;
+}
+
+/* Settings Items */
+.settings-group {
+    margin-top: 2rem;
+    padding-bottom: 2rem;
+}
+.settings-btn {
     display: flex;
     align-items: center;
     padding: 0.8rem 1.2rem;
-    margin: 0.4rem 1rem;
-    background: transparent;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-}
-.premium-nav-item:hover {
-    background: rgba(255, 255, 255, 0.02);
-}
-
-/* Open Role Item */
-.premium-nav-item.role-item.open {
-    border: 1px solid rgba(239, 68, 68, 0.4);
-    border-radius: 12px 12px 0 0;
-    margin-bottom: 0;
-    border-bottom: 1px solid transparent;
-}
-.premium-nav-item.open .p-nav-arrow {
-    transform: rotate(180deg);
-    color: #ef4444;
-}
-
-/* Role Body (Contains Categories) */
-.nav-accordion-body.role-body {
-    display: none;
-    padding: 0.5rem 1rem 1rem 1rem; /* Left edge alignment! */
-    margin: 0 1rem 0.5rem 1rem;
-    flex-direction: column;
-    gap: 0.5rem;
-    border: 1px solid rgba(239, 68, 68, 0.4);
-    border-top: none;
-    border-radius: 0 0 12px 12px;
-    background: transparent;
-}
-.nav-accordion-body.role-body.open {
-    display: flex;
-}
-
-/* Category Item (Inside Role Body) */
-.premium-nav-item.cat-item {
-    margin: 0;
-    padding: 0.8rem 1rem;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    border-radius: 8px;
-    background: transparent !important;
-}
-.premium-nav-item.cat-item .p-nav-text {
+    color: rgba(255,255,255,0.5);
     font-size: 0.85rem;
-    font-weight: 500;
-    letter-spacing: 0.02em;
-    color: rgba(255, 255, 255, 0.8) !important; /* Neutral color until open */
-}
-.premium-nav-item.cat-item.open {
-    border: 1px solid rgba(239, 68, 68, 0.4) !important;
-    border-radius: 8px 8px 0 0;
-    border-bottom: 1px solid transparent !important;
-}
-.premium-nav-item.cat-item.open .p-nav-text {
-    color: #ef4444 !important; /* Red text when open, matching border */
-}
-
-/* Category Body (Contains Sub-items) */
-.nav-accordion-body.cat-body {
-    display: none;
-    margin: 0;
-    padding: 0.5rem 1rem 1rem 1rem;
-    flex-direction: column;
-    gap: 0.8rem;
-    border: 1px solid rgba(239, 68, 68, 0.4);
-    border-top: none;
-    border-radius: 0 0 8px 8px;
-    background: transparent;
-}
-.nav-accordion-body.cat-body.open {
-    display: flex;
-}
-
-/* Sub-items (The actual tabs) */
-.nav-sub-item {
-    padding-left: 0.5rem; /* Slight indent inside the category box */
-    display: flex;
-    align-items: center;
-    color: rgba(255, 255, 255, 0.5);
-    font-size: 0.9rem;
     cursor: pointer;
-    transition: all 0.2s;
 }
-.nav-sub-item:hover {
-    color: #fff;
-    transform: translateX(4px);
-}
-.nav-sub-bullet {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: #ef4444; /* Red dots like in reference */
-    margin-right: 12px;
-    box-shadow: 0 0 5px rgba(239,68,68,0.5);
-    flex-shrink: 0;
-}
-
-/* Shared Nav Icons/Text */
-.p-nav-icon {
-    width: 38px;
-    height: 38px;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.settings-btn svg {
+    width: 18px;
+    height: 18px;
     margin-right: 1rem;
-    flex-shrink: 0;
-    background: transparent !important;
-}
-#navRoleOrdererIcon { color: #ef4444; }
-#navRoleContractorIcon { color: #8b5cf6; }
-#navRoleEngineerIcon { color: #3b82f6; }
-#navRoleAdminIcon { color: #10b981; }
-
-.p-nav-icon svg {
-    width: 20px;
-    height: 20px;
-    stroke-width: 1.5;
-}
-
-.p-nav-text {
-    flex-grow: 1;
-    font-size: 0.95rem;
-    font-weight: 400;
-    color: rgba(255, 255, 255, 0.8);
-}
-
-.p-nav-arrow {
-    color: rgba(255, 255, 255, 0.3);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: transform 0.3s ease;
-}
-.p-nav-arrow svg {
-    width: 16px;
-    height: 16px;
+    opacity: 0.6;
 }
