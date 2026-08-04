@@ -1992,3 +1992,13 @@ body {
     flex-direction: column !important;
     justify-content: flex-end !important;
 }
+
+
+.catalog-card.active-selected {
+    border: 1px solid #e53935 !important;
+    background: rgba(229, 57, 53, 0.08) !important;
+    box-shadow: 0 0 18px rgba(229, 57, 53, 0.25) !important;
+}
+.catalog-card.active-selected .catalog-card-arrow {
+    color: #e53935 !important;
+}

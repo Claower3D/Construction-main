@@ -14218,19 +14218,29 @@
 
             window.selectLeftSubItem = function(page, catKey, role, tab) {
                 document.querySelectorAll('.left-sub-item').forEach(i => i.classList.remove('active'));
-                const el = document.getElementById('sub_' + page + (tab ? '_' + tab : ''));
+                const subId = 'sub_' + page + (tab ? '_' + tab : '');
+                const el = document.getElementById(subId);
                 if (el) el.classList.add('active');
 
                 if (role && typeof setRole === 'function') setRole(role);
-                window.renderRightCatalogGroup(catKey);
+                window.renderRightCatalogGroup(catKey, page, tab);
             };
 
-            window.renderRightCatalogGroup = function(catKey) {
+            window.renderRightCatalogGroup = function(catKey, selectedPage, selectedTab) {
                 const grp = window._catGroups[catKey] || window._catGroups.tools;
                 const titleEl = document.getElementById('mobileCatalogTitle');
                 const cardsContainer = document.getElementById('mobileCatalogCards');
 
-                if (titleEl) titleEl.innerText = grp.title;
+                // If a specific sub-item was selected, update title to its name!
+                let activeItem = null;
+                if (selectedPage) {
+                    activeItem = grp.items.find(i => i.page === selectedPage && (!selectedTab || i.adminTab === selectedTab));
+                }
+
+                if (titleEl) {
+                    titleEl.innerText = activeItem ? activeItem.title : grp.title;
+                }
+
                 if (cardsContainer) {
                     cardsContainer.innerHTML = '';
                     const colors = [
@@ -14243,8 +14253,9 @@
                     ];
 
                     grp.items.forEach((item, idx) => {
+                        const isSelected = selectedPage && item.page === selectedPage && (!selectedTab || item.adminTab === selectedTab);
                         const card = document.createElement('div');
-                        card.className = 'catalog-card';
+                        card.className = 'catalog-card' + (isSelected ? ' active-selected' : '');
                         const style = colors[idx % colors.length];
                         card.innerHTML = `
                             <div class="catalog-card-icon" style="${style}">${item.icon}</div>
