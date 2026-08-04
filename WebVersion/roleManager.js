@@ -17,7 +17,8 @@
         EXECUTOR: 'executor',
         ENGINEER: 'engineer',
         CONTROLLER: 'controller',
-        ADMIN: 'admin'
+        ADMIN: 'admin',
+        MANAGER: 'manager'
     });
 
     /**
@@ -29,6 +30,7 @@
         engineer: Role.ENGINEER,
         controller: Role.CONTROLLER,
         admin: Role.ADMIN,
+        manager: Role.MANAGER,
         // обратный маппинг
         customer: Role.CUSTOMER,
         executor: Role.EXECUTOR
@@ -42,7 +44,8 @@
         [Role.EXECUTOR]: 'contractor',
         [Role.ENGINEER]: 'engineer',
         [Role.CONTROLLER]: 'controller',
-        [Role.ADMIN]: 'admin'
+        [Role.ADMIN]: 'admin',
+        [Role.MANAGER]: 'manager'
     });
 
     /**
@@ -53,7 +56,8 @@
         [Role.EXECUTOR]: 'Исполнитель',
         [Role.ENGINEER]: 'Инженер',
         [Role.CONTROLLER]: 'Контролёр',
-        [Role.ADMIN]: 'Администратор'
+        [Role.ADMIN]: 'Администратор',
+        [Role.MANAGER]: 'Менеджер'
     });
 
     /**
@@ -64,7 +68,8 @@
         Role.EXECUTOR,
         Role.ENGINEER,
         Role.CONTROLLER,
-        Role.ADMIN
+        Role.ADMIN,
+        Role.MANAGER
     ]);
 
     // =============================================
@@ -94,7 +99,8 @@
         [Role.CONTROLLER]: [
             'home', 'orders', 'inspect', 'engineering', 'wallet'
         ],
-        [Role.ADMIN]: null // null = доступ ко ВСЕМ страницам
+        [Role.ADMIN]: null,
+        [Role.MANAGER]: null // null = доступ ко ВСЕМ страницам (права как у админа)
     });
 
     /**
@@ -107,7 +113,7 @@
         // Лендинг и pricing доступны всем
         if (page === 'landing' || page === 'prices') return true;
         // Админ видит всё
-        if (_currentRole === Role.ADMIN) return true;
+        if (_currentRole === Role.ADMIN || _currentRole === Role.MANAGER) return true;
         const allowed = ROLE_PAGES[_currentRole];
         if (!allowed) return true; // null = всё доступно
         return allowed.includes(page);
@@ -558,7 +564,7 @@
      * @returns {boolean}
      */
     function isAdmin() {
-        return _currentRole === Role.ADMIN;
+        return _currentRole === Role.ADMIN || _currentRole === Role.MANAGER;
     }
 
     // =============================================
