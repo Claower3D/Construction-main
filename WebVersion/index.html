@@ -14049,119 +14049,112 @@
 <!-- BREADCRUMB MOBILE NAV -->
     <nav class="mobile-breadcrumb-nav" id="mobileBreadcrumbNav">
         <div class="mobile-nav-container">
-            <!-- Left Side: Filled & Balanced Layout -->
+            <!-- Left Side: Cool Top Widgets & Categories -->
             <div class="mobile-nav-left">
-                <div>
-                    <!-- Top Branding -->
-                    <div class="left-nav-brand">
-                        <span>🏗️</span>
-                        <span>QazGost <span style="color:var(--accent);">AI</span></span>
+                <!-- Cool Top Widgets -->
+                <div class="left-cool-top-widgets">
+                    <div class="left-search-box">
+                        <span style="opacity:0.6;">🔍</span>
+                        <input type="text" placeholder="Поиск в меню..." oninput="window.filterNavItems(this.value)" class="left-search-input">
                     </div>
-
-                    <!-- Role Switcher Chips -->
-                    <div class="left-role-chips">
-                        <div class="left-role-chip active" id="chip_orderer" onclick="setRole('orderer'); window.selectNavRoleChip('orderer');">
-                            📋 Заказчик
-                        </div>
-                        <div class="left-role-chip" id="chip_contractor" onclick="setRole('contractor'); window.selectNavRoleChip('contractor');">
-                            🔧 Исполнитель
-                        </div>
-                        <div class="left-role-chip" id="chip_engineer" onclick="setRole('engineer'); window.selectNavRoleChip('engineer');">
-                            👷 Инженер
-                        </div>
-                        <div class="left-role-chip" id="chip_admin" onclick="setRole('admin'); window.selectNavRoleChip('admin');">
-                            ⚙️ Админ
-                        </div>
+                    <div class="left-tech-badges">
+                        <div class="left-badge"><span class="badge-dot"></span> Online AI</div>
+                        <div class="left-badge gold">⚡ QazGost</div>
                     </div>
+                    <div class="left-quick-tags">
+                        <span class="quick-tag active" onclick="window.filterNavItems('')">Все</span>
+                        <span class="quick-tag" onclick="window.filterNavItems('Смета')">🔥 Сметы</span>
+                        <span class="quick-tag" onclick="window.filterNavItems('Заказы')">📬 Заказы</span>
+                    </div>
+                </div>
 
-                    <div class="nav-sub-caption">Категории платформы</div>
+                <div class="nav-sub-caption">Категории</div>
 
-                    <!-- Card 1: Инструменты (Open by default) -->
-                    <div class="left-cat-card open" id="leftCatTools">
-                        <div class="left-cat-header" onclick="window.toggleLeftCat('leftCatTools', 'tools')">
-                            <div class="left-cat-icon"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg></div>
-                            <div class="left-cat-title">Инструменты</div>
-                            <div class="left-cat-arrow">m</div>
+                <!-- Card 1: Инструменты (Open by default) -->
+                <div class="left-cat-card open" id="leftCatTools">
+                    <div class="left-cat-header" onclick="window.toggleLeftCat('leftCatTools', 'tools')">
+                        <div class="left-cat-icon"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg></div>
+                        <div class="left-cat-title">Инструменты</div>
+                        <div class="left-cat-arrow">m</div>
+                    </div>
+                    <div class="left-cat-body">
+                        <div class="left-sub-item active" id="sub_photo-estimate" onclick="window.selectLeftSubItem('photo-estimate', 'tools', 'orderer')">
+                            <div class="left-sub-bullet"></div> Оценка стоимости
                         </div>
-                        <div class="left-cat-body">
-                            <div class="left-sub-item active" id="sub_photo-estimate" onclick="window.selectLeftSubItem('photo-estimate', 'tools', 'orderer')">
-                                <div class="left-sub-bullet"></div> Оценка стоимости
-                            </div>
-                            <div class="left-sub-item" id="sub_inspect" onclick="window.selectLeftSubItem('inspect', 'tools', 'orderer')">
-                                <div class="left-sub-bullet"></div> Проверка дефектов
-                            </div>
-                            <div class="left-sub-item" id="sub_estimates" onclick="window.selectLeftSubItem('estimates', 'tools', 'orderer')">
-                                <div class="left-sub-bullet"></div> Расчёт объёмов
-                            </div>
-                            <div class="left-sub-item" id="sub_engineering" onclick="window.selectLeftSubItem('engineering', 'tools', 'orderer')">
-                                <div class="left-sub-bullet"></div> Инженерные решения
-                            </div>
+                        <div class="left-sub-item" id="sub_inspect" onclick="window.selectLeftSubItem('inspect', 'tools', 'orderer')">
+                            <div class="left-sub-bullet"></div> Проверка дефектов
+                        </div>
+                        <div class="left-sub-item" id="sub_estimates" onclick="window.selectLeftSubItem('estimates', 'tools', 'orderer')">
+                            <div class="left-sub-bullet"></div> Расчёт объёмов
+                        </div>
+                        <div class="left-sub-item" id="sub_engineering" onclick="window.selectLeftSubItem('engineering', 'tools', 'orderer')">
+                            <div class="left-sub-bullet"></div> Инженерные решения
                         </div>
                     </div>
+                </div>
 
-                    <!-- Card 2: Управление -->
-                    <div class="left-cat-card" id="leftCatManage">
-                        <div class="left-cat-header" onclick="window.toggleLeftCat('leftCatManage', 'manage')">
-                            <div class="left-cat-icon"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg></div>
-                            <div class="left-cat-title">Управление</div>
-                            <div class="left-cat-arrow">m</div>
+                <!-- Card 2: Управление -->
+                <div class="left-cat-card" id="leftCatManage">
+                    <div class="left-cat-header" onclick="window.toggleLeftCat('leftCatManage', 'manage')">
+                        <div class="left-cat-icon"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg></div>
+                        <div class="left-cat-title">Управление</div>
+                        <div class="left-cat-arrow">m</div>
+                    </div>
+                    <div class="left-cat-body">
+                        <div class="left-sub-item" id="sub_calendar" onclick="window.selectLeftSubItem('calendar', 'manage', 'orderer')">
+                            <div class="left-sub-bullet"></div> Календарь
                         </div>
-                        <div class="left-cat-body">
-                            <div class="left-sub-item" id="sub_calendar" onclick="window.selectLeftSubItem('calendar', 'manage', 'orderer')">
-                                <div class="left-sub-bullet"></div> Календарь
-                            </div>
-                            <div class="left-sub-item" id="sub_orders" onclick="window.selectLeftSubItem('orders', 'manage', 'orderer')">
-                                <div class="left-sub-bullet"></div> Мои заказы
-                            </div>
-                            <div class="left-sub-item" id="sub_catalog" onclick="window.selectLeftSubItem('catalog', 'manage', 'orderer')">
-                                <div class="left-sub-bullet"></div> Каталог подрядчиков
-                            </div>
-                            <div class="left-sub-item" id="sub_equipment" onclick="window.selectLeftSubItem('equipment', 'manage', 'orderer')">
-                                <div class="left-sub-bullet"></div> Техника / Маркетплейс
-                            </div>
-                            <div class="left-sub-item" id="sub_wallet" onclick="window.selectLeftSubItem('wallet', 'manage', 'orderer')">
-                                <div class="left-sub-bullet"></div> Мой кошелёк
-                            </div>
+                        <div class="left-sub-item" id="sub_orders" onclick="window.selectLeftSubItem('orders', 'manage', 'orderer')">
+                            <div class="left-sub-bullet"></div> Мои заказы
+                        </div>
+                        <div class="left-sub-item" id="sub_catalog" onclick="window.selectLeftSubItem('catalog', 'manage', 'orderer')">
+                            <div class="left-sub-bullet"></div> Каталог подрядчиков
+                        </div>
+                        <div class="left-sub-item" id="sub_equipment" onclick="window.selectLeftSubItem('equipment', 'manage', 'orderer')">
+                            <div class="left-sub-bullet"></div> Техника / Маркетплейс
+                        </div>
+                        <div class="left-sub-item" id="sub_wallet" onclick="window.selectLeftSubItem('wallet', 'manage', 'orderer')">
+                            <div class="left-sub-bullet"></div> Мой кошелёк
                         </div>
                     </div>
+                </div>
 
-                    <!-- Card 3: Профиль -->
-                    <div class="left-cat-card" id="leftCatProfile">
-                        <div class="left-cat-header" onclick="window.toggleLeftCat('leftCatProfile', 'profile')">
-                            <div class="left-cat-icon"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></div>
-                            <div class="left-cat-title">Профиль</div>
-                            <div class="left-cat-arrow">m</div>
+                <!-- Card 3: Профиль -->
+                <div class="left-cat-card" id="leftCatProfile">
+                    <div class="left-cat-header" onclick="window.toggleLeftCat('leftCatProfile', 'profile')">
+                        <div class="left-cat-icon"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></div>
+                        <div class="left-cat-title">Профиль</div>
+                        <div class="left-cat-arrow">m</div>
+                    </div>
+                    <div class="left-cat-body">
+                        <div class="left-sub-item" id="sub_customer-profile" onclick="window.selectLeftSubItem('customer-profile', 'profile', 'orderer')">
+                            <div class="left-sub-bullet"></div> Моя анкета
                         </div>
-                        <div class="left-cat-body">
-                            <div class="left-sub-item" id="sub_customer-profile" onclick="window.selectLeftSubItem('customer-profile', 'profile', 'orderer')">
-                                <div class="left-sub-bullet"></div> Моя анкета
-                            </div>
-                            <div class="left-sub-item" id="sub_vip" onclick="window.selectLeftSubItem('vip', 'profile', 'orderer')">
-                                <div class="left-sub-bullet"></div> Строительство (VIP)
-                            </div>
+                        <div class="left-sub-item" id="sub_vip" onclick="window.selectLeftSubItem('vip', 'profile', 'orderer')">
+                            <div class="left-sub-bullet"></div> Строительство (VIP)
                         </div>
                     </div>
+                </div>
 
-                    <!-- Card 4: Администрирование -->
-                    <div class="left-cat-card" id="leftCatAdmin">
-                        <div class="left-cat-header" onclick="window.toggleLeftCat('leftCatAdmin', 'admin')">
-                            <div class="left-cat-icon"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg></div>
-                            <div class="left-cat-title">Администрирование</div>
-                            <div class="left-cat-arrow">m</div>
+                <!-- Card 4: Администрирование -->
+                <div class="left-cat-card" id="leftCatAdmin">
+                    <div class="left-cat-header" onclick="window.toggleLeftCat('leftCatAdmin', 'admin')">
+                        <div class="left-cat-icon"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg></div>
+                        <div class="left-cat-title">Администрирование</div>
+                        <div class="left-cat-arrow">m</div>
+                    </div>
+                    <div class="left-cat-body">
+                        <div class="left-sub-item" id="sub_admin_prices" onclick="window.selectLeftSubItem('admin', 'admin', 'admin', 'prices')">
+                            <div class="left-sub-bullet"></div> Прайсы
                         </div>
-                        <div class="left-cat-body">
-                            <div class="left-sub-item" id="sub_admin_prices" onclick="window.selectLeftSubItem('admin', 'admin', 'admin', 'prices')">
-                                <div class="left-sub-bullet"></div> Прайсы
-                            </div>
-                            <div class="left-sub-item" id="sub_admin_moderation" onclick="window.selectLeftSubItem('admin', 'admin', 'admin', 'moderation')">
-                                <div class="left-sub-bullet"></div> Модерация
-                            </div>
-                            <div class="left-sub-item" id="sub_admin_regions" onclick="window.selectLeftSubItem('admin', 'admin', 'admin', 'regions')">
-                                <div class="left-sub-bullet"></div> Регионы
-                            </div>
-                            <div class="left-sub-item" id="sub_admin_audit" onclick="window.selectLeftSubItem('admin', 'admin', 'admin', 'audit')">
-                                <div class="left-sub-bullet"></div> Журнал действий
-                            </div>
+                        <div class="left-sub-item" id="sub_admin_moderation" onclick="window.selectLeftSubItem('admin', 'admin', 'admin', 'moderation')">
+                            <div class="left-sub-bullet"></div> Модерация
+                        </div>
+                        <div class="left-sub-item" id="sub_admin_regions" onclick="window.selectLeftSubItem('admin', 'admin', 'admin', 'regions')">
+                            <div class="left-sub-bullet"></div> Регионы
+                        </div>
+                        <div class="left-sub-item" id="sub_admin_audit" onclick="window.selectLeftSubItem('admin', 'admin', 'admin', 'audit')">
+                            <div class="left-sub-bullet"></div> Журнал действий
                         </div>
                     </div>
                 </div>
@@ -14226,10 +14219,16 @@
                 }
             };
 
-            window.selectNavRoleChip = function(role) {
-                document.querySelectorAll('.left-role-chip').forEach(c => c.classList.remove('active'));
-                const chip = document.getElementById('chip_' + role);
-                if (chip) chip.classList.add('active');
+            window.filterNavItems = function(query) {
+                query = (query || '').toLowerCase().trim();
+                document.querySelectorAll('.catalog-card').forEach(card => {
+                    const txt = card.innerText.toLowerCase();
+                    if (!query || txt.includes(query)) {
+                        card.style.display = 'flex';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
             };
 
             window.toggleLeftCat = function(cardId, catKey) {
@@ -14321,7 +14320,6 @@
             };
 
             window.updateMobileMenu = function(role) {
-                if (role) window.selectNavRoleChip(role);
                 window.renderRightCatalogGroup('tools');
             };
 
