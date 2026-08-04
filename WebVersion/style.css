@@ -1730,32 +1730,36 @@ body {
     left: 0 !important;
 }
 
+/* Swapped 2-Column Layout: Left = Catalog Cards, Right = Roles List */
 .mobile-nav-container {
     display: flex;
+    flex-direction: row-reverse; /* Swaps left and right blocks */
     width: 100%;
     height: 100%;
 }
 
+/* Roles List now on the Right */
 .mobile-nav-left {
     width: 46%;
     max-width: 340px;
     height: 100%;
     overflow-y: auto;
     padding: 1.2rem 0.8rem 2rem 1rem;
-    border-right: 1px solid rgba(255, 255, 255, 0.07);
+    border-left: 1px solid rgba(255, 255, 255, 0.07);
     background: #0d080c;
-    background-image: radial-gradient(circle at bottom left, rgba(229,57,53,0.18), transparent 50%);
+    background-image: radial-gradient(circle at bottom right, rgba(229,57,53,0.18), transparent 50%);
 }
 
+/* Catalog Cards now on the Left */
 .mobile-nav-right {
     flex: 1;
     height: 100%;
     overflow-y: auto;
-    padding: 1.2rem 1rem 2rem 1.2rem;
+    padding: 1.2rem 1.2rem 2rem 1rem;
     background: #110d13;
-    border-top-left-radius: 32px;
-    border-left: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: -10px 0 30px rgba(0,0,0,0.5);
+    border-top-right-radius: 32px;
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 10px 0 30px rgba(0,0,0,0.5);
 }
 
 .nav-main-title {
