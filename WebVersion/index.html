@@ -14039,73 +14039,171 @@
         <div class="nav-level-title">Категории</div>
         
         <!-- Заказчик -->
-        <div class="premium-nav-item" onclick="window.toggleNavAccordion('accOrderer', this)">
+        <div class="premium-nav-item role-item" onclick="window.toggleNavAccordion('accOrderer', this, event)">
             <div class="p-nav-icon" id="navRoleOrdererIcon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
             </div>
             <div class="p-nav-text">Заказчик</div>
             <div class="p-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
         </div>
-        <div class="nav-accordion-body" id="accOrderer">
-            <div class="nav-sub-item" onclick="setRole('orderer'); showPage('calendar'); toggleMobileMenu()"><div class="nav-sub-bullet"></div> Календарь</div>
-            <div class="nav-sub-item" onclick="setRole('orderer'); showPage('orders'); toggleMobileMenu()"><div class="nav-sub-bullet"></div> Мои заказы</div>
-            <div class="nav-sub-item" onclick="setRole('orderer'); showPage('catalog'); toggleMobileMenu()"><div class="nav-sub-bullet"></div> Каталог подрядчиков</div>
-            <div class="nav-sub-item" onclick="setRole('orderer'); showPage('equipment'); toggleMobileMenu()"><div class="nav-sub-bullet"></div> Техника</div>
-            <div class="nav-sub-item" onclick="setRole('orderer'); showPage('photo-estimate'); toggleMobileMenu()"><div class="nav-sub-bullet"></div> Оценка стоимости</div>
-            <div class="nav-sub-item" onclick="setRole('orderer'); showPage('inspect'); toggleMobileMenu()"><div class="nav-sub-bullet"></div> Проверка дефектов</div>
-            <div class="nav-sub-item" onclick="setRole('orderer'); showPage('estimates'); toggleMobileMenu()"><div class="nav-sub-bullet"></div> Расчёт объёмов</div>
-            <div class="nav-sub-item" onclick="setRole('orderer'); showPage('engineering'); toggleMobileMenu()"><div class="nav-sub-bullet"></div> Инженерные решения</div>
+        <div class="nav-accordion-body role-body" id="accOrderer">
+            
+            <div class="premium-nav-item cat-item" onclick="window.toggleNavAccordion('ordTools', this, event)">
+                <div class="p-nav-text" style="color:var(--accent-alt);">🛠 ИНСТРУМЕНТЫ</div>
+                <div class="p-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
+            </div>
+            <div class="nav-accordion-body cat-body" id="ordTools">
+                <div class="nav-sub-item" onclick="setRole('orderer'); showPage('photo-estimate'); toggleMobileMenu()"><div class="nav-sub-bullet"></div> 📸 Оценка стоимости</div>
+                <div class="nav-sub-item" onclick="setRole('orderer'); showPage('inspect'); toggleMobileMenu()"><div class="nav-sub-bullet"></div> 🔍 Проверка дефектов</div>
+                <div class="nav-sub-item" onclick="setRole('orderer'); showPage('estimates'); toggleMobileMenu()"><div class="nav-sub-bullet"></div> 📏 Расчёт объёмов</div>
+                <div class="nav-sub-item" onclick="setRole('orderer'); showPage('engineering'); toggleMobileMenu()"><div class="nav-sub-bullet"></div> ⚙️ Инженерные решения</div>
+            </div>
+
+            <div class="premium-nav-item cat-item" onclick="window.toggleNavAccordion('ordManage', this, event)">
+                <div class="p-nav-text" style="color:#3b82f6;">📁 УПРАВЛЕНИЕ</div>
+                <div class="p-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
+            </div>
+            <div class="nav-accordion-body cat-body" id="ordManage">
+                <div class="nav-sub-item" onclick="setRole('orderer'); showPage('calendar'); toggleMobileMenu()"><div class="nav-sub-bullet"></div> 🗓 Календарь</div>
+                <div class="nav-sub-item" onclick="setRole('orderer'); showPage('orders'); toggleMobileMenu()"><div class="nav-sub-bullet"></div> 📬 Мои заказы</div>
+                <div class="nav-sub-item" onclick="setRole('orderer'); showPage('catalog'); toggleMobileMenu()"><div class="nav-sub-bullet"></div> 📒 Каталог подрядчиков</div>
+                <div class="nav-sub-item" onclick="setRole('orderer'); showPage('equipment'); toggleMobileMenu()"><div class="nav-sub-bullet"></div> 🚜 Техника / Маркетплейс</div>
+                <div class="nav-sub-item" onclick="setRole('orderer'); showPage('wallet'); toggleMobileMenu()"><div class="nav-sub-bullet"></div> 💳 Мой кошелёк</div>
+            </div>
+
+            <div class="premium-nav-item cat-item" onclick="window.toggleNavAccordion('ordProfile', this, event)">
+                <div class="p-nav-text" style="color:#eab308;">👤 ПРОФИЛЬ</div>
+                <div class="p-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
+            </div>
+            <div class="nav-accordion-body cat-body" id="ordProfile">
+                <div class="nav-sub-item" onclick="setRole('orderer'); showPage('customer-profile'); toggleMobileMenu()"><div class="nav-sub-bullet"></div> 📝 Моя анкета</div>
+                <div class="nav-sub-item" onclick="setRole('orderer'); showPage('vip'); toggleMobileMenu()"><div class="nav-sub-bullet"></div> 🏗 Строительство (VIP)</div>
+            </div>
+
         </div>
         
         <!-- Исполнитель -->
-        <div class="premium-nav-item" onclick="window.toggleNavAccordion('accContractor', this)">
+        <div class="premium-nav-item role-item" onclick="window.toggleNavAccordion('accContractor', this, event)">
             <div class="p-nav-icon" id="navRoleContractorIcon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line><line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="14" x2="23" y2="14"></line><line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" y1="14" x2="4" y2="14"></line></svg>
             </div>
             <div class="p-nav-text">Исполнитель</div>
             <div class="p-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
         </div>
-        <div class="nav-accordion-body" id="accContractor">
-            <div class="nav-sub-item" onclick="setRole('contractor'); showPage('orders'); toggleMobileMenu()"><div class="nav-sub-bullet"></div> Лента заказов</div>
-            <div class="nav-sub-item" onclick="setRole('contractor'); showPage('orders'); setTimeout(()=>window.switchOrdersTab&&window.switchOrdersTab('my'),100); toggleMobileMenu()"><div class="nav-sub-bullet"></div> Мои работы</div>
-            <div class="nav-sub-item" onclick="setRole('contractor'); showPage('calendar'); toggleMobileMenu()"><div class="nav-sub-bullet"></div> Календарь работ</div>
-            <div class="nav-sub-item" onclick="setRole('contractor'); showPage('profile'); toggleMobileMenu()"><div class="nav-sub-bullet"></div> Анкета исполнителя</div>
-            <div class="nav-sub-item" onclick="setRole('contractor'); showPage('volume'); toggleMobileMenu()"><div class="nav-sub-bullet"></div> Фото-объёмы грунта</div>
+        <div class="nav-accordion-body role-body" id="accContractor">
+
+            <div class="premium-nav-item cat-item" onclick="window.toggleNavAccordion('conOrders', this, event)">
+                <div class="p-nav-text" style="color:var(--accent-alt);">📁 МОИ ЗАКАЗЫ</div>
+                <div class="p-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
+            </div>
+            <div class="nav-accordion-body cat-body" id="conOrders">
+                <div class="nav-sub-item" onclick="setRole('contractor'); showPage('orders'); toggleMobileMenu()"><div class="nav-sub-bullet"></div> 🌐 Лента заказов</div>
+                <div class="nav-sub-item" onclick="setRole('contractor'); showPage('orders'); setTimeout(()=>window.switchOrdersTab&&window.switchOrdersTab('my'),100); toggleMobileMenu()"><div class="nav-sub-bullet"></div> 📌 Мои работы</div>
+                <div class="nav-sub-item" onclick="setRole('contractor'); showPage('calendar'); toggleMobileMenu()"><div class="nav-sub-bullet"></div> 🗓 Календарь работ</div>
+            </div>
+
+            <div class="premium-nav-item cat-item" onclick="window.toggleNavAccordion('conTools', this, event)">
+                <div class="p-nav-text" style="color:var(--primary);">🎯 ИНСТРУМЕНТЫ</div>
+                <div class="p-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
+            </div>
+            <div class="nav-accordion-body cat-body" id="conTools">
+                <div class="nav-sub-item" onclick="setRole('contractor'); showPage('photo-estimate'); toggleMobileMenu()"><div class="nav-sub-bullet"></div> 📸 Оценка стоимости</div>
+                <div class="nav-sub-item" onclick="setRole('contractor'); showPage('inspect'); toggleMobileMenu()"><div class="nav-sub-bullet"></div> 🔍 Проверка дефектов</div>
+                <div class="nav-sub-item" onclick="setRole('contractor'); showPage('estimates'); toggleMobileMenu()"><div class="nav-sub-bullet"></div> 📏 Расчёт объёмов</div>
+                <div class="nav-sub-item" onclick="setRole('contractor'); showPage('engineering'); toggleMobileMenu()"><div class="nav-sub-bullet"></div> ⚙️ Инженерные решения</div>
+            </div>
+
+            <div class="premium-nav-item cat-item" onclick="window.toggleNavAccordion('conServices', this, event)">
+                <div class="p-nav-text" style="color:var(--accent);">📂 СЕРВИСЫ</div>
+                <div class="p-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
+            </div>
+            <div class="nav-accordion-body cat-body" id="conServices">
+                <div class="nav-sub-item" onclick="setRole('contractor'); showPage('catalog'); toggleMobileMenu()"><div class="nav-sub-bullet"></div> 📒 Каталог подрядчиков</div>
+                <div class="nav-sub-item" onclick="setRole('contractor'); showPage('equipment'); toggleMobileMenu()"><div class="nav-sub-bullet"></div> 🚜 Техника / Маркетплейс</div>
+                <div class="nav-sub-item" onclick="setRole('contractor'); showPage('wallet'); toggleMobileMenu()"><div class="nav-sub-bullet"></div> 💳 Мой кошелёк</div>
+            </div>
+
+            <div class="premium-nav-item cat-item" onclick="window.toggleNavAccordion('conProfile', this, event)">
+                <div class="p-nav-text" style="color:#22c55e;">👤 ПРОФИЛЬ</div>
+                <div class="p-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
+            </div>
+            <div class="nav-accordion-body cat-body" id="conProfile">
+                <div class="nav-sub-item" onclick="setRole('contractor'); showPage('profile'); toggleMobileMenu()"><div class="nav-sub-bullet"></div> 📝 Анкета исполнителя</div>
+                <div class="nav-sub-item" onclick="setRole('contractor'); showPage('vip'); toggleMobileMenu()"><div class="nav-sub-bullet"></div> 🏗 Строительство (VIP)</div>
+                <div class="nav-sub-item" onclick="setRole('contractor'); showPage('volume'); toggleMobileMenu()"><div class="nav-sub-bullet"></div> 📐 Фото-объёмы грунта</div>
+            </div>
+
         </div>
         
         <!-- Инженер -->
-        <div class="premium-nav-item" onclick="window.toggleNavAccordion('accEngineer', this)">
+        <div class="premium-nav-item role-item" onclick="window.toggleNavAccordion('accEngineer', this, event)">
             <div class="p-nav-icon" id="navRoleEngineerIcon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
             </div>
             <div class="p-nav-text">Инженер</div>
             <div class="p-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
         </div>
-        <div class="nav-accordion-body" id="accEngineer">
-            <div class="nav-sub-item" onclick="setRole('engineer'); showPage('engineer'); toggleMobileMenu()"><div class="nav-sub-bullet"></div> Главная панель</div>
-            <div class="nav-sub-item" onclick="setRole('engineer'); showPage('engineer'); setTimeout(()=>window.EngineerUI&&window.EngineerUI.switchTab&&window.EngineerUI.switchTab('requests'),100); toggleMobileMenu()"><div class="nav-sub-bullet"></div> Заявки</div>
-            <div class="nav-sub-item" onclick="setRole('engineer'); showPage('engineer'); setTimeout(()=>window.EngineerUI&&window.EngineerUI.switchTab&&window.EngineerUI.switchTab('objects'),100); toggleMobileMenu()"><div class="nav-sub-bullet"></div> Мои объекты</div>
-            <div class="nav-sub-item" onclick="setRole('engineer'); showPage('engineer'); setTimeout(()=>window.EngineerUI&&window.EngineerUI.switchTab&&window.EngineerUI.switchTab('ai'),100); toggleMobileMenu()"><div class="nav-sub-bullet"></div> AI-просчёт</div>
-            <div class="nav-sub-item" onclick="setRole('engineer'); showPage('engineer'); setTimeout(()=>window.EngineerUI&&window.EngineerUI.switchTab&&window.EngineerUI.switchTab('expenses'),100); toggleMobileMenu()"><div class="nav-sub-bullet"></div> Расходы</div>
+        <div class="nav-accordion-body role-body" id="accEngineer">
+            <div class="premium-nav-item cat-item" onclick="window.toggleNavAccordion('engMain', this, event)">
+                <div class="p-nav-text" style="color:#3b82f6;">📁 ОСНОВНОЕ</div>
+                <div class="p-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
+            </div>
+            <div class="nav-accordion-body cat-body" id="engMain">
+                <div class="nav-sub-item" onclick="setRole('engineer'); showPage('engineer'); toggleMobileMenu()"><div class="nav-sub-bullet"></div> 📊 Главная панель</div>
+                <div class="nav-sub-item" onclick="setRole('engineer'); showPage('engineer'); setTimeout(()=>window.EngineerUI&&window.EngineerUI.switchTab&&window.EngineerUI.switchTab('requests'),100); toggleMobileMenu()"><div class="nav-sub-bullet"></div> 📬 Заявки</div>
+                <div class="nav-sub-item" onclick="setRole('engineer'); showPage('engineer'); setTimeout(()=>window.EngineerUI&&window.EngineerUI.switchTab&&window.EngineerUI.switchTab('objects'),100); toggleMobileMenu()"><div class="nav-sub-bullet"></div> 🏗️ Мои объекты</div>
+                <div class="nav-sub-item" onclick="setRole('engineer'); showPage('engineer'); setTimeout(()=>window.EngineerUI&&window.EngineerUI.switchTab&&window.EngineerUI.switchTab('calendar'),100); toggleMobileMenu()"><div class="nav-sub-bullet"></div> 📅 Календарь</div>
+            </div>
+
+            <div class="premium-nav-item cat-item" onclick="window.toggleNavAccordion('engTools', this, event)">
+                <div class="p-nav-text" style="color:#ec4899;">🛠 ИНСТРУМЕНТЫ</div>
+                <div class="p-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
+            </div>
+            <div class="nav-accordion-body cat-body" id="engTools">
+                <div class="nav-sub-item" onclick="setRole('engineer'); showPage('engineer'); setTimeout(()=>window.EngineerUI&&window.EngineerUI.switchTab&&window.EngineerUI.switchTab('ai'),100); toggleMobileMenu()"><div class="nav-sub-bullet"></div> 🤖 AI-просчёт</div>
+                <div class="nav-sub-item" onclick="setRole('engineer'); showPage('engineer'); setTimeout(()=>window.EngineerUI&&window.EngineerUI.switchTab&&window.EngineerUI.switchTab('expenses'),100); toggleMobileMenu()"><div class="nav-sub-bullet"></div> 💰 Расходы</div>
+            </div>
         </div>
         
         <!-- Админ -->
-        <div class="premium-nav-item" onclick="window.toggleNavAccordion('accAdmin', this)">
+        <div class="premium-nav-item role-item" onclick="window.toggleNavAccordion('accAdmin', this, event)">
             <div class="p-nav-icon" id="navRoleAdminIcon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
             </div>
             <div class="p-nav-text">Админ</div>
             <div class="p-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
         </div>
-        <div class="nav-accordion-body" id="accAdmin">
-            <div class="nav-sub-item" onclick="showPage('admin'); setTimeout(()=>window.AdminUI&&window.AdminUI.setTab('prices'),50); toggleMobileMenu()"><div class="nav-sub-bullet"></div> Прайсы</div>
-            <div class="nav-sub-item" onclick="showPage('admin'); setTimeout(()=>window.AdminUI&&window.AdminUI.setTab('moderation'),50); toggleMobileMenu()"><div class="nav-sub-bullet"></div> Модерация</div>
-            <div class="nav-sub-item" onclick="showPage('admin'); setTimeout(()=>window.AdminUI&&window.AdminUI.setTab('regions'),50); toggleMobileMenu()"><div class="nav-sub-bullet"></div> Регионы</div>
-            <div class="nav-sub-item" onclick="showPage('admin'); setTimeout(()=>window.AdminUI&&window.AdminUI.setTab('audit'),50); toggleMobileMenu()"><div class="nav-sub-bullet"></div> Журнал действий</div>
-            <div class="nav-sub-item" onclick="showPage('kpi'); toggleMobileMenu()"><div class="nav-sub-bullet"></div> KPI Dashboard</div>
-            <div class="nav-sub-item" onclick="showPage('analytics'); toggleMobileMenu()"><div class="nav-sub-bullet"></div> Аналитика</div>
-            <div class="nav-sub-item" onclick="showPage('disputes'); toggleMobileMenu()"><div class="nav-sub-bullet"></div> Споры и арбитраж</div>
-            <div class="nav-sub-item" onclick="showPage('contracts'); toggleMobileMenu()"><div class="nav-sub-bullet"></div> Договоры</div>
+        <div class="nav-accordion-body role-body" id="accAdmin">
+            
+            <div class="premium-nav-item cat-item" onclick="window.toggleNavAccordion('admManage', this, event)">
+                <div class="p-nav-text" style="color:#10b981;">📁 УПРАВЛЕНИЕ</div>
+                <div class="p-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
+            </div>
+            <div class="nav-accordion-body cat-body" id="admManage">
+                <div class="nav-sub-item" onclick="showPage('admin'); setTimeout(()=>window.AdminUI&&window.AdminUI.setTab('prices'),50); toggleMobileMenu()"><div class="nav-sub-bullet"></div> 💰 Прайсы</div>
+                <div class="nav-sub-item" onclick="showPage('admin'); setTimeout(()=>window.AdminUI&&window.AdminUI.setTab('moderation'),50); toggleMobileMenu()"><div class="nav-sub-bullet"></div> 🛡️ Модерация</div>
+                <div class="nav-sub-item" onclick="showPage('admin'); setTimeout(()=>window.AdminUI&&window.AdminUI.setTab('regions'),50); toggleMobileMenu()"><div class="nav-sub-bullet"></div> 🗺️ Регионы</div>
+                <div class="nav-sub-item" onclick="showPage('admin'); setTimeout(()=>window.AdminUI&&window.AdminUI.setTab('audit'),50); toggleMobileMenu()"><div class="nav-sub-bullet"></div> 📜 Журнал действий</div>
+            </div>
+
+            <div class="premium-nav-item cat-item" onclick="window.toggleNavAccordion('admAnalytics', this, event)">
+                <div class="p-nav-text" style="color:#6366f1;">📊 АНАЛИТИКА</div>
+                <div class="p-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
+            </div>
+            <div class="nav-accordion-body cat-body" id="admAnalytics">
+                <div class="nav-sub-item" onclick="showPage('kpi'); toggleMobileMenu()"><div class="nav-sub-bullet"></div> 📊 KPI Dashboard</div>
+                <div class="nav-sub-item" onclick="showPage('analytics'); toggleMobileMenu()"><div class="nav-sub-bullet"></div> 📈 Аналитика</div>
+            </div>
+
+            <div class="premium-nav-item cat-item" onclick="window.toggleNavAccordion('admLegal', this, event)">
+                <div class="p-nav-text" style="color:#ef4444;">⚖️ РАЗБИРАТЕЛЬСТВА</div>
+                <div class="p-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
+            </div>
+            <div class="nav-accordion-body cat-body" id="admLegal">
+                <div class="nav-sub-item" onclick="showPage('disputes'); toggleMobileMenu()"><div class="nav-sub-bullet"></div> ⚖️ Споры и арбитраж</div>
+                <div class="nav-sub-item" onclick="showPage('contracts'); toggleMobileMenu()"><div class="nav-sub-bullet"></div> 📄 Договоры</div>
+            </div>
+
         </div>
         
         <div class="nav-level-title" style="margin-top: 2rem;">Настройки</div>
@@ -14124,13 +14222,26 @@
     </nav>
 
 <script>
-    // Ensure this is attached to window globally so the onclick handlers can find it
-    window.toggleNavAccordion = function(id, el) {
+    window.toggleNavAccordion = function(id, el, event) {
+        if (event) event.stopPropagation(); // prevent parent from closing
+        
         const body = document.getElementById(id);
         const isOpen = body.classList.contains('open');
         
-        document.querySelectorAll('.nav-accordion-body').forEach(b => b.classList.remove('open'));
-        document.querySelectorAll('.premium-nav-item').forEach(i => i.classList.remove('open'));
+        const isCat = body.classList.contains('cat-body');
+        
+        if (isCat) {
+            // It's a category. Close other categories in the SAME role.
+            const parentRole = el.closest('.role-body');
+            if (parentRole) {
+                parentRole.querySelectorAll('.cat-body').forEach(b => b.classList.remove('open'));
+                parentRole.querySelectorAll('.cat-item').forEach(i => i.classList.remove('open'));
+            }
+        } else {
+            // It's a role. Close all other roles.
+            document.querySelectorAll('.role-body').forEach(b => b.classList.remove('open'));
+            document.querySelectorAll('.role-item').forEach(i => i.classList.remove('open'));
+        }
         
         if (!isOpen) {
             body.classList.add('open');
@@ -14138,7 +14249,6 @@
         }
     };
 
-    // Replace the toggleMobileMenu cleanly without dependencies
     window.toggleMobileMenu = function() {
         const nav = document.getElementById('mainNav');
         const overlay = document.getElementById('mobileMenuOverlay');
