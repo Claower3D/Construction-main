@@ -14121,184 +14121,125 @@ window.toggleMobileMenu = function() {
 
 <!-- BREADCRUMB MOBILE NAV -->
     <nav class="mobile-breadcrumb-nav" id="mobileBreadcrumbNav">
-        <div id="navLevel0" class="nav-level active">
-            <div class="premium-nav-header">
-                Выбор роли
-                <div onclick="toggleMobileMenu()" style="cursor:pointer; color:rgba(255,255,255,0.4); padding:0.5rem;"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></div>
-            </div>
-            
-            <div class="nav-level-title">Доступные роли</div>
-            
-            <div class="premium-nav-item" onclick="openNavLevel('orderer')">
-                <div class="p-nav-icon" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                </div>
-                <div class="p-nav-text">Заказчик</div>
-                <div class="p-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"></polyline></svg></div>
-            </div>
-            
-            <div class="premium-nav-item" onclick="openNavLevel('contractor')">
-                <div class="p-nav-icon" style="background: rgba(249, 115, 22, 0.1); color: #f97316;">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
-                </div>
-                <div class="p-nav-text">Исполнитель</div>
-                <div class="p-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"></polyline></svg></div>
-            </div>
-            
-            <div class="premium-nav-item" onclick="openNavLevel('engineer')">
-                <div class="p-nav-icon" style="background: rgba(168, 85, 247, 0.1); color: #a855f7;">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
-                </div>
-                <div class="p-nav-text">Инженер</div>
-                <div class="p-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"></polyline></svg></div>
-            </div>
-            
-            <div class="premium-nav-item" onclick="openNavLevel('admin')">
-                <div class="p-nav-icon" style="background: rgba(239, 68, 68, 0.1); color: #ef4444;">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-                </div>
-                <div class="p-nav-text">Админ</div>
-                <div class="p-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"></polyline></svg></div>
-            </div>
-            
-            <div class="nav-level-title">Настройки</div>
-            <div class="premium-nav-item" onclick="document.getElementById('themeBtn').click()">
-                <div class="p-nav-icon" style="background: rgba(255, 255, 255, 0.05); color: #94a3b8;">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
-                </div>
-                <div class="p-nav-text">Тема оформления</div>
-            </div>
-            <div class="premium-nav-item" onclick="logout()">
-                <div class="p-nav-icon" style="background: rgba(255, 255, 255, 0.05); color: #94a3b8;">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-                </div>
-                <div class="p-nav-text">Выйти из аккаунта</div>
-            </div>
+        <div class="premium-nav-header">
+            Меню платформы
+            <div onclick="toggleMobileMenu()" style="cursor:pointer; color:rgba(255,255,255,0.4); padding:0.5rem;"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></div>
         </div>
         
-        <div id="navLevel1" class="nav-level">
-            <div class="nav-back-btn" onclick="closeNavLevel()">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;margin-right:12px;"><polyline points="15 18 9 12 15 6"></polyline></svg>
-                Назад к ролям
+        <div class="nav-level-title">Категории (Роли)</div>
+        
+        <!-- Заказчик -->
+        <div class="premium-nav-item" onclick="toggleNavAccordion('accOrderer', this)">
+            <div class="p-nav-icon" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
             </div>
-            <div id="navSubmenuContent"></div>
+            <div class="p-nav-text">Заказчик</div>
+            <div class="p-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"></polyline></svg></div>
+        </div>
+        <div class="nav-accordion-body" id="accOrderer">
+            <div class="nav-sub-item" onclick="setRole('orderer'); showPage('calendar'); toggleMobileMenu()"><div class="nav-sub-bullet" style="background:#f59e0b"></div> Календарь</div>
+            <div class="nav-sub-item" onclick="setRole('orderer'); showPage('orders'); toggleMobileMenu()"><div class="nav-sub-bullet" style="background:#10b981"></div> Мои заказы</div>
+            <div class="nav-sub-item" onclick="setRole('orderer'); showPage('catalog'); toggleMobileMenu()"><div class="nav-sub-bullet" style="background:#ec4899"></div> Каталог подрядчиков</div>
+            <div class="nav-sub-item" onclick="setRole('orderer'); showPage('equipment'); toggleMobileMenu()"><div class="nav-sub-bullet" style="background:#f97316"></div> Техника / Маркетплейс</div>
+            <div class="nav-sub-item" onclick="setRole('orderer'); showPage('photo-estimate'); toggleMobileMenu()"><div class="nav-sub-bullet" style="background:#06b6d4"></div> Оценка стоимости</div>
+            <div class="nav-sub-item" onclick="setRole('orderer'); showPage('inspect'); toggleMobileMenu()"><div class="nav-sub-bullet" style="background:#f43f5e"></div> Проверка дефектов</div>
+            <div class="nav-sub-item" onclick="setRole('orderer'); showPage('estimates'); toggleMobileMenu()"><div class="nav-sub-bullet" style="background:#8b5cf6"></div> Расчёт объёмов</div>
+            <div class="nav-sub-item" onclick="setRole('orderer'); showPage('engineering'); toggleMobileMenu()"><div class="nav-sub-bullet" style="background:#3b82f6"></div> Инженерные решения</div>
+            <div class="nav-sub-item" onclick="setRole('orderer'); showPage('wallet'); toggleMobileMenu()"><div class="nav-sub-bullet" style="background:#14b8a6"></div> Мой кошелёк</div>
+            <div class="nav-sub-item" onclick="setRole('orderer'); showPage('customer-profile'); toggleMobileMenu()"><div class="nav-sub-bullet" style="background:#64748b"></div> Моя анкета</div>
+            <div class="nav-sub-item" onclick="setRole('orderer'); showPage('vip'); toggleMobileMenu()"><div class="nav-sub-bullet" style="background:#eab308"></div> Строительство зданий (VIP)</div>
         </div>
         
-        <!-- Premium Bottom Bar -->
-        <div class="premium-bottom-bar">
-            <div class="p-bottom-btn active" onclick="closeMobileMenu(); window.scrollTo(0,0)"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg></div>
-            <div class="p-bottom-btn" onclick="closeMobileMenu(); openNavLevel(window.userRole || 'orderer')"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></div>
-            <div class="p-bottom-btn-main" onclick="closeMobileMenu(); document.getElementById('addEventBtn').click()"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></div>
-            <div class="p-bottom-btn" onclick="closeMobileMenu(); showPage('chat')"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg></div>
-            <div class="p-bottom-btn" onclick="closeMobileMenu(); showPage('profile')"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></div>
+        <!-- Исполнитель -->
+        <div class="premium-nav-item" onclick="toggleNavAccordion('accContractor', this)">
+            <div class="p-nav-icon" style="background: rgba(249, 115, 22, 0.1); color: #f97316;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+            </div>
+            <div class="p-nav-text">Исполнитель</div>
+            <div class="p-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"></polyline></svg></div>
+        </div>
+        <div class="nav-accordion-body" id="accContractor">
+            <div class="nav-sub-item" onclick="setRole('contractor'); showPage('orders'); toggleMobileMenu()"><div class="nav-sub-bullet" style="background:#3b82f6"></div> Лента заказов</div>
+            <div class="nav-sub-item" onclick="setRole('contractor'); showPage('orders'); setTimeout(()=>window.switchOrdersTab&&window.switchOrdersTab('my'),100); toggleMobileMenu()"><div class="nav-sub-bullet" style="background:#10b981"></div> Мои работы</div>
+            <div class="nav-sub-item" onclick="setRole('contractor'); showPage('calendar'); toggleMobileMenu()"><div class="nav-sub-bullet" style="background:#f59e0b"></div> Календарь работ</div>
+            <div class="nav-sub-item" onclick="setRole('contractor'); showPage('photo-estimate'); toggleMobileMenu()"><div class="nav-sub-bullet" style="background:#06b6d4"></div> Оценка стоимости</div>
+            <div class="nav-sub-item" onclick="setRole('contractor'); showPage('inspect'); toggleMobileMenu()"><div class="nav-sub-bullet" style="background:#f43f5e"></div> Проверка дефектов</div>
+            <div class="nav-sub-item" onclick="setRole('contractor'); showPage('estimates'); toggleMobileMenu()"><div class="nav-sub-bullet" style="background:#8b5cf6"></div> Расчёт объёмов</div>
+            <div class="nav-sub-item" onclick="setRole('contractor'); showPage('engineering'); toggleMobileMenu()"><div class="nav-sub-bullet" style="background:#6366f1"></div> Инженерные решения</div>
+            <div class="nav-sub-item" onclick="setRole('contractor'); showPage('catalog'); toggleMobileMenu()"><div class="nav-sub-bullet" style="background:#ec4899"></div> Каталог подрядчиков</div>
+            <div class="nav-sub-item" onclick="setRole('contractor'); showPage('equipment'); toggleMobileMenu()"><div class="nav-sub-bullet" style="background:#f97316"></div> Техника / Маркетплейс</div>
+            <div class="nav-sub-item" onclick="setRole('contractor'); showPage('wallet'); toggleMobileMenu()"><div class="nav-sub-bullet" style="background:#14b8a6"></div> Мой кошелёк</div>
+            <div class="nav-sub-item" onclick="setRole('contractor'); showPage('profile'); toggleMobileMenu()"><div class="nav-sub-bullet" style="background:#64748b"></div> Анкета исполнителя</div>
+            <div class="nav-sub-item" onclick="setRole('contractor'); showPage('vip'); toggleMobileMenu()"><div class="nav-sub-bullet" style="background:#eab308"></div> Строительство зданий (VIP)</div>
+            <div class="nav-sub-item" onclick="setRole('contractor'); showPage('volume'); toggleMobileMenu()"><div class="nav-sub-bullet" style="background:#0ea5e9"></div> Фото-объёмы грунта</div>
+        </div>
+        
+        <!-- Инженер -->
+        <div class="premium-nav-item" onclick="toggleNavAccordion('accEngineer', this)">
+            <div class="p-nav-icon" style="background: rgba(168, 85, 247, 0.1); color: #a855f7;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+            </div>
+            <div class="p-nav-text">Инженер</div>
+            <div class="p-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"></polyline></svg></div>
+        </div>
+        <div class="nav-accordion-body" id="accEngineer">
+            <div class="nav-sub-item" onclick="setRole('engineer'); showPage('engineer'); toggleMobileMenu()"><div class="nav-sub-bullet" style="background:#3b82f6"></div> Главная панель</div>
+            <div class="nav-sub-item" onclick="setRole('engineer'); showPage('engineer'); setTimeout(()=>window.EngineerUI&&window.EngineerUI.switchTab&&window.EngineerUI.switchTab('requests'),100); toggleMobileMenu()"><div class="nav-sub-bullet" style="background:#f59e0b"></div> Заявки</div>
+            <div class="nav-sub-item" onclick="setRole('engineer'); showPage('engineer'); setTimeout(()=>window.EngineerUI&&window.EngineerUI.switchTab&&window.EngineerUI.switchTab('objects'),100); toggleMobileMenu()"><div class="nav-sub-bullet" style="background:#10b981"></div> Мои объекты</div>
+            <div class="nav-sub-item" onclick="setRole('engineer'); showPage('engineer'); setTimeout(()=>window.EngineerUI&&window.EngineerUI.switchTab&&window.EngineerUI.switchTab('calendar'),100); toggleMobileMenu()"><div class="nav-sub-bullet" style="background:#8b5cf6"></div> Календарь</div>
+            <div class="nav-sub-item" onclick="setRole('engineer'); showPage('engineer'); setTimeout(()=>window.EngineerUI&&window.EngineerUI.switchTab&&window.EngineerUI.switchTab('ai'),100); toggleMobileMenu()"><div class="nav-sub-bullet" style="background:#ec4899"></div> AI-просчёт</div>
+            <div class="nav-sub-item" onclick="setRole('engineer'); showPage('engineer'); setTimeout(()=>window.EngineerUI&&window.EngineerUI.switchTab&&window.EngineerUI.switchTab('expenses'),100); toggleMobileMenu()"><div class="nav-sub-bullet" style="background:#f43f5e"></div> Расходы</div>
+        </div>
+        
+        <!-- Админ -->
+        <div class="premium-nav-item" onclick="toggleNavAccordion('accAdmin', this)">
+            <div class="p-nav-icon" style="background: rgba(239, 68, 68, 0.1); color: #ef4444;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            </div>
+            <div class="p-nav-text">Админ</div>
+            <div class="p-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"></polyline></svg></div>
+        </div>
+        <div class="nav-accordion-body" id="accAdmin">
+            <div class="nav-sub-item" onclick="showPage('admin'); setTimeout(()=>window.AdminUI&&window.AdminUI.setTab('prices'),50); toggleMobileMenu()"><div class="nav-sub-bullet" style="background:#10b981"></div> Прайсы</div>
+            <div class="nav-sub-item" onclick="showPage('admin'); setTimeout(()=>window.AdminUI&&window.AdminUI.setTab('moderation'),50); toggleMobileMenu()"><div class="nav-sub-bullet" style="background:#3b82f6"></div> Модерация</div>
+            <div class="nav-sub-item" onclick="showPage('admin'); setTimeout(()=>window.AdminUI&&window.AdminUI.setTab('regions'),50); toggleMobileMenu()"><div class="nav-sub-bullet" style="background:#f59e0b"></div> Регионы</div>
+            <div class="nav-sub-item" onclick="showPage('admin'); setTimeout(()=>window.AdminUI&&window.AdminUI.setTab('audit'),50); toggleMobileMenu()"><div class="nav-sub-bullet" style="background:#64748b"></div> Журнал действий</div>
+            <div class="nav-sub-item" onclick="showPage('kpi'); toggleMobileMenu()"><div class="nav-sub-bullet" style="background:#ec4899"></div> KPI Dashboard</div>
+            <div class="nav-sub-item" onclick="showPage('analytics'); toggleMobileMenu()"><div class="nav-sub-bullet" style="background:#8b5cf6"></div> Аналитика</div>
+            <div class="nav-sub-item" onclick="showPage('disputes'); toggleMobileMenu()"><div class="nav-sub-bullet" style="background:#ef4444"></div> Споры и арбитраж</div>
+            <div class="nav-sub-item" onclick="showPage('contracts'); toggleMobileMenu()"><div class="nav-sub-bullet" style="background:#06b6d4"></div> Договоры</div>
+        </div>
+        
+        <div class="nav-level-title">Настройки</div>
+        <div class="premium-nav-item" onclick="document.getElementById('themeBtn').click()">
+            <div class="p-nav-icon" style="background: rgba(255, 255, 255, 0.05); color: #94a3b8;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+            </div>
+            <div class="p-nav-text">Тема оформления</div>
+        </div>
+        <div class="premium-nav-item" onclick="logout()">
+            <div class="p-nav-icon" style="background: rgba(255, 255, 255, 0.05); color: #94a3b8;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+            </div>
+            <div class="p-nav-text">Выйти из аккаунта</div>
         </div>
     </nav>
 
 <script>
-    const chevronSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"></polyline></svg>';
-    const createNavItem = (iconSvg, title, colorHex, onclickStr, badge = null) => `
-        <div class="premium-nav-item" onclick="${onclickStr}">
-            <div class="p-nav-icon" style="background: ${colorHex}15; color: ${colorHex};">
-                ${iconSvg}
-            </div>
-            <div class="p-nav-text">${title}</div>
-            ${badge ? `<span style="background:var(--accent); color:var(--bg); font-size:0.6rem; padding:2px 6px; border-radius:4px; font-weight:bold; margin-right:8px;">${badge}</span>` : ''}
-            <div class="p-nav-arrow">${chevronSvg}</div>
-        </div>
-    `;
-
-    const icons = {
-        calendar: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>',
-        list: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>',
-        calc: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect><line x1="8" y1="6" x2="16" y2="6"></line><line x1="16" y1="14" x2="16" y2="14.01"></line><line x1="16" y1="10" x2="16" y2="10.01"></line><line x1="12" y1="10" x2="12" y2="10.01"></line><line x1="8" y1="10" x2="8" y2="10.01"></line><line x1="12" y1="14" x2="12" y2="14.01"></line><line x1="8" y1="14" x2="8" y2="14.01"></line><line x1="16" y1="18" x2="16" y2="18.01"></line><line x1="12" y1="18" x2="12" y2="18.01"></line><line x1="8" y1="18" x2="8" y2="18.01"></line></svg>',
-        check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>',
-        book: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>',
-        users: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>',
-        box: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>',
-        truck: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>',
-        wallet: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"></path><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>',
-        user: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>',
-        star: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>',
-        tool: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>',
-        camera: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>',
-        cpu: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line><line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="14" x2="23" y2="14"></line><line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" y1="14" x2="4" y2="14"></line></svg>',
-        dollar: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>',
-        activity: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>',
-        globe: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>',
-        shield: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>',
-        fileText: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>',
-        xOctagon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"></polygon><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>'
+    window.toggleNavAccordion = function(id, el) {
+        // Toggle the clicked one
+        const body = document.getElementById(id);
+        const isOpen = body.classList.contains('open');
+        
+        // Optional: Close all others first
+        document.querySelectorAll('.nav-accordion-body').forEach(b => b.classList.remove('open'));
+        document.querySelectorAll('.premium-nav-item').forEach(i => i.classList.remove('open'));
+        
+        if (!isOpen) {
+            body.classList.add('open');
+            el.classList.add('open');
+        }
     };
-
-    const navMenus = {
-        orderer: 
-            '<div class="nav-level-title">Каталог услуг</div>' +
-            createNavItem(icons.calc, 'Оценка стоимости', '#06b6d4', "setRole('orderer'); showPage('photo-estimate'); toggleMobileMenu()") +
-            createNavItem(icons.check, 'Проверка дефектов', '#f43f5e', "setRole('orderer'); showPage('inspect'); toggleMobileMenu()") +
-            createNavItem(icons.book, 'Расчёт объёмов', '#8b5cf6', "setRole('orderer'); showPage('estimates'); toggleMobileMenu()") +
-            createNavItem(icons.cpu, 'Инженерные решения', '#3b82f6', "setRole('orderer'); showPage('engineering'); toggleMobileMenu()") +
-            '<div class="nav-level-title">Управление</div>' +
-            createNavItem(icons.calendar, 'Календарь', '#f59e0b', "setRole('orderer'); showPage('calendar'); toggleMobileMenu()") +
-            createNavItem(icons.list, 'Мои заказы', '#10b981', "setRole('orderer'); showPage('orders'); toggleMobileMenu()") +
-            createNavItem(icons.users, 'Каталог подрядчиков', '#ec4899', "setRole('orderer'); showPage('catalog'); toggleMobileMenu()") +
-            createNavItem(icons.truck, 'Техника / Маркетплейс', '#f97316', "setRole('orderer'); showPage('equipment'); toggleMobileMenu()") +
-            '<div class="nav-level-title">Аккаунт</div>' +
-            createNavItem(icons.wallet, 'Мой кошелёк', '#14b8a6', "setRole('orderer'); showPage('wallet'); toggleMobileMenu()") +
-            createNavItem(icons.user, 'Моя анкета', '#64748b', "setRole('orderer'); showPage('customer-profile'); toggleMobileMenu()") +
-            createNavItem(icons.star, 'Строительство зданий', '#eab308', "setRole('orderer'); showPage('vip'); toggleMobileMenu()", 'VIP'),
-
-        contractor: 
-            '<div class="nav-level-title">Работа</div>' +
-            createNavItem(icons.list, 'Лента заказов', '#3b82f6', "setRole('contractor'); showPage('orders'); toggleMobileMenu()") +
-            createNavItem(icons.box, 'Мои работы', '#10b981', "setRole('contractor'); showPage('orders'); setTimeout(()=>window.switchOrdersTab&&window.switchOrdersTab('my'),100); toggleMobileMenu()") +
-            createNavItem(icons.calendar, 'Календарь работ', '#f59e0b', "setRole('contractor'); showPage('calendar'); toggleMobileMenu()") +
-            '<div class="nav-level-title">Услуги и Сервисы</div>' +
-            createNavItem(icons.calc, 'Оценка стоимости', '#06b6d4', "setRole('contractor'); showPage('photo-estimate'); toggleMobileMenu()") +
-            createNavItem(icons.check, 'Проверка дефектов', '#f43f5e', "setRole('contractor'); showPage('inspect'); toggleMobileMenu()") +
-            createNavItem(icons.book, 'Расчёт объёмов', '#8b5cf6', "setRole('contractor'); showPage('estimates'); toggleMobileMenu()") +
-            createNavItem(icons.tool, 'Инженерные решения', '#6366f1', "setRole('contractor'); showPage('engineering'); toggleMobileMenu()") +
-            '<div class="nav-level-title">Маркетплейс</div>' +
-            createNavItem(icons.users, 'Каталог подрядчиков', '#ec4899', "setRole('contractor'); showPage('catalog'); toggleMobileMenu()") +
-            createNavItem(icons.truck, 'Техника / Маркетплейс', '#f97316', "setRole('contractor'); showPage('equipment'); toggleMobileMenu()") +
-            '<div class="nav-level-title">Аккаунт</div>' +
-            createNavItem(icons.wallet, 'Мой кошелёк', '#14b8a6', "setRole('contractor'); showPage('wallet'); toggleMobileMenu()") +
-            createNavItem(icons.user, 'Анкета исполнителя', '#64748b', "setRole('contractor'); showPage('profile'); toggleMobileMenu()") +
-            createNavItem(icons.star, 'Строительство зданий', '#eab308', "setRole('contractor'); showPage('vip'); toggleMobileMenu()", 'VIP') +
-            createNavItem(icons.camera, 'Фото-объёмы грунта', '#0ea5e9', "setRole('contractor'); showPage('volume'); toggleMobileMenu()"),
-
-        engineer: 
-            '<div class="nav-level-title">Панель управления</div>' +
-            createNavItem(icons.globe, 'Главная панель', '#3b82f6', "setRole('engineer'); showPage('engineer'); toggleMobileMenu()") +
-            createNavItem(icons.fileText, 'Заявки', '#f59e0b', "setRole('engineer'); showPage('engineer'); setTimeout(()=>window.EngineerUI&&window.EngineerUI.switchTab&&window.EngineerUI.switchTab('requests'),100); toggleMobileMenu()") +
-            createNavItem(icons.box, 'Мои объекты', '#10b981', "setRole('engineer'); showPage('engineer'); setTimeout(()=>window.EngineerUI&&window.EngineerUI.switchTab&&window.EngineerUI.switchTab('objects'),100); toggleMobileMenu()") +
-            createNavItem(icons.calendar, 'Календарь', '#8b5cf6', "setRole('engineer'); showPage('engineer'); setTimeout(()=>window.EngineerUI&&window.EngineerUI.switchTab&&window.EngineerUI.switchTab('calendar'),100); toggleMobileMenu()") +
-            createNavItem(icons.cpu, 'AI-просчёт', '#ec4899', "setRole('engineer'); showPage('engineer'); setTimeout(()=>window.EngineerUI&&window.EngineerUI.switchTab&&window.EngineerUI.switchTab('ai'),100); toggleMobileMenu()") +
-            createNavItem(icons.dollar, 'Расходы', '#f43f5e', "setRole('engineer'); showPage('engineer'); setTimeout(()=>window.EngineerUI&&window.EngineerUI.switchTab&&window.EngineerUI.switchTab('expenses'),100); toggleMobileMenu()"),
-
-        admin: 
-            '<div class="nav-level-title">Настройки платформы</div>' +
-            createNavItem(icons.dollar, 'Прайсы', '#10b981', "showPage('admin'); setTimeout(()=>window.AdminUI&&window.AdminUI.setTab('prices'),50); toggleMobileMenu()") +
-            createNavItem(icons.shield, 'Модерация', '#3b82f6', "showPage('admin'); setTimeout(()=>window.AdminUI&&window.AdminUI.setTab('moderation'),50); toggleMobileMenu()") +
-            createNavItem(icons.globe, 'Регионы', '#f59e0b', "showPage('admin'); setTimeout(()=>window.AdminUI&&window.AdminUI.setTab('regions'),50); toggleMobileMenu()") +
-            '<div class="nav-level-title">Аналитика и контроль</div>' +
-            createNavItem(icons.activity, 'Журнал действий', '#64748b', "showPage('admin'); setTimeout(()=>window.AdminUI&&window.AdminUI.setTab('audit'),50); toggleMobileMenu()") +
-            createNavItem(icons.activity, 'KPI Dashboard', '#ec4899', "showPage('kpi'); toggleMobileMenu()") +
-            createNavItem(icons.activity, 'Аналитика', '#8b5cf6', "showPage('analytics'); toggleMobileMenu()") +
-            '<div class="nav-level-title">Правовая часть</div>' +
-            createNavItem(icons.xOctagon, 'Споры и арбитраж', '#ef4444', "showPage('disputes'); toggleMobileMenu()") +
-            createNavItem(icons.fileText, 'Договоры', '#06b6d4', "showPage('contracts'); toggleMobileMenu()")
-    };
-
-    function openNavLevel(roleId) {
-        document.getElementById('navSubmenuContent').innerHTML = navMenus[roleId] || '';
-        document.getElementById('navLevel0').classList.remove('active');
-        document.getElementById('navLevel1').classList.add('active');
-    }
-
-    function closeNavLevel() {
-        document.getElementById('navLevel1').classList.remove('active');
-        document.getElementById('navLevel0').classList.add('active');
-    }
 
     const origToggle = window.toggleMobileMenu;
     window.toggleMobileMenu = function() {
@@ -14310,8 +14251,12 @@ window.toggleMobileMenu = function() {
         const breadcrumbNav = document.getElementById('mobileBreadcrumbNav');
         if (breadcrumbNav) breadcrumbNav.classList.toggle('mobile-active');
         
+        // Close accordions when menu closes
         if(!document.getElementById('mobileMenuOverlay').classList.contains('active')) {
-            setTimeout(closeNavLevel, 300);
+            setTimeout(() => {
+                document.querySelectorAll('.nav-accordion-body').forEach(b => b.classList.remove('open'));
+                document.querySelectorAll('.premium-nav-item').forEach(i => i.classList.remove('open'));
+            }, 300);
         }
     };
 </script>
