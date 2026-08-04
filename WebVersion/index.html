@@ -14044,20 +14044,92 @@
 <!-- BREADCRUMB MOBILE NAV -->
     <nav class="mobile-breadcrumb-nav" id="mobileBreadcrumbNav">
         <div class="mobile-nav-container">
-            <!-- Left Side: Categories Filter -->
+            <!-- Left Column: Roles list expanding into categories -->
             <div class="mobile-nav-left">
                 <div class="nav-main-title">Фильтр</div>
-                
-                <div class="nav-sub-caption">Быстрые выборы</div>
-                <div class="role-filters">
-                    <div class="role-filter-btn active" id="mobileRoleBtnOrderer" onclick="selectMobileRole('orderer')">Заказчик ✕</div>
-                    <div class="role-filter-btn" id="mobileRoleBtnContractor" onclick="selectMobileRole('contractor')">Исполнитель ✕</div>
-                    <div class="role-filter-btn" id="mobileRoleBtnEngineer" onclick="selectMobileRole('engineer')">Инженер ✕</div>
-                    <div class="role-filter-btn" id="mobileRoleBtnAdmin" onclick="selectMobileRole('admin')">Админ ✕</div>
-                </div>
+                <div class="nav-sub-caption">Роли и категории</div>
 
-                <div class="nav-sub-caption">Категории</div>
-                <div id="mobileCatList"></div>
+                <div id="mobileRoleAccContainer">
+                    <!-- 📋 Заказчик -->
+                    <div class="role-acc-item open" id="roleAccOrderer">
+                        <div class="role-acc-header" onclick="window.toggleRoleAcc('orderer')">
+                            <span class="role-acc-icon">📋</span>
+                            <span class="role-acc-text">Заказчик</span>
+                            <span class="role-acc-arrow">⌵</span>
+                        </div>
+                        <div class="role-acc-body">
+                            <div class="cat-sub-btn active" id="catBtn_orderer_tools" onclick="window.selectNavCategory('orderer', 'tools')">
+                                <div class="cat-sub-bullet"></div> 🛠 Инструменты
+                            </div>
+                            <div class="cat-sub-btn" id="catBtn_orderer_manage" onclick="window.selectNavCategory('orderer', 'manage')">
+                                <div class="cat-sub-bullet"></div> 📂 Управление
+                            </div>
+                            <div class="cat-sub-btn" id="catBtn_orderer_profile" onclick="window.selectNavCategory('orderer', 'profile')">
+                                <div class="cat-sub-bullet"></div> 👤 Профиль
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 🔧 Исполнитель -->
+                    <div class="role-acc-item" id="roleAccContractor">
+                        <div class="role-acc-header" onclick="window.toggleRoleAcc('contractor')">
+                            <span class="role-acc-icon">🔧</span>
+                            <span class="role-acc-text">Исполнитель</span>
+                            <span class="role-acc-arrow">⌵</span>
+                        </div>
+                        <div class="role-acc-body">
+                            <div class="cat-sub-btn" id="catBtn_contractor_orders" onclick="window.selectNavCategory('contractor', 'orders')">
+                                <div class="cat-sub-bullet"></div> 📋 Мои заказы
+                            </div>
+                            <div class="cat-sub-btn" id="catBtn_contractor_tools" onclick="window.selectNavCategory('contractor', 'tools')">
+                                <div class="cat-sub-bullet"></div> 🛠 Инструменты
+                            </div>
+                            <div class="cat-sub-btn" id="catBtn_contractor_services" onclick="window.selectNavCategory('contractor', 'services')">
+                                <div class="cat-sub-bullet"></div> 📂 Сервисы
+                            </div>
+                            <div class="cat-sub-btn" id="catBtn_contractor_profile" onclick="window.selectNavCategory('contractor', 'profile')">
+                                <div class="cat-sub-bullet"></div> 👤 Профиль
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 👷 Инженер -->
+                    <div class="role-acc-item" id="roleAccEngineer">
+                        <div class="role-acc-header" onclick="window.toggleRoleAcc('engineer')">
+                            <span class="role-acc-icon">👷</span>
+                            <span class="role-acc-text">Инженер</span>
+                            <span class="role-acc-arrow">⌵</span>
+                        </div>
+                        <div class="role-acc-body">
+                            <div class="cat-sub-btn" id="catBtn_engineer_main" onclick="window.selectNavCategory('engineer', 'main')">
+                                <div class="cat-sub-bullet"></div> 🏗️ Основное
+                            </div>
+                            <div class="cat-sub-btn" id="catBtn_engineer_tools" onclick="window.selectNavCategory('engineer', 'tools')">
+                                <div class="cat-sub-bullet"></div> 🛠 Инструменты
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ⚙️ Админ -->
+                    <div class="role-acc-item" id="roleAccAdmin">
+                        <div class="role-acc-header" onclick="window.toggleRoleAcc('admin')">
+                            <span class="role-acc-icon">⚙️</span>
+                            <span class="role-acc-text">Админ</span>
+                            <span class="role-acc-arrow">⌵</span>
+                        </div>
+                        <div class="role-acc-body">
+                            <div class="cat-sub-btn" id="catBtn_admin_manage" onclick="window.selectNavCategory('admin', 'manage')">
+                                <div class="cat-sub-bullet"></div> ⚙️ Управление
+                            </div>
+                            <div class="cat-sub-btn" id="catBtn_admin_analytics" onclick="window.selectNavCategory('admin', 'analytics')">
+                                <div class="cat-sub-bullet"></div> 📊 Аналитика
+                            </div>
+                            <div class="cat-sub-btn" id="catBtn_admin_disputes" onclick="window.selectNavCategory('admin', 'disputes')">
+                                <div class="cat-sub-bullet"></div> ⚖️ Разбирательства
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
                 <div class="reset-filter-btn" onclick="closeMobileMenu()">
                     Сбросить фильтр ↺
@@ -14068,26 +14140,25 @@
                         🌙 Сменить тему
                     </div>
                     <div class="settings-action-btn" onclick="logout()">
-                        🚪 Выйти
+                        🚪 Выйти из аккаунта
                     </div>
                 </div>
             </div>
 
-            <!-- Right Side: Catalog Cards -->
+            <!-- Right Column: Catalog Cards -->
             <div class="mobile-nav-right">
                 <div class="catalog-header">
                     <div class="catalog-title" id="mobileCatalogTitle">Каталог услуг</div>
-                    <div class="catalog-search-icon" onclick="closeMobileMenu()">✕</div>
+                    <div class="catalog-close-btn" onclick="closeMobileMenu()">✕</div>
                 </div>
                 <div class="catalog-cards-list" id="mobileCatalogCards"></div>
             </div>
         </div>
 
         <script>
-            window._mobileMenuData = {
-                orderer: [
-                    {
-                        id: 'ord_tools',
+            window._catalogData = {
+                orderer: {
+                    tools: {
                         title: '🛠 Инструменты',
                         items: [
                             { icon: '📸', title: 'Оценка стоимости', page: 'photo-estimate' },
@@ -14096,8 +14167,7 @@
                             { icon: '⚙️', title: 'Инженерные решения', page: 'engineering' }
                         ]
                     },
-                    {
-                        id: 'ord_manage',
+                    manage: {
                         title: '📂 Управление',
                         items: [
                             { icon: '📅', title: 'Календарь', page: 'calendar' },
@@ -14107,18 +14177,16 @@
                             { icon: '💳', title: 'Мой кошелёк', page: 'wallet' }
                         ]
                     },
-                    {
-                        id: 'ord_profile',
+                    profile: {
                         title: '👤 Профиль',
                         items: [
                             { icon: '📝', title: 'Моя анкета', page: 'customer-profile' },
                             { icon: '🏗️', title: 'Строительство зданий (VIP)', page: 'vip' }
                         ]
                     }
-                ],
-                contractor: [
-                    {
-                        id: 'con_orders',
+                },
+                contractor: {
+                    orders: {
                         title: '📋 Мои заказы',
                         items: [
                             { icon: '📬', title: 'Лента заказов', page: 'orders' },
@@ -14126,8 +14194,7 @@
                             { icon: '📅', title: 'Календарь работ', page: 'calendar' }
                         ]
                     },
-                    {
-                        id: 'con_tools',
+                    tools: {
                         title: '🛠 Инструменты',
                         items: [
                             { icon: '📸', title: 'Оценка стоимости', page: 'photo-estimate' },
@@ -14136,8 +14203,7 @@
                             { icon: '⚙️', title: 'Инженерные решения', page: 'engineering' }
                         ]
                     },
-                    {
-                        id: 'con_services',
+                    services: {
                         title: '📂 Сервисы',
                         items: [
                             { icon: '📒', title: 'Каталог подрядчиков', page: 'catalog' },
@@ -14145,8 +14211,7 @@
                             { icon: '💳', title: 'Мой кошелёк', page: 'wallet' }
                         ]
                     },
-                    {
-                        id: 'con_profile',
+                    profile: {
                         title: '👤 Профиль',
                         items: [
                             { icon: '📝', title: 'Анкета исполнителя', page: 'profile' },
@@ -14154,10 +14219,9 @@
                             { icon: '📐', title: 'Фото-объёмы грунта', page: 'volume' }
                         ]
                     }
-                ],
-                engineer: [
-                    {
-                        id: 'eng_main',
+                },
+                engineer: {
+                    main: {
                         title: '🏗️ Основное',
                         items: [
                             { icon: '🖥️', title: 'Главная панель', page: 'engineer' },
@@ -14166,18 +14230,16 @@
                             { icon: '📅', title: 'Календарь', page: 'engineer', subTab: 'calendar' }
                         ]
                     },
-                    {
-                        id: 'eng_tools',
+                    tools: {
                         title: '🛠 Инструменты',
                         items: [
                             { icon: '🤖', title: 'AI-просчёт', page: 'engineer', subTab: 'ai' },
                             { icon: '💰', title: 'Расходы', page: 'engineer', subTab: 'expenses' }
                         ]
                     }
-                ],
-                admin: [
-                    {
-                        id: 'adm_manage',
+                },
+                admin: {
+                    manage: {
                         title: '⚙️ Управление',
                         items: [
                             { icon: '🏷️', title: 'Прайсы', page: 'admin', adminTab: 'prices' },
@@ -14186,91 +14248,77 @@
                             { icon: '📜', title: 'Журнал действий', page: 'admin', adminTab: 'audit' }
                         ]
                     },
-                    {
-                        id: 'adm_analytics',
+                    analytics: {
                         title: '📊 Аналитика',
                         items: [
                             { icon: '📈', title: 'KPI Dashboard', page: 'kpi' },
                             { icon: '📊', title: 'Аналитика', page: 'analytics' }
                         ]
                     },
-                    {
-                        id: 'adm_disputes',
+                    disputes: {
                         title: '⚖️ Разбирательства',
                         items: [
                             { icon: '⚖️', title: 'Споры и арбитраж', page: 'disputes' },
                             { icon: '📄', title: 'Договоры', page: 'contracts' }
                         ]
                     }
-                ]
-            };
-
-            window._currentMobileRole = 'orderer';
-            window._currentSelectedCatId = null;
-
-            window.selectMobileRole = function(role) {
-                window._currentMobileRole = role;
-                setRole(role);
-                
-                document.querySelectorAll('.role-filter-btn').forEach(b => b.classList.remove('active'));
-                const btnKey = role.charAt(0).toUpperCase() + role.slice(1);
-                const activeBtn = document.getElementById('mobileRoleBtn' + btnKey);
-                if (activeBtn) activeBtn.classList.add('active');
-
-                renderMobileCategories();
-            };
-
-            window.renderMobileCategories = function() {
-                const catContainer = document.getElementById('mobileCatList');
-                if (!catContainer) return;
-                
-                const cats = window._mobileMenuData[window._currentMobileRole] || window._mobileMenuData.orderer;
-                catContainer.innerHTML = '';
-
-                cats.forEach((cat, index) => {
-                    const btn = document.createElement('div');
-                    btn.className = 'cat-item-btn' + ((window._currentSelectedCatId === cat.id || (!window._currentSelectedCatId && index === 0)) ? ' active' : '');
-                    btn.innerHTML = '<span class="cat-item-text">' + cat.title + '</span><span style="opacity:0.4;">›</span>';
-                    btn.onclick = function() {
-                        document.querySelectorAll('.cat-item-btn').forEach(b => b.classList.remove('active'));
-                        btn.classList.add('active');
-                        window._currentSelectedCatId = cat.id;
-                        renderMobileCatalogCards(cat);
-                    };
-                    catContainer.appendChild(btn);
-                });
-
-                const activeCat = cats.find(c => c.id === window._currentSelectedCatId) || cats[0];
-                if (activeCat) {
-                    window._currentSelectedCatId = activeCat.id;
-                    renderMobileCatalogCards(activeCat);
                 }
             };
 
-            window.renderMobileCatalogCards = function(cat) {
-                const cardsContainer = document.getElementById('mobileCatalogCards');
+            window._currentRoleKey = 'orderer';
+            window._currentCatKey = 'tools';
+
+            window.toggleRoleAcc = function(role) {
+                window._currentRoleKey = role;
+                setRole(role);
+
+                document.querySelectorAll('.role-acc-item').forEach(el => el.classList.remove('open'));
+                const key = role.charAt(0).toUpperCase() + role.slice(1);
+                const roleEl = document.getElementById('roleAcc' + key);
+                if (roleEl) roleEl.classList.add('open');
+
+                // Default category selection for role
+                const roleData = window._catalogData[role];
+                if (roleData) {
+                    const firstCatKey = Object.keys(roleData)[0];
+                    window.selectNavCategory(role, firstCatKey);
+                }
+            };
+
+            window.selectNavCategory = function(role, catKey) {
+                window._currentRoleKey = role;
+                window._currentCatKey = catKey;
+                setRole(role);
+
+                document.querySelectorAll('.cat-sub-btn').forEach(b => b.classList.remove('active'));
+                const btn = document.getElementById('catBtn_' + role + '_' + catKey);
+                if (btn) btn.classList.add('active');
+
+                const catObj = (window._catalogData[role] && window._catalogData[role][catKey]) || window._catalogData.orderer.tools;
+                
                 const titleEl = document.getElementById('mobileCatalogTitle');
-                if (!cardsContainer) return;
+                const cardsContainer = document.getElementById('mobileCatalogCards');
 
-                if (titleEl) titleEl.innerText = cat.title.replace(/^[^a-zA-Zа-яА-Я0-9]+/, '').trim() || 'Каталог услуг';
-                cardsContainer.innerHTML = '';
-
-                cat.items.forEach(item => {
-                    const card = document.createElement('div');
-                    card.className = 'catalog-card';
-                    card.innerHTML = `
-                        <div class="catalog-card-icon">${item.icon}</div>
-                        <div class="catalog-card-title">${item.title}</div>
-                        <div class="catalog-card-arrow">›</div>
-                    `;
-                    card.onclick = function() {
-                        showPage(item.page);
-                        if (item.subTab && window.switchOrdersTab) window.switchOrdersTab(item.subTab);
-                        if (item.adminTab && window.AdminUI) window.AdminUI.setTab(item.adminTab);
-                        closeMobileMenu();
-                    };
-                    cardsContainer.appendChild(card);
-                });
+                if (titleEl) titleEl.innerText = catObj.title;
+                if (cardsContainer) {
+                    cardsContainer.innerHTML = '';
+                    catObj.items.forEach(item => {
+                        const card = document.createElement('div');
+                        card.className = 'catalog-card';
+                        card.innerHTML = `
+                            <div class="catalog-card-icon">${item.icon}</div>
+                            <div class="catalog-card-title">${item.title}</div>
+                            <div class="catalog-card-arrow">›</div>
+                        `;
+                        card.onclick = function() {
+                            showPage(item.page);
+                            if (item.subTab && window.switchOrdersTab) window.switchOrdersTab(item.subTab);
+                            if (item.adminTab && window.AdminUI) window.AdminUI.setTab(item.adminTab);
+                            closeMobileMenu();
+                        };
+                        cardsContainer.appendChild(card);
+                    });
+                }
             };
 
             window.updateMobileMenu = function(role) {
@@ -14281,15 +14329,14 @@
                 if (role === 'executor') role = 'contractor';
                 if (role === 'administrator') role = 'admin';
 
-                selectMobileRole(role);
+                window.toggleRoleAcc(role);
             };
 
-            // Initial render call
-            setTimeout(() => { renderMobileCategories(); }, 200);
+            setTimeout(() => { window.selectNavCategory('orderer', 'tools'); }, 200);
         </script>
     </nav>
 
-<script>
+    <script>
     let _currentManageOrderId = null;
     
     window.openManageStages = function(orderId) {
