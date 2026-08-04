@@ -1526,171 +1526,7 @@ body {
 
 
 /* =========================================================
-   PREMIUM MOBILE NAVIGATION (GLASSMORPHISM)
-   ========================================================= */
-
-.mobile-breadcrumb-nav {
-    background: linear-gradient(145deg, #0f121b 0%, #07090d 100%);
-    border-right: 1px solid rgba(255, 255, 255, 0.05);
-    box-shadow: 5px 0 30px rgba(0, 0, 0, 0.7);
-    color: #e2e8f0;
-    padding: 0;
-    overflow: hidden;
-}
-
-.premium-nav-header {
-    padding: 2rem 1.5rem 1rem;
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #fff;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
-    margin-bottom: 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.premium-nav-item {
-    display: flex;
-    align-items: center;
-    padding: 0.8rem 1.2rem;
-    margin: 0.5rem 1rem;
-    background: rgba(255, 255, 255, 0.02);
-    border-radius: 14px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    border: 1px solid rgba(255, 255, 255, 0.02);
-}
-
-.premium-nav-item:hover, .premium-nav-item:active {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    transform: translateY(-1px);
-}
-
-.p-nav-icon {
-    width: 42px;
-    height: 42px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: 1rem;
-    flex-shrink: 0;
-}
-
-.p-nav-icon svg {
-    width: 22px;
-    height: 22px;
-    stroke-width: 1.5;
-}
-
-.p-nav-text {
-    flex-grow: 1;
-    font-size: 1rem;
-    font-weight: 500;
-    color: #e2e8f0;
-}
-
-.p-nav-arrow {
-    color: rgba(255, 255, 255, 0.3);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-.p-nav-arrow svg {
-    width: 18px;
-    height: 18px;
-}
-
-.nav-level-title {
-    font-size: 0.8rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: rgba(255, 255, 255, 0.4);
-    margin: 1.5rem 1.5rem 0.5rem;
-    font-weight: 600;
-}
-
-.nav-back-btn {
-    padding: 1.5rem;
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: #fff;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
-    margin-bottom: 1rem;
-}
-.nav-back-btn:hover {
-    background: rgba(255,255,255,0.03);
-}
-
-/* Bottom Nav Bar */
-.premium-bottom-bar {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 70px;
-    background: rgba(15, 18, 27, 0.95);
-    backdrop-filter: blur(10px);
-    border-top: 1px solid rgba(255,255,255,0.05);
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    padding: 0 0.5rem;
-    z-index: 10;
-}
-
-.p-bottom-btn {
-    width: 50px;
-    height: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: rgba(255,255,255,0.5);
-    border-radius: 12px;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-.p-bottom-btn:hover {
-    color: #fff;
-    background: rgba(255,255,255,0.05);
-}
-.p-bottom-btn.active {
-    color: #06b6d4;
-}
-
-.p-bottom-btn-main {
-    width: 56px;
-    height: 56px;
-    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-    border-radius: 50%;
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
-    transform: translateY(-10px);
-    cursor: pointer;
-    transition: all 0.2s;
-}
-.p-bottom-btn-main:hover {
-    transform: translateY(-12px) scale(1.05);
-    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.6);
-}
-
-/* Hide old footer */
-.mobile-nav-footer { display: none; }
-#navLevel0, #navLevel1 { height: calc(100% - 70px); overflow-y: auto; padding-bottom: 2rem; }
-
-
-
-
-/* =========================================================
-   PREMIUM MOBILE NAVIGATION (EXACT MATCH REFERENCE)
+   PREMIUM MOBILE NAVIGATION (EXACT ALIGNMENT & BORDERS)
    ========================================================= */
 .mobile-breadcrumb-nav {
     background: #0d0d12 !important; /* Very dark background */
@@ -1720,6 +1556,7 @@ body {
     font-weight: 400;
 }
 
+/* Basic Item (Roles & Settings) */
 .premium-nav-item {
     display: flex;
     align-items: center;
@@ -1731,19 +1568,102 @@ body {
     transition: all 0.2s ease;
     border: 1px solid rgba(255, 255, 255, 0.05);
 }
-
 .premium-nav-item:hover {
     background: rgba(255, 255, 255, 0.02);
 }
 
-.premium-nav-item.open {
+/* Open Role Item */
+.premium-nav-item.role-item.open {
     border: 1px solid rgba(239, 68, 68, 0.4);
-    background: rgba(255, 255, 255, 0.02);
     border-radius: 12px 12px 0 0;
     margin-bottom: 0;
-    border-bottom: 1px solid transparent; /* Remove bottom border for smooth transition to body */
+    border-bottom: 1px solid transparent;
+}
+.premium-nav-item.open .p-nav-arrow {
+    transform: rotate(180deg);
+    color: #ef4444;
 }
 
+/* Role Body (Contains Categories) */
+.nav-accordion-body.role-body {
+    display: none;
+    padding: 0.5rem 1rem 1rem 1rem; /* Left edge alignment! */
+    margin: 0 1rem 0.5rem 1rem;
+    flex-direction: column;
+    gap: 0.5rem;
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    border-top: none;
+    border-radius: 0 0 12px 12px;
+    background: transparent;
+}
+.nav-accordion-body.role-body.open {
+    display: flex;
+}
+
+/* Category Item (Inside Role Body) */
+.premium-nav-item.cat-item {
+    margin: 0;
+    padding: 0.8rem 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 8px;
+    background: transparent !important;
+}
+.premium-nav-item.cat-item .p-nav-text {
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    color: rgba(255, 255, 255, 0.8) !important; /* Neutral color until open */
+}
+.premium-nav-item.cat-item.open {
+    border: 1px solid rgba(239, 68, 68, 0.4) !important;
+    border-radius: 8px 8px 0 0;
+    border-bottom: 1px solid transparent !important;
+}
+.premium-nav-item.cat-item.open .p-nav-text {
+    color: #ef4444 !important; /* Red text when open, matching border */
+}
+
+/* Category Body (Contains Sub-items) */
+.nav-accordion-body.cat-body {
+    display: none;
+    margin: 0;
+    padding: 0.5rem 1rem 1rem 1rem;
+    flex-direction: column;
+    gap: 0.8rem;
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    background: transparent;
+}
+.nav-accordion-body.cat-body.open {
+    display: flex;
+}
+
+/* Sub-items (The actual tabs) */
+.nav-sub-item {
+    padding-left: 0.5rem; /* Slight indent inside the category box */
+    display: flex;
+    align-items: center;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.nav-sub-item:hover {
+    color: #fff;
+    transform: translateX(4px);
+}
+.nav-sub-bullet {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #ef4444; /* Red dots like in reference */
+    margin-right: 12px;
+    box-shadow: 0 0 5px rgba(239,68,68,0.5);
+    flex-shrink: 0;
+}
+
+/* Shared Nav Icons/Text */
 .p-nav-icon {
     width: 38px;
     height: 38px;
@@ -1755,12 +1675,10 @@ body {
     flex-shrink: 0;
     background: transparent !important;
 }
-
-/* Icon specific colors to match reference */
-#navRoleOrdererIcon { color: #ef4444; } /* Red for first */
-#navRoleContractorIcon { color: #8b5cf6; } /* Purple for second */
-#navRoleEngineerIcon { color: #3b82f6; } /* Blue for third */
-#navRoleAdminIcon { color: #10b981; } /* Green for fourth */
+#navRoleOrdererIcon { color: #ef4444; }
+#navRoleContractorIcon { color: #8b5cf6; }
+#navRoleEngineerIcon { color: #3b82f6; }
+#navRoleAdminIcon { color: #10b981; }
 
 .p-nav-icon svg {
     width: 20px;
@@ -1785,73 +1703,4 @@ body {
 .p-nav-arrow svg {
     width: 16px;
     height: 16px;
-}
-.premium-nav-item.open .p-nav-arrow {
-    transform: rotate(180deg); /* Point up when open */
-    color: #ef4444;
-}
-
-.nav-accordion-body {
-    display: none;
-    padding: 0.5rem 1rem 1rem 3rem;
-    flex-direction: column;
-    gap: 0.6rem;
-    margin: 0 1rem 0.5rem 1rem;
-    border: 1px solid rgba(239, 68, 68, 0.4);
-    border-top: none;
-    border-radius: 0 0 12px 12px;
-    background: transparent;
-}
-.nav-accordion-body.open {
-    display: flex;
-}
-
-.nav-sub-item {
-    display: flex;
-    align-items: center;
-    color: rgba(255, 255, 255, 0.5);
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: all 0.2s;
-    padding: 0.3rem 0;
-}
-.nav-sub-item:hover {
-    color: #fff;
-    transform: translateX(4px);
-}
-.nav-sub-bullet {
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
-    background: #ef4444; /* Red dots like in reference */
-    margin-right: 12px;
-    box-shadow: 0 0 5px rgba(239,68,68,0.5);
-}
-
-
-/* =========================================================
-   PREMIUM NESTED MOBILE NAVIGATION
-   ========================================================= */
-.premium-nav-item.cat-item {
-    margin: 0.2rem 0;
-    padding: 0.6rem 1rem;
-    border: none !important;
-    background: transparent !important;
-}
-.premium-nav-item.cat-item .p-nav-text {
-    font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: 0.05em;
-}
-.nav-accordion-body.cat-body {
-    margin: 0 0 0.5rem 1rem;
-    padding: 0.2rem 1rem 0.5rem 1.5rem;
-    border: none;
-    border-left: 1px dashed rgba(255, 255, 255, 0.1);
-    border-radius: 0;
-    gap: 0.5rem;
-    background: transparent;
-}
-.cat-item.open .p-nav-text {
-    color: #fff !important;
 }
