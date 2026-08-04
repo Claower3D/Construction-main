@@ -1678,3 +1678,9 @@ body {
     margin-right: 1rem;
     opacity: 0.6;
 }
+
+@media (max-width: 900px) {
+    .mobile-breadcrumb-nav {
+        display: block !important;
+    }
+}
