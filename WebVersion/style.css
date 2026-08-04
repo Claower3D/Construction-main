@@ -1687,53 +1687,143 @@ body {
 #navLevel0, #navLevel1 { height: calc(100% - 70px); overflow-y: auto; padding-bottom: 2rem; }
 
 
-/* Accordion Mobile Nav */
+
+
+/* =========================================================
+   PREMIUM MOBILE NAVIGATION (EXACT MATCH REFERENCE)
+   ========================================================= */
+.mobile-breadcrumb-nav {
+    background: #0d0d12 !important; /* Very dark background */
+    border-right: 1px solid rgba(239, 68, 68, 0.3) !important;
+    box-shadow: 2px 0 30px rgba(239, 68, 68, 0.15) !important;
+    color: #e2e8f0;
+    padding: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.premium-nav-header {
+    padding: 2rem 1.5rem 1rem;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.nav-level-title {
+    font-size: 0.75rem;
+    text-transform: none;
+    color: rgba(255, 255, 255, 0.4);
+    margin: 1.5rem 1.5rem 0.5rem;
+    font-weight: 400;
+}
+
+.premium-nav-item {
+    display: flex;
+    align-items: center;
+    padding: 0.8rem 1.2rem;
+    margin: 0.4rem 1rem;
+    background: transparent;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.premium-nav-item:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.premium-nav-item.open {
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 12px 12px 0 0;
+    margin-bottom: 0;
+    border-bottom: 1px solid transparent; /* Remove bottom border for smooth transition to body */
+}
+
+.p-nav-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    flex-shrink: 0;
+    background: transparent !important;
+}
+
+/* Icon specific colors to match reference */
+#navRoleOrdererIcon { color: #ef4444; } /* Red for first */
+#navRoleContractorIcon { color: #8b5cf6; } /* Purple for second */
+#navRoleEngineerIcon { color: #3b82f6; } /* Blue for third */
+#navRoleAdminIcon { color: #10b981; } /* Green for fourth */
+
+.p-nav-icon svg {
+    width: 20px;
+    height: 20px;
+    stroke-width: 1.5;
+}
+
+.p-nav-text {
+    flex-grow: 1;
+    font-size: 0.95rem;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.p-nav-arrow {
+    color: rgba(255, 255, 255, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s ease;
+}
+.p-nav-arrow svg {
+    width: 16px;
+    height: 16px;
+}
+.premium-nav-item.open .p-nav-arrow {
+    transform: rotate(180deg); /* Point up when open */
+    color: #ef4444;
+}
+
 .nav-accordion-body {
     display: none;
     padding: 0.5rem 1rem 1rem 3rem;
     flex-direction: column;
-    gap: 0.8rem;
-    background: rgba(0,0,0,0.2);
-    border-radius: 0 0 14px 14px;
-    margin: -10px 1rem 0.5rem 1rem;
-    border: 1px solid rgba(255, 255, 255, 0.02);
+    gap: 0.6rem;
+    margin: 0 1rem 0.5rem 1rem;
+    border: 1px solid rgba(239, 68, 68, 0.4);
     border-top: none;
+    border-radius: 0 0 12px 12px;
+    background: transparent;
 }
 .nav-accordion-body.open {
     display: flex;
 }
-.premium-nav-item.open {
-    border-radius: 14px 14px 0 0;
-    margin-bottom: 0;
-    border-bottom: 1px dashed rgba(255,255,255,0.05);
-}
-.premium-nav-item.open .p-nav-arrow {
-    transform: rotate(90deg);
-}
+
 .nav-sub-item {
     display: flex;
     align-items: center;
-    color: rgba(255,255,255,0.7);
-    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.9rem;
     cursor: pointer;
     transition: all 0.2s;
+    padding: 0.3rem 0;
 }
 .nav-sub-item:hover {
     color: #fff;
-    transform: translateX(3px);
+    transform: translateX(4px);
 }
 .nav-sub-bullet {
-    width: 6px;
-    height: 6px;
+    width: 5px;
+    height: 5px;
     border-radius: 50%;
-    background: var(--accent);
+    background: #ef4444; /* Red dots like in reference */
     margin-right: 12px;
-    box-shadow: 0 0 8px var(--accent);
-}
-.p-nav-arrow {
-    transition: transform 0.3s ease;
-}
-#mobileBreadcrumbNav {
-    padding-bottom: 2rem;
-    overflow-y: auto;
+    box-shadow: 0 0 5px rgba(239,68,68,0.5);
 }
