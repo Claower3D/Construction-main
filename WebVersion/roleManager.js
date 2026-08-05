@@ -31,6 +31,9 @@
         controller: Role.CONTROLLER,
         admin: Role.ADMIN,
         manager: Role.MANAGER,
+        account_manager: Role.MANAGER,
+        accountmanager: Role.MANAGER,
+        'account-manager': Role.MANAGER,
         // обратный маппинг
         customer: Role.CUSTOMER,
         executor: Role.EXECUTOR

@@ -436,17 +436,33 @@
         }
     }
 
+    function _normalizeLoginEmail(emailInput) {
+        let clean = (emailInput || '').toLowerCase().trim();
+        const aliases = {
+            'manager': 'manager@qazgost.kz',
+            'account_manager': 'manager@qazgost.kz',
+            'accountmanager': 'manager@qazgost.kz',
+            'account-manager': 'manager@qazgost.kz',
+            'accountmanager@qazgost.kz': 'manager@qazgost.kz',
+            'admin': 'admin@qazgost.kz',
+            'engineer': 'engineer@qazgost.kz',
+            'controller': 'controller@qazgost.kz'
+        };
+        return aliases[clean] || clean;
+    }
+
     async function demoEmailLogin(email, password) {
         await delay(800);
 
+        const cleanEmail = _normalizeLoginEmail(email);
         const users = getDemoUsers();
-        let user = users[email.toLowerCase()];
+        let user = users[cleanEmail];
 
         // Special case for backend admin if not in localStorage yet
-        if (!user && email.toLowerCase() === 'admin@demo.kz') {
+        if (!user && cleanEmail === 'admin@demo.kz') {
             user = { name: 'Администратор Бэкенда', email: 'admin@demo.kz', password: 'demo123', role: 'admin' };
         }
-        if (!user && email.toLowerCase() === 'customer@demo.kz') {
+        if (!user && cleanEmail === 'customer@demo.kz') {
             user = { name: 'Демо Заказчик', email: 'customer@demo.kz', password: 'demo123', role: 'customer' };
         }
 
@@ -472,6 +488,21 @@
         if (user.blocked) {
             showFieldError('authEmail', 'Аккаунт заблокирован');
             showToast('🚫 Обратитесь в поддержку', 5000);
+            return;
+        }
+
+        // Special shortcut for demo manager with simple passwords
+        if (cleanEmail === 'manager@qazgost.kz' && (password === '123' || password === 'manager')) {
+            onAuthSuccess({
+                accessToken: 'demo_token_' + Date.now(),
+                refreshToken: 'demo_refresh_' + Date.now(),
+                expiresIn: 7 * 24 * 60 * 60
+            }, {
+                email: user.email,
+                name: user.name,
+                phone: user.phone,
+                role: user.role || 'manager'
+            });
             return;
         }
 

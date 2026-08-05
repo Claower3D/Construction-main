@@ -345,7 +345,7 @@ describe('RoleManager - Управление списком ролей', () => {
 });
 
 describe('RoleManager - grantAllRoles', () => {
-    test('grantAllRoles даёт все 5 ролей', () => {
+    test('grantAllRoles даёт все 6 ролей', () => {
         window.RoleManager.grantAllRoles();
         const roles = window.RoleManager.allRoles();
         expect(roles).toContain('customer');
@@ -353,7 +353,8 @@ describe('RoleManager - grantAllRoles', () => {
         expect(roles).toContain('engineer');
         expect(roles).toContain('controller');
         expect(roles).toContain('admin');
-        expect(roles.length).toBe(5);
+        expect(roles).toContain('manager');
+        expect(roles.length).toBe(6);
     });
 
     test('hasAllRoles() возвращает true после grantAllRoles', () => {
@@ -370,7 +371,7 @@ describe('RoleManager - grantAllRoles', () => {
         window.RoleManager.grantAllRoles();
         expect(localStorageMock.setItem).toHaveBeenCalledWith(
             'userRoles',
-            JSON.stringify(['customer', 'executor', 'engineer', 'controller', 'admin'])
+            JSON.stringify(['customer', 'executor', 'engineer', 'controller', 'admin', 'manager'])
         );
     });
 });

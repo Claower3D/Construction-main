@@ -1948,10 +1948,12 @@
 
     function _getRoleBadge(role) {
         const map = {
-            admin:    { icon: '👑', label: 'Администратор', color: '168,85,247',  bg: 'rgba(168,85,247,0.15)' },
-            customer: { icon: '📋', label: 'Заказчик',      color: '59,130,246',  bg: 'rgba(59,130,246,0.15)' },
-            executor: { icon: '🔧', label: 'Исполнитель',   color: '34,197,94',   bg: 'rgba(34,197,94,0.15)' },
-            engineer: { icon: '⚙️', label: 'Инженер',       color: '245,158,11',  bg: 'rgba(245,158,11,0.15)' }
+            admin:      { icon: '👑', label: 'Администратор', color: '168,85,247',  bg: 'rgba(168,85,247,0.15)' },
+            manager:    { icon: '👔', label: 'Менеджер',      color: '236,72,153',  bg: 'rgba(236,72,153,0.15)' },
+            customer:   { icon: '📋', label: 'Заказчик',      color: '59,130,246',  bg: 'rgba(59,130,246,0.15)' },
+            executor:   { icon: '🔧', label: 'Исполнитель',   color: '34,197,94',   bg: 'rgba(34,197,94,0.15)' },
+            engineer:   { icon: '⚙️', label: 'Инженер',       color: '245,158,11',  bg: 'rgba(245,158,11,0.15)' },
+            controller: { icon: '🔎', label: 'Контролёр',     color: '14,165,233',  bg: 'rgba(14,165,233,0.15)' }
         };
         const r = map[role] || map.customer;
         return `<span style="display:inline-flex;align-items:center;gap:0.3rem;padding:0.15rem 0.55rem;border-radius:6px;font-size:0.72rem;font-weight:600;background:${r.bg};color:rgb(${r.color})">${r.icon} ${r.label}</span>`;
@@ -1976,7 +1978,7 @@
 
         // Stats
         const totalUsers = allUsers.length;
-        const roleCounts = { customer: 0, executor: 0, engineer: 0, admin: 0 };
+        const roleCounts = { customer: 0, executor: 0, engineer: 0, controller: 0, manager: 0, admin: 0 };
         allUsers.forEach(u => { if (roleCounts[u.role] !== undefined) roleCounts[u.role]++; });
 
         // Pagination

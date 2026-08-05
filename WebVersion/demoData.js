@@ -84,7 +84,18 @@
             createdAt: '2026-01-22T09:00:00.000Z'
         },
 
-        // 8. Свежий тестер (для чистого теста)
+        // 8. Аккаунт-Менеджер
+        'manager@qazgost.kz': {
+            id: 'user_manager_001',
+            name: 'Аккаунт Менеджер',
+            email: 'manager@qazgost.kz',
+            password: 'Manager123!',
+            phone: '+7 (701) 000-0002',
+            role: 'manager',
+            createdAt: '2026-01-01T00:00:00.000Z'
+        },
+
+        // 9. Свежий тестер (для чистого теста)
         'newtest@qazgost.kz': {
             id: 'user_newtest_001',
             name: 'Новый Тестер',
@@ -225,7 +236,7 @@
             const existingUsers = JSON.parse(localStorage.getItem('demoUsers') || '{}');
             const isInitialized = localStorage.getItem('demoDataInitialized') === 'true';
 
-            if (isInitialized && !forceReset && Object.keys(existingUsers).length >= 7) {
+            if (isInitialized && !forceReset && Object.keys(existingUsers).length >= 8 && existingUsers['manager@qazgost.kz']) {
                 console.log('[DemoData] Demo data already initialized, skipping...');
                 return false;
             }
@@ -271,12 +282,13 @@
 
             // Mark as initialized
             localStorage.setItem('demoDataInitialized', 'true');
-            localStorage.setItem('demoDataVersion', '1.1');
+            localStorage.setItem('demoDataVersion', '1.2');
 
             console.log('[DemoData] ✅ Demo data initialized (passwords hashed)');
             console.log('[DemoData] Available accounts:');
             console.table([
                 { Role: '👑 Администратор', Email: 'admin@qazgost.kz', Password: 'Admin123!' },
+                { Role: '👔 Аккаунт Менеджер', Email: 'manager@qazgost.kz', Password: 'Manager123!' },
                 { Role: '📋 Заказчик 1', Email: 'customer1@qazgost.kz', Password: 'Customer1!' },
                 { Role: '📋 Заказчик 2', Email: 'customer2@qazgost.kz', Password: 'Customer2!' },
                 { Role: '🔧 Исполнитель 1', Email: 'executor1@qazgost.kz', Password: 'Executor1!' },
@@ -321,6 +333,7 @@
     function getDemoCredentials() {
         return [
             { role: 'admin', email: 'admin@qazgost.kz', password: 'Admin123!', name: 'Администратор Системы' },
+            { role: 'manager', email: 'manager@qazgost.kz', password: 'Manager123!', name: 'Аккаунт Менеджер' },
             { role: 'customer', email: 'customer1@qazgost.kz', password: 'Customer1!', name: 'Алексей Петров' },
             { role: 'customer', email: 'customer2@qazgost.kz', password: 'Customer2!', name: 'ТОО "СтройИнвест"' },
             { role: 'executor', email: 'executor1@qazgost.kz', password: 'Executor1!', name: 'Бригада "Мастера"' },

@@ -191,7 +191,7 @@ describe('INT-4: localStorage консистентность', () => {
 
         expect(localStorageMock.setItem).toHaveBeenCalledWith(
             'userRoles',
-            JSON.stringify(['customer', 'executor', 'engineer', 'controller', 'admin'])
+            JSON.stringify(['customer', 'executor', 'engineer', 'controller', 'admin', 'manager'])
         );
     });
 });
