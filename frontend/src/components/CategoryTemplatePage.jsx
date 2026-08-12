@@ -4,6 +4,8 @@ export default function CategoryTemplatePage({ category, onBack }) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isGenerated, setIsGenerated] = useState(false);
   const [selectedService, setSelectedService] = useState(null);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(4);
 
   if (!category) return null;
 
@@ -14,6 +16,66 @@ export default function CategoryTemplatePage({ category, onBack }) {
       setIsGenerated(true);
     }, 2000);
   };
+
+  const handleLoadMore = () => {
+    setIsLoadingMore(true);
+    setTimeout(() => {
+      setIsLoadingMore(false);
+      setVisibleCount(prev => prev + 4);
+    }, 600);
+  };
+
+  // Mock extended services list
+  const allServices = [
+    {
+      title: 'Монтаж и подготовка поверхности',
+      price: 'от 2 800 ₸ / м²',
+      code: 'ГЭСН 08-01-002',
+      image: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&q=80&w=800'
+    },
+    {
+      title: 'Укладка базового слоя',
+      price: 'от 4 500 ₸ / м²',
+      code: 'ГОСТ 28013-89',
+      image: 'https://images.unsplash.com/photo-1541888087425-ce81dfc46928?auto=format&fit=crop&q=80&w=800'
+    },
+    {
+      title: 'Финишная обработка',
+      price: 'от 3 200 ₸ / м²',
+      code: 'Высший класс качества',
+      image: 'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?auto=format&fit=crop&q=80&w=800'
+    },
+    {
+      title: 'Демонтаж покрытий',
+      price: 'от 1 200 ₸ / м²',
+      code: 'СНиП 3.02.01-87',
+      image: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&q=80&w=800'
+    },
+    {
+      title: 'Гидроизоляция стыков',
+      price: 'от 1 800 ₸ / п.м.',
+      code: 'ГОСТ 30547-97',
+      image: 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&q=80&w=800'
+    },
+    {
+      title: 'Теплоизоляционные работы',
+      price: 'от 2 100 ₸ / м²',
+      code: 'СНиП 23-02-2003',
+      image: 'https://images.unsplash.com/photo-1517581177682-a085bb7ffb15?auto=format&fit=crop&q=80&w=800'
+    },
+    {
+      title: 'Вывоз строительного мусора',
+      price: 'от 15 000 ₸ / рейс',
+      code: 'Транспортные расходы',
+      image: 'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&q=80&w=800'
+    },
+    {
+      title: 'Генеральная уборка объекта',
+      price: 'от 800 ₸ / м²',
+      code: 'Клининг после ремонта',
+      image: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&q=80&w=800'
+    }
+  ];
 
   return (
     <div className="category-template-page">
@@ -56,14 +118,7 @@ export default function CategoryTemplatePage({ category, onBack }) {
             <div className="category-services-list">
               <h2 className="section-title">Популярные виды работ</h2>
               <div className="eng-v2-grid" style={{ marginTop: '1.5rem', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))' }}>
-                {/* Mocked list for template with images */}
-                {[
-                  { title: 'Монтаж и подготовка поверхности', code: 'ГЭСН 08-01-002', price: 'от 2 800 ₸ / м²', image: 'https://images.unsplash.com/photo-1541888086925-ebca89bba4c9?auto=format&fit=crop&w=600&q=80', size: 'large' },
-                  { title: 'Укладка базового слоя', code: 'ГОСТ 28013-89', price: 'от 4 500 ₸ / м²', image: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=600&q=80', size: 'medium' },
-                  { title: 'Финишная обработка', code: 'Высший класс качества', price: 'от 3 200 ₸ / м²', image: 'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?auto=format&fit=crop&w=600&q=80', size: 'medium' },
-                  { title: 'Демонтаж покрытий', code: 'СНиП 3.02.01-87', price: 'от 1 200 ₸ / м²', image: 'https://images.unsplash.com/photo-1531834685032-c34bf0d84c77?auto=format&fit=crop&w=600&q=80', size: 'medium' },
-                  { title: 'Вывоз мусора', code: 'Транспортные расходы', price: 'от 15 000 ₸', image: 'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=600&q=80', size: 'large' },
-                ].map((svc, idx) => (
+                {allServices.slice(0, visibleCount).map((svc, idx) => (
                   <div 
                     className="eng-v2-card" 
                     key={idx}
@@ -86,9 +141,16 @@ export default function CategoryTemplatePage({ category, onBack }) {
                 ))}
               </div>
               
-              <button className="view-all-services-btn">
-                Смотреть все {category.count} расценок ↓
-              </button>
+              {visibleCount < allServices.length && (
+                <button 
+                  className="view-all-services-btn" 
+                  onClick={handleLoadMore}
+                  disabled={isLoadingMore}
+                  style={{ opacity: isLoadingMore ? 0.7 : 1, cursor: isLoadingMore ? 'wait' : 'pointer' }}
+                >
+                  {isLoadingMore ? 'Загрузка...' : `Смотреть ещё расценки ↓`}
+                </button>
+              )}
             </div>
 
             {/* Right Column: AI Estimate Generator */}
