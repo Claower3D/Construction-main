@@ -54,22 +54,24 @@ export default function CategoryTemplatePage({ category, onBack }) {
             {/* Left Column: List of sub-services */}
             <div className="category-services-list">
               <h2 className="section-title">Популярные виды работ</h2>
-              <div className="services-list-wrapper">
-                {/* Mocked list for template */}
+              <div className="category-services-bento-grid">
+                {/* Mocked list for template with images */}
                 {[
-                  { title: 'Монтаж и подготовка поверхности', code: 'ГЭСН 08-01-002', price: 'от 2 800 ₸ / м²' },
-                  { title: 'Укладка базового слоя & армирование', code: 'ГОСТ 28013-89', price: 'от 4 500 ₸ / м²' },
-                  { title: 'Финишная обработка & герметизация', code: 'Высший класс качества B25', price: 'от 3 200 ₸ / м²' },
-                  { title: 'Демонтаж старых покрытий', code: 'СНиП 3.02.01-87', price: 'от 1 200 ₸ / м²' },
-                  { title: 'Вывоз строительного мусора', code: 'Транспортные расходы', price: 'от 15 000 ₸ / рейс' },
+                  { title: 'Монтаж и подготовка поверхности', code: 'ГЭСН 08-01-002', price: 'от 2 800 ₸ / м²', image: 'https://images.unsplash.com/photo-1541888086925-ebca89bba4c9?auto=format&fit=crop&w=600&q=80', size: 'large' },
+                  { title: 'Укладка базового слоя', code: 'ГОСТ 28013-89', price: 'от 4 500 ₸ / м²', image: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=600&q=80', size: 'medium' },
+                  { title: 'Финишная обработка', code: 'Высший класс качества', price: 'от 3 200 ₸ / м²', image: 'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?auto=format&fit=crop&w=600&q=80', size: 'medium' },
+                  { title: 'Демонтаж покрытий', code: 'СНиП 3.02.01-87', price: 'от 1 200 ₸ / м²', image: 'https://images.unsplash.com/photo-1531834685032-c34bf0d84c77?auto=format&fit=crop&w=600&q=80', size: 'medium' },
+                  { title: 'Вывоз мусора', code: 'Транспортные расходы', price: 'от 15 000 ₸', image: 'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=600&q=80', size: 'large' },
                 ].map((svc, idx) => (
-                  <div className="cat-service-row" key={idx}>
-                    <div className="cat-svc-info">
-                      <strong>{svc.title}</strong>
-                      <small>{svc.code}</small>
+                  <div className={`ref-card ${svc.size === 'large' ? 'card-wide-60' : 'card-medium-40'} cat-bento-card`} key={idx}>
+                    <div className="ref-card-text cat-bento-text">
+                      <h3 className="ref-card-title">{svc.title}</h3>
+                      <div className="cat-bento-price-tag">{svc.price}</div>
+                      <small className="cat-bento-code">📑 {svc.code}</small>
                     </div>
-                    <div className="cat-svc-price">
-                      {svc.price}
+                    <div className="ref-card-img-side">
+                      <img src={svc.image} alt={svc.title} />
+                      <button className="ref-purple-circle">➔</button>
                     </div>
                   </div>
                 ))}

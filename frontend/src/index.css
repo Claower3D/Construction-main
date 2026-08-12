@@ -12171,6 +12171,66 @@ body.dark .split-service-card {
   border-color: rgba(255,255,255,0.3);
 }
 
+.category-services-bento-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.category-services-bento-grid .card-wide-60 {
+  grid-column: span 2;
+}
+
+.cat-bento-card {
+  min-height: 200px;
+  background: linear-gradient(145deg, rgba(30, 41, 59, 0.4), rgba(15, 23, 42, 0.2));
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.cat-bento-card:hover {
+  box-shadow: 0 15px 40px rgba(99, 102, 241, 0.2);
+  transform: translateY(-4px);
+  background: linear-gradient(145deg, rgba(30, 41, 59, 0.6), rgba(15, 23, 42, 0.4));
+  border-color: rgba(99, 102, 241, 0.3);
+}
+
+.cat-bento-text {
+  padding: 1.5rem !important;
+}
+
+.cat-bento-card .ref-card-title {
+  color: #fff;
+  font-weight: 700;
+  margin-bottom: 0.8rem;
+  font-size: 1.25rem;
+}
+
+.cat-bento-price-tag {
+  display: inline-block;
+  background: rgba(99, 102, 241, 0.15);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  color: var(--primary-light);
+  font-weight: 700;
+  font-size: 1.1rem;
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  margin-bottom: 1rem;
+}
+
+.cat-bento-code {
+  color: #94a3b8;
+  font-size: 0.85rem;
+  display: block;
+}
+
+.cat-bento-card .ref-card-img-side::before {
+  background: linear-gradient(to right, rgba(15, 23, 42, 1) 0%, transparent 100%);
+}
+
 @media (max-width: 992px) {
   .category-grid-layout {
     grid-template-columns: 1fr;
@@ -12187,5 +12247,11 @@ body.dark .split-service-card {
   .cat-hero-stats {
     justify-content: center;
     flex-wrap: wrap;
+  }
+  .category-services-bento-grid {
+    grid-template-columns: 1fr;
+  }
+  .category-services-bento-grid .card-wide-60 {
+    grid-column: span 1;
   }
 }
