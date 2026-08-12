@@ -48,6 +48,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
 
   const [objectsSearch, setObjectsSearch] = useState('');
   const [isAiRunning, setIsAiRunning] = useState(false);
+  const [previewFile, setPreviewFile] = useState(null);
 
   const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
   const monthsList = monthNames.map(m => `${m} ${currentYear}`);
@@ -1771,11 +1772,13 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                              const isImg = p.name.match(/\.(jpeg|jpg|gif|png)$/i);
                              const imgUrl = p.url || (isImg ? `https://images.unsplash.com/photo-1541888086925-ebca89bba4c9?w=100&q=80&random=${pIdx}` : null);
                              return (
-                               <div key={pIdx} style={{ 
+                               <div key={pIdx} 
+                                 onClick={() => setPreviewFile({ name: p.name, url: imgUrl, isImg })}
+                                 style={{ 
                                  width: '40px', height: '40px', borderRadius: '6px', 
                                  backgroundColor: '#1e293b', border: '1px solid #334155',
                                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                 overflow: 'hidden', title: p.name
+                                 overflow: 'hidden', title: p.name, cursor: 'pointer'
                                }}>
                                  {isImg ? (
                                    <img src={imgUrl} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -1885,6 +1888,45 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
               </div>
             </form>
           </div>
+        </div>
+      )}
+
+      {/* FULLSCREEN FILE PREVIEW MODAL */}
+      {previewFile && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
+          backgroundColor: 'rgba(0,0,0,0.92)', zIndex: 100000,
+          display: 'flex', justifyContent: 'center', alignItems: 'center',
+          backdropFilter: 'blur(8px)'
+        }}>
+          <button 
+            onClick={() => setPreviewFile(null)}
+            style={{ position: 'absolute', top: '30px', right: '40px', background: 'transparent', border: 'none', color: '#fff', fontSize: '2.5rem', cursor: 'pointer', zIndex: 100001, opacity: 0.7, transition: '0.2s' }}
+            onMouseOver={(e) => e.target.style.opacity = 1}
+            onMouseOut={(e) => e.target.style.opacity = 0.7}
+          >
+            ✕
+          </button>
+          
+          {previewFile.isImg || previewFile.url ? (
+            <img 
+              src={previewFile.url || `https://images.unsplash.com/photo-1541888086925-ebca89bba4c9?w=800&q=80`} 
+              alt={previewFile.name} 
+              style={{ maxWidth: '90%', maxHeight: '90%', objectFit: 'contain', borderRadius: '8px', boxShadow: '0 20px 50px rgba(0,0,0,0.8)' }} 
+            />
+          ) : (
+            <div style={{ backgroundColor: '#0f172a', padding: '3rem', borderRadius: '12px', border: '1px solid #334155', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', minWidth: '300px' }}>
+              <span style={{ fontSize: '5rem' }}>📄</span>
+              <h3 style={{ color: '#fff', margin: 0, fontSize: '1.2rem' }}>{previewFile.name}</h3>
+              <p style={{ color: '#94a3b8', margin: 0, fontSize: '0.9rem' }}>Предпросмотр недоступен для этого типа файла</p>
+              <button 
+                style={{ background: '#3b82f6', color: '#fff', border: 'none', padding: '0.8rem 1.8rem', borderRadius: '8px', marginTop: '1.5rem', cursor: 'pointer', fontWeight: 'bold' }}
+                onClick={() => alert(`Скачивание файла: ${previewFile.name}`)}
+              >
+                Скачать файл
+              </button>
+            </div>
+          )}
         </div>
       )}
 
