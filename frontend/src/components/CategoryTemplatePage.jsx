@@ -1,7 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 export default function CategoryTemplatePage({ category, onBack }) {
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [isGenerated, setIsGenerated] = useState(false);
+
   if (!category) return null;
+
+  const handleGenerate = () => {
+    setIsGenerating(true);
+    setTimeout(() => {
+      setIsGenerating(false);
+      setIsGenerated(true);
+    }, 2000);
+  };
 
   return (
     <div className="category-template-page">
@@ -83,13 +94,29 @@ export default function CategoryTemplatePage({ category, onBack }) {
                   placeholder="Например: Нужно сделать фундамент 10х10 метров, ленточный, глубина 1.5м..."
                 ></textarea>
                 
-                <button className="ai-generate-btn" onClick={() => alert('Генерация сметы в разработке!')}>
-                  Сгенерировать смету ➔
-                </button>
+                {!isGenerated ? (
+                  <button 
+                    className={`ai-generate-btn ${isGenerating ? 'loading' : ''}`} 
+                    onClick={handleGenerate}
+                    disabled={isGenerating}
+                  >
+                    {isGenerating ? (
+                      <><span className="spinner-icon">⏳</span> Анализируем...</>
+                    ) : (
+                      <>Сгенерировать смету ➔</>
+                    )}
+                  </button>
+                ) : (
+                  <div className="ai-success-msg">
+                    <span className="success-icon">✅</span>
+                    Смета успешно сгенерирована! 
+                    <button className="view-estimate-btn">Открыть смету</button>
+                  </div>
+                )}
               </div>
 
-              <div className="help-box">
-                <h4>Нужна помощь инженера?</h4>
+              <div className="help-box bento-card">
+                <div className="help-icon">👨‍💻</div>
                 <p>Наши ПТО-инженеры помогут составить точную смету с выездом на объект.</p>
                 <button className="help-btn">Заказать аудит</button>
               </div>
