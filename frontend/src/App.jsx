@@ -146,11 +146,6 @@ export default function App() {
     return isDashboardAllowed(currentView) ? <AdminDashboardPage userRole={currentView} onBackToHome={navigateToLanding} onOpenEngineer={navigateToEngineer} /> : null;
   }
 
-  // Category Template View
-  if (currentView === 'category') {
-    return <CategoryTemplatePage category={currentCategory} onBack={navigateToLanding} />;
-  }
-
   return (
     <div className="app-root">
       <AnimatedBackground />
@@ -168,18 +163,24 @@ export default function App() {
         onOpenDashboard={() => navigateToDashboard(currentUser?.role || role)}
       />
 
-      <main style={{ position: 'relative', zIndex: 1 }}>
-        <HeroSection role={role} />
-        <FeatureHighlights />
-        <PriceCatalogSection onOpenCategory={navigateToCategory} />
-        <PlatformServicesSection />
-        <EngineeringServicesSection />
-        <StatsBanner />
-        <HowItWorksSection />
-        <TestimonialsSection />
-        <MobileAppBanner />
-        <FaqSection />
-      </main>
+        <main style={{ position: 'relative', zIndex: 1 }}>
+          {currentView === 'category' ? (
+            <CategoryTemplatePage category={currentCategory} onBack={navigateToLanding} />
+          ) : (
+            <>
+              <HeroSection role={role} />
+              <FeatureHighlights />
+              <PriceCatalogSection onOpenCategory={navigateToCategory} />
+              <PlatformServicesSection />
+              <EngineeringServicesSection />
+              <StatsBanner />
+              <HowItWorksSection />
+              <TestimonialsSection />
+              <MobileAppBanner />
+              <FaqSection />
+            </>
+          )}
+        </main>
 
       <FooterSection />
 

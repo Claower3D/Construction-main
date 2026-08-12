@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 export default function CategoryTemplatePage({ category, onBack }) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isGenerated, setIsGenerated] = useState(false);
+  const [selectedService, setSelectedService] = useState(null);
 
   if (!category) return null;
 
@@ -63,7 +64,12 @@ export default function CategoryTemplatePage({ category, onBack }) {
                   { title: 'Демонтаж покрытий', code: 'СНиП 3.02.01-87', price: 'от 1 200 ₸ / м²', image: 'https://images.unsplash.com/photo-1531834685032-c34bf0d84c77?auto=format&fit=crop&w=600&q=80', size: 'medium' },
                   { title: 'Вывоз мусора', code: 'Транспортные расходы', price: 'от 15 000 ₸', image: 'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=600&q=80', size: 'large' },
                 ].map((svc, idx) => (
-                  <div className={`ref-card ${svc.size === 'large' ? 'card-wide-60' : 'card-medium-40'} cat-bento-card`} key={idx}>
+                  <div 
+                    className={`ref-card ${svc.size === 'large' ? 'card-wide-60' : 'card-medium-40'} cat-bento-card`} 
+                    key={idx}
+                    onClick={() => setSelectedService(svc)}
+                    style={{ cursor: 'pointer' }}
+                  >
                     <div className="ref-card-text cat-bento-text">
                       <h3 className="ref-card-title">{svc.title}</h3>
                       <div className="cat-bento-price-tag">{svc.price}</div>
@@ -127,6 +133,52 @@ export default function CategoryTemplatePage({ category, onBack }) {
           </div>
         </div>
       </section>
+
+      {/* Service Details Modal */}
+      {selectedService && (
+        <div className="admin-modal-overlay" onClick={() => setSelectedService(null)}>
+          <div className="admin-modal-content glass-panel" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '600px', width: '100%' }}>
+            <button className="modal-close-btn" onClick={() => setSelectedService(null)}>✕</button>
+            <div className="modal-header">
+              <h2>{selectedService.title}</h2>
+              <span className="modal-badge">{selectedService.code}</span>
+            </div>
+            
+            <div className="modal-body" style={{ marginTop: '1.5rem' }}>
+              <img src={selectedService.image} alt={selectedService.title} style={{ width: '100%', height: '200px', objectFit: 'cover', borderRadius: '12px', marginBottom: '1.5rem' }} />
+              
+              <div className="service-details-grid" style={{ display: 'grid', gap: '1rem', marginBottom: '1.5rem' }}>
+                <div className="detail-row" style={{ display: 'flex', justifyContent: 'space-between', padding: '1rem', background: 'rgba(255,255,255,0.05)', borderRadius: '8px' }}>
+                  <span style={{ color: '#94a3b8' }}>Базовая стоимость</span>
+                  <strong style={{ color: '#10b981', fontSize: '1.1rem' }}>{selectedService.price}</strong>
+                </div>
+                <div className="detail-row" style={{ display: 'flex', justifyContent: 'space-between', padding: '1rem', background: 'rgba(255,255,255,0.05)', borderRadius: '8px' }}>
+                  <span style={{ color: '#94a3b8' }}>Единица измерения</span>
+                  <strong style={{ color: '#fff' }}>{selectedService.price.split(' / ')[1] || 'ед.'}</strong>
+                </div>
+                <div className="detail-row" style={{ display: 'flex', justifyContent: 'space-between', padding: '1rem', background: 'rgba(255,255,255,0.05)', borderRadius: '8px' }}>
+                  <span style={{ color: '#94a3b8' }}>Норматив</span>
+                  <strong style={{ color: '#fff' }}>{selectedService.code}</strong>
+                </div>
+              </div>
+
+              <div className="service-description" style={{ color: '#cbd5e1', lineHeight: '1.6', fontSize: '0.95rem' }}>
+                <p>Данная расценка включает в себя полный комплекс работ согласно нормативу {selectedService.code}. В стоимость включены базовые трудозатраты и эксплуатация машин. Материалы рассчитываются отдельно по проекту.</p>
+              </div>
+            </div>
+
+            <div className="modal-footer" style={{ marginTop: '2rem', display: 'flex', gap: '1rem' }}>
+              <button className="btn-primary" style={{ flex: 1, padding: '1rem', borderRadius: '12px' }} onClick={() => alert('Услуга добавлена в расчет!')}>
+                Добавить в смету
+              </button>
+              <button className="btn-secondary" style={{ flex: 1, padding: '1rem', borderRadius: '12px', background: 'rgba(255,255,255,0.1)', color: '#fff', border: 'none' }} onClick={() => setSelectedService(null)}>
+                Закрыть
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
