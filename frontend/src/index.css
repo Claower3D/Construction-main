@@ -1064,17 +1064,20 @@ body.light .header-wrapper {
 }
 
 .btn-start-gold-big {
-  background: linear-gradient(135deg, var(--gold-light), var(--gold-main));
+  background-color: #f6c453;
+  background-image: linear-gradient(135deg, #ffe6a6, #f6c453);
   color: #0b0f1f;
   font-weight: 900;
   font-size: 1.15rem;
   border: none;
-  border-radius: var(--radius-pill);
+  border-radius: 50px;
   padding: 1.1rem 2.5rem;
   cursor: pointer;
   transition: all 0.25s ease;
   display: inline-flex;
   align-items: center;
+  opacity: 1 !important;
+  visibility: visible !important;
   gap: 0.6rem;
   box-shadow: 0 10px 30px rgba(246, 196, 83, 0.4);
 }
