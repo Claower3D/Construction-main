@@ -39,7 +39,7 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
         {/* Navigation Dropdowns for 4 Roles */}
         <div className="nav-links-group">
           {/* 1. ROLE: ZA KAZCHIK (ORDERER) */}
-          {(!currentUser || currentUser.role === 'customer') && role === 'customer' && (
+          {currentUser && currentUser.role === 'customer' && (
           <div className="nav-dropdown-wrapper">
             <button
               className={`nav-dropdown-btn ${activeNavDropdown === 'orderer' ? 'active' : ''}`}
@@ -109,7 +109,7 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
           )}
 
           {/* 2. ROLE: ISPOLNITEL (CONTRACTOR) */}
-          {(!currentUser || currentUser.role === 'executor') && role === 'executor' && (
+          {currentUser && currentUser.role === 'executor' && (
           <div className="nav-dropdown-wrapper">
             <button
               className={`nav-dropdown-btn ${activeNavDropdown === 'contractor' ? 'active' : ''}`}
@@ -184,7 +184,7 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
           )}
 
           {/* 3. ROLE: ENGINEER */}
-          {(!currentUser || currentUser.role === 'engineer') && role === 'engineer' && (
+          {currentUser && currentUser.role === 'engineer' && (
           <div className="nav-dropdown-wrapper">
             <button
               className={`nav-dropdown-btn ${activeNavDropdown === 'engineer' ? 'active' : ''}`}
@@ -224,7 +224,7 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
           )}
 
           {/* 4. ROLE: ADMIN */}
-          {(!currentUser || currentUser.role === 'admin') && role === 'admin' && (
+          {currentUser && currentUser.role === 'admin' && (
           <div className="nav-dropdown-wrapper">
             <button
               className={`nav-dropdown-btn btn-admin-nav ${activeNavDropdown === 'admin' ? 'active' : ''}`}
@@ -276,7 +276,7 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
           )}
 
           {/* 5. ROLE: MANAGER */}
-          {(!currentUser || currentUser.role === 'manager') && role === 'manager' && (
+          {currentUser && currentUser.role === 'manager' && (
           <div className="nav-dropdown-wrapper">
             <button
               className={`nav-dropdown-btn btn-admin-nav ${activeNavDropdown === 'manager' ? 'active' : ''}`}
