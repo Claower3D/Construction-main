@@ -55,7 +55,7 @@ export default function CategoryTemplatePage({ category, onBack }) {
             {/* Left Column: List of sub-services */}
             <div className="category-services-list">
               <h2 className="section-title">Популярные виды работ</h2>
-              <div className="category-services-bento-grid">
+              <div className="eng-v2-grid" style={{ marginTop: '1.5rem', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))' }}>
                 {/* Mocked list for template with images */}
                 {[
                   { title: 'Монтаж и подготовка поверхности', code: 'ГЭСН 08-01-002', price: 'от 2 800 ₸ / м²', image: 'https://images.unsplash.com/photo-1541888086925-ebca89bba4c9?auto=format&fit=crop&w=600&q=80', size: 'large' },
@@ -65,19 +65,22 @@ export default function CategoryTemplatePage({ category, onBack }) {
                   { title: 'Вывоз мусора', code: 'Транспортные расходы', price: 'от 15 000 ₸', image: 'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=600&q=80', size: 'large' },
                 ].map((svc, idx) => (
                   <div 
-                    className={`ref-card ${svc.size === 'large' ? 'card-wide-60' : 'card-medium-40'} cat-bento-card`} 
+                    className="eng-v2-card" 
                     key={idx}
                     onClick={() => setSelectedService(svc)}
                     style={{ cursor: 'pointer' }}
                   >
-                    <div className="ref-card-text cat-bento-text">
-                      <h3 className="ref-card-title">{svc.title}</h3>
-                      <div className="cat-bento-price-tag">{svc.price}</div>
-                      <small className="cat-bento-code">📑 {svc.code}</small>
-                    </div>
-                    <div className="ref-card-img-side">
+                    <div className="eng-v2-img-banner">
+                      <div className="eng-v2-overlay"></div>
                       <img src={svc.image} alt={svc.title} />
-                      <button className="ref-purple-circle">➔</button>
+                      <div className="eng-v2-tag">📑 {svc.code}</div>
+                    </div>
+                    <div className="eng-v2-body">
+                      <h3 className="eng-v2-title">{svc.title}</h3>
+                      <div className="eng-v2-footer" style={{ marginTop: '1.2rem' }}>
+                        <span style={{ color: 'var(--primary-light)', fontWeight: 900, fontSize: '1.15rem' }}>{svc.price}</span>
+                        <div className="eng-v2-action-circle">➔</div>
+                      </div>
                     </div>
                   </div>
                 ))}
