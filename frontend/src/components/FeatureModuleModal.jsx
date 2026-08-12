@@ -1,0 +1,335 @@
+import React, { useState } from 'react';
+
+export default function FeatureModuleModal({ moduleId, itemData, onClose, onOpenAdminTab }) {
+  // Common states for interactive forms
+  const [photoUploaded, setPhotoUploaded] = useState(false);
+  const [isScanning, setIsScanning] = useState(false);
+  const [scanResult, setScanResult] = useState(null);
+
+  // Estimate calculator states
+  const [area, setArea] = useState(65);
+  const [propertyType, setPropertyType] = useState('квартира');
+  const [qualityLevel, setQualityLevel] = useState('комфорт');
+  const [calculatedEstimate, setCalculatedEstimate] = useState(null);
+
+  // Order submission proposal state
+  const [appliedOrders, setAppliedOrders] = useState({});
+
+  // Wallet state
+  const [balance, setBalance] = useState(485000);
+  const [topupAmount, setTopupAmount] = useState('');
+
+  if (!moduleId) return null;
+
+  // Handlers
+  const handleRunAiEstimate = () => {
+    setIsScanning(true);
+    setTimeout(() => {
+      setIsScanning(false);
+      const rate = propertyType === 'дом' ? 45000 : qualityLevel === 'премиум' ? 55000 : 32000;
+      const total = area * rate;
+      setCalculatedEstimate({
+        total,
+        worksCost: Math.round(total * 0.65),
+        materialsCost: Math.round(total * 0.35),
+        timelineDays: Math.round(area * 0.8),
+      });
+    }, 1200);
+  };
+
+  const handleRunDefectInspect = () => {
+    setIsScanning(true);
+    setTimeout(() => {
+      setIsScanning(false);
+      setScanResult({
+        defectType: 'Микротрещины несущей штукатурки',
+        severity: 'Низкая (Поверхностная)',
+        snipCode: 'СНиП РК 3.02-04-2019 (п. 4.12)',
+        recommendedFix: 'Армированная шпаклевка стеклохолстом + грунтовка',
+        estimatedFixPrice: '14,500 ₸ / м²',
+      });
+    }, 1500);
+  };
+
+  const handleApplyOrder = (orderId) => {
+    setAppliedOrders({ ...appliedOrders, [orderId]: true });
+  };
+
+  const handleTopupWallet = (e) => {
+    e.preventDefault();
+    const val = parseFloat(topupAmount);
+    if (val && val > 0) {
+      setBalance(balance + val);
+      setTopupAmount('');
+      alert(`🎉 Баланс успешно пополнен на ${val.toLocaleString()} ₸!`);
+    }
+  };
+
+  return (
+    <div className="feature-modal-overlay">
+      <div className="feature-modal-container">
+        {/* Header */}
+        <div className="feature-modal-header">
+          <div className="feature-header-left">
+            <span className="feature-modal-icon">{itemData?.icon || '⚙️'}</span>
+            <div>
+              <h2 className="feature-modal-title">{itemData?.name || 'Модуль системы'}</h2>
+              <p className="feature-modal-sub">{itemData?.desc || 'Интерактивный инструмент QazGost AI 2.0'}</p>
+            </div>
+          </div>
+          <button className="feature-close-btn" onClick={onClose}>✕</button>
+        </div>
+
+        {/* Modal Content Router based on moduleId */}
+        <div className="feature-modal-body">
+          {/* 1. ESTIMATE CALCULATOR (c-estimate / e-estimate) */}
+          {(moduleId === 'c-estimate' || moduleId === 'e-estimate') && (
+            <div className="feature-content-box">
+              <h3>📸 Умный AI-Калькулятор оценки стоимости сметы</h3>
+              <p className="sub-text">Выберите параметры объекта или загрузите фото для автоматического расчёта по ГЭСН-2026 РК.</p>
+
+              <div className="form-grid-2">
+                <div className="form-item">
+                  <label>Тип объекта:</label>
+                  <select value={propertyType} onChange={(e) => setPropertyType(e.target.value)}>
+                    <option value="квартира">🏢 Квартира (Вторичка/Новостройка)</option>
+                    <option value="дом">🏠 Частный дом / Коттедж</option>
+                    <option value="офис">🏬 Офис / Коммерческое помещение</option>
+                  </select>
+                </div>
+
+                <div className="form-item">
+                  <label>Уровень отделки:</label>
+                  <select value={qualityLevel} onChange={(e) => setQualityLevel(e.target.value)}>
+                    <option value="эконом">Базовый / Эконом</option>
+                    <option value="комфорт">Стандарт / Комфорт</option>
+                    <option value="премиум">Дизайнерский / Премиум</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="form-item" style={{ marginTop: '1rem' }}>
+                <label>Площадь помещения: <strong>{area} м²</strong></label>
+                <input type="range" min="10" max="500" value={area} onChange={(e) => setArea(parseInt(e.target.value))} className="range-slider" />
+              </div>
+
+              <div className="photo-upload-dropzone" onClick={() => setPhotoUploaded(true)}>
+                <span className="drop-icon">📷</span>
+                <div>
+                  <strong>{photoUploaded ? '✅ Фото объекта успешно прикреплено' : 'Перетащите сюда фото объекта или нажмите для выбора'}</strong>
+                  <div className="small-text">AI автоматически распознает геометрию стен и текущее состояние</div>
+                </div>
+              </div>
+
+              <button className="btn-action-hero" onClick={handleRunAiEstimate} disabled={isScanning}>
+                {isScanning ? '⏳ AI анализирует параметры и базы ГЭСН...' : '🚀 Рассчитать точную смету'}
+              </button>
+
+              {calculatedEstimate && (
+                <div className="result-card-glow">
+                  <h4>📊 Итоговый расчёт стоимости сметы:</h4>
+                  <div className="big-price">{calculatedEstimate.total.toLocaleString()} ₸</div>
+                  <div className="calc-details-grid">
+                    <div><span>Стоимость работ:</span> <strong>{calculatedEstimate.worksCost.toLocaleString()} ₸</strong></div>
+                    <div><span>Стоимость материалов:</span> <strong>{calculatedEstimate.materialsCost.toLocaleString()} ₸</strong></div>
+                    <div><span>Срок выполнения:</span> <strong>~{calculatedEstimate.timelineDays} дней</strong></div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* 2. DEFECT INSPECTION (c-inspect / e-inspect) */}
+          {(moduleId === 'c-inspect' || moduleId === 'e-inspect') && (
+            <div className="feature-content-box">
+              <h3>🔍 AI-Детектоскопия дефектов и экспертиза конструкций</h3>
+              <p className="sub-text">Загрузите снимок повреждения стен, трещин или перепадов для проверки по СНиП РК.</p>
+
+              <div className="photo-upload-dropzone" onClick={() => setPhotoUploaded(true)}>
+                <span className="drop-icon">🔬</span>
+                <div>
+                  <strong>{photoUploaded ? '✅ Фото дефекта загружено в сканер' : 'Нажмите здесь, чтобы загрузить фото трещины или пола'}</strong>
+                  <div className="small-text">Поддерживаются форматы JPG, PNG, HEIC</div>
+                </div>
+              </div>
+
+              <button className="btn-action-hero" onClick={handleRunDefectInspect} disabled={isScanning}>
+                {isScanning ? '🔍 Компьютерное зрение сканирует дефект...' : '⚡ Запустить AI-экспертизу'}
+              </button>
+
+              {scanResult && (
+                <div className="result-card-glow">
+                  <h4>📋 Заключение технической экспертизы:</h4>
+                  <p><strong>Тип дефекта:</strong> {scanResult.defectType}</p>
+                  <p><strong>Уровень опасности:</strong> <span className="tag-warning">{scanResult.severity}</span></p>
+                  <p><strong>Нормативный стандарт:</strong> <code>{scanResult.snipCode}</code></p>
+                  <p><strong>Рекомендуемый метод устранения:</strong> {scanResult.recommendedFix}</p>
+                  <p><strong>Ориентировочная стоимость ремонта:</strong> <strong style={{ color: '#10b981' }}>{scanResult.estimatedFixPrice}</strong></p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* 3. VOLUME CALCULATOR (c-volume / e-volume / e-soil) */}
+          {(moduleId === 'c-volume' || moduleId === 'e-volume' || moduleId === 'e-soil') && (
+            <div className="feature-content-box">
+              <h3>📏 Автоматический расчёт объёмов работ и BOM материалов</h3>
+              <div className="calc-inputs-grid">
+                <div className="form-item"><label>Длина (м):</label><input type="number" defaultValue="12" /></div>
+                <div className="form-item"><label>Ширина (м):</label><input type="number" defaultValue="8" /></div>
+                <div className="form-item"><label>Высота / Толщина (м):</label><input type="number" defaultValue="0.2" /></div>
+              </div>
+
+              <div className="result-card-glow" style={{ marginTop: '1.25rem' }}>
+                <h4>📦 Расчитанные объёмы и расход:</h4>
+                <p><strong>Общий объём бетона/грунта:</strong> 19.2 м³</p>
+                <p><strong>Площадь поверхности:</strong> 96.0 м²</p>
+                <p><strong>Необходимое количество арматуры:</strong> 1.45 тн (A500C 12мм)</p>
+                <p><strong>Песчано-щебёночная подушка:</strong> 28.8 м³</p>
+              </div>
+            </div>
+          )}
+
+          {/* 4. ORDERS FEED (c-orders / e-feed / e-works) */}
+          {(moduleId === 'c-orders' || moduleId === 'e-feed' || moduleId === 'e-works') && (
+            <div className="feature-content-box">
+              <h3>🌐 Живая лента строительных заказов Казахстана</h3>
+              <div className="orders-list-wrap">
+                {[
+                  { id: 'ORD-881', title: 'Капитальный ремонт офиса 450 м²', city: 'Алматы', budget: '18 500 000 ₸', category: 'Отделка', date: '10 мин назад' },
+                  { id: 'ORD-882', title: 'Устройство монолитного фундамента коттеджа', city: 'Астана', budget: '6 400 000 ₸', category: 'Строительство', date: '25 мин назад' },
+                  { id: 'ORD-883', title: 'Электромонтажные работы в складском комплексе', city: 'Шымкент', budget: '3 200 000 ₸', category: 'Электрика', date: '1 час назад' },
+                ].map((ord) => (
+                  <div className="order-item-card" key={ord.id}>
+                    <div className="order-head">
+                      <strong>{ord.title}</strong>
+                      <span className="order-price">{ord.budget}</span>
+                    </div>
+                    <div className="order-meta">
+                      <span>📍 {ord.city}</span>
+                      <span>🏷️ {ord.category}</span>
+                      <span>⏱ {ord.date}</span>
+                    </div>
+                    <button
+                      className={`btn-apply-order ${appliedOrders[ord.id] ? 'applied' : ''}`}
+                      onClick={() => handleApplyOrder(ord.id)}
+                    >
+                      {appliedOrders[ord.id] ? '✅ Предложение отправлено' : '📝 Откликнуться на заказ'}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* 5. CONTRACTORS CATALOG (c-catalog / e-catalog) */}
+          {(moduleId === 'c-catalog' || moduleId === 'e-catalog') && (
+            <div className="feature-content-box">
+              <h3>📒 Реестр проверенных подрядчиков и мастеров по ИИН/БИН</h3>
+              <div className="contractors-grid">
+                {[
+                  { name: 'ИП «СтройМастер Казахстан»', bin: '880412300451', rating: '5.0 (42 отзыва)', spec: 'Монолит, Фасады, Кровля', status: '✅ ИИН Подтверждён' },
+                  { name: 'ТОО «Алматы Инжиниринг»', bin: '210440012930', rating: '4.9 (88 отзывов)', spec: 'ПСД, Технадзор, Инженерия', status: '✅ БИН Подтверждён' },
+                  { name: 'Мастер Бригадир Ерлан Б.', bin: '910905300188', rating: '4.9 (19 отзывов)', spec: 'Электрика, HVAC, Отделка', status: '✅ ИИН Подтверждён' },
+                ].map((c, i) => (
+                  <div className="contractor-card" key={i}>
+                    <h4>{c.name}</h4>
+                    <p className="bin-text">БИН/ИИН: {c.bin} • {c.status}</p>
+                    <p><strong>Специализация:</strong> {c.spec}</p>
+                    <p><strong>Рейтинг:</strong> ⭐ {c.rating}</p>
+                    <button className="btn-table-action" style={{ marginTop: '0.5rem' }}>📞 Связаться</button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* 6. EQUIPMENT MARKETPLACE (c-equipment / e-equipment) */}
+          {(moduleId === 'c-equipment' || moduleId === 'e-equipment') && (
+            <div className="feature-content-box">
+              <h3>🚜 Маркетплейс аренды спецтехники и закупа стройматериалов</h3>
+              <div className="equipment-grid">
+                {[
+                  { name: 'Экскаватор-погрузчик JCB 3CX', price: '95 000 ₸ / смена', city: 'Алматы', status: 'Свободен' },
+                  { name: 'Автокран XCMG 25 тонн (вылет 39м)', price: '140 000 ₸ / смена', city: 'Астана', status: 'Свободен' },
+                  { name: 'Самосвал KAMAZ 20 тонн', price: '25 000 ₸ / рейс', city: 'Шымкент', status: 'Свободен' },
+                ].map((eq, idx) => (
+                  <div className="equip-card" key={idx}>
+                    <h4>{eq.name}</h4>
+                    <div className="price-tag">{eq.price}</div>
+                    <p>📍 {eq.city} • <span style={{ color: '#10b981' }}>{eq.status}</span></p>
+                    <button className="admin-primary-btn" style={{ width: '100%', marginTop: '0.75rem' }}>🚜 Забронировать</button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* 7. WALLET & ESCROW (c-wallet / e-wallet) */}
+          {(moduleId === 'c-wallet' || moduleId === 'e-wallet') && (
+            <div className="feature-content-box">
+              <h3>💳 Мой Эскроу-Кошелёк и Финансовый Баланс</h3>
+              <div className="wallet-banner">
+                <div>
+                  <div className="wallet-label">Текущий баланс аккаунта:</div>
+                  <div className="wallet-value">{balance.toLocaleString()} ₸</div>
+                </div>
+                <span className="wallet-badge">🔒 Защита Эскроу Сделок Active</span>
+              </div>
+
+              <form onSubmit={handleTopupWallet} className="topup-form" style={{ marginTop: '1.25rem' }}>
+                <label>Пополнить баланс (₸):</label>
+                <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.35rem' }}>
+                  <input type="number" value={topupAmount} onChange={(e) => setTopupAmount(e.target.value)} placeholder="Введите сумму..." className="admin-search-input" />
+                  <button type="submit" className="btn-excel-export">💳 Пополнить</button>
+                </div>
+              </form>
+            </div>
+          )}
+
+          {/* 8. USER PROFILE (c-profile / e-profile) */}
+          {(moduleId === 'c-profile' || moduleId === 'e-profile') && (
+            <div className="feature-content-box">
+              <h3>📝 Профиль аккаунта и квалификация</h3>
+              <div className="form-grid-2">
+                <div className="form-item"><label>ФИО / Название ИП:</label><input type="text" defaultValue="Арман Касымов" /></div>
+                <div className="form-item"><label>ИИН / БИН:</label><input type="text" defaultValue="880412300451" /></div>
+                <div className="form-item"><label>Email:</label><input type="text" defaultValue="arman@qazgost.kz" /></div>
+                <div className="form-item"><label>Телефон:</label><input type="text" defaultValue="+7 701 555-01-99" /></div>
+              </div>
+              <button className="admin-primary-btn" style={{ marginTop: '1rem' }}>💾 Сохранить профиль</button>
+            </div>
+          )}
+
+          {/* 9. VIP MONOLITHIC CONSTRUCTION (c-vip / e-vip) */}
+          {(moduleId === 'c-vip' || moduleId === 'e-vip') && (
+            <div className="feature-content-box">
+              <h3>🏗️ Капитальное строительство зданий (VIP Уровень)</h3>
+              <p className="sub-text">Генподрядные работы, разработка ПСД, WBS-декомпозиция и технадзор объектов A-класса.</p>
+              <div className="result-card-glow">
+                <h4>⭐ VIP Услуги генерального подряда:</h4>
+                <ul>
+                  <li>Полное сопровождение ПСД и прохождение Государственной Экспертизы РК</li>
+                  <li>WBS-декомпозиция градостроительных нормативов (548 видов работ)</li>
+                  <li>Оформление эскроу-гарантий и банковского сопровождения</li>
+                </ul>
+              </div>
+            </div>
+          )}
+
+          {/* 10. DISPUTES & CONTRACTS (adm-disputes / adm-contracts) */}
+          {(moduleId === 'adm-disputes' || moduleId === 'adm-contracts') && (
+            <div className="feature-content-box">
+              <h3>📄 Реестр договоров подряда и электронный арбитраж (ЭЦП E-Gov)</h3>
+              <div className="result-card-glow">
+                <h4>📜 Активные договоры подряда:</h4>
+                <p>1. Договор № 402/2026 — Капитальный ремонт офиса (ТОО «Алматы Бизнес») • <strong>Подписано ЭЦП</strong></p>
+                <p>2. Договор № 405/2026 — Монолитный фундамент (ИП «СтройМастер») • <strong>Подписано ЭЦП</strong></p>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -35,6 +35,13 @@ const chatRoutes = require('./routes/chat');
 const financeRoutes = require('./routes/finance');
 const notificationRoutes = require('./routes/notifications');
 const telegramRoutes = require('./routes/telegram');
+const adminRoutes = require('./routes/admin');
+const pricesRoutes = require('./routes/prices');
+const moderationRoutes = require('./routes/moderation');
+const regionsRoutes = require('./routes/regions');
+const wbsRoutes = require('./routes/wbs');
+const equipmentRoutes = require('./routes/equipment');
+const disputesRoutes = require('./routes/disputes');
 
 // Socket.IO handlers
 const { initSocketHandlers } = require('./socket');
@@ -131,8 +138,17 @@ app.use(requestLogger);
 // Rate limiting
 app.use('/api/', rateLimiter);
 
-// Static files (uploads)
+// Static files (uploads & built React SPA)
 app.use('/uploads', express.static(config.upload.dir));
+
+const path = require('path');
+const frontendDist = path.resolve(process.cwd(), 'frontend/dist');
+const fs = require('fs');
+if (fs.existsSync(frontendDist)) {
+    app.use(express.static(frontendDist));
+}
+
+
 
 // ========== SWAGGER API DOCS ==========
 
@@ -161,6 +177,7 @@ app.get('/api/docs.json', (req, res) => {
 
 const apiPrefix = `/api/${config.api.version}`;
 
+// v1 routes
 app.use(`${apiPrefix}/auth`, authRoutes);
 app.use(`${apiPrefix}/users`, userRoutes);
 app.use(`${apiPrefix}/orders`, orderRoutes);
@@ -170,7 +187,27 @@ app.use(`${apiPrefix}/files`, fileRoutes);
 app.use(`${apiPrefix}/chat`, chatRoutes);
 app.use(`${apiPrefix}/finance`, financeRoutes);
 app.use(`${apiPrefix}/notifications`, notificationRoutes);
+app.use(`${apiPrefix}/admin`, adminRoutes);
+app.use(`${apiPrefix}/prices`, pricesRoutes);
+app.use(`${apiPrefix}/moderation`, moderationRoutes);
+app.use(`${apiPrefix}/regions`, regionsRoutes);
+app.use(`${apiPrefix}/wbs`, wbsRoutes);
+app.use(`${apiPrefix}/equipment`, equipmentRoutes);
+app.use(`${apiPrefix}/disputes`, disputesRoutes);
 app.use('/api/telegram', telegramRoutes); // Telegram bot API (no JWT, API key auth)
+
+// Direct compatibility aliases for /api/*
+app.use('/api/auth', authRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/engineers', engineerRoutes);
+app.use('/api/prices', pricesRoutes);
+app.use('/api/wbs', wbsRoutes);
+app.use('/api/disputes', disputesRoutes);
+app.use('/api/chat', chatRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/health', (req, res) => res.json({ status: 'ok', message: 'QazGost AI Combined Server is operational', uptime: process.uptime() }));
+app.use('/api/status', (req, res) => res.json({ server: 'QAZGOST AI Go/Node Hybrid Engine', version: '2.0.0', status: 'running' }));
+
 
 const { asyncHandler } = require('./middleware/errorHandler');
 const stripeService = require('./services/stripePayment');
@@ -349,10 +386,23 @@ app.get('/api', (req, res) => {
     });
 });
 
+// SPA wildcard fallback
+app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api') || req.path.startsWith('/uploads') || req.path.startsWith('/socket.io')) {
+        return next();
+    }
+    const indexFile = path.join(frontendDist, 'index.html');
+    if (fs.existsSync(indexFile)) {
+        return res.sendFile(indexFile);
+    }
+    next();
+});
+
 // ========== ERROR HANDLING ==========
 
 app.use(notFound);
 app.use(errorHandler);
+
 
 // ========== SOCKET.IO ==========
 

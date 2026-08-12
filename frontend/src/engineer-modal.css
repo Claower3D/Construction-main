@@ -1,0 +1,310 @@
+/* PIPELINE BOX AND TRACK */
+.crm-pipeline-box {
+  background: rgba(15, 23, 42, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 24px;
+}
+
+.pipeline-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.pipeline-header-title {
+  color: #94a3b8;
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.pipeline-progress-badge {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+/* HORIZONTAL SCROLL FOR TRACK */
+.crm-pipeline-track {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  overflow-x: auto;
+  padding-bottom: 8px; /* space for scrollbar */
+  gap: 0;
+}
+
+/* Custom Scrollbar for the track */
+.crm-pipeline-track::-webkit-scrollbar {
+  height: 6px;
+}
+.crm-pipeline-track::-webkit-scrollbar-track {
+  background: rgba(0,0,0,0.1);
+  border-radius: 4px;
+}
+.crm-pipeline-track::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.1);
+  border-radius: 4px;
+}
+.crm-pipeline-track::-webkit-scrollbar-thumb:hover {
+  background: rgba(255,255,255,0.2);
+}
+
+.pipeline-line-connector {
+  height: 2px;
+  min-width: 24px;
+  flex-grow: 1;
+  background: #334155;
+  transition: all 0.3s ease;
+}
+
+.pipeline-line-connector.active-line {
+  background: #10b981;
+}
+
+/* PILLS */
+.crm-stage-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 16px;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #cbd5e1;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.crm-stage-pill:hover {
+  transform: translateY(-2px);
+  background: rgba(255,255,255,0.1);
+}
+
+/* Active State for selected stage */
+.crm-stage-pill.is-active-stage {
+  box-shadow: 0 0 0 2px #3b82f6, 0 0 15px rgba(59, 130, 246, 0.4);
+  background: rgba(59, 130, 246, 0.1);
+  border-color: #3b82f6;
+  color: #fff;
+}
+
+.status-completed {
+  color: #10b981;
+  border-color: rgba(16, 185, 129, 0.4);
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.status-active {
+  color: #3b82f6;
+  border-color: rgba(59, 130, 246, 0.4);
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.status-review {
+  color: #f59e0b;
+  border-color: rgba(245, 158, 11, 0.4);
+  background: rgba(245, 158, 11, 0.1);
+}
+
+.status-planned {
+  color: #94a3b8;
+  border-color: rgba(148, 163, 184, 0.4);
+}
+
+.pill-check-icon {
+  margin-right: 6px;
+  font-weight: bold;
+}
+
+.pill-plus-icon {
+  margin-right: 6px;
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+.btn-add-pipeline-stage {
+  border-style: dashed;
+  background: transparent;
+  color: #8b5cf6;
+  border-color: rgba(139, 92, 246, 0.5);
+}
+
+.btn-add-pipeline-stage:hover {
+  background: rgba(139, 92, 246, 0.1);
+  border-color: #8b5cf6;
+  color: #a78bfa;
+}
+
+.pill-quick-del {
+  background: transparent;
+  border: none;
+  color: rgba(255,255,255,0.3);
+  font-size: 0.75rem;
+  margin-left: 10px;
+  padding: 0;
+  cursor: pointer;
+}
+
+.pill-quick-del:hover {
+  color: #ef4444;
+}
+
+/* STAGE DETAILS SECTION */
+.stage-details-panel {
+  margin-top: 16px;
+  background: rgba(0,0,0,0.2);
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid rgba(255,255,255,0.05);
+  animation: fadeIn 0.3s ease;
+}
+
+.stage-details-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.stage-details-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.stage-status-select {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  outline: none;
+  cursor: pointer;
+}
+.stage-status-select:focus {
+  border-color: #3b82f6;
+}
+.stage-status-select option {
+  background: #0f172a;
+  color: #fff;
+}
+
+.stage-details-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.stage-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.stage-field-label {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.stage-textarea {
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  padding: 12px;
+  color: #fff;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 100px;
+  outline: none;
+  font-size: 0.9rem;
+}
+.stage-textarea:focus {
+  border-color: #3b82f6;
+}
+
+.stage-files-area {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.stage-dropzone {
+  border: 2px dashed rgba(255,255,255,0.15);
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: rgba(0,0,0,0.1);
+}
+.stage-dropzone:hover {
+  border-color: #3b82f6;
+  background: rgba(59,130,246,0.05);
+}
+
+.stage-dropzone-icon {
+  font-size: 1.5rem;
+  margin-bottom: 8px;
+}
+
+.stage-dropzone-text {
+  font-size: 0.85rem;
+  color: #94a3b8;
+}
+
+.stage-files-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.stage-file-chip {
+  background: rgba(255,255,255,0.1);
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 0.8rem;
+  color: #cbd5e1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.stage-file-chip:hover {
+  background: rgba(255,255,255,0.15);
+}
+.stage-file-chip-del {
+  cursor: pointer;
+  color: #ef4444;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 768px) {
+  .stage-details-content {
+    grid-template-columns: 1fr;
+  }
+}

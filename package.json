@@ -1,11 +1,13 @@
 {
   "name": "qazgost-ai",
   "version": "2.0.0",
-  "description": "QAZGOST AI - Smart Construction Estimation Platform",
-  "main": "WebVersion/index.html",
+  "description": "QAZGOST AI - Combined React 18 + Express.js Construction Platform",
+  "main": "frontend/dist/index.html",
   "scripts": {
-    "start": "npx serve WebVersion -s -l ${PORT:-3030}",
-    "build": "echo 'Build complete'"
+    "start": "npm --prefix WebVersion/backend start",
+    "start:backend": "npm --prefix WebVersion/backend start",
+    "start:frontend": "npm --prefix frontend run dev",
+    "build:frontend": "npm --prefix frontend run build"
   },
   "dependencies": {
     "serve": "^14.2.4",
@@ -15,3 +17,4 @@
     "node": ">=18.0.0"
   }
 }
+

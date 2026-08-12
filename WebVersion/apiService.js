@@ -670,6 +670,51 @@
         return result.success;
     }
 
+    // ========== ADMIN & NEW MODULES API ==========
+    const AdminAPI = {
+        getAuditLogs: () => request('/admin/audit'),
+        exportAudit: () => request('/admin/audit/export'),
+        getUsers: (params = {}) => request(`/admin/users?role=${params.role || 'all'}&search=${encodeURIComponent(params.search || '')}`),
+        changeUserRole: (id, role) => request(`/admin/users/${id}/role`, { method: 'PATCH', body: { role } }),
+        toggleBlockUser: (id) => request(`/admin/users/${id}/toggle-block`, { method: 'PATCH' })
+    };
+
+    const PricesAPI = {
+        getAll: (params = {}) => request(`/prices?type=${params.type || 'all'}&search=${encodeURIComponent(params.search || '')}&page=${params.page || 1}&limit=${params.limit || 50}`),
+        getStats: () => request('/prices/stats'),
+        save: (data) => request('/prices', { method: 'POST', body: data }),
+        update: (code, data) => request(`/prices/${code}`, { method: 'PUT', body: data }),
+        delete: (code) => request(`/prices/${code}`, { method: 'DELETE' })
+    };
+
+    const ModerationAPI = {
+        getQueue: () => request('/moderation/queue'),
+        approve: (id) => request(`/moderation/${id}/approve`, { method: 'POST' }),
+        reject: (id) => request(`/moderation/${id}/reject`, { method: 'POST' }),
+        approveAll: () => request('/moderation/approve-all', { method: 'POST' })
+    };
+
+    const RegionsAPI = {
+        getAll: () => request('/regions'),
+        create: (region, coefficient) => request('/regions', { method: 'POST', body: { region, coefficient } }),
+        update: (region, coefficient) => request(`/regions/${encodeURIComponent(region)}`, { method: 'PUT', body: { coefficient } })
+    };
+
+    const WBSAPI = {
+        getPrices: () => request('/wbs/prices'),
+        savePrice: (wbsId, price) => request('/wbs/prices', { method: 'POST', body: { wbsId, price } })
+    };
+
+    const EquipmentAPI = {
+        getAll: (params = {}) => request(`/equipment?type=${params.type || 'all'}&city=${params.city || 'all'}`),
+        create: (data) => request('/equipment', { method: 'POST', body: data })
+    };
+
+    const DisputesAPI = {
+        getAll: () => request('/disputes'),
+        resolve: (id, resolution) => request(`/disputes/${id}/resolve`, { method: 'POST', body: { resolution } })
+    };
+
     // ========== EXPORT ==========
     window.API = {
         BASE_URL: API_BASE_URL,
@@ -685,6 +730,13 @@
         Notifications: NotificationsAPI,
         Files: FilesAPI,
         Verification: VerificationAPI,
+        Admin: AdminAPI,
+        Prices: PricesAPI,
+        Moderation: ModerationAPI,
+        Regions: RegionsAPI,
+        WBS: WBSAPI,
+        Equipment: EquipmentAPI,
+        Disputes: DisputesAPI,
         healthCheck,
         isBackendOnline,
         // Auth state management (tokens are in HttpOnly cookies)

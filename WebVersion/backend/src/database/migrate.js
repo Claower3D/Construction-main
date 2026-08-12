@@ -480,6 +480,101 @@ const migrations = [
     ALTER TABLE user_profiles ADD COLUMN IF NOT EXISTS telegram_username VARCHAR(100);
     `,
 
+    // ========== PRICE ITEMS ==========
+    `
+    CREATE TABLE IF NOT EXISTS price_items (
+        code VARCHAR(100) PRIMARY KEY,
+        name TEXT NOT NULL,
+        type VARCHAR(20) DEFAULT 'work' CHECK (type IN ('work', 'material', 'equipment')),
+        category VARCHAR(100),
+        unit VARCHAR(30) DEFAULT '—',
+        price DECIMAL(14,2) DEFAULT 0,
+        labor_norm DECIMAL(8,3),
+        source VARCHAR(100),
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        updated_at TIMESTAMPTZ DEFAULT NOW()
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_prices_type ON price_items(type);
+    CREATE INDEX IF NOT EXISTS idx_prices_category ON price_items(category);
+    `,
+
+    // ========== REGIONAL COEFFICIENTS ==========
+    `
+    CREATE TABLE IF NOT EXISTS regional_coefficients (
+        region VARCHAR(100) PRIMARY KEY,
+        coefficient DECIMAL(4,2) NOT NULL DEFAULT 1.00,
+        updated_at TIMESTAMPTZ DEFAULT NOW()
+    );
+    `,
+
+    // ========== AUDIT LOGS ==========
+    `
+    CREATE TABLE IF NOT EXISTS audit_logs (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_name VARCHAR(100) DEFAULT 'Admin',
+        action VARCHAR(50) NOT NULL,
+        description TEXT NOT NULL,
+        created_at TIMESTAMPTZ DEFAULT NOW()
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_audit_created ON audit_logs(created_at DESC);
+    `,
+
+    // ========== MODERATION QUEUE ==========
+    `
+    CREATE TABLE IF NOT EXISTS moderation_queue (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        entity_id VARCHAR(100),
+        entity_type VARCHAR(50) NOT NULL,
+        title TEXT NOT NULL,
+        description TEXT,
+        status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected')),
+        priority VARCHAR(20) DEFAULT 'normal' CHECK (priority IN ('normal', 'urgent')),
+        created_at TIMESTAMPTZ DEFAULT NOW()
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_moderation_status ON moderation_queue(status);
+    `,
+
+    // ========== WBS CATALOG PRICES ==========
+    `
+    CREATE TABLE IF NOT EXISTS wbs_catalog_prices (
+        wbs_id VARCHAR(100) PRIMARY KEY,
+        price DECIMAL(14,2) NOT NULL DEFAULT 0,
+        updated_at TIMESTAMPTZ DEFAULT NOW()
+    );
+    `,
+
+    // ========== EQUIPMENT LISTINGS ==========
+    `
+    CREATE TABLE IF NOT EXISTS equipment_listings (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        owner_id UUID REFERENCES users(id) ON DELETE SET NULL,
+        name VARCHAR(255) NOT NULL,
+        type VARCHAR(50) DEFAULT 'excavator',
+        city VARCHAR(100),
+        price_per_shift DECIMAL(12,2) DEFAULT 0,
+        status VARCHAR(30) DEFAULT 'active',
+        created_at TIMESTAMPTZ DEFAULT NOW()
+    );
+    `,
+
+    // ========== DISPUTES ==========
+    `
+    CREATE TABLE IF NOT EXISTS disputes (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        order_id UUID REFERENCES orders(id) ON DELETE CASCADE,
+        customer_id UUID REFERENCES users(id) ON DELETE SET NULL,
+        executor_id UUID REFERENCES users(id) ON DELETE SET NULL,
+        title VARCHAR(255) NOT NULL,
+        reason TEXT NOT NULL,
+        status VARCHAR(30) DEFAULT 'pending' CHECK (status IN ('pending', 'in_review', 'resolved', 'dismissed')),
+        resolution TEXT,
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        resolved_at TIMESTAMPTZ
+    );
+    `,
 ];
 
 async function migrate() {

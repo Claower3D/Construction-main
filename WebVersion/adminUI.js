@@ -11,7 +11,7 @@
     // =============================================
 
     let _containerEl = null;
-    let _activeTab = 'overview';   // overview | database | prices | moderation | users | settings
+    let _activeTab = 'overview';   // overview | database | prices | moderation | users | settings | roles
     let _priceType = 'all';  // all | works | materials
     let _searchQuery = '';
     let _categoryFilter = 'all';
@@ -405,6 +405,11 @@
                         <span class="tab-text">⚙️ Управление</span>
                         <svg class="tab-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
                     </button>
+                    <button class="admin-tab ${_activeTab === 'roles' ? 'active' : ''}"
+                            onclick="AdminUI.setTab('roles'); AdminUI.closeMobileMenu();">
+                        <span class="tab-text">🎭 Роли</span>
+                        <svg class="tab-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                    </button>
                 </div>
             </div>
 
@@ -454,6 +459,7 @@
             case 'moderation': return _renderModerationTab();
             case 'users': return _renderUsersTab();
             case 'settings': return _renderSettingsTab();
+            case 'roles': return _renderRolesTab();
             default:
                 setTimeout(_loadBackendStats, 0);
                 return _renderOverviewTab();
@@ -2292,6 +2298,49 @@
         _addAuditEntry(newBlocked ? 'reject' : 'approve', `Пользователь «${user.name}» ${action}`);
         _render();
         window.showToast && window.showToast(`${newBlocked ? '🚫' : '✅'} Пользователь ${action}`);
+    }
+
+    // =============================================
+    // 14a. ROLES TAB
+    // =============================================
+
+    function _renderRolesTab() {
+        const roles = window.RoleManager ? window.RoleManager.ALL_ROLES : ['customer', 'executor', 'engineer', 'admin'];
+        const labels = window.RoleManager ? window.RoleManager.ROLE_LABELS : { customer: 'Заказчик', executor: 'Исполнитель', engineer: 'Инженер', admin: 'Администратор' };
+        
+        const rows = roles.map(r => {
+            return `<tr style="border-bottom:1px solid rgba(255,255,255,0.04);"
+                onmouseover="this.style.background='rgba(255,255,255,0.025)'" onmouseout="this.style.background=''">
+                <td style="padding:1rem">${labels[r] || r}</td>
+                <td style="padding:1rem;color:rgba(255,255,255,0.5)">${r}</td>
+                <td style="padding:1rem">
+                    <button onclick="alert('Редактирование ролей находится в разработке')" style="padding:0.3rem 0.7rem;border-radius:5px;border:1px solid rgba(139,92,246,0.3);background:rgba(139,92,246,0.1);color:#a78bfa;cursor:pointer;font-size:0.8rem">✏️ Редактировать</button>
+                </td>
+            </tr>`;
+        }).join('');
+
+        return \`
+        <div class="admin-panel">
+            <div class="admin-panel-header" style="display:flex;justify-content:space-between;align-items:center;">
+                <div class="admin-panel-title">🎭 Управление ролями</div>
+                <button onclick="alert('Добавление ролей находится в разработке')" style="padding:0.5rem 1rem;border-radius:8px;border:none;background:linear-gradient(135deg,#8b5cf6,#6366f1);color:#fff;cursor:pointer;font-weight:600">➕ Добавить роль</button>
+            </div>
+            
+            <div style="padding:1.5rem">
+                <table style="width:100%;border-collapse:collapse;text-align:left">
+                    <thead>
+                        <tr style="background:rgba(255,255,255,0.03);border-bottom:1px solid rgba(255,255,255,0.08)">
+                            <th style="padding:0.75rem 1rem;font-weight:500;color:rgba(255,255,255,0.4)">Название (UI)</th>
+                            <th style="padding:0.75rem 1rem;font-weight:500;color:rgba(255,255,255,0.4)">Системный код</th>
+                            <th style="padding:0.75rem 1rem;font-weight:500;color:rgba(255,255,255,0.4)">Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        \${rows}
+                    </tbody>
+                </table>
+            </div>
+        </div>\`;
     }
 
     // =============================================
