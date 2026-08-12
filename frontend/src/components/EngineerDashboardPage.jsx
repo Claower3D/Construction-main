@@ -1634,22 +1634,35 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
             <form onSubmit={handleSaveEvent} className="modal-form-body">
               {/* TAB 1: BASIC INFO */}
               {modalTab === 'info' && (
-                <>
-                  <div className="form-group">
-                    <label>Тип события / Категория:</label>
-                    <select value={evtType} onChange={(e) => setEvtType(e.target.value)} className="modal-select">
-                      <option value="active_project">🔵 Активный проект</option>
-                      <option value="work_stage">🟣 Этап работ</option>
-                      <option value="deadline">🔴 Дедлайн</option>
-                      <option value="in_review">🟡 На проверке</option>
-                      <option value="completed">🟢 Завершено</option>
-                      <option value="object">🏗️ Объект технадзора</option>
-                      <option value="request">📬 Заявка на проверку</option>
-                    </select>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem', padding: '0.5rem 0' }}>
+                  
+                  <div style={{ display: 'flex', gap: '1rem' }}>
+                    <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
+                      <label style={{ fontSize: '0.85rem', color: '#94a3b8' }}>🏷️ Тип события / Категория:</label>
+                      <select value={evtType} onChange={(e) => setEvtType(e.target.value)} className="modal-select">
+                        <option value="active_project">🔵 Активный проект</option>
+                        <option value="work_stage">🟣 Этап работ</option>
+                        <option value="deadline">🔴 Дедлайн</option>
+                        <option value="in_review">🟡 На проверке</option>
+                        <option value="completed">🟢 Завершено</option>
+                        <option value="object">🏗️ Объект технадзора</option>
+                        <option value="request">📬 Заявка на проверку</option>
+                      </select>
+                    </div>
+
+                    <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
+                      <label style={{ fontSize: '0.85rem', color: '#94a3b8' }}>📊 Статус (Прогресс):</label>
+                      <select value={evtStatus} onChange={(e) => setEvtStatus(e.target.value)} className="modal-select">
+                        <option value="В работе">🟡 В работе</option>
+                        <option value="Ожидает приёмки">⏳ Ожидает приёмки</option>
+                        <option value="Завершено">🟢 Завершено</option>
+                        <option value="Просрочено">🔴 Просрочено</option>
+                      </select>
+                    </div>
                   </div>
 
-                  <div className="form-group">
-                    <label>Название события / инспекции:</label>
+                  <div className="form-group" style={{ marginBottom: 0 }}>
+                    <label style={{ fontSize: '0.85rem', color: '#94a3b8' }}>📝 Название события / инспекции:</label>
                     <input
                       type="text"
                       placeholder="Например: Инспекция монолита и армопояса"
@@ -1660,60 +1673,54 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                     />
                   </div>
 
-                  <div className="form-group">
-                    <label>Статус (Поинт прогресса):</label>
-                    <select value={evtStatus} onChange={(e) => setEvtStatus(e.target.value)} className="modal-select">
-                      <option value="В работе">🟡 В работе</option>
-                      <option value="Ожидает приёмки">⏳ Ожидает приёмки</option>
-                      <option value="Завершено">🟢 Завершено</option>
-                      <option value="Просрочено">🔴 Просрочено</option>
-                    </select>
+                  <div style={{ display: 'flex', gap: '1rem' }}>
+                    <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
+                      <label style={{ fontSize: '0.85rem', color: '#94a3b8' }}>📅 Дедлайн (Срок):</label>
+                      <input
+                        type="text"
+                        placeholder="Сегодня до 18:00 / Завтра до 12:00"
+                        value={evtDeadline}
+                        onChange={(e) => setEvtDeadline(e.target.value)}
+                        className="modal-input"
+                      />
+                    </div>
+
+                    <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
+                      <label style={{ fontSize: '0.85rem', color: '#94a3b8' }}>⏰ Время проведения:</label>
+                      <input
+                        type="text"
+                        placeholder="10:00 - 12:00"
+                        value={evtTime}
+                        onChange={(e) => setEvtTime(e.target.value)}
+                        className="modal-input"
+                      />
+                    </div>
                   </div>
 
-                  <div className="form-group">
-                    <label>Дедлайн (Понятный срок):</label>
-                    <input
-                      type="text"
-                      placeholder="Сегодня до 18:00 / Завтра до 12:00"
-                      value={evtDeadline}
-                      onChange={(e) => setEvtDeadline(e.target.value)}
-                      className="modal-input"
-                    />
-                  </div>
+                  <div style={{ display: 'flex', gap: '1rem' }}>
+                    <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
+                      <label style={{ fontSize: '0.85rem', color: '#94a3b8' }}>👷 Подрядчик / Организация:</label>
+                      <input
+                        type="text"
+                        placeholder="ТОО Алматы Сити"
+                        value={evtContractor}
+                        onChange={(e) => setEvtContractor(e.target.value)}
+                        className="modal-input"
+                      />
+                    </div>
 
-                  <div className="form-group">
-                    <label>Время проведения:</label>
-                    <input
-                      type="text"
-                      placeholder="10:00 - 12:00"
-                      value={evtTime}
-                      onChange={(e) => setEvtTime(e.target.value)}
-                      className="modal-input"
-                    />
+                    <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
+                      <label style={{ fontSize: '0.85rem', color: '#94a3b8' }}>📍 Адрес объекта:</label>
+                      <input
+                        type="text"
+                        placeholder="Алматы, ЖК Алатау 2, Блок B"
+                        value={evtLocation}
+                        onChange={(e) => setEvtLocation(e.target.value)}
+                        className="modal-input"
+                      />
+                    </div>
                   </div>
-
-                  <div className="form-group">
-                    <label>Подрядчик / Организация:</label>
-                    <input
-                      type="text"
-                      placeholder="ТОО Алматы Сити"
-                      value={evtContractor}
-                      onChange={(e) => setEvtContractor(e.target.value)}
-                      className="modal-input"
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label>Адрес объекта:</label>
-                    <input
-                      type="text"
-                      placeholder="Алматы, ЖК Алатау 2, Блок B"
-                      value={evtLocation}
-                      onChange={(e) => setEvtLocation(e.target.value)}
-                      className="modal-input"
-                    />
-                  </div>
-                </>
+                </div>
               )}
 
               {/* TAB 2: STAGES SEQUENCE MANAGER */}
