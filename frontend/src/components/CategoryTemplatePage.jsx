@@ -6,8 +6,15 @@ export default function CategoryTemplatePage({ category, onBack }) {
   const [selectedService, setSelectedService] = useState(null);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [visibleCount, setVisibleCount] = useState(4);
+  const [promptText, setPromptText] = useState("");
 
   if (!category) return null;
+
+  const handleAddToEstimate = (service) => {
+    const entry = `+ ${service.title} (${service.code})`;
+    setPromptText(prev => prev ? `${prev}\n${entry}` : entry);
+    setSelectedService(null);
+  };
 
   const handleGenerate = () => {
     setIsGenerating(true);
@@ -165,6 +172,8 @@ export default function CategoryTemplatePage({ category, onBack }) {
                 <textarea 
                   className="ai-prompt-input" 
                   placeholder="Например: Нужно сделать фундамент 10х10 метров, ленточный, глубина 1.5м..."
+                  value={promptText}
+                  onChange={(e) => setPromptText(e.target.value)}
                 ></textarea>
                 
                 {!isGenerated ? (
@@ -233,7 +242,7 @@ export default function CategoryTemplatePage({ category, onBack }) {
             </div>
 
             <div className="modal-footer" style={{ marginTop: '2rem', display: 'flex', gap: '1rem' }}>
-              <button className="btn-primary" style={{ flex: 1, padding: '1rem', borderRadius: '12px' }} onClick={() => alert('Услуга добавлена в расчет!')}>
+              <button className="btn-primary" style={{ flex: 1, padding: '1rem', borderRadius: '12px' }} onClick={() => handleAddToEstimate(selectedService)}>
                 Добавить в смету
               </button>
               <button className="btn-secondary" style={{ flex: 1, padding: '1rem', borderRadius: '12px', background: 'rgba(255,255,255,0.1)', color: '#fff', border: 'none' }} onClick={() => setSelectedService(null)}>
