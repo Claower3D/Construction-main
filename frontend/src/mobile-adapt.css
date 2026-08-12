@@ -1,0 +1,256 @@
+/* =========================================================
+   COMPREHENSIVE FULL MOBILE ADAPTATION
+   ========================================================= */
+
+@media (max-width: 992px) {
+  /* GLOBAL CONSTRAINTS */
+  html, body {
+    overflow-x: hidden !important;
+    width: 100%;
+    max-width: 100vw;
+  }
+
+  .container {
+    padding: 0 1rem !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  /* 1. HERO SECTION */
+  .hero-title {
+    font-size: 2.2rem !important;
+    line-height: 1.2 !important;
+  }
+  .hero-subtitle {
+    font-size: 1rem !important;
+  }
+  .hero-actions {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 1rem !important;
+  }
+  .btn-primary, .btn-secondary {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+  .hero-grid {
+    grid-template-columns: 1fr !important;
+    gap: 2rem !important;
+  }
+  .hero-bullets-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* 2. FEATURE GRIDS (Bento, Pricing, Services) */
+  .bento-row-top,
+  .bento-row-mid {
+    flex-direction: column !important;
+    gap: 1rem !important;
+  }
+  .bento-card-large, .bento-card-medium, .bento-card-small {
+    width: 100% !important;
+    flex: none !important;
+  }
+  .price-catalog-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .split-service-card {
+    flex-direction: column !important;
+  }
+  .split-content {
+    padding: 1.5rem !important;
+  }
+  .ref-row-1, .ref-row-2, .ref-row-3 {
+    flex-direction: column !important;
+  }
+  .ref-card {
+    width: 100% !important;
+    flex: none !important;
+  }
+
+  /* 3. STATS BANNER */
+  .stats-banner-container {
+    padding: 2rem 1rem !important;
+  }
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 1.5rem !important;
+  }
+
+  /* 4. ADMIN DASHBOARD */
+  .admin-page-container {
+    flex-direction: column !important;
+    height: auto !important;
+  }
+  .admin-sidebar {
+    width: 100% !important;
+    position: relative !important;
+    height: auto !important;
+    border-right: none !important;
+    border-bottom: 1px solid var(--border) !important;
+  }
+  .admin-main-content {
+    height: auto !important;
+    overflow-y: visible !important;
+  }
+  .admin-3col-body {
+    flex-direction: column !important;
+  }
+  .admin-stats-row {
+    flex-wrap: wrap !important;
+  }
+  .admin-stat-card {
+    flex: 1 1 45% !important;
+    min-width: 140px !important;
+  }
+  /* Table horizontal scroll */
+  .admin-table-container {
+    overflow-x: auto !important;
+    width: 100% !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  .admin-table {
+    min-width: 800px !important;
+  }
+
+  /* 5. ENGINEER DASHBOARD */
+  .engineer-cabinet-body {
+    flex-direction: column !important;
+    height: auto !important;
+  }
+  .engineer-sidebar {
+    width: 100% !important;
+    height: auto !important;
+    border-right: none !important;
+    border-bottom: 1px solid var(--border) !important;
+  }
+  .calendar-workspace-grid {
+    grid-template-columns: 1fr !important;
+    height: auto !important;
+  }
+  .calendar-card-panel, .calendar-sidebar-column {
+    height: auto !important;
+  }
+  .calendar-stats-row {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  /* Calendar grid resize */
+  .days-number-grid-full {
+    gap: 4px !important;
+  }
+  .month-day-cell {
+    min-height: 80px !important;
+    padding: 0.25rem !important;
+  }
+  .day-number-tag {
+    font-size: 0.8rem !important;
+    width: 20px !important;
+    height: 20px !important;
+  }
+  .event-cell-pill {
+    padding: 2px 4px !important;
+  }
+  .event-cell-pill .pill-text {
+    font-size: 0.7rem !important;
+  }
+
+  /* 6. CRM KANBAN BOARD */
+  .crm-page-wrapper {
+    height: auto !important;
+    min-height: 100vh !important;
+  }
+  .crm-board {
+    display: flex !important;
+    flex-direction: row !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    padding-bottom: 1rem !important;
+    -webkit-overflow-scrolling: touch !important;
+    align-items: flex-start !important;
+    /* Snap scrolling for better mobile UX */
+    scroll-snap-type: x mandatory !important;
+    scroll-padding: 1rem !important;
+  }
+  .crm-board::-webkit-scrollbar {
+    height: 8px !important;
+  }
+  .crm-board::-webkit-scrollbar-thumb {
+    background-color: var(--primary) !important;
+    border-radius: 4px !important;
+  }
+  .crm-col {
+    min-width: 85vw !important; /* Take up most of screen but show next col */
+    max-width: 85vw !important;
+    flex: 0 0 auto !important;
+    scroll-snap-align: start !important;
+    margin-right: 1rem !important;
+    height: auto !important;
+    max-height: 70vh !important; /* Allow internal scrolling if many cards */
+  }
+
+  /* 7. MODALS & WIDGETS */
+  .modal-content, .auth-modal, .admin-modal-content, .engineer-modal-box {
+    width: 95% !important;
+    max-width: 95vw !important;
+    padding: 1.5rem !important;
+    margin: 1rem auto !important;
+    max-height: 90vh !important;
+    overflow-y: auto !important;
+  }
+  
+  /* Make sure modal overlays have padding */
+  .modal-overlay, .admin-modal-overlay {
+    padding: 1rem !important;
+    align-items: center !important;
+  }
+
+  .voice-widget-container {
+    bottom: 1rem !important;
+    left: 1rem !important;
+    transform: scale(0.8) !important;
+    transform-origin: bottom left !important;
+  }
+  .ai-assistant-widget {
+    bottom: 1rem !important;
+    right: 1rem !important;
+  }
+  
+  /* Feature Tabs (Landing page) */
+  .tabs-nav-list {
+    flex-wrap: wrap !important;
+    gap: 0.5rem !important;
+  }
+  .tab-btn {
+    flex: 1 1 calc(50% - 0.5rem) !important;
+    justify-content: center !important;
+    text-align: center !important;
+    padding: 0.5rem !important;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Extra tweaks for very small screens */
+  .stats-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .calendar-stats-row {
+    grid-template-columns: 1fr !important;
+  }
+  .hero-title {
+    font-size: 1.8rem !important;
+  }
+  .month-day-cell {
+    min-height: 60px !important;
+  }
+  .day-events-wrapper {
+    gap: 2px !important;
+  }
+  .event-cell-pill {
+    padding: 1px 3px !important;
+  }
+  .crm-col {
+    min-width: 90vw !important;
+    max-width: 90vw !important;
+  }
+}
