@@ -14,8 +14,9 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
 
   const [calendarViewMode, setCalendarViewMode] = useState('month');
 
-  const [selectedDay, setSelectedDay] = useState(6);
-  const [monthIndex, setMonthIndex] = useState(7); // 7 = Август
+  const [selectedDay, setSelectedDay] = useState(new Date().getDate());
+  const [monthIndex, setMonthIndex] = useState(new Date().getMonth());
+  const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
   const [eventFilter, setEventFilter] = useState('all');
   const [showAddModal, setShowAddModal] = useState(false);
 
@@ -48,11 +49,8 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
   const [objectsSearch, setObjectsSearch] = useState('');
   const [isAiRunning, setIsAiRunning] = useState(false);
 
-  const monthsList = [
-    'Январь 2026', 'Февраль 2026', 'Март 2026', 'Апрель 2026',
-    'Май 2026', 'Июнь 2026', 'Июль 2026', 'Август 2026',
-    'Сентябрь 2026', 'Октябрь 2026', 'Ноябрь 2026', 'Декабрь 2026'
-  ];
+  const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+  const monthsList = monthNames.map(m => `${m} ${currentYear}`);
 
   // Scheduled Events state with human-readable deadlines, stage sequence & photo attachments
   const [scheduledEvents, setScheduledEvents] = useState(() => {
@@ -133,6 +131,25 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
   }, [scheduledEvents]);
 
   const dayEvents = scheduledEvents[selectedDay] || [];
+
+  // Dynamic calendar grid generation
+  const firstDayOfMonth = new Date(currentYear, monthIndex, 1);
+  const startingDayOfWeek = firstDayOfMonth.getDay() === 0 ? 7 : firstDayOfMonth.getDay();
+  const daysInMonth = new Date(currentYear, monthIndex + 1, 0).getDate();
+  const daysInPrevMonth = new Date(currentYear, monthIndex, 0).getDate();
+  
+  const prevMonthDays = [];
+  for (let i = startingDayOfWeek - 1; i > 0; i--) {
+    prevMonthDays.push(daysInPrevMonth - i + 1);
+  }
+  
+  const currentMonthDays = Array.from({ length: daysInMonth }, (_, i) => i + 1);
+  
+  const nextMonthDays = [];
+  const remainingCells = 42 - (prevMonthDays.length + currentMonthDays.length);
+  for (let i = 1; i <= remainingCells; i++) {
+    nextMonthDays.push(i);
+  }
 
   // Calculate statistics across scheduled events
   const allEventsList = Object.values(scheduledEvents).flat();
@@ -646,17 +663,17 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                     <span className="weekday-col weekend">ВС</span>
                   </div>
 
-                  {/* Days grid: 42 cells (5 July + 31 August + 6 Sept) */}
+                  {/* Days grid: 42 cells dynamically generated */}
                   <div className="days-number-grid-full">
-                    {/* July days: 27, 28, 29, 30, 31 */}
-                    {[27, 28, 29, 30, 31].map((prevDay) => (
+                    {/* Previous Month Days */}
+                    {prevMonthDays.map((prevDay) => (
                       <div key={`prev-${prevDay}`} className="month-day-cell faded">
                         <span className="day-number-tag">{prevDay}</span>
                       </div>
                     ))}
 
-                    {/* August days: 1 to 31 */}
-                    {Array.from({ length: 31 }, (_, i) => i + 1).map((dayNum) => {
+                    {/* Current Month Days */}
+                    {currentMonthDays.map((dayNum) => {
                       const evts = scheduledEvents[dayNum] || [];
                       const isSel = selectedDay === dayNum;
                       return (
@@ -707,8 +724,8 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                       );
                     })}
 
-                    {/* Sept days: 1 to 6 */}
-                    {[1, 2, 3, 4, 5, 6].map((nextDay) => (
+                    {/* Next Month Days */}
+                    {nextMonthDays.map((nextDay) => (
                       <div key={`next-${nextDay}`} className="month-day-cell faded">
                         <span className="day-number-tag">{nextDay}</span>
                       </div>
