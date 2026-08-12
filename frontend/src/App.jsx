@@ -18,12 +18,15 @@ import AdminDashboardPage from './components/AdminDashboardPage';
 import EngineerDashboardPage from './components/EngineerDashboardPage';
 import VoiceControlWidget from './components/VoiceControlWidget';
 import CrmPage from './components/CrmPage';
+import CategoryTemplatePage from './components/CategoryTemplatePage';
+import { categoriesData } from './data/categoriesData';
 
 export default function App() {
   const [role, setRole] = useState('executor');
   const [theme, setTheme] = useState('dark');
   const [authMode, setAuthMode] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
+  const [currentCategory, setCurrentCategory] = useState(null);
 
   // Initialize view from URL path (e.g. /admin, /customer, etc.)
   const [currentView, setCurrentView] = useState(() => {
@@ -34,8 +37,18 @@ export default function App() {
     if (path.startsWith('/executor')) return 'executor';
     if (path.startsWith('/crm')) return 'crm';
     if (path.startsWith('/manager')) return 'manager';
+    if (path.startsWith('/category')) return 'category';
     return 'landing';
   });
+
+  useEffect(() => {
+    const path = window.location.pathname;
+    if (path.startsWith('/category/')) {
+      const slug = path.split('/')[2];
+      const foundCat = categoriesData.find((c) => c.slug === slug);
+      if (foundCat) setCurrentCategory(foundCat);
+    }
+  }, []);
 
   useEffect(() => {
     const handlePopState = () => {
@@ -46,6 +59,12 @@ export default function App() {
       else if (path.startsWith('/executor')) setCurrentView('executor');
       else if (path.startsWith('/crm')) setCurrentView('crm');
       else if (path.startsWith('/manager')) setCurrentView('manager');
+      else if (path.startsWith('/category')) {
+        const slug = path.split('/')[2];
+        const foundCat = categoriesData.find((c) => c.slug === slug);
+        if (foundCat) setCurrentCategory(foundCat);
+        setCurrentView('category');
+      }
       else setCurrentView('landing');
     };
     window.addEventListener('popstate', handlePopState);
@@ -77,6 +96,12 @@ export default function App() {
   const navigateToLanding = () => {
     window.history.pushState({}, '', '/');
     setCurrentView('landing');
+  };
+
+  const navigateToCategory = (cat) => {
+    setCurrentCategory(cat);
+    window.history.pushState({}, '', `/category/${cat.slug}`);
+    setCurrentView('category');
   };
 
   const toggleTheme = () => {
@@ -121,6 +146,10 @@ export default function App() {
     return isDashboardAllowed(currentView) ? <AdminDashboardPage userRole={currentView} onBackToHome={navigateToLanding} onOpenEngineer={navigateToEngineer} /> : null;
   }
 
+  // Category Template View
+  if (currentView === 'category') {
+    return <CategoryTemplatePage category={currentCategory} onBack={navigateToLanding} />;
+  }
 
   return (
     <div className="app-root">
@@ -142,7 +171,7 @@ export default function App() {
       <main style={{ position: 'relative', zIndex: 1 }}>
         <HeroSection role={role} />
         <FeatureHighlights />
-        <PriceCatalogSection />
+        <PriceCatalogSection onOpenCategory={navigateToCategory} />
         <PlatformServicesSection />
         <EngineeringServicesSection />
         <StatsBanner />

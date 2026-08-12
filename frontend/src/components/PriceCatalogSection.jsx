@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
+import { categoriesData } from '../data/categoriesData';
 
-export default function PriceCatalogSection() {
+export default function PriceCatalogSection({ onOpenCategory }) {
   const [search, setSearch] = useState('');
   const [activeFilter, setActiveFilter] = useState('all'); // all, general, finishing, engineering, special
-  const [selectedCategory, setSelectedCategory] = useState(null);
 
   // Estimator State
   const [area, setArea] = useState(65);
@@ -30,37 +30,7 @@ export default function PriceCatalogSection() {
   const totalCostUsd = Math.round(totalCostKzt / 465);
   const costPerM2 = Math.round(totalCostKzt / area);
 
-  const categories = [
-    { name: 'Земляные работы', count: 319, icon: '⛏️', group: 'general', priceRange: 'от 1 200 ₸/м³' },
-    { name: 'Фундамент', count: 379, icon: '🏗️', group: 'general', priceRange: 'от 18 500 ₸/м³' },
-    { name: 'Бетон и монолит', count: 658, icon: '🧱', group: 'general', priceRange: 'от 22 000 ₸/м³' },
-    { name: 'Кладка', count: 259, icon: '🧱', group: 'general', priceRange: 'от 4 500 ₸/м²' },
-    { name: 'Металлоконструкции', count: 309, icon: '⛓️', group: 'general', priceRange: 'от 45 000 ₸/т' },
-    { name: 'Кровля', count: 398, icon: '🏠', group: 'general', priceRange: 'от 3 800 ₸/м²' },
-    { name: 'Фасад', count: 236, icon: '🏢', group: 'general', priceRange: 'от 5 200 ₸/м²' },
-    { name: 'Окна и двери', count: 462, icon: '🚪', group: 'finishing', priceRange: 'от 12 000 ₸/шт' },
-    { name: 'Утепление и изоляция', count: 397, icon: '🧤', group: 'general', priceRange: 'от 1 800 ₸/м²' },
-    { name: 'Демонтаж', count: 87, icon: '💥', group: 'general', priceRange: 'от 850 ₸/м²' },
-    { name: 'Отделка стен', count: 920, icon: '🎨', group: 'finishing', priceRange: 'от 2 200 ₸/м²' },
-    { name: 'Полы и плитка', count: 588, icon: '🔲', group: 'finishing', priceRange: 'от 3 500 ₸/м²' },
-    { name: 'Потолки', count: 128, icon: '💡', group: 'finishing', priceRange: 'от 2 800 ₸/м²' },
-    { name: 'Лестницы и балконы', count: 121, icon: '🪜', group: 'finishing', priceRange: 'от 15 000 ₸/п.м' },
-    { name: 'Электрика', count: 777, icon: '⚡', group: 'engineering', priceRange: 'от 1 200 ₸/тчк' },
-    { name: 'Сантехника и водоснабжение', count: 681, icon: '🚿', group: 'engineering', priceRange: 'от 4 500 ₸/тчк' },
-    { name: 'Отопление', count: 282, icon: '🔥', group: 'engineering', priceRange: 'от 8 500 ₸/прибор' },
-    { name: 'Вентиляция и кондиц.', count: 561, icon: '❄️', group: 'engineering', priceRange: 'от 14 000 ₸/компл' },
-    { name: 'Газоснабжение', count: 124, icon: '🔵', group: 'engineering', priceRange: 'от 25 000 ₸/врезка' },
-    { name: 'Автоматизация и слаботоч.', count: 545, icon: '📡', group: 'engineering', priceRange: 'от 2 100 ₸/м' },
-    { name: 'Пожарная безопасность', count: 218, icon: '🧯', group: 'engineering', priceRange: 'от 3 400 ₸/датчик' },
-    { name: 'Наружные сети', count: 381, icon: '🔌', group: 'engineering', priceRange: 'от 6 200 ₸/п.м' },
-    { name: 'Благоустройство', count: 373, icon: '🌳', group: 'special', priceRange: 'от 2 500 ₸/м²' },
-    { name: 'Дороги и мосты', count: 313, icon: '🛣️', group: 'special', priceRange: 'от 8 900 ₸/м²' },
-    { name: 'Деревянные конструкции', count: 213, icon: '🪵', group: 'finishing', priceRange: 'от 4 800 ₸/м²' },
-    { name: 'Мебель и оборудование', count: 424, icon: '🪑', group: 'finishing', priceRange: 'от 18 000 ₸/ед' },
-    { name: 'Проектирование', count: 1244, icon: '📐', group: 'special', priceRange: 'от 1 500 ₸/м²' },
-    { name: 'Специальные работы', count: 1051, icon: '🛠️', group: 'special', priceRange: 'от 5 000 ₸/смена' },
-    { name: 'Прочие работы', count: 818, icon: '📦', group: 'special', priceRange: 'от 1 000 ₸/усл' },
-  ];
+  const categories = categoriesData;
 
   const filtered = categories.filter((cat) => {
     const matchesSearch = cat.name.toLowerCase().includes(search.toLowerCase());
@@ -342,7 +312,7 @@ export default function PriceCatalogSection() {
             <div
               className="category-v2-card"
               key={idx}
-              onClick={() => setSelectedCategory(cat)}
+              onClick={() => onOpenCategory && onOpenCategory(cat)}
             >
               <div className="cat-v2-header">
                 <div className="cat-v2-icon-box">{cat.icon}</div>
@@ -365,67 +335,6 @@ export default function PriceCatalogSection() {
           ))}
         </div>
 
-        {/* Modal/Drawer preview of sub-services when category clicked */}
-        {selectedCategory && (
-          <div className="modal-overlay" onClick={() => setSelectedCategory(null)}>
-            <div className="cat-detail-modal-card" onClick={(e) => e.stopPropagation()}>
-              <button className="modal-close-btn" onClick={() => setSelectedCategory(null)}>
-                ✕
-              </button>
-
-              <div className="cat-detail-header">
-                <div className="cat-detail-icon">{selectedCategory.icon}</div>
-                <div>
-                  <span className="cat-detail-badge">{selectedCategory.priceRange}</span>
-                  <h3 className="cat-detail-title">{selectedCategory.name}</h3>
-                  <p className="cat-detail-sub">
-                    {selectedCategory.count} видов работ • Актуальные цены РК 2026
-                  </p>
-                </div>
-              </div>
-
-              <div className="sub-services-list">
-                <h4 className="sub-services-heading">Популярные позиция в смете:</h4>
-
-                <div className="sub-service-row">
-                  <div>
-                    <strong>Монтаж и подготовка поверхности</strong>
-                    <small>ГЭСН 08-01-002 • СНиП РК</small>
-                  </div>
-                  <span className="sub-price-tag">2 800 ₸ / м²</span>
-                </div>
-
-                <div className="sub-service-row">
-                  <div>
-                    <strong>Укладка базового слоя & армирование</strong>
-                    <small>ГОСТ 28013-89</small>
-                  </div>
-                  <span className="sub-price-tag">4 500 ₸ / м²</span>
-                </div>
-
-                <div className="sub-service-row">
-                  <div>
-                    <strong>Финишная обработка & герметизация</strong>
-                    <small>Высший класс качества B25</small>
-                  </div>
-                  <span className="sub-price-tag">3 200 ₸ / м²</span>
-                </div>
-              </div>
-
-              <div className="cat-detail-footer">
-                <button
-                  className="modal-submit-btn"
-                  onClick={() => {
-                    alert(`Смета по категории «${selectedCategory.name}» сгенерирована!`);
-                    setSelectedCategory(null);
-                  }}
-                >
-                  🚀 Рассчитать смету по «{selectedCategory.name}»
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </section>
   );
