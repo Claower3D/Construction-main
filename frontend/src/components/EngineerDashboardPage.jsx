@@ -1731,36 +1731,65 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                   </label>
 
                   {evtStages.map((stage, idx) => (
-                    <div key={stage.id} className="stage-card-item">
-                      <div className="stage-left-info">
-                        <div className="stage-num-badge">{idx + 1}</div>
-                        <div>
-                          <h5 className="stage-title-text">{stage.title}</h5>
-                          <span className="stage-deadline-sub">⏰ Срок: {stage.deadline}</span>
+                    <div key={stage.id} className="stage-card-item" style={{ flexDirection: 'column', alignItems: 'stretch', gap: '0.8rem' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                        <div className="stage-left-info">
+                          <div className="stage-num-badge">{idx + 1}</div>
+                          <div>
+                            <h5 className="stage-title-text">{stage.title}</h5>
+                            <span className="stage-deadline-sub">⏰ Срок: {stage.deadline}</span>
+                          </div>
+                        </div>
+
+                        <div className="stage-right-actions">
+                          <select
+                            value={stage.status}
+                            onChange={(e) => handleChangeStageStatus(stage.id, e.target.value)}
+                            className="select-stage-status"
+                          >
+                            <option value="В работе">🟡 В работе</option>
+                            <option value="Ожидает приёмки">⏳ Приёмка</option>
+                            <option value="Завершено">🟢 Завершено</option>
+                            <option value="Запланировано">⚪ Запланировано</option>
+                          </select>
+
+                          <button
+                            type="button"
+                            className="btn-del-stage"
+                            onClick={() => handleDeleteStage(stage.id)}
+                            title="Удалить этап"
+                          >
+                            🗑️
+                          </button>
                         </div>
                       </div>
 
-                      <div className="stage-right-actions">
-                        <select
-                          value={stage.status}
-                          onChange={(e) => handleChangeStageStatus(stage.id, e.target.value)}
-                          className="select-stage-status"
-                        >
-                          <option value="В работе">🟡 В работе</option>
-                          <option value="Ожидает приёмки">⏳ Приёмка</option>
-                          <option value="Завершено">🟢 Завершено</option>
-                          <option value="Запланировано">⚪ Запланировано</option>
-                        </select>
-
-                        <button
-                          type="button"
-                          className="btn-del-stage"
-                          onClick={() => handleDeleteStage(stage.id)}
-                          title="Удалить этап"
-                        >
-                          🗑️
-                        </button>
-                      </div>
+                      {/* FILE PREVIEWS (Only show if there are files) */}
+                      {(stage.photos && stage.photos.length > 0) && (
+                        <div style={{ display: 'flex', gap: '0.5rem', paddingLeft: '2.5rem', flexWrap: 'wrap' }}>
+                          {stage.photos.map((p, pIdx) => {
+                             const isImg = p.name.match(/\.(jpeg|jpg|gif|png)$/i);
+                             const imgUrl = p.url || (isImg ? `https://images.unsplash.com/photo-1541888086925-ebca89bba4c9?w=100&q=80&random=${pIdx}` : null);
+                             return (
+                               <div key={pIdx} style={{ 
+                                 width: '40px', height: '40px', borderRadius: '6px', 
+                                 backgroundColor: '#1e293b', border: '1px solid #334155',
+                                 display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                 overflow: 'hidden', title: p.name
+                               }}>
+                                 {isImg ? (
+                                   <img src={imgUrl} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                 ) : (
+                                   <span style={{ fontSize: '1.2rem' }}>📄</span>
+                                 )}
+                               </div>
+                             );
+                          })}
+                          <div style={{ fontSize: '0.75rem', color: '#64748b', display: 'flex', alignItems: 'center', marginLeft: '0.5rem' }}>
+                             {stage.photos.length} прикреплённых файл(ов)
+                          </div>
+                        </div>
+                      )}
                     </div>
                   ))}
 
