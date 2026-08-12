@@ -89,19 +89,36 @@ export default function App() {
     }
   };
 
+  // --- ROLE ACCESS GUARD ---
+  const isDashboardAllowed = (view) => {
+    if (!currentUser) return false;
+    if (view === 'crm' || view === 'manager') return currentUser.role === 'manager';
+    return currentUser.role === view;
+  };
+
+  useEffect(() => {
+    const protectedViews = ['admin', 'engineer', 'customer', 'executor', 'crm', 'manager'];
+    const path = window.location.pathname.substring(1).split('/')[0];
+    const viewToCheck = protectedViews.includes(currentView) ? currentView : (protectedViews.includes(path) ? path : null);
+
+    if (viewToCheck && !isDashboardAllowed(viewToCheck)) {
+      navigateToLanding();
+    }
+  }, [currentView, currentUser]);
+
   // Full-Page Engineer Cabinet View (Renders at /engineer or when Engineer button clicked)
   if (currentView === 'engineer' || window.location.pathname.startsWith('/engineer')) {
-    return <EngineerDashboardPage onBackToHome={navigateToLanding} />;
+    return isDashboardAllowed('engineer') ? <EngineerDashboardPage onBackToHome={navigateToLanding} /> : null;
   }
 
   // Full-Page CRM View (Also accessible via Manager role)
   if (currentView === 'crm' || currentView === 'manager' || window.location.pathname.startsWith('/crm') || window.location.pathname.startsWith('/manager')) {
-    return <CrmPage onBackToHome={navigateToLanding} />;
+    return isDashboardAllowed('manager') ? <CrmPage onBackToHome={navigateToLanding} /> : null;
   }
 
   // Dashboard views for roles
   if (['admin', 'customer', 'executor'].includes(currentView)) {
-    return <AdminDashboardPage userRole={currentView} onBackToHome={navigateToLanding} onOpenEngineer={navigateToEngineer} />;
+    return isDashboardAllowed(currentView) ? <AdminDashboardPage userRole={currentView} onBackToHome={navigateToLanding} onOpenEngineer={navigateToEngineer} /> : null;
   }
 
 
