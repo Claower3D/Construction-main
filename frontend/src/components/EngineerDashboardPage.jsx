@@ -306,7 +306,9 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
         name: f.name,
         tag: 'Фотофиксация',
         time: 'Только что',
-        preview: f.type.startsWith('image/') ? '🖼️' : '📄'
+        preview: f.type.startsWith('image/') ? '🖼️' : '📄',
+        url: f.type.startsWith('image/') ? URL.createObjectURL(f) : null,
+        isImg: f.type.startsWith('image/')
       }));
       setEvtPhotos([...evtPhotos, ...newItems]);
     } else {
@@ -1574,7 +1576,11 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                           <div className="stage-dropzone-text">Нажмите для загрузки файлов</div>
                           <input type="file" multiple style={{ display: 'none' }} onChange={(e) => {
                             if (e.target.files && e.target.files.length > 0) {
-                              const newFiles = Array.from(e.target.files).map(f => ({ name: f.name }));
+                              const newFiles = Array.from(e.target.files).map(f => ({ 
+                                  name: f.name,
+                                  url: f.type.startsWith('image/') ? URL.createObjectURL(f) : null,
+                                  isImg: f.type.startsWith('image/')
+                                }));
                               setEvtStages(evtStages.map(s => s.id === activeStageId ? { ...s, photos: [...(s.photos || []), ...newFiles] } : s));
                             }
                           }} />
@@ -1866,7 +1872,13 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                           >
                             ✕
                           </button>
-                          <div className="photo-preview-box">{photo.preview || '📸'}</div>
+                          <div className="photo-preview-box" style={{ cursor: 'pointer', overflow: 'hidden' }} onClick={() => setPreviewFile({ name: photo.name, url: photo.url, isImg: photo.isImg })}>
+                             {photo.isImg && photo.url ? (
+                               <img src={photo.url} alt={photo.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                             ) : (
+                               photo.preview || '📸'
+                             )}
+                          </div>
                           <span className="photo-name-tag">{photo.name}</span>
                           <span className="photo-meta-time">{photo.time}</span>
                         </div>
