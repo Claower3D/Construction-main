@@ -2,22 +2,25 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-# Copy root package files
-COPY package*.json ./
+# 1. Install frontend dependencies and build React app
+COPY frontend/package*.json ./frontend/
+RUN cd frontend && npm install
+COPY frontend/ ./frontend/
+RUN cd frontend && npm run build
 
-# Install dependencies
-RUN npm install --only=production
+# 2. Install backend dependencies
+COPY WebVersion/backend/package*.json ./WebVersion/backend/
+RUN cd WebVersion/backend && npm install --only=production
 
-# Copy WebVersion frontend and project files
+# 3. Copy the rest of the backend files
 COPY WebVersion/ ./WebVersion/
+
+# 4. Copy root package json
+COPY package.json ./
 
 # Set default port
 ENV PORT=3030
 EXPOSE 3030
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s \
-    CMD wget --no-verbose --tries=1 --spider http://localhost:${PORT:-3030}/ || exit 1
-
-# Start SPA server
-CMD ["sh", "-c", "npx serve WebVersion -s -l ${PORT:-3030}"]
+# Start the backend server (which will serve frontend/dist)
+CMD ["npm", "start"]
