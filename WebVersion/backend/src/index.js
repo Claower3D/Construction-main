@@ -142,7 +142,7 @@ app.use('/api/', rateLimiter);
 app.use('/uploads', express.static(config.upload.dir));
 
 const path = require('path');
-const frontendDist = path.resolve(process.cwd(), 'frontend/dist');
+const frontendDist = path.resolve(__dirname, '../../../frontend/dist');
 const fs = require('fs');
 if (fs.existsSync(frontendDist)) {
     app.use(express.static(frontendDist));
