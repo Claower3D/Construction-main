@@ -2,7 +2,7 @@ import React from 'react';
 
 export default function FooterSection() {
   return (
-    <footer style={{ background: 'rgba(3, 7, 18, 0.95)', borderTop: '1px solid var(--border)', padding: '50px 0 30px' }}>
+    <footer style={{ position: 'relative', zIndex: 1, background: 'rgba(3, 7, 18, 0.95)', borderTop: '1px solid var(--border)', padding: '50px 0 30px' }}>
       <div className="container">
         {/* Big Gold Start CTA Button */}
         <div className="footer-cta-wrap">
