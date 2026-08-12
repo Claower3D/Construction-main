@@ -22,10 +22,15 @@ import CategoryTemplatePage from './components/CategoryTemplatePage';
 import { categoriesData } from './data/categoriesData';
 
 export default function App() {
-  const [role, setRole] = useState('executor');
+  const [role, setRole] = useState(() => {
+    return localStorage.getItem('app_role') || 'executor';
+  });
   const [theme, setTheme] = useState('dark');
   const [authMode, setAuthMode] = useState(null);
-  const [currentUser, setCurrentUser] = useState(null);
+  const [currentUser, setCurrentUser] = useState(() => {
+    const saved = localStorage.getItem('app_currentUser');
+    return saved ? JSON.parse(saved) : null;
+  });
   const [currentCategory, setCurrentCategory] = useState(null);
 
   // Initialize view from URL path (e.g. /admin, /customer, etc.)
@@ -71,6 +76,19 @@ export default function App() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
+  // Save auth state to localStorage
+  useEffect(() => {
+    if (currentUser) {
+      localStorage.setItem('app_currentUser', JSON.stringify(currentUser));
+      localStorage.setItem('app_role', role);
+    } else {
+      localStorage.removeItem('app_currentUser');
+      localStorage.removeItem('app_role');
+    }
+  }, [currentUser, role]);
+
+
+
   const navigateToDashboard = (targetRole) => {
     window.history.pushState({}, '', `/${targetRole}`);
     setCurrentView(targetRole);
@@ -96,6 +114,11 @@ export default function App() {
   const navigateToLanding = () => {
     window.history.pushState({}, '', '/');
     setCurrentView('landing');
+  };
+
+  const handleLogoClick = (e) => {
+    if (e) e.preventDefault();
+    navigateToLanding();
   };
 
   const navigateToCategory = (cat) => {
@@ -150,17 +173,18 @@ export default function App() {
     <div className="app-root">
       <AnimatedBackground />
 
-      <Header
-        role={role}
-        setRole={setRole}
-        theme={theme}
-        toggleTheme={toggleTheme}
-        onOpenAuth={(mode) => setAuthMode(mode)}
+      <Header 
+        role={role} 
+        setRole={setRole} 
+        theme={theme} 
+        toggleTheme={() => setTheme(t => t === 'dark' ? 'light' : 'dark')} 
+        onOpenAuth={(type) => setAuthMode(type)}
         onOpenAdmin={navigateToAdmin}
         onOpenEngineer={navigateToEngineer}
         currentUser={currentUser}
         onLogout={handleLogout}
-        onOpenDashboard={() => navigateToDashboard(currentUser?.role || role)}
+        onOpenDashboard={navigateToDashboard}
+        onLogoClick={handleLogoClick}
       />
 
         <main style={{ position: 'relative', zIndex: 1 }}>

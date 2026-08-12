@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, onOpenAdmin, onOpenEngineer, currentUser, onLogout, onOpenDashboard }) {
+export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, onOpenAdmin, onOpenEngineer, currentUser, onLogout, onOpenDashboard, onLogoClick }) {
   const [activeNavDropdown, setActiveNavDropdown] = useState(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [mobileAccordion, setMobileAccordion] = useState(null);
@@ -18,11 +18,16 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
     setMobileAccordion(mobileAccordion === name ? null : name);
   };
 
+  const handleLogoClick = (e) => {
+    closeDropdown();
+    if (onLogoClick) onLogoClick(e);
+  };
+
   return (
     <header className="header-wrapper">
       <div className="container header-container">
         {/* Brand Logo */}
-        <a href="#" className="logo-brand" onClick={closeDropdown}>
+        <a href="#" className="logo-brand" onClick={handleLogoClick}>
           <div className="logo-icon-wrap">
             <span className="logo-spark">✨</span>
             <span className="logo-emoji">🏗️</span>
