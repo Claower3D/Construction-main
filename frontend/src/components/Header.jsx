@@ -295,29 +295,6 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
           </div>
           )}
 
-          {/* Quick Role Switcher Buttons */}
-          {!currentUser && (
-          <div className="role-switcher-toggle">
-            <button
-              className={`role-tab-btn ${role === 'customer' ? 'active' : ''}`}
-              onClick={() => setRole('customer')}
-            >
-              Заказчик
-            </button>
-            <button
-              className={`role-tab-btn ${role === 'executor' ? 'active' : ''}`}
-              onClick={() => setRole('executor')}
-            >
-              Исполнитель
-            </button>
-            <button
-              className={`role-tab-btn ${role === 'manager' ? 'active' : ''}`}
-              onClick={() => setRole('manager')}
-            >
-              Менеджер
-            </button>
-          </div>
-          )}
         </div>
 
         {/* Right Action Icons & Login */}
