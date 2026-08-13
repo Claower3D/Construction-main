@@ -1571,8 +1571,8 @@ body.light .header-wrapper {
 /* Floating AI Widget & Interactive Chat Drawer */
 .floating-ai-widget {
   position: fixed;
-  bottom: 2rem;
-  right: 2rem;
+  bottom: 6rem;
+  right: 24px;
   z-index: 1050;
 }
 
@@ -11049,7 +11049,7 @@ body.dark .split-service-card {
 
   /* FLOATING WIDGETS MOBILE */
   .floating-ai-widget {
-    bottom: 16px !important;
+    bottom: 76px !important;
     right: 16px !important;
     z-index: 9999 !important;
   }
@@ -11058,12 +11058,12 @@ body.dark .split-service-card {
     width: calc(100vw - 32px) !important;
     right: 16px !important;
     left: 16px !important;
-    bottom: 76px !important;
-    max-height: 75vh !important;
+    bottom: 136px !important;
+    max-height: 70vh !important;
   }
 
   .voice-control-widget {
-    bottom: 76px !important;
+    bottom: 16px !important;
     right: 16px !important;
     padding: 0.4rem 0.85rem !important;
     border-radius: 20px !important;
