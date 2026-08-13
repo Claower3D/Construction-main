@@ -10,7 +10,7 @@ const MOCK_AMOUNTS = {
   request: '120 000 ₸',
 };
 
-export default function CrmPage({ onBackToHome }) {
+export default function CrmPage({ onBackToHome, currentUser }) {
   const [events, setEvents] = useState({});
   const [selectedCard, setSelectedCard] = useState(null);
 
@@ -363,13 +363,14 @@ export default function CrmPage({ onBackToHome }) {
         })}
       </div>
       
-      {selectedCard && (
-        <DealCardModal 
-          card={selectedCard} 
-          onClose={() => setSelectedCard(null)} 
-          onSave={handleSaveCard} 
-        />
-      )}
+        {selectedCard && (
+          <DealCardModal 
+            card={selectedCard} 
+            onClose={() => setSelectedCard(null)} 
+            onSave={handleSaveCard} 
+            currentUser={currentUser}
+          />
+        )}
       
         <style dangerouslySetInnerHTML={{__html: `
           ::-webkit-scrollbar {

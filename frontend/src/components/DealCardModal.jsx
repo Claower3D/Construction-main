@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 
-export default function DealCardModal({ card, onClose, onSave }) {
+export default function DealCardModal({ card, onClose, onSave, currentUser }) {
   const [formData, setFormData] = useState({ ...card });
   const [expandedStageId, setExpandedStageId] = useState(null);
+
+  const canEdit = currentUser?.role === 'admin' || card.createdBy === currentUser?.id || card.assignedTo === currentUser?.id || !card.createdBy;
 
   const pipelineStages = [
     { id: 'Новые', label: 'Новая' },
@@ -336,11 +338,17 @@ export default function DealCardModal({ card, onClose, onSave }) {
         {/* FOOTER */}
         <div style={{ padding: '1.5rem 2rem', borderTop: '1px solid #1e293b', display: 'flex', justifyContent: 'flex-end', gap: '1rem', backgroundColor: '#0a0f18' }}>
           <button onClick={onClose} style={{ background: 'transparent', color: '#fff', border: '1px solid #334155', padding: '0.8rem 2rem', borderRadius: '8px', cursor: 'pointer', fontSize: '0.95rem' }}>
-            Отмена
+            {canEdit ? 'Отмена' : 'Закрыть'}
           </button>
-          <button onClick={() => onSave(formData)} style={{ background: '#22c55e', color: '#fff', border: 'none', padding: '0.8rem 2rem', borderRadius: '8px', cursor: 'pointer', fontSize: '0.95rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            ✓ Сохранить изменения
-          </button>
+          {canEdit ? (
+            <button onClick={() => onSave(formData)} style={{ background: '#22c55e', color: '#fff', border: 'none', padding: '0.8rem 2rem', borderRadius: '8px', cursor: 'pointer', fontSize: '0.95rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              ✓ Сохранить изменения
+            </button>
+          ) : (
+            <div style={{ padding: '0.8rem 2rem', color: '#ef4444', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(239, 68, 68, 0.1)', borderRadius: '8px' }}>
+              🔒 Нет прав для редактирования
+            </div>
+          )}
         </div>
 
       </div>

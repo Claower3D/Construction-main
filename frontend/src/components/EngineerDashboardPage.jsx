@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import AnimatedBackground from './AnimatedBackground';
 import '../engineer-modal.css';
 
-export default function EngineerDashboardPage({ onBackToHome, initialTab = 'calendar' }) {
+export default function EngineerDashboardPage({ onBackToHome, initialTab = 'calendar', currentUser }) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [activeTab, setActiveTab] = useState(initialTab || 'calendar'); // Dynamic tab state
 
@@ -363,7 +363,8 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
       status: evtStatus,
       deadline: evtDeadline,
       stages: evtStages,
-      photos: evtPhotos
+      photos: evtPhotos,
+      createdBy: editingEvent ? editingEvent.createdBy : currentUser?.id
     };
 
     if (editingEvent) {
@@ -777,12 +778,16 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                             <div className="evt-actions-bar">
                               <span className="evt-status">● {evt.status}</span>
                               <div className="evt-btn-group">
-                                <button className="btn-evt-edit" onClick={() => handleOpenEditModal(evt)} title="Изменить">
-                                  ✏️
-                                </button>
-                                <button className="btn-evt-delete" onClick={() => handleDeleteEvent(evt.id)} title="Удалить">
-                                  🗑️
-                                </button>
+                                {(currentUser?.role === 'admin' || evt.createdBy === currentUser?.id || evt.assignedTo === currentUser?.id || !evt.createdBy) && (
+                                  <>
+                                    <button className="btn-evt-edit" onClick={() => handleOpenEditModal(evt)} title="Изменить">
+                                      ✏️
+                                    </button>
+                                    <button className="btn-evt-delete" onClick={() => handleDeleteEvent(evt.id)} title="Удалить">
+                                      🗑️
+                                    </button>
+                                  </>
+                                )}
                               </div>
                             </div>
                           </div>
