@@ -490,13 +490,49 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
   // Delete Event
   const handleDeleteEvent = (evtId) => {
     if (!window.confirm('Удалить данное событие из календаря?')) return;
-    const key = viewRole === 'engineer' ? 'qazgost_calendar_events' : `qazgost_calendar_events_${viewRole}`;
+    
+    const selectedDateKey = `${currentYear}-${String(monthIndex + 1).padStart(2, '0')}-${String(selectedDay).padStart(2, '0')}`;
+    
+    const deleteFromKey = (storageKey) => {
+      const saved = localStorage.getItem(storageKey);
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          let changed = false;
+          if (parsed[selectedDay]) {
+            const before = parsed[selectedDay].length;
+            parsed[selectedDay] = parsed[selectedDay].filter(item => item.id !== evtId);
+            if (before !== parsed[selectedDay].length) changed = true;
+          }
+          if (parsed[selectedDateKey]) {
+            const before = parsed[selectedDateKey].length;
+            parsed[selectedDateKey] = parsed[selectedDateKey].filter(item => item.id !== evtId);
+            if (before !== parsed[selectedDateKey].length) changed = true;
+          }
+          if (changed) {
+            localStorage.setItem(storageKey, JSON.stringify(parsed));
+          }
+        } catch (e) {}
+      }
+    };
+
+    if (viewRole === 'admin') {
+      deleteFromKey('qazgost_calendar_events');
+      deleteFromKey('qazgost_calendar_events_executor');
+      deleteFromKey('qazgost_calendar_events_engineer');
+    } else {
+      const key = viewRole === 'engineer' ? 'qazgost_calendar_events' : `qazgost_calendar_events_${viewRole}`;
+      deleteFromKey(key);
+    }
+
     setScheduledEvents(prev => {
-      const newState = {
-        ...prev,
-        [selectedDay]: (prev[selectedDay] || []).filter(item => item.id !== evtId)
-      };
-      localStorage.setItem(key, JSON.stringify(newState));
+      const newState = { ...prev };
+      if (newState[selectedDay]) {
+        newState[selectedDay] = newState[selectedDay].filter(item => item.id !== evtId);
+      }
+      if (newState[selectedDateKey]) {
+        newState[selectedDateKey] = newState[selectedDateKey].filter(item => item.id !== evtId);
+      }
       return newState;
     });
   };
