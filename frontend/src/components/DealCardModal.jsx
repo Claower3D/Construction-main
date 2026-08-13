@@ -27,6 +27,40 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
   const currentStageIndex = pipelineStages.findIndex(s => s.id === formData.status);
   const activeIndex = currentStageIndex >= 0 ? currentStageIndex : 0;
 
+  const handleAssignToWorker = (role) => {
+    try {
+      const storageKey = role === 'engineer' ? 'qazgost_calendar_events' : 'qazgost_calendar_events_executor';
+      const savedEvents = localStorage.getItem(storageKey);
+      let crmEvents = savedEvents ? JSON.parse(savedEvents) : {};
+      
+      // Determine day (default to today if missing)
+      const day = formData.day || new Date().toISOString().split('T')[0];
+      if (!crmEvents[day]) crmEvents[day] = [];
+      
+      const newEvent = {
+        ...formData,
+        status: role === 'engineer' ? 'На проверке у инженера' : 'В работе',
+        contractor: role === 'engineer' ? 'Отдел ПТО' : 'Исполнитель'
+      };
+      
+      // Prevent duplicates if already exists
+      const existingIdx = crmEvents[day].findIndex(e => e.id === formData.id);
+      if (existingIdx !== -1) {
+        crmEvents[day][existingIdx] = newEvent;
+      } else {
+        crmEvents[day].push(newEvent);
+      }
+      
+      localStorage.setItem(storageKey, JSON.stringify(crmEvents));
+      handleChange('status', 'В работе'); // Update current modal status too
+      
+      alert(`✅ Успешно! Заявка передана в календарь ${role === 'engineer' ? 'Инженера' : 'Исполнителя'}. Уведомление отправлено.`);
+    } catch (err) {
+      console.error(err);
+      alert('Ошибка при передаче заявки.');
+    }
+  };
+
   const handleChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
@@ -171,10 +205,16 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
             {/* ACTION BOX (ПЕРЕДАТЬ СДЕЛКУ) */}
             <div style={{ width: '400px', backgroundColor: '#111827', borderRadius: '12px', border: '1px solid #1e293b', padding: '1.2rem' }}>
                <div style={{ fontSize: '0.7rem', color: '#64748b', marginBottom: '0.8rem', letterSpacing: '1px' }}>ПЕРЕДАТЬ СДЕЛКУ</div>
-               <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem' }}>
+               <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
                  <button onClick={() => handleChange('status', 'Менеджер ОП')} style={{ flex: 1, background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6', border: '1px solid #3b82f6', padding: '0.5rem', borderRadius: '8px', fontSize: '0.8rem', cursor: 'pointer' }}>👤 Менеджеру ОП</button>
                  <button onClick={() => handleChange('status', 'РОП')} style={{ flex: 1, background: 'rgba(168, 85, 247, 0.1)', color: '#a855f7', border: '1px solid #a855f7', padding: '0.5rem', borderRadius: '8px', fontSize: '0.8rem', cursor: 'pointer' }}>🛡️ РОПу</button>
                  <button onClick={() => handleChange('status', 'Финансист')} style={{ flex: 1, background: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b', border: '1px solid #f59e0b', padding: '0.5rem', borderRadius: '8px', fontSize: '0.8rem', cursor: 'pointer' }}>🪙 Финансисту</button>
+               </div>
+
+               <div style={{ fontSize: '0.7rem', color: '#64748b', marginBottom: '0.8rem', letterSpacing: '1px' }}>НАЗНАЧИТЬ И ОТПРАВИТЬ УВЕДОМЛЕНИЕ</div>
+               <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem' }}>
+                 <button onClick={() => handleAssignToWorker('engineer')} style={{ flex: 1, background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', border: '1px solid #10b981', padding: '0.5rem', borderRadius: '8px', fontSize: '0.8rem', cursor: 'pointer', fontWeight: 600 }}>⚙️ Инженеру</button>
+                 <button onClick={() => handleAssignToWorker('executor')} style={{ flex: 1, background: 'rgba(236, 72, 153, 0.1)', color: '#ec4899', border: '1px solid #ec4899', padding: '0.5rem', borderRadius: '8px', fontSize: '0.8rem', cursor: 'pointer', fontWeight: 600 }}>👷 Исполнителю</button>
                </div>
                
                <div style={{ display: 'flex', gap: '1rem' }}>
