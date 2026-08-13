@@ -41,10 +41,12 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
   const [newOrderDesc, setNewOrderDesc] = useState('');
   const [newOrderFiles, setNewOrderFiles] = useState([]);
   const [customerOrdersConst, setCustomerOrdersConst] = useState([
-    { id: 'c-const-1', title: 'Строительство коттеджа 250м²', status: 'В работе', type: 'construction', date: 'Вчера' }
+    { id: 'c-const-1', title: 'Строительство коттеджа 250м²', status: 'Передано менеджеру (В работе)', type: 'construction', date: 'Вчера' }
   ]);
   const [customerOrdersEng, setCustomerOrdersEng] = useState([
-    { id: 'c-eng-1', title: 'Проверка проектной документации фундамента', status: 'На проверке у инженера', type: 'engineering', date: '2 часа назад' }
+    { id: 'c-eng-1', title: 'Проверка проектной документации фундамента', status: 'Отправлено инженеру для проверки заказа', type: 'engineering', date: 'Только что' },
+    { id: 'c-eng-2', title: 'Аудит сметы по кровле', status: 'Требует вашего подтверждения (Ответ инженера получен)', type: 'engineering', date: '2 часа назад' },
+    { id: 'c-eng-3', title: 'Расчет теплопотерь здания', status: 'Передано менеджеру (Вы подтвердили)', type: 'engineering', date: 'Вчера' }
   ]);
 
   // Wallet state
@@ -175,11 +177,12 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
     e.preventDefault();
     if (!newOrderTitle.trim()) return;
     
+    // Add to local state (Customer View)
     if (orderModalType === 'construction') {
       const newOrder = {
         id: `c-const-${Date.now()}`,
         title: newOrderTitle,
-        status: 'Ожидает подрядчика',
+        status: 'На модерации у менеджера (Новая заявка)',
         type: 'construction',
         date: 'Только что'
       };
@@ -193,6 +196,28 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
         date: 'Только что'
       };
       setCustomerOrdersEng([newOrder, ...customerOrdersEng]);
+    }
+
+    // Push to CRM (Manager View)
+    try {
+      const savedEvents = localStorage.getItem('qazgost_calendar_events');
+      let crmEvents = savedEvents ? JSON.parse(savedEvents) : {};
+      const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+      if (!crmEvents[today]) crmEvents[today] = [];
+      
+      crmEvents[today].push({
+        id: `crm-evt-${Date.now()}`,
+        title: `Новая заявка от Заказчика: ${newOrderTitle}`,
+        time: new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }),
+        type: 'request', // Request from customer
+        status: 'Новые',
+        desc: newOrderDesc || 'Без описания',
+        contractor: 'Не распределено'
+      });
+      
+      localStorage.setItem('qazgost_calendar_events', JSON.stringify(crmEvents));
+    } catch (err) {
+      console.error('Failed to sync with CRM', err);
     }
     
     setNewOrderTitle('');
