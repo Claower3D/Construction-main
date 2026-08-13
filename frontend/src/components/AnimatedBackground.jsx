@@ -21,7 +21,8 @@ export default function AnimatedBackground() {
 
     // Particle class for cyber constellation nodes & glowing stars
     const particles = [];
-    const particleCount = Math.min(Math.floor(window.innerWidth / 14), 90);
+    // Lowered limits to improve performance and prevent system overload
+    const particleCount = Math.min(Math.floor(window.innerWidth / 30), 40);
 
     let mouse = { x: width / 2, y: height / 2, active: false };
 
@@ -68,8 +69,9 @@ export default function AnimatedBackground() {
           const dy = particles[i].y - particles[j].y;
           const dist = Math.sqrt(dx * dx + dy * dy);
 
-          if (dist < 140) {
-            const alpha = (1 - dist / 140) * 0.3;
+          // Lower distance threshold to reduce the number of connection lines
+          if (dist < 110) {
+            const alpha = (1 - dist / 110) * 0.2; // Slightly dimmer lines
             ctx.beginPath();
             ctx.moveTo(particles[i].x, particles[i].y);
             ctx.lineTo(particles[j].x, particles[j].y);
