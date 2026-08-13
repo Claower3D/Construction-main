@@ -80,7 +80,13 @@ export async function registerUser(userData) {
     console.warn('Backend registration failed, using fallback:', error.message);
     const mockToken = `mock-token-${Date.now()}`;
     localStorage.setItem('auth_token', mockToken);
-    const newUser = { id: `u_${Date.now()}`, email: userData.email, role: userData.role, name: userData.fullName || userData.email.split('@')[0] };
+    const newUser = { 
+      id: `u_${Date.now()}`, 
+      email: userData.email, 
+      role: userData.role, 
+      name: userData.fullName || userData.email.split('@')[0],
+      companyId: userData.companyId || null
+    };
     
     // Save to local list of registered users for offline use
     try {

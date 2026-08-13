@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import AnimatedBackground from './AnimatedBackground';
 import EngineerDashboardPage from './EngineerDashboardPage';
+import CompanyDashboardPage from './CompanyDashboardPage';
 import AdminDashboardModal from './AdminDashboardModal';
 import FeaturePageModule from './FeaturePageModule';
 import OnboardingTour from './OnboardingTour';
@@ -127,6 +128,31 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
       ],
     },
 
+    company: {
+      roleTitle: 'Компания',
+      roleIcon: '🏢',
+      roleColor: '#0ea5e9',
+      categories: [
+        {
+          id: 'comp-management',
+          name: '🏢 ПРОФИЛЬ И УПРАВЛЕНИЕ',
+          desc: 'Реквизиты, документы и сотрудники',
+          items: [
+            { id: 'comp-profile', name: 'Профиль компании', icon: '📝', iconBg: '#0ea5e9', desc: 'Управление БИН/ИИН и реквизитами' },
+            { id: 'comp-employees', name: 'Сотрудники', icon: '👥', iconBg: '#10b981', desc: 'Список привязанных инженеров и исполнителей' },
+          ],
+        },
+        {
+          id: 'comp-analytics',
+          name: '📊 АНАЛИТИКА',
+          desc: 'Статистика по объектам и заявкам',
+          items: [
+            { id: 'comp-stats', name: 'Статистика', icon: '📈', iconBg: '#8b5cf6', desc: 'Сводные данные по эффективности компании' },
+          ],
+        },
+      ],
+    },
+
     admin: {
       roleTitle: 'Админ',
       roleIcon: '⚙️',
@@ -218,6 +244,11 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
       setEmbeddedModule('admin_panel');
       setSelectedItemObject(item);
     } 
+    // Check if it's company module
+    else if (item.id.startsWith('comp-')) {
+      setEmbeddedModule('company');
+      setSelectedItemObject(item);
+    }
     // Check if it's engineer or calendar module
     else if (
       item.id.startsWith('ing-') || 
@@ -310,6 +341,7 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
                 <option value="customer">📋 Роль: Заказчик</option>
                 <option value="executor">🔧 Роль: Исполнитель</option>
                 <option value="engineer">👷 Роль: Инженер</option>
+                <option value="company">🏢 Роль: Компания (ТОО/ИП)</option>
                 <option value="manager">💼 Роль: Менеджер</option>
                 <option value="admin">⚙️ Роль: Админ</option>
               </select>
@@ -388,8 +420,18 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
 
           {embeddedModule === 'crm' && (
              <div style={{ height: '100%', width: '100%', position: 'relative', overflow: 'hidden' }}>
-               <CrmPage onBackToHome={onBackToHome} />
+               <CrmPage onBackToHome={onBackToHome} currentUser={currentUser} />
              </div>
+          )}
+
+          {embeddedModule === 'company' && (
+             <CompanyDashboardPage 
+               currentUser={currentUser} 
+               initialTab={
+                 selectedItemId === 'comp-employees' ? 'employees' :
+                 selectedItemId === 'comp-stats' ? 'stats' : 'profile'
+               }
+             />
           )}
 
           {!embeddedModule && selectedItemObject && (

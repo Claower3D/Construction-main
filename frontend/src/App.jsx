@@ -40,6 +40,7 @@ export default function App() {
     if (path.startsWith('/engineer')) return 'engineer';
     if (path.startsWith('/customer')) return 'customer';
     if (path.startsWith('/executor')) return 'executor';
+    if (path.startsWith('/company')) return 'company';
     if (path.startsWith('/crm')) return 'crm';
     if (path.startsWith('/manager')) return 'manager';
     if (path.startsWith('/category')) return 'category';
@@ -62,6 +63,7 @@ export default function App() {
       else if (path.startsWith('/engineer')) setCurrentView('engineer');
       else if (path.startsWith('/customer')) setCurrentView('customer');
       else if (path.startsWith('/executor')) setCurrentView('executor');
+      else if (path.startsWith('/company')) setCurrentView('company');
       else if (path.startsWith('/crm')) setCurrentView('crm');
       else if (path.startsWith('/manager')) setCurrentView('manager');
       else if (path.startsWith('/category')) {
@@ -145,7 +147,7 @@ export default function App() {
   };
 
   useEffect(() => {
-    const protectedViews = ['admin', 'engineer', 'customer', 'executor', 'crm', 'manager'];
+    const protectedViews = ['admin', 'engineer', 'customer', 'executor', 'company', 'crm', 'manager'];
     const path = window.location.pathname.substring(1).split('/')[0];
     const viewToCheck = protectedViews.includes(currentView) ? currentView : (protectedViews.includes(path) ? path : null);
 
@@ -165,7 +167,7 @@ export default function App() {
   }
 
   // Dashboard views for roles
-  if (['admin', 'customer', 'executor'].includes(currentView)) {
+  if (['admin', 'customer', 'executor', 'company'].includes(currentView)) {
     return isDashboardAllowed(currentView) ? <AdminDashboardPage userRole={currentView} onBackToHome={navigateToLanding} onOpenEngineer={navigateToEngineer} currentUser={currentUser} /> : null;
   }
 

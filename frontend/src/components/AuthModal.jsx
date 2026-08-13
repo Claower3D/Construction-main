@@ -7,6 +7,7 @@ export default function AuthModal({ mode, onClose, onLogin }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
+  const [companyId, setCompanyId] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -21,7 +22,7 @@ export default function AuthModal({ mode, onClose, onLogin }) {
         const res = await loginUser(email, password);
         if (onLogin && res.user) onLogin(res.user);
       } else {
-        const res = await registerUser({ email, password, fullName, role: selectedRole });
+        const res = await registerUser({ email, password, fullName, role: selectedRole, companyId });
         if (onLogin && res.user) onLogin(res.user);
       }
       onClose();
@@ -110,23 +111,57 @@ export default function AuthModal({ mode, onClose, onLogin }) {
                   <small>Технадзор РК</small>
                 </div>
               </button>
+
+              <button
+                type="button"
+                className={`modal-role-card ${selectedRole === 'company' ? 'active' : ''}`}
+                onClick={() => setSelectedRole('company')}
+              >
+                <span>🏢</span>
+                <div>
+                  <strong>Компания</strong>
+                  <small>ТОО / ИП</small>
+                </div>
+              </button>
             </div>
           </div>
         )}
 
         <form onSubmit={handleSubmit} style={{ marginTop: '1.25rem' }}>
           {activeTab === 'register' && (
-            <div className="form-group">
-              <label className="input-label">ФИО / Название компании</label>
-              <input
-                type="text"
-                className="custom-input"
-                placeholder="Иван Иванов или ТОО СтройПроект"
-                required
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-              />
-            </div>
+            <>
+              <div className="form-group">
+                <label className="input-label">ФИО / Название компании</label>
+                <input
+                  type="text"
+                  className="custom-input"
+                  placeholder="Иван Иванов или ТОО СтройПроект"
+                  required
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                />
+              </div>
+
+              {(selectedRole === 'executor' || selectedRole === 'engineer' || selectedRole === 'manager') && (
+                <div className="form-group">
+                  <label className="input-label">Привязаться к компании (необязательно)</label>
+                  <select 
+                    className="custom-input" 
+                    value={companyId} 
+                    onChange={(e) => setCompanyId(e.target.value)}
+                    style={{ appearance: 'auto', backgroundColor: '#1e293b' }}
+                  >
+                    <option value="">-- Без компании (Сам по себе) --</option>
+                    {JSON.parse(localStorage.getItem('qazgost_registered_users') || '[]')
+                      .filter(u => u.role === 'company')
+                      .map(comp => (
+                        <option key={comp.id} value={comp.id}>{comp.name}</option>
+                      ))
+                    }
+                  </select>
+                </div>
+              )}
+            </>
           )}
 
           <div className="form-group">
