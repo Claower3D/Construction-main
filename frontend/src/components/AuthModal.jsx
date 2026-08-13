@@ -123,6 +123,18 @@ export default function AuthModal({ mode, onClose, onLogin }) {
                   <small>ТОО / ИП</small>
                 </div>
               </button>
+
+              <button
+                type="button"
+                className={`modal-role-card ${selectedRole === 'manager' ? 'active' : ''}`}
+                onClick={() => setSelectedRole('manager')}
+              >
+                <span>💼</span>
+                <div>
+                  <strong>Менеджер</strong>
+                  <small>Управление CRM</small>
+                </div>
+              </button>
             </div>
           </div>
         )}

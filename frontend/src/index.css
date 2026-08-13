@@ -2200,24 +2200,37 @@ body.light .header-wrapper {
 
 .role-cards-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0.5rem;
-  margin-top: 0.5rem;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.role-cards-grid > .modal-role-card:last-child:nth-child(odd) {
+  grid-column: span 2;
 }
 
 .modal-role-card {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 0.6rem 0.4rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-md);
+  padding: 0.85rem 0.5rem;
   color: var(--text-muted);
   cursor: pointer;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.25rem;
+  gap: 0.35rem;
   text-align: center;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.modal-role-card:hover:not(.active) {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: translateY(-2px);
+  color: #fff;
 }
 
 .modal-role-card small {
@@ -2227,10 +2240,14 @@ body.light .header-wrapper {
 }
 
 .modal-role-card.active {
-  background: rgba(139, 92, 246, 0.2);
-  border-color: var(--primary);
+  background: linear-gradient(135deg, rgba(246, 196, 83, 0.15) 0%, rgba(246, 196, 83, 0.05) 100%);
+  border-color: var(--gold-main);
   color: #fff;
-  box-shadow: 0 0 12px rgba(139, 92, 246, 0.3);
+  box-shadow: 0 4px 20px rgba(246, 196, 83, 0.2), inset 0 0 0 1px rgba(246, 196, 83, 0.5);
+  transform: translateY(-2px);
+}
+.modal-role-card.active span {
+  transform: scale(1.1);
 }
 
 .form-group {
@@ -2247,20 +2264,21 @@ body.light .header-wrapper {
 
 .custom-input {
   width: 100%;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 0.75rem 1rem;
-  color: #ffffff;
-  font-size: 0.9rem;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #fff;
+  padding: 0.85rem 1.15rem;
+  border-radius: var(--radius-md);
+  font-size: 0.95rem;
   outline: none;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
 }
 
 .custom-input:focus {
   border-color: var(--gold-main);
-  background: rgba(255, 255, 255, 0.1);
-  box-shadow: 0 0 12px rgba(246, 196, 83, 0.25);
+  background: rgba(15, 23, 42, 0.9);
+  box-shadow: 0 0 0 3px rgba(246, 196, 83, 0.2), inset 0 2px 4px rgba(0,0,0,0.2);
 }
 
 .modal-submit-btn {
