@@ -3,7 +3,7 @@ import AnimatedBackground from './AnimatedBackground';
 import '../engineer-modal.css';
 import OnboardingTour from './OnboardingTour';
 
-export default function EngineerDashboardPage({ onBackToHome, initialTab = 'calendar', currentUser }) {
+export default function EngineerDashboardPage({ onBackToHome, initialTab = 'calendar', currentUser, viewRole = 'engineer' }) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [activeTab, setActiveTab] = useState(initialTab || 'calendar'); // Dynamic tab state
 
@@ -56,7 +56,8 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
 
   // Scheduled Events state with human-readable deadlines, stage sequence & photo attachments
   const [scheduledEvents, setScheduledEvents] = useState(() => {
-    const saved = localStorage.getItem('qazgost_calendar_events');
+    const key = viewRole === 'engineer' ? 'qazgost_calendar_events' : `qazgost_calendar_events_${viewRole}`;
+    const saved = localStorage.getItem(key);
     if (saved) {
       try {
         return JSON.parse(saved);
@@ -367,7 +368,6 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
   };
 
 
-  // Save Event (Create or Update)
   const handleSaveEvent = (e) => {
     e.preventDefault();
     if (!evtTitle.trim()) return;
@@ -385,14 +385,20 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
       createdBy: editingEvent ? editingEvent.createdBy : currentUser?.id
     };
 
+    const key = viewRole === 'engineer' ? 'qazgost_calendar_events' : `qazgost_calendar_events_${viewRole}`;
+
     if (editingEvent) {
       // Update existing event
-      setScheduledEvents(prev => ({
-        ...prev,
-        [selectedDay]: (prev[selectedDay] || []).map(item =>
-          item.id === editingEvent.id ? { ...item, ...eventPayload } : item
-        )
-      }));
+      setScheduledEvents(prev => {
+        const newState = {
+          ...prev,
+          [selectedDay]: (prev[selectedDay] || []).map(item =>
+            item.id === editingEvent.id ? { ...item, ...eventPayload } : item
+          )
+        };
+        localStorage.setItem(key, JSON.stringify(newState));
+        return newState;
+      });
     } else {
       // Create new event
       const newEvt = {
@@ -400,33 +406,46 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
         ...eventPayload
       };
 
-      setScheduledEvents(prev => ({
-        ...prev,
-        [selectedDay]: [...(prev[selectedDay] || []), newEvt]
-      }));
+      setScheduledEvents(prev => {
+        const newState = {
+          ...prev,
+          [selectedDay]: [...(prev[selectedDay] || []), newEvt]
+        };
+        localStorage.setItem(key, JSON.stringify(newState));
+        return newState;
+      });
     }
 
     setShowAddModal(false);
   };
 
-
   // Quick Change Status (1-click status cycle)
   const handleQuickStatusChange = (evtId, newStatus) => {
-    setScheduledEvents(prev => ({
-      ...prev,
-      [selectedDay]: (prev[selectedDay] || []).map(item =>
-        item.id === evtId ? { ...item, status: newStatus } : item
-      )
-    }));
+    const key = viewRole === 'engineer' ? 'qazgost_calendar_events' : `qazgost_calendar_events_${viewRole}`;
+    setScheduledEvents(prev => {
+      const newState = {
+        ...prev,
+        [selectedDay]: (prev[selectedDay] || []).map(item =>
+          item.id === evtId ? { ...item, status: newStatus } : item
+        )
+      };
+      localStorage.setItem(key, JSON.stringify(newState));
+      return newState;
+    });
   };
 
   // Delete Event
   const handleDeleteEvent = (evtId) => {
     if (!window.confirm('Удалить данное событие из календаря?')) return;
-    setScheduledEvents(prev => ({
-      ...prev,
-      [selectedDay]: (prev[selectedDay] || []).filter(item => item.id !== evtId)
-    }));
+    const key = viewRole === 'engineer' ? 'qazgost_calendar_events' : `qazgost_calendar_events_${viewRole}`;
+    setScheduledEvents(prev => {
+      const newState = {
+        ...prev,
+        [selectedDay]: (prev[selectedDay] || []).filter(item => item.id !== evtId)
+      };
+      localStorage.setItem(key, JSON.stringify(newState));
+      return newState;
+    });
   };
 
   const runAiPipeline = () => {
@@ -475,12 +494,11 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
 
   return (
     <div className="engineer-cabinet-root" style={{ flexDirection: 'row' }}>
-      <OnboardingTour steps={currentTourSteps} tourKey={`engineer_${activeTab}`} />
-      {/* Dynamic Animated Particles Background */}
       <AnimatedBackground />
+      {viewRole === 'engineer' && <OnboardingTour steps={currentTourSteps} tourKey={`engineer_${activeTab}`} />}
 
       {/* LEFT SIDEBAR PANEL (Now full height) */}
-      {sidebarOpen && (
+      {sidebarOpen && viewRole === 'engineer' && (
         <aside className="engineer-sidebar" style={{ height: '100vh', zIndex: 10 }}>
           <div className="engineer-org-card">
             <div className="org-icon">👤</div>
@@ -567,7 +585,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
         {/* NEW BREADCRUMBS HEADER */}
         <header className="main-top-header" style={{ flexShrink: 0, width: '100%', zIndex: 10 }}>
           <div className="header-breadcrumbs">
-            Инженер <span>/</span> Управление <span>/</span> {getTabName(activeTab)}
+            {viewRole === 'customer' ? 'Заказчик' : (viewRole === 'executor' ? 'Исполнитель' : 'Инженер')} <span>/</span> Управление <span>/</span> {getTabName(activeTab)}
           </div>
           <div className="header-actions">
             <button className="btn-glass-home" onClick={onBackToHome}>
@@ -580,26 +598,34 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
         <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
           
           {/* INNER TITLE BLOCK (was engineer-top-header) */}
-          <div className="engineer-top-header" style={{ position: 'static', borderBottom: '1px solid rgba(255,255,255,0.05)', flexShrink: 0 }}>
+          <div className="engineer-top-header" style={{ position: 'static', borderBottom: viewRole === 'engineer' ? '1px solid rgba(255,255,255,0.05)' : 'none', flexShrink: 0 }}>
             <div className="header-left-wrap">
-              <button
-                className="btn-sidebar-toggle"
-                onClick={() => setSidebarOpen(!sidebarOpen)}
-                title="Скрыть/показать боковое меню"
-              >
-                {sidebarOpen ? '◀ Меню' : '▶ Меню'}
-              </button>
+              {viewRole === 'engineer' && (
+                <button
+                  className="btn-sidebar-toggle"
+                  onClick={() => setSidebarOpen(!sidebarOpen)}
+                  title="Скрыть/показать боковое меню"
+                >
+                  {sidebarOpen ? '◀ Меню' : '▶ Меню'}
+                </button>
+              )}
               <div className="engineer-header-title">
-                <span className="engineer-avatar-badge">👷</span>
+                <span className="engineer-avatar-badge">{viewRole === 'customer' ? '📋' : (viewRole === 'executor' ? '🔧' : '👷')}</span>
                 <div>
-                  <h1 style={{ fontSize: '1.35rem', fontWeight: 900, margin: 0 }}>Кабинет инженера v2.0</h1>
-                  <span className="engineer-sub-tag" style={{ display: 'block', fontSize: '0.75rem', color: '#94a3b8', marginTop: '0.1rem' }}>Технический надзор & Экспертиза СНиП РК</span>
+                  <h1 style={{ fontSize: '1.35rem', fontWeight: 900, margin: 0 }}>
+                    {viewRole === 'customer' ? 'Мой Календарь' : (viewRole === 'executor' ? 'График работ' : 'Кабинет инженера v2.0')}
+                  </h1>
+                  <span className="engineer-sub-tag" style={{ display: 'block', fontSize: '0.75rem', color: '#94a3b8', marginTop: '0.1rem' }}>
+                    {viewRole === 'customer' ? 'График выполнения заказов' : (viewRole === 'executor' ? 'Ваши проекты и дедлайны' : 'Технический надзор & Экспертиза СНиП РК')}
+                  </span>
                 </div>
               </div>
             </div>
-            <div className="header-right-wrap">
-               <span className="live-status-pill">🟢 Синхронизировано СНиП РК</span>
-            </div>
+            {viewRole === 'engineer' && (
+              <div className="header-right-wrap">
+                 <span className="live-status-pill">🟢 Синхронизировано СНиП РК</span>
+              </div>
+            )}
           </div>
 
         {/* MAIN WORKSPACE PANEL SWITCHER */}

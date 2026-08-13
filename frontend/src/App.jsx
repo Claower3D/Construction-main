@@ -155,8 +155,8 @@ export default function App() {
   }, [currentView, currentUser]);
 
   // Full-Page Engineer Cabinet View (Renders at /engineer or when Engineer button clicked)
-  if (currentView === 'engineer' || window.location.pathname.startsWith('/engineer')) {
-    return isDashboardAllowed('engineer') ? <EngineerDashboardPage onBackToHome={navigateToLanding} currentUser={currentUser} /> : null;
+  if (currentView === 'engineer') {
+    return isDashboardAllowed('engineer') ? <EngineerDashboardPage onBackToHome={navigateToLanding} currentUser={currentUser} viewRole="engineer" /> : null;
   }
 
   // Full-Page CRM View (Also accessible via Manager role)
@@ -166,7 +166,7 @@ export default function App() {
 
   // Dashboard views for roles
   if (['admin', 'customer', 'executor'].includes(currentView)) {
-    return isDashboardAllowed(currentView) ? <AdminDashboardPage userRole={currentView} onBackToHome={navigateToLanding} onOpenEngineer={navigateToEngineer} /> : null;
+    return isDashboardAllowed(currentView) ? <AdminDashboardPage userRole={currentView} onBackToHome={navigateToLanding} onOpenEngineer={navigateToEngineer} currentUser={currentUser} /> : null;
   }
 
   return (

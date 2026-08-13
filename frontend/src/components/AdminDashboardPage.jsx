@@ -6,7 +6,7 @@ import FeaturePageModule from './FeaturePageModule';
 import OnboardingTour from './OnboardingTour';
 import CrmPage from './CrmPage';
 
-export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userRole = 'admin' }) {
+export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userRole = 'admin', currentUser }) {
   // Блок 1: Выбранная роль ('customer' | 'executor' | 'engineer' | 'admin')
   const [selectedRole, setSelectedRole] = useState(userRole);
   
@@ -376,6 +376,8 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
                  'overview'
                }
                onBackToHome={onBackToHome}
+               viewRole={selectedRole}
+               currentUser={currentUser}
              />
           )}
 
