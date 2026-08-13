@@ -224,20 +224,48 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
       { target: '.sidebar-nav', title: 'Меню Заказчика', content: 'Здесь находятся инструменты для управления вашим проектом: статистика, галерея и документы.', placement: 'right' },
       { target: '.admin-redesign-main', title: 'Рабочая область', content: 'Тут отображаются фотоотчеты со стройки, акты КС-2 и прозрачные сметы.', placement: 'left' }
     ],
-    'c-reports': [
-      { target: '.admin-redesign-main', title: 'Отчеты', content: 'Тут вы можете выгружать отчеты по финансам и материалам.', placement: 'left' }
+    'c-estimate': [
+      { target: '.feature-content-box', title: 'Оценка стоимости', content: 'Выберите тип объекта и загрузите фото. AI за пару секунд рассчитает черновую стоимость работ.', placement: 'bottom' }
+    ],
+    'c-inspect': [
+      { target: '.feature-content-box', title: 'Поиск дефектов', content: 'Загрузите фотографии проблемных участков, чтобы нейросеть выявила трещины или перепады.', placement: 'bottom' }
+    ],
+    'c-orders': [
+      { target: '.feature-content-box', title: 'Мои заказы', content: 'Здесь вы можете создать новую заявку на поиск подрядчика или отслеживать статус текущих.', placement: 'left' }
+    ],
+    'c-calendar': [
+      { target: '.feature-content-box', title: 'Календарь', content: 'График выполнения строительных работ по вашему объекту.', placement: 'left' }
     ]
   };
 
   const executorTourSteps = {
-    'e-tasks': [
-      { target: '.sidebar-nav', title: 'Меню Исполнителя', content: 'Здесь вы можете отслеживать активные задачи, запрашивать материалы и смотреть выплаты.', placement: 'right' },
-      { target: '.admin-redesign-main', title: 'Рабочая область', content: 'Рабочая панель для отчетности и связи с инженером ПТО.', placement: 'left' }
+    'e-feed': [
+      { target: '.feature-content-box', title: 'Лента заказов', content: 'Отслеживайте новые заявки от заказчиков по всему Казахстану и откликайтесь на подходящие.', placement: 'left' }
+    ],
+    'e-works': [
+      { target: '.feature-content-box', title: 'Мои работы', content: 'Здесь отображаются ваши текущие активные объекты и архив выполненных заказов.', placement: 'left' }
+    ],
+    'e-estimate': [
+      { target: '.feature-content-box', title: 'Оценка стоимости', content: 'Калькулятор сметных расходов. Используйте для быстрого расчета стоимости работ перед откликом.', placement: 'bottom' }
+    ],
+    'e-inspect': [
+      { target: '.feature-content-box', title: 'Детектоскопия', content: 'Загрузите фото объекта, чтобы заранее выявить скрытые дефекты (трещины, влага).', placement: 'bottom' }
+    ],
+    'e-wallet': [
+      { target: '.feature-content-box', title: 'Мой кошелёк', content: 'Управляйте заработанными средствами и выводите их на карту.', placement: 'left' }
     ]
   };
 
-  const currentCustomerSteps = customerTourSteps[selectedItemId] || customerTourSteps['c-overview'] || [];
-  const currentExecutorSteps = executorTourSteps[selectedItemId] || executorTourSteps['e-tasks'] || [];
+  const genericCustomerSteps = [
+    { target: '.feature-content-box', title: 'Рабочая область', content: 'Здесь отображается выбранный инструмент или модуль системы.', placement: 'left' }
+  ];
+
+  const genericExecutorSteps = [
+    { target: '.feature-content-box', title: 'Рабочая область', content: 'Здесь отображается выбранный инструмент. Следуйте инструкциям на экране для работы.', placement: 'left' }
+  ];
+
+  const currentCustomerSteps = customerTourSteps[selectedItemId] || (selectedItemId ? genericCustomerSteps : customerTourSteps['c-overview']);
+  const currentExecutorSteps = executorTourSteps[selectedItemId] || (selectedItemId ? genericExecutorSteps : executorTourSteps['e-feed']);
 
   return (
     <div className="admin-redesign-layout">
