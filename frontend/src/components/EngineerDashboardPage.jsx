@@ -254,6 +254,15 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
 
   // Open Create Modal
   const handleOpenCreateModal = () => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const selectedDate = new Date(currentYear, monthIndex, selectedDay);
+    
+    if (selectedDate < today) {
+      alert("Нельзя создать заявку задним числом!");
+      return;
+    }
+
     setEditingEvent(null);
     setModalTab('info');
     setEvtTitle('');
