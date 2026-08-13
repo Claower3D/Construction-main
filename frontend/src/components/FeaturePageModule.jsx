@@ -77,28 +77,33 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
           const predictions = await model.classify(img);
           
           if (predictions && predictions.length > 0) {
-            const topClass = predictions[0].className.toLowerCase();
-            const confidence = predictions[0].probability;
+            // Build an allowlist of ImageNet/MobileNet categories that typically correspond to:
+            // 1. Blueprints, drawings, plans (maze, crossword, web site, menu, envelope, rule, paper)
+            // 2. Interiors, buildings, construction (patio, window, door, desk, table, chair, couch, wardrobe, bookcase, bed, lumber, wall, fence, roof, etc.)
+            const allowedKeywords = [
+              'web site', 'website', 'menu', 'crossword', 'maze', 'envelope', 'paper', 'ruler', 'rule',
+              'patio', 'window', 'door', 'desk', 'table', 'chair', 'couch', 'wardrobe', 'bookcase', 'bed',
+              'theater', 'entertainment', 'lumber', 'wall', 'floor', 'ceiling', 'roof', 'building', 'house',
+              'home', 'room', 'bathroom', 'kitchen', 'toilet', 'sink', 'stove', 'refrigerator', 'microwave',
+              'oven', 'washer', 'radiator', 'heater', 'stair', 'balcony', 'porch', 'fence', 'gate', 'brick',
+              'concrete', 'wood', 'tile', 'carpet', 'rug', 'curtain', 'blind', 'shade', 'cabinet', 'shelf',
+              'drawer', 'closet', 'pantry', 'garage', 'shed', 'barn', 'office', 'factory', 'warehouse',
+              'medicine chest', 'four-poster', 'studio couch', 'folding chair', 'dining table'
+            ];
             
-            // MobileNet often classifies blueprints and line drawings as "web site", "menu", "comic book", or "crossword puzzle".
-            // So we explicitly DO NOT block those. We only block obvious non-construction / non-document items.
-            const isUnrelated = topClass.includes('monitor') ||
-                                topClass.includes('screen') ||
-                                topClass.includes('television') ||
-                                topClass.includes('cellular telephone') ||
-                                topClass.includes('digital clock') ||
-                                topClass.includes('scoreboard') ||
-                                topClass.includes('cat') ||
-                                topClass.includes('dog') ||
-                                topClass.includes('car') ||
-                                topClass.includes('person') ||
-                                topClass.includes('face');
+            // Check if ANY of the top 3 predictions match our allowed keywords
+            const isAllowed = predictions.some(pred => 
+              allowedKeywords.some(kw => pred.className.toLowerCase().includes(kw))
+            );
             
-            // Increase threshold so it doesn't falsely block on low confidence
-            if (isUnrelated && confidence > 0.4) {
+            // If none of the predictions match the allowlist, we reject it
+            if (!isAllowed) {
+              const topClass = predictions[0].className;
+              const confidence = predictions[0].probability;
+              
               setIsScanning(false);
               setScanStepMessage('');
-              setCvError(`❌ Ошибка Vision AI: Нейросеть распознала на фото [${predictions[0].className}] с вероятностью ${Math.round(confidence * 100)}%. Пожалуйста, загрузите фото объекта, помещения или чертёж.`);
+              setCvError(`❌ Ошибка Vision AI: Изображение не распознано как строительный объект или чертеж (определено как "${topClass}"). Пожалуйста, загрузите реальное фото помещения, фасада или план.`);
               return;
             }
           }
