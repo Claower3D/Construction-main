@@ -55,16 +55,55 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
   const monthsList = monthNames.map(m => `${m} ${currentYear}`);
 
   // Scheduled Events state with human-readable deadlines, stage sequence & photo attachments
+  // Scheduled Events state with human-readable deadlines, stage sequence & photo attachments
   const [scheduledEvents, setScheduledEvents] = useState(() => {
-    const key = viewRole === 'engineer' ? 'qazgost_calendar_events' : `qazgost_calendar_events_${viewRole}`;
-    const saved = localStorage.getItem(key);
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        console.error("Failed to parse calendar events", e);
+    const parseEvents = (key) => {
+      const saved = localStorage.getItem(key);
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch (e) {
+          console.error("Failed to parse calendar events", e);
+        }
       }
+      return {};
+    };
+
+    const mergeEvents = (events1, events2) => {
+      const merged = { ...events1 };
+      for (const day in events2) {
+        if (!merged[day]) {
+          merged[day] = [...events2[day]];
+        } else {
+          // Avoid duplicates by ID
+          const existingIds = new Set(merged[day].map(e => e.id));
+          const toAdd = events2[day].filter(e => !existingIds.has(e.id));
+          merged[day] = [...merged[day], ...toAdd];
+        }
+      }
+      return merged;
+    };
+
+    if (viewRole === 'admin') {
+      // Admin sees everything
+      const crmEvents = parseEvents('qazgost_calendar_events');
+      const executorEvents = parseEvents('qazgost_calendar_events_executor');
+      const engineerEvents = parseEvents('qazgost_calendar_events_engineer');
+      
+      let allEvents = mergeEvents(crmEvents, executorEvents);
+      allEvents = mergeEvents(allEvents, engineerEvents);
+
+      // If absolutely empty, we'll fall through to mock data below
+      if (Object.keys(allEvents).length > 0) {
+        return allEvents;
+      }
+    } else {
+      // Normal role-based loading
+      const key = viewRole === 'engineer' ? 'qazgost_calendar_events' : `qazgost_calendar_events_${viewRole}`;
+      const parsed = parseEvents(key);
+      if (Object.keys(parsed).length > 0) return parsed;
     }
+
     // Return a default set of mock data for ALL roles so the calendar isn't empty.
     // Different roles might see different global views, but for demonstration, we show all active projects.
     return {
