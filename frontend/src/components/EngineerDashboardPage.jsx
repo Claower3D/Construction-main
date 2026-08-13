@@ -65,6 +65,9 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
         console.error("Failed to parse calendar events", e);
       }
     }
+    if (viewRole !== 'engineer') {
+      return {};
+    }
     return {
     3: [
       {
@@ -130,8 +133,9 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
   });
 
   useEffect(() => {
-    localStorage.setItem('qazgost_calendar_events', JSON.stringify(scheduledEvents));
-  }, [scheduledEvents]);
+    const key = viewRole === 'engineer' ? 'qazgost_calendar_events' : `qazgost_calendar_events_${viewRole}`;
+    localStorage.setItem(key, JSON.stringify(scheduledEvents));
+  }, [scheduledEvents, viewRole]);
 
   const dayEvents = scheduledEvents[selectedDay] || [];
 
