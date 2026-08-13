@@ -366,6 +366,7 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
         <div className="main-content-area">
           {embeddedModule === 'engineer' && (
              <EngineerDashboardPage
+               key={selectedRole}
                initialTab={
                  selectedItemId === 'ing-main' ? 'overview' :
                  selectedItemId === 'ing-requests' ? 'requests' :
