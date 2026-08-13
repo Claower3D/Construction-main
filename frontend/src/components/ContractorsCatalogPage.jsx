@@ -550,74 +550,148 @@ export default function ContractorsCatalogPage({ onBack }) {
           <div className="cc-modal-card" onClick={e => e.stopPropagation()}>
             <button className="cc-modal-close" onClick={() => setSelectedContractor(null)}>✕</button>
             
+            {/* Header */}
             <div className="cc-modal-header">
               <div className="cc-avatar-circle large" style={{ background: selectedContractor.gradient }}>
                 {selectedContractor.initials}
               </div>
-              <div>
+              <div className="cc-modal-header-info">
                 <h2>{selectedContractor.name}</h2>
                 <div className="cc-modal-sub-flex">
                   <span className={`cc-type-badge ${selectedContractor.type}`}>
                     {selectedContractor.typeLabel}
                   </span>
-                  <span>📍 {selectedContractor.city}</span>
-                  <span className="cc-stars">⭐ {selectedContractor.rating} ({selectedContractor.reviewsCount} отзывов)</span>
+                  <span>· {selectedContractor.city}</span>
+                  <span className={`cc-status-dot ${selectedContractor.isAvailable ? 'available' : 'busy'}`}>
+                    · {selectedContractor.isAvailable ? '🟢 Доступен' : '🔴 Занят'}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Rating & Truthfulness Card */}
+            <div className="cc-m-rating-card">
+              <div className="cc-m-rating-top">
+                <span className="cc-m-rating-num">{selectedContractor.rating}</span>
+                <div>
+                  <div className="cc-stars">★★★★★</div>
+                  <div className="cc-m-reviews-sub">{selectedContractor.reviewsCount} отзывов</div>
+                </div>
+              </div>
+
+              <div className="cc-truth-row">
+                <div className="cc-truth-label">
+                  Правдивость: <span>71%</span>
+                </div>
+                <div className="cc-truth-track">
+                  <div className="cc-truth-fill" style={{ width: '71%' }}></div>
                 </div>
               </div>
             </div>
 
             <div className="cc-modal-body">
+              {/* 📝 О СЕБЕ */}
               <div className="cc-modal-section">
-                <h4>📋 О подрядчике</h4>
+                <h4>📝 О СЕБЕ</h4>
                 <p>{selectedContractor.description}</p>
               </div>
 
-              <div className="cc-modal-stats-row">
-                <div className="cc-mstat-box">
-                  <span className="label">Опыт работы</span>
-                  <span className="value">{selectedContractor.experience}</span>
-                </div>
-                <div className="cc-mstat-box">
-                  <span className="label">Завершенных проектов</span>
-                  <span className="value">{selectedContractor.completedProjects}+</span>
-                </div>
-                <div className="cc-mstat-box">
-                  <span className="label">Категория цен</span>
-                  <span className="value">{selectedContractor.tierBadge}</span>
-                </div>
-              </div>
-
+              {/* 🛠️ СПЕЦИАЛИЗАЦИЯ */}
               <div className="cc-modal-section mt-3">
-                <h4>🛠️ Специализации и услуги</h4>
+                <h4>🛠️ СПЕЦИАЛИЗАЦИЯ</h4>
                 <div className="cc-tags-wrap">
                   {selectedContractor.specialties.map((s, idx) => (
-                    <span key={idx} className="cc-tag-pill">{s.label}</span>
+                    <span key={idx} className="cc-tag-pill active-pill">
+                      ✓ {s.label.replace(/^[\s\S]*?\s/, '')}
+                    </span>
                   ))}
                 </div>
               </div>
 
+              {/* 💼 УСЛОВИЯ (4 Grid Box Cards) */}
               <div className="cc-modal-section mt-3">
-                <h4>🛡️ Проверки и гарантии</h4>
-                <div className="cc-verif-badge">
-                  ✅ ИИН/БИН Верифицирован • Гарантийные обязательства по договору 12-36 мес.
+                <h4>💼 УСЛОВИЯ</h4>
+                <div className="cc-conditions-grid">
+                  <div className="cc-cond-card">
+                    <span className="cc-cond-icon">💰</span>
+                    <div>
+                      <div className="cc-cond-label">Уровень цен</div>
+                      <div className="cc-cond-val">{selectedContractor.tier}</div>
+                    </div>
+                  </div>
+
+                  <div className="cc-cond-card">
+                    <span className="cc-cond-icon">📋</span>
+                    <div>
+                      <div className="cc-cond-label">Мин. заказ</div>
+                      <div className="cc-cond-val">20 000 ₸</div>
+                    </div>
+                  </div>
+
+                  <div className="cc-cond-card">
+                    <span className="cc-cond-icon">🛡️</span>
+                    <div>
+                      <div className="cc-cond-label">Гарантия</div>
+                      <div className="cc-cond-val">3 мес.</div>
+                    </div>
+                  </div>
+
+                  <div className="cc-cond-card">
+                    <span className="cc-cond-icon">📅</span>
+                    <div>
+                      <div className="cc-cond-label">Начало работ</div>
+                      <div className="cc-cond-val">Неделя</div>
+                    </div>
+                  </div>
                 </div>
               </div>
+
+              {/* 📞 КОНТАКТЫ */}
+              <div className="cc-modal-section mt-3">
+                <h4>📞 КОНТАКТЫ</h4>
+                <div className="cc-contacts-list">
+                  <div className="cc-contact-row" onClick={() => showToast(`📞 Звонок: ${selectedContractor.phone}`)}>
+                    <span className="cc-contact-icon">📱</span>
+                    <span>{selectedContractor.phone}</span>
+                  </div>
+                  <div className="cc-contact-row">
+                    <span className="cc-contact-icon">✉️</span>
+                    <span>{selectedContractor.name.toLowerCase().replace(/\s+/g, '')}@mail.kz</span>
+                  </div>
+                  <div className="cc-contact-row">
+                    <span className="cc-contact-icon">📍</span>
+                    <span>{selectedContractor.city} · Радиус 20 км</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* 💬 ОТЗЫВЫ */}
+              <div className="cc-modal-section mt-3">
+                <h4>💬 ОТЗЫВЫ ({selectedContractor.reviewsCount})</h4>
+                <div className="cc-empty-reviews">
+                  {selectedContractor.reviewsCount === 0 ? 'Пока нет отзывов' : '⭐ 4.9/5 на основе проверенных объектов'}
+                </div>
+              </div>
+
             </div>
 
-            <div className="cc-modal-actions">
+            {/* Footer Action Buttons */}
+            <div className="cc-modal-actions-bar">
               <button 
-                className="cc-btn-whatsapp"
-                onClick={() => showToast(`💬 Переход в чат WhatsApp: ${selectedContractor.phone}`)}
+                className="cc-btn-invite"
+                onClick={() => showToast(`📥 Приглашение на проект отправлено contractor: ${selectedContractor.name}`)}
               >
-                💬 Написать в WhatsApp
+                📥 Пригласить на проект
               </button>
+
               <button 
-                className="cc-btn-call"
-                onClick={() => showToast(`📞 Звонок: ${selectedContractor.phone}`)}
+                className={`cc-btn-fav-modal ${favorites.includes(selectedContractor.id) ? 'active' : ''}`}
+                onClick={(e) => toggleFavorite(selectedContractor.id, e)}
               >
-                📞 Позвонить {selectedContractor.phone}
+                {favorites.includes(selectedContractor.id) ? '❤️ В избранном' : '🤍 В избранное'}
               </button>
             </div>
+
           </div>
         </div>
       )}

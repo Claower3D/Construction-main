@@ -644,78 +644,186 @@
   color: #f1f5f9;
 }
 
-.cc-modal-section p {
-  color: #cbd5e1;
-  font-size: 0.9rem;
-  line-height: 1.5;
-  margin: 0;
-}
-
-.cc-modal-stats-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 0.75rem;
-  margin-top: 1.25rem;
-}
-
-.cc-mstat-box {
+/* Rating & Truthfulness Box */
+.cc-m-rating-card {
   background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  padding: 0.85rem;
-  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.cc-m-rating-top {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.cc-m-rating-num {
+  font-size: 2.4rem;
+  font-weight: 900;
+  color: #fff;
+  line-height: 1;
+}
+
+.cc-m-reviews-sub {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  margin-top: 0.2rem;
+}
+
+.cc-truth-row {
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
+  gap: 0.4rem;
 }
 
-.cc-mstat-box .label {
+.cc-truth-label {
+  font-size: 0.82rem;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.cc-truth-label span {
+  color: #34d399;
+}
+
+.cc-truth-track {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.cc-truth-fill {
+  height: 100%;
+  background: #34d399;
+  border-radius: 3px;
+  box-shadow: 0 0 10px rgba(52, 211, 153, 0.6);
+}
+
+/* Conditions 4 Grid */
+.cc-conditions-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.cc-cond-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 14px;
+  padding: 0.85rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.cc-cond-icon {
+  font-size: 1.4rem;
+  background: rgba(255, 255, 255, 0.05);
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.cc-cond-label {
   font-size: 0.75rem;
   color: #94a3b8;
 }
 
-.cc-mstat-box .value {
-  font-size: 1.1rem;
+.cc-cond-val {
+  font-size: 0.95rem;
   font-weight: 800;
+  color: #fff;
+  margin-top: 0.1rem;
+}
+
+/* Contacts List */
+.cc-contacts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 0.85rem 1rem;
+  border-radius: 14px;
+}
+
+.cc-contact-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+  color: #e2e8f0;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.cc-contact-icon {
+  font-size: 1.1rem;
+  opacity: 0.8;
+}
+
+.cc-empty-reviews {
+  color: #64748b;
+  font-size: 0.88rem;
+  font-weight: 500;
+}
+
+.cc-tag-pill.active-pill {
+  background: rgba(168, 85, 247, 0.2);
+  border-color: #a855f7;
   color: #fff;
 }
 
-.cc-verif-badge {
-  background: rgba(16, 185, 129, 0.1);
-  border: 1px solid rgba(16, 185, 129, 0.3);
-  color: #34d399;
-  padding: 0.85rem;
-  border-radius: 12px;
-  font-size: 0.85rem;
-  font-weight: 600;
-}
-
-.cc-modal-actions {
+/* Footer Modal Actions Bar */
+.cc-modal-actions-bar {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 0.85rem;
   margin-top: 1.75rem;
 }
 
-.cc-btn-whatsapp {
-  background: #10b981;
-  color: #fff;
-  border: none;
-  padding: 0.85rem;
-  border-radius: 12px;
-  font-weight: 800;
-  font-size: 0.9rem;
-  cursor: pointer;
-}
-
-.cc-btn-call {
+.cc-btn-invite {
   background: linear-gradient(90deg, #a855f7, #ec4899);
   color: #fff;
   border: none;
-  padding: 0.85rem;
-  border-radius: 12px;
+  padding: 0.9rem;
+  border-radius: 14px;
   font-weight: 800;
+  font-size: 0.95rem;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(168, 85, 247, 0.35);
+  transition: transform 0.2s ease;
+}
+
+.cc-btn-invite:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(236, 72, 153, 0.45);
+}
+
+.cc-btn-fav-modal {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #fff;
+  padding: 0.9rem;
+  border-radius: 14px;
+  font-weight: 700;
   font-size: 0.9rem;
   cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cc-btn-fav-modal:hover, .cc-btn-fav-modal.active {
+  background: rgba(244, 63, 94, 0.15);
+  border-color: #f43f5e;
+  color: #f43f5e;
 }
 
 .cc-form-group {
