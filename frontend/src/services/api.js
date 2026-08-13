@@ -85,6 +85,7 @@ export async function registerUser(userData) {
       email: userData.email, 
       role: userData.role, 
       name: userData.fullName || userData.email.split('@')[0],
+      bin: userData.bin || null,
       companyId: userData.companyId || null
     };
 

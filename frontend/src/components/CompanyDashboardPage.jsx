@@ -131,7 +131,7 @@ export default function CompanyDashboardPage({ currentUser, initialTab = 'profil
             <div>
               <label style={{ display: 'block', color: '#94a3b8', fontSize: '0.85rem', marginBottom: '0.5rem' }}>БИН/ИИН (Демо)</label>
               <div style={{ background: 'rgba(0,0,0,0.2)', padding: '0.75rem', borderRadius: '8px', color: '#fff', borderLeft: `3px solid ${settings.primaryColor}` }}>
-                123456789012
+                {currentUser?.bin || 'Не указан'}
               </div>
             </div>
             <div>

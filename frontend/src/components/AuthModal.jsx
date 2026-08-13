@@ -7,6 +7,7 @@ export default function AuthModal({ mode, onClose, onLogin }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
+  const [bin, setBin] = useState('');
   const [inviteCodeInput, setInviteCodeInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -32,7 +33,7 @@ export default function AuthModal({ mode, onClose, onLogin }) {
           finalCompanyId = company.id;
         }
         
-        const res = await registerUser({ email, password, fullName, role: selectedRole, companyId: finalCompanyId });
+        const res = await registerUser({ email, password, fullName, bin, role: selectedRole, companyId: finalCompanyId });
         if (onLogin && res.user) onLogin(res.user);
       }
       onClose();
@@ -173,6 +174,21 @@ export default function AuthModal({ mode, onClose, onLogin }) {
                     placeholder="Например: C-12345 (Выдается вашей компанией)"
                     value={inviteCodeInput} 
                     onChange={(e) => setInviteCodeInput(e.target.value)}
+                  />
+                </div>
+              )}
+
+              {selectedRole === 'company' && (
+                <div className="form-group">
+                  <label className="input-label">БИН / ИИН компании</label>
+                  <input 
+                    type="text"
+                    className="custom-input" 
+                    placeholder="Введите 12 цифр"
+                    maxLength={12}
+                    required
+                    value={bin} 
+                    onChange={(e) => setBin(e.target.value.replace(/\D/g, ''))}
                   />
                 </div>
               )}
