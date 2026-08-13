@@ -65,9 +65,8 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
         console.error("Failed to parse calendar events", e);
       }
     }
-    if (viewRole !== 'engineer') {
-      return {};
-    }
+    // Return a default set of mock data for ALL roles so the calendar isn't empty.
+    // Different roles might see different global views, but for demonstration, we show all active projects.
     return {
     3: [
       {

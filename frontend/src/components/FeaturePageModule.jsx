@@ -388,20 +388,23 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
 
             <div className="orders-full-grid" style={{ marginTop: '1.5rem' }}>
               {[
-                { id: 'ORD-901', title: 'Капитальный ремонт бизнес-центра 1200 м²', city: 'Алматы', budget: '42 000 000 ₸', category: 'Коммерческая отделка', date: '5 мин назад' },
-                { id: 'ORD-902', title: 'Строительство монолитного каркаса коттеджа 320 м²', city: 'Астана', budget: '14 800 000 ₸', category: 'Монолит', date: '18 мин назад' },
-                { id: 'ORD-903', title: 'Монтаж системы приточно-вытяжной вентиляции (HVAC)', city: 'Караганда', budget: '8 500 000 ₸', category: 'Инженерия', date: '45 мин назад' },
-                { id: 'ORD-904', title: 'Электромонтажные работы в новостройке', city: 'Шымкент', budget: '3 600 000 ₸', category: 'Электрика', date: '1 час назад' },
+                { id: 'ORD-901', title: 'Капитальный ремонт бизнес-центра 1200 м²', city: 'Алматы', budget: '42 000 000 ₸', category: 'Коммерческая отделка', date: '5 мин назад', contractor: 'Не назначен' },
+                { id: 'ORD-902', title: 'Строительство монолитного каркаса коттеджа 320 м²', city: 'Астана', budget: '14 800 000 ₸', category: 'Монолит', date: '18 мин назад', contractor: 'Не назначен' },
+                { id: 'ORD-903', title: 'Монтаж системы приточно-вытяжной вентиляции (HVAC)', city: 'Караганда', budget: '8 500 000 ₸', category: 'Инженерия', date: '45 мин назад', contractor: 'ТОО «ВентСтрой KZ»' },
+                { id: 'ORD-904', title: 'Электромонтажные работы в новостройке', city: 'Шымкент', budget: '3 600 000 ₸', category: 'Электрика', date: '1 час назад', contractor: 'ИП «СветСтрой»' },
               ].map((ord) => (
                 <div className="order-item-card" key={ord.id} style={{ padding: '1.25rem' }}>
                   <div className="order-head">
                     <strong style={{ fontSize: '1.1rem' }}>{ord.title}</strong>
                     <span className="order-price" style={{ fontSize: '1.2rem' }}>{ord.budget}</span>
                   </div>
-                  <div className="order-meta" style={{ margin: '0.75rem 0' }}>
-                    <span>📍 Город: {ord.city}</span>
-                    <span>🏷️ {ord.category}</span>
-                    <span>⏱ {ord.date}</span>
+                  <div className="order-meta" style={{ margin: '0.75rem 0', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                    <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                      <span>📍 Город: {ord.city}</span>
+                      <span>🏷️ {ord.category}</span>
+                      <span>⏱ {ord.date}</span>
+                    </div>
+                    <div>👷 Исполнитель: <strong>{ord.contractor}</strong></div>
                   </div>
                   <button
                     className={`btn-apply-order ${appliedOrders[ord.id] ? 'applied' : ''}`}
@@ -424,18 +427,21 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
 
             <div className="orders-full-grid" style={{ marginTop: '1.5rem' }}>
               {[
-                { id: 'WORK-1', title: 'Отделка квартиры ЖК "Highvill"', city: 'Астана', budget: '3 500 000 ₸', category: 'Чистовая отделка', status: 'В работе (Готовность 45%)' },
-                { id: 'WORK-2', title: 'Заливка фундамента под коттедж', city: 'Алматы', budget: '1 200 000 ₸', category: 'Монолит', status: 'Завершено ✅' },
+                { id: 'WORK-1', title: 'Отделка квартиры ЖК "Highvill"', city: 'Астана', budget: '3 500 000 ₸', category: 'Чистовая отделка', status: 'В работе (Готовность 45%)', contractor: 'Моя компания / Я' },
+                { id: 'WORK-2', title: 'Заливка фундамента под коттедж', city: 'Алматы', budget: '1 200 000 ₸', category: 'Монолит', status: 'Завершено ✅', contractor: 'Моя компания / Я' },
               ].map((work) => (
                 <div className="order-item-card" key={work.id} style={{ padding: '1.25rem', borderLeft: work.status.includes('Завершено') ? '4px solid #10b981' : '4px solid #f59e0b' }}>
                   <div className="order-head">
                     <strong style={{ fontSize: '1.1rem' }}>{work.title}</strong>
                     <span className="order-price" style={{ fontSize: '1.2rem', color: '#10b981' }}>{work.budget}</span>
                   </div>
-                  <div className="order-meta" style={{ margin: '0.75rem 0' }}>
-                    <span>📍 {work.city}</span>
-                    <span>🏷️ {work.category}</span>
-                    <span style={{ color: work.status.includes('Завершено') ? '#10b981' : '#f59e0b' }}>{work.status}</span>
+                  <div className="order-meta" style={{ margin: '0.75rem 0', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                    <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                      <span>📍 {work.city}</span>
+                      <span>🏷️ {work.category}</span>
+                      <span style={{ color: work.status.includes('Завершено') ? '#10b981' : '#f59e0b' }}>{work.status}</span>
+                    </div>
+                    <div>👷 Исполнитель: <strong>{work.contractor}</strong></div>
                   </div>
                   <button className="btn-action-hero" style={{ width: '100%', padding: '0.65rem' }}>
                     Открыть карточку объекта
