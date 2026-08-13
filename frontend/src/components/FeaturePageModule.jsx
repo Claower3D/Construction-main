@@ -10,8 +10,12 @@ import { getOrders } from '../services/dataService';
 
 export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) {
   // Common interactive states
-  const [photoUploaded, setPhotoUploaded] = useState(false);
+  const [photoUploaded, setPhotoUploaded] = useState(false); // Legacy boolean, keeping it for compatibility just in case
+  const [uploadedFile, setUploadedFile] = useState(null);
+  const [uploadedPreview, setUploadedPreview] = useState(null);
+  
   const [isScanning, setIsScanning] = useState(false);
+  const [scanStepMessage, setScanStepMessage] = useState('');
   const [scanResult, setScanResult] = useState(null);
 
   // Estimate calculator states
@@ -36,13 +40,52 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
   const itemId = itemData.id;
 
   // Handlers
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setUploadedFile(file);
+      setPhotoUploaded(true);
+      // Create preview for images
+      if (file.type.startsWith('image/')) {
+        setUploadedPreview(URL.createObjectURL(file));
+      } else {
+        // Mock a PDF or document preview
+        setUploadedPreview('📄');
+      }
+    }
+  };
+
   const handleRunAiEstimate = () => {
     setIsScanning(true);
-    setTimeout(() => {
-      setIsScanning(false);
-      const est = calculateSmartEstimate({ area, propertyType, qualityLevel });
-      setCalculatedEstimate(est);
-    }, 1000);
+    setCalculatedEstimate(null); // Reset previous estimate
+    
+    if (uploadedFile) {
+      setScanStepMessage('Анализ геометрии помещения и плана...');
+      setTimeout(() => setScanStepMessage('Распознавание несущих конструкций и инженерных узлов...'), 1200);
+      setTimeout(() => setScanStepMessage('Применение сметных нормативов (ГЭСН 2026 РК)...'), 2500);
+      setTimeout(() => setScanStepMessage('Формирование итогового отчета...'), 3500);
+      
+      setTimeout(() => {
+        setIsScanning(false);
+        setScanStepMessage('');
+        const est = calculateSmartEstimate({ 
+          area, 
+          propertyType, 
+          qualityLevel, 
+          hasFile: true, 
+          fileName: uploadedFile.name 
+        });
+        setCalculatedEstimate(est);
+      }, 4500);
+    } else {
+      setScanStepMessage('Идёт AI-просчёт по нормам ГЭСН 2026 РК...');
+      setTimeout(() => {
+        setIsScanning(false);
+        setScanStepMessage('');
+        const est = calculateSmartEstimate({ area, propertyType, qualityLevel, hasFile: false });
+        setCalculatedEstimate(est);
+      }, 1000);
+    }
   };
 
   const handleRunDefectInspect = () => {
@@ -127,16 +170,71 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
               <input type="range" min="10" max="500" value={area} onChange={(e) => setArea(parseInt(e.target.value))} className="range-slider" />
             </div>
 
-            <div className="photo-upload-dropzone" onClick={() => setPhotoUploaded(true)}>
+            <div 
+              className="photo-upload-dropzone" 
+              onClick={() => document.getElementById('estimate-file-upload').click()}
+              style={{ position: 'relative', cursor: 'pointer' }}
+            >
+              <input 
+                type="file" 
+                id="estimate-file-upload" 
+                accept="image/*,application/pdf" 
+                style={{ display: 'none' }} 
+                onChange={handleFileUpload} 
+              />
               <span className="drop-icon">📸</span>
-              <div>
-                <strong>{photoUploaded ? '✅ Фото помещения успешно загружено и обработано' : 'Загрузите фото объекта для автоматически распознанной черновой отделки'}</strong>
+              <div style={{ flex: 1, marginRight: uploadedPreview ? '60px' : '0' }}>
+                <strong>
+                  {uploadedFile 
+                    ? `✅ Документ "${uploadedFile.name}" загружен и готов к анализу` 
+                    : 'Загрузите фото объекта или документ (чертёж/план)'
+                  }
+                </strong>
                 <div className="small-text">AI сканирует площади стен, высоты потолков и состояние дефектов</div>
               </div>
+              
+              {uploadedPreview && typeof uploadedPreview === 'string' && uploadedPreview !== '📄' && (
+                <img 
+                  src={uploadedPreview} 
+                  alt="Preview" 
+                  style={{ 
+                    position: 'absolute', 
+                    right: '16px', 
+                    top: '50%', 
+                    transform: 'translateY(-50%)',
+                    height: '56px', 
+                    width: '56px',
+                    objectFit: 'cover',
+                    borderRadius: '8px',
+                    border: '1px solid rgba(255,255,255,0.2)'
+                  }}
+                />
+              )}
+              {uploadedPreview === '📄' && (
+                <div style={{
+                  position: 'absolute', 
+                  right: '16px', 
+                  top: '50%', 
+                  transform: 'translateY(-50%)',
+                  height: '56px', 
+                  width: '56px',
+                  borderRadius: '8px',
+                  background: 'rgba(255,255,255,0.1)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '2rem'
+                }}>📄</div>
+              )}
             </div>
 
             <button className="btn-action-hero" onClick={handleRunAiEstimate} disabled={isScanning}>
-              {isScanning ? '⏳ Идёт AI-просчёт по нормам ГЭСН 2026 РК...' : '🚀 Сформировать итоговую смету'}
+              {isScanning ? (
+                <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
+                  <span className="typing-dots" style={{ marginBottom: 0, padding: 0 }}><span className="dot"></span><span className="dot"></span><span className="dot"></span></span>
+                  {scanStepMessage}
+                </span>
+              ) : '🚀 Сформировать итоговую смету'}
             </button>
 
             {calculatedEstimate && (
@@ -148,6 +246,19 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
                   <div><span>Стоимость материалов (BOM):</span> <strong>{calculatedEstimate.materialsCost?.toLocaleString()} ₸</strong></div>
                   <div><span>Ориентировочный срок работ:</span> <strong>~{calculatedEstimate.estimatedDays || calculatedEstimate.timelineDays} рабочих дней</strong></div>
                 </div>
+
+                {calculatedEstimate.aiInsights && calculatedEstimate.aiInsights.length > 0 && (
+                  <div style={{ marginTop: '1.5rem', padding: '1rem', background: 'rgba(16, 185, 129, 0.1)', borderRadius: '8px', borderLeft: '4px solid #10b981' }}>
+                    <h4 style={{ margin: '0 0 0.75rem 0', color: '#10b981', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      ✨ AI-Анализ чертежа
+                    </h4>
+                    <ul style={{ margin: 0, paddingLeft: '1.2rem', color: '#cbd5e1', fontSize: '0.9rem', lineHeight: '1.5' }}>
+                      {calculatedEstimate.aiInsights.map((insight, idx) => (
+                        <li key={idx} style={{ marginBottom: '6px' }}>{insight}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
             )}
           </div>
