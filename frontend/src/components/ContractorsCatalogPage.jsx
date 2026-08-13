@@ -35,8 +35,8 @@ export default function ContractorsCatalogPage({ onBack }) {
     { id: 'surveyor', label: '📏 Геодезист / Замерщик' },
     { id: 'finishing', label: '✨ Отделочник под ключ' },
     { id: 'facade', label: '🏢 Фасадчик' },
-    { id: 'window', label: '🪟 Окна / Двери' },
-    { id: 'flooring', label: '🪵 Напольные покрытия' },
+    { id: 'window', label: '🚪 Окна / Двери' },
+    { id: 'flooring', label: '🟫 Напольные покрытия' },
     { id: 'drywall', label: '📐 Гипсокартонщик' }
   ];
 

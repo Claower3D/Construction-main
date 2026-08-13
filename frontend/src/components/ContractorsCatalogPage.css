@@ -214,22 +214,32 @@
   cursor: pointer;
 }
 
-/* Specialty Chips Carousel */
 .cc-chips-scroll {
   display: flex;
   gap: 0.6rem;
   overflow-x: auto;
-  padding-bottom: 0.5rem;
+  padding-bottom: 0.6rem;
   scrollbar-width: thin;
+  scrollbar-color: rgba(168, 85, 247, 0.4) transparent;
 }
 
 .cc-chips-scroll::-webkit-scrollbar {
-  height: 4px;
+  height: 5px;
+  background: transparent;
+}
+
+.cc-chips-scroll::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 10px;
 }
 
 .cc-chips-scroll::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 4px;
+  background: rgba(168, 85, 247, 0.4);
+  border-radius: 10px;
+}
+
+.cc-chips-scroll::-webkit-scrollbar-thumb:hover {
+  background: #a855f7;
 }
 
 .cc-chip {
