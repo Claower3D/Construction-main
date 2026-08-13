@@ -6,13 +6,21 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
 
   const canEdit = currentUser?.role === 'admin' || card.createdBy === currentUser?.id || card.assignedTo === currentUser?.id || !card.createdBy;
 
-  const mockUsers = [
-    { id: 'u_1', name: 'Ербол Маратов', role: 'engineer' },
-    { id: 'u_2', name: 'Ирина Ким', role: 'engineer' },
-    { id: 'u_3', name: 'ТОО QazGost', role: 'executor' },
-    { id: 'u_4', name: 'Алексей Смирнов', role: 'executor' },
-    { id: 'u_5', name: 'Светлана Иванова', role: 'manager' }
-  ];
+  const [allUsers] = useState(() => {
+    const defaultUsers = [
+      { id: 'u_1', name: 'Ербол Маратов', role: 'engineer' },
+      { id: 'u_2', name: 'Ирина Ким', role: 'engineer' },
+      { id: 'u_3', name: 'ТОО QazGost', role: 'executor' },
+      { id: 'u_4', name: 'Алексей Смирнов', role: 'executor' },
+      { id: 'u_5', name: 'Светлана Иванова', role: 'manager' }
+    ];
+    try {
+      const registered = JSON.parse(localStorage.getItem('qazgost_registered_users') || '[]');
+      return [...defaultUsers, ...registered];
+    } catch(e) {
+      return defaultUsers;
+    }
+  });
 
   const pipelineStages = [
     { id: 'Новые', label: 'Новая' },
@@ -110,7 +118,7 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
   const handleSaveWrapper = () => {
     // Check for assignment changes
     if (formData.assignedTo && formData.assignedTo !== card.assignedTo) {
-      const assignedUser = mockUsers.find(u => u.id === formData.assignedTo);
+      const assignedUser = allUsers.find(u => u.id === formData.assignedTo);
       if (assignedUser) {
         const notifRole = assignedUser.role; // 'engineer' or 'executor'
         const key = `${notifRole}_notifications`;
@@ -227,12 +235,12 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
                     >
                       <option value="">-- Не назначен --</option>
                       <optgroup label="Инженеры">
-                        {mockUsers.filter(u => u.role === 'engineer').map(u => (
+                        {allUsers.filter(u => u.role === 'engineer').map(u => (
                           <option key={u.id} value={u.id}>{u.name}</option>
                         ))}
                       </optgroup>
                       <optgroup label="Исполнители">
-                        {mockUsers.filter(u => u.role === 'executor').map(u => (
+                        {allUsers.filter(u => u.role === 'executor').map(u => (
                           <option key={u.id} value={u.id}>{u.name}</option>
                         ))}
                       </optgroup>

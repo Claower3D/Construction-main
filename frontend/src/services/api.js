@@ -80,10 +80,19 @@ export async function registerUser(userData) {
     console.warn('Backend registration failed, using fallback:', error.message);
     const mockToken = `mock-token-${Date.now()}`;
     localStorage.setItem('auth_token', mockToken);
+    const newUser = { id: `u_${Date.now()}`, email: userData.email, role: userData.role, name: userData.fullName || userData.email.split('@')[0] };
+    
+    // Save to local list of registered users for offline use
+    try {
+      const savedUsers = JSON.parse(localStorage.getItem('qazgost_registered_users') || '[]');
+      savedUsers.push(newUser);
+      localStorage.setItem('qazgost_registered_users', JSON.stringify(savedUsers));
+    } catch(e) {}
+
     return {
       message: 'Registered successfully (offline mode)',
       token: mockToken,
-      user: { id: `u_${Date.now()}`, email: userData.email, role: userData.role, name: userData.fullName }
+      user: newUser
     };
   }
 }
