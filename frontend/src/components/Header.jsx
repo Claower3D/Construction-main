@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, onOpenAdmin, onOpenEngineer, currentUser, onLogout, onOpenDashboard, onLogoClick, onOpenProfile }) {
+export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, onOpenAdmin, onOpenEngineer, currentUser, onLogout, onOpenDashboard, onLogoClick, onOpenProfile, onOpenWallet }) {
   const [activeNavDropdown, setActiveNavDropdown] = useState(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [mobileAccordion, setMobileAccordion] = useState(null);
@@ -317,7 +317,12 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
 
         {/* Right Action Icons & Login */}
         <div className="header-right-actions">
-          <div className="balance-badge" title="Баланс вашего аккаунта">
+          <div 
+            className="balance-badge" 
+            title="Открыть Мой Кошелёк"
+            style={{ cursor: 'pointer' }}
+            onClick={onOpenWallet}
+          >
             <span className="balance-icon">💰</span>
             <span className="balance-amount">$0.00</span>
           </div>
@@ -428,7 +433,11 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
               </div>
 
               {/* Account Balance */}
-              <div className="balance-badge" style={{ justifyContent: 'center', padding: '0.6rem 1rem' }}>
+              <div 
+                className="balance-badge" 
+                style={{ justifyContent: 'center', padding: '0.6rem 1rem', cursor: 'pointer' }}
+                onClick={() => { if (onOpenWallet) onOpenWallet(); setMobileMenuOpen(false); }}
+              >
                 <span className="balance-icon">💰</span>
                 <span>Баланс: $0.00</span>
               </div>

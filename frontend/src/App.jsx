@@ -20,6 +20,8 @@ import VoiceControlWidget from './components/VoiceControlWidget';
 import CrmPage from './components/CrmPage';
 import CategoryTemplatePage from './components/CategoryTemplatePage';
 import ProfileQuestionnaire from './components/ProfileQuestionnaire';
+import UserWalletPage from './components/UserWalletPage';
+import ContractorsCatalogPage from './components/ContractorsCatalogPage';
 import { categoriesData } from './data/categoriesData';
 
 export default function App() {
@@ -46,6 +48,8 @@ export default function App() {
     if (path.startsWith('/manager')) return 'manager';
     if (path.startsWith('/category')) return 'category';
     if (path.startsWith('/profile')) return 'profile';
+    if (path.startsWith('/wallet')) return 'wallet';
+    if (path.startsWith('/catalog')) return 'catalog';
     return 'landing';
   });
 
@@ -75,6 +79,8 @@ export default function App() {
         setCurrentView('category');
       }
       else if (path.startsWith('/profile')) setCurrentView('profile');
+      else if (path.startsWith('/wallet')) setCurrentView('wallet');
+      else if (path.startsWith('/catalog')) setCurrentView('catalog');
       else setCurrentView('landing');
     };
     window.addEventListener('popstate', handlePopState);
@@ -137,6 +143,16 @@ export default function App() {
     setCurrentView('profile');
   };
 
+  const navigateToWallet = () => {
+    window.history.pushState({}, '', `/wallet`);
+    setCurrentView('wallet');
+  };
+
+  const navigateToCatalog = () => {
+    window.history.pushState({}, '', `/catalog`);
+    setCurrentView('catalog');
+  };
+
   const toggleTheme = () => {
     const nextTheme = theme === 'dark' ? 'light' : 'dark';
     setTheme(nextTheme);
@@ -155,7 +171,7 @@ export default function App() {
   };
 
   useEffect(() => {
-    const protectedViews = ['admin', 'engineer', 'customer', 'executor', 'company', 'crm', 'manager', 'profile'];
+    const protectedViews = ['admin', 'engineer', 'customer', 'executor', 'company', 'crm', 'manager', 'profile', 'wallet', 'catalog'];
     const path = window.location.pathname.substring(1).split('/')[0];
     const viewToCheck = protectedViews.includes(currentView) ? currentView : (protectedViews.includes(path) ? path : null);
 
@@ -196,6 +212,7 @@ export default function App() {
         onOpenDashboard={navigateToDashboard}
         onLogoClick={handleLogoClick}
         onOpenProfile={navigateToProfile}
+        onOpenWallet={navigateToWallet}
       />
 
         <main style={{ position: 'relative', zIndex: 1 }}>
@@ -209,6 +226,30 @@ export default function App() {
 
           {currentView === 'profile' && (
             <ProfileQuestionnaire 
+              onBack={() => {
+                if (currentUser) {
+                  navigateToDashboard(currentUser.role);
+                } else {
+                  navigateToLanding();
+                }
+              }} 
+            />
+          )}
+
+          {currentView === 'wallet' && (
+            <UserWalletPage 
+              onBack={() => {
+                if (currentUser) {
+                  navigateToDashboard(currentUser.role);
+                } else {
+                  navigateToLanding();
+                }
+              }} 
+            />
+          )}
+
+          {currentView === 'catalog' && (
+            <ContractorsCatalogPage 
               onBack={() => {
                 if (currentUser) {
                   navigateToDashboard(currentUser.role);

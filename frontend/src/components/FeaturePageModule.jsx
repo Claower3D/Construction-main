@@ -6,6 +6,8 @@ import Model3DViewerModule from './Model3DViewerModule';
 import KpiAnalyticsModule from './KpiAnalyticsModule';
 import EquipmentMarketplace from './EquipmentMarketplace';
 import ProfileQuestionnaire from './ProfileQuestionnaire';
+import UserWalletPage from './UserWalletPage';
+import ContractorsCatalogPage from './ContractorsCatalogPage';
 import { calculateSmartEstimate, evaluateDefectScan } from '../services/smartEstimateEngine';
 import { getBalanceKZT, topupBalance } from '../services/walletEngine';
 import { getOrders } from '../services/dataService';
@@ -668,26 +670,7 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
 
         {/* 5. CONTRACTORS CATALOG (c-catalog / e-catalog) */}
         {(itemId === 'c-catalog' || itemId === 'e-catalog') && (
-          <div className="fullpage-card-box">
-            <h2 className="fullpage-heading">📒 Кабинет и Реестр подрядных организаций</h2>
-            <p className="fullpage-sub">База верифицированных мастеров, ИП и ТОО с подтвержденными БИН/ИИН и лицензиями.</p>
-
-            <div className="contractors-grid" style={{ marginTop: '1.5rem' }}>
-              {[
-                { name: 'ИП «СтройМастер Казахстан»', bin: '880412300451', rating: '5.0 (42 отзыва)', spec: 'Монолитное строительство, Фасады', status: '✅ ИИН Подтверждён' },
-                { name: 'ТОО «Алматы СпецСтрой»', bin: '210440012930', rating: '4.9 (94 отзыва)', spec: 'Генподряд, ПСД, Инженерные сети', status: '✅ БИН Подтверждён' },
-                { name: 'ТОО «КазИнжиниринг-2026»', bin: '190840008812', rating: '5.0 (115 отзывов)', spec: 'Технический надзор и аудит смет', status: '✅ БИН Подтверждён' },
-              ].map((c, idx) => (
-                <div className="contractor-card" key={idx} style={{ padding: '1.25rem' }}>
-                  <h4>{c.name}</h4>
-                  <p className="bin-text">БИН/ИИН: {c.bin} • {c.status}</p>
-                  <p><strong>Специализация:</strong> {c.spec}</p>
-                  <p><strong>Рейтинг в системе:</strong> ⭐ {c.rating}</p>
-                  <button className="admin-primary-btn" style={{ width: '100%', marginTop: '0.75rem' }}>📞 Запросить коммерческое предложение</button>
-                </div>
-              ))}
-            </div>
-          </div>
+          <ContractorsCatalogPage onBack={onBack} />
         )}
 
         {/* 6. EQUIPMENT MARKETPLACE (c-equipment / e-equipment) */}
@@ -699,26 +682,7 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
 
         {/* 7. WALLET & ESCROW (c-wallet / e-wallet) */}
         {(itemId === 'c-wallet' || itemId === 'e-wallet') && (
-          <div className="fullpage-card-box">
-            <h2 className="fullpage-heading">💳 Мой Эскроу-Кошелёк и Финансовые Операции</h2>
-            <p className="fullpage-sub">Безопасное удержание средств по этапам договоров подряда.</p>
-
-            <div className="wallet-banner" style={{ margin: '1.5rem 0' }}>
-              <div>
-                <div className="wallet-label">Доступный баланс на счёте:</div>
-                <div className="wallet-value">{balance.toLocaleString()} ₸</div>
-              </div>
-              <span className="wallet-badge">🔒 Защита Эскроу Сделок Active</span>
-            </div>
-
-            <form onSubmit={handleTopupWallet} className="topup-form">
-              <label style={{ color: '#cbd5e1', fontWeight: 'bold' }}>Пополнение баланса аккаунта (₸):</label>
-              <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem' }}>
-                <input type="number" value={topupAmount} onChange={(e) => setTopupAmount(e.target.value)} placeholder="Сумма в тенге..." className="admin-search-input" />
-                <button type="submit" className="btn-excel-export" style={{ whiteSpace: 'nowrap' }}>💳 Пополнить баланс</button>
-              </div>
-            </form>
-          </div>
+          <UserWalletPage onBack={onBack} />
         )}
 
         {/* 8. PROFILE & QUESTIONNAIRE (c-profile / e-profile) */}

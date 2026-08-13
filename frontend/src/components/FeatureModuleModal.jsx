@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import EquipmentMarketplace from './EquipmentMarketplace';
 import ProfileQuestionnaire from './ProfileQuestionnaire';
+import UserWalletPage from './UserWalletPage';
+import ContractorsCatalogPage from './ContractorsCatalogPage';
 
 export default function FeatureModuleModal({ moduleId, itemData, onClose, onOpenAdminTab }) {
   // Common states for interactive forms
@@ -226,24 +228,7 @@ export default function FeatureModuleModal({ moduleId, itemData, onClose, onOpen
 
           {/* 5. CONTRACTORS CATALOG (c-catalog / e-catalog) */}
           {(moduleId === 'c-catalog' || moduleId === 'e-catalog') && (
-            <div className="feature-content-box">
-              <h3>📒 Реестр проверенных подрядчиков и мастеров по ИИН/БИН</h3>
-              <div className="contractors-grid">
-                {[
-                  { name: 'ИП «СтройМастер Казахстан»', bin: '880412300451', rating: '5.0 (42 отзыва)', spec: 'Монолит, Фасады, Кровля', status: '✅ ИИН Подтверждён' },
-                  { name: 'ТОО «Алматы Инжиниринг»', bin: '210440012930', rating: '4.9 (88 отзывов)', spec: 'ПСД, Технадзор, Инженерия', status: '✅ БИН Подтверждён' },
-                  { name: 'Мастер Бригадир Ерлан Б.', bin: '910905300188', rating: '4.9 (19 отзывов)', spec: 'Электрика, HVAC, Отделка', status: '✅ ИИН Подтверждён' },
-                ].map((c, i) => (
-                  <div className="contractor-card" key={i}>
-                    <h4>{c.name}</h4>
-                    <p className="bin-text">БИН/ИИН: {c.bin} • {c.status}</p>
-                    <p><strong>Специализация:</strong> {c.spec}</p>
-                    <p><strong>Рейтинг:</strong> ⭐ {c.rating}</p>
-                    <button className="btn-table-action" style={{ marginTop: '0.5rem' }}>📞 Связаться</button>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <ContractorsCatalogPage onBack={onClose} />
           )}
 
           {/* 6. EQUIPMENT MARKETPLACE (c-equipment / e-equipment) */}
@@ -269,24 +254,7 @@ export default function FeatureModuleModal({ moduleId, itemData, onClose, onOpen
 
           {/* 7. WALLET & ESCROW (c-wallet / e-wallet) */}
           {(moduleId === 'c-wallet' || moduleId === 'e-wallet') && (
-            <div className="feature-content-box">
-              <h3>💳 Мой Эскроу-Кошелёк и Финансовый Баланс</h3>
-              <div className="wallet-banner">
-                <div>
-                  <div className="wallet-label">Текущий баланс аккаунта:</div>
-                  <div className="wallet-value">{balance.toLocaleString()} ₸</div>
-                </div>
-                <span className="wallet-badge">🔒 Защита Эскроу Сделок Active</span>
-              </div>
-
-              <form onSubmit={handleTopupWallet} className="topup-form" style={{ marginTop: '1.25rem' }}>
-                <label>Пополнить баланс (₸):</label>
-                <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.35rem' }}>
-                  <input type="number" value={topupAmount} onChange={(e) => setTopupAmount(e.target.value)} placeholder="Введите сумму..." className="admin-search-input" />
-                  <button type="submit" className="btn-excel-export">💳 Пополнить</button>
-                </div>
-              </form>
-            </div>
+            <UserWalletPage onBack={onClose} />
           )}
 
           {/* 8. USER PROFILE (c-profile / e-profile) */}
