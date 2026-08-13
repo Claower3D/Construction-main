@@ -97,8 +97,25 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
       if (Object.keys(allEvents).length > 0) {
         return allEvents;
       }
+    } else if (viewRole === 'customer') {
+      // Customer sees ONLY their CRM events (full CRM sync for customer)
+      const crmEvents = parseEvents('qazgost_calendar_events');
+      const myEvents = {};
+      
+      for (const day in crmEvents) {
+        const filtered = crmEvents[day].filter(e => 
+          e.createdBy === currentUser?.id || 
+          e.assignedTo === currentUser?.id ||
+          (e.client && currentUser?.name && e.client.includes(currentUser.name))
+        );
+        if (filtered.length > 0) {
+          myEvents[day] = filtered;
+        }
+      }
+      // Never fall back to mock data for customer, they must see only their own!
+      return myEvents;
     } else {
-      // Normal role-based loading
+      // Normal role-based loading (Engineer, Executor, etc.)
       const key = `qazgost_calendar_events_${viewRole}`;
       const parsed = parseEvents(key);
       if (Object.keys(parsed).length > 0) return parsed;
