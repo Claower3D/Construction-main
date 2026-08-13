@@ -39,6 +39,7 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
   const [orderModalType, setOrderModalType] = useState('construction'); // 'construction' | 'engineering'
   const [newOrderTitle, setNewOrderTitle] = useState('');
   const [newOrderDesc, setNewOrderDesc] = useState('');
+  const [newOrderFiles, setNewOrderFiles] = useState([]);
   const [customerOrdersConst, setCustomerOrdersConst] = useState([
     { id: 'c-const-1', title: 'Строительство коттеджа 250м²', status: 'В работе', type: 'construction', date: 'Вчера' }
   ]);
@@ -196,6 +197,7 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
     
     setNewOrderTitle('');
     setNewOrderDesc('');
+    setNewOrderFiles([]);
     setShowOrderModal(false);
   };
 
@@ -591,6 +593,37 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
                     className="admin-search-input"
                     style={{ width: '100%', padding: '0.75rem', backgroundColor: '#0f172a', border: '1px solid #334155', color: '#fff', borderRadius: '6px', minHeight: '80px', resize: 'vertical' }}
                   />
+                </div>
+
+                <div className="form-item" style={{ marginBottom: '1.5rem' }}>
+                  <label style={{ color: '#94a3b8', display: 'block', marginBottom: '0.5rem' }}>Прикрепить файлы (чертежи, фото, документы):</label>
+                  <input 
+                    type="file" 
+                    multiple
+                    onChange={(e) => {
+                      if (e.target.files) {
+                        setNewOrderFiles(Array.from(e.target.files));
+                      }
+                    }}
+                    style={{ display: 'none' }}
+                    id="order-files-upload"
+                  />
+                  <label 
+                    htmlFor="order-files-upload"
+                    style={{ display: 'inline-block', width: '100%', padding: '0.75rem', backgroundColor: '#0f172a', border: '1px dashed #10b981', color: '#10b981', borderRadius: '6px', textAlign: 'center', cursor: 'pointer' }}
+                  >
+                    + Выбрать файлы
+                  </label>
+                  {newOrderFiles.length > 0 && (
+                    <div style={{ marginTop: '0.5rem', fontSize: '0.85rem', color: '#94a3b8' }}>
+                      Выбрано файлов: {newOrderFiles.length}
+                      <ul style={{ paddingLeft: '1.2rem', marginTop: '0.25rem', marginBottom: 0 }}>
+                        {newOrderFiles.map((f, i) => (
+                          <li key={i}>{f.name}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </div>
 
                 <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
