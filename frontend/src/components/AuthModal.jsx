@@ -7,7 +7,7 @@ export default function AuthModal({ mode, onClose, onLogin }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
-  const [companyId, setCompanyId] = useState('');
+  const [inviteCodeInput, setInviteCodeInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -22,7 +22,17 @@ export default function AuthModal({ mode, onClose, onLogin }) {
         const res = await loginUser(email, password);
         if (onLogin && res.user) onLogin(res.user);
       } else {
-        const res = await registerUser({ email, password, fullName, role: selectedRole, companyId });
+        let finalCompanyId = null;
+        if (inviteCodeInput.trim()) {
+          const savedUsers = JSON.parse(localStorage.getItem('qazgost_registered_users') || '[]');
+          const company = savedUsers.find(u => u.role === 'company' && u.inviteCode === inviteCodeInput.trim());
+          if (!company) {
+            throw new Error('Неверный ID компании (Invite Code). Проверьте код и попробуйте снова.');
+          }
+          finalCompanyId = company.id;
+        }
+        
+        const res = await registerUser({ email, password, fullName, role: selectedRole, companyId: finalCompanyId });
         if (onLogin && res.user) onLogin(res.user);
       }
       onClose();
@@ -157,20 +167,13 @@ export default function AuthModal({ mode, onClose, onLogin }) {
               {(selectedRole === 'executor' || selectedRole === 'engineer' || selectedRole === 'manager') && (
                 <div className="form-group">
                   <label className="input-label">Привязаться к компании (необязательно)</label>
-                  <select 
+                  <input 
+                    type="text"
                     className="custom-input" 
-                    value={companyId} 
-                    onChange={(e) => setCompanyId(e.target.value)}
-                    style={{ appearance: 'auto', backgroundColor: '#1e293b' }}
-                  >
-                    <option value="">-- Без компании (Сам по себе) --</option>
-                    {JSON.parse(localStorage.getItem('qazgost_registered_users') || '[]')
-                      .filter(u => u.role === 'company')
-                      .map(comp => (
-                        <option key={comp.id} value={comp.id}>{comp.name}</option>
-                      ))
-                    }
-                  </select>
+                    placeholder="Например: C-12345 (Выдается вашей компанией)"
+                    value={inviteCodeInput} 
+                    onChange={(e) => setInviteCodeInput(e.target.value)}
+                  />
                 </div>
               )}
             </>

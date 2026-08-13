@@ -146,15 +146,32 @@ export default function CompanyDashboardPage({ currentUser, initialTab = 'profil
 
       {activeTab === 'employees' && settings.showEmployees && (
         <div style={{ background: 'rgba(255,255,255,0.05)', borderRadius: '16px', padding: '2rem', border: `1px solid ${settings.primaryColor}33` }}>
-          <h2 style={{ fontSize: '1.25rem', color: '#fff', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <span style={{ color: settings.primaryColor }}>👥</span> Привязанные сотрудники ({employees.length})
-          </h2>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem' }}>
+            <h2 style={{ fontSize: '1.25rem', color: '#fff', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
+              <span style={{ color: settings.primaryColor }}>👥</span> Привязанные сотрудники ({employees.length})
+            </h2>
+            
+            <div style={{ background: 'rgba(0,0,0,0.2)', padding: '1rem', borderRadius: '12px', border: `1px dashed ${settings.primaryColor}`, maxWidth: '300px' }}>
+              <div style={{ color: '#94a3b8', fontSize: '0.85rem', marginBottom: '0.5rem' }}>ID Компании (для регистрации сотрудников):</div>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <code style={{ flex: 1, background: '#0f172a', padding: '0.5rem', borderRadius: '6px', color: '#fff', fontSize: '1.1rem', textAlign: 'center', fontWeight: 'bold' }}>
+                  {currentUser?.inviteCode || currentUser?.id || 'C-DEMO'}
+                </code>
+                <button 
+                  onClick={() => navigator.clipboard.writeText(currentUser?.inviteCode || currentUser?.id || 'C-DEMO')}
+                  style={{ background: settings.primaryColor, color: '#fff', border: 'none', borderRadius: '6px', padding: '0 1rem', cursor: 'pointer', fontWeight: 'bold' }}
+                >
+                  Копировать
+                </button>
+              </div>
+            </div>
+          </div>
           
           {employees.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '3rem', color: '#94a3b8', background: 'rgba(0,0,0,0.1)', borderRadius: '8px' }}>
               К вашей компании пока не привязан ни один сотрудник.
-              <br/>
-              При регистрации сотрудники могут выбрать вашу компанию в выпадающем списке.
+              <br/><br/>
+              Чтобы добавить сотрудника, передайте ему ваш <strong>ID Компании</strong> (скопируйте выше).<br/> При самостоятельной регистрации на портале он сможет ввести этот код и автоматически присоединиться к вашей фирме.
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>

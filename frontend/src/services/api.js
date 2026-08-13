@@ -87,6 +87,10 @@ export async function registerUser(userData) {
       name: userData.fullName || userData.email.split('@')[0],
       companyId: userData.companyId || null
     };
+
+    if (userData.role === 'company') {
+      newUser.inviteCode = 'C-' + Math.floor(10000 + Math.random() * 90000);
+    }
     
     // Save to local list of registered users for offline use
     try {
