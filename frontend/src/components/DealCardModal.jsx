@@ -73,6 +73,29 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
     { title: 'ПРИБЫЛЬ ОЧИЩЕННАЯ', val: formatMoney(baseBudget * 0.44), sub: 'после ФОТ, мастера и банка', color: '#22c55e' },
   ];
 
+  const handleSaveWrapper = () => {
+    // Check for assignment changes
+    if (formData.assignedTo && formData.assignedTo !== card.assignedTo) {
+      const assignedUser = mockUsers.find(u => u.id === formData.assignedTo);
+      if (assignedUser) {
+        const notifRole = assignedUser.role; // 'engineer' or 'executor'
+        const key = `${notifRole}_notifications`;
+        const existing = JSON.parse(localStorage.getItem(key) || '[]');
+        const newNotif = {
+          id: `NOT-${Date.now()}`,
+          icon: '🔔',
+          title: 'Новая заявка',
+          text: `Менеджер назначил вам новую заявку: ${formData.title || 'Без названия'} (№${formData.id || 'NEW'})`,
+          time: 'Только что',
+          unread: true
+        };
+        localStorage.setItem(key, JSON.stringify([newNotif, ...existing]));
+        window.dispatchEvent(new Event('notifications_updated'));
+      }
+    }
+    onSave(formData);
+  };
+
   return (
     <div style={{
       position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
@@ -357,7 +380,7 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
             {canEdit ? 'Отмена' : 'Закрыть'}
           </button>
           {canEdit ? (
-            <button onClick={() => onSave(formData)} style={{ background: '#22c55e', color: '#fff', border: 'none', padding: '0.8rem 2rem', borderRadius: '8px', cursor: 'pointer', fontSize: '0.95rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <button onClick={handleSaveWrapper} style={{ background: '#22c55e', color: '#fff', border: 'none', padding: '0.8rem 2rem', borderRadius: '8px', cursor: 'pointer', fontSize: '0.95rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               ✓ Сохранить изменения
             </button>
           ) : (

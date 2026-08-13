@@ -210,11 +210,28 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
     { id: 'EXP-03', category: 'Оплата бригад', name: 'Аванс бригаде Александра', amount: 600000, date: '02 Авг 2026', status: 'Оплачено' }
   ]);
 
-  const [notificationsList, setNotificationsList] = useState([
-    { id: 'NOT-1', icon: '📬', title: 'Новая заявка', text: 'Поступила новая заявка на приёмку сетей от ИП «Сатов А.В.»', time: '10 мин назад', unread: true },
-    { id: 'NOT-2', icon: '⚠️', title: 'Дедлайн инспекции', text: 'Сегодня до 18:00 — Инспекция монолита ТОО «Алматы Сити»', time: '1 час назад', unread: true },
-    { id: 'NOT-3', icon: '✅', title: 'Акт КС-2 подписан', text: 'Заказчик подписал Акт выполненных работ по объекту БЦ "Нурлы Тау"', time: 'Вчера', unread: false }
-  ]);
+  const [notificationsList, setNotificationsList] = useState(() => {
+    const saved = localStorage.getItem('engineer_notifications');
+    if (saved) return JSON.parse(saved);
+    return [
+      { id: 'NOT-1', icon: '📬', title: 'Новая заявка', text: 'Поступила новая заявка на приёмку сетей от ИП «Сатов А.В.»', time: '10 мин назад', unread: true },
+      { id: 'NOT-2', icon: '⚠️', title: 'Дедлайн инспекции', text: 'Сегодня до 18:00 — Инспекция монолита ТОО «Алматы Сити»', time: '1 час назад', unread: true },
+      { id: 'NOT-3', icon: '✅', title: 'Акт КС-2 подписан', text: 'Заказчик подписал Акт выполненных работ по объекту БЦ "Нурлы Тау"', time: 'Вчера', unread: false }
+    ];
+  });
+
+  React.useEffect(() => {
+    localStorage.setItem('engineer_notifications', JSON.stringify(notificationsList));
+  }, [notificationsList]);
+
+  React.useEffect(() => {
+    const handleUpdate = () => {
+      const saved = localStorage.getItem('engineer_notifications');
+      if (saved) setNotificationsList(JSON.parse(saved));
+    };
+    window.addEventListener('notifications_updated', handleUpdate);
+    return () => window.removeEventListener('notifications_updated', handleUpdate);
+  }, []);
 
   // AI Pipeline Steps
   const aiSteps = [

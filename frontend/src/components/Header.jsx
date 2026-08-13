@@ -4,6 +4,19 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
   const [activeNavDropdown, setActiveNavDropdown] = useState(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [mobileAccordion, setMobileAccordion] = useState(null);
+  const [unreadNotifsCount, setUnreadNotifsCount] = useState(0);
+
+  React.useEffect(() => {
+    if (!currentUser) return;
+    const updateNotifs = () => {
+      const key = `${currentUser.role}_notifications`;
+      const notifs = JSON.parse(localStorage.getItem(key) || '[]');
+      setUnreadNotifsCount(notifs.filter(n => n.unread).length);
+    };
+    updateNotifs();
+    window.addEventListener('notifications_updated', updateNotifs);
+    return () => window.removeEventListener('notifications_updated', updateNotifs);
+  }, [currentUser]);
 
   const toggleDropdown = (menuName) => {
     setActiveNavDropdown(activeNavDropdown === menuName ? null : menuName);
@@ -318,6 +331,17 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
             <button className="lang-btn">KZ</button>
             <button className="lang-btn">EN</button>
           </div>
+
+          {currentUser && (
+            <div style={{ position: 'relative', cursor: 'pointer', display: 'flex', alignItems: 'center' }} onClick={() => onOpenDashboard(currentUser.role)}>
+              <span style={{ fontSize: '1.4rem' }}>🔔</span>
+              {unreadNotifsCount > 0 && (
+                <div style={{ position: 'absolute', top: -5, right: -5, background: '#ef4444', color: '#fff', fontSize: '0.65rem', fontWeight: 'bold', width: '18px', height: '18px', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                  {unreadNotifsCount}
+                </div>
+              )}
+            </div>
+          )}
 
           {currentUser ? (
             <>
