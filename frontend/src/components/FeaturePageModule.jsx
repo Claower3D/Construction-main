@@ -25,6 +25,11 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
   const [qualityLevel, setQualityLevel] = useState('комфорт');
   const [calculatedEstimate, setCalculatedEstimate] = useState(null);
 
+  // Volume calculator (QTO) states
+  const [qtoLength, setQtoLength] = useState(15);
+  const [qtoWidth, setQtoWidth] = useState(10);
+  const [qtoDepth, setQtoDepth] = useState(0.25);
+
   // Orders state
   const [appliedOrders, setAppliedOrders] = useState({});
   const [liveOrders, setLiveOrders] = useState([]);
@@ -360,17 +365,17 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
             <p className="fullpage-sub">Калькулятор геометрических площадей, объема выемки грунта и потребности ресурсов.</p>
 
             <div className="calc-inputs-grid" style={{ margin: '1.5rem 0' }}>
-              <div className="form-item"><label>Длина участка/стены (м):</label><input type="number" defaultValue="15" className="admin-search-input" /></div>
-              <div className="form-item"><label>Ширина (м):</label><input type="number" defaultValue="10" className="admin-search-input" /></div>
-              <div className="form-item"><label>Глубина / Толщина (м):</label><input type="number" defaultValue="0.25" className="admin-search-input" /></div>
+              <div className="form-item"><label>Длина участка/стены (м):</label><input type="number" value={qtoLength} onChange={(e) => setQtoLength(Number(e.target.value) || 0)} className="admin-search-input" /></div>
+              <div className="form-item"><label>Ширина (м):</label><input type="number" value={qtoWidth} onChange={(e) => setQtoWidth(Number(e.target.value) || 0)} className="admin-search-input" /></div>
+              <div className="form-item"><label>Глубина / Толщина (м):</label><input type="number" value={qtoDepth} onChange={(e) => setQtoDepth(Number(e.target.value) || 0)} className="admin-search-input" step="0.01" /></div>
             </div>
 
             <div className="result-card-glow">
               <h3>📦 Итоговые объёмы для спецификации:</h3>
-              <p><strong>Общий объём (кубатура):</strong> 37.5 м³</p>
-              <p><strong>Площадь покрытия:</strong> 150.0 м²</p>
-              <p><strong>Расход товарного бетона М-350:</strong> 39.4 м³ (с учетом уплотнения)</p>
-              <p><strong>Потребность арматурного каркаса:</strong> 2.85 тонн (A500C 12мм)</p>
+              <p><strong>Общий объём (кубатура):</strong> {(qtoLength * qtoWidth * qtoDepth).toFixed(2)} м³</p>
+              <p><strong>Площадь покрытия:</strong> {(qtoLength * qtoWidth).toFixed(2)} м²</p>
+              <p><strong>Расход товарного бетона М-350:</strong> {(qtoLength * qtoWidth * qtoDepth * 1.05).toFixed(2)} м³ (с учетом уплотнения)</p>
+              <p><strong>Потребность арматурного каркаса:</strong> {((qtoLength * qtoWidth * qtoDepth) * 0.076).toFixed(2)} тонн (A500C 12мм)</p>
             </div>
           </div>
         )}
