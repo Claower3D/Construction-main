@@ -1602,6 +1602,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
             </div>
           )}
         </main>
+        </div>
       </div>
 
       {showSmartCreateModal && (
