@@ -4,6 +4,7 @@ import DisputeResolutionModule from './DisputeResolutionModule';
 import MapViewerModule from './MapViewerModule';
 import Model3DViewerModule from './Model3DViewerModule';
 import KpiAnalyticsModule from './KpiAnalyticsModule';
+import EquipmentMarketplace from './EquipmentMarketplace';
 import { calculateSmartEstimate, evaluateDefectScan } from '../services/smartEstimateEngine';
 import { getBalanceKZT, topupBalance } from '../services/walletEngine';
 import { getOrders } from '../services/dataService';
@@ -690,24 +691,8 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
 
         {/* 6. EQUIPMENT MARKETPLACE (c-equipment / e-equipment) */}
         {(itemId === 'c-equipment' || itemId === 'e-equipment') && (
-          <div className="fullpage-card-box">
-            <h2 className="fullpage-heading">🚜 Маркетплейс аренды спецтехники и снабжения</h2>
-            <p className="fullpage-sub">Каталог строительных машин с водителями и быстрой доставкой на объект.</p>
-
-            <div className="equipment-grid" style={{ marginTop: '1.5rem' }}>
-              {[
-                { name: 'Экскаватор-погрузчик JCB 3CX', price: '95 000 ₸ / смена', city: 'Алматы', status: 'Свободен для выезда' },
-                { name: 'Автокран XCMG 25 тонн (39м)', price: '140 000 ₸ / смена', city: 'Астана', status: 'Свободен для выезда' },
-                { name: 'Самосвал KAMAZ 20 тонн (вывоз грунта)', price: '25 000 ₸ / рейс', city: 'Шымкент', status: 'Свободен для выезда' },
-              ].map((eq, i) => (
-                <div className="equip-card" key={i} style={{ padding: '1.25rem' }}>
-                  <h4>{eq.name}</h4>
-                  <div className="price-tag">{eq.price}</div>
-                  <p>📍 {eq.city} • <span style={{ color: '#10b981' }}>{eq.status}</span></p>
-                  <button className="btn-action-hero" style={{ marginTop: '0.75rem' }}>🚜 Забронировать выезд</button>
-                </div>
-              ))}
-            </div>
+          <div style={{ padding: '0', background: 'transparent' }}>
+            <EquipmentMarketplace />
           </div>
         )}
 
