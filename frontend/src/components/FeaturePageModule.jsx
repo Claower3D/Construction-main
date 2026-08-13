@@ -8,6 +8,7 @@ import EquipmentMarketplace from './EquipmentMarketplace';
 import ProfileQuestionnaire from './ProfileQuestionnaire';
 import UserWalletPage from './UserWalletPage';
 import ContractorsCatalogPage from './ContractorsCatalogPage';
+import UserOrdersPage from './UserOrdersPage';
 import { calculateSmartEstimate, evaluateDefectScan } from '../services/smartEstimateEngine';
 import { getBalanceKZT, topupBalance } from '../services/walletEngine';
 import { getOrders } from '../services/dataService';
@@ -525,54 +526,8 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
         )}
 
         {/* 4b. MY ORDERS (c-orders) - Заказчик */}
-        {itemId === 'c-orders' && (
-          <div className="fullpage-card-box">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div>
-                <h2 className="fullpage-heading">📋 Мои Заказы</h2>
-                <p className="fullpage-sub">Управление вашими строительными объектами и инженерными заявками.</p>
-              </div>
-              <button 
-                className="btn-action-hero" 
-                style={{ padding: '0.8rem 1.5rem', fontSize: '1rem', backgroundColor: '#10b981', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
-                onClick={() => setShowOrderModal(true)}
-              >
-                <span style={{ fontSize: '1.2rem' }}>+</span> Сформировать Заявку
-              </button>
-            </div>
-
-            <div className="orders-full-grid" style={{ marginTop: '2rem' }}>
-              {/* Строительство */}
-              <div className="orders-column">
-                <h3 style={{ color: '#f59e0b', marginBottom: '1rem', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '0.5rem' }}>
-                  🏗️ Мои Заказы: Строительство (Мои Объекты)
-                </h3>
-                {customerOrdersConst.map((ord) => (
-                  <div className="order-item-card" key={ord.id} style={{ padding: '1rem', marginBottom: '1rem', borderLeft: '4px solid #f59e0b' }}>
-                    <div style={{ fontWeight: 'bold', fontSize: '1.1rem', marginBottom: '0.5rem' }}>{ord.title}</div>
-                    <div style={{ fontSize: '0.9rem', color: '#94a3b8', marginBottom: '0.25rem' }}>⏱ {ord.date}</div>
-                    <div style={{ color: '#10b981', fontSize: '0.9rem', fontWeight: 'bold' }}>{ord.status}</div>
-                  </div>
-                ))}
-                {customerOrdersConst.length === 0 && <p style={{ color: '#64748b' }}>Нет заказов на строительство</p>}
-              </div>
-
-              {/* Инженерные решения */}
-              <div className="orders-column">
-                <h3 style={{ color: '#8b5cf6', marginBottom: '1rem', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '0.5rem' }}>
-                  ⚙️ Мои Заказы: Инженерные Решения
-                </h3>
-                {customerOrdersEng.map((ord) => (
-                  <div className="order-item-card" key={ord.id} style={{ padding: '1rem', marginBottom: '1rem', borderLeft: '4px solid #8b5cf6' }}>
-                    <div style={{ fontWeight: 'bold', fontSize: '1.1rem', marginBottom: '0.5rem' }}>{ord.title}</div>
-                    <div style={{ fontSize: '0.9rem', color: '#94a3b8', marginBottom: '0.25rem' }}>⏱ {ord.date}</div>
-                    <div style={{ color: '#c084fc', fontSize: '0.9rem', fontWeight: 'bold' }}>{ord.status}</div>
-                  </div>
-                ))}
-                {customerOrdersEng.length === 0 && <p style={{ color: '#64748b' }}>Нет инженерных заявок</p>}
-              </div>
-            </div>
-          </div>
+        {(itemId === 'c-orders' || itemId === 'e-orders' || itemId === 'e-feed' || itemId === 'e-works') && (
+          <UserOrdersPage onBack={onBack} />
         )}
 
         {/* CUSTOMER ORDER MODAL */}

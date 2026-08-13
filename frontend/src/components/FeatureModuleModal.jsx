@@ -3,6 +3,7 @@ import EquipmentMarketplace from './EquipmentMarketplace';
 import ProfileQuestionnaire from './ProfileQuestionnaire';
 import UserWalletPage from './UserWalletPage';
 import ContractorsCatalogPage from './ContractorsCatalogPage';
+import UserOrdersPage from './UserOrdersPage';
 
 export default function FeatureModuleModal({ moduleId, itemData, onClose, onOpenAdminTab }) {
   // Common states for interactive forms
@@ -194,36 +195,9 @@ export default function FeatureModuleModal({ moduleId, itemData, onClose, onOpen
             </div>
           )}
 
-          {/* 4. ORDERS FEED (c-orders / e-feed / e-works) */}
-          {(moduleId === 'c-orders' || moduleId === 'e-feed' || moduleId === 'e-works') && (
-            <div className="feature-content-box">
-              <h3>🌐 Живая лента строительных заказов Казахстана</h3>
-              <div className="orders-list-wrap">
-                {[
-                  { id: 'ORD-881', title: 'Капитальный ремонт офиса 450 м²', city: 'Алматы', budget: '18 500 000 ₸', category: 'Отделка', date: '10 мин назад' },
-                  { id: 'ORD-882', title: 'Устройство монолитного фундамента коттеджа', city: 'Астана', budget: '6 400 000 ₸', category: 'Строительство', date: '25 мин назад' },
-                  { id: 'ORD-883', title: 'Электромонтажные работы в складском комплексе', city: 'Шымкент', budget: '3 200 000 ₸', category: 'Электрика', date: '1 час назад' },
-                ].map((ord) => (
-                  <div className="order-item-card" key={ord.id}>
-                    <div className="order-head">
-                      <strong>{ord.title}</strong>
-                      <span className="order-price">{ord.budget}</span>
-                    </div>
-                    <div className="order-meta">
-                      <span>📍 {ord.city}</span>
-                      <span>🏷️ {ord.category}</span>
-                      <span>⏱ {ord.date}</span>
-                    </div>
-                    <button
-                      className={`btn-apply-order ${appliedOrders[ord.id] ? 'applied' : ''}`}
-                      onClick={() => handleApplyOrder(ord.id)}
-                    >
-                      {appliedOrders[ord.id] ? '✅ Предложение отправлено' : '📝 Откликнуться на заказ'}
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
+          {/* 4. ORDERS FEED (c-orders / e-feed / e-works / e-orders) */}
+          {(moduleId === 'c-orders' || moduleId === 'e-feed' || moduleId === 'e-works' || moduleId === 'e-orders') && (
+            <UserOrdersPage onBack={onClose} />
           )}
 
           {/* 5. CONTRACTORS CATALOG (c-catalog / e-catalog) */}
