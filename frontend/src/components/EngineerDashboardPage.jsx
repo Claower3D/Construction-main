@@ -257,8 +257,9 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const selectedDate = new Date(currentYear, monthIndex, selectedDay);
+    const isAdmin = currentUser?.role === 'admin' || viewRole === 'admin';
     
-    if (selectedDate < today) {
+    if (selectedDate < today && !isAdmin) {
       alert("Нельзя создать заявку задним числом!");
       return;
     }
@@ -829,8 +830,9 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                         today.setHours(0, 0, 0, 0);
                         const selectedDate = new Date(currentYear, monthIndex, selectedDay);
                         const isPast = selectedDate < today;
+                        const isAdmin = currentUser?.role === 'admin' || viewRole === 'admin';
                         
-                        return viewRole !== 'customer' && !isPast && (
+                        return viewRole !== 'customer' && (!isPast || isAdmin) && (
                           <button className="btn-sm-add" onClick={handleOpenCreateModal}>
                             + Добавить
                           </button>
