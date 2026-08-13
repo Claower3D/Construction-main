@@ -4,6 +4,7 @@ import EngineerDashboardPage from './EngineerDashboardPage';
 import AdminDashboardModal from './AdminDashboardModal';
 import FeaturePageModule from './FeaturePageModule';
 import OnboardingTour from './OnboardingTour';
+import CrmPage from './CrmPage';
 
 export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userRole = 'admin' }) {
   // Блок 1: Выбранная роль ('customer' | 'executor' | 'engineer' | 'admin')
@@ -163,6 +164,23 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
         },
       ],
     },
+
+    manager: {
+      roleTitle: 'Менеджер',
+      roleIcon: '💼',
+      roleColor: '#fbbf24',
+      categories: [
+        {
+          id: 'crm-management',
+          name: '📊 УПРАВЛЕНИЕ КЛИЕНТАМИ',
+          desc: 'CRM-система и воронка продаж',
+          items: [
+            { id: 'mgr-crm', name: 'CRM-система', icon: '📊', iconBg: '#3b82f6', desc: 'Управление заявками и клиентами' },
+            { id: 'mgr-reports', name: 'Отчеты', icon: '📄', iconBg: '#10b981', desc: 'Аналитика по продажам' },
+          ],
+        },
+      ],
+    },
   };
 
   const currentRoleData = hierarchyData[selectedRole] || hierarchyData.customer;
@@ -210,6 +228,11 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
       setEmbeddedModule('engineer');
       setSelectedItemObject(item);
     } 
+    // Check if it's manager module
+    else if (item.id.startsWith('mgr-')) {
+      setEmbeddedModule('crm');
+      setSelectedItemObject(item);
+    }
     // Otherwise it's a standard feature module
     else {
       setEmbeddedModule(null);
@@ -287,6 +310,7 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
                 <option value="customer">📋 Роль: Заказчик</option>
                 <option value="executor">🔧 Роль: Исполнитель</option>
                 <option value="engineer">👷 Роль: Инженер</option>
+                <option value="manager">💼 Роль: Менеджер</option>
                 <option value="admin">⚙️ Роль: Админ</option>
               </select>
             ) : (
@@ -357,6 +381,12 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
 
           {embeddedModule === 'admin_panel' && (
              <AdminDashboardModal isOpen={true} inline={true} startTab={selectedItemId.replace('adm-', '')} onClose={() => setSelectedItemObject(null)} />
+          )}
+
+          {embeddedModule === 'crm' && (
+             <div style={{ height: '100%', width: '100%', position: 'relative', overflow: 'hidden' }}>
+               <CrmPage onBackToHome={onBackToHome} />
+             </div>
           )}
 
           {!embeddedModule && selectedItemObject && (
