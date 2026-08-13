@@ -61,6 +61,7 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
       
       localStorage.setItem(storageKey, JSON.stringify(crmEvents));
       handleChange('status', 'В работе'); // Update current modal status too
+      handleChange('contractor', role === 'engineer' ? 'Отдел ПТО' : 'Исполнитель');
       
       alert(`✅ Успешно! Заявка передана в календарь ${role === 'engineer' ? 'Инженера' : 'Исполнителя'}. Уведомление отправлено.`);
     } catch (err) {
@@ -145,7 +146,6 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
           const newEvent = {
             ...formData,
             status: notifRole === 'engineer' ? 'На проверке у инженера' : 'В работе',
-            contractor: notifRole === 'engineer' ? 'Отдел ПТО' : 'Исполнитель'
           };
           
           const existingIdx = calEvents[day].findIndex(e => e.id === formData.id);
@@ -255,7 +255,12 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
                     <div style={{ fontSize: '0.7rem', color: '#64748b', marginBottom: '0.4rem', letterSpacing: '1px' }}>НАЗНАЧЕН (ОТВЕТСТВЕННЫЙ)</div>
                     <select 
                        value={formData.assignedTo || ''} 
-                       onChange={(e) => handleChange('assignedTo', e.target.value)}
+                       onChange={(e) => {
+                         const val = e.target.value;
+                         handleChange('assignedTo', val);
+                         const user = allUsers.find(u => u.id === val);
+                         handleChange('contractor', user ? user.name : 'Не распределено');
+                       }}
                        style={{ width: '100%', background: '#0a0f18', color: '#fff', border: '1px solid #1e293b', padding: '0.6rem', borderRadius: '8px', fontSize: '0.85rem' }}
                     >
                       <option value="">-- Не назначен --</option>
