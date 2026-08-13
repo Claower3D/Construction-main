@@ -336,7 +336,7 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
             <div>QazGost <span>AI</span></div>
           </div>
           <div className="role-dropdown-wrapper">
-            {userRole === 'admin' ? (
+            {userRole === 'admin' || userRole === 'company' ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 <div style={{ fontSize: '0.75rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 'bold' }}>выбрать дашборд</div>
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
