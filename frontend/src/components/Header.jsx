@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, onOpenAdmin, onOpenEngineer, currentUser, onLogout, onOpenDashboard, onLogoClick }) {
+export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, onOpenAdmin, onOpenEngineer, currentUser, onLogout, onOpenDashboard, onLogoClick, onOpenProfile }) {
   const [activeNavDropdown, setActiveNavDropdown] = useState(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [mobileAccordion, setMobileAccordion] = useState(null);
@@ -346,7 +346,10 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
           {currentUser ? (
             <>
               <button className="btn-gold-login" onClick={() => onOpenDashboard(currentUser.role)}>
-                <span className="item-icon">👤</span> {currentUser.name || 'Профиль'}
+                <span className="item-icon">👤</span> {currentUser.name || 'Дашборд'}
+              </button>
+              <button className="btn-glass-reg" onClick={onOpenProfile}>
+                📋 Моя анкета
               </button>
               <button className="btn-glass-reg" onClick={onLogout}>
                 Выйти
@@ -521,12 +524,28 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
 
               {/* Auth Action Buttons */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem', marginTop: 'auto', paddingTop: '1rem' }}>
-                <button className="btn-gold-login" style={{ width: '100%', justifyContent: 'center', padding: '0.75rem' }} onClick={() => { closeDropdown(); onOpenAuth('login'); }}>
-                  🔑 Войти в систему
-                </button>
-                <button className="btn-glass-reg" style={{ width: '100%', textAlign: 'center', padding: '0.75rem' }} onClick={() => { closeDropdown(); onOpenAuth('register'); }}>
-                  📝 Зарегистрироваться
-                </button>
+                {currentUser ? (
+                  <>
+                    <button className="btn-gold-login" style={{ width: '100%', justifyContent: 'center', padding: '0.75rem' }} onClick={() => { closeDropdown(); onOpenDashboard(currentUser.role); }}>
+                      👤 Дашборд
+                    </button>
+                    <button className="btn-glass-reg" style={{ width: '100%', textAlign: 'center', padding: '0.75rem' }} onClick={() => { closeDropdown(); if (onOpenProfile) onOpenProfile(); }}>
+                      📋 Моя анкета
+                    </button>
+                    <button className="btn-glass-reg" style={{ width: '100%', textAlign: 'center', padding: '0.75rem' }} onClick={() => { closeDropdown(); onLogout(); }}>
+                      Выйти
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button className="btn-gold-login" style={{ width: '100%', justifyContent: 'center', padding: '0.75rem' }} onClick={() => { closeDropdown(); onOpenAuth('login'); }}>
+                      🔑 Войти в систему
+                    </button>
+                    <button className="btn-glass-reg" style={{ width: '100%', textAlign: 'center', padding: '0.75rem' }} onClick={() => { closeDropdown(); onOpenAuth('register'); }}>
+                      📝 Зарегистрироваться
+                    </button>
+                  </>
+                )}
               </div>
             </div>
           </div>

@@ -19,6 +19,7 @@ import EngineerDashboardPage from './components/EngineerDashboardPage';
 import VoiceControlWidget from './components/VoiceControlWidget';
 import CrmPage from './components/CrmPage';
 import CategoryTemplatePage from './components/CategoryTemplatePage';
+import ProfileQuestionnaire from './components/ProfileQuestionnaire';
 import { categoriesData } from './data/categoriesData';
 
 export default function App() {
@@ -44,6 +45,7 @@ export default function App() {
     if (path.startsWith('/crm')) return 'crm';
     if (path.startsWith('/manager')) return 'manager';
     if (path.startsWith('/category')) return 'category';
+    if (path.startsWith('/profile')) return 'profile';
     return 'landing';
   });
 
@@ -72,6 +74,7 @@ export default function App() {
         if (foundCat) setCurrentCategory(foundCat);
         setCurrentView('category');
       }
+      else if (path.startsWith('/profile')) setCurrentView('profile');
       else setCurrentView('landing');
     };
     window.addEventListener('popstate', handlePopState);
@@ -129,6 +132,11 @@ export default function App() {
     setCurrentView('category');
   };
 
+  const navigateToProfile = () => {
+    window.history.pushState({}, '', `/profile`);
+    setCurrentView('profile');
+  };
+
   const toggleTheme = () => {
     const nextTheme = theme === 'dark' ? 'light' : 'dark';
     setTheme(nextTheme);
@@ -147,7 +155,7 @@ export default function App() {
   };
 
   useEffect(() => {
-    const protectedViews = ['admin', 'engineer', 'customer', 'executor', 'company', 'crm', 'manager'];
+    const protectedViews = ['admin', 'engineer', 'customer', 'executor', 'company', 'crm', 'manager', 'profile'];
     const path = window.location.pathname.substring(1).split('/')[0];
     const viewToCheck = protectedViews.includes(currentView) ? currentView : (protectedViews.includes(path) ? path : null);
 
@@ -179,20 +187,39 @@ export default function App() {
         role={role} 
         setRole={setRole} 
         theme={theme} 
-        toggleTheme={() => setTheme(t => t === 'dark' ? 'light' : 'dark')} 
-        onOpenAuth={(type) => setAuthMode(type)}
+        toggleTheme={toggleTheme} 
+        onOpenAuth={setAuthMode} 
         onOpenAdmin={navigateToAdmin}
         onOpenEngineer={navigateToEngineer}
         currentUser={currentUser}
         onLogout={handleLogout}
         onOpenDashboard={navigateToDashboard}
         onLogoClick={handleLogoClick}
+        onOpenProfile={navigateToProfile}
       />
 
         <main style={{ position: 'relative', zIndex: 1 }}>
-          {currentView === 'category' ? (
-            <CategoryTemplatePage category={currentCategory} onBack={navigateToLanding} />
-          ) : (
+          {currentView === 'category' && currentCategory && (
+            <CategoryTemplatePage 
+              category={currentCategory} 
+              onBackToHome={navigateToLanding}
+              onNavigate={navigateToDashboard}
+            />
+          )}
+
+          {currentView === 'profile' && (
+            <ProfileQuestionnaire 
+              onBack={() => {
+                if (currentUser) {
+                  navigateToDashboard(currentUser.role);
+                } else {
+                  navigateToLanding();
+                }
+              }} 
+            />
+          )}
+
+          {currentView === 'landing' && (
             <>
               <HeroSection role={role} />
               <FeatureHighlights />
