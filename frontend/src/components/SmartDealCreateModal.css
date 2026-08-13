@@ -1,0 +1,301 @@
+.sd-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  font-family: 'Inter', sans-serif;
+}
+
+.sd-modal-container {
+  background: #1e1e2d; /* Dark theme matching screenshot */
+  border-radius: 16px;
+  width: 100%;
+  max-width: 500px;
+  padding: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  color: #fff;
+}
+
+.sd-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.sd-modal-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.sd-close-btn {
+  background: none;
+  border: none;
+  color: #6b7280;
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.sd-close-btn:hover {
+  color: #fff;
+}
+
+/* Progress Bar */
+.sd-progress-bar {
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.sd-progress-segment {
+  flex: 1;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+}
+
+.sd-progress-segment.active {
+  background: #8b5cf6; /* Purple active state */
+}
+
+/* Step 1: Dropzone */
+.sd-dropzone {
+  border: 1px dashed rgba(139, 92, 246, 0.5);
+  border-radius: 12px;
+  padding: 3rem 1rem;
+  text-align: center;
+  background: rgba(139, 92, 246, 0.05);
+  cursor: pointer;
+  margin-bottom: 1.5rem;
+  transition: all 0.2s;
+}
+
+.sd-dropzone:hover {
+  background: rgba(139, 92, 246, 0.1);
+}
+
+.sd-dropzone-icon {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.sd-dropzone p {
+  margin: 0 0 0.5rem 0;
+  color: #cbd5e1;
+}
+
+.sd-link {
+  color: #8b5cf6;
+  text-decoration: underline;
+}
+
+.sd-hint {
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.sd-file-loaded-badge {
+  margin-top: 1rem;
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  background: rgba(16, 185, 129, 0.2);
+  color: #10b981;
+  border-radius: 6px;
+  font-size: 0.85rem;
+}
+
+/* Shared Buttons */
+.w-100 { width: 100%; }
+.flex-1 { flex: 1; }
+.mb-4 { margin-bottom: 1rem; }
+.mt-2 { margin-top: 0.5rem; }
+
+.sd-btn-orange-gradient {
+  background: linear-gradient(90deg, #f59e0b, #ef4444);
+  color: #fff;
+  border: none;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.sd-btn-orange-gradient:hover {
+  opacity: 0.9;
+}
+
+.sd-btn-dark {
+  background: #2a2a3c;
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.sd-btn-dark:hover {
+  background: #36364a;
+}
+
+.sd-btn-dark-outline {
+  background: rgba(255,255,255,0.05);
+  color: #a78bfa;
+  border: 1px dashed rgba(167, 139, 250, 0.4);
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.sd-btn-dark-outline:hover {
+  background: rgba(167, 139, 250, 0.1);
+  border-color: rgba(167, 139, 250, 0.8);
+}
+
+.sd-actions-row {
+  display: flex;
+  gap: 1rem;
+}
+
+/* Step 2: AI Banner & Form */
+.sd-ai-success-banner {
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.sd-ai-header {
+  display: flex;
+  justify-content: space-between;
+  color: #10b981;
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin-bottom: 0.25rem;
+}
+
+.sd-ai-type {
+  color: #cbd5e1;
+  font-size: 0.85rem;
+}
+
+.sd-ai-type strong {
+  color: #fff;
+}
+
+.sd-form-group {
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.sd-form-group label {
+  font-size: 0.85rem;
+  color: #94a3b8;
+}
+
+.sd-input {
+  background: #2a2a3c;
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #fff;
+  padding: 0.75rem;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  outline: none;
+}
+
+.sd-input:focus {
+  border-color: #8b5cf6;
+}
+
+/* Step 3: Estimate Table */
+.sd-table-container {
+  max-height: 250px;
+  overflow-y: auto;
+  margin-bottom: 1rem;
+  padding-right: 0.5rem;
+}
+
+.sd-estimate-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.sd-estimate-table th {
+  text-align: left;
+  color: #94a3b8;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  font-weight: 600;
+}
+
+.sd-estimate-table td {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.sd-text-gray {
+  color: #64748b;
+}
+
+.sd-text-orange {
+  color: #f59e0b;
+  font-weight: 700;
+  text-align: right;
+}
+
+.sd-estimate-table th:last-child,
+.sd-estimate-table td:last-child {
+  text-align: right;
+}
+
+.sd-total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+.sd-total-label {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.sd-total-sum {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #10b981;
+}
+
+/* Custom Scrollbar for table container */
+.sd-table-container::-webkit-scrollbar {
+  width: 6px;
+}
+.sd-table-container::-webkit-scrollbar-track {
+  background: rgba(255,255,255,0.05);
+  border-radius: 3px;
+}
+.sd-table-container::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.2);
+  border-radius: 3px;
+}

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import AnimatedBackground from './AnimatedBackground';
 import '../engineer-modal.css';
 import OnboardingTour from './OnboardingTour';
+import SmartDealCreateModal from './SmartDealCreateModal';
 
 export default function EngineerDashboardPage({ onBackToHome, initialTab = 'calendar', currentUser, viewRole = 'engineer' }) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -20,6 +21,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
   const [eventFilter, setEventFilter] = useState('all');
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showSmartCreateModal, setShowSmartCreateModal] = useState(false);
 
   // Editing event state
   const [editingEvent, setEditingEvent] = useState(null); // event object or null
@@ -336,7 +338,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
     ]);
     setActiveStageId(null);
     setEvtPhotos([]);
-    setShowAddModal(true);
+    setShowSmartCreateModal(true);
   };
 
   // Open Edit Modal
@@ -487,6 +489,8 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
     }
 
     setShowAddModal(false);
+    setShowSmartCreateModal(false);
+    setEditingEvent(null);
   };
 
   // Quick Change Status (1-click status cycle)
@@ -1599,7 +1603,41 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
           )}
         </main>
         </div>
+        </div>
       </div>
+
+      {showSmartCreateModal && (
+        <SmartDealCreateModal 
+          onClose={() => setShowSmartCreateModal(false)}
+          defaultDate={`До 18:00 (${selectedDay} ${monthsList[monthIndex]})`}
+          onSave={(payload) => {
+            const mockEvent = { preventDefault: () => {} };
+            // Populate state with payload to reuse handleSaveEvent logic, or just manually save it.
+            // Actually, handleSaveEvent reads from state (evtTitle, evtLocation, etc).
+            // It's better to set the states, then call handleSaveEvent.
+            setEditingEvent(null);
+            setEvtTitle(payload.title);
+            setEvtLocation(payload.location);
+            setEvtTime(payload.time);
+            setEvtType(payload.type);
+            setEvtContractor(payload.contractor);
+            setEvtStatus(payload.status);
+            setEvtDeadline(payload.deadline);
+            setEvtStages(payload.stages);
+            setEvtPhotos(payload.photos);
+            
+            // We need a slight delay to allow state to update before calling handleSaveEvent
+            setTimeout(() => {
+              document.getElementById('hidden-save-btn')?.click();
+            }, 50);
+          }}
+        />
+      )}
+      
+      {/* Hidden button to trigger handleSaveEvent with latest state */}
+      <form onSubmit={handleSaveEvent} style={{display: 'none'}}>
+        <button id="hidden-save-btn" type="submit"></button>
+      </form>
 
       {/* Interactive Create / Edit Event Modal with Stage Sequence & Photo Attachments */}
       {showAddModal && (
