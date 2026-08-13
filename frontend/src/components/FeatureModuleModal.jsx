@@ -5,6 +5,7 @@ import UserWalletPage from './UserWalletPage';
 import ContractorsCatalogPage from './ContractorsCatalogPage';
 import UserOrdersPage from './UserOrdersPage';
 import EngineeringSolutionsPage from './EngineeringSolutionsPage';
+import DefectInspectorPage from './DefectInspectorPage';
 
 export default function FeatureModuleModal({ moduleId, itemData, onClose, onOpenAdminTab }) {
   // Common states for interactive forms
@@ -145,35 +146,9 @@ export default function FeatureModuleModal({ moduleId, itemData, onClose, onOpen
             </div>
           )}
 
-          {/* 2. DEFECT INSPECTION (c-inspect / e-inspect) */}
+          {/* 2. DEFECT INSPECTOR (c-inspect / e-inspect) */}
           {(moduleId === 'c-inspect' || moduleId === 'e-inspect') && (
-            <div className="feature-content-box">
-              <h3>🔍 AI-Детектоскопия дефектов и экспертиза конструкций</h3>
-              <p className="sub-text">Загрузите снимок повреждения стен, трещин или перепадов для проверки по СНиП РК.</p>
-
-              <div className="photo-upload-dropzone" onClick={() => setPhotoUploaded(true)}>
-                <span className="drop-icon">🔬</span>
-                <div>
-                  <strong>{photoUploaded ? '✅ Фото дефекта загружено в сканер' : 'Нажмите здесь, чтобы загрузить фото трещины или пола'}</strong>
-                  <div className="small-text">Поддерживаются форматы JPG, PNG, HEIC</div>
-                </div>
-              </div>
-
-              <button className="btn-action-hero" onClick={handleRunDefectInspect} disabled={isScanning}>
-                {isScanning ? '🔍 Компьютерное зрение сканирует дефект...' : '⚡ Запустить AI-экспертизу'}
-              </button>
-
-              {scanResult && (
-                <div className="result-card-glow">
-                  <h4>📋 Заключение технической экспертизы:</h4>
-                  <p><strong>Тип дефекта:</strong> {scanResult.defectType}</p>
-                  <p><strong>Уровень опасности:</strong> <span className="tag-warning">{scanResult.severity}</span></p>
-                  <p><strong>Нормативный стандарт:</strong> <code>{scanResult.snipCode}</code></p>
-                  <p><strong>Рекомендуемый метод устранения:</strong> {scanResult.recommendedFix}</p>
-                  <p><strong>Ориентировочная стоимость ремонта:</strong> <strong style={{ color: '#10b981' }}>{scanResult.estimatedFixPrice}</strong></p>
-                </div>
-              )}
-            </div>
+            <DefectInspectorPage onBack={onClose} hideHeader={true} />
           )}
 
           {/* 3. VOLUME CALCULATOR (c-volume / e-volume / e-soil) */}

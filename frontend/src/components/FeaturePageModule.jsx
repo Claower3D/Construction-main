@@ -10,6 +10,8 @@ import UserWalletPage from './UserWalletPage';
 import ContractorsCatalogPage from './ContractorsCatalogPage';
 import UserOrdersPage from './UserOrdersPage';
 import EngineeringSolutionsPage from './EngineeringSolutionsPage';
+import DefectInspectorPage from './DefectInspectorPage';
+import SmartPhotoEstimatePage from './SmartPhotoEstimatePage';
 import { calculateSmartEstimate, evaluateDefectScan } from '../services/smartEstimateEngine';
 import { getBalanceKZT, topupBalance } from '../services/walletEngine';
 import { getOrders } from '../services/dataService';
@@ -272,164 +274,12 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
       <div className="fullpage-main-body">
         {/* 1. ESTIMATE CALCULATOR (c-estimate / e-estimate) */}
         {(itemId === 'c-estimate' || itemId === 'e-estimate') && (
-          <div className="fullpage-card-box">
-            <h2 className="fullpage-heading">📸 Умная AI-Оценка стоимости строительных работ</h2>
-            <p className="fullpage-sub">Калькулятор расчета сметных расходов на основе действующих баз ГЭСН/СНиП 2026 РК.</p>
-
-            <div className="form-grid-2" style={{ marginTop: '1.5rem' }}>
-              <div className="form-item">
-                <label>Тип недвижимости / объекта:</label>
-                <select value={propertyType} onChange={(e) => setPropertyType(e.target.value)} className="admin-search-input">
-                  <option value="квартира">🏢 Квартира (Новостройка / Вторичка)</option>
-                  <option value="дом">🏠 Частный дом / Коттедж</option>
-                  <option value="офис">🏬 Офис / Коммерческая недвижимость</option>
-                </select>
-              </div>
-
-              <div className="form-item">
-                <label>Уровень отделки и материалов:</label>
-                <select value={qualityLevel} onChange={(e) => setQualityLevel(e.target.value)} className="admin-search-input">
-                  <option value="эконом">Базовый / Эконом</option>
-                  <option value="комфорт">Стандарт / Комфорт</option>
-                  <option value="премиум">Дизайнерский / Премиум</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="form-item" style={{ marginTop: '1.25rem' }}>
-              <label>Площадь объекта: <strong style={{ color: '#f59e0b', fontSize: '1.2rem' }}>{area} м²</strong></label>
-              <input type="range" min="10" max="500" value={area} onChange={(e) => setArea(parseInt(e.target.value))} className="range-slider" />
-            </div>
-
-            <div 
-              className="photo-upload-dropzone" 
-              onClick={() => document.getElementById('estimate-file-upload').click()}
-              style={{ position: 'relative', cursor: 'pointer' }}
-            >
-              <input 
-                type="file" 
-                id="estimate-file-upload" 
-                accept="image/*,application/pdf" 
-                style={{ display: 'none' }} 
-                onChange={handleFileUpload} 
-              />
-              <span className="drop-icon">📸</span>
-              <div style={{ flex: 1, marginRight: uploadedPreview ? '60px' : '0' }}>
-                <strong>
-                  {uploadedFile 
-                    ? `✅ Документ "${uploadedFile.name}" загружен и готов к анализу` 
-                    : 'Загрузите фото объекта или документ (чертёж/план)'
-                  }
-                </strong>
-                <div className="small-text">AI сканирует площади стен, высоты потолков и состояние дефектов</div>
-              </div>
-              
-              {uploadedPreview && typeof uploadedPreview === 'string' && uploadedPreview !== '📄' && (
-                <img 
-                  src={uploadedPreview} 
-                  alt="Preview" 
-                  style={{ 
-                    position: 'absolute', 
-                    right: '16px', 
-                    top: '50%', 
-                    transform: 'translateY(-50%)',
-                    height: '56px', 
-                    width: '56px',
-                    objectFit: 'cover',
-                    borderRadius: '8px',
-                    border: '1px solid rgba(255,255,255,0.2)'
-                  }}
-                />
-              )}
-              {uploadedPreview === '📄' && (
-                <div style={{
-                  position: 'absolute', 
-                  right: '16px', 
-                  top: '50%', 
-                  transform: 'translateY(-50%)',
-                  height: '56px', 
-                  width: '56px',
-                  borderRadius: '8px',
-                  background: 'rgba(255,255,255,0.1)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '2rem'
-                }}>📄</div>
-              )}
-            </div>
-
-            <button className="btn-action-hero" onClick={handleRunAiEstimate} disabled={isScanning}>
-              {isScanning ? (
-                <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
-                  <span className="typing-dots" style={{ marginBottom: 0, padding: 0 }}><span className="dot"></span><span className="dot"></span><span className="dot"></span></span>
-                  {scanStepMessage}
-                </span>
-              ) : '🚀 Сформировать итоговую смету'}
-            </button>
-
-            {cvError && (
-              <div style={{ marginTop: '1.5rem', padding: '1rem', background: 'rgba(239, 68, 68, 0.1)', borderRadius: '8px', borderLeft: '4px solid #ef4444', color: '#fca5a5' }}>
-                {cvError}
-              </div>
-            )}
-
-            {calculatedEstimate && !cvError && (
-              <div className="result-card-glow" style={{ marginTop: '1.75rem' }}>
-                <h3>📊 Итоговый результат расчёта сметы:</h3>
-                <div className="big-price">{(calculatedEstimate.totalCost || calculatedEstimate.total)?.toLocaleString()} ₸</div>
-                <div className="calc-details-grid">
-                  <div><span>Стоимость строительно-монтажных работ:</span> <strong>{calculatedEstimate.worksCost?.toLocaleString()} ₸</strong></div>
-                  <div><span>Стоимость материалов (BOM):</span> <strong>{calculatedEstimate.materialsCost?.toLocaleString()} ₸</strong></div>
-                  <div><span>Ориентировочный срок работ:</span> <strong>~{calculatedEstimate.estimatedDays || calculatedEstimate.timelineDays} рабочих дней</strong></div>
-                </div>
-
-                {calculatedEstimate.aiInsights && calculatedEstimate.aiInsights.length > 0 && (
-                  <div style={{ marginTop: '1.5rem', padding: '1rem', background: 'rgba(16, 185, 129, 0.1)', borderRadius: '8px', borderLeft: '4px solid #10b981' }}>
-                    <h4 style={{ margin: '0 0 0.75rem 0', color: '#10b981', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      ✨ AI-Анализ чертежа
-                    </h4>
-                    <ul style={{ margin: 0, paddingLeft: '1.2rem', color: '#cbd5e1', fontSize: '0.9rem', lineHeight: '1.5' }}>
-                      {calculatedEstimate.aiInsights.map((insight, idx) => (
-                        <li key={idx} style={{ marginBottom: '6px' }}>{insight}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
+          <SmartPhotoEstimatePage onBack={onBack} hideHeader={true} />
         )}
 
         {/* 2. DEFECT INSPECTOR (c-inspect / e-inspect) */}
         {(itemId === 'c-inspect' || itemId === 'e-inspect') && (
-          <div className="fullpage-card-box">
-            <h2 className="fullpage-heading">🔍 AI-Проверка дефектов и экспертная оценка по СНиП РК</h2>
-            <p className="fullpage-sub">Сканирование снимков трещин, плесени, перепадов пола и нарушений технологии строительства.</p>
-
-            <div className="photo-upload-dropzone" onClick={() => setPhotoUploaded(true)}>
-              <span className="drop-icon">🔍</span>
-              <div>
-                <strong>{photoUploaded ? '✅ Фото дефекта загружено в сканер' : 'Нажмите для загрузки фото дефекта или трещины'}</strong>
-                <div className="small-text">Поддерживаются снимки высокого разрешения со смартфонов</div>
-              </div>
-            </div>
-
-            <button className="btn-action-hero" onClick={handleRunDefectInspect} disabled={isScanning}>
-              {isScanning ? '🔍 Компьютерное зрение анализирует геометрию...' : '⚡ Запустить нейросетевую экспертизу'}
-            </button>
-
-            {scanResult && (
-              <div className="result-card-glow" style={{ marginTop: '1.75rem' }}>
-                <h3>📋 Экспертный отчёт AI-Дефектоскопии:</h3>
-                <p><strong>Обнаруженный дефект:</strong> {scanResult.defectType}</p>
-                <p><strong>Класс риска:</strong> <span className="tag-warning">{scanResult.severity}</span></p>
-                <p><strong>Код СНиП РК:</strong> <code>{scanResult.snipCode}</code></p>
-                <p><strong>Рекомендуемый метод устранения:</strong> {scanResult.recommendedFix}</p>
-                <p><strong>Средняя стоимость ремонтных работ:</strong> <strong style={{ color: '#10b981' }}>{scanResult.estimatedFixPrice}</strong></p>
-              </div>
-            )}
-          </div>
+          <DefectInspectorPage onBack={onBack} hideHeader={true} />
         )}
 
         {/* 3. VOLUME CALCULATOR (c-volume / e-volume / e-soil) */}
@@ -528,7 +378,7 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
 
         {/* 4c. ENGINEERING SOLUTIONS (c-engineering / e-engineering) */}
         {(itemId === 'c-engineering' || itemId === 'e-engineering') && (
-          <EngineeringSolutionsPage onBack={onBack} />
+          <EngineeringSolutionsPage onBack={onBack} hideHeader={true} />
         )}
 
         {/* CUSTOMER ORDER MODAL */}

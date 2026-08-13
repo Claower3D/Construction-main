@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './EngineeringSolutionsPage.css';
 
-export default function EngineeringSolutionsPage({ onBack, onOpenOrders }) {
+export default function EngineeringSolutionsPage({ onBack, onOpenOrders, hideHeader = false }) {
   // Object Info Form State
   const [objectName, setObjectName] = useState('Жилой дом');
   const [area, setArea] = useState('250');
@@ -9,6 +9,9 @@ export default function EngineeringSolutionsPage({ onBack, onOpenOrders }) {
   const [city, setCity] = useState('Алматы');
   const [urgency, setUrgency] = useState('Обычный');
   const [hasPlans, setHasPlans] = useState(false);
+
+  // Active Category Filter
+  const [activeCategory, setActiveCategory] = useState('all');
 
   // Cart / Package Builder State
   const [cart, setCart] = useState([]);
@@ -22,70 +25,87 @@ export default function EngineeringSolutionsPage({ onBack, onOpenOrders }) {
     setTimeout(() => setToastMessage(null), 3000);
   };
 
+  const categoryChips = [
+    { id: 'all', label: '🪄 Все разделы' },
+    { id: 'design', label: '📐 Проектирование' },
+    { id: 'inspection', label: '🔍 Обследование' },
+    { id: 'supervision', label: '👷 Надзор' },
+    { id: 'documentation', label: '📄 Документация' },
+    { id: 'safety', label: '🔥 Безопасность' },
+    { id: 'energy', label: '⚡ Энергоэффективность' }
+  ];
+
   const categories = [
     {
       id: 'design',
-      title: '📐 Проектирование',
+      title: '📐 Проектирование (ПСД & BIM)',
       solutions: [
         {
           id: 'ap',
-          icon: '📐',
+          icon: '🏛️',
+          gradient: 'linear-gradient(135deg, #10b981, #06b6d4)',
           title: 'Архитектурный раздел (АР)',
-          desc: 'Полный комплект архитектурных чертежей',
+          desc: 'Полный комплект архитектурных чертежей и 3D фасадных решений',
           price: 450000,
           days: 14,
-          fullDesc: 'Разработка архитектурно-строительных решений (планы этажей, фасады, разрезы, узлы, экспликации помещений) по СНиП РК.'
+          fullDesc: 'Разработка архитектурно-строительных решений (планы этажей, фасады, разрезы, узлы, экспликации помещений) по СНиП РК 2026.'
         },
         {
           id: 'kr',
-          icon: '📐',
+          icon: '🏗️',
+          gradient: 'linear-gradient(135deg, #6366f1, #a855f7)',
           title: 'Конструктивный раздел (КР)',
-          desc: 'Расчёт и чертежи несущих конструкций',
+          desc: 'Расчёт и чертежи железобетонных и стальных конструкций',
           price: 550000,
           days: 18,
           fullDesc: 'Расчет несущей способности фундамента, колонн, балок, перекрытий. Чертежи КЖ и КМ с спецификациями арматуры и бетона.'
         },
         {
           id: 'ovik',
-          icon: '📐',
+          icon: '❄️',
+          gradient: 'linear-gradient(135deg, #0ea5e9, #3b82f6)',
           title: 'ОВиК (отопление, вентиляция)',
-          desc: 'Проект систем отопления и вентиляции',
+          desc: 'Проект микроклимата, отопления и приточной вентиляции',
           price: 380000,
           days: 12,
           fullDesc: 'Теплотехнический расчет, гидравлика, схемы разводки отопления, теплого пола, приточно-вытяжной вентиляции и кондиционирования.'
         },
         {
           id: 'vk',
-          icon: '📐',
+          icon: '💧',
+          gradient: 'linear-gradient(135deg, #06b6d4, #10b981)',
           title: 'Водоснабжение и канализация (ВК)',
-          desc: 'Проект систем водоснабжения и водоотведения',
+          desc: 'Проект водопровода, насосных станций и канализации',
           price: 320000,
           days: 10,
           fullDesc: 'Аксонометрические схемы ХВС, ГВС, бытовой и ливневой канализации, насосные станции, фильтрация и учет воды.'
         },
         {
           id: 'eom',
-          icon: '📐',
+          icon: '⚡',
+          gradient: 'linear-gradient(135deg, #f59e0b, #ef4444)',
           title: 'Электрика (ЭОМ)',
-          desc: 'Проект электроснабжения и освещения',
+          desc: 'Проект электроснабжения, молниезащиты и освещения',
           price: 350000,
           days: 12,
           fullDesc: 'Однолинейные схемы ГРЩ/ЩО/ЩС, расчет нагрузок, молниезащита, заземление, розеточные сети и освещение.'
         },
         {
           id: 'ss',
-          icon: '📐',
+          icon: '📡',
+          gradient: 'linear-gradient(135deg, #ec4899, #8b5cf6)',
           title: 'Слаботочные системы (СС/СКC)',
-          desc: 'Проект слаботочных сетей и связи',
+          desc: 'Проект СКС, видеонаблюдения и системы СКУД',
           price: 280000,
           days: 8,
           fullDesc: 'СКС, видеонаблюдение (CCTV), СКУД, домофония, локальная вычислительная сеть (ЛВС) и Wi-Fi покрытие.'
         },
         {
           id: 'bim',
-          icon: '📐',
-          title: 'BIM-модель',
-          desc: '3D-модель здания с проверкой коллизий',
+          icon: '🧊',
+          gradient: 'linear-gradient(135deg, #d946ef, #6366f1)',
+          title: 'BIM-модель (Revit 3D)',
+          desc: 'Информационная 3D-модель здания с проверкой коллизий',
           price: 650000,
           days: 21,
           fullDesc: 'Сборка единой информационной модели здания в Revit/Navisworks, выявление пересечений инженерных сетей до начала строительства.'
@@ -94,31 +114,34 @@ export default function EngineeringSolutionsPage({ onBack, onOpenOrders }) {
     },
     {
       id: 'inspection',
-      title: '🔍 Обследование',
+      title: '🔍 Экспертиза и обследование',
       solutions: [
         {
           id: 'tech_inspect',
           icon: '🔍',
+          gradient: 'linear-gradient(135deg, #10b981, #059669)',
           title: 'Техническое обследование',
-          desc: 'Обследование конструкций с заключением',
+          desc: 'Инструментальное обследование конструкций с заключением СРО',
           price: 250000,
           days: 7,
           fullDesc: 'Инструментальное обследование фундамента, несущих стен и перекрытий с выдачей официального экспертного заключения СРО.'
         },
         {
           id: 'defect',
-          icon: '🔍',
+          icon: '📋',
+          gradient: 'linear-gradient(135deg, #f97316, #ea580c)',
           title: 'Дефектовка',
-          desc: 'Ведомость дефектов с объёмами работ',
+          desc: 'Дефектная ведомость с точным расчетом объемов',
           price: 180000,
           days: 5,
           fullDesc: 'Составление акта осмотра и дефектной ведомости с точным подсчетом требуемых физических объемов ремонтно-восстановительных работ.'
         },
         {
           id: 'geodesy',
-          icon: '🔍',
+          icon: '📏',
+          gradient: 'linear-gradient(135deg, #0284c7, #2563eb)',
           title: 'Геодезия и обмеры',
-          desc: 'Геодезическая съёмка и обмерочные чертежи',
+          desc: 'Лазерное 3D-сканирование и обмерочные чертежи',
           price: 220000,
           days: 5,
           fullDesc: 'Высокоточная лазерная съёмка помещений, посадка здания на геодезическую подоснову, исполнительные схемы.'
@@ -127,22 +150,24 @@ export default function EngineeringSolutionsPage({ onBack, onOpenOrders }) {
     },
     {
       id: 'supervision',
-      title: '👷 Надзор',
+      title: '👷 Строительный надзор',
       solutions: [
         {
           id: 'tech_supervision',
           icon: '👷',
+          gradient: 'linear-gradient(135deg, #eab308, #ca8a04)',
           title: 'Технический надзор',
-          desc: 'Контроль качества строительных работ',
+          desc: 'Независимый контроль качества и скрытых работ 24/7',
           price: 400000,
           days: 30,
-          fullDesc: 'Непрерывный независимый аудит строительства: проверке скрытых работ, марок бетона, геометрии и подписание актов КС-2/КС-3.'
+          fullDesc: 'Непрерывный независимый аудит строительства: проверка скрытых работ, марок бетона, геометрии и подписание актов КС-2/КС-3.'
         },
         {
           id: 'author_supervision',
-          icon: '👷',
+          icon: '✏️',
+          gradient: 'linear-gradient(135deg, #a855f7, #7e22ce)',
           title: 'Авторский надзор',
-          desc: 'Контроль соответствия проекту',
+          desc: 'Контроль соответствия строительно-монтажных работ проекту',
           price: 350000,
           days: 30,
           fullDesc: 'Регулярные выезды архитектора и конструктора на объект, ведение журнала авторского надзора, внесение рабочих изменений в чертежи.'
@@ -151,31 +176,34 @@ export default function EngineeringSolutionsPage({ onBack, onOpenOrders }) {
     },
     {
       id: 'documentation',
-      title: '📄 Документация',
+      title: '📄 Сметная и разрешительная документация',
       solutions: [
         {
           id: 'boq',
-          icon: '📄',
-          title: 'Смета / BoQ',
-          desc: 'Сметный расчёт стоимости работ',
+          icon: '💰',
+          gradient: 'linear-gradient(135deg, #10b981, #14b8a6)',
+          title: 'Смета / BoQ (GESN/SNIP)',
+          desc: 'Нормативный и рыночный сметный расчёт стоимости объекта',
           price: 150000,
           days: 5,
           fullDesc: 'Расчет нормативной и рыночной сметы в расценках РК 2026, детальная спецификация всех материалов и заложенных ресурсов.'
         },
         {
           id: 'ppr',
-          icon: '📄',
+          icon: '🗺️',
+          gradient: 'linear-gradient(135deg, #4f46e5, #7c3aed)',
           title: 'ППР / ПОС',
-          desc: 'Проект производства работ',
+          desc: 'Проект производства работ и стройгенплан площадки',
           price: 280000,
           days: 10,
           fullDesc: 'Разработка ППР и ПОС с строгими стройгенпланами, графиками движения техники и рабочих, картами безопасности.'
         },
         {
           id: 'executive_docs',
-          icon: '📄',
+          icon: '📜',
+          gradient: 'linear-gradient(135deg, #0891b2, #0d9488)',
           title: 'Исполнительная документация',
-          desc: 'Комплект исполнительной документации',
+          desc: 'Полный комплект документов для сдачи объекта ГАСК',
           price: 200000,
           days: 7,
           fullDesc: 'Подготовка исполнительных схем, паспортов на оборудование, сертификатов соответствия и актов АОСР для сдачи объекта ГАСК.'
@@ -184,13 +212,14 @@ export default function EngineeringSolutionsPage({ onBack, onOpenOrders }) {
     },
     {
       id: 'safety',
-      title: '🔥 Безопасность',
+      title: '🔥 Пожарная безопасность',
       solutions: [
         {
           id: 'fire_safety',
           icon: '🔥',
-          title: 'Пожарная безопасность',
-          desc: 'Раздел пожарной безопасности',
+          gradient: 'linear-gradient(135deg, #ef4444, #dc2626)',
+          title: 'Пожарная безопасность (АПС / СОУЭ)',
+          desc: 'Раздел пожарной защиты, сигнализации и пожаротушения',
           price: 250000,
           days: 10,
           fullDesc: 'Проект пожарной сигнализации (АПС), системы оповещения (СОУЭ), автоматического пожаротушения и расчета эвакуации.'
@@ -204,17 +233,19 @@ export default function EngineeringSolutionsPage({ onBack, onOpenOrders }) {
         {
           id: 'energy_audit',
           icon: '⚡',
-          title: 'Энергоаудит',
-          desc: 'Энергетическое обследование здания',
+          gradient: 'linear-gradient(135deg, #f59e0b, #d97706)',
+          title: 'Энергоаудит здания',
+          desc: 'Энергетическое обследование и выявление потерь тепла',
           price: 300000,
           days: 10,
           fullDesc: 'Комплексный энергоаудит с составлением энергетического паспорта здания, замеры электросети и рекомендации энергосбережения.'
         },
         {
           id: 'thermal_inspect',
-          icon: '⚡',
+          icon: '🌡️',
+          gradient: 'linear-gradient(135deg, #f43f5e, #be123c)',
           title: 'Тепловизионное обследование',
-          desc: 'Выявление теплопотерь тепловизором',
+          desc: 'Съемка профессиональным тепловизором Fluke',
           price: 120000,
           days: 3,
           fullDesc: 'Съемка профессиональным тепловизором Fluke фасадов, кровли и оконных примыканий для обнаружения мостиков холода и утечек тепла.'
@@ -242,6 +273,10 @@ export default function EngineeringSolutionsPage({ onBack, onOpenOrders }) {
   const formatPrice = (p) => {
     return 'от ' + p.toLocaleString('ru-RU') + ' ₸';
   };
+
+  const filteredCategories = activeCategory === 'all' 
+    ? categories 
+    : categories.filter(c => c.id === activeCategory);
 
   const handleSubmitPackage = () => {
     if (cart.length === 0) {
@@ -284,36 +319,45 @@ export default function EngineeringSolutionsPage({ onBack, onOpenOrders }) {
     <div className="es-container">
       {toastMessage && <div className="es-toast">{toastMessage}</div>}
 
-      {/* Header Bar */}
-      <div className="es-header-bar">
-        <button className="es-back-btn" onClick={onBack} title="Вернуться">←</button>
-        <div className="es-header-title-wrap">
-          <div className="es-title-flex">
-            <span className="es-header-icon">⚙️</span>
-            <h2>Инженерные решения</h2>
+      {/* Top Header Bar (renders if not embedded or hideHeader=false) */}
+      {!hideHeader && (
+        <div className="es-header-bar">
+          <button className="es-back-btn" onClick={onBack} title="Вернуться">←</button>
+          <div className="es-header-title-wrap">
+            <div className="es-title-flex">
+              <span className="es-header-icon">⚙️</span>
+              <h2>Инженерные решения</h2>
+            </div>
           </div>
-        </div>
 
-        <button 
-          className="es-btn-my-orders"
-          onClick={onOpenOrders || onBack}
-        >
-          📋 Мои заявки
-        </button>
+          <button 
+            className="es-btn-my-orders"
+            onClick={onOpenOrders || onBack}
+          >
+            📋 Мои заявки
+          </button>
+        </div>
+      )}
+
+      {/* Category Chips Navbar */}
+      <div className="es-chips-nav">
+        {categoryChips.map(chip => (
+          <button 
+            key={chip.id}
+            className={`es-chip-btn ${activeCategory === chip.id ? 'active' : ''}`}
+            onClick={() => setActiveCategory(chip.id)}
+          >
+            {chip.label}
+          </button>
+        ))}
       </div>
 
-      <div className="es-content-layout">
+      <div className="es-content-layout mt-3">
 
         {/* Left Column: Object Form & Catalog */}
         <div className="es-left-col">
-          
-          {/* Page Subtitle */}
-          <div className="es-main-subtitle">
-            <span className="es-sub-icon">🏗️</span>
-            <h3>Инженерные решения</h3>
-          </div>
 
-          {/* Form Card: Информация об объекте */}
+          {/* Form Card: 📍 Информация об объекте */}
           <div className="es-form-card">
             <div className="es-form-header">
               <span className="es-form-icon">📍</span>
@@ -393,7 +437,7 @@ export default function EngineeringSolutionsPage({ onBack, onOpenOrders }) {
 
           {/* Catalog Sections */}
           <div className="es-catalog-wrap">
-            {categories.map(cat => (
+            {filteredCategories.map(cat => (
               <div key={cat.id} className="es-category-section">
                 <h3 className="es-cat-title">{cat.title}</h3>
 
@@ -403,8 +447,8 @@ export default function EngineeringSolutionsPage({ onBack, onOpenOrders }) {
                     return (
                       <div key={sol.id} className={`es-card ${isInCart ? 'in-cart' : ''}`}>
                         
-                        {/* Gradient Banner with Icon */}
-                        <div className="es-card-banner">
+                        {/* Colorful Gradient Banner with Unique Icon */}
+                        <div className="es-card-banner" style={{ background: sol.gradient }}>
                           <span className="es-banner-icon">{sol.icon}</span>
                         </div>
 
@@ -415,7 +459,7 @@ export default function EngineeringSolutionsPage({ onBack, onOpenOrders }) {
 
                           <div className="es-card-meta">
                             <span className="es-price-text">{formatPrice(sol.price)}</span>
-                            <span className="es-days-text">{sol.days} дней</span>
+                            <span className="es-days-text">⏱ {sol.days} дней</span>
                           </div>
 
                           <div className="es-card-actions">
@@ -430,7 +474,7 @@ export default function EngineeringSolutionsPage({ onBack, onOpenOrders }) {
                               className={`es-btn-add ${isInCart ? 'active' : ''}`}
                               onClick={() => toggleCart(sol)}
                             >
-                              {isInCart ? '✓ Добавлено' : '+ Добавить'}
+                              {isInCart ? '✓ В пакете' : '+ Добавить'}
                             </button>
                           </div>
                         </div>
@@ -451,6 +495,9 @@ export default function EngineeringSolutionsPage({ onBack, onOpenOrders }) {
             <div className="es-cart-header">
               <span className="es-cart-icon">📦</span>
               <h4>Ваш пакет</h4>
+              {cart.length > 0 && (
+                <span className="es-cart-badge">{cart.length}</span>
+              )}
             </div>
 
             {cart.length === 0 ? (
@@ -492,6 +539,16 @@ export default function EngineeringSolutionsPage({ onBack, onOpenOrders }) {
                 >
                   🚀 Оформить заявку на пакет
                 </button>
+
+                <button 
+                  className="es-btn-clear-cart"
+                  onClick={() => {
+                    setCart([]);
+                    showToast('🗑️ Пакет очищен');
+                  }}
+                >
+                  Очистить пакет
+                </button>
               </div>
             )}
           </div>
@@ -505,7 +562,7 @@ export default function EngineeringSolutionsPage({ onBack, onOpenOrders }) {
           <div className="es-modal-card" onClick={e => e.stopPropagation()}>
             <button className="es-modal-close" onClick={() => setSelectedSolution(null)}>✕</button>
 
-            <div className="es-m-banner">
+            <div className="es-m-banner" style={{ background: selectedSolution.gradient }}>
               <span className="es-m-icon">{selectedSolution.icon}</span>
             </div>
 
@@ -525,7 +582,7 @@ export default function EngineeringSolutionsPage({ onBack, onOpenOrders }) {
                 </div>
                 <div className="es-mstat">
                   <span className="label">Срок исполнения</span>
-                  <span className="val">{selectedSolution.days} дней</span>
+                  <span className="val">⏱ {selectedSolution.days} дней</span>
                 </div>
               </div>
 
