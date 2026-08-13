@@ -17,6 +17,7 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
   const [isScanning, setIsScanning] = useState(false);
   const [scanStepMessage, setScanStepMessage] = useState('');
   const [scanResult, setScanResult] = useState(null);
+  const [cvError, setCvError] = useState('');
 
   // Estimate calculator states
   const [area, setArea] = useState(65);
@@ -55,28 +56,71 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
     }
   };
 
-  const handleRunAiEstimate = () => {
+  const handleRunAiEstimate = async () => {
     setIsScanning(true);
     setCalculatedEstimate(null); // Reset previous estimate
+    setCvError('');
     
     if (uploadedFile) {
-      setScanStepMessage('Анализ геометрии помещения и плана...');
-      setTimeout(() => setScanStepMessage('Распознавание несущих конструкций и инженерных узлов...'), 1200);
-      setTimeout(() => setScanStepMessage('Применение сметных нормативов (ГЭСН 2026 РК)...'), 2500);
-      setTimeout(() => setScanStepMessage('Формирование итогового отчета...'), 3500);
+      setScanStepMessage('Анализ изображения через TensorFlow Vision...');
+
+      // TensorFlow.js MobileNet Classification
+      if (uploadedFile.type.startsWith('image/') && window.mobilenet) {
+        try {
+          const img = document.createElement('img');
+          img.src = uploadedPreview;
+          await new Promise((resolve) => {
+            img.onload = resolve;
+          });
+
+          const model = await window.mobilenet.load();
+          const predictions = await model.classify(img);
+          
+          if (predictions && predictions.length > 0) {
+            const topClass = predictions[0].className.toLowerCase();
+            const confidence = predictions[0].probability;
+            
+            // Block screenshots, UIs, and completely unrelated items if confidence is decent
+            const isUnrelated = topClass.includes('web site') || 
+                                topClass.includes('menu') || 
+                                topClass.includes('comic book') ||
+                                topClass.includes('monitor') ||
+                                topClass.includes('screen') ||
+                                topClass.includes('television') ||
+                                topClass.includes('cellular telephone') ||
+                                topClass.includes('digital clock') ||
+                                topClass.includes('scoreboard') ||
+                                topClass.includes('crossword puzzle');
+            
+            if (isUnrelated && confidence > 0.1) {
+              setIsScanning(false);
+              setScanStepMessage('');
+              setCvError(`❌ Ошибка Vision AI: Нейросеть распознала на фото [${predictions[0].className}]. Пожалуйста, загрузите реальное фото объекта, помещения или план/чертёж.`);
+              return;
+            }
+          }
+        } catch (err) {
+          console.error('TFJS Error:', err);
+        }
+      }
+
+      setScanStepMessage('Распознавание несущих конструкций и геометрии...');
+      await new Promise(r => setTimeout(r, 1200));
+      setScanStepMessage('Применение сметных нормативов (ГЭСН 2026 РК)...');
+      await new Promise(r => setTimeout(r, 1500));
+      setScanStepMessage('Формирование итогового отчета...');
+      await new Promise(r => setTimeout(r, 1000));
       
-      setTimeout(() => {
-        setIsScanning(false);
-        setScanStepMessage('');
-        const est = calculateSmartEstimate({ 
-          area, 
-          propertyType, 
-          qualityLevel, 
-          hasFile: true, 
-          fileName: uploadedFile.name 
-        });
-        setCalculatedEstimate(est);
-      }, 4500);
+      setIsScanning(false);
+      setScanStepMessage('');
+      const est = calculateSmartEstimate({ 
+        area, 
+        propertyType, 
+        qualityLevel, 
+        hasFile: true, 
+        fileName: uploadedFile.name 
+      });
+      setCalculatedEstimate(est);
     } else {
       setScanStepMessage('Идёт AI-просчёт по нормам ГЭСН 2026 РК...');
       setTimeout(() => {
@@ -237,7 +281,13 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
               ) : '🚀 Сформировать итоговую смету'}
             </button>
 
-            {calculatedEstimate && (
+            {cvError && (
+              <div style={{ marginTop: '1.5rem', padding: '1rem', background: 'rgba(239, 68, 68, 0.1)', borderRadius: '8px', borderLeft: '4px solid #ef4444', color: '#fca5a5' }}>
+                {cvError}
+              </div>
+            )}
+
+            {calculatedEstimate && !cvError && (
               <div className="result-card-glow" style={{ marginTop: '1.75rem' }}>
                 <h3>📊 Итоговый результат расчёта сметы:</h3>
                 <div className="big-price">{(calculatedEstimate.totalCost || calculatedEstimate.total)?.toLocaleString()} ₸</div>
