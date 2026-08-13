@@ -371,6 +371,13 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
                     🏢 Компания
                   </button>
                 </div>
+                <select className="role-select" value={selectedRole} onChange={handleSelectRole} style={{ marginTop: '0.5rem', background: '#1e293b', color: '#fff', border: '1px solid rgba(255,255,255,0.1)', padding: '0.5rem', borderRadius: '8px', cursor: 'pointer' }}>
+                  <option value="" disabled>-- Демо-просмотр других ролей --</option>
+                  <option value="customer">📋 Заказчик</option>
+                  <option value="executor">🔧 Исполнитель</option>
+                  <option value="engineer">👷 Инженер</option>
+                  <option value="manager">💼 Менеджер</option>
+                </select>
               </div>
             ) : (
               <div className="role-display-badge" style={{ padding: '0.5rem 1rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
