@@ -80,22 +80,25 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
             const topClass = predictions[0].className.toLowerCase();
             const confidence = predictions[0].probability;
             
-            // Block screenshots, UIs, and completely unrelated items if confidence is decent
-            const isUnrelated = topClass.includes('web site') || 
-                                topClass.includes('menu') || 
-                                topClass.includes('comic book') ||
-                                topClass.includes('monitor') ||
+            // MobileNet often classifies blueprints and line drawings as "web site", "menu", "comic book", or "crossword puzzle".
+            // So we explicitly DO NOT block those. We only block obvious non-construction / non-document items.
+            const isUnrelated = topClass.includes('monitor') ||
                                 topClass.includes('screen') ||
                                 topClass.includes('television') ||
                                 topClass.includes('cellular telephone') ||
                                 topClass.includes('digital clock') ||
                                 topClass.includes('scoreboard') ||
-                                topClass.includes('crossword puzzle');
+                                topClass.includes('cat') ||
+                                topClass.includes('dog') ||
+                                topClass.includes('car') ||
+                                topClass.includes('person') ||
+                                topClass.includes('face');
             
-            if (isUnrelated && confidence > 0.1) {
+            // Increase threshold so it doesn't falsely block on low confidence
+            if (isUnrelated && confidence > 0.4) {
               setIsScanning(false);
               setScanStepMessage('');
-              setCvError(`❌ Ошибка Vision AI: Нейросеть распознала на фото [${predictions[0].className}]. Пожалуйста, загрузите реальное фото объекта, помещения или план/чертёж.`);
+              setCvError(`❌ Ошибка Vision AI: Нейросеть распознала на фото [${predictions[0].className}] с вероятностью ${Math.round(confidence * 100)}%. Пожалуйста, загрузите фото объекта, помещения или чертёж.`);
               return;
             }
           }
