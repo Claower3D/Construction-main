@@ -442,7 +442,7 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
           )}
 
           {embeddedModule === 'admin_panel' && (
-             <AdminDashboardModal isOpen={true} inline={true} startTab={selectedItemId.replace('adm-', '')} onClose={() => setSelectedItemObject(null)} />
+             <AdminDashboardModal isOpen={true} inline={true} startTab={selectedItemId.replace('adm-', '')} onClose={() => setSelectedItemObject(null)} currentUser={currentUser} userRole={userRole} />
           )}
 
           {embeddedModule === 'crm' && (

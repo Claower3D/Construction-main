@@ -43,7 +43,7 @@ const BASE_NORMS_LIST = [
   { id: 'T-003', name: 'Самосвал KAMAZ 20 тонн (вывоз грунта)', category: 'Техника', section: 'Грузовая', unit: 'рейс', laborNorm: 2.00, price: 25000, file: 'EQUIPMENT-2026.xlsx' },
 ];
 
-export default function AdminDashboardModal({ isOpen, onClose, inline = false, startTab = 'overview' }) {
+export default function AdminDashboardModal({ isOpen, onClose, inline = false, startTab = 'overview', currentUser = null, userRole = 'admin' }) {
   // Navigation Tabs: overview | database | prices | moderation | users | settings
   const [activeTab, setActiveTab] = useState('overview');
   const [settingsSubTab, setSettingsSubTab] = useState('regions'); // regions | audit
@@ -431,7 +431,7 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
             <span className="admin-icon">⚙️</span>
             <div>
               <div className="admin-title">
-                QazGost AI <span>Панель Администратора</span>
+                {userRole === 'company' && currentUser?.name ? `${currentUser.name} ` : 'QazGost AI '}<span>Панель Администратора</span>
               </div>
               <div className="admin-subtitle">Управление сметной базой, модерация, пользователи и аудит</div>
             </div>
