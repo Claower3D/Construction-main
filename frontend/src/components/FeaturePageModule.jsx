@@ -546,9 +546,14 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
 
         {/* CUSTOMER ORDER MODAL */}
         {showOrderModal && (
-          <div className="modal-overlay" style={{ zIndex: 1000 }}>
-            <div className="modal-content" style={{ maxWidth: '500px', backgroundColor: '#1e293b' }}>
-              <button className="modal-close" onClick={() => setShowOrderModal(false)}>✕</button>
+          <div className="modal-overlay" style={{ zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div className="modal-content" style={{ position: 'relative', width: '100%', maxWidth: '500px', backgroundColor: '#1e293b', padding: '2.5rem 2rem', borderRadius: '16px', boxShadow: '0 20px 40px rgba(0,0,0,0.4)', border: '1px solid #334155' }}>
+              <button 
+                onClick={() => setShowOrderModal(false)}
+                style={{ position: 'absolute', top: '1.25rem', right: '1.25rem', background: 'transparent', border: 'none', color: '#94a3b8', fontSize: '1.5rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px', borderRadius: '50%', transition: 'background 0.2s' }}
+                onMouseOver={(e) => e.target.style.background = '#334155'}
+                onMouseOut={(e) => e.target.style.background = 'transparent'}
+              >✕</button>
               <h2 style={{ color: '#fff', marginBottom: '1.5rem' }}>Сформировать Заявку</h2>
               <form onSubmit={handleCreateCustomerOrder}>
                 <div className="form-item" style={{ marginBottom: '1.5rem' }}>
