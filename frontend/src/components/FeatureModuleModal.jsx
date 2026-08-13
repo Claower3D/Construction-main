@@ -4,6 +4,7 @@ import ProfileQuestionnaire from './ProfileQuestionnaire';
 import UserWalletPage from './UserWalletPage';
 import ContractorsCatalogPage from './ContractorsCatalogPage';
 import UserOrdersPage from './UserOrdersPage';
+import EngineeringSolutionsPage from './EngineeringSolutionsPage';
 
 export default function FeatureModuleModal({ moduleId, itemData, onClose, onOpenAdminTab }) {
   // Common states for interactive forms
@@ -198,6 +199,11 @@ export default function FeatureModuleModal({ moduleId, itemData, onClose, onOpen
           {/* 4. ORDERS FEED (c-orders / e-feed / e-works / e-orders) */}
           {(moduleId === 'c-orders' || moduleId === 'e-feed' || moduleId === 'e-works' || moduleId === 'e-orders') && (
             <UserOrdersPage onBack={onClose} />
+          )}
+
+          {/* 4b. ENGINEERING SOLUTIONS (c-engineering / e-engineering) */}
+          {(moduleId === 'c-engineering' || moduleId === 'e-engineering') && (
+            <EngineeringSolutionsPage onBack={onClose} />
           )}
 
           {/* 5. CONTRACTORS CATALOG (c-catalog / e-catalog) */}

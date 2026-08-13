@@ -9,6 +9,7 @@ import ProfileQuestionnaire from './ProfileQuestionnaire';
 import UserWalletPage from './UserWalletPage';
 import ContractorsCatalogPage from './ContractorsCatalogPage';
 import UserOrdersPage from './UserOrdersPage';
+import EngineeringSolutionsPage from './EngineeringSolutionsPage';
 import { calculateSmartEstimate, evaluateDefectScan } from '../services/smartEstimateEngine';
 import { getBalanceKZT, topupBalance } from '../services/walletEngine';
 import { getOrders } from '../services/dataService';
@@ -525,9 +526,9 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
           </div>
         )}
 
-        {/* 4b. MY ORDERS (c-orders) - Заказчик */}
-        {(itemId === 'c-orders' || itemId === 'e-orders' || itemId === 'e-feed' || itemId === 'e-works') && (
-          <UserOrdersPage onBack={onBack} />
+        {/* 4c. ENGINEERING SOLUTIONS (c-engineering / e-engineering) */}
+        {(itemId === 'c-engineering' || itemId === 'e-engineering') && (
+          <EngineeringSolutionsPage onBack={onBack} />
         )}
 
         {/* CUSTOMER ORDER MODAL */}

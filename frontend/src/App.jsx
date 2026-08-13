@@ -23,6 +23,7 @@ import ProfileQuestionnaire from './components/ProfileQuestionnaire';
 import UserWalletPage from './components/UserWalletPage';
 import ContractorsCatalogPage from './components/ContractorsCatalogPage';
 import UserOrdersPage from './components/UserOrdersPage';
+import EngineeringSolutionsPage from './components/EngineeringSolutionsPage';
 import { categoriesData } from './data/categoriesData';
 
 export default function App() {
@@ -52,6 +53,7 @@ export default function App() {
     if (path.startsWith('/wallet')) return 'wallet';
     if (path.startsWith('/catalog')) return 'catalog';
     if (path.startsWith('/orders')) return 'orders';
+    if (path.startsWith('/engineering')) return 'engineering';
     return 'landing';
   });
 
@@ -84,6 +86,7 @@ export default function App() {
       else if (path.startsWith('/wallet')) setCurrentView('wallet');
       else if (path.startsWith('/catalog')) setCurrentView('catalog');
       else if (path.startsWith('/orders')) setCurrentView('orders');
+      else if (path.startsWith('/engineering')) setCurrentView('engineering');
       else setCurrentView('landing');
     };
     window.addEventListener('popstate', handlePopState);
@@ -174,7 +177,7 @@ export default function App() {
   };
 
   useEffect(() => {
-    const protectedViews = ['admin', 'engineer', 'customer', 'executor', 'company', 'crm', 'manager', 'profile', 'wallet', 'catalog', 'orders'];
+    const protectedViews = ['admin', 'engineer', 'customer', 'executor', 'company', 'crm', 'manager', 'profile', 'wallet', 'catalog', 'orders', 'engineering'];
     const path = window.location.pathname.substring(1).split('/')[0];
     const viewToCheck = protectedViews.includes(currentView) ? currentView : (protectedViews.includes(path) ? path : null);
 
@@ -273,6 +276,22 @@ export default function App() {
                   navigateToLanding();
                 }
               }} 
+            />
+          )}
+
+          {currentView === 'engineering' && (
+            <EngineeringSolutionsPage 
+              onBack={() => {
+                if (currentUser) {
+                  navigateToDashboard(currentUser.role);
+                } else {
+                  navigateToLanding();
+                }
+              }} 
+              onOpenOrders={() => {
+                window.history.pushState({}, '', `/orders`);
+                setCurrentView('orders');
+              }}
             />
           )}
 
