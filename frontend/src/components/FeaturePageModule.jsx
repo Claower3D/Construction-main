@@ -34,6 +34,18 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
   const [appliedOrders, setAppliedOrders] = useState({});
   const [liveOrders, setLiveOrders] = useState([]);
 
+  // Customer Orders Flow State
+  const [showOrderModal, setShowOrderModal] = useState(false);
+  const [orderModalType, setOrderModalType] = useState('construction'); // 'construction' | 'engineering'
+  const [newOrderTitle, setNewOrderTitle] = useState('');
+  const [newOrderDesc, setNewOrderDesc] = useState('');
+  const [customerOrdersConst, setCustomerOrdersConst] = useState([
+    { id: 'c-const-1', title: 'Строительство коттеджа 250м²', status: 'В работе', type: 'construction', date: 'Вчера' }
+  ]);
+  const [customerOrdersEng, setCustomerOrdersEng] = useState([
+    { id: 'c-eng-1', title: 'Проверка проектной документации фундамента', status: 'На проверке у инженера', type: 'engineering', date: '2 часа назад' }
+  ]);
+
   // Wallet state
   const [balance, setBalance] = useState(() => getBalanceKZT());
   const [topupAmount, setTopupAmount] = useState('');
@@ -156,6 +168,35 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
 
   const handleApplyOrder = (orderId) => {
     setAppliedOrders({ ...appliedOrders, [orderId]: true });
+  };
+
+  const handleCreateCustomerOrder = (e) => {
+    e.preventDefault();
+    if (!newOrderTitle.trim()) return;
+    
+    if (orderModalType === 'construction') {
+      const newOrder = {
+        id: `c-const-${Date.now()}`,
+        title: newOrderTitle,
+        status: 'Ожидает подрядчика',
+        type: 'construction',
+        date: 'Только что'
+      };
+      setCustomerOrdersConst([newOrder, ...customerOrdersConst]);
+    } else {
+      const newOrder = {
+        id: `c-eng-${Date.now()}`,
+        title: newOrderTitle,
+        status: 'Отправлено инженеру для проверки заказа',
+        type: 'engineering',
+        date: 'Только что'
+      };
+      setCustomerOrdersEng([newOrder, ...customerOrdersEng]);
+    }
+    
+    setNewOrderTitle('');
+    setNewOrderDesc('');
+    setShowOrderModal(false);
   };
 
   const handleTopupWallet = (e) => {
@@ -380,8 +421,8 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
           </div>
         )}
 
-        {/* 4. LIVE ORDERS FEED (c-orders / e-feed) */}
-        {(itemId === 'c-orders' || itemId === 'e-feed') && (
+        {/* 4. LIVE ORDERS FEED (e-feed) */}
+        {itemId === 'e-feed' && (
           <div className="fullpage-card-box">
             <h2 className="fullpage-heading">🌐 Лента заказов и объёмов работ по Казахстану</h2>
             <p className="fullpage-sub">Живой поток заявок от проверенных Заказчиков в Астане, Алматы, Шымкенте и регионах.</p>
@@ -448,6 +489,114 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
                   </button>
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* 4b. MY ORDERS (c-orders) - Заказчик */}
+        {itemId === 'c-orders' && (
+          <div className="fullpage-card-box">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <h2 className="fullpage-heading">📋 Мои Заказы</h2>
+                <p className="fullpage-sub">Управление вашими строительными объектами и инженерными заявками.</p>
+              </div>
+              <button 
+                className="btn-action-hero" 
+                style={{ padding: '0.8rem 1.5rem', fontSize: '1rem', backgroundColor: '#10b981', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+                onClick={() => setShowOrderModal(true)}
+              >
+                <span style={{ fontSize: '1.2rem' }}>+</span> Сформировать Заявку
+              </button>
+            </div>
+
+            <div className="orders-full-grid" style={{ marginTop: '2rem' }}>
+              {/* Строительство */}
+              <div className="orders-column">
+                <h3 style={{ color: '#f59e0b', marginBottom: '1rem', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '0.5rem' }}>
+                  🏗️ Мои Заказы: Строительство (Мои Объекты)
+                </h3>
+                {customerOrdersConst.map((ord) => (
+                  <div className="order-item-card" key={ord.id} style={{ padding: '1rem', marginBottom: '1rem', borderLeft: '4px solid #f59e0b' }}>
+                    <div style={{ fontWeight: 'bold', fontSize: '1.1rem', marginBottom: '0.5rem' }}>{ord.title}</div>
+                    <div style={{ fontSize: '0.9rem', color: '#94a3b8', marginBottom: '0.25rem' }}>⏱ {ord.date}</div>
+                    <div style={{ color: '#10b981', fontSize: '0.9rem', fontWeight: 'bold' }}>{ord.status}</div>
+                  </div>
+                ))}
+                {customerOrdersConst.length === 0 && <p style={{ color: '#64748b' }}>Нет заказов на строительство</p>}
+              </div>
+
+              {/* Инженерные решения */}
+              <div className="orders-column">
+                <h3 style={{ color: '#8b5cf6', marginBottom: '1rem', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '0.5rem' }}>
+                  ⚙️ Мои Заказы: Инженерные Решения
+                </h3>
+                {customerOrdersEng.map((ord) => (
+                  <div className="order-item-card" key={ord.id} style={{ padding: '1rem', marginBottom: '1rem', borderLeft: '4px solid #8b5cf6' }}>
+                    <div style={{ fontWeight: 'bold', fontSize: '1.1rem', marginBottom: '0.5rem' }}>{ord.title}</div>
+                    <div style={{ fontSize: '0.9rem', color: '#94a3b8', marginBottom: '0.25rem' }}>⏱ {ord.date}</div>
+                    <div style={{ color: '#c084fc', fontSize: '0.9rem', fontWeight: 'bold' }}>{ord.status}</div>
+                  </div>
+                ))}
+                {customerOrdersEng.length === 0 && <p style={{ color: '#64748b' }}>Нет инженерных заявок</p>}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* CUSTOMER ORDER MODAL */}
+        {showOrderModal && (
+          <div className="modal-overlay" style={{ zIndex: 1000 }}>
+            <div className="modal-content" style={{ maxWidth: '500px', backgroundColor: '#1e293b' }}>
+              <button className="modal-close" onClick={() => setShowOrderModal(false)}>✕</button>
+              <h2 style={{ color: '#fff', marginBottom: '1.5rem' }}>Сформировать Заявку</h2>
+              <form onSubmit={handleCreateCustomerOrder}>
+                <div className="form-item" style={{ marginBottom: '1.5rem' }}>
+                  <label style={{ color: '#94a3b8', display: 'block', marginBottom: '0.5rem' }}>Тип заявки:</label>
+                  <select 
+                    value={orderModalType} 
+                    onChange={(e) => setOrderModalType(e.target.value)} 
+                    className="admin-search-input"
+                    style={{ width: '100%', padding: '0.75rem', backgroundColor: '#0f172a', border: '1px solid #334155', color: '#fff', borderRadius: '6px' }}
+                  >
+                    <option value="construction">🏗️ Строительство (Добавить в Мои Объекты)</option>
+                    <option value="engineering">⚙️ Инженерные решения (Отправить инженеру на проверку)</option>
+                  </select>
+                </div>
+                
+                <div className="form-item" style={{ marginBottom: '1.5rem' }}>
+                  <label style={{ color: '#94a3b8', display: 'block', marginBottom: '0.5rem' }}>Название заявки / объекта:</label>
+                  <input 
+                    type="text" 
+                    value={newOrderTitle} 
+                    onChange={(e) => setNewOrderTitle(e.target.value)} 
+                    placeholder="Например: Постройка бани 6х4" 
+                    className="admin-search-input"
+                    style={{ width: '100%', padding: '0.75rem', backgroundColor: '#0f172a', border: '1px solid #334155', color: '#fff', borderRadius: '6px' }}
+                    required 
+                  />
+                </div>
+
+                <div className="form-item" style={{ marginBottom: '1.5rem' }}>
+                  <label style={{ color: '#94a3b8', display: 'block', marginBottom: '0.5rem' }}>Описание (опционально):</label>
+                  <textarea 
+                    value={newOrderDesc} 
+                    onChange={(e) => setNewOrderDesc(e.target.value)} 
+                    placeholder="Укажите детали заказа..." 
+                    className="admin-search-input"
+                    style={{ width: '100%', padding: '0.75rem', backgroundColor: '#0f172a', border: '1px solid #334155', color: '#fff', borderRadius: '6px', minHeight: '80px', resize: 'vertical' }}
+                  />
+                </div>
+
+                <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
+                  <button type="button" onClick={() => setShowOrderModal(false)} style={{ flex: 1, padding: '0.75rem', backgroundColor: 'transparent', color: '#94a3b8', border: '1px solid #334155', borderRadius: '6px', cursor: 'pointer' }}>
+                    Отмена
+                  </button>
+                  <button type="submit" style={{ flex: 1, padding: '0.75rem', backgroundColor: '#10b981', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>
+                    Сформировать
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         )}
