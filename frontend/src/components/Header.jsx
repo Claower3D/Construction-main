@@ -291,7 +291,7 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
             </button>
             {activeNavDropdown === 'manager' && (
               <div className="dropdown-menu-popover rich-dropdown">
-                <a href="#crm" className="dropdown-item" onClick={(e) => { e.preventDefault(); closeDropdown(); onOpenDashboard(); }}>
+                <a href="#crm" className="dropdown-item" onClick={(e) => { e.preventDefault(); closeDropdown(); onOpenDashboard('crm'); }}>
                   <span className="item-icon">📊</span>
                   <span>CRM-система</span>
                 </a>
@@ -321,7 +321,7 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
 
           {currentUser ? (
             <>
-              <button className="btn-gold-login" onClick={onOpenDashboard}>
+              <button className="btn-gold-login" onClick={() => onOpenDashboard(currentUser.role)}>
                 <span className="item-icon">👤</span> {currentUser.name || 'Профиль'}
               </button>
               <button className="btn-glass-reg" onClick={onLogout}>
