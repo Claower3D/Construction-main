@@ -6,6 +6,14 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
 
   const canEdit = currentUser?.role === 'admin' || card.createdBy === currentUser?.id || card.assignedTo === currentUser?.id || !card.createdBy;
 
+  const mockUsers = [
+    { id: 'u_1', name: 'Ербол Маратов', role: 'engineer' },
+    { id: 'u_2', name: 'Ирина Ким', role: 'engineer' },
+    { id: 'u_3', name: 'ТОО QazGost', role: 'executor' },
+    { id: 'u_4', name: 'Алексей Смирнов', role: 'executor' },
+    { id: 'u_5', name: 'Светлана Иванова', role: 'manager' }
+  ];
+
   const pipelineStages = [
     { id: 'Новые', label: 'Новая' },
     { id: 'В работе', label: 'В работе' },
@@ -147,18 +155,26 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
                </div>
                
                <div style={{ display: 'flex', gap: '1rem' }}>
-                 <div style={{ flex: 1 }}>
-                   <div style={{ fontSize: '0.7rem', color: '#64748b', marginBottom: '0.4rem', letterSpacing: '1px' }}>ОТВЕТСТВЕННЫЙ</div>
-                   <select 
-                      value={formData.contractor || ''} 
-                      onChange={(e) => handleChange('contractor', e.target.value)}
-                      style={{ width: '100%', background: '#0a0f18', color: '#fff', border: '1px solid #1e293b', padding: '0.6rem', borderRadius: '8px', fontSize: '0.85rem' }}
-                   >
-                     <option value="Светлана Иванова">Светлана Иванова</option>
-                     <option value="Ербол Маратов">Ербол Маратов</option>
-                     <option value="ТОО QazGost">ТОО QazGost</option>
-                   </select>
-                 </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: '0.7rem', color: '#64748b', marginBottom: '0.4rem', letterSpacing: '1px' }}>НАЗНАЧЕН (ОТВЕТСТВЕННЫЙ)</div>
+                    <select 
+                       value={formData.assignedTo || ''} 
+                       onChange={(e) => handleChange('assignedTo', e.target.value)}
+                       style={{ width: '100%', background: '#0a0f18', color: '#fff', border: '1px solid #1e293b', padding: '0.6rem', borderRadius: '8px', fontSize: '0.85rem' }}
+                    >
+                      <option value="">-- Не назначен --</option>
+                      <optgroup label="Инженеры">
+                        {mockUsers.filter(u => u.role === 'engineer').map(u => (
+                          <option key={u.id} value={u.id}>{u.name}</option>
+                        ))}
+                      </optgroup>
+                      <optgroup label="Исполнители">
+                        {mockUsers.filter(u => u.role === 'executor').map(u => (
+                          <option key={u.id} value={u.id}>{u.name}</option>
+                        ))}
+                      </optgroup>
+                    </select>
+                  </div>
                  <div style={{ display: 'flex', gap: '0.5rem', flex: 1, alignItems: 'flex-end' }}>
                    <button onClick={() => handleChange('status', 'Успешно')} style={{ flex: 1, background: 'rgba(34, 197, 94, 0.1)', color: '#22c55e', border: '1px solid #22c55e', padding: '0.6rem', borderRadius: '8px', fontSize: '0.85rem', cursor: 'pointer', fontWeight: 600 }}>✓ Успешно</button>
                    <button onClick={() => handleChange('status', 'Отказ')} style={{ flex: 1, background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: '1px solid #ef4444', padding: '0.6rem', borderRadius: '8px', fontSize: '0.85rem', cursor: 'pointer', fontWeight: 600 }}>✕ Отказ</button>
