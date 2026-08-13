@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 
 export default function DealCardModal({ card, onClose, onSave }) {
   const [formData, setFormData] = useState({ ...card });
+  const [expandedStageId, setExpandedStageId] = useState(null);
 
   const pipelineStages = [
     { id: 'Новые', label: 'Новая' },
@@ -210,29 +211,70 @@ export default function DealCardModal({ card, onClose, onSave }) {
                  </div>
                  
                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
-                   {(formData.stages || []).map((stg, i) => (
-                     <div key={stg.id || i} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                       <div 
-                         onClick={() => handleStageStatusToggle(i)}
-                         style={{ 
-                         cursor: 'pointer', flex: 1, padding: '0.4rem 1rem', borderRadius: '20px', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.5rem',
-                         background: stg.status === 'Решено' ? 'rgba(34,197,94,0.1)' : (stg.status === 'В работе' ? 'rgba(59,130,246,0.1)' : 'transparent'),
-                         border: `1px solid ${stg.status === 'Решено' ? '#22c55e' : (stg.status === 'В работе' ? '#3b82f6' : '#1e293b')}`,
-                         color: stg.status === 'Решено' ? '#22c55e' : (stg.status === 'В работе' ? '#3b82f6' : '#94a3b8')
-                       }}>
-                         <span>{stg.status === 'Решено' ? '✓' : '○'}</span>
-                         <input 
-                           type="text" 
-                           value={stg.title} 
-                           onChange={(e) => handleStageChange(i, e.target.value)}
-                           onClick={(e) => e.stopPropagation()}
-                           placeholder="Название этапа..."
-                           style={{ background: 'transparent', border: 'none', color: 'inherit', outline: 'none', width: '100%', fontSize: '0.85rem' }}
-                         />
+                   {(formData.stages || []).map((stg, i) => {
+                     const isExpanded = expandedStageId === (stg.id || i);
+                     return (
+                     <div key={stg.id || i} style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', background: isExpanded ? '#0a0f18' : 'transparent', padding: isExpanded ? '1rem' : '0', borderRadius: '12px', border: isExpanded ? '1px solid #1e293b' : 'none', transition: 'all 0.2s' }}>
+                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                         <div 
+                           onClick={() => handleStageStatusToggle(i)}
+                           style={{ 
+                           cursor: 'pointer', flex: 1, padding: '0.4rem 1rem', borderRadius: '20px', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.5rem',
+                           background: stg.status === 'Решено' ? 'rgba(34,197,94,0.1)' : (stg.status === 'В работе' ? 'rgba(59,130,246,0.1)' : 'transparent'),
+                           border: `1px solid ${stg.status === 'Решено' ? '#22c55e' : (stg.status === 'В работе' ? '#3b82f6' : '#1e293b')}`,
+                           color: stg.status === 'Решено' ? '#22c55e' : (stg.status === 'В работе' ? '#3b82f6' : '#94a3b8')
+                         }}>
+                           <span>{stg.status === 'Решено' ? '✓' : '○'}</span>
+                           <input 
+                             type="text" 
+                             value={stg.title} 
+                             onChange={(e) => handleStageChange(i, e.target.value)}
+                             onClick={(e) => e.stopPropagation()}
+                             placeholder="Название этапа..."
+                             style={{ background: 'transparent', border: 'none', color: 'inherit', outline: 'none', width: '100%', fontSize: '0.85rem' }}
+                           />
+                         </div>
+                         <button 
+                           onClick={() => setExpandedStageId(isExpanded ? null : (stg.id || i))}
+                           style={{ background: isExpanded ? '#1e293b' : 'rgba(59,130,246,0.1)', color: isExpanded ? '#fff' : '#3b82f6', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '8px', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 600, transition: 'all 0.2s' }}
+                         >
+                           {isExpanded ? 'Скрыть ▲' : 'Подробнее ▼'}
+                         </button>
+                         <button onClick={() => handleRemoveStage(i)} style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '0.4rem' }}>✕</button>
                        </div>
-                       <button onClick={() => handleRemoveStage(i)} style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '0.4rem' }}>✕</button>
+                       
+                       {isExpanded && (
+                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', marginTop: '0.5rem', paddingLeft: '1rem', borderLeft: '2px solid #1e293b' }}>
+                           <div style={{ display: 'flex', gap: '1rem' }}>
+                             <div style={{ flex: 1 }}>
+                               <label style={{ fontSize: '0.65rem', color: '#64748b', display: 'block', marginBottom: '4px', fontWeight: 'bold' }}>СРОК (ДЕДЛАЙН)</label>
+                               <input type="text" value={stg.deadline || ''} onChange={(e) => {
+                                 const newStages = [...formData.stages];
+                                 newStages[i].deadline = e.target.value;
+                                 handleChange('stages', newStages);
+                               }} placeholder="Например: 15 Авг" style={{ width: '100%', background: '#111827', color: '#fff', border: '1px solid #1e293b', padding: '0.6rem', borderRadius: '8px', fontSize: '0.85rem' }} />
+                             </div>
+                             <div style={{ flex: 1 }}>
+                               <label style={{ fontSize: '0.65rem', color: '#64748b', display: 'block', marginBottom: '4px', fontWeight: 'bold' }}>ИСПОЛНИТЕЛЬ</label>
+                               <input type="text" value={stg.executor || ''} onChange={(e) => {
+                                 const newStages = [...formData.stages];
+                                 newStages[i].executor = e.target.value;
+                                 handleChange('stages', newStages);
+                               }} placeholder="Бригада / Менеджер" style={{ width: '100%', background: '#111827', color: '#fff', border: '1px solid #1e293b', padding: '0.6rem', borderRadius: '8px', fontSize: '0.85rem' }} />
+                             </div>
+                           </div>
+                           <div>
+                             <label style={{ fontSize: '0.65rem', color: '#64748b', display: 'block', marginBottom: '4px', fontWeight: 'bold' }}>ОПИСАНИЕ И ЗАДАЧИ ЭТАПА</label>
+                             <textarea rows="2" value={stg.description || ''} onChange={(e) => {
+                               const newStages = [...formData.stages];
+                               newStages[i].description = e.target.value;
+                               handleChange('stages', newStages);
+                             }} placeholder="Подробности задачи..." style={{ width: '100%', background: '#111827', color: '#fff', border: '1px solid #1e293b', padding: '0.6rem', borderRadius: '8px', fontSize: '0.85rem', resize: 'none' }}></textarea>
+                           </div>
+                         </div>
+                       )}
                      </div>
-                   ))}
+                   )})}
                    {(!formData.stages || formData.stages.length === 0) && (
                      <div style={{ color: '#64748b', fontSize: '0.85rem', fontStyle: 'italic' }}>Нет добавленных этапов</div>
                    )}
