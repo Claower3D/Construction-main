@@ -21,8 +21,7 @@ export default function AnimatedBackground() {
 
     // Particle class for cyber constellation nodes & glowing stars
     const particles = [];
-    // Lowered limits to improve performance and prevent system overload
-    const particleCount = Math.min(Math.floor(window.innerWidth / 30), 40);
+    const particleCount = Math.min(Math.floor(window.innerWidth / 18), 70);
 
     let mouse = { x: width / 2, y: height / 2, active: false };
 
@@ -40,22 +39,22 @@ export default function AnimatedBackground() {
     window.addEventListener('mouseleave', handleMouseLeave);
 
     const colors = [
-      'rgba(246, 196, 83, ', // Gold
-      'rgba(139, 92, 246, ', // Purple
-      'rgba(6, 182, 212, ',  // Cyan
-      'rgba(236, 72, 153, ', // Pink
-      'rgba(16, 185, 129, ', // Emerald
+      'rgba(245, 158, 11, ', // Amber Gold
+      'rgba(168, 85, 247, ', // Electric Purple
+      'rgba(6, 182, 212, ',  // Cyber Cyan
+      'rgba(236, 72, 153, ', // Neon Pink
+      'rgba(16, 185, 129, ', // Emerald Green
     ];
 
     for (let i = 0; i < particleCount; i++) {
       particles.push({
         x: Math.random() * width,
         y: Math.random() * height,
-        vx: (Math.random() - 0.5) * 0.7,
-        vy: (Math.random() - 0.5) * 0.7,
-        radius: Math.random() * 2.5 + 1,
+        vx: (Math.random() - 0.5) * 0.9,
+        vy: (Math.random() - 0.5) * 0.9,
+        radius: Math.random() * 3 + 1.2,
         colorPrefix: colors[Math.floor(Math.random() * colors.length)],
-        baseAlpha: Math.random() * 0.5 + 0.3,
+        baseAlpha: Math.random() * 0.6 + 0.4,
       });
     }
 
@@ -69,20 +68,20 @@ export default function AnimatedBackground() {
           const dy = particles[i].y - particles[j].y;
           const dist = Math.sqrt(dx * dx + dy * dy);
 
-          // Lower distance threshold to reduce the number of connection lines
-          if (dist < 110) {
-            const alpha = (1 - dist / 110) * 0.2; // Slightly dimmer lines
+          if (dist < 135) {
+            const alpha = (1 - dist / 135) * 0.35;
             ctx.beginPath();
             ctx.moveTo(particles[i].x, particles[i].y);
             ctx.lineTo(particles[j].x, particles[j].y);
 
-            // Alternate between gold and purple connection lines
-            if (i % 2 === 0) {
-              ctx.strokeStyle = `rgba(246, 196, 83, ${alpha})`;
+            if (i % 3 === 0) {
+              ctx.strokeStyle = `rgba(6, 182, 212, ${alpha})`;
+            } else if (i % 3 === 1) {
+              ctx.strokeStyle = `rgba(236, 72, 153, ${alpha})`;
             } else {
-              ctx.strokeStyle = `rgba(139, 92, 246, ${alpha})`;
+              ctx.strokeStyle = `rgba(168, 85, 247, ${alpha})`;
             }
-            ctx.lineWidth = 0.9;
+            ctx.lineWidth = 1.1;
             ctx.stroke();
           }
         }
@@ -93,39 +92,37 @@ export default function AnimatedBackground() {
         p.x += p.vx;
         p.y += p.vy;
 
-        // Bounce on edges
         if (p.x < 0 || p.x > width) p.vx *= -1;
         if (p.y < 0 || p.y > height) p.vy *= -1;
 
-        // Mouse attraction effect
         if (mouse.active) {
           const dx = mouse.x - p.x;
           const dy = mouse.y - p.y;
           const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 200) {
-            const force = (200 - dist) / 200;
-            p.x += (dx / dist) * force * 1.1;
-            p.y += (dy / dist) * force * 1.1;
+          if (dist < 220) {
+            const force = (220 - dist) / 220;
+            p.x += (dx / dist) * force * 1.3;
+            p.y += (dy / dist) * force * 1.3;
           }
         }
 
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
         ctx.fillStyle = `${p.colorPrefix}${p.baseAlpha})`;
-        ctx.shadowBlur = 12;
-        ctx.shadowColor = p.colorPrefix + '0.9)';
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = p.colorPrefix + '1.0)';
         ctx.fill();
       });
 
-      // Draw subtle cursor spotlight aura when active
+      // Cursor spotlight aura
       if (mouse.active) {
-        const radGrad = ctx.createRadialGradient(mouse.x, mouse.y, 0, mouse.x, mouse.y, 220);
-        radGrad.addColorStop(0, 'rgba(246, 196, 83, 0.08)');
-        radGrad.addColorStop(0.5, 'rgba(139, 92, 246, 0.04)');
+        const radGrad = ctx.createRadialGradient(mouse.x, mouse.y, 0, mouse.x, mouse.y, 250);
+        radGrad.addColorStop(0, 'rgba(236, 72, 153, 0.15)');
+        radGrad.addColorStop(0.4, 'rgba(168, 85, 247, 0.08)');
         radGrad.addColorStop(1, 'transparent');
         ctx.fillStyle = radGrad;
         ctx.beginPath();
-        ctx.arc(mouse.x, mouse.y, 220, 0, Math.PI * 2);
+        ctx.arc(mouse.x, mouse.y, 250, 0, Math.PI * 2);
         ctx.fill();
       }
 

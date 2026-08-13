@@ -12,6 +12,7 @@ import UserOrdersPage from './UserOrdersPage';
 import EngineeringSolutionsPage from './EngineeringSolutionsPage';
 import DefectInspectorPage from './DefectInspectorPage';
 import SmartPhotoEstimatePage from './SmartPhotoEstimatePage';
+import BuildingConstructionPage from './BuildingConstructionPage';
 import { calculateSmartEstimate, evaluateDefectScan } from '../services/smartEstimateEngine';
 import { getBalanceKZT, topupBalance } from '../services/walletEngine';
 import { getOrders } from '../services/dataService';
@@ -498,18 +499,7 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
 
         {/* 9. VIP BUILDINGS (c-vip / e-vip) */}
         {(itemId === 'c-vip' || itemId === 'e-vip') && (
-          <div className="fullpage-card-box">
-            <h2 className="fullpage-heading">🏗️ Капитальное монолитное строительство (VIP Объекты)</h2>
-            <p className="fullpage-sub">Полный цикл сопровождения строительных объектов VIP класса.</p>
-            <div className="result-card-glow" style={{ marginTop: '1.5rem' }}>
-              <h3>⭐ Возможности VIP Статуса:</h3>
-              <ul style={{ lineHeight: '1.8', margin: '0.5rem 0 0 1rem' }}>
-                <li>Персональный Главный Инженер Проекта (ГИП) 24/7</li>
-                <li>Автоматический импорт ПСД файлов и ведомостей объёмов работ</li>
-                <li>Полный финансовый аудит счетов и непрерывный технадзор</li>
-              </ul>
-            </div>
-          </div>
+          <BuildingConstructionPage onBack={onBack} hideHeader={true} />
         )}
 
         {/* 10. DISPUTE ARBITRATION */}
