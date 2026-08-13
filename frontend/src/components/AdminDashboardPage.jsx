@@ -252,7 +252,6 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
     // Check if it's engineer or calendar module
     else if (
       item.id.startsWith('ing-') || 
-      item.id.includes('engineering') || 
       item.id === 'c-calendar' || 
       item.id === 'e-calendar'
     ) {
@@ -264,7 +263,7 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
       setEmbeddedModule('crm');
       setSelectedItemObject(item);
     }
-    // Otherwise it's a standard feature module
+    // Otherwise it's a standard feature module (c-engineering, e-engineering, c-orders, c-catalog, c-wallet, c-profile, etc.)
     else {
       setEmbeddedModule(null);
       setSelectedItemObject(item);
