@@ -58,8 +58,22 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
       } else {
         crmEvents[day].push(newEvent);
       }
-      
       localStorage.setItem(storageKey, JSON.stringify(crmEvents));
+      
+      // Remove from the other role's calendar to avoid ghosts
+      try {
+        const otherRole = role === 'engineer' ? 'executor' : 'engineer';
+        const otherKey = `qazgost_calendar_events_${otherRole}`;
+        const otherSaved = localStorage.getItem(otherKey);
+        if (otherSaved) {
+          let otherEvents = JSON.parse(otherSaved);
+          for (const d in otherEvents) {
+            otherEvents[d] = otherEvents[d].filter(e => e.id !== formData.id);
+          }
+          localStorage.setItem(otherKey, JSON.stringify(otherEvents));
+        }
+      } catch (e) {}
+
       handleChange('status', 'В работе'); // Update current modal status too
       handleChange('contractor', role === 'engineer' ? 'Отдел ПТО' : 'Исполнитель');
       
@@ -155,6 +169,18 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
             calEvents[day].push(newEvent);
           }
           localStorage.setItem(storageKey, JSON.stringify(calEvents));
+
+          // Remove from the other role's calendar
+          const otherRole = notifRole === 'engineer' ? 'executor' : 'engineer';
+          const otherKey = `qazgost_calendar_events_${otherRole}`;
+          const otherSaved = localStorage.getItem(otherKey);
+          if (otherSaved) {
+            let otherEvents = JSON.parse(otherSaved);
+            for (const d in otherEvents) {
+              otherEvents[d] = otherEvents[d].filter(e => e.id !== formData.id);
+            }
+            localStorage.setItem(otherKey, JSON.stringify(otherEvents));
+          }
         } catch(e) {
           console.error('Failed to sync calendar', e);
         }
