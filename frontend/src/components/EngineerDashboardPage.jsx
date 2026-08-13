@@ -175,7 +175,8 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
     localStorage.setItem(key, JSON.stringify(scheduledEvents));
   }, [scheduledEvents, viewRole]);
 
-  const dayEvents = scheduledEvents[selectedDay] || [];
+  const selectedDateKey = `${currentYear}-${String(monthIndex + 1).padStart(2, '0')}-${String(selectedDay).padStart(2, '0')}`;
+  const dayEvents = [...(scheduledEvents[selectedDay] || []), ...(scheduledEvents[selectedDateKey] || [])];
 
   // Dynamic calendar grid generation
   const firstDayOfMonth = new Date(currentYear, monthIndex, 1);
@@ -796,7 +797,8 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
 
                     {/* Current Month Days */}
                     {currentMonthDays.map((dayNum) => {
-                      const evts = scheduledEvents[dayNum] || [];
+                      const fullDateKey = `${currentYear}-${String(monthIndex + 1).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
+                      const evts = [...(scheduledEvents[dayNum] || []), ...(scheduledEvents[fullDateKey] || [])];
                       const isSel = selectedDay === dayNum;
                       return (
                         <div
