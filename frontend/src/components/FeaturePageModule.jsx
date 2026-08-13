@@ -5,6 +5,7 @@ import MapViewerModule from './MapViewerModule';
 import Model3DViewerModule from './Model3DViewerModule';
 import KpiAnalyticsModule from './KpiAnalyticsModule';
 import EquipmentMarketplace from './EquipmentMarketplace';
+import ProfileQuestionnaire from './ProfileQuestionnaire';
 import { calculateSmartEstimate, evaluateDefectScan } from '../services/smartEstimateEngine';
 import { getBalanceKZT, topupBalance } from '../services/walletEngine';
 import { getOrders } from '../services/dataService';
@@ -722,18 +723,7 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
 
         {/* 8. PROFILE & QUESTIONNAIRE (c-profile / e-profile) */}
         {(itemId === 'c-profile' || itemId === 'e-profile') && (
-          <div className="fullpage-card-box">
-            <h2 className="fullpage-heading">📝 Моя карточка аккаунта и профиль</h2>
-            <p className="fullpage-sub">Управление контактными данными и банковскими реквизитами.</p>
-
-            <div className="form-grid-2" style={{ marginTop: '1.5rem' }}>
-              <div className="form-item"><label>ФИО / Наименование организации:</label><input type="text" defaultValue="Арман Касымов" className="admin-search-input" /></div>
-              <div className="form-item"><label>ИИН / БИН:</label><input type="text" defaultValue="880412300451" className="admin-search-input" /></div>
-              <div className="form-item"><label>Электронная почта:</label><input type="text" defaultValue="arman@qazgost.kz" className="admin-search-input" /></div>
-              <div className="form-item"><label>Номер телефона:</label><input type="text" defaultValue="+7 701 555-01-99" className="admin-search-input" /></div>
-            </div>
-            <button className="admin-primary-btn" style={{ marginTop: '1.5rem', padding: '0.75rem 1.5rem' }}>💾 Сохранить изменения в профиле</button>
-          </div>
+          <ProfileQuestionnaire onBack={onBack} />
         )}
 
         {/* 9. VIP BUILDINGS (c-vip / e-vip) */}

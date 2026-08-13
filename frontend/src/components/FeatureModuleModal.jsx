@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import EquipmentMarketplace from './EquipmentMarketplace';
+import ProfileQuestionnaire from './ProfileQuestionnaire';
 
 export default function FeatureModuleModal({ moduleId, itemData, onClose, onOpenAdminTab }) {
   // Common states for interactive forms
@@ -289,16 +291,7 @@ export default function FeatureModuleModal({ moduleId, itemData, onClose, onOpen
 
           {/* 8. USER PROFILE (c-profile / e-profile) */}
           {(moduleId === 'c-profile' || moduleId === 'e-profile') && (
-            <div className="feature-content-box">
-              <h3>📝 Профиль аккаунта и квалификация</h3>
-              <div className="form-grid-2">
-                <div className="form-item"><label>ФИО / Название ИП:</label><input type="text" defaultValue="Арман Касымов" /></div>
-                <div className="form-item"><label>ИИН / БИН:</label><input type="text" defaultValue="880412300451" /></div>
-                <div className="form-item"><label>Email:</label><input type="text" defaultValue="arman@qazgost.kz" /></div>
-                <div className="form-item"><label>Телефон:</label><input type="text" defaultValue="+7 701 555-01-99" /></div>
-              </div>
-              <button className="admin-primary-btn" style={{ marginTop: '1rem' }}>💾 Сохранить профиль</button>
-            </div>
+            <ProfileQuestionnaire onBack={onClose} />
           )}
 
           {/* 9. VIP MONOLITHIC CONSTRUCTION (c-vip / e-vip) */}
