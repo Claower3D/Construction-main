@@ -98,7 +98,9 @@ export default function CrmPage({ onBackToHome, currentUser }) {
     if (type === 'work_stage') return 'Этап работ';
     if (type === 'deadline') return 'Дедлайн';
     if (type === 'request') return 'Заявка из каталога';
-    return 'Форма контактов';
+    if (type === 'request_construction') return 'Заявка: Строительство';
+    if (type === 'request_engineering') return 'Заявка: Инженерные решения';
+    return type;
   };
 
   const handleSaveCard = (updatedCard) => {

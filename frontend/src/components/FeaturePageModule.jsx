@@ -209,7 +209,7 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
         id: `crm-evt-${Date.now()}`,
         title: `Новая заявка от Заказчика: ${newOrderTitle}`,
         time: new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }),
-        type: 'request', // Request from customer
+        type: orderModalType === 'construction' ? 'request_construction' : 'request_engineering',
         status: 'Новые',
         desc: newOrderDesc || 'Без описания',
         contractor: 'Не распределено'
