@@ -811,9 +811,11 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                       <h3 className="sidebar-card-title">
                         <span>📋</span> Ближайшие задачи
                       </h3>
-                      <button className="btn-sm-add" onClick={handleOpenCreateModal}>
-                        + Добавить
-                      </button>
+                      {viewRole !== 'customer' && (
+                        <button className="btn-sm-add" onClick={handleOpenCreateModal}>
+                          + Добавить
+                        </button>
+                      )}
                     </div>
 
                     {dayEvents.length > 0 ? (
@@ -844,15 +846,13 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                             <div className="evt-actions-bar">
                               <span className="evt-status">● {evt.status}</span>
                               <div className="evt-btn-group">
-                                {(currentUser?.role === 'admin' || evt.createdBy === currentUser?.id || evt.assignedTo === currentUser?.id || !evt.createdBy) && (
-                                  <>
-                                    <button className="btn-evt-edit" onClick={() => handleOpenEditModal(evt)} title="Изменить">
-                                      ✏️
-                                    </button>
-                                    <button className="btn-evt-delete" onClick={() => handleDeleteEvent(evt.id)} title="Удалить">
-                                      🗑️
-                                    </button>
-                                  </>
+                                <button className="btn-evt-edit" onClick={() => handleOpenEditModal(evt)} title={viewRole === 'customer' ? 'Просмотр' : 'Изменить'}>
+                                  {viewRole === 'customer' ? '👁️' : '✏️'}
+                                </button>
+                                {viewRole !== 'customer' && (currentUser?.role === 'admin' || evt.createdBy === currentUser?.id || evt.assignedTo === currentUser?.id || !evt.createdBy) && (
+                                  <button className="btn-evt-delete" onClick={() => handleDeleteEvent(evt.id)} title="Удалить">
+                                    🗑️
+                                  </button>
                                 )}
                               </div>
                             </div>
@@ -1557,55 +1557,57 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                 )}
 
                 {/* INLINE PLUS (+) BUTTON IN THE CONNECTED ROW */}
-                {isAddingInlineStage ? (
-                  <div className="inline-add-stage-form">
-                    <input
-                      type="text"
-                      className="inline-stage-input"
-                      placeholder="Название нового этапа..."
-                      autoFocus
-                      value={inlineStageText}
-                      onChange={(e) => setInlineStageText(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault();
-                          handleConfirmInlineStage();
-                        } else if (e.key === 'Escape') {
-                          setIsAddingInlineStage(false);
-                        }
-                      }}
-                    />
-                    <button type="button" className="btn-save-inline-stage" onClick={handleConfirmInlineStage} title="Сохранить этап">✓</button>
-                    <button type="button" className="btn-cancel-inline-stage" onClick={() => setIsAddingInlineStage(false)} title="Отмена">✕</button>
-                  </div>
-                ) : (
-                  <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <button
-                      type="button"
-                      className="crm-stage-pill btn-add-pipeline-stage"
-                      onClick={() => setIsAddingInlineStage(true)}
-                      title="Добавить новый этап в последовательность"
-                    >
-                      <span className="pill-plus-icon">+</span>
-                      <span>Добавить этап</span>
-                    </button>
-                    {evtStages.length > 0 && evtStages[evtStages.length - 1].status !== 'Завершено' && (
+                {viewRole !== 'customer' && (
+                  isAddingInlineStage ? (
+                    <div className="inline-add-stage-form">
+                      <input
+                        type="text"
+                        className="inline-stage-input"
+                        placeholder="Название нового этапа..."
+                        autoFocus
+                        value={inlineStageText}
+                        onChange={(e) => setInlineStageText(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            handleConfirmInlineStage();
+                          } else if (e.key === 'Escape') {
+                            setIsAddingInlineStage(false);
+                          }
+                        }}
+                      />
+                      <button type="button" className="btn-save-inline-stage" onClick={handleConfirmInlineStage} title="Сохранить этап">✓</button>
+                      <button type="button" className="btn-cancel-inline-stage" onClick={() => setIsAddingInlineStage(false)} title="Отмена">✕</button>
+                    </div>
+                  ) : (
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
                       <button
                         type="button"
-                        className="crm-stage-pill"
-                        style={{ marginLeft: '10px', backgroundColor: 'rgba(16, 185, 129, 0.1)', color: '#10b981', borderColor: 'rgba(16, 185, 129, 0.4)' }}
-                        onClick={() => {
-                          const updated = [...evtStages];
-                          updated[updated.length - 1].status = 'Завершено';
-                          setEvtStages(updated);
-                        }}
-                        title="Завершить текущий этап без добавления нового"
+                        className="crm-stage-pill btn-add-pipeline-stage"
+                        onClick={() => setIsAddingInlineStage(true)}
+                        title="Добавить новый этап в последовательность"
                       >
-                        <span className="pill-check-icon">✓</span>
-                        Завершить этап
+                        <span className="pill-plus-icon">+</span>
+                        <span>Добавить этап</span>
                       </button>
-                    )}
-                  </div>
+                      {evtStages.length > 0 && evtStages[evtStages.length - 1].status !== 'Завершено' && (
+                        <button
+                          type="button"
+                          className="crm-stage-pill"
+                          style={{ marginLeft: '10px', backgroundColor: 'rgba(16, 185, 129, 0.1)', color: '#10b981', borderColor: 'rgba(16, 185, 129, 0.4)' }}
+                          onClick={() => {
+                            const updated = [...evtStages];
+                            updated[updated.length - 1].status = 'Завершено';
+                            setEvtStages(updated);
+                          }}
+                          title="Завершить текущий этап без добавления нового"
+                        >
+                          <span className="pill-check-icon">✓</span>
+                          Завершить этап
+                        </button>
+                      )}
+                    </div>
+                  )
                 )}
               </div>
             </div>
@@ -1624,6 +1626,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                       className="stage-status-select"
                       value={activeStage.status}
                       onChange={(e) => handleChangeStageStatus(activeStage.id, e.target.value)}
+                      disabled={viewRole === 'customer'}
                     >
                       <option value="Запланировано">Запланировано</option>
                       <option value="В работе">В работе</option>
@@ -1643,6 +1646,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                         onChange={(e) => {
                           setEvtStages(evtStages.map(s => s.id === activeStageId ? { ...s, description: e.target.value } : s));
                         }}
+                        disabled={viewRole === 'customer'}
                       ></textarea>
                     </div>
 
@@ -1650,20 +1654,22 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                     <div className="stage-field-group">
                       <label className="stage-field-label">Материалы (Фото / Документы)</label>
                       <div className="stage-files-area">
-                        <label className="stage-dropzone">
-                          <div className="stage-dropzone-icon">📁</div>
-                          <div className="stage-dropzone-text">Нажмите для загрузки файлов</div>
-                          <input type="file" multiple style={{ display: 'none' }} onChange={(e) => {
-                            if (e.target.files && e.target.files.length > 0) {
-                              const newFiles = Array.from(e.target.files).map(f => ({ 
-                                  name: f.name,
-                                  url: f.type.startsWith('image/') ? URL.createObjectURL(f) : null,
-                                  isImg: f.type.startsWith('image/')
-                                }));
-                              setEvtStages(evtStages.map(s => s.id === activeStageId ? { ...s, photos: [...(s.photos || []), ...newFiles] } : s));
-                            }
-                          }} />
-                        </label>
+                        {viewRole !== 'customer' && (
+                          <label className="stage-dropzone">
+                            <div className="stage-dropzone-icon">📁</div>
+                            <div className="stage-dropzone-text">Нажмите для загрузки файлов</div>
+                            <input type="file" multiple style={{ display: 'none' }} onChange={(e) => {
+                              if (e.target.files && e.target.files.length > 0) {
+                                const newFiles = Array.from(e.target.files).map(f => ({ 
+                                    name: f.name,
+                                    url: f.type.startsWith('image/') ? URL.createObjectURL(f) : null,
+                                    isImg: f.type.startsWith('image/')
+                                  }));
+                                setEvtStages(evtStages.map(s => s.id === activeStageId ? { ...s, photos: [...(s.photos || []), ...newFiles] } : s));
+                              }
+                            }} />
+                          </label>
+                        )}
                         
                         {(activeStage.photos && activeStage.photos.length > 0) && (
                           <div className="stage-files-list">
@@ -1671,16 +1677,18 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                               <div key={idx} className="stage-file-chip">
                                 <span>{p.name.endsWith('.jpg') || p.name.endsWith('.png') ? '🖼️' : '📄'}</span>
                                 {p.name}
-                                <span className="stage-file-chip-del" onClick={() => {
-                                  setEvtStages(evtStages.map(s => {
-                                    if (s.id === activeStageId) {
-                                      const updated = [...s.photos];
-                                      updated.splice(idx, 1);
-                                      return { ...s, photos: updated };
-                                    }
-                                    return s;
-                                  }));
-                                }}>✕</span>
+                                {viewRole !== 'customer' && (
+                                  <span className="stage-file-chip-del" onClick={() => {
+                                    setEvtStages(evtStages.map(s => {
+                                      if (s.id === activeStageId) {
+                                        const updated = [...s.photos];
+                                        updated.splice(idx, 1);
+                                        return { ...s, photos: updated };
+                                      }
+                                      return s;
+                                    }));
+                                  }}>✕</span>
+                                )}
                               </div>
                             ))}
                           </div>
@@ -1725,7 +1733,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                   <div style={{ display: 'flex', gap: '1rem' }}>
                     <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
                       <label style={{ fontSize: '0.85rem', color: '#94a3b8' }}>🏷️ Тип события / Категория:</label>
-                      <select value={evtType} onChange={(e) => setEvtType(e.target.value)} className="modal-select">
+                      <select value={evtType} onChange={(e) => setEvtType(e.target.value)} className="modal-select" disabled={viewRole === 'customer'}>
                         <option value="active_project">🔵 Активный проект</option>
                         <option value="work_stage">🟣 Этап работ</option>
                         <option value="deadline">🔴 Дедлайн</option>
@@ -1738,7 +1746,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
 
                     <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
                       <label style={{ fontSize: '0.85rem', color: '#94a3b8' }}>📊 Статус (Прогресс):</label>
-                      <select value={evtStatus} onChange={(e) => setEvtStatus(e.target.value)} className="modal-select">
+                      <select value={evtStatus} onChange={(e) => setEvtStatus(e.target.value)} className="modal-select" disabled={viewRole === 'customer'}>
                         <option value="В работе">🟡 В работе</option>
                         <option value="Ожидает приёмки">⏳ Ожидает приёмки</option>
                         <option value="Завершено">🟢 Завершено</option>
@@ -1755,6 +1763,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                       value={evtTitle}
                       onChange={(e) => setEvtTitle(e.target.value)}
                       className="modal-input"
+                      disabled={viewRole === 'customer'}
                       required
                     />
                   </div>
@@ -1768,6 +1777,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                         value={evtDeadline}
                         onChange={(e) => setEvtDeadline(e.target.value)}
                         className="modal-input"
+                        disabled={viewRole === 'customer'}
                       />
                     </div>
 
@@ -1779,6 +1789,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                         value={evtTime}
                         onChange={(e) => setEvtTime(e.target.value)}
                         className="modal-input"
+                        disabled={viewRole === 'customer'}
                       />
                     </div>
                   </div>
@@ -1792,6 +1803,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                         value={evtContractor}
                         onChange={(e) => setEvtContractor(e.target.value)}
                         className="modal-input"
+                        disabled={viewRole === 'customer'}
                       />
                     </div>
 
@@ -1803,6 +1815,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                         value={evtLocation}
                         onChange={(e) => setEvtLocation(e.target.value)}
                         className="modal-input"
+                        disabled={viewRole === 'customer'}
                       />
                     </div>
                   </div>
@@ -1832,6 +1845,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                             value={stage.status}
                             onChange={(e) => handleChangeStageStatus(stage.id, e.target.value)}
                             className="select-stage-status"
+                            disabled={viewRole === 'customer'}
                           >
                             <option value="В работе">🟡 В работе</option>
                             <option value="Ожидает приёмки">⏳ Приёмка</option>
@@ -1839,14 +1853,16 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                             <option value="Запланировано">⚪ Запланировано</option>
                           </select>
 
-                          <button
-                            type="button"
-                            className="btn-del-stage"
-                            onClick={() => handleDeleteStage(stage.id)}
-                            title="Удалить этап"
-                          >
-                            🗑️
-                          </button>
+                          {viewRole !== 'customer' && (
+                            <button
+                              type="button"
+                              className="btn-del-stage"
+                              onClick={() => handleDeleteStage(stage.id)}
+                              title="Удалить этап"
+                            >
+                              🗑️
+                            </button>
+                          )}
                         </div>
                       </div>
 
@@ -1882,75 +1898,81 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                   ))}
 
                   {/* Add New Stage Inline Box */}
-                  <div className="add-stage-card-box">
-                    <strong style={{ fontSize: '0.85rem', color: '#ffffff' }}>+ Добавить новый этап</strong>
-                    <div className="add-stage-inputs-row">
-                      <input
-                        type="text"
-                        placeholder="Название этапа (например: Монтаж кровли)"
-                        value={newStageTitle}
-                        onChange={(e) => setNewStageTitle(e.target.value)}
-                        className="modal-input"
-                      />
-                      <input
-                        type="text"
-                        placeholder="Дедлайн"
-                        value={newStageDeadline}
-                        onChange={(e) => setNewStageDeadline(e.target.value)}
-                        className="modal-input"
-                      />
-                      <select
-                        value={newStageStatus}
-                        onChange={(e) => setNewStageStatus(e.target.value)}
-                        className="modal-select"
-                      >
-                        <option value="Запланировано">⚪ Запланировано</option>
-                        <option value="В работе">🟡 В работе</option>
-                        <option value="Ожидает приёмки">⏳ Приёмка</option>
-                        <option value="Завершено">🟢 Завершено</option>
-                      </select>
-                    </div>
+                  {viewRole !== 'customer' && (
+                    <div className="add-stage-card-box">
+                      <strong style={{ fontSize: '0.85rem', color: '#ffffff' }}>+ Добавить новый этап</strong>
+                      <div className="add-stage-inputs-row">
+                        <input
+                          type="text"
+                          placeholder="Название этапа (например: Монтаж кровли)"
+                          value={newStageTitle}
+                          onChange={(e) => setNewStageTitle(e.target.value)}
+                          className="modal-input"
+                        />
+                        <input
+                          type="text"
+                          placeholder="Дедлайн"
+                          value={newStageDeadline}
+                          onChange={(e) => setNewStageDeadline(e.target.value)}
+                          className="modal-input"
+                        />
+                        <select
+                          value={newStageStatus}
+                          onChange={(e) => setNewStageStatus(e.target.value)}
+                          className="modal-select"
+                        >
+                          <option value="Запланировано">⚪ Запланировано</option>
+                          <option value="В работе">🟡 В работе</option>
+                          <option value="Ожидает приёмки">⏳ Приёмка</option>
+                          <option value="Завершено">🟢 Завершено</option>
+                        </select>
+                      </div>
 
-                    <button
-                      type="button"
-                      className="btn-add-stage-confirm"
-                      onClick={handleAddStage}
-                    >
-                      ➕ Сохранить новый этап
-                    </button>
-                  </div>
+                      <button
+                        type="button"
+                        className="btn-add-stage-confirm"
+                        onClick={handleAddStage}
+                      >
+                        ➕ Сохранить новый этап
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
 
               {/* TAB 3: PHOTOS & ATTACHMENTS */}
               {modalTab === 'photos' && (
                 <div className="photos-attach-area">
-                  <div className="photo-upload-dropzone" onClick={handleAttachPhoto}>
-                    <div className="dropzone-icon">📸</div>
-                    <div className="dropzone-title">Прикрепить фотофиксацию / исполнительную схему</div>
-                    <div className="dropzone-sub">Нажмите для выбора снимков объекта или перетащите файлы</div>
-                    <input
-                      type="file"
-                      multiple
-                      accept="image/*"
-                      style={{ display: 'none' }}
-                      id="file-photo-input"
-                      onChange={handleAttachPhoto}
-                    />
-                  </div>
+                  {viewRole !== 'customer' && (
+                    <div className="photo-upload-dropzone" onClick={handleAttachPhoto}>
+                      <div className="dropzone-icon">📸</div>
+                      <div className="dropzone-title">Прикрепить фотофиксацию / исполнительную схему</div>
+                      <div className="dropzone-sub">Нажмите для выбора снимков объекта или перетащите файлы</div>
+                      <input
+                        type="file"
+                        multiple
+                        accept="image/*"
+                        style={{ display: 'none' }}
+                        id="file-photo-input"
+                        onChange={handleAttachPhoto}
+                      />
+                    </div>
+                  )}
 
                   {evtPhotos.length > 0 ? (
                     <div className="attached-photos-grid">
                       {evtPhotos.map((photo) => (
                         <div key={photo.id} className="attached-photo-card">
-                          <button
-                            type="button"
-                            className="btn-remove-photo"
-                            onClick={() => handleRemovePhoto(photo.id)}
-                            title="Удалить фото"
-                          >
-                            ✕
-                          </button>
+                          {viewRole !== 'customer' && (
+                            <button
+                              type="button"
+                              className="btn-remove-photo"
+                              onClick={() => handleRemovePhoto(photo.id)}
+                              title="Удалить фото"
+                            >
+                              ✕
+                            </button>
+                          )}
                           <div className="photo-preview-box" style={{ cursor: 'pointer', overflow: 'hidden' }} onClick={() => setPreviewFile({ name: photo.name, url: photo.url, isImg: photo.isImg })}>
                              {photo.isImg && photo.url ? (
                                <img src={photo.url} alt={photo.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -1972,10 +1994,14 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
               )}
 
               <div className="modal-actions-row" style={{ marginTop: '1rem' }}>
-                <button type="button" className="btn-cancel" onClick={() => setShowAddModal(false)}>Отмена</button>
-                <button type="submit" className="btn-submit-pink">
-                  {editingEvent ? 'Сохранить изменения' : 'Создать объект'}
+                <button type="button" className="btn-cancel" onClick={() => setShowAddModal(false)}>
+                  {viewRole === 'customer' ? 'Закрыть' : 'Отмена'}
                 </button>
+                {viewRole !== 'customer' && (
+                  <button type="submit" className="btn-submit-pink">
+                    {editingEvent ? 'Сохранить изменения' : 'Создать объект'}
+                  </button>
+                )}
               </div>
             </form>
           </div>
