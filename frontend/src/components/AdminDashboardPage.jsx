@@ -5,7 +5,6 @@ import AdminDashboardModal from './AdminDashboardModal';
 import FeaturePageModule from './FeaturePageModule';
 import OnboardingTour from './OnboardingTour';
 import CrmPage from './CrmPage';
-import ChatPage from './ChatPage';
 
 export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userRole = 'admin', currentUser }) {
   // Блок 1: Выбранная роль ('customer' | 'executor' | 'engineer' | 'admin')
@@ -41,7 +40,6 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
           items: [
             { id: 'c-calendar', name: 'Календарь', icon: '📅', iconBg: '#ef4444', desc: 'График выполнения строительных работ по объекту' },
             { id: 'c-orders', name: 'Мои заказы', icon: '📬', iconBg: '#10b981', desc: 'Список активных и завершенных заявок' },
-            { id: 'c-chat', name: 'Сообщения', icon: '💬', iconBg: '#ec4899', desc: 'Чат с исполнителем и технадзором' },
             { id: 'c-catalog', name: 'Каталог подрядчиков', icon: '📒', iconBg: '#f59e0b', desc: 'Реестр проверенных мастеров и ТОО по ИИН/БИН' },
             { id: 'c-equipment', name: 'Техника / Маркетплейс', icon: '🚜', iconBg: '#8b5cf6', desc: 'Аренда спецтехники и закуп материалов' },
             { id: 'c-wallet', name: 'Мой кошелёк', icon: '💳', iconBg: '#3b82f6', desc: 'Баланс, транзакции и эскроу-счета' },
@@ -72,7 +70,6 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
             { id: 'e-feed', name: 'Лента заказов', icon: '🌐', iconBg: '#06b6d4', desc: 'Живой поток заказов со всего Казахстана' },
             { id: 'e-works', name: 'Мои работы', icon: '📌', iconBg: '#ef4444', desc: 'Портфолио и текущие объекты мастера' },
             { id: 'e-calendar', name: 'Календарь работ', icon: '📅', iconBg: '#f59e0b', desc: 'Расписание выездов и этапов монтажа' },
-            { id: 'e-chat', name: 'Сообщения', icon: '💬', iconBg: '#ec4899', desc: 'Чат с заказчиком' },
           ],
         },
         {
@@ -115,7 +112,6 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
             { id: 'ing-main', name: 'Главная панель', icon: '📊', iconBg: '#3b82f6', desc: 'Дашборд технического надзора и проверок' },
             { id: 'ing-requests', name: 'Заявки', icon: '📬', iconBg: '#ef4444', desc: 'Очередь вызовов экспертов на объекты' },
             { id: 'ing-objects', name: 'Мои объекты', icon: '🏗️', iconBg: '#f59e0b', desc: 'Реестр строящихся объектов на контроле' },
-            { id: 'ing-chat', name: 'Сообщения', icon: '💬', iconBg: '#ec4899', desc: 'Чат с заказчиком и бригадами' },
           ],
         },
         {
@@ -155,7 +151,6 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
             { id: 'adm-kpi', name: 'KPI Dashboard', icon: '📊', iconBg: '#10b981', desc: 'Метрики эффективности платформы' },
             { id: 'adm-analytics', name: 'Аналитика', icon: '📈', iconBg: '#06b6d4', desc: 'Финансовые показатели и объёмы смет' },
             { id: 'adm-roles', name: 'Роли', icon: '🎭', iconBg: '#ec4899', desc: 'Управление ролями и доступами' },
-            { id: 'adm-chat', name: 'Сообщения', icon: '💬', iconBg: '#ec4899', desc: 'Общий мониторинг чатов' },
           ],
         },
         {
@@ -182,7 +177,6 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
           items: [
             { id: 'mgr-crm', name: 'CRM-система', icon: '📊', iconBg: '#3b82f6', desc: 'Управление заявками и клиентами' },
             { id: 'mgr-reports', name: 'Отчеты', icon: '📄', iconBg: '#10b981', desc: 'Аналитика по продажам' },
-            { id: 'mgr-chat', name: 'Сообщения', icon: '💬', iconBg: '#ec4899', desc: 'Связь с заказчиками' },
           ],
         },
       ],
@@ -224,11 +218,6 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
       setEmbeddedModule('admin_panel');
       setSelectedItemObject(item);
     } 
-    // Check if it's chat module
-    else if (item.id.endsWith('-chat')) {
-      setEmbeddedModule('chat');
-      setSelectedItemObject(item);
-    }
     // Check if it's engineer or calendar module
     else if (
       item.id.startsWith('ing-') || 
@@ -399,12 +388,6 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
           {embeddedModule === 'crm' && (
              <div style={{ height: '100%', width: '100%', position: 'relative', overflow: 'hidden' }}>
                <CrmPage onBackToHome={onBackToHome} />
-             </div>
-          )}
-
-          {embeddedModule === 'chat' && (
-             <div style={{ height: '100%', width: '100%', position: 'relative', overflow: 'hidden' }}>
-               <ChatPage viewRole={selectedRole} currentUser={currentUser} />
              </div>
           )}
 
