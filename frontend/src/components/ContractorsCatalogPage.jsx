@@ -581,10 +581,10 @@ export default function ContractorsCatalogPage({ onBack }) {
 
               <div className="cc-truth-row">
                 <div className="cc-truth-label">
-                  Правдивость: <span>71%</span>
+                  Правдивость: <span>{selectedContractor.truthPercent || '94%'}</span>
                 </div>
                 <div className="cc-truth-track">
-                  <div className="cc-truth-fill" style={{ width: '71%' }}></div>
+                  <div className="cc-truth-fill" style={{ width: selectedContractor.truthPercent || '94%' }}></div>
                 </div>
               </div>
             </div>
@@ -602,7 +602,7 @@ export default function ContractorsCatalogPage({ onBack }) {
                 <div className="cc-tags-wrap">
                   {selectedContractor.specialties.map((s, idx) => (
                     <span key={idx} className="cc-tag-pill active-pill">
-                      ✓ {s.label.replace(/^[\s\S]*?\s/, '')}
+                      {s.label}
                     </span>
                   ))}
                 </div>
@@ -624,7 +624,7 @@ export default function ContractorsCatalogPage({ onBack }) {
                     <span className="cc-cond-icon">📋</span>
                     <div>
                       <div className="cc-cond-label">Мин. заказ</div>
-                      <div className="cc-cond-val">20 000 ₸</div>
+                      <div className="cc-cond-val">{selectedContractor.minOrder || '20 000 ₸'}</div>
                     </div>
                   </div>
 
@@ -632,7 +632,7 @@ export default function ContractorsCatalogPage({ onBack }) {
                     <span className="cc-cond-icon">🛡️</span>
                     <div>
                       <div className="cc-cond-label">Гарантия</div>
-                      <div className="cc-cond-val">3 мес.</div>
+                      <div className="cc-cond-val">{selectedContractor.guarantee || '12 мес.'}</div>
                     </div>
                   </div>
 
@@ -640,7 +640,7 @@ export default function ContractorsCatalogPage({ onBack }) {
                     <span className="cc-cond-icon">📅</span>
                     <div>
                       <div className="cc-cond-label">Начало работ</div>
-                      <div className="cc-cond-val">Неделя</div>
+                      <div className="cc-cond-val">{selectedContractor.startTime || 'Завтра'}</div>
                     </div>
                   </div>
                 </div>
@@ -656,11 +656,11 @@ export default function ContractorsCatalogPage({ onBack }) {
                   </div>
                   <div className="cc-contact-row">
                     <span className="cc-contact-icon">✉️</span>
-                    <span>{selectedContractor.name.toLowerCase().replace(/\s+/g, '')}@mail.kz</span>
+                    <span>{selectedContractor.email || `contact@${selectedContractor.name.toLowerCase().replace(/[^a-z0-9]/g, '') || 'stroy'}.kz`}</span>
                   </div>
                   <div className="cc-contact-row">
                     <span className="cc-contact-icon">📍</span>
-                    <span>{selectedContractor.city} · Радиус 20 км</span>
+                    <span>{selectedContractor.city} · Радиус 25 км</span>
                   </div>
                 </div>
               </div>
@@ -669,7 +669,7 @@ export default function ContractorsCatalogPage({ onBack }) {
               <div className="cc-modal-section mt-3">
                 <h4>💬 ОТЗЫВЫ ({selectedContractor.reviewsCount})</h4>
                 <div className="cc-empty-reviews">
-                  {selectedContractor.reviewsCount === 0 ? 'Пока нет отзывов' : '⭐ 4.9/5 на основе проверенных объектов'}
+                  {selectedContractor.reviewsCount === 0 ? 'Пока нет отзывов' : `⭐ ${selectedContractor.rating}/5 на основе ${selectedContractor.reviewsCount} проверенных объектов`}
                 </div>
               </div>
 
