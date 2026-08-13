@@ -824,11 +824,18 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                       <h3 className="sidebar-card-title">
                         <span>📋</span> Ближайшие задачи
                       </h3>
-                      {viewRole !== 'customer' && (
-                        <button className="btn-sm-add" onClick={handleOpenCreateModal}>
-                          + Добавить
-                        </button>
-                      )}
+                      {(() => {
+                        const today = new Date();
+                        today.setHours(0, 0, 0, 0);
+                        const selectedDate = new Date(currentYear, monthIndex, selectedDay);
+                        const isPast = selectedDate < today;
+                        
+                        return viewRole !== 'customer' && !isPast && (
+                          <button className="btn-sm-add" onClick={handleOpenCreateModal}>
+                            + Добавить
+                          </button>
+                        );
+                      })()}
                     </div>
 
                     {dayEvents.length > 0 ? (
