@@ -92,7 +92,7 @@ export default function AnimatedBackground() {
         ctx.beginPath();
         const waveColor = w === 0 ? 'rgba(236, 72, 153, 0.35)' : (w === 1 ? 'rgba(6, 182, 212, 0.35)' : 'rgba(168, 85, 247, 0.35)');
         ctx.strokeStyle = waveColor;
-        
+
         for (let x = 0; x < width; x += 15) {
           const y = height * 0.5 + Math.sin(x * 0.004 + tick + w) * 120 + Math.cos(x * 0.002 - tick) * 60;
           if (x === 0) ctx.moveTo(x, y);

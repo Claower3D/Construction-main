@@ -3,26 +3,46 @@ import DealCardModal from './DealCardModal';
 import AnimatedBackground from './AnimatedBackground';
 import '../index.css';
 
-const MOCK_AMOUNTS = {
-  active_project: '1 250 000 ₸',
-  work_stage: '450 000 ₸',
-  deadline: '820 000 ₸',
-  request: '120 000 ₸',
+const DEFAULT_CRM_DEALS = {
+  "14": [
+    { id: '1084', title: 'Оценка стоимости монолитного фундамента', status: 'Новые', type: 'request', time: '+7 (701) 555-12-34', contractor: 'ИП "Астана-Строй"', location: 'г. Астана, ул. Кабанбай Батыра 42', budget: '1 250 000 ₸' },
+    { id: '1085', title: 'Разработка ПСД: Монолитный 5-этажный блок', status: 'В работе', type: 'active_project', time: '+7 (777) 888-99-00', contractor: 'ТОО "GostBuild"', location: 'г. Алматы, пр. Аль-Фараби 77', budget: '3 450 000 ₸' }
+  ],
+  "15": [
+    { id: '1086', title: 'Монтаж HVAC системы и электрики 2-этаж', status: 'Дожим', type: 'work_stage', time: '+7 (705) 111-22-33', contractor: 'ИП "Инженер-Сервис"', location: 'г. Шымкент, ул. Тауке Хана 15', budget: '850 000 ₸' },
+    { id: '1087', title: 'Техническая экспертиза несущих конструкций', status: 'Дожим', type: 'request_engineering', time: '+7 (702) 444-55-66', contractor: 'ООО "ТехЭксперт"', location: 'г. Караганда, пр. Бухар Жырау 10', budget: '450 000 ₸' }
+  ],
+  "16": [
+    { id: '1088', title: 'Проверка финансовых смет и актов ВВР', status: 'Дожим', type: 'request', time: '+7 (701) 888-00-11', contractor: 'ТОО "ФинансКонсалт"', location: 'г. Астана, ул. Достык 18', budget: '2 100 000 ₸' },
+    { id: '1089', title: 'Согласование эскроу-транша 2-го этапа', status: 'Дожим', type: 'active_project', time: '+7 (775) 333-22-11', contractor: 'Банк ЦентрКредит', location: 'г. Алматы, ул. Желтоксан 115', budget: '5 000 000 ₸' },
+    { id: '1090', title: 'Аренда 3 гусеничных экскаваторов CAT 320', status: 'Успешно', type: 'request_construction', time: '+7 (708) 999-00-11', contractor: 'ТОО "СпецТехКазахстан"', location: 'г. Актобе, промзона 4', budget: '1 800 000 ₸' }
+  ]
 };
 
 export default function CrmPage({ onBackToHome, currentUser }) {
   const [events, setEvents] = useState({});
   const [selectedCard, setSelectedCard] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showAnalytics, setShowAnalytics] = useState(true);
+  const [selectedPeriod, setSelectedPeriod] = useState('all'); // 'day' | 'week' | 'month' | 'all'
+  const [selectedWorkType, setSelectedWorkType] = useState('all'); // 'all' | 'construction' | 'design' | 'engineering' | 'machinery'
 
   useEffect(() => {
     const saved = localStorage.getItem('qazgost_calendar_events');
     if (saved) {
       try {
-        setEvents(JSON.parse(saved));
+        const parsed = JSON.parse(saved);
+        const count = Object.values(parsed).reduce((acc, arr) => acc + (arr ? arr.length : 0), 0);
+        if (count >= 4) {
+          setEvents(parsed);
+        } else {
+          setEvents({ ...DEFAULT_CRM_DEALS, ...parsed });
+        }
       } catch (e) {
-        console.error('Failed to parse CRM events', e);
+        setEvents(DEFAULT_CRM_DEALS);
       }
+    } else {
+      setEvents(DEFAULT_CRM_DEALS);
     }
   }, []);
 
@@ -32,26 +52,40 @@ export default function CrmPage({ onBackToHome, currentUser }) {
   };
 
   const allCards = Object.entries(events).flatMap(([day, dayEvents]) =>
-    dayEvents.map(evt => ({ ...evt, day }))
+    (dayEvents || []).map(evt => ({ ...evt, day }))
   ).filter(card => {
-    if (!searchQuery) return true;
-    const q = searchQuery.toLowerCase();
-    return (
-      (card.title && card.title.toLowerCase().includes(q)) ||
-      (card.contractor && card.contractor.toLowerCase().includes(q)) ||
-      (card.location && card.location.toLowerCase().includes(q)) ||
-      (card.time && card.time.toLowerCase().includes(q)) ||
-      (card.id && String(card.id).toLowerCase().includes(q))
-    );
+    // Search Query Filter
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      const matchesSearch = (
+        (card.title && card.title.toLowerCase().includes(q)) ||
+        (card.contractor && card.contractor.toLowerCase().includes(q)) ||
+        (card.location && card.location.toLowerCase().includes(q)) ||
+        (card.time && card.time.toLowerCase().includes(q)) ||
+        (card.id && String(card.id).toLowerCase().includes(q))
+      );
+      if (!matchesSearch) return false;
+    }
+
+    // Work Type Filter
+    if (selectedWorkType !== 'all') {
+      if (selectedWorkType === 'construction' && !(card.type === 'request_construction' || (card.title && card.title.toLowerCase().includes('фундамент')))) return false;
+      if (selectedWorkType === 'design' && !(card.type === 'active_project' || (card.title && card.title.toLowerCase().includes('псд')))) return false;
+      if (selectedWorkType === 'engineering' && !(card.type === 'request_engineering' || card.type === 'work_stage' || (card.title && card.title.toLowerCase().includes('hvac')))) return false;
+      if (selectedWorkType === 'machinery' && !(card.title && card.title.toLowerCase().includes('экскаватор'))) return false;
+    }
+
+    // Period Filter
+    if (selectedPeriod === 'day' && card.day !== '16') return false;
+    if (selectedPeriod === 'week' && (card.day !== '15' && card.day !== '16')) return false;
+
+    return true;
   });
 
   const columns = [
     { id: 'Новые', title: 'Новые', color: '#ef4444' },
     { id: 'В работе', title: 'В работе', color: '#3b82f6' },
     { id: 'Дожим', title: 'Дожим', color: '#f59e0b' },
-    { id: 'Менеджер ОП', title: 'Менеджер ОП', color: '#38bdf8' },
-    { id: 'РОП', title: 'РОП', color: '#a855f7' },
-    { id: 'Финансист', title: 'Финансист', color: '#06b6d4' },
     { id: 'Успешно', title: 'Успешно', color: '#22c55e' },
     { id: 'Отказ', title: 'Отказ', color: '#ef4444' },
   ];
@@ -61,16 +95,11 @@ export default function CrmPage({ onBackToHome, currentUser }) {
     const s = status.toLowerCase();
     if (s.includes('нов') || s.includes('запланировано')) return 'Новые';
     if (s.includes('работ') || s.includes('процесс')) return 'В работе';
-    if (s.includes('дожим')) return 'Дожим';
-    if (s.includes('менедж')) return 'Менеджер ОП';
-    if (s.includes('роп')) return 'РОП';
-    if (s.includes('финанс')) return 'Финансист';
+    if (s.includes('дожим') || s.includes('менедж') || s.includes('роп') || s.includes('финанс')) return 'Дожим';
     if (s.includes('успеш') || s.includes('завершено')) return 'Успешно';
     if (s.includes('отказ') || s.includes('отмен')) return 'Отказ';
     
-    // Mapping calendar specific statuses to the new columns if they don't match exactly
-    if (s.includes('ожидает')) return 'Дожим';
-    if (s.includes('проверк')) return 'РОП';
+    if (s.includes('ожидает') || s.includes('проверк')) return 'Дожим';
     
     return 'Новые';
   };
@@ -83,18 +112,18 @@ export default function CrmPage({ onBackToHome, currentUser }) {
     e.preventDefault();
     try {
       const cardData = JSON.parse(e.dataTransfer.getData('application/json'));
-      const day = cardData.day;
+      const day = cardData.day || '14';
       
       const newEvents = { ...events };
-      if (newEvents[day]) {
-        newEvents[day] = newEvents[day].map(evt => {
-          if (evt.id === cardData.id) {
-            return { ...evt, status: targetColumnId }; // Update status to match column
-          }
-          return evt;
-        });
-        saveEvents(newEvents);
-      }
+      if (!newEvents[day]) newEvents[day] = [];
+      
+      newEvents[day] = newEvents[day].map(evt => {
+        if (evt.id === cardData.id) {
+          return { ...evt, status: targetColumnId };
+        }
+        return evt;
+      });
+      saveEvents(newEvents);
     } catch (err) {
       console.error(err);
     }
@@ -115,7 +144,7 @@ export default function CrmPage({ onBackToHome, currentUser }) {
   };
 
   const handleSaveCard = (updatedCard) => {
-    const day = updatedCard.day;
+    const day = updatedCard.day || '14';
     const newEvents = { ...events };
     if (!newEvents[day]) {
       newEvents[day] = [];
@@ -133,281 +162,532 @@ export default function CrmPage({ onBackToHome, currentUser }) {
   };
 
   return (
-    <div style={{ minHeight: '100vh', color: '#fff', display: 'flex', position: 'relative', zIndex: 1, backgroundColor: '#05070a' }}>
+    <div style={{ height: '100vh', width: '100%', color: '#fff', display: 'flex', flexDirection: 'column', position: 'relative', zIndex: 1, overflow: 'hidden' }}>
       <AnimatedBackground />
       
-      {/* SIDEBAR (Matches second screenshot) */}
-      <div style={{ width: '260px', borderRight: '1px solid rgba(255,255,255,0.05)', backgroundColor: 'rgba(11, 15, 25, 0.7)', backdropFilter: 'blur(10px)', display: 'flex', flexDirection: 'column', paddingTop: '2rem', zIndex: 2 }}>
+      {/* MAIN CONTAINER */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%', height: '100%', zIndex: 2, overflow: 'hidden' }}>
         
-        <div style={{ padding: '0 1.5rem', marginBottom: '2rem', cursor: 'pointer' }} onClick={onBackToHome}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', color: '#a1a1aa', fontWeight: 600, fontSize: '0.9rem', padding: '0.8rem 1rem', borderRadius: '12px' }}>
-            <span style={{ fontSize: '1.2rem' }}>←</span>
-            <span>На главную</span>
-          </div>
-        </div>
+        {/* COMPACT SINGLE-ROW TOP HEADER BAR */}
+        <div style={{ 
+          padding: '0.75rem 1.5rem', 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'space-between', 
+          gap: '1.25rem',
+          backgroundColor: 'rgba(18, 22, 38, 0.85)', 
+          borderBottom: '1px solid rgba(255,255,255,0.08)', 
+          backdropFilter: 'blur(20px)',
+          zIndex: 10
+        }}>
+          {/* Left: Title + Search */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', flex: 1 }}>
+            <h1 style={{ margin: 0, fontSize: '1.35rem', fontWeight: 900, letterSpacing: '0.5px', color: '#fff', whiteSpace: 'nowrap' }}>
+              ЗАЯВКИ И ЗАКАЗЫ
+            </h1>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', padding: '0 1.5rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', color: '#a1a1aa', fontWeight: 600, fontSize: '0.9rem', padding: '0.8rem 1rem', borderRadius: '12px', cursor: 'pointer' }}>
-            <span style={{ fontSize: '1.2rem' }}>☷</span>
-            <span>Главная панель</span>
-          </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', color: '#a1a1aa', fontWeight: 600, fontSize: '0.9rem', padding: '0.8rem 1rem', borderRadius: '12px', cursor: 'pointer' }}>
-            <span style={{ fontSize: '1.2rem' }}>📊</span>
-            <span>Аналитика и статистика</span>
-          </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', color: '#22c55e', fontWeight: 600, fontSize: '0.9rem', padding: '0.8rem 1rem', borderRadius: '12px', border: '1px solid #22c55e', backgroundColor: 'rgba(34, 197, 94, 0.05)', cursor: 'pointer' }}>
-            <span style={{ fontSize: '1.2rem' }}>📄</span>
-            <span>Список заявок / заказов</span>
-          </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', color: '#a1a1aa', fontWeight: 600, fontSize: '0.9rem', padding: '0.8rem 1rem', borderRadius: '12px', cursor: 'pointer' }}>
-            <span style={{ fontSize: '1.2rem' }}>👥</span>
-            <span>Управление клиентами</span>
-          </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', color: '#a1a1aa', fontWeight: 600, fontSize: '0.9rem', padding: '0.8rem 1rem', borderRadius: '12px', cursor: 'pointer', justifyContent: 'space-between' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-              <span style={{ fontSize: '1.2rem' }}>💬</span>
-              <span>История переписки</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flex: 1, maxWidth: '320px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '12px', padding: '0.45rem 0.9rem' }}>
+              <span style={{ fontSize: '0.95rem', color: '#cbd5e1' }}>🔍</span>
+              <input 
+                type="text" 
+                placeholder="Поиск по названию..." 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                style={{ background: 'transparent', border: 'none', color: '#fff', fontSize: '0.86rem', width: '100%', outline: 'none', fontWeight: 600 }} 
+              />
             </div>
-            <span style={{ backgroundColor: '#22c55e', color: '#fff', fontSize: '0.7rem', padding: '2px 8px', borderRadius: '12px' }}>2</span>
-          </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', color: '#a1a1aa', fontWeight: 600, fontSize: '0.9rem', padding: '0.8rem 1rem', borderRadius: '12px', cursor: 'pointer' }}>
-            <span style={{ fontSize: '1.2rem' }}>⚙️</span>
-            <span>Настройка пользователей</span>
-          </div>
-        </div>
-      </div>
+            {/* WORK TYPE FILTER DROPDOWN */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '12px', padding: '0.45rem 0.8rem' }}>
+              <span style={{ fontSize: '0.82rem', color: '#cbd5e1', fontWeight: 800 }}>🏗️ ВИД РАБОТ:</span>
+              <select 
+                value={selectedWorkType}
+                onChange={(e) => setSelectedWorkType(e.target.value)}
+                style={{ background: 'transparent', border: 'none', color: '#38bdf8', fontSize: '0.85rem', fontWeight: 800, outline: 'none', cursor: 'pointer' }}
+              >
+                <option value="all" style={{ background: '#121626', color: '#fff' }}>Все виды работ</option>
+                <option value="construction" style={{ background: '#121626', color: '#fff' }}>Строительство & Фундамент</option>
+                <option value="design" style={{ background: '#121626', color: '#fff' }}>Проектирование & ПСД</option>
+                <option value="engineering" style={{ background: '#121626', color: '#fff' }}>Инженерные решения & HVAC</option>
+                <option value="machinery" style={{ background: '#121626', color: '#fff' }}>Аренда спецтехники</option>
+              </select>
+            </div>
 
-      {/* MAIN CRM AREA */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', zIndex: 2 }}>
-        
-        {/* HEADER SECTION (Top Title) */}
-        <div style={{ padding: '2rem 2.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', backgroundColor: 'rgba(11, 15, 25, 0.4)', backdropFilter: 'blur(5px)' }}>
-          <div>
-            <h1 style={{ margin: 0, fontSize: '1.8rem', fontWeight: 800, letterSpacing: '0.5px', textTransform: 'uppercase' }}>Заявки и заказы</h1>
-            <p style={{ margin: '0.5rem 0 0', color: '#94a3b8', fontSize: '0.9rem' }}>Управление поступающими обращениями клиентов, распределение задач и бюджетирование</p>
+            {/* PERIOD SEGMENT CONTROL */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', padding: '0.25rem 0.4rem' }}>
+              <span style={{ fontSize: '0.78rem', color: '#cbd5e1', fontWeight: 800, paddingLeft: '0.3rem' }}>📅</span>
+              <button 
+                onClick={() => setSelectedPeriod('day')}
+                style={{ background: selectedPeriod === 'day' ? 'linear-gradient(90deg, #ec4899, #8b5cf6)' : 'transparent', border: 'none', color: '#fff', padding: '0.3rem 0.65rem', borderRadius: '8px', fontSize: '0.78rem', fontWeight: 800, cursor: 'pointer' }}
+              >
+                День
+              </button>
+              <button 
+                onClick={() => setSelectedPeriod('week')}
+                style={{ background: selectedPeriod === 'week' ? 'linear-gradient(90deg, #ec4899, #8b5cf6)' : 'transparent', border: 'none', color: '#fff', padding: '0.3rem 0.65rem', borderRadius: '8px', fontSize: '0.78rem', fontWeight: 800, cursor: 'pointer' }}
+              >
+                Неделя
+              </button>
+              <button 
+                onClick={() => setSelectedPeriod('month')}
+                style={{ background: selectedPeriod === 'month' ? 'linear-gradient(90deg, #ec4899, #8b5cf6)' : 'transparent', border: 'none', color: '#fff', padding: '0.3rem 0.65rem', borderRadius: '8px', fontSize: '0.78rem', fontWeight: 800, cursor: 'pointer' }}
+              >
+                Месяц
+              </button>
+              <button 
+                onClick={() => setSelectedPeriod('all')}
+                style={{ background: selectedPeriod === 'all' ? 'linear-gradient(90deg, #ec4899, #8b5cf6)' : 'transparent', border: 'none', color: '#fff', padding: '0.3rem 0.65rem', borderRadius: '8px', fontSize: '0.78rem', fontWeight: 800, cursor: 'pointer' }}
+              >
+                Всё время
+              </button>
+            </div>
           </div>
           
-          <div style={{ display: 'flex', gap: '1rem' }}>
-            <button style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '0.6rem 1.2rem', borderRadius: '8px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-               📥 Экспорт CSV
+          {/* Right: Analytics Toggle & Action Button */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+            <button 
+              onClick={() => setShowAnalytics(!showAnalytics)}
+              style={{ 
+                background: showAnalytics ? 'rgba(168, 85, 247, 0.2)' : 'rgba(255,255,255,0.06)', 
+                border: showAnalytics ? '1px solid #a855f7' : '1px solid rgba(255,255,255,0.12)', 
+                color: showAnalytics ? '#c084fc' : '#fff', 
+                padding: '0.45rem 0.85rem', 
+                borderRadius: '10px', 
+                fontWeight: 800, 
+                fontSize: '0.82rem', 
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.4rem'
+              }}
+              title="Переключить панель аналитики"
+            >
+              📊 Аналитика {showAnalytics ? '✓' : ''}
             </button>
+
             <button 
               onClick={() => setSelectedCard({
                 id: Date.now().toString().slice(-4),
-                title: 'Новая заявка',
+                title: 'Новая заявка на расчёт сметы',
                 status: 'Новые',
                 type: 'request',
-                time: '',
-                location: '',
-                contractor: '',
-                budget: 0,
-                day: new Date().getDate().toString()
+                time: '+7 (707) 123-45-67',
+                location: 'г. Астана, Левый берег',
+                contractor: 'ИП "Строитель"',
+                budget: '750 000 ₸',
+                day: '14'
               })} 
-              style={{ background: '#22c55e', color: '#000', border: 'none', padding: '0.6rem 1.2rem', borderRadius: '8px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+              style={{ background: 'linear-gradient(90deg, #10b981, #059669)', color: '#fff', border: 'none', padding: '0.5rem 1.15rem', borderRadius: '12px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '0.4rem', boxShadow: '0 6px 18px rgba(16, 185, 129, 0.4)', whiteSpace: 'nowrap' }}
             >
                + Добавить заявку
             </button>
           </div>
         </div>
-        
-        {/* FILTERS & SEARCH BAR */}
-        <div style={{ padding: '0 2.5rem', marginTop: '1rem', marginBottom: '0.5rem' }}>
-          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', backgroundColor: 'rgba(24, 24, 27, 0.5)', backdropFilter: 'blur(5px)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '10px', padding: '0.8rem 1.5rem' }}>
-            
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', flex: 1, color: '#71717a' }}>
-              <span>🔍</span>
-              <input 
-                type="text" 
-                placeholder="Поиск по имени, телефону, тексту..." 
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                style={{ background: 'transparent', border: 'none', color: '#fff', fontSize: '0.9rem', width: '100%', outline: 'none' }} 
-              />
-            </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem' }}>
-                <span style={{ color: '#71717a', fontWeight: 600, letterSpacing: '0.5px' }}>СТАТУС:</span>
-                <span style={{ color: '#fff', cursor: 'pointer' }}>Все статусы ▾</span>
-              </div>
-              <div style={{ width: '1px', height: '20px', backgroundColor: 'rgba(255,255,255,0.1)' }}></div>
-              
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem' }}>
-                <span style={{ color: '#71717a', fontWeight: 600, letterSpacing: '0.5px' }}>ИСТОЧНИК:</span>
-                <span style={{ color: '#fff', cursor: 'pointer' }}>Все источники ▾</span>
-              </div>
-              <div style={{ width: '1px', height: '20px', backgroundColor: 'rgba(255,255,255,0.1)' }}></div>
-
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <button style={{ background: 'rgba(34,197,94,0.1)', color: '#22c55e', border: '1px solid rgba(34,197,94,0.3)', padding: '0.4rem 0.8rem', borderRadius: '6px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                  ☷ Канбан
-                </button>
-                <button style={{ background: 'transparent', color: '#71717a', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '6px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                  ☰ Таблица
-                </button>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-      {/* KANBAN BOARD */}
-      <div style={{ 
-        display: 'flex', gap: '1rem', padding: '2rem', overflowX: 'auto', flex: 1, 
-        alignItems: 'flex-start'
-      }}>
-        {columns.map(col => {
-          const colCards = allCards.filter(c => getColumnForStatus(c.status) === col.id);
+        {/* WORKSPACE ROW: KANBAN BOARD + RIGHT ANALYTICS SIDEBAR */}
+        <div style={{ flex: 1, display: 'flex', overflow: 'hidden', height: '100%' }}>
           
-          return (
-            <div 
-              key={col.id} 
-              onDrop={(e) => handleDrop(e, col.id)}
-              onDragOver={allowDrop}
-              style={{
-                flex: '0 0 300px',
-                background: 'rgba(15, 23, 42, 0.5)',
-                backdropFilter: 'blur(10px)',
-                borderRadius: '12px',
-                minHeight: '70vh',
-                border: '1px solid rgba(255,255,255,0.08)',
-                display: 'flex',
-                flexDirection: 'column',
-                position: 'relative'
-              }}
-            >
-              {/* Column Header */}
-              <div style={{ 
-                padding: '1.2rem', 
-                display: 'flex', 
-                justifyContent: 'space-between', 
-                alignItems: 'center'
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: col.color }} />
-                  <span style={{ fontWeight: 600, fontSize: '0.95rem', color: '#f4f4f5' }}>{col.title}</span>
-                </div>
-                <div style={{ 
-                  border: `1px solid ${col.color}40`, 
-                  color: col.color, 
-                  padding: '1px 8px', 
-                  borderRadius: '12px', 
-                  fontSize: '0.75rem',
-                  fontWeight: 600,
-                  backgroundColor: `${col.color}10`
-                }}>
-                  {colCards.length}
-                </div>
-              </div>
+          {/* KANBAN BOARD CONTAINER */}
+          <div 
+            ref={(el) => { if (el) window.crmBoardRef = el; }}
+            className="crm-kanban-board-container"
+            style={{ 
+              display: 'flex', 
+              gap: '1.15rem', 
+              padding: '1.25rem 1.5rem', 
+              overflowX: 'auto', 
+              overflowY: 'hidden',
+              flex: 1, 
+              alignItems: 'stretch',
+              scrollBehavior: 'smooth'
+            }}
+          >
+            {columns.map(col => {
+              const colCards = allCards.filter(c => getColumnForStatus(c.status) === col.id);
               
-              {/* Cards Container */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', padding: '0 1.2rem 1.2rem 1.2rem', flex: 1 }}>
-                {colCards.map(card => (
-                  <div 
-                    key={card.id}
-                    draggable
-                    onDragStart={(e) => handleDragStart(e, card)}
-                    onClick={() => setSelectedCard(card)}
-                    style={{
-                      background: 'rgba(17, 24, 39, 0.7)',
-                      backdropFilter: 'blur(5px)',
-                      borderRadius: '8px',
-                      border: '1px solid rgba(255,255,255,0.06)',
-                      padding: '1.2rem',
-                      cursor: 'grab',
-                      boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
-                      position: 'relative'
-                    }}
-                  >
-                    {/* Top Row: ID & Type */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.7rem', color: '#71717a', marginBottom: '0.8rem', fontWeight: 500 }}>
-                      <span>#{card.id}</span>
-                      <span>{formatType(card.type)}</span>
-                    </div>
-
-                    {/* Title & Subtitle */}
-                    <div style={{ fontWeight: 600, fontSize: '1rem', color: '#fff', marginBottom: '0.4rem', lineHeight: 1.3 }}>
-                      {card.title}
-                    </div>
-                    <div style={{ fontSize: '0.8rem', color: '#a1a1aa', marginBottom: '1rem', lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                      {card.location || 'Нет описания / локации'}
-                    </div>
-
-                    {/* Contact Info */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', marginBottom: '1.5rem' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', color: '#a1a1aa' }}>
-                        <span style={{ color: '#ef4444', fontSize: '0.9rem' }}>📞</span> 
-                        <span>{card.time || '+7 (700) 000-00-00'}</span>
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', color: '#a1a1aa' }}>
-                        <span style={{ color: '#71717a', fontSize: '0.9rem' }}>👤</span> 
-                        <span>{card.contractor || 'Без подрядчика'}</span>
-                      </div>
-                    </div>
-
-                    {/* Bottom Row: Amount & Actions */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-                      <div style={{ color: '#00ff66', fontWeight: 700, fontSize: '1.1rem', letterSpacing: '0.5px' }}>
-                        {MOCK_AMOUNTS[card.type] || '150 000 ₸'}
-                      </div>
-                      <div style={{ display: 'flex', gap: '0.5rem' }}>
-                        <button onClick={(e) => { e.stopPropagation(); setSelectedCard(card); }} style={{ background: 'transparent', border: 'none', color: '#71717a', cursor: 'pointer', padding: 0 }}>
-                           ✎
-                        </button>
-                        <button onClick={(e) => { e.stopPropagation(); /* optional delete logic */ }} style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', padding: 0 }}>
-                           🗑
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-                
-                {/* Empty State Placeholder */}
-                {colCards.length === 0 && (
+              return (
+                <div 
+                  key={col.id} 
+                  onDrop={(e) => handleDrop(e, col.id)}
+                  onDragOver={allowDrop}
+                  style={{
+                    flex: '0 0 320px',
+                    background: 'rgba(18, 22, 38, 0.75)',
+                    backdropFilter: 'blur(24px)',
+                    borderRadius: '22px',
+                    border: '1px solid rgba(255,255,255,0.12)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    position: 'relative',
+                    boxShadow: '0 12px 35px rgba(0,0,0,0.35)',
+                    maxHeight: '100%',
+                    overflow: 'hidden'
+                  }}
+                >
+                  {/* Column Header */}
                   <div style={{ 
-                    position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
-                    color: '#3f3f46', fontSize: '0.85rem', fontWeight: 500, pointerEvents: 'none'
+                    padding: '1.1rem 1.3rem', 
+                    display: 'flex', 
+                    justifyContent: 'space-between', 
+                    alignItems: 'center',
+                    borderBottom: '1px solid rgba(255,255,255,0.08)',
+                    background: 'rgba(255,255,255,0.02)'
                   }}>
-                    Перетащите заявку сюда
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                      <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: col.color, boxShadow: `0 0 10px ${col.color}` }} />
+                      <span style={{ fontWeight: 800, fontSize: '0.98rem', color: '#fff' }}>{col.title}</span>
+                    </div>
+                    <div style={{ 
+                      border: `1px solid ${col.color}50`, 
+                      color: col.color, 
+                      padding: '0.2rem 0.65rem', 
+                      borderRadius: '10px', 
+                      fontSize: '0.78rem',
+                      fontWeight: 900,
+                      backgroundColor: `${col.color}18`
+                    }}>
+                      {colCards.length}
+                    </div>
                   </div>
-                )}
+                  
+                  {/* Cards Scrollable Container */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', padding: '1.1rem', flex: 1, overflowY: 'auto' }}>
+                    {colCards.map(card => (
+                      <div 
+                        key={card.id}
+                        draggable
+                        onDragStart={(e) => handleDragStart(e, card)}
+                        onClick={() => setSelectedCard(card)}
+                        style={{
+                          background: 'rgba(255, 255, 255, 0.05)',
+                          backdropFilter: 'blur(16px)',
+                          borderRadius: '16px',
+                          border: '1px solid rgba(255,255,255,0.12)',
+                          padding: '1.1rem',
+                          cursor: 'grab',
+                          boxShadow: '0 8px 25px rgba(0,0,0,0.25)',
+                          position: 'relative',
+                          transition: 'all 0.25s ease'
+                        }}
+                      >
+                        {/* Top Row: ID & Type */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.74rem', color: '#cbd5e1', marginBottom: '0.65rem', fontWeight: 700 }}>
+                          <span style={{ background: 'rgba(255,255,255,0.08)', padding: '0.2rem 0.6rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)' }}>#{card.id}</span>
+                          <span style={{ color: '#c084fc', fontWeight: 800 }}>{formatType(card.type)}</span>
+                        </div>
+
+                        {/* Title */}
+                        <div style={{ fontWeight: 900, fontSize: '1.02rem', color: '#fff', marginBottom: '0.4rem', lineHeight: 1.35 }}>
+                          {card.title}
+                        </div>
+                        <div style={{ fontSize: '0.8rem', color: '#cbd5e1', marginBottom: '0.85rem', lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                          📍 {card.location || 'Нет описания / локации'}
+                        </div>
+
+                        {/* Details Info */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', marginBottom: '1.1rem', background: 'rgba(0,0,0,0.25)', padding: '0.65rem 0.8rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.78rem', color: '#cbd5e1' }}>
+                            <span style={{ color: '#38bdf8' }}>📞</span> 
+                            <span>{card.time || '+7 (700) 000-00-00'}</span>
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.78rem', color: '#cbd5e1' }}>
+                            <span style={{ color: '#c084fc' }}>👤</span> 
+                            <span>{card.contractor || 'Без подрядчика'}</span>
+                          </div>
+                        </div>
+
+                        {/* Bottom Row: Amount & Actions */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '0.75rem' }}>
+                          <div style={{ color: '#34d399', fontWeight: 900, fontSize: '1.15rem', letterSpacing: '0.5px' }}>
+                            {card.budget || '150 000 ₸'}
+                          </div>
+                          <div style={{ display: 'flex', gap: '0.35rem' }}>
+                            <button onClick={(e) => { e.stopPropagation(); setSelectedCard(card); }} className="em-btn-glass-sm" style={{ padding: '0.3rem 0.6rem', borderRadius: '8px', fontSize: '0.78rem' }}>
+                              ✎
+                            </button>
+                            <button onClick={(e) => { e.stopPropagation(); /* optional delete */ }} className="em-btn-glass-sm danger" style={{ padding: '0.3rem 0.6rem', borderRadius: '8px', fontSize: '0.78rem' }}>
+                              🗑
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                    
+                    {/* Empty State Placeholder Drop Zone */}
+                    {colCards.length === 0 && (
+                      <div style={{ 
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '0.5rem',
+                        border: '2px dashed rgba(255,255,255,0.12)',
+                        borderRadius: '16px',
+                        padding: '2rem 1rem',
+                        color: '#cbd5e1',
+                        fontSize: '0.84rem',
+                        fontWeight: 700,
+                        margin: 'auto 0'
+                      }}>
+                        <span style={{ fontSize: '1.4rem', opacity: 0.7 }}>📥</span>
+                        <span>Перетащите заявку сюда</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* RIGHT ANALYTICS SIDEBAR PANEL (Gigantic 720px Wide Version) */}
+          {showAnalytics && (
+            <aside style={{
+              width: '720px',
+              flex: '0 0 720px',
+              background: 'rgba(14, 18, 30, 0.94)',
+              backdropFilter: 'blur(36px)',
+              borderLeft: '1px solid rgba(255,255,255,0.18)',
+              padding: '2.2rem',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1.75rem',
+              overflowY: 'auto',
+              zIndex: 5,
+              boxShadow: '-20px 0 50px rgba(0,0,0,0.6)'
+            }}>
+              {/* Analytics Panel Header */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '1.2rem' }}>
+                <h3 style={{ margin: 0, fontSize: '1.6rem', fontWeight: 900, color: '#fff', display: 'flex', alignItems: 'center', gap: '0.85rem', letterSpacing: '0.6px' }}>
+                  📈 АНАЛИТИКА И СТАТИСТИКА
+                </h3>
+                <button 
+                  onClick={() => setShowAnalytics(false)} 
+                  style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.16)', color: '#cbd5e1', borderRadius: '14px', width: '42px', height: '42px', cursor: 'pointer', fontSize: '1.3rem', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                  title="Закрыть панель"
+                >
+                  ✕
+                </button>
               </div>
-            </div>
-          );
-        })}
+
+              {/* Primary KPI Card: Total Budget */}
+              <div style={{ background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.28), rgba(168, 85, 247, 0.28))', border: '1px solid rgba(168, 85, 247, 0.5)', borderRadius: '26px', padding: '2rem', boxShadow: '0 15px 40px rgba(0,0,0,0.4)' }}>
+                <div style={{ fontSize: '1.05rem', color: '#cbd5e1', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '0.75rem' }}>
+                  💰 Общий бюджет сделок в воронке
+                </div>
+                <div style={{ fontSize: '3.2rem', fontWeight: 900, color: '#34d399', letterSpacing: '0.5px', textShadow: '0 0 25px rgba(52, 211, 153, 0.4)', lineHeight: 1.1 }}>
+                  14 880 000 ₸
+                </div>
+                <div style={{ fontSize: '1.05rem', color: '#34d399', fontWeight: 800, marginTop: '1.1rem', display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                  <span style={{ background: 'rgba(52, 211, 153, 0.22)', padding: '0.4rem 0.9rem', borderRadius: '12px', border: '1px solid rgba(52, 211, 153, 0.45)', fontSize: '1.05rem' }}>▲ +18.4%</span>
+                  <span style={{ color: '#cbd5e1', fontWeight: 600 }}>к прошлому месяцу</span>
+                </div>
+              </div>
+
+              {/* Secondary KPI Grid (4 Columns) */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '1.1rem' }}>
+                <div style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '22px', padding: '1.35rem' }}>
+                  <div style={{ fontSize: '0.88rem', color: '#cbd5e1', fontWeight: 700, marginBottom: '0.45rem' }}>🎯 Конверсия воронки</div>
+                  <div style={{ fontSize: '1.85rem', fontWeight: 900, color: '#38bdf8' }}>78.2%</div>
+                  <div style={{ fontSize: '0.82rem', color: '#cbd5e1', marginTop: '0.35rem' }}>7 из 9 сделок</div>
+                </div>
+
+                <div style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '22px', padding: '1.35rem' }}>
+                  <div style={{ fontSize: '0.88rem', color: '#cbd5e1', fontWeight: 700, marginBottom: '0.45rem' }}>⏱️ Средний цикл</div>
+                  <div style={{ fontSize: '1.85rem', fontWeight: 900, color: '#c084fc' }}>3.2 дня</div>
+                  <div style={{ fontSize: '0.82rem', color: '#34d399', marginTop: '0.35rem' }}>⚡ Быстрее на 0.8дн</div>
+                </div>
+
+                <div style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '22px', padding: '1.35rem' }}>
+                  <div style={{ fontSize: '0.88rem', color: '#cbd5e1', fontWeight: 700, marginBottom: '0.45rem' }}>💵 Средний чек</div>
+                  <div style={{ fontSize: '1.85rem', fontWeight: 900, color: '#f59e0b' }}>2.1M ₸</div>
+                  <div style={{ fontSize: '0.82rem', color: '#cbd5e1', marginTop: '0.35rem' }}>на 1 объект</div>
+                </div>
+
+                <div style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '22px', padding: '1.35rem' }}>
+                  <div style={{ fontSize: '0.88rem', color: '#cbd5e1', fontWeight: 700, marginBottom: '0.45rem' }}>🏆 Закрыто</div>
+                  <div style={{ fontSize: '1.85rem', fontWeight: 900, color: '#34d399' }}>1.8M ₸</div>
+                  <div style={{ fontSize: '0.82rem', color: '#34d399', marginTop: '0.35rem' }}>Успешный этап</div>
+                </div>
+              </div>
+
+              {/* SVG Donut Chart Section (Huge 200px Donut) */}
+              <div style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '24px', padding: '1.75rem' }}>
+                <div style={{ fontSize: '1.2rem', fontWeight: 900, color: '#fff', marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span>🥧 Распределение воронки продаж</span>
+                  <span style={{ fontSize: '0.92rem', color: '#c084fc', fontWeight: 800, background: 'rgba(192, 132, 252, 0.2)', padding: '0.35rem 1rem', borderRadius: '14px' }}>7 сделок</span>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '2.5rem', marginBottom: '0.5rem' }}>
+                  {/* Huge SVG Donut Chart (200px) */}
+                  <div style={{ position: 'relative', width: '200px', height: '200px', flexShrink: 0 }}>
+                    <svg width="200" height="200" viewBox="0 0 42 42" style={{ transform: 'rotate(-90deg)' }}>
+                      <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="rgba(255,255,255,0.06)" strokeWidth="4.5" />
+                      <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#ef4444" strokeWidth="4.5" strokeDasharray="28 72" strokeDashoffset="0" />
+                      <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#3b82f6" strokeWidth="4.5" strokeDasharray="14 86" strokeDashoffset="-28" />
+                      <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#f59e0b" strokeWidth="4.5" strokeDasharray="43 57" strokeDashoffset="-42" />
+                      <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#22c55e" strokeWidth="4.5" strokeDasharray="15 85" strokeDashoffset="-85" />
+                    </svg>
+                    <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                      <span style={{ fontSize: '1.75rem', fontWeight: 900, color: '#fff' }}>14.8M</span>
+                      <span style={{ fontSize: '0.92rem', color: '#cbd5e1', fontWeight: 600 }}>₸ сум</span>
+                    </div>
+                  </div>
+
+                  {/* Chart Legend (2 Columns Grid) */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem', flex: 1, fontSize: '1.02rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.04)', padding: '0.7rem 1rem', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.08)' }}>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: '#cbd5e1' }}>
+                        <span style={{ width: '14px', height: '14px', borderRadius: '50%', backgroundColor: '#ef4444', boxShadow: '0 0 10px #ef4444' }} />
+                        Новые
+                      </span>
+                      <span style={{ fontWeight: 900, color: '#fff' }}>2.1M ₸ (28%)</span>
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.04)', padding: '0.7rem 1rem', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.08)' }}>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: '#cbd5e1' }}>
+                        <span style={{ width: '14px', height: '14px', borderRadius: '50%', backgroundColor: '#3b82f6', boxShadow: '0 0 10px #3b82f6' }} />
+                        В работе
+                      </span>
+                      <span style={{ fontWeight: 900, color: '#fff' }}>3.4M ₸ (23%)</span>
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.04)', padding: '0.7rem 1rem', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.08)' }}>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: '#cbd5e1' }}>
+                        <span style={{ width: '14px', height: '14px', borderRadius: '50%', backgroundColor: '#f59e0b', boxShadow: '0 0 10px #f59e0b' }} />
+                        Дожим
+                      </span>
+                      <span style={{ fontWeight: 900, color: '#fff' }}>7.5M ₸ (34%)</span>
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.04)', padding: '0.7rem 1rem', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.08)' }}>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: '#cbd5e1' }}>
+                        <span style={{ width: '14px', height: '14px', borderRadius: '50%', backgroundColor: '#22c55e', boxShadow: '0 0 10px #22c55e' }} />
+                        Успешно
+                      </span>
+                      <span style={{ fontWeight: 900, color: '#fff' }}>1.8M ₸ (15%)</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Monthly Revenue Bar Chart Section (Large 180px Height Bars) */}
+              <div style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '24px', padding: '1.75rem' }}>
+                <div style={{ fontSize: '1.2rem', fontWeight: 900, color: '#fff', marginBottom: '1.5rem' }}>
+                  📊 Динамика выручки по месяцах (Май — Август)
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: '1.5rem', height: '180px', paddingTop: '1.5rem' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.6rem', flex: 1 }}>
+                    <span style={{ fontSize: '0.92rem', color: '#cbd5e1', fontWeight: 800 }}>8.5M ₸</span>
+                    <div style={{ width: '100%', height: '85px', background: 'linear-gradient(180deg, #6366f1, #4f46e5)', borderRadius: '12px 12px 6px 6px' }} />
+                    <span style={{ fontSize: '0.92rem', color: '#94a3b8', fontWeight: 700 }}>Май</span>
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.6rem', flex: 1 }}>
+                    <span style={{ fontSize: '0.92rem', color: '#cbd5e1', fontWeight: 800 }}>11.2M ₸</span>
+                    <div style={{ width: '100%', height: '115px', background: 'linear-gradient(180deg, #8b5cf6, #7c3aed)', borderRadius: '12px 12px 6px 6px' }} />
+                    <span style={{ fontSize: '0.92rem', color: '#94a3b8', fontWeight: 700 }}>Июнь</span>
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.6rem', flex: 1 }}>
+                    <span style={{ fontSize: '0.92rem', color: '#cbd5e1', fontWeight: 800 }}>12.6M ₸</span>
+                    <div style={{ width: '100%', height: '135px', background: 'linear-gradient(180deg, #ec4899, #db2777)', borderRadius: '12px 12px 6px 6px' }} />
+                    <span style={{ fontSize: '0.92rem', color: '#94a3b8', fontWeight: 700 }}>Июль</span>
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.6rem', flex: 1 }}>
+                    <span style={{ fontSize: '0.95rem', color: '#34d399', fontWeight: 900 }}>14.8M ₸</span>
+                    <div style={{ width: '100%', height: '160px', background: 'linear-gradient(180deg, #10b981, #059669)', borderRadius: '12px 12px 6px 6px', boxShadow: '0 0 25px rgba(16, 185, 129, 0.6)' }} />
+                    <span style={{ fontSize: '0.95rem', color: '#34d399', fontWeight: 900 }}>Август ⚡</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Stage Progress Bars */}
+              <div style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '24px', padding: '1.75rem' }}>
+                <div style={{ fontSize: '1.2rem', fontWeight: 900, color: '#fff', marginBottom: '1.25rem' }}>
+                  🎯 Выполнение плана по этапам
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.02rem', color: '#cbd5e1', marginBottom: '0.45rem' }}>
+                      <span>Новые обращения клиентов</span>
+                      <span style={{ fontWeight: 900, color: '#ef4444' }}>85% плана</span>
+                    </div>
+                    <div style={{ width: '100%', height: '12px', background: 'rgba(255,255,255,0.08)', borderRadius: '10px', overflow: 'hidden' }}>
+                      <div style={{ width: '85%', height: '100%', background: 'linear-gradient(90deg, #ef4444, #f87171)', borderRadius: '10px' }} />
+                    </div>
+                  </div>
+
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.02rem', color: '#cbd5e1', marginBottom: '0.45rem' }}>
+                      <span>Подготовка ПСД & Инженерных смет</span>
+                      <span style={{ fontWeight: 900, color: '#3b82f6' }}>92% плана</span>
+                    </div>
+                    <div style={{ width: '100%', height: '12px', background: 'rgba(255,255,255,0.08)', borderRadius: '10px', overflow: 'hidden' }}>
+                      <div style={{ width: '92%', height: '100%', background: 'linear-gradient(90deg, #3b82f6, #60a5fa)', borderRadius: '10px' }} />
+                    </div>
+                  </div>
+
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.02rem', color: '#cbd5e1', marginBottom: '0.45rem' }}>
+                      <span>Заключение договоров (Дожим)</span>
+                      <span style={{ fontWeight: 900, color: '#f59e0b' }}>68% плана</span>
+                    </div>
+                    <div style={{ width: '100%', height: '12px', background: 'rgba(255,255,255,0.08)', borderRadius: '10px', overflow: 'hidden' }}>
+                      <div style={{ width: '68%', height: '100%', background: 'linear-gradient(90deg, #f59e0b, #fbbf24)', borderRadius: '10px' }} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* AI Assistant Smart Insight Card */}
+              <div style={{ background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.3), rgba(236, 72, 153, 0.3))', border: '1px solid rgba(168, 85, 247, 0.6)', borderRadius: '26px', padding: '1.6rem', boxShadow: '0 12px 35px rgba(0,0,0,0.35)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: '#c084fc', fontWeight: 900, fontSize: '1.15rem', marginBottom: '0.65rem' }}>
+                  <span>✨ AI Smart Insight (ИИ Прогноз)</span>
+                </div>
+                <p style={{ margin: 0, fontSize: '1.02rem', color: '#e2e8f0', lineHeight: 1.6 }}>
+                  Сделка <strong>#1087 (Техэкспертиза)</strong> в стадии «Дожим» имеет <strong>89% вероятность</strong> успешной оплаты до конца текущей недели.
+                </p>
+              </div>
+
+            </aside>
+          )}
+
+        </div>
       </div>
       
-        {selectedCard && (
-          <DealCardModal 
-            card={selectedCard} 
-            onClose={() => setSelectedCard(null)} 
-            onSave={handleSaveCard} 
-            currentUser={currentUser}
-          />
-        )}
+      {selectedCard && (
+        <DealCardModal 
+          card={selectedCard} 
+          onClose={() => setSelectedCard(null)} 
+          onSave={handleSaveCard} 
+          currentUser={currentUser}
+        />
+      )}
       
-        <style dangerouslySetInnerHTML={{__html: `
-          ::-webkit-scrollbar {
-            height: 8px;
-            width: 8px;
-          }
-          ::-webkit-scrollbar-track {
-            background: rgba(0,0,0,0.2);
-          }
-          ::-webkit-scrollbar-thumb {
-            background: rgba(255,255,255,0.1);
-            border-radius: 4px;
-          }
-          ::-webkit-scrollbar-thumb:hover {
-            background: rgba(255,255,255,0.2);
-          }
-        `}} />
-      </div>
+      <style dangerouslySetInnerHTML={{__html: `
+        .crm-kanban-board-container::-webkit-scrollbar {
+          height: 12px;
+        }
+        .crm-kanban-board-container::-webkit-scrollbar-track {
+          background: rgba(18, 22, 38, 0.85);
+          border-radius: 10px;
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          margin: 0 1.5rem;
+        }
+        .crm-kanban-board-container::-webkit-scrollbar-thumb {
+          background: linear-gradient(90deg, #ec4899, #8b5cf6, #3b82f6);
+          border-radius: 10px;
+          box-shadow: 0 0 12px rgba(139, 92, 246, 0.6);
+          cursor: pointer;
+        }
+        .crm-kanban-board-container::-webkit-scrollbar-thumb:hover {
+          background: linear-gradient(90deg, #f43f5e, #a855f7, #60a5fa);
+          box-shadow: 0 0 16px rgba(236, 72, 153, 0.8);
+        }
+      `}} />
     </div>
   );
 }

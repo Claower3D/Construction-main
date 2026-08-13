@@ -16,6 +16,16 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
   const [selectedItemObject, setSelectedItemObject] = useState(null);
   const [embeddedModule, setEmbeddedModule] = useState(null); // 'engineer' | 'admin_panel' | null
 
+  // Collapsible sidebar categories state
+  const [collapsedCategories, setCollapsedCategories] = useState({});
+
+  const toggleCategoryCollapse = (catId) => {
+    setCollapsedCategories(prev => ({
+      ...prev,
+      [catId]: !prev[catId]
+    }));
+  };
+
   // Иерархические данные ролей и элементов
   const hierarchyData = {
     customer: {
@@ -211,8 +221,21 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
 
   const currentRoleData = hierarchyData[selectedRole] || hierarchyData.customer;
 
-  const handleSelectRole = (e) => {
-    const roleKey = e.target.value;
+  const [isRoleDropdownOpen, setIsRoleDropdownOpen] = useState(false);
+
+  const roles = [
+    { id: 'admin', label: 'Администратор', icon: '⚙️', badge: 'VIP' },
+    { id: 'company', label: 'Компания', icon: '🏢', badge: 'PRO' },
+    { id: 'customer', label: 'Заказчик', icon: '📋', badge: '' },
+    { id: 'executor', label: 'Исполнитель', icon: '🔧', badge: '' },
+    { id: 'engineer', label: 'Инженер', icon: '👷', badge: '' },
+    { id: 'manager', label: 'Менеджер', icon: '💼', badge: '' },
+  ];
+
+  const activeRoleObj = roles.find((r) => r.id === selectedRole) || roles[2];
+
+  const handleSelectRole = (roleKeyOrEvent) => {
+    const roleKey = typeof roleKeyOrEvent === 'string' ? roleKeyOrEvent : roleKeyOrEvent?.target?.value;
     setSelectedRole(roleKey);
     setSelectedItemObject(null);
     setEmbeddedModule(null);
@@ -320,6 +343,8 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
   const currentCustomerSteps = customerTourSteps[selectedItemId] || (selectedItemId ? genericCustomerSteps : customerTourSteps['c-overview']);
   const currentExecutorSteps = executorTourSteps[selectedItemId] || (selectedItemId ? genericExecutorSteps : executorTourSteps['e-feed']);
 
+  const isLandingView = !embeddedModule && !selectedItemId;
+
   return (
     <div className="admin-redesign-layout">
       {userRole === 'customer' && <OnboardingTour steps={currentCustomerSteps} tourKey={`customer_${selectedItemId}`} />}
@@ -327,81 +352,98 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
       {/* Background */}
       <AnimatedBackground />
 
-      {/* LEFT SIDEBAR */}
-      <aside className="admin-redesign-sidebar">
-        <div className="sidebar-header">
-          <div className="sidebar-brand">
-            <span className="logo-emoji">🏗️</span>
-            <div>QazGost <span>AI</span></div>
-          </div>
-          <div className="role-dropdown-wrapper">
-            {userRole === 'admin' || userRole === 'company' ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                <div style={{ fontSize: '0.75rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 'bold' }}>выбрать дашборд</div>
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  <button 
-                    onClick={() => handleSelectRole({ target: { value: 'admin' } })}
-                    style={{ 
-                      flex: 1, padding: '0.6rem 0.2rem', 
-                      background: selectedRole === 'admin' ? 'var(--gold-main)' : 'rgba(255,255,255,0.05)', 
-                      border: '1px solid',
-                      borderColor: selectedRole === 'admin' ? 'var(--gold-main)' : 'rgba(255,255,255,0.1)', 
-                      borderRadius: '8px', 
-                      color: selectedRole === 'admin' ? '#0b0f1f' : '#fff', 
-                      fontWeight: 'bold', cursor: 'pointer', transition: 'all 0.2s',
-                      fontSize: '0.85rem'
-                    }}
-                  >
-                    ⚙️ Админ
-                  </button>
-                  <button 
-                    onClick={() => handleSelectRole({ target: { value: 'company' } })}
-                    style={{ 
-                      flex: 1, padding: '0.6rem 0.2rem', 
-                      background: selectedRole === 'company' ? '#0ea5e9' : 'rgba(255,255,255,0.05)', 
-                      border: '1px solid',
-                      borderColor: selectedRole === 'company' ? '#0ea5e9' : 'rgba(255,255,255,0.1)', 
-                      borderRadius: '8px', 
-                      color: '#fff', 
-                      fontWeight: 'bold', cursor: 'pointer', transition: 'all 0.2s',
-                      fontSize: '0.85rem'
-                    }}
-                  >
-                    🏢 Компания
-                  </button>
-                </div>
-                <select className="role-select" value={selectedRole} onChange={handleSelectRole} style={{ marginTop: '0.5rem', background: '#1e293b', color: '#fff', border: '1px solid rgba(255,255,255,0.1)', padding: '0.5rem', borderRadius: '8px', cursor: 'pointer' }}>
-                  <option value="" disabled>-- Демо-просмотр других ролей --</option>
-                  <option value="customer">📋 Заказчик</option>
-                  <option value="executor">🔧 Исполнитель</option>
-                  <option value="engineer">👷 Инженер</option>
-                  <option value="manager">💼 Менеджер</option>
-                </select>
+      {/* LEFT SIDEBAR (Only visible once a tool or module is opened) */}
+      {!isLandingView && (
+        <aside className="admin-redesign-sidebar">
+          <div className="sidebar-header">
+            <div 
+              className="sidebar-brand" 
+              onClick={() => {
+                setSelectedItemId(null);
+                setEmbeddedModule(null);
+              }}
+              style={{ cursor: 'pointer' }}
+              title="На главную страницу сервисов"
+            >
+              <span className="logo-emoji">🏗️</span>
+              <div>QazGost <span>AI</span></div>
+            </div>
+            <div className="role-dropdown-wrapper" style={{ position: 'relative' }}>
+            <div style={{ fontSize: '0.72rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: '900', marginBottom: '0.4rem' }}>
+              ВЫБРАТЬ ДАШБОРД
+            </div>
+
+            <button 
+              className="custom-role-trigger-btn"
+              onClick={() => setIsRoleDropdownOpen(!isRoleDropdownOpen)}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                <span style={{ fontSize: '1.2rem' }}>{activeRoleObj.icon}</span>
+                <span style={{ fontWeight: '800', color: '#fff', fontSize: '0.92rem' }}>{activeRoleObj.label}</span>
               </div>
-            ) : (
-              <div className="role-display-badge" style={{ padding: '0.5rem 1rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <span>{currentRoleData.roleIcon}</span> Роль: {currentRoleData.roleTitle}
+              <span style={{ color: '#ec4899', fontSize: '0.75rem', transform: isRoleDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>▼</span>
+            </button>
+
+            {isRoleDropdownOpen && (
+              <div className="custom-role-popover">
+                <div className="popover-title-row">
+                  <span>ДОСТУПНЫЕ ДАШБОРДЫ</span>
+                  <span className="popover-close-x" onClick={() => setIsRoleDropdownOpen(false)}>✕</span>
+                </div>
+                <div className="popover-items-list">
+                  {roles.map((r) => (
+                    <div 
+                      key={r.id} 
+                      className={`popover-role-item ${selectedRole === r.id ? 'active-role' : ''}`}
+                      onClick={() => {
+                        handleSelectRole(r.id);
+                        setIsRoleDropdownOpen(false);
+                      }}
+                    >
+                      <span className="p-icon">{r.icon}</span>
+                      <span className="p-label">{r.label}</span>
+                      {r.badge && <span className={`p-badge ${r.badge.toLowerCase()}`}>{r.badge}</span>}
+                      {selectedRole === r.id && <span className="p-check">✓</span>}
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </div>
         </div>
 
         <nav className="sidebar-nav">
-          {currentRoleData.categories.map((cat) => (
-            <div key={cat.id} className="sidebar-category">
-              <div className="sidebar-category-header">{cat.name}</div>
-              {cat.items.map((item) => (
+          {currentRoleData.categories.map((cat) => {
+            const isCollapsed = !!collapsedCategories[cat.id];
+            return (
+              <div key={cat.id} className={`sidebar-category ${isCollapsed ? 'collapsed' : ''}`}>
                 <div 
-                  key={item.id} 
-                  className={`sidebar-item ${selectedItemId === item.id ? 'active' : ''}`}
-                  onClick={() => handleSelectItem(item)}
+                  className="sidebar-category-header clickable"
+                  onClick={() => toggleCategoryCollapse(cat.id)}
+                  title={isCollapsed ? 'Развернуть категорию' : 'Свернуть категорию'}
                 >
-                  <span style={{ fontSize: '1.1rem' }}>{item.icon}</span>
-                  <span>{item.name}</span>
+                  <span>{cat.name}</span>
+                  <span className={`category-arrow ${isCollapsed ? 'is-collapsed' : ''}`}>
+                    {isCollapsed ? '▶' : '▼'}
+                  </span>
                 </div>
-              ))}
-            </div>
-          ))}
+                {!isCollapsed && (
+                  <div className="sidebar-items-group">
+                    {cat.items.map((item) => (
+                      <div 
+                        key={item.id} 
+                        className={`sidebar-item ${selectedItemId === item.id ? 'active' : ''}`}
+                        onClick={() => handleSelectItem(item)}
+                      >
+                        <span style={{ fontSize: '1.1rem' }}>{item.icon}</span>
+                        <span>{item.name}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </nav>
 
         <div className="sidebar-footer">
@@ -412,26 +454,49 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
           </div>
         </div>
       </aside>
+      )}
 
       {/* MAIN WORKSPACE */}
-      <main className="admin-redesign-main">
-        {/* Top Header */}
-        <header className="main-top-header">
-          <div className="header-breadcrumbs">
-            {currentRoleData.roleTitle} <span>/</span> Управление <span>/</span> {currentItemName}
-          </div>
-          <div className="header-actions">
-            <button className="btn-return-home" onClick={onBackToHome} style={{ background: 'rgba(255,255,255,0.1)', padding: '0.5rem 1rem', borderRadius: '8px', color: '#fff', border: 'none', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 'bold' }}>
-              🏠 На сайт
-            </button>
-          </div>
-        </header>
+      <main className="admin-redesign-main" style={isLandingView ? { flex: 1, width: '100%', maxWidth: '100%', margin: 0, padding: 0 } : {}}>
+        {/* Top Header (only if not landing view and not crm) */}
+        {!isLandingView && embeddedModule !== 'crm' && (
+          <header className="main-top-header">
+            <div className="header-left-side" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              <button 
+                onClick={() => {
+                  setSelectedItemId(null);
+                  setEmbeddedModule(null);
+                }}
+                className="em-btn-glass-sm"
+                style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', padding: '0.5rem 0.9rem', borderRadius: '10px', fontSize: '0.85rem', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: '#fff', cursor: 'pointer' }}
+                title="Вернуться к начальному выбору сервисов"
+              >
+                ← <span>Главный экран</span>
+              </button>
+              <div className="header-title-badge">
+                <span className="header-icon">{selectedItemObject?.icon || '🌐'}</span>
+                <div>
+                  <h2 className="header-main-title">{currentItemName}</h2>
+                  <div className="header-breadcrumbs">
+                    {currentRoleData.roleTitle} <span>/</span> Управление <span>/</span> {currentItemName}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="header-actions">
+              <button className="btn-return-home" onClick={onBackToHome}>
+                🏠 На сайт
+              </button>
+            </div>
+          </header>
+        )}
 
         {/* Content Area */}
-        <div className="main-content-area">
+        <div className="main-content-area" style={embeddedModule === 'crm' ? { padding: 0, margin: 0, height: '100%', overflow: 'hidden' } : {}}>
           {embeddedModule === 'engineer' && (
              <EngineerDashboardPage
                key={selectedRole}
+               hideHeader={true}
                initialTab={
                  selectedItemId === 'ing-main' ? 'overview' :
                  selectedItemId === 'ing-requests' ? 'requests' :
@@ -480,8 +545,186 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
 
 
           {!embeddedModule && !selectedItemObject && (
-            <div style={{ padding: '2rem', textAlign: 'center', color: '#94a3b8' }}>
-              <h2>Выберите инструмент в меню слева</h2>
+            <div style={{ padding: '2rem 1.5rem', width: '100%', maxWidth: '1200px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
+              
+              {/* Hero Header */}
+              <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <div style={{ background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.12)', padding: '0.4rem 1.1rem', borderRadius: '20px', fontSize: '0.82rem', fontWeight: '800', color: '#38bdf8', marginBottom: '1.25rem', backdropFilter: 'blur(16px)', boxShadow: '0 4px 15px rgba(56, 189, 248, 0.2)' }}>
+                  ✨ AI-powered • Версия 2.0
+                </div>
+
+                <h1 style={{ fontSize: '2.5rem', fontWeight: '900', color: '#fff', margin: '0 0 0.75rem 0', letterSpacing: '-0.5px' }}>
+                  Умная оценка <span style={{ background: 'linear-gradient(90deg, #ec4899, #8b5cf6, #38bdf8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>строительных работ</span>
+                </h1>
+
+                <p style={{ color: '#cbd5e1', fontSize: '1.05rem', margin: 0, maxWidth: '600px', lineHeight: '1.5' }}>
+                  Загрузите фото объекта — получите точный расчёт материалов, стоимости или найдите дефекты
+                </p>
+              </div>
+
+              {/* 3 Role Selection Cards Grid */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.25rem' }}>
+                {[
+                  { id: 'customer', title: 'Я Заказчик', icon: '📋', desc: 'Создаю заказы, выбираю исполнителей, принимаю работу', color: '#10b981' },
+                  { id: 'executor', title: 'Я Исполнитель', icon: '🔧', desc: 'Ищу заказы, отправляю предложения, выполняю работы', color: '#ec4899' },
+                  { id: 'engineer', title: 'Я Инженер', icon: '👷', desc: 'Принимаю заявки, разрабатываю проектную документацию', color: '#8b5cf6' }
+                ].map(r => {
+                  const isActive = selectedRole === r.id;
+                  return (
+                    <div 
+                      key={r.id}
+                      onClick={() => setSelectedRole(r.id)}
+                      style={{
+                        background: 'rgba(18, 22, 38, 0.75)',
+                        border: isActive ? `2px solid ${r.color}` : '1px solid rgba(255, 255, 255, 0.12)',
+                        borderRadius: '24px',
+                        padding: '1.75rem 1.5rem',
+                        textAlign: 'center',
+                        cursor: 'pointer',
+                        transition: 'all 0.28s ease',
+                        backdropFilter: 'blur(24px)',
+                        boxShadow: isActive ? `0 15px 35px ${r.color}44` : '0 10px 25px rgba(0,0,0,0.3)',
+                        position: 'relative'
+                      }}
+                    >
+                      {isActive && (
+                        <div style={{ position: 'absolute', top: '12px', right: '12px', background: r.color, color: '#fff', width: '24px', height: '24px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '900', fontSize: '0.8rem', boxShadow: `0 0 12px ${r.color}` }}>
+                          ✓
+                        </div>
+                      )}
+                      <div style={{ fontSize: '2.5rem', marginBottom: '0.85rem' }}>{r.icon}</div>
+                      <h3 style={{ fontSize: '1.3rem', fontWeight: '800', color: '#fff', margin: '0 0 0.5rem 0' }}>{r.title}</h3>
+                      <p style={{ fontSize: '0.84rem', color: '#cbd5e1', margin: 0, lineHeight: '1.4' }}>{r.desc}</p>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Enter Selected Role Big CTA Button */}
+              <div style={{ display: 'flex', justifyContent: 'center' }}>
+                <button 
+                  onClick={() => {
+                    if (selectedRole === 'engineer') {
+                      setEmbeddedModule('engineer');
+                      setSelectedItemId('ing-main');
+                    } else if (selectedRole === 'executor') {
+                      setSelectedItemId('e-feed');
+                    } else {
+                      setSelectedItemId('c-overview');
+                    }
+                  }}
+                  style={{
+                    background: selectedRole === 'engineer' 
+                      ? 'linear-gradient(90deg, #8b5cf6, #ec4899)' 
+                      : selectedRole === 'executor' 
+                      ? 'linear-gradient(90deg, #ec4899, #f59e0b)' 
+                      : 'linear-gradient(90deg, #10b981, #06b6d4)',
+                    color: '#fff',
+                    border: 'none',
+                    padding: '1.1rem 3rem',
+                    borderRadius: '20px',
+                    fontWeight: '900',
+                    fontSize: '1.15rem',
+                    cursor: 'pointer',
+                    boxShadow: '0 10px 30px rgba(139, 92, 246, 0.45)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.75rem',
+                    transition: 'all 0.28s ease'
+                  }}
+                >
+                  <span>🚀 Перейти в раздел «{selectedRole === 'engineer' ? 'Я Инженер' : selectedRole === 'executor' ? 'Я Исполнитель' : 'Я Заказчик'}»</span>
+                  <span style={{ fontSize: '1.3rem' }}>→</span>
+                </button>
+              </div>
+
+              {/* Metrics Pill Bar */}
+              <div style={{ background: 'rgba(18, 22, 38, 0.6)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '20px', padding: '1.25rem 2rem', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', textAlign: 'center', backdropFilter: 'blur(20px)' }}>
+                <div>
+                  <div style={{ fontSize: '1.6rem', fontWeight: '900', color: '#c084fc' }}>10K+</div>
+                  <div style={{ fontSize: '0.75rem', fontWeight: '800', color: '#cbd5e1', letterSpacing: '1px' }}>ПРОЕКТОВ</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: '1.6rem', fontWeight: '900', color: '#ec4899' }}>98%</div>
+                  <div style={{ fontSize: '0.75rem', fontWeight: '800', color: '#cbd5e1', letterSpacing: '1px' }}>ТОЧНОСТЬ</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: '1.6rem', fontWeight: '900', color: '#38bdf8' }}>2 сек</div>
+                  <div style={{ fontSize: '0.75rem', fontWeight: '800', color: '#cbd5e1', letterSpacing: '1px' }}>СКОРОСТЬ</div>
+                </div>
+              </div>
+
+              {/* Grid of Feature Cards */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '1.25rem' }}>
+                {[
+                  { id: 'c-estimate', title: 'Оценка стоимости', icon: '📊', desc: 'Загрузите фото → AI-анализ → смета за 2 сек... 3 сценария цены', btnText: '🚀 Начать оценку', btnGradient: 'linear-gradient(90deg, #ec4899, #8b5cf6)' },
+                  { id: 'c-inspect', title: 'Проверка дефектов', icon: '🔍', desc: 'Трещины, влага, плесень. AI-отчёт + план устранения', btnText: '🔍 Начать проверку', btnGradient: 'linear-gradient(90deg, #f59e0b, #ef4444)' },
+                  { id: 'c-engineering', title: 'Строительство зданий', icon: '🏗️', desc: 'ПСД, ВВР-документация, сметы полного цикла', btnText: '⭐ Открыть', btnGradient: 'linear-gradient(90deg, #6366f1, #8b5cf6)' },
+                  { id: 'c-solutions', title: 'Инженерные решения', icon: '⚙️', desc: 'Электрика, сантехника, HVAC, слаботочные системы', btnText: '⚡ Выбрать', btnGradient: 'linear-gradient(90deg, #ec4899, #c084fc)' },
+                  { id: 'c-orders', title: 'Мои заказы', icon: '📬', desc: 'Просмотр заказов, откликов и статусов работ', btnText: '📗 Открыть заказы', btnGradient: 'linear-gradient(90deg, #10b981, #059669)' },
+                  { id: 'c-wallet', title: 'Мой кошелёк', icon: '💳', desc: 'Баланс, операции, подписки и пополнение счёта', btnText: '💳 Открыть кошелёк', btnGradient: 'linear-gradient(90deg, #8b5cf6, #f59e0b)' },
+                  { id: 'c-equipment', title: 'Маркетплейс техники', icon: '🚜', desc: 'Аренда экскаваторов, кранов, самосвалов', btnText: '🚜 Открыть', btnGradient: 'linear-gradient(90deg, #3b82f6, #06b6d4)' },
+                  { id: 'c-soil', title: 'Фото-объёмы грунта', icon: '📐', desc: 'Объёмы выемки/насыпи по фото ДО/ПОСЛЕ', btnText: '📸 Рассчитать', btnGradient: 'linear-gradient(90deg, #8b5cf6, #ec4899)' }
+                ].map(card => (
+                  <div 
+                    key={card.id}
+                    onClick={() => handleSelectItem(card)}
+                    style={{
+                      background: 'rgba(18, 22, 38, 0.75)',
+                      border: '1px solid rgba(255, 255, 255, 0.12)',
+                      borderRadius: '24px',
+                      padding: '1.6rem',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      textAlign: 'center',
+                      gap: '1rem',
+                      cursor: 'pointer',
+                      backdropFilter: 'blur(24px)',
+                      boxShadow: '0 12px 30px rgba(0,0,0,0.3)',
+                      transition: 'all 0.28s ease'
+                    }}
+                  >
+                    <div style={{ width: '60px', height: '60px', borderRadius: '20px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.2rem' }}>
+                      {card.icon}
+                    </div>
+                    <div>
+                      <h4 style={{ fontSize: '1.2rem', fontWeight: '800', color: '#fff', margin: '0 0 0.4rem 0' }}>{card.title}</h4>
+                      <p style={{ fontSize: '0.84rem', color: '#cbd5e1', margin: 0, lineHeight: '1.4' }}>{card.desc}</p>
+                    </div>
+                    <button 
+                      style={{
+                        width: '100%',
+                        background: card.btnGradient,
+                        color: '#fff',
+                        border: 'none',
+                        padding: '0.75rem',
+                        borderRadius: '14px',
+                        fontWeight: '800',
+                        fontSize: '0.9rem',
+                        cursor: 'pointer',
+                        boxShadow: '0 4px 15px rgba(0,0,0,0.2)',
+                        marginTop: '0.5rem'
+                      }}
+                    >
+                      {card.btnText}
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              {/* Bottom Profile Questionnaire Card */}
+              <div style={{ background: 'rgba(18, 22, 38, 0.75)', border: '1px solid rgba(255, 255, 255, 0.14)', borderRadius: '24px', padding: '1.75rem 2rem', textAlign: 'center', backdropFilter: 'blur(24px)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem' }}>
+                <div style={{ fontSize: '2rem' }}>📋</div>
+                <h4 style={{ fontSize: '1.25rem', fontWeight: '800', color: '#fff', margin: 0 }}>Моя анкета</h4>
+                <p style={{ fontSize: '0.88rem', color: '#cbd5e1', margin: 0 }}>Заполните анкету: контакты, тип проекта, бюджет, техника и бригады</p>
+                <button 
+                  style={{ background: 'linear-gradient(90deg, #10b981, #059669)', color: '#fff', border: 'none', padding: '0.85rem 2rem', borderRadius: '14px', fontWeight: '800', fontSize: '0.92rem', cursor: 'pointer', boxShadow: '0 6px 20px rgba(16, 185, 129, 0.35)', marginTop: '0.5rem' }}
+                >
+                  📝 Заполнить
+                </button>
+              </div>
+
             </div>
           )}
         </div>

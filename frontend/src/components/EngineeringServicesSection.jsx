@@ -8,8 +8,9 @@ export default function EngineeringServicesSection() {
       badge: 'ГОСТ РК • AI-анализ',
       badgeColor: 'gold',
       title: 'Инженерно-геологические изыскания',
+      linkText: 'Подробнее об изысканиях',
       desc: 'Комплексные геологические изыскания с автоматической декомпозицией грунтовых пластов по СП РК.',
-      image: 'https://images.unsplash.com/photo-1541888946425-d0fbb186a5b3?auto=format&fit=crop&w=800&q=80',
+      image: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=800&q=80',
       bullets: [
         'Бурение изыскательских скважин',
         'Описание грунтового массива',
@@ -23,13 +24,14 @@ export default function EngineeringServicesSection() {
       badge: 'Топосъемка 1:500',
       badgeColor: 'cyan',
       title: 'Геодезия и топосъемка',
-      badgeText: 'ВЫСОКАЯ ТОЧНОСТЬ',
+      linkText: 'Подробнее о геодезии',
       desc: 'Высокоточная привязка осей зданий, лазерное 3D-сканирование и исполнительная съемка.',
       image: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80',
       bullets: [
         'Топосъемка масштабов 1:500',
-        'Съемка коммуникаций',
-        'Вынос осей в натуру',
+        'Съемка подземных коммуникаций',
+        'Вынос главных осей в натуру',
+        'Лазерное 3D-сканирование',
       ],
     },
     {
@@ -38,12 +40,14 @@ export default function EngineeringServicesSection() {
       badge: 'CPT Зондирование',
       badgeColor: 'purple',
       title: 'CPT Зондирование',
+      linkText: 'Подробнее о CPT',
       desc: 'Статическое зондирование грунтов непрерывным вдавливанием конуса с тензодатчиками.',
       image: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=800&q=80',
       bullets: [
-        'Вдавливание конуса',
+        'Вдавливание конуса с датчиками',
         'Измерение сопротивления',
-        'Расчленение разреза',
+        'Непрерывное расчленение разреза',
+        'Оценка несущей способности',
       ],
     },
     {
@@ -52,12 +56,14 @@ export default function EngineeringServicesSection() {
       badge: 'Испытания свай',
       badgeColor: 'pink',
       title: 'Испытания свай',
+      linkText: 'Подробнее об испытаниях',
       desc: 'Полевые испытания свай статическими и динамическими нагрузками до 500 тонн.',
       image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=80',
       bullets: [
-        'Статическая нагрузка',
+        'Статическая нагрузка до 500 т',
         'Выдерживающая нагрузка',
-        'Динамические испытания',
+        'Динамические испытания (PDA)',
+        'Сейсмоакустический контроль',
       ],
     },
     {
@@ -66,12 +72,14 @@ export default function EngineeringServicesSection() {
       badge: 'Модуль деформации',
       badgeColor: 'gold',
       title: 'Штамповые испытания',
+      linkText: 'Подробнее о штампах',
       desc: 'Определение деформационных характеристик грунтов плоскими круглыми штампами в шурфах.',
       image: 'https://images.unsplash.com/photo-1590069261209-f8e9b8642343?auto=format&fit=crop&w=800&q=80',
       bullets: [
         'Плоские круглые штампы',
-        'Испытания в скважинах',
-        'Модуль деформации',
+        'Испытания в скважинах и шурфах',
+        'Модуль деформации E (МПа)',
+        'Оценка просадочности грунтов',
       ],
     },
     {
@@ -80,6 +88,7 @@ export default function EngineeringServicesSection() {
       badge: 'Аккредитованная лаборатория',
       badgeColor: 'cyan',
       title: 'Лаборатория грунтов',
+      linkText: 'Подробнее о лаборатории',
       desc: 'Полный физико-механический и химический анализ образцов грунтов и подземных вод.',
       image: 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&w=800&q=80',
       bullets: [
@@ -107,7 +116,13 @@ export default function EngineeringServicesSection() {
             <div className="eng-v2-card" key={eng.id}>
               {/* Top Image Banner */}
               <div className="eng-v2-img-banner">
-                <img src={eng.image} alt={eng.title} />
+                <img 
+                  src={eng.image} 
+                  alt={eng.title}
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                  }} 
+                />
                 <div className="eng-v2-overlay"></div>
                 <div className={`eng-v2-tag tag-${eng.badgeColor}`}>
                   <span className="tag-spark-dot"></span>
@@ -137,11 +152,11 @@ export default function EngineeringServicesSection() {
                     className="eng-v2-link-btn"
                     onClick={() => alert(`Информация: ${eng.title}`)}
                   >
-                    <span>Подробнее об изысканиях</span>
+                    <span>{eng.linkText}</span>
                     <span className="link-arrow">➔</span>
                   </button>
                   <button
-                    className="eng-v2-action-circle"
+                    className={`eng-v2-action-circle action-circle-${eng.badgeColor}`}
                     onClick={() => alert(`Заказ услуги: ${eng.title}`)}
                     title="Заказать услугу"
                   >
@@ -156,4 +171,5 @@ export default function EngineeringServicesSection() {
     </section>
   );
 }
+
 

@@ -45,158 +45,211 @@ export default function AuthModal({ mode, onClose, onLogin }) {
   };
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content-card" onClick={(e) => e.stopPropagation()}>
-        <button className="modal-close-btn" onClick={onClose}>
+    <div className="modal-overlay" onClick={onClose} style={{ backdropFilter: 'blur(16px)', background: 'rgba(5, 8, 18, 0.75)' }}>
+      <div 
+        className="modal-content-card" 
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          background: 'linear-gradient(145deg, rgba(20, 26, 48, 0.95), rgba(12, 16, 32, 0.98))',
+          border: '1px solid rgba(246, 196, 83, 0.3)',
+          boxShadow: '0 30px 80px rgba(0,0,0,0.8), 0 0 60px rgba(246, 196, 83, 0.12)',
+          borderRadius: '28px',
+          padding: '2.2rem',
+          maxWidth: '480px',
+          width: '100%',
+          position: 'relative',
+          overflow: 'hidden'
+        }}
+      >
+        {/* Subtle Ambient Glow Orbs */}
+        <div style={{ position: 'absolute', top: '-60px', right: '-60px', width: '180px', height: '180px', background: 'radial-gradient(circle, rgba(168, 85, 247, 0.3), transparent 70%)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', bottom: '-60px', left: '-60px', width: '180px', height: '180px', background: 'radial-gradient(circle, rgba(246, 196, 83, 0.25), transparent 70%)', pointerEvents: 'none' }} />
+
+        <button 
+          className="modal-close-btn" 
+          onClick={onClose}
+          style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', color: '#fff', borderRadius: '12px', width: '36px', height: '36px', cursor: 'pointer', fontSize: '1.1rem', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s ease' }}
+        >
           ✕
         </button>
 
         {/* Modal Auth Tabs */}
-        <div className="modal-auth-tabs">
+        <div style={{ display: 'flex', background: 'rgba(0,0,0,0.35)', padding: '0.35rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.08)', marginBottom: '1.5rem' }}>
           <button
-            className={`modal-auth-tab ${activeTab === 'login' ? 'active' : ''}`}
+            style={{
+              flex: 1,
+              padding: '0.65rem',
+              borderRadius: '12px',
+              border: 'none',
+              background: activeTab === 'login' ? 'linear-gradient(90deg, #f59e0b, #d97706)' : 'transparent',
+              color: activeTab === 'login' ? '#fff' : '#94a3b8',
+              fontWeight: 800,
+              fontSize: '0.9rem',
+              cursor: 'pointer',
+              boxShadow: activeTab === 'login' ? '0 4px 15px rgba(245, 158, 11, 0.4)' : 'none',
+              transition: 'all 0.25s ease'
+            }}
             onClick={() => setActiveTab('login')}
           >
-            🔑 Вход
+            🔑 Вход в систему
           </button>
           <button
-            className={`modal-auth-tab ${activeTab === 'register' ? 'active' : ''}`}
+            style={{
+              flex: 1,
+              padding: '0.65rem',
+              borderRadius: '12px',
+              border: 'none',
+              background: activeTab === 'register' ? 'linear-gradient(90deg, #f59e0b, #d97706)' : 'transparent',
+              color: activeTab === 'register' ? '#fff' : '#94a3b8',
+              fontWeight: 800,
+              fontSize: '0.9rem',
+              cursor: 'pointer',
+              boxShadow: activeTab === 'register' ? '0 4px 15px rgba(245, 158, 11, 0.4)' : 'none',
+              transition: 'all 0.25s ease'
+            }}
             onClick={() => setActiveTab('register')}
           >
             📝 Регистрация
           </button>
         </div>
 
-        <h2 className="modal-title">
-          {activeTab === 'login' ? 'Вход в QazGost AI' : 'Создание учётной записи'}
-        </h2>
-        <p className="modal-sub">
-          {activeTab === 'login'
-            ? 'Введите email и пароль для доступа к платформе'
-            : 'Заполните данные для создания аккаунта в системе QazGost'}
-        </p>
+        <div style={{ textAlign: 'center', marginBottom: '1.25rem' }}>
+          <h2 style={{ margin: 0, fontSize: '1.6rem', fontWeight: 900, color: '#fff', letterSpacing: '0.4px' }}>
+            {activeTab === 'login' ? 'Вход в QazGost AI' : 'Создание учётной записи'}
+          </h2>
+          <p style={{ margin: '0.4rem 0 0 0', fontSize: '0.86rem', color: '#cbd5e1', fontWeight: 500 }}>
+            {activeTab === 'login'
+              ? 'Введите email и пароль для доступа к платформе'
+              : 'Заполните данные для создания аккаунта в системе QazGost'}
+          </p>
+        </div>
 
         {error && (
-          <div style={{ padding: '0.75rem', borderRadius: '8px', background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#f87171', fontSize: '0.875rem', marginBottom: '1rem' }}>
-            ⚠️ {error}
+          <div style={{ padding: '0.85rem 1rem', borderRadius: '14px', background: 'rgba(239, 68, 68, 0.18)', border: '1px solid rgba(239, 68, 68, 0.4)', color: '#fca5a5', fontSize: '0.88rem', marginBottom: '1.2rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <span>⚠️</span> {error}
           </div>
         )}
 
-        {/* Role Select for Register */}
+        {/* 2 STUNNING ROLE CARDS FOR REGISTER */}
         {activeTab === 'register' && (
-          <div className="modal-role-selector">
-            <label className="input-label">Выберите вашу роль:</label>
-            <div className="role-cards-grid">
+          <div style={{ marginBottom: '1.25rem' }}>
+            <label style={{ fontSize: '0.82rem', fontWeight: 800, color: '#cbd5e1', textTransform: 'uppercase', letterSpacing: '0.6px', display: 'block', marginBottom: '0.6rem' }}>
+              Выберите вашу роль:
+            </label>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              
+              {/* Card 1: Заказчик */}
               <button
                 type="button"
-                className={`modal-role-card ${selectedRole === 'customer' ? 'active' : ''}`}
                 onClick={() => setSelectedRole('customer')}
+                style={{
+                  background: selectedRole === 'customer' 
+                    ? 'linear-gradient(135deg, rgba(99, 102, 241, 0.25), rgba(168, 85, 247, 0.25))' 
+                    : 'rgba(255, 255, 255, 0.03)',
+                  border: selectedRole === 'customer' 
+                    ? '2px solid #8b5cf6' 
+                    : '1.5px solid rgba(255, 255, 255, 0.12)',
+                  borderRadius: '20px',
+                  padding: '1.25rem 0.9rem',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  textAlign: 'center',
+                  boxShadow: selectedRole === 'customer' 
+                    ? '0 10px 25px rgba(139, 92, 246, 0.35)' 
+                    : 'none',
+                  transform: selectedRole === 'customer' ? 'translateY(-3px)' : 'none',
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                  position: 'relative'
+                }}
               >
-                <span>📋</span>
+                {selectedRole === 'customer' && (
+                  <span style={{ position: 'absolute', top: '8px', right: '10px', fontSize: '0.72rem', color: '#a855f7', fontWeight: 900, background: 'rgba(168, 85, 247, 0.2)', padding: '0.15rem 0.45rem', borderRadius: '8px' }}>
+                    ✓ Выбрано
+                  </span>
+                )}
+                <span style={{ fontSize: '2.4rem', filter: selectedRole === 'customer' ? 'drop-shadow(0 0 10px rgba(168, 85, 247, 0.6))' : 'none' }}>
+                  📋
+                </span>
                 <div>
-                  <strong>Заказчик</strong>
-                  <small>Поиск мастеров</small>
+                  <strong style={{ fontSize: '1.05rem', fontWeight: 900, color: '#fff', display: 'block' }}>Заказчик</strong>
+                  <small style={{ fontSize: '0.78rem', color: selectedRole === 'customer' ? '#c084fc' : '#cbd5e1', fontWeight: 600, marginTop: '0.2rem', display: 'block' }}>
+                    Поиск мастеров и сметы
+                  </small>
                 </div>
               </button>
 
+              {/* Card 2: Исполнитель */}
               <button
                 type="button"
-                className={`modal-role-card ${selectedRole === 'executor' ? 'active' : ''}`}
                 onClick={() => setSelectedRole('executor')}
+                style={{
+                  background: selectedRole === 'executor' 
+                    ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(52, 211, 153, 0.25))' 
+                    : 'rgba(255, 255, 255, 0.03)',
+                  border: selectedRole === 'executor' 
+                    ? '2px solid #10b981' 
+                    : '1.5px solid rgba(255, 255, 255, 0.12)',
+                  borderRadius: '20px',
+                  padding: '1.25rem 0.9rem',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  textAlign: 'center',
+                  boxShadow: selectedRole === 'executor' 
+                    ? '0 10px 25px rgba(16, 185, 129, 0.35)' 
+                    : 'none',
+                  transform: selectedRole === 'executor' ? 'translateY(-3px)' : 'none',
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                  position: 'relative'
+                }}
               >
-                <span>🛠️</span>
+                {selectedRole === 'executor' && (
+                  <span style={{ position: 'absolute', top: '8px', right: '10px', fontSize: '0.72rem', color: '#34d399', fontWeight: 900, background: 'rgba(52, 211, 153, 0.2)', padding: '0.15rem 0.45rem', borderRadius: '8px' }}>
+                    ✓ Выбрано
+                  </span>
+                )}
+                <span style={{ fontSize: '2.4rem', filter: selectedRole === 'executor' ? 'drop-shadow(0 0 10px rgba(52, 211, 153, 0.6))' : 'none' }}>
+                  🛠️
+                </span>
                 <div>
-                  <strong>Исполнитель</strong>
-                  <small>Выполнение заказов</small>
+                  <strong style={{ fontSize: '1.05rem', fontWeight: 900, color: '#fff', display: 'block' }}>Исполнитель</strong>
+                  <small style={{ fontSize: '0.78rem', color: selectedRole === 'executor' ? '#34d399' : '#cbd5e1', fontWeight: 600, marginTop: '0.2rem', display: 'block' }}>
+                    Выполнение заказов
+                  </small>
                 </div>
               </button>
 
-              <button
-                type="button"
-                className={`modal-role-card ${selectedRole === 'engineer' ? 'active' : ''}`}
-                onClick={() => setSelectedRole('engineer')}
-              >
-                <span>📐</span>
-                <div>
-                  <strong>Инженер</strong>
-                  <small>Технадзор РК</small>
-                </div>
-              </button>
-
-              <button
-                type="button"
-                className={`modal-role-card ${selectedRole === 'company' ? 'active' : ''}`}
-                onClick={() => setSelectedRole('company')}
-              >
-                <span>🏢</span>
-                <div>
-                  <strong>Компания</strong>
-                  <small>ТОО / ИП</small>
-                </div>
-              </button>
-
-              <button
-                type="button"
-                className={`modal-role-card ${selectedRole === 'manager' ? 'active' : ''}`}
-                onClick={() => setSelectedRole('manager')}
-              >
-                <span>💼</span>
-                <div>
-                  <strong>Менеджер</strong>
-                  <small>Управление CRM</small>
-                </div>
-              </button>
             </div>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} style={{ marginTop: '1.25rem' }}>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           {activeTab === 'register' && (
-            <>
-              <div className="form-group">
-                <label className="input-label">ФИО / Название компании</label>
-                <input
-                  type="text"
-                  className="custom-input"
-                  placeholder="Иван Иванов или ТОО СтройПроект"
-                  required
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                />
-              </div>
-
-              {(selectedRole === 'executor' || selectedRole === 'engineer' || selectedRole === 'manager') && (
-                <div className="form-group">
-                  <label className="input-label">Привязаться к компании (необязательно)</label>
-                  <input 
-                    type="text"
-                    className="custom-input" 
-                    placeholder="Например: C-12345 (Выдается вашей компанией)"
-                    value={inviteCodeInput} 
-                    onChange={(e) => setInviteCodeInput(e.target.value)}
-                  />
-                </div>
-              )}
-
-              {selectedRole === 'company' && (
-                <div className="form-group">
-                  <label className="input-label">БИН / ИИН компании</label>
-                  <input 
-                    type="text"
-                    className="custom-input" 
-                    placeholder="Введите 12 цифр"
-                    maxLength={12}
-                    required
-                    value={bin} 
-                    onChange={(e) => setBin(e.target.value.replace(/\D/g, ''))}
-                  />
-                </div>
-              )}
-            </>
+            <div className="form-group" style={{ margin: 0 }}>
+              <label style={{ fontSize: '0.82rem', fontWeight: 700, color: '#cbd5e1', display: 'block', marginBottom: '0.4rem' }}>
+                ФИО / Название компании
+              </label>
+              <input
+                type="text"
+                className="custom-input"
+                placeholder="Иван Иванов или ТОО СтройПроект"
+                required
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                style={{ background: 'rgba(15, 23, 42, 0.7)', border: '1px solid rgba(255, 255, 255, 0.15)', borderRadius: '14px', padding: '0.85rem 1.1rem', color: '#fff', fontSize: '0.92rem', outline: 'none' }}
+              />
+            </div>
           )}
 
-          <div className="form-group">
-            <label className="input-label">Email адрес</label>
+          <div className="form-group" style={{ margin: 0 }}>
+            <label style={{ fontSize: '0.82rem', fontWeight: 700, color: '#cbd5e1', display: 'block', marginBottom: '0.4rem' }}>
+              Email адрес
+            </label>
             <input
               type="email"
               className="custom-input"
@@ -204,11 +257,14 @@ export default function AuthModal({ mode, onClose, onLogin }) {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              style={{ background: 'rgba(15, 23, 42, 0.7)', border: '1px solid rgba(255, 255, 255, 0.15)', borderRadius: '14px', padding: '0.85rem 1.1rem', color: '#fff', fontSize: '0.92rem', outline: 'none' }}
             />
           </div>
 
-          <div className="form-group">
-            <label className="input-label">Пароль</label>
+          <div className="form-group" style={{ margin: 0 }}>
+            <label style={{ fontSize: '0.82rem', fontWeight: 700, color: '#cbd5e1', display: 'block', marginBottom: '0.4rem' }}>
+              Пароль
+            </label>
             <input
               type="password"
               className="custom-input"
@@ -216,10 +272,28 @@ export default function AuthModal({ mode, onClose, onLogin }) {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              style={{ background: 'rgba(15, 23, 42, 0.7)', border: '1px solid rgba(255, 255, 255, 0.15)', borderRadius: '14px', padding: '0.85rem 1.1rem', color: '#fff', fontSize: '0.92rem', outline: 'none' }}
             />
           </div>
 
-          <button type="submit" className="modal-submit-btn" disabled={loading}>
+          <button 
+            type="submit" 
+            disabled={loading}
+            style={{
+              marginTop: '0.5rem',
+              background: 'linear-gradient(90deg, #f59e0b, #ec4899, #8b5cf6)',
+              border: 'none',
+              borderRadius: '16px',
+              padding: '1rem',
+              color: '#fff',
+              fontWeight: 900,
+              fontSize: '1rem',
+              cursor: 'pointer',
+              boxShadow: '0 10px 25px rgba(236, 72, 153, 0.4)',
+              transition: 'all 0.3s ease',
+              letterSpacing: '0.4px'
+            }}
+          >
             {loading ? 'Обработка...' : activeTab === 'login' ? 'Войти в систему ➔' : 'Зарегистрироваться ➔'}
           </button>
         </form>

@@ -4,9 +4,22 @@ import '../engineer-modal.css';
 import OnboardingTour from './OnboardingTour';
 import SmartDealCreateModal from './SmartDealCreateModal';
 
-export default function EngineerDashboardPage({ onBackToHome, initialTab = 'calendar', currentUser, viewRole = 'engineer' }) {
+export default function EngineerDashboardPage({ onBackToHome, initialTab = 'calendar', currentUser, viewRole = 'engineer', hideHeader = false }) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [activeTab, setActiveTab] = useState(initialTab || 'calendar'); // Dynamic tab state
+
+  const [selectedOrg, setSelectedOrg] = useState(null); // null = show Org Selector Screen initially
+  const [showCreateOrgModal, setShowCreateOrgModal] = useState(false);
+  const [newOrgName, setNewOrgName] = useState('');
+  const [newOrgBin, setNewOrgBin] = useState('');
+  const [newOrgType, setNewOrgType] = useState('ТОО');
+  const [newOrgCity, setNewOrgCity] = useState('Астана');
+
+  const [organizations, setOrganizations] = useState([
+    { id: 1, name: 'ТОО «QazGost»', city: 'Караганда', type: 'ТОО', bin: '990405351447', icon: '🏢', projectsCount: 4, estimatesCount: 18, workersCount: 12, isDefault: true, role: 'Главный инженер' },
+    { id: 2, name: 'ТОО «Инжен-Строй»', city: 'Караганда', type: 'ТОО', bin: '123456789012', icon: '🏗️', projectsCount: 2, estimatesCount: 7, workersCount: 5, isDefault: false, role: 'Инженер-сметчик' },
+    { id: 3, name: 'ИП «Мастер Сервис»', city: 'Астана', type: 'ИП', bin: '987654321098', icon: '👤', projectsCount: 1, estimatesCount: 3, workersCount: 2, isDefault: false, role: 'Подрядчик' }
+  ]);
 
   React.useEffect(() => {
     if (initialTab) {
@@ -600,7 +613,228 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
     ]
   };
 
+  const [orgSearch, setOrgSearch] = useState('');
+
+  const filteredOrgs = organizations.filter(o => 
+    o.name.toLowerCase().includes(orgSearch.toLowerCase()) || 
+    o.bin.includes(orgSearch) ||
+    o.city.toLowerCase().includes(orgSearch.toLowerCase())
+  );
+
   const currentTourSteps = engineerTourSteps[activeTab] || [];
+
+  if (!selectedOrg) {
+    return (
+      <div className="engineer-cabinet-root" style={{ flexDirection: 'column', minHeight: '100vh', justifyContent: 'flex-start', alignItems: 'center', padding: '2.5rem 2rem', width: '100%' }}>
+        <AnimatedBackground />
+        
+        {/* Main Centered Selection Hub */}
+        <div style={{ width: '100%', maxWidth: '1280px', zIndex: 10, display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+          
+          {/* Header Banner with Search & Actions */}
+          <div style={{ background: 'rgba(18, 22, 38, 0.75)', border: '1px solid rgba(255, 255, 255, 0.16)', borderRadius: '28px', padding: '2.25rem 2.8rem', backdropFilter: 'blur(28px)', boxShadow: '0 20px 60px rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1.75rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1.6rem' }}>
+              <div style={{ width: '76px', height: '76px', borderRadius: '24px', background: 'radial-gradient(circle at center, rgba(139, 92, 246, 0.35) 0%, rgba(255,255,255,0.06) 100%)', border: '1px solid rgba(255,255,255,0.22)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '3rem', flexShrink: 0, boxShadow: '0 0 35px rgba(139, 92, 246, 0.45)' }}>
+                🏢
+              </div>
+              <div>
+                <h2 style={{ fontSize: '2.1rem', fontWeight: '900', color: '#fff', margin: '0 0 0.4rem 0', letterSpacing: '-0.5px' }}>
+                  Выберите рабочую организацию
+                </h2>
+                <p style={{ color: '#cbd5e1', fontSize: '0.96rem', margin: 0, lineHeight: '1.4' }}>
+                  Управление строительными объектами, сметами и командой специалистов
+                </p>
+              </div>
+            </div>
+
+            {/* Search + Add Org Button */}
+            <div style={{ display: 'flex', gap: '1.25rem', alignItems: 'center', flexWrap: 'wrap' }}>
+              <div className="em-search-bar" style={{ margin: 0, width: '340px' }}>
+                <span className="search-icon">🔍</span>
+                <input 
+                  type="text" 
+                  value={orgSearch}
+                  onChange={e => setOrgSearch(e.target.value)}
+                  placeholder="Поиск по названию, БИН или городу..."
+                />
+              </div>
+              <button 
+                onClick={() => setShowCreateOrgModal(true)}
+                style={{ 
+                  background: 'linear-gradient(90deg, #ec4899, #8b5cf6)', 
+                  color: '#fff', 
+                  border: 'none', 
+                  padding: '0.95rem 1.8rem', 
+                  borderRadius: '16px', 
+                  fontWeight: '800', 
+                  fontSize: '0.96rem', 
+                  cursor: 'pointer',
+                  boxShadow: '0 8px 25px rgba(236, 72, 153, 0.45)',
+                  whiteSpace: 'nowrap',
+                  transition: 'all 0.25s ease'
+                }}
+              >
+                + Создать новую организацию
+              </button>
+            </div>
+          </div>
+
+          {/* 3 Spacious Equal Columns Grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))', gap: '2rem' }}>
+            {filteredOrgs.map(org => (
+              <div 
+                key={org.id}
+                onClick={() => setSelectedOrg(org)}
+                style={{ 
+                  background: 'rgba(18, 22, 38, 0.8)', 
+                  border: org.isDefault ? '1px solid rgba(139, 92, 246, 0.7)' : '1px solid rgba(255, 255, 255, 0.14)', 
+                  borderRadius: '28px', 
+                  padding: '2rem', 
+                  display: 'flex', 
+                  flexDirection: 'column',
+                  gap: '1.5rem',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                  backdropFilter: 'blur(28px)',
+                  boxShadow: org.isDefault ? '0 20px 45px rgba(139, 92, 246, 0.3)' : '0 20px 45px rgba(0,0,0,0.4)',
+                  position: 'relative',
+                  overflow: 'hidden'
+                }}
+              >
+                {org.isDefault && (
+                  <div style={{ position: 'absolute', top: 0, right: 0, background: 'linear-gradient(135deg, #8b5cf6, #ec4899)', color: '#fff', padding: '0.4rem 1.25rem', borderRadius: '0 0 0 20px', fontSize: '0.78rem', fontWeight: '900', boxShadow: '0 4px 15px rgba(139, 92, 246, 0.5)', letterSpacing: '0.6px' }}>
+                    ⭐ ОСНОВНАЯ
+                  </div>
+                )}
+
+                <div style={{ display: 'flex', gap: '1.4rem', alignItems: 'center' }}>
+                  <div style={{ width: '70px', height: '70px', borderRadius: '22px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.6rem', flexShrink: 0, boxShadow: '0 6px 20px rgba(0,0,0,0.25)' }}>
+                    {org.icon}
+                  </div>
+                  <div style={{ flex: 1, paddingRight: org.isDefault ? '5rem' : 0 }}>
+                    <h3 style={{ margin: '0 0 0.4rem 0', fontSize: '1.35rem', fontWeight: '800', color: '#fff' }}>{org.name}</h3>
+                    <p style={{ margin: 0, fontSize: '0.86rem', color: '#cbd5e1', lineHeight: '1.4' }}>
+                      📍 {org.city} • 🏷️ {org.type} <br />
+                      БИН: <strong style={{ color: '#fff', letterSpacing: '0.5px' }}>{org.bin}</strong>
+                    </p>
+                  </div>
+                </div>
+
+                {/* 3 Glowing Activity Metric Pill Boxes */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem', background: 'rgba(0, 0, 0, 0.35)', padding: '1rem', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.08)' }}>
+                  <div style={{ textAlign: 'center' }}>
+                    <div style={{ fontSize: '1.3rem', fontWeight: '900', color: '#38bdf8' }}>{org.projectsCount}</div>
+                    <div style={{ fontSize: '0.74rem', color: '#cbd5e1', marginTop: '0.15rem' }}>Объекта</div>
+                  </div>
+                  <div style={{ textAlign: 'center' }}>
+                    <div style={{ fontSize: '1.3rem', fontWeight: '900', color: '#c084fc' }}>{org.estimatesCount}</div>
+                    <div style={{ fontSize: '0.74rem', color: '#cbd5e1', marginTop: '0.15rem' }}>Смет</div>
+                  </div>
+                  <div style={{ textAlign: 'center' }}>
+                    <div style={{ fontSize: '1.3rem', fontWeight: '900', color: '#34d399' }}>{org.workersCount}</div>
+                    <div style={{ fontSize: '0.74rem', color: '#cbd5e1', marginTop: '0.15rem' }}>Инженеров</div>
+                  </div>
+                </div>
+
+                {/* Card Role & CTA */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '1.1rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.86rem' }}>
+                    <span style={{ color: '#cbd5e1' }}>Ваша роль в компании:</span>
+                    <strong style={{ color: '#c084fc', background: 'rgba(192, 132, 252, 0.12)', padding: '0.2rem 0.65rem', borderRadius: '8px', border: '1px solid rgba(192, 132, 252, 0.25)' }}>{org.role}</strong>
+                  </div>
+                  
+                  <button 
+                    style={{ 
+                      width: '100%',
+                      background: 'linear-gradient(90deg, #6366f1, #8b5cf6)', 
+                      color: '#fff', 
+                      border: 'none', 
+                      padding: '0.9rem', 
+                      borderRadius: '16px', 
+                      fontWeight: '800', 
+                      fontSize: '0.95rem', 
+                      cursor: 'pointer',
+                      boxShadow: '0 6px 20px rgba(99, 102, 241, 0.4)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.5rem',
+                      transition: 'all 0.25s ease'
+                    }}
+                  >
+                    <span>Войти в панель управления</span>
+                    <span style={{ fontSize: '1.1rem' }}>→</span>
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Modal for creating new organization */}
+        {showCreateOrgModal && (
+          <div className="em-modal-overlay" onClick={() => setShowCreateOrgModal(false)}>
+            <div className="em-modal-box" onClick={e => e.stopPropagation()} style={{ maxWidth: '480px' }}>
+              <button className="em-modal-close" onClick={() => setShowCreateOrgModal(false)}>✕</button>
+              <h2>🏢 Новая организация</h2>
+              <p style={{ color: '#cbd5e1', fontSize: '0.9rem', marginBottom: '1.5rem' }}>Введите реквизиты строительной компании или ИП</p>
+
+              <div className="em-form-group mb-3">
+                <label>Название компании / ИП:</label>
+                <input 
+                  type="text" 
+                  className="em-input" 
+                  value={newOrgName} 
+                  onChange={e => setNewOrgName(e.target.value)} 
+                  placeholder="например: ТОО «Астана Строй Групп»" 
+                />
+              </div>
+
+              <div className="em-form-group mb-3">
+                <label>БИН / ИИН:</label>
+                <input 
+                  type="text" 
+                  className="em-input" 
+                  value={newOrgBin} 
+                  onChange={e => setNewOrgBin(e.target.value)} 
+                  placeholder="12-значный БИН" 
+                />
+              </div>
+
+              <div className="em-form-group mb-3">
+                <label>Форма собственности:</label>
+                <select className="em-select" value={newOrgType} onChange={e => setNewOrgType(e.target.value)}>
+                  <option value="ТОО">ТОО (Товарищество с ограниченной ответственностью)</option>
+                  <option value="ИП">ИП (Индивидуальный предприниматель)</option>
+                  <option value="АО">АО (Акционерное общество)</option>
+                </select>
+              </div>
+
+              <button 
+                className="em-submit-btn w-100 mt-3"
+                onClick={() => {
+                  if (!newOrgName) return;
+                  const created = {
+                    id: Date.now(),
+                    name: newOrgName,
+                    city: newOrgCity,
+                    type: newOrgType,
+                    bin: newOrgBin || '123456789012',
+                    icon: newOrgType === 'ИП' ? '👤' : '🏢'
+                  };
+                  setOrganizations([...organizations, created]);
+                  setSelectedOrg(created);
+                  setShowCreateOrgModal(false);
+                }}
+              >
+                ✅ Зарегистрировать и войти
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="engineer-cabinet-root" style={{ flexDirection: 'row' }}>
@@ -610,11 +844,11 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
       {/* LEFT SIDEBAR PANEL (Now full height) */}
       {sidebarOpen && viewRole === 'engineer' && (
         <aside className="engineer-sidebar" style={{ height: '100vh', zIndex: 10 }}>
-          <div className="engineer-org-card">
-            <div className="org-icon">👤</div>
+          <div className="engineer-org-card" onClick={() => setSelectedOrg(null)} title="Кликните чтобы сменить организацию" style={{ cursor: 'pointer' }}>
+            <div className="org-icon">{selectedOrg?.icon || '🏢'}</div>
             <div className="org-info">
-              <h4 className="org-name">ТОО «QazGost»</h4>
-              <span className="org-sub">📍 Караганда • ТОО ⇄</span>
+              <h4 className="org-name">{selectedOrg?.name || 'ТОО «QazGost»'}</h4>
+              <span className="org-sub">📍 {selectedOrg?.city || 'Караганда'} • {selectedOrg?.type || 'ТОО'} ⇄</span>
             </div>
           </div>
 
@@ -708,35 +942,37 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
         <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
           
           {/* INNER TITLE BLOCK (was engineer-top-header) */}
-          <div className="engineer-top-header" style={{ position: 'static', borderBottom: viewRole === 'engineer' ? '1px solid rgba(255,255,255,0.05)' : 'none', flexShrink: 0 }}>
-            <div className="header-left-wrap">
-              {viewRole === 'engineer' && (
-                <button
-                  className="btn-sidebar-toggle"
-                  onClick={() => setSidebarOpen(!sidebarOpen)}
-                  title="Скрыть/показать боковое меню"
-                >
-                  {sidebarOpen ? '◀ Меню' : '▶ Меню'}
-                </button>
-              )}
-              <div className="engineer-header-title">
-                <span className="engineer-avatar-badge">{viewRole === 'customer' ? '📋' : (viewRole === 'executor' ? '🔧' : '👷')}</span>
-                <div>
-                  <h1 style={{ fontSize: '1.35rem', fontWeight: 900, margin: 0 }}>
-                    {viewRole === 'customer' ? 'Мой Календарь' : (viewRole === 'executor' ? 'График работ' : 'Кабинет инженера v2.0')}
-                  </h1>
-                  <span className="engineer-sub-tag" style={{ display: 'block', fontSize: '0.75rem', color: '#94a3b8', marginTop: '0.1rem' }}>
-                    {viewRole === 'customer' ? 'График выполнения заказов' : (viewRole === 'executor' ? 'Ваши проекты и дедлайны' : 'Технический надзор & Экспертиза СНиП РК')}
-                  </span>
+          {!hideHeader && (
+            <div className="engineer-top-header" style={{ position: 'static', borderBottom: viewRole === 'engineer' ? '1px solid rgba(255,255,255,0.05)' : 'none', flexShrink: 0 }}>
+              <div className="header-left-wrap">
+                {viewRole === 'engineer' && (
+                  <button
+                    className="btn-sidebar-toggle"
+                    onClick={() => setSidebarOpen(!sidebarOpen)}
+                    title="Скрыть/показать боковое меню"
+                  >
+                    {sidebarOpen ? '◀ Меню' : '▶ Меню'}
+                  </button>
+                )}
+                <div className="engineer-header-title">
+                  <span className="engineer-avatar-badge">{viewRole === 'customer' ? '📋' : (viewRole === 'executor' ? '🔧' : '👷')}</span>
+                  <div>
+                    <h1 style={{ fontSize: '1.35rem', fontWeight: 900, margin: 0 }}>
+                      {viewRole === 'customer' ? 'Мой Календарь' : (viewRole === 'executor' ? 'График работ' : 'Кабинет инженера v2.0')}
+                    </h1>
+                    <span className="engineer-sub-tag" style={{ display: 'block', fontSize: '0.75rem', color: '#94a3b8', marginTop: '0.1rem' }}>
+                      {viewRole === 'customer' ? 'График выполнения заказов' : (viewRole === 'executor' ? 'Ваши проекты и дедлайны' : 'Технический надзор & Экспертиза СНиП РК')}
+                    </span>
+                  </div>
                 </div>
               </div>
+              {viewRole === 'engineer' && (
+                <div className="header-right-wrap">
+                   <span className="live-status-pill">🟢 Синхронизировано СНиП РК</span>
+                </div>
+              )}
             </div>
-            {viewRole === 'engineer' && (
-              <div className="header-right-wrap">
-                 <span className="live-status-pill">🟢 Синхронизировано СНиП РК</span>
-              </div>
-            )}
-          </div>
+          )}
 
         {/* MAIN WORKSPACE PANEL SWITCHER */}
         <main className="engineer-main-content" style={{ flex: 1 }}>

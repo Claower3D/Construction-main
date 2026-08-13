@@ -82,32 +82,37 @@
 
 /* Hero Header Card */
 .spe-hero-card {
-  background: rgba(25, 26, 45, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 22px;
-  padding: 2rem 1.5rem;
+  background: rgba(15, 18, 40, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 24px;
+  padding: 2.2rem 1.75rem;
   max-width: 1000px;
   margin: 0 auto 1.75rem auto;
-  backdrop-filter: blur(16px);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
   text-align: center;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4), 0 0 30px rgba(168, 85, 247, 0.15);
 }
 
 .spe-hero-icon {
-  font-size: 2rem;
+  font-size: 2.4rem;
   margin-bottom: 0.5rem;
+  filter: drop-shadow(0 0 12px rgba(245, 158, 11, 0.5));
 }
 
 .spe-hero-card h3 {
   margin: 0 0 0.5rem 0;
-  font-size: 1.4rem;
-  font-weight: 800;
-  color: #fff;
+  font-size: 1.5rem;
+  font-weight: 900;
+  background: linear-gradient(90deg, #ffffff, #cbd5e1);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .spe-hero-card p {
   color: #cbd5e1;
-  font-size: 0.92rem;
+  font-size: 0.94rem;
   margin: 0 0 1.25rem 0;
 }
 
@@ -246,37 +251,40 @@
 }
 
 .spe-cat-box {
-  background: rgba(20, 21, 38, 0.75);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
+  background: rgba(18, 22, 45, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 18px;
   padding: 1.2rem 0.75rem;
   text-align: center;
   cursor: pointer;
-  backdrop-filter: blur(12px);
-  transition: all 0.2s ease;
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 110px;
+  min-height: 115px;
 }
 
 .spe-cat-box:hover {
-  transform: translateY(-3px);
-  border-color: rgba(168, 85, 247, 0.4);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  transform: translateY(-5px) scale(1.02);
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.25), rgba(236, 72, 153, 0.25));
+  border-color: rgba(236, 72, 153, 0.6);
+  box-shadow: 0 12px 28px rgba(236, 72, 153, 0.35);
 }
 
 .spe-cat-box.selected {
-  border: 1.5px solid #ec4899;
-  background: rgba(236, 72, 153, 0.1);
-  box-shadow: 0 0 20px rgba(236, 72, 153, 0.35);
+  border: 2px solid #ec4899;
+  background: linear-gradient(135deg, rgba(236, 72, 153, 0.35), rgba(139, 92, 246, 0.35));
+  box-shadow: 0 0 30px rgba(236, 72, 153, 0.5);
+  transform: translateY(-3px);
 }
 
 .spe-cat-icon {
-  font-size: 2rem;
+  font-size: 2.1rem;
   margin-bottom: 0.5rem;
-  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4));
 }
 
 .spe-cat-name {
@@ -284,12 +292,12 @@
   font-weight: 800;
   color: #fff;
   line-height: 1.25;
-  margin-bottom: 0.2rem;
+  margin-bottom: 0.25rem;
 }
 
 .spe-cat-count {
   font-size: 0.72rem;
-  color: #94a3b8;
+  color: #cbd5e1;
 }
 
 /* Skip Option Button */

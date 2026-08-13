@@ -95,12 +95,13 @@
 
 /* Common Card */
 .uw-card {
-  background: rgba(26, 27, 46, 0.75);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 20px;
-  padding: 2rem;
-  backdrop-filter: blur(16px);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  background: rgba(15, 18, 40, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 24px;
+  padding: 2.2rem;
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
 }
 
 /* Main Balance Card */
@@ -123,9 +124,10 @@
 }
 
 .uw-balance-amount {
-  font-size: 3rem;
+  font-size: 3.2rem;
   font-weight: 900;
-  color: #fbbf24;
+  color: #f6c453;
+  text-shadow: 0 0 25px rgba(246, 196, 83, 0.5);
   margin: 0.25rem 0 0.75rem 0;
   letter-spacing: -1px;
 }
@@ -205,21 +207,21 @@
 }
 
 .uw-btn-gold {
-  background: linear-gradient(90deg, #f59e0b, #d97706);
-  color: #000;
+  background: linear-gradient(90deg, #ec4899, #8b5cf6);
+  color: #fff;
   border: none;
-  padding: 0.85rem;
-  border-radius: 12px;
-  font-weight: 800;
+  padding: 0.95rem;
+  border-radius: 14px;
+  font-weight: 900;
   font-size: 0.95rem;
   cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.3);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 18px rgba(236, 72, 153, 0.45);
 }
 
 .uw-btn-gold:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4);
+  box-shadow: 0 6px 22px rgba(236, 72, 153, 0.6);
 }
 
 .uw-btn-glass {
@@ -247,13 +249,23 @@
 }
 
 .uw-stat-card {
-  background: rgba(26, 27, 46, 0.75);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
-  padding: 1.25rem 1.5rem;
+  background: rgba(18, 22, 45, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 20px;
+  padding: 1.35rem 1.5rem;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.uw-stat-card:hover {
+  transform: translateY(-4px) scale(1.02);
+  border-color: rgba(236, 72, 153, 0.6);
+  box-shadow: 0 12px 30px rgba(236, 72, 153, 0.3);
 }
 
 .uw-stat-label {

@@ -82,48 +82,70 @@
 
 /* Main Card */
 .di-main-card {
-  background: rgba(20, 21, 38, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 22px;
-  padding: 1.75rem;
-  max-width: 680px;
+  background: rgba(15, 18, 40, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 24px;
+  padding: 2.2rem;
+  max-width: 720px;
   margin: 0 auto;
-  backdrop-filter: blur(16px);
-  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 35px rgba(249, 115, 22, 0.15);
 }
 
 .di-section-title {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.85rem;
+  gap: 0.6rem;
+  margin-bottom: 0.95rem;
 }
 
 .di-sec-icon {
-  font-size: 1.2rem;
+  font-size: 1.3rem;
 }
 
 .di-section-title h3 {
   margin: 0;
-  font-size: 1.05rem;
-  font-weight: 800;
+  font-size: 1.1rem;
+  font-weight: 900;
   color: #f8fafc;
 }
 
-/* Dropzone */
+/* Dropzone with Laser Scan animation */
 .di-dropzone {
-  background: rgba(15, 16, 28, 0.6);
-  border: 2px dashed rgba(255, 255, 255, 0.15);
-  border-radius: 16px;
-  padding: 2.5rem 1.5rem;
+  background: rgba(10, 12, 28, 0.6);
+  border: 2px dashed rgba(249, 115, 22, 0.4);
+  border-radius: 18px;
+  padding: 2.75rem 1.5rem;
   text-align: center;
   cursor: pointer;
-  transition: all 0.25s ease;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.di-dropzone::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #38bdf8, #ec4899, transparent);
+  box-shadow: 0 0 15px #38bdf8, 0 0 25px #ec4899;
+  animation: laserScan 3.5s ease-in-out infinite alternate;
+}
+
+@keyframes laserScan {
+  0% { top: 5%; opacity: 0.2; }
+  50% { top: 90%; opacity: 0.95; }
+  100% { top: 5%; opacity: 0.2; }
 }
 
 .di-dropzone:hover {
-  border-color: #f97316;
-  background: rgba(249, 115, 22, 0.05);
+  border-color: #ec4899;
+  background: rgba(236, 72, 153, 0.08);
+  box-shadow: 0 0 25px rgba(236, 72, 153, 0.25);
 }
 
 .di-drop-icon {
@@ -191,89 +213,96 @@
 
 .di-input {
   width: 100%;
-  background: rgba(15, 16, 28, 0.9);
+  background: rgba(10, 12, 28, 0.7);
   border: 1px solid rgba(255, 255, 255, 0.12);
   color: #fff;
-  padding: 0.85rem 1.1rem;
+  padding: 0.9rem 1.2rem;
   border-radius: 14px;
   font-family: inherit;
-  font-size: 0.9rem;
+  font-size: 0.92rem;
   outline: none;
   box-sizing: border-box;
-  transition: border-color 0.2s ease;
+  transition: all 0.25s ease;
 }
 
 .di-input:focus, .di-textarea:focus {
-  border-color: #f97316;
-  box-shadow: 0 0 12px rgba(249, 115, 22, 0.25);
+  border-color: #ec4899;
+  box-shadow: 0 0 18px rgba(236, 72, 153, 0.35);
 }
 
 .di-textarea {
   width: 100%;
-  background: rgba(15, 16, 28, 0.9);
+  background: rgba(10, 12, 28, 0.7);
   border: 1px solid rgba(255, 255, 255, 0.12);
   color: #fff;
-  padding: 0.85rem 1.1rem;
+  padding: 0.9rem 1.2rem;
   border-radius: 14px;
   font-family: inherit;
-  font-size: 0.9rem;
+  font-size: 0.92rem;
   outline: none;
   box-sizing: border-box;
   resize: vertical;
   line-height: 1.45;
+  transition: all 0.25s ease;
 }
 
 /* Preset Chips */
 .di-preset-chips {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.6rem;
   flex-wrap: wrap;
-  margin-top: 0.75rem;
+  margin-top: 0.85rem;
 }
 
 .di-chips-label {
   font-size: 0.78rem;
   color: #94a3b8;
+  font-weight: 700;
 }
 
 .di-preset-chips button {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   color: #cbd5e1;
-  padding: 0.4rem 0.75rem;
+  padding: 0.45rem 0.85rem;
   border-radius: 20px;
-  font-size: 0.78rem;
-  font-weight: 600;
+  font-size: 0.8rem;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .di-preset-chips button:hover {
-  background: rgba(249, 115, 22, 0.2);
-  border-color: #f97316;
+  background: linear-gradient(90deg, rgba(168, 85, 247, 0.3), rgba(236, 72, 153, 0.3));
+  border-color: #ec4899;
   color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(236, 72, 153, 0.3);
 }
 
-/* Coral Gradient CTA Button matching screenshot */
+/* Glowing Neon CTA Button */
 .di-btn-submit {
   width: 100%;
-  background: linear-gradient(90deg, #f97316, #ef4444);
+  background: linear-gradient(90deg, #f97316, #ec4899, #8b5cf6);
+  background-size: 200% 200%;
+  animation: gradientMove 4s ease infinite;
   color: #fff;
   border: none;
-  padding: 1rem;
-  border-radius: 16px;
-  font-weight: 800;
-  font-size: 1.05rem;
+  padding: 1.1rem;
+  border-radius: 18px;
+  font-weight: 900;
+  font-size: 1.08rem;
   cursor: pointer;
   margin-top: 1.75rem;
-  box-shadow: 0 6px 20px rgba(249, 115, 22, 0.4);
-  transition: transform 0.2s ease;
+  box-shadow: 0 8px 28px rgba(249, 115, 22, 0.45);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  letter-spacing: 0.03em;
 }
 
 .di-btn-submit:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(239, 68, 68, 0.5);
+  transform: translateY(-3px) scale(1.01);
+  box-shadow: 0 12px 35px rgba(236, 72, 153, 0.55);
 }
 
 .di-scanning-flex {
