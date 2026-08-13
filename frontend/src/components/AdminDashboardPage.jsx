@@ -3,6 +3,7 @@ import AnimatedBackground from './AnimatedBackground';
 import EngineerDashboardPage from './EngineerDashboardPage';
 import AdminDashboardModal from './AdminDashboardModal';
 import FeaturePageModule from './FeaturePageModule';
+import OnboardingTour from './OnboardingTour';
 
 export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userRole = 'admin' }) {
   // Блок 1: Выбранная роль ('customer' | 'executor' | 'engineer' | 'admin')
@@ -218,8 +219,20 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
 
   const currentItemName = selectedItemObject ? selectedItemObject.name : 'Главная';
 
+  const customerTourSteps = [
+    { target: '.sidebar-nav', title: 'Меню Заказчика', content: 'Здесь находятся инструменты для управления вашим проектом: статистика, галерея и документы.', placement: 'right' },
+    { target: '.admin-redesign-main', title: 'Рабочая область', content: 'Тут отображаются фотоотчеты со стройки, акты КС-2 и прозрачные сметы.', placement: 'left' }
+  ];
+
+  const executorTourSteps = [
+    { target: '.sidebar-nav', title: 'Меню Исполнителя', content: 'Здесь вы можете отслеживать активные задачи, запрашивать материалы и смотреть выплаты.', placement: 'right' },
+    { target: '.admin-redesign-main', title: 'Рабочая область', content: 'Рабочая панель для отчетности и связи с инженером ПТО.', placement: 'left' }
+  ];
+
   return (
     <div className="admin-redesign-layout">
+      {userRole === 'customer' && <OnboardingTour steps={customerTourSteps} role="customer" />}
+      {userRole === 'executor' && <OnboardingTour steps={executorTourSteps} role="executor" />}
       {/* Background */}
       <AnimatedBackground />
 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import AnimatedBackground from './AnimatedBackground';
 import '../engineer-modal.css';
+import OnboardingTour from './OnboardingTour';
 
 export default function EngineerDashboardPage({ onBackToHome, initialTab = 'calendar', currentUser }) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -434,8 +435,15 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
     }
   };
 
+  const engineerTourSteps = [
+    { target: '.engineer-nav-menu', title: 'Навигация', content: 'Переключайтесь между календарем, обзором, заявками и объектами. Здесь начинается работа.', placement: 'right' },
+    { target: '.calendar-grid', title: 'Календарь задач', content: 'Здесь вы можете планировать свои задачи и инспекции объектов по дням.', placement: 'top' },
+    { target: '.calendar-sidebar-column', title: 'Ближайшие задачи', content: 'В этой панели отображаются все ближайшие дедлайны и активные проекты на сегодня.', placement: 'left' }
+  ];
+
   return (
     <div className="engineer-cabinet-root" style={{ flexDirection: 'row' }}>
+      <OnboardingTour steps={engineerTourSteps} role="engineer" />
       {/* Dynamic Animated Particles Background */}
       <AnimatedBackground />
 
