@@ -3,11 +3,11 @@ import './EquipmentMarketplace.css';
 
 export default function EquipmentMarketplace() {
   const [activeTab, setActiveTab] = useState('marketplace');
-  const [category, setCategory] = useState('Буровая');
-  const [tariff, setTariff] = useState('hourly');
+  const [category, setCategory] = useState('all');
+  const [tariff, setTariff] = useState('shift');
   const [location, setLocation] = useState('all');
   const [radius, setRadius] = useState(50);
-  const [freeToday, setFreeToday] = useState(true);
+  const [freeToday, setFreeToday] = useState(false);
   const [withOperator, setWithOperator] = useState(false);
   const [delivery, setDelivery] = useState('all');
   const [priceMax, setPriceMax] = useState(100);
@@ -29,6 +29,67 @@ export default function EquipmentMarketplace() {
     { id: 'transport', label: '🚚 Транспорт', active: false },
     { id: 'drill', label: '⛑️ Буровая', active: true },
     { id: 'power', label: '⚡ Энергетика', active: false }
+  ];
+
+  const equipmentList = [
+    {
+      title: 'Экскаватор гусеничный Hitachi ZX240, 24 т, 1 м³, 6.7 м',
+      price: '25 000',
+      unit: 'смена (8ч)',
+      tags: [
+        { type: 'hourly', label: 'Смена', icon: '🔄' },
+        { type: 'operator', label: 'С оператором', icon: '👷' },
+        { type: 'delivery', label: 'Платная доставка', icon: '🚚' },
+        { type: 'location', label: 'Алматы' }
+      ],
+      availableToday: true
+    },
+    {
+      title: 'Фронтальный погрузчик XCMG ZL50G, 5 т, 3.2 м',
+      price: '16 000',
+      unit: 'смена (8ч)',
+      tags: [
+        { type: 'hourly', label: 'Смена', icon: '🔄' },
+        { type: 'delivery', label: 'Доставка', icon: '🚚' },
+        { type: 'location', label: 'Алматы' }
+      ],
+      availableToday: true
+    },
+    {
+      title: 'Каток дорожный XCMG XS143J, 14 т, 2.1 м',
+      price: '18 000',
+      unit: 'смена (10ч)',
+      tags: [
+        { type: 'hourly', label: 'Смена', icon: '🔄' },
+        { type: 'operator', label: 'С оператором', icon: '👷' },
+        { type: 'delivery', label: 'Платная доставка', icon: '🚚' },
+        { type: 'location', label: 'Караганда' }
+      ],
+      availableToday: false
+    },
+    {
+      title: 'Грейдер XCMG GR215, 4.3 м',
+      price: '22 000',
+      unit: 'смена (8ч)',
+      tags: [
+        { type: 'hourly', label: 'Смена', icon: '🔄' },
+        { type: 'operator', label: 'С оператором', icon: '👷' },
+        { type: 'delivery', label: 'Платная доставка', icon: '🚚' },
+        { type: 'location', label: 'Астана' }
+      ],
+      availableToday: true
+    },
+    {
+      title: 'Генератор дизельный 100кВт, 100 кВт',
+      price: '12 000',
+      unit: 'смена (8ч)',
+      tags: [
+        { type: 'hourly', label: 'Смена', icon: '🔄' },
+        { type: 'delivery', label: 'Платная доставка', icon: '🚚' },
+        { type: 'location', label: 'Алматы' }
+      ],
+      availableToday: true
+    }
   ];
 
   return (
@@ -54,7 +115,7 @@ export default function EquipmentMarketplace() {
         <div className="em-search-bar">
           <span className="search-icon">🔍</span>
           <input type="text" placeholder="Искать по категории, модели или характеристикам" />
-          <span className="search-results-count">Найдено: 1</span>
+          <span className="search-results-count">Найдено: {equipmentList.length}</span>
         </div>
 
         <div className="em-main-layout">
@@ -62,9 +123,15 @@ export default function EquipmentMarketplace() {
             <div className="filter-group">
               <label>📁 Категория</label>
               <select value={category} onChange={e => setCategory(e.target.value)} className="em-select">
-                <option value="Буровая">⛑️ Буровая</option>
-                <option value="Землеройная">⛏️ Землеройная</option>
-                <option value="Подъемная">🏗️ Подъёмная</option>
+                <option value="all">Все категории</option>
+                <option value="earth">⛏️ Землеройная</option>
+                <option value="lift">🏗️ Подъёмная</option>
+                <option value="loader">🚜 Погрузчики</option>
+                <option value="road">🛣️ Дорожная</option>
+                <option value="concrete">🧱 Бетон/раствор</option>
+                <option value="transport">🚚 Транспорт</option>
+                <option value="drill">⛑️ Буровая</option>
+                <option value="power">⚡ Энергетика</option>
               </select>
             </div>
 
@@ -97,6 +164,19 @@ export default function EquipmentMarketplace() {
                 <option value="almaty">Алматы</option>
                 <option value="astana">Астана</option>
                 <option value="shymkent">Шымкент</option>
+                <option value="karaganda">Караганда</option>
+                <option value="aktobe">Актобе</option>
+                <option value="taraz">Тараз</option>
+                <option value="pavlodar">Павлодар</option>
+                <option value="semey">Семей</option>
+                <option value="atyrau">Атырау</option>
+                <option value="kostanay">Костанай</option>
+                <option value="petropavlovsk">Петропавловск</option>
+                <option value="uralsk">Уральск</option>
+                <option value="oskemen">Усть-Каменогорск</option>
+                <option value="kyzylorda">Кызылорда</option>
+                <option value="aktau">Актау</option>
+                <option value="turkestan">Туркестан</option>
               </select>
               
               <div className="slider-group">
@@ -120,7 +200,7 @@ export default function EquipmentMarketplace() {
             </div>
 
             <div className="filter-group">
-              <label>💰 Цена за ед.</label>
+              <label>💰 Цена за смена</label>
               <div className="slider-group">
                 <div className="slider-labels">
                   <span>до</span>
@@ -149,7 +229,7 @@ export default function EquipmentMarketplace() {
             </div>
 
             <button className="em-submit-btn">
-              Показать 1 объявление
+              Показать {equipmentList.length} объявлений
             </button>
           </aside>
 
@@ -163,29 +243,32 @@ export default function EquipmentMarketplace() {
             </div>
 
             <div className="em-grid">
-              <div className="em-card">
-                <div className="em-card-image">
-                  <div className="em-card-placeholder">🚜</div>
-                  <div className="em-badge success">✅ Доступна сегодня</div>
-                </div>
-                
-                <div className="em-card-content">
-                  <h3 className="em-card-title">Ямобур БМ-302, 3 м, 500 мм</h3>
-                  <div className="em-card-price">₸ 7 000 <span>₸/час</span></div>
+              {equipmentList.map((item, index) => (
+                <div className="em-card" key={index}>
+                  <div className="em-card-image">
+                    <div className="em-card-placeholder">🚜</div>
+                    {item.availableToday && <div className="em-badge success">✅ Доступна сегодня</div>}
+                  </div>
                   
-                  <div className="em-card-tags">
-                    <span className="em-tag hourly">💧 Почасовая</span>
-                    <span className="em-tag operator">👷 С оператором</span>
-                    <span className="em-tag delivery">🚚 Платная доставка</span>
-                    <span className="em-tag location">Шымкент</span>
-                  </div>
+                  <div className="em-card-content">
+                    <h3 className="em-card-title">{item.title}</h3>
+                    <div className="em-card-price">₸ {item.price} <span>/ {item.unit}</span></div>
+                    
+                    <div className="em-card-tags">
+                      {item.tags.map((tag, tIndex) => (
+                        <span key={tIndex} className={`em-tag ${tag.type}`}>
+                          {tag.icon ? `${tag.icon} ` : ''}{tag.label}
+                        </span>
+                      ))}
+                    </div>
 
-                  <div className="em-card-actions">
-                    <button className="em-btn-primary">Забронировать</button>
-                    <button className="em-btn-secondary">Сдаешь?</button>
+                    <div className="em-card-actions">
+                      <button className="em-btn-primary">Забронировать</button>
+                      <button className="em-btn-secondary">Сдаешь?</button>
+                    </div>
                   </div>
                 </div>
-              </div>
+              ))}
             </div>
           </div>
         </div>
