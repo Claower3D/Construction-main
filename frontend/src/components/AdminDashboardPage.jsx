@@ -337,14 +337,41 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
           </div>
           <div className="role-dropdown-wrapper">
             {userRole === 'admin' ? (
-              <select className="role-select" value={selectedRole} onChange={handleSelectRole}>
-                <option value="customer">📋 Роль: Заказчик</option>
-                <option value="executor">🔧 Роль: Исполнитель</option>
-                <option value="engineer">👷 Роль: Инженер</option>
-                <option value="company">🏢 Роль: Компания (ТОО/ИП)</option>
-                <option value="manager">💼 Роль: Менеджер</option>
-                <option value="admin">⚙️ Роль: Админ</option>
-              </select>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <div style={{ fontSize: '0.75rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 'bold' }}>выбрать дашборд</div>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <button 
+                    onClick={() => handleSelectRole({ target: { value: 'admin' } })}
+                    style={{ 
+                      flex: 1, padding: '0.6rem 0.2rem', 
+                      background: selectedRole === 'admin' ? 'var(--gold-main)' : 'rgba(255,255,255,0.05)', 
+                      border: '1px solid',
+                      borderColor: selectedRole === 'admin' ? 'var(--gold-main)' : 'rgba(255,255,255,0.1)', 
+                      borderRadius: '8px', 
+                      color: selectedRole === 'admin' ? '#0b0f1f' : '#fff', 
+                      fontWeight: 'bold', cursor: 'pointer', transition: 'all 0.2s',
+                      fontSize: '0.85rem'
+                    }}
+                  >
+                    ⚙️ Админ
+                  </button>
+                  <button 
+                    onClick={() => handleSelectRole({ target: { value: 'company' } })}
+                    style={{ 
+                      flex: 1, padding: '0.6rem 0.2rem', 
+                      background: selectedRole === 'company' ? '#0ea5e9' : 'rgba(255,255,255,0.05)', 
+                      border: '1px solid',
+                      borderColor: selectedRole === 'company' ? '#0ea5e9' : 'rgba(255,255,255,0.1)', 
+                      borderRadius: '8px', 
+                      color: '#fff', 
+                      fontWeight: 'bold', cursor: 'pointer', transition: 'all 0.2s',
+                      fontSize: '0.85rem'
+                    }}
+                  >
+                    🏢 Компания
+                  </button>
+                </div>
+              </div>
             ) : (
               <div className="role-display-badge" style={{ padding: '0.5rem 1rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <span>{currentRoleData.roleIcon}</span> Роль: {currentRoleData.roleTitle}
