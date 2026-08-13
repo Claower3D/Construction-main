@@ -13,6 +13,7 @@ const MOCK_AMOUNTS = {
 export default function CrmPage({ onBackToHome, currentUser }) {
   const [events, setEvents] = useState({});
   const [selectedCard, setSelectedCard] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     const saved = localStorage.getItem('qazgost_calendar_events');
@@ -32,7 +33,17 @@ export default function CrmPage({ onBackToHome, currentUser }) {
 
   const allCards = Object.entries(events).flatMap(([day, dayEvents]) =>
     dayEvents.map(evt => ({ ...evt, day }))
-  );
+  ).filter(card => {
+    if (!searchQuery) return true;
+    const q = searchQuery.toLowerCase();
+    return (
+      (card.title && card.title.toLowerCase().includes(q)) ||
+      (card.contractor && card.contractor.toLowerCase().includes(q)) ||
+      (card.location && card.location.toLowerCase().includes(q)) ||
+      (card.time && card.time.toLowerCase().includes(q)) ||
+      (card.id && String(card.id).toLowerCase().includes(q))
+    );
+  });
 
   const columns = [
     { id: 'Новые', title: 'Новые', color: '#ef4444' },
@@ -210,7 +221,13 @@ export default function CrmPage({ onBackToHome, currentUser }) {
             
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', flex: 1, color: '#71717a' }}>
               <span>🔍</span>
-              <input type="text" placeholder="Поиск по имени, телефону, тексту..." style={{ background: 'transparent', border: 'none', color: '#fff', fontSize: '0.9rem', width: '100%', outline: 'none' }} />
+              <input 
+                type="text" 
+                placeholder="Поиск по имени, телефону, тексту..." 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                style={{ background: 'transparent', border: 'none', color: '#fff', fontSize: '0.9rem', width: '100%', outline: 'none' }} 
+              />
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
