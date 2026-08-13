@@ -37,7 +37,7 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
 
   const handleAssignToWorker = (role) => {
     try {
-      const storageKey = role === 'engineer' ? 'qazgost_calendar_events' : 'qazgost_calendar_events_executor';
+      const storageKey = `qazgost_calendar_events_${role}`;
       const savedEvents = localStorage.getItem(storageKey);
       let crmEvents = savedEvents ? JSON.parse(savedEvents) : {};
       
@@ -133,6 +133,31 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
         };
         localStorage.setItem(key, JSON.stringify([newNotif, ...existing]));
         window.dispatchEvent(new Event('notifications_updated'));
+
+        // Push to their calendar
+        try {
+          const storageKey = `qazgost_calendar_events_${notifRole}`;
+          const savedEvents = localStorage.getItem(storageKey);
+          let calEvents = savedEvents ? JSON.parse(savedEvents) : {};
+          const day = formData.day || new Date().toISOString().split('T')[0];
+          if (!calEvents[day]) calEvents[day] = [];
+          
+          const newEvent = {
+            ...formData,
+            status: notifRole === 'engineer' ? 'На проверке у инженера' : 'В работе',
+            contractor: notifRole === 'engineer' ? 'Отдел ПТО' : 'Исполнитель'
+          };
+          
+          const existingIdx = calEvents[day].findIndex(e => e.id === formData.id);
+          if (existingIdx !== -1) {
+            calEvents[day][existingIdx] = newEvent;
+          } else {
+            calEvents[day].push(newEvent);
+          }
+          localStorage.setItem(storageKey, JSON.stringify(calEvents));
+        } catch(e) {
+          console.error('Failed to sync calendar', e);
+        }
       }
     }
     onSave(formData);

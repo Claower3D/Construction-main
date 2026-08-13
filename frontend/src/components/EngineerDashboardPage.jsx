@@ -99,7 +99,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
       }
     } else {
       // Normal role-based loading
-      const key = viewRole === 'engineer' ? 'qazgost_calendar_events' : `qazgost_calendar_events_${viewRole}`;
+      const key = `qazgost_calendar_events_${viewRole}`;
       const parsed = parseEvents(key);
       if (Object.keys(parsed).length > 0) return parsed;
     }
@@ -171,7 +171,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
   });
 
   useEffect(() => {
-    const key = viewRole === 'engineer' ? 'qazgost_calendar_events' : `qazgost_calendar_events_${viewRole}`;
+    const key = `qazgost_calendar_events_${viewRole}`;
     localStorage.setItem(key, JSON.stringify(scheduledEvents));
   }, [scheduledEvents, viewRole]);
 
