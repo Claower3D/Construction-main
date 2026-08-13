@@ -219,20 +219,30 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
 
   const currentItemName = selectedItemObject ? selectedItemObject.name : 'Главная';
 
-  const customerTourSteps = [
-    { target: '.sidebar-nav', title: 'Меню Заказчика', content: 'Здесь находятся инструменты для управления вашим проектом: статистика, галерея и документы.', placement: 'right' },
-    { target: '.admin-redesign-main', title: 'Рабочая область', content: 'Тут отображаются фотоотчеты со стройки, акты КС-2 и прозрачные сметы.', placement: 'left' }
-  ];
+  const customerTourSteps = {
+    'c-overview': [
+      { target: '.sidebar-nav', title: 'Меню Заказчика', content: 'Здесь находятся инструменты для управления вашим проектом: статистика, галерея и документы.', placement: 'right' },
+      { target: '.admin-redesign-main', title: 'Рабочая область', content: 'Тут отображаются фотоотчеты со стройки, акты КС-2 и прозрачные сметы.', placement: 'left' }
+    ],
+    'c-reports': [
+      { target: '.admin-redesign-main', title: 'Отчеты', content: 'Тут вы можете выгружать отчеты по финансам и материалам.', placement: 'left' }
+    ]
+  };
 
-  const executorTourSteps = [
-    { target: '.sidebar-nav', title: 'Меню Исполнителя', content: 'Здесь вы можете отслеживать активные задачи, запрашивать материалы и смотреть выплаты.', placement: 'right' },
-    { target: '.admin-redesign-main', title: 'Рабочая область', content: 'Рабочая панель для отчетности и связи с инженером ПТО.', placement: 'left' }
-  ];
+  const executorTourSteps = {
+    'e-tasks': [
+      { target: '.sidebar-nav', title: 'Меню Исполнителя', content: 'Здесь вы можете отслеживать активные задачи, запрашивать материалы и смотреть выплаты.', placement: 'right' },
+      { target: '.admin-redesign-main', title: 'Рабочая область', content: 'Рабочая панель для отчетности и связи с инженером ПТО.', placement: 'left' }
+    ]
+  };
+
+  const currentCustomerSteps = customerTourSteps[selectedItemId] || customerTourSteps['c-overview'] || [];
+  const currentExecutorSteps = executorTourSteps[selectedItemId] || executorTourSteps['e-tasks'] || [];
 
   return (
     <div className="admin-redesign-layout">
-      {userRole === 'customer' && <OnboardingTour steps={customerTourSteps} role="customer" />}
-      {userRole === 'executor' && <OnboardingTour steps={executorTourSteps} role="executor" />}
+      {userRole === 'customer' && <OnboardingTour steps={currentCustomerSteps} tourKey={`customer_${selectedItemId}`} />}
+      {userRole === 'executor' && <OnboardingTour steps={currentExecutorSteps} tourKey={`executor_${selectedItemId}`} />}
       {/* Background */}
       <AnimatedBackground />
 

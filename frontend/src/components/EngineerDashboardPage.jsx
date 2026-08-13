@@ -435,15 +435,30 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
     }
   };
 
-  const engineerTourSteps = [
-    { target: '.engineer-nav-menu', title: 'Навигация', content: 'Переключайтесь между календарем, обзором, заявками и объектами. Здесь начинается работа.', placement: 'right' },
-    { target: '.calendar-grid', title: 'Календарь задач', content: 'Здесь вы можете планировать свои задачи и инспекции объектов по дням.', placement: 'top' },
-    { target: '.calendar-sidebar-column', title: 'Ближайшие задачи', content: 'В этой панели отображаются все ближайшие дедлайны и активные проекты на сегодня.', placement: 'left' }
-  ];
+  const engineerTourSteps = {
+    calendar: [
+      { target: '.engineer-nav-menu', title: 'Навигация', content: 'Переключайтесь между календарем, обзором, заявками и объектами.', placement: 'right' },
+      { target: '.calendar-grid', title: 'Календарь задач', content: 'Здесь вы можете планировать свои задачи и инспекции.', placement: 'top' },
+      { target: '.btn-sm-add', title: 'Добавление задач', content: 'Нажмите эту кнопку, чтобы быстро создать новую задачу или этап работы на выбранный день.', placement: 'left' }
+    ],
+    objects: [
+      { target: '.objects-grid-view, .objects-list-view', title: 'Управление объектами', content: 'Здесь отображаются все объекты технического надзора.', placement: 'top' },
+      { target: '.btn-add-object', title: 'Добавить объект', content: 'Кнопка для заведения новой карточки объекта в базу.', placement: 'left' }
+    ],
+    'ai-calc': [
+      { target: '.ai-upload-area', title: 'Загрузка чертежей', content: 'Перетащите сюда файлы PDF или DWG для автоматического анализа.', placement: 'bottom' },
+      { target: '.btn-gen-ai', title: 'Генерация', content: 'ИИ распознает объемы и сформирует черновую смету за несколько секунд.', placement: 'left' }
+    ],
+    estimates: [
+      { target: '.estimates-table-wrapper', title: 'Сметные расчеты', content: 'В этой таблице хранятся все просчитанные сметы. Вы можете экспортировать их в Excel или PDF.', placement: 'top' }
+    ]
+  };
+
+  const currentTourSteps = engineerTourSteps[activeTab] || [];
 
   return (
     <div className="engineer-cabinet-root" style={{ flexDirection: 'row' }}>
-      <OnboardingTour steps={engineerTourSteps} role="engineer" />
+      <OnboardingTour steps={currentTourSteps} tourKey={`engineer_${activeTab}`} />
       {/* Dynamic Animated Particles Background */}
       <AnimatedBackground />
 
@@ -1431,6 +1446,14 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
       {/* Interactive Create / Edit Event Modal with Stage Sequence & Photo Attachments */}
       {showAddModal && (
         <div className="modal-overlay-bg" onClick={() => setShowAddModal(false)}>
+          <OnboardingTour 
+            tourKey="engineer_event_modal" 
+            steps={[
+              { target: '.add-event-modal', title: 'Окно редактирования', content: 'Здесь вы заполняете всю информацию по объекту.', placement: 'left' },
+              { target: '.crm-pipeline-box', title: 'Этапы работ', content: 'Добавляйте новые этапы и нажимайте "Завершить этап" (зеленая кнопка), чтобы двигать процесс.', placement: 'bottom' },
+              { target: '.modal-tabs-header', title: 'Вкладки', content: 'Переключайтесь между основными данными, этапами и фотографиями.', placement: 'top' }
+            ]} 
+          />
           <div className="add-event-modal" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h3>{editingEvent ? '✏️ Редактировать объект' : `+ Новый объект на ${selectedDay} ${monthsList[monthIndex]}`}</h3>

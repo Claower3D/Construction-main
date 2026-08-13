@@ -1,17 +1,18 @@
 import React, { useState, useEffect } from 'react';
 
-export default function OnboardingTour({ steps, role }) {
+export default function OnboardingTour({ steps, tourKey }) {
   const [currentStep, setCurrentStep] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
   const [targetRect, setTargetRect] = useState(null);
 
   useEffect(() => {
-    // Check if the user has already seen the tour for this role
-    const hasSeenTour = localStorage.getItem(`tour_completed_${role}`);
+    // Check if the user has already seen the tour for this specific context
+    const hasSeenTour = localStorage.getItem(`tour_completed_${tourKey}`);
     if (!hasSeenTour && steps && steps.length > 0) {
       setIsVisible(true);
+      setCurrentStep(0); // Reset step when tourKey changes
     }
-  }, [role, steps]);
+  }, [tourKey, steps]);
 
   useEffect(() => {
     if (!isVisible || !steps[currentStep]) return;
@@ -54,7 +55,7 @@ export default function OnboardingTour({ steps, role }) {
 
   const handleComplete = () => {
     setIsVisible(false);
-    localStorage.setItem(`tour_completed_${role}`, 'true');
+    localStorage.setItem(`tour_completed_${tourKey}`, 'true');
   };
 
   const handleSkip = () => {
