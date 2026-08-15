@@ -246,13 +246,17 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
     }
   };
 
+  // Safely derive name and icon to prevent crashes if itemData properties are missing
+  const displayName = (itemData?.name || itemData?.title || itemData?.label || 'МОДУЛЬ').toUpperCase();
+  const displayIcon = itemData?.icon || '⚙️';
+
   // If item is an Admin module, render Admin inline page container
   if (itemId && itemId.startsWith('adm-')) {
     return (
       <div className="inline-fullpage-wrapper">
         <div className="fullpage-top-bar">
           <button className="btn-back-inline" onClick={onBack}>← Назад к списку элементов</button>
-          <div className="page-title-badge">⚙️ АДМИНИСТРАТИВНЫЙ МОДУЛЬ: {itemData.name.toUpperCase()}</div>
+          <div className="page-title-badge">⚙️ АДМИНИСТРАТИВНЫЙ МОДУЛЬ: {displayName}</div>
         </div>
         <div className="inline-admin-container">
           <AdminDashboardModal isOpen={true} onClose={onBack} />
@@ -267,7 +271,7 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
       <div className="fullpage-top-bar">
         <button className="btn-back-inline" onClick={onBack}>← Назад к выбору инструмента</button>
         <div className="page-title-badge">
-          <span>{itemData.icon}</span> {itemData.name.toUpperCase()}
+          <span>{displayIcon}</span> {displayName}
         </div>
       </div>
 

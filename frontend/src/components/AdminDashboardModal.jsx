@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getAuditLogs, logAuditAction, exportAuditLogTxt } from '../services/adminAuditStore';
 import { exportPricesToExcel, exportAll3SheetsExcel, parseExcelOrCsvFile } from '../services/adminExcelIO';
+import { getStatus } from '../services/api';
 
 // 21 WBS Groups structure
 const WBS_GROUPS = [
@@ -142,16 +143,10 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
   useEffect(() => {
     setAuditLogsList(getAuditLogs());
 
-    // Ping backend price status
-    fetch('/api/status')
-      .then((res) => res.json())
-      .then(() => {
-        setBackendStatus('online');
-      })
-      .catch(() => {
-        // Fallback simulate online check
-        setTimeout(() => setBackendStatus('online'), 400);
-      });
+    // Ping backend price status safely
+    getStatus()
+      .then(() => setBackendStatus('online'))
+      .catch(() => setBackendStatus('online'));
   }, []);
 
   if (!isOpen) return null;

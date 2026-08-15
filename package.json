@@ -4,7 +4,9 @@
   "description": "QAZGOST AI - Combined React 18 + Express.js Construction Platform",
   "main": "frontend/dist/index.html",
   "scripts": {
-    "start": "npm --prefix WebVersion/backend start",
+    "start": "go run ./go-backend/cmd/server/main.go",
+    "start:go": "go run ./go-backend/cmd/server/main.go",
+    "build:go": "go build -o ./go-backend/server.exe ./go-backend/cmd/server/main.go",
     "start:backend": "npm --prefix WebVersion/backend start",
     "start:frontend": "npm --prefix frontend run dev",
     "build:frontend": "npm --prefix frontend run build"

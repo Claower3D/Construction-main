@@ -16,12 +16,14 @@
 .sd-modal-container {
   background: #1e1e2d; /* Dark theme matching screenshot */
   border-radius: 16px;
-  width: 100%;
-  max-width: 500px;
-  padding: 1.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  width: 95%;
+  max-width: 720px;
+  padding: 1.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6);
   color: #fff;
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
 .sd-modal-header {
@@ -299,3 +301,136 @@
   background: rgba(255,255,255,0.2);
   border-radius: 3px;
 }
+
+/* Editable table input fields */
+.sd-table-input {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  color: #f8fafc;
+  padding: 0.3rem 0.45rem;
+  font-family: inherit;
+  font-size: 0.83rem;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.sd-table-input:focus {
+  border-color: #f59e0b;
+  background: rgba(245, 158, 11, 0.1);
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.25);
+}
+
+.sd-center-text {
+  text-align: center;
+}
+
+.sd-right-text {
+  text-align: right;
+}
+
+.sd-row-del-btn {
+  background: transparent;
+  border: none;
+  color: #ef4444;
+  font-size: 0.95rem;
+  font-weight: 900;
+  cursor: pointer;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.sd-row-del-btn:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+}
+
+.sd-total-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.sd-total-subtext {
+  font-size: 0.78rem;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+/* File Upload Previews */
+.sd-files-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 0.75rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.sd-file-chip {
+  position: relative;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  color: #cbd5e1;
+}
+
+.sd-file-thumb {
+  width: 100%;
+  height: 70px;
+  border-radius: 6px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #11111b;
+}
+
+.sd-file-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.sd-file-remove-btn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: rgba(239, 68, 68, 0.85);
+  color: #fff;
+  border: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 900;
+}
+
+.sd-file-remove-btn:hover {
+  background: #ef4444;
+}
+
+/* Form Two Column Grid */
+.sd-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+@media (max-width: 600px) {
+  .sd-form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+

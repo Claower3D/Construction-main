@@ -10,11 +10,22 @@ function getHeaders(extraHeaders = {}) {
   return headers;
 }
 
+// Helper to safely parse JSON or empty response
+async function safeJsonParse(res) {
+  const text = await res.text();
+  if (!text) return {};
+  try {
+    return JSON.parse(text);
+  } catch (e) {
+    return {};
+  }
+}
+
 export async function checkHealth() {
   try {
     const res = await fetch('/health');
     if (!res.ok) throw new Error(`Health check failed: ${res.statusText}`);
-    return res.json();
+    return await safeJsonParse(res);
   } catch (e) {
     return { status: 'ok', environment: 'development', uptime: 100, database: 'demo' };
   }
@@ -24,7 +35,7 @@ export async function getStatus() {
   try {
     const res = await fetch('/api');
     if (!res.ok) throw new Error(`Status check failed: ${res.statusText}`);
-    return res.json();
+    return await safeJsonParse(res);
   } catch (e) {
     return { name: 'QAZGOST AI Express Backend', version: '2.0.0', status: 'running' };
   }
@@ -37,8 +48,8 @@ export async function loginUser(email, password) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
     });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Ошибка входа');
+    const data = await safeJsonParse(res);
+    if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
     if (data.token) {
       localStorage.setItem('auth_token', data.token);
     }
@@ -70,7 +81,7 @@ export async function registerUser(userData) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(userData),
     });
-    const data = await res.json();
+    const data = await safeJsonParse(res);
     if (!res.ok) throw new Error(data.error || 'Ошибка регистрации');
     if (data.token) {
       localStorage.setItem('auth_token', data.token);
@@ -114,7 +125,7 @@ export async function fetchPrices(region = 'Алматы', search = '') {
       headers: getHeaders(),
     });
     if (!res.ok) throw new Error(`Fetch prices failed`);
-    const data = await res.json();
+    const data = await safeJsonParse(res);
     return data.items || data;
   } catch (err) {
     console.warn('Fallback to demo prices:', err.message);
@@ -137,7 +148,7 @@ export async function calculateEstimate(data) {
       body: JSON.stringify(data),
     });
     if (!res.ok) throw new Error(`Calculate estimate failed`);
-    return res.json();
+    return await safeJsonParse(res);
   } catch (e) {
     const area = data.area || 50;
     const workCost = area * 8500;
@@ -163,7 +174,7 @@ export async function detectDefects() {
   try {
     const res = await fetch(`${BASE_URL}/wbs/defects`, { headers: getHeaders() });
     if (!res.ok) throw new Error('Defects fetch failed');
-    return res.json();
+    return await safeJsonParse(res);
   } catch (e) {
     return [
       { id: 'DEF-01', defectType: 'Усадочная трещина бетона', severity: 'Средняя (Класс II)', riskScore: 35, advice: 'Заполнение эпоксидным инъекционным составом СНиП РК', detectedAt: new Date().toISOString() },
@@ -176,7 +187,7 @@ export async function fetchOrders() {
   try {
     const res = await fetch(`${BASE_URL}/orders`, { headers: getHeaders() });
     if (!res.ok) throw new Error('Orders fetch failed');
-    const data = await res.json();
+    const data = await safeJsonParse(res);
     return data.items || data;
   } catch (e) {
     return [
@@ -191,7 +202,7 @@ export async function fetchEngineerEvents() {
   try {
     const res = await fetch(`${BASE_URL}/engineers/events`, { headers: getHeaders() });
     if (!res.ok) throw new Error('Engineer events failed');
-    const data = await res.json();
+    const data = await safeJsonParse(res);
     return data.items || data;
   } catch (e) {
     return [

@@ -49,10 +49,12 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
   const [evtDeadline, setEvtDeadline] = useState('Сегодня до 18:00');
 
   // Stages & Photo attachments modal state
-  const [modalTab, setModalTab] = useState('info'); // 'info' | 'stages' | 'photos'
+  const [modalTab, setModalTab] = useState('info'); // 'info' | 'stages' | 'estimate' | 'photos'
   const [evtStages, setEvtStages] = useState([]);
   const [activeStageId, setActiveStageId] = useState(null);
   const [evtPhotos, setEvtPhotos] = useState([]);
+  const [evtEstimateItems, setEvtEstimateItems] = useState([]);
+  const [evtTotalSum, setEvtTotalSum] = useState(0);
   const [newStageTitle, setNewStageTitle] = useState('');
   const [newStageDeadline, setNewStageDeadline] = useState('');
   const [newStageStatus, setNewStageStatus] = useState('Запланировано');
@@ -351,6 +353,8 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
     ]);
     setActiveStageId(null);
     setEvtPhotos([]);
+    setEvtEstimateItems([]);
+    setEvtTotalSum(0);
     setShowSmartCreateModal(true);
   };
 
@@ -371,6 +375,8 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
     ]);
     setActiveStageId(null);
     setEvtPhotos(evt.photos || []);
+    setEvtEstimateItems(evt.estimateItems || []);
+    setEvtTotalSum(evt.totalSum || (evt.estimateItems ? evt.estimateItems.reduce((a, c) => a + (c.sum || 0), 0) : 0));
     setShowAddModal(true);
   };
 
@@ -383,6 +389,8 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
       title: `${evtStages.length + 1}. ${newStageTitle}`,
       deadline: newStageDeadline || 'До 18:00',
       status: newStageStatus,
+      crew: '',
+      machinery: '',
       description: '',
       photos: [],
       documents: []
@@ -401,29 +409,39 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
     setEvtStages(evtStages.map(s => s.id === stageId ? { ...s, status } : s));
   };
 
-  // Handlers for Photo Operations
+  // Handlers for Executive Report File Operations (Photos, Videos, Docs, CAD)
   const handleAttachPhoto = (e) => {
     const files = e.target?.files;
     if (files && files.length > 0) {
-      const newItems = Array.from(files).map((f, idx) => ({
-        id: `p-${Date.now()}-${idx}`,
-        name: f.name,
-        tag: 'Фотофиксация',
-        time: 'Только что',
-        preview: f.type.startsWith('image/') ? '🖼️' : '📄',
-        url: f.type.startsWith('image/') ? URL.createObjectURL(f) : null,
-        isImg: f.type.startsWith('image/')
-      }));
-      setEvtPhotos([...evtPhotos, ...newItems]);
-    } else {
-      const sample = {
-        id: `p-${Date.now()}`,
-        name: `Снимок_объекта_${evtPhotos.length + 1}.jpg`,
-        tag: 'Контроль качества',
-        time: 'Только что',
-        preview: '📸'
-      };
-      setEvtPhotos([...evtPhotos, sample]);
+      const newItems = Array.from(files).map((f, idx) => {
+        const isImg = f.type.startsWith('image/');
+        const isVid = f.type.startsWith('video/');
+        const isPdf = f.type === 'application/pdf' || f.name.endsWith('.pdf');
+        const isDoc = f.name.match(/\.(doc|docx|xls|xlsx)$/i);
+        const isCad = f.name.match(/\.(dwg|dxf|zip|rar)$/i);
+
+        let tag = 'Документ';
+        let previewIcon = '📄';
+        if (isImg) { tag = 'Фотофиксация'; previewIcon = '🖼️'; }
+        else if (isVid) { tag = 'Видеозапись'; previewIcon = '🎥'; }
+        else if (isPdf) { tag = 'Акт / Сертификат'; previewIcon = '📕'; }
+        else if (isDoc) { tag = 'Документ / Смета'; previewIcon = '📑'; }
+        else if (isCad) { tag = 'Схема / CAD'; previewIcon = '📐'; }
+
+        return {
+          id: `file-${Date.now()}-${idx}`,
+          name: f.name,
+          tag: tag,
+          time: 'Только что',
+          preview: previewIcon,
+          url: (isImg || isVid) ? URL.createObjectURL(f) : null,
+          isImg: isImg,
+          isVideo: isVid,
+          isDoc: isPdf || isDoc,
+          isCad: isCad
+        };
+      });
+      setEvtPhotos(prev => [...prev, ...newItems]);
     }
   };
 
@@ -448,6 +466,60 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
     setActiveStageId(newStage.id);
   };
 
+  const handleChangeStageField = (stageId, field, value) => {
+    setEvtStages(prev => prev.map(s => s.id === stageId ? { ...s, [field]: value } : s));
+  };
+
+  const handleAddStageCrew = (stageId, crewName) => {
+    if (!crewName) return;
+    setEvtStages(prev => prev.map(s => {
+      if (s.id === stageId) {
+        const currentCrews = Array.isArray(s.crews) ? s.crews : (s.crew ? [s.crew] : []);
+        if (!currentCrews.includes(crewName)) {
+          const updated = [...currentCrews, crewName];
+          return { ...s, crews: updated, crew: updated.join(', ') };
+        }
+      }
+      return s;
+    }));
+  };
+
+  const handleRemoveStageCrew = (stageId, crewName) => {
+    setEvtStages(prev => prev.map(s => {
+      if (s.id === stageId) {
+        const currentCrews = Array.isArray(s.crews) ? s.crews : (s.crew ? [s.crew] : []);
+        const updated = currentCrews.filter(c => c !== crewName);
+        return { ...s, crews: updated, crew: updated.join(', ') };
+      }
+      return s;
+    }));
+  };
+
+  const handleAddStageMachinery = (stageId, machName) => {
+    if (!machName) return;
+    setEvtStages(prev => prev.map(s => {
+      if (s.id === stageId) {
+        const currentMach = Array.isArray(s.machineries) ? s.machineries : (s.machinery ? [s.machinery] : []);
+        if (!currentMach.includes(machName)) {
+          const updated = [...currentMach, machName];
+          return { ...s, machineries: updated, machinery: updated.join(', ') };
+        }
+      }
+      return s;
+    }));
+  };
+
+  const handleRemoveStageMachinery = (stageId, machName) => {
+    setEvtStages(prev => prev.map(s => {
+      if (s.id === stageId) {
+        const currentMach = Array.isArray(s.machineries) ? s.machineries : (s.machinery ? [s.machinery] : []);
+        const updated = currentMach.filter(m => m !== machName);
+        return { ...s, machineries: updated, machinery: updated.join(', ') };
+      }
+      return s;
+    }));
+  };
+
   const handleRemovePhoto = (photoId) => {
     setEvtPhotos(evtPhotos.filter(p => p.id !== photoId));
   };
@@ -467,10 +539,21 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
       deadline: evtDeadline,
       stages: evtStages,
       photos: evtPhotos,
+      estimateItems: evtEstimateItems,
+      totalSum: evtTotalSum,
       createdBy: editingEvent ? editingEvent.createdBy : currentUser?.id
     };
 
     const key = viewRole === 'engineer' ? 'qazgost_calendar_events' : `qazgost_calendar_events_${viewRole}`;
+
+    // Sync payload with local storage and backend API
+    try {
+      fetch('/api/v1/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(eventPayload)
+      }).catch(() => {});
+    } catch(err) {}
 
     if (editingEvent) {
       // Update existing event
@@ -482,6 +565,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
           )
         };
         localStorage.setItem(key, JSON.stringify(newState));
+        localStorage.setItem('qazgost_calendar_events', JSON.stringify(newState));
         return newState;
       });
     } else {
@@ -497,6 +581,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
           [selectedDay]: [...(prev[selectedDay] || []), newEvt]
         };
         localStorage.setItem(key, JSON.stringify(newState));
+        localStorage.setItem('qazgost_calendar_events', JSON.stringify(newState));
         return newState;
       });
     }
@@ -1860,6 +1945,8 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
             setEvtDeadline(payload.deadline);
             setEvtStages(payload.stages);
             setEvtPhotos(payload.photos);
+            setEvtEstimateItems(payload.estimateItems || []);
+            setEvtTotalSum(payload.totalSum || 0);
             
             // We need a slight delay to allow state to update before calling handleSaveEvent
             setTimeout(() => {
@@ -1891,67 +1978,275 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
               <button className="btn-close-modal" onClick={() => setShowAddModal(false)}>✕</button>
             </div>
 
-            {/* TOP CONNECTED PIPELINE TRACK (Exact connected pill style matching screenshot with + button) */}
-            <div className="crm-pipeline-box">
-              <div className="pipeline-header-row">
-                <span className="pipeline-header-title">
-                  <span>⚙️</span> Последовательность этапов ({evtStages.length})
-                </span>
-                <span className="pipeline-progress-badge">
-                  {Math.round((evtStages.filter(s => s.status === 'Завершено').length / (evtStages.length || 1)) * 100)}% Выполнено
-                </span>
-              </div>
 
-              <div className="crm-pipeline-track">
-                {evtStages.map((st, idx) => {
-                  const isCompleted = st.status === 'Завершено';
-                  const isActive = st.status === 'В работе';
-                  const isReview = st.status === 'Ожидает приёмки';
 
-                  return (
-                    <React.Fragment key={st.id}>
-                      {idx > 0 && (
-                        <span className={`pipeline-line-connector ${evtStages[idx - 1].status === 'Завершено' ? 'active-line' : ''}`} />
-                      )}
+            <form onSubmit={handleSaveEvent} className="modal-form-body">
+              <div style={{ display: 'grid', gridTemplateColumns: '380px 1fr', gap: '1.5rem', alignItems: 'start' }}>
 
-                      <div
-                        className={`crm-stage-pill ${isCompleted ? 'status-completed' : isActive ? 'status-active' : isReview ? 'status-review' : 'status-planned'} ${activeStageId === st.id ? 'is-active-stage' : ''}`}
-                        onClick={() => {
-                          setActiveStageId(activeStageId === st.id ? null : st.id);
-                        }}
-                        title="Нажмите для просмотра деталей этапа"
-                      >
-                        {isCompleted && <span className="pill-check-icon">✓</span>}
-                        <span className="pill-title-text">{st.title.replace(/^\d+\.\s*/, '')}</span>
-                        <button
-                          type="button"
-                          className="pill-quick-del"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteStage(st.id);
-                          }}
-                          title="Удалить этап"
-                        >
-                          ✕
-                        </button>
-                      </div>
-                    </React.Fragment>
-                  );
-                })}
+                {/* LEFT COLUMN: PERMANENT OBJECT PASSPORT & PARAMETERS */}
+                <div style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '1rem',
+                  padding: '1.25rem',
+                  background: 'rgba(255, 255, 255, 0.02)',
+                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                  borderRadius: '18px'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '0.6rem' }}>
+                    <span style={{ color: '#ec4899', fontWeight: 800, fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                      📋 Паспорт объекта
+                    </span>
+                    <span style={{ fontSize: '0.75rem', background: 'rgba(236,72,153,0.15)', color: '#f472b6', padding: '0.15rem 0.5rem', borderRadius: '6px', fontWeight: 700 }}>
+                      {editingEvent ? 'РЕДАКТИРОВАНИЕ' : 'НОВЫЙ ОБЪЕКТ'}
+                    </span>
+                  </div>
 
-                {/* CONNECTING LINE TO PLUS (+) BUTTON */}
-                {evtStages.length > 0 && (
-                  <span className={`pipeline-line-connector ${evtStages[evtStages.length - 1].status === 'Завершено' ? 'active-line' : ''}`} />
-                )}
+                  <div className="form-group" style={{ marginBottom: 0 }}>
+                    <label style={{ fontSize: '0.82rem', color: '#cbd5e1', fontWeight: 600 }}>📝 Название объекта / инспекции:</label>
+                    <input
+                      type="text"
+                      placeholder="Например: Штамповые испытания - Иван Петров"
+                      value={evtTitle}
+                      onChange={(e) => setEvtTitle(e.target.value)}
+                      className="modal-input"
+                      disabled={viewRole === 'customer'}
+                      required
+                    />
+                  </div>
 
-                {/* INLINE PLUS (+) BUTTON IN THE CONNECTED ROW */}
-                {viewRole !== 'customer' && (
-                  isAddingInlineStage ? (
-                    <div className="inline-add-stage-form">
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                    <div className="form-group" style={{ marginBottom: 0 }}>
+                      <label style={{ fontSize: '0.82rem', color: '#cbd5e1', fontWeight: 600 }}>🏷️ Категория:</label>
+                      <select value={evtType} onChange={(e) => setEvtType(e.target.value)} className="modal-select" disabled={viewRole === 'customer'}>
+                        <option value="active_project">🔵 Проект</option>
+                        <option value="work_stage">🟣 Этап</option>
+                        <option value="deadline">🔴 Срок</option>
+                        <option value="in_review">🟡 Проверка</option>
+                        <option value="completed">🟢 Завершено</option>
+                        <option value="object">🏗️ Объект</option>
+                        <option value="request">📬 Заявка</option>
+                      </select>
+                    </div>
+
+                    <div className="form-group" style={{ marginBottom: 0 }}>
+                      <label style={{ fontSize: '0.82rem', color: '#cbd5e1', fontWeight: 600 }}>📊 Статус:</label>
+                      <select value={evtStatus} onChange={(e) => setEvtStatus(e.target.value)} className="modal-select" disabled={viewRole === 'customer'}>
+                        <option value="В работе">🟡 В работе</option>
+                        <option value="Ожидает приёмки">⏳ Приёмка</option>
+                        <option value="Завершено">🟢 Завершено</option>
+                        <option value="Просрочено">🔴 Просрочено</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                    <div className="form-group" style={{ marginBottom: 0 }}>
+                      <label style={{ fontSize: '0.82rem', color: '#cbd5e1', fontWeight: 600 }}>📅 Дедлайн:</label>
                       <input
                         type="text"
-                        className="inline-stage-input"
-                        placeholder="Название нового этапа..."
+                        placeholder="До 18:00"
+                        value={evtDeadline}
+                        onChange={(e) => setEvtDeadline(e.target.value)}
+                        className="modal-input"
+                        disabled={viewRole === 'customer'}
+                      />
+                    </div>
+
+                    <div className="form-group" style={{ marginBottom: 0 }}>
+                      <label style={{ fontSize: '0.82rem', color: '#cbd5e1', fontWeight: 600 }}>⏰ Время:</label>
+                      <input
+                        type="text"
+                        placeholder="09:00 - 18:00"
+                        value={evtTime}
+                        onChange={(e) => setEvtTime(e.target.value)}
+                        className="modal-input"
+                        disabled={viewRole === 'customer'}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="form-group" style={{ marginBottom: 0 }}>
+                    <label style={{ fontSize: '0.82rem', color: '#cbd5e1', fontWeight: 600 }}>👷 Ответственная организация:</label>
+                    <select
+                      value={evtContractor}
+                      onChange={(e) => setEvtContractor(e.target.value)}
+                      className="modal-input modal-select"
+                      style={{ cursor: 'pointer', background: '#1e1e2d', color: '#f8fafc' }}
+                      disabled={viewRole === 'customer'}
+                    >
+                      <option value="Не назначен">Не назначен</option>
+                      <option value="ТОО «QazGost»">ТОО «QazGost»</option>
+                      <option value="ТОО «Алматы Сити»">ТОО «Алматы Сити»</option>
+                      <option value="ИП «Мастер Сервис»">ИП «Мастер Сервис»</option>
+                      <option value="ТОО «Инжен-Строй»">ТОО «Инжен-Строй»</option>
+                      <option value="ИП «Сатов А.В.»">ИП «Сатов А.В.»</option>
+                      <option value="Куаныш Жумагулов (Геология)">Куаныш Жумагулов (Геология)</option>
+                      <option value="Алексей Мельников (Геодезия)">Алексей Мельников (Геодезия)</option>
+                      <option value="Данияр Айтжанов (Испытания свай)">Данияр Айтжанов (Испытания свай)</option>
+                    </select>
+                  </div>
+
+                  <div className="form-group" style={{ marginBottom: 0 }}>
+                    <label style={{ fontSize: '0.82rem', color: '#cbd5e1', fontWeight: 600 }}>📍 Точный адрес объекта:</label>
+                    <input
+                      type="text"
+                      placeholder="Алматы, Медеуский р-н, ул. Достык 12"
+                      value={evtLocation}
+                      onChange={(e) => setEvtLocation(e.target.value)}
+                      className="modal-input"
+                      disabled={viewRole === 'customer'}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const targetQuery = evtLocation || 'Алматы';
+                        window.open(`https://2gis.kz/search/${encodeURIComponent(targetQuery)}`, '_blank');
+                      }}
+                      style={{
+                        marginTop: '0.45rem',
+                        width: '100%',
+                        padding: '0.55rem 0.85rem',
+                        background: 'linear-gradient(90deg, #16a34a, #059669)',
+                        border: 'none',
+                        borderRadius: '8px',
+                        color: '#ffffff',
+                        fontSize: '0.82rem',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '0.4rem',
+                        boxShadow: '0 2px 10px rgba(22, 163, 74, 0.3)',
+                        transition: 'all 0.2s ease'
+                      }}
+                    >
+                      <span>🟢</span> Найти адрес на 2GIS 🗺️
+                    </button>
+                  </div>
+
+                  {/* Summary Card inside Left Column */}
+                  <div style={{ marginTop: '0.4rem', padding: '0.85rem', background: 'rgba(10, 12, 28, 0.7)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.06)', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem' }}>
+                      <span style={{ color: '#94a3b8' }}>Итоговая смета:</span>
+                      <strong style={{ color: '#10b981' }}>{evtTotalSum.toLocaleString()} ₸</strong>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem' }}>
+                      <span style={{ color: '#94a3b8' }}>Этапы работ:</span>
+                      <strong style={{ color: '#38bdf8' }}>{evtStages.filter(s => s.status === 'Завершено').length} из {evtStages.length} завершено</strong>
+                    </div>
+                  </div>
+                </div>
+
+                {/* RIGHT COLUMN: ACTIVE WORKSPACE TABS */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', minWidth: 0 }}>
+                  {/* WORKSPACE NAVIGATION TABS */}
+                  <div className="modal-nav-tabs" style={{ marginBottom: 0 }}>
+                    <button
+                      type="button"
+                      className={`modal-nav-tab ${modalTab === 'stages' || modalTab === 'info' ? 'active' : ''}`}
+                      onClick={() => setModalTab('stages')}
+                    >
+                      🏗️ 1. Этапы ({evtStages.length})
+                    </button>
+                    <button
+                      type="button"
+                      className={`modal-nav-tab ${modalTab === 'estimate' ? 'active' : ''}`}
+                      onClick={() => setModalTab('estimate')}
+                    >
+                      📊 2. Смета {evtTotalSum > 0 ? `(${evtTotalSum.toLocaleString()} ₸)` : ''}
+                    </button>
+                    <button
+                      type="button"
+                      className={`modal-nav-tab ${modalTab === 'photos' ? 'active' : ''}`}
+                      onClick={() => setModalTab('photos')}
+                    >
+                      📋 3. Отчёт ({evtPhotos.length})
+                    </button>
+                  </div>
+
+              {/* TAB 2: UNIFIED STAGES SEQUENCE MANAGER */}
+              {modalTab === 'stages' && (
+                <div className="stages-list-container">
+                  {/* TWO MAIN ACTION BUTTONS: CREATE STAGE & COMPLETE STAGE */}
+                  {viewRole !== 'customer' && (
+                    <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1rem' }}>
+                      <button
+                        type="button"
+                        onClick={() => setIsAddingInlineStage(!isAddingInlineStage)}
+                        style={{
+                          flex: 1,
+                          padding: '0.8rem 1.25rem',
+                          background: 'linear-gradient(90deg, #ec4899, #8b5cf6)',
+                          border: 'none',
+                          borderRadius: '12px',
+                          color: '#fff',
+                          fontWeight: 800,
+                          fontSize: '0.92rem',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '0.5rem',
+                          boxShadow: '0 4px 18px rgba(236, 72, 153, 0.35)',
+                          transition: 'all 0.2s ease'
+                        }}
+                      >
+                        <span style={{ fontSize: '1.1rem' }}>➕</span> Создать этап
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const uncompletedIdx = evtStages.findIndex(s => s.status !== 'Завершено');
+                          if (uncompletedIdx !== -1) {
+                            const updated = [...evtStages];
+                            updated[uncompletedIdx].status = 'Завершено';
+                            setEvtStages(updated);
+                          } else if (evtStages.length > 0) {
+                            alert('Все этапы уже отмечены как завершённые!');
+                          }
+                        }}
+                        style={{
+                          flex: 1,
+                          padding: '0.8rem 1.25rem',
+                          background: 'linear-gradient(90deg, #10b981, #059669)',
+                          border: 'none',
+                          borderRadius: '12px',
+                          color: '#fff',
+                          fontWeight: 800,
+                          fontSize: '0.92rem',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '0.5rem',
+                          boxShadow: '0 4px 18px rgba(16, 185, 129, 0.35)',
+                          transition: 'all 0.2s ease'
+                        }}
+                      >
+                        <span style={{ fontSize: '1.1rem' }}>✓</span> Завершить этап
+                      </button>
+                    </div>
+                  )}
+
+                  {/* QUICK INLINE STAGE CREATION FORM */}
+                  {viewRole !== 'customer' && isAddingInlineStage && (
+                    <div style={{
+                      display: 'flex',
+                      gap: '0.6rem',
+                      alignItems: 'center',
+                      marginBottom: '1rem',
+                      background: 'rgba(236, 72, 153, 0.1)',
+                      padding: '0.85rem',
+                      borderRadius: '14px',
+                      border: '1px solid rgba(236, 72, 153, 0.35)'
+                    }}>
+                      <input
+                        type="text"
+                        className="modal-input"
+                        placeholder="Введите название нового этапа..."
                         autoFocus
                         value={inlineStageText}
                         onChange={(e) => setInlineStageText(e.target.value)}
@@ -1963,385 +2258,259 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                             setIsAddingInlineStage(false);
                           }
                         }}
+                        style={{ flex: 1, margin: 0 }}
                       />
-                      <button type="button" className="btn-save-inline-stage" onClick={handleConfirmInlineStage} title="Сохранить этап">✓</button>
-                      <button type="button" className="btn-cancel-inline-stage" onClick={() => setIsAddingInlineStage(false)} title="Отмена">✕</button>
-                    </div>
-                  ) : (
-                    <div style={{ display: 'flex', alignItems: 'center' }}>
                       <button
                         type="button"
-                        className="crm-stage-pill btn-add-pipeline-stage"
-                        onClick={() => setIsAddingInlineStage(true)}
-                        title="Добавить новый этап в последовательность"
+                        className="btn-submit-pink"
+                        onClick={handleConfirmInlineStage}
+                        style={{ padding: '0.75rem 1.25rem', fontSize: '0.88rem', whiteSpace: 'nowrap' }}
                       >
-                        <span className="pill-plus-icon">+</span>
-                        <span>Добавить этап</span>
+                        ✓ Сохранить
                       </button>
-                      {evtStages.length > 0 && evtStages[evtStages.length - 1].status !== 'Завершено' && (
-                        <button
-                          type="button"
-                          className="crm-stage-pill"
-                          style={{ marginLeft: '10px', backgroundColor: 'rgba(16, 185, 129, 0.1)', color: '#10b981', borderColor: 'rgba(16, 185, 129, 0.4)' }}
-                          onClick={() => {
-                            const updated = [...evtStages];
-                            updated[updated.length - 1].status = 'Завершено';
-                            setEvtStages(updated);
-                          }}
-                          title="Завершить текущий этап без добавления нового"
-                        >
-                          <span className="pill-check-icon">✓</span>
-                          Завершить этап
-                        </button>
-                      )}
-                    </div>
-                  )
-                )}
-              </div>
-            </div>
-
-            {/* STAGE DETAILS PANEL (SHOWN ONLY WHEN A STAGE IS SELECTED) */}
-            {activeStageId && (() => {
-              const activeStage = evtStages.find(s => s.id === activeStageId);
-              if (!activeStage) return null;
-              return (
-                <div className="stage-details-panel">
-                  <div className="stage-details-header">
-                    <div className="stage-details-title">
-                      <span>🟣</span> Детали этапа: {activeStage.title}
-                    </div>
-                    <select
-                      className="stage-status-select"
-                      value={activeStage.status}
-                      onChange={(e) => handleChangeStageStatus(activeStage.id, e.target.value)}
-                      disabled={viewRole === 'customer'}
-                    >
-                      <option value="Запланировано">Запланировано</option>
-                      <option value="В работе">В работе</option>
-                      <option value="Ожидает приёмки">Ожидает приёмки</option>
-                      <option value="Завершено">Завершено</option>
-                    </select>
-                  </div>
-                  
-                  <div className="stage-details-content">
-                    {/* Left Column: Description */}
-                    <div className="stage-field-group">
-                      <label className="stage-field-label">Информация / Заметки</label>
-                      <textarea
-                        className="stage-textarea"
-                        placeholder="Добавьте описание или заметки по текущему этапу..."
-                        value={activeStage.description || ''}
-                        onChange={(e) => {
-                          setEvtStages(evtStages.map(s => s.id === activeStageId ? { ...s, description: e.target.value } : s));
-                        }}
-                        disabled={viewRole === 'customer'}
-                      ></textarea>
-                    </div>
-
-                    {/* Right Column: Files */}
-                    <div className="stage-field-group">
-                      <label className="stage-field-label">Материалы (Фото / Документы)</label>
-                      <div className="stage-files-area">
-                        {viewRole !== 'customer' && (
-                          <label className="stage-dropzone">
-                            <div className="stage-dropzone-icon">📁</div>
-                            <div className="stage-dropzone-text">Нажмите для загрузки файлов</div>
-                            <input type="file" multiple style={{ display: 'none' }} onChange={(e) => {
-                              if (e.target.files && e.target.files.length > 0) {
-                                const newFiles = Array.from(e.target.files).map(f => ({ 
-                                    name: f.name,
-                                    url: f.type.startsWith('image/') ? URL.createObjectURL(f) : null,
-                                    isImg: f.type.startsWith('image/')
-                                  }));
-                                setEvtStages(evtStages.map(s => s.id === activeStageId ? { ...s, photos: [...(s.photos || []), ...newFiles] } : s));
-                              }
-                            }} />
-                          </label>
-                        )}
-                        
-                        {(activeStage.photos && activeStage.photos.length > 0) && (
-                          <div className="stage-files-list">
-                            {activeStage.photos.map((p, idx) => (
-                              <div key={idx} className="stage-file-chip">
-                                <span>{p.name.endsWith('.jpg') || p.name.endsWith('.png') ? '🖼️' : '📄'}</span>
-                                {p.name}
-                                {viewRole !== 'customer' && (
-                                  <span className="stage-file-chip-del" onClick={() => {
-                                    setEvtStages(evtStages.map(s => {
-                                      if (s.id === activeStageId) {
-                                        const updated = [...s.photos];
-                                        updated.splice(idx, 1);
-                                        return { ...s, photos: updated };
-                                      }
-                                      return s;
-                                    }));
-                                  }}>✕</span>
-                                )}
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })()}
-
-            {/* TAB BUTTONS (for main event) */}
-            <div className="modal-nav-tabs">
-              <button
-                type="button"
-                className={`modal-nav-tab ${modalTab === 'info' ? 'active' : ''}`}
-                onClick={() => setModalTab('info')}
-              >
-                📋 Основные данные
-              </button>
-              <button
-                type="button"
-                className={`modal-nav-tab ${modalTab === 'stages' ? 'active' : ''}`}
-                onClick={() => setModalTab('stages')}
-              >
-                🏗️ Этапы ({evtStages.length})
-              </button>
-              <button
-                type="button"
-                className={`modal-nav-tab ${modalTab === 'photos' ? 'active' : ''}`}
-                onClick={() => setModalTab('photos')}
-              >
-                📸 Фото ({evtPhotos.length})
-              </button>
-            </div>
-
-            <form onSubmit={handleSaveEvent} className="modal-form-body">
-              {/* TAB 1: BASIC INFO */}
-              {modalTab === 'info' && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem', padding: '0.5rem 0' }}>
-                  
-                  <div style={{ display: 'flex', gap: '1rem' }}>
-                    <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
-                      <label style={{ fontSize: '0.85rem', color: '#94a3b8' }}>🏷️ Тип события / Категория:</label>
-                      <select value={evtType} onChange={(e) => setEvtType(e.target.value)} className="modal-select" disabled={viewRole === 'customer'}>
-                        <option value="active_project">🔵 Активный проект</option>
-                        <option value="work_stage">🟣 Этап работ</option>
-                        <option value="deadline">🔴 Дедлайн</option>
-                        <option value="in_review">🟡 На проверке</option>
-                        <option value="completed">🟢 Завершено</option>
-                        <option value="object">🏗️ Объект технадзора</option>
-                        <option value="request">📬 Заявка на проверку</option>
-                      </select>
-                    </div>
-
-                    <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
-                      <label style={{ fontSize: '0.85rem', color: '#94a3b8' }}>📊 Статус (Прогресс):</label>
-                      <select value={evtStatus} onChange={(e) => setEvtStatus(e.target.value)} className="modal-select" disabled={viewRole === 'customer'}>
-                        <option value="В работе">🟡 В работе</option>
-                        <option value="Ожидает приёмки">⏳ Ожидает приёмки</option>
-                        <option value="Завершено">🟢 Завершено</option>
-                        <option value="Просрочено">🔴 Просрочено</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div className="form-group" style={{ marginBottom: 0 }}>
-                    <label style={{ fontSize: '0.85rem', color: '#94a3b8' }}>📝 Название события / инспекции:</label>
-                    <input
-                      type="text"
-                      placeholder="Например: Инспекция монолита и армопояса"
-                      value={evtTitle}
-                      onChange={(e) => setEvtTitle(e.target.value)}
-                      className="modal-input"
-                      disabled={viewRole === 'customer'}
-                      required
-                    />
-                  </div>
-
-                  <div style={{ display: 'flex', gap: '1rem' }}>
-                    <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
-                      <label style={{ fontSize: '0.85rem', color: '#94a3b8' }}>📅 Дедлайн (Срок):</label>
-                      <input
-                        type="text"
-                        placeholder="Сегодня до 18:00 / Завтра до 12:00"
-                        value={evtDeadline}
-                        onChange={(e) => setEvtDeadline(e.target.value)}
-                        className="modal-input"
-                        disabled={viewRole === 'customer'}
-                      />
-                    </div>
-
-                    <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
-                      <label style={{ fontSize: '0.85rem', color: '#94a3b8' }}>⏰ Время проведения:</label>
-                      <input
-                        type="text"
-                        placeholder="10:00 - 12:00"
-                        value={evtTime}
-                        onChange={(e) => setEvtTime(e.target.value)}
-                        className="modal-input"
-                        disabled={viewRole === 'customer'}
-                      />
-                    </div>
-                  </div>
-
-                  <div style={{ display: 'flex', gap: '1rem' }}>
-                    <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
-                      <label style={{ fontSize: '0.85rem', color: '#94a3b8' }}>👷 Подрядчик / Организация:</label>
-                      <input
-                        type="text"
-                        placeholder="ТОО Алматы Сити"
-                        value={evtContractor}
-                        onChange={(e) => setEvtContractor(e.target.value)}
-                        className="modal-input"
-                        disabled={viewRole === 'customer'}
-                      />
-                    </div>
-
-                    <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
-                      <label style={{ fontSize: '0.85rem', color: '#94a3b8' }}>📍 Адрес объекта:</label>
-                      <input
-                        type="text"
-                        placeholder="Алматы, ЖК Алатау 2, Блок B"
-                        value={evtLocation}
-                        onChange={(e) => setEvtLocation(e.target.value)}
-                        className="modal-input"
-                        disabled={viewRole === 'customer'}
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* TAB 2: STAGES SEQUENCE MANAGER */}
-              {modalTab === 'stages' && (
-                <div className="stages-list-container">
-                  <label className="input-label" style={{ color: '#06b6d4' }}>
-                    Последовательность этапов работ на объекте:
-                  </label>
-
-                  {evtStages.map((stage, idx) => (
-                    <div key={stage.id} className="stage-card-item" style={{ flexDirection: 'column', alignItems: 'stretch', gap: '0.8rem' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-                        <div className="stage-left-info">
-                          <div className="stage-num-badge">{idx + 1}</div>
-                          <div>
-                            <h5 className="stage-title-text">{stage.title}</h5>
-                            <span className="stage-deadline-sub">⏰ Срок: {stage.deadline}</span>
-                          </div>
-                        </div>
-
-                        <div className="stage-right-actions">
-                          <select
-                            value={stage.status}
-                            onChange={(e) => handleChangeStageStatus(stage.id, e.target.value)}
-                            className="select-stage-status"
-                            disabled={viewRole === 'customer'}
-                          >
-                            <option value="В работе">🟡 В работе</option>
-                            <option value="Ожидает приёмки">⏳ Приёмка</option>
-                            <option value="Завершено">🟢 Завершено</option>
-                            <option value="Запланировано">⚪ Запланировано</option>
-                          </select>
-
-                          {viewRole !== 'customer' && (
-                            <button
-                              type="button"
-                              className="btn-del-stage"
-                              onClick={() => handleDeleteStage(stage.id)}
-                              title="Удалить этап"
-                            >
-                              🗑️
-                            </button>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* FILE PREVIEWS (Only show if there are files) */}
-                      {(stage.photos && stage.photos.length > 0) && (
-                        <div style={{ display: 'flex', gap: '0.5rem', paddingLeft: '2.5rem', flexWrap: 'wrap' }}>
-                          {stage.photos.map((p, pIdx) => {
-                             const isImg = p.name.match(/\.(jpeg|jpg|gif|png)$/i);
-                             const imgUrl = p.url || (isImg ? `https://images.unsplash.com/photo-1541888086925-ebca89bba4c9?w=100&q=80&random=${pIdx}` : null);
-                             return (
-                               <div key={pIdx} 
-                                 onClick={() => setPreviewFile({ name: p.name, url: imgUrl, isImg })}
-                                 style={{ 
-                                 width: '40px', height: '40px', borderRadius: '6px', 
-                                 backgroundColor: '#1e293b', border: '1px solid #334155',
-                                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                 overflow: 'hidden', title: p.name, cursor: 'pointer'
-                               }}>
-                                 {isImg ? (
-                                   <img src={imgUrl} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                 ) : (
-                                   <span style={{ fontSize: '1.2rem' }}>📄</span>
-                                 )}
-                               </div>
-                             );
-                          })}
-                          <div style={{ fontSize: '0.75rem', color: '#64748b', display: 'flex', alignItems: 'center', marginLeft: '0.5rem' }}>
-                             {stage.photos.length} прикреплённых файл(ов)
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-
-                  {/* Add New Stage Inline Box */}
-                  {viewRole !== 'customer' && (
-                    <div className="add-stage-card-box">
-                      <strong style={{ fontSize: '0.85rem', color: '#ffffff' }}>+ Добавить новый этап</strong>
-                      <div className="add-stage-inputs-row">
-                        <input
-                          type="text"
-                          placeholder="Название этапа (например: Монтаж кровли)"
-                          value={newStageTitle}
-                          onChange={(e) => setNewStageTitle(e.target.value)}
-                          className="modal-input"
-                        />
-                        <input
-                          type="text"
-                          placeholder="Дедлайн"
-                          value={newStageDeadline}
-                          onChange={(e) => setNewStageDeadline(e.target.value)}
-                          className="modal-input"
-                        />
-                        <select
-                          value={newStageStatus}
-                          onChange={(e) => setNewStageStatus(e.target.value)}
-                          className="modal-select"
-                        >
-                          <option value="Запланировано">⚪ Запланировано</option>
-                          <option value="В работе">🟡 В работе</option>
-                          <option value="Ожидает приёмки">⏳ Приёмка</option>
-                          <option value="Завершено">🟢 Завершено</option>
-                        </select>
-                      </div>
-
                       <button
                         type="button"
-                        className="btn-add-stage-confirm"
-                        onClick={handleAddStage}
+                        className="btn-cancel"
+                        onClick={() => setIsAddingInlineStage(false)}
+                        style={{ padding: '0.75rem 1rem', fontSize: '0.88rem' }}
                       >
-                        ➕ Сохранить новый этап
+                        ✕
                       </button>
                     </div>
                   )}
+
+                  {/* STAGE CARDS LIST WITH INTEGRATED CREWS, MACHINERY, NOTES & FILES */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    {evtStages.map((stage, idx) => (
+                      <div key={stage.id} className="stage-card-item" style={{ flexDirection: 'column', alignItems: 'stretch', gap: '0.9rem', padding: '1.1rem', background: 'rgba(15, 18, 40, 0.6)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '14px' }}>
+                        {/* STAGE HEADER */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                          <div className="stage-left-info">
+                            <div className="stage-num-badge">{idx + 1}</div>
+                            <div>
+                              <h5 className="stage-title-text" style={{ fontSize: '1rem', fontWeight: 800, color: '#f8fafc', margin: 0 }}>{stage.title}</h5>
+                              <span className="stage-deadline-sub" style={{ fontSize: '0.78rem', color: '#94a3b8' }}>⏰ Срок: {stage.deadline}</span>
+                            </div>
+                          </div>
+
+                          <div className="stage-right-actions" style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                            <select
+                              value={stage.status}
+                              onChange={(e) => handleChangeStageStatus(stage.id, e.target.value)}
+                              className="select-stage-status"
+                              disabled={viewRole === 'customer'}
+                            >
+                              <option value="Запланировано">⚪ Запланировано</option>
+                              <option value="В работе">🟡 В работе</option>
+                              <option value="Ожидает приёмки">⏳ Приёмка</option>
+                              <option value="Завершено">🟢 Завершено</option>
+                            </select>
+
+                            {viewRole !== 'customer' && (
+                              <button
+                                type="button"
+                                className="btn-del-stage"
+                                onClick={() => handleDeleteStage(stage.id)}
+                                title="Удалить этап"
+                              >
+                                🗑️
+                              </button>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* CREW & HEAVY MACHINERY ASSIGNMENT GRID */}
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', background: 'rgba(255,255,255,0.02)', padding: '0.75rem', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                          {/* Crews Multi-Select */}
+                          <div>
+                            <label style={{ fontSize: '0.78rem', color: '#38bdf8', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.3rem', marginBottom: '0.3rem' }}>
+                              👷 Задействованные бригады:
+                            </label>
+
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', marginBottom: '0.35rem' }}>
+                              {((Array.isArray(stage.crews) && stage.crews.length > 0) ? stage.crews : (stage.crew ? [stage.crew] : [])).map((crewName, cIdx) => (
+                                <span key={cIdx} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', background: 'rgba(56, 189, 248, 0.15)', border: '1px solid rgba(56, 189, 248, 0.35)', color: '#7dd3fc', padding: '0.2rem 0.5rem', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 600 }}>
+                                  👷 {crewName}
+                                  {viewRole !== 'customer' && (
+                                    <button type="button" onClick={() => handleRemoveStageCrew(stage.id, crewName)} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontWeight: 800, padding: 0, marginLeft: '0.2rem' }}>✕</button>
+                                  )}
+                                </span>
+                              ))}
+                            </div>
+
+                            {viewRole !== 'customer' && (
+                              <select
+                                value=""
+                                onChange={(e) => {
+                                  handleAddStageCrew(stage.id, e.target.value);
+                                  e.target.value = '';
+                                }}
+                                style={{
+                                  width: '100%',
+                                  padding: '0.35rem 0.5rem',
+                                  borderRadius: '6px',
+                                  background: '#13131e',
+                                  border: '1px dashed rgba(56, 189, 248, 0.4)',
+                                  color: '#38bdf8',
+                                  fontSize: '0.8rem',
+                                  cursor: 'pointer',
+                                  outline: 'none'
+                                }}
+                              >
+                                <option value="">+ Добавить бригаду к этапу...</option>
+                                <option value="Бригада монолитчиков (4 чел + 2 арматурщика)">👷 Бригада монолитчиков (4 чел + 2 арматурщика)</option>
+                                <option value="Буровая бригада №2 (3 инженера)">🚜 Буровая бригада №2 (3 инженера)</option>
+                                <option value="Бригада монтажников сантехники (3 чел)">🔧 Бригада монтажников сантехники (3 чел)</option>
+                                <option value="Геодезическая группа (2 инженера)">📐 Геодезическая группа (2 инженера)</option>
+                                <option value="Бригада разнорабочих (5 чел)">🧹 Бригада разнорабочих (5 чел)</option>
+                                <option value="Бригада электриков (3 чел)">⚡ Бригада электриков (3 чел)</option>
+                                <option value="Собственная бригада подрядчика">👥 Собственная бригада подрядчика</option>
+                              </select>
+                            )}
+                          </div>
+
+                          {/* Machinery Multi-Select */}
+                          <div>
+                            <label style={{ fontSize: '0.78rem', color: '#f59e0b', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.3rem', marginBottom: '0.3rem' }}>
+                              🚜 Задействованная спецтехника:
+                            </label>
+
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', marginBottom: '0.35rem' }}>
+                              {((Array.isArray(stage.machinery) && stage.machinery.length > 0) ? stage.machinery : (stage.machineryItem ? [stage.machineryItem] : [])).map((machName, mIdx) => (
+                                <span key={mIdx} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', background: 'rgba(245, 158, 11, 0.15)', border: '1px solid rgba(245, 158, 11, 0.35)', color: '#fcd34d', padding: '0.2rem 0.5rem', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 600 }}>
+                                  🚜 {machName}
+                                  {viewRole !== 'customer' && (
+                                    <button type="button" onClick={() => handleRemoveStageMachinery(stage.id, machName)} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontWeight: 800, padding: 0, marginLeft: '0.2rem' }}>✕</button>
+                                  )}
+                                </span>
+                              ))}
+                            </div>
+
+                            {viewRole !== 'customer' && (
+                              <select
+                                value=""
+                                onChange={(e) => {
+                                  handleAddStageMachinery(stage.id, e.target.value);
+                                  e.target.value = '';
+                                }}
+                                style={{
+                                  width: '100%',
+                                  padding: '0.35rem 0.5rem',
+                                  borderRadius: '6px',
+                                  background: '#13131e',
+                                  border: '1px dashed rgba(245, 158, 11, 0.4)',
+                                  color: '#f59e0b',
+                                  fontSize: '0.8rem',
+                                  cursor: 'pointer',
+                                  outline: 'none'
+                                }}
+                              >
+                                <option value="">+ Добавить спецтехнику...</option>
+                                <option value="Буровая установка SANY SR285R (1 ед)">🚜 Буровая установка SANY SR285R (1 ед)</option>
+                                <option value="Гусеничный кран XCMG 50т (1 ед)">🏗️ Гусеничный кран XCMG 50т (1 ед)</option>
+                                <option value="Автобетононасос Putzmeister 42m (1 ед)">🚚 Автобетононасос Putzmeister 42m (1 ед)</option>
+                                <option value="Экскаватор-погрузчик JCB 3CX (2 ед)">🚜 Экскаватор-погрузчик JCB 3CX (2 ед)</option>
+                                <option value="Самосвал КАМАЗ 20т (3 ед)">🚛 Самосвал КАМАЗ 20т (3 ед)</option>
+                                <option value="Штамповая установка испытания грунтов (1 ед)">⚖️ Штамповая установка испытания грунтов (1 ед)</option>
+                                <option value="Дизельный генератор 100 кВт (1 ед)">⚡ Дизельный генератор 100 кВт (1 ед)</option>
+                              </select>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* STAGE NOTES & MATERIALS GRID */}
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                          <div>
+                            <label style={{ fontSize: '0.78rem', color: '#cbd5e1', fontWeight: 600, display: 'block', marginBottom: '0.3rem' }}>
+                              📝 Заметки по этапу:
+                            </label>
+                            <textarea
+                              placeholder="Заметки или прогресс по этому этапу..."
+                              value={stage.description || ''}
+                              onChange={(e) => {
+                                setEvtStages(evtStages.map(s => s.id === stage.id ? { ...s, description: e.target.value } : s));
+                              }}
+                              disabled={viewRole === 'customer'}
+                              style={{
+                                width: '100%',
+                                minHeight: '60px',
+                                background: '#101426',
+                                border: '1px solid rgba(255,255,255,0.1)',
+                                borderRadius: '8px',
+                                color: '#fff',
+                                padding: '0.5rem',
+                                fontSize: '0.8rem',
+                                resize: 'vertical',
+                                boxSizing: 'border-box'
+                              }}
+                            ></textarea>
+                          </div>
+
+                          <div>
+                            <label style={{ fontSize: '0.78rem', color: '#cbd5e1', fontWeight: 600, display: 'block', marginBottom: '0.3rem' }}>
+                              📁 Файлы этапа (Фото / Документы):
+                            </label>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                              {viewRole !== 'customer' && (
+                                <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', padding: '0.4rem 0.6rem', background: 'rgba(255,255,255,0.04)', border: '1px dashed rgba(255,255,255,0.2)', borderRadius: '8px', cursor: 'pointer', fontSize: '0.78rem', color: '#94a3b8' }}>
+                                  <span>📎</span> Прикрепить файл
+                                  <input type="file" multiple style={{ display: 'none' }} onChange={(e) => {
+                                    if (e.target.files && e.target.files.length > 0) {
+                                      const newFiles = Array.from(e.target.files).map(f => ({ 
+                                          name: f.name,
+                                          url: f.type.startsWith('image/') ? URL.createObjectURL(f) : null,
+                                          isImg: f.type.startsWith('image/')
+                                        }));
+                                      setEvtStages(evtStages.map(s => s.id === stage.id ? { ...s, photos: [...(s.photos || []), ...newFiles] } : s));
+                                    }
+                                  }} />
+                                </label>
+                              )}
+
+                              {(stage.photos && stage.photos.length > 0) && (
+                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem' }}>
+                                  {stage.photos.map((p, pIdx) => (
+                                    <span key={pIdx} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', background: 'rgba(255,255,255,0.08)', padding: '0.15rem 0.4rem', borderRadius: '5px', fontSize: '0.72rem', color: '#cbd5e1' }}>
+                                      {p.isImg ? '🖼️' : '📄'} {p.name}
+                                      {viewRole !== 'customer' && (
+                                        <span onClick={() => {
+                                          setEvtStages(evtStages.map(s => {
+                                            if (s.id === stage.id) {
+                                              const updated = [...s.photos];
+                                              updated.splice(pIdx, 1);
+                                              return { ...s, photos: updated };
+                                            }
+                                            return s;
+                                          }));
+                                        }} style={{ cursor: 'pointer', color: '#ef4444', marginLeft: '0.2rem', fontWeight: 800 }}>✕</span>
+                                      )}
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
 
-              {/* TAB 3: PHOTOS & ATTACHMENTS */}
+              {/* TAB 4: EXECUTIVE REPORT & ATTACHMENTS (Фото, Видео, Документы, Схемы) */}
               {modalTab === 'photos' && (
                 <div className="photos-attach-area">
                   {viewRole !== 'customer' && (
-                    <div className="photo-upload-dropzone" onClick={handleAttachPhoto}>
-                      <div className="dropzone-icon">📸</div>
-                      <div className="dropzone-title">Прикрепить фотофиксацию / исполнительную схему</div>
-                      <div className="dropzone-sub">Нажмите для выбора снимков объекта или перетащите файлы</div>
+                    <div className="photo-upload-dropzone" onClick={() => document.getElementById('file-report-input')?.click()}>
+                      <div className="dropzone-icon">📂</div>
+                      <div className="dropzone-title">Добавить файлы в исполнительный отчёт</div>
+                      <div className="dropzone-sub">Загружайте фотофиксации (JPG, PNG), видеозаписи (MP4), акты/сертификаты (PDF, DOCX) и схемы (DWG, ZIP)</div>
                       <input
                         type="file"
                         multiple
-                        accept="image/*"
+                        accept="image/*,video/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,.dwg,.zip,.rar"
                         style={{ display: 'none' }}
-                        id="file-photo-input"
+                        id="file-report-input"
                         onChange={handleAttachPhoto}
                       />
                     </div>
@@ -2350,45 +2519,276 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                   {evtPhotos.length > 0 ? (
                     <div className="attached-photos-grid">
                       {evtPhotos.map((photo) => (
-                        <div key={photo.id} className="attached-photo-card">
+                        <div key={photo.id} className="attached-photo-card" style={{ position: 'relative' }}>
                           {viewRole !== 'customer' && (
                             <button
                               type="button"
                               className="btn-remove-photo"
-                              onClick={() => handleRemovePhoto(photo.id)}
-                              title="Удалить фото"
+                              onClick={(e) => { e.stopPropagation(); handleRemovePhoto(photo.id); }}
+                              title="Удалить файл отчёта"
                             >
                               ✕
                             </button>
                           )}
-                          <div className="photo-preview-box" style={{ cursor: 'pointer', overflow: 'hidden' }} onClick={() => setPreviewFile({ name: photo.name, url: photo.url, isImg: photo.isImg })}>
+                          <div className="photo-preview-box" style={{ cursor: 'pointer', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#11111b' }} onClick={() => setPreviewFile({ name: photo.name, url: photo.url, isImg: photo.isImg })}>
                              {photo.isImg && photo.url ? (
                                <img src={photo.url} alt={photo.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                             ) : photo.isVideo ? (
+                               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.2rem', color: '#38bdf8' }}>
+                                 <span style={{ fontSize: '1.8rem' }}>▶️</span>
+                                 <span style={{ fontSize: '0.7rem', fontWeight: 700 }}>ВИДЕО</span>
+                               </div>
                              ) : (
-                               photo.preview || '📸'
+                               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.2rem', color: '#f59e0b' }}>
+                                 <span style={{ fontSize: '1.8rem' }}>{photo.preview || '📄'}</span>
+                                 <span style={{ fontSize: '0.65rem', fontWeight: 700 }}>{photo.tag || 'ФАЙЛ'}</span>
+                               </div>
                              )}
                           </div>
-                          <span className="photo-name-tag">{photo.name}</span>
-                          <span className="photo-meta-time">{photo.time}</span>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.3rem' }}>
+                            <span className="photo-name-tag" style={{ fontSize: '0.75rem', fontWeight: 600 }}>{photo.name}</span>
+                            <span style={{ fontSize: '0.65rem', padding: '0.1rem 0.35rem', background: 'rgba(255,255,255,0.08)', borderRadius: '4px', color: '#94a3b8' }}>
+                              {photo.tag || 'Отчёт'}
+                            </span>
+                          </div>
+                          <span className="photo-meta-time" style={{ fontSize: '0.7rem', color: '#64748b' }}>{photo.time}</span>
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <div style={{ textAlign: 'center', padding: '1rem', color: '#94a3b8', fontSize: '0.85rem' }}>
-                      Снимки пока не прикреплены. Вы можете добавить фотографии для отчёта технадзора.
+                    <div style={{ textAlign: 'center', padding: '1.5rem', color: '#94a3b8', fontSize: '0.88rem', background: 'rgba(255,255,255,0.02)', borderRadius: '10px' }}>
+                      <p style={{ margin: 0 }}>Файлы отчёта пока не прикреплены.</p>
+                      <span style={{ fontSize: '0.78rem', color: '#64748b' }}>Вы можете добавить фотофиксации, видеозаписи со стройплощадки, технические акты и схемы.</span>
                     </div>
                   )}
                 </div>
               )}
 
-              <div className="modal-actions-row" style={{ marginTop: '1rem' }}>
+              {/* TAB 4: REAL COST ESTIMATE (Смета) */}
+              {modalTab === 'estimate' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem', padding: '0.5rem 0' }}>
+                  <div style={{
+                    display: 'flex',
+                    justify: 'space-between',
+                    alignItems: 'center',
+                    padding: '0.9rem 1.2rem',
+                    background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(16, 185, 129, 0.15))',
+                    border: '1px solid rgba(245, 158, 11, 0.3)',
+                    borderRadius: '12px'
+                  }}>
+                    <div>
+                      <div style={{ fontWeight: 800, color: '#f8fafc', fontSize: '1.05rem' }}>
+                        📊 Итоговая смета объекта
+                      </div>
+                      <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
+                        Позиций в смете: {evtEstimateItems.length} шт
+                      </div>
+                    </div>
+                    <div style={{
+                      fontSize: '1.4rem',
+                      fontWeight: 900,
+                      color: '#10b981',
+                      textShadow: '0 0 10px rgba(16, 185, 129, 0.3)'
+                    }}>
+                      {(evtTotalSum || evtEstimateItems.reduce((acc, i) => acc + (i.sum || 0), 0)).toLocaleString()} ₸
+                    </div>
+                  </div>
+
+                  {evtEstimateItems.length === 0 ? (
+                    <div style={{ textAlign: 'center', padding: '2rem', color: '#94a3b8', background: 'rgba(255,255,255,0.03)', borderRadius: '10px' }}>
+                      <p style={{ margin: 0, fontSize: '0.95rem' }}>Смета для данного объекта ещё не расчитана.</p>
+                      {viewRole !== 'customer' && (
+                        <button
+                          type="button"
+                          className="sd-btn-orange-gradient"
+                          style={{ marginTop: '1rem', padding: '0.5rem 1rem' }}
+                          onClick={() => {
+                            const defaultItems = [
+                              { id: 1, name: 'Подготовительные и изыскательские работы', unit: 'компл.', qty: 1, price: 45000, sum: 45000 },
+                              { id: 2, name: 'Основные строительно-монтажные работы', unit: 'услуга', qty: 1, price: 180000, sum: 180000 },
+                              { id: 3, name: 'Лабораторный контроль и сертификация', unit: 'протокол', qty: 1, price: 35000, sum: 35000 }
+                            ];
+                            setEvtEstimateItems(defaultItems);
+                            setEvtTotalSum(260000);
+                          }}
+                        >
+                          + Сформировать смету
+                        </button>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="sd-table-container" style={{ maxHeight: '280px' }}>
+                      <table className="sd-estimate-table">
+                        <thead>
+                          <tr>
+                            <th>Наименование работ / материалов</th>
+                            <th style={{ width: '50px' }}>Ед.</th>
+                            <th style={{ width: '65px' }}>Кол-во</th>
+                            <th style={{ width: '95px' }}>Цена (₸)</th>
+                            <th style={{ width: '100px' }}>Сумма (₸)</th>
+                            {viewRole !== 'customer' && <th style={{ width: '30px' }}></th>}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {evtEstimateItems.map((item) => (
+                            <tr key={item.id}>
+                              <td>
+                                <input
+                                  type="text"
+                                  className="sd-table-input"
+                                  value={item.name}
+                                  disabled={viewRole === 'customer'}
+                                  onChange={(e) => {
+                                    const val = e.target.value;
+                                    setEvtEstimateItems(prev => prev.map(i => i.id === item.id ? { ...i, name: val } : i));
+                                  }}
+                                />
+                              </td>
+                              <td>
+                                <input
+                                  type="text"
+                                  className="sd-table-input sd-center-text"
+                                  style={{ width: '45px' }}
+                                  value={item.unit}
+                                  disabled={viewRole === 'customer'}
+                                  onChange={(e) => {
+                                    const val = e.target.value;
+                                    setEvtEstimateItems(prev => prev.map(i => i.id === item.id ? { ...i, unit: val } : i));
+                                  }}
+                                />
+                              </td>
+                              <td>
+                                <input
+                                  type="number"
+                                  min="0"
+                                  step="any"
+                                  className="sd-table-input sd-center-text"
+                                  value={item.qty}
+                                  disabled={viewRole === 'customer'}
+                                  onChange={(e) => {
+                                    const val = parseFloat(e.target.value) || 0;
+                                    setEvtEstimateItems(prev => {
+                                      const next = prev.map(i => {
+                                        if (i.id === item.id) {
+                                          const newSum = Math.round(val * (i.price || 0));
+                                          return { ...i, qty: val, sum: newSum };
+                                        }
+                                        return i;
+                                      });
+                                      const newTotal = next.reduce((acc, curr) => acc + (curr.sum || 0), 0);
+                                      setEvtTotalSum(newTotal);
+                                      return next;
+                                    });
+                                  }}
+                                />
+                              </td>
+                              <td>
+                                <input
+                                  type="number"
+                                  min="0"
+                                  step="any"
+                                  className="sd-table-input sd-right-text"
+                                  value={item.price}
+                                  disabled={viewRole === 'customer'}
+                                  onChange={(e) => {
+                                    const val = parseFloat(e.target.value) || 0;
+                                    setEvtEstimateItems(prev => {
+                                      const next = prev.map(i => {
+                                        if (i.id === item.id) {
+                                          const newSum = Math.round((i.qty || 0) * val);
+                                          return { ...i, price: val, sum: newSum };
+                                        }
+                                        return i;
+                                      });
+                                      const newTotal = next.reduce((acc, curr) => acc + (curr.sum || 0), 0);
+                                      setEvtTotalSum(newTotal);
+                                      return next;
+                                    });
+                                  }}
+                                />
+                              </td>
+                              <td className="sd-text-orange font-bold text-right" style={{ paddingRight: '6px' }}>
+                                {(item.sum || 0).toLocaleString()} ₸
+                              </td>
+                              {viewRole !== 'customer' && (
+                                <td>
+                                  <button
+                                    type="button"
+                                    className="sd-row-del-btn"
+                                    onClick={() => {
+                                      setEvtEstimateItems(prev => {
+                                        const next = prev.filter(i => i.id !== item.id);
+                                        const newTotal = next.reduce((acc, curr) => acc + (curr.sum || 0), 0);
+                                        setEvtTotalSum(newTotal);
+                                        return next;
+                                      });
+                                    }}
+                                    title="Удалить позицию"
+                                  >
+                                    ✕
+                                  </button>
+                                </td>
+                              )}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+
+                  {viewRole !== 'customer' && (
+                    <button
+                      type="button"
+                      className="sd-btn-dark-outline w-100"
+                      onClick={() => {
+                        const newItem = {
+                          id: Date.now(),
+                          name: 'Новая позиция работ / материалов',
+                          unit: 'шт',
+                          qty: 1,
+                          price: 10000,
+                          sum: 10000
+                        };
+                        setEvtEstimateItems(prev => {
+                          const next = [...prev, newItem];
+                          const newTotal = next.reduce((acc, curr) => acc + (curr.sum || 0), 0);
+                          setEvtTotalSum(newTotal);
+                          return next;
+                        });
+                      }}
+                    >
+                      + Добавить строку в смету
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="modal-actions-row" style={{ marginTop: '1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <button type="button" className="btn-cancel" onClick={() => setShowAddModal(false)}>
                   {viewRole === 'customer' ? 'Закрыть' : 'Отмена'}
                 </button>
                 {viewRole !== 'customer' && (
-                  <button type="submit" className="btn-submit-pink">
-                    {editingEvent ? 'Сохранить изменения' : 'Создать объект'}
-                  </button>
+                  <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                    {modalTab !== 'photos' && (
+                      <button
+                        type="button"
+                        className="sd-btn-dark"
+                        style={{ padding: '0.75rem 1.2rem' }}
+                        onClick={() => {
+                          if (modalTab === 'info') setModalTab('stages');
+                          else if (modalTab === 'stages') setModalTab('estimate');
+                          else if (modalTab === 'estimate') setModalTab('photos');
+                        }}
+                      >
+                        Далее →
+                      </button>
+                    )}
+                    <button type="submit" className="btn-submit-pink">
+                      💾 {editingEvent ? 'Сохранить изменения' : 'Создать объект'}
+                    </button>
+                  </div>
                 )}
               </div>
             </form>
