@@ -57,11 +57,17 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
   const [evtTotalSum, setEvtTotalSum] = useState(0);
   const [newStageTitle, setNewStageTitle] = useState('');
   const [newStageDeadline, setNewStageDeadline] = useState('');
+  const [evtComments, setEvtComments] = useState('');
   const [newStageStatus, setNewStageStatus] = useState('Запланировано');
 
   // Inline stage adding state for the top connected pipeline track
   const [isAddingInlineStage, setIsAddingInlineStage] = useState(false);
   const [inlineStageText, setInlineStageText] = useState('');
+
+  // Lead Workflow State
+  const [isTransferring, setIsTransferring] = useState(false);
+  const [selectedDept, setSelectedDept] = useState('Инженер-геодезист');
+  const [leadWorkType, setLeadWorkType] = useState('Водопровод');
 
 
   const [objectsSearch, setObjectsSearch] = useState('');
@@ -132,8 +138,8 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
       // Never fall back to mock data for customer, they must see only their own!
       return myEvents;
     } else {
-      // Normal role-based loading (Engineer, Executor, etc.)
-      const key = `qazgost_calendar_events_${viewRole}`;
+      // Normal role-based loading (Engineer, Executor, etc.) now use a shared database for the demo
+      const key = `qazgost_calendar_events`;
       const parsed = parseEvents(key);
       if (Object.keys(parsed).length > 0) return parsed;
     }
@@ -205,9 +211,10 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
   });
 
   useEffect(() => {
-    const key = `qazgost_calendar_events_${viewRole}`;
+    // Shared calendar state for all roles to simulate a single backend database
+    const key = `qazgost_calendar_events`;
     localStorage.setItem(key, JSON.stringify(scheduledEvents));
-  }, [scheduledEvents, viewRole]);
+  }, [scheduledEvents]);
 
   const selectedDateKey = `${currentYear}-${String(monthIndex + 1).padStart(2, '0')}-${String(selectedDay).padStart(2, '0')}`;
   const dayEvents = [...(scheduledEvents[selectedDay] || []), ...(scheduledEvents[selectedDateKey] || [])];
@@ -355,6 +362,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
     setEvtPhotos([]);
     setEvtEstimateItems([]);
     setEvtTotalSum(0);
+    setEvtComments('');
     setShowSmartCreateModal(true);
   };
 
@@ -377,6 +385,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
     setEvtPhotos(evt.photos || []);
     setEvtEstimateItems(evt.estimateItems || []);
     setEvtTotalSum(evt.totalSum || (evt.estimateItems ? evt.estimateItems.reduce((a, c) => a + (c.sum || 0), 0) : 0));
+    setEvtComments(evt.comments || '');
     setShowAddModal(true);
   };
 
@@ -556,14 +565,26 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
     } catch(err) {}
 
     if (editingEvent) {
-      // Update existing event
+      // Update existing event across multiple days if estimatedDays > 1
+      const daysToPopulate = editingEvent.estimatedDays || 1;
+
       setScheduledEvents(prev => {
-        const newState = {
-          ...prev,
-          [selectedDay]: (prev[selectedDay] || []).map(item =>
-            item.id === editingEvent.id ? { ...item, ...eventPayload } : item
-          )
-        };
+        let newState = { ...prev };
+        
+        for (let i = 0; i < daysToPopulate; i++) {
+          const d = selectedDay + i;
+          if (d <= 31) {
+             const dayEvents = newState[d] || [];
+             const existingIdx = dayEvents.findIndex(item => item.id === editingEvent.id);
+             if (existingIdx !== -1) {
+                dayEvents[existingIdx] = { ...dayEvents[existingIdx], ...eventPayload };
+             } else {
+                dayEvents.push({ ...editingEvent, ...eventPayload, id: editingEvent.id });
+             }
+             newState[d] = dayEvents;
+          }
+        }
+        
         localStorage.setItem(key, JSON.stringify(newState));
         localStorage.setItem('qazgost_calendar_events', JSON.stringify(newState));
         return newState;
@@ -591,9 +612,212 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
     setEditingEvent(null);
   };
 
+  const handleAcceptLead = () => {
+    setEvtStatus('В пути');
+    setEditingEvent(prev => prev ? { ...prev, status: 'В пути' } : prev);
+    setModalTab('executor');
+  };
+
+  const handleReturnToManager = () => {
+    if (!editingEvent) return;
+    
+    // Remove from engineer's calendar
+    handleDeleteEvent(editingEvent.id);
+    
+    // Put back in CRM calendar with "Дожим" status
+    const crmKey = 'qazgost_calendar_events';
+    try {
+      const saved = localStorage.getItem(crmKey);
+      let parsed = saved ? JSON.parse(saved) : {};
+      const returnedEvt = {
+        ...editingEvent,
+        status: 'Дожим',
+        contractor: 'Не распределено',
+      };
+      if (!parsed[selectedDay]) parsed[selectedDay] = [];
+      parsed[selectedDay].push(returnedEvt);
+      localStorage.setItem(crmKey, JSON.stringify(parsed));
+      
+      // Also send notification
+      const notifs = JSON.parse(localStorage.getItem('engineer_notifications') || '[]');
+      notifs.unshift({
+        id: `NOT-${Date.now()}`,
+        icon: '⚠️',
+        title: 'Заявка возвращена',
+        text: `Инженер отказался от заявки: ${editingEvent.title}. Статус: Дожим.`,
+        time: 'Только что',
+        unread: true
+      });
+      localStorage.setItem('engineer_notifications', JSON.stringify(notifs));
+      
+      alert('Заявка возвращена менеджеру!');
+    } catch(err) {}
+    
+    setShowAddModal(false);
+  };
+
+  const handleTransferToSpecialist = () => {
+    // Add generic executor crew based on selected work type
+    let newCrew = 'Исполнитель';
+    let newMachinery = 'Стандартное оборудование';
+    let estimatedDays = 1;
+
+    if (leadWorkType === 'Водопровод') {
+      newCrew = 'Бригада: Сантехники (Водопровод)';
+      newMachinery = 'Траншеекопатель, Экскаватор JCB';
+      estimatedDays = 3;
+    } else if (leadWorkType === 'Канализация') {
+      newCrew = 'Бригада: Монтажники канализации';
+      newMachinery = 'Экскаватор, Самосвал';
+      estimatedDays = 4;
+    } else if (leadWorkType === 'Септик') {
+      newCrew = 'Бригада: Установщики септиков';
+      newMachinery = 'Манипулятор, Экскаватор';
+      estimatedDays = 2;
+    } else if (leadWorkType === 'Отопление') {
+      newCrew = 'Бригада: Теплотехники';
+      newMachinery = 'Сварочный аппарат, Компрессор';
+      estimatedDays = 5;
+    } else if (leadWorkType === 'Дренаж') {
+      newCrew = 'Бригада: Землекопы';
+      newMachinery = 'Мини-экскаватор, Виброплита';
+      estimatedDays = 3;
+    } else if (leadWorkType === 'Ливнёвка') {
+      newCrew = 'Бригада: Монтажники водоотвода';
+      newMachinery = 'Траншеекопатель';
+      estimatedDays = 3;
+    } else if (leadWorkType === 'Врезка') {
+      newCrew = 'Бригада: Спец. по врезке';
+      newMachinery = 'Компрессор, Сварочный аппарат';
+      estimatedDays = 1;
+    }
+
+    let updatedStages = evtStages.map(s => {
+      if (s.status === 'В работе' || s.status === 'Запланировано') {
+        const currentCrews = Array.isArray(s.crews) ? s.crews : (s.crew ? [s.crew] : []);
+        const currentMach = Array.isArray(s.machineries) ? s.machineries : (s.machinery ? [s.machinery] : []);
+        if (!currentCrews.includes(newCrew)) currentCrews.push(newCrew);
+        if (!currentMach.includes(newMachinery)) currentMach.push(newMachinery);
+        return {
+          ...s,
+          crews: currentCrews,
+          crew: currentCrews.join(', '),
+          machineries: currentMach,
+          machinery: currentMach.join(', ')
+        };
+      }
+      return s;
+    });
+
+    if (updatedStages.length === 0) {
+      const today = new Date();
+      const stage2Date = new Date();
+      stage2Date.setDate(stage2Date.getDate() + 1);
+      const stage3Date = new Date();
+      stage3Date.setDate(stage3Date.getDate() + estimatedDays);
+
+      updatedStages = [
+        {
+          id: Date.now() + 1,
+          name: '1. Подготовительные работы и закуп материалов',
+          status: 'В работе',
+          deadline: `Срок: ${today.getDate()} ${monthNames[today.getMonth()]}`,
+          crew: newCrew,
+          crews: [newCrew],
+          machinery: newMachinery,
+          machineries: [newMachinery],
+          files: [],
+          notes: ''
+        },
+        {
+          id: Date.now() + 2,
+          name: `2. Основные работы: ${leadWorkType}`,
+          status: 'Запланировано',
+          deadline: `Срок: ${stage2Date.getDate()} ${monthNames[stage2Date.getMonth()]}`,
+          crew: newCrew,
+          crews: [newCrew],
+          machinery: newMachinery,
+          machineries: [newMachinery],
+          files: [],
+          notes: ''
+        },
+        {
+          id: Date.now() + 3,
+          name: '3. Пусконаладка и сдача объекта',
+          status: 'Запланировано',
+          deadline: `Срок: ${stage3Date.getDate()} ${monthNames[stage3Date.getMonth()]}`,
+          crew: newCrew,
+          crews: [newCrew],
+          machinery: '',
+          machineries: [],
+          files: [],
+          notes: ''
+        }
+      ];
+    }
+
+    setEvtStages(updatedStages);
+    setEvtStatus('В работе');
+    setIsTransferring(false);
+    
+    // Auto-calculate deadline based on estimated days
+    const deadlineDate = new Date();
+    deadlineDate.setDate(deadlineDate.getDate() + estimatedDays);
+    const formattedDeadline = `До 18:00 (${deadlineDate.getDate()} ${monthNames[deadlineDate.getMonth()]})`;
+    
+    setEvtDeadline(formattedDeadline);
+
+    setEditingEvent(prev => prev ? {
+      ...prev,
+      deadline: formattedDeadline,
+      estimatedDays: estimatedDays
+    } : prev);
+
+    // Auto-save across the calculated days
+    setScheduledEvents(prev => {
+        let newState = { ...prev };
+        const payload = {
+           id: editingEvent ? editingEvent.id : Date.now(),
+           title: evtTitle,
+           location: evtLocation || 'Караганда, Объект №1',
+           time: evtTime,
+           type: evtType,
+           contractor: evtContractor,
+           status: 'В работе',
+           deadline: formattedDeadline,
+           stages: updatedStages,
+           photos: evtPhotos,
+           estimateItems: evtEstimateItems,
+           totalSum: evtTotalSum,
+           comments: evtComments,
+           createdBy: editingEvent ? editingEvent.createdBy : null,
+           estimatedDays: estimatedDays
+        };
+        
+        for (let i = 0; i < estimatedDays; i++) {
+          const d = selectedDay + i;
+          if (d <= 31) {
+             const dayEvents = newState[d] || [];
+             const existingIdx = dayEvents.findIndex(item => item.id === payload.id);
+             if (existingIdx !== -1) {
+                dayEvents[existingIdx] = { ...dayEvents[existingIdx], ...payload };
+             } else {
+                dayEvents.push(payload);
+             }
+             newState[d] = dayEvents;
+          }
+        }
+        
+        localStorage.setItem('qazgost_calendar_events', JSON.stringify(newState));
+        return newState;
+    });
+
+    alert(`Заявка передана исполнителю. Автоматически рассчитано время работы: ${estimatedDays} дн. (Дедлайн: ${formattedDeadline})`);
+  };
+
   // Quick Change Status (1-click status cycle)
   const handleQuickStatusChange = (evtId, newStatus) => {
-    const key = viewRole === 'engineer' ? 'qazgost_calendar_events' : `qazgost_calendar_events_${viewRole}`;
+    const key = 'qazgost_calendar_events';
     setScheduledEvents(prev => {
       const newState = {
         ...prev,
@@ -635,14 +859,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
       }
     };
 
-    if (viewRole === 'admin') {
-      deleteFromKey('qazgost_calendar_events');
-      deleteFromKey('qazgost_calendar_events_executor');
-      deleteFromKey('qazgost_calendar_events_engineer');
-    } else {
-      const key = viewRole === 'engineer' ? 'qazgost_calendar_events' : `qazgost_calendar_events_${viewRole}`;
-      deleteFromKey(key);
-    }
+    deleteFromKey('qazgost_calendar_events');
 
     setScheduledEvents(prev => {
       const newState = { ...prev };
@@ -1978,8 +2195,6 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
               <button className="btn-close-modal" onClick={() => setShowAddModal(false)}>✕</button>
             </div>
 
-
-
             <form onSubmit={handleSaveEvent} className="modal-form-body">
               <div style={{ display: 'grid', gridTemplateColumns: '380px 1fr', gap: '1.5rem', alignItems: 'start' }}>
 
@@ -2010,7 +2225,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                       value={evtTitle}
                       onChange={(e) => setEvtTitle(e.target.value)}
                       className="modal-input"
-                      disabled={viewRole === 'customer'}
+                      disabled={viewRole === 'customer' || viewRole === 'engineer'}
                       required
                     />
                   </div>
@@ -2018,7 +2233,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
                     <div className="form-group" style={{ marginBottom: 0 }}>
                       <label style={{ fontSize: '0.82rem', color: '#cbd5e1', fontWeight: 600 }}>🏷️ Категория:</label>
-                      <select value={evtType} onChange={(e) => setEvtType(e.target.value)} className="modal-select" disabled={viewRole === 'customer'}>
+                      <select value={evtType} onChange={(e) => setEvtType(e.target.value)} className="modal-select" disabled={viewRole === 'customer' || viewRole === 'engineer'}>
                         <option value="active_project">🔵 Проект</option>
                         <option value="work_stage">🟣 Этап</option>
                         <option value="deadline">🔴 Срок</option>
@@ -2031,7 +2246,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
 
                     <div className="form-group" style={{ marginBottom: 0 }}>
                       <label style={{ fontSize: '0.82rem', color: '#cbd5e1', fontWeight: 600 }}>📊 Статус:</label>
-                      <select value={evtStatus} onChange={(e) => setEvtStatus(e.target.value)} className="modal-select" disabled={viewRole === 'customer'}>
+                      <select value={evtStatus} onChange={(e) => setEvtStatus(e.target.value)} className="modal-select" disabled={viewRole === 'customer' || viewRole === 'engineer'}>
                         <option value="В работе">🟡 В работе</option>
                         <option value="Ожидает приёмки">⏳ Приёмка</option>
                         <option value="Завершено">🟢 Завершено</option>
@@ -2049,7 +2264,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                         value={evtDeadline}
                         onChange={(e) => setEvtDeadline(e.target.value)}
                         className="modal-input"
-                        disabled={viewRole === 'customer'}
+                        disabled={viewRole === 'customer' || viewRole === 'engineer'}
                       />
                     </div>
 
@@ -2061,7 +2276,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                         value={evtTime}
                         onChange={(e) => setEvtTime(e.target.value)}
                         className="modal-input"
-                        disabled={viewRole === 'customer'}
+                        disabled={viewRole === 'customer' || viewRole === 'engineer'}
                       />
                     </div>
                   </div>
@@ -2073,7 +2288,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                       onChange={(e) => setEvtContractor(e.target.value)}
                       className="modal-input modal-select"
                       style={{ cursor: 'pointer', background: '#1e1e2d', color: '#f8fafc' }}
-                      disabled={viewRole === 'customer'}
+                      disabled={viewRole === 'customer' || viewRole === 'engineer'}
                     >
                       <option value="Не назначен">Не назначен</option>
                       <option value="ТОО «QazGost»">ТОО «QazGost»</option>
@@ -2139,35 +2354,67 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                   </div>
                 </div>
 
-                {/* RIGHT COLUMN: ACTIVE WORKSPACE TABS */}
+                {/* RIGHT COLUMN: ACTIVE WORKSPACE TABS OR LEAD ACCEPTANCE */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', minWidth: 0 }}>
-                  {/* WORKSPACE NAVIGATION TABS */}
-                  <div className="modal-nav-tabs" style={{ marginBottom: 0 }}>
-                    <button
-                      type="button"
-                      className={`modal-nav-tab ${modalTab === 'stages' || modalTab === 'info' ? 'active' : ''}`}
-                      onClick={() => setModalTab('stages')}
-                    >
-                      🏗️ 1. Этапы ({evtStages.length})
-                    </button>
-                    <button
-                      type="button"
-                      className={`modal-nav-tab ${modalTab === 'estimate' ? 'active' : ''}`}
-                      onClick={() => setModalTab('estimate')}
-                    >
-                      📊 2. Смета {evtTotalSum > 0 ? `(${evtTotalSum.toLocaleString()} ₸)` : ''}
-                    </button>
-                    <button
-                      type="button"
-                      className={`modal-nav-tab ${modalTab === 'photos' ? 'active' : ''}`}
-                      onClick={() => setModalTab('photos')}
-                    >
-                      📋 3. Отчёт ({evtPhotos.length})
-                    </button>
-                  </div>
+                  
+                  {(editingEvent && editingEvent.isLead && (evtStatus === 'На проверке у инженера' || evtStatus === 'В работе' || evtStatus === 'Новые') && evtStatus !== 'В пути' && evtStatus !== 'Передано специалисту') ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', background: 'rgba(255,255,255,0.02)', borderRadius: '18px', border: '1px solid rgba(255,255,255,0.05)', padding: '3rem', marginTop: '1rem' }}>
+                      <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>👋</div>
+                      <h2 style={{ color: '#fff', margin: '0 0 1rem 0', fontSize: '1.4rem' }}>Новая заявка поступила</h2>
+                      <p style={{ color: '#94a3b8', textAlign: 'center', marginBottom: '2rem', lineHeight: '1.5' }}>
+                        Внимательно ознакомьтесь с паспортом объекта слева. <br />
+                        Чтобы начать заполнять этапы, прикреплять фото или сметы, необходимо принять объект в работу.
+                      </p>
+                      <button type="button" onClick={handleAcceptLead} style={{ background: 'linear-gradient(90deg, #3b82f6, #2563eb)', color: '#fff', border: 'none', padding: '1rem 2rem', borderRadius: '12px', fontWeight: 900, fontSize: '1.1rem', cursor: 'pointer', boxShadow: '0 8px 25px rgba(59, 130, 246, 0.4)' }}>
+                        🚀 В пути (Принять заявку)
+                      </button>
+                    </div>
 
-              {/* TAB 2: UNIFIED STAGES SEQUENCE MANAGER */}
-              {modalTab === 'stages' && (
+                  ) : (
+                    <>
+                      {/* WORKSPACE NAVIGATION TABS */}
+                      <div className="modal-nav-tabs" style={{ marginBottom: 0 }}>
+                        {!(editingEvent && editingEvent.isLead && evtStatus === 'В пути') && (
+                          <button
+                            type="button"
+                            className={`modal-nav-tab ${modalTab === 'stages' || modalTab === 'info' ? 'active' : ''}`}
+                            onClick={() => setModalTab('stages')}
+                          >
+                            🏗️ 1. Этапы ({evtStages.length})
+                          </button>
+                        )}
+                        {viewRole !== 'executor' && (
+                          <button
+                            type="button"
+                            className={`modal-nav-tab ${modalTab === 'estimate' ? 'active' : ''}`}
+                            onClick={() => setModalTab('estimate')}
+                          >
+                            📊 2. Смета {evtTotalSum > 0 ? `(${evtTotalSum.toLocaleString()} ₸)` : ''}
+                          </button>
+                        )}
+                        {!(editingEvent && editingEvent.isLead && evtStatus === 'В пути') && (
+                          <button
+                            type="button"
+                            className={`modal-nav-tab ${modalTab === 'photos' ? 'active' : ''}`}
+                            onClick={() => setModalTab('photos')}
+                          >
+                            📋 {viewRole !== 'executor' ? '3. Отчёт' : '2. Отчёт'} ({evtPhotos.length})
+                          </button>
+                        )}
+                        {editingEvent && editingEvent.isLead && evtStatus === 'В пути' && (
+                          <button
+                            type="button"
+                            className={`modal-nav-tab ${modalTab === 'executor' ? 'active' : ''}`}
+                            onClick={() => setModalTab('executor')}
+                            style={{ background: modalTab === 'executor' ? 'linear-gradient(90deg, #10b981, #059669)' : 'rgba(16, 185, 129, 0.1)', color: modalTab === 'executor' ? '#fff' : '#10b981', border: '1px solid #10b981' }}
+                          >
+                            🚀 Отправка
+                          </button>
+                        )}
+                      </div>
+
+              {/* TAB 1: UNIFIED STAGES SEQUENCE MANAGER */}
+              {(modalTab === 'stages' || modalTab === 'info') && (
                 <div className="stages-list-container">
                   {/* TWO MAIN ACTION BUTTONS: CREATE STAGE & COMPLETE STAGE */}
                   {viewRole !== 'customer' && (
@@ -2376,7 +2623,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                             </label>
 
                             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', marginBottom: '0.35rem' }}>
-                              {((Array.isArray(stage.machinery) && stage.machinery.length > 0) ? stage.machinery : (stage.machineryItem ? [stage.machineryItem] : [])).map((machName, mIdx) => (
+                              {((Array.isArray(stage.machineries) && stage.machineries.length > 0) ? stage.machineries : (stage.machinery ? stage.machinery.split(',').map(s=>s.trim()).filter(Boolean) : [])).map((machName, mIdx) => (
                                 <span key={mIdx} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', background: 'rgba(245, 158, 11, 0.15)', border: '1px solid rgba(245, 158, 11, 0.35)', color: '#fcd34d', padding: '0.2rem 0.5rem', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 600 }}>
                                   🚜 {machName}
                                   {viewRole !== 'customer' && (
@@ -2762,16 +3009,101 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                   )}
                 </div>
               )}
-            </div>
-          </div>
 
-          <div className="modal-actions-row" style={{ marginTop: '1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              {/* TAB 4: EXECUTOR DATA */}
+              {modalTab === 'executor' && editingEvent && editingEvent.isLead && evtStatus === 'В пути' && (
+                <div style={{ padding: '1.5rem', background: 'rgba(255,255,255,0.02)', borderRadius: '14px', border: '1px solid #10b981', marginTop: '1rem' }}>
+                  <h3 style={{ color: '#10b981', marginBottom: '1.5rem', fontSize: '1.2rem' }}>📋 Данные для исполнителя</h3>
+                  
+                  <div className="form-group">
+                    <label style={{ fontSize: '0.85rem', color: '#cbd5e1', fontWeight: 600 }}>🛠️ Тип работы:</label>
+                    <select className="modal-input" style={{ marginTop: '0.4rem' }} value={leadWorkType} onChange={e => setLeadWorkType(e.target.value)}>
+                      <option value="Водопровод">Водопровод</option>
+                      <option value="Канализация">Канализация</option>
+                      <option value="Септик">Септик</option>
+                      <option value="Отопление">Отопление</option>
+                      <option value="Дренаж">Дренаж</option>
+                      <option value="Ливнёвка">Ливнёвка</option>
+                      <option value="Врезка">Врезка</option>
+                    </select>
+                  </div>
+
+                  <div className="form-group" style={{ marginTop: '1.2rem' }}>
+                    <label style={{ fontSize: '0.85rem', color: '#cbd5e1', fontWeight: 600 }}>📝 Комментарий к работе (описание задачи):</label>
+                    <textarea className="modal-input" rows="4" placeholder="Подробно опишите задачу для бригады или специалиста..." style={{ marginTop: '0.4rem', resize: 'vertical' }} value={evtComments} onChange={(e) => setEvtComments(e.target.value)}></textarea>
+                  </div>
+
+                  <div className="form-group" style={{ marginTop: '1.2rem' }}>
+                    <label style={{ fontSize: '0.85rem', color: '#cbd5e1', fontWeight: 600 }}>📸 Фото отчёт (Прикрепить файлы): {evtPhotos.length > 0 ? `(Добавлено: ${evtPhotos.length})` : ''}</label>
+                    <div className="photo-upload-dropzone" style={{ marginTop: '0.4rem', minHeight: '120px', padding: '1.5rem' }} onClick={() => document.getElementById('executor-file-input')?.click()}>
+                      <div className="dropzone-icon" style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>📥</div>
+                      <div className="dropzone-title" style={{ fontSize: '0.95rem' }}>Нажмите, чтобы прикрепить фото или документы</div>
+                      <input type="file" id="executor-file-input" style={{ display: 'none' }} multiple onChange={handleAttachPhoto} />
+                    </div>
+                  </div>
+
+                  <div style={{ marginTop: '2rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    {evtEstimateItems.length === 0 ? (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const basePrice = leadWorkType === 'Септик' ? 350000 : leadWorkType === 'Отопление' ? 850000 : 250000;
+                          const defaultItems = [
+                            { id: 1, name: `Подготовительные работы (${leadWorkType})`, unit: 'компл.', qty: 1, price: 45000, sum: 45000 },
+                            { id: 2, name: `Основные монтажные работы`, unit: 'услуга', qty: 1, price: basePrice, sum: basePrice },
+                            { id: 3, name: 'Доставка материалов и спецтехника', unit: 'рейс', qty: 2, price: 25000, sum: 50000 }
+                          ];
+                          setEvtEstimateItems(defaultItems);
+                          setEvtTotalSum(45000 + basePrice + 50000);
+                          setModalTab('estimate'); // redirect to estimate to show it!
+                        }}
+                        style={{ background: 'linear-gradient(90deg, #8b5cf6, #ec4899)', color: '#fff', border: 'none', padding: '1rem', borderRadius: '12px', fontWeight: 900, fontSize: '1.1rem', cursor: 'pointer', boxShadow: '0 8px 25px rgba(236, 72, 153, 0.4)' }}
+                      >
+                        🧠 Рассчитать смету через ИИ
+                      </button>
+                    ) : (
+                      <div style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1px solid #10b981', color: '#10b981', padding: '1rem', borderRadius: '12px', textAlign: 'center', fontWeight: 700 }}>
+                        ✅ Смета успешно рассчитана ИИ. Теперь можно передавать заявку исполнителю!
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+                    </>
+                  )}
+                </div>
+              </div>
+
+              <div className="modal-actions-row" style={{ marginTop: '1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <button type="button" className="btn-cancel" onClick={() => setShowAddModal(false)}>
                   {viewRole === 'customer' ? 'Закрыть' : 'Отмена'}
                 </button>
                 {viewRole !== 'customer' && (
                   <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-                    {modalTab !== 'photos' && (
+                    
+                    {editingEvent && editingEvent.isLead && evtStatus === 'В пути' && (
+                      <div style={{ display: 'flex', gap: '0.5rem', marginRight: 'auto' }}>
+                        <button type="button" onClick={handleReturnToManager} style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: '1px solid #ef4444', padding: '0.6rem 1.2rem', borderRadius: '8px', fontWeight: 800, cursor: 'pointer' }}>
+                          ❌ Вернуть менеджеру
+                        </button>
+                        <button 
+                          type="button" 
+                          onClick={handleTransferToSpecialist} 
+                          disabled={evtEstimateItems.length === 0}
+                          style={{ 
+                            background: evtEstimateItems.length === 0 ? 'rgba(255,255,255,0.1)' : 'linear-gradient(90deg, #10b981, #059669)', 
+                            color: evtEstimateItems.length === 0 ? '#94a3b8' : '#fff', 
+                            border: 'none', padding: '0.6rem 1.2rem', borderRadius: '8px', fontWeight: 800, 
+                            cursor: evtEstimateItems.length === 0 ? 'not-allowed' : 'pointer' 
+                          }}
+                          title={evtEstimateItems.length === 0 ? "Сначала рассчитайте смету!" : ""}
+                        >
+                          👥 Передать исполнителю
+                        </button>
+                      </div>
+                    )}
+
+                    {modalTab !== 'photos' && !(editingEvent && editingEvent.isLead && evtStatus !== 'В пути' && evtStatus !== 'Передано специалисту') && (
                       <button
                         type="button"
                         className="sd-btn-dark"

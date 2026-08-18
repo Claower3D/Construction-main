@@ -112,28 +112,45 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
     handleChange('stages', newStages);
   };
 
-  const baseBudget = formData.budget !== undefined ? Number(formData.budget) : (
-    formData.title === 'Новая заявка' ? 0 : 
+  const parseBudget = (val) => {
+    if (typeof val === 'number') return val;
+    if (typeof val === 'string') return parseInt(val.replace(/\D/g, ''), 10) || 0;
+    return 0;
+  };
+
+  const hasEstimate = formData.estimateItems && formData.estimateItems.length > 0;
+  
+  let currentBudget = 0;
+  if (hasEstimate) {
+    currentBudget = formData.totalSum || 0;
+  } else if (formData.budget !== undefined) {
+    currentBudget = parseBudget(formData.budget);
+  } else {
+    currentBudget = formData.title === 'Новая заявка' ? 0 : 
     (formData.type === 'active_project' ? 1250000 : 
     (formData.type === 'work_stage' ? 450000 : 
-    (formData.type === 'deadline' ? 820000 : 150000)))
-  );
+    (formData.type === 'deadline' ? 820000 : 150000)));
+  }
 
   const formatMoney = (val) => Math.round(val).toLocaleString('ru-RU') + ' ₸';
+  const bonus = currentBudget * 0.03;
 
   const STAT_WIDGETS = [
-    { title: 'ЦЕНА ПРОДАЖИ', val: formatMoney(baseBudget), sub: 'итого к клиенту', color: '#22c55e' },
-    { title: 'ОЧИЩЕННАЯ СУММА', val: formatMoney(baseBudget * 0.78), sub: 'после налогов/комиссий', color: '#3b82f6' },
-    { title: 'СЕБЕСТОИМОСТЬ', val: formatMoney(baseBudget * 0.22), sub: 'базовая себестоимость', color: '#a1a1aa' },
-    { title: 'ДОП. РАСХОД', val: formatMoney(baseBudget * 0.04), sub: 'с себестоимостью, без наценки', color: '#f59e0b' },
-    { title: 'КОМИССИЯ МАСТЕРУ', val: formatMoney(baseBudget * 0.08), sub: 'доп. процента мастеру', color: '#f59e0b' },
-    { title: 'ПРИБЫЛЬ ОЧИЩЕННАЯ', val: formatMoney(baseBudget * 0.44), sub: 'после ФОТ, мастера и банка', color: '#22c55e' },
+    { title: 'ЦЕНА ПРОДАЖИ', val: formatMoney(currentBudget), sub: 'итого к клиенту', color: '#22c55e' },
+    { title: 'ОЧИЩЕННАЯ СУММА', val: formatMoney(currentBudget * 0.78), sub: 'после налогов/комиссий', color: '#3b82f6' },
+    { title: 'СЕБЕСТОИМОСТЬ', val: formatMoney(currentBudget * 0.22), sub: 'базовая себестоимость', color: '#a1a1aa' },
+    { title: 'ДОП. РАСХОД', val: formatMoney(currentBudget * 0.04), sub: 'с себестоимостью, без наценки', color: '#f59e0b' },
+    { title: 'КОМИССИЯ МАСТЕРУ', val: formatMoney(currentBudget * 0.08), sub: 'доп. процента мастеру', color: '#f59e0b' },
+    { title: 'ПРИБЫЛЬ ОЧИЩЕННАЯ', val: formatMoney(currentBudget * 0.44), sub: 'после ФОТ, мастера и банка', color: '#22c55e' },
   ];
 
   const handleSaveWrapper = () => {
+    const finalBudget = hasEstimate ? (formData.totalSum || 0) : currentBudget;
+    const finalFormData = { ...formData, budget: `${finalBudget} ₸` };
+
     // Check for assignment changes
-    if (formData.assignedTo && formData.assignedTo !== card.assignedTo) {
-      const assignedUser = allUsers.find(u => u.id === formData.assignedTo);
+    if (finalFormData.assignedTo && finalFormData.assignedTo !== card.assignedTo) {
+      const assignedUser = allUsers.find(u => u.id === finalFormData.assignedTo);
       if (assignedUser) {
         const notifRole = assignedUser.role; // 'engineer' or 'executor'
         const key = `${notifRole}_notifications`;
@@ -142,7 +159,7 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
           id: `NOT-${Date.now()}`,
           icon: '🔔',
           title: 'Новая заявка',
-          text: `Менеджер назначил вам новую заявку: ${formData.title || 'Без названия'} (№${formData.id || 'NEW'})`,
+          text: `Менеджер назначил вам новую заявку: ${finalFormData.title || 'Без названия'} (№${finalFormData.id || 'NEW'})`,
           time: 'Только что',
           unread: true
         };
@@ -154,15 +171,15 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
           const storageKey = `qazgost_calendar_events_${notifRole}`;
           const savedEvents = localStorage.getItem(storageKey);
           let calEvents = savedEvents ? JSON.parse(savedEvents) : {};
-          const day = formData.day || new Date().toISOString().split('T')[0];
+          const day = finalFormData.day || new Date().toISOString().split('T')[0];
           if (!calEvents[day]) calEvents[day] = [];
           
           const newEvent = {
-            ...formData,
+            ...finalFormData,
             status: notifRole === 'engineer' ? 'На проверке у инженера' : 'В работе',
           };
           
-          const existingIdx = calEvents[day].findIndex(e => e.id === formData.id);
+          const existingIdx = calEvents[day].findIndex(e => e.id === finalFormData.id);
           if (existingIdx !== -1) {
             calEvents[day][existingIdx] = newEvent;
           } else {
@@ -177,7 +194,7 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
           if (otherSaved) {
             let otherEvents = JSON.parse(otherSaved);
             for (const d in otherEvents) {
-              otherEvents[d] = otherEvents[d].filter(e => e.id !== formData.id);
+              otherEvents[d] = otherEvents[d].filter(e => e.id !== finalFormData.id);
             }
             localStorage.setItem(otherKey, JSON.stringify(otherEvents));
           }
@@ -186,7 +203,7 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
         }
       }
     }
-    onSave(formData);
+    onSave(finalFormData);
   };
 
   return (
@@ -337,8 +354,13 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
                    </div>
 
                    <div>
-                     <label style={{ fontSize: '0.7rem', color: '#64748b', display: 'block', marginBottom: '4px' }}>БЮДЖЕТ (₸)</label>
-                     <input type="number" value={formData.budget !== undefined ? formData.budget : baseBudget} onChange={(e) => handleChange('budget', e.target.value)} style={{ width: '100%', background: '#0a0f18', color: '#fff', border: '1px solid #1e293b', padding: '0.8rem', borderRadius: '8px', fontSize: '0.9rem' }} />
+                     <label style={{ fontSize: '0.7rem', color: '#64748b', display: 'block', marginBottom: '4px' }}>БЮДЖЕТ (₸) {hasEstimate && '(Сумма из сметы)'}</label>
+                     <input type="number" value={currentBudget} disabled={hasEstimate} onChange={(e) => handleChange('budget', e.target.value + ' ₸')} style={{ width: '100%', background: hasEstimate ? '#1e293b' : '#0a0f18', color: '#fff', border: '1px solid #1e293b', padding: '0.8rem', borderRadius: '8px', fontSize: '0.9rem' }} />
+                   </div>
+
+                   <div style={{ marginTop: '0.5rem', background: 'rgba(34, 197, 94, 0.1)', border: '1px dashed rgba(34, 197, 94, 0.3)', padding: '0.8rem', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                     <span style={{ fontSize: '0.8rem', color: '#6ee7b7', fontWeight: 700 }}>🎁 Ваш бонус менеджера (3%)</span>
+                     <span style={{ fontSize: '1.1rem', color: '#34d399', fontWeight: 900 }}>{Math.floor(bonus).toLocaleString('ru-RU')} ₸</span>
                    </div>
 
                    <div>
@@ -347,6 +369,68 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
                    </div>
                  </div>
               </div>
+
+               {/* ФОТО И ДОКУМЕНТЫ */}
+               <div style={{ backgroundColor: '#111827', borderRadius: '12px', border: '1px solid #1e293b', padding: '1.5rem' }}>
+                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem' }}>
+                   <div style={{ fontSize: '0.85rem', color: '#94a3b8', letterSpacing: '1px' }}>ФАЙЛЫ И ФОТО С ОБЪЕКТА</div>
+                   <button style={{ background: 'rgba(34,197,94,0.1)', color: '#22c55e', border: '1px solid rgba(34,197,94,0.3)', padding: '0.4rem 0.8rem', borderRadius: '6px', fontSize: '0.75rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem' }} onClick={(e) => { e.preventDefault(); alert('Смета генерируется и скачивается в формате PDF...'); }}>
+                     <i className="fas fa-file-pdf"></i> Скачать смету (PDF)
+                   </button>
+                 </div>
+                 
+                 <div style={{ display: 'flex', gap: '0.8rem', overflowX: 'auto', paddingBottom: '0.5rem' }}>
+                   {formData.photos && formData.photos.map((p, i) => (
+                     <div key={i} style={{ width: '80px', height: '80px', borderRadius: '8px', backgroundImage: p.isImg ? `url(${p.url})` : 'none', backgroundColor: p.isImg ? 'transparent' : '#1e293b', backgroundSize: 'cover', backgroundPosition: 'center', border: '1px solid #1e293b', flexShrink: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', position: 'relative' }} title={p.name}>
+                       {!p.isImg && <span style={{ fontSize: '2rem' }}>{p.preview}</span>}
+                     </div>
+                   ))}
+                   {(!formData.photos || formData.photos.length === 0) && (
+                     <div style={{ fontSize: '0.8rem', color: '#64748b', fontStyle: 'italic', padding: '0.5rem 0' }}>Нет прикрепленных файлов</div>
+                   )}
+                   <div style={{ width: '80px', height: '80px', borderRadius: '8px', backgroundColor: 'rgba(59,130,246,0.1)', border: '1px dashed rgba(59,130,246,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', flexShrink: 0, cursor: 'pointer', color: '#3b82f6', flexDirection: 'column', gap: '0.2rem' }}>
+                     <span style={{ fontSize: '1.2rem' }}>+</span>
+                     <span style={{ fontSize: '0.6rem' }}>Добавить</span>
+                   </div>
+                 </div>
+               </div>
+
+              {/* СМЕТА ОТ ИНЖЕНЕРА (ЕСЛИ ЕСТЬ) */}
+              {formData.estimateItems && formData.estimateItems.length > 0 && (
+              <div style={{ backgroundColor: '#111827', borderRadius: '12px', border: '1px solid #1e293b', padding: '1.5rem', marginBottom: '1.5rem' }}>
+                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem' }}>
+                   <div style={{ fontSize: '0.85rem', color: '#94a3b8', letterSpacing: '1px', fontWeight: 600 }}>СМЕТА ОТ ИНЖЕНЕРА (ИИ)</div>
+                   <div style={{ background: 'rgba(59,130,246,0.1)', color: '#3b82f6', padding: '2px 8px', borderRadius: '12px', fontSize: '0.7rem' }}>Рассчитано</div>
+                 </div>
+                 
+                 <table style={{ width: '100%', borderCollapse: 'collapse', color: '#cbd5e1', fontSize: '0.85rem' }}>
+                   <thead>
+                     <tr style={{ borderBottom: '1px solid #1e293b', color: '#64748b', textAlign: 'left' }}>
+                       <th style={{ paddingBottom: '0.5rem', fontWeight: 600 }}>Наименование</th>
+                       <th style={{ paddingBottom: '0.5rem', fontWeight: 600 }}>Ед.</th>
+                       <th style={{ paddingBottom: '0.5rem', fontWeight: 600 }}>Кол.</th>
+                       <th style={{ paddingBottom: '0.5rem', fontWeight: 600 }}>Цена</th>
+                       <th style={{ paddingBottom: '0.5rem', fontWeight: 600 }}>Сумма</th>
+                     </tr>
+                   </thead>
+                   <tbody>
+                     {formData.estimateItems.map((item, idx) => (
+                       <tr key={idx} style={{ borderBottom: '1px solid rgba(255,255,255,0.02)' }}>
+                         <td style={{ padding: '0.6rem 0' }}>{item.name}</td>
+                         <td style={{ padding: '0.6rem 0' }}>{item.unit}</td>
+                         <td style={{ padding: '0.6rem 0' }}>{item.qty}</td>
+                         <td style={{ padding: '0.6rem 0' }}>{item.price.toLocaleString()} ₸</td>
+                         <td style={{ padding: '0.6rem 0', fontWeight: 'bold', color: '#38bdf8' }}>{(item.sum || 0).toLocaleString()} ₸</td>
+                       </tr>
+                     ))}
+                   </tbody>
+                 </table>
+                 <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid #1e293b', fontWeight: 'bold', fontSize: '1rem' }}>
+                   <span>ИТОГО:</span>
+                   <span style={{ color: '#34d399' }}>{(formData.totalSum || 0).toLocaleString()} ₸</span>
+                 </div>
+              </div>
+              )}
 
               {/* ЭТАПЫ (From Image 2) */}
               <div style={{ backgroundColor: '#111827', borderRadius: '12px', border: '1px solid #1e293b', padding: '1.5rem' }}>

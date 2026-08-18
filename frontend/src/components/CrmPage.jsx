@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import DealCardModal from './DealCardModal';
+import LeadCreateModal from './LeadCreateModal';
 import AnimatedBackground from './AnimatedBackground';
+import WorkflowDiagramSection from './WorkflowDiagramSection';
 import '../index.css';
 
 const DEFAULT_CRM_DEALS = {
@@ -24,6 +26,8 @@ export default function CrmPage({ onBackToHome, currentUser }) {
   const [selectedCard, setSelectedCard] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [showAnalytics, setShowAnalytics] = useState(true);
+  const [showWorkflow, setShowWorkflow] = useState(false);
+  const [showLeadModal, setShowLeadModal] = useState(false);
   const [selectedPeriod, setSelectedPeriod] = useState('all'); // 'day' | 'week' | 'month' | 'all'
   const [selectedWorkType, setSelectedWorkType] = useState('all'); // 'all' | 'construction' | 'design' | 'engineering' | 'machinery'
 
@@ -51,9 +55,18 @@ export default function CrmPage({ onBackToHome, currentUser }) {
     localStorage.setItem('qazgost_calendar_events', JSON.stringify(newEvents));
   };
 
-  const allCards = Object.entries(events).flatMap(([day, dayEvents]) =>
+  const allCardsRaw = Object.entries(events).flatMap(([day, dayEvents]) =>
     (dayEvents || []).map(evt => ({ ...evt, day }))
-  ).filter(card => {
+  );
+
+  const uniqueCardsMap = new Map();
+  allCardsRaw.forEach(card => {
+    if (!uniqueCardsMap.has(card.id)) {
+      uniqueCardsMap.set(card.id, card);
+    }
+  });
+
+  const allCards = Array.from(uniqueCardsMap.values()).filter(card => {
     // Search Query Filter
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
@@ -143,6 +156,46 @@ export default function CrmPage({ onBackToHome, currentUser }) {
     return type;
   };
 
+  const handleWorkflowAction = (action, data) => {
+    const today = new Date().toISOString().split('T')[0];
+    const newEvents = { ...events };
+    if (!newEvents[today]) newEvents[today] = [];
+
+    // Find if we already created a dummy deal from workflow
+    let workflowDealIdx = newEvents[today].findIndex(d => d.isWorkflowDemo);
+
+    if (action === 'CREATE_LEAD') {
+      const newDeal = {
+        id: Date.now().toString().slice(-4),
+        title: 'Установка септика (Лид)',
+        status: 'Новые',
+        type: 'request',
+        time: data.phone || '+7 (999) 123-45-67',
+        contractor: 'Не распределено',
+        location: data.address || 'ул. Центральная, 123',
+        budget: (data.budget || '1 250 000') + ' ₸',
+        isWorkflowDemo: true,
+        day: today
+      };
+      newEvents[today].push(newDeal);
+      saveEvents(newEvents);
+    } else if (workflowDealIdx !== -1) {
+      if (action === 'APPROVE_ESTIMATE') {
+        newEvents[today][workflowDealIdx].status = 'В работе';
+        saveEvents(newEvents);
+      } else if (action === 'DISPATCH_TASKS') {
+        newEvents[today][workflowDealIdx].status = 'Дожим';
+        saveEvents(newEvents);
+      } else if (action === 'START_WORK') {
+        newEvents[today][workflowDealIdx].status = 'В работе';
+        saveEvents(newEvents);
+      } else if (action === 'COMPLETE_WORK') {
+        newEvents[today][workflowDealIdx].status = 'Успешно';
+        saveEvents(newEvents);
+      }
+    }
+  };
+
   const handleSaveCard = (updatedCard) => {
     const day = updatedCard.day || '14';
     const newEvents = { ...events };
@@ -160,6 +213,76 @@ export default function CrmPage({ onBackToHome, currentUser }) {
     saveEvents(newEvents);
     setSelectedCard(null);
   };
+
+  const handleDeleteCard = (cardId, day) => {
+    if (!window.confirm('Вы уверены, что хотите удалить эту заявку?')) return;
+    const dayKey = day || '14';
+    const newEvents = { ...events };
+    if (newEvents[dayKey]) {
+      newEvents[dayKey] = newEvents[dayKey].filter(evt => evt.id !== cardId);
+      saveEvents(newEvents);
+    }
+  };
+
+  const handleCreateAndSendLead = (leadData) => {
+    const today = new Date().toISOString().split('T')[0];
+    const newEvents = { ...events };
+    if (!newEvents[today]) newEvents[today] = [];
+
+    // Create a new lead card
+    const newLead = {
+      id: Date.now().toString().slice(-4),
+      title: leadData.service || 'Новая заявка',
+      status: 'Новые',
+      type: 'request',
+      time: leadData.phone || '+7 (999) 123-45-67',
+      contractor: 'Не распределено',
+      location: leadData.address || 'ул. Центральная, 123',
+      budget: '0 ₸', // Default budget for a raw lead
+      day: today,
+      isLead: true
+    };
+
+    // Save to main CRM
+    newEvents[today].push(newLead);
+    saveEvents(newEvents);
+
+    // Save to engineer's calendar to simulate "send to engineer"
+    try {
+      const storageKey = 'qazgost_calendar_events_engineer';
+      const savedEvents = localStorage.getItem(storageKey);
+      let engEvents = savedEvents ? JSON.parse(savedEvents) : {};
+      
+      if (!engEvents[today]) engEvents[today] = [];
+      
+      const engEvent = {
+        ...newLead,
+        status: 'На проверке у инженера',
+        contractor: 'Отдел ПТО'
+      };
+      engEvents[today].push(engEvent);
+      localStorage.setItem(storageKey, JSON.stringify(engEvents));
+      
+      // Update main status as well to show it was transferred
+      newLead.status = 'В работе';
+      newLead.contractor = 'Отдел ПТО';
+      saveEvents({ ...newEvents });
+      
+      alert('✅ Лид успешно создан и передан Инженеру!');
+    } catch (err) {
+      console.error('Ошибка при передаче лида инженеру', err);
+    }
+    
+    setShowLeadModal(false);
+  };
+
+  const computeBonus = (card) => {
+    if (!card || !card.budget) return 0;
+    const budgetNum = parseInt(card.budget.toString().replace(/\D/g, ''), 10) || 0;
+    return Math.floor(budgetNum * 0.03);
+  };
+
+  const totalWallet = allCards.reduce((acc, card) => acc + computeBonus(card), 0);
 
   return (
     <div style={{ height: '100vh', width: '100%', color: '#fff', display: 'flex', flexDirection: 'column', position: 'relative', zIndex: 1, overflow: 'hidden' }}>
@@ -185,6 +308,15 @@ export default function CrmPage({ onBackToHome, currentUser }) {
             <h1 style={{ margin: 0, fontSize: '1.35rem', fontWeight: 900, letterSpacing: '0.5px', color: '#fff', whiteSpace: 'nowrap' }}>
               ЗАЯВКИ И ЗАКАЗЫ
             </h1>
+
+            {/* MANAGER WALLET */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', background: 'linear-gradient(90deg, rgba(34,197,94,0.15), rgba(16,185,129,0.25))', border: '1px solid rgba(34,197,94,0.35)', borderRadius: '12px', padding: '0.45rem 1rem' }}>
+              <span style={{ fontSize: '1.3rem' }}>💰</span>
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <span style={{ fontSize: '0.65rem', color: '#6ee7b7', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Ваш кошелек (3%)</span>
+                <span style={{ fontSize: '1rem', color: '#fff', fontWeight: 900 }}>{totalWallet.toLocaleString()} ₸</span>
+              </div>
+            </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flex: 1, maxWidth: '320px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '12px', padding: '0.45rem 0.9rem' }}>
               <span style={{ fontSize: '0.95rem', color: '#cbd5e1' }}>🔍</span>
@@ -246,6 +378,26 @@ export default function CrmPage({ onBackToHome, currentUser }) {
           {/* Right: Analytics Toggle & Action Button */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
             <button 
+              onClick={() => setShowWorkflow(!showWorkflow)}
+              style={{ 
+                background: showWorkflow ? 'rgba(0, 163, 255, 0.2)' : 'rgba(255,255,255,0.06)', 
+                border: showWorkflow ? '1px solid #00a3ff' : '1px solid rgba(255,255,255,0.12)', 
+                color: showWorkflow ? '#00a3ff' : '#fff', 
+                padding: '0.45rem 0.85rem', 
+                borderRadius: '10px', 
+                fontWeight: 800, 
+                fontSize: '0.82rem', 
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.4rem'
+              }}
+              title="Переключить схему бизнес-процесса"
+            >
+              🔄 Схема {showWorkflow ? '✓' : ''}
+            </button>
+
+            <button 
               onClick={() => setShowAnalytics(!showAnalytics)}
               style={{ 
                 background: showAnalytics ? 'rgba(168, 85, 247, 0.2)' : 'rgba(255,255,255,0.06)', 
@@ -263,6 +415,13 @@ export default function CrmPage({ onBackToHome, currentUser }) {
               title="Переключить панель аналитики"
             >
               📊 Аналитика {showAnalytics ? '✓' : ''}
+            </button>
+
+            <button 
+              onClick={() => setShowLeadModal(true)} 
+              style={{ background: 'linear-gradient(90deg, #0084ff, #0066cc)', color: '#fff', border: 'none', padding: '0.5rem 1.15rem', borderRadius: '12px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '0.4rem', boxShadow: '0 6px 18px rgba(0, 132, 255, 0.4)', whiteSpace: 'nowrap' }}
+            >
+               + Новый Лид
             </button>
 
             <button 
@@ -285,10 +444,18 @@ export default function CrmPage({ onBackToHome, currentUser }) {
         </div>
 
         {/* WORKSPACE ROW: KANBAN BOARD + RIGHT ANALYTICS SIDEBAR */}
-        <div style={{ flex: 1, display: 'flex', overflow: 'hidden', height: '100%' }}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', height: '100%' }}>
           
-          {/* KANBAN BOARD CONTAINER */}
-          <div 
+          {showWorkflow && (
+            <div style={{ flexShrink: 0, overflowX: 'auto', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+              <WorkflowDiagramSection onAction={handleWorkflowAction} />
+            </div>
+          )}
+
+          <div style={{ flex: 1, display: 'flex', overflow: 'hidden', height: '100%' }}>
+            
+            {/* KANBAN BOARD CONTAINER */}
+            <div 
             ref={(el) => { if (el) window.crmBoardRef = el; }}
             className="crm-kanban-board-container"
             style={{ 
@@ -396,16 +563,22 @@ export default function CrmPage({ onBackToHome, currentUser }) {
                           </div>
                         </div>
 
+                        {/* Bonus Info */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(16, 185, 129, 0.1)', padding: '0.5rem 0.8rem', borderRadius: '10px', border: '1px dashed rgba(16, 185, 129, 0.3)', marginBottom: '0.85rem' }}>
+                          <span style={{ fontSize: '0.75rem', color: '#6ee7b7', fontWeight: 700 }}>🎁 Ваш бонус (3%)</span>
+                          <span style={{ fontSize: '0.85rem', color: '#34d399', fontWeight: 900 }}>{computeBonus(card).toLocaleString()} ₸</span>
+                        </div>
+
                         {/* Bottom Row: Amount & Actions */}
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '0.75rem' }}>
                           <div style={{ color: '#34d399', fontWeight: 900, fontSize: '1.15rem', letterSpacing: '0.5px' }}>
-                            {card.budget || '150 000 ₸'}
+                            {card.budget || '0 ₸'}
                           </div>
                           <div style={{ display: 'flex', gap: '0.35rem' }}>
                             <button onClick={(e) => { e.stopPropagation(); setSelectedCard(card); }} className="em-btn-glass-sm" style={{ padding: '0.3rem 0.6rem', borderRadius: '8px', fontSize: '0.78rem' }}>
                               ✎
                             </button>
-                            <button onClick={(e) => { e.stopPropagation(); /* optional delete */ }} className="em-btn-glass-sm danger" style={{ padding: '0.3rem 0.6rem', borderRadius: '8px', fontSize: '0.78rem' }}>
+                            <button onClick={(e) => { e.stopPropagation(); handleDeleteCard(card.id, card.day); }} className="em-btn-glass-sm danger" style={{ padding: '0.3rem 0.6rem', borderRadius: '8px', fontSize: '0.78rem', cursor: 'pointer' }} title="Удалить заявку">
                               🗑
                             </button>
                           </div>
@@ -656,6 +829,7 @@ export default function CrmPage({ onBackToHome, currentUser }) {
           )}
 
         </div>
+        </div>
       </div>
       
       {selectedCard && (
@@ -664,6 +838,13 @@ export default function CrmPage({ onBackToHome, currentUser }) {
           onClose={() => setSelectedCard(null)} 
           onSave={handleSaveCard} 
           currentUser={currentUser}
+        />
+      )}
+      
+      {showLeadModal && (
+        <LeadCreateModal 
+          onClose={() => setShowLeadModal(false)} 
+          onSave={handleCreateAndSendLead} 
         />
       )}
       
