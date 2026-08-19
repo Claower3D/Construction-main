@@ -29,35 +29,35 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
   };
 
   const categories = [
-    { id: 'earth', icon: '🔨', title: 'Земляные работы', count: '319 работ', rate: 2500 },
-    { id: 'foundation', icon: '🏗️', title: 'Фундамент', count: '273 работ', rate: 18000 },
-    { id: 'concrete', icon: '🧱', title: 'Бетон и монолит', count: '656 работ', rate: 22000 },
-    { id: 'masonry', icon: '🧱', title: 'Кладка', count: '259 работ', rate: 4500 },
-    { id: 'metal', icon: '🔩', title: 'Металлоконструкции', count: '306 работ', rate: 14000 },
-    { id: 'roof', icon: '🏠', title: 'Кровля', count: '336 работ', rate: 6500 },
-    { id: 'facade', icon: '🏢', title: 'Фасад', count: '235 работ', rate: 5800 },
-    { id: 'windows', icon: '🚪', title: 'Окна и двери', count: '462 работ', rate: 12000 },
-    { id: 'insulation', icon: '🥊', title: 'Утепление и изоляция', count: '267 работ', rate: 2800 },
-    { id: 'demolition', icon: '💥', title: 'Демонтаж', count: '87 работ', rate: 1800 },
-    { id: 'wall_finish', icon: '🎨', title: 'Отделка стен', count: '920 работ', rate: 3500 },
-    { id: 'floors', icon: '🟫', title: 'Полы и плитка', count: '566 работ', rate: 4200 },
-    { id: 'ceilings', icon: '💡', title: 'Потолки', count: '128 работ', rate: 2900 },
-    { id: 'stairs', icon: '🪜', title: 'Лестницы и балконы', count: '121 работ', rate: 15000 },
-    { id: 'electric', icon: '⚡', title: 'Электрика', count: '777 работ', rate: 3800 },
-    { id: 'plumbing', icon: '🚿', title: 'Сантехника и водоснабжение', count: '633 работ', rate: 4500 },
-    { id: 'heating', icon: '🔥', title: 'Отопление', count: '292 работ', rate: 5200 },
-    { id: 'hvac', icon: '❄️', title: 'Вентиляция и кондиц.', count: '551 работ', rate: 6000 },
-    { id: 'gas', icon: '🔵', title: 'Газоснабжение', count: '128 работ', rate: 8500 },
-    { id: 'automation', icon: '📡', title: 'Автоматизация и слабот.', count: '561 работ', rate: 4800 },
-    { id: 'fire_safety', icon: '🧯', title: 'Пожарная безопасность', count: '218 работ', rate: 5500 },
-    { id: 'external_nets', icon: '🔌', title: 'Наружные сети', count: '361 работ', rate: 7200 },
-    { id: 'landscaping', icon: '🌳', title: 'Благоустройство', count: '370 работ', rate: 3200 },
-    { id: 'roads', icon: '🛣️', title: 'Дороги и мосты', count: '313 работ', rate: 9500 },
-    { id: 'wood', icon: '🪵', title: 'Деревянные конструкции', count: '213 работ', rate: 6800 },
-    { id: 'interior', icon: '🛋️', title: 'Мебель и оборудование', count: '424 работ', rate: 8200 },
-    { id: 'design', icon: '📐', title: 'Проектирование', count: '134 работ', rate: 12000 },
-    { id: 'special', icon: '🏭', title: 'Специальные работы', count: '1320 работ', rate: 11000 },
-    { id: 'other', icon: '📦', title: 'Прочие работы', count: '816 работ', rate: 3000 }
+    { id: 'earth', image: 'https://images.unsplash.com/photo-1541888086225-f6735e236528?w=400&q=80', icon: '🔨', title: 'Земляные работы', count: '319 работ', rate: 2500 },
+    { id: 'foundation', image: 'https://images.unsplash.com/photo-1504307651254-35680f356f27?w=400&q=80', icon: '🏗️', title: 'Фундамент', count: '273 работ', rate: 18000 },
+    { id: 'concrete', image: 'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=400&q=80', icon: '🧱', title: 'Бетон и монолит', count: '656 работ', rate: 22000 },
+    { id: 'masonry', image: 'https://images.unsplash.com/photo-1517581177682-a085bb7ffb15?w=400&q=80', icon: '🧱', title: 'Кладка', count: '259 работ', rate: 4500 },
+    { id: 'metal', image: 'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=400&q=80', icon: '🔩', title: 'Металлоконструкции', count: '306 работ', rate: 14000 },
+    { id: 'roof', image: 'https://images.unsplash.com/photo-1531834685032-c34bf0d84c77?w=400&q=80', icon: '🏠', title: 'Кровля', count: '336 работ', rate: 6500 },
+    { id: 'facade', image: 'https://images.unsplash.com/photo-1541888086225-f6735e236528?w=400&q=80', icon: '🏢', title: 'Фасад', count: '235 работ', rate: 5800 },
+    { id: 'windows', image: 'https://images.unsplash.com/photo-1504307651254-35680f356f27?w=400&q=80', icon: '🚪', title: 'Окна и двери', count: '462 работ', rate: 12000 },
+    { id: 'insulation', image: 'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=400&q=80', icon: '🥊', title: 'Утепление и изоляция', count: '267 работ', rate: 2800 },
+    { id: 'demolition', image: 'https://images.unsplash.com/photo-1517581177682-a085bb7ffb15?w=400&q=80', icon: '💥', title: 'Демонтаж', count: '87 работ', rate: 1800 },
+    { id: 'wall_finish', image: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=400&q=80', icon: '🎨', title: 'Отделка стен', count: '920 работ', rate: 3500 },
+    { id: 'floors', image: 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=400&q=80', icon: '🟫', title: 'Полы и плитка', count: '566 работ', rate: 4200 },
+    { id: 'ceilings', image: 'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=400&q=80', icon: '💡', title: 'Потолки', count: '128 работ', rate: 2900 },
+    { id: 'stairs', image: 'https://images.unsplash.com/photo-1531834685032-c34bf0d84c77?w=400&q=80', icon: '🪜', title: 'Лестницы и балконы', count: '121 работ', rate: 15000 },
+    { id: 'electric', image: 'https://images.unsplash.com/photo-1541888086225-f6735e236528?w=400&q=80', icon: '⚡', title: 'Электрика', count: '777 работ', rate: 3800 },
+    { id: 'plumbing', image: 'https://images.unsplash.com/photo-1504307651254-35680f356f27?w=400&q=80', icon: '🚿', title: 'Сантехника и водоснабжение', count: '633 работ', rate: 4500 },
+    { id: 'heating', image: 'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=400&q=80', icon: '🔥', title: 'Отопление', count: '292 работ', rate: 5200 },
+    { id: 'hvac', image: 'https://images.unsplash.com/photo-1517581177682-a085bb7ffb15?w=400&q=80', icon: '❄️', title: 'Вентиляция и кондиц.', count: '551 работ', rate: 6000 },
+    { id: 'gas', image: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=400&q=80', icon: '🔵', title: 'Газоснабжение', count: '128 работ', rate: 8500 },
+    { id: 'automation', image: 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=400&q=80', icon: '📡', title: 'Автоматизация и слабот.', count: '561 работ', rate: 4800 },
+    { id: 'fire_safety', image: 'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=400&q=80', icon: '🧯', title: 'Пожарная безопасность', count: '218 работ', rate: 5500 },
+    { id: 'external_nets', image: 'https://images.unsplash.com/photo-1531834685032-c34bf0d84c77?w=400&q=80', icon: '🔌', title: 'Наружные сети', count: '361 работ', rate: 7200 },
+    { id: 'landscaping', image: 'https://images.unsplash.com/photo-1541888086225-f6735e236528?w=400&q=80', icon: '🌳', title: 'Благоустройство', count: '370 работ', rate: 3200 },
+    { id: 'roads', image: 'https://images.unsplash.com/photo-1504307651254-35680f356f27?w=400&q=80', icon: '🛣️', title: 'Дороги и мосты', count: '313 работ', rate: 9500 },
+    { id: 'wood', image: 'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=400&q=80', icon: '🪵', title: 'Деревянные конструкции', count: '213 работ', rate: 6800 },
+    { id: 'interior', image: 'https://images.unsplash.com/photo-1517581177682-a085bb7ffb15?w=400&q=80', icon: '🛋️', title: 'Мебель и оборудование', count: '424 работ', rate: 8200 },
+    { id: 'design', image: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=400&q=80', icon: '📐', title: 'Проектирование', count: '134 работ', rate: 12000 },
+    { id: 'special', image: 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=400&q=80', icon: '🏭', title: 'Специальные работы', count: '1320 работ', rate: 11000 },
+    { id: 'other', image: 'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=400&q=80', icon: '📦', title: 'Прочие работы', count: '816 работ', rate: 3000 }
   ];
 
   const filteredCategories = categories.filter(cat => 
@@ -173,9 +173,12 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
                   className={`spe-cat-box ${isSelected ? 'selected' : ''}`}
                   onClick={() => setSelectedCategory(cat.id)}
                 >
-                  <div className="spe-cat-icon">{cat.icon}</div>
-                  <div className="spe-cat-name">{cat.title}</div>
-                  <div className="spe-cat-count">{cat.count}</div>
+                  <div className="spe-cat-bg" style={{ backgroundImage: `url(${cat.image})` }}></div>
+                  <div className="spe-cat-content">
+                    <div className="spe-cat-icon">{cat.icon}</div>
+                    <div className="spe-cat-name">{cat.title}</div>
+                    <div className="spe-cat-count">{cat.count}</div>
+                  </div>
                 </div>
               );
             })}

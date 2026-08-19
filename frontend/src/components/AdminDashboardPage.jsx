@@ -576,37 +576,36 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
             <div style={{ padding: '2rem 1.5rem', width: '100%', maxWidth: '1200px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
               
               {/* Hero Header */}
-              <div style={{ position: 'relative', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <div style={{ position: 'relative', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
                 
-                {/* Back to Home Button */}
-                <button 
-                  onClick={() => {
-                    window.history.pushState({}, '', '/');
-                    window.location.reload();
-                  }}
-                  style={{
-                    position: 'absolute',
-                    top: '0',
-                    left: '0',
-                    background: 'rgba(255, 255, 255, 0.05)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                    borderRadius: '12px',
-                    padding: '8px 16px',
-                    color: '#fff',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    cursor: 'pointer',
-                    fontSize: '0.9rem',
-                    fontWeight: '600',
-                    transition: 'all 0.2s',
-                    zIndex: 10
-                  }}
-                  onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'}
-                  onMouseOut={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)'}
-                >
-                  <span>🏠</span> На главную
-                </button>
+                {/* Back to Home Button Row */}
+                <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-start', marginBottom: '1rem' }}>
+                  <button 
+                    onClick={() => {
+                      window.history.pushState({}, '', '/');
+                      window.location.reload();
+                    }}
+                    style={{
+                      background: 'rgba(255, 255, 255, 0.05)',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      borderRadius: '12px',
+                      padding: '8px 16px',
+                      color: '#fff',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      cursor: 'pointer',
+                      fontSize: '0.9rem',
+                      fontWeight: '600',
+                      transition: 'all 0.2s',
+                      zIndex: 10
+                    }}
+                    onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'}
+                    onMouseOut={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)'}
+                  >
+                    <span>🏠</span> На главную
+                  </button>
+                </div>
 
                 <div style={{ background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.12)', padding: '0.4rem 1.1rem', borderRadius: '20px', fontSize: '0.82rem', fontWeight: '800', color: '#38bdf8', marginBottom: '1.25rem', backdropFilter: 'blur(16px)', boxShadow: '0 4px 15px rgba(56, 189, 248, 0.2)' }}>
                   ✨ AI-powered • Версия 2.0
