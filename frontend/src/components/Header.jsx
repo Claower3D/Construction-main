@@ -37,8 +37,9 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
   };
 
   return (
-    <header className="header-wrapper">
-      <div className="container header-container">
+    <>
+      <header className="header-wrapper">
+        <div className="container header-container">
         {/* Brand Logo */}
         <a href="#" className="logo-brand" onClick={handleLogoClick}>
           <div className="logo-icon-wrap">
@@ -386,6 +387,7 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
           </button>
         </div>
       </div>
+    </header>
 
       {/* Mobile Slide-Out Drawer Navigation Menu */}
       {isMobileMenuOpen && (
@@ -405,8 +407,10 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
             </div>
 
             <div className="mobile-drawer-body">
-              {/* Role Toggle Switcher in Drawer */}
-              <div className="mobile-drawer-section">
+              {currentUser && (
+                <>
+                  {/* Role Toggle Switcher in Drawer */}
+                  <div className="mobile-drawer-section">
                 <div className="role-switcher-toggle" style={{ width: '100%', justifyContent: 'center' }}>
                   <button
                     className={`role-tab-btn ${role === 'customer' ? 'active' : ''}`}
@@ -523,6 +527,8 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
               </button>
 
               <div style={{ height: '1px', background: 'var(--border)', margin: '0.5rem 0' }} />
+                </>
+              )}
 
               {/* Language Switcher */}
               <div className="lang-switch" style={{ width: '100%', justifyContent: 'space-around', padding: '4px' }}>
@@ -532,7 +538,7 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
               </div>
 
               {/* Auth Action Buttons */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem', marginTop: 'auto', paddingTop: '1rem' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem', marginTop: '1rem', paddingTop: '1rem' }}>
                 {currentUser ? (
                   <>
                     <button className="btn-gold-login" style={{ width: '100%', justifyContent: 'center', padding: '0.75rem' }} onClick={() => { closeDropdown(); onOpenDashboard(currentUser.role); }}>
@@ -560,6 +566,6 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
           </div>
         </>
       )}
-    </header>
+    </>
   );
 }
