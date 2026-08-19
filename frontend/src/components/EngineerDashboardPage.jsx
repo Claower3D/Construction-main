@@ -574,14 +574,27 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
         for (let i = 0; i < daysToPopulate; i++) {
           const d = selectedDay + i;
           if (d <= 31) {
-             const dayEvents = newState[d] || [];
-             const existingIdx = dayEvents.findIndex(item => item.id === editingEvent.id);
-             if (existingIdx !== -1) {
-                dayEvents[existingIdx] = { ...dayEvents[existingIdx], ...eventPayload };
-             } else {
-                dayEvents.push({ ...editingEvent, ...eventPayload, id: editingEvent.id });
+             const fullDateKey = `${currentYear}-${String(monthIndex + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+             
+             // Remove from integer key to prevent duplicates
+             if (newState[d]) {
+               const intDayEvents = [...newState[d]];
+               const existingIdx = intDayEvents.findIndex(item => item.id === editingEvent.id);
+               if (existingIdx !== -1) {
+                  intDayEvents.splice(existingIdx, 1);
+                  newState[d] = intDayEvents;
+               }
              }
-             newState[d] = dayEvents;
+
+             // Update or add in fullDateKey
+             const fullDayEvents = [...(newState[fullDateKey] || [])];
+             const fullIdx = fullDayEvents.findIndex(item => item.id === editingEvent.id);
+             if (fullIdx !== -1) {
+                fullDayEvents[fullIdx] = { ...fullDayEvents[fullIdx], ...eventPayload };
+             } else {
+                fullDayEvents.push({ ...editingEvent, ...eventPayload, id: editingEvent.id });
+             }
+             newState[fullDateKey] = fullDayEvents;
           }
         }
         
@@ -596,10 +609,12 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
         ...eventPayload
       };
 
+      const fullDateKey = `${currentYear}-${String(monthIndex + 1).padStart(2, '0')}-${String(selectedDay).padStart(2, '0')}`;
+
       setScheduledEvents(prev => {
         const newState = {
           ...prev,
-          [selectedDay]: [...(prev[selectedDay] || []), newEvt]
+          [fullDateKey]: [...(prev[fullDateKey] || []), newEvt]
         };
         localStorage.setItem(key, JSON.stringify(newState));
         localStorage.setItem('qazgost_calendar_events', JSON.stringify(newState));
