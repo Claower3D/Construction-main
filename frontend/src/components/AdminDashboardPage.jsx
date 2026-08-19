@@ -226,7 +226,7 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
 
   const roles = [
     { id: 'admin', label: 'Администратор', icon: '⚙️', badge: 'VIP' },
-    { id: 'company', label: 'Компания', icon: '🏢', badge: 'PRO' },
+    // { id: 'company', label: 'Компания', icon: '🏢', badge: 'PRO' },
     { id: 'customer', label: 'Заказчик', icon: '📋', badge: '' },
     { id: 'executor', label: 'Исполнитель', icon: '🔧', badge: '' },
     { id: 'engineer', label: 'Инженер', icon: '👷', badge: '' },
