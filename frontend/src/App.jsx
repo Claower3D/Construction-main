@@ -24,6 +24,7 @@ import UserWalletPage from './components/UserWalletPage';
 import ContractorsCatalogPage from './components/ContractorsCatalogPage';
 import UserOrdersPage from './components/UserOrdersPage';
 import EngineeringSolutionsPage from './components/EngineeringSolutionsPage';
+import ScrollToTopButton from './components/ScrollToTopButton';
 import { categoriesData } from './data/categoriesData';
 
 export default function App() {
@@ -316,10 +317,9 @@ export default function App() {
 
       <AiAssistantWidget />
       <VoiceControlWidget />
+      <ScrollToTopButton />
+
       <AuthModal mode={authMode} onClose={() => setAuthMode(null)} onLogin={handleLogin} />
     </div>
   );
 }
-
-
-

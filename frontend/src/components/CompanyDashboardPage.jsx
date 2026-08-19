@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-export default function CompanyDashboardPage({ currentUser, initialTab = 'profile' }) {
+export default function CompanyDashboardPage({ currentUser, initialTab = 'profile', sidebarToggleNode }) {
   const [activeTab, setActiveTab] = useState(initialTab);
   const [employees, setEmployees] = useState([]);
   
@@ -53,11 +53,14 @@ export default function CompanyDashboardPage({ currentUser, initialTab = 'profil
   return (
     <div style={{ padding: '2rem', height: '100%', overflowY: 'auto' }}>
       <div style={{ marginBottom: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div>
-          <h1 style={{ fontSize: '2rem', fontWeight: 'bold', color: '#fff', marginBottom: '0.5rem' }}>
-            Дашборд Компании: {currentUser?.name || 'Неизвестно'}
-          </h1>
-          <p style={{ color: '#94a3b8' }}>Управление сотрудниками и реквизитами</p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          {sidebarToggleNode}
+          <div>
+            <h1 style={{ fontSize: '2rem', fontWeight: 'bold', color: '#fff', marginBottom: '0.5rem' }}>
+              Дашборд Компании: {currentUser?.name || 'Неизвестно'}
+            </h1>
+            <p style={{ color: '#94a3b8' }}>Управление сотрудниками и реквизитами</p>
+          </div>
         </div>
         <div style={{ display: 'flex', gap: '0.5rem' }}>
           <button 

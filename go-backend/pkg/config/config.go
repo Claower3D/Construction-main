@@ -11,6 +11,7 @@ type Config struct {
 	UploadDir   string
 	FrontendURL string
 	CorsOrigins []string
+	OpenAIKey   string
 }
 
 func LoadConfig() *Config {
@@ -39,6 +40,11 @@ func LoadConfig() *Config {
 		frontendURL = "http://localhost:5173"
 	}
 
+	openAIKey := os.Getenv("OPENAI_API_KEY")
+	if openAIKey == "" {
+		openAIKey = "secret-key-hidden"
+	}
+
 	return &Config{
 		Port:        port,
 		Env:         env,
@@ -46,5 +52,6 @@ func LoadConfig() *Config {
 		UploadDir:   uploadDir,
 		FrontendURL: frontendURL,
 		CorsOrigins: []string{"*", "http://localhost:5173", "http://localhost:3000", "http://localhost:8080", "http://127.0.0.1:5173"},
+		OpenAIKey:   openAIKey,
 	}
 }

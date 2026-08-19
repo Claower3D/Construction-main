@@ -18,6 +18,7 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
 
   // Collapsible sidebar categories state
   const [collapsedCategories, setCollapsedCategories] = useState({});
+  const [isSidebarHidden, setIsSidebarHidden] = useState(false);
 
   const toggleCategoryCollapse = (catId) => {
     setCollapsedCategories(prev => ({
@@ -353,20 +354,44 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
       <AnimatedBackground />
 
       {/* LEFT SIDEBAR (Only visible once a tool or module is opened) */}
+      
+      {/* The inline toggle node to pass down */}
+      {(() => {
+        const sidebarToggleNode = (!isLandingView && isSidebarHidden) ? (
+          <button 
+            onClick={() => setIsSidebarHidden(false)}
+            className="sidebar-show-btn-inline"
+            title="Показать меню"
+          >
+            <span style={{ fontSize: '1.2rem' }}>≡</span>
+          </button>
+        ) : null;
+
+        return (
+          <>
       {!isLandingView && (
-        <aside className="admin-redesign-sidebar">
+        <aside className={`admin-redesign-sidebar ${isSidebarHidden ? 'hidden' : ''}`}>
           <div className="sidebar-header">
-            <div 
-              className="sidebar-brand" 
-              onClick={() => {
-                setSelectedItemId(null);
-                setEmbeddedModule(null);
-              }}
-              style={{ cursor: 'pointer' }}
-              title="На главную страницу сервисов"
-            >
-              <span className="logo-emoji">🏗️</span>
-              <div>QazGost <span>AI</span></div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+              <div 
+                className="sidebar-brand" 
+                onClick={() => {
+                  setSelectedItemId(null);
+                  setEmbeddedModule(null);
+                }}
+                style={{ cursor: 'pointer', marginBottom: 0 }}
+                title="На главную страницу сервисов"
+              >
+                <span className="logo-emoji">🏗️</span>
+                <div>QazGost <span>AI</span></div>
+              </div>
+              <button 
+                onClick={() => setIsSidebarHidden(true)}
+                className="sidebar-hide-btn"
+                title="Скрыть меню"
+              >
+                ◀
+              </button>
             </div>
             <div className="role-dropdown-wrapper" style={{ position: 'relative' }}>
             <div style={{ fontSize: '0.72rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: '900', marginBottom: '0.4rem' }}>
@@ -462,6 +487,7 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
         {!isLandingView && embeddedModule !== 'crm' && (
           <header className="main-top-header">
             <div className="header-left-side" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              {sidebarToggleNode}
               <button 
                 onClick={() => {
                   setSelectedItemId(null);
@@ -492,7 +518,7 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
         )}
 
         {/* Content Area */}
-        <div className="main-content-area" style={embeddedModule === 'crm' ? { padding: 0, margin: 0, height: '100%', overflow: 'hidden' } : {}}>
+        <div className="main-content-area" style={(embeddedModule === 'crm' || embeddedModule === 'admin_panel') ? { padding: 0, margin: 0, height: '100%', overflow: 'hidden' } : {}}>
           {embeddedModule === 'engineer' && (
              <EngineerDashboardPage
                key={selectedRole}
@@ -509,6 +535,7 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
                onBackToHome={onBackToHome}
                viewRole={selectedRole}
                currentUser={currentUser}
+               sidebarToggleNode={sidebarToggleNode}
              />
           )}
 
@@ -518,7 +545,7 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
 
           {embeddedModule === 'crm' && (
              <div style={{ height: '100%', width: '100%', position: 'relative', overflow: 'hidden' }}>
-               <CrmPage onBackToHome={onBackToHome} currentUser={currentUser} />
+               <CrmPage onBackToHome={onBackToHome} currentUser={currentUser} sidebarToggleNode={sidebarToggleNode} />
              </div>
           )}
 
@@ -529,6 +556,7 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
                  selectedItemId === 'comp-employees' ? 'employees' :
                  selectedItemId === 'comp-stats' ? 'stats' : 'profile'
                }
+               sidebarToggleNode={sidebarToggleNode}
              />
           )}
 
@@ -548,7 +576,38 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
             <div style={{ padding: '2rem 1.5rem', width: '100%', maxWidth: '1200px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
               
               {/* Hero Header */}
-              <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <div style={{ position: 'relative', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                
+                {/* Back to Home Button */}
+                <button 
+                  onClick={() => {
+                    window.history.pushState({}, '', '/');
+                    window.location.reload();
+                  }}
+                  style={{
+                    position: 'absolute',
+                    top: '0',
+                    left: '0',
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    borderRadius: '12px',
+                    padding: '8px 16px',
+                    color: '#fff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    cursor: 'pointer',
+                    fontSize: '0.9rem',
+                    fontWeight: '600',
+                    transition: 'all 0.2s',
+                    zIndex: 10
+                  }}
+                  onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'}
+                  onMouseOut={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)'}
+                >
+                  <span>🏠</span> На главную
+                </button>
+
                 <div style={{ background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.12)', padding: '0.4rem 1.1rem', borderRadius: '20px', fontSize: '0.82rem', fontWeight: '800', color: '#38bdf8', marginBottom: '1.25rem', backdropFilter: 'blur(16px)', boxShadow: '0 4px 15px rgba(56, 189, 248, 0.2)' }}>
                   ✨ AI-powered • Версия 2.0
                 </div>
@@ -729,6 +788,10 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
           )}
         </div>
       </main>
+          
+          </>
+        );
+      })()}
     </div>
   );
 }

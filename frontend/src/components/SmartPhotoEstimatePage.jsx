@@ -87,52 +87,36 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
     setPhotos(prev => prev.filter(p => p.id !== id));
   };
 
-  const handleRunAiEstimate = (e) => {
-    e.preventDefault();
-
+  const handleRunAiEstimate = async () => {
     setIsScanning(true);
-    setCalculatedEstimate(null);
+    setScanStep('⏳ Подключение к ИИ-серверу...');
 
-    const steps = [
-      '📸 AI распознает геометрию снимков...',
-      '📐 Извлечение площадей и объёмов работ...',
-      '💰 Сопоставление с нормами ГЭСН 2026 РК...',
-      '✨ Генерация сметного счёта...'
-    ];
-
-    let stepIdx = 0;
-    setScanStep(steps[0]);
-
-    const interval = setInterval(() => {
-      stepIdx++;
-      if (stepIdx < steps.length) {
-        setScanStep(steps[stepIdx]);
-      } else {
-        clearInterval(interval);
+    try {
+      const activeCatObj = categories.find(c => c.id === selectedCategory) || categories[9];
+      setScanStep('🤖 Идет анализ данных через нейросеть...');
+      const res = await fetch('http://localhost:3001/api/v1/ai/estimate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          description: description,
+          mode: aiEngineMode,
+          category: isCategorySkipped ? '' : activeCatObj.title
+        })
+      });
+      const data = await res.json();
+      setScanStep('✨ Компиляция итоговой сметы...');
+      
+      setTimeout(() => {
         setIsScanning(false);
-
-        const activeCatObj = categories.find(c => c.id === selectedCategory) || categories[9];
-        const baseCost = activeCatObj.rate * 85;
-        const worksCost = Math.round(baseCost * 0.58);
-        const materialsCost = Math.round(baseCost * 0.42);
-        const total = worksCost + materialsCost;
-
-        setCalculatedEstimate({
-          category: isCategorySkipped ? 'Авто-определение ИИ' : activeCatObj.title,
-          total,
-          worksCost,
-          materialsCost,
-          timelineDays: 5,
-          aiInsights: [
-            `Применена нормативная база ГЭСН РК 8.04-01-2026 по разделу "${isCategorySkipped ? 'Общие строительные работы' : activeCatObj.title}".`,
-            `Учтён демонтаж строительного мусора и вывоз автосамосвалом 20т.`,
-            `Гарантия качественного выполнения работ: 24 месяца.`
-          ]
-        });
-
+        setCalculatedEstimate(data);
         showToast('✅ AI-Расчёт сметы по фото успешно завершён!');
-      }
-    }, 850);
+      }, 500);
+      
+    } catch (err) {
+      console.error(err);
+      setIsScanning(false);
+      showToast('❌ Ошибка подключения к серверу AI');
+    }
   };
 
   return (

@@ -8,6 +8,7 @@ export default function UserWalletPage({ onBack }) {
   const [totalSpent, setTotalSpent] = useState(0);
   const [opsCount, setOpsCount] = useState(0);
   const [selectedPlan, setSelectedPlan] = useState(null);
+  const [transactions, setTransactions] = useState([]);
 
   // Modals & Active Tab
   const [showTopupModal, setShowTopupModal] = useState(false);
@@ -46,6 +47,17 @@ export default function UserWalletPage({ onBack }) {
     setBalance(prev => prev + amountUsd);
     setTotalDeposited(prev => prev + amountUsd);
     setOpsCount(prev => prev + 1);
+    
+    const newTx = {
+      id: Date.now().toString(),
+      type: 'topup',
+      amountUsd: amountUsd,
+      date: new Date().toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+      desc: paymentMethod === 'kaspi' ? 'Пополнение через Kaspi Pay' : 'Пополнение банковской картой',
+      status: 'Успешно'
+    };
+    setTransactions(prev => [newTx, ...prev]);
+    
     setShowTopupModal(false);
     showToast(`🎉 Баланс пополнен на ${formatMoney(amountUsd)}!`);
   };
@@ -58,6 +70,17 @@ export default function UserWalletPage({ onBack }) {
       setTotalSpent(prev => prev + plan.priceUsd);
       setSelectedPlan(plan.title);
       setOpsCount(prev => prev + 1);
+
+      const newTx = {
+        id: Date.now().toString(),
+        type: 'purchase',
+        amountUsd: plan.priceUsd,
+        date: new Date().toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+        desc: `Покупка тарифа "${plan.title}"`,
+        status: 'Успешно'
+      };
+      setTransactions(prev => [newTx, ...prev]);
+
       showToast(`⭐ Тариф "${plan.title}" успешно активирован!`);
     }
   };
@@ -163,6 +186,35 @@ export default function UserWalletPage({ onBack }) {
             <span className="uw-stat-label">📋 Операций</span>
             <span className="uw-stat-value primary">{opsCount}</span>
           </div>
+        </div>
+
+        {/* Transaction History Section */}
+        <div className="uw-transactions-section" style={{ marginTop: '2rem', marginBottom: '2rem' }}>
+          <h3 className="uw-section-title">📜 История операций</h3>
+          {transactions.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '2rem', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', color: '#94a3b8' }}>
+              У вас еще нет транзакций. Пополните баланс или купите тариф.
+            </div>
+          ) : (
+            <div className="uw-transactions-list" style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+              {transactions.map(tx => (
+                <div key={tx.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem 1.5rem', background: 'rgba(15, 23, 42, 0.4)', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: tx.type === 'topup' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)', color: tx.type === 'topup' ? '#10b981' : '#ef4444', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem' }}>
+                      {tx.type === 'topup' ? '↓' : '↑'}
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                      <span style={{ color: '#f8fafc', fontWeight: '600', fontSize: '0.95rem' }}>{tx.desc}</span>
+                      <span style={{ color: '#94a3b8', fontSize: '0.8rem', marginTop: '0.2rem' }}>{tx.date} • {tx.status}</span>
+                    </div>
+                  </div>
+                  <div style={{ fontWeight: '700', fontSize: '1.1rem', color: tx.type === 'topup' ? '#10b981' : '#ef4444' }}>
+                    {tx.type === 'topup' ? '+' : '-'}{formatMoney(tx.amountUsd)}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Tariff Plans Section */}

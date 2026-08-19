@@ -45,7 +45,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
     setAiDescription(prev => prev ? `${prev}. ${promptText}` : promptText);
   };
 
-  const handleRunInspection = (e) => {
+  const handleRunInspection = async (e) => {
     e.preventDefault();
 
     if (photos.length === 0) {
@@ -55,51 +55,43 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
 
     setIsScanning(true);
     setReport(null);
+    setScanStepMessage('⏳ Подключение к ИИ-серверу (дефектоскопия)...');
 
-    const steps = [
-      '📸 Обработка снимков компьютером зрания...',
-      '📐 Анализ раскрытия трещин и геометрии...',
-      '📜 Сопоставление со стандартами СНиП РК 2026...',
-      '✨ Генерация заключения и расчета сметы...'
-    ];
-
-    let currentStep = 0;
-    setScanStepMessage(steps[0]);
-
-    const interval = setInterval(() => {
-      currentStep++;
-      if (currentStep < steps.length) {
-        setScanStepMessage(steps[currentStep]);
-      } else {
-        clearInterval(interval);
+    try {
+      setScanStepMessage('🤖 ИИ анализирует дефекты и стандарты СНиП РК...');
+      const res = await fetch('http://localhost:3001/api/v1/ai/defect', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          description: aiDescription || 'Анализ дефекта по фото'
+        })
+      });
+      const data = await res.json();
+      setScanStepMessage('✨ Формирование технического заключения...');
+      
+      setTimeout(() => {
         setIsScanning(false);
-
-        // Generated mock defect report based on user description or standard scan
-        const defectTypes = [
-          'Усадочная вертикальная трещина кладки газоблока',
-          'Отслоение выравнивающего слоя штукатурки и микротрещины',
-          'Нарушение гидроизоляции примыканий (сырость / плесень)',
-          'Прогиб плиты перекрытия и горизонтальный скол'
-        ];
-        const randomDefect = defectTypes[Math.floor(Math.random() * defectTypes.length)];
-
         setReport({
           id: `DEF-${Math.floor(1000 + Math.random() * 9000)}`,
           date: new Date().toLocaleString('ru-RU'),
-          defectType: randomDefect,
-          severity: 'Средний класс риска (Требует локального ремонта)',
-          snipCode: 'СНиП РК 3.02-04-2009 (Раздел 5.4.1)',
-          fixMethod: 'Расшивка трещины под углом 45°, антисептическая обработка, армирование стеклосеткой 160 г/м² и заделка безусадочной штукатурной смесью.',
-          estimatedCost: '140 000 - 180 000 ₸',
-          workDays: '3-4 рабочих дня',
+          defectType: data.defectType,
+          severity: data.severity,
+          snipCode: data.snipCode,
+          fixMethod: data.fixMethod,
+          estimatedCost: data.estimatedCost,
+          workDays: data.workDays,
           clientName: clientName || 'Заказчик',
           clientPhone: clientPhone || '+7 (707) ***-**-**',
           address: clientAddress || 'г. Алматы'
         });
-
         showToast('✅ Экспертиза дефекта успешно завершена!');
-      }
-    }, 900);
+      }, 500);
+
+    } catch (err) {
+      console.error(err);
+      setIsScanning(false);
+      showToast('❌ Ошибка подключения к серверу AI');
+    }
   };
 
   return (

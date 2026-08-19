@@ -259,7 +259,12 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
           <div className="page-title-badge">⚙️ АДМИНИСТРАТИВНЫЙ МОДУЛЬ: {displayName}</div>
         </div>
         <div className="inline-admin-container">
-          <AdminDashboardModal isOpen={true} onClose={onBack} />
+          <AdminDashboardModal 
+            isOpen={true} 
+            inline={true} 
+            startTab={itemId.replace('adm-', '')} 
+            onClose={onBack} 
+          />
         </div>
       </div>
     );

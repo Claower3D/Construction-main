@@ -27,6 +27,7 @@ func main() {
 	filesHnd := handlers.NewFilesHandler(cfg)
 	equipmentHnd := handlers.NewEquipmentHandler()
 	disputesHnd := handlers.NewDisputesHandler()
+	aiHnd := handlers.NewAiHandler(cfg)
 
 	mux := http.NewServeMux()
 
@@ -62,6 +63,9 @@ func main() {
 		}
 	})
 
+	// AI Routes
+	mux.HandleFunc("/api/v1/ai/estimate", aiHnd.EstimateCost)
+	mux.HandleFunc("/api/v1/ai/defect", aiHnd.InspectDefect)
 	// Engineers Routes
 	mux.HandleFunc("/api/v1/engineers", engineersHnd.GetEngineers)
 	mux.HandleFunc("/api/v1/engineers/assign", engineersHnd.AssignEngineer)

@@ -21,7 +21,7 @@ const DEFAULT_CRM_DEALS = {
   ]
 };
 
-export default function CrmPage({ onBackToHome, currentUser }) {
+export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }) {
   const [events, setEvents] = useState({});
   const [selectedCard, setSelectedCard] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -305,6 +305,7 @@ export default function CrmPage({ onBackToHome, currentUser }) {
         }}>
           {/* Left: Title + Search */}
           <div className="crm-header-left" style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', flex: 1 }}>
+            {sidebarToggleNode}
             <h1 style={{ margin: 0, fontSize: '1.35rem', fontWeight: 900, letterSpacing: '0.5px', color: '#fff', whiteSpace: 'nowrap' }}>
               ЗАЯВКИ И ЗАКАЗЫ
             </h1>

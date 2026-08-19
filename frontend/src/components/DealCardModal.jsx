@@ -206,6 +206,8 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
     onSave(finalFormData);
   };
 
+  const baseBudget = parseInt(String(formData.budget || formData.totalPrice || 0).replace(/\D/g, '')) || 0;
+
   return (
     <div style={{
       position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',

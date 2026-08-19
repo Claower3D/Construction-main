@@ -16,6 +16,7 @@ var defaultPrices = []models.PriceRate{
 	{Code: "GESN-07-03-012", Name: "Испытание сваи статической нагрузкой до 200т", Unit: "свая", PriceKZT: 280000, Category: "Испытания", Region: "Алматы и Астана"},
 	{Code: "GESN-01-03-008", Name: "Статическое зондирование грунтов (CPT)", Unit: "точка", PriceKZT: 55000, Category: "Геотехника", Region: "Все регионы РК"},
 	{Code: "GESN-01-04-001", Name: "Топографическая съемка М 1:500", Unit: "га", PriceKZT: 65000, Category: "Геодезия", Region: "Все регионы РК"},
+	{Code: "FSSC-01-01-001", Name: "Кирпич керамический одинарный полнотелый М150", Unit: "шт", PriceKZT: 120, Category: "Материалы", Region: "Алматы"},
 }
 
 type PricesHandler struct{}

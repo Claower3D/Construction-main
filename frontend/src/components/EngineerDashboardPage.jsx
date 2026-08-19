@@ -4,7 +4,7 @@ import '../engineer-modal.css';
 import OnboardingTour from './OnboardingTour';
 import SmartDealCreateModal from './SmartDealCreateModal';
 
-export default function EngineerDashboardPage({ onBackToHome, initialTab = 'calendar', currentUser, viewRole = 'engineer', hideHeader = false }) {
+export default function EngineerDashboardPage({ onBackToHome, initialTab = 'calendar', currentUser, viewRole = 'engineer', hideHeader = false, sidebarToggleNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [activeTab, setActiveTab] = useState(initialTab || 'calendar'); // Dynamic tab state
 

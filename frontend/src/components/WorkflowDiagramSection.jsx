@@ -9,6 +9,7 @@ export default function WorkflowDiagramSection({ onAction }) {
     service: 'Установка септика',
     address: 'ул. Центральная, 123',
     date: '14 августа',
+    notes: '',
     budget: '1 250 000',
     statusText: 'ЛИД СОЗДАН',
   });
@@ -104,6 +105,10 @@ export default function WorkflowDiagramSection({ onAction }) {
             <div className={`mock-field interactive-field ${currentStep === 1 ? 'active' : 'locked'}`}>
               <span className="mock-field-label">Дата:</span>
               <input type="text" name="date" value={orderData.date} onChange={handleChange} disabled={currentStep !== 1} />
+            </div>
+            <div className={`mock-field mock-field-textarea interactive-field ${currentStep === 1 ? 'active' : 'locked'}`}>
+              <span className="mock-field-label" style={{alignSelf: 'flex-start', marginTop: '4px'}}>Заметки (для инженера):</span>
+              <textarea name="notes" placeholder="Опишите проблему, детали доступа..." value={orderData.notes} onChange={handleChange} disabled={currentStep !== 1} rows="2" />
             </div>
           </div>
 
