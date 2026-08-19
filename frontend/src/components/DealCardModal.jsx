@@ -209,13 +209,13 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
   const baseBudget = parseInt(String(formData.budget || formData.totalPrice || 0).replace(/\D/g, '')) || 0;
 
   return (
-    <div style={{
+    <div className="deal-card-modal-overlay" style={{
       position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
       backgroundColor: 'rgba(0, 0, 0, 0.85)', zIndex: 9999,
       display: 'flex', justifyContent: 'center', alignItems: 'center',
       backdropFilter: 'blur(5px)'
     }}>
-      <div style={{
+      <div className="deal-card-modal-container" style={{
         backgroundColor: '#0a0f18',
         width: '95vw', maxWidth: '1400px', height: '90vh',
         borderRadius: '16px', border: '1px solid #1e293b',
@@ -225,10 +225,10 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
       }}>
         
         {/* HEADER */}
-        <div style={{ padding: '1.5rem 2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #1e293b' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+        <div className="deal-card-modal-header" style={{ padding: '1.5rem 2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #1e293b' }}>
+          <div className="deal-card-header-left" style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
             <h2 style={{ margin: 0, fontSize: '1.8rem', fontWeight: 700, letterSpacing: '0.5px' }}>КАРТОЧКА СДЕЛКИ №{formData.id}</h2>
-            <div style={{ 
+            <div className="deal-card-status-badge" style={{ 
               display: 'flex', alignItems: 'center', gap: '0.5rem', 
               border: '1px solid rgba(34, 197, 94, 0.3)', backgroundColor: 'rgba(34, 197, 94, 0.1)',
               padding: '0.4rem 1rem', borderRadius: '20px', color: '#22c55e', fontSize: '0.85rem', fontWeight: 600
@@ -237,17 +237,17 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
               Сделка активна
             </div>
           </div>
-          <button onClick={onClose} style={{ background: 'transparent', border: 'none', color: '#64748b', fontSize: '1.5rem', cursor: 'pointer' }}>✕</button>
+          <button className="deal-card-close-btn" onClick={onClose} style={{ background: 'transparent', border: 'none', color: '#64748b', fontSize: '1.5rem', cursor: 'pointer' }}>✕</button>
         </div>
 
         {/* CONTENT (SCROLLABLE) */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: '2rem', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+        <div className="deal-card-modal-content" style={{ flex: 1, overflowY: 'auto', padding: '2rem', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
           
           {/* TOP SECTION: PIPELINE & ACTION BOX */}
-          <div style={{ display: 'flex', gap: '2rem' }}>
+          <div className="deal-card-top-section" style={{ display: 'flex', gap: '2rem' }}>
             
             {/* PIPELINE */}
-            <div style={{ flex: 1, backgroundColor: '#111827', borderRadius: '12px', border: '1px solid #1e293b', padding: '1.5rem', display: 'flex', alignItems: 'center' }}>
+            <div className="deal-card-pipeline-wrapper" style={{ flex: 1, backgroundColor: '#111827', borderRadius: '12px', border: '1px solid #1e293b', padding: '1.5rem', display: 'flex', alignItems: 'center' }}>
               <div style={{ display: 'flex', width: '100%', position: 'relative', justifyContent: 'space-between' }}>
                 {/* Connecting Line */}
                 <div style={{ position: 'absolute', top: '24px', left: '4%', right: '4%', height: '3px', background: 'linear-gradient(to right, #22c55e 30%, #3b82f6 60%, #334155 100%)', zIndex: 1 }} />
@@ -281,21 +281,21 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
             </div>
 
             {/* ACTION BOX (ПЕРЕДАТЬ СДЕЛКУ) */}
-            <div style={{ width: '400px', backgroundColor: '#111827', borderRadius: '12px', border: '1px solid #1e293b', padding: '1.2rem' }}>
+            <div className="deal-card-action-box" style={{ width: '400px', backgroundColor: '#111827', borderRadius: '12px', border: '1px solid #1e293b', padding: '1.2rem' }}>
                <div style={{ fontSize: '0.7rem', color: '#64748b', marginBottom: '0.8rem', letterSpacing: '1px' }}>ПЕРЕДАТЬ СДЕЛКУ</div>
-               <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
+               <div className="deal-card-action-btns-1" style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
                  <button onClick={() => handleChange('status', 'Менеджер ОП')} style={{ flex: 1, background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6', border: '1px solid #3b82f6', padding: '0.5rem', borderRadius: '8px', fontSize: '0.8rem', cursor: 'pointer' }}>👤 Менеджеру ОП</button>
                  <button onClick={() => handleChange('status', 'РОП')} style={{ flex: 1, background: 'rgba(168, 85, 247, 0.1)', color: '#a855f7', border: '1px solid #a855f7', padding: '0.5rem', borderRadius: '8px', fontSize: '0.8rem', cursor: 'pointer' }}>🛡️ РОПу</button>
                  <button onClick={() => handleChange('status', 'Финансист')} style={{ flex: 1, background: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b', border: '1px solid #f59e0b', padding: '0.5rem', borderRadius: '8px', fontSize: '0.8rem', cursor: 'pointer' }}>🪙 Финансисту</button>
                </div>
 
                <div style={{ fontSize: '0.7rem', color: '#64748b', marginBottom: '0.8rem', letterSpacing: '1px' }}>НАЗНАЧИТЬ И ОТПРАВИТЬ УВЕДОМЛЕНИЕ</div>
-               <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem' }}>
+               <div className="deal-card-action-btns-2" style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem' }}>
                  <button onClick={() => handleAssignToWorker('engineer')} style={{ flex: 1, background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', border: '1px solid #10b981', padding: '0.5rem', borderRadius: '8px', fontSize: '0.8rem', cursor: 'pointer', fontWeight: 600 }}>⚙️ Инженеру</button>
                  <button onClick={() => handleAssignToWorker('executor')} style={{ flex: 1, background: 'rgba(236, 72, 153, 0.1)', color: '#ec4899', border: '1px solid #ec4899', padding: '0.5rem', borderRadius: '8px', fontSize: '0.8rem', cursor: 'pointer', fontWeight: 600 }}>👷 Исполнителю</button>
                </div>
                
-               <div style={{ display: 'flex', gap: '1rem' }}>
+               <div className="deal-card-action-assign" style={{ display: 'flex', gap: '1rem' }}>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: '0.7rem', color: '#64748b', marginBottom: '0.4rem', letterSpacing: '1px' }}>НАЗНАЧЕН (ОТВЕТСТВЕННЫЙ)</div>
                     <select 
@@ -321,7 +321,7 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
                       </optgroup>
                     </select>
                   </div>
-                 <div style={{ display: 'flex', gap: '0.5rem', flex: 1, alignItems: 'flex-end' }}>
+                 <div className="deal-card-action-btns-3" style={{ display: 'flex', gap: '0.5rem', flex: 1, alignItems: 'flex-end' }}>
                    <button onClick={() => handleChange('status', 'Успешно')} style={{ flex: 1, background: 'rgba(34, 197, 94, 0.1)', color: '#22c55e', border: '1px solid #22c55e', padding: '0.6rem', borderRadius: '8px', fontSize: '0.85rem', cursor: 'pointer', fontWeight: 600 }}>✓ Успешно</button>
                    <button onClick={() => handleChange('status', 'Отказ')} style={{ flex: 1, background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: '1px solid #ef4444', padding: '0.6rem', borderRadius: '8px', fontSize: '0.85rem', cursor: 'pointer', fontWeight: 600 }}>✕ Отказ</button>
                  </div>
@@ -330,10 +330,10 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
           </div>
 
           {/* MAIN GRID */}
-          <div style={{ display: 'flex', gap: '2rem' }}>
+          <div className="deal-card-main-grid" style={{ display: 'flex', gap: '2rem' }}>
             
             {/* COLUMN 1: ДАННЫЕ СДЕЛКИ & ЭТАПЫ (From Image 2) */}
-            <div style={{ width: '380px', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            <div className="deal-card-col-1" style={{ width: '380px', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
               
               <div style={{ backgroundColor: '#111827', borderRadius: '12px', border: '1px solid #1e293b', padding: '1.5rem' }}>
                  <div style={{ fontSize: '0.85rem', color: '#94a3b8', marginBottom: '1.2rem', letterSpacing: '1px' }}>ДАННЫЕ СДЕЛКИ</div>
@@ -518,7 +518,7 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
             </div>
 
             {/* COLUMN 2: ФИНАНСЫ (Widgets) */}
-            <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', alignContent: 'start' }}>
+            <div className="deal-card-col-2" style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', alignContent: 'start' }}>
               {STAT_WIDGETS.map((widget, i) => (
                 <div key={i} style={{ backgroundColor: '#111827', borderRadius: '12px', border: '1px solid #1e293b', padding: '1.2rem', position: 'relative' }}>
                   <div style={{ fontSize: '0.7rem', color: '#94a3b8', marginBottom: '0.4rem', letterSpacing: '1px' }}>{widget.title}</div>
@@ -537,7 +537,7 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
             </div>
 
             {/* COLUMN 3: CHARTS */}
-            <div style={{ width: '280px', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            <div className="deal-card-col-3" style={{ width: '280px', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
               
               <div style={{ backgroundColor: '#111827', borderRadius: '12px', border: '1px solid #1e293b', padding: '1.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                 <div style={{ fontSize: '0.75rem', color: '#94a3b8', marginBottom: '1.5rem', letterSpacing: '1px', width: '100%', textAlign: 'left' }}>СТРУКТУРА СУММЫ</div>
@@ -565,7 +565,7 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
         </div>
 
         {/* FOOTER */}
-        <div style={{ padding: '1.5rem 2rem', borderTop: '1px solid #1e293b', display: 'flex', justifyContent: 'flex-end', gap: '1rem', backgroundColor: '#0a0f18' }}>
+        <div className="deal-card-modal-footer" style={{ padding: '1.5rem 2rem', borderTop: '1px solid #1e293b', display: 'flex', justifyContent: 'flex-end', gap: '1rem', backgroundColor: '#0a0f18' }}>
           <button onClick={onClose} style={{ background: 'transparent', color: '#fff', border: '1px solid #334155', padding: '0.8rem 2rem', borderRadius: '8px', cursor: 'pointer', fontSize: '0.95rem' }}>
             {canEdit ? 'Отмена' : 'Закрыть'}
           </button>

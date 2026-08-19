@@ -15530,3 +15530,72 @@ body.dark .split-service-card {
   font-size: 0.78rem;
   font-weight: 900;
 }
+
+/* DealCardModal Responsive */
+@media (max-width: 768px) {
+  .deal-card-modal-container {
+    width: 100vw !important;
+    height: 100vh !important;
+    max-width: none !important;
+    border-radius: 0 !important;
+    border: none !important;
+  }
+  .deal-card-modal-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    padding: 1rem !important;
+    gap: 1rem !important;
+  }
+  .deal-card-header-left {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+  .deal-card-header-left h2 {
+    font-size: 1.4rem !important;
+  }
+  .deal-card-close-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+  }
+  .deal-card-modal-content {
+    padding: 1rem !important;
+  }
+  .deal-card-top-section {
+    flex-direction: column !important;
+  }
+  .deal-card-action-box {
+    width: 100% !important;
+  }
+  .deal-card-action-btns-1, .deal-card-action-btns-2 {
+    flex-direction: column !important;
+  }
+  .deal-card-action-assign {
+    flex-direction: column !important;
+  }
+  .deal-card-action-btns-3 {
+    justify-content: flex-start !important;
+  }
+  .deal-card-main-grid {
+    flex-direction: column !important;
+  }
+  .deal-card-col-1, .deal-card-col-3 {
+    width: 100% !important;
+  }
+  .deal-card-col-2 {
+    grid-template-columns: 1fr !important;
+  }
+  .deal-card-modal-footer {
+    padding: 1rem !important;
+    flex-direction: column-reverse !important;
+    align-items: stretch !important;
+  }
+  .deal-card-pipeline-wrapper > div {
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    gap: 1rem !important;
+  }
+  .deal-card-pipeline-wrapper > div > div:first-child {
+    display: none !important; /* Hide connecting line on mobile */
+  }
+}
