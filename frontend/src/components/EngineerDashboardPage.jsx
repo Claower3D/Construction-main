@@ -812,14 +812,25 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
         for (let i = 0; i < estimatedDays; i++) {
           const d = selectedDay + i;
           if (d <= 31) {
-             const dayEvents = newState[d] || [];
-             const existingIdx = dayEvents.findIndex(item => item.id === payload.id);
-             if (existingIdx !== -1) {
-                dayEvents[existingIdx] = { ...dayEvents[existingIdx], ...payload };
-             } else {
-                dayEvents.push(payload);
+             const fdk = `${currentYear}-${String(monthIndex + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+             
+             if (newState[d]) {
+               const intDayEvents = [...newState[d]];
+               const existingIdx = intDayEvents.findIndex(item => item.id === payload.id);
+               if (existingIdx !== -1) {
+                  intDayEvents.splice(existingIdx, 1);
+                  newState[d] = intDayEvents;
+               }
              }
-             newState[d] = dayEvents;
+
+             const fullDayEvents = [...(newState[fdk] || [])];
+             const existingIdx = fullDayEvents.findIndex(item => item.id === payload.id);
+             if (existingIdx !== -1) {
+                fullDayEvents[existingIdx] = { ...fullDayEvents[existingIdx], ...payload };
+             } else {
+                fullDayEvents.push(payload);
+             }
+             newState[fdk] = fullDayEvents;
           }
         }
         
@@ -833,13 +844,21 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
   // Quick Change Status (1-click status cycle)
   const handleQuickStatusChange = (evtId, newStatus) => {
     const key = 'qazgost_calendar_events';
+    const selectedDateKey = `${currentYear}-${String(monthIndex + 1).padStart(2, '0')}-${String(selectedDay).padStart(2, '0')}`;
     setScheduledEvents(prev => {
       const newState = {
-        ...prev,
-        [selectedDay]: (prev[selectedDay] || []).map(item =>
-          item.id === evtId ? { ...item, status: newStatus } : item
-        )
+        ...prev
       };
+      if (newState[selectedDay]) {
+        newState[selectedDay] = (prev[selectedDay] || []).map(item =>
+          item.id === evtId ? { ...item, status: newStatus } : item
+        );
+      }
+      if (newState[selectedDateKey]) {
+        newState[selectedDateKey] = (prev[selectedDateKey] || []).map(item =>
+          item.id === evtId ? { ...item, status: newStatus } : item
+        );
+      }
       localStorage.setItem(key, JSON.stringify(newState));
       return newState;
     });
