@@ -204,24 +204,19 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
     setDeleteConfirmId(null);
   };
 
-  const handleImportExcelFile = (e) => {
+  const handleImportExcelFile = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = (evt) => {
-      const content = evt.target.result;
-      const imported = parseExcelOrCsvFile(content);
-      if (imported && imported.length > 0) {
-        setPricesList([...imported, ...pricesList]);
-        logAuditAction('create', `Импортировано ${imported.length} позиций расценок из файла ${file.name}`, 'Прайсы');
-        setAuditLogsList(getAuditLogs());
-        alert(`🎉 Успешно импортировано ${imported.length} позиций из файла ${file.name}!`);
-      } else {
-        alert('Не удалось разобрать файл. Убедитесь, что это файл CSV или таблица Excel.');
-      }
-    };
-    reader.readAsText(file);
+    const imported = await parseExcelOrCsvFile(file);
+    if (imported && imported.length > 0) {
+      setPricesList([...imported, ...pricesList]);
+      logAuditAction('create', `Импортировано ${imported.length} позиций расценок из файла ${file.name}`, 'Прайсы');
+      setAuditLogsList(getAuditLogs());
+      alert(`🎉 Успешно импортировано ${imported.length} позиций из файла ${file.name}!`);
+    } else {
+      alert('Не удалось разобрать файл. Убедитесь, что это файл CSV или таблица Excel.');
+    }
   };
 
   const handleResetPrices = () => {

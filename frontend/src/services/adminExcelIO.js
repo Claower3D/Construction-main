@@ -1,4 +1,5 @@
 // Excel IO Utility for Admin Catalog Management
+import * as XLSX from 'xlsx';
 
 /**
  * Export catalog price list to Excel XML / CSV format with Summary statistics
@@ -104,36 +105,50 @@ export function exportAll3SheetsExcel(pricesList) {
 /**
  * Parse uploaded CSV / Text / Tab-separated file into items list
  */
-export function parseExcelOrCsvFile(fileContent) {
-  const lines = fileContent.split(/\r?\n/);
-  const parsedItems = [];
-  
-  lines.forEach((line, idx) => {
-    if (!line.trim() || idx === 0) return; // Skip empty & header line
-    const parts = line.includes('\t') ? line.split('\t') : line.split(',');
-    if (parts.length >= 3) {
-      const code = parts[0]?.replace(/"/g, '').trim();
-      const name = parts[1]?.replace(/"/g, '').trim();
-      const unit = parts[2]?.replace(/"/g, '').trim() || 'м²';
-      const price = parseFloat(parts[3]?.replace(/"/g, '').replace(/[^\d.]/g, '')) || 1000;
-      const category = parts[4]?.replace(/"/g, '').trim() || 'Строительные работы';
+export async function parseExcelOrCsvFile(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const firstSheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[firstSheetName];
+        const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+        
+        const parsedItems = [];
+        json.forEach((row, idx) => {
+          // Skip header or empty rows
+          if (idx === 0 || !row || row.length < 2) return;
+          const code = String(row[0] || '').trim();
+          const name = String(row[1] || '').trim();
+          const unit = String(row[2] || 'м²').trim();
+          const priceStr = String(row[3] || '1000').replace(/[^\d.]/g, '');
+          const price = parseFloat(priceStr) || 1000;
+          const category = String(row[4] || 'Строительные работы').trim();
 
-      if (code && name) {
-        parsedItems.push({
-          id: code,
-          code: code,
-          name: name,
-          unit: unit,
-          price: price,
-          category: category,
-          laborNorm: 1.2,
-          region: 'Казахстан',
+          if (code && name) {
+            parsedItems.push({
+              id: code,
+              code: code,
+              name: name,
+              unit: unit,
+              price: price,
+              category: category,
+              laborNorm: 1.2,
+              region: 'Казахстан',
+            });
+          }
         });
+        resolve(parsedItems);
+      } catch (err) {
+        console.error('Excel parse error:', err);
+        resolve(null); // return null to trigger error popup
       }
-    }
+    };
+    reader.onerror = () => resolve(null);
+    reader.readAsArrayBuffer(file);
   });
-
-  return parsedItems;
 }
 
 function escapeXml(unsafe) {

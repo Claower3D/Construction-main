@@ -3,11 +3,11 @@ import './LeadCreateModal.css';
 
 export default function LeadCreateModal({ onClose, onSave }) {
   const [leadData, setLeadData] = useState({
-    clientName: 'Иван Петров',
-    phone: '+7 (999) 123-45-67',
-    service: 'Установка септика',
-    address: 'ул. Центральная, 123',
-    date: '14 августа'
+    clientName: '',
+    phone: '',
+    service: '',
+    address: '',
+    date: ''
   });
 
   const handleChange = (e) => {
@@ -60,13 +60,22 @@ export default function LeadCreateModal({ onClose, onSave }) {
 
           <div className="lead-modal-field">
             <span className="lead-modal-label">Услуга:</span>
-            <input 
-              type="text" 
+            <select 
               name="service" 
               value={leadData.service} 
               onChange={handleChange} 
               className="lead-modal-input" 
-            />
+              style={{ cursor: 'pointer', appearance: 'auto', colorScheme: 'dark' }}
+            >
+              <option value="Установка септика" style={{ background: '#121626', color: '#fff' }}>Установка септика</option>
+              <option value="Бурение скважины на воду" style={{ background: '#121626', color: '#fff' }}>Бурение скважины на воду</option>
+              <option value="Разработка ПСД" style={{ background: '#121626', color: '#fff' }}>Разработка ПСД</option>
+              <option value="Монтаж HVAC системы" style={{ background: '#121626', color: '#fff' }}>Монтаж HVAC системы</option>
+              <option value="Заливка монолитного фундамента" style={{ background: '#121626', color: '#fff' }}>Заливка монолитного фундамента</option>
+              <option value="Техническая экспертиза" style={{ background: '#121626', color: '#fff' }}>Техническая экспертиза</option>
+              <option value="Аренда спецтехники" style={{ background: '#121626', color: '#fff' }}>Аренда спецтехники</option>
+              <option value="Другое" style={{ background: '#121626', color: '#fff' }}>Другое...</option>
+            </select>
           </div>
 
           <div className="lead-modal-field">

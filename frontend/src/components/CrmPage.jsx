@@ -25,7 +25,7 @@ export default function CrmPage({ onBackToHome, currentUser }) {
   const [events, setEvents] = useState({});
   const [selectedCard, setSelectedCard] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [showAnalytics, setShowAnalytics] = useState(true);
+  const [showAnalytics, setShowAnalytics] = useState(false);
   const [showWorkflow, setShowWorkflow] = useState(false);
   const [showLeadModal, setShowLeadModal] = useState(false);
   const [selectedPeriod, setSelectedPeriod] = useState('all'); // 'day' | 'week' | 'month' | 'all'
@@ -292,7 +292,7 @@ export default function CrmPage({ onBackToHome, currentUser }) {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%', height: '100%', zIndex: 2, overflow: 'hidden' }}>
         
         {/* COMPACT SINGLE-ROW TOP HEADER BAR */}
-        <div style={{ 
+        <div className="crm-header-container" style={{ 
           padding: '0.75rem 1.5rem', 
           display: 'flex', 
           alignItems: 'center', 
@@ -304,21 +304,47 @@ export default function CrmPage({ onBackToHome, currentUser }) {
           zIndex: 10
         }}>
           {/* Left: Title + Search */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', flex: 1 }}>
+          <div className="crm-header-left" style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', flex: 1 }}>
             <h1 style={{ margin: 0, fontSize: '1.35rem', fontWeight: 900, letterSpacing: '0.5px', color: '#fff', whiteSpace: 'nowrap' }}>
               ЗАЯВКИ И ЗАКАЗЫ
             </h1>
 
-            {/* MANAGER WALLET */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', background: 'linear-gradient(90deg, rgba(34,197,94,0.15), rgba(16,185,129,0.25))', border: '1px solid rgba(34,197,94,0.35)', borderRadius: '12px', padding: '0.45rem 1rem' }}>
-              <span style={{ fontSize: '1.3rem' }}>💰</span>
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <span style={{ fontSize: '0.65rem', color: '#6ee7b7', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Ваш кошелек (3%)</span>
-                <span style={{ fontSize: '1rem', color: '#fff', fontWeight: 900 }}>{totalWallet.toLocaleString()} ₸</span>
+            {/* MANAGER WALLET & BACK BTN */}
+            <div className="crm-wallet-group" style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+              <button 
+                onClick={onBackToHome}
+                className="crm-back-btn"
+                style={{ 
+                  background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(59, 130, 246, 0.15))', 
+                  border: '1px solid rgba(56, 189, 248, 0.3)', 
+                  color: '#fff', 
+                  borderRadius: '12px', 
+                  padding: '0 1rem', 
+                  cursor: 'pointer', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center',
+                  gap: '0.4rem', 
+                  fontSize: '0.9rem', 
+                  fontWeight: 800,
+                  boxShadow: '0 4px 15px rgba(0,0,0,0.2)'
+                }}
+                title="Вернуться на сайт"
+              >
+                <span style={{ fontSize: '1.2rem' }}>🏠</span>
+                <span className="crm-back-text">На сайт</span>
+              </button>
+
+              <div className="crm-wallet" style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', background: 'linear-gradient(90deg, rgba(34,197,94,0.15), rgba(16,185,129,0.25))', border: '1px solid rgba(34,197,94,0.35)', borderRadius: '12px', padding: '0.45rem 1rem' }}>
+                <span style={{ fontSize: '1.3rem' }}>💰</span>
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  <span style={{ fontSize: '0.65rem', color: '#6ee7b7', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Ваш кошелек (3%)</span>
+                  <span style={{ fontSize: '1rem', color: '#fff', fontWeight: 900 }}>{totalWallet.toLocaleString()} ₸</span>
+                </div>
               </div>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flex: 1, maxWidth: '320px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '12px', padding: '0.45rem 0.9rem' }}>
+            <div className="crm-search" style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flex: 1, maxWidth: '320px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '12px', padding: '0.45rem 0.9rem' }}>
               <span style={{ fontSize: '0.95rem', color: '#cbd5e1' }}>🔍</span>
               <input 
                 type="text" 
@@ -330,7 +356,7 @@ export default function CrmPage({ onBackToHome, currentUser }) {
             </div>
 
             {/* WORK TYPE FILTER DROPDOWN */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '12px', padding: '0.45rem 0.8rem' }}>
+            <div className="crm-filter" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '12px', padding: '0.45rem 0.8rem' }}>
               <span style={{ fontSize: '0.82rem', color: '#cbd5e1', fontWeight: 800 }}>🏗️ ВИД РАБОТ:</span>
               <select 
                 value={selectedWorkType}
@@ -346,7 +372,7 @@ export default function CrmPage({ onBackToHome, currentUser }) {
             </div>
 
             {/* PERIOD SEGMENT CONTROL */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', padding: '0.25rem 0.4rem' }}>
+            <div className="crm-period" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', padding: '0.25rem 0.4rem' }}>
               <span style={{ fontSize: '0.78rem', color: '#cbd5e1', fontWeight: 800, paddingLeft: '0.3rem' }}>📅</span>
               <button 
                 onClick={() => setSelectedPeriod('day')}
@@ -376,8 +402,9 @@ export default function CrmPage({ onBackToHome, currentUser }) {
           </div>
           
           {/* Right: Analytics Toggle & Action Button */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+          <div className="crm-header-right" style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
             <button 
+              className="crm-desktop-only"
               onClick={() => setShowWorkflow(!showWorkflow)}
               style={{ 
                 background: showWorkflow ? 'rgba(0, 163, 255, 0.2)' : 'rgba(255,255,255,0.06)', 
@@ -398,6 +425,7 @@ export default function CrmPage({ onBackToHome, currentUser }) {
             </button>
 
             <button 
+              className="crm-desktop-only"
               onClick={() => setShowAnalytics(!showAnalytics)}
               style={{ 
                 background: showAnalytics ? 'rgba(168, 85, 247, 0.2)' : 'rgba(255,255,255,0.06)', 
@@ -422,23 +450,6 @@ export default function CrmPage({ onBackToHome, currentUser }) {
               style={{ background: 'linear-gradient(90deg, #0084ff, #0066cc)', color: '#fff', border: 'none', padding: '0.5rem 1.15rem', borderRadius: '12px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '0.4rem', boxShadow: '0 6px 18px rgba(0, 132, 255, 0.4)', whiteSpace: 'nowrap' }}
             >
                + Новый Лид
-            </button>
-
-            <button 
-              onClick={() => setSelectedCard({
-                id: Date.now().toString().slice(-4),
-                title: 'Новая заявка на расчёт сметы',
-                status: 'Новые',
-                type: 'request',
-                time: '+7 (707) 123-45-67',
-                location: 'г. Астана, Левый берег',
-                contractor: 'ИП "Строитель"',
-                budget: '750 000 ₸',
-                day: '14'
-              })} 
-              style={{ background: 'linear-gradient(90deg, #10b981, #059669)', color: '#fff', border: 'none', padding: '0.5rem 1.15rem', borderRadius: '12px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '0.4rem', boxShadow: '0 6px 18px rgba(16, 185, 129, 0.4)', whiteSpace: 'nowrap' }}
-            >
-               + Добавить заявку
             </button>
           </div>
         </div>
@@ -475,6 +486,7 @@ export default function CrmPage({ onBackToHome, currentUser }) {
               return (
                 <div 
                   key={col.id} 
+                  className="crm-kanban-column"
                   onDrop={(e) => handleDrop(e, col.id)}
                   onDragOver={allowDrop}
                   style={{
@@ -867,6 +879,121 @@ export default function CrmPage({ onBackToHome, currentUser }) {
         .crm-kanban-board-container::-webkit-scrollbar-thumb:hover {
           background: linear-gradient(90deg, #f43f5e, #a855f7, #60a5fa);
           box-shadow: 0 0 16px rgba(236, 72, 153, 0.8);
+        }
+
+        /* Mobile Adaptation for CRM Manager - Extremely Compact */
+        @media (max-width: 900px) {
+          .crm-header-container {
+            display: grid !important;
+            grid-template-columns: 1fr 1fr !important;
+            gap: 0.4rem !important;
+            padding: 0.5rem !important;
+          }
+          
+          /* Flatten the layout to use grid directly */
+          .crm-header-left, .crm-header-right {
+            display: contents !important;
+          }
+          
+          /* Hide main title to save space */
+          .crm-header-left > h1 {
+            display: none !important;
+          }
+          
+          /* Row 1: Wallet & New Lead Button */
+          .crm-wallet-group {
+            grid-column: 1 / -1;
+            display: flex;
+            align-items: stretch;
+            gap: 0.5rem;
+          }
+          .crm-back-btn {
+            padding: 0 !important;
+            width: 3.2rem !important; /* Fixed width to make it square-like */
+            justify-content: center;
+          }
+          .crm-back-btn span:first-child {
+            font-size: 1.35rem !important; /* Larger icon on mobile */
+          }
+          .crm-back-text {
+            display: none;
+          }
+          .crm-wallet {
+            flex: 1;
+            padding: 0.35rem 0.85rem !important;
+            border-radius: 8px !important;
+            gap: 0.5rem !important;
+            justify-content: flex-start;
+          }
+          .crm-wallet span:first-child { 
+            font-size: 1.15rem !important; 
+          }
+          .crm-wallet div {
+            white-space: nowrap;
+          }
+          .crm-wallet div span:nth-child(1) { 
+            font-size: 0.6rem !important; 
+          }
+          .crm-wallet div span:nth-child(2) { 
+            font-size: 0.95rem !important; 
+          }
+          
+          .crm-header-right button:not(.crm-desktop-only) {
+            grid-column: 1 / -1;
+            width: 100%;
+            height: 100%;
+            margin: 0 !important;
+            padding: 0.5rem !important;
+            font-size: 0.95rem !important;
+            border-radius: 8px !important;
+            justify-content: center;
+          }
+
+          /* Row 2: Search */
+          .crm-search {
+            grid-column: 1 / -1;
+            padding: 0.35rem 0.6rem !important;
+            border-radius: 8px !important;
+            max-width: 100% !important;
+          }
+          
+          /* Row 3: Filter */
+          .crm-filter {
+            grid-column: 1 / -1;
+            padding: 0.35rem 0.6rem !important;
+            border-radius: 8px !important;
+          }
+
+          /* Row 4: Period Control */
+          .crm-period {
+            grid-column: 1 / -1;
+            flex-wrap: nowrap !important;
+            overflow-x: auto;
+            border-radius: 8px !important;
+            padding: 0.2rem !important;
+            justify-content: space-between;
+          }
+          .crm-period::-webkit-scrollbar { 
+            display: none; 
+          }
+          .crm-period button {
+            flex: 1 0 auto;
+            padding: 0.25rem 0.5rem !important;
+            font-size: 0.75rem !important;
+          }
+          
+          .crm-kanban-board-container {
+            padding: 0.5rem !important;
+            gap: 0.75rem !important;
+          }
+          .crm-kanban-column {
+            flex: 0 0 88vw !important;
+            max-width: 320px !important;
+          }
+          
+          .crm-desktop-only {
+            display: none !important;
+          }
         }
       `}} />
     </div>

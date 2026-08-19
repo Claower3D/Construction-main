@@ -309,20 +309,39 @@
 
 /* Card Gradient Banner with Unique Custom Colors */
 .es-card-banner {
-  height: 110px;
+  height: 120px;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
   overflow: hidden;
+  border-radius: 20px 20px 0 0;
 }
 
-.es-card-banner::after {
-  content: '';
+.es-card-banner-img {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+  z-index: 0;
+}
+
+.es-card-banner-bg {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 0;
+}
+
+.es-card-banner-overlay {
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(20, 21, 38, 0.8) 100%);
+  background: linear-gradient(180deg, rgba(20,21,38,0.3) 0%, rgba(20,21,38,0.95) 100%);
+  z-index: 1;
 }
+
+/* Remove old after element */
 
 .es-banner-icon {
   font-size: 3rem;
@@ -333,6 +352,10 @@
 
 .es-card:hover .es-banner-icon {
   transform: scale(1.15) rotate(-5deg);
+}
+
+.es-card:hover .es-card-banner-img {
+  transform: scale(1.15);
 }
 
 .es-card-body {
@@ -648,12 +671,36 @@
 }
 
 .es-m-banner {
-  height: 90px;
+  height: 120px;
   border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 1.25rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.es-m-banner-img {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+
+.es-m-banner-bg {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 0;
+}
+
+.es-m-banner-overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(180deg, rgba(20,21,38,0.3) 0%, rgba(20,21,38,0.95) 100%);
+  z-index: 1;
 }
 
 .es-m-icon {

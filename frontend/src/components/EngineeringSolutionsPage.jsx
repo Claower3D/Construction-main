@@ -44,6 +44,7 @@ export default function EngineeringSolutionsPage({ onBack, onOpenOrders, hideHea
           id: 'ap',
           icon: '🏛️',
           gradient: 'linear-gradient(135deg, #10b981, #06b6d4)',
+          image: 'https://static.vecteezy.com/system/resources/previews/030/806/778/large_2x/architectural-project-with-blueprints-and-model-of-a-private-house-building-project-plan-blueprint-of-a-modern-house-ai-generated-free-photo.jpg',
           title: 'Архитектурный раздел (АР)',
           desc: 'Полный комплект архитектурных чертежей и 3D фасадных решений',
           price: 450000,
@@ -54,6 +55,7 @@ export default function EngineeringSolutionsPage({ onBack, onOpenOrders, hideHea
           id: 'kr',
           icon: '🏗️',
           gradient: 'linear-gradient(135deg, #6366f1, #a855f7)',
+          image: 'https://bfs-industries.com/wp-content/uploads/2025/11/Overview-of-Steel-Structures-and-Reinforced-Concrete-Systems.webp',
           title: 'Конструктивный раздел (КР)',
           desc: 'Расчёт и чертежи железобетонных и стальных конструкций',
           price: 550000,
@@ -64,6 +66,7 @@ export default function EngineeringSolutionsPage({ onBack, onOpenOrders, hideHea
           id: 'ovik',
           icon: '❄️',
           gradient: 'linear-gradient(135deg, #0ea5e9, #3b82f6)',
+          image: 'https://thumbs.dreamstime.com/b/industrial-ventilation-system-metal-air-ducts-installed-ceiling-inside-large-building-hvac-engineering-construction-411306988.jpg',
           title: 'ОВиК (отопление, вентиляция)',
           desc: 'Проект микроклимата, отопления и приточной вентиляции',
           price: 380000,
@@ -74,6 +77,7 @@ export default function EngineeringSolutionsPage({ onBack, onOpenOrders, hideHea
           id: 'vk',
           icon: '💧',
           gradient: 'linear-gradient(135deg, #06b6d4, #10b981)',
+          image: 'https://epcland.com/wp-content/uploads/2026/01/water-pumping-station-piping-stress-analysis-hero.jpg',
           title: 'Водоснабжение и канализация (ВК)',
           desc: 'Проект водопровода, насосных станций и канализации',
           price: 320000,
@@ -84,6 +88,7 @@ export default function EngineeringSolutionsPage({ onBack, onOpenOrders, hideHea
           id: 'eom',
           icon: '⚡',
           gradient: 'linear-gradient(135deg, #f59e0b, #ef4444)',
+          image: 'https://c8.alamy.com/comp/CREKMT/cables-in-an-electrical-distribution-box-CREKMT.jpg',
           title: 'Электрика (ЭОМ)',
           desc: 'Проект электроснабжения, молниезащиты и освещения',
           price: 350000,
@@ -94,6 +99,7 @@ export default function EngineeringSolutionsPage({ onBack, onOpenOrders, hideHea
           id: 'ss',
           icon: '📡',
           gradient: 'linear-gradient(135deg, #ec4899, #8b5cf6)',
+          image: 'https://img.freepik.com/premium-photo/organized-chaos-colorful-network-cables-modern-data-center-server-room_875722-36441.jpg?w=2000',
           title: 'Слаботочные системы (СС/СКC)',
           desc: 'Проект СКС, видеонаблюдения и системы СКУД',
           price: 280000,
@@ -104,6 +110,7 @@ export default function EngineeringSolutionsPage({ onBack, onOpenOrders, hideHea
           id: 'bim',
           icon: '🧊',
           gradient: 'linear-gradient(135deg, #d946ef, #6366f1)',
+          image: 'https://img2.cgtrader.com/items/3951940/6e57d98099/commercial-building-revit-model-3d-model-dae-rfa.jpg',
           title: 'BIM-модель (Revit 3D)',
           desc: 'Информационная 3D-модель здания с проверкой коллизий',
           price: 650000,
@@ -120,6 +127,7 @@ export default function EngineeringSolutionsPage({ onBack, onOpenOrders, hideHea
           id: 'tech_inspect',
           icon: '🔍',
           gradient: 'linear-gradient(135deg, #10b981, #059669)',
+          image: 'https://img.freepik.com/premium-photo/construction-civil-engineer-use-technology-software-through-tablets-scan-building-construction-inspection-show-augmented-reality-work-building-information-model-bim-concept_974729-126500.jpg?w=2000',
           title: 'Техническое обследование',
           desc: 'Инструментальное обследование конструкций с заключением СРО',
           price: 250000,
@@ -130,6 +138,7 @@ export default function EngineeringSolutionsPage({ onBack, onOpenOrders, hideHea
           id: 'defect',
           icon: '📋',
           gradient: 'linear-gradient(135deg, #f97316, #ea580c)',
+          image: 'https://ownerinspections.com.au/images/structural-defects-new-builds.webp',
           title: 'Дефектовка',
           desc: 'Дефектная ведомость с точным расчетом объемов',
           price: 180000,
@@ -140,6 +149,7 @@ export default function EngineeringSolutionsPage({ onBack, onOpenOrders, hideHea
           id: 'geodesy',
           icon: '📏',
           gradient: 'linear-gradient(135deg, #0284c7, #2563eb)',
+          image: 'https://thumbs.dreamstime.com/z/construction-tunnel-survey-engineers-use-total-station-robotic-d-laser-scanner-ai-generated-industry-play-crucial-276331771.jpg',
           title: 'Геодезия и обмеры',
           desc: 'Лазерное 3D-сканирование и обмерочные чертежи',
           price: 220000,
@@ -156,6 +166,7 @@ export default function EngineeringSolutionsPage({ onBack, onOpenOrders, hideHea
           id: 'tech_supervision',
           icon: '👷',
           gradient: 'linear-gradient(135deg, #eab308, #ca8a04)',
+          image: 'https://thumbs.dreamstime.com/z/group-engineer-supervisor-wearing-safety-helmet-working-checking-plan-together-construction-site-258394142.jpg',
           title: 'Технический надзор',
           desc: 'Независимый контроль качества и скрытых работ 24/7',
           price: 400000,
@@ -166,6 +177,7 @@ export default function EngineeringSolutionsPage({ onBack, onOpenOrders, hideHea
           id: 'author_supervision',
           icon: '✏️',
           gradient: 'linear-gradient(135deg, #a855f7, #7e22ce)',
+          image: 'https://img.freepik.com/premium-photo/young-male-architect-yellow-helmet-holding-blueprint-construction-siteconstruction-concept_779834-5639.jpg?w=2000',
           title: 'Авторский надзор',
           desc: 'Контроль соответствия строительно-монтажных работ проекту',
           price: 350000,
@@ -182,6 +194,7 @@ export default function EngineeringSolutionsPage({ onBack, onOpenOrders, hideHea
           id: 'boq',
           icon: '💰',
           gradient: 'linear-gradient(135deg, #10b981, #14b8a6)',
+          image: 'https://static.vecteezy.com/system/resources/previews/070/528/542/large_2x/construction-engineer-calculating-costs-reviewing-blueprints-and-planning-a-building-project-in-his-office-he-is-using-a-calculator-and-blueprints-to-estimate-the-projects-expens-photo.jpg',
           title: 'Смета / BoQ (GESN/SNIP)',
           desc: 'Нормативный и рыночный сметный расчёт стоимости объекта',
           price: 150000,
@@ -192,6 +205,7 @@ export default function EngineeringSolutionsPage({ onBack, onOpenOrders, hideHea
           id: 'ppr',
           icon: '🗺️',
           gradient: 'linear-gradient(135deg, #4f46e5, #7c3aed)',
+          image: 'https://images.highfile.com/wp-content/uploads/2024/10/Construction-Project-Schedule-Template-in-Excel-and-Google-Sheets.png?strip=all&lossy=1&quality=90&webp=90&sharp=1&ssl=1',
           title: 'ППР / ПОС',
           desc: 'Проект производства работ и стройгенплан площадки',
           price: 280000,
@@ -202,6 +216,7 @@ export default function EngineeringSolutionsPage({ onBack, onOpenOrders, hideHea
           id: 'executive_docs',
           icon: '📜',
           gradient: 'linear-gradient(135deg, #0891b2, #0d9488)',
+          image: 'https://i.pinimg.com/736x/e2/96/0d/e2960d9f3ef2ef59ee1577c9e600171e.jpg',
           title: 'Исполнительная документация',
           desc: 'Полный комплект документов для сдачи объекта ГАСК',
           price: 200000,
@@ -218,6 +233,7 @@ export default function EngineeringSolutionsPage({ onBack, onOpenOrders, hideHea
           id: 'fire_safety',
           icon: '🔥',
           gradient: 'linear-gradient(135deg, #ef4444, #dc2626)',
+          image: 'https://www.elitefire.co.za/wp-content/uploads/2024/12/Blog-image-1.png',
           title: 'Пожарная безопасность (АПС / СОУЭ)',
           desc: 'Раздел пожарной защиты, сигнализации и пожаротушения',
           price: 250000,
@@ -234,6 +250,7 @@ export default function EngineeringSolutionsPage({ onBack, onOpenOrders, hideHea
           id: 'energy_audit',
           icon: '⚡',
           gradient: 'linear-gradient(135deg, #f59e0b, #d97706)',
+          image: 'https://thumbs.dreamstime.com/z/thermal-imaging-camera-window-inspection-construction-building-to-check-heat-loss-temperature-thermal-imaging-camera-218524303.jpg',
           title: 'Энергоаудит здания',
           desc: 'Энергетическое обследование и выявление потерь тепла',
           price: 300000,
@@ -244,6 +261,7 @@ export default function EngineeringSolutionsPage({ onBack, onOpenOrders, hideHea
           id: 'thermal_inspect',
           icon: '🌡️',
           gradient: 'linear-gradient(135deg, #f43f5e, #be123c)',
+          image: 'https://tekonlab.com/wp-content/uploads/2023/09/UNI-T-UTI260E-Construction-Thermal-Imager-%E2%80%93-Professional-Infrared-Thermal-Camera-for-Building-Inspection-1.jpg',
           title: 'Тепловизионное обследование',
           desc: 'Съемка профессиональным тепловизором Fluke',
           price: 120000,
@@ -448,7 +466,13 @@ export default function EngineeringSolutionsPage({ onBack, onOpenOrders, hideHea
                       <div key={sol.id} className={`es-card ${isInCart ? 'in-cart' : ''}`}>
                         
                         {/* Colorful Gradient Banner with Unique Icon */}
-                        <div className="es-card-banner" style={{ background: sol.gradient }}>
+                        <div className="es-card-banner">
+                          {sol.image ? (
+                            <img src={sol.image} alt={sol.title} className="es-card-banner-img" />
+                          ) : (
+                            <div className="es-card-banner-bg" style={{ background: sol.gradient }}></div>
+                          )}
+                          <div className="es-card-banner-overlay"></div>
                           <span className="es-banner-icon">{sol.icon}</span>
                         </div>
 
@@ -562,7 +586,13 @@ export default function EngineeringSolutionsPage({ onBack, onOpenOrders, hideHea
           <div className="es-modal-card" onClick={e => e.stopPropagation()}>
             <button className="es-modal-close" onClick={() => setSelectedSolution(null)}>✕</button>
 
-            <div className="es-m-banner" style={{ background: selectedSolution.gradient }}>
+            <div className="es-m-banner">
+              {selectedSolution.image ? (
+                <img src={selectedSolution.image} alt={selectedSolution.title} className="es-m-banner-img" />
+              ) : (
+                <div className="es-m-banner-bg" style={{ background: selectedSolution.gradient }}></div>
+              )}
+              <div className="es-m-banner-overlay"></div>
               <span className="es-m-icon">{selectedSolution.icon}</span>
             </div>
 

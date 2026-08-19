@@ -314,12 +314,12 @@ export default function PriceCatalogSection({ onOpenCategory }) {
               key={idx}
               onClick={() => onOpenCategory && onOpenCategory(cat)}
             >
-              <div className="cat-v2-header">
-                <div className="cat-v2-icon-box">{cat.icon}</div>
-                <span className="cat-v2-price-chip">{cat.priceRange}</span>
+              <div className="cat-v2-cover">
+                <img src={cat.image} alt={cat.name} className="cat-v2-cover-img" />
+                <span className="cat-v2-price-chip-floating">{cat.priceRange}</span>
               </div>
 
-              <div className="cat-v2-content">
+              <div className="cat-v2-body">
                 <h4 className="cat-v2-title">{cat.name}</h4>
                 <div className="cat-v2-footer-meta">
                   <span className="cat-v2-count-badge">
