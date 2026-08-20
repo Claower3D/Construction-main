@@ -13,6 +13,7 @@ import EngineeringSolutionsPage from './EngineeringSolutionsPage';
 import DefectInspectorPage from './DefectInspectorPage';
 import SmartPhotoEstimatePage from './SmartPhotoEstimatePage';
 import BuildingConstructionPage from './BuildingConstructionPage';
+import MaterialsMarketplacePage from './MaterialsMarketplacePage';
 import { calculateSmartEstimate, evaluateDefectScan } from '../services/smartEstimateEngine';
 import { getBalanceKZT, topupBalance } from '../services/walletEngine';
 import { getOrders } from '../services/dataService';
@@ -494,6 +495,11 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
           <div style={{ padding: '0', background: 'transparent' }}>
             <EquipmentMarketplace />
           </div>
+        )}
+
+        {/* 6a. MATERIALS MARKETPLACE (c-materials / e-materials) */}
+        {(itemId === 'c-materials' || itemId === 'e-materials') && (
+          <MaterialsMarketplacePage onBack={onBack} hideHeader={true} />
         )}
 
         {/* 7. WALLET & ESCROW (c-wallet / e-wallet) */}
