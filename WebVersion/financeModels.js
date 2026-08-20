@@ -93,8 +93,12 @@
     // ========================================
 
     const Storage = window.Models?.Storage || {
-        getAll: (key) => JSON.parse(localStorage.getItem(key) || '[]'),
-        save: (key, data) => localStorage.setItem(key, JSON.stringify(data)),
+        getAll: (key) => {
+            try { return JSON.parse(localStorage.getItem(key) || '[]'); } catch { return []; }
+        },
+        save: (key, data) => {
+            try { localStorage.setItem(key, JSON.stringify(data)); } catch (e) { console.error(e); }
+        },
         generateId: () => 'fin_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9)
     };
 

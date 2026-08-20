@@ -6,8 +6,12 @@
     'use strict';
 
     const Storage = window.Models?.Storage || {
-        get: (key) => JSON.parse(localStorage.getItem(key) || 'null'),
-        set: (key, value) => localStorage.setItem(key, JSON.stringify(value)),
+        get: (key) => {
+            try { return JSON.parse(localStorage.getItem(key) || 'null'); } catch { return null; }
+        },
+        set: (key, value) => {
+            try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) { console.error(e); }
+        },
         getAll: (prefix) => {
             const result = [];
             for (let i = 0; i < localStorage.length; i++) {
@@ -18,7 +22,9 @@
             }
             return result;
         },
-        remove: (key) => localStorage.removeItem(key)
+        remove: (key) => {
+            try { localStorage.removeItem(key); } catch { }
+        }
     };
 
     function generateId(prefix = '') {
