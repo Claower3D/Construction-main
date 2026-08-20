@@ -171,36 +171,23 @@ export default function App() {
     }
   };
 
-  // --- ROLE ACCESS GUARD ---
+  // --- ROLE ACCESS & DASHBOARD ROUTING ---
   const isDashboardAllowed = (view) => {
-    if (!currentUser) return false;
-    if (view === 'crm' || view === 'manager') return currentUser.role === 'manager';
-    return currentUser.role === view;
+    // Allow demo/guest exploration of dashboards, or match user role if logged in
+    return true;
   };
 
-  useEffect(() => {
-    const protectedViews = ['admin', 'engineer', 'customer', 'executor', 'company', 'crm', 'manager', 'profile', 'wallet', 'catalog', 'orders', 'engineering'];
-    const path = window.location.pathname.substring(1).split('/')[0];
-    const viewToCheck = protectedViews.includes(currentView) ? currentView : (protectedViews.includes(path) ? path : null);
-
-    if (viewToCheck && !isDashboardAllowed(viewToCheck)) {
-      navigateToLanding();
-    }
-  }, [currentView, currentUser]);
-
-  // Full-Page Engineer Cabinet View (Renders at /engineer or when Engineer button clicked)
-  if (currentView === 'engineer') {
-    return isDashboardAllowed('engineer') ? <EngineerDashboardPage onBackToHome={navigateToLanding} currentUser={currentUser} viewRole="engineer" /> : null;
-  }
-
-  // Full-Page CRM View (Also accessible via Manager role)
-  if (currentView === 'crm' || currentView === 'manager' || window.location.pathname.startsWith('/crm') || window.location.pathname.startsWith('/manager')) {
-    return isDashboardAllowed('manager') ? <CrmPage onBackToHome={navigateToLanding} currentUser={currentUser} /> : null;
-  }
-
-  // Dashboard views for roles
-  if (['admin', 'customer', 'executor', 'company'].includes(currentView)) {
-    return isDashboardAllowed(currentView) ? <AdminDashboardPage userRole={currentView} onBackToHome={navigateToLanding} onOpenEngineer={navigateToEngineer} currentUser={currentUser} /> : null;
+  // Unified Dashboard view for all roles (Customer, Executor, Engineer, Company, Manager/CRM, Admin)
+  if (['admin', 'customer', 'executor', 'company', 'engineer', 'crm', 'manager'].includes(currentView)) {
+    const roleForPage = currentView === 'crm' ? 'manager' : currentView;
+    return (
+      <AdminDashboardPage 
+        userRole={roleForPage} 
+        onBackToHome={navigateToLanding} 
+        onOpenEngineer={navigateToEngineer} 
+        currentUser={currentUser} 
+      />
+    );
   }
 
   return (

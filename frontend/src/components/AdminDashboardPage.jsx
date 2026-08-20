@@ -1,24 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import AnimatedBackground from './AnimatedBackground';
 import EngineerDashboardPage from './EngineerDashboardPage';
 import CompanyDashboardPage from './CompanyDashboardPage';
 import AdminDashboardModal from './AdminDashboardModal';
 import FeaturePageModule from './FeaturePageModule';
-import OnboardingTour from './OnboardingTour';
 import CrmPage from './CrmPage';
 
-export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userRole = 'admin', currentUser }) {
-  // Блок 1: Выбранная роль ('customer' | 'executor' | 'engineer' | 'admin')
-  const [selectedRole, setSelectedRole] = useState(userRole);
-  
-  // Блок 2 & 3: Выбранный элемент для рабочей области
+export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userRole = 'customer', currentUser }) {
+  // Active selected role ('customer' | 'executor' | 'engineer' | 'company' | 'manager' | 'admin')
+  const [selectedRole, setSelectedRole] = useState(() => {
+    if (['customer', 'executor', 'engineer', 'company', 'manager', 'admin'].includes(userRole)) {
+      return userRole;
+    }
+    return currentUser?.role || 'customer';
+  });
+
+  // Active opened tool/module
   const [selectedItemId, setSelectedItemId] = useState(null);
   const [selectedItemObject, setSelectedItemObject] = useState(null);
-  const [embeddedModule, setEmbeddedModule] = useState(null); // 'engineer' | 'admin_panel' | null
+  const [embeddedModule, setEmbeddedModule] = useState(null); // 'engineer' | 'admin_panel' | 'crm' | 'company' | null
 
-  // Collapsible sidebar categories state
+  // Mobile sidebar drawer state
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [collapsedCategories, setCollapsedCategories] = useState({});
-  const [isSidebarHidden, setIsSidebarHidden] = useState(false);
 
   const toggleCategoryCollapse = (catId) => {
     setCollapsedCategories(prev => ({
@@ -27,241 +31,144 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
     }));
   };
 
-  // Иерархические данные ролей и элементов
-  const hierarchyData = {
-    customer: {
-      roleTitle: 'Заказчик',
-      roleIcon: '📋',
-      roleColor: '#10b981',
-      categories: [
-        {
-          id: 'tools',
-          name: '🛠️ ИНСТРУМЕНТЫ',
-          desc: 'Автоматические инструменты расчётов и AI',
-          items: [
-            { id: 'c-estimate', name: 'Оценка стоимости', icon: '📸', iconBg: '#f59e0b', desc: 'Быстрая оценка стоимости по фото за 2 секунды' },
-            { id: 'c-inspect', name: 'Проверка дефектов', icon: '🔍', iconBg: '#2563eb', desc: 'Детектоскопия трещин, брака и перепадов стен' },
-            { id: 'c-volume', name: 'Расчёт объёмов', icon: '📏', iconBg: '#06b6d4', desc: 'Автоматический выбор площадей и материалов BOM' },
-            { id: 'c-engineering', name: 'Инженерные решения', icon: '⚙️', iconBg: '#10b981', desc: 'Разработка технической документации и технадзор' },
-          ],
-        },
-        {
-          id: 'management',
-          name: '📂 УПРАВЛЕНИЕ',
-          desc: 'Заказы, календари и маркетплейс подрядчиков',
-          items: [
-            { id: 'c-calendar', name: 'Календарь', icon: '📅', iconBg: '#ef4444', desc: 'График выполнения строительных работ по объекту' },
-            { id: 'c-orders', name: 'Мои заказы', icon: '📬', iconBg: '#10b981', desc: 'Список активных и завершенных заявок' },
-            { id: 'c-catalog', name: 'Каталог подрядчиков', icon: '📒', iconBg: '#f59e0b', desc: 'Реестр проверенных мастеров и ТОО по ИИН/БИН' },
-            { id: 'c-equipment', name: 'Техника / Маркетплейс', icon: '🚜', iconBg: '#2563eb', desc: 'Аренда спецтехники и закуп материалов' },
-            { id: 'c-wallet', name: 'Мой кошелёк', icon: '💳', iconBg: '#3b82f6', desc: 'Баланс, транзакции и эскроу-счета' },
-          ],
-        },
-        {
-          id: 'profile',
-          name: '👤 ПРОФИЛЬ',
-          desc: 'Личные данные и VIP статус',
-          items: [
-            { id: 'c-profile', name: 'Моя анкета', icon: '📝', iconBg: '#06b6d4', desc: 'Личные данные Заказчика и реквизиты' },
-            { id: 'c-vip', name: 'Строительство зданий', icon: '🏗️', iconBg: '#f59e0b', isVip: true, desc: 'Капитальное монолитное строительство объектов VIP' },
-          ],
-        },
-      ],
-    },
-
-    executor: {
-      roleTitle: 'Исполнитель',
-      roleIcon: '🔧',
-      roleColor: '#93c5fd',
-      categories: [
-        {
-          id: 'my-orders',
-          name: '📋 МОИ ЗАКАЗЫ',
-          desc: 'Лента заказов и график работ мастера',
-          items: [
-            { id: 'e-feed', name: 'Лента заказов', icon: '🌐', iconBg: '#06b6d4', desc: 'Живой поток заказов со всего Казахстана' },
-            { id: 'e-works', name: 'Мои работы', icon: '📌', iconBg: '#ef4444', desc: 'Портфолио и текущие объекты мастера' },
-            { id: 'e-calendar', name: 'Календарь работ', icon: '📅', iconBg: '#f59e0b', desc: 'Расписание выездов и этапов монтажа' },
-          ],
-        },
-        {
-          id: 'tools',
-          name: '🎯 ИНСТРУМЕНТЫ',
-          desc: 'Сметный калькулятор и экспертиза дефектов',
-          items: [
-            { id: 'e-estimate', name: 'Оценка стоимости', icon: '📸', iconBg: '#f59e0b', desc: 'Калькулятор сметных расходов' },
-            { id: 'e-inspect', name: 'Проверка дефектов', icon: '🔍', iconBg: '#2563eb', desc: 'Экспертная проверка состояния конструкций' },
-            { id: 'e-volume', name: 'Расчёт объёмов', icon: '📏', iconBg: '#06b6d4', desc: 'Расчет нормативного расхода материалов' },
-            { id: 'e-engineering', name: 'Инженерные решения', icon: '⚙️', iconBg: '#10b981', desc: 'Техническая спецификация работ' },
-          ],
-        },
-        {
-          id: 'services',
-          name: '📂 СЕРВИСЫ & ПРОФИЛЬ',
-          desc: 'Анкета исполнителя, маркетплейс и фото-объёмы',
-          items: [
-            { id: 'e-catalog', name: 'Каталог подрядчиков', icon: '📒', iconBg: '#f59e0b', desc: 'Рейтинг и анкеты специалистов' },
-            { id: 'e-equipment', name: 'Техника / Маркетплейс', icon: '🚜', iconBg: '#2563eb', desc: 'Поиск спецтехники в аренду' },
-            { id: 'e-wallet', name: 'Мой кошелёк', icon: '💳', iconBg: '#3b82f6', desc: 'Вывод средств и заработанный баланс' },
-            { id: 'e-profile', name: 'Анкета исполнителя', icon: '📝', iconBg: '#06b6d4', desc: 'Профиль мастера, ИИН/БИН и квалификация' },
-            { id: 'e-vip', name: 'Строительство зданий', icon: '🏗️', iconBg: '#f59e0b', isVip: true, desc: 'Генподрядные работы VIP уровня' },
-            { id: 'e-soil', name: 'Фото-объёмы грунта', icon: '📐', iconBg: '#10b981', desc: 'Геодезический расчёт земляных работ' },
-          ],
-        },
-      ],
-    },
-
-    engineer: {
-      roleTitle: 'Инженер',
-      roleIcon: '👷',
-      roleColor: '#38bdf8',
-      categories: [
-        {
-          id: 'engineering-panel',
-          name: '📊 ИНЖЕНЕРНАЯ ПАНЕЛЬ',
-          desc: 'Объекты технадзора и заявки на проверку',
-          items: [
-            { id: 'ing-main', name: 'Главная панель', icon: '📊', iconBg: '#3b82f6', desc: 'Дашборд технического надзора и проверок' },
-            { id: 'ing-requests', name: 'Заявки', icon: '📬', iconBg: '#ef4444', desc: 'Очередь вызовов экспертов на объекты' },
-            { id: 'ing-objects', name: 'Мои объекты', icon: '🏗️', iconBg: '#f59e0b', desc: 'Реестр строящихся объектов на контроле' },
-          ],
-        },
-        {
-          id: 'ai-tools',
-          name: '🤖 AI ИНСТРУМЕНТЫ И СМЕТЫ',
-          desc: 'AI просчёт по СНиП и контролю расходов',
-          items: [
-            { id: 'ing-calendar', name: 'Календарь', icon: '📅', iconBg: '#10b981', desc: 'План инспекций и подписания актов' },
-            { id: 'ing-ai', name: 'AI-просчёт', icon: '🤖', iconBg: '#2563eb', desc: 'Автоматический анализ ГОСТ и СНиП РК' },
-            { id: 'ing-expenses', name: 'Расходы', icon: '💰', iconBg: '#06b6d4', desc: 'Контроль сметных перерасходов и лимитов' },
-          ],
-        },
-      ],
-    },
-
-    company: {
-      roleTitle: 'Компания',
-      roleIcon: '🏢',
-      roleColor: '#0ea5e9',
-      categories: [
-        {
-          id: 'comp-management',
-          name: '🏢 ПРОФИЛЬ И УПРАВЛЕНИЕ',
-          desc: 'Реквизиты, документы и сотрудники',
-          items: [
-            { id: 'comp-profile', name: 'Профиль компании', icon: '📝', iconBg: '#0ea5e9', desc: 'Управление БИН/ИИН и реквизитами' },
-            { id: 'comp-employees', name: 'Сотрудники', icon: '👥', iconBg: '#10b981', desc: 'Список привязанных инженеров и исполнителей' },
-          ],
-        },
-        {
-          id: 'comp-analytics',
-          name: '📊 АНАЛИТИКА',
-          desc: 'Статистика по объектам и заявкам',
-          items: [
-            { id: 'comp-stats', name: 'Статистика', icon: '📈', iconBg: '#2563eb', desc: 'Сводные данные по эффективности компании' },
-          ],
-        },
-      ],
-    },
-
-    admin: {
-      roleTitle: 'Админ',
-      roleIcon: '⚙️',
-      roleColor: '#f59e0b',
-      categories: [
-        {
-          id: 'prices-mod',
-          name: '💰 ПРАЙСЫ И МОДЕРАЦИЯ',
-          desc: 'Справочники ГЭСН-2026 и проверка заказов',
-          items: [
-            { id: 'adm-prices', name: 'Прайсы', icon: '💰', iconBg: '#f59e0b', desc: '12 764+ позиций ГЭСН/СНиП 2026' },
-            { id: 'adm-moderation', name: 'Модерация', icon: '🛡️', iconBg: '#ef4444', desc: 'Очередь верификации компаний и заказов' },
-            { id: 'adm-regions', name: 'Регионы', icon: '🗺️', iconBg: '#2563eb', desc: 'Индексы цен по 17 областям Казахстана' },
-          ],
-        },
-        {
-          id: 'audit-kpi',
-          name: '📜 АУДИТ И KPI',
-          desc: 'Логи операций и аналитика платформы',
-          items: [
-            { id: 'adm-audit', name: 'Журнал действий', icon: '📜', iconBg: '#3b82f6', desc: 'Логи операций пользователей и AI-вызовов' },
-            { id: 'adm-kpi', name: 'KPI Dashboard', icon: '📊', iconBg: '#10b981', desc: 'Метрики эффективности платформы' },
-            { id: 'adm-analytics', name: 'Аналитика', icon: '📈', iconBg: '#06b6d4', desc: 'Финансовые показатели и объёмы смет' },
-            { id: 'adm-roles', name: 'Роли', icon: '🎭', iconBg: '#38bdf8', desc: 'Управление ролями и доступами' },
-          ],
-        },
-        {
-          id: 'legal',
-          name: '⚖️ АРБИТРАЖ И ДОГОВОРЫ',
-          desc: 'Разрешение споров и ЭЦП договора РК',
-          items: [
-            { id: 'adm-disputes', name: 'Споры и арбитраж', icon: '⚖️', iconBg: '#f59e0b', desc: 'Разрешение конфликтов Заказчик/Исполнитель' },
-            { id: 'adm-contracts', name: 'Договоры', icon: '📄', iconBg: '#2563eb', desc: 'Реестр договоров подряда и ЭЦП E-Gov' },
-          ],
-        },
-      ],
-    },
-
-    manager: {
-      roleTitle: 'Менеджер',
-      roleIcon: '💼',
-      roleColor: '#fbbf24',
-      categories: [
-        {
-          id: 'crm-management',
-          name: '📊 УПРАВЛЕНИЕ КЛИЕНТАМИ',
-          desc: 'CRM-система и воронка продаж',
-          items: [
-            { id: 'mgr-crm', name: 'CRM-система', icon: '📊', iconBg: '#3b82f6', desc: 'Управление заявками и клиентами' },
-            { id: 'mgr-reports', name: 'Отчеты', icon: '📄', iconBg: '#10b981', desc: 'Аналитика по продажам' },
-          ],
-        },
-      ],
-    },
-  };
-
-  const currentRoleData = hierarchyData[selectedRole] || hierarchyData.customer;
-
-  const [isRoleDropdownOpen, setIsRoleDropdownOpen] = useState(false);
-
+  // 6 System Roles (matching Screenshots)
   const roles = [
-    { id: 'admin', label: 'Администратор', icon: '⚙️', badge: 'VIP' },
-    // { id: 'company', label: 'Компания', icon: '🏢', badge: 'PRO' },
-    { id: 'customer', label: 'Заказчик', icon: '📋', badge: '' },
-    { id: 'executor', label: 'Исполнитель', icon: '🔧', badge: '' },
-    { id: 'engineer', label: 'Инженер', icon: '👷', badge: '' },
-    { id: 'manager', label: 'Менеджер', icon: '💼', badge: '' },
+    {
+      id: 'customer',
+      title: 'Я Заказчик',
+      shortLabel: 'Заказчик',
+      icon: '📋',
+      desc: 'Создаю заказы, выбираю исполнителей, принимаю работу',
+      color: '#10b981',
+      glow: 'rgba(16, 185, 129, 0.45)',
+      badge: ''
+    },
+    {
+      id: 'executor',
+      title: 'Я Исполнитель',
+      shortLabel: 'Исполнитель',
+      icon: '🔧',
+      desc: 'Ищу заказы, отправляю предложения, выполняю работы',
+      color: '#38bdf8',
+      glow: 'rgba(56, 189, 248, 0.45)',
+      badge: ''
+    },
+    {
+      id: 'engineer',
+      title: 'Я Инженер',
+      shortLabel: 'Инженер',
+      icon: '👷',
+      desc: 'Принимаю заявки, разрабатываю проектную документацию',
+      color: '#2563eb',
+      glow: 'rgba(37, 99, 235, 0.45)',
+      badge: ''
+    },
+    {
+      id: 'company',
+      title: 'Компания',
+      shortLabel: 'Компания',
+      icon: '🏢',
+      desc: 'Управление компанией, генподряд, объекты и сотрудники',
+      color: '#0ea5e9',
+      glow: 'rgba(14, 165, 233, 0.45)',
+      badge: 'PRO'
+    },
+    {
+      id: 'manager',
+      title: 'Менеджер',
+      shortLabel: 'Менеджер',
+      icon: '💼',
+      desc: 'CRM-система, клиенты, бригады и воронка продаж',
+      color: '#f59e0b',
+      glow: 'rgba(245, 158, 11, 0.45)',
+      badge: 'CRM'
+    },
+    {
+      id: 'admin',
+      title: 'Администратор',
+      shortLabel: 'Админ',
+      icon: '⚙️',
+      desc: 'Справочники ГЭСН-2026, модерация, аудит и KPI платформы',
+      color: '#a855f7',
+      glow: 'rgba(168, 85, 247, 0.45)',
+      badge: 'VIP'
+    }
   ];
 
-  const activeRoleObj = roles.find((r) => r.id === selectedRole) || roles[2];
+  // Dynamic cards configuration for each role
+  const roleCardsData = {
+    customer: [
+      { id: 'c-estimate', title: 'Оценка стоимости', icon: '📊', desc: 'Загрузите фото → AI-анализ → смета за 2 сек... 3 сценария цены', btnText: '🚀 Начать оценку', btnGradient: 'linear-gradient(90deg, #38bdf8, #2563eb)' },
+      { id: 'c-inspect', title: 'Проверка дефектов', icon: '🔍', desc: 'Трещины, влага, плесень. AI-отчёт + план устранения по ГОСТ РК', btnText: '🔍 Начать проверку', btnGradient: 'linear-gradient(90deg, #f59e0b, #ef4444)' },
+      { id: 'c-vip', title: 'Строительство зданий', icon: '🏗️', desc: 'ПСД, ВВР-документация, сметы полного цикла и генподряд VIP', btnText: '⭐ Открыть', btnGradient: 'linear-gradient(90deg, #6366f1, #2563eb)' },
+      { id: 'c-engineering', title: 'Инженерные решения', icon: '⚙️', desc: 'Электрика, сантехника, HVAC, слаботочные системы и технадзор', btnText: '⚡ Выбрать', btnGradient: 'linear-gradient(90deg, #38bdf8, #93c5fd)' },
+      { id: 'c-orders', title: 'Мои заказы', icon: '📬', desc: 'Просмотр активных заявок, откликов мастеров и статусов работ', btnText: '📗 Открыть заказы', btnGradient: 'linear-gradient(90deg, #10b981, #059669)' },
+      { id: 'c-wallet', title: 'Мой кошелёк', icon: '💳', desc: 'Баланс, безопасные эскроу-счета, пополнение и вывод средств', btnText: '💳 Открыть кошелёк', btnGradient: 'linear-gradient(90deg, #2563eb, #f59e0b)' },
+      { id: 'c-equipment', title: 'Маркетплейс техники', icon: '🚜', desc: 'Аренда экскаваторов, кранов, самосвалов по всему Казахстану', btnText: '🚜 Открыть технику', btnGradient: 'linear-gradient(90deg, #3b82f6, #06b6d4)' },
+      { id: 'c-catalog', title: 'Каталог подрядчиков', icon: '📒', desc: 'Реестр проверенных специалистов и строительных компаний по ИИН/БИН', btnText: '📒 Найти мастеров', btnGradient: 'linear-gradient(90deg, #f59e0b, #d97706)' },
+      { id: 'c-volume', title: 'Расчёт объёмов (BOM)', icon: '📏', desc: 'Автоматический расчёт площадей и спецификации стройматериалов', btnText: '📐 Рассчитать', btnGradient: 'linear-gradient(90deg, #06b6d4, #10b981)' },
+      { id: 'c-calendar', title: 'Календарь работ', icon: '📅', desc: 'График выполнения строительно-монтажных работ и инспекций', btnText: '📅 График', btnGradient: 'linear-gradient(90deg, #ef4444, #f59e0b)' },
+      { id: 'c-profile', title: 'Моя анкета', icon: '📝', desc: 'Личные данные Заказчика, параметры объекта, бюджет и реквизиты', btnText: '📝 Заполнить', btnGradient: 'linear-gradient(90deg, #10b981, #059669)' },
+    ],
 
-  const handleSelectRole = (roleKeyOrEvent) => {
-    const roleKey = typeof roleKeyOrEvent === 'string' ? roleKeyOrEvent : roleKeyOrEvent?.target?.value;
-    setSelectedRole(roleKey);
-    setSelectedItemObject(null);
-    setEmbeddedModule(null);
-    const newRoleObj = hierarchyData[roleKey];
-    if (newRoleObj && newRoleObj.categories.length > 0) {
-      const firstCat = newRoleObj.categories[0];
-      if (firstCat.items.length > 0) {
-        handleSelectItem(firstCat.items[0]);
-      }
-    }
+    executor: [
+      { id: 'e-feed', title: 'Лента заказов', icon: '🌐', desc: 'Живой поток заказов со всего Казахстана без посредников и комиссий', btnText: '🌐 Смотреть заказы', btnGradient: 'linear-gradient(90deg, #38bdf8, #2563eb)' },
+      { id: 'e-works', title: 'Мои работы', icon: '📌', desc: 'Портфолио, текущие объекты и онлайн-сдача этапов заказчику', btnText: '📌 Мои объекты', btnGradient: 'linear-gradient(90deg, #ef4444, #f59e0b)' },
+      { id: 'e-estimate', title: 'Оценка стоимости', icon: '📸', desc: 'Калькулятор сметных расходов по расценкам ГЭСН 2026', btnText: '🚀 Сметный расчёт', btnGradient: 'linear-gradient(90deg, #38bdf8, #2563eb)' },
+      { id: 'e-inspect', title: 'Проверка дефектов', icon: '🔍', desc: 'Экспертная проверка состояния конструкций и дефектоскопия', btnText: '🔍 Проверить дефекты', btnGradient: 'linear-gradient(90deg, #f59e0b, #ef4444)' },
+      { id: 'e-soil', title: 'Фото-объёмы грунта', icon: '📐', desc: 'Геодезический 3D-расчёт выемки и насыпи грунта по фото ДО/ПОСЛЕ', btnText: '📸 Рассчитать объём', btnGradient: 'linear-gradient(90deg, #10b981, #0ea5e9)' },
+      { id: 'e-engineering', title: 'Инженерные решения', icon: '⚙️', desc: 'Техническая спецификация работ и схемы разводки сетей', btnText: '⚡ Спецификация', btnGradient: 'linear-gradient(90deg, #38bdf8, #93c5fd)' },
+      { id: 'e-wallet', title: 'Мой кошелёк', icon: '💳', desc: 'Баланс мастера, выплаты по эскроу и вывод на карту в KZT', btnText: '💳 Открыть кошелёк', btnGradient: 'linear-gradient(90deg, #2563eb, #f59e0b)' },
+      { id: 'e-equipment', title: 'Маркетплейс техники', icon: '🚜', desc: 'Поиск спецтехники в аренду и оптовый закуп стройматериалов', btnText: '🚜 Найти технику', btnGradient: 'linear-gradient(90deg, #3b82f6, #06b6d4)' },
+      { id: 'e-calendar', title: 'Календарь выездов', icon: '📅', desc: 'Расписание выездов на замеры и этапов монтажных работ', btnText: '📅 Расписание', btnGradient: 'linear-gradient(90deg, #ef4444, #10b981)' },
+      { id: 'e-catalog', title: 'Каталог специалистов', icon: '📒', desc: 'Рейтинг, отзывы и карточки мастеров в едином реестре РК', btnText: '📒 Реестр мастеров', btnGradient: 'linear-gradient(90deg, #f59e0b, #d97706)' },
+      { id: 'e-profile', title: 'Анкета мастера', icon: '📝', desc: 'Профиль исполнителя, верификация ИИН/БИН, навыки и портфолио', btnText: '📝 Заполнить профиль', btnGradient: 'linear-gradient(90deg, #10b981, #059669)' },
+    ],
+
+    engineer: [
+      { id: 'ing-main', title: 'Главная панель', icon: '📊', desc: 'Сводный дашборд технического надзора, статусы проверок и графики', btnText: '📊 Открыть панель', btnGradient: 'linear-gradient(90deg, #2563eb, #38bdf8)' },
+      { id: 'ing-requests', title: 'Заявки на технадзор', icon: '📬', desc: 'Очередь вызовов инженеров на объекты для проведения инспекций', btnText: '📬 Список заявок', btnGradient: 'linear-gradient(90deg, #ef4444, #f59e0b)' },
+      { id: 'ing-objects', title: 'Мои объекты', icon: '🏗️', desc: 'Реестр строящихся объектов под авторским и техническим контролем', btnText: '🏗️ Мои объекты', btnGradient: 'linear-gradient(90deg, #f59e0b, #10b981)' },
+      { id: 'ing-ai', title: 'AI-просчёт по СНиП', icon: '🤖', desc: 'Автоматический анализ ПСД на соответствие ГОСТ и СНиП РК', btnText: '🤖 Запустить AI', btnGradient: 'linear-gradient(90deg, #2563eb, #7c3aed)' },
+      { id: 'ing-calendar', title: 'Календарь инспекций', icon: '📅', desc: 'План выездных инспекций и график подписания актов КС-2 / КС-3', btnText: '📅 План инспекций', btnGradient: 'linear-gradient(90deg, #10b981, #059669)' },
+      { id: 'ing-expenses', title: 'Контроль расходов', icon: '💰', desc: 'Анализ отклонений от утвержденной сметы и контроль перерасходов', btnText: '💰 Аудит смет', btnGradient: 'linear-gradient(90deg, #06b6d4, #10b981)' },
+    ],
+
+    company: [
+      { id: 'comp-profile', title: 'Профиль компании', icon: '📝', desc: 'Управление БИН компании, лицензиями ГСЛ и банковскими реквизитами', btnText: '📝 Реквизиты ТОО', btnGradient: 'linear-gradient(90deg, #0ea5e9, #2563eb)' },
+      { id: 'comp-employees', title: 'Сотрудники и бригады', icon: '👥', desc: 'Реестр штатных инженеров, прорабов и привязанных рабочих бригад', btnText: '👥 Управление штатом', btnGradient: 'linear-gradient(90deg, #10b981, #0ea5e9)' },
+      { id: 'comp-stats', title: 'Статистика компании', icon: '📈', desc: 'Сводные финансовые показатели, динамика сдачи объектов и KPI', btnText: '📈 Смотреть отчёты', btnGradient: 'linear-gradient(90deg, #2563eb, #38bdf8)' },
+    ],
+
+    manager: [
+      { id: 'mgr-crm', title: 'CRM-система', icon: '📊', desc: 'Воронка лидов, карточки клиентов, управление компаниями и бригадами', btnText: '📊 Открыть CRM', btnGradient: 'linear-gradient(90deg, #3b82f6, #f59e0b)' },
+      { id: 'mgr-reports', title: 'Отчёты по продажам', icon: '📄', desc: 'Конверсия сделок, средний чек смет и аналитика эффективности', btnText: '📄 Сводка продаж', btnGradient: 'linear-gradient(90deg, #10b981, #059669)' },
+    ],
+
+    admin: [
+      { id: 'adm-prices', title: 'Прайсы ГЭСН-2026', icon: '💰', desc: 'База 23 864+ позиций строительных расценок по 17 областям Казахстана', btnText: '💰 Открыть прайсы', btnGradient: 'linear-gradient(90deg, #f59e0b, #ea580c)' },
+      { id: 'adm-moderation', title: 'Модерация заявок', icon: '🛡️', desc: 'Очередь верификации подрядчиков, проверка документов и заказов', btnText: '🛡️ Модерация', btnGradient: 'linear-gradient(90deg, #ef4444, #f59e0b)' },
+      { id: 'adm-regions', title: 'Региональные индексы', icon: '🗺️', desc: 'Коэффициенты удорожания стройматериалов по регионам РК', btnText: '🗺️ Индексы цен', btnGradient: 'linear-gradient(90deg, #2563eb, #38bdf8)' },
+      { id: 'adm-audit', title: 'Журнал действий', icon: '📜', desc: 'Полный аудит логов пользователей, изменений в сметах и AI-вызовов', btnText: '📜 Журнал логов', btnGradient: 'linear-gradient(90deg, #3b82f6, #8b5cf6)' },
+      { id: 'adm-kpi', title: 'KPI Платформы', icon: '📊', desc: 'Метрики скорости расчётов, точности AI и загрузки серверов', btnText: '📊 Открыть KPI', btnGradient: 'linear-gradient(90deg, #10b981, #06b6d4)' },
+      { id: 'adm-disputes', title: 'Споры и арбитраж', icon: '⚖️', desc: 'Рассмотрение претензий по качеству работ и разблокировка эскроу', btnText: '⚖️ Разрешить спор', btnGradient: 'linear-gradient(90deg, #f59e0b, #ef4444)' },
+      { id: 'adm-contracts', title: 'Договоры подряда', icon: '📄', desc: 'Шаблоны договоров строительного подряда с поддержкой ЭЦП E-Gov', btnText: '📄 Реестр договоров', btnGradient: 'linear-gradient(90deg, #2563eb, #10b981)' },
+    ]
   };
 
-  React.useEffect(() => {
-    const roleKey = selectedRole || 'customer';
-    const newRoleObj = hierarchyData[roleKey] || hierarchyData.customer;
-    if (newRoleObj && newRoleObj.categories.length > 0) {
-      const firstCat = newRoleObj.categories[0];
-      if (firstCat.items.length > 0) {
-        handleSelectItem(firstCat.items[0]);
-      }
-    }
-  }, [selectedRole]);
+  const activeRoleObj = roles.find((r) => r.id === selectedRole) || roles[0];
+  const activeCards = roleCardsData[selectedRole] || roleCardsData.customer;
+
+  const handleSelectRole = (roleKey) => {
+    setSelectedRole(roleKey);
+    setSelectedItemId(null);
+    setSelectedItemObject(null);
+    setEmbeddedModule(null);
+  };
 
   const handleSelectItem = (item) => {
     setSelectedItemId(item.id);
+    setIsMobileSidebarOpen(false);
     
     // Check if it's admin section
     if (item.id.startsWith('adm-')) {
@@ -287,510 +194,517 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
       setEmbeddedModule('crm');
       setSelectedItemObject(item);
     }
-    // Otherwise it's a standard feature module (c-engineering, e-engineering, c-orders, c-catalog, c-wallet, c-profile, etc.)
+    // Otherwise it's a standard feature module
     else {
       setEmbeddedModule(null);
       setSelectedItemObject(item);
     }
   };
 
-  const currentItemName = selectedItemObject ? selectedItemObject.name : 'Главная';
-
-  const customerTourSteps = {
-    'c-overview': [
-      { target: '.sidebar-nav', title: 'Меню Заказчика', content: 'Здесь находятся инструменты для управления вашим проектом: статистика, галерея и документы.', placement: 'right' },
-      { target: '.admin-redesign-main', title: 'Рабочая область', content: 'Тут отображаются фотоотчеты со стройки, акты КС-2 и прозрачные сметы.', placement: 'left' }
-    ],
-    'c-estimate': [
-      { target: '.feature-content-box', title: 'Оценка стоимости', content: 'Выберите тип объекта и загрузите фото. AI за пару секунд рассчитает черновую стоимость работ.', placement: 'bottom' }
-    ],
-    'c-inspect': [
-      { target: '.feature-content-box', title: 'Поиск дефектов', content: 'Загрузите фотографии проблемных участков, чтобы нейросеть выявила трещины или перепады.', placement: 'bottom' }
-    ],
-    'c-orders': [
-      { target: '.feature-content-box', title: 'Мои заказы', content: 'Здесь вы можете создать новую заявку на поиск подрядчика или отслеживать статус текущих.', placement: 'left' }
-    ],
-    'c-calendar': [
-      { target: '.feature-content-box', title: 'Календарь', content: 'График выполнения строительных работ по вашему объекту.', placement: 'left' }
-    ]
+  const handleBackToCardMenu = () => {
+    setSelectedItemId(null);
+    setSelectedItemObject(null);
+    setEmbeddedModule(null);
   };
 
-  const executorTourSteps = {
-    'e-feed': [
-      { target: '.feature-content-box', title: 'Лента заказов', content: 'Отслеживайте новые заявки от заказчиков по всему Казахстану и откликайтесь на подходящие.', placement: 'left' }
-    ],
-    'e-works': [
-      { target: '.feature-content-box', title: 'Мои работы', content: 'Здесь отображаются ваши текущие активные объекты и архив выполненных заказов.', placement: 'left' }
-    ],
-    'e-estimate': [
-      { target: '.feature-content-box', title: 'Оценка стоимости', content: 'Калькулятор сметных расходов. Используйте для быстрого расчета стоимости работ перед откликом.', placement: 'bottom' }
-    ],
-    'e-inspect': [
-      { target: '.feature-content-box', title: 'Детектоскопия', content: 'Загрузите фото объекта, чтобы заранее выявить скрытые дефекты (трещины, влага).', placement: 'bottom' }
-    ],
-    'e-wallet': [
-      { target: '.feature-content-box', title: 'Мой кошелёк', content: 'Управляйте заработанными средствами и выводите их на карту.', placement: 'left' }
-    ]
+  const handlePrimaryRoleAction = () => {
+    if (selectedRole === 'engineer') {
+      setEmbeddedModule('engineer');
+      setSelectedItemId('ing-main');
+    } else if (selectedRole === 'executor') {
+      setSelectedItemId('e-feed');
+    } else if (selectedRole === 'manager') {
+      setEmbeddedModule('crm');
+      setSelectedItemId('mgr-crm');
+    } else if (selectedRole === 'company') {
+      setEmbeddedModule('company');
+      setSelectedItemId('comp-profile');
+    } else if (selectedRole === 'admin') {
+      setEmbeddedModule('admin_panel');
+      setSelectedItemId('adm-prices');
+    } else {
+      setSelectedItemId('c-estimate');
+    }
   };
 
-  const genericCustomerSteps = [
-    { target: '.feature-content-box', title: 'Рабочая область', content: 'Здесь отображается выбранный инструмент или модуль системы.', placement: 'left' }
-  ];
-
-  const genericExecutorSteps = [
-    { target: '.feature-content-box', title: 'Рабочая область', content: 'Здесь отображается выбранный инструмент. Следуйте инструкциям на экране для работы.', placement: 'left' }
-  ];
-
-  const currentCustomerSteps = customerTourSteps[selectedItemId] || (selectedItemId ? genericCustomerSteps : customerTourSteps['c-overview']);
-  const currentExecutorSteps = executorTourSteps[selectedItemId] || (selectedItemId ? genericExecutorSteps : executorTourSteps['e-feed']);
-
-  const isLandingView = !embeddedModule && !selectedItemId;
+  const isInnerToolActive = !!(embeddedModule || selectedItemObject || selectedItemId);
 
   return (
-    <div className="admin-redesign-layout">
-      {userRole === 'customer' && <OnboardingTour steps={currentCustomerSteps} tourKey={`customer_${selectedItemId}`} />}
-      {userRole === 'executor' && <OnboardingTour steps={currentExecutorSteps} tourKey={`executor_${selectedItemId}`} />}
-      {/* Background */}
+    <div className="admin-redesign-layout" style={{ minHeight: '100vh', width: '100vw', overflowX: 'hidden', position: 'relative' }}>
+      {/* 3D Holographic Background with BIM Skyline & Electricity */}
       <AnimatedBackground />
 
-      {/* LEFT SIDEBAR (Only visible once a tool or module is opened) */}
-      
-      {/* The inline toggle node to pass down */}
-      {(() => {
-        const sidebarToggleNode = (!isLandingView && isSidebarHidden) ? (
-          <button 
-            onClick={() => setIsSidebarHidden(false)}
-            className="sidebar-show-btn-inline"
-            title="Показать меню"
-          >
-            <span style={{ fontSize: '1.2rem' }}>≡</span>
-          </button>
-        ) : null;
+      {/* ─────────────────────────────────────────────────────────── */}
+      {/* MOBILE DRAWER SIDEBAR (Only visible when toggled on mobile) */}
+      {/* ─────────────────────────────────────────────────────────── */}
+      <div 
+        className={`mobile-sidebar-backdrop ${isMobileSidebarOpen ? 'active' : ''}`}
+        onClick={() => setIsMobileSidebarOpen(false)}
+      />
 
-        return (
-          <>
-      {!isLandingView && (
-        <aside className={`admin-redesign-sidebar ${isSidebarHidden ? 'hidden' : ''}`}>
-          <div className="sidebar-header">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
-              <div 
-                className="sidebar-brand" 
-                onClick={() => {
-                  setSelectedItemId(null);
-                  setEmbeddedModule(null);
-                }}
-                style={{ cursor: 'pointer', marginBottom: 0 }}
-                title="На главную страницу сервисов"
-              >
-                <span className="logo-emoji">🏗️</span>
-                <div>QazGost <span>AI</span></div>
-              </div>
-              <button 
-                onClick={() => setIsSidebarHidden(true)}
-                className="sidebar-hide-btn"
-                title="Скрыть меню"
-              >
-                ◀
-              </button>
-            </div>
-            <div className="role-dropdown-wrapper" style={{ position: 'relative' }}>
-            <div style={{ fontSize: '0.72rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: '900', marginBottom: '0.4rem' }}>
-              ВЫБРАТЬ ДАШБОРД
-            </div>
-
-            <button 
-              className="custom-role-trigger-btn"
-              onClick={() => setIsRoleDropdownOpen(!isRoleDropdownOpen)}
+      <aside className={`admin-redesign-sidebar mobile-drawer ${isMobileSidebarOpen ? 'open' : ''}`}>
+        <div className="sidebar-header">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+            <div 
+              className="sidebar-brand" 
+              onClick={() => {
+                handleBackToCardMenu();
+                setIsMobileSidebarOpen(false);
+              }}
+              style={{ cursor: 'pointer', marginBottom: 0 }}
+              title="На главный экран"
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-                <span style={{ fontSize: '1.2rem' }}>{activeRoleObj.icon}</span>
-                <span style={{ fontWeight: '800', color: '#fff', fontSize: '0.92rem' }}>{activeRoleObj.label}</span>
-              </div>
-              <span style={{ color: '#38bdf8', fontSize: '0.75rem', transform: isRoleDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>▼</span>
+              <span className="logo-emoji">🏗️</span>
+              <div>QazGost <span style={{ color: '#38bdf8' }}>AI</span></div>
+            </div>
+            <button 
+              onClick={() => setIsMobileSidebarOpen(false)}
+              className="sidebar-close-btn"
+              title="Закрыть меню"
+            >
+              ✕
             </button>
+          </div>
 
-            {isRoleDropdownOpen && (
-              <div className="custom-role-popover">
-                <div className="popover-title-row">
-                  <span>ДОСТУПНЫЕ ДАШБОРДЫ</span>
-                  <span className="popover-close-x" onClick={() => setIsRoleDropdownOpen(false)}>✕</span>
-                </div>
-                <div className="popover-items-list">
-                  {roles.map((r) => (
-                    <div 
-                      key={r.id} 
-                      className={`popover-role-item ${selectedRole === r.id ? 'active-role' : ''}`}
-                      onClick={() => {
-                        handleSelectRole(r.id);
-                        setIsRoleDropdownOpen(false);
-                      }}
-                    >
-                      <span className="p-icon">{r.icon}</span>
-                      <span className="p-label">{r.label}</span>
-                      {r.badge && <span className={`p-badge ${r.badge.toLowerCase()}`}>{r.badge}</span>}
-                      {selectedRole === r.id && <span className="p-check">✓</span>}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+          <div style={{ fontSize: '0.72rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: '900', marginBottom: '0.6rem' }}>
+            ВЫБРАТЬ ДАШБОРД
+          </div>
+
+          {/* Mobile Role Switcher Grid */}
+          <div className="mobile-role-selector-grid">
+            {roles.map(r => (
+              <button
+                key={r.id}
+                className={`mobile-role-btn ${selectedRole === r.id ? 'active' : ''}`}
+                onClick={() => handleSelectRole(r.id)}
+                style={{
+                  borderColor: selectedRole === r.id ? r.color : 'rgba(255, 255, 255, 0.1)',
+                  boxShadow: selectedRole === r.id ? `0 0 12px ${r.glow}` : 'none'
+                }}
+              >
+                <span>{r.icon}</span>
+                <span>{r.shortLabel}</span>
+                {selectedRole === r.id && <span style={{ color: r.color, fontWeight: '900' }}>✓</span>}
+              </button>
+            ))}
           </div>
         </div>
 
         <nav className="sidebar-nav">
-          {currentRoleData.categories.map((cat) => {
-            const isCollapsed = !!collapsedCategories[cat.id];
-            return (
-              <div key={cat.id} className={`sidebar-category ${isCollapsed ? 'collapsed' : ''}`}>
+          <div className="sidebar-category">
+            <div className="sidebar-category-header">
+              <span>{activeRoleObj.icon} РАЗДЕЛЫ {activeRoleObj.shortLabel.toUpperCase()}</span>
+            </div>
+            <div className="sidebar-items-group">
+              {activeCards.map(item => (
                 <div 
-                  className="sidebar-category-header clickable"
-                  onClick={() => toggleCategoryCollapse(cat.id)}
-                  title={isCollapsed ? 'Развернуть категорию' : 'Свернуть категорию'}
+                  key={item.id} 
+                  className={`sidebar-item ${selectedItemId === item.id ? 'active' : ''}`}
+                  onClick={() => handleSelectItem(item)}
                 >
-                  <span>{cat.name}</span>
-                  <span className={`category-arrow ${isCollapsed ? 'is-collapsed' : ''}`}>
-                    {isCollapsed ? '▶' : '▼'}
-                  </span>
+                  <span style={{ fontSize: '1.1rem' }}>{item.icon}</span>
+                  <span>{item.title}</span>
                 </div>
-                {!isCollapsed && (
-                  <div className="sidebar-items-group">
-                    {cat.items.map((item) => (
-                      <div 
-                        key={item.id} 
-                        className={`sidebar-item ${selectedItemId === item.id ? 'active' : ''}`}
-                        onClick={() => handleSelectItem(item)}
-                      >
-                        <span style={{ fontSize: '1.1rem' }}>{item.icon}</span>
-                        <span>{item.name}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            );
-          })}
+              ))}
+            </div>
+          </div>
         </nav>
 
         <div className="sidebar-footer">
           <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
-            <span className="online-ai-badge" style={{ display: 'inline-block', marginBottom: '10px' }}>🟢 Online AI 2.0</span>
-            <br/>
-            Система активна и готова к работе.
+            <span className="online-ai-badge" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
+              <span className="live-dot" /> Online AI 2.0
+            </span>
+            <div style={{ fontSize: '0.75rem', color: '#cbd5e1', lineHeight: '1.3' }}>
+              Система активна и готова к работе.
+            </div>
           </div>
         </div>
       </aside>
-      )}
 
-      {/* MAIN WORKSPACE */}
-      <main className="admin-redesign-main" style={isLandingView ? { flex: 1, width: '100%', maxWidth: '100%', margin: 0, padding: 0 } : {}}>
-        {/* Top Header (only if not landing view and not crm) */}
-        {!isLandingView && embeddedModule !== 'crm' && (
-          <header className="main-top-header">
-            <div className="header-left-side" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-              {sidebarToggleNode}
+      {/* ─────────────────────────────────────────────────────────── */}
+      {/* MAIN COCKPIT & WORKSPACE                                    */}
+      {/* ─────────────────────────────────────────────────────────── */}
+      <main className="admin-redesign-main full-width-workspace" style={{ width: '100%', flex: 1, display: 'flex', flexDirection: 'column', position: 'relative', zIndex: 5 }}>
+        
+        {/* TOP COMPACT HEADER */}
+        <header className="main-top-header modern-topbar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.85rem 1.5rem', background: 'rgba(10, 14, 28, 0.75)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255, 255, 255, 0.08)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            {/* Mobile Hamburger Button */}
+            <button 
+              onClick={() => setIsMobileSidebarOpen(true)}
+              className="mobile-menu-trigger-btn"
+              title="Открыть меню"
+            >
+              <span>☰</span>
+              <span className="btn-text-mobile">Меню</span>
+            </button>
+
+            {/* Back to Card Hub Button (when inside a tool) */}
+            {isInnerToolActive ? (
               <button 
-                onClick={() => {
-                  setSelectedItemId(null);
-                  setEmbeddedModule(null);
+                onClick={handleBackToCardMenu}
+                className="btn-back-to-cards"
+                title="Вернуться ко всем карточкам"
+                style={{
+                  background: 'rgba(56, 189, 248, 0.15)',
+                  border: '1px solid #38bdf8',
+                  color: '#fff',
+                  borderRadius: '12px',
+                  padding: '8px 16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  cursor: 'pointer',
+                  fontWeight: '700',
+                  fontSize: '0.9rem',
+                  boxShadow: '0 0 15px rgba(56, 189, 248, 0.3)'
                 }}
-                className="em-btn-glass-sm"
-                style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', padding: '0.5rem 0.9rem', borderRadius: '10px', fontSize: '0.85rem', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: '#fff', cursor: 'pointer' }}
-                title="Вернуться к начальному выбору сервисов"
               >
-                ← <span>Главный экран</span>
+                <span>←</span>
+                <span>К карточкам меню</span>
               </button>
-              <div className="header-title-badge">
-                <span className="header-icon">{selectedItemObject?.icon || '🌐'}</span>
-                <div>
-                  <h2 className="header-main-title">{currentItemName}</h2>
-                  <div className="header-breadcrumbs">
-                    {currentRoleData.roleTitle} <span>/</span> Управление <span>/</span> {currentItemName}
-                  </div>
+            ) : (
+              <button 
+                onClick={onBackToHome}
+                className="btn-back-to-cards"
+                title="На главную"
+                style={{
+                  background: 'rgba(255, 255, 255, 0.06)',
+                  border: '1px solid rgba(255, 255, 255, 0.12)',
+                  color: '#fff',
+                  borderRadius: '12px',
+                  padding: '8px 16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  cursor: 'pointer',
+                  fontWeight: '600',
+                  fontSize: '0.88rem'
+                }}
+              >
+                <span>🏠</span>
+                <span>На главную</span>
+              </button>
+            )}
+
+            <div className="header-breadcrumbs-box" style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem' }}>
+              <span style={{ color: activeRoleObj.color, fontWeight: '800' }}>
+                {activeRoleObj.icon} {activeRoleObj.title}
+              </span>
+              {selectedItemObject && (
+                <>
+                  <span style={{ color: 'rgba(255, 255, 255, 0.3)' }}>/</span>
+                  <span style={{ color: '#fff', fontWeight: '700' }}>{selectedItemObject.title}</span>
+                </>
+              )}
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <div className="live-ai-chip" style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.3)', padding: '4px 12px', borderRadius: '20px', fontSize: '0.8rem', color: '#10b981', fontWeight: '700' }}>
+              <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#10b981', boxShadow: '0 0 8px #10b981' }} />
+              <span>Online AI 2.0</span>
+            </div>
+
+            <button 
+              onClick={onBackToHome}
+              style={{
+                background: 'linear-gradient(90deg, #2563eb, #38bdf8)',
+                color: '#fff',
+                border: 'none',
+                padding: '6px 14px',
+                borderRadius: '10px',
+                fontWeight: '700',
+                fontSize: '0.85rem',
+                cursor: 'pointer'
+              }}
+            >
+              На сайт
+            </button>
+          </div>
+        </header>
+
+        {/* ────────────────────────────────────────────────────────── */}
+        {/* WORKSPACE: INNER TOOL OR FULL CARD DASHBOARD               */}
+        {/* ────────────────────────────────────────────────────────── */}
+        <div style={{ flex: 1, overflowY: 'auto', padding: isInnerToolActive ? '0' : '2rem 1.5rem' }}>
+
+          {/* 1. INNER TOOL VIEW */}
+          {isInnerToolActive && (
+            <div style={{ width: '100%', minHeight: '85vh' }}>
+              {embeddedModule === 'engineer' && (
+                <EngineerDashboardPage
+                  key={selectedRole}
+                  hideHeader={true}
+                  initialTab={
+                    selectedItemId === 'ing-main' ? 'overview' :
+                    selectedItemId === 'ing-requests' ? 'requests' :
+                    selectedItemId === 'ing-objects' ? 'objects' :
+                    (selectedItemId === 'ing-calendar' || selectedItemId === 'c-calendar' || selectedItemId === 'e-calendar') ? 'calendar' :
+                    selectedItemId === 'ing-ai' ? 'ai-calc' :
+                    selectedItemId === 'ing-expenses' ? 'expenses' :
+                    'overview'
+                  }
+                  onBackToHome={handleBackToCardMenu}
+                  viewRole={selectedRole}
+                  currentUser={currentUser}
+                />
+              )}
+
+              {embeddedModule === 'admin_panel' && (
+                <AdminDashboardModal 
+                  isOpen={true} 
+                  inline={true} 
+                  startTab={selectedItemId.replace('adm-', '')} 
+                  onClose={handleBackToCardMenu} 
+                  currentUser={currentUser} 
+                  userRole={userRole} 
+                />
+              )}
+
+              {embeddedModule === 'crm' && (
+                <div style={{ height: '100%', width: '100%', minHeight: '80vh', position: 'relative' }}>
+                  <CrmPage onBackToHome={handleBackToCardMenu} currentUser={currentUser} />
                 </div>
-              </div>
+              )}
+
+              {embeddedModule === 'company' && (
+                <CompanyDashboardPage 
+                  currentUser={currentUser} 
+                  initialTab={
+                    selectedItemId === 'comp-employees' ? 'employees' :
+                    selectedItemId === 'comp-stats' ? 'stats' : 'profile'
+                  }
+                />
+              )}
+
+              {!embeddedModule && selectedItemObject && (
+                <FeaturePageModule
+                  itemData={selectedItemObject}
+                  onBack={handleBackToCardMenu}
+                  onOpenAdminTab={(tab) => {
+                    setEmbeddedModule('admin_panel');
+                    setSelectedItemId(`adm-${tab}`);
+                  }}
+                />
+              )}
             </div>
-            <div className="header-actions">
-              <button className="btn-return-home" onClick={onBackToHome}>
-                🏠 На сайт
-              </button>
-            </div>
-          </header>
-        )}
-
-        {/* Content Area */}
-        <div className="main-content-area" style={(embeddedModule === 'crm' || embeddedModule === 'admin_panel') ? { padding: 0, margin: 0, height: '100%', overflow: 'hidden' } : {}}>
-          {embeddedModule === 'engineer' && (
-             <EngineerDashboardPage
-               key={selectedRole}
-               hideHeader={true}
-               initialTab={
-                 selectedItemId === 'ing-main' ? 'overview' :
-                 selectedItemId === 'ing-requests' ? 'requests' :
-                 selectedItemId === 'ing-objects' ? 'objects' :
-                 (selectedItemId === 'ing-calendar' || selectedItemId === 'c-calendar' || selectedItemId === 'e-calendar') ? 'calendar' :
-                 selectedItemId === 'ing-ai' ? 'ai-calc' :
-                 selectedItemId === 'ing-expenses' ? 'expenses' :
-                 'overview'
-               }
-               onBackToHome={onBackToHome}
-               viewRole={selectedRole}
-               currentUser={currentUser}
-               sidebarToggleNode={sidebarToggleNode}
-             />
           )}
 
-          {embeddedModule === 'admin_panel' && (
-             <AdminDashboardModal isOpen={true} inline={true} startTab={selectedItemId.replace('adm-', '')} onClose={() => setSelectedItemObject(null)} currentUser={currentUser} userRole={userRole} />
-          )}
-
-          {embeddedModule === 'crm' && (
-             <div style={{ height: '100%', width: '100%', position: 'relative', overflow: 'hidden' }}>
-               <CrmPage onBackToHome={onBackToHome} currentUser={currentUser} sidebarToggleNode={sidebarToggleNode} />
-             </div>
-          )}
-
-          {embeddedModule === 'company' && (
-             <CompanyDashboardPage 
-               currentUser={currentUser} 
-               initialTab={
-                 selectedItemId === 'comp-employees' ? 'employees' :
-                 selectedItemId === 'comp-stats' ? 'stats' : 'profile'
-               }
-               sidebarToggleNode={sidebarToggleNode}
-             />
-          )}
-
-          {!embeddedModule && selectedItemObject && (
-             <FeaturePageModule
-               itemData={selectedItemObject}
-               onBack={() => setSelectedItemObject(null)}
-               onOpenAdminTab={(tab) => {
-                 setEmbeddedModule('admin_panel');
-                 setSelectedItemId(`adm-${tab}`);
-               }}
-             />
-          )}
-
-
-          {!embeddedModule && !selectedItemObject && (
-            <div style={{ padding: '2rem 1.5rem', width: '100%', maxWidth: '1200px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
+          {/* 2. CARD COCKPIT VIEW (Matching Screenshot 3) */}
+          {!isInnerToolActive && (
+            <div style={{ maxWidth: '1240px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
               
-              {/* Hero Header */}
-              <div style={{ position: 'relative', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
-                
-                {/* Back to Home Button Row */}
-                <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-start', marginBottom: '1rem' }}>
-                  <button 
-                    onClick={() => {
-                      window.history.pushState({}, '', '/');
-                      window.location.reload();
-                    }}
-                    style={{
-                      background: 'rgba(255, 255, 255, 0.05)',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
-                      borderRadius: '12px',
-                      padding: '8px 16px',
-                      color: '#fff',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '8px',
-                      cursor: 'pointer',
-                      fontSize: '0.9rem',
-                      fontWeight: '600',
-                      transition: 'all 0.2s',
-                      zIndex: 10
-                    }}
-                    onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'}
-                    onMouseOut={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)'}
-                  >
-                    <span>🏠</span> На главную
-                  </button>
-                </div>
-
-                <div style={{ background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.12)', padding: '0.4rem 1.1rem', borderRadius: '20px', fontSize: '0.82rem', fontWeight: '800', color: '#38bdf8', marginBottom: '1.25rem', backdropFilter: 'blur(16px)', boxShadow: '0 4px 15px rgba(56, 189, 248, 0.2)' }}>
-                  ✨ AI-powered • Версия 2.0
-                </div>
-
-                <h1 style={{ fontSize: '2.5rem', fontWeight: '900', color: '#fff', margin: '0 0 0.75rem 0', letterSpacing: '-0.5px' }}>
+              {/* Header Titles */}
+              <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <h1 style={{ fontSize: '2.6rem', fontWeight: '900', color: '#fff', margin: '0 0 0.6rem 0', letterSpacing: '-0.5px' }}>
                   Умная оценка <span style={{ background: 'linear-gradient(90deg, #38bdf8, #2563eb, #38bdf8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>строительных работ</span>
                 </h1>
 
-                <p style={{ color: '#cbd5e1', fontSize: '1.05rem', margin: 0, maxWidth: '600px', lineHeight: '1.5' }}>
+                <p style={{ color: '#cbd5e1', fontSize: '1.05rem', margin: 0, maxWidth: '680px', lineHeight: '1.5' }}>
                   Загрузите фото объекта — получите точный расчёт материалов, стоимости или найдите дефекты
                 </p>
               </div>
 
-              {/* 3 Role Selection Cards Grid */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.25rem' }}>
-                {[
-                  { id: 'customer', title: 'Я Заказчик', icon: '📋', desc: 'Создаю заказы, выбираю исполнителей, принимаю работу', color: '#10b981' },
-                  { id: 'executor', title: 'Я Исполнитель', icon: '🔧', desc: 'Ищу заказы, отправляю предложения, выполняю работы', color: '#38bdf8' },
-                  { id: 'engineer', title: 'Я Инженер', icon: '👷', desc: 'Принимаю заявки, разрабатываю проектную документацию', color: '#2563eb' }
-                ].map(r => {
+              {/* ────────────────────────────────────────────────────── */}
+              {/* ROLE SELECTION CARDS (Matching Screenshot 1 & 3)       */}
+              {/* ────────────────────────────────────────────────────── */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.25rem' }}>
+                {roles.map(r => {
                   const isActive = selectedRole === r.id;
                   return (
                     <div 
                       key={r.id}
-                      onClick={() => setSelectedRole(r.id)}
+                      onClick={() => handleSelectRole(r.id)}
                       style={{
-                        background: 'rgba(18, 22, 38, 0.75)',
+                        background: 'rgba(18, 24, 44, 0.82)',
                         border: isActive ? `2px solid ${r.color}` : '1px solid rgba(255, 255, 255, 0.12)',
                         borderRadius: '24px',
-                        padding: '1.75rem 1.5rem',
+                        padding: '1.6rem 1.4rem',
                         textAlign: 'center',
                         cursor: 'pointer',
-                        transition: 'all 0.28s ease',
+                        transition: 'all 0.28s cubic-bezier(0.4, 0, 0.2, 1)',
                         backdropFilter: 'blur(24px)',
-                        boxShadow: isActive ? `0 15px 35px ${r.color}44` : '0 10px 25px rgba(0,0,0,0.3)',
-                        position: 'relative'
+                        boxShadow: isActive ? `0 14px 35px ${r.glow}` : '0 8px 24px rgba(0,0,0,0.35)',
+                        position: 'relative',
+                        transform: isActive ? 'translateY(-2px)' : 'none'
                       }}
                     >
+                      {/* Active Glowing Checkmark (as on screenshot 1 & 3) */}
                       {isActive && (
-                        <div style={{ position: 'absolute', top: '12px', right: '12px', background: r.color, color: '#fff', width: '24px', height: '24px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '900', fontSize: '0.8rem', boxShadow: `0 0 12px ${r.color}` }}>
+                        <div style={{
+                          position: 'absolute',
+                          top: '12px',
+                          right: '12px',
+                          background: r.color,
+                          color: '#fff',
+                          width: '24px',
+                          height: '24px',
+                          borderRadius: '50%',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontWeight: '900',
+                          fontSize: '0.8rem',
+                          boxShadow: `0 0 14px ${r.color}`
+                        }}>
                           ✓
                         </div>
                       )}
-                      <div style={{ fontSize: '2.5rem', marginBottom: '0.85rem' }}>{r.icon}</div>
-                      <h3 style={{ fontSize: '1.3rem', fontWeight: '800', color: '#fff', margin: '0 0 0.5rem 0' }}>{r.title}</h3>
+
+                      <div style={{ fontSize: '2.5rem', marginBottom: '0.75rem' }}>{r.icon}</div>
+                      <h3 style={{ fontSize: '1.3rem', fontWeight: '800', color: '#fff', margin: '0 0 0.45rem 0' }}>{r.title}</h3>
                       <p style={{ fontSize: '0.84rem', color: '#cbd5e1', margin: 0, lineHeight: '1.4' }}>{r.desc}</p>
                     </div>
                   );
                 })}
               </div>
 
-              {/* Enter Selected Role Big CTA Button */}
-              <div style={{ display: 'flex', justifyContent: 'center' }}>
+              {/* Big Primary Action Button (as in Screenshot 3) */}
+              <div style={{ display: 'flex', justifyContent: 'center', margin: '0.25rem 0' }}>
                 <button 
-                  onClick={() => {
-                    if (selectedRole === 'engineer') {
-                      setEmbeddedModule('engineer');
-                      setSelectedItemId('ing-main');
-                    } else if (selectedRole === 'executor') {
-                      setSelectedItemId('e-feed');
-                    } else {
-                      setSelectedItemId('c-overview');
-                    }
-                  }}
+                  onClick={handlePrimaryRoleAction}
                   style={{
                     background: selectedRole === 'engineer' 
                       ? 'linear-gradient(90deg, #2563eb, #38bdf8)' 
                       : selectedRole === 'executor' 
                       ? 'linear-gradient(90deg, #38bdf8, #f59e0b)' 
-                      : 'linear-gradient(90deg, #10b981, #06b6d4)',
+                      : selectedRole === 'manager'
+                      ? 'linear-gradient(90deg, #f59e0b, #ea580c)'
+                      : selectedRole === 'company'
+                      ? 'linear-gradient(90deg, #0ea5e9, #2563eb)'
+                      : selectedRole === 'admin'
+                      ? 'linear-gradient(90deg, #a855f7, #6366f1)'
+                      : 'linear-gradient(90deg, #38bdf8, #f59e0b)',
                     color: '#fff',
                     border: 'none',
-                    padding: '1.1rem 3rem',
-                    borderRadius: '20px',
+                    padding: '1.1rem 3.5rem',
+                    borderRadius: '22px',
                     fontWeight: '900',
-                    fontSize: '1.15rem',
+                    fontSize: '1.2rem',
                     cursor: 'pointer',
-                    boxShadow: '0 10px 30px rgba(37, 99, 235, 0.45)',
+                    boxShadow: '0 12px 35px rgba(56, 189, 248, 0.45)',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '0.75rem',
                     transition: 'all 0.28s ease'
                   }}
+                  onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
+                  onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
                 >
-                  <span>🚀 Перейти в раздел «{selectedRole === 'engineer' ? 'Я Инженер' : selectedRole === 'executor' ? 'Я Исполнитель' : 'Я Заказчик'}»</span>
-                  <span style={{ fontSize: '1.3rem' }}>→</span>
+                  <span>🚀 Перейти в раздел «{activeRoleObj.title}»</span>
+                  <span style={{ fontSize: '1.35rem' }}>→</span>
                 </button>
               </div>
 
-              {/* Metrics Pill Bar */}
-              <div style={{ background: 'rgba(18, 22, 38, 0.6)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '20px', padding: '1.25rem 2rem', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', textAlign: 'center', backdropFilter: 'blur(20px)' }}>
+              {/* Metrics Telemetry Strip (as in Screenshot 3) */}
+              <div style={{
+                background: 'rgba(18, 24, 44, 0.75)',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+                borderRadius: '24px',
+                padding: '1.25rem 2rem',
+                display: 'grid',
+                gridTemplateColumns: 'repeat(3, 1fr)',
+                textAlign: 'center',
+                backdropFilter: 'blur(20px)',
+                boxShadow: '0 10px 30px rgba(0,0,0,0.3)'
+              }}>
                 <div>
-                  <div style={{ fontSize: '1.6rem', fontWeight: '900', color: '#93c5fd' }}>10K+</div>
-                  <div style={{ fontSize: '0.75rem', fontWeight: '800', color: '#cbd5e1', letterSpacing: '1px' }}>ПРОЕКТОВ</div>
+                  <div style={{ fontSize: '1.75rem', fontWeight: '900', color: '#93c5fd' }}>10K+</div>
+                  <div style={{ fontSize: '0.78rem', fontWeight: '800', color: '#cbd5e1', letterSpacing: '1px', textTransform: 'uppercase' }}>ПРОЕКТОВ</div>
                 </div>
                 <div>
-                  <div style={{ fontSize: '1.6rem', fontWeight: '900', color: '#38bdf8' }}>98%</div>
-                  <div style={{ fontSize: '0.75rem', fontWeight: '800', color: '#cbd5e1', letterSpacing: '1px' }}>ТОЧНОСТЬ</div>
+                  <div style={{ fontSize: '1.75rem', fontWeight: '900', color: '#38bdf8' }}>98%</div>
+                  <div style={{ fontSize: '0.78rem', fontWeight: '800', color: '#cbd5e1', letterSpacing: '1px', textTransform: 'uppercase' }}>ТОЧНОСТЬ</div>
                 </div>
                 <div>
-                  <div style={{ fontSize: '1.6rem', fontWeight: '900', color: '#38bdf8' }}>2 сек</div>
-                  <div style={{ fontSize: '0.75rem', fontWeight: '800', color: '#cbd5e1', letterSpacing: '1px' }}>СКОРОСТЬ</div>
+                  <div style={{ fontSize: '1.75rem', fontWeight: '900', color: '#38bdf8' }}>2 сек</div>
+                  <div style={{ fontSize: '0.78rem', fontWeight: '800', color: '#cbd5e1', letterSpacing: '1px', textTransform: 'uppercase' }}>СКОРОСТЬ</div>
                 </div>
               </div>
 
-              {/* Grid of Feature Cards */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '1.25rem' }}>
-                {[
-                  { id: 'c-estimate', title: 'Оценка стоимости', icon: '📊', desc: 'Загрузите фото → AI-анализ → смета за 2 сек... 3 сценария цены', btnText: '🚀 Начать оценку', btnGradient: 'linear-gradient(90deg, #38bdf8, #2563eb)' },
-                  { id: 'c-inspect', title: 'Проверка дефектов', icon: '🔍', desc: 'Трещины, влага, плесень. AI-отчёт + план устранения', btnText: '🔍 Начать проверку', btnGradient: 'linear-gradient(90deg, #f59e0b, #ef4444)' },
-                  { id: 'c-engineering', title: 'Строительство зданий', icon: '🏗️', desc: 'ПСД, ВВР-документация, сметы полного цикла', btnText: '⭐ Открыть', btnGradient: 'linear-gradient(90deg, #6366f1, #2563eb)' },
-                  { id: 'c-solutions', title: 'Инженерные решения', icon: '⚙️', desc: 'Электрика, сантехника, HVAC, слаботочные системы', btnText: '⚡ Выбрать', btnGradient: 'linear-gradient(90deg, #38bdf8, #93c5fd)' },
-                  { id: 'c-orders', title: 'Мои заказы', icon: '📬', desc: 'Просмотр заказов, откликов и статусов работ', btnText: '📗 Открыть заказы', btnGradient: 'linear-gradient(90deg, #10b981, #059669)' },
-                  { id: 'c-wallet', title: 'Мой кошелёк', icon: '💳', desc: 'Баланс, операции, подписки и пополнение счёта', btnText: '💳 Открыть кошелёк', btnGradient: 'linear-gradient(90deg, #2563eb, #f59e0b)' },
-                  { id: 'c-equipment', title: 'Маркетплейс техники', icon: '🚜', desc: 'Аренда экскаваторов, кранов, самосвалов', btnText: '🚜 Открыть', btnGradient: 'linear-gradient(90deg, #3b82f6, #06b6d4)' },
-                  { id: 'c-soil', title: 'Фото-объёмы грунта', icon: '📐', desc: 'Объёмы выемки/насыпи по фото ДО/ПОСЛЕ', btnText: '📸 Рассчитать', btnGradient: 'linear-gradient(90deg, #2563eb, #38bdf8)' }
-                ].map(card => (
-                  <div 
-                    key={card.id}
-                    onClick={() => handleSelectItem(card)}
-                    style={{
-                      background: 'rgba(18, 22, 38, 0.75)',
-                      border: '1px solid rgba(255, 255, 255, 0.12)',
-                      borderRadius: '24px',
-                      padding: '1.6rem',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      textAlign: 'center',
-                      gap: '1rem',
-                      cursor: 'pointer',
-                      backdropFilter: 'blur(24px)',
-                      boxShadow: '0 12px 30px rgba(0,0,0,0.3)',
-                      transition: 'all 0.28s ease'
-                    }}
-                  >
-                    <div style={{ width: '60px', height: '60px', borderRadius: '20px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.2rem' }}>
-                      {card.icon}
-                    </div>
-                    <div>
-                      <h4 style={{ fontSize: '1.2rem', fontWeight: '800', color: '#fff', margin: '0 0 0.4rem 0' }}>{card.title}</h4>
-                      <p style={{ fontSize: '0.84rem', color: '#cbd5e1', margin: 0, lineHeight: '1.4' }}>{card.desc}</p>
-                    </div>
-                    <button 
+              {/* ────────────────────────────────────────────────────── */}
+              {/* DYNAMIC INTERACTIVE CARDS GRID (as in Screenshot 3)    */}
+              {/* ────────────────────────────────────────────────────── */}
+              <div>
+                <div style={{ fontSize: '0.85rem', fontWeight: '800', color: activeRoleObj.color, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span>{activeRoleObj.icon}</span>
+                  <span>ДОСТУПНЫЕ ИНСТРУМЕНТЫ РАЗДЕЛА «{activeRoleObj.title.toUpperCase()}»:</span>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1.25rem' }}>
+                  {activeCards.map(card => (
+                    <div 
+                      key={card.id}
+                      onClick={() => handleSelectItem(card)}
                       style={{
-                        width: '100%',
-                        background: card.btnGradient,
-                        color: '#fff',
-                        border: 'none',
-                        padding: '0.75rem',
-                        borderRadius: '14px',
-                        fontWeight: '800',
-                        fontSize: '0.9rem',
+                        background: 'rgba(18, 24, 44, 0.82)',
+                        border: '1px solid rgba(255, 255, 255, 0.12)',
+                        borderRadius: '24px',
+                        padding: '1.6rem',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        textAlign: 'center',
+                        gap: '1rem',
                         cursor: 'pointer',
-                        boxShadow: '0 4px 15px rgba(0,0,0,0.2)',
-                        marginTop: '0.5rem'
+                        backdropFilter: 'blur(24px)',
+                        boxShadow: '0 12px 30px rgba(0,0,0,0.3)',
+                        transition: 'all 0.28s ease',
+                        position: 'relative'
+                      }}
+                      onMouseOver={(e) => {
+                        e.currentTarget.style.transform = 'translateY(-4px)';
+                        e.currentTarget.style.borderColor = activeRoleObj.color;
+                        e.currentTarget.style.boxShadow = `0 16px 35px ${activeRoleObj.glow}`;
+                      }}
+                      onMouseOut={(e) => {
+                        e.currentTarget.style.transform = 'none';
+                        e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.12)';
+                        e.currentTarget.style.boxShadow = '0 12px 30px rgba(0,0,0,0.3)';
                       }}
                     >
-                      {card.btnText}
-                    </button>
-                  </div>
-                ))}
-              </div>
+                      {/* Card Icon */}
+                      <div style={{ width: '64px', height: '64px', borderRadius: '20px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.14)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.4rem' }}>
+                        {card.icon}
+                      </div>
 
-              {/* Bottom Profile Questionnaire Card */}
-              <div style={{ background: 'rgba(18, 22, 38, 0.75)', border: '1px solid rgba(255, 255, 255, 0.14)', borderRadius: '24px', padding: '1.75rem 2rem', textAlign: 'center', backdropFilter: 'blur(24px)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem' }}>
-                <div style={{ fontSize: '2rem' }}>📋</div>
-                <h4 style={{ fontSize: '1.25rem', fontWeight: '800', color: '#fff', margin: 0 }}>Моя анкета</h4>
-                <p style={{ fontSize: '0.88rem', color: '#cbd5e1', margin: 0 }}>Заполните анкету: контакты, тип проекта, бюджет, техника и бригады</p>
-                <button 
-                  style={{ background: 'linear-gradient(90deg, #10b981, #059669)', color: '#fff', border: 'none', padding: '0.85rem 2rem', borderRadius: '14px', fontWeight: '800', fontSize: '0.92rem', cursor: 'pointer', boxShadow: '0 6px 20px rgba(16, 185, 129, 0.35)', marginTop: '0.5rem' }}
-                >
-                  📝 Заполнить
-                </button>
+                      {/* Card Text */}
+                      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                        <h4 style={{ fontSize: '1.25rem', fontWeight: '800', color: '#fff', margin: '0 0 0.45rem 0' }}>{card.title}</h4>
+                        <p style={{ fontSize: '0.85rem', color: '#cbd5e1', margin: 0, lineHeight: '1.45' }}>{card.desc}</p>
+                      </div>
+
+                      {/* Card Action Button */}
+                      <button 
+                        style={{
+                          width: '100%',
+                          background: card.btnGradient,
+                          color: '#fff',
+                          border: 'none',
+                          padding: '0.8rem',
+                          borderRadius: '14px',
+                          fontWeight: '800',
+                          fontSize: '0.92rem',
+                          cursor: 'pointer',
+                          boxShadow: '0 6px 18px rgba(0,0,0,0.25)',
+                          marginTop: '0.4rem',
+                          transition: 'all 0.2s ease'
+                        }}
+                      >
+                        {card.btnText}
+                      </button>
+                    </div>
+                  ))}
+                </div>
               </div>
 
             </div>
           )}
+
         </div>
       </main>
-          
-          </>
-        );
-      })()}
     </div>
   );
 }
