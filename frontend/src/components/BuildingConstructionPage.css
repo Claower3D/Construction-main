@@ -12,12 +12,12 @@
   position: fixed;
   top: 20px;
   right: 20px;
-  background: rgba(236, 72, 153, 0.95);
+  background: rgba(56, 189, 248, 0.95);
   color: #fff;
   padding: 1rem 1.5rem;
   border-radius: 14px;
   font-weight: 700;
-  box-shadow: 0 10px 30px rgba(236, 72, 153, 0.4);
+  box-shadow: 0 10px 30px rgba(56, 189, 248, 0.4);
   z-index: 10000;
   backdrop-filter: blur(12px);
 }
@@ -61,7 +61,7 @@
 
 .bc-header-icon {
   font-size: 1.5rem;
-  background: linear-gradient(135deg, #a855f7, #ec4899);
+  background: linear-gradient(135deg, #3b82f6, #38bdf8);
   width: 42px;
   height: 42px;
   border-radius: 12px;
@@ -95,7 +95,7 @@
 
 .bc-title-icon {
   font-size: 1.8rem;
-  background: #8b5cf6;
+  background: #2563eb;
   width: 46px;
   height: 46px;
   border-radius: 14px;
@@ -118,7 +118,7 @@
 }
 
 .bc-btn-create-glow {
-  background: linear-gradient(90deg, #a855f7, #ec4899);
+  background: linear-gradient(90deg, #3b82f6, #38bdf8);
   color: #fff;
   border: none;
   padding: 0.75rem 1.4rem;
@@ -126,13 +126,13 @@
   font-weight: 800;
   font-size: 0.92rem;
   cursor: pointer;
-  box-shadow: 0 4px 15px rgba(236, 72, 153, 0.4);
+  box-shadow: 0 4px 15px rgba(56, 189, 248, 0.4);
   transition: transform 0.2s ease;
 }
 
 .bc-btn-create-glow:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(236, 72, 153, 0.6);
+  box-shadow: 0 6px 20px rgba(56, 189, 248, 0.6);
 }
 
 /* Empty Card State matching user screenshot */
@@ -170,7 +170,7 @@
 }
 
 .bc-btn-empty-create {
-  background: linear-gradient(90deg, #a855f7, #ec4899);
+  background: linear-gradient(90deg, #3b82f6, #38bdf8);
   color: #fff;
   border: none;
   padding: 0.75rem 1.75rem;
@@ -178,13 +178,13 @@
   font-weight: 800;
   font-size: 0.92rem;
   cursor: pointer;
-  box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4);
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
   transition: transform 0.2s ease;
 }
 
 .bc-btn-empty-create:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(236, 72, 153, 0.6);
+  box-shadow: 0 6px 20px rgba(56, 189, 248, 0.6);
 }
 
 /* Active Objects Grid */
@@ -229,9 +229,9 @@
 }
 
 .bc-type-badge {
-  background: rgba(168, 85, 247, 0.15);
-  color: #c084fc;
-  border: 1px solid rgba(168, 85, 247, 0.3);
+  background: rgba(59, 130, 246, 0.15);
+  color: #93c5fd;
+  border: 1px solid rgba(59, 130, 246, 0.3);
   padding: 0.2rem 0.6rem;
   border-radius: 8px;
   font-weight: 700;
@@ -268,7 +268,7 @@
 }
 
 .bc-pro-val {
-  color: #ec4899;
+  color: #38bdf8;
   font-size: 1rem;
 }
 
@@ -282,7 +282,7 @@
 
 .bc-pro-bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, #a855f7, #ec4899);
+  background: linear-gradient(90deg, #3b82f6, #38bdf8);
   border-radius: 6px;
   transition: width 0.4s ease;
 }
@@ -326,7 +326,7 @@
 }
 
 .bc-ostat .val.pink {
-  color: #ec4899;
+  color: #38bdf8;
 }
 
 .bc-ostat .val.green {
@@ -341,7 +341,7 @@
 
 .bc-btn-manage {
   flex: 1;
-  background: linear-gradient(90deg, #8b5cf6, #a855f7);
+  background: linear-gradient(90deg, #2563eb, #3b82f6);
   color: #fff;
   border: none;
   padding: 0.75rem;
@@ -458,7 +458,7 @@
 }
 
 .bc-input:focus {
-  border-color: #ec4899;
+  border-color: #38bdf8;
 }
 
 .bc-m-actions {
@@ -480,7 +480,7 @@
 
 .bc-btn-save {
   flex: 1;
-  background: linear-gradient(90deg, #a855f7, #ec4899);
+  background: linear-gradient(90deg, #3b82f6, #38bdf8);
   color: #fff;
   border: none;
   padding: 0.8rem;

@@ -4,43 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"sync"
 	"time"
 
+	"qazgost-ai/backend/pkg/database"
 	"qazgost-ai/backend/pkg/models"
-)
-
-var (
-	financeMutex sync.RWMutex
-	userBalances = map[string]float64{
-		"u_admin_1":    2500000.0,
-		"u_customer_1": 1500000.0,
-		"u_eng_1":      480000.0,
-		"u_exec_1":     320000.0,
-	}
-	escrowLocks = map[string]float64{
-		"u_customer_1": 500000.0,
-	}
-	transactionsStore = []*models.Transaction{
-		{
-			ID:        "tx_01",
-			UserID:    "u_customer_1",
-			Amount:    500000.0,
-			Type:      "deposit",
-			Method:    "Freedom Pay / Kaspi",
-			Status:    "Успешно",
-			CreatedAt: time.Now().Add(-48 * time.Hour),
-		},
-		{
-			ID:        "tx_02",
-			UserID:    "u_customer_1",
-			Amount:    500000.0,
-			Type:      "escrow_lock",
-			Method:    "Гарантийный счет (Этап 1)",
-			Status:    "Заблокировано",
-			CreatedAt: time.Now().Add(-24 * time.Hour),
-		},
-	}
 )
 
 type FinanceHandler struct{}
@@ -49,7 +16,6 @@ func NewFinanceHandler() *FinanceHandler {
 	return &FinanceHandler{}
 }
 
-// GetBalance returns wallet balance & escrow status
 func (h *FinanceHandler) GetBalance(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	userID := r.URL.Query().Get("userId")
@@ -57,14 +23,7 @@ func (h *FinanceHandler) GetBalance(w http.ResponseWriter, r *http.Request) {
 		userID = "u_customer_1"
 	}
 
-	financeMutex.RLock()
-	bal, exists := userBalances[userID]
-	if !exists {
-		bal = 100000.0
-		userBalances[userID] = bal
-	}
-	locked := escrowLocks[userID]
-	financeMutex.RUnlock()
+	bal, locked := database.GetBalance(userID)
 
 	_ = json.NewEncoder(w).Encode(map[string]interface{}{
 		"userId":       userID,
@@ -75,7 +34,6 @@ func (h *FinanceHandler) GetBalance(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// Topup adds funds to the wallet
 func (h *FinanceHandler) Topup(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var req struct {
@@ -97,9 +55,8 @@ func (h *FinanceHandler) Topup(w http.ResponseWriter, r *http.Request) {
 		req.Method = "Freedom Pay"
 	}
 
-	financeMutex.Lock()
-	userBalances[req.UserID] += req.Amount
-	newBal := userBalances[req.UserID]
+	database.UpdateBalance(req.UserID, req.Amount)
+	newBal, _ := database.GetBalance(req.UserID)
 
 	tx := &models.Transaction{
 		ID:        fmt.Sprintf("tx_%d", time.Now().UnixNano()),
@@ -110,8 +67,7 @@ func (h *FinanceHandler) Topup(w http.ResponseWriter, r *http.Request) {
 		Status:    "Успешно",
 		CreatedAt: time.Now(),
 	}
-	transactionsStore = append([]*models.Transaction{tx}, transactionsStore...)
-	financeMutex.Unlock()
+	database.AddTransaction(tx)
 
 	_ = json.NewEncoder(w).Encode(map[string]interface{}{
 		"message":     "Баланс успешно пополнен",
@@ -120,7 +76,6 @@ func (h *FinanceHandler) Topup(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// LockEscrow locks milestone funds in Escrow
 func (h *FinanceHandler) LockEscrow(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var req struct {
@@ -140,11 +95,7 @@ func (h *FinanceHandler) LockEscrow(w http.ResponseWriter, r *http.Request) {
 		req.UserID = "u_customer_1"
 	}
 
-	financeMutex.Lock()
-	defer financeMutex.Unlock()
-
-	bal := userBalances[req.UserID]
-	locked := escrowLocks[req.UserID]
+	bal, locked := database.GetBalance(req.UserID)
 	available := bal - locked
 
 	if available < req.Amount {
@@ -153,7 +104,7 @@ func (h *FinanceHandler) LockEscrow(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	escrowLocks[req.UserID] += req.Amount
+	database.UpdateEscrow(req.UserID, req.Amount)
 
 	tx := &models.Transaction{
 		ID:        fmt.Sprintf("tx_%d", time.Now().UnixNano()),
@@ -164,16 +115,16 @@ func (h *FinanceHandler) LockEscrow(w http.ResponseWriter, r *http.Request) {
 		Status:    "Заблокировано",
 		CreatedAt: time.Now(),
 	}
-	transactionsStore = append([]*models.Transaction{tx}, transactionsStore...)
+	database.AddTransaction(tx)
 
+	_, newLocked := database.GetBalance(req.UserID)
 	_ = json.NewEncoder(w).Encode(map[string]interface{}{
 		"message":      "Средства успешно зарезервированы в эскроу",
-		"escrowLocked": escrowLocks[req.UserID],
+		"escrowLocked": newLocked,
 		"transaction":  tx,
 	})
 }
 
-// ReleaseEscrow releases locked milestone funds to contractor upon acceptance
 func (h *FinanceHandler) ReleaseEscrow(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var req struct {
@@ -196,16 +147,9 @@ func (h *FinanceHandler) ReleaseEscrow(w http.ResponseWriter, r *http.Request) {
 		req.ToUserID = "u_exec_1"
 	}
 
-	financeMutex.Lock()
-	defer financeMutex.Unlock()
-
-	userBalances[req.FromUserID] -= req.Amount
-	escrowLocks[req.FromUserID] -= req.Amount
-	if escrowLocks[req.FromUserID] < 0 {
-		escrowLocks[req.FromUserID] = 0
-	}
-
-	userBalances[req.ToUserID] += req.Amount
+	database.UpdateBalance(req.FromUserID, -req.Amount)
+	database.UpdateEscrow(req.FromUserID, -req.Amount)
+	database.UpdateBalance(req.ToUserID, req.Amount)
 
 	tx := &models.Transaction{
 		ID:        fmt.Sprintf("tx_%d", time.Now().UnixNano()),
@@ -216,7 +160,7 @@ func (h *FinanceHandler) ReleaseEscrow(w http.ResponseWriter, r *http.Request) {
 		Status:    "Выплачено",
 		CreatedAt: time.Now(),
 	}
-	transactionsStore = append([]*models.Transaction{tx}, transactionsStore...)
+	database.AddTransaction(tx)
 
 	_ = json.NewEncoder(w).Encode(map[string]interface{}{
 		"message":     "Выплата подрядчику успешно завершена",
@@ -224,14 +168,14 @@ func (h *FinanceHandler) ReleaseEscrow(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// GetTransactions returns financial ledger
 func (h *FinanceHandler) GetTransactions(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	financeMutex.RLock()
-	defer financeMutex.RUnlock()
-
+	txs, err := database.GetTransactions()
+	if err != nil {
+		txs = []*models.Transaction{}
+	}
 	_ = json.NewEncoder(w).Encode(map[string]interface{}{
-		"total": len(transactionsStore),
-		"items": transactionsStore,
+		"total": len(txs),
+		"items": txs,
 	})
 }

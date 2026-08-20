@@ -7,32 +7,13 @@ import (
 	"sync"
 	"time"
 
+	"qazgost-ai/backend/pkg/database"
 	"qazgost-ai/backend/pkg/models"
 )
 
 var (
 	chatMutex   sync.RWMutex
 	chatClients = make(map[chan *models.ChatMessage]bool)
-	chatStore   = []*models.ChatMessage{
-		{
-			ID:         "msg_01",
-			OrderID:    "101",
-			SenderID:   "u_customer_1",
-			SenderName: "Заказчик (ТОО Алатау)",
-			SenderRole: "customer",
-			Text:       "Здравствуйте! Заливка фундамента запланирована на четверг?",
-			CreatedAt:  time.Now().Add(-2 * time.Hour),
-		},
-		{
-			ID:         "msg_02",
-			OrderID:    "101",
-			SenderID:   "u_eng_1",
-			SenderName: "Инженер технадзора Куаныш",
-			SenderRole: "engineer",
-			Text:       "Добрый день! Армирование принято без замечаний. Бетононасос заказан на 09:30.",
-			CreatedAt:  time.Now().Add(-1 * time.Hour),
-		},
-	}
 )
 
 type ChatHandler struct{}
@@ -41,25 +22,18 @@ func NewChatHandler() *ChatHandler {
 	return &ChatHandler{}
 }
 
-// GetMessages returns chat history for a specific order or global
 func (h *ChatHandler) GetMessages(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	orderID := r.URL.Query().Get("orderId")
 
-	chatMutex.RLock()
-	defer chatMutex.RUnlock()
-
-	var result []*models.ChatMessage
-	for _, msg := range chatStore {
-		if orderID == "" || msg.OrderID == orderID {
-			result = append(result, msg)
-		}
+	msgs, err := database.GetChatMessages(orderID)
+	if err != nil {
+		msgs = []*models.ChatMessage{}
 	}
 
-	_ = json.NewEncoder(w).Encode(result)
+	_ = json.NewEncoder(w).Encode(msgs)
 }
 
-// SendMessage broadcasts a new message to all clients
 func (h *ChatHandler) SendMessage(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var req struct {
@@ -93,9 +67,9 @@ func (h *ChatHandler) SendMessage(w http.ResponseWriter, r *http.Request) {
 		CreatedAt:  time.Now(),
 	}
 
+	database.AddChatMessage(msg)
+
 	chatMutex.Lock()
-	chatStore = append(chatStore, msg)
-	// Broadcast to all active SSE streaming connections
 	for ch := range chatClients {
 		select {
 		case ch <- msg:
@@ -108,12 +82,10 @@ func (h *ChatHandler) SendMessage(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewEncoder(w).Encode(msg)
 }
 
-// StreamMessages provides real-time SSE (Server-Sent Events) streaming for chat
 func (h *ChatHandler) StreamMessages(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/event-stream")
 	w.Header().Set("Cache-Control", "no-cache")
 	w.Header().Set("Connection", "keep-alive")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
 
 	flusher, ok := w.(http.Flusher)
 	if !ok {

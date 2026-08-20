@@ -1,0 +1,82 @@
+// ============================================================
+// QAZGOST AI - ENGINEER DASHBOARD SCSS STYLES
+// ============================================================
+
+@use './mixins' as *;
+
+.engineer-dashboard-container {
+  background: $color-bg-base !important;
+  color: $text-primary !important;
+  font-family: $font-family-base !important;
+
+  .eng-kpi-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)) !important;
+    gap: 16px !important;
+    margin-bottom: 24px !important;
+
+    .eng-kpi-card {
+      @include glass-panel;
+      padding: 20px !important;
+
+      .eng-kpi-header {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        margin-bottom: 10px !important;
+
+        .eng-kpi-title {
+          font-size: 13px !important;
+          color: $text-secondary !important;
+          font-weight: 600 !important;
+        }
+
+        .eng-kpi-icon {
+          width: 34px !important;
+          height: 34px !important;
+          border-radius: $radius-sm !important;
+          background: rgba(37, 99, 235, 0.15) !important;
+          border: 1px solid rgba(59, 130, 246, 0.3) !important;
+          display: flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          font-size: 16px !important;
+        }
+      }
+
+      .eng-kpi-val {
+        font-size: 28px !important;
+        font-weight: 800 !important;
+        color: #ffffff !important;
+        letter-spacing: -0.02em !important;
+      }
+    }
+  }
+
+  // Sidebar & Navigation
+  .eng-sidebar {
+    background: rgba(11, 17, 30, 0.95) !important;
+    border-right: 1px solid $border-subtle !important;
+
+    .eng-nav-item {
+      color: $text-secondary !important;
+      font-weight: 600 !important;
+      font-size: 13.5px !important;
+      padding: 10px 16px !important;
+      border-radius: $radius-sm !important;
+      transition: all 0.15s ease !important;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.05) !important;
+        color: #ffffff !important;
+      }
+
+      &.active {
+        background: rgba(37, 99, 235, 0.18) !important;
+        border: 1px solid rgba(59, 130, 246, 0.4) !important;
+        color: #ffffff !important;
+        box-shadow: 0 0 15px rgba(37, 99, 235, 0.2) !important;
+      }
+    }
+  }
+}

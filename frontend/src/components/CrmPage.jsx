@@ -377,25 +377,25 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
               <span style={{ fontSize: '0.78rem', color: '#cbd5e1', fontWeight: 800, paddingLeft: '0.3rem' }}>📅</span>
               <button 
                 onClick={() => setSelectedPeriod('day')}
-                style={{ background: selectedPeriod === 'day' ? 'linear-gradient(90deg, #ec4899, #8b5cf6)' : 'transparent', border: 'none', color: '#fff', padding: '0.3rem 0.65rem', borderRadius: '8px', fontSize: '0.78rem', fontWeight: 800, cursor: 'pointer' }}
+                style={{ background: selectedPeriod === 'day' ? 'linear-gradient(90deg, #38bdf8, #2563eb)' : 'transparent', border: 'none', color: '#fff', padding: '0.3rem 0.65rem', borderRadius: '8px', fontSize: '0.78rem', fontWeight: 800, cursor: 'pointer' }}
               >
                 День
               </button>
               <button 
                 onClick={() => setSelectedPeriod('week')}
-                style={{ background: selectedPeriod === 'week' ? 'linear-gradient(90deg, #ec4899, #8b5cf6)' : 'transparent', border: 'none', color: '#fff', padding: '0.3rem 0.65rem', borderRadius: '8px', fontSize: '0.78rem', fontWeight: 800, cursor: 'pointer' }}
+                style={{ background: selectedPeriod === 'week' ? 'linear-gradient(90deg, #38bdf8, #2563eb)' : 'transparent', border: 'none', color: '#fff', padding: '0.3rem 0.65rem', borderRadius: '8px', fontSize: '0.78rem', fontWeight: 800, cursor: 'pointer' }}
               >
                 Неделя
               </button>
               <button 
                 onClick={() => setSelectedPeriod('month')}
-                style={{ background: selectedPeriod === 'month' ? 'linear-gradient(90deg, #ec4899, #8b5cf6)' : 'transparent', border: 'none', color: '#fff', padding: '0.3rem 0.65rem', borderRadius: '8px', fontSize: '0.78rem', fontWeight: 800, cursor: 'pointer' }}
+                style={{ background: selectedPeriod === 'month' ? 'linear-gradient(90deg, #38bdf8, #2563eb)' : 'transparent', border: 'none', color: '#fff', padding: '0.3rem 0.65rem', borderRadius: '8px', fontSize: '0.78rem', fontWeight: 800, cursor: 'pointer' }}
               >
                 Месяц
               </button>
               <button 
                 onClick={() => setSelectedPeriod('all')}
-                style={{ background: selectedPeriod === 'all' ? 'linear-gradient(90deg, #ec4899, #8b5cf6)' : 'transparent', border: 'none', color: '#fff', padding: '0.3rem 0.65rem', borderRadius: '8px', fontSize: '0.78rem', fontWeight: 800, cursor: 'pointer' }}
+                style={{ background: selectedPeriod === 'all' ? 'linear-gradient(90deg, #38bdf8, #2563eb)' : 'transparent', border: 'none', color: '#fff', padding: '0.3rem 0.65rem', borderRadius: '8px', fontSize: '0.78rem', fontWeight: 800, cursor: 'pointer' }}
               >
                 Всё время
               </button>
@@ -429,9 +429,9 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
               className="crm-desktop-only"
               onClick={() => setShowAnalytics(!showAnalytics)}
               style={{ 
-                background: showAnalytics ? 'rgba(168, 85, 247, 0.2)' : 'rgba(255,255,255,0.06)', 
-                border: showAnalytics ? '1px solid #a855f7' : '1px solid rgba(255,255,255,0.12)', 
-                color: showAnalytics ? '#c084fc' : '#fff', 
+                background: showAnalytics ? 'rgba(59, 130, 246, 0.2)' : 'rgba(255,255,255,0.06)', 
+                border: showAnalytics ? '1px solid #3b82f6' : '1px solid rgba(255,255,255,0.12)', 
+                color: showAnalytics ? '#93c5fd' : '#fff', 
                 padding: '0.45rem 0.85rem', 
                 borderRadius: '10px', 
                 fontWeight: 800, 
@@ -553,7 +553,7 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
                         {/* Top Row: ID & Type */}
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.74rem', color: '#cbd5e1', marginBottom: '0.65rem', fontWeight: 700 }}>
                           <span style={{ background: 'rgba(255,255,255,0.08)', padding: '0.2rem 0.6rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)' }}>#{card.id}</span>
-                          <span style={{ color: '#c084fc', fontWeight: 800 }}>{formatType(card.type)}</span>
+                          <span style={{ color: '#93c5fd', fontWeight: 800 }}>{formatType(card.type)}</span>
                         </div>
 
                         {/* Title */}
@@ -571,7 +571,7 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
                             <span>{card.time || '+7 (700) 000-00-00'}</span>
                           </div>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.78rem', color: '#cbd5e1' }}>
-                            <span style={{ color: '#c084fc' }}>👤</span> 
+                            <span style={{ color: '#93c5fd' }}>👤</span> 
                             <span>{card.contractor || 'Без подрядчика'}</span>
                           </div>
                         </div>
@@ -656,7 +656,7 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
               </div>
 
               {/* Primary KPI Card: Total Budget */}
-              <div style={{ background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.28), rgba(168, 85, 247, 0.28))', border: '1px solid rgba(168, 85, 247, 0.5)', borderRadius: '26px', padding: '2rem', boxShadow: '0 15px 40px rgba(0,0,0,0.4)' }}>
+              <div style={{ background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.28), rgba(59, 130, 246, 0.28))', border: '1px solid rgba(59, 130, 246, 0.5)', borderRadius: '26px', padding: '2rem', boxShadow: '0 15px 40px rgba(0,0,0,0.4)' }}>
                 <div style={{ fontSize: '1.05rem', color: '#cbd5e1', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '0.75rem' }}>
                   💰 Общий бюджет сделок в воронке
                 </div>
@@ -679,7 +679,7 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
 
                 <div style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '22px', padding: '1.35rem' }}>
                   <div style={{ fontSize: '0.88rem', color: '#cbd5e1', fontWeight: 700, marginBottom: '0.45rem' }}>⏱️ Средний цикл</div>
-                  <div style={{ fontSize: '1.85rem', fontWeight: 900, color: '#c084fc' }}>3.2 дня</div>
+                  <div style={{ fontSize: '1.85rem', fontWeight: 900, color: '#93c5fd' }}>3.2 дня</div>
                   <div style={{ fontSize: '0.82rem', color: '#34d399', marginTop: '0.35rem' }}>⚡ Быстрее на 0.8дн</div>
                 </div>
 
@@ -700,7 +700,7 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
               <div style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '24px', padding: '1.75rem' }}>
                 <div style={{ fontSize: '1.2rem', fontWeight: 900, color: '#fff', marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span>🥧 Распределение воронки продаж</span>
-                  <span style={{ fontSize: '0.92rem', color: '#c084fc', fontWeight: 800, background: 'rgba(192, 132, 252, 0.2)', padding: '0.35rem 1rem', borderRadius: '14px' }}>7 сделок</span>
+                  <span style={{ fontSize: '0.92rem', color: '#93c5fd', fontWeight: 800, background: 'rgba(192, 132, 252, 0.2)', padding: '0.35rem 1rem', borderRadius: '14px' }}>7 сделок</span>
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '2.5rem', marginBottom: '0.5rem' }}>
@@ -771,13 +771,13 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
 
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.6rem', flex: 1 }}>
                     <span style={{ fontSize: '0.92rem', color: '#cbd5e1', fontWeight: 800 }}>11.2M ₸</span>
-                    <div style={{ width: '100%', height: '115px', background: 'linear-gradient(180deg, #8b5cf6, #7c3aed)', borderRadius: '12px 12px 6px 6px' }} />
+                    <div style={{ width: '100%', height: '115px', background: 'linear-gradient(180deg, #2563eb, #1d4ed8)', borderRadius: '12px 12px 6px 6px' }} />
                     <span style={{ fontSize: '0.92rem', color: '#94a3b8', fontWeight: 700 }}>Июнь</span>
                   </div>
 
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.6rem', flex: 1 }}>
                     <span style={{ fontSize: '0.92rem', color: '#cbd5e1', fontWeight: 800 }}>12.6M ₸</span>
-                    <div style={{ width: '100%', height: '135px', background: 'linear-gradient(180deg, #ec4899, #db2777)', borderRadius: '12px 12px 6px 6px' }} />
+                    <div style={{ width: '100%', height: '135px', background: 'linear-gradient(180deg, #38bdf8, #db2777)', borderRadius: '12px 12px 6px 6px' }} />
                     <span style={{ fontSize: '0.92rem', color: '#94a3b8', fontWeight: 700 }}>Июль</span>
                   </div>
 
@@ -829,8 +829,8 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
               </div>
 
               {/* AI Assistant Smart Insight Card */}
-              <div style={{ background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.3), rgba(236, 72, 153, 0.3))', border: '1px solid rgba(168, 85, 247, 0.6)', borderRadius: '26px', padding: '1.6rem', boxShadow: '0 12px 35px rgba(0,0,0,0.35)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: '#c084fc', fontWeight: 900, fontSize: '1.15rem', marginBottom: '0.65rem' }}>
+              <div style={{ background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.3), rgba(56, 189, 248, 0.3))', border: '1px solid rgba(59, 130, 246, 0.6)', borderRadius: '26px', padding: '1.6rem', boxShadow: '0 12px 35px rgba(0,0,0,0.35)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: '#93c5fd', fontWeight: 900, fontSize: '1.15rem', marginBottom: '0.65rem' }}>
                   <span>✨ AI Smart Insight (ИИ Прогноз)</span>
                 </div>
                 <p style={{ margin: 0, fontSize: '1.02rem', color: '#e2e8f0', lineHeight: 1.6 }}>
@@ -872,14 +872,14 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
           margin: 0 1.5rem;
         }
         .crm-kanban-board-container::-webkit-scrollbar-thumb {
-          background: linear-gradient(90deg, #ec4899, #8b5cf6, #3b82f6);
+          background: linear-gradient(90deg, #38bdf8, #2563eb, #3b82f6);
           border-radius: 10px;
-          box-shadow: 0 0 12px rgba(139, 92, 246, 0.6);
+          box-shadow: 0 0 12px rgba(37, 99, 235, 0.6);
           cursor: pointer;
         }
         .crm-kanban-board-container::-webkit-scrollbar-thumb:hover {
-          background: linear-gradient(90deg, #f43f5e, #a855f7, #60a5fa);
-          box-shadow: 0 0 16px rgba(236, 72, 153, 0.8);
+          background: linear-gradient(90deg, #ef4444, #3b82f6, #60a5fa);
+          box-shadow: 0 0 16px rgba(56, 189, 248, 0.8);
         }
 
         /* Mobile Adaptation for CRM Manager - Extremely Compact */

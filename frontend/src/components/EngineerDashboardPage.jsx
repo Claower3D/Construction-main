@@ -974,7 +974,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
             <button 
               className="btn-sidebar-toggle" 
               onClick={() => setSelectedOrg(organizations[0])}
-              style={{ background: 'rgba(139, 92, 246, 0.25)', border: '1px solid #8b5cf6', color: '#fff', padding: '0.5rem 1rem', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+              style={{ background: 'rgba(37, 99, 235, 0.25)', border: '1px solid #2563eb', color: '#fff', padding: '0.5rem 1rem', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
             >
               <span>◀</span> Меню / Кабинет
             </button>
@@ -990,7 +990,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
           {/* Header Banner with Search & Actions */}
           <div style={{ background: 'rgba(18, 22, 38, 0.75)', border: '1px solid rgba(255, 255, 255, 0.16)', borderRadius: '28px', padding: '2.25rem 2.8rem', backdropFilter: 'blur(28px)', boxShadow: '0 20px 60px rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1.75rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1.6rem' }}>
-              <div style={{ width: '76px', height: '76px', borderRadius: '24px', background: 'radial-gradient(circle at center, rgba(139, 92, 246, 0.35) 0%, rgba(255,255,255,0.06) 100%)', border: '1px solid rgba(255,255,255,0.22)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '3rem', flexShrink: 0, boxShadow: '0 0 35px rgba(139, 92, 246, 0.45)' }}>
+              <div style={{ width: '76px', height: '76px', borderRadius: '24px', background: 'radial-gradient(circle at center, rgba(37, 99, 235, 0.35) 0%, rgba(255,255,255,0.06) 100%)', border: '1px solid rgba(255,255,255,0.22)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '3rem', flexShrink: 0, boxShadow: '0 0 35px rgba(37, 99, 235, 0.45)' }}>
                 🏢
               </div>
               <div>
@@ -1017,7 +1017,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
               <button 
                 onClick={() => setShowCreateOrgModal(true)}
                 style={{ 
-                  background: 'linear-gradient(90deg, #ec4899, #8b5cf6)', 
+                  background: 'linear-gradient(90deg, #38bdf8, #2563eb)', 
                   color: '#fff', 
                   border: 'none', 
                   padding: '0.95rem 1.8rem', 
@@ -1025,7 +1025,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                   fontWeight: '800', 
                   fontSize: '0.96rem', 
                   cursor: 'pointer',
-                  boxShadow: '0 8px 25px rgba(236, 72, 153, 0.45)',
+                  boxShadow: '0 8px 25px rgba(56, 189, 248, 0.45)',
                   whiteSpace: 'nowrap',
                   transition: 'all 0.25s ease'
                 }}
@@ -1043,7 +1043,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                 onClick={() => setSelectedOrg(org)}
                 style={{ 
                   background: 'rgba(18, 22, 38, 0.8)', 
-                  border: org.isDefault ? '1px solid rgba(139, 92, 246, 0.7)' : '1px solid rgba(255, 255, 255, 0.14)', 
+                  border: org.isDefault ? '1px solid rgba(37, 99, 235, 0.7)' : '1px solid rgba(255, 255, 255, 0.14)', 
                   borderRadius: '28px', 
                   padding: '2rem', 
                   display: 'flex', 
@@ -1052,13 +1052,13 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                   cursor: 'pointer',
                   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                   backdropFilter: 'blur(28px)',
-                  boxShadow: org.isDefault ? '0 20px 45px rgba(139, 92, 246, 0.3)' : '0 20px 45px rgba(0,0,0,0.4)',
+                  boxShadow: org.isDefault ? '0 20px 45px rgba(37, 99, 235, 0.3)' : '0 20px 45px rgba(0,0,0,0.4)',
                   position: 'relative',
                   overflow: 'hidden'
                 }}
               >
                 {org.isDefault && (
-                  <div style={{ position: 'absolute', top: 0, right: 0, background: 'linear-gradient(135deg, #8b5cf6, #ec4899)', color: '#fff', padding: '0.4rem 1.25rem', borderRadius: '0 0 0 20px', fontSize: '0.78rem', fontWeight: '900', boxShadow: '0 4px 15px rgba(139, 92, 246, 0.5)', letterSpacing: '0.6px' }}>
+                  <div style={{ position: 'absolute', top: 0, right: 0, background: 'linear-gradient(135deg, #2563eb, #38bdf8)', color: '#fff', padding: '0.4rem 1.25rem', borderRadius: '0 0 0 20px', fontSize: '0.78rem', fontWeight: '900', boxShadow: '0 4px 15px rgba(37, 99, 235, 0.5)', letterSpacing: '0.6px' }}>
                     ⭐ ОСНОВНАЯ
                   </div>
                 )}
@@ -1083,7 +1083,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                     <div style={{ fontSize: '0.74rem', color: '#cbd5e1', marginTop: '0.15rem' }}>Объекта</div>
                   </div>
                   <div style={{ textAlign: 'center' }}>
-                    <div style={{ fontSize: '1.3rem', fontWeight: '900', color: '#c084fc' }}>{org.estimatesCount}</div>
+                    <div style={{ fontSize: '1.3rem', fontWeight: '900', color: '#93c5fd' }}>{org.estimatesCount}</div>
                     <div style={{ fontSize: '0.74rem', color: '#cbd5e1', marginTop: '0.15rem' }}>Смет</div>
                   </div>
                   <div style={{ textAlign: 'center' }}>
@@ -1096,7 +1096,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '1.1rem' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.86rem' }}>
                     <span style={{ color: '#cbd5e1' }}>Ваша роль в компании:</span>
-                    <strong style={{ color: '#c084fc', background: 'rgba(192, 132, 252, 0.12)', padding: '0.2rem 0.65rem', borderRadius: '8px', border: '1px solid rgba(192, 132, 252, 0.25)' }}>{org.role}</strong>
+                    <strong style={{ color: '#93c5fd', background: 'rgba(192, 132, 252, 0.12)', padding: '0.2rem 0.65rem', borderRadius: '8px', border: '1px solid rgba(192, 132, 252, 0.25)' }}>{org.role}</strong>
                   </div>
                   
                   <button 
@@ -1106,7 +1106,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                     }}
                     style={{ 
                       width: '100%',
-                      background: 'linear-gradient(90deg, #6366f1, #8b5cf6)', 
+                      background: 'linear-gradient(90deg, #6366f1, #2563eb)', 
                       color: '#fff', 
                       border: 'none', 
                       padding: '0.9rem', 
@@ -1201,9 +1201,14 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
       <AnimatedBackground />
       {viewRole === 'engineer' && <OnboardingTour steps={currentTourSteps} tourKey={`engineer_${activeTab}`} />}
 
-      {/* LEFT SIDEBAR PANEL (Now full height) */}
-      {sidebarOpen && viewRole === 'engineer' && (
-        <aside className="engineer-sidebar" style={{ height: '100vh', zIndex: 10 }}>
+      {/* LEFT SIDEBAR PANEL (Only rendered when not embedded) */}
+      {!hideHeader && sidebarOpen && viewRole === 'engineer' && (
+        <>
+          <div 
+            className="engineer-sidebar-backdrop" 
+            onClick={() => setSidebarOpen(false)}
+          />
+          <aside className="engineer-sidebar" style={{ height: '100vh', zIndex: 10 }}>
           <div className="engineer-org-card" onClick={() => setSelectedOrg(null)} title="Кликните чтобы сменить организацию" style={{ cursor: 'pointer' }}>
             <div className="org-icon">{selectedOrg?.icon || '🏢'}</div>
             <div className="org-info">
@@ -1595,7 +1600,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                         <span>Активный проект</span>
                       </div>
                       <div className="legend-row-item">
-                        <span className="dot-indicator purple" />
+                        <span className="dot-indicator cyan" />
                         <span>Этап работ</span>
                       </div>
                       <div className="legend-row-item">
@@ -1626,7 +1631,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                 <h2 className="view-title">
                   <span className="icon-title">📦</span> Материалы и склад ({materialsList.length})
                 </h2>
-                <button className="btn-pink-action" onClick={() => alert('Форма добавления нового материала')}>
+                <button className="btn-primary-action" onClick={() => alert('Форма добавления нового материала')}>
                   + Добавить материал
                 </button>
               </div>
@@ -1676,14 +1681,14 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                 <div className="report-glass-card">
                   <h4 className="report-card-title">📄 Акт выполненных работ</h4>
                   <p className="report-card-desc">Форма для закрытия объекта с расчётами (КС-2)</p>
-                  <button className="btn-pink-action" onClick={() => alert('Формирование PDF Акта КС-2')}>
+                  <button className="btn-primary-action" onClick={() => alert('Формирование PDF Акта КС-2')}>
                     📄 Сформировать PDF
                   </button>
                 </div>
                 <div className="report-glass-card">
                   <h4 className="report-card-title">🖼️ Фотоотчёт для клиента</h4>
                   <p className="report-card-desc">До / Во время / После — автоматический PDF</p>
-                  <button className="btn-pink-action" onClick={() => alert('Сборка фотоотчета для заказчика')}>
+                  <button className="btn-primary-action" onClick={() => alert('Сборка фотоотчета для заказчика')}>
                     🖼️ Собрать фотоотчёт
                   </button>
                 </div>
@@ -1698,7 +1703,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                   <h4 className="report-card-title">📊 Выгрузка базы (Excel)</h4>
                   <p className="report-card-desc">Экспорт объектов и бригад в XLSX</p>
                   <div className="dual-btn-row">
-                    <button className="btn-pink-action" onClick={() => alert('Экспорт объектов в Excel')}>
+                    <button className="btn-primary-action" onClick={() => alert('Экспорт объектов в Excel')}>
                       🏗️ Объекты
                     </button>
                     <button className="btn-glass-dark" onClick={() => alert('Экспорт бригад в Excel')}>
@@ -1723,7 +1728,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                   <button className="btn-glass-dark" onClick={() => alert('Экспорт расходов в CSV')}>
                     📊 CSV
                   </button>
-                  <button className="btn-pink-action" onClick={() => alert('Форма добавления расхода')}>
+                  <button className="btn-primary-action" onClick={() => alert('Форма добавления расхода')}>
                     + Добавить расход
                   </button>
                 </div>
@@ -1827,7 +1832,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                 <h2 className="view-title">
                   <span className="icon-title">🤖</span> AI-просчёт объекта
                 </h2>
-                <button className="btn-pink-action" onClick={runAiPipeline}>
+                <button className="btn-primary-action" onClick={runAiPipeline}>
                   🚀 Запустить просчёт
                 </button>
               </div>
@@ -1878,7 +1883,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                 <h2 className="view-title">
                   <span className="icon-title">📐</span> Технические замеры ({measuresList.length})
                 </h2>
-                <button className="btn-pink-action" onClick={() => alert('Ввод новых замеров')}>
+                <button className="btn-primary-action" onClick={() => alert('Ввод новых замеров')}>
                   + Добавить замер
                 </button>
               </div>
@@ -1925,7 +1930,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                 </h2>
                 <div className="header-actions-right">
                   <button className="btn-glass-dark" onClick={() => alert('Экспорт сметы')}>📋 Экспорт СНИП</button>
-                  <button className="btn-pink-action" onClick={() => alert('Смета утверждена!')}>✅ Утвердить смету</button>
+                  <button className="btn-primary-action" onClick={() => alert('Смета утверждена!')}>✅ Утвердить смету</button>
                 </div>
               </div>
 
@@ -1969,7 +1974,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                 <h2 className="view-title">
                   <span className="icon-title">👤</span> Управление бригадами ({brigades.length})
                 </h2>
-                <button className="btn-pink-action" onClick={() => alert('Форма добавления новой бригады')}>
+                <button className="btn-primary-action" onClick={() => alert('Форма добавления новой бригады')}>
                   + Новая бригада
                 </button>
               </div>
@@ -2007,7 +2012,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
               </div>
 
               <div className="overview-stats-grid">
-                <div className="stat-card stat-purple">
+                <div className="stat-card stat-cyan">
                   <div className="stat-icon-box">📋</div>
                   <div className="stat-info"><h2>{requestsList.length}</h2><span>Новые заявки</span></div>
                 </div>
@@ -2117,7 +2122,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                       onChange={(e) => setObjectsSearch(e.target.value)}
                     />
                   </div>
-                  <button className="btn-pink-action" onClick={handleOpenCreateModal}>+ Новый объект</button>
+                  <button className="btn-primary-action" onClick={handleOpenCreateModal}>+ Новый объект</button>
                 </div>
               </div>
 
@@ -2164,7 +2169,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
             <div className="tab-view-container">
               <div className="view-header-bar">
                 <h2 className="view-title"><span className="icon-title">📸</span> Фото / Видео фиксация объекта</h2>
-                <button className="btn-pink-action" onClick={() => alert('Загрузка фото с камеры / галереи')}>
+                <button className="btn-primary-action" onClick={() => alert('Загрузка фото с камеры / галереи')}>
                   📷 Загрузить снимки
                 </button>
               </div>
@@ -2191,7 +2196,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                   ))}
                 </div>
 
-                <button className="btn-pink-action" style={{ marginTop: '1.25rem', width: '100%' }} onClick={() => alert('Фотоотчет собран и отправлен клиенту!')}>
+                <button className="btn-primary-action" style={{ marginTop: '1.25rem', width: '100%' }} onClick={() => alert('Фотоотчет собран и отправлен клиенту!')}>
                   📤 Отправить полный фотоотчёт клиенту
                 </button>
               </div>
@@ -2267,10 +2272,10 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                   borderRadius: '18px'
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '0.6rem' }}>
-                    <span style={{ color: '#ec4899', fontWeight: 800, fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                    <span style={{ color: '#38bdf8', fontWeight: 800, fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                       📋 Паспорт объекта
                     </span>
-                    <span style={{ fontSize: '0.75rem', background: 'rgba(236,72,153,0.15)', color: '#f472b6', padding: '0.15rem 0.5rem', borderRadius: '6px', fontWeight: 700 }}>
+                    <span style={{ fontSize: '0.75rem', background: 'rgba(236,72,153,0.15)', color: '#60a5fa', padding: '0.15rem 0.5rem', borderRadius: '6px', fontWeight: 700 }}>
                       {editingEvent ? 'РЕДАКТИРОВАНИЕ' : 'НОВЫЙ ОБЪЕКТ'}
                     </span>
                   </div>
@@ -2483,7 +2488,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                         style={{
                           flex: 1,
                           padding: '0.8rem 1.25rem',
-                          background: 'linear-gradient(90deg, #ec4899, #8b5cf6)',
+                          background: 'linear-gradient(90deg, #38bdf8, #2563eb)',
                           border: 'none',
                           borderRadius: '12px',
                           color: '#fff',
@@ -2494,7 +2499,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                           alignItems: 'center',
                           justifyContent: 'center',
                           gap: '0.5rem',
-                          boxShadow: '0 4px 18px rgba(236, 72, 153, 0.35)',
+                          boxShadow: '0 4px 18px rgba(56, 189, 248, 0.35)',
                           transition: 'all 0.2s ease'
                         }}
                       >
@@ -2543,10 +2548,10 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                       gap: '0.6rem',
                       alignItems: 'center',
                       marginBottom: '1rem',
-                      background: 'rgba(236, 72, 153, 0.1)',
+                      background: 'rgba(56, 189, 248, 0.1)',
                       padding: '0.85rem',
                       borderRadius: '14px',
-                      border: '1px solid rgba(236, 72, 153, 0.35)'
+                      border: '1px solid rgba(56, 189, 248, 0.35)'
                     }}>
                       <input
                         type="text"
@@ -3115,7 +3120,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                           setEvtTotalSum(45000 + basePrice + 50000);
                           setModalTab('estimate'); // redirect to estimate to show it!
                         }}
-                        style={{ background: 'linear-gradient(90deg, #8b5cf6, #ec4899)', color: '#fff', border: 'none', padding: '1rem', borderRadius: '12px', fontWeight: 900, fontSize: '1.1rem', cursor: 'pointer', boxShadow: '0 8px 25px rgba(236, 72, 153, 0.4)' }}
+                        style={{ background: 'linear-gradient(90deg, #2563eb, #38bdf8)', color: '#fff', border: 'none', padding: '1rem', borderRadius: '12px', fontWeight: 900, fontSize: '1.1rem', cursor: 'pointer', boxShadow: '0 8px 25px rgba(56, 189, 248, 0.4)' }}
                       >
                         🧠 Рассчитать смету через ИИ
                       </button>

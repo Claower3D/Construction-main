@@ -2799,3 +2799,161 @@ body.modal-open {
         grid-template-columns: 1fr !important;
     }
 }
+
+/* ═══════════════════════════════════════════════════════════
+   QAZGOST AI - CYBER-LUXURY GLASSMORPHIC CARDS UPGRADE
+   ═══════════════════════════════════════════════════════════ */
+
+/* 1. Hero Badge Glow */
+.hero-badge, .hero-pill-tag {
+    background: rgba(37, 99, 235, 0.12) !important;
+    border: 1px solid rgba(59, 130, 246, 0.4) !important;
+    box-shadow: 0 0 20px rgba(56, 189, 248, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+    color: #e0f2fe !important;
+    backdrop-filter: blur(12px) !important;
+    border-radius: 9999px !important;
+    padding: 8px 20px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.02em !important;
+}
+
+/* 2. Role Cards (Я Заказчик, Я Исполнитель, Я Инженер) */
+.role-card, .role-selection .role-card {
+    background: rgba(14, 22, 38, 0.75) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 20px !important;
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+    padding: 24px 20px !important;
+    cursor: pointer !important;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    position: relative !important;
+    overflow: hidden !important;
+}
+
+.role-card::before {
+    content: '' !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: -100% !important;
+    width: 200% !important;
+    height: 100% !important;
+    background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.08), transparent) !important;
+    transform: skewX(-20deg) !important;
+    transition: 0.6s !important;
+}
+
+.role-card:hover::before {
+    left: 100% !important;
+}
+
+.role-card:hover {
+    transform: translateY(-8px) scale(1.02) !important;
+    background: rgba(22, 34, 58, 0.85) !important;
+    border-color: rgba(56, 189, 248, 0.45) !important;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 25px rgba(37, 99, 235, 0.35) !important;
+}
+
+.role-card.active {
+    background: rgba(37, 99, 235, 0.22) !important;
+    border-color: rgba(59, 130, 246, 0.6) !important;
+    box-shadow: 0 0 30px rgba(37, 99, 235, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+}
+
+.role-card .role-card-icon {
+    font-size: 2.2rem !important;
+    margin-bottom: 12px !important;
+    filter: drop-shadow(0 4px 12px rgba(56, 189, 248, 0.35)) !important;
+    transition: transform 0.3s ease !important;
+}
+
+.role-card:hover .role-card-icon {
+    transform: scale(1.15) rotate(5deg) !important;
+}
+
+.role-card .role-card-title {
+    font-size: 1.25rem !important;
+    font-weight: 800 !important;
+    color: #ffffff !important;
+    margin-bottom: 6px !important;
+}
+
+.role-card .role-card-desc {
+    font-size: 0.88rem !important;
+    color: #94a3b8 !important;
+    line-height: 1.45 !important;
+}
+
+/* 3. Service Cards (Оценка стоимости, Проверка дефектов, Строительство) */
+.service-card, .role-visible .service-card {
+    background: rgba(14, 22, 38, 0.75) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 20px !important;
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+    padding: 26px !important;
+    cursor: pointer !important;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.service-card:hover {
+    transform: translateY(-8px) scale(1.02) !important;
+    background: rgba(22, 34, 58, 0.88) !important;
+    border-color: rgba(56, 189, 248, 0.45) !important;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(14, 165, 233, 0.3) !important;
+}
+
+.service-card .service-icon {
+    font-size: 2.2rem !important;
+    margin-bottom: 12px !important;
+    filter: drop-shadow(0 4px 12px rgba(56, 189, 248, 0.3)) !important;
+}
+
+.service-card h2 {
+    font-size: 1.3rem !important;
+    font-weight: 800 !important;
+    color: #ffffff !important;
+    margin-bottom: 8px !important;
+}
+
+.service-card p {
+    font-size: 0.9rem !important;
+    color: #94a3b8 !important;
+    line-height: 1.5 !important;
+    margin-bottom: 16px !important;
+}
+
+.service-card .service-btn {
+    border-radius: 12px !important;
+    font-weight: 700 !important;
+    font-size: 0.95rem !important;
+    padding: 10px 20px !important;
+    border: none !important;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35) !important;
+    transition: all 0.2s ease !important;
+}
+
+.service-card .service-btn:hover {
+    transform: translateY(-2px) scale(1.03) !important;
+    filter: brightness(1.15) !important;
+}
+
+/* 4. Stats Counter Cockpit */
+.stat-value {
+    font-family: 'JetBrains Mono', 'Plus Jakarta Sans', monospace !important;
+    font-size: 2.2rem !important;
+    font-weight: 900 !important;
+    color: #ffffff !important;
+    text-shadow: 0 0 20px rgba(56, 189, 248, 0.5) !important;
+    letter-spacing: -0.03em !important;
+}
+
+.stat-label {
+    font-size: 0.85rem !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.08em !important;
+    color: #94a3b8 !important;
+}

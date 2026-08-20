@@ -189,7 +189,7 @@
 }
 
 .uo-kpi-num.pink {
-  background: linear-gradient(90deg, #ec4899, #d946ef);
+  background: linear-gradient(90deg, #38bdf8, #0ea5e9);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -259,9 +259,9 @@
 }
 
 .uo-tab.active {
-  background: rgba(168, 85, 247, 0.3);
+  background: rgba(59, 130, 246, 0.3);
   color: #fff;
-  border: 1px solid rgba(168, 85, 247, 0.4);
+  border: 1px solid rgba(59, 130, 246, 0.4);
 }
 
 /* Search Input */
@@ -364,7 +364,7 @@
 .uo-amount {
   font-weight: 900;
   font-size: 1rem;
-  color: #ec4899;
+  color: #38bdf8;
 }
 
 .uo-status-pill {
@@ -406,8 +406,8 @@
 }
 
 .uo-btn-details:hover {
-  background: rgba(168, 85, 247, 0.25);
-  border-color: #a855f7;
+  background: rgba(59, 130, 246, 0.25);
+  border-color: #3b82f6;
 }
 
 .uo-empty-td {
@@ -463,8 +463,8 @@
 }
 
 .uo-m-badge {
-  background: rgba(168, 85, 247, 0.2);
-  border: 1px solid #a855f7;
+  background: rgba(59, 130, 246, 0.2);
+  border: 1px solid #3b82f6;
   color: #fff;
   font-size: 0.75rem;
   font-weight: 800;
@@ -503,7 +503,7 @@
 }
 
 .uo-m-row .val.highlight {
-  color: #ec4899;
+  color: #38bdf8;
   font-weight: 900;
   font-size: 1.1rem;
 }

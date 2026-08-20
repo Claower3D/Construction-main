@@ -714,24 +714,74 @@ export default function EquipmentMarketplace() {
               ) : (
                 <div className="em-grid">
                   {filteredEquipment.map((item) => (
-                    <div className="em-card" key={item.id}>
-                      <div className="em-card-image">
-                        <div className="em-card-icon-badge">
-                          {item.category === 'earth' && '🚜'}
-                          {item.category === 'lift' && '🏗️'}
-                          {item.category === 'loader' && '🚜'}
-                          {item.category === 'road' && '🛣️'}
-                          {item.category === 'concrete' && '🧱'}
-                          {item.category === 'transport' && '🚚'}
-                          {item.category === 'drill' && '⛑️'}
-                          {item.category === 'power' && '⚡'}
+                    <div className="em-card luxury-em-card" key={item.id}>
+                      <div className="em-card-image luxury-image-container">
+                        <div className="em-card-blueprint-grid"></div>
+                        <div className="em-brand-watermark">
+                          {item.category === 'earth' && 'HEAVY EXCAVATION CORP'}
+                          {item.category === 'lift' && 'CRANE SYSTEMS PRO'}
+                          {item.category === 'loader' && 'WHEEL & TELE LOADER'}
+                          {item.category === 'road' && 'ROADWAY ROADBUILDING'}
+                          {item.category === 'concrete' && 'CONCRETE PUMPING TECH'}
+                          {item.category === 'transport' && 'HEAVY TRANSPORT LOGISTICS'}
+                          {item.category === 'drill' && 'GEOTECH DRILLING RIG'}
+                          {item.category === 'power' && 'GENERATOR & POWER GRID'}
                         </div>
-                        {item.availableToday && <div className="em-badge success">⚡ Свободен сегодня</div>}
+                        
+                        <div className="em-card-main-visual">
+                          <div className="em-card-icon-halo">
+                            <span className="em-icon-symbol">
+                              {item.category === 'earth' && '🚜'}
+                              {item.category === 'lift' && '🏗️'}
+                              {item.category === 'loader' && '🚜'}
+                              {item.category === 'road' && '🛣️'}
+                              {item.category === 'concrete' && '🧱'}
+                              {item.category === 'transport' && '🚚'}
+                              {item.category === 'drill' && '⛑️'}
+                              {item.category === 'power' && '⚡'}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="em-telemetry-badge-top">
+                          {item.availableToday ? (
+                            <span className="em-status-pill available">
+                              <span className="pulse-green-dot"></span> Готов к выезду
+                            </span>
+                          ) : (
+                            <span className="em-status-pill busy">
+                              ● На объекте (с 18:00)
+                            </span>
+                          )}
+                          <span className="em-rating-badge">★ 4.95</span>
+                        </div>
                       </div>
                       
-                      <div className="em-card-content">
+                      <div className="em-card-content luxury-content">
+                        <div className="em-card-category-strip">
+                          <span className="em-cat-tag">
+                            {item.category === 'earth' && 'ЗЕМЛЕРОЙНАЯ ТЕХНИКА'}
+                            {item.category === 'lift' && 'ПОДЪЁМНАЯ ТЕХНИКА'}
+                            {item.category === 'loader' && 'ПОГРУЗОЧНАЯ ТЕХНИКА'}
+                            {item.category === 'road' && 'ДОРОЖНОЕ СТРОИТЕЛЬСТВО'}
+                            {item.category === 'concrete' && 'БЕТОННЫЕ РАБОТЫ'}
+                            {item.category === 'transport' && 'ТРАНСПОРТ И ЛОГИСТИКА'}
+                            {item.category === 'drill' && 'БУРОВЫЕ УСТАНОВКИ'}
+                            {item.category === 'power' && 'ЭНЕРГОСНАБЖЕНИЕ'}
+                          </span>
+                          <span className="em-gps-tag">🛰️ GPS Online</span>
+                        </div>
+
                         <h3 className="em-card-title">{item.title}</h3>
-                        <div className="em-card-price">₸ {item.price} <span>/ {item.unit}</span></div>
+                        
+                        <div className="em-price-cockpit">
+                          <div className="em-main-price">
+                            <span className="kzt-currency">₸</span>
+                            <span className="kzt-value">{item.price}</span>
+                            <span className="kzt-unit">/ {item.unit}</span>
+                          </div>
+                          <div className="em-escrow-guarantee">🛡️ Эскроу QazGost</div>
+                        </div>
                         
                         <div className="em-card-tags">
                           {item.tags.map((tag, tIndex) => (
@@ -743,18 +793,18 @@ export default function EquipmentMarketplace() {
 
                         <div className="em-card-actions">
                           <button 
-                            className="em-btn-primary"
+                            className="em-btn-primary luxury-book-btn"
                             onClick={() => {
                               setBookingItem(item);
                             }}
                           >
-                            Забронировать
+                            <span>⚡ Забронировать</span>
                           </button>
                           <button 
-                            className="em-btn-secondary"
-                            onClick={() => showToast('📩 Запрос владельцу отправлен!')}
+                            className="em-btn-secondary luxury-compare-btn"
+                            onClick={() => showToast(`⚖️ Модель "${item.title}" добавлена в сравнение`)}
                           >
-                            Сдаешь?
+                            ⚖️ Сравнить
                           </button>
                         </div>
                       </div>
@@ -1036,7 +1086,7 @@ export default function EquipmentMarketplace() {
           <div className="em-modal-box" onClick={e => e.stopPropagation()}>
             <button className="em-modal-close" onClick={() => setBookingItem(null)}>✕</button>
             <h2>🚜 Бронирование техники</h2>
-            <h4 style={{ color: '#c084fc', margin: '0.5rem 0 1rem 0' }}>{bookingItem.title}</h4>
+            <h4 style={{ color: '#93c5fd', margin: '0.5rem 0 1rem 0' }}>{bookingItem.title}</h4>
             <div style={{ background: 'rgba(255,255,255,0.05)', padding: '1rem', borderRadius: '12px', marginBottom: '1.5rem' }}>
               <div>Стоимость: <strong>₸ {bookingItem.price} / {bookingItem.unit}</strong></div>
               <div>Город: <strong>{bookingItem.tags.find(t => t.type === 'location')?.label}</strong></div>

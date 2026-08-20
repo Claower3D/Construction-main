@@ -697,10 +697,10 @@ body {
 
 /* AI Button */
 .btn-ai {
-  background: linear-gradient(135deg, #8b5cf6, #06b6d4);
+  background: linear-gradient(135deg, #2563eb, #06b6d4);
   color: white;
   border: none;
-  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.3);
+  box-shadow: 0 4px 16px rgba(37, 99, 235, 0.3);
   position: relative;
   overflow: hidden;
 }
@@ -732,7 +732,7 @@ body {
 
 .btn-ai:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(139, 92, 246, 0.4);
+  box-shadow: 0 8px 24px rgba(37, 99, 235, 0.4);
 }
 
 .btn-ai:active {
@@ -750,12 +750,12 @@ body {
 
 /* AI Card Styles */
 .ai-card {
-  background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(6, 182, 212, 0.1));
-  border: 1px solid rgba(139, 92, 246, 0.3);
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(6, 182, 212, 0.1));
+  border: 1px solid rgba(37, 99, 235, 0.3);
 }
 
 .ai-card:hover {
-  border-color: rgba(139, 92, 246, 0.5);
+  border-color: rgba(37, 99, 235, 0.5);
 }
 
 .ai-analyzer-embed {
@@ -1260,15 +1260,15 @@ body {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(139, 92, 246, 0.12), rgba(236, 72, 153, 0.08));
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.12), rgba(14, 165, 233, 0.08));
   opacity: 0;
   transition: opacity 0.25s ease;
   border-radius: inherit;
 }
 
 .header-wallet-btn:hover {
-  border-color: rgba(139, 92, 246, 0.3);
-  box-shadow: 0 0 20px rgba(139, 92, 246, 0.15);
+  border-color: rgba(37, 99, 235, 0.3);
+  box-shadow: 0 0 20px rgba(37, 99, 235, 0.15);
   transform: translateY(-1px);
 }
 
@@ -1285,7 +1285,7 @@ body {
 .header-wallet-amount {
   position: relative;
   z-index: 1;
-  background: linear-gradient(135deg, #a78bfa, #38bdf8);
+  background: linear-gradient(135deg, #60a5fa, #38bdf8);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -1329,7 +1329,7 @@ body {
 
 .wallet-spend-bar {
   flex: 1;
-  background: linear-gradient(180deg, var(--primary, #8b5cf6), rgba(139, 92, 246, 0.3));
+  background: linear-gradient(180deg, var(--primary, #2563eb), rgba(37, 99, 235, 0.3));
   border-radius: 3px 3px 0 0;
   transition: height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;

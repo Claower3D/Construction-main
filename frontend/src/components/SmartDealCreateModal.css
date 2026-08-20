@@ -67,23 +67,23 @@
 }
 
 .sd-progress-segment.active {
-  background: #8b5cf6; /* Purple active state */
+  background: #2563eb; /* Purple active state */
 }
 
 /* Step 1: Dropzone */
 .sd-dropzone {
-  border: 1px dashed rgba(139, 92, 246, 0.5);
+  border: 1px dashed rgba(37, 99, 235, 0.5);
   border-radius: 12px;
   padding: 3rem 1rem;
   text-align: center;
-  background: rgba(139, 92, 246, 0.05);
+  background: rgba(37, 99, 235, 0.05);
   cursor: pointer;
   margin-bottom: 1.5rem;
   transition: all 0.2s;
 }
 
 .sd-dropzone:hover {
-  background: rgba(139, 92, 246, 0.1);
+  background: rgba(37, 99, 235, 0.1);
 }
 
 .sd-dropzone-icon {
@@ -97,7 +97,7 @@
 }
 
 .sd-link {
-  color: #8b5cf6;
+  color: #2563eb;
   text-decoration: underline;
 }
 
@@ -154,7 +154,7 @@
 
 .sd-btn-dark-outline {
   background: rgba(255,255,255,0.05);
-  color: #a78bfa;
+  color: #60a5fa;
   border: 1px dashed rgba(167, 139, 250, 0.4);
   padding: 0.75rem 1rem;
   border-radius: 8px;
@@ -224,7 +224,7 @@
 }
 
 .sd-input:focus {
-  border-color: #8b5cf6;
+  border-color: #2563eb;
 }
 
 /* Step 3: Estimate Table */

@@ -207,7 +207,7 @@
 }
 
 .uw-btn-gold {
-  background: linear-gradient(90deg, #ec4899, #8b5cf6);
+  background: linear-gradient(90deg, #38bdf8, #2563eb);
   color: #fff;
   border: none;
   padding: 0.95rem;
@@ -216,12 +216,12 @@
   font-size: 0.95rem;
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 4px 18px rgba(236, 72, 153, 0.45);
+  box-shadow: 0 4px 18px rgba(56, 189, 248, 0.45);
 }
 
 .uw-btn-gold:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 22px rgba(236, 72, 153, 0.6);
+  box-shadow: 0 6px 22px rgba(56, 189, 248, 0.6);
 }
 
 .uw-btn-glass {
@@ -264,8 +264,8 @@
 
 .uw-stat-card:hover {
   transform: translateY(-4px) scale(1.02);
-  border-color: rgba(236, 72, 153, 0.6);
-  box-shadow: 0 12px 30px rgba(236, 72, 153, 0.3);
+  border-color: rgba(56, 189, 248, 0.6);
+  box-shadow: 0 12px 30px rgba(56, 189, 248, 0.3);
 }
 
 .uw-stat-label {
@@ -280,7 +280,7 @@
 }
 
 .uw-stat-value.success { color: #34d399; }
-.uw-stat-value.danger { color: #f43f5e; }
+.uw-stat-value.danger { color: #ef4444; }
 .uw-stat-value.primary { color: #60a5fa; }
 
 /* Tariffs Section */
@@ -319,15 +319,15 @@
 
 .uw-plan-card.popular {
   background: linear-gradient(180deg, rgba(59, 43, 114, 0.6) 0%, rgba(26, 27, 46, 0.8) 100%);
-  border: 2px solid #a855f7;
-  box-shadow: 0 10px 40px rgba(168, 85, 247, 0.2);
+  border: 2px solid #3b82f6;
+  box-shadow: 0 10px 40px rgba(59, 130, 246, 0.2);
 }
 
 .uw-popular-badge {
   position: absolute;
   top: -12px;
   right: 1.5rem;
-  background: #a855f7;
+  background: #3b82f6;
   color: #fff;
   font-size: 0.72rem;
   font-weight: 900;
@@ -358,7 +358,7 @@
 }
 
 .uw-plan-price.popular-color {
-  color: #c084fc;
+  color: #93c5fd;
 }
 
 .uw-plan-price.gold-text {
@@ -413,21 +413,21 @@
 }
 
 .popular-btn {
-  background: linear-gradient(90deg, #a855f7, #ec4899);
+  background: linear-gradient(90deg, #3b82f6, #38bdf8);
   border: none;
-  box-shadow: 0 6px 20px rgba(168, 85, 247, 0.4);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
 }
 
 .popular-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(236, 72, 153, 0.5);
+  box-shadow: 0 8px 25px rgba(56, 189, 248, 0.5);
 }
 
 .uw-need-more {
   display: block;
   text-align: center;
   font-size: 0.78rem;
-  color: #f43f5e;
+  color: #ef4444;
   margin-top: 0.5rem;
 }
 

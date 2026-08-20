@@ -54,7 +54,7 @@ export default function EngineeringSolutionsPage({ onBack, onOpenOrders, hideHea
         {
           id: 'kr',
           icon: '🏗️',
-          gradient: 'linear-gradient(135deg, #6366f1, #a855f7)',
+          gradient: 'linear-gradient(135deg, #6366f1, #3b82f6)',
           image: 'https://bfs-industries.com/wp-content/uploads/2025/11/Overview-of-Steel-Structures-and-Reinforced-Concrete-Systems.webp',
           title: 'Конструктивный раздел (КР)',
           desc: 'Расчёт и чертежи железобетонных и стальных конструкций',
@@ -98,7 +98,7 @@ export default function EngineeringSolutionsPage({ onBack, onOpenOrders, hideHea
         {
           id: 'ss',
           icon: '📡',
-          gradient: 'linear-gradient(135deg, #ec4899, #8b5cf6)',
+          gradient: 'linear-gradient(135deg, #38bdf8, #2563eb)',
           image: 'https://img.freepik.com/premium-photo/organized-chaos-colorful-network-cables-modern-data-center-server-room_875722-36441.jpg?w=2000',
           title: 'Слаботочные системы (СС/СКC)',
           desc: 'Проект СКС, видеонаблюдения и системы СКУД',
@@ -109,7 +109,7 @@ export default function EngineeringSolutionsPage({ onBack, onOpenOrders, hideHea
         {
           id: 'bim',
           icon: '🧊',
-          gradient: 'linear-gradient(135deg, #d946ef, #6366f1)',
+          gradient: 'linear-gradient(135deg, #0ea5e9, #6366f1)',
           image: 'https://img2.cgtrader.com/items/3951940/6e57d98099/commercial-building-revit-model-3d-model-dae-rfa.jpg',
           title: 'BIM-модель (Revit 3D)',
           desc: 'Информационная 3D-модель здания с проверкой коллизий',
@@ -176,7 +176,7 @@ export default function EngineeringSolutionsPage({ onBack, onOpenOrders, hideHea
         {
           id: 'author_supervision',
           icon: '✏️',
-          gradient: 'linear-gradient(135deg, #a855f7, #7e22ce)',
+          gradient: 'linear-gradient(135deg, #3b82f6, #7e22ce)',
           image: 'https://img.freepik.com/premium-photo/young-male-architect-yellow-helmet-holding-blueprint-construction-siteconstruction-concept_779834-5639.jpg?w=2000',
           title: 'Авторский надзор',
           desc: 'Контроль соответствия строительно-монтажных работ проекту',
@@ -204,7 +204,7 @@ export default function EngineeringSolutionsPage({ onBack, onOpenOrders, hideHea
         {
           id: 'ppr',
           icon: '🗺️',
-          gradient: 'linear-gradient(135deg, #4f46e5, #7c3aed)',
+          gradient: 'linear-gradient(135deg, #4f46e5, #1d4ed8)',
           image: 'https://images.highfile.com/wp-content/uploads/2024/10/Construction-Project-Schedule-Template-in-Excel-and-Google-Sheets.png?strip=all&lossy=1&quality=90&webp=90&sharp=1&ssl=1',
           title: 'ППР / ПОС',
           desc: 'Проект производства работ и стройгенплан площадки',
@@ -260,7 +260,7 @@ export default function EngineeringSolutionsPage({ onBack, onOpenOrders, hideHea
         {
           id: 'thermal_inspect',
           icon: '🌡️',
-          gradient: 'linear-gradient(135deg, #f43f5e, #be123c)',
+          gradient: 'linear-gradient(135deg, #ef4444, #be123c)',
           image: 'https://tekonlab.com/wp-content/uploads/2023/09/UNI-T-UTI260E-Construction-Thermal-Imager-%E2%80%93-Professional-Infrared-Thermal-Camera-for-Building-Inspection-1.jpg',
           title: 'Тепловизионное обследование',
           desc: 'Съемка профессиональным тепловизором Fluke',

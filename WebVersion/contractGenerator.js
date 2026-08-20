@@ -280,9 +280,18 @@
             status: 'draft'
         };
 
-        const contracts = JSON.parse(localStorage.getItem('contracts') || '[]');
+        let contracts = [];
+        try {
+            contracts = JSON.parse(localStorage.getItem('contracts') || '[]');
+        } catch {
+            contracts = [];
+        }
         contracts.push(contract);
-        localStorage.setItem('contracts', JSON.stringify(contracts));
+        try {
+            localStorage.setItem('contracts', JSON.stringify(contracts));
+        } catch (e) {
+            console.error('Failed to save contract:', e);
+        }
 
         console.log(`[Contract] ✅ Generated: ${data.contractNumber}`);
         return contract;
@@ -580,7 +589,11 @@
     // =============================================
 
     function getContracts() {
-        return JSON.parse(localStorage.getItem('contracts') || '[]');
+        try {
+            return JSON.parse(localStorage.getItem('contracts') || '[]');
+        } catch {
+            return [];
+        }
     }
 
     // =============================================

@@ -95,8 +95,8 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
 
     try {
       const activeCatObj = categories.find(c => c.id === selectedCategory) || categories[9];
-      setScanStep('🤖 Идет анализ данных через нейросеть...');
-      const res = await fetch('http://localhost:3001/api/v1/ai/estimate', {
+      setScanStepMessage ? setScanStepMessage('🤖 Идет анализ данных через нейросеть...') : setScanStep('🤖 Идет анализ данных через нейросеть...');
+      const res = await fetch('/api/v1/ai/estimate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

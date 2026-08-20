@@ -3,48 +3,9 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
-	"sync"
 
+	"qazgost-ai/backend/pkg/database"
 	"qazgost-ai/backend/pkg/models"
-)
-
-var (
-	engineersMutex sync.RWMutex
-	engineersStore = []*models.Engineer{
-		{
-			ID:             "eng_01",
-			Name:           "Куаныш Жумагулов",
-			Specialization: "Геология и основания (СП РК)",
-			City:           "Астана",
-			Experience:     "14 лет",
-			Rating:         4.95,
-			Certificate:    "ГСЛ №0049182 от 14.05.2018",
-			Status:         "Доступен",
-			ProjectsDone:   48,
-		},
-		{
-			ID:             "eng_02",
-			Name:           "Алексей Мельников",
-			Specialization: "Геодезия и 3D-сканирование",
-			City:           "Караганда",
-			Experience:     "11 лет",
-			Rating:         4.88,
-			Certificate:    "ГСЛ №0081290 от 22.09.2020",
-			Status:         "На выезде",
-			ProjectsDone:   36,
-		},
-		{
-			ID:             "eng_03",
-			Name:           "Данияр Айтжанов",
-			Specialization: "Испытание свай & CPT зондирование",
-			City:           "Алматы",
-			Experience:     "9 лет",
-			Rating:         4.92,
-			Certificate:    "ГСЛ №0093012 от 11.02.2021",
-			Status:         "Доступен",
-			ProjectsDone:   29,
-		},
-	}
 )
 
 type EngineersHandler struct{}
@@ -55,9 +16,11 @@ func NewEngineersHandler() *EngineersHandler {
 
 func (h *EngineersHandler) GetEngineers(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	engineersMutex.RLock()
-	defer engineersMutex.RUnlock()
-	_ = json.NewEncoder(w).Encode(engineersStore)
+	engineers, err := database.GetAllEngineers()
+	if err != nil {
+		engineers = []*models.Engineer{}
+	}
+	_ = json.NewEncoder(w).Encode(engineers)
 }
 
 func (h *EngineersHandler) AssignEngineer(w http.ResponseWriter, r *http.Request) {

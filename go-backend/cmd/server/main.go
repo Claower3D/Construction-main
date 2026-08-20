@@ -9,12 +9,30 @@ import (
 	"strings"
 
 	"qazgost-ai/backend/pkg/config"
+	"qazgost-ai/backend/pkg/database"
 	"qazgost-ai/backend/pkg/handlers"
 	"qazgost-ai/backend/pkg/middleware"
 )
 
 func main() {
 	cfg := config.LoadConfig()
+
+	// Initialize SQLite database
+	dbPath := os.Getenv("DB_PATH")
+	if dbPath == "" {
+		dbPath = "./data/qazgost.db"
+	}
+	_ = os.MkdirAll(filepath.Dir(dbPath), 0755)
+	if err := database.InitDB(dbPath); err != nil {
+		log.Fatalf("[FATAL] Database init failed: %v", err)
+	}
+	defer database.DB.Close()
+	auth := func(next http.HandlerFunc) http.HandlerFunc {
+		return middleware.AuthMiddleware(cfg.JwtSecret, next)
+	}
+	roleAdmin := func(next http.HandlerFunc) http.HandlerFunc {
+		return middleware.RoleMiddleware(cfg.JwtSecret, []string{"admin", "manager"}, next)
+	}
 
 	// Initialize handlers
 	healthHnd := handlers.NewHealthHandler()
@@ -29,26 +47,36 @@ func main() {
 	disputesHnd := handlers.NewDisputesHandler()
 	aiHnd := handlers.NewAiHandler(cfg)
 	exportHnd := handlers.NewExportHandler()
+	crmHnd := handlers.NewCRMHandler()
 
 	mux := http.NewServeMux()
 
-	// System & Health Endpoints
+	// ── PUBLIC ENDPOINTS (no auth required) ──
 	mux.HandleFunc("/health", healthHnd.HealthCheck)
 	mux.HandleFunc("/api", healthHnd.ApiStatus)
 	mux.HandleFunc("/api/csrf-token", healthHnd.GetCsrfToken)
-
-	// Auth Routes
 	mux.HandleFunc("/api/v1/auth/login", authHnd.Login)
 	mux.HandleFunc("/api/v1/auth/register", authHnd.Register)
-	mux.HandleFunc("/api/v1/auth/me", authHnd.GetMe)
+	mux.HandleFunc("/api/v1/auth/me", authHnd.GetMe) // self-validates token internally
 
-	// Orders Routes
+	// Prices catalog — public read access
+	mux.HandleFunc("/api/v1/prices", pricesHnd.GetPrices)
+	mux.HandleFunc("/api/v1/prices/stats", pricesHnd.GetStats)
+	mux.HandleFunc("/api/v1/prices/regions", pricesHnd.GetRegions)
+
+	// Equipment & Disputes — auth required
+	mux.HandleFunc("/api/v1/equipment", auth(equipmentHnd.GetEquipment))
+	mux.HandleFunc("/api/v1/disputes", auth(disputesHnd.GetDisputes))
+
+	// ── PROTECTED ENDPOINTS (auth required) ──
+
+	// Orders — auth required
 	mux.HandleFunc("/api/v1/orders", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:
-			ordersHnd.GetOrders(w, r)
+			auth(ordersHnd.GetOrders)(w, r)
 		case http.MethodPost:
-			ordersHnd.CreateOrder(w, r)
+			auth(ordersHnd.CreateOrder)(w, r)
 		default:
 			w.WriteHeader(http.StatusMethodNotAllowed)
 		}
@@ -56,56 +84,83 @@ func main() {
 	mux.HandleFunc("/api/v1/orders/", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodPut, http.MethodPatch:
-			ordersHnd.UpdateOrder(w, r)
+			auth(ordersHnd.UpdateOrder)(w, r)
 		case http.MethodDelete:
-			ordersHnd.DeleteOrder(w, r)
+			auth(ordersHnd.DeleteOrder)(w, r)
 		default:
 			w.WriteHeader(http.StatusMethodNotAllowed)
 		}
 	})
 
-	// AI & QTO Construction Routes
-	mux.HandleFunc("/api/v1/ai/estimate", aiHnd.EstimateCost)
-	mux.HandleFunc("/api/v1/ai/defect", aiHnd.InspectDefect)
+	// AI & QTO — auth required
+	mux.HandleFunc("/api/v1/ai/estimate", auth(aiHnd.EstimateCost))
+	mux.HandleFunc("/api/v1/ai/defect", auth(aiHnd.InspectDefect))
 
-	// Export Routes
-	mux.HandleFunc("/api/v1/export/estimate.csv", exportHnd.ExportEstimateCSV)
+	// Export — auth required
+	mux.HandleFunc("/api/v1/export/estimate.csv", auth(exportHnd.ExportEstimateCSV))
 
-	// Engineers Routes
-	mux.HandleFunc("/api/v1/engineers", engineersHnd.GetEngineers)
-	mux.HandleFunc("/api/v1/engineers/assign", engineersHnd.AssignEngineer)
+	// Engineers — auth required, assign = admin only
+	mux.HandleFunc("/api/v1/engineers", auth(engineersHnd.GetEngineers))
+	mux.HandleFunc("/api/v1/engineers/assign", roleAdmin(engineersHnd.AssignEngineer))
 
-	// Finance, Escrow & Wallet Routes
-	mux.HandleFunc("/api/v1/finance/balance", financeHnd.GetBalance)
-	mux.HandleFunc("/api/v1/finance/topup", financeHnd.Topup)
-	mux.HandleFunc("/api/v1/finance/escrow/lock", financeHnd.LockEscrow)
-	mux.HandleFunc("/api/v1/finance/escrow/release", financeHnd.ReleaseEscrow)
-	mux.HandleFunc("/api/v1/finance/transactions", financeHnd.GetTransactions)
+	// Finance — auth required
+	mux.HandleFunc("/api/v1/finance/balance", auth(financeHnd.GetBalance))
+	mux.HandleFunc("/api/v1/finance/topup", auth(financeHnd.Topup))
+	mux.HandleFunc("/api/v1/finance/escrow/lock", auth(financeHnd.LockEscrow))
+	mux.HandleFunc("/api/v1/finance/escrow/release", auth(financeHnd.ReleaseEscrow))
+	mux.HandleFunc("/api/v1/finance/transactions", auth(financeHnd.GetTransactions))
 
-	// Prices & GESN/SNiP 24k Catalog Routes
-	mux.HandleFunc("/api/v1/prices", pricesHnd.GetPrices)
-	mux.HandleFunc("/api/v1/prices/stats", pricesHnd.GetStats)
-	mux.HandleFunc("/api/v1/prices/regions", pricesHnd.GetRegions)
-
-	// Chat & Messaging Routes (REST + SSE Streaming)
+	// Chat — auth required
 	mux.HandleFunc("/api/v1/chat", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:
-			chatHnd.GetMessages(w, r)
+			auth(chatHnd.GetMessages)(w, r)
 		case http.MethodPost:
-			chatHnd.SendMessage(w, r)
+			auth(chatHnd.SendMessage)(w, r)
 		default:
 			w.WriteHeader(http.StatusMethodNotAllowed)
 		}
 	})
-	mux.HandleFunc("/api/v1/chat/stream", chatHnd.StreamMessages)
+	mux.HandleFunc("/api/v1/chat/stream", auth(chatHnd.StreamMessages))
 
-	// File Upload Routes
-	mux.HandleFunc("/api/v1/files/upload", filesHnd.UploadFile)
+	// File Upload — auth required
+	mux.HandleFunc("/api/v1/files/upload", auth(filesHnd.UploadFile))
 
-	// Equipment & Disputes Routes
-	mux.HandleFunc("/api/v1/equipment", equipmentHnd.GetEquipment)
-	mux.HandleFunc("/api/v1/disputes", disputesHnd.GetDisputes)
+	// ── CRM MODULE — auth required ──
+	mux.HandleFunc("/api/v1/crm/dashboard", auth(crmHnd.GetDashboard))
+
+	mux.HandleFunc("/api/v1/crm/companies", func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodGet:
+			auth(crmHnd.GetCompanies)(w, r)
+		case http.MethodPost:
+			auth(crmHnd.CreateCompany)(w, r)
+		default:
+			w.WriteHeader(http.StatusMethodNotAllowed)
+		}
+	})
+
+	mux.HandleFunc("/api/v1/crm/brigades", func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodGet:
+			auth(crmHnd.GetBrigades)(w, r)
+		case http.MethodPost:
+			auth(crmHnd.CreateBrigade)(w, r)
+		default:
+			w.WriteHeader(http.StatusMethodNotAllowed)
+		}
+	})
+
+	mux.HandleFunc("/api/v1/crm/clients", func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodGet:
+			auth(crmHnd.GetClients)(w, r)
+		case http.MethodPost:
+			auth(crmHnd.CreateClient)(w, r)
+		default:
+			w.WriteHeader(http.StatusMethodNotAllowed)
+		}
+	})
 
 	// Static Files (/uploads)
 	_ = os.MkdirAll(cfg.UploadDir, 0755)
@@ -130,27 +185,28 @@ func main() {
 		})
 	}
 
-	// Chain Middleware: Recovery -> Logger -> CORS
+	// Chain Middleware: Recovery -> Logger -> CORS (allowlist)
 	handler := middleware.RecoveryMiddleware(
 		middleware.LoggerMiddleware(
-			middleware.CorsMiddleware(mux),
+			middleware.CorsMiddleware(cfg.CorsOrigins)(mux),
 		),
 	)
 
 	banner := `
 ============================================================
-   ⚡ QAZGOST AI - Ultra-Fast Golang Engine 3.0.0
+   ⚡ QAZGOST AI - Ultra-Fast Golang Engine 3.1.0
 ============================================================
-   ► Status      : ONLINE & READY
+   ► Status      : ONLINE & SECURED
    ► Port        : %s
-   ► Mode        : High-Performance Concurrent Engine
+   ► Auth        : JWT HMAC-SHA256 + Password Hash
+   ► CORS        : Allowlist (no wildcard *)
+   ► RBAC        : AuthMiddleware on all sensitive routes
    ► Health Check: http://localhost:%s/health
    ► REST API    : http://localhost:%s/api/v1/auth/login
    ► PriceDB     : http://localhost:%s/api/v1/prices?q=бетон
-   ► QTO Estimator: http://localhost:%s/api/v1/ai/estimate
 ============================================================
 `
-	fmt.Printf(banner, cfg.Port, cfg.Port, cfg.Port, cfg.Port, cfg.Port)
+	fmt.Printf(banner, cfg.Port, cfg.Port, cfg.Port, cfg.Port)
 
 	addr := fmt.Sprintf(":%s", cfg.Port)
 	if err := http.ListenAndServe(addr, handler); err != nil {

@@ -1,0 +1,675 @@
+// ============================================================
+// QAZGOST AI - ADMIN DASHBOARD SCSS STYLES
+// Transforms table, action buttons, tabs, and filters to Executive level
+// ============================================================
+
+@use './mixins' as *;
+
+// 1. Modal & Inline Container
+.admin-modal-container, .admin-modal-inline {
+  background: $color-bg-base !important;
+  color: $text-primary !important;
+  font-family: $font-family-base !important;
+  border-radius: $radius-xl !important;
+  border: 1px solid $border-subtle !important;
+  box-shadow: $shadow-lg !important;
+  overflow: hidden !important;
+
+  .admin-header {
+    background: rgba(11, 18, 32, 0.85) !important;
+    backdrop-filter: $blur-glass !important;
+    border-bottom: 1px solid $border-subtle !important;
+    padding: 20px 28px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+
+    .admin-title-wrap {
+      display: flex !important;
+      align-items: center !important;
+      gap: 14px !important;
+
+      .admin-icon-box {
+        width: 42px !important;
+        height: 42px !important;
+        background: linear-gradient(135deg, rgba(37, 99, 235, 0.2), rgba(14, 165, 233, 0.2)) !important;
+        border: 1px solid $border-cyan !important;
+        border-radius: $radius-md !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 20px !important;
+        box-shadow: $shadow-glow-cyan !important;
+      }
+
+      .admin-title {
+        font-size: 20px !important;
+        font-weight: 800 !important;
+        letter-spacing: -0.02em !important;
+        color: #ffffff !important;
+      }
+
+      .admin-subtitle {
+        color: $text-muted !important;
+        font-size: 12.5px !important;
+        font-weight: 500 !important;
+      }
+    }
+
+    .admin-status-pill {
+      @include mono-badge(rgba(16, 185, 129, 0.15), #34d399, rgba(16, 185, 129, 0.4));
+      padding: 6px 14px !important;
+      font-size: 11.5px !important;
+      box-shadow: 0 0 15px rgba(16, 185, 129, 0.2) !important;
+    }
+  }
+
+  // 2. Navigation Tabs (Linear / Raycast Style)
+  .admin-tabs-row {
+    display: flex !important;
+    gap: 8px !important;
+    padding: 16px 28px !important;
+    background: rgba(8, 13, 24, 0.7) !important;
+    border-bottom: 1px solid $border-subtle !important;
+    overflow-x: auto !important;
+    @include custom-scroll;
+
+    .adm-tab-btn {
+      background: rgba(255, 255, 255, 0.03) !important;
+      border: 1px solid rgba(255, 255, 255, 0.06) !important;
+      color: $text-secondary !important;
+      font-family: $font-family-base !important;
+      font-weight: 600 !important;
+      font-size: 13px !important;
+      padding: 8px 16px !important;
+      border-radius: $radius-sm !important;
+      cursor: pointer !important;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 6px !important;
+      white-space: nowrap !important;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.07) !important;
+        color: #ffffff !important;
+        border-color: rgba(255, 255, 255, 0.15) !important;
+      }
+
+      &.active {
+        background: rgba(37, 99, 235, 0.18) !important;
+        border: 1px solid rgba(59, 130, 246, 0.45) !important;
+        color: #ffffff !important;
+        box-shadow: 0 0 18px rgba(37, 99, 235, 0.25) !important;
+      }
+    }
+  }
+
+  // 3. Toolbar: Search, Filters & Action Buttons
+  .prices-toolbar, .adm-toolbar {
+    padding: 20px 28px !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 14px !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+
+    // Filter Chips
+    .filter-chips-group {
+      display: flex !important;
+      gap: 6px !important;
+
+      .chip-btn {
+        background: rgba(15, 23, 42, 0.8) !important;
+        border: 1px solid $border-subtle !important;
+        color: $text-secondary !important;
+        font-size: 12.5px !important;
+        font-weight: 600 !important;
+        padding: 6px 14px !important;
+        border-radius: $radius-xs !important;
+        cursor: pointer !important;
+        transition: all 0.15s ease !important;
+
+        &:hover {
+          color: #ffffff !important;
+          border-color: rgba(255, 255, 255, 0.15) !important;
+        }
+
+        &.active {
+          background: rgba(56, 189, 248, 0.15) !important;
+          border-color: rgba(56, 189, 248, 0.4) !important;
+          color: #38bdf8 !important;
+        }
+      }
+    }
+
+    // Search Box
+    .adm-search-box {
+      flex: 1 !important;
+      min-width: 260px !important;
+      position: relative !important;
+
+      input {
+        width: 100% !important;
+        background: rgba(11, 17, 30, 0.9) !important;
+        border: 1px solid $border-subtle !important;
+        color: #ffffff !important;
+        font-family: $font-family-base !important;
+        font-size: 13.5px !important;
+        padding: 9px 14px 9px 36px !important;
+        border-radius: $radius-sm !important;
+        outline: none !important;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+
+        &:focus {
+          border-color: $border-cyan !important;
+          box-shadow: $shadow-glow-cyan !important;
+        }
+
+        &::placeholder {
+          color: $text-muted !important;
+        }
+      }
+    }
+
+    // Modern Executive Action Buttons
+    .adm-actions-group {
+      display: flex !important;
+      flex-wrap: wrap !important;
+      gap: 10px !important;
+
+      // Excel Export Single
+      .btn-export-single {
+        @include btn-style(
+          rgba(37, 99, 235, 0.12),
+          rgba(59, 130, 246, 0.35),
+          #93c5fd
+        );
+      }
+
+      // Excel Export All
+      .btn-export-all {
+        @include btn-style(
+          rgba(16, 185, 129, 0.12),
+          rgba(16, 185, 129, 0.35),
+          #6ee7b7
+        );
+      }
+
+      // Excel Import
+      .btn-import-excel {
+        @include btn-style(
+          rgba(14, 165, 233, 0.12),
+          rgba(14, 165, 233, 0.35),
+          #7dd3fc
+        );
+      }
+
+      // Reset Prices
+      .btn-reset-prices {
+        @include btn-style(
+          rgba(239, 68, 68, 0.10),
+          rgba(239, 68, 68, 0.30),
+          #fca5a5
+        );
+      }
+
+      // Add Position (Primary CTA)
+      .btn-add-position {
+        @include btn-style(
+          linear-gradient(135deg, #f59e0b, #d97706),
+          rgba(251, 191, 36, 0.5),
+          #ffffff,
+          $shadow-glow-amber
+        );
+        font-weight: 700 !important;
+      }
+    }
+  }
+
+  // 4. Data Table Styling (High Contrast & Zebra Dark)
+  .table-responsive-box {
+    padding: 0 28px 28px 28px !important;
+    overflow-x: auto !important;
+    @include custom-scroll;
+
+    table.adm-table, table.prices-table {
+      width: 100% !important;
+      border-collapse: separate !important;
+      border-spacing: 0 6px !important;
+
+      thead th {
+        background: transparent !important;
+        color: $text-muted !important;
+        font-family: $font-family-base !important;
+        font-size: 11.5px !important;
+        font-weight: 700 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.05em !important;
+        padding: 12px 16px !important;
+        text-align: left !important;
+        border-bottom: 1px solid $border-subtle !important;
+      }
+
+      tbody tr {
+        background: rgba(14, 22, 38, 0.5) !important;
+        transition: all 0.15s ease !important;
+
+        &:hover {
+          background: rgba(22, 34, 58, 0.8) !important;
+          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3) !important;
+          td {
+            border-color: rgba(59, 130, 246, 0.25) !important;
+          }
+        }
+
+        td {
+          padding: 14px 16px !important;
+          font-size: 13.5px !important;
+          color: $text-primary !important;
+          border-top: 1px solid rgba(255, 255, 255, 0.04) !important;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important;
+
+          &:first-child {
+            border-left: 1px solid rgba(255, 255, 255, 0.04) !important;
+            border-top-left-radius: $radius-sm !important;
+            border-bottom-left-radius: $radius-sm !important;
+          }
+
+          &:last-child {
+            border-right: 1px solid rgba(255, 255, 255, 0.04) !important;
+            border-top-right-radius: $radius-sm !important;
+            border-bottom-right-radius: $radius-sm !important;
+          }
+
+          // Code Column
+          &.col-code {
+            font-family: $font-family-mono !important;
+            font-weight: 700 !important;
+            color: #93c5fd !important;
+            font-size: 12.5px !important;
+          }
+
+          // Category Badge
+          .cat-badge {
+            @include mono-badge(rgba(37, 99, 235, 0.15), #93c5fd, rgba(59, 130, 246, 0.3));
+
+            &.mat {
+              background: rgba(16, 185, 129, 0.15) !important;
+              color: #6ee7b7 !important;
+              border-color: rgba(16, 185, 129, 0.3) !important;
+            }
+
+            &.tech {
+              background: rgba(245, 158, 11, 0.15) !important;
+              color: #fcd34d !important;
+              border-color: rgba(245, 158, 11, 0.3) !important;
+            }
+          }
+
+          // Price Column (High-Contrast Currency)
+          &.col-price {
+            font-family: $font-family-mono !important;
+            font-weight: 800 !important;
+            font-size: 14.5px !important;
+            color: #ffffff !important;
+          }
+
+          // Action Buttons (Edit / Delete)
+          .row-actions {
+            display: flex !important;
+            gap: 6px !important;
+
+            .action-btn {
+              width: 32px !important;
+              height: 32px !important;
+              border-radius: $radius-xs !important;
+              background: rgba(255, 255, 255, 0.05) !important;
+              border: 1px solid rgba(255, 255, 255, 0.08) !important;
+              color: $text-secondary !important;
+              cursor: pointer !important;
+              display: flex !important;
+              align-items: center !important;
+              justify-content: center !important;
+              transition: all 0.15s ease !important;
+
+              &:hover {
+                background: rgba(37, 99, 235, 0.2) !important;
+                border-color: $border-accent !important;
+                color: #ffffff !important;
+              }
+
+              &.btn-del:hover {
+                background: rgba(239, 68, 68, 0.2) !important;
+                border-color: rgba(239, 68, 68, 0.4) !important;
+                color: #f87171 !important;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // 5. REGIONAL KAZAKHSTAN GEO-MATRIX & BENTO CARDS STYLING
+  // ═══════════════════════════════════════════════════════════
+  .admin-regions-wrapper {
+    padding: 24px 28px !important;
+
+    // Top 4 Geo-KPI Bento Cards
+    .geo-metrics-grid {
+      display: grid !important;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)) !important;
+      gap: 16px !important;
+      margin-bottom: 24px !important;
+
+      .geo-kpi-card {
+        @include glass-panel($radius-lg);
+        padding: 20px !important;
+
+        .geo-kpi-top {
+          display: flex !important;
+          justify-content: space-between !important;
+          align-items: center !important;
+          margin-bottom: 10px !important;
+
+          .geo-kpi-badge {
+            @include mono-badge(rgba(37, 99, 235, 0.15), #93c5fd, rgba(59, 130, 246, 0.3));
+          }
+
+          .geo-kpi-icon {
+            font-size: 20px !important;
+          }
+        }
+
+        &.kpi-amber .geo-kpi-top .geo-kpi-badge {
+          background: rgba(245, 158, 11, 0.15) !important;
+          color: #fcd34d !important;
+          border-color: rgba(245, 158, 11, 0.35) !important;
+        }
+
+        &.kpi-emerald .geo-kpi-top .geo-kpi-badge {
+          background: rgba(16, 185, 129, 0.15) !important;
+          color: #6ee7b7 !important;
+          border-color: rgba(16, 185, 129, 0.35) !important;
+        }
+
+        .geo-kpi-val {
+          font-size: 22px !important;
+          font-weight: 800 !important;
+          color: #ffffff !important;
+          letter-spacing: -0.02em !important;
+          margin-bottom: 4px !important;
+        }
+
+        .geo-kpi-label {
+          font-size: 12.5px !important;
+          color: $text-secondary !important;
+        }
+      }
+    }
+
+    // Interactive Region Comparison Cockpit
+    .region-comparator-box {
+      background: rgba(11, 18, 32, 0.85) !important;
+      border: 1px solid rgba(59, 130, 246, 0.25) !important;
+      border-radius: $radius-lg !important;
+      padding: 20px 24px !important;
+      margin-bottom: 24px !important;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+
+      .comparator-header {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        margin-bottom: 16px !important;
+
+        .comp-title-group {
+          display: flex !important;
+          align-items: center !important;
+          gap: 8px !important;
+
+          .comp-title {
+            font-size: 16px !important;
+            font-weight: 700 !important;
+            color: #ffffff !important;
+          }
+        }
+
+        .comp-tag {
+          @include mono-badge(rgba(56, 189, 248, 0.12), #38bdf8, rgba(56, 189, 248, 0.3));
+        }
+      }
+
+      .comparator-controls-row {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        align-items: center !important;
+        gap: 16px !important;
+
+        .comp-select-group {
+          display: flex !important;
+          align-items: center !important;
+          gap: 8px !important;
+
+          label {
+            font-size: 13px !important;
+            color: $text-secondary !important;
+            font-weight: 600 !important;
+          }
+
+          select {
+            background: rgba(15, 23, 42, 0.9) !important;
+            border: 1px solid $border-subtle !important;
+            color: #ffffff !important;
+            font-size: 13px !important;
+            font-weight: 600 !important;
+            padding: 8px 14px !important;
+            border-radius: $radius-sm !important;
+            outline: none !important;
+            cursor: pointer !important;
+
+            &:focus {
+              border-color: $border-cyan !important;
+            }
+          }
+        }
+
+        .comp-vs-badge {
+          @include mono-badge(rgba(245, 158, 11, 0.15), #fbbf24, rgba(245, 158, 11, 0.4));
+          font-size: 12px !important;
+          padding: 6px 12px !important;
+        }
+
+        .comp-result-card {
+          flex: 1 !important;
+          min-width: 260px !important;
+          background: rgba(14, 22, 38, 0.9) !important;
+          border: 1px solid rgba(56, 189, 248, 0.3) !important;
+          border-radius: $radius-sm !important;
+          padding: 10px 16px !important;
+          display: flex !important;
+          flex-direction: column !important;
+          gap: 2px !important;
+
+          .comp-res-label {
+            font-size: 11.5px !important;
+            color: $text-muted !important;
+            font-weight: 600 !important;
+          }
+
+          .comp-res-val {
+            font-size: 14.5px !important;
+            font-weight: 800 !important;
+            color: #38bdf8 !important;
+            font-family: $font-family-mono !important;
+          }
+        }
+      }
+    }
+
+    // View Switcher Bar
+    .region-controls-bar {
+      display: flex !important;
+      justify-content: space-between !important;
+      align-items: center !important;
+      margin-bottom: 20px !important;
+
+      .view-toggle-pills {
+        display: flex !important;
+        background: rgba(11, 18, 32, 0.8) !important;
+        border: 1px solid $border-subtle !important;
+        border-radius: $radius-sm !important;
+        padding: 4px !important;
+        gap: 4px !important;
+
+        .view-pill {
+          background: transparent !important;
+          border: none !important;
+          color: $text-secondary !important;
+          font-size: 13px !important;
+          font-weight: 600 !important;
+          padding: 6px 14px !important;
+          border-radius: $radius-xs !important;
+          cursor: pointer !important;
+          transition: all 0.15s ease !important;
+
+          &.active {
+            background: rgba(37, 99, 235, 0.25) !important;
+            color: #ffffff !important;
+            border: 1px solid rgba(59, 130, 246, 0.4) !important;
+          }
+        }
+      }
+    }
+
+    // 1. Bento Regional Cards Grid
+    .region-cards-grid {
+      display: grid !important;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
+      gap: 18px !important;
+
+      .region-bento-card {
+        @include glass-panel($radius-lg);
+        padding: 22px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
+
+        .reg-card-top {
+          display: flex !important;
+          justify-content: space-between !important;
+          align-items: center !important;
+          margin-bottom: 12px !important;
+
+          .reg-code-box {
+            font-family: $font-family-mono !important;
+            font-size: 13px !important;
+            font-weight: 800 !important;
+            color: #93c5fd !important;
+            background: rgba(37, 99, 235, 0.15) !important;
+            border: 1px solid rgba(59, 130, 246, 0.35) !important;
+            padding: 3px 8px !important;
+            border-radius: $radius-xs !important;
+          }
+
+          .reg-coeff-badge {
+            font-family: $font-family-mono !important;
+            font-size: 14px !important;
+            font-weight: 800 !important;
+            padding: 3px 10px !important;
+            border-radius: $radius-xs !important;
+
+            &.base {
+              background: rgba(16, 185, 129, 0.15) !important;
+              color: #34d399 !important;
+              border: 1px solid rgba(16, 185, 129, 0.35) !important;
+            }
+
+            &.mid {
+              background: rgba(56, 189, 248, 0.15) !important;
+              color: #38bdf8 !important;
+              border: 1px solid rgba(56, 189, 248, 0.35) !important;
+            }
+
+            &.high {
+              background: rgba(245, 158, 11, 0.18) !important;
+              color: #fbbf24 !important;
+              border: 1px solid rgba(245, 158, 11, 0.4) !important;
+              box-shadow: 0 0 15px rgba(245, 158, 11, 0.2) !important;
+            }
+          }
+        }
+
+        .reg-name {
+          font-size: 16px !important;
+          font-weight: 700 !important;
+          color: #ffffff !important;
+          margin-bottom: 4px !important;
+        }
+
+        .reg-climate-tag {
+          font-size: 12px !important;
+          color: $text-muted !important;
+          margin-bottom: 14px !important;
+        }
+
+        .reg-metrics-list {
+          display: flex !important;
+          flex-direction: column !important;
+          gap: 6px !important;
+          margin-bottom: 14px !important;
+          font-size: 12.5px !important;
+
+          .reg-metric-row {
+            display: flex !important;
+            justify-content: space-between !important;
+            color: $text-secondary !important;
+          }
+        }
+
+        .reg-gauge-bar {
+          height: 5px !important;
+          background: rgba(255, 255, 255, 0.06) !important;
+          border-radius: $radius-pill !important;
+          overflow: hidden !important;
+          margin-bottom: 14px !important;
+
+          .fill {
+            height: 100% !important;
+            background: linear-gradient(90deg, #2563eb, #38bdf8) !important;
+            border-radius: $radius-pill !important;
+          }
+        }
+
+        .reg-card-footer {
+          display: flex !important;
+          justify-content: space-between !important;
+          align-items: center !important;
+
+          .reg-trend {
+            font-size: 11.5px !important;
+            font-weight: 600 !important;
+          }
+
+          .btn-edit-region {
+            @include btn-style(
+              rgba(255, 255, 255, 0.05),
+              rgba(255, 255, 255, 0.1),
+              #e2e8f0
+            );
+            font-size: 12px !important;
+            padding: 5px 12px !important;
+
+            &:hover {
+              background: rgba(37, 99, 235, 0.2) !important;
+              border-color: $border-accent !important;
+              color: #ffffff !important;
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import AnimatedBackground from './components/AnimatedBackground';
 import Header from './components/Header';
 import HeroSection from './components/HeroSection';
+import LiveAIScannerDemo from './components/LiveAIScannerDemo';
 import FeatureHighlights from './components/FeatureHighlights';
 import PriceCatalogSection from './components/PriceCatalogSection';
 import PlatformServicesSection from './components/PlatformServicesSection';
@@ -299,6 +300,7 @@ export default function App() {
           {currentView === 'landing' && (
             <>
               <HeroSection role={role} />
+              <LiveAIScannerDemo />
               <FeatureHighlights />
               <PriceCatalogSection onOpenCategory={navigateToCategory} />
               <PlatformServicesSection />

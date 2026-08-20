@@ -40,7 +40,7 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
           desc: 'Автоматические инструменты расчётов и AI',
           items: [
             { id: 'c-estimate', name: 'Оценка стоимости', icon: '📸', iconBg: '#f59e0b', desc: 'Быстрая оценка стоимости по фото за 2 секунды' },
-            { id: 'c-inspect', name: 'Проверка дефектов', icon: '🔍', iconBg: '#8b5cf6', desc: 'Детектоскопия трещин, брака и перепадов стен' },
+            { id: 'c-inspect', name: 'Проверка дефектов', icon: '🔍', iconBg: '#2563eb', desc: 'Детектоскопия трещин, брака и перепадов стен' },
             { id: 'c-volume', name: 'Расчёт объёмов', icon: '📏', iconBg: '#06b6d4', desc: 'Автоматический выбор площадей и материалов BOM' },
             { id: 'c-engineering', name: 'Инженерные решения', icon: '⚙️', iconBg: '#10b981', desc: 'Разработка технической документации и технадзор' },
           ],
@@ -53,7 +53,7 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
             { id: 'c-calendar', name: 'Календарь', icon: '📅', iconBg: '#ef4444', desc: 'График выполнения строительных работ по объекту' },
             { id: 'c-orders', name: 'Мои заказы', icon: '📬', iconBg: '#10b981', desc: 'Список активных и завершенных заявок' },
             { id: 'c-catalog', name: 'Каталог подрядчиков', icon: '📒', iconBg: '#f59e0b', desc: 'Реестр проверенных мастеров и ТОО по ИИН/БИН' },
-            { id: 'c-equipment', name: 'Техника / Маркетплейс', icon: '🚜', iconBg: '#8b5cf6', desc: 'Аренда спецтехники и закуп материалов' },
+            { id: 'c-equipment', name: 'Техника / Маркетплейс', icon: '🚜', iconBg: '#2563eb', desc: 'Аренда спецтехники и закуп материалов' },
             { id: 'c-wallet', name: 'Мой кошелёк', icon: '💳', iconBg: '#3b82f6', desc: 'Баланс, транзакции и эскроу-счета' },
           ],
         },
@@ -72,7 +72,7 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
     executor: {
       roleTitle: 'Исполнитель',
       roleIcon: '🔧',
-      roleColor: '#c084fc',
+      roleColor: '#93c5fd',
       categories: [
         {
           id: 'my-orders',
@@ -90,7 +90,7 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
           desc: 'Сметный калькулятор и экспертиза дефектов',
           items: [
             { id: 'e-estimate', name: 'Оценка стоимости', icon: '📸', iconBg: '#f59e0b', desc: 'Калькулятор сметных расходов' },
-            { id: 'e-inspect', name: 'Проверка дефектов', icon: '🔍', iconBg: '#8b5cf6', desc: 'Экспертная проверка состояния конструкций' },
+            { id: 'e-inspect', name: 'Проверка дефектов', icon: '🔍', iconBg: '#2563eb', desc: 'Экспертная проверка состояния конструкций' },
             { id: 'e-volume', name: 'Расчёт объёмов', icon: '📏', iconBg: '#06b6d4', desc: 'Расчет нормативного расхода материалов' },
             { id: 'e-engineering', name: 'Инженерные решения', icon: '⚙️', iconBg: '#10b981', desc: 'Техническая спецификация работ' },
           ],
@@ -101,7 +101,7 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
           desc: 'Анкета исполнителя, маркетплейс и фото-объёмы',
           items: [
             { id: 'e-catalog', name: 'Каталог подрядчиков', icon: '📒', iconBg: '#f59e0b', desc: 'Рейтинг и анкеты специалистов' },
-            { id: 'e-equipment', name: 'Техника / Маркетплейс', icon: '🚜', iconBg: '#8b5cf6', desc: 'Поиск спецтехники в аренду' },
+            { id: 'e-equipment', name: 'Техника / Маркетплейс', icon: '🚜', iconBg: '#2563eb', desc: 'Поиск спецтехники в аренду' },
             { id: 'e-wallet', name: 'Мой кошелёк', icon: '💳', iconBg: '#3b82f6', desc: 'Вывод средств и заработанный баланс' },
             { id: 'e-profile', name: 'Анкета исполнителя', icon: '📝', iconBg: '#06b6d4', desc: 'Профиль мастера, ИИН/БИН и квалификация' },
             { id: 'e-vip', name: 'Строительство зданий', icon: '🏗️', iconBg: '#f59e0b', isVip: true, desc: 'Генподрядные работы VIP уровня' },
@@ -132,7 +132,7 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
           desc: 'AI просчёт по СНиП и контролю расходов',
           items: [
             { id: 'ing-calendar', name: 'Календарь', icon: '📅', iconBg: '#10b981', desc: 'План инспекций и подписания актов' },
-            { id: 'ing-ai', name: 'AI-просчёт', icon: '🤖', iconBg: '#8b5cf6', desc: 'Автоматический анализ ГОСТ и СНиП РК' },
+            { id: 'ing-ai', name: 'AI-просчёт', icon: '🤖', iconBg: '#2563eb', desc: 'Автоматический анализ ГОСТ и СНиП РК' },
             { id: 'ing-expenses', name: 'Расходы', icon: '💰', iconBg: '#06b6d4', desc: 'Контроль сметных перерасходов и лимитов' },
           ],
         },
@@ -158,7 +158,7 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
           name: '📊 АНАЛИТИКА',
           desc: 'Статистика по объектам и заявкам',
           items: [
-            { id: 'comp-stats', name: 'Статистика', icon: '📈', iconBg: '#8b5cf6', desc: 'Сводные данные по эффективности компании' },
+            { id: 'comp-stats', name: 'Статистика', icon: '📈', iconBg: '#2563eb', desc: 'Сводные данные по эффективности компании' },
           ],
         },
       ],
@@ -176,7 +176,7 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
           items: [
             { id: 'adm-prices', name: 'Прайсы', icon: '💰', iconBg: '#f59e0b', desc: '12 764+ позиций ГЭСН/СНиП 2026' },
             { id: 'adm-moderation', name: 'Модерация', icon: '🛡️', iconBg: '#ef4444', desc: 'Очередь верификации компаний и заказов' },
-            { id: 'adm-regions', name: 'Регионы', icon: '🗺️', iconBg: '#8b5cf6', desc: 'Индексы цен по 17 областям Казахстана' },
+            { id: 'adm-regions', name: 'Регионы', icon: '🗺️', iconBg: '#2563eb', desc: 'Индексы цен по 17 областям Казахстана' },
           ],
         },
         {
@@ -187,7 +187,7 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
             { id: 'adm-audit', name: 'Журнал действий', icon: '📜', iconBg: '#3b82f6', desc: 'Логи операций пользователей и AI-вызовов' },
             { id: 'adm-kpi', name: 'KPI Dashboard', icon: '📊', iconBg: '#10b981', desc: 'Метрики эффективности платформы' },
             { id: 'adm-analytics', name: 'Аналитика', icon: '📈', iconBg: '#06b6d4', desc: 'Финансовые показатели и объёмы смет' },
-            { id: 'adm-roles', name: 'Роли', icon: '🎭', iconBg: '#ec4899', desc: 'Управление ролями и доступами' },
+            { id: 'adm-roles', name: 'Роли', icon: '🎭', iconBg: '#38bdf8', desc: 'Управление ролями и доступами' },
           ],
         },
         {
@@ -196,7 +196,7 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
           desc: 'Разрешение споров и ЭЦП договора РК',
           items: [
             { id: 'adm-disputes', name: 'Споры и арбитраж', icon: '⚖️', iconBg: '#f59e0b', desc: 'Разрешение конфликтов Заказчик/Исполнитель' },
-            { id: 'adm-contracts', name: 'Договоры', icon: '📄', iconBg: '#8b5cf6', desc: 'Реестр договоров подряда и ЭЦП E-Gov' },
+            { id: 'adm-contracts', name: 'Договоры', icon: '📄', iconBg: '#2563eb', desc: 'Реестр договоров подряда и ЭЦП E-Gov' },
           ],
         },
       ],
@@ -406,7 +406,7 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
                 <span style={{ fontSize: '1.2rem' }}>{activeRoleObj.icon}</span>
                 <span style={{ fontWeight: '800', color: '#fff', fontSize: '0.92rem' }}>{activeRoleObj.label}</span>
               </div>
-              <span style={{ color: '#ec4899', fontSize: '0.75rem', transform: isRoleDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>▼</span>
+              <span style={{ color: '#38bdf8', fontSize: '0.75rem', transform: isRoleDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>▼</span>
             </button>
 
             {isRoleDropdownOpen && (
@@ -612,7 +612,7 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
                 </div>
 
                 <h1 style={{ fontSize: '2.5rem', fontWeight: '900', color: '#fff', margin: '0 0 0.75rem 0', letterSpacing: '-0.5px' }}>
-                  Умная оценка <span style={{ background: 'linear-gradient(90deg, #ec4899, #8b5cf6, #38bdf8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>строительных работ</span>
+                  Умная оценка <span style={{ background: 'linear-gradient(90deg, #38bdf8, #2563eb, #38bdf8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>строительных работ</span>
                 </h1>
 
                 <p style={{ color: '#cbd5e1', fontSize: '1.05rem', margin: 0, maxWidth: '600px', lineHeight: '1.5' }}>
@@ -624,8 +624,8 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.25rem' }}>
                 {[
                   { id: 'customer', title: 'Я Заказчик', icon: '📋', desc: 'Создаю заказы, выбираю исполнителей, принимаю работу', color: '#10b981' },
-                  { id: 'executor', title: 'Я Исполнитель', icon: '🔧', desc: 'Ищу заказы, отправляю предложения, выполняю работы', color: '#ec4899' },
-                  { id: 'engineer', title: 'Я Инженер', icon: '👷', desc: 'Принимаю заявки, разрабатываю проектную документацию', color: '#8b5cf6' }
+                  { id: 'executor', title: 'Я Исполнитель', icon: '🔧', desc: 'Ищу заказы, отправляю предложения, выполняю работы', color: '#38bdf8' },
+                  { id: 'engineer', title: 'Я Инженер', icon: '👷', desc: 'Принимаю заявки, разрабатываю проектную документацию', color: '#2563eb' }
                 ].map(r => {
                   const isActive = selectedRole === r.id;
                   return (
@@ -673,9 +673,9 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
                   }}
                   style={{
                     background: selectedRole === 'engineer' 
-                      ? 'linear-gradient(90deg, #8b5cf6, #ec4899)' 
+                      ? 'linear-gradient(90deg, #2563eb, #38bdf8)' 
                       : selectedRole === 'executor' 
-                      ? 'linear-gradient(90deg, #ec4899, #f59e0b)' 
+                      ? 'linear-gradient(90deg, #38bdf8, #f59e0b)' 
                       : 'linear-gradient(90deg, #10b981, #06b6d4)',
                     color: '#fff',
                     border: 'none',
@@ -684,7 +684,7 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
                     fontWeight: '900',
                     fontSize: '1.15rem',
                     cursor: 'pointer',
-                    boxShadow: '0 10px 30px rgba(139, 92, 246, 0.45)',
+                    boxShadow: '0 10px 30px rgba(37, 99, 235, 0.45)',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '0.75rem',
@@ -699,11 +699,11 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
               {/* Metrics Pill Bar */}
               <div style={{ background: 'rgba(18, 22, 38, 0.6)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '20px', padding: '1.25rem 2rem', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', textAlign: 'center', backdropFilter: 'blur(20px)' }}>
                 <div>
-                  <div style={{ fontSize: '1.6rem', fontWeight: '900', color: '#c084fc' }}>10K+</div>
+                  <div style={{ fontSize: '1.6rem', fontWeight: '900', color: '#93c5fd' }}>10K+</div>
                   <div style={{ fontSize: '0.75rem', fontWeight: '800', color: '#cbd5e1', letterSpacing: '1px' }}>ПРОЕКТОВ</div>
                 </div>
                 <div>
-                  <div style={{ fontSize: '1.6rem', fontWeight: '900', color: '#ec4899' }}>98%</div>
+                  <div style={{ fontSize: '1.6rem', fontWeight: '900', color: '#38bdf8' }}>98%</div>
                   <div style={{ fontSize: '0.75rem', fontWeight: '800', color: '#cbd5e1', letterSpacing: '1px' }}>ТОЧНОСТЬ</div>
                 </div>
                 <div>
@@ -715,14 +715,14 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
               {/* Grid of Feature Cards */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '1.25rem' }}>
                 {[
-                  { id: 'c-estimate', title: 'Оценка стоимости', icon: '📊', desc: 'Загрузите фото → AI-анализ → смета за 2 сек... 3 сценария цены', btnText: '🚀 Начать оценку', btnGradient: 'linear-gradient(90deg, #ec4899, #8b5cf6)' },
+                  { id: 'c-estimate', title: 'Оценка стоимости', icon: '📊', desc: 'Загрузите фото → AI-анализ → смета за 2 сек... 3 сценария цены', btnText: '🚀 Начать оценку', btnGradient: 'linear-gradient(90deg, #38bdf8, #2563eb)' },
                   { id: 'c-inspect', title: 'Проверка дефектов', icon: '🔍', desc: 'Трещины, влага, плесень. AI-отчёт + план устранения', btnText: '🔍 Начать проверку', btnGradient: 'linear-gradient(90deg, #f59e0b, #ef4444)' },
-                  { id: 'c-engineering', title: 'Строительство зданий', icon: '🏗️', desc: 'ПСД, ВВР-документация, сметы полного цикла', btnText: '⭐ Открыть', btnGradient: 'linear-gradient(90deg, #6366f1, #8b5cf6)' },
-                  { id: 'c-solutions', title: 'Инженерные решения', icon: '⚙️', desc: 'Электрика, сантехника, HVAC, слаботочные системы', btnText: '⚡ Выбрать', btnGradient: 'linear-gradient(90deg, #ec4899, #c084fc)' },
+                  { id: 'c-engineering', title: 'Строительство зданий', icon: '🏗️', desc: 'ПСД, ВВР-документация, сметы полного цикла', btnText: '⭐ Открыть', btnGradient: 'linear-gradient(90deg, #6366f1, #2563eb)' },
+                  { id: 'c-solutions', title: 'Инженерные решения', icon: '⚙️', desc: 'Электрика, сантехника, HVAC, слаботочные системы', btnText: '⚡ Выбрать', btnGradient: 'linear-gradient(90deg, #38bdf8, #93c5fd)' },
                   { id: 'c-orders', title: 'Мои заказы', icon: '📬', desc: 'Просмотр заказов, откликов и статусов работ', btnText: '📗 Открыть заказы', btnGradient: 'linear-gradient(90deg, #10b981, #059669)' },
-                  { id: 'c-wallet', title: 'Мой кошелёк', icon: '💳', desc: 'Баланс, операции, подписки и пополнение счёта', btnText: '💳 Открыть кошелёк', btnGradient: 'linear-gradient(90deg, #8b5cf6, #f59e0b)' },
+                  { id: 'c-wallet', title: 'Мой кошелёк', icon: '💳', desc: 'Баланс, операции, подписки и пополнение счёта', btnText: '💳 Открыть кошелёк', btnGradient: 'linear-gradient(90deg, #2563eb, #f59e0b)' },
                   { id: 'c-equipment', title: 'Маркетплейс техники', icon: '🚜', desc: 'Аренда экскаваторов, кранов, самосвалов', btnText: '🚜 Открыть', btnGradient: 'linear-gradient(90deg, #3b82f6, #06b6d4)' },
-                  { id: 'c-soil', title: 'Фото-объёмы грунта', icon: '📐', desc: 'Объёмы выемки/насыпи по фото ДО/ПОСЛЕ', btnText: '📸 Рассчитать', btnGradient: 'linear-gradient(90deg, #8b5cf6, #ec4899)' }
+                  { id: 'c-soil', title: 'Фото-объёмы грунта', icon: '📐', desc: 'Объёмы выемки/насыпи по фото ДО/ПОСЛЕ', btnText: '📸 Рассчитать', btnGradient: 'linear-gradient(90deg, #2563eb, #38bdf8)' }
                 ].map(card => (
                   <div 
                     key={card.id}

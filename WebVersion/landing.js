@@ -799,798 +799,531 @@
     // Particles (Canvas)
     // ---------------------------
     function setupLandingParticles() {
-        const canvas = document.getElementById('landingParticles');
-        if (!canvas) return;
+    const canvas = document.getElementById('landingCanvas') || document.getElementById('bgCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let width = canvas.width = window.innerWidth;
+    let height = canvas.height = window.innerHeight;
 
-        const ctx = canvas.getContext('2d');
-        let w, h, dpr;
-        const particles = [];
-        const P = 65;
-
-        function resize() {
-            dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
-            w = canvas.parentElement?.clientWidth || window.innerWidth;
-            h = canvas.parentElement?.clientHeight || 600;
-            canvas.style.width = w + 'px';
-            canvas.style.height = h + 'px';
-            canvas.width = Math.floor(w * dpr);
-            canvas.height = Math.floor(h * dpr);
-            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        }
-
-        function rand(min, max) { return Math.random() * (max - min) + min; }
-
-        function initParticles() {
-            particles.length = 0;
-            for (let i = 0; i < P; i++) {
-                particles.push({
-                    x: rand(0, w),
-                    y: rand(0, h),
-                    vx: rand(-.18, .18),
-                    vy: rand(-.18, .18),
-                    r: rand(1.0, 2.6),
-                    a: rand(.12, .55)
-                });
-            }
-        }
-
-        function step() {
-            ctx.clearRect(0, 0, w, h);
-
-            for (const p of particles) {
-                p.x += p.vx;
-                p.y += p.vy;
-                if (p.x < -20) p.x = w + 20;
-                if (p.x > w + 20) p.x = -20;
-                if (p.y < -20) p.y = h + 20;
-                if (p.y > h + 20) p.y = -20;
-
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(255,255,255,${p.a})`;
-                ctx.fill();
-            }
-
-            // Lines between particles
-            for (let i = 0; i < particles.length; i++) {
-                for (let j = i + 1; j < particles.length; j++) {
-                    const a = particles[i], b = particles[j];
-                    const dx = a.x - b.x, dy = a.y - b.y;
-                    const dist = Math.sqrt(dx * dx + dy * dy);
-                    if (dist < 110) {
-                        const alpha = (1 - dist / 110) * .18;
-                        ctx.strokeStyle = `rgba(246,196,83,${alpha})`;
-                        ctx.lineWidth = 1;
-                        ctx.beginPath();
-                        ctx.moveTo(a.x, a.y);
-                        ctx.lineTo(b.x, b.y);
-                        ctx.stroke();
-                    }
-                }
-            }
-
-            requestAnimationFrame(step);
-        }
-
-        // Debounced resize to improve performance
-        let resizeTimer;
-        window.addEventListener('resize', () => {
-            clearTimeout(resizeTimer);
-            resizeTimer = setTimeout(() => {
-                resize();
-                initParticles();
-            }, 150);
-        });
-
-        resize();
-        initParticles();
-        step();
-    }
-
-    // ---------------------------
-    // Initialize Landing
-    // ---------------------------
-    function initLanding() {
-        updateLandingRoleUI();
-        setupLandingCTAs();
-        setupLandingRoleToggle();
-        setupLandingReveal();
-        setupLandingStats();
-        setupLandingParticles();
-
-        // Initialize enhanced toast container
-        initToastContainer();
-
-        // Initialize modal system
-        initModalSystem();
-
-        // Initialize engineering solutions catalog (if available)
-        if (window.EngineeringModels && typeof window.EngineeringModels.initSolutionsCatalog === 'function') {
-            window.EngineeringModels.initSolutionsCatalog();
-        }
-    }
-
-    // ---------------------------
-    // ENHANCED TOAST SYSTEM
-    // ---------------------------
-    function initToastContainer() {
-        if (!document.querySelector('.toast-container')) {
-            const container = document.createElement('div');
-            container.className = 'toast-container';
-            container.id = 'toastContainer';
-            document.body.appendChild(container);
-        }
-    }
-
-    /**
-     * Show enhanced toast notification
-     * @param {Object|string} options - Toast options or message string
-     * @param {string} options.message - Toast message
-     * @param {string} options.type - Toast type: 'success' | 'error' | 'info' | 'warning'
-     * @param {number} options.duration - Duration in ms (default: 4000)
-     * @param {boolean} options.closable - Show close button (default: true)
-     */
-    function showEnhancedToast(options) {
-        const config = typeof options === 'string'
-            ? { message: options, type: 'info' }
-            : { type: 'info', duration: 4000, closable: true, ...options };
-
-        const container = document.querySelector('.toast-container') || createToastContainer();
-
-        const icons = {
-            success: '✅',
-            error: '❌',
-            warning: '⚠️',
-            info: 'ℹ️'
-        };
-
-        const toast = document.createElement('div');
-        toast.className = `toast-item ${config.type}`;
-        toast.innerHTML = `
-            <span class="toast-icon">${icons[config.type] || icons.info}</span>
-            <span class="toast-message">${config.message}</span>
-            ${config.closable ? '<button class="toast-close" aria-label="Close">×</button>' : ''}
-        `;
-
-        container.appendChild(toast);
-
-        // Close button handler
-        const closeBtn = toast.querySelector('.toast-close');
-        if (closeBtn) {
-            closeBtn.onclick = () => dismissToast(toast);
-        }
-
-        // Auto-dismiss
-        if (config.duration > 0) {
-            setTimeout(() => dismissToast(toast), config.duration);
-        }
-
-        return toast;
-    }
-
-    function createToastContainer() {
-        const container = document.createElement('div');
-        container.className = 'toast-container';
-        document.body.appendChild(container);
-        return container;
-    }
-
-    function dismissToast(toast) {
-        if (!toast || toast._dismissing) return;
-        toast._dismissing = true;
-        toast.classList.add('closing');
-        setTimeout(() => {
-            toast.remove();
-        }, 250);
-    }
-
-    // ---------------------------
-    // MODAL SYSTEM
-    // ---------------------------
-    let activeModal = null;
-    let previousActiveElement = null;
-
-    function initModalSystem() {
-        // Create backdrop if not exists
-        if (!document.querySelector('.modal-backdrop')) {
-            const backdrop = document.createElement('div');
-            backdrop.className = 'modal-backdrop';
-            backdrop.id = 'modalBackdrop';
-            document.body.appendChild(backdrop);
-        }
-
-        // Global Escape key handler
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && activeModal && !activeModal.dataset.critical) {
-                closeModal();
-            }
-        });
-    }
-
-    /**
-     * Open a modal dialog
-     * @param {Object} options - Modal options
-     * @param {string} options.id - Unique modal ID
-     * @param {string} options.title - Modal title
-     * @param {string} options.content - Modal body HTML content
-     * @param {Array} options.buttons - Array of button configs [{text, type, onClick}]
-     * @param {boolean} options.closable - Show close button (default: true)
-     * @param {boolean} options.critical - If true, can't close by Esc/backdrop (default: false)
-     * @param {Function} options.onClose - Callback when modal closes
-     */
-    function openModal(options) {
-        const config = {
-            id: 'modal-' + Date.now(),
-            title: 'Modal',
-            content: '',
-            buttons: [],
-            closable: true,
-            critical: false,
-            onClose: null,
-            ...options
-        };
-
-        // Close existing modal first
-        if (activeModal) {
-            closeModal(true);
-        }
-
-        // Save previous focus
-        previousActiveElement = document.activeElement;
-
-        // Create modal
-        const modal = document.createElement('div');
-        modal.className = 'modal-glass';
-        modal.id = config.id;
-        modal.setAttribute('role', 'dialog');
-        modal.setAttribute('aria-modal', 'true');
-        modal.setAttribute('aria-labelledby', config.id + '-title');
-        if (config.critical) modal.dataset.critical = 'true';
-
-        // Build buttons HTML
-        const buttonsHtml = config.buttons.map((btn, idx) => `
-            <button class="landing-btn ${btn.type || 'ghost'}" data-btn-idx="${idx}">
-                <span class="btn-text">${btn.text}</span>
-            </button>
-        `).join('');
-
-        modal.innerHTML = `
-            <div class="modal-header">
-                <h2 class="modal-title" id="${config.id}-title">${config.title}</h2>
-                ${config.closable ? '<button class="modal-close" aria-label="Close modal">×</button>' : ''}
-            </div>
-            <div class="modal-body">${config.content}</div>
-            ${buttonsHtml ? `<div class="modal-footer">${buttonsHtml}</div>` : ''}
-            <span class="focus-trap-sentinel" tabindex="0"></span>
-        `;
-
-        document.body.appendChild(modal);
-        activeModal = modal;
-        activeModal._onClose = config.onClose;
-
-        // Show backdrop
-        const backdrop = document.querySelector('.modal-backdrop');
-        backdrop.classList.add('active');
-
-        // Backdrop click to close
-        if (!config.critical) {
-            backdrop.onclick = () => closeModal();
-        }
-
-        // Close button
-        const closeBtn = modal.querySelector('.modal-close');
-        if (closeBtn) {
-            closeBtn.onclick = () => closeModal();
-        }
-
-        // Button handlers
-        config.buttons.forEach((btn, idx) => {
-            const btnEl = modal.querySelector(`[data-btn-idx="${idx}"]`);
-            if (btnEl && btn.onClick) {
-                btnEl.onclick = () => btn.onClick(modal);
-            }
-        });
-
-        // Focus trap
-        setupFocusTrap(modal);
-
-        // Lock body scroll
-        lockBodyScroll();
-
-        // Animate in
-        requestAnimationFrame(() => {
-            modal.classList.add('active');
-        });
-
-        // Focus first focusable element
-        setTimeout(() => {
-            const focusable = modal.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
-            if (focusable) focusable.focus();
-        }, 100);
-
-        return modal;
-    }
-
-    function closeModal(immediate = false) {
-        if (!activeModal) return;
-
-        const modal = activeModal;
-        const backdrop = document.querySelector('.modal-backdrop');
-
-        if (modal._onClose) {
-            modal._onClose();
-        }
-
-        if (immediate) {
-            modal.remove();
-            backdrop.classList.remove('active');
-        } else {
-            modal.classList.remove('active');
-            modal.classList.add('closing');
-            backdrop.classList.remove('active');
-
-            setTimeout(() => {
-                modal.remove();
-            }, 250);
-        }
-
-        activeModal = null;
-        unlockBodyScroll();
-
-        // Restore focus
-        if (previousActiveElement) {
-            previousActiveElement.focus();
-            previousActiveElement = null;
-        }
-    }
-
-    function setupFocusTrap(modal) {
-        const sentinel = modal.querySelector('.focus-trap-sentinel');
-        if (sentinel) {
-            sentinel.onfocus = () => {
-                const focusable = modal.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
-                if (focusable) focusable.focus();
-            };
-        }
-    }
-
-    function lockBodyScroll() {
-        const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-        document.documentElement.style.setProperty('--scrollbar-width', scrollbarWidth + 'px');
-        document.body.classList.add('modal-open');
-    }
-
-    function unlockBodyScroll() {
-        document.body.classList.remove('modal-open');
-        document.documentElement.style.removeProperty('--scrollbar-width');
-    }
-
-    /**
-     * Shake the modal to indicate an error
-     */
-    function shakeModal() {
-        if (!activeModal) return;
-        activeModal.classList.add('shake');
-        setTimeout(() => {
-            activeModal.classList.remove('shake');
-        }, 400);
-    }
-
-    /**
-     * Shake an input field to indicate validation error
-     */
-    function shakeInput(input) {
-        if (!input) return;
-        input.classList.add('input-error');
-        setTimeout(() => {
-            input.classList.remove('input-error');
-        }, 300);
-    }
-
-    /**
-     * Add loading state to a button
-     */
-    function setButtonLoading(btn, loading = true) {
-        if (!btn) return;
-        if (loading) {
-            btn.classList.add('btn-loading');
-            btn.disabled = true;
-        } else {
-            btn.classList.remove('btn-loading');
-            btn.disabled = false;
-        }
-    }
-
-    // Запуск при загрузке DOM или сразу если DOM уже загружен
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initLanding);
-    } else {
-        // DOM уже загружен
-        setTimeout(initLanding, 0);
-    }
-
-    // Экспортируем функции для использования в приложении
-    window.updateLandingRoleUI = updateLandingRoleUI;
-    window.showEnhancedToast = showEnhancedToast;
-    window.openModal = openModal;
-    window.closeModal = closeModal;
-    window.shakeModal = shakeModal;
-    window.shakeInput = shakeInput;
-    window.setButtonLoading = setButtonLoading;
-
-    // Глобальная функция для проверки авторизации и перехода на страницу
-    window.requireAuthAndNavigate = function (page) {
-        if (isUserLoggedIn()) {
-            window.showPage && window.showPage(page);
-        } else {
-            showAuthScreen();
-        }
+    let mouse = {
+        x: width * 0.5,
+        y: height * 0.45,
+        targetX: width * 0.5,
+        targetY: height * 0.45,
+        isHovered: false,
+        shockwaves: []
     };
 
-    // ═══════════════════════════════════════════════════
-    // PUBLIC PRICE CATALOG MODULE (SLIDE-BASED)
-    // ═══════════════════════════════════════════════════
-    const LandingPrices = (function () {
-        let _activeGroup = null;
-        let _searchQuery = '';
-        let _groupSearchQuery = '';
-        let _page = 1;
-        let _searchTimer = null;
-        const PAGE_SIZE = 40;
+    window.addEventListener('mousemove', (e) => {
+        mouse.targetX = e.clientX;
+        mouse.targetY = e.clientY;
+        mouse.isHovered = true;
+    });
 
-        function getRegistry() {
-            return window.WorkRegistry || null;
-        }
+    window.addEventListener('mousedown', (e) => {
+        mouse.shockwaves.push({
+            x: e.clientX,
+            y: e.clientY,
+            radius: 8,
+            alpha: 0.85,
+            speed: 7.0
+        });
+        if (window.sfx) window.sfx.playRadar();
+    });
 
-        function init() {
-            const reg = getRegistry();
-            if (!reg) return;
+    window.addEventListener('resize', () => {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+    });
 
-            const stats = reg.getStats();
+    let tick = 0;
 
-            // Обновляем счётчик работ на титульном листе
-            const el = document.getElementById('priceTotalCount');
-            if (el) el.textContent = stats.works.toLocaleString('ru-RU');
+    const count = Math.min(Math.floor((width * height) / 3200), 380);
+    const particles = [];
+    const colorPalette = ['#38bdf8', '#60a5fa', '#34d399', '#fbbf24', '#f59e0b', '#a855f7', '#ffffff'];
 
-            // Обновляем счётчик категорий
-            const catEl = document.getElementById('priceCatCount');
-            if (catEl) catEl.textContent = stats.categories;
+    for (let i = 0; i < count; i++) {
+        particles.push({
+            x: Math.random() * width,
+            y: Math.random() * height,
+            vx: (Math.random() - 0.5) * 0.5,
+            vy: (Math.random() - 0.5) * 0.5,
+            radius: Math.random() * 2.0 + 1.0,
+            color: colorPalette[i % colorPalette.length],
+            pulseVal: Math.random() * Math.PI * 2,
+            pulseSpeed: 0.02 + Math.random() * 0.02
+        });
+    }
 
-            // Обновляем также текст в сервисной карточке каталога цен
-            const svcPricesP = document.querySelector('.svc-prices p');
-            if (svcPricesP && stats.works > 0) {
-                svcPricesP.textContent = `${stats.works.toLocaleString('ru-RU')}+ работ в ${stats.categories} категориях. Актуальные цены Казахстана 2026 года с поиском.`;
-            }
-
-            renderCategoryGrid();
-            console.log(`[LandingPrices] Initialized: ${stats.works} работ, ${stats.categories} категорий`);
-        }
-
-        // ─── Slide 1: Category Grid ───
-        function renderCategoryGrid() {
-            const container = document.getElementById('landingPricesCatGrid');
-            if (!container) return;
-            const reg = getRegistry();
-            if (!reg) {
-                container.innerHTML = '<div class="price-loading">Загрузка каталога...</div>';
-                return;
-            }
-
-            const cats = reg.getCategories();
-            if (!cats.length) {
-                container.innerHTML = '<div class="price-loading">Каталог пуст</div>';
-                return;
-            }
-
-            container.innerHTML = cats.map(cat => {
-                const colorRaw = cat.color || '#8b5cf6';
-                return `
-                    <div class="prices-category-card"
-                         style="--cat-color: ${colorRaw}22; --cat-color-border: ${colorRaw}44"
-                         onclick="LandingPrices.selectCategory('${cat.key}')"
-                         id="lpCat_${cat.key}">
-                        <span class="prices-cat-icon">${cat.icon}</span>
-                        <div class="prices-cat-name">${escapeHtml(cat.name)}</div>
-                        <div class="prices-cat-count"><b>${cat.workCount}</b> работ</div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        // ─── Select category (slide to works) ───
-        function selectCategory(groupKey) {
-            _activeGroup = groupKey;
-            _searchQuery = '';
-            _groupSearchQuery = '';
-            _page = 1;
-
-            const reg = getRegistry();
-            if (!reg) return;
-
-            const cats = reg.getCategories();
-            const cat = cats.find(c => c.key === groupKey);
-
-            // Update works header
-            const titleEl = document.getElementById('landingPricesWorksTitle');
-            if (titleEl && cat) {
-                titleEl.innerHTML = `<span>${cat.icon}</span> ${escapeHtml(cat.name)}`;
-            }
-
-            const countBadge = document.getElementById('landingPricesWorksBadge');
-            if (countBadge && cat) {
-                countBadge.textContent = `${cat.workCount} работ`;
-            }
-
-            // Clear group search
-            const gs = document.getElementById('landingPricesWorksSearch');
-            if (gs) gs.value = '';
-
-            // Clear global search
-            const globalSearch = document.getElementById('priceSearchInput');
-            if (globalSearch) globalSearch.value = '';
-
-            renderWorks();
-
-            // Slide animation
-            const slides = document.getElementById('landingPricesSlides');
-            if (slides) slides.classList.add('show-works');
-        }
-
-        // ─── Go back to categories ───
-        function backToCategories() {
-            _activeGroup = null;
-            _groupSearchQuery = '';
-            _page = 1;
-
-            const slides = document.getElementById('landingPricesSlides');
-            if (slides) slides.classList.remove('show-works');
-
-            // Re-render category grid to ensure it's populated
-            renderCategoryGrid();
-
-            // Clear group search input
-            const gs = document.getElementById('landingPricesWorksSearch');
-            if (gs) gs.value = '';
-
-            // Scroll back to prices section
-            const section = document.getElementById('landingPrices');
-            if (section) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-
-        // ─── Global search ───
-        function search(query) {
-            clearTimeout(_searchTimer);
-            _searchTimer = setTimeout(() => {
-                _searchQuery = query;
-
-                if (query && query.length >= 2) {
-                    // Search across all works and show matching categories
-                    searchGlobal(query);
-                } else if (!query || query.length === 0) {
-                    _searchQuery = '';
-                    renderCategoryGrid();
-                    // Go back to slide 1 if on slide 2
-                    const slides = document.getElementById('landingPricesSlides');
-                    if (slides) slides.classList.remove('show-works');
-                }
-            }, 300);
-        }
-
-        function searchGlobal(query) {
-            const reg = getRegistry();
-            if (!reg) return;
-
-            const results = reg.search(query);
-            const container = document.getElementById('landingPricesCatGrid');
-            if (!container) return;
-
-            if (!results.length) {
-                container.innerHTML = `<div class="price-loading" style="grid-column:1/-1">🔍 Ничего не найдено по запросу «${escapeHtml(query)}»</div>`;
-                return;
-            }
-
-            // Group results by category
-            const groupCounts = {};
-            results.forEach(w => {
-                groupCounts[w.group] = (groupCounts[w.group] || 0) + 1;
+    const comets = [];
+    function spawnComet() {
+        if (comets.length < 3 && Math.random() < 0.025) {
+            comets.push({
+                x: Math.random() * width * 0.8 + width * 0.1,
+                y: -20,
+                vx: (Math.random() - 0.3) * 6 - 2,
+                vy: Math.random() * 7 + 5,
+                length: Math.random() * 90 + 50,
+                alpha: 0.9,
+                color: Math.random() > 0.4 ? '#38bdf8' : '#fbbf24'
             });
-
-            const cats = reg.getCategories().filter(c => groupCounts[c.key]);
-
-            container.innerHTML = `<div style="grid-column:1/-1;font-size:13px;color:rgba(255,255,255,.5);padding:4px 0">
-                Найдено <b style="color:#fff">${results.length}</b> работ в ${cats.length} категориях
-            </div>` + cats.map(cat => {
-                const colorRaw = cat.color || '#8b5cf6';
-                const matchCount = groupCounts[cat.key] || 0;
-                return `
-                    <div class="prices-category-card"
-                         style="--cat-color: ${colorRaw}22; --cat-color-border: ${colorRaw}44"
-                         onclick="LandingPrices.selectCategory('${cat.key}')"
-                         id="lpCat_${cat.key}">
-                        <span class="prices-cat-icon">${cat.icon}</span>
-                        <div class="prices-cat-name">${escapeHtml(cat.name)}</div>
-                        <div class="prices-cat-count"><b>${matchCount}</b> совпадений</div>
-                    </div>
-                `;
-            }).join('');
-
-            // Make sure we're on slide 1
-            const slides = document.getElementById('landingPricesSlides');
-            if (slides) slides.classList.remove('show-works');
         }
+    }
 
-        // ─── Search within group ───
-        function searchInGroup(query) {
-            clearTimeout(_searchTimer);
-            _searchTimer = setTimeout(() => {
-                _groupSearchQuery = query;
-                _page = 1;
-                renderWorks();
-            }, 300);
+    const cityBuildings = [
+        { id: 'L1', name: 'БЛОК А1', xR: 0.03, yR: 0.52, w: 90, h: 220, floors: 8, spire: 35, color: 'rgba(56, 189, 248, 0.14)' },
+        { id: 'L2', name: 'ТАУЭР А2', xR: 0.10, yR: 0.56, w: 115, h: 280, floors: 11, spire: 55, color: 'rgba(37, 99, 235, 0.16)' },
+        { id: 'L3', name: 'КОРПУС А3', xR: 0.19, yR: 0.59, w: 80, h: 180, floors: 6, spire: 20, color: 'rgba(14, 165, 233, 0.12)' },
+        { id: 'R1', name: 'КОРПУС В1', xR: 0.75, yR: 0.57, w: 85, h: 190, floors: 7, spire: 25, color: 'rgba(16, 185, 129, 0.12)' },
+        { id: 'R2', name: 'ТАУЭР В2', xR: 0.82, yR: 0.53, w: 130, h: 310, floors: 12, spire: 70, color: 'rgba(56, 189, 248, 0.16)' },
+        { id: 'R3', name: 'БЛОК В3', xR: 0.92, yR: 0.55, w: 95, h: 240, floors: 9, spire: 40, color: 'rgba(245, 158, 11, 0.14)' }
+    ];
+
+    const cranes = [
+        { bxR: 0.10, byR: 0.56, bh: 280, armLen: 70, color: '#fbbf24' },
+        { bxR: 0.82, byR: 0.53, bh: 310, armLen: 85, color: '#38bdf8' }
+    ];
+
+    const waterLabyrinth = [
+        { id: 'W_L1', name: 'ВЫПУСК L1 Ø200', color: '#06b6d4', glowColor: 'rgba(6, 182, 212, 0.4)', width: 3.2, points: [{ xR: 0.05, yR: 0.52 }, { xR: 0.05, yR: 0.67 }, { xR: 0.09, yR: 0.67 }, { xR: 0.09, yR: 0.77 }], pulses: [0.15, 0.65], speed: 0.07 },
+        { id: 'W_L2', name: 'МАГИСТРАЛЬ К1 Ø1200', color: '#06b6d4', glowColor: 'rgba(6, 182, 212, 0.45)', width: 4.0, points: [{ xR: 0.13, yR: 0.56 }, { xR: 0.13, yR: 0.77 }, { xR: 0.18, yR: 0.77 }, { xR: 0.18, yR: 0.85 }, { xR: 0.28, yR: 0.85 }, { xR: 0.32, yR: 0.91 }, { xR: 0.50, yR: 0.91 }], pulses: [0.08, 0.38, 0.72], speed: 0.06 },
+        { id: 'W_L3', name: 'ВЫПУСК L3 Ø250', color: '#38bdf8', glowColor: 'rgba(56, 189, 248, 0.4)', width: 3.0, points: [{ xR: 0.21, yR: 0.59 }, { xR: 0.21, yR: 0.71 }, { xR: 0.18, yR: 0.71 }, { xR: 0.18, yR: 0.85 }], pulses: [0.22, 0.78], speed: 0.08 },
+        { id: 'W_R3', name: 'ВЫПУСК R3 Ø250', color: '#06b6d4', glowColor: 'rgba(6, 182, 212, 0.4)', width: 3.2, points: [{ xR: 0.95, yR: 0.55 }, { xR: 0.95, yR: 0.69 }, { xR: 0.89, yR: 0.69 }, { xR: 0.89, yR: 0.79 }], pulses: [0.20, 0.70], speed: 0.07 },
+        { id: 'W_R2', name: 'КОЛЛЕКТОР К1 Ø1200', color: '#06b6d4', glowColor: 'rgba(6, 182, 212, 0.45)', width: 4.0, points: [{ xR: 0.86, yR: 0.53 }, { xR: 0.86, yR: 0.79 }, { xR: 0.79, yR: 0.79 }, { xR: 0.79, yR: 0.87 }, { xR: 0.68, yR: 0.87 }, { xR: 0.64, yR: 0.91 }, { xR: 0.50, yR: 0.91 }], pulses: [0.12, 0.45, 0.82], speed: 0.06 },
+        { id: 'W_R1', name: 'ВЫПУСК R1 Ø200', color: '#38bdf8', glowColor: 'rgba(56, 189, 248, 0.4)', width: 3.0, points: [{ xR: 0.77, yR: 0.57 }, { xR: 0.77, yR: 0.73 }, { xR: 0.79, yR: 0.73 }, { xR: 0.79, yR: 0.87 }], pulses: [0.30, 0.85], speed: 0.08 }
+    ];
+
+    const electricGrid = [
+        { id: 'E_LEFT_TP1', name: 'КАБЕЛЬ 10 кВ // ТП-1', color: '#fbbf24', glowColor: 'rgba(251, 191, 36, 0.45)', width: 2.2, points: [{ xR: 0.04, yR: 0.52 }, { xR: 0.04, yR: 0.62 }, { xR: 0.11, yR: 0.62 }, { xR: 0.11, yR: 0.56 }, { xR: 0.11, yR: 0.65 }, { xR: 0.20, yR: 0.65 }, { xR: 0.20, yR: 0.59 }], pulses: [0.1, 0.45, 0.75], speed: 0.12 },
+        { id: 'E_RIGHT_TP2', name: 'КАБЕЛЬ 35 кВ // ТП-2', color: '#fbbf24', glowColor: 'rgba(251, 191, 36, 0.45)', width: 2.2, points: [{ xR: 0.76, yR: 0.57 }, { xR: 0.76, yR: 0.65 }, { xR: 0.84, yR: 0.65 }, { xR: 0.84, yR: 0.53 }, { xR: 0.84, yR: 0.68 }, { xR: 0.94, yR: 0.68 }, { xR: 0.94, yR: 0.55 }], pulses: [0.15, 0.50, 0.85], speed: 0.12 },
+        { id: 'E_INTER_TRUNK', name: 'МАГИСТРАЛЬ 35 кВ ТП-1 ⟷ ТП-2', color: '#f59e0b', glowColor: 'rgba(245, 158, 11, 0.4)', width: 2.5, points: [{ xR: 0.11, yR: 0.65 }, { xR: 0.11, yR: 0.73 }, { xR: 0.26, yR: 0.73 }, { xR: 0.30, yR: 0.78 }, { xR: 0.70, yR: 0.78 }, { xR: 0.74, yR: 0.73 }, { xR: 0.84, yR: 0.73 }, { xR: 0.84, yR: 0.68 }], pulses: [0.20, 0.65], speed: 0.14 }
+    ];
+
+    const utilityNodes = [
+        { xR: 0.05, yR: 0.67, label: 'КК-1 (L1)', desc: 'h=-2.5m', color: '#06b6d4', type: 'water' },
+        { xR: 0.13, yR: 0.77, label: 'КК-2 (L2)', desc: 'h=-4.2m', color: '#06b6d4', type: 'water' },
+        { xR: 0.21, yR: 0.71, label: 'КК-3 (L3)', desc: 'h=-3.1m', color: '#06b6d4', type: 'water' },
+        { xR: 0.11, yR: 0.62, label: '⚡ ТП-1 (10/0.4кВ)', desc: 'P=630 кВА', color: '#fbbf24', type: 'electric' },
+        { xR: 0.95, yR: 0.69, label: 'КК-11 (R3)', desc: 'h=-2.8m', color: '#06b6d4', type: 'water' },
+        { xR: 0.86, yR: 0.79, label: 'КК-12 (R2)', desc: 'h=-4.5m', color: '#06b6d4', type: 'water' },
+        { xR: 0.77, yR: 0.73, label: 'КК-13 (R1)', desc: 'h=-3.4m', color: '#06b6d4', type: 'water' },
+        { xR: 0.84, yR: 0.65, label: '⚡ ТП-2 (35/10кВ)', desc: 'P=1000 кВА', color: '#fbbf24', type: 'electric' },
+        { xR: 0.50, yR: 0.91, label: 'КНС-ГЛАВНАЯ (ХПВ+К1)', desc: 'Q=320м³/ч // h=-8.5m', color: '#38bdf8', type: 'hub' }
+    ];
+
+    function getPointAlongPath(points, progress) {
+        let totalLength = 0;
+        const segLengths = [];
+        for (let i = 0; i < points.length - 1; i++) {
+            const pA = { x: points[i].xR * width, y: points[i].yR * height };
+            const pB = { x: points[i + 1].xR * width, y: points[i + 1].yR * height };
+            const len = Math.hypot(pB.x - pA.x, pB.y - pA.y);
+            segLengths.push(len);
+            totalLength += len;
         }
-
-        function setPage(p) {
-            _page = Math.max(1, parseInt(p) || 1);
-            renderWorks();
-            const el = document.getElementById('priceList');
-            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        const targetDist = (progress % 1.0) * totalLength;
+        let accDist = 0;
+        for (let i = 0; i < segLengths.length; i++) {
+            if (accDist + segLengths[i] >= targetDist) {
+                const segProgress = (targetDist - accDist) / segLengths[i];
+                const pA = { x: points[i].xR * width, y: points[i].yR * height };
+                const pB = { x: points[i + 1].xR * width, y: points[i + 1].yR * height };
+                return {
+                    x: pA.x + (pB.x - pA.x) * segProgress,
+                    y: pA.y + (pB.y - pA.y) * segProgress
+                };
+            }
+            accDist += segLengths[i];
         }
+        const lastP = points[points.length - 1];
+        return { x: lastP.xR * width, y: lastP.yR * height };
+    }
 
-        function renderWorks() {
-            const listEl = document.getElementById('priceList');
-            const paginEl = document.getElementById('pricePagination');
-            if (!listEl) return;
+    function drawConduitPath(ch) {
+        ctx.save();
+        ctx.beginPath();
+        ch.points.forEach((pt, idx) => {
+            const px = pt.xR * width;
+            const py = pt.yR * height;
+            if (idx === 0) ctx.moveTo(px, py);
+            else ctx.lineTo(px, py);
+        });
+        ctx.strokeStyle = ch.glowColor;
+        ctx.lineWidth = ch.width + 4;
+        ctx.lineJoin = 'miter';
+        ctx.stroke();
 
-            const reg = getRegistry();
-            if (!reg) {
-                listEl.innerHTML = '<div class="price-loading">Каталог загружается...</div>';
-                return;
-            }
+        ctx.strokeStyle = ch.color;
+        ctx.lineWidth = ch.width;
+        ctx.shadowColor = ch.color;
+        ctx.shadowBlur = 8;
+        ctx.stroke();
+        ctx.shadowBlur = 0;
 
-            let works;
-            if (_groupSearchQuery && _groupSearchQuery.length >= 2) {
-                const allInGroup = reg.getWorksByGroup(_activeGroup);
-                const q = _groupSearchQuery.toLowerCase();
-                works = allInGroup.filter(w => w.name.toLowerCase().includes(q));
-            } else if (_activeGroup) {
-                works = reg.getWorksByGroup(_activeGroup);
-            } else {
-                works = [];
-            }
-
-            const total = works.length;
-            const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
-            _page = Math.min(_page, totalPages);
-            const start = (_page - 1) * PAGE_SIZE;
-            const slice = works.slice(start, start + PAGE_SIZE);
-
-            if (!slice.length) {
-                listEl.innerHTML = '<div class="price-loading">' +
-                    (_groupSearchQuery ? 'Ничего не найдено по запросу «' + escapeHtml(_groupSearchQuery) + '»' : 'Нет данных') +
-                    '</div>';
-                if (paginEl) paginEl.innerHTML = '';
-                return;
-            }
-
-            // Results info bar
-            let html = `<div class="price-results-info">
-                <span>Найдено: <b style="color:#fff">${total.toLocaleString('ru-RU')}</b> работ</span>
-                ${totalPages > 1 ? `<span>Стр. ${_page} / ${totalPages}</span>` : ''}
-            </div>`;
-
-            // Group by rawCategory for accordion
-            if (_groupSearchQuery) {
-                html += slice.map(w => renderRow(w)).join('');
-            } else {
-                const groups = {};
-                slice.forEach(w => {
-                    const cat = w.rawCategory || 'other';
-                    if (!groups[cat]) groups[cat] = [];
-                    groups[cat].push(w);
-                });
-
-                Object.entries(groups).forEach(([cat, items]) => {
-                    html += `<details class="price-section" open>
-                        <summary class="price-section-header">
-                            <span>
-                                <span class="section-name">${escapeHtml(cat.replace(/_/g, ' '))}</span>
-                                <span class="section-count"> · ${items.length} работ</span>
-                            </span>
-                            <span class="section-chevron">▶</span>
-                        </summary>
-                        <div>
-                            ${items.map(w => renderRow(w)).join('')}
-                        </div>
-                    </details>`;
-                });
-            }
-
-            listEl.innerHTML = html;
-
-            // Pagination
-            if (paginEl) {
-                if (totalPages <= 1) {
-                    paginEl.innerHTML = '';
-                } else {
-                    let btns = '';
-                    if (_page > 1) btns += pgBtn(_page - 1, '◀');
-                    const lo = Math.max(1, _page - 2);
-                    const hi = Math.min(totalPages, _page + 2);
-                    if (lo > 1) { btns += pgBtn(1); if (lo > 2) btns += '<span class="price-page-dots">…</span>'; }
-                    for (let p = lo; p <= hi; p++) btns += pgBtn(p, p, p === _page);
-                    if (hi < totalPages) { if (hi < totalPages - 1) btns += '<span class="price-page-dots">…</span>'; btns += pgBtn(totalPages); }
-                    if (_page < totalPages) btns += pgBtn(_page + 1, '▶');
-                    paginEl.innerHTML = btns;
-                }
-            }
-        }
-
-        function renderRow(w) {
-            const priceStr = w.price
-                ? w.price.toLocaleString('ru-RU') + '\u00a0₸'
-                : '—';
-            const priceClass = w.price ? 'price-row-price' : 'price-row-price no-price';
-            return `<div class="price-row">
-                <span class="price-row-name" title="${escapeHtml(w.name)}">${escapeHtml(w.name)}</span>
-                <span class="price-row-unit">${escapeHtml(w.unit || '—')}</span>
-                <span class="${priceClass}">${priceStr}</span>
-            </div>`;
-        }
-
-        function pgBtn(page, label, active) {
-            label = label || page;
-            return `<button class="price-page-btn${active ? ' active' : ''}"
-                onclick="LandingPrices.setPage(${page})">${label}</button>`;
-        }
-
-        function escapeHtml(str) {
-            if (!str) return '';
-            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-        }
-
-        // Deferred init — AI_WRK_* files load after WorkRegistry via CatalogLoader
-        // Используем событие catalogs:ready + retry вместо фиксированного timeout
-        let _initRetries = 0;
-        const MAX_RETRIES = 15;
-
-        function deferredInit() {
-            const reg = getRegistry();
-            if (reg) {
-                const stats = reg.getStats();
-                if (stats.works > 0) {
-                    init();
-                    return;
-                }
-            }
-
-            // Каталоги ещё не загружены — retry
-            _initRetries++;
-            if (_initRetries < MAX_RETRIES) {
-                setTimeout(deferredInit, 800);
-            } else {
-                // Последняя попытка — показываем то что есть
-                init();
-            }
-        }
-
-        // Слушаем событие от CatalogLoader.loadAll()
-        document.addEventListener('catalogs:ready', () => {
-            // Каталоги загружены — пересканировать WorkRegistry и обновить UI
-            if (window.WorkRegistry && window.WorkRegistry.invalidateCache) {
-                window.WorkRegistry.invalidateCache();
-            }
-            init();
+        ch.pulses.forEach((pVal) => {
+            const prog = (pVal + tick * ch.speed) % 1.0;
+            const pt = getPointAlongPath(ch.points, prog);
+            ctx.beginPath();
+            ctx.arc(pt.x, pt.y, ch.width * 1.3, 0, Math.PI * 2);
+            ctx.fillStyle = '#ffffff';
+            ctx.shadowColor = ch.color;
+            ctx.shadowBlur = 12;
+            ctx.fill();
         });
 
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => setTimeout(deferredInit, 600));
+        const startP = ch.points[0];
+        ctx.fillStyle = ch.color;
+        ctx.font = '7px JetBrains Mono, monospace';
+        ctx.fillText(ch.name, startP.xR * width + 6, startP.yR * height + 10);
+        ctx.restore();
+    }
+
+    function drawUtilityNode(node) {
+        const nx = node.xR * width;
+        const ny = node.yR * height;
+        ctx.save();
+        const pulse = (Math.sin(tick * 3.5 + node.xR * 20) + 1) * 0.5;
+
+        if (node.type === 'electric') {
+            ctx.fillStyle = 'rgba(251, 191, 36, 0.15)';
+            ctx.strokeStyle = node.color;
+            ctx.lineWidth = 1.2;
+            ctx.strokeRect(nx - 7, ny - 7, 14, 14);
+            ctx.fillRect(nx - 7, ny - 7, 14, 14);
+            ctx.beginPath();
+            ctx.arc(nx, ny, 2.5 + pulse * 1.5, 0, Math.PI * 2);
+            ctx.fillStyle = '#ffffff';
+            ctx.shadowColor = '#fbbf24';
+            ctx.shadowBlur = 10;
+            ctx.fill();
         } else {
-            setTimeout(deferredInit, 600);
+            ctx.beginPath();
+            ctx.arc(nx, ny, 4.5 + pulse * 3, 0, Math.PI * 2);
+            ctx.strokeStyle = node.color;
+            ctx.lineWidth = 1;
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.arc(nx, ny, 3.5, 0, Math.PI * 2);
+            ctx.fillStyle = '#ffffff';
+            ctx.shadowColor = node.color;
+            ctx.shadowBlur = 8;
+            ctx.fill();
         }
 
-        return { selectCategory, search, searchInGroup, setPage, init, backToCategories };
-    })();
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '8px JetBrains Mono, monospace';
+        ctx.fillText(node.label, nx + 9, ny - 2);
+        ctx.fillStyle = node.color;
+        ctx.font = '7px JetBrains Mono, monospace';
+        ctx.fillText(node.desc, nx + 9, ny + 8);
+        ctx.restore();
+    }
 
-    window.LandingPrices = LandingPrices;
+    function drawHoloBuilding(b) {
+        const bx = b.xR * width;
+        const by = b.yR * height;
+        const bw = b.w;
+        const bh = b.h;
+        const isoX = bw * 0.5;
+        const isoY = bw * 0.25;
 
-})();
+        ctx.save();
+        ctx.strokeStyle = b.color;
+        ctx.lineWidth = 1;
+        ctx.fillStyle = 'rgba(8, 14, 28, 0.4)';
+
+        ctx.beginPath();
+        ctx.moveTo(bx, by);
+        ctx.lineTo(bx + bw, by);
+        ctx.lineTo(bx + bw, by - bh);
+        ctx.lineTo(bx, by - bh);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(bx, by - bh);
+        ctx.lineTo(bx + bw, by - bh);
+        ctx.lineTo(bx + bw + isoX, by - bh - isoY);
+        ctx.lineTo(bx + isoX, by - bh - isoY);
+        ctx.closePath();
+        ctx.fillStyle = 'rgba(56, 189, 248, 0.04)';
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(bx + bw, by);
+        ctx.lineTo(bx + bw + isoX, by - isoY);
+        ctx.lineTo(bx + bw + isoX, by - bh - isoY);
+        ctx.lineTo(bx + bw, by - bh);
+        ctx.closePath();
+        ctx.fillStyle = 'rgba(37, 99, 235, 0.03)';
+        ctx.fill();
+        ctx.stroke();
+
+        const floorH = bh / b.floors;
+        for (let f = 1; f < b.floors; f++) {
+            const fy = by - f * floorH;
+            ctx.beginPath();
+            ctx.moveTo(bx, fy);
+            ctx.lineTo(bx + bw, fy);
+            ctx.lineTo(bx + bw + isoX, fy - isoY);
+            ctx.strokeStyle = 'rgba(56, 189, 248, 0.08)';
+            ctx.stroke();
+        }
+
+        ctx.beginPath();
+        ctx.moveTo(bx, by);
+        ctx.lineTo(bx, by + 16);
+        ctx.lineTo(bx + bw, by + 16);
+        ctx.lineTo(bx + bw, by);
+        ctx.strokeStyle = 'rgba(56, 189, 248, 0.35)';
+        ctx.stroke();
+
+        ctx.fillStyle = '#38bdf8';
+        ctx.font = '8px JetBrains Mono, monospace';
+        ctx.fillText(b.name, bx + 6, by - bh + 14);
+
+        if (b.spire > 0) {
+            const topCenterX = bx + bw * 0.5 + isoX * 0.5;
+            const topCenterY = by - bh - isoY * 0.5;
+            ctx.beginPath();
+            ctx.moveTo(topCenterX, topCenterY);
+            ctx.lineTo(topCenterX, topCenterY - b.spire);
+            ctx.strokeStyle = '#38bdf8';
+            ctx.lineWidth = 1.2;
+            ctx.stroke();
+
+            const pulse = (Math.sin(tick * 4 + b.xR * 20) + 1) * 0.5;
+            ctx.beginPath();
+            ctx.arc(topCenterX, topCenterY - b.spire, 1.8 + pulse * 2, 0, Math.PI * 2);
+            ctx.fillStyle = pulse > 0.4 ? '#38bdf8' : '#fbbf24';
+            ctx.shadowColor = '#38bdf8';
+            ctx.shadowBlur = 10;
+            ctx.fill();
+        }
+        ctx.restore();
+    }
+
+    function drawCrane(c) {
+        const cx = c.bxR * width + 40;
+        const cy = c.byR * height - c.bh - 15;
+        const mastH = 45;
+        const armRot = Math.sin(tick * 0.5 + c.bxR * 10) * 0.4;
+
+        ctx.save();
+        ctx.strokeStyle = c.color;
+        ctx.lineWidth = 1;
+
+        ctx.beginPath();
+        ctx.moveTo(cx - 3, cy);
+        ctx.lineTo(cx - 3, cy - mastH);
+        ctx.lineTo(cx + 3, cy - mastH);
+        ctx.lineTo(cx + 3, cy);
+        ctx.stroke();
+
+        for (let y = cy; y > cy - mastH; y -= 8) {
+            ctx.beginPath();
+            ctx.moveTo(cx - 3, y);
+            ctx.lineTo(cx + 3, y - 8);
+            ctx.stroke();
+        }
+
+        const armEndX = cx + Math.cos(armRot) * c.armLen;
+        const armEndY = cy - mastH + Math.sin(armRot) * (c.armLen * 0.2);
+        const counterEndX = cx - Math.cos(armRot) * (c.armLen * 0.35);
+        const counterEndY = cy - mastH - Math.sin(armRot) * (c.armLen * 0.1);
+
+        ctx.beginPath();
+        ctx.moveTo(counterEndX, counterEndY);
+        ctx.lineTo(armEndX, armEndY);
+        ctx.stroke();
+
+        const apexY = cy - mastH - 12;
+        ctx.beginPath();
+        ctx.arc(cx, apexY, 2, 0, Math.PI * 2);
+        ctx.fillStyle = '#fbbf24';
+        ctx.shadowColor = '#fbbf24';
+        ctx.shadowBlur = 8;
+        ctx.fill();
+        ctx.restore();
+    }
+
+    function render() {
+        tick += 0.016;
+
+        mouse.x += (mouse.targetX - mouse.x) * 0.08;
+        mouse.y += (mouse.targetY - mouse.y) * 0.08;
+
+        ctx.clearRect(0, 0, width, height);
+
+        // 1. Deep Sapphire Base
+        const baseGrad = ctx.createRadialGradient(
+            width * 0.5, height * 0.42, 60,
+            width * 0.5, height * 0.5, Math.max(width, height) * 0.95
+        );
+        baseGrad.addColorStop(0, '#0c142c');
+        baseGrad.addColorStop(0.35, '#080d1e');
+        baseGrad.addColorStop(0.75, '#040712');
+        baseGrad.addColorStop(1, '#020308');
+        ctx.fillStyle = baseGrad;
+        ctx.fillRect(0, 0, width, height);
+
+        // 2. City Buildings & Cranes
+        cityBuildings.forEach(b => drawHoloBuilding(b));
+        cranes.forEach(c => drawCrane(c));
+
+        // 3. Complete Water Labyrinth & Electric Grid (All Buildings Connected)
+        waterLabyrinth.forEach(ch => drawConduitPath(ch));
+        electricGrid.forEach(eg => drawConduitPath(eg));
+        utilityNodes.forEach(node => drawUtilityNode(node));
+
+        // 4. Blueprint Elevation Grid
+        ctx.save();
+        ctx.lineWidth = 0.8;
+        const rows = 16;
+        const cols = 22;
+        const gridStartX = -width * 0.1;
+        const gridEndX = width * 1.1;
+        const gridStartY = height * 0.52;
+        const gridEndY = height * 1.12;
+
+        for (let c = 0; c <= cols; c++) {
+            const colPercent = c / cols;
+            const x = gridStartX + (gridEndX - gridStartX) * colPercent;
+            ctx.beginPath();
+            for (let r = 0; r <= rows; r++) {
+                const rowPercent = r / rows;
+                const y = gridStartY + (gridEndY - gridStartY) * rowPercent;
+                const wave = Math.sin(colPercent * 5 + tick * 0.8) * Math.cos(rowPercent * 4 - tick * 0.6) * 16;
+                const perspectiveScale = 0.5 + rowPercent * 0.7;
+                const projX = width * 0.5 + (x - width * 0.5) * perspectiveScale;
+                const projY = y + wave * perspectiveScale;
+                if (r === 0) ctx.moveTo(projX, projY);
+                else ctx.lineTo(projX, projY);
+            }
+            const alpha = Math.max(0.02, (1 - Math.abs(colPercent - 0.5) * 1.2) * 0.10);
+            ctx.strokeStyle = `rgba(56, 189, 248, ${alpha})`;
+            ctx.stroke();
+        }
+
+        for (let r = 0; r <= rows; r++) {
+            const rowPercent = r / rows;
+            const y = gridStartY + (gridEndY - gridStartY) * rowPercent;
+            const perspectiveScale = 0.5 + rowPercent * 0.7;
+            ctx.beginPath();
+            for (let c = 0; c <= cols; c++) {
+                const colPercent = c / cols;
+                const x = gridStartX + (gridEndX - gridStartX) * colPercent;
+                const wave = Math.sin(colPercent * 5 + tick * 0.8) * Math.cos(rowPercent * 4 - tick * 0.6) * 16;
+                const projX = width * 0.5 + (x - width * 0.5) * perspectiveScale;
+                const projY = y + wave * perspectiveScale;
+                if (c === 0) ctx.moveTo(projX, projY);
+                else ctx.lineTo(projX, projY);
+            }
+            ctx.strokeStyle = `rgba(37, 99, 235, ${0.02 + rowPercent * 0.08})`;
+            ctx.stroke();
+        }
+        ctx.restore();
+
+        // 5. Comets
+        spawnComet();
+        for (let i = comets.length - 1; i >= 0; i--) {
+            const c = comets[i];
+            c.x += c.vx;
+            c.y += c.vy;
+            c.alpha *= 0.98;
+            const tailX = c.x - c.vx * 8;
+            const tailY = c.y - c.vy * 8;
+            const grad = ctx.createLinearGradient(c.x, c.y, tailX, tailY);
+            grad.addColorStop(0, c.color);
+            grad.addColorStop(1, 'transparent');
+            ctx.save();
+            ctx.beginPath();
+            ctx.moveTo(c.x, c.y);
+            ctx.lineTo(tailX, tailY);
+            ctx.strokeStyle = grad;
+            ctx.lineWidth = 2.0;
+            ctx.shadowColor = c.color;
+            ctx.shadowBlur = 12;
+            ctx.stroke();
+            ctx.restore();
+            if (c.y > height + 50 || c.alpha < 0.05) comets.splice(i, 1);
+        }
+
+        // 6. Shockwaves
+        mouse.shockwaves.forEach((sw, idx) => {
+            sw.radius += sw.speed;
+            sw.alpha *= 0.96;
+            if (sw.alpha > 0.01) {
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(sw.x, sw.y, sw.radius, 0, Math.PI * 2);
+                ctx.strokeStyle = `rgba(56, 189, 248, ${sw.alpha})`;
+                ctx.lineWidth = 2.2;
+                ctx.shadowColor = '#38bdf8';
+                ctx.shadowBlur = 16;
+                ctx.stroke();
+                ctx.restore();
+            } else {
+                mouse.shockwaves.splice(idx, 1);
+            }
+        });
+
+        // 7. Particles and Quantum Trusses
+        for (let i = 0; i < particles.length; i++) {
+            const p = particles[i];
+            p.pulseVal += p.pulseSpeed;
+            p.x += p.vx;
+            p.y += p.vy;
+
+            if (p.x < 0) p.x = width;
+            if (p.x > width) p.x = 0;
+            if (p.y < 0) p.y = height;
+            if (p.y > height) p.y = 0;
+
+            const mDist = Math.hypot(p.x - mouse.x, p.y - mouse.y);
+            if (mDist < 200) {
+                const force = (1 - mDist / 200) * 1.0;
+                p.x += (mouse.x - p.x) * force * 0.04;
+                p.y += (mouse.y - p.y) * force * 0.04;
+                if (mDist < 120) {
+                    ctx.beginPath();
+                    ctx.moveTo(p.x, p.y);
+                    ctx.lineTo(mouse.x, mouse.y);
+                    ctx.strokeStyle = `rgba(56, 189, 248, ${(1 - mDist / 120) * 0.45})`;
+                    ctx.lineWidth = 0.8;
+                    ctx.stroke();
+                }
+            }
+
+            const pRad = p.radius + Math.sin(p.pulseVal) * 0.6;
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, Math.max(0.6, pRad), 0, Math.PI * 2);
+            ctx.fillStyle = p.color;
+            ctx.shadowColor = p.color;
+            ctx.shadowBlur = pRad > 1.8 ? 10 : 0;
+            ctx.fill();
+            ctx.restore();
+
+            for (let j = i + 1; j < particles.length; j++) {
+                const p2 = particles[j];
+                const dist = Math.hypot(p.x - p2.x, p.y - p2.y);
+                if (dist < 80) {
+                    const lineAlpha = (1 - dist / 80) * 0.20;
+                    ctx.beginPath();
+                    ctx.moveTo(p.x, p.y);
+                    ctx.lineTo(p2.x, p2.y);
+                    ctx.strokeStyle = `rgba(56, 189, 248, ${lineAlpha})`;
+                    ctx.lineWidth = 0.6;
+                    ctx.stroke();
+                }
+            }
+        }
+
+        requestAnimationFrame(render);
+    }
+    render();
+}
+});

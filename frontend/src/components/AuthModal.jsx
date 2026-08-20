@@ -62,7 +62,7 @@ export default function AuthModal({ mode, onClose, onLogin }) {
         }}
       >
         {/* Subtle Ambient Glow Orbs */}
-        <div style={{ position: 'absolute', top: '-60px', right: '-60px', width: '180px', height: '180px', background: 'radial-gradient(circle, rgba(168, 85, 247, 0.3), transparent 70%)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', top: '-60px', right: '-60px', width: '180px', height: '180px', background: 'radial-gradient(circle, rgba(59, 130, 246, 0.3), transparent 70%)', pointerEvents: 'none' }} />
         <div style={{ position: 'absolute', bottom: '-60px', left: '-60px', width: '180px', height: '180px', background: 'radial-gradient(circle, rgba(246, 196, 83, 0.25), transparent 70%)', pointerEvents: 'none' }} />
 
         <button 
@@ -144,10 +144,10 @@ export default function AuthModal({ mode, onClose, onLogin }) {
                 onClick={() => setSelectedRole('customer')}
                 style={{
                   background: selectedRole === 'customer' 
-                    ? 'linear-gradient(135deg, rgba(99, 102, 241, 0.25), rgba(168, 85, 247, 0.25))' 
+                    ? 'linear-gradient(135deg, rgba(99, 102, 241, 0.25), rgba(59, 130, 246, 0.25))' 
                     : 'rgba(255, 255, 255, 0.03)',
                   border: selectedRole === 'customer' 
-                    ? '2px solid #8b5cf6' 
+                    ? '2px solid #2563eb' 
                     : '1.5px solid rgba(255, 255, 255, 0.12)',
                   borderRadius: '20px',
                   padding: '1.25rem 0.9rem',
@@ -158,7 +158,7 @@ export default function AuthModal({ mode, onClose, onLogin }) {
                   gap: '0.5rem',
                   textAlign: 'center',
                   boxShadow: selectedRole === 'customer' 
-                    ? '0 10px 25px rgba(139, 92, 246, 0.35)' 
+                    ? '0 10px 25px rgba(37, 99, 235, 0.35)' 
                     : 'none',
                   transform: selectedRole === 'customer' ? 'translateY(-3px)' : 'none',
                   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -166,16 +166,16 @@ export default function AuthModal({ mode, onClose, onLogin }) {
                 }}
               >
                 {selectedRole === 'customer' && (
-                  <span style={{ position: 'absolute', top: '8px', right: '10px', fontSize: '0.72rem', color: '#a855f7', fontWeight: 900, background: 'rgba(168, 85, 247, 0.2)', padding: '0.15rem 0.45rem', borderRadius: '8px' }}>
+                  <span style={{ position: 'absolute', top: '8px', right: '10px', fontSize: '0.72rem', color: '#3b82f6', fontWeight: 900, background: 'rgba(59, 130, 246, 0.2)', padding: '0.15rem 0.45rem', borderRadius: '8px' }}>
                     ✓ Выбрано
                   </span>
                 )}
-                <span style={{ fontSize: '2.4rem', filter: selectedRole === 'customer' ? 'drop-shadow(0 0 10px rgba(168, 85, 247, 0.6))' : 'none' }}>
+                <span style={{ fontSize: '2.4rem', filter: selectedRole === 'customer' ? 'drop-shadow(0 0 10px rgba(59, 130, 246, 0.6))' : 'none' }}>
                   📋
                 </span>
                 <div>
                   <strong style={{ fontSize: '1.05rem', fontWeight: 900, color: '#fff', display: 'block' }}>Заказчик</strong>
-                  <small style={{ fontSize: '0.78rem', color: selectedRole === 'customer' ? '#c084fc' : '#cbd5e1', fontWeight: 600, marginTop: '0.2rem', display: 'block' }}>
+                  <small style={{ fontSize: '0.78rem', color: selectedRole === 'customer' ? '#93c5fd' : '#cbd5e1', fontWeight: 600, marginTop: '0.2rem', display: 'block' }}>
                     Поиск мастеров и сметы
                   </small>
                 </div>
@@ -281,7 +281,7 @@ export default function AuthModal({ mode, onClose, onLogin }) {
             disabled={loading}
             style={{
               marginTop: '0.5rem',
-              background: 'linear-gradient(90deg, #f59e0b, #ec4899, #8b5cf6)',
+              background: 'linear-gradient(90deg, #f59e0b, #38bdf8, #2563eb)',
               border: 'none',
               borderRadius: '16px',
               padding: '1rem',
@@ -289,7 +289,7 @@ export default function AuthModal({ mode, onClose, onLogin }) {
               fontWeight: 900,
               fontSize: '1rem',
               cursor: 'pointer',
-              boxShadow: '0 10px 25px rgba(236, 72, 153, 0.4)',
+              boxShadow: '0 10px 25px rgba(56, 189, 248, 0.4)',
               transition: 'all 0.3s ease',
               letterSpacing: '0.4px'
             }}

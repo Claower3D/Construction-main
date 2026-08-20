@@ -168,8 +168,17 @@
         return engineer || { id: 'unassigned', name: 'Нет доступных инженеров', specialization: '-' };
     }
 
+    function _safeGetJSON(key, defaultVal) {
+        try {
+            const raw = localStorage.getItem(key);
+            return raw ? JSON.parse(raw) : defaultVal;
+        } catch {
+            return defaultVal;
+        }
+    }
+
     function _saveReviewRequest(analysisResult, orderData, flags, engineer) {
-        let reviews = JSON.parse(localStorage.getItem('engineerReviews') || '[]');
+        let reviews = _safeGetJSON('engineerReviews', []);
         reviews.push({
             id: 'REV-' + Date.now(),
             createdAt: new Date().toISOString(),
@@ -291,7 +300,7 @@
     }
 
     function _saveDeviationAlert(aiEstimate, actualAmount, percent, context) {
-        let alerts = JSON.parse(localStorage.getItem('deviationAlerts') || '[]');
+        let alerts = _safeGetJSON('deviationAlerts', []);
         alerts.push({
             id: 'DEV-' + Date.now(),
             createdAt: new Date().toISOString(),
@@ -381,11 +390,11 @@
     // =============================================
 
     function getReviewQueue() {
-        return JSON.parse(localStorage.getItem('engineerReviews') || '[]');
+        return _safeGetJSON('engineerReviews', []);
     }
 
     function getDeviationAlerts() {
-        return JSON.parse(localStorage.getItem('deviationAlerts') || '[]');
+        return _safeGetJSON('deviationAlerts', []);
     }
 
     function approveReview(reviewId) {

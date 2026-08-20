@@ -304,22 +304,22 @@
         }
 
         :root {
-            --primary: #8b5cf6;
-            --primary-light: #a78bfa;
-            --accent: #ec4899;
-            --accent-alt: #06b6d4;
-            --bg: #030712;
-            --bg-card: rgba(15, 23, 42, 0.7);
-            --bg-card-hover: rgba(30, 41, 59, 0.8);
+            --primary: #2563eb;
+            --primary-light: #60a5fa;
+            --accent: #0ea5e9;
+            --accent-alt: #38bdf8;
+            --bg: #050811;
+            --bg-card: rgba(14, 22, 38, 0.75);
+            --bg-card-hover: rgba(22, 34, 58, 0.88);
             --text: #f8fafc;
             --text-muted: #94a3b8;
-            --border: rgba(255, 255, 255, 0.08);
-            --glow: rgba(139, 92, 246, 0.5);
-            --success: #22c55e;
+            --border: rgba(255, 255, 255, 0.09);
+            --glow: rgba(37, 99, 235, 0.4);
+            --success: #10b981;
             --error: #ef4444;
             --warning: #f59e0b;
             --radius: 20px;
-            --transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1)
+            --transition: 0.3s cubic-bezier(0.16, 1, 0.3, 1)
         }
 
         body {
@@ -339,8 +339,8 @@
             width: 100%;
             height: 100%;
             background:
-                radial-gradient(circle at 20% 50%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 80% 80%, rgba(236, 72, 153, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 20% 50%, rgba(37, 99, 235, 0.12) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(14, 165, 233, 0.10) 0%, transparent 50%),
                 radial-gradient(circle at 40% 20%, rgba(6, 182, 212, 0.1) 0%, transparent 50%);
             animation: backgroundPulse 20s ease-in-out infinite;
             z-index: -2;
@@ -355,8 +355,8 @@
             width: 200%;
             height: 200%;
             background:
-                linear-gradient(45deg, transparent 30%, rgba(139, 92, 246, 0.05) 50%, transparent 70%),
-                linear-gradient(-45deg, transparent 30%, rgba(236, 72, 153, 0.05) 50%, transparent 70%);
+                linear-gradient(45deg, transparent 30%, rgba(37, 99, 235, 0.05) 50%, transparent 70%),
+                linear-gradient(-45deg, transparent 30%, rgba(56, 189, 248, 0.05) 50%, transparent 70%);
             animation: waveRotate 30s linear infinite;
             z-index: -1;
         }
@@ -400,10 +400,10 @@
             position: absolute;
             width: 4px;
             height: 4px;
-            background: rgba(139, 92, 246, 0.6);
+            background: rgba(37, 99, 235, 0.6);
             border-radius: 50%;
             animation: float 20s infinite;
-            box-shadow: 0 0 10px rgba(139, 92, 246, 0.8);
+            box-shadow: 0 0 10px rgba(37, 99, 235, 0.8);
         }
 
         @keyframes float {
@@ -493,11 +493,11 @@
 
             0%,
             100% {
-                box-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
+                box-shadow: 0 0 20px rgba(37, 99, 235, 0.5);
             }
 
             50% {
-                box-shadow: 0 0 40px rgba(139, 92, 246, 0.8), 0 0 60px rgba(236, 72, 153, 0.4);
+                box-shadow: 0 0 40px rgba(37, 99, 235, 0.8), 0 0 60px rgba(14, 165, 233, 0.4);
             }
         }
 
@@ -529,7 +529,7 @@
 
         .card:hover {
             transform: translateY(-10px) scale(1.02);
-            box-shadow: 0 20px 60px rgba(139, 92, 246, 0.3);
+            box-shadow: 0 20px 60px rgba(37, 99, 235, 0.3);
         }
 
         body.light {
@@ -855,13 +855,13 @@
         .role-card:hover {
             transform: translateY(-4px);
             border-color: var(--primary);
-            box-shadow: 0 15px 40px rgba(139, 92, 246, 0.2);
+            box-shadow: 0 15px 40px rgba(37, 99, 235, 0.2);
         }
 
         .role-card.active {
             border-color: var(--primary) !important;
-            background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(236, 72, 153, 0.1)) !important;
-            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.35), 0 0 0 2px var(--primary) !important;
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.12), rgba(14, 165, 233, 0.1)) !important;
+            box-shadow: 0 10px 30px rgba(37, 99, 235, 0.35), 0 0 0 2px var(--primary) !important;
             transform: scale(1.03);
         }
 
@@ -943,14 +943,14 @@
         }
 
         .nav-role:hover {
-            background: rgba(139, 92, 246, 0.1);
+            background: rgba(37, 99, 235, 0.1);
             color: var(--text);
         }
 
         .nav-role.active {
-            background: rgba(139, 92, 246, 0.15);
+            background: rgba(37, 99, 235, 0.12);
             color: var(--primary);
-            border: 1px solid rgba(139, 92, 246, 0.3);
+            border: 1px solid rgba(37, 99, 235, 0.3);
         }
 
         .nav-role-icon {
@@ -1005,7 +1005,7 @@
         }
 
         .nav-dropdown-item:hover {
-            background: rgba(139, 92, 246, 0.1);
+            background: rgba(37, 99, 235, 0.1);
         }
 
         .nav-dropdown-item-icon {
@@ -1065,14 +1065,14 @@
         }
 
         .tab-btn:hover {
-            background: rgba(139, 92, 246, 0.1);
+            background: rgba(37, 99, 235, 0.1);
             color: var(--text);
         }
 
         .tab-btn.active {
             background: var(--primary);
             color: #fff;
-            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
         }
 
         /* ========== ORDER ACTION BUTTONS ========== */
@@ -1090,7 +1090,7 @@
         }
 
         .btn-action.btn-view {
-            background: rgba(139, 92, 246, 0.15);
+            background: rgba(37, 99, 235, 0.12);
             color: var(--primary);
         }
 
@@ -1146,7 +1146,7 @@
         }
 
         .btn-chat:hover {
-            background: rgba(139, 92, 246, 0.15);
+            background: rgba(37, 99, 235, 0.12);
             border-color: var(--primary);
         }
 
@@ -1164,7 +1164,7 @@
         }
 
         .tab-btn:hover {
-            background: rgba(139, 92, 246, 0.1);
+            background: rgba(37, 99, 235, 0.1);
             color: var(--text);
         }
 
@@ -1186,13 +1186,13 @@
         }
 
         .filter-btn:hover {
-            background: rgba(139, 92, 246, 0.1);
+            background: rgba(37, 99, 235, 0.1);
             border-color: var(--primary);
             color: var(--text);
         }
 
         .filter-btn.active {
-            background: rgba(139, 92, 246, 0.2);
+            background: rgba(37, 99, 235, 0.2);
             border-color: var(--primary);
             color: var(--primary);
         }
@@ -1218,7 +1218,7 @@
         }
 
         .orders-table tbody tr:hover {
-            background: rgba(139, 92, 246, 0.05);
+            background: rgba(37, 99, 235, 0.05);
         }
 
         .order-status {
@@ -1235,7 +1235,7 @@
         }
 
         .order-status.assigned {
-            background: rgba(139, 92, 246, 0.15);
+            background: rgba(37, 99, 235, 0.12);
             color: var(--primary);
         }
 
@@ -1358,7 +1358,7 @@
 
         .modal-btn-submit:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(139, 92, 246, 0.4);
+            box-shadow: 0 5px 20px rgba(37, 99, 235, 0.4);
         }
 
         .order-amount {
@@ -1463,7 +1463,7 @@
 
         .work-card:hover {
             border-color: var(--primary);
-            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.15);
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.12);
             transform: translateY(-2px);
         }
 
@@ -1820,7 +1820,7 @@
             justify-content: center;
             font-size: 2.5rem;
             margin: 0 auto 1.5rem;
-            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3)
+            box-shadow: 0 10px 30px rgba(37, 99, 235, 0.3)
         }
 
         .service-card h2 {
@@ -1938,7 +1938,7 @@
             background: transparent;
             border-color: var(--primary);
             transform: translateX(-3px);
-            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
         }
 
         .back-btn:hover::before {
@@ -1990,7 +1990,7 @@
         }
 
         .card:hover {
-            border-color: rgba(139, 92, 246, 0.3)
+            border-color: rgba(37, 99, 235, 0.3)
         }
 
         .card-title {
@@ -2018,12 +2018,12 @@
 
         .upload-zone:hover {
             border-color: var(--primary);
-            background: rgba(139, 92, 246, 0.05)
+            background: rgba(37, 99, 235, 0.05)
         }
 
         .upload-zone.dragover {
             border-color: var(--accent);
-            background: rgba(236, 72, 153, 0.1);
+            background: rgba(14, 165, 233, 0.1);
             transform: scale(1.01)
         }
 
@@ -2267,8 +2267,8 @@
             justify-content: space-between;
             align-items: center;
             padding: 1.5rem;
-            background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(236, 72, 153, 0.1));
-            border: 1px solid rgba(139, 92, 246, 0.3);
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.12), rgba(14, 165, 233, 0.1));
+            border: 1px solid rgba(37, 99, 235, 0.3);
             border-radius: 16px;
             margin-bottom: 1.5rem
         }
@@ -2358,8 +2358,8 @@
             align-items: center;
             gap: 0.5rem;
             padding: 0.5rem 1rem;
-            background: rgba(139, 92, 246, 0.1);
-            border: 1px solid rgba(139, 92, 246, 0.3);
+            background: rgba(37, 99, 235, 0.1);
+            border: 1px solid rgba(37, 99, 235, 0.3);
             border-radius: 100px;
             font-size: 0.875rem;
             color: var(--primary-light);
@@ -2449,6 +2449,286 @@
             border-top: 1px solid var(--border);
             color: var(--text-muted)
         }
+    
+        /* ════════════════════════════════════════════════════════════
+           QAZGOST AI - ULTRA-FUTURISTIC EXECUTIVE COMMAND CENTER
+           ════════════════════════════════════════════════════════════ */
+        .hero-executive-cockpit {
+            text-align: center;
+            padding: 3rem 1.5rem 2rem;
+            position: relative;
+        }
+
+        .hud-top-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(14, 22, 38, 0.85);
+            border: 1px solid rgba(56, 189, 248, 0.4);
+            box-shadow: 0 0 25px rgba(37, 99, 235, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(16px);
+            padding: 8px 18px;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #f1f5f9;
+            margin-bottom: 1.5rem;
+            letter-spacing: 0.03em;
+        }
+
+        .pulse-emerald-dot {
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #10b981;
+            animation: pulseDot 2s infinite;
+        }
+
+        @keyframes pulseDot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(1.3); }
+        }
+
+        .hud-kz-badge {
+            background: rgba(37, 99, 235, 0.3);
+            border: 1px solid rgba(59, 130, 246, 0.5);
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            color: #93c5fd;
+        }
+
+        .hero-main-title {
+            font-size: 3rem;
+            font-weight: 900;
+            line-height: 1.15;
+            letter-spacing: -0.03em;
+            color: #ffffff;
+            margin-bottom: 1rem;
+        }
+
+        .gradient-laser-text {
+            background: linear-gradient(135deg, #60a5fa 0%, #38bdf8 50%, #f59e0b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 30px rgba(56, 189, 248, 0.4));
+        }
+
+        .hero-main-sub {
+            font-size: 1.15rem;
+            color: #94a3b8;
+            max-width: 780px;
+            margin: 0 auto 2.5rem;
+            line-height: 1.6;
+        }
+
+        /* 3D Role Command Bento Grid */
+        .role-bento-cockpit {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            max-width: 1200px;
+            margin: 0 auto 2.5rem;
+            padding: 0 1.5rem;
+        }
+
+        .role-bento-card {
+            background: rgba(14, 22, 38, 0.75);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 2rem 1.75rem;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .role-bento-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 200%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.12), transparent);
+            transform: skewX(-20deg);
+            transition: 0.6s;
+        }
+
+        .role-bento-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            background: rgba(22, 34, 58, 0.9);
+            border-color: rgba(56, 189, 248, 0.5);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6), 0 0 35px rgba(37, 99, 235, 0.35);
+        }
+
+        .role-bento-card:hover::before {
+            left: 100%;
+        }
+
+        .role-bento-card.role-active {
+            border-color: rgba(56, 189, 248, 0.7);
+            background: rgba(37, 99, 235, 0.18);
+            box-shadow: 0 0 40px rgba(37, 99, 235, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .role-bento-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
+        }
+
+        .role-icon-box {
+            width: 54px;
+            height: 54px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+            background: rgba(11, 18, 32, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .role-icon-box.blue-glow {
+            border-color: rgba(59, 130, 246, 0.5);
+            box-shadow: 0 0 20px rgba(37, 99, 235, 0.35);
+        }
+
+        .role-icon-box.cyan-glow {
+            border-color: rgba(14, 165, 233, 0.5);
+            box-shadow: 0 0 20px rgba(14, 165, 233, 0.35);
+        }
+
+        .role-icon-box.amber-glow {
+            border-color: rgba(245, 158, 11, 0.5);
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.35);
+        }
+
+        .role-badge-status {
+            font-size: 0.75rem;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #94a3b8;
+            letter-spacing: 0.04em;
+        }
+
+        .role-bento-title {
+            font-size: 1.45rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 0.5rem;
+        }
+
+        .role-bento-desc {
+            font-size: 0.92rem;
+            color: #94a3b8;
+            line-height: 1.5;
+            margin-bottom: 1.25rem;
+        }
+
+        .role-mini-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .role-mini-tags span {
+            font-size: 0.78rem;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 6px;
+            background: rgba(37, 99, 235, 0.12);
+            border: 1px solid rgba(59, 130, 246, 0.25);
+            color: #93c5fd;
+        }
+
+        /* NASA / Bloomberg Telemetry Strip */
+        .hud-telemetry-strip {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.25rem;
+            max-width: 1200px;
+            margin: 0 auto 3rem;
+            padding: 0 1.5rem;
+        }
+
+        .telemetry-item {
+            background: rgba(14, 22, 38, 0.65);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(18px);
+            border-radius: 18px;
+            padding: 1.25rem 1.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+            transition: all 0.2s ease;
+        }
+
+        .telemetry-item:hover {
+            border-color: rgba(59, 130, 246, 0.4);
+            background: rgba(22, 34, 58, 0.8);
+            transform: translateY(-3px);
+        }
+
+        .telemetry-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .tel-icon {
+            font-size: 1.25rem;
+        }
+
+        .tel-delta {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.78rem;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .text-emerald { color: #34d399 !important; }
+        .text-cyan { color: #38bdf8 !important; }
+        .text-amber { color: #fbbf24 !important; }
+
+        .telemetry-val {
+            font-family: 'JetBrains Mono', 'Plus Jakarta Sans', monospace;
+            font-size: 1.85rem;
+            font-weight: 900;
+            color: #ffffff;
+            letter-spacing: -0.02em;
+            margin-bottom: 2px;
+            text-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+        }
+
+        .telemetry-label {
+            font-size: 0.82rem;
+            color: #94a3b8;
+            font-weight: 600;
+        }
+
+        @media(max-width: 900px) {
+            .role-bento-cockpit, .hud-telemetry-strip {
+                grid-template-columns: 1fr;
+            }
+            .hero-main-title {
+                font-size: 2.2rem;
+            }
+        }
+
     </style>
 <style> .nav-dropdown { pointer-events: auto !important; } .nav-dropdown-item { pointer-events: auto !important; z-index: 99999; } </style></head>
 
@@ -2456,9 +2736,9 @@
     <!-- ===== SPLASH LOADING SCREEN (видно пока не загрузятся скрипты) ===== -->
     <div id="splashScreen" style="position:fixed;inset:0;z-index:99999;background:#030712;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.5rem;font-family:'Inter',-apple-system,sans-serif;transition:opacity 0.5s ease">
         <div style="font-size:3rem;animation:splashPulse 2s ease-in-out infinite">🏗️</div>
-        <div style="font-size:1.3rem;font-weight:700;background:linear-gradient(135deg,#a78bfa,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent">QazGost AI</div>
+        <div style="font-size:1.3rem;font-weight:700;background:linear-gradient(135deg,#60a5fa,#0ea5e9);-webkit-background-clip:text;-webkit-text-fill-color:transparent">QazGost AI</div>
         <div style="width:120px;height:3px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden">
-            <div style="width:40%;height:100%;background:linear-gradient(90deg,#8b5cf6,#ec4899);border-radius:4px;animation:splashBar 1.5s ease-in-out infinite"></div>
+            <div style="width:40%;height:100%;background:linear-gradient(90deg,#2563eb,#0ea5e9);border-radius:4px;animation:splashBar 1.5s ease-in-out infinite"></div>
         </div>
         <p style="color:rgba(255,255,255,0.3);font-size:0.8rem;margin-top:0.5rem">Загрузка платформы...</p>
     </div>
@@ -2604,8 +2884,8 @@
 
                     <!-- Согласие на обработку персональных данных -->
                     <label class="auth-checkbox" style="display:flex;align-items:flex-start;gap:0.6rem;margin:1rem 0 0.5rem;cursor:pointer;font-size:0.82rem;color:rgba(255,255,255,0.5);line-height:1.5">
-                        <input type="checkbox" id="authPrivacyConsent" style="margin-top:3px;accent-color:#8b5cf6;min-width:16px">
-                        <span>Я принимаю <a href="terms.html" target="_blank" style="color:#a78bfa">Условия использования</a> и <a href="privacy.html" target="_blank" style="color:#a78bfa">Политику конфиденциальности</a>, а также даю согласие на обработку персональных данных.</span>
+                        <input type="checkbox" id="authPrivacyConsent" style="margin-top:3px;accent-color:#2563eb;min-width:16px">
+                        <span>Я принимаю <a href="terms.html" target="_blank" style="color:#60a5fa">Условия использования</a> и <a href="privacy.html" target="_blank" style="color:#60a5fa">Политику конфиденциальности</a>, а также даю согласие на обработку персональных данных.</span>
                     </label>
                     <span class="field-error" id="authPrivacyConsentError" hidden></span>
                 </div>
@@ -2900,7 +3180,7 @@
 
         .country-selected:hover {
             border-color: var(--primary);
-            background: rgba(139, 92, 246, 0.1);
+            background: rgba(37, 99, 235, 0.1);
         }
 
         .country-flag {
@@ -2958,11 +3238,11 @@
         }
 
         .country-item:hover {
-            background: rgba(139, 92, 246, 0.15);
+            background: rgba(37, 99, 235, 0.12);
         }
 
         .country-item.selected {
-            background: rgba(139, 92, 246, 0.2);
+            background: rgba(37, 99, 235, 0.2);
         }
 
         .country-item .country-name {
@@ -2991,7 +3271,7 @@
 
         .phone-input:focus {
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
         }
 
         .phone-input::placeholder {
@@ -3035,12 +3315,12 @@
         .auth-btn.primary {
             background: linear-gradient(135deg, var(--primary), var(--accent));
             color: white;
-            box-shadow: 0 4px 20px rgba(139, 92, 246, 0.4);
+            box-shadow: 0 4px 20px rgba(37, 99, 235, 0.4);
         }
 
         .auth-btn.primary:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(139, 92, 246, 0.5);
+            box-shadow: 0 8px 30px rgba(37, 99, 235, 0.5);
         }
 
         .auth-btn.primary:disabled {
@@ -3116,7 +3396,7 @@
 
         .otp-input:focus {
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
         }
 
         .otp-input.filled {
@@ -3188,7 +3468,7 @@
         }
 
         .orders-table th {
-            background: rgba(139, 92, 246, 0.1);
+            background: rgba(37, 99, 235, 0.1);
             font-weight: 600;
             color: var(--text-muted);
             font-size: 0.85rem;
@@ -3197,7 +3477,7 @@
         }
 
         .orders-table tr:hover {
-            background: rgba(139, 92, 246, 0.05);
+            background: rgba(37, 99, 235, 0.05);
         }
 
         .orders-table .order-date {
@@ -3224,7 +3504,7 @@
         }
 
         .orders-table .order-status.accepted {
-            background: rgba(139, 92, 246, 0.15);
+            background: rgba(37, 99, 235, 0.12);
             color: var(--primary-light);
         }
 
@@ -3252,7 +3532,7 @@
 
         .btn-propose:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
         }
 
         .btn-call {
@@ -3295,7 +3575,7 @@
         }
 
         .pagination-btn:hover:not(:disabled) {
-            background: rgba(139, 92, 246, 0.2);
+            background: rgba(37, 99, 235, 0.2);
             border-color: var(--primary);
         }
 
@@ -3327,7 +3607,7 @@
         }
 
         .tab-btn:hover {
-            background: rgba(139, 92, 246, 0.1);
+            background: rgba(37, 99, 235, 0.1);
             color: var(--text);
         }
 
@@ -3361,12 +3641,12 @@
         }
 
         .btn-inspect {
-            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
             color: white;
         }
 
         .btn-view {
-            background: rgba(139, 92, 246, 0.2);
+            background: rgba(37, 99, 235, 0.2);
             color: var(--primary);
             border: 1px solid var(--primary);
         }
@@ -3386,7 +3666,7 @@
         }
 
         .order-status.submitted {
-            background: #8b5cf6;
+            background: #2563eb;
         }
 
         .order-status.needs_fix {
@@ -3533,7 +3813,7 @@
         .modal-input:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
         }
 
         .modal-actions {
@@ -3571,7 +3851,7 @@
 
         .modal-btn-submit:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
         }
 
         .privacy-notice {
@@ -3599,8 +3879,8 @@
         }
 
         .order-card:hover {
-            background: rgba(139, 92, 246, 0.05);
-            border-color: rgba(139, 92, 246, 0.3);
+            background: rgba(37, 99, 235, 0.05);
+            border-color: rgba(37, 99, 235, 0.3);
         }
 
         .order-card-header {
@@ -3660,12 +3940,12 @@
 
         .role-btn:hover {
             border-color: var(--primary);
-            background: rgba(139, 92, 246, 0.1);
+            background: rgba(37, 99, 235, 0.1);
         }
 
         .role-btn.active {
             border-color: var(--primary);
-            background: rgba(139, 92, 246, 0.15);
+            background: rgba(37, 99, 235, 0.12);
         }
 
         .role-btn-icon {
@@ -3705,8 +3985,8 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            background: rgba(139, 92, 246, 0.1);
-            border: 1px solid rgba(139, 92, 246, 0.3);
+            background: rgba(37, 99, 235, 0.1);
+            border: 1px solid rgba(37, 99, 235, 0.3);
             border-radius: 30px;
             padding: 0.25rem;
             margin-right: 1rem;
@@ -3733,7 +4013,7 @@
         }
 
         .role-switcher-btn:hover:not(.active) {
-            background: rgba(139, 92, 246, 0.2);
+            background: rgba(37, 99, 235, 0.2);
         }
 
         /* Role Selection Cards on Home */
@@ -3770,12 +4050,12 @@
         .role-card:hover {
             transform: translateY(-5px);
             border-color: var(--primary);
-            box-shadow: 0 10px 40px rgba(139, 92, 246, 0.3);
+            box-shadow: 0 10px 40px rgba(37, 99, 235, 0.3);
         }
 
         .role-card.active {
             border-color: var(--primary);
-            background: rgba(139, 92, 246, 0.1);
+            background: rgba(37, 99, 235, 0.1);
         }
 
         .role-card.active::after {
@@ -3917,7 +4197,7 @@
             justify-content: space-between;
             padding: 1rem;
             border-bottom: 1px solid var(--border);
-            background: rgba(139, 92, 246, 0.1);
+            background: rgba(37, 99, 235, 0.1);
         }
 
         .chat-participant {
@@ -4030,7 +4310,7 @@
 
         .chat-send-btn:hover {
             transform: scale(1.05);
-            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
         }
 
         .chat-empty {
@@ -4051,7 +4331,7 @@
         }
 
         .btn-chat {
-            background: linear-gradient(135deg, #06b6d4, #8b5cf6);
+            background: linear-gradient(135deg, #06b6d4, #2563eb);
             color: white;
             border: none;
             padding: 0.5rem 1rem;
@@ -4108,13 +4388,13 @@
         }
 
         .nav-role.contractor {
-            background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(245, 158, 11, 0.15));
-            border: 1px solid rgba(139, 92, 246, 0.3);
-            color: #8b5cf6;
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.12), rgba(245, 158, 11, 0.15));
+            border: 1px solid rgba(37, 99, 235, 0.3);
+            color: #2563eb;
         }
 
         .nav-role.active {
-            box-shadow: 0 0 15px rgba(139, 92, 246, 0.4);
+            box-shadow: 0 0 15px rgba(37, 99, 235, 0.4);
         }
 
         .nav-role:hover {
@@ -4186,7 +4466,7 @@
         }
 
         .nav-dropdown-item:hover {
-            background: rgba(139, 92, 246, 0.15);
+            background: rgba(37, 99, 235, 0.12);
         }
 
         .nav-dropdown-item-icon {
@@ -4357,7 +4637,7 @@
                 <div class="nav-dropdown" onclick="event.stopPropagation()" style="min-width: 300px;">
                     <!-- Тип организации -->
                     <div id="contractorOrgBadge"
-                        style="padding: 0.5rem 1rem; display: flex; align-items: center; gap: 0.5rem; background: linear-gradient(135deg, rgba(139,92,246,0.15), rgba(6,182,212,0.15)); border-radius: 8px; margin: 0.5rem; font-size: 0.85rem;">
+                        style="padding: 0.5rem 1rem; display: flex; align-items: center; gap: 0.5rem; background: linear-gradient(135deg, rgba(37, 99, 235, 0.12), rgba(6,182,212,0.15)); border-radius: 8px; margin: 0.5rem; font-size: 0.85rem;">
                         <span id="contractorOrgIcon" style="font-size: 1.3rem;">🔧</span>
                         <div>
                             <div id="contractorOrgType" style="font-weight: 700; color: var(--primary);">Мастер</div>
@@ -5277,94 +5557,174 @@
 
     <!-- ORIGINAL PAGE HOME - Main App Interface -->
     <div class="page" id="page-home">
-        <section class="hero">
-            <div class="hero-badge">✨ <span>AI-powered</span> • Версия 2.0</div>
-            <h1>Умная оценка <span class="gradient">строительных работ</span></h1>
-            <p>Загрузите фото объекта — получите точный расчёт материалов, стоимости или найдите дефекты</p>
+        <section class="hero-executive-cockpit">
+            <div class="hud-top-pill">
+                <span class="pulse-emerald-dot"></span>
+                <span>AI-CORE 2.0 • ГОСТ РК & СНиП 8.04 • GO 1.26 ENGINE ONLINE (&lt;1ms)</span>
+                <span class="hud-kz-badge">🇰🇿 KZ NORM</span>
+            </div>
+            <h1 class="hero-main-title">
+                Цифровой инжиниринг и <span class="gradient-laser-text">умные сметы</span>
+            </h1>
+            <p class="hero-main-sub">
+                Автоматическая WBS-декомпозиция, расчёт объёмов работ по фото и детекция дефектов по стандартам Республики Казахстан
+            </p>
         </section>
 
-        <!-- Выбор роли на мобильных -->
-        <div class="role-selection" id="roleSelection" style="grid-template-columns: repeat(3, 1fr);">
-            <div class="role-card" id="roleCardOrderer" onclick="setRole('orderer')">
-                <div class="role-card-icon">📋</div>
-                <div class="role-card-title">Я Заказчик</div>
-                <div class="role-card-desc">Создаю заказы, выбираю исполнителей, принимаю работу</div>
+        <!-- 3D Role Command Bento Grid -->
+        <div class="role-bento-cockpit" id="roleSelection">
+            <!-- 1. ЗАКАЗЧИК -->
+            <div class="role-bento-card role-active" id="roleCardOrderer" onclick="setRole('orderer')">
+                <div class="role-bento-header">
+                    <div class="role-icon-box blue-glow">📋</div>
+                    <span class="role-badge-status">РЕЖИМ ЗАКАЗЧИКА</span>
+                </div>
+                <div class="role-bento-title">Я Заказчик</div>
+                <div class="role-bento-desc">Мгновенный расчёт сметы по фото, 3 сценария цены и эскроу-контроль в KZT</div>
+                <div class="role-mini-tags">
+                    <span>⚡ Смета за 2 сек</span>
+                    <span>🛡️ Эскроу 100%</span>
+                    <span>📊 3 Сценария</span>
+                </div>
             </div>
-            <div class="role-card" id="roleCardContractor" onclick="setRole('contractor')">
-                <div class="role-card-icon">🔧</div>
-                <div class="role-card-title">Я Исполнитель</div>
-                <div class="role-card-desc">Ищу заказы, отправляю предложения, выполняю работы</div>
+
+            <!-- 2. ИСПОЛНИТЕЛЬ -->
+            <div class="role-bento-card" id="roleCardContractor" onclick="setRole('contractor')">
+                <div class="role-bento-header">
+                    <div class="role-icon-box cyan-glow">🔧</div>
+                    <span class="role-badge-status">БИРЖА ТЕНДЕРОВ</span>
+                </div>
+                <div class="role-bento-title">Я Исполнитель</div>
+                <div class="role-bento-desc">Лента заказов без посредников, прямой чат и сдача этапов онлайн</div>
+                <div class="role-mini-tags">
+                    <span>🌐 Открытая лента</span>
+                    <span>💬 Прямой чат</span>
+                    <span>0% Комиссии</span>
+                </div>
             </div>
-            <div class="role-card" id="roleCardEngineer" onclick="setRole('engineer')">
-                <div class="role-card-icon">👷</div>
-                <div class="role-card-title">Я Инженер</div>
-                <div class="role-card-desc">Принимаю заявки, разрабатываю проектную документацию</div>
+
+            <!-- 3. ИНЖЕНЕР -->
+            <div class="role-bento-card" id="roleCardEngineer" onclick="setRole('engineer')">
+                <div class="role-bento-header">
+                    <div class="role-icon-box amber-glow">👷</div>
+                    <span class="role-badge-status">СНиП ЭКСПЕРТИЗА</span>
+                </div>
+                <div class="role-bento-title">Я Инженер</div>
+                <div class="role-bento-desc">Технический надзор, проверка дефектов и генерация актов КС-2 / КС-3</div>
+                <div class="role-mini-tags">
+                    <span>📐 СНиП РК 8.04</span>
+                    <span>🔍 Детекция 99.4%</span>
+                    <span>📑 Акты КС-2</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- NASA / Bloomberg Telemetry Strip -->
+        <div class="hud-telemetry-strip">
+            <div class="telemetry-item">
+                <div class="telemetry-top">
+                    <span class="tel-icon">📊</span>
+                    <span class="tel-delta text-emerald">+18.4%</span>
+                </div>
+                <div class="telemetry-val">10 450+</div>
+                <div class="telemetry-label">Смет рассчитано по ГОСТ РК</div>
+            </div>
+            <div class="telemetry-item">
+                <div class="telemetry-top">
+                    <span class="tel-icon">🗄️</span>
+                    <span class="tel-delta text-cyan">IN-RAM</span>
+                </div>
+                <div class="telemetry-val">23 864</div>
+                <div class="telemetry-label">Позиции расценок в памяти</div>
+            </div>
+            <div class="telemetry-item">
+                <div class="telemetry-top">
+                    <span class="tel-icon">⚡</span>
+                    <span class="tel-delta text-amber">&lt; 1 ms</span>
+                </div>
+                <div class="telemetry-val">0.02 сек</div>
+                <div class="telemetry-label">Отклик сервера Go 1.26</div>
+            </div>
+            <div class="telemetry-item">
+                <div class="telemetry-top">
+                    <span class="tel-icon">🛡️</span>
+                    <span class="tel-delta text-emerald">100% БЕЗОПАСНО</span>
+                </div>
+                <div class="telemetry-val">KZT Эскроу</div>
+                <div class="telemetry-label">Гарантия приёмки работ</div>
             </div>
         </div>
 
         <!-- Функционал для Заказчика -->
-        <div id="ordererServices" class="role-visible">
-            <div class="services-grid" style="grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+        <div id="ordererServices" class="role-visible" style="max-width: 1200px; margin: 0 auto; padding: 0 1.5rem;">
+            <div class="services-grid" style="grid-template-columns: repeat(2, 1fr); gap: 1.5rem;">
                 <!-- Row 1 -->
                 <div class="service-card estimate" data-role-page="photo-estimate" onclick="showPage('photo-estimate')">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                        <span class="hud-kz-badge" style="background:rgba(37,99,235,0.25); color:#93c5fd; font-weight:700;">⚡ СМЕТА ЗА 2 СЕК</span>
+                        <span style="font-size:0.8rem; color:#34d399; font-weight:700;">● СНиП 8.04</span>
+                    </div>
                     <div class="service-icon">📊</div>
                     <h2>Оценка стоимости</h2>
-                    <p>Загрузите фото → AI-анализ → смета за 2 сек. 3 сценария цены</p>
-                    <button class="service-btn">🚀 Начать оценку</button>
+                    <p>Загрузите фото → AI-анализ → смета за 2 сек. 3 сценария цены (Эконом, Стандарт, Премиум)</p>
+                    <button class="service-btn" style="background:linear-gradient(135deg, #2563eb, #38bdf8); color:#fff; width:100%; justify-content:center;">🚀 Начать AI-оценку</button>
                 </div>
+
                 <div class="service-card inspect" data-role-page="inspect" onclick="showPage('inspect')">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                        <span class="hud-kz-badge" style="background:rgba(245,158,11,0.25); color:#fbbf24; font-weight:700;">🔍 ДЕТЕКЦИЯ 99.4%</span>
+                        <span style="font-size:0.8rem; color:#f59e0b; font-weight:700;">● ТЕПЛОВИЗОР</span>
+                    </div>
                     <div class="service-icon">🔍</div>
                     <h2>Проверка дефектов</h2>
-                    <p>Трещины, влага, плесень. AI-отчёт + план устранения</p>
-                    <button class="service-btn" style="background:linear-gradient(135deg,var(--warning),var(--error))">🔍 Начать проверку</button>
+                    <p>Трещины, влага, плесень, кривизна поверхностей. Детальный AI-отчёт + план устранения</p>
+                    <button class="service-btn" style="background:linear-gradient(135deg,#f59e0b,#ef4444); color:#fff; width:100%; justify-content:center;">🔍 Начать проверку</button>
                 </div>
 
                 <!-- Row 2 -->
-                <div class="service-card" data-role-page="vip" onclick="showPage('vip')"
-                    style="background:linear-gradient(135deg, rgba(234,179,8,0.15), rgba(139,92,246,0.15))">
+                <div class="service-card" data-role-page="vip" onclick="showPage('vip')">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                        <span class="hud-kz-badge" style="background:rgba(245,158,11,0.2); color:#fbbf24; font-weight:700;">🏗️ BIM & WBS</span>
+                        <span style="font-size:0.8rem; color:#38bdf8; font-weight:700;">● ПОЛНЫЙ ЦИКЛ</span>
+                    </div>
                     <div class="service-icon">🏗️</div>
                     <h2>Строительство зданий</h2>
-                    <p>ПСД, WBS-декомпозиция, сметы полного цикла</p>
-                    <button class="service-btn" style="background:linear-gradient(135deg,#eab308,#8b5cf6)">⭐ Открыть</button>
+                    <p>ПСД, 21 группа WBS-декомпозиции, сметы полного цикла от фундамента до кровли</p>
+                    <button class="service-btn" style="background:linear-gradient(135deg,#f59e0b,#2563eb); color:#fff; width:100%; justify-content:center;">⭐ Открыть проект</button>
                 </div>
-                <div class="service-card" data-role-page="engineering" onclick="showPage('engineering')"
-                    style="background:linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(236, 72, 153, 0.15))">
+
+                <div class="service-card" data-role-page="engineering" onclick="showPage('engineering')">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                        <span class="hud-kz-badge" style="background:rgba(56,189,248,0.2); color:#38bdf8; font-weight:700;">⚙️ СЕТИ И HVAC</span>
+                        <span style="font-size:0.8rem; color:#34d399; font-weight:700;">● ГОСТ РК</span>
+                    </div>
                     <div class="service-icon">⚙️</div>
                     <h2>Инженерные решения</h2>
-                    <p>Электрика, сантехника, HVAC, слаботочные системы</p>
-                    <button class="service-btn" style="background:linear-gradient(135deg,#8b5cf6,#ec4899)">🛠 Выбрать</button>
+                    <p>Электроснабжение, сантехника, вентиляция, отопление, слаботочные системы и пожаротушение</p>
+                    <button class="service-btn" style="background:linear-gradient(135deg,#2563eb,#0ea5e9); color:#fff; width:100%; justify-content:center;">🛠 Выбрать раздел</button>
                 </div>
 
                 <!-- Row 3 -->
-                <div class="service-card" data-role-page="orders" onclick="showPage('orders')"
-                    style="background:linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(6, 182, 212, 0.1))">
+                <div class="service-card" data-role-page="orders" onclick="showPage('orders')">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                        <span class="hud-kz-badge" style="background:rgba(16,185,129,0.2); color:#6ee7b7; font-weight:700;">📬 LIVE БИРЖА</span>
+                        <span style="font-size:0.8rem; color:#10b981; font-weight:700;">● 0% КОМИССИИ</span>
+                    </div>
                     <div class="service-icon">📬</div>
                     <h2>Мои заказы</h2>
-                    <p>Просмотр заказов, откликов и статусов работ</p>
-                    <button class="service-btn" style="background:linear-gradient(135deg,#22c55e,#06b6d4)">📋 Открыть заказы</button>
-                </div>
-                <div class="service-card" data-role-page="wallet" onclick="showPage('wallet')"
-                    style="background:linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(245, 158, 11, 0.1))">
-                    <div class="service-icon">💳</div>
-                    <h2>Мой кошелёк</h2>
-                    <p>Баланс, операции, подписки и пополнение счёта</p>
-                    <button class="service-btn" style="background:linear-gradient(135deg,#8b5cf6,#f59e0b)">💰 Открыть кошелёк</button>
+                    <p>Управление заказами, просмотр откликов от проверенных бригад и контроль статусов онлайн</p>
+                    <button class="service-btn" style="background:linear-gradient(135deg,#10b981,#06b6d4); color:#fff; width:100%; justify-content:center;">📋 Открыть заказы</button>
                 </div>
 
-                <!-- Row 4 -->
-                <div class="service-card" data-role-page="equipment" onclick="showPage('equipment')"
-                    style="background:linear-gradient(135deg, rgba(245,158,11,0.12), rgba(6,182,212,0.12))">
-                    <div class="service-icon">🚜</div>
-                    <h2>Маркетплейс техники</h2>
-                    <p>Аренда экскаваторов, кранов, самосвалов</p>
-                    <button class="service-btn" style="background:linear-gradient(135deg,#f59e0b,#06b6d4)">🏗️ Открыть</button>
-                </div>
-                <div class="service-card" data-role-page="volume" onclick="showPage('volume')"
-                    style="background:linear-gradient(135deg, rgba(139,92,246,0.15), rgba(168,85,247,0.15))">
-                    <div class="service-icon">📐</div>
-                    <h2>Фото-объёмы грунта</h2>
-                    <p>Объёмы выемки/насыпи по фото ДО/ПОСЛЕ</p>
-                    <button class="service-btn" style="background:linear-gradient(135deg,#8b5cf6,#a855f7)">📸 Рассчитать</button>
+                <div class="service-card" data-role-page="wallet" onclick="showPage('wallet')">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                        <span class="hud-kz-badge" style="background:rgba(245,158,11,0.2); color:#fcd34d; font-weight:700;">🛡️ KZT ЭСКРОУ</span>
+                        <span style="font-size:0.8rem; color:#34d399; font-weight:700;">● 100% ГАРАНТИЯ</span>
+                    </div>
+                    <div class="service-icon">💳</div>
+                    <h2>Мой кошелёк</h2>
+                    <p>Безопасное депонирование средств, поэтапная выплата мастерам и мгновенный вывод</p>
+                    <button class="service-btn" style="background:linear-gradient(135deg,#2563eb,#f59e0b); color:#fff; width:100%; justify-content:center;">💰 Открыть кошелёк</button>
                 </div>
             </div>
 
@@ -5383,7 +5743,7 @@
         <!-- Функционал для Исполнителя (СУПЕРРЕЖИМ) -->
         <div id="contractorServices" class="role-hidden">
             <!-- Баннер суперрежима -->
-            <div style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(236, 72, 153, 0.2)); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 16px; padding: 1rem 1.5rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 1rem;">
+            <div style="background: linear-gradient(135deg, rgba(37, 99, 235, 0.2), rgba(14, 165, 233, 0.2)); border: 1px solid rgba(37, 99, 235, 0.3); border-radius: 16px; padding: 1rem 1.5rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 1rem;">
                 <span style="font-size: 2rem;">🎯</span>
                 <div>
                     <div style="font-weight: 600; color: var(--primary); font-size: 1.1rem;">СУПЕРРЕЖИМ исполнителя</div>
@@ -5394,18 +5754,18 @@
             <div class="services-grid" style="grid-template-columns: repeat(2, 1fr); gap: 1rem;">
                 <!-- Row 1: Заказы -->
                 <div class="service-card" data-role-page="orders" onclick="showPage('orders')"
-                    style="background:linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(6, 182, 212, 0.1))">
+                    style="background:linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(6, 182, 212, 0.1))">
                     <div class="service-icon">🌐</div>
                     <h2>Лента заказов</h2>
                     <p>Найдите заказы и отправьте предложения</p>
                     <button class="service-btn">🔎 Смотреть заказы</button>
                 </div>
                 <div class="service-card" data-role-page="orders" onclick="showPage('orders'); setTimeout(() => switchOrdersTab('my'), 100)"
-                    style="background:linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(139, 92, 246, 0.1))">
+                    style="background:linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(37, 99, 235, 0.1))">
                     <div class="service-icon">📌</div>
                     <h2>Мои работы</h2>
                     <p>Заказы, которые вы выполняете или завершили</p>
-                    <button class="service-btn" style="background:linear-gradient(135deg,#f59e0b,#8b5cf6)">🔧 Мои заказы</button>
+                    <button class="service-btn" style="background:linear-gradient(135deg,#f59e0b,#2563eb)">🔧 Мои заказы</button>
                 </div>
 
                 <!-- Row 2: Оценка + Дефекты -->
@@ -5424,18 +5784,18 @@
 
                 <!-- Row 3: Строительство + Инженерные -->
                 <div class="service-card" data-role-page="vip" onclick="showPage('vip')"
-                    style="background:linear-gradient(135deg, rgba(234,179,8,0.15), rgba(139,92,246,0.15))">
+                    style="background:linear-gradient(135deg, rgba(234,179,8,0.15), rgba(37, 99, 235, 0.12))">
                     <div class="service-icon">🏗️</div>
                     <h2>Строительство зданий</h2>
                     <p>ПСД, WBS-декомпозиция, сметы полного цикла</p>
-                    <button class="service-btn" style="background:linear-gradient(135deg,#eab308,#8b5cf6)">⭐ Открыть</button>
+                    <button class="service-btn" style="background:linear-gradient(135deg,#eab308,#2563eb)">⭐ Открыть</button>
                 </div>
                 <div class="service-card" data-role-page="engineering" onclick="showPage('engineering')"
-                    style="background:linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(236, 72, 153, 0.15))">
+                    style="background:linear-gradient(135deg, rgba(37, 99, 235, 0.12), rgba(14, 165, 233, 0.10))">
                     <div class="service-icon">⚙️</div>
                     <h2>Инженерные решения</h2>
                     <p>Электрика, сантехника, HVAC, слаботочные</p>
-                    <button class="service-btn" style="background:linear-gradient(135deg,#8b5cf6,#ec4899)">🛠 Выбрать</button>
+                    <button class="service-btn" style="background:linear-gradient(135deg,#2563eb,#0ea5e9)">🛠 Выбрать</button>
                 </div>
 
                 <!-- Row 4: Техника + Объёмы -->
@@ -5447,11 +5807,11 @@
                     <button class="service-btn" style="background:linear-gradient(135deg,#f59e0b,#06b6d4)">🏗️ Открыть</button>
                 </div>
                 <div class="service-card" data-role-page="volume" onclick="showPage('volume')"
-                    style="background:linear-gradient(135deg, rgba(139,92,246,0.15), rgba(168,85,247,0.15))">
+                    style="background:linear-gradient(135deg, rgba(37, 99, 235, 0.12), rgba(168,85,247,0.15))">
                     <div class="service-icon">📐</div>
                     <h2>Фото-объёмы грунта</h2>
                     <p>Объёмы выемки/насыпи по фото ДО/ПОСЛЕ</p>
-                    <button class="service-btn" style="background:linear-gradient(135deg,#8b5cf6,#a855f7)">📸 Рассчитать</button>
+                    <button class="service-btn" style="background:linear-gradient(135deg,#2563eb,#a855f7)">📸 Рассчитать</button>
                 </div>
 
                 <!-- Row 5: Кошелёк -->
@@ -5465,13 +5825,13 @@
             </div>
 
             <!-- Анкета исполнителя — полноширинный баннер -->
-            <div class="service-card" data-role-page="profile" onclick="openExecutorProfileModal()" style="margin-top:1rem; background:linear-gradient(135deg, rgba(6, 182, 212, 0.12), rgba(139, 92, 246, 0.12)); border:1px solid rgba(6, 182, 212, 0.25); display:flex; align-items:center; gap:1.5rem; padding:1.2rem 1.5rem; cursor:pointer">
+            <div class="service-card" data-role-page="profile" onclick="openExecutorProfileModal()" style="margin-top:1rem; background:linear-gradient(135deg, rgba(6, 182, 212, 0.12), rgba(37, 99, 235, 0.12)); border:1px solid rgba(6, 182, 212, 0.25); display:flex; align-items:center; gap:1.5rem; padding:1.2rem 1.5rem; cursor:pointer">
                 <div class="service-icon" style="font-size:2rem; margin:0">👤</div>
                 <div style="flex:1">
                     <h2 style="margin:0 0 4px; font-size:1rem">Анкета исполнителя</h2>
                     <p style="margin:0; font-size:0.85rem">Заполните профиль для получения заказов</p>
                 </div>
-                <button class="service-btn" style="background:linear-gradient(135deg,#06b6d4,#8b5cf6); white-space:nowrap">📝 Заполнить</button>
+                <button class="service-btn" style="background:linear-gradient(135deg,#06b6d4,#2563eb); white-space:nowrap">📝 Заполнить</button>
             </div>
         </div>
 
@@ -5857,7 +6217,7 @@
         <div class="tool-page">
             <div class="tool-header"><button class="back-btn" onclick="goBack()">←</button>
                 <div class="tool-title">
-                    <div class="tool-title-icon" style="background:linear-gradient(135deg,#06b6d4,#8b5cf6)">🔨</div>
+                    <div class="tool-title-icon" style="background:linear-gradient(135deg,#06b6d4,#2563eb)">🔨</div>
                     <span>Мои работы</span>
                 </div>
             </div>
@@ -5954,7 +6314,7 @@
             <div class="tool-header">
                 <button class="back-btn" onclick="goBack()">←</button>
                 <div class="tool-title">
-                    <div class="tool-title-icon" style="background:linear-gradient(135deg,#8b5cf6,#a855f7)">📐</div>
+                    <div class="tool-title-icon" style="background:linear-gradient(135deg,#2563eb,#a855f7)">📐</div>
                     <span>Фото-объёмы</span>
                 </div>
             </div>
@@ -5965,7 +6325,7 @@
                     <h3 style="color: #f8fafc; margin-bottom: 1rem;">Фото-объёмы грунта/котлована</h3>
                     <p style="color: #94a3b8; margin-bottom: 2rem;">Нажмите кнопку ниже для загрузки интерфейса</p>
                     <button onclick="if(window.VolumeUI) VolumeUI.init(); else alert('Модуль загружается...');"
-                        style="padding: 1rem 2rem; background: linear-gradient(135deg, #8b5cf6, #a855f7); color: #fff; border: none; border-radius: 10px; font-size: 1rem; cursor: pointer;">
+                        style="padding: 1rem 2rem; background: linear-gradient(135deg, #2563eb, #a855f7); color: #fff; border: none; border-radius: 10px; font-size: 1rem; cursor: pointer;">
                         🚀 Загрузить модуль
                     </button>
                 </div>
@@ -5996,7 +6356,7 @@
             <div class="tool-header">
                 <button class="back-btn" onclick="goBack()">←</button>
                 <div class="tool-title">
-                    <div class="tool-title-icon" style="background:linear-gradient(135deg,#8b5cf6,#ec4899)">👷</div>
+                    <div class="tool-title-icon" style="background:linear-gradient(135deg,#2563eb,#0ea5e9)">👷</div>
                     <span>Кабинет инженера v2.0</span>
                 </div>
             </div>
@@ -6198,7 +6558,7 @@
                         Начать сразу</button>
                     <button type="button"
                         onclick="document.getElementById('proposalStartDate').value=new Date(Date.now()+86400000*3).toISOString().split('T')[0]"
-                        style="padding:0.4rem 0.8rem;border:1px solid rgba(139,92,246,0.3);background:rgba(139,92,246,0.1);color:#8b5cf6;border-radius:8px;cursor:pointer;font-size:0.8rem">📅
+                        style="padding:0.4rem 0.8rem;border:1px solid rgba(139,92,246,0.3);background:rgba(139,92,246,0.1);color:#2563eb;border-radius:8px;cursor:pointer;font-size:0.8rem">📅
                         Через 3 дня</button>
                     <button type="button"
                         onclick="document.getElementById('proposalStartDate').value=new Date(Date.now()+86400000*7).toISOString().split('T')[0]"
@@ -7333,7 +7693,7 @@
             const msgDiv = document.createElement('div');
             msgDiv.className = 'ai-msg ' + (isUser ? 'user' : 'bot');
             msgDiv.style.cssText = `padding:0.85rem 1.1rem;border-radius:14px;max-width:90%;font-size:0.92rem;line-height:1.5;${isUser
-                ? 'background:linear-gradient(135deg,#8b5cf6,#ec4899);align-self:flex-end;border-bottom-right-radius:4px;color:white'
+                ? 'background:linear-gradient(135deg,#2563eb,#0ea5e9);align-self:flex-end;border-bottom-right-radius:4px;color:white'
                 : 'background:rgba(6,182,212,0.12);align-self:flex-start;border-bottom-left-radius:4px'
                 }`;
             msgDiv.innerHTML = text;
@@ -8230,9 +8590,9 @@
                     
                     <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
                         <button onclick="openOrderDetail('${order.id}')" 
-                                style="flex:1;min-width:120px;padding:0.6rem 1rem;background:rgba(139,92,246,0.15);border:1px solid var(--primary);border-radius:8px;color:var(--primary);font-weight:500;cursor:pointer;transition:all 0.3s;"
+                                style="flex:1;min-width:120px;padding:0.6rem 1rem;background:rgba(37, 99, 235, 0.12);border:1px solid var(--primary);border-radius:8px;color:var(--primary);font-weight:500;cursor:pointer;transition:all 0.3s;"
                                 onmouseover="this.style.background='var(--primary)';this.style.color='white'"
-                                onmouseout="this.style.background='rgba(139,92,246,0.15)';this.style.color='var(--primary)'">
+                                onmouseout="this.style.background='rgba(37, 99, 235, 0.12)';this.style.color='var(--primary)'">
                             👁️ Подробнее
                         </button>
                         
@@ -8481,7 +8841,7 @@
                     `}
                     
                     <button onclick="downloadOrderPDF('${orderId}')" 
-                            style="padding:0.8rem 1.5rem;background:rgba(139,92,246,0.15);border:1px solid var(--primary);border-radius:10px;color:var(--primary);font-weight:500;cursor:pointer;">
+                            style="padding:0.8rem 1.5rem;background:rgba(37, 99, 235, 0.12);border:1px solid var(--primary);border-radius:10px;color:var(--primary);font-weight:500;cursor:pointer;">
                         📄 Скачать PDF
                     </button>
                 </div>
@@ -9628,7 +9988,7 @@
             const suffix = mode === 'estimate' ? 'Estimate' : 'Inspect';
             const container = $(`#aiChatMessages${suffix}`);
             const bgColor = mode === 'estimate'
-                ? (isUser ? 'var(--primary)' : 'rgba(139,92,246,0.15)')
+                ? (isUser ? 'var(--primary)' : 'rgba(37, 99, 235, 0.12)')
                 : (isUser ? 'var(--warning)' : 'rgba(245,158,11,0.15)');
 
             const msg = document.createElement('div');
@@ -11205,7 +11565,7 @@
                 for (const [key, emoji] of Object.entries(catIcons)) {
                     if (cat.toLowerCase().includes(key.toLowerCase())) { icon = emoji; break; }
                 }
-                return `<div style="width:${size}px;height:${size}px;border-radius:50%;background:linear-gradient(135deg,rgba(139,92,246,0.15),rgba(6,182,212,0.15));display:flex;align-items:center;justify-content:center;font-size:${Math.round(size * 0.45)}px;flex-shrink:0;border:2px solid var(--border)">${icon}</div>`;
+                return `<div style="width:${size}px;height:${size}px;border-radius:50%;background:linear-gradient(135deg,rgba(37, 99, 235, 0.12),rgba(6,182,212,0.15));display:flex;align-items:center;justify-content:center;font-size:${Math.round(size * 0.45)}px;flex-shrink:0;border:2px solid var(--border)">${icon}</div>`;
             }
 
             // Таблица для десктопа
@@ -11303,7 +11663,7 @@
                         actions = `<span style="color:var(--text-muted);font-size:0.8rem">Ожидаем отклики...</span>`;
                     }
                     // Кнопка редактирования заказа
-                    actions += ` <button class="btn-action" onclick="openDraftModal(${orderId})" style="padding:0.3rem 0.6rem;font-size:0.75rem;background:rgba(139,92,246,0.1);color:#8b5cf6;border:1px solid rgba(139,92,246,0.2);border-radius:8px" title="Редактировать заказ">✏️</button>`;
+                    actions += ` <button class="btn-action" onclick="openDraftModal(${orderId})" style="padding:0.3rem 0.6rem;font-size:0.75rem;background:rgba(139,92,246,0.1);color:#2563eb;border:1px solid rgba(139,92,246,0.2);border-radius:8px" title="Редактировать заказ">✏️</button>`;
                     // Кнопка отмены заказа для open
                     actions += ` <button class="btn-action" onclick="cancelOrder(${orderId})" style="padding:0.3rem 0.6rem;font-size:0.75rem;background:rgba(239,68,68,0.1);color:#ef4444;border:1px solid rgba(239,68,68,0.2);border-radius:8px" title="Отменить заказ">❌</button>`;
                 } else if (order.status === 'assigned' || order.status === 'in_progress') {
@@ -11524,7 +11884,7 @@
                         <div style="font-size:3.5rem;margin-bottom:1rem">📋</div>
                         <h3 style="font-size:1.3rem;margin-bottom:0.5rem;color:var(--text)">У вас пока нет работ</h3>
                         <p style="color:var(--text-muted);margin-bottom:1.5rem">Откликнитесь на заказы в ленте, и принятые работы появятся здесь</p>
-                        <button onclick="switchOrdersTab('feed')" style="background:linear-gradient(135deg,#8b5cf6,#06b6d4);color:#fff;border:none;padding:0.75rem 1.5rem;border-radius:12px;font-weight:600;cursor:pointer;font-size:0.95rem">
+                        <button onclick="switchOrdersTab('feed')" style="background:linear-gradient(135deg,#2563eb,#06b6d4);color:#fff;border:none;padding:0.75rem 1.5rem;border-radius:12px;font-weight:600;cursor:pointer;font-size:0.95rem">
                             🌐 Перейти к ленте заказов
                         </button>
                     </div>
@@ -11537,7 +11897,7 @@
 
             const statusConfig = {
                 'assigned': { icon: '📋', label: 'Назначен', color: '#f59e0b', bg: 'rgba(245,158,11,0.1)', progress: 25 },
-                'in_progress': { icon: '🔧', label: 'В работе', color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)', progress: 50 },
+                'in_progress': { icon: '🔧', label: 'В работе', color: '#2563eb', bg: 'rgba(139,92,246,0.1)', progress: 50 },
                 'submitted': { icon: '📤', label: 'На проверке', color: '#06b6d4', bg: 'rgba(6,182,212,0.1)', progress: 75 },
                 'completed': { icon: '✅', label: 'Завершено', color: '#22c55e', bg: 'rgba(34,197,94,0.1)', progress: 100 },
                 'needs_fix': { icon: '⚠️', label: 'Исправление', color: '#ef4444', bg: 'rgba(239,68,68,0.1)', progress: 60 }
@@ -11551,7 +11911,7 @@
                 let actionBtn = '';
                 switch (work.status) {
                     case 'assigned':
-                        actionBtn = `<button onclick="event.stopPropagation(); startMyWork(${workId})" style="width:100%;padding:0.7rem;border:none;border-radius:10px;background:linear-gradient(135deg,#8b5cf6,#6366f1);color:#fff;font-weight:600;cursor:pointer;font-size:0.9rem;transition:transform 0.2s" onmousedown="this.style.transform='scale(0.97)'" onmouseup="this.style.transform='scale(1)'">▶️ Начать работу</button>`;
+                        actionBtn = `<button onclick="event.stopPropagation(); startMyWork(${workId})" style="width:100%;padding:0.7rem;border:none;border-radius:10px;background:linear-gradient(135deg,#2563eb,#6366f1);color:#fff;font-weight:600;cursor:pointer;font-size:0.9rem;transition:transform 0.2s" onmousedown="this.style.transform='scale(0.97)'" onmouseup="this.style.transform='scale(1)'">▶️ Начать работу</button>`;
                         break;
                     case 'in_progress':
                         actionBtn = `<button onclick="event.stopPropagation(); submitMyWork(${workId})" style="width:100%;padding:0.7rem;border:none;border-radius:10px;background:linear-gradient(135deg,#06b6d4,#0ea5e9);color:#fff;font-weight:600;cursor:pointer;font-size:0.9rem;transition:transform 0.2s" onmousedown="this.style.transform='scale(0.97)'" onmouseup="this.style.transform='scale(1)'">📤 Сдать работу</button>`;
@@ -12448,8 +12808,8 @@
 
             const particleCount = 50; // Количество частиц
             const colors = [
-                'rgba(139, 92, 246, 0.6)',   // purple
-                'rgba(236, 72, 153, 0.6)',   // pink
+                'rgba(37, 99, 235, 0.6)',   // purple
+                'rgba(14, 165, 233, 0.6)',   // pink
                 'rgba(6, 182, 212, 0.6)',    // cyan
                 'rgba(34, 197, 94, 0.6)'     // green
             ];
@@ -14621,6 +14981,8 @@
         });
     };
 </script>
+<script src="audioFX.js"></script>
+<script src="cardTilt.js"></script>
 </body>
 
 </html>

@@ -64,7 +64,7 @@
   left: -60px;
   width: 250px;
   height: 250px;
-  background: radial-gradient(circle, rgba(168, 85, 247, 0.2) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.2) 0%, transparent 70%);
   filter: blur(50px);
   z-index: -1;
 }
@@ -106,7 +106,7 @@
 }
 
 .lead-modal-step-badge {
-  background: linear-gradient(135deg, rgba(0, 163, 255, 0.2), rgba(168, 85, 247, 0.2));
+  background: linear-gradient(135deg, rgba(0, 163, 255, 0.2), rgba(59, 130, 246, 0.2));
   color: #fff;
   border: 1px solid rgba(0, 163, 255, 0.4);
   width: 48px;

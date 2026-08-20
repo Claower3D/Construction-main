@@ -509,7 +509,7 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
               {/* Accordion 3: Engineer Portal Button */}
               <button
                 className="mobile-accordion-btn"
-                style={{ background: 'rgba(139, 92, 246, 0.15)', borderColor: 'var(--primary-light)' }}
+                style={{ background: 'rgba(37, 99, 235, 0.15)', borderColor: 'var(--primary-light)' }}
                 onClick={() => { closeDropdown(); onOpenEngineer(); }}
               >
                 <span>👷 Кабинет Инженера</span>

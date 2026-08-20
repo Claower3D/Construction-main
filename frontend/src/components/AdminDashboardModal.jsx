@@ -118,13 +118,22 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
 
   // 5. SETTINGS: REGIONAL COEFFICIENTS & AUDIT
   const [regions, setRegions] = useState([
-    { name: 'Алматы (Южная столица)', coeff: 1.15, code: 'ALA' },
-    { name: 'Астана (Главная столица)', coeff: 1.18, code: 'TSE' },
-    { name: 'Шымкент', coeff: 1.05, code: 'CIT' },
-    { name: 'Караганда', coeff: 1.08, code: 'KGF' },
-    { name: 'Атырау (Западный нефтяной регион)', coeff: 1.25, code: 'GUW' },
-    { name: 'Актобе', coeff: 1.10, code: 'AKX' },
+    { name: 'Алматы (Южная столица)', coeff: 1.15, code: 'ALA', climate: 'Сейсмоопасная зона 9 баллов', activeProjects: 142, logistics: '+12%', avgCostPerM2: 52000, trend: '+4.2%' },
+    { name: 'Астана (Главная столица)', coeff: 1.18, code: 'TSE', climate: 'Ветровая нагрузка / Зима -40°C', activeProjects: 189, logistics: '+15%', avgCostPerM2: 58000, trend: '+6.1%' },
+    { name: 'Шымкент (Мегаполис)', coeff: 1.05, code: 'CIT', climate: 'Южный сухой / Сейсмика 7-8', activeProjects: 96, logistics: 'Базовый', avgCostPerM2: 41000, trend: '+2.8%' },
+    { name: 'Караганда', coeff: 1.08, code: 'KGF', climate: 'Центральный промышленный', activeProjects: 64, logistics: '+8%', avgCostPerM2: 43500, trend: '+1.5%' },
+    { name: 'Атырау (Нефтяной регион)', coeff: 1.25, code: 'GUW', climate: 'Прикаспийская солончаковая зона', activeProjects: 88, logistics: '+25%', avgCostPerM2: 68000, trend: '+8.4%' },
+    { name: 'Актау (Мангистау)', coeff: 1.22, code: 'SCO', climate: 'Морской климат / Коррозия', activeProjects: 52, logistics: '+22%', avgCostPerM2: 64000, trend: '+7.1%' },
+    { name: 'Актобе', coeff: 1.10, code: 'AKX', climate: 'Западный степной', activeProjects: 45, logistics: '+10%', avgCostPerM2: 44000, trend: '+3.0%' },
+    { name: 'Павлодар', coeff: 1.09, code: 'PWL', climate: 'Северный промышленный', activeProjects: 38, logistics: '+9%', avgCostPerM2: 42800, trend: '+2.1%' },
+    { name: 'Усть-Каменогорск (ВКО)', coeff: 1.12, code: 'UKK', climate: 'Горный / Резко континентальный', activeProjects: 41, logistics: '+12%', avgCostPerM2: 46000, trend: '+3.5%' },
+    { name: 'Костанай', coeff: 1.07, code: 'KSN', climate: 'Северо-Западный аграрный', activeProjects: 32, logistics: '+7%', avgCostPerM2: 40500, trend: '+1.9%' },
+    { name: 'Кызылорда', coeff: 1.06, code: 'KZO', climate: 'Арало-Сырдарьинский сухой', activeProjects: 28, logistics: '+6%', avgCostPerM2: 39800, trend: '+2.0%' },
+    { name: 'Тараз (Жамбыл)', coeff: 1.05, code: 'DMB', climate: 'Южный предгорный', activeProjects: 35, logistics: 'Базовый', avgCostPerM2: 39500, trend: '+1.7%' },
   ]);
+  const [regionViewMode, setRegionViewMode] = useState('cards'); // 'cards' | 'table'
+  const [compareCity1, setCompareCity1] = useState('TSE');
+  const [compareCity2, setCompareCity2] = useState('CIT');
   const [auditLogsList, setAuditLogsList] = useState([]);
 
   // 6. ROLES MANAGEMENT
@@ -911,41 +920,200 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
                 </button>
               </div>
 
-              {/* Sub-tab 1: Regional Coefficients */}
+              {/* Sub-tab 1: Regional Coefficients (Rich Geo-Matrix) */}
               {settingsSubTab === 'regions' && (
-                <div className="admin-section-box">
-                  <div className="section-header-flex">
-                    <div>
-                      <h3 className="admin-box-title">🇰🇿 Индексы и коэффициенты стоимости по регионам РК</h3>
-                      <p className="admin-box-sub">Поправочные коэффициенты на материалы и строительно-монтажные работы по 17 областям РК.</p>
+                <div className="admin-regions-wrapper">
+                  {/* Top Geo Metrics 4 Bento Cards */}
+                  <div className="geo-metrics-grid">
+                    <div className="geo-kpi-card kpi-blue">
+                      <div className="geo-kpi-top">
+                        <span className="geo-kpi-badge">СНиП РК 2026</span>
+                        <span className="geo-kpi-icon">🇰🇿</span>
+                      </div>
+                      <div className="geo-kpi-val">17 Областей</div>
+                      <div className="geo-kpi-label">Полный гео-охват Казахстана и 3 мегаполисов</div>
                     </div>
-                    <button className="admin-primary-btn" onClick={handleAddRegion}>+ Добавить регион</button>
+
+                    <div className="geo-kpi-card kpi-cyan">
+                      <div className="geo-kpi-top">
+                        <span className="geo-kpi-badge">СТОЛИЧНЫЙ ХАБ</span>
+                        <span className="geo-kpi-icon">🏙️</span>
+                      </div>
+                      <div className="geo-kpi-val">×1.18 TSE / ×1.15 ALA</div>
+                      <div className="geo-kpi-label">Коэффициенты Астаны и Алматы с учётом логистики</div>
+                    </div>
+
+                    <div className="geo-kpi-card kpi-amber">
+                      <div className="geo-kpi-top">
+                        <span className="geo-kpi-badge">МАКС. НАДБАВКА</span>
+                        <span className="geo-kpi-icon">🛢️</span>
+                      </div>
+                      <div className="geo-kpi-val">×1.25 Атырау</div>
+                      <div className="geo-kpi-label">Прикаспийский нефтегазовый кластер (+25%)</div>
+                    </div>
+
+                    <div className="geo-kpi-card kpi-emerald">
+                      <div className="geo-kpi-top">
+                        <span className="geo-kpi-badge">LIVE АКТИВНОСТЬ</span>
+                        <span className="geo-kpi-icon">⚡</span>
+                      </div>
+                      <div className="geo-kpi-val">789 Объектов</div>
+                      <div className="geo-kpi-label">Активно рассчитываются сметы прямо сейчас</div>
+                    </div>
                   </div>
 
-                  <table className="admin-table">
-                    <thead>
-                      <tr>
-                        <th>Код</th>
-                        <th>Регион / Область Казахстана</th>
-                        <th>Коэффициент стоимости</th>
-                        <th>Действие</th>
-                      </tr>
-                    </thead>
-                    <tbody>
+                  {/* Interactive Region Cost Comparison Cockpit */}
+                  <div className="region-comparator-box">
+                    <div className="comparator-header">
+                      <div className="comp-title-group">
+                        <span className="spark-icon">⚡</span>
+                        <h4 className="comp-title">Интерактивный сметный компаратор регионов РК</h4>
+                      </div>
+                      <span className="comp-tag">База расчёта: Объект 100 м² (СНиП 8.04)</span>
+                    </div>
+
+                    <div className="comparator-controls-row">
+                      <div className="comp-select-group">
+                        <label>Регион А:</label>
+                        <select value={compareCity1} onChange={(e) => setCompareCity1(e.target.value)}>
+                          {regions.map(r => (
+                            <option key={r.code} value={r.code}>{r.name} (×{r.coeff})</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div className="comp-vs-badge">VS</div>
+
+                      <div className="comp-select-group">
+                        <label>Регион B:</label>
+                        <select value={compareCity2} onChange={(e) => setCompareCity2(e.target.value)}>
+                          {regions.map(r => (
+                            <option key={r.code} value={r.code}>{r.name} (×{r.coeff})</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {/* Live Calculated Delta Result */}
+                      {(() => {
+                        const r1 = regions.find(r => r.code === compareCity1) || regions[0];
+                        const r2 = regions.find(r => r.code === compareCity2) || regions[1];
+                        const deltaKzt = Math.round(Math.abs(r1.coeff - r2.coeff) * 4500000);
+                        const higherCity = r1.coeff >= r2.coeff ? r1.name.split(' ')[0] : r2.name.split(' ')[0];
+                        return (
+                          <div className="comp-result-card">
+                            <span className="comp-res-label">Сметная разница на объект:</span>
+                            <span className="comp-res-val">
+                              {deltaKzt > 0 ? `+${deltaKzt.toLocaleString('ru-RU')} ₸ в пользу ${higherCity}` : 'Цены идентичны'}
+                            </span>
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  </div>
+
+                  {/* Controls & View Switcher Row */}
+                  <div className="region-controls-bar">
+                    <div className="view-toggle-pills">
+                      <button className={`view-pill ${regionViewMode === 'cards' ? 'active' : ''}`} onClick={() => setRegionViewMode('cards')}>
+                        🗺️ Bento-карточки регионов
+                      </button>
+                      <button className={`view-pill ${regionViewMode === 'table' ? 'active' : ''}`} onClick={() => setRegionViewMode('table')}>
+                        📊 Сметная таблица
+                      </button>
+                    </div>
+
+                    <button className="admin-primary-btn" onClick={handleAddRegion}>
+                      + Добавить регион РК
+                    </button>
+                  </div>
+
+                  {/* 1. Bento Cards Mode */}
+                  {regionViewMode === 'cards' ? (
+                    <div className="region-cards-grid">
                       {regions.map((reg, idx) => (
-                        <tr key={idx}>
-                          <td><strong>{reg.code}</strong></td>
-                          <td>{reg.name}</td>
-                          <td className="price-cell">×{reg.coeff}</td>
-                          <td>
-                            <button className="btn-table-action" onClick={() => handleEditRegionCoeff(reg.code)}>
-                              ⚙️ Изменить
+                        <div className="region-bento-card" key={idx}>
+                          <div className="reg-card-top">
+                            <div className="reg-code-box">{reg.code}</div>
+                            <div className={`reg-coeff-badge ${reg.coeff >= 1.2 ? 'high' : (reg.coeff >= 1.1 ? 'mid' : 'base')}`}>
+                              ×{reg.coeff}
+                            </div>
+                          </div>
+
+                          <h4 className="reg-name">{reg.name}</h4>
+                          <div className="reg-climate-tag">🌡️ {reg.climate}</div>
+
+                          <div className="reg-metrics-list">
+                            <div className="reg-metric-row">
+                              <span>Средняя цена работ:</span>
+                              <strong>{reg.avgCostPerM2?.toLocaleString('ru-RU') || '45 000'} ₸/м²</strong>
+                            </div>
+                            <div className="reg-metric-row">
+                              <span>Логистич. надбавка:</span>
+                              <span className="text-cyan">{reg.logistics}</span>
+                            </div>
+                            <div className="reg-metric-row">
+                              <span>Активных проектов:</span>
+                              <span className="text-emerald">● {reg.activeProjects} строек</span>
+                            </div>
+                          </div>
+
+                          <div className="reg-gauge-bar">
+                            <div
+                              className="fill"
+                              style={{ width: `${Math.min(100, (reg.coeff - 1.0) * 400 + 20)}%` }}
+                            ></div>
+                          </div>
+
+                          <div className="reg-card-footer">
+                            <span className="reg-trend text-emerald">📈 {reg.trend || '+3.2%'} за квартал</span>
+                            <button className="btn-edit-region" onClick={() => handleEditRegionCoeff(reg.code)}>
+                              ⚙️ Настроить
                             </button>
-                          </td>
-                        </tr>
+                          </div>
+                        </div>
                       ))}
-                    </tbody>
-                  </table>
+                    </div>
+                  ) : (
+                    /* 2. Analytical Table Mode */
+                    <div className="admin-section-box">
+                      <table className="admin-table">
+                        <thead>
+                          <tr>
+                            <th>Код</th>
+                            <th>Регион / Область Казахстана</th>
+                            <th>Климатическая специфика</th>
+                            <th>Логистика</th>
+                            <th>Ср. цена м²</th>
+                            <th>Коэффициент</th>
+                            <th>Проектов</th>
+                            <th>Действие</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {regions.map((reg, idx) => (
+                            <tr key={idx}>
+                              <td><strong className="text-cyan">{reg.code}</strong></td>
+                              <td><strong>{reg.name}</strong></td>
+                              <td><span className="climate-badge">{reg.climate}</span></td>
+                              <td><span className="logistics-badge">{reg.logistics}</span></td>
+                              <td className="price-cell">{reg.avgCostPerM2?.toLocaleString('ru-RU')} ₸</td>
+                              <td>
+                                <span className={`reg-coeff-badge ${reg.coeff >= 1.2 ? 'high' : 'base'}`}>
+                                  ×{reg.coeff}
+                                </span>
+                              </td>
+                              <td><span className="text-emerald">● {reg.activeProjects}</span></td>
+                              <td>
+                                <button className="btn-table-action" onClick={() => handleEditRegionCoeff(reg.code)}>
+                                  ⚙️ Изменить
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
                 </div>
               )}
 

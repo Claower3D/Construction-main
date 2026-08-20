@@ -226,7 +226,7 @@ export default function CompanyDashboardPage({ currentUser, initialTab = 'profil
                 Основной цвет (Branding)
               </label>
               <div style={{ display: 'flex', gap: '1rem' }}>
-                {['#0ea5e9', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'].map(color => (
+                {['#0ea5e9', '#10b981', '#f59e0b', '#ef4444', '#2563eb', '#38bdf8'].map(color => (
                   <button
                     key={color}
                     onClick={() => handleSaveSettings({ ...settings, primaryColor: color })}

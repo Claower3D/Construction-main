@@ -27,7 +27,7 @@ export default function StatsBanner() {
       label: 'Скорость AI-расчёта и BOM',
       subtext: 'Мгновенный результат по фото',
       badge: 'NEURAL ENGINE',
-      gradientClass: 'stat-purple',
+      gradientClass: 'stat-cyan',
     },
     {
       id: 'stat-4',
@@ -36,7 +36,7 @@ export default function StatsBanner() {
       label: 'Точность AI-дефектоскопии',
       subtext: 'Детекция микротрещин и влаги',
       badge: 'VISION AI 2.0',
-      gradientClass: 'stat-pink',
+      gradientClass: 'stat-gold',
     },
   ];
 

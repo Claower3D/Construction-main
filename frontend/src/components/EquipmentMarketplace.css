@@ -57,11 +57,11 @@
 }
 
 .em-tab.active {
-  background: linear-gradient(90deg, #ec4899, #8b5cf6);
+  background: linear-gradient(90deg, #38bdf8, #2563eb);
   color: #fff;
   font-weight: 900;
   border-color: transparent;
-  box-shadow: 0 4px 18px rgba(236, 72, 153, 0.45);
+  box-shadow: 0 4px 18px rgba(56, 189, 248, 0.45);
 }
 
 .em-content {
@@ -86,8 +86,8 @@
 }
 
 .em-search-bar:focus-within {
-  border-color: #ec4899;
-  box-shadow: 0 0 20px rgba(236, 72, 153, 0.4);
+  border-color: #38bdf8;
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
 }
 
 .em-search-bar input {
@@ -104,7 +104,7 @@
 }
 
 .search-results-count {
-  color: #ec4899;
+  color: #38bdf8;
   font-weight: 800;
   font-size: 0.9rem;
 }
@@ -193,7 +193,7 @@
   border-radius: 50%;
   transform: scale(0);
   transition: 120ms transform ease-in-out;
-  box-shadow: inset 1em 1em #8b5cf6;
+  box-shadow: inset 1em 1em #2563eb;
 }
 
 .check-label input[type="checkbox"]::before {
@@ -202,13 +202,13 @@
   height: 10px;
   transform: scale(0);
   transition: 120ms transform ease-in-out;
-  box-shadow: inset 1em 1em #8b5cf6;
+  box-shadow: inset 1em 1em #2563eb;
   clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
 }
 
 .radio-label input[type="radio"]:checked,
 .check-label input[type="checkbox"]:checked {
-  border-color: #8b5cf6;
+  border-color: #2563eb;
 }
 
 .radio-label input[type="radio"]:checked::before,
@@ -230,12 +230,12 @@
 }
 
 .em-slider {
-  accent-color: #8b5cf6;
+  accent-color: #2563eb;
   width: 100%;
 }
 
 .em-submit-btn {
-  background: linear-gradient(90deg, #ec4899, #8b5cf6);
+  background: linear-gradient(90deg, #38bdf8, #2563eb);
   color: #fff;
   border: none;
   padding: 1rem;
@@ -244,12 +244,12 @@
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   margin-top: 1rem;
-  box-shadow: 0 4px 18px rgba(236, 72, 153, 0.45);
+  box-shadow: 0 4px 18px rgba(56, 189, 248, 0.45);
 }
 
 .em-submit-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 22px rgba(236, 72, 153, 0.6);
+  box-shadow: 0 6px 22px rgba(56, 189, 248, 0.6);
 }
 
 /* Results */
@@ -284,11 +284,11 @@
 }
 
 .em-chip.active {
-  background: linear-gradient(90deg, #ec4899, #8b5cf6);
+  background: linear-gradient(90deg, #38bdf8, #2563eb);
   border-color: transparent;
   color: #fff;
   font-weight: 900;
-  box-shadow: 0 4px 18px rgba(236, 72, 153, 0.45);
+  box-shadow: 0 4px 18px rgba(56, 189, 248, 0.45);
 }
 
 /* Equipment Grid */
@@ -311,13 +311,13 @@
 
 .em-card:hover {
   transform: translateY(-8px) scale(1.02);
-  border-color: rgba(236, 72, 153, 0.7);
-  box-shadow: 0 25px 60px rgba(236, 72, 153, 0.45);
+  border-color: rgba(56, 189, 248, 0.7);
+  box-shadow: 0 25px 60px rgba(56, 189, 248, 0.45);
 }
 
 .em-card-image {
   height: 190px;
-  background: radial-gradient(circle at center, rgba(236, 72, 153, 0.25) 0%, rgba(139, 92, 246, 0.15) 60%, rgba(15, 18, 40, 0.6) 100%);
+  background: radial-gradient(circle at center, rgba(56, 189, 248, 0.25) 0%, rgba(37, 99, 235, 0.15) 60%, rgba(15, 18, 40, 0.6) 100%);
   position: relative;
   display: flex;
   align-items: center;
@@ -335,20 +335,20 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 0 35px rgba(236, 72, 153, 0.45), inset 0 0 15px rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 35px rgba(56, 189, 248, 0.45), inset 0 0 15px rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(16px);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .em-card:hover .em-card-icon-badge {
   transform: scale(1.1) rotate(3deg);
-  box-shadow: 0 0 45px rgba(236, 72, 153, 0.7);
+  box-shadow: 0 0 45px rgba(56, 189, 248, 0.7);
 }
 
 .em-card-placeholder {
   font-size: 4rem;
   opacity: 0.35;
-  filter: drop-shadow(0 0 12px rgba(236, 72, 153, 0.4));
+  filter: drop-shadow(0 0 12px rgba(56, 189, 248, 0.4));
 }
 
 .em-badge {
@@ -422,7 +422,7 @@
 }
 
 .em-tag.location {
-  color: #a78bfa;
+  color: #60a5fa;
   border: 1px solid rgba(167, 139, 250, 0.3);
 }
 
@@ -433,7 +433,7 @@
 
 .em-btn-primary {
   flex: 2;
-  background: linear-gradient(90deg, #ec4899, #8b5cf6);
+  background: linear-gradient(90deg, #38bdf8, #2563eb);
   color: #fff;
   border: none;
   padding: 0.75rem;
@@ -441,12 +441,12 @@
   font-weight: 800;
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 4px 18px rgba(236, 72, 153, 0.45);
+  box-shadow: 0 4px 18px rgba(56, 189, 248, 0.45);
 }
 
 .em-btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 22px rgba(236, 72, 153, 0.6);
+  box-shadow: 0 6px 22px rgba(56, 189, 248, 0.6);
 }
 
 .em-btn-secondary {
@@ -535,7 +535,7 @@
 }
 
 .em-btn-action-primary {
-  background: linear-gradient(90deg, #6366f1, #8b5cf6);
+  background: linear-gradient(90deg, #6366f1, #2563eb);
   color: #fff;
   border: none;
   padding: 0.85rem 1.6rem;
@@ -574,8 +574,8 @@
 
 .em-fleet-card-luxury:hover {
   transform: translateY(-6px);
-  border-color: rgba(139, 92, 246, 0.5);
-  box-shadow: 0 20px 45px rgba(139, 92, 246, 0.25);
+  border-color: rgba(37, 99, 235, 0.5);
+  box-shadow: 0 20px 45px rgba(37, 99, 235, 0.25);
 }
 
 .em-fleet-card-top {
@@ -588,7 +588,7 @@
   width: 72px;
   height: 72px;
   border-radius: 22px;
-  background: radial-gradient(circle at center, rgba(139, 92, 246, 0.2) 0%, rgba(255, 255, 255, 0.04) 100%);
+  background: radial-gradient(circle at center, rgba(37, 99, 235, 0.2) 0%, rgba(255, 255, 255, 0.04) 100%);
   border: 1px solid rgba(255, 255, 255, 0.14);
   display: flex;
   align-items: center;
@@ -685,7 +685,7 @@
 }
 
 .em-btn-glass-sm.primary {
-  background: linear-gradient(90deg, #6366f1, #8b5cf6);
+  background: linear-gradient(90deg, #6366f1, #2563eb);
   border: none;
   box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
 }
@@ -799,7 +799,7 @@
   gap: 1rem;
   align-items: center;
   font-weight: 800;
-  color: #8b5cf6;
+  color: #2563eb;
 }
 
 .rental-date {
@@ -876,7 +876,7 @@
 
 .em-btn-glass-sm:hover {
   background: rgba(255, 255, 255, 0.15);
-  border-color: rgba(139, 92, 246, 0.4);
+  border-color: rgba(37, 99, 235, 0.4);
 }
 
 .em-ads-list, .em-rentals-list {
@@ -898,12 +898,12 @@
   position: fixed;
   top: 20px;
   right: 20px;
-  background: rgba(139, 92, 246, 0.95);
+  background: rgba(37, 99, 235, 0.95);
   color: #fff;
   padding: 1rem 1.5rem;
   border-radius: 12px;
   font-weight: 700;
-  box-shadow: 0 10px 30px rgba(139, 92, 246, 0.4);
+  box-shadow: 0 10px 30px rgba(37, 99, 235, 0.4);
   z-index: 10000;
   backdrop-filter: blur(8px);
   animation: fadeInToast 0.3s ease;
@@ -1008,7 +1008,7 @@
 }
 
 .em-input:focus {
-  border-color: #8b5cf6;
+  border-color: #2563eb;
 }
 
 .mb-3 {
@@ -1017,4 +1017,256 @@
 
 .w-100 {
   width: 100%;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   CYBER INDUSTRIAL LUXURY STYLING FOR EQUIPMENT MARKETPLACE
+   ═══════════════════════════════════════════════════════════════ */
+
+.luxury-em-card {
+  background: rgba(14, 22, 38, 0.8) !important;
+  backdrop-filter: blur(24px) saturate(190%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(190%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 24px !important;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.luxury-em-card:hover {
+  transform: translateY(-8px) scale(1.02) !important;
+  border-color: rgba(56, 189, 248, 0.6) !important;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6), 0 0 35px rgba(37, 99, 235, 0.35) !important;
+}
+
+.luxury-image-container {
+  height: 180px !important;
+  position: relative !important;
+  background: radial-gradient(circle at center, rgba(37, 99, 235, 0.25) 0%, rgba(15, 23, 42, 0.9) 100%) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: hidden !important;
+}
+
+.em-card-blueprint-grid {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: 20px 20px;
+  background-image: 
+    linear-gradient(to right, rgba(56, 189, 248, 0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(56, 189, 248, 0.06) 1px, transparent 1px);
+  pointer-events: none;
+}
+
+.em-brand-watermark {
+  position: absolute;
+  top: 12px;
+  left: 14px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: rgba(148, 163, 184, 0.5);
+  text-transform: uppercase;
+}
+
+.em-card-main-visual {
+  position: relative;
+  z-index: 2;
+}
+
+.em-card-icon-halo {
+  width: 80px;
+  height: 80px;
+  border-radius: 22px;
+  background: rgba(11, 18, 32, 0.85);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  box-shadow: 0 0 30px rgba(37, 99, 235, 0.35), inset 0 0 15px rgba(56, 189, 248, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.luxury-em-card:hover .em-card-icon-halo {
+  transform: scale(1.1) rotate(2deg);
+  border-color: rgba(56, 189, 248, 0.8);
+  box-shadow: 0 0 45px rgba(56, 189, 248, 0.6);
+}
+
+.em-icon-symbol {
+  font-size: 3rem;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.5));
+}
+
+.em-telemetry-badge-top {
+  position: absolute;
+  bottom: 12px;
+  left: 14px;
+  right: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 3;
+}
+
+.em-status-pill {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  backdrop-filter: blur(12px);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.em-status-pill.available {
+  background: rgba(16, 185, 129, 0.2);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  color: #34d399;
+}
+
+.em-status-pill.busy {
+  background: rgba(245, 158, 11, 0.2);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  color: #fbbf24;
+}
+
+.pulse-green-dot {
+  width: 6px;
+  height: 6px;
+  background: #10b981;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #10b981;
+}
+
+.em-rating-badge {
+  background: rgba(245, 158, 11, 0.25);
+  border: 1px solid rgba(245, 158, 11, 0.5);
+  color: #fcd34d;
+  font-weight: 800;
+  font-size: 0.75rem;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.luxury-content {
+  padding: 1.5rem !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 1rem !important;
+}
+
+.em-card-category-strip {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.em-cat-tag {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #60a5fa;
+  letter-spacing: 0.05em;
+}
+
+.em-gps-tag {
+  font-size: 0.72rem;
+  color: #94a3b8;
+}
+
+.em-card-title {
+  font-size: 1.15rem !important;
+  font-weight: 800 !important;
+  color: #ffffff !important;
+  line-height: 1.4 !important;
+  margin: 0 !important;
+  min-height: 2.8rem;
+}
+
+.em-price-cockpit {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(11, 18, 32, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 8px 12px;
+}
+
+.em-main-price {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.kzt-currency {
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: #f59e0b;
+}
+
+.kzt-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.35rem;
+  font-weight: 900;
+  color: #ffffff;
+}
+
+.kzt-unit {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  margin-left: 2px;
+}
+
+.em-escrow-guarantee {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #34d399;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.luxury-book-btn {
+  background: linear-gradient(135deg, #2563eb, #0ea5e9) !important;
+  border: none !important;
+  color: #fff !important;
+  font-weight: 800 !important;
+  padding: 0.85rem !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 20px rgba(37, 99, 235, 0.45) !important;
+  transition: all 0.25s ease !important;
+}
+
+.luxury-book-btn:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 30px rgba(14, 165, 233, 0.6) !important;
+}
+
+.luxury-compare-btn {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  color: #cbd5e1 !important;
+  padding: 0.85rem !important;
+  border-radius: 12px !important;
+  font-weight: 700 !important;
+  transition: all 0.2s ease !important;
+}
+
+.luxury-compare-btn:hover {
+  background: rgba(255, 255, 255, 0.12) !important;
+  color: #fff !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
 }

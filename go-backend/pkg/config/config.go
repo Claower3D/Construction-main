@@ -1,6 +1,7 @@
 package config
 
 import (
+	"log"
 	"os"
 )
 
@@ -17,7 +18,7 @@ type Config struct {
 func LoadConfig() *Config {
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "3001"
+		port = "8080"
 	}
 
 	env := os.Getenv("NODE_ENV")
@@ -27,7 +28,11 @@ func LoadConfig() *Config {
 
 	secret := os.Getenv("JWT_SECRET")
 	if secret == "" {
-		secret = "qazgost-ai-super-secret-jwt-key-2026"
+		if env == "production" {
+			log.Fatal("[SECURITY] JWT_SECRET не задан! В production-режиме это обязательно. Установите переменную JWT_SECRET.")
+		}
+		log.Println("[⚠️ WARNING] JWT_SECRET не задан — используется dev-ключ. Не запускайте так в production!")
+		secret = "qazgost-ai-dev-secret-NOT-FOR-PRODUCTION"
 	}
 
 	uploadDir := os.Getenv("UPLOAD_DIR")
@@ -41,8 +46,13 @@ func LoadConfig() *Config {
 	}
 
 	openAIKey := os.Getenv("OPENAI_API_KEY")
-	if openAIKey == "" {
-		openAIKey = "secret-key-hidden"
+
+	// CORS: in production use only specified origins, in dev allow localhost
+	corsOrigins := []string{
+		"http://localhost:5173",
+		"http://localhost:3000",
+		"http://localhost:8080",
+		"http://127.0.0.1:5173",
 	}
 
 	return &Config{
@@ -51,7 +61,7 @@ func LoadConfig() *Config {
 		JwtSecret:   secret,
 		UploadDir:   uploadDir,
 		FrontendURL: frontendURL,
-		CorsOrigins: []string{"*", "http://localhost:5173", "http://localhost:3000", "http://localhost:8080", "http://127.0.0.1:5173"},
+		CorsOrigins: corsOrigins,
 		OpenAIKey:   openAIKey,
 	}
 }

@@ -1487,7 +1487,12 @@
 
     function _renderWBSTab() {
         const wbsData = (typeof AI_WBS_STRUCTURE !== 'undefined') ? AI_WBS_STRUCTURE : [];
-        const savedPrices = JSON.parse(localStorage.getItem('adminWbsPrices') || '{}');
+        let savedPrices = {};
+        try {
+            savedPrices = JSON.parse(localStorage.getItem('adminWbsPrices') || '{}');
+        } catch {
+            savedPrices = {};
+        }
 
         const allGroups = wbsData.map(g => ({
             name: g.group_name,

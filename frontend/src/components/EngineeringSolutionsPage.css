@@ -118,14 +118,14 @@
   max-width: 1280px;
   margin: 0 auto;
   scrollbar-width: thin;
-  scrollbar-color: rgba(168, 85, 247, 0.4) transparent;
+  scrollbar-color: rgba(59, 130, 246, 0.4) transparent;
 }
 
 .es-chips-nav::-webkit-scrollbar {
   height: 4px;
 }
 .es-chips-nav::-webkit-scrollbar-thumb {
-  background: rgba(168, 85, 247, 0.4);
+  background: rgba(59, 130, 246, 0.4);
   border-radius: 4px;
 }
 
@@ -149,11 +149,11 @@
 }
 
 .es-chip-btn.active {
-  background: linear-gradient(90deg, #a855f7, #ec4899);
+  background: linear-gradient(90deg, #3b82f6, #38bdf8);
   border-color: transparent;
   color: #fff;
   font-weight: 700;
-  box-shadow: 0 4px 15px rgba(168, 85, 247, 0.35);
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.35);
 }
 
 /* Two-column Layout */
@@ -181,7 +181,7 @@
   padding: 1.75rem;
   backdrop-filter: blur(24px) saturate(180%);
   -webkit-backdrop-filter: blur(24px) saturate(180%);
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4), 0 0 25px rgba(168, 85, 247, 0.15);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4), 0 0 25px rgba(59, 130, 246, 0.15);
 }
 
 .es-form-header {
@@ -235,8 +235,8 @@
 }
 
 .es-input:focus {
-  border-color: #ec4899;
-  box-shadow: 0 0 18px rgba(236, 72, 153, 0.35);
+  border-color: #38bdf8;
+  box-shadow: 0 0 18px rgba(56, 189, 248, 0.35);
 }
 
 .es-checkbox-field {
@@ -257,7 +257,7 @@
 .es-checkbox-label input {
   width: 18px;
   height: 18px;
-  accent-color: #ec4899;
+  accent-color: #38bdf8;
   cursor: pointer;
 }
 
@@ -298,13 +298,13 @@
 
 .es-card:hover {
   transform: translateY(-6px) scale(1.01);
-  border-color: rgba(236, 72, 153, 0.6);
-  box-shadow: 0 18px 40px rgba(236, 72, 153, 0.35);
+  border-color: rgba(56, 189, 248, 0.6);
+  box-shadow: 0 18px 40px rgba(56, 189, 248, 0.35);
 }
 
 .es-card.in-cart {
-  border-color: #a855f7;
-  box-shadow: 0 0 25px rgba(168, 85, 247, 0.3);
+  border-color: #3b82f6;
+  box-shadow: 0 0 25px rgba(59, 130, 246, 0.3);
 }
 
 /* Card Gradient Banner with Unique Custom Colors */
@@ -423,7 +423,7 @@
 }
 
 .es-btn-add {
-  background: linear-gradient(90deg, #8b5cf6, #a855f7);
+  background: linear-gradient(90deg, #2563eb, #3b82f6);
   color: #fff;
   border: none;
   padding: 0.6rem;
@@ -432,11 +432,11 @@
   font-size: 0.82rem;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
 }
 
 .es-btn-add:hover {
-  background: linear-gradient(90deg, #7c3aed, #9333ea);
+  background: linear-gradient(90deg, #1d4ed8, #9333ea);
   transform: translateY(-1px);
 }
 
@@ -477,7 +477,7 @@
 }
 
 .es-cart-badge {
-  background: #ec4899;
+  background: #38bdf8;
   color: #fff;
   font-size: 0.75rem;
   font-weight: 900;
@@ -590,7 +590,7 @@
 
 .es-total-sum {
   font-size: 1.25rem;
-  color: #ec4899;
+  color: #38bdf8;
   font-weight: 900;
 }
 
@@ -600,7 +600,7 @@
 
 .es-btn-submit-package {
   width: 100%;
-  background: linear-gradient(90deg, #a855f7, #ec4899);
+  background: linear-gradient(90deg, #3b82f6, #38bdf8);
   color: #fff;
   border: none;
   padding: 0.85rem;
@@ -608,13 +608,13 @@
   font-weight: 800;
   font-size: 0.92rem;
   cursor: pointer;
-  box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4);
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
   transition: transform 0.2s ease;
 }
 
 .es-btn-submit-package:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 22px rgba(236, 72, 153, 0.5);
+  box-shadow: 0 6px 22px rgba(56, 189, 248, 0.5);
 }
 
 .es-btn-clear-cart {
@@ -778,7 +778,7 @@
 
 .es-btn-modal-add {
   width: 100%;
-  background: linear-gradient(90deg, #a855f7, #ec4899);
+  background: linear-gradient(90deg, #3b82f6, #38bdf8);
   color: #fff;
   border: none;
   padding: 0.85rem;

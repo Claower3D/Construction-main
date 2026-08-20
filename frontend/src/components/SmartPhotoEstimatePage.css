@@ -91,7 +91,7 @@
   backdrop-filter: blur(24px) saturate(180%);
   -webkit-backdrop-filter: blur(24px) saturate(180%);
   text-align: center;
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4), 0 0 30px rgba(168, 85, 247, 0.15);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4), 0 0 30px rgba(59, 130, 246, 0.15);
 }
 
 .spe-hero-icon {
@@ -204,7 +204,7 @@
 }
 
 .spe-num {
-  background: #7c3aed;
+  background: #1d4ed8;
   color: #fff;
   width: 26px;
   height: 26px;
@@ -267,10 +267,10 @@
 }
 
 .spe-filter-tab.active {
-  background: #ec4899;
-  border-color: #ec4899;
+  background: #38bdf8;
+  border-color: #38bdf8;
   color: #fff;
-  box-shadow: 0 4px 12px rgba(236, 72, 153, 0.3);
+  box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
 }
 
 /* 5-Column Category Grid matching screenshot */
@@ -321,8 +321,8 @@
 
 .spe-cat-box:hover {
   transform: translateY(-5px) scale(1.02);
-  border-color: rgba(236, 72, 153, 0.6);
-  box-shadow: 0 12px 28px rgba(236, 72, 153, 0.35);
+  border-color: rgba(56, 189, 248, 0.6);
+  box-shadow: 0 12px 28px rgba(56, 189, 248, 0.35);
 }
 
 .spe-cat-box:hover .spe-cat-bg {
@@ -332,8 +332,8 @@
 }
 
 .spe-cat-box.selected {
-  border: 2px solid #ec4899;
-  box-shadow: 0 0 30px rgba(236, 72, 153, 0.5);
+  border: 2px solid #38bdf8;
+  box-shadow: 0 0 30px rgba(56, 189, 248, 0.5);
   transform: translateY(-3px);
 }
 
@@ -429,9 +429,9 @@
 }
 
 .spe-mode-tab.active {
-  background: rgba(124, 58, 237, 0.25);
-  border-color: #8b5cf6;
-  box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+  background: rgba(29, 78, 216, 0.25);
+  border-color: #2563eb;
+  box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
 }
 
 /* Mode Banners (3D & Contour) */
@@ -511,8 +511,8 @@
 }
 
 .spe-ctool-btn.active {
-  background: #8b5cf6;
-  border-color: #8b5cf6;
+  background: #2563eb;
+  border-color: #2563eb;
 }
 
 .spe-ctool-btn.highlight {
@@ -581,8 +581,8 @@
 }
 
 .spe-dropzone:hover {
-  border-color: #8b5cf6;
-  background: rgba(139, 92, 246, 0.05);
+  border-color: #2563eb;
+  background: rgba(37, 99, 235, 0.05);
 }
 
 .spe-drop-icon {
@@ -681,8 +681,8 @@
 }
 
 .spe-description-textarea:focus {
-  border-color: #8b5cf6;
-  box-shadow: 0 0 12px rgba(139, 92, 246, 0.25);
+  border-color: #2563eb;
+  box-shadow: 0 0 12px rgba(37, 99, 235, 0.25);
 }
 
 /* AI Provider Banner */
@@ -746,12 +746,12 @@
 
 .spe-engine-card:hover {
   transform: translateY(-2px);
-  border-color: rgba(139, 92, 246, 0.4);
+  border-color: rgba(37, 99, 235, 0.4);
 }
 
 .spe-engine-card.selected {
-  border: 1.5px solid #8b5cf6;
-  background: rgba(139, 92, 246, 0.12);
+  border: 1.5px solid #2563eb;
+  background: rgba(37, 99, 235, 0.12);
 }
 
 .spe-ecard-head {
@@ -780,7 +780,7 @@
 }
 
 .spe-engine-card.selected .spe-btn-select-mode {
-  background: #8b5cf6;
+  background: #2563eb;
   border-color: transparent;
 }
 
@@ -792,7 +792,7 @@
 }
 
 .spe-btn-cta-glow {
-  background: linear-gradient(90deg, #d946ef, #a855f7);
+  background: linear-gradient(90deg, #0ea5e9, #3b82f6);
   color: #fff;
   border: none;
   padding: 1.1rem 3rem;
@@ -800,13 +800,13 @@
   font-weight: 900;
   font-size: 1.1rem;
   cursor: pointer;
-  box-shadow: 0 6px 25px rgba(217, 70, 239, 0.45);
+  box-shadow: 0 6px 25px rgba(14, 165, 233, 0.45);
   transition: transform 0.2s ease;
 }
 
 .spe-btn-cta-glow:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(168, 85, 247, 0.6);
+  box-shadow: 0 8px 30px rgba(59, 130, 246, 0.6);
 }
 
 .spe-cta-note {

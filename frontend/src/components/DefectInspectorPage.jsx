@@ -59,7 +59,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
 
     try {
       setScanStepMessage('🤖 ИИ анализирует дефекты и стандарты СНиП РК...');
-      const res = await fetch('http://localhost:3001/api/v1/ai/defect', {
+      const res = await fetch('/api/v1/ai/defect', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

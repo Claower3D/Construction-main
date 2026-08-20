@@ -270,24 +270,43 @@
         if (sub && sub.specs && u.specs) {
             specsStr = sub.specs.filter(s => u.specs[s.key]).map(s => u.specs[s.key] + ' ' + s.unit).join(', ');
         }
-        return `<div class="eq-card" onclick="EquipmentModule.openDetail('${l.id}')">
-            <div class="eq-card-img">
-                ${hasPhoto ? `<img src="${u.photos[0]}" alt="${esc(u.title)}">` : `<div class="eq-no-photo">${getCatIcon(u.category)}</div>`}
-                ${availToday ? '<div class="eq-overlay-badge eq-overlay-available">✅ Доступна сегодня</div>' : ''}
+        return `<div class="eq-card luxury-em-card" onclick="EquipmentModule.openDetail('${l.id}')">
+            <div class="eq-card-img luxury-image-container">
+                <div class="em-card-blueprint-grid"></div>
+                <div class="em-brand-watermark">HEAVY EQUIPMENT SPEC</div>
+                <div class="em-card-main-visual">
+                    <div class="em-card-icon-halo">
+                        ${hasPhoto ? `<img src="${u.photos[0]}" alt="${esc(u.title)}" style="width:100%;height:100%;object-fit:cover;border-radius:18px;">` : `<span class="em-icon-symbol">${getCatIcon(u.category)}</span>`}
+                    </div>
+                </div>
+                <div class="em-telemetry-badge-top">
+                    ${availToday ? '<span class="em-status-pill available"><span class="pulse-green-dot"></span> Готов к выезду</span>' : '<span class="em-status-pill busy">● На объекте (с 18:00)</span>'}
+                    <span class="em-rating-badge">★ 4.95</span>
+                </div>
             </div>
-            <div class="eq-card-body">
+            <div class="eq-card-body luxury-content">
+                <div class="em-card-category-strip">
+                    <span class="em-cat-tag">СПЕЦТЕХНИКА КАЗАХСТАНА</span>
+                    <span class="em-gps-tag">🛰️ GPS Online</span>
+                </div>
                 <div class="eq-card-title">${esc(u.title)}${specsStr ? ', ' + specsStr : ''}</div>
-                <div class="eq-card-price">${getPricingLabel(l)}</div>
+                <div class="em-price-cockpit">
+                    <div class="em-main-price">
+                        <span class="kzt-currency">₸</span>
+                        <span class="kzt-value">${getPricingLabel(l)}</span>
+                    </div>
+                    <div class="em-escrow-guarantee">🛡️ Эскроу QazGost</div>
+                </div>
                 <div class="eq-card-badges">
-                    <span class="eq-badge eq-badge-blue" style="font-size:.7rem">${pm.icon} ${pm.filterLabel}</span>
+                    <span class="eq-badge eq-badge-blue" style="font-size:.75rem">${pm.icon} ${pm.filterLabel}</span>
                     ${l.withOperator ? '<span class="eq-badge eq-badge-blue">👷 С оператором</span>' : ''}
-                    ${l.delivery === 'included' ? '<span class="eq-badge eq-badge-purple">🚚 Доставка</span>' : ''}
+                    ${l.delivery === 'included' ? '<span class="eq-badge eq-badge-blue">🚚 Доставка</span>' : ''}
                     ${l.delivery === 'paid' ? '<span class="eq-badge eq-badge-gray">🚚 Платная доставка</span>' : ''}
                     <span class="eq-badge eq-badge-gray">${esc(u.city)}</span>
                 </div>
                 <div class="eq-card-actions" onclick="event.stopPropagation()">
-                    <button class="eq-btn-book" onclick="EquipmentModule.openBookingModal('${l.id}')">Забронировать</button>
-                    <button class="eq-btn-rent" onclick="EquipmentModule.openTab('fleet')">Сдаёшь?</button>
+                    <button class="eq-btn-book luxury-book-btn" onclick="EquipmentModule.openBookingModal('${l.id}')">⚡ Забронировать</button>
+                    <button class="eq-btn-rent luxury-compare-btn" onclick="EquipmentModule.openTab('fleet')">Сдаёшь?</button>
                 </div>
             </div>
         </div>`;

@@ -5,36 +5,12 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
-	"sync"
 	"time"
 
 	"qazgost-ai/backend/pkg/config"
+	"qazgost-ai/backend/pkg/database"
 	"qazgost-ai/backend/pkg/middleware"
 	"qazgost-ai/backend/pkg/models"
-)
-
-var (
-	usersMutex sync.RWMutex
-	usersStore = map[string]*models.User{
-		"admin@qazgost.kz": {
-			ID:        "u_admin_1",
-			Email:     "admin@qazgost.kz",
-			Name:      "Администратор QAZGOST AI",
-			Role:      "admin",
-			City:      "Караганда",
-			Company:   "ТОО «QazGost»",
-			CreatedAt: time.Now(),
-		},
-		"engineer@qazgost.kz": {
-			ID:        "u_eng_1",
-			Email:     "engineer@qazgost.kz",
-			Name:      "Инженер-эксперт",
-			Role:      "engineer",
-			City:      "Астана",
-			Company:   "ТОО «Инжен-Строй»",
-			CreatedAt: time.Now(),
-		},
-	}
 )
 
 type AuthHandler struct {
@@ -60,33 +36,26 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	email := strings.ToLower(strings.TrimSpace(req.Email))
-	role := "customer"
-	if strings.Contains(email, "admin") {
-		role = "admin"
-	} else if strings.Contains(email, "executor") {
-		role = "executor"
-	} else if strings.Contains(email, "engineer") {
-		role = "engineer"
-	} else if strings.Contains(email, "manager") {
-		role = "manager"
+	if req.Password == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		_ = json.NewEncoder(w).Encode(map[string]string{"error": "Пароль обязателен"})
+		return
 	}
 
-	usersMutex.Lock()
-	user, exists := usersStore[email]
-	if !exists {
-		name := strings.Split(email, "@")[0]
-		user = &models.User{
-			ID:        fmt.Sprintf("u_%d", time.Now().UnixNano()),
-			Email:     email,
-			Name:      name,
-			Role:      role,
-			City:      "Караганда",
-			CreatedAt: time.Now(),
-		}
-		usersStore[email] = user
+	email := strings.ToLower(strings.TrimSpace(req.Email))
+
+	user, err := database.GetUserByEmail(email)
+	if err != nil {
+		w.WriteHeader(http.StatusUnauthorized)
+		_ = json.NewEncoder(w).Encode(map[string]string{"error": "Неверный email или пароль"})
+		return
 	}
-	usersMutex.Unlock()
+
+	if !middleware.CheckPassword(req.Password, user.PasswordHash) {
+		w.WriteHeader(http.StatusUnauthorized)
+		_ = json.NewEncoder(w).Encode(map[string]string{"error": "Неверный email или пароль"})
+		return
+	}
 
 	token, err := middleware.GenerateJWT(user.ID, user.Email, user.Role, h.cfg.JwtSecret)
 	if err != nil {
@@ -108,12 +77,13 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	var req struct {
-		Email   string `json:"email"`
-		Name    string `json:"name"`
-		Role    string `json:"role"`
-		Phone   string `json:"phone"`
-		City    string `json:"city"`
-		Company string `json:"company"`
+		Email    string `json:"email"`
+		Password string `json:"password"`
+		Name     string `json:"name"`
+		Role     string `json:"role"`
+		Phone    string `json:"phone"`
+		City     string `json:"city"`
+		Company  string `json:"company"`
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.Email == "" {
@@ -122,25 +92,45 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if req.Password == "" || len(req.Password) < 6 {
+		w.WriteHeader(http.StatusBadRequest)
+		_ = json.NewEncoder(w).Encode(map[string]string{"error": "Пароль должен быть не менее 6 символов"})
+		return
+	}
+
 	email := strings.ToLower(strings.TrimSpace(req.Email))
+
+	if _, err := database.GetUserByEmail(email); err == nil {
+		w.WriteHeader(http.StatusConflict)
+		_ = json.NewEncoder(w).Encode(map[string]string{"error": "Пользователь с таким email уже существует"})
+		return
+	}
+
 	role := req.Role
 	if role == "" {
 		role = "customer"
 	}
-
-	usersMutex.Lock()
-	user := &models.User{
-		ID:        fmt.Sprintf("u_%d", time.Now().UnixNano()),
-		Email:     email,
-		Name:      req.Name,
-		Role:      role,
-		Phone:     req.Phone,
-		City:      req.City,
-		Company:   req.Company,
-		CreatedAt: time.Now(),
+	if role == "admin" || role == "manager" {
+		role = "customer"
 	}
-	usersStore[email] = user
-	usersMutex.Unlock()
+
+	user := &models.User{
+		ID:           fmt.Sprintf("u_%d", time.Now().UnixNano()),
+		Email:        email,
+		Name:         req.Name,
+		PasswordHash: middleware.HashPassword(req.Password),
+		Role:         role,
+		Phone:        req.Phone,
+		City:         req.City,
+		Company:      req.Company,
+		CreatedAt:    time.Now(),
+	}
+
+	if err := database.CreateUser(user); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		_ = json.NewEncoder(w).Encode(map[string]string{"error": "Ошибка создания пользователя"})
+		return
+	}
 
 	token, _ := middleware.GenerateJWT(user.ID, user.Email, user.Role, h.cfg.JwtSecret)
 	user.Token = token
@@ -171,17 +161,8 @@ func (h *AuthHandler) GetMe(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	usersMutex.RLock()
-	var currentUser *models.User
-	for _, u := range usersStore {
-		if u.Email == claims.Email || u.ID == claims.UserID {
-			currentUser = u
-			break
-		}
-	}
-	usersMutex.RUnlock()
-
-	if currentUser == nil {
+	currentUser, err := database.GetUserByID(claims.UserID)
+	if err != nil {
 		currentUser = &models.User{
 			ID:    claims.UserID,
 			Email: claims.Email,

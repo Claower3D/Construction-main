@@ -119,8 +119,8 @@ export default function HeroSection({ role }) {
                   </div>
                   <div className="preview-stat-row">
                     <span className="preview-stat-label">Дефектоскопия</span>
-                    <span className="preview-stat-val val-pink">
-                      Трещины • Влага • Перепады стен
+                    <span className="preview-stat-val val-cyan">
+                      Трещины • Влага • Перепады стен (СНиП РК)
                     </span>
                   </div>
                 </div>
