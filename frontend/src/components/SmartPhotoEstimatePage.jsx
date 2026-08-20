@@ -427,10 +427,19 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
       ></textarea>
 
       {/* AI Provider Status */}
-      <div className="spe-provider-banner">
-        <span className="spe-warning-icon">⚠️</span>
-        <span>Ни один AI провайдер не настроен. Настройте Gemini или ChatGPT API ключ в настройках (доступен локальный офлайн-режим 2026).</span>
-      </div>
+      {Boolean(import.meta.env.VITE_OPENAI_API_KEY || (typeof window !== 'undefined' && localStorage.getItem('qazgost_openai_key'))) ? (
+        <div className="spe-provider-banner" style={{ background: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.35)', color: '#6ee7b7' }}>
+          <span style={{ fontSize: '1.2rem' }}>🟢</span>
+          <div>
+            <strong>OpenAI Multi-Pass Engine подключен и активен:</strong> Модели GPT-4o / Vision настроены для анализа фото, детекции объемов и расчета смет по ГОСТ РК.
+          </div>
+        </div>
+      ) : (
+        <div className="spe-provider-banner">
+          <span className="spe-warning-icon">⚠️</span>
+          <span>Ни один AI провайдер не настроен. Настройте Gemini или ChatGPT API ключ в настройках (доступен локальный офлайн-режим 2026).</span>
+        </div>
+      )}
 
       {/* MULTI-PASS AI ENGINE */}
       <div className="spe-engine-header">
