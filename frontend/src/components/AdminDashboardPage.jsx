@@ -31,7 +31,7 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
     }));
   };
 
-  // 6 System Roles (matching Screenshots)
+  // Exactly 3 Primary Roles (matching Screenshot 1)
   const roles = [
     {
       id: 'customer',
@@ -62,36 +62,6 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
       color: '#2563eb',
       glow: 'rgba(37, 99, 235, 0.45)',
       badge: ''
-    },
-    {
-      id: 'company',
-      title: 'Компания',
-      shortLabel: 'Компания',
-      icon: '🏢',
-      desc: 'Управление компанией, генподряд, объекты и сотрудники',
-      color: '#0ea5e9',
-      glow: 'rgba(14, 165, 233, 0.45)',
-      badge: 'PRO'
-    },
-    {
-      id: 'manager',
-      title: 'Менеджер',
-      shortLabel: 'Менеджер',
-      icon: '💼',
-      desc: 'CRM-система, клиенты, бригады и воронка продаж',
-      color: '#f59e0b',
-      glow: 'rgba(245, 158, 11, 0.45)',
-      badge: 'CRM'
-    },
-    {
-      id: 'admin',
-      title: 'Администратор',
-      shortLabel: 'Админ',
-      icon: '⚙️',
-      desc: 'Справочники ГЭСН-2026, модерация, аудит и KPI платформы',
-      color: '#a855f7',
-      glow: 'rgba(168, 85, 247, 0.45)',
-      badge: 'VIP'
     }
   ];
 
