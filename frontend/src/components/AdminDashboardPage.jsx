@@ -171,9 +171,23 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
 
   const handleSelectRole = (roleKey) => {
     setSelectedRole(roleKey);
-    setSelectedItemId(null);
-    setSelectedItemObject(null);
-    setEmbeddedModule(null);
+    if (roleKey === 'manager' || roleKey === 'crm') {
+      setEmbeddedModule('crm');
+      setSelectedItemId('mgr-crm');
+      setSelectedItemObject(roleCardsData.manager ? roleCardsData.manager[0] : null);
+    } else if (roleKey === 'admin') {
+      setEmbeddedModule('admin_panel');
+      setSelectedItemId('adm-prices');
+      setSelectedItemObject(roleCardsData.admin ? roleCardsData.admin[0] : null);
+    } else if (roleKey === 'company') {
+      setEmbeddedModule('company');
+      setSelectedItemId('comp-profile');
+      setSelectedItemObject(roleCardsData.company ? roleCardsData.company[0] : null);
+    } else {
+      setSelectedItemId(null);
+      setSelectedItemObject(null);
+      setEmbeddedModule(null);
+    }
   };
 
   const handleSelectItem = (item) => {
@@ -236,6 +250,15 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
       setSelectedItemId('ing-main');
     } else if (selectedRole === 'executor') {
       setSelectedItemId('e-feed');
+    } else if (selectedRole === 'manager' || selectedRole === 'crm') {
+      setEmbeddedModule('crm');
+      setSelectedItemId('mgr-crm');
+    } else if (selectedRole === 'company') {
+      setEmbeddedModule('company');
+      setSelectedItemId('comp-profile');
+    } else if (selectedRole === 'admin') {
+      setEmbeddedModule('admin_panel');
+      setSelectedItemId('adm-prices');
     } else {
       setSelectedItemId('c-estimate');
     }
