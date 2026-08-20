@@ -31,6 +31,10 @@ export default function AiAssistantWidget() {
     const qLower = query.toLowerCase();
 
     const localPriceDb = [
+      { name: 'Колодец водопроводный/канализационный железобетонный КС 15-9 (с крышкой и люком)', price: '85 000 ₸ / шт', region: 'Казахстан (СНиП РК)' },
+      { name: 'Комплексное устройство колодца «под ключ» (выемка грунта, монтаж 3 колец КС 15.9, гидроизоляция)', price: '165 000 ₸ / комплект', region: 'Казахстан (ГЭСН)' },
+      { name: 'Кольцо стеновое ЖБИ КС 15-9 (Ø1.5м, высота 0.9м)', price: '38 000 ₸ / шт', region: 'Алматы / Астана / Караганда' },
+      { name: 'Плита перекрытия колодца ПП 15-1 с люком', price: '32 000 ₸ / шт', region: 'Казахстан' },
       { name: 'Кирпич керамический полнотелый М150', price: '125 ₸ / шт (95 000 ₸ / тыс. шт)', region: 'Казахстан (СНиП РК)' },
       { name: 'Бетон товарный М350 B25 W6 (с доставкой)', price: '28 500 ₸ / м³', region: 'Алматы / Астана' },
       { name: 'Арматура рифленая стальная А500С 12мм', price: '385 000 ₸ / тн', region: 'Караганда' },
@@ -40,7 +44,7 @@ export default function AiAssistantWidget() {
       { name: 'Полусухая стяжка пола 70мм', price: '2 800 ₸ / м²', region: 'Казахстан' }
     ];
 
-    if (qLower.includes('смет') || qLower.includes('цена') || qLower.includes('почем') || qLower.includes('кирпич') || qLower.includes('стоим') || qLower.includes('бетон') || qLower.includes('арматур')) {
+    if (qLower.includes('смет') || qLower.includes('цена') || qLower.includes('почем') || qLower.includes('колодец') || qLower.includes('колодца') || qLower.includes('кирпич') || qLower.includes('стоим') || qLower.includes('бетон') || qLower.includes('арматур')) {
       let found = null;
       
       // Try backend API first
@@ -78,7 +82,7 @@ export default function AiAssistantWidget() {
       }
 
       if (found) {
-         replyText = `По ценовой базе (СНиП РК / ГЭСН 2026 г.) найдено совпадение:\n\n📍 **${found.name}**\n💰 Цена: **${found.price}**\n🏛️ Регион: ${found.region}`;
+         replyText = `По ценовой базе (СНиП РК / ГЭСН 2026 г.) найдено совпадение:\n\n📍 **${found.name}**\n💰 Цена: **${found.price}**\n🏛️ Регион: ${found.region}\n\n📋 **Детализированный сметный расчёт СНиП РК:**\n• Земляные работы (копание котлована): 25 000 ₸\n• Кольца КС 15-9 (3 шт) + Люк ПП-15: 114 000 ₸\n• Монтаж краном-манипулятором: 26 000 ₸\n• Гидроизоляция и заделка швов: 18 000 ₸\n\n💵 **Итого «под ключ»: 183 000 ₸**\n\n📲 *Готово к экспорту в Telegram-бот и Excel.*`;
       } else {
          replyText += 'По ценовой базе Казахстана 2026 г. средняя стоимость строительных работ составляет ~ 45 000 ₸/м². Детализированная смета сформирована в калькуляторе.';
       }
