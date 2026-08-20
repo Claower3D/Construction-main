@@ -1,0 +1,81 @@
+version: "3.9"
+
+services:
+  # ── Go Backend API ──
+  backend:
+    build:
+      context: ./go-backend
+      dockerfile: Dockerfile
+    container_name: qazgost-backend
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - NODE_ENV=production
+      - JWT_SECRET=${JWT_SECRET:-change-me-in-production}
+      - DB_PATH=/app/data/qazgost.db
+      - UPLOAD_DIR=/app/uploads
+      - FRONTEND_URL=http://localhost:5173
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+    volumes:
+      - backend-data:/app/data
+      - backend-uploads:/app/uploads
+      - ./ai-service/app/data:/app/ai-service/app/data:ro
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      - qazgost-net
+
+  # ── React Frontend (dev) ──
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: qazgost-frontend
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://backend:8080
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - qazgost-net
+
+  # ── Python AI Service ──
+  ai-service:
+    build:
+      context: ./ai-service
+      dockerfile: Dockerfile
+    container_name: qazgost-ai
+    restart: unless-stopped
+    ports:
+      - "8001:8001"
+    environment:
+      - PORT=8001
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+    volumes:
+      - ./ai-service/app/data:/app/data:ro
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8001/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    networks:
+      - qazgost-net
+
+volumes:
+  backend-data:
+    driver: local
+  backend-uploads:
+    driver: local
+
+networks:
+  qazgost-net:
+    driver: bridge

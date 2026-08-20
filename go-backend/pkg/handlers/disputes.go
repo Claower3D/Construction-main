@@ -17,7 +17,7 @@ func NewDisputesHandler() *DisputesHandler {
 func (h *DisputesHandler) GetDisputes(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	items, err := database.GetAllDisputes()
-	if err != nil {
+	if err != nil || items == nil {
 		items = []*models.Dispute{}
 	}
 	_ = json.NewEncoder(w).Encode(items)

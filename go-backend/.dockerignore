@@ -1,0 +1,13 @@
+vendor/
+.git/
+*.exe
+*.db
+*.db-wal
+*.db-shm
+data/
+uploads/
+server
+*.test
+*.out
+.vscode/
+.idea/
