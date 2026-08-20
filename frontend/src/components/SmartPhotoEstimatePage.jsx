@@ -477,7 +477,11 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
         <div 
           className={`spe-engine-card ${aiEngineMode === 'detailed' ? 'selected' : ''}`}
           onClick={() => setAiEngineMode('detailed')}
+          style={{ position: 'relative' }}
         >
+          <div style={{ position: 'absolute', top: '8px', right: '8px', background: 'rgba(16, 185, 129, 0.2)', border: '1px solid #10b981', color: '#10b981', fontSize: '0.65rem', fontWeight: '800', padding: '2px 6px', borderRadius: '6px' }}>
+            PRO KEY
+          </div>
           <div className="spe-ecard-head">🏗️🏗️ Детальный</div>
           <p className="spe-ecard-desc">Несколько проходов + аудит</p>
           <button className="spe-btn-select-mode">
