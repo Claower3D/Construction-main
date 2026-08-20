@@ -168,7 +168,19 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
     ]
   };
 
-  const activeRoleObj = roles.find((r) => r.id === selectedRole) || roles[0];
+  // Only Admin can see/switch all roles. Non-admin users only see their own role. Guests see public roles.
+  const visibleRoles = (() => {
+    if (currentUser?.role === 'admin') {
+      return roles;
+    }
+    if (currentUser?.role) {
+      const myRoleObj = roles.find(r => r.id === currentUser.role);
+      return myRoleObj ? [myRoleObj] : roles.filter(r => ['customer', 'executor', 'engineer'].includes(r.id));
+    }
+    return roles.filter(r => ['customer', 'executor', 'engineer'].includes(r.id));
+  })();
+
+  const activeRoleObj = roles.find((r) => r.id === selectedRole) || visibleRoles[0] || roles[0];
   const activeCards = roleCardsData[selectedRole] || roleCardsData.customer;
 
   const handleSelectRole = (roleKey) => {
@@ -348,8 +360,8 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
           </div>
 
           {/* Mobile Role Switcher Grid */}
-          <div className="mobile-role-selector-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
-            {roles.filter(r => !['manager', 'company', 'admin'].includes(r.id)).map(r => (
+          <div className="mobile-role-selector-grid" style={{ gridTemplateColumns: `repeat(${Math.min(visibleRoles.length, 3)}, 1fr)` }}>
+            {visibleRoles.map(r => (
               <button
                 key={r.id}
                 className={`mobile-role-btn ${selectedRole === r.id ? 'active' : ''}`}
@@ -586,10 +598,15 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
                 </p>
               </div>
 
-              {/* ────────────────────────────────────────────────────── */}
-              {/* ROLE SELECTION CARDS (Public Roles Only) */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.25rem' }}>
-                {roles.filter(r => !['manager', 'company', 'admin'].includes(r.id)).map(r => {
+              {/* ROLE SELECTION CARDS (Role-Based Visibility: Admin sees all, User sees own role, Guest sees public) */}
+              <div style={{ 
+                display: 'grid', 
+                gridTemplateColumns: visibleRoles.length === 1 ? '1fr' : 'repeat(auto-fit, minmax(260px, 1fr))', 
+                gap: '1.25rem',
+                maxWidth: visibleRoles.length === 1 ? '520px' : '100%',
+                margin: visibleRoles.length === 1 ? '0 auto' : '0'
+              }}>
+                {visibleRoles.map(r => {
                   const isActive = selectedRole === r.id;
                   return (
                     <div 

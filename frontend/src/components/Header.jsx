@@ -409,34 +409,56 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
             <div className="mobile-drawer-body">
               {currentUser && (
                 <>
-                  {/* Role Toggle Switcher in Drawer */}
+                  {/* Role Badge / Switcher in Drawer */}
                   <div className="mobile-drawer-section">
-                <div className="role-switcher-toggle" style={{ width: '100%', justifyContent: 'center' }}>
-                  <button
-                    className={`role-tab-btn ${role === 'customer' ? 'active' : ''}`}
-                    style={{ flex: 1, textAlign: 'center' }}
-                    onClick={() => setRole('customer')}
-                  >
-                    📋 Заказчик
-                  </button>
-                  <button
-                    className={`role-tab-btn ${role === 'executor' ? 'active' : ''}`}
-                    style={{ flex: 1, textAlign: 'center' }}
-                    onClick={() => setRole('executor')}
-                  >
-                    🛠️ Исполнитель
-                  </button>
-                  {currentUser.role === 'manager' && (
-                    <button
-                      className={`role-tab-btn ${role === 'manager' ? 'active' : ''}`}
-                      style={{ flex: 1, textAlign: 'center' }}
-                      onClick={() => setRole('manager')}
-                    >
-                      💼 Менеджер
-                    </button>
-                  )}
-                </div>
-              </div>
+                    <div className="role-switcher-toggle" style={{ width: '100%', justifyContent: 'center' }}>
+                      {(!currentUser || currentUser.role === 'admin' || currentUser.role === 'customer') && (
+                        <button
+                          className={`role-tab-btn ${role === 'customer' ? 'active' : ''}`}
+                          style={{ flex: 1, textAlign: 'center' }}
+                          onClick={() => setRole('customer')}
+                        >
+                          📋 Заказчик
+                        </button>
+                      )}
+                      {(!currentUser || currentUser.role === 'admin' || currentUser.role === 'executor') && (
+                        <button
+                          className={`role-tab-btn ${role === 'executor' ? 'active' : ''}`}
+                          style={{ flex: 1, textAlign: 'center' }}
+                          onClick={() => setRole('executor')}
+                        >
+                          🛠️ Исполнитель
+                        </button>
+                      )}
+                      {currentUser?.role === 'manager' && (
+                        <button
+                          className={`role-tab-btn ${role === 'manager' ? 'active' : ''}`}
+                          style={{ flex: 1, textAlign: 'center' }}
+                          onClick={() => setRole('manager')}
+                        >
+                          💼 Менеджер
+                        </button>
+                      )}
+                      {currentUser?.role === 'engineer' && (
+                        <button
+                          className={`role-tab-btn ${role === 'engineer' ? 'active' : ''}`}
+                          style={{ flex: 1, textAlign: 'center' }}
+                          onClick={() => setRole('engineer')}
+                        >
+                          👷 Инженер
+                        </button>
+                      )}
+                      {currentUser?.role === 'company' && (
+                        <button
+                          className={`role-tab-btn ${role === 'company' ? 'active' : ''}`}
+                          style={{ flex: 1, textAlign: 'center' }}
+                          onClick={() => setRole('company')}
+                        >
+                          🏢 Компания
+                        </button>
+                      )}
+                    </div>
+                  </div>
 
               {/* Account Balance */}
               <div 
