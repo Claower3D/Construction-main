@@ -177,21 +177,23 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
     setEmbeddedModule(null);
   };
 
+  // Keyboard shortcut: Escape to return to card cockpit
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && isInnerToolActive) {
+        handleBackToCardMenu();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isInnerToolActive]);
+
   const handlePrimaryRoleAction = () => {
     if (selectedRole === 'engineer') {
       setEmbeddedModule('engineer');
       setSelectedItemId('ing-main');
     } else if (selectedRole === 'executor') {
       setSelectedItemId('e-feed');
-    } else if (selectedRole === 'manager') {
-      setEmbeddedModule('crm');
-      setSelectedItemId('mgr-crm');
-    } else if (selectedRole === 'company') {
-      setEmbeddedModule('company');
-      setSelectedItemId('comp-profile');
-    } else if (selectedRole === 'admin') {
-      setEmbeddedModule('admin_panel');
-      setSelectedItemId('adm-prices');
     } else {
       setSelectedItemId('c-estimate');
     }
@@ -203,6 +205,46 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
     <div className="admin-redesign-layout" style={{ minHeight: '100vh', width: '100vw', overflowX: 'hidden', position: 'relative' }}>
       {/* 3D Holographic Background with BIM Skyline & Electricity */}
       <AnimatedBackground />
+
+      {/* ALWAYS VISIBLE FLOATING "BACK TO MENU" BUTTON */}
+      {isInnerToolActive && (
+        <button
+          onClick={handleBackToCardMenu}
+          className="floating-back-to-cards-btn"
+          style={{
+            position: 'fixed',
+            bottom: '24px',
+            left: '24px',
+            zIndex: 99999,
+            background: 'rgba(12, 18, 38, 0.94)',
+            border: '2px solid #38bdf8',
+            color: '#fff',
+            padding: '12px 24px',
+            borderRadius: '50px',
+            fontWeight: '900',
+            fontSize: '1rem',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            boxShadow: '0 10px 30px rgba(56, 189, 248, 0.6), 0 0 25px rgba(0,0,0,0.85)',
+            backdropFilter: 'blur(24px)',
+            transition: 'all 0.25s ease'
+          }}
+          onMouseOver={(e) => {
+            e.currentTarget.style.transform = 'translateY(-3px) scale(1.04)';
+            e.currentTarget.style.boxShadow = '0 15px 40px rgba(56, 189, 248, 0.8)';
+          }}
+          onMouseOut={(e) => {
+            e.currentTarget.style.transform = 'none';
+            e.currentTarget.style.boxShadow = '0 10px 30px rgba(56, 189, 248, 0.6), 0 0 25px rgba(0,0,0,0.85)';
+          }}
+          title="Вернуться к выбору карточек (Esc)"
+        >
+          <span style={{ fontSize: '1.25rem', fontWeight: '900' }}>←</span>
+          <span>Назад к карточкам</span>
+        </button>
+      )}
 
       {/* ─────────────────────────────────────────────────────────── */}
       {/* MOBILE DRAWER SIDEBAR (Only visible when toggled on mobile) */}
@@ -241,7 +283,7 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
           </div>
 
           {/* Mobile Role Switcher Grid */}
-          <div className="mobile-role-selector-grid">
+          <div className="mobile-role-selector-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
             {roles.map(r => (
               <button
                 key={r.id}
@@ -249,12 +291,14 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
                 onClick={() => handleSelectRole(r.id)}
                 style={{
                   borderColor: selectedRole === r.id ? r.color : 'rgba(255, 255, 255, 0.1)',
-                  boxShadow: selectedRole === r.id ? `0 0 12px ${r.glow}` : 'none'
+                  boxShadow: selectedRole === r.id ? `0 0 12px ${r.glow}` : 'none',
+                  flexDirection: 'column',
+                  padding: '8px 4px'
                 }}
               >
-                <span>{r.icon}</span>
-                <span>{r.shortLabel}</span>
-                {selectedRole === r.id && <span style={{ color: r.color, fontWeight: '900' }}>✓</span>}
+                <span style={{ fontSize: '1.2rem' }}>{r.icon}</span>
+                <span style={{ fontSize: '0.75rem' }}>{r.shortLabel}</span>
+                {selectedRole === r.id && <span style={{ color: r.color, fontWeight: '900', fontSize: '0.8rem' }}>✓</span>}
               </button>
             ))}
           </div>
@@ -297,8 +341,8 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
       {/* ─────────────────────────────────────────────────────────── */}
       <main className="admin-redesign-main full-width-workspace" style={{ width: '100%', flex: 1, display: 'flex', flexDirection: 'column', position: 'relative', zIndex: 5 }}>
         
-        {/* TOP COMPACT HEADER */}
-        <header className="main-top-header modern-topbar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.85rem 1.5rem', background: 'rgba(10, 14, 28, 0.75)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255, 255, 255, 0.08)' }}>
+        {/* TOP COMPACT HEADER — STICKY AT TOP */}
+        <header className="main-top-header modern-topbar" style={{ position: 'sticky', top: 0, zIndex: 1000, display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.85rem 1.5rem', background: 'rgba(10, 14, 28, 0.92)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
             {/* Mobile Hamburger Button */}
             <button 
@@ -310,29 +354,29 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
               <span className="btn-text-mobile">Меню</span>
             </button>
 
-            {/* Back to Card Hub Button (when inside a tool) */}
+            {/* Back to Card Hub Button */}
             {isInnerToolActive ? (
               <button 
                 onClick={handleBackToCardMenu}
                 className="btn-back-to-cards"
                 title="Вернуться ко всем карточкам"
                 style={{
-                  background: 'rgba(56, 189, 248, 0.15)',
-                  border: '1px solid #38bdf8',
+                  background: 'rgba(56, 189, 248, 0.2)',
+                  border: '1.5px solid #38bdf8',
                   color: '#fff',
                   borderRadius: '12px',
-                  padding: '8px 16px',
+                  padding: '8px 18px',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '8px',
                   cursor: 'pointer',
-                  fontWeight: '700',
-                  fontSize: '0.9rem',
-                  boxShadow: '0 0 15px rgba(56, 189, 248, 0.3)'
+                  fontWeight: '800',
+                  fontSize: '0.92rem',
+                  boxShadow: '0 0 18px rgba(56, 189, 248, 0.4)'
                 }}
               >
-                <span>←</span>
-                <span>К карточкам меню</span>
+                <span style={{ fontSize: '1.1rem' }}>←</span>
+                <span>Назад к карточкам</span>
               </button>
             ) : (
               <button 

@@ -1291,11 +1291,32 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
 
       {/* MAIN RIGHT COLUMN */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
-        
         {/* NEW BREADCRUMBS HEADER */}
-        <header className="main-top-header" style={{ flexShrink: 0, width: '100%', zIndex: 10 }}>
-          <div className="header-breadcrumbs">
-            {viewRole === 'customer' ? 'Заказчик' : (viewRole === 'executor' ? 'Исполнитель' : 'Инженер')} <span>/</span> Управление <span>/</span> {getTabName(activeTab)}
+        <header className="main-top-header" style={{ flexShrink: 0, width: '100%', zIndex: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem 1.5rem', background: 'rgba(10, 14, 28, 0.85)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255, 255, 255, 0.08)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <button 
+              onClick={onBackToHome}
+              style={{
+                background: 'rgba(56, 189, 248, 0.18)',
+                border: '1.5px solid #38bdf8',
+                color: '#fff',
+                padding: '8px 16px',
+                borderRadius: '12px',
+                fontWeight: '800',
+                fontSize: '0.9rem',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                boxShadow: '0 0 15px rgba(56, 189, 248, 0.3)'
+              }}
+            >
+              <span>←</span>
+              <span>Назад к карточкам</span>
+            </button>
+            <div className="header-breadcrumbs">
+              {viewRole === 'customer' ? 'Заказчик' : (viewRole === 'executor' ? 'Исполнитель' : 'Инженер')} <span>/</span> Управление <span>/</span> {getTabName(activeTab)}
+            </div>
           </div>
           <div className="header-actions">
             <button className="btn-glass-home" onClick={onBackToHome}>
