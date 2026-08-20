@@ -349,7 +349,7 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
 
           {/* Mobile Role Switcher Grid */}
           <div className="mobile-role-selector-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
-            {roles.map(r => (
+            {roles.filter(r => !['manager', 'company', 'admin'].includes(r.id)).map(r => (
               <button
                 key={r.id}
                 className={`mobile-role-btn ${selectedRole === r.id ? 'active' : ''}`}
@@ -587,10 +587,9 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
               </div>
 
               {/* ────────────────────────────────────────────────────── */}
-              {/* ROLE SELECTION CARDS (Matching Screenshot 1 & 3)       */}
-              {/* ────────────────────────────────────────────────────── */}
+              {/* ROLE SELECTION CARDS (Public Roles Only) */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.25rem' }}>
-                {roles.map(r => {
+                {roles.filter(r => !['manager', 'company', 'admin'].includes(r.id)).map(r => {
                   const isActive = selectedRole === r.id;
                   return (
                     <div 
