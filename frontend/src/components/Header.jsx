@@ -1,4 +1,38 @@
-import React, { useState } from 'react';
+function getDefaultNotificationsForRole(userRole) {
+  if (userRole === 'engineer') {
+    return [
+      { id: 'n-eng-1', icon: '👷', title: 'Назначена инспекция', text: 'Новая заявка на технический надзор по объекту ЖК «Кабанбай».', time: '5 мин назад', unread: true, target: 'engineer' },
+      { id: 'n-eng-2', icon: '🤖', title: 'AI-проверка ГОСТ завершена', text: 'Проверка раздела ПСД закончена: 0 критических дефектов.', time: '35 мин назад', unread: true, target: 'engineer' },
+      { id: 'n-eng-3', icon: '📋', title: 'Подписание акта КС-2', text: 'Заказчик согласовал промежуточный акт скрытых работ.', time: '2 часа назад', unread: false, target: 'engineer' }
+    ];
+  }
+  if (userRole === 'manager') {
+    return [
+      { id: 'n-mgr-1', icon: '💼', title: 'Новый лид в CRM', text: 'Поступила новая коммерческая заявка от ТОО «КазСтройИнвест».', time: '2 мин назад', unread: true, target: 'manager' },
+      { id: 'n-mgr-2', icon: '📊', title: 'Сделка переведена в Дожим', text: 'Заказчик №1085 запросил счет на эскроу-транш №2.', time: '15 мин назад', unread: true, target: 'manager' },
+      { id: 'n-mgr-3', icon: '✅', title: 'Успешная сдача объекта', text: 'Подрядчик сдал сметный этап №3 без замечаний.', time: '1 час назад', unread: false, target: 'manager' }
+    ];
+  }
+  if (userRole === 'admin') {
+    return [
+      { id: 'n-adm-1', icon: '🛡️', title: 'Заявка на верификацию ИП', text: 'ИП «ТемирСтрой» отправил документы на проверку ИИН/БИН.', time: '10 мин назад', unread: true, target: 'admin' },
+      { id: 'n-adm-2', icon: '⚖️', title: 'Новый арбитражный спор', text: 'Открыта претензия по качеству заливки монолита (DSP-882).', time: '40 мин назад', unread: true, target: 'admin' },
+      { id: 'n-adm-3', icon: '💰', title: 'Обновление ГЭСН 2026', text: 'Индексы удорожания по 17 регионам Казахстана обновлены.', time: '3 часа назад', unread: false, target: 'admin' }
+    ];
+  }
+  if (userRole === 'executor') {
+    return [
+      { id: 'n-exe-1', icon: '🌐', title: 'Новый доступный заказ', text: 'В ленте заказов: Ремонт офисного помещения 450 м² в г. Астана.', time: '8 мин назад', unread: true, target: 'executor' },
+      { id: 'n-exe-2', icon: '💳', title: 'Эскроу-транш зачислен', text: 'Заказчик подтвердил этап №1. Средства готовы к выводу.', time: '45 мин назад', unread: true, target: 'wallet' },
+      { id: 'n-exe-3', icon: '📌', title: 'Отклик принят', text: 'Ваше коммерческое предложение выбрано главным исполнителем.', time: '2 часа назад', unread: false, target: 'orders' }
+    ];
+  }
+  return [
+    { id: 'n-cus-1', icon: '📸', title: 'Смета готова (AI 2.0)', text: 'Загруженные фото проанализированы: рассчитано 3 сценария цены.', time: '4 мин назад', unread: true, target: 'orders' },
+    { id: 'n-cus-2', icon: '💳', title: 'Резерв эскроу-счета', text: 'Безопасная сделка успешно оформлена и защищена гарантом.', time: '30 мин назад', unread: true, target: 'wallet' },
+    { id: 'n-cus-3', icon: '🔍', title: 'Отчёт дефектовки', text: 'AI-сканер выявил 2 микротрещины и сформировал отчёт по СНиП.', time: '1 час назад', unread: false, target: 'customer' }
+  ];
+}
 
 export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, onOpenAdmin, onOpenEngineer, currentUser, onLogout, onOpenDashboard, onLogoClick, onOpenProfile, onOpenWallet }) {
   const [activeNavDropdown, setActiveNavDropdown] = useState(null);
@@ -6,17 +40,81 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
   const [mobileAccordion, setMobileAccordion] = useState(null);
   const [unreadNotifsCount, setUnreadNotifsCount] = useState(0);
 
-  React.useEffect(() => {
+  const [isNotifOpen, setIsNotifOpen] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+
+  const loadNotifs = React.useCallback(() => {
     if (!currentUser) return;
-    const updateNotifs = () => {
-      const key = `${currentUser.role}_notifications`;
-      const notifs = JSON.parse(localStorage.getItem(key) || '[]');
-      setUnreadNotifsCount(notifs.filter(n => n.unread).length);
-    };
-    updateNotifs();
-    window.addEventListener('notifications_updated', updateNotifs);
-    return () => window.removeEventListener('notifications_updated', updateNotifs);
+    const key = `${currentUser.role}_notifications`;
+    let raw = localStorage.getItem(key);
+    let list = [];
+    if (!raw) {
+      list = getDefaultNotificationsForRole(currentUser.role);
+      localStorage.setItem(key, JSON.stringify(list));
+    } else {
+      try {
+        list = JSON.parse(raw);
+        if (!Array.isArray(list) || list.length === 0) {
+          list = getDefaultNotificationsForRole(currentUser.role);
+          localStorage.setItem(key, JSON.stringify(list));
+        }
+      } catch (e) {
+        list = getDefaultNotificationsForRole(currentUser.role);
+        localStorage.setItem(key, JSON.stringify(list));
+      }
+    }
+    setNotifications(list);
+    setUnreadNotifsCount(list.filter(n => n.unread).length);
   }, [currentUser]);
+
+  React.useEffect(() => {
+    loadNotifs();
+    window.addEventListener('notifications_updated', loadNotifs);
+    return () => window.removeEventListener('notifications_updated', loadNotifs);
+  }, [currentUser, loadNotifs]);
+
+  const handleNotifClick = (notif) => {
+    if (!currentUser) return;
+    const key = `${currentUser.role}_notifications`;
+    const updated = notifications.map(n => n.id === notif.id ? { ...n, unread: false } : n);
+    setNotifications(updated);
+    setUnreadNotifsCount(updated.filter(n => n.unread).length);
+    localStorage.setItem(key, JSON.stringify(updated));
+    window.dispatchEvent(new Event('notifications_updated'));
+
+    setIsNotifOpen(false);
+
+    if (notif.target === 'wallet' && onOpenWallet) {
+      onOpenWallet();
+    } else if (notif.target === 'profile' && onOpenProfile) {
+      onOpenProfile();
+    } else if (notif.target === 'engineer' && onOpenEngineer) {
+      onOpenEngineer();
+    } else if (notif.target === 'admin' && onOpenAdmin) {
+      onOpenAdmin();
+    } else if (onOpenDashboard) {
+      onOpenDashboard(notif.target || currentUser.role);
+    }
+  };
+
+  const handleMarkAllRead = () => {
+    if (!currentUser) return;
+    const key = `${currentUser.role}_notifications`;
+    const updated = notifications.map(n => ({ ...n, unread: false }));
+    setNotifications(updated);
+    setUnreadNotifsCount(0);
+    localStorage.setItem(key, JSON.stringify(updated));
+    window.dispatchEvent(new Event('notifications_updated'));
+  };
+
+  const handleClearNotifs = () => {
+    if (!currentUser) return;
+    const key = `${currentUser.role}_notifications`;
+    setNotifications([]);
+    setUnreadNotifsCount(0);
+    localStorage.setItem(key, JSON.stringify([]));
+    window.dispatchEvent(new Event('notifications_updated'));
+  };
 
   const toggleDropdown = (menuName) => {
     setActiveNavDropdown(activeNavDropdown === menuName ? null : menuName);
@@ -339,12 +437,156 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
           </div>
 
           {currentUser && (
-            <div style={{ position: 'relative', cursor: 'pointer', display: 'flex', alignItems: 'center' }} onClick={() => onOpenDashboard(currentUser.role)}>
-              <span style={{ fontSize: '1.4rem' }}>🔔</span>
-              {unreadNotifsCount > 0 && (
-                <div style={{ position: 'absolute', top: -5, right: -5, background: '#ef4444', color: '#fff', fontSize: '0.65rem', fontWeight: 'bold', width: '18px', height: '18px', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                  {unreadNotifsCount}
-                </div>
+            <div style={{ position: 'relative' }}>
+              <div 
+                style={{ 
+                  position: 'relative', 
+                  cursor: 'pointer', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  padding: '6px', 
+                  borderRadius: '12px', 
+                  transition: 'all 0.2s ease', 
+                  background: isNotifOpen ? 'rgba(56, 189, 248, 0.18)' : 'transparent' 
+                }} 
+                onClick={() => setIsNotifOpen(!isNotifOpen)}
+                title="Уведомления"
+              >
+                <span style={{ fontSize: '1.4rem' }}>🔔</span>
+                {unreadNotifsCount > 0 && (
+                  <div style={{ 
+                    position: 'absolute', 
+                    top: 2, 
+                    right: 2, 
+                    background: 'linear-gradient(135deg, #ef4444, #dc2626)', 
+                    color: '#fff', 
+                    fontSize: '0.68rem', 
+                    fontWeight: '900', 
+                    width: '20px', 
+                    height: '20px', 
+                    borderRadius: '50%', 
+                    display: 'flex', 
+                    justifyContent: 'center', 
+                    alignItems: 'center', 
+                    boxShadow: '0 0 10px rgba(239, 68, 68, 0.8)', 
+                    border: '2px solid #0f172a' 
+                  }}>
+                    {unreadNotifsCount}
+                  </div>
+                )}
+              </div>
+
+              {/* NOTIFICATIONS DROPDOWN POPOVER */}
+              {isNotifOpen && (
+                <>
+                  <div 
+                    style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 99990 }} 
+                    onClick={() => setIsNotifOpen(false)} 
+                  />
+                  
+                  <div 
+                    style={{
+                      position: 'absolute',
+                      top: 'calc(100% + 12px)',
+                      right: 0,
+                      width: '360px',
+                      maxWidth: '92vw',
+                      background: 'rgba(12, 18, 38, 0.96)',
+                      border: '1.5px solid rgba(56, 189, 248, 0.35)',
+                      borderRadius: '22px',
+                      boxShadow: '0 20px 60px rgba(0,0,0,0.85), 0 0 35px rgba(56, 189, 248, 0.2)',
+                      backdropFilter: 'blur(24px)',
+                      zIndex: 99999,
+                      overflow: 'hidden'
+                    }}
+                  >
+                    {/* Header Bar */}
+                    <div style={{ padding: '1rem 1.25rem', borderBottom: '1px solid rgba(255, 255, 255, 0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255, 255, 255, 0.03)' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontSize: '1.2rem' }}>🔔</span>
+                        <strong style={{ color: '#fff', fontSize: '1rem', fontWeight: 900 }}>Уведомления</strong>
+                        {unreadNotifsCount > 0 && (
+                          <span style={{ background: 'rgba(239, 68, 68, 0.2)', border: '1px solid rgba(239, 68, 68, 0.5)', color: '#fca5a5', padding: '2px 8px', borderRadius: '12px', fontSize: '0.72rem', fontWeight: 800 }}>
+                            {unreadNotifsCount} новых
+                          </span>
+                        )}
+                      </div>
+
+                      {notifications.length > 0 && unreadNotifsCount > 0 && (
+                        <button 
+                          onClick={handleMarkAllRead}
+                          style={{ background: 'transparent', border: 'none', color: '#38bdf8', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer', textDecoration: 'underline' }}
+                        >
+                          Прочитать всё
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Notifications Body List */}
+                    <div style={{ maxHeight: '340px', overflowY: 'auto', padding: '0.6rem' }}>
+                      {notifications.length === 0 ? (
+                        <div style={{ padding: '2rem 1rem', textAlign: 'center', color: '#94a3b8' }}>
+                          <span style={{ fontSize: '2rem', display: 'block', marginBottom: '0.5rem' }}>🔕</span>
+                          <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#cbd5e1' }}>Нет уведомлений</div>
+                          <small style={{ fontSize: '0.78rem' }}>Здесь будут появляться важные сообщения и статусы заявок</small>
+                        </div>
+                      ) : (
+                        notifications.map((notif) => (
+                          <div
+                            key={notif.id}
+                            onClick={() => handleNotifClick(notif)}
+                            style={{
+                              padding: '0.85rem 1rem',
+                              borderRadius: '16px',
+                              marginBottom: '0.4rem',
+                              background: notif.unread ? 'rgba(56, 189, 248, 0.12)' : 'rgba(255, 255, 255, 0.03)',
+                              border: notif.unread ? '1px solid rgba(56, 189, 248, 0.3)' : '1px solid rgba(255, 255, 255, 0.06)',
+                              cursor: 'pointer',
+                              transition: 'all 0.2s ease',
+                              display: 'flex',
+                              gap: '0.75rem',
+                              alignItems: 'flex-start'
+                            }}
+                          >
+                            <span style={{ fontSize: '1.4rem', background: 'rgba(255, 255, 255, 0.08)', padding: '6px', borderRadius: '12px', lineHeight: 1 }}>
+                              {notif.icon || '🔔'}
+                            </span>
+                            <div style={{ flex: 1 }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.2rem' }}>
+                                <strong style={{ color: '#fff', fontSize: '0.88rem', fontWeight: 800 }}>{notif.title}</strong>
+                                {notif.unread && (
+                                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#38bdf8', boxShadow: '0 0 8px #38bdf8' }} />
+                                )}
+                              </div>
+                              <div style={{ color: '#cbd5e1', fontSize: '0.8rem', lineHeight: '1.35', marginBottom: '0.35rem' }}>
+                                {notif.text}
+                              </div>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <span style={{ color: '#94a3b8', fontSize: '0.72rem', fontWeight: 600 }}>{notif.time || 'Только что'}</span>
+                                <span style={{ color: '#38bdf8', fontSize: '0.75rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '3px' }}>
+                                  Перейти ➔
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+
+                    {/* Footer Bar */}
+                    {notifications.length > 0 && (
+                      <div style={{ padding: '0.75rem 1.25rem', borderTop: '1px solid rgba(255, 255, 255, 0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(0,0,0,0.2)' }}>
+                        <span style={{ color: '#94a3b8', fontSize: '0.75rem' }}>Всего: {notifications.length}</span>
+                        <button 
+                          onClick={handleClearNotifs}
+                          style={{ background: 'transparent', border: 'none', color: '#ef4444', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer' }}
+                        >
+                          🗑️ Очистить все
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </>
               )}
             </div>
           )}
