@@ -8,7 +8,8 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [activeTab, setActiveTab] = useState(initialTab || 'calendar'); // Dynamic tab state
 
-  const [selectedOrg, setSelectedOrg] = useState(null); // null = show Org Selector Screen initially
+  const defaultOrgObj = { id: 1, name: 'ТОО «QazGost»', city: 'Караганда', type: 'ТОО', bin: '990405351447', icon: '🏢', projectsCount: 4, estimatesCount: 18, workersCount: 12, isDefault: true, role: 'Главный инженер' };
+  const [selectedOrg, setSelectedOrg] = useState(defaultOrgObj);
   const [showCreateOrgModal, setShowCreateOrgModal] = useState(false);
   const [newOrgName, setNewOrgName] = useState('');
   const [newOrgBin, setNewOrgBin] = useState('');
@@ -961,9 +962,28 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
 
   if (!selectedOrg) {
     return (
-      <div className="engineer-cabinet-root" style={{ flexDirection: 'column', minHeight: '100vh', justifyContent: 'flex-start', alignItems: 'center', padding: '2.5rem 2rem', width: '100%' }}>
+      <div className="engineer-cabinet-root" style={{ flexDirection: 'column', minHeight: '100vh', justifyContent: 'flex-start', alignItems: 'center', padding: '1.5rem 2rem', width: '100%' }}>
         <AnimatedBackground />
         
+        {/* Top Header Bar so Navigation & Sidebar Toggle are NEVER missing */}
+        <header className="main-top-header" style={{ width: '100%', maxWidth: '1280px', marginBottom: '1.5rem', zIndex: 20, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div className="header-breadcrumbs">
+            {viewRole === 'customer' ? 'Заказчик' : (viewRole === 'executor' ? 'Исполнитель' : 'Инженер')} <span>/</span> Выбор организации
+          </div>
+          <div className="header-actions" style={{ display: 'flex', gap: '0.75rem' }}>
+            <button 
+              className="btn-sidebar-toggle" 
+              onClick={() => setSelectedOrg(organizations[0])}
+              style={{ background: 'rgba(139, 92, 246, 0.25)', border: '1px solid #8b5cf6', color: '#fff', padding: '0.5rem 1rem', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+            >
+              <span>◀</span> Меню / Кабинет
+            </button>
+            <button className="btn-glass-home" onClick={onBackToHome}>
+              🏠 На сайт
+            </button>
+          </div>
+        </header>
+
         {/* Main Centered Selection Hub */}
         <div style={{ width: '100%', maxWidth: '1280px', zIndex: 10, display: 'flex', flexDirection: 'column', gap: '2rem' }}>
           
@@ -1080,6 +1100,10 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                   </div>
                   
                   <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedOrg(org);
+                    }}
                     style={{ 
                       width: '100%',
                       background: 'linear-gradient(90deg, #6366f1, #8b5cf6)', 

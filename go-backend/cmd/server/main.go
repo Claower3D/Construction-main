@@ -28,6 +28,7 @@ func main() {
 	equipmentHnd := handlers.NewEquipmentHandler()
 	disputesHnd := handlers.NewDisputesHandler()
 	aiHnd := handlers.NewAiHandler(cfg)
+	exportHnd := handlers.NewExportHandler()
 
 	mux := http.NewServeMux()
 
@@ -63,21 +64,30 @@ func main() {
 		}
 	})
 
-	// AI Routes
+	// AI & QTO Construction Routes
 	mux.HandleFunc("/api/v1/ai/estimate", aiHnd.EstimateCost)
 	mux.HandleFunc("/api/v1/ai/defect", aiHnd.InspectDefect)
+
+	// Export Routes
+	mux.HandleFunc("/api/v1/export/estimate.csv", exportHnd.ExportEstimateCSV)
+
 	// Engineers Routes
 	mux.HandleFunc("/api/v1/engineers", engineersHnd.GetEngineers)
 	mux.HandleFunc("/api/v1/engineers/assign", engineersHnd.AssignEngineer)
 
-	// Finance & Wallet Routes
+	// Finance, Escrow & Wallet Routes
 	mux.HandleFunc("/api/v1/finance/balance", financeHnd.GetBalance)
 	mux.HandleFunc("/api/v1/finance/topup", financeHnd.Topup)
+	mux.HandleFunc("/api/v1/finance/escrow/lock", financeHnd.LockEscrow)
+	mux.HandleFunc("/api/v1/finance/escrow/release", financeHnd.ReleaseEscrow)
+	mux.HandleFunc("/api/v1/finance/transactions", financeHnd.GetTransactions)
 
-	// Prices & GESN Norms Routes
+	// Prices & GESN/SNiP 24k Catalog Routes
 	mux.HandleFunc("/api/v1/prices", pricesHnd.GetPrices)
+	mux.HandleFunc("/api/v1/prices/stats", pricesHnd.GetStats)
+	mux.HandleFunc("/api/v1/prices/regions", pricesHnd.GetRegions)
 
-	// Chat & Messaging Routes
+	// Chat & Messaging Routes (REST + SSE Streaming)
 	mux.HandleFunc("/api/v1/chat", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:
@@ -88,6 +98,7 @@ func main() {
 			w.WriteHeader(http.StatusMethodNotAllowed)
 		}
 	})
+	mux.HandleFunc("/api/v1/chat/stream", chatHnd.StreamMessages)
 
 	// File Upload Routes
 	mux.HandleFunc("/api/v1/files/upload", filesHnd.UploadFile)
@@ -128,16 +139,18 @@ func main() {
 
 	banner := `
 ============================================================
-   ⚡ QAZGOST AI - Ultra-Fast Golang Backend 3.0.0
+   ⚡ QAZGOST AI - Ultra-Fast Golang Engine 3.0.0
 ============================================================
    ► Status      : ONLINE & READY
    ► Port        : %s
    ► Mode        : High-Performance Concurrent Engine
    ► Health Check: http://localhost:%s/health
    ► REST API    : http://localhost:%s/api/v1/auth/login
+   ► PriceDB     : http://localhost:%s/api/v1/prices?q=бетон
+   ► QTO Estimator: http://localhost:%s/api/v1/ai/estimate
 ============================================================
 `
-	fmt.Printf(banner, cfg.Port, cfg.Port, cfg.Port)
+	fmt.Printf(banner, cfg.Port, cfg.Port, cfg.Port, cfg.Port, cfg.Port)
 
 	addr := fmt.Sprintf(":%s", cfg.Port)
 	if err := http.ListenAndServe(addr, handler); err != nil {

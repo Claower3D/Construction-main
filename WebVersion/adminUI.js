@@ -2319,7 +2319,7 @@
             </tr>`;
         }).join('');
 
-        return \`
+        return `
         <div class="admin-panel">
             <div class="admin-panel-header" style="display:flex;justify-content:space-between;align-items:center;">
                 <div class="admin-panel-title">🎭 Управление ролями</div>
@@ -2336,11 +2336,11 @@
                         </tr>
                     </thead>
                     <tbody>
-                        \${rows}
+                        ${rows}
                     </tbody>
                 </table>
             </div>
-        </div>\`;
+        </div>`;
     }
 
     // =============================================

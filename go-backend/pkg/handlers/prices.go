@@ -3,33 +3,86 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
+	"strings"
 
-	"qazgost-ai/backend/pkg/models"
+	"qazgost-ai/backend/pkg/services"
 )
 
-var defaultPrices = []models.PriceRate{
-	{Code: "GESN-01-01-001", Name: "Разработка грунта механизированным способом в траншеях", Unit: "м³", PriceKZT: 3500, Category: "Земляные работы", Region: "Карагандинская область"},
-	{Code: "GESN-01-01-002", Name: "Бурение изыскательских скважин глубиной до 15 м", Unit: "пог.м", PriceKZT: 8500, Category: "Изыскания", Region: "Акмолинская область / Астана"},
-	{Code: "GESN-04-02-005", Name: "Монтаж колодца водопроводного сборного ж/б", Unit: "компл.", PriceKZT: 85000, Category: "Водоснабжение", Region: "Все регионы РК"},
-	{Code: "GESN-04-02-010", Name: "Прокладка труб ПНД Ø32 в готовую траншею", Unit: "м.п.", PriceKZT: 450, Category: "Водоснабжение", Region: "Все регионы РК"},
-	{Code: "GESN-06-01-003", Name: "Устройство песчано-гравийного основания под фундамент", Unit: "м³", PriceKZT: 8500, Category: "Фундаменты", Region: "Все регионы РК"},
-	{Code: "GESN-07-03-012", Name: "Испытание сваи статической нагрузкой до 200т", Unit: "свая", PriceKZT: 280000, Category: "Испытания", Region: "Алматы и Астана"},
-	{Code: "GESN-01-03-008", Name: "Статическое зондирование грунтов (CPT)", Unit: "точка", PriceKZT: 55000, Category: "Геотехника", Region: "Все регионы РК"},
-	{Code: "GESN-01-04-001", Name: "Топографическая съемка М 1:500", Unit: "га", PriceKZT: 65000, Category: "Геодезия", Region: "Все регионы РК"},
-	{Code: "FSSC-01-01-001", Name: "Кирпич керамический одинарный полнотелый М150", Unit: "шт", PriceKZT: 120, Category: "Материалы", Region: "Алматы"},
+type PricesHandler struct {
+	priceDB *services.PriceDBService
 }
-
-type PricesHandler struct{}
 
 func NewPricesHandler() *PricesHandler {
-	return &PricesHandler{}
+	return &PricesHandler{
+		priceDB: services.GetPriceDBService(),
+	}
 }
 
+// GetPrices handles GET /api/v1/prices with search, filtering, and regional adjustments
 func (h *PricesHandler) GetPrices(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
+
+	// If route path is /api/v1/prices/stats
+	if strings.HasSuffix(r.URL.Path, "/stats") {
+		stats := h.priceDB.GetStats()
+		_ = json.NewEncoder(w).Encode(stats)
+		return
+	}
+
+	// If route path is /api/v1/prices/regions
+	if strings.HasSuffix(r.URL.Path, "/regions") {
+		regions := h.priceDB.GetRegions()
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{
+			"regions": regions,
+			"total":   len(regions),
+		})
+		return
+	}
+
+	query := r.URL.Query()
+	q := query.Get("q")
+	category := query.Get("category")
+	itemType := query.Get("type")
+	region := query.Get("region")
+
+	limit := 50
+	if lStr := query.Get("limit"); lStr != "" {
+		if l, err := strconv.Atoi(lStr); err == nil && l > 0 {
+			limit = l
+		}
+	}
+
+	offset := 0
+	if oStr := query.Get("offset"); oStr != "" {
+		if o, err := strconv.Atoi(oStr); err == nil && o >= 0 {
+			offset = o
+		}
+	}
+
+	res := h.priceDB.Search(services.SearchParams{
+		Query:    q,
+		Category: category,
+		Type:     itemType,
+		Region:   region,
+		Limit:    limit,
+		Offset:   offset,
+	})
+
+	_ = json.NewEncoder(w).Encode(res)
+}
+
+// GetStats returns summary statistics of the price database
+func (h *PricesHandler) GetStats(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(h.priceDB.GetStats())
+}
+
+// GetRegions returns regional price multipliers
+func (h *PricesHandler) GetRegions(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(map[string]interface{}{
-		"normative": "ГЭСН / СНиП РК 2026",
-		"total":     len(defaultPrices),
-		"items":     defaultPrices,
+		"regions": h.priceDB.GetRegions(),
+		"total":   len(h.priceDB.GetRegions()),
 	})
 }

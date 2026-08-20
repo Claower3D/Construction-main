@@ -917,6 +917,8 @@
 
 
 
+/* ===== KASPI QR PAYMENT ===== */
+.kaspi-qr-container {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -924,7 +926,7 @@
     margin-bottom: 1.5rem;
 }
 
-
+.kaspi-qr-box {
     position: relative;
     width: 180px;
     height: 180px;
@@ -959,21 +961,21 @@
     letter-spacing: 0.1em;
 }
 
-
+.kaspi-instructions {
     text-align: center;
 }
 
-
+.kaspi-instructions p {
     margin: 0.3rem 0;
     font-size: 0.82rem;
     color: rgba(255, 255, 255, 0.6);
 }
 
-
+.kaspi-highlight {
     color: #FF4444;
 }
 
-
+.kaspi-timer {
     font-size: 0.85rem;
     color: rgba(255, 255, 255, 0.45);
     text-align: center;
@@ -982,7 +984,7 @@
     border-radius: 8px;
 }
 
-
+.kaspi-timer-countdown {
     color: #facc15;
     font-weight: 700;
     font-family: 'Courier New', monospace;
