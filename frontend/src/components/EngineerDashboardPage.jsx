@@ -1286,6 +1286,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
               </button>
             </nav>
           </aside>
+        </>
       )}
 
       {/* MAIN RIGHT COLUMN */}
