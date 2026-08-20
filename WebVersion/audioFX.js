@@ -2,7 +2,7 @@
 class SoundFX {
   constructor() {
     this.ctx = null;
-    this.enabled = typeof localStorage !== 'undefined' && localStorage.getItem('qazgost_sfx') !== 'false';
+    this.enabled = false;
   }
 
   init() {
