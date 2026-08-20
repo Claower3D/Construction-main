@@ -177,6 +177,8 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
     setEmbeddedModule(null);
   };
 
+  const isInnerToolActive = !!(embeddedModule || selectedItemObject || selectedItemId);
+
   // Keyboard shortcut: Escape to return to card cockpit
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -198,8 +200,6 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
       setSelectedItemId('c-estimate');
     }
   };
-
-  const isInnerToolActive = !!(embeddedModule || selectedItemObject || selectedItemId);
 
   return (
     <div className="admin-redesign-layout" style={{ minHeight: '100vh', width: '100vw', overflowX: 'hidden', position: 'relative' }}>
