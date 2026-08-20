@@ -299,13 +299,13 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
           <div className="nav-dropdown-wrapper">
             <button
               className={`nav-dropdown-btn btn-admin-nav ${activeNavDropdown === 'manager' ? 'active' : ''}`}
-              onClick={() => toggleDropdown('manager')}
+              onClick={() => { closeDropdown(); onOpenDashboard('manager'); }}
             >
               💼 Менеджер <span className="nav-arrow">▼</span>
             </button>
             {activeNavDropdown === 'manager' && (
               <div className="dropdown-menu-popover rich-dropdown">
-                <a href="#crm" className="dropdown-item" onClick={(e) => { e.preventDefault(); closeDropdown(); onOpenDashboard('crm'); }}>
+                <a href="#crm" className="dropdown-item" onClick={(e) => { e.preventDefault(); closeDropdown(); onOpenDashboard('manager'); }}>
                   <span className="item-icon">📊</span>
                   <span>CRM-система</span>
                 </a>

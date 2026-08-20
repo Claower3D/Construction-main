@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 	"time"
 
 	"qazgost-ai/backend/pkg/config"
@@ -149,43 +150,104 @@ Provide 3 brief professional recommendations in Russian concerning SNiP RK stand
 	return nil
 }
 
-// InspectDefect handles defect inspection or proxies to Python AI Service
+// InspectDefect handles defect inspection with OpenAI LLM or native Go SNiP expert
 func (h *AiHandler) InspectDefect(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
 
-	// Try proxying to local Python AI Service (:8001) if available
-	pyAiURL := "http://localhost:8001/api/v1/analyze/defect"
-	client := &http.Client{Timeout: 10 * time.Second}
+	var req struct {
+		Description string `json:"description"`
+	}
+	_ = json.NewDecoder(r.Body).Decode(&req)
 
-	bodyBytes, _ := io.ReadAll(r.Body)
-	proxyReq, err := http.NewRequest(r.Method, pyAiURL, bytes.NewBuffer(bodyBytes))
-	if err == nil {
-		proxyReq.Header = r.Header
-		resp, errDo := client.Do(proxyReq)
-		if errDo == nil && resp.StatusCode == http.StatusOK {
-			defer resp.Body.Close()
-			_, _ = io.Copy(w, resp.Body)
-			return
+	if h.Config.OpenAIKey != "" && req.Description != "" {
+		systemPrompt := `You are a certified construction defect inspector and technical supervisor in Kazakhstan according to SNiP RK and SP RK standards.
+Analyze the defect description provided and output a valid JSON object strictly matching this schema:
+{
+  "defectType": "Название дефекта (на русском)",
+  "severity": "Класс риска (например: '2 класс — Допустимый', '3 класс — Требует устранения', '4 класс — Аварийный')",
+  "snipCode": "Нормативный СНиП (например: 'СНиП РК 3.02-04-2019 / СП РК 1.03-106-2012')",
+  "fixMethod": "Подробная пошаговая технологическая карта устранения дефекта (на русском)",
+  "estimatedCost": "Ориентировочная стоимость ремонта в ₸ (например: '45 000 – 75 000 ₸')",
+  "workDays": 3
+}`
+
+		openaiReqBody := openAIRequest{
+			Model: "gpt-4o-mini",
+			ResponseFormat: map[string]string{
+				"type": "json_object",
+			},
+			Messages: []openAIMessage{
+				{Role: "system", Content: systemPrompt},
+				{Role: "user", Content: "Описание дефекта объекта: " + req.Description},
+			},
+		}
+
+		jsonBytes, err := json.Marshal(openaiReqBody)
+		if err == nil {
+			client := &http.Client{Timeout: 8 * time.Second}
+			httpReq, errReq := http.NewRequest("POST", "https://api.openai.com/v1/chat/completions", bytes.NewBuffer(jsonBytes))
+			if errReq == nil {
+				httpReq.Header.Set("Content-Type", "application/json")
+				httpReq.Header.Set("Authorization", "Bearer "+h.Config.OpenAIKey)
+
+				resp, errResp := client.Do(httpReq)
+				if errResp == nil && resp.StatusCode == http.StatusOK {
+					defer resp.Body.Close()
+					respBody, errRead := io.ReadAll(resp.Body)
+					if errRead == nil {
+						var openAIResp openAIResponse
+						if errUnmarshal := json.Unmarshal(respBody, &openAIResp); errUnmarshal == nil && len(openAIResp.Choices) > 0 {
+							w.Write([]byte(openAIResp.Choices[0].Message.Content))
+							return
+						}
+					}
+				}
+			}
 		}
 	}
 
-	// Fallback native Go response
+	// Fallback expert technical conclusion based on SNiP RK
+	descLower := strings.ToLower(req.Description)
+	defectType := "Усадочная трещина штукатурного слоя"
+	severity := "3 класс — Требует устранения"
+	snipCode := "СНиП РК 3.02-04-2019 / СП РК 1.03-106-2012"
+	fixMethod := "Расшивка шва на глубину 10 мм, обеспыливание, грунтовка глубокого проникновения, армирование серпянкой и шпатлевание полимерцементным составом."
+	estimatedCost := "35 000 – 65 000 ₸"
+	workDays := 2
+
+	if strings.Contains(descLower, "протечк") || strings.Contains(descLower, "сырост") || strings.Contains(descLower, "вод") {
+		defectType = "Нарушение гидроизоляционного слоя (протечка / сырость)"
+		severity = "4 класс — Высокий риск биопоражения"
+		snipCode = "СНиП РК 2.04-09-2018 «Гидроизоляция зданий»"
+		fixMethod = "Локализация источника протечки, сушка тепловой пушкой, обработка фунгицидом, нанесение двухкомпонентной полимерной гидроизоляции."
+		estimatedCost = "55 000 – 120 000 ₸"
+		workDays = 3
+	} else if strings.Contains(descLower, "перепад") || strings.Contains(descLower, "пол") || strings.Contains(descLower, "потол") {
+		defectType = "Отклонение плоскости от горизонтали / вертикали"
+		severity = "2 класс — Допустимое отклонение"
+		snipCode = "СП РК 3.02-107-2014 «Полы и перекрытия»"
+		fixMethod = "Лазерное нивелирование, шлифовка неровностей, заливка самовыравнивающейся нивелир-массой толщиной до 15 мм."
+		estimatedCost = "40 000 – 85 000 ₸"
+		workDays = 2
+	} else if strings.Contains(descLower, "штукатур") || strings.Contains(descLower, "отсло") {
+		defectType = "Отслоение и бухтение штукатурного слоя"
+		severity = "3 класс — Дефект сцепления"
+		snipCode = "СНиП РК 3.02-04-2019 «Отделочные покрытия»"
+		fixMethod = "Отбивка бухтящих участков, обеспыливание, обработка бетоноконтактом, повторное оштукатуривание по маякам."
+		estimatedCost = "28 000 – 50 000 ₸"
+		workDays = 2
+	}
+
 	_ = json.NewEncoder(w).Encode(map[string]interface{}{
-		"status":          "ok",
-		"mode":            "native_defect_inspection",
-		"defectsDetected": 1,
-		"defects": []map[string]interface{}{
-			{
-				"type":          "crack",
-				"severity":      "moderate",
-				"lengthMm":      320,
-				"widthMm":       2.4,
-				"confidence":    0.92,
-				"descriptionRu": "Температурно-усадочная трещина штукатурного слоя",
-				"recommendation": "Расшивка шва на глубину 10 мм, обеспыливание, обработка эластичным полимерцементным герметиком",
-				"snipRef":       "СНиП РК 3.02-04-2019",
-			},
-		},
-		"normative": "СНиП РК",
+		"defectType":    defectType,
+		"severity":      severity,
+		"snipCode":      snipCode,
+		"fixMethod":     fixMethod,
+		"estimatedCost": estimatedCost,
+		"workDays":      workDays,
 	})
 }

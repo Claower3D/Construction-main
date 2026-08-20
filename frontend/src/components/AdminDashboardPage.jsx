@@ -16,9 +16,19 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
   });
 
   // Active opened tool/module
-  const [selectedItemId, setSelectedItemId] = useState(null);
+  const [selectedItemId, setSelectedItemId] = useState(() => {
+    if (userRole === 'crm' || userRole === 'manager') return 'mgr-crm';
+    if (userRole === 'admin') return 'adm-prices';
+    if (userRole === 'company') return 'comp-profile';
+    return null;
+  });
   const [selectedItemObject, setSelectedItemObject] = useState(null);
-  const [embeddedModule, setEmbeddedModule] = useState(null); // 'engineer' | 'admin_panel' | 'crm' | 'company' | null
+  const [embeddedModule, setEmbeddedModule] = useState(() => {
+    if (userRole === 'crm' || userRole === 'manager') return 'crm';
+    if (userRole === 'admin') return 'admin_panel';
+    if (userRole === 'company') return 'company';
+    return null;
+  });
 
   // Mobile sidebar drawer state
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
@@ -31,7 +41,7 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
     }));
   };
 
-  // Exactly 3 Primary Roles (matching Screenshot 1)
+  // Roles Definition
   const roles = [
     {
       id: 'customer',
@@ -62,6 +72,36 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
       color: '#2563eb',
       glow: 'rgba(37, 99, 235, 0.45)',
       badge: ''
+    },
+    {
+      id: 'manager',
+      title: 'Я Менеджер CRM',
+      shortLabel: 'Менеджер',
+      icon: '💼',
+      desc: 'Управление лидами, клиентами, сделками и CRM-аналитикой',
+      color: '#38bdf8',
+      glow: 'rgba(56, 189, 248, 0.45)',
+      badge: 'CRM'
+    },
+    {
+      id: 'company',
+      title: 'Я Компания',
+      shortLabel: 'Компания',
+      icon: '🏢',
+      desc: 'Управление БИН, сотрудниками и объектами организации',
+      color: '#0ea5e9',
+      glow: 'rgba(14, 165, 233, 0.45)',
+      badge: 'ТОО'
+    },
+    {
+      id: 'admin',
+      title: 'Я Администратор',
+      shortLabel: 'Админ',
+      icon: '⚙️',
+      desc: 'Управление платформой, прайсами, модерацией и арбитражем',
+      color: '#f59e0b',
+      glow: 'rgba(245, 158, 11, 0.45)',
+      badge: 'ROOT'
     }
   ];
 

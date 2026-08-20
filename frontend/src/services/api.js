@@ -75,7 +75,8 @@ export async function loginUser(email, password) {
     if (email.includes('admin')) role = 'admin';
     else if (email.includes('executor') || email.includes('builder')) role = 'executor';
     else if (email.includes('engineer') || email.includes('tech')) role = 'engineer';
-    else if (email.includes('manager') || email.includes('company')) role = 'company';
+    else if (email.includes('manager')) role = 'manager';
+    else if (email.includes('company')) role = 'company';
 
     return {
       message: 'Logged in successfully',
