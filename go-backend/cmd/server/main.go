@@ -92,9 +92,9 @@ func main() {
 		}
 	})
 
-	// AI & QTO — auth required
-	mux.HandleFunc("/api/v1/ai/estimate", auth(aiHnd.EstimateCost))
-	mux.HandleFunc("/api/v1/ai/defect", auth(aiHnd.InspectDefect))
+	// AI & QTO — Public estimation & defect inspection (accessible to all users & guests)
+	mux.HandleFunc("/api/v1/ai/estimate", aiHnd.EstimateCost)
+	mux.HandleFunc("/api/v1/ai/defect", aiHnd.InspectDefect)
 
 	// Export — auth required
 	mux.HandleFunc("/api/v1/export/estimate.csv", auth(exportHnd.ExportEstimateCSV))
