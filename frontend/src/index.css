@@ -12804,6 +12804,7 @@ body.dark .split-service-card {
   }
 
   .ai-chat-window {
+    position: fixed !important;
     width: calc(100vw - 32px) !important;
     right: 16px !important;
     left: 16px !important;
