@@ -251,10 +251,102 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
   const [pricePage, setPricePage] = useState(1);
   const pricesPerPage = 100;
 
-  // 3. DOCUMENTS & EXCEL EXPORT TAB STATES
+  // 3. DOCUMENTS & EXCEL IMPORT/EXPORT TAB STATES
   const [documentsList, setDocumentsList] = useState(INITIAL_DOCUMENTS_LIST);
   const [docsCategoryFilter, setDocsCategoryFilter] = useState('all'); // all | acts | invoices | contracts
   const [docsSearch, setDocsSearch] = useState('');
+  const [docAddModalOpen, setDocAddModalOpen] = useState(false);
+  const [docUploadDragover, setDocUploadDragover] = useState(false);
+  const [docUploadResult, setDocUploadResult] = useState(null); // { count, filename }
+  const [docForm, setDocForm] = useState({
+    id: '', type: 'Акт КС-2', category: 'acts', objectName: '', customer: '', customerBin: '',
+    contractor: '', contractorBin: '', date: new Date().toLocaleDateString('ru-RU'),
+    period: '', amount: '', status: 'На согласовании', purpose: '', payer: '', payerBin: ''
+  });
+  const docFileInputRef = React.useRef(null);
+
+  // Handle Excel/CSV file upload for documents import
+  const handleDocFileUpload = async (file) => {
+    if (!file) return;
+    const ext = file.name.split('.').pop().toLowerCase();
+    if (!['xlsx', 'xls', 'csv'].includes(ext)) {
+      alert('Поддерживаются только файлы Excel (.xlsx, .xls) и CSV (.csv)');
+      return;
+    }
+    try {
+      const parsed = await parseExcelOrCsvFile(file);
+      if (parsed && parsed.length > 0) {
+        // Map parsed rows to documents
+        const newDocs = parsed.map((row, idx) => ({
+          id: row.id || row.code || `ЗАГРУЖ-${Date.now()}-${idx + 1}`,
+          code: row.code || row.id || `ЗАГРУЖ-${Date.now()}-${idx + 1}`,
+          type: row.category === 'invoices' ? 'Счет на оплату' : row.category === 'contracts' ? 'Договор подряда' : 'Акт КС-2',
+          category: row.category || 'acts',
+          objectName: row.name || row.objectName || 'Загруженный объект',
+          customer: row.customer || '—',
+          customerBin: row.customerBin || '',
+          contractor: row.contractor || '',
+          date: row.date || new Date().toLocaleDateString('ru-RU'),
+          amount: Number(row.price || row.amount || 0),
+          amountNet: Math.round(Number(row.price || row.amount || 0) / 1.12),
+          vat: Math.round(Number(row.price || row.amount || 0) - Number(row.price || row.amount || 0) / 1.12),
+          status: row.status || 'Загружен из Excel',
+          period: row.period || '',
+          purpose: row.purpose || row.name || '',
+          payer: row.payer || '',
+          payerBin: row.payerBin || ''
+        }));
+        setDocumentsList(prev => [...newDocs, ...prev]);
+        setDocUploadResult({ count: newDocs.length, filename: file.name });
+        logAuditAction('DOCUMENTS', 'import_excel', `Загружено ${newDocs.length} документов из файла ${file.name}`);
+        setTimeout(() => setDocUploadResult(null), 5000);
+      } else {
+        alert('Файл не содержит данных или формат не распознан. Проверьте заголовки столбцов.');
+      }
+    } catch (err) {
+      console.error('Document import error:', err);
+      alert('Ошибка при импорте файла: ' + (err.message || err));
+    }
+  };
+
+  // Handle drag-and-drop
+  const handleDocDragOver = (e) => { e.preventDefault(); e.stopPropagation(); setDocUploadDragover(true); };
+  const handleDocDragLeave = (e) => { e.preventDefault(); e.stopPropagation(); setDocUploadDragover(false); };
+  const handleDocDrop = (e) => {
+    e.preventDefault(); e.stopPropagation(); setDocUploadDragover(false);
+    const file = e.dataTransfer.files[0];
+    if (file) handleDocFileUpload(file);
+  };
+
+  // Add new document manually
+  const handleAddDocManually = () => {
+    if (!docForm.id.trim() || !docForm.objectName.trim()) {
+      alert('Заполните обязательные поля: № документа и Объект / Назначение');
+      return;
+    }
+    const newDoc = {
+      ...docForm,
+      code: docForm.id,
+      amount: Number(docForm.amount) || 0,
+      amountNet: Math.round(Number(docForm.amount || 0) / 1.12),
+      vat: Math.round(Number(docForm.amount || 0) - Number(docForm.amount || 0) / 1.12),
+    };
+    setDocumentsList(prev => [newDoc, ...prev]);
+    logAuditAction('DOCUMENTS', 'add_manual', `Добавлен документ вручную: ${newDoc.id} (${newDoc.type})`);
+    setDocAddModalOpen(false);
+    setDocForm({
+      id: '', type: 'Акт КС-2', category: 'acts', objectName: '', customer: '', customerBin: '',
+      contractor: '', contractorBin: '', date: new Date().toLocaleDateString('ru-RU'),
+      period: '', amount: '', status: 'На согласовании', purpose: '', payer: '', payerBin: ''
+    });
+  };
+
+  // Delete document
+  const handleDeleteDoc = (docId) => {
+    if (!window.confirm(`Удалить документ ${docId}?`)) return;
+    setDocumentsList(prev => prev.filter(d => d.id !== docId));
+    logAuditAction('DOCUMENTS', 'delete', `Удален документ: ${docId}`);
+  };
 
   // Modals for Price Item Add/Edit & Confirm Delete
   const [priceModalOpen, setPriceModalOpen] = useState(false);
@@ -1380,186 +1472,209 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
           )}
 
           {/* ========================================================================= */}
-          {/* TAB 8: DOCUMENTS & EXCEL EXPORT (📁 Акты, Счета, Договоры в Excel)        */}
+          {/* TAB 8: DOCUMENTS — ЗАГРУЗКА И ВЫГРУЗКА (ИМПОРТ / ЭКСПОРТ)                */}
           {/* ========================================================================= */}
           {activeTab === 'documents' && (
-            <div className="admin-tab-content">
-              {/* Header with Stats & Fast Export Actions */}
-              <div className="admin-section-box" style={{ background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(59, 130, 246, 0.08))', borderColor: 'rgba(16, 185, 129, 0.3)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.2rem' }}>
+            <div className="admin-tab-content doc-mgmt-container">
+
+              {/* ── SECTION 1: HEADER CARD WITH ACTION BUTTONS ── */}
+              <div className="doc-header-card">
+                <div className="doc-header-left">
+                  <div className="doc-header-icon-orb">📁</div>
                   <div>
-                    <h2 style={{ margin: 0, fontSize: '1.25rem', color: '#fff', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <span>📁</span> Выгрузка первичных документов в Excel (.xlsx)
+                    <h2 className="doc-header-title-text">
+                      Документооборот — Загрузка и Выгрузка
                     </h2>
-                    <p style={{ margin: '4px 0 0 0', color: '#94a3b8', fontSize: '0.85rem' }}>
-                      Генерация актов выполненных работ КС-2 / КС-3, счетов на оплату, ЭСФ и реестров договоров с расчетом НДС 12%
+                    <p className="doc-header-subtext">
+                      Импорт из Excel / CSV, ручное добавление и экспорт актов КС-2/КС-3, счетов, ЭСФ и договоров в .xlsx
                     </p>
                   </div>
-                  <button
-                    className="admin-primary-btn"
-                    style={{ background: 'linear-gradient(90deg, #10b981, #059669)', padding: '10px 20px', fontWeight: '800' }}
-                    onClick={() => {
-                      exportAllDocumentsPackageExcel({
-                        acts: documentsList.filter(d => d.category === 'acts'),
-                        invoices: documentsList.filter(d => d.category === 'invoices'),
-                        contracts: documentsList.filter(d => d.category === 'contracts')
-                      });
-                      logAuditAction('DOCUMENTS', 'export_package', 'Выгружен полный сводный пакет всех документов в Excel');
-                    }}
-                  >
-                    ⚡ Скачать полный пакет (.xlsx)
+                </div>
+                <div className="doc-action-btns-group">
+                  <button className="doc-btn-purple" onClick={() => setDocAddModalOpen(true)}>
+                    <span>➕</span> Добавить документ
+                  </button>
+                  <button className="doc-btn-emerald" onClick={() => {
+                    exportAllDocumentsPackageExcel({ acts: documentsList.filter(d => d.category === 'acts'), invoices: documentsList.filter(d => d.category === 'invoices'), contracts: documentsList.filter(d => d.category === 'contracts') });
+                    logAuditAction('DOCUMENTS', 'export_package', 'Выгружен полный сводный пакет');
+                  }}>
+                    <span>⚡</span> Выгрузить всё (.xlsx)
                   </button>
                 </div>
+              </div>
 
-                {/* 4 Quick Export Action Cards */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '12px' }}>
-                  {/* Card 1: Acts KS-2 / KS-3 */}
-                  <div
-                    style={{ background: 'rgba(15, 23, 42, 0.7)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '12px', padding: '14px', cursor: 'pointer', transition: 'all 0.2s' }}
-                    onClick={() => {
-                      const acts = documentsList.filter(d => d.category === 'acts');
-                      exportActsToExcel(acts);
-                      logAuditAction('DOCUMENTS', 'export_acts', `Выгружен реестр актов КС-2/КС-3 (${acts.length} шт)`);
-                    }}
-                  >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                      <span style={{ fontSize: '1.4rem' }}>📗</span>
-                      <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '12px', background: 'rgba(16, 185, 129, 0.2)', color: '#6ee7b7', fontWeight: '700' }}>
-                        {documentsList.filter(d => d.category === 'acts').length} актов
-                      </span>
-                    </div>
-                    <div style={{ fontWeight: '800', color: '#fff', fontSize: '0.95rem' }}>Акты КС-2 и КС-3</div>
-                    <div style={{ fontSize: '0.78rem', color: '#94a3b8', margin: '4px 0 10px' }}>Приемка СМР, объемы, расценки СНиП и НДС</div>
-                    <div style={{ color: '#10b981', fontSize: '0.82rem', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      📥 Скачать в Excel (.xlsx) ➔
+              {/* ── SECTION 2: UPLOAD (ЗАГРУЗКА) DROPZONE ── */}
+              <div 
+                className={`doc-dropzone-box ${docUploadDragover ? 'dragover' : ''}`}
+                onDragOver={handleDocDragOver} 
+                onDragLeave={handleDocDragLeave} 
+                onDrop={handleDocDrop}
+              >
+                <div className="doc-dropzone-content">
+                  <div className="doc-dropzone-info">
+                    <div className="doc-dropzone-icon-badge">📤</div>
+                    <div>
+                      <h3 className="doc-dropzone-title">
+                        Загрузка документов из Excel / CSV
+                      </h3>
+                      <p className="doc-dropzone-desc">
+                        Перетащите файлы сюда или нажмите «Выбрать файл». Поддерживаются форматы <strong>.xlsx</strong>, <strong>.xls</strong>, <strong>.csv</strong>
+                      </p>
+                      <div className="doc-tags-pills">
+                        <span className="doc-tag-pill">Код (id)</span>
+                        <span className="doc-tag-pill">Наименование (name)</span>
+                        <span className="doc-tag-pill">Ед.изм (unit)</span>
+                        <span className="doc-tag-pill">Цена/Сумма (price)</span>
+                        <span className="doc-tag-pill">Категория (category)</span>
+                      </div>
                     </div>
                   </div>
 
-                  {/* Card 2: Invoices & Bills */}
-                  <div
-                    style={{ background: 'rgba(15, 23, 42, 0.7)', border: '1px solid rgba(245, 158, 11, 0.3)', borderRadius: '12px', padding: '14px', cursor: 'pointer', transition: 'all 0.2s' }}
-                    onClick={() => {
-                      const invoices = documentsList.filter(d => d.category === 'invoices');
-                      exportInvoicesToExcel(invoices);
-                      logAuditAction('DOCUMENTS', 'export_invoices', `Выгружен реестр счетов и траншей (${invoices.length} шт)`);
-                    }}
-                  >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                      <span style={{ fontSize: '1.4rem' }}>📙</span>
-                      <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '12px', background: 'rgba(245, 158, 11, 0.2)', color: '#fde68a', fontWeight: '700' }}>
-                        {documentsList.filter(d => d.category === 'invoices').length} счетов
-                      </span>
-                    </div>
-                    <div style={{ fontWeight: '800', color: '#fff', fontSize: '0.95rem' }}>Счета на оплату & ЭСФ</div>
-                    <div style={{ fontSize: '0.78rem', color: '#94a3b8', margin: '4px 0 10px' }}>Эскроу-транши, банковские реквизиты, Kaspi</div>
-                    <div style={{ color: '#fbbf24', fontSize: '0.82rem', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      📥 Скачать в Excel (.xlsx) ➔
+                  <div>
+                    <input 
+                      type="file" 
+                      ref={docFileInputRef} 
+                      accept=".xlsx,.xls,.csv" 
+                      style={{ display: 'none' }}
+                      onChange={(e) => { if (e.target.files[0]) handleDocFileUpload(e.target.files[0]); e.target.value = ''; }}
+                    />
+                    <button 
+                      className="doc-btn-choose-file"
+                      onClick={() => docFileInputRef.current?.click()}
+                    >
+                      <span>📂</span> Выбрать файл
+                    </button>
+                  </div>
+                </div>
+
+                {docUploadResult && (
+                  <div style={{ marginTop: '14px', padding: '12px 18px', borderRadius: '12px', background: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.4)', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <span style={{ fontSize: '1.4rem' }}>✅</span>
+                    <div>
+                      <div style={{ color: '#6ee7b7', fontWeight: '800', fontSize: '0.92rem' }}>Загружено {docUploadResult.count} документов</div>
+                      <div style={{ color: '#94a3b8', fontSize: '0.8rem' }}>Файл: {docUploadResult.filename}</div>
                     </div>
                   </div>
+                )}
+              </div>
 
-                  {/* Card 3: Contracts */}
-                  <div
-                    style={{ background: 'rgba(15, 23, 42, 0.7)', border: '1px solid rgba(59, 130, 246, 0.3)', borderRadius: '12px', padding: '14px', cursor: 'pointer', transition: 'all 0.2s' }}
-                    onClick={() => {
-                      const contracts = documentsList.filter(d => d.category === 'contracts');
-                      exportContractsToExcel(contracts);
-                      logAuditAction('DOCUMENTS', 'export_contracts', `Выгружен реестр договоров (${contracts.length} шт)`);
-                    }}
-                  >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                      <span style={{ fontSize: '1.4rem' }}>📘</span>
-                      <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '12px', background: 'rgba(59, 130, 246, 0.2)', color: '#93c5fd', fontWeight: '700' }}>
-                        {documentsList.filter(d => d.category === 'contracts').length} договоров
-                      </span>
-                    </div>
-                    <div style={{ fontWeight: '800', color: '#fff', fontSize: '0.95rem' }}>Договоры генподряда</div>
-                    <div style={{ fontSize: '0.78rem', color: '#94a3b8', margin: '4px 0 10px' }}>Сроки, авансы, гарантии и эскроу-депозиты</div>
-                    <div style={{ color: '#60a5fa', fontSize: '0.82rem', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      📥 Скачать в Excel (.xlsx) ➔
-                    </div>
+              {/* ── SECTION 3: EXPORT (ВЫГРУЗКА) CATEGORIES GRID ── */}
+              <div className="doc-categories-grid">
+                {/* Card: Acts */}
+                <div 
+                  className="doc-cat-card acts"
+                  onClick={() => { const acts = documentsList.filter(d => d.category === 'acts'); exportActsToExcel(acts); logAuditAction('DOCUMENTS', 'export_acts', `Экспорт ${acts.length} актов`); }}
+                >
+                  <div className="doc-cat-top">
+                    <span className="doc-cat-icon">📗</span>
+                    <span className="doc-cat-badge acts">{documentsList.filter(d => d.category === 'acts').length}</span>
                   </div>
+                  <div>
+                    <div className="doc-cat-title">Акты КС-2 / КС-3</div>
+                    <div className="doc-cat-sub">Приёмка СМР, объёмы, НДС 12%</div>
+                  </div>
+                  <div className="doc-cat-action-link acts">
+                    <span>📥 Выгрузить .xlsx</span> ➔
+                  </div>
+                </div>
 
-                  {/* Card 4: Full Summary */}
-                  <div
-                    style={{ background: 'rgba(15, 23, 42, 0.7)', border: '1px solid rgba(139, 92, 246, 0.3)', borderRadius: '12px', padding: '14px', cursor: 'pointer', transition: 'all 0.2s' }}
-                    onClick={() => {
-                      exportAllDocumentsPackageExcel({
-                        acts: documentsList.filter(d => d.category === 'acts'),
-                        invoices: documentsList.filter(d => d.category === 'invoices'),
-                        contracts: documentsList.filter(d => d.category === 'contracts')
-                      });
-                      logAuditAction('DOCUMENTS', 'export_summary', 'Выгружена сводная ведомость учета');
-                    }}
-                  >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                      <span style={{ fontSize: '1.4rem' }}>📊</span>
-                      <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '12px', background: 'rgba(139, 92, 246, 0.2)', color: '#c4b5fd', fontWeight: '700' }}>
-                        Сводный учет
-                      </span>
-                    </div>
-                    <div style={{ fontWeight: '800', color: '#fff', fontSize: '0.95rem' }}>Финансовый аудит 2026</div>
-                    <div style={{ fontSize: '0.78rem', color: '#94a3b8', margin: '4px 0 10px' }}>Сводная ведомость по всем контрагентам РК</div>
-                    <div style={{ color: '#a78bfa', fontSize: '0.82rem', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      📥 Экспорт всех книг (.xlsx) ➔
-                    </div>
+                {/* Card: Invoices */}
+                <div 
+                  className="doc-cat-card invoices"
+                  onClick={() => { const inv = documentsList.filter(d => d.category === 'invoices'); exportInvoicesToExcel(inv); logAuditAction('DOCUMENTS', 'export_invoices', `Экспорт ${inv.length} счетов`); }}
+                >
+                  <div className="doc-cat-top">
+                    <span className="doc-cat-icon">📙</span>
+                    <span className="doc-cat-badge invoices">{documentsList.filter(d => d.category === 'invoices').length}</span>
+                  </div>
+                  <div>
+                    <div className="doc-cat-title">Счета & ЭСФ</div>
+                    <div className="doc-cat-sub">Эскроу-транши, Kaspi, банк</div>
+                  </div>
+                  <div className="doc-cat-action-link invoices">
+                    <span>📥 Выгрузить .xlsx</span> ➔
+                  </div>
+                </div>
+
+                {/* Card: Contracts */}
+                <div 
+                  className="doc-cat-card contracts"
+                  onClick={() => { const c = documentsList.filter(d => d.category === 'contracts'); exportContractsToExcel(c); logAuditAction('DOCUMENTS', 'export_contracts', `Экспорт ${c.length} договоров`); }}
+                >
+                  <div className="doc-cat-top">
+                    <span className="doc-cat-icon">📘</span>
+                    <span className="doc-cat-badge contracts">{documentsList.filter(d => d.category === 'contracts').length}</span>
+                  </div>
+                  <div>
+                    <div className="doc-cat-title">Договоры</div>
+                    <div className="doc-cat-sub">Сроки, авансы, гарантии</div>
+                  </div>
+                  <div className="doc-cat-action-link contracts">
+                    <span>📥 Выгрузить .xlsx</span> ➔
+                  </div>
+                </div>
+
+                {/* Card: Full Package */}
+                <div 
+                  className="doc-cat-card full"
+                  onClick={() => { exportAllDocumentsPackageExcel({ acts: documentsList.filter(d => d.category === 'acts'), invoices: documentsList.filter(d => d.category === 'invoices'), contracts: documentsList.filter(d => d.category === 'contracts') }); logAuditAction('DOCUMENTS', 'export_full', 'Сводный пакет'); }}
+                >
+                  <div className="doc-cat-top">
+                    <span className="doc-cat-icon">📊</span>
+                    <span className="doc-cat-badge full">Сводный</span>
+                  </div>
+                  <div>
+                    <div className="doc-cat-title">Полный пакет</div>
+                    <div className="doc-cat-sub">Все документы в одном файле</div>
+                  </div>
+                  <div className="doc-cat-action-link full">
+                    <span>📥 Скачать всё .xlsx</span> ➔
                   </div>
                 </div>
               </div>
 
-              {/* Filter Controls & Search */}
-              <div className="admin-controls-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px', margin: '1.5rem 0 1rem' }}>
-                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                  <button
-                    className={`admin-filter-chip ${docsCategoryFilter === 'all' ? 'active' : ''}`}
-                    onClick={() => setDocsCategoryFilter('all')}
-                  >
-                    📋 Все документы ({documentsList.length})
+              {/* ── SECTION 4: FILTER + SEARCH TOOLBAR ── */}
+              <div className="doc-toolbar-bar">
+                <div className="doc-filter-pills">
+                  <button className={`doc-filter-btn ${docsCategoryFilter === 'all' ? 'active' : ''}`} onClick={() => setDocsCategoryFilter('all')}>
+                    📋 Все ({documentsList.length})
                   </button>
-                  <button
-                    className={`admin-filter-chip ${docsCategoryFilter === 'acts' ? 'active' : ''}`}
-                    onClick={() => setDocsCategoryFilter('acts')}
-                  >
-                    📗 Акты КС-2/КС-3 ({documentsList.filter(d => d.category === 'acts').length})
+                  <button className={`doc-filter-btn ${docsCategoryFilter === 'acts' ? 'active' : ''}`} onClick={() => setDocsCategoryFilter('acts')}>
+                    📗 Акты ({documentsList.filter(d => d.category === 'acts').length})
                   </button>
-                  <button
-                    className={`admin-filter-chip ${docsCategoryFilter === 'invoices' ? 'active' : ''}`}
-                    onClick={() => setDocsCategoryFilter('invoices')}
-                  >
-                    📙 Счета на оплату ({documentsList.filter(d => d.category === 'invoices').length})
+                  <button className={`doc-filter-btn ${docsCategoryFilter === 'invoices' ? 'active' : ''}`} onClick={() => setDocsCategoryFilter('invoices')}>
+                    📙 Счета ({documentsList.filter(d => d.category === 'invoices').length})
                   </button>
-                  <button
-                    className={`admin-filter-chip ${docsCategoryFilter === 'contracts' ? 'active' : ''}`}
-                    onClick={() => setDocsCategoryFilter('contracts')}
-                  >
+                  <button className={`doc-filter-btn ${docsCategoryFilter === 'contracts' ? 'active' : ''}`} onClick={() => setDocsCategoryFilter('contracts')}>
                     📘 Договоры ({documentsList.filter(d => d.category === 'contracts').length})
                   </button>
                 </div>
 
-                <div style={{ minWidth: '240px' }}>
-                  <input
-                    type="text"
-                    className="admin-search-input"
-                    placeholder="🔎 Поиск по номеру, объекту, БИН..."
-                    value={docsSearch}
-                    onChange={(e) => setDocsSearch(e.target.value)}
-                    style={{ width: '100%' }}
+                <div className="doc-search-box">
+                  <span className="doc-search-icon">🔍</span>
+                  <input 
+                    type="text" 
+                    className="doc-search-input" 
+                    placeholder="Поиск по номеру, объекту, БИН..."
+                    value={docsSearch} 
+                    onChange={(e) => setDocsSearch(e.target.value)} 
                   />
                 </div>
               </div>
 
-              {/* Documents Table with Individual One-Click Excel Export */}
-              <div className="admin-section-box" style={{ overflowX: 'auto' }}>
+              {/* ── SECTION 5: DOCUMENTS TABLE ── */}
+              <div className="admin-section-box" style={{ overflowX: 'auto', padding: '1rem' }}>
                 <table className="admin-table">
                   <thead>
                     <tr>
                       <th>№ Документа</th>
                       <th>Тип</th>
                       <th>Объект / Назначение</th>
-                      <th>Контрагент (Заказчик / Плательщик)</th>
+                      <th>Контрагент</th>
                       <th>Дата</th>
                       <th style={{ textAlign: 'right' }}>Сумма с НДС (₸)</th>
                       <th>Статус</th>
-                      <th style={{ textAlign: 'center' }}>Excel Экспорт</th>
+                      <th style={{ textAlign: 'center' }}>Действия</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1568,30 +1683,21 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
                         if (docsCategoryFilter !== 'all' && d.category !== docsCategoryFilter) return false;
                         if (docsSearch) {
                           const q = docsSearch.toLowerCase();
-                          return (d.id || '').toLowerCase().includes(q) ||
-                            (d.objectName || '').toLowerCase().includes(q) ||
-                            (d.customer || '').toLowerCase().includes(q) ||
-                            (d.payer || '').toLowerCase().includes(q) ||
-                            (d.type || '').toLowerCase().includes(q);
+                          return (d.id || '').toLowerCase().includes(q) || (d.objectName || '').toLowerCase().includes(q) ||
+                            (d.customer || '').toLowerCase().includes(q) || (d.payer || '').toLowerCase().includes(q) ||
+                            (d.type || '').toLowerCase().includes(q) || (d.purpose || '').toLowerCase().includes(q);
                         }
                         return true;
                       })
                       .map((doc) => (
                         <tr key={doc.id}>
-                          <td>
-                            <strong>{doc.id}</strong>
-                          </td>
+                          <td><strong>{doc.id}</strong></td>
                           <td>
                             <span className="cat-chip" style={{
-                              background: doc.category === 'acts' ? 'rgba(16, 185, 129, 0.15)' :
-                                doc.category === 'invoices' ? 'rgba(245, 158, 11, 0.15)' : 'rgba(59, 130, 246, 0.15)',
-                              color: doc.category === 'acts' ? '#6ee7b7' :
-                                doc.category === 'invoices' ? '#fde68a' : '#93c5fd',
-                              border: `1px solid ${doc.category === 'acts' ? 'rgba(16, 185, 129, 0.3)' :
-                                doc.category === 'invoices' ? 'rgba(245, 158, 11, 0.3)' : 'rgba(59, 130, 246, 0.3)'}`
-                            }}>
-                              {doc.type}
-                            </span>
+                              background: doc.category === 'acts' ? 'rgba(16,185,129,0.15)' : doc.category === 'invoices' ? 'rgba(245,158,11,0.15)' : 'rgba(59,130,246,0.15)',
+                              color: doc.category === 'acts' ? '#6ee7b7' : doc.category === 'invoices' ? '#fde68a' : '#93c5fd',
+                              border: `1px solid ${doc.category === 'acts' ? 'rgba(16,185,129,0.3)' : doc.category === 'invoices' ? 'rgba(245,158,11,0.3)' : 'rgba(59,130,246,0.3)'}`
+                            }}>{doc.type}</span>
                           </td>
                           <td>
                             <div style={{ fontWeight: '600', color: '#fff' }}>{doc.objectName || doc.purpose}</div>
@@ -1599,64 +1705,158 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
                           </td>
                           <td>
                             <div style={{ color: '#cbd5e1' }}>{doc.customer || doc.payer}</div>
-                            {(doc.customerBin || doc.payerBin) && (
-                              <div style={{ fontSize: '0.75rem', color: '#64748b' }}>БИН/ИИН: {doc.customerBin || doc.payerBin}</div>
-                            )}
+                            {(doc.customerBin || doc.payerBin) && <div style={{ fontSize: '0.75rem', color: '#64748b' }}>БИН: {doc.customerBin || doc.payerBin}</div>}
                           </td>
                           <td style={{ color: '#94a3b8', fontSize: '0.85rem' }}>{doc.date || doc.startDate}</td>
-                          <td style={{ textAlign: 'right', fontWeight: '800', color: '#fbbf24' }}>
-                            {Number(doc.amount || 0).toLocaleString()} ₸
-                          </td>
+                          <td style={{ textAlign: 'right', fontWeight: '800', color: '#fbbf24' }}>{Number(doc.amount || 0).toLocaleString()} ₸</td>
                           <td>
                             <span style={{
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              gap: '4px',
-                              padding: '2px 8px',
-                              borderRadius: '6px',
-                              fontSize: '0.75rem',
-                              fontWeight: '700',
-                              background: (doc.status || '').includes('Подписан') || (doc.status || '').includes('Оплачен') || (doc.status || '').includes('Действует') ? 'rgba(16, 185, 129, 0.15)' : 'rgba(245, 158, 11, 0.15)',
-                              color: (doc.status || '').includes('Подписан') || (doc.status || '').includes('Оплачен') || (doc.status || '').includes('Действует') ? '#6ee7b7' : '#fde68a'
+                              display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '4px 10px', borderRadius: '8px', fontSize: '0.78rem', fontWeight: '800',
+                              background: (doc.status||'').includes('Подписан') || (doc.status||'').includes('Оплачен') || (doc.status||'').includes('Действует') || (doc.status||'').includes('Проведен') ? 'rgba(16,185,129,0.15)' : (doc.status||'').includes('Загружен') ? 'rgba(139,92,246,0.15)' : 'rgba(245,158,11,0.15)',
+                              color: (doc.status||'').includes('Подписан') || (doc.status||'').includes('Оплачен') || (doc.status||'').includes('Действует') || (doc.status||'').includes('Проведен') ? '#6ee7b7' : (doc.status||'').includes('Загружен') ? '#c4b5fd' : '#fde68a'
                             }}>
-                              {(doc.status || '').includes('Подписан') ? '✅' : (doc.status || '').includes('Оплачен') ? '💳' : '⏳'} {doc.status}
+                              {(doc.status||'').includes('Подписан') ? '✅' : (doc.status||'').includes('Оплачен') ? '💳' : (doc.status||'').includes('Загружен') ? '📤' : (doc.status||'').includes('Действует') ? '🟢' : '⏳'} {doc.status}
                             </span>
                           </td>
                           <td style={{ textAlign: 'center' }}>
-                            <button
-                              className="admin-primary-btn"
-                              style={{
-                                background: 'linear-gradient(90deg, #10b981, #0ea5e9)',
-                                padding: '5px 12px',
-                                fontSize: '0.78rem',
-                                borderRadius: '8px',
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                gap: '4px'
-                              }}
-                              onClick={() => {
-                                exportSingleDocumentExcel(doc);
-                                logAuditAction('DOCUMENTS', 'export_single', `Выгружен документ в Excel: ${doc.id}`);
-                              }}
-                              title="Скачать документ в формате Excel (.xlsx)"
-                            >
-                              📥 Excel
-                            </button>
+                            <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
+                              <button className="doc-btn-emerald" style={{ padding: '5px 12px', fontSize: '0.78rem', borderRadius: '8px' }}
+                                onClick={() => { exportSingleDocumentExcel(doc); logAuditAction('DOCUMENTS', 'export_single', `Excel: ${doc.id}`); }} title="Скачать Excel">
+                                📥 Excel
+                              </button>
+                              <button className="btn-table-action" style={{ color: '#f87171', fontSize: '0.9rem', padding: '4px 8px' }}
+                                onClick={() => handleDeleteDoc(doc.id)} title="Удалить документ">
+                                🗑️
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       ))}
+                    {documentsList.filter(d => {
+                      if (docsCategoryFilter !== 'all' && d.category !== docsCategoryFilter) return false;
+                      if (docsSearch) {
+                        const q = docsSearch.toLowerCase();
+                        return (d.id||'').toLowerCase().includes(q) || (d.objectName||'').toLowerCase().includes(q) || (d.customer||'').toLowerCase().includes(q) || (d.payer||'').toLowerCase().includes(q);
+                      }
+                      return true;
+                    }).length === 0 && (
+                      <tr><td colSpan="8" style={{ textAlign: 'center', padding: '2.5rem', color: '#64748b' }}>Нет документов по заданным фильтрам</td></tr>
+                    )}
                   </tbody>
                 </table>
               </div>
+
+              {/* ── Stats Footer ── */}
+              <div style={{ display: 'flex', gap: '1.8rem', flexWrap: 'wrap', padding: '14px 20px', background: 'rgba(15,23,42,0.6)', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.08)' }}>
+                <div style={{ color: '#94a3b8', fontSize: '0.86rem' }}>📊 Всего: <strong style={{ color: '#fff', fontSize: '0.95rem' }}>{documentsList.length}</strong> документов</div>
+                <div style={{ color: '#94a3b8', fontSize: '0.86rem' }}>💰 Общая сумма: <strong style={{ color: '#fbbf24', fontSize: '0.95rem' }}>{documentsList.reduce((s,d) => s + Number(d.amount||0), 0).toLocaleString()} ₸</strong></div>
+                <div style={{ color: '#94a3b8', fontSize: '0.86rem' }}>🧾 НДС 12%: <strong style={{ color: '#6ee7b7', fontSize: '0.95rem' }}>{Math.round(documentsList.reduce((s,d) => s + Number(d.amount||0), 0) - documentsList.reduce((s,d) => s + Number(d.amount||0), 0) / 1.12).toLocaleString()} ₸</strong></div>
+              </div>
             </div>
           )}
-
         </div>
       </div>
 
       {/* ========================================================================= */}
       {/* MODAL DIALOGS                                                             */}
       {/* ========================================================================= */}
+
+      
+      {/* MODAL: ADD NEW DOCUMENT */}
+      {docAddModalOpen && (
+        <div className="nested-modal-overlay">
+          <div className="nested-modal-box" style={{ maxWidth: '680px' }}>
+            <h3 className="modal-title">➕ Добавление нового документа</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+              {/* Row 1 */}
+              <div>
+                <label className="input-label">№ Документа *</label>
+                <input className="admin-input" placeholder="АКТ-КС2-2026/100" value={docForm.id}
+                  onChange={e => setDocForm(f => ({...f, id: e.target.value}))} />
+              </div>
+              <div>
+                <label className="input-label">Тип документа</label>
+                <select className="admin-input" value={docForm.type}
+                  onChange={e => {
+                    const t = e.target.value;
+                    const cat = t.includes('Акт') ? 'acts' : t.includes('Договор') ? 'contracts' : 'invoices';
+                    setDocForm(f => ({...f, type: t, category: cat}));
+                  }}>
+                  <option value="Акт КС-2">Акт КС-2</option>
+                  <option value="Акт КС-3">Акт КС-3</option>
+                  <option value="Счет на оплату">Счет на оплату</option>
+                  <option value="ЭСФ (Счет-фактура)">ЭСФ (Счет-фактура)</option>
+                  <option value="Договор генподряда">Договор генподряда</option>
+                  <option value="Договор подряда">Договор подряда</option>
+                </select>
+              </div>
+              {/* Row 2 */}
+              <div style={{ gridColumn: 'span 2' }}>
+                <label className="input-label">Объект строительства / Назначение *</label>
+                <input className="admin-input" placeholder="ЖК «Nomad Palace» (Блок А)" value={docForm.objectName}
+                  onChange={e => setDocForm(f => ({...f, objectName: e.target.value}))} />
+              </div>
+              {/* Row 3 */}
+              <div>
+                <label className="input-label">Заказчик / Плательщик</label>
+                <input className="admin-input" placeholder="ТОО «Prime Development KZ»" value={docForm.customer || docForm.payer}
+                  onChange={e => setDocForm(f => ({...f, customer: e.target.value, payer: e.target.value}))} />
+              </div>
+              <div>
+                <label className="input-label">БИН / ИИН</label>
+                <input className="admin-input" placeholder="180240009871" value={docForm.customerBin || docForm.payerBin}
+                  onChange={e => setDocForm(f => ({...f, customerBin: e.target.value, payerBin: e.target.value}))} />
+              </div>
+              {/* Row 4 */}
+              <div>
+                <label className="input-label">Подрядчик / Исполнитель</label>
+                <input className="admin-input" placeholder="ТОО «QAZGOST AI»" value={docForm.contractor}
+                  onChange={e => setDocForm(f => ({...f, contractor: e.target.value}))} />
+              </div>
+              <div>
+                <label className="input-label">БИН Подрядчика</label>
+                <input className="admin-input" placeholder="240140029182" value={docForm.contractorBin}
+                  onChange={e => setDocForm(f => ({...f, contractorBin: e.target.value}))} />
+              </div>
+              {/* Row 5 */}
+              <div>
+                <label className="input-label">Дата</label>
+                <input className="admin-input" placeholder="21.08.2026" value={docForm.date}
+                  onChange={e => setDocForm(f => ({...f, date: e.target.value}))} />
+              </div>
+              <div>
+                <label className="input-label">Период выполнения</label>
+                <input className="admin-input" placeholder="Август 2026 (Этап 3)" value={docForm.period}
+                  onChange={e => setDocForm(f => ({...f, period: e.target.value}))} />
+              </div>
+              {/* Row 6 */}
+              <div>
+                <label className="input-label">Сумма с НДС (₸)</label>
+                <input className="admin-input" type="number" placeholder="14850000" value={docForm.amount}
+                  onChange={e => setDocForm(f => ({...f, amount: e.target.value}))} />
+              </div>
+              <div>
+                <label className="input-label">Статус</label>
+                <select className="admin-input" value={docForm.status}
+                  onChange={e => setDocForm(f => ({...f, status: e.target.value}))}>
+                  <option value="На согласовании">На согласовании</option>
+                  <option value="Подписан ЭЦП">Подписан ЭЦП</option>
+                  <option value="Оплачен">Оплачен</option>
+                  <option value="Зарезервировано в Эскроу">Зарезервировано в Эскроу</option>
+                  <option value="Проведен в ИС ЭСФ">Проведен в ИС ЭСФ</option>
+                  <option value="Действует">Действует</option>
+                </select>
+              </div>
+            </div>
+            <div className="modal-actions" style={{ marginTop: '1.2rem' }}>
+              <button className="admin-primary-btn" style={{ background: 'linear-gradient(90deg, #10b981, #059669)', padding: '10px 28px', fontWeight: '800' }} onClick={handleAddDocManually}>
+                ✅ Добавить документ
+              </button>
+              <button className="admin-secondary-btn" onClick={() => setDocAddModalOpen(false)}>Отмена</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* MODAL 1: ADD / EDIT PRICE ITEM */}
       {priceModalOpen && (
