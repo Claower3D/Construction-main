@@ -85,9 +85,19 @@ func (h *AiHandler) EstimateCost(w http.ResponseWriter, r *http.Request) {
 		Description: req.Description,
 	})
 
+	// Check for custom user OpenAI API Key from header or fallback to server config
+	apiKey := r.Header.Get("X-OpenAI-Key")
+	if apiKey == "" {
+		apiKey = h.Config.OpenAIKey
+	}
+	model := r.Header.Get("X-OpenAI-Model")
+	if model == "" {
+		model = "gpt-4o-mini"
+	}
+
 	// If API key is present and user provided an unstructured text description, optionally enhance insights with LLM
-	if h.Config.OpenAIKey != "" && req.Description != "" {
-		goInsights := h.fetchLLMInsights(req.Description, req.Category, req.City)
+	if apiKey != "" && req.Description != "" {
+		goInsights := h.fetchLLMInsightsWithKey(req.Description, req.Category, req.City, apiKey, model)
 		if len(goInsights) > 0 {
 			qtoResult.AiInsights = append(goInsights, qtoResult.AiInsights...)
 		}
@@ -97,13 +107,24 @@ func (h *AiHandler) EstimateCost(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *AiHandler) fetchLLMInsights(desc, category, city string) []string {
+	return h.fetchLLMInsightsWithKey(desc, category, city, h.Config.OpenAIKey, "gpt-4o-mini")
+}
+
+func (h *AiHandler) fetchLLMInsightsWithKey(desc, category, city, apiKey, model string) []string {
+	if apiKey == "" {
+		return nil
+	}
+	if model == "" {
+		model = "gpt-4o-mini"
+	}
+
 	systemPrompt := `You are an expert civil engineer and construction estimator in Kazakhstan. 
 Provide 3 brief professional recommendations in Russian concerning SNiP RK standards, material quality control, or potential hidden works. Output as raw JSON array of strings: ["insight 1", "insight 2", "insight 3"]`
 
 	userPrompt := fmt.Sprintf("Category: %s, City: %s. Project Description: %s", category, city, desc)
 
 	openaiReqBody := openAIRequest{
-		Model: "gpt-4o-mini",
+		Model: model,
 		ResponseFormat: map[string]string{
 			"type": "json_object",
 		},
@@ -125,7 +146,7 @@ Provide 3 brief professional recommendations in Russian concerning SNiP RK stand
 	}
 
 	httpReq.Header.Set("Content-Type", "application/json")
-	httpReq.Header.Set("Authorization", "Bearer "+h.Config.OpenAIKey)
+	httpReq.Header.Set("Authorization", "Bearer "+apiKey)
 
 	resp, err := client.Do(httpReq)
 	if err != nil || resp.StatusCode != http.StatusOK {

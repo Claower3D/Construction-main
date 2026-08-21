@@ -936,3 +936,184 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ==========================================================================
+   ChatGPT / OpenAI Connection Modal Styles
+   ========================================================================== */
+
+.spe-gpt-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 8, 20, 0.82);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  z-index: 999999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  animation: speFadeIn 0.25s ease;
+}
+
+@keyframes speFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.spe-gpt-modal-content {
+  background: linear-gradient(145deg, #0d1527, #080d1a);
+  border: 1.5px solid rgba(56, 189, 248, 0.4);
+  border-radius: 22px;
+  width: 100%;
+  max-width: 540px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85), 0 0 35px rgba(56, 189, 248, 0.25);
+  overflow: hidden;
+  animation: speScaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes speScaleIn {
+  from { transform: scale(0.92) translateY(10px); opacity: 0; }
+  to { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+.spe-gpt-modal-header {
+  padding: 1.5rem 1.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.spe-gpt-modal-close {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #94a3b8;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.spe-gpt-modal-close:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
+.spe-gpt-modal-body {
+  padding: 1.75rem;
+}
+
+.spe-gpt-connected-pill {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid #10b981;
+  color: #6ee7b7;
+  padding: 10px 14px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.88rem;
+  margin-bottom: 1rem;
+}
+
+.spe-gpt-info-pill {
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  color: #93c5fd;
+  padding: 10px 14px;
+  border-radius: 12px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 0.84rem;
+  line-height: 1.45;
+  margin-bottom: 1rem;
+}
+
+.spe-gpt-info-pill code {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: #38bdf8;
+  font-weight: 700;
+}
+
+.spe-gpt-input {
+  background: rgba(10, 14, 28, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #fff;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  outline: none;
+  font-family: monospace;
+  letter-spacing: 0.03em;
+  transition: all 0.2s ease;
+}
+
+.spe-gpt-input:focus {
+  border-color: #38bdf8;
+  box-shadow: 0 0 15px rgba(56, 189, 248, 0.35);
+}
+
+.spe-gpt-select {
+  width: 100%;
+  background: rgba(10, 14, 28, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #fff;
+  padding: 11px 14px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.spe-gpt-select:focus {
+  border-color: #38bdf8;
+}
+
+.spe-gpt-btn-test {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #cbd5e1;
+  font-weight: 700;
+  font-size: 0.88rem;
+  padding: 12px 16px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.spe-gpt-btn-test:hover:not(:disabled) {
+  background: rgba(56, 189, 248, 0.18);
+  border-color: #38bdf8;
+  color: #fff;
+}
+
+.spe-gpt-btn-save {
+  flex: 1.3;
+  background: linear-gradient(90deg, #2563eb, #38bdf8);
+  border: none;
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.92rem;
+  padding: 12px 18px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 15px rgba(56, 189, 248, 0.4);
+}
+
+.spe-gpt-btn-save:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(56, 189, 248, 0.6);
+}

@@ -24,6 +24,19 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
   const [calculatedEstimate, setCalculatedEstimate] = useState(null);
   const [toastMessage, setToastMessage] = useState(null);
 
+  // User Custom ChatGPT / OpenAI Account State
+  const [showGptModal, setShowGptModal] = useState(false);
+  const [userGptKey, setUserGptKey] = useState(() => {
+    return (typeof window !== 'undefined' && localStorage.getItem('qazgost_user_openai_key')) || '';
+  });
+  const [inputGptKey, setInputGptKey] = useState(userGptKey);
+  const [gptModel, setGptModel] = useState(() => {
+    return (typeof window !== 'undefined' && localStorage.getItem('qazgost_user_openai_model')) || 'gpt-4o';
+  });
+  const [showKeyText, setShowKeyText] = useState(false);
+  const [isTestingGptKey, setIsTestingGptKey] = useState(false);
+  const [gptTestResult, setGptTestResult] = useState(null);
+
   const showToast = (msg) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3000);
@@ -89,6 +102,62 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
     setPhotos(prev => prev.filter(p => p.id !== id));
   };
 
+  const handleSaveGptKey = (e) => {
+    if (e) e.preventDefault();
+    const cleanKey = inputGptKey.trim();
+    if (!cleanKey) {
+      localStorage.removeItem('qazgost_user_openai_key');
+      setUserGptKey('');
+      showToast('🗑️ Пользовательский GPT ключ удален. Используется ключ системы.');
+      setShowGptModal(false);
+      return;
+    }
+
+    localStorage.setItem('qazgost_user_openai_key', cleanKey);
+    localStorage.setItem('qazgost_user_openai_model', gptModel);
+    setUserGptKey(cleanKey);
+    showToast('🎉 Ваш аккаунт ChatGPT успешно подключен к режиму Авто!');
+    setShowGptModal(false);
+  };
+
+  const handleDisconnectGptKey = () => {
+    localStorage.removeItem('qazgost_user_openai_key');
+    setUserGptKey('');
+    setInputGptKey('');
+    setGptTestResult(null);
+    showToast('🔌 Аккаунт ChatGPT отключен.');
+  };
+
+  const handleTestGptKey = async () => {
+    const keyToTest = inputGptKey.trim() || userGptKey;
+    if (!keyToTest) {
+      showToast('⚠️ Введите API ключ для проверки');
+      return;
+    }
+
+    setIsTestingGptKey(true);
+    setGptTestResult(null);
+
+    try {
+      const res = await fetch('https://api.openai.com/v1/models', {
+        headers: { 'Authorization': `Bearer ${keyToTest}` }
+      });
+      if (res.ok) {
+        setGptTestResult({ success: true, message: '✅ Ключ валиден! Связь с ChatGPT API установлена успешно.' });
+        showToast('✅ Связь с вашим аккаунтом ChatGPT проверена!');
+      } else {
+        const errData = await res.json().catch(() => ({}));
+        setGptTestResult({ success: false, message: `❌ Ошибка OpenAI (${res.status}): ${errData.error?.message || 'Неверный ключ'}` });
+        showToast('❌ Ошибка проверки ключа OpenAI');
+      }
+    } catch (err) {
+      setGptTestResult({ success: false, message: '❌ Ошибка сети при проверке OpenAI API' });
+      showToast('❌ Ошибка сети');
+    } finally {
+      setIsTestingGptKey(false);
+    }
+  };
+
   const handleRunAiEstimate = async () => {
     setIsScanning(true);
     setScanStep('⏳ Подключение к OpenAI Multi-Pass AI Engine...');
@@ -98,9 +167,18 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
       setScanStep('🤖 Многопроходный анализ объекта через нейросеть GPT-4o...');
       
       const token = typeof window !== 'undefined' ? (localStorage.getItem('qazgost_token') || localStorage.getItem('token')) : null;
+      const customGptKey = userGptKey || (typeof window !== 'undefined' && localStorage.getItem('qazgost_user_openai_key'));
+      const customGptModel = gptModel || (typeof window !== 'undefined' && localStorage.getItem('qazgost_user_openai_model'));
+
       const headers = { 'Content-Type': 'application/json' };
       if (token) {
         headers['Authorization'] = `Bearer ${token}`;
+      }
+      if (customGptKey) {
+        headers['X-OpenAI-Key'] = customGptKey;
+      }
+      if (customGptModel) {
+        headers['X-OpenAI-Model'] = customGptModel;
       }
 
       const res = await fetch('/api/v1/ai/estimate', {
@@ -509,12 +587,21 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
         {/* Mode 1: Авто */}
         <div 
           className={`spe-engine-card ${aiEngineMode === 'auto' ? 'selected' : ''}`}
-          onClick={() => setAiEngineMode('auto')}
+          onClick={() => {
+            setAiEngineMode('auto');
+            setShowGptModal(true);
+          }}
+          style={{ position: 'relative', cursor: 'pointer' }}
         >
+          <div style={{ position: 'absolute', top: '8px', right: '8px', background: userGptKey ? 'rgba(16, 185, 129, 0.25)' : 'rgba(56, 189, 248, 0.25)', border: userGptKey ? '1px solid #10b981' : '1px solid #38bdf8', color: userGptKey ? '#10b981' : '#38bdf8', fontSize: '0.65rem', fontWeight: '800', padding: '2px 6px', borderRadius: '6px' }}>
+            {userGptKey ? '🟢 GPT ПОДКЛЮЧЕН' : '🔑 ПОДКЛЮЧИТЬ GPT'}
+          </div>
           <div className="spe-ecard-head">⚡⚡ Авто</div>
-          <p className="spe-ecard-desc">Система выберет оптимальный режим</p>
+          <p className="spe-ecard-desc">
+            {userGptKey ? 'Ваш аккаунт ChatGPT + умный авто-выбор' : 'Система выберет режим + подключение GPT'}
+          </p>
           <button className="spe-btn-select-mode">
-            {aiEngineMode === 'auto' ? '✓ Выбран' : 'Выбрать'}
+            {aiEngineMode === 'auto' ? (userGptKey ? '✓ Настроить аккаунт ⚙️' : '✓ Выбрать & Подключить') : 'Выбрать'}
           </button>
         </div>
 
@@ -619,6 +706,137 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
                 <li key={i}>{ins}</li>
               ))}
             </ul>
+          </div>
+        </div>
+      )}
+
+      {/* ChatGPT / OpenAI Account Connection Modal */}
+      {showGptModal && (
+        <div className="spe-gpt-modal-backdrop" onClick={() => setShowGptModal(false)}>
+          <div className="spe-gpt-modal-content" onClick={e => e.stopPropagation()}>
+            <div className="spe-gpt-modal-header">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <span style={{ fontSize: '1.8rem' }}>🤖</span>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: '1.25rem', color: '#fff', fontWeight: 800 }}>Подключение аккаунта ChatGPT</h3>
+                  <p style={{ margin: '2px 0 0 0', fontSize: '0.82rem', color: '#94a3b8' }}>
+                    Режим «Авто» использует ваш личный GPT ключ для неограниченного расчёта смет
+                  </p>
+                </div>
+              </div>
+              <button className="spe-gpt-modal-close" onClick={() => setShowGptModal(false)}>✕</button>
+            </div>
+
+            <div className="spe-gpt-modal-body">
+              {userGptKey ? (
+                <div className="spe-gpt-connected-pill">
+                  <span style={{ fontSize: '1.2rem' }}>🟢</span>
+                  <div style={{ flex: 1 }}>
+                    <strong style={{ display: 'block', color: '#fff' }}>Ваш аккаунт ChatGPT активен</strong>
+                    <span style={{ fontSize: '0.78rem', color: '#6ee7b7' }}>Ключ: {userGptKey.substring(0, 10)}...{userGptKey.slice(-4)}</span>
+                  </div>
+                  <button 
+                    type="button"
+                    onClick={handleDisconnectGptKey}
+                    style={{ background: 'rgba(239,68,68,0.2)', border: '1px solid #ef4444', color: '#fca5a5', padding: '4px 8px', borderRadius: '6px', fontSize: '0.75rem', cursor: 'pointer', fontWeight: 700 }}
+                  >
+                    Отвязать
+                  </button>
+                </div>
+              ) : (
+                <div className="spe-gpt-info-pill">
+                  <span style={{ fontSize: '1.2rem' }}>💡</span>
+                  <div>
+                    Подключите свой ключ OpenAI API (начинается на <code>sk-...</code>). Вы получаете прямой доступ к моделям GPT-4o по официальным тарифам без ограничений платформы.
+                  </div>
+                </div>
+              )}
+
+              <form onSubmit={handleSaveGptKey} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem', marginTop: '1rem' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.82rem', color: '#cbd5e1', marginBottom: '0.4rem', fontWeight: 700 }}>
+                    Ваш OpenAI API Key:
+                  </label>
+                  <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                    <input 
+                      type={showKeyText ? 'text' : 'password'}
+                      placeholder="sk-proj-..."
+                      value={inputGptKey}
+                      onChange={e => setInputGptKey(e.target.value)}
+                      className="spe-gpt-input"
+                      style={{ width: '100%', paddingRight: '45px' }}
+                    />
+                    <button 
+                      type="button" 
+                      onClick={() => setShowKeyText(!showKeyText)}
+                      style={{ position: 'absolute', right: '10px', background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer', fontSize: '1rem' }}
+                      title={showKeyText ? 'Скрыть' : 'Показать'}
+                    >
+                      {showKeyText ? '🙈' : '👁️'}
+                    </button>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '6px', fontSize: '0.75rem' }}>
+                    <a 
+                      href="https://platform.openai.com/api-keys" 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      style={{ color: '#38bdf8', textDecoration: 'none', fontWeight: 600 }}
+                    >
+                      🔗 Получить ключ на platform.openai.com
+                    </a>
+                    {inputGptKey && (
+                      <button 
+                        type="button" 
+                        onClick={() => setInputGptKey('')} 
+                        style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: '0.75rem' }}
+                      >
+                        Очистить поле
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.82rem', color: '#cbd5e1', marginBottom: '0.4rem', fontWeight: 700 }}>
+                    Модель нейросети для режима Авто:
+                  </label>
+                  <select 
+                    value={gptModel} 
+                    onChange={e => setGptModel(e.target.value)}
+                    className="spe-gpt-select"
+                  >
+                    <option value="gpt-4o">🌟 GPT-4o (Рекомендуется — высокая точность Vision & СНиП)</option>
+                    <option value="gpt-4o-mini">⚡ GPT-4o Mini (Быстрый и экономичный анализ)</option>
+                    <option value="gpt-5-preview">🚀 GPT-5 Vision Preview (Флагманский строительный аудит)</option>
+                    <option value="o3-mini">📐 o1 / o3-mini (Глубокие инженерные расчёты конструкций)</option>
+                  </select>
+                </div>
+
+                {gptTestResult && (
+                  <div style={{ padding: '10px 14px', borderRadius: '10px', fontSize: '0.85rem', background: gptTestResult.success ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)', border: `1px solid ${gptTestResult.success ? '#10b981' : '#ef4444'}`, color: gptTestResult.success ? '#6ee7b7' : '#fca5a5' }}>
+                    {gptTestResult.message}
+                  </div>
+                )}
+
+                <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem' }}>
+                  <button 
+                    type="button" 
+                    onClick={handleTestGptKey}
+                    disabled={isTestingGptKey}
+                    className="spe-gpt-btn-test"
+                  >
+                    {isTestingGptKey ? '⏳ Проверка...' : '🧪 Проверить связь'}
+                  </button>
+
+                  <button 
+                    type="submit" 
+                    className="spe-gpt-btn-save"
+                  >
+                    💾 Сохранить и подключить
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
       )}
