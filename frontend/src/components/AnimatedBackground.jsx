@@ -57,8 +57,8 @@ export default function AnimatedBackground() {
     let tick = 0;
     let isMobile = width < 768;
 
-    // ── 1. 3D STRUCTURAL PARTICLES & TRUSS NODES ──
-    const count = isMobile ? Math.min(Math.floor((width * height) / 18000), 40) : Math.min(Math.floor((width * height) / 12000), 120);
+    // ── 1. 3D STRUCTURAL PARTICLES ──
+    const count = isMobile ? Math.min(Math.floor((width * height) / 18000), 40) : Math.min(Math.floor((width * height) / 12000), 100);
     const particles = [];
     const colorPalette = ['#38bdf8', '#60a5fa', '#34d399', '#fbbf24', '#f59e0b', '#a855f7', '#ffffff'];
 
@@ -91,27 +91,62 @@ export default function AnimatedBackground() {
       }
     };
 
-    // ── 3. 3D HOLOGRAPHIC BIM MEGACITY SKYLINE (All 6 Buildings clearly defined) ──
+    // ── 3. REALISTIC ARCHITECTURAL RESIDENTIAL BUILDINGS & SKYSCRAPERS ──
+    // Deterministic random seed for consistent window lighting
+    const seededRandom = (seed) => {
+      const x = Math.sin(seed) * 10000;
+      return x - Math.floor(x);
+    };
+
     const cityBuildings = [
       // Left Cluster (L1, L2, L3)
-      { id: 'L1', name: 'БЛОК А1', xR: 0.03, yR: 0.52, w: 90, h: 220, floors: 8, spire: 35, color: 'rgba(56, 189, 248, 0.14)' },
-      { id: 'L2', name: 'ТАУЭР А2', xR: 0.10, yR: 0.56, w: 115, h: 280, floors: 11, spire: 55, color: 'rgba(37, 99, 235, 0.16)' },
-      { id: 'L3', name: 'КОРПУС А3', xR: 0.19, yR: 0.59, w: 80, h: 180, floors: 6, spire: 20, color: 'rgba(14, 165, 233, 0.12)' },
+      { 
+        id: 'L1', name: 'ЖК «ТАУЭР А1»', subName: '18 ЭТАЖЕЙ • ЖИЛОЙ КОМПЛЕКС', 
+        xR: 0.025, yR: 0.58, w: 105, h: 260, floors: 18, cols: 5, 
+        spire: 40, hasBalconies: true, hasPenthouse: true, accentColor: '#38bdf8',
+        wallColor: '#111b2e', sideWallColor: '#0a101f', roofColor: '#1e2d4a', seed: 101 
+      },
+      { 
+        id: 'L2', name: 'ЖК «ПРЕМЬЕР ТАУЭР А2»', subName: '26 ЭТАЖЕЙ • БИЗНЕС-КЛАСС', 
+        xR: 0.105, yR: 0.56, w: 135, h: 350, floors: 26, cols: 6, 
+        spire: 65, hasBalconies: true, hasPenthouse: true, hasSkyLounge: true, accentColor: '#3b82f6',
+        wallColor: '#0f172a', sideWallColor: '#080d1a', roofColor: '#1e293b', seed: 202 
+      },
+      { 
+        id: 'L3', name: 'ЖК «КОМФОРТ А3»', subName: '12 ЭТАЖЕЙ • СЕМЕЙНЫЙ КВАРТАЛ', 
+        xR: 0.20, yR: 0.60, w: 90, h: 200, floors: 12, cols: 4, 
+        spire: 25, hasBalconies: true, hasPenthouse: false, accentColor: '#06b6d4',
+        wallColor: '#131e33', sideWallColor: '#0b1220', roofColor: '#1b2a47', seed: 303 
+      },
       // Right Cluster (R1, R2, R3)
-      { id: 'R1', name: 'КОРПУС В1', xR: 0.75, yR: 0.57, w: 85, h: 190, floors: 7, spire: 25, color: 'rgba(16, 185, 129, 0.12)' },
-      { id: 'R2', name: 'ТАУЭР В2', xR: 0.82, yR: 0.53, w: 130, h: 310, floors: 12, spire: 70, color: 'rgba(56, 189, 248, 0.16)' },
-      { id: 'R3', name: 'БЛОК В3', xR: 0.92, yR: 0.55, w: 95, h: 240, floors: 9, spire: 40, color: 'rgba(245, 158, 11, 0.14)' }
+      { 
+        id: 'R1', name: 'ЖК «GREEN CITY В1»', subName: '14 ЭТАЖЕЙ • ЭКО-КВАРТАЛ', 
+        xR: 0.74, yR: 0.60, w: 95, h: 220, floors: 14, cols: 4, 
+        spire: 30, hasBalconies: true, hasPenthouse: true, accentColor: '#10b981',
+        wallColor: '#0e1f24', sideWallColor: '#071317', roofColor: '#173038', seed: 404 
+      },
+      { 
+        id: 'R2', name: 'ЖК «GRAND TOWER В2»', subName: '28 ЭТАЖЕЙ • ПЕНТХАУСЫ', 
+        xR: 0.815, yR: 0.55, w: 145, h: 380, floors: 28, cols: 7, 
+        spire: 75, hasBalconies: true, hasPenthouse: true, hasSkyLounge: true, accentColor: '#f59e0b',
+        wallColor: '#181824', sideWallColor: '#0d0d14', roofColor: '#282838', seed: 505 
+      },
+      { 
+        id: 'R3', name: 'ЖК «NOMAD PALACE В3»', subName: '20 ЭТАЖЕЙ • СТИЛОБАТ', 
+        xR: 0.915, yR: 0.57, w: 110, h: 290, floors: 20, cols: 5, 
+        spire: 45, hasBalconies: true, hasPenthouse: true, accentColor: '#fbbf24',
+        wallColor: '#1a1829', sideWallColor: '#0e0d17', roofColor: '#2a2642', seed: 606 
+      }
     ];
 
-    // Cranes
+    // Detailed Cranes
     const cranes = [
-      { bxR: 0.10, byR: 0.56, bh: 280, armLen: 70, color: '#fbbf24' },
-      { bxR: 0.82, byR: 0.53, bh: 310, armLen: 85, color: '#38bdf8' }
+      { bxR: 0.105, byR: 0.56, bh: 350, armLen: 90, color: '#fbbf24', armAngle: 0.4 },
+      { bxR: 0.815, byR: 0.55, bh: 380, armLen: 100, color: '#f59e0b', armAngle: -0.3 }
     ];
 
-    // ── 4. COMPLETE ALL-BUILDING WATER & SEWER LABYRINTH ──
+    // ── 4. WATER & SEWER LABYRINTH ──
     const waterLabyrinth = [
-      // L1 Drop & Connection
       {
         id: 'W_L1',
         name: 'ВЫПУСК L1 Ø200',
@@ -119,15 +154,14 @@ export default function AnimatedBackground() {
         glowColor: 'rgba(6, 182, 212, 0.4)',
         width: 3.2,
         points: [
-          { xR: 0.05, yR: 0.52 }, // Base of L1
-          { xR: 0.05, yR: 0.67 }, // Down vertical
-          { xR: 0.09, yR: 0.67 }, // Horizontal branch
-          { xR: 0.09, yR: 0.77 }  // Into L2 Main Collector
+          { xR: 0.05, yR: 0.58 },
+          { xR: 0.05, yR: 0.69 },
+          { xR: 0.09, yR: 0.69 },
+          { xR: 0.09, yR: 0.79 }
         ],
         pulses: [0.15, 0.65],
         speed: 0.07
       },
-      // L2 Drop & Main Trunk
       {
         id: 'W_L2',
         name: 'МАГИСТРАЛЬ К1 Ø1200',
@@ -135,18 +169,17 @@ export default function AnimatedBackground() {
         glowColor: 'rgba(6, 182, 212, 0.45)',
         width: 4.0,
         points: [
-          { xR: 0.13, yR: 0.56 }, // Base of L2
+          { xR: 0.13, yR: 0.56 },
           { xR: 0.13, yR: 0.77 },
           { xR: 0.18, yR: 0.77 },
           { xR: 0.18, yR: 0.85 },
           { xR: 0.28, yR: 0.85 },
           { xR: 0.32, yR: 0.91 },
-          { xR: 0.50, yR: 0.91 } // Central KNS Nexus
+          { xR: 0.50, yR: 0.91 }
         ],
         pulses: [0.08, 0.38, 0.72],
         speed: 0.06
       },
-      // L3 Drop & Interconnect
       {
         id: 'W_L3',
         name: 'ВЫПУСК L3 Ø250',
@@ -154,15 +187,14 @@ export default function AnimatedBackground() {
         glowColor: 'rgba(56, 189, 248, 0.4)',
         width: 3.0,
         points: [
-          { xR: 0.21, yR: 0.59 }, // Base of L3
-          { xR: 0.21, yR: 0.71 },
-          { xR: 0.18, yR: 0.71 }, // Joins L2 stack
+          { xR: 0.21, yR: 0.60 },
+          { xR: 0.21, yR: 0.73 },
+          { xR: 0.18, yR: 0.73 },
           { xR: 0.18, yR: 0.85 }
         ],
         pulses: [0.22, 0.78],
         speed: 0.08
       },
-      // R3 Drop & Main Trunk
       {
         id: 'W_R3',
         name: 'ВЫПУСК R3 Ø250',
@@ -170,15 +202,14 @@ export default function AnimatedBackground() {
         glowColor: 'rgba(6, 182, 212, 0.4)',
         width: 3.2,
         points: [
-          { xR: 0.95, yR: 0.55 }, // Base of R3
-          { xR: 0.95, yR: 0.69 },
-          { xR: 0.89, yR: 0.69 },
-          { xR: 0.89, yR: 0.79 } // Into R2 Trunk
+          { xR: 0.95, yR: 0.57 },
+          { xR: 0.95, yR: 0.71 },
+          { xR: 0.89, yR: 0.71 },
+          { xR: 0.89, yR: 0.81 }
         ],
         pulses: [0.20, 0.70],
         speed: 0.07
       },
-      // R2 Drop & Main Trunk
       {
         id: 'W_R2',
         name: 'КОЛЛЕКТОР К1 Ø1200',
@@ -186,18 +217,17 @@ export default function AnimatedBackground() {
         glowColor: 'rgba(6, 182, 212, 0.45)',
         width: 4.0,
         points: [
-          { xR: 0.86, yR: 0.53 }, // Base of R2
+          { xR: 0.86, yR: 0.55 },
           { xR: 0.86, yR: 0.79 },
           { xR: 0.79, yR: 0.79 },
           { xR: 0.79, yR: 0.87 },
           { xR: 0.68, yR: 0.87 },
           { xR: 0.64, yR: 0.91 },
-          { xR: 0.50, yR: 0.91 } // Central KNS Nexus
+          { xR: 0.50, yR: 0.91 }
         ],
         pulses: [0.12, 0.45, 0.82],
         speed: 0.06
       },
-      // R1 Drop & Interconnect
       {
         id: 'W_R1',
         name: 'ВЫПУСК R1 Ø200',
@@ -205,9 +235,9 @@ export default function AnimatedBackground() {
         glowColor: 'rgba(56, 189, 248, 0.4)',
         width: 3.0,
         points: [
-          { xR: 0.77, yR: 0.57 }, // Base of R1
-          { xR: 0.77, yR: 0.73 },
-          { xR: 0.79, yR: 0.73 },
+          { xR: 0.77, yR: 0.60 },
+          { xR: 0.77, yR: 0.75 },
+          { xR: 0.79, yR: 0.75 },
           { xR: 0.79, yR: 0.87 }
         ],
         pulses: [0.30, 0.85],
@@ -215,9 +245,8 @@ export default function AnimatedBackground() {
       }
     ];
 
-    // ── 5. EXPANDED HIGH-VOLTAGE ELECTRICAL GRID, SUBSTATIONS & DISTRIBUTION ──
+    // ── 5. ELECTRICAL GRID ──
     const electricGrid = [
-      // Left Cluster Transformer Substation (ТП-1) Main Bus to L1, L2, L3
       {
         id: 'E_LEFT_TP1',
         name: 'КЛ 10 кВ // ТП-1 → ВРУ',
@@ -225,18 +254,17 @@ export default function AnimatedBackground() {
         glowColor: 'rgba(251, 191, 36, 0.45)',
         width: 2.4,
         points: [
-          { xR: 0.04, yR: 0.52 },
-          { xR: 0.04, yR: 0.62 },
-          { xR: 0.11, yR: 0.62 },
+          { xR: 0.04, yR: 0.58 },
+          { xR: 0.04, yR: 0.64 },
+          { xR: 0.11, yR: 0.64 },
           { xR: 0.11, yR: 0.56 },
-          { xR: 0.11, yR: 0.65 },
-          { xR: 0.20, yR: 0.65 },
-          { xR: 0.20, yR: 0.59 }
+          { xR: 0.11, yR: 0.67 },
+          { xR: 0.20, yR: 0.67 },
+          { xR: 0.20, yR: 0.60 }
         ],
         pulses: [0.1, 0.45, 0.75],
         speed: 0.12
       },
-      // Individual ВРУ Feed Cable L1
       {
         id: 'E_VRU_L1',
         name: 'ВРУ-0.4 БЛОК А1 (3×185)',
@@ -244,15 +272,14 @@ export default function AnimatedBackground() {
         glowColor: 'rgba(234, 179, 8, 0.35)',
         width: 1.8,
         points: [
-          { xR: 0.04, yR: 0.52 },
+          { xR: 0.04, yR: 0.58 },
+          { xR: 0.06, yR: 0.58 },
           { xR: 0.06, yR: 0.52 },
-          { xR: 0.06, yR: 0.46 },
-          { xR: 0.05, yR: 0.46 }
+          { xR: 0.05, yR: 0.52 }
         ],
         pulses: [0.25, 0.70],
         speed: 0.15
       },
-      // Individual ВРУ Feed Cable L2
       {
         id: 'E_VRU_L2',
         name: 'ВРУ-0.4 ТАУЭР А2 (3×240)',
@@ -268,7 +295,6 @@ export default function AnimatedBackground() {
         pulses: [0.30, 0.80],
         speed: 0.15
       },
-      // Individual ВРУ Feed Cable L3
       {
         id: 'E_VRU_L3',
         name: 'ВРУ-0.4 КОРПУС А3 (3×150)',
@@ -276,15 +302,14 @@ export default function AnimatedBackground() {
         glowColor: 'rgba(234, 179, 8, 0.35)',
         width: 1.8,
         points: [
-          { xR: 0.20, yR: 0.59 },
-          { xR: 0.22, yR: 0.59 },
-          { xR: 0.22, yR: 0.53 },
-          { xR: 0.21, yR: 0.53 }
+          { xR: 0.20, yR: 0.60 },
+          { xR: 0.22, yR: 0.60 },
+          { xR: 0.22, yR: 0.54 },
+          { xR: 0.21, yR: 0.54 }
         ],
         pulses: [0.20, 0.75],
         speed: 0.15
       },
-      // Right Cluster Transformer Substation (ТП-2) to R1, R2, R3
       {
         id: 'E_RIGHT_TP2',
         name: 'КЛ 35 кВ // ТП-2 → ВРУ',
@@ -292,18 +317,17 @@ export default function AnimatedBackground() {
         glowColor: 'rgba(251, 191, 36, 0.45)',
         width: 2.4,
         points: [
-          { xR: 0.76, yR: 0.57 },
-          { xR: 0.76, yR: 0.65 },
-          { xR: 0.84, yR: 0.65 },
-          { xR: 0.84, yR: 0.53 },
-          { xR: 0.84, yR: 0.68 },
-          { xR: 0.94, yR: 0.68 },
-          { xR: 0.94, yR: 0.55 }
+          { xR: 0.76, yR: 0.60 },
+          { xR: 0.76, yR: 0.67 },
+          { xR: 0.84, yR: 0.67 },
+          { xR: 0.84, yR: 0.55 },
+          { xR: 0.84, yR: 0.70 },
+          { xR: 0.94, yR: 0.70 },
+          { xR: 0.94, yR: 0.57 }
         ],
         pulses: [0.15, 0.50, 0.85],
         speed: 0.12
       },
-      // Individual ВРУ Feed Cable R1
       {
         id: 'E_VRU_R1',
         name: 'ВРУ-0.4 КОРПУС В1 (3×150)',
@@ -311,15 +335,14 @@ export default function AnimatedBackground() {
         glowColor: 'rgba(234, 179, 8, 0.35)',
         width: 1.8,
         points: [
-          { xR: 0.76, yR: 0.57 },
-          { xR: 0.78, yR: 0.57 },
-          { xR: 0.78, yR: 0.51 },
-          { xR: 0.77, yR: 0.51 }
+          { xR: 0.76, yR: 0.60 },
+          { xR: 0.78, yR: 0.60 },
+          { xR: 0.78, yR: 0.53 },
+          { xR: 0.77, yR: 0.53 }
         ],
         pulses: [0.35, 0.85],
         speed: 0.15
       },
-      // Individual ВРУ Feed Cable R2
       {
         id: 'E_VRU_R2',
         name: 'ВРУ-0.4 ТАУЭР В2 (3×240)',
@@ -327,15 +350,14 @@ export default function AnimatedBackground() {
         glowColor: 'rgba(234, 179, 8, 0.35)',
         width: 1.8,
         points: [
-          { xR: 0.84, yR: 0.53 },
-          { xR: 0.87, yR: 0.53 },
-          { xR: 0.87, yR: 0.46 },
-          { xR: 0.85, yR: 0.46 }
+          { xR: 0.84, yR: 0.55 },
+          { xR: 0.87, yR: 0.55 },
+          { xR: 0.87, yR: 0.48 },
+          { xR: 0.85, yR: 0.48 }
         ],
         pulses: [0.20, 0.70],
         speed: 0.15
       },
-      // Individual ВРУ Feed Cable R3
       {
         id: 'E_VRU_R3',
         name: 'ВРУ-0.4 БЛОК В3 (3×185)',
@@ -343,71 +365,33 @@ export default function AnimatedBackground() {
         glowColor: 'rgba(234, 179, 8, 0.35)',
         width: 1.8,
         points: [
-          { xR: 0.94, yR: 0.55 },
-          { xR: 0.96, yR: 0.55 },
-          { xR: 0.96, yR: 0.49 },
-          { xR: 0.94, yR: 0.49 }
+          { xR: 0.94, yR: 0.57 },
+          { xR: 0.96, yR: 0.57 },
+          { xR: 0.96, yR: 0.50 },
+          { xR: 0.94, yR: 0.50 }
         ],
-        pulses: [0.15, 0.65],
+        pulses: [0.25, 0.80],
         speed: 0.15
       },
-      // Inter-City High-Voltage Trunk Line (ТП-1 ⟷ ТП-2)
       {
-        id: 'E_INTER_TRUNK',
-        name: 'МАГИСТРАЛЬНЫЙ КАБЕЛЬ 35 кВ ТП-1 ⟷ ТП-2',
+        id: 'E_TP1_TO_TP2',
+        name: 'МЕЖСИСТЕМНАЯ СВЯЗЬ 35 кВ (РЕЗЕРВ)',
         color: '#f59e0b',
         glowColor: 'rgba(245, 158, 11, 0.4)',
-        width: 2.8,
+        width: 3.0,
         points: [
-          { xR: 0.11, yR: 0.65 },
-          { xR: 0.11, yR: 0.73 },
-          { xR: 0.26, yR: 0.73 },
-          { xR: 0.30, yR: 0.78 },
-          { xR: 0.70, yR: 0.78 },
-          { xR: 0.74, yR: 0.73 },
-          { xR: 0.84, yR: 0.73 },
-          { xR: 0.84, yR: 0.68 }
+          { xR: 0.11, yR: 0.64 },
+          { xR: 0.11, yR: 0.82 },
+          { xR: 0.35, yR: 0.82 },
+          { xR: 0.35, yR: 0.88 },
+          { xR: 0.65, yR: 0.88 },
+          { xR: 0.65, yR: 0.82 },
+          { xR: 0.84, yR: 0.82 },
+          { xR: 0.84, yR: 0.67 }
         ],
-        pulses: [0.10, 0.40, 0.70],
-        speed: 0.14
+        pulses: [0.1, 0.35, 0.6, 0.85],
+        speed: 0.08
       },
-      // Street Lighting Circuit Left
-      {
-        id: 'E_STREET_LEFT',
-        name: 'НАРУЖНОЕ ОСВЕЩЕНИЕ НО-1 (IP65)',
-        color: '#d97706',
-        glowColor: 'rgba(217, 119, 6, 0.35)',
-        width: 1.5,
-        points: [
-          { xR: 0.11, yR: 0.62 },
-          { xR: 0.06, yR: 0.62 },
-          { xR: 0.06, yR: 0.58 },
-          { xR: 0.14, yR: 0.58 },
-          { xR: 0.14, yR: 0.62 },
-          { xR: 0.22, yR: 0.62 }
-        ],
-        pulses: [0.18, 0.55, 0.88],
-        speed: 0.10
-      },
-      // Street Lighting Circuit Right
-      {
-        id: 'E_STREET_RIGHT',
-        name: 'НАРУЖНОЕ ОСВЕЩЕНИЕ НО-2 (IP65)',
-        color: '#d97706',
-        glowColor: 'rgba(217, 119, 6, 0.35)',
-        width: 1.5,
-        points: [
-          { xR: 0.84, yR: 0.65 },
-          { xR: 0.79, yR: 0.65 },
-          { xR: 0.79, yR: 0.60 },
-          { xR: 0.88, yR: 0.60 },
-          { xR: 0.88, yR: 0.65 },
-          { xR: 0.96, yR: 0.65 }
-        ],
-        pulses: [0.12, 0.48, 0.82],
-        speed: 0.10
-      },
-      // Emergency Generator Feed (ДГУ)
       {
         id: 'E_DGU',
         name: 'АВР // ДГУ-500 кВА (Резерв)',
@@ -425,75 +409,28 @@ export default function AnimatedBackground() {
         ],
         pulses: [0.22, 0.60],
         speed: 0.09
-      },
-      // Grounding Contour Loop
-      {
-        id: 'E_GROUND',
-        name: 'КОНТУР ЗАЗЕМЛЕНИЯ RE (R<4 Ом)',
-        color: '#22c55e',
-        glowColor: 'rgba(34, 197, 94, 0.3)',
-        width: 1.4,
-        points: [
-          { xR: 0.04, yR: 0.68 },
-          { xR: 0.04, yR: 0.72 },
-          { xR: 0.20, yR: 0.72 },
-          { xR: 0.20, yR: 0.68 },
-          { xR: 0.04, yR: 0.68 }
-        ],
-        pulses: [0.35],
-        speed: 0.04
-      },
-      // Grounding Contour Loop Right
-      {
-        id: 'E_GROUND_R',
-        name: 'КОНТУР ЗАЗЕМЛЕНИЯ RE (R<4 Ом)',
-        color: '#22c55e',
-        glowColor: 'rgba(34, 197, 94, 0.3)',
-        width: 1.4,
-        points: [
-          { xR: 0.76, yR: 0.70 },
-          { xR: 0.76, yR: 0.74 },
-          { xR: 0.94, yR: 0.74 },
-          { xR: 0.94, yR: 0.70 },
-          { xR: 0.76, yR: 0.70 }
-        ],
-        pulses: [0.60],
-        speed: 0.04
       }
     ];
 
-    // Infrastructure Node Vaults & Substations
     const utilityNodes = [
-      // Left Cluster Water Nodes
-      { xR: 0.05, yR: 0.67, label: 'КК-1 (L1)', desc: 'h=-2.5m', color: '#06b6d4', type: 'water' },
+      { xR: 0.05, yR: 0.69, label: 'КК-1 (L1)', desc: 'h=-2.5m', color: '#06b6d4', type: 'water' },
       { xR: 0.13, yR: 0.77, label: 'КК-2 (L2)', desc: 'h=-4.2m', color: '#06b6d4', type: 'water' },
-      { xR: 0.21, yR: 0.71, label: 'КК-3 (L3)', desc: 'h=-3.1m', color: '#06b6d4', type: 'water' },
-
-      // Left Cluster Electric Nodes
-      { xR: 0.11, yR: 0.62, label: '⚡ ТП-1 (10/0.4кВ)', desc: 'P=630 кВА', color: '#fbbf24', type: 'electric' },
+      { xR: 0.21, yR: 0.73, label: 'КК-3 (L3)', desc: 'h=-3.1m', color: '#06b6d4', type: 'water' },
+      { xR: 0.11, yR: 0.64, label: '⚡ ТП-1 (10/0.4кВ)', desc: 'P=630 кВА', color: '#fbbf24', type: 'electric' },
       { xR: 0.06, yR: 0.52, label: '⚡ ВРУ А1', desc: 'Iн=400А', color: '#eab308', type: 'electric' },
       { xR: 0.14, yR: 0.49, label: '⚡ ВРУ А2', desc: 'Iн=630А', color: '#eab308', type: 'electric' },
-      { xR: 0.22, yR: 0.53, label: '⚡ ВРУ А3', desc: 'Iн=250А', color: '#eab308', type: 'electric' },
-      { xR: 0.06, yR: 0.58, label: '💡 НО-1', desc: '32 опоры', color: '#d97706', type: 'electric' },
-
-      // Right Cluster Water Nodes
-      { xR: 0.95, yR: 0.69, label: 'КК-11 (R3)', desc: 'h=-2.8m', color: '#06b6d4', type: 'water' },
+      { xR: 0.22, yR: 0.54, label: '⚡ ВРУ А3', desc: 'Iн=250А', color: '#eab308', type: 'electric' },
+      { xR: 0.95, yR: 0.71, label: 'КК-11 (R3)', desc: 'h=-2.8m', color: '#06b6d4', type: 'water' },
       { xR: 0.86, yR: 0.79, label: 'КК-12 (R2)', desc: 'h=-4.5m', color: '#06b6d4', type: 'water' },
-      { xR: 0.77, yR: 0.73, label: 'КК-13 (R1)', desc: 'h=-3.4m', color: '#06b6d4', type: 'water' },
-
-      // Right Cluster Electric Nodes
-      { xR: 0.84, yR: 0.65, label: '⚡ ТП-2 (35/10кВ)', desc: 'P=1000 кВА', color: '#fbbf24', type: 'electric' },
-      { xR: 0.78, yR: 0.51, label: '⚡ ВРУ В1', desc: 'Iн=250А', color: '#eab308', type: 'electric' },
-      { xR: 0.87, yR: 0.46, label: '⚡ ВРУ В2', desc: 'Iн=630А', color: '#eab308', type: 'electric' },
-      { xR: 0.96, yR: 0.49, label: '⚡ ВРУ В3', desc: 'Iн=400А', color: '#eab308', type: 'electric' },
-      { xR: 0.79, yR: 0.60, label: '💡 НО-2', desc: '28 опор', color: '#d97706', type: 'electric' },
-
-      // Central Hubs
+      { xR: 0.77, yR: 0.75, label: 'КК-13 (R1)', desc: 'h=-3.4m', color: '#06b6d4', type: 'water' },
+      { xR: 0.84, yR: 0.67, label: '⚡ ТП-2 (35/10кВ)', desc: 'P=1000 кВА', color: '#fbbf24', type: 'electric' },
+      { xR: 0.78, yR: 0.53, label: '⚡ ВРУ В1', desc: 'Iн=250А', color: '#eab308', type: 'electric' },
+      { xR: 0.87, yR: 0.48, label: '⚡ ВРУ В2', desc: 'Iн=630А', color: '#eab308', type: 'electric' },
+      { xR: 0.96, yR: 0.50, label: '⚡ ВРУ В3', desc: 'Iн=400А', color: '#eab308', type: 'electric' },
       { xR: 0.50, yR: 0.91, label: 'КНС-ГЛАВНАЯ (ХПВ+К1)', desc: 'Q=320м³/ч // h=-8.5m', color: '#38bdf8', type: 'hub' },
       { xR: 0.50, yR: 0.84, label: '🔴 ДГУ-500 (Резерв)', desc: 'АВР // 500 кВА', color: '#ef4444', type: 'electric' }
     ];
 
-    // Helper: Interpolate distance along polygonal path
     const getPointAlongPath = (points, progress) => {
       let totalLength = 0;
       const segLengths = [];
@@ -526,7 +463,6 @@ export default function AnimatedBackground() {
       return { x: lastP.xR * width, y: lastP.yR * height };
     };
 
-    // Helper: Draw Conduit Line with enhanced electric effects
     const isElectricLine = (color) => {
       return ['#fbbf24', '#eab308', '#f59e0b', '#d97706', '#ef4444', '#22c55e'].includes(color);
     };
@@ -535,7 +471,6 @@ export default function AnimatedBackground() {
       ctx.save();
       const electric = isElectricLine(ch.color);
 
-      // Outer glow (stronger for electric)
       ctx.beginPath();
       ch.points.forEach((pt, idx) => {
         const px = pt.xR * width;
@@ -548,7 +483,6 @@ export default function AnimatedBackground() {
       ctx.lineJoin = 'miter';
       ctx.stroke();
 
-      // Core line
       ctx.strokeStyle = ch.color;
       ctx.lineWidth = ch.width;
       ctx.shadowColor = ch.color;
@@ -556,39 +490,11 @@ export default function AnimatedBackground() {
       ctx.stroke();
       ctx.shadowBlur = 0;
 
-      // Random micro-lightning along electric cables
-      if (electric && Math.random() < 0.35) {
-        const segIdx = Math.floor(Math.random() * (ch.points.length - 1));
-        const t = Math.random();
-        const pA = ch.points[segIdx];
-        const pB = ch.points[segIdx + 1];
-        const sx = (pA.xR + (pB.xR - pA.xR) * t) * width;
-        const sy = (pA.yR + (pB.yR - pA.yR) * t) * height;
-
-        // Draw jagged lightning bolt
-        ctx.beginPath();
-        ctx.moveTo(sx, sy);
-        let lx = sx, ly = sy;
-        const branches = 2 + Math.floor(Math.random() * 3);
-        for (let b = 0; b < branches; b++) {
-          lx += (Math.random() - 0.5) * 14;
-          ly += (Math.random() - 0.5) * 14;
-          ctx.lineTo(lx, ly);
-        }
-        ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = 0.8;
-        ctx.shadowColor = ch.color;
-        ctx.shadowBlur = 6;
-        ctx.stroke();
-        ctx.shadowBlur = 0;
-      }
-
       // Flowing Pulse Packets
       ch.pulses.forEach((pVal) => {
         const prog = (pVal + tick * ch.speed) % 1.0;
         const pt = getPointAlongPath(ch.points, prog);
 
-        // Main pulse glow
         ctx.beginPath();
         ctx.arc(pt.x, pt.y, ch.width * 1.3, 0, Math.PI * 2);
         ctx.fillStyle = '#ffffff';
@@ -596,49 +502,16 @@ export default function AnimatedBackground() {
         ctx.shadowBlur = electric ? 18 : 12;
         ctx.fill();
         ctx.shadowBlur = 0;
-
-        if (electric) {
-          // Electric corona discharge halo
-          const coronaRadius = ch.width * 2.5 + Math.sin(tick * 12 + pVal * 30) * 3;
-          ctx.beginPath();
-          ctx.arc(pt.x, pt.y, coronaRadius, 0, Math.PI * 2);
-          ctx.strokeStyle = `rgba(255, 255, 255, ${0.15 + Math.random() * 0.1})`;
-          ctx.lineWidth = 0.5;
-          ctx.stroke();
-
-          // Multi-branch spark arcs radiating from pulse
-          const sparkCount = 2 + Math.floor(Math.random() * 3);
-          for (let s = 0; s < sparkCount; s++) {
-            const angle = Math.random() * Math.PI * 2;
-            const len = 6 + Math.random() * 10;
-            ctx.beginPath();
-            ctx.moveTo(pt.x, pt.y);
-            let sx2 = pt.x + Math.cos(angle) * len * 0.5;
-            let sy2 = pt.y + Math.sin(angle) * len * 0.5;
-            ctx.lineTo(sx2, sy2);
-            sx2 += (Math.random() - 0.5) * 8;
-            sy2 += (Math.random() - 0.5) * 8;
-            ctx.lineTo(sx2, sy2);
-            ctx.strokeStyle = ch.color === '#ef4444' ? '#ff6b6b' : '#fffbe6';
-            ctx.lineWidth = 0.7;
-            ctx.shadowColor = ch.color;
-            ctx.shadowBlur = 4;
-            ctx.stroke();
-            ctx.shadowBlur = 0;
-          }
-        }
       });
 
-      // Label at start
       const startP = ch.points[0];
       ctx.fillStyle = ch.color;
-      ctx.font = '7px JetBrains Mono, monospace';
+      ctx.font = '8px JetBrains Mono, monospace';
       ctx.fillText(ch.name, startP.xR * width + 6, startP.yR * height + 10);
 
       ctx.restore();
     };
 
-    // Helper: Draw Node Chamber / Substation
     const drawUtilityNode = (node) => {
       const nx = node.xR * width;
       const ny = node.yR * height;
@@ -647,7 +520,6 @@ export default function AnimatedBackground() {
       const pulse = (Math.sin(tick * 3.5 + node.xR * 20) + 1) * 0.5;
 
       if (node.type === 'electric') {
-        // Substation Box
         ctx.fillStyle = 'rgba(251, 191, 36, 0.15)';
         ctx.strokeStyle = node.color;
         ctx.lineWidth = 1.2;
@@ -661,7 +533,6 @@ export default function AnimatedBackground() {
         ctx.shadowBlur = 10;
         ctx.fill();
       } else {
-        // Round Manhole Chamber
         ctx.beginPath();
         ctx.arc(nx, ny, 4.5 + pulse * 3, 0, Math.PI * 2);
         ctx.strokeStyle = node.color;
@@ -676,7 +547,6 @@ export default function AnimatedBackground() {
         ctx.fill();
       }
 
-      // Micro Labels
       ctx.fillStyle = '#ffffff';
       ctx.font = '8px JetBrains Mono, monospace';
       ctx.shadowBlur = 0;
@@ -688,38 +558,62 @@ export default function AnimatedBackground() {
       ctx.restore();
     };
 
-    // Helper: Draw 3D Holographic Building
-    const drawHoloBuilding = (b) => {
+    // ── 6. REALISTIC ARCHITECTURAL BUILDING RENDERER ──
+    const drawRealisticBuilding = (b) => {
       const bx = b.xR * width;
       const by = b.yR * height;
       const bw = b.w;
       const bh = b.h;
-      const isoX = bw * 0.5;
-      const isoY = bw * 0.25;
+      const isoX = bw * 0.40; // 3D depth X
+      const isoY = bw * 0.20; // 3D depth Y
 
       ctx.save();
-      ctx.strokeStyle = b.color;
+
+      // ── Ground Ambient Shadow ──
+      const groundShadowGrad = ctx.createRadialGradient(
+        bx + bw * 0.5, by + 10, 10,
+        bx + bw * 0.5, by + 10, bw * 0.9
+      );
+      groundShadowGrad.addColorStop(0, 'rgba(0, 0, 0, 0.7)');
+      groundShadowGrad.addColorStop(1, 'transparent');
+      ctx.fillStyle = groundShadowGrad;
+      ctx.beginPath();
+      ctx.ellipse(bx + bw * 0.5, by + 6, bw * 0.7, 18, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // ── Ground Plaza / Sidewalk Slab ──
+      ctx.fillStyle = '#1e293b';
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.25)';
       ctx.lineWidth = 1;
-      ctx.fillStyle = 'rgba(8, 14, 28, 0.4)';
-
       ctx.beginPath();
-      ctx.moveTo(bx, by);
-      ctx.lineTo(bx + bw, by);
-      ctx.lineTo(bx + bw, by - bh);
-      ctx.lineTo(bx, by - bh);
+      ctx.moveTo(bx - 12, by + 4);
+      ctx.lineTo(bx + bw + 12, by + 4);
+      ctx.lineTo(bx + bw + isoX + 10, by - isoY + 4);
+      ctx.lineTo(bx + isoX - 10, by - isoY + 4);
       ctx.closePath();
       ctx.fill();
       ctx.stroke();
 
+      // ── Building Base Volume: Front Facade ──
+      const frontGrad = ctx.createLinearGradient(bx, by - bh, bx + bw, by);
+      frontGrad.addColorStop(0, '#152033');
+      frontGrad.addColorStop(0.5, b.wallColor);
+      frontGrad.addColorStop(1, '#090e1a');
+      ctx.fillStyle = frontGrad;
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.35)';
+      ctx.lineWidth = 1;
+
       ctx.beginPath();
-      ctx.moveTo(bx, by - bh);
-      ctx.lineTo(bx + bw, by - bh);
-      ctx.lineTo(bx + bw + isoX, by - bh - isoY);
-      ctx.lineTo(bx + isoX, by - bh - isoY);
-      ctx.closePath();
-      ctx.fillStyle = 'rgba(56, 189, 248, 0.04)';
+      ctx.rect(bx, by - bh, bw, bh);
       ctx.fill();
       ctx.stroke();
+
+      // ── Building Side Facade (3D Depth with Shading) ──
+      const sideGrad = ctx.createLinearGradient(bx + bw, by, bx + bw + isoX, by - bh - isoY);
+      sideGrad.addColorStop(0, '#0a101d');
+      sideGrad.addColorStop(1, b.sideWallColor);
+      ctx.fillStyle = sideGrad;
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.2)';
 
       ctx.beginPath();
       ctx.moveTo(bx + bw, by);
@@ -727,105 +621,401 @@ export default function AnimatedBackground() {
       ctx.lineTo(bx + bw + isoX, by - bh - isoY);
       ctx.lineTo(bx + bw, by - bh);
       ctx.closePath();
-      ctx.fillStyle = 'rgba(37, 99, 235, 0.03)';
       ctx.fill();
       ctx.stroke();
 
+      // ── Roof Slab (3D Top) ──
+      const roofGrad = ctx.createLinearGradient(bx, by - bh, bx + bw + isoX, by - bh - isoY);
+      roofGrad.addColorStop(0, b.roofColor);
+      roofGrad.addColorStop(1, '#152238');
+      ctx.fillStyle = roofGrad;
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.4)';
+
+      ctx.beginPath();
+      ctx.moveTo(bx, by - bh);
+      ctx.lineTo(bx + bw, by - bh);
+      ctx.lineTo(bx + bw + isoX, by - bh - isoY);
+      ctx.lineTo(bx + isoX, by - bh - isoY);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // ── Architectural Vertical Mullions / Fins ──
+      const colW = bw / b.cols;
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.06)';
+      ctx.lineWidth = 1;
+      for (let c = 1; c < b.cols; c++) {
+        const cx = bx + c * colW;
+        ctx.beginPath();
+        ctx.moveTo(cx, by - bh);
+        ctx.lineTo(cx, by);
+        ctx.stroke();
+      }
+
+      // Side facade floor lines
       const floorH = bh / b.floors;
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.08)';
       for (let f = 1; f < b.floors; f++) {
         const fy = by - f * floorH;
+        // Front floor line
         ctx.beginPath();
         ctx.moveTo(bx, fy);
         ctx.lineTo(bx + bw, fy);
-        ctx.lineTo(bx + bw + isoX, fy - isoY);
-        ctx.strokeStyle = 'rgba(56, 189, 248, 0.08)';
         ctx.stroke();
 
-        if (f % 2 === 0) {
-          ctx.fillStyle = 'rgba(56, 189, 248, 0.35)';
-          ctx.fillRect(bx + bw * 0.5 - 2, fy - 1, 4, 2);
+        // Side floor line
+        ctx.beginPath();
+        ctx.moveTo(bx + bw, fy);
+        ctx.lineTo(bx + bw + isoX, fy - isoY);
+        ctx.stroke();
+      }
+
+      // ── REALISTIC WINDOWS & BALCONIES ──
+      const winPaddingX = colW * 0.18;
+      const winW = colW * 0.64;
+      const winH = floorH * 0.58;
+      const winMarginY = floorH * 0.22;
+
+      for (let f = 1; f < b.floors; f++) {
+        const fy = by - f * floorH;
+
+        for (let c = 0; c < b.cols; c++) {
+          const wx = bx + c * colW + winPaddingX;
+          const wy = fy + winMarginY;
+
+          // Deterministic seed for this window
+          const winSeed = b.seed + f * 37 + c * 13;
+          const randVal = seededRandom(winSeed);
+
+          // Window states: 0=Warm Light, 1=Amber Gold, 2=Cool Sky Blue, 3=Dark/Reflective
+          if (randVal > 0.42) {
+            // Lit Window
+            let winColor = '#ffd27d'; // Default warm apartment light
+            let glowAlpha = 0.65;
+
+            if (randVal > 0.82) {
+              winColor = '#93c5fd'; // Cool modern LED/TV glow
+              glowAlpha = 0.55;
+            } else if (randVal > 0.65) {
+              winColor = '#fbbf24'; // Warm amber chandelier
+              glowAlpha = 0.75;
+            }
+
+            // Subtle breathing glow
+            const breathe = Math.sin(tick * 2 + winSeed) * 0.08;
+            ctx.fillStyle = winColor;
+            ctx.shadowColor = winColor;
+            ctx.shadowBlur = 6;
+            ctx.fillRect(wx, wy, winW, winH);
+            ctx.shadowBlur = 0;
+
+            // Window division frames
+            ctx.strokeStyle = 'rgba(15, 23, 42, 0.6)';
+            ctx.lineWidth = 0.7;
+            ctx.strokeRect(wx, wy, winW, winH);
+            ctx.beginPath();
+            ctx.moveTo(wx + winW * 0.5, wy);
+            ctx.lineTo(wx + winW * 0.5, wy + winH);
+            ctx.stroke();
+
+            // Balcony for some floors
+            if (b.hasBalconies && f % 2 === 0 && (c === 0 || c === b.cols - 1 || c === Math.floor(b.cols / 2))) {
+              // Balcony slab
+              ctx.fillStyle = '#334155';
+              ctx.fillRect(wx - 2, wy + winH + 1, winW + 4, 3);
+
+              // Glass balcony railing
+              ctx.fillStyle = 'rgba(56, 189, 248, 0.35)';
+              ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+              ctx.lineWidth = 0.6;
+              ctx.fillRect(wx - 2, wy + winH - 3, winW + 4, 4);
+              ctx.strokeRect(wx - 2, wy + winH - 3, winW + 4, 4);
+            }
+          } else {
+            // Dark Reflective Glass Window
+            ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
+            ctx.fillRect(wx, wy, winW, winH);
+
+            // Reflection sheen
+            ctx.strokeStyle = 'rgba(56, 189, 248, 0.12)';
+            ctx.lineWidth = 0.6;
+            ctx.strokeRect(wx, wy, winW, winH);
+          }
         }
       }
 
-      // Foundation Slab Basement Drop Line
+      // ── GROUND FLOOR: LUXURY RETAIL / LOBBY ENTRANCE ──
+      const lobbyH = floorH * 1.3;
+      const lobbyY = by - lobbyH;
+
+      // Illuminated Lobby Storefront Glass
+      const lobbyGrad = ctx.createLinearGradient(bx, lobbyY, bx + bw, by);
+      lobbyGrad.addColorStop(0, 'rgba(251, 191, 36, 0.45)');
+      lobbyGrad.addColorStop(0.5, 'rgba(56, 189, 248, 0.35)');
+      lobbyGrad.addColorStop(1, 'rgba(251, 191, 36, 0.40)');
+      ctx.fillStyle = lobbyGrad;
+      ctx.fillRect(bx + 4, lobbyY + 4, bw - 8, lobbyH - 4);
+
+      // Entrance Portico Canopy
+      const canopyW = bw * 0.45;
+      const canopyX = bx + (bw - canopyW) * 0.5;
+      ctx.fillStyle = b.accentColor;
+      ctx.shadowColor = b.accentColor;
+      ctx.shadowBlur = 8;
+      ctx.fillRect(canopyX, lobbyY + lobbyH * 0.4, canopyW, 3);
+      ctx.shadowBlur = 0;
+
+      // Canopy Downlight Spotlights
+      ctx.fillStyle = '#ffffff';
       ctx.beginPath();
-      ctx.moveTo(bx, by);
-      ctx.lineTo(bx, by + 16);
-      ctx.lineTo(bx + bw, by + 16);
-      ctx.lineTo(bx + bw, by);
-      ctx.strokeStyle = 'rgba(56, 189, 248, 0.35)';
+      ctx.arc(canopyX + canopyW * 0.25, lobbyY + lobbyH * 0.4 + 3, 1.5, 0, Math.PI * 2);
+      ctx.arc(canopyX + canopyW * 0.75, lobbyY + lobbyH * 0.4 + 3, 1.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Downlight Light Cones
+      const spotGrad = ctx.createLinearGradient(canopyX, lobbyY + lobbyH * 0.4, canopyX, by);
+      spotGrad.addColorStop(0, 'rgba(255, 230, 150, 0.35)');
+      spotGrad.addColorStop(1, 'transparent');
+      ctx.fillStyle = spotGrad;
+      ctx.beginPath();
+      ctx.moveTo(canopyX + 4, lobbyY + lobbyH * 0.4 + 3);
+      ctx.lineTo(canopyX + canopyW - 4, lobbyY + lobbyH * 0.4 + 3);
+      ctx.lineTo(canopyX + canopyW + 8, by);
+      ctx.lineTo(canopyX - 8, by);
+      ctx.closePath();
+      ctx.fill();
+
+      // Entrance Revolving Doors / Signage
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 7px Inter, sans-serif';
+      ctx.fillText('RECEPTION // ВХОД', canopyX + 8, lobbyY + lobbyH * 0.32);
+
+      // ── ROOFTOP PENTHOUSE & ARCHITECTURAL CROWN ──
+      if (b.hasPenthouse) {
+        const pentW = bw * 0.65;
+        const pentH = 22;
+        const pentX = bx + (bw - pentW) * 0.5;
+        const pentY = by - bh - pentH;
+
+        // Penthouse Front
+        ctx.fillStyle = '#1e293b';
+        ctx.strokeStyle = b.accentColor;
+        ctx.lineWidth = 1;
+        ctx.fillRect(pentX, pentY, pentW, pentH);
+        ctx.strokeRect(pentX, pentY, pentW, pentH);
+
+        // Penthouse Floor-to-Ceiling Panoramic Windows (lit)
+        const pWinGrad = ctx.createLinearGradient(pentX, pentY, pentX + pentW, pentY);
+        pWinGrad.addColorStop(0, '#ffd27d');
+        pWinGrad.addColorStop(0.5, '#fef08a');
+        pWinGrad.addColorStop(1, '#93c5fd');
+        ctx.fillStyle = pWinGrad;
+        ctx.shadowColor = '#ffd27d';
+        ctx.shadowBlur = 8;
+        ctx.fillRect(pentX + 6, pentY + 4, pentW - 12, pentH - 8);
+        ctx.shadowBlur = 0;
+
+        // Rooftop HVAC machinery box
+        ctx.fillStyle = '#0f172a';
+        ctx.strokeStyle = '#475569';
+        ctx.fillRect(pentX + 10, pentY - 8, 20, 8);
+        ctx.strokeRect(pentX + 10, pentY - 8, 20, 8);
+      }
+
+      // ── VERTICAL FACADE LED ACCENT LIGHT STRIP ──
+      ctx.strokeStyle = b.accentColor;
+      ctx.lineWidth = 2.0;
+      ctx.shadowColor = b.accentColor;
+      ctx.shadowBlur = 10;
+      ctx.beginPath();
+      ctx.moveTo(bx + 2, by - bh);
+      ctx.lineTo(bx + 2, by);
       ctx.stroke();
 
-      // Building Label Tag
-      ctx.fillStyle = '#38bdf8';
-      ctx.font = '8px JetBrains Mono, monospace';
-      ctx.fillText(b.name, bx + 6, by - bh + 14);
+      ctx.beginPath();
+      ctx.moveTo(bx + bw - 2, by - bh);
+      ctx.lineTo(bx + bw - 2, by);
+      ctx.stroke();
+      ctx.shadowBlur = 0;
 
+      // ── ROOFTOP SPIRE & AVIATION WARNING BEACON ──
       if (b.spire > 0) {
-        const topCenterX = bx + bw * 0.5 + isoX * 0.5;
-        const topCenterY = by - bh - isoY * 0.5;
+        const topCenterX = bx + bw * 0.5;
+        const topCenterY = b.hasPenthouse ? by - bh - 22 : by - bh;
 
+        // Spire Mast
         ctx.beginPath();
         ctx.moveTo(topCenterX, topCenterY);
         ctx.lineTo(topCenterX, topCenterY - b.spire);
-        ctx.strokeStyle = '#38bdf8';
-        ctx.lineWidth = 1.2;
+        ctx.strokeStyle = '#cbd5e1';
+        ctx.lineWidth = 1.6;
         ctx.stroke();
 
-        const pulse = (Math.sin(tick * 4 + b.xR * 20) + 1) * 0.5;
+        // Pulsing Red / White FAA Warning Beacon Light
+        const beaconPulse = Math.sin(tick * 5 + b.seed) > 0.2;
+        const beaconColor = beaconPulse ? '#ef4444' : '#ffffff';
         ctx.beginPath();
-        ctx.arc(topCenterX, topCenterY - b.spire, 1.8 + pulse * 2, 0, Math.PI * 2);
-        ctx.fillStyle = pulse > 0.4 ? '#38bdf8' : '#fbbf24';
-        ctx.shadowColor = '#38bdf8';
-        ctx.shadowBlur = 10;
+        ctx.arc(topCenterX, topCenterY - b.spire, 3.0, 0, Math.PI * 2);
+        ctx.fillStyle = beaconColor;
+        ctx.shadowColor = beaconColor;
+        ctx.shadowBlur = beaconPulse ? 14 : 4;
         ctx.fill();
         ctx.shadowBlur = 0;
+
+        // Beacon light flash flare
+        if (beaconPulse) {
+          ctx.strokeStyle = 'rgba(239, 68, 68, 0.4)';
+          ctx.lineWidth = 0.8;
+          ctx.beginPath();
+          ctx.moveTo(topCenterX - 12, topCenterY - b.spire);
+          ctx.lineTo(topCenterX + 12, topCenterY - b.spire);
+          ctx.moveTo(topCenterX, topCenterY - b.spire - 12);
+          ctx.lineTo(topCenterX, topCenterY - b.spire + 12);
+          ctx.stroke();
+        }
       }
+
+      // ── ARCHITECTURAL BADGE / BUILDING TITLE TAG ──
+      const badgeY = by - bh - (b.hasPenthouse ? 36 : 14);
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
+      ctx.strokeStyle = b.accentColor;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.roundRect(bx - 2, badgeY - 14, bw + 4, 22, 6);
+      ctx.fill();
+      ctx.stroke();
+
+      // Glowing dot
+      ctx.beginPath();
+      ctx.arc(bx + 8, badgeY - 3, 3, 0, Math.PI * 2);
+      ctx.fillStyle = b.accentColor;
+      ctx.shadowColor = b.accentColor;
+      ctx.shadowBlur = 8;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+
+      // Title & Subtitle
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 9px Inter, sans-serif';
+      ctx.fillText(b.name, bx + 16, badgeY - 5);
+
+      ctx.fillStyle = b.accentColor;
+      ctx.font = '7px JetBrains Mono, monospace';
+      ctx.fillText(b.subName, bx + 16, badgeY + 4);
 
       ctx.restore();
     };
 
-    // Helper: Draw Tower Crane
-    const drawCrane = (c) => {
-      const cx = c.bxR * width + 40;
-      const cy = c.byR * height - c.bh - 15;
-      const mastH = 45;
-      const armRot = Math.sin(tick * 0.5 + c.bxR * 10) * 0.4;
+    // ── 7. DETAILED CONSTRUCTION TOWER CRANE ──
+    const drawRealisticCrane = (c) => {
+      const cx = c.bxR * width + 50;
+      const cy = c.byR * height - c.bh - 10;
+      const mastH = 65;
+      const armRot = Math.sin(tick * 0.4 + c.bxR * 10) * 0.35;
 
       ctx.save();
       ctx.strokeStyle = c.color;
-      ctx.lineWidth = 1;
+      ctx.lineWidth = 1.4;
 
+      // Crane Mast Truss (2 vertical poles with X braces)
+      const mastW = 8;
       ctx.beginPath();
-      ctx.moveTo(cx - 3, cy);
-      ctx.lineTo(cx - 3, cy - mastH);
-      ctx.lineTo(cx + 3, cy - mastH);
-      ctx.lineTo(cx + 3, cy);
+      ctx.moveTo(cx - mastW / 2, cy);
+      ctx.lineTo(cx - mastW / 2, cy - mastH);
+      ctx.moveTo(cx + mastW / 2, cy);
+      ctx.lineTo(cx + mastW / 2, cy - mastH);
       ctx.stroke();
 
-      for (let y = cy; y > cy - mastH; y -= 8) {
+      // Cross lattices
+      for (let y = cy; y > cy - mastH; y -= 10) {
         ctx.beginPath();
-        ctx.moveTo(cx - 3, y);
-        ctx.lineTo(cx + 3, y - 8);
+        ctx.moveTo(cx - mastW / 2, y);
+        ctx.lineTo(cx + mastW / 2, y - 10);
+        ctx.moveTo(cx + mastW / 2, y);
+        ctx.lineTo(cx - mastW / 2, y - 10);
         ctx.stroke();
       }
 
-      const armEndX = cx + Math.cos(armRot) * c.armLen;
-      const armEndY = cy - mastH + Math.sin(armRot) * (c.armLen * 0.2);
-      const counterEndX = cx - Math.cos(armRot) * (c.armLen * 0.35);
-      const counterEndY = cy - mastH - Math.sin(armRot) * (c.armLen * 0.1);
+      // Operator Cabin (Glass with warm light inside)
+      ctx.fillStyle = '#ffd27d';
+      ctx.shadowColor = '#ffd27d';
+      ctx.shadowBlur = 8;
+      ctx.fillRect(cx - 7, cy - mastH + 4, 6, 8);
+      ctx.shadowBlur = 0;
+      ctx.strokeStyle = '#334155';
+      ctx.strokeRect(cx - 7, cy - mastH + 4, 6, 8);
 
+      // Horizontal Jib & Counter-Jib
+      const armEndX = cx + Math.cos(armRot) * c.armLen;
+      const armEndY = cy - mastH + Math.sin(armRot) * (c.armLen * 0.15);
+      const counterEndX = cx - Math.cos(armRot) * (c.armLen * 0.38);
+      const counterEndY = cy - mastH - Math.sin(armRot) * (c.armLen * 0.08);
+
+      // Main boom truss
       ctx.beginPath();
       ctx.moveTo(counterEndX, counterEndY);
       ctx.lineTo(armEndX, armEndY);
+      ctx.moveTo(counterEndX, counterEndY + 4);
+      ctx.lineTo(armEndX, armEndY + 4);
       ctx.stroke();
 
-      const apexY = cy - mastH - 12;
+      // Counterweight blocks
+      ctx.fillStyle = '#334155';
+      ctx.fillRect(counterEndX - 4, counterEndY - 2, 12, 10);
+
+      // Peak A-frame tower above mast
+      const apexY = cy - mastH - 18;
       ctx.beginPath();
-      ctx.arc(cx, apexY, 2, 0, Math.PI * 2);
+      ctx.moveTo(cx - 4, cy - mastH);
+      ctx.lineTo(cx, apexY);
+      ctx.lineTo(cx + 4, cy - mastH);
+      ctx.stroke();
+
+      // Stay cables from apex
+      ctx.beginPath();
+      ctx.moveTo(cx, apexY);
+      ctx.lineTo(armEndX * 0.6 + cx * 0.4, armEndY * 0.6 + (cy - mastH) * 0.4);
+      ctx.moveTo(cx, apexY);
+      ctx.lineTo(counterEndX, counterEndY);
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+      ctx.lineWidth = 0.8;
+      ctx.stroke();
+
+      // Flashing Crane Top Beacon
+      const cranePulse = Math.sin(tick * 6 + cx) > 0;
+      ctx.beginPath();
+      ctx.arc(cx, apexY, 2.5, 0, Math.PI * 2);
+      ctx.fillStyle = cranePulse ? '#ef4444' : '#fbbf24';
+      ctx.shadowColor = '#ef4444';
+      ctx.shadowBlur = cranePulse ? 12 : 2;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+
+      // Trolley, Cable & Hook
+      const trolleyT = 0.45 + Math.sin(tick * 0.3) * 0.25;
+      const trolleyX = cx + (armEndX - cx) * trolleyT;
+      const trolleyY = cy - mastH + (armEndY - (cy - mastH)) * trolleyT + 4;
+
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(trolleyX - 2, trolleyY, 4, 3);
+
+      // Swaying cable and hook
+      const cableLen = 45 + Math.sin(tick * 0.8) * 10;
+      const swayAngle = Math.sin(tick * 1.2) * 0.08;
+      const hookX = trolleyX + Math.sin(swayAngle) * cableLen;
+      const hookY = trolleyY + Math.cos(swayAngle) * cableLen;
+
+      ctx.beginPath();
+      ctx.moveTo(trolleyX, trolleyY + 3);
+      ctx.lineTo(hookX, hookY);
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+      ctx.lineWidth = 0.8;
+      ctx.stroke();
+
+      // Hook block & load
       ctx.fillStyle = '#fbbf24';
-      ctx.shadowColor = '#fbbf24';
-      ctx.shadowBlur = 8;
+      ctx.beginPath();
+      ctx.arc(hookX, hookY, 2.5, 0, Math.PI * 2);
       ctx.fill();
 
       ctx.restore();
@@ -853,8 +1043,8 @@ export default function AnimatedBackground() {
 
       // ── 2. VOLUMETRIC AURA LIGHT POOLS ──
       const auras = [
-        { x: 0.20, y: 0.30, r: 0.55, color: 'rgba(37, 99, 235, 0.22)' },
-        { x: 0.80, y: 0.35, r: 0.50, color: 'rgba(2, 132, 199, 0.20)' },
+        { x: 0.15, y: 0.35, r: 0.55, color: 'rgba(37, 99, 235, 0.22)' },
+        { x: 0.85, y: 0.35, r: 0.50, color: 'rgba(2, 132, 199, 0.20)' },
         { x: 0.50, y: 0.85, r: 0.52, color: 'rgba(6, 182, 212, 0.18)' }
       ];
       auras.forEach((a) => {
@@ -874,10 +1064,10 @@ export default function AnimatedBackground() {
         ctx.restore();
       });
 
-      // ── 3. 3D HOLOGRAPHIC BUILDINGS & CRANES (Desktop only) ──
+      // ── 3. REALISTIC ARCHITECTURAL BUILDINGS & CRANES (Desktop only) ──
       if (!isMobile) {
-        cityBuildings.forEach(b => drawHoloBuilding(b));
-        cranes.forEach(c => drawCrane(c));
+        cityBuildings.forEach(b => drawRealisticBuilding(b));
+        cranes.forEach(c => drawRealisticCrane(c));
       }
 
       // ── 4. COMPLETE ALL-BUILDING WATER LABYRINTH & ELECTRIC GRID (Desktop only) ──
@@ -889,61 +1079,61 @@ export default function AnimatedBackground() {
 
       // ── 5. 3D TOPOGRAPHIC BLUEPRINT ELEVATION GRID (Desktop only) ──
       if (!isMobile) {
-      ctx.save();
-      ctx.lineWidth = 0.8;
-      const rows = 16;
-      const cols = 22;
-      const gridStartX = -width * 0.1;
-      const gridEndX = width * 1.1;
-      const gridStartY = height * 0.52;
-      const gridEndY = height * 1.12;
+        ctx.save();
+        ctx.lineWidth = 0.8;
+        const rows = 16;
+        const cols = 22;
+        const gridStartX = -width * 0.1;
+        const gridEndX = width * 1.1;
+        const gridStartY = height * 0.52;
+        const gridEndY = height * 1.12;
 
-      for (let c = 0; c <= cols; c++) {
-        const colPercent = c / cols;
-        const x = gridStartX + (gridEndX - gridStartX) * colPercent;
-
-        ctx.beginPath();
-        for (let r = 0; r <= rows; r++) {
-          const rowPercent = r / rows;
-          const y = gridStartY + (gridEndY - gridStartY) * rowPercent;
-          const wave = Math.sin(colPercent * 5 + tick * 0.8) * Math.cos(rowPercent * 4 - tick * 0.6) * 16;
-
-          const perspectiveScale = 0.5 + rowPercent * 0.7;
-          const projX = width * 0.5 + (x - width * 0.5) * perspectiveScale;
-          const projY = y + wave * perspectiveScale;
-
-          if (r === 0) ctx.moveTo(projX, projY);
-          else ctx.lineTo(projX, projY);
-        }
-
-        const alpha = Math.max(0.02, (1 - Math.abs(colPercent - 0.5) * 1.2) * 0.10);
-        ctx.strokeStyle = `rgba(56, 189, 248, ${alpha})`;
-        ctx.stroke();
-      }
-
-      for (let r = 0; r <= rows; r++) {
-        const rowPercent = r / rows;
-        const y = gridStartY + (gridEndY - gridStartY) * rowPercent;
-        const perspectiveScale = 0.5 + rowPercent * 0.7;
-
-        ctx.beginPath();
         for (let c = 0; c <= cols; c++) {
           const colPercent = c / cols;
           const x = gridStartX + (gridEndX - gridStartX) * colPercent;
-          const wave = Math.sin(colPercent * 5 + tick * 0.8) * Math.cos(rowPercent * 4 - tick * 0.6) * 16;
 
-          const projX = width * 0.5 + (x - width * 0.5) * perspectiveScale;
-          const projY = y + wave * perspectiveScale;
+          ctx.beginPath();
+          for (let r = 0; r <= rows; r++) {
+            const rowPercent = r / rows;
+            const y = gridStartY + (gridEndY - gridStartY) * rowPercent;
+            const wave = Math.sin(colPercent * 5 + tick * 0.8) * Math.cos(rowPercent * 4 - tick * 0.6) * 16;
 
-          if (c === 0) ctx.moveTo(projX, projY);
-          else ctx.lineTo(projX, projY);
+            const perspectiveScale = 0.5 + rowPercent * 0.7;
+            const projX = width * 0.5 + (x - width * 0.5) * perspectiveScale;
+            const projY = y + wave * perspectiveScale;
+
+            if (r === 0) ctx.moveTo(projX, projY);
+            else ctx.lineTo(projX, projY);
+          }
+
+          const alpha = Math.max(0.02, (1 - Math.abs(colPercent - 0.5) * 1.2) * 0.10);
+          ctx.strokeStyle = `rgba(56, 189, 248, ${alpha})`;
+          ctx.stroke();
         }
 
-        ctx.strokeStyle = `rgba(37, 99, 235, ${0.02 + rowPercent * 0.08})`;
-        ctx.stroke();
+        for (let r = 0; r <= rows; r++) {
+          const rowPercent = r / rows;
+          const y = gridStartY + (gridEndY - gridStartY) * rowPercent;
+          const perspectiveScale = 0.5 + rowPercent * 0.7;
+
+          ctx.beginPath();
+          for (let c = 0; c <= cols; c++) {
+            const colPercent = c / cols;
+            const x = gridStartX + (gridEndX - gridStartX) * colPercent;
+            const wave = Math.sin(colPercent * 5 + tick * 0.8) * Math.cos(rowPercent * 4 - tick * 0.6) * 16;
+
+            const projX = width * 0.5 + (x - width * 0.5) * perspectiveScale;
+            const projY = y + wave * perspectiveScale;
+
+            if (c === 0) ctx.moveTo(projX, projY);
+            else ctx.lineTo(projX, projY);
+          }
+
+          ctx.strokeStyle = `rgba(37, 99, 235, ${0.02 + rowPercent * 0.08})`;
+          ctx.stroke();
+        }
+        ctx.restore();
       }
-      ctx.restore();
-      } // end !isMobile
 
       // ── 6. SHOOTING METEORS ──
       spawnComet();
@@ -1007,7 +1197,7 @@ export default function AnimatedBackground() {
         }
       });
 
-      // ── 8. STRUCTURAL QUANTUM TRUSS CONSTELLATION ──
+      // ── 8. PARTICLES ──
       for (let i = 0; i < particles.length; i++) {
         const p = particles[i];
         p.pulseVal += p.pulseSpeed;
@@ -1024,15 +1214,6 @@ export default function AnimatedBackground() {
           const force = (1 - mDist / 200) * 1.0;
           p.x += (mouse.x - p.x) * force * 0.04;
           p.y += (mouse.y - p.y) * force * 0.04;
-
-          if (mDist < 120) {
-            ctx.beginPath();
-            ctx.moveTo(p.x, p.y);
-            ctx.lineTo(mouse.x, mouse.y);
-            ctx.strokeStyle = `rgba(56, 189, 248, ${(1 - mDist / 120) * 0.45})`;
-            ctx.lineWidth = 0.8;
-            ctx.stroke();
-          }
         }
 
         const pRad = p.radius + Math.sin(p.pulseVal) * 0.6;
@@ -1044,20 +1225,6 @@ export default function AnimatedBackground() {
         ctx.shadowBlur = pRad > 1.8 ? 10 : 0;
         ctx.fill();
         ctx.restore();
-
-        for (let j = i + 1; j < particles.length; j++) {
-          const p2 = particles[j];
-          const dist = Math.hypot(p.x - p2.x, p.y - p2.y);
-          if (dist < 80) {
-            const lineAlpha = (1 - dist / 80) * 0.20;
-            ctx.beginPath();
-            ctx.moveTo(p.x, p.y);
-            ctx.lineTo(p2.x, p2.y);
-            ctx.strokeStyle = `rgba(56, 189, 248, ${lineAlpha})`;
-            ctx.lineWidth = 0.6;
-            ctx.stroke();
-          }
-        }
       }
 
       animationFrameId = requestAnimationFrame(render);
