@@ -127,10 +127,10 @@ export default function MobileAppBanner() {
 
                 {/* Mobile Screen Content - LIVE INTERACTIVE PLATFORM DEMO WITH OUR WEBSITE BACKGROUND */}
                 <div className="phone-screen-content">
-                  {/* Website Cyber Grid & Glowing Orbs Inside Phone Screen */}
+                  {/* Website Cyber Grid & Subtle Crisp Ambient Accents Inside Phone Screen */}
                   <div className="app-cyber-grid opacity-50"></div>
-                  <div className="app-glow-orb orb-gold-v2" style={{ width: '150px', height: '150px', filter: 'blur(50px)', opacity: 0.35 }}></div>
-                  <div className="app-glow-orb orb-purple-v2" style={{ width: '150px', height: '150px', filter: 'blur(50px)', opacity: 0.35, right: '-20px', bottom: '10px' }}></div>
+                  <div className="app-glow-orb orb-gold-v2" style={{ width: '150px', height: '150px', opacity: 0.15 }}></div>
+                  <div className="app-glow-orb orb-purple-v2" style={{ width: '150px', height: '150px', opacity: 0.15, right: '-20px', bottom: '10px' }}></div>
 
                   {/* Status Bar */}
                   <div className="phone-status-bar">

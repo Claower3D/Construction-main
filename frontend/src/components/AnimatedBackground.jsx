@@ -670,11 +670,14 @@ export default function AnimatedBackground() {
         ctx.stroke();
       }
 
-      // ── REALISTIC DYNAMIC WINDOWS (TURNING ON & OFF, FLICKERING, TV LIGHTS) ──
+      // ── CALM SEQUENTIAL DYNAMIC WINDOWS (ORGANIZED WAVES, RHYTHMIC STAIRWELLS & OCCASIONAL TOGGLES) ──
       const winPaddingX = colW * 0.18;
       const winW = colW * 0.64;
       const winH = floorH * 0.58;
       const winMarginY = floorH * 0.22;
+
+      // Stairwell / Elevator column index for this building
+      const stairCol = Math.floor(b.cols / 2);
 
       for (let f = 1; f < b.floors; f++) {
         const fy = by - f * floorH;
@@ -684,63 +687,73 @@ export default function AnimatedBackground() {
           const wy = fy + winMarginY;
 
           // Deterministic seed for this window
-          const winSeed = b.seed + f * 37 + c * 13;
+          const winSeed = b.seed + f * 43 + c * 17;
           const randVal = seededRandom(winSeed);
 
-          // Window Dynamic Behavior Classification
-          const isTogglingWindow = (winSeed % 3 === 0);  // ~33% of windows dynamically switch on/off
-          const isTvRoom = (winSeed % 7 === 0);          // ~14% of rooms have dynamic TV glow
-          const switchSpeed = 0.2 + (winSeed % 5) * 0.15; // Switching cycle speed
-          const phaseOffset = (winSeed * 17.13) % (Math.PI * 2);
-          const rawCycle = Math.sin(tick * switchSpeed + phaseOffset);
-
           let isLit = false;
-          let winColor = '#ffd27d'; // Warm apartment light
+          let winColor = '#ffd27d'; // Warm cozy apartment light
           let glowIntensity = 1.0;
 
-          if (isTvRoom) {
-            // TV room with live animated flickering/channel changing
+          const isStaircase = (c === stairCol);
+          const isTvRoom = (!isStaircase && winSeed % 11 === 0);
+          const isWaveWindow = (!isStaircase && winSeed % 4 === 0);
+
+          if (isStaircase) {
+            // ── 1. SEQUENTIAL STAIRWELL / ELEVATOR SHAFT LIGHT WAVE ──
+            // Light ascends smoothly floor-by-floor every 14 seconds in a calm sequence
+            const stairCycle = (tick * 0.5 + b.seed * 0.2) % (b.floors + 4);
+            const distFromElevator = Math.abs(stairCycle - f);
+            isLit = distFromElevator < 1.6;
+
+            winColor = '#e0f2fe'; // Cool bright stairwell LED
+            glowIntensity = isLit ? Math.max(0.6, 1.0 - distFromElevator * 0.25) : 0.2;
+          } else if (isTvRoom) {
+            // ── 2. TV / HOME THEATER (GENTLE OCCASIONAL SCREEN TINT) ──
             isLit = true;
-            const tvFlicker = Math.sin(tick * 9 + winSeed) * Math.cos(tick * 14 + winSeed * 2);
-            if (tvFlicker > 0.3) {
-              winColor = '#93c5fd'; // Cool LED TV screen
-            } else if (tvFlicker < -0.3) {
-              winColor = '#818cf8'; // Neon movie scene
+            const tvSlowFlicker = Math.sin(tick * 1.5 + winSeed) * Math.cos(tick * 2.2 + winSeed * 0.5);
+            if (tvSlowFlicker > 0.4) {
+              winColor = '#93c5fd'; // Cool movie scene
+            } else if (tvSlowFlicker < -0.4) {
+              winColor = '#a5b4fc'; // Violet cinema scene
             } else {
-              winColor = '#fef08a'; // Warm scene
+              winColor = '#fef08a'; // Warm amber scene
             }
-            glowIntensity = 0.55 + Math.abs(tvFlicker) * 0.45;
-          } else if (isTogglingWindow) {
-            // Living apartment where lights are turned ON and OFF over time
-            const threshold = 0.05 + ((winSeed % 4) - 2) * 0.15;
-            isLit = rawCycle > threshold;
+            glowIntensity = 0.65 + Math.abs(tvSlowFlicker) * 0.35;
+          } else if (isWaveWindow) {
+            // ── 3. SEQUENTIAL EVENING ARRIVAL WAVE (ACROSS FLOORS & ROOMS) ──
+            // Slow, structured rhythmic wave across building every 36 seconds
+            const waveSpeed = 0.035;
+            const spatialOffset = (f / b.floors) * 0.6 + (c / b.cols) * 0.4;
+            const wavePhase = (tick * waveSpeed + spatialOffset + (b.seed % 5) * 0.2) % 1.0;
 
-            // Realistic switch flicker when turning on/off
-            const distToThreshold = Math.abs(rawCycle - threshold);
-            if (distToThreshold < 0.06) {
-              // Rapid flicker during switch toggle
-              isLit = Math.sin(tick * 35 + winSeed * 5) > 0;
+            // Window stays on for ~70% of the cycle, off for ~30%
+            const threshold = 0.30;
+            isLit = wavePhase > threshold;
+
+            // Subtle, crisp switch flicker right at the moment of turning on/off
+            const distToEdge = Math.abs(wavePhase - threshold);
+            if (distToEdge < 0.006) {
+              isLit = Math.sin(tick * 30 + winSeed) > 0;
             }
 
-            if (winSeed % 2 === 0) {
-              winColor = '#fbbf24'; // Warm amber
-            } else {
-              winColor = '#ffe4a0'; // Soft warm white
-            }
-            glowIntensity = 0.75 + Math.sin(tick * 2.5 + winSeed) * 0.12;
+            if (winSeed % 3 === 0) winColor = '#fbbf24'; // Warm amber
+            else if (winSeed % 5 === 0) winColor = '#fef08a'; // Soft gold
+            else winColor = '#ffd27d'; // Warm white
+
+            glowIntensity = 0.75 + Math.sin(tick * 1.2 + winSeed) * 0.10;
           } else {
-            // Baseline steady windows (either on or dark)
-            const baselineLit = randVal > 0.42;
+            // ── 4. STEADY BASELINE RESIDENTS (65% LIT, 35% DARK) ──
+            const baselineLit = randVal > 0.35;
             isLit = baselineLit;
 
-            if (randVal > 0.82) {
-              winColor = '#93c5fd'; // Cool workspace
-            } else if (randVal > 0.65) {
-              winColor = '#fbbf24'; // Amber lamp
+            if (randVal > 0.85) {
+              winColor = '#93c5fd'; // Modern workspace
+            } else if (randVal > 0.60) {
+              winColor = '#fbbf24'; // Amber chandelier
             } else {
-              winColor = '#ffd27d'; // Cozy living room
+              winColor = '#ffd27d'; // Cozy warm apartment
             }
-            glowIntensity = 0.70 + Math.sin(tick * 2 + winSeed) * 0.10;
+            glowIntensity = 0.70 + Math.sin(tick * 0.8 + winSeed) * 0.06;
           }
 
           if (isLit) {
