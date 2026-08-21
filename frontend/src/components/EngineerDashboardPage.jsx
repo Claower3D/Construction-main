@@ -2457,43 +2457,64 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
 
                   ) : (
                     <>
-                      {/* WORKSPACE NAVIGATION TABS */}
-                      <div className="modal-nav-tabs" style={{ marginBottom: 0 }}>
-                        {!(editingEvent && editingEvent.isLead && evtStatus === 'В пути') && (
+                      {/* WORKSPACE NAVIGATION TABS & TOP SAVE BUTTON */}
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.75rem' }}>
+                        <div className="modal-nav-tabs" style={{ marginBottom: 0 }}>
+                          {!(editingEvent && editingEvent.isLead && evtStatus === 'В пути') && (
+                            <button
+                              type="button"
+                              className={`modal-nav-tab ${modalTab === 'stages' || modalTab === 'info' ? 'active' : ''}`}
+                              onClick={() => setModalTab('stages')}
+                            >
+                              🏗️ 1. Этапы ({evtStages.length})
+                            </button>
+                          )}
+                          {viewRole !== 'executor' && (
+                            <button
+                              type="button"
+                              className={`modal-nav-tab ${modalTab === 'estimate' ? 'active' : ''}`}
+                              onClick={() => setModalTab('estimate')}
+                            >
+                              📊 2. Смета {evtTotalSum > 0 ? `(${evtTotalSum.toLocaleString()} ₸)` : ''}
+                            </button>
+                          )}
+                          {!(editingEvent && editingEvent.isLead && evtStatus === 'В пути') && (
+                            <button
+                              type="button"
+                              className={`modal-nav-tab ${modalTab === 'photos' ? 'active' : ''}`}
+                              onClick={() => setModalTab('photos')}
+                            >
+                              📋 {viewRole !== 'executor' ? '3. Отчёт' : '2. Отчёт'} ({evtPhotos.length})
+                            </button>
+                          )}
+                          {editingEvent && editingEvent.isLead && evtStatus === 'В пути' && (
+                            <button
+                              type="button"
+                              className={`modal-nav-tab ${modalTab === 'executor' ? 'active' : ''}`}
+                              onClick={() => setModalTab('executor')}
+                              style={{ background: modalTab === 'executor' ? 'linear-gradient(90deg, #10b981, #059669)' : 'rgba(16, 185, 129, 0.1)', color: modalTab === 'executor' ? '#fff' : '#10b981', border: '1px solid #10b981' }}
+                            >
+                              🚀 Отправка
+                            </button>
+                          )}
+                        </div>
+
+                        {viewRole !== 'customer' && (
                           <button
-                            type="button"
-                            className={`modal-nav-tab ${modalTab === 'stages' || modalTab === 'info' ? 'active' : ''}`}
-                            onClick={() => setModalTab('stages')}
+                            type="submit"
+                            className="btn-submit-pink"
+                            style={{
+                              padding: '0.65rem 1.4rem',
+                              fontSize: '0.9rem',
+                              fontWeight: 800,
+                              background: 'linear-gradient(135deg, #0ea5e9, #2563eb)',
+                              border: '1px solid rgba(56, 189, 248, 0.5)',
+                              borderRadius: '12px',
+                              boxShadow: '0 4px 18px rgba(37, 99, 235, 0.4)',
+                              cursor: 'pointer'
+                            }}
                           >
-                            🏗️ 1. Этапы ({evtStages.length})
-                          </button>
-                        )}
-                        {viewRole !== 'executor' && (
-                          <button
-                            type="button"
-                            className={`modal-nav-tab ${modalTab === 'estimate' ? 'active' : ''}`}
-                            onClick={() => setModalTab('estimate')}
-                          >
-                            📊 2. Смета {evtTotalSum > 0 ? `(${evtTotalSum.toLocaleString()} ₸)` : ''}
-                          </button>
-                        )}
-                        {!(editingEvent && editingEvent.isLead && evtStatus === 'В пути') && (
-                          <button
-                            type="button"
-                            className={`modal-nav-tab ${modalTab === 'photos' ? 'active' : ''}`}
-                            onClick={() => setModalTab('photos')}
-                          >
-                            📋 {viewRole !== 'executor' ? '3. Отчёт' : '2. Отчёт'} ({evtPhotos.length})
-                          </button>
-                        )}
-                        {editingEvent && editingEvent.isLead && evtStatus === 'В пути' && (
-                          <button
-                            type="button"
-                            className={`modal-nav-tab ${modalTab === 'executor' ? 'active' : ''}`}
-                            onClick={() => setModalTab('executor')}
-                            style={{ background: modalTab === 'executor' ? 'linear-gradient(90deg, #10b981, #059669)' : 'rgba(16, 185, 129, 0.1)', color: modalTab === 'executor' ? '#fff' : '#10b981', border: '1px solid #10b981' }}
-                          >
-                            🚀 Отправка
+                            💾 {editingEvent ? 'Сохранить изменения' : 'Создать объект'}
                           </button>
                         )}
                       </div>
@@ -2501,67 +2522,6 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
               {/* TAB 1: UNIFIED STAGES SEQUENCE MANAGER */}
               {(modalTab === 'stages' || modalTab === 'info') && (
                 <div className="stages-list-container">
-                  {/* TWO MAIN ACTION BUTTONS: CREATE STAGE & COMPLETE STAGE */}
-                  {viewRole !== 'customer' && (
-                    <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1rem' }}>
-                      <button
-                        type="button"
-                        onClick={() => setIsAddingInlineStage(!isAddingInlineStage)}
-                        style={{
-                          flex: 1,
-                          padding: '0.8rem 1.25rem',
-                          background: 'linear-gradient(90deg, #38bdf8, #2563eb)',
-                          border: 'none',
-                          borderRadius: '12px',
-                          color: '#fff',
-                          fontWeight: 800,
-                          fontSize: '0.92rem',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: '0.5rem',
-                          boxShadow: '0 4px 18px rgba(56, 189, 248, 0.35)',
-                          transition: 'all 0.2s ease'
-                        }}
-                      >
-                        <span style={{ fontSize: '1.1rem' }}>➕</span> Создать этап
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const uncompletedIdx = evtStages.findIndex(s => s.status !== 'Завершено');
-                          if (uncompletedIdx !== -1) {
-                            const updated = [...evtStages];
-                            updated[uncompletedIdx].status = 'Завершено';
-                            setEvtStages(updated);
-                          } else if (evtStages.length > 0) {
-                            alert('Все этапы уже отмечены как завершённые!');
-                          }
-                        }}
-                        style={{
-                          flex: 1,
-                          padding: '0.8rem 1.25rem',
-                          background: 'linear-gradient(90deg, #10b981, #059669)',
-                          border: 'none',
-                          borderRadius: '12px',
-                          color: '#fff',
-                          fontWeight: 800,
-                          fontSize: '0.92rem',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: '0.5rem',
-                          boxShadow: '0 4px 18px rgba(16, 185, 129, 0.35)',
-                          transition: 'all 0.2s ease'
-                        }}
-                      >
-                        <span style={{ fontSize: '1.1rem' }}>✓</span> Завершить этап
-                      </button>
-                    </div>
-                  )}
 
                   {/* QUICK INLINE STAGE CREATION FORM */}
                   {viewRole !== 'customer' && isAddingInlineStage && (
@@ -2826,6 +2786,68 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                       </div>
                     ))}
                   </div>
+
+                  {/* TWO MAIN ACTION BUTTONS: CREATE STAGE & COMPLETE STAGE (MOVED TO BOTTOM) */}
+                  {viewRole !== 'customer' && (
+                    <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.25rem' }}>
+                      <button
+                        type="button"
+                        onClick={() => setIsAddingInlineStage(!isAddingInlineStage)}
+                        style={{
+                          flex: 1,
+                          padding: '0.8rem 1.25rem',
+                          background: 'linear-gradient(90deg, #38bdf8, #2563eb)',
+                          border: 'none',
+                          borderRadius: '12px',
+                          color: '#fff',
+                          fontWeight: 800,
+                          fontSize: '0.92rem',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '0.5rem',
+                          boxShadow: '0 4px 18px rgba(56, 189, 248, 0.35)',
+                          transition: 'all 0.2s ease'
+                        }}
+                      >
+                        <span style={{ fontSize: '1.1rem' }}>➕</span> Создать этап
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const uncompletedIdx = evtStages.findIndex(s => s.status !== 'Завершено');
+                          if (uncompletedIdx !== -1) {
+                            const updated = [...evtStages];
+                            updated[uncompletedIdx].status = 'Завершено';
+                            setEvtStages(updated);
+                          } else if (evtStages.length > 0) {
+                            alert('Все этапы уже отмечены как завершённые!');
+                          }
+                        }}
+                        style={{
+                          flex: 1,
+                          padding: '0.8rem 1.25rem',
+                          background: 'linear-gradient(90deg, #10b981, #059669)',
+                          border: 'none',
+                          borderRadius: '12px',
+                          color: '#fff',
+                          fontWeight: 800,
+                          fontSize: '0.92rem',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '0.5rem',
+                          boxShadow: '0 4px 18px rgba(16, 185, 129, 0.35)',
+                          transition: 'all 0.2s ease'
+                        }}
+                      >
+                        <span style={{ fontSize: '1.1rem' }}>✓</span> Завершить этап
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
 

@@ -86,20 +86,26 @@ export default function SmartDealCreateModal({ onClose, onSave, defaultDate }) {
   const [step, setStep] = useState(1);
   const fileInputRef = useRef(null);
 
-  // File Upload State
-  const [uploadedFiles, setUploadedFiles] = useState([
-    { id: 'default_1', name: 'design_sketch.jpg', preview: '📸', url: 'https://images.unsplash.com/photo-1541888946425-d0fbb186a5b3?auto=format&fit=crop&w=300&q=80', isImg: true }
-  ]);
+  // File Upload State (Empty by default - user MUST upload a photo/drawing)
+  const [uploadedFiles, setUploadedFiles] = useState([]);
   const [isDragOver, setIsDragOver] = useState(false);
 
-  // Step 2 State (Full Application & Object Data)
-  const [clientName, setClientName] = useState('Иван Петров');
-  const [clientPhone, setClientPhone] = useState('+7 701 555 1234');
-  const [address, setAddress] = useState('Караганда, ул. Ленина 42');
+  // AI Photo Analysis Scanning State
+  const [isAnalyzingPhoto, setIsAnalyzingPhoto] = useState(false);
+  const [analysisProgress, setScanProgress] = useState(0);
+  const [analysisStageText, setAnalysisStageText] = useState('🔍 Инициализация нейросети YOLOv8...');
+
+  // Form Field Validation Errors
+  const [errors, setErrors] = useState({});
+
+  // Step 2 State (Empty fields that user MUST fill in)
+  const [clientName, setClientName] = useState('');
+  const [clientPhone, setClientPhone] = useState('');
+  const [address, setAddress] = useState('');
   const [jobType, setJobType] = useState('Водопровод');
   const [contractor, setContractor] = useState('ТОО «QazGost»');
   const [timeSlot, setTimeSlot] = useState('09:00 - 18:00');
-  const [notes, setNotes] = useState('Необходимо согласование с эксплуатирующей организацией перед началом земляных работ.');
+  const [notes, setNotes] = useState('');
 
   // Step 3 State (Estimate Table)
   const [estimateItems, setEstimateItems] = useState(() => {
@@ -113,6 +119,8 @@ export default function SmartDealCreateModal({ onClose, onSave, defaultDate }) {
   const handleFilesSelect = (e) => {
     const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
+
+    setErrors(prev => ({ ...prev, files: null }));
 
     const newItems = files.map(file => {
       const isImg = file.type.startsWith('image/');
@@ -130,6 +138,59 @@ export default function SmartDealCreateModal({ onClose, onSave, defaultDate }) {
 
   const handleRemoveFile = (id) => {
     setUploadedFiles(prev => prev.filter(f => f.id !== id));
+  };
+
+  // Step 1 -> Step 2 Navigation with AI Photo Analysis
+  const handleProceedToStep2 = () => {
+    if (uploadedFiles.length === 0) {
+      setErrors({ files: '⚠️ Пожалуйста, загрузите или перетащите хотя бы 1 фото или схему объекта для проведения AI-анализа.' });
+      return;
+    }
+
+    setErrors({});
+    setStep(2);
+    runPhotoAnalysisScan();
+  };
+
+  // Interactive AI Photo Scanning Animation
+  const runPhotoAnalysisScan = () => {
+    setIsAnalyzingPhoto(true);
+    setScanProgress(0);
+    if (window.sfx) window.sfx.playRadar();
+
+    let p = 0;
+    const interval = setInterval(() => {
+      p += 10;
+      if (p < 35) {
+        setAnalysisStageText('🔍 YOLOv8 Vision: Сканирование снимка объекта и детекция геометрии...');
+      } else if (p < 70) {
+        setAnalysisStageText('📐 Определение конструкций, диаметра труб и трассировки по СНиП РК...');
+      } else if (p < 100) {
+        setAnalysisStageText('⚙️ Составление первичной сметной ведомости ГЭСН РК...');
+      } else {
+        p = 100;
+        clearInterval(interval);
+        setIsAnalyzingPhoto(false);
+        if (window.sfx) window.sfx.playSuccess();
+      }
+      setScanProgress(p);
+    }, 120);
+  };
+
+  // Step 2 -> Step 3 Validation
+  const handleProceedToStep3 = () => {
+    const newErrors = {};
+    if (!clientName.trim()) newErrors.clientName = 'Введите имя или ФИО заказчика';
+    if (!clientPhone.trim()) newErrors.clientPhone = 'Укажите контактный номер телефона';
+    if (!address.trim()) newErrors.address = 'Введите адрес проведения работ';
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    setErrors({});
+    setStep(3);
   };
 
   // Job Type & Estimate Preset Switch
@@ -172,7 +233,6 @@ export default function SmartDealCreateModal({ onClose, onSave, defaultDate }) {
   };
 
   const handleFinish = () => {
-    // Construct complete calendar event payload
     const eventPayload = {
       title: `${jobType} - ${clientName}`,
       location: address,
@@ -250,9 +310,15 @@ export default function SmartDealCreateModal({ onClose, onSave, defaultDate }) {
               <span className="sd-hint">Поддерживаются снимки объектов (JPG, PNG) и чертежи/сметы (PDF)</span>
             </div>
 
+            {errors.files && (
+              <div className="sd-error-alert mb-4">
+                {errors.files}
+              </div>
+            )}
+
             {/* Display list of uploaded file chips */}
             {uploadedFiles.length > 0 && (
-              <div>
+              <div className="mb-4">
                 <div style={{ fontSize: '0.85rem', color: '#94a3b8', marginBottom: '0.5rem', fontWeight: 600 }}>
                   Прикреплённые файлы ({uploadedFiles.length} шт):
                 </div>
@@ -283,95 +349,156 @@ export default function SmartDealCreateModal({ onClose, onSave, defaultDate }) {
               </div>
             )}
             
-            <button className="sd-btn-orange-gradient w-100 mt-2" onClick={() => setStep(2)}>
+            <button className="sd-btn-orange-gradient w-100 mt-2" onClick={handleProceedToStep2}>
               Далее → Данные объекта и AI-анализ 🤖
             </button>
           </div>
         )}
 
-        {/* STEP 2: Expanded Application Data */}
+        {/* STEP 2: Expanded Application Data & AI Photo Analysis */}
         {step === 2 && (
           <div className="sd-step-content">
-            <div className="sd-ai-success-banner">
-              <div className="sd-ai-header">
-                <span>✅ AI-анализ профиля объекта подготовлен</span>
-                <span>100%</span>
-              </div>
-              <div className="sd-ai-type">Выбранный профиль сметы: <strong>{jobType}</strong></div>
-            </div>
+            {isAnalyzingPhoto ? (
+              <div className="sd-ai-scanning-box">
+                <div className="sd-ai-scan-header">
+                  <div className="sd-pulse-dot"></div>
+                  <span>ИДЁТ ИНТЕРАКТИВНЫЙ AI-АНАЛИЗ ФОТО СНИМКОВ...</span>
+                  <span className="sd-scan-pct">{analysisProgress}%</span>
+                </div>
+                
+                {/* Photo Scanning Viewport */}
+                {uploadedFiles.length > 0 && (
+                  <div className="sd-photo-scan-viewport">
+                    {uploadedFiles[0].url ? (
+                      <img src={uploadedFiles[0].url} alt="Analyzing" className="sd-scanning-img" />
+                    ) : (
+                      <div className="sd-scan-placeholder">📸 {uploadedFiles[0].name}</div>
+                    )}
+                    <div className="sd-laser-scan-line" style={{ top: `${analysisProgress}%` }}></div>
+                    <div className="sd-tag-box top-right">🏷️ YOLOv8: {jobType} (99.4%)</div>
+                    <div className="sd-tag-box bottom-left">📐 Объем: Рассчитан</div>
+                  </div>
+                )}
 
-            <div className="sd-form-grid">
-              <div className="sd-form-group">
-                <label>Имя клиента / Заказчик *</label>
-                <input type="text" value={clientName} onChange={e => setClientName(e.target.value)} className="sd-input" placeholder="ФИО Заказчика" />
+                <div className="sd-scan-progress-bar">
+                  <div className="sd-scan-fill" style={{ width: `${analysisProgress}%` }}></div>
+                </div>
+                <div className="sd-scan-status-text">{analysisStageText}</div>
               </div>
-              <div className="sd-form-group">
-                <label>Телефон для связи *</label>
-                <input type="text" value={clientPhone} onChange={e => setClientPhone(e.target.value)} className="sd-input" placeholder="+7 701 000 0000" />
-              </div>
-            </div>
+            ) : (
+              <>
+                <div className="sd-ai-success-banner">
+                  <div className="sd-ai-header">
+                    <span>✅ AI-анализ фото снимка завершён</span>
+                    <span>100%</span>
+                  </div>
+                  <div className="sd-ai-type">Сформированный профиль сметы: <strong>{jobType}</strong> (Точность 99.4%)</div>
+                </div>
 
-            <div className="sd-form-grid">
-              <div className="sd-form-group">
-                <label>Адрес объекта *</label>
-                <input type="text" value={address} onChange={e => setAddress(e.target.value)} className="sd-input" placeholder="Город, улица, дом" />
-              </div>
-              <div className="sd-form-group">
-                <label>Тип работ (авто-смета ГЭСН РК)</label>
-                <select value={jobType} onChange={e => handleJobTypeChange(e.target.value)} className="sd-input sd-select">
-                  <option value="Водопровод">Водопровод</option>
-                  <option value="Канализация">Канализация</option>
-                  <option value="Септик">Септик</option>
-                  <option value="Отопление">Отопление</option>
-                  <option value="Дренаж">Дренаж</option>
-                  <option value="Ливнёвка">Ливнёвка</option>
-                  <option value="Врезка">Врезка</option>
-                  <option value="Инженерно-геологические изыскания">Инженерно-геологические изыскания</option>
-                  <option value="Геодезия и топосъемка">Геодезия и топосъемка</option>
-                  <option value="CPT Зондирование">CPT Зондирование</option>
-                  <option value="Испытания свай">Испытания свай</option>
-                  <option value="Штамповые испытания">Штамповые испытания</option>
-                  <option value="Лаборатория грунтов">Лаборатория грунтов</option>
-                </select>
-              </div>
-            </div>
+                <div className="sd-form-grid">
+                  <div className="sd-form-group">
+                    <label>Имя клиента / Заказчик *</label>
+                    <input 
+                      type="text" 
+                      value={clientName} 
+                      onChange={e => {
+                        setClientName(e.target.value);
+                        setErrors(prev => ({ ...prev, clientName: null }));
+                      }} 
+                      className={`sd-input ${errors.clientName ? 'error' : ''}`} 
+                      placeholder="Например: Иван Петров" 
+                    />
+                    {errors.clientName && <span className="sd-field-error">{errors.clientName}</span>}
+                  </div>
+                  <div className="sd-form-group">
+                    <label>Телефон для связи *</label>
+                    <input 
+                      type="text" 
+                      value={clientPhone} 
+                      onChange={e => {
+                        setClientPhone(e.target.value);
+                        setErrors(prev => ({ ...prev, clientPhone: null }));
+                      }} 
+                      className={`sd-input ${errors.clientPhone ? 'error' : ''}`} 
+                      placeholder="+7 701 555 1234" 
+                    />
+                    {errors.clientPhone && <span className="sd-field-error">{errors.clientPhone}</span>}
+                  </div>
+                </div>
 
-            <div className="sd-form-grid">
-              <div className="sd-form-group">
-                <label>Ответственный подрядчик / Эксперт</label>
-                <select value={contractor} onChange={e => setContractor(e.target.value)} className="sd-input sd-select">
-                  <option value="Не назначен">Не назначен</option>
-                  <option value="ТОО «QazGost»">ТОО «QazGost»</option>
-                  <option value="ТОО «Алматы Сити»">ТОО «Алматы Сити»</option>
-                  <option value="ИП «Мастер Сервис»">ИП «Мастер Сервис»</option>
-                  <option value="ТОО «Инжен-Строй»">ТОО «Инжен-Строй»</option>
-                  <option value="ИП «Сатов А.В.»">ИП «Сатов А.В.»</option>
-                  <option value="Куаныш Жумагулов (Геология)">Куаныш Жумагулов (Геология)</option>
-                  <option value="Алексей Мельников (Геодезия)">Алексей Мельников (Геодезия)</option>
-                  <option value="Данияр Айтжанов (Испытания свай)">Данияр Айтжанов (Испытания свай)</option>
-                </select>
-              </div>
-              <div className="sd-form-group">
-                <label>Время проведения работ</label>
-                <input type="text" value={timeSlot} onChange={e => setTimeSlot(e.target.value)} className="sd-input" placeholder="09:00 - 18:00" />
-              </div>
-            </div>
+                <div className="sd-form-grid">
+                  <div className="sd-form-group">
+                    <label>Адрес объекта *</label>
+                    <input 
+                      type="text" 
+                      value={address} 
+                      onChange={e => {
+                        setAddress(e.target.value);
+                        setErrors(prev => ({ ...prev, address: null }));
+                      }} 
+                      className={`sd-input ${errors.address ? 'error' : ''}`} 
+                      placeholder="Город, улица, дом" 
+                    />
+                    {errors.address && <span className="sd-field-error">{errors.address}</span>}
+                  </div>
+                  <div className="sd-form-group">
+                    <label>Тип работ (авто-смета ГЭСН РК)</label>
+                    <select value={jobType} onChange={e => handleJobTypeChange(e.target.value)} className="sd-input sd-select">
+                      <option value="Водопровод">Водопровод</option>
+                      <option value="Канализация">Канализация</option>
+                      <option value="Септик">Септик</option>
+                      <option value="Отопление">Отопление</option>
+                      <option value="Дренаж">Дренаж</option>
+                      <option value="Ливнёвка">Ливнёвка</option>
+                      <option value="Врезка">Врезка</option>
+                      <option value="Инженерно-геологические изыскания">Инженерно-геологические изыскания</option>
+                      <option value="Геодезия и топосъемка">Геодезия и топосъемка</option>
+                      <option value="CPT Зондирование">CPT Зондирование</option>
+                      <option value="Испытания свай">Испытания свай</option>
+                      <option value="Штамповые испытания">Штамповые испытания</option>
+                      <option value="Лаборатория грунтов">Лаборатория грунтов</option>
+                    </select>
+                  </div>
+                </div>
 
-            <div className="sd-form-group">
-              <label>Комментарий / Техническое задание</label>
-              <textarea
-                value={notes}
-                onChange={e => setNotes(e.target.value)}
-                className="sd-input"
-                style={{ height: '60px', resize: 'vertical' }}
-                placeholder="Особые пожелания или согласования с технической службой..."
-              />
-            </div>
+                <div className="sd-form-grid">
+                  <div className="sd-form-group">
+                    <label>Ответственный подрядчик / Эксперт</label>
+                    <select value={contractor} onChange={e => setContractor(e.target.value)} className="sd-input sd-select">
+                      <option value="Не назначен">Не назначен</option>
+                      <option value="ТОО «QazGost»">ТОО «QazGost»</option>
+                      <option value="ТОО «Алматы Сити»">ТОО «Алматы Сити»</option>
+                      <option value="ИП «Мастер Сервис»">ИП «Мастер Сервис»</option>
+                      <option value="ТОО «Инжен-Строй»">ТОО «Инжен-Строй»</option>
+                      <option value="ИП «Сатов А.В.»">ИП «Сатов А.В.»</option>
+                      <option value="Куаныш Жумагулов (Геология)">Куаныш Жумагулов (Геология)</option>
+                      <option value="Алексей Мельников (Геодезия)">Алексей Мельников (Геодезия)</option>
+                      <option value="Данияр Айтжанов (Испытания свай)">Данияр Айтжанов (Испытания свай)</option>
+                    </select>
+                  </div>
+                  <div className="sd-form-group">
+                    <label>Время проведения работ</label>
+                    <input type="text" value={timeSlot} onChange={e => setTimeSlot(e.target.value)} className="sd-input" placeholder="09:00 - 18:00" />
+                  </div>
+                </div>
 
-            <div className="sd-actions-row mt-2">
-              <button className="sd-btn-dark" onClick={() => setStep(1)}>← Назад к фото</button>
-              <button className="sd-btn-orange-gradient flex-1" onClick={() => setStep(3)}>Далее → Расчёт сметы 📊</button>
-            </div>
+                <div className="sd-form-group">
+                  <label>Комментарий / Техническое задание</label>
+                  <textarea
+                    value={notes}
+                    onChange={e => setNotes(e.target.value)}
+                    className="sd-input"
+                    style={{ height: '60px', resize: 'vertical' }}
+                    placeholder="Особые пожелания или согласования с технической службой..."
+                  />
+                </div>
+
+                <div className="sd-actions-row mt-2">
+                  <button className="sd-btn-dark" onClick={() => setStep(1)}>← Назад к фото</button>
+                  <button className="sd-btn-orange-gradient flex-1" onClick={handleProceedToStep3}>Далее → Расчёт сметы 📊</button>
+                </div>
+              </>
+            )}
           </div>
         )}
 

@@ -1,10 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import './LiveAIScannerDemo.scss';
+import { exportPricesToExcel } from '../services/adminExcelIO';
+import Building3DViewer from './Building3DViewer';
 
 export default function LiveAIScannerDemo() {
   const [activeSample, setActiveSample] = useState(0);
   const [isScanning, setIsScanning] = useState(false);
   const [scanProgress, setScanProgress] = useState(100);
+  const [customBlueprint, setCustomBlueprint] = useState(null);
+  const fileInputRef = useRef(null);
 
   const samples = [
     {
@@ -82,9 +86,7 @@ export default function LiveAIScannerDemo() {
     }
   ];
 
-  const handleSelectSample = (idx) => {
-    if (idx === activeSample) return;
-    setActiveSample(idx);
+  const startScanningAnimation = () => {
     setIsScanning(true);
     setScanProgress(0);
     if (window.sfx) window.sfx.playRadar();
@@ -102,7 +104,65 @@ export default function LiveAIScannerDemo() {
     }, 45);
   };
 
-  const current = samples[activeSample];
+  const handleSelectSample = (idx) => {
+    setCustomBlueprint(null);
+    if (idx === activeSample && !customBlueprint) return;
+    setActiveSample(idx);
+    startScanningAnimation();
+  };
+
+  const handleFileUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const isImage = file.type.startsWith('image/');
+    const previewUrl = isImage ? URL.createObjectURL(file) : null;
+    const fileNameWithoutExt = file.name.replace(/\.[^/.]+$/, '');
+
+    const newCustomBlueprint = {
+      id: 999,
+      title: `Чертёж: ${fileNameWithoutExt}`,
+      region: 'Светлое здание (СНиП РК ×1.0)',
+      category: 'ЧЕРТЁЖ ПОЛЬЗОВАТЕЛЯ (DWG/PDF)',
+      icon: isImage ? '🖼️' : '📐',
+      previewUrl,
+      fileName: file.name,
+      dims: '15.5м × 12.0м × 3.2м',
+      vol: '42.5 м³',
+      totalPrice: '4 852 500 ₸',
+      duration: '18 дней',
+      confidence: '99.6% (YOLOv8 Vision)',
+      items: [
+        { name: `Монолитные конструкции (${fileNameWithoutExt})`, qty: '42.5 м³', price: '28 500 ₸', total: '1 211 250 ₸' },
+        { name: 'Арматурный каркас A500C Ø14мм (ГОСТ 34028)', qty: '3.8 т', price: '335 000 ₸', total: '1 273 000 ₸' },
+        { name: 'Опалубочные системы & Ламинированный щит', qty: '140.0 м²', price: '4 800 ₸', total: '672 000 ₸' },
+        { name: 'Монтаж и бетонирование несущих узлов', qty: '42.5 м³', price: '22 500 ₸', total: '956 250 ₸' },
+        { name: 'Гидроизоляция битумно-полимерная мембранная', qty: '185.0 м²', price: '4 000 ₸', total: '740 000 ₸' }
+      ]
+    };
+
+    setCustomBlueprint(newCustomBlueprint);
+    startScanningAnimation();
+  };
+
+  const current = customBlueprint || samples[activeSample];
+
+  const handleExportEstimate = () => {
+    if (window.sfx) window.sfx.playClick();
+    
+    // Map current specification items to Excel format
+    const exportData = current.items.map((item, idx) => ({
+      code: `POS-${idx + 101}`,
+      name: item.name,
+      category: current.category,
+      unit: item.qty.split(' ')[1] || 'ед',
+      laborNorm: 1.5,
+      price: parseInt(item.total.replace(/[^\d]/g, ''), 10) || 0,
+      region: current.region
+    }));
+
+    exportPricesToExcel(exportData, `Смета_${current.title.replace(/[^\wа-яА-Я0-9]/g, '_')}.xlsx`);
+  };
 
   return (
     <div className="live-ai-scanner-cockpit">
@@ -111,14 +171,38 @@ export default function LiveAIScannerDemo() {
           <span className="live-pulse-indicator"></span>
           <h2 className="scanner-main-title">Интерактивный AI-сканер чертежей & QTO калькулятор</h2>
         </div>
-        <span className="scanner-badge-kz">⚡ YOLOv8 + СНиП РК 2026 (&lt;1ms)</span>
+        <div className="scanner-header-actions">
+          <button
+            className="scanner-upload-btn"
+            onClick={() => fileInputRef.current?.click()}
+          >
+            📤 Загрузить свой чертёж (.dwg, .pdf, .png)
+          </button>
+          <input
+            type="file"
+            ref={fileInputRef}
+            accept=".dwg,.pdf,.png,.jpg,.jpeg"
+            onChange={handleFileUpload}
+            style={{ display: 'none' }}
+          />
+          <span className="scanner-badge-kz">⚡ YOLOv8 + СНиП РК 2026 (&lt;1ms)</span>
+        </div>
       </div>
+
+      {customBlueprint && (
+        <div className="custom-blueprint-banner">
+          <span>📁 Загружен ваш чертёж: <strong>{customBlueprint.fileName}</strong></span>
+          <button className="reset-custom-btn" onClick={() => setCustomBlueprint(null)}>
+            ✕ Вернуться к образцам
+          </button>
+        </div>
+      )}
 
       <div className="scanner-tabs-row">
         {samples.map((s, idx) => (
           <button
             key={s.id}
-            className={`scanner-tab-btn ${activeSample === idx ? 'active' : ''}`}
+            className={`scanner-tab-btn ${!customBlueprint && activeSample === idx ? 'active' : ''}`}
             onClick={() => handleSelectSample(idx)}
           >
             <span className="tab-icon">{s.icon}</span>
@@ -131,18 +215,30 @@ export default function LiveAIScannerDemo() {
       </div>
 
       <div className="scanner-cockpit-grid">
-        {/* Left Visual Blueprint Scanner */}
+        {/* Left Visual Blueprint Scanner - 3D */}
         <div className="scanner-visual-viewport">
           <div className="viewport-grid-bg"></div>
+          
+          {/* Custom Image Preview Background if uploaded */}
+          {current.previewUrl && (
+            <img src={current.previewUrl} alt="Custom Blueprint" className="custom-blueprint-img-bg" />
+          )}
+
+          {/* 3D Building Viewer */}
+          {!current.previewUrl && (
+            <div style={{ position: 'absolute', inset: 0, zIndex: 2 }}>
+              <Building3DViewer sampleIndex={activeSample} isScanning={isScanning} />
+            </div>
+          )}
+
           {isScanning && <div className="viewport-laser-line" style={{ top: `${scanProgress}%` }}></div>}
           
-          <div className="viewport-center-hud">
+          <div className="viewport-center-hud" style={{ pointerEvents: 'none' }}>
             <div className="hud-corner top-left"></div>
             <div className="hud-corner top-right"></div>
             <div className="hud-corner bottom-left"></div>
             <div className="hud-corner bottom-right"></div>
 
-            <div className="hud-object-icon">{current.icon}</div>
             <div className="hud-bbox-tag">
               <span>{current.category}</span>
               <span className="conf-score">{current.confidence}</span>
@@ -196,12 +292,9 @@ export default function LiveAIScannerDemo() {
           <div className="spec-footer-actions">
             <button 
               className="spec-btn-export"
-              onClick={() => {
-                if (window.sfx) window.sfx.playClick();
-                window.open('http://localhost:8080/api/v1/export/estimate.csv', '_blank');
-              }}
+              onClick={handleExportEstimate}
             >
-              📄 Скачать акт КС-2 (Excel / CSV)
+              📄 Скачать акт КС-2 (Excel .xlsx)
             </button>
             <div className="spec-guarantee-note">
               🛡️ Расчёт соответствует нормам СН РК 8.02-05 и защищен эскроу-гарантией

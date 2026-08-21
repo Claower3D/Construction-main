@@ -48,6 +48,66 @@
   margin: 0;
 }
 
+.scanner-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.scanner-upload-btn {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: #ffffff;
+  border: 1px solid rgba(16, 185, 129, 0.5);
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.35);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+
+  &:hover {
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
+    background: linear-gradient(135deg, #34d399, #10b981);
+  }
+}
+
+.custom-blueprint-banner {
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  color: #6ee7b7;
+  padding: 0.65rem 1.25rem;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+  font-size: 0.88rem;
+
+  strong {
+    color: #ffffff;
+  }
+
+  .reset-custom-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    padding: 0.3rem 0.75rem;
+    border-radius: 8px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: rgba(239, 68, 68, 0.3);
+      border-color: rgba(239, 68, 68, 0.6);
+      color: #fca5a5;
+    }
+  }
+}
+
 .scanner-badge-kz {
   background: rgba(37, 99, 235, 0.2);
   border: 1px solid rgba(59, 130, 246, 0.4);
@@ -150,6 +210,17 @@
   background-image: 
     linear-gradient(to right, rgba(56, 189, 248, 0.08) 1px, transparent 1px),
     linear-gradient(to bottom, rgba(56, 189, 248, 0.08) 1px, transparent 1px);
+}
+
+.custom-blueprint-img-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.35;
+  filter: contrast(1.2) brightness(0.8);
+  z-index: 1;
 }
 
 .viewport-laser-line {
