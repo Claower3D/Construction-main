@@ -25,6 +25,8 @@ import UserWalletPage from './components/UserWalletPage';
 import ContractorsCatalogPage from './components/ContractorsCatalogPage';
 import UserOrdersPage from './components/UserOrdersPage';
 import EngineeringSolutionsPage from './components/EngineeringSolutionsPage';
+import MaterialsMarketplacePage from './components/MaterialsMarketplacePage';
+import EquipmentMarketplace from './components/EquipmentMarketplace';
 import ScrollToTopButton from './components/ScrollToTopButton';
 import { categoriesData } from './data/categoriesData';
 
@@ -56,6 +58,8 @@ export default function App() {
     if (path.startsWith('/catalog')) return 'catalog';
     if (path.startsWith('/orders')) return 'orders';
     if (path.startsWith('/engineering')) return 'engineering';
+    if (path.startsWith('/materials')) return 'materials';
+    if (path.startsWith('/equipment')) return 'equipment';
     return 'landing';
   });
 
@@ -89,6 +93,8 @@ export default function App() {
       else if (path.startsWith('/catalog')) setCurrentView('catalog');
       else if (path.startsWith('/orders')) setCurrentView('orders');
       else if (path.startsWith('/engineering')) setCurrentView('engineering');
+      else if (path.startsWith('/materials')) setCurrentView('materials');
+      else if (path.startsWith('/equipment')) setCurrentView('equipment');
       else setCurrentView('landing');
     };
     window.addEventListener('popstate', handlePopState);
@@ -161,6 +167,16 @@ export default function App() {
     setCurrentView('catalog');
   };
 
+  const navigateToMaterials = () => {
+    window.history.pushState({}, '', `/materials`);
+    setCurrentView('materials');
+  };
+
+  const navigateToEquipment = () => {
+    window.history.pushState({}, '', `/equipment`);
+    setCurrentView('equipment');
+  };
+
   const toggleTheme = () => {
     const nextTheme = theme === 'dark' ? 'light' : 'dark';
     setTheme(nextTheme);
@@ -208,6 +224,8 @@ export default function App() {
         onLogoClick={handleLogoClick}
         onOpenProfile={navigateToProfile}
         onOpenWallet={navigateToWallet}
+        onOpenMaterials={navigateToMaterials}
+        onOpenEquipment={navigateToEquipment}
       />
 
         <main style={{ position: 'relative', zIndex: 1 }}>
@@ -280,6 +298,30 @@ export default function App() {
               onOpenOrders={() => {
                 window.history.pushState({}, '', `/orders`);
                 setCurrentView('orders');
+              }}
+            />
+          )}
+
+          {currentView === 'materials' && (
+            <MaterialsMarketplacePage 
+              onBack={() => {
+                if (currentUser) {
+                  navigateToDashboard(currentUser.role);
+                } else {
+                  navigateToLanding();
+                }
+              }}
+            />
+          )}
+
+          {currentView === 'equipment' && (
+            <EquipmentMarketplace 
+              onBack={() => {
+                if (currentUser) {
+                  navigateToDashboard(currentUser.role);
+                } else {
+                  navigateToLanding();
+                }
               }}
             />
           )}

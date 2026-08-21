@@ -36,7 +36,7 @@ function getDefaultNotificationsForRole(userRole) {
   ];
 }
 
-export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, onOpenAdmin, onOpenEngineer, currentUser, onLogout, onOpenDashboard, onLogoClick, onOpenProfile, onOpenWallet }) {
+export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, onOpenAdmin, onOpenEngineer, currentUser, onLogout, onOpenDashboard, onLogoClick, onOpenProfile, onOpenWallet, onOpenMaterials, onOpenEquipment }) {
   const [activeNavDropdown, setActiveNavDropdown] = useState(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [mobileAccordion, setMobileAccordion] = useState(null);
@@ -413,6 +413,23 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
             )}
           </div>
           )}
+
+          {/* ── GLOBAL NAV: Materials & Equipment (visible to all) ── */}
+          <button
+            className="nav-dropdown-btn"
+            style={{ background: 'rgba(16,185,129,.08)', borderColor: 'rgba(16,185,129,.25)' }}
+            onClick={() => { closeDropdown(); if (onOpenMaterials) onOpenMaterials(); }}
+          >
+            🧱 Стройматериалы
+          </button>
+
+          <button
+            className="nav-dropdown-btn"
+            style={{ background: 'rgba(245,158,11,.08)', borderColor: 'rgba(245,158,11,.25)' }}
+            onClick={() => { closeDropdown(); if (onOpenEquipment) onOpenEquipment(); }}
+          >
+            🚜 Техника
+          </button>
 
         </div>
 

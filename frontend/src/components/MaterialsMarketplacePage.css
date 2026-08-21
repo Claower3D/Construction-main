@@ -4,11 +4,12 @@
 
 .mmp-container {
   width: 100%;
-  max-width: 1360px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 1.5rem 1rem 3rem 1rem;
+  padding: 1.5rem 1.5rem 4rem 1.5rem;
+  box-sizing: border-box;
   color: #f8fafc;
-  font-family: inherit;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
 /* Toast */
@@ -66,10 +67,11 @@
 
 /* Hero Banner */
 .mmp-hero-banner {
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(15, 23, 42, 0.85)),
-              radial-gradient(circle at top right, rgba(56, 189, 248, 0.2), transparent 70%);
+  background: rgba(15, 18, 40, 0.55);
+  backdrop-filter: blur(28px) saturate(200%);
+  -webkit-backdrop-filter: blur(28px) saturate(200%);
   border: 1px solid rgba(16, 185, 129, 0.35);
-  border-radius: 20px;
+  border-radius: 24px;
   padding: 2rem;
   margin-bottom: 2rem;
   display: flex;
@@ -77,8 +79,7 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 1.5rem;
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4), 0 0 30px rgba(16, 185, 129, 0.15);
-  backdrop-filter: blur(20px);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .mmp-hero-left h2 {
@@ -139,31 +140,33 @@
 }
 
 .mmp-tab-btn {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #94a3b8;
-  padding: 10px 20px;
-  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #cbd5e1;
+  padding: 0.6rem 1.25rem;
+  border-radius: 14px;
   font-weight: 700;
-  font-size: 0.92rem;
+  font-size: 0.95rem;
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 8px;
-  transition: all 0.2s ease;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   white-space: nowrap;
 }
 
 .mmp-tab-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.12);
   color: #fff;
+  transform: translateY(-2px);
 }
 
 .mmp-tab-btn.active {
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(56, 189, 248, 0.25));
-  border-color: #10b981;
+  background: linear-gradient(90deg, #10b981, #059669);
+  border-color: transparent;
   color: #fff;
-  box-shadow: 0 0 15px rgba(16, 185, 129, 0.35);
+  font-weight: 900;
+  box-shadow: 0 4px 18px rgba(16, 185, 129, 0.45);
 }
 
 .mmp-badge-cart-count {
@@ -236,57 +239,60 @@
 }
 
 .mmp-cat-chip {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   color: #cbd5e1;
-  padding: 8px 14px;
+  padding: 0.6rem 1.15rem;
   border-radius: 20px;
   font-size: 0.85rem;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 6px;
-  transition: all 0.2s ease;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .mmp-cat-chip:hover {
   background: rgba(255, 255, 255, 0.12);
   color: #fff;
+  transform: translateY(-2px);
 }
 
 .mmp-cat-chip.active {
-  background: rgba(16, 185, 129, 0.2);
-  border-color: #10b981;
-  color: #10b981;
-  font-weight: 700;
-  box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+  background: linear-gradient(90deg, #10b981, #059669);
+  border-color: transparent;
+  color: #fff;
+  font-weight: 900;
+  box-shadow: 0 4px 18px rgba(16, 185, 129, 0.45);
 }
 
 /* Products Grid */
 .mmp-products-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
   gap: 1.5rem;
   margin-bottom: 2.5rem;
 }
 
 .mmp-product-card {
-  background: rgba(15, 23, 42, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 18px;
+  background: rgba(15, 18, 40, 0.55);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 24px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  transition: all 0.25s ease;
-  backdrop-filter: blur(12px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
 }
 
 .mmp-product-card:hover {
-  transform: translateY(-4px);
-  border-color: rgba(16, 185, 129, 0.5);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(16, 185, 129, 0.2);
+  transform: translateY(-8px) scale(1.02);
+  border-color: rgba(16, 185, 129, 0.7);
+  box-shadow: 0 25px 60px rgba(16, 185, 129, 0.35);
 }
 
 .mmp-card-img-wrap {
@@ -418,34 +424,40 @@
 .mmp-qty-control {
   display: flex;
   align-items: center;
-  background: rgba(10, 14, 28, 0.9);
+  background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 10px;
+  border-radius: 12px;
   overflow: hidden;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .mmp-qty-btn {
-  background: transparent;
+  background: rgba(255, 255, 255, 0.05);
   border: none;
-  color: #fff;
-  width: 32px;
-  height: 38px;
-  font-weight: 800;
-  font-size: 1.1rem;
+  color: #38bdf8;
+  width: 36px;
+  height: 42px;
+  font-weight: 900;
+  font-size: 1.25rem;
   cursor: pointer;
-  transition: background 0.15s ease;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .mmp-qty-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(56, 189, 248, 0.25);
+  color: #fff;
 }
 
 .mmp-qty-val {
-  padding: 0 8px;
-  font-weight: 800;
-  font-size: 0.9rem;
-  min-width: 28px;
+  padding: 0 12px;
+  font-weight: 900;
+  font-size: 0.95rem;
+  min-width: 32px;
   text-align: center;
+  color: #fff;
 }
 
 .mmp-btn-add-cart {

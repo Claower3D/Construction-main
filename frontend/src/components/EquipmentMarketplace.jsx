@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import './EquipmentMarketplace.css';
 
-export default function EquipmentMarketplace() {
+export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
   const [activeTab, setActiveTab] = useState('marketplace');
   const [searchQuery, setSearchQuery] = useState('');
   const [category, setCategory] = useState('all');
@@ -537,19 +537,42 @@ export default function EquipmentMarketplace() {
         </div>
       )}
 
-      <div className="em-header" style={{ padding: '0.85rem 1.25rem', marginBottom: '1.25rem' }}>
-        <div className="em-tabs" style={{ margin: 0 }}>
-          {topTabs.map(tab => (
+      {!hideHeader && (
+        <div className="em-header" style={{ padding: '0.85rem 1.25rem', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem' }}>
+          {onBack && (
             <button 
-              key={tab.id}
-              className={`em-tab ${activeTab === tab.id ? 'active' : ''}`}
-              onClick={() => setActiveTab(tab.id)}
+              onClick={onBack}
+              style={{
+                background: 'rgba(255, 255, 255, 0.08)',
+                border: '1px solid rgba(255, 255, 255, 0.15)',
+                color: '#fff',
+                padding: '0.5rem 1rem',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontSize: '0.9rem',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                whiteSpace: 'nowrap'
+              }}
+              title="Назад"
             >
-              {tab.label}
+              ← Назад
             </button>
-          ))}
+          )}
+          <div className="em-tabs" style={{ margin: 0 }}>
+            {topTabs.map(tab => (
+              <button 
+                key={tab.id}
+                className={`em-tab ${activeTab === tab.id ? 'active' : ''}`}
+                onClick={() => setActiveTab(tab.id)}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {activeTab === 'marketplace' && (
         <div className="em-content">

@@ -1,8 +1,12 @@
 .equipment-marketplace-container {
   color: #fff;
-  padding: 0;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 1.5rem 1.5rem 4rem 1.5rem;
   background: transparent;
   min-height: 100vh;
+  box-sizing: border-box;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
@@ -294,7 +298,7 @@
 /* Equipment Grid */
 .em-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
   gap: 1.5rem;
 }
 
@@ -1269,4 +1273,36 @@
   background: rgba(255, 255, 255, 0.12) !important;
   color: #fff !important;
   border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Media Queries for responsive centered presentation */
+@media (max-width: 1024px) {
+  .equipment-marketplace-container {
+    padding: 1rem 1rem 3rem 1rem;
+  }
+
+  .em-main-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .em-sidebar {
+    position: static;
+  }
+}
+
+@media (max-width: 640px) {
+  .em-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .em-header {
+    flex-direction: column;
+    align-items: flex-start !important;
+  }
+
+  .em-tabs {
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+  }
 }
