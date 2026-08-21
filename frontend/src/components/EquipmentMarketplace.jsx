@@ -42,6 +42,7 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
       id: 1,
       category: 'earth',
       image: '/assets/machinery/hitachi_excavator.jpg',
+      backupImage: 'https://images.unsplash.com/photo-1579829366248-204fe8413f31?auto=format&fit=crop&w=800&q=80',
       distanceKm: 1.6,
       title: 'Гусеничный экскаватор Hitachi ZX240, 24 т, 1 м³, 6.7 м',
       rawPrice: 25000,
@@ -63,6 +64,7 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
       id: 2,
       category: 'earth',
       image: '/assets/machinery/jcb_wheeled_excavator.jpg',
+      backupImage: 'https://images.unsplash.com/photo-1581094288338-2314dddb7ece?auto=format&fit=crop&w=800&q=80',
       distanceKm: 2.0,
       title: 'Колёсный экскаватор JCB JS160W, 17 т, 0.9 м³',
       rawPrice: 22000,
@@ -84,6 +86,7 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
       id: 3,
       category: 'earth',
       image: '/assets/machinery/kubota_mini_excavator.jpg',
+      backupImage: 'https://images.unsplash.com/photo-1541888946425-d0fbb186156f?auto=format&fit=crop&w=800&q=80',
       distanceKm: 2.4,
       title: 'Мини-экскаватор Kubota U-35, 3.5 т, ковш 0.15 м³',
       rawPrice: 12000,
@@ -104,6 +107,7 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
       id: 4,
       category: 'earth',
       image: '/assets/machinery/cat_bulldozer.jpg',
+      backupImage: 'https://images.unsplash.com/photo-1508873696983-2df5293cb32b?auto=format&fit=crop&w=800&q=80',
       distanceKm: 2.8,
       title: 'Тяжелый бульдозер CAT D6R, 20 т, отвал 3.8 м',
       rawPrice: 32000,
@@ -127,6 +131,7 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
       id: 5,
       category: 'lift',
       image: '/assets/machinery/xcmg_mobile_crane.jpg',
+      backupImage: 'https://images.unsplash.com/photo-1584467735815-f778f274e296?auto=format&fit=crop&w=800&q=80',
       distanceKm: 3.2,
       title: 'Автокран XCMG QY25K5, 25 т, стрела 39.5 м + гусек',
       rawPrice: 28000,
@@ -148,6 +153,7 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
       id: 6,
       category: 'lift',
       image: '/assets/machinery/hyundai_cherry_picker.jpg',
+      backupImage: 'https://images.unsplash.com/photo-1590486803833-1c5dc8ddd4c8?auto=format&fit=crop&w=800&q=80',
       distanceKm: 3.6,
       title: 'Автовышка телескопическая Hyundai HD78, 28 м, 300 кг',
       rawPrice: 18000,
@@ -168,6 +174,7 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
       id: 7,
       category: 'lift',
       image: '/assets/machinery/liebherr_tower_crane.jpg',
+      backupImage: 'https://images.unsplash.com/photo-1541971875076-8f970d573be6?auto=format&fit=crop&w=800&q=80',
       distanceKm: 4.0,
       title: 'Башенный кран Liebherr 130 EC-B, 8 т, стрела 60 м',
       rawPrice: 55000,
@@ -188,6 +195,7 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
       id: 8,
       category: 'lift',
       image: '/assets/machinery/kamaz_manipulator.jpg',
+      backupImage: 'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=800&q=80',
       distanceKm: 4.4,
       title: 'Кран-манипулятор КАМАЗ 65117 (КМУ 7 т, борт 12 т)',
       rawPrice: 20000,
@@ -210,6 +218,7 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
       id: 9,
       category: 'loader',
       image: '/assets/machinery/xcmg_wheel_loader.jpg',
+      backupImage: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=800&q=80',
       distanceKm: 4.8,
       title: 'Фронтальный погрузчик XCMG ZL50G, 5 т, 3.2 м³',
       rawPrice: 16000,
@@ -231,6 +240,7 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
       id: 10,
       category: 'loader',
       image: '/assets/machinery/jcb_backhoe_loader.jpg',
+      backupImage: 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&w=800&q=80',
       distanceKm: 5.2,
       title: 'Экскаватор-погрузчик JCB 3CX Super, равноколёсный',
       rawPrice: 18000,
@@ -251,6 +261,7 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
       id: 11,
       category: 'loader',
       image: '/assets/machinery/bobcat_skid_steer.jpg',
+      backupImage: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80',
       distanceKm: 5.6,
       title: 'Мини-погрузчик Bobcat S530 + гидромолот / щётка',
       rawPrice: 14000,
@@ -271,6 +282,7 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
       id: 12,
       category: 'loader',
       image: '/assets/machinery/manitou_telehandler.jpg',
+      backupImage: 'https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=800&q=80',
       distanceKm: 1.2,
       title: 'Телескопический погрузчик Manitou MT 1840 (18 м, 4 т)',
       rawPrice: 24000,
@@ -293,6 +305,7 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
       id: 13,
       category: 'road',
       image: '/assets/machinery/road_roller_bomag.jpg',
+      backupImage: 'https://images.unsplash.com/photo-1581092162384-8987c1d64718?auto=format&fit=crop&w=800&q=80',
       distanceKm: 1.6,
       title: 'Каток дорожный XCMG XS143J, 14 т, 2.1 м',
       rawPrice: 18000,
@@ -314,6 +327,7 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
       id: 14,
       category: 'road',
       image: '/assets/machinery/motor_grader_xcmg.jpg',
+      backupImage: 'https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=800&q=80',
       distanceKm: 2.0,
       title: 'Грейдер XCMG GR215, 4.3 м, рыхлитель',
       rawPrice: 22000,
@@ -335,6 +349,7 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
       id: 15,
       category: 'road',
       image: '/assets/machinery/asphalt_paver_vogele.jpg',
+      backupImage: 'https://images.unsplash.com/photo-1581092795360-fd1ca04f0952?auto=format&fit=crop&w=800&q=80',
       distanceKm: 2.4,
       title: 'Асфальтоукладчик Vogele Super 1800-3 (ширина 9 м)',
       rawPrice: 48000,
@@ -357,6 +372,7 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
       id: 16,
       category: 'concrete',
       image: '/assets/machinery/concrete_pump.jpg',
+      backupImage: 'https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?auto=format&fit=crop&w=800&q=80',
       distanceKm: 2.8,
       title: 'Автобетононасос Putzmeister 38m, подача 160 м³/ч',
       rawPrice: 40000,
@@ -377,6 +393,7 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
       id: 17,
       category: 'concrete',
       image: '/assets/machinery/kamaz_concrete_mixer.jpg',
+      backupImage: 'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=800&q=80',
       distanceKm: 3.2,
       title: 'Автобетоносмеситель КАМАЗ 6520 (миксер 10 м³)',
       rawPrice: 15000,
@@ -398,6 +415,7 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
       id: 18,
       category: 'transport',
       image: '/assets/machinery/shacman_dump_truck.jpg',
+      backupImage: 'https://images.unsplash.com/photo-1519003722824-194d4455a60c?auto=format&fit=crop&w=800&q=80',
       distanceKm: 3.6,
       title: 'Самосвал Shacman F3000, 25 т, объём 20 м³',
       rawPrice: 18000,
@@ -418,6 +436,7 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
       id: 19,
       category: 'transport',
       image: '/assets/machinery/heavy_lowbed_trailer.jpg',
+      backupImage: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=800&q=80',
       distanceKm: 4.0,
       title: 'Трал низкорамный FAYMONVILLE (60 т, аппарели)',
       rawPrice: 42000,
@@ -440,6 +459,7 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
       id: 20,
       category: 'drill',
       image: '/assets/machinery/auger_drilling_truck.jpg',
+      backupImage: 'https://images.unsplash.com/photo-1581092921461-eab62e97a780?auto=format&fit=crop&w=800&q=80',
       distanceKm: 4.4,
       title: 'Ямобур / АБКМ на базе КАМАЗ 43114 (бурение до 12 м)',
       rawPrice: 28000,
@@ -460,6 +480,7 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
       id: 21,
       category: 'drill',
       image: '/assets/machinery/bauer_piling_rig.jpg',
+      backupImage: 'https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?auto=format&fit=crop&w=800&q=80',
       distanceKm: 4.8,
       title: 'Буровая сваебойная установка Bauer BG 28 (сваи до 40 м)',
       rawPrice: 95000,
@@ -482,6 +503,7 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
       id: 22,
       category: 'power',
       image: '/assets/machinery/diesel_generator_sdmo.jpg',
+      backupImage: 'https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?auto=format&fit=crop&w=800&q=80',
       distanceKm: 5.2,
       title: 'Генератор дизельный SDMO 100 кВт, шумозащитный',
       rawPrice: 12000,
@@ -502,6 +524,7 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
       id: 23,
       category: 'power',
       image: '/assets/machinery/air_compressor_atlas.jpg',
+      backupImage: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80',
       distanceKm: 5.6,
       title: 'Компрессор дизельный Atlas Copco XAS 97 (5.3 м³/мин)',
       rawPrice: 14000,
@@ -799,18 +822,17 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
                         
                         <div className="em-card-main-visual" style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0, overflow: 'hidden' }}>
                           <img 
-                            src={item.image || 'https://images.unsplash.com/photo-1579829366248-204fe8413f31?auto=format&fit=crop&w=800&q=80'} 
+                            src={item.image || item.backupImage || 'https://images.unsplash.com/photo-1579829366248-204fe8413f31?auto=format&fit=crop&w=800&q=80'} 
                             alt={item.title} 
-                            style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s ease', filter: 'brightness(0.85) contrast(1.1)' }}
+                            style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s ease', filter: 'brightness(0.88) contrast(1.1)' }}
                             className="em-machine-photo"
                             onError={(e) => {
-                              e.target.style.display = 'none';
-                              if (e.target.nextSibling) e.target.nextSibling.style.display = 'flex';
+                              if (e.target.getAttribute('data-tried') !== 'true' && item.backupImage) {
+                                e.target.setAttribute('data-tried', 'true');
+                                e.target.src = item.backupImage;
+                              }
                             }}
                           />
-                          <div className="em-card-icon-halo" style={{ display: 'none' }}>
-                            <span className="em-icon-symbol">🚜</span>
-                          </div>
                           <div style={{ position: 'absolute', bottom: '8px', left: '10px', background: 'rgba(8, 12, 22, 0.85)', backdropFilter: 'blur(10px)', padding: '3px 8px', borderRadius: '6px', fontSize: '0.72rem', color: '#38bdf8', fontWeight: '800', border: '1px solid rgba(56, 189, 248, 0.3)' }}>
                             📍 GPS: {item.distanceKm ? `${item.distanceKm} км от вас` : '2.4 км'}
                           </div>
