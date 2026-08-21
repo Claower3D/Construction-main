@@ -106,7 +106,9 @@ export default function AiAssistantWidget() {
         <div className="ai-chat-window">
           <div className="ai-chat-header">
             <div className="ai-chat-title-group">
-              <div className="ai-avatar">🤖</div>
+              <div className="ai-avatar">
+                <img src="/ai-avatar.png" alt="AI Avatar" className="ai-header-avatar-img" />
+              </div>
               <div>
                 <h4 className="ai-chat-title">QazGost AI Ассистент</h4>
                 <span className="ai-chat-status">
@@ -125,7 +127,7 @@ export default function AiAssistantWidget() {
                 key={idx}
                 className={`chat-bubble ${m.sender === 'ai' ? 'ai-bubble' : 'user-bubble'}`}
               >
-                {m.sender === 'ai' && <span className="bubble-spark">✨</span>}
+                {m.sender === 'ai' && <img src="/ai-avatar.png" alt="AI" className="bubble-avatar-img" />}
                 <div>{m.text}</div>
               </div>
             ))}
@@ -168,7 +170,9 @@ export default function AiAssistantWidget() {
         onClick={() => setIsOpen(!isOpen)}
         title="AI Ассистент QazGost"
       >
-        <span className="ai-trigger-icon">🤖</span>
+        <span className="ai-trigger-icon">
+          <img src="/ai-avatar.png" alt="AI Assistant" className="ai-trigger-avatar-img" />
+        </span>
         {!isOpen && <span className="widget-notif-badge">1</span>}
       </button>
     </div>

@@ -1,8 +1,8 @@
-// Excel IO Utility for Admin Catalog Management
+// Excel IO Utility for Admin Catalog Management using SheetJS (XLSX)
 import * as XLSX from 'xlsx';
 
 /**
- * Export catalog price list to Excel XML / CSV format with Summary statistics
+ * Export catalog price list to genuine binary Excel (.xlsx) format with Summary sheet
  */
 export function exportPricesToExcel(items, filename = 'qazgost_prices_catalog.xlsx') {
   if (!items || items.length === 0) {
@@ -10,103 +10,119 @@ export function exportPricesToExcel(items, filename = 'qazgost_prices_catalog.xl
     return;
   }
 
-  // Calculate summary stats
+  // 1. Prepare main items rows
+  const rows = items.map((item) => ({
+    'Код позиции': item.id || item.code || '',
+    'Наименование работы / материала': item.name || '',
+    'Категория': item.category || 'Общие',
+    'Единица измерения': item.unit || 'шт',
+    'Трудоемкость (ч-ч)': Number(item.laborNorm || item.labor || 0),
+    'Базовая цена (₸)': Number(item.price || 0),
+    'Регион': item.region || 'Все регионы'
+  }));
+
+  // 2. Prepare summary stats rows
   const totalItems = items.length;
-  const prices = items.map((i) => i.price || 0);
+  const prices = items.map((i) => Number(i.price || 0));
   const minPrice = Math.min(...prices);
   const maxPrice = Math.max(...prices);
   const avgPrice = Math.round(prices.reduce((a, b) => a + b, 0) / (totalItems || 1));
 
-  // Build HTML table format that Excel opens perfectly as .xlsx/.xls
-  let xml = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<!--[if gte mso 9]><xml>
-<x:ExcelWorkbook>
-<x:ExcelWorksheets>
-<x:ExcelWorksheet>
-<x:Name>Каталог расценок</x:Name>
-<x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions>
-</x:ExcelWorksheet>
-</x:ExcelWorksheets>
-</x:ExcelWorkbook>
-</xml><![endif]-->
-<style>
-  th { background-color: #1e293b; color: #ffffff; font-weight: bold; border: 1px solid #334155; padding: 8px; }
-  td { border: 1px solid #cbd5e1; padding: 6px; }
-  .num { text-align: right; }
-  .summary-title { font-weight: bold; background-color: #f1f5f9; }
-</style>
-</head>
-<body>
-<h2>QazGost AI 2.0 — Каталог сметных нормативов и расценок РК</h2>
-<p>Дата формирования: ${new Date().toLocaleString()}</p>
-<table>
-  <thead>
-    <tr>
-      <th>Код позиции</th>
-      <th>Наименование работы / материала</th>
-      <th>Категория</th>
-      <th>Единица измерения</th>
-      <th>Трудоемкость (ч-ч)</th>
-      <th>Базовая цена (₸)</th>
-      <th>Регион</th>
-    </tr>
-  </thead>
-  <tbody>`;
+  const summaryRows = [
+    { 'Показатель': 'Всего позиций в выгрузке', 'Значение': totalItems },
+    { 'Показатель': 'Минимальная цена (₸)', 'Значение': minPrice },
+    { 'Показатель': 'Максимальная цена (₸)', 'Значение': maxPrice },
+    { 'Показатель': 'Средняя базовая цена (₸)', 'Значение': avgPrice },
+    { 'Показатель': 'Дата и время выгрузки', 'Значение': new Date().toLocaleString() }
+  ];
 
-  items.forEach((item) => {
-    xml += `
-    <tr>
-      <td>${escapeXml(item.id || item.code)}</td>
-      <td>${escapeXml(item.name)}</td>
-      <td>${escapeXml(item.category || 'Общие')}</td>
-      <td>${escapeXml(item.unit || 'шт')}</td>
-      <td class="num">${item.laborNorm || item.labor || 0}</td>
-      <td class="num">${item.price || 0}</td>
-      <td>${escapeXml(item.region || 'Все регионы')}</td>
-    </tr>`;
-  });
+  // 3. Create Workbook
+  const wb = XLSX.utils.book_new();
 
-  xml += `
-  </tbody>
-</table>
+  // Main Sheet
+  const wsMain = XLSX.utils.json_to_sheet(rows);
+  wsMain['!cols'] = [
+    { wch: 16 }, // Код позиции
+    { wch: 50 }, // Наименование
+    { wch: 24 }, // Категория
+    { wch: 18 }, // Единица измерения
+    { wch: 20 }, // Трудоемкость
+    { wch: 18 }, // Базовая цена
+    { wch: 18 }  // Регион
+  ];
+  XLSX.utils.book_append_sheet(wb, wsMain, 'Каталог расценок');
 
-<br/>
-<h3>📊 Сводка статистических показателей</h3>
-<table>
-  <tr><td class="summary-title">Всего позиций в выгрузке:</td><td class="num">${totalItems}</td></tr>
-  <tr><td class="summary-title">Минимальная цена:</td><td class="num">${minPrice.toLocaleString()} ₸</td></tr>
-  <tr><td class="summary-title">Максимальная цена:</td><td class="num">${maxPrice.toLocaleString()} ₸</td></tr>
-  <tr><td class="summary-title">Средняя базовая цена:</td><td class="num">${avgPrice.toLocaleString()} ₸</td></tr>
-</table>
-</body>
-</html>`;
+  // Summary Sheet
+  const wsSummary = XLSX.utils.json_to_sheet(summaryRows);
+  wsSummary['!cols'] = [{ wch: 32 }, { wch: 28 }];
+  XLSX.utils.book_append_sheet(wb, wsSummary, 'Сводная статистика');
 
-  const blob = new Blob([xml], { type: 'application/vnd.ms-excel;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = filename.endsWith('.xlsx') ? filename : `${filename}.xlsx`;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+  // 4. Download valid binary .xlsx file
+  const safeFilename = filename.endsWith('.xlsx') ? filename : `${filename}.xlsx`;
+  XLSX.writeFile(wb, safeFilename);
 }
 
 /**
- * Export complete 3-sheet catalog (Works, Materials, Summary)
+ * Export complete 3-sheet catalog (Works, Materials, All)
  */
-export function exportAll3SheetsExcel(pricesList) {
-  const works = pricesList.filter((p) => p.category?.toLowerCase().includes('работ') || p.id?.startsWith('E'));
-  const materials = pricesList.filter((p) => p.category?.toLowerCase().includes('материал') || p.id?.startsWith('M'));
-  exportPricesToExcel(pricesList, 'qazgost_full_3sheets_catalog.xlsx');
+export function exportAll3SheetsExcel(pricesList, filename = 'qazgost_full_3sheets_catalog.xlsx') {
+  if (!pricesList || pricesList.length === 0) {
+    alert('Нет данных для экспорта');
+    return;
+  }
+
+  const wb = XLSX.utils.book_new();
+
+  // Sheet 1: All Items
+  const allRows = pricesList.map((item) => ({
+    'Код позиции': item.id || item.code || '',
+    'Наименование работы / материала': item.name || '',
+    'Категория': item.category || 'Общие',
+    'Единица измерения': item.unit || 'шт',
+    'Трудоемкость (ч-ч)': Number(item.laborNorm || item.labor || 0),
+    'Базовая цена (₸)': Number(item.price || 0),
+    'Регион': item.region || 'Все регионы'
+  }));
+  const wsAll = XLSX.utils.json_to_sheet(allRows);
+  wsAll['!cols'] = [{ wch: 16 }, { wch: 50 }, { wch: 24 }, { wch: 18 }, { wch: 20 }, { wch: 18 }, { wch: 18 }];
+  XLSX.utils.book_append_sheet(wb, wsAll, 'Общий каталог');
+
+  // Sheet 2: Works
+  const works = pricesList.filter((p) => (p.category && p.category.toLowerCase().includes('работ')) || (p.id && String(p.id).startsWith('E')));
+  const workRows = (works.length > 0 ? works : pricesList).map((item) => ({
+    'Код работы': item.id || item.code || '',
+    'Наименование работы': item.name || '',
+    'Категория': item.category || 'Работы',
+    'Единица измерения': item.unit || 'м²',
+    'Трудоемкость (ч-ч)': Number(item.laborNorm || item.labor || 0),
+    'Базовая цена (₸)': Number(item.price || 0)
+  }));
+  const wsWorks = XLSX.utils.json_to_sheet(workRows);
+  wsWorks['!cols'] = [{ wch: 16 }, { wch: 50 }, { wch: 24 }, { wch: 18 }, { wch: 20 }, { wch: 18 }];
+  XLSX.utils.book_append_sheet(wb, wsWorks, 'Строительные работы');
+
+  // Sheet 3: Materials
+  const materials = pricesList.filter((p) => (p.category && p.category.toLowerCase().includes('материал')) || (p.id && String(p.id).startsWith('M')));
+  const matRows = (materials.length > 0 ? materials : pricesList).map((item) => ({
+    'Код материала': item.id || item.code || '',
+    'Наименование материала': item.name || '',
+    'Категория': item.category || 'Материалы',
+    'Единица измерения': item.unit || 'шт',
+    'Базовая цена (₸)': Number(item.price || 0)
+  }));
+  const wsMats = XLSX.utils.json_to_sheet(matRows);
+  wsMats['!cols'] = [{ wch: 16 }, { wch: 50 }, { wch: 24 }, { wch: 18 }, { wch: 18 }];
+  XLSX.utils.book_append_sheet(wb, wsMats, 'Строительные материалы');
+
+  const safeFilename = filename.endsWith('.xlsx') ? filename : `${filename}.xlsx`;
+  XLSX.writeFile(wb, safeFilename);
 }
 
 /**
- * Parse uploaded CSV / Text / Tab-separated file into items list
+ * Parse uploaded Excel (.xlsx, .xls) / CSV file into items list
  */
 export async function parseExcelOrCsvFile(file) {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     const reader = new FileReader();
     reader.onload = (e) => {
       try {
@@ -115,10 +131,9 @@ export async function parseExcelOrCsvFile(file) {
         const firstSheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[firstSheetName];
         const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-        
+
         const parsedItems = [];
         json.forEach((row, idx) => {
-          // Skip header or empty rows
           if (idx === 0 || !row || row.length < 2) return;
           const code = String(row[0] || '').trim();
           const name = String(row[1] || '').trim();
@@ -143,20 +158,10 @@ export async function parseExcelOrCsvFile(file) {
         resolve(parsedItems);
       } catch (err) {
         console.error('Excel parse error:', err);
-        resolve(null); // return null to trigger error popup
+        resolve(null);
       }
     };
     reader.onerror = () => resolve(null);
     reader.readAsArrayBuffer(file);
   });
-}
-
-function escapeXml(unsafe) {
-  if (!unsafe) return '';
-  return String(unsafe)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&apos;');
 }

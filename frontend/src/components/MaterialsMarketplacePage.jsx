@@ -7,6 +7,12 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCity, setSelectedCity] = useState('all');
   const [sortBy, setSortBy] = useState('popular');
+  const [priceMax, setPriceMax] = useState(50000);
+  const [radius, setRadius] = useState(100);
+  const [inStockOnly, setInStockOnly] = useState(false);
+  const [gostOnly, setGostOnly] = useState(false);
+  const [wholesaleOnly, setWholesaleOnly] = useState(false);
+  const [deliveryType, setDeliveryType] = useState('all'); // 'all' | 'delivery' | 'pickup'
 
   // Quantities in card selectors: { [productId]: count }
   const [quantities, setQuantities] = useState({});
@@ -252,13 +258,18 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
       const matchCat = selectedCategory === 'all' || p.category === selectedCategory;
       const matchSearch = p.title.toLowerCase().includes(searchQuery.toLowerCase()) || p.supplier.toLowerCase().includes(searchQuery.toLowerCase());
       const matchCity = selectedCity === 'all' || p.city.toLowerCase() === selectedCity.toLowerCase();
-      return matchCat && matchSearch && matchCity;
+      const matchPrice = p.price <= priceMax;
+      const matchInStock = !inStockOnly || p.inStock > 0;
+      const matchGost = !gostOnly || (p.gost && p.gost.length > 0);
+      const matchWholesale = !wholesaleOnly || (p.wholesaleNote && p.wholesaleNote.length > 0);
+
+      return matchCat && matchSearch && matchCity && matchPrice && matchInStock && matchGost && matchWholesale;
     }).sort((a, b) => {
       if (sortBy === 'price_asc') return a.price - b.price;
       if (sortBy === 'price_desc') return b.price - a.price;
       return 0; // default popular
     });
-  }, [products, selectedCategory, searchQuery, selectedCity, sortBy]);
+  }, [products, selectedCategory, searchQuery, selectedCity, sortBy, priceMax, inStockOnly, gostOnly, wholesaleOnly]);
 
   // Quantity helpers
   const handleQtyChange = (productId, delta) => {
@@ -471,105 +482,233 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
       {/* TAB 1: CATALOG                                              */}
       {/* ─────────────────────────────────────────────────────────── */}
       {activeTab === 'catalog' && (
-        <>
-          {/* Filters Bar */}
-          <div className="mmp-filter-bar">
-            <div className="mmp-search-box">
-              <input 
-                type="text" 
-                placeholder="🔎 Поиск материалов: цемент, арматура, кирпич, гипсокартон, песок..." 
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-              />
-            </div>
-
-            <select 
-              className="mmp-select"
-              value={selectedCity}
-              onChange={e => setSelectedCity(e.target.value)}
-            >
-              <option value="all">📍 Все склады РК</option>
-              <option value="Алматы">Алматы (Северное кольцо / Ташкентская)</option>
-              <option value="Астана">Астана (Промзона / Индустриальный)</option>
-              <option value="Шымкент">Шымкент</option>
-              <option value="Караганда">Караганда</option>
-            </select>
-
-            <select 
-              className="mmp-select"
-              value={sortBy}
-              onChange={e => setSortBy(e.target.value)}
-            >
-              <option value="popular">⚡ По популярности</option>
-              <option value="price_asc">📉 Сначала дешевле</option>
-              <option value="price_desc">📈 Сначала дороже</option>
-            </select>
+        <div className="mmp-content">
+          {/* Top Search Bar */}
+          <div className="mmp-search-bar">
+            <span className="search-icon">🔍</span>
+            <input 
+              type="text" 
+              placeholder="Поиск материалов: цемент, арматура, кирпич, гипсокартон, песок..." 
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+            />
+            <span className="search-results-count">Найдено: {filteredProducts.length}</span>
           </div>
 
-          {/* Category Chips */}
-          <div className="mmp-category-chips">
-            {categories.map(cat => (
-              <button
-                key={cat.id}
-                className={`mmp-cat-chip ${selectedCategory === cat.id ? 'active' : ''}`}
-                onClick={() => setSelectedCategory(cat.id)}
-              >
-                {cat.label}
-              </button>
-            ))}
-          </div>
+          <div className="mmp-main-layout">
+            {/* Left Sidebar Filters */}
+            <aside className="mmp-sidebar">
+              <div className="mmp-filter-group">
+                <label>🏷️ Категория</label>
+                <select 
+                  className="mmp-select"
+                  value={selectedCategory}
+                  onChange={e => setSelectedCategory(e.target.value)}
+                >
+                  {categories.map(c => (
+                    <option key={c.id} value={c.id}>{c.label}</option>
+                  ))}
+                </select>
+              </div>
 
-          {/* Products Grid */}
-          <div className="mmp-products-grid">
-            {filteredProducts.map(p => {
-              const currentQty = quantities[p.id] || 1;
-              return (
-                <div key={p.id} className="mmp-product-card">
-                  <div className="mmp-card-img-wrap">
-                    <img src={p.image} alt={p.title} />
-                    {p.badge && <span className="mmp-card-badge">{p.badge}</span>}
-                    <span className="mmp-card-gost">{p.gost}</span>
-                  </div>
+              <div className="mmp-filter-group">
+                <label>📍 Локация склада</label>
+                <select 
+                  className="mmp-select"
+                  value={selectedCity}
+                  onChange={e => setSelectedCity(e.target.value)}
+                >
+                  <option value="all">🌐 Все города / склады РК</option>
+                  <option value="Алматы">Алматы (Северное кольцо)</option>
+                  <option value="Астана">Астана (Промзона)</option>
+                  <option value="Шымкент">Шымкент</option>
+                  <option value="Караганда">Караганда</option>
+                </select>
+              </div>
 
-                  <div className="mmp-card-body">
-                    <h4 className="mmp-card-title">{p.title}</h4>
-                    <div className="mmp-card-supplier">
-                      <span>🏭</span>
-                      <span>{p.supplier}</span>
-                    </div>
-
-                    <div className="mmp-card-specs">
-                      <span className="mmp-spec-tag">📍 {p.city}</span>
-                      <span className="mmp-spec-tag">📦 Склад: {p.inStock} {p.unit}</span>
-                      <span className="mmp-spec-tag">⚖️ {p.weightKg} кг / ед.</span>
-                    </div>
-
-                    <div className="mmp-card-price-row">
-                      <div>
-                        <span className="mmp-price-val">{p.price.toLocaleString()} ₸</span>
-                        <span className="mmp-price-unit">/ {p.unit}</span>
-                        {p.wholesaleNote && <span className="mmp-wholesale-note">{p.wholesaleNote}</span>}
-                      </div>
-                    </div>
-
-                    <div className="mmp-card-actions">
-                      <div className="mmp-qty-control">
-                        <button className="mmp-qty-btn" onClick={() => handleQtyChange(p.id, -1)}>-</button>
-                        <span className="mmp-qty-val">{currentQty}</span>
-                        <button className="mmp-qty-btn" onClick={() => handleQtyChange(p.id, 1)}>+</button>
-                      </div>
-
-                      <button className="mmp-btn-add-cart" onClick={() => handleAddToCart(p)}>
-                        <span>🛒</span>
-                        <span>В корзину</span>
-                      </button>
-                    </div>
-                  </div>
+              <div className="mmp-filter-group">
+                <label>📏 Радиус поставки: {radius} км</label>
+                <input 
+                  type="range" 
+                  min="10" 
+                  max="200" 
+                  step="10"
+                  value={radius} 
+                  onChange={e => setRadius(Number(e.target.value))}
+                  className="mmp-slider"
+                />
+                <div className="mmp-slider-labels">
+                  <span>10 км</span>
+                  <span>200 км</span>
                 </div>
-              );
-            })}
+              </div>
+
+              <div className="mmp-filter-group">
+                <label>📋 Сертификация и Наличие</label>
+                <div className="mmp-checkbox-group">
+                  <label className="mmp-check-label">
+                    <input 
+                      type="checkbox" 
+                      checked={inStockOnly} 
+                      onChange={e => setInStockOnly(e.target.checked)} 
+                    />
+                    <span>📦 Только в наличии</span>
+                  </label>
+                  <label className="mmp-check-label">
+                    <input 
+                      type="checkbox" 
+                      checked={gostOnly} 
+                      onChange={e => setGostOnly(e.target.checked)} 
+                    />
+                    <span>📜 Сертификат ГОСТ / СТ РК</span>
+                  </label>
+                  <label className="mmp-check-label">
+                    <input 
+                      type="checkbox" 
+                      checked={wholesaleOnly} 
+                      onChange={e => setWholesaleOnly(e.target.checked)} 
+                    />
+                    <span>⚡ Есть оптовые скидки</span>
+                  </label>
+                </div>
+              </div>
+
+              <div className="mmp-filter-group">
+                <label>💰 Макс. цена (за ед.)</label>
+                <div className="mmp-slider-labels">
+                  <span>до {priceMax.toLocaleString()} ₸</span>
+                </div>
+                <input 
+                  type="range" 
+                  min="500" 
+                  max="50000" 
+                  step="500"
+                  value={priceMax} 
+                  onChange={e => setPriceMax(Number(e.target.value))}
+                  className="mmp-slider"
+                />
+              </div>
+
+              <div className="mmp-filter-group">
+                <label>🚚 Варианты поставки</label>
+                <div className="mmp-radio-group">
+                  <label className="mmp-radio-label">
+                    <input 
+                      type="radio" 
+                      name="mmp_delivery" 
+                      checked={deliveryType === 'all'} 
+                      onChange={() => setDeliveryType('all')} 
+                    />
+                    <span>Все варианты</span>
+                  </label>
+                  <label className="mmp-radio-label">
+                    <input 
+                      type="radio" 
+                      name="mmp_delivery" 
+                      checked={deliveryType === 'delivery'} 
+                      onChange={() => setDeliveryType('delivery')} 
+                    />
+                    <span>С доставкой на объект</span>
+                  </label>
+                  <label className="mmp-radio-label">
+                    <input 
+                      type="radio" 
+                      name="mmp_delivery" 
+                      checked={deliveryType === 'pickup'} 
+                      onChange={() => setDeliveryType('pickup')} 
+                    />
+                    <span>Самовывоз со склада</span>
+                  </label>
+                </div>
+              </div>
+
+              <button className="mmp-sidebar-submit-btn" onClick={() => showToast(`🔍 Найдено ${filteredProducts.length} позиций стройматериалов`)}>
+                Показать {filteredProducts.length} товаров
+              </button>
+            </aside>
+
+            {/* Right Results Column */}
+            <div className="mmp-results">
+              {/* Category Chips */}
+              <div className="mmp-category-chips">
+                {categories.map(cat => (
+                  <button
+                    key={cat.id}
+                    className={`mmp-cat-chip ${selectedCategory === cat.id ? 'active' : ''}`}
+                    onClick={() => setSelectedCategory(cat.id)}
+                  >
+                    {cat.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Sort selector bar inside results */}
+              <div className="mmp-sort-bar">
+                <span>Сортировка:</span>
+                <select 
+                  className="mmp-select-sm"
+                  value={sortBy}
+                  onChange={e => setSortBy(e.target.value)}
+                >
+                  <option value="popular">⚡ По популярности</option>
+                  <option value="price_asc">📉 Сначала дешевле</option>
+                  <option value="price_desc">📈 Сначала дороже</option>
+                </select>
+              </div>
+
+              {/* Products Grid */}
+              <div className="mmp-products-grid">
+                {filteredProducts.map(p => {
+                  const currentQty = quantities[p.id] || 1;
+                  return (
+                    <div key={p.id} className="mmp-product-card">
+                      <div className="mmp-card-img-wrap">
+                        <img src={p.image} alt={p.title} />
+                        {p.badge && <span className="mmp-card-badge">{p.badge}</span>}
+                        <span className="mmp-card-gost">{p.gost}</span>
+                      </div>
+
+                      <div className="mmp-card-body">
+                        <h4 className="mmp-card-title">{p.title}</h4>
+                        <div className="mmp-card-supplier">
+                          <span>🏭</span>
+                          <span>{p.supplier}</span>
+                        </div>
+
+                        <div className="mmp-card-specs">
+                          <span className="mmp-spec-tag">📍 {p.city}</span>
+                          <span className="mmp-spec-tag">📦 Склад: {p.inStock} {p.unit}</span>
+                          <span className="mmp-spec-tag">⚖️ {p.weightKg} кг / ед.</span>
+                        </div>
+
+                        <div className="mmp-card-price-row">
+                          <div>
+                            <span className="mmp-price-val">{p.price.toLocaleString()} ₸</span>
+                            <span className="mmp-price-unit">/ {p.unit}</span>
+                            {p.wholesaleNote && <span className="mmp-wholesale-note">{p.wholesaleNote}</span>}
+                          </div>
+                        </div>
+
+                        <div className="mmp-card-actions">
+                          <div className="mmp-qty-control">
+                            <button className="mmp-qty-btn" onClick={() => handleQtyChange(p.id, -1)}>-</button>
+                            <span className="mmp-qty-val">{currentQty}</span>
+                            <button className="mmp-qty-btn" onClick={() => handleQtyChange(p.id, 1)}>+</button>
+                          </div>
+
+                          <button className="mmp-btn-add-cart" onClick={() => handleAddToCart(p)}>
+                            <span>🛒</span>
+                            <span>В корзину</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
           </div>
-        </>
+        </div>
       )}
 
       {/* ─────────────────────────────────────────────────────────── */}

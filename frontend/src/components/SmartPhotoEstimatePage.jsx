@@ -115,14 +115,23 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
       return;
     }
 
-    const newPhotos = files.map(file => ({
-      id: Math.random().toString(36).substring(7),
-      name: file.name,
-      url: URL.createObjectURL(file)
-    }));
+    files.forEach(file => {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const base64 = ev.target.result; // data:image/...;base64,...
+        setPhotos(prev => [...prev, {
+          id: Math.random().toString(36).substring(7),
+          name: file.name,
+          url: URL.createObjectURL(file),
+          base64: base64,
+          size: file.size,
+          type: file.type,
+        }]);
+      };
+      reader.readAsDataURL(file);
+    });
 
-    setPhotos(prev => [...prev, ...newPhotos]);
-    showToast(`📸 Загружено ${files.length} фото`);
+    showToast(`📸 Загружено ${files.length} фото — будут отправлены в GPT-4o Vision для анализа`);
   };
 
   const removePhoto = (id) => {
@@ -231,26 +240,171 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
 
   const handleRunAiEstimate = async () => {
     setIsScanning(true);
-    setScanStep('⏳ Подключение к OpenAI Multi-Pass AI Engine...');
+    setCalculatedEstimate(null);
+    setScanStep('⏳ Подготовка данных для анализа...');
 
     try {
       const activeCatObj = categories.find(c => c.id === selectedCategory) || categories[9];
-      setScanStep('🤖 Многопроходный анализ объекта через нейросеть GPT-4o...');
+      
+      // Determine which API key to use
+      const customGptKey = userGptKey || (typeof window !== 'undefined' && localStorage.getItem('qazgost_user_openai_key'));
+      const customGptModel = gptModel || (typeof window !== 'undefined' && localStorage.getItem('qazgost_user_openai_model')) || 'gpt-4o';
+
+      // ═══ REAL VISION AI: Send photos directly to OpenAI GPT-4o Vision ═══
+      if (photos.length > 0 && customGptKey) {
+        setScanStep('📤 Отправка фото в GPT-4o Vision для анализа чертежа...');
+
+        // Build multi-modal content array
+        const contentParts = [];
+        
+        // System prompt as first text
+        contentParts.push({
+          type: 'text',
+          text: `Ты — профессиональный строительный сметчик Казахстана. Проанализируй приложенные фотографии/чертежи строительного объекта.
+
+ЗАДАЧА: Определи из изображения:
+1. Тип работ (фундамент, кладка, отделка, кровля и т.д.)
+2. Приблизительные размеры и объёмы (площадь м², длина п.м., объём м³)
+3. Необходимые материалы и их количество
+4. Стоимость работ и материалов по ценам Казахстана 2026 года
+
+${description ? `Дополнительное описание от заказчика: ${description}` : ''}
+${!isCategorySkipped ? `Предполагаемая категория работ: ${activeCatObj.title}` : ''}
+
+ОБЯЗАТЕЛЬНО ответь СТРОГО в формате JSON:
+{
+  "detected_type": "Название типа работ",
+  "dimensions": { "area_m2": число, "volume_m3": число, "length_m": число },
+  "items": [
+    { "name": "Наименование ресурса/работы", "volume": число, "unit": "ед.изм.", "unit_price": число, "total": число }
+  ],
+  "works_cost": число,
+  "materials_cost": число,
+  "total_cost": число,
+  "timeline_days": число,
+  "insights": ["строка1", "строка2", "строка3"]
+}`
+        });
+
+        // Add all uploaded photos as base64 images (up to 5 for API limits)
+        const photosToSend = photos.slice(0, 5);
+        for (const photo of photosToSend) {
+          if (photo.base64) {
+            contentParts.push({
+              type: 'image_url',
+              image_url: {
+                url: photo.base64,
+                detail: 'high'
+              }
+            });
+          }
+        }
+
+        setScanStep(`🧠 GPT-4o Vision анализирует ${photosToSend.length} фото... (это может занять 10-30 сек)`);
+
+        const visionRes = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${customGptKey}`,
+          },
+          body: JSON.stringify({
+            model: customGptModel.includes('4o') || customGptModel.includes('gpt-4') ? customGptModel : 'gpt-4o',
+            max_tokens: 4096,
+            messages: [
+              {
+                role: 'user',
+                content: contentParts
+              }
+            ]
+          })
+        });
+
+        if (visionRes.ok) {
+          const visionData = await visionRes.json();
+          const rawContent = visionData.choices?.[0]?.message?.content || '';
+          
+          setScanStep('📊 Парсинг результатов AI-анализа...');
+
+          // Extract JSON from response (handle markdown code blocks)
+          let jsonStr = rawContent;
+          const jsonMatch = rawContent.match(/```(?:json)?\s*\n?([\s\S]*?)\n?```/);
+          if (jsonMatch) jsonStr = jsonMatch[1];
+          
+          // Try to find JSON object in text
+          const braceMatch = jsonStr.match(/\{[\s\S]*\}/);
+          if (braceMatch) jsonStr = braceMatch[0];
+
+          try {
+            const parsed = JSON.parse(jsonStr);
+            
+            const data = {
+              category: parsed.detected_type || activeCatObj.title,
+              total: parsed.total_cost || (parsed.works_cost || 0) + (parsed.materials_cost || 0) || 150000,
+              worksCost: parsed.works_cost || Math.round((parsed.total_cost || 150000) * 0.55),
+              materialsCost: parsed.materials_cost || Math.round((parsed.total_cost || 150000) * 0.45),
+              timelineDays: parsed.timeline_days || 7,
+              dimensions: parsed.dimensions || {},
+              items: parsed.items || [],
+              aiInsights: parsed.insights || [
+                `✅ GPT-4o Vision проанализировал ${photosToSend.length} фото и определил: ${parsed.detected_type || 'строительные работы'}.`,
+                `📐 AI определил объёмы из чертежа/фото автоматически.`
+              ],
+              isRealVision: true,
+              photosAnalyzed: photosToSend.length,
+            };
+
+            setScanStep('✨ Компиляция итоговой сметы...');
+            setTimeout(() => {
+              setIsScanning(false);
+              setCalculatedEstimate(data);
+              showToast(`✅ GPT-4o Vision проанализировал ${photosToSend.length} фото и рассчитал смету!`);
+            }, 400);
+            return;
+          } catch (parseErr) {
+            console.warn('JSON parse failed, using raw text:', parseErr);
+            // Fall through to text-based fallback
+            const data = {
+              category: activeCatObj.title,
+              total: 0,
+              worksCost: 0,
+              materialsCost: 0,
+              timelineDays: 7,
+              items: [],
+              aiInsights: [
+                `🤖 GPT-4o Vision проанализировал фото. Ответ AI:`,
+                rawContent.substring(0, 500),
+              ],
+              rawAiResponse: rawContent,
+              isRealVision: true,
+              photosAnalyzed: photosToSend.length,
+            };
+            setIsScanning(false);
+            setCalculatedEstimate(data);
+            showToast('✅ AI-анализ фото завершён (текстовый ответ)');
+            return;
+          }
+        } else {
+          const errBody = await visionRes.json().catch(() => ({}));
+          console.error('OpenAI Vision error:', errBody);
+          showToast(`⚠️ Ошибка OpenAI (${visionRes.status}): ${errBody.error?.message || 'API error'}. Используем локальный расчёт.`);
+          // Fall through to local calculation
+        }
+      }
+
+      // ═══ FALLBACK: Backend or local calculation ═══
+      if (photos.length > 0 && !customGptKey) {
+        setScanStep('⚠️ API ключ OpenAI не указан — подключите GPT аккаунт для реального анализа фото. Используется локальный расчёт...');
+        await new Promise(r => setTimeout(r, 1500));
+      }
+
+      setScanStep('🤖 Расчёт сметы через Go-движок QazGost AI...');
       
       const token = typeof window !== 'undefined' ? (localStorage.getItem('qazgost_token') || localStorage.getItem('token')) : null;
-      const customGptKey = userGptKey || (typeof window !== 'undefined' && localStorage.getItem('qazgost_user_openai_key'));
-      const customGptModel = gptModel || (typeof window !== 'undefined' && localStorage.getItem('qazgost_user_openai_model'));
-
       const headers = { 'Content-Type': 'application/json' };
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
-      if (customGptKey) {
-        headers['X-OpenAI-Key'] = customGptKey;
-      }
-      if (customGptModel) {
-        headers['X-OpenAI-Model'] = customGptModel;
-      }
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+      if (customGptKey) headers['X-OpenAI-Key'] = customGptKey;
+      if (customGptModel) headers['X-OpenAI-Model'] = customGptModel;
 
       const res = await fetch('/api/v1/ai/estimate', {
         method: 'POST',
@@ -302,7 +456,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
       setTimeout(() => {
         setIsScanning(false);
         setCalculatedEstimate(data);
-        showToast('✅ AI-Расчёт сметы по фото успешно завершён!');
+        showToast('✅ AI-Расчёт сметы успешно завершён!');
       }, 500);
       
     } catch (err) {
@@ -747,28 +901,88 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
           <div className="spe-res-head">
             <span className="spe-res-title">📊 Итоговая смета AI 2026</span>
             <span className="spe-res-badge">{calculatedEstimate.category}</span>
+            {calculatedEstimate.isRealVision && (
+              <span className="spe-res-badge" style={{ background: 'rgba(16,185,129,.15)', color: '#6ee7b7', borderColor: 'rgba(16,185,129,.4)' }}>
+                👁️ Vision AI • {calculatedEstimate.photosAnalyzed} фото
+              </span>
+            )}
           </div>
 
-          <div className="spe-res-sum">
-            {calculatedEstimate.total.toLocaleString()} ₸
-          </div>
+          {calculatedEstimate.total > 0 && (
+            <div className="spe-res-sum">
+              {calculatedEstimate.total.toLocaleString()} ₸
+            </div>
+          )}
 
           <div className="spe-res-grid">
+            {calculatedEstimate.worksCost > 0 && (
             <div className="spe-res-col">
               <span className="label">Строительно-монтажные работы (СМР):</span>
               <strong>{calculatedEstimate.worksCost.toLocaleString()} ₸</strong>
             </div>
+            )}
 
+            {calculatedEstimate.materialsCost > 0 && (
             <div className="spe-res-col">
               <span className="label">Материалы и ресурсы (BOM):</span>
               <strong>{calculatedEstimate.materialsCost.toLocaleString()} ₸</strong>
             </div>
+            )}
 
             <div className="spe-res-col">
               <span className="label">Срок выполнения:</span>
               <strong>~{calculatedEstimate.timelineDays} дней</strong>
             </div>
           </div>
+
+          {/* Dimensions from AI Vision */}
+          {calculatedEstimate.dimensions && Object.keys(calculatedEstimate.dimensions).length > 0 && (
+            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', margin: '12px 0', padding: '10px 14px', background: 'rgba(56,189,248,.06)', borderRadius: '10px', border: '1px solid rgba(56,189,248,.15)' }}>
+              <span style={{ fontSize: '.82rem', color: '#38bdf8', fontWeight: 700 }}>📐 AI определил размеры:</span>
+              {calculatedEstimate.dimensions.area_m2 > 0 && <span style={{ fontSize: '.82rem', color: '#e2e8f0' }}>Площадь: <strong>{calculatedEstimate.dimensions.area_m2} м²</strong></span>}
+              {calculatedEstimate.dimensions.volume_m3 > 0 && <span style={{ fontSize: '.82rem', color: '#e2e8f0' }}>Объём: <strong>{calculatedEstimate.dimensions.volume_m3} м³</strong></span>}
+              {calculatedEstimate.dimensions.length_m > 0 && <span style={{ fontSize: '.82rem', color: '#e2e8f0' }}>Длина: <strong>{calculatedEstimate.dimensions.length_m} п.м.</strong></span>}
+            </div>
+          )}
+
+          {/* Items Table from AI Vision */}
+          {calculatedEstimate.items && calculatedEstimate.items.length > 0 && (
+            <div style={{ marginTop: '16px' }}>
+              <h4 style={{ margin: '0 0 8px', fontSize: '.92rem', color: '#38bdf8', fontWeight: 800 }}>📋 QTO ведомость ресурсов (из AI):</h4>
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '.82rem' }}>
+                  <thead>
+                    <tr style={{ borderBottom: '1px solid rgba(255,255,255,.1)' }}>
+                      <th style={{ textAlign: 'left', padding: '8px 6px', color: '#94a3b8', fontWeight: 700 }}>Наименование</th>
+                      <th style={{ textAlign: 'right', padding: '8px 6px', color: '#94a3b8', fontWeight: 700, whiteSpace: 'nowrap' }}>Объём</th>
+                      <th style={{ textAlign: 'center', padding: '8px 6px', color: '#94a3b8', fontWeight: 700 }}>Ед.</th>
+                      <th style={{ textAlign: 'right', padding: '8px 6px', color: '#94a3b8', fontWeight: 700, whiteSpace: 'nowrap' }}>Цена за ед.</th>
+                      <th style={{ textAlign: 'right', padding: '8px 6px', color: '#94a3b8', fontWeight: 700 }}>Сумма</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {calculatedEstimate.items.map((item, i) => (
+                      <tr key={i} style={{ borderBottom: '1px solid rgba(255,255,255,.04)' }}>
+                        <td style={{ padding: '8px 6px', color: '#e2e8f0', fontWeight: 600 }}>{item.name}</td>
+                        <td style={{ padding: '8px 6px', color: '#cbd5e1', textAlign: 'right' }}>{item.volume}</td>
+                        <td style={{ padding: '8px 6px', color: '#64748b', textAlign: 'center' }}>{item.unit}</td>
+                        <td style={{ padding: '8px 6px', color: '#94a3b8', textAlign: 'right', whiteSpace: 'nowrap' }}>{(item.unit_price || 0).toLocaleString()} ₸</td>
+                        <td style={{ padding: '8px 6px', color: '#fbbf24', fontWeight: 800, textAlign: 'right', whiteSpace: 'nowrap' }}>{(item.total || 0).toLocaleString()} ₸</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* Raw AI response (if JSON parse failed) */}
+          {calculatedEstimate.rawAiResponse && (
+            <div style={{ marginTop: '16px', padding: '14px', background: 'rgba(255,255,255,.03)', borderRadius: '10px', border: '1px solid rgba(255,255,255,.06)' }}>
+              <h4 style={{ margin: '0 0 8px', fontSize: '.88rem', color: '#f59e0b', fontWeight: 800 }}>🤖 Полный ответ AI:</h4>
+              <pre style={{ margin: 0, fontSize: '.78rem', color: '#cbd5e1', whiteSpace: 'pre-wrap', lineHeight: 1.55, maxHeight: '400px', overflow: 'auto' }}>{calculatedEstimate.rawAiResponse}</pre>
+            </div>
+          )}
 
           <div className="spe-res-insights mt-3">
             <h4>✨ Экспертный вывод AI:</h4>

@@ -416,19 +416,21 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
 
           {/* ── GLOBAL NAV: Materials & Equipment (visible to all) ── */}
           <button
-            className="nav-dropdown-btn"
-            style={{ background: 'rgba(16,185,129,.08)', borderColor: 'rgba(16,185,129,.25)' }}
+            className="nav-marketplace-btn nav-materials-btn"
             onClick={() => { closeDropdown(); if (onOpenMaterials) onOpenMaterials(); }}
+            title="Маркетплейс строительных материалов"
           >
-            🧱 Стройматериалы
+            <span className="nav-btn-badge">🧱</span>
+            <span className="nav-btn-text">Стройматериалы</span>
           </button>
 
           <button
-            className="nav-dropdown-btn"
-            style={{ background: 'rgba(245,158,11,.08)', borderColor: 'rgba(245,158,11,.25)' }}
+            className="nav-marketplace-btn nav-equipment-btn"
             onClick={() => { closeDropdown(); if (onOpenEquipment) onOpenEquipment(); }}
+            title="Маркетплейс спецтехники"
           >
-            🚜 Техника
+            <span className="nav-btn-badge">🚜</span>
+            <span className="nav-btn-text">Техника</span>
           </button>
 
         </div>

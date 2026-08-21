@@ -178,56 +178,192 @@
   font-weight: 900;
 }
 
-/* Filter Controls Bar */
-.mmp-filter-bar {
+/* Content Container */
+.mmp-content {
   display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Search Bar */
+.mmp-search-bar {
+  display: flex;
   align-items: center;
-  background: rgba(15, 23, 42, 0.75);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 16px;
-  padding: 1rem 1.25rem;
-  margin-bottom: 1.5rem;
+  background: rgba(10, 12, 28, 0.7);
   backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 16px;
+  padding: 0.9rem 1.25rem;
+  gap: 1rem;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+  transition: all 0.25s ease;
+  margin-bottom: 0.5rem;
 }
 
-.mmp-search-box {
-  flex: 2;
-  min-width: 260px;
-  position: relative;
-}
-
-.mmp-search-box input {
-  width: 100%;
-  background: rgba(10, 14, 28, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #fff;
-  padding: 10px 16px;
-  border-radius: 10px;
-  font-size: 0.92rem;
-  outline: none;
-  transition: border-color 0.2s ease;
-}
-
-.mmp-search-box input:focus {
+.mmp-search-bar:focus-within {
   border-color: #10b981;
-  box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+}
+
+.mmp-search-bar input {
+  flex: 1;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 1rem;
+  outline: none;
+}
+
+.mmp-search-bar input::placeholder {
+  color: #64748b;
+}
+
+.search-results-count {
+  color: #10b981;
+  font-weight: 800;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+/* Main Grid Layout */
+.mmp-main-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 1.75rem;
+}
+
+/* Left Sidebar */
+.mmp-sidebar {
+  background: rgba(15, 18, 40, 0.55);
+  backdrop-filter: blur(28px) saturate(200%);
+  -webkit-backdrop-filter: blur(28px) saturate(200%);
+  border-radius: 24px;
+  padding: 1.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.6rem;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  align-self: start;
+}
+
+.mmp-filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.mmp-filter-group label {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #e2e8f0;
 }
 
 .mmp-select {
-  background: rgba(10, 14, 28, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: #0f172a;
   color: #fff;
-  padding: 10px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 10px;
-  font-size: 0.9rem;
+  padding: 0.75rem;
   outline: none;
-  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.9rem;
 }
 
 .mmp-select:focus {
   border-color: #10b981;
+}
+
+.mmp-radio-group,
+.mmp-checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.mmp-radio-label,
+.mmp-check-label {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.88rem;
+  color: #cbd5e1;
+  cursor: pointer;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.mmp-radio-label:hover,
+.mmp-check-label:hover {
+  color: #fff;
+}
+
+.mmp-radio-label input[type="radio"],
+.mmp-check-label input[type="checkbox"] {
+  accent-color: #10b981;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.mmp-slider {
+  accent-color: #10b981;
+  width: 100%;
+  cursor: pointer;
+}
+
+.mmp-slider-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.mmp-sidebar-submit-btn {
+  background: linear-gradient(90deg, #10b981, #059669);
+  color: #fff;
+  border: none;
+  padding: 1rem;
+  border-radius: 14px;
+  font-weight: 800;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  margin-top: 0.5rem;
+  box-shadow: 0 4px 18px rgba(16, 185, 129, 0.45);
+}
+
+.mmp-sidebar-submit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 22px rgba(16, 185, 129, 0.6);
+}
+
+.mmp-results {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.mmp-sort-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  font-size: 0.88rem;
+  color: #94a3b8;
+}
+
+.mmp-select-sm {
+  background: rgba(10, 14, 28, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  outline: none;
+  cursor: pointer;
 }
 
 /* Category Chips Grid */
@@ -702,6 +838,16 @@
 }
 
 /* Responsive */
+@media (max-width: 1024px) {
+  .mmp-main-layout {
+    grid-template-columns: 1fr;
+  }
+  
+  .mmp-sidebar {
+    position: static;
+  }
+}
+
 @media (max-width: 768px) {
   .mmp-hero-banner {
     flex-direction: column;
@@ -710,10 +856,6 @@
   .mmp-hero-stats {
     width: 100%;
     justify-content: space-between;
-  }
-  .mmp-filter-bar {
-    flex-direction: column;
-    align-items: stretch;
   }
   .mmp-products-grid {
     grid-template-columns: 1fr;
