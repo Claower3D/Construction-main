@@ -1466,23 +1466,22 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
           {/* ========================================================================= */}
           {activeTab === 'moderation' && (() => {
             const filteredModQueue = moderationQueue.filter((item) => {
-              // Category filter
               if (modCategoryFilter === 'urgent' && item.priority !== 'high') return false;
               if (modCategoryFilter === 'orders' && item.category !== 'orders') return false;
               if (modCategoryFilter === 'verification' && item.category !== 'verification') return false;
               if (modCategoryFilter === 'complaints' && item.category !== 'complaints') return false;
               if (modCategoryFilter === 'spam' && item.category !== 'spam') return false;
 
-              // Search query
               if (modSearch.trim()) {
                 const query = modSearch.toLowerCase();
-                const matchId = (item.id || '').toLowerCase().includes(query);
-                const matchTitle = (item.title || '').toLowerCase().includes(query);
-                const matchAuthor = (item.author || '').toLowerCase().includes(query);
-                const matchBin = (item.bin || '').toLowerCase().includes(query);
-                const matchCity = (item.city || '').toLowerCase().includes(query);
-                const matchType = (item.type || '').toLowerCase().includes(query);
-                return matchId || matchTitle || matchAuthor || matchBin || matchCity || matchType;
+                return (
+                  (item.id || '').toLowerCase().includes(query) ||
+                  (item.title || '').toLowerCase().includes(query) ||
+                  (item.author || '').toLowerCase().includes(query) ||
+                  (item.bin || '').toLowerCase().includes(query) ||
+                  (item.city || '').toLowerCase().includes(query) ||
+                  (item.type || '').toLowerCase().includes(query)
+                );
               }
               return true;
             });
@@ -1498,102 +1497,131 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
 
             return (
               <div className="admin-tab-content">
-                {/* ── 1. KPI & OVERVIEW BENTO STATS ── */}
+                {/* ── 1. KPI SUMMARY TILES ── */}
                 <div style={{
                   display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))',
                   gap: '12px',
                   marginBottom: '1.25rem'
                 }}>
-                  {/* KPI 1: Total Queue */}
-                  <div style={{
-                    background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.7), rgba(15, 23, 42, 0.9))',
-                    border: '1px solid rgba(59, 130, 246, 0.3)',
-                    borderRadius: '12px',
-                    padding: '14px 18px',
-                    position: 'relative',
-                    overflow: 'hidden'
-                  }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                      <span style={{ fontSize: '0.8rem', color: '#94a3b8', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Очередь аудита</span>
-                      <span style={{ fontSize: '1.2rem' }}>🛡️</span>
+                  {/* Total Queue Tile */}
+                  <div
+                    onClick={() => setModCategoryFilter('all')}
+                    style={{
+                      background: modCategoryFilter === 'all'
+                        ? 'linear-gradient(135deg, rgba(37, 99, 235, 0.22), rgba(15, 23, 42, 0.95))'
+                        : 'rgba(15, 23, 42, 0.75)',
+                      border: `1px solid ${modCategoryFilter === 'all' ? 'rgba(56, 189, 248, 0.5)' : 'rgba(255, 255, 255, 0.08)'}`,
+                      borderRadius: '12px',
+                      padding: '14px 18px',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                      boxShadow: modCategoryFilter === 'all' ? '0 0 20px rgba(37, 99, 235, 0.25)' : 'none'
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                      <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.6px' }}>Очередь аудита</span>
+                      <span style={{ fontSize: '1.1rem' }}>🛡️</span>
                     </div>
-                    <div style={{ fontSize: '1.8rem', fontWeight: '800', color: '#60a5fa', lineHeight: '1.2' }}>{moderationQueue.length} <span style={{ fontSize: '0.9rem', color: '#94a3b8', fontWeight: '500' }}>заявок</span></div>
-                    <div style={{ fontSize: '0.78rem', color: '#cbd5e1', marginTop: '4px' }}>Общая сумма: <strong style={{ color: '#fbbf24' }}>{totalBudget.toLocaleString()} ₸</strong></div>
+                    <div style={{ fontSize: '1.75rem', fontWeight: '800', color: '#ffffff', lineHeight: '1.2' }}>
+                      {moderationQueue.length} <span style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: '500' }}>дел</span>
+                    </div>
+                    <div style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '4px' }}>
+                      Сумма: <strong style={{ color: '#fbbf24' }}>{totalBudget.toLocaleString()} ₸</strong>
+                    </div>
                   </div>
 
-                  {/* KPI 2: Urgent attention */}
-                  <div style={{
-                    background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.12), rgba(15, 23, 42, 0.9))',
-                    border: '1px solid rgba(239, 68, 68, 0.35)',
-                    borderRadius: '12px',
-                    padding: '14px 18px',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease'
-                  }}
-                  onClick={() => setModCategoryFilter(modCategoryFilter === 'urgent' ? 'all' : 'urgent')}
+                  {/* Urgent Attention Tile */}
+                  <div
+                    onClick={() => setModCategoryFilter(modCategoryFilter === 'urgent' ? 'all' : 'urgent')}
+                    style={{
+                      background: modCategoryFilter === 'urgent'
+                        ? 'linear-gradient(135deg, rgba(239, 68, 68, 0.25), rgba(15, 23, 42, 0.95))'
+                        : 'rgba(15, 23, 42, 0.75)',
+                      border: `1px solid ${modCategoryFilter === 'urgent' ? '#ef4444' : 'rgba(239, 68, 68, 0.3)'}`,
+                      borderRadius: '12px',
+                      padding: '14px 18px',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                      boxShadow: modCategoryFilter === 'urgent' ? '0 0 20px rgba(239, 68, 68, 0.3)' : 'none'
+                    }}
                   >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                      <span style={{ fontSize: '0.8rem', color: '#fca5a5', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Срочный приоритет</span>
-                      <span style={{ fontSize: '1.2rem' }}>🔴</span>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                      <span style={{ fontSize: '0.75rem', color: '#fca5a5', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.6px' }}>Срочные дела</span>
+                      <span style={{ fontSize: '1.1rem' }}>🔴</span>
                     </div>
-                    <div style={{ fontSize: '1.8rem', fontWeight: '800', color: '#f87171', lineHeight: '1.2' }}>{urgentCount} <span style={{ fontSize: '0.9rem', color: '#fca5a5', fontWeight: '500' }}>дела</span></div>
-                    <div style={{ fontSize: '0.78rem', color: '#fca5a5', marginTop: '4px' }}>Требуют решения в течение 1 часа</div>
+                    <div style={{ fontSize: '1.75rem', fontWeight: '800', color: '#f87171', lineHeight: '1.2' }}>
+                      {urgentCount} <span style={{ fontSize: '0.85rem', color: '#fca5a5', fontWeight: '500' }}>заявок</span>
+                    </div>
+                    <div style={{ fontSize: '0.75rem', color: '#fca5a5', marginTop: '4px' }}>Решение &lt; 1 часа</div>
                   </div>
 
-                  {/* KPI 3: BIN / IIN Verifications */}
-                  <div style={{
-                    background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(15, 23, 42, 0.9))',
-                    border: '1px solid rgba(16, 185, 129, 0.35)',
-                    borderRadius: '12px',
-                    padding: '14px 18px',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease'
-                  }}
-                  onClick={() => setModCategoryFilter(modCategoryFilter === 'verification' ? 'all' : 'verification')}
+                  {/* Verification Tile */}
+                  <div
+                    onClick={() => setModCategoryFilter(modCategoryFilter === 'verification' ? 'all' : 'verification')}
+                    style={{
+                      background: modCategoryFilter === 'verification'
+                        ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(15, 23, 42, 0.95))'
+                        : 'rgba(15, 23, 42, 0.75)',
+                      border: `1px solid ${modCategoryFilter === 'verification' ? '#10b981' : 'rgba(16, 185, 129, 0.3)'}`,
+                      borderRadius: '12px',
+                      padding: '14px 18px',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                      boxShadow: modCategoryFilter === 'verification' ? '0 0 20px rgba(16, 185, 129, 0.3)' : 'none'
+                    }}
                   >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                      <span style={{ fontSize: '0.8rem', color: '#6ee7b7', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Верификация юрлиц</span>
-                      <span style={{ fontSize: '1.2rem' }}>🏢</span>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                      <span style={{ fontSize: '0.75rem', color: '#6ee7b7', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.6px' }}>Верификация</span>
+                      <span style={{ fontSize: '1.1rem' }}>🏢</span>
                     </div>
-                    <div style={{ fontSize: '1.8rem', fontWeight: '800', color: '#34d399', lineHeight: '1.2' }}>{verifCount} <span style={{ fontSize: '0.9rem', color: '#6ee7b7', fontWeight: '500' }}>компаний</span></div>
-                    <div style={{ fontSize: '0.78rem', color: '#6ee7b7', marginTop: '4px' }}>Проверка лицензий ГАСК и БИН</div>
+                    <div style={{ fontSize: '1.75rem', fontWeight: '800', color: '#34d399', lineHeight: '1.2' }}>
+                      {verifCount} <span style={{ fontSize: '0.85rem', color: '#6ee7b7', fontWeight: '500' }}>БИН/ИИН</span>
+                    </div>
+                    <div style={{ fontSize: '0.75rem', color: '#6ee7b7', marginTop: '4px' }}>Проверка лицензий ГАСК</div>
                   </div>
 
-                  {/* KPI 4: Disputes & Complaints */}
-                  <div style={{
-                    background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(15, 23, 42, 0.9))',
-                    border: '1px solid rgba(245, 158, 11, 0.35)',
-                    borderRadius: '12px',
-                    padding: '14px 18px',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease'
-                  }}
-                  onClick={() => setModCategoryFilter(modCategoryFilter === 'complaints' ? 'all' : 'complaints')}
+                  {/* Complaints Tile */}
+                  <div
+                    onClick={() => setModCategoryFilter(modCategoryFilter === 'complaints' ? 'all' : 'complaints')}
+                    style={{
+                      background: modCategoryFilter === 'complaints'
+                        ? 'linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(15, 23, 42, 0.95))'
+                        : 'rgba(15, 23, 42, 0.75)',
+                      border: `1px solid ${modCategoryFilter === 'complaints' ? '#f59e0b' : 'rgba(245, 158, 11, 0.3)'}`,
+                      borderRadius: '12px',
+                      padding: '14px 18px',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                      boxShadow: modCategoryFilter === 'complaints' ? '0 0 20px rgba(245, 158, 11, 0.3)' : 'none'
+                    }}
                   >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                      <span style={{ fontSize: '0.8rem', color: '#fde68a', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Споры и Претензии</span>
-                      <span style={{ fontSize: '1.2rem' }}>⚖️</span>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                      <span style={{ fontSize: '0.75rem', color: '#fde68a', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.6px' }}>Споры & Жалобы</span>
+                      <span style={{ fontSize: '1.1rem' }}>⚖️</span>
                     </div>
-                    <div style={{ fontSize: '1.8rem', fontWeight: '800', color: '#fbbf24', lineHeight: '1.2' }}>{complaintsCount} <span style={{ fontSize: '0.9rem', color: '#fde68a', fontWeight: '500' }}>случая</span></div>
-                    <div style={{ fontSize: '0.78rem', color: '#fde68a', marginTop: '4px' }}>Эскроу-блокировки и технадзор</div>
+                    <div style={{ fontSize: '1.75rem', fontWeight: '800', color: '#fbbf24', lineHeight: '1.2' }}>
+                      {complaintsCount} <span style={{ fontSize: '0.85rem', color: '#fde68a', fontWeight: '500' }}>претензии</span>
+                    </div>
+                    <div style={{ fontSize: '0.75rem', color: '#fde68a', marginTop: '4px' }}>Эскроу-блокировки</div>
                   </div>
                 </div>
 
-                {/* ── 2. TOOLBAR: FILTERS + SEARCH + BULK ACTIONS ── */}
+                {/* ── 2. EXECUTIVE CONTROL BAR (CHIPS + SEARCH + ACTIONS) ── */}
                 <div style={{
-                  background: 'rgba(15, 23, 42, 0.75)',
+                  background: 'rgba(14, 22, 38, 0.85)',
+                  backdropFilter: 'blur(16px)',
                   border: '1px solid rgba(255, 255, 255, 0.08)',
-                  borderRadius: '12px',
-                  padding: '12px 16px',
+                  borderRadius: '14px',
+                  padding: '14px 16px',
                   marginBottom: '1rem',
                   display: 'flex',
                   flexDirection: 'column',
                   gap: '12px'
                 }}>
-                  {/* Upper Row: Filter Chips + View Mode */}
+                  {/* Top Bar: Chips and View Mode */}
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
-                    <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
                       <button
                         className={`admin-filter-chip ${modCategoryFilter === 'all' ? 'active' : ''}`}
                         onClick={() => setModCategoryFilter('all')}
@@ -1601,11 +1629,7 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
                         📋 Все ({moderationQueue.length})
                       </button>
                       <button
-                        className={`admin-filter-chip ${modCategoryFilter === 'urgent' ? 'active' : ''}`}
-                        style={{
-                          borderColor: modCategoryFilter === 'urgent' ? '#ef4444' : 'rgba(239, 68, 68, 0.3)',
-                          color: modCategoryFilter === 'urgent' ? '#ffffff' : '#fca5a5'
-                        }}
+                        className={`admin-filter-chip chip-urgent ${modCategoryFilter === 'urgent' ? 'active' : ''}`}
                         onClick={() => setModCategoryFilter('urgent')}
                       >
                         🔴 Срочные ({urgentCount})
@@ -1636,21 +1660,22 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
                       </button>
                     </div>
 
-                    {/* View Switcher */}
-                    <div style={{ display: 'flex', background: 'rgba(0, 0, 0, 0.4)', borderRadius: '8px', padding: '2px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+                    {/* View Switcher Tabs */}
+                    <div style={{ display: 'flex', background: 'rgba(8, 12, 22, 0.8)', borderRadius: '8px', padding: '3px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
                       <button
                         style={{
-                          background: modViewMode === 'table' ? 'rgba(59, 130, 246, 0.3)' : 'transparent',
-                          color: modViewMode === 'table' ? '#60a5fa' : '#94a3b8',
-                          border: 'none',
-                          padding: '6px 12px',
+                          background: modViewMode === 'table' ? 'linear-gradient(135deg, rgba(37, 99, 235, 0.4), rgba(14, 165, 233, 0.3))' : 'transparent',
+                          color: modViewMode === 'table' ? '#ffffff' : '#94a3b8',
+                          border: modViewMode === 'table' ? '1px solid rgba(56, 189, 248, 0.4)' : 'none',
+                          padding: '5px 12px',
                           borderRadius: '6px',
                           fontSize: '0.8rem',
                           cursor: 'pointer',
-                          fontWeight: '600',
+                          fontWeight: '700',
                           display: 'flex',
                           alignItems: 'center',
-                          gap: '5px'
+                          gap: '5px',
+                          transition: 'all 0.15s ease'
                         }}
                         onClick={() => setModViewMode('table')}
                       >
@@ -1658,17 +1683,18 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
                       </button>
                       <button
                         style={{
-                          background: modViewMode === 'cards' ? 'rgba(59, 130, 246, 0.3)' : 'transparent',
-                          color: modViewMode === 'cards' ? '#60a5fa' : '#94a3b8',
-                          border: 'none',
-                          padding: '6px 12px',
+                          background: modViewMode === 'cards' ? 'linear-gradient(135deg, rgba(37, 99, 235, 0.4), rgba(14, 165, 233, 0.3))' : 'transparent',
+                          color: modViewMode === 'cards' ? '#ffffff' : '#94a3b8',
+                          border: modViewMode === 'cards' ? '1px solid rgba(56, 189, 248, 0.4)' : 'none',
+                          padding: '5px 12px',
                           borderRadius: '6px',
                           fontSize: '0.8rem',
                           cursor: 'pointer',
-                          fontWeight: '600',
+                          fontWeight: '700',
                           display: 'flex',
                           alignItems: 'center',
-                          gap: '5px'
+                          gap: '5px',
+                          transition: 'all 0.15s ease'
                         }}
                         onClick={() => setModViewMode('cards')}
                       >
@@ -1677,35 +1703,34 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
                     </div>
                   </div>
 
-                  {/* Lower Row: Search + Bulk Action Controls */}
+                  {/* Search Bar & Fast Batch Operations */}
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
-                    <div style={{ flex: '1 1 300px', maxWidth: '460px' }}>
+                    <div style={{ flex: '1 1 320px', maxWidth: '500px' }}>
                       <input
                         type="text"
                         className="admin-search-input"
-                        placeholder="🔍 Поиск по номеру, названию, контрагенту, БИН/ИИН, городу..."
+                        placeholder="Поиск по номеру, названию, контрагенту, БИН/ИИН, городу..."
                         value={modSearch}
                         onChange={(e) => setModSearch(e.target.value)}
-                        style={{ width: '100%' }}
                       />
                     </div>
 
                     <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
                       {modSelectedIds.length > 0 && (
                         <>
-                          <span style={{ fontSize: '0.82rem', color: '#94a3b8', fontWeight: '600' }}>
-                            Выбрано: <strong style={{ color: '#60a5fa' }}>{modSelectedIds.length}</strong>
+                          <span style={{ fontSize: '0.8rem', color: '#94a3b8', fontWeight: '600' }}>
+                            Выбрано: <strong style={{ color: '#38bdf8' }}>{modSelectedIds.length}</strong>
                           </span>
                           <button
                             className="admin-primary-btn"
-                            style={{ background: 'linear-gradient(90deg, #10b981, #059669)', padding: '7px 14px', fontSize: '0.82rem' }}
+                            style={{ background: 'linear-gradient(135deg, #10b981, #059669)', padding: '7px 14px', fontSize: '0.8rem' }}
                             onClick={handleApproveSelectedMod}
                           >
                             ✅ Одобрить ({modSelectedIds.length})
                           </button>
                           <button
                             className="admin-secondary-btn"
-                            style={{ borderColor: 'rgba(239, 68, 68, 0.4)', color: '#f87171', padding: '7px 14px', fontSize: '0.82rem' }}
+                            style={{ borderColor: 'rgba(239, 68, 68, 0.4)', color: '#f87171', padding: '7px 14px', fontSize: '0.8rem' }}
                             onClick={handleRejectSelectedMod}
                           >
                             ❌ Отклонить ({modSelectedIds.length})
@@ -1714,23 +1739,23 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
                       )}
 
                       <button
-                        className="admin-primary-btn btn-approve-all"
+                        className="admin-primary-btn"
                         style={{
-                          background: 'linear-gradient(90deg, #3b82f6, #2563eb)',
+                          background: 'linear-gradient(135deg, #2563eb, #0284c7)',
                           padding: '7px 16px',
-                          fontSize: '0.82rem',
+                          fontSize: '0.8rem',
                           fontWeight: '700'
                         }}
                         onClick={handleApproveAllModeration}
                         disabled={moderationQueue.length === 0}
                       >
-                        ⚡ Одобрить всю очередь ({moderationQueue.length})
+                        ⚡ Одобрить всё ({moderationQueue.length})
                       </button>
                     </div>
                   </div>
                 </div>
 
-                {/* ── 3. CONTENT VIEW: TABLE OR CARDS ── */}
+                {/* ── 3. DATA VIEW: TABLE OR BENTO CARDS ── */}
                 {filteredModQueue.length === 0 ? (
                   <div className="admin-section-box" style={{ textAlign: 'center', padding: '3.5rem 1.5rem', color: '#94a3b8' }}>
                     <div style={{ fontSize: '2.5rem', marginBottom: '10px' }}>🎉</div>
@@ -1738,26 +1763,26 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
                     <p style={{ margin: 0, fontSize: '0.85rem' }}>Нет заявок, ожидающих рассмотрения по выбранным фильтрам.</p>
                   </div>
                 ) : modViewMode === 'table' ? (
-                  /* ── TABLE VIEW ── */
-                  <div className="admin-section-box" style={{ overflowX: 'auto', padding: 0 }}>
-                    <table className="admin-table" style={{ margin: 0 }}>
+                  /* ── HIGH-TECH TABLE VIEW ── */
+                  <div className="admin-section-box" style={{ overflowX: 'auto', padding: '8px' }}>
+                    <table className="admin-table">
                       <thead>
                         <tr>
-                          <th style={{ width: '40px', textAlign: 'center' }}>
+                          <th style={{ width: '36px', textAlign: 'center' }}>
                             <input
                               type="checkbox"
                               checked={allFilteredSelected}
                               onChange={() => handleToggleSelectAllMod(filteredModQueue)}
                               title="Выбрать все"
-                              style={{ cursor: 'pointer' }}
+                              style={{ cursor: 'pointer', accentColor: '#3b82f6' }}
                             />
                           </th>
-                          <th style={{ width: '130px' }}>Код / Срочность</th>
+                          <th style={{ width: '130px' }}>Код / Приоритет</th>
                           <th style={{ width: '130px' }}>Категория</th>
                           <th>Предмет модерации & Контрагент</th>
-                          <th style={{ width: '140px' }}>Регион / Время</th>
+                          <th style={{ width: '130px' }}>Локация / Время</th>
                           <th style={{ width: '140px', textAlign: 'right' }}>Сумма сделки</th>
-                          <th style={{ width: '110px', textAlign: 'center' }}>Риск</th>
+                          <th style={{ width: '110px', textAlign: 'center' }}>AI Скоринг</th>
                           <th style={{ width: '170px', textAlign: 'center' }}>Действия</th>
                         </tr>
                       </thead>
@@ -1770,8 +1795,14 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
                             <tr
                               key={item.id}
                               style={{
-                                background: isSelected ? 'rgba(59, 130, 246, 0.08)' : 'transparent',
-                                borderLeft: isUrgent ? '3px solid #ef4444' : '3px solid transparent'
+                                background: isSelected
+                                  ? 'rgba(37, 99, 235, 0.14)'
+                                  : isUrgent
+                                  ? 'rgba(239, 68, 68, 0.05)'
+                                  : 'rgba(14, 22, 38, 0.55)',
+                                borderLeft: isUrgent
+                                  ? '3px solid #ef4444'
+                                  : '3px solid transparent'
                               }}
                             >
                               {/* Checkbox */}
@@ -1780,13 +1811,15 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
                                   type="checkbox"
                                   checked={isSelected}
                                   onChange={() => handleToggleSelectModItem(item.id)}
-                                  style={{ cursor: 'pointer' }}
+                                  style={{ cursor: 'pointer', accentColor: '#3b82f6' }}
                                 />
                               </td>
 
-                              {/* ID & Priority */}
+                              {/* Code & Priority */}
                               <td>
-                                <div style={{ fontWeight: '700', color: '#ffffff', fontSize: '0.85rem' }}>{item.id}</div>
+                                <div style={{ fontWeight: '800', color: '#ffffff', fontSize: '0.85rem', fontFamily: 'monospace' }}>
+                                  {item.id}
+                                </div>
                                 <span style={{
                                   display: 'inline-flex',
                                   alignItems: 'center',
@@ -1799,7 +1832,7 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
                                 </span>
                               </td>
 
-                              {/* Category Type Pill */}
+                              {/* Category Pill */}
                               <td>
                                 <span
                                   className="cat-chip"
@@ -1816,45 +1849,41 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
                                       item.category === 'orders' ? 'rgba(59, 130, 246, 0.3)' :
                                       item.category === 'verification' ? 'rgba(16, 185, 129, 0.3)' :
                                       item.category === 'complaints' ? 'rgba(245, 158, 11, 0.3)' : 'rgba(239, 68, 68, 0.3)'
-                                    }`,
-                                    fontSize: '0.75rem',
-                                    padding: '3px 8px',
-                                    borderRadius: '6px',
-                                    fontWeight: '600'
+                                    }`
                                   }}
                                 >
                                   {item.type}
                                 </span>
                               </td>
 
-                              {/* Title & Author & BIN */}
+                              {/* Subject & Author */}
                               <td>
-                                <div style={{ fontWeight: '600', color: '#ffffff', fontSize: '0.88rem', marginBottom: '2px' }}>
+                                <div style={{ fontWeight: '700', color: '#ffffff', fontSize: '0.9rem', marginBottom: '3px' }}>
                                   {item.title}
                                 </div>
                                 <div style={{ fontSize: '0.78rem', color: '#94a3b8', display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
-                                  <span style={{ color: '#cbd5e1' }}>{item.author}</span>
+                                  <span style={{ color: '#cbd5e1', fontWeight: '500' }}>{item.author}</span>
                                   {item.bin && item.bin !== '—' && item.bin !== 'Не указан' && (
                                     <span style={{ color: '#64748b', fontFamily: 'monospace' }}>БИН: {item.bin}</span>
                                   )}
                                   {item.docCount && (
-                                    <span style={{ color: '#38bdf8', fontSize: '0.72rem' }}>📎 {item.docCount}</span>
+                                    <span style={{ color: '#38bdf8', fontSize: '0.74rem' }}>📎 {item.docCount}</span>
                                   )}
                                 </div>
                               </td>
 
-                              {/* Region & Date */}
+                              {/* City & Time */}
                               <td>
-                                <div style={{ color: '#ffffff', fontSize: '0.82rem', fontWeight: '500' }}>{item.city}</div>
+                                <div style={{ color: '#ffffff', fontSize: '0.82rem', fontWeight: '600' }}>{item.city}</div>
                                 <div style={{ color: '#64748b', fontSize: '0.75rem' }}>{item.date}</div>
                               </td>
 
                               {/* Amount */}
-                              <td style={{ textAlign: 'right', fontWeight: '700', color: item.amount > 0 ? '#fbbf24' : '#64748b', fontSize: '0.88rem' }}>
+                              <td style={{ textAlign: 'right', fontWeight: '800', color: item.amount > 0 ? '#fbbf24' : '#64748b', fontSize: '0.88rem' }}>
                                 {item.amount > 0 ? `${Number(item.amount).toLocaleString()} ₸` : '—'}
                               </td>
 
-                              {/* Risk Score */}
+                              {/* AI Risk Score */}
                               <td style={{ textAlign: 'center' }}>
                                 <span style={{
                                   display: 'inline-flex',
@@ -1869,20 +1898,24 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
                                     item.riskLevel === 'medium' ? 'rgba(245, 158, 11, 0.12)' : 'rgba(239, 68, 68, 0.15)',
                                   color:
                                     item.riskLevel === 'low' ? '#6ee7b7' :
-                                    item.riskLevel === 'medium' ? '#fde68a' : '#f87171'
+                                    item.riskLevel === 'medium' ? '#fde68a' : '#f87171',
+                                  border: `1px solid ${
+                                    item.riskLevel === 'low' ? 'rgba(16, 185, 129, 0.25)' :
+                                    item.riskLevel === 'medium' ? 'rgba(245, 158, 11, 0.25)' : 'rgba(239, 68, 68, 0.3)'
+                                  }`
                                 }}>
                                   {item.riskLevel === 'low' ? '🟢 Низкий' : item.riskLevel === 'medium' ? '🟡 Средний' : '🔴 Высокий'}
                                 </span>
                               </td>
 
-                              {/* Action Buttons */}
+                              {/* Actions */}
                               <td style={{ textAlign: 'center' }}>
-                                <div style={{ display: 'flex', gap: '5px', justifyContent: 'center', alignItems: 'center' }}>
+                                <div style={{ display: 'flex', gap: '6px', justifyContent: 'center', alignItems: 'center' }}>
                                   <button
                                     className="admin-primary-btn"
                                     style={{
-                                      background: 'linear-gradient(90deg, #10b981, #059669)',
-                                      padding: '4px 10px',
+                                      background: 'linear-gradient(135deg, #10b981, #059669)',
+                                      padding: '5px 12px',
                                       fontSize: '0.76rem',
                                       borderRadius: '6px'
                                     }}
@@ -1897,13 +1930,12 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
                                       background: 'rgba(239, 68, 68, 0.15)',
                                       color: '#f87171',
                                       border: '1px solid rgba(239, 68, 68, 0.3)',
-                                      padding: '4px 8px',
+                                      padding: '5px 8px',
                                       borderRadius: '6px',
-                                      fontSize: '0.76rem',
-                                      cursor: 'pointer'
+                                      fontSize: '0.76rem'
                                     }}
                                     onClick={() => handleRejectModeration(item.id)}
-                                    title="Отклонить с указанием причины"
+                                    title="Отклонить"
                                   >
                                     ❌
                                   </button>
@@ -1913,13 +1945,12 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
                                       background: 'rgba(255, 255, 255, 0.05)',
                                       color: '#cbd5e1',
                                       border: '1px solid rgba(255, 255, 255, 0.1)',
-                                      padding: '4px 8px',
+                                      padding: '5px 8px',
                                       borderRadius: '6px',
-                                      fontSize: '0.76rem',
-                                      cursor: 'pointer'
+                                      fontSize: '0.76rem'
                                     }}
                                     onClick={() => setInspectModalData(item)}
-                                    title="Открыть карточку дела"
+                                    title="Карточка дела"
                                   >
                                     👁️
                                   </button>
@@ -1946,7 +1977,7 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
                         <div
                           key={item.id}
                           style={{
-                            background: isSelected ? 'rgba(59, 130, 246, 0.08)' : 'rgba(15, 23, 42, 0.7)',
+                            background: isSelected ? 'rgba(37, 99, 235, 0.12)' : 'rgba(15, 23, 42, 0.75)',
                             border: `1px solid ${isSelected ? '#3b82f6' : isUrgent ? 'rgba(239, 68, 68, 0.4)' : 'rgba(255, 255, 255, 0.08)'}`,
                             borderRadius: '12px',
                             padding: '16px',
@@ -1955,7 +1986,7 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
                             justifyContent: 'space-between',
                             gap: '12px',
                             transition: 'all 0.2s ease',
-                            position: 'relative'
+                            boxShadow: isSelected ? '0 0 20px rgba(37, 99, 235, 0.2)' : 'none'
                           }}
                         >
                           <div>
@@ -1966,9 +1997,9 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
                                   type="checkbox"
                                   checked={isSelected}
                                   onChange={() => handleToggleSelectModItem(item.id)}
-                                  style={{ cursor: 'pointer' }}
+                                  style={{ cursor: 'pointer', accentColor: '#3b82f6' }}
                                 />
-                                <span style={{ fontWeight: '800', color: '#ffffff', fontSize: '0.85rem' }}>{item.id}</span>
+                                <span style={{ fontWeight: '800', color: '#ffffff', fontSize: '0.85rem', fontFamily: 'monospace' }}>{item.id}</span>
                                 <span style={{
                                   fontSize: '0.72rem',
                                   padding: '2px 6px',
@@ -1991,13 +2022,13 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
                               {item.author} {item.bin && item.bin !== '—' && <span style={{ color: '#64748b' }}>({item.bin})</span>}
                             </div>
 
-                            {/* Location & Amount Badges */}
+                            {/* Badges */}
                             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center', fontSize: '0.78rem' }}>
                               <span style={{ background: 'rgba(255, 255, 255, 0.05)', padding: '3px 8px', borderRadius: '6px', color: '#cbd5e1' }}>
                                 📍 {item.city}
                               </span>
                               {item.amount > 0 && (
-                                <span style={{ background: 'rgba(245, 158, 11, 0.1)', padding: '3px 8px', borderRadius: '6px', color: '#fbbf24', fontWeight: '700' }}>
+                                <span style={{ background: 'rgba(245, 158, 11, 0.12)', padding: '3px 8px', borderRadius: '6px', color: '#fbbf24', fontWeight: '700' }}>
                                   💰 {Number(item.amount).toLocaleString()} ₸
                                 </span>
                               )}
@@ -2017,7 +2048,7 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
                           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: '8px', paddingTop: '10px', borderTop: '1px solid rgba(255, 255, 255, 0.06)' }}>
                             <button
                               className="admin-primary-btn"
-                              style={{ background: 'linear-gradient(90deg, #10b981, #059669)', padding: '6px 10px', fontSize: '0.78rem', justifyContent: 'center' }}
+                              style={{ background: 'linear-gradient(135deg, #10b981, #059669)', padding: '6px 10px', fontSize: '0.78rem', justifyContent: 'center' }}
                               onClick={() => handleApproveModeration(item.id)}
                             >
                               ✅ Одобрить
