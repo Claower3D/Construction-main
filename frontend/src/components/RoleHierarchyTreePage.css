@@ -1,0 +1,477 @@
+/* ==========================================================================
+   RoleHierarchyTreePage.css — QAZGOST AI Interactive Role Tree & Org Chart
+   ========================================================================== */
+
+.rht-wrapper {
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 4rem 1rem;
+  color: #f8fafc;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+/* Header & Controls */
+.rht-header-bar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.rht-back-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.rht-back-btn:hover {
+  background: rgba(56, 189, 248, 0.2);
+  border-color: #38bdf8;
+  color: #38bdf8;
+  transform: translateX(-2px);
+}
+
+/* Hero Banner */
+.rht-hero-banner {
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.15), rgba(15, 23, 42, 0.85)),
+              radial-gradient(circle at top right, rgba(16, 185, 129, 0.2), transparent 70%);
+  border: 1px solid rgba(14, 165, 233, 0.35);
+  border-radius: 20px;
+  padding: 1.75rem 2rem;
+  margin-bottom: 1.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4), 0 0 30px rgba(14, 165, 233, 0.15);
+  backdrop-filter: blur(20px);
+}
+
+.rht-hero-left h2 {
+  font-size: 1.85rem;
+  font-weight: 900;
+  margin: 0 0 0.4rem 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(90deg, #ffffff, #38bdf8, #6ee7b7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.rht-hero-left p {
+  color: #cbd5e1;
+  font-size: 0.92rem;
+  margin: 0;
+  max-width: 680px;
+  line-height: 1.45;
+}
+
+.rht-company-selector-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(10, 14, 28, 0.8);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  padding: 8px 14px;
+  border-radius: 14px;
+}
+
+.rht-company-selector {
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 800;
+  outline: none;
+  cursor: pointer;
+}
+
+.rht-company-selector option {
+  background: #0f172a;
+  color: #fff;
+}
+
+/* Toolbar & Filters */
+.rht-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 0.9rem 1.25rem;
+  margin-bottom: 2rem;
+  backdrop-filter: blur(16px);
+}
+
+.rht-filters-left {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.rht-branch-pill {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+  padding: 7px 13px;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.rht-branch-pill:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+.rht-branch-pill.active {
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.25), rgba(16, 185, 129, 0.25));
+  border-color: #38bdf8;
+  color: #38bdf8;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+}
+
+.rht-zoom-controls {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.rht-btn-ctrl {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #fff;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.rht-btn-ctrl:hover {
+  background: rgba(56, 189, 248, 0.2);
+  border-color: #38bdf8;
+}
+
+/* Tree Canvas Container */
+.rht-tree-canvas {
+  width: 100%;
+  overflow-x: auto;
+  padding: 2rem 1rem;
+  background: radial-gradient(circle at center, rgba(15, 23, 42, 0.6) 0%, rgba(8, 12, 24, 0.95) 100%),
+              linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+              linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 100% 100%, 30px 30px, 30px 30px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
+  min-height: 580px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.6);
+  position: relative;
+}
+
+/* Tree Visual Hierarchy */
+.rht-root-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  margin-bottom: 2rem;
+}
+
+.rht-connector-down {
+  width: 2px;
+  height: 35px;
+  background: linear-gradient(to bottom, #0ea5e9, #38bdf8);
+  box-shadow: 0 0 8px rgba(14, 165, 233, 0.6);
+}
+
+.rht-branches-row {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  position: relative;
+  width: 100%;
+  max-width: 1300px;
+}
+
+.rht-branch-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  min-width: 260px;
+  position: relative;
+}
+
+.rht-sub-level-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  width: 100%;
+  align-items: center;
+  margin-top: 1rem;
+}
+
+/* Tree Card Components */
+.rht-node-card {
+  background: linear-gradient(145deg, rgba(15, 23, 42, 0.9), rgba(10, 14, 28, 0.95));
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  padding: 1.15rem 1.25rem;
+  width: 100%;
+  max-width: 290px;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  position: relative;
+  backdrop-filter: blur(14px);
+}
+
+.rht-node-card:hover {
+  transform: translateY(-4px) scale(1.02);
+  border-color: #38bdf8;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6), 0 0 20px rgba(56, 189, 248, 0.35);
+}
+
+.rht-node-card.root {
+  max-width: 420px;
+  border-color: #0ea5e9;
+  background: linear-gradient(145deg, rgba(14, 165, 233, 0.2), rgba(15, 23, 42, 0.95));
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6), 0 0 25px rgba(14, 165, 233, 0.3);
+}
+
+.rht-node-card.selected {
+  border-color: #10b981;
+  box-shadow: 0 0 25px rgba(16, 185, 129, 0.5);
+}
+
+.rht-card-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 0.6rem;
+}
+
+.rht-node-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.rht-node-title-wrap {
+  flex: 1;
+}
+
+.rht-node-title {
+  font-size: 0.98rem;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.25;
+  margin: 0;
+}
+
+.rht-node-role-type {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #38bdf8;
+  display: block;
+  margin-top: 2px;
+}
+
+.rht-node-person-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 6px 10px;
+  border-radius: 8px;
+  margin-top: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.rht-person-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #38bdf8;
+  color: #000;
+  font-size: 0.75rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rht-person-name {
+  font-size: 0.82rem;
+  color: #e2e8f0;
+  font-weight: 600;
+}
+
+.rht-card-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.6rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+.rht-badge-count {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid #10b981;
+  color: #6ee7b7;
+  padding: 2px 7px;
+  border-radius: 6px;
+  font-weight: 700;
+}
+
+/* Inspector Modal / Slide-Over */
+.rht-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 8, 20, 0.8);
+  backdrop-filter: blur(10px);
+  z-index: 999999;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.rht-inspector-drawer {
+  width: 100%;
+  max-width: 500px;
+  background: #0f172a;
+  border-left: 1px solid rgba(56, 189, 248, 0.3);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: -15px 0 50px rgba(0, 0, 0, 0.8);
+  animation: rhtDrawerIn 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow-y: auto;
+}
+
+@keyframes rhtDrawerIn {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+.rht-inspector-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.rht-inspector-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+.rht-btn-close {
+  background: rgba(255, 255, 255, 0.08);
+  border: none;
+  color: #fff;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1.1rem;
+}
+
+.rht-inspector-body {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.rht-info-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 1.1rem;
+}
+
+.rht-info-card h4 {
+  margin: 0 0 0.6rem 0;
+  font-size: 0.95rem;
+  color: #38bdf8;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.rht-info-card ul {
+  margin: 0;
+  padding-left: 1.2rem;
+  color: #cbd5e1;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.rht-action-btn-primary {
+  width: 100%;
+  background: linear-gradient(90deg, #0ea5e9, #2563eb);
+  border: none;
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.95rem;
+  padding: 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(14, 165, 233, 0.4);
+}
+
+.rht-action-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(14, 165, 233, 0.6);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .rht-branches-row {
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+  }
+}

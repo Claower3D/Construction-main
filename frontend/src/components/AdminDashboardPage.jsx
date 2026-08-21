@@ -147,6 +147,7 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
     ],
 
     company: [
+      { id: 'comp-tree', title: 'Древо ролей и структуры', icon: '🌳', desc: 'Интерактивное семейное древо ролей, отделов, сотрудников и бригад ТОО', btnText: '🌳 Открыть древо', btnGradient: 'linear-gradient(90deg, #10b981, #0ea5e9)' },
       { id: 'comp-profile', title: 'Профиль компании', icon: '📝', desc: 'Управление БИН компании, лицензиями ГСЛ и банковскими реквизитами', btnText: '📝 Реквизиты ТОО', btnGradient: 'linear-gradient(90deg, #0ea5e9, #2563eb)' },
       { id: 'comp-employees', title: 'Сотрудники и бригады', icon: '👥', desc: 'Реестр штатных инженеров, прорабов и привязанных рабочих бригад', btnText: '👥 Управление штатом', btnGradient: 'linear-gradient(90deg, #10b981, #0ea5e9)' },
       { id: 'comp-stats', title: 'Статистика компании', icon: '📈', desc: 'Сводные финансовые показатели, динамика сдачи объектов и KPI', btnText: '📈 Смотреть отчёты', btnGradient: 'linear-gradient(90deg, #2563eb, #38bdf8)' },
@@ -158,6 +159,7 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
     ],
 
     admin: [
+      { id: 'adm-tree', title: 'Иерархия ролей (Древо)', icon: '🌳', desc: 'Визуальное древо ролей всех строительных организаций и компаний платформы', btnText: '🌳 Древо ролей', btnGradient: 'linear-gradient(90deg, #10b981, #0ea5e9)' },
       { id: 'adm-prices', title: 'Прайсы ГЭСН-2026', icon: '💰', desc: 'База 23 864+ позиций строительных расценок по 17 областям Казахстана', btnText: '💰 Открыть прайсы', btnGradient: 'linear-gradient(90deg, #f59e0b, #ea580c)' },
       { id: 'adm-moderation', title: 'Модерация заявок', icon: '🛡️', desc: 'Очередь верификации подрядчиков, проверка документов и заказов', btnText: '🛡️ Модерация', btnGradient: 'linear-gradient(90deg, #ef4444, #f59e0b)' },
       { id: 'adm-regions', title: 'Региональные индексы', icon: '🗺️', desc: 'Коэффициенты удорожания стройматериалов по регионам РК', btnText: '🗺️ Индексы цен', btnGradient: 'linear-gradient(90deg, #2563eb, #38bdf8)' },

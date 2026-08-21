@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import RoleHierarchyTreePage from './RoleHierarchyTreePage';
 
 export default function CompanyDashboardPage({ currentUser, initialTab = 'profile', sidebarToggleNode }) {
   const [activeTab, setActiveTab] = useState(initialTab);
@@ -99,6 +100,17 @@ export default function CompanyDashboardPage({ currentUser, initialTab = 'profil
               Статистика
             </button>
           )}
+
+          <button 
+            onClick={() => setActiveTab('tree')}
+            style={{ 
+              padding: '0.5rem 1rem', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: 'bold',
+              background: activeTab === 'tree' ? settings.primaryColor : 'rgba(255,255,255,0.1)',
+              color: activeTab === 'tree' ? '#fff' : '#94a3b8',
+              transition: 'all 0.2s'
+            }}>
+            🌳 Древо ролей
+          </button>
 
           <button 
             onClick={() => setActiveTab('settings')}
@@ -281,6 +293,12 @@ export default function CompanyDashboardPage({ currentUser, initialTab = 'profil
               </div>
             </div>
           </div>
+        </div>
+      )}
+
+      {activeTab === 'tree' && (
+        <div style={{ background: 'transparent', padding: '0', marginTop: '1rem' }}>
+          <RoleHierarchyTreePage hideHeader={true} />
         </div>
       )}
     </div>
