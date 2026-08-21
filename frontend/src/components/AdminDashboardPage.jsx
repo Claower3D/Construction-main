@@ -144,6 +144,7 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
       { id: 'e-equipment', title: 'Маркетплейс техники', icon: '🚜', desc: 'Поиск спецтехники в аренду и оптовый закуп стройматериалов', btnText: '🚜 Найти технику', btnGradient: 'linear-gradient(90deg, #3b82f6, #06b6d4)' },
       { id: 'e-calendar', title: 'Календарь выездов', icon: '📅', desc: 'Расписание выездов на замеры и этапов монтажных работ', btnText: '📅 Расписание', btnGradient: 'linear-gradient(90deg, #ef4444, #10b981)' },
       { id: 'e-catalog', title: 'Каталог специалистов', icon: '📒', desc: 'Рейтинг, отзывы и карточки мастеров в едином реестре РК', btnText: '📒 Реестр мастеров', btnGradient: 'linear-gradient(90deg, #f59e0b, #d97706)' },
+      { id: 'e-vip', title: 'Строительство зданий (VIP)', icon: '🏗️', desc: 'Участие в тендерах генподряда, ПСД и аккредитация I/II категории', btnText: '⭐ VIP Тендеры', btnGradient: 'linear-gradient(90deg, #6366f1, #2563eb)' },
       { id: 'e-profile', title: 'Анкета мастера', icon: '📝', desc: 'Профиль исполнителя, верификация ИИН/БИН, навыки и портфолио', btnText: '📝 Заполнить профиль', btnGradient: 'linear-gradient(90deg, #10b981, #059669)' },
     ],
 

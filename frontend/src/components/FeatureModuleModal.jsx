@@ -6,6 +6,7 @@ import ContractorsCatalogPage from './ContractorsCatalogPage';
 import UserOrdersPage from './UserOrdersPage';
 import EngineeringSolutionsPage from './EngineeringSolutionsPage';
 import DefectInspectorPage from './DefectInspectorPage';
+import BuildingConstructionPage from './BuildingConstructionPage';
 
 export default function FeatureModuleModal({ moduleId, itemData, onClose, onOpenAdminTab }) {
   // Common states for interactive forms
@@ -218,19 +219,8 @@ export default function FeatureModuleModal({ moduleId, itemData, onClose, onOpen
           )}
 
           {/* 9. VIP MONOLITHIC CONSTRUCTION (c-vip / e-vip) */}
-          {(moduleId === 'c-vip' || moduleId === 'e-vip') && (
-            <div className="feature-content-box">
-              <h3>🏗️ Капитальное строительство зданий (VIP Уровень)</h3>
-              <p className="sub-text">Генподрядные работы, разработка ПСД, WBS-декомпозиция и технадзор объектов A-класса.</p>
-              <div className="result-card-glow">
-                <h4>⭐ VIP Услуги генерального подряда:</h4>
-                <ul>
-                  <li>Полное сопровождение ПСД и прохождение Государственной Экспертизы РК</li>
-                  <li>WBS-декомпозиция градостроительных нормативов (548 видов работ)</li>
-                  <li>Оформление эскроу-гарантий и банковского сопровождения</li>
-                </ul>
-              </div>
-            </div>
+          {(moduleId === 'c-vip' || moduleId === 'e-vip' || moduleId === 'vip') && (
+            <BuildingConstructionPage onBack={onClose} hideHeader={true} />
           )}
 
           {/* 10. DISPUTES & CONTRACTS (adm-disputes / adm-contracts) */}
