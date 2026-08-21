@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getAuditLogs, logAuditAction, exportAuditLogTxt } from '../services/adminAuditStore';
 import { exportPricesToExcel, exportAll3SheetsExcel, parseExcelOrCsvFile } from '../services/adminExcelIO';
 import { getStatus } from '../services/api';
+import RoleHierarchyTreePage from './RoleHierarchyTreePage';
 
 // 21 WBS Groups structure
 const WBS_GROUPS = [
@@ -1191,6 +1192,11 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
                     ))}
                   </tbody>
                 </table>
+              </div>
+
+              {/* ──────── INTERACTIVE ROLE HIERARCHY TREE ──────── */}
+              <div style={{ marginTop: '2rem' }}>
+                <RoleHierarchyTreePage hideHeader={true} />
               </div>
             </div>
           )}
