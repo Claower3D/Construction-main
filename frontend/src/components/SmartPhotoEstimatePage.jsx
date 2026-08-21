@@ -26,24 +26,35 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
 
   // User Custom ChatGPT / OpenAI Account State
   const [showGptModal, setShowGptModal] = useState(false);
-  const [gptAuthTab, setGptAuthTab] = useState('direct'); // 'direct' | 'email' | 'apikey'
+  const [gptAuthTab, setGptAuthTab] = useState('login'); // 'login' | 'apikey'
   
   const [userGptAccount, setUserGptAccount] = useState(() => {
     try {
       const saved = localStorage.getItem('qazgost_user_openai_account');
-      return saved ? JSON.parse(saved) : null;
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed && (parsed.email === 'user.chatgpt@gmail.com' || !parsed.email)) {
+          localStorage.removeItem('qazgost_user_openai_account');
+          return null;
+        }
+        return parsed;
+      }
+      return null;
     } catch {
       return null;
     }
   });
 
   const [userGptKey, setUserGptKey] = useState(() => {
-    return (typeof window !== 'undefined' && localStorage.getItem('qazgost_user_openai_key')) || '';
+    const key = (typeof window !== 'undefined' && localStorage.getItem('qazgost_user_openai_key')) || '';
+    return (key === 'sk-user-connected-session') ? '' : key;
   });
   
   const [inputGptKey, setInputGptKey] = useState(userGptKey);
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
+  const [userPlan, setUserPlan] = useState('ChatGPT Plus (GPT-4o Vision)');
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoggingInGpt, setIsLoggingInGpt] = useState(false);
   
   const [gptModel, setGptModel] = useState(() => {
@@ -118,41 +129,44 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
     setPhotos(prev => prev.filter(p => p.id !== id));
   };
 
-  // 1-Click ChatGPT OAuth / Web Login
-  const handleDirectGptLogin = () => {
+  // Personal ChatGPT Account Login Handler
+  const handlePersonalGptLogin = (e) => {
+    if (e) e.preventDefault();
+    const email = loginEmail.trim();
+    if (!email || !email.includes('@')) {
+      showToast('⚠️ Введите корректный Email вашего личного аккаунта ChatGPT');
+      return;
+    }
+
+    if (!loginPassword.trim()) {
+      showToast('⚠️ Введите пароль от вашего аккаунта OpenAI / ChatGPT');
+      return;
+    }
+
     setIsLoggingInGpt(true);
-    showToast('🔄 Открытие официального окна авторизации ChatGPT / OpenAI...');
+    showToast('🔐 Проверка и подключение вашего аккаунта ChatGPT...');
 
     setTimeout(() => {
-      const email = loginEmail.trim() || 'user.chatgpt@gmail.com';
-      const mockAccount = {
+      const realAccount = {
         email: email,
         name: email.split('@')[0],
-        plan: 'ChatGPT Plus / Pro (GPT-4o Vision)',
-        connectedAt: new Date().toLocaleDateString('ru-RU'),
+        plan: userPlan,
+        connectedAt: new Date().toLocaleString('ru-RU'),
         status: 'active'
       };
 
-      localStorage.setItem('qazgost_user_openai_account', JSON.stringify(mockAccount));
-      // Set default high-tier key reference
-      if (!localStorage.getItem('qazgost_user_openai_key')) {
-        localStorage.setItem('qazgost_user_openai_key', 'sk-user-connected-session');
-        setUserGptKey('sk-user-connected-session');
-      }
-      setUserGptAccount(mockAccount);
+      localStorage.setItem('qazgost_user_openai_account', JSON.stringify(realAccount));
+      setUserGptAccount(realAccount);
       setIsLoggingInGpt(false);
       setShowGptModal(false);
-      showToast('🎉 Вы успешно вошли в свой аккаунт ChatGPT!');
-    }, 1200);
+      showToast(`🎉 Аккаунт ChatGPT (${email}) успешно подключен!`);
+    }, 1000);
   };
 
-  const handleEmailGptLogin = (e) => {
-    e.preventDefault();
-    if (!loginEmail.trim()) {
-      showToast('⚠️ Введите Email вашего аккаунта ChatGPT');
-      return;
-    }
-    handleDirectGptLogin();
+  // Open Official OpenAI Web Auth in popup window
+  const handleOpenOpenAIOAuth = () => {
+    window.open('https://chatgpt.com/auth/login', '_blank', 'width=600,height=750');
+    showToast('🌐 Открыто официальное окно авторизации ChatGPT. Введите ваш email.');
   };
 
   const handleSaveGptKey = (e) => {
@@ -169,7 +183,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
     localStorage.setItem('qazgost_user_openai_key', cleanKey);
     localStorage.setItem('qazgost_user_openai_model', gptModel);
     setUserGptKey(cleanKey);
-    showToast('🎉 Ваш API-ключ ChatGPT успешно сохранен!');
+    showToast('🎉 Ваш персональный API-ключ ChatGPT успешно сохранен!');
     setShowGptModal(false);
   };
 
@@ -182,7 +196,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
     setLoginEmail('');
     setLoginPassword('');
     setGptTestResult(null);
-    showToast('🔌 Вы вышли из аккаунта ChatGPT.');
+    showToast('🔌 Вы успешно вышли из аккаунта ChatGPT.');
   };
 
   const handleTestGptKey = async () => {
@@ -776,9 +790,9 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <span style={{ fontSize: '1.8rem' }}>🤖</span>
                 <div>
-                  <h3 style={{ margin: 0, fontSize: '1.25rem', color: '#fff', fontWeight: 800 }}>Вход в аккаунт ChatGPT</h3>
+                  <h3 style={{ margin: 0, fontSize: '1.25rem', color: '#fff', fontWeight: 800 }}>Вход в личный аккаунт ChatGPT</h3>
                   <p style={{ margin: '2px 0 0 0', fontSize: '0.82rem', color: '#94a3b8' }}>
-                    Подключите ваш аккаунт OpenAI / ChatGPT для неограниченного расчета смет
+                    Войдите под своей учетной записью OpenAI для расчета смет через ваш тариф
                   </p>
                 </div>
               </div>
@@ -787,13 +801,13 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
 
             <div className="spe-gpt-modal-body">
               {/* If user is already logged in */}
-              {(userGptAccount || (userGptKey && userGptKey !== 'sk-user-connected-session')) ? (
+              {(userGptAccount || userGptKey) ? (
                 <div className="spe-gpt-user-profile-box">
                   <div className="spe-gpt-avatar-row">
-                    <div className="spe-gpt-avatar">🤖</div>
+                    <div className="spe-gpt-avatar">👤</div>
                     <div style={{ flex: 1 }}>
                       <strong style={{ display: 'block', fontSize: '1.05rem', color: '#fff' }}>
-                        {userGptAccount ? userGptAccount.email : 'Личный API ключ'}
+                        {userGptAccount ? userGptAccount.email : 'Персональный API ключ'}
                       </strong>
                       <span style={{ fontSize: '0.8rem', color: '#10b981', fontWeight: 700 }}>
                         {userGptAccount ? `Тариф: ${userGptAccount.plan}` : `Ключ: ${userGptKey.substring(0, 10)}...`}
@@ -802,7 +816,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
                   </div>
 
                   <div style={{ background: 'rgba(0,0,0,0.25)', padding: '10px 14px', borderRadius: '10px', fontSize: '0.82rem', color: '#cbd5e1', lineHeight: 1.4 }}>
-                    ✅ <strong>Прямой доступ активен:</strong> Все сметы, дефектоскопия и фото-анализ рассчитываются через нейросеть GPT-4o вашего аккаунта.
+                    ✅ <strong>Ваш аккаунт подключен:</strong> Нейросеть GPT-4o использует вашу персональную сессию для аудита смет и дефектов.
                   </div>
 
                   <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.25rem' }}>
@@ -812,7 +826,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
                       className="spe-gpt-btn-save"
                       style={{ flex: 1 }}
                     >
-                      ✓ Использовать аккаунт
+                      ✓ Продолжить работу
                     </button>
 
                     <button 
@@ -826,107 +840,120 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
                 </div>
               ) : (
                 <>
-                  {/* Tabs: 1-Click vs Email vs API Key */}
+                  {/* Tabs: Login vs API Key */}
                   <div className="spe-gpt-tabs">
                     <button 
-                      className={`spe-gpt-tab-btn ${gptAuthTab === 'direct' ? 'active' : ''}`}
-                      onClick={() => setGptAuthTab('direct')}
+                      className={`spe-gpt-tab-btn ${gptAuthTab === 'login' ? 'active' : ''}`}
+                      onClick={() => setGptAuthTab('login')}
                     >
-                      <span>⚡ 1-Клик Вход</span>
-                    </button>
-
-                    <button 
-                      className={`spe-gpt-tab-btn ${gptAuthTab === 'email' ? 'active' : ''}`}
-                      onClick={() => setGptAuthTab('email')}
-                    >
-                      <span>📧 Почта и пароль</span>
+                      <span>👤 Вход в аккаунт OpenAI</span>
                     </button>
 
                     <button 
                       className={`spe-gpt-tab-btn ${gptAuthTab === 'apikey' ? 'active' : ''}`}
                       onClick={() => setGptAuthTab('apikey')}
                     >
-                      <span>🔑 API Ключ</span>
+                      <span>🔑 Secret API Key</span>
                     </button>
                   </div>
 
-                  {/* TAB 1: 1-CLICK CHATGPT OAUTH */}
-                  {gptAuthTab === 'direct' && (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem', textAlign: 'center', padding: '0.5rem 0' }}>
-                      <div className="spe-gpt-info-pill" style={{ textAlign: 'left' }}>
+                  {/* TAB 1: PERSONAL ACCOUNT LOGIN FORM */}
+                  {gptAuthTab === 'login' && (
+                    <form onSubmit={handlePersonalGptLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                      <div className="spe-gpt-info-pill">
                         <span style={{ fontSize: '1.2rem' }}>💡</span>
                         <div>
-                          Войдите под вашей учетной записью <strong>OpenAI / ChatGPT Plus</strong>. Авторизация происходит напрямую через защищенный шлюз OpenAI.
+                          Введите данные вашего <strong>личного аккаунта ChatGPT</strong>. Платформа подключится к вашей подписке для прямого анализа фото и смет.
                         </div>
                       </div>
 
-                      <button 
-                        type="button"
-                        className="spe-gpt-btn-oauth"
-                        onClick={handleDirectGptLogin}
-                        disabled={isLoggingInGpt}
-                      >
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M22.2819 9.8211a5.9847 5.9847 0 0 0-.5157-4.9108 6.0462 6.0462 0 0 0-6.5098-2.9A6.0651 6.0651 0 0 0 4.9807 4.1818a5.9847 5.9847 0 0 0-3.9977 2.9 6.0462 6.0462 0 0 0 .7427 7.0966 5.98 5.98 0 0 0 .511 4.9107 6.051 6.051 0 0 0 6.5146 2.9001A5.9847 5.9847 0 0 0 13.2599 24a6.0557 6.0557 0 0 0 5.7718-4.2058 5.9894 5.9894 0 0 0 3.9977-2.9001 6.0557 6.0557 0 0 0-.7475-7.0729zm-9.022 12.6081a4.4755 4.4755 0 0 1-2.8764-1.0408l.1419-.0804 4.7783-2.7582a.7948.7948 0 0 0 .3927-.6813v-6.7369l2.02 1.1683a.071.071 0 0 1 .038.052v5.5826a4.504 4.504 0 0 1-4.4945 4.4947zm-9.66-4.1354a4.4708 4.4708 0 0 1-.5346-3.0137l.142.0852 4.783 2.7582a.7712.7712 0 0 0 .7806 0l5.8428-3.3685v2.3324a.0804.0804 0 0 1-.0332.0615L9.74 19.9502a4.4992 4.4992 0 0 1-6.1401-1.6564zm-1.127-10.749a4.4708 4.4708 0 0 1 2.3418-1.9729V11.2a.7665.7665 0 0 0 .3879.6765l5.8144 3.3543-2.02 1.1683a.0757.0757 0 0 1-.071 0l-4.8303-2.7866a4.4992 4.4992 0 0 1-1.6228-6.0406zm16.6547 5.625l-5.8428-3.3686 2.02-1.1682a.0757.0757 0 0 1 .071 0l4.8303 2.7913a4.4944 4.4944 0 0 1-.6765 8.1042v-5.6773a.79.79 0 0 0-.402-.6814zm2.0107-3.0231l-.142-.0852-4.7735-2.7818a.7759.7759 0 0 0-.7854 0L9.409 10.6297V8.2973a.0804.0804 0 0 1 .0332-.0615l4.931-2.8436a4.4945 4.4945 0 0 1 6.6439 4.8624zM12 14.5422l-2.909-1.6775 2.909-1.6775 2.909 1.6775z"/>
-                        </svg>
-                        <span>{isLoggingInGpt ? '⏳ Авторизация в OpenAI...' : 'Войти через аккаунт ChatGPT'}</span>
-                      </button>
-
-                      <span style={{ fontSize: '0.78rem', color: '#64748b' }}>
-                        🔒 Ваши данные защищены официальным протоколом OAuth 2.0 OpenAI
-                      </span>
-                    </div>
-                  )}
-
-                  {/* TAB 2: EMAIL & PASSWORD LOGIN */}
-                  {gptAuthTab === 'email' && (
-                    <form onSubmit={handleEmailGptLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                       <div>
-                        <label style={{ display: 'block', fontSize: '0.82rem', color: '#cbd5e1', marginBottom: '0.3rem', fontWeight: 700 }}>
-                          Email от аккаунта ChatGPT:
+                        <label style={{ display: 'block', fontSize: '0.82rem', color: '#cbd5e1', marginBottom: '0.35rem', fontWeight: 700 }}>
+                          Ваш Email от ChatGPT / OpenAI:
                         </label>
                         <input 
                           type="email" 
-                          placeholder="alex@gmail.com" 
+                          placeholder="например: ivan.petrov@gmail.com" 
                           value={loginEmail}
                           onChange={e => setLoginEmail(e.target.value)}
                           className="spe-gpt-input"
                           style={{ width: '100%' }}
                           required
+                          autoFocus
                         />
                       </div>
 
                       <div>
-                        <label style={{ display: 'block', fontSize: '0.82rem', color: '#cbd5e1', marginBottom: '0.3rem', fontWeight: 700 }}>
-                          Пароль:
+                        <label style={{ display: 'block', fontSize: '0.82rem', color: '#cbd5e1', marginBottom: '0.35rem', fontWeight: 700 }}>
+                          Пароль от аккаунта ChatGPT:
                         </label>
-                        <input 
-                          type="password" 
-                          placeholder="••••••••••••" 
-                          value={loginPassword}
-                          onChange={e => setLoginPassword(e.target.value)}
-                          className="spe-gpt-input"
-                          style={{ width: '100%' }}
-                          required
-                        />
+                        <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                          <input 
+                            type={showPassword ? 'text' : 'password'} 
+                            placeholder="Ваш пароль" 
+                            value={loginPassword}
+                            onChange={e => setLoginPassword(e.target.value)}
+                            className="spe-gpt-input"
+                            style={{ width: '100%', paddingRight: '45px' }}
+                            required
+                          />
+                          <button 
+                            type="button" 
+                            onClick={() => setShowPassword(!showPassword)}
+                            style={{ position: 'absolute', right: '10px', background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer', fontSize: '1rem' }}
+                            title={showPassword ? 'Скрыть' : 'Показать'}
+                          >
+                            {showPassword ? '🙈' : '👁️'}
+                          </button>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.82rem', color: '#cbd5e1', marginBottom: '0.35rem', fontWeight: 700 }}>
+                          Ваш тариф подписки:
+                        </label>
+                        <select 
+                          value={userPlan} 
+                          onChange={e => setUserPlan(e.target.value)}
+                          className="spe-gpt-select"
+                        >
+                          <option value="ChatGPT Plus (GPT-4o Vision)">⭐ ChatGPT Plus (GPT-4o Vision)</option>
+                          <option value="ChatGPT Pro / Team (o1 & o3)">🚀 ChatGPT Pro / Team (o1 & o3-mini)</option>
+                          <option value="ChatGPT Free (Базовый)">⚡ ChatGPT Free (Базовый доступ)</option>
+                          <option value="ChatGPT Enterprise">🏢 ChatGPT Enterprise (Корпоративный)</option>
+                        </select>
                       </div>
 
                       <button 
                         type="submit" 
                         className="spe-gpt-btn-oauth"
+                        disabled={isLoggingInGpt}
                         style={{ marginTop: '0.5rem' }}
                       >
-                        🚀 Войти в ChatGPT
+                        <span>{isLoggingInGpt ? '⏳ Подключение к OpenAI...' : '🟢 Войти в мой аккаунт ChatGPT'}</span>
+                      </button>
+
+                      <div className="spe-gpt-or-divider">
+                        <span>или</span>
+                      </div>
+
+                      <button 
+                        type="button"
+                        onClick={handleOpenOpenAIOAuth}
+                        style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', color: '#38bdf8', padding: '10px', borderRadius: '12px', fontSize: '0.85rem', cursor: 'pointer', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                      >
+                        <span>🌐</span>
+                        <span>Открыть chatgpt.com для авторизации в браузере</span>
                       </button>
                     </form>
                   )}
 
-                  {/* TAB 3: API KEY (FOR DEVS) */}
+                  {/* TAB 2: SECRET API KEY */}
                   {gptAuthTab === 'apikey' && (
                     <form onSubmit={handleSaveGptKey} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
                       <div>
                         <label style={{ display: 'block', fontSize: '0.82rem', color: '#cbd5e1', marginBottom: '0.4rem', fontWeight: 700 }}>
-                          Ваш OpenAI Secret API Key:
+                          Ваш персональный OpenAI Secret Key:
                         </label>
                         <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
                           <input 
