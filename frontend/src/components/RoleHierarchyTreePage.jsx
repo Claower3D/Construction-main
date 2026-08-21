@@ -1,318 +1,360 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import './RoleHierarchyTreePage.css';
 
-/* ─── TREE DATA ─────────────────────────────────────────────────────── */
-const COMPANIES = [
-  { id: 'qazgost', name: 'ТОО «QAZGOST AI»', bin: '240140029182', license: 'ГСЛ №00291 (I кат.)', city: 'Алматы / Астана', count: 48 },
-  { id: 'bi_group', name: 'ТОО «BI Group Engineering»', bin: '190340011293', license: 'ГСЛ №00184 (I кат.)', city: 'Астана', count: 120 },
-  { id: 'bazis_a', name: 'ТОО «Базис-А МонолитСтрой»', bin: '150840003412', license: 'ГСЛ №00921 (I кат.)', city: 'Алматы', count: 85 },
+/* ═══ DATA ═════════════════════════════════════════════════════════════ */
+const COMPANIES_DB = [
+  {
+    id: 'qazgost', name: 'QAZGOST AI', fullName: 'ТОО «QAZGOST AI»',
+    bin: '240140029182', city: 'Алматы', staff: 48, objects: 12, color: '#0ea5e9',
+    ceo: { name: 'Аскаров Бауржан', role: 'CEO / Генеральный директор' },
+    branches: [
+      { id: 'q-mgmt', cat: 'mgmt', icon: '💼', title: 'Управление', sub: 'Дирекция',
+        head: 'Смагулов Данияр', headRole: 'COO', count: 6,
+        children: [
+          { id: 'q-gip', icon: '👔', title: 'ГИП', sub: 'Проектирование', head: 'Касымов Ербол', count: 3 },
+          { id: 'q-pm', icon: '📱', title: 'CRM-менеджер', sub: 'Клиенты', head: 'Алиева Динара', count: 4 },
+        ]},
+      { id: 'q-eng', cat: 'eng', icon: '🔍', title: 'Технадзор', sub: 'QA/QC',
+        head: 'Нургалиев Талгат', headRole: 'Гл. инженер', count: 8,
+        children: [
+          { id: 'q-ins1', icon: '🔬', title: 'Инспектор монолит', sub: 'Бетон', head: 'Искаков Мурат', count: 4 },
+          { id: 'q-ins2', icon: '⚡', title: 'Инспектор сети', sub: 'ОВ/ВК/Электрика', head: 'Сулейменов Ринат', count: 6 },
+        ]},
+      { id: 'q-prod', cat: 'prod', icon: '🏗️', title: 'Производство', sub: 'СМР',
+        head: 'Жумабеков Арман', headRole: 'Гл. прораб', count: 24,
+        children: [
+          { id: 'q-br1', icon: '🧱', title: 'Бригада №1', sub: 'Монолит', head: 'Садыков Нурлан', count: 8 },
+          { id: 'q-br2', icon: '🎨', title: 'Бригада №2', sub: 'Отделка', head: 'Ким Александр', count: 6 },
+        ]},
+      { id: 'q-cust', cat: 'cust', icon: '💎', title: 'Заказчики', sub: 'Инвесторы',
+        head: 'Корпоративные клиенты', headRole: '', count: 15,
+        children: [
+          { id: 'q-dev', icon: '🏛️', title: 'Девелопер', sub: 'ТОО/АО', head: 'Prime Development KZ', count: 850 },
+          { id: 'q-priv', icon: '👤', title: 'Частные', sub: 'Физлица', head: 'Ахметов Марат +14', count: 14 },
+        ]},
+      { id: 'q-anal', cat: 'anal', icon: '📊', title: 'Аналитик', sub: 'Отчётность',
+        head: 'Нуркенов Асхат', headRole: 'Аналитик QA', count: 2,
+        children: [] },
+    ],
+  },
+  {
+    id: 'bi_group', name: 'BI Group', fullName: 'ТОО «BI Group Engineering»',
+    bin: '190340011293', city: 'Астана', staff: 1200, objects: 45, color: '#f59e0b',
+    ceo: { name: 'Хамитов Айдын', role: 'CEO' },
+    branches: [
+      { id: 'bi-mgmt', cat: 'mgmt', icon: '💼', title: 'Управление', sub: 'Дирекция',
+        head: 'Серикбаев Ерлан', headRole: 'COO', count: 35,
+        children: [
+          { id: 'bi-pm', icon: '📋', title: 'Проектный офис', sub: 'PMO', head: 'Токтаров Б.', count: 12 },
+          { id: 'bi-fin', icon: '💰', title: 'Финансы', sub: 'CFO', head: 'Рахимова А.', count: 8 },
+        ]},
+      { id: 'bi-eng', cat: 'eng', icon: '🔍', title: 'Технадзор', sub: 'QA/QC',
+        head: 'Мустафин Канат', headRole: 'Гл. инженер', count: 42,
+        children: [
+          { id: 'bi-lab', icon: '🧪', title: 'Лаборатория', sub: 'Испытания', head: 'Жансугуров Т.', count: 15 },
+        ]},
+      { id: 'bi-prod', cat: 'prod', icon: '🏗️', title: 'Строительство', sub: 'СМР',
+        head: 'Кенесов Бекзат', headRole: 'Директор СМР', count: 850,
+        children: [
+          { id: 'bi-jk1', icon: '🏢', title: 'ЖК «Астана Хаб»', sub: '24 этажа', head: 'Прораб Сатов', count: 120 },
+          { id: 'bi-jk2', icon: '🏢', title: 'ЖК «Green City»', sub: '18 этажей', head: 'Прораб Жунусов', count: 95 },
+          { id: 'bi-infra', icon: '🛣️', title: 'Инфраструктура', sub: 'Дороги/мосты', head: 'Бекмуратов К.', count: 200 },
+        ]},
+      { id: 'bi-cust', cat: 'cust', icon: '💎', title: 'Заказчики', sub: 'Инвесторы',
+        head: '12 крупных девелоперов', headRole: '', count: 12,
+        children: [] },
+    ],
+  },
+  {
+    id: 'bazis', name: 'Базис-А', fullName: 'ТОО «Базис-А МонолитСтрой»',
+    bin: '150840003412', city: 'Алматы', staff: 85, objects: 8, color: '#10b981',
+    ceo: { name: 'Касымбеков Ерболат', role: 'Директор' },
+    branches: [
+      { id: 'bz-mgmt', cat: 'mgmt', icon: '💼', title: 'Управление', sub: 'Дирекция',
+        head: 'Адилов Нурлан', headRole: 'Зам. директора', count: 5,
+        children: [
+          { id: 'bz-gip', icon: '👔', title: 'ГИП', sub: 'Проектирование', head: 'Утемисов Д.', count: 3 },
+        ]},
+      { id: 'bz-prod', cat: 'prod', icon: '🏗️', title: 'Производство', sub: 'Монолитные работы',
+        head: 'Турсунов Максат', headRole: 'Гл. прораб', count: 60,
+        children: [
+          { id: 'bz-br1', icon: '🧱', title: 'Бригада монолит', sub: '16 чел.', head: 'Бригадир Алтынбек', count: 16 },
+          { id: 'bz-br2', icon: '🎨', title: 'Бригада отделка', sub: '12 чел.', head: 'Бригадир Сагат', count: 12 },
+          { id: 'bz-br3', icon: '⚡', title: 'Бригада сети', sub: '8 чел.', head: 'Бригадир Кенже', count: 8 },
+        ]},
+      { id: 'bz-eng', cat: 'eng', icon: '🔍', title: 'Технадзор', sub: 'Контроль качества',
+        head: 'Сабитов Рустам', headRole: 'Инженер ТН', count: 4,
+        children: [] },
+    ],
+  },
+  {
+    id: 'prime_dev', name: 'Prime Development', fullName: 'ТОО «Prime Development KZ»',
+    bin: '180240009871', city: 'Алматы', staff: 35, objects: 3, color: '#8b5cf6',
+    ceo: { name: 'Тулеубаев Арман', role: 'Управляющий директор' },
+    branches: [
+      { id: 'pd-inv', cat: 'cust', icon: '💰', title: 'Инвестиции', sub: 'Финансирование',
+        head: 'Жаксылыков Б.', headRole: 'CFO', count: 8,
+        children: [
+          { id: 'pd-esc', icon: '🛡️', title: 'Эскроу-контроль', sub: '3 объекта', head: 'Мырзабек А.', count: 3 },
+        ]},
+      { id: 'pd-dev', cat: 'mgmt', icon: '🏢', title: 'Девелопмент', sub: 'Объекты',
+        head: 'Кусаинов Т.', headRole: 'Руководитель', count: 15,
+        children: [
+          { id: 'pd-jk1', icon: '🏙️', title: 'ЖК «Nomad Palace»', sub: '12 000 м²', head: 'Менеджер Асет', count: 1 },
+          { id: 'pd-jk2', icon: '🏙️', title: 'ЖК «Green Hills»', sub: '8 500 м²', head: 'Менеджер Алия', count: 1 },
+        ]},
+    ],
+  },
 ];
 
-const buildTree = (company) => ({
-  root: {
-    id: 'root',
-    title: company.name,
-    roleType: 'Генеральная организация (ТОО)',
-    icon: '🏢',
-    person: 'Аскаров Бауржан Касымович',
-    personRole: 'Генеральный директор / CEO',
-    avatarColor: 'gold',
-    bin: company.bin,
-    license: company.license,
-    desc: 'Высший орган управления проектами, утверждение генеральных смет, распределение эскроу-бюджетов и аккредитация подрядчиков.',
-    permissions: ['Полный административный доступ (ROOT)', 'Утверждение смет свыше 100 млн ₸', 'Подписание договоров и эскроу-соглашений', 'Назначение ГИП и Прорабов на объекты'],
-    stats: company.count + ' сотрудников • 12 активных объектов',
-  },
-  branches: [
-    {
-      id: 'b-mgmt', category: 'management',
-      title: 'Управление проектами & CRM', roleType: 'Дирекция управления', icon: '💼',
-      person: 'Смагулов Данияр', personRole: 'Директор по строительству (COO)', avatarColor: 'gold',
-      desc: 'Контроль сроков реализации, управление воронкой заказчиков и координация проектных офисов.',
-      permissions: ['Согласование проектных смет', 'Управление CRM-сделками', 'Курирование начальников участков'],
-      count: '6 специалистов',
-      children: [
-        { id: 'n-gip', title: 'Главный инженер проекта (ГИП)', roleType: 'Проектирование и СНиП', icon: '👔',
-          person: 'Касымов Ербол Серикович', personRole: 'ГИП / Сертифицированный эксперт', avatarColor: 'gold',
-          desc: 'Разработка и согласование ПСД, прохождение госэкспертизы, соблюдение СП РК и ГОСТ.',
-          permissions: ['Утверждение чертежей КЖ/КМ', 'Выпуск ВВР-документации', 'Авторский надзор'], count: '3 проектировщика' },
-        { id: 'n-pm', title: 'Менеджер строительных проектов', roleType: 'Клиентский сервис и CRM', icon: '📱',
-          person: 'Алиева Динара', personRole: 'Старший CRM-менеджер', avatarColor: 'gold',
-          desc: 'Взаимодействие с заказчиками, выставление КП, сопровождение оплат.',
-          permissions: ['Ведение клиентской базы', 'Формирование счетов с НДС', 'Разрешение первичных споров'], count: '4 аккаунт-менеджера' },
-      ],
-    },
-    {
-      id: 'b-eng', category: 'engineering',
-      title: 'Инженерно-технический надзор', roleType: 'Служба Технадзора (QA/QC)', icon: '🔍',
-      person: 'Нургалиев Талгат', personRole: 'Главный инженер технадзора', avatarColor: 'pink',
-      desc: 'Независимый контроль качества СМР, дефектоскопия, освидетельствование скрытых работ и подписание КС-2/КС-3.',
-      permissions: ['Остановка работ при нарушениях СНиП', 'Подписание актов скрытых работ', 'Выпуск предписаний об устранении'],
-      count: '8 инженеров РК',
-      children: [
-        { id: 'n-insp-m', title: 'Инспектор (Монолит и Конструкции)', roleType: 'Аудит бетона и арматуры', icon: '🔬',
-          person: 'Искаков Мурат', personRole: 'Ведущий инспектор (Аттестат РК №1402)', avatarColor: 'pink',
-          desc: 'Ультразвуковой контроль прочности бетона, проверка защитного слоя арматуры.',
-          permissions: ['Приемка фундаментов', 'Испытания контрольных образцов', 'AI-фотофиксация дефектов'], count: '4 объекта' },
-        { id: 'n-insp-n', title: 'Инспектор (Инженерные сети)', roleType: 'Электрика, ОВ, ВК, HVAC', icon: '⚡',
-          person: 'Сулейменов Ринат', personRole: 'Инженер по инженерным системам', avatarColor: 'pink',
-          desc: 'Гидравлические испытания трубопроводов, замеры сопротивления изоляции кабелей.',
-          permissions: ['Подписание актов опрессовки', 'Проверка электрощитовых', 'Тепловизионный аудит'], count: '6 объектов' },
-      ],
-    },
-    {
-      id: 'b-prod', category: 'production',
-      title: 'Строительное производство & Прорабы', roleType: 'Полевое производство СМР', icon: '🏗️',
-      person: 'Жумабеков Арман', personRole: 'Главный прораб / Начальник участка', avatarColor: 'green',
-      desc: 'Организация строительной площадки, соблюдение графика работ, охрана труда и координация рабочих бригад.',
-      permissions: ['Заказ материалов со склада', 'Табелирование рабочих', 'Сдача этапов технадзору'],
-      count: '24 строителя (3 бригады)',
-      children: [
-        { id: 'n-br1', title: 'Бригада монолитных работ (№1)', roleType: 'Арматурщики и бетонщики', icon: '🧱',
-          person: 'Бригадир: Садыков Нурлан', personRole: 'Бригадир (8 специалистов)', avatarColor: 'green',
-          desc: 'Вязка арматурных каркасов, монтаж опалубки Doka/Peri, приемка товарного бетона.',
-          permissions: ['Допуск к высотным работам', 'Отметка выполнения захваток'], count: '8 человек' },
-        { id: 'n-br2', title: 'Бригада чистовой отделки (№2)', roleType: 'Штукатуры, маляры, плиточники', icon: '🎨',
-          person: 'Бригадир: Ким Александр', personRole: 'Бригадир (6 специалистов)', avatarColor: 'green',
-          desc: 'Механизированная штукатурка по маякам, укладка керамогранита, малярные работы.',
-          permissions: ['Приемка сухих смесей', 'Сдача геометрии помещений'], count: '6 человек' },
-      ],
-    },
-    {
-      id: 'b-cust', category: 'customers',
-      title: 'Заказчики, Инвесторы & Эскроу', roleType: 'Инвестиционный контур', icon: '💎',
-      person: 'Корпоративные и частные инвесторы', personRole: 'Заказчики объектов', avatarColor: 'purple',
-      desc: 'Финансирование строительных объектов через безопасные эскроу-счета, утверждение дизайн-проектов.',
-      permissions: ['Приемка готовых этапов', 'Разблокировка эскроу-траншей', 'Вызов независимого аудита'],
-      count: '15 активных заказчиков',
-      children: [
-        { id: 'n-dev', title: 'Генеральный Заказчик / Девелопер', roleType: 'Крупный инвестор (ТОО / АО)', icon: '🏛️',
-          person: 'ТОО «Prime Development KZ»', personRole: 'Инвестор ЖК «Nomad Palace»', avatarColor: 'purple',
-          desc: 'Заказчик жилого комплекса на 12 000 м². Ежемесячный траншевый контроль.',
-          permissions: ['Утверждение генподряда', 'Финансовый аудит'], count: 'Бюджет: 850 млн ₸' },
-        { id: 'n-priv', title: 'Частные заказчики коттеджей', roleType: 'Физлица (ИИН)', icon: '👤',
-          person: 'Ахметов Марат и 14 клиентов', personRole: 'Индивидуальные застройщики', avatarColor: 'purple',
-          desc: 'Строительство частных домов, капитальный ремонт квартир и коттеджей.',
-          permissions: ['Оплата через Kaspi QR', 'Просмотр онлайн-камер'], count: '14 договоров' },
-      ],
-    },
-  ],
-});
+const CAT_COLORS = {
+  mgmt: { border: '#f59e0b', bg: 'rgba(245,158,11,.08)', text: '#fbbf24' },
+  eng:  { border: '#ef4444', bg: 'rgba(239,68,68,.08)', text: '#fb7185' },
+  prod: { border: '#10b981', bg: 'rgba(16,185,129,.08)', text: '#34d399' },
+  cust: { border: '#8b5cf6', bg: 'rgba(139,92,246,.08)', text: '#a78bfa' },
+  anal: { border: '#3b82f6', bg: 'rgba(59,130,246,.08)', text: '#60a5fa' },
+};
 
-/* ─── COMPONENT ─────────────────────────────────────────────────────── */
+/* ═══ COMPONENT ════════════════════════════════════════════════════════ */
 export default function RoleHierarchyTreePage({ onBack, hideHeader = false }) {
-  const [companyId, setCompanyId] = useState('qazgost');
-  const [filter, setFilter] = useState('all');
+  const [selectedCompanies, setSelectedCompanies] = useState(['qazgost']);
+  const [expanded, setExpanded] = useState({});
+  const [inspecting, setInspecting] = useState(null);
   const [search, setSearch] = useState('');
-  const [selected, setSelected] = useState(null);
-  const [zoom, setZoom] = useState(1);
   const [toast, setToast] = useState(null);
 
-  const flash = (msg) => { setToast(msg); setTimeout(() => setToast(null), 3000); };
+  const flash = (m) => { setToast(m); setTimeout(() => setToast(null), 2500); };
 
-  const company = COMPANIES.find(c => c.id === companyId) || COMPANIES[0];
-  const tree = useMemo(() => buildTree(company), [company]);
+  const toggleCompany = useCallback((id) => {
+    setSelectedCompanies(prev => {
+      if (prev.includes(id)) {
+        if (prev.length === 1) return prev; // at least 1
+        return prev.filter(c => c !== id);
+      }
+      return [...prev, id];
+    });
+  }, []);
 
-  const branches = useMemo(() =>
-    tree.branches.filter(b => {
-      if (filter !== 'all' && b.category !== filter) return false;
-      if (!search) return true;
-      const q = search.toLowerCase();
-      return b.title.toLowerCase().includes(q) || b.person.toLowerCase().includes(q) ||
-        b.children?.some(c => c.title.toLowerCase().includes(q) || c.person.toLowerCase().includes(q));
-    }),
-  [tree.branches, filter, search]);
+  const toggleExpand = useCallback((nodeId) => {
+    setExpanded(prev => ({ ...prev, [nodeId]: !prev[nodeId] }));
+  }, []);
 
-  const FILTERS = [
-    { key: 'all', label: '🌳 Вся структура', extra: `(${tree.branches.length} ветви)` },
-    { key: 'management', label: '💼 Управление' },
-    { key: 'engineering', label: '🔍 Технадзор' },
-    { key: 'production', label: '🏗️ Бригады' },
-    { key: 'customers', label: '💎 Заказчики' },
-  ];
+  const expandAll = useCallback(() => {
+    const all = {};
+    COMPANIES_DB.forEach(c => c.branches.forEach(b => { all[b.id] = true; }));
+    setExpanded(all);
+    flash('🌳 Все ветки развёрнуты');
+  }, []);
 
-  /* ---- Node card renderer ---- */
-  const NodeCard = ({ node, isRoot, isChild }) => (
-    <div
-      className={`${isRoot ? 'rht-root-card' : 'rht-node'} ${selected?.id === node.id ? 'sel' : ''}`}
-      onClick={(e) => { e.stopPropagation(); setSelected(node); }}
-    >
-      <div className="rht-node-head">
-        <div className="rht-node-icon">{node.icon}</div>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <h4 className="rht-node-name" style={isChild ? { fontSize: '.88rem' } : undefined}>{node.title}</h4>
-          <span className="rht-role-tag">{node.roleType}</span>
-        </div>
-      </div>
-      <div className="rht-person">
-        <div className={`rht-avatar ${node.avatarColor || ''}`}>
-          {isRoot ? '👑' : node.person?.charAt(0)?.toUpperCase() || '?'}
-        </div>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div className="rht-pname">{node.person}</div>
-          <div className="rht-prole">{node.personRole}</div>
-        </div>
-      </div>
-      <div className="rht-node-foot">
-        {isRoot ? <span>БИН: {node.bin}</span> : <span>Подчинённых:</span>}
-        <span className="rht-badge">{isRoot ? node.stats : node.count}</span>
-      </div>
-    </div>
-  );
+  const collapseAll = useCallback(() => {
+    setExpanded({});
+    flash('📁 Все ветки свёрнуты');
+  }, []);
 
-  return (
-    <div className="rht-wrapper">
-      {toast && <div className="rht-toast-msg">{toast}</div>}
+  const matchesSearch = (node) => {
+    if (!search) return true;
+    const q = search.toLowerCase();
+    return node.title?.toLowerCase().includes(q) ||
+      node.head?.toLowerCase().includes(q) ||
+      node.sub?.toLowerCase().includes(q) ||
+      node.children?.some(c => c.title?.toLowerCase().includes(q) || c.head?.toLowerCase().includes(q));
+  };
 
-      {/* ── Hero ────────────────────────────────────────────────── */}
-      <div className="rht-hero">
-        <div>
-          <h2 className="rht-hero-title">
-            <span style={{ fontSize: '1.6rem' }}>🌳</span>
-            Иерархическое древо ролей и структуры
-          </h2>
-          <p className="rht-hero-desc">
-            Интерактивное семейное древо ролей организации. Нажмите на любого участника структуры для просмотра должностных обязанностей, полномочий и прикреплённых объектов.
-          </p>
-        </div>
-        <div className="rht-company-select-wrap">
-          <span style={{ fontSize: '1.3rem' }}>🏢</span>
-          <select
-            className="rht-company-select"
-            value={companyId}
-            onChange={e => { setCompanyId(e.target.value); flash('Компания переключена ✓'); }}
-          >
-            {COMPANIES.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-          </select>
-        </div>
-      </div>
+  /* ── Render a single company tree ─────────────────────────── */
+  const renderCompanyTree = (company) => {
+    const filteredBranches = company.branches.filter(matchesSearch);
 
-      {/* ── Toolbar ─────────────────────────────────────────────── */}
-      <div className="rht-toolbar">
-        <div className="rht-pills">
-          {FILTERS.map(f => (
-            <button
-              key={f.key}
-              className={`rht-pill ${filter === f.key ? 'active' : ''}`}
-              onClick={() => setFilter(f.key)}
-            >
-              {f.label} {f.extra || ''}
-            </button>
-          ))}
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <input
-            className="rht-search-input"
-            placeholder="🔎 Поиск роли или сотрудника..."
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-          />
-          <div className="rht-zoom-row">
-            <button className="rht-z-btn" onClick={() => setZoom(Math.max(.6, zoom - .1))}>−</button>
-            <span className="rht-z-label">{Math.round(zoom * 100)}%</span>
-            <button className="rht-z-btn" onClick={() => setZoom(Math.min(1.4, zoom + .1))}>+</button>
-            <button className="rht-z-btn" onClick={() => setZoom(1)}>↺</button>
+    return (
+      <div key={company.id} className="ogt-company-section">
+        {/* Company Root */}
+        <div className="ogt-root" style={{ '--cc': company.color }} onClick={() => setInspecting({ type: 'company', data: company })}>
+          <div className="ogt-root-glow" />
+          <div className="ogt-root-icon">🏢</div>
+          <div className="ogt-root-info">
+            <div className="ogt-root-name">{company.fullName}</div>
+            <div className="ogt-root-meta">
+              <span>👤 {company.ceo.name}</span>
+              <span className="ogt-dot">•</span>
+              <span>{company.ceo.role}</span>
+            </div>
+            <div className="ogt-root-badges">
+              <span className="ogt-rbadge">БИН: {company.bin}</span>
+              <span className="ogt-rbadge green">{company.staff} сотр.</span>
+              <span className="ogt-rbadge blue">{company.objects} объектов</span>
+              <span className="ogt-rbadge">{company.city}</span>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* ── Tree Canvas ─────────────────────────────────────────── */}
-      <div className="rht-canvas">
-        <div className="rht-tree-inner" style={{ transform: `scale(${zoom})`, transformOrigin: 'top center' }}>
+        {/* Connector */}
+        <div className="ogt-trunk" style={{ '--cc': company.color }} />
 
-          {/* ROOT */}
-          <div className="rht-root-wrap">
-            <NodeCard node={tree.root} isRoot />
-            <div className="rht-conn-v" />
-          </div>
+        {/* Branches */}
+        <div className="ogt-branches-grid">
+          {filteredBranches.map(branch => {
+            const catColor = CAT_COLORS[branch.cat] || CAT_COLORS.mgmt;
+            const isOpen = expanded[branch.id];
+            const hasChildren = branch.children && branch.children.length > 0;
 
-          {/* Horizontal bar */}
-          {branches.length > 1 && (
-            <div className="rht-conn-h-bar" style={{ width: `${Math.min(85, branches.length * 22)}%` }} />
-          )}
+            return (
+              <div key={branch.id} className="ogt-branch-col">
+                {/* Branch card */}
+                <div
+                  className={`ogt-bcard ${inspecting?.data?.id === branch.id ? 'sel' : ''}`}
+                  style={{ '--bc': catColor.border, '--bbg': catColor.bg }}
+                  onClick={() => setInspecting({ type: 'branch', data: branch, company })}
+                >
+                  <div className="ogt-bcard-top">
+                    <span className="ogt-bcard-icon">{branch.icon}</span>
+                    <div className="ogt-bcard-titles">
+                      <div className="ogt-bcard-name">{branch.title}</div>
+                      <div className="ogt-bcard-sub" style={{ color: catColor.text }}>{branch.sub}</div>
+                    </div>
+                    {hasChildren && (
+                      <button className="ogt-expand-btn" onClick={(e) => { e.stopPropagation(); toggleExpand(branch.id); }}>
+                        {isOpen ? '▾' : '▸'}
+                      </button>
+                    )}
+                  </div>
+                  <div className="ogt-bcard-person">
+                    <div className="ogt-mini-avatar" style={{ background: catColor.border }}>{branch.head?.charAt(0)}</div>
+                    <div>
+                      <div className="ogt-bcard-head-name">{branch.head}</div>
+                      {branch.headRole && <div className="ogt-bcard-head-role">{branch.headRole}</div>}
+                    </div>
+                  </div>
+                  <div className="ogt-bcard-footer">
+                    <span className="ogt-count-badge" style={{ borderColor: catColor.border, color: catColor.text }}>
+                      {branch.count} чел.
+                    </span>
+                    {hasChildren && (
+                      <span style={{ fontSize: '.7rem', color: '#64748b' }}>{branch.children.length} подразд.</span>
+                    )}
+                  </div>
+                </div>
 
-          {/* BRANCHES */}
-          <div className="rht-branches">
-            {branches.map(branch => (
-              <div key={branch.id} className="rht-branch" data-cat={branch.category}>
-                <NodeCard node={branch} />
-
-                {branch.children?.length > 0 && (
-                  <div className="rht-children">
-                    <div className="rht-conn-v" style={{ height: '24px' }} />
+                {/* Children */}
+                {hasChildren && isOpen && (
+                  <div className="ogt-children">
+                    <div className="ogt-child-line" style={{ '--bc': catColor.border }} />
                     {branch.children.map(child => (
-                      <div key={child.id} className="rht-child-node">
-                        <NodeCard node={child} isChild />
+                      <div key={child.id}
+                        className={`ogt-child-card ${inspecting?.data?.id === child.id ? 'sel' : ''}`}
+                        style={{ '--bc': catColor.border, '--bbg': catColor.bg }}
+                        onClick={() => setInspecting({ type: 'child', data: child, branch, company })}
+                      >
+                        <span className="ogt-child-icon">{child.icon}</span>
+                        <div className="ogt-child-info">
+                          <div className="ogt-child-name">{child.title}</div>
+                          <div className="ogt-child-sub">{child.sub}</div>
+                          <div className="ogt-child-head">{child.head} <span className="ogt-count-badge sm" style={{ borderColor: catColor.border, color: catColor.text }}>{child.count}</span></div>
+                        </div>
                       </div>
                     ))}
                   </div>
                 )}
               </div>
-            ))}
-          </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
+
+  const activeCompanies = COMPANIES_DB.filter(c => selectedCompanies.includes(c.id));
+
+  return (
+    <div className="ogt-wrapper">
+      {toast && <div className="ogt-toast">{toast}</div>}
+
+      {/* ── Header ──────────────────────────────────────────── */}
+      <div className="ogt-header">
+        <div className="ogt-header-left">
+          <h2 className="ogt-title">🌳 Организационное древо</h2>
+          <p className="ogt-subtitle">Выберите одну или несколько компаний для параллельного просмотра</p>
+        </div>
+        <div className="ogt-header-controls">
+          <button className="ogt-ctrl-btn" onClick={expandAll}>📂 Развернуть</button>
+          <button className="ogt-ctrl-btn" onClick={collapseAll}>📁 Свернуть</button>
         </div>
       </div>
 
-      {/* ── Inspector Drawer ────────────────────────────────────── */}
-      {selected && (
-        <div className="rht-backdrop" onClick={() => setSelected(null)}>
-          <div className="rht-drawer" onClick={e => e.stopPropagation()}>
-            <div className="rht-drawer-head">
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <span style={{ fontSize: '1.5rem' }}>{selected.icon}</span>
-                <div>
-                  <h3>{selected.title}</h3>
-                  <span style={{ fontSize: '.76rem', color: '#38bdf8', fontWeight: 700 }}>{selected.roleType}</span>
-                </div>
-              </div>
-              <button className="rht-drawer-close" onClick={() => setSelected(null)}>✕</button>
+      {/* ── Company Selector ────────────────────────────────── */}
+      <div className="ogt-company-selector">
+        {COMPANIES_DB.map(c => {
+          const isActive = selectedCompanies.includes(c.id);
+          return (
+            <button
+              key={c.id}
+              className={`ogt-company-chip ${isActive ? 'active' : ''}`}
+              style={isActive ? { '--cc': c.color, borderColor: c.color, background: `${c.color}18` } : {}}
+              onClick={() => toggleCompany(c.id)}
+            >
+              <span className="ogt-chip-dot" style={{ background: isActive ? c.color : '#475569' }} />
+              <span className="ogt-chip-name">{c.name}</span>
+              <span className="ogt-chip-meta">{c.staff} чел. • {c.city}</span>
+            </button>
+          );
+        })}
+        <div className="ogt-search-wrap">
+          <input
+            className="ogt-search"
+            placeholder="🔎 Поиск..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+          />
+        </div>
+      </div>
+
+      {/* ── Trees ───────────────────────────────────────────── */}
+      <div className={`ogt-trees-container ${activeCompanies.length > 1 ? 'multi' : 'single'}`}>
+        {activeCompanies.map(renderCompanyTree)}
+      </div>
+
+      {/* ── Inspector ───────────────────────────────────────── */}
+      {inspecting && (
+        <div className="ogt-inspector-backdrop" onClick={() => setInspecting(null)}>
+          <div className="ogt-inspector" onClick={e => e.stopPropagation()}>
+            <div className="ogt-insp-head">
+              <h3>{inspecting.data.icon || '🏢'} {inspecting.data.title || inspecting.data.fullName || inspecting.data.name}</h3>
+              <button className="ogt-insp-close" onClick={() => setInspecting(null)}>✕</button>
             </div>
-
-            <div className="rht-drawer-body">
-              {/* Person Hero */}
-              <div className="rht-info-block highlight" style={{ textAlign: 'center', padding: '1.5rem' }}>
-                <div className="rht-drawer-avatar">{selected.icon}</div>
-                <p className="rht-drawer-person-name">{selected.person}</p>
-                <p className="rht-drawer-person-role">{selected.personRole}</p>
-              </div>
-
-              {/* Description */}
-              <div className="rht-info-block">
-                <h4>📝 Зона ответственности</h4>
-                <p>{selected.desc}</p>
-              </div>
-
-              {/* Permissions */}
-              {selected.permissions?.length > 0 && (
-                <div className="rht-info-block">
-                  <h4>🛡️ Права доступа и полномочия</h4>
-                  <ul>
-                    {selected.permissions.map((p, i) => <li key={i}>{p}</li>)}
-                  </ul>
-                </div>
+            <div className="ogt-insp-body">
+              {inspecting.type === 'company' && (
+                <>
+                  <div className="ogt-insp-block hl">
+                    <h4>👤 Руководитель</h4>
+                    <p><strong>{inspecting.data.ceo.name}</strong> — {inspecting.data.ceo.role}</p>
+                  </div>
+                  <div className="ogt-insp-block">
+                    <h4>📋 Реквизиты</h4>
+                    <p>БИН: {inspecting.data.bin}<br/>Город: {inspecting.data.city}<br/>Сотрудников: {inspecting.data.staff}<br/>Активных объектов: {inspecting.data.objects}</p>
+                  </div>
+                  <div className="ogt-insp-block">
+                    <h4>🏗️ Структура</h4>
+                    <p>{inspecting.data.branches.length} подразделений</p>
+                    <ul>{inspecting.data.branches.map(b => <li key={b.id}>{b.icon} {b.title} — {b.head} ({b.count} чел.)</li>)}</ul>
+                  </div>
+                </>
               )}
-
-              {/* Stats */}
-              {(selected.count || selected.stats) && (
-                <div className="rht-info-block">
-                  <h4>📊 Статистика</h4>
-                  <p style={{ fontSize: '1.05rem', fontWeight: 800, color: '#6ee7b7' }}>
-                    {selected.stats || selected.count}
-                  </p>
-                </div>
+              {(inspecting.type === 'branch' || inspecting.type === 'child') && (
+                <>
+                  <div className="ogt-insp-block hl">
+                    <h4>👤 Ответственный</h4>
+                    <p><strong>{inspecting.data.head}</strong>{inspecting.data.headRole ? ` — ${inspecting.data.headRole}` : ''}</p>
+                  </div>
+                  <div className="ogt-insp-block">
+                    <h4>📊 Информация</h4>
+                    <p>Направление: {inspecting.data.sub}<br/>Численность: {inspecting.data.count} чел.{inspecting.company ? `\nКомпания: ${inspecting.company.name}` : ''}</p>
+                  </div>
+                  {inspecting.data.children?.length > 0 && (
+                    <div className="ogt-insp-block">
+                      <h4>📁 Подразделения ({inspecting.data.children.length})</h4>
+                      <ul>{inspecting.data.children.map(c => <li key={c.id}>{c.icon} {c.title} — {c.head}</li>)}</ul>
+                    </div>
+                  )}
+                </>
               )}
-
-              {/* Actions */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '.65rem', marginTop: '.5rem' }}>
-                <button className="rht-action-btn primary"
-                  onClick={() => flash(`⚡ Права для «${selected.title}» синхронизированы`)}>
-                  ⚡ Управление правами доступа
-                </button>
-                <button className="rht-action-btn secondary"
-                  onClick={() => flash(`📬 Уведомление отправлено: ${selected.person}`)}>
-                  💬 Написать сотруднику
-                </button>
-              </div>
             </div>
           </div>
         </div>
