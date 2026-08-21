@@ -232,19 +232,6 @@ export default function LiveAIScannerDemo() {
           )}
 
           {isScanning && <div className="viewport-laser-line" style={{ top: `${scanProgress}%` }}></div>}
-          
-          <div className="viewport-center-hud" style={{ pointerEvents: 'none' }}>
-            <div className="hud-corner top-left"></div>
-            <div className="hud-corner top-right"></div>
-            <div className="hud-corner bottom-left"></div>
-            <div className="hud-corner bottom-right"></div>
-
-            <div className="hud-bbox-tag">
-              <span>{current.category}</span>
-              <span className="conf-score">{current.confidence}</span>
-            </div>
-            <div className="hud-dimensions-label">{current.dims}</div>
-          </div>
 
           <div className="viewport-telemetry-strip">
             <span>📐 Объём: <strong>{current.vol}</strong></span>
