@@ -99,43 +99,43 @@ export default function AnimatedBackground() {
     };
 
     const cityBuildings = [
-      // Left Cluster (L1, L2, L3)
+      // Left Cluster (L1, L2, L3) — GOLDEN HOUR SUNRISE (РАССВЕТ: тёплые янтарно-золотые тона)
       { 
         id: 'L1', name: 'ЖК «ТАУЭР А1»', subName: '18 ЭТАЖЕЙ • ЖИЛОЙ КОМПЛЕКС', 
         xR: 0.025, yR: 0.58, w: 105, h: 260, floors: 18, cols: 5, 
-        spire: 40, hasBalconies: true, hasPenthouse: true, accentColor: '#38bdf8',
-        wallColor: '#111b2e', sideWallColor: '#0a101f', roofColor: '#1e2d4a', seed: 101 
+        spire: 40, hasBalconies: true, hasPenthouse: true, accentColor: '#fbbf24',
+        wallColor: '#261c16', sideWallColor: '#19110d', roofColor: '#3d281a', seed: 101 
       },
       { 
         id: 'L2', name: 'ЖК «ПРЕМЬЕР ТАУЭР А2»', subName: '26 ЭТАЖЕЙ • БИЗНЕС-КЛАСС', 
         xR: 0.105, yR: 0.56, w: 135, h: 350, floors: 26, cols: 6, 
-        spire: 65, hasBalconies: true, hasPenthouse: true, hasSkyLounge: true, accentColor: '#3b82f6',
-        wallColor: '#0f172a', sideWallColor: '#080d1a', roofColor: '#1e293b', seed: 202 
+        spire: 65, hasBalconies: true, hasPenthouse: true, hasSkyLounge: true, accentColor: '#f59e0b',
+        wallColor: '#2a1e16', sideWallColor: '#1a110c', roofColor: '#452a1a', seed: 202 
       },
       { 
         id: 'L3', name: 'ЖК «КОМФОРТ А3»', subName: '12 ЭТАЖЕЙ • СЕМЕЙНЫЙ КВАРТАЛ', 
         xR: 0.20, yR: 0.60, w: 90, h: 200, floors: 12, cols: 4, 
-        spire: 25, hasBalconies: true, hasPenthouse: false, accentColor: '#06b6d4',
-        wallColor: '#131e33', sideWallColor: '#0b1220', roofColor: '#1b2a47', seed: 303 
+        spire: 25, hasBalconies: true, hasPenthouse: false, accentColor: '#d97706',
+        wallColor: '#221915', sideWallColor: '#160f0c', roofColor: '#362419', seed: 303 
       },
-      // Right Cluster (R1, R2, R3)
+      // Right Cluster (R1, R2, R3) — DARK TWILIGHT SUNSET (ТЁМНЫЙ ЗАКАТ / ГЛУБОКАЯ НОЧЬ)
       { 
         id: 'R1', name: 'ЖК «GREEN CITY В1»', subName: '14 ЭТАЖЕЙ • ЭКО-КВАРТАЛ', 
         xR: 0.74, yR: 0.60, w: 95, h: 220, floors: 14, cols: 4, 
-        spire: 30, hasBalconies: true, hasPenthouse: true, accentColor: '#10b981',
-        wallColor: '#0e1f24', sideWallColor: '#071317', roofColor: '#173038', seed: 404 
+        spire: 30, hasBalconies: true, hasPenthouse: true, accentColor: '#0ea5e9',
+        wallColor: '#090f1a', sideWallColor: '#04070e', roofColor: '#101a2c', seed: 404 
       },
       { 
         id: 'R2', name: 'ЖК «GRAND TOWER В2»', subName: '28 ЭТАЖЕЙ • ПЕНТХАУСЫ', 
         xR: 0.815, yR: 0.55, w: 145, h: 380, floors: 28, cols: 7, 
         spire: 75, hasBalconies: true, hasPenthouse: true, hasSkyLounge: true, accentColor: '#f59e0b',
-        wallColor: '#181824', sideWallColor: '#0d0d14', roofColor: '#282838', seed: 505 
+        wallColor: '#0c0b17', sideWallColor: '#06050c', roofColor: '#181628', seed: 505 
       },
       { 
         id: 'R3', name: 'ЖК «NOMAD PALACE В3»', subName: '20 ЭТАЖЕЙ • СТИЛОБАТ', 
         xR: 0.915, yR: 0.57, w: 110, h: 290, floors: 20, cols: 5, 
-        spire: 45, hasBalconies: true, hasPenthouse: true, accentColor: '#fbbf24',
-        wallColor: '#1a1829', sideWallColor: '#0e0d17', roofColor: '#2a2642', seed: 606 
+        spire: 45, hasBalconies: true, hasPenthouse: true, accentColor: '#eab308',
+        wallColor: '#0b0918', sideWallColor: '#05040e', roofColor: '#19152b', seed: 606 
       }
     ];
 
@@ -1097,23 +1097,25 @@ export default function AnimatedBackground() {
 
       ctx.clearRect(0, 0, width, height);
 
-      // ── 1. DEEP SAPPHIRE OBSIDIAN GRADIENT ──
-      const baseGrad = ctx.createRadialGradient(
-        width * 0.5, height * 0.42, 60,
-        width * 0.5, height * 0.5, Math.max(width, height) * 0.95
-      );
-      baseGrad.addColorStop(0, '#0c142c');
-      baseGrad.addColorStop(0.35, '#080d1e');
-      baseGrad.addColorStop(0.75, '#040712');
-      baseGrad.addColorStop(1, '#020308');
-      ctx.fillStyle = baseGrad;
+      // ── 1. DUAL ATMOSPHERE SKY: WARM GOLDEN SUNSET/SUNRISE (LEFT) -> DEEP SAPPHIRE NIGHT (RIGHT) ──
+      const skyGrad = ctx.createLinearGradient(0, 0, width, 0);
+      skyGrad.addColorStop(0.00, '#2e1a0e'); // Left: Soft warm golden sunrise horizon
+      skyGrad.addColorStop(0.22, '#21151a'); // Left-mid: Warm dusk atmosphere
+      skyGrad.addColorStop(0.45, '#0b1120'); // Center: Dark midnight navy
+      skyGrad.addColorStop(0.72, '#040814'); // Right: Deep sapphire twilight
+      skyGrad.addColorStop(1.00, '#010308'); // Right: Obsidian night sky
+      ctx.fillStyle = skyGrad;
       ctx.fillRect(0, 0, width, height);
 
-      // ── 2. VOLUMETRIC AURA LIGHT POOLS ──
+      // ── 2. ELEGANT VOLUMETRIC LIGHT AURAS (WARM GOLDEN SUNRISE VS SAPPHIRE NIGHT) ──
       const auras = [
-        { x: 0.15, y: 0.35, r: 0.55, color: 'rgba(37, 99, 235, 0.22)' },
-        { x: 0.85, y: 0.35, r: 0.50, color: 'rgba(2, 132, 199, 0.20)' },
-        { x: 0.50, y: 0.85, r: 0.52, color: 'rgba(6, 182, 212, 0.18)' }
+        // Warm Golden Dawn / Sunrise Auras (Left Side - Soft, Pleasant & Warm)
+        { x: 0.12, y: 0.45, r: 0.85, color: 'rgba(245, 158, 11, 0.35)' },  // Warm golden sun core
+        { x: 0.20, y: 0.32, r: 0.70, color: 'rgba(217, 119, 6, 0.25)' },   // Soft amber sky glow
+        { x: 0.05, y: 0.58, r: 0.75, color: 'rgba(234, 88, 12, 0.20)' },   // Warm horizon flare
+        // Deep Sapphire / Cyber Midnight Auras (Right Side - Dark & Cool)
+        { x: 0.85, y: 0.35, r: 0.55, color: 'rgba(14, 165, 233, 0.22)' },  // Deep cyan sapphire
+        { x: 0.92, y: 0.55, r: 0.50, color: 'rgba(30, 27, 75, 0.40)' }    // Deep midnight violet
       ];
       auras.forEach((a) => {
         const px = a.x * width;
