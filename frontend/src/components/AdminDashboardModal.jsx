@@ -1494,12 +1494,6 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
                   <button className="doc-btn-purple" onClick={() => setDocAddModalOpen(true)}>
                     <span>➕</span> Добавить документ
                   </button>
-                  <button className="doc-btn-emerald" onClick={() => {
-                    exportAllDocumentsPackageExcel({ acts: documentsList.filter(d => d.category === 'acts'), invoices: documentsList.filter(d => d.category === 'invoices'), contracts: documentsList.filter(d => d.category === 'contracts') });
-                    logAuditAction('DOCUMENTS', 'export_package', 'Выгружен полный сводный пакет');
-                  }}>
-                    <span>⚡</span> Выгрузить всё (.xlsx)
-                  </button>
                 </div>
               </div>
 
@@ -1764,24 +1758,39 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
       
       {/* MODAL: ADD NEW DOCUMENT */}
       {docAddModalOpen && (
-        <div className="nested-modal-overlay">
-          <div className="nested-modal-box" style={{ maxWidth: '680px' }}>
-            <h3 className="modal-title">➕ Добавление нового документа</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+        <div className="doc-modal-overlay" onClick={() => setDocAddModalOpen(false)}>
+          <div className="doc-modal-box" onClick={e => e.stopPropagation()}>
+            
+            <div className="doc-modal-header">
+              <h3 className="doc-modal-title">
+                <span>➕</span> Добавление нового документа
+              </h3>
+              <button className="doc-modal-close-btn" onClick={() => setDocAddModalOpen(false)}>✕</button>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
               {/* Row 1 */}
               <div>
-                <label className="input-label">№ Документа *</label>
-                <input className="admin-input" placeholder="АКТ-КС2-2026/100" value={docForm.id}
-                  onChange={e => setDocForm(f => ({...f, id: e.target.value}))} />
+                <label className="doc-input-label">№ Документа *</label>
+                <input 
+                  className="doc-modal-input" 
+                  placeholder="АКТ-КС2-2026/100" 
+                  value={docForm.id}
+                  onChange={e => setDocForm(f => ({...f, id: e.target.value}))} 
+                />
               </div>
+
               <div>
-                <label className="input-label">Тип документа</label>
-                <select className="admin-input" value={docForm.type}
+                <label className="doc-input-label">Тип документа</label>
+                <select 
+                  className="doc-modal-select" 
+                  value={docForm.type}
                   onChange={e => {
                     const t = e.target.value;
                     const cat = t.includes('Акт') ? 'acts' : t.includes('Договор') ? 'contracts' : 'invoices';
                     setDocForm(f => ({...f, type: t, category: cat}));
-                  }}>
+                  }}
+                >
                   <option value="Акт КС-2">Акт КС-2</option>
                   <option value="Акт КС-3">Акт КС-3</option>
                   <option value="Счет на оплату">Счет на оплату</option>
@@ -1790,55 +1799,100 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
                   <option value="Договор подряда">Договор подряда</option>
                 </select>
               </div>
+
               {/* Row 2 */}
               <div style={{ gridColumn: 'span 2' }}>
-                <label className="input-label">Объект строительства / Назначение *</label>
-                <input className="admin-input" placeholder="ЖК «Nomad Palace» (Блок А)" value={docForm.objectName}
-                  onChange={e => setDocForm(f => ({...f, objectName: e.target.value}))} />
+                <label className="doc-input-label">Объект строительства / Назначение *</label>
+                <input 
+                  className="doc-modal-input" 
+                  placeholder="ЖК «Nomad Palace» (Блок А)" 
+                  value={docForm.objectName}
+                  onChange={e => setDocForm(f => ({...f, objectName: e.target.value}))} 
+                />
               </div>
+
               {/* Row 3 */}
               <div>
-                <label className="input-label">Заказчик / Плательщик</label>
-                <input className="admin-input" placeholder="ТОО «Prime Development KZ»" value={docForm.customer || docForm.payer}
-                  onChange={e => setDocForm(f => ({...f, customer: e.target.value, payer: e.target.value}))} />
+                <label className="doc-input-label">Заказчик / Плательщик</label>
+                <input 
+                  className="doc-modal-input" 
+                  placeholder="ТОО «Prime Development KZ»" 
+                  value={docForm.customer || docForm.payer}
+                  onChange={e => setDocForm(f => ({...f, customer: e.target.value, payer: e.target.value}))} 
+                />
               </div>
+
               <div>
-                <label className="input-label">БИН / ИИН</label>
-                <input className="admin-input" placeholder="180240009871" value={docForm.customerBin || docForm.payerBin}
-                  onChange={e => setDocForm(f => ({...f, customerBin: e.target.value, payerBin: e.target.value}))} />
+                <label className="doc-input-label">БИН / ИИН Заказчика</label>
+                <input 
+                  className="doc-modal-input" 
+                  placeholder="180240009871" 
+                  value={docForm.customerBin || docForm.payerBin}
+                  onChange={e => setDocForm(f => ({...f, customerBin: e.target.value, payerBin: e.target.value}))} 
+                />
               </div>
+
               {/* Row 4 */}
               <div>
-                <label className="input-label">Подрядчик / Исполнитель</label>
-                <input className="admin-input" placeholder="ТОО «QAZGOST AI»" value={docForm.contractor}
-                  onChange={e => setDocForm(f => ({...f, contractor: e.target.value}))} />
+                <label className="doc-input-label">Подрядчик / Исполнитель</label>
+                <input 
+                  className="doc-modal-input" 
+                  placeholder="ТОО «QAZGOST AI»" 
+                  value={docForm.contractor}
+                  onChange={e => setDocForm(f => ({...f, contractor: e.target.value}))} 
+                />
               </div>
+
               <div>
-                <label className="input-label">БИН Подрядчика</label>
-                <input className="admin-input" placeholder="240140029182" value={docForm.contractorBin}
-                  onChange={e => setDocForm(f => ({...f, contractorBin: e.target.value}))} />
+                <label className="doc-input-label">БИН Подрядчика</label>
+                <input 
+                  className="doc-modal-input" 
+                  placeholder="240140029182" 
+                  value={docForm.contractorBin}
+                  onChange={e => setDocForm(f => ({...f, contractorBin: e.target.value}))} 
+                />
               </div>
+
               {/* Row 5 */}
               <div>
-                <label className="input-label">Дата</label>
-                <input className="admin-input" placeholder="21.08.2026" value={docForm.date}
-                  onChange={e => setDocForm(f => ({...f, date: e.target.value}))} />
+                <label className="doc-input-label">Дата</label>
+                <input 
+                  className="doc-modal-input" 
+                  placeholder="21.08.2026" 
+                  value={docForm.date}
+                  onChange={e => setDocForm(f => ({...f, date: e.target.value}))} 
+                />
               </div>
+
               <div>
-                <label className="input-label">Период выполнения</label>
-                <input className="admin-input" placeholder="Август 2026 (Этап 3)" value={docForm.period}
-                  onChange={e => setDocForm(f => ({...f, period: e.target.value}))} />
+                <label className="doc-input-label">Период выполнения</label>
+                <input 
+                  className="doc-modal-input" 
+                  placeholder="Август 2026 (Этап 3)" 
+                  value={docForm.period}
+                  onChange={e => setDocForm(f => ({...f, period: e.target.value}))} 
+                />
               </div>
+
               {/* Row 6 */}
               <div>
-                <label className="input-label">Сумма с НДС (₸)</label>
-                <input className="admin-input" type="number" placeholder="14850000" value={docForm.amount}
-                  onChange={e => setDocForm(f => ({...f, amount: e.target.value}))} />
+                <label className="doc-input-label">Сумма с НДС (₸)</label>
+                <input 
+                  className="doc-modal-input" 
+                  type="number" 
+                  placeholder="14850000" 
+                  value={docForm.amount}
+                  onChange={e => setDocForm(f => ({...f, amount: e.target.value}))} 
+                />
               </div>
+
               <div>
-                <label className="input-label">Статус</label>
-                <select className="admin-input" value={docForm.status}
-                  onChange={e => setDocForm(f => ({...f, status: e.target.value}))}>
+                <label className="doc-input-label">Статус</label>
+                <select 
+                  className="doc-modal-select" 
+                  value={docForm.status}
+                  onChange={e => setDocForm(f => ({...f, status: e.target.value}))}
+                >
                   <option value="На согласовании">На согласовании</option>
                   <option value="Подписан ЭЦП">Подписан ЭЦП</option>
                   <option value="Оплачен">Оплачен</option>
@@ -1848,11 +1902,14 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
                 </select>
               </div>
             </div>
-            <div className="modal-actions" style={{ marginTop: '1.2rem' }}>
-              <button className="admin-primary-btn" style={{ background: 'linear-gradient(90deg, #10b981, #059669)', padding: '10px 28px', fontWeight: '800' }} onClick={handleAddDocManually}>
+
+            <div className="doc-modal-actions">
+              <button className="doc-btn-cancel" onClick={() => setDocAddModalOpen(false)}>
+                Отмена
+              </button>
+              <button className="doc-btn-submit" onClick={handleAddDocManually}>
                 ✅ Добавить документ
               </button>
-              <button className="admin-secondary-btn" onClick={() => setDocAddModalOpen(false)}>Отмена</button>
             </div>
           </div>
         </div>
