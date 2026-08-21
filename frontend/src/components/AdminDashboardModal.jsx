@@ -548,11 +548,199 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
 
   // 3. MODERATION TAB STATES
+  const [modCategoryFilter, setModCategoryFilter] = useState('all'); // all | urgent | orders | verification | complaints | spam
+  const [modSearch, setModSearch] = useState('');
+  const [modViewMode, setModViewMode] = useState('table'); // 'table' | 'cards'
+  const [modSelectedIds, setModSelectedIds] = useState([]);
   const [moderationQueue, setModerationQueue] = useState([
-    { id: 'MOD-101', priority: 'high', type: 'Заказ', title: 'Заказ: Капитальный ремонт офиса 450 м²', author: 'ТОО «Алматы Бизнес» (БИН 21044001293)', date: '12 минут назад', status: 'pending', details: { area: '450 м²', budget: '18,500,000 ₸', city: 'Алматы', contact: '+7 701 555-01-99' } },
-    { id: 'MOD-102', priority: 'normal', type: 'Верификация', title: 'Заявка на верификацию ИП «СтройМастер»', author: 'ИИН: 880412300451 • Астана', date: '25 минут назад', status: 'pending', details: { bin: '880412300451', docType: 'Свидетельство ИП', city: 'Астана' } },
-    { id: 'MOD-103', priority: 'high', type: 'Жалоба', title: 'Жалоба на некачественную заливку бетона', author: 'Заказчик: Касымов А. • Караганда', date: '1 час назад', status: 'pending', details: { disputeId: 'DSP-882', reason: 'Трещины на монолитном перекрытии', amount: '2,400,000 ₸' } },
-    { id: 'MOD-104', priority: 'normal', type: 'Спам-проверка', title: 'Подозрительный массовый заказ на материалы', author: 'Пользователь user9912 (Новый)', date: '2 часа назад', status: 'pending', details: { itemsCount: 150, riskScore: '0.84' } },
+    {
+      id: 'MOD-101',
+      priority: 'high',
+      type: 'Заказ',
+      category: 'orders',
+      title: 'Капитальный ремонт офиса 450 м²',
+      author: 'ТОО «Алматы Бизнес»',
+      bin: '210440012935',
+      city: 'Алматы',
+      date: '12 мин назад',
+      status: 'pending',
+      amount: 18500000,
+      riskScore: 0.08,
+      riskLevel: 'low',
+      docCount: '4 чертежа + Смета',
+      details: {
+        area: '450 м²',
+        budget: '18 500 000 ₸',
+        city: 'Алматы',
+        contact: '+7 701 555-01-99',
+        deadline: '3 месяца',
+        escrow: 'Зарезервировано 100%',
+        description: 'Комплексный капитальный ремонт коммерческого помещения под ключ: демонтаж, электромонтаж, чистовая отделка, вентиляция.'
+      }
+    },
+    {
+      id: 'MOD-102',
+      priority: 'normal',
+      type: 'Верификация',
+      category: 'verification',
+      title: 'Верификация подрядчика ИП «СтройМастер»',
+      author: 'ИП «СтройМастер» (Бекжанов К.М.)',
+      bin: '880412300451',
+      city: 'Астана',
+      date: '25 мин назад',
+      status: 'pending',
+      amount: 0,
+      riskScore: 0.15,
+      riskLevel: 'low',
+      docCount: 'Свид. ИП + Лицензия III',
+      details: {
+        bin: '880412300451',
+        docType: 'Свидетельство ИП + Гос. лицензия III категории',
+        city: 'Астана',
+        regDate: '12.04.2018',
+        taxes: 'Задолженности нет',
+        staff: '18 штатных строителей'
+      }
+    },
+    {
+      id: 'MOD-103',
+      priority: 'high',
+      type: 'Жалоба',
+      category: 'complaints',
+      title: 'Претензия: трещины на монолитном перекрытии',
+      author: 'Заказчик: Касымов А.Б.',
+      bin: '910315450290',
+      city: 'Караганда',
+      date: '1 ч назад',
+      status: 'pending',
+      amount: 2400000,
+      riskScore: 0.72,
+      riskLevel: 'high',
+      docCount: 'Фотофиксация + Акт КС-2',
+      details: {
+        disputeId: 'DSP-882',
+        reason: 'Трещины на монолитном перекрытии после снятия опалубки',
+        amount: '2 400 000 ₸',
+        contractor: 'ТОО «КарСтрой»',
+        engineerNote: 'Требуется выезд технадзора и ультразвуковая дефектоскопия бетона'
+      }
+    },
+    {
+      id: 'MOD-104',
+      priority: 'high',
+      type: 'Антифрод',
+      category: 'spam',
+      title: 'Подозрительный массовый заказ арматуры (150 тн)',
+      author: 'Пользователь user9912 (Новый аккаунт)',
+      bin: 'Не указан',
+      city: 'г. Атырау (IP)',
+      date: '2 ч назад',
+      status: 'pending',
+      amount: 42000000,
+      riskScore: 0.94,
+      riskLevel: 'critical',
+      docCount: '0 документов',
+      details: {
+        itemsCount: 150,
+        riskScore: '0.94 (Критический)',
+        reason: 'Новый аккаунт без верификации разместил заказ на 42 млн ₸ с зарубежной карты',
+        aiFlag: 'Подозрение на кардинг и фиктивный объем'
+      }
+    },
+    {
+      id: 'MOD-105',
+      priority: 'high',
+      type: 'Заказ',
+      category: 'orders',
+      title: 'Свайное поле 24 буронабивные сваи Ø600мм',
+      author: 'ТОО «Orda Group Development»',
+      bin: '190540028710',
+      city: 'Шымкент',
+      date: '3 ч назад',
+      status: 'pending',
+      amount: 8700000,
+      riskScore: 0.11,
+      riskLevel: 'low',
+      docCount: 'Геология + Чертежи КЖ',
+      details: {
+        area: '600 м²',
+        budget: '8 700 000 ₸',
+        city: 'Шымкент',
+        contact: '+7 707 321-45-67',
+        soil: 'Просадочные суглинки II типа',
+        projectDoc: 'ПСД прошло госэкспертизу'
+      }
+    },
+    {
+      id: 'MOD-106',
+      priority: 'normal',
+      type: 'Верификация',
+      category: 'verification',
+      title: 'Верификация генподрядчика ТОО «Astana Build»',
+      author: 'ТОО «Astana Build» (Рахимов Д.А.)',
+      bin: '220140039280',
+      city: 'Астана',
+      date: '4 ч назад',
+      status: 'pending',
+      amount: 0,
+      riskScore: 0.05,
+      riskLevel: 'low',
+      docCount: 'Устав + Лицензия II + Аудит',
+      details: {
+        bin: '220140039280',
+        docType: 'Лицензия II категории (СМР)',
+        city: 'Астана',
+        regDate: '20.01.2022',
+        capital: '50 000 000 ₸',
+        audit: 'Финансовый аудит 2025 года подтвержден'
+      }
+    },
+    {
+      id: 'MOD-107',
+      priority: 'high',
+      type: 'Жалоба',
+      category: 'complaints',
+      title: 'Нарушение сроков поставки кабельной продукции',
+      author: 'ТОО «ТемирСтрой Монтаж»',
+      bin: '180340052170',
+      city: 'Актау',
+      date: '5 ч назад',
+      status: 'pending',
+      amount: 6200000,
+      riskScore: 0.65,
+      riskLevel: 'medium',
+      docCount: 'Договор + Накладные',
+      details: {
+        disputeId: 'DSP-905',
+        reason: 'Срыв сроков поставки кабеля ВВГнг-LS на 14 календарных дней',
+        supplier: 'ТОО «КазКабельТрейд»',
+        amount: '6 200 000 ₸',
+        requestedAction: 'Выплата неустойки 0.1% в день'
+      }
+    },
+    {
+      id: 'MOD-108',
+      priority: 'normal',
+      type: 'Заказ',
+      category: 'orders',
+      title: 'Монтаж керамогранитного фасада 2 200 м²',
+      author: 'ИП «Назарбеков и К»',
+      bin: '850920300156',
+      city: 'Алматы',
+      date: '6 ч назад',
+      status: 'pending',
+      amount: 22000000,
+      riskScore: 0.18,
+      riskLevel: 'low',
+      docCount: 'АР + КМД + Раскладка',
+      details: {
+        area: '2 200 м²',
+        budget: '22 000 000 ₸',
+        city: 'Алматы',
+        contact: '+7 702 888-99-00',
+        subSystem: 'Оцинкованная подсистема с полимерным покрытием'
+      }
+    },
   ]);
   const [inspectModalData, setInspectModalData] = useState(null);
 
@@ -700,18 +888,20 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
   // Handlers for Moderation Queue
   const handleApproveModeration = (id) => {
     const item = moderationQueue.find((m) => m.id === id);
-    setModerationQueue(moderationQueue.filter((m) => m.id !== id));
+    setModerationQueue((prev) => prev.filter((m) => m.id !== id));
+    setModSelectedIds((prev) => prev.filter((selectedId) => selectedId !== id));
     if (item) {
-      logAuditAction('approve', `Одобрена заявка ${item.id}: ${item.title}`, 'Модерация');
+      logAuditAction('approve', `Одобрена заявка ${item.id}: ${item.title} (${item.author})`, 'Модерация');
       setAuditLogsList(getAuditLogs());
     }
   };
 
   const handleRejectModeration = (id) => {
-    const reason = window.prompt('Укажите причину отклонения:');
+    const reason = window.prompt('Укажите причину отклонения заявки:');
     if (reason !== null) {
       const item = moderationQueue.find((m) => m.id === id);
-      setModerationQueue(moderationQueue.filter((m) => m.id !== id));
+      setModerationQueue((prev) => prev.filter((m) => m.id !== id));
+      setModSelectedIds((prev) => prev.filter((selectedId) => selectedId !== id));
       if (item) {
         logAuditAction('reject', `Отклонена заявка ${item.id}: ${item.title}. Причина: ${reason || 'Без указания'}`, 'Модерация');
         setAuditLogsList(getAuditLogs());
@@ -724,7 +914,45 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
     if (window.confirm(`Вы уверены, что хотите одобрить все ${moderationQueue.length} заявок модерации в 1 клик?`)) {
       const count = moderationQueue.length;
       setModerationQueue([]);
+      setModSelectedIds([]);
       logAuditAction('approve', `Массовое одобрение всей очереди модерации (${count} объектов)`, 'Модерация');
+      setAuditLogsList(getAuditLogs());
+    }
+  };
+
+  const handleToggleSelectModItem = (id) => {
+    setModSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
+
+  const handleToggleSelectAllMod = (filteredItems) => {
+    if (modSelectedIds.length === filteredItems.length && filteredItems.length > 0) {
+      setModSelectedIds([]);
+    } else {
+      setModSelectedIds(filteredItems.map((item) => item.id));
+    }
+  };
+
+  const handleApproveSelectedMod = () => {
+    if (modSelectedIds.length === 0) return;
+    if (window.confirm(`Одобрить выбранные заявки (${modSelectedIds.length} шт.)?`)) {
+      const count = modSelectedIds.length;
+      setModerationQueue((prev) => prev.filter((item) => !modSelectedIds.includes(item.id)));
+      logAuditAction('approve', `Пакетное одобрение ${count} заявок модерации`, 'Модерация');
+      setModSelectedIds([]);
+      setAuditLogsList(getAuditLogs());
+    }
+  };
+
+  const handleRejectSelectedMod = () => {
+    if (modSelectedIds.length === 0) return;
+    const reason = window.prompt(`Причина отклонения ${modSelectedIds.length} выбранных заявок:`);
+    if (reason !== null) {
+      const count = modSelectedIds.length;
+      setModerationQueue((prev) => prev.filter((item) => !modSelectedIds.includes(item.id)));
+      logAuditAction('reject', `Пакетное отклонение ${count} заявок модерации. Причина: ${reason || 'Без указания'}`, 'Модерация');
+      setModSelectedIds([]);
       setAuditLogsList(getAuditLogs());
     }
   };
@@ -1234,53 +1462,606 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
           )}
 
           {/* ========================================================================= */}
-          {/* TAB 4: MODERATION (🛡️ Модерация)                                         */}
+          {/* TAB 4: MODERATION (🛡️ Модерация & Верификация ИИН/БИН)               */}
           {/* ========================================================================= */}
-          {activeTab === 'moderation' && (
-            <div className="admin-tab-content">
-              <div className="mod-header-row">
-                <h3 className="admin-box-title">🛡️ Очередь проверку заказов и верификации ИИН/БИН</h3>
-                <button className="admin-primary-btn btn-approve-all" onClick={handleApproveAllModeration} disabled={moderationQueue.length === 0}>
-                  ✅ Одобрить все ({moderationQueue.length})
-                </button>
-              </div>
+          {activeTab === 'moderation' && (() => {
+            const filteredModQueue = moderationQueue.filter((item) => {
+              // Category filter
+              if (modCategoryFilter === 'urgent' && item.priority !== 'high') return false;
+              if (modCategoryFilter === 'orders' && item.category !== 'orders') return false;
+              if (modCategoryFilter === 'verification' && item.category !== 'verification') return false;
+              if (modCategoryFilter === 'complaints' && item.category !== 'complaints') return false;
+              if (modCategoryFilter === 'spam' && item.category !== 'spam') return false;
 
-              {moderationQueue.length === 0 ? (
-                <div className="admin-empty-state">🎉 Все заявки очереди модерации успешно обработаны!</div>
-              ) : (
-                <div className="moderation-cards-grid">
-                  {moderationQueue.map((item) => (
-                    <div className={`mod-card priority-${item.priority}`} key={item.id}>
-                      <div className="mod-card-header">
-                        <span className={`priority-badge ${item.priority}`}>
-                          {item.priority === 'high' ? '🔴 Срочно' : '🟡 Обычный'}
-                        </span>
-                        <span className="mod-type-chip">{item.type}</span>
-                        <span className="mod-date">{item.date}</span>
-                      </div>
+              // Search query
+              if (modSearch.trim()) {
+                const query = modSearch.toLowerCase();
+                const matchId = (item.id || '').toLowerCase().includes(query);
+                const matchTitle = (item.title || '').toLowerCase().includes(query);
+                const matchAuthor = (item.author || '').toLowerCase().includes(query);
+                const matchBin = (item.bin || '').toLowerCase().includes(query);
+                const matchCity = (item.city || '').toLowerCase().includes(query);
+                const matchType = (item.type || '').toLowerCase().includes(query);
+                return matchId || matchTitle || matchAuthor || matchBin || matchCity || matchType;
+              }
+              return true;
+            });
 
-                      <h4 className="mod-title">{item.title}</h4>
-                      <p className="mod-author">{item.author}</p>
+            const urgentCount = moderationQueue.filter(m => m.priority === 'high').length;
+            const ordersCount = moderationQueue.filter(m => m.category === 'orders').length;
+            const verifCount = moderationQueue.filter(m => m.category === 'verification').length;
+            const complaintsCount = moderationQueue.filter(m => m.category === 'complaints').length;
+            const spamCount = moderationQueue.filter(m => m.category === 'spam').length;
+            const totalBudget = moderationQueue.reduce((acc, m) => acc + (Number(m.amount) || 0), 0);
 
-                      <div className="mod-actions">
-                        <button className="btn-approve" onClick={() => handleApproveModeration(item.id)}>
-                          ✅ Одобрить
-                        </button>
-                        <button className="btn-reject" onClick={() => handleRejectModeration(item.id)}>
-                          ❌ Отклонить
-                        </button>
-                        <button className="btn-details" onClick={() => setInspectModalData(item)}>
-                          👁️ Подробнее
-                        </button>
-                      </div>
+            const allFilteredSelected = filteredModQueue.length > 0 && filteredModQueue.every(m => modSelectedIds.includes(m.id));
+
+            return (
+              <div className="admin-tab-content">
+                {/* ── 1. KPI & OVERVIEW BENTO STATS ── */}
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+                  gap: '12px',
+                  marginBottom: '1.25rem'
+                }}>
+                  {/* KPI 1: Total Queue */}
+                  <div style={{
+                    background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.7), rgba(15, 23, 42, 0.9))',
+                    border: '1px solid rgba(59, 130, 246, 0.3)',
+                    borderRadius: '12px',
+                    padding: '14px 18px',
+                    position: 'relative',
+                    overflow: 'hidden'
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                      <span style={{ fontSize: '0.8rem', color: '#94a3b8', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Очередь аудита</span>
+                      <span style={{ fontSize: '1.2rem' }}>🛡️</span>
                     </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
+                    <div style={{ fontSize: '1.8rem', fontWeight: '800', color: '#60a5fa', lineHeight: '1.2' }}>{moderationQueue.length} <span style={{ fontSize: '0.9rem', color: '#94a3b8', fontWeight: '500' }}>заявок</span></div>
+                    <div style={{ fontSize: '0.78rem', color: '#cbd5e1', marginTop: '4px' }}>Общая сумма: <strong style={{ color: '#fbbf24' }}>{totalBudget.toLocaleString()} ₸</strong></div>
+                  </div>
 
-          {/* ========================================================================= */}
+                  {/* KPI 2: Urgent attention */}
+                  <div style={{
+                    background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.12), rgba(15, 23, 42, 0.9))',
+                    border: '1px solid rgba(239, 68, 68, 0.35)',
+                    borderRadius: '12px',
+                    padding: '14px 18px',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onClick={() => setModCategoryFilter(modCategoryFilter === 'urgent' ? 'all' : 'urgent')}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                      <span style={{ fontSize: '0.8rem', color: '#fca5a5', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Срочный приоритет</span>
+                      <span style={{ fontSize: '1.2rem' }}>🔴</span>
+                    </div>
+                    <div style={{ fontSize: '1.8rem', fontWeight: '800', color: '#f87171', lineHeight: '1.2' }}>{urgentCount} <span style={{ fontSize: '0.9rem', color: '#fca5a5', fontWeight: '500' }}>дела</span></div>
+                    <div style={{ fontSize: '0.78rem', color: '#fca5a5', marginTop: '4px' }}>Требуют решения в течение 1 часа</div>
+                  </div>
+
+                  {/* KPI 3: BIN / IIN Verifications */}
+                  <div style={{
+                    background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(15, 23, 42, 0.9))',
+                    border: '1px solid rgba(16, 185, 129, 0.35)',
+                    borderRadius: '12px',
+                    padding: '14px 18px',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onClick={() => setModCategoryFilter(modCategoryFilter === 'verification' ? 'all' : 'verification')}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                      <span style={{ fontSize: '0.8rem', color: '#6ee7b7', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Верификация юрлиц</span>
+                      <span style={{ fontSize: '1.2rem' }}>🏢</span>
+                    </div>
+                    <div style={{ fontSize: '1.8rem', fontWeight: '800', color: '#34d399', lineHeight: '1.2' }}>{verifCount} <span style={{ fontSize: '0.9rem', color: '#6ee7b7', fontWeight: '500' }}>компаний</span></div>
+                    <div style={{ fontSize: '0.78rem', color: '#6ee7b7', marginTop: '4px' }}>Проверка лицензий ГАСК и БИН</div>
+                  </div>
+
+                  {/* KPI 4: Disputes & Complaints */}
+                  <div style={{
+                    background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(15, 23, 42, 0.9))',
+                    border: '1px solid rgba(245, 158, 11, 0.35)',
+                    borderRadius: '12px',
+                    padding: '14px 18px',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onClick={() => setModCategoryFilter(modCategoryFilter === 'complaints' ? 'all' : 'complaints')}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                      <span style={{ fontSize: '0.8rem', color: '#fde68a', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Споры и Претензии</span>
+                      <span style={{ fontSize: '1.2rem' }}>⚖️</span>
+                    </div>
+                    <div style={{ fontSize: '1.8rem', fontWeight: '800', color: '#fbbf24', lineHeight: '1.2' }}>{complaintsCount} <span style={{ fontSize: '0.9rem', color: '#fde68a', fontWeight: '500' }}>случая</span></div>
+                    <div style={{ fontSize: '0.78rem', color: '#fde68a', marginTop: '4px' }}>Эскроу-блокировки и технадзор</div>
+                  </div>
+                </div>
+
+                {/* ── 2. TOOLBAR: FILTERS + SEARCH + BULK ACTIONS ── */}
+                <div style={{
+                  background: 'rgba(15, 23, 42, 0.75)',
+                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                  borderRadius: '12px',
+                  padding: '12px 16px',
+                  marginBottom: '1rem',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '12px'
+                }}>
+                  {/* Upper Row: Filter Chips + View Mode */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+                    <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center' }}>
+                      <button
+                        className={`admin-filter-chip ${modCategoryFilter === 'all' ? 'active' : ''}`}
+                        onClick={() => setModCategoryFilter('all')}
+                      >
+                        📋 Все ({moderationQueue.length})
+                      </button>
+                      <button
+                        className={`admin-filter-chip ${modCategoryFilter === 'urgent' ? 'active' : ''}`}
+                        style={{
+                          borderColor: modCategoryFilter === 'urgent' ? '#ef4444' : 'rgba(239, 68, 68, 0.3)',
+                          color: modCategoryFilter === 'urgent' ? '#ffffff' : '#fca5a5'
+                        }}
+                        onClick={() => setModCategoryFilter('urgent')}
+                      >
+                        🔴 Срочные ({urgentCount})
+                      </button>
+                      <button
+                        className={`admin-filter-chip ${modCategoryFilter === 'orders' ? 'active' : ''}`}
+                        onClick={() => setModCategoryFilter('orders')}
+                      >
+                        🏗️ Заказы ({ordersCount})
+                      </button>
+                      <button
+                        className={`admin-filter-chip ${modCategoryFilter === 'verification' ? 'active' : ''}`}
+                        onClick={() => setModCategoryFilter('verification')}
+                      >
+                        🏢 Верификация ({verifCount})
+                      </button>
+                      <button
+                        className={`admin-filter-chip ${modCategoryFilter === 'complaints' ? 'active' : ''}`}
+                        onClick={() => setModCategoryFilter('complaints')}
+                      >
+                        ⚖️ Претензии ({complaintsCount})
+                      </button>
+                      <button
+                        className={`admin-filter-chip ${modCategoryFilter === 'spam' ? 'active' : ''}`}
+                        onClick={() => setModCategoryFilter('spam')}
+                      >
+                        🛡️ Антифрод ({spamCount})
+                      </button>
+                    </div>
+
+                    {/* View Switcher */}
+                    <div style={{ display: 'flex', background: 'rgba(0, 0, 0, 0.4)', borderRadius: '8px', padding: '2px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+                      <button
+                        style={{
+                          background: modViewMode === 'table' ? 'rgba(59, 130, 246, 0.3)' : 'transparent',
+                          color: modViewMode === 'table' ? '#60a5fa' : '#94a3b8',
+                          border: 'none',
+                          padding: '6px 12px',
+                          borderRadius: '6px',
+                          fontSize: '0.8rem',
+                          cursor: 'pointer',
+                          fontWeight: '600',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '5px'
+                        }}
+                        onClick={() => setModViewMode('table')}
+                      >
+                        📑 Таблица
+                      </button>
+                      <button
+                        style={{
+                          background: modViewMode === 'cards' ? 'rgba(59, 130, 246, 0.3)' : 'transparent',
+                          color: modViewMode === 'cards' ? '#60a5fa' : '#94a3b8',
+                          border: 'none',
+                          padding: '6px 12px',
+                          borderRadius: '6px',
+                          fontSize: '0.8rem',
+                          cursor: 'pointer',
+                          fontWeight: '600',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '5px'
+                        }}
+                        onClick={() => setModViewMode('cards')}
+                      >
+                        🗂️ Карточки
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Lower Row: Search + Bulk Action Controls */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+                    <div style={{ flex: '1 1 300px', maxWidth: '460px' }}>
+                      <input
+                        type="text"
+                        className="admin-search-input"
+                        placeholder="🔍 Поиск по номеру, названию, контрагенту, БИН/ИИН, городу..."
+                        value={modSearch}
+                        onChange={(e) => setModSearch(e.target.value)}
+                        style={{ width: '100%' }}
+                      />
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+                      {modSelectedIds.length > 0 && (
+                        <>
+                          <span style={{ fontSize: '0.82rem', color: '#94a3b8', fontWeight: '600' }}>
+                            Выбрано: <strong style={{ color: '#60a5fa' }}>{modSelectedIds.length}</strong>
+                          </span>
+                          <button
+                            className="admin-primary-btn"
+                            style={{ background: 'linear-gradient(90deg, #10b981, #059669)', padding: '7px 14px', fontSize: '0.82rem' }}
+                            onClick={handleApproveSelectedMod}
+                          >
+                            ✅ Одобрить ({modSelectedIds.length})
+                          </button>
+                          <button
+                            className="admin-secondary-btn"
+                            style={{ borderColor: 'rgba(239, 68, 68, 0.4)', color: '#f87171', padding: '7px 14px', fontSize: '0.82rem' }}
+                            onClick={handleRejectSelectedMod}
+                          >
+                            ❌ Отклонить ({modSelectedIds.length})
+                          </button>
+                        </>
+                      )}
+
+                      <button
+                        className="admin-primary-btn btn-approve-all"
+                        style={{
+                          background: 'linear-gradient(90deg, #3b82f6, #2563eb)',
+                          padding: '7px 16px',
+                          fontSize: '0.82rem',
+                          fontWeight: '700'
+                        }}
+                        onClick={handleApproveAllModeration}
+                        disabled={moderationQueue.length === 0}
+                      >
+                        ⚡ Одобрить всю очередь ({moderationQueue.length})
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* ── 3. CONTENT VIEW: TABLE OR CARDS ── */}
+                {filteredModQueue.length === 0 ? (
+                  <div className="admin-section-box" style={{ textAlign: 'center', padding: '3.5rem 1.5rem', color: '#94a3b8' }}>
+                    <div style={{ fontSize: '2.5rem', marginBottom: '10px' }}>🎉</div>
+                    <h4 style={{ color: '#ffffff', margin: '0 0 6px', fontSize: '1.1rem' }}>Очередь модерации чиста!</h4>
+                    <p style={{ margin: 0, fontSize: '0.85rem' }}>Нет заявок, ожидающих рассмотрения по выбранным фильтрам.</p>
+                  </div>
+                ) : modViewMode === 'table' ? (
+                  /* ── TABLE VIEW ── */
+                  <div className="admin-section-box" style={{ overflowX: 'auto', padding: 0 }}>
+                    <table className="admin-table" style={{ margin: 0 }}>
+                      <thead>
+                        <tr>
+                          <th style={{ width: '40px', textAlign: 'center' }}>
+                            <input
+                              type="checkbox"
+                              checked={allFilteredSelected}
+                              onChange={() => handleToggleSelectAllMod(filteredModQueue)}
+                              title="Выбрать все"
+                              style={{ cursor: 'pointer' }}
+                            />
+                          </th>
+                          <th style={{ width: '130px' }}>Код / Срочность</th>
+                          <th style={{ width: '130px' }}>Категория</th>
+                          <th>Предмет модерации & Контрагент</th>
+                          <th style={{ width: '140px' }}>Регион / Время</th>
+                          <th style={{ width: '140px', textAlign: 'right' }}>Сумма сделки</th>
+                          <th style={{ width: '110px', textAlign: 'center' }}>Риск</th>
+                          <th style={{ width: '170px', textAlign: 'center' }}>Действия</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredModQueue.map((item) => {
+                          const isSelected = modSelectedIds.includes(item.id);
+                          const isUrgent = item.priority === 'high';
+
+                          return (
+                            <tr
+                              key={item.id}
+                              style={{
+                                background: isSelected ? 'rgba(59, 130, 246, 0.08)' : 'transparent',
+                                borderLeft: isUrgent ? '3px solid #ef4444' : '3px solid transparent'
+                              }}
+                            >
+                              {/* Checkbox */}
+                              <td style={{ textAlign: 'center' }}>
+                                <input
+                                  type="checkbox"
+                                  checked={isSelected}
+                                  onChange={() => handleToggleSelectModItem(item.id)}
+                                  style={{ cursor: 'pointer' }}
+                                />
+                              </td>
+
+                              {/* ID & Priority */}
+                              <td>
+                                <div style={{ fontWeight: '700', color: '#ffffff', fontSize: '0.85rem' }}>{item.id}</div>
+                                <span style={{
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '4px',
+                                  fontSize: '0.72rem',
+                                  fontWeight: '700',
+                                  color: isUrgent ? '#f87171' : '#fde68a'
+                                }}>
+                                  {isUrgent ? '🔴 Срочно' : '🟡 Обычный'}
+                                </span>
+                              </td>
+
+                              {/* Category Type Pill */}
+                              <td>
+                                <span
+                                  className="cat-chip"
+                                  style={{
+                                    background:
+                                      item.category === 'orders' ? 'rgba(59, 130, 246, 0.15)' :
+                                      item.category === 'verification' ? 'rgba(16, 185, 129, 0.15)' :
+                                      item.category === 'complaints' ? 'rgba(245, 158, 11, 0.15)' : 'rgba(239, 68, 68, 0.15)',
+                                    color:
+                                      item.category === 'orders' ? '#93c5fd' :
+                                      item.category === 'verification' ? '#6ee7b7' :
+                                      item.category === 'complaints' ? '#fde68a' : '#fca5a5',
+                                    border: `1px solid ${
+                                      item.category === 'orders' ? 'rgba(59, 130, 246, 0.3)' :
+                                      item.category === 'verification' ? 'rgba(16, 185, 129, 0.3)' :
+                                      item.category === 'complaints' ? 'rgba(245, 158, 11, 0.3)' : 'rgba(239, 68, 68, 0.3)'
+                                    }`,
+                                    fontSize: '0.75rem',
+                                    padding: '3px 8px',
+                                    borderRadius: '6px',
+                                    fontWeight: '600'
+                                  }}
+                                >
+                                  {item.type}
+                                </span>
+                              </td>
+
+                              {/* Title & Author & BIN */}
+                              <td>
+                                <div style={{ fontWeight: '600', color: '#ffffff', fontSize: '0.88rem', marginBottom: '2px' }}>
+                                  {item.title}
+                                </div>
+                                <div style={{ fontSize: '0.78rem', color: '#94a3b8', display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
+                                  <span style={{ color: '#cbd5e1' }}>{item.author}</span>
+                                  {item.bin && item.bin !== '—' && item.bin !== 'Не указан' && (
+                                    <span style={{ color: '#64748b', fontFamily: 'monospace' }}>БИН: {item.bin}</span>
+                                  )}
+                                  {item.docCount && (
+                                    <span style={{ color: '#38bdf8', fontSize: '0.72rem' }}>📎 {item.docCount}</span>
+                                  )}
+                                </div>
+                              </td>
+
+                              {/* Region & Date */}
+                              <td>
+                                <div style={{ color: '#ffffff', fontSize: '0.82rem', fontWeight: '500' }}>{item.city}</div>
+                                <div style={{ color: '#64748b', fontSize: '0.75rem' }}>{item.date}</div>
+                              </td>
+
+                              {/* Amount */}
+                              <td style={{ textAlign: 'right', fontWeight: '700', color: item.amount > 0 ? '#fbbf24' : '#64748b', fontSize: '0.88rem' }}>
+                                {item.amount > 0 ? `${Number(item.amount).toLocaleString()} ₸` : '—'}
+                              </td>
+
+                              {/* Risk Score */}
+                              <td style={{ textAlign: 'center' }}>
+                                <span style={{
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '4px',
+                                  padding: '2px 8px',
+                                  borderRadius: '6px',
+                                  fontSize: '0.72rem',
+                                  fontWeight: '700',
+                                  background:
+                                    item.riskLevel === 'low' ? 'rgba(16, 185, 129, 0.12)' :
+                                    item.riskLevel === 'medium' ? 'rgba(245, 158, 11, 0.12)' : 'rgba(239, 68, 68, 0.15)',
+                                  color:
+                                    item.riskLevel === 'low' ? '#6ee7b7' :
+                                    item.riskLevel === 'medium' ? '#fde68a' : '#f87171'
+                                }}>
+                                  {item.riskLevel === 'low' ? '🟢 Низкий' : item.riskLevel === 'medium' ? '🟡 Средний' : '🔴 Высокий'}
+                                </span>
+                              </td>
+
+                              {/* Action Buttons */}
+                              <td style={{ textAlign: 'center' }}>
+                                <div style={{ display: 'flex', gap: '5px', justifyContent: 'center', alignItems: 'center' }}>
+                                  <button
+                                    className="admin-primary-btn"
+                                    style={{
+                                      background: 'linear-gradient(90deg, #10b981, #059669)',
+                                      padding: '4px 10px',
+                                      fontSize: '0.76rem',
+                                      borderRadius: '6px'
+                                    }}
+                                    onClick={() => handleApproveModeration(item.id)}
+                                    title="Одобрить заявку"
+                                  >
+                                    ✅ Одобрить
+                                  </button>
+                                  <button
+                                    className="btn-table-action"
+                                    style={{
+                                      background: 'rgba(239, 68, 68, 0.15)',
+                                      color: '#f87171',
+                                      border: '1px solid rgba(239, 68, 68, 0.3)',
+                                      padding: '4px 8px',
+                                      borderRadius: '6px',
+                                      fontSize: '0.76rem',
+                                      cursor: 'pointer'
+                                    }}
+                                    onClick={() => handleRejectModeration(item.id)}
+                                    title="Отклонить с указанием причины"
+                                  >
+                                    ❌
+                                  </button>
+                                  <button
+                                    className="btn-table-action"
+                                    style={{
+                                      background: 'rgba(255, 255, 255, 0.05)',
+                                      color: '#cbd5e1',
+                                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                                      padding: '4px 8px',
+                                      borderRadius: '6px',
+                                      fontSize: '0.76rem',
+                                      cursor: 'pointer'
+                                    }}
+                                    onClick={() => setInspectModalData(item)}
+                                    title="Открыть карточку дела"
+                                  >
+                                    👁️
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  /* ── CARDS VIEW ── */
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+                    gap: '14px'
+                  }}>
+                    {filteredModQueue.map((item) => {
+                      const isSelected = modSelectedIds.includes(item.id);
+                      const isUrgent = item.priority === 'high';
+
+                      return (
+                        <div
+                          key={item.id}
+                          style={{
+                            background: isSelected ? 'rgba(59, 130, 246, 0.08)' : 'rgba(15, 23, 42, 0.7)',
+                            border: `1px solid ${isSelected ? '#3b82f6' : isUrgent ? 'rgba(239, 68, 68, 0.4)' : 'rgba(255, 255, 255, 0.08)'}`,
+                            borderRadius: '12px',
+                            padding: '16px',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'space-between',
+                            gap: '12px',
+                            transition: 'all 0.2s ease',
+                            position: 'relative'
+                          }}
+                        >
+                          <div>
+                            {/* Card Header */}
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <input
+                                  type="checkbox"
+                                  checked={isSelected}
+                                  onChange={() => handleToggleSelectModItem(item.id)}
+                                  style={{ cursor: 'pointer' }}
+                                />
+                                <span style={{ fontWeight: '800', color: '#ffffff', fontSize: '0.85rem' }}>{item.id}</span>
+                                <span style={{
+                                  fontSize: '0.72rem',
+                                  padding: '2px 6px',
+                                  borderRadius: '4px',
+                                  fontWeight: '700',
+                                  background: isUrgent ? 'rgba(239, 68, 68, 0.2)' : 'rgba(245, 158, 11, 0.2)',
+                                  color: isUrgent ? '#f87171' : '#fde68a'
+                                }}>
+                                  {isUrgent ? '🔴 Срочно' : '🟡 Обычный'}
+                                </span>
+                              </div>
+                              <span style={{ fontSize: '0.75rem', color: '#64748b' }}>{item.date}</span>
+                            </div>
+
+                            {/* Card Title & Author */}
+                            <h4 style={{ margin: '0 0 6px 0', fontSize: '0.95rem', color: '#ffffff', lineHeight: '1.3' }}>
+                              {item.title}
+                            </h4>
+                            <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginBottom: '8px' }}>
+                              {item.author} {item.bin && item.bin !== '—' && <span style={{ color: '#64748b' }}>({item.bin})</span>}
+                            </div>
+
+                            {/* Location & Amount Badges */}
+                            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center', fontSize: '0.78rem' }}>
+                              <span style={{ background: 'rgba(255, 255, 255, 0.05)', padding: '3px 8px', borderRadius: '6px', color: '#cbd5e1' }}>
+                                📍 {item.city}
+                              </span>
+                              {item.amount > 0 && (
+                                <span style={{ background: 'rgba(245, 158, 11, 0.1)', padding: '3px 8px', borderRadius: '6px', color: '#fbbf24', fontWeight: '700' }}>
+                                  💰 {Number(item.amount).toLocaleString()} ₸
+                                </span>
+                              )}
+                              <span style={{
+                                background: item.riskLevel === 'low' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+                                padding: '3px 8px',
+                                borderRadius: '6px',
+                                color: item.riskLevel === 'low' ? '#6ee7b7' : '#f87171',
+                                fontWeight: '600'
+                              }}>
+                                Риск: {item.riskScore}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Card Action Buttons */}
+                          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: '8px', paddingTop: '10px', borderTop: '1px solid rgba(255, 255, 255, 0.06)' }}>
+                            <button
+                              className="admin-primary-btn"
+                              style={{ background: 'linear-gradient(90deg, #10b981, #059669)', padding: '6px 10px', fontSize: '0.78rem', justifyContent: 'center' }}
+                              onClick={() => handleApproveModeration(item.id)}
+                            >
+                              ✅ Одобрить
+                            </button>
+                            <button
+                              style={{
+                                background: 'rgba(239, 68, 68, 0.15)',
+                                color: '#f87171',
+                                border: '1px solid rgba(239, 68, 68, 0.3)',
+                                borderRadius: '8px',
+                                padding: '6px 10px',
+                                fontSize: '0.78rem',
+                                fontWeight: '700',
+                                cursor: 'pointer'
+                              }}
+                              onClick={() => handleRejectModeration(item.id)}
+                            >
+                              ❌ Отклонить
+                            </button>
+                            <button
+                              style={{
+                                background: 'rgba(255, 255, 255, 0.08)',
+                                color: '#cbd5e1',
+                                border: '1px solid rgba(255, 255, 255, 0.15)',
+                                borderRadius: '8px',
+                                padding: '6px 10px',
+                                fontSize: '0.85rem',
+                                cursor: 'pointer'
+                              }}
+                              onClick={() => setInspectModalData(item)}
+                              title="Карточка дела"
+                            >
+                              👁️
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+
           {/* TAB 5: USERS (👥 Пользователи)                                            */}
           {/* ========================================================================= */}
           {activeTab === 'users' && (
@@ -2169,14 +2950,152 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
         </div>
       )}
 
-      {/* MODAL 3: MODERATION RAW JSON DETAILS */}
+      {/* MODAL 3: MODERATION CASE DETAILS (Карточка дела модерации) */}
       {inspectModalData && (
         <div className="nested-modal-overlay">
-          <div className="nested-modal-box json-inspect-box">
-            <h3>👁️ Сырые детали объекта модерации ({inspectModalData.id})</h3>
-            <pre className="json-code">{JSON.stringify(inspectModalData, null, 2)}</pre>
-            <div className="modal-buttons-row">
-              <button className="admin-primary-btn" onClick={() => setInspectModalData(null)}>Закрыть</button>
+          <div className="nested-modal-box" style={{ maxWidth: '680px', maxHeight: '90vh', overflowY: 'auto' }}>
+            {/* Modal Header */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '14px', marginBottom: '16px' }}>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                  <span style={{
+                    fontSize: '0.75rem',
+                    padding: '2px 8px',
+                    borderRadius: '6px',
+                    fontWeight: '700',
+                    background: inspectModalData.priority === 'high' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(245, 158, 11, 0.2)',
+                    color: inspectModalData.priority === 'high' ? '#f87171' : '#fde68a'
+                  }}>
+                    {inspectModalData.priority === 'high' ? '🔴 Срочно' : '🟡 Обычный'}
+                  </span>
+                  <span style={{ fontSize: '0.78rem', color: '#38bdf8', fontWeight: '700' }}>
+                    {inspectModalData.type}
+                  </span>
+                  <span style={{ fontSize: '0.75rem', color: '#64748b' }}>
+                    {inspectModalData.date}
+                  </span>
+                </div>
+                <h3 style={{ margin: 0, color: '#ffffff', fontSize: '1.2rem', fontWeight: '800' }}>
+                  {inspectModalData.title}
+                </h3>
+              </div>
+              <button
+                onClick={() => setInspectModalData(null)}
+                style={{ background: 'transparent', border: 'none', color: '#94a3b8', fontSize: '1.4rem', cursor: 'pointer' }}
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Applicant & BIN verification badge */}
+            <div style={{
+              background: 'rgba(15, 23, 42, 0.7)',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              borderRadius: '10px',
+              padding: '12px 16px',
+              marginBottom: '14px',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              gap: '10px'
+            }}>
+              <div>
+                <div style={{ fontSize: '0.75rem', color: '#94a3b8', textTransform: 'uppercase' }}>Заявитель / Контрагент</div>
+                <div style={{ fontSize: '0.95rem', fontWeight: '700', color: '#ffffff' }}>{inspectModalData.author}</div>
+                {inspectModalData.bin && (
+                  <div style={{ fontSize: '0.8rem', color: '#64748b', fontFamily: 'monospace' }}>БИН / ИИН: {inspectModalData.bin}</div>
+                )}
+              </div>
+              <div style={{
+                background: 'rgba(16, 185, 129, 0.15)',
+                border: '1px solid rgba(16, 185, 129, 0.3)',
+                padding: '4px 10px',
+                borderRadius: '8px',
+                fontSize: '0.75rem',
+                color: '#6ee7b7',
+                fontWeight: '700',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px'
+              }}>
+                <span>🇰🇿</span> eGov / ИС ЭСФ Проверено
+              </div>
+            </div>
+
+            {/* Structured Details Grid */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
+              <div style={{ background: 'rgba(255, 255, 255, 0.03)', padding: '10px 14px', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                <div style={{ fontSize: '0.72rem', color: '#94a3b8' }}>Город / Локация</div>
+                <div style={{ fontSize: '0.9rem', fontWeight: '600', color: '#ffffff' }}>📍 {inspectModalData.city}</div>
+              </div>
+              <div style={{ background: 'rgba(255, 255, 255, 0.03)', padding: '10px 14px', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                <div style={{ fontSize: '0.72rem', color: '#94a3b8' }}>Сумма / Бюджет</div>
+                <div style={{ fontSize: '0.9rem', fontWeight: '700', color: '#fbbf24' }}>
+                  {inspectModalData.amount > 0 ? `${Number(inspectModalData.amount).toLocaleString()} ₸` : 'Не применимо'}
+                </div>
+              </div>
+              <div style={{ background: 'rgba(255, 255, 255, 0.03)', padding: '10px 14px', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                <div style={{ fontSize: '0.72rem', color: '#94a3b8' }}>Прикрепленные документы</div>
+                <div style={{ fontSize: '0.85rem', fontWeight: '600', color: '#38bdf8' }}>📎 {inspectModalData.docCount || '1 документ'}</div>
+              </div>
+              <div style={{ background: 'rgba(255, 255, 255, 0.03)', padding: '10px 14px', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                <div style={{ fontSize: '0.72rem', color: '#94a3b8' }}>Оценка риска безопасности</div>
+                <div style={{
+                  fontSize: '0.85rem',
+                  fontWeight: '700',
+                  color: inspectModalData.riskLevel === 'low' ? '#6ee7b7' : inspectModalData.riskLevel === 'medium' ? '#fde68a' : '#f87171'
+                }}>
+                  🛡️ {inspectModalData.riskScore || '0.10'} ({inspectModalData.riskLevel === 'low' ? 'Безопасно' : 'Требует проверки'})
+                </div>
+              </div>
+            </div>
+
+            {/* Custom Key-Value Details */}
+            {inspectModalData.details && (
+              <div style={{
+                background: 'rgba(15, 23, 42, 0.5)',
+                border: '1px solid rgba(255, 255, 255, 0.06)',
+                borderRadius: '10px',
+                padding: '12px 16px',
+                marginBottom: '16px'
+              }}>
+                <h4 style={{ margin: '0 0 10px 0', fontSize: '0.85rem', color: '#cbd5e1', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                  Сведения дела & Комментарии эксперта
+                </h4>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  {Object.entries(inspectModalData.details).map(([k, v]) => (
+                    <div key={k} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', padding: '4px 0', borderBottom: '1px solid rgba(255, 255, 255, 0.04)' }}>
+                      <span style={{ color: '#94a3b8' }}>{k}:</span>
+                      <strong style={{ color: '#ffffff', textAlign: 'right', maxWidth: '65%' }}>{String(v)}</strong>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Decision Action Buttons */}
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', flexWrap: 'wrap', borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '14px' }}>
+              <button
+                className="admin-secondary-btn"
+                style={{ borderColor: 'rgba(239, 68, 68, 0.4)', color: '#f87171', padding: '8px 18px', fontWeight: '700' }}
+                onClick={() => {
+                  handleRejectModeration(inspectModalData.id);
+                  setInspectModalData(null);
+                }}
+              >
+                ❌ Отклонить
+              </button>
+              <button
+                className="admin-primary-btn"
+                style={{ background: 'linear-gradient(90deg, #10b981, #059669)', padding: '8px 24px', fontWeight: '800' }}
+                onClick={() => {
+                  handleApproveModeration(inspectModalData.id);
+                  setInspectModalData(null);
+                }}
+              >
+                ✅ Одобрить и активировать
+              </button>
             </div>
           </div>
         </div>
