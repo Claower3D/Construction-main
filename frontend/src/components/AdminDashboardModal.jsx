@@ -909,31 +909,36 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
           </div>
         </div>
 
-        {/* 6 MAIN NAVIGATION TABS */}
+        {/* MAIN NAVIGATION TABS */}
         <div className="admin-tabs-bar">
           <button className={`admin-tab-btn ${activeTab === 'overview' ? 'active' : ''}`} onClick={() => setActiveTab('overview')}>
-            📊 1. Обзор
+            <span>📊</span> Обзор
           </button>
           <button className={`admin-tab-btn ${activeTab === 'database' ? 'active' : ''}`} onClick={() => setActiveTab('database')}>
-            🗄️ 2. База данных
+            <span>🗄️</span> База данных
           </button>
           <button className={`admin-tab-btn ${activeTab === 'prices' ? 'active' : ''}`} onClick={() => setActiveTab('prices')}>
-            💰 3. Цены ({pricesList.length})
+            <span>💰</span> Цены
+            <span className="admin-tab-count">{pricesList.length}</span>
           </button>
           <button className={`admin-tab-btn ${activeTab === 'moderation' ? 'active' : ''}`} onClick={() => setActiveTab('moderation')}>
-            🛡️ 4. Модерация ({moderationQueue.length})
+            <span>🛡️</span> Модерация
+            {moderationQueue.length > 0 && (
+              <span className="admin-tab-count alert">{moderationQueue.length}</span>
+            )}
           </button>
           <button className={`admin-tab-btn ${activeTab === 'users' ? 'active' : ''}`} onClick={() => setActiveTab('users')}>
-            👥 5. Пользователи
+            <span>👥</span> Пользователи
           </button>
           <button className={`admin-tab-btn ${activeTab === 'settings' ? 'active' : ''}`} onClick={() => setActiveTab('settings')}>
-            ⚙️ 6. Управление
+            <span>⚙️</span> Настройки
           </button>
           <button className={`admin-tab-btn ${activeTab === 'roles' ? 'active' : ''}`} onClick={() => setActiveTab('roles')}>
-            🔐 7. Роли
+            <span>🔐</span> Роли
           </button>
-          <button className={`admin-tab-btn ${activeTab === 'documents' ? 'active' : ''}`} onClick={() => setActiveTab('documents')} style={{ background: activeTab === 'documents' ? 'rgba(16, 185, 129, 0.2)' : '', borderColor: activeTab === 'documents' ? '#10b981' : '' }}>
-            📁 8. Документы & Excel ({documentsList.length})
+          <button className={`admin-tab-btn ${activeTab === 'documents' ? 'active' : ''}`} onClick={() => setActiveTab('documents')}>
+            <span>📁</span> Документооборот
+            <span className="admin-tab-count">{documentsList.length}</span>
           </button>
         </div>
 
