@@ -396,7 +396,7 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
                     unit: 'час',
                     dist: '1.8 км от объекта',
                     status: '🟢 Свободен (Готов к выезду)',
-                    image: 'https://images.unsplash.com/photo-1579829366248-204fe8413f31?auto=format&fit=crop&w=600&q=80',
+                    image: '/assets/machinery/hitachi_excavator.jpg',
                     operator: 'С оператором'
                   },
                   {
@@ -406,7 +406,7 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
                     unit: 'час',
                     dist: '2.4 км от объекта',
                     status: '🟢 Свободен (Готов к выезду)',
-                    image: 'https://images.unsplash.com/photo-1584467735815-f778f274e296?auto=format&fit=crop&w=600&q=80',
+                    image: '/assets/machinery/xcmg_mobile_crane.jpg',
                     operator: 'С крановщиком'
                   },
                   {
@@ -416,7 +416,7 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
                     unit: 'час',
                     dist: '3.1 км от объекта',
                     status: '🟢 Свободен (Готов к выезду)',
-                    image: 'https://images.unsplash.com/photo-1519003722824-194d4455a60c?auto=format&fit=crop&w=600&q=80',
+                    image: '/assets/machinery/shacman_dump_truck.jpg',
                     operator: 'С водителем'
                   },
                   {
@@ -426,7 +426,7 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
                     unit: 'час',
                     dist: '1.4 км от объекта',
                     status: '🟢 Свободен (Готов к выезду)',
-                    image: 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&w=600&q=80',
+                    image: '/assets/machinery/jcb_backhoe_loader.jpg',
                     operator: 'С оператором'
                   }
                 ].map((m) => (
@@ -561,7 +561,7 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
                     unit: 'час',
                     dist: '1.8 км от объекта',
                     status: '🟢 Свободен (Готов к выезду)',
-                    image: 'https://images.unsplash.com/photo-1579829366248-204fe8413f31?auto=format&fit=crop&w=600&q=80',
+                    image: '/assets/machinery/hitachi_excavator.jpg',
                     operator: 'С оператором'
                   },
                   {
@@ -571,7 +571,7 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
                     unit: 'час',
                     dist: '2.4 км от объекта',
                     status: '🟢 Свободен (Готов к выезду)',
-                    image: 'https://images.unsplash.com/photo-1584467735815-f778f274e296?auto=format&fit=crop&w=600&q=80',
+                    image: '/assets/machinery/xcmg_mobile_crane.jpg',
                     operator: 'С крановщиком'
                   },
                   {
@@ -581,7 +581,7 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
                     unit: 'час',
                     dist: '3.1 км от объекта',
                     status: '🟢 Свободен (Готов к выезду)',
-                    image: 'https://images.unsplash.com/photo-1519003722824-194d4455a60c?auto=format&fit=crop&w=600&q=80',
+                    image: '/assets/machinery/shacman_dump_truck.jpg',
                     operator: 'С водителем'
                   },
                   {
@@ -591,7 +591,7 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
                     unit: 'час',
                     dist: '1.4 км от объекта',
                     status: '🟢 Свободен (Готов к выезду)',
-                    image: 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&w=600&q=80',
+                    image: '/assets/machinery/jcb_backhoe_loader.jpg',
                     operator: 'С оператором'
                   }
                 ].map((m) => (

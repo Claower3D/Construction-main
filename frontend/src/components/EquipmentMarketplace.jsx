@@ -41,7 +41,7 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
     {
       id: 1,
       category: 'earth',
-      image: 'https://images.unsplash.com/photo-1579829366248-204fe8413f31?auto=format&fit=crop&w=800&q=80',
+      image: '/assets/machinery/hitachi_excavator.jpg',
       distanceKm: 1.6,
       title: 'Гусеничный экскаватор Hitachi ZX240, 24 т, 1 м³, 6.7 м',
       rawPrice: 25000,
@@ -103,7 +103,7 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
     {
       id: 4,
       category: 'earth',
-      image: 'https://images.unsplash.com/photo-1508873696983-2df5293cb32b?auto=format&fit=crop&w=800&q=80',
+      image: '/assets/machinery/cat_bulldozer.jpg',
       distanceKm: 2.8,
       title: 'Тяжелый бульдозер CAT D6R, 20 т, отвал 3.8 м',
       rawPrice: 32000,
@@ -126,7 +126,7 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
     {
       id: 5,
       category: 'lift',
-      image: 'https://images.unsplash.com/photo-1584467735815-f778f274e296?auto=format&fit=crop&w=800&q=80',
+      image: '/assets/machinery/xcmg_mobile_crane.jpg',
       distanceKm: 3.2,
       title: 'Автокран XCMG QY25K5, 25 т, стрела 39.5 м + гусек',
       rawPrice: 28000,
@@ -230,7 +230,7 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
     {
       id: 10,
       category: 'loader',
-      image: 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&w=800&q=80',
+      image: '/assets/machinery/jcb_backhoe_loader.jpg',
       distanceKm: 5.2,
       title: 'Экскаватор-погрузчик JCB 3CX Super, равноколёсный',
       rawPrice: 18000,
@@ -356,7 +356,7 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
     {
       id: 16,
       category: 'concrete',
-      image: 'https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?auto=format&fit=crop&w=800&q=80',
+      image: '/assets/machinery/concrete_pump.jpg',
       distanceKm: 2.8,
       title: 'Автобетононасос Putzmeister 38m, подача 160 м³/ч',
       rawPrice: 40000,
@@ -397,7 +397,7 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
     {
       id: 18,
       category: 'transport',
-      image: 'https://images.unsplash.com/photo-1519003722824-194d4455a60c?auto=format&fit=crop&w=800&q=80',
+      image: '/assets/machinery/shacman_dump_truck.jpg',
       distanceKm: 3.6,
       title: 'Самосвал Shacman F3000, 25 т, объём 20 м³',
       rawPrice: 18000,
