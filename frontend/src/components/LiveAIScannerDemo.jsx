@@ -232,12 +232,6 @@ export default function LiveAIScannerDemo() {
           )}
 
           {isScanning && <div className="viewport-laser-line" style={{ top: `${scanProgress}%` }}></div>}
-
-          <div className="viewport-telemetry-strip">
-            <span>📐 Объём: <strong>{current.vol}</strong></span>
-            <span>⏱️ Срок: <strong>{current.duration}</strong></span>
-            <span>🛰️ AI Engine: <strong>Go 1.26 RAM</strong></span>
-          </div>
         </div>
 
         {/* Right QTO Specification Table */}

@@ -41,17 +41,19 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
     {
       id: 1,
       category: 'earth',
+      image: 'https://images.unsplash.com/photo-1579829366248-204fe8413f31?auto=format&fit=crop&w=800&q=80',
+      distanceKm: 1.6,
       title: 'Гусеничный экскаватор Hitachi ZX240, 24 т, 1 м³, 6.7 м',
       rawPrice: 25000,
       price: '25 000',
-      unit: 'смена (8ч)',
-      tariffType: 'shift',
+      unit: 'час',
+      tariffType: 'hourly',
       city: 'almaty',
       hasOperator: true,
       hasDelivery: true,
       availableToday: true,
       tags: [
-        { type: 'hourly', label: 'Смена', icon: '🔄' },
+        { type: 'hourly', label: '1 час', icon: '🔄' },
         { type: 'operator', label: 'С оператором', icon: '👷' },
         { type: 'delivery', label: 'Платная доставка', icon: '🚚' },
         { type: 'location', label: 'Алматы' }
@@ -60,17 +62,19 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
     {
       id: 2,
       category: 'earth',
+      image: 'https://images.unsplash.com/photo-1581094288338-2314dddb7ece?auto=format&fit=crop&w=800&q=80',
+      distanceKm: 2.0,
       title: 'Колёсный экскаватор JCB JS160W, 17 т, 0.9 м³',
       rawPrice: 22000,
       price: '22 000',
-      unit: 'смена (8ч)',
-      tariffType: 'shift',
+      unit: 'час',
+      tariffType: 'hourly',
       city: 'astana',
       hasOperator: true,
       hasDelivery: true,
       availableToday: true,
       tags: [
-        { type: 'hourly', label: 'Смена', icon: '🔄' },
+        { type: 'hourly', label: '1 час', icon: '🔄' },
         { type: 'operator', label: 'С оператором', icon: '👷' },
         { type: 'delivery', label: 'Платная доставка', icon: '🚚' },
         { type: 'location', label: 'Астана' }
@@ -79,17 +83,19 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
     {
       id: 3,
       category: 'earth',
+      image: 'https://images.unsplash.com/photo-1541888946425-d0fbb186156f?auto=format&fit=crop&w=800&q=80',
+      distanceKm: 2.4,
       title: 'Мини-экскаватор Kubota U-35, 3.5 т, ковш 0.15 м³',
       rawPrice: 12000,
       price: '12 000',
-      unit: 'смена (8ч)',
-      tariffType: 'shift',
+      unit: 'час',
+      tariffType: 'hourly',
       city: 'shymkent',
       hasOperator: false,
       hasDelivery: false,
       availableToday: true,
       tags: [
-        { type: 'hourly', label: 'Смена', icon: '🔄' },
+        { type: 'hourly', label: '1 час', icon: '🔄' },
         { type: 'delivery', label: 'Самовывоз', icon: '📦' },
         { type: 'location', label: 'Шымкент' }
       ]
@@ -97,17 +103,19 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
     {
       id: 4,
       category: 'earth',
+      image: 'https://images.unsplash.com/photo-1508873696983-2df5293cb32b?auto=format&fit=crop&w=800&q=80',
+      distanceKm: 2.8,
       title: 'Тяжелый бульдозер CAT D6R, 20 т, отвал 3.8 м',
       rawPrice: 32000,
       price: '32 000',
-      unit: 'смена (10ч)',
-      tariffType: 'shift',
+      unit: 'час',
+      tariffType: 'hourly',
       city: 'karaganda',
       hasOperator: true,
       hasDelivery: true,
       availableToday: false,
       tags: [
-        { type: 'hourly', label: 'Смена', icon: '🔄' },
+        { type: 'hourly', label: '1 час', icon: '🔄' },
         { type: 'operator', label: 'С оператором', icon: '👷' },
         { type: 'delivery', label: 'Платная доставка', icon: '🚚' },
         { type: 'location', label: 'Караганда' }
@@ -118,17 +126,19 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
     {
       id: 5,
       category: 'lift',
+      image: 'https://images.unsplash.com/photo-1584467735815-f778f274e296?auto=format&fit=crop&w=800&q=80',
+      distanceKm: 3.2,
       title: 'Автокран XCMG QY25K5, 25 т, стрела 39.5 м + гусек',
       rawPrice: 28000,
       price: '28 000',
-      unit: 'смена (8ч)',
-      tariffType: 'shift',
+      unit: 'час',
+      tariffType: 'hourly',
       city: 'almaty',
       hasOperator: true,
       hasDelivery: true,
       availableToday: true,
       tags: [
-        { type: 'hourly', label: 'Смена', icon: '🔄' },
+        { type: 'hourly', label: '1 час', icon: '🔄' },
         { type: 'operator', label: 'С оператором', icon: '👷' },
         { type: 'delivery', label: 'Бесплатная доставка', icon: '🚚' },
         { type: 'location', label: 'Алматы' }
@@ -137,17 +147,19 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
     {
       id: 6,
       category: 'lift',
+      image: 'https://images.unsplash.com/photo-1590486803833-1c5dc8ddd4c8?auto=format&fit=crop&w=800&q=80',
+      distanceKm: 3.6,
       title: 'Автовышка телескопическая Hyundai HD78, 28 м, 300 кг',
       rawPrice: 18000,
       price: '18 000',
-      unit: 'смена (8ч)',
-      tariffType: 'shift',
+      unit: 'час',
+      tariffType: 'hourly',
       city: 'astana',
       hasOperator: true,
       hasDelivery: true,
       availableToday: true,
       tags: [
-        { type: 'hourly', label: 'Смена', icon: '🔄' },
+        { type: 'hourly', label: '1 час', icon: '🔄' },
         { type: 'operator', label: 'С оператором', icon: '👷' },
         { type: 'location', label: 'Астана' }
       ]
@@ -155,17 +167,19 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
     {
       id: 7,
       category: 'lift',
+      image: 'https://images.unsplash.com/photo-1541971875076-8f970d573be6?auto=format&fit=crop&w=800&q=80',
+      distanceKm: 4.0,
       title: 'Башенный кран Liebherr 130 EC-B, 8 т, стрела 60 м',
       rawPrice: 55000,
       price: '55 000',
-      unit: 'смена (12ч)',
-      tariffType: 'shift',
+      unit: 'час',
+      tariffType: 'hourly',
       city: 'almaty',
       hasOperator: true,
       hasDelivery: true,
       availableToday: false,
       tags: [
-        { type: 'hourly', label: 'Смена', icon: '🔄' },
+        { type: 'hourly', label: '1 час', icon: '🔄' },
         { type: 'operator', label: 'С крановщиком', icon: '👷' },
         { type: 'location', label: 'Алматы' }
       ]
@@ -173,17 +187,19 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
     {
       id: 8,
       category: 'lift',
+      image: 'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=800&q=80',
+      distanceKm: 4.4,
       title: 'Кран-манипулятор КАМАЗ 65117 (КМУ 7 т, борт 12 т)',
       rawPrice: 20000,
       price: '20 000',
-      unit: 'смена (8ч)',
-      tariffType: 'shift',
+      unit: 'час',
+      tariffType: 'hourly',
       city: 'shymkent',
       hasOperator: true,
       hasDelivery: true,
       availableToday: true,
       tags: [
-        { type: 'hourly', label: 'Смена', icon: '🔄' },
+        { type: 'hourly', label: '1 час', icon: '🔄' },
         { type: 'operator', label: 'С водитель-оператором', icon: '👷' },
         { type: 'location', label: 'Шымкент' }
       ]
@@ -193,17 +209,19 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
     {
       id: 9,
       category: 'loader',
+      image: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=800&q=80',
+      distanceKm: 4.8,
       title: 'Фронтальный погрузчик XCMG ZL50G, 5 т, 3.2 м³',
       rawPrice: 16000,
       price: '16 000',
-      unit: 'смена (8ч)',
-      tariffType: 'shift',
+      unit: 'час',
+      tariffType: 'hourly',
       city: 'almaty',
       hasOperator: true,
       hasDelivery: true,
       availableToday: true,
       tags: [
-        { type: 'hourly', label: 'Смена', icon: '🔄' },
+        { type: 'hourly', label: '1 час', icon: '🔄' },
         { type: 'operator', label: 'С оператором', icon: '👷' },
         { type: 'delivery', label: 'Доставка', icon: '🚚' },
         { type: 'location', label: 'Алматы' }
@@ -212,17 +230,19 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
     {
       id: 10,
       category: 'loader',
+      image: 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&w=800&q=80',
+      distanceKm: 5.2,
       title: 'Экскаватор-погрузчик JCB 3CX Super, равноколёсный',
       rawPrice: 18000,
       price: '18 000',
-      unit: 'смена (8ч)',
-      tariffType: 'shift',
+      unit: 'час',
+      tariffType: 'hourly',
       city: 'astana',
       hasOperator: true,
       hasDelivery: true,
       availableToday: true,
       tags: [
-        { type: 'hourly', label: 'Смена', icon: '🔄' },
+        { type: 'hourly', label: '1 час', icon: '🔄' },
         { type: 'operator', label: 'С оператором', icon: '👷' },
         { type: 'location', label: 'Астана' }
       ]
@@ -230,17 +250,19 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
     {
       id: 11,
       category: 'loader',
+      image: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80',
+      distanceKm: 5.6,
       title: 'Мини-погрузчик Bobcat S530 + гидромолот / щётка',
       rawPrice: 14000,
       price: '14 000',
-      unit: 'смена (8ч)',
-      tariffType: 'shift',
+      unit: 'час',
+      tariffType: 'hourly',
       city: 'almaty',
       hasOperator: false,
       hasDelivery: false,
       availableToday: true,
       tags: [
-        { type: 'hourly', label: 'Смена', icon: '🔄' },
+        { type: 'hourly', label: '1 час', icon: '🔄' },
         { type: 'delivery', label: 'Самовывоз', icon: '📦' },
         { type: 'location', label: 'Алматы' }
       ]
@@ -248,17 +270,19 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
     {
       id: 12,
       category: 'loader',
+      image: 'https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=800&q=80',
+      distanceKm: 1.2,
       title: 'Телескопический погрузчик Manitou MT 1840 (18 м, 4 т)',
       rawPrice: 24000,
       price: '24 000',
-      unit: 'смена (8ч)',
-      tariffType: 'shift',
+      unit: 'час',
+      tariffType: 'hourly',
       city: 'karaganda',
       hasOperator: true,
       hasDelivery: true,
       availableToday: true,
       tags: [
-        { type: 'hourly', label: 'Смена', icon: '🔄' },
+        { type: 'hourly', label: '1 час', icon: '🔄' },
         { type: 'operator', label: 'С оператором', icon: '👷' },
         { type: 'location', label: 'Караганда' }
       ]
@@ -268,17 +292,19 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
     {
       id: 13,
       category: 'road',
+      image: 'https://images.unsplash.com/photo-1581092162384-8987c1d64718?auto=format&fit=crop&w=800&q=80',
+      distanceKm: 1.6,
       title: 'Каток дорожный XCMG XS143J, 14 т, 2.1 м',
       rawPrice: 18000,
       price: '18 000',
-      unit: 'смена (10ч)',
-      tariffType: 'shift',
+      unit: 'час',
+      tariffType: 'hourly',
       city: 'karaganda',
       hasOperator: true,
       hasDelivery: true,
       availableToday: false,
       tags: [
-        { type: 'hourly', label: 'Смена', icon: '🔄' },
+        { type: 'hourly', label: '1 час', icon: '🔄' },
         { type: 'operator', label: 'С оператором', icon: '👷' },
         { type: 'delivery', label: 'Платная доставка', icon: '🚚' },
         { type: 'location', label: 'Караганда' }
@@ -287,17 +313,19 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
     {
       id: 14,
       category: 'road',
+      image: 'https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=800&q=80',
+      distanceKm: 2.0,
       title: 'Грейдер XCMG GR215, 4.3 м, рыхлитель',
       rawPrice: 22000,
       price: '22 000',
-      unit: 'смена (8ч)',
-      tariffType: 'shift',
+      unit: 'час',
+      tariffType: 'hourly',
       city: 'astana',
       hasOperator: true,
       hasDelivery: true,
       availableToday: true,
       tags: [
-        { type: 'hourly', label: 'Смена', icon: '🔄' },
+        { type: 'hourly', label: '1 час', icon: '🔄' },
         { type: 'operator', label: 'С оператором', icon: '👷' },
         { type: 'delivery', label: 'Платная доставка', icon: '🚚' },
         { type: 'location', label: 'Астана' }
@@ -306,17 +334,19 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
     {
       id: 15,
       category: 'road',
+      image: 'https://images.unsplash.com/photo-1581092795360-fd1ca04f0952?auto=format&fit=crop&w=800&q=80',
+      distanceKm: 2.4,
       title: 'Асфальтоукладчик Vogele Super 1800-3 (ширина 9 м)',
       rawPrice: 48000,
       price: '48 000',
-      unit: 'смена (8ч)',
-      tariffType: 'shift',
+      unit: 'час',
+      tariffType: 'hourly',
       city: 'almaty',
       hasOperator: true,
       hasDelivery: true,
       availableToday: true,
       tags: [
-        { type: 'hourly', label: 'Смена', icon: '🔄' },
+        { type: 'hourly', label: '1 час', icon: '🔄' },
         { type: 'operator', label: 'С бригадой', icon: '👷' },
         { type: 'location', label: 'Алматы' }
       ]
@@ -326,17 +356,19 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
     {
       id: 16,
       category: 'concrete',
+      image: 'https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?auto=format&fit=crop&w=800&q=80',
+      distanceKm: 2.8,
       title: 'Автобетононасос Putzmeister 38m, подача 160 м³/ч',
       rawPrice: 40000,
       price: '40 000',
-      unit: 'смена (8ч)',
-      tariffType: 'shift',
+      unit: 'час',
+      tariffType: 'hourly',
       city: 'almaty',
       hasOperator: true,
       hasDelivery: true,
       availableToday: true,
       tags: [
-        { type: 'hourly', label: 'Смена', icon: '🔄' },
+        { type: 'hourly', label: '1 час', icon: '🔄' },
         { type: 'operator', label: 'С оператором', icon: '👷' },
         { type: 'location', label: 'Алматы' }
       ]
@@ -344,6 +376,8 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
     {
       id: 17,
       category: 'concrete',
+      image: 'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=800&q=80',
+      distanceKm: 3.2,
       title: 'Автобетоносмеситель КАМАЗ 6520 (миксер 10 м³)',
       rawPrice: 15000,
       price: '15 000',
@@ -363,17 +397,19 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
     {
       id: 18,
       category: 'transport',
+      image: 'https://images.unsplash.com/photo-1519003722824-194d4455a60c?auto=format&fit=crop&w=800&q=80',
+      distanceKm: 3.6,
       title: 'Самосвал Shacman F3000, 25 т, объём 20 м³',
       rawPrice: 18000,
       price: '18 000',
-      unit: 'смена (10ч)',
-      tariffType: 'shift',
+      unit: 'час',
+      tariffType: 'hourly',
       city: 'almaty',
       hasOperator: true,
       hasDelivery: true,
       availableToday: true,
       tags: [
-        { type: 'hourly', label: 'Смена', icon: '🔄' },
+        { type: 'hourly', label: '1 час', icon: '🔄' },
         { type: 'operator', label: 'С водителем', icon: '👷' },
         { type: 'location', label: 'Алматы' }
       ]
@@ -381,6 +417,8 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
     {
       id: 19,
       category: 'transport',
+      image: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=800&q=80',
+      distanceKm: 4.0,
       title: 'Трал низкорамный FAYMONVILLE (60 т, аппарели)',
       rawPrice: 42000,
       price: '42 000',
@@ -401,17 +439,19 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
     {
       id: 20,
       category: 'drill',
+      image: 'https://images.unsplash.com/photo-1581092921461-eab62e97a780?auto=format&fit=crop&w=800&q=80',
+      distanceKm: 4.4,
       title: 'Ямобур / АБКМ на базе КАМАЗ 43114 (бурение до 12 м)',
       rawPrice: 28000,
       price: '28 000',
-      unit: 'смена (8ч)',
-      tariffType: 'shift',
+      unit: 'час',
+      tariffType: 'hourly',
       city: 'almaty',
       hasOperator: true,
       hasDelivery: true,
       availableToday: true,
       tags: [
-        { type: 'hourly', label: 'Смена', icon: '🔄' },
+        { type: 'hourly', label: '1 час', icon: '🔄' },
         { type: 'operator', label: 'С бурильщиком', icon: '👷' },
         { type: 'location', label: 'Алматы' }
       ]
@@ -419,17 +459,19 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
     {
       id: 21,
       category: 'drill',
+      image: 'https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?auto=format&fit=crop&w=800&q=80',
+      distanceKm: 4.8,
       title: 'Буровая сваебойная установка Bauer BG 28 (сваи до 40 м)',
       rawPrice: 95000,
       price: '95 000',
-      unit: 'смена (10ч)',
-      tariffType: 'shift',
+      unit: 'час',
+      tariffType: 'hourly',
       city: 'astana',
       hasOperator: true,
       hasDelivery: true,
       availableToday: false,
       tags: [
-        { type: 'hourly', label: 'Смена', icon: '🔄' },
+        { type: 'hourly', label: '1 час', icon: '🔄' },
         { type: 'operator', label: 'С экипажем', icon: '👷' },
         { type: 'location', label: 'Астана' }
       ]
@@ -439,17 +481,19 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
     {
       id: 22,
       category: 'power',
+      image: 'https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?auto=format&fit=crop&w=800&q=80',
+      distanceKm: 5.2,
       title: 'Генератор дизельный SDMO 100 кВт, шумозащитный',
       rawPrice: 12000,
       price: '12 000',
-      unit: 'смена (8ч)',
-      tariffType: 'shift',
+      unit: 'час',
+      tariffType: 'hourly',
       city: 'almaty',
       hasOperator: false,
       hasDelivery: true,
       availableToday: true,
       tags: [
-        { type: 'hourly', label: 'Смена', icon: '🔄' },
+        { type: 'hourly', label: '1 час', icon: '🔄' },
         { type: 'delivery', label: 'Платная доставка', icon: '🚚' },
         { type: 'location', label: 'Алматы' }
       ]
@@ -457,17 +501,19 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
     {
       id: 23,
       category: 'power',
+      image: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80',
+      distanceKm: 5.6,
       title: 'Компрессор дизельный Atlas Copco XAS 97 (5.3 м³/мин)',
       rawPrice: 14000,
       price: '14 000',
-      unit: 'смена (8ч)',
-      tariffType: 'shift',
+      unit: 'час',
+      tariffType: 'hourly',
       city: 'astana',
       hasOperator: false,
       hasDelivery: true,
       availableToday: true,
       tags: [
-        { type: 'hourly', label: 'Смена', icon: '🔄' },
+        { type: 'hourly', label: '1 час', icon: '🔄' },
         { type: 'delivery', label: 'Доставка', icon: '🚚' },
         { type: 'location', label: 'Астана' }
       ]
@@ -751,18 +797,22 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
                           {item.category === 'power' && 'GENERATOR & POWER GRID'}
                         </div>
                         
-                        <div className="em-card-main-visual">
-                          <div className="em-card-icon-halo">
-                            <span className="em-icon-symbol">
-                              {item.category === 'earth' && '🚜'}
-                              {item.category === 'lift' && '🏗️'}
-                              {item.category === 'loader' && '🚜'}
-                              {item.category === 'road' && '🛣️'}
-                              {item.category === 'concrete' && '🧱'}
-                              {item.category === 'transport' && '🚚'}
-                              {item.category === 'drill' && '⛑️'}
-                              {item.category === 'power' && '⚡'}
-                            </span>
+                        <div className="em-card-main-visual" style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0, overflow: 'hidden' }}>
+                          <img 
+                            src={item.image || 'https://images.unsplash.com/photo-1579829366248-204fe8413f31?auto=format&fit=crop&w=800&q=80'} 
+                            alt={item.title} 
+                            style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s ease', filter: 'brightness(0.85) contrast(1.1)' }}
+                            className="em-machine-photo"
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                              if (e.target.nextSibling) e.target.nextSibling.style.display = 'flex';
+                            }}
+                          />
+                          <div className="em-card-icon-halo" style={{ display: 'none' }}>
+                            <span className="em-icon-symbol">🚜</span>
+                          </div>
+                          <div style={{ position: 'absolute', bottom: '8px', left: '10px', background: 'rgba(8, 12, 22, 0.85)', backdropFilter: 'blur(10px)', padding: '3px 8px', borderRadius: '6px', fontSize: '0.72rem', color: '#38bdf8', fontWeight: '800', border: '1px solid rgba(56, 189, 248, 0.3)' }}>
+                            📍 GPS: {item.distanceKm ? `${item.distanceKm} км от вас` : '2.4 км'}
                           </div>
                         </div>
 

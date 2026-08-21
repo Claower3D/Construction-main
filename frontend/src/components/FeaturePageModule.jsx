@@ -353,6 +353,138 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
                 </div>
               ))}
             </div>
+            {/* SMART GPS MACHINERY PULL FOR EXECUTOR */}
+            <div style={{
+              background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(8, 12, 22, 0.98))',
+              border: '1px solid rgba(56, 189, 248, 0.35)',
+              borderRadius: '20px',
+              padding: '22px',
+              marginTop: '2rem',
+              boxShadow: '0 15px 40px rgba(0, 0, 0, 0.5)'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '16px' }}>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                    <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#00ff88', boxShadow: '0 0 10px #00ff88' }}></span>
+                    <h3 style={{ margin: 0, fontSize: '1.25rem', color: '#ffffff', fontWeight: '800' }}>🚜 Свободная спецтехника рядом с объектами (GPS Online)</h3>
+                  </div>
+                  <p style={{ margin: 0, color: '#94a3b8', fontSize: '0.85rem' }}>Автоматический подбор ближайших экскаваторов, кранов и самосвалов в радиусе 5 км с почасовой оплатой (1 час)</p>
+                </div>
+                <button
+                  onClick={() => onOpenAdminTab ? onOpenAdminTab('equipment') : alert('Переход в полный маркетплейс техники')}
+                  style={{
+                    background: 'rgba(56, 189, 248, 0.15)',
+                    border: '1px solid rgba(56, 189, 248, 0.4)',
+                    color: '#38bdf8',
+                    padding: '8px 16px',
+                    borderRadius: '10px',
+                    fontSize: '0.85rem',
+                    fontWeight: '700',
+                    cursor: 'pointer'
+                  }}
+                >
+                  🏪 Открыть весь маркетплейс техники →
+                </button>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
+                {[
+                  {
+                    id: 1,
+                    title: 'Гусеничный экскаватор Hitachi ZX240',
+                    price: '25 000 ₸',
+                    unit: 'час',
+                    dist: '1.8 км от объекта',
+                    status: '🟢 Свободен (Готов к выезду)',
+                    image: 'https://images.unsplash.com/photo-1579829366248-204fe8413f31?auto=format&fit=crop&w=600&q=80',
+                    operator: 'С оператором'
+                  },
+                  {
+                    id: 5,
+                    title: 'Автокран XCMG QY25K5, 25 т (39.5 м)',
+                    price: '28 000 ₸',
+                    unit: 'час',
+                    dist: '2.4 км от объекта',
+                    status: '🟢 Свободен (Готов к выезду)',
+                    image: 'https://images.unsplash.com/photo-1584467735815-f778f274e296?auto=format&fit=crop&w=600&q=80',
+                    operator: 'С крановщиком'
+                  },
+                  {
+                    id: 18,
+                    title: 'Самосвал Shacman F3000, 25 т (20 м³)',
+                    price: '18 000 ₸',
+                    unit: 'час',
+                    dist: '3.1 км от объекта',
+                    status: '🟢 Свободен (Готов к выезду)',
+                    image: 'https://images.unsplash.com/photo-1519003722824-194d4455a60c?auto=format&fit=crop&w=600&q=80',
+                    operator: 'С водителем'
+                  },
+                  {
+                    id: 10,
+                    title: 'Экскаватор-погрузчик JCB 3CX Super',
+                    price: '18 000 ₸',
+                    unit: 'час',
+                    dist: '1.4 км от объекта',
+                    status: '🟢 Свободен (Готов к выезду)',
+                    image: 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&w=600&q=80',
+                    operator: 'С оператором'
+                  }
+                ].map((m) => (
+                  <div
+                    key={m.id}
+                    style={{
+                      background: 'rgba(11, 18, 32, 0.85)',
+                      border: '1px solid rgba(255, 255, 255, 0.08)',
+                      borderRadius: '14px',
+                      overflow: 'hidden',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between'
+                    }}
+                  >
+                    <div style={{ position: 'relative', height: '140px' }}>
+                      <img src={m.image} alt={m.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      <div style={{ position: 'absolute', top: '8px', right: '8px', background: 'rgba(16, 185, 129, 0.9)', color: '#fff', fontSize: '0.72rem', fontWeight: '800', padding: '2px 8px', borderRadius: '6px' }}>
+                        {m.operator}
+                      </div>
+                      <div style={{ position: 'absolute', bottom: '8px', left: '8px', background: 'rgba(8, 12, 22, 0.85)', backdropFilter: 'blur(8px)', color: '#38bdf8', fontSize: '0.72rem', fontWeight: '700', padding: '2px 8px', borderRadius: '4px', border: '1px solid rgba(56, 189, 248, 0.3)' }}>
+                        📍 {m.dist}
+                      </div>
+                    </div>
+
+                    <div style={{ padding: '14px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                      <div>
+                        <h4 style={{ margin: '0 0 6px 0', fontSize: '0.95rem', color: '#ffffff' }}>{m.title}</h4>
+                        <div style={{ fontSize: '0.78rem', color: '#34d399', marginBottom: '10px' }}>{m.status}</div>
+                      </div>
+
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '10px', borderTop: '1px solid rgba(255, 255, 255, 0.06)' }}>
+                        <div>
+                          <strong style={{ fontSize: '1.15rem', color: '#fbbf24' }}>{m.price}</strong>
+                          <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}> / {m.unit}</span>
+                        </div>
+                        <button
+                          onClick={() => alert(`⚡ Бронирование техники "${m.title}" к вашему объекту на 1 час (Эскроу QazGost)`)}
+                          style={{
+                            background: 'linear-gradient(135deg, #2563eb, #0284c7)',
+                            border: 'none',
+                            color: '#ffffff',
+                            padding: '6px 12px',
+                            borderRadius: '8px',
+                            fontSize: '0.78rem',
+                            fontWeight: '700',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          ⚡ Заказать к объекту
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
           </div>
         )}
 
@@ -386,6 +518,138 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
                 </div>
               ))}
             </div>
+            {/* SMART GPS MACHINERY PULL FOR EXECUTOR */}
+            <div style={{
+              background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(8, 12, 22, 0.98))',
+              border: '1px solid rgba(56, 189, 248, 0.35)',
+              borderRadius: '20px',
+              padding: '22px',
+              marginTop: '2rem',
+              boxShadow: '0 15px 40px rgba(0, 0, 0, 0.5)'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '16px' }}>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                    <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#00ff88', boxShadow: '0 0 10px #00ff88' }}></span>
+                    <h3 style={{ margin: 0, fontSize: '1.25rem', color: '#ffffff', fontWeight: '800' }}>🚜 Свободная спецтехника рядом с объектами (GPS Online)</h3>
+                  </div>
+                  <p style={{ margin: 0, color: '#94a3b8', fontSize: '0.85rem' }}>Автоматический подбор ближайших экскаваторов, кранов и самосвалов в радиусе 5 км с почасовой оплатой (1 час)</p>
+                </div>
+                <button
+                  onClick={() => onOpenAdminTab ? onOpenAdminTab('equipment') : alert('Переход в полный маркетплейс техники')}
+                  style={{
+                    background: 'rgba(56, 189, 248, 0.15)',
+                    border: '1px solid rgba(56, 189, 248, 0.4)',
+                    color: '#38bdf8',
+                    padding: '8px 16px',
+                    borderRadius: '10px',
+                    fontSize: '0.85rem',
+                    fontWeight: '700',
+                    cursor: 'pointer'
+                  }}
+                >
+                  🏪 Открыть весь маркетплейс техники →
+                </button>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
+                {[
+                  {
+                    id: 1,
+                    title: 'Гусеничный экскаватор Hitachi ZX240',
+                    price: '25 000 ₸',
+                    unit: 'час',
+                    dist: '1.8 км от объекта',
+                    status: '🟢 Свободен (Готов к выезду)',
+                    image: 'https://images.unsplash.com/photo-1579829366248-204fe8413f31?auto=format&fit=crop&w=600&q=80',
+                    operator: 'С оператором'
+                  },
+                  {
+                    id: 5,
+                    title: 'Автокран XCMG QY25K5, 25 т (39.5 м)',
+                    price: '28 000 ₸',
+                    unit: 'час',
+                    dist: '2.4 км от объекта',
+                    status: '🟢 Свободен (Готов к выезду)',
+                    image: 'https://images.unsplash.com/photo-1584467735815-f778f274e296?auto=format&fit=crop&w=600&q=80',
+                    operator: 'С крановщиком'
+                  },
+                  {
+                    id: 18,
+                    title: 'Самосвал Shacman F3000, 25 т (20 м³)',
+                    price: '18 000 ₸',
+                    unit: 'час',
+                    dist: '3.1 км от объекта',
+                    status: '🟢 Свободен (Готов к выезду)',
+                    image: 'https://images.unsplash.com/photo-1519003722824-194d4455a60c?auto=format&fit=crop&w=600&q=80',
+                    operator: 'С водителем'
+                  },
+                  {
+                    id: 10,
+                    title: 'Экскаватор-погрузчик JCB 3CX Super',
+                    price: '18 000 ₸',
+                    unit: 'час',
+                    dist: '1.4 км от объекта',
+                    status: '🟢 Свободен (Готов к выезду)',
+                    image: 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&w=600&q=80',
+                    operator: 'С оператором'
+                  }
+                ].map((m) => (
+                  <div
+                    key={m.id}
+                    style={{
+                      background: 'rgba(11, 18, 32, 0.85)',
+                      border: '1px solid rgba(255, 255, 255, 0.08)',
+                      borderRadius: '14px',
+                      overflow: 'hidden',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between'
+                    }}
+                  >
+                    <div style={{ position: 'relative', height: '140px' }}>
+                      <img src={m.image} alt={m.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      <div style={{ position: 'absolute', top: '8px', right: '8px', background: 'rgba(16, 185, 129, 0.9)', color: '#fff', fontSize: '0.72rem', fontWeight: '800', padding: '2px 8px', borderRadius: '6px' }}>
+                        {m.operator}
+                      </div>
+                      <div style={{ position: 'absolute', bottom: '8px', left: '8px', background: 'rgba(8, 12, 22, 0.85)', backdropFilter: 'blur(8px)', color: '#38bdf8', fontSize: '0.72rem', fontWeight: '700', padding: '2px 8px', borderRadius: '4px', border: '1px solid rgba(56, 189, 248, 0.3)' }}>
+                        📍 {m.dist}
+                      </div>
+                    </div>
+
+                    <div style={{ padding: '14px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                      <div>
+                        <h4 style={{ margin: '0 0 6px 0', fontSize: '0.95rem', color: '#ffffff' }}>{m.title}</h4>
+                        <div style={{ fontSize: '0.78rem', color: '#34d399', marginBottom: '10px' }}>{m.status}</div>
+                      </div>
+
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '10px', borderTop: '1px solid rgba(255, 255, 255, 0.06)' }}>
+                        <div>
+                          <strong style={{ fontSize: '1.15rem', color: '#fbbf24' }}>{m.price}</strong>
+                          <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}> / {m.unit}</span>
+                        </div>
+                        <button
+                          onClick={() => alert(`⚡ Бронирование техники "${m.title}" к вашему объекту на 1 час (Эскроу QazGost)`)}
+                          style={{
+                            background: 'linear-gradient(135deg, #2563eb, #0284c7)',
+                            border: 'none',
+                            color: '#ffffff',
+                            padding: '6px 12px',
+                            borderRadius: '8px',
+                            fontSize: '0.78rem',
+                            fontWeight: '700',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          ⚡ Заказать к объекту
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
           </div>
         )}
 
