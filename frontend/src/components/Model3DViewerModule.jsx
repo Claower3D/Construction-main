@@ -1,16 +1,18 @@
 import React from 'react';
+import Building3DViewer from './Building3DViewer';
 
 export default function Model3DViewerModule() {
   return (
-    <div className="fullpage-card-box">
-      <h2 className="fullpage-heading">📐 3D BIM & Фотограмметрия Viewer</h2>
-      <p className="fullpage-sub">Интерактивный просмотрщик 3D-моделей зданий, чертежей и облаков точек.</p>
+    <div className="fullpage-card-box" style={{ padding: '20px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+        <div>
+          <h2 className="fullpage-heading" style={{ margin: 0, fontSize: '1.5rem', color: '#ffffff' }}>📐 3D BIM & Архитектурный Viewer 2026</h2>
+          <p className="fullpage-sub" style={{ margin: '4px 0 0 0', color: '#94a3b8', fontSize: '0.88rem' }}>Интерактивная 3D-модель объекта с поддержкой СНиП-инспекции, ночного освещения и строительного крана.</p>
+        </div>
+      </div>
 
-      <div className="model-3d-canvas-box" style={{ background: '#090d16', border: '1px dashed rgba(245,158,11,0.4)', borderRadius: '18px', padding: '4rem 2rem', textAlign: 'center', margin: '1.5rem 0' }}>
-        <div className="spinning-cube-icon" style={{ fontSize: '4rem' }}>🧊</div>
-        <h3 style={{ color: '#fff', marginTop: '1rem' }}>3D Модель объекта сгенерирована (142,000 точек)</h3>
-        <p style={{ color: '#94a3b8' }}>Используется WebGL 2.0 / Three.js рендерер с поддержкой BIM IFC и GLTF файлов.</p>
-        <button className="btn-action-hero" style={{ marginTop: '1.25rem', maxWidth: '300px' }}>🔄 Вращать 3D-модель (360° View)</button>
+      <div style={{ height: '620px', borderRadius: '18px', overflow: 'hidden', border: '1px solid rgba(56, 189, 248, 0.3)', boxShadow: '0 20px 50px rgba(0,0,0,0.5)' }}>
+        <Building3DViewer sampleIndex={0} height="100%" showControls={true} />
       </div>
     </div>
   );
