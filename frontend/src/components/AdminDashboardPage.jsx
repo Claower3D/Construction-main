@@ -177,6 +177,7 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
       { id: 'adm-kpi', title: 'KPI Платформы', icon: '📊', desc: 'Метрики скорости расчётов, точности AI и загрузки серверов', btnText: '📊 Открыть KPI', btnGradient: 'linear-gradient(90deg, #10b981, #06b6d4)' },
       { id: 'adm-disputes', title: 'Споры и арбитраж', icon: '⚖️', desc: 'Рассмотрение претензий по качеству работ и разблокировка эскроу', btnText: '⚖️ Разрешить спор', btnGradient: 'linear-gradient(90deg, #f59e0b, #ef4444)' },
       { id: 'adm-contracts', title: 'Договоры подряда', icon: '📄', desc: 'Шаблоны договоров строительного подряда с поддержкой ЭЦП E-Gov', btnText: '📄 Реестр договоров', btnGradient: 'linear-gradient(90deg, #2563eb, #10b981)' },
+      { id: 'adm-documents', title: 'Документы & Выгрузка Excel', icon: '📁', desc: 'Выгрузка актов КС-2/КС-3, счетов на оплату, ЭСФ и реестров договоров в Excel (.xlsx)', btnText: '📁 Открыть документы', btnGradient: 'linear-gradient(90deg, #10b981, #06b6d4)' },
     ],
 
     analyst: [

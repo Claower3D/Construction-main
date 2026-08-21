@@ -1,8 +1,174 @@
 import React, { useState, useEffect } from 'react';
 import { getAuditLogs, logAuditAction, exportAuditLogTxt } from '../services/adminAuditStore';
-import { exportPricesToExcel, exportAll3SheetsExcel, parseExcelOrCsvFile } from '../services/adminExcelIO';
+import { exportPricesToExcel, exportAll3SheetsExcel, parseExcelOrCsvFile, exportActsToExcel, exportInvoicesToExcel, exportContractsToExcel, exportSingleDocumentExcel, exportAllDocumentsPackageExcel } from '../services/adminExcelIO';
 import { getStatus } from '../services/api';
 import RoleHierarchyTreePage from './RoleHierarchyTreePage';
+
+// Documents & Invoices registry for Excel export
+const INITIAL_DOCUMENTS_LIST = [
+  {
+    id: 'АКТ-КС2-2026/088',
+    code: 'АКТ-КС2-2026/088',
+    type: 'Акт КС-2',
+    category: 'acts',
+    objectName: 'ЖК «Nomad Palace» (Блок А)',
+    customer: 'ТОО «Prime Development KZ»',
+    customerBin: '180240009871',
+    contractor: 'ТОО «QAZGOST AI»',
+    contractorBin: '240140029182',
+    date: '18.08.2026',
+    period: 'Август 2026 (Этап 3)',
+    amount: 14850000,
+    amountNet: 13258928,
+    vat: 1591072,
+    status: 'Подписан ЭЦП',
+    signedBy: 'Аскаров Б. К. (Гендиректор)',
+    items: [
+      { name: 'Устройство монолитных перекрытий 8-12 этажи', unit: 'м³', qty: 180, price: 42000, total: 7560000, code: 'ГЭСН 06-01-005' },
+      { name: 'Монтаж арматурных каркасов А500С Ø16', unit: 'т', qty: 12.5, price: 340000, total: 4250000, code: 'ГЭСН 06-01-015' },
+      { name: 'Опалубочные работы щитовые DOKA/PERI', unit: 'м²', qty: 450, price: 4800, total: 2160000, code: 'ГЭСН 06-01-020' },
+      { name: 'Уход за бетоном и электропрогрев', unit: 'м³', qty: 180, price: 4888, total: 880000, code: 'ГЭСН 06-01-032' }
+    ]
+  },
+  {
+    id: 'АКТ-КС2-2026/089',
+    code: 'АКТ-КС2-2026/089',
+    type: 'Акт КС-2',
+    category: 'acts',
+    objectName: 'ЖК «Green City» (Корпус 2)',
+    customer: 'ТОО «BI Group Engineering»',
+    customerBin: '190340011293',
+    contractor: 'ТОО «Базис-А МонолитСтрой»',
+    contractorBin: '150840003412',
+    date: '19.08.2026',
+    period: 'Август 2026',
+    amount: 8940000,
+    amountNet: 7982142,
+    vat: 957858,
+    status: 'Подписан ЭЦП',
+    signedBy: 'Хамитов А. (CEO)',
+    items: [
+      { name: 'Кладка наружных стен из газоблока D500', unit: 'м³', qty: 140, price: 28000, total: 3920000, code: 'ГЭСН 08-02-001' },
+      { name: 'Утепление фасада минераловатными плитами 100мм', unit: 'м²', qty: 580, price: 6200, total: 3596000, code: 'ГЭСН 12-01-008' },
+      { name: 'Установка оконных блоков ПВХ 5-камерных', unit: 'м²', qty: 65, price: 21900, total: 1424000, code: 'ГЭСН 10-01-034' }
+    ]
+  },
+  {
+    id: 'АКТ-КС3-2026/042',
+    code: 'АКТ-КС3-2026/042',
+    type: 'Акт КС-3',
+    category: 'acts',
+    objectName: 'Бизнес-центр «QazTech Hub»',
+    customer: 'АО «Самрук-Казына Констракшн»',
+    customerBin: '090140005521',
+    contractor: 'ТОО «QAZGOST AI»',
+    contractorBin: '240140029182',
+    date: '20.08.2026',
+    period: 'III Квартал 2026',
+    amount: 45200000,
+    amountNet: 40357142,
+    vat: 4842858,
+    status: 'На согласовании',
+    signedBy: 'Ожидает подписи технадзора',
+    items: [
+      { name: 'Справка о стоимости выполненных работ за 3 этапа', unit: 'компл', qty: 1, price: 45200000, total: 45200000, code: 'КС-3-СВОД' }
+    ]
+  },
+  {
+    id: 'СЧЕТ-KZ-2026/1049',
+    code: 'СЧЕТ-KZ-2026/1049',
+    type: 'Счет на оплату',
+    category: 'invoices',
+    objectName: 'ЖК «Nomad Palace»',
+    payer: 'ТОО «Prime Development KZ»',
+    payerBin: '180240009871',
+    receiver: 'ТОО «QAZGOST AI»',
+    receiverBin: '240140029182',
+    date: '15.08.2026',
+    dueDate: '25.08.2026',
+    purpose: 'Оплата эскроу-транша №3 за устройство монолитного каркаса',
+    bankAccount: 'KZ88926180119X00234 (Halyk Bank)',
+    amount: 14850000,
+    amountNet: 13258928,
+    vat: 1591072,
+    status: 'Зарезервировано в Эскроу',
+    paymentMethod: 'Безопасная сделка QazGost Escrow'
+  },
+  {
+    id: 'СЧЕТ-KZ-2026/1050',
+    code: 'СЧЕТ-KZ-2026/1050',
+    type: 'Счет на оплату',
+    category: 'invoices',
+    objectName: 'Коттеджный городок «Garden Hills»',
+    payer: 'Ахметов Марат Сабитович (ФЛ)',
+    payerBin: '840512301948',
+    receiver: 'ИП «Садыков Строй»',
+    receiverBin: '910304400192',
+    date: '19.08.2026',
+    dueDate: '22.08.2026',
+    purpose: 'Авансовый платеж за кровельные работы и металлочерепицу',
+    bankAccount: 'KZ45722190038A00912 (Kaspi Bank)',
+    amount: 2850000,
+    amountNet: 2544642,
+    vat: 305358,
+    status: 'Оплачен через Kaspi Pay',
+    paymentMethod: 'Kaspi QR / Pay'
+  },
+  {
+    id: 'ЭСФ-2026-003912',
+    code: 'ЭСФ-2026-003912',
+    type: 'ЭСФ (Счет-фактура)',
+    category: 'invoices',
+    objectName: 'ЖК «Астана Хаб» (СМР)',
+    payer: 'ТОО «BI Group Engineering»',
+    payerBin: '190340011293',
+    receiver: 'ТОО «QAZGOST AI»',
+    receiverBin: '240140029182',
+    date: '12.08.2026',
+    dueDate: 'Оплачен',
+    purpose: 'Электронная счет-фактура по акту КС-2 №77',
+    bankAccount: 'KZ88926180119X00234 (Halyk Bank)',
+    amount: 32600000,
+    amountNet: 29107142,
+    vat: 3492858,
+    status: 'Проведен в ИС ЭСФ',
+    paymentMethod: 'Безналичный расчет с НДС'
+  },
+  {
+    id: 'ДОГ-QG-2026/412',
+    code: 'ДОГ-QG-2026/412',
+    type: 'Договор генподряда',
+    category: 'contracts',
+    objectName: 'ЖК «Nomad Palace»',
+    subject: 'Генеральный строительный подряд и технический надзор',
+    customer: 'ТОО «Prime Development KZ»',
+    contractor: 'ТОО «QAZGOST AI»',
+    startDate: '01.03.2026',
+    endDate: '30.11.2026',
+    amount: 185000000,
+    advance: 35000000,
+    escrowDeposit: 185000000,
+    status: 'Действует (72% выполнено)',
+    warranty: '60 месяцев'
+  },
+  {
+    id: 'ДОГ-QG-2026/413',
+    code: 'ДОГ-QG-2026/413',
+    type: 'Договор подряда',
+    category: 'contracts',
+    objectName: 'ЖК «Green City»',
+    subject: 'Монтаж внутренних инженерных сетей (ОВ, ВК, ЭОМ)',
+    customer: 'ТОО «BI Group Engineering»',
+    contractor: 'ТОО «Базис-А МонолитСтрой»',
+    startDate: '15.05.2026',
+    endDate: '15.10.2026',
+    amount: 64200000,
+    advance: 12000000,
+    escrowDeposit: 64200000,
+    status: 'Действует (45% выполнено)',
+    warranty: '36 месяцев'
+  }
+];
 
 // 21 WBS Groups structure
 const WBS_GROUPS = [
@@ -62,6 +228,8 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
       setActiveTab('users');
     } else if (startTab === 'roles') {
       setActiveTab('roles');
+    } else if (startTab === 'documents') {
+      setActiveTab('documents');
     }
   }, [startTab]);
 
@@ -82,6 +250,11 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
   const [priceSearch, setPriceSearch] = useState('');
   const [pricePage, setPricePage] = useState(1);
   const pricesPerPage = 100;
+
+  // 3. DOCUMENTS & EXCEL EXPORT TAB STATES
+  const [documentsList, setDocumentsList] = useState(INITIAL_DOCUMENTS_LIST);
+  const [docsCategoryFilter, setDocsCategoryFilter] = useState('all'); // all | acts | invoices | contracts
+  const [docsSearch, setDocsSearch] = useState('');
 
   // Modals for Price Item Add/Edit & Confirm Delete
   const [priceModalOpen, setPriceModalOpen] = useState(false);
@@ -473,6 +646,9 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
           </button>
           <button className={`admin-tab-btn ${activeTab === 'roles' ? 'active' : ''}`} onClick={() => setActiveTab('roles')}>
             🔐 7. Роли
+          </button>
+          <button className={`admin-tab-btn ${activeTab === 'documents' ? 'active' : ''}`} onClick={() => setActiveTab('documents')} style={{ background: activeTab === 'documents' ? 'rgba(16, 185, 129, 0.2)' : '', borderColor: activeTab === 'documents' ? '#10b981' : '' }}>
+            📁 8. Документы & Excel ({documentsList.length})
           </button>
         </div>
 
@@ -1199,6 +1375,278 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
               {/* ──────── INTERACTIVE ROLE HIERARCHY TREE ──────── */}
               <div style={{ marginTop: '2rem' }}>
                 <RoleHierarchyTreePage hideHeader={true} />
+              </div>
+            </div>
+          )}
+
+          {/* ========================================================================= */}
+          {/* TAB 8: DOCUMENTS & EXCEL EXPORT (📁 Акты, Счета, Договоры в Excel)        */}
+          {/* ========================================================================= */}
+          {activeTab === 'documents' && (
+            <div className="admin-tab-content">
+              {/* Header with Stats & Fast Export Actions */}
+              <div className="admin-section-box" style={{ background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(59, 130, 246, 0.08))', borderColor: 'rgba(16, 185, 129, 0.3)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.2rem' }}>
+                  <div>
+                    <h2 style={{ margin: 0, fontSize: '1.25rem', color: '#fff', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span>📁</span> Выгрузка первичных документов в Excel (.xlsx)
+                    </h2>
+                    <p style={{ margin: '4px 0 0 0', color: '#94a3b8', fontSize: '0.85rem' }}>
+                      Генерация актов выполненных работ КС-2 / КС-3, счетов на оплату, ЭСФ и реестров договоров с расчетом НДС 12%
+                    </p>
+                  </div>
+                  <button
+                    className="admin-primary-btn"
+                    style={{ background: 'linear-gradient(90deg, #10b981, #059669)', padding: '10px 20px', fontWeight: '800' }}
+                    onClick={() => {
+                      exportAllDocumentsPackageExcel({
+                        acts: documentsList.filter(d => d.category === 'acts'),
+                        invoices: documentsList.filter(d => d.category === 'invoices'),
+                        contracts: documentsList.filter(d => d.category === 'contracts')
+                      });
+                      logAuditAction('DOCUMENTS', 'export_package', 'Выгружен полный сводный пакет всех документов в Excel');
+                    }}
+                  >
+                    ⚡ Скачать полный пакет (.xlsx)
+                  </button>
+                </div>
+
+                {/* 4 Quick Export Action Cards */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '12px' }}>
+                  {/* Card 1: Acts KS-2 / KS-3 */}
+                  <div
+                    style={{ background: 'rgba(15, 23, 42, 0.7)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '12px', padding: '14px', cursor: 'pointer', transition: 'all 0.2s' }}
+                    onClick={() => {
+                      const acts = documentsList.filter(d => d.category === 'acts');
+                      exportActsToExcel(acts);
+                      logAuditAction('DOCUMENTS', 'export_acts', `Выгружен реестр актов КС-2/КС-3 (${acts.length} шт)`);
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                      <span style={{ fontSize: '1.4rem' }}>📗</span>
+                      <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '12px', background: 'rgba(16, 185, 129, 0.2)', color: '#6ee7b7', fontWeight: '700' }}>
+                        {documentsList.filter(d => d.category === 'acts').length} актов
+                      </span>
+                    </div>
+                    <div style={{ fontWeight: '800', color: '#fff', fontSize: '0.95rem' }}>Акты КС-2 и КС-3</div>
+                    <div style={{ fontSize: '0.78rem', color: '#94a3b8', margin: '4px 0 10px' }}>Приемка СМР, объемы, расценки СНиП и НДС</div>
+                    <div style={{ color: '#10b981', fontSize: '0.82rem', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      📥 Скачать в Excel (.xlsx) ➔
+                    </div>
+                  </div>
+
+                  {/* Card 2: Invoices & Bills */}
+                  <div
+                    style={{ background: 'rgba(15, 23, 42, 0.7)', border: '1px solid rgba(245, 158, 11, 0.3)', borderRadius: '12px', padding: '14px', cursor: 'pointer', transition: 'all 0.2s' }}
+                    onClick={() => {
+                      const invoices = documentsList.filter(d => d.category === 'invoices');
+                      exportInvoicesToExcel(invoices);
+                      logAuditAction('DOCUMENTS', 'export_invoices', `Выгружен реестр счетов и траншей (${invoices.length} шт)`);
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                      <span style={{ fontSize: '1.4rem' }}>📙</span>
+                      <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '12px', background: 'rgba(245, 158, 11, 0.2)', color: '#fde68a', fontWeight: '700' }}>
+                        {documentsList.filter(d => d.category === 'invoices').length} счетов
+                      </span>
+                    </div>
+                    <div style={{ fontWeight: '800', color: '#fff', fontSize: '0.95rem' }}>Счета на оплату & ЭСФ</div>
+                    <div style={{ fontSize: '0.78rem', color: '#94a3b8', margin: '4px 0 10px' }}>Эскроу-транши, банковские реквизиты, Kaspi</div>
+                    <div style={{ color: '#fbbf24', fontSize: '0.82rem', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      📥 Скачать в Excel (.xlsx) ➔
+                    </div>
+                  </div>
+
+                  {/* Card 3: Contracts */}
+                  <div
+                    style={{ background: 'rgba(15, 23, 42, 0.7)', border: '1px solid rgba(59, 130, 246, 0.3)', borderRadius: '12px', padding: '14px', cursor: 'pointer', transition: 'all 0.2s' }}
+                    onClick={() => {
+                      const contracts = documentsList.filter(d => d.category === 'contracts');
+                      exportContractsToExcel(contracts);
+                      logAuditAction('DOCUMENTS', 'export_contracts', `Выгружен реестр договоров (${contracts.length} шт)`);
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                      <span style={{ fontSize: '1.4rem' }}>📘</span>
+                      <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '12px', background: 'rgba(59, 130, 246, 0.2)', color: '#93c5fd', fontWeight: '700' }}>
+                        {documentsList.filter(d => d.category === 'contracts').length} договоров
+                      </span>
+                    </div>
+                    <div style={{ fontWeight: '800', color: '#fff', fontSize: '0.95rem' }}>Договоры генподряда</div>
+                    <div style={{ fontSize: '0.78rem', color: '#94a3b8', margin: '4px 0 10px' }}>Сроки, авансы, гарантии и эскроу-депозиты</div>
+                    <div style={{ color: '#60a5fa', fontSize: '0.82rem', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      📥 Скачать в Excel (.xlsx) ➔
+                    </div>
+                  </div>
+
+                  {/* Card 4: Full Summary */}
+                  <div
+                    style={{ background: 'rgba(15, 23, 42, 0.7)', border: '1px solid rgba(139, 92, 246, 0.3)', borderRadius: '12px', padding: '14px', cursor: 'pointer', transition: 'all 0.2s' }}
+                    onClick={() => {
+                      exportAllDocumentsPackageExcel({
+                        acts: documentsList.filter(d => d.category === 'acts'),
+                        invoices: documentsList.filter(d => d.category === 'invoices'),
+                        contracts: documentsList.filter(d => d.category === 'contracts')
+                      });
+                      logAuditAction('DOCUMENTS', 'export_summary', 'Выгружена сводная ведомость учета');
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                      <span style={{ fontSize: '1.4rem' }}>📊</span>
+                      <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '12px', background: 'rgba(139, 92, 246, 0.2)', color: '#c4b5fd', fontWeight: '700' }}>
+                        Сводный учет
+                      </span>
+                    </div>
+                    <div style={{ fontWeight: '800', color: '#fff', fontSize: '0.95rem' }}>Финансовый аудит 2026</div>
+                    <div style={{ fontSize: '0.78rem', color: '#94a3b8', margin: '4px 0 10px' }}>Сводная ведомость по всем контрагентам РК</div>
+                    <div style={{ color: '#a78bfa', fontSize: '0.82rem', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      📥 Экспорт всех книг (.xlsx) ➔
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Filter Controls & Search */}
+              <div className="admin-controls-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px', margin: '1.5rem 0 1rem' }}>
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                  <button
+                    className={`admin-filter-chip ${docsCategoryFilter === 'all' ? 'active' : ''}`}
+                    onClick={() => setDocsCategoryFilter('all')}
+                  >
+                    📋 Все документы ({documentsList.length})
+                  </button>
+                  <button
+                    className={`admin-filter-chip ${docsCategoryFilter === 'acts' ? 'active' : ''}`}
+                    onClick={() => setDocsCategoryFilter('acts')}
+                  >
+                    📗 Акты КС-2/КС-3 ({documentsList.filter(d => d.category === 'acts').length})
+                  </button>
+                  <button
+                    className={`admin-filter-chip ${docsCategoryFilter === 'invoices' ? 'active' : ''}`}
+                    onClick={() => setDocsCategoryFilter('invoices')}
+                  >
+                    📙 Счета на оплату ({documentsList.filter(d => d.category === 'invoices').length})
+                  </button>
+                  <button
+                    className={`admin-filter-chip ${docsCategoryFilter === 'contracts' ? 'active' : ''}`}
+                    onClick={() => setDocsCategoryFilter('contracts')}
+                  >
+                    📘 Договоры ({documentsList.filter(d => d.category === 'contracts').length})
+                  </button>
+                </div>
+
+                <div style={{ minWidth: '240px' }}>
+                  <input
+                    type="text"
+                    className="admin-search-input"
+                    placeholder="🔎 Поиск по номеру, объекту, БИН..."
+                    value={docsSearch}
+                    onChange={(e) => setDocsSearch(e.target.value)}
+                    style={{ width: '100%' }}
+                  />
+                </div>
+              </div>
+
+              {/* Documents Table with Individual One-Click Excel Export */}
+              <div className="admin-section-box" style={{ overflowX: 'auto' }}>
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>№ Документа</th>
+                      <th>Тип</th>
+                      <th>Объект / Назначение</th>
+                      <th>Контрагент (Заказчик / Плательщик)</th>
+                      <th>Дата</th>
+                      <th style={{ textAlign: 'right' }}>Сумма с НДС (₸)</th>
+                      <th>Статус</th>
+                      <th style={{ textAlign: 'center' }}>Excel Экспорт</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {documentsList
+                      .filter(d => {
+                        if (docsCategoryFilter !== 'all' && d.category !== docsCategoryFilter) return false;
+                        if (docsSearch) {
+                          const q = docsSearch.toLowerCase();
+                          return (d.id || '').toLowerCase().includes(q) ||
+                            (d.objectName || '').toLowerCase().includes(q) ||
+                            (d.customer || '').toLowerCase().includes(q) ||
+                            (d.payer || '').toLowerCase().includes(q) ||
+                            (d.type || '').toLowerCase().includes(q);
+                        }
+                        return true;
+                      })
+                      .map((doc) => (
+                        <tr key={doc.id}>
+                          <td>
+                            <strong>{doc.id}</strong>
+                          </td>
+                          <td>
+                            <span className="cat-chip" style={{
+                              background: doc.category === 'acts' ? 'rgba(16, 185, 129, 0.15)' :
+                                doc.category === 'invoices' ? 'rgba(245, 158, 11, 0.15)' : 'rgba(59, 130, 246, 0.15)',
+                              color: doc.category === 'acts' ? '#6ee7b7' :
+                                doc.category === 'invoices' ? '#fde68a' : '#93c5fd',
+                              border: `1px solid ${doc.category === 'acts' ? 'rgba(16, 185, 129, 0.3)' :
+                                doc.category === 'invoices' ? 'rgba(245, 158, 11, 0.3)' : 'rgba(59, 130, 246, 0.3)'}`
+                            }}>
+                              {doc.type}
+                            </span>
+                          </td>
+                          <td>
+                            <div style={{ fontWeight: '600', color: '#fff' }}>{doc.objectName || doc.purpose}</div>
+                            {doc.period && <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Период: {doc.period}</div>}
+                          </td>
+                          <td>
+                            <div style={{ color: '#cbd5e1' }}>{doc.customer || doc.payer}</div>
+                            {(doc.customerBin || doc.payerBin) && (
+                              <div style={{ fontSize: '0.75rem', color: '#64748b' }}>БИН/ИИН: {doc.customerBin || doc.payerBin}</div>
+                            )}
+                          </td>
+                          <td style={{ color: '#94a3b8', fontSize: '0.85rem' }}>{doc.date || doc.startDate}</td>
+                          <td style={{ textAlign: 'right', fontWeight: '800', color: '#fbbf24' }}>
+                            {Number(doc.amount || 0).toLocaleString()} ₸
+                          </td>
+                          <td>
+                            <span style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '4px',
+                              padding: '2px 8px',
+                              borderRadius: '6px',
+                              fontSize: '0.75rem',
+                              fontWeight: '700',
+                              background: (doc.status || '').includes('Подписан') || (doc.status || '').includes('Оплачен') || (doc.status || '').includes('Действует') ? 'rgba(16, 185, 129, 0.15)' : 'rgba(245, 158, 11, 0.15)',
+                              color: (doc.status || '').includes('Подписан') || (doc.status || '').includes('Оплачен') || (doc.status || '').includes('Действует') ? '#6ee7b7' : '#fde68a'
+                            }}>
+                              {(doc.status || '').includes('Подписан') ? '✅' : (doc.status || '').includes('Оплачен') ? '💳' : '⏳'} {doc.status}
+                            </span>
+                          </td>
+                          <td style={{ textAlign: 'center' }}>
+                            <button
+                              className="admin-primary-btn"
+                              style={{
+                                background: 'linear-gradient(90deg, #10b981, #0ea5e9)',
+                                padding: '5px 12px',
+                                fontSize: '0.78rem',
+                                borderRadius: '8px',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '4px'
+                              }}
+                              onClick={() => {
+                                exportSingleDocumentExcel(doc);
+                                logAuditAction('DOCUMENTS', 'export_single', `Выгружен документ в Excel: ${doc.id}`);
+                              }}
+                              title="Скачать документ в формате Excel (.xlsx)"
+                            >
+                              📥 Excel
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
               </div>
             </div>
           )}
