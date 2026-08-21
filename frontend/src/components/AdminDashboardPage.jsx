@@ -102,6 +102,16 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
       color: '#f59e0b',
       glow: 'rgba(245, 158, 11, 0.45)',
       badge: 'ROOT'
+    },
+    {
+      id: 'analyst',
+      title: 'Я Аналитик',
+      shortLabel: 'Аналитик',
+      icon: '📊',
+      desc: 'Финальная отчётность, проверка документации, PDF-экспорт',
+      color: '#8b5cf6',
+      glow: 'rgba(139, 92, 246, 0.45)',
+      badge: 'QA'
     }
   ];
 
@@ -167,6 +177,13 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
       { id: 'adm-kpi', title: 'KPI Платформы', icon: '📊', desc: 'Метрики скорости расчётов, точности AI и загрузки серверов', btnText: '📊 Открыть KPI', btnGradient: 'linear-gradient(90deg, #10b981, #06b6d4)' },
       { id: 'adm-disputes', title: 'Споры и арбитраж', icon: '⚖️', desc: 'Рассмотрение претензий по качеству работ и разблокировка эскроу', btnText: '⚖️ Разрешить спор', btnGradient: 'linear-gradient(90deg, #f59e0b, #ef4444)' },
       { id: 'adm-contracts', title: 'Договоры подряда', icon: '📄', desc: 'Шаблоны договоров строительного подряда с поддержкой ЭЦП E-Gov', btnText: '📄 Реестр договоров', btnGradient: 'linear-gradient(90deg, #2563eb, #10b981)' },
+    ],
+
+    analyst: [
+      { id: 'an-queue', title: 'Очередь завершённых заявок', icon: '📋', desc: 'Заявки, закрытые исполнителями и переданные аналитику для финальной отчётности', btnText: '📋 Открыть очередь', btnGradient: 'linear-gradient(90deg, #8b5cf6, #6366f1)' },
+      { id: 'an-reports', title: 'PDF-отчёты и экспорт', icon: '📄', desc: 'Формирование итоговых отчётов с фотографиями, файлами и хронологией работ', btnText: '📄 Генератор отчётов', btnGradient: 'linear-gradient(90deg, #ef4444, #f59e0b)' },
+      { id: 'an-stats', title: 'Статистика проделанных работ', icon: '📊', desc: 'Сводная аналитика по объектам, бригадам, бюджетам и срокам выполнения', btnText: '📊 Смотреть статистику', btnGradient: 'linear-gradient(90deg, #10b981, #0ea5e9)' },
+      { id: 'an-files', title: 'Архив документации', icon: '📎', desc: 'Договоры, акты КС-2/КС-3, заключения технадзора и гарантийные обязательства', btnText: '📎 Открыть архив', btnGradient: 'linear-gradient(90deg, #3b82f6, #8b5cf6)' },
     ]
   };
 

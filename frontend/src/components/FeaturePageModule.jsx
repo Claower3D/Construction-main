@@ -15,6 +15,7 @@ import SmartPhotoEstimatePage from './SmartPhotoEstimatePage';
 import BuildingConstructionPage from './BuildingConstructionPage';
 import MaterialsMarketplacePage from './MaterialsMarketplacePage';
 import RoleHierarchyTreePage from './RoleHierarchyTreePage';
+import AnalystDashboardPage from './AnalystDashboardPage';
 import { calculateSmartEstimate, evaluateDefectScan } from '../services/smartEstimateEngine';
 import { getBalanceKZT, topupBalance } from '../services/walletEngine';
 import { getOrders } from '../services/dataService';
@@ -506,6 +507,11 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
         {/* 6b. ROLE HIERARCHY ORG TREE (comp-tree / adm-tree / tree) */}
         {(itemId === 'comp-tree' || itemId === 'adm-tree' || itemId?.includes('tree')) && (
           <RoleHierarchyTreePage onBack={onBack} hideHeader={true} />
+        )}
+
+        {/* 6c. ANALYST WORKSPACE (an-queue / an-reports / an-stats / an-files) */}
+        {(itemId?.startsWith('an-')) && (
+          <AnalystDashboardPage onBack={onBack} hideHeader={true} />
         )}
 
         {/* 7. WALLET & ESCROW (c-wallet / e-wallet) */}

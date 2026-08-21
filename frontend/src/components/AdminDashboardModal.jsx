@@ -105,6 +105,7 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
     { id: 'U-003', name: 'Ерлан Сатов', role: 'engineer', roleLabel: 'Инженер', email: 'satov.eng@qazgost.kz', phone: '+7 705 777-88-99', city: 'Караганда', source: 'Демо', status: 'active', rating: '5.0' },
     { id: 'U-004', name: 'Айнур Рахимова', role: 'admin', roleLabel: 'Администратор', email: 'manager@qazgost.kz', phone: '+7 777 999-00-11', city: 'Алматы', source: 'Админ', status: 'active', rating: '5.0' },
     { id: 'U-005', name: 'ИП «ТемирСтрой»', role: 'executor', roleLabel: 'Исполнитель', email: 'info@temirstroy.kz', phone: '+7 707 444-55-66', city: 'Шымкент', source: 'Новый', status: 'blocked', rating: '3.2' },
+    { id: 'U-006', name: 'Нуркенов Асхат', role: 'analyst', roleLabel: 'Аналитик', email: 'analyst@qazgost.kz', phone: '+7 708 222-33-44', city: 'Алматы', source: 'QazGost', status: 'active', rating: '5.0' },
   ]);
   const [userRoleFilter, setUserRoleFilter] = useState('all'); // all | customer | executor | engineer | admin
   const [userSearch, setUserSearch] = useState('');
@@ -143,7 +144,8 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
     { id: 'executor', name: 'Исполнитель', icon: '🔧', description: 'Выполнение строительно-монтажных работ' },
     { id: 'engineer', name: 'Инженер', icon: '👷', description: 'Технический надзор и экспертиза' },
     { id: 'admin', name: 'Администратор', icon: '⚙️', description: 'Полный доступ к управлению системой' },
-    { id: 'manager', name: 'Аккаунт Менеджер', icon: '💼', description: 'Поддержка клиентов и модерация' }
+    { id: 'manager', name: 'Аккаунт Менеджер', icon: '💼', description: 'Поддержка клиентов и модерация' },
+    { id: 'analyst', name: 'Аналитик', icon: '📊', description: 'Финальная отчётность, проверка документации, PDF-экспорт и архивация' }
   ]);
   const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
   const [editingRole, setEditingRole] = useState(null);
