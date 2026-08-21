@@ -5,6 +5,7 @@ import CompanyDashboardPage from './CompanyDashboardPage';
 import AdminDashboardModal from './AdminDashboardModal';
 import FeaturePageModule from './FeaturePageModule';
 import CrmPage from './CrmPage';
+import BuildingConstructionPage from './BuildingConstructionPage';
 
 export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userRole = 'customer', currentUser }) {
   // Active selected role ('customer' | 'executor' | 'engineer' | 'company' | 'manager' | 'admin')
@@ -43,6 +44,16 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
 
   // Roles Definition
   const roles = [
+    {
+      id: 'builder',
+      title: 'Я Застройщик (VIP)',
+      shortLabel: 'Застройщик',
+      icon: '🏗️',
+      desc: 'Капитальное строительство зданий, ПСД, сметы СНиП и генподряд',
+      color: '#6366f1',
+      glow: 'rgba(99, 102, 241, 0.45)',
+      badge: 'VIP'
+    },
     {
       id: 'customer',
       title: 'Я Заказчик',
@@ -117,6 +128,16 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
 
   // Dynamic cards configuration for each role
   const roleCardsData = {
+    builder: [
+      { id: 'b-objects', title: 'Мои строительные объекты', icon: '🏢', desc: 'Управление портфелем ЖК, БЦ и коттеджных городков с 3D BIM-моделями', btnText: '🏢 Мои объекты', btnGradient: 'linear-gradient(90deg, #6366f1, #3b82f6)' },
+      { id: 'b-create', title: 'Создать объект (СНиП)', icon: '➕', desc: 'Выбор типа объекта, этажности и проверка допуска компаний ГАСК', btnText: '➕ Создать объект', btnGradient: 'linear-gradient(90deg, #10b981, #059669)' },
+      { id: 'b-wbs', title: 'Выбор СМР & Оценка', icon: '📐', desc: 'WBS-калькулятор стоимости работ по сборникам ГЭСН-2026 РК', btnText: '📐 Калькулятор СМР', btnGradient: 'linear-gradient(90deg, #38bdf8, #2563eb)' },
+      { id: 'b-audit', title: 'Инженерный фото-аудит', icon: '🔍', desc: 'AI-проверка чертежей КЖ/АР, замечания технадзора и дефектовка', btnText: '🔍 AI Экспертиза', btnGradient: 'linear-gradient(90deg, #8b5cf6, #ec4899)' },
+      { id: 'b-lots', title: 'Лоты & Тендеры', icon: '📦', desc: 'Публикация строительных лотов в "Мои Заказы Строительство"', btnText: '📦 Лоты и тендеры', btnGradient: 'linear-gradient(90deg, #f59e0b, #d97706)' },
+      { id: 'b-docs', title: 'Сметы & Документы PDF', icon: '📄', desc: 'Локальные сметы СНиП, аналитика прогресса и акты КС-2/КС-3', btnText: '📄 Скачать PDF', btnGradient: 'linear-gradient(90deg, #3b82f6, #06b6d4)' },
+      { id: 'b-contractors', title: 'Реестр подрядчиков', icon: '🛡️', desc: 'Проверка лицензий ГАСК I/II категории, БИН и контакты ГИП', btnText: '🛡️ База подрядчиков', btnGradient: 'linear-gradient(90deg, #0ea5e9, #10b981)' },
+    ],
+
     customer: [
       { id: 'c-materials', title: 'Маркетплейс материалов', icon: '🧱', desc: 'Оптовые и розничные стройматериалы от заводов РК: цемент, кирпич, арматура, смеси', btnText: '🧱 Открыть маркетплейс', btnGradient: 'linear-gradient(90deg, #10b981, #3b82f6)' },
       { id: 'c-estimate', title: 'Оценка стоимости', icon: '📊', desc: 'Загрузите фото → AI-анализ → смета за 2 сек... 3 сценария цены', btnText: '🚀 Начать оценку', btnGradient: 'linear-gradient(90deg, #38bdf8, #2563eb)' },
@@ -191,7 +212,7 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
 
   // Visually hide 'company', 'admin', and 'analyst' role cards as requested. Show 4 main roles.
   const visibleRoles = (() => {
-    const allowedRoleIds = ['customer', 'executor', 'engineer', 'manager'];
+    const allowedRoleIds = ['customer', 'executor', 'builder', 'engineer', 'manager'];
     return roles.filter(r => allowedRoleIds.includes(r.id));
   })();
 
@@ -200,7 +221,11 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
 
   const handleSelectRole = (roleKey) => {
     setSelectedRole(roleKey);
-    if (roleKey === 'manager' || roleKey === 'crm') {
+    if (roleKey === 'builder' || roleKey === 'vip') {
+      setEmbeddedModule('builder');
+      setSelectedItemId('b-objects');
+      setSelectedItemObject(roleCardsData.builder ? roleCardsData.builder[0] : null);
+    } else if (roleKey === 'manager' || roleKey === 'crm') {
       setEmbeddedModule('crm');
       setSelectedItemId('mgr-crm');
       setSelectedItemObject(roleCardsData.manager ? roleCardsData.manager[0] : null);
@@ -223,8 +248,13 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
     setSelectedItemId(item.id);
     setIsMobileSidebarOpen(false);
     
+    // Check if it's builder module
+    if (item.id.startsWith('b-') || item.id === 'c-vip' || item.id === 'e-vip') {
+      setEmbeddedModule('builder');
+      setSelectedItemObject(item);
+    }
     // Check if it's admin section
-    if (item.id.startsWith('adm-')) {
+    else if (item.id.startsWith('adm-')) {
       setEmbeddedModule('admin_panel');
       setSelectedItemObject(item);
     } 
@@ -567,6 +597,12 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
                   currentUser={currentUser} 
                   userRole={userRole} 
                 />
+              )}
+
+              {embeddedModule === 'builder' && (
+                <div style={{ height: '100%', width: '100%', minHeight: '80vh', position: 'relative' }}>
+                  <BuildingConstructionPage onBack={handleBackToCardMenu} hideHeader={false} />
+                </div>
               )}
 
               {embeddedModule === 'crm' && (
