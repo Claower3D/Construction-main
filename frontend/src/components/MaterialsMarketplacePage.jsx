@@ -282,6 +282,19 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
     setCart(cart.filter(c => c.id !== productId));
   };
 
+  const handleCartQtyChange = (productId, delta) => {
+    setCart(cart.map(c => {
+      if (c.id !== productId) return c;
+      const newCount = Math.max(1, c.count + delta);
+      return { ...c, count: newCount };
+    }));
+  };
+
+  const handleClearCart = () => {
+    setCart([]);
+    showToast('🗑️ Корзина очищена');
+  };
+
   // Cart Totals
   const cartSubtotal = useMemo(() => {
     return cart.reduce((acc, item) => acc + (item.price * item.count), 0);
@@ -712,8 +725,19 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
               <h3>
                 <span>🛒</span>
                 <span>Корзина заказа</span>
+                {cart.length > 0 && <span style={{ fontSize: '.82rem', color: '#94a3b8', marginLeft: 6 }}>({cart.length} поз.)</span>}
               </h3>
-              <button className="mmp-btn-close-cart" onClick={() => setIsCartOpen(false)}>✕</button>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                {cart.length > 0 && (
+                  <button 
+                    onClick={handleClearCart}
+                    style={{ background: 'rgba(239,68,68,.12)', border: '1px solid rgba(239,68,68,.3)', color: '#ef4444', padding: '6px 12px', borderRadius: '8px', fontSize: '.78rem', fontWeight: 700, cursor: 'pointer' }}
+                  >
+                    🗑️ Очистить
+                  </button>
+                )}
+                <button className="mmp-btn-close-cart" onClick={() => setIsCartOpen(false)}>✕</button>
+              </div>
             </div>
 
             <div className="mmp-cart-items-list">
@@ -729,16 +753,34 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
                     <img src={item.image} alt={item.title} />
                     <div className="mmp-ci-info">
                       <div className="mmp-ci-title">{item.title}</div>
+                      <div style={{ fontSize: '.75rem', color: '#64748b', marginBottom: 4 }}>
+                        {item.supplier} • {item.city}
+                      </div>
                       <div className="mmp-ci-price">
                         {(item.price * item.count).toLocaleString()} ₸
-                        <span style={{ fontSize: '0.75rem', color: '#94a3b8', marginLeft: '6px' }}>
-                          ({item.count} × {item.price.toLocaleString()} ₸)
+                        <span style={{ fontSize: '0.72rem', color: '#94a3b8', marginLeft: '6px' }}>
+                          ({item.count} × {item.price.toLocaleString()} ₸/{item.unit})
+                        </span>
+                      </div>
+                      {/* Qty Controls */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 6 }}>
+                        <button 
+                          onClick={() => handleCartQtyChange(item.id, -1)}
+                          style={{ width: 28, height: 28, borderRadius: 7, background: 'rgba(255,255,255,.06)', border: '1px solid rgba(255,255,255,.12)', color: '#fff', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '.9rem' }}
+                        >−</button>
+                        <span style={{ minWidth: 32, textAlign: 'center', fontWeight: 800, color: '#fff', fontSize: '.92rem' }}>{item.count}</span>
+                        <button 
+                          onClick={() => handleCartQtyChange(item.id, 1)}
+                          style={{ width: 28, height: 28, borderRadius: 7, background: 'rgba(16,185,129,.15)', border: '1px solid rgba(16,185,129,.3)', color: '#6ee7b7', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '.9rem' }}
+                        >+</button>
+                        <span style={{ fontSize: '.72rem', color: '#64748b', marginLeft: 4 }}>
+                          {item.unit} • {((item.weightKg || 10) * item.count)} кг
                         </span>
                       </div>
                     </div>
                     <button 
                       onClick={() => handleRemoveFromCart(item.id)}
-                      style={{ background: 'transparent', border: 'none', color: '#ef4444', fontSize: '1.2rem', cursor: 'pointer', padding: '4px' }}
+                      style={{ background: 'transparent', border: 'none', color: '#ef4444', fontSize: '1.2rem', cursor: 'pointer', padding: '4px', flexShrink: 0 }}
                       title="Удалить"
                     >
                       ✕
@@ -751,7 +793,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
             {cart.length > 0 && (
               <div className="mmp-cart-footer">
                 <div className="mmp-cart-total-row">
-                  <span>Стоимость товаров:</span>
+                  <span>Стоимость товаров ({cart.reduce((s, c) => s + c.count, 0)} ед.):</span>
                   <strong>{cartSubtotal.toLocaleString()} ₸</strong>
                 </div>
 
