@@ -188,16 +188,10 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
     ]
   };
 
-  // Only Admin can see/switch all roles. Non-admin users only see their own role. Guests see public roles.
+  // Visually hide 'company', 'admin', and 'analyst' role cards as requested. Show 4 main roles.
   const visibleRoles = (() => {
-    if (currentUser?.role === 'admin') {
-      return roles;
-    }
-    if (currentUser?.role) {
-      const myRoleObj = roles.find(r => r.id === currentUser.role);
-      return myRoleObj ? [myRoleObj] : roles.filter(r => ['customer', 'executor', 'engineer'].includes(r.id));
-    }
-    return roles.filter(r => ['customer', 'executor', 'engineer'].includes(r.id));
+    const allowedRoleIds = ['customer', 'executor', 'engineer', 'manager'];
+    return roles.filter(r => allowedRoleIds.includes(r.id));
   })();
 
   const activeRoleObj = roles.find((r) => r.id === selectedRole) || visibleRoles[0] || roles[0];
