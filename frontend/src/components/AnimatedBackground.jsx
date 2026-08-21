@@ -670,7 +670,7 @@ export default function AnimatedBackground() {
         ctx.stroke();
       }
 
-      // ── REALISTIC WINDOWS & BALCONIES ──
+      // ── REALISTIC DYNAMIC WINDOWS (TURNING ON & OFF, FLICKERING, TV LIGHTS) ──
       const winPaddingX = colW * 0.18;
       const winW = colW * 0.64;
       const winH = floorH * 0.58;
@@ -687,36 +687,82 @@ export default function AnimatedBackground() {
           const winSeed = b.seed + f * 37 + c * 13;
           const randVal = seededRandom(winSeed);
 
-          // Window states: 0=Warm Light, 1=Amber Gold, 2=Cool Sky Blue, 3=Dark/Reflective
-          if (randVal > 0.42) {
-            // Lit Window
-            let winColor = '#ffd27d'; // Default warm apartment light
-            let glowAlpha = 0.65;
+          // Window Dynamic Behavior Classification
+          const isTogglingWindow = (winSeed % 3 === 0);  // ~33% of windows dynamically switch on/off
+          const isTvRoom = (winSeed % 7 === 0);          // ~14% of rooms have dynamic TV glow
+          const switchSpeed = 0.2 + (winSeed % 5) * 0.15; // Switching cycle speed
+          const phaseOffset = (winSeed * 17.13) % (Math.PI * 2);
+          const rawCycle = Math.sin(tick * switchSpeed + phaseOffset);
 
-            if (randVal > 0.82) {
-              winColor = '#93c5fd'; // Cool modern LED/TV glow
-              glowAlpha = 0.55;
-            } else if (randVal > 0.65) {
-              winColor = '#fbbf24'; // Warm amber chandelier
-              glowAlpha = 0.75;
+          let isLit = false;
+          let winColor = '#ffd27d'; // Warm apartment light
+          let glowIntensity = 1.0;
+
+          if (isTvRoom) {
+            // TV room with live animated flickering/channel changing
+            isLit = true;
+            const tvFlicker = Math.sin(tick * 9 + winSeed) * Math.cos(tick * 14 + winSeed * 2);
+            if (tvFlicker > 0.3) {
+              winColor = '#93c5fd'; // Cool LED TV screen
+            } else if (tvFlicker < -0.3) {
+              winColor = '#818cf8'; // Neon movie scene
+            } else {
+              winColor = '#fef08a'; // Warm scene
+            }
+            glowIntensity = 0.55 + Math.abs(tvFlicker) * 0.45;
+          } else if (isTogglingWindow) {
+            // Living apartment where lights are turned ON and OFF over time
+            const threshold = 0.05 + ((winSeed % 4) - 2) * 0.15;
+            isLit = rawCycle > threshold;
+
+            // Realistic switch flicker when turning on/off
+            const distToThreshold = Math.abs(rawCycle - threshold);
+            if (distToThreshold < 0.06) {
+              // Rapid flicker during switch toggle
+              isLit = Math.sin(tick * 35 + winSeed * 5) > 0;
             }
 
-            // Subtle breathing glow
-            const breathe = Math.sin(tick * 2 + winSeed) * 0.08;
+            if (winSeed % 2 === 0) {
+              winColor = '#fbbf24'; // Warm amber
+            } else {
+              winColor = '#ffe4a0'; // Soft warm white
+            }
+            glowIntensity = 0.75 + Math.sin(tick * 2.5 + winSeed) * 0.12;
+          } else {
+            // Baseline steady windows (either on or dark)
+            const baselineLit = randVal > 0.42;
+            isLit = baselineLit;
+
+            if (randVal > 0.82) {
+              winColor = '#93c5fd'; // Cool workspace
+            } else if (randVal > 0.65) {
+              winColor = '#fbbf24'; // Amber lamp
+            } else {
+              winColor = '#ffd27d'; // Cozy living room
+            }
+            glowIntensity = 0.70 + Math.sin(tick * 2 + winSeed) * 0.10;
+          }
+
+          if (isLit) {
+            // ── LIT WINDOW APERTURE ──
             ctx.fillStyle = winColor;
             ctx.shadowColor = winColor;
-            ctx.shadowBlur = 6;
+            ctx.shadowBlur = 8 * glowIntensity;
             ctx.fillRect(wx, wy, winW, winH);
             ctx.shadowBlur = 0;
 
-            // Window division frames
-            ctx.strokeStyle = 'rgba(15, 23, 42, 0.6)';
-            ctx.lineWidth = 0.7;
+            // Window division frame (Mullions)
+            ctx.strokeStyle = 'rgba(15, 23, 42, 0.75)';
+            ctx.lineWidth = 0.8;
             ctx.strokeRect(wx, wy, winW, winH);
             ctx.beginPath();
             ctx.moveTo(wx + winW * 0.5, wy);
             ctx.lineTo(wx + winW * 0.5, wy + winH);
             ctx.stroke();
+
+            // Light spill over facade below window
+            ctx.fillStyle = winColor === '#93c5fd' ? 'rgba(147, 197, 253, 0.15)' : 'rgba(255, 210, 125, 0.18)';
+            ctx.fillRect(wx - 1, wy + winH, winW + 2, 2);
 
             // Balcony for some floors
             if (b.hasBalconies && f % 2 === 0 && (c === 0 || c === b.cols - 1 || c === Math.floor(b.cols / 2))) {
@@ -724,20 +770,29 @@ export default function AnimatedBackground() {
               ctx.fillStyle = '#334155';
               ctx.fillRect(wx - 2, wy + winH + 1, winW + 4, 3);
 
-              // Glass balcony railing
+              // Glass balcony railing with warm reflection
               ctx.fillStyle = 'rgba(56, 189, 248, 0.35)';
-              ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+              ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
               ctx.lineWidth = 0.6;
               ctx.fillRect(wx - 2, wy + winH - 3, winW + 4, 4);
               ctx.strokeRect(wx - 2, wy + winH - 3, winW + 4, 4);
             }
           } else {
-            // Dark Reflective Glass Window
-            ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
+            // ── DARK / OFF WINDOW ──
+            // Reflective dark glass
+            ctx.fillStyle = 'rgba(11, 17, 32, 0.92)';
             ctx.fillRect(wx, wy, winW, winH);
 
-            // Reflection sheen
-            ctx.strokeStyle = 'rgba(56, 189, 248, 0.12)';
+            // Diagonal sky sheen reflection
+            const sheenGrad = ctx.createLinearGradient(wx, wy, wx + winW, wy + winH);
+            sheenGrad.addColorStop(0, 'rgba(56, 189, 248, 0.12)');
+            sheenGrad.addColorStop(0.5, 'rgba(15, 23, 42, 0.2)');
+            sheenGrad.addColorStop(1, 'rgba(56, 189, 248, 0.04)');
+            ctx.fillStyle = sheenGrad;
+            ctx.fillRect(wx, wy, winW, winH);
+
+            // Window frame border
+            ctx.strokeStyle = 'rgba(56, 189, 248, 0.10)';
             ctx.lineWidth = 0.6;
             ctx.strokeRect(wx, wy, winW, winH);
           }
