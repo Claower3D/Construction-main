@@ -23,6 +23,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
   const [isScanning, setIsScanning] = useState(false);
   const [scanStep, setScanStep] = useState('');
   const [calculatedEstimate, setCalculatedEstimate] = useState(null);
+  const [selectedScenario, setSelectedScenario] = useState('standard'); // 'economy' | 'standard' | 'premium'
   const [createdOrderInfo, setCreatedOrderInfo] = useState(null);
   const [toastMessage, setToastMessage] = useState(null);
 
@@ -910,9 +911,72 @@ ${!isCategorySkipped ? `Предполагаемая категория рабо
             )}
           </div>
 
+          {/* 3 Price Scenarios Tabs */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', margin: '14px 0 16px' }}>
+            <button
+              type="button"
+              onClick={() => setSelectedScenario('economy')}
+              style={{
+                background: selectedScenario === 'economy' ? 'rgba(16,185,129,0.2)' : 'rgba(255,255,255,0.03)',
+                border: selectedScenario === 'economy' ? '2px solid #10b981' : '1px solid rgba(255,255,255,0.08)',
+                color: selectedScenario === 'economy' ? '#6ee7b7' : '#94a3b8',
+                padding: '10px 8px',
+                borderRadius: '10px',
+                cursor: 'pointer',
+                textAlign: 'center',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              <div style={{ fontSize: '0.78rem', fontWeight: 700 }}>🟢 Эконом (-15%)</div>
+              <div style={{ fontSize: '0.95rem', fontWeight: 900, color: '#fff', marginTop: '2px' }}>
+                {Math.round((calculatedEstimate.total || 150000) * 0.85).toLocaleString()} ₸
+              </div>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setSelectedScenario('standard')}
+              style={{
+                background: selectedScenario === 'standard' ? 'rgba(56,189,248,0.2)' : 'rgba(255,255,255,0.03)',
+                border: selectedScenario === 'standard' ? '2px solid #38bdf8' : '1px solid rgba(255,255,255,0.08)',
+                color: selectedScenario === 'standard' ? '#38bdf8' : '#94a3b8',
+                padding: '10px 8px',
+                borderRadius: '10px',
+                cursor: 'pointer',
+                textAlign: 'center',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              <div style={{ fontSize: '0.78rem', fontWeight: 700 }}>🔵 Стандарт (СНиП)</div>
+              <div style={{ fontSize: '0.95rem', fontWeight: 900, color: '#fff', marginTop: '2px' }}>
+                {(calculatedEstimate.total || 150000).toLocaleString()} ₸
+              </div>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setSelectedScenario('premium')}
+              style={{
+                background: selectedScenario === 'premium' ? 'rgba(168,85,247,0.2)' : 'rgba(255,255,255,0.03)',
+                border: selectedScenario === 'premium' ? '2px solid #a855f7' : '1px solid rgba(255,255,255,0.08)',
+                color: selectedScenario === 'premium' ? '#c084fc' : '#94a3b8',
+                padding: '10px 8px',
+                borderRadius: '10px',
+                cursor: 'pointer',
+                textAlign: 'center',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              <div style={{ fontSize: '0.78rem', fontWeight: 700 }}>🟣 Премиум (+25%)</div>
+              <div style={{ fontSize: '0.95rem', fontWeight: 900, color: '#fff', marginTop: '2px' }}>
+                {Math.round((calculatedEstimate.total || 150000) * 1.25).toLocaleString()} ₸
+              </div>
+            </button>
+          </div>
+
           {calculatedEstimate.total > 0 && (
             <div className="spe-res-sum">
-              {calculatedEstimate.total.toLocaleString()} ₸
+              {Math.round((calculatedEstimate.total || 150000) * (selectedScenario === 'economy' ? 0.85 : (selectedScenario === 'premium' ? 1.25 : 1.0))).toLocaleString()} ₸
             </div>
           )}
 
@@ -1018,18 +1082,21 @@ ${!isCategorySkipped ? `Предполагаемая категория рабо
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '10px' }}>
                 <button
                   onClick={() => {
+                    const mult = selectedScenario === 'economy' ? 0.85 : (selectedScenario === 'premium' ? 1.25 : 1.0);
+                    const finalAmount = Math.round((calculatedEstimate.total || 1500000) * mult);
+                    const scenarioName = selectedScenario === 'economy' ? 'Эконом' : (selectedScenario === 'premium' ? 'Премиум' : 'Стандарт');
                     const newOrder = createPlatformOrder({
-                      title: `СМР по смете: ${calculatedEstimate.category || 'Комплексный ремонт'}`,
+                      title: `СМР по смете (${scenarioName}): ${calculatedEstimate.category || 'Комплексный ремонт'}`,
                       category: calculatedEstimate.category || 'Отделочные работы',
-                      amount: calculatedEstimate.total || 1500000,
-                      budget: `${(calculatedEstimate.total || 1500000).toLocaleString()} ₸`,
-                      description: `Смета сформирована Vision AI по фото. Работы: ${(calculatedEstimate.worksCost || 0).toLocaleString()} ₸, Материалы: ${(calculatedEstimate.materialsCost || 0).toLocaleString()} ₸, Срок: ~${calculatedEstimate.timelineDays || 7} дн.`,
+                      amount: finalAmount,
+                      budget: `${finalAmount.toLocaleString()} ₸`,
+                      description: `Смета сформирована Vision AI по фото [Сценарий: ${scenarioName}]. Работы: ${Math.round((calculatedEstimate.worksCost || 0) * mult).toLocaleString()} ₸, Материалы: ${Math.round((calculatedEstimate.materialsCost || 0) * mult).toLocaleString()} ₸, Срок: ~${calculatedEstimate.timelineDays || 7} дн.`,
                       type: 'estimate',
                       status: 'new',
-                      estimateData: calculatedEstimate
+                      estimateData: { ...calculatedEstimate, finalAmount, scenario: scenarioName }
                     });
                     setCreatedOrderInfo(newOrder);
-                    showToast(`🚀 Заявка ${newOrder.id} успешно отправлена Менеджеру CRM!`);
+                    showToast(`🚀 Заявка ${newOrder.id} [${scenarioName}] успешно отправлена Менеджеру CRM!`);
                   }}
                   style={{ background: 'linear-gradient(90deg, #0284c7, #10b981)', border: 'none', color: '#fff', padding: '14px 20px', borderRadius: '10px', fontWeight: 900, fontSize: '0.95rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 4px 15px rgba(2,132,199,0.4)' }}
                 >
