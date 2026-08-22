@@ -119,9 +119,11 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
       comments: card.comments || 'Клиент просит соблюдать тихий час с 13:00 до 15:00. Пропускная система на объекте оформлена.',
       stages: (card.stages && card.stages.length > 0) ? card.stages : defaultStages,
       estimateItems: card.estimateItems || [
-        { name: 'Монтаж армопояса и монолитные работы', unit: 'м³', qty: 24, price: 35000, sum: 840000 },
-        { name: 'Укладка гидроизоляции и утепление', unit: 'м²', qty: 180, price: 4200, sum: 756000 },
-        { name: 'Аренда спецтехники с оператором (GPS)', unit: 'смена', qty: 6, price: 84000, sum: 504000 }
+        { name: 'Бетон товарный М350 В25 (ГОСТ 7473)', unit: 'м³', qty: 24, price: 24500, sum: 588000, source: 'materials_marketplace', tag: '🧱 Маркетплейс материалов' },
+        { name: 'Арматура стальная А500С d16 (ГОСТ 34028)', unit: 'т', qty: 1.8, price: 380000, sum: 684000, source: 'materials_marketplace', tag: '🧱 Маркетплейс материалов' },
+        { name: 'Аренда: Автокран XCMG QY25K5 (25 т)', unit: 'смена', qty: 3, price: 112000, sum: 336000, source: 'equipment_marketplace', tag: '🚜 Маркетплейс спецтехники' },
+        { name: 'Аренда: Экскаватор Hitachi ZX240 (GPS Online)', unit: 'смена', qty: 2, price: 100000, sum: 200000, source: 'equipment_marketplace', tag: '🚜 Маркетплейс спецтехники' },
+        { name: 'Строительно-монтажные работы бригады', unit: 'компл.', qty: 1, price: 292000, sum: 292000, source: 'labor', tag: '👷 Работы подрядчика' }
       ]
     };
   });
@@ -728,18 +730,64 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
                 background: 'rgba(15, 23, 42, 0.85)', borderRadius: '12px',
                 border: '1px solid rgba(255, 255, 255, 0.08)', padding: '1rem', flex: 1
               }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-                  <span style={{ fontWeight: 800, color: '#38bdf8', fontSize: '0.85rem' }}>📄 Детализированная смета (ГОСТ КЗ)</span>
-                  <button
-                    onClick={() => showToast('📥 Смета экспортирована в PDF')}
-                    style={{
-                      background: 'rgba(0, 229, 255, 0.1)', border: '1px solid #00e5ff',
-                      color: '#00e5ff', borderRadius: '8px', padding: '4px 10px',
-                      fontSize: '0.72rem', fontWeight: 700, cursor: 'pointer'
-                    }}
-                  >
-                    📥 Экспорт в PDF
-                  </button>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem', flexWrap: 'wrap', gap: '8px' }}>
+                  <div>
+                    <span style={{ fontWeight: 800, color: '#38bdf8', fontSize: '0.85rem' }}>📄 Смета с интеграцией Маркетплейсов (ГОСТ КЗ)</span>
+                    <div style={{ fontSize: '0.68rem', color: '#94a3b8', marginTop: '2px' }}>
+                      Автоматический расчёт стройматериалов и почасовой аренды спецтехники
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: '6px' }}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const newMat = { name: 'Кирпич керамический рядовой М150', unit: 'тыс.шт', qty: 4.5, price: 85000, sum: 382500, source: 'materials_marketplace', tag: '🧱 Маркетплейс материалов' };
+                        setFormData(prev => ({
+                          ...prev,
+                          estimateItems: [...prev.estimateItems, newMat],
+                          budget: prev.budget + 382500
+                        }));
+                        showToast('🧱 Кирпич М150 подтянут из Маркетплейса стройматериалов!');
+                      }}
+                      style={{
+                        background: 'rgba(139, 92, 246, 0.15)', border: '1px solid #8b5cf6',
+                        color: '#c4b5fd', borderRadius: '6px', padding: '4px 8px',
+                        fontSize: '0.7rem', fontWeight: 800, cursor: 'pointer'
+                      }}
+                    >
+                      🧱 + Стройматериалы
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const newMach = { name: 'Аренда: Самосвал Shacman 25т (GPS)', unit: 'смена', qty: 2, price: 72000, sum: 144000, source: 'equipment_marketplace', tag: '🚜 Маркетплейс спецтехники' };
+                        setFormData(prev => ({
+                          ...prev,
+                          estimateItems: [...prev.estimateItems, newMach],
+                          budget: prev.budget + 144000
+                        }));
+                        showToast('🚜 Самосвал Shacman подтянут из Маркетплейса спецтехники!');
+                      }}
+                      style={{
+                        background: 'rgba(56, 189, 248, 0.15)', border: '1px solid #38bdf8',
+                        color: '#7dd3fc', borderRadius: '6px', padding: '4px 8px',
+                        fontSize: '0.7rem', fontWeight: 800, cursor: 'pointer'
+                      }}
+                    >
+                      🚜 + Спецтехника (GPS)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => showToast('📥 Смета экспортирована в PDF (ГОСТ КЗ)')}
+                      style={{
+                        background: 'rgba(0, 229, 255, 0.1)', border: '1px solid #00e5ff',
+                        color: '#00e5ff', borderRadius: '6px', padding: '4px 8px',
+                        fontSize: '0.7rem', fontWeight: 700, cursor: 'pointer'
+                      }}
+                    >
+                      📥 PDF
+                    </button>
+                  </div>
                 </div>
 
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.78rem', color: '#cbd5e1' }}>
@@ -755,11 +803,24 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
                   <tbody>
                     {formData.estimateItems.map((item, idx) => (
                       <tr key={idx} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                        <td style={{ padding: '8px 4px', color: '#f8fafc', fontWeight: 600 }}>{item.name}</td>
+                        <td style={{ padding: '8px 4px' }}>
+                          <div style={{ color: '#f8fafc', fontWeight: 700, fontSize: '0.8rem' }}>{item.name}</div>
+                          {item.tag && (
+                            <span style={{
+                              fontSize: '0.62rem', fontWeight: 800, padding: '1px 5px', borderRadius: '4px',
+                              background: item.source === 'materials_marketplace' ? 'rgba(139,92,246,0.2)' : (item.source === 'equipment_marketplace' ? 'rgba(56,189,248,0.2)' : 'rgba(245,158,11,0.2)'),
+                              border: `1px solid ${item.source === 'materials_marketplace' ? '#8b5cf6' : (item.source === 'equipment_marketplace' ? '#38bdf8' : '#f59e0b')}`,
+                              color: item.source === 'materials_marketplace' ? '#c4b5fd' : (item.source === 'equipment_marketplace' ? '#7dd3fc' : '#fcd34d'),
+                              display: 'inline-block', marginTop: '2px'
+                            }}>
+                              {item.tag}
+                            </span>
+                          )}
+                        </td>
                         <td style={{ padding: '8px 4px' }}>{item.unit}</td>
-                        <td style={{ padding: '8px 4px' }}>{item.qty}</td>
+                        <td style={{ padding: '8px 4px', fontWeight: 700 }}>{item.qty}</td>
                         <td style={{ padding: '8px 4px' }}>{item.price.toLocaleString('ru-RU')} ₸</td>
-                        <td style={{ padding: '8px 4px', textAlign: 'right', fontWeight: 800, color: '#38bdf8' }}>
+                        <td style={{ padding: '8px 4px', textAlign: 'right', fontWeight: 900, color: '#38bdf8' }}>
                           {(item.sum || item.price * item.qty).toLocaleString('ru-RU')} ₸
                         </td>
                       </tr>
