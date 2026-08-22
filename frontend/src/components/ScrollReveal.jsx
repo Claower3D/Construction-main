@@ -3,29 +3,51 @@ import React, { useState, useEffect, useRef } from 'react';
 export default function ScrollReveal({
   children,
   direction = 'up', // 'up' | 'down' | 'left' | 'right' | 'zoom'
-  delay = 0, // delay in ms
-  duration = 750, // duration in ms
-  threshold = 0.12, // 12% in view triggers reveal
-  distance = '40px',
-  blur = true,
+  delay = 0,
+  duration = 600,
+  threshold = 0.02, // Low threshold so elements trigger easily
+  distance = '30px',
+  blur = false,
+  once = false,
   className = '',
   style = {}
 }) {
   const [isVisible, setIsVisible] = useState(false);
+  const [isMobile, setIsMobile] = useState(() => {
+    return typeof window !== 'undefined' ? window.innerWidth <= 768 : false;
+  });
   const domRef = useRef(null);
 
   useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  useEffect(() => {
+    // If mobile or no IntersectionObserver, force visible to prevent blank screens on phones
+    if (isMobile || typeof IntersectionObserver === 'undefined') {
+      setIsVisible(true);
+      return;
+    }
+
     const node = domRef.current;
     if (!node) return;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        // Toggle visibility smoothly both on enter and exit
-        setIsVisible(entry.isIntersecting);
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+        } else if (!once) {
+          setIsVisible(false);
+        }
       },
       {
         threshold: threshold,
-        rootMargin: '0px 0px -40px 0px',
+        rootMargin: '40px 0px 40px 0px',
       }
     );
 
@@ -34,29 +56,29 @@ export default function ScrollReveal({
     return () => {
       if (node) observer.unobserve(node);
     };
-  }, [threshold]);
+  }, [threshold, once, isMobile]);
 
   const getHiddenTransform = () => {
     switch (direction) {
       case 'up':
-        return `translate3d(0, ${distance}, 0) scale(0.97)`;
+        return `translate3d(0, ${distance}, 0) scale(0.98)`;
       case 'down':
-        return `translate3d(0, -${distance}, 0) scale(0.97)`;
+        return `translate3d(0, -${distance}, 0) scale(0.98)`;
       case 'left':
-        return `translate3d(${distance}, 0, 0) scale(0.97)`;
+        return `translate3d(${distance}, 0, 0) scale(0.98)`;
       case 'right':
-        return `translate3d(-${distance}, 0, 0) scale(0.97)`;
+        return `translate3d(-${distance}, 0, 0) scale(0.98)`;
       case 'zoom':
-        return 'translate3d(0, 0, 0) scale(0.90)';
+        return 'translate3d(0, 0, 0) scale(0.92)';
       default:
-        return `translate3d(0, ${distance}, 0) scale(0.97)`;
+        return `translate3d(0, ${distance}, 0) scale(0.98)`;
     }
   };
 
   const hiddenStyle = {
-    opacity: 0,
-    transform: getHiddenTransform(),
-    filter: blur ? 'blur(6px)' : 'none',
+    opacity: isMobile ? 1 : 0,
+    transform: isMobile ? 'none' : getHiddenTransform(),
+    filter: blur && !isMobile ? 'blur(4px)' : 'none',
   };
 
   const visibleStyle = {
@@ -66,8 +88,10 @@ export default function ScrollReveal({
   };
 
   const transitionStyle = {
-    transition: `opacity ${duration}ms cubic-bezier(0.16, 1, 0.3, 1) ${delay}ms, transform ${duration}ms cubic-bezier(0.16, 1, 0.3, 1) ${delay}ms, filter ${duration}ms cubic-bezier(0.16, 1, 0.3, 1) ${delay}ms`,
-    willChange: 'opacity, transform, filter',
+    transition: isMobile
+      ? 'opacity 0.3s ease, transform 0.3s ease'
+      : `opacity ${duration}ms cubic-bezier(0.16, 1, 0.3, 1) ${delay}ms, transform ${duration}ms cubic-bezier(0.16, 1, 0.3, 1) ${delay}ms, filter ${duration}ms cubic-bezier(0.16, 1, 0.3, 1) ${delay}ms`,
+    willChange: 'opacity, transform',
   };
 
   return (
@@ -76,7 +100,7 @@ export default function ScrollReveal({
       className={`scroll-reveal-container ${className}`}
       style={{
         ...transitionStyle,
-        ...(isVisible ? visibleStyle : hiddenStyle),
+        ...(isVisible || isMobile ? visibleStyle : hiddenStyle),
         ...style,
       }}
     >
