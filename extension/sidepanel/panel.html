@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QazGost AI — Ассистент</title>
+  <link rel="stylesheet" href="panel.css" />
+</head>
+<body>
+
+  <!-- ================================================
+       ЗАГОЛОВОК
+       ================================================ -->
+  <header class="panel-header">
+    <div class="panel-header-left">
+      <img src="../icons/icon-32.png" alt="QazGost" class="panel-logo" />
+      <div class="panel-header-info">
+        <h1 class="panel-title">AI Ассистент</h1>
+        <span class="panel-subtitle">Строительный помощник</span>
+      </div>
+    </div>
+    <div class="panel-header-right">
+      <span class="panel-status" id="statusDot">
+        <span class="status-dot status-online"></span>
+        <span class="status-label" id="statusLabel">Онлайн</span>
+      </span>
+      <button class="panel-clear-btn" id="clearChat" title="Очистить чат">🗑️</button>
+    </div>
+  </header>
+
+  <!-- ================================================
+       БЫСТРЫЕ ПОДСКАЗКИ
+       ================================================ -->
+  <div class="quick-prompts" id="quickPrompts">
+    <button class="quick-prompt-chip" data-prompt="estimate">📐 Расчёт сметы</button>
+    <button class="quick-prompt-chip" data-prompt="defects">🔍 Дефекты</button>
+    <button class="quick-prompt-chip" data-prompt="gost">📜 Нормы ГОСТ</button>
+    <button class="quick-prompt-chip" data-prompt="materials">🧱 Материалы</button>
+  </div>
+
+  <!-- ================================================
+       ОБЛАСТЬ СООБЩЕНИЙ
+       ================================================ -->
+  <main class="chat-messages" id="chatMessages">
+    <!-- Приветственное сообщение -->
+    <div class="message message-assistant">
+      <div class="message-avatar">🤖</div>
+      <div class="message-content">
+        <div class="message-bubble">
+          <p>Сәлем! 👋 Я <strong>QazGost AI</strong> — ваш строительный ассистент.</p>
+          <p>Я помогу вам с:</p>
+          <ul>
+            <li>📐 Расчётом смет и объёмов</li>
+            <li>🔍 Проверкой дефектов</li>
+            <li>📜 Нормативами ГОСТ и СНиП</li>
+            <li>🧱 Ценами на материалы в Казахстане</li>
+          </ul>
+          <p>Задайте вопрос или выберите тему выше!</p>
+        </div>
+        <span class="message-time">Сейчас</span>
+      </div>
+    </div>
+  </main>
+
+  <!-- ================================================
+       ИНДИКАТОР НАБОРА ТЕКСТА
+       ================================================ -->
+  <div class="typing-indicator" id="typingIndicator" style="display: none;">
+    <div class="message-avatar">🤖</div>
+    <div class="typing-dots">
+      <span></span><span></span><span></span>
+    </div>
+    <span class="typing-label">QazGost думает...</span>
+  </div>
+
+  <!-- ================================================
+       ВВОД СООБЩЕНИЯ
+       ================================================ -->
+  <footer class="chat-input-area">
+    <div class="input-wrapper">
+      <textarea
+        id="messageInput"
+        class="chat-textarea"
+        placeholder="Задайте вопрос о строительстве..."
+        rows="1"
+      ></textarea>
+      <button class="send-btn" id="sendBtn" title="Отправить" disabled>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <path d="M22 2L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+    <div class="input-hint">
+      Enter — отправить · Shift+Enter — новая строка
+    </div>
+  </footer>
+
+  <script src="panel.js"></script>
+</body>
+</html>

@@ -1,0 +1,62 @@
+{
+  "appName": {
+    "message": "QazGost AI Помощник",
+    "description": "Название расширения"
+  },
+  "appDescription": {
+    "message": "Строительный AI-ассистент: расценки, сметы, дефекты, калькулятор",
+    "description": "Описание расширения"
+  },
+  "searchPrice": {
+    "message": "Найти расценку в QazGost",
+    "description": "Пункт контекстного меню — поиск расценки"
+  },
+  "analyzePhoto": {
+    "message": "Оценить стоимость через QazGost AI",
+    "description": "Пункт контекстного меню — анализ фото"
+  },
+  "analyzeDefect": {
+    "message": "Проверить дефект через QazGost AI",
+    "description": "Пункт контекстного меню — анализ дефекта"
+  },
+  "addToEstimate": {
+    "message": "Добавить в смету QazGost",
+    "description": "Пункт контекстного меню — добавление в смету"
+  },
+  "calculator": {
+    "message": "Калькулятор",
+    "description": "Вкладка калькулятора"
+  },
+  "notifications": {
+    "message": "Уведомления",
+    "description": "Вкладка уведомлений"
+  },
+  "settings": {
+    "message": "Настройки",
+    "description": "Вкладка настроек"
+  },
+  "estimate": {
+    "message": "Смета",
+    "description": "Вкладка сметы"
+  },
+  "search": {
+    "message": "Поиск",
+    "description": "Поле поиска"
+  },
+  "loading": {
+    "message": "Загрузка…",
+    "description": "Индикатор загрузки"
+  },
+  "error": {
+    "message": "Ошибка",
+    "description": "Сообщение об ошибке"
+  },
+  "noResults": {
+    "message": "Ничего не найдено",
+    "description": "Пустой результат поиска"
+  },
+  "currency": {
+    "message": "₸",
+    "description": "Символ валюты (тенге)"
+  }
+}

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QazGost AI Помощник</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <!-- Header -->
+  <div class="popup-header">
+    <div class="popup-logo">
+      <span class="logo-icon">🏗️</span>
+      <div>
+        <div class="logo-title">QazGost AI <span class="version-badge">2.0</span></div>
+        <div class="logo-sub">Строительный помощник</div>
+      </div>
+    </div>
+    <div class="header-status">
+      <span class="status-dot online"></span>
+      <span class="status-text">Online</span>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs-bar">
+    <button class="tab-btn active" data-tab="prices">💰 Расценки</button>
+    <button class="tab-btn" data-tab="calculator">🧮 Калькулятор</button>
+    <button class="tab-btn" data-tab="notifications">🔔 <span class="notif-badge" id="notifBadge" style="display:none">0</span></button>
+    <button class="tab-btn" data-tab="orders">📊 Заказы</button>
+    <button class="tab-btn" data-tab="settings">⚙️</button>
+  </div>
+
+  <!-- TAB 1: Price Search -->
+  <div class="tab-content active" id="tab-prices">
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="priceSearch" placeholder="Бетон М350, кирпич М150, штукатурка..." autocomplete="off">
+    </div>
+    <div class="recent-searches" id="recentSearches"></div>
+    <div class="results-list" id="priceResults">
+      <div class="empty-state">
+        <span class="empty-icon">📋</span>
+        <p>Введите название работы или материала</p>
+        <small>24 000+ позиций по ГОСТ/СНиП РК</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2: Calculator -->
+  <div class="tab-content" id="tab-calculator">
+    <div class="calc-mode-selector">
+      <select id="calcMode">
+        <option value="concrete">📐 Объём бетона</option>
+        <option value="brick">🧱 Кирпич</option>
+        <option value="walls">🎨 Площадь стен</option>
+        <option value="rebar">🏗️ Арматура</option>
+        <option value="screed">🚚 Стяжка пола</option>
+        <option value="express">💰 Экспресс-смета</option>
+      </select>
+    </div>
+    <div class="calc-inputs" id="calcInputs"></div>
+    <button class="btn-primary" id="calcBtn">📊 Рассчитать</button>
+    <div class="calc-results" id="calcResults"></div>
+  </div>
+
+  <!-- TAB 3: Notifications -->
+  <div class="tab-content" id="tab-notifications">
+    <div class="notif-header">
+      <span>Уведомления</span>
+      <button class="btn-link" id="markAllRead">Прочитать все</button>
+    </div>
+    <div class="notif-list" id="notifList"></div>
+  </div>
+
+  <!-- TAB 4: Orders -->
+  <div class="tab-content" id="tab-orders">
+    <div class="orders-stats" id="ordersStats"></div>
+    <div class="orders-filter">
+      <button class="filter-pill active" data-filter="all">Все</button>
+      <button class="filter-pill" data-filter="active">🟢 В работе</button>
+      <button class="filter-pill" data-filter="pending">🟡 Обработка</button>
+      <button class="filter-pill" data-filter="done">✅ Завершены</button>
+    </div>
+    <div class="orders-list" id="ordersList"></div>
+  </div>
+
+  <!-- TAB 5: Settings -->
+  <div class="tab-content" id="tab-settings">
+    <div class="settings-group">
+      <label class="settings-label">🔧 API Сервер</label>
+      <input type="text" id="apiUrl" class="settings-input" placeholder="http://localhost:8080">
+    </div>
+    <div class="settings-group">
+      <label class="settings-label">🏙️ Город</label>
+      <select id="settingsCity" class="settings-input">
+        <option value="Алматы">Алматы</option>
+        <option value="Астана">Астана</option>
+        <option value="Шымкент">Шымкент</option>
+        <option value="Караганда">Караганда</option>
+        <option value="Актау">Актау</option>
+        <option value="Актобе">Актобе</option>
+        <option value="Атырау">Атырау</option>
+        <option value="Тараз">Тараз</option>
+        <option value="Павлодар">Павлодар</option>
+        <option value="Усть-Каменогорск">Усть-Каменогорск</option>
+      </select>
+    </div>
+    <div class="settings-group">
+      <label class="settings-label">👤 Роль</label>
+      <select id="settingsRole" class="settings-input">
+        <option value="customer">Заказчик</option>
+        <option value="executor">Исполнитель</option>
+        <option value="engineer">Инженер</option>
+        <option value="company">Компания</option>
+      </select>
+    </div>
+    <div class="settings-group">
+      <label class="settings-label">🔑 JWT Token</label>
+      <input type="password" id="settingsToken" class="settings-input" placeholder="Опционально">
+    </div>
+    <div class="settings-toggles">
+      <label class="toggle-row">
+        <span>🏪 Overlay на OLX/Krisha</span>
+        <input type="checkbox" id="toggleOverlay" checked>
+      </label>
+      <label class="toggle-row">
+        <span>🔔 Push-уведомления</span>
+        <input type="checkbox" id="toggleNotifs" checked>
+      </label>
+    </div>
+    <div class="settings-actions">
+      <button class="btn-primary" id="saveSettings">💾 Сохранить</button>
+      <button class="btn-secondary" id="testConnection">🔌 Тест подключения</button>
+    </div>
+    <div id="connectionStatus" class="connection-status"></div>
+    <div class="settings-footer">
+      <small>QazGost AI Помощник v1.0.0</small>
+      <a href="http://localhost:5173" target="_blank" class="link-main">Открыть сайт →</a>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="popup-footer">
+    <a href="http://localhost:5173" target="_blank">🌐 Открыть QazGost AI</a>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

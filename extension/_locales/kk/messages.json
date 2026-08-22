@@ -1,0 +1,62 @@
+{
+  "appName": {
+    "message": "QazGost AI Көмекші",
+    "description": "Кеңейтім атауы"
+  },
+  "appDescription": {
+    "message": "Құрылыс AI-ассистенті: бағалар, сметалар, ақаулар, калькулятор",
+    "description": "Кеңейтім сипаттамасы"
+  },
+  "searchPrice": {
+    "message": "QazGost-тан баға іздеу",
+    "description": "Контекст мәзірі — баға іздеу"
+  },
+  "analyzePhoto": {
+    "message": "QazGost AI арқылы құнын бағалау",
+    "description": "Контекст мәзірі — фото талдау"
+  },
+  "analyzeDefect": {
+    "message": "QazGost AI арқылы ақауды тексеру",
+    "description": "Контекст мәзірі — ақау талдау"
+  },
+  "addToEstimate": {
+    "message": "QazGost сметасына қосу",
+    "description": "Контекст мәзірі — сметаға қосу"
+  },
+  "calculator": {
+    "message": "Калькулятор",
+    "description": "Калькулятор қойындысы"
+  },
+  "notifications": {
+    "message": "Хабарламалар",
+    "description": "Хабарламалар қойындысы"
+  },
+  "settings": {
+    "message": "Параметрлер",
+    "description": "Параметрлер қойындысы"
+  },
+  "estimate": {
+    "message": "Смета",
+    "description": "Смета қойындысы"
+  },
+  "search": {
+    "message": "Іздеу",
+    "description": "Іздеу өрісі"
+  },
+  "loading": {
+    "message": "Жүктелуде…",
+    "description": "Жүктеу индикаторы"
+  },
+  "error": {
+    "message": "Қате",
+    "description": "Қате туралы хабарлама"
+  },
+  "noResults": {
+    "message": "Ештеңе табылмады",
+    "description": "Бос іздеу нәтижесі"
+  },
+  "currency": {
+    "message": "₸",
+    "description": "Валюта белгісі (теңге)"
+  }
+}

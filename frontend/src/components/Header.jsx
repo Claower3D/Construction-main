@@ -36,6 +36,30 @@ function getDefaultNotificationsForRole(userRole) {
   ];
 }
 
+// ── Список городов Казахстана с координатами для автоопределения ──
+const KZ_CITIES = [
+  { name: 'Алматы', lat: 43.2380, lng: 76.9457 },
+  { name: 'Астана', lat: 51.1694, lng: 71.4491 },
+  { name: 'Шымкент', lat: 42.3417, lng: 69.5901 },
+  { name: 'Караганда', lat: 49.8047, lng: 73.0856 },
+  { name: 'Актау', lat: 43.6353, lng: 51.1689 },
+  { name: 'Актобе', lat: 50.2839, lng: 57.1670 },
+  { name: 'Атырау', lat: 47.1076, lng: 51.9141 },
+  { name: 'Тараз', lat: 42.9000, lng: 71.3667 },
+  { name: 'Павлодар', lat: 52.2873, lng: 76.9674 },
+  { name: 'Усть-Каменогорск', lat: 49.9481, lng: 82.6279 },
+  { name: 'Семей', lat: 50.4111, lng: 80.2275 },
+  { name: 'Костанай', lat: 53.2198, lng: 63.6354 },
+  { name: 'Кызылорда', lat: 44.8488, lng: 65.5093 },
+  { name: 'Петропавловск', lat: 54.8753, lng: 69.1408 },
+  { name: 'Уральск', lat: 51.2269, lng: 51.3863 },
+  { name: 'Талдыкорган', lat: 45.0175, lng: 78.3739 },
+  { name: 'Кокшетау', lat: 53.2948, lng: 69.3965 },
+  { name: 'Туркестан', lat: 43.3017, lng: 68.2522 },
+  { name: 'Жезказган', lat: 47.7833, lng: 67.7131 },
+  { name: 'Темиртау', lat: 50.0547, lng: 72.9647 },
+];
+
 export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, onOpenAdmin, onOpenEngineer, currentUser, onLogout, onOpenDashboard, onLogoClick, onOpenProfile, onOpenWallet, onOpenMaterials, onOpenEquipment }) {
   const [activeNavDropdown, setActiveNavDropdown] = useState(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -44,6 +68,93 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
 
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
+
+  // ── Город: выбор + автоопределение GPS ──
+  const [selectedCity, setSelectedCity] = useState(() => {
+    return localStorage.getItem('qazgost_city') || '';
+  });
+  const [isCityDropdownOpen, setIsCityDropdownOpen] = useState(false);
+  const [isDetectingCity, setIsDetectingCity] = useState(false);
+  const [geoError, setGeoError] = useState('');
+
+  // Найти ближайший город по координатам
+  const findNearestCity = useCallback((lat, lng) => {
+    let nearest = KZ_CITIES[0];
+    let minDist = Infinity;
+    for (const city of KZ_CITIES) {
+      const dLat = city.lat - lat;
+      const dLng = city.lng - lng;
+      const dist = Math.sqrt(dLat * dLat + dLng * dLng);
+      if (dist < minDist) {
+        minDist = dist;
+        nearest = city;
+      }
+    }
+    return nearest.name;
+  }, []);
+
+  // GPS автоопределение города
+  const handleAutoDetectCity = useCallback(() => {
+    if (!navigator.geolocation) {
+      setGeoError('GPS не поддерживается');
+      setTimeout(() => setGeoError(''), 3000);
+      return;
+    }
+    setIsDetectingCity(true);
+    setGeoError('');
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { latitude, longitude } = pos.coords;
+        // Пробуем reverse geocoding через Nominatim
+        fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&accept-language=ru`)
+          .then(r => r.json())
+          .then(data => {
+            const addr = data.address || {};
+            const detectedCity = addr.city || addr.town || addr.village || addr.state || '';
+            // Проверяем, есть ли в нашем списке
+            const matched = KZ_CITIES.find(c =>
+              detectedCity.toLowerCase().includes(c.name.toLowerCase()) ||
+              c.name.toLowerCase().includes(detectedCity.toLowerCase())
+            );
+            const cityName = matched ? matched.name : findNearestCity(latitude, longitude);
+            setSelectedCity(cityName);
+            localStorage.setItem('qazgost_city', cityName);
+            setIsDetectingCity(false);
+          })
+          .catch(() => {
+            // Fallback: ближайший по координатам
+            const cityName = findNearestCity(latitude, longitude);
+            setSelectedCity(cityName);
+            localStorage.setItem('qazgost_city', cityName);
+            setIsDetectingCity(false);
+          });
+      },
+      (err) => {
+        setIsDetectingCity(false);
+        if (err.code === 1) setGeoError('Доступ к GPS запрещён');
+        else if (err.code === 2) setGeoError('GPS недоступен');
+        else setGeoError('Не удалось определить');
+        setTimeout(() => setGeoError(''), 4000);
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 300000 }
+    );
+  }, [findNearestCity]);
+
+  // Выбор города вручную
+  const handleCitySelect = useCallback((cityName) => {
+    setSelectedCity(cityName);
+    localStorage.setItem('qazgost_city', cityName);
+    setIsCityDropdownOpen(false);
+    // Оповещаем другие компоненты
+    window.dispatchEvent(new CustomEvent('city_changed', { detail: { city: cityName } }));
+  }, []);
+
+  // Автоопределение при первом заходе (если город ещё не выбран)
+  useEffect(() => {
+    if (!selectedCity) {
+      handleAutoDetectCity();
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadNotifs = React.useCallback(() => {
     if (!currentUser) return;
@@ -433,6 +544,153 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
             <span className="nav-btn-text">Техника</span>
           </button>
 
+        </div>
+
+        {/* ── CITY SELECTOR WITH GPS AUTO-DETECTION ── */}
+        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: '0px' }}>
+          <button
+            onClick={() => setIsCityDropdownOpen(!isCityDropdownOpen)}
+            style={{
+              display: 'flex', alignItems: 'center', gap: '6px',
+              padding: '6px 14px', borderRadius: '12px',
+              background: isCityDropdownOpen ? 'rgba(0, 229, 255, 0.15)' : 'rgba(255,255,255,0.06)',
+              border: `1px solid ${isCityDropdownOpen ? 'rgba(0, 229, 255, 0.4)' : 'rgba(255,255,255,0.12)'}`,
+              color: selectedCity ? '#fff' : '#94a3b8',
+              fontSize: '0.82rem', fontWeight: 700,
+              cursor: 'pointer', transition: 'all 0.2s ease',
+              whiteSpace: 'nowrap'
+            }}
+          >
+            <span style={{ fontSize: '1rem' }}>📍</span>
+            <span>{selectedCity || 'Выберите город'}</span>
+            <span style={{ fontSize: '0.65rem', opacity: 0.6, marginLeft: '2px' }}>▼</span>
+          </button>
+
+          {/* GPS Auto-detect button */}
+          <button
+            onClick={handleAutoDetectCity}
+            disabled={isDetectingCity}
+            title="Автоопределение по GPS"
+            style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              width: '32px', height: '32px', borderRadius: '10px', marginLeft: '4px',
+              background: isDetectingCity ? 'rgba(0, 229, 255, 0.2)' : 'rgba(255,255,255,0.06)',
+              border: '1px solid rgba(0, 229, 255, 0.25)',
+              color: '#00e5ff', fontSize: '1rem',
+              cursor: isDetectingCity ? 'wait' : 'pointer',
+              transition: 'all 0.2s ease',
+              animation: isDetectingCity ? 'pulse 1.2s ease-in-out infinite' : 'none'
+            }}
+          >
+            {isDetectingCity ? '◎' : '◉'}
+          </button>
+
+          {/* Geo Error tooltip */}
+          {geoError && (
+            <div style={{
+              position: 'absolute', top: 'calc(100% + 6px)', left: '50%', transform: 'translateX(-50%)',
+              background: 'rgba(239, 68, 68, 0.95)', color: '#fff',
+              padding: '4px 12px', borderRadius: '8px', fontSize: '0.72rem', fontWeight: 600,
+              whiteSpace: 'nowrap', zIndex: 100000, boxShadow: '0 4px 15px rgba(239, 68, 68, 0.4)'
+            }}>
+              ⚠️ {geoError}
+            </div>
+          )}
+
+          {/* City Dropdown */}
+          {isCityDropdownOpen && (
+            <>
+              <div
+                style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 99990 }}
+                onClick={() => setIsCityDropdownOpen(false)}
+              />
+              <div style={{
+                position: 'absolute', top: 'calc(100% + 8px)', left: 0,
+                width: '280px', maxHeight: '420px',
+                background: 'rgba(10, 18, 38, 0.97)',
+                border: '1.5px solid rgba(0, 229, 255, 0.3)',
+                borderRadius: '16px',
+                boxShadow: '0 20px 60px rgba(0,0,0,0.8), 0 0 30px rgba(0, 229, 255, 0.15)',
+                backdropFilter: 'blur(24px)',
+                zIndex: 99999, overflow: 'hidden'
+              }}>
+                {/* Header */}
+                <div style={{
+                  padding: '12px 16px', borderBottom: '1px solid rgba(255,255,255,0.1)',
+                  background: 'rgba(255,255,255,0.03)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '1.1rem' }}>🏙️</span>
+                    <strong style={{ color: '#fff', fontSize: '0.9rem', fontWeight: 900 }}>Выбор города</strong>
+                  </div>
+                  <button
+                    onClick={handleAutoDetectCity}
+                    disabled={isDetectingCity}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: '5px',
+                      background: 'rgba(0, 229, 255, 0.12)', border: '1px solid rgba(0, 229, 255, 0.3)',
+                      color: '#00e5ff', padding: '4px 10px', borderRadius: '8px',
+                      fontSize: '0.72rem', fontWeight: 700, cursor: 'pointer'
+                    }}
+                  >
+                    {isDetectingCity ? (
+                      <><span style={{ animation: 'spin 1s linear infinite', display: 'inline-block' }}>⟳</span> Определяю...</>
+                    ) : (
+                      <>📡 GPS</>
+                    )}
+                  </button>
+                </div>
+
+                {/* City List */}
+                <div style={{ maxHeight: '340px', overflowY: 'auto', padding: '6px' }}>
+                  {KZ_CITIES.map((city) => (
+                    <div
+                      key={city.name}
+                      onClick={() => handleCitySelect(city.name)}
+                      style={{
+                        padding: '10px 14px', borderRadius: '12px', marginBottom: '2px',
+                        background: selectedCity === city.name ? 'rgba(0, 229, 255, 0.15)' : 'transparent',
+                        border: selectedCity === city.name ? '1px solid rgba(0, 229, 255, 0.3)' : '1px solid transparent',
+                        cursor: 'pointer', transition: 'all 0.15s ease',
+                        display: 'flex', alignItems: 'center', justifyContent: 'space-between'
+                      }}
+                      onMouseEnter={(e) => {
+                        if (selectedCity !== city.name) {
+                          e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (selectedCity !== city.name) {
+                          e.currentTarget.style.background = 'transparent';
+                        }
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <span style={{
+                          width: '28px', height: '28px', borderRadius: '8px',
+                          background: selectedCity === city.name ? 'rgba(0, 229, 255, 0.2)' : 'rgba(255,255,255,0.06)',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          fontSize: '0.85rem'
+                        }}>
+                          📍
+                        </span>
+                        <span style={{
+                          color: selectedCity === city.name ? '#00e5ff' : '#e0e6ed',
+                          fontSize: '0.85rem', fontWeight: selectedCity === city.name ? 800 : 500
+                        }}>
+                          {city.name}
+                        </span>
+                      </div>
+                      {selectedCity === city.name && (
+                        <span style={{ color: '#00e5ff', fontSize: '1rem' }}>✓</span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
         </div>
 
         {/* Right Action Icons & Login */}

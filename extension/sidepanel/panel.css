@@ -1,0 +1,540 @@
+/**
+ * QazGost AI — Side Panel Styles: panel.css
+ * 
+ * Тёмная тема чат-ассистента. Полноэкранный layout,
+ * сообщения-пузыри, быстрые подсказки, индикатор набора.
+ */
+
+/* =====================================================
+   СБРОС И БАЗОВЫЕ СТИЛИ
+   ===================================================== */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  color: #e0e6ed;
+  background: #0a1628;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.5;
+}
+
+/* =====================================================
+   ЗАГОЛОВОК
+   ===================================================== */
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: linear-gradient(180deg, rgba(13, 31, 60, 0.98) 0%, rgba(10, 22, 40, 0.95) 100%);
+  border-bottom: 1px solid rgba(0, 229, 255, 0.15);
+  flex-shrink: 0;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.panel-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.panel-logo {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 229, 255, 0.3);
+}
+
+.panel-header-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.panel-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0.3px;
+  line-height: 1.2;
+}
+
+.panel-subtitle {
+  font-size: 11px;
+  color: #5a6a7e;
+  letter-spacing: 0.2px;
+}
+
+.panel-header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.panel-status {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.status-online {
+  background: #22c55e;
+  box-shadow: 0 0 6px rgba(34, 197, 94, 0.5);
+}
+
+.status-offline {
+  background: #ef4444;
+  box-shadow: 0 0 6px rgba(239, 68, 68, 0.5);
+}
+
+.status-label {
+  font-size: 11px;
+  color: #8896a6;
+}
+
+.panel-clear-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  padding: 4px 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+  line-height: 1;
+}
+
+.panel-clear-btn:hover {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+/* =====================================================
+   БЫСТРЫЕ ПОДСКАЗКИ
+   ===================================================== */
+
+.quick-prompts {
+  display: flex;
+  gap: 6px;
+  padding: 10px 16px;
+  overflow-x: auto;
+  flex-shrink: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(10, 22, 40, 0.6);
+  scrollbar-width: none;
+}
+
+.quick-prompts::-webkit-scrollbar {
+  display: none;
+}
+
+.quick-prompt-chip {
+  background: rgba(0, 229, 255, 0.08);
+  border: 1px solid rgba(0, 229, 255, 0.25);
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #00e5ff;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s, border-color 0.2s, transform 0.15s;
+  font-family: inherit;
+  flex-shrink: 0;
+}
+
+.quick-prompt-chip:hover {
+  background: rgba(0, 229, 255, 0.15);
+  border-color: rgba(0, 229, 255, 0.5);
+  transform: translateY(-1px);
+}
+
+.quick-prompt-chip:active {
+  transform: scale(0.96);
+}
+
+/* =====================================================
+   ОБЛАСТЬ СООБЩЕНИЙ
+   ===================================================== */
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  scroll-behavior: smooth;
+}
+
+/* Кастомный скроллбар */
+.chat-messages::-webkit-scrollbar {
+  width: 5px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+  background: rgba(0, 229, 255, 0.2);
+  border-radius: 4px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 229, 255, 0.4);
+}
+
+/* =====================================================
+   СООБЩЕНИЯ
+   ===================================================== */
+
+.message {
+  display: flex;
+  gap: 10px;
+  max-width: 95%;
+  animation: messageSlideIn 0.3s ease-out;
+}
+
+@keyframes messageSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Сообщение ассистента — слева */
+.message-assistant {
+  align-self: flex-start;
+}
+
+.message-assistant .message-bubble {
+  background: rgba(13, 31, 60, 0.8);
+  border: 1px solid rgba(0, 229, 255, 0.1);
+  border-radius: 4px 14px 14px 14px;
+  color: #e0e6ed;
+}
+
+/* Сообщение пользователя — справа */
+.message-user {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+}
+
+.message-user .message-bubble {
+  background: linear-gradient(135deg, rgba(0, 229, 255, 0.2) 0%, rgba(0, 184, 212, 0.15) 100%);
+  border: 1px solid rgba(0, 229, 255, 0.25);
+  border-radius: 14px 4px 14px 14px;
+  color: #ffffff;
+}
+
+.message-user .message-content {
+  align-items: flex-end;
+}
+
+.message-user .message-time {
+  text-align: right;
+}
+
+/* Аватар */
+.message-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.message-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+/* Пузырь сообщения */
+.message-bubble {
+  padding: 10px 14px;
+  font-size: 13px;
+  line-height: 1.55;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.message-bubble p {
+  margin-bottom: 6px;
+}
+
+.message-bubble p:last-child {
+  margin-bottom: 0;
+}
+
+.message-bubble ul {
+  padding-left: 18px;
+  margin: 6px 0;
+}
+
+.message-bubble li {
+  margin-bottom: 3px;
+}
+
+.message-bubble strong {
+  color: #00e5ff;
+}
+
+.message-bubble code {
+  background: rgba(0, 229, 255, 0.1);
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-size: 12px;
+  font-family: 'Cascadia Code', 'Fira Code', monospace;
+}
+
+/* Время сообщения */
+.message-time {
+  font-size: 10px;
+  color: #5a6a7e;
+  padding: 0 4px;
+}
+
+/* =====================================================
+   КАРТОЧКИ В СООБЩЕНИЯХ
+   ===================================================== */
+
+.msg-card {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(0, 229, 255, 0.12);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin: 8px 0;
+}
+
+.msg-card-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #00e5ff;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+/* Таблица цен */
+.msg-price-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  margin: 6px 0;
+}
+
+.msg-price-table th {
+  text-align: left;
+  color: #8896a6;
+  font-weight: 500;
+  padding: 4px 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.msg-price-table td {
+  padding: 4px 6px;
+  color: #e0e6ed;
+}
+
+.msg-price-table .price-value {
+  color: #ffd700;
+  font-weight: 600;
+}
+
+/* Карточка сметы */
+.msg-estimate-total {
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffd700;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 215, 0, 0.2);
+}
+
+/* Карточка дефекта */
+.msg-severity {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.msg-severity-critical {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.msg-severity-warning {
+  background: rgba(255, 215, 0, 0.12);
+  color: #ffd700;
+  border: 1px solid rgba(255, 215, 0, 0.3);
+}
+
+.msg-severity-info {
+  background: rgba(59, 130, 246, 0.12);
+  color: #3b82f6;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+/* =====================================================
+   ИНДИКАТОР НАБОРА
+   ===================================================== */
+
+.typing-indicator {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  flex-shrink: 0;
+}
+
+.typing-dots {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.typing-dots span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #00e5ff;
+  animation: typingBounce 1.4s infinite ease-in-out;
+}
+
+.typing-dots span:nth-child(1) { animation-delay: 0s; }
+.typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+.typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typingBounce {
+  0%, 80%, 100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+  40% {
+    transform: translateY(-6px);
+    opacity: 1;
+  }
+}
+
+.typing-label {
+  font-size: 11px;
+  color: #5a6a7e;
+  font-style: italic;
+}
+
+/* =====================================================
+   ОБЛАСТЬ ВВОДА
+   ===================================================== */
+
+.chat-input-area {
+  padding: 10px 16px 12px;
+  border-top: 1px solid rgba(0, 229, 255, 0.1);
+  background: rgba(10, 22, 40, 0.95);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  flex-shrink: 0;
+}
+
+.input-wrapper {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(0, 229, 255, 0.15);
+  border-radius: 12px;
+  padding: 6px 6px 6px 14px;
+  transition: border-color 0.2s;
+}
+
+.input-wrapper:focus-within {
+  border-color: rgba(0, 229, 255, 0.4);
+  box-shadow: 0 0 0 2px rgba(0, 229, 255, 0.08);
+}
+
+.chat-textarea {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #e0e6ed;
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 1.5;
+  resize: none;
+  max-height: 120px;
+  min-height: 20px;
+  padding: 4px 0;
+}
+
+.chat-textarea::placeholder {
+  color: #5a6a7e;
+}
+
+.send-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: none;
+  background: linear-gradient(135deg, #00e5ff 0%, #00b8d4 100%);
+  color: #0a1628;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: transform 0.15s, opacity 0.2s;
+}
+
+.send-btn:hover:not(:disabled) {
+  transform: scale(1.05);
+}
+
+.send-btn:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.send-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.input-hint {
+  font-size: 10px;
+  color: #3a4556;
+  text-align: center;
+  margin-top: 6px;
+}

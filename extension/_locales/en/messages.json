@@ -1,0 +1,62 @@
+{
+  "appName": {
+    "message": "QazGost AI Assistant",
+    "description": "Extension name"
+  },
+  "appDescription": {
+    "message": "Construction AI assistant: pricing, estimates, defects, calculator",
+    "description": "Extension description"
+  },
+  "searchPrice": {
+    "message": "Find pricing in QazGost",
+    "description": "Context menu — price search"
+  },
+  "analyzePhoto": {
+    "message": "Estimate cost via QazGost AI",
+    "description": "Context menu — photo analysis"
+  },
+  "analyzeDefect": {
+    "message": "Check defect via QazGost AI",
+    "description": "Context menu — defect analysis"
+  },
+  "addToEstimate": {
+    "message": "Add to QazGost estimate",
+    "description": "Context menu — add to estimate"
+  },
+  "calculator": {
+    "message": "Calculator",
+    "description": "Calculator tab"
+  },
+  "notifications": {
+    "message": "Notifications",
+    "description": "Notifications tab"
+  },
+  "settings": {
+    "message": "Settings",
+    "description": "Settings tab"
+  },
+  "estimate": {
+    "message": "Estimate",
+    "description": "Estimate tab"
+  },
+  "search": {
+    "message": "Search",
+    "description": "Search field"
+  },
+  "loading": {
+    "message": "Loading…",
+    "description": "Loading indicator"
+  },
+  "error": {
+    "message": "Error",
+    "description": "Error message"
+  },
+  "noResults": {
+    "message": "No results found",
+    "description": "Empty search result"
+  },
+  "currency": {
+    "message": "₸",
+    "description": "Currency symbol (tenge)"
+  }
+}

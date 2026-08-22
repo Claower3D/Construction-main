@@ -1,0 +1,326 @@
+/**
+ * QazGost AI — Content Script Styles: overlay.css
+ * 
+ * Стили для внедряемых бейджей на страницах OLX.kz, Krisha.kz, Satu.kz, Kolesa.kz.
+ * Тёмная тема с glassmorphism-эффектами, акценты cyan (#00e5ff) и gold (#ffd700).
+ */
+
+/* =====================================================
+   АНИМАЦИИ
+   ===================================================== */
+
+@keyframes qazgostFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes qazgostPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(0, 229, 255, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(0, 229, 255, 0);
+  }
+}
+
+@keyframes qazgostSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* =====================================================
+   БЕЙДЖ — ОСНОВНОЙ КОНТЕЙНЕР
+   ===================================================== */
+
+.qazgost-overlay-badge {
+  position: relative;
+  z-index: 10000;
+  background: rgba(10, 22, 40, 0.95);
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-size: 12px;
+  color: #e0e6ed;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4),
+              0 0 1px rgba(0, 229, 255, 0.2);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  max-width: 280px;
+  min-width: 200px;
+  margin: 6px 0;
+  animation: qazgostFadeIn 0.3s ease-out;
+  box-sizing: border-box;
+  line-height: 1.4;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.qazgost-overlay-badge:hover {
+  border-color: rgba(0, 229, 255, 0.5);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.5),
+              0 0 8px rgba(0, 229, 255, 0.15);
+}
+
+/* =====================================================
+   БЕЙДЖ — ЗАГОЛОВОК
+   ===================================================== */
+
+.qazgost-badge-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  color: #00e5ff;
+  margin-bottom: 6px;
+  font-size: 11px;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  border-bottom: 1px solid rgba(0, 229, 255, 0.1);
+  padding-bottom: 5px;
+}
+
+.qazgost-badge-header img {
+  width: 14px;
+  height: 14px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.qazgost-badge-header span {
+  flex: 1;
+}
+
+/* Кнопка закрытия */
+.qazgost-badge-close {
+  background: none;
+  border: none;
+  color: #5a6a7e;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 0 2px;
+  line-height: 1;
+  transition: color 0.2s;
+  flex-shrink: 0;
+}
+
+.qazgost-badge-close:hover {
+  color: #ef4444;
+}
+
+/* =====================================================
+   БЕЙДЖ — ТЕЛО
+   ===================================================== */
+
+.qazgost-badge-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+
+/* Средняя рыночная цена */
+.qazgost-market-price {
+  font-size: 14px;
+  font-weight: 700;
+  color: #ffd700;
+  letter-spacing: 0.2px;
+}
+
+/* Статус цены */
+.qazgost-price-status {
+  font-size: 12px;
+  font-weight: 500;
+  padding: 2px 0;
+}
+
+.qazgost-status-ok {
+  color: #22c55e;
+}
+
+.qazgost-status-high {
+  color: #ef4444;
+}
+
+.qazgost-status-low {
+  color: #3b82f6;
+}
+
+.qazgost-status-unknown {
+  color: #94a3b8;
+}
+
+/* =====================================================
+   БЕЙДЖ — КНОПКА ДЕЙСТВИЯ
+   ===================================================== */
+
+.qazgost-badge-btn {
+  background: linear-gradient(135deg, #00e5ff 0%, #00b8d4 100%);
+  color: #0a1628;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  margin-top: 8px;
+  font-size: 11px;
+  font-family: inherit;
+  letter-spacing: 0.3px;
+  text-align: center;
+  transition: transform 0.2s ease, opacity 0.2s ease, box-shadow 0.2s ease;
+  box-sizing: border-box;
+}
+
+.qazgost-badge-btn:hover {
+  transform: scale(1.02);
+  opacity: 0.9;
+  box-shadow: 0 2px 10px rgba(0, 229, 255, 0.3);
+}
+
+.qazgost-badge-btn:active {
+  transform: scale(0.98);
+}
+
+/* =====================================================
+   ПЛАВАЮЩАЯ КНОПКА-ПЕРЕКЛЮЧАТЕЛЬ
+   ===================================================== */
+
+.qazgost-toggle-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 10001;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #0d1f3c, #0a1628);
+  border: 2px solid rgba(0, 229, 255, 0.4);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5),
+              0 0 12px rgba(0, 229, 255, 0.15);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  animation: qazgostSlideIn 0.4s ease-out;
+  user-select: none;
+}
+
+.qazgost-toggle-btn:hover {
+  transform: scale(1.08);
+  border-color: rgba(0, 229, 255, 0.7);
+  box-shadow: 0 6px 28px rgba(0, 0, 0, 0.6),
+              0 0 20px rgba(0, 229, 255, 0.2);
+}
+
+.qazgost-toggle-btn:active {
+  transform: scale(0.95);
+}
+
+.qazgost-toggle-btn img {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  pointer-events: none;
+}
+
+/* Счётчик бейджей */
+.qazgost-toggle-count {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: linear-gradient(135deg, #ffd700 0%, #ffab00 100%);
+  color: #0a1628;
+  font-size: 10px;
+  font-weight: 700;
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  line-height: 1;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+}
+
+/* Состояние "выключено" */
+.qazgost-toggle-off {
+  border-color: rgba(90, 106, 126, 0.3);
+  opacity: 0.6;
+}
+
+.qazgost-toggle-off .qazgost-toggle-count {
+  background: #3a4556;
+  color: #8896a6;
+}
+
+/* =====================================================
+   АДАПТАЦИЯ ПОД ТЁМНЫЙ РЕЖИМ САЙТОВ
+   ===================================================== */
+
+@media (prefers-color-scheme: dark) {
+  .qazgost-overlay-badge {
+    background: rgba(8, 18, 34, 0.97);
+    border-color: rgba(0, 229, 255, 0.25);
+  }
+}
+
+/* =====================================================
+   АДАПТАЦИЯ ПОД МАЛЕНЬКИЕ ЭКРАНЫ
+   ===================================================== */
+
+@media (max-width: 768px) {
+  .qazgost-overlay-badge {
+    max-width: 220px;
+    min-width: 160px;
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+
+  .qazgost-market-price {
+    font-size: 13px;
+  }
+
+  .qazgost-badge-btn {
+    font-size: 10px;
+    padding: 5px 10px;
+  }
+
+  .qazgost-toggle-btn {
+    width: 44px;
+    height: 44px;
+    bottom: 14px;
+    right: 14px;
+  }
+
+  .qazgost-toggle-btn img {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+/* =====================================================
+   ПЕЧАТЬ — СКРЫВАЕМ ВСЁ
+   ===================================================== */
+
+@media print {
+  .qazgost-overlay-badge,
+  .qazgost-toggle-btn {
+    display: none !important;
+  }
+}
