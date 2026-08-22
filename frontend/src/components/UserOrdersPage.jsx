@@ -645,19 +645,46 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
                 {currentUser?.name || 'Пользователь системы'}
               </div>
               <div className="uo-user-role">
-                Текущая роль: {role === 'customer' ? 'Заказчик' : (role === 'engineer' ? 'Инженер' : 'Компания')}
+                Текущая роль: {
+                  role === 'customer' ? 'Заказчик' :
+                  role === 'manager' ? 'Менеджер' :
+                  role === 'engineer' ? 'Инженер' :
+                  role === 'executor' ? 'Исполнитель' : 'Компания'
+                }
               </div>
             </div>
           </div>
 
-          <button className="uo-btn-switch-role" onClick={() => {
-            const nextRole = role === 'customer' ? 'engineer' : 'customer';
-            setRole(nextRole);
-            if (onSwitchRole) onSwitchRole(nextRole);
-            showToast(`🔄 Переключено на роль: ${nextRole === 'customer' ? 'Заказчик' : 'Инженер'}`);
-          }}>
-            🔄 Сменить роль
-          </button>
+          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+            {[
+              { key: 'manager', label: '👨‍💼 Менеджер' },
+              { key: 'engineer', label: '👷 Инженер' },
+              { key: 'executor', label: '🔨 Исполнитель' },
+              { key: 'customer', label: '👤 Заказчик' }
+            ].map(r => (
+              <button
+                key={r.key}
+                className={`uo-btn-switch-role ${role === r.key ? 'active' : ''}`}
+                style={{
+                  background: role === r.key ? 'linear-gradient(135deg, #00e5ff, #0284c7)' : 'rgba(255,255,255,0.06)',
+                  color: role === r.key ? '#0a1628' : '#e2e8f0',
+                  border: role === r.key ? '1px solid #00e5ff' : '1px solid rgba(255,255,255,0.12)',
+                  padding: '6px 12px',
+                  borderRadius: '8px',
+                  fontWeight: 700,
+                  fontSize: '0.78rem',
+                  cursor: 'pointer'
+                }}
+                onClick={() => {
+                  setRole(r.key);
+                  if (onSwitchRole) onSwitchRole(r.key);
+                  showToast(`🔄 Переключено на роль: ${r.label}`);
+                }}
+              >
+                {r.label}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Total Summary KPI Container */}
