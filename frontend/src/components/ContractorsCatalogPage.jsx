@@ -1,5 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import './ContractorsCatalogPage.css';
+import { createPlatformOrder } from '../services/orderSyncService';
+import { freezeEscrow } from '../services/walletEngine';
 
 export default function ContractorsCatalogPage({ onBack }) {
   const [searchQuery, setSearchQuery] = useState('');
@@ -679,9 +681,25 @@ export default function ContractorsCatalogPage({ onBack }) {
             <div className="cc-modal-actions-bar">
               <button 
                 className="cc-btn-invite"
-                onClick={() => showToast(`📥 Приглашение на проект отправлено contractor: ${selectedContractor.name}`)}
+                onClick={() => {
+                  const specName = selectedContractor.specialties?.map(s => s.label).join(', ') || 'Строительные работы';
+                  const newOrder = createPlatformOrder({
+                    title: `Подряд: ${selectedContractor.name} (${specName})`,
+                    category: selectedContractor.specialties?.[0]?.label || 'Строительные работы',
+                    amount: 150000,
+                    budget: '150 000 ₸ (Депозит брони)',
+                    description: `Прямой вызов подрядчика: ${selectedContractor.name}. Город: ${selectedContractor.city}, Телефон: ${selectedContractor.phone}. Опыт: ${selectedContractor.experience || 'от 5 лет'}.`,
+                    type: 'contractor',
+                    status: 'new',
+                    assignedTo: selectedContractor.name,
+                    assignedEngineer: 'Назначен Менеджер CRM'
+                  });
+                  freezeEscrow(150000, `Бронь подрядчика ${selectedContractor.name}`);
+                  showToast(`🚀 Заявка ${newOrder.id} направлена подрядчику «${selectedContractor.name}» и Менеджеру CRM!`);
+                  setSelectedContractor(null);
+                }}
               >
-                📥 Пригласить на проект
+                📥 Пригласить на проект (Эскроу)
               </button>
 
               <button 

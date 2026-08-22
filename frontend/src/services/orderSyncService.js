@@ -103,6 +103,15 @@ export function createPlatformOrder({
     } else if (type === 'defect') {
       crmPrefix = '[👷 ИНЖЕНЕР]';
       eventType = 'request_engineering';
+    } else if (type === 'contractor' || type === 'contractor_invite') {
+      crmPrefix = '[🔨 ПОДРЯДЧИК]';
+      eventType = 'request_construction';
+    } else if (type === 'engineering') {
+      crmPrefix = '[⚙️ ИНЖИНИРИНГ]';
+      eventType = 'request_engineering';
+    } else if (type === 'construction') {
+      crmPrefix = '[🏗️ СТРОИТЕЛЬСТВО]';
+      eventType = 'request_construction';
     }
 
     const crmItem = {

@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import './EngineeringSolutionsPage.css';
+import { createPlatformOrder } from '../services/orderSyncService';
+import { freezeEscrow } from '../services/walletEngine';
 
 export default function EngineeringSolutionsPage({ onBack, onOpenOrders, hideHeader = false }) {
   // Object Info Form State
@@ -306,31 +308,21 @@ export default function EngineeringSolutionsPage({ onBack, onOpenOrders, hideHea
       return;
     }
 
-    const appId = `ENG-2026-${Math.floor(1000 + Math.random() * 9000)}`;
-    setCreatedAppId(appId);
+    const newOrder = createPlatformOrder({
+      title: `Инжиниринг: ${objectName} (${cart.length} разделов)`,
+      category: 'Инженерные решения',
+      amount: totalPrice,
+      budget: `${totalPrice.toLocaleString()} ₸`,
+      description: `Объект: ${objectName}, Площадь: ${area}м², Этажность: ${floors}, Город: ${city}, Срочность: ${urgency}. Состав пакета: ${cart.map(c => c.title).join(', ')}. Срок разработки: ~${totalDays} дн.`,
+      type: 'engineering',
+      status: 'new',
+      assignedEngineer: 'Назначен Главный инженер проекта (ГИП)'
+    });
+
+    freezeEscrow(Math.round(totalPrice * 0.3), `Аванс инжиниринг ${objectName}`);
+    setCreatedAppId(newOrder.id);
     setShowSuccessModal(true);
-
-    // Sync to CRM
-    try {
-      const savedEvents = localStorage.getItem('qazgost_calendar_events');
-      let crmEvents = savedEvents ? JSON.parse(savedEvents) : {};
-      const today = new Date().toISOString().split('T')[0];
-      if (!crmEvents[today]) crmEvents[today] = [];
-
-      crmEvents[today].push({
-        id: appId,
-        title: `Пакет инженерных решений: ${objectName} (${cart.length} усл.)`,
-        time: new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }),
-        type: 'request_engineering',
-        status: 'Новые',
-        desc: `Объект: ${objectName}, Площадь: ${area}м², Город: ${city}. Пакет: ${cart.map(c => c.title).join(', ')}. Итого: ${totalPrice.toLocaleString()} ₸`,
-        contractor: 'Назначен ГИП'
-      });
-
-      localStorage.setItem('qazgost_calendar_events', JSON.stringify(crmEvents));
-    } catch (err) {
-      console.error(err);
-    }
+    showToast(`🚀 Заявка ${newOrder.id} на инжиниринг передана Главному инженеру и Менеджеру CRM!`);
   };
 
   return (
