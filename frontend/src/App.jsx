@@ -28,6 +28,7 @@ import EngineeringSolutionsPage from './components/EngineeringSolutionsPage';
 import MaterialsMarketplacePage from './components/MaterialsMarketplacePage';
 import EquipmentMarketplace from './components/EquipmentMarketplace';
 import ScrollToTopButton from './components/ScrollToTopButton';
+import ScrollReveal from './components/ScrollReveal';
 import { categoriesData } from './data/categoriesData';
 
 export default function App() {
@@ -330,16 +331,46 @@ export default function App() {
           {currentView === 'landing' && (
             <>
               <HeroSection role={role} />
-              <LiveAIScannerDemo />
-              <FeatureHighlights />
-              <PriceCatalogSection onOpenCategory={navigateToCategory} />
-              <PlatformServicesSection />
-              <EngineeringServicesSection />
-              <StatsBanner />
-              <HowItWorksSection />
-              <TestimonialsSection />
-              <MobileAppBanner />
-              <FaqSection />
+
+              <ScrollReveal direction="up" distance="45px">
+                <LiveAIScannerDemo />
+              </ScrollReveal>
+
+              <ScrollReveal direction="up" distance="45px">
+                <FeatureHighlights />
+              </ScrollReveal>
+
+              <ScrollReveal direction="up" distance="45px">
+                <PriceCatalogSection onOpenCategory={navigateToCategory} />
+              </ScrollReveal>
+
+              <ScrollReveal direction="up" distance="45px">
+                <PlatformServicesSection />
+              </ScrollReveal>
+
+              <ScrollReveal direction="up" distance="45px">
+                <EngineeringServicesSection />
+              </ScrollReveal>
+
+              <ScrollReveal direction="zoom" distance="0px">
+                <StatsBanner />
+              </ScrollReveal>
+
+              <ScrollReveal direction="up" distance="45px">
+                <HowItWorksSection />
+              </ScrollReveal>
+
+              <ScrollReveal direction="up" distance="45px">
+                <TestimonialsSection />
+              </ScrollReveal>
+
+              <ScrollReveal direction="up" distance="45px">
+                <MobileAppBanner />
+              </ScrollReveal>
+
+              <ScrollReveal direction="up" distance="45px">
+                <FaqSection />
+              </ScrollReveal>
             </>
           )}
         </main>
