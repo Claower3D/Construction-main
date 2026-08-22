@@ -71,11 +71,28 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
 
   // ── Город: выбор + автоопределение GPS ──
   const [selectedCity, setSelectedCity] = useState(() => {
-    return localStorage.getItem('qazgost_city') || '';
+    return localStorage.getItem('qazgost_city') || 'Астана';
   });
   const [isCityDropdownOpen, setIsCityDropdownOpen] = useState(false);
+  const [citySearchQuery, setCitySearchQuery] = useState('');
   const [isDetectingCity, setIsDetectingCity] = useState(false);
   const [geoError, setGeoError] = useState('');
+
+  // Слушаем изменения города из других компонентов
+  useEffect(() => {
+    const handleCityUpdate = (e) => {
+      if (e.detail?.city) {
+        setSelectedCity(e.detail.city);
+      }
+    };
+    window.addEventListener('city_changed', handleCityUpdate);
+    return () => window.removeEventListener('city_changed', handleCityUpdate);
+  }, []);
+
+  const filteredCities = React.useMemo(() => {
+    if (!citySearchQuery.trim()) return KZ_CITIES;
+    return KZ_CITIES.filter(c => c.name.toLowerCase().includes(citySearchQuery.trim().toLowerCase()));
+  }, [citySearchQuery]);
 
   // Найти ближайший город по координатам
   const findNearestCity = useCallback((lat, lng) => {
@@ -556,11 +573,15 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
         <div className="city-picker-box" style={{ position: 'relative' }}>
           <button
             className="city-select-btn"
-            onClick={() => setIsCityDropdownOpen(!isCityDropdownOpen)}
+            onClick={() => {
+              setIsCityDropdownOpen(!isCityDropdownOpen);
+              setCitySearchQuery('');
+            }}
+            title="Выбрать город"
           >
             <span style={{ fontSize: '0.95rem' }}>📍</span>
-            <span>{selectedCity || 'Выберите город'}</span>
-            <span style={{ fontSize: '0.65rem', opacity: 0.6 }}>▼</span>
+            <span style={{ fontWeight: 800 }}>{selectedCity || 'Астана'}</span>
+            <span style={{ fontSize: '0.65rem', opacity: 0.7, transform: isCityDropdownOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>▼</span>
           </button>
 
           {/* GPS Auto-detect button */}
@@ -568,9 +589,9 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
             className="gps-btn"
             onClick={handleAutoDetectCity}
             disabled={isDetectingCity}
-            title="Автоопределение по GPS"
+            title="Автоопределение города по GPS"
           >
-            {isDetectingCity ? '⟳' : '⌖'}
+            {isDetectingCity ? <span style={{ animation: 'spin 1s linear infinite', display: 'inline-block' }}>⟳</span> : '⌖'}
           </button>
 
           {/* Geo Error tooltip */}
@@ -593,13 +614,14 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
                 onClick={() => setIsCityDropdownOpen(false)}
               />
               <div style={{
-                position: 'absolute', top: 'calc(100% + 8px)', left: 0,
-                width: '280px', maxHeight: '420px',
-                background: 'rgba(10, 18, 38, 0.97)',
-                border: '1.5px solid rgba(0, 229, 255, 0.3)',
-                borderRadius: '16px',
-                boxShadow: '0 20px 60px rgba(0,0,0,0.8), 0 0 30px rgba(0, 229, 255, 0.15)',
-                backdropFilter: 'blur(24px)',
+                position: 'absolute', top: 'calc(100% + 8px)', right: 0,
+                width: '300px', maxWidth: '92vw', maxHeight: '440px',
+                background: 'rgba(10, 18, 38, 0.98)',
+                border: '1.5px solid rgba(0, 229, 255, 0.4)',
+                borderRadius: '18px',
+                boxShadow: '0 20px 60px rgba(0,0,0,0.9), 0 0 35px rgba(0, 229, 255, 0.2)',
+                backdropFilter: 'blur(28px)',
+                WebkitBackdropFilter: 'blur(28px)',
                 zIndex: 99999, overflow: 'hidden'
               }}>
                 {/* Header */}
@@ -610,71 +632,115 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <span style={{ fontSize: '1.1rem' }}>🏙️</span>
-                    <strong style={{ color: '#fff', fontSize: '0.9rem', fontWeight: 900 }}>Выбор города</strong>
+                    <strong style={{ color: '#fff', fontSize: '0.92rem', fontWeight: 900 }}>Города Казахстана</strong>
                   </div>
                   <button
                     onClick={handleAutoDetectCity}
                     disabled={isDetectingCity}
                     style={{
                       display: 'flex', alignItems: 'center', gap: '5px',
-                      background: 'rgba(0, 229, 255, 0.12)', border: '1px solid rgba(0, 229, 255, 0.3)',
+                      background: 'rgba(0, 229, 255, 0.15)', border: '1px solid rgba(0, 229, 255, 0.35)',
                       color: '#00e5ff', padding: '4px 10px', borderRadius: '8px',
-                      fontSize: '0.72rem', fontWeight: 700, cursor: 'pointer'
+                      fontSize: '0.74rem', fontWeight: 800, cursor: 'pointer'
                     }}
                   >
                     {isDetectingCity ? (
-                      <><span style={{ animation: 'spin 1s linear infinite', display: 'inline-block' }}>⟳</span> Определяю...</>
+                      <><span style={{ animation: 'spin 1s linear infinite', display: 'inline-block' }}>⟳</span> GPS...</>
                     ) : (
-                      <>📡 GPS</>
+                      <>📡 Авто GPS</>
                     )}
                   </button>
                 </div>
 
-                {/* City List */}
-                <div style={{ maxHeight: '340px', overflowY: 'auto', padding: '6px' }}>
-                  {KZ_CITIES.map((city) => (
-                    <div
-                      key={city.name}
-                      onClick={() => handleCitySelect(city.name)}
+                {/* Quick Search */}
+                <div style={{ padding: '8px 12px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                  <div style={{
+                    display: 'flex', alignItems: 'center', gap: '8px',
+                    background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)',
+                    borderRadius: '10px', padding: '6px 10px'
+                  }}>
+                    <span style={{ color: '#94a3b8', fontSize: '0.85rem' }}>🔍</span>
+                    <input
+                      type="text"
+                      placeholder="Поиск города..."
+                      value={citySearchQuery}
+                      onChange={(e) => setCitySearchQuery(e.target.value)}
                       style={{
-                        padding: '10px 14px', borderRadius: '12px', marginBottom: '2px',
-                        background: selectedCity === city.name ? 'rgba(0, 229, 255, 0.15)' : 'transparent',
-                        border: selectedCity === city.name ? '1px solid rgba(0, 229, 255, 0.3)' : '1px solid transparent',
-                        cursor: 'pointer', transition: 'all 0.15s ease',
-                        display: 'flex', alignItems: 'center', justifyContent: 'space-between'
+                        background: 'transparent', border: 'none', color: '#fff',
+                        fontSize: '0.82rem', width: '100%', outline: 'none'
                       }}
-                      onMouseEnter={(e) => {
-                        if (selectedCity !== city.name) {
-                          e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
-                        }
-                      }}
-                      onMouseLeave={(e) => {
-                        if (selectedCity !== city.name) {
-                          e.currentTarget.style.background = 'transparent';
-                        }
-                      }}
-                    >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <span style={{
-                          width: '28px', height: '28px', borderRadius: '8px',
-                          background: selectedCity === city.name ? 'rgba(0, 229, 255, 0.2)' : 'rgba(255,255,255,0.06)',
-                          display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          fontSize: '0.85rem'
-                        }}>
-                          📍
-                        </span>
-                        <span style={{
-                          color: selectedCity === city.name ? '#00e5ff' : '#e0e6ed',
-                          fontSize: '0.85rem', fontWeight: selectedCity === city.name ? 800 : 500
-                        }}>
-                          {city.name}
-                        </span>
-                      </div>
-                      {selectedCity === city.name && (
-                        <span style={{ color: '#00e5ff', fontSize: '1rem' }}>✓</span>
-                      )}
+                      autoFocus
+                    />
+                    {citySearchQuery && (
+                      <button
+                        onClick={() => setCitySearchQuery('')}
+                        style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer', fontSize: '0.8rem' }}
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Current Selected Indicator */}
+                {selectedCity && (
+                  <div style={{ padding: '6px 16px', background: 'rgba(0, 229, 255, 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.75rem', color: '#38bdf8' }}>
+                    <span>Выбранный город:</span>
+                    <strong style={{ color: '#00e5ff', fontWeight: 800 }}>📍 {selectedCity}</strong>
+                  </div>
+                )}
+
+                {/* City List */}
+                <div style={{ maxHeight: '280px', overflowY: 'auto', padding: '6px' }}>
+                  {filteredCities.length === 0 ? (
+                    <div style={{ padding: '1.5rem', textAlign: 'center', color: '#94a3b8', fontSize: '0.82rem' }}>
+                      Город не найден
                     </div>
-                  ))}
+                  ) : (
+                    filteredCities.map((city) => (
+                      <div
+                        key={city.name}
+                        onClick={() => handleCitySelect(city.name)}
+                        style={{
+                          padding: '10px 14px', borderRadius: '12px', marginBottom: '2px',
+                          background: selectedCity === city.name ? 'rgba(0, 229, 255, 0.18)' : 'transparent',
+                          border: selectedCity === city.name ? '1px solid rgba(0, 229, 255, 0.4)' : '1px solid transparent',
+                          cursor: 'pointer', transition: 'all 0.15s ease',
+                          display: 'flex', alignItems: 'center', justifyContent: 'space-between'
+                        }}
+                        onMouseEnter={(e) => {
+                          if (selectedCity !== city.name) {
+                            e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (selectedCity !== city.name) {
+                            e.currentTarget.style.background = 'transparent';
+                          }
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                          <span style={{
+                            width: '28px', height: '28px', borderRadius: '8px',
+                            background: selectedCity === city.name ? 'rgba(0, 229, 255, 0.25)' : 'rgba(255,255,255,0.06)',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            fontSize: '0.85rem'
+                          }}>
+                            📍
+                          </span>
+                          <span style={{
+                            color: selectedCity === city.name ? '#00e5ff' : '#e0e6ed',
+                            fontSize: '0.88rem', fontWeight: selectedCity === city.name ? 800 : 500
+                          }}>
+                            {city.name}
+                          </span>
+                        </div>
+                        {selectedCity === city.name && (
+                          <span style={{ color: '#00e5ff', fontSize: '1.1rem', fontWeight: 900 }}>✓</span>
+                        )}
+                      </div>
+                    ))
+                  )}
                 </div>
               </div>
             </>
@@ -958,6 +1024,41 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
                       )}
                     </div>
                   </div>
+
+              {/* City Selection in Mobile Drawer */}
+              <div className="mobile-drawer-section" style={{ background: 'rgba(255, 255, 255, 0.04)', borderRadius: '14px', padding: '10px 12px', border: '1px solid rgba(255, 255, 255, 0.08)', marginBottom: '0.65rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#fff', fontSize: '0.85rem', fontWeight: 800 }}>
+                    <span>📍</span>
+                    <span>Город: <strong style={{ color: '#00e5ff' }}>{selectedCity || 'Астана'}</strong></span>
+                  </div>
+                  <button
+                    onClick={handleAutoDetectCity}
+                    disabled={isDetectingCity}
+                    style={{
+                      background: 'rgba(0, 229, 255, 0.15)', border: '1px solid rgba(0, 229, 255, 0.35)',
+                      color: '#00e5ff', padding: '3px 8px', borderRadius: '6px', fontSize: '0.72rem', fontWeight: 700, cursor: 'pointer'
+                    }}
+                  >
+                    {isDetectingCity ? '⟳...' : '📡 GPS'}
+                  </button>
+                </div>
+                <select
+                  value={selectedCity}
+                  onChange={(e) => handleCitySelect(e.target.value)}
+                  style={{
+                    width: '100%', padding: '8px 10px', borderRadius: '8px',
+                    background: '#0a1226', border: '1px solid rgba(0, 229, 255, 0.3)',
+                    color: '#00e5ff', fontWeight: 700, fontSize: '0.85rem', outline: 'none', cursor: 'pointer'
+                  }}
+                >
+                  {KZ_CITIES.map(c => (
+                    <option key={c.name} value={c.name} style={{ background: '#0a1226', color: '#fff' }}>
+                      📍 {c.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
               {/* Account Balance */}
               <div 
