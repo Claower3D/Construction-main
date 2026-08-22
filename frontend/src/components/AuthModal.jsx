@@ -12,6 +12,15 @@ export default function AuthModal({ mode, onClose, onLogin }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  // Machinery / Equipment Questionnaire state for Executor
+  const [hasEquipment, setHasEquipment] = useState(false);
+  const [equipmentName, setEquipmentName] = useState('');
+  const [equipmentCategory, setEquipmentCategory] = useState('Землеройная техника');
+  const [pricePerDay, setPricePerDay] = useState('95000');
+  const [plateNumber, setPlateNumber] = useState('');
+  const [city, setCity] = useState('Алматы');
+  const [phone, setPhone] = useState('');
+
   if (!mode) return null;
 
   const handleSubmit = async (e) => {
@@ -33,7 +42,50 @@ export default function AuthModal({ mode, onClose, onLogin }) {
           finalCompanyId = company.id;
         }
         
-        const res = await registerUser({ email, password, fullName, bin, role: selectedRole, companyId: finalCompanyId });
+        const res = await registerUser({ 
+          email, 
+          password, 
+          fullName, 
+          bin, 
+          role: selectedRole, 
+          companyId: finalCompanyId,
+          hasEquipment,
+          equipmentName,
+          equipmentCategory,
+          pricePerDay: Number(pricePerDay) || 95000,
+          plateNumber,
+          city: city || 'Алматы',
+          phone: phone || '+7 (777) 123-45-67'
+        });
+
+        // If registered with equipment, also cache in localStorage for instant frontend visibility in EquipmentMarketplace
+        if (hasEquipment || equipmentName) {
+          const newEq = {
+            id: `eq_${Date.now()}`,
+            name: equipmentName || `Спецтехника (${fullName || 'Исполнитель'})`,
+            category: equipmentCategory,
+            pricePerDay: Number(pricePerDay) || 95000,
+            pricePerHour: Math.round((Number(pricePerDay) || 95000) / 8),
+            city: (city || 'Алматы'),
+            status: 'Доступен',
+            image: equipmentCategory.includes('Грузоподъем') 
+              ? 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=400&q=80'
+              : 'https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&w=400&q=80',
+            ownerName: fullName || email.split('@')[0],
+            ownerPhone: phone || '+7 (777) 123-45-67',
+            plateNumber: plateNumber || '01 777 KZ 02',
+            rating: 5.0,
+            reviewsCount: 1,
+            distanceKm: 1.5,
+            isLiveGps: true
+          };
+
+          try {
+            const customEqList = JSON.parse(localStorage.getItem('qazgost_custom_equipment') || '[]');
+            localStorage.setItem('qazgost_custom_equipment', JSON.stringify([newEq, ...customEqList]));
+          } catch(e) {}
+        }
+
         if (onLogin && res.user) onLogin(res.user);
       }
       onClose();
@@ -275,6 +327,112 @@ export default function AuthModal({ mode, onClose, onLogin }) {
               style={{ background: 'rgba(15, 23, 42, 0.7)', border: '1px solid rgba(255, 255, 255, 0.15)', borderRadius: '14px', padding: '0.85rem 1.1rem', color: '#fff', fontSize: '0.92rem', outline: 'none' }}
             />
           </div>
+
+          {/* Machinery Questionnaire for Executor */}
+          {activeTab === 'register' && selectedRole === 'executor' && (
+            <div style={{ background: 'rgba(16, 185, 129, 0.08)', border: '1px solid rgba(16, 185, 129, 0.25)', borderRadius: '16px', padding: '1rem', marginTop: '0.2rem' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', cursor: 'pointer', fontWeight: 800, color: '#34d399', fontSize: '0.9rem' }}>
+                <input 
+                  type="checkbox" 
+                  checked={hasEquipment} 
+                  onChange={e => setHasEquipment(e.target.checked)} 
+                  style={{ width: '18px', height: '18px', accentColor: '#10b981', cursor: 'pointer' }}
+                />
+                <span>🚜 Добавить спецтехнику в Маркетплейс</span>
+              </label>
+
+              {hasEquipment && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '0.85rem' }}>
+                  <div>
+                    <label style={{ fontSize: '0.78rem', color: '#cbd5e1', fontWeight: 700, display: 'block', marginBottom: '0.25rem' }}>
+                      Категория техники:
+                    </label>
+                    <select 
+                      value={equipmentCategory} 
+                      onChange={e => setEquipmentCategory(e.target.value)}
+                      style={{ width: '100%', background: 'rgba(15, 23, 42, 0.9)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '10px', padding: '0.65rem 0.8rem', color: '#fff', fontSize: '0.88rem' }}
+                    >
+                      <option value="Землеройная техника">⛏️ Экскаватор / Землеройная</option>
+                      <option value="Грузоподъемная техника">🏗️ Автокран / Манипулятор</option>
+                      <option value="Бетонное оборудование">🧱 Бетононасос / Миксер</option>
+                      <option value="Самосвалы и тягачи">🚚 Самосвал / Трал</option>
+                      <option value="Погрузчики">🚜 Экскаватор-погрузчик / Bobcat</option>
+                      <option value="Буровое оборудование">⛑️ Буровая установка</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label style={{ fontSize: '0.78rem', color: '#cbd5e1', fontWeight: 700, display: 'block', marginBottom: '0.25rem' }}>
+                      Марка и модель (например: CAT 320D, КамАЗ 6520, JCB 3CX):
+                    </label>
+                    <input 
+                      type="text" 
+                      placeholder="Гусеничный экскаватор CAT 320D"
+                      value={equipmentName}
+                      onChange={e => setEquipmentName(e.target.value)}
+                      style={{ width: '100%', background: 'rgba(15, 23, 42, 0.9)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '10px', padding: '0.65rem 0.8rem', color: '#fff', fontSize: '0.88rem' }}
+                    />
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.6rem' }}>
+                    <div>
+                      <label style={{ fontSize: '0.78rem', color: '#cbd5e1', fontWeight: 700, display: 'block', marginBottom: '0.25rem' }}>
+                        Аренда (₸/смена):
+                      </label>
+                      <input 
+                        type="number" 
+                        placeholder="95000"
+                        value={pricePerDay}
+                        onChange={e => setPricePerDay(e.target.value)}
+                        style={{ width: '100%', background: 'rgba(15, 23, 42, 0.9)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '10px', padding: '0.65rem 0.8rem', color: '#fff', fontSize: '0.88rem' }}
+                      />
+                    </div>
+
+                    <div>
+                      <label style={{ fontSize: '0.78rem', color: '#cbd5e1', fontWeight: 700, display: 'block', marginBottom: '0.25rem' }}>
+                        Город базирования:
+                      </label>
+                      <input 
+                        type="text" 
+                        placeholder="Алматы"
+                        value={city}
+                        onChange={e => setCity(e.target.value)}
+                        style={{ width: '100%', background: 'rgba(15, 23, 42, 0.9)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '10px', padding: '0.65rem 0.8rem', color: '#fff', fontSize: '0.88rem' }}
+                      />
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.6rem' }}>
+                    <div>
+                      <label style={{ fontSize: '0.78rem', color: '#cbd5e1', fontWeight: 700, display: 'block', marginBottom: '0.25rem' }}>
+                        Госномер / ID:
+                      </label>
+                      <input 
+                        type="text" 
+                        placeholder="01 777 KZ 02"
+                        value={plateNumber}
+                        onChange={e => setPlateNumber(e.target.value)}
+                        style={{ width: '100%', background: 'rgba(15, 23, 42, 0.9)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '10px', padding: '0.65rem 0.8rem', color: '#fff', fontSize: '0.88rem' }}
+                      />
+                    </div>
+
+                    <div>
+                      <label style={{ fontSize: '0.78rem', color: '#cbd5e1', fontWeight: 700, display: 'block', marginBottom: '0.25rem' }}>
+                        Телефон диспетчера:
+                      </label>
+                      <input 
+                        type="tel" 
+                        placeholder="+7 (777) 123-45-67"
+                        value={phone}
+                        onChange={e => setPhone(e.target.value)}
+                        style={{ width: '100%', background: 'rgba(15, 23, 42, 0.9)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '10px', padding: '0.65rem 0.8rem', color: '#fff', fontSize: '0.88rem' }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
           <button 
             type="submit" 

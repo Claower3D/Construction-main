@@ -174,3 +174,62 @@ func TestAiHandler_EstimateAndDefect(t *testing.T) {
 		t.Errorf("Expected defectType and snipCode to be populated, got: %v", defRes)
 	}
 }
+
+func TestExecutorRegistrationWithEquipment(t *testing.T) {
+	cfg := &config.Config{JwtSecret: "test-secret-123"}
+	authHnd := NewAuthHandler(cfg)
+	equipHnd := NewEquipmentHandler()
+
+	// 1. Register an executor who owns an excavator
+	regReq := map[string]interface{}{
+		"email":             "driver_kazakh@stroy.kz",
+		"password":          "secure12345",
+		"name":              "Касымбек Жолдасов",
+		"role":              "executor",
+		"city":              "Астана",
+		"phone":             "+7 (701) 999-88-77",
+		"hasEquipment":      true,
+		"equipmentName":     "Гусеничный экскаватор CAT 320D (1.2 м³)",
+		"equipmentCategory": "Землеройная техника",
+		"pricePerDay":       110000.0,
+		"plateNumber":       "01 888 KZ 01",
+	}
+
+	bodyReg, _ := json.Marshal(regReq)
+	reqReg := httptest.NewRequest("POST", "/api/v1/auth/register", bytes.NewBuffer(bodyReg))
+	wReg := httptest.NewRecorder()
+
+	authHnd.Register(wReg, reqReg)
+	if wReg.Code != http.StatusCreated {
+		t.Fatalf("Expected 201 Created on registration, got %d: %s", wReg.Code, wReg.Body.String())
+	}
+
+	// 2. Query Equipment Marketplace to verify machine is live
+	reqEq := httptest.NewRequest("GET", "/api/v1/equipment?city=астана", nil)
+	wEq := httptest.NewRecorder()
+
+	equipHnd.GetEquipment(wEq, reqEq)
+	if wEq.Code != http.StatusOK {
+		t.Fatalf("Expected 200 OK from equipment marketplace, got %d", wEq.Code)
+	}
+
+	var items []*models.Equipment
+	if err := json.NewDecoder(wEq.Body).Decode(&items); err != nil {
+		t.Fatalf("Failed to decode equipment list: %v", err)
+	}
+
+	found := false
+	for _, item := range items {
+		if item.Name == "Гусеничный экскаватор CAT 320D (1.2 м³)" {
+			found = true
+			if item.PricePerDay != 110000.0 {
+				t.Errorf("Expected price 110000, got %v", item.PricePerDay)
+			}
+			break
+		}
+	}
+
+	if !found {
+		t.Fatalf("Newly registered executor's equipment was NOT found in marketplace!")
+	}
+}

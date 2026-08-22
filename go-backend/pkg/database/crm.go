@@ -192,7 +192,7 @@ func GetAllEngineers() ([]*models.Engineer, error) {
 }
 
 func GetAllEquipment() ([]*models.Equipment, error) {
-	rows, err := DB.Query("SELECT id,name,category,price_per_day,city,status,image FROM equipment ORDER BY name")
+	rows, err := DB.Query("SELECT id,name,category,price_per_day,city,status,image FROM equipment ORDER BY id DESC")
 	if err != nil {
 		return nil, err
 	}
@@ -201,9 +201,27 @@ func GetAllEquipment() ([]*models.Equipment, error) {
 	for rows.Next() {
 		e := &models.Equipment{}
 		rows.Scan(&e.ID, &e.Name, &e.Category, &e.PricePerDay, &e.City, &e.Status, &e.Image)
+		e.Rating = 4.9
+		e.ReviewsCount = 12
+		e.DistanceKm = 2.4
 		items = append(items, e)
 	}
 	return items, nil
+}
+
+func AddEquipment(e *models.Equipment) error {
+	if e.ID == "" {
+		e.ID = fmt.Sprintf("eq_%d", time.Now().UnixNano())
+	}
+	if e.Status == "" {
+		e.Status = "Доступен"
+	}
+	if e.Image == "" {
+		e.Image = "https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&w=400&q=80"
+	}
+	_, err := DB.Exec("INSERT INTO equipment (id,name,category,price_per_day,city,status,image) VALUES (?,?,?,?,?,?,?)",
+		e.ID, e.Name, e.Category, e.PricePerDay, e.City, e.Status, e.Image)
+	return err
 }
 
 func GetAllDisputes() ([]*models.Dispute, error) {

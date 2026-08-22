@@ -64,8 +64,17 @@ func main() {
 	mux.HandleFunc("/api/v1/prices/stats", pricesHnd.GetStats)
 	mux.HandleFunc("/api/v1/prices/regions", pricesHnd.GetRegions)
 
-	// Equipment & Disputes — auth required
-	mux.HandleFunc("/api/v1/equipment", auth(equipmentHnd.GetEquipment))
+	// Equipment — public GET, POST requires auth
+	mux.HandleFunc("/api/v1/equipment", func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodGet:
+			equipmentHnd.GetEquipment(w, r)
+		case http.MethodPost:
+			auth(equipmentHnd.CreateEquipment)(w, r)
+		default:
+			w.WriteHeader(http.StatusMethodNotAllowed)
+		}
+	})
 	mux.HandleFunc("/api/v1/disputes", auth(disputesHnd.GetDisputes))
 
 	// ── PROTECTED ENDPOINTS (auth required) ──

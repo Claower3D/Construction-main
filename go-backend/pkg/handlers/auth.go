@@ -77,13 +77,21 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	var req struct {
-		Email    string `json:"email"`
-		Password string `json:"password"`
-		Name     string `json:"name"`
-		Role     string `json:"role"`
-		Phone    string `json:"phone"`
-		City     string `json:"city"`
-		Company  string `json:"company"`
+		Email             string  `json:"email"`
+		Password          string  `json:"password"`
+		Name              string  `json:"name"`
+		Role              string  `json:"role"`
+		Phone             string  `json:"phone"`
+		City              string  `json:"city"`
+		Company           string  `json:"company"`
+		HasEquipment      bool    `json:"hasEquipment"`
+		EquipmentName     string  `json:"equipmentName"`
+		EquipmentCategory string  `json:"equipmentCategory"`
+		PricePerDay       float64 `json:"pricePerDay"`
+		PricePerHour      float64 `json:"pricePerHour"`
+		PlateNumber       string  `json:"plateNumber"`
+		Capacity          string  `json:"capacity"`
+		EquipmentImage    string  `json:"equipmentImage"`
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.Email == "" {
@@ -130,6 +138,54 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		_ = json.NewEncoder(w).Encode(map[string]string{"error": "Ошибка создания пользователя"})
 		return
+	}
+
+	// If executor registered with equipment, automatically add equipment to marketplace
+	if req.HasEquipment || req.EquipmentName != "" || (req.Role == "executor" && req.EquipmentCategory != "") {
+		eqName := req.EquipmentName
+		if eqName == "" {
+			eqName = fmt.Sprintf("Спецтехника (%s)", req.Name)
+		}
+		eqCategory := req.EquipmentCategory
+		if eqCategory == "" {
+			eqCategory = "Землеройная техника"
+		}
+		priceDay := req.PricePerDay
+		if priceDay <= 0 {
+			priceDay = 95000
+		}
+		priceHour := req.PricePerHour
+		if priceHour <= 0 {
+			priceHour = 12000
+		}
+		img := req.EquipmentImage
+		if img == "" {
+			img = "https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&w=400&q=80"
+		}
+		city := req.City
+		if city == "" {
+			city = "Алматы"
+		}
+
+		eq := &models.Equipment{
+			ID:           fmt.Sprintf("eq_%d", time.Now().UnixNano()),
+			Name:         eqName,
+			Category:     eqCategory,
+			PricePerDay:  priceDay,
+			PricePerHour: priceHour,
+			City:         city,
+			Status:       "Доступен",
+			Image:        img,
+			OwnerID:      user.ID,
+			OwnerName:    user.Name,
+			OwnerPhone:   user.Phone,
+			PlateNumber:  req.PlateNumber,
+			Capacity:     req.Capacity,
+			Rating:       5.0,
+			ReviewsCount: 1,
+			DistanceKm:   1.8,
+		}
+		_ = database.AddEquipment(eq)
 	}
 
 	token, _ := middleware.GenerateJWT(user.ID, user.Email, user.Role, h.cfg.JwtSecret)

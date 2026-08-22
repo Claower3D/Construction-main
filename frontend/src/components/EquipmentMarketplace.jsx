@@ -556,9 +556,65 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
     }
   ];
 
+  // Load custom registered equipment from executor registrations
+  const [customList, setCustomList] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('qazgost_custom_equipment') || '[]');
+    } catch(e) {
+      return [];
+    }
+  });
+
+  useEffect(() => {
+    try {
+      const items = JSON.parse(localStorage.getItem('qazgost_custom_equipment') || '[]');
+      setCustomList(items);
+    } catch (e) {}
+  }, [activeTab]);
+
+  const combinedEquipment = useMemo(() => {
+    const formattedCustom = customList.map(c => {
+      let catKey = 'earth';
+      const cCat = (c.category || '').toLowerCase();
+      if (cCat.includes('грузо') || cCat.includes('кран')) catKey = 'lift';
+      else if (cCat.includes('погруз')) catKey = 'loader';
+      else if (cCat.includes('бетон')) catKey = 'concrete';
+      else if (cCat.includes('самосвал') || cCat.includes('транспорт')) catKey = 'transport';
+      else if (cCat.includes('бур')) catKey = 'drill';
+      else if (cCat.includes('дорож')) catKey = 'road';
+
+      return {
+        id: c.id,
+        category: catKey,
+        image: c.image || '/assets/machinery/hitachi_excavator.jpg',
+        backupImage: 'https://images.unsplash.com/photo-1579829366248-204fe8413f31?auto=format&fit=crop&w=800&q=80',
+        distanceKm: c.distanceKm || 1.8,
+        title: `${c.name} (${c.ownerName || 'Частный владелец'})`,
+        rawPrice: c.pricePerDay || 95000,
+        price: (c.pricePerDay || 95000).toLocaleString(),
+        unit: 'смена',
+        tariffType: 'shift',
+        city: (c.city || 'almaty').toLowerCase(),
+        hasOperator: true,
+        hasDelivery: true,
+        availableToday: true,
+        isRegisteredExecutor: true,
+        ownerPhone: c.ownerPhone,
+        plateNumber: c.plateNumber,
+        tags: [
+          { type: 'shift', label: '1 смена', icon: '⏱️' },
+          { type: 'operator', label: 'С водителем', icon: '👷' },
+          { type: 'location', label: c.city || 'Алматы' }
+        ]
+      };
+    });
+
+    return [...formattedCustom, ...fullEquipmentList];
+  }, [customList]);
+
   // Real-time Dynamic Filtering Engine
   const filteredEquipment = useMemo(() => {
-    return fullEquipmentList.filter(item => {
+    return combinedEquipment.filter(item => {
       // 1. Search Query Filter
       if (searchQuery.trim()) {
         const query = searchQuery.toLowerCase();

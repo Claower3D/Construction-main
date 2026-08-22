@@ -103,13 +103,22 @@ type PriceRate struct {
 
 // Equipment represents a rental machine/asset
 type Equipment struct {
-	ID          string  `json:"id"`
-	Name        string  `json:"name"`
-	Category    string  `json:"category"`
-	PricePerDay float64 `json:"pricePerDay"`
-	City        string  `json:"city"`
-	Status      string  `json:"status"`
-	Image       string  `json:"image"`
+	ID           string  `json:"id"`
+	Name         string  `json:"name"`
+	Category     string  `json:"category"`
+	PricePerDay  float64 `json:"pricePerDay"`
+	PricePerHour float64 `json:"pricePerHour,omitempty"`
+	City         string  `json:"city"`
+	Status       string  `json:"status"`
+	Image        string  `json:"image"`
+	OwnerID      string  `json:"ownerId,omitempty"`
+	OwnerName    string  `json:"ownerName,omitempty"`
+	OwnerPhone   string  `json:"ownerPhone,omitempty"`
+	PlateNumber  string  `json:"plateNumber,omitempty"`
+	Capacity     string  `json:"capacity,omitempty"`
+	DistanceKm   float64 `json:"distanceKm,omitempty"`
+	Rating       float64 `json:"rating,omitempty"`
+	ReviewsCount int     `json:"reviewsCount,omitempty"`
 }
 
 // Dispute represents a quality claim/dispute
