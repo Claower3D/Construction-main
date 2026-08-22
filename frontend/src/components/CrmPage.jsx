@@ -1,1002 +1,674 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import DealCardModal from './DealCardModal';
 import LeadCreateModal from './LeadCreateModal';
 import AnimatedBackground from './AnimatedBackground';
-import WorkflowDiagramSection from './WorkflowDiagramSection';
 import '../index.css';
 
-const DEFAULT_CRM_DEALS = {
-  "14": [
-    { id: '1084', title: 'Оценка стоимости монолитного фундамента', status: 'Новые', type: 'request', time: '+7 (701) 555-12-34', contractor: 'ИП "Астана-Строй"', location: 'г. Астана, ул. Кабанбай Батыра 42', budget: '1 250 000 ₸' },
-    { id: '1085', title: 'Разработка ПСД: Монолитный 5-этажный блок', status: 'В работе', type: 'active_project', time: '+7 (777) 888-99-00', contractor: 'ТОО "GostBuild"', location: 'г. Алматы, пр. Аль-Фараби 77', budget: '3 450 000 ₸' }
-  ],
-  "15": [
-    { id: '1086', title: 'Монтаж HVAC системы и электрики 2-этаж', status: 'Дожим', type: 'work_stage', time: '+7 (705) 111-22-33', contractor: 'ИП "Инженер-Сервис"', location: 'г. Шымкент, ул. Тауке Хана 15', budget: '850 000 ₸' },
-    { id: '1087', title: 'Техническая экспертиза несущих конструкций', status: 'Дожим', type: 'request_engineering', time: '+7 (702) 444-55-66', contractor: 'ООО "ТехЭксперт"', location: 'г. Караганда, пр. Бухар Жырау 10', budget: '450 000 ₸' }
-  ],
-  "16": [
-    { id: '1088', title: 'Проверка финансовых смет и актов ВВР', status: 'Дожим', type: 'request', time: '+7 (701) 888-00-11', contractor: 'ТОО "ФинансКонсалт"', location: 'г. Астана, ул. Достык 18', budget: '2 100 000 ₸' },
-    { id: '1089', title: 'Согласование эскроу-транша 2-го этапа', status: 'Дожим', type: 'active_project', time: '+7 (775) 333-22-11', contractor: 'Банк ЦентрКредит', location: 'г. Алматы, ул. Желтоксан 115', budget: '5 000 000 ₸' },
-    { id: '1090', title: 'Аренда 3 гусеничных экскаваторов CAT 320', status: 'Успешно', type: 'request_construction', time: '+7 (708) 999-00-11', contractor: 'ТОО "СпецТехКазахстан"', location: 'г. Актобе, промзона 4', budget: '1 800 000 ₸' }
-  ]
+/* ═══════════════════════════════════════════════════════════════
+   QAZGOST AI — CRM КАЛЕНДАРЬ
+   Уникальная CRM-система с видами: Месяц / Неделя / День
+   Drag-and-drop заявок между датами, стекломорфизм-дизайн
+   ═══════════════════════════════════════════════════════════════ */
+
+const STATUS_COLORS = {
+  'Новые':    { bg: 'rgba(139,92,246,0.2)',  border: '#8b5cf6', dot: '#8b5cf6',  text: '#c4b5fd' },
+  'В работе': { bg: 'rgba(59,130,246,0.2)',  border: '#3b82f6', dot: '#3b82f6',  text: '#93c5fd' },
+  'Дожим':    { bg: 'rgba(245,158,11,0.2)',  border: '#f59e0b', dot: '#f59e0b',  text: '#fcd34d' },
+  'Успешно':  { bg: 'rgba(34,197,94,0.2)',   border: '#22c55e', dot: '#22c55e',  text: '#86efac' },
+  'Отказ':    { bg: 'rgba(239,68,68,0.2)',   border: '#ef4444', dot: '#ef4444',  text: '#fca5a5' },
 };
+
+const MONTHS_RU = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+const DAYS_RU = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+const DAYS_FULL = ['Понедельник','Вторник','Среда','Четверг','Пятница','Суббота','Воскресенье'];
+
+const DEFAULT_CRM_DEALS = {
+  "2026-08-12": [
+    { id: '1084', title: 'Оценка монолитного фундамента', status: 'Новые', type: 'request', time: '09:00', phone: '+7 (701) 555-12-34', contractor: 'ИП "Астана-Строй"', location: 'г. Астана', budget: '1 250 000 ₸' },
+  ],
+  "2026-08-14": [
+    { id: '1085', title: 'ПСД: 5-этажный монолитный блок', status: 'В работе', type: 'active_project', time: '10:00', phone: '+7 (777) 888-99-00', contractor: 'ТОО "GostBuild"', location: 'г. Алматы', budget: '3 450 000 ₸' },
+    { id: '1086', title: 'Монтаж HVAC 2-этаж', status: 'Дожим', type: 'work_stage', time: '14:00', phone: '+7 (705) 111-22-33', contractor: 'ИП "Инженер-Сервис"', location: 'г. Шымкент', budget: '850 000 ₸' },
+  ],
+  "2026-08-18": [
+    { id: '1087', title: 'Экспертиза несущих конструкций', status: 'В работе', type: 'request_engineering', time: '11:00', phone: '+7 (702) 444-55-66', contractor: 'ООО "ТехЭксперт"', location: 'г. Караганда', budget: '450 000 ₸' },
+  ],
+  "2026-08-20": [
+    { id: '1088', title: 'Проверка смет и актов ВВР', status: 'Дожим', type: 'request', time: '09:30', phone: '+7 (701) 888-00-11', contractor: 'ТОО "ФинансКонсалт"', location: 'г. Астана', budget: '2 100 000 ₸' },
+    { id: '1089', title: 'Эскроу-транш 2-го этапа', status: 'Дожим', type: 'active_project', time: '15:00', phone: '+7 (775) 333-22-11', contractor: 'Банк ЦентрКредит', location: 'г. Алматы', budget: '5 000 000 ₸' },
+  ],
+  "2026-08-22": [
+    { id: '1090', title: 'Аренда 3 экскаваторов CAT 320', status: 'Успешно', type: 'request_construction', time: '08:00', phone: '+7 (708) 999-00-11', contractor: 'ТОО "СпецТехКЗ"', location: 'г. Актобе', budget: '1 800 000 ₸' },
+    { id: '1091', title: 'Ремонт кровли ТЦ "МегаМаркет"', status: 'Новые', type: 'request', time: '13:00', phone: '+7 (7172) 55-44-33', contractor: 'ТОО "МегаМаркет"', location: 'г. Астана', budget: '6 700 000 ₸' },
+  ],
+  "2026-08-25": [
+    { id: '1092', title: 'Монтаж забора и ворот', status: 'Новые', type: 'request_construction', time: '10:00', phone: '+7 (700) 123-45-67', contractor: 'Марат С.', location: 'г. Караганда', budget: '1 850 000 ₸' },
+  ],
+  "2026-08-28": [
+    { id: '1093', title: 'Утепление фасада 5-этажки', status: 'В работе', type: 'active_project', time: '09:00', phone: '+7 (771) 900-88-77', contractor: 'КСК "Ботанический"', location: 'г. Астана', budget: '8 900 000 ₸' },
+  ],
+};
+
+// ─── Утилиты ───
+function getMonday(d) { const dt = new Date(d); const day = dt.getDay(); const diff = (day === 0 ? -6 : 1) - day; dt.setDate(dt.getDate() + diff); return dt; }
+function fmtDate(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+function isToday(dateStr) { return dateStr === fmtDate(new Date()); }
+function parseBudget(s) { if (!s) return 0; return parseInt(s.replace(/[^\d]/g, ''), 10) || 0; }
 
 export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }) {
   const [events, setEvents] = useState({});
   const [selectedCard, setSelectedCard] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [showAnalytics, setShowAnalytics] = useState(false);
-  const [showWorkflow, setShowWorkflow] = useState(false);
   const [showLeadModal, setShowLeadModal] = useState(false);
-  const [selectedPeriod, setSelectedPeriod] = useState('all'); // 'day' | 'week' | 'month' | 'all'
-  const [selectedWorkType, setSelectedWorkType] = useState('all'); // 'all' | 'construction' | 'design' | 'engineering' | 'machinery'
+  const [view, setView] = useState('month'); // 'month' | 'week' | 'day'
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [dragOverDate, setDragOverDate] = useState(null);
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [toastMsg, setToastMsg] = useState(null);
 
+  // ─── localStorage ───
   useEffect(() => {
-    const saved = localStorage.getItem('qazgost_calendar_events');
+    const saved = localStorage.getItem('qazgost_crm_calendar');
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        const count = Object.values(parsed).reduce((acc, arr) => acc + (arr ? arr.length : 0), 0);
-        if (count >= 4) {
-          setEvents(parsed);
-        } else {
-          setEvents({ ...DEFAULT_CRM_DEALS, ...parsed });
-        }
-      } catch (e) {
-        setEvents(DEFAULT_CRM_DEALS);
-      }
+        const count = Object.values(parsed).reduce((a,b) => a + (b?.length || 0), 0);
+        setEvents(count >= 3 ? parsed : { ...DEFAULT_CRM_DEALS, ...parsed });
+      } catch { setEvents(DEFAULT_CRM_DEALS); }
     } else {
       setEvents(DEFAULT_CRM_DEALS);
     }
   }, []);
 
-  const saveEvents = (newEvents) => {
+  const saveEvents = useCallback((newEvents) => {
     setEvents(newEvents);
-    localStorage.setItem('qazgost_calendar_events', JSON.stringify(newEvents));
-  };
+    localStorage.setItem('qazgost_crm_calendar', JSON.stringify(newEvents));
+  }, []);
 
-  const allCardsRaw = Object.entries(events).flatMap(([day, dayEvents]) =>
-    (dayEvents || []).map(evt => ({ ...evt, day }))
-  );
+  const showToast = (msg) => { setToastMsg(msg); setTimeout(() => setToastMsg(null), 3000); };
 
-  const uniqueCardsMap = new Map();
-  allCardsRaw.forEach(card => {
-    if (!uniqueCardsMap.has(card.id)) {
-      uniqueCardsMap.set(card.id, card);
-    }
-  });
+  // ─── Все карточки (с фильтрами) ───
+  const allCards = useMemo(() => {
+    const cards = [];
+    Object.entries(events).forEach(([date, list]) => {
+      (list || []).forEach(evt => cards.push({ ...evt, date }));
+    });
+    return cards.filter(card => {
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        if (!(card.title?.toLowerCase().includes(q) || card.contractor?.toLowerCase().includes(q) || card.location?.toLowerCase().includes(q))) return false;
+      }
+      if (statusFilter !== 'all' && card.status !== statusFilter) return false;
+      return true;
+    });
+  }, [events, searchQuery, statusFilter]);
 
-  const allCards = Array.from(uniqueCardsMap.values()).filter(card => {
-    // Search Query Filter
-    if (searchQuery) {
-      const q = searchQuery.toLowerCase();
-      const matchesSearch = (
-        (card.title && card.title.toLowerCase().includes(q)) ||
-        (card.contractor && card.contractor.toLowerCase().includes(q)) ||
-        (card.location && card.location.toLowerCase().includes(q)) ||
-        (card.time && card.time.toLowerCase().includes(q)) ||
-        (card.id && String(card.id).toLowerCase().includes(q))
-      );
-      if (!matchesSearch) return false;
-    }
+  // ─── Статистика ───
+  const stats = useMemo(() => {
+    const s = { total: allCards.length, budget: 0, byStatus: {} };
+    allCards.forEach(c => {
+      s.budget += parseBudget(c.budget);
+      s.byStatus[c.status] = (s.byStatus[c.status] || 0) + 1;
+    });
+    return s;
+  }, [allCards]);
 
-    // Work Type Filter
-    if (selectedWorkType !== 'all') {
-      if (selectedWorkType === 'construction' && !(card.type === 'request_construction' || (card.title && card.title.toLowerCase().includes('фундамент')))) return false;
-      if (selectedWorkType === 'design' && !(card.type === 'active_project' || (card.title && card.title.toLowerCase().includes('псд')))) return false;
-      if (selectedWorkType === 'engineering' && !(card.type === 'request_engineering' || card.type === 'work_stage' || (card.title && card.title.toLowerCase().includes('hvac')))) return false;
-      if (selectedWorkType === 'machinery' && !(card.title && card.title.toLowerCase().includes('экскаватор'))) return false;
-    }
-
-    // Period Filter
-    if (selectedPeriod === 'day' && card.day !== '16') return false;
-    if (selectedPeriod === 'week' && (card.day !== '15' && card.day !== '16')) return false;
-
-    return true;
-  });
-
-  const columns = [
-    { id: 'Новые', title: 'Новые', color: '#ef4444' },
-    { id: 'В работе', title: 'В работе', color: '#3b82f6' },
-    { id: 'Дожим', title: 'Дожим', color: '#f59e0b' },
-    { id: 'Успешно', title: 'Успешно', color: '#22c55e' },
-    { id: 'Отказ', title: 'Отказ', color: '#ef4444' },
-  ];
-
-  const getColumnForStatus = (status) => {
-    if (!status) return 'Новые';
-    const s = status.toLowerCase();
-    if (s.includes('нов') || s.includes('запланировано')) return 'Новые';
-    if (s.includes('работ') || s.includes('процесс')) return 'В работе';
-    if (s.includes('дожим') || s.includes('менедж') || s.includes('роп') || s.includes('финанс')) return 'Дожим';
-    if (s.includes('успеш') || s.includes('завершено')) return 'Успешно';
-    if (s.includes('отказ') || s.includes('отмен')) return 'Отказ';
-    
-    if (s.includes('ожидает') || s.includes('проверк')) return 'Дожим';
-    
-    return 'Новые';
-  };
-
+  // ─── Drag & Drop ───
   const handleDragStart = (e, card) => {
     e.dataTransfer.setData('application/json', JSON.stringify(card));
+    e.dataTransfer.effectAllowed = 'move';
   };
 
-  const handleDrop = (e, targetColumnId) => {
+  const handleDrop = useCallback((e, targetDate) => {
     e.preventDefault();
+    setDragOverDate(null);
     try {
-      const cardData = JSON.parse(e.dataTransfer.getData('application/json'));
-      const day = cardData.day || '14';
-      
+      const card = JSON.parse(e.dataTransfer.getData('application/json'));
+      if (card.date === targetDate) return;
       const newEvents = { ...events };
-      if (!newEvents[day]) newEvents[day] = [];
-      
-      newEvents[day] = newEvents[day].map(evt => {
-        if (evt.id === cardData.id) {
-          return { ...evt, status: targetColumnId };
-        }
-        return evt;
-      });
-      saveEvents(newEvents);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const allowDrop = (e) => {
-    e.preventDefault();
-  };
-
-  const formatType = (type) => {
-    if (type === 'active_project') return 'Проект';
-    if (type === 'work_stage') return 'Этап работ';
-    if (type === 'deadline') return 'Дедлайн';
-    if (type === 'request') return 'Заявка из каталога';
-    if (type === 'request_construction') return 'Заявка: Строительство';
-    if (type === 'request_engineering') return 'Заявка: Инженерные решения';
-    return type;
-  };
-
-  const handleWorkflowAction = (action, data) => {
-    const today = new Date().toISOString().split('T')[0];
-    const newEvents = { ...events };
-    if (!newEvents[today]) newEvents[today] = [];
-
-    // Find if we already created a dummy deal from workflow
-    let workflowDealIdx = newEvents[today].findIndex(d => d.isWorkflowDemo);
-
-    if (action === 'CREATE_LEAD') {
-      const newDeal = {
-        id: Date.now().toString().slice(-4),
-        title: 'Установка септика (Лид)',
-        status: 'Новые',
-        type: 'request',
-        time: data.phone || '+7 (999) 123-45-67',
-        contractor: 'Не распределено',
-        location: data.address || 'ул. Центральная, 123',
-        budget: (data.budget || '1 250 000') + ' ₸',
-        isWorkflowDemo: true,
-        day: today
-      };
-      newEvents[today].push(newDeal);
-      saveEvents(newEvents);
-    } else if (workflowDealIdx !== -1) {
-      if (action === 'APPROVE_ESTIMATE') {
-        newEvents[today][workflowDealIdx].status = 'В работе';
-        saveEvents(newEvents);
-      } else if (action === 'DISPATCH_TASKS') {
-        newEvents[today][workflowDealIdx].status = 'Дожим';
-        saveEvents(newEvents);
-      } else if (action === 'START_WORK') {
-        newEvents[today][workflowDealIdx].status = 'В работе';
-        saveEvents(newEvents);
-      } else if (action === 'COMPLETE_WORK') {
-        newEvents[today][workflowDealIdx].status = 'Успешно';
-        saveEvents(newEvents);
+      // Remove from old date
+      if (newEvents[card.date]) {
+        newEvents[card.date] = newEvents[card.date].filter(evt => evt.id !== card.id);
+        if (newEvents[card.date].length === 0) delete newEvents[card.date];
       }
+      // Add to new date
+      if (!newEvents[targetDate]) newEvents[targetDate] = [];
+      const { date: _, ...cardWithoutDate } = card;
+      newEvents[targetDate].push(cardWithoutDate);
+      saveEvents(newEvents);
+      showToast(`📅 Заявка «${card.title}» перенесена на ${targetDate}`);
+    } catch (err) { console.error(err); }
+  }, [events, saveEvents]);
+
+  const handleStatusChange = useCallback((cardId, cardDate, newStatus) => {
+    const newEvents = { ...events };
+    if (newEvents[cardDate]) {
+      newEvents[cardDate] = newEvents[cardDate].map(evt => evt.id === cardId ? { ...evt, status: newStatus } : evt);
+      saveEvents(newEvents);
+      showToast(`✅ Статус изменён → ${newStatus}`);
     }
+  }, [events, saveEvents]);
+
+  // ─── Навигация ───
+  const navigate = (dir) => {
+    const d = new Date(currentDate);
+    if (view === 'month') d.setMonth(d.getMonth() + dir);
+    else if (view === 'week') d.setDate(d.getDate() + dir * 7);
+    else d.setDate(d.getDate() + dir);
+    setCurrentDate(d);
   };
 
   const handleSaveCard = (updatedCard) => {
-    const day = updatedCard.day || '14';
+    const date = updatedCard.date || fmtDate(new Date());
     const newEvents = { ...events };
-    if (!newEvents[day]) {
-      newEvents[day] = [];
-    }
-    
-    const existingIndex = newEvents[day].findIndex(evt => evt.id === updatedCard.id);
-    if (existingIndex >= 0) {
-      newEvents[day][existingIndex] = updatedCard;
-    } else {
-      newEvents[day].push(updatedCard);
-    }
-    
+    if (!newEvents[date]) newEvents[date] = [];
+    const idx = newEvents[date].findIndex(e => e.id === updatedCard.id);
+    if (idx >= 0) newEvents[date][idx] = { ...updatedCard, date: undefined };
     saveEvents(newEvents);
     setSelectedCard(null);
+    showToast('💾 Карточка сохранена');
   };
 
-  const handleDeleteCard = (cardId, day) => {
-    if (!window.confirm('Вы уверены, что хотите удалить эту заявку?')) return;
-    const dayKey = day || '14';
+  const handleNewLead = (leadPayload) => {
+    const date = fmtDate(new Date());
     const newEvents = { ...events };
-    if (newEvents[dayKey]) {
-      newEvents[dayKey] = newEvents[dayKey].filter(evt => evt.id !== cardId);
-      saveEvents(newEvents);
-    }
-  };
-
-  const handleCreateAndSendLead = (leadData) => {
-    const today = new Date().toISOString().split('T')[0];
-    const newEvents = { ...events };
-    if (!newEvents[today]) newEvents[today] = [];
-
-    // Create a new lead card
-    const newLead = {
-      id: Date.now().toString().slice(-4),
-      title: leadData.service || 'Новая заявка',
+    if (!newEvents[date]) newEvents[date] = [];
+    newEvents[date].push({
+      id: Date.now().toString().slice(-5),
+      title: leadPayload.title || 'Новая заявка',
       status: 'Новые',
       type: 'request',
-      time: leadData.phone || '+7 (999) 123-45-67',
-      contractor: 'Не распределено',
-      location: leadData.address || 'ул. Центральная, 123',
-      budget: '0 ₸', // Default budget for a raw lead
-      day: today,
-      isLead: true
-    };
-
-    // Save to main CRM
-    newEvents[today].push(newLead);
+      time: new Date().toLocaleTimeString().slice(0,5),
+      phone: leadPayload.phone || '',
+      contractor: leadPayload.contractor || 'Не указан',
+      location: leadPayload.location || '',
+      budget: leadPayload.budget || '0 ₸',
+    });
     saveEvents(newEvents);
-
-    // Save to engineer's calendar to simulate "send to engineer"
-    try {
-      const storageKey = 'qazgost_calendar_events_engineer';
-      const savedEvents = localStorage.getItem(storageKey);
-      let engEvents = savedEvents ? JSON.parse(savedEvents) : {};
-      
-      if (!engEvents[today]) engEvents[today] = [];
-      
-      const engEvent = {
-        ...newLead,
-        status: 'На проверке у инженера',
-        contractor: 'Отдел ПТО'
-      };
-      engEvents[today].push(engEvent);
-      localStorage.setItem(storageKey, JSON.stringify(engEvents));
-      
-      // Update main status as well to show it was transferred
-      newLead.status = 'В работе';
-      newLead.contractor = 'Отдел ПТО';
-      saveEvents({ ...newEvents });
-      
-      alert('✅ Лид успешно создан и передан Инженеру!');
-    } catch (err) {
-      console.error('Ошибка при передаче лида инженеру', err);
-    }
-    
     setShowLeadModal(false);
+    showToast('🎉 Новая заявка создана!');
   };
 
-  const computeBonus = (card) => {
-    if (!card || !card.budget) return 0;
-    const budgetNum = parseInt(card.budget.toString().replace(/\D/g, ''), 10) || 0;
-    return Math.floor(budgetNum * 0.03);
+  // ═══════════════════════════
+  // RENDER: Мини-карточка заявки
+  // ═══════════════════════════
+  const renderEventChip = (card, dateStr, compact = false) => {
+    const sc = STATUS_COLORS[card.status] || STATUS_COLORS['Новые'];
+    return (
+      <div
+        key={card.id}
+        draggable
+        onDragStart={e => handleDragStart(e, { ...card, date: dateStr })}
+        onClick={(e) => { e.stopPropagation(); setSelectedCard({ ...card, date: dateStr, day: dateStr }); }}
+        style={{
+          background: sc.bg, border: `1px solid ${sc.border}40`, borderLeft: `3px solid ${sc.dot}`,
+          borderRadius: '8px', padding: compact ? '3px 6px' : '6px 10px', cursor: 'grab',
+          marginBottom: '4px', transition: 'all 0.2s', fontSize: compact ? '0.65rem' : '0.75rem',
+        }}
+        onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.03)'; e.currentTarget.style.boxShadow = `0 4px 16px ${sc.dot}40`; }}
+        onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = 'none'; }}
+        title={`${card.title}\n${card.contractor}\n${card.budget}`}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+          <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: sc.dot, flexShrink: 0 }} />
+          <span style={{ fontWeight: 700, color: '#f1f5f9', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            {compact ? card.title.slice(0, 20) : card.title}
+          </span>
+        </div>
+        {!compact && (
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '3px', color: '#94a3b8', fontSize: '0.68rem' }}>
+            <span>⏱ {card.time || '—'}</span>
+            <span style={{ color: sc.text, fontWeight: 700 }}>{card.budget}</span>
+          </div>
+        )}
+      </div>
+    );
   };
 
-  const totalWallet = allCards.reduce((acc, card) => acc + computeBonus(card), 0);
+  // ═══════════════════════════
+  // RENDER: ВИД МЕСЯЦ
+  // ═══════════════════════════
+  const renderMonthView = () => {
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+    const firstDay = new Date(year, month, 1);
+    let startDow = firstDay.getDay() - 1; if (startDow < 0) startDow = 6;
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const cells = [];
 
-  return (
-    <div style={{ height: '100vh', width: '100%', color: '#fff', display: 'flex', flexDirection: 'column', position: 'relative', zIndex: 1, overflow: 'hidden' }}>
-      <AnimatedBackground />
-      
-      {/* MAIN CONTAINER */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%', height: '100%', zIndex: 2, overflow: 'hidden' }}>
-        
-        {/* COMPACT SINGLE-ROW TOP HEADER BAR */}
-        <div className="crm-header-container" style={{ 
-          padding: '0.75rem 1.5rem', 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'space-between', 
-          gap: '1.25rem',
-          backgroundColor: 'rgba(18, 22, 38, 0.85)', 
-          borderBottom: '1px solid rgba(255,255,255,0.08)', 
-          backdropFilter: 'blur(20px)',
-          zIndex: 10
-        }}>
-          {/* Left: Title + Search */}
-          <div className="crm-header-left" style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', flex: 1 }}>
-            {sidebarToggleNode}
-            <h1 style={{ margin: 0, fontSize: '1.35rem', fontWeight: 900, letterSpacing: '0.5px', color: '#fff', whiteSpace: 'nowrap' }}>
-              ЗАЯВКИ И ЗАКАЗЫ
-            </h1>
+    // Empty cells before month starts
+    for (let i = 0; i < startDow; i++) cells.push(null);
+    for (let d = 1; d <= daysInMonth; d++) cells.push(d);
+    // Pad to complete last week
+    while (cells.length % 7 !== 0) cells.push(null);
 
-            {/* MANAGER WALLET & BACK BTN */}
-            <div className="crm-wallet-group" style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-              <button 
-                onClick={onBackToHome}
-                className="crm-back-btn"
-                style={{ 
-                  background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(59, 130, 246, 0.15))', 
-                  border: '1px solid rgba(56, 189, 248, 0.3)', 
-                  color: '#fff', 
-                  borderRadius: '12px', 
-                  padding: '0 1rem', 
-                  cursor: 'pointer', 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  justifyContent: 'center',
-                  gap: '0.4rem', 
-                  fontSize: '0.9rem', 
-                  fontWeight: 800,
-                  boxShadow: '0 4px 15px rgba(0,0,0,0.2)'
-                }}
-                title="Вернуться на сайт"
-              >
-                <span style={{ fontSize: '1.2rem' }}>🏠</span>
-                <span className="crm-back-text">На сайт</span>
-              </button>
-
-              <div className="crm-wallet" style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', background: 'linear-gradient(90deg, rgba(34,197,94,0.15), rgba(16,185,129,0.25))', border: '1px solid rgba(34,197,94,0.35)', borderRadius: '12px', padding: '0.45rem 1rem' }}>
-                <span style={{ fontSize: '1.3rem' }}>💰</span>
-                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  <span style={{ fontSize: '0.65rem', color: '#6ee7b7', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Ваш кошелек (3%)</span>
-                  <span style={{ fontSize: '1rem', color: '#fff', fontWeight: 900 }}>{totalWallet.toLocaleString()} ₸</span>
-                </div>
+    return (
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '2px' }}>
+        {/* Day headers */}
+        {DAYS_RU.map(d => (
+          <div key={d} style={{ textAlign: 'center', padding: '8px', fontWeight: 800, fontSize: '0.78rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '1px' }}>
+            {d}
+          </div>
+        ))}
+        {/* Day cells */}
+        {cells.map((day, idx) => {
+          if (day === null) return <div key={`e${idx}`} style={{ minHeight: '100px', background: 'rgba(0,0,0,0.15)', borderRadius: '8px' }} />;
+          const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+          const dayEvents = (events[dateStr] || []).filter(c => {
+            if (statusFilter !== 'all' && c.status !== statusFilter) return false;
+            if (searchQuery) {
+              const q = searchQuery.toLowerCase();
+              if (!(c.title?.toLowerCase().includes(q) || c.contractor?.toLowerCase().includes(q))) return false;
+            }
+            return true;
+          });
+          const today = isToday(dateStr);
+          const isOver = dragOverDate === dateStr;
+          return (
+            <div
+              key={dateStr}
+              onDragOver={e => { e.preventDefault(); setDragOverDate(dateStr); }}
+              onDragLeave={() => setDragOverDate(null)}
+              onDrop={e => handleDrop(e, dateStr)}
+              onClick={() => { setCurrentDate(new Date(year, month, day)); setView('day'); }}
+              style={{
+                minHeight: '110px', padding: '6px', borderRadius: '10px', cursor: 'pointer',
+                background: today ? 'rgba(0,229,255,0.08)' : isOver ? 'rgba(245,158,11,0.12)' : 'rgba(15,23,42,0.5)',
+                border: today ? '2px solid rgba(0,229,255,0.5)' : isOver ? '2px solid rgba(245,158,11,0.5)' : '1px solid rgba(255,255,255,0.06)',
+                transition: 'all 0.2s',
+                backdropFilter: 'blur(12px)',
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                <span style={{
+                  fontWeight: 800, fontSize: today ? '1rem' : '0.85rem',
+                  color: today ? '#00e5ff' : '#e2e8f0',
+                  background: today ? 'rgba(0,229,255,0.2)' : 'transparent',
+                  borderRadius: '50%', width: today ? '28px' : 'auto', height: today ? '28px' : 'auto',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}>
+                  {day}
+                </span>
+                {dayEvents.length > 0 && (
+                  <span style={{ fontSize: '0.65rem', background: 'rgba(0,229,255,0.2)', color: '#00e5ff', padding: '1px 6px', borderRadius: '10px', fontWeight: 700 }}>
+                    {dayEvents.length}
+                  </span>
+                )}
+              </div>
+              <div style={{ overflow: 'hidden', maxHeight: '80px' }}>
+                {dayEvents.slice(0, 3).map(evt => renderEventChip(evt, dateStr, true))}
+                {dayEvents.length > 3 && (
+                  <div style={{ fontSize: '0.6rem', color: '#64748b', textAlign: 'center', marginTop: '2px' }}>
+                    +{dayEvents.length - 3} ещё
+                  </div>
+                )}
               </div>
             </div>
+          );
+        })}
+      </div>
+    );
+  };
 
-            <div className="crm-search" style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flex: 1, maxWidth: '320px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '12px', padding: '0.45rem 0.9rem' }}>
-              <span style={{ fontSize: '0.95rem', color: '#cbd5e1' }}>🔍</span>
-              <input 
-                type="text" 
-                placeholder="Поиск по названию..." 
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                style={{ background: 'transparent', border: 'none', color: '#fff', fontSize: '0.86rem', width: '100%', outline: 'none', fontWeight: 600 }} 
-              />
+  // ═══════════════════════════
+  // RENDER: ВИД НЕДЕЛЯ
+  // ═══════════════════════════
+  const renderWeekView = () => {
+    const monday = getMonday(currentDate);
+    const days = [];
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(monday);
+      d.setDate(d.getDate() + i);
+      days.push(d);
+    }
+    const hours = Array.from({ length: 14 }, (_, i) => i + 7); // 07:00 - 20:00
+
+    return (
+      <div style={{ display: 'grid', gridTemplateColumns: '60px repeat(7, 1fr)', gap: '1px', overflowY: 'auto', maxHeight: 'calc(100vh - 280px)' }}>
+        {/* Header row */}
+        <div style={{ padding: '8px', background: 'rgba(0,0,0,0.3)', borderRadius: '6px' }} />
+        {days.map(d => {
+          const dateStr = fmtDate(d);
+          const today = isToday(dateStr);
+          return (
+            <div key={dateStr} style={{
+              textAlign: 'center', padding: '10px 4px', borderRadius: '8px',
+              background: today ? 'rgba(0,229,255,0.1)' : 'rgba(15,23,42,0.6)',
+              border: today ? '1px solid rgba(0,229,255,0.4)' : '1px solid rgba(255,255,255,0.06)',
+            }}>
+              <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>
+                {DAYS_RU[d.getDay() === 0 ? 6 : d.getDay() - 1]}
+              </div>
+              <div style={{ fontSize: '1.3rem', fontWeight: 900, color: today ? '#00e5ff' : '#e2e8f0' }}>
+                {d.getDate()}
+              </div>
             </div>
-
-            {/* WORK TYPE FILTER DROPDOWN */}
-            <div className="crm-filter" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '12px', padding: '0.45rem 0.8rem' }}>
-              <span style={{ fontSize: '0.82rem', color: '#cbd5e1', fontWeight: 800 }}>🏗️ ВИД РАБОТ:</span>
-              <select 
-                value={selectedWorkType}
-                onChange={(e) => setSelectedWorkType(e.target.value)}
-                style={{ background: 'transparent', border: 'none', color: '#38bdf8', fontSize: '0.85rem', fontWeight: 800, outline: 'none', cursor: 'pointer' }}
-              >
-                <option value="all" style={{ background: '#121626', color: '#fff' }}>Все виды работ</option>
-                <option value="construction" style={{ background: '#121626', color: '#fff' }}>Строительство & Фундамент</option>
-                <option value="design" style={{ background: '#121626', color: '#fff' }}>Проектирование & ПСД</option>
-                <option value="engineering" style={{ background: '#121626', color: '#fff' }}>Инженерные решения & HVAC</option>
-                <option value="machinery" style={{ background: '#121626', color: '#fff' }}>Аренда спецтехники</option>
-              </select>
+          );
+        })}
+        {/* Time rows */}
+        {hours.map(h => (
+          <React.Fragment key={h}>
+            <div style={{ padding: '4px 8px', fontSize: '0.72rem', color: '#64748b', fontWeight: 700, display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-end', borderRight: '1px solid rgba(255,255,255,0.06)' }}>
+              {String(h).padStart(2, '0')}:00
             </div>
-
-            {/* PERIOD SEGMENT CONTROL */}
-            <div className="crm-period" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', padding: '0.25rem 0.4rem' }}>
-              <span style={{ fontSize: '0.78rem', color: '#cbd5e1', fontWeight: 800, paddingLeft: '0.3rem' }}>📅</span>
-              <button 
-                onClick={() => setSelectedPeriod('day')}
-                style={{ background: selectedPeriod === 'day' ? 'linear-gradient(90deg, #38bdf8, #2563eb)' : 'transparent', border: 'none', color: '#fff', padding: '0.3rem 0.65rem', borderRadius: '8px', fontSize: '0.78rem', fontWeight: 800, cursor: 'pointer' }}
-              >
-                День
-              </button>
-              <button 
-                onClick={() => setSelectedPeriod('week')}
-                style={{ background: selectedPeriod === 'week' ? 'linear-gradient(90deg, #38bdf8, #2563eb)' : 'transparent', border: 'none', color: '#fff', padding: '0.3rem 0.65rem', borderRadius: '8px', fontSize: '0.78rem', fontWeight: 800, cursor: 'pointer' }}
-              >
-                Неделя
-              </button>
-              <button 
-                onClick={() => setSelectedPeriod('month')}
-                style={{ background: selectedPeriod === 'month' ? 'linear-gradient(90deg, #38bdf8, #2563eb)' : 'transparent', border: 'none', color: '#fff', padding: '0.3rem 0.65rem', borderRadius: '8px', fontSize: '0.78rem', fontWeight: 800, cursor: 'pointer' }}
-              >
-                Месяц
-              </button>
-              <button 
-                onClick={() => setSelectedPeriod('all')}
-                style={{ background: selectedPeriod === 'all' ? 'linear-gradient(90deg, #38bdf8, #2563eb)' : 'transparent', border: 'none', color: '#fff', padding: '0.3rem 0.65rem', borderRadius: '8px', fontSize: '0.78rem', fontWeight: 800, cursor: 'pointer' }}
-              >
-                Всё время
-              </button>
-            </div>
-          </div>
-          
-          {/* Right: Analytics Toggle & Action Button */}
-          <div className="crm-header-right" style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
-            <button 
-              className="crm-desktop-only"
-              onClick={() => setShowWorkflow(!showWorkflow)}
-              style={{ 
-                background: showWorkflow ? 'rgba(0, 163, 255, 0.2)' : 'rgba(255,255,255,0.06)', 
-                border: showWorkflow ? '1px solid #00a3ff' : '1px solid rgba(255,255,255,0.12)', 
-                color: showWorkflow ? '#00a3ff' : '#fff', 
-                padding: '0.45rem 0.85rem', 
-                borderRadius: '10px', 
-                fontWeight: 800, 
-                fontSize: '0.82rem', 
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.4rem'
-              }}
-              title="Переключить схему бизнес-процесса"
-            >
-              🔄 Схема {showWorkflow ? '✓' : ''}
-            </button>
-
-            <button 
-              className="crm-desktop-only"
-              onClick={() => setShowAnalytics(!showAnalytics)}
-              style={{ 
-                background: showAnalytics ? 'rgba(59, 130, 246, 0.2)' : 'rgba(255,255,255,0.06)', 
-                border: showAnalytics ? '1px solid #3b82f6' : '1px solid rgba(255,255,255,0.12)', 
-                color: showAnalytics ? '#93c5fd' : '#fff', 
-                padding: '0.45rem 0.85rem', 
-                borderRadius: '10px', 
-                fontWeight: 800, 
-                fontSize: '0.82rem', 
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.4rem'
-              }}
-              title="Переключить панель аналитики"
-            >
-              📊 Аналитика {showAnalytics ? '✓' : ''}
-            </button>
-
-            <button 
-              onClick={() => setShowLeadModal(true)} 
-              style={{ background: 'linear-gradient(90deg, #0084ff, #0066cc)', color: '#fff', border: 'none', padding: '0.5rem 1.15rem', borderRadius: '12px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '0.4rem', boxShadow: '0 6px 18px rgba(0, 132, 255, 0.4)', whiteSpace: 'nowrap' }}
-            >
-               + Новый Лид
-            </button>
-          </div>
-        </div>
-
-        {/* WORKSPACE ROW: KANBAN BOARD + RIGHT ANALYTICS SIDEBAR */}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', height: '100%' }}>
-          
-          {showWorkflow && (
-            <div style={{ flexShrink: 0, overflowX: 'auto', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
-              <WorkflowDiagramSection onAction={handleWorkflowAction} />
-            </div>
-          )}
-
-          <div style={{ flex: 1, display: 'flex', overflow: 'hidden', height: '100%' }}>
-            
-            {/* KANBAN BOARD CONTAINER */}
-            <div 
-            ref={(el) => { if (el) window.crmBoardRef = el; }}
-            className="crm-kanban-board-container"
-            style={{ 
-              display: 'flex', 
-              gap: '1.15rem', 
-              padding: '1.25rem 1.5rem', 
-              overflowX: 'auto', 
-              overflowY: 'hidden',
-              flex: 1, 
-              alignItems: 'stretch',
-              scrollBehavior: 'smooth'
-            }}
-          >
-            {columns.map(col => {
-              const colCards = allCards.filter(c => getColumnForStatus(c.status) === col.id);
-              
+            {days.map(d => {
+              const dateStr = fmtDate(d);
+              const dayEvents = (events[dateStr] || []).filter(evt => {
+                const evtHour = parseInt(evt.time?.split(':')[0], 10);
+                return evtHour === h;
+              });
+              const isOver = dragOverDate === `${dateStr}-${h}`;
               return (
-                <div 
-                  key={col.id} 
-                  className="crm-kanban-column"
-                  onDrop={(e) => handleDrop(e, col.id)}
-                  onDragOver={allowDrop}
+                <div
+                  key={`${dateStr}-${h}`}
+                  onDragOver={e => { e.preventDefault(); setDragOverDate(`${dateStr}-${h}`); }}
+                  onDragLeave={() => setDragOverDate(null)}
+                  onDrop={e => handleDrop(e, dateStr)}
                   style={{
-                    flex: '0 0 320px',
-                    background: 'rgba(18, 22, 38, 0.75)',
-                    backdropFilter: 'blur(24px)',
-                    borderRadius: '22px',
-                    border: '1px solid rgba(255,255,255,0.12)',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    position: 'relative',
-                    boxShadow: '0 12px 35px rgba(0,0,0,0.35)',
-                    maxHeight: '100%',
-                    overflow: 'hidden'
+                    minHeight: '48px', padding: '2px 4px', borderBottom: '1px solid rgba(255,255,255,0.04)',
+                    background: isOver ? 'rgba(245,158,11,0.1)' : 'transparent',
+                    transition: 'background 0.15s',
                   }}
                 >
-                  {/* Column Header */}
-                  <div style={{ 
-                    padding: '1.1rem 1.3rem', 
-                    display: 'flex', 
-                    justifyContent: 'space-between', 
-                    alignItems: 'center',
-                    borderBottom: '1px solid rgba(255,255,255,0.08)',
-                    background: 'rgba(255,255,255,0.02)'
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-                      <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: col.color, boxShadow: `0 0 10px ${col.color}` }} />
-                      <span style={{ fontWeight: 800, fontSize: '0.98rem', color: '#fff' }}>{col.title}</span>
-                    </div>
-                    <div style={{ 
-                      border: `1px solid ${col.color}50`, 
-                      color: col.color, 
-                      padding: '0.2rem 0.65rem', 
-                      borderRadius: '10px', 
-                      fontSize: '0.78rem',
-                      fontWeight: 900,
-                      backgroundColor: `${col.color}18`
-                    }}>
-                      {colCards.length}
-                    </div>
-                  </div>
-                  
-                  {/* Cards Scrollable Container */}
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', padding: '1.1rem', flex: 1, overflowY: 'auto' }}>
-                    {colCards.map(card => (
-                      <div 
-                        key={card.id}
-                        draggable
-                        onDragStart={(e) => handleDragStart(e, card)}
-                        onClick={() => setSelectedCard(card)}
-                        style={{
-                          background: 'rgba(255, 255, 255, 0.05)',
-                          backdropFilter: 'blur(16px)',
-                          borderRadius: '16px',
-                          border: '1px solid rgba(255,255,255,0.12)',
-                          padding: '1.1rem',
-                          cursor: 'grab',
-                          boxShadow: '0 8px 25px rgba(0,0,0,0.25)',
-                          position: 'relative',
-                          transition: 'all 0.25s ease'
-                        }}
-                      >
-                        {/* Top Row: ID & Type */}
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.74rem', color: '#cbd5e1', marginBottom: '0.65rem', fontWeight: 700 }}>
-                          <span style={{ background: 'rgba(255,255,255,0.08)', padding: '0.2rem 0.6rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)' }}>#{card.id}</span>
-                          <span style={{ color: '#93c5fd', fontWeight: 800 }}>{formatType(card.type)}</span>
-                        </div>
-
-                        {/* Title */}
-                        <div style={{ fontWeight: 900, fontSize: '1.02rem', color: '#fff', marginBottom: '0.4rem', lineHeight: 1.35 }}>
-                          {card.title}
-                        </div>
-                        <div style={{ fontSize: '0.8rem', color: '#cbd5e1', marginBottom: '0.85rem', lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                          📍 {card.location || 'Нет описания / локации'}
-                        </div>
-
-                        {/* Details Info */}
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', marginBottom: '1.1rem', background: 'rgba(0,0,0,0.25)', padding: '0.65rem 0.8rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.78rem', color: '#cbd5e1' }}>
-                            <span style={{ color: '#38bdf8' }}>📞</span> 
-                            <span>{card.time || '+7 (700) 000-00-00'}</span>
-                          </div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.78rem', color: '#cbd5e1' }}>
-                            <span style={{ color: '#93c5fd' }}>👤</span> 
-                            <span>{card.contractor || 'Без подрядчика'}</span>
-                          </div>
-                        </div>
-
-                        {/* Bonus Info */}
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(16, 185, 129, 0.1)', padding: '0.5rem 0.8rem', borderRadius: '10px', border: '1px dashed rgba(16, 185, 129, 0.3)', marginBottom: '0.85rem' }}>
-                          <span style={{ fontSize: '0.75rem', color: '#6ee7b7', fontWeight: 700 }}>🎁 Ваш бонус (3%)</span>
-                          <span style={{ fontSize: '0.85rem', color: '#34d399', fontWeight: 900 }}>{computeBonus(card).toLocaleString()} ₸</span>
-                        </div>
-
-                        {/* Bottom Row: Amount & Actions */}
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '0.75rem' }}>
-                          <div style={{ color: '#34d399', fontWeight: 900, fontSize: '1.15rem', letterSpacing: '0.5px' }}>
-                            {card.budget || '0 ₸'}
-                          </div>
-                          <div style={{ display: 'flex', gap: '0.35rem' }}>
-                            <button onClick={(e) => { e.stopPropagation(); setSelectedCard(card); }} className="em-btn-glass-sm" style={{ padding: '0.3rem 0.6rem', borderRadius: '8px', fontSize: '0.78rem' }}>
-                              ✎
-                            </button>
-                            <button onClick={(e) => { e.stopPropagation(); handleDeleteCard(card.id, card.day); }} className="em-btn-glass-sm danger" style={{ padding: '0.3rem 0.6rem', borderRadius: '8px', fontSize: '0.78rem', cursor: 'pointer' }} title="Удалить заявку">
-                              🗑
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                    
-                    {/* Empty State Placeholder Drop Zone */}
-                    {colCards.length === 0 && (
-                      <div style={{ 
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '0.5rem',
-                        border: '2px dashed rgba(255,255,255,0.12)',
-                        borderRadius: '16px',
-                        padding: '2rem 1rem',
-                        color: '#cbd5e1',
-                        fontSize: '0.84rem',
-                        fontWeight: 700,
-                        margin: 'auto 0'
-                      }}>
-                        <span style={{ fontSize: '1.4rem', opacity: 0.7 }}>📥</span>
-                        <span>Перетащите заявку сюда</span>
-                      </div>
-                    )}
-                  </div>
+                  {dayEvents.map(evt => renderEventChip(evt, dateStr, false))}
                 </div>
               );
             })}
+          </React.Fragment>
+        ))}
+      </div>
+    );
+  };
+
+  // ═══════════════════════════
+  // RENDER: ВИД ДЕНЬ
+  // ═══════════════════════════
+  const renderDayView = () => {
+    const dateStr = fmtDate(currentDate);
+    const dayEvents = (events[dateStr] || []).filter(c => {
+      if (statusFilter !== 'all' && c.status !== statusFilter) return false;
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        if (!(c.title?.toLowerCase().includes(q) || c.contractor?.toLowerCase().includes(q))) return false;
+      }
+      return true;
+    });
+    const hours = Array.from({ length: 16 }, (_, i) => i + 6); // 06:00 - 21:00
+    const dow = currentDate.getDay();
+
+    return (
+      <div>
+        <div style={{ textAlign: 'center', marginBottom: '16px' }}>
+          <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#f1f5f9' }}>
+            {DAYS_FULL[dow === 0 ? 6 : dow - 1]}, {currentDate.getDate()} {MONTHS_RU[currentDate.getMonth()]}
           </div>
-
-          {/* RIGHT ANALYTICS SIDEBAR PANEL (Gigantic 720px Wide Version) */}
-          {showAnalytics && (
-            <aside style={{
-              width: '720px',
-              flex: '0 0 720px',
-              background: 'rgba(14, 18, 30, 0.94)',
-              backdropFilter: 'blur(36px)',
-              borderLeft: '1px solid rgba(255,255,255,0.18)',
-              padding: '2.2rem',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '1.75rem',
-              overflowY: 'auto',
-              zIndex: 5,
-              boxShadow: '-20px 0 50px rgba(0,0,0,0.6)'
-            }}>
-              {/* Analytics Panel Header */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '1.2rem' }}>
-                <h3 style={{ margin: 0, fontSize: '1.6rem', fontWeight: 900, color: '#fff', display: 'flex', alignItems: 'center', gap: '0.85rem', letterSpacing: '0.6px' }}>
-                  📈 АНАЛИТИКА И СТАТИСТИКА
-                </h3>
-                <button 
-                  onClick={() => setShowAnalytics(false)} 
-                  style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.16)', color: '#cbd5e1', borderRadius: '14px', width: '42px', height: '42px', cursor: 'pointer', fontSize: '1.3rem', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                  title="Закрыть панель"
-                >
-                  ✕
-                </button>
-              </div>
-
-              {/* Primary KPI Card: Total Budget */}
-              <div style={{ background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.28), rgba(59, 130, 246, 0.28))', border: '1px solid rgba(59, 130, 246, 0.5)', borderRadius: '26px', padding: '2rem', boxShadow: '0 15px 40px rgba(0,0,0,0.4)' }}>
-                <div style={{ fontSize: '1.05rem', color: '#cbd5e1', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '0.75rem' }}>
-                  💰 Общий бюджет сделок в воронке
-                </div>
-                <div style={{ fontSize: '3.2rem', fontWeight: 900, color: '#34d399', letterSpacing: '0.5px', textShadow: '0 0 25px rgba(52, 211, 153, 0.4)', lineHeight: 1.1 }}>
-                  14 880 000 ₸
-                </div>
-                <div style={{ fontSize: '1.05rem', color: '#34d399', fontWeight: 800, marginTop: '1.1rem', display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-                  <span style={{ background: 'rgba(52, 211, 153, 0.22)', padding: '0.4rem 0.9rem', borderRadius: '12px', border: '1px solid rgba(52, 211, 153, 0.45)', fontSize: '1.05rem' }}>▲ +18.4%</span>
-                  <span style={{ color: '#cbd5e1', fontWeight: 600 }}>к прошлому месяцу</span>
-                </div>
-              </div>
-
-              {/* Secondary KPI Grid (4 Columns) */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '1.1rem' }}>
-                <div style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '22px', padding: '1.35rem' }}>
-                  <div style={{ fontSize: '0.88rem', color: '#cbd5e1', fontWeight: 700, marginBottom: '0.45rem' }}>🎯 Конверсия воронки</div>
-                  <div style={{ fontSize: '1.85rem', fontWeight: 900, color: '#38bdf8' }}>78.2%</div>
-                  <div style={{ fontSize: '0.82rem', color: '#cbd5e1', marginTop: '0.35rem' }}>7 из 9 сделок</div>
-                </div>
-
-                <div style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '22px', padding: '1.35rem' }}>
-                  <div style={{ fontSize: '0.88rem', color: '#cbd5e1', fontWeight: 700, marginBottom: '0.45rem' }}>⏱️ Средний цикл</div>
-                  <div style={{ fontSize: '1.85rem', fontWeight: 900, color: '#93c5fd' }}>3.2 дня</div>
-                  <div style={{ fontSize: '0.82rem', color: '#34d399', marginTop: '0.35rem' }}>⚡ Быстрее на 0.8дн</div>
-                </div>
-
-                <div style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '22px', padding: '1.35rem' }}>
-                  <div style={{ fontSize: '0.88rem', color: '#cbd5e1', fontWeight: 700, marginBottom: '0.45rem' }}>💵 Средний чек</div>
-                  <div style={{ fontSize: '1.85rem', fontWeight: 900, color: '#f59e0b' }}>2.1M ₸</div>
-                  <div style={{ fontSize: '0.82rem', color: '#cbd5e1', marginTop: '0.35rem' }}>на 1 объект</div>
-                </div>
-
-                <div style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '22px', padding: '1.35rem' }}>
-                  <div style={{ fontSize: '0.88rem', color: '#cbd5e1', fontWeight: 700, marginBottom: '0.45rem' }}>🏆 Закрыто</div>
-                  <div style={{ fontSize: '1.85rem', fontWeight: 900, color: '#34d399' }}>1.8M ₸</div>
-                  <div style={{ fontSize: '0.82rem', color: '#34d399', marginTop: '0.35rem' }}>Успешный этап</div>
-                </div>
-              </div>
-
-              {/* SVG Donut Chart Section (Huge 200px Donut) */}
-              <div style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '24px', padding: '1.75rem' }}>
-                <div style={{ fontSize: '1.2rem', fontWeight: 900, color: '#fff', marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span>🥧 Распределение воронки продаж</span>
-                  <span style={{ fontSize: '0.92rem', color: '#93c5fd', fontWeight: 800, background: 'rgba(192, 132, 252, 0.2)', padding: '0.35rem 1rem', borderRadius: '14px' }}>7 сделок</span>
-                </div>
-
-                <div style={{ display: 'flex', alignItems: 'center', gap: '2.5rem', marginBottom: '0.5rem' }}>
-                  {/* Huge SVG Donut Chart (200px) */}
-                  <div style={{ position: 'relative', width: '200px', height: '200px', flexShrink: 0 }}>
-                    <svg width="200" height="200" viewBox="0 0 42 42" style={{ transform: 'rotate(-90deg)' }}>
-                      <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="rgba(255,255,255,0.06)" strokeWidth="4.5" />
-                      <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#ef4444" strokeWidth="4.5" strokeDasharray="28 72" strokeDashoffset="0" />
-                      <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#3b82f6" strokeWidth="4.5" strokeDasharray="14 86" strokeDashoffset="-28" />
-                      <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#f59e0b" strokeWidth="4.5" strokeDasharray="43 57" strokeDashoffset="-42" />
-                      <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#22c55e" strokeWidth="4.5" strokeDasharray="15 85" strokeDashoffset="-85" />
-                    </svg>
-                    <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                      <span style={{ fontSize: '1.75rem', fontWeight: 900, color: '#fff' }}>14.8M</span>
-                      <span style={{ fontSize: '0.92rem', color: '#cbd5e1', fontWeight: 600 }}>₸ сум</span>
-                    </div>
-                  </div>
-
-                  {/* Chart Legend (2 Columns Grid) */}
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem', flex: 1, fontSize: '1.02rem' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.04)', padding: '0.7rem 1rem', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.08)' }}>
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: '#cbd5e1' }}>
-                        <span style={{ width: '14px', height: '14px', borderRadius: '50%', backgroundColor: '#ef4444', boxShadow: '0 0 10px #ef4444' }} />
-                        Новые
-                      </span>
-                      <span style={{ fontWeight: 900, color: '#fff' }}>2.1M ₸ (28%)</span>
-                    </div>
-
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.04)', padding: '0.7rem 1rem', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.08)' }}>
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: '#cbd5e1' }}>
-                        <span style={{ width: '14px', height: '14px', borderRadius: '50%', backgroundColor: '#3b82f6', boxShadow: '0 0 10px #3b82f6' }} />
-                        В работе
-                      </span>
-                      <span style={{ fontWeight: 900, color: '#fff' }}>3.4M ₸ (23%)</span>
-                    </div>
-
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.04)', padding: '0.7rem 1rem', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.08)' }}>
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: '#cbd5e1' }}>
-                        <span style={{ width: '14px', height: '14px', borderRadius: '50%', backgroundColor: '#f59e0b', boxShadow: '0 0 10px #f59e0b' }} />
-                        Дожим
-                      </span>
-                      <span style={{ fontWeight: 900, color: '#fff' }}>7.5M ₸ (34%)</span>
-                    </div>
-
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.04)', padding: '0.7rem 1rem', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.08)' }}>
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: '#cbd5e1' }}>
-                        <span style={{ width: '14px', height: '14px', borderRadius: '50%', backgroundColor: '#22c55e', boxShadow: '0 0 10px #22c55e' }} />
-                        Успешно
-                      </span>
-                      <span style={{ fontWeight: 900, color: '#fff' }}>1.8M ₸ (15%)</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Monthly Revenue Bar Chart Section (Large 180px Height Bars) */}
-              <div style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '24px', padding: '1.75rem' }}>
-                <div style={{ fontSize: '1.2rem', fontWeight: 900, color: '#fff', marginBottom: '1.5rem' }}>
-                  📊 Динамика выручки по месяцах (Май — Август)
-                </div>
-
-                <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: '1.5rem', height: '180px', paddingTop: '1.5rem' }}>
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.6rem', flex: 1 }}>
-                    <span style={{ fontSize: '0.92rem', color: '#cbd5e1', fontWeight: 800 }}>8.5M ₸</span>
-                    <div style={{ width: '100%', height: '85px', background: 'linear-gradient(180deg, #6366f1, #4f46e5)', borderRadius: '12px 12px 6px 6px' }} />
-                    <span style={{ fontSize: '0.92rem', color: '#94a3b8', fontWeight: 700 }}>Май</span>
-                  </div>
-
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.6rem', flex: 1 }}>
-                    <span style={{ fontSize: '0.92rem', color: '#cbd5e1', fontWeight: 800 }}>11.2M ₸</span>
-                    <div style={{ width: '100%', height: '115px', background: 'linear-gradient(180deg, #2563eb, #1d4ed8)', borderRadius: '12px 12px 6px 6px' }} />
-                    <span style={{ fontSize: '0.92rem', color: '#94a3b8', fontWeight: 700 }}>Июнь</span>
-                  </div>
-
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.6rem', flex: 1 }}>
-                    <span style={{ fontSize: '0.92rem', color: '#cbd5e1', fontWeight: 800 }}>12.6M ₸</span>
-                    <div style={{ width: '100%', height: '135px', background: 'linear-gradient(180deg, #38bdf8, #db2777)', borderRadius: '12px 12px 6px 6px' }} />
-                    <span style={{ fontSize: '0.92rem', color: '#94a3b8', fontWeight: 700 }}>Июль</span>
-                  </div>
-
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.6rem', flex: 1 }}>
-                    <span style={{ fontSize: '0.95rem', color: '#34d399', fontWeight: 900 }}>14.8M ₸</span>
-                    <div style={{ width: '100%', height: '160px', background: 'linear-gradient(180deg, #10b981, #059669)', borderRadius: '12px 12px 6px 6px', boxShadow: '0 0 25px rgba(16, 185, 129, 0.6)' }} />
-                    <span style={{ fontSize: '0.95rem', color: '#34d399', fontWeight: 900 }}>Август ⚡</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Stage Progress Bars */}
-              <div style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '24px', padding: '1.75rem' }}>
-                <div style={{ fontSize: '1.2rem', fontWeight: 900, color: '#fff', marginBottom: '1.25rem' }}>
-                  🎯 Выполнение плана по этапам
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
-                  <div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.02rem', color: '#cbd5e1', marginBottom: '0.45rem' }}>
-                      <span>Новые обращения клиентов</span>
-                      <span style={{ fontWeight: 900, color: '#ef4444' }}>85% плана</span>
-                    </div>
-                    <div style={{ width: '100%', height: '12px', background: 'rgba(255,255,255,0.08)', borderRadius: '10px', overflow: 'hidden' }}>
-                      <div style={{ width: '85%', height: '100%', background: 'linear-gradient(90deg, #ef4444, #f87171)', borderRadius: '10px' }} />
-                    </div>
-                  </div>
-
-                  <div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.02rem', color: '#cbd5e1', marginBottom: '0.45rem' }}>
-                      <span>Подготовка ПСД & Инженерных смет</span>
-                      <span style={{ fontWeight: 900, color: '#3b82f6' }}>92% плана</span>
-                    </div>
-                    <div style={{ width: '100%', height: '12px', background: 'rgba(255,255,255,0.08)', borderRadius: '10px', overflow: 'hidden' }}>
-                      <div style={{ width: '92%', height: '100%', background: 'linear-gradient(90deg, #3b82f6, #60a5fa)', borderRadius: '10px' }} />
-                    </div>
-                  </div>
-
-                  <div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.02rem', color: '#cbd5e1', marginBottom: '0.45rem' }}>
-                      <span>Заключение договоров (Дожим)</span>
-                      <span style={{ fontWeight: 900, color: '#f59e0b' }}>68% плана</span>
-                    </div>
-                    <div style={{ width: '100%', height: '12px', background: 'rgba(255,255,255,0.08)', borderRadius: '10px', overflow: 'hidden' }}>
-                      <div style={{ width: '68%', height: '100%', background: 'linear-gradient(90deg, #f59e0b, #fbbf24)', borderRadius: '10px' }} />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* AI Assistant Smart Insight Card */}
-              <div style={{ background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.3), rgba(56, 189, 248, 0.3))', border: '1px solid rgba(59, 130, 246, 0.6)', borderRadius: '26px', padding: '1.6rem', boxShadow: '0 12px 35px rgba(0,0,0,0.35)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: '#93c5fd', fontWeight: 900, fontSize: '1.15rem', marginBottom: '0.65rem' }}>
-                  <span>✨ AI Smart Insight (ИИ Прогноз)</span>
-                </div>
-                <p style={{ margin: 0, fontSize: '1.02rem', color: '#e2e8f0', lineHeight: 1.6 }}>
-                  Сделка <strong>#1087 (Техэкспертиза)</strong> в стадии «Дожим» имеет <strong>89% вероятность</strong> успешной оплаты до конца текущей недели.
-                </p>
-              </div>
-
-            </aside>
-          )}
-
+          <div style={{ fontSize: '0.85rem', color: '#64748b', marginTop: '4px' }}>
+            {dayEvents.length} заявок на этот день • {dayEvents.reduce((a, c) => a + parseBudget(c.budget), 0).toLocaleString('ru-RU')} ₸
+          </div>
         </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '70px 1fr', gap: '1px', maxHeight: 'calc(100vh - 320px)', overflowY: 'auto' }}>
+          {hours.map(h => {
+            const hourEvents = dayEvents.filter(evt => parseInt(evt.time?.split(':')[0], 10) === h);
+            return (
+              <React.Fragment key={h}>
+                <div style={{ padding: '8px 12px', fontSize: '0.82rem', color: '#64748b', fontWeight: 700, textAlign: 'right', borderRight: '2px solid rgba(0,229,255,0.15)' }}>
+                  {String(h).padStart(2, '0')}:00
+                </div>
+                <div
+                  onDragOver={e => { e.preventDefault(); setDragOverDate(`${dateStr}-${h}`); }}
+                  onDragLeave={() => setDragOverDate(null)}
+                  onDrop={e => handleDrop(e, dateStr)}
+                  style={{
+                    minHeight: '56px', padding: '4px 8px',
+                    borderBottom: '1px solid rgba(255,255,255,0.04)',
+                    background: dragOverDate === `${dateStr}-${h}` ? 'rgba(0,229,255,0.06)' : 'transparent',
+                  }}
+                >
+                  {hourEvents.map(evt => {
+                    const sc = STATUS_COLORS[evt.status] || STATUS_COLORS['Новые'];
+                    return (
+                      <div
+                        key={evt.id}
+                        draggable
+                        onDragStart={e => handleDragStart(e, { ...evt, date: dateStr })}
+                        onClick={() => setSelectedCard({ ...evt, date: dateStr, day: dateStr })}
+                        style={{
+                          display: 'flex', gap: '12px', padding: '12px 16px', marginBottom: '6px',
+                          background: sc.bg, border: `1px solid ${sc.border}50`,
+                          borderLeft: `4px solid ${sc.dot}`, borderRadius: '12px',
+                          cursor: 'grab', transition: 'all 0.2s',
+                          backdropFilter: 'blur(12px)',
+                        }}
+                        onMouseEnter={e => e.currentTarget.style.boxShadow = `0 6px 24px ${sc.dot}30`}
+                        onMouseLeave={e => e.currentTarget.style.boxShadow = 'none'}
+                      >
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontWeight: 800, fontSize: '0.9rem', color: '#f1f5f9', marginBottom: '4px' }}>{evt.title}</div>
+                          <div style={{ fontSize: '0.78rem', color: '#94a3b8' }}>
+                            🏢 {evt.contractor} • 📍 {evt.location}
+                          </div>
+                          <div style={{ fontSize: '0.78rem', color: '#94a3b8', marginTop: '2px' }}>
+                            📞 {evt.phone || evt.time}
+                          </div>
+                        </div>
+                        <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                          <div style={{ fontSize: '0.9rem', fontWeight: 800, color: '#ffd700' }}>{evt.budget}</div>
+                          <div style={{
+                            marginTop: '6px', padding: '3px 10px', borderRadius: '8px', fontSize: '0.72rem', fontWeight: 700,
+                            background: sc.bg, border: `1px solid ${sc.border}`, color: sc.text, display: 'inline-block'
+                          }}>
+                            {evt.status}
+                          </div>
+                          {/* Quick status change */}
+                          <div style={{ display: 'flex', gap: '4px', marginTop: '6px', justifyContent: 'flex-end' }}>
+                            {['Новые', 'В работе', 'Дожим', 'Успешно'].filter(s => s !== evt.status).slice(0, 2).map(s => (
+                              <button
+                                key={s}
+                                onClick={(e) => { e.stopPropagation(); handleStatusChange(evt.id, dateStr, s); }}
+                                style={{
+                                  fontSize: '0.62rem', padding: '2px 6px', borderRadius: '6px',
+                                  background: STATUS_COLORS[s].bg, border: `1px solid ${STATUS_COLORS[s].border}50`,
+                                  color: STATUS_COLORS[s].text, cursor: 'pointer', fontWeight: 700,
+                                }}
+                              >
+                                → {s}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </React.Fragment>
+            );
+          })}
         </div>
       </div>
-      
+    );
+  };
+
+  // ═══════════════════════════════════
+  // MAIN RENDER
+  // ═══════════════════════════════════
+  const headerLabel = view === 'month'
+    ? `${MONTHS_RU[currentDate.getMonth()]} ${currentDate.getFullYear()}`
+    : view === 'week'
+    ? (() => { const m = getMonday(currentDate); const s = new Date(m); s.setDate(s.getDate() + 6); return `${m.getDate()} – ${s.getDate()} ${MONTHS_RU[s.getMonth()]} ${s.getFullYear()}`; })()
+    : `${currentDate.getDate()} ${MONTHS_RU[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
+
+  return (
+    <div style={{ position: 'relative', minHeight: '100vh', padding: '0' }}>
+      <AnimatedBackground />
+      {toastMsg && (
+        <div style={{
+          position: 'fixed', top: '20px', right: '20px', zIndex: 10002,
+          background: 'rgba(0,229,255,0.15)', border: '1px solid rgba(0,229,255,0.4)',
+          backdropFilter: 'blur(20px)', borderRadius: '12px', padding: '14px 24px',
+          color: '#00e5ff', fontWeight: 700, fontSize: '0.9rem',
+          animation: 'fadeIn 0.3s ease',
+        }}>
+          {toastMsg}
+        </div>
+      )}
+
+      {/* ═══ TOP BAR ═══ */}
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: '12px', padding: '16px 24px',
+        background: 'rgba(10,22,40,0.85)', borderBottom: '1px solid rgba(0,229,255,0.15)',
+        backdropFilter: 'blur(20px)', position: 'sticky', top: 0, zIndex: 100,
+        flexWrap: 'wrap',
+      }}>
+        {/* Left: Back + Title */}
+        <button onClick={onBackToHome} style={{
+          background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)',
+          color: '#94a3b8', borderRadius: '10px', padding: '8px 14px', cursor: 'pointer',
+          fontWeight: 700, fontSize: '0.85rem',
+        }}>← На сайт</button>
+
+        <h1 style={{ margin: 0, fontSize: '1.3rem', fontWeight: 900, color: '#f1f5f9', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          📅 CRM КАЛЕНДАРЬ
+        </h1>
+
+        {/* KPI badges */}
+        <div style={{ display: 'flex', gap: '8px', marginLeft: '12px' }}>
+          <div style={{ padding: '5px 12px', borderRadius: '10px', background: 'rgba(0,229,255,0.1)', border: '1px solid rgba(0,229,255,0.3)', color: '#00e5ff', fontSize: '0.78rem', fontWeight: 800 }}>
+            📊 {stats.total} заявок
+          </div>
+          <div style={{ padding: '5px 12px', borderRadius: '10px', background: 'rgba(255,215,0,0.1)', border: '1px solid rgba(255,215,0,0.3)', color: '#ffd700', fontSize: '0.78rem', fontWeight: 800 }}>
+            💰 {stats.budget.toLocaleString('ru-RU')} ₸
+          </div>
+        </div>
+
+        <div style={{ flex: 1 }} />
+
+        {/* Search */}
+        <div style={{ position: 'relative' }}>
+          <span style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', fontSize: '0.85rem' }}>🔍</span>
+          <input
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            placeholder="Поиск по названию..."
+            style={{
+              background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)',
+              borderRadius: '10px', padding: '8px 12px 8px 32px', color: '#e2e8f0',
+              fontSize: '0.85rem', width: '200px', outline: 'none',
+            }}
+          />
+        </div>
+
+        {/* New Lead */}
+        <button onClick={() => setShowLeadModal(true)} style={{
+          background: 'linear-gradient(135deg, #00e5ff, #0284c7)', border: 'none',
+          borderRadius: '10px', padding: '8px 18px', color: '#fff', fontWeight: 800,
+          fontSize: '0.85rem', cursor: 'pointer',
+        }}>
+          ➕ Новая заявка
+        </button>
+      </div>
+
+      {/* ═══ NAVIGATION BAR ═══ */}
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 24px',
+        background: 'rgba(10,22,40,0.6)', borderBottom: '1px solid rgba(255,255,255,0.06)',
+        backdropFilter: 'blur(12px)', flexWrap: 'wrap',
+      }}>
+        {/* View switcher */}
+        <div style={{ display: 'flex', gap: '2px', background: 'rgba(255,255,255,0.06)', borderRadius: '10px', padding: '3px' }}>
+          {[
+            { key: 'day', label: 'День' },
+            { key: 'week', label: 'Неделя' },
+            { key: 'month', label: 'Месяц' },
+          ].map(v => (
+            <button
+              key={v.key}
+              onClick={() => setView(v.key)}
+              style={{
+                padding: '6px 16px', borderRadius: '8px', border: 'none', cursor: 'pointer',
+                fontWeight: 700, fontSize: '0.82rem',
+                background: view === v.key ? 'rgba(0,229,255,0.2)' : 'transparent',
+                color: view === v.key ? '#00e5ff' : '#64748b',
+              }}
+            >
+              {v.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Date navigation */}
+        <button onClick={() => navigate(-1)} style={{ background: 'none', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', padding: '6px 12px', color: '#94a3b8', cursor: 'pointer', fontWeight: 800, fontSize: '1.1rem' }}>‹</button>
+        <span style={{ fontWeight: 900, fontSize: '1.1rem', color: '#f1f5f9', minWidth: '200px', textAlign: 'center' }}>
+          {headerLabel}
+        </span>
+        <button onClick={() => navigate(1)} style={{ background: 'none', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', padding: '6px 12px', color: '#94a3b8', cursor: 'pointer', fontWeight: 800, fontSize: '1.1rem' }}>›</button>
+
+        <button onClick={() => setCurrentDate(new Date())} style={{
+          padding: '6px 14px', borderRadius: '8px', border: '1px solid rgba(0,229,255,0.3)',
+          background: 'rgba(0,229,255,0.08)', color: '#00e5ff', cursor: 'pointer', fontWeight: 700, fontSize: '0.82rem',
+        }}>
+          Сегодня
+        </button>
+
+        <div style={{ flex: 1 }} />
+
+        {/* Status filter pills */}
+        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+          <button onClick={() => setStatusFilter('all')} style={{
+            padding: '4px 12px', borderRadius: '8px', border: statusFilter === 'all' ? '1px solid rgba(0,229,255,0.4)' : '1px solid rgba(255,255,255,0.1)',
+            background: statusFilter === 'all' ? 'rgba(0,229,255,0.15)' : 'transparent',
+            color: statusFilter === 'all' ? '#00e5ff' : '#64748b', cursor: 'pointer', fontWeight: 700, fontSize: '0.75rem',
+          }}>Все</button>
+          {Object.keys(STATUS_COLORS).map(s => (
+            <button key={s} onClick={() => setStatusFilter(s)} style={{
+              padding: '4px 12px', borderRadius: '8px',
+              border: statusFilter === s ? `1px solid ${STATUS_COLORS[s].border}` : '1px solid rgba(255,255,255,0.1)',
+              background: statusFilter === s ? STATUS_COLORS[s].bg : 'transparent',
+              color: statusFilter === s ? STATUS_COLORS[s].text : '#64748b',
+              cursor: 'pointer', fontWeight: 700, fontSize: '0.75rem',
+            }}>
+              {s}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* ═══ CALENDAR CONTENT ═══ */}
+      <div style={{ padding: '16px 24px', position: 'relative', zIndex: 1 }}>
+        {view === 'month' && renderMonthView()}
+        {view === 'week' && renderWeekView()}
+        {view === 'day' && renderDayView()}
+      </div>
+
+      {/* ═══ STATUS LEGEND (bottom) ═══ */}
+      <div style={{
+        display: 'flex', gap: '16px', padding: '12px 24px', justifyContent: 'center',
+        background: 'rgba(10,22,40,0.6)', borderTop: '1px solid rgba(255,255,255,0.06)',
+        flexWrap: 'wrap',
+      }}>
+        {Object.entries(STATUS_COLORS).map(([status, sc]) => (
+          <div key={status} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.75rem', color: '#94a3b8' }}>
+            <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: sc.dot }} />
+            <span>{status}</span>
+            <span style={{ color: sc.text, fontWeight: 800 }}>{stats.byStatus[status] || 0}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* ═══ MODALS ═══ */}
       {selectedCard && (
-        <DealCardModal 
-          card={selectedCard} 
-          onClose={() => setSelectedCard(null)} 
-          onSave={handleSaveCard} 
-          currentUser={currentUser}
+        <DealCardModal
+          card={selectedCard}
+          onClose={() => setSelectedCard(null)}
+          onSave={handleSaveCard}
         />
       )}
-      
       {showLeadModal && (
-        <LeadCreateModal 
-          onClose={() => setShowLeadModal(false)} 
-          onSave={handleCreateAndSendLead} 
+        <LeadCreateModal
+          onClose={() => setShowLeadModal(false)}
+          onSave={handleNewLead}
         />
       )}
-      
-      <style dangerouslySetInnerHTML={{__html: `
-        .crm-kanban-board-container::-webkit-scrollbar {
-          height: 12px;
-        }
-        .crm-kanban-board-container::-webkit-scrollbar-track {
-          background: rgba(18, 22, 38, 0.85);
-          border-radius: 10px;
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          margin: 0 1.5rem;
-        }
-        .crm-kanban-board-container::-webkit-scrollbar-thumb {
-          background: linear-gradient(90deg, #38bdf8, #2563eb, #3b82f6);
-          border-radius: 10px;
-          box-shadow: 0 0 12px rgba(37, 99, 235, 0.6);
-          cursor: pointer;
-        }
-        .crm-kanban-board-container::-webkit-scrollbar-thumb:hover {
-          background: linear-gradient(90deg, #ef4444, #3b82f6, #60a5fa);
-          box-shadow: 0 0 16px rgba(56, 189, 248, 0.8);
-        }
-
-        /* Mobile Adaptation for CRM Manager - Extremely Compact */
-        @media (max-width: 900px) {
-          .crm-header-container {
-            display: grid !important;
-            grid-template-columns: 1fr 1fr !important;
-            gap: 0.4rem !important;
-            padding: 0.5rem !important;
-          }
-          
-          /* Flatten the layout to use grid directly */
-          .crm-header-left, .crm-header-right {
-            display: contents !important;
-          }
-          
-          /* Hide main title to save space */
-          .crm-header-left > h1 {
-            display: none !important;
-          }
-          
-          /* Row 1: Wallet & New Lead Button */
-          .crm-wallet-group {
-            grid-column: 1 / -1;
-            display: flex;
-            align-items: stretch;
-            gap: 0.5rem;
-          }
-          .crm-back-btn {
-            padding: 0 !important;
-            width: 3.2rem !important; /* Fixed width to make it square-like */
-            justify-content: center;
-          }
-          .crm-back-btn span:first-child {
-            font-size: 1.35rem !important; /* Larger icon on mobile */
-          }
-          .crm-back-text {
-            display: none;
-          }
-          .crm-wallet {
-            flex: 1;
-            padding: 0.35rem 0.85rem !important;
-            border-radius: 8px !important;
-            gap: 0.5rem !important;
-            justify-content: flex-start;
-          }
-          .crm-wallet span:first-child { 
-            font-size: 1.15rem !important; 
-          }
-          .crm-wallet div {
-            white-space: nowrap;
-          }
-          .crm-wallet div span:nth-child(1) { 
-            font-size: 0.6rem !important; 
-          }
-          .crm-wallet div span:nth-child(2) { 
-            font-size: 0.95rem !important; 
-          }
-          
-          .crm-header-right button:not(.crm-desktop-only) {
-            grid-column: 1 / -1;
-            width: 100%;
-            height: 100%;
-            margin: 0 !important;
-            padding: 0.5rem !important;
-            font-size: 0.95rem !important;
-            border-radius: 8px !important;
-            justify-content: center;
-          }
-
-          /* Row 2: Search */
-          .crm-search {
-            grid-column: 1 / -1;
-            padding: 0.35rem 0.6rem !important;
-            border-radius: 8px !important;
-            max-width: 100% !important;
-          }
-          
-          /* Row 3: Filter */
-          .crm-filter {
-            grid-column: 1 / -1;
-            padding: 0.35rem 0.6rem !important;
-            border-radius: 8px !important;
-          }
-
-          /* Row 4: Period Control */
-          .crm-period {
-            grid-column: 1 / -1;
-            flex-wrap: nowrap !important;
-            overflow-x: auto;
-            border-radius: 8px !important;
-            padding: 0.2rem !important;
-            justify-content: space-between;
-          }
-          .crm-period::-webkit-scrollbar { 
-            display: none; 
-          }
-          .crm-period button {
-            flex: 1 0 auto;
-            padding: 0.25rem 0.5rem !important;
-            font-size: 0.75rem !important;
-          }
-          
-          .crm-kanban-board-container {
-            padding: 0.5rem !important;
-            gap: 0.75rem !important;
-          }
-          .crm-kanban-column {
-            flex: 0 0 88vw !important;
-            max-width: 320px !important;
-          }
-          
-          .crm-desktop-only {
-            display: none !important;
-          }
-        }
-      `}} />
     </div>
   );
 }
