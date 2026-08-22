@@ -694,10 +694,6 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
               <span>$0.00</span>
             </div>
 
-            <button className="header-icon-btn" onClick={toggleTheme} title="Переключить тему">
-              {theme === 'dark' ? '🌙' : '☀️'}
-            </button>
-
             <div className="lang-switch">
               <button className="lang-btn active">RU</button>
               <button className="lang-btn">KZ</button>
@@ -886,9 +882,6 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
 
         {/* Mobile Header Bar Quick Actions & Hamburger Trigger */}
         <div className="mobile-header-actions">
-          <button className="icon-action-btn" onClick={toggleTheme} title="Тема">
-            {theme === 'dark' ? '🌙' : '☀️'}
-          </button>
           <button
             className="mobile-menu-btn"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
