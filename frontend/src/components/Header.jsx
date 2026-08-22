@@ -527,62 +527,44 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
 
           {/* ── GLOBAL NAV: Materials & Equipment (visible to all) ── */}
           <button
-            className="nav-marketplace-btn nav-materials-btn"
+            className="header-nav-link nav-materials"
             onClick={() => { closeDropdown(); if (onOpenMaterials) onOpenMaterials(); }}
             title="Маркетплейс строительных материалов"
           >
-            <span className="nav-btn-badge">🧱</span>
-            <span className="nav-btn-text">Стройматериалы</span>
+            <span>🧱</span>
+            <span>Стройматериалы</span>
           </button>
 
           <button
-            className="nav-marketplace-btn nav-equipment-btn"
+            className="header-nav-link nav-equipment"
             onClick={() => { closeDropdown(); if (onOpenEquipment) onOpenEquipment(); }}
             title="Маркетплейс спецтехники"
           >
-            <span className="nav-btn-badge">🚜</span>
-            <span className="nav-btn-text">Техника</span>
+            <span>🚜</span>
+            <span>Техника</span>
           </button>
 
         </div>
 
         {/* ── CITY SELECTOR WITH GPS AUTO-DETECTION ── */}
-        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: '0px' }}>
+        <div className="city-picker-box" style={{ position: 'relative' }}>
           <button
+            className="city-select-btn"
             onClick={() => setIsCityDropdownOpen(!isCityDropdownOpen)}
-            style={{
-              display: 'flex', alignItems: 'center', gap: '6px',
-              padding: '6px 14px', borderRadius: '12px',
-              background: isCityDropdownOpen ? 'rgba(0, 229, 255, 0.15)' : 'rgba(255,255,255,0.06)',
-              border: `1px solid ${isCityDropdownOpen ? 'rgba(0, 229, 255, 0.4)' : 'rgba(255,255,255,0.12)'}`,
-              color: selectedCity ? '#fff' : '#94a3b8',
-              fontSize: '0.82rem', fontWeight: 700,
-              cursor: 'pointer', transition: 'all 0.2s ease',
-              whiteSpace: 'nowrap'
-            }}
           >
-            <span style={{ fontSize: '1rem' }}>📍</span>
+            <span style={{ fontSize: '0.95rem' }}>📍</span>
             <span>{selectedCity || 'Выберите город'}</span>
-            <span style={{ fontSize: '0.65rem', opacity: 0.6, marginLeft: '2px' }}>▼</span>
+            <span style={{ fontSize: '0.65rem', opacity: 0.6 }}>▼</span>
           </button>
 
           {/* GPS Auto-detect button */}
           <button
+            className="gps-btn"
             onClick={handleAutoDetectCity}
             disabled={isDetectingCity}
             title="Автоопределение по GPS"
-            style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              width: '32px', height: '32px', borderRadius: '10px', marginLeft: '4px',
-              background: isDetectingCity ? 'rgba(0, 229, 255, 0.2)' : 'rgba(255,255,255,0.06)',
-              border: '1px solid rgba(0, 229, 255, 0.25)',
-              color: '#00e5ff', fontSize: '1rem',
-              cursor: isDetectingCity ? 'wait' : 'pointer',
-              transition: 'all 0.2s ease',
-              animation: isDetectingCity ? 'pulse 1.2s ease-in-out infinite' : 'none'
-            }}
           >
-            {isDetectingCity ? '◎' : '◉'}
+            {isDetectingCity ? '⟳' : '⌖'}
           </button>
 
           {/* Geo Error tooltip */}
@@ -695,24 +677,26 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
 
         {/* Right Action Icons & Login */}
         <div className="header-right-actions">
-          <div 
-            className="balance-badge" 
-            title="Открыть Мой Кошелёк"
-            style={{ cursor: 'pointer' }}
-            onClick={onOpenWallet}
-          >
-            <span className="balance-icon">💰</span>
-            <span className="balance-amount">$0.00</span>
-          </div>
+          {/* Utility Capsule Group */}
+          <div className="header-utility-group">
+            <div 
+              className="balance-chip" 
+              title="Открыть Мой Кошелёк"
+              onClick={onOpenWallet}
+            >
+              <span>💳</span>
+              <span>$0.00</span>
+            </div>
 
-          <button className="icon-action-btn" onClick={toggleTheme} title="Переключить тему">
-            {theme === 'dark' ? '🌙' : '☀️'}
-          </button>
+            <button className="header-icon-btn" onClick={toggleTheme} title="Переключить тему">
+              {theme === 'dark' ? '🌙' : '☀️'}
+            </button>
 
-          <div className="lang-switch">
-            <button className="lang-btn active">RU</button>
-            <button className="lang-btn">KZ</button>
-            <button className="lang-btn">EN</button>
+            <div className="lang-switch">
+              <button className="lang-btn active">RU</button>
+              <button className="lang-btn">KZ</button>
+              <button className="lang-btn">EN</button>
+            </div>
           </div>
 
           {currentUser && (
