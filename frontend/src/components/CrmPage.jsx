@@ -199,11 +199,19 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
   }, [events, isEventVisible]);
 
   const stats = useMemo(() => {
-    const s = { total: allCards.length, budget: 0, byRole: { engineer: 0, executor: 0, lead: 0, machinery: 0 } };
+    const s = {
+      total: allCards.length,
+      totalBudget: 0,
+      byRole: { engineer: 0, executor: 0, lead: 0, machinery: 0 },
+      byStatus: { 'Новые': 0, 'В работе': 0, 'Дожим': 0, 'Успешно': 0, 'Отказ': 0 }
+    };
     allCards.forEach(c => {
-      s.budget += parseBudget(c.budget);
+      s.totalBudget += parseBudget(c.budget);
       const t = getCardTypeKey(c);
       s.byRole[t] = (s.byRole[t] || 0) + 1;
+      if (c.status) {
+        s.byStatus[c.status] = (s.byStatus[c.status] || 0) + 1;
+      }
     });
     return s;
   }, [allCards, getCardTypeKey]);
@@ -586,23 +594,30 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
 
       {/* ═══ TOP BAR ═══ */}
       <div style={{
-        display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px',
+        display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 20px',
         background: 'rgba(10, 16, 30, 0.94)', borderBottom: '1px solid rgba(0,229,255,0.25)',
         backdropFilter: 'blur(20px)', position: 'sticky', top: 0, zIndex: 100,
         flexWrap: 'wrap',
       }}>
         <button onClick={onBackToHome} style={{
           background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.18)',
-          color: '#ffffff', borderRadius: '6px', padding: '5px 10px', cursor: 'pointer',
-          fontWeight: 800, fontSize: '0.76rem',
+          color: '#ffffff', borderRadius: '6px', padding: '6px 12px', cursor: 'pointer',
+          fontWeight: 800, fontSize: '0.78rem', transition: 'all 0.15s'
         }}>← На сайт</button>
 
-        <h1 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 900, color: '#ffffff', display: 'flex', alignItems: 'center', gap: '6px' }}>
+        <h1 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 900, color: '#ffffff', display: 'flex', alignItems: 'center', gap: '6px', letterSpacing: '0.5px' }}>
           📅 CRM КАЛЕНДАРЬ
         </h1>
 
+        {/* Счётчики KPI */}
+        <div style={{ display: 'flex', gap: '6px', alignItems: 'center', background: 'rgba(255,255,255,0.05)', padding: '3px 8px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.1)' }}>
+          <span style={{ fontSize: '0.72rem', color: '#94a3b8' }}>Всего: <strong style={{ color: '#00e5ff' }}>{stats.total}</strong></span>
+          <span style={{ color: 'rgba(255,255,255,0.2)' }}>•</span>
+          <span style={{ fontSize: '0.72rem', color: '#94a3b8' }}>Бюджет: <strong style={{ color: '#ffd700' }}>{(stats.totalBudget / 1000000).toFixed(1)}M ₸</strong></span>
+        </div>
+
         {/* Ролевые фильтры-табы */}
-        <div style={{ display: 'flex', gap: '4px', marginLeft: '8px' }}>
+        <div style={{ display: 'flex', gap: '4px', marginLeft: '4px' }}>
           {[
             { key: 'all', label: 'Все' },
             { key: 'engineer', label: '👷 Выезды инженера' },
@@ -613,7 +628,7 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
               key={rf.key}
               onClick={() => setRoleFilter(rf.key)}
               style={{
-                padding: '4px 8px', borderRadius: '6px', fontSize: '0.72rem', fontWeight: 800, cursor: 'pointer',
+                padding: '5px 10px', borderRadius: '6px', fontSize: '0.72rem', fontWeight: 800, cursor: 'pointer',
                 background: roleFilter === rf.key ? 'linear-gradient(135deg, #00e5ff, #0284c7)' : 'rgba(255,255,255,0.06)',
                 color: roleFilter === rf.key ? '#0a1628' : '#cbd5e1',
                 border: roleFilter === rf.key ? '1px solid #00e5ff' : '1px solid rgba(255,255,255,0.12)'
@@ -624,19 +639,52 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
           ))}
         </div>
 
+        {/* Фильтры по статусам */}
+        <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+          {[
+            { key: 'all', label: 'Все статусы', color: '#00e5ff' },
+            { key: 'Новые', label: 'Новые', color: '#a78bfa' },
+            { key: 'В работе', label: 'В работе', color: '#60a5fa' },
+            { key: 'Дожим', label: 'Дожим', color: '#fbbf24' },
+            { key: 'Успешно', label: 'Успешно', color: '#4ade80' },
+            { key: 'Отказ', label: 'Отказ', color: '#f87171' },
+          ].map(sf => {
+            const count = sf.key === 'all' ? stats.total : (stats.byStatus[sf.key] || 0);
+            const active = statusFilter === sf.key;
+            return (
+              <button
+                key={sf.key}
+                onClick={() => setStatusFilter(sf.key)}
+                style={{
+                  padding: '4px 8px', borderRadius: '6px', fontSize: '0.72rem', fontWeight: 800, cursor: 'pointer',
+                  background: active ? `${sf.color}30` : 'rgba(255,255,255,0.06)',
+                  color: active ? sf.color : '#cbd5e1',
+                  border: active ? `1px solid ${sf.color}` : '1px solid rgba(255,255,255,0.12)',
+                  display: 'flex', alignItems: 'center', gap: '4px'
+                }}
+              >
+                <span>{sf.label}</span>
+                <span style={{ fontSize: '0.62rem', background: active ? sf.color : 'rgba(255,255,255,0.15)', color: active ? '#0a1628' : '#fff', padding: '0px 4px', borderRadius: '4px', fontWeight: 900 }}>
+                  {count}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
         <div style={{ flex: 1 }} />
 
         {/* Поиск */}
         <div style={{ position: 'relative' }}>
-          <span style={{ position: 'absolute', left: '8px', top: '50%', transform: 'translateY(-50%)', fontSize: '0.75rem' }}>🔍</span>
+          <span style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', fontSize: '0.8rem' }}>🔍</span>
           <input
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             placeholder="Поиск по названию / #ID..."
             style={{
               background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.18)',
-              borderRadius: '6px', padding: '5px 8px 5px 24px', color: '#ffffff',
-              fontSize: '0.76rem', width: '170px', outline: 'none',
+              borderRadius: '6px', padding: '6px 10px 6px 28px', color: '#ffffff',
+              fontSize: '0.78rem', width: '180px', outline: 'none',
             }}
           />
         </div>
@@ -644,8 +692,8 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
         {/* Создать заявку */}
         <button onClick={() => openCreateModalForSlot(fmtDate(currentDate))} style={{
           background: 'linear-gradient(135deg, #00e5ff, #0284c7)', border: 'none',
-          borderRadius: '6px', padding: '5px 12px', color: '#0a1628', fontWeight: 900,
-          fontSize: '0.76rem', cursor: 'pointer',
+          borderRadius: '6px', padding: '6px 14px', color: '#0a1628', fontWeight: 900,
+          fontSize: '0.78rem', cursor: 'pointer', boxShadow: '0 0 12px rgba(0,229,255,0.3)'
         }}>
           ➕ Новый лид
         </button>
@@ -653,12 +701,12 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
 
       {/* ═══ НАВИГАЦИОННАЯ ПАНЕЛЬ ═══ */}
       <div style={{
-        display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 16px',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 20px',
         background: 'rgba(8, 14, 26, 0.9)', borderBottom: '1px solid rgba(255,255,255,0.08)',
-        flexWrap: 'wrap',
+        flexWrap: 'wrap', gap: '10px'
       }}>
         {/* Переключатель вида */}
-        <div style={{ display: 'flex', gap: '2px', background: 'rgba(255,255,255,0.08)', borderRadius: '6px', padding: '2px' }}>
+        <div style={{ display: 'flex', gap: '3px', background: 'rgba(255,255,255,0.08)', borderRadius: '8px', padding: '3px' }}>
           {[
             { key: 'day', label: 'День' },
             { key: 'week', label: 'Неделя' },
@@ -668,10 +716,11 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
               key={v.key}
               onClick={() => setView(v.key)}
               style={{
-                padding: '4px 10px', borderRadius: '5px', border: 'none', cursor: 'pointer',
-                fontWeight: 900, fontSize: '0.72rem',
+                padding: '5px 14px', borderRadius: '6px', border: 'none', cursor: 'pointer',
+                fontWeight: 900, fontSize: '0.78rem',
                 background: view === v.key ? '#00e5ff' : 'transparent',
                 color: view === v.key ? '#0a1628' : '#94a3b8',
+                transition: 'all 0.15s ease'
               }}
             >
               {v.label}
@@ -680,22 +729,35 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
         </div>
 
         {/* Навигация по датам */}
-        <button onClick={() => navigate(-1)} style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '5px', padding: '3px 8px', color: '#fff', cursor: 'pointer', fontWeight: 900 }}>‹</button>
-        <span style={{ fontWeight: 900, fontSize: '0.9rem', color: '#ffffff', minWidth: '150px', textAlign: 'center' }}>
-          {headerLabel}
-        </span>
-        <button onClick={() => navigate(1)} style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '5px', padding: '3px 8px', color: '#fff', cursor: 'pointer', fontWeight: 900 }}>›</button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <button onClick={() => navigate(-1)} style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '6px', padding: '4px 10px', color: '#fff', cursor: 'pointer', fontWeight: 900, fontSize: '0.9rem' }}>‹</button>
+          <span style={{ fontWeight: 900, fontSize: '1rem', color: '#ffffff', minWidth: '180px', textAlign: 'center', letterSpacing: '0.5px' }}>
+            {headerLabel}
+          </span>
+          <button onClick={() => navigate(1)} style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '6px', padding: '4px 10px', color: '#fff', cursor: 'pointer', fontWeight: 900, fontSize: '0.9rem' }}>›</button>
 
-        <button onClick={() => setCurrentDate(new Date())} style={{
-          padding: '3px 10px', borderRadius: '5px', border: '1px solid rgba(0,229,255,0.4)',
-          background: 'rgba(0,229,255,0.15)', color: '#00e5ff', cursor: 'pointer', fontWeight: 800, fontSize: '0.72rem',
-        }}>
-          Сегодня
-        </button>
+          <button onClick={() => setCurrentDate(new Date())} style={{
+            padding: '4px 12px', borderRadius: '6px', border: '1px solid rgba(0,229,255,0.4)',
+            background: 'rgba(0,229,255,0.15)', color: '#00e5ff', cursor: 'pointer', fontWeight: 800, fontSize: '0.75rem',
+          }}>
+            Сегодня
+          </button>
+        </div>
       </div>
 
-      {/* ═══ КАЛЕНДАРНАЯ СЕТКА ═══ */}
-      <div style={{ padding: '8px 16px', position: 'relative', zIndex: 1 }}>
+      {/* ═══ КАЛЕНДАРНАЯ СЕТКА (ПОЛНОЭКРАННАЯ ЕДИНАЯ КАРТОЧКА) ═══ */}
+      <div style={{
+        maxWidth: '1400px',
+        margin: '12px auto',
+        padding: '14px',
+        background: 'rgba(12, 18, 36, 0.95)',
+        border: '1.5px solid rgba(0, 229, 255, 0.22)',
+        borderRadius: '16px',
+        boxShadow: '0 12px 35px rgba(0, 0, 0, 0.8), 0 0 20px rgba(0, 229, 255, 0.1)',
+        backdropFilter: 'blur(20px)',
+        position: 'relative',
+        zIndex: 1,
+      }}>
         {view === 'month' && renderMonthView()}
         {view === 'week' && renderWeekView()}
         {view === 'day' && renderDayView()}
