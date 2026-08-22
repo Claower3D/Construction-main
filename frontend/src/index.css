@@ -8,9 +8,9 @@
   --gold-main: #f6c453;
   --gold-dark: #b88420;
 
-  --bg-dark: #090d16;
-  --bg-card: rgba(22, 32, 54, 0.92);
-  --bg-card-hover: rgba(36, 50, 80, 0.96);
+  --bg-dark: #0f172a;
+  --bg-card: rgba(30, 41, 59, 0.85);
+  --bg-card-hover: rgba(51, 65, 85, 0.95);
 
   --text-main: #ffffff;
   --text-muted: #e2e8f0;
@@ -66,7 +66,8 @@ body.light {
 }
 
 body {
-  background-color: #090d16;
+  background: radial-gradient(circle at 50% 0%, #1e293b 0%, #0f172a 60%, #0b101d 100%);
+  background-attachment: fixed;
   color: var(--text-main);
   font-family: var(--font-sans);
   min-height: 100vh;
@@ -84,12 +85,12 @@ body::before {
   width: 220%;
   height: 220%;
   background:
-    radial-gradient(circle at 15% 20%, rgba(37, 99, 235, 0.30) 0%, transparent 45%),
-    radial-gradient(circle at 85% 75%, rgba(2, 132, 199, 0.25) 0%, transparent 50%),
-    radial-gradient(circle at 50% 35%, rgba(56, 189, 248, 0.25) 0%, transparent 45%),
-    radial-gradient(circle at 75% 15%, rgba(245, 158, 11, 0.20) 0%, transparent 40%),
-    radial-gradient(circle at 25% 80%, rgba(16, 185, 129, 0.20) 0%, transparent 40%),
-    radial-gradient(circle at 45% 85%, rgba(14, 165, 233, 0.20) 0%, transparent 45%);
+    radial-gradient(circle at 15% 20%, rgba(37, 99, 235, 0.50) 0%, transparent 55%),
+    radial-gradient(circle at 85% 75%, rgba(2, 132, 199, 0.45) 0%, transparent 55%),
+    radial-gradient(circle at 50% 35%, rgba(56, 189, 248, 0.45) 0%, transparent 50%),
+    radial-gradient(circle at 75% 15%, rgba(245, 158, 11, 0.35) 0%, transparent 45%),
+    radial-gradient(circle at 25% 80%, rgba(16, 185, 129, 0.35) 0%, transparent 45%),
+    radial-gradient(circle at 45% 85%, rgba(14, 165, 233, 0.35) 0%, transparent 50%);
   z-index: -2;
   pointer-events: none;
   filter: blur(40px);

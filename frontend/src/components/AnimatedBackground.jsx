@@ -66,7 +66,7 @@ export default function AnimatedBackground() {
 
     let tick = 0;
 
-    // ── 1. FLOATING BUILDING DATA BADGES (NEAR ROOF TOPS) ──
+    // ── 1. FLOATING BUILDING DATA BADGES ──
     const buildingBadges = [
       { name: 'ЖК «LIGHTS A1»', sub: '16 эт. | 2023-2024', xR: 0.058, yR: 0.245, color: '#38bdf8' },
       { name: 'ЖК «GRAND TULPAN A2»', sub: '24 эт. | 2022-2025', xR: 0.155, yR: 0.125, color: '#38bdf8' },
@@ -76,76 +76,8 @@ export default function AnimatedBackground() {
       { name: 'ЖК «GRAND PALACE B3»', sub: '20 эт. | 2023-2025', xR: 0.942, yR: 0.210, color: '#38bdf8' }
     ];
 
-    // ── 2. GLOWING TELEMETRY CONDUIT NETWORK (NEAT GROUND & FOUNDATION LEVEL LINES) ──
+    // ── 2. GLOWING TELEMETRY CONDUIT NETWORK ──
     const conduitLines = [
-      // Main Water Line (Cyan) — Connects neatly at building foundations (yR: 0.54)
-      {
-        id: 'TOWER1_WATER_RISER',
-        label: 'ВС-01 (110)',
-        color: '#00f0ff',
-        glow: 'rgba(0, 240, 255, 0.55)',
-        width: 2.4,
-        points: [
-          { xR: 0.058, yR: 0.54 }, // Foundation base of Tower A1
-          { xR: 0.058, yR: 0.72 },
-          { xR: 0.125, yR: 0.72 },
-          { xR: 0.125, yR: 0.81 },
-          { xR: 0.220, yR: 0.81 },
-          { xR: 0.280, yR: 0.88 }, // 45-degree angled dip
-          { xR: 0.500, yR: 0.88 }, // Central Bridge
-          { xR: 0.720, yR: 0.88 },
-          { xR: 0.780, yR: 0.81 }, // 45-degree angled rise
-          { xR: 0.875, yR: 0.81 },
-          { xR: 0.875, yR: 0.72 },
-          { xR: 0.942, yR: 0.72 },
-          { xR: 0.942, yR: 0.54 }  // Foundation base of Tower B3
-        ],
-        pulses: [0.10, 0.45, 0.82],
-        speed: 0.08
-      },
-
-      // Main Electrical Power Line (Golden Amber) — Connects neatly at building foundations (yR: 0.56)
-      {
-        id: 'TOWER2_PWR_RISER',
-        label: 'ЖС-кабель-2х16',
-        color: '#f59e0b',
-        glow: 'rgba(245, 158, 11, 0.55)',
-        width: 2.4,
-        points: [
-          { xR: 0.155, yR: 0.56 }, // Foundation base of Tower A2
-          { xR: 0.155, yR: 0.65 },
-          { xR: 0.080, yR: 0.65 },
-          { xR: 0.080, yR: 0.84 },
-          { xR: 0.240, yR: 0.84 },
-          { xR: 0.300, yR: 0.91 }, // 45-degree angled dip
-          { xR: 0.500, yR: 0.91 }, // Central Power Bridge
-          { xR: 0.700, yR: 0.91 },
-          { xR: 0.760, yR: 0.84 }, // 45-degree angled rise
-          { xR: 0.858, yR: 0.84 },
-          { xR: 0.858, yR: 0.56 }  // Foundation base of Tower B2
-        ],
-        pulses: [0.18, 0.62],
-        speed: 0.07
-      },
-
-      // Left Tower 3 Base Feeder (Tower A3: ЖК «ARENA A3»)
-      {
-        id: 'TOWER3_FEEDER',
-        label: 'ВРП-85 (A3)',
-        color: '#38bdf8',
-        glow: 'rgba(56, 189, 248, 0.45)',
-        width: 2.0,
-        points: [
-          { xR: 0.232, yR: 0.58 }, // Foundation base of Tower A3
-          { xR: 0.232, yR: 0.72 },
-          { xR: 0.185, yR: 0.72 },
-          { xR: 0.185, yR: 0.81 }
-        ],
-        pulses: [0.35, 0.85],
-        speed: 0.1
-      },
-
-      // Right Tower 4 Base Feeder (Tower B1: ЖК «GREEN CITY B1»)
       {
         id: 'TOWER4_FEEDER',
         label: 'ВРП-83 (B1)',
@@ -153,7 +85,7 @@ export default function AnimatedBackground() {
         glow: 'rgba(56, 189, 248, 0.45)',
         width: 2.0,
         points: [
-          { xR: 0.772, yR: 0.58 }, // Foundation base of Tower B1
+          { xR: 0.772, yR: 0.58 },
           { xR: 0.772, yR: 0.72 },
           { xR: 0.820, yR: 0.72 },
           { xR: 0.820, yR: 0.81 }
@@ -163,25 +95,19 @@ export default function AnimatedBackground() {
       }
     ];
 
-    // ── 3. JUNCTION UTILITY TERMINAL NODES AT EACH BUILDING FOUNDATION ──
+    // ── 3. JUNCTION UTILITY TERMINAL NODES ──
     const utilityNodes = [
       { xR: 0.058, yR: 0.54, label: 'Ввод A1', color: '#00f0ff' },
       { xR: 0.155, yR: 0.56, label: '⚡ ГРЩ A2', color: '#f59e0b' },
       { xR: 0.232, yR: 0.58, label: 'Ввод A3', color: '#38bdf8' },
       { xR: 0.772, yR: 0.58, label: 'Ввод B1', color: '#38bdf8' },
       { xR: 0.858, yR: 0.56, label: '⚡ ГРЩ B2', color: '#f59e0b' },
-      { xR: 0.942, yR: 0.54, label: 'Ввод B3', color: '#00f0ff' },
-
-      // Ground Junctions
-      { xR: 0.125, yR: 0.72, label: 'КК-1 (L1)', color: '#00f0ff' },
-      { xR: 0.080, yR: 0.84, label: '⚡ ТП-1', color: '#f59e0b' },
-      { xR: 0.875, yR: 0.72, label: 'КК-11 (R3)', color: '#00f0ff' },
-      { xR: 0.858, yR: 0.84, label: '⚡ ТП-2', color: '#f59e0b' }
+      { xR: 0.942, yR: 0.54, label: 'Ввод B3', color: '#00f0ff' }
     ];
 
     // ── 4. PARTICLES ──
     const particles = [];
-    const count = isMobile ? 30 : 60;
+    const count = isMobile ? 25 : 55;
     const colorPalette = ['#38bdf8', '#00f0ff', '#fbbf24', '#f59e0b', '#00ff88', '#ffffff'];
 
     for (let i = 0; i < count; i++) {
@@ -197,7 +123,6 @@ export default function AnimatedBackground() {
       });
     }
 
-    // ── DRAW CONDUIT PATH & PULSES ──
     const drawConduit = (c) => {
       ctx.save();
       ctx.strokeStyle = c.color;
@@ -216,7 +141,6 @@ export default function AnimatedBackground() {
       });
       ctx.stroke();
 
-      // Traveling glowing pulses
       c.pulses.forEach((_, pIdx) => {
         const t = (tick * c.speed + pIdx * 0.5) % 1.0;
         const totalSegments = c.points.length - 1;
@@ -237,54 +161,9 @@ export default function AnimatedBackground() {
         ctx.fill();
       });
 
-      // Label at start/mid
-      if (c.label && c.id !== 'TOWER1_WATER_RISER' && c.id !== 'TOWER2_PWR_RISER') {
-        const midP = c.points[Math.floor(c.points.length / 3)];
-        ctx.fillStyle = c.color;
-        ctx.font = 'bold 8px "JetBrains Mono", monospace';
-        ctx.shadowBlur = 4;
-        ctx.fillText(c.label, midP.xR * width + 5, midP.yR * height - 6);
-      }
-
       ctx.restore();
     };
 
-    // ── DRAW CENTRAL BACKBONE TAG (— РАСЦЕНКИ • НСИ • СБЕР • САПР —) ──
-    const drawCentralBackboneTag = () => {
-      const cx = width * 0.5;
-      const cy = height * 0.88;
-
-      ctx.save();
-      const text = '— РАСЦЕНКИ • НСИ • СБЕР • САПР —';
-      ctx.font = 'bold 8.5px "JetBrains Mono", monospace';
-      const textWidth = ctx.measureText(text).width;
-
-      const tagW = textWidth + 20;
-      const tagH = 18;
-
-      // Dark capsule background
-      ctx.fillStyle = 'rgba(6, 10, 18, 0.92)';
-      ctx.strokeStyle = 'rgba(56, 189, 248, 0.6)';
-      ctx.lineWidth = 1;
-      ctx.shadowColor = '#00f0ff';
-      ctx.shadowBlur = 10;
-
-      ctx.beginPath();
-      ctx.roundRect(cx - tagW * 0.5, cy - tagH * 0.5, tagW, tagH, 9);
-      ctx.fill();
-      ctx.stroke();
-
-      // Glowing text
-      ctx.fillStyle = '#38bdf8';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.shadowBlur = 6;
-      ctx.fillText(text, cx, cy);
-
-      ctx.restore();
-    };
-
-    // ── DRAW UTILITY NODES ──
     const drawUtilityNode = (node) => {
       const nx = node.xR * width;
       const ny = node.yR * height;
@@ -312,14 +191,12 @@ export default function AnimatedBackground() {
       ctx.restore();
     };
 
-    // ── DRAW BUILDING BADGE ──
     const drawBadge = (b) => {
       const bx = b.xR * width;
       const by = b.yR * height;
 
       ctx.save();
-      // Tag background
-      ctx.fillStyle = 'rgba(8, 14, 26, 0.88)';
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
       ctx.strokeStyle = 'rgba(56, 189, 248, 0.45)';
       ctx.lineWidth = 1;
       ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
@@ -335,18 +212,15 @@ export default function AnimatedBackground() {
       ctx.fill();
       ctx.stroke();
 
-      // Top title
       ctx.fillStyle = '#ffffff';
       ctx.font = 'bold 8.5px Inter, sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText(b.name, bx, by - 2);
 
-      // Subtitle
       ctx.fillStyle = '#94a3b8';
       ctx.font = '7.5px "JetBrains Mono", monospace';
       ctx.fillText(b.sub, bx, by + 9);
 
-      // Blinking Beacon Dot
       const blink = Math.sin(tick * 4 + bx) > 0.2;
       if (blink) {
         ctx.beginPath();
@@ -369,7 +243,7 @@ export default function AnimatedBackground() {
 
       ctx.clearRect(0, 0, width, height);
 
-      // 1. Draw High-Res Panorama or Deep Sky Fallback
+      // 1. Draw High-Res Panorama or Luminous Sky
       if (isBgLoaded && bgImage.width > 0) {
         const imgRatio = bgImage.width / bgImage.height;
         const canvasRatio = width / height;
@@ -389,30 +263,30 @@ export default function AnimatedBackground() {
 
         ctx.drawImage(bgImage, drawX, drawY, drawW, drawH);
 
-        // Dark Atmospheric Vignette Overlay
+        // Luminous Atmospheric Vignette Overlay (Brighter & clearer city view)
         const vignette = ctx.createLinearGradient(0, 0, 0, height);
-        vignette.addColorStop(0.0, 'rgba(6, 10, 18, 0.65)');
-        vignette.addColorStop(0.35, 'rgba(6, 10, 18, 0.35)');
-        vignette.addColorStop(0.70, 'rgba(6, 10, 18, 0.55)');
-        vignette.addColorStop(1.0, 'rgba(6, 10, 18, 0.88)');
+        vignette.addColorStop(0.0, 'rgba(15, 23, 42, 0.30)');
+        vignette.addColorStop(0.35, 'rgba(15, 23, 42, 0.10)');
+        vignette.addColorStop(0.70, 'rgba(15, 23, 42, 0.25)');
+        vignette.addColorStop(1.0, 'rgba(15, 23, 42, 0.50)');
         ctx.fillStyle = vignette;
         ctx.fillRect(0, 0, width, height);
 
-        // Center Horizontal Vignette
+        // Center Horizontal Luminous Glow
         const centerVignette = ctx.createRadialGradient(
           width * 0.5, height * 0.45, width * 0.1,
           width * 0.5, height * 0.45, width * 0.65
         );
-        centerVignette.addColorStop(0, 'rgba(6, 10, 18, 0.45)');
+        centerVignette.addColorStop(0, 'rgba(56, 189, 248, 0.15)');
         centerVignette.addColorStop(1, 'transparent');
         ctx.fillStyle = centerVignette;
         ctx.fillRect(0, 0, width, height);
 
       } else {
         const sky = ctx.createLinearGradient(0, 0, width, height);
-        sky.addColorStop(0, '#0c1022');
-        sky.addColorStop(0.5, '#080c16');
-        sky.addColorStop(1, '#05070e');
+        sky.addColorStop(0, '#1e293b');
+        sky.addColorStop(0.5, '#0f172a');
+        sky.addColorStop(1, '#090d16');
         ctx.fillStyle = sky;
         ctx.fillRect(0, 0, width, height);
       }
@@ -420,7 +294,6 @@ export default function AnimatedBackground() {
       // 2. Telemetry Conduits, Central Bridge & Nodes (Desktop only)
       if (!isMobile) {
         conduitLines.forEach(c => drawConduit(c));
-        drawCentralBackboneTag();
         utilityNodes.forEach(n => drawUtilityNode(n));
         buildingBadges.forEach(b => drawBadge(b));
       }
