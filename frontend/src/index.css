@@ -2710,6 +2710,199 @@ body.light .header-wrapper {
   }
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   CRM CALENDAR MOBILE ADAPTATION STYLES
+   ═══════════════════════════════════════════════════════════════ */
+
+.crm-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  background: rgba(10, 16, 30, 0.94);
+  border-bottom: 1px solid rgba(0, 229, 255, 0.25);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.crm-top-group-1 {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.crm-role-tabs {
+  display: flex;
+  gap: 4px;
+  margin-left: 6px;
+}
+
+.crm-top-group-2 {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.crm-main-layout {
+  max-width: 1440px;
+  margin: 16px auto;
+  padding: 0 16px;
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  position: relative;
+  z-index: 1;
+}
+
+.crm-sidebar-panel {
+  width: 230px;
+  flex-shrink: 0;
+  background: rgba(12, 18, 36, 0.95);
+  border: 1.5px solid rgba(0, 229, 255, 0.25);
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.7), 0 0 15px rgba(0, 229, 255, 0.08);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.crm-sidebar-status-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.crm-calendar-container {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+  background: rgba(12, 18, 36, 0.95);
+  border: 1.5px solid rgba(0, 229, 255, 0.22);
+  border-radius: 16px;
+  padding: 14px;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.8), 0 0 20px rgba(0, 229, 255, 0.1);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.crm-month-scroll-wrapper,
+.crm-week-scroll-wrapper {
+  width: 100%;
+}
+
+.crm-month-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.crm-week-grid {
+  display: grid;
+  grid-template-columns: 50px repeat(7, 1fr);
+  gap: 2px;
+  overflow-y: auto;
+  max-height: calc(100vh - 140px);
+  background: rgba(10, 16, 30, 0.8);
+  padding: 4px;
+  border-radius: 12px;
+}
+
+/* Mobile Media Queries (<= 900px) */
+@media (max-width: 900px) {
+  .crm-top-bar {
+    padding: 8px 10px !important;
+    gap: 8px !important;
+    justify-content: center !important;
+  }
+
+  .crm-top-group-1 {
+    width: 100% !important;
+    justify-content: space-between !important;
+    gap: 6px !important;
+  }
+
+  .crm-role-tabs {
+    width: 100% !important;
+    margin-left: 0 !important;
+    overflow-x: auto !important;
+    padding-bottom: 4px !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .crm-role-tabs button {
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+    padding: 5px 8px !important;
+    font-size: 0.7rem !important;
+  }
+
+  .crm-top-group-2 {
+    width: 100% !important;
+    justify-content: space-between !important;
+    gap: 6px !important;
+  }
+
+  .crm-main-layout {
+    flex-direction: column !important;
+    padding: 0 6px !important;
+    margin: 8px auto !important;
+    gap: 10px !important;
+  }
+
+  .crm-sidebar-panel {
+    width: 100% !important;
+    box-sizing: border-box !important;
+    padding: 10px !important;
+    gap: 10px !important;
+    border-radius: 14px !important;
+  }
+
+  .crm-sidebar-status-filters {
+    flex-direction: row !important;
+    overflow-x: auto !important;
+    gap: 6px !important;
+    padding-bottom: 4px !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .crm-sidebar-status-filters button {
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+    padding: 6px 10px !important;
+  }
+
+  .crm-calendar-container {
+    padding: 8px !important;
+    border-radius: 14px !important;
+    overflow: hidden !important;
+  }
+
+  .crm-month-scroll-wrapper,
+  .crm-week-scroll-wrapper {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .crm-month-grid {
+    min-width: 560px !important;
+  }
+
+  .crm-week-grid {
+    min-width: 560px !important;
+  }
+}
+
 .role-cards-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;

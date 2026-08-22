@@ -376,73 +376,75 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
     while (cells.length % 7 !== 0) cells.push(null);
 
     return (
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '4px' }}>
-        {DAYS_RU.map(d => (
-          <div key={d} style={{ textAlign: 'center', padding: '6px 2px', fontWeight: 900, fontSize: '0.75rem', color: '#e2e8f0', background: 'rgba(255, 255, 255, 0.08)', borderRadius: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-            {d}
-          </div>
-        ))}
+      <div className="crm-month-scroll-wrapper">
+        <div className="crm-month-grid">
+          {DAYS_RU.map(d => (
+            <div key={d} style={{ textAlign: 'center', padding: '6px 2px', fontWeight: 900, fontSize: '0.75rem', color: '#e2e8f0', background: 'rgba(255, 255, 255, 0.08)', borderRadius: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              {d}
+            </div>
+          ))}
 
-        {cells.map((day, idx) => {
-          if (day === null) return <div key={`e${idx}`} style={{ minHeight: '92px', background: 'rgba(10, 16, 30, 0.75)', borderRadius: '8px', border: '1px dashed rgba(255, 255, 255, 0.06)' }} />;
-          const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-          const dayEvents = (events[dateStr] || []).filter(isEventVisible);
-          const today = isToday(dateStr);
-          const isOver = dragOverDate === dateStr;
+          {cells.map((day, idx) => {
+            if (day === null) return <div key={`e${idx}`} style={{ minHeight: '92px', background: 'rgba(10, 16, 30, 0.75)', borderRadius: '8px', border: '1px dashed rgba(255, 255, 255, 0.06)' }} />;
+            const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+            const dayEvents = (events[dateStr] || []).filter(isEventVisible);
+            const today = isToday(dateStr);
+            const isOver = dragOverDate === dateStr;
 
-          return (
-            <div
-              key={dateStr}
-              onDragOver={e => { e.preventDefault(); setDragOverDate(dateStr); }}
-              onDragLeave={() => setDragOverDate(null)}
-              onDrop={e => handleDrop(e, dateStr)}
-              onClick={() => { setCurrentDate(new Date(year, month, day)); setView('day'); }}
-              style={{
-                minHeight: '94px', padding: '6px', borderRadius: '10px', cursor: 'pointer',
-                background: today ? 'rgba(0, 229, 255, 0.15)' : isOver ? 'rgba(245, 158, 11, 0.22)' : 'rgba(15, 24, 44, 0.94)',
-                border: today ? '2px solid #00e5ff' : isOver ? '2px solid #f59e0b' : '1px solid rgba(255, 255, 255, 0.12)',
-                boxShadow: today ? '0 0 16px rgba(0, 229, 255, 0.3)' : '0 2px 6px rgba(0,0,0,0.4)',
-                transition: 'all 0.15s ease', position: 'relative'
-              }}
-            >
-              {/* Шапка дня */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                <span style={{
-                  fontWeight: 900, fontSize: today ? '0.85rem' : '0.78rem',
-                  color: today ? '#00e5ff' : '#ffffff',
-                  background: today ? 'rgba(0,229,255,0.3)' : 'rgba(255,255,255,0.06)',
-                  borderRadius: '5px', padding: '1px 6px',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}>
-                  {day}
-                </span>
+            return (
+              <div
+                key={dateStr}
+                onDragOver={e => { e.preventDefault(); setDragOverDate(dateStr); }}
+                onDragLeave={() => setDragOverDate(null)}
+                onDrop={e => handleDrop(e, dateStr)}
+                onClick={() => { setCurrentDate(new Date(year, month, day)); setView('day'); }}
+                style={{
+                  minHeight: '94px', padding: '6px', borderRadius: '10px', cursor: 'pointer',
+                  background: today ? 'rgba(0, 229, 255, 0.15)' : isOver ? 'rgba(245, 158, 11, 0.22)' : 'rgba(15, 24, 44, 0.94)',
+                  border: today ? '2px solid #00e5ff' : isOver ? '2px solid #f59e0b' : '1px solid rgba(255, 255, 255, 0.12)',
+                  boxShadow: today ? '0 0 16px rgba(0, 229, 255, 0.3)' : '0 2px 6px rgba(0,0,0,0.4)',
+                  transition: 'all 0.15s ease', position: 'relative'
+                }}
+              >
+                {/* Шапка дня */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                  <span style={{
+                    fontWeight: 900, fontSize: today ? '0.85rem' : '0.78rem',
+                    color: today ? '#00e5ff' : '#ffffff',
+                    background: today ? 'rgba(0,229,255,0.3)' : 'rgba(255,255,255,0.06)',
+                    borderRadius: '5px', padding: '1px 6px',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}>
+                    {day}
+                  </span>
 
-                <div style={{ display: 'flex', gap: '3px', alignItems: 'center' }}>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); openCreateModalForSlot(dateStr); }}
-                    style={{ background: 'rgba(0,229,255,0.15)', border: '1px solid rgba(0,229,255,0.4)', color: '#00e5ff', borderRadius: '4px', width: '18px', height: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 900 }}
-                    title="Создать лид на этот день"
-                  >+</button>
-                  {dayEvents.length > 0 && (
-                    <span style={{ fontSize: '0.62rem', background: 'rgba(255,255,255,0.12)', color: '#fff', padding: '1px 5px', borderRadius: '4px', fontWeight: 800 }}>
-                      {dayEvents.length}
-                    </span>
+                  <div style={{ display: 'flex', gap: '3px', alignItems: 'center' }}>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); openCreateModalForSlot(dateStr); }}
+                      style={{ background: 'rgba(0,229,255,0.15)', border: '1px solid rgba(0,229,255,0.4)', color: '#00e5ff', borderRadius: '4px', width: '18px', height: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 900 }}
+                      title="Создать лид на этот день"
+                    >+</button>
+                    {dayEvents.length > 0 && (
+                      <span style={{ fontSize: '0.62rem', background: 'rgba(255,255,255,0.12)', color: '#fff', padding: '1px 5px', borderRadius: '4px', fontWeight: 800 }}>
+                        {dayEvents.length}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Список разноцветных карточек внутри ячейки */}
+                <div style={{ overflow: 'hidden', maxHeight: '66px' }}>
+                  {dayEvents.slice(0, 2).map(evt => renderEventChip(evt, dateStr, true))}
+                  {dayEvents.length > 2 && (
+                    <div style={{ fontSize: '0.62rem', color: '#38bdf8', textAlign: 'center', marginTop: '2px', fontWeight: 800 }}>
+                      +{dayEvents.length - 2} ещё
+                    </div>
                   )}
                 </div>
               </div>
-
-              {/* Список разноцветных карточек внутри ячейки */}
-              <div style={{ overflow: 'hidden', maxHeight: '66px' }}>
-                {dayEvents.slice(0, 2).map(evt => renderEventChip(evt, dateStr, true))}
-                {dayEvents.length > 2 && (
-                  <div style={{ fontSize: '0.62rem', color: '#38bdf8', textAlign: 'center', marginTop: '2px', fontWeight: 800 }}>
-                    +{dayEvents.length - 2} ещё
-                  </div>
-                )}
-              </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
     );
   };
@@ -461,7 +463,8 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
     const hours = Array.from({ length: 14 }, (_, i) => i + 7);
 
     return (
-      <div style={{ display: 'grid', gridTemplateColumns: '50px repeat(7, 1fr)', gap: '2px', overflowY: 'auto', maxHeight: 'calc(100vh - 140px)', background: 'rgba(10, 16, 30, 0.8)', padding: '4px', borderRadius: '12px' }}>
+      <div className="crm-week-scroll-wrapper">
+        <div className="crm-week-grid">
         <div style={{ padding: '4px', background: 'rgba(0,0,0,0.5)', borderRadius: '6px' }} />
         {days.map(d => {
           const dateStr = fmtDate(d);
@@ -516,6 +519,7 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
           </React.Fragment>
         ))}
       </div>
+    </div>
     );
   };
 
@@ -593,12 +597,8 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
       )}
 
       {/* ═══ TOP BAR ═══ */}
-      <div style={{
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 20px',
-        background: 'rgba(10, 16, 30, 0.94)', borderBottom: '1px solid rgba(0,229,255,0.25)',
-        backdropFilter: 'blur(20px)', position: 'sticky', top: 0, zIndex: 100, flexWrap: 'wrap', gap: '12px'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+      <div className="crm-top-bar">
+        <div className="crm-top-group-1">
           <button onClick={onBackToHome} style={{
             background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.18)',
             color: '#ffffff', borderRadius: '6px', padding: '6px 12px', cursor: 'pointer',
@@ -610,7 +610,7 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
           </h1>
 
           {/* Ролевые фильтры-табы */}
-          <div style={{ display: 'flex', gap: '4px', marginLeft: '6px' }}>
+          <div className="crm-role-tabs">
             {[
               { key: 'all', label: 'Все' },
               { key: 'engineer', label: '👷 Выезды инженера' },
@@ -634,10 +634,10 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
         </div>
 
         {/* Навигация по датам и Переключатель вида */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+        <div className="crm-top-group-2">
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <button onClick={() => navigate(-1)} style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '6px', padding: '4px 10px', color: '#fff', cursor: 'pointer', fontWeight: 900, fontSize: '0.85rem' }}>‹</button>
-            <span style={{ fontWeight: 900, fontSize: '0.95rem', color: '#ffffff', minWidth: '150px', textAlign: 'center', letterSpacing: '0.5px' }}>
+            <span style={{ fontWeight: 900, fontSize: '0.95rem', color: '#ffffff', minWidth: '130px', textAlign: 'center', letterSpacing: '0.5px' }}>
               {headerLabel}
             </span>
             <button onClick={() => navigate(1)} style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '6px', padding: '4px 10px', color: '#fff', cursor: 'pointer', fontWeight: 900, fontSize: '0.85rem' }}>›</button>
@@ -668,30 +668,9 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
       </div>
 
       {/* ═══ ГЛАВНЫЙ ДВУХКОЛОНОЧНЫЙ LAYOUT ═══ */}
-      <div style={{
-        maxWidth: '1440px',
-        margin: '16px auto',
-        padding: '0 16px',
-        display: 'flex',
-        gap: '16px',
-        alignItems: 'flex-start',
-        position: 'relative',
-        zIndex: 1,
-      }}>
+      <div className="crm-main-layout">
         {/* ═══ ЛЕВАЯ ПАНЕЛЬ С УПРАВЛЕНИЕМ И ФИЛЬТРАМИ ═══ */}
-        <div style={{
-          width: '230px',
-          flexShrink: 0,
-          background: 'rgba(12, 18, 36, 0.95)',
-          border: '1.5px solid rgba(0, 229, 255, 0.25)',
-          borderRadius: '16px',
-          padding: '16px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '14px',
-          boxShadow: '0 10px 30px rgba(0,0,0,0.7), 0 0 15px rgba(0, 229, 255, 0.08)',
-          backdropFilter: 'blur(20px)',
-        }}>
+        <div className="crm-sidebar-panel">
           {/* Кнопка Создать заявку */}
           <button
             onClick={() => openCreateModalForSlot(fmtDate(currentDate))}
@@ -707,7 +686,7 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
-              justify: 'center',
+              justifyContent: 'center',
               gap: '6px',
               boxShadow: '0 4px 14px rgba(0, 229, 255, 0.35)',
               transition: 'all 0.15s ease'
@@ -780,7 +759,7 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
             <span style={{ fontSize: '0.65rem', fontWeight: 900, color: '#94a3b8', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
               🏷️ ФИЛЬТР ПО СТАТУСАМ
             </span>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            <div className="crm-sidebar-status-filters">
               {[
                 { key: 'all', label: 'Все заявки', color: '#00e5ff' },
                 { key: 'Новые', label: 'Новые', color: '#a78bfa' },
@@ -806,7 +785,7 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
                       cursor: 'pointer',
                       display: 'flex',
                       alignItems: 'center',
-                      justify: 'space-between',
+                      justifyContent: 'space-between',
                       transition: 'all 0.15s ease'
                     }}
                   >
@@ -828,16 +807,7 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
         </div>
 
         {/* ═══ ПРАВАЯ ПАНЕЛЬ С КАЛЕНДАРЁМ ═══ */}
-        <div style={{
-          flex: 1,
-          minWidth: 0,
-          background: 'rgba(12, 18, 36, 0.95)',
-          border: '1.5px solid rgba(0, 229, 255, 0.22)',
-          borderRadius: '16px',
-          padding: '14px',
-          boxShadow: '0 12px 35px rgba(0, 0, 0, 0.8), 0 0 20px rgba(0, 229, 255, 0.1)',
-          backdropFilter: 'blur(20px)',
-        }}>
+        <div className="crm-calendar-container">
           {view === 'month' && renderMonthView()}
           {view === 'week' && renderWeekView()}
           {view === 'day' && renderDayView()}
