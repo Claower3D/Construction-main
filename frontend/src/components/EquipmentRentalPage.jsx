@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { createPlatformOrder } from '../services/orderSyncService';
 import './EquipmentRentalPage.css';
 
 const EQUIPMENT = [
@@ -189,7 +190,31 @@ export default function EquipmentRentalPage({ onBack }) {
                   <span style={{ color: '#cbd5e1' }}>Итого к оплате:</span>
                   <strong style={{ color: '#10b981', fontSize: '1.15rem' }}>{cartTotal.toLocaleString()} ₸</strong>
                 </div>
-                <button className="eqp-checkout-btn" onClick={() => { flash('✅ Заявка на аренду отправлена! Менеджер свяжется в течение 15 минут.'); setCart([]); setIsCartOpen(false); }}>
+                <button
+                  className="eqp-checkout-btn"
+                  onClick={() => {
+                    const firstItem = cart[0];
+                    const cartTitles = cart.map(c => `${c.title} (${c.days} ${c.unit})`).join(', ');
+
+                    createPlatformOrder({
+                      title: `${firstItem?.title || 'Спецтехника'}${cart.length > 1 ? ` (+${cart.length - 1} ед.)` : ''}`,
+                      category: 'Аренда спецтехники',
+                      amount: cartTotal,
+                      budget: `${cartTotal.toLocaleString('ru-RU')} ₸`,
+                      clientName: 'Заказчик',
+                      clientPhone: '+7 (707) 888-99-00',
+                      city: firstItem?.city || 'Алматы',
+                      description: `Аренда техники: ${cartTitles}. Подача на объект в течение 2 часов.`,
+                      type: 'machinery',
+                      status: 'in_progress',
+                      paymentMethod: 'Эскроу QazGost'
+                    });
+
+                    flash('🎉 Заявка на аренду зарегистрирована в CRM со статусом "В работе"! 🚜');
+                    setCart([]);
+                    setIsCartOpen(false);
+                  }}
+                >
                   ⚡ Отправить заявку на аренду
                 </button>
               </div>

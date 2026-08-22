@@ -9,7 +9,7 @@ export function createPlatformOrder({
   clientPhone = '+7 (707) 000-00-00',
   city = 'Алматы',
   description = '',
-  status = 'new',
+  status,
   type = 'general', // 'general' | 'machinery' | 'materials' | 'defect' | 'estimate'
   stages = [],
   machinery = [],
@@ -18,6 +18,10 @@ export function createPlatformOrder({
   estimateData = null,
   paymentMethod = 'Эскроу QazGost'
 }) {
+  const isMachineryRental = type === 'machinery' || category?.toLowerCase().includes('техника') || title?.toLowerCase().includes('аренда') || title?.toLowerCase().includes('техник');
+  const finalStatus = status || (isMachineryRental ? 'in_progress' : 'new');
+  const crmStatus = (finalStatus === 'in_progress' || isMachineryRental) ? 'В работе' : (finalStatus === 'completed' ? 'Успешно' : 'Новые');
+
   const numericAmount = typeof amount === 'number' ? amount : (parseInt(String(amount).replace(/\D/g, '')) || 0);
   const formattedBudget = budget || (numericAmount ? `${numericAmount.toLocaleString('ru-RU')} ₸` : 'По смете');
   const now = new Date();
@@ -33,7 +37,7 @@ export function createPlatformOrder({
     clientPhone,
     city,
     description,
-    status,
+    status: finalStatus,
     type,
     date: now.toLocaleDateString('ru-RU', { day: '2-digit', month: 'short', year: 'numeric' }),
     createdTime: now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }),
@@ -42,8 +46,8 @@ export function createPlatformOrder({
       {
         id: 'STG-1',
         name: 'Этап 1: Подготовительные работы и доставка ресурсов',
-        status: 'pending',
-        progress: 0,
+        status: isMachineryRental ? 'in_progress' : 'pending',
+        progress: isMachineryRental ? 50 : 0,
         dateRange: `${now.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' })} – ${new Date(Date.now() + 86400000 * 3).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' })}`,
         budget: Math.round(numericAmount * 0.3) || 500000,
         machinery: machinery || []
@@ -94,7 +98,7 @@ export function createPlatformOrder({
     let crmPrefix = '[📝 ЛИД]';
     let eventType = 'request_construction';
 
-    if (type === 'machinery') {
+    if (type === 'machinery' || isMachineryRental) {
       crmPrefix = '[🚜 ТЕХНИКА]';
       eventType = 'request_machinery';
     } else if (type === 'materials') {
@@ -120,7 +124,7 @@ export function createPlatformOrder({
       title: `${crmPrefix} ${title} (#${orderId})`,
       time: now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }),
       type: eventType,
-      status: 'Новые',
+      status: crmStatus,
       desc: description || `Заказ от ${clientName} (${clientPhone}) в г. ${city}. Бюджет: ${formattedBudget}`,
       contractor: 'Не распределено',
       budget: formattedBudget,
@@ -133,6 +137,34 @@ export function createPlatformOrder({
     localStorage.setItem('qazgost_calendar_events', JSON.stringify(crmEvents));
   } catch (e) {
     console.error('OrderSyncService: Failed to push to CRM Calendar', e);
+  }
+
+  // 3. Sync to Primary CRM Calendar (qazgost_crm_calendar) used by CrmPage.jsx
+  try {
+    const crmCalendarKey = 'qazgost_crm_calendar';
+    const savedCrmCalendar = localStorage.getItem(crmCalendarKey);
+    let crmCalendar = savedCrmCalendar ? JSON.parse(savedCrmCalendar) : {};
+    const todayStr = now.toISOString().split('T')[0];
+    if (!crmCalendar[todayStr]) crmCalendar[todayStr] = [];
+
+    crmCalendar[todayStr].push({
+      id: orderId.slice(-4),
+      leadNum: orderId.slice(-4),
+      title: isMachineryRental ? `🚜 Аренда техники: ${title}` : title,
+      status: crmStatus,
+      type: isMachineryRental ? 'request_construction' : 'request',
+      role: isMachineryRental ? 'machinery' : 'lead',
+      time: now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }),
+      phone: clientPhone || '',
+      contractor: clientName || 'Заказчик',
+      location: `г. ${city}`,
+      budget: formattedBudget,
+    });
+
+    localStorage.setItem(crmCalendarKey, JSON.stringify(crmCalendar));
+    window.dispatchEvent(new CustomEvent('crm_calendar_updated'));
+  } catch (e) {
+    console.error('OrderSyncService: Failed to push to qazgost_crm_calendar', e);
   }
 
   return orderObj;

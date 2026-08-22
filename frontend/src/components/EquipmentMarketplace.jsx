@@ -1389,7 +1389,7 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
                   city: bookingItem.tags?.find(t => t.type === 'location')?.label || 'Алматы',
                   description: `Аренда ${bookingItem.title} на ${bookingDays} смен/дней с ${bookingDate}. Доставка на объект: ${bookingAddress}. Оператор: ${bookingItem.hasOperator ? 'Да' : 'Нет'}. Оплата: ${bookingPaymentMethod === 'escrow' ? 'Эскроу заморожено' : 'Kaspi'}`,
                   type: 'machinery',
-                  status: 'new',
+                  status: 'in_progress',
                   paymentMethod: bookingPaymentMethod === 'escrow' ? 'Эскроу QazGost' : 'Kaspi Pay',
                   machinery: [
                     {
