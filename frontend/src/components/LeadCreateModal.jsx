@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import './LeadCreateModal.css';
 
-export default function LeadCreateModal({ onClose, onSave }) {
+export default function LeadCreateModal({ onClose, onSave, initialDate = '', initialTime = '' }) {
   const [leadData, setLeadData] = useState({
     clientName: '',
     phone: '',
     service: 'Установка септика',
     address: '',
-    date: '',
+    date: initialDate || '',
+    time: initialTime || '',
     notes: '',
     files: []
   });

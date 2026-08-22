@@ -60,7 +60,8 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
   const [selectedCard, setSelectedCard] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [showLeadModal, setShowLeadModal] = useState(false);
-  const [view, setView] = useState('month'); // 'month' | 'week' | 'day'
+  const [leadModalDefaults, setLeadModalDefaults] = useState({ date: '', time: '' });
+  const [view, setView] = useState('week'); // Default to week view for best overview
   const [currentDate, setCurrentDate] = useState(new Date());
   const [dragOverDate, setDragOverDate] = useState(null);
   const [statusFilter, setStatusFilter] = useState('all');
@@ -86,6 +87,11 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
   }, []);
 
   const showToast = (msg) => { setToastMsg(msg); setTimeout(() => setToastMsg(null), 3000); };
+
+  const openCreateModalForSlot = (dateStr, timeStr = '') => {
+    setLeadModalDefaults({ date: dateStr, time: timeStr });
+    setShowLeadModal(true);
+  };
 
   // ─── Все карточки (с фильтрами) ───
   const allCards = useMemo(() => {
@@ -119,12 +125,11 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
     e.dataTransfer.effectAllowed = 'move';
   };
 
-  const handleDrop = useCallback((e, targetDate) => {
+  const handleDrop = useCallback((e, targetDate, targetTime = '') => {
     e.preventDefault();
     setDragOverDate(null);
     try {
       const card = JSON.parse(e.dataTransfer.getData('application/json'));
-      if (card.date === targetDate) return;
       const newEvents = { ...events };
       // Remove from old date
       if (newEvents[card.date]) {
@@ -134,9 +139,10 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
       // Add to new date
       if (!newEvents[targetDate]) newEvents[targetDate] = [];
       const { date: _, ...cardWithoutDate } = card;
+      if (targetTime) cardWithoutDate.time = targetTime;
       newEvents[targetDate].push(cardWithoutDate);
       saveEvents(newEvents);
-      showToast(`📅 Заявка «${card.title}» перенесена на ${targetDate}`);
+      showToast(`📅 Заявка «${card.title}» перенесена на ${targetDate} ${targetTime}`);
     } catch (err) { console.error(err); }
   }, [events, saveEvents]);
 
@@ -170,22 +176,24 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
   };
 
   const handleNewLead = (leadPayload) => {
-    const date = fmtDate(new Date());
+    const date = leadPayload.date || leadModalDefaults.date || fmtDate(currentDate);
+    const time = leadPayload.time || leadModalDefaults.time || new Date().toLocaleTimeString().slice(0,5);
     const newEvents = { ...events };
     if (!newEvents[date]) newEvents[date] = [];
     newEvents[date].push({
       id: Date.now().toString().slice(-5),
-      title: leadPayload.title || 'Новая заявка',
+      title: leadPayload.clientName ? `Заявка: ${leadPayload.clientName}` : (leadPayload.title || 'Новая заявка'),
       status: 'Новые',
       type: 'request',
-      time: new Date().toLocaleTimeString().slice(0,5),
+      time: time,
       phone: leadPayload.phone || '',
-      contractor: leadPayload.contractor || 'Не указан',
-      location: leadPayload.location || '',
-      budget: leadPayload.budget || '0 ₸',
+      contractor: leadPayload.clientName || leadPayload.contractor || 'Не указан',
+      location: leadPayload.address || leadPayload.location || '',
+      budget: leadPayload.budget || '1 500 000 ₸',
     });
     saveEvents(newEvents);
     setShowLeadModal(false);
+    setLeadModalDefaults({ date: '', time: '' });
     showToast('🎉 Новая заявка создана!');
   };
 
@@ -201,24 +209,28 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
         onDragStart={e => handleDragStart(e, { ...card, date: dateStr })}
         onClick={(e) => { e.stopPropagation(); setSelectedCard({ ...card, date: dateStr, day: dateStr }); }}
         style={{
-          background: sc.bg, border: `1px solid ${sc.border}40`, borderLeft: `3px solid ${sc.dot}`,
-          borderRadius: '8px', padding: compact ? '3px 6px' : '6px 10px', cursor: 'grab',
-          marginBottom: '4px', transition: 'all 0.2s', fontSize: compact ? '0.65rem' : '0.75rem',
+          background: sc.bg, border: `1px solid ${sc.border}60`, borderLeft: `4px solid ${sc.dot}`,
+          borderRadius: '7px', padding: compact ? '2px 5px' : '5px 8px', cursor: 'grab',
+          marginBottom: '3px', transition: 'all 0.15s', fontSize: compact ? '0.64rem' : '0.74rem',
+          boxShadow: '0 2px 6px rgba(0,0,0,0.3)',
         }}
-        onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.03)'; e.currentTarget.style.boxShadow = `0 4px 16px ${sc.dot}40`; }}
-        onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = 'none'; }}
-        title={`${card.title}\n${card.contractor}\n${card.budget}`}
+        onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-1px) scale(1.02)'; e.currentTarget.style.boxShadow = `0 4px 12px ${sc.dot}50`; }}
+        onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 2px 6px rgba(0,0,0,0.3)'; }}
+        title={`📌 ${card.title}\n🏢 ${card.contractor}\n📍 ${card.location || 'Не указано'}\n📞 ${card.phone || 'Без телефона'}\n💰 ${card.budget}`}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-          <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: sc.dot, flexShrink: 0 }} />
-          <span style={{ fontWeight: 700, color: '#f1f5f9', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-            {compact ? card.title.slice(0, 20) : card.title}
-          </span>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '4px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', overflow: 'hidden' }}>
+            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: sc.dot, flexShrink: 0, boxShadow: `0 0 5px ${sc.dot}` }} />
+            <span style={{ fontWeight: 800, color: '#ffffff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {compact ? card.title.slice(0, 18) : card.title}
+            </span>
+          </div>
+          <span style={{ fontSize: '0.65rem', fontWeight: 900, color: '#ffd700', flexShrink: 0 }}>{card.budget}</span>
         </div>
         {!compact && (
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '3px', color: '#94a3b8', fontSize: '0.68rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '2px', color: '#94a3b8', fontSize: '0.66rem' }}>
             <span>⏱ {card.time || '—'}</span>
-            <span style={{ color: sc.text, fontWeight: 700 }}>{card.budget}</span>
+            <span style={{ color: sc.text, fontWeight: 700 }}>{card.status}</span>
           </div>
         )}
       </div>
@@ -276,8 +288,7 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
                 background: today ? 'rgba(0, 229, 255, 0.18)' : isOver ? 'rgba(245, 158, 11, 0.22)' : 'rgba(18, 27, 48, 0.94)',
                 border: today ? '2px solid #00e5ff' : isOver ? '2px solid #f59e0b' : '1px solid rgba(255, 255, 255, 0.14)',
                 boxShadow: today ? '0 0 15px rgba(0, 229, 255, 0.3)' : '0 2px 8px rgba(0,0,0,0.4)',
-                transition: 'all 0.15s',
-                backdropFilter: 'blur(16px)',
+                transition: 'all 0.15s', position: 'relative'
               }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
@@ -290,11 +301,18 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
                 }}>
                   {day}
                 </span>
-                {dayEvents.length > 0 && (
-                  <span style={{ fontSize: '0.65rem', background: 'rgba(0,229,255,0.25)', border: '1px solid rgba(0,229,255,0.5)', color: '#00e5ff', padding: '1px 5px', borderRadius: '8px', fontWeight: 800 }}>
-                    {dayEvents.length}
-                  </span>
-                )}
+                <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); openCreateModalForSlot(dateStr); }}
+                    style={{ background: 'rgba(0,229,255,0.15)', border: '1px solid rgba(0,229,255,0.4)', color: '#00e5ff', borderRadius: '4px', width: '18px', height: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 900 }}
+                    title="Создать заявку на этот день"
+                  >+</button>
+                  {dayEvents.length > 0 && (
+                    <span style={{ fontSize: '0.65rem', background: 'rgba(0,229,255,0.25)', border: '1px solid rgba(0,229,255,0.5)', color: '#00e5ff', padding: '1px 5px', borderRadius: '8px', fontWeight: 800 }}>
+                      {dayEvents.length}
+                    </span>
+                  )}
+                </div>
               </div>
               <div style={{ overflow: 'hidden', maxHeight: '62px' }}>
                 {dayEvents.slice(0, 2).map(evt => renderEventChip(evt, dateStr, true))}
@@ -312,7 +330,7 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
   };
 
   // ═══════════════════════════
-  // RENDER: ВИД НЕДЕЛЯ
+  // RENDER: ВИД НЕДЕЛЯ (Sticky Headers + Slot Click)
   // ═══════════════════════════
   const renderWeekView = () => {
     const monday = getMonday(currentDate);
@@ -325,17 +343,19 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
     const hours = Array.from({ length: 14 }, (_, i) => i + 7); // 07:00 - 20:00
 
     return (
-      <div style={{ display: 'grid', gridTemplateColumns: '60px repeat(7, 1fr)', gap: '1px', overflowY: 'auto', maxHeight: 'calc(100vh - 220px)', background: 'rgba(10, 16, 30, 0.8)', padding: '4px', borderRadius: '12px' }}>
-        {/* Header row */}
-        <div style={{ padding: '6px', background: 'rgba(18, 27, 48, 0.95)', borderRadius: '6px' }} />
+      <div style={{ display: 'grid', gridTemplateColumns: '60px repeat(7, 1fr)', gap: '1px', overflowY: 'auto', maxHeight: 'calc(100vh - 170px)', background: 'rgba(10, 16, 30, 0.8)', padding: '4px', borderRadius: '12px' }}>
+        {/* STICKY HEADER ROW */}
+        <div style={{ padding: '6px', background: 'rgba(18, 27, 48, 0.98)', borderRadius: '6px', position: 'sticky', top: 0, zIndex: 20, backdropFilter: 'blur(12px)' }} />
         {days.map(d => {
           const dateStr = fmtDate(d);
           const today = isToday(dateStr);
           return (
             <div key={dateStr} style={{
               textAlign: 'center', padding: '6px 4px', borderRadius: '8px',
-              background: today ? 'rgba(0, 229, 255, 0.2)' : 'rgba(18, 27, 48, 0.95)',
+              background: today ? 'rgba(0, 229, 255, 0.25)' : 'rgba(18, 27, 48, 0.98)',
               border: today ? '2px solid #00e5ff' : '1px solid rgba(255, 255, 255, 0.14)',
+              position: 'sticky', top: 0, zIndex: 20, backdropFilter: 'blur(12px)',
+              boxShadow: '0 4px 10px rgba(0,0,0,0.5)'
             }}>
               <div style={{ fontSize: '0.7rem', color: today ? '#00e5ff' : '#94a3b8', fontWeight: 800, textTransform: 'uppercase' }}>
                 {DAYS_RU[d.getDay() === 0 ? 6 : d.getDay() - 1]}
@@ -354,6 +374,7 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
             </div>
             {days.map(d => {
               const dateStr = fmtDate(d);
+              const timeStr = `${String(h).padStart(2, '0')}:00`;
               const dayEvents = (events[dateStr] || []).filter(evt => {
                 const evtHour = parseInt(evt.time?.split(':')[0], 10);
                 return evtHour === h;
@@ -364,13 +385,19 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
                   key={`${dateStr}-${h}`}
                   onDragOver={e => { e.preventDefault(); setDragOverDate(`${dateStr}-${h}`); }}
                   onDragLeave={() => setDragOverDate(null)}
-                  onDrop={e => handleDrop(e, dateStr)}
-                  style={{
-                    minHeight: '36px', padding: '2px', borderRadius: '6px',
-                    borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-                    background: isOver ? 'rgba(245,158,11,0.2)' : 'rgba(15, 22, 40, 0.92)',
-                    transition: 'background 0.15s',
+                  onDrop={e => handleDrop(e, dateStr, timeStr)}
+                  onClick={(e) => {
+                    if (e.target === e.currentTarget) {
+                      openCreateModalForSlot(dateStr, timeStr);
+                    }
                   }}
+                  style={{
+                    minHeight: '38px', padding: '2px', borderRadius: '6px',
+                    borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+                    background: isOver ? 'rgba(245,158,11,0.25)' : 'rgba(15, 22, 40, 0.92)',
+                    transition: 'background 0.15s', cursor: 'pointer',
+                  }}
+                  title="Кликните для создания заявки на это время"
                 >
                   {dayEvents.map(evt => renderEventChip(evt, dateStr, false))}
                 </div>
@@ -409,22 +436,29 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '70px 1fr', gap: '3px', maxHeight: 'calc(100vh - 240px)', overflowY: 'auto' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '70px 1fr', gap: '3px', maxHeight: 'calc(100vh - 210px)', overflowY: 'auto' }}>
           {hours.map(h => {
+            const timeStr = `${String(h).padStart(2, '0')}:00`;
             const hourEvents = dayEvents.filter(evt => parseInt(evt.time?.split(':')[0], 10) === h);
             return (
               <React.Fragment key={h}>
                 <div style={{ padding: '8px 10px', fontSize: '0.78rem', color: '#e2e8f0', fontWeight: 800, textAlign: 'right', background: 'rgba(15, 22, 40, 0.95)', borderRadius: '6px', borderRight: '2px solid rgba(0,229,255,0.3)' }}>
-                  {String(h).padStart(2, '0')}:00
+                  {timeStr}
                 </div>
                 <div
                   onDragOver={e => { e.preventDefault(); setDragOverDate(`${dateStr}-${h}`); }}
                   onDragLeave={() => setDragOverDate(null)}
-                  onDrop={e => handleDrop(e, dateStr)}
+                  onDrop={e => handleDrop(e, dateStr, timeStr)}
+                  onClick={(e) => {
+                    if (e.target === e.currentTarget) {
+                      openCreateModalForSlot(dateStr, timeStr);
+                    }
+                  }}
                   style={{
                     minHeight: '44px', padding: '4px 6px', borderRadius: '6px',
                     borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
                     background: dragOverDate === `${dateStr}-${h}` ? 'rgba(0,229,255,0.12)' : 'rgba(15, 22, 40, 0.92)',
+                    cursor: 'pointer',
                   }}
                 >
                   {hourEvents.map(evt => {
@@ -519,9 +553,9 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
         </div>
       )}
 
-      {/* ═══ TOP BAR ═══ */}
+      {/* ═══ UNIFIED HIGH-EFFICIENCY CONTROL COCKPIT BAR ═══ */}
       <div style={{
-        display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 18px',
+        display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 16px',
         background: 'rgba(10, 16, 32, 0.98)', borderBottom: '1px solid rgba(0,229,255,0.25)',
         backdropFilter: 'blur(20px)', position: 'sticky', top: 0, zIndex: 100,
         flexWrap: 'wrap',
@@ -529,59 +563,16 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
         {/* Left: Back + Title */}
         <button onClick={onBackToHome} style={{
           background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.18)',
-          color: '#ffffff', borderRadius: '8px', padding: '6px 12px', cursor: 'pointer',
-          fontWeight: 800, fontSize: '0.82rem',
+          color: '#ffffff', borderRadius: '8px', padding: '5px 12px', cursor: 'pointer',
+          fontWeight: 800, fontSize: '0.8rem', flexShrink: 0
         }}>← На сайт</button>
 
-        <h1 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 900, color: '#ffffff', display: 'flex', alignItems: 'center', gap: '6px' }}>
+        <h1 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 900, color: '#ffffff', display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
           📅 CRM КАЛЕНДАРЬ
         </h1>
 
-        {/* KPI badges */}
-        <div style={{ display: 'flex', gap: '6px', marginLeft: '8px' }}>
-          <div style={{ padding: '4px 10px', borderRadius: '8px', background: 'rgba(0,229,255,0.15)', border: '1px solid rgba(0,229,255,0.4)', color: '#00e5ff', fontSize: '0.78rem', fontWeight: 900 }}>
-            📊 {stats.total} заявок
-          </div>
-          <div style={{ padding: '4px 10px', borderRadius: '8px', background: 'rgba(255,215,0,0.15)', border: '1px solid rgba(255,215,0,0.4)', color: '#ffd700', fontSize: '0.78rem', fontWeight: 900 }}>
-            💰 {stats.budget.toLocaleString('ru-RU')} ₸
-          </div>
-        </div>
-
-        <div style={{ flex: 1 }} />
-
-        {/* Search */}
-        <div style={{ position: 'relative' }}>
-          <span style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', fontSize: '0.8rem' }}>🔍</span>
-          <input
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-            placeholder="Поиск по названию..."
-            style={{
-              background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.16)',
-              borderRadius: '8px', padding: '6px 10px 6px 30px', color: '#ffffff',
-              fontSize: '0.82rem', width: '190px', outline: 'none', fontWeight: 600,
-            }}
-          />
-        </div>
-
-        {/* New Lead */}
-        <button onClick={() => setShowLeadModal(true)} style={{
-          background: 'linear-gradient(135deg, #00e5ff, #0284c7)', border: 'none',
-          borderRadius: '8px', padding: '7px 16px', color: '#fff', fontWeight: 900,
-          fontSize: '0.82rem', cursor: 'pointer', boxShadow: '0 4px 14px rgba(0, 229, 255, 0.4)',
-        }}>
-          ➕ Новая заявка
-        </button>
-      </div>
-
-      {/* ═══ NAVIGATION BAR ═══ */}
-      <div style={{
-        display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 18px',
-        background: 'rgba(13, 20, 38, 0.96)', borderBottom: '1px solid rgba(255,255,255,0.1)',
-        backdropFilter: 'blur(16px)', flexWrap: 'wrap', position: 'relative', zIndex: 10,
-      }}>
         {/* View switcher */}
-        <div style={{ display: 'flex', gap: '2px', background: 'rgba(0,0,0,0.3)', borderRadius: '8px', padding: '3px' }}>
+        <div style={{ display: 'flex', gap: '2px', background: 'rgba(0,0,0,0.4)', borderRadius: '8px', padding: '3px', marginLeft: '4px' }}>
           {[
             { key: 'day', label: 'День' },
             { key: 'week', label: 'Неделя' },
@@ -591,8 +582,8 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
               key={v.key}
               onClick={() => setView(v.key)}
               style={{
-                padding: '5px 14px', borderRadius: '6px', border: 'none', cursor: 'pointer',
-                fontWeight: 800, fontSize: '0.8rem',
+                padding: '4px 12px', borderRadius: '6px', border: 'none', cursor: 'pointer',
+                fontWeight: 800, fontSize: '0.78rem',
                 background: view === v.key ? 'linear-gradient(135deg, #00e5ff, #0284c7)' : 'transparent',
                 color: view === v.key ? '#ffffff' : '#94a3b8',
                 boxShadow: view === v.key ? '0 2px 8px rgba(0,229,255,0.4)' : 'none',
@@ -604,48 +595,85 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
         </div>
 
         {/* Date navigation */}
-        <button onClick={() => navigate(-1)} style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.16)', borderRadius: '6px', padding: '4px 10px', color: '#ffffff', cursor: 'pointer', fontWeight: 900, fontSize: '1.1rem' }}>‹</button>
-        <span style={{ fontWeight: 900, fontSize: '1.05rem', color: '#ffffff', minWidth: '200px', textAlign: 'center' }}>
-          {headerLabel}
-        </span>
-        <button onClick={() => navigate(1)} style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.16)', borderRadius: '6px', padding: '4px 10px', color: '#ffffff', cursor: 'pointer', fontWeight: 900, fontSize: '1.1rem' }}>›</button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+          <button onClick={() => navigate(-1)} style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.16)', borderRadius: '6px', padding: '3px 8px', color: '#ffffff', cursor: 'pointer', fontWeight: 900, fontSize: '1rem' }}>‹</button>
+          <span style={{ fontWeight: 900, fontSize: '0.98rem', color: '#ffffff', minWidth: '170px', textAlign: 'center' }}>
+            {headerLabel}
+          </span>
+          <button onClick={() => navigate(1)} style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.16)', borderRadius: '6px', padding: '3px 8px', color: '#ffffff', cursor: 'pointer', fontWeight: 900, fontSize: '1rem' }}>›</button>
 
-        <button onClick={() => setCurrentDate(new Date())} style={{
-          padding: '5px 12px', borderRadius: '6px', border: '1px solid rgba(0,229,255,0.4)',
-          background: 'rgba(0,229,255,0.12)', color: '#00e5ff', cursor: 'pointer', fontWeight: 800, fontSize: '0.8rem',
-        }}>
-          Сегодня
-        </button>
+          <button onClick={() => setCurrentDate(new Date())} style={{
+            padding: '4px 10px', borderRadius: '6px', border: '1px solid rgba(0,229,255,0.4)',
+            background: 'rgba(0,229,255,0.12)', color: '#00e5ff', cursor: 'pointer', fontWeight: 800, fontSize: '0.76rem',
+          }}>
+            Сегодня
+          </button>
+        </div>
+
+        {/* KPI badges */}
+        <div style={{ display: 'flex', gap: '6px' }}>
+          <div style={{ padding: '3px 9px', borderRadius: '7px', background: 'rgba(0,229,255,0.15)', border: '1px solid rgba(0,229,255,0.4)', color: '#00e5ff', fontSize: '0.76rem', fontWeight: 900 }}>
+            📊 {stats.total}
+          </div>
+          <div style={{ padding: '3px 9px', borderRadius: '7px', background: 'rgba(255,215,0,0.15)', border: '1px solid rgba(255,215,0,0.4)', color: '#ffd700', fontSize: '0.76rem', fontWeight: 900 }}>
+            💰 {stats.budget.toLocaleString('ru-RU')} ₸
+          </div>
+        </div>
 
         <div style={{ flex: 1 }} />
 
         {/* Status filter pills */}
-        <div style={{ display: 'flex', gap: '5px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
           <button onClick={() => setStatusFilter('all')} style={{
-            padding: '4px 10px', borderRadius: '6px', border: statusFilter === 'all' ? '1px solid #00e5ff' : '1px solid rgba(255,255,255,0.12)',
+            padding: '3px 8px', borderRadius: '6px', border: statusFilter === 'all' ? '1px solid #00e5ff' : '1px solid rgba(255,255,255,0.12)',
             background: statusFilter === 'all' ? 'rgba(0,229,255,0.2)' : 'rgba(255,255,255,0.04)',
-            color: statusFilter === 'all' ? '#00e5ff' : '#94a3b8', cursor: 'pointer', fontWeight: 800, fontSize: '0.74rem',
+            color: statusFilter === 'all' ? '#00e5ff' : '#94a3b8', cursor: 'pointer', fontWeight: 800, fontSize: '0.72rem',
           }}>Все</button>
           {Object.keys(STATUS_COLORS).map(s => (
             <button key={s} onClick={() => setStatusFilter(s)} style={{
-              padding: '4px 10px', borderRadius: '6px',
+              padding: '3px 8px', borderRadius: '6px',
               border: statusFilter === s ? `1px solid ${STATUS_COLORS[s].border}` : '1px solid rgba(255,255,255,0.12)',
               background: statusFilter === s ? STATUS_COLORS[s].bg : 'rgba(255,255,255,0.04)',
               color: statusFilter === s ? '#ffffff' : '#94a3b8',
-              cursor: 'pointer', fontWeight: 800, fontSize: '0.74rem',
+              cursor: 'pointer', fontWeight: 800, fontSize: '0.72rem',
             }}>
               {s}
             </button>
           ))}
         </div>
+
+        {/* Search */}
+        <div style={{ position: 'relative' }}>
+          <span style={{ position: 'absolute', left: '8px', top: '50%', transform: 'translateY(-50%)', fontSize: '0.75rem' }}>🔍</span>
+          <input
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            placeholder="Поиск..."
+            style={{
+              background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.16)',
+              borderRadius: '6px', padding: '4px 8px 4px 26px', color: '#ffffff',
+              fontSize: '0.78rem', width: '150px', outline: 'none', fontWeight: 600,
+            }}
+          />
+        </div>
+
+        {/* New Lead */}
+        <button onClick={() => openCreateModalForSlot(fmtDate(currentDate))} style={{
+          background: 'linear-gradient(135deg, #00e5ff, #0284c7)', border: 'none',
+          borderRadius: '7px', padding: '6px 14px', color: '#fff', fontWeight: 900,
+          fontSize: '0.78rem', cursor: 'pointer', boxShadow: '0 4px 14px rgba(0, 229, 255, 0.4)',
+          flexShrink: 0
+        }}>
+          ➕ Новая заявка
+        </button>
       </div>
 
       {/* ═══ CALENDAR CONTENT CONTAINER (Compact Glass Card) ═══ */}
       <div style={{
-        margin: '12px 18px', padding: '14px 18px', position: 'relative', zIndex: 1,
+        margin: '10px 14px', padding: '12px 14px', position: 'relative', zIndex: 1,
         background: 'rgba(12, 18, 36, 0.95)',
         border: '1.5px solid rgba(0, 229, 255, 0.25)',
-        borderRadius: '18px',
+        borderRadius: '16px',
         boxShadow: '0 15px 45px rgba(0, 0, 0, 0.9), 0 0 25px rgba(0, 229, 255, 0.12)',
         backdropFilter: 'blur(20px)',
       }}>
@@ -656,7 +684,7 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
 
       {/* ═══ STATUS LEGEND (bottom) ═══ */}
       <div style={{
-        display: 'flex', gap: '16px', padding: '10px 18px', justifyContent: 'center',
+        display: 'flex', gap: '16px', padding: '8px 16px', justifyContent: 'center',
         background: 'rgba(10,16,32,0.95)', borderTop: '1px solid rgba(255,255,255,0.1)',
         flexWrap: 'wrap', position: 'relative', zIndex: 10,
       }}>
@@ -679,7 +707,9 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
       )}
       {showLeadModal && (
         <LeadCreateModal
-          onClose={() => setShowLeadModal(false)}
+          initialDate={leadModalDefaults.date}
+          initialTime={leadModalDefaults.time}
+          onClose={() => { setShowLeadModal(false); setLeadModalDefaults({ date: '', time: '' }); }}
           onSave={handleNewLead}
         />
       )}
