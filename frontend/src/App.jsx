@@ -258,6 +258,7 @@ export default function App() {
                   navigateToLanding();
                 }
               }} 
+              currentUser={currentUser}
             />
           )}
 

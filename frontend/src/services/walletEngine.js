@@ -1,7 +1,4 @@
-// WalletEngine v2.0 - Escrow Financial Engine & Transactions
-
-const BALANCE_KEY = 'qazgost_wallet_balance_kzt';
-const TRANSACTIONS_KEY = 'qazgost_wallet_transactions';
+// WalletEngine v3.0 - Per-User Escrow Financial Engine & Transactions
 
 const EXCHANGE_RATES = {
   KZT: 1,
@@ -9,38 +6,44 @@ const EXCHANGE_RATES = {
   RUB: 0.175,
 };
 
-const initialTransactions = [
-  { id: 'TX-901', date: '08.08.2026 10:15', type: 'topup', title: 'Пополнение баланса (Kaspi Pay)', amount: 150000, status: 'completed' },
-  { id: 'TX-902', date: '07.08.2026 16:40', type: 'escrow_hold', title: 'Заморозка по Сделке № 402/2026 (Капитальный ремонт)', amount: -85000, status: 'escrow' },
-  { id: 'TX-903', date: '05.08.2026 12:20', type: 'payout', title: 'Вывод средств на IBAN (Халык Банк)', amount: -50000, status: 'completed' },
-];
+// Генерируем уникальный ключ пользователя
+function getUserKey(user) {
+  if (!user) return 'guest';
+  return user.login || user.email || user.name || 'guest';
+}
 
-export function getBalanceKZT() {
+export function getBalanceKZT(user) {
+  const key = `qazgost_balance_${getUserKey(user)}`;
   try {
-    const saved = localStorage.getItem(BALANCE_KEY);
+    const saved = localStorage.getItem(key);
     if (saved !== null) return parseFloat(saved);
   } catch (e) {
     console.error('WalletEngine getBalance error:', e);
   }
-  return 485000;
+  return 0; // Новый пользователь — баланс 0
 }
 
-export function getTransactions() {
+export function getTransactions(user) {
+  const key = `qazgost_transactions_${getUserKey(user)}`;
   try {
-    const saved = localStorage.getItem(TRANSACTIONS_KEY);
+    const saved = localStorage.getItem(key);
     if (saved) return JSON.parse(saved);
   } catch (e) {
     console.error('WalletEngine getTransactions error:', e);
   }
-  return initialTransactions;
+  return []; // Новый пользователь — пустая история
 }
 
-export function topupBalance(amountKZT, method = 'Kaspi Pay') {
-  const current = getBalanceKZT();
+export function topupBalance(amountKZT, method = 'Kaspi Pay', user = null) {
+  const userKey = getUserKey(user);
+  const balanceKey = `qazgost_balance_${userKey}`;
+  const txKey = `qazgost_transactions_${userKey}`;
+
+  const current = getBalanceKZT(user);
   const next = current + amountKZT;
   try {
-    localStorage.setItem(BALANCE_KEY, next.toString());
-    const txs = getTransactions();
+    localStorage.setItem(balanceKey, next.toString());
+    const txs = getTransactions(user);
     const newTx = {
       id: `TX-${Math.floor(100 + Math.random() * 900)}`,
       date: new Date().toLocaleString(),
@@ -49,7 +52,7 @@ export function topupBalance(amountKZT, method = 'Kaspi Pay') {
       amount: amountKZT,
       status: 'completed',
     };
-    localStorage.setItem(TRANSACTIONS_KEY, JSON.stringify([newTx, ...txs]));
+    localStorage.setItem(txKey, JSON.stringify([newTx, ...txs]));
   } catch (e) {
     console.error('WalletEngine topup error:', e);
   }

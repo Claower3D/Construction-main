@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import './UserWalletPage.css';
 
-export default function UserWalletPage({ onBack }) {
+export default function UserWalletPage({ onBack, currentUser }) {
+  // Уникальный ключ пользователя для изоляции данных кошелька
+  const userKey = currentUser?.login || currentUser?.email || currentUser?.name || 'guest';
+
   const [currency, setCurrency] = useState('USD'); // 'USD' | 'KZT' | 'RUB'
   const [balance, setBalance] = useState(0);
   const [totalDeposited, setTotalDeposited] = useState(0);
@@ -10,36 +13,13 @@ export default function UserWalletPage({ onBack }) {
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [transactions, setTransactions] = useState([]);
 
-  // Saved Bank Cards State
+  // Saved Bank Cards State — привязаны к конкретному пользователю
   const [savedCards, setSavedCards] = useState(() => {
     try {
-      const stored = localStorage.getItem('qazgost_user_saved_cards');
+      const stored = localStorage.getItem(`qazgost_cards_${userKey}`);
       if (stored) return JSON.parse(stored);
     } catch (e) {}
-    return [
-      {
-        id: 'card_kaspi_1',
-        bank: 'Kaspi Bank',
-        brand: 'Visa',
-        number: '4400 •••• •••• 8842',
-        rawNumber: '4400 1234 5678 8842',
-        holder: 'ERBOL MARATOV',
-        exp: '08/28',
-        isDefault: true,
-        bgGradient: 'linear-gradient(135deg, #e11d48, #9f1239)'
-      },
-      {
-        id: 'card_halyk_2',
-        bank: 'Halyk Bank',
-        brand: 'Mastercard',
-        number: '5200 •••• •••• 4242',
-        rawNumber: '5200 9876 5432 4242',
-        holder: 'ERBOL MARATOV',
-        exp: '11/27',
-        isDefault: false,
-        bgGradient: 'linear-gradient(135deg, #059669, #064e3b)'
-      }
-    ];
+    return [];
   });
 
   // Modals & Forms State
@@ -74,9 +54,24 @@ export default function UserWalletPage({ onBack }) {
     RUB: { symbol: '₽', rate: 90, prefix: '' }
   };
 
+  // Перезагрузка карт при смене пользователя
   useEffect(() => {
-    localStorage.setItem('qazgost_user_saved_cards', JSON.stringify(savedCards));
-  }, [savedCards]);
+    try {
+      const stored = localStorage.getItem(`qazgost_cards_${userKey}`);
+      if (stored) {
+        setSavedCards(JSON.parse(stored));
+      } else {
+        setSavedCards([]);
+      }
+    } catch (e) {
+      setSavedCards([]);
+    }
+  }, [userKey]);
+
+  // Сохранение карт конкретного пользователя
+  useEffect(() => {
+    localStorage.setItem(`qazgost_cards_${userKey}`, JSON.stringify(savedCards));
+  }, [savedCards, userKey]);
 
   const formatMoney = (amountUsd) => {
     const curr = rates[currency];
