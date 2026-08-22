@@ -2903,6 +2903,13 @@ body.light .header-wrapper {
   }
 }
 
+/* Hide floating back to cards button on mobile viewports to prevent covering calendar content */
+@media (max-width: 768px) {
+  .floating-back-to-cards-btn {
+    display: none !important;
+  }
+}
+
 .role-cards-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
