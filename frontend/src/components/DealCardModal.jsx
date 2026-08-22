@@ -1,24 +1,25 @@
 import React, { useState, useMemo } from 'react';
 
 /* ═══════════════════════════════════════════════════════════════
-   QAZGOST AI — КАРТОЧКА СТРОИТЕЛЬНОГО ОБЪЕКТА / СДЕЛКИ
-   Профессиональная карточка проекта с полным жизненным циклом:
-   Заявка → Инженер (выезд/дефекты) → Смета (ПСД) → Подрядчик → 
-   Строительные этапы + GPS Спецтехника + Эскроу безопасность
+   QAZGOST AI — КАРТОЧКА СТРОИТЕЛЬНОГО ОБЪЕКТА (COCKPIT v2.0)
+   Ультрасовременная панель управления строительной сделкой:
+   - 7-этапный интерактивный степпер (исправлен и синхронизирован)
+   - Досье объекта, Заказчика, Инженера ПТО и Исполнителя
+   - График этапов работ, слайдеры прогресса и GPS спецтехника
+   - Динамический Эскроу баланс и смета по ГОСТ
+   - Чат и журнал действий
    ═══════════════════════════════════════════════════════════════ */
 
-// ═══ 7 ЭТАПОВ ЖИЗНЕННОГО ЦИКЛА СТРОИТЕЛЬНОГО ОБЪЕКТА ═══
 const PIPELINE_STAGES = [
-  { id: 'new',                label: '1. Заявка',      fullLabel: 'Новая заявка',         icon: '📝', color: '#8b5cf6' },
-  { id: 'engineer_assigned',  label: '2. Инженер',     fullLabel: 'Инженер назначен',     icon: '📋', color: '#f59e0b' },
-  { id: 'engineer_visit',     label: '3. Выезд',       fullLabel: 'Выезд и обследование', icon: '🚗', color: '#f97316' },
-  { id: 'estimate_ready',     label: '4. Смета',       fullLabel: 'Смета и ПСД готовы',    icon: '📊', color: '#06b6d4' },
-  { id: 'pending_executor',   label: '5. Подрядчик',   fullLabel: 'Поиск исполнителя',    icon: '⏳', color: '#eab308' },
-  { id: 'in_progress',        label: '6. Работы',      fullLabel: 'Строительные работы',   icon: '🟢', color: '#10b981' },
-  { id: 'completed',          label: '7. Сдан',        fullLabel: 'Объект сдан и принят',  icon: '✅', color: '#22c55e' }
+  { id: 'new',                label: 'Заявка',        fullLabel: '1. Новая заявка',            icon: '📝', color: '#8b5cf6' },
+  { id: 'engineer_assigned',  label: 'Инженер',       fullLabel: '2. Инженер назначен',        icon: '📋', color: '#f59e0b' },
+  { id: 'engineer_visit',     label: 'Выезд',         fullLabel: '3. Выезд и обследование',    icon: '🚗', color: '#f97316' },
+  { id: 'estimate_ready',     label: 'Смета',         fullLabel: '4. Смета и ПСД готовы',       icon: '📊', color: '#06b6d4' },
+  { id: 'pending_executor',   label: 'Подрядчик',     fullLabel: '5. Поиск исполнителя',       icon: '⏳', color: '#eab308' },
+  { id: 'in_progress',        label: 'В работе',      fullLabel: '6. Строительные работы',      icon: '🟢', color: '#10b981' },
+  { id: 'completed',          label: 'Сдан',          fullLabel: '7. Объект сдан и принят',     icon: '✅', color: '#22c55e' }
 ];
 
-// Преобразование устаревших статусов в новые
 function normalizeStatus(status) {
   if (!status) return 'new';
   const s = String(status).toLowerCase();
@@ -44,12 +45,8 @@ function formatMoney(num) {
 }
 
 export default function DealCardModal({ card, onClose, onSave, currentUser }) {
-  // Инициализация формы с защитой от пустых или перепутанных полей
   const [formData, setFormData] = useState(() => {
-    const rawStatus = card.status || 'Новые';
-    const normStatus = normalizeStatus(rawStatus);
-
-    // Исправление бага, когда в time был записан телефон или наоборот
+    const normStatus = normalizeStatus(card.status);
     let cleanPhone = card.phone || '';
     let cleanTime = card.time || '10:00';
     if (!cleanPhone && card.time && (card.time.includes('+') || card.time.length > 8)) {
@@ -57,27 +54,29 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
       cleanTime = '10:00';
     }
 
+    const baseSum = parseMoney(card.budget || 2100000);
+
     const defaultStages = [
       {
         id: 'STG-1',
         name: '1. Демонтаж и подготовка основания',
-        status: normStatus === 'completed' ? 'completed' : (normStatus === 'in_progress' ? 'completed' : 'pending'),
-        progress: normStatus === 'completed' || normStatus === 'in_progress' ? 100 : 0,
+        status: normStatus === 'completed' ? 'completed' : (normStatus === 'in_progress' || normStatus === 'pending_executor' ? 'completed' : 'pending'),
+        progress: normStatus === 'completed' || normStatus === 'in_progress' || normStatus === 'pending_executor' ? 100 : 0,
         dateRange: '01.09 – 05.09.2026',
-        budget: Math.round(parseMoney(card.budget || 2100000) * 0.25),
+        budget: Math.round(baseSum * 0.25),
         machinery: [
-          { name: 'Самосвал Shacman (25 т)', status: '🟢 GPS Online', rate: '18 000 ₸/час', assigned: true }
+          { name: 'Самосвал Shacman (25 т)', status: '🟢 GPS Online (1.2 км)', rate: '18 000 ₸/час' }
         ]
       },
       {
         id: 'STG-2',
         name: '2. Основные строительно-монтажные работы',
         status: normStatus === 'completed' ? 'completed' : (normStatus === 'in_progress' ? 'in_progress' : 'pending'),
-        progress: normStatus === 'completed' ? 100 : (normStatus === 'in_progress' ? 60 : 0),
+        progress: normStatus === 'completed' ? 100 : (normStatus === 'in_progress' ? 65 : 0),
         dateRange: '06.09 – 20.09.2026',
-        budget: Math.round(parseMoney(card.budget || 2100000) * 0.55),
+        budget: Math.round(baseSum * 0.55),
         machinery: [
-          { name: 'Автокран XCMG QY25K5 (25 т)', status: '🟢 GPS Online', rate: '28 000 ₸/час', assigned: true }
+          { name: 'Автокран XCMG QY25K5 (25 т)', status: '🟢 GPS Online (2.1 км)', rate: '28 000 ₸/час' }
         ]
       },
       {
@@ -86,7 +85,7 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
         status: normStatus === 'completed' ? 'completed' : 'pending',
         progress: normStatus === 'completed' ? 100 : 0,
         dateRange: '21.09 – 30.09.2026',
-        budget: Math.round(parseMoney(card.budget || 2100000) * 0.20),
+        budget: Math.round(baseSum * 0.20),
         machinery: []
       }
     ];
@@ -97,18 +96,18 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
       category: card.category || (card.type === 'request_engineering' ? 'Инженерные сети' : 'Общестроительные работы'),
       location: card.location || 'г. Астана',
       clientName: card.contractor || card.clientName || 'ТОО «Заказчик»',
-      clientPhone: cleanPhone || '+7 (701) 555-12-34',
-      budget: parseMoney(card.budget || 2100000),
+      clientPhone: cleanPhone || '+7 (701) 888-00-11',
+      budget: baseSum,
       status: normStatus,
-      rawStatusLabel: card.status || 'В работе',
       date: card.date || card.day || new Date().toISOString().split('T')[0],
       time: cleanTime,
-      assignedEngineer: card.assignedEngineer || 'Асхат Нурланов (ПТО Инженер)',
+      assignedEngineer: card.assignedEngineer || 'Асхат Нурланов',
+      engineerPosition: 'Ведущий инженер ПТО',
       engineerVisitDate: card.engineerVisitDate || '24.08.2026 10:30',
-      engineerReport: card.engineerReport || 'Выезд на объект завершён. Произведены замеры несущих конструкций и лазерное сканирование. Отклонений по ГОСТ не выявлено, смета скорректирована с учётом фактических объёмов.',
+      engineerReport: card.engineerReport || 'Выезд на объект завершён. Произведены замеры несущих конструкций и лазерное 3D-сканирование. Отклонений по ГОСТ не выявлено, смета скорректирована с учётом фактических объёмов.',
       executorName: card.acceptedBy || card.executorName || 'ТОО «GostBuild Инжиниринг»',
-      executorContract: 'Договор подряда №КЗ-2026/88',
-      comments: card.comments || 'Клиент просит соблюдать тихий час с 13:00 до 15:00. Пропускная система на КПП оформлена.',
+      executorContract: 'Договор генподряда №КЗ-2026/88',
+      comments: card.comments || 'Клиент просит соблюдать тихий час с 13:00 до 15:00. Пропускная система на объекте оформлена.',
       stages: (card.stages && card.stages.length > 0) ? card.stages : defaultStages,
       estimateItems: card.estimateItems || [
         { name: 'Монтаж армопояса и монолитные работы', unit: 'м³', qty: 24, price: 35000, sum: 840000 },
@@ -118,7 +117,7 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
     };
   });
 
-  const [activeTab, setActiveTab] = useState('stages'); // 'stages' | 'estimate' | 'files'
+  const [activeTab, setActiveTab] = useState('stages'); // 'stages' | 'estimate' | 'files' | 'notes'
   const [toastMessage, setToastMessage] = useState(null);
 
   const showToast = (msg) => {
@@ -133,15 +132,11 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
 
   const handleStatusChange = (newStatusId) => {
     const stageObj = PIPELINE_STAGES.find(s => s.id === newStatusId);
-    setFormData(prev => ({
-      ...prev,
-      status: newStatusId,
-      rawStatusLabel: stageObj?.fullLabel || 'В работе'
-    }));
+    setFormData(prev => ({ ...prev, status: newStatusId }));
     showToast(`🔄 Статус изменён: ${stageObj?.icon} ${stageObj?.fullLabel}`);
   };
 
-  // Эскроу расчёты
+  // Динамический расчёт эскроу-балансов
   const totalBudget = formData.budget || 2100000;
   const completedStagesSum = formData.stages
     .filter(s => s.status === 'completed')
@@ -149,7 +144,8 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
   const inProgressStagesSum = formData.stages
     .filter(s => s.status === 'in_progress')
     .reduce((acc, s) => acc + (s.budget || 0), 0);
-  const escrowRemaining = Math.max(0, totalBudget - completedStagesSum);
+  const escrowLocked = inProgressStagesSum > 0 ? inProgressStagesSum : (formData.status === 'in_progress' ? Math.round(totalBudget * 0.55) : 0);
+  const escrowPaid = completedStagesSum > 0 ? completedStagesSum : (formData.status === 'completed' ? totalBudget : Math.round(totalBudget * 0.25));
 
   const handleStageStatusToggle = (index) => {
     const updated = [...formData.stages];
@@ -162,7 +158,7 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
       updated[index].progress = 100;
     } else {
       updated[index].status = 'in_progress';
-      updated[index].progress = 10;
+      updated[index].progress = 25;
     }
     setFormData(prev => ({ ...prev, stages: updated }));
     showToast(`Этап «${updated[index].name}»: ${updated[index].status === 'completed' ? '✅ Выполнен' : '🟢 В работе'}`);
@@ -195,26 +191,26 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
   return (
     <div style={{
       position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
-      backgroundColor: 'rgba(5, 10, 20, 0.88)', zIndex: 9999,
+      backgroundColor: 'rgba(3, 7, 18, 0.88)', zIndex: 9999,
       display: 'flex', justifyContent: 'center', alignItems: 'center',
-      backdropFilter: 'blur(16px)', padding: '16px'
+      backdropFilter: 'blur(20px)', padding: '16px'
     }} onClick={onClose}>
       
-      {/* Контейнер карточки сделки */}
+      {/* Главная карточка-кокпит */}
       <div style={{
-        backgroundColor: '#0a1628',
-        width: '96vw', maxWidth: '1440px', height: '92vh',
+        backgroundColor: '#0a1424',
+        width: '96vw', maxWidth: '1380px', height: '90vh', maxHeight: '860px',
         borderRadius: '20px', border: '1px solid rgba(0, 229, 255, 0.25)',
-        boxShadow: '0 25px 60px rgba(0, 0, 0, 0.7), 0 0 50px rgba(0, 229, 255, 0.15)',
+        boxShadow: '0 25px 60px rgba(0, 0, 0, 0.8), 0 0 50px rgba(0, 229, 255, 0.12)',
         display: 'flex', flexDirection: 'column',
         overflow: 'hidden', color: '#e2e8f0', fontFamily: 'system-ui, sans-serif',
         position: 'relative'
       }} onClick={e => e.stopPropagation()}>
 
-        {/* Всплывающий тост */}
+        {/* Всплывающее уведомление */}
         {toastMessage && (
           <div style={{
-            position: 'absolute', top: '16px', right: '80px', zIndex: 100,
+            position: 'absolute', top: '16px', right: '70px', zIndex: 100,
             background: 'rgba(0, 229, 255, 0.2)', border: '1px solid #00e5ff',
             backdropFilter: 'blur(20px)', borderRadius: '12px', padding: '10px 20px',
             color: '#00e5ff', fontWeight: 800, fontSize: '0.85rem',
@@ -225,42 +221,41 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
         )}
 
         {/* ════════════════════════════════════════════════════════
-            1. ШАПКА КАРТОЧКИ (COCKPIT HEADER)
+            1. ХЕДЕР (COCKPIT BAR)
             ════════════════════════════════════════════════════════ */}
         <div style={{
-          padding: '1.25rem 2rem',
+          padding: '1rem 1.75rem',
           display: 'flex', justifyContent: 'space-between', alignItems: 'center',
           borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-          background: 'linear-gradient(90deg, rgba(15, 23, 42, 0.95), rgba(10, 22, 40, 0.95))',
+          background: 'linear-gradient(90deg, rgba(15, 23, 42, 0.95), rgba(10, 20, 36, 0.95))',
           flexWrap: 'wrap', gap: '12px'
         }}>
-          {/* Заголовок + Бейдж статуса */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
             <div style={{
-              width: '44px', height: '44px', borderRadius: '12px',
+              width: '42px', height: '42px', borderRadius: '12px',
               background: 'linear-gradient(135deg, #00e5ff, #0284c7)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: '1.4rem', boxShadow: '0 0 20px rgba(0,229,255,0.4)'
+              fontSize: '1.3rem', boxShadow: '0 0 20px rgba(0,229,255,0.4)', flexShrink: 0
             }}>
               🏗️
             </div>
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <h2 style={{ margin: 0, fontSize: '1.4rem', fontWeight: 900, color: '#f8fafc', letterSpacing: '0.5px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 900, color: '#f8fafc', letterSpacing: '0.5px' }}>
                   КАРТОЧКА ОБЪЕКТА №{formData.id}
                 </h2>
                 <span style={{
                   display: 'inline-flex', alignItems: 'center', gap: '6px',
-                  padding: '4px 12px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 800,
+                  padding: '4px 12px', borderRadius: '20px', fontSize: '0.78rem', fontWeight: 800,
                   background: `${PIPELINE_STAGES[currentStageIndex]?.color}25`,
                   border: `1px solid ${PIPELINE_STAGES[currentStageIndex]?.color}80`,
                   color: PIPELINE_STAGES[currentStageIndex]?.color || '#00e5ff'
                 }}>
-                  <span style={{ width: 8, height: 8, borderRadius: '50%', background: PIPELINE_STAGES[currentStageIndex]?.color || '#00e5ff' }} />
+                  <span style={{ width: 7, height: 7, borderRadius: '50%', background: PIPELINE_STAGES[currentStageIndex]?.color || '#00e5ff' }} />
                   {PIPELINE_STAGES[currentStageIndex]?.icon} {PIPELINE_STAGES[currentStageIndex]?.fullLabel}
                 </span>
               </div>
-              <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '2px', display: 'flex', gap: '12px' }}>
+              <div style={{ fontSize: '0.78rem', color: '#94a3b8', marginTop: '2px', display: 'flex', gap: '10px' }}>
                 <span>📍 {formData.location}</span>
                 <span>•</span>
                 <span>📅 Создан: {formData.date}</span>
@@ -270,25 +265,24 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
             </div>
           </div>
 
-          {/* Бюджет + Кнопка закрытия */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <div style={{
               background: 'rgba(255, 215, 0, 0.08)',
               border: '1px solid rgba(255, 215, 0, 0.3)',
-              borderRadius: '12px', padding: '8px 18px', textAlign: 'right'
+              borderRadius: '10px', padding: '6px 14px', textAlign: 'right'
             }}>
-              <div style={{ fontSize: '0.68rem', color: '#ffd700', fontWeight: 800, letterSpacing: '1px', textTransform: 'uppercase' }}>
+              <div style={{ fontSize: '0.65rem', color: '#ffd700', fontWeight: 800, letterSpacing: '0.5px', textTransform: 'uppercase' }}>
                 Бюджет объекта
               </div>
-              <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#ffd700', lineHeight: 1.1 }}>
+              <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#ffd700', lineHeight: 1.1 }}>
                 {formatMoney(totalBudget)}
               </div>
             </div>
 
             <button onClick={onClose} style={{
               background: 'rgba(255, 255, 255, 0.06)', border: '1px solid rgba(255, 255, 255, 0.15)',
-              color: '#94a3b8', width: '40px', height: '40px', borderRadius: '50%',
-              fontSize: '1.2rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: '#94a3b8', width: '36px', height: '36px', borderRadius: '50%',
+              fontSize: '1.1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
               transition: 'all 0.2s'
             }} onMouseEnter={e => e.currentTarget.style.color = '#fff'} onMouseLeave={e => e.currentTarget.style.color = '#94a3b8'}>
               ✕
@@ -297,26 +291,32 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
         </div>
 
         {/* ════════════════════════════════════════════════════════
-            2. ИНТЕРАКТИВНЫЙ СТЕППЕР (7 ЭТАПОВ СТРОЙКИ)
+            2. ИНТЕРАКТИВНЫЙ СТЕППЕР (ИСПРАВЛЕН И СИНХРОНИЗИРОВАН)
             ════════════════════════════════════════════════════════ */}
         <div style={{
-          padding: '1rem 2rem',
-          background: 'rgba(8, 14, 26, 0.9)',
+          padding: '0.85rem 2rem',
+          background: 'rgba(6, 12, 22, 0.95)',
           borderBottom: '1px solid rgba(255, 255, 255, 0.06)',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           position: 'relative'
         }}>
-          {/* Линия соединения */}
+          {/* Линия соединения с активной подсветкой */}
           <div style={{
-            position: 'absolute', top: '32px', left: '5%', right: '5%', height: '3px',
-            background: 'linear-gradient(to right, #8b5cf6 0%, #f59e0b 25%, #06b6d4 50%, #10b981 75%, #22c55e 100%)',
-            opacity: 0.3, zIndex: 1
+            position: 'absolute', top: '28px', left: '6%', right: '6%', height: '3px',
+            background: 'rgba(255, 255, 255, 0.1)', zIndex: 1
+          }} />
+          <div style={{
+            position: 'absolute', top: '28px', left: '6%',
+            width: `${(currentStageIndex / (PIPELINE_STAGES.length - 1)) * 88}%`, height: '3px',
+            background: 'linear-gradient(90deg, #8b5cf6, #f59e0b, #00e5ff, #10b981)',
+            boxShadow: '0 0 10px rgba(0, 229, 255, 0.6)',
+            transition: 'width 0.3s ease', zIndex: 1
           }} />
 
           {PIPELINE_STAGES.map((stage, idx) => {
             const isCompleted = idx < currentStageIndex;
             const isActive = idx === currentStageIndex;
-            const isUpcoming = idx > currentStageIndex;
+            const isFuture = idx > currentStageIndex;
 
             return (
               <div
@@ -324,29 +324,29 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
                 onClick={() => handleStatusChange(stage.id)}
                 style={{
                   display: 'flex', flexDirection: 'column', alignItems: 'center',
-                  zIndex: 2, gap: '6px', cursor: 'pointer', minWidth: '90px',
-                  opacity: isUpcoming ? 0.6 : 1, transition: 'all 0.2s'
+                  zIndex: 2, gap: '4px', cursor: 'pointer', minWidth: '70px',
+                  opacity: isFuture ? 0.5 : 1, transition: 'all 0.2s'
                 }}
-                onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.05)'}
+                onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.06)'}
                 onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
                 title={`Переключить на этап: ${stage.fullLabel}`}
               >
-                {/* Кружок этапа */}
+                {/* Кружок */}
                 <div style={{
-                  width: '42px', height: '42px', borderRadius: '50%',
+                  width: '36px', height: '36px', borderRadius: '50%',
                   background: isActive ? stage.color : (isCompleted ? 'rgba(16, 185, 129, 0.2)' : '#0f172a'),
                   border: `2px solid ${isActive ? '#fff' : (isCompleted ? '#10b981' : 'rgba(255,255,255,0.15)')}`,
                   color: isActive ? '#0a1628' : (isCompleted ? '#10b981' : '#94a3b8'),
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: '1.1rem', fontWeight: 900,
-                  boxShadow: isActive ? `0 0 20px ${stage.color}` : 'none'
+                  fontSize: '0.95rem', fontWeight: 900,
+                  boxShadow: isActive ? `0 0 16px ${stage.color}` : 'none'
                 }}>
-                  {isCompleted ? '✓' : stage.icon}
+                  {isCompleted ? '✓' : (isActive ? stage.icon : `${idx + 1}`)}
                 </div>
 
-                {/* Название этапа */}
+                {/* Подпись */}
                 <span style={{
-                  fontSize: '0.78rem',
+                  fontSize: '0.72rem',
                   fontWeight: isActive ? 800 : (isCompleted ? 700 : 500),
                   color: isActive ? '#00e5ff' : (isCompleted ? '#10b981' : '#64748b'),
                   textAlign: 'center'
@@ -359,166 +359,177 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
         </div>
 
         {/* ════════════════════════════════════════════════════════
-            3. ОСНОВНОЙ КОНТЕНТ (3 КОЛОНКИ: ОБЪЕКТ / ЭТАПЫ / ЭСКРОУ)
+            3. ОСНОВНОЙ КОНТЕНТ (2 СБАЛАНСИРОВАННЫЕ КОЛОНКИ)
             ════════════════════════════════════════════════════════ */}
         <div style={{
-          flex: 1, overflowY: 'auto', padding: '1.5rem 2rem',
-          display: 'grid', gridTemplateColumns: '360px 1fr 340px', gap: '1.5rem'
+          flex: 1, overflowY: 'auto', padding: '1.25rem 1.75rem',
+          display: 'grid', gridTemplateColumns: '360px 1fr', gap: '1.5rem'
         }}>
 
           {/* ────────────────────────────────────────────────────
-              ЛЕВАЯ КОЛОНКА: ДАННЫЕ ОБЪЕКТА И УЧАСТНИКИ
+              ЛЕВАЯ КОЛОНКА: ДОСЬЕ ОБЪЕКТА И УЧАСТНИКИ
               ──────────────────────────────────────────────────── */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             
-            {/* Блок 1: Объект и Клиент */}
+            {/* Карточка объекта и клиента */}
             <div style={{
-              background: 'rgba(15, 23, 42, 0.75)', borderRadius: '14px',
-              border: '1px solid rgba(255, 255, 255, 0.08)', padding: '1.25rem'
+              background: 'rgba(15, 23, 42, 0.8)', borderRadius: '14px',
+              border: '1px solid rgba(255, 255, 255, 0.08)', padding: '1.1rem'
             }}>
-              <div style={{ fontSize: '0.8rem', color: '#38bdf8', fontWeight: 800, letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <div style={{ fontSize: '0.75rem', color: '#38bdf8', fontWeight: 800, letterSpacing: '0.5px', textTransform: 'uppercase', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <span>🏢</span> Объект и Заказчик
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.7rem' }}>
                 <div>
-                  <label style={{ fontSize: '0.7rem', color: '#94a3b8', display: 'block', marginBottom: '4px', fontWeight: 600 }}>НАИМЕНОВАНИЕ ОБЪЕКТА</label>
+                  <label style={{ fontSize: '0.68rem', color: '#94a3b8', display: 'block', marginBottom: '3px', fontWeight: 600 }}>НАИМЕНОВАНИЕ ОБЪЕКТА</label>
                   <input
                     type="text"
                     value={formData.title}
                     onChange={e => setFormData({ ...formData, title: e.target.value })}
                     style={{
-                      width: '100%', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.12)',
-                      borderRadius: '8px', padding: '8px 12px', color: '#fff', fontSize: '0.85rem', outline: 'none'
+                      width: '100%', background: 'rgba(0,0,0,0.35)', border: '1px solid rgba(255,255,255,0.12)',
+                      borderRadius: '8px', padding: '7px 10px', color: '#fff', fontSize: '0.82rem', outline: 'none'
                     }}
                   />
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
                   <div>
-                    <label style={{ fontSize: '0.7rem', color: '#94a3b8', display: 'block', marginBottom: '4px', fontWeight: 600 }}>КЛИЕНТ / ЗАКАЗЧИК</label>
+                    <label style={{ fontSize: '0.68rem', color: '#94a3b8', display: 'block', marginBottom: '3px', fontWeight: 600 }}>ЗАКАЗЧИК</label>
                     <input
                       type="text"
                       value={formData.clientName}
                       onChange={e => setFormData({ ...formData, clientName: e.target.value })}
                       style={{
-                        width: '100%', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.12)',
-                        borderRadius: '8px', padding: '8px 12px', color: '#fff', fontSize: '0.85rem', outline: 'none'
+                        width: '100%', background: 'rgba(0,0,0,0.35)', border: '1px solid rgba(255,255,255,0.12)',
+                        borderRadius: '8px', padding: '7px 10px', color: '#fff', fontSize: '0.82rem', outline: 'none'
                       }}
                     />
                   </div>
                   <div>
-                    <label style={{ fontSize: '0.7rem', color: '#94a3b8', display: 'block', marginBottom: '4px', fontWeight: 600 }}>ТЕЛЕФОН КЛИЕНТА</label>
+                    <label style={{ fontSize: '0.68rem', color: '#94a3b8', display: 'block', marginBottom: '3px', fontWeight: 600 }}>ТЕЛЕФОН</label>
                     <input
                       type="text"
                       value={formData.clientPhone}
                       onChange={e => setFormData({ ...formData, clientPhone: e.target.value })}
-                      placeholder="+7 (701) 000-00-00"
+                      placeholder="+7 (701) 888-00-11"
                       style={{
-                        width: '100%', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.12)',
-                        borderRadius: '8px', padding: '8px 12px', color: '#38bdf8', fontSize: '0.85rem', outline: 'none', fontWeight: 700
+                        width: '100%', background: 'rgba(0,0,0,0.35)', border: '1px solid rgba(56, 189, 248, 0.3)',
+                        borderRadius: '8px', padding: '7px 10px', color: '#38bdf8', fontSize: '0.82rem', outline: 'none', fontWeight: 700
                       }}
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label style={{ fontSize: '0.7rem', color: '#94a3b8', display: 'block', marginBottom: '4px', fontWeight: 600 }}>АДРЕС ОБЪЕКТА</label>
+                  <label style={{ fontSize: '0.68rem', color: '#94a3b8', display: 'block', marginBottom: '3px', fontWeight: 600 }}>АДРЕС ОБЪЕКТА</label>
                   <input
                     type="text"
                     value={formData.location}
                     onChange={e => setFormData({ ...formData, location: e.target.value })}
                     style={{
-                      width: '100%', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.12)',
-                      borderRadius: '8px', padding: '8px 12px', color: '#fff', fontSize: '0.85rem', outline: 'none'
+                      width: '100%', background: 'rgba(0,0,0,0.35)', border: '1px solid rgba(255,255,255,0.12)',
+                      borderRadius: '8px', padding: '7px 10px', color: '#fff', fontSize: '0.82rem', outline: 'none'
                     }}
                   />
                 </div>
               </div>
             </div>
 
-            {/* Блок 2: Инженер (выезд и осмотр) */}
+            {/* Карточка инженера ПТО */}
             <div style={{
-              background: 'rgba(245, 158, 11, 0.06)', borderRadius: '14px',
-              border: '1px solid rgba(245, 158, 11, 0.25)', padding: '1.25rem'
+              background: 'rgba(245, 158, 11, 0.05)', borderRadius: '14px',
+              border: '1px solid rgba(245, 158, 11, 0.25)', padding: '1.1rem'
             }}>
-              <div style={{ fontSize: '0.8rem', color: '#f59e0b', fontWeight: 800, letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <span>👷</span> Выезд инженера и ПТО
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+                <div style={{ fontSize: '0.75rem', color: '#f59e0b', fontWeight: 800, letterSpacing: '0.5px', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span>👷</span> Выезд инженера ПТО
+                </div>
+                <span style={{ fontSize: '0.7rem', color: '#f59e0b', background: 'rgba(245, 158, 11, 0.15)', padding: '2px 8px', borderRadius: '6px', fontWeight: 700 }}>
+                  Обследование
+                </span>
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-                <div>
-                  <label style={{ fontSize: '0.7rem', color: '#94a3b8', display: 'block', marginBottom: '4px', fontWeight: 600 }}>НАЗНАЧЕННЫЙ ИНЖЕНЕР</label>
-                  <input
-                    type="text"
-                    value={formData.assignedEngineer}
-                    onChange={e => setFormData({ ...formData, assignedEngineer: e.target.value })}
-                    style={{
-                      width: '100%', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(245, 158, 11, 0.3)',
-                      borderRadius: '8px', padding: '8px 12px', color: '#fcd34d', fontSize: '0.85rem', outline: 'none', fontWeight: 700
-                    }}
-                  />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.7rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                  <div>
+                    <label style={{ fontSize: '0.68rem', color: '#94a3b8', display: 'block', marginBottom: '3px', fontWeight: 600 }}>ИНЖЕНЕР</label>
+                    <input
+                      type="text"
+                      value={formData.assignedEngineer}
+                      onChange={e => setFormData({ ...formData, assignedEngineer: e.target.value })}
+                      style={{
+                        width: '100%', background: 'rgba(0,0,0,0.35)', border: '1px solid rgba(245, 158, 11, 0.3)',
+                        borderRadius: '8px', padding: '7px 10px', color: '#fcd34d', fontSize: '0.82rem', outline: 'none', fontWeight: 700
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '0.68rem', color: '#94a3b8', display: 'block', marginBottom: '3px', fontWeight: 600 }}>ДАТА ВЫЕЗДА</label>
+                    <input
+                      type="text"
+                      value={formData.engineerVisitDate}
+                      onChange={e => setFormData({ ...formData, engineerVisitDate: e.target.value })}
+                      style={{
+                        width: '100%', background: 'rgba(0,0,0,0.35)', border: '1px solid rgba(255,255,255,0.12)',
+                        borderRadius: '8px', padding: '7px 10px', color: '#38bdf8', fontSize: '0.82rem', outline: 'none', fontWeight: 700
+                      }}
+                    />
+                  </div>
                 </div>
 
                 <div>
-                  <label style={{ fontSize: '0.7rem', color: '#94a3b8', display: 'block', marginBottom: '4px', fontWeight: 600 }}>ДАТА И ВРЕМЯ ВЫЕЗДА НА ОБЪЕКТ</label>
-                  <input
-                    type="text"
-                    value={formData.engineerVisitDate}
-                    onChange={e => setFormData({ ...formData, engineerVisitDate: e.target.value })}
-                    style={{
-                      width: '100%', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.12)',
-                      borderRadius: '8px', padding: '8px 12px', color: '#38bdf8', fontSize: '0.85rem', outline: 'none', fontWeight: 700
-                    }}
-                  />
-                </div>
-
-                <div>
-                  <label style={{ fontSize: '0.7rem', color: '#94a3b8', display: 'block', marginBottom: '4px', fontWeight: 600 }}>ЗАКЛЮЧЕНИЕ / ОТЧЁТ ОБСЛЕДОВАНИЯ</label>
+                  <label style={{ fontSize: '0.68rem', color: '#94a3b8', display: 'block', marginBottom: '3px', fontWeight: 600 }}>ЗАКЛЮЧЕНИЕ / ОТЧЁТ ОБСЛЕДОВАНИЯ</label>
                   <textarea
                     rows="3"
                     value={formData.engineerReport}
                     onChange={e => setFormData({ ...formData, engineerReport: e.target.value })}
                     style={{
-                      width: '100%', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.12)',
-                      borderRadius: '8px', padding: '8px 12px', color: '#cbd5e1', fontSize: '0.8rem', outline: 'none', resize: 'none', lineHeight: 1.4
+                      width: '100%', background: 'rgba(0,0,0,0.35)', border: '1px solid rgba(255,255,255,0.12)',
+                      borderRadius: '8px', padding: '7px 10px', color: '#cbd5e1', fontSize: '0.78rem', outline: 'none', resize: 'none', lineHeight: 1.35
                     }}
                   />
                 </div>
               </div>
             </div>
 
-            {/* Блок 3: Исполнитель (Подрядчик) */}
+            {/* Карточка подрядчика */}
             <div style={{
-              background: 'rgba(16, 185, 129, 0.06)', borderRadius: '14px',
-              border: '1px solid rgba(16, 185, 129, 0.25)', padding: '1.25rem'
+              background: 'rgba(16, 185, 129, 0.05)', borderRadius: '14px',
+              border: '1px solid rgba(16, 185, 129, 0.25)', padding: '1.1rem'
             }}>
-              <div style={{ fontSize: '0.8rem', color: '#10b981', fontWeight: 800, letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <span>🔨</span> Исполнитель / Подрядчик
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+                <div style={{ fontSize: '0.75rem', color: '#10b981', fontWeight: 800, letterSpacing: '0.5px', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span>🔨</span> Подрядчик / Исполнитель
+                </div>
+                <span style={{ fontSize: '0.7rem', color: '#10b981', background: 'rgba(16, 185, 129, 0.15)', padding: '2px 8px', borderRadius: '6px', fontWeight: 700 }}>
+                  ⭐ 4.9 Рейтинг
+                </span>
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.7rem' }}>
                 <div>
-                  <label style={{ fontSize: '0.7rem', color: '#94a3b8', display: 'block', marginBottom: '4px', fontWeight: 600 }}>КОМПАНИЯ / БРИГАДА</label>
+                  <label style={{ fontSize: '0.68rem', color: '#94a3b8', display: 'block', marginBottom: '3px', fontWeight: 600 }}>ОРГАНИЗАЦИЯ</label>
                   <input
                     type="text"
                     value={formData.executorName}
                     onChange={e => setFormData({ ...formData, executorName: e.target.value })}
                     style={{
-                      width: '100%', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(16, 185, 129, 0.3)',
-                      borderRadius: '8px', padding: '8px 12px', color: '#6ee7b7', fontSize: '0.85rem', outline: 'none', fontWeight: 700
+                      width: '100%', background: 'rgba(0,0,0,0.35)', border: '1px solid rgba(16, 185, 129, 0.3)',
+                      borderRadius: '8px', padding: '7px 10px', color: '#6ee7b7', fontSize: '0.82rem', outline: 'none', fontWeight: 700
                     }}
                   />
                 </div>
                 <div>
-                  <label style={{ fontSize: '0.7rem', color: '#94a3b8', display: 'block', marginBottom: '4px', fontWeight: 600 }}>ДОГОВОР И ОСНОВАНИЕ</label>
+                  <label style={{ fontSize: '0.68rem', color: '#94a3b8', display: 'block', marginBottom: '3px', fontWeight: 600 }}>ДОГОВОР ПОДРЯДА</label>
                   <input
                     type="text"
                     value={formData.executorContract}
                     onChange={e => setFormData({ ...formData, executorContract: e.target.value })}
                     style={{
-                      width: '100%', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.12)',
-                      borderRadius: '8px', padding: '8px 12px', color: '#94a3b8', fontSize: '0.85rem', outline: 'none'
+                      width: '100%', background: 'rgba(0,0,0,0.35)', border: '1px solid rgba(255,255,255,0.12)',
+                      borderRadius: '8px', padding: '7px 10px', color: '#94a3b8', fontSize: '0.82rem', outline: 'none'
                     }}
                   />
                 </div>
@@ -528,28 +539,68 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
           </div>
 
           {/* ────────────────────────────────────────────────────
-              ЦЕНТРАЛЬНАЯ КОЛОНКА: ЭТАПЫ РАБОТ И СПЕЦТЕХНИКА (GPS)
+              ПРАВАЯ КОЛОНКА: ДАШБОРД + ТАБЫ (ЭТАПЫ, СМЕТА, ФАЙЛЫ)
               ──────────────────────────────────────────────────── */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+
+            {/* 4 Карточки верхнего финансового дашборда */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px' }}>
+              <div style={{
+                background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(255, 215, 0, 0.25)',
+                borderRadius: '12px', padding: '10px 14px'
+              }}>
+                <div style={{ fontSize: '0.68rem', color: '#ffd700', fontWeight: 800, textTransform: 'uppercase' }}>Общий бюджет</div>
+                <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#ffd700', marginTop: '2px' }}>{formatMoney(totalBudget)}</div>
+                <div style={{ fontSize: '0.65rem', color: '#94a3b8', marginTop: '1px' }}>по смете проекта</div>
+              </div>
+
+              <div style={{
+                background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(0, 229, 255, 0.3)',
+                borderRadius: '12px', padding: '10px 14px'
+              }}>
+                <div style={{ fontSize: '0.68rem', color: '#00e5ff', fontWeight: 800, textTransform: 'uppercase' }}>🔒 В Эскроу</div>
+                <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#00e5ff', marginTop: '2px' }}>{formatMoney(escrowLocked)}</div>
+                <div style={{ fontSize: '0.65rem', color: '#94a3b8', marginTop: '1px' }}>заморожено в работе</div>
+              </div>
+
+              <div style={{
+                background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(16, 185, 129, 0.3)',
+                borderRadius: '12px', padding: '10px 14px'
+              }}>
+                <div style={{ fontSize: '0.68rem', color: '#10b981', fontWeight: 800, textTransform: 'uppercase' }}>🔓 Выплачено</div>
+                <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#10b981', marginTop: '2px' }}>{formatMoney(escrowPaid)}</div>
+                <div style={{ fontSize: '0.65rem', color: '#94a3b8', marginTop: '1px' }}>по актам выполненных</div>
+              </div>
+
+              <div style={{
+                background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(139, 92, 246, 0.3)',
+                borderRadius: '12px', padding: '10px 14px'
+              }}>
+                <div style={{ fontSize: '0.68rem', color: '#c4b5fd', fontWeight: 800, textTransform: 'uppercase' }}>🎁 Бонус 3%</div>
+                <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#c4b5fd', marginTop: '2px' }}>{formatMoney(totalBudget * 0.03)}</div>
+                <div style={{ fontSize: '0.65rem', color: '#94a3b8', marginTop: '1px' }}>менеджеру сделки</div>
+              </div>
+            </div>
 
             {/* Таб-переключатель */}
             <div style={{
-              display: 'flex', gap: '8px', background: 'rgba(15, 23, 42, 0.8)',
+              display: 'flex', gap: '6px', background: 'rgba(15, 23, 42, 0.9)',
               padding: '4px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.08)'
             }}>
               {[
-                { key: 'stages', label: '🏗️ График этапов работ' },
-                { key: 'estimate', label: '📊 Смета материалов и работ' },
-                { key: 'files', label: '📁 Документы и фото' }
+                { key: 'stages', label: '🏗️ График этапов и GPS спецтехника' },
+                { key: 'estimate', label: '📊 Смета материалов и работ (ГОСТ)' },
+                { key: 'files', label: '📁 Документы и фотофиксация' },
+                { key: 'notes', label: '📝 Особые заметки' }
               ].map(t => (
                 <button
                   key={t.key}
                   onClick={() => setActiveTab(t.key)}
                   style={{
-                    flex: 1, padding: '8px 14px', borderRadius: '8px', border: 'none',
+                    flex: 1, padding: '7px 12px', borderRadius: '8px', border: 'none',
                     background: activeTab === t.key ? 'linear-gradient(135deg, #00e5ff, #0284c7)' : 'transparent',
                     color: activeTab === t.key ? '#0a1628' : '#94a3b8',
-                    fontWeight: 800, fontSize: '0.82rem', cursor: 'pointer', transition: 'all 0.2s'
+                    fontWeight: 800, fontSize: '0.78rem', cursor: 'pointer', transition: 'all 0.2s'
                   }}
                 >
                   {t.label}
@@ -557,31 +608,28 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
               ))}
             </div>
 
-            {/* ТАБ 1: ЭТАПЫ И СПЕЦТЕХНИКА */}
+            {/* ТАБ 1: ЭТАПЫ СТРОЙКИ & СПЕЦТЕХНИКА */}
             {activeTab === 'stages' && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', flex: 1 }}>
                 {formData.stages.map((stg, i) => (
                   <div key={stg.id || i} style={{
                     background: 'rgba(15, 23, 42, 0.85)',
-                    border: `1px solid ${stg.status === 'completed' ? 'rgba(16, 185, 129, 0.3)' : (stg.status === 'in_progress' ? 'rgba(0, 229, 255, 0.4)' : 'rgba(255, 255, 255, 0.08)')}`,
-                    borderRadius: '14px', padding: '16px',
-                    boxShadow: stg.status === 'in_progress' ? '0 0 20px rgba(0, 229, 255, 0.1)' : 'none'
+                    border: `1px solid ${stg.status === 'completed' ? 'rgba(16, 185, 129, 0.35)' : (stg.status === 'in_progress' ? 'rgba(0, 229, 255, 0.45)' : 'rgba(255, 255, 255, 0.08)')}`,
+                    borderRadius: '12px', padding: '12px 14px',
+                    boxShadow: stg.status === 'in_progress' ? '0 0 16px rgba(0, 229, 255, 0.12)' : 'none'
                   }}>
-                    {/* Заголовок этапа */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                       <div>
-                        <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#f8fafc' }}>
-                          {stg.name}
-                        </div>
-                        <div style={{ fontSize: '0.78rem', color: '#94a3b8', marginTop: '2px' }}>
-                          ⏱ Сроки: <strong style={{ color: '#38bdf8' }}>{stg.dateRange}</strong> • Бюджет: <strong style={{ color: '#ffd700' }}>{formatMoney(stg.budget)}</strong>
+                        <div style={{ fontWeight: 800, fontSize: '0.9rem', color: '#f8fafc' }}>{stg.name}</div>
+                        <div style={{ fontSize: '0.72rem', color: '#94a3b8', marginTop: '1px' }}>
+                          ⏱ Сроки: <strong style={{ color: '#38bdf8' }}>{stg.dateRange}</strong> • Бюджет этапа: <strong style={{ color: '#ffd700' }}>{formatMoney(stg.budget)}</strong>
                         </div>
                       </div>
 
                       <button
                         onClick={() => handleStageStatusToggle(i)}
                         style={{
-                          padding: '6px 14px', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 800,
+                          padding: '4px 12px', borderRadius: '8px', fontSize: '0.72rem', fontWeight: 800,
                           background: stg.status === 'completed' ? 'rgba(16,185,129,0.2)' : (stg.status === 'in_progress' ? 'rgba(0,229,255,0.2)' : 'rgba(255,255,255,0.06)'),
                           border: `1px solid ${stg.status === 'completed' ? '#10b981' : (stg.status === 'in_progress' ? '#00e5ff' : 'rgba(255,255,255,0.15)')}`,
                           color: stg.status === 'completed' ? '#10b981' : (stg.status === 'in_progress' ? '#00e5ff' : '#94a3b8'),
@@ -592,40 +640,26 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
                       </button>
                     </div>
 
-                    {/* Слайдер прогресса */}
-                    <div style={{ marginBottom: '12px' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', marginBottom: '4px' }}>
-                        <span style={{ color: '#94a3b8' }}>Прогресс выполнения</span>
-                        <strong style={{ color: stg.status === 'completed' ? '#10b981' : '#00e5ff' }}>{stg.progress}%</strong>
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <input
-                          type="range"
-                          min="0"
-                          max="100"
-                          value={stg.progress}
-                          onChange={e => handleStageProgressChange(i, e.target.value)}
-                          style={{ flex: 1, accentColor: '#00e5ff', cursor: 'pointer' }}
-                        />
-                      </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
+                      <input
+                        type="range" min="0" max="100" value={stg.progress}
+                        onChange={e => handleStageProgressChange(i, e.target.value)}
+                        style={{ flex: 1, accentColor: '#00e5ff', cursor: 'pointer' }}
+                      />
+                      <span style={{ fontSize: '0.75rem', fontWeight: 800, minWidth: '35px', textAlign: 'right', color: stg.status === 'completed' ? '#10b981' : '#00e5ff' }}>
+                        {stg.progress}%
+                      </span>
                     </div>
 
-                    {/* Спецтехника для этапа */}
                     {stg.machinery && stg.machinery.length > 0 && (
                       <div style={{
                         background: 'rgba(8, 12, 22, 0.6)', border: '1px solid rgba(56, 189, 248, 0.2)',
-                        borderRadius: '10px', padding: '10px 12px', marginTop: '8px'
+                        borderRadius: '8px', padding: '6px 10px', marginTop: '6px'
                       }}>
-                        <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#38bdf8', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                          <span>🚜</span> Спецтехника этапа (GPS Auto-dispatch):
-                        </div>
                         {stg.machinery.map((m, mi) => (
-                          <div key={mi} style={{
-                            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                            fontSize: '0.8rem', color: '#e2e8f0', padding: '4px 0'
-                          }}>
-                            <span>🚜 {m.name}</span>
-                            <span style={{ color: '#10b981', fontWeight: 700, fontSize: '0.75rem' }}>{m.status} • {m.rate}</span>
+                          <div key={mi} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.75rem', color: '#e2e8f0' }}>
+                            <span>🚜 <strong>{m.name}</strong></span>
+                            <span style={{ color: '#10b981', fontWeight: 700 }}>{m.status} • {m.rate}</span>
                           </div>
                         ))}
                       </div>
@@ -638,41 +672,41 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
             {/* ТАБ 2: СМЕТА МАТЕРИАЛОВ И РАБОТ */}
             {activeTab === 'estimate' && (
               <div style={{
-                background: 'rgba(15, 23, 42, 0.85)', borderRadius: '14px',
-                border: '1px solid rgba(255, 255, 255, 0.08)', padding: '1.25rem'
+                background: 'rgba(15, 23, 42, 0.85)', borderRadius: '12px',
+                border: '1px solid rgba(255, 255, 255, 0.08)', padding: '1rem', flex: 1
               }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                  <span style={{ fontWeight: 800, color: '#38bdf8', fontSize: '0.9rem' }}>📄 Детализированная смета (ГОСТ)</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+                  <span style={{ fontWeight: 800, color: '#38bdf8', fontSize: '0.85rem' }}>📄 Детализированная смета (ГОСТ КЗ)</span>
                   <button
-                    onClick={() => showToast('📥 Смета скачивается в формате PDF...')}
+                    onClick={() => showToast('📥 Смета экспортирована в PDF')}
                     style={{
                       background: 'rgba(0, 229, 255, 0.1)', border: '1px solid #00e5ff',
-                      color: '#00e5ff', borderRadius: '8px', padding: '6px 12px',
-                      fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer'
+                      color: '#00e5ff', borderRadius: '8px', padding: '4px 10px',
+                      fontSize: '0.72rem', fontWeight: 700, cursor: 'pointer'
                     }}
                   >
                     📥 Экспорт в PDF
                   </button>
                 </div>
 
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem', color: '#cbd5e1' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.78rem', color: '#cbd5e1' }}>
                   <thead>
                     <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', color: '#64748b', textAlign: 'left' }}>
-                      <th style={{ padding: '8px 4px' }}>Позиция</th>
-                      <th style={{ padding: '8px 4px' }}>Ед.</th>
-                      <th style={{ padding: '8px 4px' }}>Кол-во</th>
-                      <th style={{ padding: '8px 4px' }}>Цена</th>
-                      <th style={{ padding: '8px 4px', textAlign: 'right' }}>Сумма</th>
+                      <th style={{ padding: '6px 4px' }}>Позиция</th>
+                      <th style={{ padding: '6px 4px' }}>Ед.</th>
+                      <th style={{ padding: '6px 4px' }}>Кол-во</th>
+                      <th style={{ padding: '6px 4px' }}>Цена</th>
+                      <th style={{ padding: '6px 4px', textAlign: 'right' }}>Сумма</th>
                     </tr>
                   </thead>
                   <tbody>
                     {formData.estimateItems.map((item, idx) => (
                       <tr key={idx} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                        <td style={{ padding: '10px 4px', color: '#f8fafc', fontWeight: 600 }}>{item.name}</td>
-                        <td style={{ padding: '10px 4px' }}>{item.unit}</td>
-                        <td style={{ padding: '10px 4px' }}>{item.qty}</td>
-                        <td style={{ padding: '10px 4px' }}>{item.price.toLocaleString('ru-RU')} ₸</td>
-                        <td style={{ padding: '10px 4px', textAlign: 'right', fontWeight: 800, color: '#38bdf8' }}>
+                        <td style={{ padding: '8px 4px', color: '#f8fafc', fontWeight: 600 }}>{item.name}</td>
+                        <td style={{ padding: '8px 4px' }}>{item.unit}</td>
+                        <td style={{ padding: '8px 4px' }}>{item.qty}</td>
+                        <td style={{ padding: '8px 4px' }}>{item.price.toLocaleString('ru-RU')} ₸</td>
+                        <td style={{ padding: '8px 4px', textAlign: 'right', fontWeight: 800, color: '#38bdf8' }}>
                           {(item.sum || item.price * item.qty).toLocaleString('ru-RU')} ₸
                         </td>
                       </tr>
@@ -685,11 +719,11 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
             {/* ТАБ 3: ФАЙЛЫ И ДОКУМЕНТЫ */}
             {activeTab === 'files' && (
               <div style={{
-                background: 'rgba(15, 23, 42, 0.85)', borderRadius: '14px',
-                border: '1px solid rgba(255, 255, 255, 0.08)', padding: '1.25rem'
+                background: 'rgba(15, 23, 42, 0.85)', borderRadius: '12px',
+                border: '1px solid rgba(255, 255, 255, 0.08)', padding: '1rem', flex: 1
               }}>
-                <div style={{ fontWeight: 800, color: '#38bdf8', fontSize: '0.9rem', marginBottom: '1rem' }}>
-                  📁 Прикреплённые документы и фотофиксация
+                <div style={{ fontWeight: 800, color: '#38bdf8', fontSize: '0.85rem', marginBottom: '0.75rem' }}>
+                  📁 Прикреплённые акты и фото с объекта
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
                   {[
@@ -699,12 +733,12 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
                   ].map((f, fi) => (
                     <div key={fi} style={{
                       background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)',
-                      borderRadius: '10px', padding: '12px', display: 'flex', alignItems: 'center', gap: '10px'
+                      borderRadius: '10px', padding: '10px', display: 'flex', alignItems: 'center', gap: '8px'
                     }}>
-                      <span style={{ fontSize: '1.8rem' }}>{f.icon}</span>
+                      <span style={{ fontSize: '1.6rem' }}>{f.icon}</span>
                       <div style={{ overflow: 'hidden' }}>
-                        <div style={{ fontSize: '0.78rem', fontWeight: 700, color: '#fff', textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden' }}>{f.name}</div>
-                        <div style={{ fontSize: '0.68rem', color: '#64748b' }}>{f.size}</div>
+                        <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#fff', textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden' }}>{f.name}</div>
+                        <div style={{ fontSize: '0.65rem', color: '#64748b' }}>{f.size}</div>
                       </div>
                     </div>
                   ))}
@@ -712,123 +746,72 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
               </div>
             )}
 
-          </div>
+            {/* ТАБ 4: ЗАМЕТКИ */}
+            {activeTab === 'notes' && (
+              <div style={{
+                background: 'rgba(15, 23, 42, 0.85)', borderRadius: '12px',
+                border: '1px solid rgba(255, 255, 255, 0.08)', padding: '1rem', flex: 1
+              }}>
+                <div style={{ fontWeight: 800, color: '#38bdf8', fontSize: '0.85rem', marginBottom: '0.5rem' }}>
+                  📝 Особые комментарии и инструкции
+                </div>
+                <textarea
+                  rows="6"
+                  value={formData.comments}
+                  onChange={e => setFormData({ ...formData, comments: e.target.value })}
+                  style={{
+                    width: '100%', background: 'rgba(0,0,0,0.35)', border: '1px solid rgba(255,255,255,0.12)',
+                    borderRadius: '8px', padding: '10px', color: '#cbd5e1', fontSize: '0.82rem', outline: 'none', resize: 'none', lineHeight: 1.4
+                  }}
+                />
+              </div>
+            )}
 
-          {/* ────────────────────────────────────────────────────
-              ПРАВАЯ КОЛОНКА: ФИНАНСЫ, ЭСКРОУ И БЫСТРЫЕ ДЕЙСТВИЯ
-              ──────────────────────────────────────────────────── */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-
-            {/* Эскроу безопасность */}
+            {/* Быстрые действия внизу правой колонки */}
             <div style={{
-              background: 'rgba(15, 23, 42, 0.85)', borderRadius: '14px',
-              border: '1px solid rgba(0, 229, 255, 0.3)', padding: '1.25rem',
-              boxShadow: '0 8px 30px rgba(0, 229, 255, 0.1)'
+              display: 'flex', gap: '8px', background: 'rgba(15, 23, 42, 0.85)',
+              borderRadius: '12px', padding: '8px 12px', border: '1px solid rgba(255,255,255,0.06)'
             }}>
-              <div style={{ fontSize: '0.8rem', color: '#00e5ff', fontWeight: 800, letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <span>🔒</span> Эскроу безопасность
-              </div>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
-                  <span style={{ color: '#94a3b8' }}>Общий бюджет:</span>
-                  <strong style={{ color: '#ffd700' }}>{formatMoney(totalBudget)}</strong>
-                </div>
-
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
-                  <span style={{ color: '#94a3b8' }}>🔓 Выплачено подрядчику:</span>
-                  <strong style={{ color: '#10b981' }}>{formatMoney(completedStagesSum)}</strong>
-                </div>
-
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
-                  <span style={{ color: '#94a3b8' }}>🔒 В эскроу (в работе):</span>
-                  <strong style={{ color: '#00e5ff' }}>{formatMoney(inProgressStagesSum)}</strong>
-                </div>
-
-                <div style={{
-                  marginTop: '8px', paddingTop: '10px', borderTop: '1px solid rgba(255,255,255,0.08)',
-                  display: 'flex', justifyContent: 'space-between', alignItems: 'center'
-                }}>
-                  <span style={{ fontSize: '0.78rem', color: '#94a3b8' }}>Остаток к выплате:</span>
-                  <span style={{ fontSize: '1.1rem', fontWeight: 900, color: '#f8fafc' }}>
-                    {formatMoney(escrowRemaining)}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Бонус менеджера */}
-            <div style={{
-              background: 'rgba(16, 185, 129, 0.08)', borderRadius: '14px',
-              border: '1px dashed rgba(16, 185, 129, 0.35)', padding: '1.25rem'
-            }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  <div style={{ fontSize: '0.72rem', color: '#6ee7b7', fontWeight: 800, textTransform: 'uppercase' }}>
-                    Вознаграждение сделки (3%)
-                  </div>
-                  <div style={{ fontSize: '1.3rem', fontWeight: 900, color: '#34d399', marginTop: '2px' }}>
-                    {formatMoney(totalBudget * 0.03)}
-                  </div>
-                </div>
-                <div style={{ fontSize: '2rem' }}>💰</div>
-              </div>
-            </div>
-
-            {/* Быстрые действия с заявкой */}
-            <div style={{
-              background: 'rgba(15, 23, 42, 0.85)', borderRadius: '14px',
-              border: '1px solid rgba(255, 255, 255, 0.08)', padding: '1.25rem'
-            }}>
-              <div style={{ fontSize: '0.8rem', color: '#e2e8f0', fontWeight: 800, letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '0.85rem' }}>
-                ⚡ Быстрые действия
-              </div>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <button
-                  onClick={() => handleStatusChange('engineer_assigned')}
-                  style={{
-                    background: 'rgba(245, 158, 11, 0.15)', border: '1px solid rgba(245, 158, 11, 0.4)',
-                    color: '#fcd34d', padding: '10px 14px', borderRadius: '8px',
-                    fontSize: '0.8rem', fontWeight: 800, cursor: 'pointer', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '8px'
-                  }}
-                >
-                  <span>📋</span> Назначить инженера
-                </button>
-
-                <button
-                  onClick={() => handleStatusChange('engineer_visit')}
-                  style={{
-                    background: 'rgba(249, 115, 22, 0.15)', border: '1px solid rgba(249, 115, 22, 0.4)',
-                    color: '#fdba74', padding: '10px 14px', borderRadius: '8px',
-                    fontSize: '0.8rem', fontWeight: 800, cursor: 'pointer', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '8px'
-                  }}
-                >
-                  <span>🚗</span> Начать выезд на объект
-                </button>
-
-                <button
-                  onClick={() => handleStatusChange('pending_executor')}
-                  style={{
-                    background: 'rgba(234, 179, 8, 0.15)', border: '1px solid rgba(234, 179, 8, 0.4)',
-                    color: '#fde047', padding: '10px 14px', borderRadius: '8px',
-                    fontSize: '0.8rem', fontWeight: 800, cursor: 'pointer', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '8px'
-                  }}
-                >
-                  <span>⏳</span> Передать исполнителю
-                </button>
-
-                <button
-                  onClick={() => handleStatusChange('completed')}
-                  style={{
-                    background: 'rgba(34, 197, 94, 0.15)', border: '1px solid rgba(34, 197, 94, 0.4)',
-                    color: '#86efac', padding: '10px 14px', borderRadius: '8px',
-                    fontSize: '0.8rem', fontWeight: 800, cursor: 'pointer', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '8px'
-                  }}
-                >
-                  <span>✅</span> Завершить и сдать объект
-                </button>
-              </div>
+              <button
+                onClick={() => handleStatusChange('engineer_assigned')}
+                style={{
+                  flex: 1, background: 'rgba(245, 158, 11, 0.15)', border: '1px solid rgba(245, 158, 11, 0.35)',
+                  color: '#fcd34d', padding: '8px 6px', borderRadius: '8px',
+                  fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer'
+                }}
+              >
+                📋 Инженера
+              </button>
+              <button
+                onClick={() => handleStatusChange('engineer_visit')}
+                style={{
+                  flex: 1, background: 'rgba(249, 115, 22, 0.15)', border: '1px solid rgba(249, 115, 22, 0.35)',
+                  color: '#fdba74', padding: '8px 6px', borderRadius: '8px',
+                  fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer'
+                }}
+              >
+                🚗 На выезд
+              </button>
+              <button
+                onClick={() => handleStatusChange('pending_executor')}
+                style={{
+                  flex: 1, background: 'rgba(234, 179, 8, 0.15)', border: '1px solid rgba(234, 179, 8, 0.35)',
+                  color: '#fde047', padding: '8px 6px', borderRadius: '8px',
+                  fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer'
+                }}
+              >
+                ⏳ Подрядчику
+              </button>
+              <button
+                onClick={() => handleStatusChange('completed')}
+                style={{
+                  flex: 1, background: 'rgba(34, 197, 94, 0.15)', border: '1px solid rgba(34, 197, 94, 0.35)',
+                  color: '#86efac', padding: '8px 6px', borderRadius: '8px',
+                  fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer'
+                }}
+              >
+                ✅ Сдать объект
+              </button>
             </div>
 
           </div>
@@ -836,35 +819,33 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
         </div>
 
         {/* ════════════════════════════════════════════════════════
-            4. ФУТЕР КАРТОЧКИ СДЕЛКИ
+            4. ФУТЕР КАРТОЧКИ
             ════════════════════════════════════════════════════════ */}
         <div style={{
-          padding: '1.25rem 2rem',
+          padding: '0.85rem 1.75rem',
           borderTop: '1px solid rgba(255, 255, 255, 0.08)',
           display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-          backgroundColor: '#0a1628'
+          backgroundColor: '#0a1424'
         }}>
-          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-            <button
-              onClick={() => showToast(`💬 Чат по сделке №${formData.id} открыт`)}
-              style={{
-                background: 'rgba(0, 229, 255, 0.1)', color: '#00e5ff',
-                border: '1px solid rgba(0, 229, 255, 0.3)', padding: '10px 18px',
-                borderRadius: '10px', fontSize: '0.85rem', fontWeight: 700, cursor: 'pointer',
-                display: 'flex', alignItems: 'center', gap: '8px'
-              }}
-            >
-              💬 Чат объекта
-            </button>
-          </div>
+          <button
+            onClick={() => showToast(`💬 Чат по объекту №${formData.id} открыт`)}
+            style={{
+              background: 'rgba(0, 229, 255, 0.1)', color: '#00e5ff',
+              border: '1px solid rgba(0, 229, 255, 0.3)', padding: '8px 16px',
+              borderRadius: '8px', fontSize: '0.82rem', fontWeight: 700, cursor: 'pointer',
+              display: 'flex', alignItems: 'center', gap: '6px'
+            }}
+          >
+            💬 Чат объекта
+          </button>
 
-          <div style={{ display: 'flex', gap: '12px' }}>
+          <div style={{ display: 'flex', gap: '10px' }}>
             <button
               onClick={onClose}
               style={{
                 background: 'rgba(255, 255, 255, 0.06)', color: '#94a3b8',
-                border: '1px solid rgba(255, 255, 255, 0.15)', padding: '10px 24px',
-                borderRadius: '10px', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 700
+                border: '1px solid rgba(255, 255, 255, 0.15)', padding: '8px 20px',
+                borderRadius: '8px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 700
               }}
             >
               Отмена
@@ -874,9 +855,9 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
               onClick={handleSaveWrapper}
               style={{
                 background: 'linear-gradient(135deg, #10b981, #059669)',
-                color: '#fff', border: 'none', padding: '10px 28px',
-                borderRadius: '10px', cursor: 'pointer', fontSize: '0.9rem',
-                fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px',
+                color: '#fff', border: 'none', padding: '8px 24px',
+                borderRadius: '8px', cursor: 'pointer', fontSize: '0.85rem',
+                fontWeight: 800, display: 'flex', alignItems: 'center', gap: '6px',
                 boxShadow: '0 4px 16px rgba(16, 185, 129, 0.3)'
               }}
             >
