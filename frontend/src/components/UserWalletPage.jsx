@@ -1,17 +1,18 @@
 import React, { useState, useEffect } from 'react';
+import { getBalanceKZT, getTransactions, topupBalance, freezeEscrow, spendBalance } from '../services/walletEngine';
 import './UserWalletPage.css';
 
 export default function UserWalletPage({ onBack, currentUser }) {
   // Уникальный ключ пользователя для изоляции данных кошелька
   const userKey = currentUser?.login || currentUser?.email || currentUser?.name || 'guest';
 
-  const [currency, setCurrency] = useState('USD'); // 'USD' | 'KZT' | 'RUB'
-  const [balance, setBalance] = useState(0);
+  const [currency, setCurrency] = useState('KZT'); // 'KZT' | 'USD' | 'RUB'
+  const [balance, setBalance] = useState(() => getBalanceKZT(currentUser) / 470);
   const [totalDeposited, setTotalDeposited] = useState(0);
   const [totalSpent, setTotalSpent] = useState(0);
   const [opsCount, setOpsCount] = useState(0);
   const [selectedPlan, setSelectedPlan] = useState(null);
-  const [transactions, setTransactions] = useState([]);
+  const [transactions, setTransactions] = useState(() => getTransactions(currentUser));
 
   // Saved Bank Cards State — привязаны к конкретному пользователю
   const [savedCards, setSavedCards] = useState(() => {
@@ -228,6 +229,9 @@ export default function UserWalletPage({ onBack, currentUser }) {
     setBalance(prev => prev + amountUsd);
     setTotalDeposited(prev => prev + amountUsd);
     setOpsCount(prev => prev + 1);
+
+    // Sync into central walletEngine
+    topupBalance(Math.round(amountUsd * 470), sourceText, currentUser);
 
     const newTx = {
       id: Date.now().toString(),
