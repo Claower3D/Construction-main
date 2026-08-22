@@ -333,10 +333,13 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
 
   // ═══════════════════════════════════════
   // ►  ПРИНЯТИЕ ЗАКАЗА ИСПОЛНИТЕЛЕМ
+  //    + АВТОГЕНЕРАЦИЯ ГРАФИКА РАБОТ В CRM КАЛЕНДАРЬ
   // ═══════════════════════════════════════
   const handleAcceptOrder = useCallback((orderId) => {
+    let acceptedOrder = null;
     setOrders(prev => prev.map(ord => {
       if (ord.id !== orderId) return ord;
+      acceptedOrder = ord;
       return {
         ...ord,
         status: 'in_progress',
@@ -344,7 +347,93 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
         acceptedAt: new Date().toLocaleString()
       };
     }));
-    showToast(`✅ Заказ ${orderId} принят! Вы назначены исполнителем.`);
+
+    // ═══ АВТОГЕНЕРАЦИЯ ГРАФИКА В CRM-КАЛЕНДАРЬ ═══
+    if (acceptedOrder && acceptedOrder.stages && acceptedOrder.stages.length > 0) {
+      try {
+        const calendarKey = 'qazgost_crm_calendar';
+        const existing = JSON.parse(localStorage.getItem(calendarKey) || '{}');
+
+        acceptedOrder.stages.forEach((stg, idx) => {
+          // Парсим dateRange: "12.08 – 15.08.2026" или "25.08 – 02.09.2026"
+          if (!stg.dateRange) return;
+          const parts = stg.dateRange.split('–').map(s => s.trim());
+          if (parts.length < 2) return;
+
+          // Парсим дату начала (DD.MM) и конца (DD.MM.YYYY)
+          const endMatch = parts[1].match(/(\d{2})\.(\d{2})\.(\d{4})/);
+          const startMatch = parts[0].match(/(\d{2})\.(\d{2})/);
+          if (!endMatch || !startMatch) return;
+
+          const year = parseInt(endMatch[3]);
+          const startDate = `${year}-${startMatch[2]}-${startMatch[1]}`;
+          const endDate = `${year}-${endMatch[2]}-${endMatch[1]}`;
+
+          // Создаём event на дату начала этапа
+          if (!existing[startDate]) existing[startDate] = [];
+          existing[startDate].push({
+            id: `${acceptedOrder.id}-${stg.id}-start`,
+            title: `🚀 НАЧАЛО: ${stg.name}`,
+            status: idx === 0 ? 'В работе' : 'Новые',
+            type: 'work_stage',
+            time: '08:00',
+            phone: acceptedOrder.clientPhone || '',
+            contractor: acceptedOrder.clientName,
+            location: `📍 ${acceptedOrder.city} • Заказ ${acceptedOrder.id}`,
+            budget: `${(stg.budget || 0).toLocaleString('ru-RU')} ₸`,
+            orderId: acceptedOrder.id,
+            stageId: stg.id,
+          });
+
+          // Создаём event на дату окончания этапа
+          if (startDate !== endDate) {
+            if (!existing[endDate]) existing[endDate] = [];
+            existing[endDate].push({
+              id: `${acceptedOrder.id}-${stg.id}-end`,
+              title: `✅ СДАЧА: ${stg.name}`,
+              status: 'Дожим',
+              type: 'deadline',
+              time: '17:00',
+              phone: acceptedOrder.clientPhone || '',
+              contractor: acceptedOrder.clientName,
+              location: `📍 ${acceptedOrder.city} • Заказ ${acceptedOrder.id}`,
+              budget: `${(stg.budget || 0).toLocaleString('ru-RU')} ₸`,
+              orderId: acceptedOrder.id,
+              stageId: stg.id,
+            });
+          }
+
+          // Техника — добавляем event на первый день
+          if (stg.machinery && stg.machinery.length > 0) {
+            const machineryNames = stg.machinery.filter(m => m.assigned).map(m => m.name).join(', ');
+            if (machineryNames) {
+              const nextDay = new Date(year, parseInt(startMatch[2]) - 1, parseInt(startMatch[1]) + 1);
+              const techDate = `${nextDay.getFullYear()}-${String(nextDay.getMonth()+1).padStart(2,'0')}-${String(nextDay.getDate()).padStart(2,'0')}`;
+              if (!existing[techDate]) existing[techDate] = [];
+              existing[techDate].push({
+                id: `${acceptedOrder.id}-${stg.id}-tech`,
+                title: `🚜 Техника: ${machineryNames.slice(0, 60)}`,
+                status: 'В работе',
+                type: 'request_construction',
+                time: '07:00',
+                phone: '',
+                contractor: acceptedOrder.clientName,
+                location: `Этап: ${stg.name}`,
+                budget: '',
+                orderId: acceptedOrder.id,
+                stageId: stg.id,
+              });
+            }
+          }
+        });
+
+        localStorage.setItem(calendarKey, JSON.stringify(existing));
+        // Уведомляем CRM-календарь об обновлении
+        window.dispatchEvent(new CustomEvent('crm_calendar_updated'));
+      } catch (e) { console.warn('Calendar auto-schedule error:', e); }
+    }
+
+    showToast(`✅ Заказ ${orderId} принят! График работ автоматически создан в CRM-календаре 📅`);
     setSelectedOrder(null);
   }, [currentUser]);
 
@@ -428,9 +517,16 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
     });
   }, []);
 
-  // Dynamic Filtering
+  // Dynamic Filtering (с учётом роли!)
   const filteredOrders = useMemo(() => {
     return orders.filter(ord => {
+      // ═══ РОЛЕВАЯ ФИЛЬТРАЦИЯ ═══
+      // Исполнитель видит ТОЛЬКО: pending_executor, in_progress, completed
+      if (role === 'engineer' || role === 'executor') {
+        if (!['pending_executor', 'in_progress', 'completed'].includes(ord.status)) return false;
+      }
+
+      // Поиск
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
         const matchesTitle = ord.title.toLowerCase().includes(q);
@@ -440,7 +536,7 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
       }
 
       if (statusFilter !== 'all') {
-        if (statusFilter === 'engineer') {
+        if (statusFilter === 'engineer_group') {
           if (!['engineer_assigned', 'engineer_visit', 'estimate_ready'].includes(ord.status)) return false;
         } else if (ord.status !== statusFilter) {
           return false;
@@ -449,7 +545,7 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
 
       return true;
     });
-  }, [orders, searchQuery, statusFilter]);
+  }, [orders, searchQuery, statusFilter, role]);
 
   // Stats
   const totalCount = filteredOrders.length;
@@ -587,16 +683,21 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
               <h3>Список заказов</h3>
             </div>
 
-            {/* Filter Tabs */}
+            {/* Filter Tabs (зависят от роли) */}
             <div className="uo-filter-tabs">
-              {[
+              {(role === 'engineer' || role === 'executor' ? [
+                { key: 'all', label: 'Все' },
+                { key: 'pending_executor', label: '⏳ Доступные заявки' },
+                { key: 'in_progress', label: '🟢 Мои работы' },
+                { key: 'completed', label: '✅ Завершённые' }
+              ] : [
                 { key: 'all', label: 'Все' },
                 { key: 'new', label: '🆕 Новые' },
-                { key: 'engineer', label: '🚗 Инженер' },
+                { key: 'engineer_group', label: '🚗 Инженер' },
                 { key: 'pending_executor', label: '⏳ Ждёт исполнителя' },
                 { key: 'in_progress', label: '🟢 В работе' },
                 { key: 'completed', label: '✅ Завершённые' }
-              ].map(tab => (
+              ]).map(tab => (
                 <button 
                   key={tab.key}
                   className={`uo-tab ${statusFilter === tab.key ? 'active' : ''}`}

@@ -81,6 +81,18 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
     }
   }, []);
 
+  // Слушаем обновления из UserOrdersPage (автогенерация графика)
+  useEffect(() => {
+    const handleCalendarUpdate = () => {
+      try {
+        const saved = localStorage.getItem('qazgost_crm_calendar');
+        if (saved) setEvents(JSON.parse(saved));
+      } catch {}
+    };
+    window.addEventListener('crm_calendar_updated', handleCalendarUpdate);
+    return () => window.removeEventListener('crm_calendar_updated', handleCalendarUpdate);
+  }, []);
+
   const saveEvents = useCallback((newEvents) => {
     setEvents(newEvents);
     localStorage.setItem('qazgost_crm_calendar', JSON.stringify(newEvents));
@@ -197,6 +209,19 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
     showToast('🎉 Новая заявка создана!');
   };
 
+  const isEventVisible = useCallback((evt) => {
+    if (statusFilter !== 'all' && evt.status !== statusFilter) return false;
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      const titleMatch = evt.title?.toLowerCase().includes(q);
+      const contractorMatch = evt.contractor?.toLowerCase().includes(q);
+      const locationMatch = evt.location?.toLowerCase().includes(q);
+      const phoneMatch = evt.phone?.toLowerCase().includes(q);
+      if (!titleMatch && !contractorMatch && !locationMatch && !phoneMatch) return false;
+    }
+    return true;
+  }, [statusFilter, searchQuery]);
+
   // ═══════════════════════════
   // RENDER: Мини-карточка заявки
   // ═══════════════════════════
@@ -209,26 +234,26 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
         onDragStart={e => handleDragStart(e, { ...card, date: dateStr })}
         onClick={(e) => { e.stopPropagation(); setSelectedCard({ ...card, date: dateStr, day: dateStr }); }}
         style={{
-          background: sc.bg, border: `1px solid ${sc.border}60`, borderLeft: `4px solid ${sc.dot}`,
-          borderRadius: '7px', padding: compact ? '2px 5px' : '5px 8px', cursor: 'grab',
-          marginBottom: '3px', transition: 'all 0.15s', fontSize: compact ? '0.64rem' : '0.74rem',
-          boxShadow: '0 2px 6px rgba(0,0,0,0.3)',
+          background: sc.bg, border: `1px solid ${sc.border}60`, borderLeft: `3px solid ${sc.dot}`,
+          borderRadius: '5px', padding: compact ? '1px 3px' : '3px 6px', cursor: 'grab',
+          marginBottom: '2px', transition: 'all 0.15s', fontSize: compact ? '0.6rem' : '0.68rem',
+          boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
         }}
-        onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-1px) scale(1.02)'; e.currentTarget.style.boxShadow = `0 4px 12px ${sc.dot}50`; }}
-        onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 2px 6px rgba(0,0,0,0.3)'; }}
+        onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-1px) scale(1.02)'; e.currentTarget.style.boxShadow = `0 4px 10px ${sc.dot}50`; }}
+        onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.3)'; }}
         title={`📌 ${card.title}\n🏢 ${card.contractor}\n📍 ${card.location || 'Не указано'}\n📞 ${card.phone || 'Без телефона'}\n💰 ${card.budget}`}
       >
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '4px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', overflow: 'hidden' }}>
-            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: sc.dot, flexShrink: 0, boxShadow: `0 0 5px ${sc.dot}` }} />
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '3px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '3px', overflow: 'hidden' }}>
+            <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: sc.dot, flexShrink: 0, boxShadow: `0 0 4px ${sc.dot}` }} />
             <span style={{ fontWeight: 800, color: '#ffffff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              {compact ? card.title.slice(0, 18) : card.title}
+              {compact ? card.title.slice(0, 16) : card.title}
             </span>
           </div>
-          <span style={{ fontSize: '0.65rem', fontWeight: 900, color: '#ffd700', flexShrink: 0 }}>{card.budget}</span>
+          <span style={{ fontSize: '0.6rem', fontWeight: 900, color: '#ffd700', flexShrink: 0 }}>{card.budget}</span>
         </div>
         {!compact && (
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '2px', color: '#94a3b8', fontSize: '0.66rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1px', color: '#94a3b8', fontSize: '0.62rem' }}>
             <span>⏱ {card.time || '—'}</span>
             <span style={{ color: sc.text, fontWeight: 700 }}>{card.status}</span>
           </div>
@@ -255,25 +280,18 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
     while (cells.length % 7 !== 0) cells.push(null);
 
     return (
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '4px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '3px' }}>
         {/* Day headers */}
         {DAYS_RU.map(d => (
-          <div key={d} style={{ textAlign: 'center', padding: '6px 2px', fontWeight: 900, fontSize: '0.75rem', color: '#e2e8f0', background: 'rgba(255, 255, 255, 0.08)', borderRadius: '6px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+          <div key={d} style={{ textAlign: 'center', padding: '4px 2px', fontWeight: 900, fontSize: '0.7rem', color: '#e2e8f0', background: 'rgba(255, 255, 255, 0.08)', borderRadius: '5px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
             {d}
           </div>
         ))}
         {/* Day cells */}
         {cells.map((day, idx) => {
-          if (day === null) return <div key={`e${idx}`} style={{ minHeight: '85px', background: 'rgba(10, 16, 30, 0.75)', borderRadius: '8px', border: '1px dashed rgba(255, 255, 255, 0.06)' }} />;
+          if (day === null) return <div key={`e${idx}`} style={{ minHeight: '68px', background: 'rgba(10, 16, 30, 0.75)', borderRadius: '6px', border: '1px dashed rgba(255, 255, 255, 0.06)' }} />;
           const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-          const dayEvents = (events[dateStr] || []).filter(c => {
-            if (statusFilter !== 'all' && c.status !== statusFilter) return false;
-            if (searchQuery) {
-              const q = searchQuery.toLowerCase();
-              if (!(c.title?.toLowerCase().includes(q) || c.contractor?.toLowerCase().includes(q))) return false;
-            }
-            return true;
-          });
+          const dayEvents = (events[dateStr] || []).filter(isEventVisible);
           const today = isToday(dateStr);
           const isOver = dragOverDate === dateStr;
           return (
@@ -284,40 +302,40 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
               onDrop={e => handleDrop(e, dateStr)}
               onClick={() => { setCurrentDate(new Date(year, month, day)); setView('day'); }}
               style={{
-                minHeight: '88px', padding: '6px', borderRadius: '10px', cursor: 'pointer',
+                minHeight: '70px', padding: '4px', borderRadius: '8px', cursor: 'pointer',
                 background: today ? 'rgba(0, 229, 255, 0.18)' : isOver ? 'rgba(245, 158, 11, 0.22)' : 'rgba(18, 27, 48, 0.94)',
                 border: today ? '2px solid #00e5ff' : isOver ? '2px solid #f59e0b' : '1px solid rgba(255, 255, 255, 0.14)',
-                boxShadow: today ? '0 0 15px rgba(0, 229, 255, 0.3)' : '0 2px 8px rgba(0,0,0,0.4)',
+                boxShadow: today ? '0 0 12px rgba(0, 229, 255, 0.3)' : '0 2px 6px rgba(0,0,0,0.4)',
                 transition: 'all 0.15s', position: 'relative'
               }}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
                 <span style={{
-                  fontWeight: 900, fontSize: today ? '0.9rem' : '0.82rem',
+                  fontWeight: 900, fontSize: today ? '0.82rem' : '0.76rem',
                   color: today ? '#00e5ff' : '#ffffff',
                   background: today ? 'rgba(0,229,255,0.25)' : 'rgba(255,255,255,0.06)',
-                  borderRadius: '5px', padding: '1px 6px',
+                  borderRadius: '4px', padding: '0px 5px',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                 }}>
                   {day}
                 </span>
-                <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+                <div style={{ display: 'flex', gap: '3px', alignItems: 'center' }}>
                   <button
                     onClick={(e) => { e.stopPropagation(); openCreateModalForSlot(dateStr); }}
-                    style={{ background: 'rgba(0,229,255,0.15)', border: '1px solid rgba(0,229,255,0.4)', color: '#00e5ff', borderRadius: '4px', width: '18px', height: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 900 }}
+                    style={{ background: 'rgba(0,229,255,0.15)', border: '1px solid rgba(0,229,255,0.4)', color: '#00e5ff', borderRadius: '3px', width: '16px', height: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '0.7rem', fontWeight: 900 }}
                     title="Создать заявку на этот день"
                   >+</button>
                   {dayEvents.length > 0 && (
-                    <span style={{ fontSize: '0.65rem', background: 'rgba(0,229,255,0.25)', border: '1px solid rgba(0,229,255,0.5)', color: '#00e5ff', padding: '1px 5px', borderRadius: '8px', fontWeight: 800 }}>
+                    <span style={{ fontSize: '0.6rem', background: 'rgba(0,229,255,0.25)', border: '1px solid rgba(0,229,255,0.5)', color: '#00e5ff', padding: '0px 4px', borderRadius: '6px', fontWeight: 800 }}>
                       {dayEvents.length}
                     </span>
                   )}
                 </div>
               </div>
-              <div style={{ overflow: 'hidden', maxHeight: '62px' }}>
+              <div style={{ overflow: 'hidden', maxHeight: '48px' }}>
                 {dayEvents.slice(0, 2).map(evt => renderEventChip(evt, dateStr, true))}
                 {dayEvents.length > 2 && (
-                  <div style={{ fontSize: '0.6rem', color: '#94a3b8', textAlign: 'center', marginTop: '1px', fontWeight: 700 }}>
+                  <div style={{ fontSize: '0.58rem', color: '#94a3b8', textAlign: 'center', marginTop: '1px', fontWeight: 700 }}>
                     +{dayEvents.length - 2} ещё
                   </div>
                 )}
@@ -330,7 +348,7 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
   };
 
   // ═══════════════════════════
-  // RENDER: ВИД НЕДЕЛЯ (Sticky Headers + Slot Click)
+  // RENDER: ВИД НЕДЕЛЯ (Ultra-Compact)
   // ═══════════════════════════
   const renderWeekView = () => {
     const monday = getMonday(currentDate);
@@ -343,24 +361,24 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
     const hours = Array.from({ length: 14 }, (_, i) => i + 7); // 07:00 - 20:00
 
     return (
-      <div style={{ display: 'grid', gridTemplateColumns: '60px repeat(7, 1fr)', gap: '1px', overflowY: 'auto', maxHeight: 'calc(100vh - 170px)', background: 'rgba(10, 16, 30, 0.8)', padding: '4px', borderRadius: '12px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '50px repeat(7, 1fr)', gap: '1px', overflowY: 'auto', maxHeight: 'calc(100vh - 135px)', background: 'rgba(10, 16, 30, 0.8)', padding: '3px', borderRadius: '10px' }}>
         {/* STICKY HEADER ROW */}
-        <div style={{ padding: '6px', background: 'rgba(18, 27, 48, 0.98)', borderRadius: '6px', position: 'sticky', top: 0, zIndex: 20, backdropFilter: 'blur(12px)' }} />
+        <div style={{ padding: '4px', background: 'rgba(18, 27, 48, 0.98)', borderRadius: '5px', position: 'sticky', top: 0, zIndex: 20, backdropFilter: 'blur(12px)' }} />
         {days.map(d => {
           const dateStr = fmtDate(d);
           const today = isToday(dateStr);
           return (
             <div key={dateStr} style={{
-              textAlign: 'center', padding: '6px 4px', borderRadius: '8px',
+              textAlign: 'center', padding: '3px 2px', borderRadius: '6px',
               background: today ? 'rgba(0, 229, 255, 0.25)' : 'rgba(18, 27, 48, 0.98)',
-              border: today ? '2px solid #00e5ff' : '1px solid rgba(255, 255, 255, 0.14)',
+              border: today ? '1.5px solid #00e5ff' : '1px solid rgba(255, 255, 255, 0.14)',
               position: 'sticky', top: 0, zIndex: 20, backdropFilter: 'blur(12px)',
-              boxShadow: '0 4px 10px rgba(0,0,0,0.5)'
+              boxShadow: '0 2px 6px rgba(0,0,0,0.5)'
             }}>
-              <div style={{ fontSize: '0.7rem', color: today ? '#00e5ff' : '#94a3b8', fontWeight: 800, textTransform: 'uppercase' }}>
+              <div style={{ fontSize: '0.65rem', color: today ? '#00e5ff' : '#94a3b8', fontWeight: 800, textTransform: 'uppercase' }}>
                 {DAYS_RU[d.getDay() === 0 ? 6 : d.getDay() - 1]}
               </div>
-              <div style={{ fontSize: '1.15rem', fontWeight: 900, color: today ? '#00e5ff' : '#ffffff' }}>
+              <div style={{ fontSize: '1rem', fontWeight: 900, color: today ? '#00e5ff' : '#ffffff' }}>
                 {d.getDate()}
               </div>
             </div>
@@ -369,7 +387,7 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
         {/* Time rows */}
         {hours.map(h => (
           <React.Fragment key={h}>
-            <div style={{ padding: '4px 6px', fontSize: '0.72rem', color: '#e2e8f0', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', background: 'rgba(10, 16, 30, 0.95)', borderRadius: '4px' }}>
+            <div style={{ padding: '2px 4px', fontSize: '0.68rem', color: '#e2e8f0', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', background: 'rgba(10, 16, 30, 0.95)', borderRadius: '3px' }}>
               {String(h).padStart(2, '0')}:00
             </div>
             {days.map(d => {
@@ -377,7 +395,7 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
               const timeStr = `${String(h).padStart(2, '0')}:00`;
               const dayEvents = (events[dateStr] || []).filter(evt => {
                 const evtHour = parseInt(evt.time?.split(':')[0], 10);
-                return evtHour === h;
+                return evtHour === h && isEventVisible(evt);
               });
               const isOver = dragOverDate === `${dateStr}-${h}`;
               return (
@@ -392,12 +410,12 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
                     }
                   }}
                   style={{
-                    minHeight: '38px', padding: '2px', borderRadius: '6px',
-                    borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+                    minHeight: '28px', padding: '1px 2px', borderRadius: '5px',
+                    borderBottom: '1px solid rgba(255, 255, 255, 0.06)',
                     background: isOver ? 'rgba(245,158,11,0.25)' : 'rgba(15, 22, 40, 0.92)',
                     transition: 'background 0.15s', cursor: 'pointer',
                   }}
-                  title="Кликните для создания заявки на это время"
+                  title="Кликните для создания заявки"
                 >
                   {dayEvents.map(evt => renderEventChip(evt, dateStr, false))}
                 </div>
@@ -414,35 +432,28 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
   // ═══════════════════════════
   const renderDayView = () => {
     const dateStr = fmtDate(currentDate);
-    const dayEvents = (events[dateStr] || []).filter(c => {
-      if (statusFilter !== 'all' && c.status !== statusFilter) return false;
-      if (searchQuery) {
-        const q = searchQuery.toLowerCase();
-        if (!(c.title?.toLowerCase().includes(q) || c.contractor?.toLowerCase().includes(q))) return false;
-      }
-      return true;
-    });
+    const dayEvents = (events[dateStr] || []).filter(isEventVisible);
     const hours = Array.from({ length: 16 }, (_, i) => i + 6); // 06:00 - 21:00
     const dow = currentDate.getDay();
 
     return (
-      <div style={{ background: 'rgba(10, 16, 30, 0.85)', padding: '12px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)' }}>
-        <div style={{ textAlign: 'center', marginBottom: '14px' }}>
-          <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#ffffff' }}>
+      <div style={{ background: 'rgba(10, 16, 30, 0.85)', padding: '8px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.1)' }}>
+        <div style={{ textAlign: 'center', marginBottom: '8px' }}>
+          <div style={{ fontSize: '1.2rem', fontWeight: 900, color: '#ffffff' }}>
             {DAYS_FULL[dow === 0 ? 6 : dow - 1]}, {currentDate.getDate()} {MONTHS_RU[currentDate.getMonth()]}
           </div>
-          <div style={{ fontSize: '0.82rem', color: '#00e5ff', marginTop: '2px', fontWeight: 800 }}>
+          <div style={{ fontSize: '0.78rem', color: '#00e5ff', marginTop: '1px', fontWeight: 800 }}>
             {dayEvents.length} заявок на этот день • {dayEvents.reduce((a, c) => a + parseBudget(c.budget), 0).toLocaleString('ru-RU')} ₸
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '70px 1fr', gap: '3px', maxHeight: 'calc(100vh - 210px)', overflowY: 'auto' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '60px 1fr', gap: '2px', maxHeight: 'calc(100vh - 160px)', overflowY: 'auto' }}>
           {hours.map(h => {
             const timeStr = `${String(h).padStart(2, '0')}:00`;
             const hourEvents = dayEvents.filter(evt => parseInt(evt.time?.split(':')[0], 10) === h);
             return (
               <React.Fragment key={h}>
-                <div style={{ padding: '8px 10px', fontSize: '0.78rem', color: '#e2e8f0', fontWeight: 800, textAlign: 'right', background: 'rgba(15, 22, 40, 0.95)', borderRadius: '6px', borderRight: '2px solid rgba(0,229,255,0.3)' }}>
+                <div style={{ padding: '4px 6px', fontSize: '0.72rem', color: '#e2e8f0', fontWeight: 800, textAlign: 'right', background: 'rgba(15, 22, 40, 0.95)', borderRadius: '4px', borderRight: '2px solid rgba(0,229,255,0.3)' }}>
                   {timeStr}
                 </div>
                 <div
@@ -455,7 +466,7 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
                     }
                   }}
                   style={{
-                    minHeight: '44px', padding: '4px 6px', borderRadius: '6px',
+                    minHeight: '34px', padding: '2px 4px', borderRadius: '5px',
                     borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
                     background: dragOverDate === `${dateStr}-${h}` ? 'rgba(0,229,255,0.12)' : 'rgba(15, 22, 40, 0.92)',
                     cursor: 'pointer',
@@ -470,40 +481,40 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
                         onDragStart={e => handleDragStart(e, { ...evt, date: dateStr })}
                         onClick={() => setSelectedCard({ ...evt, date: dateStr, day: dateStr })}
                         style={{
-                          display: 'flex', gap: '10px', padding: '8px 12px', marginBottom: '6px',
+                          display: 'flex', gap: '8px', padding: '6px 10px', marginBottom: '4px',
                           background: 'rgba(20, 30, 55, 0.95)', border: `1.5px solid ${sc.border}`,
-                          borderLeft: `4px solid ${sc.dot}`, borderRadius: '10px',
+                          borderLeft: `4px solid ${sc.dot}`, borderRadius: '8px',
                           cursor: 'grab', transition: 'all 0.2s',
-                          boxShadow: '0 4px 14px rgba(0,0,0,0.4)',
+                          boxShadow: '0 2px 8px rgba(0,0,0,0.4)',
                         }}
-                        onMouseEnter={e => e.currentTarget.style.boxShadow = `0 6px 20px ${sc.dot}40`}
-                        onMouseLeave={e => e.currentTarget.style.boxShadow = '0 4px 14px rgba(0,0,0,0.4)'}
+                        onMouseEnter={e => e.currentTarget.style.boxShadow = `0 4px 14px ${sc.dot}40`}
+                        onMouseLeave={e => e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.4)'}
                       >
                         <div style={{ flex: 1 }}>
-                          <div style={{ fontWeight: 900, fontSize: '0.88rem', color: '#ffffff', marginBottom: '2px' }}>{evt.title}</div>
-                          <div style={{ fontSize: '0.78rem', color: '#cbd5e1' }}>
+                          <div style={{ fontWeight: 900, fontSize: '0.82rem', color: '#ffffff', marginBottom: '1px' }}>{evt.title}</div>
+                          <div style={{ fontSize: '0.72rem', color: '#cbd5e1' }}>
                             🏢 {evt.contractor} • 📍 {evt.location}
                           </div>
-                          <div style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '1px' }}>
+                          <div style={{ fontSize: '0.7rem', color: '#94a3b8', marginTop: '1px' }}>
                             📞 {evt.phone || evt.time}
                           </div>
                         </div>
                         <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                          <div style={{ fontSize: '0.9rem', fontWeight: 900, color: '#ffd700' }}>{evt.budget}</div>
+                          <div style={{ fontSize: '0.85rem', fontWeight: 900, color: '#ffd700' }}>{evt.budget}</div>
                           <div style={{
-                            marginTop: '4px', padding: '2px 8px', borderRadius: '6px', fontSize: '0.7rem', fontWeight: 800,
+                            marginTop: '2px', padding: '1px 6px', borderRadius: '5px', fontSize: '0.65rem', fontWeight: 800,
                             background: sc.bg, border: `1px solid ${sc.border}`, color: sc.text, display: 'inline-block'
                           }}>
                             {evt.status}
                           </div>
                           {/* Quick status change */}
-                          <div style={{ display: 'flex', gap: '3px', marginTop: '4px', justifyContent: 'flex-end' }}>
+                          <div style={{ display: 'flex', gap: '2px', marginTop: '2px', justifyContent: 'flex-end' }}>
                             {['Новые', 'В работе', 'Дожим', 'Успешно'].filter(s => s !== evt.status).slice(0, 2).map(s => (
                               <button
                                 key={s}
                                 onClick={(e) => { e.stopPropagation(); handleStatusChange(evt.id, dateStr, s); }}
                                 style={{
-                                  fontSize: '0.62rem', padding: '2px 6px', borderRadius: '5px',
+                                  fontSize: '0.58rem', padding: '1px 5px', borderRadius: '4px',
                                   background: STATUS_COLORS[s].bg, border: `1px solid ${STATUS_COLORS[s].border}`,
                                   color: '#ffffff', cursor: 'pointer', fontWeight: 800,
                                 }}
@@ -542,37 +553,37 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
 
       {toastMsg && (
         <div style={{
-          position: 'fixed', top: '16px', right: '16px', zIndex: 10002,
+          position: 'fixed', top: '12px', right: '12px', zIndex: 10002,
           background: 'rgba(0,229,255,0.2)', border: '1px solid rgba(0,229,255,0.5)',
-          backdropFilter: 'blur(20px)', borderRadius: '10px', padding: '10px 18px',
-          color: '#00e5ff', fontWeight: 800, fontSize: '0.85rem',
-          boxShadow: '0 8px 30px rgba(0,229,255,0.3)',
+          backdropFilter: 'blur(20px)', borderRadius: '8px', padding: '8px 14px',
+          color: '#00e5ff', fontWeight: 800, fontSize: '0.8rem',
+          boxShadow: '0 8px 24px rgba(0,229,255,0.3)',
           animation: 'fadeIn 0.3s ease',
         }}>
           {toastMsg}
         </div>
       )}
 
-      {/* ═══ UNIFIED HIGH-EFFICIENCY CONTROL COCKPIT BAR ═══ */}
+      {/* ═══ UNIFIED HIGH-EFFICIENCY TOP BAR ═══ */}
       <div style={{
-        display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 16px',
+        display: 'flex', alignItems: 'center', gap: '12px', padding: '6px 16px',
         background: 'rgba(10, 16, 32, 0.98)', borderBottom: '1px solid rgba(0,229,255,0.25)',
         backdropFilter: 'blur(20px)', position: 'sticky', top: 0, zIndex: 100,
-        flexWrap: 'wrap',
       }}>
-        {/* Left: Back + Title */}
         <button onClick={onBackToHome} style={{
           background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.18)',
-          color: '#ffffff', borderRadius: '8px', padding: '5px 12px', cursor: 'pointer',
-          fontWeight: 800, fontSize: '0.8rem', flexShrink: 0
+          color: '#ffffff', borderRadius: '6px', padding: '4px 10px', cursor: 'pointer',
+          fontWeight: 800, fontSize: '0.76rem', flexShrink: 0
         }}>← На сайт</button>
 
-        <h1 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 900, color: '#ffffff', display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+        <h1 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 900, color: '#ffffff', display: 'flex', alignItems: 'center', gap: '5px' }}>
           📅 CRM КАЛЕНДАРЬ
         </h1>
 
-        {/* View switcher */}
-        <div style={{ display: 'flex', gap: '2px', background: 'rgba(0,0,0,0.4)', borderRadius: '8px', padding: '3px', marginLeft: '4px' }}>
+        <div style={{ flex: 1 }} />
+
+        {/* View Switcher */}
+        <div style={{ display: 'flex', gap: '2px', background: 'rgba(0,0,0,0.4)', borderRadius: '6px', padding: '2px' }}>
           {[
             { key: 'day', label: 'День' },
             { key: 'week', label: 'Неделя' },
@@ -582,11 +593,11 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
               key={v.key}
               onClick={() => setView(v.key)}
               style={{
-                padding: '4px 12px', borderRadius: '6px', border: 'none', cursor: 'pointer',
-                fontWeight: 800, fontSize: '0.78rem',
+                padding: '3px 12px', borderRadius: '5px', border: 'none', cursor: 'pointer',
+                fontWeight: 800, fontSize: '0.76rem',
                 background: view === v.key ? 'linear-gradient(135deg, #00e5ff, #0284c7)' : 'transparent',
                 color: view === v.key ? '#ffffff' : '#94a3b8',
-                boxShadow: view === v.key ? '0 2px 8px rgba(0,229,255,0.4)' : 'none',
+                boxShadow: view === v.key ? '0 2px 6px rgba(0,229,255,0.4)' : 'none',
               }}
             >
               {v.label}
@@ -594,105 +605,183 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
           ))}
         </div>
 
-        {/* Date navigation */}
+        {/* Date Navigation */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-          <button onClick={() => navigate(-1)} style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.16)', borderRadius: '6px', padding: '3px 8px', color: '#ffffff', cursor: 'pointer', fontWeight: 900, fontSize: '1rem' }}>‹</button>
-          <span style={{ fontWeight: 900, fontSize: '0.98rem', color: '#ffffff', minWidth: '170px', textAlign: 'center' }}>
+          <button onClick={() => navigate(-1)} style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.16)', borderRadius: '5px', padding: '2px 6px', color: '#ffffff', cursor: 'pointer', fontWeight: 900, fontSize: '0.9rem' }}>‹</button>
+          <span style={{ fontWeight: 900, fontSize: '0.92rem', color: '#ffffff', minWidth: '160px', textAlign: 'center' }}>
             {headerLabel}
           </span>
-          <button onClick={() => navigate(1)} style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.16)', borderRadius: '6px', padding: '3px 8px', color: '#ffffff', cursor: 'pointer', fontWeight: 900, fontSize: '1rem' }}>›</button>
+          <button onClick={() => navigate(1)} style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.16)', borderRadius: '5px', padding: '2px 6px', color: '#ffffff', cursor: 'pointer', fontWeight: 900, fontSize: '0.9rem' }}>›</button>
 
           <button onClick={() => setCurrentDate(new Date())} style={{
-            padding: '4px 10px', borderRadius: '6px', border: '1px solid rgba(0,229,255,0.4)',
-            background: 'rgba(0,229,255,0.12)', color: '#00e5ff', cursor: 'pointer', fontWeight: 800, fontSize: '0.76rem',
+            padding: '3px 8px', borderRadius: '5px', border: '1px solid rgba(0,229,255,0.4)',
+            background: 'rgba(0,229,255,0.12)', color: '#00e5ff', cursor: 'pointer', fontWeight: 800, fontSize: '0.72rem',
           }}>
             Сегодня
           </button>
         </div>
-
-        {/* KPI badges */}
-        <div style={{ display: 'flex', gap: '6px' }}>
-          <div style={{ padding: '3px 9px', borderRadius: '7px', background: 'rgba(0,229,255,0.15)', border: '1px solid rgba(0,229,255,0.4)', color: '#00e5ff', fontSize: '0.76rem', fontWeight: 900 }}>
-            📊 {stats.total}
-          </div>
-          <div style={{ padding: '3px 9px', borderRadius: '7px', background: 'rgba(255,215,0,0.15)', border: '1px solid rgba(255,215,0,0.4)', color: '#ffd700', fontSize: '0.76rem', fontWeight: 900 }}>
-            💰 {stats.budget.toLocaleString('ru-RU')} ₸
-          </div>
-        </div>
-
-        <div style={{ flex: 1 }} />
-
-        {/* Status filter pills */}
-        <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
-          <button onClick={() => setStatusFilter('all')} style={{
-            padding: '3px 8px', borderRadius: '6px', border: statusFilter === 'all' ? '1px solid #00e5ff' : '1px solid rgba(255,255,255,0.12)',
-            background: statusFilter === 'all' ? 'rgba(0,229,255,0.2)' : 'rgba(255,255,255,0.04)',
-            color: statusFilter === 'all' ? '#00e5ff' : '#94a3b8', cursor: 'pointer', fontWeight: 800, fontSize: '0.72rem',
-          }}>Все</button>
-          {Object.keys(STATUS_COLORS).map(s => (
-            <button key={s} onClick={() => setStatusFilter(s)} style={{
-              padding: '3px 8px', borderRadius: '6px',
-              border: statusFilter === s ? `1px solid ${STATUS_COLORS[s].border}` : '1px solid rgba(255,255,255,0.12)',
-              background: statusFilter === s ? STATUS_COLORS[s].bg : 'rgba(255,255,255,0.04)',
-              color: statusFilter === s ? '#ffffff' : '#94a3b8',
-              cursor: 'pointer', fontWeight: 800, fontSize: '0.72rem',
-            }}>
-              {s}
-            </button>
-          ))}
-        </div>
-
-        {/* Search */}
-        <div style={{ position: 'relative' }}>
-          <span style={{ position: 'absolute', left: '8px', top: '50%', transform: 'translateY(-50%)', fontSize: '0.75rem' }}>🔍</span>
-          <input
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-            placeholder="Поиск..."
-            style={{
-              background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.16)',
-              borderRadius: '6px', padding: '4px 8px 4px 26px', color: '#ffffff',
-              fontSize: '0.78rem', width: '150px', outline: 'none', fontWeight: 600,
-            }}
-          />
-        </div>
-
-        {/* New Lead */}
-        <button onClick={() => openCreateModalForSlot(fmtDate(currentDate))} style={{
-          background: 'linear-gradient(135deg, #00e5ff, #0284c7)', border: 'none',
-          borderRadius: '7px', padding: '6px 14px', color: '#fff', fontWeight: 900,
-          fontSize: '0.78rem', cursor: 'pointer', boxShadow: '0 4px 14px rgba(0, 229, 255, 0.4)',
-          flexShrink: 0
-        }}>
-          ➕ Новая заявка
-        </button>
       </div>
 
-      {/* ═══ CALENDAR CONTENT CONTAINER (Compact Glass Card) ═══ */}
+      {/* ═══ MAIN WORKSPACE (LEFT SIDEBAR + CALENDAR GRID) ═══ */}
       <div style={{
-        margin: '10px 14px', padding: '12px 14px', position: 'relative', zIndex: 1,
-        background: 'rgba(12, 18, 36, 0.95)',
-        border: '1.5px solid rgba(0, 229, 255, 0.25)',
-        borderRadius: '16px',
-        boxShadow: '0 15px 45px rgba(0, 0, 0, 0.9), 0 0 25px rgba(0, 229, 255, 0.12)',
-        backdropFilter: 'blur(20px)',
+        display: 'flex',
+        gap: '12px',
+        maxWidth: '1280px',
+        margin: '10px auto',
+        padding: '0 12px',
+        alignItems: 'flex-start',
+        position: 'relative',
+        zIndex: 1,
       }}>
-        {view === 'month' && renderMonthView()}
-        {view === 'week' && renderWeekView()}
-        {view === 'day' && renderDayView()}
+        {/* ─── LEFT SIDEBAR PANEL ─── */}
+        <div style={{
+          width: '230px',
+          flexShrink: 0,
+          background: 'rgba(12, 18, 36, 0.95)',
+          border: '1.5px solid rgba(0, 229, 255, 0.25)',
+          borderRadius: '14px',
+          padding: '12px',
+          backdropFilter: 'blur(20px)',
+          boxShadow: '0 10px 30px rgba(0,0,0,0.8)',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '12px'
+        }}>
+          {/* Action: Create Lead */}
+          <button
+            onClick={() => openCreateModalForSlot(fmtDate(currentDate))}
+            style={{
+              width: '100%',
+              background: 'linear-gradient(135deg, #00e5ff, #0284c7)',
+              border: 'none',
+              borderRadius: '8px',
+              padding: '9px 12px',
+              color: '#ffffff',
+              fontWeight: 900,
+              fontSize: '0.82rem',
+              cursor: 'pointer',
+              boxShadow: '0 4px 14px rgba(0, 229, 255, 0.4)',
+              display: 'flex',
+              alignItems: 'center',
+              justify: 'center',
+              gap: '6px',
+              transition: 'transform 0.15s',
+            }}
+            onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.02)'}
+            onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+          >
+            <span>➕</span> Создать заявку
+          </button>
+
+          {/* Search Input */}
+          <div>
+            <div style={{ fontSize: '0.7rem', color: '#94a3b8', fontWeight: 800, marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              🔍 Поиск заявки
+            </div>
+            <div style={{ position: 'relative' }}>
+              <span style={{ position: 'absolute', left: '8px', top: '50%', transform: 'translateY(-50%)', fontSize: '0.72rem' }}>🔍</span>
+              <input
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                placeholder="Поиск..."
+                style={{
+                  width: '100%',
+                  boxSizing: 'border-box',
+                  background: 'rgba(255,255,255,0.08)',
+                  border: '1px solid rgba(255,255,255,0.16)',
+                  borderRadius: '6px',
+                  padding: '5px 8px 5px 26px',
+                  color: '#ffffff',
+                  fontSize: '0.76rem',
+                  outline: 'none',
+                  fontWeight: 600,
+                }}
+              />
+            </div>
+          </div>
+
+          {/* KPI Summary Widgets */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
+            <div style={{ padding: '6px', background: 'rgba(0,229,255,0.12)', border: '1px solid rgba(0,229,255,0.3)', borderRadius: '6px', textAlign: 'center' }}>
+              <div style={{ fontSize: '0.62rem', color: '#94a3b8', fontWeight: 800 }}>ВСЕГО</div>
+              <div style={{ fontSize: '1rem', color: '#00e5ff', fontWeight: 900 }}>{stats.total}</div>
+            </div>
+            <div style={{ padding: '6px', background: 'rgba(255,215,0,0.12)', border: '1px solid rgba(255,215,0,0.3)', borderRadius: '6px', textAlign: 'center' }}>
+              <div style={{ fontSize: '0.62rem', color: '#94a3b8', fontWeight: 800 }}>БЮДЖЕТ</div>
+              <div style={{ fontSize: '0.72rem', color: '#ffd700', fontWeight: 900, marginTop: '2px' }}>{stats.budget.toLocaleString('ru-RU')} ₸</div>
+            </div>
+          </div>
+
+          {/* Status Filters Stack */}
+          <div>
+            <div style={{ fontSize: '0.7rem', color: '#94a3b8', fontWeight: 800, marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              🏷️ Фильтр по статусам
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+              <button
+                onClick={() => setStatusFilter('all')}
+                style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  padding: '5px 8px', borderRadius: '6px', cursor: 'pointer', fontWeight: 800, fontSize: '0.72rem',
+                  border: statusFilter === 'all' ? '1px solid #00e5ff' : '1px solid rgba(255,255,255,0.1)',
+                  background: statusFilter === 'all' ? 'rgba(0,229,255,0.2)' : 'rgba(255,255,255,0.04)',
+                  color: statusFilter === 'all' ? '#00e5ff' : '#94a3b8',
+                }}
+              >
+                <span>Все заявки</span>
+                <span style={{ fontSize: '0.68rem', opacity: 0.8 }}>({allCards.length})</span>
+              </button>
+              {Object.entries(STATUS_COLORS).map(([s, sc]) => (
+                <button
+                  key={s}
+                  onClick={() => setStatusFilter(s)}
+                  style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    padding: '5px 8px', borderRadius: '6px', cursor: 'pointer', fontWeight: 800, fontSize: '0.72rem',
+                    border: statusFilter === s ? `1px solid ${sc.border}` : '1px solid rgba(255,255,255,0.08)',
+                    background: statusFilter === s ? sc.bg : 'rgba(255,255,255,0.03)',
+                    color: statusFilter === s ? '#ffffff' : '#94a3b8',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                    <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: sc.dot }} />
+                    <span>{s}</span>
+                  </div>
+                  <span style={{ fontSize: '0.68rem', color: sc.text, fontWeight: 900 }}>{stats.byStatus[s] || 0}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* ─── RIGHT CALENDAR GRID CONTAINER ─── */}
+        <div style={{
+          flex: 1,
+          minWidth: 0,
+          background: 'rgba(12, 18, 36, 0.95)',
+          border: '1.5px solid rgba(0, 229, 255, 0.25)',
+          borderRadius: '14px',
+          padding: '8px 10px',
+          backdropFilter: 'blur(20px)',
+          boxShadow: '0 12px 35px rgba(0, 0, 0, 0.9), 0 0 20px rgba(0, 229, 255, 0.12)',
+        }}>
+          {view === 'month' && renderMonthView()}
+          {view === 'week' && renderWeekView()}
+          {view === 'day' && renderDayView()}
+        </div>
       </div>
 
       {/* ═══ STATUS LEGEND (bottom) ═══ */}
       <div style={{
-        display: 'flex', gap: '16px', padding: '8px 16px', justifyContent: 'center',
+        display: 'flex', gap: '14px', padding: '6px 12px', justifyContent: 'center',
         background: 'rgba(10,16,32,0.95)', borderTop: '1px solid rgba(255,255,255,0.1)',
         flexWrap: 'wrap', position: 'relative', zIndex: 10,
       }}>
         {Object.entries(STATUS_COLORS).map(([status, sc]) => (
-          <div key={status} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.78rem', color: '#cbd5e1', fontWeight: 700 }}>
-            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: sc.dot, boxShadow: `0 0 6px ${sc.dot}` }} />
+          <div key={status} style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.72rem', color: '#cbd5e1', fontWeight: 700 }}>
+            <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: sc.dot, boxShadow: `0 0 5px ${sc.dot}` }} />
             <span>{status}</span>
-            <span style={{ color: '#00e5ff', fontWeight: 900, background: 'rgba(0,229,255,0.15)', padding: '1px 6px', borderRadius: '5px' }}>{stats.byStatus[status] || 0}</span>
+            <span style={{ color: '#00e5ff', fontWeight: 900, background: 'rgba(0,229,255,0.15)', padding: '1px 5px', borderRadius: '4px' }}>{stats.byStatus[status] || 0}</span>
           </div>
         ))}
       </div>
