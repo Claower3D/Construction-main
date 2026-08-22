@@ -491,9 +491,47 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
   const handleSendToExecutor = useCallback((orderId) => {
     setOrders(prev => prev.map(ord => {
       if (ord.id !== orderId) return ord;
-      return { ...ord, status: 'pending_executor' };
+      return {
+        ...ord,
+        status: 'pending_executor',
+        transferredToExecutor: true,
+        managerApprovedRevision: false
+      };
     }));
     showToast(`⏳ Заявка выставлена для исполнителей. Ожидаем принятие.`);
+    setSelectedOrder(null);
+  }, []);
+
+  const handleReturnOrderToManager = useCallback((orderId, reason = 'Требуется пересогласование сметы/условий') => {
+    setOrders(prev => prev.map(ord => {
+      if (ord.id !== orderId) return ord;
+      return {
+        ...ord,
+        status: 'new',
+        returnedToManager: true,
+        managerResolutionPending: true,
+        managerApprovedRevision: false,
+        transferredToExecutor: false,
+        returnReason: reason
+      };
+    }));
+    showToast(`↩️ Заявка возвращена менеджеру на пересогласование.`);
+    setSelectedOrder(null);
+  }, []);
+
+  const handleManagerResolveReassign = useCallback((orderId) => {
+    setOrders(prev => prev.map(ord => {
+      if (ord.id !== orderId) return ord;
+      return {
+        ...ord,
+        status: 'engineer_assigned',
+        returnedToManager: false,
+        managerResolutionPending: false,
+        managerApprovedRevision: true,
+        transferredToExecutor: false
+      };
+    }));
+    showToast(`🔄 Правки согласованы менеджером! Заявка возвращена инженеру для повторной передачи.`);
     setSelectedOrder(null);
   }, []);
 
@@ -910,6 +948,22 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
                   <button onClick={() => handleSendToExecutor(selectedOrder.id)}
                     style={{ background: 'linear-gradient(135deg, #eab308, #ca8a04)', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 800, cursor: 'pointer' }}>
                     ⏳ Отправить на поиск исполнителя
+                  </button>
+                )}
+
+                {/* Инженер: Вернуть менеджеру на пересогласование */}
+                {(selectedOrder.status === 'engineer_assigned' || selectedOrder.status === 'engineer_visit' || selectedOrder.status === 'estimate_ready') && (role === 'engineer' || role === 'admin') && (
+                  <button onClick={() => handleReturnOrderToManager(selectedOrder.id)}
+                    style={{ background: 'rgba(239, 68, 68, 0.15)', color: '#f87171', border: '1px solid rgba(239, 68, 68, 0.4)', padding: '10px 16px', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 800, cursor: 'pointer' }}>
+                    ❌ Вернуть менеджеру
+                  </button>
+                )}
+
+                {/* Менеджер: Согласовать возврат и вернуть инженеру */}
+                {selectedOrder.returnedToManager && (role === 'manager' || role === 'admin') && (
+                  <button onClick={() => handleManagerResolveReassign(selectedOrder.id)}
+                    style={{ background: 'linear-gradient(135deg, #00e5ff, #0284c7)', color: '#0a1628', border: 'none', padding: '10px 20px', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 900, cursor: 'pointer' }}>
+                    🔄 Согласовать и вернуть инженеру
                   </button>
                 )}
               </div>

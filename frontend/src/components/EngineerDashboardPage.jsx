@@ -637,10 +637,10 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
   const handleReturnToManager = () => {
     if (!editingEvent) return;
     
-    // Remove from engineer's calendar
+    // Remove from engineer's calendar / reset transfer lock
     handleDeleteEvent(editingEvent.id);
     
-    // Put back in CRM calendar with "Дожим" status
+    // Put back in CRM calendar with "Дожим" status and manager review flags
     const crmKey = 'qazgost_calendar_events';
     try {
       const saved = localStorage.getItem(crmKey);
@@ -648,26 +648,31 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
       const returnedEvt = {
         ...editingEvent,
         status: 'Дожим',
-        contractor: 'Не распределено',
+        returnedToManager: true,
+        managerResolutionPending: true,
+        managerApprovedRevision: false,
+        transferredToExecutor: false,
+        returnReason: 'Требуется пересогласование условий / сметы менеджером с заказчиком',
+        returnedAt: new Date().toISOString(),
       };
       if (!parsed[selectedDay]) parsed[selectedDay] = [];
       parsed[selectedDay].push(returnedEvt);
       localStorage.setItem(crmKey, JSON.stringify(parsed));
       
-      // Also send notification
+      // Also send notification to Manager
       const notifs = JSON.parse(localStorage.getItem('engineer_notifications') || '[]');
       notifs.unshift({
         id: `NOT-${Date.now()}`,
         icon: '⚠️',
-        title: 'Заявка возвращена',
-        text: `Инженер отказался от заявки: ${editingEvent.title}. Статус: Дожим.`,
+        title: 'Заявка на пересогласовании',
+        text: `Инженер вернул заявку: «${editingEvent.title}» менеджеру. Требуется согласование условий с клиентом.`,
         time: 'Только что',
         unread: true
       });
       localStorage.setItem('engineer_notifications', JSON.stringify(notifs));
       
-      alert('Заявка возвращена менеджеру!');
-    } catch(err) {}
+      alert('Заявка возвращена менеджеру на пересогласование. После решения вопросов менеджером она вернётся инженеру.');
+    } catch(err) { console.error(err); }
     
     setShowAddModal(false);
   };
@@ -790,6 +795,8 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
       transferredToExecutor: true,
       isTransferred: true,
       isLead: false,
+      managerApprovedRevision: false,
+      managerResolutionPending: false,
       status: 'Передано специалисту',
       handedOverAt: new Date().toISOString()
     } : prev);
@@ -3223,12 +3230,30 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                 {viewRole !== 'customer' && (
                   <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
                     
-                    {editingEvent && (editingEvent.transferredToExecutor || editingEvent.isTransferred || evtStatus === 'Передано специалисту') ? (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginRight: 'auto', background: 'rgba(16,185,129,0.15)', border: '1px solid #10b981', padding: '0.4rem 0.85rem', borderRadius: '8px', color: '#10b981', fontSize: '0.8rem', fontWeight: 800 }}>
-                        <span>✅ Заявка передана исполнителю (1 передача зафиксирована)</span>
+                    {editingEvent && ((editingEvent.transferredToExecutor || editingEvent.isTransferred || evtStatus === 'Передано специалисту') && !editingEvent.managerApprovedRevision) ? (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginRight: 'auto', flexWrap: 'wrap' }}>
+                        <div style={{ background: 'rgba(16,185,129,0.15)', border: '1px solid #10b981', padding: '0.4rem 0.85rem', borderRadius: '8px', color: '#10b981', fontSize: '0.78rem', fontWeight: 800 }}>
+                          ✅ Заявка передана исполнителю
+                        </div>
+                        <button
+                          type="button"
+                          onClick={handleReturnToManager}
+                          style={{
+                            background: 'rgba(245, 158, 11, 0.15)', color: '#fcd34d', border: '1px solid rgba(245, 158, 11, 0.4)',
+                            padding: '0.45rem 0.9rem', borderRadius: '8px', fontWeight: 800, fontSize: '0.78rem', cursor: 'pointer'
+                          }}
+                          title="Вернуть заявку менеджеру для решения вопросов с клиентом"
+                        >
+                          🔄 Вернуть менеджеру на пересогласование
+                        </button>
                       </div>
-                    ) : (editingEvent && editingEvent.isLead && evtStatus === 'В пути' && !editingEvent.transferredToExecutor) && (
-                      <div style={{ display: 'flex', gap: '0.5rem', marginRight: 'auto' }}>
+                    ) : (editingEvent && (editingEvent.managerApprovedRevision || (editingEvent.isLead && evtStatus === 'В пути'))) && (
+                      <div style={{ display: 'flex', gap: '0.5rem', marginRight: 'auto', alignItems: 'center' }}>
+                        {editingEvent.managerApprovedRevision && (
+                          <span style={{ fontSize: '0.72rem', background: 'rgba(0, 229, 255, 0.2)', border: '1px solid #00e5ff', color: '#00e5ff', padding: '3px 8px', borderRadius: '6px', fontWeight: 800 }}>
+                            🔄 Согласовано менеджером
+                          </span>
+                        )}
                         <button type="button" onClick={handleReturnToManager} style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: '1px solid #ef4444', padding: '0.6rem 1.2rem', borderRadius: '8px', fontWeight: 800, cursor: 'pointer' }}>
                           ❌ Вернуть менеджеру
                         </button>
