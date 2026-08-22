@@ -594,173 +594,275 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
 
       {/* ═══ TOP BAR ═══ */}
       <div style={{
-        display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 20px',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 20px',
         background: 'rgba(10, 16, 30, 0.94)', borderBottom: '1px solid rgba(0,229,255,0.25)',
-        backdropFilter: 'blur(20px)', position: 'sticky', top: 0, zIndex: 100,
-        flexWrap: 'wrap',
+        backdropFilter: 'blur(20px)', position: 'sticky', top: 0, zIndex: 100, flexWrap: 'wrap', gap: '12px'
       }}>
-        <button onClick={onBackToHome} style={{
-          background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.18)',
-          color: '#ffffff', borderRadius: '6px', padding: '6px 12px', cursor: 'pointer',
-          fontWeight: 800, fontSize: '0.78rem', transition: 'all 0.15s'
-        }}>← На сайт</button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <button onClick={onBackToHome} style={{
+            background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.18)',
+            color: '#ffffff', borderRadius: '6px', padding: '6px 12px', cursor: 'pointer',
+            fontWeight: 800, fontSize: '0.78rem', transition: 'all 0.15s'
+          }}>← На сайт</button>
 
-        <h1 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 900, color: '#ffffff', display: 'flex', alignItems: 'center', gap: '6px', letterSpacing: '0.5px' }}>
-          📅 CRM КАЛЕНДАРЬ
-        </h1>
+          <h1 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 900, color: '#ffffff', display: 'flex', alignItems: 'center', gap: '6px', letterSpacing: '0.5px' }}>
+            📅 CRM КАЛЕНДАРЬ
+          </h1>
 
-        {/* Счётчики KPI */}
-        <div style={{ display: 'flex', gap: '6px', alignItems: 'center', background: 'rgba(255,255,255,0.05)', padding: '3px 8px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.1)' }}>
-          <span style={{ fontSize: '0.72rem', color: '#94a3b8' }}>Всего: <strong style={{ color: '#00e5ff' }}>{stats.total}</strong></span>
-          <span style={{ color: 'rgba(255,255,255,0.2)' }}>•</span>
-          <span style={{ fontSize: '0.72rem', color: '#94a3b8' }}>Бюджет: <strong style={{ color: '#ffd700' }}>{(stats.totalBudget / 1000000).toFixed(1)}M ₸</strong></span>
-        </div>
-
-        {/* Ролевые фильтры-табы */}
-        <div style={{ display: 'flex', gap: '4px', marginLeft: '4px' }}>
-          {[
-            { key: 'all', label: 'Все' },
-            { key: 'engineer', label: '👷 Выезды инженера' },
-            { key: 'executor', label: '🔨 Работы подрядчика' },
-            { key: 'lead', label: '📝 Новые лиды' }
-          ].map(rf => (
-            <button
-              key={rf.key}
-              onClick={() => setRoleFilter(rf.key)}
-              style={{
-                padding: '5px 10px', borderRadius: '6px', fontSize: '0.72rem', fontWeight: 800, cursor: 'pointer',
-                background: roleFilter === rf.key ? 'linear-gradient(135deg, #00e5ff, #0284c7)' : 'rgba(255,255,255,0.06)',
-                color: roleFilter === rf.key ? '#0a1628' : '#cbd5e1',
-                border: roleFilter === rf.key ? '1px solid #00e5ff' : '1px solid rgba(255,255,255,0.12)'
-              }}
-            >
-              {rf.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Фильтры по статусам */}
-        <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-          {[
-            { key: 'all', label: 'Все статусы', color: '#00e5ff' },
-            { key: 'Новые', label: 'Новые', color: '#a78bfa' },
-            { key: 'В работе', label: 'В работе', color: '#60a5fa' },
-            { key: 'Дожим', label: 'Дожим', color: '#fbbf24' },
-            { key: 'Успешно', label: 'Успешно', color: '#4ade80' },
-            { key: 'Отказ', label: 'Отказ', color: '#f87171' },
-          ].map(sf => {
-            const count = sf.key === 'all' ? stats.total : (stats.byStatus[sf.key] || 0);
-            const active = statusFilter === sf.key;
-            return (
+          {/* Ролевые фильтры-табы */}
+          <div style={{ display: 'flex', gap: '4px', marginLeft: '6px' }}>
+            {[
+              { key: 'all', label: 'Все' },
+              { key: 'engineer', label: '👷 Выезды инженера' },
+              { key: 'executor', label: '🔨 Работы подрядчика' },
+              { key: 'lead', label: '📝 Новые лиды' }
+            ].map(rf => (
               <button
-                key={sf.key}
-                onClick={() => setStatusFilter(sf.key)}
+                key={rf.key}
+                onClick={() => setRoleFilter(rf.key)}
                 style={{
-                  padding: '4px 8px', borderRadius: '6px', fontSize: '0.72rem', fontWeight: 800, cursor: 'pointer',
-                  background: active ? `${sf.color}30` : 'rgba(255,255,255,0.06)',
-                  color: active ? sf.color : '#cbd5e1',
-                  border: active ? `1px solid ${sf.color}` : '1px solid rgba(255,255,255,0.12)',
-                  display: 'flex', alignItems: 'center', gap: '4px'
+                  padding: '5px 10px', borderRadius: '6px', fontSize: '0.72rem', fontWeight: 800, cursor: 'pointer',
+                  background: roleFilter === rf.key ? 'linear-gradient(135deg, #00e5ff, #0284c7)' : 'rgba(255,255,255,0.06)',
+                  color: roleFilter === rf.key ? '#0a1628' : '#cbd5e1',
+                  border: roleFilter === rf.key ? '1px solid #00e5ff' : '1px solid rgba(255,255,255,0.12)'
                 }}
               >
-                <span>{sf.label}</span>
-                <span style={{ fontSize: '0.62rem', background: active ? sf.color : 'rgba(255,255,255,0.15)', color: active ? '#0a1628' : '#fff', padding: '0px 4px', borderRadius: '4px', fontWeight: 900 }}>
-                  {count}
-                </span>
+                {rf.label}
               </button>
-            );
-          })}
+            ))}
+          </div>
         </div>
 
-        <div style={{ flex: 1 }} />
+        {/* Навигация по датам и Переключатель вида */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <button onClick={() => navigate(-1)} style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '6px', padding: '4px 10px', color: '#fff', cursor: 'pointer', fontWeight: 900, fontSize: '0.85rem' }}>‹</button>
+            <span style={{ fontWeight: 900, fontSize: '0.95rem', color: '#ffffff', minWidth: '150px', textAlign: 'center', letterSpacing: '0.5px' }}>
+              {headerLabel}
+            </span>
+            <button onClick={() => navigate(1)} style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '6px', padding: '4px 10px', color: '#fff', cursor: 'pointer', fontWeight: 900, fontSize: '0.85rem' }}>›</button>
+          </div>
 
-        {/* Поиск */}
-        <div style={{ position: 'relative' }}>
-          <span style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', fontSize: '0.8rem' }}>🔍</span>
-          <input
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-            placeholder="Поиск по названию / #ID..."
-            style={{
-              background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.18)',
-              borderRadius: '6px', padding: '6px 10px 6px 28px', color: '#ffffff',
-              fontSize: '0.78rem', width: '180px', outline: 'none',
-            }}
-          />
-        </div>
-
-        {/* Создать заявку */}
-        <button onClick={() => openCreateModalForSlot(fmtDate(currentDate))} style={{
-          background: 'linear-gradient(135deg, #00e5ff, #0284c7)', border: 'none',
-          borderRadius: '6px', padding: '6px 14px', color: '#0a1628', fontWeight: 900,
-          fontSize: '0.78rem', cursor: 'pointer', boxShadow: '0 0 12px rgba(0,229,255,0.3)'
-        }}>
-          ➕ Новый лид
-        </button>
-      </div>
-
-      {/* ═══ НАВИГАЦИОННАЯ ПАНЕЛЬ ═══ */}
-      <div style={{
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 20px',
-        background: 'rgba(8, 14, 26, 0.9)', borderBottom: '1px solid rgba(255,255,255,0.08)',
-        flexWrap: 'wrap', gap: '10px'
-      }}>
-        {/* Переключатель вида */}
-        <div style={{ display: 'flex', gap: '3px', background: 'rgba(255,255,255,0.08)', borderRadius: '8px', padding: '3px' }}>
-          {[
-            { key: 'day', label: 'День' },
-            { key: 'week', label: 'Неделя' },
-            { key: 'month', label: 'Месяц' },
-          ].map(v => (
-            <button
-              key={v.key}
-              onClick={() => setView(v.key)}
-              style={{
-                padding: '5px 14px', borderRadius: '6px', border: 'none', cursor: 'pointer',
-                fontWeight: 900, fontSize: '0.78rem',
-                background: view === v.key ? '#00e5ff' : 'transparent',
-                color: view === v.key ? '#0a1628' : '#94a3b8',
-                transition: 'all 0.15s ease'
-              }}
-            >
-              {v.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Навигация по датам */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <button onClick={() => navigate(-1)} style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '6px', padding: '4px 10px', color: '#fff', cursor: 'pointer', fontWeight: 900, fontSize: '0.9rem' }}>‹</button>
-          <span style={{ fontWeight: 900, fontSize: '1rem', color: '#ffffff', minWidth: '180px', textAlign: 'center', letterSpacing: '0.5px' }}>
-            {headerLabel}
-          </span>
-          <button onClick={() => navigate(1)} style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '6px', padding: '4px 10px', color: '#fff', cursor: 'pointer', fontWeight: 900, fontSize: '0.9rem' }}>›</button>
-
-          <button onClick={() => setCurrentDate(new Date())} style={{
-            padding: '4px 12px', borderRadius: '6px', border: '1px solid rgba(0,229,255,0.4)',
-            background: 'rgba(0,229,255,0.15)', color: '#00e5ff', cursor: 'pointer', fontWeight: 800, fontSize: '0.75rem',
-          }}>
-            Сегодня
-          </button>
+          <div style={{ display: 'flex', gap: '3px', background: 'rgba(255,255,255,0.08)', borderRadius: '8px', padding: '3px' }}>
+            {[
+              { key: 'day', label: 'День' },
+              { key: 'week', label: 'Неделя' },
+              { key: 'month', label: 'Месяц' },
+            ].map(v => (
+              <button
+                key={v.key}
+                onClick={() => setView(v.key)}
+                style={{
+                  padding: '5px 14px', borderRadius: '6px', border: 'none', cursor: 'pointer',
+                  fontWeight: 900, fontSize: '0.78rem',
+                  background: view === v.key ? '#00e5ff' : 'transparent',
+                  color: view === v.key ? '#0a1628' : '#94a3b8',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                {v.label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* ═══ КАЛЕНДАРНАЯ СЕТКА (ПОЛНОЭКРАННАЯ ЕДИНАЯ КАРТОЧКА) ═══ */}
+      {/* ═══ ГЛАВНЫЙ ДВУХКОЛОНОЧНЫЙ LAYOUT ═══ */}
       <div style={{
-        maxWidth: '1400px',
-        margin: '12px auto',
-        padding: '14px',
-        background: 'rgba(12, 18, 36, 0.95)',
-        border: '1.5px solid rgba(0, 229, 255, 0.22)',
-        borderRadius: '16px',
-        boxShadow: '0 12px 35px rgba(0, 0, 0, 0.8), 0 0 20px rgba(0, 229, 255, 0.1)',
-        backdropFilter: 'blur(20px)',
+        maxWidth: '1440px',
+        margin: '16px auto',
+        padding: '0 16px',
+        display: 'flex',
+        gap: '16px',
+        alignItems: 'flex-start',
         position: 'relative',
         zIndex: 1,
       }}>
-        {view === 'month' && renderMonthView()}
-        {view === 'week' && renderWeekView()}
-        {view === 'day' && renderDayView()}
+        {/* ═══ ЛЕВАЯ ПАНЕЛЬ С УПРАВЛЕНИЕМ И ФИЛЬТРАМИ ═══ */}
+        <div style={{
+          width: '230px',
+          flexShrink: 0,
+          background: 'rgba(12, 18, 36, 0.95)',
+          border: '1.5px solid rgba(0, 229, 255, 0.25)',
+          borderRadius: '16px',
+          padding: '16px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '14px',
+          boxShadow: '0 10px 30px rgba(0,0,0,0.7), 0 0 15px rgba(0, 229, 255, 0.08)',
+          backdropFilter: 'blur(20px)',
+        }}>
+          {/* Кнопка Создать заявку */}
+          <button
+            onClick={() => openCreateModalForSlot(fmtDate(currentDate))}
+            style={{
+              width: '100%',
+              padding: '10px 14px',
+              borderRadius: '10px',
+              border: 'none',
+              background: 'linear-gradient(135deg, #00e5ff, #0284c7)',
+              color: '#0a1628',
+              fontWeight: 900,
+              fontSize: '0.85rem',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justify: 'center',
+              gap: '6px',
+              boxShadow: '0 4px 14px rgba(0, 229, 255, 0.35)',
+              transition: 'all 0.15s ease'
+            }}
+          >
+            <span style={{ fontSize: '1rem' }}>➕</span> Создать заявку
+          </button>
+
+          {/* Блок Поиск */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <span style={{ fontSize: '0.65rem', fontWeight: 900, color: '#94a3b8', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
+              🔍 ПОИСК ЗАЯВКИ
+            </span>
+            <div style={{ position: 'relative' }}>
+              <span style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', fontSize: '0.75rem' }}>🔍</span>
+              <input
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                placeholder="Поиск..."
+                style={{
+                  width: '100%',
+                  background: 'rgba(255,255,255,0.06)',
+                  border: '1px solid rgba(255,255,255,0.14)',
+                  borderRadius: '8px',
+                  padding: '7px 8px 7px 28px',
+                  color: '#ffffff',
+                  fontSize: '0.78rem',
+                  outline: 'none',
+                  boxSizing: 'border-box'
+                }}
+              />
+            </div>
+          </div>
+
+          {/* Виджеты KPI */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+            <div style={{
+              background: 'rgba(0, 229, 255, 0.08)',
+              border: '1px solid rgba(0, 229, 255, 0.25)',
+              borderRadius: '10px',
+              padding: '8px',
+              textAlign: 'center'
+            }}>
+              <div style={{ fontSize: '0.62rem', fontWeight: 900, color: '#00e5ff', textTransform: 'uppercase', letterSpacing: '0.3px' }}>
+                ВСЕГО
+              </div>
+              <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#ffffff', marginTop: '2px' }}>
+                {stats.total}
+              </div>
+            </div>
+
+            <div style={{
+              background: 'rgba(255, 215, 0, 0.08)',
+              border: '1px solid rgba(255, 215, 0, 0.25)',
+              borderRadius: '10px',
+              padding: '8px',
+              textAlign: 'center'
+            }}>
+              <div style={{ fontSize: '0.62rem', fontWeight: 900, color: '#ffd700', textTransform: 'uppercase', letterSpacing: '0.3px' }}>
+                БЮДЖЕТ
+              </div>
+              <div style={{ fontSize: '0.78rem', fontWeight: 900, color: '#ffd700', marginTop: '4px', lineHeight: 1.1 }}>
+                {(stats.totalBudget / 1000000).toFixed(1)}M ₸
+              </div>
+            </div>
+          </div>
+
+          {/* Фильтр по статусам */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <span style={{ fontSize: '0.65rem', fontWeight: 900, color: '#94a3b8', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
+              🏷️ ФИЛЬТР ПО СТАТУСАМ
+            </span>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              {[
+                { key: 'all', label: 'Все заявки', color: '#00e5ff' },
+                { key: 'Новые', label: 'Новые', color: '#a78bfa' },
+                { key: 'В работе', label: 'В работе', color: '#60a5fa' },
+                { key: 'Дожим', label: 'Дожим', color: '#fbbf24' },
+                { key: 'Успешно', label: 'Успешно', color: '#4ade80' },
+                { key: 'Отказ', label: 'Отказ', color: '#f87171' },
+              ].map(sf => {
+                const count = sf.key === 'all' ? stats.total : (stats.byStatus[sf.key] || 0);
+                const active = statusFilter === sf.key;
+                return (
+                  <button
+                    key={sf.key}
+                    onClick={() => setStatusFilter(sf.key)}
+                    style={{
+                      padding: '7px 10px',
+                      borderRadius: '8px',
+                      border: active ? `1.5px solid ${sf.color}` : '1px solid rgba(255, 255, 255, 0.08)',
+                      background: active ? `${sf.color}25` : 'rgba(255, 255, 255, 0.03)',
+                      color: active ? '#ffffff' : '#cbd5e1',
+                      fontSize: '0.78rem',
+                      fontWeight: active ? 900 : 700,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justify: 'space-between',
+                      transition: 'all 0.15s ease'
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: sf.color }} />
+                      <span>{sf.label}</span>
+                    </div>
+                    <span style={{
+                      fontSize: '0.68rem', fontWeight: 900, padding: '1px 6px', borderRadius: '4px',
+                      background: active ? sf.color : 'rgba(255, 255, 255, 0.1)', color: active ? '#0a1628' : '#94a3b8'
+                    }}>
+                      ({count})
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* ═══ ПРАВАЯ ПАНЕЛЬ С КАЛЕНДАРЁМ ═══ */}
+        <div style={{
+          flex: 1,
+          minWidth: 0,
+          background: 'rgba(12, 18, 36, 0.95)',
+          border: '1.5px solid rgba(0, 229, 255, 0.22)',
+          borderRadius: '16px',
+          padding: '14px',
+          boxShadow: '0 12px 35px rgba(0, 0, 0, 0.8), 0 0 20px rgba(0, 229, 255, 0.1)',
+          backdropFilter: 'blur(20px)',
+        }}>
+          {view === 'month' && renderMonthView()}
+          {view === 'week' && renderWeekView()}
+          {view === 'day' && renderDayView()}
+        </div>
+      </div>
+
+      {/* ═══ ЛЕГЕНДА СТАТУСОВ (ВНИЗУ) ═══ */}
+      <div style={{
+        display: 'flex', gap: '20px', padding: '10px 20px', justifyContent: 'center', alignItems: 'center',
+        background: 'rgba(8, 14, 26, 0.95)', borderTop: '1px solid rgba(255,255,255,0.08)',
+        flexWrap: 'wrap', margin: '20px 0 0 0'
+      }}>
+        {[
+          { key: 'Новые', label: 'Новые', color: '#a78bfa' },
+          { key: 'В работе', label: 'В работе', color: '#60a5fa' },
+          { key: 'Дожим', label: 'Дожим', color: '#fbbf24' },
+          { key: 'Успешно', label: 'Успешно', color: '#4ade80' },
+          { key: 'Отказ', label: 'Отказ', color: '#f87171' },
+        ].map(st => (
+          <div key={st.key} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.78rem', fontWeight: 800, color: '#cbd5e1' }}>
+            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: st.color }} />
+            <span>{st.label}</span>
+            <strong style={{ color: st.color }}>{stats.byStatus[st.key] || 0}</strong>
+          </div>
+        ))}
       </div>
 
       {/* ═══ ЛЕГЕНДА ТИПОВ ЗАЯВОК (ВНИЗУ) ═══ */}
