@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPlatformOrder } from '../services/orderSyncService';
 import './DefectInspectorPage.css';
 
 export default function DefectInspectorPage({ onBack, hideHeader = false }) {
@@ -11,6 +12,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
   const [isScanning, setIsScanning] = useState(false);
   const [scanStepMessage, setScanStepMessage] = useState('');
   const [report, setReport] = useState(null);
+  const [createdDefectOrder, setCreatedDefectOrder] = useState(null);
   const [toastMessage, setToastMessage] = useState(null);
 
   const showToast = (msg) => {
@@ -332,20 +334,66 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
             </div>
           </div>
 
-          <div className="di-report-actions">
-            <button 
-              className="di-btn-pdf"
-              onClick={() => showToast('📄 PDF-Отчёт скачан на устройство')}
-            >
-              📥 Скачать PDF Отчёт
-            </button>
+          <div className="di-report-actions" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {createdDefectOrder ? (
+              <div style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.2), rgba(6,182,212,0.15))', border: '1px solid #10b981', borderRadius: '12px', padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', width: '100%' }}>
+                <div>
+                  <h4 style={{ margin: '0 0 4px 0', color: '#10b981', fontSize: '1.05rem', fontWeight: 800 }}>
+                    ✅ Заявка на выезд инженера #{createdDefectOrder.id} создана!
+                  </h4>
+                  <p style={{ margin: 0, color: '#cbd5e1', fontSize: '0.84rem' }}>
+                    Инженер ПТО уведомлен и выезжает на объект для инструментального обследования.
+                  </p>
+                </div>
+                <button
+                  onClick={() => onBack ? onBack() : showToast('Перейдите в «Мои заказы»')}
+                  style={{ background: '#10b981', color: '#0a1628', border: 'none', padding: '10px 18px', borderRadius: '8px', fontWeight: 800, cursor: 'pointer', fontSize: '0.85rem' }}
+                >
+                  📬 Открыть в «Мои заказы» →
+                </button>
+              </div>
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px', width: '100%' }}>
+                <button 
+                  onClick={() => {
+                    const newOrder = createPlatformOrder({
+                      title: `Устранение дефекта: ${report.defectType}`,
+                      category: 'Инженерная дефектоскопия',
+                      budget: report.estimatedCost,
+                      clientName: report.clientName || 'Заказчик',
+                      clientPhone: report.clientPhone || '+7 (707) 000-00-00',
+                      city: report.address || 'Алматы',
+                      description: `Выявлен дефект: ${report.defectType}. Класс опасности: ${report.severity}. Норматив: ${report.snipCode}. Метод: ${report.fixMethod}`,
+                      type: 'defect',
+                      status: 'engineer_assigned',
+                      assignedEngineer: 'Асхат Нурланов (Инженер ПТО)',
+                      defectReport: report
+                    });
+                    setCreatedDefectOrder(newOrder);
+                    showToast(`🛠️ Заявка ${newOrder.id} передана Инженеру и Менеджеру CRM!`);
+                  }}
+                  style={{ background: 'linear-gradient(90deg, #f59e0b, #ef4444)', border: 'none', color: '#fff', padding: '14px 18px', borderRadius: '10px', fontWeight: 900, fontSize: '0.92rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 4px 15px rgba(239,68,68,0.4)' }}
+                >
+                  <span>🛠️ Вызвать инженера / Устранить дефект</span>
+                </button>
 
-            <button 
-              className="di-btn-wa"
-              onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent(`Отчет дефектоскопии № ${report.id}: ${report.defectType}, Стоимость: ${report.estimatedCost}`)}`, '_blank')}
-            >
-              💬 Отправить в WhatsApp
-            </button>
+                <button 
+                  className="di-btn-pdf"
+                  onClick={() => showToast('📄 PDF-Отчёт скачан на устройство')}
+                  style={{ padding: '14px 16px', borderRadius: '10px', fontSize: '0.9rem' }}
+                >
+                  📥 Скачать PDF Отчёт
+                </button>
+
+                <button 
+                  className="di-btn-wa"
+                  onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent(`Отчет дефектоскопии № ${report.id}: ${report.defectType}, Стоимость: ${report.estimatedCost}`)}`, '_blank')}
+                  style={{ padding: '14px 16px', borderRadius: '10px', fontSize: '0.9rem' }}
+                >
+                  💬 В WhatsApp
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}

@@ -930,6 +930,14 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
           </div>
         )}
 
+        {/* 4b. USER ORDERS (c-orders / e-orders) */}
+        {(itemId === 'c-orders' || itemId === 'e-orders') && (
+          <UserOrdersPage 
+            onBack={onBack} 
+            currentUser={{ role: itemId.startsWith('e-') ? 'executor' : 'customer' }} 
+          />
+        )}
+
         {/* 5. CONTRACTORS CATALOG (c-catalog / e-catalog) */}
         {(itemId === 'c-catalog' || itemId === 'e-catalog') && (
           <ContractorsCatalogPage onBack={onBack} />

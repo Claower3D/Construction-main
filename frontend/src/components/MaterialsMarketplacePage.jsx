@@ -1,4 +1,6 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { getBalanceKZT, freezeEscrow, topupBalance } from '../services/walletEngine';
+import { createPlatformOrder } from '../services/orderSyncService';
 import './MaterialsMarketplacePage.css';
 
 export default function MaterialsMarketplacePage({ onBack, hideHeader = false }) {
@@ -20,6 +22,13 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
   // Cart State: [ { ...product, count: number } ]
   const [cart, setCart] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [walletBalance, setWalletBalance] = useState(() => getBalanceKZT());
+  
+  useEffect(() => {
+    if (isCheckoutModal) {
+      setWalletBalance(getBalanceKZT());
+    }
+  }, [isCheckoutModal]);
   const [toastMessage, setToastMessage] = useState(null);
 
   // AI BOM Calculator State
@@ -369,21 +378,34 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
     e.preventDefault();
     if (cart.length === 0) return;
 
-    // Save order into localStorage for synchronization
+    const totalCost = cartTotalWithDelivery;
+
+    // 1. If escrow payment, freeze funds from wallet
+    let escrowInfo = null;
+    if (paymentMethod === 'escrow') {
+      escrowInfo = freezeEscrow(totalCost, `Стройматериалы: ${cart.map(c => c.title).slice(0, 2).join(', ')}...`);
+      setWalletBalance(escrowInfo.newBalance);
+    }
+
+    // 2. Dispatch Platform Order to Manager CRM and Shared Orders
+    const newOrder = createPlatformOrder({
+      title: `Поставка стройматериалов (${cart.length} наим., ${(cartWeightKg / 1000).toFixed(1)} т)`,
+      category: 'Стройматериалы',
+      amount: totalCost,
+      budget: `${totalCost.toLocaleString()} ₸`,
+      clientName: checkoutName || 'Заказчик',
+      clientPhone: checkoutPhone || '+7 (707) 123-45-67',
+      city: selectedCity === 'all' ? 'Алматы' : selectedCity,
+      description: `Заказ стройматериалов на объект: ${checkoutAddress}. Состав: ${cart.map(c => `${c.title} (${c.count} ${c.unit})`).join(', ')}. Транспорт: ${recommendedVehicle.name}. Оплата: ${paymentMethod === 'escrow' ? 'Эскроу заморожено' : 'Kaspi Pay'}`,
+      type: 'materials',
+      status: 'new',
+      paymentMethod: paymentMethod === 'escrow' ? 'Эскроу QazGost' : (paymentMethod === 'kaspi' ? 'Kaspi Pay' : 'Безналичный расчет с НДС'),
+      materials: cart
+    });
+
+    // Also persist in legacy materials list
     try {
       const savedOrders = JSON.parse(localStorage.getItem('qazgost_materials_orders') || '[]');
-      const newOrder = {
-        id: `MAT-ORD-${Date.now()}`,
-        date: new Date().toLocaleString('ru-RU'),
-        clientName: checkoutName || 'Заказчик',
-        clientPhone: checkoutPhone || '+7 (707) ***-**-**',
-        address: checkoutAddress || 'г. Алматы',
-        paymentMethod: paymentMethod === 'kaspi' ? 'Kaspi Pay' : (paymentMethod === 'escrow' ? 'Эскроу QAZGOST' : 'Безналичный расчет с НДС'),
-        items: cart,
-        total: cartTotalWithDelivery,
-        weightKg: cartWeightKg,
-        status: 'Оформлен / На комплектации на складе'
-      };
       localStorage.setItem('qazgost_materials_orders', JSON.stringify([newOrder, ...savedOrders]));
     } catch (err) {
       console.error(err);
@@ -392,7 +414,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
     setCart([]);
     setIsCheckoutModal(false);
     setIsCartOpen(false);
-    showToast('🎉 Заказ на стройматериалы успешно оформлен!');
+    showToast(`🎉 Заказ ${newOrder.id} оформлен и отправлен Менеджеру на комплектацию! 🧱`);
   };
 
   const handleRfqSubmit = (e) => {
@@ -1024,9 +1046,27 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
                 </select>
               </div>
 
-              <div style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.3)', padding: '10px 14px', borderRadius: '10px', marginTop: '0.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '0.9rem', color: '#cbd5e1' }}>Итоговая сумма:</span>
-                <strong style={{ fontSize: '1.25rem', color: '#10b981' }}>{cartTotalWithDelivery.toLocaleString()} ₸</strong>
+              <div style={{ background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(6, 182, 212, 0.08))', border: '1px solid rgba(16, 185, 129, 0.35)', padding: '12px 16px', borderRadius: '12px', marginTop: '0.5rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <span style={{ fontSize: '0.9rem', color: '#cbd5e1' }}>Итого к оплате с доставкой:</span>
+                  <strong style={{ fontSize: '1.25rem', color: '#10b981' }}>{cartTotalWithDelivery.toLocaleString()} ₸</strong>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '8px', borderTop: '1px solid rgba(255,255,255,0.08)', fontSize: '0.82rem' }}>
+                  <span style={{ color: '#94a3b8' }}>💳 Баланс кошелька: <strong style={{ color: '#fff' }}>{walletBalance.toLocaleString()} ₸</strong></span>
+                  {walletBalance < cartTotalWithDelivery && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const added = topupBalance(cartTotalWithDelivery);
+                        setWalletBalance(added);
+                        showToast(`🎉 Кошелёк пополнен на +${cartTotalWithDelivery.toLocaleString()} ₸ через Kaspi!`);
+                      }}
+                      style={{ background: 'rgba(56,189,248,0.2)', border: '1px solid #38bdf8', color: '#38bdf8', borderRadius: '6px', padding: '3px 8px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}
+                    >
+                      + Пополнить на сумму заказа
+                    </button>
+                  )}
+                </div>
               </div>
 
               <button 

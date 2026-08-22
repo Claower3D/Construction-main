@@ -249,7 +249,7 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
     setIsMobileSidebarOpen(false);
     
     // Check if it's builder module
-    if (item.id.startsWith('b-') || item.id === 'c-vip' || item.id === 'e-vip') {
+    if (item.id.startsWith('b-')) {
       setEmbeddedModule('builder');
       setSelectedItemObject(item);
     }

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPlatformOrder } from '../services/orderSyncService';
 import './SmartPhotoEstimatePage.css';
 
 export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
@@ -22,6 +23,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
   const [isScanning, setIsScanning] = useState(false);
   const [scanStep, setScanStep] = useState('');
   const [calculatedEstimate, setCalculatedEstimate] = useState(null);
+  const [createdOrderInfo, setCreatedOrderInfo] = useState(null);
   const [toastMessage, setToastMessage] = useState(null);
 
   // User Custom ChatGPT / OpenAI Account State
@@ -991,6 +993,64 @@ ${!isCategorySkipped ? `Предполагаемая категория рабо
                 <li key={i}>{ins}</li>
               ))}
             </ul>
+          </div>
+
+          {/* Action CTAs: Create Order, Download PDF, WhatsApp */}
+          <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid rgba(255,255,255,0.08)', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {createdOrderInfo ? (
+              <div style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.2), rgba(6,182,212,0.15))', border: '1px solid #10b981', borderRadius: '12px', padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
+                <div>
+                  <h4 style={{ margin: '0 0 4px 0', color: '#10b981', fontSize: '1.05rem', fontWeight: 800 }}>
+                    ✅ Заявка #{createdOrderInfo.id} успешно передана Менеджеру CRM!
+                  </h4>
+                  <p style={{ margin: 0, color: '#cbd5e1', fontSize: '0.84rem' }}>
+                    Инженер ПТО назначен на выезд для проверки объекта и подписания договора.
+                  </p>
+                </div>
+                <button
+                  onClick={() => onBack ? onBack() : showToast('Перейдите во вкладку «Мои заказы»')}
+                  style={{ background: '#10b981', color: '#0a1628', border: 'none', padding: '10px 18px', borderRadius: '8px', fontWeight: 800, cursor: 'pointer', fontSize: '0.85rem' }}
+                >
+                  📬 Открыть в «Мои заказы» →
+                </button>
+              </div>
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '10px' }}>
+                <button
+                  onClick={() => {
+                    const newOrder = createPlatformOrder({
+                      title: `СМР по смете: ${calculatedEstimate.category || 'Комплексный ремонт'}`,
+                      category: calculatedEstimate.category || 'Отделочные работы',
+                      amount: calculatedEstimate.total || 1500000,
+                      budget: `${(calculatedEstimate.total || 1500000).toLocaleString()} ₸`,
+                      description: `Смета сформирована Vision AI по фото. Работы: ${(calculatedEstimate.worksCost || 0).toLocaleString()} ₸, Материалы: ${(calculatedEstimate.materialsCost || 0).toLocaleString()} ₸, Срок: ~${calculatedEstimate.timelineDays || 7} дн.`,
+                      type: 'estimate',
+                      status: 'new',
+                      estimateData: calculatedEstimate
+                    });
+                    setCreatedOrderInfo(newOrder);
+                    showToast(`🚀 Заявка ${newOrder.id} успешно отправлена Менеджеру CRM!`);
+                  }}
+                  style={{ background: 'linear-gradient(90deg, #0284c7, #10b981)', border: 'none', color: '#fff', padding: '14px 20px', borderRadius: '10px', fontWeight: 900, fontSize: '0.95rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 4px 15px rgba(2,132,199,0.4)' }}
+                >
+                  <span>🚀 Оформить заказ по этой смете</span>
+                </button>
+
+                <button
+                  onClick={() => showToast('📄 Официальная смета ГОСТ КЗ скачана в формате PDF')}
+                  style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.18)', color: '#38bdf8', padding: '14px 16px', borderRadius: '10px', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                >
+                  <span>📥 Скачать смету (PDF)</span>
+                </button>
+
+                <button
+                  onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent(`Строительная смета QazGost AI: ${calculatedEstimate.category}, Итого: ${calculatedEstimate.total?.toLocaleString()} ₸`)}`, '_blank')}
+                  style={{ background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.3)', color: '#4ade80', padding: '14px 16px', borderRadius: '10px', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                >
+                  <span>💬 В WhatsApp</span>
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}

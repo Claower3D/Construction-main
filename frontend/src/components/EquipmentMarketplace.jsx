@@ -1,4 +1,6 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { getBalanceKZT, freezeEscrow, topupBalance } from '../services/walletEngine';
+import { createPlatformOrder } from '../services/orderSyncService';
 import './EquipmentMarketplace.css';
 
 export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
@@ -15,6 +17,17 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
   
   // Interactive Modal state
   const [bookingItem, setBookingItem] = useState(null);
+  const [bookingDays, setBookingDays] = useState(1);
+  const [bookingDate, setBookingDate] = useState(() => new Date().toISOString().split('T')[0]);
+  const [bookingPaymentMethod, setBookingPaymentMethod] = useState('escrow'); // 'escrow' | 'kaspi' | 'invoice'
+  const [bookingClientName, setBookingClientName] = useState('Заказчик');
+  const [bookingClientPhone, setBookingClientPhone] = useState('+7 (707) 888-99-00');
+  const [bookingAddress, setBookingAddress] = useState('г. Алматы, строительный объект');
+  const [walletBalance, setWalletBalance] = useState(() => getBalanceKZT());
+  
+  useEffect(() => {
+    setWalletBalance(getBalanceKZT());
+  }, [bookingItem]);
   const [toastMessage, setToastMessage] = useState(null);
 
   const topTabs = [
@@ -1175,36 +1188,171 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
         </div>
       )}
 
-      {/* Booking Modal */}
+      {/* Booking Modal with Wallet & Escrow & Manager/Executor Dispatch */}
       {bookingItem && (
         <div className="em-modal-overlay" onClick={() => setBookingItem(null)}>
-          <div className="em-modal-box" onClick={e => e.stopPropagation()}>
-            <button className="em-modal-close" onClick={() => setBookingItem(null)}>✕</button>
-            <h2>🚜 Бронирование техники</h2>
-            <h4 style={{ color: '#93c5fd', margin: '0.5rem 0 1rem 0' }}>{bookingItem.title}</h4>
-            <div style={{ background: 'rgba(255,255,255,0.05)', padding: '1rem', borderRadius: '12px', marginBottom: '1.5rem' }}>
-              <div>Стоимость: <strong>₸ {bookingItem.price} / {bookingItem.unit}</strong></div>
-              <div>Город: <strong>{bookingItem.tags.find(t => t.type === 'location')?.label}</strong></div>
+          <div className="em-modal-box" style={{ maxWidth: '560px', width: '100%', background: '#0b1329', border: '1px solid rgba(56, 189, 248, 0.4)', borderRadius: '20px', padding: '24px', boxShadow: '0 25px 60px rgba(0,0,0,0.85)' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '1.5rem' }}>🚜</span>
+                <h3 style={{ margin: 0, color: '#fff', fontSize: '1.25rem' }}>Аренда спецтехники с оператором</h3>
+              </div>
+              <button className="em-modal-close" onClick={() => setBookingItem(null)} style={{ background: 'transparent', border: 'none', color: '#94a3b8', fontSize: '1.4rem', cursor: 'pointer' }}>✕</button>
             </div>
 
-            <div className="em-form-group mb-3">
-              <label>Дата начала аренды:</label>
-              <input type="date" className="em-input" defaultValue={new Date().toISOString().split('T')[0]} />
+            <h4 style={{ color: '#38bdf8', margin: '0 0 1rem 0', fontSize: '1rem' }}>{bookingItem.title}</h4>
+            
+            <div style={{ background: 'rgba(255,255,255,0.04)', padding: '12px 16px', borderRadius: '12px', marginBottom: '1.2rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontSize: '0.85rem' }}>
+              <div>Тариф: <strong style={{ color: '#fbbf24' }}>₸ {bookingItem.price} / {bookingItem.unit}</strong></div>
+              <div>Город: <strong>{bookingItem.tags?.find(t => t.type === 'location')?.label || 'Алматы'}</strong></div>
+              <div>📍 GPS дистанция: <strong style={{ color: '#34d399' }}>{bookingItem.distanceKm} км от вас</strong></div>
+              <div>Статус: <strong style={{ color: '#10b981' }}>🟢 Готов к выезду</strong></div>
             </div>
 
-            <div className="em-form-group mb-3">
-              <label>Количество смен / дней:</label>
-              <input type="number" min="1" defaultValue="1" className="em-input" />
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
+              <div className="em-form-group">
+                <label style={{ display: 'block', fontSize: '0.8rem', color: '#94a3b8', marginBottom: '4px' }}>Дата подачи техники:</label>
+                <input 
+                  type="date" 
+                  className="em-input" 
+                  value={bookingDate} 
+                  onChange={e => setBookingDate(e.target.value)}
+                  style={{ width: '100%', background: 'rgba(15,23,42,0.8)', border: '1px solid rgba(255,255,255,0.15)', color: '#fff', padding: '8px 12px', borderRadius: '8px' }}
+                />
+              </div>
+
+              <div className="em-form-group">
+                <label style={{ display: 'block', fontSize: '0.8rem', color: '#94a3b8', marginBottom: '4px' }}>Кол-во смен / часов:</label>
+                <input 
+                  type="number" 
+                  min="1" 
+                  max="30"
+                  value={bookingDays} 
+                  onChange={e => setBookingDays(Math.max(1, parseInt(e.target.value) || 1))}
+                  className="em-input"
+                  style={{ width: '100%', background: 'rgba(15,23,42,0.8)', border: '1px solid rgba(255,255,255,0.15)', color: '#fff', padding: '8px 12px', borderRadius: '8px' }}
+                />
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.8rem', color: '#94a3b8', marginBottom: '4px' }}>Имя заказчика:</label>
+                <input 
+                  type="text" 
+                  value={bookingClientName} 
+                  onChange={e => setBookingClientName(e.target.value)}
+                  className="em-input"
+                  style={{ width: '100%', background: 'rgba(15,23,42,0.8)', border: '1px solid rgba(255,255,255,0.15)', color: '#fff', padding: '8px 12px', borderRadius: '8px' }}
+                />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.8rem', color: '#94a3b8', marginBottom: '4px' }}>Телефон:</label>
+                <input 
+                  type="text" 
+                  value={bookingClientPhone} 
+                  onChange={e => setBookingClientPhone(e.target.value)}
+                  className="em-input"
+                  style={{ width: '100%', background: 'rgba(15,23,42,0.8)', border: '1px solid rgba(255,255,255,0.15)', color: '#fff', padding: '8px 12px', borderRadius: '8px' }}
+                />
+              </div>
+            </div>
+
+            <div style={{ marginBottom: '12px' }}>
+              <label style={{ display: 'block', fontSize: '0.8rem', color: '#94a3b8', marginBottom: '4px' }}>Адрес строительного объекта (подача по GPS):</label>
+              <input 
+                type="text" 
+                value={bookingAddress} 
+                onChange={e => setBookingAddress(e.target.value)}
+                className="em-input"
+                style={{ width: '100%', background: 'rgba(15,23,42,0.8)', border: '1px solid rgba(255,255,255,0.15)', color: '#fff', padding: '8px 12px', borderRadius: '8px' }}
+              />
+            </div>
+
+            {/* Financial / Wallet Escrow Box */}
+            <div style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.12), rgba(6,182,212,0.08))', border: '1px solid rgba(16,185,129,0.3)', borderRadius: '12px', padding: '12px 16px', marginBottom: '14px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                <span style={{ fontSize: '0.85rem', color: '#cbd5e1' }}>Итоговая стоимость аренды:</span>
+                <strong style={{ fontSize: '1.25rem', color: '#34d399' }}>
+                  {((bookingItem.rawPrice || 25000) * bookingDays).toLocaleString()} ₸
+                </strong>
+              </div>
+              
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '8px', borderTop: '1px solid rgba(255,255,255,0.08)', fontSize: '0.82rem' }}>
+                <span style={{ color: '#94a3b8' }}>💳 Баланс вашего кошелька: <strong style={{ color: '#fff' }}>{walletBalance.toLocaleString()} ₸</strong></span>
+                {walletBalance < ((bookingItem.rawPrice || 25000) * bookingDays) && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const added = topupBalance(100000);
+                      setWalletBalance(added);
+                      showToast('🎉 Кошелёк пополнен на +100 000 ₸ через Kaspi Pay!');
+                    }}
+                    style={{ background: 'rgba(56,189,248,0.2)', border: '1px solid #38bdf8', color: '#38bdf8', borderRadius: '6px', padding: '3px 8px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}
+                  >
+                    + Пополнить на 100k ₸
+                  </button>
+                )}
+              </div>
+            </div>
+
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'block', fontSize: '0.8rem', color: '#94a3b8', marginBottom: '4px' }}>Способ оплаты:</label>
+              <select 
+                value={bookingPaymentMethod} 
+                onChange={e => setBookingPaymentMethod(e.target.value)}
+                style={{ width: '100%', background: 'rgba(15,23,42,0.8)', border: '1px solid rgba(255,255,255,0.15)', color: '#fff', padding: '8px 12px', borderRadius: '8px' }}
+              >
+                <option value="escrow">🛡️ Заморозить в Эскроу с Кошелька (Безопасная сделка)</option>
+                <option value="kaspi">📱 Kaspi Pay QR / Перевод</option>
+                <option value="invoice">📄 Безналичный расчет с НДС (для юрлиц)</option>
+              </select>
             </div>
 
             <button 
-              className="em-submit-btn w-100 mt-3"
+              className="em-submit-btn w-100"
+              style={{ background: 'linear-gradient(90deg, #0284c7, #10b981)', border: 'none', color: '#fff', padding: '12px', borderRadius: '10px', fontWeight: 800, fontSize: '0.95rem', cursor: 'pointer' }}
               onClick={() => {
+                const totalCost = (bookingItem.rawPrice || 25000) * bookingDays;
+                
+                // 1. Freeze in Wallet if escrow
+                let escrowInfo = null;
+                if (bookingPaymentMethod === 'escrow') {
+                  escrowInfo = freezeEscrow(totalCost, `Аренда: ${bookingItem.title} (${bookingDays} см.)`);
+                  setWalletBalance(escrowInfo.newBalance);
+                }
+
+                // 2. Dispatch Order to Manager CRM and Executor
+                const newOrder = createPlatformOrder({
+                  title: `Аренда спецтехники: ${bookingItem.title}`,
+                  category: 'Аренда спецтехники',
+                  amount: totalCost,
+                  budget: `${totalCost.toLocaleString()} ₸`,
+                  clientName: bookingClientName,
+                  clientPhone: bookingClientPhone,
+                  city: bookingItem.tags?.find(t => t.type === 'location')?.label || 'Алматы',
+                  description: `Аренда ${bookingItem.title} на ${bookingDays} смен/дней с ${bookingDate}. Доставка на объект: ${bookingAddress}. Оператор: ${bookingItem.hasOperator ? 'Да' : 'Нет'}. Оплата: ${bookingPaymentMethod === 'escrow' ? 'Эскроу заморожено' : 'Kaspi'}`,
+                  type: 'machinery',
+                  status: 'new',
+                  paymentMethod: bookingPaymentMethod === 'escrow' ? 'Эскроу QazGost' : 'Kaspi Pay',
+                  machinery: [
+                    {
+                      id: bookingItem.id,
+                      name: bookingItem.title,
+                      photo: bookingItem.image,
+                      rate: `${bookingItem.price} ₸ / ${bookingItem.unit}`,
+                      dist: `${bookingItem.distanceKm} км`,
+                      status: '🟢 Назначен на объект (GPS Online)',
+                      assigned: true
+                    }
+                  ]
+                });
+
                 setBookingItem(null);
-                showToast('🎉 Заявка на бронирование успешно отправлена!');
+                showToast(`🎉 Заявка ${newOrder.id} успешно создана и передана Менеджеру CRM и Водителю! 🚜`);
               }}
             >
-              ✅ Подтвердить бронирование
+              🚀 Подтвердить бронирование и передать Менеджеру
             </button>
           </div>
         </div>
