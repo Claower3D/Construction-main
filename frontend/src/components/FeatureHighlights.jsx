@@ -1,4 +1,5 @@
 import React from 'react';
+import ScrollReveal from './ScrollReveal';
 
 export default function FeatureHighlights() {
   const highlights = [
@@ -39,42 +40,44 @@ export default function FeatureHighlights() {
       <div className="container">
         <div className="highlights-grid">
           {highlights.map((item, idx) => (
-            <div className="highlight-card-v2" key={idx}>
-              {/* Card Image Header with Overlays */}
-              <div className="card-v2-img-wrap">
-                <img src={item.image} alt={item.title} />
-                <div className="card-v2-gradient-overlay"></div>
-                <div className={`card-v2-top-badge badge-${item.badgeColor}`}>
-                  <span className="badge-dot"></span>
-                  {item.badge}
-                </div>
-                <div className="card-v2-icon-floating">{item.icon}</div>
-              </div>
-
-              {/* Card Body Content */}
-              <div className="card-v2-body">
-                <h3 className="card-v2-title">{item.title}</h3>
-                <p className="card-v2-desc">{item.text}</p>
-
-                {/* Metrics Chips */}
-                <div className="card-v2-metrics-row">
-                  {item.metrics.map((m, mIdx) => (
-                    <span className="metric-chip" key={mIdx}>
-                      {m}
-                    </span>
-                  ))}
+            <ScrollReveal key={idx} direction="up" delay={idx * 120} distance="35px">
+              <div className="highlight-card-v2">
+                {/* Card Image Header with Overlays */}
+                <div className="card-v2-img-wrap">
+                  <img src={item.image} alt={item.title} />
+                  <div className="card-v2-gradient-overlay"></div>
+                  <div className={`card-v2-top-badge badge-${item.badgeColor}`}>
+                    <span className="badge-dot"></span>
+                    {item.badge}
+                  </div>
+                  <div className="card-v2-icon-floating">{item.icon}</div>
                 </div>
 
-                {/* Action Link Button */}
-                <button
-                  className="card-v2-action-btn"
-                  onClick={() => alert(`Переход к разделу: ${item.title}`)}
-                >
-                  <span>{item.linkText}</span>
-                  <span className="action-btn-arrow">→</span>
-                </button>
+                {/* Card Body Content */}
+                <div className="card-v2-body">
+                  <h3 className="card-v2-title">{item.title}</h3>
+                  <p className="card-v2-desc">{item.text}</p>
+
+                  {/* Metrics Chips */}
+                  <div className="card-v2-metrics-row">
+                    {item.metrics.map((m, mIdx) => (
+                      <span className="metric-chip" key={mIdx}>
+                        {m}
+                      </span>
+                    ))}
+                  </div>
+
+                  {/* Action Link Button */}
+                  <button
+                    className="card-v2-action-btn"
+                    onClick={() => alert(`Переход к разделу: ${item.title}`)}
+                  >
+                    <span>{item.linkText}</span>
+                    <span className="action-btn-arrow">→</span>
+                  </button>
+                </div>
               </div>
-            </div>
+            </ScrollReveal>
           ))}
         </div>
       </div>

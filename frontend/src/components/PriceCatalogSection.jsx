@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { categoriesData } from '../data/categoriesData';
+import ScrollReveal from './ScrollReveal';
 
 export default function PriceCatalogSection({ onOpenCategory }) {
   const [search, setSearch] = useState('');
@@ -309,29 +310,30 @@ export default function PriceCatalogSection({ onOpenCategory }) {
         {/* High-End Category Cards Grid */}
         <div className="categories-v2-grid">
           {filtered.map((cat, idx) => (
-            <div
-              className="category-v2-card"
-              key={idx}
-              onClick={() => onOpenCategory && onOpenCategory(cat)}
-            >
-              <div className="cat-v2-cover">
-                <img src={cat.image} alt={cat.name} className="cat-v2-cover-img" />
-                <span className="cat-v2-price-chip-floating">{cat.priceRange}</span>
-              </div>
+            <ScrollReveal key={idx} direction="up" delay={(idx % 5) * 55} distance="30px">
+              <div
+                className="category-v2-card"
+                onClick={() => onOpenCategory && onOpenCategory(cat)}
+              >
+                <div className="cat-v2-cover">
+                  <img src={cat.image} alt={cat.name} className="cat-v2-cover-img" />
+                  <span className="cat-v2-price-chip-floating">{cat.priceRange}</span>
+                </div>
 
-              <div className="cat-v2-body">
-                <h4 className="cat-v2-title">{cat.name}</h4>
-                <div className="cat-v2-footer-meta">
-                  <span className="cat-v2-count-badge">
-                    <span className="count-dot"></span>
-                    {cat.count} работ
-                  </span>
-                  <span className="cat-v2-open-btn">
-                    Смета ➔
-                  </span>
+                <div className="cat-v2-body">
+                  <h4 className="cat-v2-title">{cat.name}</h4>
+                  <div className="cat-v2-footer-meta">
+                    <span className="cat-v2-count-badge">
+                      <span className="count-dot"></span>
+                      {cat.count} работ
+                    </span>
+                    <span className="cat-v2-open-btn">
+                      Смета ➔
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
+            </ScrollReveal>
           ))}
         </div>
 
