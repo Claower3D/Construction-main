@@ -773,7 +773,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
     }
 
     setEvtStages(updatedStages);
-    setEvtStatus('В работе');
+    setEvtStatus('Передано специалисту');
     setIsTransferring(false);
     
     // Auto-calculate deadline based on estimated days
@@ -786,7 +786,12 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
     setEditingEvent(prev => prev ? {
       ...prev,
       deadline: formattedDeadline,
-      estimatedDays: estimatedDays
+      estimatedDays: estimatedDays,
+      transferredToExecutor: true,
+      isTransferred: true,
+      isLead: false,
+      status: 'Передано специалисту',
+      handedOverAt: new Date().toISOString()
     } : prev);
 
     // Auto-save across the calculated days
@@ -797,9 +802,10 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
            title: evtTitle,
            location: evtLocation || 'Караганда, Объект №1',
            time: evtTime,
-           type: evtType,
+           type: 'work_stage',
+           role: 'executor',
            contractor: evtContractor,
-           status: 'В работе',
+           status: 'Передано специалисту',
            deadline: formattedDeadline,
            stages: updatedStages,
            photos: evtPhotos,
@@ -807,7 +813,11 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
            totalSum: evtTotalSum,
            comments: evtComments,
            createdBy: editingEvent ? editingEvent.createdBy : null,
-           estimatedDays: estimatedDays
+           estimatedDays: estimatedDays,
+           transferredToExecutor: true,
+           isTransferred: true,
+           isLead: false,
+           handedOverAt: new Date().toISOString()
         };
         
         for (let i = 0; i < estimatedDays; i++) {
@@ -2467,7 +2477,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                 {/* RIGHT COLUMN: ACTIVE WORKSPACE TABS OR LEAD ACCEPTANCE */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', minWidth: 0 }}>
                   
-                  {(editingEvent && editingEvent.isLead && (evtStatus === 'На проверке у инженера' || evtStatus === 'В работе' || evtStatus === 'Новые') && evtStatus !== 'В пути' && evtStatus !== 'Передано специалисту') ? (
+                  {(editingEvent && editingEvent.isLead && !editingEvent.transferredToExecutor && !editingEvent.isTransferred && (evtStatus === 'На проверке у инженера' || evtStatus === 'Новые') && evtStatus !== 'В пути' && evtStatus !== 'Передано специалисту') ? (
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', background: 'rgba(255,255,255,0.02)', borderRadius: '18px', border: '1px solid rgba(255,255,255,0.05)', padding: '3rem', marginTop: '1rem' }}>
                       <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>👋</div>
                       <h2 style={{ color: '#fff', margin: '0 0 1rem 0', fontSize: '1.4rem' }}>Новая заявка поступила</h2>
@@ -3213,7 +3223,11 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                 {viewRole !== 'customer' && (
                   <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
                     
-                    {editingEvent && editingEvent.isLead && evtStatus === 'В пути' && (
+                    {editingEvent && (editingEvent.transferredToExecutor || editingEvent.isTransferred || evtStatus === 'Передано специалисту') ? (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginRight: 'auto', background: 'rgba(16,185,129,0.15)', border: '1px solid #10b981', padding: '0.4rem 0.85rem', borderRadius: '8px', color: '#10b981', fontSize: '0.8rem', fontWeight: 800 }}>
+                        <span>✅ Заявка передана исполнителю (1 передача зафиксирована)</span>
+                      </div>
+                    ) : (editingEvent && editingEvent.isLead && evtStatus === 'В пути' && !editingEvent.transferredToExecutor) && (
                       <div style={{ display: 'flex', gap: '0.5rem', marginRight: 'auto' }}>
                         <button type="button" onClick={handleReturnToManager} style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: '1px solid #ef4444', padding: '0.6rem 1.2rem', borderRadius: '8px', fontWeight: 800, cursor: 'pointer' }}>
                           ❌ Вернуть менеджеру
