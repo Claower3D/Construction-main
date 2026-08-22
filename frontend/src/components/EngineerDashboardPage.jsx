@@ -1491,13 +1491,14 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                           {/* Render Event Pill Badges (Grouped by quantity and designation) */}
                           {evts.length > 0 && (() => {
                             const grouped = evts.reduce((acc, e) => {
-                              const icon = e.icon || (
+                              const isEng = e.role === 'engineer' || e.authorRole === 'engineer' || e.type?.includes('engineer') || e.type === 'request_engineering' || e.title?.toLowerCase().includes('экспертиз') || e.title?.toLowerCase().includes('псд') || e.title?.toLowerCase().includes('инженер');
+                              const icon = isEng ? '👷' : (e.icon || (
                                 e.type === 'active_project' ? '🏭' : 
-                                e.type === 'work_stage' ? '🟣' : 
+                                e.type === 'work_stage' ? '🛠️' : 
                                 e.type === 'deadline' ? '🔴' : 
                                 e.type === 'in_review' ? '🟡' : 
-                                e.type === 'completed' ? '🟢' : '📜'
-                              );
+                                e.type === 'completed' ? '🟢' : '🛠️'
+                              ));
                               if (!acc[e.type]) acc[e.type] = { count: 0, events: [], icon };
                               acc[e.type].count++;
                               acc[e.type].events.push(e);

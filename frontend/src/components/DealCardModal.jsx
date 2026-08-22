@@ -1,13 +1,11 @@
 import React, { useState, useMemo } from 'react';
 
 /* ═══════════════════════════════════════════════════════════════
-   QAZGOST AI — КАРТОЧКА СТРОИТЕЛЬНОГО ОБЪЕКТА (COCKPIT v2.0)
-   Ультрасовременная панель управления строительной сделкой:
-   - 7-этапный интерактивный степпер (исправлен и синхронизирован)
-   - Досье объекта, Заказчика, Инженера ПТО и Исполнителя
-   - График этапов работ, слайдеры прогресса и GPS спецтехника
-   - Динамический Эскроу баланс и смета по ГОСТ
-   - Чат и журнал действий
+   QAZGOST AI — КАРТОЧКА СТРОИТЕЛЬНОГО ОБЪЕКТА (COCKPIT v3.0)
+   - Ролевая защита: Исполнитель НЕ МОЖЕТ редактировать заявку инженера (READ-ONLY 🔒)
+   - Яркая цветовая маркировка типа заявки (Инженер / Исполнитель / Лид)
+   - 7-этапный синхронизированный степпер
+   - График этапов работ, GPS спецтехника и Эскроу баланс
    ═══════════════════════════════════════════════════════════════ */
 
 const PIPELINE_STAGES = [
@@ -45,6 +43,11 @@ function formatMoney(num) {
 }
 
 export default function DealCardModal({ card, onClose, onSave, currentUser }) {
+  // Определение роли текущего пользователя
+  const userRole = currentUser?.role || (card.role === 'executor' ? 'executor' : 'manager');
+  const isExecutor = userRole === 'executor';
+  const isEngineer = userRole === 'engineer';
+
   const [formData, setFormData] = useState(() => {
     const normStatus = normalizeStatus(card.status);
     let cleanPhone = card.phone || '';
@@ -90,10 +93,16 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
       }
     ];
 
+    // Определение типа карточки для цветовой шапки
+    const isEngType = card.role === 'engineer' || card.type === 'request_engineering' || (card.title && (card.title.toLowerCase().includes('выезд') || card.title.toLowerCase().includes('экспертиз') || card.title.toLowerCase().includes('инженер') || card.title.toLowerCase().includes('смет')));
+    const isExecType = card.role === 'executor' || card.type === 'work_stage' || (card.title && (card.title.toLowerCase().includes('монтаж') || card.title.toLowerCase().includes('фасад') || card.title.toLowerCase().includes('стройка')));
+
     return {
       id: card.id || String(Date.now()).slice(-4),
+      leadNum: card.leadNum || '01',
+      dealType: isEngType ? 'engineer' : (isExecType ? 'executor' : 'lead'),
       title: card.title || 'Строительный объект',
-      category: card.category || (card.type === 'request_engineering' ? 'Инженерные сети' : 'Общестроительные работы'),
+      category: card.category || (isEngType ? 'Инженерные сети и ПТО' : 'Общестроительные работы'),
       location: card.location || 'г. Астана',
       clientName: card.contractor || card.clientName || 'ТОО «Заказчик»',
       clientPhone: cleanPhone || '+7 (701) 888-00-11',
@@ -131,12 +140,16 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
   }, [formData.status]);
 
   const handleStatusChange = (newStatusId) => {
+    if (isExecutor && (newStatusId === 'new' || newStatusId === 'engineer_assigned' || newStatusId === 'engineer_visit')) {
+      showToast('🔒 Исполнитель не может менять инженерные статусы');
+      return;
+    }
     const stageObj = PIPELINE_STAGES.find(s => s.id === newStatusId);
     setFormData(prev => ({ ...prev, status: newStatusId }));
     showToast(`🔄 Статус изменён: ${stageObj?.icon} ${stageObj?.fullLabel}`);
   };
 
-  // Динамический расчёт эскроу-балансов
+  // Расчёт эскроу-балансов
   const totalBudget = formData.budget || 2100000;
   const completedStagesSum = formData.stages
     .filter(s => s.status === 'completed')
@@ -188,6 +201,13 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
     onSave(finalData);
   };
 
+  // Цветовой стиль для шапки в зависимости от типа заявки
+  const typeBadgeStyle = formData.dealType === 'engineer'
+    ? { bg: 'rgba(245, 158, 11, 0.25)', border: '#f59e0b', color: '#fcd34d', label: '👷 ВЫЕЗД ИНЖЕНЕРА' }
+    : formData.dealType === 'executor'
+    ? { bg: 'rgba(0, 229, 255, 0.25)', border: '#00e5ff', color: '#38bdf8', label: '🔨 РАБОТЫ ИСПОЛНИТЕЛЯ' }
+    : { bg: 'rgba(139, 92, 246, 0.25)', border: '#8b5cf6', color: '#c4b5fd', label: '📝 НОВЫЙ ЛИД' };
+
   return (
     <div style={{
       position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
@@ -196,18 +216,18 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
       backdropFilter: 'blur(20px)', padding: '16px'
     }} onClick={onClose}>
       
-      {/* Главная карточка-кокпит */}
+      {/* Главная карточка */}
       <div style={{
         backgroundColor: '#0a1424',
         width: '96vw', maxWidth: '1380px', height: '90vh', maxHeight: '860px',
-        borderRadius: '20px', border: '1px solid rgba(0, 229, 255, 0.25)',
-        boxShadow: '0 25px 60px rgba(0, 0, 0, 0.8), 0 0 50px rgba(0, 229, 255, 0.12)',
+        borderRadius: '20px', border: `1px solid ${typeBadgeStyle.border}`,
+        boxShadow: `0 25px 60px rgba(0, 0, 0, 0.8), 0 0 40px ${typeBadgeStyle.bg}`,
         display: 'flex', flexDirection: 'column',
         overflow: 'hidden', color: '#e2e8f0', fontFamily: 'system-ui, sans-serif',
         position: 'relative'
       }} onClick={e => e.stopPropagation()}>
 
-        {/* Всплывающее уведомление */}
+        {/* Всплывающий тост */}
         {toastMessage && (
           <div style={{
             position: 'absolute', top: '16px', right: '70px', zIndex: 100,
@@ -221,7 +241,7 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
         )}
 
         {/* ════════════════════════════════════════════════════════
-            1. ХЕДЕР (COCKPIT BAR)
+            1. ХЕДЕР С ЧЁТКОЙ МАРКИРОВКОЙ ТИПА ЗАЯВКИ
             ════════════════════════════════════════════════════════ */}
         <div style={{
           padding: '1rem 1.75rem',
@@ -233,20 +253,29 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
           <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
             <div style={{
               width: '42px', height: '42px', borderRadius: '12px',
-              background: 'linear-gradient(135deg, #00e5ff, #0284c7)',
+              background: typeBadgeStyle.bg, border: `1px solid ${typeBadgeStyle.border}`,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: '1.3rem', boxShadow: '0 0 20px rgba(0,229,255,0.4)', flexShrink: 0
+              fontSize: '1.3rem', boxShadow: `0 0 20px ${typeBadgeStyle.bg}`, flexShrink: 0
             }}>
-              🏗️
+              {formData.dealType === 'engineer' ? '👷' : (formData.dealType === 'executor' ? '🔨' : '📝')}
             </div>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-                <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 900, color: '#f8fafc', letterSpacing: '0.5px' }}>
-                  КАРТОЧКА ОБЪЕКТА №{formData.id}
+                <span style={{
+                  fontSize: '0.78rem', fontWeight: 900, padding: '3px 10px', borderRadius: '6px',
+                  background: typeBadgeStyle.bg, border: `1px solid ${typeBadgeStyle.border}`,
+                  color: typeBadgeStyle.color, letterSpacing: '0.5px'
+                }}>
+                  {typeBadgeStyle.label} #{formData.id}
+                </span>
+
+                <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 900, color: '#f8fafc' }}>
+                  {formData.title}
                 </h2>
+
                 <span style={{
                   display: 'inline-flex', alignItems: 'center', gap: '6px',
-                  padding: '4px 12px', borderRadius: '20px', fontSize: '0.78rem', fontWeight: 800,
+                  padding: '3px 10px', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 800,
                   background: `${PIPELINE_STAGES[currentStageIndex]?.color}25`,
                   border: `1px solid ${PIPELINE_STAGES[currentStageIndex]?.color}80`,
                   color: PIPELINE_STAGES[currentStageIndex]?.color || '#00e5ff'
@@ -255,12 +284,18 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
                   {PIPELINE_STAGES[currentStageIndex]?.icon} {PIPELINE_STAGES[currentStageIndex]?.fullLabel}
                 </span>
               </div>
-              <div style={{ fontSize: '0.78rem', color: '#94a3b8', marginTop: '2px', display: 'flex', gap: '10px' }}>
+
+              <div style={{ fontSize: '0.76rem', color: '#94a3b8', marginTop: '3px', display: 'flex', gap: '10px' }}>
                 <span>📍 {formData.location}</span>
                 <span>•</span>
-                <span>📅 Создан: {formData.date}</span>
+                <span>📅 Дата: {formData.date}</span>
                 <span>•</span>
                 <span>🏷️ {formData.category}</span>
+                {isExecutor && (
+                  <span style={{ color: '#f59e0b', fontWeight: 700 }}>
+                    🔒 Режим исполнителя (данные инженера защищены)
+                  </span>
+                )}
               </div>
             </div>
           </div>
@@ -271,7 +306,7 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
               border: '1px solid rgba(255, 215, 0, 0.3)',
               borderRadius: '10px', padding: '6px 14px', textAlign: 'right'
             }}>
-              <div style={{ fontSize: '0.65rem', color: '#ffd700', fontWeight: 800, letterSpacing: '0.5px', textTransform: 'uppercase' }}>
+              <div style={{ fontSize: '0.65rem', color: '#ffd700', fontWeight: 800, textTransform: 'uppercase' }}>
                 Бюджет объекта
               </div>
               <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#ffd700', lineHeight: 1.1 }}>
@@ -291,7 +326,7 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
         </div>
 
         {/* ════════════════════════════════════════════════════════
-            2. ИНТЕРАКТИВНЫЙ СТЕППЕР (ИСПРАВЛЕН И СИНХРОНИЗИРОВАН)
+            2. ИНТЕРАКТИВНЫЙ СТЕППЕР
             ════════════════════════════════════════════════════════ */}
         <div style={{
           padding: '0.85rem 2rem',
@@ -300,7 +335,6 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           position: 'relative'
         }}>
-          {/* Линия соединения с активной подсветкой */}
           <div style={{
             position: 'absolute', top: '28px', left: '6%', right: '6%', height: '3px',
             background: 'rgba(255, 255, 255, 0.1)', zIndex: 1
@@ -331,7 +365,6 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
                 onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
                 title={`Переключить на этап: ${stage.fullLabel}`}
               >
-                {/* Кружок */}
                 <div style={{
                   width: '36px', height: '36px', borderRadius: '50%',
                   background: isActive ? stage.color : (isCompleted ? 'rgba(16, 185, 129, 0.2)' : '#0f172a'),
@@ -344,7 +377,6 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
                   {isCompleted ? '✓' : (isActive ? stage.icon : `${idx + 1}`)}
                 </div>
 
-                {/* Подпись */}
                 <span style={{
                   fontSize: '0.72rem',
                   fontWeight: isActive ? 800 : (isCompleted ? 700 : 500),
@@ -359,7 +391,7 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
         </div>
 
         {/* ════════════════════════════════════════════════════════
-            3. ОСНОВНОЙ КОНТЕНТ (2 СБАЛАНСИРОВАННЫЕ КОЛОНКИ)
+            3. ОСНОВНОЙ КОНТЕНТ (2 КОЛОНКИ)
             ════════════════════════════════════════════════════════ */}
         <div style={{
           flex: 1, overflowY: 'auto', padding: '1.25rem 1.75rem',
@@ -367,16 +399,16 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
         }}>
 
           {/* ────────────────────────────────────────────────────
-              ЛЕВАЯ КОЛОНКА: ДОСЬЕ ОБЪЕКТА И УЧАСТНИКИ
+              ЛЕВАЯ КОЛОНКА: ОБЪЕКТ, ИНЖЕНЕР (READONLY ДЛЯ ИСПОЛНИТЕЛЯ)
               ──────────────────────────────────────────────────── */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             
-            {/* Карточка объекта и клиента */}
+            {/* Блок 1: Объект и Заказчик */}
             <div style={{
               background: 'rgba(15, 23, 42, 0.8)', borderRadius: '14px',
               border: '1px solid rgba(255, 255, 255, 0.08)', padding: '1.1rem'
             }}>
-              <div style={{ fontSize: '0.75rem', color: '#38bdf8', fontWeight: 800, letterSpacing: '0.5px', textTransform: 'uppercase', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <div style={{ fontSize: '0.75rem', color: '#38bdf8', fontWeight: 800, textTransform: 'uppercase', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <span>🏢</span> Объект и Заказчик
               </div>
 
@@ -437,31 +469,44 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
               </div>
             </div>
 
-            {/* Карточка инженера ПТО */}
+            {/* Блок 2: ВЫЕЗД ИНЖЕНЕРА (ЗАБЛОКИРОВАН ДЛЯ ИСПОЛНИТЕЛЯ) */}
             <div style={{
-              background: 'rgba(245, 158, 11, 0.05)', borderRadius: '14px',
-              border: '1px solid rgba(245, 158, 11, 0.25)', padding: '1.1rem'
+              background: isExecutor ? 'rgba(15, 23, 42, 0.5)' : 'rgba(245, 158, 11, 0.05)',
+              borderRadius: '14px',
+              border: `1px solid ${isExecutor ? 'rgba(255, 255, 255, 0.08)' : 'rgba(245, 158, 11, 0.25)'}`,
+              padding: '1.1rem',
+              position: 'relative'
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-                <div style={{ fontSize: '0.75rem', color: '#f59e0b', fontWeight: 800, letterSpacing: '0.5px', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <div style={{ fontSize: '0.75rem', color: isExecutor ? '#94a3b8' : '#f59e0b', fontWeight: 800, textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <span>👷</span> Выезд инженера ПТО
                 </div>
-                <span style={{ fontSize: '0.7rem', color: '#f59e0b', background: 'rgba(245, 158, 11, 0.15)', padding: '2px 8px', borderRadius: '6px', fontWeight: 700 }}>
-                  Обследование
-                </span>
+                {isExecutor ? (
+                  <span style={{ fontSize: '0.68rem', color: '#f59e0b', background: 'rgba(245, 158, 11, 0.15)', padding: '2px 8px', borderRadius: '6px', fontWeight: 800, border: '1px solid rgba(245, 158, 11, 0.3)' }}>
+                    🔒 Только чтение
+                  </span>
+                ) : (
+                  <span style={{ fontSize: '0.68rem', color: '#10b981', background: 'rgba(16, 185, 129, 0.15)', padding: '2px 8px', borderRadius: '6px', fontWeight: 700 }}>
+                    Акт утверждён
+                  </span>
+                )}
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.7rem' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
                   <div>
-                    <label style={{ fontSize: '0.68rem', color: '#94a3b8', display: 'block', marginBottom: '3px', fontWeight: 600 }}>ИНЖЕНЕР</label>
+                    <label style={{ fontSize: '0.68rem', color: '#94a3b8', display: 'block', marginBottom: '3px', fontWeight: 600 }}>ИНЖЕНЕР ПТО</label>
                     <input
                       type="text"
                       value={formData.assignedEngineer}
+                      disabled={isExecutor}
                       onChange={e => setFormData({ ...formData, assignedEngineer: e.target.value })}
                       style={{
-                        width: '100%', background: 'rgba(0,0,0,0.35)', border: '1px solid rgba(245, 158, 11, 0.3)',
-                        borderRadius: '8px', padding: '7px 10px', color: '#fcd34d', fontSize: '0.82rem', outline: 'none', fontWeight: 700
+                        width: '100%', background: isExecutor ? 'rgba(0,0,0,0.5)' : 'rgba(0,0,0,0.35)',
+                        border: `1px solid ${isExecutor ? 'rgba(255,255,255,0.06)' : 'rgba(245, 158, 11, 0.3)'}`,
+                        borderRadius: '8px', padding: '7px 10px', color: isExecutor ? '#94a3b8' : '#fcd34d',
+                        fontSize: '0.82rem', outline: 'none', fontWeight: 700,
+                        cursor: isExecutor ? 'not-allowed' : 'text'
                       }}
                     />
                   </div>
@@ -470,10 +515,14 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
                     <input
                       type="text"
                       value={formData.engineerVisitDate}
+                      disabled={isExecutor}
                       onChange={e => setFormData({ ...formData, engineerVisitDate: e.target.value })}
                       style={{
-                        width: '100%', background: 'rgba(0,0,0,0.35)', border: '1px solid rgba(255,255,255,0.12)',
-                        borderRadius: '8px', padding: '7px 10px', color: '#38bdf8', fontSize: '0.82rem', outline: 'none', fontWeight: 700
+                        width: '100%', background: isExecutor ? 'rgba(0,0,0,0.5)' : 'rgba(0,0,0,0.35)',
+                        border: `1px solid ${isExecutor ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.12)'}`,
+                        borderRadius: '8px', padding: '7px 10px', color: isExecutor ? '#94a3b8' : '#38bdf8',
+                        fontSize: '0.82rem', outline: 'none', fontWeight: 700,
+                        cursor: isExecutor ? 'not-allowed' : 'text'
                       }}
                     />
                   </div>
@@ -484,23 +533,27 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
                   <textarea
                     rows="3"
                     value={formData.engineerReport}
+                    disabled={isExecutor}
                     onChange={e => setFormData({ ...formData, engineerReport: e.target.value })}
                     style={{
-                      width: '100%', background: 'rgba(0,0,0,0.35)', border: '1px solid rgba(255,255,255,0.12)',
-                      borderRadius: '8px', padding: '7px 10px', color: '#cbd5e1', fontSize: '0.78rem', outline: 'none', resize: 'none', lineHeight: 1.35
+                      width: '100%', background: isExecutor ? 'rgba(0,0,0,0.5)' : 'rgba(0,0,0,0.35)',
+                      border: `1px solid ${isExecutor ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.12)'}`,
+                      borderRadius: '8px', padding: '7px 10px', color: isExecutor ? '#94a3b8' : '#cbd5e1',
+                      fontSize: '0.78rem', outline: 'none', resize: 'none', lineHeight: 1.35,
+                      cursor: isExecutor ? 'not-allowed' : 'text'
                     }}
                   />
                 </div>
               </div>
             </div>
 
-            {/* Карточка подрядчика */}
+            {/* Блок 3: Подрядчик / Исполнитель */}
             <div style={{
               background: 'rgba(16, 185, 129, 0.05)', borderRadius: '14px',
               border: '1px solid rgba(16, 185, 129, 0.25)', padding: '1.1rem'
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-                <div style={{ fontSize: '0.75rem', color: '#10b981', fontWeight: 800, letterSpacing: '0.5px', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <div style={{ fontSize: '0.75rem', color: '#10b981', fontWeight: 800, textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <span>🔨</span> Подрядчик / Исполнитель
                 </div>
                 <span style={{ fontSize: '0.7rem', color: '#10b981', background: 'rgba(16, 185, 129, 0.15)', padding: '2px 8px', borderRadius: '6px', fontWeight: 700 }}>
@@ -767,40 +820,54 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
               </div>
             )}
 
-            {/* Быстрые действия внизу правой колонки */}
+            {/* Быстрые действия с учётом роли */}
             <div style={{
               display: 'flex', gap: '8px', background: 'rgba(15, 23, 42, 0.85)',
               borderRadius: '12px', padding: '8px 12px', border: '1px solid rgba(255,255,255,0.06)'
             }}>
+              {!isExecutor && (
+                <>
+                  <button
+                    onClick={() => handleStatusChange('engineer_assigned')}
+                    style={{
+                      flex: 1, background: 'rgba(245, 158, 11, 0.15)', border: '1px solid rgba(245, 158, 11, 0.35)',
+                      color: '#fcd34d', padding: '8px 6px', borderRadius: '8px',
+                      fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer'
+                    }}
+                  >
+                    📋 Инженера
+                  </button>
+                  <button
+                    onClick={() => handleStatusChange('engineer_visit')}
+                    style={{
+                      flex: 1, background: 'rgba(249, 115, 22, 0.15)', border: '1px solid rgba(249, 115, 22, 0.35)',
+                      color: '#fdba74', padding: '8px 6px', borderRadius: '8px',
+                      fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer'
+                    }}
+                  >
+                    🚗 На выезд
+                  </button>
+                  <button
+                    onClick={() => handleStatusChange('pending_executor')}
+                    style={{
+                      flex: 1, background: 'rgba(234, 179, 8, 0.15)', border: '1px solid rgba(234, 179, 8, 0.35)',
+                      color: '#fde047', padding: '8px 6px', borderRadius: '8px',
+                      fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer'
+                    }}
+                  >
+                    ⏳ Подрядчику
+                  </button>
+                </>
+              )}
               <button
-                onClick={() => handleStatusChange('engineer_assigned')}
+                onClick={() => handleStatusChange('in_progress')}
                 style={{
-                  flex: 1, background: 'rgba(245, 158, 11, 0.15)', border: '1px solid rgba(245, 158, 11, 0.35)',
-                  color: '#fcd34d', padding: '8px 6px', borderRadius: '8px',
+                  flex: 1, background: 'rgba(0, 229, 255, 0.15)', border: '1px solid rgba(0, 229, 255, 0.35)',
+                  color: '#00e5ff', padding: '8px 6px', borderRadius: '8px',
                   fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer'
                 }}
               >
-                📋 Инженера
-              </button>
-              <button
-                onClick={() => handleStatusChange('engineer_visit')}
-                style={{
-                  flex: 1, background: 'rgba(249, 115, 22, 0.15)', border: '1px solid rgba(249, 115, 22, 0.35)',
-                  color: '#fdba74', padding: '8px 6px', borderRadius: '8px',
-                  fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer'
-                }}
-              >
-                🚗 На выезд
-              </button>
-              <button
-                onClick={() => handleStatusChange('pending_executor')}
-                style={{
-                  flex: 1, background: 'rgba(234, 179, 8, 0.15)', border: '1px solid rgba(234, 179, 8, 0.35)',
-                  color: '#fde047', padding: '8px 6px', borderRadius: '8px',
-                  fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer'
-                }}
-              >
-                ⏳ Подрядчику
+                🚀 В работу
               </button>
               <button
                 onClick={() => handleStatusChange('completed')}
@@ -819,7 +886,7 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
         </div>
 
         {/* ════════════════════════════════════════════════════════
-            4. ФУТЕР КАРТОЧКИ
+            4. ФУТЕР
             ════════════════════════════════════════════════════════ */}
         <div style={{
           padding: '0.85rem 1.75rem',
