@@ -22,6 +22,11 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
   // Cart State: [ { ...product, count: number } ]
   const [cart, setCart] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isCheckoutModal, setIsCheckoutModal] = useState(false);
+  const [checkoutName, setCheckoutName] = useState('');
+  const [checkoutPhone, setCheckoutPhone] = useState('');
+  const [checkoutAddress, setCheckoutAddress] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState('kaspi');
   const [walletBalance, setWalletBalance] = useState(() => getBalanceKZT());
   
   useEffect(() => {
@@ -41,13 +46,6 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
   const [rfqVolume, setRfqVolume] = useState('');
   const [rfqCity, setRfqCity] = useState('Алматы');
   const [rfqPhone, setRfqPhone] = useState('');
-
-  // Checkout State
-  const [isCheckoutModal, setIsCheckoutModal] = useState(false);
-  const [checkoutName, setCheckoutName] = useState('');
-  const [checkoutPhone, setCheckoutPhone] = useState('');
-  const [checkoutAddress, setCheckoutAddress] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState('kaspi');
 
   const showToast = (msg) => {
     setToastMessage(msg);
