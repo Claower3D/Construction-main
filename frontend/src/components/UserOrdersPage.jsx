@@ -9,7 +9,7 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [toastMessage, setToastMessage] = useState(null);
 
-  // Initial Sample Orders
+  // Initial Sample Orders with Detailed Stages & Auto-matched Machinery
   const [orders, setOrders] = useState([
     {
       id: 'ORD-2026-081',
@@ -22,7 +22,97 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
       date: '12 авг 2026',
       city: 'Алматы',
       category: 'Отделочные работы',
-      description: 'Комплексный ремонт офисного помещения: демонтаж, новая электрика, перегородки из ГКЛ, чистовая отделка.'
+      description: 'Комплексный ремонт офисного помещения: демонтаж, новая электрика, перегородки из ГКЛ, чистовая отделка.',
+      stages: [
+        {
+          id: 'STG-1',
+          name: '1. Демонтажные работы и вывоз мусора',
+          status: 'completed',
+          progress: 100,
+          dateRange: '12.08 – 15.08.2026',
+          budget: 650000,
+          machinery: [
+            { id: 18, name: 'Самосвал Shacman F3000 (25 т)', photo: '/assets/machinery/shacman_dump_truck.jpg', rate: '18 000 ₸ / час', dist: '1.4 км от объекта', status: '🟢 Свободен', assigned: true },
+            { id: 11, name: 'Мини-погрузчик Bobcat S530', photo: '/assets/machinery/bobcat_skid_steer.jpg', rate: '14 000 ₸ / час', dist: '1.6 км от объекта', status: '🟢 Свободен', assigned: true }
+          ]
+        },
+        {
+          id: 'STG-2',
+          name: '2. Монтаж перегородок, потолков и электрики',
+          status: 'in_progress',
+          progress: 65,
+          dateRange: '16.08 – 24.08.2026',
+          budget: 1850000,
+          machinery: [
+            { id: 8, name: 'Кран-манипулятор КАМАЗ 65117 (КМУ 7 т)', photo: '/assets/machinery/kamaz_manipulator.jpg', rate: '20 000 ₸ / час', dist: '1.8 км от объекта', status: '🟢 Свободен', assigned: true },
+            { id: 22, name: 'Дизель-генератор SDMO 100 кВт (Резерв)', photo: '/assets/machinery/diesel_generator_sdmo.jpg', rate: '12 000 ₸ / час', dist: '1.5 км от объекта', status: '🟢 Свободен', assigned: false }
+          ]
+        },
+        {
+          id: 'STG-3',
+          name: '3. Чистовая отделка, полы и освещение',
+          status: 'pending',
+          progress: 0,
+          dateRange: '25.08 – 05.09.2026',
+          budget: 2350000,
+          machinery: [
+            { id: 12, name: 'Телескопический погрузчик Manitou MT 1840', photo: '/assets/machinery/manitou_telehandler.jpg', rate: '24 000 ₸ / час', dist: '2.3 км от объекта', status: '🟢 Свободен', assigned: false }
+          ]
+        }
+      ]
+    },
+    {
+      id: 'ORD-2026-074',
+      title: 'Строительство монолитного коттеджа 320 м²',
+      clientName: 'ИП «СтройСервис»',
+      clientPhone: '+7 (705) 888-11-22',
+      amount: 14800000,
+      status: 'in_progress',
+      statusLabel: '🟢 В работе',
+      date: '05 авг 2026',
+      city: 'Астана',
+      category: 'Монолитные работы',
+      description: 'Земляные работы, свайное поле, заливка фундаментной плиты и возведение монолитного каркаса.',
+      stages: [
+        {
+          id: 'STG-1',
+          name: '1. Земляные работы и разработка котлована',
+          status: 'completed',
+          progress: 100,
+          dateRange: '05.08 – 10.08.2026',
+          budget: 2800000,
+          machinery: [
+            { id: 1, name: 'Гусеничный экскаватор Hitachi ZX240', photo: '/assets/machinery/hitachi_excavator.jpg', rate: '25 000 ₸ / час', dist: '1.8 км от объекта', status: '🟢 Свободен', assigned: true },
+            { id: 4, name: 'Тяжелый бульдозер CAT D6R', photo: '/assets/machinery/cat_bulldozer.jpg', rate: '32 000 ₸ / час', dist: '2.2 км от объекта', status: '🟢 Свободен', assigned: true },
+            { id: 18, name: 'Самосвал Shacman F3000 (25 т)', photo: '/assets/machinery/shacman_dump_truck.jpg', rate: '18 000 ₸ / час', dist: '1.4 км от объекта', status: '🟢 Свободен', assigned: true }
+          ]
+        },
+        {
+          id: 'STG-2',
+          name: '2. Устройство свайного поля и фундамента',
+          status: 'in_progress',
+          progress: 45,
+          dateRange: '11.08 – 22.08.2026',
+          budget: 5200000,
+          machinery: [
+            { id: 21, name: 'Буровая сваебойная установка Bauer BG 28', photo: '/assets/machinery/bauer_piling_rig.jpg', rate: '95 000 ₸ / час', dist: '3.1 км от объекта', status: '🟢 Свободен', assigned: true },
+            { id: 16, name: 'Автобетононасос Putzmeister 38м', photo: '/assets/machinery/concrete_pump.jpg', rate: '40 000 ₸ / час', dist: '1.9 км от объекта', status: '🟢 Свободен', assigned: true },
+            { id: 17, name: 'Автобетоносмеситель КАМАЗ 6520', photo: '/assets/machinery/kamaz_concrete_mixer.jpg', rate: '15 000 ₸ / рейс', dist: '1.4 км от объекта', status: '🟢 Свободен', assigned: true }
+          ]
+        },
+        {
+          id: 'STG-3',
+          name: '3. Монтаж колонн, перекрытий и кровли',
+          status: 'pending',
+          progress: 0,
+          dateRange: '23.08 – 15.09.2026',
+          budget: 6800000,
+          machinery: [
+            { id: 5, name: 'Автокран XCMG QY25K5, 25 т', photo: '/assets/machinery/xcmg_mobile_crane.jpg', rate: '28 000 ₸ / час', dist: '2.1 км от объекта', status: '🟢 Свободен', assigned: false },
+            { id: 6, name: 'Автовышка телескопическая Hyundai HD78', photo: '/assets/machinery/hyundai_cherry_picker.jpg', rate: '18 000 ₸ / час', dist: '2.0 км от объекта', status: '🟢 Свободен', assigned: false }
+          ]
+        }
+      ]
     },
     {
       id: 'ORD-2026-079',
@@ -35,33 +125,71 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
       date: '10 авг 2026',
       city: 'Астана',
       category: 'Инженерные сети',
-      description: 'Установка котла, коллекторов, лучевая разводка теплого пола на 2 этажа коттеджа.'
-    },
-    {
-      id: 'ORD-2026-074',
-      title: 'Заливка ленточного фундамента',
-      clientName: 'ИП «СтройСервис»',
-      clientPhone: '+7 (705) 888-11-22',
-      amount: 3200000,
-      status: 'completed',
-      statusLabel: '✅ Завершён',
-      date: '02 авг 2026',
-      city: 'Шымкент',
-      category: 'Монолитные работы',
-      description: 'Арматурный каркас d12, опалубка, приемка бетона М300 с гидрофобизатором.'
+      description: 'Установка котла, коллекторов, лучевая разводка теплого пола на 2 этажа коттеджа.',
+      stages: [
+        {
+          id: 'STG-1',
+          name: '1. Прокладка трубопроводов и монтаж коллекторов',
+          status: 'in_progress',
+          progress: 30,
+          dateRange: '10.08 – 18.08.2026',
+          budget: 620000,
+          machinery: [
+            { id: 8, name: 'Кран-манипулятор КАМАЗ 65117', photo: '/assets/machinery/kamaz_manipulator.jpg', rate: '20 000 ₸ / час', dist: '1.8 км от объекта', status: '🟢 Свободен', assigned: true }
+          ]
+        },
+        {
+          id: 'STG-2',
+          name: '2. Опрессовка системы и пусконаладка',
+          status: 'pending',
+          progress: 0,
+          dateRange: '19.08 – 25.08.2026',
+          budget: 800000,
+          machinery: [
+            { id: 23, name: 'Компрессор дизельный Atlas Copco XAS 97', photo: '/assets/machinery/air_compressor_atlas.jpg', rate: '14 000 ₸ / час', dist: '1.7 км от объекта', status: '🟢 Свободен', assigned: false }
+          ]
+        }
+      ]
     },
     {
       id: 'ORD-2026-068',
-      title: 'Проектирование ЭОМ и СС ЖК «Зам-Зам»',
+      title: 'Строительство подъездной дороги и парковки',
       clientName: 'ТОО «АктобеДевелопмент»',
       clientPhone: '+7 (7132) 40-50-60',
-      amount: 890000,
+      amount: 6890000,
       status: 'in_progress',
       statusLabel: '🟢 В работе',
       date: '28 июл 2026',
       city: 'Актобе',
-      category: 'Проектирование',
-      description: 'Разработка рабочей документации раздела ЭОМ, слаботочные сети и пожарная сигнализация.'
+      category: 'Дорожные работы',
+      description: 'Планировка основания, укладка геотекстиля, щебеночное основание и асфальтирование.',
+      stages: [
+        {
+          id: 'STG-1',
+          name: '1. Земляное корыто и профилирование откосов',
+          status: 'completed',
+          progress: 100,
+          dateRange: '28.07 – 03.08.2026',
+          budget: 2100000,
+          machinery: [
+            { id: 14, name: 'Автогрейдер XCMG GR215 (4.3 м)', photo: '/assets/machinery/motor_grader_xcmg.jpg', rate: '22 000 ₸ / час', dist: '2.7 км от объекта', status: '🟢 Свободен', assigned: true },
+            { id: 13, name: 'Каток дорожный Bomag 14т', photo: '/assets/machinery/road_roller_bomag.jpg', rate: '18 000 ₸ / час', dist: '1.9 км от объекта', status: '🟢 Свободен', assigned: true }
+          ]
+        },
+        {
+          id: 'STG-2',
+          name: '2. Укладка двух слоев горячего асфальтобетона',
+          status: 'in_progress',
+          progress: 50,
+          dateRange: '04.08 – 14.08.2026',
+          budget: 4790000,
+          machinery: [
+            { id: 15, name: 'Асфальтоукладчик Vogele Super 1800-3', photo: '/assets/machinery/asphalt_paver_vogele.jpg', rate: '48 000 ₸ / час', dist: '2.5 км от объекта', status: '🟢 Свободен', assigned: true },
+            { id: 13, name: 'Каток дорожный Bomag 14т', photo: '/assets/machinery/road_roller_bomag.jpg', rate: '18 000 ₸ / час', dist: '1.9 км от объекта', status: '🟢 Свободен', assigned: true },
+            { id: 18, name: 'Самосвал Shacman F3000 (25 т)', photo: '/assets/machinery/shacman_dump_truck.jpg', rate: '18 000 ₸ / час', dist: '1.4 км от объекта', status: '🟢 Свободен', assigned: true }
+          ]
+        }
+      ]
     }
   ]);
 
@@ -98,6 +226,42 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
   // Stats
   const totalCount = filteredOrders.length;
   const totalSum = filteredOrders.reduce((acc, o) => acc + o.amount, 0);
+  const handleToggleMachinery = (orderId, stageId, machineId) => {
+    setOrders(prevOrders => prevOrders.map(ord => {
+      if (ord.id !== orderId) return ord;
+      return {
+        ...ord,
+        stages: ord.stages?.map(stg => {
+          if (stg.id !== stageId) return stg;
+          return {
+            ...stg,
+            machinery: stg.machinery?.map(m => {
+              if (m.id !== machineId) return m;
+              const newAssigned = !m.assigned;
+              showToast(newAssigned ? `🚜 ${m.name} успешно забронирован на этап! (GPS Online)` : `Техника ${m.name} снята с этапа`);
+              return { ...m, assigned: newAssigned };
+            })
+          };
+        })
+      };
+    }));
+
+    if (selectedOrder && selectedOrder.id === orderId) {
+      setSelectedOrder(prev => ({
+        ...prev,
+        stages: prev.stages?.map(stg => {
+          if (stg.id !== stageId) return stg;
+          return {
+            ...stg,
+            machinery: stg.machinery?.map(m => {
+              if (m.id !== machineId) return m;
+              return { ...m, assigned: !m.assigned };
+            })
+          };
+        })
+      }));
+    }
+  };
 
   const formatMoney = (sum) => {
     return sum.toLocaleString('ru-RU') + ' ₸';
@@ -317,7 +481,7 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
               <div className="uo-m-sub">📍 {selectedOrder.city} • {selectedOrder.date}</div>
             </div>
 
-            <div className="uo-m-body">
+            <div className="uo-m-body" style={{ maxHeight: '70vh', overflowY: 'auto' }}>
               <div className="uo-m-row">
                 <span className="label">Клиент:</span>
                 <span className="val">{selectedOrder.clientName} ({selectedOrder.clientPhone})</span>
@@ -337,6 +501,112 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
                 <h4>📋 Описание объекта</h4>
                 <p>{selectedOrder.description}</p>
               </div>
+
+              {/* 🚜 SMART GPS MACHINERY DISPATCH FOR PROJECT STAGES */}
+              {selectedOrder.stages && selectedOrder.stages.length > 0 && (
+                <div className="uo-stages-container" style={{ marginTop: '1.75rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+                    <h4 style={{ margin: 0, fontSize: '1.15rem', color: '#38bdf8', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span>🏗️</span> График этапов работ и подбор спецтехники (GPS)
+                    </h4>
+                    <span style={{ fontSize: '0.78rem', background: 'rgba(56, 189, 248, 0.15)', color: '#38bdf8', padding: '4px 10px', borderRadius: '8px', border: '1px solid rgba(56, 189, 248, 0.3)' }}>
+                      📍 Автоподбор ближайших машин
+                    </span>
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                    {selectedOrder.stages.map(stg => (
+                      <div key={stg.id} style={{
+                        background: 'rgba(15, 23, 42, 0.75)',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        borderRadius: '14px',
+                        padding: '16px',
+                        boxShadow: '0 8px 24px rgba(0, 0, 0, 0.3)'
+                      }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '8px', marginBottom: '10px' }}>
+                          <div>
+                            <strong style={{ fontSize: '1rem', color: '#f8fafc' }}>{stg.name}</strong>
+                            <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '2px' }}>
+                              ⏱ Сроки: {stg.dateRange} • Бюджет этапа: <strong style={{ color: '#00ff88' }}>{formatMoney(stg.budget)}</strong>
+                            </div>
+                          </div>
+                          <span className={`uo-status-pill ${stg.status}`} style={{ fontSize: '0.75rem' }}>
+                            {stg.status === 'completed' && '✅ Выполнен'}
+                            {stg.status === 'in_progress' && `🟢 В процессе (${stg.progress}%)`}
+                            {stg.status === 'pending' && '⏳ Запланирован'}
+                          </span>
+                        </div>
+
+                        {/* Progress bar */}
+                        <div style={{ height: '6px', background: 'rgba(255, 255, 255, 0.1)', borderRadius: '4px', overflow: 'hidden', marginBottom: '14px' }}>
+                          <div style={{
+                            width: `${stg.progress}%`,
+                            height: '100%',
+                            background: stg.status === 'completed' ? '#10b981' : 'linear-gradient(90deg, #38bdf8, #00ff88)',
+                            transition: 'width 0.4s ease'
+                          }} />
+                        </div>
+
+                        {/* Needed Machinery for this stage */}
+                        <div style={{ background: 'rgba(8, 12, 22, 0.6)', border: '1px solid rgba(56, 189, 248, 0.2)', borderRadius: '10px', padding: '12px' }}>
+                          <div style={{ fontSize: '0.82rem', fontWeight: '700', color: '#e2e8f0', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <span>🚜</span> Необходимая спецтехника для этого этапа (Подобрано с маркетплейса):
+                          </div>
+
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '10px' }}>
+                            {stg.machinery?.map(m => (
+                              <div key={m.id} style={{
+                                display: 'flex',
+                                gap: '10px',
+                                background: m.assigned ? 'rgba(16, 185, 129, 0.12)' : 'rgba(255, 255, 255, 0.04)',
+                                border: m.assigned ? '1px solid #10b981' : '1px solid rgba(255, 255, 255, 0.08)',
+                                borderRadius: '10px',
+                                padding: '8px',
+                                alignItems: 'center'
+                              }}>
+                                <img
+                                  src={m.photo}
+                                  alt={m.name}
+                                  style={{ width: '64px', height: '52px', objectFit: 'cover', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.15)' }}
+                                />
+                                <div style={{ flex: 1, minWidth: 0 }}>
+                                  <div style={{ fontSize: '0.82rem', fontWeight: '800', color: '#ffffff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                    {m.name}
+                                  </div>
+                                  <div style={{ fontSize: '0.72rem', color: '#38bdf8', fontWeight: '700' }}>
+                                    📍 {m.dist} • {m.rate}
+                                  </div>
+                                  <div style={{ fontSize: '0.7rem', color: m.assigned ? '#34d399' : '#94a3b8', marginTop: '2px' }}>
+                                    {m.assigned ? '✅ Закреплена за этапом' : '🟢 Свободна (GPS Online)'}
+                                  </div>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => handleToggleMachinery(selectedOrder.id, stg.id, m.id)}
+                                  style={{
+                                    background: m.assigned ? 'rgba(239, 68, 68, 0.2)' : 'linear-gradient(135deg, #0284c7, #0369a1)',
+                                    color: m.assigned ? '#f87171' : '#ffffff',
+                                    border: m.assigned ? '1px solid rgba(239, 68, 68, 0.4)' : '1px solid rgba(56, 189, 248, 0.5)',
+                                    padding: '6px 10px',
+                                    borderRadius: '8px',
+                                    fontSize: '0.75rem',
+                                    fontWeight: '800',
+                                    cursor: 'pointer',
+                                    whiteSpace: 'nowrap'
+                                  }}
+                                >
+                                  {m.assigned ? '✕ Отвязать' : '⚡ В этап'}
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="uo-m-actions">

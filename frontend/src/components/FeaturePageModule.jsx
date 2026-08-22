@@ -44,6 +44,8 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
 
   // Orders state
   const [appliedOrders, setAppliedOrders] = useState({});
+  const [expandedOrderStages, setExpandedOrderStages] = useState({});
+  const [bookedMachinery, setBookedMachinery] = useState({});
   const [liveOrders, setLiveOrders] = useState([]);
 
   // Customer Orders Flow State
@@ -325,30 +327,207 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
 
             <div className="orders-full-grid" style={{ marginTop: '1.5rem' }}>
               {[
-                { id: 'ORD-901', title: 'Капитальный ремонт бизнес-центра 1200 м²', city: 'Алматы', budget: '42 000 000 ₸', category: 'Коммерческая отделка', date: '5 мин назад', contractor: 'Не назначен' },
-                { id: 'ORD-902', title: 'Строительство монолитного каркаса коттеджа 320 м²', city: 'Астана', budget: '14 800 000 ₸', category: 'Монолит', date: '18 мин назад', contractor: 'Не назначен' },
-                { id: 'ORD-903', title: 'Монтаж системы приточно-вытяжной вентиляции (HVAC)', city: 'Караганда', budget: '8 500 000 ₸', category: 'Инженерия', date: '45 мин назад', contractor: 'ТОО «ВентСтрой KZ»' },
-                { id: 'ORD-904', title: 'Электромонтажные работы в новостройке', city: 'Шымкент', budget: '3 600 000 ₸', category: 'Электрика', date: '1 час назад', contractor: 'ИП «СветСтрой»' },
+                {
+                  id: 'ORD-901',
+                  title: 'Капитальный ремонт бизнес-центра 1200 м²',
+                  city: 'Алматы',
+                  budget: '42 000 000 ₸',
+                  category: 'Коммерческая отделка',
+                  date: '5 мин назад',
+                  contractor: 'Не назначен',
+                  stages: [
+                    {
+                      name: 'Этап 1: Демонтаж и вывоз строительного мусора',
+                      machinery: [
+                        { name: 'Самосвал Shacman F3000 (25 т)', photo: '/assets/machinery/shacman_dump_truck.jpg', rate: '18 000 ₸/час', dist: '1.4 км' },
+                        { name: 'Мини-погрузчик Bobcat S530', photo: '/assets/machinery/bobcat_skid_steer.jpg', rate: '14 000 ₸/час', dist: '1.6 км' }
+                      ]
+                    },
+                    {
+                      name: 'Этап 2: Монтаж фасадных панелей и остекление',
+                      machinery: [
+                        { name: 'Автовышка телескопическая Hyundai HD78 (28м)', photo: '/assets/machinery/hyundai_cherry_picker.jpg', rate: '18 000 ₸/час', dist: '2.0 км' },
+                        { name: 'Телескопический погрузчик Manitou MT 1840', photo: '/assets/machinery/manitou_telehandler.jpg', rate: '24 000 ₸/час', dist: '2.3 км' }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  id: 'ORD-902',
+                  title: 'Строительство монолитного каркаса коттеджа 320 м²',
+                  city: 'Астана',
+                  budget: '14 800 000 ₸',
+                  category: 'Монолит',
+                  date: '18 мин назад',
+                  contractor: 'Не назначен',
+                  stages: [
+                    {
+                      name: 'Этап 1: Земляные работы и разработка котлована',
+                      machinery: [
+                        { name: 'Гусеничный экскаватор Hitachi ZX240', photo: '/assets/machinery/hitachi_excavator.jpg', rate: '25 000 ₸/час', dist: '1.8 км' },
+                        { name: 'Бульдозер CAT D6R', photo: '/assets/machinery/cat_bulldozer.jpg', rate: '32 000 ₸/час', dist: '2.2 км' }
+                      ]
+                    },
+                    {
+                      name: 'Этап 2: Заливка монолитного фундамента и плиты',
+                      machinery: [
+                        { name: 'Автобетононасос Putzmeister 38м', photo: '/assets/machinery/concrete_pump.jpg', rate: '40 000 ₸/час', dist: '1.9 км' },
+                        { name: 'Автобетоносмеситель КАМАЗ 6520', photo: '/assets/machinery/kamaz_concrete_mixer.jpg', rate: '15 000 ₸/рейс', dist: '1.4 км' }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  id: 'ORD-903',
+                  title: 'Монтаж системы приточно-вытяжной вентиляции (HVAC)',
+                  city: 'Караганда',
+                  budget: '8 500 000 ₸',
+                  category: 'Инженерия',
+                  date: '45 мин назад',
+                  contractor: 'ТОО «ВентСтрой KZ»',
+                  stages: [
+                    {
+                      name: 'Этап 1: Доставка и подъем вентиляционных установок',
+                      machinery: [
+                        { name: 'Кран-манипулятор КАМАЗ 65117 (КМУ 7т)', photo: '/assets/machinery/kamaz_manipulator.jpg', rate: '20 000 ₸/час', dist: '1.8 км' },
+                        { name: 'Дизель-генератор SDMO 100 кВт', photo: '/assets/machinery/diesel_generator_sdmo.jpg', rate: '12 000 ₸/час', dist: '1.5 км' }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  id: 'ORD-904',
+                  title: 'Асфальтирование и благоустройство территории ЖК',
+                  city: 'Шымкент',
+                  budget: '7 200 000 ₸',
+                  category: 'Дорожные работы',
+                  date: '1 час назад',
+                  contractor: 'Не назначен',
+                  stages: [
+                    {
+                      name: 'Этап 1: Планировка основания и укладка асфальта',
+                      machinery: [
+                        { name: 'Асфальтоукладчик Vogele Super 1800-3', photo: '/assets/machinery/asphalt_paver_vogele.jpg', rate: '48 000 ₸/час', dist: '2.5 км' },
+                        { name: 'Каток дорожный Bomag 14т', photo: '/assets/machinery/road_roller_bomag.jpg', rate: '18 000 ₸/час', dist: '1.9 км' },
+                        { name: 'Автогрейдер XCMG GR215', photo: '/assets/machinery/motor_grader_xcmg.jpg', rate: '22 000 ₸/час', dist: '2.7 км' }
+                      ]
+                    }
+                  ]
+                }
               ].map((ord) => (
-                <div className="order-item-card" key={ord.id} style={{ padding: '1.25rem' }}>
+                <div className="order-item-card" key={ord.id} style={{ padding: '1.25rem', background: 'rgba(15, 23, 42, 0.85)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '16px' }}>
                   <div className="order-head">
-                    <strong style={{ fontSize: '1.1rem' }}>{ord.title}</strong>
-                    <span className="order-price" style={{ fontSize: '1.2rem' }}>{ord.budget}</span>
+                    <strong style={{ fontSize: '1.1rem', color: '#ffffff' }}>{ord.title}</strong>
+                    <span className="order-price" style={{ fontSize: '1.2rem', color: '#00ff88' }}>{ord.budget}</span>
                   </div>
                   <div className="order-meta" style={{ margin: '0.75rem 0', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                    <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                    <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', fontSize: '0.85rem', color: '#94a3b8' }}>
                       <span>📍 Город: {ord.city}</span>
                       <span>🏷️ {ord.category}</span>
                       <span>⏱ {ord.date}</span>
                     </div>
-                    <div>👷 Исполнитель: <strong>{ord.contractor}</strong></div>
+                    <div style={{ fontSize: '0.85rem', color: '#cbd5e1' }}>👷 Исполнитель: <strong>{ord.contractor}</strong></div>
                   </div>
+
+                  {/* Toggle Stages & Required Machinery Button */}
+                  <div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
+                    <button
+                      onClick={() => setExpandedOrderStages(prev => ({ ...prev, [ord.id]: !prev[ord.id] }))}
+                      style={{
+                        flex: 1,
+                        background: 'rgba(56, 189, 248, 0.12)',
+                        border: '1px solid rgba(56, 189, 248, 0.35)',
+                        color: '#38bdf8',
+                        padding: '8px 12px',
+                        borderRadius: '10px',
+                        fontSize: '0.82rem',
+                        fontWeight: '700',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '6px'
+                      }}
+                    >
+                      <span>🚜</span>
+                      {expandedOrderStages[ord.id] ? 'Скрыть спецтехнику по этапам ▲' : 'Подбор спецтехники по этапам (GPS) ▼'}
+                    </button>
+                  </div>
+
+                  {/* Expandable Stages & Required Machinery */}
+                  {expandedOrderStages[ord.id] && (
+                    <div style={{
+                      background: 'rgba(8, 12, 22, 0.9)',
+                      border: '1px solid rgba(56, 189, 248, 0.25)',
+                      borderRadius: '12px',
+                      padding: '12px',
+                      marginBottom: '12px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '12px'
+                    }}>
+                      <div style={{ fontSize: '0.8rem', fontWeight: '800', color: '#38bdf8', borderBottom: '1px solid rgba(56, 189, 248, 0.2)', paddingBottom: '6px' }}>
+                        📍 Автоподбор ближайшей техники под график производства:
+                      </div>
+
+                      {ord.stages?.map((stg, sIdx) => (
+                        <div key={sIdx} style={{ background: 'rgba(15, 23, 42, 0.7)', borderRadius: '8px', padding: '10px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                          <div style={{ fontSize: '0.84rem', fontWeight: '700', color: '#f8fafc', marginBottom: '8px' }}>
+                            {stg.name}
+                          </div>
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '8px' }}>
+                            {stg.machinery?.map((m, mIdx) => {
+                              const key = `${ord.id}-${sIdx}-${mIdx}`;
+                              const isBooked = bookedMachinery[key];
+                              return (
+                                <div key={mIdx} style={{
+                                  display: 'flex',
+                                  gap: '8px',
+                                  alignItems: 'center',
+                                  background: isBooked ? 'rgba(16, 185, 129, 0.15)' : 'rgba(255, 255, 255, 0.03)',
+                                  border: isBooked ? '1px solid #10b981' : '1px solid rgba(255, 255, 255, 0.08)',
+                                  borderRadius: '8px',
+                                  padding: '6px'
+                                }}>
+                                  <img src={m.photo} alt={m.name} style={{ width: '48px', height: '40px', objectFit: 'cover', borderRadius: '6px' }} />
+                                  <div style={{ flex: 1, minWidth: 0 }}>
+                                    <div style={{ fontSize: '0.76rem', fontWeight: '700', color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{m.name}</div>
+                                    <div style={{ fontSize: '0.7rem', color: '#38bdf8' }}>📍 {m.dist} • {m.rate}</div>
+                                  </div>
+                                  <button
+                                    onClick={() => {
+                                      setBookedMachinery(prev => ({ ...prev, [key]: !prev[key] }));
+                                      alert(isBooked ? `Техника ${m.name} отвязана` : `⚡ ${m.name} успешно забронирована на объект по GPS!`);
+                                    }}
+                                    style={{
+                                      background: isBooked ? 'rgba(239, 68, 68, 0.2)' : 'linear-gradient(135deg, #0284c7, #0369a1)',
+                                      color: isBooked ? '#f87171' : '#fff',
+                                      border: isBooked ? '1px solid rgba(239, 68, 68, 0.4)' : '1px solid rgba(56, 189, 248, 0.5)',
+                                      padding: '4px 8px',
+                                      borderRadius: '6px',
+                                      fontSize: '0.7rem',
+                                      fontWeight: '700',
+                                      cursor: 'pointer',
+                                      whiteSpace: 'nowrap'
+                                    }}
+                                  >
+                                    {isBooked ? '✓ В этапе' : '+ Назначить'}
+                                  </button>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
                   <button
                     className={`btn-apply-order ${appliedOrders[ord.id] ? 'applied' : ''}`}
                     onClick={() => handleApplyOrder(ord.id)}
                     style={{ width: '100%', padding: '0.65rem' }}
                   >
-                    {appliedOrders[ord.id] ? '✅ Заявка отправлена (Ожидание ответа)' : '📝 Отправить сметное предложение'}
+                    {appliedOrders[ord.id] ? '✅ Заявка отправлена с привязкой спецтехники' : '📝 Отправить сметное предложение'}
                   </button>
                 </div>
               ))}

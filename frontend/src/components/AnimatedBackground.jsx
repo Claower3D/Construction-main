@@ -99,43 +99,43 @@ export default function AnimatedBackground() {
     };
 
     const cityBuildings = [
-      // Left Cluster (L1, L2, L3) — LIGHT & PLEASANT SKY CYAN (НЕБЕСНО-ГОЛУБОЙ РАССВЕТ)
+      // Left Cluster (L1, L2, L3) — SUBTLE VIOLET DAWN (МЯГКИЙ ФИОЛЕТОВЫЙ РАССВЕТ)
       { 
         id: 'L1', name: 'ЖК «ТАУЭР А1»', subName: '18 ЭТАЖЕЙ • ЖИЛОЙ КОМПЛЕКС', 
         xR: 0.025, yR: 0.58, w: 105, h: 260, floors: 18, cols: 5, 
-        spire: 40, hasBalconies: true, hasPenthouse: true, accentColor: '#38bdf8',
-        wallColor: '#111b2e', sideWallColor: '#0a101f', roofColor: '#1e2d4a', seed: 101 
+        spire: 40, hasBalconies: true, hasPenthouse: true, accentColor: '#a855f7',
+        wallColor: '#170b2b', sideWallColor: '#0e051c', roofColor: '#261245', seed: 101 
       },
       { 
         id: 'L2', name: 'ЖК «ПРЕМЬЕР ТАУЭР А2»', subName: '26 ЭТАЖЕЙ • БИЗНЕС-КЛАСС', 
         xR: 0.105, yR: 0.56, w: 135, h: 350, floors: 26, cols: 6, 
-        spire: 65, hasBalconies: true, hasPenthouse: true, hasSkyLounge: true, accentColor: '#60a5fa',
-        wallColor: '#0f172a', sideWallColor: '#080d1a', roofColor: '#1e293b', seed: 202 
+        spire: 65, hasBalconies: true, hasPenthouse: true, hasSkyLounge: true, accentColor: '#9333ea',
+        wallColor: '#1d0c33', sideWallColor: '#110621', roofColor: '#2d1452', seed: 202 
       },
       { 
         id: 'L3', name: 'ЖК «КОМФОРТ А3»', subName: '12 ЭТАЖЕЙ • СЕМЕЙНЫЙ КВАРТАЛ', 
         xR: 0.20, yR: 0.60, w: 90, h: 200, floors: 12, cols: 4, 
-        spire: 25, hasBalconies: true, hasPenthouse: false, accentColor: '#38bdf8',
-        wallColor: '#131e33', sideWallColor: '#0b1220', roofColor: '#1b2a47', seed: 303 
+        spire: 25, hasBalconies: true, hasPenthouse: false, accentColor: '#7e22ce',
+        wallColor: '#150929', sideWallColor: '#0d0419', roofColor: '#240d42', seed: 303 
       },
-      // Right Cluster (R1, R2, R3) — SOFT SAPPHIRE & LAVENDER (МЯГКИЙ НОЧНОЙ ГОРОД)
+      // Right Cluster (R1, R2, R3) — SUBTLE PLUM MAGENTA SUNSET (МЯГКИЙ МАЛИНОВЫЙ ЗАКАТ)
       { 
         id: 'R1', name: 'ЖК «GREEN CITY В1»', subName: '14 ЭТАЖЕЙ • ЭКО-КВАРТАЛ', 
         xR: 0.74, yR: 0.60, w: 95, h: 220, floors: 14, cols: 4, 
-        spire: 30, hasBalconies: true, hasPenthouse: true, accentColor: '#38bdf8',
-        wallColor: '#0e1f24', sideWallColor: '#071317', roofColor: '#173038', seed: 404 
+        spire: 30, hasBalconies: true, hasPenthouse: true, accentColor: '#d946ef',
+        wallColor: '#1f081d', sideWallColor: '#120412', roofColor: '#300d2e', seed: 404 
       },
       { 
         id: 'R2', name: 'ЖК «GRAND TOWER В2»', subName: '28 ЭТАЖЕЙ • ПЕНТХАУСЫ', 
         xR: 0.815, yR: 0.55, w: 145, h: 380, floors: 28, cols: 7, 
-        spire: 75, hasBalconies: true, hasPenthouse: true, hasSkyLounge: true, accentColor: '#fbbf24',
-        wallColor: '#181824', sideWallColor: '#0d0d14', roofColor: '#282838', seed: 505 
+        spire: 75, hasBalconies: true, hasPenthouse: true, hasSkyLounge: true, accentColor: '#c026d3',
+        wallColor: '#240822', sideWallColor: '#140413', roofColor: '#380d35', seed: 505 
       },
       { 
         id: 'R3', name: 'ЖК «NOMAD PALACE В3»', subName: '20 ЭТАЖЕЙ • СТИЛОБАТ', 
         xR: 0.915, yR: 0.57, w: 110, h: 290, floors: 20, cols: 5, 
-        spire: 45, hasBalconies: true, hasPenthouse: true, accentColor: '#c084fc',
-        wallColor: '#1a1829', sideWallColor: '#0e0d17', roofColor: '#2a2642', seed: 606 
+        spire: 45, hasBalconies: true, hasPenthouse: true, accentColor: '#a21caf',
+        wallColor: '#1c0822', sideWallColor: '#100414', roofColor: '#2d0c36', seed: 606 
       }
     ];
 
@@ -1097,25 +1097,25 @@ export default function AnimatedBackground() {
 
       ctx.clearRect(0, 0, width, height);
 
-      // ── 1. LIGHT & PLEASANT SKY ATMOSPHERE (SOFT SAPPHIRE NAVY -> DARK OBSIDIAN) ──
+      // ── 1. MUTED COSMIC VIOLET & PLUM DUSK SKY GRADIENT (SUBTLE, ELEGANT & EYE-FRIENDLY) ──
       const skyGrad = ctx.createLinearGradient(0, 0, width, 0);
-      skyGrad.addColorStop(0.00, '#0c162d'); // Left: Soft midnight cyan horizon
-      skyGrad.addColorStop(0.25, '#080f1e'); // Left-mid: Soft navy sky
-      skyGrad.addColorStop(0.50, '#050914'); // Center: Dark obsidian navy
-      skyGrad.addColorStop(0.75, '#070c1a'); // Right-mid: Soft midnight navy
-      skyGrad.addColorStop(1.00, '#0a1020'); // Right: Soft deep sapphire twilight
+      skyGrad.addColorStop(0.00, '#1c0a32'); // Left: Muted deep violet horizon
+      skyGrad.addColorStop(0.22, '#120722'); // Left-mid: Subdued purple atmosphere
+      skyGrad.addColorStop(0.50, '#06030c'); // Center: Dark obsidian violet-black
+      skyGrad.addColorStop(0.78, '#120517'); // Right-mid: Muted deep plum
+      skyGrad.addColorStop(1.00, '#1c061c'); // Right: Subdued plum magenta horizon
       ctx.fillStyle = skyGrad;
       ctx.fillRect(0, 0, width, height);
 
-      // ── 2. SOFT & AIRY ATMOSPHERIC LIGHT AURAS (LIGHT, PLEASANT & SUBTLE) ──
+      // ── 2. SUBTLE VOLUMETRIC LIGHT AURAS (SOFT, DULLED & NON-INTRUSIVE) ──
       const auras = [
-        // Left Side: Soft Sky Blue & Gold Dawn Light
-        { x: 0.12, y: 0.45, r: 0.85, color: 'rgba(56, 189, 248, 0.16)' },  // Soft Cyan Dawn
-        { x: 0.20, y: 0.32, r: 0.70, color: 'rgba(96, 165, 250, 0.12)' },   // Soft Blue Aura
-        { x: 0.05, y: 0.58, r: 0.75, color: 'rgba(251, 191, 36, 0.10)' },   // Soft Gold Dawn Accent
-        // Right Side: Soft Sapphire & Lavender Dusk Light
-        { x: 0.88, y: 0.42, r: 0.80, color: 'rgba(168, 85, 247, 0.14)' },  // Soft Lavender Dusk
-        { x: 0.94, y: 0.55, r: 0.65, color: 'rgba(14, 165, 233, 0.15)' }   // Soft Cyan Sapphire Glow
+        // Left Side: Muted Violet Dawn Glow
+        { x: 0.12, y: 0.45, r: 0.85, color: 'rgba(147, 51, 234, 0.14)' },  // Soft Muted Violet
+        { x: 0.22, y: 0.32, r: 0.70, color: 'rgba(124, 58, 237, 0.10)' },   // Subtle Purple sky glow
+        { x: 0.05, y: 0.58, r: 0.75, color: 'rgba(168, 85, 247, 0.09)' },   // Gentle Lavender flare
+        // Right Side: Muted Plum Magenta Sunset Glow
+        { x: 0.88, y: 0.42, r: 0.80, color: 'rgba(219, 39, 119, 0.12)' },  // Soft Muted Plum Magenta
+        { x: 0.94, y: 0.55, r: 0.65, color: 'rgba(236, 72, 153, 0.08)' }   // Gentle Rose dusk flare
       ];
       auras.forEach((a) => {
         const px = a.x * width;
