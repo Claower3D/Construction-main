@@ -11,11 +11,11 @@ import '../index.css';
    ═══════════════════════════════════════════════════════════════ */
 
 const STATUS_COLORS = {
-  'Новые':    { bg: 'rgba(139,92,246,0.2)',  border: '#8b5cf6', dot: '#8b5cf6',  text: '#c4b5fd' },
-  'В работе': { bg: 'rgba(59,130,246,0.2)',  border: '#3b82f6', dot: '#3b82f6',  text: '#93c5fd' },
-  'Дожим':    { bg: 'rgba(245,158,11,0.2)',  border: '#f59e0b', dot: '#f59e0b',  text: '#fcd34d' },
-  'Успешно':  { bg: 'rgba(34,197,94,0.2)',   border: '#22c55e', dot: '#22c55e',  text: '#86efac' },
-  'Отказ':    { bg: 'rgba(239,68,68,0.2)',   border: '#ef4444', dot: '#ef4444',  text: '#fca5a5' },
+  'Новые':    { bg: 'rgba(139,92,246,0.4)',  border: '#a78bfa', dot: '#a78bfa',  text: '#ffffff' },
+  'В работе': { bg: 'rgba(59,130,246,0.4)',  border: '#60a5fa', dot: '#60a5fa',  text: '#ffffff' },
+  'Дожим':    { bg: 'rgba(245,158,11,0.4)',  border: '#fbbf24', dot: '#fbbf24',  text: '#ffffff' },
+  'Успешно':  { bg: 'rgba(34,197,94,0.4)',   border: '#4ade80', dot: '#4ade80',  text: '#ffffff' },
+  'Отказ':    { bg: 'rgba(239,68,68,0.4)',   border: '#f87171', dot: '#f87171',  text: '#ffffff' },
 };
 
 const MONTHS_RU = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
@@ -243,16 +243,16 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
     while (cells.length % 7 !== 0) cells.push(null);
 
     return (
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '2px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '6px' }}>
         {/* Day headers */}
         {DAYS_RU.map(d => (
-          <div key={d} style={{ textAlign: 'center', padding: '8px', fontWeight: 800, fontSize: '0.78rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '1px' }}>
+          <div key={d} style={{ textAlign: 'center', padding: '10px 4px', fontWeight: 900, fontSize: '0.8rem', color: '#e2e8f0', background: 'rgba(255, 255, 255, 0.08)', borderRadius: '8px', textTransform: 'uppercase', letterSpacing: '1px' }}>
             {d}
           </div>
         ))}
         {/* Day cells */}
         {cells.map((day, idx) => {
-          if (day === null) return <div key={`e${idx}`} style={{ minHeight: '100px', background: 'rgba(0,0,0,0.15)', borderRadius: '8px' }} />;
+          if (day === null) return <div key={`e${idx}`} style={{ minHeight: '110px', background: 'rgba(10, 16, 30, 0.75)', borderRadius: '10px', border: '1px dashed rgba(255, 255, 255, 0.06)' }} />;
           const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
           const dayEvents = (events[dateStr] || []).filter(c => {
             if (statusFilter !== 'all' && c.status !== statusFilter) return false;
@@ -272,33 +272,34 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
               onDrop={e => handleDrop(e, dateStr)}
               onClick={() => { setCurrentDate(new Date(year, month, day)); setView('day'); }}
               style={{
-                minHeight: '110px', padding: '6px', borderRadius: '10px', cursor: 'pointer',
-                background: today ? 'rgba(0,229,255,0.08)' : isOver ? 'rgba(245,158,11,0.12)' : 'rgba(15,23,42,0.5)',
-                border: today ? '2px solid rgba(0,229,255,0.5)' : isOver ? '2px solid rgba(245,158,11,0.5)' : '1px solid rgba(255,255,255,0.06)',
+                minHeight: '115px', padding: '8px', borderRadius: '12px', cursor: 'pointer',
+                background: today ? 'rgba(0, 229, 255, 0.18)' : isOver ? 'rgba(245, 158, 11, 0.22)' : 'rgba(18, 27, 48, 0.94)',
+                border: today ? '2px solid #00e5ff' : isOver ? '2px solid #f59e0b' : '1px solid rgba(255, 255, 255, 0.14)',
+                boxShadow: today ? '0 0 20px rgba(0, 229, 255, 0.3)' : '0 4px 12px rgba(0,0,0,0.4)',
                 transition: 'all 0.2s',
-                backdropFilter: 'blur(12px)',
+                backdropFilter: 'blur(16px)',
               }}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
                 <span style={{
-                  fontWeight: 800, fontSize: today ? '1rem' : '0.85rem',
-                  color: today ? '#00e5ff' : '#e2e8f0',
-                  background: today ? 'rgba(0,229,255,0.2)' : 'transparent',
-                  borderRadius: '50%', width: today ? '28px' : 'auto', height: today ? '28px' : 'auto',
+                  fontWeight: 900, fontSize: today ? '1rem' : '0.88rem',
+                  color: today ? '#00e5ff' : '#ffffff',
+                  background: today ? 'rgba(0,229,255,0.25)' : 'rgba(255,255,255,0.06)',
+                  borderRadius: '6px', padding: '2px 8px',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                 }}>
                   {day}
                 </span>
                 {dayEvents.length > 0 && (
-                  <span style={{ fontSize: '0.65rem', background: 'rgba(0,229,255,0.2)', color: '#00e5ff', padding: '1px 6px', borderRadius: '10px', fontWeight: 700 }}>
+                  <span style={{ fontSize: '0.68rem', background: 'rgba(0,229,255,0.25)', border: '1px solid rgba(0,229,255,0.5)', color: '#00e5ff', padding: '1px 7px', borderRadius: '10px', fontWeight: 800 }}>
                     {dayEvents.length}
                   </span>
                 )}
               </div>
-              <div style={{ overflow: 'hidden', maxHeight: '80px' }}>
+              <div style={{ overflow: 'hidden', maxHeight: '82px' }}>
                 {dayEvents.slice(0, 3).map(evt => renderEventChip(evt, dateStr, true))}
                 {dayEvents.length > 3 && (
-                  <div style={{ fontSize: '0.6rem', color: '#64748b', textAlign: 'center', marginTop: '2px' }}>
+                  <div style={{ fontSize: '0.65rem', color: '#94a3b8', textAlign: 'center', marginTop: '2px', fontWeight: 700 }}>
                     +{dayEvents.length - 3} ещё
                   </div>
                 )}
@@ -324,22 +325,22 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
     const hours = Array.from({ length: 14 }, (_, i) => i + 7); // 07:00 - 20:00
 
     return (
-      <div style={{ display: 'grid', gridTemplateColumns: '60px repeat(7, 1fr)', gap: '1px', overflowY: 'auto', maxHeight: 'calc(100vh - 280px)' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '70px repeat(7, 1fr)', gap: '2px', overflowY: 'auto', maxHeight: 'calc(100vh - 280px)', background: 'rgba(10, 16, 30, 0.8)', padding: '6px', borderRadius: '14px' }}>
         {/* Header row */}
-        <div style={{ padding: '8px', background: 'rgba(0,0,0,0.3)', borderRadius: '6px' }} />
+        <div style={{ padding: '8px', background: 'rgba(18, 27, 48, 0.95)', borderRadius: '8px' }} />
         {days.map(d => {
           const dateStr = fmtDate(d);
           const today = isToday(dateStr);
           return (
             <div key={dateStr} style={{
-              textAlign: 'center', padding: '10px 4px', borderRadius: '8px',
-              background: today ? 'rgba(0,229,255,0.1)' : 'rgba(15,23,42,0.6)',
-              border: today ? '1px solid rgba(0,229,255,0.4)' : '1px solid rgba(255,255,255,0.06)',
+              textAlign: 'center', padding: '12px 6px', borderRadius: '10px',
+              background: today ? 'rgba(0, 229, 255, 0.2)' : 'rgba(18, 27, 48, 0.95)',
+              border: today ? '2px solid #00e5ff' : '1px solid rgba(255, 255, 255, 0.14)',
             }}>
-              <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>
+              <div style={{ fontSize: '0.75rem', color: today ? '#00e5ff' : '#94a3b8', fontWeight: 800, textTransform: 'uppercase' }}>
                 {DAYS_RU[d.getDay() === 0 ? 6 : d.getDay() - 1]}
               </div>
-              <div style={{ fontSize: '1.3rem', fontWeight: 900, color: today ? '#00e5ff' : '#e2e8f0' }}>
+              <div style={{ fontSize: '1.4rem', fontWeight: 900, color: today ? '#00e5ff' : '#ffffff' }}>
                 {d.getDate()}
               </div>
             </div>
@@ -348,7 +349,7 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
         {/* Time rows */}
         {hours.map(h => (
           <React.Fragment key={h}>
-            <div style={{ padding: '4px 8px', fontSize: '0.72rem', color: '#64748b', fontWeight: 700, display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-end', borderRight: '1px solid rgba(255,255,255,0.06)' }}>
+            <div style={{ padding: '8px 10px', fontSize: '0.78rem', color: '#e2e8f0', fontWeight: 800, display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-end', background: 'rgba(10, 16, 30, 0.95)', borderRadius: '6px' }}>
               {String(h).padStart(2, '0')}:00
             </div>
             {days.map(d => {
@@ -365,8 +366,9 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
                   onDragLeave={() => setDragOverDate(null)}
                   onDrop={e => handleDrop(e, dateStr)}
                   style={{
-                    minHeight: '48px', padding: '2px 4px', borderBottom: '1px solid rgba(255,255,255,0.04)',
-                    background: isOver ? 'rgba(245,158,11,0.1)' : 'transparent',
+                    minHeight: '52px', padding: '4px', borderRadius: '8px',
+                    borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+                    background: isOver ? 'rgba(245,158,11,0.2)' : 'rgba(15, 22, 40, 0.92)',
                     transition: 'background 0.15s',
                   }}
                 >
@@ -397,22 +399,22 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
     const dow = currentDate.getDay();
 
     return (
-      <div>
-        <div style={{ textAlign: 'center', marginBottom: '16px' }}>
-          <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#f1f5f9' }}>
+      <div style={{ background: 'rgba(10, 16, 30, 0.85)', padding: '16px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.1)' }}>
+        <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+          <div style={{ fontSize: '1.6rem', fontWeight: 900, color: '#ffffff' }}>
             {DAYS_FULL[dow === 0 ? 6 : dow - 1]}, {currentDate.getDate()} {MONTHS_RU[currentDate.getMonth()]}
           </div>
-          <div style={{ fontSize: '0.85rem', color: '#64748b', marginTop: '4px' }}>
+          <div style={{ fontSize: '0.88rem', color: '#00e5ff', marginTop: '4px', fontWeight: 800 }}>
             {dayEvents.length} заявок на этот день • {dayEvents.reduce((a, c) => a + parseBudget(c.budget), 0).toLocaleString('ru-RU')} ₸
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '70px 1fr', gap: '1px', maxHeight: 'calc(100vh - 320px)', overflowY: 'auto' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '80px 1fr', gap: '4px', maxHeight: 'calc(100vh - 320px)', overflowY: 'auto' }}>
           {hours.map(h => {
             const hourEvents = dayEvents.filter(evt => parseInt(evt.time?.split(':')[0], 10) === h);
             return (
               <React.Fragment key={h}>
-                <div style={{ padding: '8px 12px', fontSize: '0.82rem', color: '#64748b', fontWeight: 700, textAlign: 'right', borderRight: '2px solid rgba(0,229,255,0.15)' }}>
+                <div style={{ padding: '12px 14px', fontSize: '0.85rem', color: '#e2e8f0', fontWeight: 800, textAlign: 'right', background: 'rgba(15, 22, 40, 0.95)', borderRadius: '8px', borderRight: '2px solid rgba(0,229,255,0.3)' }}>
                   {String(h).padStart(2, '0')}:00
                 </div>
                 <div
@@ -420,9 +422,9 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
                   onDragLeave={() => setDragOverDate(null)}
                   onDrop={e => handleDrop(e, dateStr)}
                   style={{
-                    minHeight: '56px', padding: '4px 8px',
-                    borderBottom: '1px solid rgba(255,255,255,0.04)',
-                    background: dragOverDate === `${dateStr}-${h}` ? 'rgba(0,229,255,0.06)' : 'transparent',
+                    minHeight: '60px', padding: '6px 10px', borderRadius: '8px',
+                    borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+                    background: dragOverDate === `${dateStr}-${h}` ? 'rgba(0,229,255,0.12)' : 'rgba(15, 22, 40, 0.92)',
                   }}
                 >
                   {hourEvents.map(evt => {
@@ -434,42 +436,42 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
                         onDragStart={e => handleDragStart(e, { ...evt, date: dateStr })}
                         onClick={() => setSelectedCard({ ...evt, date: dateStr, day: dateStr })}
                         style={{
-                          display: 'flex', gap: '12px', padding: '12px 16px', marginBottom: '6px',
-                          background: sc.bg, border: `1px solid ${sc.border}50`,
-                          borderLeft: `4px solid ${sc.dot}`, borderRadius: '12px',
+                          display: 'flex', gap: '12px', padding: '14px 18px', marginBottom: '8px',
+                          background: 'rgba(20, 30, 55, 0.95)', border: `1.5px solid ${sc.border}`,
+                          borderLeft: `5px solid ${sc.dot}`, borderRadius: '14px',
                           cursor: 'grab', transition: 'all 0.2s',
-                          backdropFilter: 'blur(12px)',
+                          boxShadow: '0 6px 20px rgba(0,0,0,0.5)',
                         }}
-                        onMouseEnter={e => e.currentTarget.style.boxShadow = `0 6px 24px ${sc.dot}30`}
-                        onMouseLeave={e => e.currentTarget.style.boxShadow = 'none'}
+                        onMouseEnter={e => e.currentTarget.style.boxShadow = `0 8px 30px ${sc.dot}40`}
+                        onMouseLeave={e => e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.5)'}
                       >
                         <div style={{ flex: 1 }}>
-                          <div style={{ fontWeight: 800, fontSize: '0.9rem', color: '#f1f5f9', marginBottom: '4px' }}>{evt.title}</div>
-                          <div style={{ fontSize: '0.78rem', color: '#94a3b8' }}>
+                          <div style={{ fontWeight: 900, fontSize: '0.95rem', color: '#ffffff', marginBottom: '4px' }}>{evt.title}</div>
+                          <div style={{ fontSize: '0.82rem', color: '#cbd5e1' }}>
                             🏢 {evt.contractor} • 📍 {evt.location}
                           </div>
-                          <div style={{ fontSize: '0.78rem', color: '#94a3b8', marginTop: '2px' }}>
+                          <div style={{ fontSize: '0.82rem', color: '#94a3b8', marginTop: '2px' }}>
                             📞 {evt.phone || evt.time}
                           </div>
                         </div>
                         <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                          <div style={{ fontSize: '0.9rem', fontWeight: 800, color: '#ffd700' }}>{evt.budget}</div>
+                          <div style={{ fontSize: '1rem', fontWeight: 900, color: '#ffd700' }}>{evt.budget}</div>
                           <div style={{
-                            marginTop: '6px', padding: '3px 10px', borderRadius: '8px', fontSize: '0.72rem', fontWeight: 700,
+                            marginTop: '6px', padding: '4px 12px', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 800,
                             background: sc.bg, border: `1px solid ${sc.border}`, color: sc.text, display: 'inline-block'
                           }}>
                             {evt.status}
                           </div>
                           {/* Quick status change */}
-                          <div style={{ display: 'flex', gap: '4px', marginTop: '6px', justifyContent: 'flex-end' }}>
+                          <div style={{ display: 'flex', gap: '4px', marginTop: '8px', justifyContent: 'flex-end' }}>
                             {['Новые', 'В работе', 'Дожим', 'Успешно'].filter(s => s !== evt.status).slice(0, 2).map(s => (
                               <button
                                 key={s}
                                 onClick={(e) => { e.stopPropagation(); handleStatusChange(evt.id, dateStr, s); }}
                                 style={{
-                                  fontSize: '0.62rem', padding: '2px 6px', borderRadius: '6px',
-                                  background: STATUS_COLORS[s].bg, border: `1px solid ${STATUS_COLORS[s].border}50`,
-                                  color: STATUS_COLORS[s].text, cursor: 'pointer', fontWeight: 700,
+                                  fontSize: '0.65rem', padding: '3px 8px', borderRadius: '6px',
+                                  background: STATUS_COLORS[s].bg, border: `1px solid ${STATUS_COLORS[s].border}`,
+                                  color: '#ffffff', cursor: 'pointer', fontWeight: 800,
                                 }}
                               >
                                 → {s}
@@ -499,14 +501,18 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
     : `${currentDate.getDate()} ${MONTHS_RU[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
 
   return (
-    <div style={{ position: 'relative', minHeight: '100vh', padding: '0' }}>
+    <div style={{ position: 'relative', minHeight: '100vh', padding: '0', background: '#070b16' }}>
       <AnimatedBackground />
+      {/* Dimming backdrop overlay so background panorama is subtle and high-contrast */}
+      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(6, 10, 22, 0.88)', zIndex: 0, pointerEvents: 'none' }} />
+
       {toastMsg && (
         <div style={{
           position: 'fixed', top: '20px', right: '20px', zIndex: 10002,
-          background: 'rgba(0,229,255,0.15)', border: '1px solid rgba(0,229,255,0.4)',
+          background: 'rgba(0,229,255,0.2)', border: '1px solid rgba(0,229,255,0.5)',
           backdropFilter: 'blur(20px)', borderRadius: '12px', padding: '14px 24px',
-          color: '#00e5ff', fontWeight: 700, fontSize: '0.9rem',
+          color: '#00e5ff', fontWeight: 800, fontSize: '0.92rem',
+          boxShadow: '0 8px 30px rgba(0,229,255,0.3)',
           animation: 'fadeIn 0.3s ease',
         }}>
           {toastMsg}
@@ -516,27 +522,27 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
       {/* ═══ TOP BAR ═══ */}
       <div style={{
         display: 'flex', alignItems: 'center', gap: '12px', padding: '16px 24px',
-        background: 'rgba(10,22,40,0.85)', borderBottom: '1px solid rgba(0,229,255,0.15)',
+        background: 'rgba(10, 16, 32, 0.98)', borderBottom: '1px solid rgba(0,229,255,0.25)',
         backdropFilter: 'blur(20px)', position: 'sticky', top: 0, zIndex: 100,
         flexWrap: 'wrap',
       }}>
         {/* Left: Back + Title */}
         <button onClick={onBackToHome} style={{
-          background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)',
-          color: '#94a3b8', borderRadius: '10px', padding: '8px 14px', cursor: 'pointer',
-          fontWeight: 700, fontSize: '0.85rem',
+          background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.18)',
+          color: '#ffffff', borderRadius: '10px', padding: '8px 14px', cursor: 'pointer',
+          fontWeight: 800, fontSize: '0.88rem',
         }}>← На сайт</button>
 
-        <h1 style={{ margin: 0, fontSize: '1.3rem', fontWeight: 900, color: '#f1f5f9', display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <h1 style={{ margin: 0, fontSize: '1.35rem', fontWeight: 900, color: '#ffffff', display: 'flex', alignItems: 'center', gap: '8px' }}>
           📅 CRM КАЛЕНДАРЬ
         </h1>
 
         {/* KPI badges */}
         <div style={{ display: 'flex', gap: '8px', marginLeft: '12px' }}>
-          <div style={{ padding: '5px 12px', borderRadius: '10px', background: 'rgba(0,229,255,0.1)', border: '1px solid rgba(0,229,255,0.3)', color: '#00e5ff', fontSize: '0.78rem', fontWeight: 800 }}>
+          <div style={{ padding: '6px 14px', borderRadius: '10px', background: 'rgba(0,229,255,0.15)', border: '1px solid rgba(0,229,255,0.4)', color: '#00e5ff', fontSize: '0.82rem', fontWeight: 900 }}>
             📊 {stats.total} заявок
           </div>
-          <div style={{ padding: '5px 12px', borderRadius: '10px', background: 'rgba(255,215,0,0.1)', border: '1px solid rgba(255,215,0,0.3)', color: '#ffd700', fontSize: '0.78rem', fontWeight: 800 }}>
+          <div style={{ padding: '6px 14px', borderRadius: '10px', background: 'rgba(255,215,0,0.15)', border: '1px solid rgba(255,215,0,0.4)', color: '#ffd700', fontSize: '0.82rem', fontWeight: 900 }}>
             💰 {stats.budget.toLocaleString('ru-RU')} ₸
           </div>
         </div>
@@ -551,9 +557,9 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
             onChange={e => setSearchQuery(e.target.value)}
             placeholder="Поиск по названию..."
             style={{
-              background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)',
-              borderRadius: '10px', padding: '8px 12px 8px 32px', color: '#e2e8f0',
-              fontSize: '0.85rem', width: '200px', outline: 'none',
+              background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.16)',
+              borderRadius: '10px', padding: '8px 12px 8px 32px', color: '#ffffff',
+              fontSize: '0.88rem', width: '220px', outline: 'none', fontWeight: 600,
             }}
           />
         </div>
@@ -561,8 +567,8 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
         {/* New Lead */}
         <button onClick={() => setShowLeadModal(true)} style={{
           background: 'linear-gradient(135deg, #00e5ff, #0284c7)', border: 'none',
-          borderRadius: '10px', padding: '8px 18px', color: '#fff', fontWeight: 800,
-          fontSize: '0.85rem', cursor: 'pointer',
+          borderRadius: '10px', padding: '9px 20px', color: '#fff', fontWeight: 900,
+          fontSize: '0.88rem', cursor: 'pointer', boxShadow: '0 4px 16px rgba(0, 229, 255, 0.4)',
         }}>
           ➕ Новая заявка
         </button>
@@ -570,12 +576,12 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
 
       {/* ═══ NAVIGATION BAR ═══ */}
       <div style={{
-        display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 24px',
-        background: 'rgba(10,22,40,0.6)', borderBottom: '1px solid rgba(255,255,255,0.06)',
-        backdropFilter: 'blur(12px)', flexWrap: 'wrap',
+        display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 24px',
+        background: 'rgba(13, 20, 38, 0.96)', borderBottom: '1px solid rgba(255,255,255,0.1)',
+        backdropFilter: 'blur(16px)', flexWrap: 'wrap', position: 'relative', zIndex: 10,
       }}>
         {/* View switcher */}
-        <div style={{ display: 'flex', gap: '2px', background: 'rgba(255,255,255,0.06)', borderRadius: '10px', padding: '3px' }}>
+        <div style={{ display: 'flex', gap: '3px', background: 'rgba(0,0,0,0.3)', borderRadius: '10px', padding: '4px' }}>
           {[
             { key: 'day', label: 'День' },
             { key: 'week', label: 'Неделя' },
@@ -585,10 +591,11 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
               key={v.key}
               onClick={() => setView(v.key)}
               style={{
-                padding: '6px 16px', borderRadius: '8px', border: 'none', cursor: 'pointer',
-                fontWeight: 700, fontSize: '0.82rem',
-                background: view === v.key ? 'rgba(0,229,255,0.2)' : 'transparent',
-                color: view === v.key ? '#00e5ff' : '#64748b',
+                padding: '7px 18px', borderRadius: '8px', border: 'none', cursor: 'pointer',
+                fontWeight: 800, fontSize: '0.84rem',
+                background: view === v.key ? 'linear-gradient(135deg, #00e5ff, #0284c7)' : 'transparent',
+                color: view === v.key ? '#ffffff' : '#94a3b8',
+                boxShadow: view === v.key ? '0 2px 10px rgba(0,229,255,0.4)' : 'none',
               }}
             >
               {v.label}
@@ -597,15 +604,15 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
         </div>
 
         {/* Date navigation */}
-        <button onClick={() => navigate(-1)} style={{ background: 'none', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', padding: '6px 12px', color: '#94a3b8', cursor: 'pointer', fontWeight: 800, fontSize: '1.1rem' }}>‹</button>
-        <span style={{ fontWeight: 900, fontSize: '1.1rem', color: '#f1f5f9', minWidth: '200px', textAlign: 'center' }}>
+        <button onClick={() => navigate(-1)} style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.16)', borderRadius: '8px', padding: '6px 14px', color: '#ffffff', cursor: 'pointer', fontWeight: 900, fontSize: '1.2rem' }}>‹</button>
+        <span style={{ fontWeight: 900, fontSize: '1.15rem', color: '#ffffff', minWidth: '220px', textAlign: 'center' }}>
           {headerLabel}
         </span>
-        <button onClick={() => navigate(1)} style={{ background: 'none', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', padding: '6px 12px', color: '#94a3b8', cursor: 'pointer', fontWeight: 800, fontSize: '1.1rem' }}>›</button>
+        <button onClick={() => navigate(1)} style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.16)', borderRadius: '8px', padding: '6px 14px', color: '#ffffff', cursor: 'pointer', fontWeight: 900, fontSize: '1.2rem' }}>›</button>
 
         <button onClick={() => setCurrentDate(new Date())} style={{
-          padding: '6px 14px', borderRadius: '8px', border: '1px solid rgba(0,229,255,0.3)',
-          background: 'rgba(0,229,255,0.08)', color: '#00e5ff', cursor: 'pointer', fontWeight: 700, fontSize: '0.82rem',
+          padding: '6px 14px', borderRadius: '8px', border: '1px solid rgba(0,229,255,0.4)',
+          background: 'rgba(0,229,255,0.12)', color: '#00e5ff', cursor: 'pointer', fontWeight: 800, fontSize: '0.84rem',
         }}>
           Сегодня
         </button>
@@ -615,17 +622,17 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
         {/* Status filter pills */}
         <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
           <button onClick={() => setStatusFilter('all')} style={{
-            padding: '4px 12px', borderRadius: '8px', border: statusFilter === 'all' ? '1px solid rgba(0,229,255,0.4)' : '1px solid rgba(255,255,255,0.1)',
-            background: statusFilter === 'all' ? 'rgba(0,229,255,0.15)' : 'transparent',
-            color: statusFilter === 'all' ? '#00e5ff' : '#64748b', cursor: 'pointer', fontWeight: 700, fontSize: '0.75rem',
+            padding: '5px 14px', borderRadius: '8px', border: statusFilter === 'all' ? '1px solid #00e5ff' : '1px solid rgba(255,255,255,0.12)',
+            background: statusFilter === 'all' ? 'rgba(0,229,255,0.2)' : 'rgba(255,255,255,0.04)',
+            color: statusFilter === 'all' ? '#00e5ff' : '#94a3b8', cursor: 'pointer', fontWeight: 800, fontSize: '0.78rem',
           }}>Все</button>
           {Object.keys(STATUS_COLORS).map(s => (
             <button key={s} onClick={() => setStatusFilter(s)} style={{
-              padding: '4px 12px', borderRadius: '8px',
-              border: statusFilter === s ? `1px solid ${STATUS_COLORS[s].border}` : '1px solid rgba(255,255,255,0.1)',
-              background: statusFilter === s ? STATUS_COLORS[s].bg : 'transparent',
-              color: statusFilter === s ? STATUS_COLORS[s].text : '#64748b',
-              cursor: 'pointer', fontWeight: 700, fontSize: '0.75rem',
+              padding: '5px 14px', borderRadius: '8px',
+              border: statusFilter === s ? `1px solid ${STATUS_COLORS[s].border}` : '1px solid rgba(255,255,255,0.12)',
+              background: statusFilter === s ? STATUS_COLORS[s].bg : 'rgba(255,255,255,0.04)',
+              color: statusFilter === s ? '#ffffff' : '#94a3b8',
+              cursor: 'pointer', fontWeight: 800, fontSize: '0.78rem',
             }}>
               {s}
             </button>
@@ -633,8 +640,15 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
         </div>
       </div>
 
-      {/* ═══ CALENDAR CONTENT ═══ */}
-      <div style={{ padding: '16px 24px', position: 'relative', zIndex: 1 }}>
+      {/* ═══ CALENDAR CONTENT CONTAINER (Solid Glass Card) ═══ */}
+      <div style={{
+        margin: '20px 24px', padding: '24px', position: 'relative', zIndex: 1,
+        background: 'rgba(12, 18, 36, 0.95)',
+        border: '1.5px solid rgba(0, 229, 255, 0.25)',
+        borderRadius: '24px',
+        boxShadow: '0 20px 60px rgba(0, 0, 0, 0.9), 0 0 35px rgba(0, 229, 255, 0.12)',
+        backdropFilter: 'blur(24px)',
+      }}>
         {view === 'month' && renderMonthView()}
         {view === 'week' && renderWeekView()}
         {view === 'day' && renderDayView()}
@@ -642,15 +656,15 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
 
       {/* ═══ STATUS LEGEND (bottom) ═══ */}
       <div style={{
-        display: 'flex', gap: '16px', padding: '12px 24px', justifyContent: 'center',
-        background: 'rgba(10,22,40,0.6)', borderTop: '1px solid rgba(255,255,255,0.06)',
-        flexWrap: 'wrap',
+        display: 'flex', gap: '20px', padding: '14px 24px', justifyContent: 'center',
+        background: 'rgba(10,16,32,0.95)', borderTop: '1px solid rgba(255,255,255,0.1)',
+        flexWrap: 'wrap', position: 'relative', zIndex: 10,
       }}>
         {Object.entries(STATUS_COLORS).map(([status, sc]) => (
-          <div key={status} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.75rem', color: '#94a3b8' }}>
-            <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: sc.dot }} />
+          <div key={status} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8rem', color: '#cbd5e1', fontWeight: 700 }}>
+            <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: sc.dot, boxShadow: `0 0 8px ${sc.dot}` }} />
             <span>{status}</span>
-            <span style={{ color: sc.text, fontWeight: 800 }}>{stats.byStatus[status] || 0}</span>
+            <span style={{ color: '#00e5ff', fontWeight: 900, background: 'rgba(0,229,255,0.15)', padding: '1px 7px', borderRadius: '6px' }}>{stats.byStatus[status] || 0}</span>
           </div>
         ))}
       </div>
