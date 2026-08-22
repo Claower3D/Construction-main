@@ -464,8 +464,8 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
       <main className="admin-redesign-main full-width-workspace" style={{ width: '100%', flex: 1, display: 'flex', flexDirection: 'column', position: 'relative', zIndex: 5 }}>
         
         {/* TOP COMPACT HEADER — STICKY AT TOP */}
-        <header className="main-top-header modern-topbar" style={{ position: 'sticky', top: 0, zIndex: 1000, display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.85rem 1.5rem', background: 'rgba(10, 14, 28, 0.92)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+        <header className="main-top-header modern-topbar">
+          <div className="topbar-left-group">
             {/* Mobile Hamburger Button */}
             <button 
               onClick={() => setIsMobileSidebarOpen(true)}
@@ -537,7 +537,7 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
             </div>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <div className="topbar-right-group">
             <div className="live-ai-chip" style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.3)', padding: '4px 12px', borderRadius: '20px', fontSize: '0.8rem', color: '#10b981', fontWeight: '700' }}>
               <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#10b981', boxShadow: '0 0 8px #10b981' }} />
               <span>Online AI 2.0</span>

@@ -2910,6 +2910,103 @@ body.light .header-wrapper {
   }
 }
 
+/* Modern Cockpit Top Header Responsive Layout */
+.modern-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.85rem 1.5rem;
+  background: rgba(10, 14, 28, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.topbar-left-group {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.topbar-right-group {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+@media (max-width: 900px) {
+  .modern-topbar {
+    padding: 0.5rem 0.75rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+  }
+
+  .topbar-left-group {
+    width: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 0.5rem !important;
+  }
+
+  .topbar-right-group {
+    display: none !important;
+  }
+
+  .mobile-menu-trigger-btn {
+    padding: 6px 10px !important;
+    border-radius: 10px !important;
+    background: rgba(0, 229, 255, 0.15) !important;
+    border: 1px solid rgba(0, 229, 255, 0.4) !important;
+    color: #00e5ff !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+    order: 1 !important;
+  }
+
+  .mobile-menu-trigger-btn .btn-text-mobile {
+    display: none !important;
+  }
+
+  .btn-back-to-cards {
+    padding: 6px 10px !important;
+    border-radius: 10px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+    order: 3 !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  }
+
+  .btn-back-to-cards span:nth-child(2) {
+    display: none !important;
+  }
+
+  .header-breadcrumbs-box {
+    font-size: 0.85rem !important;
+    font-weight: 800 !important;
+    text-align: center !important;
+    flex: 1 !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    order: 2 !important;
+    margin: 0 4px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+}
+
 .role-cards-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
