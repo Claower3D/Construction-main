@@ -96,8 +96,12 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
   // GPS автоопределение города
   const handleAutoDetectCity = useCallback(() => {
     if (!navigator.geolocation) {
-      setGeoError('GPS не поддерживается');
-      setTimeout(() => setGeoError(''), 3000);
+      // GPS не поддерживается — ставим Алматы и открываем выбор
+      if (!selectedCity) {
+        setSelectedCity('Алматы');
+        localStorage.setItem('qazgost_city', 'Алматы');
+      }
+      setIsCityDropdownOpen(true);
       return;
     }
     setIsDetectingCity(true);
@@ -131,12 +135,14 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
       },
       (err) => {
         setIsDetectingCity(false);
-        if (err.code === 1) setGeoError('Доступ к GPS запрещён');
-        else if (err.code === 2) setGeoError('GPS недоступен');
-        else setGeoError('Не удалось определить');
-        setTimeout(() => setGeoError(''), 4000);
+        // GPS отключён/запрещён — ставим Алматы по умолчанию и открываем список
+        if (!selectedCity) {
+          setSelectedCity('Алматы');
+          localStorage.setItem('qazgost_city', 'Алматы');
+        }
+        setIsCityDropdownOpen(true);
       },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 300000 }
+      { enableHighAccuracy: false, timeout: 5000, maximumAge: 300000 }
     );
   }, [findNearestCity]);
 
