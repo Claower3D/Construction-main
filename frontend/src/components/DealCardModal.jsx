@@ -1,583 +1,888 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
+
+/* ═══════════════════════════════════════════════════════════════
+   QAZGOST AI — КАРТОЧКА СТРОИТЕЛЬНОГО ОБЪЕКТА / СДЕЛКИ
+   Профессиональная карточка проекта с полным жизненным циклом:
+   Заявка → Инженер (выезд/дефекты) → Смета (ПСД) → Подрядчик → 
+   Строительные этапы + GPS Спецтехника + Эскроу безопасность
+   ═══════════════════════════════════════════════════════════════ */
+
+// ═══ 7 ЭТАПОВ ЖИЗНЕННОГО ЦИКЛА СТРОИТЕЛЬНОГО ОБЪЕКТА ═══
+const PIPELINE_STAGES = [
+  { id: 'new',                label: '1. Заявка',      fullLabel: 'Новая заявка',         icon: '📝', color: '#8b5cf6' },
+  { id: 'engineer_assigned',  label: '2. Инженер',     fullLabel: 'Инженер назначен',     icon: '📋', color: '#f59e0b' },
+  { id: 'engineer_visit',     label: '3. Выезд',       fullLabel: 'Выезд и обследование', icon: '🚗', color: '#f97316' },
+  { id: 'estimate_ready',     label: '4. Смета',       fullLabel: 'Смета и ПСД готовы',    icon: '📊', color: '#06b6d4' },
+  { id: 'pending_executor',   label: '5. Подрядчик',   fullLabel: 'Поиск исполнителя',    icon: '⏳', color: '#eab308' },
+  { id: 'in_progress',        label: '6. Работы',      fullLabel: 'Строительные работы',   icon: '🟢', color: '#10b981' },
+  { id: 'completed',          label: '7. Сдан',        fullLabel: 'Объект сдан и принят',  icon: '✅', color: '#22c55e' }
+];
+
+// Преобразование устаревших статусов в новые
+function normalizeStatus(status) {
+  if (!status) return 'new';
+  const s = String(status).toLowerCase();
+  if (s.includes('нов') || s === 'new') return 'new';
+  if (s.includes('инженер назначен') || s === 'engineer_assigned') return 'engineer_assigned';
+  if (s.includes('выезд') || s.includes('проверке') || s === 'engineer_visit') return 'engineer_visit';
+  if (s.includes('смет') || s === 'estimate_ready') return 'estimate_ready';
+  if (s.includes('дожим') || s.includes('ждёт') || s.includes('поиск') || s === 'pending_executor') return 'pending_executor';
+  if (s.includes('работ') || s.includes('процесс') || s === 'in_progress') return 'in_progress';
+  if (s.includes('успеш') || s.includes('заверш') || s.includes('сдан') || s === 'completed') return 'completed';
+  if (s.includes('отказ')) return 'new';
+  return 'in_progress';
+}
+
+function parseMoney(val) {
+  if (typeof val === 'number') return val;
+  if (!val) return 0;
+  return parseInt(String(val).replace(/\D/g, ''), 10) || 0;
+}
+
+function formatMoney(num) {
+  return (Math.round(num) || 0).toLocaleString('ru-RU') + ' ₸';
+}
 
 export default function DealCardModal({ card, onClose, onSave, currentUser }) {
-  const [formData, setFormData] = useState({ ...card });
-  const [expandedStageId, setExpandedStageId] = useState(null);
+  // Инициализация формы с защитой от пустых или перепутанных полей
+  const [formData, setFormData] = useState(() => {
+    const rawStatus = card.status || 'Новые';
+    const normStatus = normalizeStatus(rawStatus);
 
-  const canEdit = currentUser?.role === 'admin' || card.createdBy === currentUser?.id || card.assignedTo === currentUser?.id || !card.createdBy;
-
-  const [allUsers] = useState(() => {
-    const defaultUsers = [
-      { id: 'u_1', name: 'Ербол Маратов', role: 'engineer' },
-      { id: 'u_2', name: 'Ирина Ким', role: 'engineer' },
-      { id: 'u_3', name: 'ТОО QazGost', role: 'executor' },
-      { id: 'u_4', name: 'Алексей Смирнов', role: 'executor' },
-      { id: 'u_5', name: 'Светлана Иванова', role: 'manager' }
-    ];
-    try {
-      const registered = JSON.parse(localStorage.getItem('qazgost_registered_users') || '[]');
-      return [...defaultUsers, ...registered];
-    } catch(e) {
-      return defaultUsers;
+    // Исправление бага, когда в time был записан телефон или наоборот
+    let cleanPhone = card.phone || '';
+    let cleanTime = card.time || '10:00';
+    if (!cleanPhone && card.time && (card.time.includes('+') || card.time.length > 8)) {
+      cleanPhone = card.time;
+      cleanTime = '10:00';
     }
+
+    const defaultStages = [
+      {
+        id: 'STG-1',
+        name: '1. Демонтаж и подготовка основания',
+        status: normStatus === 'completed' ? 'completed' : (normStatus === 'in_progress' ? 'completed' : 'pending'),
+        progress: normStatus === 'completed' || normStatus === 'in_progress' ? 100 : 0,
+        dateRange: '01.09 – 05.09.2026',
+        budget: Math.round(parseMoney(card.budget || 2100000) * 0.25),
+        machinery: [
+          { name: 'Самосвал Shacman (25 т)', status: '🟢 GPS Online', rate: '18 000 ₸/час', assigned: true }
+        ]
+      },
+      {
+        id: 'STG-2',
+        name: '2. Основные строительно-монтажные работы',
+        status: normStatus === 'completed' ? 'completed' : (normStatus === 'in_progress' ? 'in_progress' : 'pending'),
+        progress: normStatus === 'completed' ? 100 : (normStatus === 'in_progress' ? 60 : 0),
+        dateRange: '06.09 – 20.09.2026',
+        budget: Math.round(parseMoney(card.budget || 2100000) * 0.55),
+        machinery: [
+          { name: 'Автокран XCMG QY25K5 (25 т)', status: '🟢 GPS Online', rate: '28 000 ₸/час', assigned: true }
+        ]
+      },
+      {
+        id: 'STG-3',
+        name: '3. Финишная отделка, пусконаладка и сдача',
+        status: normStatus === 'completed' ? 'completed' : 'pending',
+        progress: normStatus === 'completed' ? 100 : 0,
+        dateRange: '21.09 – 30.09.2026',
+        budget: Math.round(parseMoney(card.budget || 2100000) * 0.20),
+        machinery: []
+      }
+    ];
+
+    return {
+      id: card.id || String(Date.now()).slice(-4),
+      title: card.title || 'Строительный объект',
+      category: card.category || (card.type === 'request_engineering' ? 'Инженерные сети' : 'Общестроительные работы'),
+      location: card.location || 'г. Астана',
+      clientName: card.contractor || card.clientName || 'ТОО «Заказчик»',
+      clientPhone: cleanPhone || '+7 (701) 555-12-34',
+      budget: parseMoney(card.budget || 2100000),
+      status: normStatus,
+      rawStatusLabel: card.status || 'В работе',
+      date: card.date || card.day || new Date().toISOString().split('T')[0],
+      time: cleanTime,
+      assignedEngineer: card.assignedEngineer || 'Асхат Нурланов (ПТО Инженер)',
+      engineerVisitDate: card.engineerVisitDate || '24.08.2026 10:30',
+      engineerReport: card.engineerReport || 'Выезд на объект завершён. Произведены замеры несущих конструкций и лазерное сканирование. Отклонений по ГОСТ не выявлено, смета скорректирована с учётом фактических объёмов.',
+      executorName: card.acceptedBy || card.executorName || 'ТОО «GostBuild Инжиниринг»',
+      executorContract: 'Договор подряда №КЗ-2026/88',
+      comments: card.comments || 'Клиент просит соблюдать тихий час с 13:00 до 15:00. Пропускная система на КПП оформлена.',
+      stages: (card.stages && card.stages.length > 0) ? card.stages : defaultStages,
+      estimateItems: card.estimateItems || [
+        { name: 'Монтаж армопояса и монолитные работы', unit: 'м³', qty: 24, price: 35000, sum: 840000 },
+        { name: 'Укладка гидроизоляции и утепление', unit: 'м²', qty: 180, price: 4200, sum: 756000 },
+        { name: 'Аренда спецтехники с оператором (GPS)', unit: 'смена', qty: 6, price: 84000, sum: 504000 }
+      ]
+    };
   });
 
-  const pipelineStages = [
-    { id: 'Новые', label: 'Новая' },
-    { id: 'В работе', label: 'В работе' },
-    { id: 'Дожим', label: 'Дожим' },
-    { id: 'Менеджер ОП', label: 'Менеджер ОП' },
-    { id: 'РОП', label: 'РОП' },
-    { id: 'Финансист', label: 'Финансист' },
-    { id: 'Успешно', label: 'Завершено' },
-  ];
+  const [activeTab, setActiveTab] = useState('stages'); // 'stages' | 'estimate' | 'files'
+  const [toastMessage, setToastMessage] = useState(null);
 
-  const currentStageIndex = pipelineStages.findIndex(s => s.id === formData.status);
-  const activeIndex = currentStageIndex >= 0 ? currentStageIndex : 0;
-
-  const handleAssignToWorker = (role) => {
-    try {
-      const storageKey = `qazgost_calendar_events_${role}`;
-      const savedEvents = localStorage.getItem(storageKey);
-      let crmEvents = savedEvents ? JSON.parse(savedEvents) : {};
-      
-      // Determine day (default to today if missing)
-      const day = formData.day || new Date().toISOString().split('T')[0];
-      if (!crmEvents[day]) crmEvents[day] = [];
-      
-      const newEvent = {
-        ...formData,
-        status: role === 'engineer' ? 'На проверке у инженера' : 'В работе',
-        contractor: role === 'engineer' ? 'Отдел ПТО' : 'Исполнитель'
-      };
-      
-      // Prevent duplicates if already exists
-      const existingIdx = crmEvents[day].findIndex(e => e.id === formData.id);
-      if (existingIdx !== -1) {
-        crmEvents[day][existingIdx] = newEvent;
-      } else {
-        crmEvents[day].push(newEvent);
-      }
-      localStorage.setItem(storageKey, JSON.stringify(crmEvents));
-      
-      // Remove from the other role's calendar to avoid ghosts
-      try {
-        const otherRole = role === 'engineer' ? 'executor' : 'engineer';
-        const otherKey = `qazgost_calendar_events_${otherRole}`;
-        const otherSaved = localStorage.getItem(otherKey);
-        if (otherSaved) {
-          let otherEvents = JSON.parse(otherSaved);
-          for (const d in otherEvents) {
-            otherEvents[d] = otherEvents[d].filter(e => e.id !== formData.id);
-          }
-          localStorage.setItem(otherKey, JSON.stringify(otherEvents));
-        }
-      } catch (e) {}
-
-      handleChange('status', 'В работе'); // Update current modal status too
-      handleChange('contractor', role === 'engineer' ? 'Отдел ПТО' : 'Исполнитель');
-      
-      alert(`✅ Успешно! Заявка передана в календарь ${role === 'engineer' ? 'Инженера' : 'Исполнителя'}. Уведомление отправлено.`);
-    } catch (err) {
-      console.error(err);
-      alert('Ошибка при передаче заявки.');
-    }
+  const showToast = (msg) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 3000);
   };
 
-  const handleChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+  const currentStageIndex = useMemo(() => {
+    const idx = PIPELINE_STAGES.findIndex(s => s.id === formData.status);
+    return idx >= 0 ? idx : 0;
+  }, [formData.status]);
+
+  const handleStatusChange = (newStatusId) => {
+    const stageObj = PIPELINE_STAGES.find(s => s.id === newStatusId);
+    setFormData(prev => ({
+      ...prev,
+      status: newStatusId,
+      rawStatusLabel: stageObj?.fullLabel || 'В работе'
+    }));
+    showToast(`🔄 Статус изменён: ${stageObj?.icon} ${stageObj?.fullLabel}`);
   };
 
-  const handleAddStage = () => {
-    const newStages = [...(formData.stages || [])];
-    newStages.push({ id: Date.now(), title: '', status: 'В работе' });
-    handleChange('stages', newStages);
-  };
-
-  const handleStageChange = (index, newTitle) => {
-    const newStages = [...(formData.stages || [])];
-    newStages[index].title = newTitle;
-    handleChange('stages', newStages);
-  };
+  // Эскроу расчёты
+  const totalBudget = formData.budget || 2100000;
+  const completedStagesSum = formData.stages
+    .filter(s => s.status === 'completed')
+    .reduce((acc, s) => acc + (s.budget || 0), 0);
+  const inProgressStagesSum = formData.stages
+    .filter(s => s.status === 'in_progress')
+    .reduce((acc, s) => acc + (s.budget || 0), 0);
+  const escrowRemaining = Math.max(0, totalBudget - completedStagesSum);
 
   const handleStageStatusToggle = (index) => {
-    const newStages = [...(formData.stages || [])];
-    newStages[index].status = newStages[index].status === 'Решено' ? 'В работе' : 'Решено';
-    handleChange('stages', newStages);
+    const updated = [...formData.stages];
+    const current = updated[index].status;
+    if (current === 'completed') {
+      updated[index].status = 'in_progress';
+      updated[index].progress = 50;
+    } else if (current === 'in_progress') {
+      updated[index].status = 'completed';
+      updated[index].progress = 100;
+    } else {
+      updated[index].status = 'in_progress';
+      updated[index].progress = 10;
+    }
+    setFormData(prev => ({ ...prev, stages: updated }));
+    showToast(`Этап «${updated[index].name}»: ${updated[index].status === 'completed' ? '✅ Выполнен' : '🟢 В работе'}`);
   };
 
-  const handleRemoveStage = (index) => {
-    const newStages = [...(formData.stages || [])];
-    newStages.splice(index, 1);
-    handleChange('stages', newStages);
+  const handleStageProgressChange = (index, val) => {
+    const updated = [...formData.stages];
+    const num = Math.min(100, Math.max(0, parseInt(val, 10) || 0));
+    updated[index].progress = num;
+    if (num === 100) updated[index].status = 'completed';
+    else if (num > 0) updated[index].status = 'in_progress';
+    else updated[index].status = 'pending';
+    setFormData(prev => ({ ...prev, stages: updated }));
   };
-
-  const parseBudget = (val) => {
-    if (typeof val === 'number') return val;
-    if (typeof val === 'string') return parseInt(val.replace(/\D/g, ''), 10) || 0;
-    return 0;
-  };
-
-  const hasEstimate = formData.estimateItems && formData.estimateItems.length > 0;
-  
-  let currentBudget = 0;
-  if (hasEstimate) {
-    currentBudget = formData.totalSum || 0;
-  } else if (formData.budget !== undefined) {
-    currentBudget = parseBudget(formData.budget);
-  } else {
-    currentBudget = formData.title === 'Новая заявка' ? 0 : 
-    (formData.type === 'active_project' ? 1250000 : 
-    (formData.type === 'work_stage' ? 450000 : 
-    (formData.type === 'deadline' ? 820000 : 150000)));
-  }
-
-  const formatMoney = (val) => Math.round(val).toLocaleString('ru-RU') + ' ₸';
-  const bonus = currentBudget * 0.03;
-
-  const STAT_WIDGETS = [
-    { title: 'ЦЕНА ПРОДАЖИ', val: formatMoney(currentBudget), sub: 'итого к клиенту', color: '#22c55e' },
-    { title: 'ОЧИЩЕННАЯ СУММА', val: formatMoney(currentBudget * 0.78), sub: 'после налогов/комиссий', color: '#3b82f6' },
-    { title: 'СЕБЕСТОИМОСТЬ', val: formatMoney(currentBudget * 0.22), sub: 'базовая себестоимость', color: '#a1a1aa' },
-    { title: 'ДОП. РАСХОД', val: formatMoney(currentBudget * 0.04), sub: 'с себестоимостью, без наценки', color: '#f59e0b' },
-    { title: 'КОМИССИЯ МАСТЕРУ', val: formatMoney(currentBudget * 0.08), sub: 'доп. процента мастеру', color: '#f59e0b' },
-    { title: 'ПРИБЫЛЬ ОЧИЩЕННАЯ', val: formatMoney(currentBudget * 0.44), sub: 'после ФОТ, мастера и банка', color: '#22c55e' },
-  ];
 
   const handleSaveWrapper = () => {
-    const finalBudget = hasEstimate ? (formData.totalSum || 0) : currentBudget;
-    const finalFormData = { ...formData, budget: `${finalBudget} ₸` };
-
-    // Check for assignment changes
-    if (finalFormData.assignedTo && finalFormData.assignedTo !== card.assignedTo) {
-      const assignedUser = allUsers.find(u => u.id === finalFormData.assignedTo);
-      if (assignedUser) {
-        const notifRole = assignedUser.role; // 'engineer' or 'executor'
-        const key = `${notifRole}_notifications`;
-        const existing = JSON.parse(localStorage.getItem(key) || '[]');
-        const newNotif = {
-          id: `NOT-${Date.now()}`,
-          icon: '🔔',
-          title: 'Новая заявка',
-          text: `Менеджер назначил вам новую заявку: ${finalFormData.title || 'Без названия'} (№${finalFormData.id || 'NEW'})`,
-          time: 'Только что',
-          unread: true
-        };
-        localStorage.setItem(key, JSON.stringify([newNotif, ...existing]));
-        window.dispatchEvent(new Event('notifications_updated'));
-
-        // Push to their calendar
-        try {
-          const storageKey = `qazgost_calendar_events_${notifRole}`;
-          const savedEvents = localStorage.getItem(storageKey);
-          let calEvents = savedEvents ? JSON.parse(savedEvents) : {};
-          const day = finalFormData.day || new Date().toISOString().split('T')[0];
-          if (!calEvents[day]) calEvents[day] = [];
-          
-          const newEvent = {
-            ...finalFormData,
-            status: notifRole === 'engineer' ? 'На проверке у инженера' : 'В работе',
-          };
-          
-          const existingIdx = calEvents[day].findIndex(e => e.id === finalFormData.id);
-          if (existingIdx !== -1) {
-            calEvents[day][existingIdx] = newEvent;
-          } else {
-            calEvents[day].push(newEvent);
-          }
-          localStorage.setItem(storageKey, JSON.stringify(calEvents));
-
-          // Remove from the other role's calendar
-          const otherRole = notifRole === 'engineer' ? 'executor' : 'engineer';
-          const otherKey = `qazgost_calendar_events_${otherRole}`;
-          const otherSaved = localStorage.getItem(otherKey);
-          if (otherSaved) {
-            let otherEvents = JSON.parse(otherSaved);
-            for (const d in otherEvents) {
-              otherEvents[d] = otherEvents[d].filter(e => e.id !== finalFormData.id);
-            }
-            localStorage.setItem(otherKey, JSON.stringify(otherEvents));
-          }
-        } catch(e) {
-          console.error('Failed to sync calendar', e);
-        }
-      }
-    }
-    onSave(finalFormData);
+    const finalData = {
+      ...formData,
+      status: formData.status === 'new' ? 'Новые' :
+              formData.status === 'completed' ? 'Успешно' :
+              formData.status === 'pending_executor' ? 'Дожим' : 'В работе',
+      contractor: formData.clientName,
+      budget: formatMoney(formData.budget),
+      phone: formData.clientPhone,
+      time: formData.time
+    };
+    onSave(finalData);
   };
 
-  const baseBudget = parseInt(String(formData.budget || formData.totalPrice || 0).replace(/\D/g, '')) || 0;
-
   return (
-    <div className="deal-card-modal-overlay" style={{
+    <div style={{
       position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
-      backgroundColor: 'rgba(0, 0, 0, 0.85)', zIndex: 9999,
+      backgroundColor: 'rgba(5, 10, 20, 0.88)', zIndex: 9999,
       display: 'flex', justifyContent: 'center', alignItems: 'center',
-      backdropFilter: 'blur(5px)'
-    }}>
-      <div className="deal-card-modal-container" style={{
-        backgroundColor: '#0a0f18',
-        width: '95vw', maxWidth: '1400px', height: '90vh',
-        borderRadius: '16px', border: '1px solid #1e293b',
-        boxShadow: '0 20px 40px rgba(0,0,0,0.5), 0 0 40px rgba(34,197,94,0.1)',
+      backdropFilter: 'blur(16px)', padding: '16px'
+    }} onClick={onClose}>
+      
+      {/* Контейнер карточки сделки */}
+      <div style={{
+        backgroundColor: '#0a1628',
+        width: '96vw', maxWidth: '1440px', height: '92vh',
+        borderRadius: '20px', border: '1px solid rgba(0, 229, 255, 0.25)',
+        boxShadow: '0 25px 60px rgba(0, 0, 0, 0.7), 0 0 50px rgba(0, 229, 255, 0.15)',
         display: 'flex', flexDirection: 'column',
-        overflow: 'hidden', color: '#fff', fontFamily: 'system-ui, sans-serif'
-      }}>
-        
-        {/* HEADER */}
-        <div className="deal-card-modal-header" style={{ padding: '1.5rem 2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #1e293b' }}>
-          <div className="deal-card-header-left" style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-            <h2 style={{ margin: 0, fontSize: '1.8rem', fontWeight: 700, letterSpacing: '0.5px' }}>КАРТОЧКА СДЕЛКИ №{formData.id}</h2>
-            <div className="deal-card-status-badge" style={{ 
-              display: 'flex', alignItems: 'center', gap: '0.5rem', 
-              border: '1px solid rgba(34, 197, 94, 0.3)', backgroundColor: 'rgba(34, 197, 94, 0.1)',
-              padding: '0.4rem 1rem', borderRadius: '20px', color: '#22c55e', fontSize: '0.85rem', fontWeight: 600
+        overflow: 'hidden', color: '#e2e8f0', fontFamily: 'system-ui, sans-serif',
+        position: 'relative'
+      }} onClick={e => e.stopPropagation()}>
+
+        {/* Всплывающий тост */}
+        {toastMessage && (
+          <div style={{
+            position: 'absolute', top: '16px', right: '80px', zIndex: 100,
+            background: 'rgba(0, 229, 255, 0.2)', border: '1px solid #00e5ff',
+            backdropFilter: 'blur(20px)', borderRadius: '12px', padding: '10px 20px',
+            color: '#00e5ff', fontWeight: 800, fontSize: '0.85rem',
+            animation: 'fadeIn 0.2s ease', boxShadow: '0 8px 24px rgba(0,229,255,0.3)'
+          }}>
+            {toastMessage}
+          </div>
+        )}
+
+        {/* ════════════════════════════════════════════════════════
+            1. ШАПКА КАРТОЧКИ (COCKPIT HEADER)
+            ════════════════════════════════════════════════════════ */}
+        <div style={{
+          padding: '1.25rem 2rem',
+          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+          background: 'linear-gradient(90deg, rgba(15, 23, 42, 0.95), rgba(10, 22, 40, 0.95))',
+          flexWrap: 'wrap', gap: '12px'
+        }}>
+          {/* Заголовок + Бейдж статуса */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div style={{
+              width: '44px', height: '44px', borderRadius: '12px',
+              background: 'linear-gradient(135deg, #00e5ff, #0284c7)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: '1.4rem', boxShadow: '0 0 20px rgba(0,229,255,0.4)'
             }}>
-              <div style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: '#22c55e' }}/>
-              Сделка активна
+              🏗️
+            </div>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <h2 style={{ margin: 0, fontSize: '1.4rem', fontWeight: 900, color: '#f8fafc', letterSpacing: '0.5px' }}>
+                  КАРТОЧКА ОБЪЕКТА №{formData.id}
+                </h2>
+                <span style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '6px',
+                  padding: '4px 12px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 800,
+                  background: `${PIPELINE_STAGES[currentStageIndex]?.color}25`,
+                  border: `1px solid ${PIPELINE_STAGES[currentStageIndex]?.color}80`,
+                  color: PIPELINE_STAGES[currentStageIndex]?.color || '#00e5ff'
+                }}>
+                  <span style={{ width: 8, height: 8, borderRadius: '50%', background: PIPELINE_STAGES[currentStageIndex]?.color || '#00e5ff' }} />
+                  {PIPELINE_STAGES[currentStageIndex]?.icon} {PIPELINE_STAGES[currentStageIndex]?.fullLabel}
+                </span>
+              </div>
+              <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '2px', display: 'flex', gap: '12px' }}>
+                <span>📍 {formData.location}</span>
+                <span>•</span>
+                <span>📅 Создан: {formData.date}</span>
+                <span>•</span>
+                <span>🏷️ {formData.category}</span>
+              </div>
             </div>
           </div>
-          <button className="deal-card-close-btn" onClick={onClose} style={{ background: 'transparent', border: 'none', color: '#64748b', fontSize: '1.5rem', cursor: 'pointer' }}>✕</button>
+
+          {/* Бюджет + Кнопка закрытия */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+            <div style={{
+              background: 'rgba(255, 215, 0, 0.08)',
+              border: '1px solid rgba(255, 215, 0, 0.3)',
+              borderRadius: '12px', padding: '8px 18px', textAlign: 'right'
+            }}>
+              <div style={{ fontSize: '0.68rem', color: '#ffd700', fontWeight: 800, letterSpacing: '1px', textTransform: 'uppercase' }}>
+                Бюджет объекта
+              </div>
+              <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#ffd700', lineHeight: 1.1 }}>
+                {formatMoney(totalBudget)}
+              </div>
+            </div>
+
+            <button onClick={onClose} style={{
+              background: 'rgba(255, 255, 255, 0.06)', border: '1px solid rgba(255, 255, 255, 0.15)',
+              color: '#94a3b8', width: '40px', height: '40px', borderRadius: '50%',
+              fontSize: '1.2rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              transition: 'all 0.2s'
+            }} onMouseEnter={e => e.currentTarget.style.color = '#fff'} onMouseLeave={e => e.currentTarget.style.color = '#94a3b8'}>
+              ✕
+            </button>
+          </div>
         </div>
 
-        {/* CONTENT (SCROLLABLE) */}
-        <div className="deal-card-modal-content" style={{ flex: 1, overflowY: 'auto', padding: '2rem', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-          
-          {/* TOP SECTION: PIPELINE & ACTION BOX */}
-          <div className="deal-card-top-section" style={{ display: 'flex', gap: '2rem' }}>
-            
-            {/* PIPELINE */}
-            <div className="deal-card-pipeline-wrapper" style={{ flex: 1, backgroundColor: '#111827', borderRadius: '12px', border: '1px solid #1e293b', padding: '1.5rem', display: 'flex', alignItems: 'center' }}>
-              <div style={{ display: 'flex', width: '100%', position: 'relative', justifyContent: 'space-between' }}>
-                {/* Connecting Line */}
-                <div style={{ position: 'absolute', top: '24px', left: '4%', right: '4%', height: '3px', background: 'linear-gradient(to right, #22c55e 30%, #3b82f6 60%, #334155 100%)', zIndex: 1 }} />
-                
-                {pipelineStages.map((stage, idx) => {
-                  const isCompleted = idx < activeIndex;
-                  const isActive = idx === activeIndex;
-                  let dotColor = '#334155';
-                  let iconColor = '#64748b';
-                  if (isCompleted) { dotColor = '#22c55e'; iconColor = '#22c55e'; }
-                  if (isActive) { dotColor = '#3b82f6'; iconColor = '#3b82f6'; }
+        {/* ════════════════════════════════════════════════════════
+            2. ИНТЕРАКТИВНЫЙ СТЕППЕР (7 ЭТАПОВ СТРОЙКИ)
+            ════════════════════════════════════════════════════════ */}
+        <div style={{
+          padding: '1rem 2rem',
+          background: 'rgba(8, 14, 26, 0.9)',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.06)',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          position: 'relative'
+        }}>
+          {/* Линия соединения */}
+          <div style={{
+            position: 'absolute', top: '32px', left: '5%', right: '5%', height: '3px',
+            background: 'linear-gradient(to right, #8b5cf6 0%, #f59e0b 25%, #06b6d4 50%, #10b981 75%, #22c55e 100%)',
+            opacity: 0.3, zIndex: 1
+          }} />
 
-                  return (
-                    <div key={stage.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 2, gap: '0.5rem', width: '80px' }}>
-                      <div style={{ 
-                        width: '48px', height: '48px', borderRadius: '50%', backgroundColor: '#0a0f18',
-                        border: `2px solid ${dotColor}`, display: 'flex', justifyContent: 'center', alignItems: 'center',
-                        boxShadow: isActive ? '0 0 15px rgba(59, 130, 246, 0.5)' : (isCompleted ? '0 0 10px rgba(34, 197, 94, 0.2)' : 'none')
-                      }}>
-                        {isCompleted && <span style={{ color: '#22c55e', fontSize: '1.2rem' }}>✓</span>}
-                        {isActive && <span style={{ color: '#3b82f6', fontSize: '1.2rem' }}>•</span>}
-                        {!isCompleted && !isActive && <span style={{ color: '#64748b', fontSize: '1rem' }}>{idx+1}</span>}
-                      </div>
-                      <span style={{ color: isActive || isCompleted ? '#fff' : '#64748b', fontSize: '0.8rem', fontWeight: isActive ? 600 : 400, textAlign: 'center' }}>
-                        {stage.label}
-                      </span>
-                    </div>
-                  );
-                })}
+          {PIPELINE_STAGES.map((stage, idx) => {
+            const isCompleted = idx < currentStageIndex;
+            const isActive = idx === currentStageIndex;
+            const isUpcoming = idx > currentStageIndex;
+
+            return (
+              <div
+                key={stage.id}
+                onClick={() => handleStatusChange(stage.id)}
+                style={{
+                  display: 'flex', flexDirection: 'column', alignItems: 'center',
+                  zIndex: 2, gap: '6px', cursor: 'pointer', minWidth: '90px',
+                  opacity: isUpcoming ? 0.6 : 1, transition: 'all 0.2s'
+                }}
+                onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.05)'}
+                onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+                title={`Переключить на этап: ${stage.fullLabel}`}
+              >
+                {/* Кружок этапа */}
+                <div style={{
+                  width: '42px', height: '42px', borderRadius: '50%',
+                  background: isActive ? stage.color : (isCompleted ? 'rgba(16, 185, 129, 0.2)' : '#0f172a'),
+                  border: `2px solid ${isActive ? '#fff' : (isCompleted ? '#10b981' : 'rgba(255,255,255,0.15)')}`,
+                  color: isActive ? '#0a1628' : (isCompleted ? '#10b981' : '#94a3b8'),
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: '1.1rem', fontWeight: 900,
+                  boxShadow: isActive ? `0 0 20px ${stage.color}` : 'none'
+                }}>
+                  {isCompleted ? '✓' : stage.icon}
+                </div>
+
+                {/* Название этапа */}
+                <span style={{
+                  fontSize: '0.78rem',
+                  fontWeight: isActive ? 800 : (isCompleted ? 700 : 500),
+                  color: isActive ? '#00e5ff' : (isCompleted ? '#10b981' : '#64748b'),
+                  textAlign: 'center'
+                }}>
+                  {stage.label}
+                </span>
               </div>
-            </div>
+            );
+          })}
+        </div>
 
-            {/* ACTION BOX (ПЕРЕДАТЬ СДЕЛКУ) */}
-            <div className="deal-card-action-box" style={{ width: '400px', backgroundColor: '#111827', borderRadius: '12px', border: '1px solid #1e293b', padding: '1.2rem' }}>
-               <div style={{ fontSize: '0.7rem', color: '#64748b', marginBottom: '0.8rem', letterSpacing: '1px' }}>ПЕРЕДАТЬ СДЕЛКУ</div>
-               <div className="deal-card-action-btns-1" style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
-                 <button onClick={() => handleChange('status', 'Менеджер ОП')} style={{ flex: 1, background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6', border: '1px solid #3b82f6', padding: '0.5rem', borderRadius: '8px', fontSize: '0.8rem', cursor: 'pointer' }}>👤 Менеджеру ОП</button>
-                 <button onClick={() => handleChange('status', 'РОП')} style={{ flex: 1, background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6', border: '1px solid #3b82f6', padding: '0.5rem', borderRadius: '8px', fontSize: '0.8rem', cursor: 'pointer' }}>🛡️ РОПу</button>
-                 <button onClick={() => handleChange('status', 'Финансист')} style={{ flex: 1, background: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b', border: '1px solid #f59e0b', padding: '0.5rem', borderRadius: '8px', fontSize: '0.8rem', cursor: 'pointer' }}>🪙 Финансисту</button>
-               </div>
+        {/* ════════════════════════════════════════════════════════
+            3. ОСНОВНОЙ КОНТЕНТ (3 КОЛОНКИ: ОБЪЕКТ / ЭТАПЫ / ЭСКРОУ)
+            ════════════════════════════════════════════════════════ */}
+        <div style={{
+          flex: 1, overflowY: 'auto', padding: '1.5rem 2rem',
+          display: 'grid', gridTemplateColumns: '360px 1fr 340px', gap: '1.5rem'
+        }}>
 
-               <div style={{ fontSize: '0.7rem', color: '#64748b', marginBottom: '0.8rem', letterSpacing: '1px' }}>НАЗНАЧИТЬ И ОТПРАВИТЬ УВЕДОМЛЕНИЕ</div>
-               <div className="deal-card-action-btns-2" style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem' }}>
-                 <button onClick={() => handleAssignToWorker('engineer')} style={{ flex: 1, background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', border: '1px solid #10b981', padding: '0.5rem', borderRadius: '8px', fontSize: '0.8rem', cursor: 'pointer', fontWeight: 600 }}>⚙️ Инженеру</button>
-                 <button onClick={() => handleAssignToWorker('executor')} style={{ flex: 1, background: 'rgba(56, 189, 248, 0.1)', color: '#38bdf8', border: '1px solid #38bdf8', padding: '0.5rem', borderRadius: '8px', fontSize: '0.8rem', cursor: 'pointer', fontWeight: 600 }}>👷 Исполнителю</button>
-               </div>
-               
-               <div className="deal-card-action-assign" style={{ display: 'flex', gap: '1rem' }}>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: '0.7rem', color: '#64748b', marginBottom: '0.4rem', letterSpacing: '1px' }}>НАЗНАЧЕН (ОТВЕТСТВЕННЫЙ)</div>
-                    <select 
-                       value={formData.assignedTo || ''} 
-                       onChange={(e) => {
-                         const val = e.target.value;
-                         handleChange('assignedTo', val);
-                         const user = allUsers.find(u => u.id === val);
-                         handleChange('contractor', user ? user.name : 'Не распределено');
-                       }}
-                       style={{ width: '100%', background: '#0a0f18', color: '#fff', border: '1px solid #1e293b', padding: '0.6rem', borderRadius: '8px', fontSize: '0.85rem' }}
-                    >
-                      <option value="">-- Не назначен --</option>
-                      <optgroup label="Инженеры">
-                        {allUsers.filter(u => u.role === 'engineer').map(u => (
-                          <option key={u.id} value={u.id}>{u.name}</option>
-                        ))}
-                      </optgroup>
-                      <optgroup label="Исполнители">
-                        {allUsers.filter(u => u.role === 'executor').map(u => (
-                          <option key={u.id} value={u.id}>{u.name}</option>
-                        ))}
-                      </optgroup>
-                    </select>
+          {/* ────────────────────────────────────────────────────
+              ЛЕВАЯ КОЛОНКА: ДАННЫЕ ОБЪЕКТА И УЧАСТНИКИ
+              ──────────────────────────────────────────────────── */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+            
+            {/* Блок 1: Объект и Клиент */}
+            <div style={{
+              background: 'rgba(15, 23, 42, 0.75)', borderRadius: '14px',
+              border: '1px solid rgba(255, 255, 255, 0.08)', padding: '1.25rem'
+            }}>
+              <div style={{ fontSize: '0.8rem', color: '#38bdf8', fontWeight: 800, letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span>🏢</span> Объект и Заказчик
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+                <div>
+                  <label style={{ fontSize: '0.7rem', color: '#94a3b8', display: 'block', marginBottom: '4px', fontWeight: 600 }}>НАИМЕНОВАНИЕ ОБЪЕКТА</label>
+                  <input
+                    type="text"
+                    value={formData.title}
+                    onChange={e => setFormData({ ...formData, title: e.target.value })}
+                    style={{
+                      width: '100%', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.12)',
+                      borderRadius: '8px', padding: '8px 12px', color: '#fff', fontSize: '0.85rem', outline: 'none'
+                    }}
+                  />
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                  <div>
+                    <label style={{ fontSize: '0.7rem', color: '#94a3b8', display: 'block', marginBottom: '4px', fontWeight: 600 }}>КЛИЕНТ / ЗАКАЗЧИК</label>
+                    <input
+                      type="text"
+                      value={formData.clientName}
+                      onChange={e => setFormData({ ...formData, clientName: e.target.value })}
+                      style={{
+                        width: '100%', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.12)',
+                        borderRadius: '8px', padding: '8px 12px', color: '#fff', fontSize: '0.85rem', outline: 'none'
+                      }}
+                    />
                   </div>
-                 <div className="deal-card-action-btns-3" style={{ display: 'flex', gap: '0.5rem', flex: 1, alignItems: 'flex-end' }}>
-                   <button onClick={() => handleChange('status', 'Успешно')} style={{ flex: 1, background: 'rgba(34, 197, 94, 0.1)', color: '#22c55e', border: '1px solid #22c55e', padding: '0.6rem', borderRadius: '8px', fontSize: '0.85rem', cursor: 'pointer', fontWeight: 600 }}>✓ Успешно</button>
-                   <button onClick={() => handleChange('status', 'Отказ')} style={{ flex: 1, background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: '1px solid #ef4444', padding: '0.6rem', borderRadius: '8px', fontSize: '0.85rem', cursor: 'pointer', fontWeight: 600 }}>✕ Отказ</button>
-                 </div>
-               </div>
-            </div>
-          </div>
-
-          {/* MAIN GRID */}
-          <div className="deal-card-main-grid" style={{ display: 'flex', gap: '2rem' }}>
-            
-            {/* COLUMN 1: ДАННЫЕ СДЕЛКИ & ЭТАПЫ (From Image 2) */}
-            <div className="deal-card-col-1" style={{ width: '380px', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-              
-              <div style={{ backgroundColor: '#111827', borderRadius: '12px', border: '1px solid #1e293b', padding: '1.5rem' }}>
-                 <div style={{ fontSize: '0.85rem', color: '#94a3b8', marginBottom: '1.2rem', letterSpacing: '1px' }}>ДАННЫЕ СДЕЛКИ</div>
-                 
-                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                   <div>
-                     <label style={{ fontSize: '0.7rem', color: '#64748b', display: 'block', marginBottom: '4px' }}>НАЗВАНИЕ / ИНСПЕКЦИЯ</label>
-                     <input type="text" value={formData.title || ''} onChange={(e) => handleChange('title', e.target.value)} style={{ width: '100%', background: '#0a0f18', color: '#fff', border: '1px solid #1e293b', padding: '0.8rem', borderRadius: '8px', fontSize: '0.9rem' }} />
-                   </div>
-                   
-                   <div style={{ display: 'flex', gap: '1rem' }}>
-                     <div style={{ flex: 1 }}>
-                       <label style={{ fontSize: '0.7rem', color: '#64748b', display: 'block', marginBottom: '4px' }}>ТЕЛЕФОН</label>
-                       <input type="text" value={formData.time || '+7 (707) 555-01-23'} onChange={(e) => handleChange('time', e.target.value)} style={{ width: '100%', background: '#0a0f18', color: '#fff', border: '1px solid #1e293b', padding: '0.8rem', borderRadius: '8px', fontSize: '0.9rem' }} />
-                     </div>
-                     <div style={{ flex: 1 }}>
-                       <label style={{ fontSize: '0.7rem', color: '#64748b', display: 'block', marginBottom: '4px' }}>АДРЕС / ЛОКАЦИЯ</label>
-                       <input type="text" value={formData.location || ''} onChange={(e) => handleChange('location', e.target.value)} style={{ width: '100%', background: '#0a0f18', color: '#fff', border: '1px solid #1e293b', padding: '0.8rem', borderRadius: '8px', fontSize: '0.9rem' }} />
-                     </div>
-                   </div>
-
-                   <div>
-                     <label style={{ fontSize: '0.7rem', color: '#64748b', display: 'block', marginBottom: '4px' }}>БЮДЖЕТ (₸) {hasEstimate && '(Сумма из сметы)'}</label>
-                     <input type="number" value={currentBudget} disabled={hasEstimate} onChange={(e) => handleChange('budget', e.target.value + ' ₸')} style={{ width: '100%', background: hasEstimate ? '#1e293b' : '#0a0f18', color: '#fff', border: '1px solid #1e293b', padding: '0.8rem', borderRadius: '8px', fontSize: '0.9rem' }} />
-                   </div>
-
-                   <div style={{ marginTop: '0.5rem', background: 'rgba(34, 197, 94, 0.1)', border: '1px dashed rgba(34, 197, 94, 0.3)', padding: '0.8rem', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                     <span style={{ fontSize: '0.8rem', color: '#6ee7b7', fontWeight: 700 }}>🎁 Ваш бонус менеджера (3%)</span>
-                     <span style={{ fontSize: '1.1rem', color: '#34d399', fontWeight: 900 }}>{Math.floor(bonus).toLocaleString('ru-RU')} ₸</span>
-                   </div>
-
-                   <div>
-                     <label style={{ fontSize: '0.7rem', color: '#64748b', display: 'block', marginBottom: '4px' }}>ОСОБЫЕ КОММЕНТАРИИ</label>
-                     <textarea rows="3" value={formData.comments || ''} onChange={(e) => handleChange('comments', e.target.value)} style={{ width: '100%', background: '#0a0f18', color: '#fff', border: '1px solid #1e293b', padding: '0.8rem', borderRadius: '8px', fontSize: '0.85rem', resize: 'none' }} placeholder="Связаться в течение дня, предоставить опросный лист..."></textarea>
-                   </div>
-                 </div>
-              </div>
-
-               {/* ФОТО И ДОКУМЕНТЫ */}
-               <div style={{ backgroundColor: '#111827', borderRadius: '12px', border: '1px solid #1e293b', padding: '1.5rem' }}>
-                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem' }}>
-                   <div style={{ fontSize: '0.85rem', color: '#94a3b8', letterSpacing: '1px' }}>ФАЙЛЫ И ФОТО С ОБЪЕКТА</div>
-                   <button style={{ background: 'rgba(34,197,94,0.1)', color: '#22c55e', border: '1px solid rgba(34,197,94,0.3)', padding: '0.4rem 0.8rem', borderRadius: '6px', fontSize: '0.75rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem' }} onClick={(e) => { e.preventDefault(); alert('Смета генерируется и скачивается в формате PDF...'); }}>
-                     <i className="fas fa-file-pdf"></i> Скачать смету (PDF)
-                   </button>
-                 </div>
-                 
-                 <div style={{ display: 'flex', gap: '0.8rem', overflowX: 'auto', paddingBottom: '0.5rem' }}>
-                   {formData.photos && formData.photos.map((p, i) => (
-                     <div key={i} style={{ width: '80px', height: '80px', borderRadius: '8px', backgroundImage: p.isImg ? `url(${p.url})` : 'none', backgroundColor: p.isImg ? 'transparent' : '#1e293b', backgroundSize: 'cover', backgroundPosition: 'center', border: '1px solid #1e293b', flexShrink: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', position: 'relative' }} title={p.name}>
-                       {!p.isImg && <span style={{ fontSize: '2rem' }}>{p.preview}</span>}
-                     </div>
-                   ))}
-                   {(!formData.photos || formData.photos.length === 0) && (
-                     <div style={{ fontSize: '0.8rem', color: '#64748b', fontStyle: 'italic', padding: '0.5rem 0' }}>Нет прикрепленных файлов</div>
-                   )}
-                   <div style={{ width: '80px', height: '80px', borderRadius: '8px', backgroundColor: 'rgba(59,130,246,0.1)', border: '1px dashed rgba(59,130,246,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', flexShrink: 0, cursor: 'pointer', color: '#3b82f6', flexDirection: 'column', gap: '0.2rem' }}>
-                     <span style={{ fontSize: '1.2rem' }}>+</span>
-                     <span style={{ fontSize: '0.6rem' }}>Добавить</span>
-                   </div>
-                 </div>
-               </div>
-
-              {/* СМЕТА ОТ ИНЖЕНЕРА (ЕСЛИ ЕСТЬ) */}
-              {formData.estimateItems && formData.estimateItems.length > 0 && (
-              <div style={{ backgroundColor: '#111827', borderRadius: '12px', border: '1px solid #1e293b', padding: '1.5rem', marginBottom: '1.5rem' }}>
-                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem' }}>
-                   <div style={{ fontSize: '0.85rem', color: '#94a3b8', letterSpacing: '1px', fontWeight: 600 }}>СМЕТА ОТ ИНЖЕНЕРА (ИИ)</div>
-                   <div style={{ background: 'rgba(59,130,246,0.1)', color: '#3b82f6', padding: '2px 8px', borderRadius: '12px', fontSize: '0.7rem' }}>Рассчитано</div>
-                 </div>
-                 
-                 <table style={{ width: '100%', borderCollapse: 'collapse', color: '#cbd5e1', fontSize: '0.85rem' }}>
-                   <thead>
-                     <tr style={{ borderBottom: '1px solid #1e293b', color: '#64748b', textAlign: 'left' }}>
-                       <th style={{ paddingBottom: '0.5rem', fontWeight: 600 }}>Наименование</th>
-                       <th style={{ paddingBottom: '0.5rem', fontWeight: 600 }}>Ед.</th>
-                       <th style={{ paddingBottom: '0.5rem', fontWeight: 600 }}>Кол.</th>
-                       <th style={{ paddingBottom: '0.5rem', fontWeight: 600 }}>Цена</th>
-                       <th style={{ paddingBottom: '0.5rem', fontWeight: 600 }}>Сумма</th>
-                     </tr>
-                   </thead>
-                   <tbody>
-                     {formData.estimateItems.map((item, idx) => (
-                       <tr key={idx} style={{ borderBottom: '1px solid rgba(255,255,255,0.02)' }}>
-                         <td style={{ padding: '0.6rem 0' }}>{item.name}</td>
-                         <td style={{ padding: '0.6rem 0' }}>{item.unit}</td>
-                         <td style={{ padding: '0.6rem 0' }}>{item.qty}</td>
-                         <td style={{ padding: '0.6rem 0' }}>{item.price.toLocaleString()} ₸</td>
-                         <td style={{ padding: '0.6rem 0', fontWeight: 'bold', color: '#38bdf8' }}>{(item.sum || 0).toLocaleString()} ₸</td>
-                       </tr>
-                     ))}
-                   </tbody>
-                 </table>
-                 <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid #1e293b', fontWeight: 'bold', fontSize: '1rem' }}>
-                   <span>ИТОГО:</span>
-                   <span style={{ color: '#34d399' }}>{(formData.totalSum || 0).toLocaleString()} ₸</span>
-                 </div>
-              </div>
-              )}
-
-              {/* ЭТАПЫ (From Image 2) */}
-              <div style={{ backgroundColor: '#111827', borderRadius: '12px', border: '1px solid #1e293b', padding: '1.5rem' }}>
-                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem' }}>
-                   <div style={{ fontSize: '0.85rem', color: '#94a3b8', letterSpacing: '1px' }}>ЭТАПЫ ({formData.stages ? formData.stages.length : 0})</div>
-                   <div style={{ background: 'rgba(34,197,94,0.1)', color: '#22c55e', padding: '2px 8px', borderRadius: '12px', fontSize: '0.7rem' }}>33% Выполнено</div>
-                 </div>
-                 
-                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
-                   {(formData.stages || []).map((stg, i) => {
-                     const isExpanded = expandedStageId === (stg.id || i);
-                     return (
-                     <div key={stg.id || i} style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', background: isExpanded ? '#0a0f18' : 'transparent', padding: isExpanded ? '1rem' : '0', borderRadius: '12px', border: isExpanded ? '1px solid #1e293b' : 'none', transition: 'all 0.2s' }}>
-                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                         <div 
-                           onClick={() => handleStageStatusToggle(i)}
-                           style={{ 
-                           cursor: 'pointer', flex: 1, padding: '0.4rem 1rem', borderRadius: '20px', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.5rem',
-                           background: stg.status === 'Решено' ? 'rgba(34,197,94,0.1)' : (stg.status === 'В работе' ? 'rgba(59,130,246,0.1)' : 'transparent'),
-                           border: `1px solid ${stg.status === 'Решено' ? '#22c55e' : (stg.status === 'В работе' ? '#3b82f6' : '#1e293b')}`,
-                           color: stg.status === 'Решено' ? '#22c55e' : (stg.status === 'В работе' ? '#3b82f6' : '#94a3b8')
-                         }}>
-                           <span>{stg.status === 'Решено' ? '✓' : '○'}</span>
-                           <input 
-                             type="text" 
-                             value={stg.title} 
-                             onChange={(e) => handleStageChange(i, e.target.value)}
-                             onClick={(e) => e.stopPropagation()}
-                             placeholder="Название этапа..."
-                             style={{ background: 'transparent', border: 'none', color: 'inherit', outline: 'none', width: '100%', fontSize: '0.85rem' }}
-                           />
-                         </div>
-                         <button 
-                           onClick={() => setExpandedStageId(isExpanded ? null : (stg.id || i))}
-                           style={{ background: isExpanded ? '#1e293b' : 'rgba(59,130,246,0.1)', color: isExpanded ? '#fff' : '#3b82f6', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '8px', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 600, transition: 'all 0.2s' }}
-                         >
-                           {isExpanded ? 'Скрыть ▲' : 'Подробнее ▼'}
-                         </button>
-                         <button onClick={() => handleRemoveStage(i)} style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '0.4rem' }}>✕</button>
-                       </div>
-                       
-                       {isExpanded && (
-                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', marginTop: '0.5rem', paddingLeft: '1rem', borderLeft: '2px solid #1e293b' }}>
-                           <div style={{ display: 'flex', gap: '1rem' }}>
-                             <div style={{ flex: 1 }}>
-                               <label style={{ fontSize: '0.65rem', color: '#64748b', display: 'block', marginBottom: '4px', fontWeight: 'bold' }}>СРОК (ДЕДЛАЙН)</label>
-                               <input type="text" value={stg.deadline || ''} onChange={(e) => {
-                                 const newStages = [...formData.stages];
-                                 newStages[i].deadline = e.target.value;
-                                 handleChange('stages', newStages);
-                               }} placeholder="Например: 15 Авг" style={{ width: '100%', background: '#111827', color: '#fff', border: '1px solid #1e293b', padding: '0.6rem', borderRadius: '8px', fontSize: '0.85rem' }} />
-                             </div>
-                             <div style={{ flex: 1 }}>
-                               <label style={{ fontSize: '0.65rem', color: '#64748b', display: 'block', marginBottom: '4px', fontWeight: 'bold' }}>ИСПОЛНИТЕЛЬ</label>
-                               <input type="text" value={stg.executor || ''} onChange={(e) => {
-                                 const newStages = [...formData.stages];
-                                 newStages[i].executor = e.target.value;
-                                 handleChange('stages', newStages);
-                               }} placeholder="Бригада / Менеджер" style={{ width: '100%', background: '#111827', color: '#fff', border: '1px solid #1e293b', padding: '0.6rem', borderRadius: '8px', fontSize: '0.85rem' }} />
-                             </div>
-                           </div>
-                           <div>
-                             <label style={{ fontSize: '0.65rem', color: '#64748b', display: 'block', marginBottom: '4px', fontWeight: 'bold' }}>ОПИСАНИЕ И ЗАДАЧИ ЭТАПА</label>
-                             <textarea rows="2" value={stg.description || ''} onChange={(e) => {
-                               const newStages = [...formData.stages];
-                               newStages[i].description = e.target.value;
-                               handleChange('stages', newStages);
-                             }} placeholder="Подробности задачи..." style={{ width: '100%', background: '#111827', color: '#fff', border: '1px solid #1e293b', padding: '0.6rem', borderRadius: '8px', fontSize: '0.85rem', resize: 'none' }}></textarea>
-                           </div>
-                         </div>
-                       )}
-                     </div>
-                   )})}
-                   {(!formData.stages || formData.stages.length === 0) && (
-                     <div style={{ color: '#64748b', fontSize: '0.85rem', fontStyle: 'italic' }}>Нет добавленных этапов</div>
-                   )}
-                   <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
-                     <button onClick={handleAddStage} style={{ flex: 1, background: 'rgba(168,85,247,0.1)', border: '1px solid #3b82f6', color: '#3b82f6', padding: '0.5rem', borderRadius: '20px', fontSize: '0.8rem', cursor: 'pointer' }}>+ Добавить этап</button>
-                   </div>
-                 </div>
-              </div>
-
-            </div>
-
-            {/* COLUMN 2: ФИНАНСЫ (Widgets) */}
-            <div className="deal-card-col-2" style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', alignContent: 'start' }}>
-              {STAT_WIDGETS.map((widget, i) => (
-                <div key={i} style={{ backgroundColor: '#111827', borderRadius: '12px', border: '1px solid #1e293b', padding: '1.2rem', position: 'relative' }}>
-                  <div style={{ fontSize: '0.7rem', color: '#94a3b8', marginBottom: '0.4rem', letterSpacing: '1px' }}>{widget.title}</div>
-                  <div style={{ fontSize: '1.6rem', fontWeight: 700, color: widget.color, marginBottom: '0.2rem' }}>{widget.val}</div>
-                  <div style={{ fontSize: '0.7rem', color: '#64748b' }}>{widget.sub}</div>
-                  
-                  {/* Fake Sparkline Chart */}
-                  <div style={{ marginTop: '1rem', height: '40px', width: '100%', position: 'relative' }}>
-                    <svg viewBox="0 0 100 40" preserveAspectRatio="none" style={{ width: '100%', height: '100%' }}>
-                      <path d="M0,30 L10,25 L20,35 L30,20 L40,28 L50,15 L60,25 L70,10 L80,20 L90,5 L100,15" fill="none" stroke={widget.color} strokeWidth="2" strokeOpacity="0.8" />
-                      <circle cx="100" cy="15" r="3" fill={widget.color} />
-                    </svg>
+                  <div>
+                    <label style={{ fontSize: '0.7rem', color: '#94a3b8', display: 'block', marginBottom: '4px', fontWeight: 600 }}>ТЕЛЕФОН КЛИЕНТА</label>
+                    <input
+                      type="text"
+                      value={formData.clientPhone}
+                      onChange={e => setFormData({ ...formData, clientPhone: e.target.value })}
+                      placeholder="+7 (701) 000-00-00"
+                      style={{
+                        width: '100%', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.12)',
+                        borderRadius: '8px', padding: '8px 12px', color: '#38bdf8', fontSize: '0.85rem', outline: 'none', fontWeight: 700
+                      }}
+                    />
                   </div>
                 </div>
+
+                <div>
+                  <label style={{ fontSize: '0.7rem', color: '#94a3b8', display: 'block', marginBottom: '4px', fontWeight: 600 }}>АДРЕС ОБЪЕКТА</label>
+                  <input
+                    type="text"
+                    value={formData.location}
+                    onChange={e => setFormData({ ...formData, location: e.target.value })}
+                    style={{
+                      width: '100%', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.12)',
+                      borderRadius: '8px', padding: '8px 12px', color: '#fff', fontSize: '0.85rem', outline: 'none'
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Блок 2: Инженер (выезд и осмотр) */}
+            <div style={{
+              background: 'rgba(245, 158, 11, 0.06)', borderRadius: '14px',
+              border: '1px solid rgba(245, 158, 11, 0.25)', padding: '1.25rem'
+            }}>
+              <div style={{ fontSize: '0.8rem', color: '#f59e0b', fontWeight: 800, letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span>👷</span> Выезд инженера и ПТО
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+                <div>
+                  <label style={{ fontSize: '0.7rem', color: '#94a3b8', display: 'block', marginBottom: '4px', fontWeight: 600 }}>НАЗНАЧЕННЫЙ ИНЖЕНЕР</label>
+                  <input
+                    type="text"
+                    value={formData.assignedEngineer}
+                    onChange={e => setFormData({ ...formData, assignedEngineer: e.target.value })}
+                    style={{
+                      width: '100%', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(245, 158, 11, 0.3)',
+                      borderRadius: '8px', padding: '8px 12px', color: '#fcd34d', fontSize: '0.85rem', outline: 'none', fontWeight: 700
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ fontSize: '0.7rem', color: '#94a3b8', display: 'block', marginBottom: '4px', fontWeight: 600 }}>ДАТА И ВРЕМЯ ВЫЕЗДА НА ОБЪЕКТ</label>
+                  <input
+                    type="text"
+                    value={formData.engineerVisitDate}
+                    onChange={e => setFormData({ ...formData, engineerVisitDate: e.target.value })}
+                    style={{
+                      width: '100%', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.12)',
+                      borderRadius: '8px', padding: '8px 12px', color: '#38bdf8', fontSize: '0.85rem', outline: 'none', fontWeight: 700
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ fontSize: '0.7rem', color: '#94a3b8', display: 'block', marginBottom: '4px', fontWeight: 600 }}>ЗАКЛЮЧЕНИЕ / ОТЧЁТ ОБСЛЕДОВАНИЯ</label>
+                  <textarea
+                    rows="3"
+                    value={formData.engineerReport}
+                    onChange={e => setFormData({ ...formData, engineerReport: e.target.value })}
+                    style={{
+                      width: '100%', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.12)',
+                      borderRadius: '8px', padding: '8px 12px', color: '#cbd5e1', fontSize: '0.8rem', outline: 'none', resize: 'none', lineHeight: 1.4
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Блок 3: Исполнитель (Подрядчик) */}
+            <div style={{
+              background: 'rgba(16, 185, 129, 0.06)', borderRadius: '14px',
+              border: '1px solid rgba(16, 185, 129, 0.25)', padding: '1.25rem'
+            }}>
+              <div style={{ fontSize: '0.8rem', color: '#10b981', fontWeight: 800, letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span>🔨</span> Исполнитель / Подрядчик
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+                <div>
+                  <label style={{ fontSize: '0.7rem', color: '#94a3b8', display: 'block', marginBottom: '4px', fontWeight: 600 }}>КОМПАНИЯ / БРИГАДА</label>
+                  <input
+                    type="text"
+                    value={formData.executorName}
+                    onChange={e => setFormData({ ...formData, executorName: e.target.value })}
+                    style={{
+                      width: '100%', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(16, 185, 129, 0.3)',
+                      borderRadius: '8px', padding: '8px 12px', color: '#6ee7b7', fontSize: '0.85rem', outline: 'none', fontWeight: 700
+                    }}
+                  />
+                </div>
+                <div>
+                  <label style={{ fontSize: '0.7rem', color: '#94a3b8', display: 'block', marginBottom: '4px', fontWeight: 600 }}>ДОГОВОР И ОСНОВАНИЕ</label>
+                  <input
+                    type="text"
+                    value={formData.executorContract}
+                    onChange={e => setFormData({ ...formData, executorContract: e.target.value })}
+                    style={{
+                      width: '100%', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.12)',
+                      borderRadius: '8px', padding: '8px 12px', color: '#94a3b8', fontSize: '0.85rem', outline: 'none'
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          {/* ────────────────────────────────────────────────────
+              ЦЕНТРАЛЬНАЯ КОЛОНКА: ЭТАПЫ РАБОТ И СПЕЦТЕХНИКА (GPS)
+              ──────────────────────────────────────────────────── */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+
+            {/* Таб-переключатель */}
+            <div style={{
+              display: 'flex', gap: '8px', background: 'rgba(15, 23, 42, 0.8)',
+              padding: '4px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.08)'
+            }}>
+              {[
+                { key: 'stages', label: '🏗️ График этапов работ' },
+                { key: 'estimate', label: '📊 Смета материалов и работ' },
+                { key: 'files', label: '📁 Документы и фото' }
+              ].map(t => (
+                <button
+                  key={t.key}
+                  onClick={() => setActiveTab(t.key)}
+                  style={{
+                    flex: 1, padding: '8px 14px', borderRadius: '8px', border: 'none',
+                    background: activeTab === t.key ? 'linear-gradient(135deg, #00e5ff, #0284c7)' : 'transparent',
+                    color: activeTab === t.key ? '#0a1628' : '#94a3b8',
+                    fontWeight: 800, fontSize: '0.82rem', cursor: 'pointer', transition: 'all 0.2s'
+                  }}
+                >
+                  {t.label}
+                </button>
               ))}
             </div>
 
-            {/* COLUMN 3: CHARTS */}
-            <div className="deal-card-col-3" style={{ width: '280px', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-              
-              <div style={{ backgroundColor: '#111827', borderRadius: '12px', border: '1px solid #1e293b', padding: '1.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <div style={{ fontSize: '0.75rem', color: '#94a3b8', marginBottom: '1.5rem', letterSpacing: '1px', width: '100%', textAlign: 'left' }}>СТРУКТУРА СУММЫ</div>
-                {/* CSS Donut Chart Mock */}
-                <div style={{ 
-                  width: '140px', height: '140px', borderRadius: '50%', 
-                  background: 'conic-gradient(#22c55e 0% 45%, #3b82f6 45% 75%, #f59e0b 75% 100%)',
-                  display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '1.5rem'
-                }}>
-                  <div style={{ width: '100px', height: '100px', borderRadius: '50%', backgroundColor: '#111827', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-                    <span style={{ fontSize: '1.1rem', fontWeight: 700, color: '#fff' }}>{formatMoney(baseBudget)}</span>
-                    <span style={{ fontSize: '0.65rem', color: '#64748b' }}>итого</span>
+            {/* ТАБ 1: ЭТАПЫ И СПЕЦТЕХНИКА */}
+            {activeTab === 'stages' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                {formData.stages.map((stg, i) => (
+                  <div key={stg.id || i} style={{
+                    background: 'rgba(15, 23, 42, 0.85)',
+                    border: `1px solid ${stg.status === 'completed' ? 'rgba(16, 185, 129, 0.3)' : (stg.status === 'in_progress' ? 'rgba(0, 229, 255, 0.4)' : 'rgba(255, 255, 255, 0.08)')}`,
+                    borderRadius: '14px', padding: '16px',
+                    boxShadow: stg.status === 'in_progress' ? '0 0 20px rgba(0, 229, 255, 0.1)' : 'none'
+                  }}>
+                    {/* Заголовок этапа */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
+                      <div>
+                        <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#f8fafc' }}>
+                          {stg.name}
+                        </div>
+                        <div style={{ fontSize: '0.78rem', color: '#94a3b8', marginTop: '2px' }}>
+                          ⏱ Сроки: <strong style={{ color: '#38bdf8' }}>{stg.dateRange}</strong> • Бюджет: <strong style={{ color: '#ffd700' }}>{formatMoney(stg.budget)}</strong>
+                        </div>
+                      </div>
+
+                      <button
+                        onClick={() => handleStageStatusToggle(i)}
+                        style={{
+                          padding: '6px 14px', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 800,
+                          background: stg.status === 'completed' ? 'rgba(16,185,129,0.2)' : (stg.status === 'in_progress' ? 'rgba(0,229,255,0.2)' : 'rgba(255,255,255,0.06)'),
+                          border: `1px solid ${stg.status === 'completed' ? '#10b981' : (stg.status === 'in_progress' ? '#00e5ff' : 'rgba(255,255,255,0.15)')}`,
+                          color: stg.status === 'completed' ? '#10b981' : (stg.status === 'in_progress' ? '#00e5ff' : '#94a3b8'),
+                          cursor: 'pointer'
+                        }}
+                      >
+                        {stg.status === 'completed' ? '✅ Выполнен' : (stg.status === 'in_progress' ? '🟢 В работе' : '⏳ Запланирован')}
+                      </button>
+                    </div>
+
+                    {/* Слайдер прогресса */}
+                    <div style={{ marginBottom: '12px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', marginBottom: '4px' }}>
+                        <span style={{ color: '#94a3b8' }}>Прогресс выполнения</span>
+                        <strong style={{ color: stg.status === 'completed' ? '#10b981' : '#00e5ff' }}>{stg.progress}%</strong>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <input
+                          type="range"
+                          min="0"
+                          max="100"
+                          value={stg.progress}
+                          onChange={e => handleStageProgressChange(i, e.target.value)}
+                          style={{ flex: 1, accentColor: '#00e5ff', cursor: 'pointer' }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Спецтехника для этапа */}
+                    {stg.machinery && stg.machinery.length > 0 && (
+                      <div style={{
+                        background: 'rgba(8, 12, 22, 0.6)', border: '1px solid rgba(56, 189, 248, 0.2)',
+                        borderRadius: '10px', padding: '10px 12px', marginTop: '8px'
+                      }}>
+                        <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#38bdf8', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <span>🚜</span> Спецтехника этапа (GPS Auto-dispatch):
+                        </div>
+                        {stg.machinery.map((m, mi) => (
+                          <div key={mi} style={{
+                            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                            fontSize: '0.8rem', color: '#e2e8f0', padding: '4px 0'
+                          }}>
+                            <span>🚜 {m.name}</span>
+                            <span style={{ color: '#10b981', fontWeight: 700, fontSize: '0.75rem' }}>{m.status} • {m.rate}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
+                ))}
+              </div>
+            )}
+
+            {/* ТАБ 2: СМЕТА МАТЕРИАЛОВ И РАБОТ */}
+            {activeTab === 'estimate' && (
+              <div style={{
+                background: 'rgba(15, 23, 42, 0.85)', borderRadius: '14px',
+                border: '1px solid rgba(255, 255, 255, 0.08)', padding: '1.25rem'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                  <span style={{ fontWeight: 800, color: '#38bdf8', fontSize: '0.9rem' }}>📄 Детализированная смета (ГОСТ)</span>
+                  <button
+                    onClick={() => showToast('📥 Смета скачивается в формате PDF...')}
+                    style={{
+                      background: 'rgba(0, 229, 255, 0.1)', border: '1px solid #00e5ff',
+                      color: '#00e5ff', borderRadius: '8px', padding: '6px 12px',
+                      fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer'
+                    }}
+                  >
+                    📥 Экспорт в PDF
+                  </button>
                 </div>
-                <div style={{ width: '100%', fontSize: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.6rem', color: '#94a3b8' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{display:'flex', gap:'0.5rem', alignItems:'center'}}><div style={{width:8,height:8,borderRadius:'50%',backgroundColor:'#22c55e'}}/>Себестоимость</span> <span>45%</span></div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{display:'flex', gap:'0.5rem', alignItems:'center'}}><div style={{width:8,height:8,borderRadius:'50%',backgroundColor:'#3b82f6'}}/>Комиссии</span> <span>30%</span></div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{display:'flex', gap:'0.5rem', alignItems:'center'}}><div style={{width:8,height:8,borderRadius:'50%',backgroundColor:'#f59e0b'}}/>Налоги</span> <span>25%</span></div>
+
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem', color: '#cbd5e1' }}>
+                  <thead>
+                    <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', color: '#64748b', textAlign: 'left' }}>
+                      <th style={{ padding: '8px 4px' }}>Позиция</th>
+                      <th style={{ padding: '8px 4px' }}>Ед.</th>
+                      <th style={{ padding: '8px 4px' }}>Кол-во</th>
+                      <th style={{ padding: '8px 4px' }}>Цена</th>
+                      <th style={{ padding: '8px 4px', textAlign: 'right' }}>Сумма</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {formData.estimateItems.map((item, idx) => (
+                      <tr key={idx} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                        <td style={{ padding: '10px 4px', color: '#f8fafc', fontWeight: 600 }}>{item.name}</td>
+                        <td style={{ padding: '10px 4px' }}>{item.unit}</td>
+                        <td style={{ padding: '10px 4px' }}>{item.qty}</td>
+                        <td style={{ padding: '10px 4px' }}>{item.price.toLocaleString('ru-RU')} ₸</td>
+                        <td style={{ padding: '10px 4px', textAlign: 'right', fontWeight: 800, color: '#38bdf8' }}>
+                          {(item.sum || item.price * item.qty).toLocaleString('ru-RU')} ₸
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {/* ТАБ 3: ФАЙЛЫ И ДОКУМЕНТЫ */}
+            {activeTab === 'files' && (
+              <div style={{
+                background: 'rgba(15, 23, 42, 0.85)', borderRadius: '14px',
+                border: '1px solid rgba(255, 255, 255, 0.08)', padding: '1.25rem'
+              }}>
+                <div style={{ fontWeight: 800, color: '#38bdf8', fontSize: '0.9rem', marginBottom: '1rem' }}>
+                  📁 Прикреплённые документы и фотофиксация
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+                  {[
+                    { name: 'Акт выездного обследования.pdf', size: '2.4 МБ', icon: '📑' },
+                    { name: 'Геодезическая разбивка.dwg', size: '8.1 МБ', icon: '📐' },
+                    { name: 'Фото дефекта несущей стены.jpg', size: '3.8 МБ', icon: '📸' }
+                  ].map((f, fi) => (
+                    <div key={fi} style={{
+                      background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)',
+                      borderRadius: '10px', padding: '12px', display: 'flex', alignItems: 'center', gap: '10px'
+                    }}>
+                      <span style={{ fontSize: '1.8rem' }}>{f.icon}</span>
+                      <div style={{ overflow: 'hidden' }}>
+                        <div style={{ fontSize: '0.78rem', fontWeight: 700, color: '#fff', textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden' }}>{f.name}</div>
+                        <div style={{ fontSize: '0.68rem', color: '#64748b' }}>{f.size}</div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
+            )}
 
+          </div>
+
+          {/* ────────────────────────────────────────────────────
+              ПРАВАЯ КОЛОНКА: ФИНАНСЫ, ЭСКРОУ И БЫСТРЫЕ ДЕЙСТВИЯ
+              ──────────────────────────────────────────────────── */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+
+            {/* Эскроу безопасность */}
+            <div style={{
+              background: 'rgba(15, 23, 42, 0.85)', borderRadius: '14px',
+              border: '1px solid rgba(0, 229, 255, 0.3)', padding: '1.25rem',
+              boxShadow: '0 8px 30px rgba(0, 229, 255, 0.1)'
+            }}>
+              <div style={{ fontSize: '0.8rem', color: '#00e5ff', fontWeight: 800, letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span>🔒</span> Эскроу безопасность
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
+                  <span style={{ color: '#94a3b8' }}>Общий бюджет:</span>
+                  <strong style={{ color: '#ffd700' }}>{formatMoney(totalBudget)}</strong>
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
+                  <span style={{ color: '#94a3b8' }}>🔓 Выплачено подрядчику:</span>
+                  <strong style={{ color: '#10b981' }}>{formatMoney(completedStagesSum)}</strong>
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
+                  <span style={{ color: '#94a3b8' }}>🔒 В эскроу (в работе):</span>
+                  <strong style={{ color: '#00e5ff' }}>{formatMoney(inProgressStagesSum)}</strong>
+                </div>
+
+                <div style={{
+                  marginTop: '8px', paddingTop: '10px', borderTop: '1px solid rgba(255,255,255,0.08)',
+                  display: 'flex', justifyContent: 'space-between', alignItems: 'center'
+                }}>
+                  <span style={{ fontSize: '0.78rem', color: '#94a3b8' }}>Остаток к выплате:</span>
+                  <span style={{ fontSize: '1.1rem', fontWeight: 900, color: '#f8fafc' }}>
+                    {formatMoney(escrowRemaining)}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Бонус менеджера */}
+            <div style={{
+              background: 'rgba(16, 185, 129, 0.08)', borderRadius: '14px',
+              border: '1px dashed rgba(16, 185, 129, 0.35)', padding: '1.25rem'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <div style={{ fontSize: '0.72rem', color: '#6ee7b7', fontWeight: 800, textTransform: 'uppercase' }}>
+                    Вознаграждение сделки (3%)
+                  </div>
+                  <div style={{ fontSize: '1.3rem', fontWeight: 900, color: '#34d399', marginTop: '2px' }}>
+                    {formatMoney(totalBudget * 0.03)}
+                  </div>
+                </div>
+                <div style={{ fontSize: '2rem' }}>💰</div>
+              </div>
+            </div>
+
+            {/* Быстрые действия с заявкой */}
+            <div style={{
+              background: 'rgba(15, 23, 42, 0.85)', borderRadius: '14px',
+              border: '1px solid rgba(255, 255, 255, 0.08)', padding: '1.25rem'
+            }}>
+              <div style={{ fontSize: '0.8rem', color: '#e2e8f0', fontWeight: 800, letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '0.85rem' }}>
+                ⚡ Быстрые действия
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <button
+                  onClick={() => handleStatusChange('engineer_assigned')}
+                  style={{
+                    background: 'rgba(245, 158, 11, 0.15)', border: '1px solid rgba(245, 158, 11, 0.4)',
+                    color: '#fcd34d', padding: '10px 14px', borderRadius: '8px',
+                    fontSize: '0.8rem', fontWeight: 800, cursor: 'pointer', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '8px'
+                  }}
+                >
+                  <span>📋</span> Назначить инженера
+                </button>
+
+                <button
+                  onClick={() => handleStatusChange('engineer_visit')}
+                  style={{
+                    background: 'rgba(249, 115, 22, 0.15)', border: '1px solid rgba(249, 115, 22, 0.4)',
+                    color: '#fdba74', padding: '10px 14px', borderRadius: '8px',
+                    fontSize: '0.8rem', fontWeight: 800, cursor: 'pointer', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '8px'
+                  }}
+                >
+                  <span>🚗</span> Начать выезд на объект
+                </button>
+
+                <button
+                  onClick={() => handleStatusChange('pending_executor')}
+                  style={{
+                    background: 'rgba(234, 179, 8, 0.15)', border: '1px solid rgba(234, 179, 8, 0.4)',
+                    color: '#fde047', padding: '10px 14px', borderRadius: '8px',
+                    fontSize: '0.8rem', fontWeight: 800, cursor: 'pointer', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '8px'
+                  }}
+                >
+                  <span>⏳</span> Передать исполнителю
+                </button>
+
+                <button
+                  onClick={() => handleStatusChange('completed')}
+                  style={{
+                    background: 'rgba(34, 197, 94, 0.15)', border: '1px solid rgba(34, 197, 94, 0.4)',
+                    color: '#86efac', padding: '10px 14px', borderRadius: '8px',
+                    fontSize: '0.8rem', fontWeight: 800, cursor: 'pointer', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '8px'
+                  }}
+                >
+                  <span>✅</span> Завершить и сдать объект
+                </button>
+              </div>
             </div>
 
           </div>
+
         </div>
 
-        {/* FOOTER */}
-        <div className="deal-card-modal-footer" style={{ padding: '1.5rem 2rem', borderTop: '1px solid #1e293b', display: 'flex', justifyContent: 'flex-end', gap: '1rem', backgroundColor: '#0a0f18' }}>
-          <button onClick={onClose} style={{ background: 'transparent', color: '#fff', border: '1px solid #334155', padding: '0.8rem 2rem', borderRadius: '8px', cursor: 'pointer', fontSize: '0.95rem' }}>
-            {canEdit ? 'Отмена' : 'Закрыть'}
-          </button>
-          {canEdit ? (
-            <button onClick={handleSaveWrapper} style={{ background: '#22c55e', color: '#fff', border: 'none', padding: '0.8rem 2rem', borderRadius: '8px', cursor: 'pointer', fontSize: '0.95rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        {/* ════════════════════════════════════════════════════════
+            4. ФУТЕР КАРТОЧКИ СДЕЛКИ
+            ════════════════════════════════════════════════════════ */}
+        <div style={{
+          padding: '1.25rem 2rem',
+          borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+          backgroundColor: '#0a1628'
+        }}>
+          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+            <button
+              onClick={() => showToast(`💬 Чат по сделке №${formData.id} открыт`)}
+              style={{
+                background: 'rgba(0, 229, 255, 0.1)', color: '#00e5ff',
+                border: '1px solid rgba(0, 229, 255, 0.3)', padding: '10px 18px',
+                borderRadius: '10px', fontSize: '0.85rem', fontWeight: 700, cursor: 'pointer',
+                display: 'flex', alignItems: 'center', gap: '8px'
+              }}
+            >
+              💬 Чат объекта
+            </button>
+          </div>
+
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <button
+              onClick={onClose}
+              style={{
+                background: 'rgba(255, 255, 255, 0.06)', color: '#94a3b8',
+                border: '1px solid rgba(255, 255, 255, 0.15)', padding: '10px 24px',
+                borderRadius: '10px', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 700
+              }}
+            >
+              Отмена
+            </button>
+
+            <button
+              onClick={handleSaveWrapper}
+              style={{
+                background: 'linear-gradient(135deg, #10b981, #059669)',
+                color: '#fff', border: 'none', padding: '10px 28px',
+                borderRadius: '10px', cursor: 'pointer', fontSize: '0.9rem',
+                fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px',
+                boxShadow: '0 4px 16px rgba(16, 185, 129, 0.3)'
+              }}
+            >
               ✓ Сохранить изменения
             </button>
-          ) : (
-            <div style={{ padding: '0.8rem 2rem', color: '#ef4444', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(239, 68, 68, 0.1)', borderRadius: '8px' }}>
-              🔒 Нет прав для редактирования
-            </div>
-          )}
+          </div>
         </div>
 
       </div>
