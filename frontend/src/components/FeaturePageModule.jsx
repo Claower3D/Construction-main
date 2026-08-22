@@ -16,6 +16,8 @@ import BuildingConstructionPage from './BuildingConstructionPage';
 import MaterialsMarketplacePage from './MaterialsMarketplacePage';
 import RoleHierarchyTreePage from './RoleHierarchyTreePage';
 import AnalystDashboardPage from './AnalystDashboardPage';
+import EarthworkVolumesPage from './EarthworkVolumesPage';
+import CalendarSchedulePage from './CalendarSchedulePage';
 import { calculateSmartEstimate, evaluateDefectScan } from '../services/smartEstimateEngine';
 import { getBalanceKZT, topupBalance } from '../services/walletEngine';
 import { getOrders } from '../services/dataService';
@@ -297,26 +299,14 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
           <DefectInspectorPage onBack={onBack} hideHeader={true} />
         )}
 
-        {/* 3. VOLUME CALCULATOR (c-volume / e-volume / e-soil) */}
+        {/* 3. VOLUME & EARTHWORK CALCULATOR (c-volume / e-volume / e-soil) */}
         {(itemId === 'c-volume' || itemId === 'e-volume' || itemId === 'e-soil') && (
-          <div className="fullpage-card-box">
-            <h2 className="fullpage-heading">📏 Автоматический расчёт объёмов работ и BOM материалов</h2>
-            <p className="fullpage-sub">Калькулятор геометрических площадей, объема выемки грунта и потребности ресурсов.</p>
+          <EarthworkVolumesPage onBack={onBack} hideHeader={true} />
+        )}
 
-            <div className="calc-inputs-grid" style={{ margin: '1.5rem 0' }}>
-              <div className="form-item"><label>Длина участка/стены (м):</label><input type="number" value={qtoLength} onChange={(e) => setQtoLength(Number(e.target.value) || 0)} className="admin-search-input" /></div>
-              <div className="form-item"><label>Ширина (м):</label><input type="number" value={qtoWidth} onChange={(e) => setQtoWidth(Number(e.target.value) || 0)} className="admin-search-input" /></div>
-              <div className="form-item"><label>Глубина / Толщина (м):</label><input type="number" value={qtoDepth} onChange={(e) => setQtoDepth(Number(e.target.value) || 0)} className="admin-search-input" step="0.01" /></div>
-            </div>
-
-            <div className="result-card-glow">
-              <h3>📦 Итоговые объёмы для спецификации:</h3>
-              <p><strong>Общий объём (кубатура):</strong> {(qtoLength * qtoWidth * qtoDepth).toFixed(2)} м³</p>
-              <p><strong>Площадь покрытия:</strong> {(qtoLength * qtoWidth).toFixed(2)} м²</p>
-              <p><strong>Расход товарного бетона М-350:</strong> {(qtoLength * qtoWidth * qtoDepth * 1.05).toFixed(2)} м³ (с учетом уплотнения)</p>
-              <p><strong>Потребность арматурного каркаса:</strong> {((qtoLength * qtoWidth * qtoDepth) * 0.076).toFixed(2)} тонн (A500C 12мм)</p>
-            </div>
-          </div>
+        {/* 3a. CALENDAR & SCHEDULE (c-calendar / e-calendar / ing-calendar) */}
+        {(itemId === 'c-calendar' || itemId === 'e-calendar' || itemId === 'ing-calendar') && (
+          <CalendarSchedulePage onBack={onBack} hideHeader={true} role={itemId.startsWith('e-') ? 'executor' : 'customer'} />
         )}
 
         {/* 4. LIVE ORDERS FEED (e-feed) */}
@@ -930,8 +920,8 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
           </div>
         )}
 
-        {/* 4b. USER ORDERS (c-orders / e-orders) */}
-        {(itemId === 'c-orders' || itemId === 'e-orders') && (
+        {/* 4b. USER ORDERS & WORKS (c-orders / e-orders / e-works / e-feed) */}
+        {(itemId === 'c-orders' || itemId === 'e-orders' || itemId === 'e-works' || itemId === 'e-feed') && (
           <UserOrdersPage 
             onBack={onBack} 
             currentUser={{ role: itemId.startsWith('e-') ? 'executor' : 'customer' }} 
