@@ -14,6 +14,7 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
   const [withOperator, setWithOperator] = useState(false);
   const [delivery, setDelivery] = useState('all'); // 'all' | 'yes' | 'no'
   const [priceMax, setPriceMax] = useState(100000);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
   
   // Interactive Modal state
   const [bookingItem, setBookingItem] = useState(null);
@@ -721,14 +722,59 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
               type="text" 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Искать по категории, модели или характеристикам (например: Hitachi, Погрузчик, 25т)..." 
+              placeholder="Искать по спецтехнике, модели или характеристикам (например: Hitachi, 25т)..." 
             />
             <span className="search-results-count">Найдено: {filteredEquipment.length}</span>
           </div>
 
+          {/* WB / Ozon Quick Filter Strip */}
+          <div className="wb-quick-filter-strip">
+            <button 
+              className={`wb-filter-chip ${isFilterOpen ? 'active' : ''}`}
+              onClick={() => setIsFilterOpen(!isFilterOpen)}
+            >
+              <span>🎛️ Фильтры</span>
+              {(category !== 'all' || tariff !== 'all' || location !== 'all' || freeToday || withOperator) && (
+                <span className="wb-active-dot" style={{ color: '#38bdf8' }}>●</span>
+              )}
+            </button>
+
+            <div className="wb-quick-select-wrap">
+              <span>📍</span>
+              <select value={location} onChange={e => setLocation(e.target.value)}>
+                <option value="all">Все города</option>
+                <option value="almaty">Алматы</option>
+                <option value="astana">Астана</option>
+                <option value="shymkent">Шымкент</option>
+                <option value="karaganda">Караганда</option>
+              </select>
+            </div>
+
+            <div className="wb-quick-select-wrap">
+              <span>⏱️</span>
+              <select value={tariff} onChange={e => setTariff(e.target.value)}>
+                <option value="all">Все тарифы</option>
+                <option value="hourly">Почасовая</option>
+                <option value="shift">Посменная</option>
+                <option value="trip">За рейс</option>
+              </select>
+            </div>
+
+            <button 
+              className={`wb-filter-chip ${freeToday ? 'active' : ''}`}
+              onClick={() => setFreeToday(!freeToday)}
+            >
+              <span>⚡ Свободны сегодня</span>
+            </button>
+          </div>
+
           <div className="em-main-layout">
             {/* Sidebar Controls */}
-            <aside className="em-sidebar">
+            <aside className={`em-sidebar ${isFilterOpen ? 'open-mobile' : ''}`}>
+              <div className="mmp-sidebar-mobile-header">
+                <h3>🎛️ Фильтры спецтехники</h3>
+                <button className="mmp-sidebar-close-btn" onClick={() => setIsFilterOpen(false)}>✕</button>
+              </div>
               <div className="filter-group">
                 <label>📁 Категория</label>
                 <select 
@@ -902,7 +948,7 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
                               }
                             }}
                           />
-                          <div style={{ position: 'absolute', bottom: '8px', left: '10px', background: 'rgba(8, 12, 22, 0.85)', backdropFilter: 'blur(10px)', padding: '3px 8px', borderRadius: '6px', fontSize: '0.72rem', color: '#38bdf8', fontWeight: '800', border: '1px solid rgba(56, 189, 248, 0.3)' }}>
+                          <div className="em-gps-distance-pill" style={{ position: 'absolute', bottom: '8px', left: '10px', background: 'rgba(8, 12, 22, 0.85)', backdropFilter: 'blur(10px)', padding: '3px 8px', borderRadius: '6px', fontSize: '0.72rem', color: '#38bdf8', fontWeight: '800', border: '1px solid rgba(56, 189, 248, 0.3)' }}>
                             📍 GPS: {item.distanceKm ? `${item.distanceKm} км от вас` : '2.4 км'}
                           </div>
                         </div>

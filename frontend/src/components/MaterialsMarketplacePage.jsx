@@ -15,6 +15,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
   const [gostOnly, setGostOnly] = useState(false);
   const [wholesaleOnly, setWholesaleOnly] = useState(false);
   const [deliveryType, setDeliveryType] = useState('all'); // 'all' | 'delivery' | 'pickup'
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   // Quantities in card selectors: { [productId]: count }
   const [quantities, setQuantities] = useState({});
@@ -508,16 +509,84 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
             <span className="search-icon">🔍</span>
             <input 
               type="text" 
-              placeholder="Поиск материалов: цемент, арматура, кирпич, гипсокартон, песок..." 
+              placeholder="Поиск материалов: цемент, арматура, кирпич, гипсокартон..." 
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
             />
+            {searchQuery && (
+              <button className="mmp-search-clear" onClick={() => setSearchQuery('')}>✕</button>
+            )}
             <span className="search-results-count">Найдено: {filteredProducts.length}</span>
           </div>
 
+          {/* WB / Ozon Quick Filter Strip — Sticky */}
+          <div className="wb-quick-filter-strip">
+            <button 
+              className={`wb-filter-chip ${isFilterOpen ? 'active' : ''}`}
+              onClick={() => setIsFilterOpen(!isFilterOpen)}
+            >
+              <span>🎛️ Фильтры</span>
+              {(() => {
+                const count = [selectedCity !== 'all', inStockOnly, gostOnly, wholesaleOnly, deliveryType !== 'all', priceMax < 50000].filter(Boolean).length;
+                return count > 0 ? <span className="wb-filter-count">{count}</span> : null;
+              })()}
+            </button>
+
+            <div className="wb-quick-select-wrap">
+              <span>📍</span>
+              <select value={selectedCity} onChange={e => setSelectedCity(e.target.value)}>
+                <option value="all">Все города</option>
+                <option value="Алматы">Алматы</option>
+                <option value="Астана">Астана</option>
+                <option value="Шымкент">Шымкент</option>
+                <option value="Караганда">Караганда</option>
+              </select>
+            </div>
+
+            <div className="wb-quick-select-wrap">
+              <span>⚡</span>
+              <select value={sortBy} onChange={e => setSortBy(e.target.value)}>
+                <option value="popular">По популярности</option>
+                <option value="price_asc">Сначала дешевле</option>
+                <option value="price_desc">Сначала дороже</option>
+              </select>
+            </div>
+
+            <button 
+              className={`wb-filter-chip ${inStockOnly ? 'active' : ''}`}
+              onClick={() => setInStockOnly(!inStockOnly)}
+            >
+              <span>📦 В наличии</span>
+            </button>
+
+            <button 
+              className={`wb-filter-chip ${gostOnly ? 'active' : ''}`}
+              onClick={() => setGostOnly(!gostOnly)}
+            >
+              <span>📜 ГОСТ</span>
+            </button>
+
+            <button 
+              className={`wb-filter-chip ${wholesaleOnly ? 'active' : ''}`}
+              onClick={() => setWholesaleOnly(!wholesaleOnly)}
+            >
+              <span>⚡ Опт</span>
+            </button>
+          </div>
+
           <div className="mmp-main-layout">
+            {/* Mobile Bottom-Sheet Backdrop */}
+            {isFilterOpen && (
+              <div className="mmp-filter-backdrop" onClick={() => setIsFilterOpen(false)} />
+            )}
+
             {/* Left Sidebar Filters */}
-            <aside className="mmp-sidebar">
+            <aside className={`mmp-sidebar ${isFilterOpen ? 'open-mobile' : ''}`}>
+              <div className="mmp-sidebar-mobile-header">
+                <h3>🎛️ Фильтры каталога</h3>
+                <button className="mmp-sidebar-close-btn" onClick={() => setIsFilterOpen(false)}>✕</button>
+              </div>
+              <div className="mmp-sidebar-drag-handle" />
               <div className="mmp-filter-group">
                 <label>🏷️ Категория</label>
                 <select 
@@ -642,9 +711,22 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
                 </div>
               </div>
 
-              <button className="mmp-sidebar-submit-btn" onClick={() => showToast(`🔍 Найдено ${filteredProducts.length} позиций стройматериалов`)}>
-                Показать {filteredProducts.length} товаров
-              </button>
+              <div className="mmp-sidebar-actions">
+                <button className="mmp-sidebar-submit-btn" onClick={() => { setIsFilterOpen(false); showToast(`🔍 Найдено ${filteredProducts.length} позиций стройматериалов`); }}>
+                  Показать {filteredProducts.length} товаров
+                </button>
+                <button 
+                  className="mmp-sidebar-reset-btn" 
+                  onClick={() => { 
+                    setSelectedCategory('all'); setSelectedCity('all'); setSortBy('popular');
+                    setPriceMax(50000); setRadius(100); setInStockOnly(false); setGostOnly(false);
+                    setWholesaleOnly(false); setDeliveryType('all'); setSearchQuery('');
+                    showToast('🔄 Фильтры сброшены');
+                  }}
+                >
+                  🔄 Сбросить фильтры
+                </button>
+              </div>
             </aside>
 
             {/* Right Results Column */}
