@@ -12,9 +12,9 @@ export default function AnimatedBackground() {
     let width = (canvas.width = window.innerWidth);
     let height = (canvas.height = window.innerHeight);
 
-    // Preload Panorama Image
+    // Preload Exact User Panorama Image
     const bgImage = new Image();
-    bgImage.src = '/assets/backgrounds/city_archviz_panorama.jpg';
+    bgImage.src = '/assets/backgrounds/city_archviz_panorama.png';
     let isBgLoaded = false;
     bgImage.onload = () => {
       isBgLoaded = true;
@@ -66,14 +66,14 @@ export default function AnimatedBackground() {
 
     let tick = 0;
 
-    // ── 1. FLOATING BUILDING DATA BADGES ──
+    // ── 1. EXACT FLOATING BUILDING DATA BADGES ALIGNED WITH TOWERS ──
     const buildingBadges = [
-      { name: 'ЖК «LIGHTS A1»', sub: '16 эт. | 2023-2024', xR: 0.058, yR: 0.265, color: '#38bdf8' },
-      { name: 'ЖК «GRAND TULPAN A2»', sub: '24 эт. | 2022-2025', xR: 0.155, yR: 0.138, color: '#38bdf8' },
-      { name: 'ЖК «ARENA A3»', sub: '12 эт. | 2023-2025', xR: 0.232, yR: 0.335, color: '#38bdf8' },
-      { name: 'ЖК «GREEN CITY B1»', sub: '16 эт. | 2021-2024', xR: 0.772, yR: 0.335, color: '#00ff88' },
-      { name: 'ЖК «GRAND TOWER B2»', sub: '26 эт. | 2022-2025', xR: 0.858, yR: 0.115, color: '#fbbf24' },
-      { name: 'ЖК «GRAND PALACE B3»', sub: '20 эт. | 2023-2025', xR: 0.942, yR: 0.220, color: '#38bdf8' }
+      { name: 'ЖК «LIGHTS A1»', sub: '16 эт. | 2023-2024', xR: 0.086, yR: 0.275, color: '#38bdf8' },
+      { name: 'ЖК «GRAND TULPAN A2»', sub: '24 эт. | 2022-2025', xR: 0.165, yR: 0.135, color: '#38bdf8' },
+      { name: 'ЖК «ARENA A3»', sub: '12 эт. | 2023-2025', xR: 0.252, yR: 0.335, color: '#38bdf8' },
+      { name: 'ЖК «GREEN CITY B1»', sub: '16 эт. | 2021-2024', xR: 0.748, yR: 0.345, color: '#00ff88' },
+      { name: 'ЖК «GRAND TOWER B2»', sub: '26 эт. | 2022-2025', xR: 0.826, yR: 0.120, color: '#fbbf24' },
+      { name: 'ЖК «GRAND PALACE B3»', sub: '20 эт. | 2023-2025', xR: 0.920, yR: 0.235, color: '#38bdf8' }
     ];
 
     // ── 2. GLOWING TELEMETRY CONDUIT NETWORK (CYAN & GOLD TRACES) ──
@@ -86,13 +86,13 @@ export default function AnimatedBackground() {
         glow: 'rgba(245, 158, 11, 0.45)',
         width: 2.2,
         points: [
-          { xR: 0.058, yR: 0.58 },
-          { xR: 0.058, yR: 0.68 },
-          { xR: 0.125, yR: 0.68 },
-          { xR: 0.125, yR: 0.62 },
-          { xR: 0.185, yR: 0.62 },
-          { xR: 0.185, yR: 0.74 },
-          { xR: 0.280, yR: 0.74 }
+          { xR: 0.086, yR: 0.52 },
+          { xR: 0.086, yR: 0.65 },
+          { xR: 0.145, yR: 0.65 },
+          { xR: 0.145, yR: 0.60 },
+          { xR: 0.205, yR: 0.60 },
+          { xR: 0.205, yR: 0.74 },
+          { xR: 0.290, yR: 0.74 }
         ],
         pulses: [0.15, 0.65],
         speed: 0.08
@@ -104,10 +104,10 @@ export default function AnimatedBackground() {
         glow: 'rgba(0, 240, 255, 0.45)',
         width: 2.2,
         points: [
-          { xR: 0.155, yR: 0.61 },
-          { xR: 0.155, yR: 0.78 },
-          { xR: 0.210, yR: 0.78 },
-          { xR: 0.210, yR: 0.88 },
+          { xR: 0.165, yR: 0.55 },
+          { xR: 0.165, yR: 0.76 },
+          { xR: 0.220, yR: 0.76 },
+          { xR: 0.220, yR: 0.88 },
           { xR: 0.330, yR: 0.88 },
           { xR: 0.380, yR: 0.93 },
           { xR: 0.500, yR: 0.93 }
@@ -123,13 +123,13 @@ export default function AnimatedBackground() {
         glow: 'rgba(245, 158, 11, 0.45)',
         width: 2.2,
         points: [
-          { xR: 0.942, yR: 0.58 },
-          { xR: 0.942, yR: 0.68 },
-          { xR: 0.858, yR: 0.68 },
-          { xR: 0.858, yR: 0.62 },
-          { xR: 0.805, yR: 0.62 },
-          { xR: 0.805, yR: 0.74 },
-          { xR: 0.720, yR: 0.74 }
+          { xR: 0.920, yR: 0.52 },
+          { xR: 0.920, yR: 0.65 },
+          { xR: 0.850, yR: 0.65 },
+          { xR: 0.850, yR: 0.60 },
+          { xR: 0.795, yR: 0.60 },
+          { xR: 0.795, yR: 0.74 },
+          { xR: 0.710, yR: 0.74 }
         ],
         pulses: [0.18, 0.72],
         speed: 0.08
@@ -141,10 +141,10 @@ export default function AnimatedBackground() {
         glow: 'rgba(0, 240, 255, 0.45)',
         width: 2.2,
         points: [
-          { xR: 0.858, yR: 0.59 },
-          { xR: 0.858, yR: 0.78 },
-          { xR: 0.790, yR: 0.78 },
-          { xR: 0.790, yR: 0.88 },
+          { xR: 0.826, yR: 0.55 },
+          { xR: 0.826, yR: 0.76 },
+          { xR: 0.780, yR: 0.76 },
+          { xR: 0.780, yR: 0.88 },
           { xR: 0.670, yR: 0.88 },
           { xR: 0.620, yR: 0.93 },
           { xR: 0.500, yR: 0.93 }
@@ -171,16 +171,16 @@ export default function AnimatedBackground() {
 
     // ── 3. PARTICLES & FLOATING GLOW NODES ──
     const particles = [];
-    const count = isMobile ? 30 : 70;
+    const count = isMobile ? 30 : 60;
     const colorPalette = ['#38bdf8', '#00f0ff', '#fbbf24', '#f59e0b', '#00ff88', '#ffffff'];
 
     for (let i = 0; i < count; i++) {
       particles.push({
         x: Math.random() * width,
         y: Math.random() * height,
-        vx: (Math.random() - 0.5) * 0.4,
-        vy: (Math.random() - 0.5) * 0.4,
-        radius: Math.random() * 1.8 + 0.8,
+        vx: (Math.random() - 0.5) * 0.3,
+        vy: (Math.random() - 0.5) * 0.3,
+        radius: Math.random() * 1.6 + 0.8,
         color: colorPalette[i % colorPalette.length],
         pulseVal: Math.random() * Math.PI * 2,
         pulseSpeed: 0.02 + Math.random() * 0.02
@@ -279,7 +279,7 @@ export default function AnimatedBackground() {
       const blink = Math.sin(tick * 4 + bx) > 0.2;
       if (blink) {
         ctx.beginPath();
-        ctx.arc(bx, by - 18, 2.5, 0, Math.PI * 2);
+        ctx.arc(bx, by - 16, 2.5, 0, Math.PI * 2);
         ctx.fillStyle = '#ef4444'; // Red aviation warning light
         ctx.shadowColor = '#ef4444';
         ctx.shadowBlur = 10;
@@ -298,9 +298,8 @@ export default function AnimatedBackground() {
 
       ctx.clearRect(0, 0, width, height);
 
-      // 1. Draw High-Res Panorama or Deep Sky Fallback
+      // 1. Draw Exact User Panorama Image
       if (isBgLoaded && bgImage.width > 0) {
-        // Draw image covering the entire canvas (cover mode)
         const imgRatio = bgImage.width / bgImage.height;
         const canvasRatio = width / height;
         let drawW, drawH, drawX, drawY;
@@ -319,27 +318,16 @@ export default function AnimatedBackground() {
 
         ctx.drawImage(bgImage, drawX, drawY, drawW, drawH);
 
-        // Dark Atmospheric Vignette Overlay for UI Contrast & Readability
+        // Subtle Ambient Vignette for Card Readability
         const vignette = ctx.createLinearGradient(0, 0, 0, height);
-        vignette.addColorStop(0.0, 'rgba(8, 12, 22, 0.72)');
-        vignette.addColorStop(0.35, 'rgba(8, 12, 22, 0.45)');
-        vignette.addColorStop(0.70, 'rgba(8, 12, 22, 0.65)');
-        vignette.addColorStop(1.0, 'rgba(8, 12, 22, 0.92)');
+        vignette.addColorStop(0.0, 'rgba(8, 12, 22, 0.45)');
+        vignette.addColorStop(0.35, 'rgba(8, 12, 22, 0.20)');
+        vignette.addColorStop(0.70, 'rgba(8, 12, 22, 0.40)');
+        vignette.addColorStop(1.0, 'rgba(8, 12, 22, 0.85)');
         ctx.fillStyle = vignette;
         ctx.fillRect(0, 0, width, height);
 
-        // Center Horizontal Vignette to enhance center text legibility
-        const centerVignette = ctx.createRadialGradient(
-          width * 0.5, height * 0.45, width * 0.1,
-          width * 0.5, height * 0.45, width * 0.65
-        );
-        centerVignette.addColorStop(0, 'rgba(8, 12, 22, 0.55)');
-        centerVignette.addColorStop(1, 'transparent');
-        ctx.fillStyle = centerVignette;
-        ctx.fillRect(0, 0, width, height);
-
       } else {
-        // High-end Twilight Sky Gradient Fallback
         const sky = ctx.createLinearGradient(0, 0, width, height);
         sky.addColorStop(0, '#0c1022');
         sky.addColorStop(0.5, '#080c16');
