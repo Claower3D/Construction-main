@@ -649,59 +649,38 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
                 </p>
               </div>
 
-              {/* ROLE SELECTION CARDS (Role-Based Visibility: Admin sees all, User sees own role, Guest sees public) */}
-              <div style={{ 
-                display: 'grid', 
-                gridTemplateColumns: visibleRoles.length === 1 ? '1fr' : 'repeat(auto-fit, minmax(260px, 1fr))', 
-                gap: '1.25rem',
-                maxWidth: visibleRoles.length === 1 ? '520px' : '100%',
-                margin: visibleRoles.length === 1 ? '0 auto' : '0'
-              }}>
+              {/* ROLE SELECTION CARDS (Mobile-friendly 2x2 grid & VIP featured layout) */}
+              <div className="home-role-cards-grid">
                 {visibleRoles.map(r => {
                   const isActive = selectedRole === r.id;
+                  const isVip = r.id === 'builder';
                   return (
                     <div 
                       key={r.id}
                       onClick={() => handleSelectRole(r.id)}
+                      className={`home-role-card ${isActive ? 'active' : ''} ${isVip ? 'vip-card' : ''}`}
                       style={{
-                        background: 'rgba(18, 24, 44, 0.82)',
-                        border: isActive ? `2px solid ${r.color}` : '1px solid rgba(255, 255, 255, 0.12)',
-                        borderRadius: '24px',
-                        padding: '1.6rem 1.4rem',
-                        textAlign: 'center',
-                        cursor: 'pointer',
-                        transition: 'all 0.28s cubic-bezier(0.4, 0, 0.2, 1)',
-                        backdropFilter: 'blur(24px)',
-                        boxShadow: isActive ? `0 14px 35px ${r.glow}` : '0 8px 24px rgba(0,0,0,0.35)',
-                        position: 'relative',
-                        transform: isActive ? 'translateY(-2px)' : 'none'
+                        '--role-color': r.color,
+                        '--role-glow': r.glow
                       }}
                     >
-                      {/* Active Glowing Checkmark (as on screenshot 1 & 3) */}
+                      {/* Active Glowing Checkmark */}
                       {isActive && (
-                        <div style={{
-                          position: 'absolute',
-                          top: '12px',
-                          right: '12px',
-                          background: r.color,
-                          color: '#fff',
-                          width: '24px',
-                          height: '24px',
-                          borderRadius: '50%',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          fontWeight: '900',
-                          fontSize: '0.8rem',
-                          boxShadow: `0 0 14px ${r.color}`
-                        }}>
+                        <div className="home-role-check">
                           ✓
                         </div>
                       )}
 
-                      <div style={{ fontSize: '2.5rem', marginBottom: '0.75rem' }}>{r.icon}</div>
-                      <h3 style={{ fontSize: '1.3rem', fontWeight: '800', color: '#fff', margin: '0 0 0.45rem 0' }}>{r.title}</h3>
-                      <p style={{ fontSize: '0.84rem', color: '#cbd5e1', margin: 0, lineHeight: '1.4' }}>{r.desc}</p>
+                      {/* VIP Badge */}
+                      {isVip && !isActive && (
+                        <div className="home-role-vip-tag">VIP</div>
+                      )}
+
+                      <div className="home-role-icon">{r.icon}</div>
+                      <div className="home-role-content">
+                        <h3 className="home-role-title">{r.title}</h3>
+                        <p className="home-role-desc">{r.desc}</p>
+                      </div>
                     </div>
                   );
                 })}
@@ -779,64 +758,33 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
                   <span>ДОСТУПНЫЕ ИНСТРУМЕНТЫ РАЗДЕЛА «{activeRoleObj.title.toUpperCase()}»:</span>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1.25rem' }}>
+                <div className="sub-tools-cards-grid">
                   {activeCards.map(card => (
                     <div 
                       key={card.id}
                       onClick={() => handleSelectItem(card)}
+                      className="sub-tool-card"
                       style={{
-                        background: 'rgba(18, 24, 44, 0.82)',
-                        border: '1px solid rgba(255, 255, 255, 0.12)',
-                        borderRadius: '24px',
-                        padding: '1.6rem',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        textAlign: 'center',
-                        gap: '1rem',
-                        cursor: 'pointer',
-                        backdropFilter: 'blur(24px)',
-                        boxShadow: '0 12px 30px rgba(0,0,0,0.3)',
-                        transition: 'all 0.28s ease',
-                        position: 'relative'
-                      }}
-                      onMouseOver={(e) => {
-                        e.currentTarget.style.transform = 'translateY(-4px)';
-                        e.currentTarget.style.borderColor = activeRoleObj.color;
-                        e.currentTarget.style.boxShadow = `0 16px 35px ${activeRoleObj.glow}`;
-                      }}
-                      onMouseOut={(e) => {
-                        e.currentTarget.style.transform = 'none';
-                        e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.12)';
-                        e.currentTarget.style.boxShadow = '0 12px 30px rgba(0,0,0,0.3)';
+                        '--role-color': activeRoleObj.color,
+                        '--role-glow': activeRoleObj.glow
                       }}
                     >
                       {/* Card Icon */}
-                      <div style={{ width: '64px', height: '64px', borderRadius: '20px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.14)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.4rem' }}>
+                      <div className="sub-tool-icon">
                         {card.icon}
                       </div>
 
                       {/* Card Text */}
-                      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                        <h4 style={{ fontSize: '1.25rem', fontWeight: '800', color: '#fff', margin: '0 0 0.45rem 0' }}>{card.title}</h4>
-                        <p style={{ fontSize: '0.85rem', color: '#cbd5e1', margin: 0, lineHeight: '1.45' }}>{card.desc}</p>
+                      <div className="sub-tool-content">
+                        <h4 className="sub-tool-title">{card.title}</h4>
+                        <p className="sub-tool-desc">{card.desc}</p>
                       </div>
 
                       {/* Card Action Button */}
                       <button 
+                        className="sub-tool-btn"
                         style={{
-                          width: '100%',
-                          background: card.btnGradient,
-                          color: '#fff',
-                          border: 'none',
-                          padding: '0.8rem',
-                          borderRadius: '14px',
-                          fontWeight: '800',
-                          fontSize: '0.92rem',
-                          cursor: 'pointer',
-                          boxShadow: '0 6px 18px rgba(0,0,0,0.25)',
-                          marginTop: '0.4rem',
-                          transition: 'all 0.2s ease'
+                          background: card.btnGradient
                         }}
                       >
                         {card.btnText}

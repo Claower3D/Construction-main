@@ -2426,6 +2426,290 @@ body.light .header-wrapper {
   margin-top: 1rem;
 }
 
+/* Home Page Role Cards (Mobile 2x2 Grid Adaptation) */
+.home-role-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 1.25rem;
+  width: 100%;
+}
+
+.home-role-card {
+  background: rgba(18, 24, 44, 0.82);
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  border-radius: 24px;
+  padding: 1.6rem 1.4rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.home-role-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--role-color, #38bdf8);
+  box-shadow: 0 12px 30px var(--role-glow, rgba(56, 189, 248, 0.3));
+}
+
+.home-role-card.active {
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.92));
+  border: 2px solid var(--role-color, #38bdf8);
+  box-shadow: 0 14px 35px var(--role-glow, rgba(56, 189, 248, 0.45));
+  transform: translateY(-2px);
+}
+
+.home-role-check {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: var(--role-color, #38bdf8);
+  color: #fff;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 0.8rem;
+  box-shadow: 0 0 14px var(--role-color, #38bdf8);
+  z-index: 2;
+}
+
+.home-role-vip-tag {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: #000;
+  font-size: 0.68rem;
+  font-weight: 900;
+  padding: 2px 8px;
+  border-radius: 6px;
+  letter-spacing: 0.5px;
+  z-index: 2;
+}
+
+.home-role-icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.75rem;
+  transition: transform 0.25s ease;
+}
+
+.home-role-card:hover .home-role-icon {
+  transform: scale(1.15);
+}
+
+.home-role-title {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0 0 0.45rem 0;
+  line-height: 1.25;
+}
+
+.home-role-desc {
+  font-size: 0.84rem;
+  color: #cbd5e1;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Mobile Adaptation (<= 768px): 2-Column Grid + Compact Hero Card Layout */
+@media (max-width: 768px) {
+  .home-role-cards-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.75rem !important;
+  }
+
+  .home-role-card.vip-card {
+    grid-column: span 2 !important;
+    flex-direction: row !important;
+    text-align: left !important;
+    align-items: center !important;
+    padding: 1rem 1.1rem !important;
+    gap: 1rem !important;
+    background: rgba(246, 196, 83, 0.08) !important;
+    border: 1.5px solid rgba(246, 196, 83, 0.4) !important;
+  }
+
+  .home-role-card.vip-card .home-role-icon {
+    font-size: 2.2rem !important;
+    margin-bottom: 0 !important;
+    flex-shrink: 0 !important;
+  }
+
+  .home-role-card {
+    padding: 0.9rem 0.7rem !important;
+    border-radius: 18px !important;
+  }
+
+  .home-role-icon {
+    font-size: 1.85rem !important;
+    margin-bottom: 0.4rem !important;
+  }
+
+  .home-role-title {
+    font-size: 0.98rem !important;
+    font-weight: 800 !important;
+    margin-bottom: 0.25rem !important;
+  }
+
+  .home-role-desc {
+    font-size: 0.75rem !important;
+    line-height: 1.3 !important;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+/* Sub-Tools Cards Grid System (Role Tools / Modules) */
+.sub-tools-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.25rem;
+  width: 100%;
+}
+
+.sub-tool-card {
+  background: rgba(18, 24, 44, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 24px;
+  padding: 1.6rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 1rem;
+  cursor: pointer;
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+  transition: all 0.28s ease;
+  position: relative;
+}
+
+.sub-tool-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--role-color, #38bdf8);
+  box-shadow: 0 16px 35px var(--role-glow, rgba(56, 189, 248, 0.35));
+}
+
+.sub-tool-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.4rem;
+  transition: transform 0.25s ease;
+}
+
+.sub-tool-card:hover .sub-tool-icon {
+  transform: scale(1.1);
+}
+
+.sub-tool-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.sub-tool-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #fff;
+  margin: 0 0 0.45rem 0;
+  line-height: 1.25;
+}
+
+.sub-tool-desc {
+  font-size: 0.85rem;
+  color: #cbd5e1;
+  margin: 0;
+  line-height: 1.45;
+}
+
+.sub-tool-btn {
+  width: 100%;
+  color: #fff;
+  border: none;
+  padding: 0.8rem;
+  border-radius: 14px;
+  font-weight: 800;
+  font-size: 0.92rem;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+  margin-top: 0.4rem;
+  transition: all 0.2s ease;
+}
+
+.sub-tool-btn:hover {
+  transform: scale(1.02);
+  filter: brightness(1.15);
+}
+
+/* Sub-Tools Mobile Adaptation (<= 768px): 2 Columns Grid + Compact Tool Cards */
+@media (max-width: 768px) {
+  .sub-tools-cards-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.75rem !important;
+  }
+
+  .sub-tool-card {
+    padding: 0.9rem 0.65rem !important;
+    border-radius: 18px !important;
+    gap: 0.6rem !important;
+  }
+
+  .sub-tool-icon {
+    width: 44px !important;
+    height: 44px !important;
+    border-radius: 14px !important;
+    font-size: 1.6rem !important;
+  }
+
+  .sub-tool-title {
+    font-size: 0.92rem !important;
+    font-weight: 800 !important;
+    margin-bottom: 0.25rem !important;
+    line-height: 1.2 !important;
+  }
+
+  .sub-tool-desc {
+    font-size: 0.73rem !important;
+    line-height: 1.28 !important;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .sub-tool-btn {
+    padding: 0.5rem 0.6rem !important;
+    border-radius: 10px !important;
+    font-size: 0.75rem !important;
+    font-weight: 800 !important;
+    margin-top: 0.2rem !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+}
+
 .role-cards-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
