@@ -313,13 +313,16 @@ func GetBalance(userID string) (balance, escrow float64) {
 
 // UpdateBalance atomically updates balance
 func UpdateBalance(userID string, delta float64) error {
-	_, err := DB.Exec(`UPDATE balances SET balance = balance + ? WHERE user_id = ?`, delta, userID)
+	_, err := DB.Exec(`INSERT INTO balances (user_id, balance, escrow_locked) VALUES (?, 100000 + ?, 0)
+		ON CONFLICT(user_id) DO UPDATE SET balance = balance + ?`, userID, delta, delta)
 	return err
 }
 
 // UpdateEscrow atomically updates escrow
 func UpdateEscrow(userID string, delta float64) error {
-	_, err := DB.Exec(`UPDATE balances SET escrow_locked = CASE WHEN escrow_locked + ? < 0 THEN 0 ELSE escrow_locked + ? END WHERE user_id = ?`, delta, delta, userID)
+	_, err := DB.Exec(`INSERT INTO balances (user_id, balance, escrow_locked) VALUES (?, 100000, ?)
+		ON CONFLICT(user_id) DO UPDATE SET escrow_locked = CASE WHEN escrow_locked + ? < 0 THEN 0 ELSE escrow_locked + ? END`,
+		userID, delta, delta, delta)
 	return err
 }
 
