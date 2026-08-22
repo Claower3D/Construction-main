@@ -16,7 +16,28 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
   const [toastMessage, setToastMessage] = useState(null);
   const [confirmAction, setConfirmAction] = useState(null); // {title, message, onConfirm}
 
-  // Initial Sample Orders with Detailed Stages & Auto-matched Machinery
+  // ═══ СТАТУСЫ ПОТОКА ЗАЯВКИ ═══
+  // new              → Менеджер создал заявку
+  // engineer_assigned → Инженер назначен на выезд
+  // engineer_visit   → Инженер на осмотре объекта
+  // estimate_ready   → Осмотр завершён, смета готова → ищем исполнителя
+  // pending_executor → Ожидает принятия исполнителем
+  // in_progress      → Исполнитель работает
+  // completed        → Заказ завершён
+
+  const STATUS_CONFIG = {
+    new:                { label: '🆕 Новая заявка',           color: '#8b5cf6' },
+    engineer_assigned:  { label: '📋 Инженер назначен',       color: '#f59e0b' },
+    engineer_visit:     { label: '🚗 Выезд инженера',         color: '#f97316' },
+    estimate_ready:     { label: '📊 Смета готова',            color: '#06b6d4' },
+    pending_executor:   { label: '⏳ Ждёт исполнителя',       color: '#eab308' },
+    in_progress:        { label: '🟢 В работе',               color: '#10b981' },
+    completed:          { label: '✅ Завершён',               color: '#22c55e' }
+  };
+
+  const getStatusLabel = (status) => STATUS_CONFIG[status]?.label || status;
+
+  // Initial Sample Orders — показываем все этапы пайплайна
   const [orders, setOrders] = useState([
     {
       id: 'ORD-2026-081',
@@ -25,19 +46,21 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
       clientPhone: '+7 (701) 555-44-33',
       amount: 4850000,
       status: 'in_progress',
-      statusLabel: '🟢 В работе',
       date: '12 авг 2026',
       city: 'Алматы',
       category: 'Отделочные работы',
       description: 'Комплексный ремонт офисного помещения: демонтаж, новая электрика, перегородки из ГКЛ, чистовая отделка.',
+      assignedEngineer: 'Асхат Нурланов',
+      engineerVisitDate: '13.08.2026 10:00',
+      engineerReport: 'Осмотр проведён. Выявлены трещины в несущей стене, требуется усиление. Смета скорректирована.',
+      acceptedBy: 'СтройМастер KZ',
+      acceptedAt: '14.08.2026 16:30',
       stages: [
         {
           id: 'STG-1',
           name: '1. Демонтажные работы и вывоз мусора',
-          status: 'completed',
-          progress: 100,
-          dateRange: '12.08 – 15.08.2026',
-          budget: 650000,
+          status: 'completed', progress: 100,
+          dateRange: '12.08 – 15.08.2026', budget: 650000,
           machinery: [
             { id: 18, name: 'Самосвал Shacman F3000 (25 т)', photo: '/assets/machinery/shacman_dump_truck.jpg', rate: '18 000 ₸ / час', dist: '1.4 км от объекта', status: '🟢 Свободен', assigned: true },
             { id: 11, name: 'Мини-погрузчик Bobcat S530', photo: '/assets/machinery/bobcat_skid_steer.jpg', rate: '14 000 ₸ / час', dist: '1.6 км от объекта', status: '🟢 Свободен', assigned: true }
@@ -46,25 +69,99 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
         {
           id: 'STG-2',
           name: '2. Монтаж перегородок, потолков и электрики',
-          status: 'in_progress',
-          progress: 65,
-          dateRange: '16.08 – 24.08.2026',
-          budget: 1850000,
+          status: 'in_progress', progress: 65,
+          dateRange: '16.08 – 24.08.2026', budget: 1850000,
           machinery: [
-            { id: 8, name: 'Кран-манипулятор КАМАЗ 65117 (КМУ 7 т)', photo: '/assets/machinery/kamaz_manipulator.jpg', rate: '20 000 ₸ / час', dist: '1.8 км от объекта', status: '🟢 Свободен', assigned: true },
-            { id: 22, name: 'Дизель-генератор SDMO 100 кВт (Резерв)', photo: '/assets/machinery/diesel_generator_sdmo.jpg', rate: '12 000 ₸ / час', dist: '1.5 км от объекта', status: '🟢 Свободен', assigned: false }
+            { id: 8, name: 'Кран-манипулятор КАМАЗ 65117 (КМУ 7 т)', photo: '/assets/machinery/kamaz_manipulator.jpg', rate: '20 000 ₸ / час', dist: '1.8 км от объекта', status: '🟢 Свободен', assigned: true }
           ]
         },
         {
           id: 'STG-3',
           name: '3. Чистовая отделка, полы и освещение',
-          status: 'pending',
-          progress: 0,
-          dateRange: '25.08 – 05.09.2026',
-          budget: 2350000,
+          status: 'pending', progress: 0,
+          dateRange: '25.08 – 05.09.2026', budget: 2350000,
           machinery: [
             { id: 12, name: 'Телескопический погрузчик Manitou MT 1840', photo: '/assets/machinery/manitou_telehandler.jpg', rate: '24 000 ₸ / час', dist: '2.3 км от объекта', status: '🟢 Свободен', assigned: false }
           ]
+        }
+      ]
+    },
+    {
+      id: 'ORD-2026-090',
+      title: 'Установка вентиляции в ресторане',
+      clientName: 'ИП «ДастарханГрупп»',
+      clientPhone: '+7 (702) 311-22-44',
+      amount: 2200000,
+      status: 'new',
+      date: '20 авг 2026',
+      city: 'Алматы',
+      category: 'Инженерные сети',
+      description: 'Монтаж приточно-вытяжной вентиляции с рекуперацией для ресторана 180 м².',
+      stages: []
+    },
+    {
+      id: 'ORD-2026-088',
+      title: 'Утепление фасада 5-этажного дома',
+      clientName: 'КСК «Ботанический»',
+      clientPhone: '+7 (771) 900-88-77',
+      amount: 8900000,
+      status: 'engineer_assigned',
+      date: '18 авг 2026',
+      city: 'Астана',
+      category: 'Фасадные работы',
+      description: 'Утепление фасада минватой 100мм, штукатурка, покраска. 5 этажей, 2 подъезда.',
+      assignedEngineer: 'Тимур Каримов',
+      engineerVisitDate: '22.08.2026 09:00',
+      stages: []
+    },
+    {
+      id: 'ORD-2026-085',
+      title: 'Строительство забора и ворот',
+      clientName: 'Марат Сулейменов',
+      clientPhone: '+7 (700) 123-45-67',
+      amount: 1850000,
+      status: 'engineer_visit',
+      date: '16 авг 2026',
+      city: 'Караганда',
+      category: 'Ограждения',
+      description: 'Забор из профнастила 120 м, откатные ворота 4 м, калитка.',
+      assignedEngineer: 'Даулет Жумабаев',
+      engineerVisitDate: '22.08.2026 14:00',
+      stages: []
+    },
+    {
+      id: 'ORD-2026-082',
+      title: 'Ремонт кровли торгового центра',
+      clientName: 'ТОО «МегаМаркет»',
+      clientPhone: '+7 (7172) 55-44-33',
+      amount: 6700000,
+      status: 'estimate_ready',
+      date: '14 авг 2026',
+      city: 'Астана',
+      category: 'Кровельные работы',
+      description: 'Замена мягкой кровли 800 м², ремонт парапетов, установка водостоков.',
+      assignedEngineer: 'Асхат Нурланов',
+      engineerVisitDate: '15.08.2026 11:00',
+      engineerReport: 'Осмотр завершён. Кровля изношена на 70%. Требуется полная замена с гидроизоляцией.',
+      stages: [
+        {
+          id: 'STG-1', name: '1. Демонтаж старого покрытия', status: 'pending', progress: 0,
+          dateRange: '25.08 – 28.08.2026', budget: 1500000,
+          machinery: [
+            { id: 6, name: 'Автовышка телескопическая Hyundai HD78', photo: '/assets/machinery/hyundai_cherry_picker.jpg', rate: '18 000 ₸ / час', dist: '2.0 км', status: '🟢 Свободен', assigned: false }
+          ]
+        },
+        {
+          id: 'STG-2', name: '2. Гидроизоляция и укладка нового покрытия', status: 'pending', progress: 0,
+          dateRange: '29.08 – 08.09.2026', budget: 4200000,
+          machinery: [
+            { id: 5, name: 'Автокран XCMG QY25K5', photo: '/assets/machinery/xcmg_mobile_crane.jpg', rate: '28 000 ₸ / час', dist: '2.1 км', status: '🟢 Свободен', assigned: false }
+          ]
+        },
+        {
+          id: 'STG-3', name: '3. Установка водостоков и парапетов', status: 'pending', progress: 0,
+          dateRange: '09.09 – 12.09.2026', budget: 1000000,
+          machinery: []
         }
       ]
     },
@@ -74,131 +171,41 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
       clientName: 'ИП «СтройСервис»',
       clientPhone: '+7 (705) 888-11-22',
       amount: 14800000,
-      status: 'in_progress',
-      statusLabel: '🟢 В работе',
+      status: 'pending_executor',
       date: '05 авг 2026',
       city: 'Астана',
       category: 'Монолитные работы',
       description: 'Земляные работы, свайное поле, заливка фундаментной плиты и возведение монолитного каркаса.',
+      assignedEngineer: 'Тимур Каримов',
+      engineerVisitDate: '06.08.2026 10:00',
+      engineerReport: 'Грунт скальный, рекомендую увеличить кол-во свай. Геодезическая разбивка выполнена.',
       stages: [
         {
-          id: 'STG-1',
-          name: '1. Земляные работы и разработка котлована',
-          status: 'completed',
-          progress: 100,
-          dateRange: '05.08 – 10.08.2026',
-          budget: 2800000,
+          id: 'STG-1', name: '1. Земляные работы и разработка котлована', status: 'pending', progress: 0,
+          dateRange: '25.08 – 02.09.2026', budget: 2800000,
           machinery: [
-            { id: 1, name: 'Гусеничный экскаватор Hitachi ZX240', photo: '/assets/machinery/hitachi_excavator.jpg', rate: '25 000 ₸ / час', dist: '1.8 км от объекта', status: '🟢 Свободен', assigned: true },
-            { id: 4, name: 'Тяжелый бульдозер CAT D6R', photo: '/assets/machinery/cat_bulldozer.jpg', rate: '32 000 ₸ / час', dist: '2.2 км от объекта', status: '🟢 Свободен', assigned: true },
-            { id: 18, name: 'Самосвал Shacman F3000 (25 т)', photo: '/assets/machinery/shacman_dump_truck.jpg', rate: '18 000 ₸ / час', dist: '1.4 км от объекта', status: '🟢 Свободен', assigned: true }
+            { id: 1, name: 'Гусеничный экскаватор Hitachi ZX240', photo: '/assets/machinery/hitachi_excavator.jpg', rate: '25 000 ₸ / час', dist: '1.8 км', status: '🟢 Свободен', assigned: false },
+            { id: 4, name: 'Тяжелый бульдозер CAT D6R', photo: '/assets/machinery/cat_bulldozer.jpg', rate: '32 000 ₸ / час', dist: '2.2 км', status: '🟢 Свободен', assigned: false }
           ]
         },
         {
-          id: 'STG-2',
-          name: '2. Устройство свайного поля и фундамента',
-          status: 'in_progress',
-          progress: 45,
-          dateRange: '11.08 – 22.08.2026',
-          budget: 5200000,
+          id: 'STG-2', name: '2. Устройство свайного поля и фундамента', status: 'pending', progress: 0,
+          dateRange: '03.09 – 15.09.2026', budget: 5200000,
           machinery: [
-            { id: 21, name: 'Буровая сваебойная установка Bauer BG 28', photo: '/assets/machinery/bauer_piling_rig.jpg', rate: '95 000 ₸ / час', dist: '3.1 км от объекта', status: '🟢 Свободен', assigned: true },
-            { id: 16, name: 'Автобетононасос Putzmeister 38м', photo: '/assets/machinery/concrete_pump.jpg', rate: '40 000 ₸ / час', dist: '1.9 км от объекта', status: '🟢 Свободен', assigned: true },
-            { id: 17, name: 'Автобетоносмеситель КАМАЗ 6520', photo: '/assets/machinery/kamaz_concrete_mixer.jpg', rate: '15 000 ₸ / рейс', dist: '1.4 км от объекта', status: '🟢 Свободен', assigned: true }
+            { id: 21, name: 'Буровая сваебойная установка Bauer BG 28', photo: '/assets/machinery/bauer_piling_rig.jpg', rate: '95 000 ₸ / час', dist: '3.1 км', status: '🟢 Свободен', assigned: false }
           ]
         },
         {
-          id: 'STG-3',
-          name: '3. Монтаж колонн, перекрытий и кровли',
-          status: 'pending',
-          progress: 0,
-          dateRange: '23.08 – 15.09.2026',
-          budget: 6800000,
+          id: 'STG-3', name: '3. Монтаж колонн, перекрытий и кровли', status: 'pending', progress: 0,
+          dateRange: '16.09 – 10.10.2026', budget: 6800000,
           machinery: [
-            { id: 5, name: 'Автокран XCMG QY25K5, 25 т', photo: '/assets/machinery/xcmg_mobile_crane.jpg', rate: '28 000 ₸ / час', dist: '2.1 км от объекта', status: '🟢 Свободен', assigned: false },
-            { id: 6, name: 'Автовышка телескопическая Hyundai HD78', photo: '/assets/machinery/hyundai_cherry_picker.jpg', rate: '18 000 ₸ / час', dist: '2.0 км от объекта', status: '🟢 Свободен', assigned: false }
-          ]
-        }
-      ]
-    },
-    {
-      id: 'ORD-2026-079',
-      title: 'Монтаж системы отопления и HVAC',
-      clientName: 'Алмаз Танирбергенов',
-      clientPhone: '+7 (777) 123-99-88',
-      amount: 1420000,
-      status: 'pending',
-      statusLabel: '🟡 В обработке',
-      date: '10 авг 2026',
-      city: 'Астана',
-      category: 'Инженерные сети',
-      description: 'Установка котла, коллекторов, лучевая разводка теплого пола на 2 этажа коттеджа.',
-      stages: [
-        {
-          id: 'STG-1',
-          name: '1. Прокладка трубопроводов и монтаж коллекторов',
-          status: 'in_progress',
-          progress: 30,
-          dateRange: '10.08 – 18.08.2026',
-          budget: 620000,
-          machinery: [
-            { id: 8, name: 'Кран-манипулятор КАМАЗ 65117', photo: '/assets/machinery/kamaz_manipulator.jpg', rate: '20 000 ₸ / час', dist: '1.8 км от объекта', status: '🟢 Свободен', assigned: true }
-          ]
-        },
-        {
-          id: 'STG-2',
-          name: '2. Опрессовка системы и пусконаладка',
-          status: 'pending',
-          progress: 0,
-          dateRange: '19.08 – 25.08.2026',
-          budget: 800000,
-          machinery: [
-            { id: 23, name: 'Компрессор дизельный Atlas Copco XAS 97', photo: '/assets/machinery/air_compressor_atlas.jpg', rate: '14 000 ₸ / час', dist: '1.7 км от объекта', status: '🟢 Свободен', assigned: false }
-          ]
-        }
-      ]
-    },
-    {
-      id: 'ORD-2026-068',
-      title: 'Строительство подъездной дороги и парковки',
-      clientName: 'ТОО «АктобеДевелопмент»',
-      clientPhone: '+7 (7132) 40-50-60',
-      amount: 6890000,
-      status: 'in_progress',
-      statusLabel: '🟢 В работе',
-      date: '28 июл 2026',
-      city: 'Актобе',
-      category: 'Дорожные работы',
-      description: 'Планировка основания, укладка геотекстиля, щебеночное основание и асфальтирование.',
-      stages: [
-        {
-          id: 'STG-1',
-          name: '1. Земляное корыто и профилирование откосов',
-          status: 'completed',
-          progress: 100,
-          dateRange: '28.07 – 03.08.2026',
-          budget: 2100000,
-          machinery: [
-            { id: 14, name: 'Автогрейдер XCMG GR215 (4.3 м)', photo: '/assets/machinery/motor_grader_xcmg.jpg', rate: '22 000 ₸ / час', dist: '2.7 км от объекта', status: '🟢 Свободен', assigned: true },
-            { id: 13, name: 'Каток дорожный Bomag 14т', photo: '/assets/machinery/road_roller_bomag.jpg', rate: '18 000 ₸ / час', dist: '1.9 км от объекта', status: '🟢 Свободен', assigned: true }
-          ]
-        },
-        {
-          id: 'STG-2',
-          name: '2. Укладка двух слоев горячего асфальтобетона',
-          status: 'in_progress',
-          progress: 50,
-          dateRange: '04.08 – 14.08.2026',
-          budget: 4790000,
-          machinery: [
-            { id: 15, name: 'Асфальтоукладчик Vogele Super 1800-3', photo: '/assets/machinery/asphalt_paver_vogele.jpg', rate: '48 000 ₸ / час', dist: '2.5 км от объекта', status: '🟢 Свободен', assigned: true },
-            { id: 13, name: 'Каток дорожный Bomag 14т', photo: '/assets/machinery/road_roller_bomag.jpg', rate: '18 000 ₸ / час', dist: '1.9 км от объекта', status: '🟢 Свободен', assigned: true },
-            { id: 18, name: 'Самосвал Shacman F3000 (25 т)', photo: '/assets/machinery/shacman_dump_truck.jpg', rate: '18 000 ₸ / час', dist: '1.4 км от объекта', status: '🟢 Свободен', assigned: true }
+            { id: 5, name: 'Автокран XCMG QY25K5', photo: '/assets/machinery/xcmg_mobile_crane.jpg', rate: '28 000 ₸ / час', dist: '2.1 км', status: '🟢 Свободен', assigned: false }
           ]
         }
       ]
     }
   ]);
+
 
   // Form State
   const [newOrderTitle, setNewOrderTitle] = useState('');
@@ -333,7 +340,6 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
       return {
         ...ord,
         status: 'in_progress',
-        statusLabel: '🟢 В работе',
         acceptedBy: currentUser?.name || 'Исполнитель',
         acceptedAt: new Date().toLocaleString()
       };
@@ -345,6 +351,63 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
   // ═══════════════════════════════════════
   // ►  ЗАВЕРШЕНИЕ ЗАКАЗА (все этапы done)
   // ═══════════════════════════════════════
+  // ═══════════════════════════════════════
+  // ►  МЕНЕДЖЕР: Назначить инженера
+  // ═══════════════════════════════════════
+  const handleAssignEngineer = useCallback((orderId, engineerName) => {
+    setOrders(prev => prev.map(ord => {
+      if (ord.id !== orderId) return ord;
+      return {
+        ...ord,
+        status: 'engineer_assigned',
+        assignedEngineer: engineerName,
+        engineerVisitDate: new Date(Date.now() + 86400000).toLocaleString()
+      };
+    }));
+    showToast(`📋 Инженер «${engineerName}» назначен! Ожидает выезд на объект.`);
+    setSelectedOrder(null);
+  }, []);
+
+  // ═══════════════════════════════════════
+  // ►  ИНЖЕНЕР: Начать выезд на объект
+  // ═══════════════════════════════════════
+  const handleStartVisit = useCallback((orderId) => {
+    setOrders(prev => prev.map(ord => {
+      if (ord.id !== orderId) return ord;
+      return { ...ord, status: 'engineer_visit' };
+    }));
+    showToast(`🚗 Выезд на объект начат! Инженер направляется.`);
+    setSelectedOrder(null);
+  }, []);
+
+  // ═══════════════════════════════════════
+  // ►  ИНЖЕНЕР: Завершить осмотр → смета готова
+  // ═══════════════════════════════════════
+  const handleCompleteInspection = useCallback((orderId, report) => {
+    setOrders(prev => prev.map(ord => {
+      if (ord.id !== orderId) return ord;
+      return {
+        ...ord,
+        status: 'estimate_ready',
+        engineerReport: report || 'Осмотр проведён. Смета сформирована на основании обследования.'
+      };
+    }));
+    showToast(`📊 Осмотр завершён! Смета готова. Заявка передаётся на поиск исполнителя.`);
+    setSelectedOrder(null);
+  }, []);
+
+  // ═══════════════════════════════════════
+  // ►  МЕНЕДЖЕР: Отправить исполнителю
+  // ═══════════════════════════════════════
+  const handleSendToExecutor = useCallback((orderId) => {
+    setOrders(prev => prev.map(ord => {
+      if (ord.id !== orderId) return ord;
+      return { ...ord, status: 'pending_executor' };
+    }));
+    showToast(`⏳ Заявка выставлена для исполнителей. Ожидаем принятие.`);
+    setSelectedOrder(null);
+  }, []);
+
   const handleCompleteOrder = useCallback((orderId) => {
     setConfirmAction({
       title: '🎉 Завершить заказ?',
@@ -355,7 +418,6 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
           return {
             ...ord,
             status: 'completed',
-            statusLabel: '✅ Завершён',
             completedAt: new Date().toLocaleString()
           };
         }));
@@ -377,8 +439,12 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
         if (!matchesTitle && !matchesClient && !matchesId) return false;
       }
 
-      if (statusFilter !== 'all' && ord.status !== statusFilter) {
-        return false;
+      if (statusFilter !== 'all') {
+        if (statusFilter === 'engineer') {
+          if (!['engineer_assigned', 'engineer_visit', 'estimate_ready'].includes(ord.status)) return false;
+        } else if (ord.status !== statusFilter) {
+          return false;
+        }
       }
 
       return true;
@@ -439,12 +505,12 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
       clientName: newOrderClient,
       clientPhone: '+7 (700) 000-00-00',
       amount: parseFloat(newOrderAmount),
-      status: 'pending',
-      statusLabel: '🟡 В обработке',
+      status: 'new',
       date: 'Сегодня',
       city: newOrderCity,
       category: 'Общее строительство',
-      description: 'Новый созданный заказ.'
+      description: 'Новый созданный заказ.',
+      stages: []
     };
 
     setOrders([newOrd, ...orders]);
@@ -523,30 +589,22 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
 
             {/* Filter Tabs */}
             <div className="uo-filter-tabs">
-              <button 
-                className={`uo-tab ${statusFilter === 'all' ? 'active' : ''}`}
-                onClick={() => setStatusFilter('all')}
-              >
-                Все
-              </button>
-              <button 
-                className={`uo-tab ${statusFilter === 'in_progress' ? 'active' : ''}`}
-                onClick={() => setStatusFilter('in_progress')}
-              >
-                🟢 В работе
-              </button>
-              <button 
-                className={`uo-tab ${statusFilter === 'pending' ? 'active' : ''}`}
-                onClick={() => setStatusFilter('pending')}
-              >
-                🟡 В обработке
-              </button>
-              <button 
-                className={`uo-tab ${statusFilter === 'completed' ? 'active' : ''}`}
-                onClick={() => setStatusFilter('completed')}
-              >
-                ✅ Завершённые
-              </button>
+              {[
+                { key: 'all', label: 'Все' },
+                { key: 'new', label: '🆕 Новые' },
+                { key: 'engineer', label: '🚗 Инженер' },
+                { key: 'pending_executor', label: '⏳ Ждёт исполнителя' },
+                { key: 'in_progress', label: '🟢 В работе' },
+                { key: 'completed', label: '✅ Завершённые' }
+              ].map(tab => (
+                <button 
+                  key={tab.key}
+                  className={`uo-tab ${statusFilter === tab.key ? 'active' : ''}`}
+                  onClick={() => setStatusFilter(tab.key)}
+                >
+                  {tab.label}
+                </button>
+              ))}
             </div>
           </div>
 
@@ -606,7 +664,7 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
 
                       <td>
                         <span className={`uo-status-pill ${ord.status}`}>
-                          {ord.statusLabel}
+                          {getStatusLabel(ord.status)}
                         </span>
                       </td>
 
@@ -656,12 +714,76 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
 
               <div className="uo-m-row">
                 <span className="label">Текущий статус:</span>
-                <span className={`uo-status-pill ${selectedOrder.status}`}>{selectedOrder.statusLabel}</span>
+                <span className={`uo-status-pill ${selectedOrder.status}`}>{getStatusLabel(selectedOrder.status)}</span>
               </div>
 
               <div className="uo-m-section mt-3">
                 <h4>📋 Описание объекта</h4>
                 <p>{selectedOrder.description}</p>
+              </div>
+
+              {/* ═══ ПАЙПЛАЙН: Информация об инженере ═══ */}
+              {(selectedOrder.assignedEngineer || ['engineer_assigned','engineer_visit','estimate_ready','pending_executor','in_progress','completed'].includes(selectedOrder.status)) && (
+                <div style={{ marginTop: '1.25rem', padding: '14px', background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.25)', borderRadius: '12px' }}>
+                  <h4 style={{ margin: '0 0 10px', fontSize: '1rem', color: '#f59e0b', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    🏗️ Выезд инженера
+                  </h4>
+                  {selectedOrder.assignedEngineer && (
+                    <div style={{ fontSize: '0.85rem', color: '#e2e8f0', marginBottom: '6px' }}>
+                      👷 Инженер: <strong>{selectedOrder.assignedEngineer}</strong>
+                    </div>
+                  )}
+                  {selectedOrder.engineerVisitDate && (
+                    <div style={{ fontSize: '0.85rem', color: '#94a3b8', marginBottom: '6px' }}>
+                      📅 Дата выезда: <strong style={{ color: '#38bdf8' }}>{selectedOrder.engineerVisitDate}</strong>
+                    </div>
+                  )}
+                  {selectedOrder.engineerReport && (
+                    <div style={{ fontSize: '0.85rem', color: '#94a3b8', marginTop: '8px', padding: '10px', background: 'rgba(0,0,0,0.3)', borderRadius: '8px', lineHeight: 1.5 }}>
+                      📝 <strong style={{ color: '#e2e8f0' }}>Отчёт инженера:</strong> {selectedOrder.engineerReport}
+                    </div>
+                  )}
+                  {selectedOrder.acceptedBy && (
+                    <div style={{ fontSize: '0.85rem', color: '#10b981', marginTop: '6px' }}>
+                      ✅ Принято исполнителем: <strong>{selectedOrder.acceptedBy}</strong> ({selectedOrder.acceptedAt})
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* ═══ ПАЙПЛАЙН: Кнопки действий по ролям ═══ */}
+              <div style={{ marginTop: '1rem', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                {/* Менеджер: Назначить инженера (new → engineer_assigned) */}
+                {selectedOrder.status === 'new' && (role === 'manager' || role === 'admin' || role === 'customer') && (
+                  <button onClick={() => handleAssignEngineer(selectedOrder.id, 'Асхат Нурланов')}
+                    style={{ background: 'linear-gradient(135deg, #f59e0b, #d97706)', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 800, cursor: 'pointer' }}>
+                    📋 Назначить инженера
+                  </button>
+                )}
+
+                {/* Инженер: Начать выезд (engineer_assigned → engineer_visit) */}
+                {selectedOrder.status === 'engineer_assigned' && (role === 'engineer' || role === 'manager' || role === 'admin') && (
+                  <button onClick={() => handleStartVisit(selectedOrder.id)}
+                    style={{ background: 'linear-gradient(135deg, #f97316, #ea580c)', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 800, cursor: 'pointer' }}>
+                    🚗 Начать выезд на объект
+                  </button>
+                )}
+
+                {/* Инженер: Завершить осмотр (engineer_visit → estimate_ready) */}
+                {selectedOrder.status === 'engineer_visit' && (role === 'engineer' || role === 'manager' || role === 'admin') && (
+                  <button onClick={() => handleCompleteInspection(selectedOrder.id, 'Осмотр проведён. Замечания учтены. Смета сформирована.')}
+                    style={{ background: 'linear-gradient(135deg, #06b6d4, #0891b2)', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 800, cursor: 'pointer' }}>
+                    📊 Завершить осмотр и сформировать смету
+                  </button>
+                )}
+
+                {/* Менеджер: Отправить исполнителю (estimate_ready → pending_executor) */}
+                {selectedOrder.status === 'estimate_ready' && (role === 'manager' || role === 'admin' || role === 'customer') && (
+                  <button onClick={() => handleSendToExecutor(selectedOrder.id)}
+                    style={{ background: 'linear-gradient(135deg, #eab308, #ca8a04)', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 800, cursor: 'pointer' }}>
+                    ⏳ Отправить на поиск исполнителя
+                  </button>
+                )}
               </div>
 
               {/* 🚜 SMART GPS MACHINERY DISPATCH FOR PROJECT STAGES */}
@@ -831,8 +953,8 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
             </div>
 
             <div className="uo-m-actions">
-              {/* Кнопка: Взять заказ (для исполнителя, если pending) */}
-              {selectedOrder.status === 'pending' && (role === 'engineer' || role === 'executor' || role === 'company') && (
+              {/* Кнопка: Взять заказ (для исполнителя, если pending_executor) */}
+              {selectedOrder.status === 'pending_executor' && (role === 'engineer' || role === 'executor' || role === 'company') && (
                 <button 
                   className="uo-btn-chat"
                   style={{ background: 'linear-gradient(135deg, #f59e0b, #d97706)', border: '1px solid rgba(245,158,11,0.5)' }}
