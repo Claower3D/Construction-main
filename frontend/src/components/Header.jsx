@@ -569,8 +569,8 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
 
         </div>
 
-        {/* ── CITY SELECTOR WITH GPS AUTO-DETECTION ── */}
-        <div className="city-picker-box" style={{ position: 'relative' }}>
+        {/* ── CITY SELECTOR (Desktop Header) ── */}
+        <div className="city-picker-box desktop-city-picker" style={{ position: 'relative' }}>
           <button
             className="city-select-btn"
             onClick={() => {
@@ -745,6 +745,17 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
               </div>
             </>
           )}
+        </div>
+
+        {/* Mobile Header Bar Quick Actions & Hamburger Trigger */}
+        <div className="mobile-header-actions">
+          <button
+            className="mobile-menu-btn"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            aria-label="Toggle Navigation Menu"
+          >
+            {isMobileMenuOpen ? '✕' : '☰'}
+          </button>
         </div>
 
         {/* Right Action Icons & Login */}
@@ -945,17 +956,6 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
             </>
           )}
         </div>
-
-        {/* Mobile Header Bar Quick Actions & Hamburger Trigger */}
-        <div className="mobile-header-actions">
-          <button
-            className="mobile-menu-btn"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            aria-label="Toggle Navigation Menu"
-          >
-            {isMobileMenuOpen ? '✕' : '☰'}
-          </button>
-        </div>
       </div>
     </header>
 
@@ -977,6 +977,42 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
             </div>
 
             <div className="mobile-drawer-body">
+              {/* City Selection in Side Menu Drawer */}
+              <div className="mobile-drawer-section" style={{ background: 'rgba(0, 229, 255, 0.06)', borderRadius: '16px', padding: '12px 14px', border: '1px solid rgba(0, 229, 255, 0.25)', marginBottom: '0.85rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#fff', fontSize: '0.88rem', fontWeight: 800 }}>
+                    <span style={{ fontSize: '1rem' }}>📍</span>
+                    <span>Регион: <strong style={{ color: '#00e5ff' }}>{selectedCity || 'Астана'}</strong></span>
+                  </div>
+                  <button
+                    onClick={handleAutoDetectCity}
+                    disabled={isDetectingCity}
+                    style={{
+                      background: 'rgba(0, 229, 255, 0.18)', border: '1px solid rgba(0, 229, 255, 0.4)',
+                      color: '#00e5ff', padding: '4px 10px', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer',
+                      display: 'flex', alignItems: 'center', gap: '4px'
+                    }}
+                  >
+                    {isDetectingCity ? '⟳ GPS...' : '📡 GPS'}
+                  </button>
+                </div>
+                <select
+                  value={selectedCity}
+                  onChange={(e) => handleCitySelect(e.target.value)}
+                  style={{
+                    width: '100%', padding: '10px 12px', borderRadius: '10px',
+                    background: '#0a1226', border: '1px solid rgba(0, 229, 255, 0.35)',
+                    color: '#00e5ff', fontWeight: 800, fontSize: '0.88rem', outline: 'none', cursor: 'pointer'
+                  }}
+                >
+                  {KZ_CITIES.map(c => (
+                    <option key={c.name} value={c.name} style={{ background: '#0a1226', color: '#fff' }}>
+                      📍 {c.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
               {currentUser && (
                 <>
                   {/* Role Badge / Switcher in Drawer */}
@@ -1024,41 +1060,6 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
                       )}
                     </div>
                   </div>
-
-              {/* City Selection in Mobile Drawer */}
-              <div className="mobile-drawer-section" style={{ background: 'rgba(255, 255, 255, 0.04)', borderRadius: '14px', padding: '10px 12px', border: '1px solid rgba(255, 255, 255, 0.08)', marginBottom: '0.65rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#fff', fontSize: '0.85rem', fontWeight: 800 }}>
-                    <span>📍</span>
-                    <span>Город: <strong style={{ color: '#00e5ff' }}>{selectedCity || 'Астана'}</strong></span>
-                  </div>
-                  <button
-                    onClick={handleAutoDetectCity}
-                    disabled={isDetectingCity}
-                    style={{
-                      background: 'rgba(0, 229, 255, 0.15)', border: '1px solid rgba(0, 229, 255, 0.35)',
-                      color: '#00e5ff', padding: '3px 8px', borderRadius: '6px', fontSize: '0.72rem', fontWeight: 700, cursor: 'pointer'
-                    }}
-                  >
-                    {isDetectingCity ? '⟳...' : '📡 GPS'}
-                  </button>
-                </div>
-                <select
-                  value={selectedCity}
-                  onChange={(e) => handleCitySelect(e.target.value)}
-                  style={{
-                    width: '100%', padding: '8px 10px', borderRadius: '8px',
-                    background: '#0a1226', border: '1px solid rgba(0, 229, 255, 0.3)',
-                    color: '#00e5ff', fontWeight: 700, fontSize: '0.85rem', outline: 'none', cursor: 'pointer'
-                  }}
-                >
-                  {KZ_CITIES.map(c => (
-                    <option key={c.name} value={c.name} style={{ background: '#0a1226', color: '#fff' }}>
-                      📍 {c.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
 
               {/* Account Balance */}
               <div 
