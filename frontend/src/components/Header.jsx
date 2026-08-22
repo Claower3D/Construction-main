@@ -915,11 +915,10 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
                 <>
                   {/* Role Badge / Switcher in Drawer */}
                   <div className="mobile-drawer-section">
-                    <div className="role-switcher-toggle" style={{ width: '100%', justifyContent: 'center' }}>
+                    <div className="role-switcher-toggle">
                       {(!currentUser || currentUser.role === 'admin' || currentUser.role === 'customer') && (
                         <button
                           className={`role-tab-btn ${role === 'customer' ? 'active' : ''}`}
-                          style={{ flex: 1, textAlign: 'center' }}
                           onClick={() => setRole('customer')}
                         >
                           📋 Заказчик
@@ -928,7 +927,6 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
                       {(!currentUser || currentUser.role === 'admin' || currentUser.role === 'executor') && (
                         <button
                           className={`role-tab-btn ${role === 'executor' ? 'active' : ''}`}
-                          style={{ flex: 1, textAlign: 'center' }}
                           onClick={() => setRole('executor')}
                         >
                           🛠️ Исполнитель
@@ -937,7 +935,6 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
                       {currentUser?.role === 'manager' && (
                         <button
                           className={`role-tab-btn ${role === 'manager' ? 'active' : ''}`}
-                          style={{ flex: 1, textAlign: 'center' }}
                           onClick={() => setRole('manager')}
                         >
                           💼 Менеджер
@@ -946,7 +943,6 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
                       {currentUser?.role === 'engineer' && (
                         <button
                           className={`role-tab-btn ${role === 'engineer' ? 'active' : ''}`}
-                          style={{ flex: 1, textAlign: 'center' }}
                           onClick={() => setRole('engineer')}
                         >
                           👷 Инженер
@@ -955,7 +951,6 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
                       {currentUser?.role === 'company' && (
                         <button
                           className={`role-tab-btn ${role === 'company' ? 'active' : ''}`}
-                          style={{ flex: 1, textAlign: 'center' }}
                           onClick={() => setRole('company')}
                         >
                           🏢 Компания
