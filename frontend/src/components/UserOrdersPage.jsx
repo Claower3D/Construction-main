@@ -1,5 +1,11 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import './UserOrdersPage.css';
+
+// ── Ключ для localStorage ──
+function getOrdersKey(user) {
+  const uid = user?.login || user?.email || user?.name || 'shared';
+  return `qazgost_orders_${uid}`;
+}
 
 export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
   const [role, setRole] = useState(currentUser?.role || 'customer');
@@ -8,6 +14,7 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [toastMessage, setToastMessage] = useState(null);
+  const [confirmAction, setConfirmAction] = useState(null); // {title, message, onConfirm}
 
   // Initial Sample Orders with Detailed Stages & Auto-matched Machinery
   const [orders, setOrders] = useState([
@@ -201,8 +208,163 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
 
   const showToast = (msg) => {
     setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 3000);
+    setTimeout(() => setToastMessage(null), 3500);
   };
+
+  // ── localStorage: загрузка заказов при монтировании ──
+  useEffect(() => {
+    try {
+      const key = getOrdersKey(currentUser);
+      const saved = localStorage.getItem(key);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setOrders(parsed);
+        }
+      }
+    } catch (e) { console.warn('Orders load error:', e); }
+  }, [currentUser]);
+
+  // ── localStorage: сохранение заказов при изменении ──
+  useEffect(() => {
+    try {
+      const key = getOrdersKey(currentUser);
+      localStorage.setItem(key, JSON.stringify(orders));
+    } catch (e) { console.warn('Orders save error:', e); }
+  }, [orders, currentUser]);
+
+  // ── Обновить статус заказа на основе прогресса этапов ──
+  const recalcOrderStatus = useCallback((order) => {
+    if (!order.stages || order.stages.length === 0) return order;
+    const allCompleted = order.stages.every(s => s.status === 'completed');
+    const anyInProgress = order.stages.some(s => s.status === 'in_progress');
+    const anyCompleted = order.stages.some(s => s.status === 'completed');
+    
+    if (allCompleted) {
+      return { ...order, status: 'completed', statusLabel: '✅ Завершён' };
+    } else if (anyInProgress || anyCompleted) {
+      return { ...order, status: 'in_progress', statusLabel: '🟢 В работе' };
+    }
+    return order;
+  }, []);
+
+  // ═══════════════════════════════════════
+  // ►  ПРОГРЕССИЯ ЭТАПОВ (Начать / Завершить)
+  // ═══════════════════════════════════════
+  const handleStartStage = useCallback((orderId, stageId) => {
+    setOrders(prev => prev.map(ord => {
+      if (ord.id !== orderId) return ord;
+      const updated = {
+        ...ord,
+        stages: ord.stages.map(stg => {
+          if (stg.id !== stageId) return stg;
+          return { ...stg, status: 'in_progress', progress: 10 };
+        })
+      };
+      return recalcOrderStatus(updated);
+    }));
+    showToast(`🚀 Этап начат! Эскроу заморожен на сумму этапа`);
+  }, [recalcOrderStatus]);
+
+  const handleCompleteStage = useCallback((orderId, stageId) => {
+    setConfirmAction({
+      title: '✅ Завершить этап?',
+      message: 'Подтвердите завершение этапа. Эскроу по этапу будет разморожен и переведён исполнителю.',
+      onConfirm: () => {
+        setOrders(prev => prev.map(ord => {
+          if (ord.id !== orderId) return ord;
+          const updated = {
+            ...ord,
+            stages: ord.stages.map(stg => {
+              if (stg.id !== stageId) return stg;
+              return { ...stg, status: 'completed', progress: 100 };
+            })
+          };
+          return recalcOrderStatus(updated);
+        }));
+        // Обновляем selectedOrder тоже
+        setSelectedOrder(prev => {
+          if (!prev || prev.id !== orderId) return prev;
+          const updated = {
+            ...prev,
+            stages: prev.stages.map(stg => {
+              if (stg.id !== stageId) return stg;
+              return { ...stg, status: 'completed', progress: 100 };
+            })
+          };
+          return recalcOrderStatus(updated);
+        });
+        showToast(`✅ Этап завершён! Эскроу ${formatMoney(0)} разморожен → исполнителю`);
+        setConfirmAction(null);
+      }
+    });
+  }, [recalcOrderStatus]);
+
+  const handleUpdateProgress = useCallback((orderId, stageId, newProgress) => {
+    setOrders(prev => prev.map(ord => {
+      if (ord.id !== orderId) return ord;
+      return {
+        ...ord,
+        stages: ord.stages.map(stg => {
+          if (stg.id !== stageId) return stg;
+          return { ...stg, progress: Math.min(99, Math.max(1, newProgress)) };
+        })
+      };
+    }));
+    // Обновляем selectedOrder
+    setSelectedOrder(prev => {
+      if (!prev || prev.id !== orderId) return prev;
+      return {
+        ...prev,
+        stages: prev.stages.map(stg => {
+          if (stg.id !== stageId) return stg;
+          return { ...stg, progress: Math.min(99, Math.max(1, newProgress)) };
+        })
+      };
+    });
+  }, []);
+
+  // ═══════════════════════════════════════
+  // ►  ПРИНЯТИЕ ЗАКАЗА ИСПОЛНИТЕЛЕМ
+  // ═══════════════════════════════════════
+  const handleAcceptOrder = useCallback((orderId) => {
+    setOrders(prev => prev.map(ord => {
+      if (ord.id !== orderId) return ord;
+      return {
+        ...ord,
+        status: 'in_progress',
+        statusLabel: '🟢 В работе',
+        acceptedBy: currentUser?.name || 'Исполнитель',
+        acceptedAt: new Date().toLocaleString()
+      };
+    }));
+    showToast(`✅ Заказ ${orderId} принят! Вы назначены исполнителем.`);
+    setSelectedOrder(null);
+  }, [currentUser]);
+
+  // ═══════════════════════════════════════
+  // ►  ЗАВЕРШЕНИЕ ЗАКАЗА (все этапы done)
+  // ═══════════════════════════════════════
+  const handleCompleteOrder = useCallback((orderId) => {
+    setConfirmAction({
+      title: '🎉 Завершить заказ?',
+      message: 'Все этапы выполнены. Подтвердите завершение заказа. Остатки эскроу будут разморожены. Заказчик получит уведомление.',
+      onConfirm: () => {
+        setOrders(prev => prev.map(ord => {
+          if (ord.id !== orderId) return ord;
+          return {
+            ...ord,
+            status: 'completed',
+            statusLabel: '✅ Завершён',
+            completedAt: new Date().toLocaleString()
+          };
+        }));
+        showToast(`🎉 Заказ ${orderId} завершён! Все средства разморожены.`);
+        setSelectedOrder(null);
+        setConfirmAction(null);
+      }
+    });
+  }, []);
 
   // Dynamic Filtering
   const filteredOrders = useMemo(() => {
@@ -538,13 +700,72 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
                         </div>
 
                         {/* Progress bar */}
-                        <div style={{ height: '6px', background: 'rgba(255, 255, 255, 0.1)', borderRadius: '4px', overflow: 'hidden', marginBottom: '14px' }}>
+                        <div style={{ height: '6px', background: 'rgba(255, 255, 255, 0.1)', borderRadius: '4px', overflow: 'hidden', marginBottom: '8px' }}>
                           <div style={{
                             width: `${stg.progress}%`,
                             height: '100%',
                             background: stg.status === 'completed' ? '#10b981' : 'linear-gradient(90deg, #38bdf8, #00ff88)',
                             transition: 'width 0.4s ease'
                           }} />
+                        </div>
+
+                        {/* ═══ УПРАВЛЕНИЕ ЭТАПОМ ═══ */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
+                          {/* Эскроу индикатор */}
+                          <div style={{
+                            padding: '4px 10px', borderRadius: '8px', fontSize: '0.72rem', fontWeight: 700,
+                            background: stg.status === 'completed' ? 'rgba(16,185,129,0.15)' : stg.status === 'in_progress' ? 'rgba(245,158,11,0.15)' : 'rgba(255,255,255,0.06)',
+                            color: stg.status === 'completed' ? '#10b981' : stg.status === 'in_progress' ? '#f59e0b' : '#64748b',
+                            border: `1px solid ${stg.status === 'completed' ? 'rgba(16,185,129,0.3)' : stg.status === 'in_progress' ? 'rgba(245,158,11,0.3)' : 'rgba(255,255,255,0.1)'}`
+                          }}>
+                            {stg.status === 'completed' ? '🔓 Эскроу разморожен' : stg.status === 'in_progress' ? `🔒 Эскроу: ${formatMoney(stg.budget || 0)}` : '💤 Эскроу не активен'}
+                          </div>
+
+                          <div style={{ flex: 1 }} />
+
+                          {/* Кнопка: Начать этап */}
+                          {stg.status === 'pending' && (
+                            <button
+                              onClick={() => handleStartStage(selectedOrder.id, stg.id)}
+                              style={{
+                                background: 'linear-gradient(135deg, #0284c7, #0369a1)', color: '#fff',
+                                border: '1px solid rgba(56, 189, 248, 0.5)', padding: '6px 14px',
+                                borderRadius: '8px', fontSize: '0.78rem', fontWeight: 800, cursor: 'pointer'
+                              }}
+                            >
+                              🚀 Начать этап
+                            </button>
+                          )}
+
+                          {/* Слайдер прогресса + Завершить */}
+                          {stg.status === 'in_progress' && (
+                            <>
+                              <input
+                                type="range"
+                                min="1" max="99"
+                                value={stg.progress}
+                                onChange={(e) => handleUpdateProgress(selectedOrder.id, stg.id, parseInt(e.target.value))}
+                                style={{ width: '100px', accentColor: '#00e5ff', cursor: 'pointer' }}
+                                title={`Прогресс: ${stg.progress}%`}
+                              />
+                              <span style={{ fontSize: '0.75rem', color: '#38bdf8', fontWeight: 800, minWidth: '35px' }}>{stg.progress}%</span>
+                              <button
+                                onClick={() => handleCompleteStage(selectedOrder.id, stg.id)}
+                                style={{
+                                  background: 'linear-gradient(135deg, #059669, #047857)', color: '#fff',
+                                  border: '1px solid rgba(16, 185, 129, 0.5)', padding: '6px 14px',
+                                  borderRadius: '8px', fontSize: '0.78rem', fontWeight: 800, cursor: 'pointer'
+                                }}
+                              >
+                                ✅ Завершить этап
+                              </button>
+                            </>
+                          )}
+
+                          {/* Завершён */}
+                          {stg.status === 'completed' && (
+                            <span style={{ fontSize: '0.75rem', color: '#10b981', fontWeight: 700 }}>✓ Выполнено на 100%</span>
+                          )}
                         </div>
 
                         {/* Needed Machinery for this stage */}
@@ -610,6 +831,28 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
             </div>
 
             <div className="uo-m-actions">
+              {/* Кнопка: Взять заказ (для исполнителя, если pending) */}
+              {selectedOrder.status === 'pending' && (role === 'engineer' || role === 'executor' || role === 'company') && (
+                <button 
+                  className="uo-btn-chat"
+                  style={{ background: 'linear-gradient(135deg, #f59e0b, #d97706)', border: '1px solid rgba(245,158,11,0.5)' }}
+                  onClick={() => handleAcceptOrder(selectedOrder.id)}
+                >
+                  ✋ Взять заказ
+                </button>
+              )}
+
+              {/* Кнопка: Завершить заказ (если все этапы completed) */}
+              {selectedOrder.stages && selectedOrder.stages.length > 0 && selectedOrder.stages.every(s => s.status === 'completed') && selectedOrder.status !== 'completed' && (
+                <button 
+                  className="uo-btn-chat"
+                  style={{ background: 'linear-gradient(135deg, #10b981, #059669)', border: '1px solid rgba(16,185,129,0.5)' }}
+                  onClick={() => handleCompleteOrder(selectedOrder.id)}
+                >
+                  🎉 Завершить заказ
+                </button>
+              )}
+
               <button 
                 className="uo-btn-chat"
                 onClick={() => showToast(`💬 Чат по заказу ${selectedOrder.id} открыт`)}
@@ -693,6 +936,38 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
                 🚀 Сохранить и выставить заказ
               </button>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* ═══ Модалка подтверждения (Эскроу / Завершение) ═══ */}
+      {confirmAction && (
+        <div className="uo-modal-overlay" onClick={() => setConfirmAction(null)} style={{ zIndex: 10001 }}>
+          <div className="uo-modal-card" onClick={e => e.stopPropagation()} style={{ maxWidth: '440px', textAlign: 'center' }}>
+            <h3 style={{ fontSize: '1.3rem', marginBottom: '12px' }}>{confirmAction.title}</h3>
+            <p style={{ color: '#94a3b8', fontSize: '0.9rem', marginBottom: '24px', lineHeight: 1.6 }}>{confirmAction.message}</p>
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+              <button
+                onClick={confirmAction.onConfirm}
+                style={{
+                  background: 'linear-gradient(135deg, #10b981, #059669)', color: '#fff',
+                  border: 'none', padding: '10px 28px', borderRadius: '10px',
+                  fontSize: '0.9rem', fontWeight: 800, cursor: 'pointer'
+                }}
+              >
+                ✅ Подтвердить
+              </button>
+              <button
+                onClick={() => setConfirmAction(null)}
+                style={{
+                  background: 'rgba(255,255,255,0.08)', color: '#94a3b8',
+                  border: '1px solid rgba(255,255,255,0.15)', padding: '10px 28px', borderRadius: '10px',
+                  fontSize: '0.9rem', fontWeight: 700, cursor: 'pointer'
+                }}
+              >
+                Отмена
+              </button>
+            </div>
           </div>
         </div>
       )}
