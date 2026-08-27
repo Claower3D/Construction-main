@@ -71,6 +71,15 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         logger.warning(f"⚠️  DefectAnalyzer preload skipped: {e}")
 
+    # --- Preload QazGost AI DefectNN ---
+    try:
+        from app.models.defect_nn import get_defect_nn
+        dnn = get_defect_nn()
+        mode = "NN" if dnn.is_nn_mode else "OpenCV-fallback"
+        logger.info(f"✅ QazGost AI DefectNN loaded [{mode}]")
+    except Exception as e:
+        logger.warning(f"⚠️  DefectNN preload skipped: {e}")
+
     # --- Preload PriceDB ---
     try:
         from app.services.estimator import _load_price_db
@@ -142,6 +151,14 @@ app.include_router(analyze.router, prefix="/api/v1", tags=["Analysis"])
 app.include_router(estimates.router, tags=["Estimates"])
 app.include_router(metrics.router, tags=["Monitoring"])
 app.include_router(auth.router, prefix="/api", tags=["Auth"])
+
+# QazGost AI Phase 2: LiDAR & Engineering
+try:
+    from app.api.v1.engineering import router as eng_router
+    app.include_router(eng_router, tags=["LiDAR & Engineering"])
+    logger.info("✅ Engineering & LiDAR API routes registered")
+except ImportError as e:
+    logger.warning(f"⚠️  Engineering routes not loaded: {e}")
 
 # Prometheus metrics middleware
 app.middleware("http")(metrics.metrics_middleware)
