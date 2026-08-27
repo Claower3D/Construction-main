@@ -18,6 +18,7 @@ services:
       - UPLOAD_DIR=/app/uploads
       - FRONTEND_URL=http://localhost:5173
       - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - AI_SERVICE_URL=http://ai-service:8001
     volumes:
       - backend-data:/app/data
       - backend-uploads:/app/uploads
@@ -28,6 +29,9 @@ services:
       timeout: 5s
       retries: 3
       start_period: 10s
+    depends_on:
+      ai-service:
+        condition: service_healthy
     networks:
       - qazgost-net
 
@@ -42,13 +46,14 @@ services:
       - "5173:5173"
     environment:
       - VITE_API_URL=http://backend:8080
+      - VITE_AI_SERVICE_URL=http://ai-service:8001
     depends_on:
       backend:
         condition: service_healthy
     networks:
       - qazgost-net
 
-  # ── Python AI Service ──
+  # ── Python AI Service (QazGost AI Engine) ──
   ai-service:
     build:
       context: ./ai-service
@@ -62,11 +67,13 @@ services:
       - OPENAI_API_KEY=${OPENAI_API_KEY:-}
     volumes:
       - ./ai-service/app/data:/app/data:ro
+      - ai-models:/app/models
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8001/health')"]
       interval: 30s
       timeout: 5s
       retries: 3
+      start_period: 15s
     networks:
       - qazgost-net
 
@@ -74,6 +81,8 @@ volumes:
   backend-data:
     driver: local
   backend-uploads:
+    driver: local
+  ai-models:
     driver: local
 
 networks:

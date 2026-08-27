@@ -108,6 +108,10 @@ func main() {
 	mux.HandleFunc("/api/v1/ai/defect-vision", aiHnd.DefectVisionProxy)
 	mux.HandleFunc("/api/v1/ai/validate-key", aiHnd.ValidateKey)
 
+	// Phase 2: Engineering & LiDAR — proxy to Python AI service
+	mux.HandleFunc("/api/v1/engineering/", aiHnd.ProxyToAIService)
+	mux.HandleFunc("/api/v1/lidar/", aiHnd.ProxyToAIService)
+
 	// Export — auth required
 	mux.HandleFunc("/api/v1/export/estimate.csv", auth(exportHnd.ExportEstimateCSV))
 

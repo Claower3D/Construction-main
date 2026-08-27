@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -516,4 +517,72 @@ func (h *AiHandler) ValidateKey(w http.ResponseWriter, r *http.Request) {
 		body, _ := io.ReadAll(resp.Body)
 		w.Write(body)
 	}
+}
+
+// ProxyToAIService forwards requests to the Python AI service (FastAPI)
+// Used for /api/v1/engineering/* and /api/v1/lidar/* endpoints
+func (h *AiHandler) ProxyToAIService(w http.ResponseWriter, r *http.Request) {
+	aiServiceURL := "http://localhost:8001"
+	if envURL := h.Config.FrontendURL; envURL != "" {
+		// Check for AI_SERVICE_URL in environment
+		if v, ok := getEnvOr("AI_SERVICE_URL", ""); ok {
+			aiServiceURL = v
+		}
+	}
+
+	targetURL := aiServiceURL + r.URL.Path
+	if r.URL.RawQuery != "" {
+		targetURL += "?" + r.URL.RawQuery
+	}
+
+	// Read original body
+	bodyBytes, err := io.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, "Failed to read request body", http.StatusBadRequest)
+		return
+	}
+
+	// Create proxy request
+	proxyReq, err := http.NewRequest(r.Method, targetURL, bytes.NewBuffer(bodyBytes))
+	if err != nil {
+		http.Error(w, "Failed to create proxy request", http.StatusInternalServerError)
+		return
+	}
+
+	// Copy headers
+	for key, values := range r.Header {
+		for _, value := range values {
+			proxyReq.Header.Add(key, value)
+		}
+	}
+
+	client := &http.Client{Timeout: 120 * time.Second}
+	resp, err := client.Do(proxyReq)
+	if err != nil {
+		http.Error(w, fmt.Sprintf(`{"error":"AI service unavailable: %s"}`, err.Error()), http.StatusBadGateway)
+		return
+	}
+	defer resp.Body.Close()
+
+	// Copy response headers
+	for key, values := range resp.Header {
+		for _, value := range values {
+			w.Header().Add(key, value)
+		}
+	}
+
+	w.WriteHeader(resp.StatusCode)
+	io.Copy(w, resp.Body)
+}
+
+// getEnvOr returns env value or default
+func getEnvOr(key, fallback string) (string, bool) {
+	if v := strings.TrimSpace(getEnv(key)); v != "" {
+		return v, true
+	}
+	return fallback, false
+}
+
+func getEnv(key string) string {
+	return os.Getenv(key)
 }
