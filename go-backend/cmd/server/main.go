@@ -104,6 +104,9 @@ func main() {
 	// AI & QTO — Public estimation & defect inspection (accessible to all users & guests)
 	mux.HandleFunc("/api/v1/ai/estimate", aiHnd.EstimateCost)
 	mux.HandleFunc("/api/v1/ai/defect", aiHnd.InspectDefect)
+	mux.HandleFunc("/api/v1/ai/vision", aiHnd.VisionProxy)
+	mux.HandleFunc("/api/v1/ai/defect-vision", aiHnd.DefectVisionProxy)
+	mux.HandleFunc("/api/v1/ai/validate-key", aiHnd.ValidateKey)
 
 	// Export — auth required
 	mux.HandleFunc("/api/v1/export/estimate.csv", auth(exportHnd.ExportEstimateCSV))

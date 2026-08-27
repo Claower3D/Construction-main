@@ -272,3 +272,248 @@ Analyze the defect description provided and output a valid JSON object strictly 
 		"workDays":      workDays,
 	})
 }
+
+// VisionProxy handles POST /api/v1/ai/vision — proxies photo analysis to OpenAI server-side
+func (h *AiHandler) VisionProxy(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var req struct {
+		Photos      []string `json:"photos"`
+		Description string   `json:"description"`
+		Category    string   `json:"category"`
+		City        string   `json:"city"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request", http.StatusBadRequest)
+		return
+	}
+
+	apiKey := r.Header.Get("X-OpenAI-Key")
+	if apiKey == "" {
+		apiKey = h.Config.OpenAIKey
+	}
+	model := r.Header.Get("X-OpenAI-Model")
+	if model == "" {
+		model = "gpt-4o"
+	}
+
+	if apiKey == "" {
+		// No API key — fallback to local Go estimator
+		qtoResult := h.estimator.CalculateEstimate(services.QTOFormulaRequest{
+			Category:    req.Category,
+			Description: req.Description,
+			City:        req.City,
+		})
+		_ = json.NewEncoder(w).Encode(qtoResult)
+		return
+	}
+
+	// Build OpenAI multi-modal request server-side
+	contentParts := []map[string]interface{}{
+		{
+			"type": "text",
+			"text": fmt.Sprintf(`Ты — профессиональный строительный сметчик Казахстана. Проанализируй приложенные фотографии/чертежи строительного объекта.
+ЗАДАЧА: Определи из изображения: тип работ, размеры и объёмы (м², м³), материалы и количество, стоимость по ценам Казахстана 2026.
+%s %s
+ОТВЕТЬ СТРОГО в формате JSON:
+{"detected_type":"...","dimensions":{"area_m2":0,"volume_m3":0,"length_m":0},"items":[{"name":"...","volume":0,"unit":"...","unit_price":0,"total":0}],"works_cost":0,"materials_cost":0,"total_cost":0,"timeline_days":0,"insights":["...","...","..."]}`,
+				func() string {
+					if req.Description != "" {
+						return "Описание: " + req.Description
+					}
+					return ""
+				}(),
+				func() string {
+					if req.Category != "" {
+						return "Категория: " + req.Category
+					}
+					return ""
+				}()),
+		},
+	}
+
+	for _, photo := range req.Photos {
+		if photo != "" {
+			contentParts = append(contentParts, map[string]interface{}{
+				"type":      "image_url",
+				"image_url": map[string]string{"url": photo, "detail": "high"},
+			})
+		}
+	}
+
+	openaiBody := map[string]interface{}{
+		"model":      model,
+		"max_tokens": 4096,
+		"messages": []map[string]interface{}{
+			{"role": "user", "content": contentParts},
+		},
+	}
+
+	jsonBytes, _ := json.Marshal(openaiBody)
+	client := &http.Client{Timeout: 60 * time.Second}
+	httpReq, _ := http.NewRequest("POST", "https://api.openai.com/v1/chat/completions", bytes.NewBuffer(jsonBytes))
+	httpReq.Header.Set("Content-Type", "application/json")
+	httpReq.Header.Set("Authorization", "Bearer "+apiKey)
+
+	resp, err := client.Do(httpReq)
+	if err != nil || resp.StatusCode != http.StatusOK {
+		// Fallback to local estimator
+		qtoResult := h.estimator.CalculateEstimate(services.QTOFormulaRequest{
+			Category: req.Category, Description: req.Description, City: req.City,
+		})
+		_ = json.NewEncoder(w).Encode(qtoResult)
+		return
+	}
+	defer resp.Body.Close()
+
+	respBody, _ := io.ReadAll(resp.Body)
+	var openAIResp openAIResponse
+	if err := json.Unmarshal(respBody, &openAIResp); err == nil && len(openAIResp.Choices) > 0 {
+		raw := openAIResp.Choices[0].Message.Content
+		// Extract JSON from response
+		start := strings.Index(raw, "{")
+		end := strings.LastIndex(raw, "}")
+		if start >= 0 && end > start {
+			w.Write([]byte(raw[start : end+1]))
+			return
+		}
+	}
+
+	// Final fallback
+	qtoResult := h.estimator.CalculateEstimate(services.QTOFormulaRequest{
+		Category: req.Category, Description: req.Description, City: req.City,
+	})
+	_ = json.NewEncoder(w).Encode(qtoResult)
+}
+
+// DefectVisionProxy handles POST /api/v1/ai/defect-vision — proxies defect photo analysis
+func (h *AiHandler) DefectVisionProxy(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var req struct {
+		Photos      []string `json:"photos"`
+		Description string   `json:"description"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request", http.StatusBadRequest)
+		return
+	}
+
+	apiKey := h.Config.OpenAIKey
+	if apiKey == "" {
+		// No key — use existing SNiP fallback from InspectDefect
+		h.InspectDefect(w, r)
+		return
+	}
+
+	contentParts := []map[string]interface{}{
+		{
+			"type": "text",
+			"text": fmt.Sprintf(`Ты — эксперт по строительной дефектоскопии и технадзору в Казахстане.
+Проанализируй фотографии строительного дефекта.
+%s
+ОТВЕТЬ СТРОГО В JSON:
+{"defectType":"Название дефекта","severity":"Класс риска","snipCode":"СНиП РК / СП РК","fixMethod":"Технологическая карта устранения","estimatedCost":"Стоимость в ₸","workDays":0}`,
+				func() string {
+					if req.Description != "" {
+						return "Описание: " + req.Description
+					}
+					return ""
+				}()),
+		},
+	}
+
+	for _, photo := range req.Photos {
+		if photo != "" {
+			contentParts = append(contentParts, map[string]interface{}{
+				"type":      "image_url",
+				"image_url": map[string]string{"url": photo, "detail": "high"},
+			})
+		}
+	}
+
+	openaiBody := map[string]interface{}{
+		"model":      "gpt-4o",
+		"max_tokens": 1500,
+		"messages": []map[string]interface{}{
+			{"role": "user", "content": contentParts},
+		},
+	}
+
+	jsonBytes, _ := json.Marshal(openaiBody)
+	client := &http.Client{Timeout: 30 * time.Second}
+	httpReq, _ := http.NewRequest("POST", "https://api.openai.com/v1/chat/completions", bytes.NewBuffer(jsonBytes))
+	httpReq.Header.Set("Content-Type", "application/json")
+	httpReq.Header.Set("Authorization", "Bearer "+apiKey)
+
+	resp, err := client.Do(httpReq)
+	if err != nil || resp.StatusCode != http.StatusOK {
+		// Fallback to SNiP rules
+		fallbackReq, _ := http.NewRequest("POST", "", strings.NewReader(fmt.Sprintf(`{"description":"%s"}`, req.Description)))
+		h.InspectDefect(w, fallbackReq)
+		return
+	}
+	defer resp.Body.Close()
+
+	respBody, _ := io.ReadAll(resp.Body)
+	var openAIResp openAIResponse
+	if err := json.Unmarshal(respBody, &openAIResp); err == nil && len(openAIResp.Choices) > 0 {
+		raw := openAIResp.Choices[0].Message.Content
+		start := strings.Index(raw, "{")
+		end := strings.LastIndex(raw, "}")
+		if start >= 0 && end > start {
+			w.Write([]byte(raw[start : end+1]))
+			return
+		}
+	}
+
+	// Fallback
+	_ = json.NewEncoder(w).Encode(map[string]interface{}{
+		"defectType": "Не удалось определить", "severity": "Требует осмотра",
+	})
+}
+
+// ValidateKey handles POST /api/v1/ai/validate-key — validates an OpenAI key server-side
+func (h *AiHandler) ValidateKey(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var req struct {
+		Key string `json:"key"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.Key == "" {
+		http.Error(w, `{"error":"No key provided"}`, http.StatusBadRequest)
+		return
+	}
+
+	client := &http.Client{Timeout: 5 * time.Second}
+	httpReq, _ := http.NewRequest("GET", "https://api.openai.com/v1/models", nil)
+	httpReq.Header.Set("Authorization", "Bearer "+req.Key)
+
+	resp, err := client.Do(httpReq)
+	if err != nil {
+		w.WriteHeader(http.StatusBadGateway)
+		_ = json.NewEncoder(w).Encode(map[string]string{"error": "Network error"})
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode == http.StatusOK {
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{"valid": true, "message": "Key is valid"})
+	} else {
+		w.WriteHeader(resp.StatusCode)
+		body, _ := io.ReadAll(resp.Body)
+		w.Write(body)
+	}
+}

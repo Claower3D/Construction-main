@@ -68,64 +68,31 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
     setScanStepMessage('⏳ Подключение к OpenAI Defect Vision Engine...');
 
     try {
-      const customGptKey = typeof window !== 'undefined' ? localStorage.getItem('qazgost_user_openai_key') : null;
       let data = null;
 
-      // 1. If Direct OpenAI Vision Key is available, do real multi-modal defect inspection
-      if (customGptKey && photos.some(p => p.base64)) {
-        setScanStepMessage('📸 GPT-4o Vision анализирует микроструктуру дефекта по пикселям...');
+      // 1. Send photos to Go Backend for AI vision analysis (API keys stay on server!)
+      if (photos.some(p => p.base64)) {
+        setScanStepMessage('📸 AI Vision анализирует микроструктуру дефекта по пикселям...');
         
-        const contentParts = [
-          {
-            type: 'text',
-            text: `Ты — эксперт по строительной дефектоскопии и технадзору в Казахстане. 
-Проанализируй приложенные фотографии строительного дефекта (трещина, влага, просадка, коррозия, отслоение и т.д.).
-${aiDescription ? `Дополнительное описание: ${aiDescription}` : ''}
+        const token = typeof window !== 'undefined' ? (localStorage.getItem('qazgost_token') || localStorage.getItem('token')) : null;
+        const headers = { 'Content-Type': 'application/json' };
+        if (token) headers['Authorization'] = `Bearer ${token}`;
 
-ОТВЕТЬ СТРОГО В JSON:
-{
-  "defectType": "Точное наименование дефекта на русском",
-  "severity": "Класс риска (например: '2 класс — Допустимый', '3 класс — Требует устранения', '4 класс — Аварийный')",
-  "snipCode": "Нормативный СНиП РК / СП РК",
-  "fixMethod": "Технологическая карта устранения (пошагово)",
-  "estimatedCost": "Ориентировочная стоимость в ₸ (например: '45 000 – 85 000 ₸')",
-  "workDays": число_дней
-}`
-          }
-        ];
+        const photosBase64 = photos.slice(0, 4).filter(p => p.base64).map(p => p.base64);
 
-        photos.slice(0, 4).forEach(p => {
-          if (p.base64) {
-            contentParts.push({
-              type: 'image_url',
-              image_url: { url: p.base64, detail: 'high' }
-            });
-          }
-        });
-
-        const vRes = await fetch('https://api.openai.com/v1/chat/completions', {
+        const vRes = await fetch('/api/v1/ai/defect-vision', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${customGptKey}`
-          },
+          headers,
           body: JSON.stringify({
-            model: 'gpt-4o',
-            messages: [{ role: 'user', content: contentParts }],
-            max_tokens: 1500
+            photos: photosBase64,
+            description: aiDescription || '',
           })
         });
 
         if (vRes.ok) {
           const vData = await vRes.json();
-          const raw = vData.choices?.[0]?.message?.content || '';
-          const match = raw.match(/\{[\s\S]*\}/);
-          if (match) {
-            try {
-              data = JSON.parse(match[0]);
-            } catch (pErr) {
-              console.warn(pErr);
-            }
+          if (vData && vData.defectType) {
+            data = vData;
           }
         }
       }

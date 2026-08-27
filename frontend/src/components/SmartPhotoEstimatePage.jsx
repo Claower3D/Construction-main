@@ -222,19 +222,22 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
     setGptTestResult(null);
 
     try {
-      const res = await fetch('https://api.openai.com/v1/models', {
-        headers: { 'Authorization': `Bearer ${keyToTest}` }
+      // Validate key through Go backend (not directly to OpenAI!)
+      const res = await fetch('/api/v1/ai/validate-key', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key: keyToTest })
       });
       if (res.ok) {
-        setGptTestResult({ success: true, message: '✅ Ключ валиден! Связь с ChatGPT API установлена успешно.' });
-        showToast('✅ Связь с вашим аккаунтом ChatGPT проверена!');
+        setGptTestResult({ success: true, message: '✅ Ключ валиден! Связь с AI API установлена успешно.' });
+        showToast('✅ Связь с AI проверена!');
       } else {
         const errData = await res.json().catch(() => ({}));
-        setGptTestResult({ success: false, message: `❌ Ошибка OpenAI (${res.status}): ${errData.error?.message || 'Неверный ключ'}` });
-        showToast('❌ Ошибка проверки ключа OpenAI');
+        setGptTestResult({ success: false, message: `❌ Ошибка (${res.status}): ${errData.error || 'Неверный ключ'}` });
+        showToast('❌ Ошибка проверки ключа');
       }
     } catch (err) {
-      setGptTestResult({ success: false, message: '❌ Ошибка сети при проверке OpenAI API' });
+      setGptTestResult({ success: false, message: '❌ Ошибка сети при проверке API' });
       showToast('❌ Ошибка сети');
     } finally {
       setIsTestingGptKey(false);
@@ -249,98 +252,41 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
     try {
       const activeCatObj = categories.find(c => c.id === selectedCategory) || categories[9];
       
-      // Determine which API key to use
+      // Determine which API key to use (user's custom key sent to backend via header)
       const customGptKey = userGptKey || (typeof window !== 'undefined' && localStorage.getItem('qazgost_user_openai_key'));
       const customGptModel = gptModel || (typeof window !== 'undefined' && localStorage.getItem('qazgost_user_openai_model')) || 'gpt-4o';
 
-      // ═══ REAL VISION AI: Send photos directly to OpenAI GPT-4o Vision ═══
-      if (photos.length > 0 && customGptKey) {
-        setScanStep('📤 Отправка фото в GPT-4o Vision для анализа чертежа...');
+      // ═══ AI VISION: Send photos to Go Backend (API keys stay on server!) ═══
+      if (photos.length > 0) {
+        setScanStep('📤 Отправка фото в AI Vision для анализа чертежа...');
 
-        // Build multi-modal content array
-        const contentParts = [];
-        
-        // System prompt as first text
-        contentParts.push({
-          type: 'text',
-          text: `Ты — профессиональный строительный сметчик Казахстана. Проанализируй приложенные фотографии/чертежи строительного объекта.
+        const token = typeof window !== 'undefined' ? (localStorage.getItem('qazgost_token') || localStorage.getItem('token')) : null;
+        const headers = { 'Content-Type': 'application/json' };
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+        if (customGptKey) headers['X-OpenAI-Key'] = customGptKey;
+        if (customGptModel) headers['X-OpenAI-Model'] = customGptModel;
 
-ЗАДАЧА: Определи из изображения:
-1. Тип работ (фундамент, кладка, отделка, кровля и т.д.)
-2. Приблизительные размеры и объёмы (площадь м², длина п.м., объём м³)
-3. Необходимые материалы и их количество
-4. Стоимость работ и материалов по ценам Казахстана 2026 года
+        const photosBase64 = photos.slice(0, 5).filter(p => p.base64).map(p => p.base64);
 
-${description ? `Дополнительное описание от заказчика: ${description}` : ''}
-${!isCategorySkipped ? `Предполагаемая категория работ: ${activeCatObj.title}` : ''}
+        setScanStep(`🧠 AI Vision анализирует ${photosBase64.length} фото... (это может занять 10-30 сек)`);
 
-ОБЯЗАТЕЛЬНО ответь СТРОГО в формате JSON:
-{
-  "detected_type": "Название типа работ",
-  "dimensions": { "area_m2": число, "volume_m3": число, "length_m": число },
-  "items": [
-    { "name": "Наименование ресурса/работы", "volume": число, "unit": "ед.изм.", "unit_price": число, "total": число }
-  ],
-  "works_cost": число,
-  "materials_cost": число,
-  "total_cost": число,
-  "timeline_days": число,
-  "insights": ["строка1", "строка2", "строка3"]
-}`
-        });
-
-        // Add all uploaded photos as base64 images (up to 5 for API limits)
-        const photosToSend = photos.slice(0, 5);
-        for (const photo of photosToSend) {
-          if (photo.base64) {
-            contentParts.push({
-              type: 'image_url',
-              image_url: {
-                url: photo.base64,
-                detail: 'high'
-              }
-            });
-          }
-        }
-
-        setScanStep(`🧠 GPT-4o Vision анализирует ${photosToSend.length} фото... (это может занять 10-30 сек)`);
-
-        const visionRes = await fetch('https://api.openai.com/v1/chat/completions', {
+        const visionRes = await fetch('/api/v1/ai/vision', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${customGptKey}`,
-          },
+          headers,
           body: JSON.stringify({
-            model: customGptModel.includes('4o') || customGptModel.includes('gpt-4') ? customGptModel : 'gpt-4o',
-            max_tokens: 4096,
-            messages: [
-              {
-                role: 'user',
-                content: contentParts
-              }
-            ]
+            photos: photosBase64,
+            description: description || '',
+            category: isCategorySkipped ? '' : activeCatObj.title,
+            city: 'Алматы',
           })
         });
 
         if (visionRes.ok) {
-          const visionData = await visionRes.json();
-          const rawContent = visionData.choices?.[0]?.message?.content || '';
+          const parsed = await visionRes.json();
           
           setScanStep('📊 Парсинг результатов AI-анализа...');
 
-          // Extract JSON from response (handle markdown code blocks)
-          let jsonStr = rawContent;
-          const jsonMatch = rawContent.match(/```(?:json)?\s*\n?([\s\S]*?)\n?```/);
-          if (jsonMatch) jsonStr = jsonMatch[1];
-          
-          // Try to find JSON object in text
-          const braceMatch = jsonStr.match(/\{[\s\S]*\}/);
-          if (braceMatch) jsonStr = braceMatch[0];
-
-          try {
-            const parsed = JSON.parse(jsonStr);
-            
+          if (parsed && (parsed.total_cost || parsed.items)) {
             const data = {
               category: parsed.detected_type || activeCatObj.title,
               total: parsed.total_cost || (parsed.works_cost || 0) + (parsed.materials_cost || 0) || 150000,
@@ -350,48 +296,25 @@ ${!isCategorySkipped ? `Предполагаемая категория рабо
               dimensions: parsed.dimensions || {},
               items: parsed.items || [],
               aiInsights: parsed.insights || [
-                `✅ GPT-4o Vision проанализировал ${photosToSend.length} фото и определил: ${parsed.detected_type || 'строительные работы'}.`,
+                `✅ AI Vision проанализировал ${photosBase64.length} фото и определил: ${parsed.detected_type || 'строительные работы'}.`,
                 `📐 AI определил объёмы из чертежа/фото автоматически.`
               ],
               isRealVision: true,
-              photosAnalyzed: photosToSend.length,
+              photosAnalyzed: photosBase64.length,
             };
 
             setScanStep('✨ Компиляция итоговой сметы...');
             setTimeout(() => {
               setIsScanning(false);
               setCalculatedEstimate(data);
-              showToast(`✅ GPT-4o Vision проанализировал ${photosToSend.length} фото и рассчитал смету!`);
+              showToast(`✅ AI Vision проанализировал ${photosBase64.length} фото и рассчитал смету!`);
             }, 400);
-            return;
-          } catch (parseErr) {
-            console.warn('JSON parse failed, using raw text:', parseErr);
-            // Fall through to text-based fallback
-            const data = {
-              category: activeCatObj.title,
-              total: 0,
-              worksCost: 0,
-              materialsCost: 0,
-              timelineDays: 7,
-              items: [],
-              aiInsights: [
-                `🤖 GPT-4o Vision проанализировал фото. Ответ AI:`,
-                rawContent.substring(0, 500),
-              ],
-              rawAiResponse: rawContent,
-              isRealVision: true,
-              photosAnalyzed: photosToSend.length,
-            };
-            setIsScanning(false);
-            setCalculatedEstimate(data);
-            showToast('✅ AI-анализ фото завершён (текстовый ответ)');
             return;
           }
         } else {
           const errBody = await visionRes.json().catch(() => ({}));
-          console.error('OpenAI Vision error:', errBody);
-          showToast(`⚠️ Ошибка OpenAI (${visionRes.status}): ${errBody.error?.message || 'API error'}. Используем локальный расчёт.`);
-          // Fall through to local calculation
+          console.error('AI Vision error:', errBody);
+          showToast(`⚠️ Ошибка AI Vision (${visionRes.status}): ${errBody.error || 'API error'}. Используем локальный расчёт.`);
         }
       }
 
