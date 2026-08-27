@@ -1,5 +1,5 @@
 # QAZGOST AI Construction Dataset
-# Configuration for YOLOv8
+# QazGost AI Detection Model Configuration
 
 path: ./dataset    # dataset root dir
 train: images/train  # train images (relative to 'path')

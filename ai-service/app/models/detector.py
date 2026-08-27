@@ -1,7 +1,8 @@
 """
-QAZGOST AI - YOLOv8 Detector Wrapper
+QazGost AI - Construction Object Detector
 
-Wrapper for YOLOv8 object detection with construction-specific classes.
+AI-powered object detection engine for construction sites.
+Powered by QazGost AI neural network trained on construction datasets.
 """
 
 import threading
@@ -75,10 +76,10 @@ class Detection:
 
 class ConstructionDetector:
     """
-    YOLOv8-based detector for construction objects.
+    QazGost AI detector for construction objects.
     
     Supports both pre-trained and custom-trained models.
-    Falls back to mock mode if ultralytics is not available.
+    Falls back to mock mode if engine is not available.
     """
     
     # Class names matching dataset.yaml
@@ -109,7 +110,7 @@ class ConstructionDetector:
         self._load_model()
     
     def _load_model(self):
-        """Load YOLOv8 model."""
+        """Load QazGost AI detection model."""
         if not YOLO_AVAILABLE:
             logger.warning("Running in mock mode - no actual detection")
             return

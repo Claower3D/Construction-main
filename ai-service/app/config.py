@@ -37,8 +37,8 @@ class Settings(BaseSettings):
     
     # Model paths
     MODEL_DIR: Path = Field(default=Path("./models"))
-    YOLO_MODEL: str = Field(default="yolov8m.pt")
-    YOLO_CONSTRUCTION_MODEL: str = Field(default="yolov8_construction.pt")
+    YOLO_MODEL: str = Field(default="yolov8m.pt")  # base model (internal engine)
+    YOLO_CONSTRUCTION_MODEL: str = Field(default="qazgost_detector_v1.pt")  # QazGost AI trained model
     DEPTH_MODEL: str = Field(default="Intel/dpt-large")
     
     # Processing

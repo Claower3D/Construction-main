@@ -1,5 +1,5 @@
 # QAZGOST AI Construction Dataset
-# YOLOv8 Training Configuration
+# QazGost AI Training Configuration
 
 # Paths (relative to dataset root)
 path: ./data

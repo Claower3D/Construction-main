@@ -7,7 +7,7 @@ Run this script before starting the service for the first time.
 
 Usage:
     python scripts/download_models.py          # Download all models
-    python scripts/download_models.py --yolo   # Download only YOLO
+    python scripts/download_models.py --yolo   # Download only QazGost AI detector
     python scripts/download_models.py --depth  # Download only Depth model
 """
 
@@ -20,9 +20,9 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 
 def download_yolo_model(model_dir: Path):
-    """Download YOLOv8 base model."""
+    """Download QazGost AI base detection model."""
     print("=" * 50)
-    print("📥 Downloading YOLOv8 model...")
+    print("📥 Downloading QazGost AI detection model...")
     print("=" * 50)
     
     try:

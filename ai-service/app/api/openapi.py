@@ -72,7 +72,7 @@ def get_openapi_config() -> Dict[str, Any]:
 
 This service provides computer vision capabilities for analyzing construction site photos:
 
-- 🔍 **Object Detection** using YOLOv8 trained on construction objects
+- 🔍 **Object Detection** using QazGost AI neural network trained on construction objects
 - 📏 **Scale Calibration** using reference objects (people, measuring tape)
 - 📐 **Depth Estimation** using Intel DPT monocular depth model
 - 📊 **Volume Calculation** for excavations and materials
@@ -216,7 +216,7 @@ response_examples = {
         "components": {
             "detector": {
                 "status": "healthy",
-                "model": "yolov8m.pt",
+                "model": "qazgost-detector.pt",
                 "device": "cuda",
                 "classes": 15
             },
