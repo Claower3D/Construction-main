@@ -1,353 +1,341 @@
 import React, { useEffect, useRef } from 'react';
+import * as THREE from 'three';
 
 export default function AnimatedBackground() {
-  const canvasRef = useRef(null);
+  const mountRef = useRef(null);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    let animationFrameId;
+    const el = mountRef.current;
+    if (!el) return;
 
-    let width = (canvas.width = window.innerWidth);
-    let height = (canvas.height = window.innerHeight);
+    let W = window.innerWidth;
+    let H = window.innerHeight;
 
-    // Preload Realistic City Panorama Image
-    const bgImage = new Image();
-    bgImage.src = '/assets/backgrounds/city_archviz_panorama.png';
-    let isBgLoaded = false;
-    bgImage.onload = () => {
-      isBgLoaded = true;
+    // ── 1. THREE.JS SCENE & TRANSPARENT RENDERER (NO CHEAP 2D BG) ──
+    const scene = new THREE.Scene();
+    const fogColor = 0x090d16;
+    scene.fog = new THREE.FogExp2(fogColor, 0.0065);
+
+    const camera = new THREE.PerspectiveCamera(38, W / H, 0.1, 1000);
+    camera.position.set(0, 32, 105);
+
+    const renderer = new THREE.WebGLRenderer({
+      antialias: true,
+      alpha: true,
+      powerPreference: 'high-performance'
+    });
+    renderer.setSize(W, H);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.35;
+    renderer.setClearColor(0x000000, 0); // Transparent canvas background!
+
+    el.appendChild(renderer.domElement);
+
+    // ── 2. LUXURY ARCHITECTURAL LIGHTING RIG ──
+    const ambientLight = new THREE.AmbientLight(0x1e293b, 1.2);
+    scene.add(ambientLight);
+
+    const sunLight = new THREE.DirectionalLight(0xfff4e0, 2.8);
+    sunLight.position.set(60, 110, 50);
+    sunLight.castShadow = true;
+    sunLight.shadow.mapSize.set(2048, 2048);
+    sunLight.shadow.bias = -0.0001;
+    scene.add(sunLight);
+
+    const hemiLight = new THREE.HemisphereLight(0x38bdf8, 0x090d16, 0.85);
+    scene.add(hemiLight);
+
+    const cyanRim = new THREE.DirectionalLight(0x00e5ff, 1.8);
+    cyanRim.position.set(-70, 40, -50);
+    scene.add(cyanRim);
+
+    const goldRim = new THREE.DirectionalLight(0xd4af37, 1.4);
+    goldRim.position.set(40, 30, -70);
+    scene.add(goldRim);
+
+    // ── 3. LUXURY PBR MATERIALS ──
+    const goldMat = new THREE.MeshStandardMaterial({
+      color: 0xd4af37,
+      roughness: 0.2,
+      metalness: 0.9,
+      emissive: 0x3d2b00,
+      emissiveIntensity: 0.2
+    });
+
+    const facadeDarkMat = new THREE.MeshStandardMaterial({
+      color: 0x0f172a,
+      roughness: 0.3,
+      metalness: 0.6
+    });
+
+    const glassReflectiveMat = new THREE.MeshStandardMaterial({
+      color: 0x0284c7,
+      roughness: 0.05,
+      metalness: 0.92,
+      transparent: true,
+      opacity: 0.72
+    });
+
+    const windowWarmLitMat = new THREE.MeshStandardMaterial({
+      color: 0xffe899,
+      emissive: 0xffaa22,
+      emissiveIntensity: 1.8,
+      roughness: 0.2
+    });
+
+    const windowCoolLitMat = new THREE.MeshStandardMaterial({
+      color: 0xe0f2fe,
+      emissive: 0x38bdf8,
+      emissiveIntensity: 1.5,
+      roughness: 0.2
+    });
+
+    const neonCyanMat = new THREE.MeshStandardMaterial({
+      color: 0x00e5ff,
+      emissive: 0x00e5ff,
+      emissiveIntensity: 2.5
+    });
+
+    const groundMat = new THREE.MeshStandardMaterial({
+      color: 0x0a0f1d,
+      roughness: 0.5,
+      metalness: 0.3
+    });
+
+    // ── 4. GROUND GRID & REFLECTIVE PLAZA ──
+    const groundGroup = new THREE.Group();
+    const groundMesh = new THREE.Mesh(new THREE.PlaneGeometry(600, 600), groundMat);
+    groundMesh.rotation.x = -Math.PI / 2;
+    groundMesh.position.y = -0.1;
+    groundMesh.receiveShadow = true;
+    groundGroup.add(groundMesh);
+
+    // Cyber Grid lines
+    const gridHelper = new THREE.GridHelper(300, 60, 0x38bdf8, 0x1e293b);
+    gridHelper.position.y = 0.02;
+    if (Array.isArray(gridHelper.material)) {
+      gridHelper.material.forEach(m => { m.transparent = true; m.opacity = 0.25; });
+    } else {
+      gridHelper.material.transparent = true;
+      gridHelper.material.opacity = 0.25;
+    }
+    groundGroup.add(gridHelper);
+    scene.add(groundGroup);
+
+    // ── 5. ULTRA-LUXURY TWIN SKYSCRAPERS ──
+    const mainCityGroup = new THREE.Group();
+    const animables = [];
+
+    const buildTower = (xPos, zPos, scaleY = 1.0, isMain = true) => {
+      const towerGroup = new THREE.Group();
+      towerGroup.position.set(xPos, 0, zPos);
+
+      const floors = Math.round(24 * scaleY);
+      const floorH = 2.4;
+      const towerW = 16;
+      const towerD = 14;
+
+      // Podium Base
+      const podium = new THREE.Mesh(new THREE.BoxGeometry(towerW + 4, 3, towerD + 4), facadeDarkMat);
+      podium.position.y = 1.5;
+      podium.castShadow = true;
+      podium.receiveShadow = true;
+      towerGroup.add(podium);
+
+      // Gold Entrance Canopy
+      const canopy = new THREE.Mesh(new THREE.BoxGeometry(towerW + 6, 0.4, 6), goldMat);
+      canopy.position.set(0, 3.2, towerD / 2 + 1);
+      canopy.castShadow = true;
+      towerGroup.add(canopy);
+
+      // Main Floors
+      for (let f = 0; f < floors; f++) {
+        const y = 3 + f * floorH + floorH / 2;
+        const isPenthouse = f >= floors - 3;
+        const widthT = isPenthouse ? towerW * 0.9 : towerW;
+        const depthT = isPenthouse ? towerD * 0.9 : towerD;
+
+        // Core slab
+        const slab = new THREE.Mesh(new THREE.BoxGeometry(widthT, floorH, depthT), glassReflectiveMat);
+        slab.position.y = y;
+        slab.castShadow = true;
+        towerGroup.add(slab);
+
+        // Vertical Gold Metallic Fins on Facade
+        for (let side = -1; side <= 1; side += 2) {
+          const finLeft = new THREE.Mesh(new THREE.BoxGeometry(0.3, floorH, 0.4), goldMat);
+          finLeft.position.set(side * (widthT / 2 + 0.15), y, depthT / 2);
+          towerGroup.add(finLeft);
+
+          const finRight = new THREE.Mesh(new THREE.BoxGeometry(0.3, floorH, 0.4), goldMat);
+          finRight.position.set(side * (widthT / 2 + 0.15), y, -depthT / 2);
+          towerGroup.add(finRight);
+        }
+
+        // Illuminated Windows
+        for (let wx = -widthT / 2 + 2; wx <= widthT / 2 - 2; wx += 3.2) {
+          const litProb = Math.random();
+          if (litProb > 0.35) {
+            const winMat = litProb > 0.7 ? windowWarmLitMat : windowCoolLitMat;
+            const win = new THREE.Mesh(new THREE.BoxGeometry(1.8, 1.5, 0.1), winMat);
+            win.position.set(wx, y, depthT / 2 + 0.08);
+            towerGroup.add(win);
+
+            const winBack = win.clone();
+            winBack.position.set(wx, y, -depthT / 2 - 0.08);
+            towerGroup.add(winBack);
+          }
+        }
+      }
+
+      // Crown & Spire / Helipad
+      const totalH = 3 + floors * floorH;
+      const crown = new THREE.Mesh(new THREE.BoxGeometry(towerW * 0.7, 4, towerD * 0.7), goldMat);
+      crown.position.y = totalH + 2;
+      crown.castShadow = true;
+      towerGroup.add(crown);
+
+      // Neon LED Spire
+      const spire = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.4, 12, 8), neonCyanMat);
+      spire.position.y = totalH + 10;
+      towerGroup.add(spire);
+
+      // Rotating Beacon Light
+      const beacon = new THREE.PointLight(0x00e5ff, 2.5, 45);
+      beacon.position.y = totalH + 16;
+      towerGroup.add(beacon);
+      animables.push({ type: 'beacon', light: beacon });
+
+      return towerGroup;
     };
 
-    let mouse = {
-      x: width * 0.5,
-      y: height * 0.45,
-      targetX: width * 0.5,
-      targetY: height * 0.45,
-      isHovered: false,
-      shockwaves: []
-    };
+    // Left Tower
+    const towerA = buildTower(-15, 0, 1.1, true);
+    mainCityGroup.add(towerA);
+
+    // Right Tower
+    const towerB = buildTower(15, 0, 0.95, true);
+    mainCityGroup.add(towerB);
+
+    // Sky-Bridge connecting the towers at height Y=35
+    const bridge = new THREE.Mesh(new THREE.BoxGeometry(18, 3.2, 8), glassReflectiveMat);
+    bridge.position.set(0, 36, 0);
+    mainCityGroup.add(bridge);
+
+    const bridgeGoldFrame = new THREE.Mesh(new THREE.BoxGeometry(18.2, 0.4, 8.2), goldMat);
+    bridgeGoldFrame.position.set(0, 34.4, 0);
+    mainCityGroup.add(bridgeGoldFrame);
+
+    const bridgeGoldTop = bridgeGoldFrame.clone();
+    bridgeGoldTop.position.set(0, 37.6, 0);
+    mainCityGroup.add(bridgeGoldTop);
+
+    // Background Skyline Silhouette Towers
+    const bgTowers = [
+      { x: -55, z: -45, w: 18, h: 48 },
+      { x: -35, z: -60, w: 22, h: 65 },
+      { x: 35, z: -55, w: 20, h: 58 },
+      { x: 55, z: -40, w: 16, h: 42 }
+    ];
+
+    bgTowers.forEach(bt => {
+      const bMesh = new THREE.Mesh(new THREE.BoxGeometry(bt.w, bt.h, bt.w), facadeDarkMat);
+      bMesh.position.set(bt.x, bt.h / 2, bt.z);
+      mainCityGroup.add(bMesh);
+
+      // Lit windows
+      for (let wy = 8; wy < bt.h - 6; wy += 5) {
+        if (Math.random() > 0.4) {
+          const win = new THREE.Mesh(new THREE.BoxGeometry(bt.w * 0.7, 1.2, 0.1), windowCoolLitMat);
+          win.position.set(bt.x, wy, bt.z + bt.w / 2 + 0.1);
+          mainCityGroup.add(win);
+        }
+      }
+    });
+
+    scene.add(mainCityGroup);
+
+    // ── 6. FLOATING PARTICLES (GLOWING DUST) ──
+    const particleCount = 120;
+    const particleGeo = new THREE.BufferGeometry();
+    const particlePositions = new Float32Array(particleCount * 3);
+
+    for (let i = 0; i < particleCount * 3; i += 3) {
+      particlePositions[i] = (Math.random() - 0.5) * 160;
+      particlePositions[i + 1] = Math.random() * 80;
+      particlePositions[i + 2] = (Math.random() - 0.5) * 160;
+    }
+    particleGeo.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
+
+    const particleMat = new THREE.PointsMaterial({
+      color: 0x38bdf8,
+      size: 0.85,
+      transparent: true,
+      opacity: 0.65,
+      blending: THREE.AdditiveBlending
+    });
+    const particles = new THREE.Points(particleGeo, particleMat);
+    scene.add(particles);
+
+    // ── 7. INTERACTIVE MOUSE PARALLAX ──
+    let mouseX = 0;
+    let mouseY = 0;
+    let targetX = 0;
+    let targetY = 0;
 
     const handleMouseMove = (e) => {
-      mouse.targetX = e.clientX;
-      mouse.targetY = e.clientY;
-      mouse.isHovered = true;
-    };
-
-    const handleMouseDown = (e) => {
-      mouse.shockwaves.push({
-        x: e.clientX,
-        y: e.clientY,
-        radius: 8,
-        maxRadius: Math.max(width, height) * 0.55,
-        alpha: 0.85,
-        speed: 7.0
-      });
-      if (window.sfx) window.sfx.playRadar();
-    };
-
-    const handleMouseLeave = () => {
-      mouse.isHovered = false;
-    };
-
-    let isMobile = width < 768;
-
-    const handleResize = () => {
-      width = canvas.width = window.innerWidth;
-      height = canvas.height = window.innerHeight;
-      isMobile = width < 768;
+      mouseX = (e.clientX - window.innerWidth / 2) / (window.innerWidth / 2);
+      mouseY = (e.clientY - window.innerHeight / 2) / (window.innerHeight / 2);
     };
 
     window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mousedown', handleMouseDown);
-    document.addEventListener('mouseleave', handleMouseLeave);
+
+    const handleResize = () => {
+      W = window.innerWidth;
+      H = window.innerHeight;
+      camera.aspect = W / H;
+      camera.updateProjectionMatrix();
+      renderer.setSize(W, H);
+    };
     window.addEventListener('resize', handleResize);
 
-    let tick = 0;
+    // ── 8. ANIMATION LOOP ──
+    let animationFrameId;
+    let clock = new THREE.Clock();
 
-    // ── 1. FLOATING BUILDING DATA BADGES ──
-    const buildingBadges = [
-      { name: 'ЖК «LIGHTS A1»', sub: '16 эт. | 2023-2024', xR: 0.058, yR: 0.245, color: '#38bdf8' },
-      { name: 'ЖК «GRAND TULPAN A2»', sub: '24 эт. | 2022-2025', xR: 0.155, yR: 0.125, color: '#38bdf8' },
-      { name: 'ЖК «ARENA A3»', sub: '12 эт. | 2023-2025', xR: 0.232, yR: 0.320, color: '#38bdf8' },
-      { name: 'ЖК «GREEN CITY B1»', sub: '16 эт. | 2021-2024', xR: 0.772, yR: 0.320, color: '#00ff88' },
-      { name: 'ЖК «GRAND TOWER B2»', sub: '26 эт. | 2022-2025', xR: 0.858, yR: 0.110, color: '#fbbf24' },
-      { name: 'ЖК «GRAND PALACE B3»', sub: '20 эт. | 2023-2025', xR: 0.942, yR: 0.210, color: '#38bdf8' }
-    ];
-
-    // ── 2. GLOWING TELEMETRY CONDUIT NETWORK ──
-    const conduitLines = [
-      {
-        id: 'TOWER4_FEEDER',
-        label: 'ВРП-83 (B1)',
-        color: '#38bdf8',
-        glow: 'rgba(56, 189, 248, 0.45)',
-        width: 2.0,
-        points: [
-          { xR: 0.772, yR: 0.58 },
-          { xR: 0.772, yR: 0.72 },
-          { xR: 0.820, yR: 0.72 },
-          { xR: 0.820, yR: 0.81 }
-        ],
-        pulses: [0.25, 0.75],
-        speed: 0.1
-      }
-    ];
-
-    // ── 3. JUNCTION UTILITY TERMINAL NODES ──
-    const utilityNodes = [
-      { xR: 0.058, yR: 0.54, label: 'Ввод A1', color: '#00f0ff' },
-      { xR: 0.155, yR: 0.56, label: '⚡ ГРЩ A2', color: '#f59e0b' },
-      { xR: 0.232, yR: 0.58, label: 'Ввод A3', color: '#38bdf8' },
-      { xR: 0.772, yR: 0.58, label: 'Ввод B1', color: '#38bdf8' },
-      { xR: 0.858, yR: 0.56, label: '⚡ ГРЩ B2', color: '#f59e0b' },
-      { xR: 0.942, yR: 0.54, label: 'Ввод B3', color: '#00f0ff' }
-    ];
-
-    // ── 4. PARTICLES ──
-    const particles = [];
-    const count = isMobile ? 25 : 55;
-    const colorPalette = ['#38bdf8', '#00f0ff', '#fbbf24', '#f59e0b', '#00ff88', '#ffffff'];
-
-    for (let i = 0; i < count; i++) {
-      particles.push({
-        x: Math.random() * width,
-        y: Math.random() * height,
-        vx: (Math.random() - 0.5) * 0.3,
-        vy: (Math.random() - 0.5) * 0.3,
-        radius: Math.random() * 1.6 + 0.8,
-        color: colorPalette[i % colorPalette.length],
-        pulseVal: Math.random() * Math.PI * 2,
-        pulseSpeed: 0.02 + Math.random() * 0.02
-      });
-    }
-
-    const drawConduit = (c) => {
-      ctx.save();
-      ctx.strokeStyle = c.color;
-      ctx.lineWidth = c.width;
-      ctx.shadowColor = c.color;
-      ctx.shadowBlur = 12;
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
-
-      ctx.beginPath();
-      c.points.forEach((p, idx) => {
-        const px = p.xR * width;
-        const py = p.yR * height;
-        if (idx === 0) ctx.moveTo(px, py);
-        else ctx.lineTo(px, py);
-      });
-      ctx.stroke();
-
-      c.pulses.forEach((_, pIdx) => {
-        const t = (tick * c.speed + pIdx * 0.5) % 1.0;
-        const totalSegments = c.points.length - 1;
-        const exactIndex = t * totalSegments;
-        const segIdx = Math.min(Math.floor(exactIndex), totalSegments - 1);
-        const segT = exactIndex - segIdx;
-
-        const p1 = c.points[segIdx];
-        const p2 = c.points[segIdx + 1];
-        const curX = (p1.xR + (p2.xR - p1.xR) * segT) * width;
-        const curY = (p1.yR + (p2.yR - p1.yR) * segT) * height;
-
-        ctx.beginPath();
-        ctx.arc(curX, curY, 3.8, 0, Math.PI * 2);
-        ctx.fillStyle = '#ffffff';
-        ctx.shadowColor = c.color;
-        ctx.shadowBlur = 16;
-        ctx.fill();
-      });
-
-      ctx.restore();
-    };
-
-    const drawUtilityNode = (node) => {
-      const nx = node.xR * width;
-      const ny = node.yR * height;
-
-      ctx.save();
-      const pulse = (Math.sin(tick * 3.5 + node.xR * 20) + 1) * 0.5;
-
-      ctx.beginPath();
-      ctx.arc(nx, ny, 4.5 + pulse * 2.5, 0, Math.PI * 2);
-      ctx.strokeStyle = node.color;
-      ctx.lineWidth = 1.2;
-      ctx.stroke();
-
-      ctx.beginPath();
-      ctx.arc(nx, ny, 3.2, 0, Math.PI * 2);
-      ctx.fillStyle = '#ffffff';
-      ctx.shadowColor = node.color;
-      ctx.shadowBlur = 10;
-      ctx.fill();
-
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 8px "JetBrains Mono", monospace';
-      ctx.fillText(node.label, nx + 8, ny + 3);
-
-      ctx.restore();
-    };
-
-    const drawBadge = (b) => {
-      const bx = b.xR * width;
-      const by = b.yR * height;
-
-      ctx.save();
-      ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
-      ctx.strokeStyle = 'rgba(56, 189, 248, 0.45)';
-      ctx.lineWidth = 1;
-      ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
-      ctx.shadowBlur = 10;
-
-      ctx.font = 'bold 9px Inter, sans-serif';
-      const textWidth = ctx.measureText(b.name).width;
-      const tagW = Math.max(textWidth + 24, 110);
-      const tagH = 30;
-
-      ctx.beginPath();
-      ctx.roundRect(bx - tagW * 0.5, by - tagH * 0.5, tagW, tagH, 6);
-      ctx.fill();
-      ctx.stroke();
-
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 8.5px Inter, sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText(b.name, bx, by - 2);
-
-      ctx.fillStyle = '#94a3b8';
-      ctx.font = '7.5px "JetBrains Mono", monospace';
-      ctx.fillText(b.sub, bx, by + 9);
-
-      const blink = Math.sin(tick * 4 + bx) > 0.2;
-      if (blink) {
-        ctx.beginPath();
-        ctx.arc(bx, by - 16, 2.5, 0, Math.PI * 2);
-        ctx.fillStyle = '#ef4444';
-        ctx.shadowColor = '#ef4444';
-        ctx.shadowBlur = 10;
-        ctx.fill();
-      }
-
-      ctx.restore();
-    };
-
-    // ── MAIN RENDER LOOP ──
     const render = () => {
-      tick += 0.016;
+      const elapsed = clock.getElapsedTime();
 
-      mouse.x += (mouse.targetX - mouse.x) * 0.08;
-      mouse.y += (mouse.targetY - mouse.y) * 0.08;
+      // Smooth camera parallax
+      targetX += (mouseX * 12 - targetX) * 0.05;
+      targetY += (-mouseY * 8 - targetY) * 0.05;
 
-      ctx.clearRect(0, 0, width, height);
+      camera.position.x = targetX;
+      camera.position.y = 32 + targetY;
+      camera.lookAt(0, 25, 0);
 
-      // 1. Draw High-Res Panorama or Luminous Sky
-      if (isBgLoaded && bgImage.width > 0) {
-        const imgRatio = bgImage.width / bgImage.height;
-        const canvasRatio = width / height;
-        let drawW, drawH, drawX, drawY;
+      // Slow 3D Auto-Rotation of main complex
+      mainCityGroup.rotation.y = elapsed * 0.05;
 
-        if (canvasRatio > imgRatio) {
-          drawW = width;
-          drawH = width / imgRatio;
-          drawX = 0;
-          drawY = (height - drawH) * 0.5;
-        } else {
-          drawH = height;
-          drawW = height * imgRatio;
-          drawX = (width - drawW) * 0.5;
-          drawY = 0;
-        }
-
-        ctx.drawImage(bgImage, drawX, drawY, drawW, drawH);
-
-        // Luminous Atmospheric Vignette Overlay (Brighter & clearer city view)
-        const vignette = ctx.createLinearGradient(0, 0, 0, height);
-        vignette.addColorStop(0.0, 'rgba(15, 23, 42, 0.30)');
-        vignette.addColorStop(0.35, 'rgba(15, 23, 42, 0.10)');
-        vignette.addColorStop(0.70, 'rgba(15, 23, 42, 0.25)');
-        vignette.addColorStop(1.0, 'rgba(15, 23, 42, 0.50)');
-        ctx.fillStyle = vignette;
-        ctx.fillRect(0, 0, width, height);
-
-        // Center Horizontal Luminous Glow
-        const centerVignette = ctx.createRadialGradient(
-          width * 0.5, height * 0.45, width * 0.1,
-          width * 0.5, height * 0.45, width * 0.65
-        );
-        centerVignette.addColorStop(0, 'rgba(56, 189, 248, 0.15)');
-        centerVignette.addColorStop(1, 'transparent');
-        ctx.fillStyle = centerVignette;
-        ctx.fillRect(0, 0, width, height);
-
-      } else {
-        const sky = ctx.createLinearGradient(0, 0, width, height);
-        sky.addColorStop(0, '#1e293b');
-        sky.addColorStop(0.5, '#0f172a');
-        sky.addColorStop(1, '#090d16');
-        ctx.fillStyle = sky;
-        ctx.fillRect(0, 0, width, height);
-      }
-
-      // 2. Telemetry Conduits, Central Bridge & Nodes (Desktop only)
-      if (!isMobile) {
-        conduitLines.forEach(c => drawConduit(c));
-        utilityNodes.forEach(n => drawUtilityNode(n));
-        buildingBadges.forEach(b => drawBadge(b));
-      }
-
-      // 3. Mouse Shockwaves
-      mouse.shockwaves.forEach((sw, idx) => {
-        sw.radius += sw.speed;
-        sw.alpha -= 0.016;
-
-        if (sw.alpha > 0 && sw.radius < sw.maxRadius) {
-          ctx.save();
-          ctx.beginPath();
-          ctx.arc(sw.x, sw.y, sw.radius, 0, Math.PI * 2);
-          ctx.strokeStyle = `rgba(56, 189, 248, ${sw.alpha})`;
-          ctx.lineWidth = 2.0;
-          ctx.shadowColor = '#38bdf8';
-          ctx.shadowBlur = 14;
-          ctx.stroke();
-          ctx.restore();
-        } else {
-          mouse.shockwaves.splice(idx, 1);
+      // Pulse beacon lights
+      animables.forEach(a => {
+        if (a.type === 'beacon') {
+          a.light.intensity = 2.0 + Math.sin(elapsed * 4) * 1.0;
         }
       });
 
-      // 4. Subtle Floating Particles
-      for (let i = 0; i < particles.length; i++) {
-        const p = particles[i];
-        p.pulseVal += p.pulseSpeed;
-        p.x += p.vx;
-        p.y += p.vy;
-
-        if (p.x < 0) p.x = width;
-        if (p.x > width) p.x = 0;
-        if (p.y < 0) p.y = height;
-        if (p.y > height) p.y = 0;
-
-        const mDist = Math.hypot(p.x - mouse.x, p.y - mouse.y);
-        if (mDist < 180) {
-          const force = (1 - mDist / 180) * 0.8;
-          p.x += (mouse.x - p.x) * force * 0.03;
-          p.y += (mouse.y - p.y) * force * 0.03;
-        }
-
-        const pRad = p.radius + Math.sin(p.pulseVal) * 0.5;
-        ctx.save();
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, Math.max(0.6, pRad), 0, Math.PI * 2);
-        ctx.fillStyle = p.color;
-        ctx.shadowColor = p.color;
-        ctx.shadowBlur = pRad > 1.6 ? 8 : 0;
-        ctx.fill();
-        ctx.restore();
+      // Float particles
+      const positions = particleGeo.attributes.position.array;
+      for (let i = 1; i < particleCount * 3; i += 3) {
+        positions[i] += 0.04;
+        if (positions[i] > 80) positions[i] = 0;
       }
+      particleGeo.attributes.position.needsUpdate = true;
 
+      renderer.render(scene, camera);
       animationFrameId = requestAnimationFrame(render);
     };
 
@@ -355,16 +343,18 @@ export default function AnimatedBackground() {
 
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mousedown', handleMouseDown);
-      document.removeEventListener('mouseleave', handleMouseLeave);
       window.removeEventListener('resize', handleResize);
       cancelAnimationFrame(animationFrameId);
+      if (renderer.domElement && el.contains(renderer.domElement)) {
+        el.removeChild(renderer.domElement);
+      }
+      renderer.dispose();
     };
   }, []);
 
   return (
-    <canvas
-      ref={canvasRef}
+    <div
+      ref={mountRef}
       style={{
         position: 'fixed',
         top: 0,
