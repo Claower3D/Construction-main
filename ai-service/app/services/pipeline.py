@@ -50,6 +50,13 @@ except ImportError:
     DEFECT_AVAILABLE = False
     logger.warning("[Pipeline] DefectAnalyzer not available")
 
+try:
+    from app.models.defect_nn import get_defect_nn
+    DEFECT_NN_AVAILABLE = True
+except ImportError:
+    DEFECT_NN_AVAILABLE = False
+    logger.info("[Pipeline] QazGost AI DefectNN not available — using OpenCV fallback")
+
 
 class AnalysisPipeline:
     """

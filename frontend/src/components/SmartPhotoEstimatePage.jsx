@@ -30,7 +30,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
   // User Custom ChatGPT / OpenAI Account State
   const [showGptModal, setShowGptModal] = useState(false);
   const [gptAuthTab, setGptAuthTab] = useState('login'); // 'login' | 'apikey'
-  
+
   const [userGptAccount, setUserGptAccount] = useState(() => {
     try {
       const saved = localStorage.getItem('qazgost_user_openai_account');
@@ -52,14 +52,14 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
     const key = (typeof window !== 'undefined' && localStorage.getItem('qazgost_user_openai_key')) || '';
     return (key === 'sk-user-connected-session') ? '' : key;
   });
-  
+
   const [inputGptKey, setInputGptKey] = useState(userGptKey);
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
   const [userPlan, setUserPlan] = useState('ChatGPT Plus (GPT-4o Vision)');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoggingInGpt, setIsLoggingInGpt] = useState(false);
-  
+
   const [gptModel, setGptModel] = useState(() => {
     return (typeof window !== 'undefined' && localStorage.getItem('qazgost_user_openai_model')) || 'gpt-4o';
   });
@@ -104,7 +104,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
     { id: 'other', group: 'Прочее', image: '/assets/categories/cat_other.jpg', icon: '📦', title: 'Прочие работы', count: '816 работ', rate: 3000, minPrice: '1 000 ₸/усл' }
   ];
 
-  const filteredCategories = categories.filter(cat => 
+  const filteredCategories = categories.filter(cat =>
     (activeGroup === 'Все' || cat.group === activeGroup) &&
     cat.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -251,7 +251,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
 
     try {
       const activeCatObj = categories.find(c => c.id === selectedCategory) || categories[9];
-      
+
       // Determine which API key to use (user's custom key sent to backend via header)
       const customGptKey = userGptKey || (typeof window !== 'undefined' && localStorage.getItem('qazgost_user_openai_key'));
       const customGptModel = gptModel || (typeof window !== 'undefined' && localStorage.getItem('qazgost_user_openai_model')) || 'gpt-4o';
@@ -283,7 +283,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
 
         if (visionRes.ok) {
           const parsed = await visionRes.json();
-          
+
           setScanStep('📊 Парсинг результатов AI-анализа...');
 
           if (parsed && (parsed.total_cost || parsed.items)) {
@@ -325,7 +325,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
       }
 
       setScanStep('🤖 Расчёт сметы через Go-движок QazGost AI...');
-      
+
       const token = typeof window !== 'undefined' ? (localStorage.getItem('qazgost_token') || localStorage.getItem('token')) : null;
       const headers = { 'Content-Type': 'application/json' };
       if (token) headers['Authorization'] = `Bearer ${token}`;
@@ -378,13 +378,13 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
       }
 
       setScanStep('✨ Компиляция итоговой сметы...');
-      
+
       setTimeout(() => {
         setIsScanning(false);
         setCalculatedEstimate(data);
         showToast('✅ AI-Расчёт сметы успешно завершён!');
       }, 500);
-      
+
     } catch (err) {
       console.error(err);
       const activeCatObj = categories.find(c => c.id === selectedCategory) || categories[9];
@@ -442,9 +442,9 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
               <h3>ВЫБЕРИТЕ КАТЕГОРИЮ РАБОТ</h3>
             </div>
 
-            <input 
-              type="text" 
-              placeholder="🔎 Поиск категорий..." 
+            <input
+              type="text"
+              placeholder="🔎 Поиск категорий..."
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               className="spe-search-field"
@@ -453,7 +453,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
 
           <div className="spe-filter-tabs">
             {['Все', 'Общестрой', 'Инженерия', 'Отделка', 'Прочее'].map(group => (
-              <button 
+              <button
                 key={group}
                 className={`spe-filter-tab ${activeGroup === group ? 'active' : ''}`}
                 onClick={() => setActiveGroup(group)}
@@ -468,7 +468,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
             {filteredCategories.map(cat => {
               const isSelected = selectedCategory === cat.id;
               return (
-                <div 
+                <div
                   key={cat.id}
                   className={`spe-cat-box ${isSelected ? 'selected' : ''}`}
                   onClick={() => setSelectedCategory(cat.id)}
@@ -486,7 +486,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
 
           {/* Skip Option Button */}
           <div className="spe-skip-row">
-            <button 
+            <button
               className="spe-btn-skip"
               onClick={() => {
                 setIsCategorySkipped(true);
@@ -504,7 +504,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
             <span className="spe-check-green">✅</span>
             <strong>КАТЕГОРИЯ: ОПРЕДЕЛИТ ИИ ПО ОПИСАНИЮ</strong>
           </div>
-          <button 
+          <button
             type="button"
             className="spe-btn-manual-select"
             onClick={() => setIsCategorySkipped(false)}
@@ -516,7 +516,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
 
       {/* Mode Selection Tabs (Быстрый / Полный 3D / Контур) */}
       <div className="spe-modes-tabs-row mt-4">
-        <button 
+        <button
           className={`spe-mode-tab ${analysisModeTab === 'fast' ? 'active' : ''}`}
           onClick={() => setAnalysisModeTab('fast')}
         >
@@ -527,7 +527,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
           </div>
         </button>
 
-        <button 
+        <button
           className={`spe-mode-tab ${analysisModeTab === '3d' ? 'active' : ''}`}
           onClick={() => setAnalysisModeTab('3d')}
         >
@@ -538,7 +538,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
           </div>
         </button>
 
-        <button 
+        <button
           className={`spe-mode-tab ${analysisModeTab === 'contour' ? 'active' : ''}`}
           onClick={() => setAnalysisModeTab('contour')}
         >
@@ -569,9 +569,9 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
               <strong>Укажите масштаб:</strong> для точного расчёта площади введите реальный размер объекта на фото (например, высоту двери, ширину окна).
             </div>
             <div className="spe-contour-scale-btns">
-              <button 
-                type="button" 
-                className="spe-btn-scale" 
+              <button
+                type="button"
+                className="spe-btn-scale"
                 onClick={() => {
                   const val = prompt('Введите размер (например: 2.1 м):', scaleSize);
                   if (val) setScaleSize(val);
@@ -584,8 +584,8 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
           </div>
 
           <div className="spe-contour-toolbar">
-            <button 
-              type="button" 
+            <button
+              type="button"
               className={`spe-ctool-btn ${isDrawing ? 'active' : ''}`}
               onClick={() => {
                 setIsDrawing(!isDrawing);
@@ -594,8 +594,8 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
             >
               🖊️ Рисовать
             </button>
-            <button 
-              type="button" 
+            <button
+              type="button"
               className="spe-ctool-btn"
               onClick={() => {
                 setContourPoints(prev => prev.slice(0, -1));
@@ -604,8 +604,8 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
             >
               ↩️ Отмена
             </button>
-            <button 
-              type="button" 
+            <button
+              type="button"
               className="spe-ctool-btn"
               onClick={() => {
                 setContourPoints([]);
@@ -614,8 +614,8 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
             >
               🗑️ Очистить
             </button>
-            <button 
-              type="button" 
+            <button
+              type="button"
               className="spe-ctool-btn highlight"
               onClick={() => showToast('✅ Контур замкнут и готов к расчёту!')}
             >
@@ -650,14 +650,14 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
       </div>
 
       {/* Upload Dropzone */}
-      <div 
+      <div
         className="spe-dropzone"
         onClick={() => document.getElementById('spe-file-picker').click()}
       >
-        <input 
-          type="file" 
-          id="spe-file-picker" 
-          multiple 
+        <input
+          type="file"
+          id="spe-file-picker"
+          multiple
           accept="image/*"
           style={{ display: 'none' }}
           onChange={handleFileUpload}
@@ -673,9 +673,9 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
           {photos.map(p => (
             <div key={p.id} className="spe-thumb-box">
               <img src={p.url} alt={p.name} />
-              <button 
+              <button
                 type="button"
-                className="spe-thumb-remove" 
+                className="spe-thumb-remove"
                 onClick={(e) => {
                   e.stopPropagation();
                   removePhoto(p.id);
@@ -704,7 +704,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
         </div>
       </div>
 
-      <textarea 
+      <textarea
         rows="4"
         className="spe-description-textarea"
         placeholder={`Опишите объект и задачу, например:\n• Ванная комната 3×4 метра, замена плитки и сантехники\n• Крыша частного дома, площадь 120 м², замена кровли\n• Офис 50 м², косметический ремонт стен и потолка`}
@@ -736,7 +736,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
       <div className="spe-engine-modes-grid">
 
         {/* Mode 1: Авто */}
-        <div 
+        <div
           className={`spe-engine-card ${aiEngineMode === 'auto' ? 'selected' : ''}`}
           onClick={() => {
             setAiEngineMode('auto');
@@ -757,7 +757,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
         </div>
 
         {/* Mode 2: Быстрый */}
-        <div 
+        <div
           className={`spe-engine-card ${aiEngineMode === 'fast' ? 'selected' : ''}`}
           onClick={() => setAiEngineMode('fast')}
         >
@@ -769,7 +769,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
         </div>
 
         {/* Mode 3: Детальный */}
-        <div 
+        <div
           className={`spe-engine-card ${aiEngineMode === 'detailed' ? 'selected' : ''}`}
           onClick={() => setAiEngineMode('detailed')}
           style={{ position: 'relative' }}
@@ -785,7 +785,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
         </div>
 
         {/* Mode 4: VIP */}
-        <div 
+        <div
           className={`spe-engine-card ${aiEngineMode === 'vip' ? 'selected' : ''}`}
           onClick={() => setAiEngineMode('vip')}
         >
@@ -800,7 +800,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
 
       {/* Dynamic CTA Pill Button matching active tab */}
       <div className="spe-cta-wrap">
-        <button 
+        <button
           className="spe-btn-cta-glow"
           onClick={handleRunAiEstimate}
           disabled={isScanning}
@@ -905,17 +905,17 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
 
           <div className="spe-res-grid">
             {calculatedEstimate.worksCost > 0 && (
-            <div className="spe-res-col">
-              <span className="label">Строительно-монтажные работы (СМР):</span>
-              <strong>{calculatedEstimate.worksCost.toLocaleString()} ₸</strong>
-            </div>
+              <div className="spe-res-col">
+                <span className="label">Строительно-монтажные работы (СМР):</span>
+                <strong>{calculatedEstimate.worksCost.toLocaleString()} ₸</strong>
+              </div>
             )}
 
             {calculatedEstimate.materialsCost > 0 && (
-            <div className="spe-res-col">
-              <span className="label">Материалы и ресурсы (BOM):</span>
-              <strong>{calculatedEstimate.materialsCost.toLocaleString()} ₸</strong>
-            </div>
+              <div className="spe-res-col">
+                <span className="label">Материалы и ресурсы (BOM):</span>
+                <strong>{calculatedEstimate.materialsCost.toLocaleString()} ₸</strong>
+              </div>
             )}
 
             <div className="spe-res-col">
@@ -1084,8 +1084,8 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
                   </div>
 
                   <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.25rem' }}>
-                    <button 
-                      type="button" 
+                    <button
+                      type="button"
                       onClick={() => setShowGptModal(false)}
                       className="spe-gpt-btn-save"
                       style={{ flex: 1 }}
@@ -1093,7 +1093,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
                       ✓ Продолжить работу
                     </button>
 
-                    <button 
+                    <button
                       type="button"
                       onClick={handleDisconnectGptAccount}
                       style={{ background: 'rgba(239,68,68,0.18)', border: '1px solid #ef4444', color: '#fca5a5', padding: '10px 16px', borderRadius: '12px', fontSize: '0.85rem', cursor: 'pointer', fontWeight: 700 }}
@@ -1106,14 +1106,14 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
                 <>
                   {/* Tabs: Login vs API Key */}
                   <div className="spe-gpt-tabs">
-                    <button 
+                    <button
                       className={`spe-gpt-tab-btn ${gptAuthTab === 'login' ? 'active' : ''}`}
                       onClick={() => setGptAuthTab('login')}
                     >
                       <span>👤 Вход в аккаунт OpenAI</span>
                     </button>
 
-                    <button 
+                    <button
                       className={`spe-gpt-tab-btn ${gptAuthTab === 'apikey' ? 'active' : ''}`}
                       onClick={() => setGptAuthTab('apikey')}
                     >
@@ -1135,9 +1135,9 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
                         <label style={{ display: 'block', fontSize: '0.82rem', color: '#cbd5e1', marginBottom: '0.35rem', fontWeight: 700 }}>
                           Ваш Email от ChatGPT / OpenAI:
                         </label>
-                        <input 
-                          type="email" 
-                          placeholder="например: ivan.petrov@gmail.com" 
+                        <input
+                          type="email"
+                          placeholder="например: ivan.petrov@gmail.com"
                           value={loginEmail}
                           onChange={e => setLoginEmail(e.target.value)}
                           className="spe-gpt-input"
@@ -1152,17 +1152,17 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
                           Пароль от аккаунта ChatGPT:
                         </label>
                         <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-                          <input 
-                            type={showPassword ? 'text' : 'password'} 
-                            placeholder="Ваш пароль" 
+                          <input
+                            type={showPassword ? 'text' : 'password'}
+                            placeholder="Ваш пароль"
                             value={loginPassword}
                             onChange={e => setLoginPassword(e.target.value)}
                             className="spe-gpt-input"
                             style={{ width: '100%', paddingRight: '45px' }}
                             required
                           />
-                          <button 
-                            type="button" 
+                          <button
+                            type="button"
                             onClick={() => setShowPassword(!showPassword)}
                             style={{ position: 'absolute', right: '10px', background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer', fontSize: '1rem' }}
                             title={showPassword ? 'Скрыть' : 'Показать'}
@@ -1176,8 +1176,8 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
                         <label style={{ display: 'block', fontSize: '0.82rem', color: '#cbd5e1', marginBottom: '0.35rem', fontWeight: 700 }}>
                           Ваш тариф подписки:
                         </label>
-                        <select 
-                          value={userPlan} 
+                        <select
+                          value={userPlan}
                           onChange={e => setUserPlan(e.target.value)}
                           className="spe-gpt-select"
                         >
@@ -1188,8 +1188,8 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
                         </select>
                       </div>
 
-                      <button 
-                        type="submit" 
+                      <button
+                        type="submit"
                         className="spe-gpt-btn-oauth"
                         disabled={isLoggingInGpt}
                         style={{ marginTop: '0.5rem' }}
@@ -1201,7 +1201,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
                         <span>или</span>
                       </div>
 
-                      <button 
+                      <button
                         type="button"
                         onClick={handleOpenOpenAIOAuth}
                         style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', color: '#38bdf8', padding: '10px', borderRadius: '12px', fontSize: '0.85rem', cursor: 'pointer', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
@@ -1220,7 +1220,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
                           Ваш персональный OpenAI Secret Key:
                         </label>
                         <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-                          <input 
+                          <input
                             type={showKeyText ? 'text' : 'password'}
                             placeholder="sk-proj-..."
                             value={inputGptKey}
@@ -1228,8 +1228,8 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
                             className="spe-gpt-input"
                             style={{ width: '100%', paddingRight: '45px' }}
                           />
-                          <button 
-                            type="button" 
+                          <button
+                            type="button"
                             onClick={() => setShowKeyText(!showKeyText)}
                             style={{ position: 'absolute', right: '10px', background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer', fontSize: '1rem' }}
                             title={showKeyText ? 'Скрыть' : 'Показать'}
@@ -1238,10 +1238,10 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
                           </button>
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '6px', fontSize: '0.75rem' }}>
-                          <a 
-                            href="https://platform.openai.com/api-keys" 
-                            target="_blank" 
-                            rel="noopener noreferrer" 
+                          <a
+                            href="https://platform.openai.com/api-keys"
+                            target="_blank"
+                            rel="noopener noreferrer"
                             style={{ color: '#38bdf8', textDecoration: 'none', fontWeight: 600 }}
                           >
                             🔗 platform.openai.com/api-keys
@@ -1250,8 +1250,8 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
                       </div>
 
                       <div style={{ display: 'flex', gap: '0.75rem' }}>
-                        <button 
-                          type="button" 
+                        <button
+                          type="button"
                           onClick={handleTestGptKey}
                           disabled={isTestingGptKey}
                           className="spe-gpt-btn-test"
@@ -1259,8 +1259,8 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
                           {isTestingGptKey ? '⏳ Проверка...' : '🧪 Проверить связь'}
                         </button>
 
-                        <button 
-                          type="submit" 
+                        <button
+                          type="submit"
                           className="spe-gpt-btn-save"
                         >
                           💾 Сохранить ключ

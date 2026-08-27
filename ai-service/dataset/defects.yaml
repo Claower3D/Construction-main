@@ -1,0 +1,24 @@
+# QazGost AI — Defect Detection Training Configuration
+# 10 classes of construction defects for instance segmentation
+
+path: ./dataset  # dataset root dir
+train: images/train
+val: images/val
+test: images/test
+
+# 10 defect classes
+nc: 10
+names:
+  0: crack_hairline        # Волосяная трещина (< 0.3 мм)
+  1: crack_structural      # Конструктивная трещина (> 1 мм, опасная)
+  2: crack_shrinkage       # Усадочная трещина (сетчатые, паутина)
+  3: spalling              # Скол / отслоение бетона / штукатурки
+  4: water_stain           # Влажное пятно / протечка
+  5: mold                  # Плесень / грибок
+  6: efflorescence         # Высол (белый налёт)
+  7: rust_surface           # Поверхностная коррозия
+  8: rust_deep              # Глубокая коррозия / оголённая арматура
+  9: rebar_exposed          # Оголённая арматура
+
+# Training parameters (reference)
+# yolo segment train data=defects.yaml model=yolov8x-seg.pt epochs=150 imgsz=640 batch=16
