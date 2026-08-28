@@ -60,7 +60,7 @@ const KZ_CITIES = [
   { name: 'Темиртау', lat: 50.0547, lng: 72.9647 },
 ];
 
-export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, onOpenAdmin, onOpenEngineer, currentUser, onLogout, onOpenDashboard, onLogoClick, onOpenProfile, onOpenWallet, onOpenMaterials, onOpenEquipment }) {
+export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, onOpenAdmin, onOpenEngineer, currentUser, onLogout, onOpenDashboard, onLogoClick, onOpenProfile, onOpenWallet, onOpenMaterials, onOpenEquipment, onOpenCalc, onOpenLidar }) {
   const [activeNavDropdown, setActiveNavDropdown] = useState(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [mobileAccordion, setMobileAccordion] = useState(null);
@@ -318,6 +318,14 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
                 <a href="#engineering" className="dropdown-item" onClick={closeDropdown}>
                   <span className="item-icon">⚙️</span>
                   <span>Инженерные решения</span>
+                </a>
+                <a href="#calc" className="dropdown-item" onClick={(e) => { e.preventDefault(); closeDropdown(); onOpenCalc && onOpenCalc(); }}>
+                  <span className="item-icon">🧮</span>
+                  <span>Калькулятор коммуникаций</span>
+                </a>
+                <a href="#lidar" className="dropdown-item" onClick={(e) => { e.preventDefault(); closeDropdown(); onOpenLidar && onOpenLidar(); }}>
+                  <span className="item-icon">📡</span>
+                  <span>LiDAR сканер</span>
                 </a>
 
                 <div className="dropdown-divider"></div>

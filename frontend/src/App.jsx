@@ -184,6 +184,16 @@ export default function App() {
     setCurrentView('equipment');
   };
 
+  const navigateToCalc = () => {
+    window.history.pushState({}, '', `/calc`);
+    setCurrentView('calc');
+  };
+
+  const navigateToLidar = () => {
+    window.history.pushState({}, '', `/lidar`);
+    setCurrentView('lidar');
+  };
+
   const toggleTheme = () => {
     const nextTheme = theme === 'dark' ? 'light' : 'dark';
     setTheme(nextTheme);
@@ -233,6 +243,8 @@ export default function App() {
         onOpenWallet={navigateToWallet}
         onOpenMaterials={navigateToMaterials}
         onOpenEquipment={navigateToEquipment}
+        onOpenCalc={navigateToCalc}
+        onOpenLidar={navigateToLidar}
       />
 
         <main style={{ position: 'relative', zIndex: 1 }}>
