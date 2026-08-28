@@ -186,3 +186,88 @@ async def calc_full_estimate(req: FullEstimateRequest):
         city=req.city,
         **kwargs,
     )
+
+
+# ─────────────────────────────────────────────
+# Report download endpoints
+# ─────────────────────────────────────────────
+
+@router.post("/engineering/report/pdf")
+async def download_pdf_report(req: FullEstimateRequest):
+    """
+    Calculate estimate and return as downloadable PDF.
+    """
+    from fastapi.responses import Response
+    from app.services.engineering_calc import EngineeringCalculator
+    from app.services.report_generator import generate_pdf
+
+    calc = EngineeringCalculator()
+
+    kwargs = {}
+    if req.sewage_length_m is not None:
+        kwargs["sewage_length_m"] = req.sewage_length_m
+    if req.manholes is not None:
+        kwargs["manholes"] = req.manholes
+    if req.water_points is not None:
+        kwargs["water_points"] = req.water_points
+    kwargs["hot_water"] = req.hot_water
+    kwargs["sockets"] = req.sockets
+    kwargs["switches"] = req.switches
+    kwargs["sewage_depth_m"] = req.sewage_depth_m
+
+    estimate = calc.calculate_full_estimate(
+        area_m2=req.area_m2,
+        systems=req.systems,
+        city=req.city,
+        **kwargs,
+    )
+
+    pdf_bytes = generate_pdf(estimate)
+    filename = f"smeta_qazgost_{req.city}_{int(req.area_m2)}m2.pdf"
+
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'}
+    )
+
+
+@router.post("/engineering/report/excel")
+async def download_excel_report(req: FullEstimateRequest):
+    """
+    Calculate estimate and return as downloadable Excel (.xlsx).
+    """
+    from fastapi.responses import Response
+    from app.services.engineering_calc import EngineeringCalculator
+    from app.services.report_generator import generate_excel
+
+    calc = EngineeringCalculator()
+
+    kwargs = {}
+    if req.sewage_length_m is not None:
+        kwargs["sewage_length_m"] = req.sewage_length_m
+    if req.manholes is not None:
+        kwargs["manholes"] = req.manholes
+    if req.water_points is not None:
+        kwargs["water_points"] = req.water_points
+    kwargs["hot_water"] = req.hot_water
+    kwargs["sockets"] = req.sockets
+    kwargs["switches"] = req.switches
+    kwargs["sewage_depth_m"] = req.sewage_depth_m
+
+    estimate = calc.calculate_full_estimate(
+        area_m2=req.area_m2,
+        systems=req.systems,
+        city=req.city,
+        **kwargs,
+    )
+
+    xlsx_bytes = generate_excel(estimate)
+    filename = f"smeta_qazgost_{req.city}_{int(req.area_m2)}m2.xlsx"
+
+    return Response(
+        content=xlsx_bytes,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'}
+    )
+

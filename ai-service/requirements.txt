@@ -54,6 +54,10 @@ ultralytics>=8.1.0
 open3d>=0.18.0
 laspy[lazrs]>=2.5.0
 
+# Report Generation (PDF & Excel)
+reportlab>=4.1.0
+openpyxl>=3.1.0
+
 # Telegram Bot
 python-telegram-bot>=20.0
 

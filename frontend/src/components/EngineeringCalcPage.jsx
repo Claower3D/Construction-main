@@ -74,6 +74,43 @@ export default function EngineeringCalcPage({ onBack }) {
     }
   };
 
+  const downloadReport = async (format) => {
+    const endpoint = format === 'pdf' ? 'report/pdf' : 'report/excel';
+    const body = {
+      area_m2: parseFloat(area),
+      city: city.toLowerCase(),
+      systems: selectedSystems,
+      hot_water: hotWater,
+      sewage_depth_m: parseFloat(sewageDepth) || 1.2,
+      sockets: parseInt(sockets) || 0,
+      switches: parseInt(switches) || 0,
+    };
+    if (sewageLength) body.sewage_length_m = parseFloat(sewageLength);
+    if (manholes) body.manholes = parseInt(manholes);
+    if (waterPoints) body.water_points = parseInt(waterPoints);
+
+    try {
+      const resp = await fetch(`${API_URL}/api/v1/engineering/${endpoint}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      if (!resp.ok) throw new Error(`Ошибка ${resp.status}`);
+
+      const blob = await resp.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `smeta_qazgost_${city}_${area}m2.${format === 'pdf' ? 'pdf' : 'xlsx'}`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (e) {
+      setError(`Ошибка скачивания: ${e.message}`);
+    }
+  };
+
   const formatPrice = (n) => new Intl.NumberFormat('ru-KZ').format(Math.round(n));
 
   return (
@@ -294,6 +331,24 @@ export default function EngineeringCalcPage({ onBack }) {
             {/* NDS note */}
             <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 12, textAlign: 'center' }}>
               * Цены указаны без НДС (12%). С НДС: {formatPrice(result.grand_total * 1.12)} ₸
+            </div>
+
+            {/* Download buttons */}
+            <div style={{ display: 'flex', gap: 12, marginTop: 20 }}>
+              <button onClick={() => downloadReport('pdf')} style={{
+                flex: 1, padding: '14px', borderRadius: 12, border: 'none', cursor: 'pointer',
+                background: 'linear-gradient(135deg, #ef4444, #f97316)', color: '#fff',
+                fontSize: 14, fontWeight: 600,
+              }}>
+                📄 Скачать PDF
+              </button>
+              <button onClick={() => downloadReport('excel')} style={{
+                flex: 1, padding: '14px', borderRadius: 12, border: 'none', cursor: 'pointer',
+                background: 'linear-gradient(135deg, #10b981, #059669)', color: '#fff',
+                fontSize: 14, fontWeight: 600,
+              }}>
+                📊 Скачать Excel
+              </button>
             </div>
           </div>
         )}
