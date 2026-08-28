@@ -27,6 +27,8 @@ import UserOrdersPage from './components/UserOrdersPage';
 import EngineeringSolutionsPage from './components/EngineeringSolutionsPage';
 import MaterialsMarketplacePage from './components/MaterialsMarketplacePage';
 import EquipmentMarketplace from './components/EquipmentMarketplace';
+import EngineeringCalcPage from './components/EngineeringCalcPage';
+import LiDARScanPage from './components/LiDARScanPage';
 import ScrollToTopButton from './components/ScrollToTopButton';
 import ScrollReveal from './components/ScrollReveal';
 import { categoriesData } from './data/categoriesData';
@@ -59,6 +61,8 @@ export default function App() {
     if (path.startsWith('/catalog')) return 'catalog';
     if (path.startsWith('/orders')) return 'orders';
     if (path.startsWith('/engineering')) return 'engineering';
+    if (path.startsWith('/calc')) return 'calc';
+    if (path.startsWith('/lidar')) return 'lidar';
     if (path.startsWith('/materials')) return 'materials';
     if (path.startsWith('/equipment')) return 'equipment';
     return 'landing';
@@ -94,6 +98,8 @@ export default function App() {
       else if (path.startsWith('/catalog')) setCurrentView('catalog');
       else if (path.startsWith('/orders')) setCurrentView('orders');
       else if (path.startsWith('/engineering')) setCurrentView('engineering');
+      else if (path.startsWith('/calc')) setCurrentView('calc');
+      else if (path.startsWith('/lidar')) setCurrentView('lidar');
       else if (path.startsWith('/materials')) setCurrentView('materials');
       else if (path.startsWith('/equipment')) setCurrentView('equipment');
       else setCurrentView('landing');
@@ -318,6 +324,30 @@ export default function App() {
 
           {currentView === 'equipment' && (
             <EquipmentMarketplace 
+              onBack={() => {
+                if (currentUser) {
+                  navigateToDashboard(currentUser.role);
+                } else {
+                  navigateToLanding();
+                }
+              }}
+            />
+          )}
+
+          {currentView === 'calc' && (
+            <EngineeringCalcPage 
+              onBack={() => {
+                if (currentUser) {
+                  navigateToDashboard(currentUser.role);
+                } else {
+                  navigateToLanding();
+                }
+              }}
+            />
+          )}
+
+          {currentView === 'lidar' && (
+            <LiDARScanPage 
               onBack={() => {
                 if (currentUser) {
                   navigateToDashboard(currentUser.role);
