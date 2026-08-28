@@ -72,6 +72,7 @@ class VolumeCalculator:
 
         depth_m = None
         volume_m3 = None
+        depth_source = "none"  # "calculated" | "fallback" | "lidar" | "none"
 
         if calculate_depth:
             obj_type = detection.class_name
@@ -89,15 +90,24 @@ class VolumeCalculator:
                 # Estimate depth from volume and area
                 if area_m2 > 0 and volume_m3:
                     depth_m = volume_m3 / area_m2
+                depth_source = "calculated"
             except Exception:
                 # Fallback: assume 1m depth
+                # WARNING: this is a rough estimate, not AI-measured
                 depth_m = 1.0
                 volume_m3 = area_m2 * depth_m
+                depth_source = "fallback"
+                logger.warning(
+                    f"[Volume] Using fallback depth=1.0m for '{detection.class_name}'. "
+                    f"Use LiDAR scan for accurate depth measurement."
+                )
 
         return {
             "width_m": round(width_m, 3),
             "height_m": round(height_m, 3),
             "depth_m": round(depth_m, 3) if depth_m else None,
+            "depth_source": depth_source,
+            "depth_confidence": 0.95 if depth_source == "lidar" else 0.6 if depth_source == "calculated" else 0.2,
             "area_m2": round(area_m2, 3),
             "volume_m3": round(volume_m3, 3) if volume_m3 else None,
         }

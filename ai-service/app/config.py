@@ -24,16 +24,13 @@ class Settings(BaseSettings):
     PORT: int = Field(default=8001)
     WORKERS: int = Field(default=1)
     
-    # CORS — specify allowed origins (avoid "*" with credentials)
+    # CORS — production origins only (dev origins via CORS_DEV=true env)
     CORS_ORIGINS: List[str] = Field(default=[
         "https://qazgost.kz",
         "https://www.qazgost.kz",
         "https://construction-api.kmp99.workers.dev",
-        "http://localhost:3000",
-        "http://localhost:8080",
-        "http://localhost:5500",
-        "http://127.0.0.1:5500",
     ])
+    CORS_DEV: bool = Field(default=True)  # Set to false in production
     
     # Model paths
     MODEL_DIR: Path = Field(default=Path("./models"))

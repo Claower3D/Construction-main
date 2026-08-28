@@ -249,7 +249,7 @@ class QwenVLM:
         self._mode = "mock"
         self._model = None
         self._processor = None
-        self._lock = threading.Lock()
+        self._lock = threading.Semaphore(2)  # Allow 2 concurrent GPU inferences
         self._init()
 
     def _init(self):
@@ -368,7 +368,7 @@ class QwenVLM:
                 return_tensors="pt",
             ).to(self._model.device)
 
-            with threading.Lock():
+            with self._lock:
                 generated_ids = self._model.generate(**inputs, max_new_tokens=512)
             trimmed = [
                 out[len(inp):]

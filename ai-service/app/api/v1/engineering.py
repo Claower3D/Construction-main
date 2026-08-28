@@ -44,10 +44,13 @@ async def analyze_lidar_scan(
     if ext not in allowed_ext:
         raise HTTPException(400, f"Unsupported file format: {ext}. Allowed: {allowed_ext}")
 
-    # Save to temp file
+    # Save to temp file (chunked to avoid OOM on large .las files)
     with tempfile.NamedTemporaryFile(delete=False, suffix=ext) as tmp:
-        content = await file.read()
-        tmp.write(content)
+        while True:
+            chunk = await file.read(8 * 1024 * 1024)  # 8MB chunks
+            if not chunk:
+                break
+            tmp.write(chunk)
         tmp_path = tmp.name
 
     try:

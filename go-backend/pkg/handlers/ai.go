@@ -482,7 +482,8 @@ func (h *AiHandler) DefectVisionProxy(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// ValidateKey handles POST /api/v1/ai/validate-key — validates an OpenAI key server-side
+// ValidateKey handles POST /api/v1/ai/validate-key — checks if server has a valid OpenAI key configured
+// SECURITY: Does NOT accept arbitrary keys from clients (prevents SSRF/abuse)
 func (h *AiHandler) ValidateKey(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	if r.Method != http.MethodPost {
@@ -490,47 +491,65 @@ func (h *AiHandler) ValidateKey(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var req struct {
-		Key string `json:"key"`
-	}
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.Key == "" {
-		http.Error(w, `{"error":"No key provided"}`, http.StatusBadRequest)
+	// Only validate the server's own configured key
+	serverKey := h.Config.OpenAIKey
+	if serverKey == "" {
+		w.WriteHeader(http.StatusOK)
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{"valid": false, "message": "No API key configured on server"})
 		return
 	}
 
 	client := &http.Client{Timeout: 5 * time.Second}
 	httpReq, _ := http.NewRequest("GET", "https://api.openai.com/v1/models", nil)
-	httpReq.Header.Set("Authorization", "Bearer "+req.Key)
+	httpReq.Header.Set("Authorization", "Bearer "+serverKey)
 
 	resp, err := client.Do(httpReq)
 	if err != nil {
-		w.WriteHeader(http.StatusBadGateway)
-		_ = json.NewEncoder(w).Encode(map[string]string{"error": "Network error"})
+		w.WriteHeader(http.StatusOK)
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{"valid": false, "message": "Network error"})
 		return
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode == http.StatusOK {
-		_ = json.NewEncoder(w).Encode(map[string]interface{}{"valid": true, "message": "Key is valid"})
-	} else {
-		w.WriteHeader(resp.StatusCode)
-		body, _ := io.ReadAll(resp.Body)
-		w.Write(body)
-	}
+	valid := resp.StatusCode == http.StatusOK
+	_ = json.NewEncoder(w).Encode(map[string]interface{}{"valid": valid, "message": "Server key status checked"})
+}
+
+// allowedProxyPrefixes — whitelist of paths allowed to be proxied to AI service
+var allowedProxyPrefixes = []string{
+	"/api/v1/engineering/",
+	"/api/v1/lidar/",
+	"/api/v1/defects/",
+	"/api/v1/metrics",
+	"/health",
 }
 
 // ProxyToAIService forwards requests to the Python AI service (FastAPI)
-// Used for /api/v1/engineering/* and /api/v1/lidar/* endpoints
+// SECURITY: path sanitization + whitelist to prevent path traversal
 func (h *AiHandler) ProxyToAIService(w http.ResponseWriter, r *http.Request) {
 	aiServiceURL := "http://localhost:8001"
-	if envURL := h.Config.FrontendURL; envURL != "" {
-		// Check for AI_SERVICE_URL in environment
-		if v, ok := getEnvOr("AI_SERVICE_URL", ""); ok {
-			aiServiceURL = v
-		}
+	if v, ok := getEnvOr("AI_SERVICE_URL", ""); ok {
+		aiServiceURL = v
 	}
 
-	targetURL := aiServiceURL + r.URL.Path
+	// SECURITY: sanitize path to prevent traversal (../ attacks)
+	cleanPath := strings.ReplaceAll(r.URL.Path, "..", "")
+	cleanPath = strings.ReplaceAll(cleanPath, "//", "/")
+
+	// SECURITY: whitelist check — only allow known prefixes
+	allowed := false
+	for _, prefix := range allowedProxyPrefixes {
+		if strings.HasPrefix(cleanPath, prefix) {
+			allowed = true
+			break
+		}
+	}
+	if !allowed {
+		http.Error(w, `{"error":"Proxy path not allowed"}`, http.StatusForbidden)
+		return
+	}
+
+	targetURL := aiServiceURL + cleanPath
 	if r.URL.RawQuery != "" {
 		targetURL += "?" + r.URL.RawQuery
 	}
@@ -549,10 +568,11 @@ func (h *AiHandler) ProxyToAIService(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Copy headers
-	for key, values := range r.Header {
-		for _, value := range values {
-			proxyReq.Header.Add(key, value)
+	// SECURITY: copy only safe headers (not all)
+	safeHeaders := []string{"Content-Type", "Accept", "Accept-Language"}
+	for _, h := range safeHeaders {
+		if v := r.Header.Get(h); v != "" {
+			proxyReq.Header.Set(h, v)
 		}
 	}
 
@@ -586,3 +606,4 @@ func getEnvOr(key, fallback string) (string, bool) {
 func getEnv(key string) string {
 	return os.Getenv(key)
 }
+
