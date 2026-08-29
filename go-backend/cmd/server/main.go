@@ -111,6 +111,10 @@ func main() {
 	// Phase 2: Engineering & LiDAR — proxy to Python AI service
 	mux.HandleFunc("/api/v1/engineering/", aiHnd.ProxyToAIService)
 	mux.HandleFunc("/api/v1/lidar/", aiHnd.ProxyToAIService)
+	mux.HandleFunc("/api/v1/defect-scan", aiHnd.ProxyToAIService)
+	mux.HandleFunc("/api/v1/analyze", aiHnd.ProxyToAIService)
+	mux.HandleFunc("/api/v1/prices/", aiHnd.ProxyToAIService)
+	mux.HandleFunc("/api/v1/defects/", aiHnd.ProxyToAIService)
 
 	// Export — auth required
 	mux.HandleFunc("/api/v1/export/estimate.csv", auth(exportHnd.ExportEstimateCSV))

@@ -7,6 +7,12 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
+      // Direct proxy to Python AI service (bypass Go for defect scanning)
+      '/api/v1/defect-scan': {
+        target: 'http://localhost:8001',
+        changeOrigin: true,
+        secure: false,
+      },
       '/api': {
         target: 'http://localhost:8080',
         changeOrigin: true,
