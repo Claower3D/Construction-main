@@ -37,3 +37,8 @@ go-backend/server.exe
 *.db-wal
 *.db-shm
 
+# Training data (large, downloaded from Roboflow)
+ai-service/dataset/
+ai-service/runs/
+# Keep model weights
+!ai-service/models/

@@ -121,7 +121,7 @@ def scan_defects_yolo(image: np.ndarray, confidence: float = 0.25) -> Optional[D
             "severity_summary": {"total": 0, "by_severity": {}, "max_severity": "low"},
         }
     
-    # Parse detections
+    # Parse detections with smart filtering
     defects = []
     for i, box in enumerate(boxes):
         cls_id = int(box.cls[0])
@@ -129,12 +129,39 @@ def scan_defects_yolo(image: np.ndarray, confidence: float = 0.25) -> Optional[D
         x1, y1, x2, y2 = box.xyxy[0].tolist()
         x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)
         
+        bw, bh = x2 - x1, y2 - y1
+        area = bw * bh
+        area_pct = area / total_area * 100
+        
+        # --- FILTER 1: Reject too-large detections (>20% of image) ---
+        if area_pct > 20:
+            logger.debug(f"[YOLO] Rejected box {i}: too large ({area_pct:.1f}%)")
+            continue
+        
+        # --- FILTER 2: Reject too-square for crack class (cracks are elongated) ---
+        if cls_id == 0:  # crack
+            aspect = max(bw, bh) / max(min(bw, bh), 1)
+            if aspect < 1.5 and area_pct > 5:
+                logger.debug(f"[YOLO] Rejected box {i}: square crack ({aspect:.1f} aspect, {area_pct:.1f}%)")
+                continue
+        
+        # --- FILTER 3: Reject very dark regions (shadows/holes, not defects) ---
+        roi = image[max(0,y1):min(h,y2), max(0,x1):min(w,x2)]
+        if roi.size > 0:
+            avg_brightness = roi.mean()
+            if avg_brightness < 55:
+                logger.debug(f"[YOLO] Rejected box {i}: too dark (avg={avg_brightness:.0f})")
+                continue
+        
+        # --- FILTER 4: Reject single-dimension > 50% of image ---
+        if bw > w * 0.5 or bh > h * 0.5:
+            logger.debug(f"[YOLO] Rejected box {i}: spans >50% of dimension ({bw}x{bh})")
+            continue
+        
         defect_type = CLASS_NAMES_RU.get(cls_id, f"Дефект #{cls_id}")
         severity = CLASS_SEVERITY.get(cls_id, "medium")
         
         # Adjust severity by size
-        area = (x2 - x1) * (y2 - y1)
-        area_pct = area / total_area * 100
         if area_pct > 5 and severity == "medium":
             severity = "high"
         if area_pct > 10:

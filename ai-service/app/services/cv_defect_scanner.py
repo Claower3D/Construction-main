@@ -44,9 +44,10 @@ def _grayscale(img: np.ndarray) -> np.ndarray:
 
 def _detect_cracks(gray: np.ndarray, threshold: int = 55) -> np.ndarray:
     """
-    Detect cracks using TWO methods:
+    Detect cracks using THREE methods:
     1. Morphological: blur background subtraction → dark thin lines
     2. Sobel gradients: strong local contrast edges → visible cracks
+    3. Adaptive threshold: catches dark cracks on variable background
     """
     h, w = gray.shape
     
@@ -71,12 +72,46 @@ def _detect_cracks(gray: np.ndarray, threshold: int = 55) -> np.ndarray:
     sy[1:-1, :] = gf[2:, :] - gf[:-2, :]
     # Gradient magnitude
     gradient = np.sqrt(sx * sx + sy * sy)
-    # High threshold for sobel (only strong edges = real cracks, not texture)
-    sobel_thresh = max(80, 150 - threshold)
+    # Lower threshold to catch more edges
+    sobel_thresh = max(50, 120 - threshold)
     sobel_mask = (gradient > sobel_thresh).astype(np.uint8)
     
-    # Combine both methods
-    combined = np.maximum(morph_mask, sobel_mask)
+    # === Method 3: Adaptive local threshold ===
+    # Compare each pixel to local mean (dark lines in any context)
+    local_size = max(w, h) // 16  # ~40-100px block
+    if local_size % 2 == 0:
+        local_size += 1
+    local_size = max(3, local_size)
+    
+    # Compute local mean using box filter (sliding window average)
+    # Simple approach: resize down then up
+    small_scale = max(2, local_size // 4)
+    local_bg = PILImage.fromarray(gray).resize((w // small_scale, h // small_scale), PILImage.BILINEAR)
+    local_bg = local_bg.filter(ImageFilter.GaussianBlur(radius=3))
+    local_bg = local_bg.resize((w, h), PILImage.BILINEAR)
+    local_mean = np.array(local_bg).astype(np.float32)
+    
+    # Pixels significantly darker than local mean = potential crack
+    local_diff = local_mean - gray.astype(np.float32)
+    adapt_thresh = max(25, threshold - 15)
+    adapt_mask = (local_diff > adapt_thresh).astype(np.uint8)
+    
+    # === Method 4: Strong edges via double-threshold (pseudo-Canny) ===
+    # Find pixels with VERY strong gradient (definite edges)
+    strong_thresh = max(80, sobel_thresh * 1.5)
+    strong_edges = (gradient > strong_thresh).astype(np.uint8)
+    
+    # Dilate strong edges to connect nearby fragments
+    # Simple 3x3 dilation
+    dilated = np.zeros_like(strong_edges)
+    dilated[1:, :] |= strong_edges[:-1, :]
+    dilated[:-1, :] |= strong_edges[1:, :]
+    dilated[:, 1:] |= strong_edges[:, :-1]
+    dilated[:, :-1] |= strong_edges[:, 1:]
+    dilated |= strong_edges
+    
+    # Combine all methods
+    combined = np.maximum(np.maximum(morph_mask, sobel_mask), np.maximum(adapt_mask, dilated))
     
     return combined
 
