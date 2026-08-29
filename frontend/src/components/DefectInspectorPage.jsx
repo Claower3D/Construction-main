@@ -103,8 +103,16 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
             body: formData,
           });
 
+          console.log('[DefectScan] Response status:', aiRes.status);
+
           if (aiRes.ok) {
             const aiData = await aiRes.json();
+            console.log('[DefectScan] Response:', {
+              success: aiData.success,
+              defectType: aiData.defectType,
+              defectsCount: aiData.defects?.items?.length,
+              hasAnnotatedImage: !!aiData.defect_annotated_image,
+            });
             
             if (aiData.success && aiData.defects?.items?.length > 0) {
               data = {
@@ -120,10 +128,26 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
               };
               
               setScanStepMessage(`✅ Обнаружено ${aiData.defects.items.length} дефектов! Формирую карту...`);
+            } else if (aiData.defect_annotated_image) {
+              // Even if no items array, use the annotated image if present
+              data = {
+                defectType: aiData.defectType || 'Дефект строительной конструкции',
+                severity: aiData.severity || '3 класс — Требует устранения',
+                snipCode: aiData.snipCode || 'СНиП РК 3.02-04-2019',
+                fixMethod: aiData.fixMethod || 'Требуется детальный осмотр.',
+                estimatedCost: aiData.estimatedCost || '45 000 – 75 000 ₸',
+                workDays: aiData.workDays || 2,
+                defects: aiData.defects,
+                defect_annotated_image: aiData.defect_annotated_image,
+                defect_severity_summary: aiData.defect_severity_summary,
+              };
+              setScanStepMessage('✅ Анализ завершён!');
             }
+          } else {
+            console.warn('[DefectScan] Non-OK status:', aiRes.status);
           }
         } catch (aiErr) {
-          console.warn('CV defect scan failed, falling back:', aiErr);
+          console.warn('[DefectScan] Failed:', aiErr.message);
         }
       }
 
