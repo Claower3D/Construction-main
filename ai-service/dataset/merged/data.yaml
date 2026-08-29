@@ -1,0 +1,11 @@
+names:
+- crack
+- corrosion
+- spalling
+- efflorescence
+- damage
+- stain
+nc: 6
+path: C:\Users\SystemX\Documents\Construction-main\ai-service\dataset\merged
+train: images/train
+val: images/val

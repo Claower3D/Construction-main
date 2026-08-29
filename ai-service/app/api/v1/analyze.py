@@ -272,20 +272,11 @@ async def defect_scan(
     sensitivity: float = Query(0.65, ge=0.1, le=1.0, description="Detection sensitivity (0.1=low, 1.0=high)"),
 ) -> Dict[str, Any]:
     """
-    Scan photo for construction defects using computer vision.
+    Scan photo for construction defects.
     
-    NO JWT required. NO GPU required.
-    Uses edge detection + color analysis to find:
-    - Cracks (трещины)
-    - Corrosion/rust (коррозия)
-    - Dark damage (глубокие повреждения)
-    - Spalling (сколы/отслоение)
-    - Surface defects (дефекты поверхности)
-    
-    Returns annotated image with colored bounding boxes and severity markers.
+    Uses trained YOLOv8 model (primary) with CV heuristic fallback.
+    NO JWT required. Returns annotated image with colored bounding boxes.
     """
-    from app.services.cv_defect_scanner import scan_defects
-    
     if not file.content_type or not file.content_type.startswith("image/"):
         raise HTTPException(400, "File must be an image")
     
@@ -305,9 +296,61 @@ async def defect_scan(
     except Exception as exc:
         raise HTTPException(400, f"Invalid image: {exc}")
     
-    result = scan_defects(image_np, sensitivity=sensitivity)
+    result = None
+    yolo_defects = []
     
-    # Format response for frontend
+    # Step 1: Try YOLO model (trained, accurate)
+    try:
+        from app.services.yolo_defect_scanner import scan_defects_yolo
+        yolo_result = scan_defects_yolo(image_np, confidence=max(0.1, 0.9 - sensitivity))
+        if yolo_result is not None:
+            yolo_defects = yolo_result["defects"]
+            if yolo_defects:
+                result = yolo_result
+            logger.info(f"[defect-scan] YOLO found {len(yolo_defects)} defects")
+    except Exception as e:
+        logger.warning(f"[defect-scan] YOLO failed: {e}")
+    
+    # Step 2: Also run CV scanner to catch things YOLO might miss
+    from app.services.cv_defect_scanner import scan_defects
+    cv_result = scan_defects(image_np, sensitivity=sensitivity)
+    cv_defects = cv_result["defects"]
+    logger.info(f"[defect-scan] CV found {len(cv_defects)} defects")
+    
+    # If YOLO had no results, use CV as primary
+    if result is None:
+        result = cv_result
+    elif cv_defects:
+        # Merge: add CV defects that don't overlap with YOLO detections
+        existing_bboxes = [d["bbox"] for d in result["defects"]]
+        for cd in cv_defects:
+            cb = cd["bbox"]
+            overlaps = False
+            for eb in existing_bboxes:
+                # Check IoU > 30%
+                ix1 = max(cb[0], eb[0]); iy1 = max(cb[1], eb[1])
+                ix2 = min(cb[2], eb[2]); iy2 = min(cb[3], eb[3])
+                inter = max(0, ix2 - ix1) * max(0, iy2 - iy1)
+                area1 = (cb[2]-cb[0]) * (cb[3]-cb[1])
+                area2 = (eb[2]-eb[0]) * (eb[3]-eb[1])
+                union = area1 + area2 - inter
+                if union > 0 and inter / union > 0.3:
+                    overlaps = True
+                    break
+            if not overlaps:
+                result["defects"].append(cd)
+        # Re-number and update summary
+        for i, d in enumerate(result["defects"]):
+            d["id"] = i + 1
+        sev_counts = {}
+        for d in result["defects"]:
+            s = d["severity"]
+            sev_counts[s] = sev_counts.get(s, 0) + 1
+        sev_order = {"critical": 4, "high": 3, "medium": 2, "low": 1}
+        max_sev = max(sev_counts.keys(), key=lambda s: sev_order.get(s, 0)) if sev_counts else "low"
+        result["severity_summary"] = {"total": len(result["defects"]), "by_severity": sev_counts, "max_severity": max_sev}
+    
+    # Format response
     defect_items = result["defects"]
     sev_summary = result["severity_summary"]
     

@@ -206,7 +206,7 @@ def merge_datasets(downloaded: list):
     return yaml_path, total_images
 
 
-def train_model(data_yaml: Path, epochs: int = 50, imgsz: int = 640, batch: int = 8):
+def train_model(data_yaml: Path, epochs: int = 15, imgsz: int = 640, batch: int = 16):
     """Train YOLOv8 model on merged dataset."""
     try:
         from ultralytics import YOLO
@@ -222,8 +222,8 @@ def train_model(data_yaml: Path, epochs: int = 50, imgsz: int = 640, batch: int 
     print(f"   ImgSize: {imgsz}")
     print(f"   Batch:   {batch}")
     
-    # Use YOLOv8n (nano) for speed, or YOLOv8s (small) for accuracy
-    model = YOLO("yolov8s.pt")  # Pretrained on COCO
+    # YOLOv8n (nano) — fastest, good for CPU training
+    model = YOLO("yolov8n.pt")  # Pretrained on COCO
     
     # Run directory
     run_name = f"defects_{datetime.now().strftime('%Y%m%d_%H%M')}"
@@ -235,11 +235,12 @@ def train_model(data_yaml: Path, epochs: int = 50, imgsz: int = 640, batch: int 
         batch=batch,
         name=run_name,
         project=str(RUNS_DIR),
-        patience=15,          # Early stopping
+        patience=10,          # Early stopping
         save=True,
-        save_period=10,       # Save checkpoint every 10 epochs
+        save_period=5,        # Save checkpoint every 5 epochs
         plots=True,
         verbose=True,
+        fraction=0.3,         # Use 30% of data for faster CPU training
         # Augmentations
         hsv_h=0.015,
         hsv_s=0.7,
