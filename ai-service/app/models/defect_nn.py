@@ -317,4 +317,3 @@ class DefectNNDetector:
 def get_defect_nn() -> DefectNNDetector:
     """Get singleton DefectNNDetector instance."""
     return DefectNNDetector.get()
-""" , "Description": "New neural network defect detector with 10 classes, SNiP mapping, and OpenCV fallback"
