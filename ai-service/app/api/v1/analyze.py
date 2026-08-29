@@ -266,6 +266,107 @@ async def analyze_image(
     return result
 
 
+@router.post("/defect-scan")
+async def defect_scan(
+    file: UploadFile = File(..., description="Photo to scan for defects"),
+    sensitivity: float = Query(0.5, ge=0.1, le=1.0, description="Detection sensitivity (0.1=low, 1.0=high)"),
+) -> Dict[str, Any]:
+    """
+    Scan photo for construction defects using computer vision.
+    
+    NO JWT required. NO GPU required.
+    Uses edge detection + color analysis to find:
+    - Cracks (трещины)
+    - Corrosion/rust (коррозия)
+    - Dark damage (глубокие повреждения)
+    - Spalling (сколы/отслоение)
+    - Surface defects (дефекты поверхности)
+    
+    Returns annotated image with colored bounding boxes and severity markers.
+    """
+    from app.services.cv_defect_scanner import scan_defects
+    
+    if not file.content_type or not file.content_type.startswith("image/"):
+        raise HTTPException(400, "File must be an image")
+    
+    try:
+        contents = await file.read()
+        pil_img = Image.open(io.BytesIO(contents))
+        if pil_img.mode != "RGB":
+            pil_img = pil_img.convert("RGB")
+        
+        # Limit size for speed
+        h, w = pil_img.height, pil_img.width
+        if max(h, w) > 1600:
+            scale = 1600 / max(h, w)
+            pil_img = pil_img.resize((int(w * scale), int(h * scale)), Image.LANCZOS)
+        
+        image_np = np.array(pil_img)
+    except Exception as exc:
+        raise HTTPException(400, f"Invalid image: {exc}")
+    
+    result = scan_defects(image_np, sensitivity=sensitivity)
+    
+    # Format response for frontend
+    defect_items = result["defects"]
+    sev_summary = result["severity_summary"]
+    
+    # Build text report
+    if defect_items:
+        primary = defect_items[0]
+        defect_type = primary["type"]
+        severity_map = {
+            "critical": "5 класс — КРИТИЧЕСКИЙ (аварийный)",
+            "high": "4 класс — Высокий риск",
+            "medium": "3 класс — Требует устранения",
+            "low": "2 класс — Незначительный",
+        }
+        severity_text = severity_map.get(primary["severity"], "3 класс — Требует устранения")
+    else:
+        defect_type = "Дефектов не обнаружено"
+        severity_text = "Норма"
+    
+    return {
+        "success": True,
+        "defectType": defect_type,
+        "severity": severity_text,
+        "snipCode": "СНиП РК 3.02-04-2019 / СП РК 1.03-106-2012",
+        "fixMethod": _get_fix_method(defect_type),
+        "estimatedCost": _estimate_cost(defect_items),
+        "workDays": max(1, len(defect_items)),
+        "defect_annotated_image": result["annotated_image"],
+        "defect_severity_summary": sev_summary,
+        "defects": {
+            "items": defect_items,
+            "total": len(defect_items),
+        },
+    }
+
+
+def _get_fix_method(defect_type: str) -> str:
+    methods = {
+        "Трещина": "Расшивка трещины на глубину 10 мм, обеспыливание, грунтовка глубокого проникновения, армирование серпянкой и шпатлевание полимерцементным составом.",
+        "Глубокое повреждение": "Демонтаж повреждённого участка, восстановление армокаркаса, заливка ремонтным составом повышенной прочности.",
+        "Коррозия / ржавчина": "Зачистка коррозии до чистого металла, обработка преобразователем ржавчины, нанесение антикоррозийного грунта и защитного покрытия.",
+        "Биопоражение / плесень": "Обработка фунгицидным составом, сушка, нанесение антисептической грунтовки и защитного слоя.",
+        "Отслоение / сколы": "Удаление отслоившегося материала, обеспыливание, грунтовка контактная, восстановление ремонтной смесью.",
+        "Дефект поверхности": "Локальный ремонт с применением сертифицированных ремонтных смесей.",
+    }
+    return methods.get(defect_type, methods["Дефект поверхности"])
+
+
+def _estimate_cost(defects: List) -> str:
+    if not defects:
+        return "0 ₸"
+    base = 0
+    for d in defects:
+        sev_cost = {"critical": 80000, "high": 50000, "medium": 30000, "low": 15000}
+        base += sev_cost.get(d["severity"], 30000)
+    low = int(base * 0.8)
+    high = int(base * 1.3)
+    return f"{low:,} – {high:,} ₸".replace(",", " ")
+
+
 @router.post("/detect")
 async def detect_only(
     file: UploadFile = File(...),

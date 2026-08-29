@@ -518,6 +518,7 @@ func (h *AiHandler) ValidateKey(w http.ResponseWriter, r *http.Request) {
 // allowedProxyPrefixes — whitelist of paths allowed to be proxied to AI service
 var allowedProxyPrefixes = []string{
 	"/api/v1/analyze",
+	"/api/v1/defect-scan",
 	"/api/v1/prices",
 	"/api/v1/engineering/",
 	"/api/v1/lidar/",

@@ -89,62 +89,41 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
     try {
       let data = null;
 
-      // ═══ STEP 1: Send photo to Python AI Pipeline (ML defect detection with bboxes) ═══
+      // ═══ STEP 1: Send photo to /defect-scan (CV detection, NO JWT needed, returns annotated image) ═══
       const firstPhoto = photos[0];
       if (firstPhoto?.file) {
-        setScanStepMessage('🧠 Нейросеть RF-DETR + DefectNN сканирует дефекты...');
+        setScanStepMessage('🧠 QazGost CV сканирует фото на дефекты...');
         
-        const token = localStorage.getItem('qazgost_token') || localStorage.getItem('token') || '';
         const formData = new FormData();
         formData.append('file', firstPhoto.file);
 
         try {
-          const aiRes = await fetch('/api/v1/analyze?confidence=0.2&calculate_depth=false&generate_estimate=true', {
+          const aiRes = await fetch('/api/v1/defect-scan?sensitivity=0.5', {
             method: 'POST',
-            headers: { 'Authorization': `Bearer ${token}` },
             body: formData,
           });
 
           if (aiRes.ok) {
             const aiData = await aiRes.json();
             
-            // Extract defect data from pipeline result
-            const defects = aiData.defects || {};
-            const defectItems = defects.items || defects.detections || [];
-            const objects = aiData.detected_objects || [];
-            
-            // If pipeline found defects or objects with defect category
-            if (defectItems.length > 0 || objects.some(o => o.category === 'defects')) {
+            if (aiData.success && aiData.defects?.items?.length > 0) {
               data = {
-                defectType: defectItems[0]?.type || defectItems[0]?.class_name || 'Дефект строительной конструкции',
-                severity: _mapSeverity(defectItems[0]?.severity || defects.max_severity || 'medium'),
-                snipCode: defects.snip_code || aiData.snip_codes?.[0] || 'СНиП РК 3.02-04-2019',
-                fixMethod: defects.fix_recommendation || defectItems[0]?.description || aiData.vlm_analysis?.recommendation || 'Локальный ремонт с применением сертифицированных смесей.',
-                estimatedCost: aiData.estimate?.total_formatted || aiData.estimate?.total ? `${Math.round(aiData.estimate.total).toLocaleString('ru-RU')} ₸` : '45 000 – 75 000 ₸',
-                workDays: aiData.estimate?.work_days || 2,
-                // Defect visualization data
-                defects: defects,
-                defect_annotated_image: aiData.defect_annotated_image || null,
-                defect_severity_summary: aiData.defect_severity_summary || null,
+                defectType: aiData.defectType,
+                severity: aiData.severity,
+                snipCode: aiData.snipCode,
+                fixMethod: aiData.fixMethod,
+                estimatedCost: aiData.estimatedCost,
+                workDays: aiData.workDays,
+                defects: aiData.defects,
+                defect_annotated_image: aiData.defect_annotated_image,
+                defect_severity_summary: aiData.defect_severity_summary,
               };
               
-              setScanStepMessage(`✅ Обнаружено ${defectItems.length} дефектов! Формирую карту...`);
-            } else if (aiData.vlm_analysis) {
-              // Qwen VLM analysis available but no specific defect detections
-              data = {
-                defectType: aiData.vlm_analysis.defect_type || aiData.vlm_analysis.summary || 'Дефект строительной конструкции',
-                severity: _mapSeverity(aiData.vlm_analysis.severity || 'medium'),
-                snipCode: aiData.vlm_analysis.snip_code || 'СНиП РК 3.02-04-2019',
-                fixMethod: aiData.vlm_analysis.recommendation || 'Требуется детальный осмотр.',
-                estimatedCost: aiData.estimate?.total_formatted || '45 000 – 75 000 ₸',
-                workDays: 2,
-                defect_annotated_image: aiData.defect_annotated_image || null,
-                defect_severity_summary: aiData.defect_severity_summary || null,
-              };
+              setScanStepMessage(`✅ Обнаружено ${aiData.defects.items.length} дефектов! Формирую карту...`);
             }
           }
         } catch (aiErr) {
-          console.warn('Python AI pipeline failed, falling back:', aiErr);
+          console.warn('CV defect scan failed, falling back:', aiErr);
         }
       }
 
