@@ -17,6 +17,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
   const [severitySummary, setSeveritySummary] = useState(null);
   const [createdDefectOrder, setCreatedDefectOrder] = useState(null);
   const [toastMessage, setToastMessage] = useState(null);
+  const [lightboxSrc, setLightboxSrc] = useState(null);
 
   const showToast = (msg) => {
     setToastMessage(msg);
@@ -287,6 +288,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
   };
 
   return (
+    <>
     <div className="di-container">
       {toastMessage && <div className="di-toast">{toastMessage}</div>}
 
@@ -343,7 +345,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
           {photos.length > 0 && (
             <div className="di-thumbs-grid">
               {photos.map(p => (
-                <div key={p.id} className="di-thumb-item">
+                <div key={p.id} className="di-thumb-item" onClick={() => setLightboxSrc(p.url)}>
                   <img src={p.url} alt={p.name} />
                   <button 
                     type="button" 
@@ -483,21 +485,15 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
           
           {/* Annotated Image from Server */}
           {annotatedImage ? (
-            <div style={{ position: 'relative', width: '100%' }}>
-              <img 
-                src={annotatedImage} 
-                alt="Дефекты с разметкой" 
-                style={{ width: '100%', display: 'block', borderRadius: '0 0 12px 12px' }}
-              />
+            <div className="di-defect-image-wrap" onClick={() => setLightboxSrc(annotatedImage)}>
+              <img src={annotatedImage} alt="Дефекты с разметкой" />
+              <span className="di-zoom-hint">🔍 Нажмите для увеличения</span>
             </div>
-          ) : (
+          ) : photos.length > 0 ? (
             /* Client-side overlay on uploaded photos */
-            <div style={{ position: 'relative', width: '100%' }}>
-              <img 
-                src={photos[0]?.url} 
-                alt="Фото дефекта" 
-                style={{ width: '100%', display: 'block', borderRadius: '0 0 12px 12px' }}
-              />
+            <div className="di-defect-image-wrap" onClick={() => setLightboxSrc(photos[0]?.url)}>
+              <img src={photos[0]?.url} alt="Фото дефекта" />
+              <span className="di-zoom-hint">🔍 Нажмите для увеличения</span>
               {/* Overlay markers from defectMarkers */}
               {defectMarkers.map((marker, idx) => {
                 const sevColors = {
@@ -534,7 +530,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
                 );
               })}
             </div>
-          )}
+          ) : null}
           
           {/* Defect Cards List */}
           {defectMarkers.length > 0 && (
@@ -686,5 +682,14 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
         </div>
       )}
     </div>
+
+      {/* ===== LIGHTBOX (Full-screen zoom) ===== */}
+      {lightboxSrc && (
+        <div className="di-lightbox" onClick={() => setLightboxSrc(null)}>
+          <img src={lightboxSrc} alt="Увеличенное фото" onClick={(e) => e.stopPropagation()} />
+          <button className="di-lightbox-close" onClick={() => setLightboxSrc(null)}>✕</button>
+        </div>
+      )}
+    </>
   );
 }
