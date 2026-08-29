@@ -325,7 +325,7 @@ class StainDetector:
                         continue
 
                     x, y, bw, bh = cv2.boundingRect(contour)
-                    relative_area = area / (w * h)
+                    relative_area = area / (w * h) if (w * h) > 0 else 0
 
                     # Severity
                     if stain_type == "mold" or relative_area > 0.1:
@@ -454,7 +454,7 @@ class RustDetector:
                     continue
 
                 x, y, bw, bh = cv2.boundingRect(contour)
-                relative_area = area / (w * h)
+                relative_area = area / (w * h) if (w * h) > 0 else 0
 
                 if relative_area > 0.1:
                     severity = "high"

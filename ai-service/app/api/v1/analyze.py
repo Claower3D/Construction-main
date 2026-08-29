@@ -341,8 +341,8 @@ async def analyze_3d(
             warnings.append(f"File {i}: skipped (not an image)")
             continue
         try:
-            contents = await f.read()
-            pil_img = Image.open(io.BytesIO(contents)).convert("RGB")
+            # Read directly into PIL (avoids double RAM allocation)
+            pil_img = Image.open(f.file).convert("RGB")
 
             # Resize if too large
             h, w = pil_img.height, pil_img.width

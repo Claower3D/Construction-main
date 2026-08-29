@@ -40,8 +40,22 @@ try:
     GDINO_AVAILABLE = True
 except ImportError:
     GDINO_AVAILABLE = False
+    # Hardcoded fallback so category mapping works even without grounding_dino
+    _FALLBACK_PROMPTS = {
+        "structure": "wall . floor . ceiling . column . beam . slab . foundation . roof",
+        "openings":  "window . door . doorway . opening . arch",
+        "materials": "brick . concrete block . rebar . formwork . insulation . waterproofing . plaster . tile",
+        "defects":   "crack . stain . mold . rust . corrosion . spalling . delamination . efflorescence",
+        "pipes":     "pipe . duct . ventilation . cable tray . conduit . drain . manhole",
+        "fasteners": "bolt . nut . anchor . bracket . clamp . hanger . profile . drywall screw",
+        "equipment": "excavator . crane . scaffolding . ladder . wheelbarrow . concrete mixer",
+        "reference": "measuring tape . ruler . person . door . car . brick . A4 paper . credit card",
+    }
     LABEL_TO_CATEGORY = {}
-    logger.warning("[Pipeline] GroundingDINO not available")
+    for _cat, _prompt in _FALLBACK_PROMPTS.items():
+        for _label in _prompt.split(" . "):
+            LABEL_TO_CATEGORY[_label.strip().lower()] = _cat
+    logger.warning("[Pipeline] GroundingDINO not available, using fallback LABEL_TO_CATEGORY")
 
 try:
     from app.models.defect_detector import get_defect_analyzer
