@@ -12,6 +12,9 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
   const [isScanning, setIsScanning] = useState(false);
   const [scanStepMessage, setScanStepMessage] = useState('');
   const [report, setReport] = useState(null);
+  const [annotatedImage, setAnnotatedImage] = useState(null);
+  const [defectMarkers, setDefectMarkers] = useState([]);
+  const [severitySummary, setSeveritySummary] = useState(null);
   const [createdDefectOrder, setCreatedDefectOrder] = useState(null);
   const [toastMessage, setToastMessage] = useState(null);
 
@@ -148,6 +151,27 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
 
       setScanStepMessage('✨ Формирование технического заключения по СНиП РК...');
       
+      // Store defect annotation data
+      if (data.defect_annotated_image) {
+        setAnnotatedImage(data.defect_annotated_image);
+      }
+      if (data.defect_severity_summary) {
+        setSeveritySummary(data.defect_severity_summary);
+      }
+      
+      // Build defect markers for client-side overlay
+      const items = data.defects?.items || data.defects?.detections || [];
+      if (items.length > 0) {
+        setDefectMarkers(items.map((d, i) => ({
+          id: i + 1,
+          bbox: d.bbox || d.bounding_box || [0, 0, 50, 50],
+          type: d.type || d.class_name || d.defect_type || 'defect',
+          severity: d.severity || 'medium',
+          confidence: d.confidence || d.score || 0,
+          description: d.description || '',
+        })));
+      }
+      
       setTimeout(() => {
         setIsScanning(false);
         setReport({
@@ -161,7 +185,9 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
           workDays: data.workDays || 2,
           clientName: clientName || 'Заказчик',
           clientPhone: clientPhone || '+7 (707) ***-**-**',
-          address: clientAddress || 'г. Алматы'
+          address: clientAddress || 'г. Алматы',
+          defectCount: items.length || 0,
+          markers: items,
         });
         showToast('✅ Экспертиза дефекта нейросетью Vision AI завершена!');
       }, 500);
@@ -337,6 +363,155 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
         </button>
 
       </div>
+
+      {/* ===== DEFECT VISUALIZATION SECTION ===== */}
+      {report && (photos.length > 0 || annotatedImage) && (
+        <div className="di-section mt-4" style={{ padding: 0, overflow: 'hidden' }}>
+          <div className="di-section-title" style={{ padding: '16px 20px 8px' }}>
+            <span className="di-sec-icon">🔬</span>
+            <h3>Карта дефектов — визуальный анализ</h3>
+          </div>
+          
+          {/* Severity Summary Bar */}
+          {severitySummary && (
+            <div style={{ display: 'flex', gap: '10px', padding: '0 20px 12px', flexWrap: 'wrap' }}>
+              <div style={{ background: 'rgba(255,40,40,0.15)', border: '1px solid rgba(255,40,40,0.4)', borderRadius: '8px', padding: '8px 14px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span style={{ fontSize: '1.1rem' }}>🔴</span>
+                <span style={{ color: '#ff4444', fontWeight: 800, fontSize: '0.85rem' }}>
+                  Критических: {severitySummary.by_severity?.critical || 0}
+                </span>
+              </div>
+              <div style={{ background: 'rgba(255,120,30,0.15)', border: '1px solid rgba(255,120,30,0.4)', borderRadius: '8px', padding: '8px 14px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span style={{ fontSize: '1.1rem' }}>🟠</span>
+                <span style={{ color: '#ff781e', fontWeight: 800, fontSize: '0.85rem' }}>
+                  Высоких: {severitySummary.by_severity?.high || 0}
+                </span>
+              </div>
+              <div style={{ background: 'rgba(255,200,0,0.15)', border: '1px solid rgba(255,200,0,0.4)', borderRadius: '8px', padding: '8px 14px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span style={{ fontSize: '1.1rem' }}>🟡</span>
+                <span style={{ color: '#ffc800', fontWeight: 800, fontSize: '0.85rem' }}>
+                  Средних: {severitySummary.by_severity?.medium || 0}
+                </span>
+              </div>
+              <div style={{ background: 'rgba(80,200,80,0.15)', border: '1px solid rgba(80,200,80,0.4)', borderRadius: '8px', padding: '8px 14px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span style={{ fontSize: '1.1rem' }}>🟢</span>
+                <span style={{ color: '#50c850', fontWeight: 800, fontSize: '0.85rem' }}>
+                  Низких: {severitySummary.by_severity?.low || 0}
+                </span>
+              </div>
+              <div style={{ background: 'rgba(100,160,255,0.1)', borderRadius: '8px', padding: '8px 14px', marginLeft: 'auto' }}>
+                <span style={{ color: '#94a3b8', fontWeight: 700, fontSize: '0.85rem' }}>
+                  Всего: {severitySummary.total} дефектов
+                </span>
+              </div>
+            </div>
+          )}
+          
+          {/* Annotated Image from Server */}
+          {annotatedImage ? (
+            <div style={{ position: 'relative', width: '100%' }}>
+              <img 
+                src={annotatedImage} 
+                alt="Дефекты с разметкой" 
+                style={{ width: '100%', display: 'block', borderRadius: '0 0 12px 12px' }}
+              />
+            </div>
+          ) : (
+            /* Client-side overlay on uploaded photos */
+            <div style={{ position: 'relative', width: '100%' }}>
+              <img 
+                src={photos[0]?.url} 
+                alt="Фото дефекта" 
+                style={{ width: '100%', display: 'block', borderRadius: '0 0 12px 12px' }}
+              />
+              {/* Overlay markers from defectMarkers */}
+              {defectMarkers.map((marker, idx) => {
+                const sevColors = {
+                  critical: { bg: 'rgba(255,40,40,0.25)', border: '#ff2828', text: '#ff4444', label: '🔴 КРИТИЧЕСКИЙ' },
+                  high: { bg: 'rgba(255,120,30,0.2)', border: '#ff781e', text: '#ff781e', label: '🟠 ВЫСОКИЙ' },
+                  medium: { bg: 'rgba(255,200,0,0.2)', border: '#ffc800', text: '#ffc800', label: '🟡 СРЕДНИЙ' },
+                  low: { bg: 'rgba(80,200,80,0.2)', border: '#50c850', text: '#50c850', label: '🟢 НИЗКИЙ' },
+                  info: { bg: 'rgba(100,160,255,0.15)', border: '#64a0ff', text: '#64a0ff', label: '🔵 ИНФО' },
+                };
+                const sev = sevColors[marker.severity] || sevColors.medium;
+                const [x1, y1, x2, y2] = marker.bbox;
+                
+                return (
+                  <div key={idx} style={{
+                    position: 'absolute',
+                    left: `${(x1 / (photos[0]?.naturalWidth || 800)) * 100}%`,
+                    top: `${(y1 / (photos[0]?.naturalHeight || 600)) * 100}%`,
+                    width: `${((x2 - x1) / (photos[0]?.naturalWidth || 800)) * 100}%`,
+                    height: `${((y2 - y1) / (photos[0]?.naturalHeight || 600)) * 100}%`,
+                    background: sev.bg,
+                    border: `2px solid ${sev.border}`,
+                    borderRadius: '4px',
+                    pointerEvents: 'none',
+                  }}>
+                    <div style={{
+                      position: 'absolute', top: '-24px', left: 0,
+                      background: 'rgba(10,15,30,0.9)', borderRadius: '4px',
+                      padding: '2px 8px', whiteSpace: 'nowrap',
+                      fontSize: '0.7rem', fontWeight: 700, color: sev.text,
+                    }}>
+                      #{marker.id} {marker.type} {sev.label}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+          
+          {/* Defect Cards List */}
+          {defectMarkers.length > 0 && (
+            <div style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <h4 style={{ color: '#e2e8f0', margin: '0 0 8px', fontSize: '0.95rem', fontWeight: 800 }}>
+                📋 Обнаруженные дефекты ({defectMarkers.length}):
+              </h4>
+              {defectMarkers.map((marker, idx) => {
+                const sevStyles = {
+                  critical: { bg: 'linear-gradient(135deg, rgba(255,40,40,0.15), rgba(180,0,0,0.1))', border: 'rgba(255,40,40,0.5)', dot: '#ff2828', label: 'КРИТИЧЕСКИЙ' },
+                  high: { bg: 'linear-gradient(135deg, rgba(255,120,30,0.12), rgba(200,80,0,0.08))', border: 'rgba(255,120,30,0.4)', dot: '#ff781e', label: 'ВЫСОКИЙ' },
+                  medium: { bg: 'linear-gradient(135deg, rgba(255,200,0,0.1), rgba(200,160,0,0.06))', border: 'rgba(255,200,0,0.35)', dot: '#ffc800', label: 'СРЕДНИЙ' },
+                  low: { bg: 'linear-gradient(135deg, rgba(80,200,80,0.1), rgba(40,150,40,0.06))', border: 'rgba(80,200,80,0.35)', dot: '#50c850', label: 'НИЗКИЙ' },
+                  info: { bg: 'rgba(100,160,255,0.08)', border: 'rgba(100,160,255,0.3)', dot: '#64a0ff', label: 'ИНФО' },
+                };
+                const s = sevStyles[marker.severity] || sevStyles.medium;
+                
+                return (
+                  <div key={idx} style={{
+                    background: s.bg, border: `1px solid ${s.border}`,
+                    borderRadius: '10px', padding: '12px 16px',
+                    display: 'flex', alignItems: 'center', gap: '12px',
+                  }}>
+                    <div style={{
+                      width: '32px', height: '32px', borderRadius: '50%',
+                      background: s.dot, display: 'flex', alignItems: 'center',
+                      justifyContent: 'center', color: '#fff', fontWeight: 900,
+                      fontSize: '0.8rem', flexShrink: 0,
+                    }}>
+                      {marker.id}
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontWeight: 800, color: '#e2e8f0', fontSize: '0.9rem' }}>
+                        {marker.type}
+                      </div>
+                      <div style={{ color: s.dot, fontSize: '0.78rem', fontWeight: 700 }}>
+                        {s.label} • Уверенность: {(marker.confidence * 100).toFixed(0)}%
+                      </div>
+                      {marker.description && (
+                        <div style={{ color: '#94a3b8', fontSize: '0.78rem', marginTop: '2px' }}>
+                          {marker.description}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* AI Scanner Result Card */}
       {report && (

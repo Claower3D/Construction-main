@@ -224,8 +224,45 @@ async def analyze_image(
         custom_text_prompt=custom_text_prompt,
     )
 
-    # Return full pipeline result as-is (IntentContract)
-    # Frontend reads this directly — no server-side filtering
+    # Inject annotated defect image if defects were found
+    from app.services.defect_visualizer import annotate_defects_pil, image_to_base64, get_severity
+    
+    defects_data = result.get("defects", {})
+    defect_items = defects_data.get("items", defects_data.get("detections", []))
+    
+    if defect_items and len(defect_items) > 0:
+        try:
+            # Build defect list for visualizer
+            vis_defects = []
+            for d in defect_items:
+                vis_defects.append({
+                    "bbox": d.get("bbox", d.get("bounding_box", [0, 0, 50, 50])),
+                    "type": d.get("type", d.get("class_name", d.get("defect_type", "defect"))),
+                    "confidence": d.get("confidence", d.get("score", 0.5)),
+                    "severity": d.get("severity", "medium"),
+                    "description": d.get("description", ""),
+                })
+            
+            annotated = annotate_defects_pil(image_np, vis_defects)
+            result["defect_annotated_image"] = image_to_base64(annotated)
+            
+            # Add severity summary
+            severity_counts = {}
+            for vd in vis_defects:
+                sev = vd.get("severity", get_severity(vd["type"]))
+                severity_counts[sev] = severity_counts.get(sev, 0) + 1
+            
+            result["defect_severity_summary"] = {
+                "total": len(vis_defects),
+                "by_severity": severity_counts,
+                "max_severity": max(severity_counts.keys(), 
+                    key=lambda s: {"critical": 5, "high": 4, "medium": 3, "low": 2, "info": 1}.get(s, 0)),
+            }
+            
+            logger.info(f"[Visualizer] Annotated {len(vis_defects)} defects on image")
+        except Exception as exc:
+            logger.warning(f"[Visualizer] Failed to annotate: {exc}")
+    
     return result
 
 
