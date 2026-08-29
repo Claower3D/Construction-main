@@ -58,6 +58,18 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
     setAiDescription(prev => prev ? `${prev}. ${promptText}` : promptText);
   };
 
+  // Map severity string to human-readable Russian label
+  const _mapSeverity = (sev) => {
+    const map = {
+      'critical': '5 класс — КРИТИЧЕСКИЙ (аварийный)',
+      'high': '4 класс — Высокий риск',
+      'medium': '3 класс — Требует устранения',
+      'low': '2 класс — Незначительный',
+      'info': '1 класс — Информационный',
+    };
+    return map[sev] || sev || '3 класс — Требует устранения';
+  };
+
   const handleRunInspection = async (e) => {
     e.preventDefault();
 
@@ -68,59 +80,121 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
 
     setIsScanning(true);
     setReport(null);
-    setScanStepMessage('⏳ Подключение к OpenAI Defect Vision Engine...');
+    setAnnotatedImage(null);
+    setDefectMarkers([]);
+    setSeveritySummary(null);
+    setScanStepMessage('🔬 QazGost AI анализирует фото на дефекты...');
 
     try {
       let data = null;
 
-      // 1. Send photos to Go Backend for AI vision analysis (API keys stay on server!)
-      if (photos.some(p => p.base64)) {
-        setScanStepMessage('📸 AI Vision анализирует микроструктуру дефекта по пикселям...');
+      // ═══ STEP 1: Send photo to Python AI Pipeline (ML defect detection with bboxes) ═══
+      const firstPhoto = photos[0];
+      if (firstPhoto?.file) {
+        setScanStepMessage('🧠 Нейросеть RF-DETR + DefectNN сканирует дефекты...');
         
-        const token = typeof window !== 'undefined' ? (localStorage.getItem('qazgost_token') || localStorage.getItem('token')) : null;
+        const token = localStorage.getItem('qazgost_token') || localStorage.getItem('token') || '';
+        const formData = new FormData();
+        formData.append('file', firstPhoto.file);
+
+        try {
+          const aiRes = await fetch('/api/v1/analyze?confidence=0.2&calculate_depth=false&generate_estimate=true', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` },
+            body: formData,
+          });
+
+          if (aiRes.ok) {
+            const aiData = await aiRes.json();
+            
+            // Extract defect data from pipeline result
+            const defects = aiData.defects || {};
+            const defectItems = defects.items || defects.detections || [];
+            const objects = aiData.detected_objects || [];
+            
+            // If pipeline found defects or objects with defect category
+            if (defectItems.length > 0 || objects.some(o => o.category === 'defects')) {
+              data = {
+                defectType: defectItems[0]?.type || defectItems[0]?.class_name || 'Дефект строительной конструкции',
+                severity: _mapSeverity(defectItems[0]?.severity || defects.max_severity || 'medium'),
+                snipCode: defects.snip_code || aiData.snip_codes?.[0] || 'СНиП РК 3.02-04-2019',
+                fixMethod: defects.fix_recommendation || defectItems[0]?.description || aiData.vlm_analysis?.recommendation || 'Локальный ремонт с применением сертифицированных смесей.',
+                estimatedCost: aiData.estimate?.total_formatted || aiData.estimate?.total ? `${Math.round(aiData.estimate.total).toLocaleString('ru-RU')} ₸` : '45 000 – 75 000 ₸',
+                workDays: aiData.estimate?.work_days || 2,
+                // Defect visualization data
+                defects: defects,
+                defect_annotated_image: aiData.defect_annotated_image || null,
+                defect_severity_summary: aiData.defect_severity_summary || null,
+              };
+              
+              setScanStepMessage(`✅ Обнаружено ${defectItems.length} дефектов! Формирую карту...`);
+            } else if (aiData.vlm_analysis) {
+              // Qwen VLM analysis available but no specific defect detections
+              data = {
+                defectType: aiData.vlm_analysis.defect_type || aiData.vlm_analysis.summary || 'Дефект строительной конструкции',
+                severity: _mapSeverity(aiData.vlm_analysis.severity || 'medium'),
+                snipCode: aiData.vlm_analysis.snip_code || 'СНиП РК 3.02-04-2019',
+                fixMethod: aiData.vlm_analysis.recommendation || 'Требуется детальный осмотр.',
+                estimatedCost: aiData.estimate?.total_formatted || '45 000 – 75 000 ₸',
+                workDays: 2,
+                defect_annotated_image: aiData.defect_annotated_image || null,
+                defect_severity_summary: aiData.defect_severity_summary || null,
+              };
+            }
+          }
+        } catch (aiErr) {
+          console.warn('Python AI pipeline failed, falling back:', aiErr);
+        }
+      }
+
+      // ═══ STEP 2: Fallback — Go backend text analysis (OpenAI GPT-4o or SNiP heuristics) ═══
+      if (!data) {
+        setScanStepMessage('📸 AI Vision анализирует дефект по пикселям...');
+        
+        const token = localStorage.getItem('qazgost_token') || localStorage.getItem('token') || '';
         const headers = { 'Content-Type': 'application/json' };
         if (token) headers['Authorization'] = `Bearer ${token}`;
 
-        const photosBase64 = photos.slice(0, 4).filter(p => p.base64).map(p => p.base64);
+        // Try defect-vision with base64 photos
+        if (photos.some(p => p.base64)) {
+          const photosBase64 = photos.slice(0, 4).filter(p => p.base64).map(p => p.base64);
+          
+          const vRes = await fetch('/api/v1/ai/defect-vision', {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({
+              photos: photosBase64,
+              description: aiDescription || '',
+            })
+          });
 
-        const vRes = await fetch('/api/v1/ai/defect-vision', {
-          method: 'POST',
-          headers,
-          body: JSON.stringify({
-            photos: photosBase64,
-            description: aiDescription || '',
-          })
-        });
+          if (vRes.ok) {
+            const vData = await vRes.json();
+            if (vData && vData.defectType) {
+              data = vData;
+            }
+          }
+        }
 
-        if (vRes.ok) {
-          const vData = await vRes.json();
-          if (vData && vData.defectType) {
-            data = vData;
+        // Try text-only defect analysis
+        if (!data) {
+          setScanStepMessage('🤖 Нейросеть анализирует дефект по описанию...');
+          
+          const res = await fetch('/api/v1/ai/defect', {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({
+              description: aiDescription || 'Анализ дефекта строительных конструкций и отделки по фото'
+            })
+          });
+
+          if (res.ok) {
+            data = await res.json();
           }
         }
       }
 
-      // 2. If direct call not used or failed, call backend /api/v1/ai/defect
-      if (!data) {
-        setScanStepMessage('🤖 Нейросеть GPT-4o & Go-движок СНиП анализируют дефект...');
-        const token = typeof window !== 'undefined' ? (localStorage.getItem('qazgost_token') || localStorage.getItem('token')) : null;
-        const headers = { 'Content-Type': 'application/json' };
-        if (token) headers['Authorization'] = `Bearer ${token}`;
-
-        const res = await fetch('/api/v1/ai/defect', {
-          method: 'POST',
-          headers: headers,
-          body: JSON.stringify({
-            description: aiDescription || 'Анализ дефекта строительных конструкций и отделки по фото'
-          })
-        });
-
-        if (res.ok) {
-          data = await res.json();
-        }
-      }
-
-      // 3. Fallback to expert domain heuristics if offline
+      // ═══ STEP 3: Offline fallback — expert domain heuristics ═══
       if (!data) {
         const descLower = (aiDescription || '').toLowerCase();
         let defectType = 'Усадочная трещина штукатурного слоя';
