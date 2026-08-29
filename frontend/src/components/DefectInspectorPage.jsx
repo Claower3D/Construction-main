@@ -444,143 +444,136 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
       </div>
 
       {/* ===== DEFECT VISUALIZATION SECTION ===== */}
-      {report && (photos.length > 0 || annotatedImage) && (
-        <div className="di-section mt-4" style={{ padding: 0, overflow: 'hidden' }}>
-          <div className="di-section-title" style={{ padding: '16px 20px 8px' }}>
-            <span className="di-sec-icon">🔬</span>
-            <h3>Карта дефектов — визуальный анализ</h3>
+      {report && (annotatedImage || defectMarkers.length > 0) && (
+        <div className="di-section mt-4" style={{ padding: 0, overflow: 'hidden', maxWidth: '680px', margin: '1.5rem auto 0' }}>
+          <div style={{ padding: '16px 20px 8px' }}>
+            <h3 style={{ color: '#e2e8f0', margin: 0, fontSize: '1.1rem', fontWeight: 800 }}>
+              🔬 Карта дефектов — визуальный анализ
+            </h3>
           </div>
           
           {/* Severity Summary Bar */}
           {severitySummary && (
-            <div style={{ display: 'flex', gap: '10px', padding: '0 20px 12px', flexWrap: 'wrap' }}>
-              <div style={{ background: 'rgba(255,40,40,0.15)', border: '1px solid rgba(255,40,40,0.4)', borderRadius: '8px', padding: '8px 14px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <span style={{ fontSize: '1.1rem' }}>🔴</span>
-                <span style={{ color: '#ff4444', fontWeight: 800, fontSize: '0.85rem' }}>
-                  Критических: {severitySummary.by_severity?.critical || 0}
-                </span>
-              </div>
-              <div style={{ background: 'rgba(255,120,30,0.15)', border: '1px solid rgba(255,120,30,0.4)', borderRadius: '8px', padding: '8px 14px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <span style={{ fontSize: '1.1rem' }}>🟠</span>
-                <span style={{ color: '#ff781e', fontWeight: 800, fontSize: '0.85rem' }}>
-                  Высоких: {severitySummary.by_severity?.high || 0}
-                </span>
-              </div>
-              <div style={{ background: 'rgba(255,200,0,0.15)', border: '1px solid rgba(255,200,0,0.4)', borderRadius: '8px', padding: '8px 14px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <span style={{ fontSize: '1.1rem' }}>🟡</span>
-                <span style={{ color: '#ffc800', fontWeight: 800, fontSize: '0.85rem' }}>
-                  Средних: {severitySummary.by_severity?.medium || 0}
-                </span>
-              </div>
-              <div style={{ background: 'rgba(80,200,80,0.15)', border: '1px solid rgba(80,200,80,0.4)', borderRadius: '8px', padding: '8px 14px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <span style={{ fontSize: '1.1rem' }}>🟢</span>
-                <span style={{ color: '#50c850', fontWeight: 800, fontSize: '0.85rem' }}>
-                  Низких: {severitySummary.by_severity?.low || 0}
-                </span>
-              </div>
-              <div style={{ background: 'rgba(100,160,255,0.1)', borderRadius: '8px', padding: '8px 14px', marginLeft: 'auto' }}>
-                <span style={{ color: '#94a3b8', fontWeight: 700, fontSize: '0.85rem' }}>
-                  Всего: {severitySummary.total} дефектов
+            <div style={{ display: 'flex', gap: '8px', padding: '8px 20px 14px', flexWrap: 'wrap' }}>
+              {(severitySummary.by_severity?.critical > 0) && (
+                <div style={{ background: 'rgba(255,40,40,0.2)', border: '1px solid rgba(255,40,40,0.5)', borderRadius: '8px', padding: '6px 12px' }}>
+                  <span style={{ color: '#ff4444', fontWeight: 800, fontSize: '0.9rem' }}>
+                    🔴 Критических: {severitySummary.by_severity.critical}
+                  </span>
+                </div>
+              )}
+              {(severitySummary.by_severity?.high > 0) && (
+                <div style={{ background: 'rgba(255,120,30,0.2)', border: '1px solid rgba(255,120,30,0.5)', borderRadius: '8px', padding: '6px 12px' }}>
+                  <span style={{ color: '#ff781e', fontWeight: 800, fontSize: '0.9rem' }}>
+                    🟠 Высоких: {severitySummary.by_severity.high}
+                  </span>
+                </div>
+              )}
+              {(severitySummary.by_severity?.medium > 0) && (
+                <div style={{ background: 'rgba(255,200,0,0.15)', border: '1px solid rgba(255,200,0,0.4)', borderRadius: '8px', padding: '6px 12px' }}>
+                  <span style={{ color: '#ffc800', fontWeight: 800, fontSize: '0.9rem' }}>
+                    🟡 Средних: {severitySummary.by_severity.medium}
+                  </span>
+                </div>
+              )}
+              {(severitySummary.by_severity?.low > 0) && (
+                <div style={{ background: 'rgba(80,200,80,0.15)', border: '1px solid rgba(80,200,80,0.4)', borderRadius: '8px', padding: '6px 12px' }}>
+                  <span style={{ color: '#50c850', fontWeight: 800, fontSize: '0.9rem' }}>
+                    🟢 Низких: {severitySummary.by_severity.low}
+                  </span>
+                </div>
+              )}
+              <div style={{ background: 'rgba(100,160,255,0.1)', borderRadius: '8px', padding: '6px 12px', marginLeft: 'auto' }}>
+                <span style={{ color: '#cbd5e1', fontWeight: 700, fontSize: '0.9rem' }}>
+                  Всего: {severitySummary.total}
                 </span>
               </div>
             </div>
           )}
           
-          {/* Annotated Image from Server */}
-          {annotatedImage ? (
+          {/* Annotated Image — already has bboxes drawn by Python CV scanner */}
+          {annotatedImage && (
             <div className="di-defect-image-wrap" onClick={() => setLightboxSrc(annotatedImage)}>
               <img src={annotatedImage} alt="Дефекты с разметкой" />
               <span className="di-zoom-hint">🔍 Нажмите для увеличения</span>
             </div>
-          ) : photos.length > 0 ? (
-            /* Client-side overlay on uploaded photos */
+          )}
+
+          {/* If no annotated image, show original photo */}
+          {!annotatedImage && photos.length > 0 && (
             <div className="di-defect-image-wrap" onClick={() => setLightboxSrc(photos[0]?.url)}>
               <img src={photos[0]?.url} alt="Фото дефекта" />
               <span className="di-zoom-hint">🔍 Нажмите для увеличения</span>
-              {/* Overlay markers from defectMarkers */}
-              {defectMarkers.map((marker, idx) => {
-                const sevColors = {
-                  critical: { bg: 'rgba(255,40,40,0.25)', border: '#ff2828', text: '#ff4444', label: '🔴 КРИТИЧЕСКИЙ' },
-                  high: { bg: 'rgba(255,120,30,0.2)', border: '#ff781e', text: '#ff781e', label: '🟠 ВЫСОКИЙ' },
-                  medium: { bg: 'rgba(255,200,0,0.2)', border: '#ffc800', text: '#ffc800', label: '🟡 СРЕДНИЙ' },
-                  low: { bg: 'rgba(80,200,80,0.2)', border: '#50c850', text: '#50c850', label: '🟢 НИЗКИЙ' },
-                  info: { bg: 'rgba(100,160,255,0.15)', border: '#64a0ff', text: '#64a0ff', label: '🔵 ИНФО' },
-                };
-                const sev = sevColors[marker.severity] || sevColors.medium;
-                const [x1, y1, x2, y2] = marker.bbox;
-                
-                return (
-                  <div key={idx} style={{
-                    position: 'absolute',
-                    left: `${(x1 / (photos[0]?.naturalWidth || 800)) * 100}%`,
-                    top: `${(y1 / (photos[0]?.naturalHeight || 600)) * 100}%`,
-                    width: `${((x2 - x1) / (photos[0]?.naturalWidth || 800)) * 100}%`,
-                    height: `${((y2 - y1) / (photos[0]?.naturalHeight || 600)) * 100}%`,
-                    background: sev.bg,
-                    border: `2px solid ${sev.border}`,
-                    borderRadius: '4px',
-                    pointerEvents: 'none',
-                  }}>
-                    <div style={{
-                      position: 'absolute', top: '-24px', left: 0,
-                      background: 'rgba(10,15,30,0.9)', borderRadius: '4px',
-                      padding: '2px 8px', whiteSpace: 'nowrap',
-                      fontSize: '0.7rem', fontWeight: 700, color: sev.text,
-                    }}>
-                      #{marker.id} {marker.type} {sev.label}
-                    </div>
-                  </div>
-                );
-              })}
             </div>
-          ) : null}
+          )}
           
           {/* Defect Cards List */}
           {defectMarkers.length > 0 && (
-            <div style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <h4 style={{ color: '#e2e8f0', margin: '0 0 8px', fontSize: '0.95rem', fontWeight: 800 }}>
+            <div style={{ padding: '16px 20px 20px' }}>
+              <h4 style={{ color: '#f1f5f9', margin: '0 0 12px', fontSize: '1.05rem', fontWeight: 800 }}>
                 📋 Обнаруженные дефекты ({defectMarkers.length}):
               </h4>
-              {defectMarkers.map((marker, idx) => {
-                const sevStyles = {
-                  critical: { bg: 'linear-gradient(135deg, rgba(255,40,40,0.15), rgba(180,0,0,0.1))', border: 'rgba(255,40,40,0.5)', dot: '#ff2828', label: 'КРИТИЧЕСКИЙ' },
-                  high: { bg: 'linear-gradient(135deg, rgba(255,120,30,0.12), rgba(200,80,0,0.08))', border: 'rgba(255,120,30,0.4)', dot: '#ff781e', label: 'ВЫСОКИЙ' },
-                  medium: { bg: 'linear-gradient(135deg, rgba(255,200,0,0.1), rgba(200,160,0,0.06))', border: 'rgba(255,200,0,0.35)', dot: '#ffc800', label: 'СРЕДНИЙ' },
-                  low: { bg: 'linear-gradient(135deg, rgba(80,200,80,0.1), rgba(40,150,40,0.06))', border: 'rgba(80,200,80,0.35)', dot: '#50c850', label: 'НИЗКИЙ' },
-                  info: { bg: 'rgba(100,160,255,0.08)', border: 'rgba(100,160,255,0.3)', dot: '#64a0ff', label: 'ИНФО' },
-                };
-                const s = sevStyles[marker.severity] || sevStyles.medium;
-                
-                return (
-                  <div key={idx} style={{
-                    background: s.bg, border: `1px solid ${s.border}`,
-                    borderRadius: '10px', padding: '12px 16px',
-                    display: 'flex', alignItems: 'center', gap: '12px',
-                  }}>
-                    <div style={{
-                      width: '32px', height: '32px', borderRadius: '50%',
-                      background: s.dot, display: 'flex', alignItems: 'center',
-                      justifyContent: 'center', color: '#fff', fontWeight: 900,
-                      fontSize: '0.8rem', flexShrink: 0,
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {defectMarkers.map((marker, idx) => {
+                  const sevConfig = {
+                    critical: { bg: 'rgba(255,40,40,0.12)', border: 'rgba(255,40,40,0.5)', color: '#ff4444', dot: '#ff2828', label: 'КРИТИЧЕСКИЙ' },
+                    high: { bg: 'rgba(255,120,30,0.1)', border: 'rgba(255,120,30,0.45)', color: '#ff8c3a', dot: '#ff781e', label: 'ВЫСОКИЙ' },
+                    medium: { bg: 'rgba(255,200,0,0.08)', border: 'rgba(255,200,0,0.4)', color: '#ffd000', dot: '#ffc800', label: 'СРЕДНИЙ' },
+                    low: { bg: 'rgba(80,200,80,0.08)', border: 'rgba(80,200,80,0.4)', color: '#66cc66', dot: '#50c850', label: 'НИЗКИЙ' },
+                  };
+                  const s = sevConfig[marker.severity] || sevConfig.medium;
+                  
+                  return (
+                    <div key={idx} style={{
+                      background: s.bg, 
+                      border: `1.5px solid ${s.border}`,
+                      borderRadius: '12px', 
+                      padding: '14px 18px',
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: '14px',
                     }}>
-                      {marker.id}
-                    </div>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontWeight: 800, color: '#e2e8f0', fontSize: '0.9rem' }}>
-                        {marker.type}
+                      {/* Severity dot with number */}
+                      <div style={{
+                        width: '40px', height: '40px', borderRadius: '50%',
+                        background: s.dot, display: 'flex', alignItems: 'center',
+                        justifyContent: 'center', color: '#fff', fontWeight: 900,
+                        fontSize: '1rem', flexShrink: 0,
+                        boxShadow: `0 2px 12px ${s.dot}66`,
+                      }}>
+                        {marker.id}
                       </div>
-                      <div style={{ color: s.dot, fontSize: '0.78rem', fontWeight: 700 }}>
-                        {s.label} • Уверенность: {(marker.confidence * 100).toFixed(0)}%
+                      
+                      {/* Info */}
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontWeight: 800, color: '#f1f5f9', fontSize: '1rem', marginBottom: '3px' }}>
+                          {marker.type}
+                        </div>
+                        <div style={{ color: s.color, fontSize: '0.88rem', fontWeight: 700 }}>
+                          {s.label} • Уверенность: {(marker.confidence * 100).toFixed(0)}%
+                        </div>
+                        {marker.description && (
+                          <div style={{ color: '#b0bec5', fontSize: '0.85rem', marginTop: '4px' }}>
+                            {marker.description}
+                          </div>
+                        )}
                       </div>
-                      {marker.description && (
-                        <div style={{ color: '#94a3b8', fontSize: '0.78rem', marginTop: '2px' }}>
-                          {marker.description}
+
+                      {/* Area badge */}
+                      {marker.area_percent > 0 && (
+                        <div style={{
+                          background: 'rgba(255,255,255,0.08)',
+                          borderRadius: '8px', padding: '4px 10px',
+                          color: '#94a3b8', fontSize: '0.82rem', fontWeight: 600,
+                          whiteSpace: 'nowrap', flexShrink: 0,
+                        }}>
+                          {marker.area_percent}% площади
                         </div>
                       )}
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
           )}
         </div>
