@@ -269,7 +269,7 @@ async def analyze_image(
 @router.post("/defect-scan")
 async def defect_scan(
     file: UploadFile = File(..., description="Photo to scan for defects"),
-    sensitivity: float = Query(0.5, ge=0.1, le=1.0, description="Detection sensitivity (0.1=low, 1.0=high)"),
+    sensitivity: float = Query(0.65, ge=0.1, le=1.0, description="Detection sensitivity (0.1=low, 1.0=high)"),
 ) -> Dict[str, Any]:
     """
     Scan photo for construction defects using computer vision.

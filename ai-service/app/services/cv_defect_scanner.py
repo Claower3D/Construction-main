@@ -1,11 +1,17 @@
 """
-QazGost AI — CV-based Defect Scanner
+QazGost AI — CV-based Defect Scanner v2
 
-Simple computer vision defect detection using PIL + numpy only.
-No GPU, no ML models needed. Finds cracks, stains, damage by:
-  1. Edge detection (Sobel-like gradient)
-  2. Color anomaly detection
-  3. Contour grouping into bounding boxes
+Improved defect detection focused on REAL construction defects:
+  - Cracks: thin elongated high-contrast lines
+  - Dark damage: deep holes, water damage
+  - Rust/stains: color anomalies
+  
+Fixes from v1:
+  - Higher thresholds → fewer false positives
+  - Filters out huge regions (>8% area = probably not a defect)
+  - Filters out image-border regions
+  - Better crack detection using line-like shape analysis
+  - Tighter bounding boxes
 """
 
 import io
@@ -16,15 +22,15 @@ from PIL import Image, ImageDraw, ImageFont, ImageFilter
 from loguru import logger
 
 
-# Severity colors (RGB)
+# Severity colors (RGBA for overlay)
 SEV_COLORS = {
-    "critical": (255, 40, 40),
-    "high":     (255, 120, 30),
-    "medium":   (255, 200, 0),
+    "critical": (255, 30, 30),
+    "high":     (255, 100, 20),
+    "medium":   (255, 190, 0),
     "low":      (80, 200, 80),
 }
 
-SEV_LABELS = {
+SEV_LABELS_RU = {
     "critical": "КРИТИЧЕСКИЙ",
     "high":     "ВЫСОКИЙ",
     "medium":   "СРЕДНИЙ",
@@ -32,257 +38,273 @@ SEV_LABELS = {
 }
 
 
-def _to_grayscale(img: np.ndarray) -> np.ndarray:
-    """Convert RGB to grayscale."""
+def _grayscale(img: np.ndarray) -> np.ndarray:
     return np.dot(img[..., :3], [0.299, 0.587, 0.114]).astype(np.uint8)
 
 
-def _sobel_edges(gray: np.ndarray, threshold: int = 40) -> np.ndarray:
-    """Simple Sobel-like edge detection without OpenCV."""
-    # Horizontal and vertical gradients
-    gx = np.zeros_like(gray, dtype=np.float32)
-    gy = np.zeros_like(gray, dtype=np.float32)
-    
-    gx[:, 1:-1] = gray[:, 2:].astype(np.float32) - gray[:, :-2].astype(np.float32)
-    gy[1:-1, :] = gray[2:, :].astype(np.float32) - gray[:-2, :].astype(np.float32)
-    
-    magnitude = np.sqrt(gx**2 + gy**2)
-    edges = (magnitude > threshold).astype(np.uint8)
-    return edges
-
-
-def _find_connected_regions(binary: np.ndarray, min_area: int = 200) -> List[Tuple[int, int, int, int, int]]:
+def _detect_cracks(gray: np.ndarray, threshold: int = 55) -> np.ndarray:
     """
-    Simple flood-fill connected component labeling.
-    Returns list of (x1, y1, x2, y2, area) bounding boxes.
-    Uses downsampled image for speed.
+    Detect cracks using TWO methods:
+    1. Morphological: blur background subtraction → dark thin lines
+    2. Sobel gradients: strong local contrast edges → visible cracks
+    """
+    h, w = gray.shape
+    
+    # === Method 1: Morphological (dark lines on lighter background) ===
+    from PIL import Image as PILImage
+    scale = 8
+    bg_pil = PILImage.fromarray(gray).resize((w // scale, h // scale), PILImage.BILINEAR)
+    bg_pil = bg_pil.filter(ImageFilter.GaussianBlur(radius=5))
+    bg_pil = bg_pil.resize((w, h), PILImage.BILINEAR)
+    background = np.array(bg_pil).astype(np.float32)
+    
+    diff = background - gray.astype(np.float32)
+    morph_mask = (diff > threshold).astype(np.uint8)
+    
+    # === Method 2: Sobel edges (high gradient = crack edges) ===
+    gf = gray.astype(np.float32)
+    # Sobel X
+    sx = np.zeros_like(gf)
+    sx[:, 1:-1] = gf[:, 2:] - gf[:, :-2]
+    # Sobel Y
+    sy = np.zeros_like(gf)
+    sy[1:-1, :] = gf[2:, :] - gf[:-2, :]
+    # Gradient magnitude
+    gradient = np.sqrt(sx * sx + sy * sy)
+    # High threshold for sobel (only strong edges = real cracks, not texture)
+    sobel_thresh = max(80, 150 - threshold)
+    sobel_mask = (gradient > sobel_thresh).astype(np.uint8)
+    
+    # Combine both methods
+    combined = np.maximum(morph_mask, sobel_mask)
+    
+    return combined
+
+
+def _detect_stains(img: np.ndarray) -> np.ndarray:
+    """Detect rust/water stains by color deviation."""
+    r, g, b = img[:, :, 0].astype(np.float32), img[:, :, 1].astype(np.float32), img[:, :, 2].astype(np.float32)
+    
+    # Rust: high red, low blue, medium green
+    rust = ((r - b) > 60) & (r > 100) & (g < r - 20)
+    
+    # Water/dark stains: very dark regions
+    gray = _grayscale(img)
+    dark = gray < 45
+    
+    # Green/mold: greenish tint
+    mold = (g > r + 15) & (g > b + 15) & (g > 80)
+    
+    combined = (rust | dark | mold).astype(np.uint8)
+    return combined
+
+
+def _find_regions(binary: np.ndarray, min_area: int, max_area: int) -> List[Tuple[int, int, int, int, int]]:
+    """
+    Connected components with area filtering.
+    Returns (x1, y1, x2, y2, pixel_count).
     """
     h, w = binary.shape
     
-    # Downsample for speed (4x)
-    scale = 4
-    small = binary[::scale, ::scale]
+    # Downsample 2x for speed
+    sc = 2
+    small = binary[::sc, ::sc]
     sh, sw = small.shape
     
-    visited = np.zeros_like(small, dtype=bool)
+    visited = np.zeros((sh, sw), dtype=bool)
     regions = []
     
-    for y in range(1, sh - 1):
-        for x in range(1, sw - 1):
-            if small[y, x] == 0 or visited[y, x]:
+    for sy in range(1, sh - 1):
+        for sx in range(1, sw - 1):
+            if small[sy, sx] == 0 or visited[sy, sx]:
                 continue
             
-            # BFS flood fill
-            stack = [(y, x)]
-            visited[y, x] = True
-            min_x, min_y = x, y
-            max_x, max_y = x, y
-            area = 0
+            # BFS
+            stack = [(sy, sx)]
+            visited[sy, sx] = True
+            pixels = []
             
-            while stack and area < 5000:  # cap to avoid giant regions
+            while stack and len(pixels) < 8000:
                 cy, cx = stack.pop()
-                area += 1
-                min_x = min(min_x, cx)
-                min_y = min(min_y, cy)
-                max_x = max(max_x, cx)
-                max_y = max(max_y, cy)
+                pixels.append((cx, cy))
                 
-                for dy, dx in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+                for dy, dx in [(-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (-1, 1), (1, -1), (1, 1)]:
                     ny, nx = cy + dy, cx + dx
                     if 0 <= ny < sh and 0 <= nx < sw and not visited[ny, nx] and small[ny, nx] > 0:
                         visited[ny, nx] = True
                         stack.append((ny, nx))
             
-            real_area = area * scale * scale
-            if real_area >= min_area:
-                regions.append((
-                    min_x * scale,
-                    min_y * scale,
-                    min(max_x * scale + scale, w),
-                    min(max_y * scale + scale, h),
-                    real_area,
-                ))
+            if not pixels:
+                continue
+                
+            xs = [p[0] for p in pixels]
+            ys = [p[1] for p in pixels]
+            
+            real_area = len(pixels) * sc * sc
+            x1 = min(xs) * sc
+            y1 = min(ys) * sc
+            x2 = min(max(xs) * sc + sc, w)
+            y2 = min(max(ys) * sc + sc, h)
+            
+            if min_area <= real_area <= max_area:
+                # Filter: skip regions touching image border heavily
+                border_margin = int(min(w, h) * 0.02)
+                if x1 < border_margin and x2 > w - border_margin:
+                    continue  # spans full width = not a defect
+                if y1 < border_margin and y2 > h - border_margin:
+                    continue  # spans full height
+                    
+                regions.append((x1, y1, x2, y2, real_area))
     
     return regions
 
 
-def _merge_overlapping(regions: List[Tuple], overlap_thresh: float = 0.3) -> List[Tuple]:
-    """Merge overlapping bounding boxes."""
-    if not regions:
-        return []
+def _classify_region(img: np.ndarray, x1: int, y1: int, x2: int, y2: int, area: int, total_area: int) -> Dict[str, Any]:
+    """Classify a detected region."""
+    bw = x2 - x1
+    bh = y2 - y1
+    aspect = max(bw, bh) / max(min(bw, bh), 1)
+    area_ratio = area / total_area
+    fill_ratio = area / max(bw * bh, 1)  # how much of bbox is filled
     
-    # Sort by area descending
-    regions = sorted(regions, key=lambda r: r[4], reverse=True)
-    merged = []
-    used = set()
+    region = img[y1:y2, x1:x2]
+    mean_val = region.mean(axis=(0, 1)) if region.size > 0 else [128, 128, 128]
+    brightness = sum(mean_val[:3]) / 3 / 255
     
-    for i, (x1, y1, x2, y2, area) in enumerate(regions):
-        if i in used:
-            continue
-        
-        mx1, my1, mx2, my2, m_area = x1, y1, x2, y2, area
-        
-        for j in range(i + 1, len(regions)):
-            if j in used:
-                continue
-            
-            jx1, jy1, jx2, jy2, j_area = regions[j]
-            
-            # Check overlap
-            ox1 = max(mx1, jx1)
-            oy1 = max(my1, jy1)
-            ox2 = min(mx2, jx2)
-            oy2 = min(my2, jy2)
-            
-            if ox1 < ox2 and oy1 < oy2:
-                overlap = (ox2 - ox1) * (oy2 - oy1)
-                min_area = min((mx2 - mx1) * (my2 - my1), (jx2 - jx1) * (jy2 - jy1))
-                
-                if min_area > 0 and overlap / min_area > overlap_thresh:
-                    mx1 = min(mx1, jx1)
-                    my1 = min(my1, jy1)
-                    mx2 = max(mx2, jx2)
-                    my2 = max(my2, jy2)
-                    m_area += j_area
-                    used.add(j)
-        
-        merged.append((mx1, my1, mx2, my2, m_area))
+    r_mean = mean_val[0] if len(mean_val) >= 3 else 128
+    b_mean = mean_val[2] if len(mean_val) >= 3 else 128
     
-    return merged
-
-
-def _classify_defect(region_img: np.ndarray, area_ratio: float) -> Dict[str, Any]:
-    """Classify defect type based on region properties."""
-    h, w = region_img.shape[:2]
-    aspect = w / max(h, 1)
-    
-    # Color analysis
-    mean_color = region_img.mean(axis=(0, 1))
-    darkness = mean_color.mean() / 255.0
-    
-    # Detect type based on shape and color
-    if aspect > 3.0 or aspect < 0.33:
-        # Long narrow = crack
+    # Classification logic
+    if aspect > 2.5 and fill_ratio < 0.4:
+        # Elongated + sparse fill = CRACK
         defect_type = "Трещина"
-        if area_ratio > 0.05:
+        if aspect > 5 or area_ratio > 0.03:
             severity = "critical"
-        elif area_ratio > 0.02:
+        elif area_ratio > 0.01:
             severity = "high"
         else:
             severity = "medium"
-    elif darkness < 0.3:
-        # Very dark region = deep damage / hole
+    elif brightness < 0.2:
         defect_type = "Глубокое повреждение"
-        severity = "critical" if area_ratio > 0.03 else "high"
-    elif mean_color[0] > mean_color[2] * 1.3 and mean_color[1] < 120:
-        # Reddish = rust/corrosion
+        severity = "critical" if area_ratio > 0.02 else "high"
+    elif r_mean > b_mean + 40 and r_mean > 120:
         defect_type = "Коррозия / ржавчина"
         severity = "high" if area_ratio > 0.02 else "medium"
-    elif abs(mean_color[1] - mean_color[0]) > 30 and mean_color[1] > 100:
-        # Greenish tint = mold/biological
-        defect_type = "Биопоражение / плесень"
-        severity = "high"
-    elif area_ratio > 0.08:
-        # Large area = spalling/delamination
+    elif area_ratio > 0.04:
         defect_type = "Отслоение / сколы"
-        severity = "high" if area_ratio > 0.15 else "medium"
+        severity = "high" if area_ratio > 0.08 else "medium"
     else:
         defect_type = "Дефект поверхности"
-        severity = "medium" if area_ratio > 0.01 else "low"
+        severity = "low"
     
-    return {"type": defect_type, "severity": severity}
+    confidence = min(0.97, 0.45 + area_ratio * 8 + (0.15 if aspect > 3 else 0))
+    
+    return {
+        "type": defect_type,
+        "severity": severity,
+        "confidence": round(confidence, 2),
+    }
 
 
 def scan_defects(image: np.ndarray, sensitivity: float = 0.5) -> Dict[str, Any]:
     """
-    Scan image for defects using computer vision.
+    Scan image for construction defects.
     
-    Args:
-        image: RGB numpy array
-        sensitivity: 0.0 (less detections) to 1.0 (more detections)
-    
-    Returns:
-        Dict with defects list, annotated image base64, severity summary
+    Returns dict with defects list, annotated image (base64), severity summary.
     """
     h, w = image.shape[:2]
     total_area = h * w
     
-    logger.info(f"[CV Scanner] Scanning {w}x{h} image, sensitivity={sensitivity}")
+    logger.info(f"[CV Scanner v2] Scanning {w}x{h}, sensitivity={sensitivity}")
     
-    # 1. Edge detection
-    gray = _to_grayscale(image)
-    threshold = int(60 - sensitivity * 30)  # 30-60
-    edges = _sobel_edges(gray, threshold=threshold)
+    gray = _grayscale(image)
     
-    # 2. Also detect dark spots (damage/holes)
-    dark_mask = (gray < 60).astype(np.uint8)
+    # 1. Detect cracks (thin dark lines against background)
+    crack_thresh = int(85 - sensitivity * 25)  # 60-85 range (higher = fewer false positives)
+    crack_mask = _detect_cracks(gray, threshold=crack_thresh)
     
-    # 3. Detect color anomalies (stains, rust)
-    r, g, b = image[:, :, 0], image[:, :, 1], image[:, :, 2]
+    # 2. Detect stains/damage
+    stain_mask = _detect_stains(image)
     
-    # Rust detection (high red, low blue)
-    rust_mask = ((r.astype(int) - b.astype(int)) > 50).astype(np.uint8)
+    # 3. Find regions — separate for cracks and stains
+    min_area = int(max(200, total_area * 0.002))   # Min 0.2%
+    max_area = int(total_area * 0.05)               # Max 5% per region
     
-    # Combine all masks
-    combined = np.clip(edges + dark_mask + rust_mask, 0, 1).astype(np.uint8)
+    crack_regions = _find_regions(crack_mask, min_area=min_area, max_area=max_area)
+    stain_regions = _find_regions(stain_mask, min_area=min_area * 2, max_area=max_area)
     
-    # 4. Find connected regions
-    min_area = int(max(200, total_area * 0.002 * (1.5 - sensitivity)))
-    regions = _find_connected_regions(combined, min_area=min_area)
+    # Merge all regions
+    all_regions = crack_regions + stain_regions
     
-    # 5. Merge overlapping
-    regions = _merge_overlapping(regions)
+    # Filter by bbox dimensions: reject square blobs >40% but allow elongated cracks
+    filtered = []
+    for (x1, y1, x2, y2, a) in all_regions:
+        bw, bh = x2 - x1, y2 - y1
+        aspect = max(bw, bh) / max(min(bw, bh), 1)
+        
+        if aspect > 2.5:
+            # Elongated (crack-like): allow up to 60% in one dimension if narrow
+            narrow = min(bw, bh)
+            if narrow < min(w, h) * 0.15:
+                filtered.append((x1, y1, x2, y2, a))
+                continue
+        
+        # Square-ish regions: limit to 35% of image
+        if bw < w * 0.35 and bh < h * 0.35:
+            filtered.append((x1, y1, x2, y2, a))
     
-    # 6. Filter: keep top 8 largest
-    regions = sorted(regions, key=lambda r: r[4], reverse=True)[:8]
+    all_regions = filtered
     
-    # 7. Classify each defect
+    # Deduplicate overlapping
+    all_regions = _deduplicate(all_regions)
+    
+    # Sort by area descending, keep top 6
+    all_regions = sorted(all_regions, key=lambda r: r[4], reverse=True)[:6]
+    
+    # 4. Classify each
     defects = []
-    for i, (x1, y1, x2, y2, area) in enumerate(regions):
-        # Pad bbox slightly
-        pad = int(min(x2 - x1, y2 - y1) * 0.1)
-        bx1 = max(0, x1 - pad)
-        by1 = max(0, y1 - pad)
-        bx2 = min(w, x2 + pad)
-        by2 = min(h, y2 + pad)
+    for i, (x1, y1, x2, y2, area) in enumerate(all_regions):
+        # Add small padding
+        pad = max(4, int(min(x2 - x1, y2 - y1) * 0.05))
+        px1 = max(0, x1 - pad)
+        py1 = max(0, y1 - pad)
+        px2 = min(w, x2 + pad)
+        py2 = min(h, y2 + pad)
         
-        region_img = image[by1:by2, bx1:bx2]
-        area_ratio = area / total_area
-        
-        info = _classify_defect(region_img, area_ratio)
+        info = _classify_region(image, px1, py1, px2, py2, area, total_area)
         
         defects.append({
             "id": i + 1,
-            "bbox": [bx1, by1, bx2, by2],
+            "bbox": [px1, py1, px2, py2],
             "type": info["type"],
             "severity": info["severity"],
-            "confidence": round(min(0.95, 0.5 + area_ratio * 5), 2),
-            "area_percent": round(area_ratio * 100, 1),
-            "description": f"{info['type']} — область {(bx2-bx1)}×{(by2-by1)}px, {area_ratio*100:.1f}% площади",
+            "confidence": info["confidence"],
+            "area_percent": round(area / total_area * 100, 1),
+            "description": f"{info['type']} — область {px2-px1}×{py2-py1}px, {area / total_area * 100:.1f}% площади",
         })
     
-    # 8. Draw annotations on image
+    # 5. Draw annotations
     annotated = _draw_annotations(image.copy(), defects)
     
-    # 9. Convert to base64
+    # 6. Encode
     pil_out = Image.fromarray(annotated)
     buf = io.BytesIO()
-    pil_out.save(buf, format="JPEG", quality=88)
-    b64 = base64.b64encode(buf.getvalue()).decode("utf-8")
+    pil_out.save(buf, format="JPEG", quality=90)
+    b64 = base64.b64encode(buf.getvalue()).decode()
     annotated_b64 = f"data:image/jpeg;base64,{b64}"
     
-    # 10. Severity summary
+    # 7. Summary
     sev_counts = {}
     for d in defects:
         s = d["severity"]
         sev_counts[s] = sev_counts.get(s, 0) + 1
     
     max_sev = "low"
+    sev_order = {"critical": 4, "high": 3, "medium": 2, "low": 1}
     if sev_counts:
-        max_sev = max(sev_counts.keys(),
-                      key=lambda s: {"critical": 4, "high": 3, "medium": 2, "low": 1}.get(s, 0))
+        max_sev = max(sev_counts.keys(), key=lambda s: sev_order.get(s, 0))
     
-    logger.info(f"[CV Scanner] Found {len(defects)} defects, max_severity={max_sev}")
+    logger.info(f"[CV Scanner v2] Found {len(defects)} defects, max_severity={max_sev}")
     
     return {
         "defects": defects,
@@ -295,15 +317,41 @@ def scan_defects(image: np.ndarray, sensitivity: float = 0.5) -> Dict[str, Any]:
     }
 
 
+def _deduplicate(regions: List[Tuple], iou_thresh: float = 0.3) -> List[Tuple]:
+    """Remove overlapping regions (keep larger)."""
+    if len(regions) <= 1:
+        return regions
+    
+    regions = sorted(regions, key=lambda r: r[4], reverse=True)
+    keep = []
+    
+    for i, (x1, y1, x2, y2, area) in enumerate(regions):
+        overlaps = False
+        for kx1, ky1, kx2, ky2, _ in keep:
+            # Intersection
+            ix1, iy1 = max(x1, kx1), max(y1, ky1)
+            ix2, iy2 = min(x2, kx2), min(y2, ky2)
+            if ix1 < ix2 and iy1 < iy2:
+                inter = (ix2 - ix1) * (iy2 - iy1)
+                smaller = min((x2 - x1) * (y2 - y1), (kx2 - kx1) * (ky2 - ky1))
+                if smaller > 0 and inter / smaller > iou_thresh:
+                    overlaps = True
+                    break
+        if not overlaps:
+            keep.append((x1, y1, x2, y2, area))
+    
+    return keep
+
+
 def _draw_annotations(image: np.ndarray, defects: List[Dict]) -> np.ndarray:
-    """Draw colored bounding boxes and labels on image."""
+    """Draw clean, precise annotations on the image."""
     pil_img = Image.fromarray(image).convert("RGBA")
     overlay = Image.new("RGBA", pil_img.size, (0, 0, 0, 0))
     draw = ImageDraw.Draw(overlay)
     
     h, w = image.shape[:2]
-    font_size = max(14, int(min(w, h) * 0.022))
-    small_size = max(11, int(font_size * 0.75))
+    font_size = max(13, int(min(w, h) * 0.02))
+    small_size = max(11, int(font_size * 0.8))
     
     try:
         font = ImageFont.truetype("arial.ttf", font_size)
@@ -319,52 +367,52 @@ def _draw_annotations(image: np.ndarray, defects: List[Dict]) -> np.ndarray:
     for d in defects:
         x1, y1, x2, y2 = d["bbox"]
         sev = d["severity"]
-        color = SEV_COLORS.get(sev, (255, 200, 0))
-        alpha = 70
+        color = SEV_COLORS.get(sev, (255, 190, 0))
         
-        # Semi-transparent fill
-        draw.rectangle([x1, y1, x2, y2], fill=(*color, alpha), outline=(*color, 220), width=3)
+        # Thin semi-transparent fill + solid border
+        draw.rectangle([x1, y1, x2, y2], fill=(*color, 35), outline=(*color, 200), width=2)
         
-        # Corner brackets
-        blen = max(12, int(min(x2 - x1, y2 - y1) * 0.2))
-        bw = 3
+        # Corner brackets (L-shaped markers at corners)
+        blen = max(8, int(min(x2 - x1, y2 - y1) * 0.15))
         for cx, cy, dx, dy in [(x1, y1, 1, 1), (x2, y1, -1, 1), (x1, y2, 1, -1), (x2, y2, -1, -1)]:
-            draw.line([(cx, cy), (cx + dx * blen, cy)], fill=(*color, 255), width=bw)
-            draw.line([(cx, cy), (cx, cy + dy * blen)], fill=(*color, 255), width=bw)
+            draw.line([(cx, cy), (cx + dx * blen, cy)], fill=(*color, 255), width=3)
+            draw.line([(cx, cy), (cx, cy + dy * blen)], fill=(*color, 255), width=3)
         
-        # Label
+        # Label background
         label = f"#{d['id']} {d['type']}"
-        conf_text = f"{d['confidence']*100:.0f}% | {SEV_LABELS.get(sev, sev)}"
+        sev_text = f"{d['confidence']*100:.0f}% | {SEV_LABELS_RU.get(sev, sev)}"
         
         lb = draw.textbbox((0, 0), label, font=font)
-        lw, lh = lb[2] - lb[0] + 16, lb[3] - lb[1] + 8
-        cb = draw.textbbox((0, 0), conf_text, font=small_font)
-        cw, ch = cb[2] - cb[0] + 16, cb[3] - cb[1] + 6
+        lw = lb[2] - lb[0] + 14
+        lh = lb[3] - lb[1] + 6
         
-        total_h = lh + ch + 4
-        box_w = max(lw, cw)
+        sb = draw.textbbox((0, 0), sev_text, font=small_font)
+        sw_text = sb[2] - sb[0] + 14
+        sh_text = sb[3] - sb[1] + 4
         
-        # Position above bbox
+        total_h = lh + sh_text + 2
+        box_w = max(lw, sw_text)
+        
+        # Position: above bbox, or inside if no space
         lx = x1
-        ly = y1 - total_h - 6
-        if ly < 0:
+        ly = y1 - total_h - 4
+        if ly < 2:
             ly = y1 + 4
         
-        # Background
-        draw.rectangle([lx, ly, lx + box_w, ly + total_h], fill=(10, 15, 30, 210))
+        # Dark background for text
+        draw.rectangle([lx, ly, lx + box_w, ly + total_h],
+                       fill=(8, 12, 25, 220), outline=(*color, 180), width=1)
         
-        # Main label
-        draw.text((lx + 8, ly + 3), label, fill=(*color, 255), font=font)
+        # Text
+        draw.text((lx + 7, ly + 2), label, fill=(*color, 255), font=font)
+        draw.text((lx + 7, ly + lh), sev_text, fill=(200, 210, 230, 220), font=small_font)
         
-        # Severity + confidence
-        draw.rectangle([lx, ly + lh + 2, lx + box_w, ly + total_h], fill=(*color, 50))
-        draw.text((lx + 8, ly + lh + 4), conf_text, fill=(*color, 255), font=small_font)
-        
-        # Severity dot
-        dot_r = max(5, int(min(x2 - x1, y2 - y1) * 0.05))
-        dot_x, dot_y = x2 - dot_r - 6, y1 + dot_r + 6
+        # Severity indicator dot in top-right corner of bbox
+        dot_r = max(4, int(min(x2 - x1, y2 - y1) * 0.04))
+        dot_x = x2 - dot_r - 4
+        dot_y = y1 + dot_r + 4
         draw.ellipse([dot_x - dot_r, dot_y - dot_r, dot_x + dot_r, dot_y + dot_r],
-                     fill=(*color, 200), outline=(255, 255, 255, 180), width=2)
+                     fill=(*color, 220), outline=(255, 255, 255, 180), width=1)
     
     result = Image.alpha_composite(pil_img, overlay).convert("RGB")
     return np.array(result)
