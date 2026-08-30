@@ -300,10 +300,11 @@ async def defect_scan(
     result = None
     yolo_defects = []
     
-    # Step 1: Run refined concrete defect scanner (v5)
+    # Step 1: Run refined concrete defect scanner (v6.0 Polygon Edition)
     from app.services.cv_defect_scanner import scan_defects
     cv_result = scan_defects(image_np, sensitivity=sensitivity)
     all_defects = list(cv_result["defects"])
+    structure_zones = cv_result.get("structure_zones", [])
 
     # Step 2: Try YOLO model if available for additional specialized crack bboxes
     try:
@@ -335,9 +336,9 @@ async def defect_scan(
     for i, d in enumerate(all_defects):
         d["id"] = i + 1
 
-    # Re-draw clean annotations on clean original image
+    # Re-draw clean annotations on clean original image with structure zones
     from app.services.cv_defect_scanner import _draw_annotations
-    annotated = _draw_annotations(image_np.copy(), all_defects)
+    annotated = _draw_annotations(image_np.copy(), all_defects, structure_zones=structure_zones)
     pil_out = Image.fromarray(annotated)
     buf = io.BytesIO()
     pil_out.save(buf, format="JPEG", quality=92)
@@ -353,6 +354,7 @@ async def defect_scan(
 
     result = {
         "defects": all_defects,
+        "structure_zones": structure_zones,
         "annotated_image": annotated_b64,
         "severity_summary": {"total": len(all_defects), "by_severity": sev_counts, "max_severity": max_sev},
     }

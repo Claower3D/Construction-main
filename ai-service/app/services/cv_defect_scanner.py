@@ -1,11 +1,11 @@
 """
-QazGost AI — Concrete & Structure Defect Scanner (v5.3 Production)
+QazGost AI — Concrete & Structure Defect Scanner (v6.0 Polygon Segmentation Edition)
 
-High-precision computer vision pipeline for structural defects on concrete:
-  1. Detects actual concrete fractures, cracks, spalls, and surface breaks.
-  2. Masks out the central well hole void so it is never falsely marked as a defect.
-  3. Separates excavation soil from the concrete ring structure.
-  4. Filters intact uniform concrete to prevent false alerts.
+Generates pixel-accurate polygon segmentation for:
+  - 🟢 Intact concrete structure (celaya zona / intact ring body)
+  - 🔴 Critical structural fractures & through-cracks (skvoznye treshchiny)
+  - 🟡 Spalled, chipped, or degraded concrete sections (skoly / vyboiny)
+  - Full polygon vertex coordinates [[x,y], ...] returned in API for frontend interactive overlay.
 """
 
 import io
@@ -19,8 +19,8 @@ from loguru import logger
 SEV_COLORS = {
     "critical": (230, 40, 40),      # Bright Red
     "high":     (240, 110, 20),     # Orange
-    "medium":   (230, 180, 20),     # Amber/Yellow
-    "low":      (50, 190, 80),      # Green
+    "medium":   (235, 185, 25),     # Amber/Yellow
+    "low":      (50, 195, 85),      # Green
 }
 
 SEV_LABELS_RU = {
@@ -68,9 +68,24 @@ def _segment_scene(img_bgr: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndar
     return is_soil, center_hole_mask, concrete_mask
 
 
-def _detect_fissures_and_spalls(img_bgr: np.ndarray, sensitivity: float = 0.65) -> List[Dict[str, Any]]:
+def _extract_polygons(mask: np.ndarray, min_area: int = 100, approx_eps: float = 0.008) -> List[List[List[int]]]:
+    """Extract simplified polygon coordinates from a binary mask."""
+    contours, _ = cv2.findContours(mask.astype(np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    polys = []
+    for cnt in contours:
+        if cv2.contourArea(cnt) < min_area:
+            continue
+        epsilon = approx_eps * cv2.arcLength(cnt, True)
+        approx = cv2.approxPolyDP(cnt, epsilon, True)
+        if len(approx) >= 3:
+            pts = approx.reshape(-1, 2).tolist()
+            polys.append(pts)
+    return polys
+
+
+def _detect_fissures_and_spalls(img_bgr: np.ndarray, sensitivity: float = 0.65) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
     """
-    Locate structural cracks, concrete fissures, and spalled sections.
+    Locate structural cracks, concrete fissures, spalls, and intact concrete polygons.
     """
     h, w = img_bgr.shape[:2]
     total_pixels = h * w
@@ -112,6 +127,8 @@ def _detect_fissures_and_spalls(img_bgr: np.ndarray, sensitivity: float = 0.65) 
     max_area = int(total_pixels * 0.08)    # Max 8%
 
     candidate_boxes = []
+    all_defect_mask = np.zeros_like(gray, dtype=bool)
+
     for i in range(1, num_labels):
         x, y, bw, bh, area = stats[i]
         if area < min_area or area > max_area:
@@ -128,6 +145,12 @@ def _detect_fissures_and_spalls(img_bgr: np.ndarray, sensitivity: float = 0.65) 
         # Skip smooth uniform concrete with low variance
         if np.std(gray[y:y+bh, x:x+bw]) < 13:
             continue
+
+        # Extract local defect polygon
+        comp_mask = (labels == i)
+        all_defect_mask |= comp_mask
+        comp_polys = _extract_polygons(comp_mask, min_area=int(min_area * 0.5), approx_eps=0.015)
+        poly_pts = comp_polys[0] if comp_polys else [[x, y], [x + bw, y], [x + bw, y + bh], [x, y + bh]]
 
         aspect = max(bw, bh) / max(min(bw, bh), 1)
         pad = 6
@@ -154,6 +177,7 @@ def _detect_fissures_and_spalls(img_bgr: np.ndarray, sensitivity: float = 0.65) 
 
         candidate_boxes.append({
             "bbox": [int(x1), int(y1), int(x2), int(y2)],
+            "polygon": poly_pts,
             "type": str(dtype),
             "severity": str(sev),
             "confidence": round(conf, 2),
@@ -162,22 +186,36 @@ def _detect_fissures_and_spalls(img_bgr: np.ndarray, sensitivity: float = 0.65) 
             "description": f"{dtype} — область {int(x2-x1)}×{int(y2-y1)}px, {round(area_pct, 1)}% площади",
         })
 
-    return candidate_boxes
+    # Segment intact concrete body (excluding defect mask & void)
+    intact_concrete_mask = concrete_mask & (~all_defect_mask)
+    intact_clean = cv2.morphologyEx(intact_concrete_mask.astype(np.uint8), cv2.MORPH_OPEN, np.ones((7,7), np.uint8))
+    intact_polys = _extract_polygons(intact_clean, min_area=int(total_pixels * 0.04), approx_eps=0.006)
+
+    structure_zones = []
+    for ip in intact_polys:
+        structure_zones.append({
+            "name": "Целое бетонное тело конструкции (Intact Ring Body)",
+            "type": "intact_concrete",
+            "polygon": ip,
+            "color": [40, 200, 75, 55],  # Translucent green
+        })
+
+    return candidate_boxes, structure_zones
 
 
 def scan_defects(image: np.ndarray, sensitivity: float = 0.65) -> Dict[str, Any]:
     """
-    Scan image for concrete and structural defects.
+    Scan image for concrete and structural defects with polygon segmentation.
     """
     h, w = image.shape[:2]
-    logger.info(f"[CV Scanner v5.3] Scanning {w}x{h}, sensitivity={sensitivity}")
+    logger.info(f"[CV Scanner v6.0 Polygon Edition] Scanning {w}x{h}, sensitivity={sensitivity}")
 
     if len(image.shape) == 3 and image.shape[2] == 3:
         img_bgr = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
     else:
         img_bgr = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
 
-    candidates = _detect_fissures_and_spalls(img_bgr, sensitivity=sensitivity)
+    candidates, structure_zones = _detect_fissures_and_spalls(img_bgr, sensitivity=sensitivity)
 
     # Deduplicate overlapping boxes
     def iou(b1, b2):
@@ -203,8 +241,8 @@ def scan_defects(image: np.ndarray, sensitivity: float = 0.65) -> Dict[str, Any]
     for idx, d in enumerate(clean_defects):
         d["id"] = idx + 1
 
-    # Draw annotations
-    annotated = _draw_annotations(image.copy(), clean_defects)
+    # Draw annotations with polygon overlay
+    annotated = _draw_annotations(image.copy(), clean_defects, structure_zones)
 
     # Encode to JPEG base64
     pil_out = Image.fromarray(annotated)
@@ -220,10 +258,11 @@ def scan_defects(image: np.ndarray, sensitivity: float = 0.65) -> Dict[str, Any]
         sev_counts[s] = sev_counts.get(s, 0) + 1
 
     max_sev = max(sev_counts.keys(), key=lambda s: sev_rank.get(s, 0)) if sev_counts else "low"
-    logger.info(f"[CV Scanner v5.3] Found {len(clean_defects)} structural defects, max_severity={max_sev}")
+    logger.info(f"[CV Scanner v6.0] Segmented {len(clean_defects)} defects + {len(structure_zones)} structure zones, max_severity={max_sev}")
 
     return {
         "defects": clean_defects,
+        "structure_zones": structure_zones,
         "annotated_image": annotated_b64,
         "severity_summary": {
             "total": len(clean_defects),
@@ -233,8 +272,8 @@ def scan_defects(image: np.ndarray, sensitivity: float = 0.65) -> Dict[str, Any]
     }
 
 
-def _draw_annotations(image: np.ndarray, defects: List[Dict]) -> np.ndarray:
-    """Draw crisp, high-visibility annotations on image."""
+def _draw_annotations(image: np.ndarray, defects: List[Dict], structure_zones: List[Dict] = None) -> np.ndarray:
+    """Draw crisp polygon overlays, intact structure glow, and defect markers."""
     pil_img = Image.fromarray(image).convert("RGBA")
     overlay = Image.new("RGBA", pil_img.size, (0, 0, 0, 0))
     draw = ImageDraw.Draw(overlay)
@@ -250,6 +289,14 @@ def _draw_annotations(image: np.ndarray, defects: List[Dict]) -> np.ndarray:
         font = ImageFont.load_default()
         small_font = font
 
+    # 1. Draw intact concrete structure zone (soft translucent green overlay)
+    if structure_zones:
+        for sz in structure_zones:
+            pts = [tuple(p) for p in sz.get("polygon", [])]
+            if len(pts) >= 3:
+                draw.polygon(pts, fill=(45, 195, 80, 40), outline=(45, 210, 85, 140))
+
+    # 2. Draw defect polygons & boxes
     for d in defects:
         x1, y1, x2, y2 = d["bbox"]
         sev = d["severity"]
@@ -257,8 +304,13 @@ def _draw_annotations(image: np.ndarray, defects: List[Dict]) -> np.ndarray:
         conf = d["confidence"]
         dtype = d["type"]
 
+        # If polygon points are present, fill polygon with colored mask
+        pts = [tuple(p) for p in d.get("polygon", [])]
+        if len(pts) >= 3:
+            draw.polygon(pts, fill=(*color, 90), outline=(*color, 255))
+
         # Box outline
-        draw.rectangle([x1, y1, x2, y2], fill=(*color, 25), outline=(*color, 230), width=2)
+        draw.rectangle([x1, y1, x2, y2], fill=(*color, 20), outline=(*color, 230), width=2)
 
         # High-visibility corner brackets
         blen = max(12, int(min(x2 - x1, y2 - y1) * 0.15))
