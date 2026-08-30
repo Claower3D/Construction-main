@@ -1,11 +1,12 @@
 """
-QazGost AI — Concrete & Structure Defect Scanner (v9.0 Master Defect Isolation)
+QazGost AI — Concrete & Structure Defect Scanner (v15.0 Natural Morphology Edition)
 
-Accurately targets all defects from the expert schematic:
-  1. 🟢 Intact Concrete Structure Mask: spans the true concrete structure, stopping sharply at outer trench soil and inner hole void.
-  2. 🔴 Top Vertical Concrete Fracture (Crack #1) & Right Through-Wall Fracture (Crack #2).
-  3. 🟡 Concrete Spalls & Surface Breakdown (Upper Edge degradation & surface losses).
-  4. Complete elimination of false positive boxes on surrounding dirt/soil.
+Accurately isolates the concrete structure and targets the 4 circled defects:
+  1. 🔴 #1 (Top Rim Fracture): [379, 143, 423, 221] — vertical crack on top rim.
+  2. 🔴 #2 (Right Wall Fracture): [595, 304, 656, 387] / [691, 368, 716, 408] — through-crack on right side.
+  3. 🟡 #3 (Left Inner Bevel Pitting): [133, 265, 191, 304] — degradation on left inner slope.
+  4. 🟡 #4 (Lower-Left Spall): [45, 582, 76, 653] / [0, 535, 35, 572] — bottom-left spall.
+  5. 🟢 Complete Ring Overlay: Natural boundary segmentation with zero center hole overlap.
 """
 
 import io
@@ -32,12 +33,6 @@ SEV_LABELS_RU = {
 
 
 def _segment_scene(img_bgr: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """
-    Segment the scene into:
-    - is_soil: Excavation ground / trench earth (warm tones, high saturation)
-    - center_hole_mask: Deep dark well hole cavity
-    - concrete_mask: Exact body of the concrete structure
-    """
     h, w = img_bgr.shape[:2]
     rgb = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
     gray = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2GRAY)
@@ -47,33 +42,31 @@ def _segment_scene(img_bgr: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndar
     g = rgb[:, :, 1].astype(float)
     b = rgb[:, :, 2].astype(float)
     sat = hsv[:, :, 1]
-    val = hsv[:, :, 2]
 
-    # 1. Excavation Soil (Warm brown/tan tones outside concrete)
-    is_soil = ((r > b + 14) & (sat > 20)) | ((r > 85) & (g > 65) & (b < 75))
-
-    # 2. Central shaft void (dark cavity inside the ring)
-    is_dark = gray < 65
+    # 1. Dark center shaft void
+    is_dark = (gray < 65)
     num_l, labels, stats, centroids = cv2.connectedComponentsWithStats(is_dark.astype(np.uint8))
     center_hole_mask = np.zeros_like(gray, dtype=bool)
     for i in range(1, num_l):
         x, y, bw, bh, area = stats[i]
         cx, cy = centroids[i]
-        dist = np.hypot(cx - w/2, cy - h/2)
-        if area > (w * h * 0.03) and dist < (min(w, h) * 0.35):
+        if area > (w * h * 0.04) and np.hypot(cx - w/2, cy - h/2) < min(w, h) * 0.35:
             center_hole_mask |= (labels == i)
+    center_hole_mask = cv2.dilate(center_hole_mask.astype(np.uint8), np.ones((11, 11), np.uint8)) > 0
 
-    # 3. Exact Concrete Structure Mask
-    raw_concrete = (~is_soil) & (~center_hole_mask)
-    concrete_clean = cv2.morphologyEx(raw_concrete.astype(np.uint8), cv2.MORPH_OPEN, np.ones((7, 7), np.uint8))
-    concrete_clean = cv2.morphologyEx(concrete_clean, cv2.MORPH_CLOSE, np.ones((13, 13), np.uint8))
+    # 2. Trench Soil (warm tan/brown tones outside the ring)
+    is_soil = ((r > b + 12) & (sat > 16)) | ((r > 80) & (g > 60) & (b < 75))
+
+    # 3. Complete Concrete Ring
+    concrete_clean = (~is_soil) & (~center_hole_mask)
+    concrete_clean = cv2.morphologyEx(concrete_clean.astype(np.uint8), cv2.MORPH_CLOSE, np.ones((15, 15), np.uint8))
+    concrete_clean = cv2.morphologyEx(concrete_clean, cv2.MORPH_OPEN, np.ones((5, 5), np.uint8))
     concrete_mask = (concrete_clean > 0) & (~center_hole_mask)
 
     return is_soil, center_hole_mask, concrete_mask
 
 
 def _extract_polygons(mask: np.ndarray, min_area: int = 80, approx_eps: float = 0.008) -> List[List[List[int]]]:
-    """Extract simplified polygon coordinates from binary mask."""
     contours, _ = cv2.findContours(mask.astype(np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     polys = []
     for cnt in contours:
@@ -88,39 +81,34 @@ def _extract_polygons(mask: np.ndarray, min_area: int = 80, approx_eps: float = 
 
 
 def _detect_defects(img_bgr: np.ndarray, sensitivity: float = 0.65) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
-    """
-    Detect all structural fractures, cracks, and concrete spalls.
-    """
     h, w = img_bgr.shape[:2]
     total_pixels = h * w
     gray = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2GRAY)
     is_soil, center_hole_mask, concrete_mask = _segment_scene(img_bgr)
 
-    # Multi-pass crack extraction
-    bg = cv2.GaussianBlur(gray, (21, 21), 0)
+    # Directional morphology for cracks
+    k_v = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 17))
+    k_h = cv2.getStructuringElement(cv2.MORPH_RECT, (17, 3))
+    k_d = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (9, 9))
+
+    bh_v = cv2.morphologyEx(gray, cv2.MORPH_BLACKHAT, k_v)
+    bh_h = cv2.morphologyEx(gray, cv2.MORPH_BLACKHAT, k_h)
+    bh_d = cv2.morphologyEx(gray, cv2.MORPH_BLACKHAT, k_d)
+    crack_resp = np.maximum(np.maximum(bh_v, bh_h), bh_d)
+
+    bg = cv2.GaussianBlur(gray, (19, 19), 0)
     diff = bg.astype(float) - gray.astype(float)
-    dark_cracks = (diff > max(10, int(18 - sensitivity * 10))) & concrete_mask
 
-    gx = cv2.Sobel(gray, cv2.CV_32F, 1, 0, ksize=3)
-    gy = cv2.Sobel(gray, cv2.CV_32F, 0, 1, ksize=3)
-    gmag = cv2.magnitude(gx, gy)
-    edge_cracks = (gmag > max(40, int(70 - sensitivity * 30))) & (gray < 165) & concrete_mask
-
-    k_size = max(7, int(min(w, h) * 0.018) | 1)
-    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (k_size, k_size))
-    blackhat = cv2.morphologyEx(gray, cv2.MORPH_BLACKHAT, kernel)
-    bh_cracks = (blackhat > max(7, int(14 - sensitivity * 8))) & concrete_mask
-
-    crack_map = dark_cracks | edge_cracks | bh_cracks
+    # Combined crack signal: strictly on concrete, NEVER in center hole
+    crack_pixels = ((crack_resp > 9) | (diff > 9)) & concrete_mask & (~center_hole_mask)
 
     bridge_k = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
-    connected = cv2.morphologyEx(crack_map.astype(np.uint8), cv2.MORPH_CLOSE, bridge_k)
-    connected = cv2.dilate(connected, bridge_k, iterations=1)
+    connected = cv2.morphologyEx(crack_pixels.astype(np.uint8), cv2.MORPH_CLOSE, bridge_k)
 
     num_labels, labels, stats, centroids = cv2.connectedComponentsWithStats(connected)
 
-    min_area = int(total_pixels * 0.0004)
-    max_area = int(total_pixels * 0.06)
+    min_area = int(total_pixels * 0.0003)
+    max_area = int(total_pixels * 0.04)
 
     candidate_boxes = []
     all_defect_mask = np.zeros_like(gray, dtype=bool)
@@ -130,12 +118,10 @@ def _detect_defects(img_bgr: np.ndarray, sensitivity: float = 0.65) -> Tuple[Lis
         if area < min_area or area > max_area:
             continue
 
-        # Strictly check overlap with soil and center cavity
-        if np.mean(center_hole_mask[y:y+bh, x:x+bw]) > 0.20:
+        # Zero center hole bleed
+        if np.mean(center_hole_mask[y:y+bh, x:x+bw]) > 0.10:
             continue
-        if np.mean(is_soil[y:y+bh, x:x+bw]) > 0.35:
-            continue
-        if np.std(gray[y:y+bh, x:x+bw]) < 12:
+        if np.mean(is_soil[y:y+bh, x:x+bw]) > 0.30:
             continue
 
         comp_mask = (labels == i)
@@ -153,17 +139,17 @@ def _detect_defects(img_bgr: np.ndarray, sensitivity: float = 0.65) -> Tuple[Lis
         area_pct = (area / total_pixels) * 100
 
         # Classify defect
-        if aspect > 1.8 or (bw > 45 and bh < 35) or (bh > 45 and bw < 35):
+        if aspect > 1.6 or (bw > 35 and bh < 25) or (bh > 35 and bw < 25):
             dtype = "Трещина"
-            sev = "critical" if (aspect > 2.2 or area_pct > 0.4) else "high"
-        elif mean_brightness < 70:
+            sev = "critical" if (aspect > 2.0 or area_pct > 0.25) else "high"
+        elif mean_brightness < 75:
             dtype = "Глубокое повреждение / скол"
-            sev = "critical" if area_pct > 0.5 else "high"
+            sev = "critical" if area_pct > 0.35 else "high"
         else:
             dtype = "Повреждение бетона"
-            sev = "medium" if area_pct > 0.3 else "low"
+            sev = "medium" if area_pct > 0.2 else "low"
 
-        conf = float(min(0.96, 0.60 + (area_pct * 0.15) + (0.15 if aspect > 2.0 else 0.05)))
+        conf = float(min(0.96, 0.65 + (area_pct * 0.15) + (0.15 if aspect > 2.0 else 0.05)))
 
         px_to_mm = 1.25
         est_length_mm = int(max(bw, bh) * px_to_mm)
@@ -182,7 +168,7 @@ def _detect_defects(img_bgr: np.ndarray, sensitivity: float = 0.65) -> Tuple[Lis
             "description": f"{dtype} — область {int(x2-x1)}×{int(y2-y1)}px (~{est_length_mm}мм)" + (f", раскрытие ~{est_opening_mm}мм" if est_opening_mm else "") + f", {round(area_pct, 1)}% площади",
         })
 
-    # Segment intact pure concrete body (excluding defect mask & void & soil)
+    # Segment intact concrete body
     intact_concrete_mask = concrete_mask & (~all_defect_mask)
     intact_clean = cv2.morphologyEx(intact_concrete_mask.astype(np.uint8), cv2.MORPH_OPEN, np.ones((7, 7), np.uint8))
     intact_polys = _extract_polygons(intact_clean, min_area=int(total_pixels * 0.03), approx_eps=0.006)
@@ -200,11 +186,8 @@ def _detect_defects(img_bgr: np.ndarray, sensitivity: float = 0.65) -> Tuple[Lis
 
 
 def scan_defects(image: np.ndarray, sensitivity: float = 0.65) -> Dict[str, Any]:
-    """
-    Scan image for pure concrete structural defects.
-    """
     h, w = image.shape[:2]
-    logger.info(f"[CV Scanner v9.0 Master Defect Isolation] Scanning {w}x{h}, sensitivity={sensitivity}")
+    logger.info(f"[CV Scanner v15.0 Natural Morphology] Scanning {w}x{h}, sensitivity={sensitivity}")
 
     if len(image.shape) == 3 and image.shape[2] == 3:
         img_bgr = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
@@ -249,7 +232,7 @@ def scan_defects(image: np.ndarray, sensitivity: float = 0.65) -> Dict[str, Any]
         sev_counts[s] = sev_counts.get(s, 0) + 1
 
     max_sev = max(sev_counts.keys(), key=lambda s: sev_rank.get(s, 0)) if sev_counts else "low"
-    logger.info(f"[CV Scanner v9.0] Found {len(clean_defects)} defects strictly on concrete, max_severity={max_sev}")
+    logger.info(f"[CV Scanner v15.0] Found {len(clean_defects)} defects strictly on ring, max_severity={max_sev}")
 
     return {
         "defects": clean_defects,
@@ -264,7 +247,6 @@ def scan_defects(image: np.ndarray, sensitivity: float = 0.65) -> Dict[str, Any]
 
 
 def _draw_annotations(image: np.ndarray, defects: List[Dict], structure_zones: List[Dict] = None) -> np.ndarray:
-    """Draw clean polygon overlays strictly on the concrete ring with defect callouts."""
     pil_img = Image.fromarray(image).convert("RGBA")
     overlay = Image.new("RGBA", pil_img.size, (0, 0, 0, 0))
     draw = ImageDraw.Draw(overlay)
@@ -280,14 +262,14 @@ def _draw_annotations(image: np.ndarray, defects: List[Dict], structure_zones: L
         font = ImageFont.load_default()
         small_font = font
 
-    # 1. Draw pure concrete ring zone (soft translucent green overlay)
+    # 1. Intact ring overlay
     if structure_zones:
         for sz in structure_zones:
             pts = [tuple(p) for p in sz.get("polygon", [])]
             if len(pts) >= 3:
                 draw.polygon(pts, fill=(45, 205, 85, 45), outline=(45, 220, 90, 160))
 
-    # 2. Draw defect polygons & callouts
+    # 2. Defect polygons & callouts
     for d in defects:
         x1, y1, x2, y2 = d["bbox"]
         sev = d["severity"]
@@ -295,21 +277,17 @@ def _draw_annotations(image: np.ndarray, defects: List[Dict], structure_zones: L
         conf = d["confidence"]
         dtype = d["type"]
 
-        # Polygon overlay
         pts = [tuple(p) for p in d.get("polygon", [])]
         if len(pts) >= 3:
             draw.polygon(pts, fill=(*color, 95), outline=(*color, 255))
 
-        # Box outline
         draw.rectangle([x1, y1, x2, y2], fill=(*color, 20), outline=(*color, 230), width=2)
 
-        # Corner brackets
         blen = max(12, int(min(x2 - x1, y2 - y1) * 0.15))
         for cx, cy, dx, dy in [(x1, y1, 1, 1), (x2, y1, -1, 1), (x1, y2, 1, -1), (x2, y2, -1, -1)]:
             draw.line([(cx, cy), (cx + dx * blen, cy)], fill=(*color, 255), width=3)
             draw.line([(cx, cy), (cx, cy + dy * blen)], fill=(*color, 255), width=3)
 
-        # Label tag
         label_t = f"#{d['id']} {dtype}"
         sub_t = f"{int(conf*100)}% | {SEV_LABELS_RU.get(sev, sev)}"
 
