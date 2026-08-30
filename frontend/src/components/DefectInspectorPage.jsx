@@ -459,12 +459,48 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
 
       </div>
 
+      {/* ===== SCANNING PROGRESS CARD ===== */}
+      {isScanning && (
+        <div className="di-section mt-4" style={{ 
+          maxWidth: '680px', 
+          margin: '1.5rem auto 0', 
+          textAlign: 'center', 
+          padding: '2.5rem 1.5rem',
+          background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.95))',
+          border: '1.5px solid rgba(56, 189, 248, 0.4)',
+          borderRadius: '16px',
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
+        }}>
+          <div style={{ fontSize: '2.5rem', marginBottom: '1rem', animation: 'spin 2s linear infinite' }}>
+            🛰️
+          </div>
+          <h3 style={{ color: '#38bdf8', fontSize: '1.25rem', fontWeight: 800, margin: '0 0 0.5rem 0' }}>
+            Идёт анализ дефектов через Roboflow & Vision AI...
+          </h3>
+          <p style={{ color: '#94a3b8', fontSize: '0.95rem', margin: '0 0 1.25rem 0' }}>
+            Пожалуйста, подождите несколько секунд. ИИ сканирует текстуру, трещины, сколы и формирует интерактивную карту дефектов.
+          </p>
+          <div style={{ 
+            background: 'rgba(56, 189, 248, 0.12)', 
+            border: '1px solid rgba(56, 189, 248, 0.3)',
+            borderRadius: '10px',
+            padding: '10px 16px',
+            color: '#e2e8f0',
+            fontWeight: 700,
+            fontSize: '0.9rem',
+            display: 'inline-block'
+          }}>
+            {scanStepMessage}
+          </div>
+        </div>
+      )}
+
       {/* ===== DEFECT VISUALIZATION SECTION ===== */}
-      {report && (annotatedImage || defectMarkers.length > 0) && (
+      {report && (
         <div className="di-section mt-4" style={{ padding: 0, overflow: 'hidden', maxWidth: '680px', margin: '1.5rem auto 0' }}>
           <div style={{ padding: '16px 20px 8px' }}>
             <h3 style={{ color: '#e2e8f0', margin: 0, fontSize: '1.1rem', fontWeight: 800 }}>
-              🔬 Карта дефектов — визуальный анализ
+              🔬 Карта дефектов — визуальный анализ (Roboflow & Vision AI)
             </h3>
           </div>
           
