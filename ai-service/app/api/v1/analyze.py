@@ -312,14 +312,8 @@ async def defect_scan(
     for i, d in enumerate(all_defects):
         d["id"] = i + 1
 
-    # Re-draw clean annotations on clean original image with structure zones
-    from app.services.cv_defect_scanner import _draw_annotations
-    annotated = _draw_annotations(image_np.copy(), all_defects, structure_zones=structure_zones)
-    pil_out = Image.fromarray(annotated)
-    buf = io.BytesIO()
-    pil_out.save(buf, format="JPEG", quality=92)
-    b64 = base64.b64encode(buf.getvalue()).decode()
-    annotated_b64 = f"data:image/jpeg;base64,{b64}"
+    # Use high-quality dense annotated image from cv_result directly
+    annotated_b64 = cv_result["annotated_image"]
 
     # Build summary
     sev_counts = {}
