@@ -325,6 +325,7 @@ async def defect_scan(
         all_defects = list(cv_result["defects"])
         annotated_b64 = cv_result["annotated_image"]
 
+    sev_order = {"critical": 4, "high": 3, "medium": 2, "low": 1}
     structure_zones = cv_result.get("structure_zones", [])
 
     # Build summary
@@ -360,7 +361,7 @@ async def defect_scan(
         defect_type = "Дефектов не обнаружено"
         severity_text = "Норма"
     
-    return {
+    raw_response = {
         "success": True,
         "defectType": defect_type,
         "severity": severity_text,
@@ -375,6 +376,20 @@ async def defect_scan(
             "total": len(defect_items),
         },
     }
+
+    # Convert all numpy types to standard JSON-serializable Python types
+    def _sanitize(o):
+        if isinstance(o, (np.integer, np.int32, np.int64)):
+            return int(o)
+        if isinstance(o, (np.floating, np.float32, np.float64)):
+            return float(o)
+        if isinstance(o, (np.ndarray, list, tuple)):
+            return [_sanitize(x) for x in o]
+        if isinstance(o, dict):
+            return {k: _sanitize(v) for k, v in o.items()}
+        return o
+
+    return _sanitize(raw_response)
 
 
 def _get_fix_method(defect_type: str) -> str:
