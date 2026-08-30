@@ -254,19 +254,32 @@ def scan_defects(image: np.ndarray, sensitivity: float = 0.5) -> Dict[str, Any]:
     
     gray = _grayscale(image)
     
+    # Contrast enhancement: stretch histogram for better crack visibility
+    g_min, g_max = float(gray.min()), float(gray.max())
+    if g_max - g_min > 10:
+        enhanced = ((gray.astype(np.float32) - g_min) / (g_max - g_min) * 255).astype(np.uint8)
+    else:
+        enhanced = gray
+    
     # 1. Detect cracks (thin dark lines against background)
-    crack_thresh = int(85 - sensitivity * 25)  # 60-85 range (higher = fewer false positives)
-    crack_mask = _detect_cracks(gray, threshold=crack_thresh)
+    crack_thresh = int(70 - sensitivity * 30)  # 40-70 range (lower = more sensitive)
+    crack_mask = _detect_cracks(enhanced, threshold=crack_thresh)
     
     # 2. Detect stains/damage
     stain_mask = _detect_stains(image)
     
     # 3. Find regions — separate for cracks and stains
-    min_area = int(max(200, total_area * 0.002))   # Min 0.2%
-    max_area = int(total_area * 0.05)               # Max 5% per region
+    min_area = int(max(80, total_area * 0.0005))    # Min 0.05% (was 0.2%)
+    max_area = int(total_area * 0.10)                # Max 10% (was 5%)
     
     crack_regions = _find_regions(crack_mask, min_area=min_area, max_area=max_area)
     stain_regions = _find_regions(stain_mask, min_area=min_area * 2, max_area=max_area)
+    
+    # Also detect on original gray (not enhanced) for robustness
+    if enhanced is not gray:
+        crack_mask_orig = _detect_cracks(gray, threshold=crack_thresh + 10)
+        crack_regions_orig = _find_regions(crack_mask_orig, min_area=min_area, max_area=max_area)
+        crack_regions = crack_regions + crack_regions_orig
     
     # Merge all regions
     all_regions = crack_regions + stain_regions
@@ -277,15 +290,15 @@ def scan_defects(image: np.ndarray, sensitivity: float = 0.5) -> Dict[str, Any]:
         bw, bh = x2 - x1, y2 - y1
         aspect = max(bw, bh) / max(min(bw, bh), 1)
         
-        if aspect > 2.5:
+        if aspect > 2.0:
             # Elongated (crack-like): allow up to 60% in one dimension if narrow
             narrow = min(bw, bh)
-            if narrow < min(w, h) * 0.15:
+            if narrow < min(w, h) * 0.20:
                 filtered.append((x1, y1, x2, y2, a))
                 continue
         
-        # Square-ish regions: limit to 35% of image
-        if bw < w * 0.35 and bh < h * 0.35:
+        # Square-ish regions: limit to 40% of image
+        if bw < w * 0.40 and bh < h * 0.40:
             filtered.append((x1, y1, x2, y2, a))
     
     all_regions = filtered
@@ -293,8 +306,8 @@ def scan_defects(image: np.ndarray, sensitivity: float = 0.5) -> Dict[str, Any]:
     # Deduplicate overlapping
     all_regions = _deduplicate(all_regions)
     
-    # Sort by area descending, keep top 6
-    all_regions = sorted(all_regions, key=lambda r: r[4], reverse=True)[:6]
+    # Sort by area descending, keep top 10 (was 6)
+    all_regions = sorted(all_regions, key=lambda r: r[4], reverse=True)[:10]
     
     # 4. Classify each
     defects = []
