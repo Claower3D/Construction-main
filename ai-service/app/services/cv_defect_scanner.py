@@ -1,19 +1,21 @@
 """
-QazGost AI — Concrete & Structure Defect Scanner (v20.0 Dense Pixel-Perfect Ring Edition)
+QazGost AI — Pure Dynamic AI-Vision Defect Scanner (v21.0 True Object & Defect Vision)
 
-Key Highlights:
-  - 100% Solid Green Translucent Concrete Ring Fill (zero holes/gaps in intact concrete).
-  - Ground / Soil / Sand / Trench fully excluded (natural photographic background).
-  - Central dark well floor / shaft fully excluded (clear view into the well).
-  - 8 High-Precision Defect Overlays with exact bounding boxes & labels.
+NO HARDCODED COORDINATES.
+Dynamic computer vision architecture:
+  1. Dynamic Concrete Ring Segmentation per-image (hue/chroma + geometry + hole isolation).
+  2. Multi-scale directional ridge & trough defect filters.
+  3. Morphological connected component analysis & polygon extraction.
+  4. Real-time physical metrics estimation (mm length, opening, area %, severity).
+  5. Dense green overlay of intact concrete structure.
 """
 
 import io
 import base64
+from typing import Dict, Any, List, Tuple
 import cv2
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
-from typing import Dict, Any, List, Tuple
 from loguru import logger
 
 from app.services.ring_segmentor import segment_ring, extract_polygons
@@ -34,8 +36,12 @@ SEV_LABELS_RU = {
 
 
 def scan_defects(image: np.ndarray, sensitivity: float = 0.65) -> Dict[str, Any]:
+    """
+    Pure dynamic computer vision scan on any concrete ring or pipe photo.
+    """
     h, w = image.shape[:2]
-    logger.info(f"[CV Scanner v20.0] Dense Ring & 8-Zone defect analysis {w}x{h}")
+    total_pixels = h * w
+    logger.info(f"[CV Scanner v21.0 Dynamic] Analyzing image {w}x{h}, sensitivity={sensitivity}")
 
     if len(image.shape) == 3 and image.shape[2] == 3:
         img_bgr = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
@@ -43,174 +49,146 @@ def scan_defects(image: np.ndarray, sensitivity: float = 0.65) -> Dict[str, Any]
         img_bgr = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
 
     gray = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2GRAY)
-    total_pixels = h * w
 
-    # 1. Dynamic ring segmentation (Dense)
+    # 1. Dynamic scene segmentation: ring_mask, hole_mask, soil_mask
     ring_mask, central_hole_mask, soil_mask, ring_meta = segment_ring(img_bgr)
     total_ring_pixels = int(np.sum(ring_mask))
 
-    clean_defects = []
+    # 2. Dynamic Feature Extraction on Concrete Surface:
+    # A) Multi-directional BlackHat filters for cracks & fissures
+    clahe = cv2.createCLAHE(clipLimit=2.5, tileGridSize=(8, 8))
+    g_clahe = clahe.apply(gray)
+
+    k_v = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 19))
+    k_h = cv2.getStructuringElement(cv2.MORPH_RECT, (19, 3))
+    k_d = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (11, 11))
+
+    bh_v = cv2.morphologyEx(g_clahe, cv2.MORPH_BLACKHAT, k_v)
+    bh_h = cv2.morphologyEx(g_clahe, cv2.MORPH_BLACKHAT, k_h)
+    bh_d = cv2.morphologyEx(g_clahe, cv2.MORPH_BLACKHAT, k_d)
+    bh_max = np.maximum(np.maximum(bh_v, bh_h), bh_d)
+
+    # B) Local intensity trough filter (detects dark valleys & cracks)
+    local_mean = cv2.blur(gray, (19, 19))
+    local_diff = local_mean.astype(float) - gray.astype(float)
+
+    # C) Surface gradient (detects chips, spalls, surface breakdown)
+    grad = cv2.morphologyEx(gray, cv2.MORPH_GRADIENT, np.ones((3, 3), np.uint8))
+
+    # Dynamic thresholding based on sensitivity
+    bh_thresh = max(4.0, 10.0 - sensitivity * 6.0)
+    diff_thresh = max(4.5, 11.0 - sensitivity * 7.0)
+    grad_thresh = max(10.0, 20.0 - sensitivity * 10.0)
+
+    defect_signal = (
+        ((bh_max > bh_thresh) | (local_diff > diff_thresh) | ((grad > grad_thresh) & (gray < 165)))
+        & ring_mask
+        & (~central_hole_mask)
+    )
+
+    # Bridge adjacent pixels along crack paths
+    bridge_v = cv2.morphologyEx(defect_signal.astype(np.uint8), cv2.MORPH_CLOSE, cv2.getStructuringElement(cv2.MORPH_RECT, (3, 11)))
+    bridge_h = cv2.morphologyEx(defect_signal.astype(np.uint8), cv2.MORPH_CLOSE, cv2.getStructuringElement(cv2.MORPH_RECT, (11, 3)))
+    connected = cv2.morphologyEx(bridge_v | bridge_h, cv2.MORPH_CLOSE, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5)))
+
+    num_l, labels, stats, centroids = cv2.connectedComponentsWithStats(connected)
+
+    min_area = int(total_pixels * 0.0001)
+    max_area = int(total_pixels * 0.08)
+
+    dist_to_hole = cv2.distanceTransform((~central_hole_mask).astype(np.uint8), cv2.DIST_L2, 3)
+    dist_to_outer = cv2.distanceTransform(ring_mask.astype(np.uint8), cv2.DIST_L2, 3)
+
+    raw_defects = []
     all_defect_mask = np.zeros_like(gray, dtype=bool)
 
-    # ── 1. Top Rim Vertical Through-Fracture ─────────────────────────────────
-    bx1, bx2 = int(w * 0.43), int(w * 0.51)
-    by1, by2 = int(h * 0.05), int(h * 0.37)
-    all_defect_mask[by1:by2, bx1:bx2] = True
-    area_px = int((bx2 - bx1) * (by2 - by1) * 0.45)
-    clean_defects.append({
-        "id": 1,
-        "bbox": [bx1, by1, bx2, by2],
-        "polygon": [[bx1, by1], [bx2, by1], [bx2, by2], [bx1, by2]],
-        "type": "Крупный разлом / сквозная трещина",
-        "defect_type": "major_crack",
-        "severity": "critical",
-        "confidence": 0.94,
-        "area": area_px,
-        "area_percent": round((area_px / max(total_ring_pixels, 1)) * 100, 2),
-        "length_mm": int((by2 - by1) * 1.25),
-        "opening_mm": 18.5,
-        "description": f"Сквозной разлом верхней полки бетонного кольца ({bx2-bx1}×{by2-by1}px, раскрытие ~18.5мм)",
-    })
+    for i in range(1, num_l):
+        x, y, bw, bh, area = stats[i]
+        if area < min_area or area > max_area or bw > (w * 0.45) or bh > (h * 0.45):
+            continue
 
-    # ── 2. Right Radial Wall Through-Fracture ────────────────────────────────
-    bx1, bx2 = int(w * 0.56), int(w * 0.81)
-    by1, by2 = int(h * 0.56), int(h * 0.73)
-    all_defect_mask[by1:by2, bx1:bx2] = True
-    area_px = int((bx2 - bx1) * (by2 - by1) * 0.55)
-    clean_defects.append({
-        "id": 2,
-        "bbox": [bx1, by1, bx2, by2],
-        "polygon": [[bx1, by1], [bx2, by1], [bx2, by2], [bx1, by2]],
-        "type": "Крупный разлом / сквозная трещина",
-        "defect_type": "major_crack",
-        "severity": "critical",
-        "confidence": 0.96,
-        "area": area_px,
-        "area_percent": round((area_px / max(total_ring_pixels, 1)) * 100, 2),
-        "length_mm": int((bx2 - bx1) * 1.25),
-        "opening_mm": 24.0,
-        "description": f"Глубокий радиальный перелом стенки бетонного кольца ({bx2-bx1}×{by2-by1}px, раскрытие ~24.0мм)",
-    })
+        # Zero hole bleed
+        if np.mean(central_hole_mask[y:y+bh, x:x+bw]) > 0.15:
+            continue
 
-    # ── 3. Inner Chamfer / Bevel Radial Crack ────────────────────────────────
-    bx1, bx2 = int(w * 0.49), int(w * 0.56)
-    by1, by2 = int(h * 0.36), int(h * 0.51)
-    all_defect_mask[by1:by2, bx1:bx2] = True
-    area_px = int((bx2 - bx1) * (by2 - by1) * 0.4)
-    clean_defects.append({
-        "id": 3,
-        "bbox": [bx1, by1, bx2, by2],
-        "polygon": [[bx1, by1], [bx2, by1], [bx2, by2], [bx1, by2]],
-        "type": "Трещина внутреннего фальца",
-        "defect_type": "thin_crack",
-        "severity": "high",
-        "confidence": 0.88,
-        "area": area_px,
-        "area_percent": round((area_px / max(total_ring_pixels, 1)) * 100, 2),
-        "length_mm": int((by2 - by1) * 1.25),
-        "opening_mm": 6.5,
-        "description": f"Радиальная трещина на скосе внутреннего посадочного буртика ({bx2-bx1}×{by2-by1}px, раскрытие ~6.5мм)",
-    })
+        comp_mask = (labels == i)
+        all_defect_mask |= comp_mask
+        comp_polys = extract_polygons(comp_mask, min_area=int(min_area * 0.4), approx_eps=0.010)
+        poly = comp_polys[0] if comp_polys else [[x, y], [x + bw, y], [x + bw, y + bh], [x, y + bh]]
 
-    # ── 4. Right Wall Pitting & Shell Cavity ─────────────────────────────────
-    bx1, bx2 = int(w * 0.65), int(w * 0.72)
-    by1, by2 = int(h * 0.44), int(h * 0.57)
-    all_defect_mask[by1:by2, bx1:bx2] = True
-    area_px = int((bx2 - bx1) * (by2 - by1) * 0.5)
-    clean_defects.append({
-        "id": 4,
-        "bbox": [bx1, by1, bx2, by2],
-        "polygon": [[bx1, by1], [bx2, by1], [bx2, by2], [bx1, by2]],
-        "type": "Раковина / каверна",
-        "defect_type": "cavity",
-        "severity": "medium",
-        "confidence": 0.86,
-        "area": area_px,
-        "area_percent": round((area_px / max(total_ring_pixels, 1)) * 100, 2),
-        "length_mm": int((by2 - by1) * 1.25),
-        "opening_mm": None,
-        "description": f"Глубокая каверна и раковина на внутренней конической стенке ({bx2-bx1}×{by2-by1}px)",
-    })
+        x1, y1 = max(0, x - 4), max(0, y - 4)
+        x2, y2 = min(w, x + bw + 4), min(h, y + bh + 4)
+        roi_gray = gray[y1:y2, x1:x2]
 
-    # ── 5. Left Inner Bevel Spall / Chip ─────────────────────────────────────
-    bx1, bx2 = int(w * 0.12), int(w * 0.21)
-    by1, by2 = int(h * 0.39), int(h * 0.52)
-    all_defect_mask[by1:by2, bx1:bx2] = True
-    area_px = int((bx2 - bx1) * (by2 - by1) * 0.5)
-    clean_defects.append({
-        "id": 5,
-        "bbox": [bx1, by1, bx2, by2],
-        "polygon": [[bx1, by1], [bx2, by1], [bx2, by2], [bx1, by2]],
-        "type": "Скол кромки",
-        "defect_type": "edge_spall",
-        "severity": "high",
-        "confidence": 0.85,
-        "area": area_px,
-        "area_percent": round((area_px / max(total_ring_pixels, 1)) * 100, 2),
-        "length_mm": int((by2 - by1) * 1.25),
-        "opening_mm": None,
-        "description": f"Скол бетонного бурта на внутреннем фальце кольца ({bx2-bx1}×{by2-by1}px)",
-    })
+        aspect = max(bw, bh) / max(min(bw, bh), 1)
+        mean_val = float(np.mean(roi_gray)) if roi_gray.size > 0 else 120.0
+        min_val = float(np.min(roi_gray)) if roi_gray.size > 0 else 50.0
+        area_pct_of_ring = round((area / max(total_ring_pixels, 1)) * 100, 2)
+        length_px = int(max(bw, bh))
+        width_px = round(max(1.0, area / max(length_px, 1)), 1)
 
-    # ── 6. Mid-Left Pitted Spall ──────────────────────────────────────────────
-    bx1, bx2 = int(w * 0.16), int(w * 0.24)
-    by1, by2 = int(h * 0.74), int(h * 0.87)
-    all_defect_mask[by1:by2, bx1:bx2] = True
-    area_px = int((bx2 - bx1) * (by2 - by1) * 0.45)
-    clean_defects.append({
-        "id": 6,
-        "bbox": [bx1, by1, bx2, by2],
-        "polygon": [[bx1, by1], [bx2, by1], [bx2, by2], [bx1, by2]],
-        "type": "Каверна / выкрашивание",
-        "defect_type": "cavity",
-        "severity": "medium",
-        "confidence": 0.83,
-        "area": area_px,
-        "area_percent": round((area_px / max(total_ring_pixels, 1)) * 100, 2),
-        "length_mm": int((by2 - by1) * 1.25),
-        "opening_mm": None,
-        "description": f"Локальная выемка / раковина на теле кольца ({bx2-bx1}×{by2-by1}px)",
-    })
+        roi_dist_h = dist_to_hole[y:y+bh, x:x+bw]
+        roi_dist_o = dist_to_outer[y:y+bh, x:x+bw]
+        is_near_edge = bool(np.min(roi_dist_h) < 8 or np.min(roi_dist_o) < 8)
 
-    # ── 7. Bottom-Right Inner Chamfer Notch / Chip ───────────────────────────
-    bx1, bx2 = int(w * 0.51), int(w * 0.58)
-    by1, by2 = int(h * 0.81), int(h * 0.94)
-    all_defect_mask[by1:by2, bx1:bx2] = True
-    area_px = int((bx2 - bx1) * (by2 - by1) * 0.45)
-    clean_defects.append({
-        "id": 7,
-        "bbox": [bx1, by1, bx2, by2],
-        "polygon": [[bx1, by1], [bx2, by1], [bx2, by2], [bx1, by2]],
-        "type": "Скол фальца",
-        "defect_type": "edge_spall",
-        "severity": "medium",
-        "confidence": 0.81,
-        "area": area_px,
-        "area_percent": round((area_px / max(total_ring_pixels, 1)) * 100, 2),
-        "length_mm": int((by2 - by1) * 1.25),
-        "opening_mm": None,
-        "description": f"Скол нижнего стыковочного фальца кольца ({bx2-bx1}×{by2-by1}px)",
-    })
+        # Dynamic Defect Classification:
+        if aspect > 1.6 or (bw > 35 and bh < 25) or (bh > 35 and bw < 25):
+            dtype = "Крупный разлом / сквозная трещина" if (aspect > 2.0 or area_pct_of_ring > 0.3 or length_px > 60) else "Тонкая трещина"
+            sev = "critical" if "Крупный" in dtype else "high"
+        elif is_near_edge and (bw > 20 or bh > 20):
+            dtype = "Скол кромки" if area_pct_of_ring < 1.0 else "Скол фальца / деформация"
+            sev = "high" if "деформация" in dtype else "medium"
+        elif mean_val < 70 or min_val < 35:
+            dtype = "Раковина / каверна"
+            sev = "medium" if area > 200 else "low"
+        elif area > 400:
+            dtype = "Выкрашивание материала"
+            sev = "medium"
+        else:
+            dtype = "Эрозия поверхности"
+            sev = "low"
 
-    # ── 8. Lower-Left Surface Degradation ─────────────────────────────────────
-    bx1, bx2 = int(w * 0.03), int(w * 0.09)
-    by1, by2 = int(h * 0.86), int(h * 0.99)
-    all_defect_mask[by1:by2, bx1:bx2] = True
-    area_px = int((bx2 - bx1) * (by2 - by1) * 0.6)
-    clean_defects.append({
-        "id": 8,
-        "bbox": [bx1, by1, bx2, by2],
-        "polygon": [[bx1, by1], [bx2, by1], [bx2, by2], [bx1, by2]],
-        "type": "Выкрашивание материала",
-        "defect_type": "spalling",
-        "severity": "medium",
-        "confidence": 0.80,
-        "area": area_px,
-        "area_percent": round((area_px / max(total_ring_pixels, 1)) * 100, 2),
-        "length_mm": int((by2 - by1) * 1.25),
-        "opening_mm": None,
-        "description": f"Поверхностная эрозия и выкрашивание бетона ({bx2-bx1}×{by2-by1}px)",
-    })
+        conf = float(min(0.96, 0.65 + (area_pct_of_ring * 0.15) + (0.15 if "трещина" in dtype or "разлом" in dtype else 0.05)))
+
+        px_to_mm = 1.25
+        est_length_mm = int(length_px * px_to_mm)
+        est_opening_mm = round(max(0.4, width_px * px_to_mm * 0.15), 1) if "трещина" in dtype or "разлом" in dtype else None
+
+        raw_defects.append({
+            "bbox": [int(x1), int(y1), int(x2), int(y2)],
+            "polygon": [[int(pt[0]), int(pt[1])] for pt in poly],
+            "type": dtype,
+            "defect_type": "major_crack" if "Крупный" in dtype else ("thin_crack" if "Тонкая" in dtype else "spalling"),
+            "severity": sev,
+            "confidence": float(round(conf, 2)),
+            "area": int(area),
+            "area_percent": float(area_pct_of_ring),
+            "length_mm": est_length_mm,
+            "opening_mm": est_opening_mm,
+            "description": f"{dtype} — {int(x2-x1)}×{int(y2-y1)}px (~{est_length_mm}мм)" + (f", раскрытие ~{est_opening_mm}мм" if est_opening_mm else "") + f", {area_pct_of_ring}% площади кольца",
+        })
+
+    # IoU Suppression / Non-Maximum Suppression
+    def iou(b1, b2):
+        ix1, iy1 = max(b1[0], b2[0]), max(b1[1], b2[1])
+        ix2, iy2 = min(b1[2], b2[2]), min(b1[3], b2[3])
+        if ix1 >= ix2 or iy1 >= iy2:
+            return 0.0
+        inter = (ix2 - ix1) * (iy2 - iy1)
+        a1 = (b1[2] - b1[0]) * (b1[3] - b1[1])
+        a2 = (b2[2] - b2[0]) * (b2[3] - b2[1])
+        return inter / min(a1, a2)
+
+    clean_defects = []
+    for cand in sorted(raw_defects, key=lambda c: c["area"], reverse=True):
+        if not any(iou(cand["bbox"], cd["bbox"]) > 0.25 for cd in clean_defects):
+            clean_defects.append(cand)
+
+    sev_order = {"critical": 4, "high": 3, "medium": 2, "low": 1}
+    clean_defects.sort(key=lambda d: (sev_order.get(d["severity"], 0), d["area"]), reverse=True)
+    clean_defects = clean_defects[:12]
+    for idx, d in enumerate(clean_defects):
+        d["id"] = idx + 1
 
     # Dense Intact Ring Mask for composite overlay
     intact_concrete_mask = ring_mask & (~all_defect_mask)
@@ -228,9 +206,8 @@ def scan_defects(image: np.ndarray, sensitivity: float = 0.65) -> Dict[str, Any]
         s = d["severity"]
         sev_counts[s] = sev_counts.get(s, 0) + 1
 
-    sev_order = {"critical": 4, "high": 3, "medium": 2, "low": 1}
     max_sev = max(sev_counts.keys(), key=lambda s: sev_order.get(s, 0)) if sev_counts else "low"
-    logger.info(f"[CV Scanner v20.0] Dense Ring & {len(clean_defects)} defects generated")
+    logger.info(f"[CV Scanner v21.0 Dynamic] Found {len(clean_defects)} defects dynamically, max_severity={max_sev}")
 
     return {
         "defects": clean_defects,
