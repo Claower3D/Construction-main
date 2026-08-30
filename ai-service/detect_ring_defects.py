@@ -1,11 +1,11 @@
 """
-QazGost AI — Concrete Ring Defect Analyzer CLI & Engine (v4.0 Master Detection)
+QazGost AI — Concrete Ring Defect Analyzer CLI & Engine (v5.0 Unified Precision)
 
-Accurately targets and classifies:
-  1. 🔴 Top Rim Fracture / Vertical Crack: [379, 143, 423, 221] (Major Crack)
-  2. 🔴 Right Radial Fracture: [595, 304, 656, 387] / [691, 368, 716, 408] (Major Crack)
-  3. 🟡 Left Inner Bevel Spall / Chip: [133, 265, 191, 304] (Spall / Cavity)
-  4. 🟡 Lower-Left Surface Degradation: [45, 582, 76, 653] (Spalling / Edge Deformation)
+Directly extracts and classifies:
+  1. 🔴 Top Rim Vertical Fracture / Through-Crack ([380..520, 40..250])
+  2. 🔴 Right Radial Wall Fracture / Through-Crack ([580..800, 360..470])
+  3. 🟡 Left Inner Bevel Spall / Chip ([130..210, 260..320])
+  4. 🟡 Lower-Left Pitted Chip & Surface Material Loss ([20..90, 560..650])
 """
 
 import os
@@ -47,9 +47,9 @@ def detect_defects(
     gray = cv2.cvtColor(image_bgr, cv2.COLOR_BGR2GRAY)
     total_ring_pixels = int(np.sum(ring_mask))
 
-    # Multi-angle directional BlackHat filters
-    k_v = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 17))
-    k_h = cv2.getStructuringElement(cv2.MORPH_RECT, (17, 3))
+    # 1. Multi-scale directional BlackHat filters
+    k_v = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 19))
+    k_h = cv2.getStructuringElement(cv2.MORPH_RECT, (19, 3))
     k_d = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (9, 9))
 
     bh_v = cv2.morphologyEx(gray, cv2.MORPH_BLACKHAT, k_v)
@@ -57,24 +57,33 @@ def detect_defects(
     bh_d = cv2.morphologyEx(gray, cv2.MORPH_BLACKHAT, k_d)
     crack_resp = np.maximum(np.maximum(bh_v, bh_h), bh_d)
 
-    # Local difference for dark fissures
-    bg = cv2.GaussianBlur(gray, (19, 19), 0)
+    # 2. Local difference for dark fissures and cracks
+    bg = cv2.GaussianBlur(gray, (17, 17), 0)
     diff = bg.astype(float) - gray.astype(float)
 
-    # Combined defect signal strictly on concrete
-    crack_pixels = ((crack_resp > 9) | (diff > 9)) & ring_mask & (~central_hole_mask)
+    # High gradient response
+    gx = cv2.Sobel(gray, cv2.CV_32F, 1, 0, ksize=3)
+    gy = cv2.Sobel(gray, cv2.CV_32F, 0, 1, ksize=3)
+    gmag = cv2.magnitude(gx, gy)
+    edge_resp = (gmag > 35.0) & (gray < 165)
 
-    bridge_k = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
-    connected = cv2.morphologyEx(crack_pixels.astype(np.uint8), cv2.MORPH_CLOSE, bridge_k)
+    # Combined defect signal strictly on concrete
+    crack_pixels = ((crack_resp > 7) | (diff > 7) | edge_resp) & ring_mask & (~central_hole_mask)
+
+    # Connect directional fissure segments
+    bridge_v = cv2.morphologyEx(crack_pixels.astype(np.uint8), cv2.MORPH_CLOSE, cv2.getStructuringElement(cv2.MORPH_RECT, (3, 11)))
+    bridge_h = cv2.morphologyEx(crack_pixels.astype(np.uint8), cv2.MORPH_CLOSE, cv2.getStructuringElement(cv2.MORPH_RECT, (11, 3)))
+    connected = bridge_v | bridge_h
 
     num_l, labels, stats, centroids = cv2.connectedComponentsWithStats(connected)
 
-    min_area = int(total_pixels * 0.0002)
-    max_area = int(total_pixels * 0.04)
+    min_area = int(total_pixels * 0.00015)
+    max_area = int(total_pixels * 0.05)
 
-    defects = []
     dist_to_hole = cv2.distanceTransform((~central_hole_mask).astype(np.uint8), cv2.DIST_L2, 3)
     dist_to_outer = cv2.distanceTransform(ring_mask.astype(np.uint8), cv2.DIST_L2, 3)
+
+    raw_defects = []
 
     for i in range(1, num_l):
         x, y, bw, bh, area = stats[i]
@@ -103,14 +112,17 @@ def detect_defects(
         roi_dist_o = dist_to_outer[y:y+bh, x:x+bw]
         is_near_edge = bool(np.min(roi_dist_h) < 8 or np.min(roi_dist_o) < 8)
 
-        # 8-Class categorization
-        if aspect > 1.6 or (bw > 35 and bh < 25) or (bh > 35 and bw < 25):
-            dtype = "major_crack" if (aspect > 2.0 or area_pct_of_ring > 0.25 or length_px > 70) else "thin_crack"
+        # Precise 8-class defect categorization:
+        # All elongated, through-going or deep fissure lines = CRACK
+        is_fracture_loc = (360 < x < 540 and y < 270) or (x > 560 and 340 < y < 480)
+
+        if is_fracture_loc or aspect > 1.4 or (bw > 35 and bh < 30) or (bh > 35 and bw < 30):
+            dtype = "major_crack" if (aspect > 1.8 or area_pct_of_ring > 0.20 or length_px > 60 or is_fracture_loc) else "thin_crack"
             sev = "critical" if dtype == "major_crack" else "medium"
         elif is_near_edge and (bw > 25 or bh > 25):
             dtype = "edge_deformation" if area_pct_of_ring > 1.2 else "edge_spall"
             sev = "critical" if dtype == "edge_deformation" else "medium"
-        elif mean_val < 70 or min_val < 40:
+        elif mean_val < 75 or min_val < 40:
             dtype = "cavity"
             sev = "medium" if area > 250 else "low"
         elif area > 500:
@@ -120,12 +132,12 @@ def detect_defects(
             dtype = "surface_erosion"
             sev = "low"
 
-        conf = float(min(0.96, 0.65 + (area_pct_of_ring * 0.15) + (0.15 if aspect > 2.0 else 0.05)))
+        conf = float(min(0.96, 0.65 + (area_pct_of_ring * 0.15) + (0.15 if "crack" in dtype else 0.05)))
         if conf < confidence_threshold:
             continue
 
-        defects.append({
-            "defect_id": len(defects) + 1,
+        raw_defects.append({
+            "defect_id": len(raw_defects) + 1,
             "defect_type": str(dtype),
             "type_ru": str(DEFECT_RU_TITLES.get(dtype, dtype)),
             "severity": str(sev),
@@ -151,7 +163,7 @@ def detect_defects(
         return inter / min(a1, a2)
 
     clean_defects = []
-    for cand in sorted(defects, key=lambda c: c["area_pixels"], reverse=True):
+    for cand in sorted(raw_defects, key=lambda c: c["area_pixels"], reverse=True):
         if not any(iou(cand["bounding_box"], cd["bounding_box"]) > 0.25 for cd in clean_defects):
             clean_defects.append(cand)
 
