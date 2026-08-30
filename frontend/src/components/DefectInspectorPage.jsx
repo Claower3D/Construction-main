@@ -100,9 +100,16 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
         
         const formData = new FormData();
         formData.append('file', firstPhoto.file);
+        if (aiDescription) {
+          formData.append('prompt', aiDescription);
+        }
 
         try {
-          const aiRes = await fetch('/api/v1/defect-scan?sensitivity=0.65', {
+          const queryParams = new URLSearchParams({
+            sensitivity: '0.65',
+            prompt: aiDescription || ''
+          });
+          const aiRes = await fetch(`/api/v1/defect-scan?${queryParams.toString()}`, {
             method: 'POST',
             body: formData,
           });

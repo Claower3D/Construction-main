@@ -271,6 +271,7 @@ async def analyze_image(
 async def defect_scan(
     file: UploadFile = File(..., description="Photo to scan for defects"),
     sensitivity: float = Query(0.65, ge=0.1, le=1.0, description="Detection sensitivity (0.1=low, 1.0=high)"),
+    prompt: Optional[str] = Query(None, description="User prompt describing specific defects or inspection target"),
 ) -> Dict[str, Any]:
     """
     Scan photo for construction defects.
