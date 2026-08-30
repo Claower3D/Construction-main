@@ -300,35 +300,11 @@ async def defect_scan(
     result = None
     yolo_defects = []
     
-    # Step 1: Run refined concrete defect scanner (v6.0 Polygon Edition)
+    # Step 1: Run refined concrete defect scanner (v8.0 Geometric Ring & Fracture Edition)
     from app.services.cv_defect_scanner import scan_defects
     cv_result = scan_defects(image_np, sensitivity=sensitivity)
     all_defects = list(cv_result["defects"])
     structure_zones = cv_result.get("structure_zones", [])
-
-    # Step 2: Try YOLO model if available for additional specialized crack bboxes
-    try:
-        from app.services.yolo_defect_scanner import scan_defects_yolo
-        yolo_result = scan_defects_yolo(image_np, confidence=max(0.20, 0.9 - sensitivity))
-        if yolo_result is not None and yolo_result["defects"]:
-            for yd in yolo_result["defects"]:
-                yb = yd["bbox"]
-                overlaps = False
-                for cd in all_defects:
-                    cb = cd["bbox"]
-                    ix1, iy1 = max(yb[0], cb[0]), max(yb[1], cb[1])
-                    ix2, iy2 = min(yb[2], cb[2]), min(yb[3], cb[3])
-                    inter = max(0, ix2 - ix1) * max(0, iy2 - iy1)
-                    a1 = (yb[2]-yb[0]) * (yb[3]-yb[1])
-                    a2 = (cb[2]-cb[0]) * (cb[3]-cb[1])
-                    union = a1 + a2 - inter
-                    if union > 0 and inter / min(a1, a2) > 0.25:
-                        overlaps = True
-                        break
-                if not overlaps:
-                    all_defects.append(yd)
-    except Exception as e:
-        logger.warning(f"[defect-scan] YOLO optional pass skipped: {e}")
 
     # Re-order and re-number
     sev_order = {"critical": 4, "high": 3, "medium": 2, "low": 1}
