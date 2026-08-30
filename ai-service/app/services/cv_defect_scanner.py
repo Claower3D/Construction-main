@@ -1,12 +1,12 @@
 """
-QazGost AI — Concrete & Structure Defect Scanner (v15.0 Natural Morphology Edition)
+QazGost AI — Concrete & Structure Defect Scanner (v16.0 Unified Precision Engine)
 
-Accurately isolates the concrete structure and targets the 4 circled defects:
-  1. 🔴 #1 (Top Rim Fracture): [379, 143, 423, 221] — vertical crack on top rim.
-  2. 🔴 #2 (Right Wall Fracture): [595, 304, 656, 387] / [691, 368, 716, 408] — through-crack on right side.
-  3. 🟡 #3 (Left Inner Bevel Pitting): [133, 265, 191, 304] — degradation on left inner slope.
-  4. 🟡 #4 (Lower-Left Spall): [45, 582, 76, 653] / [0, 535, 35, 572] — bottom-left spall.
-  5. 🟢 Complete Ring Overlay: Natural boundary segmentation with zero center hole overlap.
+Direct bridge between the high-accuracy standalone ring defect detector and FastAPI.
+Provides:
+  - Dynamic ring & void segmentation without hardcoded geometry.
+  - Multi-scale CLAHE & local difference crack extraction.
+  - 8-class defect categorization with physical mm-estimation.
+  - Interactive layer toggling (Intact Ring, Cracks, Spalls, Cavities).
 """
 
 import io
@@ -17,11 +17,15 @@ from PIL import Image, ImageDraw, ImageFont
 from typing import Dict, Any, List, Tuple
 from loguru import logger
 
+from app.services.ring_segmentor import segment_ring, extract_polygons
+from app.services.crack_analyzer import detect_fine_cracks
+from app.services.defect_classifier import classify_defect_component, DEFECT_COLOR_PALETTE, DEFECT_RU_TITLES
+
 SEV_COLORS = {
-    "critical": (235, 35, 35),      # Bright Red
-    "high":     (245, 110, 20),     # Orange
-    "medium":   (235, 190, 25),     # Amber/Yellow
-    "low":      (50, 200, 85),      # Green
+    "critical": (235, 35, 35),
+    "high":     (245, 110, 20),
+    "medium":   (235, 190, 25),
+    "low":      (50, 200, 85),
 }
 
 SEV_LABELS_RU = {
@@ -32,169 +36,103 @@ SEV_LABELS_RU = {
 }
 
 
-def _segment_scene(img_bgr: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-    h, w = img_bgr.shape[:2]
-    rgb = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
-    gray = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2GRAY)
-    hsv = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2HSV)
-
-    r = rgb[:, :, 0].astype(float)
-    g = rgb[:, :, 1].astype(float)
-    b = rgb[:, :, 2].astype(float)
-    sat = hsv[:, :, 1]
-
-    # 1. Dark center shaft void
-    is_dark = (gray < 65)
-    num_l, labels, stats, centroids = cv2.connectedComponentsWithStats(is_dark.astype(np.uint8))
-    center_hole_mask = np.zeros_like(gray, dtype=bool)
-    for i in range(1, num_l):
-        x, y, bw, bh, area = stats[i]
-        cx, cy = centroids[i]
-        if area > (w * h * 0.04) and np.hypot(cx - w/2, cy - h/2) < min(w, h) * 0.35:
-            center_hole_mask |= (labels == i)
-    center_hole_mask = cv2.dilate(center_hole_mask.astype(np.uint8), np.ones((11, 11), np.uint8)) > 0
-
-    # 2. Trench Soil (warm tan/brown tones outside the ring)
-    is_soil = ((r > b + 12) & (sat > 16)) | ((r > 80) & (g > 60) & (b < 75))
-
-    # 3. Complete Concrete Ring
-    concrete_clean = (~is_soil) & (~center_hole_mask)
-    concrete_clean = cv2.morphologyEx(concrete_clean.astype(np.uint8), cv2.MORPH_CLOSE, np.ones((15, 15), np.uint8))
-    concrete_clean = cv2.morphologyEx(concrete_clean, cv2.MORPH_OPEN, np.ones((5, 5), np.uint8))
-    concrete_mask = (concrete_clean > 0) & (~center_hole_mask)
-
-    return is_soil, center_hole_mask, concrete_mask
-
-
-def _extract_polygons(mask: np.ndarray, min_area: int = 80, approx_eps: float = 0.008) -> List[List[List[int]]]:
-    contours, _ = cv2.findContours(mask.astype(np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    polys = []
-    for cnt in contours:
-        if cv2.contourArea(cnt) < min_area:
-            continue
-        epsilon = approx_eps * cv2.arcLength(cnt, True)
-        approx = cv2.approxPolyDP(cnt, epsilon, True)
-        if len(approx) >= 3:
-            pts = approx.reshape(-1, 2).tolist()
-            polys.append(pts)
-    return polys
-
-
-def _detect_defects(img_bgr: np.ndarray, sensitivity: float = 0.65) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
-    h, w = img_bgr.shape[:2]
-    total_pixels = h * w
-    gray = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2GRAY)
-    is_soil, center_hole_mask, concrete_mask = _segment_scene(img_bgr)
-
-    # Directional morphology for cracks
-    k_v = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 17))
-    k_h = cv2.getStructuringElement(cv2.MORPH_RECT, (17, 3))
-    k_d = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (9, 9))
-
-    bh_v = cv2.morphologyEx(gray, cv2.MORPH_BLACKHAT, k_v)
-    bh_h = cv2.morphologyEx(gray, cv2.MORPH_BLACKHAT, k_h)
-    bh_d = cv2.morphologyEx(gray, cv2.MORPH_BLACKHAT, k_d)
-    crack_resp = np.maximum(np.maximum(bh_v, bh_h), bh_d)
-
-    bg = cv2.GaussianBlur(gray, (19, 19), 0)
-    diff = bg.astype(float) - gray.astype(float)
-
-    # Combined crack signal: strictly on concrete, NEVER in center hole
-    crack_pixels = ((crack_resp > 9) | (diff > 9)) & concrete_mask & (~center_hole_mask)
-
-    bridge_k = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
-    connected = cv2.morphologyEx(crack_pixels.astype(np.uint8), cv2.MORPH_CLOSE, bridge_k)
-
-    num_labels, labels, stats, centroids = cv2.connectedComponentsWithStats(connected)
-
-    min_area = int(total_pixels * 0.0003)
-    max_area = int(total_pixels * 0.04)
-
-    candidate_boxes = []
-    all_defect_mask = np.zeros_like(gray, dtype=bool)
-
-    for i in range(1, num_labels):
-        x, y, bw, bh, area = stats[i]
-        if area < min_area or area > max_area:
-            continue
-
-        # Zero center hole bleed
-        if np.mean(center_hole_mask[y:y+bh, x:x+bw]) > 0.10:
-            continue
-        if np.mean(is_soil[y:y+bh, x:x+bw]) > 0.30:
-            continue
-
-        comp_mask = (labels == i)
-        all_defect_mask |= comp_mask
-        comp_polys = _extract_polygons(comp_mask, min_area=int(min_area * 0.5), approx_eps=0.015)
-        poly_pts = comp_polys[0] if comp_polys else [[x, y], [x + bw, y], [x + bw, y + bh], [x, y + bh]]
-
-        aspect = max(bw, bh) / max(min(bw, bh), 1)
-        pad = 6
-        x1, y1 = max(0, x - pad), max(0, y - pad)
-        x2, y2 = min(w, x + bw + pad), min(h, y + bh + pad)
-
-        roi_gray = gray[y1:y2, x1:x2]
-        mean_brightness = np.mean(roi_gray) if roi_gray.size > 0 else 100
-        area_pct = (area / total_pixels) * 100
-
-        # Classify defect
-        if aspect > 1.6 or (bw > 35 and bh < 25) or (bh > 35 and bw < 25):
-            dtype = "Трещина"
-            sev = "critical" if (aspect > 2.0 or area_pct > 0.25) else "high"
-        elif mean_brightness < 75:
-            dtype = "Глубокое повреждение / скол"
-            sev = "critical" if area_pct > 0.35 else "high"
-        else:
-            dtype = "Повреждение бетона"
-            sev = "medium" if area_pct > 0.2 else "low"
-
-        conf = float(min(0.96, 0.65 + (area_pct * 0.15) + (0.15 if aspect > 2.0 else 0.05)))
-
-        px_to_mm = 1.25
-        est_length_mm = int(max(bw, bh) * px_to_mm)
-        est_opening_mm = round(max(0.4, (min(bw, bh) * px_to_mm * 0.08)), 1) if dtype == "Трещина" else None
-
-        candidate_boxes.append({
-            "bbox": [int(x1), int(y1), int(x2), int(y2)],
-            "polygon": poly_pts,
-            "type": str(dtype),
-            "severity": str(sev),
-            "confidence": round(conf, 2),
-            "area": int(area),
-            "area_percent": float(round(area_pct, 1)),
-            "length_mm": est_length_mm,
-            "opening_mm": est_opening_mm,
-            "description": f"{dtype} — область {int(x2-x1)}×{int(y2-y1)}px (~{est_length_mm}мм)" + (f", раскрытие ~{est_opening_mm}мм" if est_opening_mm else "") + f", {round(area_pct, 1)}% площади",
-        })
-
-    # Segment intact concrete body
-    intact_concrete_mask = concrete_mask & (~all_defect_mask)
-    intact_clean = cv2.morphologyEx(intact_concrete_mask.astype(np.uint8), cv2.MORPH_OPEN, np.ones((7, 7), np.uint8))
-    intact_polys = _extract_polygons(intact_clean, min_area=int(total_pixels * 0.03), approx_eps=0.006)
-
-    structure_zones = []
-    for ip in intact_polys:
-        structure_zones.append({
-            "name": "Тело бетонного кольца (Intact Concrete Ring)",
-            "type": "intact_concrete",
-            "polygon": ip,
-            "color": [45, 205, 85, 55],
-        })
-
-    return candidate_boxes, structure_zones
-
-
 def scan_defects(image: np.ndarray, sensitivity: float = 0.65) -> Dict[str, Any]:
+    """
+    Execute full-resolution scan on concrete ring image.
+    """
     h, w = image.shape[:2]
-    logger.info(f"[CV Scanner v15.0 Natural Morphology] Scanning {w}x{h}, sensitivity={sensitivity}")
+    logger.info(f"[CV Scanner v16.0] Scanning concrete ring image {w}x{h}, sensitivity={sensitivity}")
 
     if len(image.shape) == 3 and image.shape[2] == 3:
         img_bgr = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
     else:
         img_bgr = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
 
-    candidates, structure_zones = _detect_defects(img_bgr, sensitivity=sensitivity)
+    gray = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2GRAY)
+    total_pixels = h * w
+
+    # 1. Dynamic scene segmentation
+    ring_mask, central_hole_mask, soil_mask, ring_meta = segment_ring(img_bgr)
+    total_ring_pixels = int(np.sum(ring_mask))
+
+    # 2. Multi-scale crack & fissure extraction
+    crack_map = detect_fine_cracks(img_bgr, ring_mask, central_hole_mask, sensitivity=sensitivity)
+    connected = crack_map & ring_mask & (~central_hole_mask)
+
+    num_l, labels, stats, centroids = cv2.connectedComponentsWithStats(connected.astype(np.uint8))
+
+    min_area = int(total_pixels * 0.0002)
+    max_area = int(total_pixels * 0.04)
+
+    dist_to_hole = cv2.distanceTransform((~central_hole_mask).astype(np.uint8), cv2.DIST_L2, 3)
+    dist_to_outer = cv2.distanceTransform(ring_mask.astype(np.uint8), cv2.DIST_L2, 3)
+
+    raw_defects = []
+    all_defect_mask = np.zeros_like(gray, dtype=bool)
+
+    for i in range(1, num_l):
+        x, y, bw, bh, area = stats[i]
+        if area < min_area or area > max_area or bw > (w * 0.45) or bh > (h * 0.45):
+            continue
+
+        if np.mean(central_hole_mask[y:y+bh, x:x+bw]) > 0.15:
+            continue
+
+        comp_mask = (labels == i)
+        all_defect_mask |= comp_mask
+        comp_polys = extract_polygons(comp_mask, min_area=int(min_area * 0.4), approx_eps=0.010)
+        poly = comp_polys[0] if comp_polys else [[x, y], [x + bw, y], [x + bw, y + bh], [x, y + bh]]
+
+        x1, y1 = max(0, x - 4), max(0, y - 4)
+        x2, y2 = min(w, x + bw + 4), min(h, y + bh + 4)
+        roi_gray = gray[y1:y2, x1:x2]
+
+        aspect = max(bw, bh) / max(min(bw, bh), 1)
+        mean_val = float(np.mean(roi_gray)) if roi_gray.size > 0 else 120.0
+        min_val = float(np.min(roi_gray)) if roi_gray.size > 0 else 50.0
+        area_pct_of_ring = round((area / max(total_ring_pixels, 1)) * 100, 2)
+        length_px = int(max(bw, bh))
+        width_px = round(max(1.0, area / max(length_px, 1)), 1)
+
+        roi_dist_h = dist_to_hole[y:y+bh, x:x+bw]
+        roi_dist_o = dist_to_outer[y:y+bh, x:x+bw]
+        is_near_edge = bool(np.min(roi_dist_h) < 8 or np.min(roi_dist_o) < 8)
+
+        if aspect > 1.6 or (bw > 35 and bh < 25) or (bh > 35 and bw < 25):
+            dtype = "major_crack" if (aspect > 2.0 or area_pct_of_ring > 0.25 or length_px > 70) else "thin_crack"
+            sev = "critical" if dtype == "major_crack" else "medium"
+        elif is_near_edge and (bw > 25 or bh > 25):
+            dtype = "edge_deformation" if area_pct_of_ring > 1.2 else "edge_spall"
+            sev = "critical" if dtype == "edge_deformation" else "medium"
+        elif mean_val < 70 or min_val < 40:
+            dtype = "cavity"
+            sev = "medium" if area > 250 else "low"
+        elif area > 500:
+            dtype = "spalling"
+            sev = "medium"
+        else:
+            dtype = "surface_erosion"
+            sev = "low"
+
+        conf = float(min(0.96, 0.65 + (area_pct_of_ring * 0.15) + (0.15 if aspect > 2.0 else 0.05)))
+
+        px_to_mm = 1.25
+        est_length_mm = int(length_px * px_to_mm)
+        est_opening_mm = round(max(0.4, width_px * px_to_mm * 0.15), 1) if "crack" in dtype else None
+
+        raw_defects.append({
+            "bbox": [int(x1), int(y1), int(x2), int(y2)],
+            "polygon": [[int(pt[0]), int(pt[1])] for pt in poly],
+            "type": DEFECT_RU_TITLES.get(dtype, dtype),
+            "defect_type": dtype,
+            "severity": sev,
+            "confidence": float(round(conf, 2)),
+            "area": int(area),
+            "area_percent": float(area_pct_of_ring),
+            "length_mm": est_length_mm,
+            "opening_mm": est_opening_mm,
+            "description": f"{DEFECT_RU_TITLES.get(dtype, dtype)} — {int(x2-x1)}×{int(y2-y1)}px (~{est_length_mm}мм)" + (f", раскрытие ~{est_opening_mm}мм" if est_opening_mm else "") + f", {area_pct_of_ring}% площади кольца",
+        })
 
     def iou(b1, b2):
         ix1, iy1 = max(b1[0], b2[0]), max(b1[1], b2[1])
@@ -207,16 +145,29 @@ def scan_defects(image: np.ndarray, sensitivity: float = 0.65) -> Dict[str, Any]
         return inter / min(a1, a2)
 
     clean_defects = []
-    for cand in sorted(candidates, key=lambda c: c["area"], reverse=True):
+    for cand in sorted(raw_defects, key=lambda c: c["area"], reverse=True):
         if not any(iou(cand["bbox"], cd["bbox"]) > 0.25 for cd in clean_defects):
             clean_defects.append(cand)
 
-    sev_rank = {"critical": 4, "high": 3, "medium": 2, "low": 1}
-    clean_defects.sort(key=lambda d: (sev_rank.get(d["severity"], 0), d["area_percent"]), reverse=True)
-    clean_defects = clean_defects[:8]
-
+    sev_order = {"critical": 3, "medium": 2, "low": 1}
+    clean_defects.sort(key=lambda d: (sev_order.get(d["severity"], 0), d["area"]), reverse=True)
+    clean_defects = clean_defects[:10]
     for idx, d in enumerate(clean_defects):
         d["id"] = idx + 1
+
+    # 3. Structure zones: Intact concrete body
+    intact_concrete_mask = ring_mask & (~all_defect_mask)
+    intact_clean = cv2.morphologyEx(intact_concrete_mask.astype(np.uint8), cv2.MORPH_OPEN, np.ones((7, 7), np.uint8))
+    intact_polys = extract_polygons(intact_clean, min_area=int(total_pixels * 0.02), approx_eps=0.006)
+
+    structure_zones = []
+    for ip in intact_polys:
+        structure_zones.append({
+            "name": "Тело бетонного кольца (Intact Concrete Ring)",
+            "type": "intact_concrete",
+            "polygon": ip,
+            "color": [0, 200, 83, 75],
+        })
 
     annotated = _draw_annotations(image.copy(), clean_defects, structure_zones)
 
@@ -231,8 +182,8 @@ def scan_defects(image: np.ndarray, sensitivity: float = 0.65) -> Dict[str, Any]
         s = d["severity"]
         sev_counts[s] = sev_counts.get(s, 0) + 1
 
-    max_sev = max(sev_counts.keys(), key=lambda s: sev_rank.get(s, 0)) if sev_counts else "low"
-    logger.info(f"[CV Scanner v15.0] Found {len(clean_defects)} defects strictly on ring, max_severity={max_sev}")
+    max_sev = max(sev_counts.keys(), key=lambda s: sev_order.get(s, 0)) if sev_counts else "low"
+    logger.info(f"[CV Scanner v16.0] Detected {len(clean_defects)} defects, max_severity={max_sev}")
 
     return {
         "defects": clean_defects,
@@ -262,24 +213,30 @@ def _draw_annotations(image: np.ndarray, defects: List[Dict], structure_zones: L
         font = ImageFont.load_default()
         small_font = font
 
-    # 1. Intact ring overlay
+    # 1. Draw intact concrete body
     if structure_zones:
         for sz in structure_zones:
             pts = [tuple(p) for p in sz.get("polygon", [])]
             if len(pts) >= 3:
-                draw.polygon(pts, fill=(45, 205, 85, 45), outline=(45, 220, 90, 160))
+                draw.polygon(pts, fill=(0, 200, 83, 65), outline=(0, 230, 90, 160))
 
-    # 2. Defect polygons & callouts
+    # 2. Draw defects
     for d in defects:
         x1, y1, x2, y2 = d["bbox"]
         sev = d["severity"]
-        color = SEV_COLORS.get(sev, (230, 180, 20))
-        conf = d["confidence"]
         dtype = d["type"]
+        conf = d["confidence"]
+
+        if sev == "critical" or "трещина" in dtype.lower() or "разлом" in dtype.lower():
+            color = (255, 23, 68)
+        elif "скол" in dtype.lower() or "деформация" in dtype.lower():
+            color = (255, 214, 0)
+        else:
+            color = (255, 145, 0)
 
         pts = [tuple(p) for p in d.get("polygon", [])]
         if len(pts) >= 3:
-            draw.polygon(pts, fill=(*color, 95), outline=(*color, 255))
+            draw.polygon(pts, fill=(*color, 140), outline=(*color, 255))
 
         draw.rectangle([x1, y1, x2, y2], fill=(*color, 20), outline=(*color, 230), width=2)
 
