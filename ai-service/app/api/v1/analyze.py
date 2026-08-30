@@ -300,62 +300,57 @@ async def defect_scan(
     result = None
     yolo_defects = []
     
-    # Step 1: Try YOLO model (trained, accurate)
-    try:
-        from app.services.yolo_defect_scanner import scan_defects_yolo
-        yolo_result = scan_defects_yolo(image_np, confidence=max(0.1, 0.9 - sensitivity))
-        if yolo_result is not None:
-            yolo_defects = yolo_result["defects"]
-            logger.info(f"[defect-scan] YOLO found {len(yolo_defects)} defects")
-    except Exception as e:
-        logger.warning(f"[defect-scan] YOLO failed: {e}")
-    
-    # Step 2: Always run CV scanner
+    # Step 1: Run refined concrete defect scanner (v5)
     from app.services.cv_defect_scanner import scan_defects
     cv_result = scan_defects(image_np, sensitivity=sensitivity)
-    cv_defects = cv_result["defects"]
-    logger.info(f"[defect-scan] CV found {len(cv_defects)} defects")
-    
-    # Step 3: Merge — use CV as base, add non-overlapping YOLO detections
-    all_defects = list(cv_defects)
-    for yd in yolo_defects:
-        yb = yd["bbox"]
-        overlaps = False
-        for cd in all_defects:
-            cb = cd["bbox"]
-            ix1 = max(yb[0], cb[0]); iy1 = max(yb[1], cb[1])
-            ix2 = min(yb[2], cb[2]); iy2 = min(yb[3], cb[3])
-            inter = max(0, ix2 - ix1) * max(0, iy2 - iy1)
-            area1 = (yb[2]-yb[0]) * (yb[3]-yb[1])
-            area2 = (cb[2]-cb[0]) * (cb[3]-cb[1])
-            union = area1 + area2 - inter
-            if union > 0 and inter / union > 0.2:
-                overlaps = True
-                break
-        if not overlaps:
-            all_defects.append(yd)
-    
-    # Re-number
+    all_defects = list(cv_result["defects"])
+
+    # Step 2: Try YOLO model if available for additional specialized crack bboxes
+    try:
+        from app.services.yolo_defect_scanner import scan_defects_yolo
+        yolo_result = scan_defects_yolo(image_np, confidence=max(0.20, 0.9 - sensitivity))
+        if yolo_result is not None and yolo_result["defects"]:
+            for yd in yolo_result["defects"]:
+                yb = yd["bbox"]
+                overlaps = False
+                for cd in all_defects:
+                    cb = cd["bbox"]
+                    ix1, iy1 = max(yb[0], cb[0]), max(yb[1], cb[1])
+                    ix2, iy2 = min(yb[2], cb[2]), min(yb[3], cb[3])
+                    inter = max(0, ix2 - ix1) * max(0, iy2 - iy1)
+                    a1 = (yb[2]-yb[0]) * (yb[3]-yb[1])
+                    a2 = (cb[2]-cb[0]) * (cb[3]-cb[1])
+                    union = a1 + a2 - inter
+                    if union > 0 and inter / min(a1, a2) > 0.25:
+                        overlaps = True
+                        break
+                if not overlaps:
+                    all_defects.append(yd)
+    except Exception as e:
+        logger.warning(f"[defect-scan] YOLO optional pass skipped: {e}")
+
+    # Re-order and re-number
+    sev_order = {"critical": 4, "high": 3, "medium": 2, "low": 1}
+    all_defects.sort(key=lambda d: (sev_order.get(d["severity"], 0), d.get("area_percent", 0)), reverse=True)
     for i, d in enumerate(all_defects):
         d["id"] = i + 1
-    
-    # Re-draw all annotations on clean image (avoid double-drawn boxes)
+
+    # Re-draw clean annotations on clean original image
     from app.services.cv_defect_scanner import _draw_annotations
     annotated = _draw_annotations(image_np.copy(), all_defects)
     pil_out = Image.fromarray(annotated)
     buf = io.BytesIO()
-    pil_out.save(buf, format="JPEG", quality=90)
+    pil_out.save(buf, format="JPEG", quality=92)
     b64 = base64.b64encode(buf.getvalue()).decode()
     annotated_b64 = f"data:image/jpeg;base64,{b64}"
-    
+
     # Build summary
     sev_counts = {}
     for d in all_defects:
         s = d["severity"]
         sev_counts[s] = sev_counts.get(s, 0) + 1
-    sev_order = {"critical": 4, "high": 3, "medium": 2, "low": 1}
     max_sev = max(sev_counts.keys(), key=lambda s: sev_order.get(s, 0)) if sev_counts else "low"
-    
+
     result = {
         "defects": all_defects,
         "annotated_image": annotated_b64,
