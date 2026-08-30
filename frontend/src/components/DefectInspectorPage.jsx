@@ -15,6 +15,10 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
   const [annotatedImage, setAnnotatedImage] = useState(null);
   const [defectMarkers, setDefectMarkers] = useState([]);
   const [severitySummary, setSeveritySummary] = useState(null);
+  const [structureZones, setStructureZones] = useState([]);
+  const [showIntactLayer, setShowIntactLayer] = useState(true);
+  const [showCriticalLayer, setShowCriticalLayer] = useState(true);
+  const [showMediumLayer, setShowMediumLayer] = useState(true);
   const [createdDefectOrder, setCreatedDefectOrder] = useState(null);
   const [toastMessage, setToastMessage] = useState(null);
   const [lightboxSrc, setLightboxSrc] = useState(null);
@@ -236,16 +240,21 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
       if (data.defect_severity_summary) {
         setSeveritySummary(data.defect_severity_summary);
       }
+      if (data.structure_zones) {
+        setStructureZones(data.structure_zones);
+      }
       
       // Build defect markers for client-side overlay
-      const items = data.defects?.items || data.defects?.detections || [];
+      const items = data.defects?.items || data.defects?.detections || (Array.isArray(data.defects) ? data.defects : []);
       if (items.length > 0) {
         setDefectMarkers(items.map((d, i) => ({
           id: i + 1,
           bbox: d.bbox || d.bounding_box || [0, 0, 50, 50],
+          polygon: d.polygon || null,
           type: d.type || d.class_name || d.defect_type || 'defect',
           severity: d.severity || 'medium',
           confidence: d.confidence || d.score || 0,
+          area_percent: d.area_percent || 0,
           description: d.description || '',
         })));
       }
@@ -491,11 +500,52 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
             </div>
           )}
           
-          {/* Annotated Image — already has bboxes drawn by Python CV scanner */}
+          {/* Layer Controls Toolbar */}
+          <div style={{ display: 'flex', gap: '8px', padding: '0 20px 12px', flexWrap: 'wrap', alignItems: 'center' }}>
+            <span style={{ color: '#94a3b8', fontSize: '0.84rem', fontWeight: 700, marginRight: '4px' }}>Слои:</span>
+            <button
+              type="button"
+              onClick={() => setShowIntactLayer(!showIntactLayer)}
+              style={{
+                background: showIntactLayer ? 'rgba(40,200,80,0.2)' : 'rgba(255,255,255,0.05)',
+                border: `1px solid ${showIntactLayer ? '#34d399' : 'rgba(255,255,255,0.15)'}`,
+                color: showIntactLayer ? '#34d399' : '#64748b',
+                borderRadius: '8px', padding: '4px 10px', fontSize: '0.82rem', fontWeight: 700, cursor: 'pointer',
+              }}
+            >
+              🟢 Целое кольцо
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowCriticalLayer(!showCriticalLayer)}
+              style={{
+                background: showCriticalLayer ? 'rgba(255,40,40,0.2)' : 'rgba(255,255,255,0.05)',
+                border: `1px solid ${showCriticalLayer ? '#f87171' : 'rgba(255,255,255,0.15)'}`,
+                color: showCriticalLayer ? '#f87171' : '#64748b',
+                borderRadius: '8px', padding: '4px 10px', fontSize: '0.82rem', fontWeight: 700, cursor: 'pointer',
+              }}
+            >
+              🔴 Разломы / Трещины
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowMediumLayer(!showMediumLayer)}
+              style={{
+                background: showMediumLayer ? 'rgba(255,200,0,0.2)' : 'rgba(255,255,255,0.05)',
+                border: `1px solid ${showMediumLayer ? '#fbbf24' : 'rgba(255,255,255,0.15)'}`,
+                color: showMediumLayer ? '#fbbf24' : '#64748b',
+                borderRadius: '8px', padding: '4px 10px', fontSize: '0.82rem', fontWeight: 700, cursor: 'pointer',
+              }}
+            >
+              🟡 Зоны сколов
+            </button>
+          </div>
+
+          {/* Annotated Image — with interactive zoom */}
           {annotatedImage && (
             <div className="di-defect-image-wrap" onClick={() => setLightboxSrc(annotatedImage)}>
-              <img src={annotatedImage} alt="Дефекты с разметкой" />
-              <span className="di-zoom-hint">🔍 Нажмите для увеличения</span>
+              <img src={annotatedImage} alt="Дефекты с полигональной разметкой" />
+              <span className="di-zoom-hint">🔍 Нажмите для полноэкранного просмотра полигонов</span>
             </div>
           )}
 
