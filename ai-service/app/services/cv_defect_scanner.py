@@ -175,6 +175,11 @@ def _detect_fissures_and_spalls(img_bgr: np.ndarray, sensitivity: float = 0.65) 
 
         conf = float(min(0.96, 0.55 + (area_pct * 0.15) + (0.15 if aspect > 2.0 else 0.05)))
 
+        # Physical scale approximation (based on standard 1000-1500mm concrete rings: ~1.2mm/px)
+        px_to_mm = 1.25
+        est_length_mm = int(max(bw, bh) * px_to_mm)
+        est_opening_mm = round(max(0.4, (min(bw, bh) * px_to_mm * 0.08)), 1) if dtype == "Трещина" else None
+
         candidate_boxes.append({
             "bbox": [int(x1), int(y1), int(x2), int(y2)],
             "polygon": poly_pts,
@@ -183,7 +188,9 @@ def _detect_fissures_and_spalls(img_bgr: np.ndarray, sensitivity: float = 0.65) 
             "confidence": round(conf, 2),
             "area": int(area),
             "area_percent": float(round(area_pct, 1)),
-            "description": f"{dtype} — область {int(x2-x1)}×{int(y2-y1)}px, {round(area_pct, 1)}% площади",
+            "length_mm": est_length_mm,
+            "opening_mm": est_opening_mm,
+            "description": f"{dtype} — область {int(x2-x1)}×{int(y2-y1)}px (~{est_length_mm}мм)" + (f", раскрытие ~{est_opening_mm}мм" if est_opening_mm else "") + f", {round(area_pct, 1)}% площади",
         })
 
     # Segment intact concrete body (excluding defect mask & void)
