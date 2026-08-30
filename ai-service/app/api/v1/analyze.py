@@ -301,20 +301,31 @@ async def defect_scan(
     result = None
     yolo_defects = []
     
-    # Step 1: Run refined concrete defect scanner (v8.0 Geometric Ring & Fracture Edition)
-    from app.services.cv_defect_scanner import scan_defects
+    # Step 1: Check Direct Roboflow Inference first
+    from app.models.roboflow_detector import get_roboflow_detector
+    rf_detector = get_roboflow_detector()
+    rf_defects = []
+    if rf_detector.is_configured():
+        rf_defects = rf_detector.infer(image_np, confidence=sensitivity * 0.5, prompt=prompt)
+
+    # Step 2: Dynamic CV / Deep Feature Analysis
+    from app.services.cv_defect_scanner import scan_defects, _draw_annotations
     cv_result = scan_defects(image_np, sensitivity=sensitivity)
-    all_defects = list(cv_result["defects"])
+    
+    if rf_defects:
+        all_defects = rf_defects
+        logger.info(f"[DefectScan] Using {len(rf_defects)} defects directly from Roboflow model")
+        # Draw on image with solid ring
+        annotated_mat = _draw_annotations(image_np.copy(), all_defects)
+        pil_out = Image.fromarray(annotated_mat)
+        buf = io.BytesIO()
+        pil_out.save(buf, format="JPEG", quality=92)
+        annotated_b64 = f"data:image/jpeg;base64,{base64.b64encode(buf.getvalue()).decode()}"
+    else:
+        all_defects = list(cv_result["defects"])
+        annotated_b64 = cv_result["annotated_image"]
+
     structure_zones = cv_result.get("structure_zones", [])
-
-    # Re-order and re-number
-    sev_order = {"critical": 4, "high": 3, "medium": 2, "low": 1}
-    all_defects.sort(key=lambda d: (sev_order.get(d["severity"], 0), d.get("area_percent", 0)), reverse=True)
-    for i, d in enumerate(all_defects):
-        d["id"] = i + 1
-
-    # Use high-quality dense annotated image from cv_result directly
-    annotated_b64 = cv_result["annotated_image"]
 
     # Build summary
     sev_counts = {}
