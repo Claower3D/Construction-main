@@ -6,6 +6,7 @@ Pipeline: RF-DETR → SAM → Qwen2.5-VL → AutoEstimator
 """
 
 import io
+import base64
 import time
 from typing import Optional, List, Dict, Any
 import numpy as np
@@ -305,50 +306,61 @@ async def defect_scan(
         yolo_result = scan_defects_yolo(image_np, confidence=max(0.1, 0.9 - sensitivity))
         if yolo_result is not None:
             yolo_defects = yolo_result["defects"]
-            if yolo_defects:
-                result = yolo_result
             logger.info(f"[defect-scan] YOLO found {len(yolo_defects)} defects")
     except Exception as e:
         logger.warning(f"[defect-scan] YOLO failed: {e}")
     
-    # Step 2: Also run CV scanner to catch things YOLO might miss
+    # Step 2: Always run CV scanner
     from app.services.cv_defect_scanner import scan_defects
     cv_result = scan_defects(image_np, sensitivity=sensitivity)
     cv_defects = cv_result["defects"]
     logger.info(f"[defect-scan] CV found {len(cv_defects)} defects")
     
-    # If YOLO had no results, use CV as primary
-    if result is None:
-        result = cv_result
-    elif cv_defects:
-        # Merge: add CV defects that don't overlap with YOLO detections
-        existing_bboxes = [d["bbox"] for d in result["defects"]]
-        for cd in cv_defects:
+    # Step 3: Merge — use CV as base, add non-overlapping YOLO detections
+    all_defects = list(cv_defects)
+    for yd in yolo_defects:
+        yb = yd["bbox"]
+        overlaps = False
+        for cd in all_defects:
             cb = cd["bbox"]
-            overlaps = False
-            for eb in existing_bboxes:
-                # Check IoU > 30%
-                ix1 = max(cb[0], eb[0]); iy1 = max(cb[1], eb[1])
-                ix2 = min(cb[2], eb[2]); iy2 = min(cb[3], eb[3])
-                inter = max(0, ix2 - ix1) * max(0, iy2 - iy1)
-                area1 = (cb[2]-cb[0]) * (cb[3]-cb[1])
-                area2 = (eb[2]-eb[0]) * (eb[3]-eb[1])
-                union = area1 + area2 - inter
-                if union > 0 and inter / union > 0.3:
-                    overlaps = True
-                    break
-            if not overlaps:
-                result["defects"].append(cd)
-        # Re-number and update summary
-        for i, d in enumerate(result["defects"]):
-            d["id"] = i + 1
-        sev_counts = {}
-        for d in result["defects"]:
-            s = d["severity"]
-            sev_counts[s] = sev_counts.get(s, 0) + 1
-        sev_order = {"critical": 4, "high": 3, "medium": 2, "low": 1}
-        max_sev = max(sev_counts.keys(), key=lambda s: sev_order.get(s, 0)) if sev_counts else "low"
-        result["severity_summary"] = {"total": len(result["defects"]), "by_severity": sev_counts, "max_severity": max_sev}
+            ix1 = max(yb[0], cb[0]); iy1 = max(yb[1], cb[1])
+            ix2 = min(yb[2], cb[2]); iy2 = min(yb[3], cb[3])
+            inter = max(0, ix2 - ix1) * max(0, iy2 - iy1)
+            area1 = (yb[2]-yb[0]) * (yb[3]-yb[1])
+            area2 = (cb[2]-cb[0]) * (cb[3]-cb[1])
+            union = area1 + area2 - inter
+            if union > 0 and inter / union > 0.2:
+                overlaps = True
+                break
+        if not overlaps:
+            all_defects.append(yd)
+    
+    # Re-number
+    for i, d in enumerate(all_defects):
+        d["id"] = i + 1
+    
+    # Re-draw all annotations on clean image (avoid double-drawn boxes)
+    from app.services.cv_defect_scanner import _draw_annotations
+    annotated = _draw_annotations(image_np.copy(), all_defects)
+    pil_out = Image.fromarray(annotated)
+    buf = io.BytesIO()
+    pil_out.save(buf, format="JPEG", quality=90)
+    b64 = base64.b64encode(buf.getvalue()).decode()
+    annotated_b64 = f"data:image/jpeg;base64,{b64}"
+    
+    # Build summary
+    sev_counts = {}
+    for d in all_defects:
+        s = d["severity"]
+        sev_counts[s] = sev_counts.get(s, 0) + 1
+    sev_order = {"critical": 4, "high": 3, "medium": 2, "low": 1}
+    max_sev = max(sev_counts.keys(), key=lambda s: sev_order.get(s, 0)) if sev_counts else "low"
+    
+    result = {
+        "defects": all_defects,
+        "annotated_image": annotated_b64,
+        "severity_summary": {"total": len(all_defects), "by_severity": sev_counts, "max_severity": max_sev},
+    }
     
     # Format response
     defect_items = result["defects"]

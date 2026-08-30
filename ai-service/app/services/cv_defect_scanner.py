@@ -194,6 +194,68 @@ def _find_regions(binary: np.ndarray, min_area: int, max_area: int) -> List[Tupl
     return regions
 
 
+def _is_earth_region(img: np.ndarray, x1: int, y1: int, x2: int, y2: int) -> bool:
+    """
+    Check if region is predominantly earth/soil/dirt (not concrete).
+    Earth is brown/orange/tan with warm tones and high color variance.
+    """
+    region = img[y1:y2, x1:x2]
+    if region.size == 0:
+        return False
+    
+    r = region[:, :, 0].astype(np.float32)
+    g = region[:, :, 1].astype(np.float32)
+    b = region[:, :, 2].astype(np.float32)
+    
+    r_mean, g_mean, b_mean = r.mean(), g.mean(), b.mean()
+    
+    # Earth characteristics: warm colors (R > B), brownish
+    is_warm = r_mean > b_mean + 15
+    is_brownish = r_mean > 80 and g_mean > 50 and b_mean < r_mean - 10
+    
+    # Earth has high color variance (texture of dirt/stones)
+    color_var = r.std() + g.std() + b.std()
+    high_variance = color_var > 60
+    
+    # Concrete is gray: R ≈ G ≈ B with low saturation
+    max_diff = max(abs(r_mean - g_mean), abs(r_mean - b_mean), abs(g_mean - b_mean))
+    is_gray = max_diff < 25
+    
+    # If it's warm+brownish+varied → earth
+    if is_warm and is_brownish and high_variance and not is_gray:
+        return True
+    
+    return False
+
+
+def _is_uniform_concrete(img: np.ndarray, gray: np.ndarray, x1: int, y1: int, x2: int, y2: int) -> bool:
+    """
+    Check if region is smooth uniform concrete with no actual defect.
+    Uniform concrete has low gradient variance and grayish tone.
+    """
+    g_region = gray[y1:y2, x1:x2].astype(np.float32)
+    if g_region.size < 100:
+        return False
+    
+    # Low standard deviation = uniform surface
+    if g_region.std() < 15:
+        return True
+    
+    # Check if region has no strong edges (all pixels similar brightness)
+    edge_count = 0
+    total_pixels = g_region.shape[0] * g_region.shape[1]
+    # Simple check: count pixels that differ a lot from their neighbors
+    if g_region.shape[0] > 2 and g_region.shape[1] > 2:
+        diff_v = np.abs(g_region[1:, :] - g_region[:-1, :])
+        diff_h = np.abs(g_region[:, 1:] - g_region[:, :-1])
+        edge_count = (diff_v > 30).sum() + (diff_h > 30).sum()
+        edge_ratio = edge_count / max(total_pixels, 1)
+        if edge_ratio < 0.02:
+            return True
+    
+    return False
+
+
 def _classify_region(img: np.ndarray, x1: int, y1: int, x2: int, y2: int, area: int, total_area: int) -> Dict[str, Any]:
     """Classify a detected region."""
     bw = x2 - x1
@@ -207,30 +269,35 @@ def _classify_region(img: np.ndarray, x1: int, y1: int, x2: int, y2: int, area: 
     brightness = sum(mean_val[:3]) / 3 / 255
     
     r_mean = mean_val[0] if len(mean_val) >= 3 else 128
+    g_mean = mean_val[1] if len(mean_val) >= 3 else 128
     b_mean = mean_val[2] if len(mean_val) >= 3 else 128
     
     # Classification logic
-    if aspect > 2.5 and fill_ratio < 0.4:
+    if aspect > 2.0 and fill_ratio < 0.5:
         # Elongated + sparse fill = CRACK
         defect_type = "Трещина"
-        if aspect > 5 or area_ratio > 0.03:
+        if aspect > 4 or area_ratio > 0.02:
             severity = "critical"
-        elif area_ratio > 0.01:
+        elif area_ratio > 0.005:
             severity = "high"
         else:
             severity = "medium"
     elif brightness < 0.2:
         defect_type = "Глубокое повреждение"
-        severity = "critical" if area_ratio > 0.02 else "high"
+        severity = "critical" if area_ratio > 0.01 else "high"
     elif r_mean > b_mean + 40 and r_mean > 120:
-        defect_type = "Коррозия / ржавчина"
+        # Check if this is actual rust vs just earth
+        if r_mean > b_mean + 60 and g_mean < r_mean - 30:
+            defect_type = "Коррозия / ржавчина"
+        else:
+            defect_type = "Повреждение бетона"
         severity = "high" if area_ratio > 0.02 else "medium"
-    elif area_ratio > 0.04:
+    elif area_ratio > 0.03:
         defect_type = "Отслоение / сколы"
-        severity = "high" if area_ratio > 0.08 else "medium"
+        severity = "high" if area_ratio > 0.06 else "medium"
     else:
         defect_type = "Дефект поверхности"
-        severity = "low"
+        severity = "medium" if area_ratio > 0.005 else "low"
     
     confidence = min(0.97, 0.45 + area_ratio * 8 + (0.15 if aspect > 3 else 0))
     
@@ -309,8 +376,9 @@ def scan_defects(image: np.ndarray, sensitivity: float = 0.5) -> Dict[str, Any]:
     # Sort by area descending, keep top 10 (was 6)
     all_regions = sorted(all_regions, key=lambda r: r[4], reverse=True)[:10]
     
-    # 4. Classify each
+    # 4. Classify each (with filters for false positives)
     defects = []
+    gray_for_filter = gray
     for i, (x1, y1, x2, y2, area) in enumerate(all_regions):
         # Add small padding
         pad = max(4, int(min(x2 - x1, y2 - y1) * 0.05))
@@ -319,10 +387,20 @@ def scan_defects(image: np.ndarray, sensitivity: float = 0.5) -> Dict[str, Any]:
         px2 = min(w, x2 + pad)
         py2 = min(h, y2 + pad)
         
+        # --- FILTER: Skip earth/soil regions (not construction defects) ---
+        if _is_earth_region(image, px1, py1, px2, py2):
+            logger.debug(f"[CV Scanner] Skipped region {i}: earth/soil")
+            continue
+        
+        # --- FILTER: Skip uniform concrete (no actual damage) ---
+        if _is_uniform_concrete(image, gray_for_filter, px1, py1, px2, py2):
+            logger.debug(f"[CV Scanner] Skipped region {i}: uniform concrete")
+            continue
+        
         info = _classify_region(image, px1, py1, px2, py2, area, total_area)
         
         defects.append({
-            "id": i + 1,
+            "id": len(defects) + 1,
             "bbox": [px1, py1, px2, py2],
             "type": info["type"],
             "severity": info["severity"],

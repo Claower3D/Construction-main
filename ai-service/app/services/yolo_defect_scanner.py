@@ -158,6 +158,21 @@ def scan_defects_yolo(image: np.ndarray, confidence: float = 0.25) -> Optional[D
             logger.debug(f"[YOLO] Rejected box {i}: spans >50% of dimension ({bw}x{bh})")
             continue
         
+        # --- FILTER 5: Reject earth/soil regions ---
+        roi_color = image[max(0,y1):min(h,y2), max(0,x1):min(w,x2)]
+        if roi_color.size > 0 and len(roi_color.shape) == 3:
+            r_m = roi_color[:,:,0].astype(float).mean()
+            g_m = roi_color[:,:,1].astype(float).mean()
+            b_m = roi_color[:,:,2].astype(float).mean()
+            is_warm = r_m > b_m + 15
+            is_brown = r_m > 80 and g_m > 50 and b_m < r_m - 10
+            color_var = roi_color[:,:,0].astype(float).std() + roi_color[:,:,1].astype(float).std() + roi_color[:,:,2].astype(float).std()
+            max_diff = max(abs(r_m - g_m), abs(r_m - b_m), abs(g_m - b_m))
+            is_gray = max_diff < 25
+            if is_warm and is_brown and color_var > 60 and not is_gray:
+                logger.debug(f"[YOLO] Rejected box {i}: earth/soil (R={r_m:.0f} G={g_m:.0f} B={b_m:.0f})")
+                continue
+        
         defect_type = CLASS_NAMES_RU.get(cls_id, f"Дефект #{cls_id}")
         severity = CLASS_SEVERITY.get(cls_id, "medium")
         
