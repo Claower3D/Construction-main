@@ -19,6 +19,9 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
   const [showIntactLayer, setShowIntactLayer] = useState(true);
   const [showCriticalLayer, setShowCriticalLayer] = useState(true);
   const [showMediumLayer, setShowMediumLayer] = useState(true);
+  const [sensitivity, setSensitivity] = useState(0.65);
+  const [selectedDefectId, setSelectedDefectId] = useState(null);
+  const [lightboxZoom, setLightboxZoom] = useState(1);
   const [createdDefectOrder, setCreatedDefectOrder] = useState(null);
   const [toastMessage, setToastMessage] = useState(null);
   const [lightboxSrc, setLightboxSrc] = useState(null);
@@ -75,8 +78,102 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
     return map[sev] || sev || '3 класс — Требует устранения';
   };
 
+  const handlePrintTechnicalAct = () => {
+    if (!report) return;
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      showToast('⚠️ Разрешите всплывающие окна для печати Акта');
+      return;
+    }
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html lang="ru">
+      <head>
+        <meta charset="utf-8">
+        <title>Акт технического обследования № ${report.id}</title>
+        <style>
+          body { font-family: 'Segoe UI', Arial, sans-serif; margin: 30px; color: #1e293b; line-height: 1.5; font-size: 13px; }
+          .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #0f172a; padding-bottom: 12px; margin-bottom: 20px; }
+          .logo { font-size: 20px; font-weight: 900; color: #0284c7; }
+          .title { font-size: 16px; font-weight: 800; text-align: center; margin: 15px 0; text-transform: uppercase; }
+          .meta-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+          .meta-table td { padding: 6px 10px; border: 1px solid #cbd5e1; }
+          .meta-table td.label { background: #f8fafc; font-weight: 700; width: 30%; }
+          .image-box { text-align: center; margin: 20px 0; }
+          .image-box img { max-width: 100%; max-height: 380px; border: 1px solid #94a3b8; border-radius: 6px; }
+          .defects-table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+          .defects-table th { background: #0f172a; color: #fff; padding: 8px; text-align: left; font-size: 12px; }
+          .defects-table td { border: 1px solid #cbd5e1; padding: 8px; font-size: 12px; }
+          .stamp-box { display: flex; justify-content: space-between; margin-top: 40px; padding-top: 20px; border-top: 1px dashed #94a3b8; }
+          .stamp { width: 120px; height: 120px; border: 2px dashed #0284c7; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-align: center; color: #0284c7; font-size: 10px; font-weight: 700; transform: rotate(-10deg); }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <div class="logo">QAZGOST AI • ТЕХНАДЗОР РК</div>
+          <div><strong>АКТ ОБСЛЕДОВАНИЯ № ${report.id}</strong><br><small>Дата: ${report.date}</small></div>
+        </div>
+        <div class="title">Акт инструментального дефектоскопического обследования</div>
+        <table class="meta-table">
+          <tr><td class="label">Объект:</td><td>${report.address}</td></tr>
+          <tr><td class="label">Заказчик:</td><td>${report.clientName} (${report.clientPhone})</td></tr>
+          <tr><td class="label">Вид дефекта:</td><td><strong>${report.defectType}</strong></td></tr>
+          <tr><td class="label">Класс опасности (СНиП РК):</td><td>${report.severity}</td></tr>
+          <tr><td class="label">Нормативный документ:</td><td>${report.snipCode}</td></tr>
+          <tr><td class="label">Рекомендуемый метод:</td><td>${report.fixMethod}</td></tr>
+          <tr><td class="label">Ориентировочная стоимость:</td><td><strong>${report.estimatedCost}</strong></td></tr>
+        </table>
+        ${annotatedImage ? `
+          <div class="image-box">
+            <div style="font-weight: 700; margin-bottom: 6px;">Схема дефектоскопии и карта трещин (AI Vision):</div>
+            <img src="${annotatedImage}" alt="Карта дефектов" />
+          </div>
+        ` : ''}
+        <table class="defects-table">
+          <thead>
+            <tr>
+              <th>№</th>
+              <th>Тип дефекта</th>
+              <th>Класс</th>
+              <th>Точность AI</th>
+              <th>Длина / Раскрытие</th>
+              <th>Описание</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${defectMarkers.map(d => `
+              <tr>
+                <td><strong>#${d.id}</strong></td>
+                <td>${d.type}</td>
+                <td>${d.severity ? d.severity.toUpperCase() : 'СРЕДНИЙ'}</td>
+                <td>${(d.confidence * 100).toFixed(0)}%</td>
+                <td>${d.length_mm ? `${d.length_mm} мм` : '—'} / ${d.opening_mm ? `${d.opening_mm} мм` : '—'}</td>
+                <td>${d.description || '—'}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+        <div class="stamp-box">
+          <div>
+            <p><strong>Инженер инструментального контроля:</strong> ________________ / Нурланов А. М.</p>
+            <p><strong>Технический надзор:</strong> Сертификат эксперта № KZ-0982-ENG</p>
+          </div>
+          <div class="stamp">
+            ЭКСПЕРТИЗА<br>ПРОЙДЕНА<br>QAZGOST AI<br>ТЕХНАДЗОР
+          </div>
+        </div>
+        <script>
+          window.onload = function() { window.print(); }
+        </script>
+      </body>
+      </html>
+    `;
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+  };
+
   const handleRunInspection = async (e) => {
-    e.preventDefault();
+    if (e && e.preventDefault) e.preventDefault();
 
     if (photos.length === 0) {
       showToast('⚠️ Пожалуйста, загрузите хотя бы 1 фото дефекта');
@@ -123,7 +220,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
 
         try {
           const queryParams = new URLSearchParams({
-            sensitivity: '0.65',
+            sensitivity: sensitivity.toString(),
             prompt: aiDescription || ''
           });
           const aiRes = await fetch(`/api/v1/defect-scan?${queryParams.toString()}`, {
@@ -460,6 +557,73 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
           </div>
         </div>
 
+        {/* Sensitivity & Detection Level Toolbar */}
+        <div style={{
+          background: 'rgba(15, 23, 42, 0.65)',
+          border: '1px solid rgba(56, 189, 248, 0.25)',
+          borderRadius: '12px',
+          padding: '14px 16px',
+          marginBottom: '1.25rem',
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+            <span style={{ color: '#e2e8f0', fontSize: '0.88rem', fontWeight: 800 }}>
+              🎛️ Чувствительность нейросканера: <span style={{ color: '#38bdf8' }}>{Math.round(sensitivity * 100)}%</span>
+            </span>
+            <span style={{ color: '#94a3b8', fontSize: '0.78rem' }}>
+              {sensitivity <= 0.5 ? '🔴 Только аварийные разломы' : sensitivity <= 0.75 ? '⚖️ Стандарт СНиП' : '🔬 Микротрещины и каверны'}
+            </span>
+          </div>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <input 
+              type="range" 
+              min="0.35" 
+              max="0.95" 
+              step="0.05" 
+              value={sensitivity} 
+              onChange={(e) => setSensitivity(parseFloat(e.target.value))}
+              style={{ flex: 1, accentColor: '#38bdf8', cursor: 'pointer' }}
+            />
+          </div>
+          <div style={{ display: 'flex', gap: '6px', marginTop: '10px', flexWrap: 'wrap' }}>
+            <button
+              type="button"
+              onClick={() => setSensitivity(0.45)}
+              style={{
+                background: sensitivity === 0.45 ? 'rgba(239,68,68,0.25)' : 'rgba(255,255,255,0.05)',
+                border: `1px solid ${sensitivity === 0.45 ? '#ef4444' : 'rgba(255,255,255,0.1)'}`,
+                color: sensitivity === 0.45 ? '#fca5a5' : '#94a3b8',
+                borderRadius: '6px', padding: '4px 10px', fontSize: '0.76rem', fontWeight: 700, cursor: 'pointer'
+              }}
+            >
+              🔴 Силовые разломы (0.45)
+            </button>
+            <button
+              type="button"
+              onClick={() => setSensitivity(0.65)}
+              style={{
+                background: sensitivity === 0.65 ? 'rgba(56,189,248,0.25)' : 'rgba(255,255,255,0.05)',
+                border: `1px solid ${sensitivity === 0.65 ? '#38bdf8' : 'rgba(255,255,255,0.1)'}`,
+                color: sensitivity === 0.65 ? '#7dd3fc' : '#94a3b8',
+                borderRadius: '6px', padding: '4px 10px', fontSize: '0.76rem', fontWeight: 700, cursor: 'pointer'
+              }}
+            >
+              ⚖️ Оптимальный СНиП (0.65)
+            </button>
+            <button
+              type="button"
+              onClick={() => setSensitivity(0.85)}
+              style={{
+                background: sensitivity === 0.85 ? 'rgba(168,85,247,0.25)' : 'rgba(255,255,255,0.05)',
+                border: `1px solid ${sensitivity === 0.85 ? '#a855f7' : 'rgba(255,255,255,0.1)'}`,
+                color: sensitivity === 0.85 ? '#d8b4fe' : '#94a3b8',
+                borderRadius: '6px', padding: '4px 10px', fontSize: '0.76rem', fontWeight: 700, cursor: 'pointer'
+              }}
+            >
+              🔬 Микродефекты (0.85)
+            </button>
+          </div>
+        </div>
+
         {/* Submit Coral Gradient CTA Button */}
         <button 
           className="di-btn-submit"
@@ -605,15 +769,15 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
 
           {/* Annotated Image — with interactive zoom */}
           {annotatedImage && (
-            <div className="di-defect-image-wrap" onClick={() => setLightboxSrc(annotatedImage)}>
+            <div className="di-defect-image-wrap" onClick={() => { setLightboxSrc(annotatedImage); setLightboxZoom(1); }}>
               <img src={annotatedImage} alt="Дефекты с полигональной разметкой" />
-              <span className="di-zoom-hint">🔍 Нажмите для полноэкранного просмотра полигонов</span>
+              <span className="di-zoom-hint">🔍 Нажмите для полноэкранного просмотра и масштабирования</span>
             </div>
           )}
 
           {/* If no annotated image, show original photo */}
           {!annotatedImage && photos.length > 0 && (
-            <div className="di-defect-image-wrap" onClick={() => setLightboxSrc(photos[0]?.url)}>
+            <div className="di-defect-image-wrap" onClick={() => { setLightboxSrc(photos[0]?.url); setLightboxZoom(1); }}>
               <img src={photos[0]?.url} alt="Фото дефекта" />
               <span className="di-zoom-hint">🔍 Нажмите для увеличения</span>
             </div>
@@ -634,17 +798,25 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
                     low: { bg: 'rgba(80,200,80,0.08)', border: 'rgba(80,200,80,0.4)', color: '#66cc66', dot: '#50c850', label: 'НИЗКИЙ' },
                   };
                   const s = sevConfig[marker.severity] || sevConfig.medium;
+                  const isSelected = selectedDefectId === marker.id;
                   
                   return (
-                    <div key={idx} style={{
-                      background: s.bg, 
-                      border: `1.5px solid ${s.border}`,
-                      borderRadius: '12px', 
-                      padding: '14px 18px',
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      gap: '14px',
-                    }}>
+                    <div 
+                      key={idx} 
+                      onClick={() => setSelectedDefectId(isSelected ? null : marker.id)}
+                      style={{
+                        background: isSelected ? 'rgba(56, 189, 248, 0.15)' : s.bg, 
+                        border: isSelected ? '2px solid #38bdf8' : `1.5px solid ${s.border}`,
+                        boxShadow: isSelected ? '0 0 16px rgba(56, 189, 248, 0.4)' : 'none',
+                        borderRadius: '12px', 
+                        padding: '14px 18px',
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: '14px',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease',
+                      }}
+                    >
                       {/* Severity dot with number */}
                       <div style={{
                         width: '40px', height: '40px', borderRadius: '50%',
@@ -662,7 +834,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
                           {marker.type}
                         </div>
                         <div style={{ color: s.color, fontSize: '0.88rem', fontWeight: 700 }}>
-                          {s.label} • Уверенность: {(marker.confidence * 100).toFixed(0)}%
+                          {s.label} • Точность: {(marker.confidence * 100).toFixed(0)}%
                         </div>
                         {marker.description && (
                           <div style={{ color: '#b0bec5', fontSize: '0.85rem', marginTop: '4px' }}>
@@ -671,17 +843,31 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
                         )}
                       </div>
 
-                      {/* Area badge */}
-                      {marker.area_percent > 0 && (
-                        <div style={{
-                          background: 'rgba(255,255,255,0.08)',
-                          borderRadius: '8px', padding: '4px 10px',
-                          color: '#94a3b8', fontSize: '0.82rem', fontWeight: 600,
-                          whiteSpace: 'nowrap', flexShrink: 0,
-                        }}>
-                          {marker.area_percent}% площади
-                        </div>
-                      )}
+                      {/* Dimension metrics */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-end' }}>
+                        {marker.length_mm && (
+                          <div style={{
+                            background: 'rgba(56, 189, 248, 0.15)',
+                            border: '1px solid rgba(56, 189, 248, 0.4)',
+                            borderRadius: '6px', padding: '2px 8px',
+                            color: '#38bdf8', fontSize: '0.78rem', fontWeight: 700,
+                            whiteSpace: 'nowrap',
+                          }}>
+                            ↕ {marker.length_mm} мм
+                          </div>
+                        )}
+                        {marker.opening_mm && (
+                          <div style={{
+                            background: 'rgba(245, 158, 11, 0.15)',
+                            border: '1px solid rgba(245, 158, 11, 0.4)',
+                            borderRadius: '6px', padding: '2px 8px',
+                            color: '#fbbf24', fontSize: '0.78rem', fontWeight: 700,
+                            whiteSpace: 'nowrap',
+                          }}>
+                            ↔ {marker.opening_mm} мм
+                          </div>
+                        )}
+                      </div>
                     </div>
                   );
                 })}
@@ -771,10 +957,10 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
 
                 <button 
                   className="di-btn-pdf"
-                  onClick={() => showToast('📄 PDF-Отчёт скачан на устройство')}
-                  style={{ padding: '14px 16px', borderRadius: '10px', fontSize: '0.9rem' }}
+                  onClick={handlePrintTechnicalAct}
+                  style={{ padding: '14px 16px', borderRadius: '10px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
                 >
-                  📥 Скачать PDF Отчёт
+                  <span>📄 Печать Акта СНиП (PDF)</span>
                 </button>
 
                 <button 
@@ -791,10 +977,49 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
       )}
     </div>
 
-      {/* ===== LIGHTBOX (Full-screen zoom) ===== */}
+      {/* ===== LIGHTBOX (Full-screen zoom & Pan) ===== */}
       {lightboxSrc && (
         <div className="di-lightbox" onClick={() => setLightboxSrc(null)}>
-          <img src={lightboxSrc} alt="Увеличенное фото" onClick={(e) => e.stopPropagation()} />
+          <div style={{ position: 'relative', maxWidth: '90vw', maxHeight: '90vh', overflow: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <img 
+              src={lightboxSrc} 
+              alt="Увеличенное фото" 
+              onClick={(e) => e.stopPropagation()} 
+              style={{ transform: `scale(${lightboxZoom})`, transition: 'transform 0.2s ease', cursor: lightboxZoom > 1 ? 'grab' : 'zoom-in' }}
+            />
+            {/* Zoom Controls HUD */}
+            <div 
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                position: 'fixed', bottom: '24px', left: '50%', transform: 'translateX(-50%)',
+                background: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(12px)',
+                border: '1px solid rgba(255,255,255,0.2)', borderRadius: '30px',
+                padding: '8px 18px', display: 'flex', gap: '12px', alignItems: 'center', zIndex: 10001
+              }}
+            >
+              <button 
+                onClick={() => setLightboxZoom(prev => Math.max(0.5, prev - 0.25))}
+                style={{ background: 'none', border: 'none', color: '#fff', fontSize: '1.2rem', cursor: 'pointer', fontWeight: 800 }}
+              >
+                ➖
+              </button>
+              <span style={{ color: '#38bdf8', fontWeight: 800, fontSize: '0.9rem', minWidth: '50px', textAlign: 'center' }}>
+                {Math.round(lightboxZoom * 100)}%
+              </span>
+              <button 
+                onClick={() => setLightboxZoom(prev => Math.min(3.5, prev + 0.25))}
+                style={{ background: 'none', border: 'none', color: '#fff', fontSize: '1.2rem', cursor: 'pointer', fontWeight: 800 }}
+              >
+                ➕
+              </button>
+              <button 
+                onClick={() => setLightboxZoom(1)}
+                style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: '#94a3b8', borderRadius: '12px', padding: '2px 8px', fontSize: '0.78rem', cursor: 'pointer' }}
+              >
+                100%
+              </button>
+            </div>
+          </div>
           <button className="di-lightbox-close" onClick={() => setLightboxSrc(null)}>✕</button>
         </div>
       )}

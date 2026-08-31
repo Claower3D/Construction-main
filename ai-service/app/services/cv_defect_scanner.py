@@ -355,7 +355,7 @@ def scan_defects(image: np.ndarray, sensitivity: float = 0.65) -> Dict[str, Any]
 
 
 def _draw_annotations(image: np.ndarray, defects: List[Dict], ring_mask: np.ndarray = None) -> np.ndarray:
-    """Draw defect bounding boxes, polygons, and severity badges onto image."""
+    """Draw defect bounding boxes, polygonal masks, dimension arrows, and engineering HUD badges."""
     annotated = image.copy()
     h, w = image.shape[:2]
 
@@ -363,7 +363,7 @@ def _draw_annotations(image: np.ndarray, defects: List[Dict], ring_mask: np.ndar
     if ring_mask is not None and np.any(ring_mask):
         green_overlay = annotated.copy()
         green_overlay[ring_mask] = (
-            green_overlay[ring_mask].astype(float) * 0.85 + np.array([40, 200, 80]) * 0.15
+            green_overlay[ring_mask].astype(float) * 0.85 + np.array([35, 195, 75]) * 0.15
         ).astype(np.uint8)
         annotated = green_overlay
 
@@ -375,33 +375,63 @@ def _draw_annotations(image: np.ndarray, defects: List[Dict], ring_mask: np.ndar
         label_ru = SEV_LABELS_RU.get(sev, sev.upper())
         conf = int(d.get("confidence", 0.9) * 100)
         x1, y1, x2, y2 = bbox
+        length_mm = d.get("length_mm")
+        opening_mm = d.get("opening_mm")
 
-        # Fill defect region with semi-transparent overlay
+        # 1. Fill defect region with semi-transparent glowing polygon
         if d.get("polygon"):
             pts = np.array(d["polygon"], dtype=np.int32)
             poly_overlay = annotated.copy()
             cv2.fillPoly(poly_overlay, [pts], color)
-            cv2.addWeighted(poly_overlay, 0.40, annotated, 0.60, 0, annotated)
+            cv2.addWeighted(poly_overlay, 0.45, annotated, 0.55, 0, annotated)
             cv2.polylines(annotated, [pts], isClosed=True, color=color, thickness=2, lineType=cv2.LINE_AA)
 
-        # Draw bounding box
-        cv2.rectangle(annotated, (x1, y1), (x2, y2), color, 3)
+        # 2. Draw high-visibility bounding box with corner brackets
+        cv2.rectangle(annotated, (x1, y1), (x2, y2), color, 2, lineType=cv2.LINE_AA)
+        
+        # Draw corner crosshairs / brackets
+        bracket_len = min(16, max(6, int(min(x2-x1, y2-y1) * 0.2)))
+        # Top-left
+        cv2.line(annotated, (x1, y1), (x1 + bracket_len, y1), (255, 255, 255), 3, lineType=cv2.LINE_AA)
+        cv2.line(annotated, (x1, y1), (x1, y1 + bracket_len), (255, 255, 255), 3, lineType=cv2.LINE_AA)
+        # Top-right
+        cv2.line(annotated, (x2, y1), (x2 - bracket_len, y1), (255, 255, 255), 3, lineType=cv2.LINE_AA)
+        cv2.line(annotated, (x2, y1), (x2, y1 + bracket_len), (255, 255, 255), 3, lineType=cv2.LINE_AA)
+        # Bottom-left
+        cv2.line(annotated, (x1, y2), (x1 + bracket_len, y2), (255, 255, 255), 3, lineType=cv2.LINE_AA)
+        cv2.line(annotated, (x1, y2), (x1, y2 - bracket_len), (255, 255, 255), 3, lineType=cv2.LINE_AA)
+        # Bottom-right
+        cv2.line(annotated, (x2, y2), (x2 - bracket_len, y2), (255, 255, 255), 3, lineType=cv2.LINE_AA)
+        cv2.line(annotated, (x2, y2), (x2, y2 - bracket_len), (255, 255, 255), 3, lineType=cv2.LINE_AA)
 
-        # Badge label
+        # 3. Engineering Dimension Arrows (AutoCAD / СНиП style)
+        if length_mm and (y2 - y1) > 50:
+            dim_x = max(10, x1 - 18)
+            # Vertical dimension line
+            cv2.line(annotated, (dim_x, y1), (dim_x, y2), (56, 189, 248), 1, lineType=cv2.LINE_AA)
+            cv2.line(annotated, (dim_x - 4, y1), (dim_x + 4, y1), (56, 189, 248), 2, lineType=cv2.LINE_AA)
+            cv2.line(annotated, (dim_x - 4, y2), (dim_x + 4, y2), (56, 189, 248), 2, lineType=cv2.LINE_AA)
+            # Dimension text
+            dim_text = f"L={length_mm}mm"
+            cv2.putText(annotated, dim_text, (max(2, dim_x - 65), int((y1 + y2) / 2)), cv2.FONT_HERSHEY_SIMPLEX, 0.42, (56, 189, 248), 1, cv2.LINE_AA)
+
+        # 4. Premium HUD Badge Label
         type_name = d.get("type", "Дефект")
         line1 = f"#{d.get('id', 1)} {type_name}"
-        line2 = f"{conf}% | {label_ru}"
+        metrics_str = f" | L={length_mm}mm" if length_mm else ""
+        if opening_mm: metrics_str += f" | d={opening_mm}mm"
+        line2 = f"{conf}% | {label_ru}{metrics_str}"
 
-        # Place label badge
-        badge_w = max(240, int(len(line1) * 11))
-        badge_h = 44
-        badge_x1 = max(0, min(w - badge_w - 4, x1))
-        badge_y1 = max(0, y1 - badge_h - 4) if y1 > badge_h + 4 else y2 + 4
+        badge_w = max(260, int(len(line2) * 8.5) + 20)
+        badge_h = 46
+        badge_x1 = max(4, min(w - badge_w - 4, x1))
+        badge_y1 = max(4, y1 - badge_h - 4) if y1 > badge_h + 8 else min(h - badge_h - 4, y2 + 6)
 
-        cv2.rectangle(annotated, (badge_x1, badge_y1), (badge_x1 + badge_w, badge_y1 + badge_h), (20, 25, 35), -1)
-        cv2.rectangle(annotated, (badge_x1, badge_y1), (badge_x1 + badge_w, badge_y1 + badge_h), color, 2)
+        # Dark Glass Background with Accent Border
+        cv2.rectangle(annotated, (badge_x1, badge_y1), (badge_x1 + badge_w, badge_y1 + badge_h), (12, 18, 28), -1)
+        cv2.rectangle(annotated, (badge_x1, badge_y1), (badge_x1 + badge_w, badge_y1 + badge_h), color, 2, lineType=cv2.LINE_AA)
 
-        cv2.putText(annotated, line1, (badge_x1 + 8, badge_y1 + 18), cv2.FONT_HERSHEY_SIMPLEX, 0.52, (255, 255, 255), 1, cv2.LINE_AA)
-        cv2.putText(annotated, line2, (badge_x1 + 8, badge_y1 + 36), cv2.FONT_HERSHEY_SIMPLEX, 0.48, color, 1, cv2.LINE_AA)
+        cv2.putText(annotated, line1, (badge_x1 + 10, badge_y1 + 18), cv2.FONT_HERSHEY_SIMPLEX, 0.50, (255, 255, 255), 1, cv2.LINE_AA)
+        cv2.putText(annotated, line2, (badge_x1 + 10, badge_y1 + 37), cv2.FONT_HERSHEY_SIMPLEX, 0.44, color, 1, cv2.LINE_AA)
 
     return annotated
