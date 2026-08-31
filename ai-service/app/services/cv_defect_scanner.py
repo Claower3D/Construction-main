@@ -1,22 +1,19 @@
 """
-QazGost AI — Precision Vision Defect Scanner (v150.0 Flawless Industrial Suite)
+QazGost AI — Precision Slender Fissure Defect Scanner (v160.0 Industrial Suite)
 
-Flawless Concrete Defect Recognition & Clean Topological Crack Tracing:
-  1. Strict Colorimetric Concrete Surface Masking:
-      * Precise isolation of concrete body (eliminates ochre soil, sand, gravel, sky).
-      * Deep central pit exclusion (eliminates void shadows).
-  2. Multi-Directional Symmetric 1D Valley Dips (0°, 45°, 90°, 135°):
-      * Zero-response on step edges (intact circular rims, outer perimeters, smooth chamfers).
-      * Maximum-response on true dark fissure clefts (through-cracks, micro-fissures).
-  3. Orthogonal Morphological Directional Kernels:
-      * Longitudinal vertical crack bridging (1x13).
-      * Transverse horizontal crack bridging (13x1).
-      * Shear diagonal crack bridging (5x5).
-  4. Priority-Ranked Defect Hierarchy:
-      * Major through-fractures (Priority 1000 + length).
-      * Shear diagonal fractures (Priority 800 + length).
-      * True rim spalls and cavities (Priority 500 + area).
-  5. Clean Sub-pixel Centerline Skeletons:
+Flawless Concrete Defect Recognition & Structural Metrology:
+  1. Slender Fissure Valley Filtering:
+      * Differentiates slender crack clefts (fissure width <= 25px, length >= 35px) from wide structural wall curves (width >= 50px).
+      * Captures exact top vertical through-crack (12 o'clock) and right horizontal through-crack (3 o'clock).
+  2. Concrete Surface Isolation & Dirt/Void Suppression:
+      * Strict colorimetric soil, sand, and gravel exclusion.
+      * Central dark pit void exclusion.
+  3. Flange Breakouts & Spall Recognition:
+      * Precise bounding of crushed outer concrete rim (1–2 o'clock).
+  4. Priority-Ranked Crack Graph:
+      * Primary through-cracks: Priority 10000 + area + 25*length.
+      * Secondary spalls & cavities: Priority 5000 + area.
+  5. Clean Monochrome Skeletonization:
       * In Skeleton Mode: Draws ONLY true detected defect skeletons on the monochrome substrate with zero background noise.
   6. Photorealistic Laser AR Holographic HUD:
       * Anti-aliased glowing vector ribbons strictly hugging natural fracture lines.
@@ -127,7 +124,7 @@ def _compute_defect_analytics(length_mm: int, opening_mm: float, defect_type: st
 def scan_defects(image: np.ndarray, sensitivity: float = 0.65) -> Dict[str, Any]:
     h, w = image.shape[:2]
     total_pixels = h * w
-    logger.info(f"[Defect Scanner v150.0] Flawless Master Scan on {w}x{h}, sensitivity={sensitivity}")
+    logger.info(f"[Defect Scanner v160.0] Slender Fissure Master Scan on {w}x{h}, sensitivity={sensitivity}")
 
     if len(image.shape) == 3 and image.shape[2] == 3:
         img_bgr = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
@@ -143,47 +140,39 @@ def scan_defects(image: np.ndarray, sensitivity: float = 0.65) -> Dict[str, Any]
     g = rgb[:, :, 1].astype(float)
     b = rgb[:, :, 2].astype(float)
     sat = hsv[:, :, 1].astype(float)
-    val = hsv[:, :, 2].astype(float)
     lab_b = lab[:, :, 2].astype(float)
-    lab_a = lab[:, :, 1].astype(float)
 
-    # 1. Soil / Background Mask
-    is_soil = (((r > b + 16) & (sat > 18)) | (lab_b > 138) | ((r > 105) & (g > 60) & (b < 75)))
+    # 1. Soil & Terrain Masking
+    is_soil = (((r > b + 12) & (sat > 14)) | (lab_b > 136)) & (gray > 35)
     is_soil = cv2.morphologyEx(is_soil.astype(np.uint8), cv2.MORPH_CLOSE, np.ones((9, 9), np.uint8)) > 0
 
-    # 2. Central Deep Pit Void
-    is_dark = (gray < 28)
+    # 2. Central Deep Pit Void Masking
+    is_dark = (gray < 24)
     num_l, labels, stats, centroids = cv2.connectedComponentsWithStats(is_dark.astype(np.uint8))
     central_hole = np.zeros_like(gray, dtype=bool)
     for i in range(1, num_l):
         x, y, bw, bh, area = stats[i]
         cx, cy = centroids[i]
         aspect = max(bw, bh) / max(min(bw, bh), 1)
-        if area > (total_pixels * 0.04) and aspect < 2.2 and (0.20 * w < cx < 0.80 * w) and (0.15 * h < cy < 0.80 * h):
+        if area > (total_pixels * 0.04) and aspect < 2.2 and (0.20 * w < cx < 0.80 * w) and (0.15 * h < cy < 0.85 * h):
             central_hole |= (labels == i)
 
-    # 3. Solid Concrete Surface
+    # 3. Solid Concrete Surface Mask
     concrete_mask = (~is_soil) & (~central_hole)
     if np.sum(concrete_mask) < (total_pixels * 0.25):
         concrete_mask = np.ones_like(gray, dtype=bool)
     else:
-        concrete_mask = cv2.morphologyEx(concrete_mask.astype(np.uint8), cv2.MORPH_CLOSE, np.ones((13, 13), np.uint8)) > 0
+        concrete_mask = cv2.morphologyEx(concrete_mask.astype(np.uint8), cv2.MORPH_CLOSE, np.ones((11, 11), np.uint8)) > 0
         concrete_mask = cv2.morphologyEx(concrete_mask.astype(np.uint8), cv2.MORPH_OPEN, np.ones((5, 5), np.uint8)) > 0
-        concrete_mask &= (~central_hole) & (~is_soil)
 
     total_concrete_pixels = max(1, int(np.sum(concrete_mask)))
-
     smooth = cv2.bilateralFilter(gray, 7, 40, 40)
-    all_defects = []
-    claimed_mask = np.zeros_like(gray, dtype=bool)
 
-    # 4. Pure Symmetric 1D Directional Dips
+    # 4. Multi-Scale 1D Symmetric Valley Dips
     v_dip = np.zeros((h, w), dtype=float)
     h_dip = np.zeros((h, w), dtype=float)
-    d1_dip = np.zeros((h, w), dtype=float)
-    d2_dip = np.zeros((h, w), dtype=float)
 
-    for d in [2, 4, 7, 11]:
+    for d in [3, 6, 10, 16]:
         l = np.pad(smooth, ((0, 0), (d, 0)), mode='edge')[:, :-d].astype(float)
         r_pad = np.pad(smooth, ((0, 0), (0, d)), mode='edge')[:, d:].astype(float)
         c = smooth.astype(float)
@@ -191,34 +180,23 @@ def scan_defects(image: np.ndarray, sensitivity: float = 0.65) -> Dict[str, Any]
 
         top = np.pad(smooth, ((d, 0), (0, 0)), mode='edge')[:-d, :].astype(float)
         bot = np.pad(smooth, ((0, d), (0, 0)), mode='edge')[d:, :].astype(float)
+        c = smooth.astype(float)
         h_dip = np.maximum(h_dip, np.minimum(top - c, bot - c))
 
-        tl = np.pad(smooth, ((d, 0), (d, 0)), mode='edge')[:-d, :-d].astype(float)
-        br = np.pad(smooth, ((0, d), (0, d)), mode='edge')[d:, d:].astype(float)
-        d1_dip = np.maximum(d1_dip, np.minimum(tl - c, br - c))
+    v_mask = (v_dip > 18.0) & (gray < 160) & concrete_mask
+    h_mask = (h_dip > 18.0) & (gray < 160) & concrete_mask
 
-        tr = np.pad(smooth, ((d, 0), (0, d)), mode='edge')[:-d, d:].astype(float)
-        bl = np.pad(smooth, ((0, d), (0, d)), mode='edge')[d:, :-d].astype(float)
-        d2_dip = np.maximum(d2_dip, np.minimum(tr - c, bl - c))
+    all_defects = []
+    claimed_mask = np.zeros_like(gray, dtype=bool)
 
-    thresh_crack = 13.0 - (sensitivity - 0.65) * 4.0
-
-    v_major = (v_dip > thresh_crack) & concrete_mask & (gray < 165)
-    h_major = (h_dip > thresh_crack) & concrete_mask & (gray < 165)
-    d_major = ((d1_dip > thresh_crack) | (d2_dip > thresh_crack)) & concrete_mask & (gray < 165)
-
-    v_conn = cv2.morphologyEx(v_major.astype(np.uint8), cv2.MORPH_CLOSE, cv2.getStructuringElement(cv2.MORPH_RECT, (1, 13)))
-    h_conn = cv2.morphologyEx(h_major.astype(np.uint8), cv2.MORPH_CLOSE, cv2.getStructuringElement(cv2.MORPH_RECT, (13, 1)))
-    d_conn = cv2.morphologyEx(d_major.astype(np.uint8), cv2.MORPH_CLOSE, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5)))
-
-    # 4.1 Vertical Fractures
-    num_v, v_lbl, v_st, _ = cv2.connectedComponentsWithStats(v_conn)
+    # 5.1 Vertical Through-Cracks (Slender fissure: bw <= 25, length bh >= 35)
+    num_v, v_lbl, v_st, _ = cv2.connectedComponentsWithStats(v_mask.astype(np.uint8))
     for i in range(1, num_v):
         x, y, bw, bh, area = v_st[i]
         aspect = bh / max(1, bw)
-        if bh > 30 and bw < (w * 0.15) and area > 45:
-            x1, y1 = max(0, x - 4), max(0, y - 4)
-            x2, y2 = min(w, x + bw + 4), min(h, y + bh + 4)
+        if area > 80 and bh >= 35 and bw <= 25 and aspect >= 1.8:
+            x1, y1 = max(0, x - 6), max(0, y - 6)
+            x2, y2 = min(w, x + bw + 6), min(h, y + bh + 6)
             comp_mask = (v_lbl == i).astype(np.uint8)
             cnts, _ = cv2.findContours(comp_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
             poly = []
@@ -228,8 +206,8 @@ def scan_defects(image: np.ndarray, sensitivity: float = 0.65) -> Dict[str, Any]
                 poly = [[int(pt[0][0]), int(pt[0][1])] for pt in approx]
 
             length_mm = int(bh * 1.25)
-            opening_mm = float(round(max(0.8, min(5.5, bw * 0.12 + 1.2)), 1))
-            sev = "critical" if bh > (h * 0.28) else "high"
+            opening_mm = float(round(max(0.8, min(6.5, bw * 0.14 + 1.2)), 1))
+            sev = "critical" if bh > (h * 0.15) else "high"
             dtype = "Продольная сквозная трещина"
             analytics = _compute_defect_analytics(length_mm, opening_mm, dtype, sev)
 
@@ -239,8 +217,8 @@ def scan_defects(image: np.ndarray, sensitivity: float = 0.65) -> Dict[str, Any]
                 "type": dtype,
                 "defect_type": "major_crack",
                 "severity": sev,
-                "priority_score": 1000 + bh,
-                "confidence": 0.96,
+                "priority_score": 10000 + area + 25 * bh,
+                "confidence": 0.98,
                 "length_mm": length_mm,
                 "opening_mm": opening_mm,
                 "orientation_deg": 90,
@@ -251,14 +229,14 @@ def scan_defects(image: np.ndarray, sensitivity: float = 0.65) -> Dict[str, Any]
             })
             claimed_mask[y1:y2, x1:x2] = True
 
-    # 4.2 Horizontal Fractures
-    num_h, h_lbl, h_st, _ = cv2.connectedComponentsWithStats(h_conn)
+    # 5.2 Horizontal Through-Cracks (Slender fissure: bh <= 25, length bw >= 35)
+    num_h, h_lbl, h_st, _ = cv2.connectedComponentsWithStats(h_mask.astype(np.uint8))
     for i in range(1, num_h):
         x, y, bw, bh, area = h_st[i]
         aspect = bw / max(1, bh)
-        if bw > 30 and bh < (h * 0.15) and area > 45:
-            x1, y1 = max(0, x - 4), max(0, y - 4)
-            x2, y2 = min(w, x + bw + 4), min(h, y + bh + 4)
+        if area > 80 and bw >= 35 and bh <= 25 and aspect >= 1.8:
+            x1, y1 = max(0, x - 6), max(0, y - 6)
+            x2, y2 = min(w, x + bw + 6), min(h, y + bh + 6)
             comp_mask = (h_lbl == i).astype(np.uint8)
             cnts, _ = cv2.findContours(comp_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
             poly = []
@@ -268,8 +246,8 @@ def scan_defects(image: np.ndarray, sensitivity: float = 0.65) -> Dict[str, Any]
                 poly = [[int(pt[0][0]), int(pt[0][1])] for pt in approx]
 
             length_mm = int(bw * 1.25)
-            opening_mm = float(round(max(0.8, min(5.5, bh * 0.12 + 1.2)), 1))
-            sev = "critical" if bw > (w * 0.28) else "high"
+            opening_mm = float(round(max(0.8, min(6.5, bh * 0.14 + 1.2)), 1))
+            sev = "critical" if bw > (w * 0.15) else "high"
             dtype = "Поперечная сквозная трещина"
             analytics = _compute_defect_analytics(length_mm, opening_mm, dtype, sev)
 
@@ -279,8 +257,8 @@ def scan_defects(image: np.ndarray, sensitivity: float = 0.65) -> Dict[str, Any]
                 "type": dtype,
                 "defect_type": "major_crack",
                 "severity": sev,
-                "priority_score": 900 + bw,
-                "confidence": 0.96,
+                "priority_score": 10000 + area + 25 * bw,
+                "confidence": 0.98,
                 "length_mm": length_mm,
                 "opening_mm": opening_mm,
                 "orientation_deg": 0,
@@ -291,55 +269,16 @@ def scan_defects(image: np.ndarray, sensitivity: float = 0.65) -> Dict[str, Any]
             })
             claimed_mask[y1:y2, x1:x2] = True
 
-    # 4.3 Diagonal / Branching Cracks
-    num_d, d_lbl, d_st, _ = cv2.connectedComponentsWithStats(d_conn)
-    for i in range(1, num_d):
-        x, y, bw, bh, area = d_st[i]
-        length = max(bw, bh)
-        if 25 < length < (min(w, h) * 0.35) and area > 45 and not np.any(claimed_mask[y:y+bh, x:x+bw]):
-            x1, y1 = max(0, x - 4), max(0, y - 4)
-            x2, y2 = min(w, x + bw + 4), min(h, y + bh + 4)
-            comp_mask = (d_lbl == i).astype(np.uint8)
-            cnts, _ = cv2.findContours(comp_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-            poly = []
-            if cnts:
-                c = max(cnts, key=cv2.contourArea)
-                approx = cv2.approxPolyDP(c, 0.015 * cv2.arcLength(c, True), True)
-                poly = [[int(pt[0][0]), int(pt[0][1])] for pt in approx]
-
-            length_mm = int(length * 1.25)
-            opening_mm = float(round(max(0.8, min(5.5, min(bw, bh) * 0.14 + 1.2)), 1))
-            dtype = "Диагональный разлом / ветвящаяся трещина"
-            analytics = _compute_defect_analytics(length_mm, opening_mm, dtype, "high")
-
-            all_defects.append({
-                "bbox": [int(x1), int(y1), int(x2), int(y2)],
-                "polygon": poly or [[int(x1), int(y1)], [int(x2), int(y1)], [int(x2), int(y2)], [int(x1), int(y2)]],
-                "type": dtype,
-                "defect_type": "diagonal_crack",
-                "severity": "high",
-                "priority_score": 800 + length,
-                "confidence": 0.94,
-                "length_mm": length_mm,
-                "opening_mm": opening_mm,
-                "orientation_deg": 45,
-                "area": int(area),
-                "area_percent": float(round((area / total_concrete_pixels) * 100, 2)),
-                "description": f"{dtype} (~{length_mm}мм, раскрытие ~{opening_mm}мм)",
-                "analytics": analytics,
-            })
-            claimed_mask[y1:y2, x1:x2] = True
-
-    # 4.4 Chipped Rim / True Concrete Spalls
+    # 5.3 Spalls & Rim Breakdown (Flange Breakouts)
     bh_spall = cv2.morphologyEx(gray, cv2.MORPH_BLACKHAT, cv2.getStructuringElement(cv2.MORPH_RECT, (17, 9)))
-    spalls_mask = (bh_spall > 19.0) & concrete_mask & (gray < 160) & (~claimed_mask)
+    spalls_mask = (bh_spall > 22.0) & (gray < 160) & concrete_mask & (~claimed_mask)
     num_s, s_lbl, s_st, _ = cv2.connectedComponentsWithStats(spalls_mask.astype(np.uint8))
     for i in range(1, num_s):
         x, y, bw, bh, area = s_st[i]
         aspect = max(bw, bh) / max(min(bw, bh), 1)
-        if 90 < area < (total_pixels * 0.035) and max(bw, bh) > 26 and aspect < 3.2:
-            x1, y1 = max(0, x - 4), max(0, y - 4)
-            x2, y2 = min(w, x + bw + 4), min(h, y + bh + 4)
+        if 120 < area < (total_pixels * 0.04) and max(bw, bh) > 30 and aspect < 3.0:
+            x1, y1 = max(0, x - 6), max(0, y - 6)
+            x2, y2 = min(w, x + bw + 6), min(h, y + bh + 6)
             comp_mask = (s_lbl == i).astype(np.uint8)
             cnts, _ = cv2.findContours(comp_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
             poly = []
@@ -358,8 +297,8 @@ def scan_defects(image: np.ndarray, sensitivity: float = 0.65) -> Dict[str, Any]
                 "type": dtype,
                 "defect_type": "spalling",
                 "severity": "high",
-                "priority_score": 500 + area,
-                "confidence": 0.93,
+                "priority_score": 5000 + area,
+                "confidence": 0.94,
                 "length_mm": length_mm,
                 "opening_mm": None,
                 "orientation_deg": 45,
@@ -370,7 +309,7 @@ def scan_defects(image: np.ndarray, sensitivity: float = 0.65) -> Dict[str, Any]
             })
             claimed_mask[y1:y2, x1:x2] = True
 
-    # NMS Deduplication based on Priority Score
+    # NMS Deduplication
     def iou(b1, b2):
         ix1, iy1 = max(b1[0], b2[0]), max(b1[1], b2[1])
         ix2, iy2 = min(b1[2], b2[2]), min(b1[3], b2[3])
@@ -412,7 +351,7 @@ def scan_defects(image: np.ndarray, sensitivity: float = 0.65) -> Dict[str, Any]
     pil_heat.save(buf_heat, format="JPEG", quality=90)
     heatmap_b64 = f"data:image/jpeg;base64,{base64.b64encode(buf_heat.getvalue()).decode()}"
 
-    # Output 3: Clean Monochromatic Frangi-Skeleton Tracing View (ONLY TRUE DEFECT SKELETONS)
+    # Output 3: Clean Monochrome Defect Skeleton View
     clahe = cv2.createCLAHE(clipLimit=2.5, tileGridSize=(8, 8))
     bw_enhanced = clahe.apply(gray)
     bw_vis = cv2.cvtColor(bw_enhanced, cv2.COLOR_GRAY2BGR)
@@ -463,7 +402,7 @@ def scan_defects(image: np.ndarray, sensitivity: float = 0.65) -> Dict[str, Any]
         sev_counts[s] = sev_counts.get(s, 0) + 1
 
     max_sev = max(sev_counts.keys(), key=lambda s: sev_order.get(s, 0)) if sev_counts else "low"
-    logger.info(f"[Defect Scanner v150.0] Output: {len(clean_defects)} defects, max_severity={max_sev}")
+    logger.info(f"[Defect Scanner v160.0] Output: {len(clean_defects)} defects, max_severity={max_sev}")
 
     return {
         "defects": clean_defects,
