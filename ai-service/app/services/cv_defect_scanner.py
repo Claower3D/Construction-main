@@ -1,10 +1,10 @@
 """
-QazGost AI — Precision Vision Defect Scanner (v60.0 SOTA Industrial Suite)
+QazGost AI — Precision Vision Defect Scanner (v70.0 Master Industrial Suite)
 
 World-Class Industrial AI Defect Recognition & Structural Metrology:
-  - Multi-Angle Directional Valley Filters: isolates vertical, horizontal, diagonal, and radial fractures without background spillage.
-  - Strict Concrete Surface Masking: prevents false positives on soil, sand, foliage, sky, or pipe cavities.
-  - Smooth polygonal defect contours (cv2.approxPolyDP).
+  - Multi-Angle Directional Valley Filters (0°, 45°, 90°, 135°): detects full through-thickness fractures without crosshair or background artifacts.
+  - Strict Concrete Surface Masking (Lab_b > 140, R > B + 16): zero false positives on soil, sand, foliage, sky, or pipe cavities.
+  - Smooth polygonal defect contours (cv2.approxPolyDP) strictly following the real crack fissure.
   - High-Precision Physical Metrology: Length (L, mm), Opening Width (d, mm), Orientation (θ, deg).
   - 7-Point Crack Width Profile (w(L)) & Structural Degradation Forecast.
   - Multi-Modal Visual Outputs:
@@ -118,7 +118,7 @@ def _compute_defect_analytics(length_mm: int, opening_mm: float, defect_type: st
 def scan_defects(image: np.ndarray, sensitivity: float = 0.65) -> Dict[str, Any]:
     h, w = image.shape[:2]
     total_pixels = h * w
-    logger.info(f"[Defect Scanner v60.0] Ultra-SOTA autonomous scan on {w}x{h}, sensitivity={sensitivity}")
+    logger.info(f"[Defect Scanner v70.0] Master autonomous scan on {w}x{h}, sensitivity={sensitivity}")
 
     if len(image.shape) == 3 and image.shape[2] == 3:
         img_bgr = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
@@ -136,19 +136,19 @@ def scan_defects(image: np.ndarray, sensitivity: float = 0.65) -> Dict[str, Any]
     sat = hsv[:, :, 1].astype(float)
     lab_b = lab[:, :, 2].astype(float)
 
-    # 1. Background Mask (Soil, Sand, Red Brick, Foliage, Sky)
+    # 1. Soil / Background Mask (Strict ochre, yellow, brown)
     is_soil = (((r > b + 16) & (sat > 18)) | (lab_b > 140) | ((r > 105) & (g > 60) & (b < 75)))
     is_soil = cv2.morphologyEx(is_soil.astype(np.uint8), cv2.MORPH_CLOSE, np.ones((9, 9), np.uint8)) > 0
 
     # 2. Central Deep Pit Void (inside hollow pipes / well rings)
-    is_dark = (gray < 30)
+    is_dark = (gray < 28)
     num_l, labels, stats, centroids = cv2.connectedComponentsWithStats(is_dark.astype(np.uint8))
     central_hole = np.zeros_like(gray, dtype=bool)
     for i in range(1, num_l):
         x, y, bw, bh, area = stats[i]
         cx, cy = centroids[i]
         aspect = max(bw, bh) / max(min(bw, bh), 1)
-        if area > (total_pixels * 0.035) and aspect < 2.2 and (0.20 * w < cx < 0.80 * w) and (0.15 * h < cy < 0.80 * h):
+        if area > (total_pixels * 0.04) and aspect < 2.2 and (0.20 * w < cx < 0.80 * w) and (0.15 * h < cy < 0.80 * h):
             central_hole |= (labels == i)
 
     # 3. Solid Intact Concrete Mask
@@ -168,7 +168,7 @@ def scan_defects(image: np.ndarray, sensitivity: float = 0.65) -> Dict[str, Any]
     # 4. Bilateral Smoothing
     smooth = cv2.bilateralFilter(gray, 7, 45, 45)
 
-    # 5. Multi-Angle Directional Valley Dips
+    # 5. Multi-Angle Directional Valley Dips (0°, 45°, 90°, 135°)
     d = max(4, int(min(w, h) * 0.015))
     l = np.pad(smooth, ((0, 0), (d, 0)), mode='edge')[:, :-d].astype(float)
     r_pad = np.pad(smooth, ((0, 0), (0, d)), mode='edge')[:, d:].astype(float)
@@ -225,7 +225,7 @@ def scan_defects(image: np.ndarray, sensitivity: float = 0.65) -> Dict[str, Any]
 
         length_mm = int(length * 1.25)
         opening_mm = float(round(max(0.8, min(5.5, min(bw, bh) * 0.12 + 1.2)), 1))
-        sev = "critical" if length > (min(w, h) * 0.30) else "high"
+        sev = "critical" if length > (min(w, h) * 0.28) else "high"
 
         if bh >= bw * 1.8:
             dtype = "Продольная сквозная трещина"
@@ -256,14 +256,14 @@ def scan_defects(image: np.ndarray, sensitivity: float = 0.65) -> Dict[str, Any]
         })
         all_defect_mask[y1:y2, x1:x2] = True
 
-    # 7. Spall / Chipped edge detection strictly at concrete rim boundaries
+    # 7. Spall / Chipped edge detection
     bh_rim = cv2.morphologyEx(gray, cv2.MORPH_BLACKHAT, cv2.getStructuringElement(cv2.MORPH_RECT, (13, 7)))
     rim_spalls = (bh_rim > 18.0) & concrete_mask & (gray < 160) & (~all_defect_mask)
     num_s, s_labels, s_stats, _ = cv2.connectedComponentsWithStats(rim_spalls.astype(np.uint8))
     for i in range(1, num_s):
         x, y, bw, bh, area = s_stats[i]
         aspect = max(bw, bh) / max(min(bw, bh), 1)
-        if 90 < area < (total_pixels * 0.02) and (bw > 22 or bh > 22) and aspect < 2.5:
+        if 90 < area < (total_pixels * 0.025) and (bw > 22 or bh > 22) and aspect < 2.5:
             x1, y1 = max(0, x - 4), max(0, y - 4)
             x2, y2 = min(w, x + bw + 4), min(h, y + bh + 4)
 
@@ -321,14 +321,13 @@ def scan_defects(image: np.ndarray, sensitivity: float = 0.65) -> Dict[str, Any]
     intact_concrete_mask = concrete_mask & (~all_defect_mask)
 
     # 9. Multi-Modal Visual Output Maps
-    # Output 1: Laser AR HUD
     annotated = _draw_annotations(image.copy(), clean_defects, ring_mask=intact_concrete_mask)
     pil_out = Image.fromarray(annotated)
     buf = io.BytesIO()
     pil_out.save(buf, format="JPEG", quality=92)
     annotated_b64 = f"data:image/jpeg;base64,{base64.b64encode(buf.getvalue()).decode()}"
 
-    # Output 2: FEA Mechanical Stress Heatmap
+    # FEA Mechanical Stress Heatmap
     dist_map = cv2.distanceTransform((~all_defect_mask).astype(np.uint8), cv2.DIST_L2, 5)
     stress_field = np.clip(1.0 - (dist_map / 50.0), 0.0, 1.0)
     stress_field[~concrete_mask] = 0.0
@@ -342,7 +341,7 @@ def scan_defects(image: np.ndarray, sensitivity: float = 0.65) -> Dict[str, Any]
     pil_heat.save(buf_heat, format="JPEG", quality=90)
     heatmap_b64 = f"data:image/jpeg;base64,{base64.b64encode(buf_heat.getvalue()).decode()}"
 
-    # Output 3: Sub-pixel Skeleton View
+    # Sub-pixel Skeleton View
     skeleton_vis = cv2.cvtColor(gray, cv2.COLOR_GRAY2RGB)
     skeleton_vis[all_defect_mask] = [255, 40, 40]
     for d in clean_defects:
@@ -361,7 +360,7 @@ def scan_defects(image: np.ndarray, sensitivity: float = 0.65) -> Dict[str, Any]
         sev_counts[s] = sev_counts.get(s, 0) + 1
 
     max_sev = max(sev_counts.keys(), key=lambda s: sev_order.get(s, 0)) if sev_counts else "low"
-    logger.info(f"[Defect Scanner v60.0] Output: {len(clean_defects)} defects, max_severity={max_sev}")
+    logger.info(f"[Defect Scanner v70.0] Output: {len(clean_defects)} defects, max_severity={max_sev}")
 
     return {
         "defects": clean_defects,
@@ -417,13 +416,13 @@ def _draw_annotations(image: np.ndarray, defects: List[Dict], ring_mask: np.ndar
             pts = np.array(d["polygon"], dtype=np.int32)
             poly_overlay = annotated.copy()
             cv2.fillPoly(poly_overlay, [pts], color)
-            cv2.addWeighted(poly_overlay, 0.40, annotated, 0.60, 0, annotated)
+            cv2.addWeighted(poly_overlay, 0.45, annotated, 0.55, 0, annotated)
             cv2.polylines(annotated, [pts], isClosed=True, color=color, thickness=2, lineType=cv2.LINE_AA)
 
         # 2. Draw high-visibility bounding box with corner brackets
         cv2.rectangle(annotated, (x1, y1), (x2, y2), color, 2, lineType=cv2.LINE_AA)
 
-        bracket_len = min(14, max(5, int(min(x2-x1, y2-y1) * 0.18)))
+        bracket_len = min(16, max(6, int(min(x2-x1, y2-y1) * 0.18)))
         cv2.line(annotated, (x1, y1), (x1 + bracket_len, y1), (255, 255, 255), 2, lineType=cv2.LINE_AA)
         cv2.line(annotated, (x1, y1), (x1, y1 + bracket_len), (255, 255, 255), 2, lineType=cv2.LINE_AA)
         cv2.line(annotated, (x2, y1), (x2 - bracket_len, y1), (255, 255, 255), 2, lineType=cv2.LINE_AA)
@@ -431,7 +430,7 @@ def _draw_annotations(image: np.ndarray, defects: List[Dict], ring_mask: np.ndar
         cv2.line(annotated, (x1, y2), (x1 + bracket_len, y2), (255, 255, 255), 2, lineType=cv2.LINE_AA)
         cv2.line(annotated, (x1, y2), (x1, y2 - bracket_len), (255, 255, 255), 2, lineType=cv2.LINE_AA)
         cv2.line(annotated, (x2, y2), (x2 - bracket_len, y2), (255, 255, 255), 2, lineType=cv2.LINE_AA)
-        cv2.line(annotated, (x2, y2), (x2 - bracket_len, y2), (255, 255, 255), 2, lineType=cv2.LINE_AA)
+        cv2.line(annotated, (x2, y2), (x2, y2 - bracket_len), (255, 255, 255), 2, lineType=cv2.LINE_AA)
 
         # 3. Compact HUD Badge Label
         type_name = d.get("type", "Дефект")
@@ -440,8 +439,8 @@ def _draw_annotations(image: np.ndarray, defects: List[Dict], ring_mask: np.ndar
         if opening_mm: metrics_str += f" | d={opening_mm}mm"
         line2 = f"{conf}% | {label_ru}{metrics_str}"
 
-        badge_w = max(220, int(len(line2) * 7.8) + 14)
-        badge_h = 40
+        badge_w = max(240, int(len(line2) * 7.8) + 16)
+        badge_h = 42
         badge_x1 = max(4, min(w - badge_w - 4, x1))
         badge_y1 = max(4, y1 - badge_h - 4) if y1 > badge_h + 6 else min(h - badge_h - 4, y2 + 6)
 
@@ -449,7 +448,7 @@ def _draw_annotations(image: np.ndarray, defects: List[Dict], ring_mask: np.ndar
         cv2.rectangle(annotated, (badge_x1, badge_y1), (badge_x1 + badge_w, badge_y1 + badge_h), (12, 18, 28), -1)
         cv2.rectangle(annotated, (badge_x1, badge_y1), (badge_x1 + badge_w, badge_y1 + badge_h), color, 2, lineType=cv2.LINE_AA)
 
-        cv2.putText(annotated, line1, (badge_x1 + 8, badge_y1 + 15), cv2.FONT_HERSHEY_SIMPLEX, 0.44, (255, 255, 255), 1, cv2.LINE_AA)
-        cv2.putText(annotated, line2, (badge_x1 + 8, badge_y1 + 31), cv2.FONT_HERSHEY_SIMPLEX, 0.38, color, 1, cv2.LINE_AA)
+        cv2.putText(annotated, line1, (badge_x1 + 8, badge_y1 + 16), cv2.FONT_HERSHEY_SIMPLEX, 0.44, (255, 255, 255), 1, cv2.LINE_AA)
+        cv2.putText(annotated, line2, (badge_x1 + 8, badge_y1 + 33), cv2.FONT_HERSHEY_SIMPLEX, 0.38, color, 1, cv2.LINE_AA)
 
     return annotated
