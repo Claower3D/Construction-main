@@ -390,7 +390,11 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
           severity: d.severity || 'medium',
           confidence: d.confidence || d.score || 0,
           area_percent: d.area_percent || 0,
+          length_mm: d.length_mm || null,
+          opening_mm: d.opening_mm || null,
+          orientation_deg: d.orientation_deg || 0,
           description: d.description || '',
+          analytics: d.analytics || null,
         })));
       }
       
