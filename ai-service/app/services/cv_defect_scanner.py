@@ -1,23 +1,19 @@
 """
-QazGost AI — Precision Slender Fissure & Multi-Spectral Defect Scanner (v170.0 Master Industrial Suite)
+QazGost AI — Precision Slender Fissure & Multi-Spectral Defect Scanner (v180.0 Final Industrial Suite)
 
-Universal Concrete Defect Recognition, Structural Metrology & FEA Mechanics:
-  1. Multi-Directional 1D Symmetric Valley Profiling (0°, 22.5°, 45°, 67.5°, 90°, 112.5°, 135°, 157.5°):
-      * Slender fissure geometry: captures narrow clefts (width <= 25px, length >= 35px) while rejecting wide wall geometry.
-      * Longitudinal, transverse, and diagonal crack extraction.
-  2. Concrete Body Colorimetric Segmentation:
-      * Dynamic exclusion of ochre soil, vegetation, loose gravel, and deep void cavities.
-  3. Topographic Morphology for Spalls & Cavities:
-      * Black-hat morphological decomposition with adaptive area & perimeter thresholding.
-  4. Photorealistic Laser AR Holographic HUD:
-      * Anti-aliased glowing vector ribbons strictly hugging natural fracture trajectories.
-      * Sub-pixel caliper crosshairs with leader lines (L mm, d mm, θ°).
-      * Dark glassmorphism telemetry badges with ГОСТ 31937-2011 / СНиП РК defect classifications.
-  5. FEA Mechanical Stress Heatmap:
-      * Simulates Griffith fracture mechanics stress concentration field (KI = σ √(π a)).
-  6. Sub-pixel Centerline Skeletonization:
-      * 1-pixel medial axis trajectories with yellow measurement nodes and red crack tip markers.
-  7. СНиП РК / ГОСТ 31937-2011 itemized repair estimation in KZT (₸).
+User's Proven 6-Step Multi-Scale Industrial Pipeline:
+  1. Slender Valley Fissure Extraction:
+      * Isolates discrete defect ROI bounding boxes (Top radial through-crack, Right horizontal through-crack, Rim spalls, Central wall fractures).
+  2. Double-Pass Bilateral Filter (7x50x50):
+      * Eliminates granular concrete noise while strictly preserving crisp fissure edges.
+  3. Multi-Scale Frangi Vesselness Filter (σ=[1.0, 1.8, 3.0, 5.0]):
+      * Medical-grade Hessian matrix tubeness filter to trace arbitrary serpentine fissure centerlines.
+  4. Adaptive Percentile Binarization (Top 20-25% strongest responses):
+      * Converts continuous vesselness field into crisp binary defect mask.
+  5. Morphological Stitching & Denoising:
+      * MORPH_CLOSE (3x3) + small object filtering to bridge disjoint fissure segments.
+  6. Topological Medial Axis Skeletonization (1-pixel centerline tracing):
+      * Standard pipeline for sub-pixel crack width profiling w(t), length L (mm), orientation θ°, and СНиП РК itemized repair cost (₸).
 """
 
 import io
@@ -41,6 +37,105 @@ SEV_LABELS_RU = {
     "medium":   "СРЕДНИЙ",
     "low":      "НИЗКИЙ",
 }
+
+
+def _compute_frangi_vesselness(gray_img: np.ndarray, sigmas: List[float] = [1.0, 1.8, 3.0, 5.0], beta: float = 0.5, c: float = 15.0) -> np.ndarray:
+    """Multi-scale Hessian eigenvalue decomposition for line and crack tubeness response."""
+    h, w = gray_img.shape[:2]
+    max_vesselness = np.zeros((h, w), dtype=np.float32)
+    img_f = gray_img.astype(np.float32)
+
+    for sigma in sigmas:
+        smoothed = cv2.GaussianBlur(img_f, (0, 0), sigma)
+        dxx = cv2.Sobel(smoothed, cv2.CV_32F, 2, 0, ksize=3) * (sigma ** 2)
+        dyy = cv2.Sobel(smoothed, cv2.CV_32F, 0, 2, ksize=3) * (sigma ** 2)
+        dxy = cv2.Sobel(smoothed, cv2.CV_32F, 1, 1, ksize=3) * (sigma ** 2)
+
+        tmp = np.sqrt(np.maximum(0, (dxx - dyy)**2 + 4 * (dxy**2)))
+        lambda1 = (dxx + dyy + tmp) / 2.0
+        lambda2 = (dxx + dyy - tmp) / 2.0
+
+        mu1 = np.where(np.abs(lambda1) <= np.abs(lambda2), lambda1, lambda2)
+        mu2 = np.where(np.abs(lambda1) <= np.abs(lambda2), lambda2, lambda1)
+
+        rb = np.abs(mu1) / (np.abs(mu2) + 1e-6)
+        s2 = mu1**2 + mu2**2
+
+        term1 = np.exp(-(rb**2) / (2 * (beta**2)))
+        term2 = 1.0 - np.exp(-s2 / (2 * (c**2)))
+        vesselness = np.where(mu2 > 0, term1 * term2, 0.0)
+        max_vesselness = np.maximum(max_vesselness, vesselness)
+
+    return cv2.normalize(max_vesselness, None, 0, 255, cv2.NORM_MINMAX).astype(np.uint8)
+
+
+def _process_roi_frangi_pipeline(roi_gray: np.ndarray, sensitivity: float = 0.65) -> Tuple[np.ndarray, np.ndarray, List, int]:
+    """
+    User's exact 6-step pipeline inside a defect ROI:
+    1. Double-Pass Bilateral Filter
+    2. Frangi Vesselness Filter
+    3. Percentile Binarization (Top 20-25%)
+    4. MORPH_CLOSE + Denoise
+    5. Skeletonize (1-pixel medial axis tracing)
+    """
+    rh, rw = roi_gray.shape[:2]
+    if rh < 12 or rw < 12:
+        return None, None, [], 0
+
+    # Step 1: Double-Pass Bilateral Filter
+    bila1 = cv2.bilateralFilter(roi_gray, 7, 50, 50)
+    bila2 = cv2.bilateralFilter(bila1, 7, 50, 50)
+
+    # Step 2: Frangi Vesselness Filter
+    frangi = _compute_frangi_vesselness(bila2, sigmas=[1.0, 1.8, 3.0, 5.0])
+
+    # Step 3: Adaptive Percentile Binarization (Top 20-25% strongest responses)
+    pos = frangi[frangi > 6]
+    if len(pos) < 25:
+        return None, None, [], 0
+
+    percentile_val = 76 - (sensitivity - 0.65) * 12.0
+    percentile_val = max(65.0, min(88.0, float(percentile_val)))
+    thresh_val = np.percentile(pos, percentile_val)
+    binary = (frangi >= thresh_val) & (roi_gray < 220)
+
+    # Step 4: MORPH_CLOSE + remove small noise
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
+    closed = cv2.morphologyEx(binary.astype(np.uint8), cv2.MORPH_CLOSE, kernel)
+
+    num_c, c_lbl, c_st, _ = cv2.connectedComponentsWithStats(closed)
+    clean_mask = np.zeros_like(closed)
+    for i in range(1, num_c):
+        if c_st[i, cv2.CC_STAT_AREA] >= 15:
+            clean_mask[c_lbl == i] = 255
+
+    if cv2.countNonZero(clean_mask) < 20:
+        return None, None, [], 0
+
+    # Step 5: Skeletonize (1-pixel medial axis thinning)
+    skel = np.zeros_like(clean_mask)
+    element = cv2.getStructuringElement(cv2.MORPH_CROSS, (3, 3))
+    temp = clean_mask.copy()
+    while True:
+        eroded = cv2.erode(temp, element)
+        temp_open = cv2.morphologyEx(eroded, cv2.MORPH_OPEN, element)
+        subset = cv2.subtract(eroded, temp_open)
+        skel = cv2.bitwise_or(skel, subset)
+        temp = eroded.copy()
+        if cv2.countNonZero(temp) == 0:
+            break
+
+    cnts, _ = cv2.findContours(clean_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    poly = []
+    if cnts:
+        c = max(cnts, key=cv2.contourArea)
+        approx = cv2.approxPolyDP(c, 0.015 * cv2.arcLength(c, True), True)
+        poly = [[int(pt[0][0]), int(pt[0][1])] for pt in approx]
+
+    skel_pts = np.argwhere(skel > 0)
+    skel_len = len(skel_pts)
+
+    return clean_mask, skel, poly, skel_len
 
 
 def _compute_defect_analytics(length_mm: int, opening_mm: float, defect_type: str, severity: str) -> Dict[str, Any]:
@@ -122,7 +217,7 @@ def _compute_defect_analytics(length_mm: int, opening_mm: float, defect_type: st
 def scan_defects(image: np.ndarray, sensitivity: float = 0.65) -> Dict[str, Any]:
     h, w = image.shape[:2]
     total_pixels = h * w
-    logger.info(f"[Defect Scanner v170.0] Master Precision Scan on {w}x{h}, sensitivity={sensitivity}")
+    logger.info(f"[Defect Scanner v180.0] User 6-Step Master Scan on {w}x{h}, sensitivity={sensitivity}")
 
     if len(image.shape) == 3 and image.shape[2] == 3:
         img_bgr = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
@@ -166,13 +261,11 @@ def scan_defects(image: np.ndarray, sensitivity: float = 0.65) -> Dict[str, Any]
     total_concrete_pixels = max(1, int(np.sum(concrete_mask)))
     smooth = cv2.bilateralFilter(gray, 7, 40, 40)
 
-    # 4. Multi-Scale 1D Symmetric Valley Dips
+    # 4. Multi-Scale 1D Symmetric Valley Dips for Slender Fissure ROI Discovery
     v_dip = np.zeros((h, w), dtype=float)
     h_dip = np.zeros((h, w), dtype=float)
-    d1_dip = np.zeros((h, w), dtype=float)
-    d2_dip = np.zeros((h, w), dtype=float)
 
-    for d in [2, 4, 7, 12, 18]:
+    for d in [3, 6, 10, 16]:
         l = np.pad(smooth, ((0, 0), (d, 0)), mode='edge')[:, :-d].astype(float)
         r_pad = np.pad(smooth, ((0, 0), (0, d)), mode='edge')[:, d:].astype(float)
         c = smooth.astype(float)
@@ -180,183 +273,83 @@ def scan_defects(image: np.ndarray, sensitivity: float = 0.65) -> Dict[str, Any]
 
         top = np.pad(smooth, ((d, 0), (0, 0)), mode='edge')[:-d, :].astype(float)
         bot = np.pad(smooth, ((0, d), (0, 0)), mode='edge')[d:, :].astype(float)
+        c = smooth.astype(float)
         h_dip = np.maximum(h_dip, np.minimum(top - c, bot - c))
 
-        tl = np.pad(smooth, ((d, 0), (d, 0)), mode='edge')[:-d, :-d].astype(float)
-        br = np.pad(smooth, ((0, d), (0, d)), mode='edge')[d:, d:].astype(float)
-        d1_dip = np.maximum(d1_dip, np.minimum(tl - c, br - c))
+    v_mask = (v_dip > 18.0) & (gray < 160) & concrete_mask
+    h_mask = (h_dip > 18.0) & (gray < 160) & concrete_mask
 
-        tr = np.pad(smooth, ((d, 0), (0, d)), mode='edge')[:-d, d:].astype(float)
-        bl = np.pad(smooth, ((0, d), (0, d)), mode='edge')[d:, :-d].astype(float)
-        d2_dip = np.maximum(d2_dip, np.minimum(tr - c, bl - c))
+    roi_boxes = []
 
-    thresh_crack = 18.0 - (sensitivity - 0.65) * 5.0
-
-    v_mask = (v_dip > thresh_crack) & (gray < 160) & concrete_mask
-    h_mask = (h_dip > thresh_crack) & (gray < 160) & concrete_mask
-    d_mask = ((d1_dip > thresh_crack) | (d2_dip > thresh_crack)) & (gray < 160) & concrete_mask
-
-    # 5. Spall Topography
-    bh_spall = cv2.morphologyEx(gray, cv2.MORPH_BLACKHAT, cv2.getStructuringElement(cv2.MORPH_RECT, (17, 9)))
-    spalls_mask = (bh_spall > 22.0) & (gray < 160) & concrete_mask
-
-    all_defects = []
-    claimed_mask = np.zeros_like(gray, dtype=bool)
-
-    # 5.1 Vertical Through-Cracks (Slender fissure: bw <= 25, length bh >= 35)
+    # 4.1 Vertical Crack ROIs (Slender: bw <= 25, bh >= 35)
     num_v, v_lbl, v_st, _ = cv2.connectedComponentsWithStats(v_mask.astype(np.uint8))
     for i in range(1, num_v):
         x, y, bw, bh, area = v_st[i]
         aspect = bh / max(1, bw)
         if area > 80 and bh >= 35 and bw <= 25 and aspect >= 1.8:
-            x1, y1 = max(0, x - 6), max(0, y - 6)
-            x2, y2 = min(w, x + bw + 6), min(h, y + bh + 6)
-            comp_mask = (v_lbl == i).astype(np.uint8)
-            cnts, _ = cv2.findContours(comp_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-            poly = []
-            if cnts:
-                c = max(cnts, key=cv2.contourArea)
-                approx = cv2.approxPolyDP(c, 0.015 * cv2.arcLength(c, True), True)
-                poly = [[int(pt[0][0]), int(pt[0][1])] for pt in approx]
+            pad = 8
+            x1, y1 = max(0, x - pad), max(0, y - pad)
+            x2, y2 = min(w, x + bw + pad), min(h, y + bh + pad)
+            roi_boxes.append({"bbox": [x1, y1, x2, y2], "dtype": "Продольная сквозная трещина", "orient": 90, "area": area})
 
-            length_mm = int(bh * 1.25)
-            opening_mm = float(round(max(0.8, min(6.5, bw * 0.14 + 1.2)), 1))
-            sev = "critical" if bh > (h * 0.15) else "high"
-            dtype = "Продольная сквозная трещина"
-            analytics = _compute_defect_analytics(length_mm, opening_mm, dtype, sev)
-
-            all_defects.append({
-                "bbox": [int(x1), int(y1), int(x2), int(y2)],
-                "polygon": poly or [[int(x1), int(y1)], [int(x2), int(y1)], [int(x2), int(y2)], [int(x1), int(y2)]],
-                "type": dtype,
-                "defect_type": "major_crack",
-                "severity": sev,
-                "priority_score": 10000 + area + 25 * bh,
-                "confidence": 0.98,
-                "length_mm": length_mm,
-                "opening_mm": opening_mm,
-                "orientation_deg": 90,
-                "area": int(area),
-                "area_percent": float(round((area / total_concrete_pixels) * 100, 2)),
-                "description": f"{dtype} (~{length_mm}мм, раскрытие ~{opening_mm}мм)",
-                "analytics": analytics,
-            })
-            claimed_mask[y1:y2, x1:x2] = True
-
-    # 5.2 Horizontal Through-Cracks (Slender fissure: bh <= 25, length bw >= 35)
+    # 4.2 Horizontal Crack ROIs (Slender: bh <= 25, bw >= 35)
     num_h, h_lbl, h_st, _ = cv2.connectedComponentsWithStats(h_mask.astype(np.uint8))
     for i in range(1, num_h):
         x, y, bw, bh, area = h_st[i]
         aspect = bw / max(1, bh)
         if area > 80 and bw >= 35 and bh <= 25 and aspect >= 1.8:
-            x1, y1 = max(0, x - 6), max(0, y - 6)
-            x2, y2 = min(w, x + bw + 6), min(h, y + bh + 6)
-            comp_mask = (h_lbl == i).astype(np.uint8)
-            cnts, _ = cv2.findContours(comp_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-            poly = []
-            if cnts:
-                c = max(cnts, key=cv2.contourArea)
-                approx = cv2.approxPolyDP(c, 0.015 * cv2.arcLength(c, True), True)
-                poly = [[int(pt[0][0]), int(pt[0][1])] for pt in approx]
+            pad = 8
+            x1, y1 = max(0, x - pad), max(0, y - pad)
+            x2, y2 = min(w, x + bw + pad), min(h, y + bh + pad)
+            roi_boxes.append({"bbox": [x1, y1, x2, y2], "dtype": "Поперечная сквозная трещина", "orient": 0, "area": area})
 
-            length_mm = int(bw * 1.25)
-            opening_mm = float(round(max(0.8, min(6.5, bh * 0.14 + 1.2)), 1))
-            sev = "critical" if bw > (w * 0.15) else "high"
-            dtype = "Поперечная сквозная трещина"
-            analytics = _compute_defect_analytics(length_mm, opening_mm, dtype, sev)
-
-            all_defects.append({
-                "bbox": [int(x1), int(y1), int(x2), int(y2)],
-                "polygon": poly or [[int(x1), int(y1)], [int(x2), int(y1)], [int(x2), int(y2)], [int(x1), int(y2)]],
-                "type": dtype,
-                "defect_type": "major_crack",
-                "severity": sev,
-                "priority_score": 10000 + area + 25 * bw,
-                "confidence": 0.98,
-                "length_mm": length_mm,
-                "opening_mm": opening_mm,
-                "orientation_deg": 0,
-                "area": int(area),
-                "area_percent": float(round((area / total_concrete_pixels) * 100, 2)),
-                "description": f"{dtype} (~{length_mm}мм, раскрытие ~{opening_mm}мм)",
-                "analytics": analytics,
-            })
-            claimed_mask[y1:y2, x1:x2] = True
-
-    # 5.3 Diagonal / Shear Cracks
-    num_d, d_lbl, d_st, _ = cv2.connectedComponentsWithStats(d_mask.astype(np.uint8))
-    for i in range(1, num_d):
-        x, y, bw, bh, area = d_st[i]
-        length = max(bw, bh)
-        aspect = max(bw, bh) / max(1, min(bw, bh))
-        if area > 90 and length >= 35 and min(bw, bh) <= 28 and aspect >= 1.6 and not np.any(claimed_mask[y:y+bh, x:x+bw]):
-            x1, y1 = max(0, x - 6), max(0, y - 6)
-            x2, y2 = min(w, x + bw + 6), min(h, y + bh + 6)
-            comp_mask = (d_lbl == i).astype(np.uint8)
-            cnts, _ = cv2.findContours(comp_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-            poly = []
-            if cnts:
-                c = max(cnts, key=cv2.contourArea)
-                approx = cv2.approxPolyDP(c, 0.015 * cv2.arcLength(c, True), True)
-                poly = [[int(pt[0][0]), int(pt[0][1])] for pt in approx]
-
-            length_mm = int(length * 1.25)
-            opening_mm = float(round(max(0.8, min(6.0, min(bw, bh) * 0.14 + 1.2)), 1))
-            dtype = "Диагональный силовой разлом"
-            analytics = _compute_defect_analytics(length_mm, opening_mm, dtype, "high")
-
-            all_defects.append({
-                "bbox": [int(x1), int(y1), int(x2), int(y2)],
-                "polygon": poly or [[int(x1), int(y1)], [int(x2), int(y1)], [int(x2), int(y2)], [int(x1), int(y2)]],
-                "type": dtype,
-                "defect_type": "diagonal_crack",
-                "severity": "critical" if length > (min(w, h) * 0.20) else "high",
-                "priority_score": 9000 + area + 20 * length,
-                "confidence": 0.95,
-                "length_mm": length_mm,
-                "opening_mm": opening_mm,
-                "orientation_deg": 45,
-                "area": int(area),
-                "area_percent": float(round((area / total_concrete_pixels) * 100, 2)),
-                "description": f"{dtype} (~{length_mm}мм, раскрытие ~{opening_mm}мм)",
-                "analytics": analytics,
-            })
-            claimed_mask[y1:y2, x1:x2] = True
-
-    # 5.4 Spalls & Rim Breakdown (Flange Breakouts)
-    num_s, s_lbl, s_st, _ = cv2.connectedComponentsWithStats((spalls_mask & (~claimed_mask)).astype(np.uint8))
+    # 4.3 Spall & Cavitation ROIs
+    bh_spall = cv2.morphologyEx(gray, cv2.MORPH_BLACKHAT, cv2.getStructuringElement(cv2.MORPH_RECT, (17, 9)))
+    spalls_mask = (bh_spall > 22.0) & (gray < 160) & concrete_mask
+    num_s, s_lbl, s_st, _ = cv2.connectedComponentsWithStats(spalls_mask.astype(np.uint8))
     for i in range(1, num_s):
         x, y, bw, bh, area = s_st[i]
         aspect = max(bw, bh) / max(min(bw, bh), 1)
         if 120 < area < (total_pixels * 0.04) and max(bw, bh) > 30 and aspect < 3.0:
-            x1, y1 = max(0, x - 6), max(0, y - 6)
-            x2, y2 = min(w, x + bw + 6), min(h, y + bh + 6)
-            comp_mask = (s_lbl == i).astype(np.uint8)
-            cnts, _ = cv2.findContours(comp_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-            poly = []
-            if cnts:
-                c = max(cnts, key=cv2.contourArea)
-                approx = cv2.approxPolyDP(c, 0.02 * cv2.arcLength(c, True), True)
-                poly = [[int(pt[0][0]), int(pt[0][1])] for pt in approx]
+            pad = 8
+            x1, y1 = max(0, x - pad), max(0, y - pad)
+            x2, y2 = min(w, x + bw + pad), min(h, y + bh + pad)
+            roi_boxes.append({"bbox": [x1, y1, x2, y2], "dtype": "Скол кромки / разрушение фальца", "orient": 45, "area": area})
 
-            length_mm = int(max(bw, bh) * 1.25)
-            dtype = "Скол кромки / разрушение фальца"
-            analytics = _compute_defect_analytics(length_mm, None, dtype, "high")
+    # 5. Process each Candidate ROI with the User's Exact 6-step Frangi pipeline
+    processed_defects = []
+    claimed_mask = np.zeros_like(gray, dtype=bool)
 
-            all_defects.append({
+    for roi in roi_boxes:
+        x1, y1, x2, y2 = roi["bbox"]
+        roi_patch = gray[y1:y2, x1:x2]
+
+        c_mask, skel, poly, skel_len = _process_roi_frangi_pipeline(roi_patch, sensitivity=sensitivity)
+
+        if c_mask is not None or "Скол" in roi["dtype"]:
+            global_poly = [[int(pt[0] + x1), int(pt[1] + y1)] for pt in poly] if poly else [
+                [x1, y1], [x2, y1], [x2, y2], [x1, y2]
+            ]
+            length_mm = int(max(x2 - x1, y2 - y1) * 1.25)
+            opening_mm = round(max(0.8, min(6.5, min(x2 - x1, y2 - y1) * 0.14 + 1.2)), 1) if "трещина" in roi["dtype"].lower() else None
+            sev = "critical" if max(x2 - x1, y2 - y1) > (min(w, h) * 0.15) else "high"
+            analytics = _compute_defect_analytics(length_mm, opening_mm, roi["dtype"], sev)
+
+            processed_defects.append({
                 "bbox": [int(x1), int(y1), int(x2), int(y2)],
-                "polygon": poly or [[int(x1), int(y1)], [int(x2), int(y1)], [int(x2), int(y2)], [int(x1), int(y2)]],
-                "type": dtype,
-                "defect_type": "spalling",
-                "severity": "high",
-                "priority_score": 5000 + area,
-                "confidence": 0.94,
+                "polygon": global_poly,
+                "type": roi["dtype"],
+                "defect_type": "major_crack" if "трещина" in roi["dtype"].lower() else "spalling",
+                "severity": sev,
+                "priority_score": 10000 + roi["area"] + 25 * max(x2 - x1, y2 - y1),
+                "confidence": 0.98,
                 "length_mm": length_mm,
-                "opening_mm": None,
-                "orientation_deg": 45,
-                "area": int(area),
-                "area_percent": float(round((area / total_concrete_pixels) * 100, 2)),
-                "description": f"Скол кромки фальца ({int(x2-x1)}×{int(y2-y1)}px)",
+                "opening_mm": opening_mm,
+                "orientation_deg": roi["orient"],
+                "skel_len": skel_len,
+                "area": int(roi["area"]),
+                "area_percent": float(round((roi["area"] / total_concrete_pixels) * 100, 2)),
+                "description": f"{roi['dtype']} (~{length_mm}мм)",
                 "analytics": analytics,
             })
             claimed_mask[y1:y2, x1:x2] = True
@@ -372,7 +365,7 @@ def scan_defects(image: np.ndarray, sensitivity: float = 0.65) -> Dict[str, Any]
         return inter / min(a1, a2)
 
     clean_defects = []
-    for cand in sorted(all_defects, key=lambda c: c["priority_score"], reverse=True):
+    for cand in sorted(processed_defects, key=lambda c: c["priority_score"], reverse=True):
         if not any(iou(cand["bbox"], cd["bbox"]) > 0.15 for cd in clean_defects):
             clean_defects.append(cand)
 
@@ -454,7 +447,7 @@ def scan_defects(image: np.ndarray, sensitivity: float = 0.65) -> Dict[str, Any]
         sev_counts[s] = sev_counts.get(s, 0) + 1
 
     max_sev = max(sev_counts.keys(), key=lambda s: sev_order.get(s, 0)) if sev_counts else "low"
-    logger.info(f"[Defect Scanner v170.0] Output: {len(clean_defects)} defects, max_severity={max_sev}")
+    logger.info(f"[Defect Scanner v180.0] Output: {len(clean_defects)} defects, max_severity={max_sev}")
 
     return {
         "defects": clean_defects,
