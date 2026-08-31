@@ -1,13 +1,13 @@
 """
-QazGost AI — Precision Vision Defect Scanner (v38.0 True SOTA Crack & Spalling Suite)
+QazGost AI — Precision Vision Defect Scanner (v40.0 SOTA Clean Laser Suite)
 
 Fully Autonomous Universal Concrete Defect Inspector:
-  - Detects ALL cracks (longitudinal, radial, hairline, severe structural) on full pipes, rings, slabs, and close-up surfaces.
-  - Multi-scale Profile Valley Dip Peak Tracing + Hessian/Sato Tubeness line filtering.
-  - Detects ALL edge spalls, corner breakdowns and flange damage.
-  - Automatically identifies healthy vs defect concrete zones.
-  - Laser-accurate bounding boxes and polygonal contours along true fracture paths.
-  - Completely autonomous — no user prompt required.
+  - Strict Concrete Surface Masking: defects are strictly confined to concrete (no leakage onto soil, grass, or central hole).
+  - True Local Crack Contours: Multi-scale Sato/Hessian Line Filtering & Symmetric Dark Valley Morphology.
+  - Smooth polygonal defect contours (cv2.approxPolyDP) without jagged crosshair artifacts.
+  - Edge spall and flange notch breakdown detection.
+  - Precision bounding boxes and AutoCAD-style dimension labels (L, d).
+  - Intact concrete green overlay without background spillage.
 """
 
 import io
@@ -36,7 +36,7 @@ SEV_LABELS_RU = {
 def scan_defects(image: np.ndarray, sensitivity: float = 0.65) -> Dict[str, Any]:
     h, w = image.shape[:2]
     total_pixels = h * w
-    logger.info(f"[Defect Scanner v38.0] Autonomous scan on {w}x{h}, sensitivity={sensitivity}")
+    logger.info(f"[Defect Scanner v40.0] Autonomous scan on {w}x{h}, sensitivity={sensitivity}")
 
     if len(image.shape) == 3 and image.shape[2] == 3:
         img_bgr = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
@@ -54,31 +54,33 @@ def scan_defects(image: np.ndarray, sensitivity: float = 0.65) -> Dict[str, Any]
     sat = hsv[:, :, 1].astype(float)
     lab_b = lab[:, :, 2].astype(float)
 
-    # 1. Background Mask (Soil, Ground, Red Brick, Foliage, Sky)
-    is_soil_brick = (((r > b + 24) & (sat > 30)) | ((r > 120) & (g > 70) & (b < 60) & (sat > 30)) | (lab_b > 155))
-    is_vegetation = (g > r + 20) & (g > b + 15) & (sat > 30)
-    is_sky = (b > r + 30) & (b > g + 15) & (gray > 165)
-    is_background = is_soil_brick | is_vegetation | is_sky
-    is_background = cv2.morphologyEx(is_background.astype(np.uint8), cv2.MORPH_CLOSE, np.ones((11, 11), np.uint8)) > 0
+    # 1. Background Mask (Soil, Sand, Red Brick, Foliage, Sky)
+    is_soil = (((r > b + 18) & (sat > 20)) | ((r > 110) & (g > 65) & (b < 75)) | (lab_b > 145))
+    is_veg = (g > r + 15) & (g > b + 10) & (sat > 25)
+    is_sky = (b > r + 25) & (b > g + 10) & (gray > 165)
+    is_bg = is_soil | is_veg | is_sky
+    is_bg = cv2.morphologyEx(is_bg.astype(np.uint8), cv2.MORPH_CLOSE, np.ones((11, 11), np.uint8)) > 0
 
-    # 2. Deep Pit Cavity (Only for hollow pipe rings with a round center)
-    is_very_dark = (gray < 25)
-    num_l, labels, stats, centroids = cv2.connectedComponentsWithStats(is_very_dark.astype(np.uint8))
+    # 2. Central Deep Pit Void (Only inside round hollow concrete pipes / manhole rings)
+    is_dark = (gray < 28)
+    num_l, labels, stats, centroids = cv2.connectedComponentsWithStats(is_dark.astype(np.uint8))
     central_hole = np.zeros_like(gray, dtype=bool)
     for i in range(1, num_l):
         x, y, bw, bh, area = stats[i]
         cx, cy = centroids[i]
         aspect = max(bw, bh) / max(min(bw, bh), 1)
-        if area > (total_pixels * 0.05) and aspect < 2.5 and (0.25 * w < cx < 0.75 * w) and (0.20 * h < cy < 0.70 * h):
+        if area > (total_pixels * 0.04) and aspect < 2.2 and (0.20 * w < cx < 0.80 * w) and (0.15 * h < cy < 0.75 * h):
             central_hole |= (labels == i)
 
     # 3. 100% Solid Intact Concrete Mask
-    concrete_mask = (~is_background) & (~central_hole)
-    if np.sum(concrete_mask) < (total_pixels * 0.30):
-        # Wall / slab close-up fallback
+    concrete_mask = (~is_bg) & (~central_hole)
+    if np.sum(concrete_mask) < (total_pixels * 0.25):
+        # Close-up concrete wall/slab fallback
         concrete_mask = np.ones_like(gray, dtype=bool)
     else:
         concrete_mask = cv2.morphologyEx(concrete_mask.astype(np.uint8), cv2.MORPH_CLOSE, np.ones((15, 15), np.uint8)) > 0
+        concrete_mask = cv2.morphologyEx(concrete_mask.astype(np.uint8), cv2.MORPH_OPEN, np.ones((7, 7), np.uint8)) > 0
+        concrete_mask &= (~central_hole) & (~is_bg)
 
     total_concrete_pixels = max(1, int(np.sum(concrete_mask)))
 
@@ -88,126 +90,9 @@ def scan_defects(image: np.ndarray, sensitivity: float = 0.65) -> Dict[str, Any]
     # 4. Multi-Scale Bilateral Smoothing
     smooth = cv2.bilateralFilter(gray, 7, 45, 45)
 
-    # 5. Method A: Profile Valley & Baseline Difference Operator
-    h_blur = cv2.blur(smooth, (27, 1))
-    v_diff = np.maximum(0, h_blur.astype(float) - smooth.astype(float))
-
-    v_blur = cv2.blur(smooth, (1, 27))
-    h_diff = np.maximum(0, v_blur.astype(float) - smooth.astype(float))
-
-    # --- Vertical / Longitudinal Crack Peak Tracing ---
-    col_energy = np.mean(v_diff, axis=0)
-    margin_w = max(10, int(w * 0.07))
-    col_energy[:margin_w] = 0
-    col_energy[-margin_w:] = 0
-
-    v_peaks = []
-    for x in range(margin_w, w - margin_w):
-        val = col_energy[x]
-        if val > (5.5 - (sensitivity - 0.65) * 2.0) and val == np.max(col_energy[max(0, x-20):min(w, x+21)]):
-            v_peaks.append((x, val))
-
-    v_peaks.sort(key=lambda p: p[1], reverse=True)
-
-    for peak_x, val in v_peaks[:3]:
-        path_x = []
-        path_y = []
-        for cur_y in range(h):
-            win_x1 = max(0, peak_x - int(w * 0.07))
-            win_x2 = min(w, peak_x + int(w * 0.07))
-            row_dip = v_diff[cur_y, win_x1:win_x2]
-            if len(row_dip) > 0 and np.max(row_dip) > 2.5:
-                best_rx = win_x1 + int(np.argmax(row_dip))
-                path_x.append(best_rx)
-                path_y.append(cur_y)
-
-        if len(path_x) > max(25, int(h * 0.20)):
-            tx1 = max(0, int(np.min(path_x)) - 10)
-            tx2 = min(w, int(np.max(path_x)) + 10)
-            ty1 = max(0, int(np.min(path_y)) - 4)
-            ty2 = min(h, int(np.max(path_y)) + 4)
-
-            t_len = ty2 - ty1
-            t_len_mm = int(t_len * 1.25)
-            t_opening = float(round(max(0.8, min(8.0, (tx2 - tx1) * 0.10 + 1.2)), 1))
-
-            poly_left = [[int(px - 6), int(py)] for px, py in zip(path_x, path_y)]
-            poly_right = [[int(px + 6), int(py)] for px, py in reversed(list(zip(path_x, path_y)))]
-            traced_poly = poly_left + poly_right
-
-            raw_defects.append({
-                "bbox": [int(tx1), int(ty1), int(tx2), int(ty2)],
-                "polygon": traced_poly,
-                "type": "Продольная сквозная трещина",
-                "defect_type": "major_crack",
-                "severity": "critical" if t_len > (h * 0.35) else "high",
-                "confidence": 0.98,
-                "area": int(len(path_x) * (tx2 - tx1)),
-                "area_percent": float(round((len(path_x) * (tx2 - tx1) / total_concrete_pixels) * 100, 2)),
-                "length_mm": int(t_len_mm),
-                "opening_mm": float(t_opening),
-                "description": f"Продольная сквозная трещина конструкции (~{t_len_mm}мм, раскрытие ~{t_opening}мм)",
-            })
-            all_defect_mask[ty1:ty2, tx1:tx2] = True
-
-    # --- Horizontal / Transverse Crack Peak Tracing ---
-    row_energy = np.mean(h_diff, axis=1)
-    margin_h = max(10, int(h * 0.07))
-    row_energy[:margin_h] = 0
-    row_energy[-margin_h:] = 0
-
-    h_peaks = []
-    for y in range(margin_h, h - margin_h):
-        val = row_energy[y]
-        if val > (6.0 - (sensitivity - 0.65) * 2.0) and val == np.max(row_energy[max(0, y-20):min(h, y+21)]):
-            h_peaks.append((y, val))
-
-    h_peaks.sort(key=lambda p: p[1], reverse=True)
-
-    for peak_y, val in h_peaks[:2]:
-        path_x = []
-        path_y = []
-        for cur_x in range(w):
-            win_y1 = max(0, peak_y - int(h * 0.07))
-            win_y2 = min(h, peak_y + int(h * 0.07))
-            col_dip = h_diff[win_y1:win_y2, cur_x]
-            if len(col_dip) > 0 and np.max(col_dip) > 2.5:
-                best_ry = win_y1 + int(np.argmax(col_dip))
-                path_x.append(cur_x)
-                path_y.append(best_ry)
-
-        if len(path_x) > max(25, int(w * 0.20)):
-            tx1 = max(0, int(np.min(path_x)) - 4)
-            tx2 = min(w, int(np.max(path_x)) + 4)
-            ty1 = max(0, int(np.min(path_y)) - 10)
-            ty2 = min(h, int(np.max(path_y)) + 10)
-
-            t_len = tx2 - tx1
-            t_len_mm = int(t_len * 1.25)
-            t_opening = float(round(max(0.8, min(8.0, (ty2 - ty1) * 0.10 + 1.2)), 1))
-
-            poly_top = [[int(px), int(py - 6)] for px, py in zip(path_x, path_y)]
-            poly_bot = [[int(px), int(py + 6)] for px, py in reversed(list(zip(path_x, path_y)))]
-            traced_poly = poly_top + poly_bot
-
-            raw_defects.append({
-                "bbox": [int(tx1), int(ty1), int(tx2), int(ty2)],
-                "polygon": traced_poly,
-                "type": "Поперечная трещина конструкции",
-                "defect_type": "major_crack",
-                "severity": "critical" if t_len > (w * 0.35) else "high",
-                "confidence": 0.96,
-                "area": int(len(path_x) * (ty2 - ty1)),
-                "area_percent": float(round((len(path_x) * (ty2 - ty1) / total_concrete_pixels) * 100, 2)),
-                "length_mm": int(t_len_mm),
-                "opening_mm": float(t_opening),
-                "description": f"Поперечная трещина конструкции (~{t_len_mm}мм, раскрытие ~{t_opening}мм)",
-            })
-            all_defect_mask[ty1:ty2, tx1:tx2] = True
-
-    # 6. Method B: Multi-Scale Sato / Hessian Ridge Tubeness Filter
+    # 5. Multi-Scale Sato Tubeness / Hessian Ridge Line Filtering
     max_tubeness = np.zeros((h, w), dtype=np.float32)
-    for sigma in [1.5, 2.8, 4.5]:
+    for sigma in [1.2, 2.2, 3.5, 5.0]:
         blurred = cv2.GaussianBlur(smooth.astype(np.float32), (0, 0), sigma)
         dxx = cv2.Sobel(blurred, cv2.CV_32F, 2, 0, ksize=3)
         dyy = cv2.Sobel(blurred, cv2.CV_32F, 0, 2, ksize=3)
@@ -223,76 +108,120 @@ def scan_defects(image: np.ndarray, sensitivity: float = 0.65) -> Dict[str, Any]
 
     norm_tubeness = cv2.normalize(max_tubeness, None, 0, 255, cv2.NORM_MINMAX).astype(np.uint8)
 
-    # Fine crack binary threshold
-    strong_tubes = (norm_tubeness > 45) & (gray > 10) & (gray < 220) & concrete_mask
-    k_v = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 17))
-    fine_bridged = cv2.morphologyEx(strong_tubes.astype(np.uint8), cv2.MORPH_CLOSE, k_v)
+    # 6. Symmetric Local Valley Dark Dip
+    k = max(4, int(min(w, h) * 0.02))
+    left = np.pad(smooth, ((0, 0), (k, 0)), mode='edge')[:, :-k].astype(float)
+    right = np.pad(smooth, ((0, 0), (0, k)), mode='edge')[:, k:].astype(float)
+    v_valleys = np.maximum(0, np.minimum(left - smooth.astype(float), right - smooth.astype(float)))
 
-    num_f, f_labels, f_stats, _ = cv2.connectedComponentsWithStats(fine_bridged)
-    for i in range(1, num_f):
-        x, y, bw, bh, area = f_stats[i]
+    top = np.pad(smooth, ((k, 0), (0, 0)), mode='edge')[:-k, :].astype(float)
+    bottom = np.pad(smooth, ((0, k), (0, 0)), mode='edge')[k:, :].astype(float)
+    h_valleys = np.maximum(0, np.minimum(top - smooth.astype(float), bottom - smooth.astype(float)))
+    local_valleys = np.maximum(v_valleys, h_valleys)
+
+    # 7. Combined Crack Probability strictly on Concrete
+    crack_response = (norm_tubeness.astype(float) / 255.0) * 0.55 + (np.clip(local_valleys, 0, 25) / 25.0) * 0.45
+    thresh = 0.25 - (sensitivity - 0.65) * 0.12
+    crack_binary = (crack_response > thresh) & concrete_mask & (gray > 12) & (gray < 225)
+
+    # Directional morphological connection along fractures
+    k_v = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 17))
+    k_h = cv2.getStructuringElement(cv2.MORPH_RECT, (17, 3))
+    k_d1 = np.eye(13, dtype=np.uint8)
+    k_d2 = np.fliplr(np.eye(13, dtype=np.uint8))
+
+    bridged_cracks = cv2.morphologyEx(crack_binary.astype(np.uint8), cv2.MORPH_CLOSE, k_v) | \
+                     cv2.morphologyEx(crack_binary.astype(np.uint8), cv2.MORPH_CLOSE, k_h) | \
+                     cv2.morphologyEx(crack_binary.astype(np.uint8), cv2.MORPH_CLOSE, k_d1) | \
+                     cv2.morphologyEx(crack_binary.astype(np.uint8), cv2.MORPH_CLOSE, k_d2)
+
+    # Restrict bridged crack strictly to concrete
+    bridged_cracks = (bridged_cracks & concrete_mask.astype(np.uint8))
+
+    # 8. Extract True Crack Components & Smooth Contours
+    num_c, c_labels, c_stats, _ = cv2.connectedComponentsWithStats(bridged_cracks)
+    for i in range(1, num_c):
+        x, y, bw, bh, area = c_stats[i]
         length = max(bw, bh)
         aspect = max(bw, bh) / max(min(bw, bh), 1)
 
+        # Border and background filters
         if (x <= 1 or x + bw >= w - 1) and bw <= 3: continue
         if (y <= 1 or y + bh >= h - 1) and bh <= 3: continue
-        if area > (total_pixels * 0.25): continue
+        if area > (total_concrete_pixels * 0.40): continue
 
-        if (length > 40 and aspect > 2.0 and area > 100):
-            comp_mask = (f_labels == i).astype(np.uint8)
+        if (length > 28 and aspect > 1.5 and area > 45) or (length > 50 and area > 80):
+            comp_mask = (c_labels == i).astype(np.uint8)
             contours, _ = cv2.findContours(comp_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
             poly = []
             if contours:
                 c = max(contours, key=cv2.contourArea)
-                poly = [[int(pt[0][0]), int(pt[0][1])] for pt in c]
+                # Smooth contour with approxPolyDP for clean organic look
+                epsilon = 0.015 * cv2.arcLength(c, True)
+                approx = cv2.approxPolyDP(c, epsilon, True)
+                poly = [[int(pt[0][0]), int(pt[0][1])] for pt in approx]
 
             x1, y1 = max(0, x - 4), max(0, y - 4)
             x2, y2 = min(w, x + bw + 4), min(h, y + bh + 4)
-            opening_mm = float(round(max(0.6, min(4.0, min(bw, bh) * 0.12 + 0.8)), 1))
+
+            opening_mm = float(round(max(0.8, min(6.0, min(bw, bh) * 0.12 + 1.2)), 1))
             length_mm = int(length * 1.25)
+            sev = "critical" if length > (h * 0.35) or length > (w * 0.35) else "high"
+            dtype = "Продольная трещина" if bh >= bw else "Поперечная трещина"
 
             raw_defects.append({
                 "bbox": [int(x1), int(y1), int(x2), int(y2)],
                 "polygon": poly or [[int(x1), int(y1)], [int(x2), int(y1)], [int(x2), int(y2)], [int(x1), int(y2)]],
-                "type": "Волосяная трещина бетона",
-                "defect_type": "hairline_crack",
-                "severity": "medium",
-                "confidence": 0.88,
+                "type": f"{dtype} бетона",
+                "defect_type": "major_crack",
+                "severity": sev,
+                "confidence": float(round(min(0.98, 0.88 + (length / max(w, h)) * 0.15), 2)),
                 "area": int(area),
                 "area_percent": float(round((area / total_concrete_pixels) * 100, 2)),
                 "length_mm": int(length_mm),
                 "opening_mm": float(opening_mm),
-                "description": f"Волосяная усадочная трещина (~{length_mm}мм, раскрытие ~{opening_mm}мм)",
+                "description": f"{dtype} (~{length_mm}мм, раскрытие ~{opening_mm}мм)",
             })
             all_defect_mask[y1:y2, x1:x2] = True
 
-    # 7. Rim / Flange Notch Spall (Top rim edge breakdown only)
-    bh_rim = cv2.morphologyEx(gray, cv2.MORPH_BLACKHAT, cv2.getStructuringElement(cv2.MORPH_RECT, (21, 5)))
+    # 9. Rim / Flange Notch Spall (Top rim breakdown strictly on concrete rim)
+    bh_rim = cv2.morphologyEx(gray, cv2.MORPH_BLACKHAT, cv2.getStructuringElement(cv2.MORPH_RECT, (21, 7)))
     rim_spalls = (bh_rim > 16.0) & concrete_mask
     rim_bridged = cv2.morphologyEx(rim_spalls.astype(np.uint8), cv2.MORPH_CLOSE, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (7, 7)))
 
     num_s, s_labels, s_stats, _ = cv2.connectedComponentsWithStats(rim_bridged)
     for i in range(1, num_s):
         x, y, bw, bh, area = s_stats[i]
-        if 80 < area < (total_pixels * 0.03) and (bw > 25 or bh > 25) and (y < h * 0.35) and (w * 0.25 < x < w * 0.80):
+        aspect = max(bw, bh) / max(min(bw, bh), 1)
+        if 80 < area < (total_pixels * 0.04) and (bw > 25 or bh > 25) and aspect < 3.5:
             x1, y1 = max(0, x - 4), max(0, y - 4)
             x2, y2 = min(w, x + bw + 4), min(h, y + bh + 4)
-            area_pct = round((area / total_concrete_pixels) * 100, 2)
+
+            comp_mask = (s_labels == i).astype(np.uint8)
+            contours, _ = cv2.findContours(comp_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+            poly = []
+            if contours:
+                c = max(contours, key=cv2.contourArea)
+                epsilon = 0.02 * cv2.arcLength(c, True)
+                approx = cv2.approxPolyDP(c, epsilon, True)
+                poly = [[int(pt[0][0]), int(pt[0][1])] for pt in approx]
+
             raw_defects.append({
                 "bbox": [int(x1), int(y1), int(x2), int(y2)],
-                "polygon": [[int(x1), int(y1)], [int(x2), int(y1)], [int(x2), int(y2)], [int(x1), int(y2)]],
+                "polygon": poly or [[int(x1), int(y1)], [int(x2), int(y1)], [int(x2), int(y2)], [int(x1), int(y2)]],
                 "type": "Скол кромки / разрушение фальца",
                 "defect_type": "spalling",
                 "severity": "high",
-                "confidence": 0.92,
+                "confidence": 0.94,
                 "area": int(area),
-                "area_percent": float(area_pct),
+                "area_percent": float(round((area / total_concrete_pixels) * 100, 2)),
                 "length_mm": int(max(bw, bh) * 1.25),
                 "opening_mm": None,
-                "description": f"Сколы и разрушение кромки фальца ({int(x2-x1)}×{int(y2-y1)}px)",
+                "description": f"Скол кромки бетона ({int(x2-x1)}×{int(y2-y1)}px)",
             })
+            all_defect_mask[y1:y2, x1:x2] = True
 
-    # 8. Non-Maximum Suppression (IoU Deduplication)
+    # 10. Non-Maximum Suppression (IoU Deduplication)
     def iou(b1, b2):
         ix1, iy1 = max(b1[0], b2[0]), max(b1[1], b2[1])
         ix2, iy2 = min(b1[2], b2[2]), min(b1[3], b2[3])
@@ -303,9 +232,8 @@ def scan_defects(image: np.ndarray, sensitivity: float = 0.65) -> Dict[str, Any]
         return inter / min(a1, a2)
 
     clean_defects = []
-    # Prioritize critical / traced fractures
-    for cand in sorted(raw_defects, key=lambda c: (c["confidence"] >= 0.95, c["severity"] == "critical", c["length_mm"] or 0), reverse=True):
-        if not any(iou(cand["bbox"], cd["bbox"]) > 0.25 for cd in clean_defects):
+    for cand in sorted(raw_defects, key=lambda c: (c["severity"] == "critical", c["area"]), reverse=True):
+        if not any(iou(cand["bbox"], cd["bbox"]) > 0.30 for cd in clean_defects):
             clean_defects.append(cand)
 
     sev_order = {"critical": 4, "high": 3, "medium": 2, "low": 1}
@@ -329,7 +257,7 @@ def scan_defects(image: np.ndarray, sensitivity: float = 0.65) -> Dict[str, Any]
         sev_counts[s] = sev_counts.get(s, 0) + 1
 
     max_sev = max(sev_counts.keys(), key=lambda s: sev_order.get(s, 0)) if sev_counts else "low"
-    logger.info(f"[Defect Scanner v38.0] Output: {len(clean_defects)} defects, max_severity={max_sev}")
+    logger.info(f"[Defect Scanner v40.0] Output: {len(clean_defects)} defects, max_severity={max_sev}")
 
     return {
         "defects": clean_defects,
@@ -383,55 +311,44 @@ def _draw_annotations(image: np.ndarray, defects: List[Dict], ring_mask: np.ndar
             pts = np.array(d["polygon"], dtype=np.int32)
             poly_overlay = annotated.copy()
             cv2.fillPoly(poly_overlay, [pts], color)
-            cv2.addWeighted(poly_overlay, 0.45, annotated, 0.55, 0, annotated)
+            cv2.addWeighted(poly_overlay, 0.40, annotated, 0.60, 0, annotated)
             cv2.polylines(annotated, [pts], isClosed=True, color=color, thickness=2, lineType=cv2.LINE_AA)
 
         # 2. Draw high-visibility bounding box with corner brackets
         cv2.rectangle(annotated, (x1, y1), (x2, y2), color, 2, lineType=cv2.LINE_AA)
-        
+
         # Draw corner crosshairs / brackets
-        bracket_len = min(16, max(6, int(min(x2-x1, y2-y1) * 0.2)))
+        bracket_len = min(14, max(5, int(min(x2-x1, y2-y1) * 0.18)))
         # Top-left
-        cv2.line(annotated, (x1, y1), (x1 + bracket_len, y1), (255, 255, 255), 3, lineType=cv2.LINE_AA)
-        cv2.line(annotated, (x1, y1), (x1, y1 + bracket_len), (255, 255, 255), 3, lineType=cv2.LINE_AA)
+        cv2.line(annotated, (x1, y1), (x1 + bracket_len, y1), (255, 255, 255), 2, lineType=cv2.LINE_AA)
+        cv2.line(annotated, (x1, y1), (x1, y1 + bracket_len), (255, 255, 255), 2, lineType=cv2.LINE_AA)
         # Top-right
-        cv2.line(annotated, (x2, y1), (x2 - bracket_len, y1), (255, 255, 255), 3, lineType=cv2.LINE_AA)
-        cv2.line(annotated, (x2, y1), (x2, y1 + bracket_len), (255, 255, 255), 3, lineType=cv2.LINE_AA)
+        cv2.line(annotated, (x2, y1), (x2 - bracket_len, y1), (255, 255, 255), 2, lineType=cv2.LINE_AA)
+        cv2.line(annotated, (x2, y1), (x2, y1 + bracket_len), (255, 255, 255), 2, lineType=cv2.LINE_AA)
         # Bottom-left
-        cv2.line(annotated, (x1, y2), (x1 + bracket_len, y2), (255, 255, 255), 3, lineType=cv2.LINE_AA)
-        cv2.line(annotated, (x1, y2), (x1, y2 - bracket_len), (255, 255, 255), 3, lineType=cv2.LINE_AA)
+        cv2.line(annotated, (x1, y2), (x1 + bracket_len, y2), (255, 255, 255), 2, lineType=cv2.LINE_AA)
+        cv2.line(annotated, (x1, y2), (x1, y2 - bracket_len), (255, 255, 255), 2, lineType=cv2.LINE_AA)
         # Bottom-right
-        cv2.line(annotated, (x2, y2), (x2 - bracket_len, y2), (255, 255, 255), 3, lineType=cv2.LINE_AA)
-        cv2.line(annotated, (x2, y2), (x2, y2 - bracket_len), (255, 255, 255), 3, lineType=cv2.LINE_AA)
+        cv2.line(annotated, (x2, y2), (x2 - bracket_len, y2), (255, 255, 255), 2, lineType=cv2.LINE_AA)
+        cv2.line(annotated, (x2, y2), (x2, y2 - bracket_len), (255, 255, 255), 2, lineType=cv2.LINE_AA)
 
-        # 3. Engineering Dimension Arrows (AutoCAD / СНиП style)
-        if length_mm and (y2 - y1) > 50:
-            dim_x = max(10, x1 - 18)
-            # Vertical dimension line
-            cv2.line(annotated, (dim_x, y1), (dim_x, y2), (56, 189, 248), 1, lineType=cv2.LINE_AA)
-            cv2.line(annotated, (dim_x - 4, y1), (dim_x + 4, y1), (56, 189, 248), 2, lineType=cv2.LINE_AA)
-            cv2.line(annotated, (dim_x - 4, y2), (dim_x + 4, y2), (56, 189, 248), 2, lineType=cv2.LINE_AA)
-            # Dimension text
-            dim_text = f"L={length_mm}mm"
-            cv2.putText(annotated, dim_text, (max(2, dim_x - 65), int((y1 + y2) / 2)), cv2.FONT_HERSHEY_SIMPLEX, 0.42, (56, 189, 248), 1, cv2.LINE_AA)
-
-        # 4. Premium HUD Badge Label
+        # 3. Premium HUD Badge Label
         type_name = d.get("type", "Дефект")
         line1 = f"#{d.get('id', 1)} {type_name}"
         metrics_str = f" | L={length_mm}mm" if length_mm else ""
         if opening_mm: metrics_str += f" | d={opening_mm}mm"
         line2 = f"{conf}% | {label_ru}{metrics_str}"
 
-        badge_w = max(260, int(len(line2) * 8.5) + 20)
-        badge_h = 46
+        badge_w = max(230, int(len(line2) * 8.0) + 16)
+        badge_h = 42
         badge_x1 = max(4, min(w - badge_w - 4, x1))
-        badge_y1 = max(4, y1 - badge_h - 4) if y1 > badge_h + 8 else min(h - badge_h - 4, y2 + 6)
+        badge_y1 = max(4, y1 - badge_h - 4) if y1 > badge_h + 6 else min(h - badge_h - 4, y2 + 6)
 
         # Dark Glass Background with Accent Border
         cv2.rectangle(annotated, (badge_x1, badge_y1), (badge_x1 + badge_w, badge_y1 + badge_h), (12, 18, 28), -1)
         cv2.rectangle(annotated, (badge_x1, badge_y1), (badge_x1 + badge_w, badge_y1 + badge_h), color, 2, lineType=cv2.LINE_AA)
 
-        cv2.putText(annotated, line1, (badge_x1 + 10, badge_y1 + 18), cv2.FONT_HERSHEY_SIMPLEX, 0.50, (255, 255, 255), 1, cv2.LINE_AA)
-        cv2.putText(annotated, line2, (badge_x1 + 10, badge_y1 + 37), cv2.FONT_HERSHEY_SIMPLEX, 0.44, color, 1, cv2.LINE_AA)
+        cv2.putText(annotated, line1, (badge_x1 + 8, badge_y1 + 16), cv2.FONT_HERSHEY_SIMPLEX, 0.46, (255, 255, 255), 1, cv2.LINE_AA)
+        cv2.putText(annotated, line2, (badge_x1 + 8, badge_y1 + 33), cv2.FONT_HERSHEY_SIMPLEX, 0.40, color, 1, cv2.LINE_AA)
 
     return annotated
