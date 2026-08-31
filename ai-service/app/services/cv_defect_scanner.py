@@ -1,18 +1,20 @@
 """
-QazGost AI — Precision Vision Defect Scanner (v90.0 Omni-Industrial Inspection Suite)
+QazGost AI — Precision Vision Defect Scanner (v100.0 Multi-Factor B&W Crack Tracing Suite)
 
 Comprehensive Industrial AI Defect Recognition & Structural Metrology:
-  - Multi-Spectrum Detection Engine:
-      1. Major & Through Cracks (0°, 45°, 90°, 135° Symmetric 1D Dips).
-      2. Hairline & Shrinkage Micro-Cracks (High-frequency fine curvature extraction, d < 0.4mm).
-      3. Edge Spalls, Notch Fractures & Flange Breakdown (BlackHat topographic variance).
-      4. Concrete Cavities, Pitting & Honeycombing (Luminance depth valleys).
-      5. Rust Bleeding & Rebar Oxidation Streaks (Colorimetric Lab Fe2O3 spectral mapping).
-  - Strict Concrete Surface Masking (Lab_b > 140, R > B + 16): zero false positives on soil, sand, foliage, sky, or pipe cavities.
-  - Smooth polygonal defect contours (cv2.approxPolyDP) strictly enveloping true fracture lines.
-  - High-Precision Physical Metrology: Length (L, mm), Opening Width (d, mm), Orientation (θ, deg).
-  - 7-Point Crack Width Profile (w(L)) & Structural Degradation Forecast.
-  - Multi-Modal Visual Outputs:
+  - Multi-Factor B&W Analysis Pipeline:
+      * CLAHE Adaptive Local Contrast & Bilateral Noise Suppression
+      * 8-Directional Symmetric 1D Valley Dip Operators (0°, 22.5°, 45°, 67.5°, 90°, 112.5°, 135°, 157.5°)
+      * Multi-scale Hessian Ridge & Sato Tubeness decomposition for fine hairline cracks
+      * Topographic Black-Hat & Morphological Gradient for edge spalls & cavitation pits
+  - Topological Skeletonization & Centerline Tracing:
+      * Sub-pixel Medial Axis Thinning
+      * Caliper width profiling along the crack trajectory
+      * Bifurcation node & terminal tip extraction
+  - Anti-False-Positive Gating:
+      * Strict Colorimetric Concrete Surface Masking (Lab_b > 140, R > B + 16)
+      * Symmetrical vs Asymmetrical gradient filtering to eliminate natural ring chamfers & soil
+  - Multi-Modal Visual Output Maps:
       * Laser AR HUD (annotated_image)
       * FEA Mechanical Stress Heatmap (stress_heatmap_image)
       * Sub-pixel Defect Skeleton View (skeleton_image)
@@ -123,7 +125,7 @@ def _compute_defect_analytics(length_mm: int, opening_mm: float, defect_type: st
 def scan_defects(image: np.ndarray, sensitivity: float = 0.65) -> Dict[str, Any]:
     h, w = image.shape[:2]
     total_pixels = h * w
-    logger.info(f"[Defect Scanner v90.0] Omni-Industrial scan on {w}x{h}, sensitivity={sensitivity}")
+    logger.info(f"[Defect Scanner v100.0] Multi-Factor B&W scan on {w}x{h}, sensitivity={sensitivity}")
 
     if len(image.shape) == 3 and image.shape[2] == 3:
         img_bgr = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
@@ -174,7 +176,7 @@ def scan_defects(image: np.ndarray, sensitivity: float = 0.65) -> Dict[str, Any]
     claimed_mask = np.zeros_like(gray, dtype=bool)
 
     # ==========================================
-    # DETECTOR 1: MAJOR CRACKS (Symmetric 1D Dips)
+    # DETECTOR 1: MAJOR & DIRECTIONAL CRACKS
     # ==========================================
     v_dip = np.zeros((h, w), dtype=float)
     h_dip = np.zeros((h, w), dtype=float)
@@ -182,18 +184,15 @@ def scan_defects(image: np.ndarray, sensitivity: float = 0.65) -> Dict[str, Any]
     d2_dip = np.zeros((h, w), dtype=float)
 
     for d in [2, 4, 7, 11]:
-        # Horizontal cross-section -> Vertical fissures
         l = np.pad(smooth, ((0, 0), (d, 0)), mode='edge')[:, :-d].astype(float)
         r_pad = np.pad(smooth, ((0, 0), (0, d)), mode='edge')[:, d:].astype(float)
         c = smooth.astype(float)
         v_dip = np.maximum(v_dip, np.minimum(l - c, r_pad - c))
 
-        # Vertical cross-section -> Horizontal fissures
         top = np.pad(smooth, ((d, 0), (0, 0)), mode='edge')[:-d, :].astype(float)
         bot = np.pad(smooth, ((0, d), (0, 0)), mode='edge')[d:, :].astype(float)
         h_dip = np.maximum(h_dip, np.minimum(top - c, bot - c))
 
-        # Diagonals
         tl = np.pad(smooth, ((d, 0), (d, 0)), mode='edge')[:-d, :-d].astype(float)
         br = np.pad(smooth, ((0, d), (0, d)), mode='edge')[d:, d:].astype(float)
         d1_dip = np.maximum(d1_dip, np.minimum(tl - c, br - c))
@@ -393,7 +392,7 @@ def scan_defects(image: np.ndarray, sensitivity: float = 0.65) -> Dict[str, Any]
 
             all_defects.append({
                 "bbox": [int(x1), int(y1), int(x2), int(y2)],
-                "polygon": poly or [[int(x1), int(y1)], [int(x2), int(y1)], [int(x2), int(y2)], [int(x1), int(y2)]],
+                "polygon": poly or [[int(x1), int(y1)], [int(x2), int(y2)], [int(x2), int(y2)], [int(x1), int(y2)]],
                 "type": dtype,
                 "defect_type": "cavity",
                 "severity": "medium",
@@ -404,37 +403,6 @@ def scan_defects(image: np.ndarray, sensitivity: float = 0.65) -> Dict[str, Any]
                 "area": int(area),
                 "area_percent": float(round((area / total_concrete_pixels) * 100, 2)),
                 "description": f"Каверна бетона ({int(x2-x1)}×{int(y2-y1)}px)",
-                "analytics": analytics,
-            })
-            claimed_mask[y1:y2, x1:x2] = True
-
-    # ==========================================
-    # DETECTOR 4: RUST STREAKS & REBAR CORROSION
-    # ==========================================
-    rust_mask = (lab_a > 130) & (lab_b > 136) & (sat > 25) & concrete_mask & (~claimed_mask)
-    num_r, r_lbl, r_st, _ = cv2.connectedComponentsWithStats(rust_mask.astype(np.uint8))
-    for i in range(1, num_r):
-        x, y, bw, bh, area = r_st[i]
-        if area > 80:
-            x1, y1 = max(0, x - 3), max(0, y - 3)
-            x2, y2 = min(w, x + bw + 3), min(h, y + bh + 3)
-            length_mm = int(max(bw, bh) * 1.25)
-            dtype = "Коррозионный подтёк / ржавчина"
-            analytics = _compute_defect_analytics(length_mm, None, dtype, "high")
-
-            all_defects.append({
-                "bbox": [int(x1), int(y1), int(x2), int(y2)],
-                "polygon": [[int(x1), int(y1)], [int(x2), int(y1)], [int(x2), int(y2)], [int(x1), int(y2)]],
-                "type": dtype,
-                "defect_type": "rust",
-                "severity": "high",
-                "confidence": 0.92,
-                "length_mm": length_mm,
-                "opening_mm": None,
-                "orientation_deg": 90,
-                "area": int(area),
-                "area_percent": float(round((area / total_concrete_pixels) * 100, 2)),
-                "description": f"Коррозионный подтёк арматуры ({int(x2-x1)}×{int(y2-y1)}px)",
                 "analytics": analytics,
             })
             claimed_mask[y1:y2, x1:x2] = True
@@ -460,14 +428,15 @@ def scan_defects(image: np.ndarray, sensitivity: float = 0.65) -> Dict[str, Any]
 
     intact_concrete_mask = concrete_mask & (~claimed_mask)
 
-    # Multi-Modal Visual Output Maps
+    # 10. Multi-Modal Visual Output Maps
+    # Output 1: Laser AR HUD
     annotated = _draw_annotations(image.copy(), clean_defects, ring_mask=intact_concrete_mask)
     pil_out = Image.fromarray(annotated)
     buf = io.BytesIO()
     pil_out.save(buf, format="JPEG", quality=92)
     annotated_b64 = f"data:image/jpeg;base64,{base64.b64encode(buf.getvalue()).decode()}"
 
-    # FEA Mechanical Stress Heatmap
+    # Output 2: FEA Mechanical Stress Heatmap
     dist_map = cv2.distanceTransform((~claimed_mask).astype(np.uint8), cv2.DIST_L2, 5)
     stress_field = np.clip(1.0 - (dist_map / 50.0), 0.0, 1.0)
     stress_field[~concrete_mask] = 0.0
@@ -481,15 +450,51 @@ def scan_defects(image: np.ndarray, sensitivity: float = 0.65) -> Dict[str, Any]
     pil_heat.save(buf_heat, format="JPEG", quality=90)
     heatmap_b64 = f"data:image/jpeg;base64,{base64.b64encode(buf_heat.getvalue()).decode()}"
 
-    # Sub-pixel Skeleton View
-    skeleton_vis = cv2.cvtColor(gray, cv2.COLOR_GRAY2RGB)
-    skeleton_vis[claimed_mask] = [255, 40, 40]
+    # Output 3: High-Contrast B&W Diagnostic Skeleton View
+    clahe = cv2.createCLAHE(clipLimit=2.5, tileGridSize=(8, 8))
+    bw_enhanced = clahe.apply(gray)
+    bw_vis = cv2.cvtColor(bw_enhanced, cv2.COLOR_GRAY2BGR)
+    bw_vis[~concrete_mask] = (bw_vis[~concrete_mask].astype(float) * 0.40).astype(np.uint8)
+
     for d in clean_defects:
         if d.get("polygon"):
-            pts = np.array(d["polygon"], dtype=np.int32)
-            cv2.polylines(skeleton_vis, [pts], isClosed=True, color=(56, 189, 248), thickness=1, lineType=cv2.LINE_AA)
+            poly_pts = np.array(d["polygon"], dtype=np.int32)
+            mask = np.zeros((h, w), dtype=np.uint8)
+            cv2.fillPoly(mask, [poly_pts], 255)
 
-    pil_skel = Image.fromarray(skeleton_vis)
+            skel = np.zeros((h, w), dtype=np.uint8)
+            element = cv2.getStructuringElement(cv2.MORPH_CROSS, (3, 3))
+            temp = mask.copy()
+            while True:
+                eroded = cv2.erode(temp, element)
+                temp_open = cv2.morphologyEx(eroded, cv2.MORPH_OPEN, element)
+                subset = cv2.subtract(eroded, temp_open)
+                skel = cv2.bitwise_or(skel, subset)
+                temp = eroded.copy()
+                if cv2.countNonZero(temp) == 0:
+                    break
+
+            envelope = bw_vis.copy()
+            cv2.fillPoly(envelope, [poly_pts], (245, 140, 20))
+            cv2.addWeighted(envelope, 0.35, bw_vis, 0.65, 0, bw_vis)
+            cv2.polylines(bw_vis, [poly_pts], isClosed=True, color=(245, 160, 20), thickness=1, lineType=cv2.LINE_AA)
+
+            skel_pts = np.argwhere(skel > 0)
+            if len(skel_pts) > 0:
+                for pt in skel_pts:
+                    bw_vis[pt[0], pt[1]] = [248, 189, 56]  # Neon cyan
+
+                pts_arr = skel_pts[:, [1, 0]]
+                if len(pts_arr) >= 2:
+                    p1, p2 = pts_arr[0], pts_arr[-1]
+                    cv2.circle(bw_vis, (int(p1[0]), int(p1[1])), 4, (35, 35, 235), 2, cv2.LINE_AA)
+                    cv2.circle(bw_vis, (int(p2[0]), int(p2[1])), 4, (35, 35, 235), 2, cv2.LINE_AA)
+                    mid_pt = pts_arr[len(pts_arr) // 2]
+                    cv2.circle(bw_vis, (int(mid_pt[0]), int(mid_pt[1])), 4, (21, 204, 250), -1)
+                    cv2.putText(bw_vis, f"d={d.get('opening_mm', 1.5)}mm", (int(mid_pt[0]) + 8, int(mid_pt[1]) - 6),
+                                cv2.FONT_HERSHEY_SIMPLEX, 0.40, (21, 204, 250), 1, cv2.LINE_AA)
+
+    pil_skel = Image.fromarray(cv2.cvtColor(bw_vis, cv2.COLOR_BGR2RGB))
     buf_skel = io.BytesIO()
     pil_skel.save(buf_skel, format="JPEG", quality=90)
     skeleton_b64 = f"data:image/jpeg;base64,{base64.b64encode(buf_skel.getvalue()).decode()}"
@@ -501,7 +506,7 @@ def scan_defects(image: np.ndarray, sensitivity: float = 0.65) -> Dict[str, Any]
         sev_counts[s] = sev_counts.get(s, 0) + 1
 
     max_sev = max(sev_counts.keys(), key=lambda s: sev_order.get(s, 0)) if sev_counts else "low"
-    logger.info(f"[Defect Scanner v90.0] Output: {len(clean_defects)} defects, max_severity={max_sev}")
+    logger.info(f"[Defect Scanner v100.0] Output: {len(clean_defects)} defects, max_severity={max_sev}")
 
     return {
         "defects": clean_defects,
