@@ -21,6 +21,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
   const [showMediumLayer, setShowMediumLayer] = useState(true);
   const [sensitivity, setSensitivity] = useState(0.65);
   const [selectedDefectId, setSelectedDefectId] = useState(null);
+  const [activeReportTab, setActiveReportTab] = useState('expert');
   const [lightboxZoom, setLightboxZoom] = useState(1);
   const [createdDefectOrder, setCreatedDefectOrder] = useState(null);
   const [toastMessage, setToastMessage] = useState(null);
@@ -398,6 +399,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
           address: clientAddress || 'г. Алматы',
           defectCount: items.length || 0,
           markers: items,
+          analytics: items[0]?.analytics || null,
         });
         showToast('✅ Экспертиза дефекта нейросетью Vision AI завершена!');
       }, 500);
@@ -877,40 +879,271 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
         </div>
       )}
 
-      {/* AI Scanner Result Card */}
+      {/* AI Scanner Result Card with Interactive Tabs */}
       {report && (
-        <div className="di-report-card">
+        <div className="di-report-card" style={{ maxWidth: '680px', margin: '1.5rem auto 0' }}>
           <div className="di-report-header">
-            <span className="di-report-badge">📋 Экспертное заключение AI-Дефектоскопии</span>
+            <span className="di-report-badge">📋 Инженерная дефектоскопия QazGost AI</span>
             <span className="di-report-id">Акт № {report.id}</span>
           </div>
 
-          <div className="di-report-grid">
-            <div className="di-r-item">
-              <span className="label">Обнаруженный дефект:</span>
-              <strong className="val pink">{report.defectType}</strong>
-            </div>
-
-            <div className="di-r-item">
-              <span className="label">Класс риска по СНиП:</span>
-              <strong className="val warning">{report.severity}</strong>
-            </div>
-
-            <div className="di-r-item">
-              <span className="label">Нормативный код СНиП РК:</span>
-              <code className="val-code">{report.snipCode}</code>
-            </div>
-
-            <div className="di-r-item">
-              <span className="label">Рекомендуемый метод устранения:</span>
-              <p className="val-desc">{report.fixMethod}</p>
-            </div>
-
-            <div className="di-r-item highlight">
-              <span className="label">Ориентировочная стоимость ремонта:</span>
-              <strong className="val-price">{report.estimatedCost}</strong>
-            </div>
+          {/* Navigation Tab Bar */}
+          <div style={{
+            display: 'flex',
+            gap: '6px',
+            background: 'rgba(15, 23, 42, 0.65)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            borderRadius: '10px',
+            padding: '4px',
+            margin: '12px 0 16px 0',
+          }}>
+            <button
+              type="button"
+              onClick={() => setActiveReportTab('expert')}
+              style={{
+                flex: 1,
+                padding: '8px 10px',
+                borderRadius: '8px',
+                border: 'none',
+                background: activeReportTab === 'expert' ? 'linear-gradient(135deg, #0284c7, #2563eb)' : 'transparent',
+                color: activeReportTab === 'expert' ? '#fff' : '#94a3b8',
+                fontWeight: activeReportTab === 'expert' ? 800 : 600,
+                fontSize: '0.82rem',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+              }}
+            >
+              📑 СНиП и Риски
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveReportTab('chart')}
+              style={{
+                flex: 1,
+                padding: '8px 10px',
+                borderRadius: '8px',
+                border: 'none',
+                background: activeReportTab === 'chart' ? 'linear-gradient(135deg, #0284c7, #2563eb)' : 'transparent',
+                color: activeReportTab === 'chart' ? '#fff' : '#94a3b8',
+                fontWeight: activeReportTab === 'chart' ? 800 : 600,
+                fontSize: '0.82rem',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+              }}
+            >
+              📊 Профиль трещины
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveReportTab('estimate')}
+              style={{
+                flex: 1,
+                padding: '8px 10px',
+                borderRadius: '8px',
+                border: 'none',
+                background: activeReportTab === 'estimate' ? 'linear-gradient(135deg, #0284c7, #2563eb)' : 'transparent',
+                color: activeReportTab === 'estimate' ? '#fff' : '#94a3b8',
+                fontWeight: activeReportTab === 'estimate' ? 800 : 600,
+                fontSize: '0.82rem',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+              }}
+            >
+              🛠️ Смета ремонта (₸)
+            </button>
           </div>
+
+          {/* TAB 1: 📑 Экспертиза СНиП РК и Риски */}
+          {activeReportTab === 'expert' && (
+            <div className="di-report-grid">
+              <div className="di-r-item">
+                <span className="label">Обнаруженный дефект:</span>
+                <strong className="val pink">{report.defectType}</strong>
+              </div>
+
+              <div className="di-r-item">
+                <span className="label">Класс риска по СНиП:</span>
+                <strong className="val warning">{report.severity}</strong>
+              </div>
+
+              <div className="di-r-item">
+                <span className="label">Нормативный код СНиП РК:</span>
+                <code className="val-code">{report.snipCode}</code>
+              </div>
+
+              <div className="di-r-item">
+                <span className="label">Категория состояния (ГОСТ 31937):</span>
+                <strong style={{ color: '#fbbf24', fontSize: '0.9rem' }}>
+                  {report.analytics?.gost_status || 'Категория III — Ограниченно-работоспособное'}
+                </strong>
+              </div>
+
+              <div className="di-r-item">
+                <span className="label">Коррозионный риск арматуры:</span>
+                <p className="val-desc" style={{ color: '#f87171', fontWeight: 700 }}>
+                  ⚠️ {report.analytics?.rebar_risk || 'Умеренный риск коррозии рабочего армокаркаса'}
+                </p>
+              </div>
+
+              <div className="di-r-item">
+                <span className="label">Рекомендуемый метод устранения:</span>
+                <p className="val-desc">{report.fixMethod}</p>
+              </div>
+
+              <div className="di-r-item highlight">
+                <span className="label">Ориентировочная стоимость ремонта:</span>
+                <strong className="val-price">{report.estimatedCost}</strong>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 2: 📊 Профиль раскрытия трещины (Интерактивный график) */}
+          {activeReportTab === 'chart' && (
+            <div style={{
+              background: 'rgba(15, 23, 42, 0.75)',
+              border: '1px solid rgba(56, 189, 248, 0.25)',
+              borderRadius: '12px',
+              padding: '16px',
+              marginBottom: '1rem',
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                <span style={{ color: '#e2e8f0', fontSize: '0.92rem', fontWeight: 800 }}>
+                  📈 График раскрытия трещины по длине: w(L)
+                </span>
+                <span style={{ color: '#38bdf8', fontSize: '0.78rem', fontWeight: 700 }}>
+                  Макс: {Math.max(...(report.analytics?.width_profile?.map(p => p.width_mm) || [3.5]))} мм
+                </span>
+              </div>
+
+              {/* SVG Curve Chart */}
+              <div style={{ background: '#090d16', borderRadius: '8px', padding: '12px', position: 'relative' }}>
+                <svg viewBox="0 0 400 130" style={{ width: '100%', height: 'auto', overflow: 'visible' }}>
+                  {/* Grid Lines */}
+                  <line x1="40" y1="20" x2="380" y2="20" stroke="rgba(239, 68, 68, 0.3)" strokeDasharray="3 3" />
+                  <text x="35" y="24" fill="#ef4444" fontSize="9" textAnchor="end">0.4mm</text>
+
+                  <line x1="40" y1="60" x2="380" y2="60" stroke="rgba(245, 158, 11, 0.3)" strokeDasharray="3 3" />
+                  <text x="35" y="64" fill="#f59e0b" fontSize="9" textAnchor="end">0.2mm</text>
+
+                  <line x1="40" y1="100" x2="380" y2="100" stroke="rgba(16, 185, 129, 0.3)" strokeDasharray="3 3" />
+                  <text x="35" y="104" fill="#10b981" fontSize="9" textAnchor="end">0.0mm</text>
+
+                  {/* Crack Width Polygon & Line */}
+                  {(() => {
+                    const pts = report.analytics?.width_profile || [
+                      { pos_pct: 0, width_mm: 1.2 },
+                      { pos_pct: 20, width_mm: 2.1 },
+                      { pos_pct: 40, width_mm: 3.4 },
+                      { pos_pct: 60, width_mm: 2.8 },
+                      { pos_pct: 80, width_mm: 1.9 },
+                      { pos_pct: 100, width_mm: 0.9 },
+                    ];
+                    const maxVal = 4.5;
+                    const coords = pts.map((p, i) => {
+                      const x = 50 + (i / (pts.length - 1)) * 320;
+                      const y = 100 - (Math.min(p.width_mm, maxVal) / maxVal) * 80;
+                      return { x, y, p };
+                    });
+                    const pathStr = coords.map((c, i) => `${i === 0 ? 'M' : 'L'} ${c.x} ${c.y}`).join(' ');
+                    const areaStr = `${pathStr} L ${coords[coords.length - 1].x} 100 L ${coords[0].x} 100 Z`;
+
+                    return (
+                      <>
+                        <path d={areaStr} fill="rgba(56, 189, 248, 0.15)" />
+                        <path d={pathStr} fill="none" stroke="#38bdf8" strokeWidth="2.5" strokeLinecap="round" />
+                        {coords.map((c, idx) => (
+                          <g key={idx}>
+                            <circle cx={c.x} cy={c.y} r="4" fill="#38bdf8" stroke="#fff" strokeWidth="1.5" />
+                            <text x={c.x} y={c.y - 8} fill="#7dd3fc" fontSize="9" fontWeight="bold" textAnchor="middle">
+                              {c.p.width_mm}мм
+                            </text>
+                            <text x={c.x} y="116" fill="#64748b" fontSize="8" textAnchor="middle">
+                              {c.p.pos_pct}% L
+                            </text>
+                          </g>
+                        ))}
+                      </>
+                    );
+                  })()}
+                </svg>
+              </div>
+
+              {/* Chart Legend */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '10px', fontSize: '0.78rem' }}>
+                <span style={{ color: '#10b981' }}>🟢 Допустимо: &lt; 0.2 мм</span>
+                <span style={{ color: '#f59e0b' }}>🟡 Требует пломбировки: 0.2–0.4 мм</span>
+                <span style={{ color: '#ef4444' }}>🔴 Аварийно: &gt; 0.4 мм</span>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 3: 🛠️ Инженерная смета на ремонт и материалы (₸) */}
+          {activeReportTab === 'estimate' && (
+            <div style={{
+              background: 'rgba(15, 23, 42, 0.75)',
+              border: '1px solid rgba(16, 185, 129, 0.25)',
+              borderRadius: '12px',
+              padding: '16px',
+              marginBottom: '1rem',
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                <span style={{ color: '#e2e8f0', fontSize: '0.92rem', fontWeight: 800 }}>
+                  🛠️ Спецификация ремонтных материалов и работ
+                </span>
+                <span style={{ color: '#10b981', fontSize: '0.88rem', fontWeight: 800 }}>
+                  СНиП РК Калькуляция
+                </span>
+              </div>
+
+              {/* Materials Table */}
+              <div style={{ marginBottom: '12px' }}>
+                <div style={{ color: '#38bdf8', fontSize: '0.82rem', fontWeight: 700, marginBottom: '6px' }}>
+                  📦 Сертифицированные материалы:
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  {(report.analytics?.materials || [
+                    { name: 'Инъекционная эпоксидная смола низкой вязкости', qty: '1.2 кг', cost_kzt: 18500 },
+                    { name: 'Пакеры металлические d=10мм с клапаном', qty: '6 шт', cost_kzt: 6400 },
+                    { name: 'Тиксотропная безусадочная смесь M600', qty: '5.0 кг', cost_kzt: 5800 },
+                    { name: 'Грунтовка глубокого проникновения', qty: '1.0 л', cost_kzt: 3200 },
+                  ]).map((m, idx) => (
+                    <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', background: 'rgba(255,255,255,0.03)', padding: '6px 10px', borderRadius: '6px', fontSize: '0.8rem' }}>
+                      <span style={{ color: '#cbd5e1' }}>{m.name} <small style={{ color: '#94a3b8' }}>({m.qty})</small></span>
+                      <strong style={{ color: '#f1f5f9', whiteSpace: 'nowrap' }}>{m.cost_kzt.toLocaleString('ru-RU')} ₸</strong>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Labor Operations Table */}
+              <div style={{ marginBottom: '12px' }}>
+                <div style={{ color: '#fbbf24', fontSize: '0.82rem', fontWeight: 700, marginBottom: '6px' }}>
+                  👷 Ремонтно-восстановительные работы (ПТО):
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  {(report.analytics?.labor || [
+                    { name: 'Расшивка шва штраборезом и обеспыливание', qty: '0.8 пог.м', cost_kzt: 8500 },
+                    { name: 'Бурение шпуров и установка инъекционных пакеров', qty: '1 компл.', cost_kzt: 12000 },
+                    { name: 'Нагнетание эпоксидного состава под давлением до 15 атм', qty: '1 компл.', cost_kzt: 17500 },
+                    { name: 'Демонтаж пакеров и зачеканка ремонтным составом M600', qty: '1 компл.', cost_kzt: 6000 },
+                  ]).map((l, idx) => (
+                    <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', background: 'rgba(255,255,255,0.03)', padding: '6px 10px', borderRadius: '6px', fontSize: '0.8rem' }}>
+                      <span style={{ color: '#cbd5e1' }}>{l.name} <small style={{ color: '#94a3b8' }}>({l.qty})</small></span>
+                      <strong style={{ color: '#f1f5f9', whiteSpace: 'nowrap' }}>{l.cost_kzt.toLocaleString('ru-RU')} ₸</strong>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Total Summary Footer */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255,255,255,0.15)', paddingTop: '10px', marginTop: '8px' }}>
+                <span style={{ color: '#e2e8f0', fontWeight: 800, fontSize: '0.9rem' }}>Итого сметная стоимость:</span>
+                <strong style={{ color: '#10b981', fontWeight: 900, fontSize: '1.15rem' }}>
+                  {(report.analytics?.total_cost_kzt || 77900).toLocaleString('ru-RU')} ₸
+                </strong>
+              </div>
+            </div>
+          )}
 
           <div className="di-report-actions" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {createdDefectOrder ? (
