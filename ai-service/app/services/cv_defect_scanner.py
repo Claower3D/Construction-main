@@ -153,10 +153,10 @@ def scan_defects(image: np.ndarray, sensitivity: float = 0.65) -> Dict[str, Any]
         x1, y1 = max(0, min_x - 6), max(0, min_y - 4)
         x2, y2 = min(w, max_x + 6), min(h, max_y + 4)
         length_px = max_y - min_y
-        area_pct = round((tot_area / total_concrete_pixels) * 100, 2)
+        area_pct = round(float(tot_area / total_concrete_pixels) * 100, 2)
         est_length_mm = int(length_px * 1.25)
-        est_opening_mm = round(max(0.8, min(8.0, (max_x - min_x) * 0.07 + 1.2)), 1)
-        dynamic_conf = round(min(0.98, max(0.85, 0.78 + (tot_area / total_concrete_pixels) * 2.5)), 2)
+        est_opening_mm = float(round(max(0.8, min(8.0, (max_x - min_x) * 0.07 + 1.2)), 1))
+        dynamic_conf = float(round(min(0.98, max(0.85, 0.78 + (tot_area / total_concrete_pixels) * 2.5)), 2))
         sev = "critical" if length_px > (h * 0.35) else "high"
 
         raw_defects.append({
@@ -165,11 +165,11 @@ def scan_defects(image: np.ndarray, sensitivity: float = 0.65) -> Dict[str, Any]
             "type": "Продольная сквозная трещина",
             "defect_type": "major_crack",
             "severity": sev,
-            "confidence": dynamic_conf,
+            "confidence": float(dynamic_conf),
             "area": int(tot_area),
             "area_percent": float(area_pct),
-            "length_mm": est_length_mm,
-            "opening_mm": est_opening_mm,
+            "length_mm": int(est_length_mm),
+            "opening_mm": float(est_opening_mm),
             "description": f"Продольная сквозная трещина по телу конструкции (~{est_length_mm}мм, раскрытие ~{est_opening_mm}мм)",
         })
         all_defect_mask[y1:y2, x1:x2] = True
@@ -223,7 +223,7 @@ def scan_defects(image: np.ndarray, sensitivity: float = 0.65) -> Dict[str, Any]
                 y1_span, y2_span = 0, h
 
             fall_len_mm = int((y2_span - y1_span) * 1.25)
-            fall_opening = round(max(0.8, min(8.0, (cx2 - cx1) * 0.07 + 1.2)), 1)
+            fall_opening = float(round(max(0.8, min(8.0, (cx2 - cx1) * 0.07 + 1.2)), 1))
             fall_sev = "critical" if (y2_span - y1_span) > (h * 0.35) else "high"
 
             raw_defects.append({
@@ -235,8 +235,8 @@ def scan_defects(image: np.ndarray, sensitivity: float = 0.65) -> Dict[str, Any]
                 "confidence": 0.94,
                 "area": int((cx2 - cx1) * (y2_span - y1_span) * 0.3),
                 "area_percent": 12.0,
-                "length_mm": fall_len_mm,
-                "opening_mm": fall_opening,
+                "length_mm": int(fall_len_mm),
+                "opening_mm": float(fall_opening),
                 "description": f"Продольная сквозная трещина по телу конструкции (~{fall_len_mm}мм, раскрытие ~{fall_opening}мм)",
             })
             all_defect_mask[y1_span:y2_span, cx1:cx2] = True

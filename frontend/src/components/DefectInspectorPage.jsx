@@ -95,11 +95,28 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
 
       // ═══ STEP 1: Send photo to /defect-scan (CV detection, NO JWT needed, returns annotated image) ═══
       const firstPhoto = photos[0];
-      if (firstPhoto?.file) {
+      if (firstPhoto) {
         setScanStepMessage('🧠 QazGost CV сканирует фото на дефекты...');
         
         const formData = new FormData();
-        formData.append('file', firstPhoto.file);
+        if (firstPhoto.file) {
+          formData.append('file', firstPhoto.file, firstPhoto.file.name || 'photo.jpg');
+        } else if (firstPhoto.base64) {
+          try {
+            const byteString = atob(firstPhoto.base64.split(',')[1]);
+            const mimeMatch = firstPhoto.base64.split(',')[0].match(/:(.*?);/);
+            const mimeType = mimeMatch ? mimeMatch[1] : 'image/jpeg';
+            const ab = new ArrayBuffer(byteString.length);
+            const ia = new Uint8Array(ab);
+            for (let i = 0; i < byteString.length; i++) {
+              ia[i] = byteString.charCodeAt(i);
+            }
+            const blob = new Blob([ab], { type: mimeType });
+            formData.append('file', blob, 'photo.jpg');
+          } catch (e) {
+            console.warn('[DefectScan] Failed to convert base64 to Blob:', e);
+          }
+        }
         if (aiDescription) {
           formData.append('prompt', aiDescription);
         }
@@ -136,6 +153,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
                 defects: aiData.defects,
                 defect_annotated_image: aiData.defect_annotated_image,
                 defect_severity_summary: aiData.defect_severity_summary,
+                structure_zones: aiData.structure_zones || [],
               };
               
               setScanStepMessage(`✅ Обнаружено ${aiData.defects.items.length} дефектов! Формирую карту...`);
@@ -151,6 +169,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
                 defects: aiData.defects,
                 defect_annotated_image: aiData.defect_annotated_image,
                 defect_severity_summary: aiData.defect_severity_summary,
+                structure_zones: aiData.structure_zones || [],
               };
               setScanStepMessage('✅ Анализ завершён!');
             }

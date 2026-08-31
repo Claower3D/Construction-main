@@ -307,13 +307,7 @@ async def defect_scan(
 ) -> Dict[str, Any]:
     """
     Scan photo for construction defects.
-    
-    Uses trained YOLOv8 model (primary) with CV heuristic fallback.
-    NO JWT required. Returns annotated image with colored bounding boxes.
     """
-    if not file.content_type or not file.content_type.startswith("image/"):
-        raise HTTPException(400, "File must be an image")
-    
     try:
         contents = await file.read()
         pil_img = Image.open(io.BytesIO(contents))
@@ -328,7 +322,7 @@ async def defect_scan(
         
         image_np = np.array(pil_img)
     except Exception as exc:
-        raise HTTPException(400, f"Invalid image: {exc}")
+        raise HTTPException(400, f"Invalid image file: {exc}")
     
     result = None
     yolo_defects = []
@@ -403,6 +397,7 @@ async def defect_scan(
         "workDays": max(1, len(defect_items)),
         "defect_annotated_image": result["annotated_image"],
         "defect_severity_summary": sev_summary,
+        "structure_zones": structure_zones,
         "defects": {
             "items": defect_items,
             "total": len(defect_items),
@@ -515,31 +510,7 @@ async def analyze_3d(
 ) -> Dict[str, Any]:
     """
     Multi-photo 3D analysis via Structure-from-Motion.
-
     Upload 3-10 photos taken from different angles around a construction object.
-    The system will:
-    1. Search for ArUco markers for scale calibration
-    2. Extract AKAZE features + match across photo pairs
-    3. Recover camera poses via RANSAC Essential Matrix
-    4. Triangulate 3D point cloud
-    5. Fit planes via RANSAC
-    6. Compute area, perimeter, volume, height
-
-    **Best Results:**
-    - Use 5-8 photos from different angles (30-60° apart)
-    - Include an ArUco marker or A4 paper for scale
-    - Keep lighting consistent
-    - Overlap between photos should be 60-80%
-
-    **Example:**
-    ```
-    curl -X POST "http://localhost:8001/api/v1/analyze-3d" \\
-         -F "files=@photo1.jpg" \\
-         -F "files=@photo2.jpg" \\
-         -F "files=@photo3.jpg" \\
-         -F "files=@photo4.jpg" \\
-         -F "files=@photo5.jpg"
-    ```
     """
     start_time = time.time()
 
