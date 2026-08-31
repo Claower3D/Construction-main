@@ -1,16 +1,19 @@
 # Core
-fastapi>=0.109.0
-uvicorn[standard]>=0.27.0
-python-multipart>=0.0.6
-pydantic>=2.5.0
-pydantic-settings>=2.1.0
+fastapi==0.115.8
+uvicorn[standard]==0.34.0
+python-multipart==0.0.20
+pydantic==2.10.6
+pydantic-settings==2.7.1
+
+# Rate Limiting (A2: production-grade request throttling)
+slowapi==0.1.9
 
 # AI/ML — Base
 torch>=2.1.0
 torchvision>=0.16.0
-opencv-python>=4.9.0
-numpy>=1.26.0
-pillow>=10.2.0
+opencv-python==4.11.0.86
+numpy==1.26.4
+pillow==11.1.0
 
 # RF-DETR (Apache 2.0, transformer-based detector)
 # pip install rfdetr
@@ -38,41 +41,42 @@ accelerate>=0.27.0
 bitsandbytes>=0.43.0
 
 # HTTP client (for Ollama fallback)
-requests>=2.31.0
+requests==2.32.3
 
 # Depth Estimation (monocular depth, kept for calibration)
 timm>=0.9.12
 
 # Image Processing
-albumentations>=1.3.1
-scikit-image>=0.22.0
+albumentations==1.4.24
+scikit-image==0.24.0
 
-# QazGost AI — Defect Detection Training (YOLOv8 engine)
-ultralytics>=8.1.0
+# QazGost AI — Defect Detection (YOLO11-seg engine)
+ultralytics>=8.3.0
 
 # LiDAR Point Cloud Processing
 open3d>=0.18.0
 laspy[lazrs]>=2.5.0
 
 # Report Generation (PDF & Excel)
-reportlab>=4.1.0
-openpyxl>=3.1.0
+reportlab==4.2.5
+openpyxl==3.1.5
 
 # Telegram Bot
 python-telegram-bot>=20.0
 
 # Utils
-httpx>=0.26.0
-python-dotenv>=1.0.0
-loguru>=0.7.2
-aiofiles>=23.2.1
+httpx==0.28.1
+python-dotenv==1.0.1
+loguru==0.7.3
+aiofiles==24.1.0
 
 # Testing
-pytest>=7.4.0
-pytest-asyncio>=0.23.0
-pytest-cov>=4.1.0
+pytest==8.3.4
+pytest-asyncio==0.25.3
+pytest-cov==6.0.0
 
 # Development
-black>=24.1.0
-isort>=5.13.0
-mypy>=1.8.0
+black==24.10.0
+isort==5.13.2
+mypy==1.14.1
+

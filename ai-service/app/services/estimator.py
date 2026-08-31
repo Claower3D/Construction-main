@@ -27,28 +27,28 @@ def _load_price_db() -> Dict:
         if _price_db is not None:
             return _price_db
 
-    db_path = os.path.join(
-        os.path.dirname(__file__), "..", "data", "price_db.json"
-    )
-    db_path = os.path.normpath(db_path)
+        db_path = os.path.join(
+            os.path.dirname(__file__), "..", "data", "price_db.json"
+        )
+        db_path = os.path.normpath(db_path)
 
-    if not os.path.exists(db_path):
-        logger.warning(f"[PriceDB] File not found: {db_path}")
-        _price_db = {"works": {}, "materials": {}, "equipment": {}, "regional_coefficients": {}}
+        if not os.path.exists(db_path):
+            logger.warning(f"[PriceDB] File not found: {db_path}")
+            _price_db = {"works": {}, "materials": {}, "equipment": {}, "regional_coefficients": {}}
+            return _price_db
+
+        try:
+            with open(db_path, "r", encoding="utf-8") as f:
+                _price_db = json.load(f)
+            w = len(_price_db.get("works", {}))
+            m = len(_price_db.get("materials", {}))
+            e = len(_price_db.get("equipment", {}))
+            logger.info(f"[PriceDB] Loaded: {w} works, {m} materials, {e} equipment = {w+m+e} total")
+        except Exception as exc:
+            logger.error(f"[PriceDB] Failed to load: {exc}")
+            _price_db = {"works": {}, "materials": {}, "equipment": {}, "regional_coefficients": {}}
+
         return _price_db
-
-    try:
-        with open(db_path, "r", encoding="utf-8") as f:
-            _price_db = json.load(f)
-        w = len(_price_db.get("works", {}))
-        m = len(_price_db.get("materials", {}))
-        e = len(_price_db.get("equipment", {}))
-        logger.info(f"[PriceDB] Loaded: {w} works, {m} materials, {e} equipment = {w+m+e} total")
-    except Exception as exc:
-        logger.error(f"[PriceDB] Failed to load: {exc}")
-        _price_db = {"works": {}, "materials": {}, "equipment": {}, "regional_coefficients": {}}
-
-    return _price_db
 
 
 def search_items(query: str, item_type: str = "all", limit: int = 10) -> List[Dict]:

@@ -195,20 +195,52 @@ async def analyze_image(
     if not file.content_type or not file.content_type.startswith("image/"):
         raise HTTPException(400, "File must be an image")
 
-    # Read and decode image
+    # Read and validate image
     try:
         contents = await file.read()
+
+        # A4: File size validation
+        if len(contents) > settings.MAX_UPLOAD_IMAGE_SIZE:
+            max_mb = settings.MAX_UPLOAD_IMAGE_SIZE // (1024 * 1024)
+            raise HTTPException(413, f"Image too large (max {max_mb}MB, got {len(contents) // (1024*1024)}MB)")
+
+        # A4: Magic bytes validation (don't trust Content-Type header)
+        MAGIC_BYTES = {
+            b'\xff\xd8': "image/jpeg",      # JPEG
+            b'\x89P': "image/png",           # PNG
+            b'RIFF': "image/webp",           # WebP
+        }
+        detected_type = None
+        for magic, mime in MAGIC_BYTES.items():
+            if contents[:len(magic)] == magic:
+                detected_type = mime
+                break
+        if detected_type is None:
+            raise HTTPException(415, "Unsupported image format. Allowed: JPEG, PNG, WebP")
+
         pil_img = Image.open(io.BytesIO(contents))
         if pil_img.mode != "RGB":
             pil_img = pil_img.convert("RGB")
 
-        # Resize if too large
         h, w = pil_img.height, pil_img.width
+
+        # A4: Minimum resolution check
+        if min(h, w) < settings.MIN_IMAGE_SIZE:
+            raise HTTPException(
+                400,
+                f"Image too small ({w}x{h}). Minimum dimension: {settings.MIN_IMAGE_SIZE}px"
+            )
+
+        logger.info(f"Image validated: {w}x{h}, {len(contents)//1024}KB, type={detected_type}")
+
+        # Resize if too large
         if max(h, w) > settings.MAX_IMAGE_SIZE:
             scale = settings.MAX_IMAGE_SIZE / max(h, w)
             pil_img = pil_img.resize((int(w * scale), int(h * scale)), Image.LANCZOS)
 
         image_np = np.array(pil_img)
+    except HTTPException:
+        raise  # Re-raise our validation errors
     except Exception as exc:
         logger.error(f"Failed to read image: {exc}")
         raise HTTPException(400, f"Invalid image file: {exc}")

@@ -40,8 +40,19 @@ class Settings(BaseSettings):
     
     # Processing
     MAX_IMAGE_SIZE: int = Field(default=4096)  # max dimension
-    DEFAULT_CONFIDENCE: float = Field(default=0.25)
+    MIN_IMAGE_SIZE: int = Field(default=100)    # min dimension
+    DEFAULT_CONFIDENCE: float = Field(default=0.30)
+    DEFECT_CONFIDENCE: float = Field(default=0.25)
     DEFAULT_IOU: float = Field(default=0.45)
+    
+    # Rate Limiting
+    RATE_LIMIT_ANALYZE: str = Field(default="10/minute")
+    RATE_LIMIT_ESTIMATES: str = Field(default="30/minute")
+    RATE_LIMIT_DEFAULT: str = Field(default="60/minute")
+    
+    # Image Validation
+    ALLOWED_IMAGE_TYPES: List[str] = Field(default=["image/jpeg", "image/png", "image/webp"])
+    MAX_UPLOAD_IMAGE_SIZE: int = Field(default=20 * 1024 * 1024)  # 20MB for images specifically
     
     # Device
     DEVICE: str = Field(default="auto")  # "auto", "cuda", "cpu"

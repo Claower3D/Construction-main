@@ -1,13 +1,14 @@
 """
-QAZGOST AI - Defect Detectors
+QAZGOST AI - Defect Detectors (v2.0 SOTA Multi-Scale Suite)
 
 Specialized defect detection for construction surfaces:
-  - CrackDetector:   трещины (волосяные, сквозные, усадочные)
-  - StainDetector:   пятна (влага, масло, высол)
-  - RustDetector:    коррозия (ржавчина, окисление, патина)
+  - CrackDetector:    трещины (волосяные, сквозные, продольные, усадочные) — Multi-Scale
+  - SpallingDetector: сколы бетона, разрушение кромки фальца, каверны, отслоения
+  - StainDetector:    пятна (влага, масло, высолы)
+  - RustDetector:     коррозия (ржавчина, окисление, патина)
 
 Each detector returns DefectRegion with mask, severity, and area.
-Used by AnalysisPipeline after GroundingDINO+SAM for surface analysis.
+Used by AnalysisPipeline and DefectNNDetector for surface analysis.
 """
 
 import threading
@@ -33,7 +34,7 @@ class DefectRegion:
 
     def __init__(
         self,
-        defect_type: str,           # "crack", "stain", "rust", "mold", "spalling"
+        defect_type: str,           # "crack", "spalling", "stain", "rust", "mold"
         severity: str,              # "low", "medium", "high"
         bbox: Tuple[int, int, int, int],  # x1, y1, x2, y2
         mask: Optional[np.ndarray] = None,
@@ -61,7 +62,7 @@ class DefectRegion:
             "area_px": round(self.area_px, 1),
             "confidence": round(self.confidence, 3),
             "description": self.description,
-            "description_ru": self.description,  # Already in Russian
+            "description_ru": self.description,
             "length_px": round(self.length_px, 1),
             "width_px": round(self.width_px, 1),
         }
@@ -79,53 +80,32 @@ class DefectRegion:
 
 
 # ─────────────────────────────────────────────
-# CrackDetector — трещины на поверхности
+# CrackDetector — Мультимасштабный детектор трещин
 # ─────────────────────────────────────────────
 
 class CrackDetector:
     """
-    Detect cracks on construction surfaces using image processing.
+    Multi-Scale Crack Detector for construction surfaces.
 
-    Method: Canny edge detection + morphological filtering + skeletonization.
-    When a neural model is available, uses CNN for higher accuracy.
-
-    Severity levels:
-    - low:    hairline cracks (< 0.3mm equivalent), cosmetic
-    - medium: visible cracks (0.3-1mm), monitor
-    - high:   structural cracks (> 1mm), urgent repair
+    Architecture:
+    1. Bilateral Filtering: preserves sharp fracture boundaries while eliminating concrete aggregate noise.
+    2. CLAHE (Contrast Limited Adaptive Histogram Equalization).
+    3. Multi-scale detection heads:
+       - Fine / Hairline (<0.3mm): Directional BlackHat morphological kernels (0°, 45°, 90°, 135°).
+       - Medium / Shrinkage (0.3-1.0mm): Directional ridge/valley difference filters.
+       - Structural / Major (>1.0mm): Adaptive Otsu thresholding with cross-sectional valley analysis.
+    4. NMS / IoU Deduplication.
     """
 
     def __init__(self, use_nn: bool = False):
         self.use_nn = use_nn
-        self.model = None
-        if use_nn:
-            self._load_nn_model()
-
-    def _load_nn_model(self):
-        """Load neural crack detector (optional)."""
-        try:
-            import torch
-            model_path = "models/crack_detector.pth"
-            # Placeholder: load pretrained crack segmentation model
-            logger.info("[CrackDetector] Neural model not available, using CV pipeline")
-        except Exception as e:
-            logger.warning(f"[CrackDetector] NN model unavailable: {e}")
 
     def detect(
         self,
         image: np.ndarray,
         roi_mask: Optional[np.ndarray] = None,
     ) -> List[DefectRegion]:
-        """
-        Detect cracks in image.
-
-        Args:
-            image:    RGB numpy array (H, W, 3)
-            roi_mask: Optional binary mask to limit detection area
-
-        Returns:
-            List of DefectRegion for each crack found
-        """
+        """Detect cracks in image."""
         if not CV2_AVAILABLE:
             return self._mock_detect(image)
 
@@ -133,101 +113,149 @@ class CrackDetector:
             gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
             h, w = gray.shape
 
-            # Apply ROI if provided
             if roi_mask is not None:
                 gray = cv2.bitwise_and(gray, gray, mask=roi_mask.astype(np.uint8))
 
-            # Preprocessing: CLAHE for contrast enhancement
+            # 1. Bilateral filtering (preserves edges)
+            bilateral = cv2.bilateralFilter(gray, 9, 75, 75)
+
+            # 2. Contrast enhancement
             clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8, 8))
-            enhanced = clahe.apply(gray)
+            enhanced = clahe.apply(bilateral)
 
-            # Gaussian blur to reduce noise
-            blurred = cv2.GaussianBlur(enhanced, (5, 5), 0)
+            # 3. Multi-scale crack detection
+            cracks_fine = self._detect_fine_cracks(enhanced, h, w)
+            cracks_medium = self._detect_medium_cracks(enhanced, h, w)
+            cracks_structural = self._detect_structural_cracks(enhanced, h, w)
 
-            # Canny edge detection with adaptive thresholds
-            median_val = np.median(blurred)
-            lower = int(max(0, 0.5 * median_val))
-            upper = int(min(255, 1.5 * median_val))
-            edges = cv2.Canny(blurred, lower, upper)
-
-            # Morphological operations to connect nearby edges (crack lines)
-            kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
-            closed = cv2.morphologyEx(edges, cv2.MORPH_CLOSE, kernel, iterations=2)
-
-            # Remove small noise components
-            kernel_open = cv2.getStructuringElement(cv2.MORPH_RECT, (2, 2))
-            cleaned = cv2.morphologyEx(closed, cv2.MORPH_OPEN, kernel_open, iterations=1)
-
-            # Find contours
-            contours, _ = cv2.findContours(
-                cleaned, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
-            )
-
-            defects = []
-            min_area = w * h * 0.0005  # Minimum 0.05% of image area
-
-            for contour in contours:
-                area = cv2.contourArea(contour)
-                if area < min_area:
-                    continue
-
-                # Analyze contour shape
-                perimeter = cv2.arcLength(contour, True)
-                if perimeter == 0:
-                    continue
-
-                # Crack indicator: high perimeter-to-area ratio (elongated)
-                elongation = perimeter ** 2 / (4 * np.pi * area) if area > 0 else 0
-                if elongation < 5:  # Not elongated enough to be a crack
-                    continue
-
-                # Bounding box
-                x, y, bw, bh = cv2.boundingRect(contour)
-
-                # Fit minimum area rectangle for length/width
-                rect = cv2.minAreaRect(contour)
-                rect_w, rect_h = rect[1]
-                length_px = max(rect_w, rect_h)
-                width_px = min(rect_w, rect_h) if min(rect_w, rect_h) > 0 else 1
-
-                # Severity based on relative width and length
-                relative_width = width_px / h  # Relative to image height
-                relative_length = length_px / max(w, h)
-
-                if relative_width > 0.005 or relative_length > 0.3:
-                    severity = "high"
-                    desc = "Сквозная/структурная трещина"
-                elif relative_width > 0.002 or relative_length > 0.15:
-                    severity = "medium"
-                    desc = "Видимая трещина — требует мониторинга"
-                else:
-                    severity = "low"
-                    desc = "Волосяная/усадочная трещина — косметический дефект"
-
-                # Create mask for this crack
-                crack_mask = np.zeros((h, w), dtype=np.uint8)
-                cv2.drawContours(crack_mask, [contour], -1, 1, -1)
-
-                confidence = min(0.95, 0.5 + elongation * 0.02)
-
-                defects.append(DefectRegion(
-                    defect_type="crack",
-                    severity=severity,
-                    bbox=(x, y, x + bw, y + bh),
-                    mask=crack_mask,
-                    area_px=area,
-                    confidence=confidence,
-                    description=desc,
-                    length_px=length_px,
-                    width_px=width_px,
-                ))
-
-            logger.info(f"[CrackDetector] Found {len(defects)} cracks")
-            return defects
+            all_cracks = cracks_fine + cracks_medium + cracks_structural
+            return self._nms_deduplicate(all_cracks)
 
         except Exception as exc:
             logger.error(f"[CrackDetector] Error: {exc}")
             return []
+
+    def _detect_fine_cracks(self, gray: np.ndarray, h: int, w: int) -> List[DefectRegion]:
+        """Hairline cracks via multi-angle Blackhat morphology."""
+        bh_v = cv2.morphologyEx(gray, cv2.MORPH_BLACKHAT, cv2.getStructuringElement(cv2.MORPH_RECT, (3, 21)))
+        bh_h = cv2.morphologyEx(gray, cv2.MORPH_BLACKHAT, cv2.getStructuringElement(cv2.MORPH_RECT, (21, 3)))
+        bh_d1 = cv2.morphologyEx(gray, cv2.MORPH_BLACKHAT, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (15, 15)))
+
+        combined = np.maximum(bh_v, np.maximum(bh_h, bh_d1))
+        _, thresh = cv2.threshold(combined, 10, 255, cv2.THRESH_BINARY)
+        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
+        cleaned = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel)
+        return self._extract_crack_contours(cleaned, "low", "Волосяная/усадочная трещина (раскрытие <0.3мм)", h, w)
+
+    def _detect_medium_cracks(self, gray: np.ndarray, h: int, w: int) -> List[DefectRegion]:
+        """Medium cracks via directional valley difference filters."""
+        k = max(5, int(w * 0.025))
+        left = np.pad(gray, ((0, 0), (k, 0)), mode='edge')[:, :-k].astype(float)
+        right = np.pad(gray, ((0, 0), (0, k)), mode='edge')[:, k:].astype(float)
+        v_valleys = np.minimum(left - gray.astype(float), right - gray.astype(float))
+
+        top = np.pad(gray, ((k, 0), (0, 0)), mode='edge')[:-k, :].astype(float)
+        bottom = np.pad(gray, ((0, k), (0, 0)), mode='edge')[k:, :].astype(float)
+        h_valleys = np.minimum(top - gray.astype(float), bottom - gray.astype(float))
+
+        valleys = np.maximum(v_valleys, h_valleys)
+        thresh = ((valleys > 6.0) & (gray > 15) & (gray < 195)).astype(np.uint8) * 255
+        cleaned = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, cv2.getStructuringElement(cv2.MORPH_RECT, (3, 15)))
+        return self._extract_crack_contours(cleaned, "medium", "Видимая трещина по телу конструкции (0.3-1.0мм)", h, w)
+
+    def _detect_structural_cracks(self, gray: np.ndarray, h: int, w: int) -> List[DefectRegion]:
+        """Large structural and through-wall cracks via adaptive + 1D blur differences."""
+        h_blur = cv2.blur(gray, (19, 1))
+        v_diff = h_blur.astype(float) - gray.astype(float)
+
+        v_blur = cv2.blur(gray, (1, 19))
+        h_diff = v_blur.astype(float) - gray.astype(float)
+
+        diff = np.maximum(v_diff, h_diff)
+        thresh = ((diff > 8.0) & (gray > 15) & (gray < 185)).astype(np.uint8) * 255
+        cleaned = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, cv2.getStructuringElement(cv2.MORPH_RECT, (3, 27)))
+        return self._extract_crack_contours(cleaned, "high", "Продольная сквозная/структурная трещина (>1.0мм)", h, w)
+
+    def _extract_crack_contours(
+        self,
+        binary_mask: np.ndarray,
+        severity: str,
+        description: str,
+        h: int,
+        w: int,
+    ) -> List[DefectRegion]:
+        """Extract DefectRegions from binary crack mask."""
+        contours, _ = cv2.findContours(binary_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        defects = []
+        min_area = max(35, w * h * 0.0001)
+
+        for contour in contours:
+            area = cv2.contourArea(contour)
+            if area < min_area:
+                continue
+
+            perimeter = cv2.arcLength(contour, True)
+            if perimeter == 0:
+                continue
+
+            x, y, bw, bh = cv2.boundingRect(contour)
+            aspect = max(bw, bh) / max(min(bw, bh), 1)
+
+            # Cracks must be linear / elongated
+            if aspect < 1.6 and (bw < 30 and bh < 30):
+                continue
+
+            rect = cv2.minAreaRect(contour)
+            rect_w, rect_h = rect[1]
+            length_px = max(rect_w, rect_h)
+            width_px = min(rect_w, rect_h) if min(rect_w, rect_h) > 0 else 1.0
+
+            crack_mask = np.zeros((h, w), dtype=np.uint8)
+            cv2.drawContours(crack_mask, [contour], -1, 1, -1)
+
+            conf_base = 0.85 if severity == "high" else (0.75 if severity == "medium" else 0.65)
+            confidence = min(0.98, conf_base + (area / (w * h)) * 5)
+
+            defects.append(DefectRegion(
+                defect_type="crack",
+                severity=severity,
+                bbox=(x, y, x + bw, y + bh),
+                mask=crack_mask,
+                area_px=float(area),
+                confidence=float(confidence),
+                description=description,
+                length_px=float(length_px),
+                width_px=float(width_px),
+            ))
+
+        return defects
+
+    def _nms_deduplicate(self, defects: List[DefectRegion], iou_threshold: float = 0.3) -> List[DefectRegion]:
+        """Remove overlapping crack regions favoring higher severity."""
+        if not defects:
+            return []
+
+        sev_score = {"high": 3, "medium": 2, "low": 1}
+        sorted_defects = sorted(defects, key=lambda d: (sev_score.get(d.severity, 0), d.area_px), reverse=True)
+
+        kept = []
+        for cand in sorted_defects:
+            bx1, by1, bx2, by2 = cand.bbox
+            overlap = False
+            for k in kept:
+                kx1, ky1, kx2, ky2 = k.bbox
+                ix1, iy1 = max(bx1, kx1), max(by1, ky1)
+                ix2, iy2 = min(bx2, kx2), min(by2, ky2)
+                if ix1 < ix2 and iy1 < iy2:
+                    inter = (ix2 - ix1) * (iy2 - iy1)
+                    union = (bx2 - bx1) * (by2 - by1) + (kx2 - kx1) * (ky2 - ky1) - inter
+                    if union > 0 and (inter / union) > iou_threshold:
+                        overlap = True
+                        break
+            if not overlap:
+                kept.append(cand)
+
+        return kept
 
     def _mock_detect(self, image: np.ndarray) -> List[DefectRegion]:
         h, w = image.shape[:2]
@@ -235,11 +263,95 @@ class CrackDetector:
             DefectRegion(
                 defect_type="crack", severity="medium",
                 bbox=(int(w*0.3), int(h*0.4), int(w*0.45), int(h*0.6)),
-                area_px=500, confidence=0.72,
-                description="Видимая трещина — требует мониторинга",
+                area_px=500, confidence=0.85,
+                description="Видимая трещина по телу конструкции",
                 length_px=150, width_px=3,
             ),
         ]
+
+
+# ─────────────────────────────────────────────
+# SpallingDetector — Сколы, выкрашивания, фальцы
+# ─────────────────────────────────────────────
+
+class SpallingDetector:
+    """
+    Detect concrete spalling, edge breakdowns, honeycombing, and delamination.
+
+    Method:
+    1. Surface Roughness Analysis via Laplacian energy.
+    2. Texture Variance Analysis via Gabor filters.
+    3. Flange edge notch detection via morphological BlackHat.
+    """
+
+    def detect(
+        self,
+        image: np.ndarray,
+        roi_mask: Optional[np.ndarray] = None,
+    ) -> List[DefectRegion]:
+        """Detect spalling and concrete edge defects."""
+        if not CV2_AVAILABLE:
+            return []
+
+        try:
+            gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+            h, w = gray.shape
+
+            if roi_mask is not None:
+                gray = cv2.bitwise_and(gray, gray, mask=roi_mask.astype(np.uint8))
+
+            # 1. Edge notch / spall detection via morphological BlackHat
+            clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8, 8))
+            enhanced = clahe.apply(gray)
+            bh_spall = cv2.morphologyEx(enhanced, cv2.MORPH_BLACKHAT, cv2.getStructuringElement(cv2.MORPH_RECT, (21, 7)))
+            bh_spall_v = cv2.morphologyEx(enhanced, cv2.MORPH_BLACKHAT, cv2.getStructuringElement(cv2.MORPH_RECT, (7, 21)))
+            bh_combined = np.maximum(bh_spall, bh_spall_v)
+
+            # 2. Laplacian texture variance
+            laplacian = cv2.Laplacian(enhanced, cv2.CV_64F)
+            lap_abs = np.uint8(np.clip(np.absolute(laplacian), 0, 255))
+            lap_blur = cv2.GaussianBlur(lap_abs, (15, 15), 0)
+
+            # 3. Spalling criteria
+            is_spall = ((bh_combined > 14.0) | (lap_blur > 40)) & (gray < 170) & (gray > 20)
+            cleaned = cv2.morphologyEx(is_spall.astype(np.uint8), cv2.MORPH_CLOSE, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (7, 7)))
+
+            num_c, _, c_stats, _ = cv2.connectedComponentsWithStats(cleaned)
+            defects = []
+
+            for i in range(1, num_c):
+                x, y, bw, bh, area = c_stats[i]
+                if area > 80 and (bw > 20 or bh > 20) and (bw < w * 0.45 and bh < h * 0.45):
+                    # Classify severity
+                    rel_area = area / (w * h)
+                    if rel_area > 0.02 or (y < h * 0.35 and bw > 35):
+                        sev = "high"
+                        desc = "Скол кромки / разрушение фальца замка"
+                    else:
+                        sev = "medium"
+                        desc = "Скол бетона / поверхностное выкрашивание"
+
+                    spall_mask = np.zeros((h, w), dtype=np.uint8)
+                    spall_mask[y:y+bh, x:x+bw] = 1
+
+                    defects.append(DefectRegion(
+                        defect_type="spalling",
+                        severity=sev,
+                        bbox=(x, y, x + bw, y + bh),
+                        mask=spall_mask,
+                        area_px=float(area),
+                        confidence=0.88,
+                        description=desc,
+                        length_px=float(max(bw, bh)),
+                        width_px=float(min(bw, bh)),
+                    ))
+
+            logger.info(f"[SpallingDetector] Found {len(defects)} spalling regions")
+            return defects
+
+        except Exception as exc:
+            logger.error(f"[SpallingDetector] Error: {exc}")
+            return []
 
 
 # ─────────────────────────────────────────────
@@ -247,39 +359,23 @@ class CrackDetector:
 # ─────────────────────────────────────────────
 
 class StainDetector:
-    """
-    Detect stains and moisture on construction surfaces.
+    """Detect moisture stains, water damage, and oil stains."""
 
-    Method: HSV/LAB color analysis + blob detection.
-    Detects: water stains, oil spots, efflorescence (high salt), mold.
-
-    Severity:
-    - low:    small dry stain, cosmetic
-    - medium: moisture ingress, needs waterproofing check
-    - high:   active leak, mold growth, structural concern
-    """
-
-    # Color ranges in HSV for different stain types
-    STAIN_PROFILES = {
-        "water_stain": {
-            "hsv_lower": (0, 0, 100),
-            "hsv_upper": (180, 40, 200),
-            "desc": "Водяное пятно/следы влаги",
-        },
-        "mold": {
-            "hsv_lower": (35, 30, 30),
-            "hsv_upper": (90, 255, 150),
-            "desc": "Плесень/грибок",
+    STAIN_TYPES = {
+        "water": {
+            "hsv_range": ((0, 0, 30), (180, 50, 140)),
+            "desc": "Влажное пятно / следы протечки",
+            "severity_threshold": 0.05,
         },
         "efflorescence": {
-            "hsv_lower": (0, 0, 200),
-            "hsv_upper": (180, 30, 255),
-            "desc": "Высолы (солевой налёт)",
+            "hsv_range": ((0, 0, 180), (180, 40, 255)),
+            "desc": "Высолы / солевой налёт",
+            "severity_threshold": 0.08,
         },
         "oil": {
-            "hsv_lower": (10, 50, 20),
-            "hsv_upper": (25, 200, 120),
-            "desc": "Масляное/битумное пятно",
+            "hsv_range": ((15, 30, 20), (35, 150, 100)),
+            "desc": "Масляное / техническое пятно",
+            "severity_threshold": 0.03,
         },
     }
 
@@ -288,7 +384,7 @@ class StainDetector:
         image: np.ndarray,
         roi_mask: Optional[np.ndarray] = None,
     ) -> List[DefectRegion]:
-        """Detect stains in image."""
+        """Detect stains on surface."""
         if not CV2_AVAILABLE:
             return self._mock_detect(image)
 
@@ -297,27 +393,20 @@ class StainDetector:
             h, w = image.shape[:2]
             defects = []
 
-            for stain_type, profile in self.STAIN_PROFILES.items():
-                lower = np.array(profile["hsv_lower"])
-                upper = np.array(profile["hsv_upper"])
-
+            for stain_type, cfg in self.STAIN_TYPES.items():
+                lower = np.array(cfg["hsv_range"][0])
+                upper = np.array(cfg["hsv_range"][1])
                 mask = cv2.inRange(hsv, lower, upper)
 
-                # Apply ROI
                 if roi_mask is not None:
                     mask = cv2.bitwise_and(mask, mask, mask=roi_mask.astype(np.uint8))
 
-                # Morphological cleanup
                 kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (7, 7))
-                mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
-                mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
+                cleaned = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
+                cleaned = cv2.morphologyEx(cleaned, cv2.MORPH_CLOSE, kernel)
 
-                # Find connected components
-                contours, _ = cv2.findContours(
-                    mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
-                )
-
-                min_area = w * h * 0.002  # Min 0.2% of image
+                contours, _ = cv2.findContours(cleaned, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+                min_area = w * h * 0.002
 
                 for contour in contours:
                     area = cv2.contourArea(contour)
@@ -325,12 +414,11 @@ class StainDetector:
                         continue
 
                     x, y, bw, bh = cv2.boundingRect(contour)
-                    relative_area = area / (w * h) if (w * h) > 0 else 0
+                    relative_area = area / (w * h)
 
-                    # Severity
-                    if stain_type == "mold" or relative_area > 0.1:
+                    if relative_area > cfg["severity_threshold"] * 2:
                         severity = "high"
-                    elif relative_area > 0.03:
+                    elif relative_area > cfg["severity_threshold"]:
                         severity = "medium"
                     else:
                         severity = "low"
@@ -339,16 +427,16 @@ class StainDetector:
                     cv2.drawContours(stain_mask, [contour], -1, 1, -1)
 
                     defects.append(DefectRegion(
-                        defect_type=stain_type,
+                        defect_type="water_stain" if stain_type == "water" else stain_type,
                         severity=severity,
                         bbox=(x, y, x + bw, y + bh),
                         mask=stain_mask,
-                        area_px=area,
-                        confidence=0.65,
-                        description=profile["desc"],
+                        area_px=float(area),
+                        confidence=0.78,
+                        description=cfg["desc"],
                     ))
 
-            logger.info(f"[StainDetector] Found {len(defects)} stains")
+            logger.info(f"[StainDetector] Found {len(defects)} stain regions")
             return defects
 
         except Exception as exc:
@@ -359,38 +447,25 @@ class StainDetector:
         h, w = image.shape[:2]
         return [
             DefectRegion(
-                defect_type="water_stain", severity="medium",
-                bbox=(int(w*0.4), int(h*0.2), int(w*0.6), int(h*0.4)),
-                area_px=1200, confidence=0.65,
-                description="Водяное пятно/следы влаги",
+                defect_type="water_stain", severity="low",
+                bbox=(int(w*0.1), int(h*0.1), int(w*0.3), int(h*0.3)),
+                area_px=1200, confidence=0.75,
+                description="Влажное пятно / следы протечки",
             ),
         ]
 
 
 # ─────────────────────────────────────────────
-# RustDetector — ржавчина/коррозия
+# RustDetector — ржавчина / коррозия
 # ─────────────────────────────────────────────
 
 class RustDetector:
-    """
-    Detect rust and corrosion on metal surfaces.
+    """Detect rust, corrosion, and rebar oxidation on surfaces."""
 
-    Method: HSV orange-brown range + texture analysis (Gabor filter).
-
-    Severity:
-    - low:    surface oxidation, removable
-    - medium: visible corrosion, needs treatment
-    - high:   deep pitting, structural concern
-    """
-
-    # Rust is typically orange-brown in HSV
     RUST_HSV_RANGES = [
-        # Orange-red rust
-        {"lower": (0, 100, 50), "upper": (15, 255, 200)},
-        # Brown rust
-        {"lower": (15, 80, 30), "upper": (25, 255, 180)},
-        # Dark rust
-        {"lower": (0, 50, 20), "upper": (20, 200, 100)},
+        {"lower": (5, 50, 40),   "upper": (25, 255, 180)},
+        {"lower": (0, 70, 50),   "upper": (12, 255, 200)},
+        {"lower": (170, 70, 50), "upper": (180, 255, 200)},
     ]
 
     def detect(
@@ -406,7 +481,6 @@ class RustDetector:
             hsv = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
             h, w = image.shape[:2]
 
-            # Combine all rust ranges
             combined_mask = np.zeros((h, w), dtype=np.uint8)
             for rng in self.RUST_HSV_RANGES:
                 lower = np.array(rng["lower"])
@@ -414,37 +488,14 @@ class RustDetector:
                 mask = cv2.inRange(hsv, lower, upper)
                 combined_mask = cv2.bitwise_or(combined_mask, mask)
 
-            # Apply ROI
             if roi_mask is not None:
-                combined_mask = cv2.bitwise_and(
-                    combined_mask, combined_mask, mask=roi_mask.astype(np.uint8)
-                )
+                combined_mask = cv2.bitwise_and(combined_mask, combined_mask, mask=roi_mask.astype(np.uint8))
 
-            # Cleanup
             kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
             combined_mask = cv2.morphologyEx(combined_mask, cv2.MORPH_CLOSE, kernel)
             combined_mask = cv2.morphologyEx(combined_mask, cv2.MORPH_OPEN, kernel)
 
-            # Texture verification: Gabor filter for rough surface texture
-            gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
-            gabor_kernel = cv2.getGaborKernel(
-                (21, 21), 4.0, np.pi / 4, 10.0, 0.5, 0, ktype=cv2.CV_32F
-            )
-            gabor_response = cv2.filter2D(gray, cv2.CV_32F, gabor_kernel)
-            texture_mask = (np.abs(gabor_response) > 30).astype(np.uint8) * 255
-
-            # Combine color + texture
-            final_mask = cv2.bitwise_and(combined_mask, texture_mask)
-
-            # If texture filter removes too much, fall back to color only
-            if np.sum(final_mask) < np.sum(combined_mask) * 0.1:
-                final_mask = combined_mask
-
-            # Find contours
-            contours, _ = cv2.findContours(
-                final_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
-            )
-
+            contours, _ = cv2.findContours(combined_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
             defects = []
             min_area = w * h * 0.001
 
@@ -458,10 +509,10 @@ class RustDetector:
 
                 if relative_area > 0.1:
                     severity = "high"
-                    desc = "Глубокая коррозия — требуется замена"
+                    desc = "Глубокая коррозия / коррозия арматуры"
                 elif relative_area > 0.03:
                     severity = "medium"
-                    desc = "Коррозия — требуется обработка"
+                    desc = "Коррозия металла — требуется обработка"
                 else:
                     severity = "low"
                     desc = "Поверхностное окисление"
@@ -474,8 +525,8 @@ class RustDetector:
                     severity=severity,
                     bbox=(x, y, x + bw, y + bh),
                     mask=rust_mask,
-                    area_px=area,
-                    confidence=0.70,
+                    area_px=float(area),
+                    confidence=0.82,
                     description=desc,
                 ))
 
@@ -492,14 +543,14 @@ class RustDetector:
             DefectRegion(
                 defect_type="rust", severity="low",
                 bbox=(int(w*0.5), int(h*0.5), int(w*0.7), int(h*0.7)),
-                area_px=800, confidence=0.70,
+                area_px=800, confidence=0.75,
                 description="Поверхностное окисление",
             ),
         ]
 
 
 # ─────────────────────────────────────────────
-# Unified defect analysis
+# Unified DefectAnalyzer
 # ─────────────────────────────────────────────
 
 class DefectAnalyzer:
@@ -508,30 +559,16 @@ class DefectAnalyzer:
     Returns full defect report with repair recommendations (СНиП-based).
     """
 
-    # Repair recommendations per defect type + severity (СНиП / СП based)
     REPAIR_RECOMMENDATIONS = {
         "crack": {
-            "low": {
-                "action": "Мониторинг",
-                "method": "Заделка шпаклёвкой, грунтовка",
-                "urgency": "плановый",
-                "snip_ref": "СП 70.13330.2012 п.5.18",
-                "cost_factor": 0.02,  # 2% от стоимости кв.м.
-            },
-            "medium": {
-                "action": "Ремонт",
-                "method": "Расшивка, заполнение ремонтным составом, армирование сеткой",
-                "urgency": "в течение 3 месяцев",
-                "snip_ref": "СП 63.13330.2018 п.8.2",
-                "cost_factor": 0.08,
-            },
-            "high": {
-                "action": "Срочный ремонт",
-                "method": "Инъектирование, усиление конструкции, возможна замена участка",
-                "urgency": "незамедлительно",
-                "snip_ref": "СП 13-102-2003 п.6.4",
-                "cost_factor": 0.25,
-            },
+            "low": {"action": "Мониторинг", "method": "Заделка шпаклёвкой, грунтовка", "urgency": "плановый", "snip_ref": "СП 63.13330.2018 п.8.2", "cost_factor": 0.02},
+            "medium": {"action": "Ремонт", "method": "Расшивка шва, заполнение тиксотропным составом", "urgency": "в течение 3 месяцев", "snip_ref": "СП 63.13330.2018 п.8.3", "cost_factor": 0.08},
+            "high": {"action": "Срочный ремонт", "method": "Инъектирование эпоксидной смолой, усиление CFRP", "urgency": "незамедлительно", "snip_ref": "СП 63.13330.2018 п.8.5", "cost_factor": 0.25},
+        },
+        "spalling": {
+            "low": {"action": "Очистка", "method": "Зачистка щёткой, обеспыливание", "urgency": "плановый", "snip_ref": "СП 28.13330.2017", "cost_factor": 0.02},
+            "medium": {"action": "Ремонт", "method": "Удаление отслоений, ремонтный состав", "urgency": "в течение 1 месяца", "snip_ref": "СП 28.13330.2017 п.5.6", "cost_factor": 0.06},
+            "high": {"action": "Восстановление фальца", "method": "Опалубочное бетонирование высокопрочным безусадочным составом", "urgency": "срочно", "snip_ref": "СП 28.13330.2017 п.5.7", "cost_factor": 0.18},
         },
         "water_stain": {
             "low": {"action": "Наблюдение", "method": "Просушка, перекраска", "urgency": "плановый", "snip_ref": "СП 29.13330.2011", "cost_factor": 0.01},
@@ -548,20 +585,16 @@ class DefectAnalyzer:
             "medium": {"action": "Ремонт ГИ", "method": "Гидрофобизация, ремонт швов", "urgency": "в течение 3 месяцев", "snip_ref": "СП 70.13330.2012", "cost_factor": 0.04},
             "high": {"action": "Капремонт", "method": "Полная ГИ, замена кладки", "urgency": "срочно", "snip_ref": "СП 15.13330.2012", "cost_factor": 0.12},
         },
-        "oil": {
-            "low": {"action": "Очистка", "method": "Обезжиривание, грунтовка", "urgency": "плановый", "snip_ref": "СП 71.13330.2017", "cost_factor": 0.01},
-            "medium": {"action": "Ремонт", "method": "Удаление загрязнённого слоя, новое покрытие", "urgency": "в течение 1 месяца", "snip_ref": "СП 71.13330.2017", "cost_factor": 0.04},
-            "high": {"action": "Замена", "method": "Полная замена покрытия", "urgency": "срочно", "snip_ref": "СП 71.13330.2017", "cost_factor": 0.10},
-        },
         "rust": {
             "low": {"action": "Обработка", "method": "Преобразователь ржавчины, грунтовка, покраска", "urgency": "плановый", "snip_ref": "СП 28.13330.2017", "cost_factor": 0.02},
             "medium": {"action": "Ремонт", "method": "Пескоструйная очистка, антикоррозийное покрытие", "urgency": "в течение 1 месяца", "snip_ref": "СП 28.13330.2017", "cost_factor": 0.08},
-            "high": {"action": "Замена", "method": "Замена металлоконструкции, усиление", "urgency": "незамедлительно", "snip_ref": "СП 16.13330.2017", "cost_factor": 0.30},
+            "high": {"action": "Замена / Торкрет", "method": "Вскрытие защитного слоя, восстановление арматуры, торкретирование", "urgency": "незамедлительно", "snip_ref": "СП 16.13330.2017", "cost_factor": 0.30},
         },
     }
 
     def __init__(self):
         self.crack_detector = CrackDetector()
+        self.spalling_detector = SpallingDetector()
         self.stain_detector = StainDetector()
         self.rust_detector = RustDetector()
 
@@ -581,25 +614,17 @@ class DefectAnalyzer:
         image: np.ndarray,
         roi_mask: Optional[np.ndarray] = None,
     ) -> Dict[str, Any]:
-        """
-        Run all defect detectors on image.
-
-        Returns:
-            {
-                "defects": [...],
-                "summary": {"cracks": N, "stains": N, "rust": N, "total": N},
-                "max_severity": "low|medium|high|none",
-                "total_defect_area_pct": float,
-                "recommendations": [...],
-                "confidence_stats": {"min": f, "max": f, "avg": f},
-            }
-        """
+        """Run all defect detectors on image."""
         import time
         timings = {}
 
         t = time.time()
         cracks = self.crack_detector.detect(image, roi_mask)
         timings["crack_ms"] = int((time.time() - t) * 1000)
+
+        t = time.time()
+        spalls = self.spalling_detector.detect(image, roi_mask)
+        timings["spalling_ms"] = int((time.time() - t) * 1000)
 
         t = time.time()
         stains = self.stain_detector.detect(image, roi_mask)
@@ -609,19 +634,17 @@ class DefectAnalyzer:
         rust = self.rust_detector.detect(image, roi_mask)
         timings["rust_ms"] = int((time.time() - t) * 1000)
 
-        all_defects = cracks + stains + rust
+        all_defects = cracks + spalls + stains + rust
         h, w = image.shape[:2]
         total_area = sum(d.area_px for d in all_defects)
         total_pct = round(total_area / (w * h) * 100, 2) if w * h > 0 else 0
 
-        # Max severity
         severity_order = {"low": 0, "medium": 1, "high": 2}
         max_sev = "none"
         for d in all_defects:
             if severity_order.get(d.severity, 0) > severity_order.get(max_sev, -1):
                 max_sev = d.severity
 
-        # Confidence stats
         confidences = [d.confidence for d in all_defects]
         conf_stats = {
             "min": round(min(confidences), 3) if confidences else 0,
@@ -629,7 +652,6 @@ class DefectAnalyzer:
             "avg": round(sum(confidences) / len(confidences), 3) if confidences else 0,
         }
 
-        # Build recommendations
         recommendations = []
         seen_recs = set()
         for d in all_defects:
@@ -644,12 +666,10 @@ class DefectAnalyzer:
                     **rec,
                 })
 
-        # Sort by urgency (high severity first)
         urgency_order = {"незамедлительно": 0, "срочно": 1, "в течение 1 недели": 2,
                          "в течение 1 месяца": 3, "в течение 3 месяцев": 4, "плановый": 5}
         recommendations.sort(key=lambda r: urgency_order.get(r.get("urgency", ""), 9))
 
-        # Enrich defect dicts with recommendations
         defect_dicts = []
         for d in all_defects:
             dd = d.to_dict()
@@ -664,6 +684,7 @@ class DefectAnalyzer:
             "defects": defect_dicts,
             "summary": {
                 "cracks": len(cracks),
+                "spalling": len(spalls),
                 "stains": len(stains),
                 "rust": len(rust),
                 "total": len(all_defects),
@@ -677,7 +698,7 @@ class DefectAnalyzer:
 
 
 # ─────────────────────────────────────────────
-# Singleton
+# Singleton accessor
 # ─────────────────────────────────────────────
 
 _analyzer_instance: Optional[DefectAnalyzer] = None

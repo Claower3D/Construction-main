@@ -1,22 +1,26 @@
 """
-QazGost AI - Neural Network Defect Detector
+QazGost AI - Neural Network Defect Detector (v2.0 SOTA YOLO11-seg Support)
 
-Trained segmentation model for detecting 10 types of construction defects.
-Uses the QazGost AI engine (Ultralytics) with custom-trained weights.
+Trained segmentation model for detecting 14 types of construction defects.
+Uses Ultralytics YOLO11-seg engine with custom-trained weights.
 
 Falls back to OpenCV-based DefectAnalyzer if trained weights are not available.
 
-Classes:
+Classes (14 defect categories):
   0: crack_hairline     — Волосяная трещина (< 0.3 мм)
   1: crack_structural   — Конструктивная трещина (> 1 мм, опасная)
   2: crack_shrinkage    — Усадочная трещина (сетчатые, паутина)
-  3: spalling           — Скол / отслоение бетона / штукатурки
-  4: water_stain        — Влажное пятно / протечка
-  5: mold               — Плесень / грибок
-  6: efflorescence      — Высол (белый налёт на кирпиче/бетоне)
-  7: rust_surface        — Поверхностная коррозия
-  8: rust_deep           — Глубокая коррозия / оголённая арматура
-  9: rebar_exposed       — Оголённая арматура (без коррозии)
+  3: crack_longitudinal — Продольная сквозная трещина (по телу конструкции)
+  4: spalling           — Скол / отслоение бетона / штукатурки
+  5: spalling_edge      — Скол кромки / разрушение фальца
+  6: water_stain        — Влажное пятно / протечка
+  7: mold               — Плесень / грибок
+  8: efflorescence      — Высол (белый налёт на кирпиче/бетоне)
+  9: rust_surface       — Поверхностная коррозия
+ 10: rust_deep          — Глубокая коррозия / коррозия арматуры
+ 11: rebar_exposed      — Оголённая арматура
+ 12: delamination       — Расслоение бетона
+ 13: honeycombing       — Раковины и каверны в бетоне
 """
 
 import threading
@@ -36,13 +40,14 @@ from app.config import settings
 
 
 # ─────────────────────────────────────────────
-# СНиП/СП mapping for each defect class
+# СНиП/СП mapping for 14 defect classes
 # ─────────────────────────────────────────────
 
 DEFECT_CLASSES = [
-    "crack_hairline", "crack_structural", "crack_shrinkage",
-    "spalling", "water_stain", "mold",
+    "crack_hairline", "crack_structural", "crack_shrinkage", "crack_longitudinal",
+    "spalling", "spalling_edge", "water_stain", "mold",
     "efflorescence", "rust_surface", "rust_deep", "rebar_exposed",
+    "delamination", "honeycombing",
 ]
 
 SNIP_MAPPING: Dict[str, Dict[str, Any]] = {
@@ -70,6 +75,14 @@ SNIP_MAPPING: Dict[str, Dict[str, Any]] = {
         "cost_per_m2": 4500,
         "timeline_days": 2,
     },
+    "crack_longitudinal": {
+        "snip_code": "СП 63.13330.2018 п.8.4, ГОСТ 8020-2016",
+        "severity": "high",
+        "risk_class": "4 класс — Аварийный",
+        "fix_method": "Глубокая расшивка шва, инъектирование полиуретановым компаундом, бандажирование",
+        "cost_per_m2": 15000,
+        "timeline_days": 4,
+    },
     "spalling": {
         "snip_code": "СП 28.13330.2017 п.5.6",
         "severity": "medium",
@@ -77,6 +90,14 @@ SNIP_MAPPING: Dict[str, Dict[str, Any]] = {
         "fix_method": "Удаление отслоившегося слоя, грунтовка, ремонтный состав, выравнивание",
         "cost_per_m2": 7500,
         "timeline_days": 3,
+    },
+    "spalling_edge": {
+        "snip_code": "СП 28.13330.2017 п.5.7, ГОСТ 8020-2016",
+        "severity": "medium",
+        "risk_class": "3 класс — Требует устранения",
+        "fix_method": "Опалубочное восстановление фальца высокопрочным безусадочным тиксотропным составом",
+        "cost_per_m2": 6500,
+        "timeline_days": 2,
     },
     "water_stain": {
         "snip_code": "СП 71.13330.2017, СанПиН 2.1.2.2645",
@@ -126,6 +147,22 @@ SNIP_MAPPING: Dict[str, Dict[str, Any]] = {
         "cost_per_m2": 22000,
         "timeline_days": 5,
     },
+    "delamination": {
+        "snip_code": "СП 28.13330.2017 п.5.8",
+        "severity": "high",
+        "risk_class": "3 класс — Требует устранения",
+        "fix_method": "Удаление отслоившегося бетона до плотного основания, нанесение адгезионного слоя, восстановление ремонтным бетоном",
+        "cost_per_m2": 14000,
+        "timeline_days": 4,
+    },
+    "honeycombing": {
+        "snip_code": "СП 63.13330.2018 п.8.6",
+        "severity": "medium",
+        "risk_class": "2 класс — Дефект бетонирования",
+        "fix_method": "Очистка каверн от непрочного бетона, промывка водой под давлением, зачеканка мелкозернистым безусадочным составом",
+        "cost_per_m2": 8000,
+        "timeline_days": 2,
+    },
 }
 
 
@@ -137,7 +174,7 @@ class DefectNNDetector:
     """
     QazGost AI neural network defect detector.
 
-    Loads custom-trained segmentation model for 10 defect classes.
+    Loads custom-trained YOLO11-seg segmentation model for 14 defect classes.
     Returns list of defect regions with masks, severity, SNiP codes, and repair costs.
     
     Falls back to OpenCV DefectAnalyzer if weights not found.
@@ -146,7 +183,8 @@ class DefectNNDetector:
     _instance = None
     _lock = threading.Lock()
 
-    WEIGHTS_FILE = "qazgost_defects_v1.pt"  # Trained model weights
+    WEIGHTS_FILE_V2 = "qazgost_defects_v2.pt"  # YOLO11-seg model
+    WEIGHTS_FILE_V1 = "qazgost_defects_v1.pt"  # YOLOv8-seg fallback
 
     @classmethod
     def get(cls) -> "DefectNNDetector":
@@ -160,34 +198,36 @@ class DefectNNDetector:
     def __init__(self):
         self.model = None
         self.model_loaded = False
+        self.model_version = None
         self.device = settings.get_device()
         self._load_model()
 
     def _load_model(self):
-        """Load QazGost AI defect segmentation model."""
+        """Load QazGost AI defect segmentation model (YOLO11-seg or YOLOv8-seg)."""
         if not YOLO_SEG_AVAILABLE:
             logger.warning("[DefectNN] Ultralytics not available — fallback mode")
             return
 
-        weights_path = settings.get_model_path(self.WEIGHTS_FILE)
+        # Check v2 weights first, then v1
+        for w_file, ver in [(self.WEIGHTS_FILE_V2, "v2 (YOLO11-seg)"), (self.WEIGHTS_FILE_V1, "v1 (YOLOv8-seg)")]:
+            weights_path = settings.get_model_path(w_file)
+            if weights_path.exists():
+                try:
+                    self.model = YOLO(str(weights_path))
+                    self.model.to(self.device)
+                    self.model_loaded = True
+                    self.model_version = ver
+                    logger.success(f"[DefectNN] ✅ QazGost AI defect model {ver} loaded: {weights_path} on {self.device}")
+                    return
+                except Exception as e:
+                    logger.error(f"[DefectNN] Failed to load {weights_path}: {e}")
 
-        if not weights_path.exists():
-            logger.warning(f"[DefectNN] Weights not found: {weights_path} — fallback mode")
-            logger.info("[DefectNN] To train: see ai-service/dataset/README.md")
-            return
-
-        try:
-            self.model = YOLO(str(weights_path))
-            self.model.to(self.device)
-            self.model_loaded = True
-            logger.success(f"[DefectNN] ✅ QazGost AI defect model loaded: {weights_path} on {self.device}")
-        except Exception as e:
-            logger.error(f"[DefectNN] Failed to load model: {e}")
+        logger.warning(f"[DefectNN] No trained weights found in models/ — using OpenCV multi-scale pipeline")
 
     def detect(
         self,
         image: np.ndarray,
-        confidence: float = 0.30,
+        confidence: float = 0.25,
         iou: float = 0.45,
     ) -> List[Dict[str, Any]]:
         """
@@ -276,26 +316,36 @@ class DefectNNDetector:
             return self._fallback_detect(image)
 
     def _fallback_detect(self, image: np.ndarray) -> List[Dict[str, Any]]:
-        """Fallback to OpenCV-based defect detection."""
+        """Fallback to OpenCV multi-scale defect detection."""
         try:
             from app.models.defect_detector import get_defect_analyzer
             analyzer = get_defect_analyzer()
-            regions = analyzer.analyze(image)
+            report = analyzer.analyze(image)
+            raw_items = report.get("defects", [])
 
             defects = []
-            for region in regions:
-                cls_name = region.defect_type
+            for item in raw_items:
+                cls_name = item.get("defect_type", "crack")
+                sev = item.get("severity", "medium")
+                desc = item.get("description", "")
+                
+                # Map simple class name to specific defect class
+                if cls_name == "crack":
+                    cls_name = "crack_structural" if sev == "high" else "crack_hairline"
+                elif cls_name == "spall" or cls_name == "spalling":
+                    cls_name = "spalling_edge" if "кромк" in desc.lower() or "фальц" in desc.lower() else "spalling"
+                
                 snip = SNIP_MAPPING.get(cls_name, SNIP_MAPPING.get("crack_hairline", {}))
                 defects.append({
                     "defect_type": cls_name,
-                    "confidence": region.confidence,
-                    "severity": region.severity,
+                    "confidence": item.get("confidence", 0.8),
+                    "severity": sev,
                     "risk_class": snip.get("risk_class", "Требует осмотра"),
                     "snip_code": snip.get("snip_code", ""),
                     "fix_method": snip.get("fix_method", ""),
-                    "bbox": list(region.bbox),
-                    "mask": region.mask,
-                    "area_px": region.area_px,
+                    "bbox": item.get("bbox", [0, 0, 1, 1]),
+                    "mask": item.get("mask"),
+                    "area_px": item.get("area_px", 0.0),
                     "cost_per_m2": snip.get("cost_per_m2", 10000),
                     "timeline_days": snip.get("timeline_days", 3),
                 })

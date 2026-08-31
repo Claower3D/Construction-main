@@ -14,6 +14,15 @@ from fastapi.responses import JSONResponse
 from fastapi.openapi.utils import get_openapi
 from loguru import logger
 
+try:
+    from slowapi import Limiter, _rate_limit_exceeded_handler
+    from slowapi.util import get_remote_address
+    from slowapi.errors import RateLimitExceeded
+    SLOWAPI_AVAILABLE = True
+except ImportError:
+    SLOWAPI_AVAILABLE = False
+    logger.warning("slowapi not installed — rate limiting disabled")
+
 from app.config import settings, ensure_dirs
 from app.api.v1 import analyze, health, estimates, metrics, auth
 from app.api.openapi import tags_metadata, get_openapi_config
@@ -105,6 +114,15 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+# Rate limiting setup
+if SLOWAPI_AVAILABLE:
+    limiter = Limiter(key_func=get_remote_address)
+    app.state.limiter = limiter
+    app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+    logger.info(f"Rate limiting enabled: analyze={settings.RATE_LIMIT_ANALYZE}, estimates={settings.RATE_LIMIT_ESTIMATES}")
+else:
+    limiter = None
+
 # CORS middleware
 cors_origins = list(settings.CORS_ORIGINS)
 if settings.CORS_DEV:
@@ -112,12 +130,20 @@ if settings.CORS_DEV:
         "http://localhost:3000", "http://localhost:5173",
         "http://localhost:8080", "http://127.0.0.1:5500",
     ])
+
+# Production-safe CORS: explicit methods and headers instead of wildcard
+allowed_methods = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+allowed_headers = ["Content-Type", "Authorization", "X-Request-ID", "X-API-Key"]
+if settings.CORS_DEV:
+    allowed_methods = ["*"]
+    allowed_headers = ["*"]
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=cors_origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=allowed_methods,
+    allow_headers=allowed_headers,
 )
 
 
