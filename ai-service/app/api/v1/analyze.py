@@ -396,6 +396,8 @@ async def defect_scan(
         "estimatedCost": _estimate_cost(defect_items),
         "workDays": max(1, len(defect_items)),
         "defect_annotated_image": result["annotated_image"],
+        "stress_heatmap_image": cv_result.get("stress_heatmap_image"),
+        "skeleton_image": cv_result.get("skeleton_image"),
         "defect_severity_summary": sev_summary,
         "structure_zones": structure_zones,
         "defects": {

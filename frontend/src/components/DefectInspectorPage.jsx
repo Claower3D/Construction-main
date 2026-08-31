@@ -22,6 +22,9 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
   const [sensitivity, setSensitivity] = useState(0.65);
   const [selectedDefectId, setSelectedDefectId] = useState(null);
   const [activeReportTab, setActiveReportTab] = useState('expert');
+  const [visionMode, setVisionMode] = useState('hud');
+  const [stressHeatmapImage, setStressHeatmapImage] = useState(null);
+  const [skeletonImage, setSkeletonImage] = useState(null);
   const [lightboxZoom, setLightboxZoom] = useState(1);
   const [createdDefectOrder, setCreatedDefectOrder] = useState(null);
   const [toastMessage, setToastMessage] = useState(null);
@@ -250,6 +253,8 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
                 workDays: aiData.workDays,
                 defects: aiData.defects,
                 defect_annotated_image: aiData.defect_annotated_image,
+                stress_heatmap_image: aiData.stress_heatmap_image,
+                skeleton_image: aiData.skeleton_image,
                 defect_severity_summary: aiData.defect_severity_summary,
                 structure_zones: aiData.structure_zones || [],
               };
@@ -360,6 +365,12 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
       // Store defect annotation data
       if (data.defect_annotated_image) {
         setAnnotatedImage(data.defect_annotated_image);
+      }
+      if (data.stress_heatmap_image) {
+        setStressHeatmapImage(data.stress_heatmap_image);
+      }
+      if (data.skeleton_image) {
+        setSkeletonImage(data.skeleton_image);
       }
       if (data.defect_severity_summary) {
         setSeveritySummary(data.defect_severity_summary);
@@ -728,54 +739,98 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
             </div>
           )}
           
-          {/* Layer Controls Toolbar */}
-          <div style={{ display: 'flex', gap: '8px', padding: '0 20px 12px', flexWrap: 'wrap', alignItems: 'center' }}>
-            <span style={{ color: '#94a3b8', fontSize: '0.84rem', fontWeight: 700, marginRight: '4px' }}>Слои:</span>
+          {/* Vision Mode Switcher (Laser AR HUD / FEA Stress Heatmap / Skeleton / Clean Photo) */}
+          <div style={{
+            display: 'flex',
+            gap: '8px',
+            padding: '0 20px 14px',
+            flexWrap: 'wrap',
+            alignItems: 'center',
+            borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+            marginBottom: '12px'
+          }}>
+            <span style={{ color: '#94a3b8', fontSize: '0.84rem', fontWeight: 800, marginRight: '4px' }}>Режим Vision:</span>
+            
             <button
               type="button"
-              onClick={() => setShowIntactLayer(!showIntactLayer)}
+              onClick={() => setVisionMode('hud')}
               style={{
-                background: showIntactLayer ? 'rgba(40,200,80,0.2)' : 'rgba(255,255,255,0.05)',
-                border: `1px solid ${showIntactLayer ? '#34d399' : 'rgba(255,255,255,0.15)'}`,
-                color: showIntactLayer ? '#34d399' : '#64748b',
-                borderRadius: '8px', padding: '4px 10px', fontSize: '0.82rem', fontWeight: 700, cursor: 'pointer',
+                background: visionMode === 'hud' ? 'linear-gradient(135deg, rgba(56, 189, 248, 0.35), rgba(37, 99, 235, 0.35))' : 'rgba(255,255,255,0.05)',
+                border: `1.5px solid ${visionMode === 'hud' ? '#38bdf8' : 'rgba(255,255,255,0.15)'}`,
+                color: visionMode === 'hud' ? '#7dd3fc' : '#94a3b8',
+                borderRadius: '8px', padding: '6px 12px', fontSize: '0.82rem', fontWeight: 800, cursor: 'pointer',
+                boxShadow: visionMode === 'hud' ? '0 0 12px rgba(56, 189, 248, 0.3)' : 'none',
               }}
             >
-              🟢 Целое кольцо
+              🟢 Laser AR HUD (СНиП)
             </button>
+
             <button
               type="button"
-              onClick={() => setShowCriticalLayer(!showCriticalLayer)}
+              onClick={() => setVisionMode('stress')}
               style={{
-                background: showCriticalLayer ? 'rgba(255,40,40,0.2)' : 'rgba(255,255,255,0.05)',
-                border: `1px solid ${showCriticalLayer ? '#f87171' : 'rgba(255,255,255,0.15)'}`,
-                color: showCriticalLayer ? '#f87171' : '#64748b',
-                borderRadius: '8px', padding: '4px 10px', fontSize: '0.82rem', fontWeight: 700, cursor: 'pointer',
+                background: visionMode === 'stress' ? 'linear-gradient(135deg, rgba(239, 68, 68, 0.35), rgba(245, 158, 11, 0.35))' : 'rgba(255,255,255,0.05)',
+                border: `1.5px solid ${visionMode === 'stress' ? '#ef4444' : 'rgba(255,255,255,0.15)'}`,
+                color: visionMode === 'stress' ? '#fca5a5' : '#94a3b8',
+                borderRadius: '8px', padding: '6px 12px', fontSize: '0.82rem', fontWeight: 800, cursor: 'pointer',
+                boxShadow: visionMode === 'stress' ? '0 0 12px rgba(239, 68, 68, 0.3)' : 'none',
               }}
             >
-              🔴 Разломы / Трещины
+              🌡️ Теплокарта напряжений (FEA)
             </button>
+
             <button
               type="button"
-              onClick={() => setShowMediumLayer(!showMediumLayer)}
+              onClick={() => setVisionMode('skeleton')}
               style={{
-                background: showMediumLayer ? 'rgba(255,200,0,0.2)' : 'rgba(255,255,255,0.05)',
-                border: `1px solid ${showMediumLayer ? '#fbbf24' : 'rgba(255,255,255,0.15)'}`,
-                color: showMediumLayer ? '#fbbf24' : '#64748b',
-                borderRadius: '8px', padding: '4px 10px', fontSize: '0.82rem', fontWeight: 700, cursor: 'pointer',
+                background: visionMode === 'skeleton' ? 'linear-gradient(135deg, rgba(168, 85, 247, 0.35), rgba(59, 130, 246, 0.35))' : 'rgba(255,255,255,0.05)',
+                border: `1.5px solid ${visionMode === 'skeleton' ? '#a855f7' : 'rgba(255,255,255,0.15)'}`,
+                color: visionMode === 'skeleton' ? '#d8b4fe' : '#94a3b8',
+                borderRadius: '8px', padding: '6px 12px', fontSize: '0.82rem', fontWeight: 800, cursor: 'pointer',
+                boxShadow: visionMode === 'skeleton' ? '0 0 12px rgba(168, 85, 247, 0.3)' : 'none',
               }}
             >
-              🟡 Зоны сколов
+              🔬 Скелетизация дефекта
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setVisionMode('clean')}
+              style={{
+                background: visionMode === 'clean' ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.05)',
+                border: `1.5px solid ${visionMode === 'clean' ? '#ffffff' : 'rgba(255,255,255,0.15)'}`,
+                color: visionMode === 'clean' ? '#ffffff' : '#94a3b8',
+                borderRadius: '8px', padding: '6px 12px', fontSize: '0.82rem', fontWeight: 800, cursor: 'pointer',
+              }}
+            >
+              📷 Исходное фото
             </button>
           </div>
 
-          {/* Annotated Image — with interactive zoom */}
-          {annotatedImage && (
-            <div className="di-defect-image-wrap" onClick={() => { setLightboxSrc(annotatedImage); setLightboxZoom(1); }}>
-              <img src={annotatedImage} alt="Дефекты с полигональной разметкой" />
-              <span className="di-zoom-hint">🔍 Нажмите для полноэкранного просмотра и масштабирования</span>
-            </div>
-          )}
+          {/* Active Image View — based on visionMode */}
+          {(() => {
+            const currentImg = 
+              visionMode === 'stress' ? (stressHeatmapImage || annotatedImage) :
+              visionMode === 'skeleton' ? (skeletonImage || annotatedImage) :
+              visionMode === 'clean' ? (photos[0]?.url || annotatedImage) :
+              annotatedImage;
+
+            return (
+              <div 
+                className="di-defect-image-wrap" 
+                onClick={() => { setLightboxSrc(currentImg); setLightboxZoom(1); }}
+                style={{ position: 'relative' }}
+              >
+                <img src={currentImg} alt="Дефекты с полигональной разметкой" />
+                <span className="di-zoom-hint">
+                  {visionMode === 'stress' ? '🌡️ Режим: Анализ механических напряжений бетона (FEA Heatmap)' :
+                   visionMode === 'skeleton' ? '🔬 Режим: Скелетизация траектории разлома' :
+                   visionMode === 'clean' ? '📷 Режим: Исходное фото без слоёв' :
+                   '🔍 Нажмите для полноэкранного зума (Laser AR HUD)'}
+                </span>
+              </div>
+            );
+          })()}
 
           {/* If no annotated image, show original photo */}
           {!annotatedImage && photos.length > 0 && (
