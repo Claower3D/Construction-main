@@ -119,7 +119,7 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
       executorName: card.acceptedBy || card.executorName || 'ТОО «GostBuild Инжиниринг»',
       executorContract: 'Договор генподряда №КЗ-2026/88',
       managerName: card.managerName || 'Менеджер Саша',
-      assignedWorkers: card.assignedWorkers || 'Мастер Владимир, Мастер Данил',
+      assignedWorkers: card.assignedWorkers || 'Мастер Владимир, Мастер Данил, Радион (Манипулятор)',
       comments: card.comments || 'Клиент просит соблюдать тихий час с 13:00 до 15:00. Пропускная система на объекте оформлена.',
       stages: (card.stages && card.stages.length > 0) ? card.stages : defaultStages,
       estimateItems: card.estimateItems || [

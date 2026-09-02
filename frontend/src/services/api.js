@@ -57,7 +57,7 @@ export const SYSTEM_LINKED_ACCOUNTS = [
   {
     id: 'usr_manager_sasha',
     email: 'sasha.manager@qazgost.kz',
-    password: 'Sasha2026!',
+    password: 'Qz#S4sh@_Mngr89',
     name: 'Менеджер Саша',
     fullName: 'Саша (Менеджер проектов)',
     role: 'manager',
@@ -65,13 +65,13 @@ export const SYSTEM_LINKED_ACCOUNTS = [
     companyName: 'ТОО «GostBuild Инжиниринг»',
     position: 'Менеджер проектов и CRM',
     phone: '+7 (701) 555-01-01',
-    assignedWorkers: ['Мастер Владимир', 'Мастер Данил'],
-    linkedTeam: 'Мастер Владимир, Мастер Данил'
+    assignedWorkers: ['Мастер Владимир', 'Мастер Данил', 'Радион (Манипулятор)'],
+    linkedTeam: 'Мастер Владимир, Мастер Данил, Радион (Манипулятор)'
   },
   {
     id: 'usr_master_vladimir',
     email: 'vladimir.master@qazgost.kz',
-    password: 'Vladimir2026!',
+    password: 'Vl@d!m1r_Bld#742',
     name: 'Мастер Владимир',
     fullName: 'Владимир (Мастер)',
     role: 'executor',
@@ -81,12 +81,12 @@ export const SYSTEM_LINKED_ACCOUNTS = [
     phone: '+7 (702) 555-02-02',
     managerName: 'Менеджер Саша',
     linkedManager: 'Менеджер Саша',
-    partnerWorker: 'Мастер Данил'
+    partnerWorker: 'Мастер Данил, Радион (Манипулятор)'
   },
   {
     id: 'usr_master_danil',
     email: 'danil.master@qazgost.kz',
-    password: 'Danil2026!',
+    password: 'D4n1l*M@st3r_518',
     name: 'Мастер Данил',
     fullName: 'Данил (Мастер)',
     role: 'executor',
@@ -96,7 +96,24 @@ export const SYSTEM_LINKED_ACCOUNTS = [
     phone: '+7 (703) 555-03-03',
     managerName: 'Менеджер Саша',
     linkedManager: 'Менеджер Саша',
-    partnerWorker: 'Мастер Владимир'
+    partnerWorker: 'Мастер Владимир, Радион (Манипулятор)'
+  },
+  {
+    id: 'usr_machinist_radion',
+    email: 'radion.manipulator@qazgost.kz',
+    password: 'R@d10n_M4n!p_934',
+    name: 'Радион (Манипулятор)',
+    fullName: 'Радион (Оператор КМУ)',
+    role: 'executor',
+    companyId: 'GOST-777',
+    companyName: 'ТОО «GostBuild Инжиниринг»',
+    position: 'Водитель-оператор крана-манипулятора (GPS Online)',
+    equipmentName: 'Кран-манипулятор КамАЗ 65117 (КМУ Kanglim 7т, борт 12т)',
+    plateNumber: '742 MAN 01',
+    phone: '+7 (705) 555-04-04',
+    managerName: 'Менеджер Саша',
+    linkedManager: 'Менеджер Саша',
+    partnerWorker: 'Мастер Владимир, Мастер Данил'
   }
 ];
 
