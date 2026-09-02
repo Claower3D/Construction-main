@@ -17548,3 +17548,130 @@ body.dark .split-service-card {
   background: rgba(255, 255, 255, 0.08);
   color: #ffffff;
 }
+
+/* ========================================================================== */
+/* 🖥️ PROPER DESKTOP / PC ADAPTATION (1200px, 1440px, 1920px+ SCREENS)       */
+/* ========================================================================== */
+
+@media (min-width: 1024px) {
+  /* Main cockpit & workspace */
+  .admin-redesign-main {
+    flex: 1;
+    min-width: 0;
+    overflow-y: auto;
+  }
+
+  .tab-view-container {
+    max-width: 1680px;
+    margin: 0 auto;
+    width: 100%;
+    padding: 0 0.5rem;
+    box-sizing: border-box;
+  }
+
+  .engineer-main-content {
+    padding: 1.75rem 2.25rem;
+  }
+
+  /* Calendar Desktop Grid */
+  .calendar-workspace-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 380px;
+    gap: 1.75rem;
+    align-items: start;
+  }
+
+  .calendar-card-panel {
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid rgba(56, 189, 248, 0.25);
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.4);
+  }
+
+  .month-day-cell {
+    min-height: 105px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    background: #0d1326;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .month-day-cell:hover {
+    background: #16203d;
+    box-shadow: inset 0 0 0 1.5px rgba(56, 189, 248, 0.5);
+  }
+
+  .month-day-cell.selected-day {
+    background: #1a274e;
+    box-shadow: inset 0 0 0 2px #38bdf8, 0 0 15px rgba(56, 189, 248, 0.3);
+  }
+
+  /* KPI Stats 4-Column Layout on PC */
+  .calendar-stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .calendar-kpi-card {
+    padding: 1.25rem 1.5rem;
+    border-radius: 16px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .calendar-kpi-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+  }
+
+  /* Right Sidebar Panel on PC */
+  .sidebar-panel-card {
+    background: rgba(15, 23, 42, 0.88);
+    border: 1px solid rgba(56, 189, 248, 0.2);
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.4);
+  }
+
+  .event-item-card {
+    background: rgba(20, 28, 50, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 14px;
+    padding: 1rem 1.15rem;
+    transition: all 0.2s ease;
+  }
+
+  .event-item-card:hover {
+    border-color: #38bdf8;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  }
+}
+
+@media (min-width: 1440px) {
+  .calendar-workspace-grid {
+    grid-template-columns: minmax(0, 1fr) 420px;
+    gap: 2rem;
+  }
+
+  .month-day-cell {
+    min-height: 115px;
+  }
+}
+
+@media (min-width: 1920px) {
+  .tab-view-container {
+    max-width: 1800px;
+  }
+
+  .calendar-workspace-grid {
+    grid-template-columns: minmax(0, 1fr) 460px;
+    gap: 2.25rem;
+  }
+
+  .month-day-cell {
+    min-height: 125px;
+  }
+}
