@@ -278,11 +278,12 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
       setEmbeddedModule('company');
       setSelectedItemObject(item);
     }
-    // Check if it's engineer or calendar module
+    // Check if it's engineer or calendar/works module
     else if (
       item.id.startsWith('ing-') || 
       item.id === 'c-calendar' || 
-      item.id === 'e-calendar'
+      item.id === 'e-calendar' ||
+      item.id === 'e-works'
     ) {
       setEmbeddedModule('engineer');
       setSelectedItemObject(item);
@@ -586,16 +587,16 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
             <div style={{ width: '100%', minHeight: '85vh' }}>
               {embeddedModule === 'engineer' && (
                 <EngineerDashboardPage
-                  key={selectedRole}
+                  key={selectedRole + '_' + selectedItemId}
                   hideHeader={true}
                   initialTab={
                     selectedItemId === 'ing-main' ? 'overview' :
                     selectedItemId === 'ing-requests' ? 'requests' :
-                    selectedItemId === 'ing-objects' ? 'objects' :
+                    (selectedItemId === 'ing-objects' || selectedItemId === 'e-works') ? 'objects' :
                     (selectedItemId === 'ing-calendar' || selectedItemId === 'c-calendar' || selectedItemId === 'e-calendar') ? 'calendar' :
                     selectedItemId === 'ing-ai' ? 'ai-calc' :
                     selectedItemId === 'ing-expenses' ? 'expenses' :
-                    'overview'
+                    'calendar'
                   }
                   onBackToHome={handleBackToCardMenu}
                   viewRole={selectedRole}

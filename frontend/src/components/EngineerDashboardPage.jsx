@@ -248,11 +248,20 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
     ];
   });
 
-  const [objectsList, setObjectsList] = useState([
-    { id: 'OBJ-201', client: 'ЖК "Алатау 2"', address: 'Алматы, проспект Достык 105', budget: 45000000, factCost: 28000000, progress: 65, status: 'В работе', brigade: 'Бригада: Александр Экскаватор', photosCount: 18 },
-    { id: 'OBJ-202', client: 'БЦ "Нурлы Тау"', address: 'Астана, ул. Достык 8', budget: 120000000, factCost: 95000000, progress: 80, status: 'В работе', brigade: 'Бригада: Володя Мастер', photosCount: 42 },
-    { id: 'OBJ-203', client: 'Коттеджный поселок "Северный"', address: 'Караганда, мкр. Орталык 14', budget: 18000000, factCost: 18000000, progress: 100, status: 'Завершено', brigade: 'Бригада: Я', photosCount: 25 }
-  ]);
+  const [objectsList, setObjectsList] = useState(() => {
+    try {
+      const saved = localStorage.getItem('qazgost_executor_objects');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {}
+    return [
+      { id: 'OBJ-201', client: 'ЖК "Алатау 2"', address: 'Алматы, проспект Достык 105', budget: 45000000, factCost: 28000000, progress: 65, status: 'В работе', brigade: 'Бригада: Александр Экскаватор', photosCount: 18 },
+      { id: 'OBJ-202', client: 'БЦ "Нурлы Тау"', address: 'Астана, ул. Достык 8', budget: 120000000, factCost: 95000000, progress: 80, status: 'В работе', brigade: 'Бригада: Володя Мастер', photosCount: 42 },
+      { id: 'OBJ-203', client: 'Коттеджный поселок "Северный"', address: 'Караганда, мкр. Орталык 14', budget: 18000000, factCost: 18000000, progress: 100, status: 'Завершено', brigade: 'Бригада: Я', photosCount: 25 }
+    ];
+  });
 
   const [materialsList, setMaterialsList] = useState([
     { id: 'MAT-01', name: 'Арматура стальная А500С 12мм', unit: 'тн', qty: 14.5, price: 385000, status: 'В наличии' },
@@ -785,19 +794,55 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
       handedOverAt: new Date().toISOString()
     };
 
-    // 1. Сохранение в общий календарь и календарь исполнителя
+    // 1. Сохранение в общий календарь и календарь исполнителя на все дни графика!
     const calKey = 'qazgost_calendar_events';
     const curCal = JSON.parse(localStorage.getItem(calKey) || '{}');
-    const dayKey = `${currentYear}-${String(monthIndex + 1).padStart(2, '0')}-${String(selectedDay).padStart(2, '0')}`;
-    const dayEvents = [...(curCal[dayKey] || [])];
-    const existIdx = dayEvents.findIndex(e => String(e.id) === String(reqId));
-    if (existIdx >= 0) dayEvents[existIdx] = { ...dayEvents[existIdx], ...payload };
-    else dayEvents.push(payload);
-    curCal[dayKey] = dayEvents;
+    
+    for (let i = 0; i < estimatedDays; i++) {
+      const d = selectedDay + i;
+      if (d <= 31) {
+        const fdk = `${currentYear}-${String(monthIndex + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        const stageObj = updatedStages[i] || updatedStages[0];
+        const dayPayload = {
+          ...payload,
+          id: `${reqId}_d${i+1}`,
+          dealId: reqId,
+          title: `[Этап ${i+1}/${estimatedDays}: ${stageObj?.name || 'Монтаж'}] ${title}`,
+          stageName: stageObj?.name || `Этап ${i+1}`,
+          time: '09:00 - 18:00',
+          type: 'work_stage',
+          role: 'executor'
+        };
+        const dayEvents = [...(curCal[fdk] || [])];
+        const existIdx = dayEvents.findIndex(e => String(e.id) === String(dayPayload.id) || String(e.id) === String(reqId));
+        if (existIdx >= 0) dayEvents[existIdx] = { ...dayEvents[existIdx], ...dayPayload };
+        else dayEvents.push(dayPayload);
+        curCal[fdk] = dayEvents;
+      }
+    }
     localStorage.setItem(calKey, JSON.stringify(curCal));
     localStorage.setItem('qazgost_calendar_events_executor', JSON.stringify(curCal));
 
-    // 2. Синхронизация статуса в CRM менеджера
+    // 2. Добавление в список активных объектов исполнителя
+    const newObj = {
+      id: `OBJ-${reqId}`,
+      client: title,
+      address: location,
+      budget: reqItem?.budget || 1500000,
+      factCost: 0,
+      progress: 15,
+      status: 'В работе',
+      brigade: 'Бригада: Мастер Владимир, Мастер Данил, Радион (Манипулятор)',
+      photosCount: evtPhotos?.length || 0,
+      stages: updatedStages
+    };
+    setObjectsList(prev => [newObj, ...prev.filter(o => o.id !== newObj.id)]);
+    try {
+      const savedObjs = JSON.parse(localStorage.getItem('qazgost_executor_objects') || '[]');
+      localStorage.setItem('qazgost_executor_objects', JSON.stringify([newObj, ...savedObjs.filter(o => o.id !== newObj.id)]));
+    } catch(e) {}
+
+    // 3. Синхронизация статуса в CRM менеджера
     try {
       const crmCal = JSON.parse(localStorage.getItem('qazgost_crm_calendar') || '{}');
       for (const d in crmCal) {
@@ -811,7 +856,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
       localStorage.setItem('qazgost_crm_calendar', JSON.stringify(crmCal));
     } catch (e) {}
 
-    // 3. Обновление статуса в заявках инженера
+    // 4. Обновление статуса в заявках инженера
     if (reqItem) {
       setRequestsList(prev => prev.map(r => r.id === reqItem.id ? { ...r, status: 'Передано исполнителям' } : r));
       try {
@@ -821,14 +866,14 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
       } catch (e) {}
     }
 
-    // 4. Отправка уведомления исполнителям (Владимир, Данил, Радион)
+    // 5. Отправка уведомления исполнителям (Владимир, Данил, Радион)
     try {
       const execNotifs = JSON.parse(localStorage.getItem('executor_notifications') || '[]');
       execNotifs.unshift({
         id: `NOT-${Date.now()}`,
         icon: '🔨',
-        title: 'Новый объект в работе от инженера',
-        text: `Объект: "${title}" (${location}). Назначены: Владимир, Данил, Радион. Срок: ${formattedDeadline}.`,
+        title: 'Новый график работ от инженера',
+        text: `Объект: "${title}" (${location}). Назначены: Владимир, Данил, Радион. График: ${estimatedDays} дн. Срок: ${formattedDeadline}.`,
         time: 'Только что',
         unread: true
       });
