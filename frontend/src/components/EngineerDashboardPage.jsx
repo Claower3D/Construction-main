@@ -108,41 +108,17 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
       return merged;
     };
 
-    if (viewRole === 'admin') {
-      // Admin sees everything
-      const crmEvents = parseEvents('qazgost_calendar_events');
-      const executorEvents = parseEvents('qazgost_calendar_events_executor');
-      const engineerEvents = parseEvents('qazgost_calendar_events_engineer');
-      
-      let allEvents = mergeEvents(crmEvents, executorEvents);
-      allEvents = mergeEvents(allEvents, engineerEvents);
+    const crmEvents = parseEvents('qazgost_crm_calendar');
+    const calEvents = parseEvents('qazgost_calendar_events');
+    const executorEvents = parseEvents('qazgost_calendar_events_executor');
+    const engineerEvents = parseEvents('qazgost_calendar_events_engineer');
+    
+    let allEvents = mergeEvents(crmEvents, calEvents);
+    allEvents = mergeEvents(allEvents, executorEvents);
+    allEvents = mergeEvents(allEvents, engineerEvents);
 
-      // If absolutely empty, we'll fall through to mock data below
-      if (Object.keys(allEvents).length > 0) {
-        return allEvents;
-      }
-    } else if (viewRole === 'customer') {
-      // Customer sees ONLY their CRM events (full CRM sync for customer)
-      const crmEvents = parseEvents('qazgost_calendar_events');
-      const myEvents = {};
-      
-      for (const day in crmEvents) {
-        const filtered = crmEvents[day].filter(e => 
-          e.createdBy === currentUser?.id || 
-          e.assignedTo === currentUser?.id ||
-          (e.client && currentUser?.name && e.client.includes(currentUser.name))
-        );
-        if (filtered.length > 0) {
-          myEvents[day] = filtered;
-        }
-      }
-      // Never fall back to mock data for customer, they must see only their own!
-      return myEvents;
-    } else {
-      // Normal role-based loading (Engineer, Executor, etc.) now use a shared database for the demo
-      const key = `qazgost_calendar_events`;
-      const parsed = parseEvents(key);
-      if (Object.keys(parsed).length > 0) return parsed;
+    if (Object.keys(allEvents).length > 0) {
+      return allEvents;
     }
 
     // Return a default set of mock data for ALL roles so the calendar isn't empty.
@@ -256,11 +232,20 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
   ]);
 
   // Sample Datasets for all tabs
-  const [requestsList, setRequestsList] = useState([
-    { id: 'REQ-101', client: 'ТОО «Алматы Сити»', type: 'Инспекция монолита', address: 'Алматы, ЖК "Алатау", Блок B', phone: '+7 (701) 555-01-22', status: 'Новая', time: 'Сегодня, 14:30' },
-    { id: 'REQ-102', client: 'ИП «Сатов А.В.»', type: 'Приёмка HVAC и электрики', address: 'Караганда, ул. Ленина 42', phone: '+7 (707) 888-44-11', status: 'В обработке', time: 'Завтра, 11:00' },
-    { id: 'REQ-103', client: 'ТОО «QazGost»', type: 'Экспертиза фундамента', address: 'Астана, БЦ "Нурлы", ов. 402', phone: '+7 (777) 123-99-00', status: 'Принято', time: '8 Августа, 10:00' }
-  ]);
+  const [requestsList, setRequestsList] = useState(() => {
+    try {
+      const saved = localStorage.getItem('qazgost_engineer_requests');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {}
+    return [
+      { id: 'REQ-101', client: 'ТОО «Алматы Сити»', type: 'Инспекция монолита', address: 'Алматы, ЖК "Алатау", Блок B', phone: '+7 (701) 555-01-22', status: 'Новая', time: 'Сегодня, 14:30', managerName: 'Менеджер Саша' },
+      { id: 'REQ-102', client: 'ИП «Сатов А.В.»', type: 'Приёмка HVAC и электрики', address: 'Караганда, ул. Ленина 42', phone: '+7 (707) 888-44-11', status: 'В обработке', time: 'Завтра, 11:00', managerName: 'Менеджер Саша' },
+      { id: 'REQ-103', client: 'ТОО «QazGost»', type: 'Экспертиза фундамента', address: 'Астана, БЦ "Нурлы", ов. 402', phone: '+7 (777) 123-99-00', status: 'Принято', time: '8 Августа, 10:00', managerName: 'Менеджер Саша' }
+    ];
+  });
 
   const [objectsList, setObjectsList] = useState([
     { id: 'OBJ-201', client: 'ЖК "Алатау 2"', address: 'Алматы, проспект Достык 105', budget: 45000000, factCost: 28000000, progress: 65, status: 'В работе', brigade: 'Бригада: Александр Экскаватор', photosCount: 18 },
@@ -315,8 +300,33 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
       const saved = localStorage.getItem('engineer_notifications');
       if (saved) setNotificationsList(JSON.parse(saved));
     };
+    const handleRequestsUpdate = () => {
+      try {
+        const saved = localStorage.getItem('qazgost_engineer_requests');
+        if (saved) setRequestsList(JSON.parse(saved));
+        
+        const crmCal = JSON.parse(localStorage.getItem('qazgost_crm_calendar') || '{}');
+        const calSaved = JSON.parse(localStorage.getItem('qazgost_calendar_events') || '{}');
+        const merged = { ...calSaved };
+        for (const day in crmCal) {
+          if (!merged[day]) merged[day] = [...crmCal[day]];
+          else {
+            const existingIds = new Set(merged[day].map(e => String(e.id)));
+            const toAdd = crmCal[day].filter(e => !existingIds.has(String(e.id)));
+            merged[day] = [...merged[day], ...toAdd];
+          }
+        }
+        setScheduledEvents(merged);
+      } catch (e) {}
+    };
     window.addEventListener('notifications_updated', handleUpdate);
-    return () => window.removeEventListener('notifications_updated', handleUpdate);
+    window.addEventListener('engineer_requests_updated', handleRequestsUpdate);
+    window.addEventListener('crm_calendar_updated', handleRequestsUpdate);
+    return () => {
+      window.removeEventListener('notifications_updated', handleUpdate);
+      window.removeEventListener('engineer_requests_updated', handleRequestsUpdate);
+      window.removeEventListener('crm_calendar_updated', handleRequestsUpdate);
+    };
   }, []);
 
   // AI Pipeline Steps
@@ -2152,12 +2162,17 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                       <span className="evt-location">📍 {req.address}</span>
                       <span className="evt-contractor">📞 {req.phone}</span>
                     </div>
+                    {req.managerName && (
+                      <div style={{ fontSize: '0.75rem', color: '#c4b5fd', marginTop: '4px', fontWeight: 700 }}>
+                        👔 Менеджер: {req.managerName}
+                      </div>
+                    )}
                     <div className="evt-actions-bar" style={{ marginTop: '0.85rem' }}>
                       <div className="evt-btn-group" style={{ width: '100%', display: 'flex', gap: '0.5rem' }}>
-                        <button className="btn-evt-action" style={{ flex: 1 }} onClick={() => alert(`Заявка ${req.id} принята в работу!`)}>
+                        <button className="btn-evt-action" style={{ flex: 1 }} onClick={() => alert(`Заявка ${req.id} принята инженером в работу!`)}>
                           ✅ Принять заявку
                         </button>
-                        <button className="btn-evt-edit" onClick={() => alert(`Просмотр деталей заявки ${req.id}`)}>
+                        <button className="btn-evt-edit" onClick={() => alert(`Просмотр деталей заявки ${req.id}: ${req.notes || 'Выезд на объект и замеры'}`)}>
                           📋 Карточка
                         </button>
                       </div>

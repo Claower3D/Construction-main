@@ -154,6 +154,18 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
   const saveEvents = useCallback((newEvents) => {
     setEvents(newEvents);
     localStorage.setItem('qazgost_crm_calendar', JSON.stringify(newEvents));
+
+    // Синхронизация с общим календарём и инженером
+    try {
+      const calEvents = JSON.parse(localStorage.getItem('qazgost_calendar_events') || '{}');
+      const merged = { ...calEvents };
+      for (const dateKey in newEvents) {
+        merged[dateKey] = newEvents[dateKey];
+      }
+      localStorage.setItem('qazgost_calendar_events', JSON.stringify(merged));
+      window.dispatchEvent(new Event('crm_calendar_updated'));
+      window.dispatchEvent(new Event('engineer_requests_updated'));
+    } catch (e) {}
   }, []);
 
   const showToast = (msg) => { setToastMsg(msg); setTimeout(() => setToastMsg(null), 3000); };
@@ -266,23 +278,102 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
     const newEvents = { ...events };
     if (!newEvents[date]) newEvents[date] = [];
     const newId = Date.now().toString().slice(-4);
-    newEvents[date].push({
+    
+    const clientTitle = leadPayload.clientName || leadPayload.contractor || 'Заказчик';
+    const serviceTitle = leadPayload.service || leadPayload.title || 'Выезд на объект и замеры';
+    const fullTitle = `${serviceTitle} (${clientTitle})`;
+    const assignedEng = leadPayload.assignedEngineer || 'Асхат Нурланов';
+    const manager = currentUser?.name || 'Менеджер Саша';
+
+    const newLeadItem = {
       id: newId,
       leadNum: String(Math.floor(10 + Math.random() * 90)),
-      title: leadPayload.clientName ? `Лид #${newId}: ${leadPayload.title || 'Строительный объект'}` : (leadPayload.title || 'Новая заявка'),
+      title: fullTitle,
       status: 'Новые',
-      type: 'request',
-      role: 'lead',
+      type: 'request_engineering',
+      role: 'engineer',
+      dealType: 'engineer',
       time: time,
-      phone: leadPayload.phone || '',
-      contractor: leadPayload.clientName || leadPayload.contractor || 'Заказчик',
+      phone: leadPayload.phone || '+7 (701) 888-00-11',
+      contractor: clientTitle,
+      clientName: clientTitle,
+      clientPhone: leadPayload.phone || '+7 (701) 888-00-11',
       location: leadPayload.address || leadPayload.location || 'г. Астана',
-      budget: leadPayload.budget || '1 500 000 ₸',
-    });
+      budget: typeof leadPayload.budget === 'number' ? `${leadPayload.budget.toLocaleString('ru-RU')} ₸` : (leadPayload.budget || '1 500 000 ₸'),
+      service: serviceTitle,
+      notes: leadPayload.notes || 'Заявка передана инженеру ПТО для проведения замеров и составления сметы.',
+      assignedEngineer: assignedEng,
+      engineerPosition: 'Ведущий инженер ПТО',
+      managerName: manager,
+      assignedWorkers: 'Мастер Владимир, Мастер Данил, Радион (Манипулятор)'
+    };
+
+    newEvents[date].push(newLeadItem);
     saveEvents(newEvents);
+
+    // 1. Автоматическая передача в реестр заявок Инженера (qazgost_engineer_requests)
+    try {
+      const savedRequests = JSON.parse(localStorage.getItem('qazgost_engineer_requests') || '[]');
+      const newEngineerReq = {
+        id: `REQ-${newId}`,
+        client: clientTitle,
+        type: serviceTitle,
+        address: leadPayload.address || leadPayload.location || 'г. Астана',
+        phone: leadPayload.phone || '+7 (701) 888-00-11',
+        status: 'Новая',
+        time: `${date}, ${time}`,
+        managerName: manager,
+        budget: leadPayload.budget || 1500000,
+        notes: leadPayload.notes || ''
+      };
+      localStorage.setItem('qazgost_engineer_requests', JSON.stringify([newEngineerReq, ...savedRequests]));
+    } catch (e) { console.error(e); }
+
+    // 2. Автоматическая синхронизация с календарём инженера (qazgost_calendar_events)
+    try {
+      const calendarKey = 'qazgost_calendar_events';
+      const calEvents = JSON.parse(localStorage.getItem(calendarKey) || '{}');
+      const dayNum = parseInt(date.split('-')[2], 10) || new Date().getDate();
+      if (!calEvents[dayNum]) calEvents[dayNum] = [];
+      calEvents[dayNum].push({
+        id: `EVT-${newId}`,
+        title: fullTitle,
+        client: clientTitle,
+        location: leadPayload.address || leadPayload.location || 'г. Астана',
+        time: time,
+        type: 'request',
+        status: 'Новые',
+        contractor: clientTitle,
+        deadline: 'Сегодня до 18:00',
+        managerName: manager,
+        assignedEngineer: assignedEng,
+        budget: typeof leadPayload.budget === 'number' ? leadPayload.budget : 1500000
+      });
+      localStorage.setItem(calendarKey, JSON.stringify(calEvents));
+    } catch (e) { console.error(e); }
+
+    // 3. Отправка уведомления инженеру в колокольчик
+    try {
+      const notifsKey = 'engineer_notifications';
+      const engNotifs = JSON.parse(localStorage.getItem(notifsKey) || '[]');
+      const newNotif = {
+        id: `NOT-${Date.now()}`,
+        icon: '👷',
+        title: `Новая заявка от ${manager}`,
+        text: `Объект: ${fullTitle} (${leadPayload.address || 'г. Астана'}). Назначен выезд на ${date} ${time}.`,
+        time: 'Только что',
+        unread: true,
+        target: 'engineer'
+      };
+      localStorage.setItem(notifsKey, JSON.stringify([newNotif, ...engNotifs]));
+      window.dispatchEvent(new Event('notifications_updated'));
+      window.dispatchEvent(new CustomEvent('engineer_requests_updated', { detail: { newId } }));
+      window.dispatchEvent(new Event('crm_calendar_updated'));
+    } catch (e) { console.error(e); }
+
     setShowLeadModal(false);
     setLeadModalDefaults({ date: '', time: '' });
-    showToast(`🎉 Лид #${newId} создан!`);
+    showToast(`🚀 Заявка #${newId} создана и автоматически передана инженеру ПТО (${assignedEng})!`);
   };
 
   const openCreateModalForSlot = (dateStr, timeStr = '10:00') => {
