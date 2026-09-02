@@ -688,186 +688,162 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
     setShowAddModal(false);
   };
 
-  const handleTransferToSpecialist = () => {
-    // Add generic executor crew based on selected work type
-    let newCrew = 'Исполнитель';
-    let newMachinery = 'Стандартное оборудование';
-    let estimatedDays = 1;
+  const handleTransferToSpecialist = (reqItem = null) => {
+    const title = reqItem?.client ? `${reqItem.type || 'Строительный объект'} (${reqItem.client})` : (evtTitle || 'Строительный объект');
+    const location = reqItem?.address || evtLocation || 'г. Астана';
+    const contractor = reqItem?.client || evtContractor || 'ТОО «QazGost»';
+    const reqId = reqItem?.id || editingEvent?.id || Date.now();
+    const workType = reqItem?.type || leadWorkType || 'Водопровод';
 
-    if (leadWorkType === 'Водопровод') {
-      newCrew = 'Бригада: Сантехники (Водопровод)';
-      newMachinery = 'Траншеекопатель, Экскаватор JCB';
+    let newCrew = 'Бригада: Мастер Владимир, Мастер Данил';
+    let newMachinery = 'КМУ КамАЗ 65117 (Радион)';
+    let estimatedDays = 3;
+
+    if (workType.includes('Водопровод') || workType.includes('Сантех')) {
+      newCrew = 'Бригада: Мастер Владимир, Мастер Данил';
+      newMachinery = 'КМУ КамАЗ (Радион), Экскаватор JCB';
       estimatedDays = 3;
-    } else if (leadWorkType === 'Канализация') {
-      newCrew = 'Бригада: Монтажники канализации';
-      newMachinery = 'Экскаватор, Самосвал';
-      estimatedDays = 4;
-    } else if (leadWorkType === 'Септик') {
-      newCrew = 'Бригада: Установщики септиков';
-      newMachinery = 'Манипулятор, Экскаватор';
-      estimatedDays = 2;
-    } else if (leadWorkType === 'Отопление') {
-      newCrew = 'Бригада: Теплотехники';
-      newMachinery = 'Сварочный аппарат, Компрессор';
+    } else if (workType.includes('Монолит') || workType.includes('Фундамент')) {
+      newCrew = 'Бригада: Мастер Владимир, Мастер Данил';
+      newMachinery = 'Автобетононасос, КМУ КамАЗ (Радион)';
       estimatedDays = 5;
-    } else if (leadWorkType === 'Дренаж') {
-      newCrew = 'Бригада: Землекопы';
-      newMachinery = 'Мини-экскаватор, Виброплита';
-      estimatedDays = 3;
-    } else if (leadWorkType === 'Ливнёвка') {
-      newCrew = 'Бригада: Монтажники водоотвода';
-      newMachinery = 'Траншеекопатель';
-      estimatedDays = 3;
-    } else if (leadWorkType === 'Врезка') {
-      newCrew = 'Бригада: Спец. по врезке';
-      newMachinery = 'Компрессор, Сварочный аппарат';
-      estimatedDays = 1;
+    } else if (workType.includes('Электрик') || workType.includes('Сети')) {
+      newCrew = 'Бригада электриков (Мастер Данил)';
+      newMachinery = 'Автовышка (Радион)';
+      estimatedDays = 2;
     }
 
-    let updatedStages = evtStages.map(s => {
-      if (s.status === 'В работе' || s.status === 'Запланировано') {
-        const currentCrews = Array.isArray(s.crews) ? s.crews : (s.crew ? [s.crew] : []);
-        const currentMach = Array.isArray(s.machineries) ? s.machineries : (s.machinery ? [s.machinery] : []);
-        if (!currentCrews.includes(newCrew)) currentCrews.push(newCrew);
-        if (!currentMach.includes(newMachinery)) currentMach.push(newMachinery);
-        return {
-          ...s,
-          crews: currentCrews,
-          crew: currentCrews.join(', '),
-          machineries: currentMach,
-          machinery: currentMach.join(', ')
-        };
-      }
-      return s;
-    });
+    const today = new Date();
+    const stage2Date = new Date();
+    stage2Date.setDate(stage2Date.getDate() + 1);
+    const stage3Date = new Date();
+    stage3Date.setDate(stage3Date.getDate() + estimatedDays);
 
-    if (updatedStages.length === 0) {
-      const today = new Date();
-      const stage2Date = new Date();
-      stage2Date.setDate(stage2Date.getDate() + 1);
-      const stage3Date = new Date();
-      stage3Date.setDate(stage3Date.getDate() + estimatedDays);
-
-      updatedStages = [
-        {
-          id: Date.now() + 1,
-          name: '1. Подготовительные работы и закуп материалов',
-          status: 'В работе',
-          deadline: `Срок: ${today.getDate()} ${monthNames[today.getMonth()]}`,
-          crew: newCrew,
-          crews: [newCrew],
-          machinery: newMachinery,
-          machineries: [newMachinery],
-          files: [],
-          notes: ''
-        },
-        {
-          id: Date.now() + 2,
-          name: `2. Основные работы: ${leadWorkType}`,
-          status: 'Запланировано',
-          deadline: `Срок: ${stage2Date.getDate()} ${monthNames[stage2Date.getMonth()]}`,
-          crew: newCrew,
-          crews: [newCrew],
-          machinery: newMachinery,
-          machineries: [newMachinery],
-          files: [],
-          notes: ''
-        },
-        {
-          id: Date.now() + 3,
-          name: '3. Пусконаладка и сдача объекта',
-          status: 'Запланировано',
-          deadline: `Срок: ${stage3Date.getDate()} ${monthNames[stage3Date.getMonth()]}`,
-          crew: newCrew,
-          crews: [newCrew],
-          machinery: '',
-          machineries: [],
-          files: [],
-          notes: ''
-        }
-      ];
-    }
-
-    setEvtStages(updatedStages);
-    setEvtStatus('Передано специалисту');
-    setIsTransferring(false);
-    
-    // Auto-calculate deadline based on estimated days
     const deadlineDate = new Date();
     deadlineDate.setDate(deadlineDate.getDate() + estimatedDays);
     const formattedDeadline = `До 18:00 (${deadlineDate.getDate()} ${monthNames[deadlineDate.getMonth()]})`;
-    
-    setEvtDeadline(formattedDeadline);
 
-    setEditingEvent(prev => prev ? {
-      ...prev,
+    const defaultStages = [
+      {
+        id: Date.now() + 1,
+        name: '1. Демонтаж и подготовка основания',
+        status: 'В работе',
+        deadline: `Срок: ${today.getDate()} ${monthNames[today.getMonth()]}`,
+        crew: newCrew,
+        crews: [newCrew],
+        machinery: newMachinery,
+        machineries: [newMachinery],
+        files: [],
+        notes: ''
+      },
+      {
+        id: Date.now() + 2,
+        name: '2. Основные строительно-монтажные работы',
+        status: 'Запланировано',
+        deadline: `Срок: ${stage2Date.getDate()} ${monthNames[stage2Date.getMonth()]}`,
+        crew: newCrew,
+        crews: [newCrew],
+        machinery: newMachinery,
+        machineries: [newMachinery],
+        files: [],
+        notes: ''
+      },
+      {
+        id: Date.now() + 3,
+        name: '3. Пусконаладка и сдача технадзору',
+        status: 'Запланировано',
+        deadline: `Срок: ${stage3Date.getDate()} ${monthNames[stage3Date.getMonth()]}`,
+        crew: newCrew,
+        crews: [newCrew],
+        machinery: '',
+        machineries: [],
+        files: [],
+        notes: ''
+      }
+    ];
+
+    const updatedStages = (evtStages && evtStages.length > 0) ? evtStages : defaultStages;
+
+    const payload = {
+      id: reqId,
+      title: title,
+      location: location,
+      time: reqItem?.time || evtTime || '10:00 - 18:00',
+      type: 'work_stage',
+      role: 'executor',
+      contractor: contractor,
+      status: 'В работе',
       deadline: formattedDeadline,
+      stages: updatedStages,
+      photos: evtPhotos,
+      comments: evtComments || 'Передано инженером ПТО в работу бригаде мастеров',
+      assignedWorkers: 'Мастер Владимир, Мастер Данил, Радион (Манипулятор)',
+      assignedEngineer: currentUser?.name || 'Асхат Нурланов (Инженер ПТО)',
       estimatedDays: estimatedDays,
       transferredToExecutor: true,
       isTransferred: true,
-      isLead: false,
-      managerApprovedRevision: false,
-      managerResolutionPending: false,
-      status: 'Передано специалисту',
       handedOverAt: new Date().toISOString()
-    } : prev);
+    };
 
-    // Auto-save across the calculated days
-    setScheduledEvents(prev => {
-        let newState = { ...prev };
-        const payload = {
-           id: editingEvent ? editingEvent.id : Date.now(),
-           title: evtTitle,
-           location: evtLocation || 'Караганда, Объект №1',
-           time: evtTime,
-           type: 'work_stage',
-           role: 'executor',
-           contractor: evtContractor,
-           status: 'Передано специалисту',
-           deadline: formattedDeadline,
-           stages: updatedStages,
-           photos: evtPhotos,
-           estimateItems: evtEstimateItems,
-           totalSum: evtTotalSum,
-           comments: evtComments,
-           createdBy: editingEvent ? editingEvent.createdBy : null,
-           estimatedDays: estimatedDays,
-           transferredToExecutor: true,
-           isTransferred: true,
-           isLead: false,
-           handedOverAt: new Date().toISOString()
-        };
-        
-        for (let i = 0; i < estimatedDays; i++) {
-          const d = selectedDay + i;
-          if (d <= 31) {
-             const fdk = `${currentYear}-${String(monthIndex + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-             
-             if (newState[d]) {
-               const intDayEvents = [...newState[d]];
-               const existingIdx = intDayEvents.findIndex(item => item.id === payload.id);
-               if (existingIdx !== -1) {
-                  intDayEvents.splice(existingIdx, 1);
-                  newState[d] = intDayEvents;
-               }
-             }
+    // 1. Сохранение в общий календарь и календарь исполнителя
+    const calKey = 'qazgost_calendar_events';
+    const curCal = JSON.parse(localStorage.getItem(calKey) || '{}');
+    const dayKey = `${currentYear}-${String(monthIndex + 1).padStart(2, '0')}-${String(selectedDay).padStart(2, '0')}`;
+    const dayEvents = [...(curCal[dayKey] || [])];
+    const existIdx = dayEvents.findIndex(e => String(e.id) === String(reqId));
+    if (existIdx >= 0) dayEvents[existIdx] = { ...dayEvents[existIdx], ...payload };
+    else dayEvents.push(payload);
+    curCal[dayKey] = dayEvents;
+    localStorage.setItem(calKey, JSON.stringify(curCal));
+    localStorage.setItem('qazgost_calendar_events_executor', JSON.stringify(curCal));
 
-             const fullDayEvents = [...(newState[fdk] || [])];
-             const existingIdx = fullDayEvents.findIndex(item => item.id === payload.id);
-             if (existingIdx !== -1) {
-                fullDayEvents[existingIdx] = { ...fullDayEvents[existingIdx], ...payload };
-             } else {
-                fullDayEvents.push(payload);
-             }
-             newState[fdk] = fullDayEvents;
+    // 2. Синхронизация статуса в CRM менеджера
+    try {
+      const crmCal = JSON.parse(localStorage.getItem('qazgost_crm_calendar') || '{}');
+      for (const d in crmCal) {
+        crmCal[d] = (crmCal[d] || []).map(e => {
+          if (String(e.id) === String(reqId) || (e.title && title.includes(e.title))) {
+            return { ...e, status: 'В работе', role: 'executor', type: 'work_stage', assignedWorkers: 'Мастер Владимир, Мастер Данил, Радион (Манипулятор)' };
           }
-        }
-        
-        localStorage.setItem('qazgost_calendar_events', JSON.stringify(newState));
-        return newState;
-    });
+          return e;
+        });
+      }
+      localStorage.setItem('qazgost_crm_calendar', JSON.stringify(crmCal));
+    } catch (e) {}
 
-    alert(`Заявка передана исполнителю. Автоматически рассчитано время работы: ${estimatedDays} дн. (Дедлайн: ${formattedDeadline})`);
+    // 3. Обновление статуса в заявках инженера
+    if (reqItem) {
+      setRequestsList(prev => prev.map(r => r.id === reqItem.id ? { ...r, status: 'Передано исполнителям' } : r));
+      try {
+        const savedReqs = JSON.parse(localStorage.getItem('qazgost_engineer_requests') || '[]');
+        const updatedReqs = savedReqs.map(r => r.id === reqItem.id ? { ...r, status: 'Передано исполнителям' } : r);
+        localStorage.setItem('qazgost_engineer_requests', JSON.stringify(updatedReqs));
+      } catch (e) {}
+    }
+
+    // 4. Отправка уведомления исполнителям (Владимир, Данил, Радион)
+    try {
+      const execNotifs = JSON.parse(localStorage.getItem('executor_notifications') || '[]');
+      execNotifs.unshift({
+        id: `NOT-${Date.now()}`,
+        icon: '🔨',
+        title: 'Новый объект в работе от инженера',
+        text: `Объект: "${title}" (${location}). Назначены: Владимир, Данил, Радион. Срок: ${formattedDeadline}.`,
+        time: 'Только что',
+        unread: true
+      });
+      localStorage.setItem('executor_notifications', JSON.stringify(execNotifs));
+    } catch (e) {}
+
+    setScheduledEvents(curCal);
+    setShowAddModal(false);
+    setEditingEvent(null);
+
+    window.dispatchEvent(new Event('crm_calendar_updated'));
+    window.dispatchEvent(new Event('engineer_requests_updated'));
+    window.dispatchEvent(new Event('notifications_updated'));
+
+    alert(`🚀 Объект "${title}" успешно передан в работу исполнителям (Мастер Владимир, Мастер Данил, Радион Манипулятор)!\nДедлайн: ${formattedDeadline}`);
   };
 
   // Quick Change Status (1-click status cycle)
@@ -2170,11 +2146,16 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                     )}
                     <div className="evt-actions-bar" style={{ marginTop: '0.85rem' }}>
                       <div className="evt-btn-group" style={{ width: '100%', display: 'flex', gap: '0.5rem' }}>
-                        <button className="btn-evt-action" style={{ flex: 1 }} onClick={() => alert(`Заявка ${req.id} принята инженером в работу!`)}>
-                          ✅ Принять заявку
+                        <button className="btn-evt-action" style={{ flex: 1 }} onClick={() => handleTransferToSpecialist(req)}>
+                          👥 Передать исполнителю
                         </button>
-                        <button className="btn-evt-edit" onClick={() => alert(`Просмотр деталей заявки ${req.id}: ${req.notes || 'Выезд на объект и замеры'}`)}>
-                          📋 Карточка
+                        <button className="btn-evt-edit" onClick={() => {
+                          setEvtTitle(`${req.type || 'Объект'} (${req.client})`);
+                          setEvtLocation(req.address);
+                          setEvtContractor(req.client);
+                          setShowAddModal(true);
+                        }}>
+                          📋 Детали / Смета
                         </button>
                       </div>
                     </div>
@@ -3273,30 +3254,26 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                           🔄 Вернуть менеджеру на пересогласование
                         </button>
                       </div>
-                    ) : (editingEvent && (editingEvent.managerApprovedRevision || (editingEvent.isLead && evtStatus === 'В пути'))) && (
+                    ) : (
                       <div style={{ display: 'flex', gap: '0.5rem', marginRight: 'auto', alignItems: 'center' }}>
-                        {editingEvent.managerApprovedRevision && (
-                          <span style={{ fontSize: '0.72rem', background: 'rgba(0, 229, 255, 0.2)', border: '1px solid #00e5ff', color: '#00e5ff', padding: '3px 8px', borderRadius: '6px', fontWeight: 800 }}>
-                            🔄 Согласовано менеджером
-                          </span>
-                        )}
-                        <button type="button" onClick={handleReturnToManager} style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: '1px solid #ef4444', padding: '0.6rem 1.2rem', borderRadius: '8px', fontWeight: 800, cursor: 'pointer' }}>
-                          ❌ Вернуть менеджеру
-                        </button>
                         <button 
                           type="button" 
-                          onClick={handleTransferToSpecialist} 
-                          disabled={evtEstimateItems.length === 0}
+                          onClick={() => handleTransferToSpecialist()} 
                           style={{ 
-                            background: evtEstimateItems.length === 0 ? 'rgba(255,255,255,0.1)' : 'linear-gradient(90deg, #10b981, #059669)', 
-                            color: evtEstimateItems.length === 0 ? '#94a3b8' : '#fff', 
+                            background: 'linear-gradient(90deg, #10b981, #059669)', 
+                            color: '#fff', 
                             border: 'none', padding: '0.6rem 1.2rem', borderRadius: '8px', fontWeight: 800, 
-                            cursor: evtEstimateItems.length === 0 ? 'not-allowed' : 'pointer' 
+                            cursor: 'pointer',
+                            boxShadow: '0 0 15px rgba(16, 185, 129, 0.3)'
                           }}
-                          title={evtEstimateItems.length === 0 ? "Сначала рассчитайте смету!" : ""}
                         >
                           👥 Передать исполнителю
                         </button>
+                        {editingEvent?.isLead && (
+                          <button type="button" onClick={handleReturnToManager} style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: '1px solid #ef4444', padding: '0.6rem 1rem', borderRadius: '8px', fontWeight: 800, fontSize: '0.78rem', cursor: 'pointer' }}>
+                            ❌ Вернуть менеджеру
+                          </button>
+                        )}
                       </div>
                     )}
 
