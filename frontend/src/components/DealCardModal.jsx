@@ -47,6 +47,7 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
   const userRole = currentUser?.role || (card.role === 'executor' ? 'executor' : 'manager');
   const isExecutor = userRole === 'executor';
   const isEngineer = userRole === 'engineer';
+  const isManagerOrAdmin = !isExecutor;
 
   const [formData, setFormData] = useState(() => {
     const normStatus = normalizeStatus(card.status);
@@ -107,6 +108,7 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
       clientName: card.contractor || card.clientName || 'ТОО «Заказчик»',
       clientPhone: cleanPhone || '+7 (701) 888-00-11',
       budget: baseSum,
+      paidAmount: card.paidAmount !== undefined ? parseMoney(card.paidAmount) : (normStatus === 'completed' ? baseSum : Math.round(baseSum * 0.25)),
       status: normStatus,
       date: card.date || card.day || new Date().toISOString().split('T')[0],
       time: cleanTime,
@@ -160,7 +162,7 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
     .filter(s => s.status === 'in_progress')
     .reduce((acc, s) => acc + (s.budget || 0), 0);
   const escrowLocked = inProgressStagesSum > 0 ? inProgressStagesSum : (formData.status === 'in_progress' ? Math.round(totalBudget * 0.55) : 0);
-  const escrowPaid = completedStagesSum > 0 ? completedStagesSum : (formData.status === 'completed' ? totalBudget : Math.round(totalBudget * 0.25));
+  const escrowPaid = formData.paidAmount !== undefined ? formData.paidAmount : (completedStagesSum > 0 ? completedStagesSum : (formData.status === 'completed' ? totalBudget : Math.round(totalBudget * 0.25)));
 
   const handleStageStatusToggle = (index) => {
     const updated = [...formData.stages];
@@ -189,6 +191,55 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
     setFormData(prev => ({ ...prev, stages: updated }));
   };
 
+  const handleEstimateItemChange = (index, field, value) => {
+    if (!isManagerOrAdmin) return;
+    const updated = [...formData.estimateItems];
+    const item = { ...updated[index] };
+    
+    if (field === 'name') {
+      item.name = value;
+    } else if (field === 'unit') {
+      item.unit = value;
+    } else if (field === 'qty') {
+      item.qty = parseFloat(value) || 0;
+      item.sum = Math.round(item.qty * (item.price || 0));
+    } else if (field === 'price') {
+      item.price = Math.round(parseFloat(value) || 0);
+      item.sum = Math.round((item.qty || 1) * item.price);
+    } else if (field === 'sum') {
+      item.sum = Math.round(parseFloat(value) || 0);
+      if (item.qty > 0) item.price = Math.round(item.sum / item.qty);
+    }
+    updated[index] = item;
+    
+    const newTotal = updated.reduce((acc, it) => acc + (it.sum || (it.price * it.qty) || 0), 0);
+    setFormData(prev => ({
+      ...prev,
+      estimateItems: updated,
+      budget: newTotal > 0 ? newTotal : prev.budget
+    }));
+  };
+
+  const handleRemoveEstimateItem = (index) => {
+    if (!isManagerOrAdmin) return;
+    const updated = formData.estimateItems.filter((_, idx) => idx !== index);
+    const newTotal = updated.reduce((acc, it) => acc + (it.sum || (it.price * it.qty) || 0), 0);
+    setFormData(prev => ({
+      ...prev,
+      estimateItems: updated,
+      budget: newTotal > 0 ? newTotal : 0
+    }));
+    showToast('🗑 Позиция удалена из сметы');
+  };
+
+  const handleStageBudgetChange = (index, value) => {
+    if (!isManagerOrAdmin) return;
+    const updated = [...formData.stages];
+    const num = Math.round(parseFloat(value) || 0);
+    updated[index] = { ...updated[index], budget: num };
+    setFormData(prev => ({ ...prev, stages: updated }));
+  };
+
   const handleSaveWrapper = () => {
     const finalData = {
       ...formData,
@@ -197,6 +248,7 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
               formData.status === 'pending_executor' ? 'Дожим' : 'В работе',
       contractor: formData.clientName,
       budget: formatMoney(formData.budget),
+      paidAmount: formData.paidAmount !== undefined ? formData.paidAmount : escrowPaid,
       phone: formData.clientPhone,
       time: formData.time
     };
@@ -468,6 +520,26 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
                     }}
                   />
                 </div>
+
+                <div>
+                  <label style={{ fontSize: '0.68rem', color: '#ffd700', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3px', fontWeight: 700 }}>
+                    <span>💰 БЮДЖЕТ ОБЪЕКТА (₸)</span>
+                    <span style={{ fontSize: '0.65rem', color: '#94a3b8' }}>{formatMoney(formData.budget)}</span>
+                  </label>
+                  <input
+                    type="number"
+                    value={formData.budget || ''}
+                    onChange={e => {
+                      const val = parseInt(e.target.value, 10) || 0;
+                      setFormData(prev => ({ ...prev, budget: val }));
+                    }}
+                    placeholder="1 500 000"
+                    style={{
+                      width: '100%', background: 'rgba(0,0,0,0.35)', border: '1px solid rgba(255, 215, 0, 0.4)',
+                      borderRadius: '8px', padding: '7px 10px', color: '#ffd700', fontSize: '0.88rem', outline: 'none', fontWeight: 800
+                    }}
+                  />
+                </div>
               </div>
             </div>
 
@@ -601,12 +673,32 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
             {/* 4 Карточки верхнего финансового дашборда */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px' }}>
               <div style={{
-                background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(255, 215, 0, 0.25)',
+                background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(255, 215, 0, 0.4)',
                 borderRadius: '12px', padding: '10px 14px'
               }}>
-                <div style={{ fontSize: '0.68rem', color: '#ffd700', fontWeight: 800, textTransform: 'uppercase' }}>Общий бюджет</div>
-                <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#ffd700', marginTop: '2px' }}>{formatMoney(totalBudget)}</div>
-                <div style={{ fontSize: '0.65rem', color: '#94a3b8', marginTop: '1px' }}>по смете проекта</div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ fontSize: '0.68rem', color: '#ffd700', fontWeight: 800, textTransform: 'uppercase' }}>💰 Общий бюджет</div>
+                  <span style={{ fontSize: '0.62rem', color: '#ffd700', opacity: 0.85 }}>✏️ изм.</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '3px', marginTop: '3px' }}>
+                  <input
+                    type="number"
+                    value={formData.budget || ''}
+                    onChange={e => {
+                      const val = parseInt(e.target.value, 10) || 0;
+                      setFormData(prev => ({ ...prev, budget: val }));
+                    }}
+                    style={{
+                      width: '100%', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255, 215, 0, 0.4)',
+                      borderRadius: '6px', padding: '3px 6px', color: '#ffd700', fontSize: '1.05rem',
+                      fontWeight: 900, outline: 'none'
+                    }}
+                  />
+                  <span style={{ color: '#ffd700', fontWeight: 900, fontSize: '0.95rem' }}>₸</span>
+                </div>
+                <div style={{ fontSize: '0.65rem', color: '#94a3b8', marginTop: '2px' }}>
+                  {formatMoney(totalBudget)}
+                </div>
               </div>
 
               <div style={{
@@ -619,12 +711,38 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
               </div>
 
               <div style={{
-                background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(16, 185, 129, 0.3)',
+                background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(16, 185, 129, 0.4)',
                 borderRadius: '12px', padding: '10px 14px'
               }}>
-                <div style={{ fontSize: '0.68rem', color: '#10b981', fontWeight: 800, textTransform: 'uppercase' }}>🔓 Выплачено</div>
-                <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#10b981', marginTop: '2px' }}>{formatMoney(escrowPaid)}</div>
-                <div style={{ fontSize: '0.65rem', color: '#94a3b8', marginTop: '1px' }}>по актам выполненных</div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ fontSize: '0.68rem', color: '#10b981', fontWeight: 800, textTransform: 'uppercase' }}>🔓 Выплачено</div>
+                  {isManagerOrAdmin && <span style={{ fontSize: '0.62rem', color: '#10b981', opacity: 0.85 }}>✏️ изм.</span>}
+                </div>
+                {isManagerOrAdmin ? (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '3px', marginTop: '3px' }}>
+                    <input
+                      type="number"
+                      value={formData.paidAmount !== undefined ? formData.paidAmount : escrowPaid}
+                      onChange={e => {
+                        const val = parseInt(e.target.value, 10) || 0;
+                        setFormData(prev => ({ ...prev, paidAmount: val }));
+                      }}
+                      style={{
+                        width: '100%', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(16, 185, 129, 0.4)',
+                        borderRadius: '6px', padding: '3px 6px', color: '#10b981', fontSize: '1.05rem',
+                        fontWeight: 900, outline: 'none'
+                      }}
+                    />
+                    <span style={{ color: '#10b981', fontWeight: 900, fontSize: '0.95rem' }}>₸</span>
+                  </div>
+                ) : (
+                  <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#10b981', marginTop: '2px' }}>
+                    {formatMoney(escrowPaid)}
+                  </div>
+                )}
+                <div style={{ fontSize: '0.65rem', color: '#94a3b8', marginTop: '2px' }}>
+                  {formatMoney(formData.paidAmount !== undefined ? formData.paidAmount : escrowPaid)}
+                </div>
               </div>
 
               <div style={{
@@ -676,8 +794,27 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                       <div>
                         <div style={{ fontWeight: 800, fontSize: '0.9rem', color: '#f8fafc' }}>{stg.name}</div>
-                        <div style={{ fontSize: '0.72rem', color: '#94a3b8', marginTop: '1px' }}>
-                          ⏱ Сроки: <strong style={{ color: '#38bdf8' }}>{stg.dateRange}</strong> • Бюджет этапа: <strong style={{ color: '#ffd700' }}>{formatMoney(stg.budget)}</strong>
+                        <div style={{ fontSize: '0.72rem', color: '#94a3b8', marginTop: '1px', display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                          <span>⏱ Сроки: <strong style={{ color: '#38bdf8' }}>{stg.dateRange}</strong></span>
+                          <span>•</span>
+                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                            Бюджет этапа:
+                            {isManagerOrAdmin ? (
+                              <input
+                                type="number"
+                                value={stg.budget || ''}
+                                onChange={e => handleStageBudgetChange(i, e.target.value)}
+                                style={{
+                                  width: '110px', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255, 215, 0, 0.4)',
+                                  borderRadius: '5px', padding: '2px 6px', color: '#ffd700', fontSize: '0.75rem',
+                                  fontWeight: 800, outline: 'none'
+                                }}
+                              />
+                            ) : (
+                              <strong style={{ color: '#ffd700' }}>{formatMoney(stg.budget)}</strong>
+                            )}
+                            <span style={{ color: '#ffd700', fontWeight: 700 }}>₸</span>
+                          </span>
                         </div>
                       </div>
 
@@ -737,7 +874,39 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
                       Автоматический расчёт стройматериалов и почасовой аренды спецтехники
                     </div>
                   </div>
-                  <div style={{ display: 'flex', gap: '6px' }}>
+                  <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                    {isManagerOrAdmin && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const newCustomItem = {
+                            name: 'Новая работа / материал',
+                            unit: 'шт',
+                            qty: 1,
+                            price: 15000,
+                            sum: 15000,
+                            source: 'custom',
+                            tag: '📝 Своя позиция'
+                          };
+                          const updated = [...formData.estimateItems, newCustomItem];
+                          const newTotal = updated.reduce((acc, it) => acc + (it.sum || (it.price * it.qty) || 0), 0);
+                          setFormData(prev => ({
+                            ...prev,
+                            estimateItems: updated,
+                            budget: newTotal
+                          }));
+                          showToast('➕ Добавлена новая позиция в смету!');
+                        }}
+                        style={{
+                          background: 'rgba(16, 185, 129, 0.2)', border: '1px solid #10b981',
+                          color: '#6ee7b7', borderRadius: '6px', padding: '4px 10px',
+                          fontSize: '0.72rem', fontWeight: 900, cursor: 'pointer',
+                          boxShadow: '0 0 10px rgba(16, 185, 129, 0.2)'
+                        }}
+                      >
+                        ➕ Своя позиция
+                      </button>
+                    )}
                     <button
                       type="button"
                       onClick={() => {
@@ -798,34 +967,144 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
                       <th style={{ padding: '6px 4px' }}>Кол-во</th>
                       <th style={{ padding: '6px 4px' }}>Цена</th>
                       <th style={{ padding: '6px 4px', textAlign: 'right' }}>Сумма</th>
+                      {isManagerOrAdmin && <th style={{ padding: '6px 4px', width: '28px', textAlign: 'center' }}></th>}
                     </tr>
                   </thead>
                   <tbody>
                     {formData.estimateItems.map((item, idx) => (
                       <tr key={idx} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                        <td style={{ padding: '8px 4px' }}>
-                          <div style={{ color: '#f8fafc', fontWeight: 700, fontSize: '0.8rem' }}>{item.name}</div>
+                        <td style={{ padding: '6px 4px' }}>
+                          {isManagerOrAdmin ? (
+                            <input
+                              type="text"
+                              value={item.name}
+                              onChange={e => handleEstimateItemChange(idx, 'name', e.target.value)}
+                              placeholder="Наименование позиции"
+                              style={{
+                                width: '100%', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.12)',
+                                borderRadius: '4px', padding: '3px 6px', color: '#f8fafc', fontWeight: 700, fontSize: '0.8rem',
+                                outline: 'none'
+                              }}
+                            />
+                          ) : (
+                            <div style={{ color: '#f8fafc', fontWeight: 700, fontSize: '0.8rem' }}>{item.name}</div>
+                          )}
                           {item.tag && (
                             <span style={{
                               fontSize: '0.62rem', fontWeight: 800, padding: '1px 5px', borderRadius: '4px',
-                              background: item.source === 'materials_marketplace' ? 'rgba(139,92,246,0.2)' : (item.source === 'equipment_marketplace' ? 'rgba(56,189,248,0.2)' : 'rgba(245,158,11,0.2)'),
-                              border: `1px solid ${item.source === 'materials_marketplace' ? '#8b5cf6' : (item.source === 'equipment_marketplace' ? '#38bdf8' : '#f59e0b')}`,
-                              color: item.source === 'materials_marketplace' ? '#c4b5fd' : (item.source === 'equipment_marketplace' ? '#7dd3fc' : '#fcd34d'),
+                              background: item.source === 'materials_marketplace' ? 'rgba(139,92,246,0.2)' : (item.source === 'equipment_marketplace' ? 'rgba(56,189,248,0.2)' : (item.source === 'custom' ? 'rgba(16,185,129,0.2)' : 'rgba(245,158,11,0.2)')),
+                              border: `1px solid ${item.source === 'materials_marketplace' ? '#8b5cf6' : (item.source === 'equipment_marketplace' ? '#38bdf8' : (item.source === 'custom' ? '#10b981' : '#f59e0b'))}`,
+                              color: item.source === 'materials_marketplace' ? '#c4b5fd' : (item.source === 'equipment_marketplace' ? '#7dd3fc' : (item.source === 'custom' ? '#6ee7b7' : '#fcd34d')),
                               display: 'inline-block', marginTop: '2px'
                             }}>
                               {item.tag}
                             </span>
                           )}
                         </td>
-                        <td style={{ padding: '8px 4px' }}>{item.unit}</td>
-                        <td style={{ padding: '8px 4px', fontWeight: 700 }}>{item.qty}</td>
-                        <td style={{ padding: '8px 4px' }}>{item.price.toLocaleString('ru-RU')} ₸</td>
-                        <td style={{ padding: '8px 4px', textAlign: 'right', fontWeight: 900, color: '#38bdf8' }}>
-                          {(item.sum || item.price * item.qty).toLocaleString('ru-RU')} ₸
+                        <td style={{ padding: '6px 4px' }}>
+                          {isManagerOrAdmin ? (
+                            <input
+                              type="text"
+                              value={item.unit}
+                              onChange={e => handleEstimateItemChange(idx, 'unit', e.target.value)}
+                              style={{
+                                width: '45px', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.12)',
+                                borderRadius: '4px', padding: '3px 4px', color: '#cbd5e1', fontSize: '0.78rem',
+                                textAlign: 'center', outline: 'none'
+                              }}
+                            />
+                          ) : (
+                            item.unit
+                          )}
                         </td>
+                        <td style={{ padding: '6px 4px', fontWeight: 700 }}>
+                          {isManagerOrAdmin ? (
+                            <input
+                              type="number"
+                              step="0.1"
+                              value={item.qty}
+                              onChange={e => handleEstimateItemChange(idx, 'qty', e.target.value)}
+                              style={{
+                                width: '55px', background: 'rgba(0,0,0,0.35)', border: '1px solid rgba(255,255,255,0.15)',
+                                borderRadius: '4px', padding: '2px 4px', color: '#fff', fontSize: '0.78rem',
+                                fontWeight: 700, outline: 'none'
+                              }}
+                            />
+                          ) : (
+                            item.qty
+                          )}
+                        </td>
+                        <td style={{ padding: '6px 4px' }}>
+                          {isManagerOrAdmin ? (
+                            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
+                              <input
+                                type="number"
+                                value={item.price}
+                                onChange={e => handleEstimateItemChange(idx, 'price', e.target.value)}
+                                style={{
+                                  width: '85px', background: 'rgba(0,0,0,0.35)', border: '1px solid rgba(255,255,255,0.15)',
+                                  borderRadius: '4px', padding: '2px 4px', color: '#ffd700', fontSize: '0.78rem',
+                                  fontWeight: 700, outline: 'none'
+                                }}
+                              />
+                              <span style={{ fontSize: '0.75rem', color: '#ffd700' }}>₸</span>
+                            </div>
+                          ) : (
+                            `${item.price.toLocaleString('ru-RU')} ₸`
+                          )}
+                        </td>
+                        <td style={{ padding: '6px 4px', textAlign: 'right', fontWeight: 900, color: '#38bdf8' }}>
+                          {isManagerOrAdmin ? (
+                            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '2px', justifyContent: 'flex-end' }}>
+                              <input
+                                type="number"
+                                value={item.sum || item.price * item.qty}
+                                onChange={e => handleEstimateItemChange(idx, 'sum', e.target.value)}
+                                style={{
+                                  width: '95px', background: 'rgba(0,0,0,0.35)', border: '1px solid rgba(56, 189, 248, 0.4)',
+                                  borderRadius: '4px', padding: '2px 4px', color: '#38bdf8', fontSize: '0.78rem',
+                                  fontWeight: 900, textAlign: 'right', outline: 'none'
+                                }}
+                              />
+                              <span style={{ fontSize: '0.75rem', color: '#38bdf8' }}>₸</span>
+                            </div>
+                          ) : (
+                            `${(item.sum || item.price * item.qty).toLocaleString('ru-RU')} ₸`
+                          )}
+                        </td>
+                        {isManagerOrAdmin && (
+                          <td style={{ padding: '6px 4px', textAlign: 'center' }}>
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveEstimateItem(idx)}
+                              title="Удалить позицию"
+                              style={{
+                                background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.4)',
+                                color: '#f87171', borderRadius: '4px', width: '22px', height: '22px',
+                                fontSize: '0.72rem', cursor: 'pointer', display: 'flex', alignItems: 'center',
+                                justifyContent: 'center', transition: 'all 0.15s'
+                              }}
+                              onMouseEnter={e => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.35)'}
+                              onMouseLeave={e => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.15)'}
+                            >
+                              ✕
+                            </button>
+                          </td>
+                        )}
                       </tr>
                     ))}
                   </tbody>
+                  <tfoot>
+                    <tr style={{ borderTop: '1px solid rgba(255,255,255,0.15)', fontWeight: 900 }}>
+                      <td colSpan={isManagerOrAdmin ? 4 : 4} style={{ padding: '8px 4px', color: '#ffd700', textTransform: 'uppercase', fontSize: '0.78rem' }}>
+                        ИТОГО ПО СМЕТЕ:
+                      </td>
+                      <td style={{ padding: '8px 4px', textAlign: 'right', color: '#ffd700', fontSize: '0.9rem' }}>
+                        {formatMoney(formData.estimateItems.reduce((acc, it) => acc + (it.sum || (it.price * it.qty) || 0), 0))}
+                      </td>
+                      {isManagerOrAdmin && <td></td>}
+                    </tr>
+                  </tfoot>
                 </table>
               </div>
             )}

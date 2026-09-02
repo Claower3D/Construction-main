@@ -116,6 +116,7 @@ class AnalysisPipeline:
     - Defect analysis (cracks, stains, rust)
     - Multi-method scale calibration (ArUco, A4, EXIF)
     - Combined results: RF-DETR + GroundingDINO + Defects
+    - B6: Result caching via module-level _pipeline_cache (bounded LRU)
     """
 
     def __init__(self, region: str = "almaty"):

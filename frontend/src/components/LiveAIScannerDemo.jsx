@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import './LiveAIScannerDemo.scss';
 import { exportPricesToExcel } from '../services/adminExcelIO';
-import Building3DViewer from './Building3DViewer';
+import OrganicBlueprintVisualizer from './OrganicBlueprintVisualizer';
 
 export default function LiveAIScannerDemo() {
   const [activeSample, setActiveSample] = useState(0);
@@ -227,7 +227,7 @@ export default function LiveAIScannerDemo() {
           {/* 3D Building Viewer */}
           {!current.previewUrl && (
             <div style={{ position: 'absolute', inset: 0, zIndex: 2 }}>
-              <Building3DViewer sampleIndex={activeSample} isScanning={isScanning} />
+              <OrganicBlueprintVisualizer activeSample={activeSample} isScanning={isScanning} />
             </div>
           )}
 

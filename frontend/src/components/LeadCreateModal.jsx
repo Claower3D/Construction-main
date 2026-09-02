@@ -6,6 +6,7 @@ export default function LeadCreateModal({ onClose, onSave, initialDate = '', ini
     clientName: '',
     phone: '',
     service: 'Установка септика',
+    budget: 1500000,
     address: '',
     date: initialDate || '',
     time: initialTime || '',
@@ -97,6 +98,18 @@ export default function LeadCreateModal({ onClose, onSave, initialDate = '', ini
                   <option value="Другое">Другое...</option>
                 </select>
               </div>
+            </div>
+
+            <div className="lead-modal-field">
+              <span className="lead-modal-label">💰 Бюджет (₸)</span>
+              <input 
+                type="number" 
+                name="budget" 
+                value={leadData.budget} 
+                onChange={handleChange} 
+                className="lead-modal-input" 
+                placeholder="1 500 000"
+              />
             </div>
 
             <div className="lead-modal-field">

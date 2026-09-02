@@ -1,0 +1,111 @@
+.mesh-gradient-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  /* Very deep blue/purple base so it's not totally black, but allows colors to pop */
+  background-color: #0c0a1f; 
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* The colorful moving blobs */
+.mesh-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.8;
+  mix-blend-mode: screen; /* Makes colors vivid when they overlap */
+  animation: blobFloat 20s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+
+/* Indigo / Deep Blue */
+.blob-1 {
+  width: 80vw;
+  height: 80vw;
+  background-color: #4f46e5;
+  top: -20%;
+  left: -10%;
+  animation-duration: 25s;
+}
+
+/* Magenta / Pink (Adds vibrant energy) */
+.blob-2 {
+  width: 60vw;
+  height: 60vw;
+  background-color: #ec4899;
+  bottom: -10%;
+  right: -10%;
+  animation-duration: 22s;
+  animation-direction: alternate-reverse;
+}
+
+/* Bright Cyan (Tech feel) */
+.blob-3 {
+  width: 70vw;
+  height: 70vw;
+  background-color: #06b6d4;
+  top: 40%;
+  left: 40%;
+  animation-duration: 28s;
+}
+
+/* Royal Violet */
+.blob-4 {
+  width: 50vw;
+  height: 50vw;
+  background-color: #8b5cf6;
+  top: -10%;
+  right: 10%;
+  animation-duration: 20s;
+  animation-direction: alternate-reverse;
+}
+
+/* Sunset Amber (Warm touch) */
+.blob-5 {
+  width: 45vw;
+  height: 45vw;
+  background-color: #f59e0b;
+  bottom: 20%;
+  left: 10%;
+  animation-duration: 26s;
+}
+
+/* Keyframes for organic, fluid movement */
+@keyframes blobFloat {
+  0% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(8%, 5%) scale(1.1); }
+  66% { transform: translate(-5%, 8%) scale(0.9); }
+  100% { transform: translate(5%, -5%) scale(1.05); }
+}
+
+/* Premium Noise & Glass Overlay (Crucial for the "expensive" look) */
+.glass-noise-overlay {
+  position: absolute;
+  inset: 0;
+  /* Adds a subtle frosted glass effect over the vibrant colors to make them look matte and premium */
+  backdrop-filter: blur(40px); 
+  -webkit-backdrop-filter: blur(40px);
+  
+  /* Removes the SVG Noise to make the background perfectly smooth */
+  
+  /* Slight dark tint so the white UI text remains readable over bright blobs */
+  background-color: rgba(10, 15, 30, 0.4);
+  z-index: 2;
+}
+
+/* Subtle Blueprint Grid */
+.mesh-grid {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(circle at center, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 80%);
+  -webkit-mask-image: radial-gradient(circle at center, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 80%);
+}
