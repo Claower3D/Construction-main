@@ -118,6 +118,8 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
       engineerReport: card.engineerReport || 'Выезд на объект завершён. Произведены замеры несущих конструкций и лазерное 3D-сканирование. Отклонений по ГОСТ не выявлено, смета скорректирована с учётом фактических объёмов.',
       executorName: card.acceptedBy || card.executorName || 'ТОО «GostBuild Инжиниринг»',
       executorContract: 'Договор генподряда №КЗ-2026/88',
+      managerName: card.managerName || 'Менеджер Саша',
+      assignedWorkers: card.assignedWorkers || 'Мастер Владимир, Мастер Данил',
       comments: card.comments || 'Клиент просит соблюдать тихий час с 13:00 до 15:00. Пропускная система на объекте оформлена.',
       stages: (card.stages && card.stages.length > 0) ? card.stages : defaultStages,
       estimateItems: card.estimateItems || [
@@ -249,6 +251,8 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
       contractor: formData.clientName,
       budget: formatMoney(formData.budget),
       paidAmount: formData.paidAmount !== undefined ? formData.paidAmount : escrowPaid,
+      managerName: formData.managerName,
+      assignedWorkers: formData.assignedWorkers,
       phone: formData.clientPhone,
       time: formData.time
     };
@@ -540,6 +544,23 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
                     }}
                   />
                 </div>
+
+                <div>
+                  <label style={{ fontSize: '0.68rem', color: '#c4b5fd', display: 'block', marginBottom: '3px', fontWeight: 600 }}>👔 МЕНЕДЖЕР СДЕЛКИ</label>
+                  <input
+                    type="text"
+                    value={formData.managerName}
+                    disabled={isExecutor}
+                    onChange={e => setFormData({ ...formData, managerName: e.target.value })}
+                    style={{
+                      width: '100%', background: isExecutor ? 'rgba(0,0,0,0.5)' : 'rgba(0,0,0,0.35)',
+                      border: `1px solid ${isExecutor ? 'rgba(255,255,255,0.06)' : 'rgba(139, 92, 246, 0.3)'}`,
+                      borderRadius: '8px', padding: '7px 10px', color: isExecutor ? '#94a3b8' : '#c4b5fd',
+                      fontSize: '0.82rem', outline: 'none', fontWeight: 700,
+                      cursor: isExecutor ? 'not-allowed' : 'text'
+                    }}
+                  />
+                </div>
               </div>
             </div>
 
@@ -657,6 +678,19 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
                     style={{
                       width: '100%', background: 'rgba(0,0,0,0.35)', border: '1px solid rgba(255,255,255,0.12)',
                       borderRadius: '8px', padding: '7px 10px', color: '#94a3b8', fontSize: '0.82rem', outline: 'none'
+                    }}
+                  />
+                </div>
+                <div>
+                  <label style={{ fontSize: '0.68rem', color: '#38bdf8', display: 'block', marginBottom: '3px', fontWeight: 600 }}>👷 НАЗНАЧЕННЫЕ МАСТЕРА / РАБОЧИЕ</label>
+                  <input
+                    type="text"
+                    value={formData.assignedWorkers}
+                    onChange={e => setFormData({ ...formData, assignedWorkers: e.target.value })}
+                    placeholder="Мастер Владимир, Мастер Данил"
+                    style={{
+                      width: '100%', background: 'rgba(0,0,0,0.35)', border: '1px solid rgba(56, 189, 248, 0.3)',
+                      borderRadius: '8px', padding: '7px 10px', color: '#38bdf8', fontSize: '0.82rem', outline: 'none', fontWeight: 700
                     }}
                   />
                 </div>

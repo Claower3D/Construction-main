@@ -50,10 +50,77 @@ export async function getStatus() {
 }
 
 // ==========================================
-// 2. AUTHENTICATION & USERS
+// 2. AUTHENTICATION & USERS (СВЯЗАННЫЕ АККАУНТЫ КОМАНДЫ)
 // ==========================================
 
+export const SYSTEM_LINKED_ACCOUNTS = [
+  {
+    id: 'usr_manager_sasha',
+    email: 'sasha.manager@qazgost.kz',
+    password: 'Sasha2026!',
+    name: 'Менеджер Саша',
+    fullName: 'Саша (Менеджер проектов)',
+    role: 'manager',
+    companyId: 'GOST-777',
+    companyName: 'ТОО «GostBuild Инжиниринг»',
+    position: 'Менеджер проектов и CRM',
+    phone: '+7 (701) 555-01-01',
+    assignedWorkers: ['Мастер Владимир', 'Мастер Данил'],
+    linkedTeam: 'Мастер Владимир, Мастер Данил'
+  },
+  {
+    id: 'usr_master_vladimir',
+    email: 'vladimir.master@qazgost.kz',
+    password: 'Vladimir2026!',
+    name: 'Мастер Владимир',
+    fullName: 'Владимир (Мастер)',
+    role: 'executor',
+    companyId: 'GOST-777',
+    companyName: 'ТОО «GostBuild Инжиниринг»',
+    position: 'Мастер участка / Старший прораб',
+    phone: '+7 (702) 555-02-02',
+    managerName: 'Менеджер Саша',
+    linkedManager: 'Менеджер Саша',
+    partnerWorker: 'Мастер Данил'
+  },
+  {
+    id: 'usr_master_danil',
+    email: 'danil.master@qazgost.kz',
+    password: 'Danil2026!',
+    name: 'Мастер Данил',
+    fullName: 'Данил (Мастер)',
+    role: 'executor',
+    companyId: 'GOST-777',
+    companyName: 'ТОО «GostBuild Инжиниринг»',
+    position: 'Мастер строительно-монтажных работ',
+    phone: '+7 (703) 555-03-03',
+    managerName: 'Менеджер Саша',
+    linkedManager: 'Менеджер Саша',
+    partnerWorker: 'Мастер Владимир'
+  }
+];
+
 export async function loginUser(email, password) {
+  // Проверка по базе предопределенных связанных аккаунтов
+  const normalizedEmail = (email || '').trim().toLowerCase();
+  const linkedMatch = SYSTEM_LINKED_ACCOUNTS.find(
+    u => u.email.toLowerCase() === normalizedEmail || u.name.toLowerCase() === normalizedEmail
+  );
+
+  if (linkedMatch) {
+    if (password && password !== linkedMatch.password) {
+      throw new Error('Неверный пароль для пользователя ' + linkedMatch.name);
+    }
+    const mockToken = `token-linked-${linkedMatch.id}-${Date.now()}`;
+    localStorage.setItem('auth_token', mockToken);
+    localStorage.setItem('qazgost_current_user', JSON.stringify(linkedMatch));
+    return {
+      message: 'Успешный вход в связанный аккаунт',
+      token: mockToken,
+      user: linkedMatch
+    };
+  }
+
   try {
     const res = await fetch(`${BASE_URL}/auth/login`, {
       method: 'POST',
@@ -78,10 +145,13 @@ export async function loginUser(email, password) {
     else if (email.includes('manager')) role = 'manager';
     else if (email.includes('company')) role = 'company';
 
+    const userObj = { id: `u_${Date.now()}`, email, role, name: email.split('@')[0] };
+    localStorage.setItem('qazgost_current_user', JSON.stringify(userObj));
+
     return {
       message: 'Logged in successfully',
       token: mockToken,
-      user: { id: `u_${Date.now()}`, email, role, name: email.split('@')[0] }
+      user: userObj
     };
   }
 }
