@@ -1340,39 +1340,41 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
 
       {/* MAIN RIGHT COLUMN */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
-        {/* NEW BREADCRUMBS HEADER */}
-        <header className="main-top-header" style={{ flexShrink: 0, width: '100%', zIndex: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem 1.5rem', background: 'rgba(10, 14, 28, 0.85)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255, 255, 255, 0.08)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <button 
-              onClick={onBackToHome}
-              style={{
-                background: 'rgba(56, 189, 248, 0.18)',
-                border: '1.5px solid #38bdf8',
-                color: '#fff',
-                padding: '8px 16px',
-                borderRadius: '12px',
-                fontWeight: '800',
-                fontSize: '0.9rem',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                boxShadow: '0 0 15px rgba(56, 189, 248, 0.3)'
-              }}
-            >
-              <span>←</span>
-              <span>Назад к карточкам</span>
-            </button>
-            <div className="header-breadcrumbs">
-              {viewRole === 'customer' ? 'Заказчик' : (viewRole === 'executor' ? 'Исполнитель' : 'Инженер')} <span>/</span> Управление <span>/</span> {getTabName(activeTab)}
+        {/* NEW BREADCRUMBS HEADER — Only when not embedded in Admin/Card cockpit */}
+        {!hideHeader && (
+          <header className="main-top-header" style={{ flexShrink: 0, width: '100%', zIndex: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem 1.5rem', background: 'rgba(10, 14, 28, 0.85)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255, 255, 255, 0.08)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              <button 
+                onClick={onBackToHome}
+                style={{
+                  background: 'rgba(56, 189, 248, 0.18)',
+                  border: '1.5px solid #38bdf8',
+                  color: '#fff',
+                  padding: '8px 16px',
+                  borderRadius: '12px',
+                  fontWeight: '800',
+                  fontSize: '0.9rem',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  boxShadow: '0 0 15px rgba(56, 189, 248, 0.3)'
+                }}
+              >
+                <span>←</span>
+                <span>Назад к карточкам</span>
+              </button>
+              <div className="header-breadcrumbs">
+                {viewRole === 'customer' ? 'Заказчик' : (viewRole === 'executor' ? 'Исполнитель' : 'Инженер')} <span>/</span> Управление <span>/</span> {getTabName(activeTab)}
+              </div>
             </div>
-          </div>
-          <div className="header-actions">
-            <button className="btn-glass-home" onClick={onBackToHome}>
-              🏠 На сайт
-            </button>
-          </div>
-        </header>
+            <div className="header-actions">
+              <button className="btn-glass-home" onClick={onBackToHome}>
+                🏠 На сайт
+              </button>
+            </div>
+          </header>
+        )}
 
         {/* WORKSPACE AREA */}
         <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
@@ -1418,43 +1420,68 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
           {activeTab === 'calendar' && (
             <div className="tab-view-container">
               {/* TOP HEADER BAR */}
-              <div className="calendar-top-bar">
-                <div className="calendar-header-left">
-                  <button className="btn-back-square" onClick={onBackToHome} title="На главную">
+              <div className="calendar-top-bar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.5rem' }}>
+                <div className="calendar-header-left" style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+                  <button className="btn-back-square" onClick={onBackToHome} title="На главную" style={{ background: 'rgba(56, 189, 248, 0.2)', border: '1.5px solid #38bdf8', color: '#fff', width: '40px', height: '40px', borderRadius: '12px', fontSize: '1.2rem', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
                     ←
                   </button>
-                  <h2 className="calendar-section-title">
-                    <span className="title-icon-badge">🗓️</span> Календарь работ
+                  <h2 className="calendar-section-title" style={{ fontSize: '1.5rem', fontWeight: 900, margin: 0, color: '#ffffff', display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                    <span className="title-icon-badge" style={{ background: 'rgba(56, 189, 248, 0.2)', border: '1.5px solid #38bdf8', borderRadius: '10px', width: '38px', height: '38px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>🗓️</span>
+                    <span>Календарь работ</span>
                   </h2>
                 </div>
 
-                <div className="calendar-controls-right">
-                  <div className="view-mode-tabs">
+                <div className="calendar-controls-right" style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                  <div className="view-mode-tabs" style={{ display: 'flex', background: 'rgba(15, 23, 42, 0.9)', border: '1.5px solid rgba(56, 189, 248, 0.4)', borderRadius: '12px', padding: '3px' }}>
                     <button
                       className={`view-tab ${calendarViewMode === 'month' ? 'active' : ''}`}
                       onClick={() => setCalendarViewMode('month')}
+                      style={{
+                        background: calendarViewMode === 'month' ? 'linear-gradient(135deg, #38bdf8, #2563eb)' : 'transparent',
+                        color: calendarViewMode === 'month' ? '#ffffff' : '#cbd5e1',
+                        border: 'none',
+                        padding: '6px 14px',
+                        borderRadius: '9px',
+                        fontWeight: 800,
+                        fontSize: '0.85rem',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease'
+                      }}
                     >
-                      Месяц
+                      🗓️ Месяц
                     </button>
                     <button
                       className={`view-tab ${calendarViewMode === 'week' ? 'active' : ''}`}
                       onClick={() => setCalendarViewMode('week')}
+                      style={{
+                        background: calendarViewMode === 'week' ? 'linear-gradient(135deg, #38bdf8, #2563eb)' : 'transparent',
+                        color: calendarViewMode === 'week' ? '#ffffff' : '#cbd5e1',
+                        border: 'none',
+                        padding: '6px 14px',
+                        borderRadius: '9px',
+                        fontWeight: 800,
+                        fontSize: '0.85rem',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease'
+                      }}
                     >
-                      Неделя
+                      📅 Неделя
                     </button>
                   </div>
 
-                  <div className="month-navigator">
+                  <div className="month-navigator" style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(15, 23, 42, 0.9)', border: '1.5px solid rgba(56, 189, 248, 0.4)', borderRadius: '12px', padding: '5px 12px' }}>
                     <button
                       className="btn-nav-arrow-sm"
                       onClick={() => setMonthIndex((prev) => (prev > 0 ? prev - 1 : 11))}
+                      style={{ background: 'rgba(56, 189, 248, 0.25)', border: '1px solid #38bdf8', color: '#fff', width: '30px', height: '30px', borderRadius: '8px', cursor: 'pointer', fontWeight: 900, fontSize: '1.2rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                     >
                       ‹
                     </button>
-                    <span className="month-nav-label">{monthsList[monthIndex]}</span>
+                    <span className="month-nav-label" style={{ color: '#ffffff', fontWeight: 800, fontSize: '0.95rem', minWidth: '120px', textAlign: 'center' }}>{monthsList[monthIndex]}</span>
                     <button
                       className="btn-nav-arrow-sm"
                       onClick={() => setMonthIndex((prev) => (prev < 11 ? prev + 1 : 0))}
+                      style={{ background: 'rgba(56, 189, 248, 0.25)', border: '1px solid #38bdf8', color: '#fff', width: '30px', height: '30px', borderRadius: '8px', cursor: 'pointer', fontWeight: 900, fontSize: '1.2rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                     >
                       ›
                     </button>
@@ -1463,11 +1490,23 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                   <button
                     className="btn-today-indigo"
                     onClick={() => {
-                      setMonthIndex(7); // August 2026
-                      setSelectedDay(6);
+                      const now = new Date();
+                      setMonthIndex(now.getMonth());
+                      setSelectedDay(now.getDate());
+                    }}
+                    style={{
+                      background: 'linear-gradient(135deg, #6366f1, #4f46e5)',
+                      color: '#ffffff',
+                      border: '1.5px solid rgba(165, 180, 252, 0.6)',
+                      borderRadius: '12px',
+                      padding: '8px 20px',
+                      fontWeight: 900,
+                      fontSize: '0.9rem',
+                      cursor: 'pointer',
+                      boxShadow: '0 0 16px rgba(99, 102, 241, 0.45)'
                     }}
                   >
-                    Сегодня
+                    ⚡ Сегодня
                   </button>
                 </div>
               </div>
