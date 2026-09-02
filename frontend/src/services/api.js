@@ -57,7 +57,7 @@ export const SYSTEM_LINKED_ACCOUNTS = [
   {
     id: 'usr_manager_sasha',
     email: 'sasha.manager@qazgost.kz',
-    password: 'Qz#S4sh@_Mngr89',
+    password: 'Sasha2026!',
     name: 'Менеджер Саша',
     fullName: 'Саша (Менеджер проектов)',
     role: 'manager',
@@ -71,7 +71,7 @@ export const SYSTEM_LINKED_ACCOUNTS = [
   {
     id: 'usr_master_vladimir',
     email: 'vladimir.master@qazgost.kz',
-    password: 'Vl@d!m1r_Bld#742',
+    password: 'Vladimir2026!',
     name: 'Мастер Владимир',
     fullName: 'Владимир (Мастер)',
     role: 'executor',
@@ -86,7 +86,7 @@ export const SYSTEM_LINKED_ACCOUNTS = [
   {
     id: 'usr_master_danil',
     email: 'danil.master@qazgost.kz',
-    password: 'D4n1l*M@st3r_518',
+    password: 'Danil2026!',
     name: 'Мастер Данил',
     fullName: 'Данил (Мастер)',
     role: 'executor',
@@ -101,7 +101,7 @@ export const SYSTEM_LINKED_ACCOUNTS = [
   {
     id: 'usr_machinist_radion',
     email: 'radion.manipulator@qazgost.kz',
-    password: 'R@d10n_M4n!p_934',
+    password: 'Radion2026!',
     name: 'Радион (Манипулятор)',
     fullName: 'Радион (Оператор КМУ)',
     role: 'executor',
