@@ -1588,19 +1588,16 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
 
                           {/* Render Individual Role-Differentiated Event Chips */}
                           {evts.length > 0 && (
-                            <div className="day-events-wrapper" style={{ display: 'flex', flexDirection: 'column', gap: '3px', marginTop: '2px', width: '100%', overflow: 'hidden' }}>
+                            <div className="day-events-wrapper" style={{ display: 'flex', flexDirection: 'column', gap: '3px', marginTop: '2px', width: '100%', minWidth: 0, overflow: 'hidden' }}>
                               {evts.slice(0, 2).map((e, eIdx) => {
                                 const isEng = e.role === 'engineer' || e.authorRole === 'engineer' || e.type?.includes('engineer') || e.type === 'request_engineering' || e.title?.toLowerCase().includes('экспертиз') || e.title?.toLowerCase().includes('псд') || e.title?.toLowerCase().includes('инженер') || e.title?.toLowerCase().includes('выезд');
                                 const isExec = e.role === 'executor' || e.type === 'work_stage' || e.type === 'active_project' || e.title?.toLowerCase().includes('монтаж') || e.title?.toLowerCase().includes('стройк');
                                 const isMachinery = e.type === 'request_construction' || e.title?.toLowerCase().includes('техник') || e.title?.toLowerCase().includes('экскаватор');
                                 
-                                const roleLabel = isEng ? '👷 ИНЖЕНЕР' : (isExec ? '🔨 ИСПОЛНИТЕЛЬ' : (isMachinery ? '🚜 ТЕХНИКА' : '📝 ЛИД'));
-                                const chipBg = isEng ? 'linear-gradient(135deg, rgba(245,158,11,0.25), rgba(234,88,12,0.18))' :
-                                               isExec ? 'linear-gradient(135deg, rgba(0,229,255,0.2), rgba(2,132,199,0.15))' :
-                                               isMachinery ? 'linear-gradient(135deg, rgba(56,189,248,0.22), rgba(14,165,233,0.16))' :
-                                               'linear-gradient(135deg, rgba(139,92,246,0.25), rgba(99,102,241,0.18))';
+                                const roleLabel = isEng ? '👷 Инженер' : (isExec ? '🔨 Исполнитель' : (isMachinery ? '🚜 Техника' : '📝 Лид'));
                                 const chipBorder = isEng ? '#f59e0b' : isExec ? '#00e5ff' : isMachinery ? '#38bdf8' : '#8b5cf6';
                                 const tagColor = isEng ? '#fcd34d' : isExec ? '#38bdf8' : isMachinery ? '#7dd3fc' : '#c4b5fd';
+                                const cleanTitle = e.stageName || e.title || 'Задача';
 
                                 return (
                                   <div
@@ -1611,37 +1608,41 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                                       handleOpenEditModal(e);
                                     }}
                                     style={{
-                                      background: chipBg,
-                                      border: `1px solid ${chipBorder}`,
-                                      borderLeft: `3.5px solid ${chipBorder}`,
+                                      background: 'rgba(15, 23, 42, 0.95)',
+                                      border: `1px solid ${chipBorder}80`,
+                                      borderLeft: `3px solid ${chipBorder}`,
                                       borderRadius: '5px',
-                                      padding: '2px 4px',
+                                      padding: '2px 5px',
                                       cursor: 'pointer',
-                                      fontSize: '0.62rem',
-                                      lineHeight: 1.15,
-                                      boxShadow: `0 2px 6px rgba(0,0,0,0.35), 0 0 8px ${chipBorder}40`,
+                                      fontSize: '0.66rem',
+                                      lineHeight: 1.2,
+                                      width: '100%',
+                                      minWidth: 0,
+                                      boxSizing: 'border-box',
+                                      overflow: 'hidden',
+                                      boxShadow: '0 2px 5px rgba(0,0,0,0.4)',
                                       transition: 'all 0.15s ease'
                                     }}
-                                    onMouseEnter={evt => evt.currentTarget.style.transform = 'scale(1.02)'}
-                                    onMouseLeave={evt => evt.currentTarget.style.transform = 'none'}
-                                    title={`${roleLabel} #${e.id || eIdx+1}: ${e.title}\nБюджет: ${e.budget || '—'}\nКлиент: ${e.contractor || '—'}`}
+                                    onMouseEnter={evt => evt.currentTarget.style.borderColor = chipBorder}
+                                    onMouseLeave={evt => evt.currentTarget.style.borderColor = `${chipBorder}80`}
+                                    title={`${roleLabel} #${e.id || eIdx+1}: ${e.title}\nКлиент: ${e.contractor || '—'}`}
                                   >
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1px' }}>
-                                      <span style={{ fontWeight: 900, fontSize: '0.55rem', color: tagColor, textTransform: 'uppercase' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '2px', minWidth: 0 }}>
+                                      <span style={{ fontWeight: 800, fontSize: '0.58rem', color: tagColor, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                                         {roleLabel}
                                       </span>
-                                      <span style={{ fontWeight: 800, fontSize: '0.55rem', color: '#ffd700' }}>
-                                        #{e.id || (eIdx + 1)}
+                                      <span style={{ fontWeight: 800, fontSize: '0.56rem', color: '#ffd700', flexShrink: 0 }}>
+                                        #{e.dealId || e.id || (eIdx + 1)}
                                       </span>
                                     </div>
-                                    <div style={{ color: '#ffffff', fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                      {e.title}
+                                    <div style={{ color: '#ffffff', fontWeight: 700, fontSize: '0.65rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%' }}>
+                                      {cleanTitle}
                                     </div>
                                   </div>
                                 );
                               })}
                               {evts.length > 2 && (
-                                <div style={{ fontSize: '0.58rem', color: '#38bdf8', textAlign: 'center', fontWeight: 800 }}>
+                                <div style={{ fontSize: '0.62rem', color: '#38bdf8', textAlign: 'center', fontWeight: 800 }}>
                                   +{evts.length - 2} ещё
                                 </div>
                               )}
