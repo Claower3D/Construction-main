@@ -1420,48 +1420,53 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
           {activeTab === 'calendar' && (
             <div className="tab-view-container">
               {/* TOP HEADER BAR */}
-              <div className="calendar-top-bar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.5rem' }}>
+              <div className="calendar-top-bar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.5rem', background: 'rgba(15, 23, 42, 0.7)', border: '1px solid rgba(56, 189, 248, 0.2)', padding: '12px 18px', borderRadius: '16px', backdropFilter: 'blur(20px)' }}>
                 <div className="calendar-header-left" style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
-                  <button className="btn-back-square" onClick={onBackToHome} title="На главную" style={{ background: 'rgba(56, 189, 248, 0.2)', border: '1.5px solid #38bdf8', color: '#fff', width: '40px', height: '40px', borderRadius: '12px', fontSize: '1.2rem', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                  <button className="btn-back-square" onClick={onBackToHome} title="На главную" style={{ background: 'rgba(56, 189, 248, 0.25)', border: '1.5px solid #38bdf8', color: '#ffffff', width: '40px', height: '40px', borderRadius: '12px', fontSize: '1.2rem', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontWeight: 900 }}>
                     ←
                   </button>
-                  <h2 className="calendar-section-title" style={{ fontSize: '1.5rem', fontWeight: 900, margin: 0, color: '#ffffff', display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-                    <span className="title-icon-badge" style={{ background: 'rgba(56, 189, 248, 0.2)', border: '1.5px solid #38bdf8', borderRadius: '10px', width: '38px', height: '38px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>🗓️</span>
-                    <span>Календарь работ</span>
+                  <h2 className="calendar-section-title" style={{ fontSize: '1.45rem', fontWeight: 900, margin: 0, color: '#ffffff', display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                    <span className="title-icon-badge" style={{ background: 'rgba(56, 189, 248, 0.25)', border: '1.5px solid #38bdf8', borderRadius: '10px', width: '38px', height: '38px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem' }}>🗓️</span>
+                    <span style={{ color: '#ffffff', textShadow: '0 0 10px rgba(255,255,255,0.2)' }}>Календарь работ</span>
                   </h2>
                 </div>
 
-                <div className="calendar-controls-right" style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-                  <div className="view-mode-tabs" style={{ display: 'flex', background: 'rgba(15, 23, 42, 0.9)', border: '1.5px solid rgba(56, 189, 248, 0.4)', borderRadius: '12px', padding: '3px' }}>
+                <div className="calendar-controls-right" style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                  <div className="view-mode-tabs" style={{ display: 'flex', background: '#0f172a', border: '1.5px solid #38bdf8', borderRadius: '12px', padding: '4px' }}>
                     <button
+                      type="button"
                       className={`view-tab ${calendarViewMode === 'month' ? 'active' : ''}`}
                       onClick={() => setCalendarViewMode('month')}
                       style={{
-                        background: calendarViewMode === 'month' ? 'linear-gradient(135deg, #38bdf8, #2563eb)' : 'transparent',
-                        color: calendarViewMode === 'month' ? '#ffffff' : '#cbd5e1',
+                        background: calendarViewMode === 'month' ? 'linear-gradient(135deg, #0ea5e9, #2563eb)' : '#1e293b',
+                        color: '#ffffff',
                         border: 'none',
-                        padding: '6px 14px',
-                        borderRadius: '9px',
-                        fontWeight: 800,
-                        fontSize: '0.85rem',
+                        padding: '8px 16px',
+                        borderRadius: '8px',
+                        fontWeight: 900,
+                        fontSize: '0.88rem',
                         cursor: 'pointer',
-                        transition: 'all 0.2s ease'
+                        boxShadow: calendarViewMode === 'month' ? '0 0 12px rgba(14, 165, 233, 0.6)' : 'none',
+                        transition: 'all 0.2s ease',
+                        marginRight: '3px'
                       }}
                     >
                       🗓️ Месяц
                     </button>
                     <button
+                      type="button"
                       className={`view-tab ${calendarViewMode === 'week' ? 'active' : ''}`}
                       onClick={() => setCalendarViewMode('week')}
                       style={{
-                        background: calendarViewMode === 'week' ? 'linear-gradient(135deg, #38bdf8, #2563eb)' : 'transparent',
-                        color: calendarViewMode === 'week' ? '#ffffff' : '#cbd5e1',
+                        background: calendarViewMode === 'week' ? 'linear-gradient(135deg, #0ea5e9, #2563eb)' : '#1e293b',
+                        color: '#ffffff',
                         border: 'none',
-                        padding: '6px 14px',
-                        borderRadius: '9px',
-                        fontWeight: 800,
-                        fontSize: '0.85rem',
+                        padding: '8px 16px',
+                        borderRadius: '8px',
+                        fontWeight: 900,
+                        fontSize: '0.88rem',
                         cursor: 'pointer',
+                        boxShadow: calendarViewMode === 'week' ? '0 0 12px rgba(14, 165, 233, 0.6)' : 'none',
                         transition: 'all 0.2s ease'
                       }}
                     >
@@ -1469,25 +1474,30 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                     </button>
                   </div>
 
-                  <div className="month-navigator" style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(15, 23, 42, 0.9)', border: '1.5px solid rgba(56, 189, 248, 0.4)', borderRadius: '12px', padding: '5px 12px' }}>
+                  <div className="month-navigator" style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#0f172a', border: '1.5px solid #38bdf8', borderRadius: '12px', padding: '5px 12px' }}>
                     <button
+                      type="button"
                       className="btn-nav-arrow-sm"
                       onClick={() => setMonthIndex((prev) => (prev > 0 ? prev - 1 : 11))}
-                      style={{ background: 'rgba(56, 189, 248, 0.25)', border: '1px solid #38bdf8', color: '#fff', width: '30px', height: '30px', borderRadius: '8px', cursor: 'pointer', fontWeight: 900, fontSize: '1.2rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                      style={{ background: 'rgba(56, 189, 248, 0.3)', border: '1.5px solid #38bdf8', color: '#ffffff', width: '32px', height: '32px', borderRadius: '8px', cursor: 'pointer', fontWeight: 900, fontSize: '1.3rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                      title="Предыдущий месяц"
                     >
                       ‹
                     </button>
-                    <span className="month-nav-label" style={{ color: '#ffffff', fontWeight: 800, fontSize: '0.95rem', minWidth: '120px', textAlign: 'center' }}>{monthsList[monthIndex]}</span>
+                    <span className="month-nav-label" style={{ color: '#ffffff', fontWeight: 900, fontSize: '1rem', minWidth: '130px', textAlign: 'center', letterSpacing: '0.02em' }}>{monthsList[monthIndex]}</span>
                     <button
+                      type="button"
                       className="btn-nav-arrow-sm"
                       onClick={() => setMonthIndex((prev) => (prev < 11 ? prev + 1 : 0))}
-                      style={{ background: 'rgba(56, 189, 248, 0.25)', border: '1px solid #38bdf8', color: '#fff', width: '30px', height: '30px', borderRadius: '8px', cursor: 'pointer', fontWeight: 900, fontSize: '1.2rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                      style={{ background: 'rgba(56, 189, 248, 0.3)', border: '1.5px solid #38bdf8', color: '#ffffff', width: '32px', height: '32px', borderRadius: '8px', cursor: 'pointer', fontWeight: 900, fontSize: '1.3rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                      title="Следующий месяц"
                     >
                       ›
                     </button>
                   </div>
 
                   <button
+                    type="button"
                     className="btn-today-indigo"
                     onClick={() => {
                       const now = new Date();
@@ -1497,13 +1507,13 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                     style={{
                       background: 'linear-gradient(135deg, #6366f1, #4f46e5)',
                       color: '#ffffff',
-                      border: '1.5px solid rgba(165, 180, 252, 0.6)',
+                      border: '1.5px solid #a5b4fc',
                       borderRadius: '12px',
-                      padding: '8px 20px',
+                      padding: '8px 22px',
                       fontWeight: 900,
-                      fontSize: '0.9rem',
+                      fontSize: '0.92rem',
                       cursor: 'pointer',
-                      boxShadow: '0 0 16px rgba(99, 102, 241, 0.45)'
+                      boxShadow: '0 0 18px rgba(99, 102, 241, 0.6)'
                     }}
                   >
                     ⚡ Сегодня
@@ -1512,28 +1522,28 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
               </div>
 
               {/* KPI STATS CARDS ROW (4 Summary Counters) */}
-              <div className="calendar-stats-row">
-                <div className="calendar-kpi-card">
-                  <span className="kpi-big-num cyan">{activeProjectsCount}</span>
-                  <span className="kpi-card-label">
+              <div className="calendar-stats-row" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
+                <div className="calendar-kpi-card" style={{ background: 'rgba(15, 23, 42, 0.95)', border: '1.5px solid rgba(6, 182, 212, 0.4)', borderRadius: '16px', padding: '1.25rem 1rem', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', boxShadow: '0 4px 20px rgba(0,0,0,0.3)' }}>
+                  <span className="kpi-big-num cyan" style={{ fontSize: '2.4rem', fontWeight: 900, color: '#38bdf8', textShadow: '0 0 15px rgba(56, 189, 248, 0.5)' }}>{activeProjectsCount}</span>
+                  <span className="kpi-card-label" style={{ fontSize: '0.8rem', fontWeight: 800, color: '#ffffff', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.4rem', letterSpacing: '0.04em' }}>
                     <span>🔨</span> АКТИВНЫХ ПРОЕКТОВ
                   </span>
                 </div>
-                <div className="calendar-kpi-card">
-                  <span className="kpi-big-num gold">{inReviewCount}</span>
-                  <span className="kpi-card-label">
+                <div className="calendar-kpi-card" style={{ background: 'rgba(15, 23, 42, 0.95)', border: '1.5px solid rgba(245, 158, 11, 0.4)', borderRadius: '16px', padding: '1.25rem 1rem', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', boxShadow: '0 4px 20px rgba(0,0,0,0.3)' }}>
+                  <span className="kpi-big-num gold" style={{ fontSize: '2.4rem', fontWeight: 900, color: '#fbbf24', textShadow: '0 0 15px rgba(251, 191, 36, 0.5)' }}>{inReviewCount}</span>
+                  <span className="kpi-card-label" style={{ fontSize: '0.8rem', fontWeight: 800, color: '#ffffff', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.4rem', letterSpacing: '0.04em' }}>
                     <span>📋</span> НА ПРОВЕРКЕ
                   </span>
                 </div>
-                <div className="calendar-kpi-card">
-                  <span className="kpi-big-num red">{weekDeadlinesCount}</span>
-                  <span className="kpi-card-label">
+                <div className="calendar-kpi-card" style={{ background: 'rgba(15, 23, 42, 0.95)', border: '1.5px solid rgba(239, 68, 68, 0.4)', borderRadius: '16px', padding: '1.25rem 1rem', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', boxShadow: '0 4px 20px rgba(0,0,0,0.3)' }}>
+                  <span className="kpi-big-num red" style={{ fontSize: '2.4rem', fontWeight: 900, color: '#f87171', textShadow: '0 0 15px rgba(248, 113, 113, 0.5)' }}>{weekDeadlinesCount}</span>
+                  <span className="kpi-card-label" style={{ fontSize: '0.8rem', fontWeight: 800, color: '#ffffff', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.4rem', letterSpacing: '0.04em' }}>
                     <span>⏰</span> ДЕДЛАЙНОВ НА НЕДЕЛЕ
                   </span>
                 </div>
-                <div className="calendar-kpi-card">
-                  <span className="kpi-big-num green">{completedCount}</span>
-                  <span className="kpi-card-label">
+                <div className="calendar-kpi-card" style={{ background: 'rgba(15, 23, 42, 0.95)', border: '1.5px solid rgba(16, 185, 129, 0.4)', borderRadius: '16px', padding: '1.25rem 1rem', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', boxShadow: '0 4px 20px rgba(0,0,0,0.3)' }}>
+                  <span className="kpi-big-num green" style={{ fontSize: '2.4rem', fontWeight: 900, color: '#34d399', textShadow: '0 0 15px rgba(52, 211, 153, 0.5)' }}>{completedCount}</span>
+                  <span className="kpi-card-label" style={{ fontSize: '0.8rem', fontWeight: 800, color: '#ffffff', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.4rem', letterSpacing: '0.04em' }}>
                     <span>✅</span> ВЫПОЛНЕНО
                   </span>
                 </div>
