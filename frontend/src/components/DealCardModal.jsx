@@ -44,8 +44,8 @@ function formatMoney(num) {
 
 export default function DealCardModal({ card, onClose, onSave, currentUser }) {
   // Определение роли текущего пользователя
-  const userRole = currentUser?.role || (card.role === 'executor' ? 'executor' : 'manager');
-  const isExecutor = userRole === 'executor';
+  const userRole = currentUser?.role || 'manager';
+  const isExecutor = currentUser?.role === 'executor' || userRole === 'executor';
   const isEngineer = userRole === 'engineer';
   const isManagerOrAdmin = !isExecutor;
 
@@ -796,7 +796,7 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
             }}>
               {[
                 { key: 'stages', label: '🏗️ График этапов и GPS спецтехника' },
-                { key: 'estimate', label: '📊 Смета материалов и работ (ГОСТ)' },
+                ...(!isExecutor ? [{ key: 'estimate', label: '📊 Смета материалов и работ (ГОСТ)' }] : []),
                 { key: 'files', label: '📁 Документы и фотофиксация' },
                 { key: 'notes', label: '📝 Особые заметки' }
               ].map(t => (
@@ -896,7 +896,7 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
             )}
 
             {/* ТАБ 2: СМЕТА МАТЕРИАЛОВ И РАБОТ */}
-            {activeTab === 'estimate' && (
+            {activeTab === 'estimate' && !isExecutor && (
               <div style={{
                 background: 'rgba(15, 23, 42, 0.85)', borderRadius: '12px',
                 border: '1px solid rgba(255, 255, 255, 0.08)', padding: '1rem', flex: 1

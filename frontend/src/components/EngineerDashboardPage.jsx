@@ -5,6 +5,7 @@ import OnboardingTour from './OnboardingTour';
 import SmartDealCreateModal from './SmartDealCreateModal';
 
 export default function EngineerDashboardPage({ onBackToHome, initialTab = 'calendar', currentUser, viewRole = 'engineer', hideHeader = false, sidebarToggleNode }) {
+  const isExecutor = (currentUser?.role === 'executor') || (viewRole === 'executor');
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [activeTab, setActiveTab] = useState(initialTab || 'calendar'); // Dynamic tab state
 
@@ -2526,7 +2527,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                               🏗️ 1. Этапы ({evtStages.length})
                             </button>
                           )}
-                          {viewRole !== 'executor' && (
+                          {!isExecutor && (
                             <button
                               type="button"
                               className={`modal-nav-tab ${modalTab === 'estimate' ? 'active' : ''}`}
@@ -2541,7 +2542,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                               className={`modal-nav-tab ${modalTab === 'photos' ? 'active' : ''}`}
                               onClick={() => setModalTab('photos')}
                             >
-                              📋 {viewRole !== 'executor' ? '3. Отчёт' : '2. Отчёт'} ({evtPhotos.length})
+                              📋 {!isExecutor ? '3. Отчёт' : '2. Отчёт'} ({evtPhotos.length})
                             </button>
                           )}
                           {editingEvent && editingEvent.isLead && evtStatus === 'В пути' && (
@@ -2677,14 +2678,19 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                             </label>
 
                             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', marginBottom: '0.35rem' }}>
-                              {((Array.isArray(stage.crews) && stage.crews.length > 0) ? stage.crews : (stage.crew ? [stage.crew] : [])).map((crewName, cIdx) => (
-                                <span key={cIdx} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', background: 'rgba(56, 189, 248, 0.15)', border: '1px solid rgba(56, 189, 248, 0.35)', color: '#7dd3fc', padding: '0.2rem 0.5rem', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 600 }}>
-                                  👷 {crewName}
-                                  {viewRole !== 'customer' && (
-                                    <button type="button" onClick={() => handleRemoveStageCrew(stage.id, crewName)} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontWeight: 800, padding: 0, marginLeft: '0.2rem' }}>✕</button>
-                                  )}
-                                </span>
-                              ))}
+                              {(() => {
+                                const crewList = Array.isArray(stage.crews) ? stage.crews :
+                                  Array.isArray(stage.crew) ? stage.crew.map(c => typeof c === 'object' ? (c.name || JSON.stringify(c)) : String(c)) :
+                                  (typeof stage.crew === 'string' && stage.crew ? [stage.crew] : []);
+                                return crewList.map((crewName, cIdx) => (
+                                  <span key={cIdx} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', background: 'rgba(56, 189, 248, 0.15)', border: '1px solid rgba(56, 189, 248, 0.35)', color: '#7dd3fc', padding: '0.2rem 0.5rem', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 600 }}>
+                                    👷 {crewName}
+                                    {viewRole !== 'customer' && (
+                                      <button type="button" onClick={() => handleRemoveStageCrew(stage.id, crewName)} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontWeight: 800, padding: 0, marginLeft: '0.2rem' }}>✕</button>
+                                    )}
+                                  </span>
+                                ));
+                              })()}
                             </div>
 
                             {viewRole !== 'customer' && (
@@ -2725,14 +2731,19 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                             </label>
 
                             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', marginBottom: '0.35rem' }}>
-                              {((Array.isArray(stage.machineries) && stage.machineries.length > 0) ? stage.machineries : (stage.machinery ? stage.machinery.split(',').map(s=>s.trim()).filter(Boolean) : [])).map((machName, mIdx) => (
-                                <span key={mIdx} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', background: 'rgba(245, 158, 11, 0.15)', border: '1px solid rgba(245, 158, 11, 0.35)', color: '#fcd34d', padding: '0.2rem 0.5rem', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 600 }}>
-                                  🚜 {machName}
-                                  {viewRole !== 'customer' && (
-                                    <button type="button" onClick={() => handleRemoveStageMachinery(stage.id, machName)} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontWeight: 800, padding: 0, marginLeft: '0.2rem' }}>✕</button>
-                                  )}
-                                </span>
-                              ))}
+                              {(() => {
+                                const machList = Array.isArray(stage.machineries) ? stage.machineries :
+                                  Array.isArray(stage.machinery) ? stage.machinery.map(m => typeof m === 'object' ? (m.name || m.title || JSON.stringify(m)) : String(m)) :
+                                  (typeof stage.machinery === 'string' && stage.machinery ? stage.machinery.split(',').map(s => s.trim()).filter(Boolean) : []);
+                                return machList.map((machName, mIdx) => (
+                                  <span key={mIdx} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', background: 'rgba(245, 158, 11, 0.15)', border: '1px solid rgba(245, 158, 11, 0.35)', color: '#fcd34d', padding: '0.2rem 0.5rem', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 600 }}>
+                                    🚜 {machName}
+                                    {viewRole !== 'customer' && (
+                                      <button type="button" onClick={() => handleRemoveStageMachinery(stage.id, machName)} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontWeight: 800, padding: 0, marginLeft: '0.2rem' }}>✕</button>
+                                    )}
+                                  </span>
+                                ));
+                              })()}
                             </div>
 
                             {viewRole !== 'customer' && (
@@ -2976,7 +2987,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
               )}
 
               {/* TAB 4: REAL COST ESTIMATE (Смета) */}
-              {modalTab === 'estimate' && (
+              {modalTab === 'estimate' && !isExecutor && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem', padding: '0.5rem 0' }}>
                   <div style={{
                     display: 'flex',
