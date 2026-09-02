@@ -272,6 +272,60 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
     showToast('💾 Карточка сохранена');
   };
 
+  const handleDeleteCard = (cardId) => {
+    if (!cardId) return;
+    if (!window.confirm(`Вы уверены, что хотите полностью удалить заявку #${cardId} из CRM и у всех исполнителей?`)) {
+      return;
+    }
+
+    const strId = String(cardId);
+
+    // 1. Удаление из events текущего календаря CRM
+    const newEvents = { ...events };
+    for (const d in newEvents) {
+      newEvents[d] = (newEvents[d] || []).filter(e => String(e.id) !== strId && !String(e.id).includes(strId));
+    }
+    saveEvents(newEvents);
+
+    // 2. Удаление из общего календаря и календаря исполнителя / инженера
+    try {
+      const calKey = 'qazgost_calendar_events';
+      const cal = JSON.parse(localStorage.getItem(calKey) || '{}');
+      for (const d in cal) {
+        cal[d] = (cal[d] || []).filter(e => String(e.id) !== strId && !String(e.id).includes(strId) && String(e.dealId) !== strId && String(e.parentDealId) !== strId);
+      }
+      localStorage.setItem(calKey, JSON.stringify(cal));
+      localStorage.setItem('qazgost_calendar_events_executor', JSON.stringify(cal));
+      localStorage.setItem('qazgost_calendar_events_engineer', JSON.stringify(cal));
+    } catch(e) {}
+
+    // 3. Удаление из очереди заявок инженера
+    try {
+      const reqKey = 'qazgost_engineer_requests';
+      const reqs = JSON.parse(localStorage.getItem(reqKey) || '[]');
+      const updatedReqs = reqs.filter(r => String(r.id) !== strId && String(r.id) !== `REQ-${strId}` && !String(r.id).includes(strId));
+      localStorage.setItem(reqKey, JSON.stringify(updatedReqs));
+    } catch(e) {}
+
+    // 4. Удаление из реестра объектов исполнителя
+    try {
+      const objKey = 'qazgost_executor_objects';
+      const objs = JSON.parse(localStorage.getItem(objKey) || '[]');
+      const updatedObjs = objs.filter(o => String(o.id) !== strId && String(o.id) !== `OBJ-${strId}` && !String(o.id).includes(strId));
+      localStorage.setItem(objKey, JSON.stringify(updatedObjs));
+    } catch(e) {}
+
+    setSelectedCard(null);
+
+    // 5. Оповещение всех компонентов
+    window.dispatchEvent(new Event('crm_calendar_updated'));
+    window.dispatchEvent(new Event('engineer_requests_updated'));
+    window.dispatchEvent(new Event('notifications_updated'));
+    window.dispatchEvent(new Event('custom_events_updated'));
+
+    showToast(`🗑️ Заявка #${cardId} удалена из CRM и всех календарей`);
+  };
+
   const handleNewLead = (leadPayload) => {
     const date = leadPayload.date || leadModalDefaults.date || fmtDate(currentDate);
     const time = leadPayload.time || leadModalDefaults.time || new Date().toLocaleTimeString().slice(0,5);
@@ -948,6 +1002,7 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
           currentUser={currentUser}
           onClose={() => setSelectedCard(null)}
           onSave={handleSaveCard}
+          onDelete={handleDeleteCard}
         />
       )}
       {showLeadModal && (

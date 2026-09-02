@@ -42,7 +42,7 @@ function formatMoney(num) {
   return (Math.round(num) || 0).toLocaleString('ru-RU') + ' ₸';
 }
 
-export default function DealCardModal({ card, onClose, onSave, currentUser }) {
+export default function DealCardModal({ card, onClose, onSave, onDelete, currentUser }) {
   // Определение роли текущего пользователя
   const userRole = currentUser?.role || 'manager';
   const isExecutor = currentUser?.role === 'executor' || userRole === 'executor';
@@ -1268,20 +1268,43 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
           display: 'flex', justifyContent: 'space-between', alignItems: 'center',
           backgroundColor: '#0a1424'
         }}>
-          <button
-            onClick={() => showToast(`💬 Чат по объекту №${formData.id} открыт`)}
-            style={{
-              background: 'rgba(0, 229, 255, 0.1)', color: '#00e5ff',
-              border: '1px solid rgba(0, 229, 255, 0.3)', padding: '8px 16px',
-              borderRadius: '8px', fontSize: '0.82rem', fontWeight: 700, cursor: 'pointer',
-              display: 'flex', alignItems: 'center', gap: '6px'
-            }}
-          >
-            💬 Чат объекта
-          </button>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <button
+              type="button"
+              onClick={() => showToast(`💬 Чат по объекту №${formData.id} открыт`)}
+              style={{
+                background: 'rgba(0, 229, 255, 0.1)', color: '#00e5ff',
+                border: '1px solid rgba(0, 229, 255, 0.3)', padding: '8px 16px',
+                borderRadius: '8px', fontSize: '0.82rem', fontWeight: 700, cursor: 'pointer',
+                display: 'flex', alignItems: 'center', gap: '6px'
+              }}
+            >
+              💬 Чат объекта
+            </button>
+
+            {onDelete && (
+              <button
+                type="button"
+                onClick={() => onDelete(formData.id)}
+                style={{
+                  background: 'rgba(239, 68, 68, 0.15)', color: '#f87171',
+                  border: '1px solid rgba(239, 68, 68, 0.4)', padding: '8px 16px',
+                  borderRadius: '8px', fontSize: '0.82rem', fontWeight: 800, cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', gap: '6px',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={e => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.28)'}
+                onMouseLeave={e => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.15)'}
+                title="Удалить заявку у всех пользователей (CRM, Инженер, Исполнитель)"
+              >
+                🗑️ Удалить заявку
+              </button>
+            )}
+          </div>
 
           <div style={{ display: 'flex', gap: '10px' }}>
             <button
+              type="button"
               onClick={onClose}
               style={{
                 background: 'rgba(255, 255, 255, 0.06)', color: '#94a3b8',
@@ -1293,6 +1316,7 @@ export default function DealCardModal({ card, onClose, onSave, currentUser }) {
             </button>
 
             <button
+              type="button"
               onClick={handleSaveWrapper}
               style={{
                 background: 'linear-gradient(135deg, #10b981, #059669)',
