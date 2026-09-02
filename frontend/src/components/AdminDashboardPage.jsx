@@ -210,13 +210,28 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
     ]
   };
 
-  // Visually hide 'company', 'admin', and 'analyst' role cards as requested. Show 4 main roles.
+  // Determine effective user role
+  const effectiveUserRole = currentUser?.role || userRole || 'customer';
+
+  // Role filtering based on user permissions:
+  // Исполнители (Радион, Владимир, Данил) видят ТОЛЬКО «Я Заказчик» и «Я Исполнитель»
   const visibleRoles = (() => {
-    const allowedRoleIds = ['customer', 'executor', 'builder', 'engineer', 'manager'];
-    return roles.filter(r => allowedRoleIds.includes(r.id));
+    if (effectiveUserRole === 'executor' || effectiveUserRole === 'customer') {
+      return roles.filter(r => r.id === 'customer' || r.id === 'executor');
+    }
+    if (effectiveUserRole === 'engineer') {
+      return roles.filter(r => ['customer', 'executor', 'engineer'].includes(r.id));
+    }
+    if (effectiveUserRole === 'manager' || effectiveUserRole === 'crm') {
+      return roles.filter(r => ['customer', 'executor', 'manager'].includes(r.id));
+    }
+    if (effectiveUserRole === 'admin' || effectiveUserRole === 'builder') {
+      return roles.filter(r => ['builder', 'customer', 'executor', 'engineer', 'manager'].includes(r.id));
+    }
+    return roles.filter(r => r.id === 'customer' || r.id === 'executor');
   })();
 
-  const activeRoleObj = roles.find((r) => r.id === selectedRole) || visibleRoles[0] || roles[0];
+  const activeRoleObj = roles.find((r) => r.id === selectedRole) || visibleRoles.find(r => r.id === selectedRole) || visibleRoles[0] || roles[0];
   const activeCards = roleCardsData[selectedRole] || roleCardsData.customer;
 
   const handleSelectRole = (roleKey) => {
