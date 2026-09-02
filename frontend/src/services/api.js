@@ -114,6 +114,22 @@ export const SYSTEM_LINKED_ACCOUNTS = [
     managerName: 'Менеджер Саша',
     linkedManager: 'Менеджер Саша',
     partnerWorker: 'Мастер Владимир, Мастер Данил'
+  },
+  {
+    id: 'usr_engineer_maxim',
+    email: 'maxim.engineer@qazgost.kz',
+    password: 'Maxim2026!',
+    name: 'Инженер Максим',
+    fullName: 'Максим (Инженер ПТО)',
+    role: 'engineer',
+    companyId: 'GOST-777',
+    companyName: 'ТОО «GostBuild Инжиниринг»',
+    position: 'Ведущий инженер ПТО & Технадзор СНиП РК',
+    phone: '+7 (707) 555-05-05',
+    managerName: 'Менеджер Саша',
+    linkedManager: 'Менеджер Саша',
+    assignedWorkers: ['Мастер Владимир', 'Мастер Данил', 'Радион (Манипулятор)'],
+    linkedTeam: 'Мастер Владимир, Мастер Данил, Радион (Манипулятор)'
   }
 ];
 
