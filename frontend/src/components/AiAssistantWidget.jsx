@@ -50,9 +50,6 @@ export default function AiAssistantWidget() {
       // Try backend API first
       try {
         let resp = await fetch('/api/v1/prices');
-        if (!resp.ok) {
-          resp = await fetch('http://localhost:8080/api/v1/prices');
-        }
         if (resp && resp.ok) {
           const data = await resp.json();
           const words = qLower.split(' ').map(w => w.replace(/[?.,]/g, ''));
