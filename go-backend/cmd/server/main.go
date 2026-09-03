@@ -17,13 +17,12 @@ import (
 func main() {
 	cfg := config.LoadConfig()
 
-	// Initialize SQLite database
-	dbPath := os.Getenv("DB_PATH")
-	if dbPath == "" {
-		dbPath = "./data/qazgost.db"
+	// Initialize PostgreSQL database (Railway provides DATABASE_URL)
+	dbURL := os.Getenv("DATABASE_URL")
+	if dbURL == "" {
+		log.Println("[⚠️ WARNING] DATABASE_URL not set — please configure PostgreSQL connection")
 	}
-	_ = os.MkdirAll(filepath.Dir(dbPath), 0755)
-	if err := database.InitDB(dbPath); err != nil {
+	if err := database.InitDB(dbURL); err != nil {
 		log.Fatalf("[FATAL] Database init failed: %v", err)
 	}
 	defer database.DB.Close()
