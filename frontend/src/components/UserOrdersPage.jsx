@@ -1,10 +1,9 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import './UserOrdersPage.css';
 
-// ── Ключ для localStorage ──
-function getOrdersKey(user) {
-  const uid = user?.login || user?.email || user?.name || 'shared';
-  return `qazgost_orders_${uid}`;
+// ── Ключ для localStorage (Единый реестр заказов для всех ролей и устройств) ──
+function getOrdersKey() {
+  return 'qazgost_orders_shared';
 }
 
 export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
@@ -218,27 +217,82 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
     setTimeout(() => setToastMessage(null), 3500);
   };
 
-  // ── localStorage: загрузка заказов при монтировании ──
+  // ── localStorage: загрузка и объединение всех заказов ──
   useEffect(() => {
     try {
-      const key = getOrdersKey(currentUser);
-      const saved = localStorage.getItem(key);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setOrders(parsed);
+      const allKnown = [];
+      // Собрать заказы из всех известных профильных ключей (Саша, Заказчик, Менеджер, Инженер)
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && (k.startsWith('qazgost_orders_') || k === 'qazgost_orders_customer' || k === 'qazgost_orders_executor' || k === 'qazgost_orders_manager')) {
+          try {
+            const val = JSON.parse(localStorage.getItem(k) || '[]');
+            if (Array.isArray(val)) {
+              val.forEach(item => {
+                if (item && item.id && !allKnown.some(x => x.id === item.id)) {
+                  allKnown.push(item);
+                }
+              });
+            }
+          } catch(e) {}
         }
       }
+
+      if (allKnown.length > 0) {
+        setOrders(prev => {
+          const merged = [...prev];
+          allKnown.forEach(item => {
+            const idx = merged.findIndex(m => m.id === item.id);
+            if (idx >= 0) merged[idx] = { ...merged[idx], ...item };
+            else merged.unshift(item);
+          });
+          return merged;
+        });
+      }
+
+      // Загрузить CRM-события и серверные заявки от всех пользователей (включая Сашу)
+      fetch('/api/v1/crm/events')
+        .then(r => r.ok ? r.json() : null)
+        .then(data => {
+          if (data && data.items && data.items.length > 0) {
+            setOrders(prev => {
+              const next = [...prev];
+              data.items.forEach(evt => {
+                const orderId = evt.id.startsWith('ORD-') ? evt.id : `ORD-2026-${evt.id}`;
+                if (!next.some(o => o.id === orderId || o.id === evt.id)) {
+                  next.unshift({
+                    id: orderId,
+                    title: evt.title || 'Строительная заявка',
+                    clientName: evt.contractor || evt.clientName || 'Заказчик',
+                    clientPhone: evt.phone || '',
+                    amount: parseInt(String(evt.budget).replace(/\D/g, '')) || 1500000,
+                    status: evt.status === 'В работе' ? 'in_progress' : (evt.status === 'Успешно' ? 'completed' : 'new'),
+                    date: evt.date || 'Сегодня',
+                    city: evt.location || 'г. Астана',
+                    category: 'Общестроительные работы',
+                    description: evt.notes || evt.description || 'Заявка передана из CRM',
+                    assignedEngineer: evt.role === 'engineer' ? 'Асхат Нурланов' : '',
+                    stages: []
+                  });
+                }
+              });
+              return next;
+            });
+          }
+        })
+        .catch(() => {});
     } catch (e) { console.warn('Orders load error:', e); }
   }, [currentUser]);
 
   // ── localStorage: сохранение заказов при изменении ──
   useEffect(() => {
     try {
-      const key = getOrdersKey(currentUser);
+      const key = getOrdersKey();
       localStorage.setItem(key, JSON.stringify(orders));
+      localStorage.setItem('qazgost_orders_customer', JSON.stringify(orders));
+      localStorage.setItem('qazgost_orders_executor', JSON.stringify(orders));
     } catch (e) { console.warn('Orders save error:', e); }
-  }, [orders, currentUser]);
+  }, [orders]);
 
   // ── Обновить статус заказа на основе прогресса этапов ──
   const recalcOrderStatus = useCallback((order) => {
