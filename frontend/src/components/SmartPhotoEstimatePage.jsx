@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { createPlatformOrder } from '../services/orderSyncService';
 import './SmartPhotoEstimatePage.css';
 
@@ -15,9 +15,15 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
   const [analysisModeTab, setAnalysisModeTab] = useState('fast'); // 'fast' | '3d' | 'contour'
 
   // Contour mode sub-states
-  const [isDrawing, setIsDrawing] = useState(false);
+  const canvasRef = useRef(null);
+  const [isDrawing, setIsDrawing] = useState(true);
   const [contourPoints, setContourPoints] = useState([]);
-  const [scaleSize, setScaleSize] = useState('2.5 м');
+  const [isContourClosed, setIsContourClosed] = useState(false);
+  const [contourAreaM2, setContourAreaM2] = useState(0);
+  const [contourPerimeterM, setContourPerimeterM] = useState(0);
+  const [selectedContourPhotoIdx, setSelectedContourPhotoIdx] = useState(0);
+  const [scaleSize, setScaleSize] = useState('3.0 м');
+  const [scaleRatioMeters, setScaleRatioMeters] = useState(3.0);
 
   // Photo & Uploads State
   const [photos, setPhotos] = useState([]);
@@ -249,6 +255,194 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
       setIsTestingGptKey(false);
     }
   };
+
+  // ═══ CONTOUR CANVAS ENGINE ═══
+  const computePolygonStats = (pts, scaleM = 3.0) => {
+    if (pts.length < 3) return { area: 0, perimeter: 0 };
+    let areaPixels = 0;
+    let perimeterPixels = 0;
+    for (let i = 0; i < pts.length; i++) {
+      const j = (i + 1) % pts.length;
+      areaPixels += pts[i].x * pts[j].y;
+      areaPixels -= pts[j].x * pts[i].y;
+      const dx = pts[j].x - pts[i].x;
+      const dy = pts[j].y - pts[i].y;
+      perimeterPixels += Math.sqrt(dx * dx + dy * dy);
+    }
+    areaPixels = Math.abs(areaPixels) / 2;
+    const pxPerMeter = 60;
+    const rawArea = areaPixels / (pxPerMeter * pxPerMeter);
+    const areaM2 = Math.round(rawArea * (scaleM / 3.0) * 10) / 10;
+    const perimeterM = Math.round((perimeterPixels / pxPerMeter) * (scaleM / 3.0) * 10) / 10;
+    return {
+      area: Math.max(0.5, areaM2),
+      perimeter: Math.max(1.0, perimeterM)
+    };
+  };
+
+  const handleCloseContour = () => {
+    if (contourPoints.length < 3) {
+      showToast('⚠️ Нужно минимум 3 точки для замыкания контура!');
+      return;
+    }
+    setIsContourClosed(true);
+    const stats = computePolygonStats(contourPoints, scaleRatioMeters);
+    setContourAreaM2(stats.area);
+    setContourPerimeterM(stats.perimeter);
+    setDescription(prev => {
+      const base = prev ? prev.replace(/📐 Контур:.*$/g, '').trim() : '';
+      return `${base}\n📐 Контур: вычисленная площадь ~${stats.area} м², периметр ~${stats.perimeter} п.м.`.trim();
+    });
+    showToast(`✅ Контур замкнут! Площадь: ${stats.area} м² (Периметр ${stats.perimeter} м)`);
+  };
+
+  const handleCanvasClick = (e) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const x = (e.clientX - rect.left) * scaleX;
+    const y = (e.clientY - rect.top) * scaleY;
+
+    // If clicking near first point (within 25px) and >= 3 points, close polygon
+    if (contourPoints.length >= 3 && !isContourClosed) {
+      const p0 = contourPoints[0];
+      const dist = Math.sqrt((x - p0.x) ** 2 + (y - p0.y) ** 2);
+      if (dist < 25) {
+        handleCloseContour();
+        return;
+      }
+    }
+
+    if (isContourClosed) {
+      // Start fresh contour if user clicks again after closing
+      setContourPoints([{ x, y }]);
+      setIsContourClosed(false);
+      setContourAreaM2(0);
+      setContourPerimeterM(0);
+      return;
+    }
+
+    const nextPoints = [...contourPoints, { x, y }];
+    setContourPoints(nextPoints);
+    if (nextPoints.length >= 3) {
+      const stats = computePolygonStats(nextPoints, scaleRatioMeters);
+      setContourAreaM2(stats.area);
+      setContourPerimeterM(stats.perimeter);
+    }
+  };
+
+  // Re-draw canvas
+  useEffect(() => {
+    if (analysisModeTab !== 'contour') return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const renderCanvas = (bgImg = null) => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      if (bgImg) {
+        ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.35)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      } else {
+        ctx.fillStyle = '#0b0f19';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.strokeStyle = 'rgba(56, 189, 248, 0.08)';
+        ctx.lineWidth = 1;
+        const gridSize = 30;
+        for (let x = 0; x < canvas.width; x += gridSize) {
+          ctx.beginPath();
+          ctx.moveTo(x, 0);
+          ctx.lineTo(x, canvas.height);
+          ctx.stroke();
+        }
+        for (let y = 0; y < canvas.height; y += gridSize) {
+          ctx.beginPath();
+          ctx.moveTo(0, y);
+          ctx.lineTo(canvas.width, y);
+          ctx.stroke();
+        }
+
+        ctx.fillStyle = 'rgba(56, 189, 248, 0.35)';
+        ctx.font = '10px monospace';
+        for (let x = 60; x < canvas.width; x += 60) {
+          ctx.fillText(`${(x / 60).toFixed(0)}m`, x + 3, 14);
+        }
+      }
+
+      // Draw Polygon
+      if (contourPoints.length > 0) {
+        ctx.beginPath();
+        ctx.moveTo(contourPoints[0].x, contourPoints[0].y);
+        for (let i = 1; i < contourPoints.length; i++) {
+          ctx.lineTo(contourPoints[i].x, contourPoints[i].y);
+        }
+        if (isContourClosed) {
+          ctx.closePath();
+          ctx.fillStyle = 'rgba(56, 189, 248, 0.25)';
+          ctx.fill();
+        }
+        ctx.strokeStyle = isContourClosed ? '#10b981' : '#38bdf8';
+        ctx.lineWidth = 3;
+        ctx.shadowColor = isContourClosed ? '#10b981' : '#0284c7';
+        ctx.shadowBlur = 8;
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+
+        // Draw Vertices
+        contourPoints.forEach((p, idx) => {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, idx === 0 && !isContourClosed && contourPoints.length >= 3 ? 8 : 6, 0, Math.PI * 2);
+          ctx.fillStyle = idx === 0 ? '#fbbf24' : '#38bdf8';
+          ctx.fill();
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+
+          ctx.fillStyle = '#ffffff';
+          ctx.font = 'bold 11px sans-serif';
+          ctx.fillText(`P${idx + 1}`, p.x + 8, p.y - 6);
+        });
+
+        // Centroid Badge
+        if (isContourClosed && contourAreaM2 > 0) {
+          let cx = 0, cy = 0;
+          contourPoints.forEach(p => { cx += p.x; cy += p.y; });
+          cx /= contourPoints.length;
+          cy /= contourPoints.length;
+
+          ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
+          ctx.strokeStyle = '#10b981';
+          ctx.lineWidth = 1.5;
+          const badgeText = `📐 ${contourAreaM2} м² | ${contourPerimeterM} м`;
+          ctx.font = 'bold 13px sans-serif';
+          const textW = ctx.measureText(badgeText).width;
+          ctx.beginPath();
+          ctx.roundRect(cx - textW / 2 - 10, cy - 14, textW + 20, 28, 8);
+          ctx.fill();
+          ctx.stroke();
+
+          ctx.fillStyle = '#34d399';
+          ctx.fillText(badgeText, cx - textW / 2, cy + 5);
+        }
+      }
+    };
+
+    if (photos.length > 0 && photos[selectedContourPhotoIdx]?.url) {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.src = photos[selectedContourPhotoIdx].url;
+      img.onload = () => renderCanvas(img);
+      img.onerror = () => renderCanvas(null);
+    } else {
+      renderCanvas(null);
+    }
+  }, [analysisModeTab, photos, selectedContourPhotoIdx, contourPoints, isContourClosed, contourAreaM2, contourPerimeterM, isDrawing, scaleRatioMeters]);
 
   const handleRunAiEstimate = async () => {
     setIsScanning(true);
@@ -633,39 +827,83 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
           <div className="spe-mode-info-banner mode-contour">
             <span className="spe-mode-icon">✏️</span>
             <div style={{ flex: 1 }}>
-              <strong>Укажите масштаб:</strong> для точного расчёта площади введите реальный размер объекта на фото (например, высоту двери, ширину окна).
+              <strong>Контурный режим:</strong> кликайте прямо по фото или сетке чертежа для расстановки точек контура (P1, P2, P3...). Нажмите «Замкнуть» или кликните на первую точку P1 для вычисления точной площади в м².
             </div>
-            <div className="spe-contour-scale-btns">
-              <button
-                type="button"
-                className="spe-btn-scale"
-                onClick={() => {
-                  const val = prompt('Введите размер (например: 2.1 м):', scaleSize);
-                  if (val) setScaleSize(val);
+            <div className="spe-contour-scale-btns" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>Масштаб:</span>
+              <select
+                value={scaleRatioMeters}
+                onChange={e => {
+                  const val = parseFloat(e.target.value);
+                  setScaleRatioMeters(val);
+                  setScaleSize(`${val} м`);
+                  if (contourPoints.length >= 3) {
+                    const stats = computePolygonStats(contourPoints, val);
+                    setContourAreaM2(stats.area);
+                    setContourPerimeterM(stats.perimeter);
+                  }
+                }}
+                style={{
+                  background: 'rgba(20, 21, 38, 0.9)',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  color: '#fff',
+                  padding: '4px 8px',
+                  borderRadius: '8px',
+                  fontSize: '0.82rem'
                 }}
               >
-                Ввести размер
-              </button>
-              <button type="button" className="spe-btn-scale-skip">Пропустить</button>
+                <option value={2.0}>2.0 м (Дверной проём / Санузел)</option>
+                <option value={3.0}>3.0 м (Комната / Высота этажа)</option>
+                <option value={5.0}>5.0 м (Фасад / Большой зал)</option>
+                <option value={10.0}>10.0 м (Кровля / Участок)</option>
+              </select>
             </div>
           </div>
 
-          <div className="spe-contour-toolbar">
+          {/* Photo Selector for Contour (if photos exist) */}
+          {photos.length > 1 && (
+            <div style={{ display: 'flex', gap: '8px', margin: '8px 0 12px', overflowX: 'auto', paddingBottom: '4px' }}>
+              <span style={{ fontSize: '0.8rem', color: '#94a3b8', alignSelf: 'center', whiteSpace: 'nowrap' }}>📸 Выберите фото:</span>
+              {photos.map((p, idx) => (
+                <button
+                  key={p.id}
+                  type="button"
+                  onClick={() => setSelectedContourPhotoIdx(idx)}
+                  style={{
+                    background: selectedContourPhotoIdx === idx ? '#2563eb' : 'rgba(255,255,255,0.06)',
+                    border: selectedContourPhotoIdx === idx ? '2px solid #60a5fa' : '1px solid rgba(255,255,255,0.1)',
+                    color: '#fff',
+                    padding: '4px 10px',
+                    borderRadius: '8px',
+                    fontSize: '0.78rem',
+                    cursor: 'pointer',
+                    whiteSpace: 'nowrap'
+                  }}
+                >
+                  Фото #{idx + 1}
+                </button>
+              ))}
+            </div>
+          )}
+
+          <div className="spe-contour-toolbar" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '10px' }}>
             <button
               type="button"
               className={`spe-ctool-btn ${isDrawing ? 'active' : ''}`}
               onClick={() => {
                 setIsDrawing(!isDrawing);
-                showToast(isDrawing ? 'Режим рисования выключен' : '🖊️ Кликните на фото, чтобы расставить точки контура');
+                showToast(isDrawing ? 'Режим рисования выключен' : '🖊️ Кликайте по экрану для добавления точек');
               }}
             >
-              🖊️ Рисовать
+              🖊️ Рисовать ({contourPoints.length} точек)
             </button>
             <button
               type="button"
               className="spe-ctool-btn"
+              disabled={contourPoints.length === 0}
               onClick={() => {
                 setContourPoints(prev => prev.slice(0, -1));
+                setIsContourClosed(false);
                 showToast('↩️ Отменена последняя точка');
               }}
             >
@@ -674,9 +912,13 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
             <button
               type="button"
               className="spe-ctool-btn"
+              disabled={contourPoints.length === 0}
               onClick={() => {
                 setContourPoints([]);
-                showToast('🗑️ Очистить');
+                setIsContourClosed(false);
+                setContourAreaM2(0);
+                setContourPerimeterM(0);
+                showToast('🗑️ Холст очищен');
               }}
             >
               🗑️ Очистить
@@ -684,16 +926,64 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
             <button
               type="button"
               className="spe-ctool-btn highlight"
-              onClick={() => showToast('✅ Контур замкнут и готов к расчёту!')}
+              disabled={contourPoints.length < 3}
+              onClick={handleCloseContour}
+              style={{ background: isContourClosed ? '#10b981' : '#0284c7' }}
             >
-              ✅ Замкнуть
+              {isContourClosed ? '✅ Замкнут' : '🔒 Замкнуть контур'}
             </button>
           </div>
 
-          <div className="spe-contour-canvas-box">
-            <div className="spe-canvas-head">📸 Фото для контура</div>
-            <div className="spe-canvas-placeholder">
-              <span className="spe-canvas-hint">Кликните на фото, чтобы расставить точки контура. Нажмите «Замкнуть» для расчёта.</span>
+          <div className="spe-contour-canvas-box" style={{ padding: '8px', background: '#090d16', border: '1px solid rgba(56,189,248,0.25)', borderRadius: '16px', overflow: 'hidden' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 10px', color: '#94a3b8', fontSize: '0.8rem' }}>
+              <span>📸 {photos.length > 0 ? `Фото #${selectedContourPhotoIdx + 1} для контура` : 'Архитектурная сетка чертежа (кликните, чтобы нарисовать контур)'}</span>
+              {contourAreaM2 > 0 && (
+                <span style={{ color: '#34d399', fontWeight: 800, fontSize: '0.88rem' }}>
+                  📐 Площадь: {contourAreaM2} м² • Периметр: {contourPerimeterM} м
+                </span>
+              )}
+            </div>
+
+            <div style={{ position: 'relative', width: '100%', display: 'flex', justifyContent: 'center' }}>
+              <canvas
+                ref={canvasRef}
+                width={800}
+                height={450}
+                onClick={handleCanvasClick}
+                style={{
+                  width: '100%',
+                  maxHeight: '450px',
+                  borderRadius: '12px',
+                  cursor: isDrawing ? 'crosshair' : 'default',
+                  touchAction: 'none',
+                  display: 'block'
+                }}
+              />
+            </div>
+
+            {/* Quick action bar below canvas */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 8px', flexWrap: 'wrap', gap: '8px' }}>
+              <span style={{ fontSize: '0.78rem', color: '#64748b' }}>
+                💡 Подсказка: расставьте угловые точки помещения, кровли или участка. Нажмите «Замкнуть», чтобы рассчитать смету.
+              </span>
+              {contourPoints.length >= 3 && !isContourClosed && (
+                <button
+                  type="button"
+                  onClick={handleCloseContour}
+                  style={{
+                    background: '#10b981',
+                    border: 'none',
+                    color: '#fff',
+                    padding: '6px 14px',
+                    borderRadius: '8px',
+                    fontWeight: 700,
+                    fontSize: '0.82rem',
+                    cursor: 'pointer'
+                  }}
+                >
+                  ✅ Завершить и замкнуть ({contourPoints.length} тчк)
+                </button>
+              )}
             </div>
           </div>
         </div>
