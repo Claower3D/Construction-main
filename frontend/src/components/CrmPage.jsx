@@ -128,55 +128,53 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
   const [toastMsg, setToastMsg] = useState(null);
 
   // Sync CRM events from Go Backend Server
-  const syncServerEvents = useCallback(async (currentLocal) => {
+  const syncServerEvents = useCallback(async () => {
     try {
       const res = await fetch('/api/v1/crm/events');
       if (res.ok) {
         const data = await res.json();
-        if (data.total > 0 && data.grouped) {
-          // Merge server events with default deals and local changes
-          const merged = { ...DEFAULT_CRM_DEALS, ...currentLocal, ...data.grouped };
-          setEvents(merged);
-          localStorage.setItem('qazgost_crm_calendar', JSON.stringify(merged));
-          return merged;
-        } else {
-          // Server is empty: upload local events to populate the backend database
-          const evtsToSync = Object.keys(currentLocal || {}).length > 0 ? currentLocal : DEFAULT_CRM_DEALS;
-          fetch('/api/v1/crm/events/sync', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ events: evtsToSync })
-          }).catch(() => {});
+        if (data.grouped !== undefined) {
+          // If server is clean/initialized, use the server's authoritative state
+          if (data.total > 0 || localStorage.getItem('qazgost_crm_calendar_initialized')) {
+            setEvents(data.grouped);
+            localStorage.setItem('qazgost_crm_calendar', JSON.stringify(data.grouped));
+            localStorage.setItem('qazgost_crm_calendar_initialized', 'true');
+          } else {
+            // First run on completely clean DB: seed defaults once
+            localStorage.setItem('qazgost_crm_calendar_initialized', 'true');
+            setEvents(DEFAULT_CRM_DEALS);
+            localStorage.setItem('qazgost_crm_calendar', JSON.stringify(DEFAULT_CRM_DEALS));
+            fetch('/api/v1/crm/events/sync', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ events: DEFAULT_CRM_DEALS })
+            }).catch(() => {});
+          }
         }
       }
     } catch (err) {
       console.warn('CRM server sync offline, using local storage:', err);
     }
-    return currentLocal;
   }, []);
 
   useEffect(() => {
-    let initialLocal = DEFAULT_CRM_DEALS;
     const saved = localStorage.getItem('qazgost_crm_calendar');
     if (saved) {
       try {
-        const parsed = JSON.parse(saved);
-        const count = Object.values(parsed).reduce((a,b) => a + (b?.length || 0), 0);
-        initialLocal = count >= 3 ? parsed : { ...DEFAULT_CRM_DEALS, ...parsed };
-      } catch { initialLocal = DEFAULT_CRM_DEALS; }
+        setEvents(JSON.parse(saved));
+      } catch { setEvents({}); }
     }
-    setEvents(initialLocal);
 
     // Initial server fetch
-    syncServerEvents(initialLocal);
+    syncServerEvents();
 
     // Real-time server sync polling every 4 seconds across all devices
     const interval = setInterval(() => {
-      syncServerEvents(events);
+      syncServerEvents();
     }, 4000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [syncServerEvents]);
 
   useEffect(() => {
     const handleCalendarUpdate = () => {

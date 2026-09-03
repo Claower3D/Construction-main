@@ -315,7 +315,7 @@ func SaveCRMEvent(evt *models.CRMEvent) error {
 }
 
 func DeleteCRMEvent(id string) error {
-	_, err := DB.Exec("DELETE FROM crm_events WHERE id = ?", id)
+	_, err := DB.Exec("DELETE FROM crm_events WHERE id = ? OR lead_num = ? OR id LIKE ?", id, id, "%"+id+"%")
 	return err
 }
 
