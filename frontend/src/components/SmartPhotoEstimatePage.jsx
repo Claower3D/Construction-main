@@ -1015,15 +1015,32 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
                     </tr>
                   </thead>
                   <tbody>
-                    {calculatedEstimate.items.map((item, i) => (
-                      <tr key={i} style={{ borderBottom: '1px solid rgba(255,255,255,.04)' }}>
-                        <td style={{ padding: '8px 6px', color: '#e2e8f0', fontWeight: 600 }}>{item.name}</td>
-                        <td style={{ padding: '8px 6px', color: '#cbd5e1', textAlign: 'right' }}>{item.volume}</td>
-                        <td style={{ padding: '8px 6px', color: '#64748b', textAlign: 'center' }}>{item.unit}</td>
-                        <td style={{ padding: '8px 6px', color: '#94a3b8', textAlign: 'right', whiteSpace: 'nowrap' }}>{(item.unit_price || 0).toLocaleString()} ₸</td>
-                        <td style={{ padding: '8px 6px', color: '#fbbf24', fontWeight: 800, textAlign: 'right', whiteSpace: 'nowrap' }}>{(item.total || 0).toLocaleString()} ₸</td>
-                      </tr>
-                    ))}
+                    {calculatedEstimate.items.map((item, i) => {
+                      const scMult = selectedScenario === 'economy' ? 0.85 : (selectedScenario === 'premium' ? 1.25 : 1.0);
+                      const qty = item.volume !== undefined ? item.volume : (item.quantity !== undefined ? item.quantity : 1);
+                      const basePrice = item.unit_price !== undefined ? item.unit_price : (item.unitPrice !== undefined ? item.unitPrice : 0);
+                      const unitPrice = Math.round(basePrice * scMult);
+                      const total = item.total ? Math.round(item.total * scMult) : Math.round(qty * unitPrice);
+
+                      return (
+                        <tr key={i} style={{ borderBottom: '1px solid rgba(255,255,255,.04)' }}>
+                          <td style={{ padding: '8px 6px', color: '#e2e8f0', fontWeight: 600 }}>
+                            {item.name}
+                            {item.snipRef && <span style={{ marginLeft: '6px', fontSize: '0.72rem', color: '#38bdf8', opacity: 0.8 }}>({item.snipRef})</span>}
+                          </td>
+                          <td style={{ padding: '8px 6px', color: '#cbd5e1', textAlign: 'right' }}>
+                            {typeof qty === 'number' ? (Number.isInteger(qty) ? qty : qty.toFixed(1)) : qty}
+                          </td>
+                          <td style={{ padding: '8px 6px', color: '#64748b', textAlign: 'center' }}>{item.unit || 'ед.'}</td>
+                          <td style={{ padding: '8px 6px', color: '#94a3b8', textAlign: 'right', whiteSpace: 'nowrap' }}>
+                            {unitPrice > 0 ? `${unitPrice.toLocaleString()} ₸` : '—'}
+                          </td>
+                          <td style={{ padding: '8px 6px', color: '#fbbf24', fontWeight: 800, textAlign: 'right', whiteSpace: 'nowrap' }}>
+                            {total.toLocaleString()} ₸
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
