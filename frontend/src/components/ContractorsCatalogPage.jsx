@@ -45,6 +45,32 @@ export default function ContractorsCatalogPage({ onBack }) {
 
   const contractorsList = [
     {
+      id: 'medina-manarbek',
+      name: 'ИП «Медина» (ЖБИ & Люки)',
+      initials: 'МЕ',
+      gradient: 'linear-gradient(135deg, #f59e0b, #ef4444)',
+      type: 'company',
+      typeLabel: 'ПОСТАВЩИК ЖБИ / ПРОИЗВОДСТВО',
+      subtitle: 'Кольца КС, плиты 1ПП/ПН, опорные кольца КО-6, люки полимерные и ЖБ',
+      rating: 4.95,
+      reviewsCount: 29,
+      specialties: [
+        { id: 'supplier_zhbi', label: '🏭 Завод ЖБИ' },
+        { id: 'concrete', label: '🧱 Бетон и ЖБИ' }
+      ],
+      description: 'Производство и продажа стеновых колец колодцев КС (15.9, 15.6, 10.9, 10.3, 7.3), усиленных крышек 1ПП/2ПП, днищ ПН, а также полимерных (25т) и чугунно-бетонных люков. Быстрая отгрузка по Караганде.',
+      city: 'Караганда',
+      address: '100022, г. Караганда, ул. Камали Дюсембекова',
+      contactPerson: 'Манарбек',
+      isAvailable: true,
+      tier: 'Премиум',
+      tierBadge: '⭐ Проверенный Поставщик',
+      phone: '+7 700 370 55 99',
+      email: 'ip.medina@mail.ru',
+      experience: '9 лет',
+      completedProjects: 310
+    },
+    {
       id: 'tabys-asm',
       name: 'ТОО «ТАБЫС - АСМ» (ЖБИ Завод)',
       initials: 'ТА',

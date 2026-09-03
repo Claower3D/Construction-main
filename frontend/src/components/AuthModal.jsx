@@ -337,10 +337,17 @@ export default function AuthModal({ mode, onClose, onLogin }) {
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
                 <button
                   type="button"
-                  onClick={() => { setEmail('tabys-asm@mail.ru'); setPassword('natalya123'); }}
+                  onClick={() => { setEmail('ip.medina@mail.ru'); setPassword('manarbek123'); }}
                   style={{ background: 'rgba(16, 185, 129, 0.18)', border: '1px solid rgba(16, 185, 129, 0.5)', color: '#34d399', borderRadius: '8px', padding: '0.35rem 0.65rem', fontSize: '0.76rem', fontWeight: 700, cursor: 'pointer' }}
                 >
-                  🏭 Наталья (ТАБЫС-АСМ ЖБИ)
+                  🏗️ Манарбек (ИП Медина ЖБИ)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setEmail('tabys-asm@mail.ru'); setPassword('natalya123'); }}
+                  style={{ background: 'rgba(56, 189, 248, 0.15)', border: '1px solid rgba(56, 189, 248, 0.4)', color: '#38bdf8', borderRadius: '8px', padding: '0.35rem 0.65rem', fontSize: '0.76rem', fontWeight: 700, cursor: 'pointer' }}
+                >
+                  🏭 Наталья (ТАБЫС-АСМ)
                 </button>
                 <button
                   type="button"
