@@ -127,17 +127,55 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
   const [roleFilter, setRoleFilter] = useState('all'); // 'all' | 'engineer' | 'executor' | 'lead'
   const [toastMsg, setToastMsg] = useState(null);
 
+  // Sync CRM events from Go Backend Server
+  const syncServerEvents = useCallback(async (currentLocal) => {
+    try {
+      const res = await fetch('/api/v1/crm/events');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.total > 0 && data.grouped) {
+          // Merge server events with default deals and local changes
+          const merged = { ...DEFAULT_CRM_DEALS, ...currentLocal, ...data.grouped };
+          setEvents(merged);
+          localStorage.setItem('qazgost_crm_calendar', JSON.stringify(merged));
+          return merged;
+        } else {
+          // Server is empty: upload local events to populate the backend database
+          const evtsToSync = Object.keys(currentLocal || {}).length > 0 ? currentLocal : DEFAULT_CRM_DEALS;
+          fetch('/api/v1/crm/events/sync', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ events: evtsToSync })
+          }).catch(() => {});
+        }
+      }
+    } catch (err) {
+      console.warn('CRM server sync offline, using local storage:', err);
+    }
+    return currentLocal;
+  }, []);
+
   useEffect(() => {
+    let initialLocal = DEFAULT_CRM_DEALS;
     const saved = localStorage.getItem('qazgost_crm_calendar');
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
         const count = Object.values(parsed).reduce((a,b) => a + (b?.length || 0), 0);
-        setEvents(count >= 3 ? parsed : { ...DEFAULT_CRM_DEALS, ...parsed });
-      } catch { setEvents(DEFAULT_CRM_DEALS); }
-    } else {
-      setEvents(DEFAULT_CRM_DEALS);
+        initialLocal = count >= 3 ? parsed : { ...DEFAULT_CRM_DEALS, ...parsed };
+      } catch { initialLocal = DEFAULT_CRM_DEALS; }
     }
+    setEvents(initialLocal);
+
+    // Initial server fetch
+    syncServerEvents(initialLocal);
+
+    // Real-time server sync polling every 4 seconds across all devices
+    const interval = setInterval(() => {
+      syncServerEvents(events);
+    }, 4000);
+
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
@@ -154,6 +192,13 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
   const saveEvents = useCallback((newEvents) => {
     setEvents(newEvents);
     localStorage.setItem('qazgost_crm_calendar', JSON.stringify(newEvents));
+
+    // Синхронизация с сервером БД для всех устройств
+    fetch('/api/v1/crm/events/sync', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ events: newEvents })
+    }).catch(() => {});
 
     // Синхронизация с общим календарём и инженером
     try {
@@ -269,6 +314,14 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
     if (idx >= 0) newEvents[date][idx] = { ...updatedCard, date: undefined };
     saveEvents(newEvents);
     setSelectedCard(null);
+
+    // Direct server update
+    fetch('/api/v1/crm/events', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...updatedCard, date })
+    }).catch(() => {});
+
     showToast('💾 Карточка сохранена');
   };
 
@@ -286,6 +339,9 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
       newEvents[d] = (newEvents[d] || []).filter(e => String(e.id) !== strId && !String(e.id).includes(strId));
     }
     saveEvents(newEvents);
+
+    // Удаление с сервера БД для всех аккаунтов и устройств
+    fetch(`/api/v1/crm/events?id=${cardId}`, { method: 'DELETE' }).catch(() => {});
 
     // 2. Удаление из общего календаря и календаря исполнителя / инженера
     try {
@@ -364,6 +420,13 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
 
     newEvents[date].push(newLeadItem);
     saveEvents(newEvents);
+
+    // Отправка новой заявки на центральный сервер БД для всех устройств
+    fetch('/api/v1/crm/events', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...newLeadItem, date })
+    }).catch(() => {});
 
     // 1. Автоматическая передача в реестр заявок Инженера (qazgost_engineer_requests)
     try {

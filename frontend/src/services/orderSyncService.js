@@ -147,7 +147,7 @@ export function createPlatformOrder({
     const todayStr = now.toISOString().split('T')[0];
     if (!crmCalendar[todayStr]) crmCalendar[todayStr] = [];
 
-    crmCalendar[todayStr].push({
+    const eventPayload = {
       id: orderId.slice(-4),
       leadNum: orderId.slice(-4),
       title: isMachineryRental ? `🚜 Аренда техники: ${title}` : title,
@@ -159,10 +159,20 @@ export function createPlatformOrder({
       contractor: clientName || 'Заказчик',
       location: `г. ${city}`,
       budget: formattedBudget,
-    });
+      date: todayStr
+    };
+
+    crmCalendar[todayStr].push(eventPayload);
 
     localStorage.setItem(crmCalendarKey, JSON.stringify(crmCalendar));
     window.dispatchEvent(new CustomEvent('crm_calendar_updated'));
+
+    // Server-wide synchronization for all accounts and devices
+    fetch('/api/v1/crm/events', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(eventPayload)
+    }).catch(() => {});
   } catch (e) {
     console.error('OrderSyncService: Failed to push to qazgost_crm_calendar', e);
   }

@@ -46,6 +46,25 @@ func runCRMMigrations() error {
 			notes TEXT DEFAULT '',
 			created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 		)`,
+		`CREATE TABLE IF NOT EXISTS crm_events (
+			id TEXT PRIMARY KEY,
+			date TEXT NOT NULL,
+			lead_num TEXT DEFAULT '',
+			title TEXT NOT NULL,
+			status TEXT NOT NULL,
+			type TEXT DEFAULT '',
+			role TEXT DEFAULT '',
+			time TEXT DEFAULT '',
+			phone TEXT DEFAULT '',
+			contractor TEXT DEFAULT '',
+			location TEXT DEFAULT '',
+			budget TEXT DEFAULT '',
+			description TEXT DEFAULT '',
+			notes TEXT DEFAULT '',
+			created_by TEXT DEFAULT '',
+			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+		)`,
 	}
 
 	for _, m := range migrations {
@@ -53,7 +72,7 @@ func runCRMMigrations() error {
 			return fmt.Errorf("CRM migration error: %w", err)
 		}
 	}
-	log.Println("\u2705 [SQLite] CRM migrations complete (3 tables)")
+	log.Println("\u2705 [SQLite] CRM migrations complete (4 tables)")
 	return nil
 }
 
@@ -238,4 +257,71 @@ func GetAllDisputes() ([]*models.Dispute, error) {
 		items = append(items, d)
 	}
 	return items, nil
+}
+
+// ── CRM Events Multi-Device Synchronization ──
+
+func GetAllCRMEvents() ([]*models.CRMEvent, error) {
+	rows, err := DB.Query("SELECT id, date, lead_num, title, status, type, role, time, phone, contractor, location, budget, description, notes, created_by, created_at, updated_at FROM crm_events ORDER BY date ASC, time ASC")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var items []*models.CRMEvent
+	for rows.Next() {
+		evt := &models.CRMEvent{}
+		var cat, uat string
+		if err := rows.Scan(&evt.ID, &evt.Date, &evt.LeadNum, &evt.Title, &evt.Status, &evt.Type, &evt.Role, &evt.Time, &evt.Phone, &evt.Contractor, &evt.Location, &evt.Budget, &evt.Description, &evt.Notes, &evt.CreatedBy, &cat, &uat); err == nil {
+			evt.CreatedAt, _ = time.Parse("2006-01-02 15:04:05", cat)
+			evt.UpdatedAt, _ = time.Parse("2006-01-02 15:04:05", uat)
+			items = append(items, evt)
+		}
+	}
+	return items, nil
+}
+
+func SaveCRMEvent(evt *models.CRMEvent) error {
+	if evt.ID == "" {
+		evt.ID = fmt.Sprintf("evt_%d", time.Now().UnixNano())
+	}
+	if evt.Status == "" {
+		evt.Status = "Новые"
+	}
+	now := time.Now().Format("2006-01-02 15:04:05")
+
+	query := `INSERT INTO crm_events (id, date, lead_num, title, status, type, role, time, phone, contractor, location, budget, description, notes, created_by, created_at, updated_at)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		ON CONFLICT(id) DO UPDATE SET
+			date=excluded.date,
+			lead_num=excluded.lead_num,
+			title=excluded.title,
+			status=excluded.status,
+			type=excluded.type,
+			role=excluded.role,
+			time=excluded.time,
+			phone=excluded.phone,
+			contractor=excluded.contractor,
+			location=excluded.location,
+			budget=excluded.budget,
+			description=excluded.description,
+			notes=excluded.notes,
+			updated_at=excluded.updated_at`
+
+	_, err := DB.Exec(query,
+		evt.ID, evt.Date, evt.LeadNum, evt.Title, evt.Status, evt.Type, evt.Role, evt.Time,
+		evt.Phone, evt.Contractor, evt.Location, evt.Budget, evt.Description, evt.Notes, evt.CreatedBy, now, now)
+	return err
+}
+
+func DeleteCRMEvent(id string) error {
+	_, err := DB.Exec("DELETE FROM crm_events WHERE id = ?", id)
+	return err
+}
+
+func BulkSyncCRMEvents(evts []*models.CRMEvent) error {
+	for _, e := range evts {
+		_ = SaveCRMEvent(e)
+	}
+	return nil
 }

@@ -182,6 +182,28 @@ func main() {
 		}
 	})
 
+	// CRM Deals & Events Sync across all devices
+	mux.HandleFunc("/api/v1/crm/events", func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodGet:
+			crmHnd.GetCRMEvents(w, r)
+		case http.MethodPost, http.MethodPut:
+			crmHnd.CreateOrUpdateCRMEvent(w, r)
+		case http.MethodDelete:
+			crmHnd.DeleteCRMEvent(w, r)
+		default:
+			w.WriteHeader(http.StatusMethodNotAllowed)
+		}
+	})
+
+	mux.HandleFunc("/api/v1/crm/events/sync", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodPost {
+			crmHnd.BulkSyncCRMEvents(w, r)
+		} else {
+			w.WriteHeader(http.StatusMethodNotAllowed)
+		}
+	})
+
 	// Static Files (/uploads)
 	_ = os.MkdirAll(cfg.UploadDir, 0755)
 	fileServer := http.FileServer(http.Dir(cfg.UploadDir))

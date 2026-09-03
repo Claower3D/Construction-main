@@ -174,3 +174,24 @@ type Client struct {
 	Notes     string    `json:"notes"`
 	CreatedAt time.Time `json:"createdAt"`
 }
+
+// CRMEvent represents a synchronized CRM deal / calendar card across all accounts and devices
+type CRMEvent struct {
+	ID          string    `json:"id"`
+	Date        string    `json:"date"`
+	LeadNum     string    `json:"leadNum,omitempty"`
+	Title       string    `json:"title"`
+	Status      string    `json:"status"`
+	Type        string    `json:"type,omitempty"`
+	Role        string    `json:"role,omitempty"`
+	Time        string    `json:"time,omitempty"`
+	Phone       string    `json:"phone,omitempty"`
+	Contractor  string    `json:"contractor,omitempty"`
+	Location    string    `json:"location,omitempty"`
+	Budget      string    `json:"budget,omitempty"`
+	Description string    `json:"description,omitempty"`
+	Notes       string    `json:"notes,omitempty"`
+	CreatedBy   string    `json:"createdBy,omitempty"`
+	CreatedAt   time.Time `json:"createdAt"`
+	UpdatedAt   time.Time `json:"updatedAt"`
+}

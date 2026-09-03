@@ -123,10 +123,123 @@ func (h *CRMHandler) GetDashboard(w http.ResponseWriter, r *http.Request) {
 	orders, _ := database.GetAllOrders()
 
 	_ = json.NewEncoder(w).Encode(map[string]interface{}{
-		"companies":  len(companies),
-		"brigades":   len(brigades),
-		"clients":    len(clients),
-		"engineers":  len(engineers),
-		"orders":     len(orders),
+		"companies": len(companies),
+		"brigades":  len(brigades),
+		"clients":   len(clients),
+		"engineers": len(engineers),
+		"orders":    len(orders),
 	})
+}
+
+// ── CRM Events & Calendar Multi-Device Synchronization ──
+
+func (h *CRMHandler) GetCRMEvents(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	items, err := database.GetAllCRMEvents()
+	if err != nil {
+		items = []*models.CRMEvent{}
+	}
+
+	// Group by Date for fast calendar consumption
+	grouped := make(map[string][]*models.CRMEvent)
+	for _, item := range items {
+		if item.Date != "" {
+			grouped[item.Date] = append(grouped[item.Date], item)
+		}
+	}
+
+	_ = json.NewEncoder(w).Encode(map[string]interface{}{
+		"total":   len(items),
+		"items":   items,
+		"grouped": grouped,
+	})
+}
+
+func (h *CRMHandler) CreateOrUpdateCRMEvent(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	var req models.CRMEvent
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.Title == "" || req.Date == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		_ = json.NewEncoder(w).Encode(map[string]string{"error": "Укажите название и дату заявки"})
+		return
+	}
+
+	if req.ID == "" {
+		req.ID = fmt.Sprintf("evt_%d", time.Now().UnixNano())
+	}
+	if req.Status == "" {
+		req.Status = "Новые"
+	}
+	req.UpdatedAt = time.Now()
+
+	if err := database.SaveCRMEvent(&req); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		_ = json.NewEncoder(w).Encode(map[string]string{"error": "Ошибка сохранения заявки в БД"})
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	_ = json.NewEncoder(w).Encode(req)
+}
+
+func (h *CRMHandler) DeleteCRMEvent(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	id := r.URL.Query().Get("id")
+	if id == "" {
+		// Also support JSON body or path
+		var req struct {
+			ID string `json:"id"`
+		}
+		_ = json.NewDecoder(r.Body).Decode(&req)
+		id = req.ID
+	}
+	if id == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		_ = json.NewEncoder(w).Encode(map[string]string{"error": "Укажите ID заявки"})
+		return
+	}
+
+	if err := database.DeleteCRMEvent(id); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		_ = json.NewEncoder(w).Encode(map[string]string{"error": "Ошибка удаления заявки"})
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	_ = json.NewEncoder(w).Encode(map[string]interface{}{"success": true, "deletedId": id})
+}
+
+func (h *CRMHandler) BulkSyncCRMEvents(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	var req struct {
+		Events map[string][]*models.CRMEvent `json:"events"`
+		Items  []*models.CRMEvent            `json:"items"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		_ = json.NewEncoder(w).Encode(map[string]string{"error": "Неверный формат данных"})
+		return
+	}
+
+	var allToSync []*models.CRMEvent
+	if len(req.Items) > 0 {
+		allToSync = req.Items
+	} else if len(req.Events) > 0 {
+		for date, evts := range req.Events {
+			for _, e := range evts {
+				if e.Date == "" {
+					e.Date = date
+				}
+				allToSync = append(allToSync, e)
+			}
+		}
+	}
+
+	if err := database.BulkSyncCRMEvents(allToSync); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		_ = json.NewEncoder(w).Encode(map[string]string{"error": "Ошибка синхронизации"})
+		return
+	}
+
+	_ = json.NewEncoder(w).Encode(map[string]interface{}{"success": true, "syncedCount": len(allToSync)})
 }
