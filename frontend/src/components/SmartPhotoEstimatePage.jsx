@@ -719,19 +719,17 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
       ></textarea>
 
       {/* AI Provider Status */}
-      {Boolean(import.meta.env.VITE_OPENAI_API_KEY || (typeof window !== 'undefined' && localStorage.getItem('qazgost_openai_key'))) ? (
-        <div className="spe-provider-banner" style={{ background: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.35)', color: '#6ee7b7' }}>
-          <span style={{ fontSize: '1.2rem' }}>🟢</span>
-          <div>
-            <strong>OpenAI Multi-Pass Engine подключен и активен:</strong> Модели GPT-4o / Vision настроены для анализа фото, детекции объемов и расчета смет по ГОСТ РК.
-          </div>
+      <div className="spe-provider-banner" style={{ background: 'rgba(16, 185, 129, 0.14)', border: '1px solid rgba(16, 185, 129, 0.4)', color: '#6ee7b7', display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 16px', borderRadius: '12px', marginTop: '10px' }}>
+        <span style={{ fontSize: '1.3rem' }}>🟢</span>
+        <div>
+          <strong style={{ color: '#34d399', display: 'block', fontSize: '0.92rem' }}>
+            QAZGOST AI Engine & GPT-4o Vision подключены и активны
+          </strong>
+          <span style={{ fontSize: '0.8rem', color: '#cbd5e1' }}>
+            Собственная нейросеть дефектоскопии + GPT-4o настроены для анализа чертежей, детекции объемов и расчета смет по СНиП РК.
+          </span>
         </div>
-      ) : (
-        <div className="spe-provider-banner">
-          <span className="spe-warning-icon">⚠️</span>
-          <span>Ни один AI провайдер не настроен. Настройте Gemini или ChatGPT API ключ в настройках (доступен локальный офлайн-режим 2026).</span>
-        </div>
-      )}
+      </div>
 
       {/* MULTI-PASS AI ENGINE */}
       <div className="spe-engine-header">
