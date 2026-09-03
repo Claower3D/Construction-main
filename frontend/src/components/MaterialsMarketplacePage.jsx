@@ -9,7 +9,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCity, setSelectedCity] = useState('all');
   const [sortBy, setSortBy] = useState('popular');
-  const [priceMax, setPriceMax] = useState(50000);
+  const [priceMax, setPriceMax] = useState(150000);
   const [radius, setRadius] = useState(100);
   const [inStockOnly, setInStockOnly] = useState(false);
   const [gostOnly, setGostOnly] = useState(false);
@@ -45,8 +45,8 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
   // RFQ Form State
   const [rfqTitle, setRfqTitle] = useState('');
   const [rfqVolume, setRfqVolume] = useState('');
-  const [rfqCity, setRfqCity] = useState('Алматы');
-  const [rfqPhone, setRfqPhone] = useState('');
+  const [rfqCity, setRfqCity] = useState('Караганда');
+  const [rfqPhone, setRfqPhone] = useState('+7 702 364 08 71');
 
   const showToast = (msg) => {
     setToastMessage(msg);
@@ -55,6 +55,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
 
   const categories = [
     { id: 'all', label: '🪄 Все материалы' },
+    { id: 'zhbi', label: '🏗️ ЖБИ, кольца, опоры (ТАБЫС-АСМ)' },
     { id: 'cement', label: '🧱 Цемент и смеси' },
     { id: 'blocks', label: '🧱 Кирпич и блоки' },
     { id: 'metal', label: '🔩 Арматура и металл' },
@@ -257,6 +258,323 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
       wholesaleNote: 'Опт от 50 листов: 3 150 ₸',
       image: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=500&q=80',
       badge: 'АКЦИЯ'
+    },
+
+    // 7. ЖБИ, Кольца, Плиты, ФБС и Опоры — ТОО «ТАБЫС - АСМ» (г. Караганда)
+    {
+      id: 'zhbi-1',
+      category: 'zhbi',
+      title: 'Кольцо стеновое КС 20.9 (d=2.0м, h=0.9м)',
+      supplier: 'ТОО «ТАБЫС - АСМ» (Наталья)',
+      city: 'Караганда',
+      price: 45000,
+      unit: 'шт',
+      weightKg: 1470,
+      gost: 'ГОСТ 8020-90',
+      inStock: 85,
+      wholesaleNote: 'Доставка манипулятором. Опт от 5 шт: 43 000 ₸',
+      image: 'https://images.unsplash.com/photo-1541888087425-ce81dfc46928?w=500&q=80',
+      badge: 'ТАБЫС-АСМ'
+    },
+    {
+      id: 'zhbi-2',
+      category: 'zhbi',
+      title: 'Кольцо стеновое КС 20.6 (d=2.0м, h=0.6м)',
+      supplier: 'ТОО «ТАБЫС - АСМ» (Наталья)',
+      city: 'Караганда',
+      price: 40000,
+      unit: 'шт',
+      weightKg: 980,
+      gost: 'ГОСТ 8020-90',
+      inStock: 60,
+      wholesaleNote: 'Доставка манипулятором. Опт от 5 шт: 38 000 ₸',
+      image: 'https://images.unsplash.com/photo-1541888087425-ce81dfc46928?w=500&q=80',
+      badge: 'ТАБЫС-АСМ'
+    },
+    {
+      id: 'zhbi-3',
+      category: 'zhbi',
+      title: 'Плита перекрытия 1 ПП 20-1 (d=2.0м с отверстием)',
+      supplier: 'ТОО «ТАБЫС - АСМ» (Наталья)',
+      city: 'Караганда',
+      price: 65000,
+      unit: 'шт',
+      weightKg: 1280,
+      gost: 'ГОСТ 8020-90',
+      inStock: 45,
+      wholesaleNote: 'Доставка манипулятором. В комплекте с посадочным местом',
+      image: 'https://images.unsplash.com/photo-1590069261209-f8e9b8642343?w=500&q=80',
+      badge: 'ТАБЫС-АСМ'
+    },
+    {
+      id: 'zhbi-4',
+      category: 'zhbi',
+      title: 'Плита днища ПН-20 (d=2.0м)',
+      supplier: 'ТОО «ТАБЫС - АСМ» (Наталья)',
+      city: 'Караганда',
+      price: 70000,
+      unit: 'шт',
+      weightKg: 1470,
+      gost: 'ГОСТ 8020-90',
+      inStock: 40,
+      wholesaleNote: 'Доставка манипулятором. Гидротехнический бетон',
+      image: 'https://images.unsplash.com/photo-1590069261209-f8e9b8642343?w=500&q=80',
+      badge: 'ТАБЫС-АСМ'
+    },
+    {
+      id: 'zhbi-5',
+      category: 'zhbi',
+      title: 'Кольцо стеновое КС 15.9 (d=1.5м, h=0.9м)',
+      supplier: 'ТОО «ТАБЫС - АСМ» (Наталья)',
+      city: 'Караганда',
+      price: 26000,
+      unit: 'шт',
+      weightKg: 1000,
+      gost: 'ГОСТ 8020-90',
+      inStock: 120,
+      wholesaleNote: 'Хит продаж для септиков и колодцев',
+      image: 'https://images.unsplash.com/photo-1541888087425-ce81dfc46928?w=500&q=80',
+      badge: 'ХИТ СЕПТИК'
+    },
+    {
+      id: 'zhbi-6',
+      category: 'zhbi',
+      title: 'Кольцо стеновое КС 15.6 (d=1.5м, h=0.6м)',
+      supplier: 'ТОО «ТАБЫС - АСМ» (Наталья)',
+      city: 'Караганда',
+      price: 22000,
+      unit: 'шт',
+      weightKg: 660,
+      gost: 'ГОСТ 8020-90',
+      inStock: 75,
+      wholesaleNote: 'Доставка манипулятором по Караганде и области',
+      image: 'https://images.unsplash.com/photo-1541888087425-ce81dfc46928?w=500&q=80',
+      badge: 'ТАБЫС-АСМ'
+    },
+    {
+      id: 'zhbi-7',
+      category: 'zhbi',
+      title: 'Плита перекрытия 1 ПП 15-1 (d=1.5м с люком)',
+      supplier: 'ТОО «ТАБЫС - АСМ» (Наталья)',
+      city: 'Караганда',
+      price: 26000,
+      unit: 'шт',
+      weightKg: 680,
+      gost: 'ГОСТ 8020-90',
+      inStock: 90,
+      wholesaleNote: 'С отверстием под стандартный люк',
+      image: 'https://images.unsplash.com/photo-1590069261209-f8e9b8642343?w=500&q=80',
+      badge: 'ТАБЫС-АСМ'
+    },
+    {
+      id: 'zhbi-8',
+      category: 'zhbi',
+      title: 'Плита днища ПН-15 (d=1.5м)',
+      supplier: 'ТОО «ТАБЫС - АСМ» (Наталья)',
+      city: 'Караганда',
+      price: 27000,
+      unit: 'шт',
+      weightKg: 940,
+      gost: 'ГОСТ 8020-90',
+      inStock: 80,
+      wholesaleNote: 'Доставка манипулятором',
+      image: 'https://images.unsplash.com/photo-1590069261209-f8e9b8642343?w=500&q=80',
+      badge: 'ТАБЫС-АСМ'
+    },
+    {
+      id: 'zhbi-9',
+      category: 'zhbi',
+      title: 'Кольцо стеновое КС 10.9 (d=1.0м, h=0.9м)',
+      supplier: 'ТОО «ТАБЫС - АСМ» (Наталья)',
+      city: 'Караганда',
+      price: 18000,
+      unit: 'шт',
+      weightKg: 600,
+      gost: 'ГОСТ 8020-90',
+      inStock: 150,
+      wholesaleNote: 'Для водопроводных и кабельных колодцев',
+      image: 'https://images.unsplash.com/photo-1541888087425-ce81dfc46928?w=500&q=80',
+      badge: 'В НАЛИЧИИ'
+    },
+    {
+      id: 'zhbi-10',
+      category: 'zhbi',
+      title: 'Кольцо стеновое КС 10.6 (d=1.0м, h=0.6м)',
+      supplier: 'ТОО «ТАБЫС - АСМ» (Наталья)',
+      city: 'Караганда',
+      price: 16000,
+      unit: 'шт',
+      weightKg: 400,
+      gost: 'ГОСТ 8020-90',
+      inStock: 95,
+      wholesaleNote: 'Доставка манипулятором',
+      image: 'https://images.unsplash.com/photo-1541888087425-ce81dfc46928?w=500&q=80',
+      badge: 'ТАБЫС-АСМ'
+    },
+    {
+      id: 'zhbi-11',
+      category: 'zhbi',
+      title: 'Плита перекрытия ПП 10-1 (d=1.0м)',
+      supplier: 'ТОО «ТАБЫС - АСМ» (Наталья)',
+      city: 'Караганда',
+      price: 18000,
+      unit: 'шт',
+      weightKg: 250,
+      gost: 'ГОСТ 8020-90',
+      inStock: 110,
+      wholesaleNote: 'Крышка колодца с отверстием',
+      image: 'https://images.unsplash.com/photo-1590069261209-f8e9b8642343?w=500&q=80',
+      badge: 'ТАБЫС-АСМ'
+    },
+    {
+      id: 'zhbi-12',
+      category: 'zhbi',
+      title: 'Плита днища ПН-10 (d=1.0м)',
+      supplier: 'ТОО «ТАБЫС - АСМ» (Наталья)',
+      city: 'Караганда',
+      price: 19000,
+      unit: 'шт',
+      weightKg: 440,
+      gost: 'ГОСТ 8020-90',
+      inStock: 85,
+      wholesaleNote: 'Доставка манипулятором',
+      image: 'https://images.unsplash.com/photo-1590069261209-f8e9b8642343?w=500&q=80',
+      badge: 'ТАБЫС-АСМ'
+    },
+    {
+      id: 'zhbi-13',
+      category: 'zhbi',
+      title: 'Кольцо стеновое КС 7.9 (d=0.7м, h=0.9м)',
+      supplier: 'ТОО «ТАБЫС - АСМ» (Наталья)',
+      city: 'Караганда',
+      price: 17000,
+      unit: 'шт',
+      weightKg: 410,
+      gost: 'ГОСТ 8020-90',
+      inStock: 70,
+      wholesaleNote: 'Доборное кольцо колодца',
+      image: 'https://images.unsplash.com/photo-1541888087425-ce81dfc46928?w=500&q=80',
+      badge: 'ТАБЫС-АСМ'
+    },
+    {
+      id: 'zhbi-14',
+      category: 'zhbi',
+      title: 'Кольцо стеновое КС 7.6 (d=0.7м, h=0.6м)',
+      supplier: 'ТОО «ТАБЫС - АСМ» (Наталья)',
+      city: 'Караганда',
+      price: 15000,
+      unit: 'шт',
+      weightKg: 280,
+      gost: 'ГОСТ 8020-90',
+      inStock: 65,
+      wholesaleNote: 'Доставка манипулятором',
+      image: 'https://images.unsplash.com/photo-1541888087425-ce81dfc46928?w=500&q=80',
+      badge: 'ТАБЫС-АСМ'
+    },
+    {
+      id: 'zhbi-15',
+      category: 'zhbi',
+      title: 'Горловина колодца КС 7.3 (d=0.7м, h=0.3м)',
+      supplier: 'ТОО «ТАБЫС - АСМ» (Наталья)',
+      city: 'Караганда',
+      price: 13000,
+      unit: 'шт',
+      weightKg: 140,
+      gost: 'ГОСТ 8020-90',
+      inStock: 130,
+      wholesaleNote: 'Выравнивание уровня люка',
+      image: 'https://images.unsplash.com/photo-1541888087425-ce81dfc46928?w=500&q=80',
+      badge: 'ТАБЫС-АСМ'
+    },
+    {
+      id: 'zhbi-16',
+      category: 'zhbi',
+      title: 'Кольцо опорное КО-6',
+      supplier: 'ТОО «ТАБЫС - АСМ» (Наталья)',
+      city: 'Караганда',
+      price: 9000,
+      unit: 'шт',
+      weightKg: 50,
+      gost: 'ГОСТ 8020-90',
+      inStock: 200,
+      wholesaleNote: 'Под люк смотрового колодца',
+      image: 'https://images.unsplash.com/photo-1541888087425-ce81dfc46928?w=500&q=80',
+      badge: 'ТАБЫС-АСМ'
+    },
+    {
+      id: 'zhbi-17',
+      category: 'zhbi',
+      title: 'Блоки стеновые ФБС 24.4.6т (2380×400×580 мм)',
+      supplier: 'ТОО «ТАБЫС - АСМ» (Наталья)',
+      city: 'Караганда',
+      price: 18000,
+      unit: 'шт',
+      weightKg: 1300,
+      gost: 'ГОСТ 13579-78',
+      inStock: 240,
+      wholesaleNote: 'Тяжелый бетон для фундаментов и подвалов',
+      image: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=500&q=80',
+      badge: 'ФУНДАМЕНТ ФБС'
+    },
+    {
+      id: 'zhbi-18',
+      category: 'zhbi',
+      title: 'Блоки стеновые ФБС 12.4.6т (1180×400×580 мм)',
+      supplier: 'ТОО «ТАБЫС - АСМ» (Наталья)',
+      city: 'Караганда',
+      price: 10000,
+      unit: 'шт',
+      weightKg: 640,
+      gost: 'ГОСТ 13579-78',
+      inStock: 180,
+      wholesaleNote: 'Доборный фундаментный блок',
+      image: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=500&q=80',
+      badge: 'ТАБЫС-АСМ'
+    },
+    {
+      id: 'zhbi-19',
+      category: 'zhbi',
+      title: 'Блоки стеновые ФБС 9.4.6т (880×400×580 мм)',
+      supplier: 'ТОО «ТАБЫС - АСМ» (Наталья)',
+      city: 'Караганда',
+      price: 9000,
+      unit: 'шт',
+      weightKg: 470,
+      gost: 'ГОСТ 13579-78',
+      inStock: 160,
+      wholesaleNote: 'Доставка манипулятором',
+      image: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=500&q=80',
+      badge: 'ТАБЫС-АСМ'
+    },
+    {
+      id: 'zhbi-20',
+      category: 'zhbi',
+      title: 'Стойка железобетонная СВ 105-3,5 (опора ЛЭП 10.5м)',
+      supplier: 'ТОО «ТАБЫС - АСМ» (Наталья)',
+      city: 'Караганда',
+      price: 80000,
+      unit: 'шт',
+      weightKg: 1180,
+      gost: 'ГОСТ 23613-79',
+      inStock: 50,
+      wholesaleNote: 'Вибрированная опора для линий 0.4–10 кВ',
+      image: 'https://images.unsplash.com/photo-1517581177682-a085bb7ffb15?w=500&q=80',
+      badge: 'ЛЭП ОПОРА'
+    },
+    {
+      id: 'zhbi-21',
+      category: 'zhbi',
+      title: 'Стойка железобетонная СВ 110-3,5 (опора ЛЭП 11.0м)',
+      supplier: 'ТОО «ТАБЫС - АСМ» (Наталья)',
+      city: 'Караганда',
+      price: 90000,
+      unit: 'шт',
+      weightKg: 1300,
+      gost: 'ГОСТ 23613-79',
+      inStock: 45,
+      wholesaleNote: 'Усиленная железобетонная опора ЛЭП 11м',
+      image: 'https://images.unsplash.com/photo-1517581177682-a085bb7ffb15?w=500&q=80',
+      badge: 'ЛЭП ОПОРА'
     }
   ];
 

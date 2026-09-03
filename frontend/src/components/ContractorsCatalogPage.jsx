@@ -20,7 +20,9 @@ export default function ContractorsCatalogPage({ onBack }) {
 
   const specialtyChips = [
     { id: 'all', label: '🪄 Все специалисты' },
+    { id: 'supplier_zhbi', label: '🏭 Завод ЖБИ и кольца' },
     { id: 'general', label: '🏗️ Генподрядчик' },
+    { id: 'concrete', label: '🧱 Бетон и ЖБИ' },
     { id: 'plumber', label: '🔧 Сантехник' },
     { id: 'electrician', label: '⚡ Электрик' },
     { id: 'painter', label: '🎨 Маляр' },
@@ -28,7 +30,6 @@ export default function ContractorsCatalogPage({ onBack }) {
     { id: 'welder', label: '🔥 Сварщик' },
     { id: 'carpenter', label: '🪵 Плотник / Столяр' },
     { id: 'roofer', label: '🏚️ Кровельщик' },
-    { id: 'concrete', label: '🧱 Бетонщик' },
     { id: 'hvac', label: '❄️ Отопление / Вентиляция' },
     { id: 'demolition', label: '💥 Демонтажник' },
     { id: 'landscaper', label: '🌳 Благоустройство' },
@@ -43,6 +44,37 @@ export default function ContractorsCatalogPage({ onBack }) {
   ];
 
   const contractorsList = [
+    {
+      id: 'tabys-asm',
+      name: 'ТОО «ТАБЫС - АСМ» (ЖБИ Завод)',
+      initials: 'ТА',
+      gradient: 'linear-gradient(135deg, #10b981, #0284c7)',
+      type: 'company',
+      typeLabel: 'ЗАВОД ЖБИ / ПОСТАВЩИК',
+      subtitle: 'Производство и поставка ЖБИ, колец, плит, ФБС, стоек ЛЭП',
+      rating: 5.0,
+      reviewsCount: 38,
+      specialties: [
+        { id: 'supplier_zhbi', label: '🏭 Завод ЖБИ' },
+        { id: 'concrete', label: '🧱 Бетон и ЖБИ' }
+      ],
+      description: 'Официальный производитель и поставщик сертифицированных ЖБИ изделий (кольца КС, плиты ПП/ПН, блоки ФБС, опоры ЛЭП СВ). Возможна оперативная доставка автомобилем-манипулятором по Караганде и всей области.',
+      city: 'Караганда',
+      address: 'г. Караганда, район им. Казыбек Би, пр. С. Сейфуллина 105-К',
+      bin: '131040012428',
+      bik: 'HSBKZKX',
+      iban: 'KZ086017191000004493',
+      bank: 'АО «Народный Банк Казахстана» (Halyk Bank)',
+      director: 'Пекушева Н.Р.',
+      contactPerson: 'Наталья',
+      isAvailable: true,
+      tier: 'Премиум',
+      tierBadge: '⭐ Проверенный Завод',
+      phone: '+7 702 364 08 71',
+      email: 'tabys-asm@mail.ru',
+      experience: '12 лет',
+      completedProjects: 450
+    },
     {
       id: 1,
       name: 'БригадаАстана',
