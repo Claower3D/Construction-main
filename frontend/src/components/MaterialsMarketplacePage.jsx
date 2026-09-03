@@ -9,7 +9,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCity, setSelectedCity] = useState('all');
   const [sortBy, setSortBy] = useState('popular');
-  const [priceMax, setPriceMax] = useState(150000);
+  const [priceMax, setPriceMax] = useState(250000);
   const [radius, setRadius] = useState(100);
   const [inStockOnly, setInStockOnly] = useState(false);
   const [gostOnly, setGostOnly] = useState(false);
@@ -55,7 +55,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
 
   const categories = [
     { id: 'all', label: '🪄 Все материалы' },
-    { id: 'zhbi', label: '🏗️ ЖБИ, кольца, опоры (ТАБЫС-АСМ)' },
+    { id: 'zhbi', label: '🏗️ ЖБИ, кольца, люки (ТАБЫС-АСМ, Медина)' },
     { id: 'cement', label: '🧱 Цемент и смеси' },
     { id: 'blocks', label: '🧱 Кирпич и блоки' },
     { id: 'metal', label: '🔩 Арматура и металл' },
@@ -1230,8 +1230,8 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
                 <input 
                   type="range" 
                   min="500" 
-                  max="50000" 
-                  step="500"
+                  max="250000" 
+                  step="1000"
                   value={priceMax} 
                   onChange={e => setPriceMax(Number(e.target.value))}
                   className="mmp-slider"
@@ -1279,7 +1279,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
                   className="mmp-sidebar-reset-btn" 
                   onClick={() => { 
                     setSelectedCategory('all'); setSelectedCity('all'); setSortBy('popular');
-                    setPriceMax(50000); setRadius(100); setInStockOnly(false); setGostOnly(false);
+                    setPriceMax(250000); setRadius(100); setInStockOnly(false); setGostOnly(false);
                     setWholesaleOnly(false); setDeliveryType('all'); setSearchQuery('');
                     showToast('🔄 Фильтры сброшены');
                   }}

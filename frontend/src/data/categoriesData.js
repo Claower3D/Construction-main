@@ -1,4 +1,5 @@
 export const categoriesData = [
+  { slug: 'zhbi-i-kolca', name: 'ЖБИ, кольца, люки и опоры (ТАБЫС-АСМ, Медина)', count: 37, icon: '🏗️', image: 'https://images.unsplash.com/photo-1541888087425-ce81dfc46928?auto=format&fit=crop&q=80&w=800', group: 'general', priceRange: 'от 4 000 ₸/шт' },
   { slug: 'zemlyanye-raboty', name: 'Земляные работы', count: 319, icon: '⛏️', image: '/assets/categories/cat_earth.jpg', group: 'general', priceRange: 'от 1 200 ₸/м³' },
   { slug: 'fundament', name: 'Фундамент', count: 379, icon: '🏗️', image: '/assets/categories/cat_foundation.jpg', group: 'general', priceRange: 'от 18 500 ₸/м³' },
   { slug: 'beton-i-monolit', name: 'Бетон и монолит', count: 658, icon: '🧱', image: '/assets/categories/cat_concrete.jpg', group: 'general', priceRange: 'от 22 000 ₸/м³' },

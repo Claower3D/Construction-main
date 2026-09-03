@@ -32,8 +32,25 @@ export default function CategoryTemplatePage({ category, onBack }) {
     }, 600);
   };
 
-  // Mock extended services list
-  const allServices = [
+  // Services list (with dedicated ЖБИ items for zhbi-i-kolca category)
+  const zhbiServices = [
+    { title: 'Кольцо стеновое КС 20.9 (d=2.0м, h=0.9м)', price: '45 000 ₸ / шт', code: 'ТОО ТАБЫС-АСМ (Наталья)', image: 'https://images.unsplash.com/photo-1541888087425-ce81dfc46928?auto=format&fit=crop&q=80&w=800' },
+    { title: 'Кольцо стеновое КС 15.9 (1500×900 мм)', price: '26 000 ₸ (ТАБЫС) / 28 000 ₸ (Медина)', code: 'ГОСТ 8020-90', image: 'https://images.unsplash.com/photo-1541888087425-ce81dfc46928?auto=format&fit=crop&q=80&w=800' },
+    { title: 'Кольцо стеновое КС 15.6 (1500×600 мм)', price: '19 000 ₸ (Медина) / 22 000 ₸ (ТАБЫС)', code: 'ГОСТ 8020-90', image: 'https://images.unsplash.com/photo-1541888087425-ce81dfc46928?auto=format&fit=crop&q=80&w=800' },
+    { title: 'Кольцо стеновое КС 10.9 (1000×900 мм)', price: '18 000 ₸ (ТАБЫС) / 19 000 ₸ (Медина)', code: 'ГОСТ 8020-90', image: 'https://images.unsplash.com/photo-1541888087425-ce81dfc46928?auto=format&fit=crop&q=80&w=800' },
+    { title: 'Плита перекрытия 1 ПП 20-1 (d=2.0м с люком)', price: '65 000 ₸ / шт', code: 'ТОО ТАБЫС-АСМ', image: 'https://images.unsplash.com/photo-1590069261209-f8e9b8642343?auto=format&fit=crop&q=80&w=800' },
+    { title: 'Плита днища ПН-20 (d=2.0м)', price: '70 000 ₸ / шт', code: 'ТОО ТАБЫС-АСМ', image: 'https://images.unsplash.com/photo-1590069261209-f8e9b8642343?auto=format&fit=crop&q=80&w=800' },
+    { title: 'Крышка колодца 1ПП-15-1 (d=1.5м с люком)', price: '26 000 ₸ / шт', code: 'ТАБЫС-АСМ / Медина', image: 'https://images.unsplash.com/photo-1590069261209-f8e9b8642343?auto=format&fit=crop&q=80&w=800' },
+    { title: 'Крышка колодца 1ПП-15-2 (усиленная под автонагрузку)', price: '35 000 ₸ / шт', code: 'ИП Медина (Манарбек)', image: 'https://images.unsplash.com/photo-1590069261209-f8e9b8642343?auto=format&fit=crop&q=80&w=800' },
+    { title: 'Днище колодца ПН-15 (d=1.5м)', price: '20 000 ₸ (Медина) / 27 000 ₸ (ТАБЫС)', code: 'ГОСТ 8020-90', image: 'https://images.unsplash.com/photo-1590069261209-f8e9b8642343?auto=format&fit=crop&q=80&w=800' },
+    { title: 'Кольцо опорное КО 6 (600×900×100 мм)', price: '4 000 ₸ (Медина) / 9 000 ₸ (ТАБЫС)', code: 'ГОСТ 8020-90', image: 'https://images.unsplash.com/photo-1541888087425-ce81dfc46928?auto=format&fit=crop&q=80&w=800' },
+    { title: 'Люк полимерный тяжелый (25 тн)', price: '10 000 ₸ / шт', code: 'ИП Медина (Манарбек)', image: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&q=80&w=800' },
+    { title: 'Блоки стеновые ФБС 24.4.6т (2380×400×580 мм)', price: '18 000 ₸ / шт', code: 'ТОО ТАБЫС-АСМ', image: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&q=80&w=800' },
+    { title: 'Стойка железобетонная СВ 105-3,5 (опора ЛЭП 10.5м)', price: '80 000 ₸ / шт', code: 'ТОО ТАБЫС-АСМ', image: 'https://images.unsplash.com/photo-1517581177682-a085bb7ffb15?auto=format&fit=crop&q=80&w=800' },
+    { title: 'Стойка железобетонная СВ 110-3,5 (опора ЛЭП 11.0м)', price: '90 000 ₸ / шт', code: 'ТОО ТАБЫС-АСМ', image: 'https://images.unsplash.com/photo-1517581177682-a085bb7ffb15?auto=format&fit=crop&q=80&w=800' }
+  ];
+
+  const defaultServices = [
     {
       title: 'Монтаж и подготовка поверхности',
       price: 'от 2 800 ₸ / м²',
@@ -83,6 +100,8 @@ export default function CategoryTemplatePage({ category, onBack }) {
       image: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&q=80&w=800'
     }
   ];
+
+  const allServices = category.slug === 'zhbi-i-kolca' ? zhbiServices : defaultServices;
 
   return (
     <div className="category-template-page">
