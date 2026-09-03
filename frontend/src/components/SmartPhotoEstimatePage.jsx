@@ -2,6 +2,11 @@ import React, { useState } from 'react';
 import { createPlatformOrder } from '../services/orderSyncService';
 import './SmartPhotoEstimatePage.css';
 
+export const SYSTEM_OPENAI_PRESETS = {
+  KEY_1_VISION_DEFECT: 'system-key-1-vision',
+  KEY_2_DETAILED_ESTIMATE: 'system-key-2-detailed'
+};
+
 export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeGroup, setActiveGroup] = useState('Все');
@@ -50,10 +55,11 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
 
   const [userGptKey, setUserGptKey] = useState(() => {
     const key = (typeof window !== 'undefined' && localStorage.getItem('qazgost_user_openai_key')) || '';
-    return (key === 'sk-user-connected-session') ? '' : key;
+    if (key && key !== 'sk-user-connected-session') return key;
+    return SYSTEM_OPENAI_PRESETS.KEY_2_DETAILED_ESTIMATE;
   });
 
-  const [inputGptKey, setInputGptKey] = useState(userGptKey);
+  const [inputGptKey, setInputGptKey] = useState(userGptKey || SYSTEM_OPENAI_PRESETS.KEY_2_DETAILED_ESTIMATE);
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
   const [userPlan, setUserPlan] = useState('ChatGPT Plus (GPT-4o Vision)');
@@ -1215,6 +1221,56 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
                   {/* TAB 2: SECRET API KEY */}
                   {gptAuthTab === 'apikey' && (
                     <form onSubmit={handleSaveGptKey} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+                      {/* Presets for Key #1 and Key #2 */}
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.82rem', color: '#cbd5e1', marginBottom: '0.4rem', fontWeight: 700 }}>
+                          ⚡ Быстрый выбор системного ключа:
+                        </label>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setInputGptKey(SYSTEM_OPENAI_PRESETS.KEY_1_VISION_DEFECT);
+                              showToast('🔹 Выбран Ключ №1: Дефектоскопия & Vision');
+                            }}
+                            style={{
+                              background: inputGptKey === SYSTEM_OPENAI_PRESETS.KEY_1_VISION_DEFECT ? 'rgba(56, 189, 248, 0.25)' : 'rgba(255, 255, 255, 0.05)',
+                              border: `1px solid ${inputGptKey === SYSTEM_OPENAI_PRESETS.KEY_1_VISION_DEFECT ? '#38bdf8' : 'rgba(255, 255, 255, 0.15)'}`,
+                              borderRadius: '10px',
+                              padding: '8px 10px',
+                              color: '#fff',
+                              cursor: 'pointer',
+                              textAlign: 'left',
+                              fontSize: '0.78rem'
+                            }}
+                          >
+                            <div style={{ fontWeight: 800, color: '#38bdf8' }}>🔵 Ключ №1 (Vision)</div>
+                            <div style={{ fontSize: '0.7rem', color: '#94a3b8' }}>Дефекты & Базовый</div>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setInputGptKey(SYSTEM_OPENAI_PRESETS.KEY_2_DETAILED_ESTIMATE);
+                              showToast('🟣 Выбран Ключ №2: Детальные сметы & Луна-Тера');
+                            }}
+                            style={{
+                              background: inputGptKey === SYSTEM_OPENAI_PRESETS.KEY_2_DETAILED_ESTIMATE ? 'rgba(168, 85, 247, 0.25)' : 'rgba(255, 255, 255, 0.05)',
+                              border: `1px solid ${inputGptKey === SYSTEM_OPENAI_PRESETS.KEY_2_DETAILED_ESTIMATE ? '#a855f7' : 'rgba(255, 255, 255, 0.15)'}`,
+                              borderRadius: '10px',
+                              padding: '8px 10px',
+                              color: '#fff',
+                              cursor: 'pointer',
+                              textAlign: 'left',
+                              fontSize: '0.78rem'
+                            }}
+                          >
+                            <div style={{ fontWeight: 800, color: '#c084fc' }}>🟣 Ключ №2 (Сметы)</div>
+                            <div style={{ fontSize: '0.7rem', color: '#94a3b8' }}>Детальный расчёт GPT-4o</div>
+                          </button>
+                        </div>
+                      </div>
+
                       <div>
                         <label style={{ display: 'block', fontSize: '0.82rem', color: '#cbd5e1', marginBottom: '0.4rem', fontWeight: 700 }}>
                           Ваш персональный OpenAI Secret Key:
