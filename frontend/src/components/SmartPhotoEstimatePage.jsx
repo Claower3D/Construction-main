@@ -12,7 +12,20 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
   const [activeGroup, setActiveGroup] = useState('Все');
   const [selectedCategory, setSelectedCategory] = useState('demolition'); // Default demo
   const [isCategorySkipped, setIsCategorySkipped] = useState(false);
-  const [analysisModeTab, setAnalysisModeTab] = useState('fast'); // 'fast' | '3d' | 'contour'
+  const [analysisModeTab, setAnalysisModeTab] = useState(() => {
+    try {
+      return localStorage.getItem('qazgost_estimate_analysis_tab') || 'contour';
+    } catch {
+      return 'contour';
+    }
+  });
+
+  const handleSetAnalysisTab = (tab) => {
+    setAnalysisModeTab(tab);
+    try {
+      localStorage.setItem('qazgost_estimate_analysis_tab', tab);
+    } catch {}
+  };
 
   // Contour mode sub-states
   const canvasRef = useRef(null);
@@ -779,7 +792,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
       <div className="spe-modes-tabs-row mt-4">
         <button
           className={`spe-mode-tab ${analysisModeTab === 'fast' ? 'active' : ''}`}
-          onClick={() => setAnalysisModeTab('fast')}
+          onClick={() => handleSetAnalysisTab('fast')}
         >
           <span>📸</span>
           <div>
@@ -790,7 +803,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
 
         <button
           className={`spe-mode-tab ${analysisModeTab === '3d' ? 'active' : ''}`}
-          onClick={() => setAnalysisModeTab('3d')}
+          onClick={() => handleSetAnalysisTab('3d')}
         >
           <span>📐</span>
           <div>
@@ -801,7 +814,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
 
         <button
           className={`spe-mode-tab ${analysisModeTab === 'contour' ? 'active' : ''}`}
-          onClick={() => setAnalysisModeTab('contour')}
+          onClick={() => handleSetAnalysisTab('contour')}
         >
           <span>✏️</span>
           <div>
