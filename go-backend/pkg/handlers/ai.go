@@ -76,6 +76,16 @@ func (h *AiHandler) EstimateCost(w http.ResponseWriter, r *http.Request) {
 		req.City = "Алматы"
 	}
 
+	if req.Scenario == "" && req.Mode != "" {
+		if req.Mode == "fast" {
+			req.Scenario = "economy"
+		} else if req.Mode == "detailed" {
+			req.Scenario = "premium"
+		} else {
+			req.Scenario = "standard"
+		}
+	}
+
 	// 1. High-speed native Go calculation with SNiP RK 16 formulas
 	qtoResult := h.estimator.CalculateEstimate(services.QTOFormulaRequest{
 		Category:    req.Category,
@@ -86,14 +96,28 @@ func (h *AiHandler) EstimateCost(w http.ResponseWriter, r *http.Request) {
 		Description: req.Description,
 	})
 
+	// Select corresponding recommended scenario based on mode
+	for _, sc := range qtoResult.Scenarios {
+		if (req.Scenario == "economy" && (sc.Name == "Эконом" || sc.Name == "Быстрый")) ||
+			(req.Scenario == "premium" && (sc.Name == "Премиум" || sc.Name == "Детальный")) ||
+			(req.Scenario == "standard" && sc.Name == "Стандарт") {
+			qtoResult.Recommended = sc
+			break
+		}
+	}
+
 	// Check for custom user OpenAI API Key from header or fallback to server config
 	apiKey := r.Header.Get("X-OpenAI-Key")
 	if apiKey == "" {
-		apiKey = h.Config.OpenAIKey
+		if req.Mode == "detailed" && h.Config.OpenAIDetailedKey != "" {
+			apiKey = h.Config.OpenAIDetailedKey
+		} else {
+			apiKey = h.Config.OpenAIKey
+		}
 	}
 	model := r.Header.Get("X-OpenAI-Model")
 	if model == "" {
-		model = "gpt-4o-mini"
+		model = "gpt-4o"
 	}
 
 	// If API key is present and user provided an unstructured text description, optionally enhance insights with LLM
@@ -287,6 +311,7 @@ func (h *AiHandler) VisionProxy(w http.ResponseWriter, r *http.Request) {
 		Description string   `json:"description"`
 		Category    string   `json:"category"`
 		City        string   `json:"city"`
+		Mode        string   `json:"mode"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid request", http.StatusBadRequest)
@@ -295,7 +320,11 @@ func (h *AiHandler) VisionProxy(w http.ResponseWriter, r *http.Request) {
 
 	apiKey := r.Header.Get("X-OpenAI-Key")
 	if apiKey == "" {
-		apiKey = h.Config.OpenAIKey
+		if req.Mode == "detailed" && h.Config.OpenAIDetailedKey != "" {
+			apiKey = h.Config.OpenAIDetailedKey
+		} else {
+			apiKey = h.Config.OpenAIKey
+		}
 	}
 	model := r.Header.Get("X-OpenAI-Model")
 	if model == "" {
@@ -308,20 +337,30 @@ func (h *AiHandler) VisionProxy(w http.ResponseWriter, r *http.Request) {
 			Category:    req.Category,
 			Description: req.Description,
 			City:        req.City,
+			Scenario:    req.Mode,
 		})
 		_ = json.NewEncoder(w).Encode(qtoResult)
 		return
+	}
+
+	modeInstruction := "РЕЖИМ: АВТО (AUTO MULTI-PASS). Комплексный расчёт с автоматическим определением скрытых объемов (5-6 позиций работ и материалов), разделение на этапы, сроки по ГЭСН РК 2026."
+	if req.Mode == "fast" {
+		modeInstruction = "РЕЖИМ: БЫСТРЫЙ (FAST EXPRESS). Выдай компактную экспресс-смету из 3 ключевых укрупненных позиций: 1. Подготовка основания, 2. Основные строительно-монтажные работы, 3. Финишная отделка и сдача. Базовые расценки, запас 5%."
+	} else if req.Mode == "detailed" {
+		modeInstruction = "РЕЖИМ: ДЕТАЛЬНЫЙ PRO (3-PASS SNIP AUDIT). Глубокий 3-проходный инженерный аудит по СНиП РК и СП РК. Составь расширенную спецификацию из 8-12 позиций: 1) Подготовительные и земляные работы, 2) Несущие/монтажные конструкции с марками бетона/раствора, 3) Отделочные и защитные покрытия, 4) Перечень спецтехники и механизмов (автокран, самосвал, манипулятор) с почасовыми ставками, 5) Коэффициенты стесненности и запас на обрезку/бой 10-15%, 6) Рекомендации технадзора по актам скрытых работ (АОСР)."
 	}
 
 	// Build OpenAI multi-modal request server-side
 	contentParts := []map[string]interface{}{
 		{
 			"type": "text",
-			"text": fmt.Sprintf(`Ты — профессиональный строительный сметчик Казахстана. Проанализируй приложенные фотографии/чертежи строительного объекта.
+			"text": fmt.Sprintf(`Ты — профессиональный строительный инженер-сметчик и эксперт технадзора Казахстана. Проанализируй приложенные фотографии/чертежи строительного объекта.
 ЗАДАЧА: Определи из изображения: тип работ, размеры и объёмы (м², м³), материалы и количество, стоимость по ценам Казахстана 2026.
+%s
 %s %s
 ОТВЕТЬ СТРОГО в формате JSON:
-{"detected_type":"...","dimensions":{"area_m2":0,"volume_m3":0,"length_m":0},"items":[{"name":"...","volume":0,"unit":"...","unit_price":0,"total":0}],"works_cost":0,"materials_cost":0,"total_cost":0,"timeline_days":0,"insights":["...","...","..."]}`,
+{"detected_type":"...","mode":"%s","dimensions":{"area_m2":0,"volume_m3":0,"length_m":0},"items":[{"name":"...","volume":0,"unit":"...","unit_price":0,"total":0,"stage":"..."}],"works_cost":0,"materials_cost":0,"equipment_cost":0,"contingency":0,"total_cost":0,"timeline_days":0,"insights":["...","...","..."]}`,
+				modeInstruction,
 				func() string {
 					if req.Description != "" {
 						return "Описание: " + req.Description
@@ -333,7 +372,8 @@ func (h *AiHandler) VisionProxy(w http.ResponseWriter, r *http.Request) {
 						return "Категория: " + req.Category
 					}
 					return ""
-				}()),
+				}(),
+				req.Mode),
 		},
 	}
 

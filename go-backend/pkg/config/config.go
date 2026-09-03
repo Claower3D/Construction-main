@@ -6,13 +6,14 @@ import (
 )
 
 type Config struct {
-	Port        string
-	Env         string
-	JwtSecret   string
-	UploadDir   string
-	FrontendURL string
-	CorsOrigins []string
-	OpenAIKey   string
+	Port              string
+	Env               string
+	JwtSecret         string
+	UploadDir         string
+	FrontendURL       string
+	CorsOrigins       []string
+	OpenAIKey         string
+	OpenAIDetailedKey string
 }
 
 func LoadConfig() *Config {
@@ -46,6 +47,10 @@ func LoadConfig() *Config {
 	}
 
 	openAIKey := os.Getenv("OPENAI_API_KEY")
+	openAIDetailedKey := os.Getenv("OPENAI_DETAILED_KEY")
+	if openAIDetailedKey == "" {
+		openAIDetailedKey = openAIKey
+	}
 
 	// CORS: in production use only specified origins, in dev allow localhost
 	corsOrigins := []string{
@@ -56,12 +61,13 @@ func LoadConfig() *Config {
 	}
 
 	return &Config{
-		Port:        port,
-		Env:         env,
-		JwtSecret:   secret,
-		UploadDir:   uploadDir,
-		FrontendURL: frontendURL,
-		CorsOrigins: corsOrigins,
-		OpenAIKey:   openAIKey,
+		Port:              port,
+		Env:               env,
+		JwtSecret:         secret,
+		UploadDir:         uploadDir,
+		FrontendURL:       frontendURL,
+		CorsOrigins:       corsOrigins,
+		OpenAIKey:         openAIKey,
+		OpenAIDetailedKey: openAIDetailedKey,
 	}
 }
