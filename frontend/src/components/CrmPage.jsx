@@ -191,14 +191,7 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
     setEvents(newEvents);
     localStorage.setItem('qazgost_crm_calendar', JSON.stringify(newEvents));
 
-    // Синхронизация с сервером БД для всех устройств
-    fetch('/api/v1/crm/events/sync', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ events: newEvents })
-    }).catch(() => {});
-
-    // Синхронизация с общим календарём и инженером
+    // Синхронизация с общим календарём и инженером (локальные компоненты на этом же устройстве)
     try {
       const calEvents = JSON.parse(localStorage.getItem('qazgost_calendar_events') || '{}');
       const merged = { ...calEvents };
@@ -376,6 +369,9 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
     window.dispatchEvent(new Event('engineer_requests_updated'));
     window.dispatchEvent(new Event('notifications_updated'));
     window.dispatchEvent(new Event('custom_events_updated'));
+
+    // 6. Принудительная синхронизация с сервером для консистентности
+    setTimeout(() => syncServerEvents(), 500);
 
     showToast(`🗑️ Заявка #${cardId} удалена из CRM и всех календарей`);
   };

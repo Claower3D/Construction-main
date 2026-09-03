@@ -67,6 +67,28 @@ export function createPlatformOrder({
     materials
   };
 
+  // ═══ SERVER-FIRST: Отправка заказа на Go Backend для кросс-устройственной синхронизации ═══
+  try {
+    fetch('/api/v1/orders', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('auth_token') || ''}`
+      },
+      body: JSON.stringify({
+        title: orderObj.title || 'Строительная заявка',
+        location: `г. ${orderObj.city || 'Алматы'}`,
+        type: orderObj.type || 'general',
+        contractor: orderObj.clientName || 'Заказчик',
+        status: orderObj.status === 'new' ? 'Запланировано' : (orderObj.status === 'in_progress' ? 'В работе' : 'Запланировано'),
+        clientName: orderObj.clientName || '',
+        clientPhone: orderObj.clientPhone || '',
+        totalSum: orderObj.amount || 0,
+        createdBy: localStorage.getItem('qazgost_current_user') ? JSON.parse(localStorage.getItem('qazgost_current_user')).name || 'System' : 'System'
+      })
+    }).catch(() => {});
+  } catch(e) { console.warn('OrderSync: server order POST failed', e); }
+
   // 1. Sync to localStorage Order Stores for All Roles
   try {
     const sharedKey = 'qazgost_orders_shared';

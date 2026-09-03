@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createPlatformOrder } from '../services/orderSyncService';
 
 export default function CalendarSchedulePage({ onBack, hideHeader = false, role = 'executor' }) {
@@ -72,6 +72,47 @@ export default function CalendarSchedulePage({ onBack, hideHeader = false, role 
     }
   ]);
 
+  // ── SERVER SYNC: Загрузка событий с сервера для кросс-устройственной синхронизации ──
+  useEffect(() => {
+    const fetchCalendarEvents = () => {
+      fetch('/api/v1/crm/events')
+        .then(r => r.ok ? r.json() : null)
+        .then(data => {
+          if (data && data.items && data.items.length > 0) {
+            const calEvents = data.items
+              .filter(e => e.type === 'request_engineering' || e.role === 'engineer' || e.type === 'work_stage')
+              .map(e => ({
+                id: e.id || `ev-${Date.now()}`,
+                title: e.title || 'Событие',
+                type: e.type === 'request_engineering' ? 'inspection' : (e.role === 'machinery' ? 'machinery' : 'concrete'),
+                date: e.date || new Date().toISOString().split('T')[0],
+                time: e.time ? `${e.time} - ${String(parseInt(e.time) + 2).padStart(2, '0')}:00` : '10:00 - 12:00',
+                location: e.location || 'г. Алматы',
+                specialist: e.contractor || e.assignedEngineer || 'Специалист',
+                status: e.status === 'Новые' ? 'Запланировано' : (e.status === 'В работе' ? 'В пути' : e.status || 'Запланировано'),
+                badgeColor: e.type === 'request_engineering' ? '#38bdf8' : (e.role === 'machinery' ? '#f59e0b' : '#10b981')
+              }));
+            if (calEvents.length > 0) {
+              setEvents(prev => {
+                const merged = [...prev];
+                calEvents.forEach(ce => {
+                  if (!merged.some(m => m.id === ce.id)) merged.push(ce);
+                });
+                return merged;
+              });
+            }
+          }
+        })
+        .catch(() => {});
+    };
+
+    fetchCalendarEvents();
+
+    // Поллинг каждые 5 секунд для синхронизации между устройствами
+    const poll = setInterval(fetchCalendarEvents, 5000);
+    return () => clearInterval(poll);
+  }, []);
+
   const handleAddEvent = (e) => {
     e.preventDefault();
     if (!newEventTitle.trim()) return;
@@ -89,9 +130,27 @@ export default function CalendarSchedulePage({ onBack, hideHeader = false, role 
     };
 
     setEvents([newEv, ...events]);
+
+    // Отправка на сервер для синхронизации между устройствами
+    fetch('/api/v1/crm/events', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id: newEv.id,
+        title: newEv.title,
+        date: newEv.date,
+        time: '10:00',
+        type: 'request_engineering',
+        role: 'engineer',
+        status: 'Новые',
+        location: newEv.location,
+        contractor: newEv.specialist,
+        budget: '0 ₸'
+      })
+    }).catch(() => {});
+
     setShowAddModal(false);
     setNewEventTitle('');
-    alert('📅 Новое событие успешно добавлено в Календарь выездов!');
   };
 
   return (
