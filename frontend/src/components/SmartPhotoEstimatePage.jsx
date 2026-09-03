@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { createPlatformOrder } from '../services/orderSyncService';
 import './SmartPhotoEstimatePage.css';
 
-export const SYSTEM_OPENAI_PRESETS = {
+const SYSTEM_OPENAI_PRESETS = {
   KEY_1_VISION_DEFECT: 'system-key-1-vision',
   KEY_2_DETAILED_ESTIMATE: 'system-key-2-detailed'
 };
