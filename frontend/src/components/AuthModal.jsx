@@ -328,6 +328,52 @@ export default function AuthModal({ mode, onClose, onLogin }) {
             />
           </div>
 
+          {/* Quick Demo Login Presets */}
+          {activeTab === 'login' && (
+            <div style={{ marginTop: '0.2rem', marginBottom: '0.2rem' }}>
+              <span style={{ fontSize: '0.78rem', color: '#94a3b8', display: 'block', marginBottom: '0.4rem', fontWeight: 600 }}>
+                ⚡ Быстрый вход (аккаунты):
+              </span>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
+                <button
+                  type="button"
+                  onClick={() => { setEmail('tabys-asm@mail.ru'); setPassword('natalya123'); }}
+                  style={{ background: 'rgba(16, 185, 129, 0.18)', border: '1px solid rgba(16, 185, 129, 0.5)', color: '#34d399', borderRadius: '8px', padding: '0.35rem 0.65rem', fontSize: '0.76rem', fontWeight: 700, cursor: 'pointer' }}
+                >
+                  🏭 Наталья (ТАБЫС-АСМ ЖБИ)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setEmail('manager@qazgost.kz'); setPassword('manager123'); }}
+                  style={{ background: 'rgba(56, 189, 248, 0.12)', border: '1px solid rgba(56, 189, 248, 0.3)', color: '#38bdf8', borderRadius: '8px', padding: '0.35rem 0.65rem', fontSize: '0.76rem', fontWeight: 700, cursor: 'pointer' }}
+                >
+                  💼 Менеджер Саша
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setEmail('engineer@qazgost.kz'); setPassword('engineer123'); }}
+                  style={{ background: 'rgba(245, 158, 11, 0.12)', border: '1px solid rgba(245, 158, 11, 0.3)', color: '#fbbf24', borderRadius: '8px', padding: '0.35rem 0.65rem', fontSize: '0.76rem', fontWeight: 700, cursor: 'pointer' }}
+                >
+                  📐 Инженер ПТО
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setEmail('customer@test.kz'); setPassword('customer123'); }}
+                  style={{ background: 'rgba(147, 51, 234, 0.12)', border: '1px solid rgba(147, 51, 234, 0.3)', color: '#c084fc', borderRadius: '8px', padding: '0.35rem 0.65rem', fontSize: '0.76rem', fontWeight: 700, cursor: 'pointer' }}
+                >
+                  👤 Заказчик
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setEmail('admin@qazgost.kz'); setPassword('admin123'); }}
+                  style={{ background: 'rgba(239, 68, 68, 0.12)', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#f87171', borderRadius: '8px', padding: '0.35rem 0.65rem', fontSize: '0.76rem', fontWeight: 700, cursor: 'pointer' }}
+                >
+                  👑 Админ
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Machinery Questionnaire for Executor */}
           {activeTab === 'register' && selectedRole === 'executor' && (
             <div style={{ background: 'rgba(16, 185, 129, 0.08)', border: '1px solid rgba(16, 185, 129, 0.25)', borderRadius: '16px', padding: '1rem', marginTop: '0.2rem' }}>
