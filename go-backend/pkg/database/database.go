@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	_ "github.com/lib/pq"
@@ -26,6 +27,15 @@ func InitDB(dbURL string) error {
 	}
 	if dbURL == "" {
 		log.Fatal("[FATAL] DATABASE_URL is not set. Please configure PostgreSQL connection string.")
+	}
+
+	// Railway internal connections don't support SSL
+	if strings.Contains(dbURL, ".railway.internal") && !strings.Contains(dbURL, "sslmode=") {
+		if strings.Contains(dbURL, "?") {
+			dbURL += "&sslmode=disable"
+		} else {
+			dbURL += "?sslmode=disable"
+		}
 	}
 
 	DB, err = sql.Open("postgres", dbURL)
