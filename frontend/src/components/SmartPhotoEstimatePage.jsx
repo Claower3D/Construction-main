@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { createPlatformOrder } from '../services/orderSyncService';
+import { generateDetailedEstimate, SCENARIO_COEFFICIENTS, COMPLEX_TEMPLATES } from '../data/estimateTemplates';
 import './SmartPhotoEstimatePage.css';
 
 const SYSTEM_OPENAI_PRESETS = {
@@ -80,6 +81,9 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
   const [selectedScenario, setSelectedScenario] = useState('standard'); // 'economy' | 'standard' | 'premium'
   const [createdOrderInfo, setCreatedOrderInfo] = useState(null);
   const [toastMessage, setToastMessage] = useState(null);
+  const [lastEstimateParams, setLastEstimateParams] = useState(null); // для пересчёта сценариев
+  const [manualArea, setManualArea] = useState(''); // ручной ввод площади
+  const resultRef = useRef(null); // автоскролл к результату
 
   // User Custom ChatGPT / OpenAI Account State
   const [showGptModal, setShowGptModal] = useState(false);
@@ -156,7 +160,13 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
     { id: 'interior', group: 'Отделка', image: '/assets/categories/cat_interior.jpg', icon: '🛋️', title: 'Мебель и оборудование', count: '424 работ', rate: 8200, minPrice: '18 000 ₸/ед' },
     { id: 'design', group: 'Прочее', image: '/assets/categories/cat_design.jpg', icon: '📐', title: 'Проектирование', count: '134 работ', rate: 12000, minPrice: '1 500 ₸/м²' },
     { id: 'special', group: 'Прочее', image: '/assets/categories/cat_special.jpg', icon: '🏭', title: 'Специальные работы', count: '1320 работ', rate: 11000, minPrice: '5 000 ₸/смена' },
-    { id: 'other', group: 'Прочее', image: '/assets/categories/cat_other.jpg', icon: '📦', title: 'Прочие работы', count: '816 работ', rate: 3000, minPrice: '1 000 ₸/усл' }
+    { id: 'other', group: 'Прочее', image: '/assets/categories/cat_other.jpg', icon: '📦', title: 'Прочие работы', count: '816 работ', rate: 3000, minPrice: '1 000 ₸/усл' },
+    // ═══ Комплексные объекты ═══
+    ...Object.entries(COMPLEX_TEMPLATES).map(([id, tpl]) => ({
+      id, group: 'Комплекс', icon: tpl.icon, title: tpl.title,
+      count: `${tpl.includes.length} этапов`, rate: 0, minPrice: tpl.description,
+      isComplex: true,
+    })),
   ];
 
   const filteredCategories = categories.filter(cat =>
@@ -511,15 +521,18 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
     }
   }, [analysisModeTab, photos, selectedContourPhotoIdx, contourPoints, isContourClosed, contourAreaM2, contourPerimeterM, isDrawing, scaleRatioMeters]);
 
-  // Helper: save estimate to history
-  const saveToHistory = useCallback((data) => {
+  // Helper: save estimate to history (BUG-6: extended)
+  const saveToHistory = useCallback((data, detailed) => {
     const entry = {
       id: Date.now().toString(36),
       date: new Date().toLocaleString('ru-RU'),
       category: data.category,
       total: data.total,
-      scenario: data.selectedScenario || 'standard',
+      scenario: data.scenarioLabel || 'standard',
       region: REGIONS.find(r => r.id === selectedRegion)?.name || 'Алматы',
+      area: detailed?.area || data.area || 0,
+      itemCount: detailed?.itemCount || data.items?.length || 0,
+      pricePerM2: detailed?.pricePerM2 || data.pricePerM2 || 0,
     };
     setEstimateHistory(prev => {
       const updated = [entry, ...prev].slice(0, 10);
@@ -527,6 +540,37 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
       return updated;
     });
   }, [selectedRegion]);
+
+  // BUG-1 FIX: Пересчитать смету при смене сценария (вместо умножения ×0.85/×1.25)
+  const recalculateScenario = useCallback((newScenario) => {
+    setSelectedScenario(newScenario);
+    if (!lastEstimateParams) return;
+    const params = { ...lastEstimateParams, scenario: newScenario };
+    const detailed = generateDetailedEstimate(params);
+    const regionObj = REGIONS.find(r => r.id === selectedRegion) || REGIONS[0];
+    setCalculatedEstimate(prev => ({
+      ...prev,
+      total: detailed.total,
+      worksCost: detailed.worksCost,
+      materialsCost: detailed.materialsCost,
+      items: detailed.items,
+      pricePerM2: detailed.pricePerM2,
+      worksPercent: detailed.worksPercent,
+      materialsPercent: detailed.materialsPercent,
+      marketplaceMaterials: detailed.marketplaceMaterials || [],
+      timelineDays: detailed.timelineDays,
+      scenarioLabel: detailed.scenarioLabel,
+      groups: detailed.groups,
+      aiInsights: [
+        `📱 ${detailed.aiInsights[0]}`,
+        `📐 ${detailed.aiInsights[1]}`,
+        `📍 ${detailed.aiInsights[2]}`,
+        `💰 ${detailed.aiInsights[3]}`,
+        `📅 ${detailed.aiInsights[4]}`,
+        ...(detailed.aiInsights.slice(5).map(s => `ℹ️ ${s}`)),
+      ],
+    }));
+  }, [lastEstimateParams, selectedRegion]);
 
   const handleRunAiEstimate = async () => {
     const activeCatObj = categories.find(c => c.id === selectedCategory) || categories[9];
@@ -677,39 +721,83 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
         console.warn('Backend estimate fallback:', backendErr);
       }
 
-      // ═══ STEP 3: Full local fallback ═══
-      setScanStep('📱 Локальный расчёт по базовым ставкам...');
-      const baseRate = activeCatObj.rate || 4500;
-      const estArea = contourAreaM2 > 0 ? contourAreaM2 :
-        (description.match(/\d+[\.,]?\d*/g) ? parseFloat(description.match(/\d+[\.,]?\d*/g)[0]) : 25);
-      const worksCost = Math.round(baseRate * estArea * regionObj.coeff);
-      const materialsCost = Math.round(worksCost * 0.75);
+      // ═══ STEP 3: Smart local estimate with detailed templates ═══
+      setScanStep('📱 Умный расчёт по шаблонам СНиП РК...');
+      await new Promise(r => setTimeout(r, 300));
+      setScanStep('📊 Подбор позиций по категории...');
+      await new Promise(r => setTimeout(r, 400));
+
+      // Площадь: контур > ручной ввод > парсинг из описания > 25 м²
+      const parsedManual = parseFloat(manualArea);
+      const estArea = contourAreaM2 > 0 ? contourAreaM2
+        : (parsedManual > 0 ? parsedManual : null)
+        || (() => {
+          const m = description.match(/(\d+[\.,]?\d*)\s*м[²2]/i);
+          if (m) return parseFloat(m[1].replace(',', '.'));
+          const dim = description.match(/(\d+[\.,]?\d*)\s*[×xXхна*]\s*(\d+[\.,]?\d*)/);
+          if (dim) return parseFloat(dim[1].replace(',', '.')) * parseFloat(dim[2].replace(',', '.'));
+          const aw = description.match(/площад\w*\s+(\d+[\.,]?\d*)/);
+          if (aw) return parseFloat(aw[1].replace(',', '.'));
+          return 25;
+        })();
+
+      setScanStep(`🧮 Расчёт ${Math.round(estArea)} м² × ${regionObj.name}...`);
+      await new Promise(r => setTimeout(r, 400));
+
+      // BUG-1 FIX: scenario из selectedScenario, НЕ из aiEngineMode
+      const estimateParams = {
+        categoryId: selectedCategory,
+        area: estArea,
+        description: description || '',
+        scenario: selectedScenario,
+        regionCoeff: regionObj.coeff,
+        perimeter: contourPerimeterM || 0,
+        categoryTitle: activeCatObj.title,
+      };
+      setLastEstimateParams(estimateParams);
+
+      const detailed = generateDetailedEstimate(estimateParams);
+
+      setScanStep(`✅ Сформировано ${detailed.itemCount} позиций сметы...`);
+      await new Promise(r => setTimeout(r, 300));
+
       const data = {
         category: activeCatObj.title,
         mode: aiEngineMode,
-        total: worksCost + materialsCost,
-        worksCost,
-        materialsCost,
-        timelineDays: Math.max(3, Math.round(estArea / 8)),
-        items: [
-          { name: `${activeCatObj.title} — комплекс СМР`, volume: estArea, unit: activeCatObj.id.includes('earth') ? 'м³' : 'м²', unit_price: baseRate, total: worksCost },
-          { name: 'Строительные материалы (базовый комплект)', volume: 1, unit: 'компл.', unit_price: materialsCost, total: materialsCost },
-        ],
+        total: detailed.total,
+        worksCost: detailed.worksCost,
+        materialsCost: detailed.materialsCost,
+        timelineDays: detailed.timelineDays,
+        items: detailed.items,
+        pricePerM2: detailed.pricePerM2,
+        worksPercent: detailed.worksPercent,
+        materialsPercent: detailed.materialsPercent,
+        marketplaceMaterials: detailed.marketplaceMaterials || [],
+        area: detailed.area,
+        isComplex: detailed.isComplex || false,
+        complexTitle: detailed.complexTitle || '',
         aiInsights: [
-          `📱 Локальный расчёт: объём ~${estArea} ед. × ставка ${baseRate.toLocaleString()} ₸`,
-          `📐 Регион: ${regionObj.name} (×${regionObj.coeff})`,
-          `⚠️ Для точного расчёта подключите AI-сервер (порт 8001).`
+          `📱 ${detailed.aiInsights[0]}`,
+          `📐 ${detailed.aiInsights[1]}`,
+          `📍 ${detailed.aiInsights[2]}`,
+          `💰 ${detailed.aiInsights[3]}`,
+          `📅 ${detailed.aiInsights[4]}`,
+          ...(detailed.aiInsights.slice(5).map(s => `ℹ️ ${s}`)),
         ],
         region: regionObj.name,
         regionalCoeff: regionObj.coeff,
+        groups: detailed.groups,
+        scenarioLabel: detailed.scenarioLabel,
       };
 
       setScanStep('✨ Компиляция итоговой сметы...');
       setTimeout(() => {
         setIsScanning(false);
         setCalculatedEstimate(data);
-        saveToHistory(data);
-        showToast('✅ Смета рассчитана (локальный режим)');
+        saveToHistory(data, detailed);
+        showToast(`✅ Смета рассчитана: ${detailed.itemCount} позиций, ${detailed.total.toLocaleString('ru-RU')} ₸`);
+        // UX-4: автоскролл к результату
+        setTimeout(() => resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
       }, 500);
 
     } catch (err) {
@@ -764,7 +852,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
           </div>
 
           <div className="spe-filter-tabs">
-            {['Все', 'Общестрой', 'Инженерия', 'Отделка', 'Прочее'].map(group => (
+            {['Все', 'Комплекс', 'Общестрой', 'Инженерия', 'Отделка', 'Прочее'].map(group => (
               <button
                 key={group}
                 className={`spe-filter-tab ${activeGroup === group ? 'active' : ''}`}
@@ -1144,6 +1232,30 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
         onChange={e => setDescription(e.target.value)}
       ></textarea>
 
+      {/* MISS-3: Поле ввода площади */}
+      <div style={{ display: 'flex', gap: '10px', alignItems: 'center', margin: '8px 0 12px' }}>
+        <label style={{ fontSize: '.85rem', color: '#94a3b8', fontWeight: 600, whiteSpace: 'nowrap' }}>📐 Площадь (м²):</label>
+        <input
+          type="number"
+          min="1"
+          max="100000"
+          step="0.1"
+          placeholder="напр. 50"
+          value={manualArea}
+          onChange={e => setManualArea(e.target.value)}
+          style={{
+            flex: 1, maxWidth: '140px', padding: '8px 12px', background: 'rgba(255,255,255,0.04)',
+            border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff',
+            fontSize: '.9rem', outline: 'none',
+          }}
+        />
+        {contourAreaM2 > 0 && (
+          <span style={{ fontSize: '.78rem', color: '#38bdf8' }}>
+            (по контуру: {contourAreaM2.toFixed(1)} м²)
+          </span>
+        )}
+      </div>
+
       {/* Region Selector */}
       <div className="spe-region-row">
         <label className="spe-region-label">📍 Регион строительства:</label>
@@ -1275,7 +1387,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
 
       {/* Calculated AI Estimate Result Box */}
       {calculatedEstimate && (
-        <div className="spe-result-box">
+        <div className="spe-result-box" ref={resultRef}>
           <div className="spe-res-head">
             <span className="spe-res-title">📊 Итоговая смета AI 2026</span>
             <span className="spe-res-badge">{calculatedEstimate.category}</span>
@@ -1284,74 +1396,43 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
                 👁️ Vision AI • {calculatedEstimate.photosAnalyzed} фото
               </span>
             )}
+            {calculatedEstimate.isComplex && (
+              <span className="spe-res-badge" style={{ background: 'rgba(168,85,247,.15)', color: '#c084fc', borderColor: 'rgba(168,85,247,.4)' }}>
+                🏗️ Комплексный
+              </span>
+            )}
           </div>
 
-          {/* 3 Price Scenarios Tabs */}
+          {/* 3 Price Scenarios Tabs — BUG-1 FIX: пересчёт вместо умножения */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', margin: '14px 0 16px' }}>
-            <button
-              type="button"
-              onClick={() => setSelectedScenario('economy')}
-              style={{
-                background: selectedScenario === 'economy' ? 'rgba(16,185,129,0.2)' : 'rgba(255,255,255,0.03)',
-                border: selectedScenario === 'economy' ? '2px solid #10b981' : '1px solid rgba(255,255,255,0.08)',
-                color: selectedScenario === 'economy' ? '#6ee7b7' : '#94a3b8',
-                padding: '10px 8px',
-                borderRadius: '10px',
-                cursor: 'pointer',
-                textAlign: 'center',
-                transition: 'all 0.2s ease'
-              }}
-            >
-              <div style={{ fontSize: '0.78rem', fontWeight: 700 }}>🟢 Эконом (-15%)</div>
-              <div style={{ fontSize: '0.95rem', fontWeight: 900, color: '#fff', marginTop: '2px' }}>
-                {Math.round((calculatedEstimate.total || 150000) * 0.85).toLocaleString()} ₸
-              </div>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setSelectedScenario('standard')}
-              style={{
-                background: selectedScenario === 'standard' ? 'rgba(56,189,248,0.2)' : 'rgba(255,255,255,0.03)',
-                border: selectedScenario === 'standard' ? '2px solid #38bdf8' : '1px solid rgba(255,255,255,0.08)',
-                color: selectedScenario === 'standard' ? '#38bdf8' : '#94a3b8',
-                padding: '10px 8px',
-                borderRadius: '10px',
-                cursor: 'pointer',
-                textAlign: 'center',
-                transition: 'all 0.2s ease'
-              }}
-            >
-              <div style={{ fontSize: '0.78rem', fontWeight: 700 }}>🔵 Стандарт (СНиП)</div>
-              <div style={{ fontSize: '0.95rem', fontWeight: 900, color: '#fff', marginTop: '2px' }}>
-                {(calculatedEstimate.total || 150000).toLocaleString()} ₸
-              </div>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setSelectedScenario('premium')}
-              style={{
-                background: selectedScenario === 'premium' ? 'rgba(168,85,247,0.2)' : 'rgba(255,255,255,0.03)',
-                border: selectedScenario === 'premium' ? '2px solid #a855f7' : '1px solid rgba(255,255,255,0.08)',
-                color: selectedScenario === 'premium' ? '#c084fc' : '#94a3b8',
-                padding: '10px 8px',
-                borderRadius: '10px',
-                cursor: 'pointer',
-                textAlign: 'center',
-                transition: 'all 0.2s ease'
-              }}
-            >
-              <div style={{ fontSize: '0.78rem', fontWeight: 700 }}>🟣 Премиум (+25%)</div>
-              <div style={{ fontSize: '0.95rem', fontWeight: 900, color: '#fff', marginTop: '2px' }}>
-                {Math.round((calculatedEstimate.total || 150000) * 1.25).toLocaleString()} ₸
-              </div>
-            </button>
+            {[
+              { key: 'economy', label: '🟢 Эконом (-20%)', color: '#10b981', activeBg: 'rgba(16,185,129,0.2)', activeBorder: '#10b981', activeText: '#6ee7b7' },
+              { key: 'standard', label: '🔵 Стандарт (СНиП)', color: '#38bdf8', activeBg: 'rgba(56,189,248,0.2)', activeBorder: '#38bdf8', activeText: '#38bdf8' },
+              { key: 'premium', label: '🟣 Премиум (+35%)', color: '#a855f7', activeBg: 'rgba(168,85,247,0.2)', activeBorder: '#a855f7', activeText: '#c084fc' },
+            ].map(sc => (
+              <button
+                key={sc.key}
+                type="button"
+                onClick={() => recalculateScenario(sc.key)}
+                style={{
+                  background: selectedScenario === sc.key ? sc.activeBg : 'rgba(255,255,255,0.03)',
+                  border: selectedScenario === sc.key ? `2px solid ${sc.activeBorder}` : '1px solid rgba(255,255,255,0.08)',
+                  color: selectedScenario === sc.key ? sc.activeText : '#94a3b8',
+                  padding: '10px 8px', borderRadius: '10px', cursor: 'pointer',
+                  textAlign: 'center', transition: 'all 0.2s ease',
+                }}
+              >
+                <div style={{ fontSize: '0.78rem', fontWeight: 700 }}>{sc.label}</div>
+                <div style={{ fontSize: '0.95rem', fontWeight: 900, color: '#fff', marginTop: '2px' }}>
+                  {calculatedEstimate.total?.toLocaleString()} ₸
+                </div>
+              </button>
+            ))}
           </div>
 
           {calculatedEstimate.total > 0 && (
             <div className="spe-res-sum">
-              {Math.round((calculatedEstimate.total || 150000) * (selectedScenario === 'economy' ? 0.85 : (selectedScenario === 'premium' ? 1.25 : 1.0))).toLocaleString()} ₸
+              {calculatedEstimate.total.toLocaleString()} ₸
             </div>
           )}
 
@@ -1374,7 +1455,69 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
               <span className="label">Срок выполнения:</span>
               <strong>~{calculatedEstimate.timelineDays} дней</strong>
             </div>
+
+            {calculatedEstimate.pricePerM2 > 0 && (
+              <div className="spe-res-col">
+                <span className="label">Стоимость за 1 м²:</span>
+                <strong style={{ color: '#38bdf8' }}>{calculatedEstimate.pricePerM2?.toLocaleString()} ₸/м²</strong>
+              </div>
+            )}
           </div>
+
+          {/* Works vs Materials donut chart */}
+          {calculatedEstimate.worksPercent > 0 && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '20px', margin: '14px 0', padding: '12px 16px', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.06)' }}>
+              <svg width="70" height="70" viewBox="0 0 36 36">
+                <circle cx="18" cy="18" r="15.9" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="3" />
+                <circle cx="18" cy="18" r="15.9" fill="none" stroke="#10b981" strokeWidth="3"
+                  strokeDasharray={`${calculatedEstimate.worksPercent} ${100 - calculatedEstimate.worksPercent}`}
+                  strokeDashoffset="25" strokeLinecap="round" />
+                <circle cx="18" cy="18" r="15.9" fill="none" stroke="#f59e0b" strokeWidth="3"
+                  strokeDasharray={`${calculatedEstimate.materialsPercent} ${100 - calculatedEstimate.materialsPercent}`}
+                  strokeDashoffset={`${25 - calculatedEstimate.worksPercent}`} strokeLinecap="round" />
+              </svg>
+              <div style={{ flex: 1 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '.82rem', marginBottom: '4px' }}>
+                  <span style={{ color: '#10b981' }}>● Работы: {calculatedEstimate.worksPercent}%</span>
+                  <span style={{ color: '#10b981', fontWeight: 700 }}>{calculatedEstimate.worksCost?.toLocaleString()} ₸</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '.82rem' }}>
+                  <span style={{ color: '#f59e0b' }}>● Материалы: {calculatedEstimate.materialsPercent}%</span>
+                  <span style={{ color: '#f59e0b', fontWeight: 700 }}>{calculatedEstimate.materialsCost?.toLocaleString()} ₸</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Buy Materials CTA */}
+          {calculatedEstimate.marketplaceMaterials && calculatedEstimate.marketplaceMaterials.length > 0 && (
+            <button
+              type="button"
+              onClick={() => {
+                // Передаём материалы в маркетплейс через CustomEvent
+                const event = new CustomEvent('open_marketplace_bom', {
+                  detail: {
+                    materials: calculatedEstimate.marketplaceMaterials,
+                    category: calculatedEstimate.category,
+                    total: calculatedEstimate.materialsCost,
+                  }
+                });
+                window.dispatchEvent(event);
+                showToast(`🛒 Открываем маркетплейс: ${calculatedEstimate.marketplaceMaterials.length} позиций`);
+              }}
+              style={{
+                width: '100%', padding: '14px', background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                border: 'none', borderRadius: '12px', color: '#0a1628', fontWeight: 800, fontSize: '0.95rem',
+                cursor: 'pointer', marginTop: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                boxShadow: '0 4px 15px rgba(245, 158, 11, 0.3)',
+              }}
+            >
+              🛒 Купить материалы в маркетплейсе ({calculatedEstimate.marketplaceMaterials.length} поз.)
+              <span style={{ fontSize: '0.8rem', opacity: 0.8 }}>
+                ~{calculatedEstimate.materialsCost?.toLocaleString()} ₸
+              </span>
+            </button>
+          )}
 
           {/* Dimensions from AI Vision */}
           {calculatedEstimate.dimensions && Object.keys(calculatedEstimate.dimensions).length > 0 && (
@@ -1386,15 +1529,17 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
             </div>
           )}
 
-          {/* Items Table from AI Vision */}
+          {/* Items Table with Group Headers */}
           {calculatedEstimate.items && calculatedEstimate.items.length > 0 && (
             <div style={{ marginTop: '16px' }}>
-              <h4 style={{ margin: '0 0 8px', fontSize: '.92rem', color: '#38bdf8', fontWeight: 800 }}>📋 QTO ведомость ресурсов (из AI):</h4>
+              <h4 style={{ margin: '0 0 8px', fontSize: '.92rem', color: '#38bdf8', fontWeight: 800 }}>
+                📋 Детализированная смета ({calculatedEstimate.items.length} позиций):
+              </h4>
               <div style={{ overflowX: 'auto' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '.82rem' }}>
                   <thead>
                     <tr style={{ borderBottom: '1px solid rgba(255,255,255,.1)' }}>
-                      <th style={{ textAlign: 'left', padding: '8px 6px', color: '#94a3b8', fontWeight: 700 }}>Наименование</th>
+                      <th style={{ textAlign: 'left', padding: '8px 6px', color: '#94a3b8', fontWeight: 700, width: '40%' }}>Наименование</th>
                       <th style={{ textAlign: 'right', padding: '8px 6px', color: '#94a3b8', fontWeight: 700, whiteSpace: 'nowrap' }}>Объём</th>
                       <th style={{ textAlign: 'center', padding: '8px 6px', color: '#94a3b8', fontWeight: 700 }}>Ед.</th>
                       <th style={{ textAlign: 'right', padding: '8px 6px', color: '#94a3b8', fontWeight: 700, whiteSpace: 'nowrap' }}>Цена за ед.</th>
@@ -1402,34 +1547,77 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
                     </tr>
                   </thead>
                   <tbody>
-                    {calculatedEstimate.items.map((item, i) => {
-                      const scMult = selectedScenario === 'economy' ? 0.85 : (selectedScenario === 'premium' ? 1.25 : 1.0);
-                      const qty = item.volume !== undefined ? item.volume : (item.quantity !== undefined ? item.quantity : 1);
-                      const basePrice = item.unit_price !== undefined ? item.unit_price : (item.unitPrice !== undefined ? item.unitPrice : 0);
-                      const unitPrice = Math.round(basePrice * scMult);
-                      const total = item.total ? Math.round(item.total * scMult) : Math.round(qty * unitPrice);
+                    {(() => {
+                      let lastGroup = '';
+                      const rows = [];
+                      calculatedEstimate.items.forEach((item, i) => {
+                        // Skip section headers for complex estimates
+                        if (item.isSection) {
+                          rows.push(
+                            <tr key={`sec-${i}`} style={{ background: 'rgba(168,85,247,0.08)' }}>
+                              <td colSpan={5} style={{ padding: '8px 8px', fontWeight: 900, fontSize: '.85rem', color: '#c084fc', borderTop: '2px solid rgba(168,85,247,0.2)' }}>
+                                🏗️ {item.name.replace(/═/g, '').trim()}
+                              </td>
+                            </tr>
+                          );
+                          lastGroup = '';
+                          return;
+                        }
 
-                      return (
-                        <tr key={i} style={{ borderBottom: '1px solid rgba(255,255,255,.04)' }}>
-                          <td style={{ padding: '8px 6px', color: '#e2e8f0', fontWeight: 600 }}>
-                            {item.name}
-                            {item.snipRef && <span style={{ marginLeft: '6px', fontSize: '0.72rem', color: '#38bdf8', opacity: 0.8 }}>({item.snipRef})</span>}
-                          </td>
-                          <td style={{ padding: '8px 6px', color: '#cbd5e1', textAlign: 'right' }}>
-                            {typeof qty === 'number' ? (Number.isInteger(qty) ? qty : qty.toFixed(1)) : qty}
-                          </td>
-                          <td style={{ padding: '8px 6px', color: '#64748b', textAlign: 'center' }}>{item.unit || 'ед.'}</td>
-                          <td style={{ padding: '8px 6px', color: '#94a3b8', textAlign: 'right', whiteSpace: 'nowrap' }}>
-                            {unitPrice > 0 ? `${unitPrice.toLocaleString()} ₸` : '—'}
-                          </td>
-                          <td style={{ padding: '8px 6px', color: '#fbbf24', fontWeight: 800, textAlign: 'right', whiteSpace: 'nowrap' }}>
-                            {total.toLocaleString()} ₸
-                          </td>
-                        </tr>
-                      );
-                    })}
+                        // Group header
+                        if (item.group && item.group !== lastGroup) {
+                          lastGroup = item.group;
+                          rows.push(
+                            <tr key={`gh-${i}`} style={{ background: 'rgba(56,189,248,0.06)' }}>
+                              <td colSpan={5} style={{ padding: '6px 8px', fontWeight: 800, fontSize: '.82rem', color: '#38bdf8', borderTop: '1px solid rgba(56,189,248,0.15)' }}>
+                                {item.group === 'Итого' || item.group === 'ИТОГО' ? '📊' : '📂'} {item.group}
+                              </td>
+                            </tr>
+                          );
+                        }
+
+                        const qty = item.volume !== undefined ? item.volume : (item.quantity !== undefined ? item.quantity : 1);
+                        const unitPrice = item.unit_price !== undefined ? item.unit_price : (item.unitPrice !== undefined ? item.unitPrice : 0);
+                        const total = item.total || Math.round(qty * unitPrice);
+
+                        rows.push(
+                          <tr key={i} style={{ borderBottom: '1px solid rgba(255,255,255,.04)' }}>
+                            <td style={{ padding: '7px 6px', color: '#e2e8f0', fontWeight: 500, paddingLeft: item.group ? '18px' : '6px' }}>
+                              {item.isMaterial && <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: '#f59e0b', marginRight: '6px', verticalAlign: 'middle' }}></span>}
+                              {!item.isMaterial && item.group !== 'Итого' && item.group !== 'ИТОГО' && <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: '#10b981', marginRight: '6px', verticalAlign: 'middle' }}></span>}
+                              {item.name}
+                            </td>
+                            <td style={{ padding: '7px 6px', color: '#cbd5e1', textAlign: 'right' }}>
+                              {typeof qty === 'number' ? (Number.isInteger(qty) ? qty : qty.toFixed(1)) : qty}
+                            </td>
+                            <td style={{ padding: '7px 6px', color: '#64748b', textAlign: 'center' }}>{item.unit || 'ед.'}</td>
+                            <td style={{ padding: '7px 6px', color: '#94a3b8', textAlign: 'right', whiteSpace: 'nowrap' }}>
+                              {unitPrice > 0 ? `${unitPrice.toLocaleString()} ₸` : '—'}
+                            </td>
+                            <td style={{ padding: '7px 6px', color: item.group === 'Итого' || item.group === 'ИТОГО' ? '#f59e0b' : '#fbbf24', fontWeight: item.group === 'Итого' || item.group === 'ИТОГО' ? 900 : 700, textAlign: 'right', whiteSpace: 'nowrap' }}>
+                              {total.toLocaleString()} ₸
+                            </td>
+                          </tr>
+                        );
+                      });
+                      return rows;
+                    })()}
                   </tbody>
+                  {/* MISS-4: Итого в таблице */}
+                  <tfoot>
+                    <tr style={{ borderTop: '2px solid rgba(56,189,248,0.3)', background: 'rgba(56,189,248,0.06)' }}>
+                      <td colSpan={4} style={{ padding: '10px 8px', fontWeight: 900, fontSize: '.9rem', color: '#38bdf8' }}>ИТОГО:</td>
+                      <td style={{ padding: '10px 8px', fontWeight: 900, fontSize: '1rem', color: '#fff', textAlign: 'right' }}>
+                        {calculatedEstimate.total?.toLocaleString()} ₸
+                      </td>
+                    </tr>
+                  </tfoot>
                 </table>
+              </div>
+              {/* Legend */}
+              <div style={{ display: 'flex', gap: '16px', marginTop: '8px', fontSize: '.75rem', color: '#64748b' }}>
+                <span><span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: '#10b981', marginRight: '4px', verticalAlign: 'middle' }}></span>Работы (СМР)</span>
+                <span><span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: '#f59e0b', marginRight: '4px', verticalAlign: 'middle' }}></span>Материалы</span>
               </div>
             </div>
           )}
@@ -1474,15 +1662,14 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '10px' }}>
                 <button
                   onClick={() => {
-                    const mult = selectedScenario === 'economy' ? 0.85 : (selectedScenario === 'premium' ? 1.25 : 1.0);
-                    const finalAmount = Math.round((calculatedEstimate.total || 1500000) * mult);
-                    const scenarioName = selectedScenario === 'economy' ? 'Эконом' : (selectedScenario === 'premium' ? 'Премиум' : 'Стандарт');
+                    const finalAmount = calculatedEstimate.total || 0;
+                    const scenarioName = calculatedEstimate.scenarioLabel || (selectedScenario === 'economy' ? 'Эконом' : (selectedScenario === 'premium' ? 'Премиум' : 'Стандарт'));
                     const newOrder = createPlatformOrder({
                       title: `СМР по смете (${scenarioName}): ${calculatedEstimate.category || 'Комплексный ремонт'}`,
                       category: calculatedEstimate.category || 'Отделочные работы',
                       amount: finalAmount,
                       budget: `${finalAmount.toLocaleString()} ₸`,
-                      description: `Смета сформирована Vision AI по фото [Сценарий: ${scenarioName}]. Работы: ${Math.round((calculatedEstimate.worksCost || 0) * mult).toLocaleString()} ₸, Материалы: ${Math.round((calculatedEstimate.materialsCost || 0) * mult).toLocaleString()} ₸, Срок: ~${calculatedEstimate.timelineDays || 7} дн.`,
+                      description: `Смета сформирована AI [${scenarioName}]. Работы: ${(calculatedEstimate.worksCost || 0).toLocaleString()} ₸, Материалы: ${(calculatedEstimate.materialsCost || 0).toLocaleString()} ₸, Срок: ~${calculatedEstimate.timelineDays || 7} дн.`,
                       type: 'estimate',
                       status: 'new',
                       estimateData: { ...calculatedEstimate, finalAmount, scenario: scenarioName }
@@ -1497,28 +1684,35 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
 
                 <button
                   onClick={() => {
-                    // Generate real CSV file from estimate data
-                    const scMult = selectedScenario === 'economy' ? 0.85 : (selectedScenario === 'premium' ? 1.25 : 1.0);
-                    const scenarioName = selectedScenario === 'economy' ? 'Эконом' : (selectedScenario === 'premium' ? 'Премиум' : 'Стандарт');
+                    // BUG-4 FIX: CSV — skip isSection, no scMult
+                    const scenarioName = calculatedEstimate.scenarioLabel || 'Стандарт';
                     const lines = [
                       '\ufeff',
                       `СМЕТА (${scenarioName}) — QazGost AI Engine`,
                       `Категория: ${calculatedEstimate.category}`,
                       `Регион: ${calculatedEstimate.region || 'Алматы'}`,
+                      `Площадь: ${calculatedEstimate.area || '—'} м²`,
                       `Дата: ${new Date().toLocaleDateString('ru-RU')}`,
                       '',
                       '№;Наименование;Объём;Ед.;Цена за ед.;Сумма',
                     ];
-                    (calculatedEstimate.items || []).forEach((item, i) => {
+                    let idx = 0;
+                    (calculatedEstimate.items || []).forEach((item) => {
+                      if (item.isSection) {
+                        lines.push(`;;${item.name.replace(/═/g, '').trim()};;;`);
+                        return;
+                      }
+                      idx++;
                       const qty = item.volume || item.quantity || 1;
-                      const up = Math.round((item.unit_price || item.unitPrice || 0) * scMult);
-                      const tot = item.total ? Math.round(item.total * scMult) : Math.round(qty * up);
-                      lines.push(`${i + 1};${item.name};${qty};${item.unit || 'ед.'};${up};${tot}`);
+                      const up = item.unit_price || item.unitPrice || 0;
+                      const tot = item.total || Math.round(qty * up);
+                      lines.push(`${idx};${item.name};${qty};${item.unit || 'ед.'};${up};${tot}`);
                     });
                     lines.push('');
                     lines.push(`;;;;;;ИТОГО СМР: ${(calculatedEstimate.worksCost || 0).toLocaleString()} ₸`);
                     lines.push(`;;;;;;ИТОГО Материалы: ${(calculatedEstimate.materialsCost || 0).toLocaleString()} ₸`);
-                    lines.push(`;;;;;;ВСЕГО: ${Math.round((calculatedEstimate.total || 0) * scMult).toLocaleString()} ₸`);
+                    lines.push(`;;;;;;ВСЕГО: ${(calculatedEstimate.total || 0).toLocaleString()} ₸`);
+                    lines.push(`;;;;;;Стоимость за м²: ${(calculatedEstimate.pricePerM2 || 0).toLocaleString()} ₸`);
                     lines.push(`;;;;;;Срок: ~${calculatedEstimate.timelineDays || 7} дней`);
 
                     const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8' });
@@ -1536,7 +1730,18 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
                 </button>
 
                 <button
-                  onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent(`Строительная смета QazGost AI: ${calculatedEstimate.category}, Итого: ${calculatedEstimate.total?.toLocaleString()} ₸`)}`, '_blank')}
+                  onClick={() => {
+                    const scenarioName = calculatedEstimate.scenarioLabel || 'Стандарт';
+                    window.open(`https://wa.me/?text=${encodeURIComponent(
+                      `Строительная смета QazGost AI\n` +
+                      `Категория: ${calculatedEstimate.category}\n` +
+                      `Сценарий: ${scenarioName}\n` +
+                      `Работы: ${(calculatedEstimate.worksCost || 0).toLocaleString()} ₸\n` +
+                      `Материалы: ${(calculatedEstimate.materialsCost || 0).toLocaleString()} ₸\n` +
+                      `ИТОГО: ${(calculatedEstimate.total || 0).toLocaleString()} ₸\n` +
+                      `Срок: ~${calculatedEstimate.timelineDays || 7} дней`
+                    )}`, '_blank');
+                  }}
                   style={{ background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.3)', color: '#4ade80', padding: '14px 16px', borderRadius: '10px', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
                 >
                   <span>💬 В WhatsApp</span>
@@ -1725,7 +1930,11 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
             <div key={h.id || i} className="spe-history-item">
               <div>
                 <div className="spe-history-category">{h.category}</div>
-                <div className="spe-history-meta">{h.date} • {h.region}</div>
+                <div className="spe-history-meta">
+                  {h.date} • {h.region}
+                  {h.area > 0 && ` • ${h.area} м²`}
+                  {h.itemCount > 0 && ` • ${h.itemCount} поз.`}
+                </div>
               </div>
               <div className="spe-history-total">{(h.total || 0).toLocaleString()} ₸</div>
             </div>
