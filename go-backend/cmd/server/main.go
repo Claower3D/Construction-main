@@ -47,6 +47,7 @@ func main() {
 	aiHnd := handlers.NewAiHandler(cfg)
 	exportHnd := handlers.NewExportHandler()
 	crmHnd := handlers.NewCRMHandler()
+	speechHnd := handlers.NewSpeechHandler()
 
 	mux := http.NewServeMux()
 
@@ -114,6 +115,9 @@ func main() {
 	mux.HandleFunc("/api/v1/analyze", aiHnd.ProxyToAIService)
 	mux.HandleFunc("/api/v1/prices/", aiHnd.ProxyToAIService)
 	mux.HandleFunc("/api/v1/defects/", aiHnd.ProxyToAIService)
+
+	// Speech Recognition — public (for CRM voice input)
+	mux.HandleFunc("/api/v1/speech/recognize", speechHnd.Recognize)
 
 	// Export — auth required
 	mux.HandleFunc("/api/v1/export/estimate.csv", auth(exportHnd.ExportEstimateCSV))
