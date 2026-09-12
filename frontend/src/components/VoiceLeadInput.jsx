@@ -194,6 +194,7 @@ export default function VoiceLeadInput({ onFieldsExtracted, onCommand, disabled 
   const [amplitude, setAmplitude] = useState(0);
   const [speechMode, setSpeechMode] = useState(HAS_WEB_SPEECH ? 'browser' : 'server'); // browser | server
   const [serverAvailable, setServerAvailable] = useState(false);
+  const [liveText, setLiveText] = useState(''); // показ промежуточного текста при записи
 
   const streamRef = useRef(null);
   const ctxRef = useRef(null);
@@ -203,7 +204,8 @@ export default function VoiceLeadInput({ onFieldsExtracted, onCommand, disabled 
   const samplesRef = useRef([]);
   const animRef = useRef(null);
   const recognitionRef = useRef(null);
-  const webSpeechTextRef = useRef('');
+  const finalTranscriptRef = useRef('');
+  const interimTranscriptRef = useRef('');
 
   // При монтировании проверяем Python сервер
   useEffect(() => {
@@ -270,28 +272,55 @@ export default function VoiceLeadInput({ onFieldsExtracted, onCommand, disabled 
       recognition.interimResults = true;
       recognition.maxAlternatives = 1;
       recognitionRef.current = recognition;
-      webSpeechTextRef.current = '';
+      finalTranscriptRef.current = '';
+      interimTranscriptRef.current = '';
+      setLiveText('');
 
       recognition.onresult = (event) => {
         let finalText = '';
         let interimText = '';
         for (let i = 0; i < event.results.length; i++) {
+          const transcript = event.results[i][0].transcript;
           if (event.results[i].isFinal) {
-            finalText += event.results[i][0].transcript + ' ';
+            finalText += transcript + ' ';
           } else {
-            interimText += event.results[i][0].transcript;
+            interimText += transcript;
           }
         }
-        webSpeechTextRef.current = (finalText + interimText).trim();
+        finalTranscriptRef.current = finalText.trim();
+        interimTranscriptRef.current = interimText.trim();
+        // Показываем в реальном времени
+        const combined = (finalText + interimText).trim();
+        if (combined) setLiveText(combined);
       };
 
       recognition.onerror = (event) => {
         console.warn('Web Speech error:', event.error);
-        if (event.error === 'not-allowed') {
+        if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+          // Останавливаем всё
+          if (animRef.current) cancelAnimationFrame(animRef.current);
+          if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null; }
+          if (streamRef.current) { streamRef.current.getTracks().forEach(t => t.stop()); streamRef.current = null; }
+          if (ctxRef.current) { try { ctxRef.current.close(); } catch(e){} ctxRef.current = null; }
+          recognitionRef.current = null;
+          setAmplitude(0);
+          setLiveText('');
           setResult({ error: 'Нет доступа к микрофону. Разрешите в настройках браузера.' });
           setState('done');
         }
-        // Остальные ошибки (network, no-speech) обработаются при остановке
+        // no-speech, network и другие — текст может всё равно прийти, ждём onend
+      };
+
+      // Когда распознавание остановится само (тишина, ошибка сети и т.д.)
+      recognition.onend = () => {
+        // Если мы ещё в режиме записи, перезапускаем (continuous не всегда работает)
+        if (recognitionRef.current === recognition) {
+          try {
+            recognition.start();
+          } catch(e) {
+            // Если перезапуск не удался — значит мы остановили вручную, ничего не делаем
+          }
+        }
       };
 
       recognition.start();
@@ -375,21 +404,41 @@ export default function VoiceLeadInput({ onFieldsExtracted, onCommand, disabled 
     if (streamRef.current) { streamRef.current.getTracks().forEach(t => t.stop()); streamRef.current = null; }
 
     setState('processing');
+    setLiveText('');
 
     // ── РЕЖИМ: Web Speech API ──
     if (speechMode === 'browser' && recognitionRef.current) {
       const recognition = recognitionRef.current;
+      // Отсоединяем ref СНАЧАЛА, чтобы onend не перезапустил
       recognitionRef.current = null;
       
-      // Даём 300мс на финализацию
+      // Ждём финализации: recognition.stop() вызывает последний onresult (isFinal) перед onend
       await new Promise(resolve => {
-        recognition.onend = resolve;
-        recognition.stop();
-        setTimeout(resolve, 500);
+        const originalOnResult = recognition.onresult;
+        
+        recognition.onresult = (event) => {
+          // Пропускаем через оригинальный обработчик
+          if (originalOnResult) originalOnResult.call(recognition, event);
+        };
+        
+        recognition.onend = () => {
+          resolve();
+        };
+        
+        try {
+          recognition.stop();
+        } catch(e) {
+          resolve();
+        }
+        
+        // Таймаут на случай если onend не придёт
+        setTimeout(resolve, 1500);
       });
 
-      const text = webSpeechTextRef.current.trim();
-      webSpeechTextRef.current = '';
+      // Берём финальный текст (приоритет) + interim как дополнение
+      const text = (finalTranscriptRef.current || interimTranscriptRef.current).trim();
+      finalTranscriptRef.current = '';
+      interimTranscriptRef.current = '';
       processRecognizedText(text);
       return;
     }
@@ -448,7 +497,7 @@ export default function VoiceLeadInput({ onFieldsExtracted, onCommand, disabled 
     }
   }, [state, speechMode, startBrowserRecording, startServerRecording, stopRecording]);
 
-  const reset = () => { setState('idle'); setResult(null); setSeconds(0); };
+  const reset = () => { setState('idle'); setResult(null); setSeconds(0); setLiveText(''); };
 
   // ═══ UI ═══
   const circleSize = state === 'recording' ? 80 + amplitude * 40 : 70;
@@ -530,6 +579,18 @@ export default function VoiceLeadInput({ onFieldsExtracted, onCommand, disabled 
               <div>Нажмите и говорите</div>
             )}
           </div>
+
+          {/* Промежуточный текст распознавания */}
+          {state === 'recording' && liveText && (
+            <div style={{
+              background: 'rgba(139,92,246,0.15)', border: '1px solid rgba(139,92,246,0.3)',
+              borderRadius: '10px', padding: '8px 12px', marginTop: '8px',
+              color: '#c4b5fd', fontSize: '0.8rem', fontStyle: 'italic',
+              maxWidth: '280px', textAlign: 'center', wordBreak: 'break-word',
+            }}>
+              🎙️ «{liveText}»
+            </div>
+          )}
 
           {state === 'idle' && (
             <div style={{ color: '#64748b', fontSize: '0.65rem', marginTop: '6px', textAlign: 'center' }}>
