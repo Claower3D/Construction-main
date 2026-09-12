@@ -175,8 +175,11 @@ function encodeWAV(samples, sampleRate) {
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 const HAS_WEB_SPEECH = !!SpeechRecognition;
 
-// Проверка доступности Python speech сервера (асинхронно)
+// Проверка доступности Python speech сервера (только для локальной разработки)
+const IS_SECURE = window.location.protocol === 'https:';
 async function checkPythonServer() {
+  // На HTTPS (продакшн) Python сервер всегда недоступен — mixed content блокируется
+  if (IS_SECURE) return false;
   try {
     const url = `http://${window.location.hostname}:8002/recognize`;
     const ctrl = new AbortController();
@@ -443,7 +446,14 @@ export default function VoiceLeadInput({ onFieldsExtracted, onCommand, disabled 
       return;
     }
 
-    // ── РЕЖИМ: Python сервер ──
+    // ── РЕЖИМ: Python сервер (только на HTTP/localhost) ──
+    if (IS_SECURE) {
+      // На HTTPS Python сервер недоступен
+      setResult({ error: 'Распознавание речи недоступно. Используйте Chrome или Edge с включённым микрофоном.' });
+      setState('done');
+      return;
+    }
+    
     if (samplesRef.current.length < 1600) { // меньше 0.1 сек
       setResult({ error: 'Слишком короткое сообщение' });
       setState('done');
