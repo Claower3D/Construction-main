@@ -16,20 +16,45 @@ function parseDate(text) {
   if (lower.includes('сегодня')) return fmt(now);
   if (lower.includes('послезавтра')) { const d = new Date(now); d.setDate(d.getDate()+2); return fmt(d); }
   if (lower.includes('завтра')) { const d = new Date(now); d.setDate(d.getDate()+1); return fmt(d); }
+  
+  // "через X дней"
+  const throughMatch = lower.match(/через\s+(\d+)\s+дн/);
+  if (throughMatch) { const d = new Date(now); d.setDate(d.getDate()+parseInt(throughMatch[1])); return fmt(d); }
+
   const numWords = {
+    'тридцать перв':31,'тридцат':30,
     'двадцать перв':21,'двадцать втор':22,'двадцать трет':23,'двадцать четвёрт':24,
     'двадцать четверт':24,'двадцать пят':25,'двадцать шест':26,'двадцать седьм':27,
-    'двадцать восьм':28,'двадцать девят':29,'тридцать перв':31,
+    'двадцать восьм':28,'двадцать девят':29,
     'одиннадцат':11,'двенадцат':12,'тринадцат':13,'четырнадцат':14,
     'пятнадцат':15,'шестнадцат':16,'семнадцат':17,'восемнадцат':18,
-    'девятнадцат':19,'двадцат':20,'тридцат':30,
+    'девятнадцат':19,'двадцат':20,
     'перв':1,'втор':2,'трет':3,'четвёрт':4,'четверт':4,'пят':5,
     'шест':6,'седьм':7,'восьм':8,'девят':9,'десят':10,
   };
   const months = {'январ':1,'феврал':2,'март':3,'апрел':4,'ма':5,'июн':6,'июл':7,'август':8,'сентябр':9,'октябр':10,'ноябр':11,'декабр':12};
+
+  // Парсим день — слово-число
   let day = null;
   for (const [prefix, num] of Object.entries(numWords)) { if (lower.includes(prefix)) { day = num; break; } }
-  if (!day) { const m = lower.match(/(\d{1,2})/); if (m) day = parseInt(m[1]); }
+  
+  // Парсим день — цифрой: "15 сентября", "дата 15", "число 15", "на 15 число", "на 15-е"
+  if (!day) {
+    // Ищем число рядом с ключевыми словами или месяцами
+    const digitDateMatch = lower.match(/(?:дат[ау]|числ[оа]|на)\s+(\d{1,2})/);
+    if (digitDateMatch) day = parseInt(digitDateMatch[1]);
+  }
+  if (!day) {
+    // Ищем число перед месяцем: "15 сентября"
+    const beforeMonth = lower.match(/(\d{1,2})\s*(?:январ|феврал|март|апрел|ма[яй]|июн|июл|август|сентябр|октябр|ноябр|декабр)/);
+    if (beforeMonth) day = parseInt(beforeMonth[1]);
+  }
+  if (!day) {
+    // Последний вариант — любое число 1-31 в тексте (но не телефон и не бюджет)
+    const m = lower.match(/(?:^|\s)(\d{1,2})(?:\s|$|-е|го|ого)/);
+    if (m) { const d = parseInt(m[1]); if (d >= 1 && d <= 31) day = d; }
+  }
+  
   let mo = null;
   for (const [prefix, num] of Object.entries(months)) { if (lower.includes(prefix)) { mo = num; break; } }
   if (day && day >= 1 && day <= 31) return `${year}-${String(mo||(month+1)).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
@@ -47,54 +72,92 @@ function matchService(text) {
 function parseAllFields(text) {
   const result = {};
   const lower = text.toLowerCase();
+
+  // ═══ Ключевые слова-разделители — имя клиента НЕ может содержать эти слова ═══
+  const KEYWORDS = new Set(['бюджет','бюджета','стоимость','цена','сумма','суммы','телефон','номер','дата','число','адрес','город','улица','дом','услуга','установка','монтаж','бурение','септик','септика','заявку','заявка','создай','сделай','лид','заказ','запись','новую','новый','нужно','создать','смотри','на','имя','зовут','клиент','фамилия','кровельные','штукатурка','электромонтаж','ремонт','строительство','демонтаж','отделочные','выезд','аренда','разработка','техническая','водопровод','канализация']);
+
+  // ═══ ДАТА ═══
   const date = parseDate(text);
   if (date) result.date = date;
+
+  // ═══ ТЕЛЕФОН ═══
   const phoneMatch = text.match(/(\+?[78][\s\-]?\d{3}[\s\-]?\d{3}[\s\-]?\d{2}[\s\-]?\d{2})/);
   if (phoneMatch) result.phone = phoneMatch[1].replace(/[\s\-()]/g, '');
   if (!result.phone) {
     const phoneMatch2 = lower.match(/номер\s+([\d\s\-+]+)/);
     if (phoneMatch2) { const digits = phoneMatch2[1].replace(/[\s\-+]/g, ''); if (digits.length >= 10) result.phone = digits; }
   }
+  // Ещё формат: просто 11 цифр подряд
+  if (!result.phone) {
+    const allDigits = text.match(/[78]\d{9,10}/);
+    if (allDigits) result.phone = allDigits[0];
+  }
+
+  // ═══ УСЛУГА ═══
   const svc = matchService(text);
   if (svc) result.service = svc;
-  const nameMatch = lower.match(/(?:зовут|имя|клиент|фамилия)\s+([а-яё]+(?:\s+[а-яё]+)?)/i);
+
+  // ═══ ИМЯ КЛИЕНТА ═══
+  // Паттерн 1: "клиент Артур", "зовут Артур Иванов", "имя Серик"
+  const nameRegex = /(?:зовут|имя|клиент[а]?|фамилия)\s+([а-яё]+)/i;
+  const nameMatch = lower.match(nameRegex);
   if (nameMatch) {
-    result.clientName = nameMatch[1].split(/\s+/).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+    let name = nameMatch[1];
+    // Проверяем следующее слово — если не ключевое, добавляем (фамилия)
+    const afterName = lower.slice(lower.indexOf(nameMatch[0]) + nameMatch[0].length).trim();
+    const nextWord = afterName.match(/^([а-яё]+)/i);
+    if (nextWord && !KEYWORDS.has(nextWord[1].toLowerCase())) {
+      name += ' ' + nextWord[1];
+    }
+    result.clientName = name.split(/\s+/).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
   }
+  // Паттерн 2: Слова с заглавной буквы (не ключевые, не адрес)
   if (!result.clientName) {
-    const skip = new Set(['создай','заявку','заявка','лид','новую','новый','клиент','телефон','дата','на','услуга','бюджет','адрес','сделай','число','заказ','запись','смотри','нужно','создать','установка','септика','монтаж','бурение','стоимость','бюджета','номер','город','имя','зовут']);
-    const nameWords = text.split(/\s+/).filter(w => !skip.has(w.toLowerCase()) && /^[А-ЯЁ][а-яё]{2,}$/.test(w));
-    if (nameWords.length >= 1 && nameWords.length <= 3) result.clientName = nameWords.join(' ');
+    const nameWords = text.split(/\s+/).filter(w => !KEYWORDS.has(w.toLowerCase()) && /^[А-ЯЁ][а-яё]{2,}$/.test(w));
+    // Убираем слова которые могут быть частью адреса (города, улицы)
+    const filtered = nameWords.filter(w => !lower.includes('адрес') || lower.indexOf(w.toLowerCase()) < lower.indexOf('адрес'));
+    if (filtered.length >= 1 && filtered.length <= 2) result.clientName = filtered.join(' ');
   }
-  const addrMatch = lower.match(/адрес\s+(.+?)(?:\s+(?:стоимость|бюджет|номер|телефон|дата|услуга|имя|зовут|$))/);
-  if (addrMatch) { result.address = addrMatch[1].trim().split(/\s+/).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '); }
+
+  // ═══ БЮДЖЕТ (парсим ДО адреса, чтобы не перепутать число с адресом) ═══
+  const budgetMatch = lower.match(/(?:бюджет[а]?|стоимость[ю]?|цен[а]?|сумм[а]?)\s+([\d\s.,]+)/);
+  if (budgetMatch) { const num = parseInt(budgetMatch[1].replace(/[\s.,]/g, '')); if (num > 0) result.budget = num; }
+  if (!result.budget) {
+    const nums = text.match(/\d[\d\s.,]{3,}/g);
+    if (nums) {
+      for (const n of nums) {
+        const val = parseInt(n.replace(/[\s.,]/g, ''));
+        if (val >= 10000 && !result.phone?.includes(String(val))) {
+          result.budget = val;
+          break;
+        }
+      }
+    }
+  }
+
+  // ═══ АДРЕС ═══
+  // Паттерн 1: "адрес Ерубаева 50"
+  const addrMatch = lower.match(/адрес[а]?\s+(.+?)(?:\s+(?:стоимость|бюджет|номер|телефон|дата|число|услуга|имя|зовут|клиент)|$)/);
+  if (addrMatch) { result.address = addrMatch[1].trim().split(/\s+/).map(w => /^\d/.test(w) ? w : w.charAt(0).toUpperCase() + w.slice(1)).join(' '); }
+  // Паттерн 2: "улица X дом Y" или "город X"
+  if (!result.address) {
+    const streetMatch = lower.match(/(?:улица|улице)\s+([а-яё]+(?:\s+(?:дом\s*)?\d+)?)/i);
+    if (streetMatch) { result.address = streetMatch[1].trim().split(/\s+/).map(w => /^\d/.test(w) ? w : w.charAt(0).toUpperCase() + w.slice(1)).join(' '); }
+  }
   if (!result.address) {
     const cityMatch = lower.match(/город\s+([а-яё]+(?:\s+[а-яё\d]+){0,5}?)(?:\s+(?:стоимость|бюджет|номер|телефон|дата|услуга|имя|зовут)|$)/);
     if (cityMatch) { result.address = cityMatch[1].trim().split(/\s+/).map(w => /^\d/.test(w) ? w : w.charAt(0).toUpperCase() + w.slice(1)).join(' '); }
   }
-  const budgetMatch = lower.match(/(?:бюджет[а]?|стоимость|цена|сумм[а]?)\s+([\d\s.,]+)/);
-  if (budgetMatch) { const num = parseInt(budgetMatch[1].replace(/[\s.,]/g, '')); if (num > 0) result.budget = num; }
-  if (!result.budget) {
-    const nums = text.match(/\d[\d\s.,]{3,}/g);
-    if (nums) { for (const n of nums) { const val = parseInt(n.replace(/[\s.,]/g, '')); if (val >= 10000 && !result.phone?.includes(String(val))) { result.budget = val; break; } } }
-  }
+
+  // ═══ ЗАМЕТКИ — всегда дублируем полный распознанный текст ═══
   const notesMatch = lower.match(/(?:заметк[аи]|примечани[ея]|дополнительн[оа]|информаци[яю]|комментари[йя])\s+(.+?)(?:\s+(?:стоимость|бюджет|номер|телефон|дата|услуга|имя|зовут|адрес)|$)/);
-  if (notesMatch) { result.notes = notesMatch[1].trim(); }
-  if (!result.notes) {
-    let remaining = lower;
-    remaining = remaining.replace(/смотри|нужно|создать|создай|сделай|заявку?|новую?|лид|заказ/g, '');
-    if (result.date) remaining = remaining.replace(/(?:на\s+)?\d{1,2}\s*(?:январ[яь]|феврал[яь]|март[а]?|апрел[яь]|ма[яй]|июн[яь]|июл[яь]|август[а]?|сентябр[яь]|октябр[яь]|ноябр[яь]|декабр[яь])/g, '');
-    remaining = remaining.replace(/сегодня|завтра|послезавтра/g, '');
-    if (result.phone) remaining = remaining.replace(/номер\s+[\d\s\-+]+/g, '').replace(/[\d\s\-+]{10,}/g, '');
-    if (result.clientName) remaining = remaining.replace(new RegExp('(?:зовут|имя|клиент|фамилия)\\s+' + result.clientName.toLowerCase().split(' ').join('\\s+'), 'g'), '');
-    if (result.service) remaining = remaining.replace(new RegExp(result.service.toLowerCase().split(' ')[0].substring(0,5), 'g'), '');
-    if (result.address) remaining = remaining.replace(/адрес\s+.+?(?=\s+(?:стоимость|бюджет|номер)|$)/g, '').replace(/город\s+.+?(?=\s+(?:стоимость|бюджет|номер)|$)/g, '');
-    remaining = remaining.replace(/(?:бюджет[а]?|стоимость|цена|сумм[а]?)\s+[\d\s.,]+/g, '');
-    remaining = remaining.replace(/(?:зовут|имя|адрес|номер|телефон|бюджет|стоимость|установка|септика|услуга|дата)/g, '');
-    remaining = remaining.replace(/\s+/g, ' ').trim();
-    if (remaining.length > 5) { result.notes = remaining.charAt(0).toUpperCase() + remaining.slice(1); }
+  if (notesMatch) {
+    result.notes = notesMatch[1].trim();
   }
-  if (Object.keys(result).length === 0 && text.trim()) { result.notes = text.trim(); }
+  // Всегда добавляем полный текст в заметки (для инженера)
+  result.rawText = text.trim();
+
+  if (Object.keys(result).length <= 1 && text.trim()) { result.notes = text.trim(); }
   if (!result.date) result.date = fmt(new Date());
   return result;
 }
@@ -377,7 +440,7 @@ export default function VoiceLeadInput({ onFieldsExtracted, onCommand, disabled 
                 <div style={{ fontSize: '0.7rem', color: '#86efac', fontWeight: 900, marginBottom: '6px' }}>
                   ✅ Заявка заполнена:
                 </div>
-                {result.fields && Object.entries(result.fields).map(([key, val]) => (
+                {result.fields && Object.entries(result.fields).filter(([key]) => key !== 'rawText').map(([key, val]) => (
                   <div key={key} style={{ display: 'flex', gap: '8px', fontSize: '0.8rem', color: '#d1fae5', marginBottom: '2px' }}>
                     <span style={{ color: '#6ee7b7', fontWeight: 700, minWidth: '70px' }}>
                       {key === 'date' ? 'Дата' : key === 'clientName' ? 'Клиент' : key === 'phone' ? 'Телефон' : key === 'service' ? 'Услуга' : key === 'notes' ? 'Заметка' : key === 'address' ? 'Адрес' : key === 'budget' ? 'Бюджет' : key}:

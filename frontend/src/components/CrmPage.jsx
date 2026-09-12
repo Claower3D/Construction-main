@@ -936,7 +936,7 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
                   address: fields.address || '',
                   date: fields.date || dateStr,
                   time: '10:00',
-                  notes: fields.notes || '',
+                  notes: fields.rawText ? `[Голос]: ${fields.rawText}` + (fields.notes ? `\n${fields.notes}` : '') : (fields.notes || ''),
                 };
                 // Открываем модалку создания лида с предзаполненными данными
                 setLeadModalDefaults({ date: payload.date, time: payload.time });
