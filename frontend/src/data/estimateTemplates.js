@@ -8,9 +8,9 @@
 
 // ═══ Коэффициенты сценариев (синхронизированы с UI) ═══
 export const SCENARIO_COEFFICIENTS = {
-  economy:  { label: 'Эконом',   coeff: 0.80, mult: 0.85, description: 'Бюджетные материалы, минимальный состав работ' },
-  standard: { label: 'Стандарт', coeff: 1.00, mult: 1.00, description: 'Оптимальное соотношение цена/качество' },
-  premium:  { label: 'Премиум',  coeff: 1.35, mult: 1.25, description: 'Премиальные материалы, расширенный комплекс' },
+  economy:  { label: 'Эконом',   coeff: 0.80, description: 'Бюджетные материалы, минимальный состав работ' },
+  standard: { label: 'Стандарт', coeff: 1.00, description: 'Оптимальное соотношение цена/качество' },
+  premium:  { label: 'Премиум',  coeff: 1.35, description: 'Премиальные материалы, расширенный комплекс' },
 };
 
 // ═══ БАЗА ЦЕН ПО КАТЕГОРИЯМ (v2 — актуальные цены 2025) ═══
@@ -439,6 +439,166 @@ export const ESTIMATE_TEMPLATES = {
       { group: 'Прораб', name: 'Технический надзор', unit: 'мес', baseQtyPer: 0.005, unitPrice: 280000, isMaterial: false },
     ]
   },
+
+  // ──────────── 11 ДОПОЛНИТЕЛЬНЫХ КАТЕГОРИЙ (АКТУАЛИЗИРОВАНО 2025) ────────────
+
+  stairs: {
+    title: 'Лестницы и ограждения',
+    items: [
+      { group: 'Монолит', name: 'Устройство монолитной бетонной лестницы', unit: 'п.м', baseQtyPer: 0.1, unitPrice: 38000, isMaterial: false, tag: 'concrete' },
+      { group: 'Материалы', name: 'Бетон товарный М300 (В22.5)', unit: 'м³', baseQtyPer: 0.03, unitPrice: 35000, isMaterial: true, tag: 'concrete', marketplaceCategory: 'bulk', searchQuery: 'бетон М300' },
+      { group: 'Металл', name: 'Монтаж металлического каркаса лестницы', unit: 'п.м', baseQtyPer: 0.1, unitPrice: 28000, isMaterial: false, tag: 'metal' },
+      { group: 'Материалы', name: 'Металлопрофиль и швеллер для лестниц', unit: 'т', baseQtyPer: 0.012, unitPrice: 460000, isMaterial: true, tag: 'metal', marketplaceCategory: 'metal', searchQuery: 'профиль металлический' },
+      { group: 'Дерево', name: 'Монтаж деревянной лестницы из массива', unit: 'п.м', baseQtyPer: 0.1, unitPrice: 32000, isMaterial: false, tag: 'wood' },
+      { group: 'Материалы', name: 'Ступени и тетива деревянные', unit: 'м³', baseQtyPer: 0.02, unitPrice: 110000, isMaterial: true, tag: 'wood', marketplaceCategory: 'bulk', searchQuery: 'брус доска' },
+      { group: 'Ограждения', name: 'Монтаж перил и ограждений лестниц', unit: 'п.м', baseQtyPer: 0.15, unitPrice: 9500, isMaterial: false },
+      { group: 'Материалы', name: 'Перила из нержавеющей стали', unit: 'п.м', baseQtyPer: 0.15, unitPrice: 24000, isMaterial: true, marketplaceCategory: 'metal', searchQuery: 'перила нержавеющая сталь' },
+    ]
+  },
+
+  landscaping: {
+    title: 'Благоустройство',
+    items: [
+      { group: 'Планировка', name: 'Планировка территории и профилирование', unit: 'м²', baseQtyPer: 1.0, unitPrice: 1200, isMaterial: false },
+      { group: 'Тротуары', name: 'Укладка тротуарной плитки на гарцовку', unit: 'м²', baseQtyPer: 0.25, unitPrice: 4500, isMaterial: false },
+      { group: 'Материалы', name: 'Плитка тротуарная брусчатка 60мм', unit: 'м²', baseQtyPer: 0.27, unitPrice: 4800, isMaterial: true, marketplaceCategory: 'bulk', searchQuery: 'тротуарная плитка брусчатка' },
+      { group: 'Бордюры', name: 'Установка садовых и дорожных бордюров', unit: 'п.м', baseQtyPer: 0.15, unitPrice: 2800, isMaterial: false },
+      { group: 'Материалы', name: 'Бордюр бетонный БР 100.20.8', unit: 'шт', baseQtyPer: 0.16, unitPrice: 2200, isMaterial: true, marketplaceCategory: 'bulk', searchQuery: 'бордюр бетонный' },
+      { group: 'Дренаж', name: 'Устройство дренажных лотков и водоотвода', unit: 'п.м', baseQtyPer: 0.1, unitPrice: 5200, isMaterial: false },
+      { group: 'Материалы', name: 'Лоток водоотводный с решёткой', unit: 'п.м', baseQtyPer: 0.1, unitPrice: 4500, isMaterial: true, marketplaceCategory: 'sewer', searchQuery: 'лоток водоотводный' },
+      { group: 'Озеленение', name: 'Посев газонной травы с подготовкой', unit: 'м²', baseQtyPer: 0.4, unitPrice: 1200, isMaterial: false },
+      { group: 'Материалы', name: 'Семена газонной травы', unit: 'кг', baseQtyPer: 0.02, unitPrice: 4500, isMaterial: true, marketplaceCategory: 'bulk', searchQuery: 'семена газонной травы' },
+      { group: 'Освещение', name: 'Монтаж уличных светильников и кабеля', unit: 'шт', baseQtyPer: 0.02, unitPrice: 7500, isMaterial: false },
+    ]
+  },
+
+  wood: {
+    title: 'Деревянные конструкции',
+    items: [
+      { group: 'Каркас', name: 'Монтаж несущего деревянного каркаса', unit: 'м²', baseQtyPer: 1.0, unitPrice: 4800, isMaterial: false },
+      { group: 'Материалы', name: 'Брус хвойный обрезной 100х150/150х150', unit: 'м³', baseQtyPer: 0.025, unitPrice: 105000, isMaterial: true, marketplaceCategory: 'bulk', searchQuery: 'брус обрезной' },
+      { group: 'Стропила', name: 'Монтаж стропильной системы крыши', unit: 'м²', baseQtyPer: 0.8, unitPrice: 5200, isMaterial: false },
+      { group: 'Материалы', name: 'Доска стропильная 50х150/50х200', unit: 'м³', baseQtyPer: 0.02, unitPrice: 98000, isMaterial: true, marketplaceCategory: 'bulk', searchQuery: 'доска обрезная' },
+      { group: 'Обрешётка', name: 'Устройство контробрешётки и обрешётки', unit: 'м²', baseQtyPer: 0.8, unitPrice: 1600, isMaterial: false },
+      { group: 'Материалы', name: 'Брусок для обрешётки 25х100/50х50', unit: 'м³', baseQtyPer: 0.012, unitPrice: 92000, isMaterial: true, marketplaceCategory: 'bulk', searchQuery: 'брусок обрезной' },
+      { group: 'Обшивка', name: 'Обшивка вагонкой или имитацией бруса', unit: 'м²', baseQtyPer: 1.0, unitPrice: 3200, isMaterial: false },
+      { group: 'Материалы', name: 'Имитация бруса / вагонка сосна АВ', unit: 'м²', baseQtyPer: 1.1, unitPrice: 4600, isMaterial: true, marketplaceCategory: 'bulk', searchQuery: 'имитация бруса вагонка' },
+    ]
+  },
+
+  gas: {
+    title: 'Газоснабжение',
+    items: [
+      { group: 'Проект', name: 'Проектирование и согласование газоснабжения', unit: 'компл', baseQtyPer: 0.003, unitPrice: 220000, isMaterial: false },
+      { group: 'Трубы', name: 'Монтаж газопровода из стальных труб', unit: 'п.м', baseQtyPer: 0.25, unitPrice: 8500, isMaterial: false },
+      { group: 'Материалы', name: 'Труба стальная газовая d25-32', unit: 'п.м', baseQtyPer: 0.27, unitPrice: 3800, isMaterial: true, marketplaceCategory: 'metal', searchQuery: 'труба стальная газовая' },
+      { group: 'Котёл', name: 'Установка и подключение газового котла', unit: 'шт', baseQtyPer: 0.005, unitPrice: 48000, isMaterial: false },
+      { group: 'Материалы', name: 'Котёл газовый настенный 24 кВт', unit: 'шт', baseQtyPer: 0.005, unitPrice: 420000, isMaterial: true, marketplaceCategory: 'heating', searchQuery: 'котёл газовый настенный' },
+      { group: 'Счётчик', name: 'Монтаж газового счётчика и арматуры', unit: 'шт', baseQtyPer: 0.005, unitPrice: 16000, isMaterial: false },
+      { group: 'Материалы', name: 'Счётчик газа с термокоррекцией', unit: 'шт', baseQtyPer: 0.005, unitPrice: 48000, isMaterial: true, marketplaceCategory: 'heating', searchQuery: 'счётчик газа' },
+      { group: 'Подключение', name: 'Врезка в газопровод и пусконаладка', unit: 'компл', baseQtyPer: 0.003, unitPrice: 120000, isMaterial: false },
+    ]
+  },
+
+  automation: {
+    title: 'Автоматизация / Умный дом',
+    items: [
+      { group: 'Контроллеры', name: 'Монтаж и настройка контроллера умного дома', unit: 'шт', baseQtyPer: 0.005, unitPrice: 35000, isMaterial: false },
+      { group: 'Материалы', name: 'Контроллер умного дома (Zigbee/Ethernet)', unit: 'шт', baseQtyPer: 0.005, unitPrice: 68000, isMaterial: true, marketplaceCategory: 'electric', searchQuery: 'контроллер умный дом' },
+      { group: 'Датчики', name: 'Монтаж беспроводных датчиков', unit: 'шт', baseQtyPer: 0.08, unitPrice: 3500, isMaterial: false },
+      { group: 'Материалы', name: 'Датчики умного дома (протечка, движение)', unit: 'шт', baseQtyPer: 0.08, unitPrice: 9500, isMaterial: true, marketplaceCategory: 'electric', searchQuery: 'датчик умный дом' },
+      { group: 'Кабель', name: 'Прокладка слаботочного кабеля UTP', unit: 'п.м', baseQtyPer: 0.8, unitPrice: 450, isMaterial: false },
+      { group: 'Материалы', name: 'Кабель витая пара UTP Cat 6', unit: 'п.м', baseQtyPer: 0.9, unitPrice: 320, isMaterial: true, marketplaceCategory: 'electric', searchQuery: 'кабель витая пара UTP Cat 6' },
+      { group: 'Реле', name: 'Монтаж умных реле и диммеров', unit: 'шт', baseQtyPer: 0.06, unitPrice: 4200, isMaterial: false },
+      { group: 'Материалы', name: 'Умное реле Zigbee 16A', unit: 'шт', baseQtyPer: 0.06, unitPrice: 12500, isMaterial: true, marketplaceCategory: 'electric', searchQuery: 'умное реле Zigbee' },
+    ]
+  },
+
+  fire_safety: {
+    title: 'Пожарная безопасность',
+    items: [
+      { group: 'Сигнализация', name: 'Монтаж системы пожарной сигнализации', unit: 'зона', baseQtyPer: 0.03, unitPrice: 24000, isMaterial: false },
+      { group: 'Материалы', name: 'Прибор приёмно-контрольный (ППКОП)', unit: 'шт', baseQtyPer: 0.004, unitPrice: 58000, isMaterial: true, marketplaceCategory: 'electric', searchQuery: 'прибор пожарный ППКОП' },
+      { group: 'Извещатели', name: 'Установка пожарных извещателей', unit: 'шт', baseQtyPer: 0.06, unitPrice: 3200, isMaterial: false },
+      { group: 'Материалы', name: 'Извещатель пожарный дымовой', unit: 'шт', baseQtyPer: 0.06, unitPrice: 4200, isMaterial: true, marketplaceCategory: 'electric', searchQuery: 'извещатель пожарный дымовой' },
+      { group: 'Кабель', name: 'Прокладка огнестойкого кабеля КПСнг', unit: 'п.м', baseQtyPer: 0.6, unitPrice: 550, isMaterial: false },
+      { group: 'Материалы', name: 'Кабель огнестойкий КПСнг(А)-FRLS', unit: 'п.м', baseQtyPer: 0.65, unitPrice: 480, isMaterial: true, marketplaceCategory: 'electric', searchQuery: 'кабель огнестойкий КПСнг' },
+      { group: 'Эвакуация', name: 'Монтаж светоуказателей ВЫХОД', unit: 'шт', baseQtyPer: 0.015, unitPrice: 3800, isMaterial: false },
+      { group: 'Материалы', name: 'Огнетушитель порошковый ОП-5', unit: 'шт', baseQtyPer: 0.015, unitPrice: 8500, isMaterial: true, marketplaceCategory: 'fasteners', searchQuery: 'огнетушитель ОП-5' },
+    ]
+  },
+
+  roads: {
+    title: 'Дороги и площадки',
+    items: [
+      { group: 'Подготовка', name: 'Разработка земляного корыта', unit: 'м²', baseQtyPer: 1.0, unitPrice: 950, isMaterial: false },
+      { group: 'Основание', name: 'Устройство щебёночного основания (h=150мм)', unit: 'м²', baseQtyPer: 1.0, unitPrice: 2800, isMaterial: false },
+      { group: 'Материалы', name: 'Щебень фракции 20-40 мм', unit: 'м³', baseQtyPer: 0.18, unitPrice: 9500, isMaterial: true, marketplaceCategory: 'bulk', searchQuery: 'щебень фракция 20-40' },
+      { group: 'Асфальт', name: 'Укладка горячего асфальтобетона (h=50мм)', unit: 'м²', baseQtyPer: 1.0, unitPrice: 5800, isMaterial: false, tag: 'asphalt' },
+      { group: 'Материалы', name: 'Асфальтобетонная смесь мелкозернистая', unit: 'т', baseQtyPer: 0.12, unitPrice: 26000, isMaterial: true, tag: 'asphalt', marketplaceCategory: 'bulk', searchQuery: 'асфальтобетон смесь' },
+      { group: 'Бетон', name: 'Монолитное бетонное покрытие с армированием', unit: 'м²', baseQtyPer: 1.0, unitPrice: 6500, isMaterial: false, tag: 'concrete_road' },
+      { group: 'Материалы', name: 'Бетон М300 (В22.5) с доставкой', unit: 'м³', baseQtyPer: 0.15, unitPrice: 35000, isMaterial: true, tag: 'concrete_road', marketplaceCategory: 'bulk', searchQuery: 'бетон М300' },
+      { group: 'Бордюры', name: 'Установка дорожного бордюра', unit: 'п.м', baseQtyPer: 0.15, unitPrice: 3500, isMaterial: false },
+      { group: 'Материалы', name: 'Бордюр дорожный БР 100.30.15', unit: 'шт', baseQtyPer: 0.15, unitPrice: 3200, isMaterial: true, marketplaceCategory: 'bulk', searchQuery: 'бордюр дорожный' },
+      { group: 'Разметка', name: 'Нанесение дорожной разметки', unit: 'м²', baseQtyPer: 0.08, unitPrice: 2200, isMaterial: false },
+    ]
+  },
+
+  interior: {
+    title: 'Дизайн интерьера',
+    items: [
+      { group: 'Планировка', name: 'Планировочное решение (3 варианта)', unit: 'м²', baseQtyPer: 1.0, unitPrice: 1500, isMaterial: false },
+      { group: '3D', name: 'Фотореалистичная 3D визуализация', unit: 'м²', baseQtyPer: 1.0, unitPrice: 3200, isMaterial: false },
+      { group: 'Чертежи', name: 'Рабочая документация (полы, потолки, электрика)', unit: 'м²', baseQtyPer: 1.0, unitPrice: 2200, isMaterial: false },
+      { group: 'Подбор', name: 'Спецификация материалов и сантехники', unit: 'м²', baseQtyPer: 1.0, unitPrice: 1400, isMaterial: false },
+      { group: 'Надзор', name: 'Авторский надзор с выездами на объект', unit: 'мес', baseQtyPer: 0.02, unitPrice: 180000, isMaterial: false },
+      { group: 'Материалы', name: 'Альбом дизайн-проекта с образцами', unit: 'компл', baseQtyPer: 0.01, unitPrice: 45000, isMaterial: true, marketplaceCategory: 'drywall', searchQuery: 'образцы отделочных материалов' },
+      { group: 'Комплектация', name: 'Закупки и координация поставщиков', unit: 'м²', baseQtyPer: 1.0, unitPrice: 950, isMaterial: false },
+    ]
+  },
+
+  design: {
+    title: 'Проектирование',
+    items: [
+      { group: 'Архитектура', name: 'Архитектурный проект (раздел АР)', unit: 'м²', baseQtyPer: 1.0, unitPrice: 2400, isMaterial: false },
+      { group: 'Конструктив', name: 'Конструктивные решения (раздел КР)', unit: 'м²', baseQtyPer: 1.0, unitPrice: 1800, isMaterial: false },
+      { group: 'Инженерия', name: 'Проект инженерных сетей (ОВ, ВК, ЭОМ)', unit: 'м²', baseQtyPer: 1.0, unitPrice: 1500, isMaterial: false },
+      { group: 'Смета', name: 'Составление сметной документации АВС-4', unit: 'м²', baseQtyPer: 1.0, unitPrice: 850, isMaterial: false },
+      { group: 'Экспертиза', name: 'Сопровождение экспертизы проекта', unit: 'компл', baseQtyPer: 0.005, unitPrice: 450000, isMaterial: false },
+      { group: 'Документация', name: 'Печать и переплёт ПСД', unit: 'компл', baseQtyPer: 0.01, unitPrice: 65000, isMaterial: true, marketplaceCategory: 'tools', searchQuery: 'печать проектной документации' },
+      { group: 'Изыскания', name: 'Инженерно-геологические изыскания', unit: 'компл', baseQtyPer: 0.004, unitPrice: 380000, isMaterial: false },
+    ]
+  },
+
+  special: {
+    title: 'Специальные работы',
+    items: [
+      { group: 'Промполы', name: 'Устройство топпингового бетонного пола', unit: 'м²', baseQtyPer: 1.0, unitPrice: 4800, isMaterial: false },
+      { group: 'Материалы', name: 'Топпинг корундовый упрочнитель', unit: 'кг', baseQtyPer: 5, unitPrice: 550, isMaterial: true, marketplaceCategory: 'cement', searchQuery: 'топпинг упрочнитель бетона' },
+      { group: 'Промполы', name: 'Полимерный наливной эпоксидный пол', unit: 'м²', baseQtyPer: 0.5, unitPrice: 5500, isMaterial: false },
+      { group: 'Материалы', name: 'Эпоксидный состав для наливного пола', unit: 'кг', baseQtyPer: 1.5, unitPrice: 4200, isMaterial: true, marketplaceCategory: 'paint', searchQuery: 'наливной эпоксидный пол' },
+      { group: 'Антикоррозия', name: 'Пескоструйная очистка и защита металла', unit: 'м²', baseQtyPer: 0.8, unitPrice: 3800, isMaterial: false },
+      { group: 'Материалы', name: 'Грунт-эмаль антикоррозийная', unit: 'кг', baseQtyPer: 0.35, unitPrice: 3600, isMaterial: true, marketplaceCategory: 'paint', searchQuery: 'грунт-эмаль антикоррозийная' },
+      { group: 'Промальп', name: 'Высотные работы (промышленный альпинизм)', unit: 'м²', baseQtyPer: 0.3, unitPrice: 6800, isMaterial: false },
+      { group: 'Гидроизоляция', name: 'Инъекционная гидроизоляция трещин', unit: 'п.м', baseQtyPer: 0.1, unitPrice: 16000, isMaterial: false },
+    ]
+  },
+
+  external_nets: {
+    title: 'Наружные сети',
+    items: [
+      { group: 'Траншеи', name: 'Разработка траншей под инженерные сети', unit: 'м³', baseQtyPer: 0.5, unitPrice: 3800, isMaterial: false },
+      { group: 'Траншеи', name: 'Песчаная подготовка и обратная засыпка', unit: 'м³', baseQtyPer: 0.2, unitPrice: 2600, isMaterial: false },
+      { group: 'Материалы', name: 'Песок строительный для подушки', unit: 'м³', baseQtyPer: 0.22, unitPrice: 7500, isMaterial: true, marketplaceCategory: 'bulk', searchQuery: 'песок строительный' },
+      { group: 'Водопровод', name: 'Прокладка наружного водопровода ПЭ d32-63', unit: 'п.м', baseQtyPer: 0.3, unitPrice: 7200, isMaterial: false },
+      { group: 'Материалы', name: 'Труба ПЭ 100 SDR 11 d32', unit: 'п.м', baseQtyPer: 0.32, unitPrice: 1600, isMaterial: true, marketplaceCategory: 'water', searchQuery: 'труба полиэтиленовая ПЭ 100' },
+      { group: 'Канализация', name: 'Монтаж наружной канализации d110-160', unit: 'п.м', baseQtyPer: 0.25, unitPrice: 8500, isMaterial: false },
+      { group: 'Материалы', name: 'Труба канализационная ПВХ d110 наружная', unit: 'п.м', baseQtyPer: 0.27, unitPrice: 2400, isMaterial: true, marketplaceCategory: 'sewer', searchQuery: 'труба канализационная наружная d110' },
+      { group: 'Электрокабели', name: 'Прокладка бронированного кабеля в траншее', unit: 'п.м', baseQtyPer: 0.25, unitPrice: 4200, isMaterial: false },
+      { group: 'Материалы', name: 'Кабель бронированный ВБбШв 4х10', unit: 'п.м', baseQtyPer: 0.28, unitPrice: 4200, isMaterial: true, marketplaceCategory: 'electric', searchQuery: 'кабель бронированный ВБбШв' },
+      { group: 'Колодцы', name: 'Устройство смотрового колодца с люком', unit: 'шт', baseQtyPer: 0.004, unitPrice: 95000, isMaterial: false },
+    ]
+  },
 };
 
 
@@ -522,6 +682,28 @@ const TAG_RULES = {
     default: null, // все включены
     keywords: {
       'демонтаж': 'demo',
+    }
+  },
+  stairs: {
+    default: 'metal', // по умолчанию — металл
+    keywords: {
+      'бетон': 'concrete',
+      'монолит': 'concrete',
+      'металл': 'metal',
+      'сталь': 'metal',
+      'дерев': 'wood',
+      'массив': 'wood',
+      'дуб': 'wood',
+      'сосн': 'wood',
+    }
+  },
+  roads: {
+    default: 'asphalt', // по умолчанию — асфальт
+    keywords: {
+      'асфальт': 'asphalt',
+      'бетон': 'concrete_road',
+      'монолит': 'concrete_road',
+      'площад': 'concrete_road',
     }
   }
 };

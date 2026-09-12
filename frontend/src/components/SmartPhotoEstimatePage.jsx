@@ -87,7 +87,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
 
   // User Custom ChatGPT / OpenAI Account State
   const [showGptModal, setShowGptModal] = useState(false);
-  const [gptAuthTab, setGptAuthTab] = useState('login'); // 'login' | 'apikey'
+  const [gptAuthTab, setGptAuthTab] = useState('apikey'); // only 'apikey' tab (login removed)
 
   const [userGptAccount, setUserGptAccount] = useState(() => {
     try {
@@ -677,7 +677,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
           body: JSON.stringify({
             description: description || `${activeCatObj.title}: стандартный комплекс работ`,
             mode: aiEngineMode,
-            scenario: aiEngineMode === 'fast' ? 'economy' : (aiEngineMode === 'detailed' ? 'premium' : 'standard'),
+            scenario: selectedScenario,
             category: isCategorySkipped ? '' : activeCatObj.title,
             city: regionObj.name,
             region: regionObj.id,
