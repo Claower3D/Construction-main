@@ -15,10 +15,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
   const [annotatedImage, setAnnotatedImage] = useState(null);
   const [defectMarkers, setDefectMarkers] = useState([]);
   const [severitySummary, setSeveritySummary] = useState(null);
-  const [structureZones, setStructureZones] = useState([]);
-  const [showIntactLayer, setShowIntactLayer] = useState(true);
   const [showCriticalLayer, setShowCriticalLayer] = useState(true);
-  const [showMediumLayer, setShowMediumLayer] = useState(true);
   const [sensitivity, setSensitivity] = useState(0.65);
   const [selectedDefectId, setSelectedDefectId] = useState(null);
   const [activeReportTab, setActiveReportTab] = useState('expert');
@@ -68,18 +65,6 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
 
   const applyPresetPrompt = (promptText) => {
     setAiDescription(prev => prev ? `${prev}. ${promptText}` : promptText);
-  };
-
-  // Map severity string to human-readable Russian label
-  const _mapSeverity = (sev) => {
-    const map = {
-      'critical': '5 класс — КРИТИЧЕСКИЙ (аварийный)',
-      'high': '4 класс — Высокий риск',
-      'medium': '3 класс — Требует устранения',
-      'low': '2 класс — Незначительный',
-      'info': '1 класс — Информационный',
-    };
-    return map[sev] || sev || '3 класс — Требует устранения';
   };
 
   const handlePrintTechnicalAct = () => {
@@ -331,33 +316,258 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
         }
       }
 
-      // ═══ STEP 3: Offline fallback — expert domain heuristics ═══
+      // ═══ STEP 3: Offline fallback — expert domain heuristics (расширенный) ═══
       if (!data) {
         const descLower = (aiDescription || '').toLowerCase();
-        let defectType = 'Усадочная трещина штукатурного слоя';
-        let severity = '3 класс — Требует устранения';
-        let snipCode = 'СНиП РК 3.02-04-2019 / СП РК 1.03-106-2012';
-        let fixMethod = 'Расшивка шва на глубину 10 мм, обеспыливание, грунтовка глубокого проникновения, армирование серпянкой и шпатлевание полимерцементным составом.';
-        let estimatedCost = '35 000 – 65 000 ₸';
-        let workDays = 2;
+        
+        // Расширенная база дефектов по СНиП РК
+        const defectTemplates = [
+          {
+            keywords: ['протечк', 'сырост', 'вод', 'затопл', 'промок', 'мокр', 'влаг'],
+            defectType: 'Нарушение гидроизоляционного слоя (протечка / сырость)',
+            severity: '4 класс — Высокий риск биопоражения',
+            snipCode: 'СНиП РК 2.04-09-2018 «Гидроизоляция зданий»',
+            fixMethod: 'Локализация источника протечки, сушка тепловой пушкой, обработка фунгицидом, нанесение двухкомпонентной полимерной гидроизоляции.',
+            estimatedCost: '55 000 – 120 000 ₸',
+            workDays: 3,
+            materials: [
+              { name: 'Гидроизоляция обмазочная полимерная', qty: '3.0 кг', cost_kzt: 12500 },
+              { name: 'Фунгицидная грунтовка антиплесень', qty: '1.0 л', cost_kzt: 4200 },
+              { name: 'Герметик полиуретановый', qty: '2 шт', cost_kzt: 5600 },
+              { name: 'Армирующая лента для швов', qty: '5 м', cost_kzt: 1800 },
+            ],
+            labor: [
+              { name: 'Демонтаж поражённого участка и сушка', qty: '1 компл.', cost_kzt: 15000 },
+              { name: 'Обработка фунгицидом и грунтовка', qty: '1 компл.', cost_kzt: 8000 },
+              { name: 'Нанесение гидроизоляции в 2 слоя', qty: '1 компл.', cost_kzt: 22000 },
+              { name: 'Восстановление отделки', qty: '1 компл.', cost_kzt: 12000 },
+            ],
+            width_profile: [
+              { pos_pct: 0, width_mm: 0.3 }, { pos_pct: 25, width_mm: 0.8 },
+              { pos_pct: 50, width_mm: 1.5 }, { pos_pct: 75, width_mm: 1.1 }, { pos_pct: 100, width_mm: 0.4 },
+            ],
+          },
+          {
+            keywords: ['перепад', 'неровн', 'кривой пол', 'кривой потол', 'горизонт', 'уровень'],
+            defectType: 'Отклонение плоскости от горизонтали / вертикали',
+            severity: '2 класс — Допустимое отклонение',
+            snipCode: 'СП РК 3.02-107-2014 «Полы и перекрытия»',
+            fixMethod: 'Лазерное нивелирование, шлифовка неровностей, заливка самовыравнивающейся нивелир-массой толщиной до 15 мм.',
+            estimatedCost: '40 000 – 85 000 ₸',
+            workDays: 2,
+            materials: [
+              { name: 'Наливной пол самовыравнивающийся (25 кг)', qty: '4 мешка', cost_kzt: 14000 },
+              { name: 'Грунтовка глубокого проникновения', qty: '2.0 л', cost_kzt: 3600 },
+              { name: 'Демпферная лента', qty: '10 м', cost_kzt: 2200 },
+            ],
+            labor: [
+              { name: 'Лазерная нивелировка и замер отклонений', qty: '1 компл.', cost_kzt: 8000 },
+              { name: 'Подготовка основания и грунтовка', qty: '1 компл.', cost_kzt: 6000 },
+              { name: 'Заливка самонивелирующейся смеси', qty: '1 компл.', cost_kzt: 18000 },
+            ],
+            width_profile: null,
+          },
+          {
+            keywords: ['плесен', 'грибок', 'чёрн', 'черн', 'биопоражен'],
+            defectType: 'Биопоражение конструкций (плесень / грибок)',
+            severity: '4 класс — Высокий риск для здоровья',
+            snipCode: 'СанПиН РК 2.1.2.014-2001 «Гигиена жилых помещений»',
+            fixMethod: 'Механическое удаление плесени, обработка хлорсодержащим средством, нанесение фунгицидной грунтовки, устранение причины влажности.',
+            estimatedCost: '25 000 – 60 000 ₸',
+            workDays: 2,
+            materials: [
+              { name: 'Средство для удаления плесени хлорсодержащее', qty: '2.0 л', cost_kzt: 5200 },
+              { name: 'Фунгицидная грунтовка антиплесень', qty: '2.0 л', cost_kzt: 4200 },
+              { name: 'Штукатурка санирующая', qty: '10 кг', cost_kzt: 6800 },
+            ],
+            labor: [
+              { name: 'Удаление поражённого слоя шпателем/скребком', qty: '1 компл.', cost_kzt: 8000 },
+              { name: 'Обработка антисептиком в 2 прохода', qty: '1 компл.', cost_kzt: 6000 },
+              { name: 'Восстановительная штукатурка', qty: '1 компл.', cost_kzt: 12000 },
+            ],
+            width_profile: null,
+          },
+          {
+            keywords: ['коррози', 'ржавч', 'ржав', 'армату', 'оголен'],
+            defectType: 'Коррозия арматуры и оголение металлоконструкций',
+            severity: '5 класс — КРИТИЧЕСКИЙ (аварийный)',
+            snipCode: 'ГОСТ 31937-2011 «Правила обследования несущих конструкций»',
+            fixMethod: 'Вскрытие защитного слоя, пескоструйная очистка арматуры, обработка ингибитором коррозии, восстановление ремонтным составом.',
+            estimatedCost: '85 000 – 180 000 ₸',
+            workDays: 5,
+            materials: [
+              { name: 'Ингибитор коррозии MCI-2020', qty: '1.5 л', cost_kzt: 18000 },
+              { name: 'Ремонтный состав безусадочный M600', qty: '10 кг', cost_kzt: 12000 },
+              { name: 'Адгезионный мост (бонд-слой)', qty: '2 кг', cost_kzt: 8500 },
+              { name: 'Антикоррозийная грунтовка', qty: '1.0 л', cost_kzt: 6200 },
+            ],
+            labor: [
+              { name: 'Вскрытие защитного слоя бетона', qty: '1 компл.', cost_kzt: 15000 },
+              { name: 'Пескоструйная очистка арматуры', qty: '1 компл.', cost_kzt: 22000 },
+              { name: 'Нанесение ингибитора и бонд-слоя', qty: '1 компл.', cost_kzt: 12000 },
+              { name: 'Восстановление ремонтным составом', qty: '1 компл.', cost_kzt: 18000 },
+            ],
+            width_profile: [
+              { pos_pct: 0, width_mm: 0.5 }, { pos_pct: 20, width_mm: 2.5 },
+              { pos_pct: 40, width_mm: 4.2 }, { pos_pct: 60, width_mm: 3.8 },
+              { pos_pct: 80, width_mm: 2.1 }, { pos_pct: 100, width_mm: 0.8 },
+            ],
+          },
+          {
+            keywords: ['фасад', 'облицов', 'штукатурк', 'отваливает', 'отслоен'],
+            defectType: 'Деструкция фасадной отделки (отслоение / осыпание)',
+            severity: '3 класс — Требует устранения',
+            snipCode: 'СНиП РК 3.02-04-2019 «Штукатурные и облицовочные работы»',
+            fixMethod: 'Удаление аварийных участков, грунтовка, армирование стеклосеткой, нанесение штукатурки с финишной отделкой.',
+            estimatedCost: '45 000 – 95 000 ₸',
+            workDays: 3,
+            materials: [
+              { name: 'Штукатурка фасадная цементная', qty: '25 кг', cost_kzt: 5800 },
+              { name: 'Стеклосетка армирующая 160 г/м²', qty: '5 м²', cost_kzt: 3500 },
+              { name: 'Грунтовка для фасадов', qty: '2.0 л', cost_kzt: 4200 },
+              { name: 'Дюбель-гвоздь тарельчатый', qty: '20 шт', cost_kzt: 2800 },
+            ],
+            labor: [
+              { name: 'Демонтаж аварийных участков фасада', qty: '1 компл.', cost_kzt: 10000 },
+              { name: 'Грунтование и армирование сеткой', qty: '1 компл.', cost_kzt: 12000 },
+              { name: 'Штукатурка и финишная отделка', qty: '1 компл.', cost_kzt: 18000 },
+            ],
+            width_profile: null,
+          },
+          {
+            keywords: ['кровл', 'крыш', 'черепиц', 'течёт крыш'],
+            defectType: 'Дефект кровельного покрытия (протечка кровли)',
+            severity: '4 класс — Высокий риск',
+            snipCode: 'СНиП РК 5.08-01-2019 «Кровли»',
+            fixMethod: 'Локализация течи, замена повреждённого участка кровли, герметизация стыков, проверка водоотвода.',
+            estimatedCost: '65 000 – 150 000 ₸',
+            workDays: 3,
+            materials: [
+              { name: 'Кровельный материал (рулонный/листовой)', qty: '5 м²', cost_kzt: 18000 },
+              { name: 'Битумная мастика кровельная', qty: '3 кг', cost_kzt: 4500 },
+              { name: 'Саморезы кровельные с EPDM', qty: '50 шт', cost_kzt: 3200 },
+            ],
+            labor: [
+              { name: 'Демонтаж повреждённого участка кровли', qty: '1 компл.', cost_kzt: 15000 },
+              { name: 'Замена кровельного покрытия', qty: '1 компл.', cost_kzt: 25000 },
+              { name: 'Герметизация примыканий и стыков', qty: '1 компл.', cost_kzt: 12000 },
+            ],
+            width_profile: null,
+          },
+          {
+            keywords: ['фундамент', 'основан', 'осадк', 'просадк', 'подвал'],
+            defectType: 'Трещина фундамента / осадка основания',
+            severity: '5 класс — КРИТИЧЕСКИЙ (аварийный)',
+            snipCode: 'ГОСТ 31937-2011, СП РК 5.01-101-2013 «Основания и фундаменты»',
+            fixMethod: 'Инъекционное укрепление фундамента, устройство обоймы, дренаж, мониторинг маяков.',
+            estimatedCost: '120 000 – 350 000 ₸',
+            workDays: 7,
+            materials: [
+              { name: 'Инъекционная полиуретановая смола', qty: '3.0 кг', cost_kzt: 28000 },
+              { name: 'Пакеры инъекционные d=10мм', qty: '12 шт', cost_kzt: 12800 },
+              { name: 'Ремонтный состав М600', qty: '15 кг', cost_kzt: 17400 },
+              { name: 'Маяки контрольные гипсовые', qty: '6 шт', cost_kzt: 1200 },
+            ],
+            labor: [
+              { name: 'Обследование и установка маяков', qty: '1 компл.', cost_kzt: 20000 },
+              { name: 'Бурение шпуров и установка пакеров', qty: '1 компл.', cost_kzt: 35000 },
+              { name: 'Нагнетание инъекционного состава', qty: '1 компл.', cost_kzt: 45000 },
+              { name: 'Зачеканка и восстановление', qty: '1 компл.', cost_kzt: 18000 },
+            ],
+            width_profile: [
+              { pos_pct: 0, width_mm: 0.8 }, { pos_pct: 20, width_mm: 2.5 },
+              { pos_pct: 40, width_mm: 4.8 }, { pos_pct: 60, width_mm: 3.2 },
+              { pos_pct: 80, width_mm: 1.6 }, { pos_pct: 100, width_mm: 0.5 },
+            ],
+          },
+          {
+            keywords: ['окн', 'стеклопакет', 'откос', 'подоконник', 'продувает'],
+            defectType: 'Дефект оконных конструкций (продувание / разгерметизация)',
+            severity: '2 класс — Незначительный',
+            snipCode: 'ГОСТ 30674-99 «Оконные блоки из ПВХ профилей»',
+            fixMethod: 'Регулировка фурнитуры, замена уплотнителя, заделка монтажного шва, утепление откосов.',
+            estimatedCost: '15 000 – 45 000 ₸',
+            workDays: 1,
+            materials: [
+              { name: 'Уплотнитель оконный EPDM', qty: '8 м', cost_kzt: 3200 },
+              { name: 'Пена монтажная профессиональная', qty: '1 шт', cost_kzt: 2800 },
+              { name: 'Герметик силиконовый', qty: '1 шт', cost_kzt: 1800 },
+            ],
+            labor: [
+              { name: 'Регулировка оконной фурнитуры', qty: '1 компл.', cost_kzt: 5000 },
+              { name: 'Замена уплотнителя', qty: '1 компл.', cost_kzt: 6000 },
+              { name: 'Перезаделка монтажного шва', qty: '1 компл.', cost_kzt: 8000 },
+            ],
+            width_profile: null,
+          },
+        ];
 
-        if (descLower.includes('протечк') || descLower.includes('сырост') || descLower.includes('вод')) {
-          defectType = 'Нарушение гидроизоляционного слоя (протечка / сырость)';
-          severity = '4 класс — Высокий риск биопоражения';
-          snipCode = 'СНиП РК 2.04-09-2018 «Гидроизоляция зданий»';
-          fixMethod = 'Локализация источника протечки, сушка тепловой пушкой, обработка фунгицидом, нанесение двухкомпонентной полимерной гидроизоляции.';
-          estimatedCost = '55 000 – 120 000 ₸';
-          workDays = 3;
-        } else if (descLower.includes('перепад') || descLower.includes('пол') || descLower.includes('потол')) {
-          defectType = 'Отклонение плоскости от горизонтали / вертикали';
-          severity = '2 класс — Допустимое отклонение';
-          snipCode = 'СП РК 3.02-107-2014 «Полы и перекрытия»';
-          fixMethod = 'Лазерное нивелирование, шлифовка неровностей, заливка самовыравнивающейся нивелир-массой толщиной до 15 мм.';
-          estimatedCost = '40 000 – 85 000 ₸';
-          workDays = 2;
+        // Поиск по ключевым словам
+        let matched = null;
+        for (const tpl of defectTemplates) {
+          if (tpl.keywords.some(kw => descLower.includes(kw))) {
+            matched = tpl;
+            break;
+          }
         }
 
-        data = { defectType, severity, snipCode, fixMethod, estimatedCost, workDays };
+        // Дефолт — усадочная трещина
+        if (!matched) {
+          matched = {
+            defectType: 'Усадочная трещина штукатурного слоя',
+            severity: '3 класс — Требует устранения',
+            snipCode: 'СНиП РК 3.02-04-2019 / СП РК 1.03-106-2012',
+            fixMethod: 'Расшивка шва на глубину 10 мм, обеспыливание, грунтовка глубокого проникновения, армирование серпянкой и шпатлевание полимерцементным составом.',
+            estimatedCost: '35 000 – 65 000 ₸',
+            workDays: 2,
+            materials: [
+              { name: 'Инъекционная эпоксидная смола низкой вязкости', qty: '1.2 кг', cost_kzt: 18500 },
+              { name: 'Пакеры металлические d=10мм с клапаном', qty: '6 шт', cost_kzt: 6400 },
+              { name: 'Тиксотропная безусадочная смесь M600', qty: '5.0 кг', cost_kzt: 5800 },
+              { name: 'Грунтовка глубокого проникновения', qty: '1.0 л', cost_kzt: 3200 },
+            ],
+            labor: [
+              { name: 'Расшивка шва штраборезом и обеспыливание', qty: '0.8 пог.м', cost_kzt: 8500 },
+              { name: 'Бурение шпуров и установка пакеров', qty: '1 компл.', cost_kzt: 12000 },
+              { name: 'Нагнетание эпоксидного состава', qty: '1 компл.', cost_kzt: 17500 },
+              { name: 'Демонтаж пакеров и зачеканка M600', qty: '1 компл.', cost_kzt: 6000 },
+            ],
+            width_profile: [
+              { pos_pct: 0, width_mm: 1.2 }, { pos_pct: 20, width_mm: 2.1 },
+              { pos_pct: 40, width_mm: 3.4 }, { pos_pct: 60, width_mm: 2.8 },
+              { pos_pct: 80, width_mm: 1.9 }, { pos_pct: 100, width_mm: 0.9 },
+            ],
+          };
+        }
+
+        // Подсчёт суммы
+        const totalMaterials = (matched.materials || []).reduce((s, m) => s + m.cost_kzt, 0);
+        const totalLabor = (matched.labor || []).reduce((s, l) => s + l.cost_kzt, 0);
+
+        data = {
+          defectType: matched.defectType,
+          severity: matched.severity,
+          snipCode: matched.snipCode,
+          fixMethod: matched.fixMethod,
+          estimatedCost: matched.estimatedCost,
+          workDays: matched.workDays,
+          defects: { items: [] },
+          defect_severity_summary: null,
+          structure_zones: [],
+        };
+        // Добавляем аналитику для табов "Профиль трещины" и "Смета"
+        data.analytics = {
+          materials: matched.materials || [],
+          labor: matched.labor || [],
+          total_cost_kzt: totalMaterials + totalLabor,
+          width_profile: matched.width_profile || null,
+          gost_status: matched.severity.includes('КРИТИЧЕСКИЙ') ? 'Категория IV — Аварийное состояние' :
+                       matched.severity.includes('Высокий') ? 'Категория III — Ограниченно-работоспособное' :
+                       'Категория II — Работоспособное',
+          rebar_risk: matched.severity.includes('КРИТИЧЕСКИЙ') ? 'Высокий риск коррозии рабочего армокаркаса — срочное обследование!' :
+                      matched.severity.includes('Высокий') ? 'Умеренный риск коррозии при продолжении воздействия' :
+                      'Низкий риск — армокаркас не затронут',
+        };
       }
 
       setScanStepMessage('✨ Формирование технического заключения по СНиП РК...');
@@ -374,9 +584,6 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
       }
       if (data.defect_severity_summary) {
         setSeveritySummary(data.defect_severity_summary);
-      }
-      if (data.structure_zones) {
-        setStructureZones(data.structure_zones);
       }
       
       // Build defect markers for client-side overlay
@@ -414,7 +621,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
           address: clientAddress || 'г. Алматы',
           defectCount: items.length || 0,
           markers: items,
-          analytics: items[0]?.analytics || null,
+          analytics: data.analytics || items[0]?.analytics || null,
         });
         showToast('✅ Экспертиза дефекта нейросетью Vision AI завершена!');
       }, 500);
@@ -459,10 +666,10 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
       <div className="di-main-card">
         
         {/* AI Provider Status Banner */}
-        <div className="di-provider-banner" style={{ background: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.35)', color: '#6ee7b7', padding: '10px 16px', borderRadius: '12px', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.85rem' }}>
-          <span style={{ fontSize: '1.2rem' }}>🟢</span>
+        <div className="di-provider-banner" style={{ background: 'rgba(56, 189, 248, 0.12)', border: '1px solid rgba(56, 189, 248, 0.35)', color: '#7dd3fc', padding: '10px 16px', borderRadius: '12px', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.85rem' }}>
+          <span style={{ fontSize: '1.2rem' }}>🔬</span>
           <div>
-            <strong>OpenAI Vision Defect AI подключен и активен:</strong> Нейросеть настроена на автоматическое выявление трещин, протечек, перепадов и дефектов с привязкой к СНиП РК.
+            <strong>Режим анализа:</strong> AI Vision + экспертные шаблоны СНиП РК. Загрузите фото и опишите проблему для автоматической дефектоскопии.
           </div>
         </div>
 
@@ -813,11 +1020,14 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
 
           {/* Active Image View — based on visionMode */}
           {(() => {
+            const fallbackPhoto = photos[0]?.url || null;
             const currentImg = 
-              visionMode === 'stress' ? (stressHeatmapImage || annotatedImage) :
-              visionMode === 'skeleton' ? (skeletonImage || annotatedImage) :
-              visionMode === 'clean' ? (photos[0]?.url || annotatedImage) :
-              annotatedImage;
+              visionMode === 'stress' ? (stressHeatmapImage || annotatedImage || fallbackPhoto) :
+              visionMode === 'skeleton' ? (skeletonImage || annotatedImage || fallbackPhoto) :
+              visionMode === 'clean' ? (fallbackPhoto || annotatedImage) :
+              (annotatedImage || fallbackPhoto);
+
+            if (!currentImg) return null;
 
             return (
               <div 
@@ -836,14 +1046,6 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
             );
           })()}
 
-          {/* If no annotated image, show original photo */}
-          {!annotatedImage && photos.length > 0 && (
-            <div className="di-defect-image-wrap" onClick={() => { setLightboxSrc(photos[0]?.url); setLightboxZoom(1); }}>
-              <img src={photos[0]?.url} alt="Фото дефекта" />
-              <span className="di-zoom-hint">🔍 Нажмите для увеличения</span>
-            </div>
-          )}
-          
           {/* Defect Cards List */}
           {defectMarkers.length > 0 && (
             <div style={{ padding: '16px 20px 20px' }}>
@@ -1058,6 +1260,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
 
           {/* TAB 2: 📊 Профиль раскрытия трещины (Интерактивный график) */}
           {activeReportTab === 'chart' && (
+            report.analytics?.width_profile && report.analytics.width_profile.length > 1 ? (
             <div style={{
               background: 'rgba(15, 23, 42, 0.75)',
               border: '1px solid rgba(56, 189, 248, 0.25)',
@@ -1134,6 +1337,25 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
                 <span style={{ color: '#ef4444' }}>🔴 Аварийно: &gt; 0.4 мм</span>
               </div>
             </div>
+            ) : (
+              <div style={{
+                background: 'rgba(15, 23, 42, 0.75)',
+                border: '1px solid rgba(56, 189, 248, 0.25)',
+                borderRadius: '12px',
+                padding: '32px 16px',
+                marginBottom: '1rem',
+                textAlign: 'center',
+              }}>
+                <div style={{ fontSize: '2rem', marginBottom: '10px' }}>📐</div>
+                <h4 style={{ color: '#e2e8f0', margin: '0 0 8px', fontWeight: 800 }}>
+                  Профиль раскрытия не применим
+                </h4>
+                <p style={{ color: '#94a3b8', fontSize: '0.88rem', margin: 0 }}>
+                  Для данного типа дефекта ({report.defectType}) график раскрытия трещины не формируется.
+                  Используйте вкладку «СНиП и Риски» для оценки состояния.
+                </p>
+              </div>
+            )
           )}
 
           {/* TAB 3: 🛠️ Инженерная смета на ремонт и материалы (₸) */}
