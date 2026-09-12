@@ -1,9 +1,11 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 
 /**
- * VoiceLeadInput v9 — Голосовое сообщение → Заявка
+ * VoiceLeadInput v10 — Голосовое сообщение → Заявка
  * 
- * Как в мессенджере: нажал → говоришь → отпустил → заявка создана
+ * Гибридный режим:
+ *  1) Web Speech API (браузер) — работает везде (Chrome, Edge, Safari)
+ *  2) Fallback на Python speech_server.py (порт 8002) — если Web Speech API недоступен
  */
 
 // ═══ ПАРСИНГ ═══
@@ -155,7 +157,7 @@ function parseAllFields(text) {
   return result;
 }
 
-// WAV encoder
+// WAV encoder (для fallback на Python сервер)
 function encodeWAV(samples, sampleRate) {
   const buf = new ArrayBuffer(44 + samples.length * 2);
   const v = new DataView(buf);
@@ -169,13 +171,30 @@ function encodeWAV(samples, sampleRate) {
   return new Blob([buf],{type:'audio/wav'});
 }
 
-const SPEECH_URL = `http://${window.location.hostname}:8002/recognize`;
+// ═══ ОПРЕДЕЛЕНИЕ ДОСТУПНОСТИ РЕЖИМОВ ═══
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+const HAS_WEB_SPEECH = !!SpeechRecognition;
+
+// Проверка доступности Python speech сервера (асинхронно)
+async function checkPythonServer() {
+  try {
+    const url = `http://${window.location.hostname}:8002/recognize`;
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 1500);
+    const resp = await fetch(url, { method: 'HEAD', signal: ctrl.signal }).catch(() => null);
+    clearTimeout(timer);
+    return resp !== null;
+  } catch { return false; }
+}
 
 export default function VoiceLeadInput({ onFieldsExtracted, onCommand, disabled }) {
   const [state, setState] = useState('idle'); // idle | recording | processing | done
   const [seconds, setSeconds] = useState(0);
   const [result, setResult] = useState(null); // {text, fields} or {error}
   const [amplitude, setAmplitude] = useState(0);
+  const [speechMode, setSpeechMode] = useState(HAS_WEB_SPEECH ? 'browser' : 'server'); // browser | server
+  const [serverAvailable, setServerAvailable] = useState(false);
+
   const streamRef = useRef(null);
   const ctxRef = useRef(null);
   const procRef = useRef(null);
@@ -183,9 +202,116 @@ export default function VoiceLeadInput({ onFieldsExtracted, onCommand, disabled 
   const timerRef = useRef(null);
   const samplesRef = useRef([]);
   const animRef = useRef(null);
+  const recognitionRef = useRef(null);
+  const webSpeechTextRef = useRef('');
 
-  // ═══ НАЧАТЬ ЗАПИСЬ ═══
-  const startRecording = useCallback(async () => {
+  // При монтировании проверяем Python сервер
+  useEffect(() => {
+    checkPythonServer().then(ok => {
+      setServerAvailable(ok);
+      // Если Web Speech API нет, но Python сервер есть — используем сервер
+      if (!HAS_WEB_SPEECH && ok) setSpeechMode('server');
+      // Если ничего нет — останемся на browser, покажем ошибку при попытке
+    });
+  }, []);
+
+  // ═══ Обработка распознанного текста ═══
+  const processRecognizedText = useCallback((text) => {
+    if (!text || !text.trim()) {
+      setResult({ error: 'Речь не распознана. Попробуйте ещё раз.' });
+      setState('done');
+      return;
+    }
+
+    const cleaned = text.replace(/создай|сделай|новую?|заявк[уа]?|лид|заказ/gi, '').trim();
+    const fields = parseAllFields(cleaned || text);
+    if (!fields.date) { const d = parseDate(text); if (d) fields.date = d; }
+
+    // Отправляем в форму
+    if (onFieldsExtracted && Object.keys(fields).length > 0) {
+      onFieldsExtracted(fields);
+    }
+
+    setResult({ text, fields });
+    setState('done');
+  }, [onFieldsExtracted]);
+
+  // ═══ НАЧАТЬ ЗАПИСЬ (Web Speech API — браузер) ═══
+  const startBrowserRecording = useCallback(async () => {
+    try {
+      // Запрашиваем микрофон для визуализации амплитуды
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      streamRef.current = stream;
+
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      ctxRef.current = ctx;
+      const source = ctx.createMediaStreamSource(stream);
+
+      // Анализатор для визуализации
+      const analyser = ctx.createAnalyser();
+      analyser.fftSize = 256;
+      analyserRef.current = analyser;
+      source.connect(analyser);
+
+      // Визуализация амплитуды
+      const dataArray = new Uint8Array(analyser.frequencyBinCount);
+      const animate = () => {
+        analyser.getByteFrequencyData(dataArray);
+        const avg = dataArray.reduce((a,b) => a+b, 0) / dataArray.length;
+        setAmplitude(avg / 255);
+        animRef.current = requestAnimationFrame(animate);
+      };
+      animate();
+
+      // Web Speech API
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'ru-RU';
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.maxAlternatives = 1;
+      recognitionRef.current = recognition;
+      webSpeechTextRef.current = '';
+
+      recognition.onresult = (event) => {
+        let finalText = '';
+        let interimText = '';
+        for (let i = 0; i < event.results.length; i++) {
+          if (event.results[i].isFinal) {
+            finalText += event.results[i][0].transcript + ' ';
+          } else {
+            interimText += event.results[i][0].transcript;
+          }
+        }
+        webSpeechTextRef.current = (finalText + interimText).trim();
+      };
+
+      recognition.onerror = (event) => {
+        console.warn('Web Speech error:', event.error);
+        if (event.error === 'not-allowed') {
+          setResult({ error: 'Нет доступа к микрофону. Разрешите в настройках браузера.' });
+          setState('done');
+        }
+        // Остальные ошибки (network, no-speech) обработаются при остановке
+      };
+
+      recognition.start();
+
+      setState('recording');
+      setResult(null);
+      setSeconds(0);
+
+      // Таймер секунд
+      let sec = 0;
+      timerRef.current = setInterval(() => { sec++; setSeconds(sec); if (sec >= 90) stopRecording(); }, 1000);
+
+    } catch(err) {
+      setResult({ error: 'Нет доступа к микрофону. Разрешите в настройках браузера.' });
+      setState('done');
+    }
+  }, []);
+
+  // ═══ НАЧАТЬ ЗАПИСЬ (Python сервер — fallback) ═══
+  const startServerRecording = useCallback(async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;
@@ -238,21 +364,42 @@ export default function VoiceLeadInput({ onFieldsExtracted, onCommand, disabled 
 
   // ═══ ОСТАНОВИТЬ И ОБРАБОТАТЬ ═══
   const stopRecording = useCallback(async () => {
-    // Останавливаем всё
+    // Останавливаем визуализацию и таймер
     if (animRef.current) cancelAnimationFrame(animRef.current);
     if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null; }
+    setAmplitude(0);
+
+    // Останавливаем аудио
     if (procRef.current) { procRef.current.disconnect(); procRef.current = null; }
     if (ctxRef.current) { try { ctxRef.current.close(); } catch(e){} ctxRef.current = null; }
     if (streamRef.current) { streamRef.current.getTracks().forEach(t => t.stop()); streamRef.current = null; }
-    setAmplitude(0);
 
+    setState('processing');
+
+    // ── РЕЖИМ: Web Speech API ──
+    if (speechMode === 'browser' && recognitionRef.current) {
+      const recognition = recognitionRef.current;
+      recognitionRef.current = null;
+      
+      // Даём 300мс на финализацию
+      await new Promise(resolve => {
+        recognition.onend = resolve;
+        recognition.stop();
+        setTimeout(resolve, 500);
+      });
+
+      const text = webSpeechTextRef.current.trim();
+      webSpeechTextRef.current = '';
+      processRecognizedText(text);
+      return;
+    }
+
+    // ── РЕЖИМ: Python сервер ──
     if (samplesRef.current.length < 1600) { // меньше 0.1 сек
       setResult({ error: 'Слишком короткое сообщение' });
       setState('done');
       return;
     }
-
-    setState('processing');
 
     // Кодируем WAV
     const allSamples = new Float32Array(samplesRef.current.length);
@@ -260,8 +407,9 @@ export default function VoiceLeadInput({ onFieldsExtracted, onCommand, disabled 
     samplesRef.current = [];
     const wavBlob = encodeWAV(allSamples, 16000);
 
-    // Отправляем на сервер
+    // Отправляем на Python сервер
     try {
+      const SPEECH_URL = `http://${window.location.hostname}:8002/recognize`;
       const resp = await fetch(SPEECH_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'audio/wav' },
@@ -270,40 +418,44 @@ export default function VoiceLeadInput({ onFieldsExtracted, onCommand, disabled 
       const data = await resp.json();
 
       if (data.text) {
-        // Парсим поля
-        const cleaned = data.text.replace(/создай|сделай|новую?|заявк[уа]?|лид|заказ/gi, '').trim();
-        const fields = parseAllFields(cleaned || data.text);
-        if (!fields.date) { const d = parseDate(data.text); if (d) fields.date = d; }
-
-        // Отправляем в форму
-        if (onFieldsExtracted && Object.keys(fields).length > 0) {
-          onFieldsExtracted(fields);
-        }
-
-        setResult({ text: data.text, fields });
+        processRecognizedText(data.text);
       } else {
         setResult({ error: data.error || 'Речь не распознана. Попробуйте ещё раз.' });
+        setState('done');
       }
     } catch(err) {
-      setResult({ error: 'Сервер распознавания недоступен. Запустите: python speech_server.py' });
+      // Python сервер недоступен — переключаемся на браузер
+      if (HAS_WEB_SPEECH) {
+        setSpeechMode('browser');
+        setResult({ error: 'Python сервер недоступен. Переключено на распознавание браузера. Нажмите ещё раз.' });
+      } else {
+        setResult({ error: 'Распознавание речи недоступно. Используйте Chrome или Edge.' });
+      }
+      setState('done');
     }
-
-    setState('done');
-  }, [onFieldsExtracted]);
+  }, [speechMode, processRecognizedText]);
 
   // ═══ КЛИК ═══
   const handleClick = useCallback(() => {
     if (state === 'recording') {
       stopRecording();
     } else {
-      startRecording();
+      if (speechMode === 'browser') {
+        startBrowserRecording();
+      } else {
+        startServerRecording();
+      }
     }
-  }, [state, startRecording, stopRecording]);
+  }, [state, speechMode, startBrowserRecording, startServerRecording, stopRecording]);
 
   const reset = () => { setState('idle'); setResult(null); setSeconds(0); };
 
   // ═══ UI ═══
   const circleSize = state === 'recording' ? 80 + amplitude * 40 : 70;
+
+  const modeLabel = speechMode === 'browser' 
+    ? '🌐 Распознавание через браузер (Web Speech API)' 
+    : '🖥️ Распознавание через сервер (Vosk AI)';
 
   return (
     <div style={{
@@ -312,6 +464,30 @@ export default function VoiceLeadInput({ onFieldsExtracted, onCommand, disabled 
       borderRadius: '16px', padding: '16px', marginBottom: '12px',
       display: 'flex', flexDirection: 'column', alignItems: 'center',
     }}>
+
+      {/* ══ ПЕРЕКЛЮЧАТЕЛЬ РЕЖИМА ══ */}
+      {state === 'idle' && (HAS_WEB_SPEECH || serverAvailable) && (
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: '6px',
+          marginBottom: '10px', fontSize: '0.68rem', color: '#94a3b8',
+        }}>
+          <span style={{ color: speechMode === 'browser' ? '#22c55e' : '#38bdf8', fontWeight: 700 }}>
+            {modeLabel}
+          </span>
+          {HAS_WEB_SPEECH && serverAvailable && (
+            <button 
+              onClick={() => setSpeechMode(prev => prev === 'browser' ? 'server' : 'browser')}
+              style={{
+                background: 'rgba(139,92,246,0.2)', border: '1px solid rgba(139,92,246,0.3)',
+                borderRadius: '6px', padding: '2px 8px', fontSize: '0.65rem',
+                color: '#c4b5fd', cursor: 'pointer', fontWeight: 700,
+              }}
+            >
+              Сменить
+            </button>
+          )}
+        </div>
+      )}
 
       {/* ══ КНОПКА-МИКРОФОН ══ */}
       {(state === 'idle' || state === 'recording') && (
