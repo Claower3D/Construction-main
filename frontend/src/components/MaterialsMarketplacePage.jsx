@@ -1,6 +1,7 @@
-import React, { useState, useMemo, useEffect } from 'react';
+﻿import React, { useState, useMemo, useEffect } from 'react';
 import { getBalanceKZT, freezeEscrow, topupBalance } from '../services/walletEngine';
 import { createPlatformOrder } from '../services/orderSyncService';
+import { MARKETPLACE_PRODUCTS } from '../data/marketplaceProducts';
 import './MaterialsMarketplacePage.css';
 
 export default function MaterialsMarketplacePage({ onBack, hideHeader = false }) {
@@ -55,7 +56,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
 
   const categories = [
     { id: 'all', label: '🪄 Все материалы' },
-    { id: 'zhbi', label: '🏗️ ЖБИ, кольца, люки (ТАБЫС-АСМ, Медина)' },
+    { id: 'zhbi', label: '🏗️ ЖБИ, кольца, люки' },
     { id: 'cement', label: '🧱 Цемент и смеси' },
     { id: 'blocks', label: '🧱 Кирпич и блоки' },
     { id: 'metal', label: '🔩 Арматура и металл' },
@@ -64,7 +65,14 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
     { id: 'roofing', label: '🏠 Кровля и фасад' },
     { id: 'drywall', label: '🎨 Гипсокартон и отделка' },
     { id: 'electric', label: '⚡ Электрика и кабель' },
-    { id: 'plumbing', label: '🚿 Сантехника и трубы' }
+    { id: 'plumbing', label: '🚿 Сантехника и трубы' },
+    { id: 'sewer', label: '🔧 Канализация' },
+    { id: 'water', label: '💧 Водоснабжение' },
+    { id: 'heating', label: '🔥 Отопление' },
+    { id: 'tools', label: '🛠 Инструменты' },
+    { id: 'fasteners', label: '🔩 Крепёж и метизы' },
+    { id: 'paint', label: '🎨 ЛКМ и краски' },
+    { id: 'flooring', label: '🪵 Напольные покрытия' },
   ];
 
   const products = [
@@ -81,7 +89,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
       gost: 'ГОСТ 31108-2016',
       inStock: 3400,
       wholesaleNote: 'Опт от 50 мешков: 2 200 ₸',
-      image: 'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=500&q=80',
+      image: '/images/products/cement.jpg',
       badge: 'ХИТ ПРОДАЖ'
     },
     {
@@ -96,7 +104,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
       gost: 'СТ РК ГОСТ 31377',
       inStock: 1200,
       wholesaleNote: 'Опт от 40 шт: 3 350 ₸',
-      image: 'https://images.unsplash.com/photo-1517581177682-a085bb7ffb15?w=500&q=80',
+      image: '/images/products/cement.jpg',
       badge: 'ПРЕМИУМ'
     },
     {
@@ -111,7 +119,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
       gost: 'ГОСТ РК 2026',
       inStock: 2100,
       wholesaleNote: 'Опт от 100 шт: 2 550 ₸',
-      image: 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=500&q=80',
+      image: '/images/products/cement.jpg',
       badge: 'В НАЛИЧИИ'
     },
 
@@ -128,7 +136,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
       gost: 'ГОСТ 31360-2007',
       inStock: 8500,
       wholesaleNote: 'Опт от 10 поддонов (400 шт): 910 ₸',
-      image: 'https://images.unsplash.com/photo-1517581177682-a085bb7ffb15?w=500&q=80',
+      image: '/images/products/blocks.jpg',
       badge: 'ТОП ВЫБОР'
     },
     {
@@ -143,7 +151,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
       gost: 'ГОСТ 530-2012',
       inStock: 45000,
       wholesaleNote: 'Опт от 5000 шт: 76 ₸',
-      image: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=500&q=80',
+      image: '/images/products/blocks.jpg',
       badge: 'ГОСТ РК'
     },
 
@@ -160,7 +168,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
       gost: 'ГОСТ 34028-2016',
       inStock: 120,
       wholesaleNote: 'Опт от 5 тонн: 348 000 ₸',
-      image: 'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=500&q=80',
+      image: '/images/products/metal.jpg',
       badge: 'СЕРТИФИЦИРОВАНО'
     },
     {
@@ -175,7 +183,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
       gost: 'ГОСТ 8639-82',
       inStock: 800,
       wholesaleNote: 'Опт от 50 хлыстов: 4 950 ₸',
-      image: 'https://images.unsplash.com/photo-1531834685032-c34bf0d84c77?w=500&q=80',
+      image: '/images/products/metal.jpg',
       badge: 'В НАЛИЧИИ'
     },
 
@@ -192,7 +200,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
       gost: 'СТ РК ГОСТ 7473-2010',
       inStock: 500,
       wholesaleNote: 'Опт от 50 м³: 22 800 ₸',
-      image: 'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=500&q=80',
+      image: '/images/products/bulk.jpg',
       badge: 'БЫСТРАЯ ДОСТАВКА'
     },
     {
@@ -207,7 +215,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
       gost: 'ГОСТ 8736-2014',
       inStock: 40,
       wholesaleNote: 'От 3 машин: 62 000 ₸',
-      image: 'https://images.unsplash.com/photo-1517581177682-a085bb7ffb15?w=500&q=80',
+      image: '/images/products/bulk.jpg',
       badge: 'КАРЬЕР'
     },
 
@@ -224,7 +232,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
       gost: 'ГОСТ 9573-2012',
       inStock: 650,
       wholesaleNote: 'Опт от 50 упаковок: 8 100 ₸',
-      image: 'https://images.unsplash.com/photo-1517581177682-a085bb7ffb15?w=500&q=80',
+      image: '/images/products/insulation.jpg',
       badge: 'ЭНЕРГОЭФФЕКТИВНОСТЬ'
     },
     {
@@ -239,7 +247,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
       gost: 'ГОСТ 32310-2012',
       inStock: 420,
       wholesaleNote: 'Опт от 30 упаковок: 10 600 ₸',
-      image: 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=500&q=80',
+      image: '/images/products/insulation.jpg',
       badge: 'ВЛАГОСТОЙКИЙ'
     },
 
@@ -256,7 +264,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
       gost: 'ГОСТ 6266-97',
       inStock: 1800,
       wholesaleNote: 'Опт от 50 листов: 3 150 ₸',
-      image: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=500&q=80',
+      image: '/images/products/drywall.jpg',
       badge: 'АКЦИЯ'
     },
 
@@ -273,7 +281,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
       gost: 'ГОСТ 8020-90',
       inStock: 85,
       wholesaleNote: 'Доставка манипулятором. Опт от 5 шт: 43 000 ₸',
-      image: 'https://images.unsplash.com/photo-1541888087425-ce81dfc46928?w=500&q=80',
+      image: '/images/products/zhbi.jpg',
       badge: 'ТАБЫС-АСМ'
     },
     {
@@ -288,7 +296,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
       gost: 'ГОСТ 8020-90',
       inStock: 60,
       wholesaleNote: 'Доставка манипулятором. Опт от 5 шт: 38 000 ₸',
-      image: 'https://images.unsplash.com/photo-1541888087425-ce81dfc46928?w=500&q=80',
+      image: '/images/products/zhbi.jpg',
       badge: 'ТАБЫС-АСМ'
     },
     {
@@ -303,7 +311,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
       gost: 'ГОСТ 8020-90',
       inStock: 45,
       wholesaleNote: 'Доставка манипулятором. В комплекте с посадочным местом',
-      image: 'https://images.unsplash.com/photo-1590069261209-f8e9b8642343?w=500&q=80',
+      image: '/images/products/zhbi.jpg',
       badge: 'ТАБЫС-АСМ'
     },
     {
@@ -318,7 +326,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
       gost: 'ГОСТ 8020-90',
       inStock: 40,
       wholesaleNote: 'Доставка манипулятором. Гидротехнический бетон',
-      image: 'https://images.unsplash.com/photo-1590069261209-f8e9b8642343?w=500&q=80',
+      image: '/images/products/zhbi.jpg',
       badge: 'ТАБЫС-АСМ'
     },
     {
@@ -333,7 +341,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
       gost: 'ГОСТ 8020-90',
       inStock: 120,
       wholesaleNote: 'Хит продаж для септиков и колодцев',
-      image: 'https://images.unsplash.com/photo-1541888087425-ce81dfc46928?w=500&q=80',
+      image: '/images/products/zhbi.jpg',
       badge: 'ХИТ СЕПТИК'
     },
     {
@@ -348,7 +356,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
       gost: 'ГОСТ 8020-90',
       inStock: 75,
       wholesaleNote: 'Доставка манипулятором по Караганде и области',
-      image: 'https://images.unsplash.com/photo-1541888087425-ce81dfc46928?w=500&q=80',
+      image: '/images/products/zhbi.jpg',
       badge: 'ТАБЫС-АСМ'
     },
     {
@@ -363,7 +371,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
       gost: 'ГОСТ 8020-90',
       inStock: 90,
       wholesaleNote: 'С отверстием под стандартный люк',
-      image: 'https://images.unsplash.com/photo-1590069261209-f8e9b8642343?w=500&q=80',
+      image: '/images/products/zhbi.jpg',
       badge: 'ТАБЫС-АСМ'
     },
     {
@@ -378,7 +386,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
       gost: 'ГОСТ 8020-90',
       inStock: 80,
       wholesaleNote: 'Доставка манипулятором',
-      image: 'https://images.unsplash.com/photo-1590069261209-f8e9b8642343?w=500&q=80',
+      image: '/images/products/zhbi.jpg',
       badge: 'ТАБЫС-АСМ'
     },
     {
@@ -393,7 +401,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
       gost: 'ГОСТ 8020-90',
       inStock: 150,
       wholesaleNote: 'Для водопроводных и кабельных колодцев',
-      image: 'https://images.unsplash.com/photo-1541888087425-ce81dfc46928?w=500&q=80',
+      image: '/images/products/zhbi.jpg',
       badge: 'В НАЛИЧИИ'
     },
     {
@@ -408,7 +416,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
       gost: 'ГОСТ 8020-90',
       inStock: 95,
       wholesaleNote: 'Доставка манипулятором',
-      image: 'https://images.unsplash.com/photo-1541888087425-ce81dfc46928?w=500&q=80',
+      image: '/images/products/zhbi.jpg',
       badge: 'ТАБЫС-АСМ'
     },
     {
@@ -423,7 +431,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
       gost: 'ГОСТ 8020-90',
       inStock: 110,
       wholesaleNote: 'Крышка колодца с отверстием',
-      image: 'https://images.unsplash.com/photo-1590069261209-f8e9b8642343?w=500&q=80',
+      image: '/images/products/zhbi.jpg',
       badge: 'ТАБЫС-АСМ'
     },
     {
@@ -438,7 +446,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
       gost: 'ГОСТ 8020-90',
       inStock: 85,
       wholesaleNote: 'Доставка манипулятором',
-      image: 'https://images.unsplash.com/photo-1590069261209-f8e9b8642343?w=500&q=80',
+      image: '/images/products/zhbi.jpg',
       badge: 'ТАБЫС-АСМ'
     },
     {
@@ -453,7 +461,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
       gost: 'ГОСТ 8020-90',
       inStock: 70,
       wholesaleNote: 'Доборное кольцо колодца',
-      image: 'https://images.unsplash.com/photo-1541888087425-ce81dfc46928?w=500&q=80',
+      image: '/images/products/zhbi.jpg',
       badge: 'ТАБЫС-АСМ'
     },
     {
@@ -468,7 +476,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
       gost: 'ГОСТ 8020-90',
       inStock: 65,
       wholesaleNote: 'Доставка манипулятором',
-      image: 'https://images.unsplash.com/photo-1541888087425-ce81dfc46928?w=500&q=80',
+      image: '/images/products/zhbi.jpg',
       badge: 'ТАБЫС-АСМ'
     },
     {
@@ -483,7 +491,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
       gost: 'ГОСТ 8020-90',
       inStock: 130,
       wholesaleNote: 'Выравнивание уровня люка',
-      image: 'https://images.unsplash.com/photo-1541888087425-ce81dfc46928?w=500&q=80',
+      image: '/images/products/zhbi.jpg',
       badge: 'ТАБЫС-АСМ'
     },
     {
@@ -498,7 +506,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
       gost: 'ГОСТ 8020-90',
       inStock: 200,
       wholesaleNote: 'Под люк смотрового колодца',
-      image: 'https://images.unsplash.com/photo-1541888087425-ce81dfc46928?w=500&q=80',
+      image: '/images/products/zhbi.jpg',
       badge: 'ТАБЫС-АСМ'
     },
     {
@@ -513,7 +521,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
       gost: 'ГОСТ 13579-78',
       inStock: 240,
       wholesaleNote: 'Тяжелый бетон для фундаментов и подвалов',
-      image: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=500&q=80',
+      image: '/images/products/zhbi.jpg',
       badge: 'ФУНДАМЕНТ ФБС'
     },
     {
@@ -528,7 +536,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
       gost: 'ГОСТ 13579-78',
       inStock: 180,
       wholesaleNote: 'Доборный фундаментный блок',
-      image: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=500&q=80',
+      image: '/images/products/zhbi.jpg',
       badge: 'ТАБЫС-АСМ'
     },
     {
@@ -543,7 +551,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
       gost: 'ГОСТ 13579-78',
       inStock: 160,
       wholesaleNote: 'Доставка манипулятором',
-      image: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=500&q=80',
+      image: '/images/products/zhbi.jpg',
       badge: 'ТАБЫС-АСМ'
     },
     {
@@ -558,7 +566,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
       gost: 'ГОСТ 23613-79',
       inStock: 50,
       wholesaleNote: 'Вибрированная опора для линий 0.4–10 кВ',
-      image: 'https://images.unsplash.com/photo-1517581177682-a085bb7ffb15?w=500&q=80',
+      image: '/images/products/zhbi.jpg',
       badge: 'ЛЭП ОПОРА'
     },
     {
@@ -573,7 +581,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
       gost: 'ГОСТ 23613-79',
       inStock: 45,
       wholesaleNote: 'Усиленная железобетонная опора ЛЭП 11м',
-      image: 'https://images.unsplash.com/photo-1517581177682-a085bb7ffb15?w=500&q=80',
+      image: '/images/products/zhbi.jpg',
       badge: 'ЛЭП ОПОРА'
     },
 
@@ -590,7 +598,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
       gost: 'ГОСТ 8020-90',
       inStock: 110,
       wholesaleNote: 'Розница: 28 000 ₸ / с документами: 30 000 ₸',
-      image: 'https://images.unsplash.com/photo-1541888087425-ce81dfc46928?w=500&q=80',
+      image: '/images/products/zhbi.jpg',
       badge: 'ИП МЕДИНА'
     },
     {
@@ -605,7 +613,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
       gost: 'ГОСТ 8020-90',
       inStock: 90,
       wholesaleNote: 'Розница: 19 000 ₸ / с документами: 20 000 ₸',
-      image: 'https://images.unsplash.com/photo-1541888087425-ce81dfc46928?w=500&q=80',
+      image: '/images/products/zhbi.jpg',
       badge: 'ИП МЕДИНА'
     },
     {
@@ -620,7 +628,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
       gost: 'ГОСТ 8020-90',
       inStock: 130,
       wholesaleNote: 'Розница: 19 000 ₸ / с документами: 20 000 ₸',
-      image: 'https://images.unsplash.com/photo-1541888087425-ce81dfc46928?w=500&q=80',
+      image: '/images/products/zhbi.jpg',
       badge: 'ИП МЕДИНА'
     },
     {
@@ -635,7 +643,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
       gost: 'ГОСТ 8020-90',
       inStock: 140,
       wholesaleNote: 'Розница: 9 000 ₸ / с документами: 9 500 ₸',
-      image: 'https://images.unsplash.com/photo-1541888087425-ce81dfc46928?w=500&q=80',
+      image: '/images/products/zhbi.jpg',
       badge: 'ИП МЕДИНА'
     },
     {
@@ -650,7 +658,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
       gost: 'ГОСТ 8020-90',
       inStock: 100,
       wholesaleNote: 'Розница: 7 500 ₸ / с документами: 8 000 ₸',
-      image: 'https://images.unsplash.com/photo-1541888087425-ce81dfc46928?w=500&q=80',
+      image: '/images/products/zhbi.jpg',
       badge: 'ИП МЕДИНА'
     },
     {
@@ -665,7 +673,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
       gost: 'ГОСТ 8020-90',
       inStock: 250,
       wholesaleNote: 'Розница: 4 000 ₸ / с документами: 4 500 ₸',
-      image: 'https://images.unsplash.com/photo-1541888087425-ce81dfc46928?w=500&q=80',
+      image: '/images/products/zhbi.jpg',
       badge: 'ИП МЕДИНА'
     },
     {
@@ -680,7 +688,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
       gost: 'ГОСТ 8020-90',
       inStock: 80,
       wholesaleNote: 'Розница: 19 000 ₸ / с документами: 20 000 ₸',
-      image: 'https://images.unsplash.com/photo-1590069261209-f8e9b8642343?w=500&q=80',
+      image: '/images/products/zhbi.jpg',
       badge: 'ИП МЕДИНА'
     },
     {
@@ -695,7 +703,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
       gost: 'ГОСТ 8020-90',
       inStock: 75,
       wholesaleNote: 'Розница: 26 000 ₸ / с документами: 27 000 ₸',
-      image: 'https://images.unsplash.com/photo-1590069261209-f8e9b8642343?w=500&q=80',
+      image: '/images/products/zhbi.jpg',
       badge: 'УСИЛЕННАЯ'
     },
     {
@@ -710,7 +718,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
       gost: 'ГОСТ 8020-90',
       inStock: 50,
       wholesaleNote: 'Розница: 35 000 ₸ / с документами: 36 000 ₸',
-      image: 'https://images.unsplash.com/photo-1590069261209-f8e9b8642343?w=500&q=80',
+      image: '/images/products/zhbi.jpg',
       badge: 'АВТОНАГРУЗКА'
     },
     {
@@ -725,7 +733,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
       gost: 'ГОСТ 8020-90',
       inStock: 65,
       wholesaleNote: 'Розница: 20 000 ₸ / с документами: 21 000 ₸',
-      image: 'https://images.unsplash.com/photo-1590069261209-f8e9b8642343?w=500&q=80',
+      image: '/images/products/zhbi.jpg',
       badge: 'ИП МЕДИНА'
     },
     {
@@ -740,7 +748,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
       gost: 'ГОСТ 8020-90',
       inStock: 90,
       wholesaleNote: 'Розница: 14 000 ₸ / с документами: 15 000 ₸',
-      image: 'https://images.unsplash.com/photo-1590069261209-f8e9b8642343?w=500&q=80',
+      image: '/images/products/zhbi.jpg',
       badge: 'ИП МЕДИНА'
     },
     {
@@ -755,7 +763,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
       gost: 'ГОСТ 8020-90',
       inStock: 70,
       wholesaleNote: 'Розница: 21 000 ₸ / с документами: 23 500 ₸',
-      image: 'https://images.unsplash.com/photo-1590069261209-f8e9b8642343?w=500&q=80',
+      image: '/images/products/zhbi.jpg',
       badge: 'ИП МЕДИНА'
     },
     {
@@ -770,7 +778,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
       gost: 'ГОСТ 8020-90',
       inStock: 80,
       wholesaleNote: 'Розница: 15 000 ₸ / с документами: 16 000 ₸',
-      image: 'https://images.unsplash.com/photo-1590069261209-f8e9b8642343?w=500&q=80',
+      image: '/images/products/zhbi.jpg',
       badge: 'ИП МЕДИНА'
     },
     {
@@ -785,7 +793,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
       gost: 'ГОСТ 8020-90',
       inStock: 180,
       wholesaleNote: 'Розница: 4 000 ₸ / с документами: 4 500 ₸',
-      image: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=500&q=80',
+      image: '/images/products/zhbi.jpg',
       badge: 'ЛЮК ЖБ'
     },
     {
@@ -800,7 +808,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
       gost: 'ГОСТ 3634-99',
       inStock: 140,
       wholesaleNote: 'Розница: 5 000 ₸ / с документами: 5 500 ₸',
-      image: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=500&q=80',
+      image: '/images/products/zhbi.jpg',
       badge: 'ЛЮК КПР-14'
     },
     {
@@ -815,14 +823,17 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
       gost: 'ГОСТ 3634-2019',
       inStock: 160,
       wholesaleNote: 'Высокопрочный композитный люк под грузовой транспорт',
-      image: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=500&q=80',
+      image: '/images/products/zhbi.jpg',
       badge: 'ПОЛИМЕР 25Т'
     }
   ];
 
+  // Merge: hardcoded products + full catalog from data file
+  const allProducts = [...products, ...MARKETPLACE_PRODUCTS];
+
   // Filtered and Sorted Products
   const filteredProducts = useMemo(() => {
-    return products.filter(p => {
+    return allProducts.filter(p => {
       const matchCat = selectedCategory === 'all' || p.category === selectedCategory;
       const matchSearch = p.title.toLowerCase().includes(searchQuery.toLowerCase()) || p.supplier.toLowerCase().includes(searchQuery.toLowerCase());
       const matchCity = selectedCity === 'all' || p.city.toLowerCase() === selectedCity.toLowerCase();

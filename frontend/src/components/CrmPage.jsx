@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import DealCardModal from './DealCardModal';
 import LeadCreateModal from './LeadCreateModal';
+import VoiceLeadInput from './VoiceLeadInput';
 import AnimatedBackground from './AnimatedBackground';
 import '../index.css';
 
@@ -126,34 +127,34 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
   const [statusFilter, setStatusFilter] = useState('all');
   const [roleFilter, setRoleFilter] = useState('all'); // 'all' | 'engineer' | 'executor' | 'lead'
   const [toastMsg, setToastMsg] = useState(null);
+  const [showVoicePanel, setShowVoicePanel] = useState(false);
 
   // Sync CRM events from Go Backend Server
+  const backendAliveRef = useRef(false);
   const syncServerEvents = useCallback(async () => {
     try {
       const res = await fetch('/api/v1/crm/events');
-      if (res.ok) {
-        const data = await res.json();
-        if (data.grouped !== undefined) {
-          // If server is clean/initialized, use the server's authoritative state
-          if (data.total > 0 || localStorage.getItem('qazgost_crm_calendar_initialized')) {
-            setEvents(data.grouped);
-            localStorage.setItem('qazgost_crm_calendar', JSON.stringify(data.grouped));
-            localStorage.setItem('qazgost_crm_calendar_initialized', 'true');
-          } else {
-            // First run on completely clean DB: seed defaults once
-            localStorage.setItem('qazgost_crm_calendar_initialized', 'true');
-            setEvents(DEFAULT_CRM_DEALS);
-            localStorage.setItem('qazgost_crm_calendar', JSON.stringify(DEFAULT_CRM_DEALS));
-            fetch('/api/v1/crm/events/sync', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ events: DEFAULT_CRM_DEALS })
-            }).catch(() => {});
-          }
+      if (!res.ok) { backendAliveRef.current = false; return; }
+      backendAliveRef.current = true;
+      const data = await res.json();
+      if (data.grouped !== undefined) {
+        if (data.total > 0 || localStorage.getItem('qazgost_crm_calendar_initialized')) {
+          setEvents(data.grouped);
+          localStorage.setItem('qazgost_crm_calendar', JSON.stringify(data.grouped));
+          localStorage.setItem('qazgost_crm_calendar_initialized', 'true');
+        } else {
+          localStorage.setItem('qazgost_crm_calendar_initialized', 'true');
+          setEvents(DEFAULT_CRM_DEALS);
+          localStorage.setItem('qazgost_crm_calendar', JSON.stringify(DEFAULT_CRM_DEALS));
+          fetch('/api/v1/crm/events/sync', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ events: DEFAULT_CRM_DEALS })
+          }).catch(() => {});
         }
       }
     } catch (err) {
-      console.warn('CRM server sync offline, using local storage:', err);
+      backendAliveRef.current = false;
     }
   }, []);
 
@@ -165,13 +166,13 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
       } catch { setEvents({}); }
     }
 
-    // Initial server fetch
+    // Initial server fetch (single try)
     syncServerEvents();
 
-    // Real-time server sync polling every 4 seconds across all devices
+    // Poll only if backend responded successfully
     const interval = setInterval(() => {
-      syncServerEvents();
-    }, 4000);
+      if (backendAliveRef.current) syncServerEvents();
+    }, 8000);
 
     return () => clearInterval(interval);
   }, [syncServerEvents]);
@@ -897,6 +898,78 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
             <span style={{ fontSize: '1rem' }}>➕</span> Создать заявку
           </button>
 
+          {/* 🎙️ Голосовое создание лида */}
+          <button
+            onClick={() => setShowVoicePanel(!showVoicePanel)}
+            style={{
+              width: '100%',
+              padding: '10px 14px',
+              borderRadius: '10px',
+              border: showVoicePanel ? '2px solid #8b5cf6' : '2px dashed rgba(139, 92, 246, 0.4)',
+              background: showVoicePanel ? 'rgba(139, 92, 246, 0.2)' : 'rgba(139, 92, 246, 0.08)',
+              color: '#c4b5fd',
+              fontWeight: 900,
+              fontSize: '0.85rem',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              transition: 'all 0.2s ease',
+            }}
+          >
+            <span style={{ fontSize: '1.1rem' }}>🎙️</span> 
+            {showVoicePanel ? 'Скрыть голосовой ввод' : 'Создать лид голосом'}
+          </button>
+
+          {showVoicePanel && (
+            <VoiceLeadInput 
+              onFieldsExtracted={(fields) => {
+                console.log('[VOICE] Received fields, opening modal:', JSON.stringify(fields));
+                const today = new Date();
+                const dateStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+                const payload = {
+                  clientName: fields.clientName || '',
+                  phone: fields.phone || '',
+                  service: fields.service || 'Установка септика',
+                  budget: fields.budget || 1500000,
+                  address: fields.address || '',
+                  date: fields.date || dateStr,
+                  time: '10:00',
+                  notes: fields.notes || '',
+                };
+                // Открываем модалку создания лида с предзаполненными данными
+                setLeadModalDefaults({ date: payload.date, time: payload.time });
+                setShowLeadModal(true);
+                // Заполняем поля формы через кастомный event
+                setTimeout(() => {
+                  window.dispatchEvent(new CustomEvent('voice_lead_prefill', { detail: payload }));
+                }, 200);
+                showToast(`🎙️ Форма заполнена голосом — проверьте и нажмите «Создать»`);
+              }}
+              onCommand={(cmd) => {
+                console.log('[VOICE CMD]', cmd);
+                if (cmd.type === 'show_today') {
+                  setCurrentDate(new Date());
+                  showToast('📅 Показываю заявки за сегодня');
+                } else if (cmd.type === 'filter_status') {
+                  setStatusFilter(cmd.status === 'Новые' ? 'Новые' : cmd.status === 'В работе' ? 'В работе' : cmd.status === 'Закрыто' ? 'Закрыто' : 'all');
+                  showToast(`🔍 Фильтр: ${cmd.status}`);
+                } else if (cmd.type === 'show_all') {
+                  setStatusFilter('all');
+                  showToast('📋 Показываю все заявки');
+                } else if (cmd.type === 'count_leads') {
+                  const allEvents = events || {};
+                  let total = 0;
+                  Object.values(allEvents).forEach(arr => { total += (arr || []).length; });
+                  showToast(`📊 Всего заявок в CRM: ${total}`);
+                } else if (cmd.type === 'create_lead') {
+                  showToast('🎤 Готов к созданию. Диктуйте данные клиента.');
+                }
+              }}
+            />
+          )}
+
           {/* Блок Поиск */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
             <span style={{ fontSize: '0.65rem', fontWeight: 900, color: '#94a3b8', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
@@ -1064,8 +1137,8 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
       )}
       {showLeadModal && (
         <LeadCreateModal
-          defaultDate={leadModalDefaults.date}
-          defaultTime={leadModalDefaults.time}
+          initialDate={leadModalDefaults.date}
+          initialTime={leadModalDefaults.time}
           onClose={() => setShowLeadModal(false)}
           onSave={handleNewLead}
         />

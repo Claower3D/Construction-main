@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { createPlatformOrder } from '../services/orderSyncService';
 import './SmartPhotoEstimatePage.css';
 
@@ -7,11 +7,41 @@ const SYSTEM_OPENAI_PRESETS = {
   KEY_2_DETAILED_ESTIMATE: 'system-key-2-detailed'
 };
 
+const REGIONS = [
+  { id: 'almaty', name: 'Алматы', coeff: 1.00 },
+  { id: 'astana', name: 'Астана', coeff: 1.15 },
+  { id: 'shymkent', name: 'Шымкент', coeff: 0.95 },
+  { id: 'atyrau', name: 'Атырау', coeff: 1.30 },
+  { id: 'aktau', name: 'Актау', coeff: 1.25 },
+  { id: 'karaganda', name: 'Караганда', coeff: 1.05 },
+  { id: 'aktobe', name: 'Актобе', coeff: 1.10 },
+  { id: 'pavlodar', name: 'Павлодар', coeff: 1.08 },
+  { id: 'ust-kamenogorsk', name: 'Усть-Каменогорск', coeff: 1.12 },
+  { id: 'semey', name: 'Семей', coeff: 1.05 },
+  { id: 'kostanay', name: 'Костанай', coeff: 1.05 },
+  { id: 'petropavlovsk', name: 'Петропавловск', coeff: 1.08 },
+  { id: 'uralsk', name: 'Уральск', coeff: 1.10 },
+  { id: 'taldykorgan', name: 'Талдыкорган', coeff: 0.95 },
+  { id: 'turkestan', name: 'Туркестан', coeff: 0.90 },
+  { id: 'kyzylorda', name: 'Кызылорда', coeff: 1.05 },
+  { id: 'taraz', name: 'Тараз', coeff: 0.95 },
+];
+
 export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeGroup, setActiveGroup] = useState('Все');
-  const [selectedCategory, setSelectedCategory] = useState('demolition'); // Default demo
+  const [selectedCategory, setSelectedCategory] = useState('demolition');
   const [isCategorySkipped, setIsCategorySkipped] = useState(false);
+  const [selectedRegion, setSelectedRegion] = useState(() => {
+    try { return localStorage.getItem('qazgost_estimate_region') || 'almaty'; } catch { return 'almaty'; }
+  });
+  const [isDraggingOver, setIsDraggingOver] = useState(false);
+  const [estimateHistory, setEstimateHistory] = useState(() => {
+    try {
+      const saved = localStorage.getItem('qazgost_estimate_history');
+      return saved ? JSON.parse(saved) : [];
+    } catch { return []; }
+  });
   const [analysisModeTab, setAnalysisModeTab] = useState(() => {
     try {
       return localStorage.getItem('qazgost_estimate_analysis_tab') || 'contour';
@@ -163,7 +193,11 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
   };
 
   const removePhoto = (id) => {
-    setPhotos(prev => prev.filter(p => p.id !== id));
+    setPhotos(prev => {
+      const photo = prev.find(p => p.id === id);
+      if (photo?.url) URL.revokeObjectURL(photo.url);
+      return prev.filter(p => p.id !== id);
+    });
   };
 
   // Personal ChatGPT Account Login Handler
@@ -284,9 +318,12 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
     }
     areaPixels = Math.abs(areaPixels) / 2;
     const pxPerMeter = 60;
+    const scaleFactor = scaleM / 3.0;
     const rawArea = areaPixels / (pxPerMeter * pxPerMeter);
-    const areaM2 = Math.round(rawArea * (scaleM / 3.0) * 10) / 10;
-    const perimeterM = Math.round((perimeterPixels / pxPerMeter) * (scaleM / 3.0) * 10) / 10;
+    // Area scales quadratically: (scaleFactor)^2
+    const areaM2 = Math.round(rawArea * scaleFactor * scaleFactor * 10) / 10;
+    // Perimeter scales linearly
+    const perimeterM = Math.round((perimeterPixels / pxPerMeter) * scaleFactor * 10) / 10;
     return {
       area: Math.max(0.5, areaM2),
       perimeter: Math.max(1.0, perimeterM)
@@ -358,9 +395,26 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       if (bgImg) {
-        ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = 'rgba(15, 23, 42, 0.35)';
+        // Draw with correct aspect ratio (contain mode)
+        const imgRatio = bgImg.width / bgImg.height;
+        const canvasRatio = canvas.width / canvas.height;
+        let drawW, drawH, drawX, drawY;
+        if (imgRatio > canvasRatio) {
+          drawW = canvas.width;
+          drawH = canvas.width / imgRatio;
+          drawX = 0;
+          drawY = (canvas.height - drawH) / 2;
+        } else {
+          drawH = canvas.height;
+          drawW = canvas.height * imgRatio;
+          drawX = (canvas.width - drawW) / 2;
+          drawY = 0;
+        }
+        ctx.fillStyle = '#0b0f19';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(bgImg, drawX, drawY, drawW, drawH);
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.35)';
+        ctx.fillRect(drawX, drawY, drawW, drawH);
       } else {
         ctx.fillStyle = '#0b0f19';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -457,132 +511,41 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
     }
   }, [analysisModeTab, photos, selectedContourPhotoIdx, contourPoints, isContourClosed, contourAreaM2, contourPerimeterM, isDrawing, scaleRatioMeters]);
 
+  // Helper: save estimate to history
+  const saveToHistory = useCallback((data) => {
+    const entry = {
+      id: Date.now().toString(36),
+      date: new Date().toLocaleString('ru-RU'),
+      category: data.category,
+      total: data.total,
+      scenario: data.selectedScenario || 'standard',
+      region: REGIONS.find(r => r.id === selectedRegion)?.name || 'Алматы',
+    };
+    setEstimateHistory(prev => {
+      const updated = [entry, ...prev].slice(0, 10);
+      try { localStorage.setItem('qazgost_estimate_history', JSON.stringify(updated)); } catch {}
+      return updated;
+    });
+  }, [selectedRegion]);
+
   const handleRunAiEstimate = async () => {
+    const activeCatObj = categories.find(c => c.id === selectedCategory) || categories[9];
+
+    // Validation
+    if (photos.length === 0 && description.trim().length < 20 && contourAreaM2 === 0) {
+      showToast('⚠️ Загрузите фото, нарисуйте контур или опишите задачу (минимум 20 символов)');
+      return;
+    }
+
     setIsScanning(true);
     setCalculatedEstimate(null);
     setScanStep('⏳ Подготовка данных для анализа...');
 
-    try {
-      const activeCatObj = categories.find(c => c.id === selectedCategory) || categories[9];
+    const regionObj = REGIONS.find(r => r.id === selectedRegion) || REGIONS[0];
 
-      // Determine which API key to use (user's custom key sent to backend via header)
+    try {
       const customGptKey = userGptKey || (typeof window !== 'undefined' && localStorage.getItem('qazgost_user_openai_key'));
       const customGptModel = gptModel || (typeof window !== 'undefined' && localStorage.getItem('qazgost_user_openai_model')) || 'gpt-4o';
-
-      // ═══ AI VISION: Send photos to Go Backend (API keys stay on server!) ═══
-      if (photos.length > 0) {
-        setScanStep('📤 Отправка фото в AI Vision для анализа чертежа...');
-
-        const token = typeof window !== 'undefined' ? (localStorage.getItem('qazgost_token') || localStorage.getItem('token')) : null;
-        const headers = { 'Content-Type': 'application/json' };
-        if (token) headers['Authorization'] = `Bearer ${token}`;
-        if (customGptKey) headers['X-OpenAI-Key'] = customGptKey;
-        if (customGptModel) headers['X-OpenAI-Model'] = customGptModel;
-
-        const photosBase64 = photos.slice(0, 5).filter(p => p.base64).map(p => p.base64);
-
-        setScanStep(`🧠 AI Vision анализирует ${photosBase64.length} фото... (это может занять 10-30 сек)`);
-
-        const visionRes = await fetch('/api/v1/ai/vision', {
-          method: 'POST',
-          headers,
-          body: JSON.stringify({
-            photos: photosBase64,
-            description: description || '',
-            category: isCategorySkipped ? '' : activeCatObj.title,
-            city: 'Алматы',
-            mode: aiEngineMode,
-          })
-        });
-
-        if (visionRes.ok) {
-          const parsed = await visionRes.json();
-
-          setScanStep('📊 Парсинг результатов AI-анализа...');
-
-          if (parsed && (parsed.total_cost || parsed.items || parsed.total)) {
-            const rawTotal = parsed.total_cost || parsed.total || (parsed.works_cost || 0) + (parsed.materials_cost || 0) || 160000;
-            const modeMult = aiEngineMode === 'fast' ? 0.85 : (aiEngineMode === 'detailed' ? 1.25 : 1.0);
-            const total = Math.round(rawTotal * modeMult);
-            const worksCost = Math.round(total * (aiEngineMode === 'detailed' ? 0.52 : (aiEngineMode === 'fast' ? 0.60 : 0.55)));
-            const materialsCost = Math.round(total * (aiEngineMode === 'detailed' ? 0.38 : (aiEngineMode === 'fast' ? 0.35 : 0.40)));
-            const equipmentCost = aiEngineMode === 'detailed' ? Math.round(total * 0.10) : 0;
-            const timelineDays = aiEngineMode === 'fast' ? Math.max(2, Math.round((parsed.timeline_days || 6) * 0.6)) :
-                                 aiEngineMode === 'detailed' ? Math.round((parsed.timeline_days || 7) * 1.6) :
-                                 (parsed.timeline_days || 7);
-
-            // Distinct line items according to selected mode
-            let items = parsed.items || [];
-            if (aiEngineMode === 'fast') {
-              items = [
-                { name: `1. Подготовка и демонтаж основания (${activeCatObj.title})`, volume: 1, unit: 'компл.', unit_price: Math.round(worksCost * 0.25), total: Math.round(worksCost * 0.25), stage: '1. Экспресс-подготовка' },
-                { name: `2. Основной комплекс СМР (${activeCatObj.title})`, volume: 1, unit: 'компл.', unit_price: Math.round(worksCost * 0.55 + materialsCost * 0.7), total: Math.round(worksCost * 0.55 + materialsCost * 0.7), stage: '2. Монтажные работы' },
-                { name: `3. Финишная отделка и сдача объекта`, volume: 1, unit: 'компл.', unit_price: Math.round(worksCost * 0.20 + materialsCost * 0.3), total: Math.round(worksCost * 0.20 + materialsCost * 0.3), stage: '3. Финиш' }
-              ];
-            } else if (aiEngineMode === 'detailed') {
-              items = [
-                { name: `1. Подготовительные работы, разбивка осей и геодезический контроль`, volume: 1, unit: 'компл.', unit_price: Math.round(worksCost * 0.12), total: Math.round(worksCost * 0.12), stage: '1. Подготовка по СНиП' },
-                { name: `2. Демонтаж дефектных элементов и обеспыливание поверхности`, volume: 1, unit: 'компл.', unit_price: Math.round(worksCost * 0.15), total: Math.round(worksCost * 0.15), stage: '1. Подготовка по СНиП' },
-                { name: `3. Основные монтажные работы и силовые конструкции`, volume: 1, unit: 'компл.', unit_price: Math.round(worksCost * 0.38), total: Math.round(worksCost * 0.38), stage: '2. Основные конструкции' },
-                { name: `4. Спецификация сертифицированных материалов ГОСТ / СНиП РК`, volume: 1, unit: 'компл.', unit_price: Math.round(materialsCost * 0.75), total: Math.round(materialsCost * 0.75), stage: '2. Основные конструкции' },
-                { name: `5. Механизмы и спецтехника (кран-манипулятор, самосвал)`, volume: 8, unit: 'маш-час', unit_price: 18000, total: 144000, stage: '3. Механизация' },
-                { name: `6. Защитные, гидроизоляционные и финишные покрытия`, volume: 1, unit: 'компл.', unit_price: Math.round(worksCost * 0.20 + materialsCost * 0.25), total: Math.round(worksCost * 0.20 + materialsCost * 0.25), stage: '4. Финиш' },
-                { name: `7. Составление исполнительной документации и актов АОСР`, volume: 1, unit: 'акт', unit_price: Math.round(worksCost * 0.15), total: Math.round(worksCost * 0.15), stage: '5. Технадзор и сдача' }
-              ];
-            }
-
-            const modeInsights = aiEngineMode === 'fast' ? [
-              `⚡ [БЫСТРЫЙ РЕЖИМ]: Экспресс-оценка по фото в 1 проход без усложнений.`,
-              `⏱️ Срок реализации сокращён до ${timelineDays} дн. за счёт укрупнения этапов.`,
-              `💵 Базовый бюджет без избыточных коэффициентов запаса (запас 5%).`
-            ] : aiEngineMode === 'detailed' ? [
-              `🏗️ [ДЕТАЛЬНЫЙ РЕЖИМ PRO]: 3-проходный инженерный аудит по СНиП РК и ГЭСН-2026.`,
-              `🚜 Включена механизация и спецтехника (манипулятор, самосвал) с почасовой ставкой.`,
-              `📑 Запас на обрезку/бой 12% и обязательное оформление актов скрытых работ (АОСР).`,
-              `🛡️ Полная технологическая карта с нормативными допусками ГОСТ.`
-            ] : [
-              `🤖 [АВТО РЕЖИМ GPT-4o]: Сбалансированный мультимодальный расчёт по фото.`,
-              `🔍 Автоматически выявлены скрытые работы и объёмы материалов.`,
-              `📐 Соответствие средневзвешенным ценам строительного рынка Казахстана.`
-            ];
-
-            const data = {
-              category: parsed.detected_type || activeCatObj.title,
-              mode: aiEngineMode,
-              total: total,
-              worksCost: worksCost,
-              materialsCost: materialsCost,
-              equipmentCost: equipmentCost,
-              timelineDays: timelineDays,
-              dimensions: parsed.dimensions || {},
-              items: items,
-              aiInsights: modeInsights,
-              isRealVision: true,
-              photosAnalyzed: photosBase64.length,
-            };
-
-            setScanStep('✨ Компиляция итоговой сметы...');
-            setTimeout(() => {
-              setIsScanning(false);
-              setCalculatedEstimate(data);
-              showToast(`✅ Анализ завершён в режиме «${aiEngineMode.toUpperCase()}»!`);
-            }, 400);
-            return;
-          }
-        } else {
-          const errBody = await visionRes.json().catch(() => ({}));
-          console.error('AI Vision error:', errBody);
-          showToast(`⚠️ Ошибка AI Vision (${visionRes.status}): ${errBody.error || 'API error'}. Используем локальный расчёт.`);
-        }
-      }
-
-      // ═══ FALLBACK: Backend or local calculation ═══
-      if (photos.length > 0 && !customGptKey) {
-        setScanStep('⚠️ API ключ OpenAI не указан — подключите GPT аккаунт для реального анализа фото. Используется локальный расчёт...');
-        await new Promise(r => setTimeout(r, 1500));
-      }
-
-      setScanStep(`🤖 Расчёт сметы (${aiEngineMode.toUpperCase()}) через Go-движок QazGost AI...`);
 
       const token = typeof window !== 'undefined' ? (localStorage.getItem('qazgost_token') || localStorage.getItem('token')) : null;
       const headers = { 'Content-Type': 'application/json' };
@@ -590,94 +553,169 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
       if (customGptKey) headers['X-OpenAI-Key'] = customGptKey;
       if (customGptModel) headers['X-OpenAI-Model'] = customGptModel;
 
-      const res = await fetch('/api/v1/ai/estimate', {
-        method: 'POST',
-        headers: headers,
-        body: JSON.stringify({
-          description: description || `${activeCatObj.title}: стандартный комплекс работ`,
-          mode: aiEngineMode,
-          scenario: aiEngineMode === 'fast' ? 'economy' : (aiEngineMode === 'detailed' ? 'premium' : 'standard'),
-          category: isCategorySkipped ? '' : activeCatObj.title,
-          city: 'Алматы'
-        })
-      });
+      // ═══ STEP 1: Try AI Vision analysis (send photos to backend pipeline) ═══
+      if (photos.length > 0) {
+        setScanStep(`📤 Отправка ${Math.min(photos.length, 5)} фото в AI Vision...`);
 
-      let data;
-      if (res.ok) {
-        const rawData = await res.json();
-        const rec = rawData.recommended || {};
-        const modeMult = aiEngineMode === 'fast' ? 0.85 : (aiEngineMode === 'detailed' ? 1.25 : 1.0);
-        const baseTot = rec.totalCost || rawData.total || (rec.worksCost + rec.materialsCost) || 135000;
-        const finalTot = Math.round(baseTot * modeMult);
+        const photosBase64 = photos.slice(0, 5).filter(p => p.base64).map(p => p.base64);
+        setScanStep(`🧠 AI Vision анализирует ${photosBase64.length} фото... (10-30 сек)`);
 
-        data = {
-          category: rawData.category || activeCatObj.title,
-          mode: aiEngineMode,
-          total: finalTot,
-          worksCost: Math.round(finalTot * 0.55),
-          materialsCost: Math.round(finalTot * 0.45),
-          timelineDays: aiEngineMode === 'fast' ? 3 : (aiEngineMode === 'detailed' ? 14 : 7),
-          items: rec.items || [],
-          aiInsights: (rawData.aiInsights && rawData.aiInsights.length > 0) ? rawData.aiInsights : [
-            aiEngineMode === 'fast' 
-              ? `⚡ Режим «Быстрый»: экспресс-калькуляция в 1 проход по базовым тарифам (срок 3 дн).`
-              : (aiEngineMode === 'detailed' 
-                  ? `🏗️ Режим «Детальный»: полный 3-проходный инженерный аудит с резервом 15% и допусками СНиП РК.`
-                  : `🤖 Режим «Авто»: сбалансированный мультимодальный расчёт GPT-4o по ценам 2026 года.`),
-            `🔍 Рекомендация технадзора: перед началом работ произвести освидетельствование скрытых работ и составить акт приемки.`
-          ]
-        };
-      } else {
-        const baseRate = activeCatObj.rate || 4500;
-        const estArea = description.match(/\d+[\.,]?\d*/g) ? parseFloat(description.match(/\d+[\.,]?\d*/g)[0]) : 25;
-        const modeMult = aiEngineMode === 'fast' ? 0.85 : (aiEngineMode === 'detailed' ? 1.25 : 1.0);
-        const worksCost = Math.round(baseRate * estArea * modeMult);
-        const materialsCost = Math.round(worksCost * (aiEngineMode === 'detailed' ? 0.85 : 0.70));
-        data = {
-          category: activeCatObj.title,
-          mode: aiEngineMode,
-          total: worksCost + materialsCost,
-          worksCost: worksCost,
-          materialsCost: materialsCost,
-          timelineDays: aiEngineMode === 'fast' ? Math.max(2, Math.round(estArea / 15)) : (aiEngineMode === 'detailed' ? Math.round(estArea / 5) + 4 : Math.max(3, Math.round(estArea / 10))),
-          aiInsights: [
-            aiEngineMode === 'fast' 
-              ? `⚡ Режим «Быстрый»: экспресс-оценка объёма ~${estArea} ед. изм. по базовой ставке.`
-              : (aiEngineMode === 'detailed' 
-                  ? `🏗️ Режим «Детальный»: углублённый расчёт ~${estArea} ед. изм. с запасом материалов и механизацией.`
-                  : `🤖 Режим «Авто»: стандартный расчёт ~${estArea} ед. изм. по нормам СНиП РК.`),
-            `🔍 Рекомендация технадзора: перед началом работ произвести освидетельствование скрытых работ и составить акт приемки.`
-          ]
-        };
+        try {
+          // Correct endpoint: /api/v1/analyze (pipeline.py)
+          const visionRes = await fetch('/api/v1/analyze', {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({
+              photos: photosBase64,
+              description: description || '',
+              category: isCategorySkipped ? '' : activeCatObj.title,
+              city: regionObj.name,
+              region: regionObj.id,
+              mode: aiEngineMode,
+            })
+          });
+
+          if (visionRes.ok) {
+            const parsed = await visionRes.json();
+            setScanStep('📊 Обработка результатов AI-анализа...');
+
+            if (parsed && (parsed.total_cost || parsed.items || parsed.total || parsed.recommended)) {
+              const rec = parsed.recommended || parsed;
+              const data = {
+                category: rec.detected_type || parsed.category || activeCatObj.title,
+                mode: aiEngineMode,
+                total: rec.totalCost || rec.total_cost || parsed.total || 0,
+                worksCost: rec.worksCost || rec.works_cost || 0,
+                materialsCost: rec.materialsCost || rec.materials_cost || 0,
+                equipmentCost: rec.equipmentCost || rec.equipment_cost || 0,
+                timelineDays: rec.timeline_days || rec.timelineDays || 7,
+                dimensions: parsed.dimensions || rec.dimensions || {},
+                items: rec.items || parsed.items || [],
+                aiInsights: parsed.aiInsights || rec.aiInsights || [
+                  `🤖 AI-анализ завершён в режиме «${aiEngineMode.toUpperCase()}»`,
+                  `📐 Регион: ${regionObj.name} (коэффициент ×${regionObj.coeff})`,
+                  `🔍 Рекомендация: перед началом работ произвести освидетельствование скрытых работ.`
+                ],
+                scenarios: parsed.scenarios || null,
+                isRealVision: true,
+                photosAnalyzed: photosBase64.length,
+                region: regionObj.name,
+                regionalCoeff: regionObj.coeff,
+              };
+
+              setScanStep('✨ Компиляция итоговой сметы...');
+              setTimeout(() => {
+                setIsScanning(false);
+                setCalculatedEstimate(data);
+                saveToHistory(data);
+                showToast(`✅ Анализ завершён в режиме «${aiEngineMode.toUpperCase()}»!`);
+              }, 400);
+              return;
+            }
+          } else {
+            const errBody = await visionRes.json().catch(() => ({}));
+            console.warn('AI Vision fallback:', errBody);
+            showToast(`⚠️ AI Vision (${visionRes.status}): переход к локальному расчёту...`);
+          }
+        } catch (netErr) {
+          console.warn('AI Vision network error, using fallback:', netErr);
+        }
       }
 
-      setScanStep('✨ Компиляция итоговой сметы...');
+      // ═══ STEP 2: Fallback — backend estimate endpoint ═══
+      setScanStep(`🤖 Расчёт сметы через QAZGOST AI Engine (${regionObj.name})...`);
 
+      try {
+        // Correct endpoint: /api/v1/estimates (estimates.py)
+        const res = await fetch('/api/v1/estimates', {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({
+            description: description || `${activeCatObj.title}: стандартный комплекс работ`,
+            mode: aiEngineMode,
+            scenario: aiEngineMode === 'fast' ? 'economy' : (aiEngineMode === 'detailed' ? 'premium' : 'standard'),
+            category: isCategorySkipped ? '' : activeCatObj.title,
+            city: regionObj.name,
+            region: regionObj.id,
+            contour_area_m2: contourAreaM2 || 0,
+            contour_perimeter_m: contourPerimeterM || 0,
+          })
+        });
+
+        if (res.ok) {
+          const rawData = await res.json();
+          const rec = rawData.recommended || rawData;
+          const data = {
+            id: rawData.id || null,
+            category: rawData.category || activeCatObj.title,
+            mode: aiEngineMode,
+            total: rec.totalCost || rec.total || rec.estimate_total || 0,
+            worksCost: rec.worksCost || Math.round((rec.totalCost || rec.total || 0) * 0.55),
+            materialsCost: rec.materialsCost || Math.round((rec.totalCost || rec.total || 0) * 0.45),
+            timelineDays: rec.timelineDays || rec.timeline_days || 7,
+            items: rec.items || [],
+            scenarios: rawData.scenarios || null,
+            aiInsights: rawData.aiInsights || [
+              `🤖 Расчёт по нормам СНиП РК в режиме «${aiEngineMode.toUpperCase()}»`,
+              `📐 Регион: ${regionObj.name} (×${regionObj.coeff})`,
+              `🔍 Рекомендация технадзора: произвести освидетельствование скрытых работ.`
+            ],
+            region: regionObj.name,
+            regionalCoeff: regionObj.coeff,
+          };
+
+          setScanStep('✨ Компиляция итоговой сметы...');
+          setTimeout(() => {
+            setIsScanning(false);
+            setCalculatedEstimate(data);
+            saveToHistory(data);
+            showToast('✅ AI-Расчёт сметы завершён!');
+          }, 400);
+          return;
+        }
+      } catch (backendErr) {
+        console.warn('Backend estimate fallback:', backendErr);
+      }
+
+      // ═══ STEP 3: Full local fallback ═══
+      setScanStep('📱 Локальный расчёт по базовым ставкам...');
+      const baseRate = activeCatObj.rate || 4500;
+      const estArea = contourAreaM2 > 0 ? contourAreaM2 :
+        (description.match(/\d+[\.,]?\d*/g) ? parseFloat(description.match(/\d+[\.,]?\d*/g)[0]) : 25);
+      const worksCost = Math.round(baseRate * estArea * regionObj.coeff);
+      const materialsCost = Math.round(worksCost * 0.75);
+      const data = {
+        category: activeCatObj.title,
+        mode: aiEngineMode,
+        total: worksCost + materialsCost,
+        worksCost,
+        materialsCost,
+        timelineDays: Math.max(3, Math.round(estArea / 8)),
+        items: [
+          { name: `${activeCatObj.title} — комплекс СМР`, volume: estArea, unit: activeCatObj.id.includes('earth') ? 'м³' : 'м²', unit_price: baseRate, total: worksCost },
+          { name: 'Строительные материалы (базовый комплект)', volume: 1, unit: 'компл.', unit_price: materialsCost, total: materialsCost },
+        ],
+        aiInsights: [
+          `📱 Локальный расчёт: объём ~${estArea} ед. × ставка ${baseRate.toLocaleString()} ₸`,
+          `📐 Регион: ${regionObj.name} (×${regionObj.coeff})`,
+          `⚠️ Для точного расчёта подключите AI-сервер (порт 8001).`
+        ],
+        region: regionObj.name,
+        regionalCoeff: regionObj.coeff,
+      };
+
+      setScanStep('✨ Компиляция итоговой сметы...');
       setTimeout(() => {
         setIsScanning(false);
         setCalculatedEstimate(data);
-        showToast('✅ AI-Расчёт сметы успешно завершён!');
+        saveToHistory(data);
+        showToast('✅ Смета рассчитана (локальный режим)');
       }, 500);
 
     } catch (err) {
-      console.error(err);
-      const activeCatObj = categories.find(c => c.id === selectedCategory) || categories[9];
-      const baseRate = activeCatObj.rate || 4500;
-      const data = {
-        category: activeCatObj.title,
-        total: baseRate * 35,
-        worksCost: Math.round(baseRate * 35 * 0.6),
-        materialsCost: Math.round(baseRate * 35 * 0.4),
-        timelineDays: 4,
-        aiInsights: [
-          `✅ Калькуляция сметы выполнена на основе стандартов СНиП РК.`,
-          `📐 Режим: ${aiEngineMode.toUpperCase()} сметный расчёт.`,
-          `🛡️ Все позиции соответствуют актуальным сметным ценам РК 2026.`
-        ]
-      };
+      console.error('Estimate error:', err);
       setIsScanning(false);
-      setCalculatedEstimate(data);
-      showToast('✅ Смета успешно рассчитана!');
+      showToast('❌ Ошибка расчёта. Попробуйте ещё раз.');
     }
   };
 
@@ -963,6 +1001,18 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
                 width={800}
                 height={450}
                 onClick={handleCanvasClick}
+                onTouchEnd={(e) => {
+                  e.preventDefault();
+                  const touch = e.changedTouches[0];
+                  if (touch) {
+                    const rect = canvasRef.current.getBoundingClientRect();
+                    handleCanvasClick({
+                      clientX: touch.clientX,
+                      clientY: touch.clientY,
+                      target: canvasRef.current,
+                    });
+                  }
+                }}
                 style={{
                   width: '100%',
                   maxHeight: '450px',
@@ -1019,10 +1069,22 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
         </div>
       </div>
 
-      {/* Upload Dropzone */}
+      {/* Upload Dropzone with Drag-and-Drop */}
       <div
-        className="spe-dropzone"
+        className={`spe-dropzone ${isDraggingOver ? 'drag-active' : ''}`}
         onClick={() => document.getElementById('spe-file-picker').click()}
+        onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
+        onDragEnter={(e) => { e.preventDefault(); e.stopPropagation(); setIsDraggingOver(true); }}
+        onDragLeave={(e) => { e.preventDefault(); e.stopPropagation(); setIsDraggingOver(false); }}
+        onDrop={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setIsDraggingOver(false);
+          const dt = e.dataTransfer;
+          if (dt?.files?.length > 0) {
+            handleFileUpload({ target: { files: dt.files } });
+          }
+        }}
       >
         <input
           type="file"
@@ -1032,8 +1094,8 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
           style={{ display: 'none' }}
           onChange={handleFileUpload}
         />
-        <div className="spe-drop-icon">📸</div>
-        <p className="spe-drop-main">Перетащите фото или нажмите для выбора</p>
+        <div className="spe-drop-icon">{isDraggingOver ? '📥' : '📸'}</div>
+        <p className="spe-drop-main">{isDraggingOver ? 'Отпустите файлы для загрузки' : 'Перетащите фото или нажмите для выбора'}</p>
         <p className="spe-drop-sub">JPG, PNG - до 10MB каждое - до 10 фото</p>
       </div>
 
@@ -1081,6 +1143,28 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
         value={description}
         onChange={e => setDescription(e.target.value)}
       ></textarea>
+
+      {/* Region Selector */}
+      <div className="spe-region-row">
+        <label className="spe-region-label">📍 Регион строительства:</label>
+        <select
+          className="spe-region-select"
+          value={selectedRegion}
+          onChange={e => {
+            setSelectedRegion(e.target.value);
+            try { localStorage.setItem('qazgost_estimate_region', e.target.value); } catch {}
+          }}
+        >
+          {REGIONS.map(r => (
+            <option key={r.id} value={r.id}>
+              {r.name} {r.coeff !== 1.0 ? `(×${r.coeff.toFixed(2)})` : '(базовый)'}
+            </option>
+          ))}
+        </select>
+        <span className="spe-region-coeff">
+          Коэфф. ×{(REGIONS.find(r => r.id === selectedRegion)?.coeff || 1.0).toFixed(2)}
+        </span>
+      </div>
 
       {/* AI Provider Status */}
       <div className="spe-provider-banner" style={{ background: 'rgba(16, 185, 129, 0.14)', border: '1px solid rgba(16, 185, 129, 0.4)', color: '#6ee7b7', display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 16px', borderRadius: '12px', marginTop: '10px' }}>
@@ -1412,10 +1496,43 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
                 </button>
 
                 <button
-                  onClick={() => showToast('📄 Официальная смета ГОСТ КЗ скачана в формате PDF')}
-                  style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.18)', color: '#38bdf8', padding: '14px 16px', borderRadius: '10px', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                  onClick={() => {
+                    // Generate real CSV file from estimate data
+                    const scMult = selectedScenario === 'economy' ? 0.85 : (selectedScenario === 'premium' ? 1.25 : 1.0);
+                    const scenarioName = selectedScenario === 'economy' ? 'Эконом' : (selectedScenario === 'premium' ? 'Премиум' : 'Стандарт');
+                    const lines = [
+                      '\ufeff',
+                      `СМЕТА (${scenarioName}) — QazGost AI Engine`,
+                      `Категория: ${calculatedEstimate.category}`,
+                      `Регион: ${calculatedEstimate.region || 'Алматы'}`,
+                      `Дата: ${new Date().toLocaleDateString('ru-RU')}`,
+                      '',
+                      '№;Наименование;Объём;Ед.;Цена за ед.;Сумма',
+                    ];
+                    (calculatedEstimate.items || []).forEach((item, i) => {
+                      const qty = item.volume || item.quantity || 1;
+                      const up = Math.round((item.unit_price || item.unitPrice || 0) * scMult);
+                      const tot = item.total ? Math.round(item.total * scMult) : Math.round(qty * up);
+                      lines.push(`${i + 1};${item.name};${qty};${item.unit || 'ед.'};${up};${tot}`);
+                    });
+                    lines.push('');
+                    lines.push(`;;;;;;ИТОГО СМР: ${(calculatedEstimate.worksCost || 0).toLocaleString()} ₸`);
+                    lines.push(`;;;;;;ИТОГО Материалы: ${(calculatedEstimate.materialsCost || 0).toLocaleString()} ₸`);
+                    lines.push(`;;;;;;ВСЕГО: ${Math.round((calculatedEstimate.total || 0) * scMult).toLocaleString()} ₸`);
+                    lines.push(`;;;;;;Срок: ~${calculatedEstimate.timelineDays || 7} дней`);
+
+                    const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `smeta_${calculatedEstimate.category}_${Date.now()}.csv`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    showToast('📥 Смета скачана в формате CSV');
+                  }}
+                  className="spe-btn-export"
                 >
-                  <span>📥 Скачать смету (PDF)</span>
+                  <span>📥 Скачать смету (CSV)</span>
                 </button>
 
                 <button
@@ -1489,116 +1606,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
                 </div>
               ) : (
                 <>
-                  {/* Tabs: Login vs API Key */}
-                  <div className="spe-gpt-tabs">
-                    <button
-                      className={`spe-gpt-tab-btn ${gptAuthTab === 'login' ? 'active' : ''}`}
-                      onClick={() => setGptAuthTab('login')}
-                    >
-                      <span>👤 Вход в аккаунт OpenAI</span>
-                    </button>
-
-                    <button
-                      className={`spe-gpt-tab-btn ${gptAuthTab === 'apikey' ? 'active' : ''}`}
-                      onClick={() => setGptAuthTab('apikey')}
-                    >
-                      <span>🔑 Secret API Key</span>
-                    </button>
-                  </div>
-
-                  {/* TAB 1: PERSONAL ACCOUNT LOGIN FORM */}
-                  {gptAuthTab === 'login' && (
-                    <form onSubmit={handlePersonalGptLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                      <div className="spe-gpt-info-pill">
-                        <span style={{ fontSize: '1.2rem' }}>💡</span>
-                        <div>
-                          Введите данные вашего <strong>личного аккаунта ChatGPT</strong>. Платформа подключится к вашей подписке для прямого анализа фото и смет.
-                        </div>
-                      </div>
-
-                      <div>
-                        <label style={{ display: 'block', fontSize: '0.82rem', color: '#cbd5e1', marginBottom: '0.35rem', fontWeight: 700 }}>
-                          Ваш Email от ChatGPT / OpenAI:
-                        </label>
-                        <input
-                          type="email"
-                          placeholder="например: ivan.petrov@gmail.com"
-                          value={loginEmail}
-                          onChange={e => setLoginEmail(e.target.value)}
-                          className="spe-gpt-input"
-                          style={{ width: '100%' }}
-                          required
-                          autoFocus
-                        />
-                      </div>
-
-                      <div>
-                        <label style={{ display: 'block', fontSize: '0.82rem', color: '#cbd5e1', marginBottom: '0.35rem', fontWeight: 700 }}>
-                          Пароль от аккаунта ChatGPT:
-                        </label>
-                        <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-                          <input
-                            type={showPassword ? 'text' : 'password'}
-                            placeholder="Ваш пароль"
-                            value={loginPassword}
-                            onChange={e => setLoginPassword(e.target.value)}
-                            className="spe-gpt-input"
-                            style={{ width: '100%', paddingRight: '45px' }}
-                            required
-                          />
-                          <button
-                            type="button"
-                            onClick={() => setShowPassword(!showPassword)}
-                            style={{ position: 'absolute', right: '10px', background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer', fontSize: '1rem' }}
-                            title={showPassword ? 'Скрыть' : 'Показать'}
-                          >
-                            {showPassword ? '🙈' : '👁️'}
-                          </button>
-                        </div>
-                      </div>
-
-                      <div>
-                        <label style={{ display: 'block', fontSize: '0.82rem', color: '#cbd5e1', marginBottom: '0.35rem', fontWeight: 700 }}>
-                          Ваш тариф подписки:
-                        </label>
-                        <select
-                          value={userPlan}
-                          onChange={e => setUserPlan(e.target.value)}
-                          className="spe-gpt-select"
-                        >
-                          <option value="ChatGPT Plus (GPT-4o Vision)">⭐ ChatGPT Plus (GPT-4o Vision)</option>
-                          <option value="ChatGPT Pro / Team (o1 & o3)">🚀 ChatGPT Pro / Team (o1 & o3-mini)</option>
-                          <option value="ChatGPT Free (Базовый)">⚡ ChatGPT Free (Базовый доступ)</option>
-                          <option value="ChatGPT Enterprise">🏢 ChatGPT Enterprise (Корпоративный)</option>
-                        </select>
-                      </div>
-
-                      <button
-                        type="submit"
-                        className="spe-gpt-btn-oauth"
-                        disabled={isLoggingInGpt}
-                        style={{ marginTop: '0.5rem' }}
-                      >
-                        <span>{isLoggingInGpt ? '⏳ Подключение к OpenAI...' : '🟢 Войти в мой аккаунт ChatGPT'}</span>
-                      </button>
-
-                      <div className="spe-gpt-or-divider">
-                        <span>или</span>
-                      </div>
-
-                      <button
-                        type="button"
-                        onClick={handleOpenOpenAIOAuth}
-                        style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', color: '#38bdf8', padding: '10px', borderRadius: '12px', fontSize: '0.85rem', cursor: 'pointer', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
-                      >
-                        <span>🌐</span>
-                        <span>Открыть chatgpt.com для авторизации в браузере</span>
-                      </button>
-                    </form>
-                  )}
-
-                  {/* TAB 2: SECRET API KEY */}
-                  {gptAuthTab === 'apikey' && (
+                  {/* API Key Connection (only real method) */}
                     <form onSubmit={handleSaveGptKey} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
                       {/* Presets for Key #1 and Key #2 */}
                       <div>
@@ -1702,11 +1710,26 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
                         </button>
                       </div>
                     </form>
-                  )}
                 </>
               )}
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Estimate History */}
+      {estimateHistory.length > 0 && (
+        <div className="spe-history-section">
+          <div className="spe-history-title">📋 История расчётов (последние {estimateHistory.length})</div>
+          {estimateHistory.map((h, i) => (
+            <div key={h.id || i} className="spe-history-item">
+              <div>
+                <div className="spe-history-category">{h.category}</div>
+                <div className="spe-history-meta">{h.date} • {h.region}</div>
+              </div>
+              <div className="spe-history-total">{(h.total || 0).toLocaleString()} ₸</div>
+            </div>
+          ))}
         </div>
       )}
     </div>

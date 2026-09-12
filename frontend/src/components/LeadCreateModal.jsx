@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import './LeadCreateModal.css';
+import VoiceLeadInput from './VoiceLeadInput';
 
 export default function LeadCreateModal({ onClose, onSave, initialDate = '', initialTime = '' }) {
   const [leadData, setLeadData] = useState({
@@ -33,10 +34,46 @@ export default function LeadCreateModal({ onClose, onSave, initialDate = '', ini
     }));
   };
 
+  const handleVoiceFields = useCallback((fields) => {
+    setLeadData(prev => {
+      const updated = { ...prev };
+      if (fields.clientName) updated.clientName = fields.clientName;
+      if (fields.phone) updated.phone = fields.phone;
+      if (fields.service) updated.service = fields.service;
+      if (fields.budget) updated.budget = fields.budget;
+      if (fields.address) updated.address = fields.address;
+      if (fields.notes) updated.notes = fields.notes;
+      if (fields.date) updated.date = fields.date;
+      return updated;
+    });
+  }, []);
+
   const handleSubmit = () => {
     // We send the lead data up
     onSave(leadData);
   };
+
+  // Listen for voice prefill events from CrmPage
+  React.useEffect(() => {
+    const handler = (e) => {
+      const d = e.detail;
+      if (d) {
+        setLeadData(prev => ({
+          ...prev,
+          clientName: d.clientName || prev.clientName,
+          phone: d.phone || prev.phone,
+          service: d.service || prev.service,
+          budget: d.budget || prev.budget,
+          address: d.address || prev.address,
+          date: d.date || prev.date,
+          time: d.time || prev.time,
+          notes: d.notes || prev.notes,
+        }));
+      }
+    };
+    window.addEventListener('voice_lead_prefill', handler);
+    return () => window.removeEventListener('voice_lead_prefill', handler);
+  }, []);
 
   return (
     <div className="lead-modal-overlay" onClick={onClose}>
@@ -54,6 +91,7 @@ export default function LeadCreateModal({ onClose, onSave, initialDate = '', ini
         </div>
 
         <div className="lead-modal-body">
+          <VoiceLeadInput onFieldsExtracted={handleVoiceFields} />
           <div className="lead-modal-grid">
             <div className="lead-modal-field">
               <span className="lead-modal-label">👤 Клиент</span>

@@ -128,7 +128,8 @@ cors_origins = list(settings.CORS_ORIGINS)
 if settings.CORS_DEV:
     cors_origins.extend([
         "http://localhost:3000", "http://localhost:5173",
-        "http://localhost:8080", "http://127.0.0.1:5500",
+        "http://localhost:5174", "http://localhost:8080",
+        "http://127.0.0.1:5174", "http://127.0.0.1:5500",
     ])
 
 # Production-safe CORS: explicit methods and headers instead of wildcard
@@ -184,6 +185,14 @@ try:
     logger.info("✅ Engineering & LiDAR API routes registered")
 except ImportError as e:
     logger.warning(f"⚠️  Engineering routes not loaded: {e}")
+
+# CRM Voice Assistant: Speech-to-Text
+try:
+    from app.api.v1.speech import router as speech_router
+    app.include_router(speech_router, prefix="/api/v1", tags=["Speech"])
+    logger.info("✅ Speech-to-Text API route registered")
+except ImportError as e:
+    logger.warning(f"⚠️  Speech routes not loaded: {e}")
 
 # Prometheus metrics middleware
 app.middleware("http")(metrics.metrics_middleware)
