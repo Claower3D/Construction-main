@@ -48,18 +48,75 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
 
   const canvasRef = useRef(null);
   const imgRef = useRef(null);
+  const [crackData, setCrackData] = useState(null); // {crackPoints, measurements} from CV
 
   const drawOverlay = useCallback(() => {
-    const img = imgRef.current;
+    const imgEl = imgRef.current;
     const canvas = canvasRef.current;
-    if (!img || !canvas || visionMode === 'clean' || defectMarkers.length === 0) {
+    if (!imgEl || !canvas || visionMode === 'clean') {
       if (canvas) { const ctx = canvas.getContext('2d'); ctx.clearRect(0, 0, canvas.width, canvas.height); }
       return;
     }
-    canvas.width = img.naturalWidth || img.width;
-    canvas.height = img.naturalHeight || img.height;
+    
+    const cw = imgEl.clientWidth || imgEl.width || 400;
+    const ch = imgEl.clientHeight || imgEl.height || 300;
+    canvas.width = cw;
+    canvas.height = ch;
     const ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, cw, ch);
+
+    // ========== DRAW CRACK PIXELS (from CV data) ==========
+    if (crackData && crackData.crackPoints && crackData.crackPoints.length > 0 && visionMode === 'hud') {
+      // Draw each crack pixel as a small rect
+      crackData.crackPoints.forEach(pt => {
+        const x = (pt.xPct / 100) * cw;
+        const y = (pt.yPct / 100) * ch;
+        if (pt.strength === 2) {
+          ctx.fillStyle = 'rgba(0, 220, 255, 0.85)';
+          ctx.fillRect(x - 1, y - 1, 3, 3);
+        } else {
+          ctx.fillStyle = 'rgba(0, 160, 255, 0.5)';
+          ctx.fillRect(x, y, 2, 2);
+        }
+      });
+
+      // Draw measurement points
+      if (crackData.measurements) {
+        crackData.measurements.forEach(m => {
+          const mx = (m.xPct / 100) * cw;
+          const my = (m.yPct / 100) * ch;
+          // Yellow dot
+          ctx.fillStyle = '#FFD700';
+          ctx.beginPath();
+          ctx.arc(mx, my, 5, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.strokeStyle = '#FF6600';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+          // Label
+          ctx.fillStyle = '#FFD700';
+          ctx.font = 'bold 11px sans-serif';
+          ctx.shadowColor = 'rgba(0,0,0,0.8)';
+          ctx.shadowBlur = 3;
+          ctx.fillText(`d=${m.widthMM}мм`, mx + 8, my - 5);
+          ctx.shadowBlur = 0;
+        });
+      }
+    }
+
+    // ========== STRESS HEATMAP overlay ==========
+    if (visionMode === 'stress' && crackData && crackData.crackPoints && crackData.crackPoints.length > 0) {
+      crackData.crackPoints.forEach(pt => {
+        const x = (pt.xPct / 100) * cw;
+        const y = (pt.yPct / 100) * ch;
+        const r = pt.strength === 2 ? 15 : 8;
+        const grad = ctx.createRadialGradient(x, y, 1, x, y, r);
+        grad.addColorStop(0, pt.strength === 2 ? 'rgba(255,30,30,0.3)' : 'rgba(255,150,0,0.2)');
+        grad.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = grad;
+        ctx.fillRect(x - r, y - r, r * 2, r * 2);
+      });
+    }
 
     const sevColors = {
       critical: { stroke: '#ff2828', fill: 'rgba(255,40,40,0.18)', text: 'КРИТИЧ.' },
@@ -68,116 +125,58 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
       low: { stroke: '#50c850', fill: 'rgba(80,200,80,0.12)', text: 'НИЗКИЙ' },
     };
 
-    // Heatmap gradient for stress mode
-    if (visionMode === 'stress') {
-      defectMarkers.forEach(m => {
+    // ========== DRAW BOUNDING BOXES ==========
+    if (defectMarkers.length > 0) {
+      defectMarkers.forEach((m, idx) => {
         if (!m.bbox) return;
-        const cx = ((m.bbox[0] + m.bbox[2]) / 2 / 100) * canvas.width;
-        const cy = ((m.bbox[1] + m.bbox[3]) / 2 / 100) * canvas.height;
-        const r = Math.max(canvas.width, canvas.height) * 0.25;
-        const grad = ctx.createRadialGradient(cx, cy, 10, cx, cy, r);
-        grad.addColorStop(0, 'rgba(255,0,0,0.35)');
-        grad.addColorStop(0.3, 'rgba(255,100,0,0.2)');
-        grad.addColorStop(0.6, 'rgba(255,255,0,0.1)');
-        grad.addColorStop(1, 'rgba(0,100,255,0.02)');
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        const s = sevColors[m.severity] || sevColors.medium;
+        const x = (m.bbox[0] / 100) * cw;
+        const y = (m.bbox[1] / 100) * ch;
+        const bw = ((m.bbox[2] - m.bbox[0]) / 100) * cw;
+        const bh = ((m.bbox[3] - m.bbox[1]) / 100) * ch;
+
+        // Filled box
+        ctx.fillStyle = s.fill;
+        ctx.fillRect(x, y, bw, bh);
+
+        // Border
+        ctx.strokeStyle = s.stroke;
+        ctx.lineWidth = 2;
+        ctx.setLineDash([]);
+        ctx.strokeRect(x, y, bw, bh);
+
+        // Corner brackets
+        const bLen = Math.min(bw, bh) * 0.2;
+        ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.moveTo(x, y + bLen); ctx.lineTo(x, y); ctx.lineTo(x + bLen, y); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x + bw - bLen, y); ctx.lineTo(x + bw, y); ctx.lineTo(x + bw, y + bLen); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x, y + bh - bLen); ctx.lineTo(x, y + bh); ctx.lineTo(x + bLen, y + bh); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x + bw - bLen, y + bh); ctx.lineTo(x + bw, y + bh); ctx.lineTo(x + bw, y + bh - bLen); ctx.stroke();
+
+        // Label
+        const fontSize = Math.max(11, Math.min(cw * 0.022, 16));
+        ctx.font = `bold ${fontSize}px sans-serif`;
+        const label = `#${idx + 1} ${s.text} ${m.area_percent ? m.area_percent + '%' : ''}`;
+        const tw = ctx.measureText(label).width;
+        const lh = fontSize + 6;
+        const ly = y - lh - 2;
+        ctx.fillStyle = s.stroke;
+        ctx.fillRect(x, ly < 0 ? y : ly, tw + 10, lh);
+        ctx.fillStyle = '#fff';
+        ctx.fillText(label, x + 5, (ly < 0 ? y + lh - 4 : ly + lh - 4));
       });
     }
 
-    // Skeleton lines for skeleton mode
-    if (visionMode === 'skeleton') {
-      ctx.strokeStyle = '#a855f7';
-      ctx.lineWidth = 2.5;
-      ctx.setLineDash([6, 4]);
-      defectMarkers.forEach(m => {
-        if (!m.bbox) return;
-        const x1 = (m.bbox[0] / 100) * canvas.width;
-        const y1 = (m.bbox[1] / 100) * canvas.height;
-        const x2 = (m.bbox[2] / 100) * canvas.width;
-        const y2 = (m.bbox[3] / 100) * canvas.height;
-        const mx = (x1 + x2) / 2;
-        const my = (y1 + y2) / 2;
-        ctx.beginPath();
-        ctx.moveTo(x1, y1);
-        ctx.quadraticCurveTo(mx + 20, my - 15, x2, y2);
-        ctx.stroke();
-        // Additional crack lines
-        ctx.beginPath();
-        ctx.moveTo(x1 + 10, y2 - 5);
-        ctx.quadraticCurveTo(mx - 10, my + 10, x2 - 5, y1 + 10);
-        ctx.stroke();
-      });
-      ctx.setLineDash([]);
-    }
-
-    // Draw markers
-    defectMarkers.forEach((m, idx) => {
-      if (!m.bbox) return;
-      const s = sevColors[m.severity] || sevColors.medium;
-      const x = (m.bbox[0] / 100) * canvas.width;
-      const y = (m.bbox[1] / 100) * canvas.height;
-      const w = ((m.bbox[2] - m.bbox[0]) / 100) * canvas.width;
-      const h = ((m.bbox[3] - m.bbox[1]) / 100) * canvas.height;
-
-      // Filled box
-      ctx.fillStyle = s.fill;
-      ctx.fillRect(x, y, w, h);
-
-      // Border
-      ctx.strokeStyle = s.stroke;
-      ctx.lineWidth = 3;
-      ctx.setLineDash([]);
-      ctx.strokeRect(x, y, w, h);
-
-      // Corner brackets
-      const bLen = Math.min(w, h) * 0.25;
-      ctx.lineWidth = 4;
-      ctx.beginPath(); ctx.moveTo(x, y + bLen); ctx.lineTo(x, y); ctx.lineTo(x + bLen, y); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(x + w - bLen, y); ctx.lineTo(x + w, y); ctx.lineTo(x + w, y + bLen); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(x, y + h - bLen); ctx.lineTo(x, y + h); ctx.lineTo(x + bLen, y + h); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(x + w - bLen, y + h); ctx.lineTo(x + w, y + h); ctx.lineTo(x + w, y + h - bLen); ctx.stroke();
-
-      // Label
-      const fontSize = Math.max(12, Math.min(canvas.width * 0.025, 18));
-      ctx.font = `bold ${fontSize}px sans-serif`;
-      const label = `#${idx + 1} ${s.text} ${m.area_percent ? m.area_percent + '%' : ''}`;
-      const tw = ctx.measureText(label).width;
-      const lh = fontSize + 6;
-      const ly = y - lh - 2;
-      ctx.fillStyle = s.stroke;
-      ctx.fillRect(x, ly < 0 ? y : ly, tw + 10, lh);
-      ctx.fillStyle = '#fff';
-      ctx.fillText(label, x + 5, (ly < 0 ? y + lh - 4 : ly + lh - 4));
-
-      // Dimensions
-      if (m.length_mm) {
-        ctx.font = `bold ${Math.max(10, fontSize * 0.8)}px sans-serif`;
-        ctx.fillStyle = '#38bdf8';
-        ctx.fillText(`${m.length_mm}мм`, x + w + 6, y + h * 0.4);
-      }
-      if (m.opening_mm) {
-        ctx.font = `bold ${Math.max(10, fontSize * 0.8)}px sans-serif`;
-        ctx.fillStyle = '#fbbf24';
-        ctx.fillText(`${m.opening_mm}мм`, x + w + 6, y + h * 0.7);
-      }
-    });
-
-    // HUD grid
+    // HUD grid lines
     if (visionMode === 'hud') {
-      ctx.strokeStyle = 'rgba(56, 189, 248, 0.12)';
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.1)';
       ctx.lineWidth = 1;
-      ctx.setLineDash([]);
-      for (let gx = 0; gx < canvas.width; gx += canvas.width / 8) {
-        ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, canvas.height); ctx.stroke();
-      }
-      for (let gy = 0; gy < canvas.height; gy += canvas.height / 6) {
-        ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(canvas.width, gy); ctx.stroke();
-      }
+      for (let gx = 0; gx < cw; gx += cw / 8) { ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, ch); ctx.stroke(); }
+      for (let gy = 0; gy < ch; gy += ch / 6) { ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(cw, gy); ctx.stroke(); }
     }
-  }, [visionMode, defectMarkers]);
+  }, [visionMode, defectMarkers, crackData]);
 
-  useEffect(() => { drawOverlay(); }, [visionMode, defectMarkers, drawOverlay]);
+  useEffect(() => { drawOverlay(); }, [visionMode, defectMarkers, crackData, drawOverlay]);
 
   const showToast = (msg) => {
     setToastMessage(msg);
@@ -797,22 +796,30 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
             const cvResult = await detectCracks(photoSrc);
             setProgressSteps(prev => prev.map((s, i) => i === prev.length - 1 ? { ...s, done: true } : s));
             
-            // Set annotated image (original photo + edge overlay)
-            if (cvResult.annotatedDataUrl) {
-              setAnnotatedImage(cvResult.annotatedDataUrl);
+            console.log('[Scan] CV result:', {
+              crackPoints: cvResult.crackPoints?.length || 0,
+              measurements: cvResult.measurements?.length || 0,
+              regions: cvResult.regions?.length || 0,
+            });
+            
+            // Save crack pixel data for drawOverlay to render
+            if (cvResult.crackPoints && cvResult.crackPoints.length > 0) {
+              setCrackData({
+                crackPoints: cvResult.crackPoints,
+                measurements: cvResult.measurements || [],
+              });
             }
             
             // Set edge map for skeleton mode
             if (cvResult.edgeCanvas) {
-              setSkeletonImage(cvResult.edgeCanvas.toDataURL('image/png'));
+              try {
+                setSkeletonImage(cvResult.edgeCanvas.toDataURL('image/png'));
+              } catch (e) {
+                console.warn('[Scan] edgeCanvas toDataURL failed:', e.message);
+              }
             }
             
-            // Set heatmap for stress mode
-            if (cvResult.heatmapDataUrl) {
-              setStressHeatmapImage(cvResult.heatmapDataUrl);
-            }
-            
-            if (cvResult.regions.length > 0) {
+            if (cvResult.regions && cvResult.regions.length > 0) {
               cvItems = cvResult.regions.map((r, i) => ({
                 type: matched.defectType,
                 severity: r.severity,
@@ -826,7 +833,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
             }
           }
         } catch (cvErr) {
-          console.warn('CV detection failed:', cvErr);
+          console.error('[Scan] CV detection FAILED:', cvErr);
         }
 
         // Если CV не выделил отдельные зоны — создаём одну запись из шаблона (без огромного бокса)
@@ -1327,9 +1334,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
             const fallbackPhoto = photos[0]?.url || null;
             const currentImg = 
               visionMode === 'skeleton' && skeletonImage ? skeletonImage :
-              visionMode === 'stress' && stressHeatmapImage ? stressHeatmapImage :
-              visionMode === 'clean' ? (fallbackPhoto) :
-              (annotatedImage || fallbackPhoto);
+              fallbackPhoto; // HUD/stress/clean all show original — drawOverlay paints on top
 
             if (!currentImg) return null;
 
