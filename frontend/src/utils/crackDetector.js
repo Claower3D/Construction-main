@@ -174,13 +174,20 @@ export async function detectCracks(source) {
 // ========== Utils ==========
 
 function loadImage(src) {
-  return new Promise(resolve => {
+  return new Promise((resolve, reject) => {
     if (src instanceof HTMLImageElement && src.complete && src.naturalWidth > 0) return resolve(src);
     const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.onload = () => resolve(img);
-    img.onerror = () => resolve(img);
-    img.src = typeof src === 'string' ? src : src.src;
+    const url = typeof src === 'string' ? src : src.src;
+    // ONLY set crossOrigin for http(s) URLs — NOT for data: or blob: URLs
+    if (url && url.startsWith('http')) {
+      img.crossOrigin = 'anonymous';
+    }
+    img.onload = () => {
+      if (img.naturalWidth > 0) resolve(img);
+      else reject(new Error('Image loaded but has 0 dimensions'));
+    };
+    img.onerror = (e) => reject(new Error('Image failed to load: ' + url?.substring(0, 50)));
+    img.src = url;
   });
 }
 
