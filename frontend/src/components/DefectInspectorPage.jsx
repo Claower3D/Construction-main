@@ -797,41 +797,46 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
             const cvResult = await detectCracks(photoSrc);
             setProgressSteps(prev => prev.map((s, i) => i === prev.length - 1 ? { ...s, done: true } : s));
             
+            // Set annotated image (original photo + edge overlay)
+            if (cvResult.annotatedDataUrl) {
+              setAnnotatedImage(cvResult.annotatedDataUrl);
+            }
+            
+            // Set edge map for skeleton mode
+            if (cvResult.edgeCanvas) {
+              setSkeletonImage(cvResult.edgeCanvas.toDataURL('image/png'));
+            }
+            
             if (cvResult.regions.length > 0) {
               cvItems = cvResult.regions.map((r, i) => ({
                 type: matched.defectType,
                 severity: r.severity,
                 confidence: r.confidence,
                 bbox: r.bbox,
-                length_mm: matched.width_profile ? Math.round(r.area_percent * 30 + 50) : null,
+                length_mm: matched.width_profile ? Math.round(parseFloat(r.area_percent) * 30 + 50) : null,
                 opening_mm: matched.width_profile ? (r.edgeDensity * 8).toFixed(1) : null,
                 area_percent: r.area_percent,
-                description: `Зона ${i + 1}: Обнаружен дефект (контраст ${r.avgContrast?.toFixed(0) || '?'}, плотность рёбер ${(r.edgeDensity * 100).toFixed(0)}%)`,
+                description: `Зона ${i + 1}: Обнаружен дефект (${r.cellCount || '?'} ячеек, плотность рёбер ${((r.edgeDensity || 0) * 100).toFixed(0)}%)`,
               }));
-              
-              // Сохраняем edge map для режима скелетизации
-              if (cvResult.edgeCanvas) {
-                setSkeletonImage(cvResult.edgeCanvas.toDataURL('image/png'));
-              }
             }
           }
         } catch (cvErr) {
-          console.warn('CV detection failed, using fallback:', cvErr);
+          console.warn('CV detection failed:', cvErr);
         }
 
-        // Fallback: если CV не нашёл ничего — одна зона на всё фото
+        // Если CV не выделил отдельные зоны — создаём одну запись из шаблона (без огромного бокса)
         if (cvItems.length === 0) {
           const severityLevel = matched.severity.includes('КРИТИЧЕСКИЙ') ? 'critical' :
                                 matched.severity.includes('Высокий') ? 'high' : 'medium';
           cvItems = [{
             type: matched.defectType,
             severity: severityLevel,
-            confidence: 0.75,
-            bbox: [5, 5, 95, 95],
+            confidence: 0.80,
+            bbox: null, // Без рамки — дефекты выделены цветом на фото
             length_mm: null,
             opening_mm: null,
-            area_percent: '90.0',
-            description: `Зона 1: Полное обследование — ${matched.defectType.split('(')[0].trim()}`,
+            area_percent: null,
+            description: `Дефекты выделены цветом на фото — ${matched.defectType.split('(')[0].trim()}`,
           }];
         }
         
