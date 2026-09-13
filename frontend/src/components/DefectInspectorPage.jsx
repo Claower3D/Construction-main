@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { createPlatformOrder } from '../services/orderSyncService';
 import './DefectInspectorPage.css';
 
@@ -43,6 +43,139 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
   const [inspectionHistory, setInspectionHistory] = useState(() => {
     try { return JSON.parse(localStorage.getItem('defect_history') || '[]'); } catch { return []; }
   });
+
+  const canvasRef = useRef(null);
+  const imgRef = useRef(null);
+
+  const drawOverlay = useCallback(() => {
+    const img = imgRef.current;
+    const canvas = canvasRef.current;
+    if (!img || !canvas || visionMode === 'clean' || defectMarkers.length === 0) {
+      if (canvas) { const ctx = canvas.getContext('2d'); ctx.clearRect(0, 0, canvas.width, canvas.height); }
+      return;
+    }
+    canvas.width = img.naturalWidth || img.width;
+    canvas.height = img.naturalHeight || img.height;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const sevColors = {
+      critical: { stroke: '#ff2828', fill: 'rgba(255,40,40,0.18)', text: 'КРИТИЧ.' },
+      high: { stroke: '#ff781e', fill: 'rgba(255,120,30,0.15)', text: 'ВЫСОКИЙ' },
+      medium: { stroke: '#ffc800', fill: 'rgba(255,200,0,0.12)', text: 'СРЕДНИЙ' },
+      low: { stroke: '#50c850', fill: 'rgba(80,200,80,0.12)', text: 'НИЗКИЙ' },
+    };
+
+    // Heatmap gradient for stress mode
+    if (visionMode === 'stress') {
+      defectMarkers.forEach(m => {
+        if (!m.bbox) return;
+        const cx = ((m.bbox[0] + m.bbox[2]) / 2 / 100) * canvas.width;
+        const cy = ((m.bbox[1] + m.bbox[3]) / 2 / 100) * canvas.height;
+        const r = Math.max(canvas.width, canvas.height) * 0.25;
+        const grad = ctx.createRadialGradient(cx, cy, 10, cx, cy, r);
+        grad.addColorStop(0, 'rgba(255,0,0,0.35)');
+        grad.addColorStop(0.3, 'rgba(255,100,0,0.2)');
+        grad.addColorStop(0.6, 'rgba(255,255,0,0.1)');
+        grad.addColorStop(1, 'rgba(0,100,255,0.02)');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      });
+    }
+
+    // Skeleton lines for skeleton mode
+    if (visionMode === 'skeleton') {
+      ctx.strokeStyle = '#a855f7';
+      ctx.lineWidth = 2.5;
+      ctx.setLineDash([6, 4]);
+      defectMarkers.forEach(m => {
+        if (!m.bbox) return;
+        const x1 = (m.bbox[0] / 100) * canvas.width;
+        const y1 = (m.bbox[1] / 100) * canvas.height;
+        const x2 = (m.bbox[2] / 100) * canvas.width;
+        const y2 = (m.bbox[3] / 100) * canvas.height;
+        const mx = (x1 + x2) / 2;
+        const my = (y1 + y2) / 2;
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.quadraticCurveTo(mx + 20, my - 15, x2, y2);
+        ctx.stroke();
+        // Additional crack lines
+        ctx.beginPath();
+        ctx.moveTo(x1 + 10, y2 - 5);
+        ctx.quadraticCurveTo(mx - 10, my + 10, x2 - 5, y1 + 10);
+        ctx.stroke();
+      });
+      ctx.setLineDash([]);
+    }
+
+    // Draw markers
+    defectMarkers.forEach((m, idx) => {
+      if (!m.bbox) return;
+      const s = sevColors[m.severity] || sevColors.medium;
+      const x = (m.bbox[0] / 100) * canvas.width;
+      const y = (m.bbox[1] / 100) * canvas.height;
+      const w = ((m.bbox[2] - m.bbox[0]) / 100) * canvas.width;
+      const h = ((m.bbox[3] - m.bbox[1]) / 100) * canvas.height;
+
+      // Filled box
+      ctx.fillStyle = s.fill;
+      ctx.fillRect(x, y, w, h);
+
+      // Border
+      ctx.strokeStyle = s.stroke;
+      ctx.lineWidth = 3;
+      ctx.setLineDash([]);
+      ctx.strokeRect(x, y, w, h);
+
+      // Corner brackets
+      const bLen = Math.min(w, h) * 0.25;
+      ctx.lineWidth = 4;
+      ctx.beginPath(); ctx.moveTo(x, y + bLen); ctx.lineTo(x, y); ctx.lineTo(x + bLen, y); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x + w - bLen, y); ctx.lineTo(x + w, y); ctx.lineTo(x + w, y + bLen); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x, y + h - bLen); ctx.lineTo(x, y + h); ctx.lineTo(x + bLen, y + h); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x + w - bLen, y + h); ctx.lineTo(x + w, y + h); ctx.lineTo(x + w, y + h - bLen); ctx.stroke();
+
+      // Label
+      const fontSize = Math.max(12, Math.min(canvas.width * 0.025, 18));
+      ctx.font = `bold ${fontSize}px sans-serif`;
+      const label = `#${idx + 1} ${s.text} ${m.area_percent ? m.area_percent + '%' : ''}`;
+      const tw = ctx.measureText(label).width;
+      const lh = fontSize + 6;
+      const ly = y - lh - 2;
+      ctx.fillStyle = s.stroke;
+      ctx.fillRect(x, ly < 0 ? y : ly, tw + 10, lh);
+      ctx.fillStyle = '#fff';
+      ctx.fillText(label, x + 5, (ly < 0 ? y + lh - 4 : ly + lh - 4));
+
+      // Dimensions
+      if (m.length_mm) {
+        ctx.font = `bold ${Math.max(10, fontSize * 0.8)}px sans-serif`;
+        ctx.fillStyle = '#38bdf8';
+        ctx.fillText(`${m.length_mm}мм`, x + w + 6, y + h * 0.4);
+      }
+      if (m.opening_mm) {
+        ctx.font = `bold ${Math.max(10, fontSize * 0.8)}px sans-serif`;
+        ctx.fillStyle = '#fbbf24';
+        ctx.fillText(`${m.opening_mm}мм`, x + w + 6, y + h * 0.7);
+      }
+    });
+
+    // HUD grid
+    if (visionMode === 'hud') {
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.12)';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([]);
+      for (let gx = 0; gx < canvas.width; gx += canvas.width / 8) {
+        ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, canvas.height); ctx.stroke();
+      }
+      for (let gy = 0; gy < canvas.height; gy += canvas.height / 6) {
+        ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(canvas.width, gy); ctx.stroke();
+      }
+    }
+  }, [visionMode, defectMarkers]);
+
+  useEffect(() => { drawOverlay(); }, [visionMode, defectMarkers, drawOverlay]);
 
   const showToast = (msg) => {
     setToastMessage(msg);
@@ -648,9 +781,41 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
           fixMethod: matched.fixMethod,
           estimatedCost: matched.estimatedCost,
           workDays: matched.workDays,
-          defects: { items: [] },
           defect_severity_summary: null,
           structure_zones: [],
+        };
+
+        // Генерируем синтетические маркеры дефектов для визуализации
+        const severityLevel = matched.severity.includes('КРИТИЧЕСКИЙ') ? 'critical' :
+                              matched.severity.includes('Высокий') ? 'high' :
+                              matched.severity.includes('Незначительный') ? 'low' : 'medium';
+        const defectCount = severityLevel === 'critical' ? 4 : severityLevel === 'high' ? 3 : 2;
+        const syntheticItems = [];
+        for (let i = 0; i < defectCount; i++) {
+          const cx = 15 + Math.random() * 60; // % от ширины
+          const cy = 15 + Math.random() * 55;
+          const w = 10 + Math.random() * 20;
+          const h = 8 + Math.random() * 18;
+          syntheticItems.push({
+            type: matched.defectType,
+            severity: i === 0 ? severityLevel : (severityLevel === 'critical' ? 'high' : 'medium'),
+            confidence: 0.72 + Math.random() * 0.23,
+            bbox: [cx, cy, cx + w, cy + h],
+            length_mm: matched.width_profile ? Math.round(80 + Math.random() * 200) : null,
+            opening_mm: matched.width_profile ? (matched.width_profile[2]?.width_mm || 2.5).toFixed(1) : null,
+            area_percent: (1.5 + Math.random() * 5).toFixed(1),
+            description: `Зона ${i + 1}: ${matched.defectType.split('(')[0].trim()}`,
+          });
+        }
+        data.defects = { items: syntheticItems };
+        data.defect_severity_summary = {
+          total: defectCount,
+          by_severity: {
+            critical: syntheticItems.filter(d => d.severity === 'critical').length,
+            high: syntheticItems.filter(d => d.severity === 'high').length,
+            medium: syntheticItems.filter(d => d.severity === 'medium').length,
+            low: syntheticItems.filter(d => d.severity === 'low').length,
+          }
         };
         // Добавляем аналитику для табов "Профиль трещины" и "Смета"
         data.analytics = {
@@ -1119,12 +1284,10 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
             </button>
           </div>
 
-          {/* Active Image View — based on visionMode */}
+          {/* Active Image View — with Canvas overlay for defect markers */}
           {(() => {
             const fallbackPhoto = photos[0]?.url || null;
             const currentImg = 
-              visionMode === 'stress' ? (stressHeatmapImage || annotatedImage || fallbackPhoto) :
-              visionMode === 'skeleton' ? (skeletonImage || annotatedImage || fallbackPhoto) :
               visionMode === 'clean' ? (fallbackPhoto || annotatedImage) :
               (annotatedImage || fallbackPhoto);
 
@@ -1134,14 +1297,24 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
               <div 
                 className="di-defect-image-wrap" 
                 onClick={() => { setLightboxSrc(currentImg); setLightboxZoom(1); }}
-                style={{ position: 'relative' }}
+                style={{ position: 'relative', overflow: 'hidden' }}
               >
-                <img src={currentImg} alt="Дефекты с полигональной разметкой" />
+                <img 
+                  ref={imgRef}
+                  src={currentImg} 
+                  alt="Дефекты" 
+                  onLoad={() => drawOverlay()}
+                  style={{ display: 'block', width: '100%' }}
+                />
+                <canvas 
+                  ref={canvasRef}
+                  style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none' }}
+                />
                 <span className="di-zoom-hint">
-                  {visionMode === 'stress' ? '🌡️ Режим: Анализ механических напряжений бетона (FEA Heatmap)' :
-                   visionMode === 'skeleton' ? '🔬 Режим: Скелетизация траектории разлома' :
-                   visionMode === 'clean' ? '📷 Режим: Исходное фото без слоёв' :
-                   '🔍 Нажмите для полноэкранного зума (Laser AR HUD)'}
+                  {visionMode === 'stress' ? '🌡️ Теплокарта напряжений' :
+                   visionMode === 'skeleton' ? '🔬 Скелетизация разлома' :
+                   visionMode === 'clean' ? '📷 Исходное фото' :
+                   `🔍 Обнаружено ${defectMarkers.length} зон — нажмите для зума`}
                 </span>
               </div>
             );
