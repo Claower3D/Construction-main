@@ -53,12 +53,10 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
   const drawOverlay = useCallback(() => {
     const imgEl = imgRef.current;
     const canvas = canvasRef.current;
-    if (!imgEl || !canvas) {
-      console.log('[Overlay] no imgEl or canvas');
-      return;
-    }
+    if (!imgEl || !canvas) return;
     if (visionMode === 'clean') {
-      const ctx = canvas.getContext('2d'); ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
       return;
     }
     
@@ -68,62 +66,99 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
     canvas.height = ch;
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, cw, ch);
-    
-    console.log('[Overlay] drawing on', cw, 'x', ch, 'mode:', visionMode, 
-      'crackData:', crackData ? crackData.crackPoints?.length : 'null',
-      'markers:', defectMarkers.length);
 
-    // ========== DRAW CRACK PIXELS (from CV data) ==========
-    if (crackData && crackData.crackPoints && crackData.crackPoints.length > 0 && visionMode === 'hud') {
-      // Draw each crack pixel as a small rect
-      crackData.crackPoints.forEach(pt => {
-        const x = (pt.xPct / 100) * cw;
-        const y = (pt.yPct / 100) * ch;
-        if (pt.strength === 2) {
-          ctx.fillStyle = 'rgba(0, 220, 255, 0.85)';
-          ctx.fillRect(x - 1, y - 1, 3, 3);
-        } else {
-          ctx.fillStyle = 'rgba(0, 160, 255, 0.5)';
-          ctx.fillRect(x, y, 2, 2);
+    // ========== INLINE CRACK DETECTION: read pixels from the displayed img ==========
+    if (visionMode === 'hud' || visionMode === 'stress') {
+      try {
+        // Create temp canvas, draw the DISPLAYED image onto it
+        const tmpC = document.createElement('canvas');
+        const sz = 256; // small size for speed
+        const imgW = imgEl.naturalWidth || cw;
+        const imgH = imgEl.naturalHeight || ch;
+        const sc = Math.min(sz / imgW, sz / imgH, 1);
+        const tw = Math.round(imgW * sc), th = Math.round(imgH * sc);
+        tmpC.width = tw; tmpC.height = th;
+        const tmpCtx = tmpC.getContext('2d');
+        tmpCtx.drawImage(imgEl, 0, 0, tw, th);
+        
+        const px = tmpCtx.getImageData(0, 0, tw, th).data;
+        
+        // Grayscale
+        const gray = new Float32Array(tw * th);
+        for (let i = 0; i < tw * th; i++)
+          gray[i] = 0.299*px[i*4] + 0.587*px[i*4+1] + 0.114*px[i*4+2];
+        
+        // Sobel
+        const mag = new Float32Array(tw * th);
+        for (let y = 1; y < th-1; y++) for (let x = 1; x < tw-1; x++) {
+          const gx = -gray[(y-1)*tw+x-1]+gray[(y-1)*tw+x+1]
+                     -2*gray[y*tw+x-1]+2*gray[y*tw+x+1]
+                     -gray[(y+1)*tw+x-1]+gray[(y+1)*tw+x+1];
+          const gy = -gray[(y-1)*tw+x-1]-2*gray[(y-1)*tw+x]-gray[(y-1)*tw+x+1]
+                     +gray[(y+1)*tw+x-1]+2*gray[(y+1)*tw+x]+gray[(y+1)*tw+x+1];
+          mag[y*tw+x] = Math.sqrt(gx*gx + gy*gy);
         }
-      });
-
-      // Draw measurement points
-      if (crackData.measurements) {
-        crackData.measurements.forEach(m => {
-          const mx = (m.xPct / 100) * cw;
-          const my = (m.yPct / 100) * ch;
-          // Yellow dot
-          ctx.fillStyle = '#FFD700';
-          ctx.beginPath();
-          ctx.arc(mx, my, 5, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.strokeStyle = '#FF6600';
-          ctx.lineWidth = 2;
-          ctx.stroke();
-          // Label
-          ctx.fillStyle = '#FFD700';
-          ctx.font = 'bold 11px sans-serif';
-          ctx.shadowColor = 'rgba(0,0,0,0.8)';
-          ctx.shadowBlur = 3;
-          ctx.fillText(`d=${m.widthMM}мм`, mx + 8, my - 5);
-          ctx.shadowBlur = 0;
-        });
+        
+        // Dark line detection
+        const dark = new Float32Array(tw * th);
+        for (let y = 3; y < th-3; y++) for (let x = 3; x < tw-3; x++) {
+          let s=0,n=0;
+          for (let dy=-3;dy<=3;dy+=2) for (let dx=-3;dx<=3;dx+=2) { s+=gray[(y+dy)*tw+x+dx]; n++; }
+          const d = (s/n) - gray[y*tw+x];
+          dark[y*tw+x] = d > 5 ? d : 0;
+        }
+        
+        // Thresholds (sampled sort)
+        const magVals = [], darkVals = [];
+        for (let i = 0; i < tw*th; i += 3) {
+          if (mag[i] > 0) magVals.push(mag[i]);
+          if (dark[i] > 0) darkVals.push(dark[i]);
+        }
+        magVals.sort((a,b) => a-b);
+        darkVals.sort((a,b) => a-b);
+        const magT = magVals[Math.floor(magVals.length * 0.65)] || 10;
+        const darkT = darkVals[Math.floor(darkVals.length * 0.70)] || 3;
+        
+        // Draw crack pixels directly on canvas
+        let count = 0;
+        for (let y = 2; y < th-2; y++) for (let x = 2; x < tw-2; x++) {
+          const i = y*tw+x;
+          const isEdge = mag[i] > magT;
+          const isDark = dark[i] > darkT;
+          const isStrong = mag[i] > magT * 1.5 && isDark;
+          
+          if (isStrong || (isEdge && isDark)) {
+            // Map from analysis coords to canvas coords
+            const cx = (x / tw) * cw;
+            const cy = (y / th) * ch;
+            const sz = isStrong ? 3 : 2;
+            ctx.fillStyle = isStrong ? 'rgba(0, 220, 255, 0.9)' : 'rgba(0, 160, 255, 0.55)';
+            ctx.fillRect(cx - 1, cy - 1, sz, sz);
+            count++;
+          }
+        }
+        
+        // Stress mode: add heat gradient
+        if (visionMode === 'stress' && count > 0) {
+          // Overlay heat colors on strong edges
+          for (let y = 2; y < th-2; y += 2) for (let x = 2; x < tw-2; x += 2) {
+            const i = y*tw+x;
+            if (mag[i] > magT && dark[i] > darkT) {
+              const cx = (x/tw)*cw, cy = (y/th)*ch;
+              const r = mag[i] > magT*1.5 ? 12 : 6;
+              const grad = ctx.createRadialGradient(cx,cy,1,cx,cy,r);
+              grad.addColorStop(0, mag[i]>magT*1.5 ? 'rgba(255,30,30,0.25)' : 'rgba(255,150,0,0.15)');
+              grad.addColorStop(1, 'rgba(0,0,0,0)');
+              ctx.fillStyle = grad;
+              ctx.fillRect(cx-r,cy-r,r*2,r*2);
+            }
+          }
+        }
+        
+        console.log('[Overlay] Drew', count, 'crack pixels, magT='+magT.toFixed(1), 'darkT='+darkT.toFixed(1));
+      } catch (e) {
+        console.error('[Overlay] Inline CV error:', e);
       }
-    }
-
-    // ========== STRESS HEATMAP overlay ==========
-    if (visionMode === 'stress' && crackData && crackData.crackPoints && crackData.crackPoints.length > 0) {
-      crackData.crackPoints.forEach(pt => {
-        const x = (pt.xPct / 100) * cw;
-        const y = (pt.yPct / 100) * ch;
-        const r = pt.strength === 2 ? 15 : 8;
-        const grad = ctx.createRadialGradient(x, y, 1, x, y, r);
-        grad.addColorStop(0, pt.strength === 2 ? 'rgba(255,30,30,0.3)' : 'rgba(255,150,0,0.2)');
-        grad.addColorStop(1, 'rgba(0,0,0,0)');
-        ctx.fillStyle = grad;
-        ctx.fillRect(x - r, y - r, r * 2, r * 2);
-      });
     }
 
     const sevColors = {
@@ -182,9 +217,9 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
       for (let gx = 0; gx < cw; gx += cw / 8) { ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, ch); ctx.stroke(); }
       for (let gy = 0; gy < ch; gy += ch / 6) { ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(cw, gy); ctx.stroke(); }
     }
-  }, [visionMode, defectMarkers, crackData]);
+  }, [visionMode, defectMarkers]);
 
-  useEffect(() => { drawOverlay(); }, [visionMode, defectMarkers, crackData, drawOverlay]);
+  useEffect(() => { drawOverlay(); }, [visionMode, defectMarkers, drawOverlay]);
 
   const showToast = (msg) => {
     setToastMessage(msg);
