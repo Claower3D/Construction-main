@@ -67,12 +67,12 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, cw, ch);
 
-    // ========== INLINE CRACK DETECTION: read pixels from the displayed img ==========
+    // ========== INLINE CRACK DETECTION: Valley/Line detector ==========
+    // Cracks = dark LINES (darker than BOTH sides). Not edges (one side dark, other bright).
     if (visionMode === 'hud' || visionMode === 'stress') {
       try {
-        // Create temp canvas, draw the DISPLAYED image onto it
         const tmpC = document.createElement('canvas');
-        const sz = 256; // small size for speed
+        const sz = 300;
         const imgW = imgEl.naturalWidth || cw;
         const imgH = imgEl.naturalHeight || ch;
         const sc = Math.min(sz / imgW, sz / imgH, 1);
@@ -80,7 +80,6 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
         tmpC.width = tw; tmpC.height = th;
         const tmpCtx = tmpC.getContext('2d');
         tmpCtx.drawImage(imgEl, 0, 0, tw, th);
-        
         const px = tmpCtx.getImageData(0, 0, tw, th).data;
         
         // Grayscale
@@ -88,66 +87,98 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
         for (let i = 0; i < tw * th; i++)
           gray[i] = 0.299*px[i*4] + 0.587*px[i*4+1] + 0.114*px[i*4+2];
         
-        // Sobel
-        const mag = new Float32Array(tw * th);
-        for (let y = 1; y < th-1; y++) for (let x = 1; x < tw-1; x++) {
-          const gx = -gray[(y-1)*tw+x-1]+gray[(y-1)*tw+x+1]
-                     -2*gray[y*tw+x-1]+2*gray[y*tw+x+1]
-                     -gray[(y+1)*tw+x-1]+gray[(y+1)*tw+x+1];
-          const gy = -gray[(y-1)*tw+x-1]-2*gray[(y-1)*tw+x]-gray[(y-1)*tw+x+1]
-                     +gray[(y+1)*tw+x-1]+2*gray[(y+1)*tw+x]+gray[(y+1)*tw+x+1];
-          mag[y*tw+x] = Math.sqrt(gx*gx + gy*gy);
-        }
-        
-        // Dark line detection
-        const dark = new Float32Array(tw * th);
-        for (let y = 3; y < th-3; y++) for (let x = 3; x < tw-3; x++) {
-          let s=0,n=0;
-          for (let dy=-3;dy<=3;dy+=2) for (let dx=-3;dx<=3;dx+=2) { s+=gray[(y+dy)*tw+x+dx]; n++; }
-          const d = (s/n) - gray[y*tw+x];
-          dark[y*tw+x] = d > 5 ? d : 0;
-        }
-        
-        // Thresholds (sampled sort)
-        const magVals = [], darkVals = [];
-        for (let i = 0; i < tw*th; i += 3) {
-          if (mag[i] > 0) magVals.push(mag[i]);
-          if (dark[i] > 0) darkVals.push(dark[i]);
-        }
-        magVals.sort((a,b) => a-b);
-        darkVals.sort((a,b) => a-b);
-        const magT = magVals[Math.floor(magVals.length * 0.65)] || 10;
-        const darkT = darkVals[Math.floor(darkVals.length * 0.70)] || 3;
-        
-        // Draw crack pixels directly on canvas
-        let count = 0;
-        for (let y = 2; y < th-2; y++) for (let x = 2; x < tw-2; x++) {
-          const i = y*tw+x;
-          const isEdge = mag[i] > magT;
-          const isDark = dark[i] > darkT;
-          const isStrong = mag[i] > magT * 1.5 && isDark;
+        // Valley detection: for each pixel, check if it's darker than
+        // neighbors on BOTH sides in any direction (H, V, 2 diagonals).
+        // This specifically finds LINE features, not edges.
+        const valley = new Float32Array(tw * th);
+        const R = 3; // probe radius
+        for (let y = R; y < th-R; y++) for (let x = R; x < tw-R; x++) {
+          const center = gray[y*tw+x];
+          // 4 directions: horizontal, vertical, diag1, diag2
+          const dirs = [
+            [gray[y*tw+(x-R)], gray[y*tw+(x+R)]],              // horizontal
+            [gray[(y-R)*tw+x], gray[(y+R)*tw+x]],              // vertical
+            [gray[(y-R)*tw+(x-R)], gray[(y+R)*tw+(x+R)]],      // diagonal ↘
+            [gray[(y-R)*tw+(x+R)], gray[(y+R)*tw+(x-R)]],      // diagonal ↗
+          ];
           
-          if (isStrong || (isEdge && isDark)) {
-            // Map from analysis coords to canvas coords
-            const cx = (x / tw) * cw;
-            const cy = (y / th) * ch;
-            const sz = isStrong ? 3 : 2;
-            ctx.fillStyle = isStrong ? 'rgba(0, 220, 255, 0.9)' : 'rgba(0, 160, 255, 0.55)';
-            ctx.fillRect(cx - 1, cy - 1, sz, sz);
+          let maxValley = 0;
+          for (const [left, right] of dirs) {
+            // Valley = min(left, right) - center
+            // Both sides must be brighter than center
+            const v = Math.min(left, right) - center;
+            if (v > maxValley) maxValley = v;
+          }
+          valley[y*tw+x] = maxValley > 4 ? maxValley : 0; // threshold: 4 brightness units
+        }
+        
+        // Multi-scale: also check with larger radius for wider cracks
+        const R2 = 6;
+        for (let y = R2; y < th-R2; y++) for (let x = R2; x < tw-R2; x++) {
+          const center = gray[y*tw+x];
+          const dirs = [
+            [gray[y*tw+(x-R2)], gray[y*tw+(x+R2)]],
+            [gray[(y-R2)*tw+x], gray[(y+R2)*tw+x]],
+            [gray[(y-R2)*tw+(x-R2)], gray[(y+R2)*tw+(x+R2)]],
+            [gray[(y-R2)*tw+(x+R2)], gray[(y+R2)*tw+(x-R2)]],
+          ];
+          for (const [l, r] of dirs) {
+            const v = Math.min(l, r) - center;
+            if (v > valley[y*tw+x]) valley[y*tw+x] = v > 4 ? v : 0;
+          }
+        }
+        
+        // Texture contrast: ignore uniform dark areas (shadows)
+        // Only keep valleys where local contrast is high
+        const filtered = new Float32Array(tw * th);
+        for (let y = 4; y < th-4; y++) for (let x = 4; x < tw-4; x++) {
+          if (valley[y*tw+x] === 0) continue;
+          // Check local std dev
+          let sum = 0, sum2 = 0, n = 0;
+          for (let dy=-3; dy<=3; dy+=2) for (let dx=-3; dx<=3; dx+=2) {
+            const v = gray[(y+dy)*tw+(x+dx)]; sum += v; sum2 += v*v; n++;
+          }
+          const mean = sum/n;
+          const std = Math.sqrt(sum2/n - mean*mean);
+          // Keep only if there's enough local contrast (not uniform area)
+          if (std > 8) filtered[y*tw+x] = valley[y*tw+x];
+        }
+        
+        // Threshold: take top percentile of valley values
+        const vals = [];
+        for (let i = 0; i < tw*th; i += 2) if (filtered[i] > 0) vals.push(filtered[i]);
+        vals.sort((a, b) => a - b);
+        const t50 = vals[Math.floor(vals.length * 0.50)] || 5;
+        const t80 = vals[Math.floor(vals.length * 0.80)] || 10;
+        
+        // Draw crack pixels
+        let count = 0;
+        for (let y = R2; y < th-R2; y++) for (let x = R2; x < tw-R2; x++) {
+          const v = filtered[y*tw+x];
+          if (v <= 0) continue;
+          const cx = (x / tw) * cw;
+          const cy = (y / th) * ch;
+          
+          if (v > t80) {
+            ctx.fillStyle = 'rgba(0, 220, 255, 0.9)';
+            ctx.fillRect(cx - 1.5, cy - 1.5, 4, 4);
+            count++;
+          } else if (v > t50) {
+            ctx.fillStyle = 'rgba(0, 160, 255, 0.5)';
+            ctx.fillRect(cx - 0.5, cy - 0.5, 2, 2);
             count++;
           }
         }
         
-        // Stress mode: add heat gradient
+        // Stress mode: heat overlay on strong valleys
         if (visionMode === 'stress' && count > 0) {
-          // Overlay heat colors on strong edges
-          for (let y = 2; y < th-2; y += 2) for (let x = 2; x < tw-2; x += 2) {
-            const i = y*tw+x;
-            if (mag[i] > magT && dark[i] > darkT) {
+          for (let y = R2; y < th-R2; y += 2) for (let x = R2; x < tw-R2; x += 2) {
+            if (filtered[y*tw+x] > t50) {
               const cx = (x/tw)*cw, cy = (y/th)*ch;
-              const r = mag[i] > magT*1.5 ? 12 : 6;
+              const strong = filtered[y*tw+x] > t80;
+              const r = strong ? 12 : 6;
               const grad = ctx.createRadialGradient(cx,cy,1,cx,cy,r);
-              grad.addColorStop(0, mag[i]>magT*1.5 ? 'rgba(255,30,30,0.25)' : 'rgba(255,150,0,0.15)');
+              grad.addColorStop(0, strong ? 'rgba(255,30,30,0.25)' : 'rgba(255,150,0,0.15)');
               grad.addColorStop(1, 'rgba(0,0,0,0)');
               ctx.fillStyle = grad;
               ctx.fillRect(cx-r,cy-r,r*2,r*2);
