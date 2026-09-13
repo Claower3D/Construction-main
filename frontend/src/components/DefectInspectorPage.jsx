@@ -2,12 +2,26 @@ import React, { useState } from 'react';
 import { createPlatformOrder } from '../services/orderSyncService';
 import './DefectInspectorPage.css';
 
+const DEFECT_TYPES = [
+  { id: 'crack', icon: '🧱', label: 'Трещина в стене / потолке', keywords: 'Трещина в стене, потолке, штукатурке' },
+  { id: 'leak', icon: '💧', label: 'Протечка / сырость', keywords: 'Протечка, сырость, вода, затопление' },
+  { id: 'mold', icon: '🦠', label: 'Плесень / грибок', keywords: 'Плесень, грибок, биопоражение, чёрные пятна' },
+  { id: 'corrosion', icon: '🔩', label: 'Коррозия арматуры', keywords: 'Коррозия арматуры, ржавчина, оголение металла' },
+  { id: 'facade', icon: '🏠', label: 'Фасад / облицовка', keywords: 'Фасад, облицовка, штукатурка отваливается, отслоение' },
+  { id: 'roof', icon: '🏚️', label: 'Кровля / крыша', keywords: 'Кровля, крыша, протечка кровли, черепица' },
+  { id: 'foundation', icon: '🏗️', label: 'Фундамент / осадка', keywords: 'Фундамент, осадка, просадка, подвал, основание' },
+  { id: 'window', icon: '🪟', label: 'Окна / продувание', keywords: 'Окно, стеклопакет, продувает, откос, подоконник' },
+  { id: 'level', icon: '📐', label: 'Перепад пола / потолка', keywords: 'Перепад, неровности, кривой пол, горизонт, уровень' },
+  { id: 'other', icon: '❓', label: 'Другое (описать вручную)', keywords: '' },
+];
+
 export default function DefectInspectorPage({ onBack, hideHeader = false }) {
   const [photos, setPhotos] = useState([]);
   const [clientName, setClientName] = useState('');
   const [clientPhone, setClientPhone] = useState('');
   const [clientAddress, setClientAddress] = useState('');
   const [aiDescription, setAiDescription] = useState('');
+  const [selectedDefectType, setSelectedDefectType] = useState(null);
 
   const [isScanning, setIsScanning] = useState(false);
   const [scanStepMessage, setScanStepMessage] = useState('');
@@ -26,10 +40,56 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
   const [createdDefectOrder, setCreatedDefectOrder] = useState(null);
   const [toastMessage, setToastMessage] = useState(null);
   const [lightboxSrc, setLightboxSrc] = useState(null);
+  const [inspectionHistory, setInspectionHistory] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('defect_history') || '[]'); } catch { return []; }
+  });
 
   const showToast = (msg) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3000);
+  };
+
+  const handleReset = () => {
+    setPhotos([]);
+    setClientName('');
+    setClientPhone('');
+    setClientAddress('');
+    setAiDescription('');
+    setSelectedDefectType(null);
+    setReport(null);
+    setAnnotatedImage(null);
+    setDefectMarkers([]);
+    setSeveritySummary(null);
+    setStressHeatmapImage(null);
+    setSkeletonImage(null);
+    setCreatedDefectOrder(null);
+    setActiveReportTab('expert');
+    setVisionMode('hud');
+    setLightboxZoom(1);
+    setSelectedDefectId(null);
+    showToast('🔄 Форма очищена — загрузите новые фото');
+  };
+
+  const saveToHistory = (reportData) => {
+    const entry = {
+      id: reportData.id,
+      date: reportData.date,
+      defectType: reportData.defectType,
+      severity: reportData.severity,
+      estimatedCost: reportData.estimatedCost,
+      clientName: reportData.clientName,
+      address: reportData.address,
+    };
+    const updated = [entry, ...inspectionHistory].slice(0, 20);
+    setInspectionHistory(updated);
+    try { localStorage.setItem('defect_history', JSON.stringify(updated)); } catch {}
+  };
+
+  const handleSelectDefectType = (type) => {
+    setSelectedDefectType(type.id);
+    if (type.id !== 'other' && type.keywords) {
+      setAiDescription(type.keywords);
+    }
   };
 
   const handlePhotoUpload = (e) => {
@@ -74,75 +134,112 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
       showToast('⚠️ Разрешите всплывающие окна для печати Акта');
       return;
     }
+
+    const materials = report.analytics?.materials || [];
+    const labor = report.analytics?.labor || [];
+    const totalMat = materials.reduce((s, m) => s + m.cost_kzt, 0);
+    const totalLab = labor.reduce((s, l) => s + l.cost_kzt, 0);
+    const totalAll = report.analytics?.total_cost_kzt || (totalMat + totalLab);
+    const photoSrc = photos[0]?.base64 || annotatedImage || '';
+
+    const materialsRows = materials.map((m, i) => `
+      <tr>
+        <td>${i+1}</td>
+        <td>${m.name}</td>
+        <td style="text-align:center">${m.qty}</td>
+        <td style="text-align:right">${m.cost_kzt.toLocaleString('ru-RU')} T</td>
+      </tr>
+    `).join('');
+
+    const laborRows = labor.map((l, i) => `
+      <tr>
+        <td>${i+1}</td>
+        <td>${l.name}</td>
+        <td style="text-align:center">${l.qty}</td>
+        <td style="text-align:right">${l.cost_kzt.toLocaleString('ru-RU')} T</td>
+      </tr>
+    `).join('');
+
     const htmlContent = `
       <!DOCTYPE html>
       <html lang="ru">
       <head>
         <meta charset="utf-8">
-        <title>Акт технического обследования № ${report.id}</title>
+        <title>Акт обследования ${report.id}</title>
         <style>
           body { font-family: 'Segoe UI', Arial, sans-serif; margin: 30px; color: #1e293b; line-height: 1.5; font-size: 13px; }
           .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #0f172a; padding-bottom: 12px; margin-bottom: 20px; }
-          .logo { font-size: 20px; font-weight: 900; color: #0284c7; }
-          .title { font-size: 16px; font-weight: 800; text-align: center; margin: 15px 0; text-transform: uppercase; }
-          .meta-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-          .meta-table td { padding: 6px 10px; border: 1px solid #cbd5e1; }
-          .meta-table td.label { background: #f8fafc; font-weight: 700; width: 30%; }
-          .image-box { text-align: center; margin: 20px 0; }
-          .image-box img { max-width: 100%; max-height: 380px; border: 1px solid #94a3b8; border-radius: 6px; }
-          .defects-table { width: 100%; border-collapse: collapse; margin: 15px 0; }
-          .defects-table th { background: #0f172a; color: #fff; padding: 8px; text-align: left; font-size: 12px; }
-          .defects-table td { border: 1px solid #cbd5e1; padding: 8px; font-size: 12px; }
-          .stamp-box { display: flex; justify-content: space-between; margin-top: 40px; padding-top: 20px; border-top: 1px dashed #94a3b8; }
-          .stamp { width: 120px; height: 120px; border: 2px dashed #0284c7; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-align: center; color: #0284c7; font-size: 10px; font-weight: 700; transform: rotate(-10deg); }
+          .logo { font-size: 18px; font-weight: 900; color: #0284c7; }
+          .title { font-size: 15px; font-weight: 800; text-align: center; margin: 15px 0; text-transform: uppercase; }
+          table { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
+          .meta td { padding: 5px 10px; border: 1px solid #cbd5e1; font-size: 12px; }
+          .meta td.label { background: #f1f5f9; font-weight: 700; width: 32%; }
+          .est th { background: #0f172a; color: #fff; padding: 6px 8px; text-align: left; font-size: 11px; }
+          .est td { border: 1px solid #cbd5e1; padding: 5px 8px; font-size: 12px; }
+          .est tr.subtotal td { background: #f1f5f9; font-weight: 700; }
+          .est tr.total td { background: #0284c7; color: #fff; font-weight: 900; font-size: 13px; }
+          .img-box { text-align: center; margin: 16px 0; }
+          .img-box img { max-width: 100%; max-height: 320px; border: 1px solid #94a3b8; border-radius: 4px; }
+          .sign { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 16px; border-top: 1px dashed #94a3b8; }
+          .stamp { width: 100px; height: 100px; border: 2px dashed #0284c7; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-align: center; color: #0284c7; font-size: 9px; font-weight: 700; transform: rotate(-10deg); }
+          h4 { margin: 14px 0 6px; color: #0f172a; font-size: 13px; }
+          @media print { body { margin: 15px; } }
         </style>
       </head>
       <body>
         <div class="header">
-          <div class="logo">QAZGOST AI • ТЕХНАДЗОР РК</div>
-          <div><strong>АКТ ОБСЛЕДОВАНИЯ № ${report.id}</strong><br><small>Дата: ${report.date}</small></div>
+          <div class="logo">QAZGOST AI<br><small style="font-size:10px;color:#64748b;">ТЕХНАДЗОР РК</small></div>
+          <div style="text-align:right">
+            <strong>АКТ № ${report.id}</strong><br>
+            <small>Дата: ${report.date}</small>
+          </div>
         </div>
         <div class="title">Акт инструментального дефектоскопического обследования</div>
-        <table class="meta-table">
-          <tr><td class="label">Объект:</td><td>${report.address}</td></tr>
-          <tr><td class="label">Заказчик:</td><td>${report.clientName} (${report.clientPhone})</td></tr>
+
+        <table class="meta">
+          <tr><td class="label">Заказчик:</td><td>${report.clientName}</td></tr>
+          <tr><td class="label">Телефон:</td><td>${report.clientPhone}</td></tr>
+          <tr><td class="label">Адрес объекта:</td><td>${report.address}</td></tr>
           <tr><td class="label">Вид дефекта:</td><td><strong>${report.defectType}</strong></td></tr>
-          <tr><td class="label">Класс опасности (СНиП РК):</td><td>${report.severity}</td></tr>
+          <tr><td class="label">Класс опасности:</td><td>${report.severity}</td></tr>
           <tr><td class="label">Нормативный документ:</td><td>${report.snipCode}</td></tr>
-          <tr><td class="label">Рекомендуемый метод:</td><td>${report.fixMethod}</td></tr>
-          <tr><td class="label">Ориентировочная стоимость:</td><td><strong>${report.estimatedCost}</strong></td></tr>
+          <tr><td class="label">Категория (ГОСТ 31937):</td><td>${report.analytics?.gost_status || 'Категория III'}</td></tr>
+          <tr><td class="label">Метод устранения:</td><td>${report.fixMethod}</td></tr>
+          <tr><td class="label">Срок работ:</td><td>${report.workDays} раб. дн.</td></tr>
         </table>
-        ${annotatedImage ? `
-          <div class="image-box">
-            <div style="font-weight: 700; margin-bottom: 6px;">Схема дефектоскопии и карта трещин (AI Vision):</div>
-            <img src="${annotatedImage}" alt="Карта дефектов" />
+
+        ${photoSrc ? `
+          <div class="img-box">
+            <div style="font-weight:700;margin-bottom:4px;font-size:12px;">Фото дефекта:</div>
+            <img src="${photoSrc}" alt="Фото дефекта" />
           </div>
         ` : ''}
-        <table class="defects-table">
-          <thead>
-            <tr>
-              <th>№</th>
-              <th>Тип дефекта</th>
-              <th>Класс</th>
-              <th>Точность AI</th>
-              <th>Длина / Раскрытие</th>
-              <th>Описание</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${defectMarkers.map(d => `
-              <tr>
-                <td><strong>#${d.id}</strong></td>
-                <td>${d.type}</td>
-                <td>${d.severity ? d.severity.toUpperCase() : 'СРЕДНИЙ'}</td>
-                <td>${(d.confidence * 100).toFixed(0)}%</td>
-                <td>${d.length_mm ? `${d.length_mm} мм` : '—'} / ${d.opening_mm ? `${d.opening_mm} мм` : '—'}</td>
-                <td>${d.description || '—'}</td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
-        <div class="stamp-box">
+
+        ${(materials.length > 0 || labor.length > 0) ? `
+          <h4>Смета на ремонтно-восстановительные работы (T)</h4>
+          <table class="est">
+            <thead>
+              <tr><th>№</th><th>Наименование</th><th>Кол-во</th><th style="text-align:right">Стоимость</th></tr>
+            </thead>
+            <tbody>
+              ${materials.length > 0 ? `
+                <tr><td colspan="4" style="background:#e0f2fe;font-weight:700;font-size:11px;">Материалы</td></tr>
+                ${materialsRows}
+                <tr class="subtotal"><td colspan="3" style="text-align:right">Итого материалы:</td><td style="text-align:right">${totalMat.toLocaleString('ru-RU')} T</td></tr>
+              ` : ''}
+              ${labor.length > 0 ? `
+                <tr><td colspan="4" style="background:#fef3c7;font-weight:700;font-size:11px;">Работы</td></tr>
+                ${laborRows}
+                <tr class="subtotal"><td colspan="3" style="text-align:right">Итого работы:</td><td style="text-align:right">${totalLab.toLocaleString('ru-RU')} T</td></tr>
+              ` : ''}
+              <tr class="total"><td colspan="3" style="text-align:right">ИТОГО СМЕТНАЯ СТОИМОСТЬ:</td><td style="text-align:right">${totalAll.toLocaleString('ru-RU')} T</td></tr>
+            </tbody>
+          </table>
+        ` : `
+          <h4>Ориентировочная стоимость: ${report.estimatedCost}</h4>
+        `}
+
+        <div class="sign">
           <div>
             <p><strong>Инженер инструментального контроля:</strong> ________________ / Нурланов А. М.</p>
             <p><strong>Технический надзор:</strong> Сертификат эксперта № KZ-0982-ENG</p>
@@ -607,7 +704,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
       
       setTimeout(() => {
         setIsScanning(false);
-        setReport({
+        const reportData = {
           id: `DEF-${Math.floor(1000 + Math.random() * 9000)}`,
           date: new Date().toLocaleString('ru-RU'),
           defectType: data.defectType || 'Дефект строительной конструкции',
@@ -622,8 +719,10 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
           defectCount: items.length || 0,
           markers: items,
           analytics: data.analytics || items[0]?.analytics || null,
-        });
-        showToast('✅ Экспертиза дефекта нейросетью Vision AI завершена!');
+        };
+        setReport(reportData);
+        saveToHistory(reportData);
+        showToast('✅ Экспертиза дефекта завершена!');
       }, 500);
 
     } catch (err) {
@@ -666,15 +765,61 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
       <div className="di-main-card">
         
         {/* AI Provider Status Banner */}
-        <div className="di-provider-banner" style={{ background: 'rgba(56, 189, 248, 0.12)', border: '1px solid rgba(56, 189, 248, 0.35)', color: '#7dd3fc', padding: '10px 16px', borderRadius: '12px', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.85rem' }}>
+        <div className="di-provider-banner" style={{ background: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.35)', color: '#6ee7b7', padding: '10px 16px', borderRadius: '12px', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.85rem' }}>
           <span style={{ fontSize: '1.2rem' }}>🔬</span>
           <div>
-            <strong>Режим анализа:</strong> AI Vision + экспертные шаблоны СНиП РК. Загрузите фото и опишите проблему для автоматической дефектоскопии.
+            <strong>Анализ по СНиП РК:</strong> Выберите тип дефекта, загрузите фото и получите экспертное заключение с расчётом сметы.
+          </div>
+        </div>
+
+        {/* SECTION 0: 🎯 Выберите тип дефекта */}
+        <div className="di-section">
+          <div className="di-section-title">
+            <span className="di-sec-icon">🎯</span>
+            <h3>Выберите тип дефекта</h3>
+          </div>
+
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',
+            gap: '8px',
+          }}>
+            {DEFECT_TYPES.map(type => (
+              <button
+                key={type.id}
+                type="button"
+                onClick={() => handleSelectDefectType(type)}
+                style={{
+                  background: selectedDefectType === type.id
+                    ? 'linear-gradient(135deg, rgba(56, 189, 248, 0.3), rgba(37, 99, 235, 0.3))'
+                    : 'rgba(255,255,255,0.04)',
+                  border: `1.5px solid ${selectedDefectType === type.id ? '#38bdf8' : 'rgba(255,255,255,0.1)'}`,
+                  borderRadius: '10px',
+                  padding: '10px 8px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: '4px',
+                  transition: 'all 0.2s ease',
+                  boxShadow: selectedDefectType === type.id ? '0 0 12px rgba(56, 189, 248, 0.3)' : 'none',
+                }}
+              >
+                <span style={{ fontSize: '1.4rem' }}>{type.icon}</span>
+                <span style={{
+                  color: selectedDefectType === type.id ? '#7dd3fc' : '#cbd5e1',
+                  fontSize: '0.72rem',
+                  fontWeight: 700,
+                  textAlign: 'center',
+                  lineHeight: 1.2,
+                }}>{type.label}</span>
+              </button>
+            ))}
           </div>
         </div>
 
         {/* SECTION 1: 📸 Загрузите фото */}
-        <div className="di-section">
+        <div className="di-section mt-4">
           <div className="di-section-title">
             <span className="di-sec-icon">📸</span>
             <h3>Загрузите фото</h3>
@@ -781,88 +926,44 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
           </div>
         </div>
 
-        {/* Sensitivity & Detection Level Toolbar */}
-        <div style={{
-          background: 'rgba(15, 23, 42, 0.65)',
-          border: '1px solid rgba(56, 189, 248, 0.25)',
-          borderRadius: '12px',
-          padding: '14px 16px',
-          marginBottom: '1.25rem',
-        }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-            <span style={{ color: '#e2e8f0', fontSize: '0.88rem', fontWeight: 800 }}>
-              🎛️ Чувствительность нейросканера: <span style={{ color: '#38bdf8' }}>{Math.round(sensitivity * 100)}%</span>
-            </span>
-            <span style={{ color: '#94a3b8', fontSize: '0.78rem' }}>
-              {sensitivity <= 0.5 ? '🔴 Только аварийные разломы' : sensitivity <= 0.75 ? '⚖️ Стандарт СНиП' : '🔬 Микротрещины и каверны'}
-            </span>
-          </div>
-          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-            <input 
-              type="range" 
-              min="0.35" 
-              max="0.95" 
-              step="0.05" 
-              value={sensitivity} 
-              onChange={(e) => setSensitivity(parseFloat(e.target.value))}
-              style={{ flex: 1, accentColor: '#38bdf8', cursor: 'pointer' }}
-            />
-          </div>
-          <div style={{ display: 'flex', gap: '6px', marginTop: '10px', flexWrap: 'wrap' }}>
+        {/* Submit + Reset Buttons */}
+        <div style={{ display: 'flex', gap: '10px', marginTop: '0.5rem' }}>
+          <button 
+            className="di-btn-submit"
+            onClick={handleRunInspection}
+            disabled={isScanning}
+            style={{ flex: 1 }}
+          >
+            {isScanning ? (
+              <span className="di-scanning-flex">
+                <span className="di-spinner">⚙️</span>
+                {scanStepMessage}
+              </span>
+            ) : (
+              <span>🔍 Проверить и сформировать отчёт</span>
+            )}
+          </button>
+          
+          {report && (
             <button
               type="button"
-              onClick={() => setSensitivity(0.45)}
+              onClick={handleReset}
               style={{
-                background: sensitivity === 0.45 ? 'rgba(239,68,68,0.25)' : 'rgba(255,255,255,0.05)',
-                border: `1px solid ${sensitivity === 0.45 ? '#ef4444' : 'rgba(255,255,255,0.1)'}`,
-                color: sensitivity === 0.45 ? '#fca5a5' : '#94a3b8',
-                borderRadius: '6px', padding: '4px 10px', fontSize: '0.76rem', fontWeight: 700, cursor: 'pointer'
+                background: 'rgba(255,255,255,0.06)',
+                border: '1.5px solid rgba(255,255,255,0.15)',
+                color: '#94a3b8',
+                borderRadius: '12px',
+                padding: '14px 18px',
+                fontWeight: 800,
+                fontSize: '0.88rem',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap',
               }}
             >
-              🔴 Силовые разломы (0.45)
+              🔄 Новое
             </button>
-            <button
-              type="button"
-              onClick={() => setSensitivity(0.65)}
-              style={{
-                background: sensitivity === 0.65 ? 'rgba(56,189,248,0.25)' : 'rgba(255,255,255,0.05)',
-                border: `1px solid ${sensitivity === 0.65 ? '#38bdf8' : 'rgba(255,255,255,0.1)'}`,
-                color: sensitivity === 0.65 ? '#7dd3fc' : '#94a3b8',
-                borderRadius: '6px', padding: '4px 10px', fontSize: '0.76rem', fontWeight: 700, cursor: 'pointer'
-              }}
-            >
-              ⚖️ Оптимальный СНиП (0.65)
-            </button>
-            <button
-              type="button"
-              onClick={() => setSensitivity(0.85)}
-              style={{
-                background: sensitivity === 0.85 ? 'rgba(168,85,247,0.25)' : 'rgba(255,255,255,0.05)',
-                border: `1px solid ${sensitivity === 0.85 ? '#a855f7' : 'rgba(255,255,255,0.1)'}`,
-                color: sensitivity === 0.85 ? '#d8b4fe' : '#94a3b8',
-                borderRadius: '6px', padding: '4px 10px', fontSize: '0.76rem', fontWeight: 700, cursor: 'pointer'
-              }}
-            >
-              🔬 Микродефекты (0.85)
-            </button>
-          </div>
-        </div>
-
-        {/* Submit Coral Gradient CTA Button */}
-        <button 
-          className="di-btn-submit"
-          onClick={handleRunInspection}
-          disabled={isScanning}
-        >
-          {isScanning ? (
-            <span className="di-scanning-flex">
-              <span className="di-spinner">⚙️</span>
-              {scanStepMessage}
-            </span>
-          ) : (
-            <span>🔍 Проверить и сформировать отчёт</span>
           )}
-        </button>
+        </div>
 
       </div>
 
@@ -1479,7 +1580,29 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
 
                 <button 
                   className="di-btn-wa"
-                  onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent(`Отчет дефектоскопии № ${report.id}: ${report.defectType}, Стоимость: ${report.estimatedCost}`)}`, '_blank')}
+                  onClick={() => {
+                    const materials = report.analytics?.materials || [];
+                    const labor = report.analytics?.labor || [];
+                    const totalCost = report.analytics?.total_cost_kzt || 0;
+                    let msg = `*Акт дефектоскопии № ${report.id}*\n`;
+                    msg += `Дата: ${report.date}\n\n`;
+                    msg += `*Дефект:* ${report.defectType}\n`;
+                    msg += `*Класс риска:* ${report.severity}\n`;
+                    msg += `*СНиП:* ${report.snipCode}\n`;
+                    msg += `*Метод:* ${report.fixMethod}\n\n`;
+                    if (materials.length > 0) {
+                      msg += `*Материалы:*\n`;
+                      materials.forEach(m => { msg += `  - ${m.name} (${m.qty}) — ${m.cost_kzt.toLocaleString('ru-RU')} T\n`; });
+                    }
+                    if (labor.length > 0) {
+                      msg += `*Работы:*\n`;
+                      labor.forEach(l => { msg += `  - ${l.name} (${l.qty}) — ${l.cost_kzt.toLocaleString('ru-RU')} T\n`; });
+                    }
+                    if (totalCost > 0) msg += `\n*ИТОГО: ${totalCost.toLocaleString('ru-RU')} T*\n`;
+                    else msg += `\n*Стоимость: ${report.estimatedCost}*\n`;
+                    msg += `\nЗаказчик: ${report.clientName}\nАдрес: ${report.address}`;
+                    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+                  }}
                   style={{ padding: '14px 16px', borderRadius: '10px', fontSize: '0.9rem' }}
                 >
                   💬 В WhatsApp
@@ -1490,6 +1613,59 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
         </div>
       )}
     </div>
+
+      {/* ===== HISTORY SECTION ===== */}
+      {inspectionHistory.length > 0 && (
+        <div style={{ maxWidth: '680px', margin: '1.5rem auto 0' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+            <h3 style={{ color: '#e2e8f0', margin: 0, fontSize: '1rem', fontWeight: 800 }}>
+              📋 История дефектоскопий ({inspectionHistory.length})
+            </h3>
+            <button
+              type="button"
+              onClick={() => { setInspectionHistory([]); localStorage.removeItem('defect_history'); showToast('🗑️ История очищена'); }}
+              style={{ background: 'none', border: 'none', color: '#64748b', fontSize: '0.78rem', cursor: 'pointer' }}
+            >
+              Очистить
+            </button>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {inspectionHistory.map((h, idx) => (
+              <div key={idx} style={{
+                background: 'rgba(15, 23, 42, 0.7)',
+                border: '1px solid rgba(255,255,255,0.08)',
+                borderRadius: '10px',
+                padding: '10px 14px',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                gap: '10px',
+              }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ color: '#f1f5f9', fontWeight: 700, fontSize: '0.85rem', marginBottom: '2px' }}>
+                    {h.defectType}
+                  </div>
+                  <div style={{ color: '#94a3b8', fontSize: '0.75rem' }}>
+                    {h.id} • {h.date} • {h.clientName || '—'} • {h.address || '—'}
+                  </div>
+                </div>
+                <div style={{
+                  background: h.severity?.includes('КРИТИЧЕСКИЙ') ? 'rgba(255,40,40,0.2)' : h.severity?.includes('Высокий') ? 'rgba(255,120,30,0.2)' : 'rgba(56,189,248,0.15)',
+                  border: `1px solid ${h.severity?.includes('КРИТИЧЕСКИЙ') ? '#ef4444' : h.severity?.includes('Высокий') ? '#f59e0b' : '#38bdf8'}`,
+                  borderRadius: '8px',
+                  padding: '4px 10px',
+                  color: h.severity?.includes('КРИТИЧЕСКИЙ') ? '#fca5a5' : h.severity?.includes('Высокий') ? '#fbbf24' : '#7dd3fc',
+                  fontSize: '0.78rem',
+                  fontWeight: 700,
+                  whiteSpace: 'nowrap',
+                }}>
+                  {h.estimatedCost}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* ===== LIGHTBOX (Full-screen zoom & Pan) ===== */}
       {lightboxSrc && (
