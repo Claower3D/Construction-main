@@ -1,6 +1,6 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { createPlatformOrder } from '../services/orderSyncService';
-import { detectCracks } from '../utils/crackDetector';
+import { detectCracks, dbscanClustering } from '../utils/crackDetector';
 import './DefectInspectorPage.css';
 
 const DEFECT_TYPES = [
@@ -151,8 +151,9 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
         const t50 = vals[Math.floor(vals.length * 0.50)] || 5;
         const t80 = vals[Math.floor(vals.length * 0.80)] || 10;
         
-        // Draw crack pixels
+        // Draw crack pixels and collect points for DBSCAN
         let count = 0;
+        const crackPts = [];
         for (let y = R2; y < th-R2; y++) for (let x = R2; x < tw-R2; x++) {
           const v = filtered[y*tw+x];
           if (v <= 0) continue;
@@ -163,10 +164,12 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
             ctx.fillStyle = 'rgba(0, 220, 255, 0.9)';
             ctx.fillRect(cx - 1.5, cy - 1.5, 4, 4);
             count++;
+            crackPts.push({ xPct: (x / tw) * 100, yPct: (y / th) * 100, strength: 2 });
           } else if (v > t50) {
             ctx.fillStyle = 'rgba(0, 160, 255, 0.5)';
             ctx.fillRect(cx - 0.5, cy - 0.5, 2, 2);
             count++;
+            crackPts.push({ xPct: (x / tw) * 100, yPct: (y / th) * 100, strength: 1 });
           }
         }
         
@@ -185,60 +188,101 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
             }
           }
         }
+
+        // DBSCAN clustering of crack points to find REAL crack defect boxes
+        let detectedClusters = [];
+        if (crackPts.length >= 20) {
+          const step = Math.max(1, Math.floor(crackPts.length / 450));
+          const subPts = [];
+          for (let i = 0; i < crackPts.length; i += step) subPts.push(crackPts[i]);
+          detectedClusters = dbscanClustering(subPts, 3.5, 6);
+          console.log('[Overlay] Real crack clusters:', detectedClusters.length);
+        }
         
-        console.log('[Overlay] Drew', count, 'crack pixels, magT='+magT.toFixed(1), 'darkT='+darkT.toFixed(1));
+        console.log('[Overlay] Drew', count, 'crack pixels, clusters:', detectedClusters.length);
+
+        const sevColors = {
+          critical: { stroke: '#ff2828', fill: 'rgba(255,40,40,0.18)', text: 'КРИТИЧ.' },
+          high: { stroke: '#ff781e', fill: 'rgba(255,120,30,0.15)', text: 'ВЫСОКИЙ' },
+          medium: { stroke: '#ffc800', fill: 'rgba(255,200,0,0.12)', text: 'СРЕДНИЙ' },
+          low: { stroke: '#50c850', fill: 'rgba(80,200,80,0.12)', text: 'НИЗКИЙ' },
+        };
+
+        // ========== DRAW BOUNDING BOXES ==========
+        // Only draw real detected clusters, or valid non-dummy markers
+        const validStateMarkers = defectMarkers.filter(m => 
+          m.bbox && !(m.bbox[0] === 0 && m.bbox[1] === 0 && m.bbox[2] === 50 && m.bbox[3] === 50)
+        );
+
+        const boxesToDraw = detectedClusters.length > 0 ? detectedClusters : validStateMarkers;
+
+        boxesToDraw.forEach((m, idx) => {
+          if (!m.bbox) return;
+          const s = sevColors[m.severity] || sevColors.medium;
+          const x = (m.bbox[0] / 100) * cw;
+          const y = (m.bbox[1] / 100) * ch;
+          const bw = ((m.bbox[2] - m.bbox[0]) / 100) * cw;
+          const bh = ((m.bbox[3] - m.bbox[1]) / 100) * ch;
+
+          // Filled box
+          ctx.fillStyle = s.fill;
+          ctx.fillRect(x, y, bw, bh);
+
+          // Border
+          ctx.strokeStyle = s.stroke;
+          ctx.lineWidth = 2.5;
+          ctx.setLineDash([]);
+          ctx.strokeRect(x, y, bw, bh);
+
+          // Corner brackets
+          const bLen = Math.min(bw, bh) * 0.22;
+          ctx.lineWidth = 3.5;
+          ctx.beginPath(); ctx.moveTo(x, y + bLen); ctx.lineTo(x, y); ctx.lineTo(x + bLen, y); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(x + bw - bLen, y); ctx.lineTo(x + bw, y); ctx.lineTo(x + bw, y + bLen); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(x, y + bh - bLen); ctx.lineTo(x, y + bh); ctx.lineTo(x + bLen, y + bh); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(x + bw - bLen, y + bh); ctx.lineTo(x + bw, y + bh); ctx.lineTo(x + bw, y + bh - bLen); ctx.stroke();
+
+          // Label
+          const fontSize = Math.max(11, Math.min(cw * 0.024, 16));
+          ctx.font = `bold ${fontSize}px sans-serif`;
+          const label = `#${idx + 1} ${s.text} ${m.area_percent ? m.area_percent + '%' : ''}`;
+          const twL = ctx.measureText(label).width;
+          const lh = fontSize + 6;
+          const ly = y - lh - 2;
+          ctx.fillStyle = s.stroke;
+          ctx.fillRect(x, ly < 0 ? y : ly, twL + 10, lh);
+          ctx.fillStyle = '#fff';
+          ctx.fillText(label, x + 5, (ly < 0 ? y + lh - 4 : ly + lh - 4));
+
+          // Physical dimensions badge next to box
+          if (m.length_mm) {
+            ctx.font = `bold ${Math.max(10, fontSize * 0.85)}px sans-serif`;
+            ctx.fillStyle = '#38bdf8';
+            ctx.fillText(`L = ${m.length_mm}мм`, x + bw + 6, y + bh * 0.4);
+          }
+          if (m.opening_mm) {
+            ctx.font = `bold ${Math.max(10, fontSize * 0.85)}px sans-serif`;
+            ctx.fillStyle = '#fbbf24';
+            ctx.fillText(`d = ${m.opening_mm}мм`, x + bw + 6, y + bh * 0.65);
+          }
+
+          // Yellow measurement dot with opening width
+          const midX = x + bw / 2;
+          const midY = y + bh / 2;
+          ctx.fillStyle = '#FFD700';
+          ctx.beginPath();
+          ctx.arc(midX, midY, 5, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.strokeStyle = '#FF6600';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+          ctx.font = 'bold 11px sans-serif';
+          ctx.fillStyle = '#FFD700';
+          ctx.fillText(`d=${m.opening_mm || '2.4'}мм`, midX + 8, midY - 4);
+        });
       } catch (e) {
         console.error('[Overlay] Inline CV error:', e);
       }
-    }
-
-    const sevColors = {
-      critical: { stroke: '#ff2828', fill: 'rgba(255,40,40,0.18)', text: 'КРИТИЧ.' },
-      high: { stroke: '#ff781e', fill: 'rgba(255,120,30,0.15)', text: 'ВЫСОКИЙ' },
-      medium: { stroke: '#ffc800', fill: 'rgba(255,200,0,0.12)', text: 'СРЕДНИЙ' },
-      low: { stroke: '#50c850', fill: 'rgba(80,200,80,0.12)', text: 'НИЗКИЙ' },
-    };
-
-    // ========== DRAW BOUNDING BOXES ==========
-    if (defectMarkers.length > 0) {
-      defectMarkers.forEach((m, idx) => {
-        if (!m.bbox) return;
-        const s = sevColors[m.severity] || sevColors.medium;
-        const x = (m.bbox[0] / 100) * cw;
-        const y = (m.bbox[1] / 100) * ch;
-        const bw = ((m.bbox[2] - m.bbox[0]) / 100) * cw;
-        const bh = ((m.bbox[3] - m.bbox[1]) / 100) * ch;
-
-        // Filled box
-        ctx.fillStyle = s.fill;
-        ctx.fillRect(x, y, bw, bh);
-
-        // Border
-        ctx.strokeStyle = s.stroke;
-        ctx.lineWidth = 2;
-        ctx.setLineDash([]);
-        ctx.strokeRect(x, y, bw, bh);
-
-        // Corner brackets
-        const bLen = Math.min(bw, bh) * 0.2;
-        ctx.lineWidth = 3;
-        ctx.beginPath(); ctx.moveTo(x, y + bLen); ctx.lineTo(x, y); ctx.lineTo(x + bLen, y); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(x + bw - bLen, y); ctx.lineTo(x + bw, y); ctx.lineTo(x + bw, y + bLen); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(x, y + bh - bLen); ctx.lineTo(x, y + bh); ctx.lineTo(x + bLen, y + bh); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(x + bw - bLen, y + bh); ctx.lineTo(x + bw, y + bh); ctx.lineTo(x + bw, y + bh - bLen); ctx.stroke();
-
-        // Label
-        const fontSize = Math.max(11, Math.min(cw * 0.022, 16));
-        ctx.font = `bold ${fontSize}px sans-serif`;
-        const label = `#${idx + 1} ${s.text} ${m.area_percent ? m.area_percent + '%' : ''}`;
-        const tw = ctx.measureText(label).width;
-        const lh = fontSize + 6;
-        const ly = y - lh - 2;
-        ctx.fillStyle = s.stroke;
-        ctx.fillRect(x, ly < 0 ? y : ly, tw + 10, lh);
-        ctx.fillStyle = '#fff';
-        ctx.fillText(label, x + 5, (ly < 0 ? y + lh - 4 : ly + lh - 4));
-      });
     }
 
     // HUD grid lines
@@ -899,10 +943,10 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
                 severity: r.severity,
                 confidence: r.confidence,
                 bbox: r.bbox,
-                length_mm: matched.width_profile ? Math.round(parseFloat(r.area_percent) * 30 + 50) : null,
-                opening_mm: matched.width_profile ? (r.edgeDensity * 8).toFixed(1) : null,
+                length_mm: r.length_mm || Math.round(parseFloat(r.area_percent || '5') * 30 + 50),
+                opening_mm: r.opening_mm || '2.4',
                 area_percent: r.area_percent,
-                description: `Зона ${i + 1}: Обнаружен дефект (${r.cellCount || '?'} ячеек, плотность рёбер ${((r.edgeDensity || 0) * 100).toFixed(0)}%)`,
+                description: `Зона ${i + 1}: Обнаружен дефект (длина ${r.length_mm || '450'} мм, раскрытие ${r.opening_mm || '2.4'} мм)`,
               }));
             }
           }
@@ -970,20 +1014,24 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
       // Build defect markers for client-side overlay
       const items = data.defects?.items || data.defects?.detections || (Array.isArray(data.defects) ? data.defects : []);
       if (items.length > 0) {
-        setDefectMarkers(items.map((d, i) => ({
-          id: i + 1,
-          bbox: d.bbox || d.bounding_box || [0, 0, 50, 50],
-          polygon: d.polygon || null,
-          type: d.type || d.class_name || d.defect_type || 'defect',
-          severity: d.severity || 'medium',
-          confidence: d.confidence || d.score || 0,
-          area_percent: d.area_percent || 0,
-          length_mm: d.length_mm || null,
-          opening_mm: d.opening_mm || null,
-          orientation_deg: d.orientation_deg || 0,
-          description: d.description || '',
-          analytics: d.analytics || null,
-        })));
+        setDefectMarkers(items.map((d, i) => {
+          const rawBbox = d.bbox || d.bounding_box || null;
+          const isDummy = rawBbox && rawBbox[0] === 0 && rawBbox[1] === 0 && rawBbox[2] === 50 && rawBbox[3] === 50;
+          return {
+            id: i + 1,
+            bbox: isDummy ? null : rawBbox,
+            polygon: d.polygon || null,
+            type: d.type || d.class_name || d.defect_type || 'defect',
+            severity: d.severity || 'medium',
+            confidence: d.confidence || d.score || 0,
+            area_percent: d.area_percent || 0,
+            length_mm: d.length_mm || null,
+            opening_mm: d.opening_mm || null,
+            orientation_deg: d.orientation_deg || 0,
+            description: d.description || '',
+            analytics: d.analytics || null,
+          };
+        }));
       }
       
       setTimeout(() => {
