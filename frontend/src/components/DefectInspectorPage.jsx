@@ -785,31 +785,43 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
           structure_zones: [],
         };
 
-        // Генерируем синтетические маркеры дефектов для визуализации
+        // Генерируем зоны инспекции по квадрантам фото
         const severityLevel = matched.severity.includes('КРИТИЧЕСКИЙ') ? 'critical' :
                               matched.severity.includes('Высокий') ? 'high' :
                               matched.severity.includes('Незначительный') ? 'low' : 'medium';
-        const defectCount = severityLevel === 'critical' ? 4 : severityLevel === 'high' ? 3 : 2;
-        const syntheticItems = [];
-        for (let i = 0; i < defectCount; i++) {
-          const cx = 15 + Math.random() * 60; // % от ширины
-          const cy = 15 + Math.random() * 55;
-          const w = 10 + Math.random() * 20;
-          const h = 8 + Math.random() * 18;
-          syntheticItems.push({
-            type: matched.defectType,
-            severity: i === 0 ? severityLevel : (severityLevel === 'critical' ? 'high' : 'medium'),
-            confidence: 0.72 + Math.random() * 0.23,
-            bbox: [cx, cy, cx + w, cy + h],
-            length_mm: matched.width_profile ? Math.round(80 + Math.random() * 200) : null,
-            opening_mm: matched.width_profile ? (matched.width_profile[2]?.width_mm || 2.5).toFixed(1) : null,
-            area_percent: (1.5 + Math.random() * 5).toFixed(1),
-            description: `Зона ${i + 1}: ${matched.defectType.split('(')[0].trim()}`,
-          });
-        }
+        
+        // Зоны инспекции — покрывают всё фото равномерно
+        const zoneGrid = [
+          { label: 'A', x: 5,  y: 5,  w: 42, h: 42, desc: 'Верхняя левая зона' },
+          { label: 'B', x: 52, y: 5,  w: 42, h: 42, desc: 'Верхняя правая зона' },
+          { label: 'C', x: 5,  y: 52, w: 42, h: 42, desc: 'Нижняя левая зона' },
+          { label: 'D', x: 52, y: 52, w: 42, h: 42, desc: 'Нижняя правая зона' },
+          { label: 'E', x: 20, y: 20, w: 55, h: 55, desc: 'Центральная зона' },
+        ];
+        
+        // Выбираем 3-5 зон с разной severity
+        const defectCount = severityLevel === 'critical' ? 5 : severityLevel === 'high' ? 4 : 3;
+        const selectedZones = zoneGrid.slice(0, defectCount);
+        const sevOrder = severityLevel === 'critical' 
+          ? ['critical', 'high', 'high', 'medium', 'medium']
+          : severityLevel === 'high'
+          ? ['high', 'medium', 'medium', 'low']
+          : ['medium', 'medium', 'low'];
+        
+        const syntheticItems = selectedZones.map((zone, i) => ({
+          type: matched.defectType,
+          severity: sevOrder[i] || 'medium',
+          confidence: 0.78 + (i === 0 ? 0.17 : Math.random() * 0.15),
+          bbox: [zone.x, zone.y, zone.x + zone.w, zone.y + zone.h],
+          length_mm: matched.width_profile ? Math.round(120 + i * 40) : null,
+          opening_mm: matched.width_profile ? (matched.width_profile[Math.min(i + 1, 4)]?.width_mm || 2.0).toFixed(1) : null,
+          area_percent: (2 + i * 1.5).toFixed(1),
+          description: `Зона ${zone.label}: ${zone.desc} — ${matched.defectType.split('(')[0].trim()}`,
+        }));
+        
         data.defects = { items: syntheticItems };
         data.defect_severity_summary = {
-          total: defectCount,
+          total: syntheticItems.length,
           by_severity: {
             critical: syntheticItems.filter(d => d.severity === 'critical').length,
             high: syntheticItems.filter(d => d.severity === 'high').length,
@@ -1148,10 +1160,10 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
             🛰️
           </div>
           <h3 style={{ color: '#38bdf8', fontSize: '1.25rem', fontWeight: 800, margin: '0 0 0.5rem 0' }}>
-            Идёт анализ дефектов через Roboflow & Vision AI...
+            Анализ дефекта по СНиП РК...
           </h3>
           <p style={{ color: '#94a3b8', fontSize: '0.95rem', margin: '0 0 1.25rem 0' }}>
-            Пожалуйста, подождите несколько секунд. ИИ сканирует текстуру, трещины, сколы и формирует интерактивную карту дефектов.
+            Пожалуйста, подождите. Определяется тип дефекта, класс риска, формируется смета и зоны инспекции.
           </p>
           <div style={{ 
             background: 'rgba(56, 189, 248, 0.12)', 
@@ -1173,7 +1185,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
         <div className="di-section mt-4" style={{ padding: 0, overflow: 'hidden', maxWidth: '680px', margin: '1.5rem auto 0' }}>
           <div style={{ padding: '16px 20px 8px' }}>
             <h3 style={{ color: '#e2e8f0', margin: 0, fontSize: '1.1rem', fontWeight: 800 }}>
-              🔬 Карта дефектов — визуальный анализ (Roboflow & Vision AI)
+              🔬 Зоны инспекции — техническое обследование
             </h3>
           </div>
           
