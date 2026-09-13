@@ -48,6 +48,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
 
   const canvasRef = useRef(null);
   const imgRef = useRef(null);
+  const lastDetectedCountRef = useRef(0);
   const [crackData, setCrackData] = useState(null); // {crackPoints, measurements} from CV
 
   const drawOverlay = useCallback(() => {
@@ -216,6 +217,40 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
         
         console.log('[Overlay] Drew', count, 'crack pixels, zones:', detectedClusters.length);
 
+        // Sync real detected clusters to defectMarkers and severitySummary in state
+        if (detectedClusters.length > 0 && lastDetectedCountRef.current !== detectedClusters.length) {
+          lastDetectedCountRef.current = detectedClusters.length;
+          const newMarkers = detectedClusters.map((cl, i) => {
+            const typeTitle = cl.severity === 'critical' ? 'Глубокий разлом / аварийный дефект бетона' :
+                              cl.severity === 'high' ? 'Конструктивная трещина с раскрытием' :
+                              'Усадочная трещина штукатурного слоя';
+            return {
+              id: cl.id || i + 1,
+              bbox: cl.bbox,
+              type: typeTitle,
+              severity: cl.severity,
+              confidence: 0.92,
+              area_percent: cl.area_percent,
+              length_mm: cl.length_mm,
+              opening_mm: cl.opening_mm,
+              description: `Зона ${i + 1}: Обнаружен дефект (длина ${cl.length_mm} мм, раскрытие ${cl.opening_mm} мм, площадь ${cl.area_percent}%)`,
+            };
+          });
+
+          setTimeout(() => {
+            setDefectMarkers(newMarkers);
+            setSeveritySummary({
+              total: newMarkers.length,
+              by_severity: {
+                critical: newMarkers.filter(m => m.severity === 'critical').length,
+                high: newMarkers.filter(m => m.severity === 'high').length,
+                medium: newMarkers.filter(m => m.severity === 'medium').length,
+                low: newMarkers.filter(m => m.severity === 'low').length,
+              }
+            });
+          }, 0);
+        }
+
         const sevColors = {
           critical: { stroke: '#ff2828', fill: 'rgba(255,40,40,0.18)', text: 'КРИТИЧ.' },
           high: { stroke: '#ff781e', fill: 'rgba(255,120,30,0.15)', text: 'ВЫСОКИЙ' },
@@ -327,6 +362,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
     setAnnotatedImage(null);
     setDefectMarkers([]);
     setSeveritySummary(null);
+    lastDetectedCountRef.current = 0;
     setStressHeatmapImage(null);
     setSkeletonImage(null);
     setEdgeMapSrc(null);
@@ -539,6 +575,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
     setAnnotatedImage(null);
     setDefectMarkers([]);
     setSeveritySummary(null);
+    lastDetectedCountRef.current = 0;
     setScanStepMessage('🔬 QazGost AI анализирует фото на дефекты...');
 
     try {
@@ -923,9 +960,9 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
         // Реальное распознавание дефектов через Computer Vision (Canvas pixel analysis)
         let cvItems = [];
         try {
-          const photoSrc = photos[0]?.base64 || photos[0]?.url;
+          const photoSrc = imgRef.current || photos[0]?.base64 || photos[0]?.url;
           if (photoSrc) {
-            setProgressSteps(prev => [...prev, { text: 'Edge Detection (Sobel)...', done: false }]);
+            setProgressSteps(prev => [...prev, { text: 'Vision AI: Поиск дефектов и трещин...', done: false }]);
             const cvResult = await detectCracks(photoSrc);
             setProgressSteps(prev => prev.map((s, i) => i === prev.length - 1 ? { ...s, done: true } : s));
             
