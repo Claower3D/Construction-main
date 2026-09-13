@@ -53,17 +53,25 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
   const drawOverlay = useCallback(() => {
     const imgEl = imgRef.current;
     const canvas = canvasRef.current;
-    if (!imgEl || !canvas || visionMode === 'clean') {
-      if (canvas) { const ctx = canvas.getContext('2d'); ctx.clearRect(0, 0, canvas.width, canvas.height); }
+    if (!imgEl || !canvas) {
+      console.log('[Overlay] no imgEl or canvas');
+      return;
+    }
+    if (visionMode === 'clean') {
+      const ctx = canvas.getContext('2d'); ctx.clearRect(0, 0, canvas.width, canvas.height);
       return;
     }
     
-    const cw = imgEl.clientWidth || imgEl.width || 400;
-    const ch = imgEl.clientHeight || imgEl.height || 300;
+    const cw = imgEl.clientWidth || imgEl.offsetWidth || 400;
+    const ch = imgEl.clientHeight || imgEl.offsetHeight || 300;
     canvas.width = cw;
     canvas.height = ch;
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, cw, ch);
+    
+    console.log('[Overlay] drawing on', cw, 'x', ch, 'mode:', visionMode, 
+      'crackData:', crackData ? crackData.crackPoints?.length : 'null',
+      'markers:', defectMarkers.length);
 
     // ========== DRAW CRACK PIXELS (from CV data) ==========
     if (crackData && crackData.crackPoints && crackData.crackPoints.length > 0 && visionMode === 'hud') {
