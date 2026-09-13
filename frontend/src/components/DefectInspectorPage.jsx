@@ -72,7 +72,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
     if (visionMode === 'hud' || visionMode === 'stress') {
       try {
         const tmpC = document.createElement('canvas');
-        const sz = 300;
+        const sz = 320;
         const imgW = imgEl.naturalWidth || cw;
         const imgH = imgEl.naturalHeight || ch;
         const sc = Math.min(sz / imgW, sz / imgH, 1);
@@ -85,121 +85,136 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
         // Grayscale
         const gray = new Float32Array(tw * th);
         for (let i = 0; i < tw * th; i++)
-          gray[i] = 0.299*px[i*4] + 0.587*px[i*4+1] + 0.114*px[i*4+2];
+          gray[i] = 0.299 * px[i * 4] + 0.587 * px[i * 4 + 1] + 0.114 * px[i * 4 + 2];
         
-        // Valley detection: for each pixel, check if it's darker than
-        // neighbors on BOTH sides in any direction (H, V, 2 diagonals).
-        // This specifically finds LINE features, not edges.
+        // Multi-scale Valley (R=2, 4, 6) - detects hairline to wide cracks
         const valley = new Float32Array(tw * th);
-        const R = 3; // probe radius
-        for (let y = R; y < th-R; y++) for (let x = R; x < tw-R; x++) {
-          const center = gray[y*tw+x];
-          // 4 directions: horizontal, vertical, diag1, diag2
-          const dirs = [
-            [gray[y*tw+(x-R)], gray[y*tw+(x+R)]],              // horizontal
-            [gray[(y-R)*tw+x], gray[(y+R)*tw+x]],              // vertical
-            [gray[(y-R)*tw+(x-R)], gray[(y+R)*tw+(x+R)]],      // diagonal ↘
-            [gray[(y-R)*tw+(x+R)], gray[(y+R)*tw+(x-R)]],      // diagonal ↗
-          ];
-          
-          let maxValley = 0;
-          for (const [left, right] of dirs) {
-            // Valley = min(left, right) - center
-            // Both sides must be brighter than center
-            const v = Math.min(left, right) - center;
-            if (v > maxValley) maxValley = v;
-          }
-          valley[y*tw+x] = maxValley > 4 ? maxValley : 0; // threshold: 4 brightness units
-        }
-        
-        // Multi-scale: also check with larger radius for wider cracks
-        const R2 = 6;
-        for (let y = R2; y < th-R2; y++) for (let x = R2; x < tw-R2; x++) {
-          const center = gray[y*tw+x];
-          const dirs = [
-            [gray[y*tw+(x-R2)], gray[y*tw+(x+R2)]],
-            [gray[(y-R2)*tw+x], gray[(y+R2)*tw+x]],
-            [gray[(y-R2)*tw+(x-R2)], gray[(y+R2)*tw+(x+R2)]],
-            [gray[(y-R2)*tw+(x+R2)], gray[(y+R2)*tw+(x-R2)]],
-          ];
-          for (const [l, r] of dirs) {
-            const v = Math.min(l, r) - center;
-            if (v > valley[y*tw+x]) valley[y*tw+x] = v > 4 ? v : 0;
+        for (const R of [2, 4, 6]) {
+          for (let y = R; y < th - R; y++) {
+            for (let x = R; x < tw - R; x++) {
+              const center = gray[y * tw + x];
+              if (center < 18) continue; // ignore dark viewer margins
+              const dH = Math.min(gray[y * tw + (x - R)], gray[y * tw + (x + R)]) - center;
+              const dV = Math.min(gray[(y - R) * tw + x], gray[(y + R) * tw + x]) - center;
+              const dD1 = Math.min(gray[(y - R) * tw + (x - R)], gray[(y + R) * tw + (x + R)]) - center;
+              const dD2 = Math.min(gray[(y - R) * tw + (x + R)], gray[(y + R) * tw + (x - R)]) - center;
+              const maxV = Math.max(dH, dV, dD1, dD2);
+              if (maxV > 3.5 && maxV > valley[y * tw + x]) {
+                valley[y * tw + x] = maxV;
+              }
+            }
           }
         }
         
-        // Texture contrast: ignore uniform dark areas (shadows)
-        // Only keep valleys where local contrast is high
+        // Local contrast & outer frame filter
         const filtered = new Float32Array(tw * th);
-        for (let y = 4; y < th-4; y++) for (let x = 4; x < tw-4; x++) {
-          if (valley[y*tw+x] === 0) continue;
-          // Check local std dev
-          let sum = 0, sum2 = 0, n = 0;
-          for (let dy=-3; dy<=3; dy+=2) for (let dx=-3; dx<=3; dx+=2) {
-            const v = gray[(y+dy)*tw+(x+dx)]; sum += v; sum2 += v*v; n++;
+        const borderX = Math.round(tw * 0.025);
+        const borderY = Math.round(th * 0.025);
+        for (let y = 4; y < th - 4; y++) {
+          for (let x = 4; x < tw - 4; x++) {
+            if (x < borderX || x > tw - borderX || y < borderY || y > th - borderY) continue;
+            if (valley[y * tw + x] === 0) continue;
+            let sum = 0, sum2 = 0, n = 0;
+            for (let dy = -3; dy <= 3; dy += 2) {
+              for (let dx = -3; dx <= 3; dx += 2) {
+                const v = gray[(y + dy) * tw + (x + dx)];
+                sum += v; sum2 += v * v; n++;
+              }
+            }
+            const mean = sum / n;
+            const std = Math.sqrt(Math.max(0, sum2 / n - mean * mean));
+            if (std > 4) filtered[y * tw + x] = valley[y * tw + x];
           }
-          const mean = sum/n;
-          const std = Math.sqrt(sum2/n - mean*mean);
-          // Keep only if there's enough local contrast (not uniform area)
-          if (std > 8) filtered[y*tw+x] = valley[y*tw+x];
         }
         
-        // Threshold: take top percentile of valley values
-        const vals = [];
-        for (let i = 0; i < tw*th; i += 2) if (filtered[i] > 0) vals.push(filtered[i]);
-        vals.sort((a, b) => a - b);
-        const t50 = vals[Math.floor(vals.length * 0.50)] || 5;
-        const t80 = vals[Math.floor(vals.length * 0.80)] || 10;
-        
-        // Draw crack pixels and collect points for DBSCAN
-        let count = 0;
+        // 4x4 Tiled adaptive thresholding (ensures hairline cracks in all quadrants are captured)
         const crackPts = [];
-        for (let y = R2; y < th-R2; y++) for (let x = R2; x < tw-R2; x++) {
-          const v = filtered[y*tw+x];
-          if (v <= 0) continue;
-          const cx = (x / tw) * cw;
-          const cy = (y / th) * ch;
-          
-          if (v > t80) {
-            ctx.fillStyle = 'rgba(0, 220, 255, 0.9)';
-            ctx.fillRect(cx - 1.5, cy - 1.5, 4, 4);
-            count++;
-            crackPts.push({ xPct: (x / tw) * 100, yPct: (y / th) * 100, strength: 2 });
-          } else if (v > t50) {
-            ctx.fillStyle = 'rgba(0, 160, 255, 0.5)';
-            ctx.fillRect(cx - 0.5, cy - 0.5, 2, 2);
-            count++;
-            crackPts.push({ xPct: (x / tw) * 100, yPct: (y / th) * 100, strength: 1 });
+        let count = 0;
+        const tileH = Math.floor(th / 4);
+        const tileW = Math.floor(tw / 4);
+        for (let ty = 0; ty < 4; ty++) {
+          for (let tx = 0; tx < 4; tx++) {
+            const y1 = ty * tileH;
+            const y2 = ty === 3 ? th : (ty + 1) * tileH;
+            const x1 = tx * tileW;
+            const x2 = tx === 3 ? tw : (tx + 1) * tileW;
+            const tileVals = [];
+            for (let y = y1; y < y2; y++) {
+              for (let x = x1; x < x2; x++) {
+                const v = filtered[y * tw + x];
+                if (v > 0) tileVals.push(v);
+              }
+            }
+            if (tileVals.length < 5) continue;
+            tileVals.sort((a, b) => a - b);
+            const tMed = tileVals[Math.floor(tileVals.length * 0.45)] || 4.0;
+            const tHigh = tileVals[Math.floor(tileVals.length * 0.80)] || 8.0;
+            const thresh = Math.max(3.5, tMed);
+            
+            for (let y = y1; y < y2; y++) {
+              for (let x = x1; x < x2; x++) {
+                const v = filtered[y * tw + x];
+                if (v > thresh) {
+                  const cx = (x / tw) * cw;
+                  const cy = (y / th) * ch;
+                  const isStrong = v > tHigh;
+                  if (isStrong) {
+                    ctx.fillStyle = 'rgba(0, 220, 255, 0.9)';
+                    ctx.fillRect(cx - 1.5, cy - 1.5, 4, 4);
+                    crackPts.push({ xPct: (x / tw) * 100, yPct: (y / th) * 100, strength: 2 });
+                  } else {
+                    ctx.fillStyle = 'rgba(0, 160, 255, 0.55)';
+                    ctx.fillRect(cx - 0.5, cy - 0.5, 2, 2);
+                    crackPts.push({ xPct: (x / tw) * 100, yPct: (y / th) * 100, strength: 1 });
+                  }
+                  count++;
+                }
+              }
+            }
           }
         }
         
-        // Stress mode: heat overlay on strong valleys
+        // Stress mode: heat overlay
         if (visionMode === 'stress' && count > 0) {
-          for (let y = R2; y < th-R2; y += 2) for (let x = R2; x < tw-R2; x += 2) {
-            if (filtered[y*tw+x] > t50) {
-              const cx = (x/tw)*cw, cy = (y/th)*ch;
-              const strong = filtered[y*tw+x] > t80;
-              const r = strong ? 12 : 6;
-              const grad = ctx.createRadialGradient(cx,cy,1,cx,cy,r);
-              grad.addColorStop(0, strong ? 'rgba(255,30,30,0.25)' : 'rgba(255,150,0,0.15)');
-              grad.addColorStop(1, 'rgba(0,0,0,0)');
-              ctx.fillStyle = grad;
-              ctx.fillRect(cx-r,cy-r,r*2,r*2);
+          for (let y = 6; y < th - 6; y += 3) {
+            for (let x = 6; x < tw - 6; x += 3) {
+              const v = filtered[y * tw + x];
+              if (v > 5) {
+                const cx = (x / tw) * cw, cy = (y / th) * ch;
+                const r = v > 10 ? 14 : 7;
+                const grad = ctx.createRadialGradient(cx, cy, 1, cx, cy, r);
+                grad.addColorStop(0, v > 10 ? 'rgba(255,30,30,0.28)' : 'rgba(255,150,0,0.16)');
+                grad.addColorStop(1, 'rgba(0,0,0,0)');
+                ctx.fillStyle = grad;
+                ctx.fillRect(cx - r, cy - r, r * 2, r * 2);
+              }
             }
           }
         }
 
-        // DBSCAN clustering of crack points to find REAL crack defect boxes
+        // Balanced spatial subsampling for DBSCAN (ensures all quadrants get fair representation)
+        const subPts = [];
+        for (let qy = 0; qy < 2; qy++) {
+          for (let qx = 0; qx < 2; qx++) {
+            const qPts = crackPts.filter(p =>
+              p.xPct >= qx * 50 && p.xPct < (qx + 1) * 50 &&
+              p.yPct >= qy * 50 && p.yPct < (qy + 1) * 50
+            );
+            if (qPts.length > 0) {
+              const step = Math.max(1, Math.floor(qPts.length / 150));
+              for (let i = 0; i < qPts.length; i += step) subPts.push(qPts[i]);
+            }
+          }
+        }
+
+        // DBSCAN clustering with NMS box merging
         let detectedClusters = [];
-        if (crackPts.length >= 20) {
-          const step = Math.max(1, Math.floor(crackPts.length / 450));
-          const subPts = [];
-          for (let i = 0; i < crackPts.length; i += step) subPts.push(crackPts[i]);
-          detectedClusters = dbscanClustering(subPts, 3.5, 6);
-          console.log('[Overlay] Real crack clusters:', detectedClusters.length);
+        if (subPts.length >= 10) {
+          detectedClusters = dbscanClustering(subPts, 4.0, 6);
+          console.log('[Overlay] Distinct defect zones (after NMS):', detectedClusters.length);
         }
         
-        console.log('[Overlay] Drew', count, 'crack pixels, clusters:', detectedClusters.length);
+        console.log('[Overlay] Drew', count, 'crack pixels, zones:', detectedClusters.length);
 
         const sevColors = {
           critical: { stroke: '#ff2828', fill: 'rgba(255,40,40,0.18)', text: 'КРИТИЧ.' },

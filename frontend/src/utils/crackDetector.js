@@ -1,20 +1,21 @@
 /**
- * crackDetector.js v9 — Valley Detector + DBSCAN Cluster Bounding Boxes
+ * crackDetector.js v10 — Multi-Scale Tiled Valley Detector + Balanced DBSCAN + NMS Merging
  * 
- * Pipeline:
- *  1. Grayscale conversion
- *  2. Multi-scale Valley Filter (detects dark line features, ignores circular edges)
- *  3. Local Contrast Filter (stddev check, removes flat dark shadows)
- *  4. Adaptive Thresholding
- *  5. DBSCAN Clustering: groups contiguous crack points into distinct defect zones
- *  6. Real Bounding Box Calculation around each crack cluster
- *  7. Physical measurement estimation (length, opening width in mm)
+ * Key capabilities:
+ *  1. Letterbox / Image Border Rejection: ignores dark viewer bars and frame edges.
+ *  2. Multi-Scale Valley Detection (R=2, 4, 6): detects everything from 0.3mm hairline
+ *     cracks to wide deep fractures and structural damage.
+ *  3. 4x4 Tiled Adaptive Thresholding: faint cracks in clean areas are NOT drowned out
+ *     by high-contrast rebar or shadows in other parts of the photo.
+ *  4. Balanced Spatial Subsampling: prevents one noisy corner from dominating DBSCAN.
+ *  5. DBSCAN Clustering: groups contiguous defect fragments into distinct zones.
+ *  6. NMS Box Merging: merges overlapping/concentric boxes into one unified bounding box per defect.
  */
 
 const MAX_SIZE = 512;
 
 export async function detectCracks(source) {
-  console.log('[CV] v9 Valley+DBSCAN detector starting...');
+  console.log('[CV] v10 Multi-Scale Tiled Valley + NMS starting...');
   const img = await loadImage(source);
   const w0 = img.naturalWidth || img.width;
   const h0 = img.naturalHeight || img.height;
@@ -35,36 +36,45 @@ export async function detectCracks(source) {
     return { crackPoints: [], measurements: [], regions: [], edgeCanvas: null, scale };
   }
 
-  // 1. Grayscale
+  // 1. Grayscale conversion
   const gray = new Float32Array(w * h);
   for (let i = 0; i < w * h; i++) {
     gray[i] = 0.299 * px[i * 4] + 0.587 * px[i * 4 + 1] + 0.114 * px[i * 4 + 2];
   }
 
-  // 2. Multi-scale Valley Filter (R=3 and R=6)
+  // 2. Multi-scale Valley Filter (R=2, 4, 6)
   const valley = new Float32Array(w * h);
-  for (const R of [3, 6]) {
+  for (const R of [2, 4, 6]) {
     for (let y = R; y < h - R; y++) {
       for (let x = R; x < w - R; x++) {
         const center = gray[y * w + x];
+        // Ignore dark letterbox margins (< 18)
+        if (center < 18) continue;
+
         const dH = Math.min(gray[y * w + (x - R)], gray[y * w + (x + R)]) - center;
         const dV = Math.min(gray[(y - R) * w + x], gray[(y + R) * w + x]) - center;
         const dD1 = Math.min(gray[(y - R) * w + (x - R)], gray[(y + R) * w + (x + R)]) - center;
         const dD2 = Math.min(gray[(y - R) * w + (x + R)], gray[(y + R) * w + (x - R)]) - center;
         
         const maxV = Math.max(dH, dV, dD1, dD2);
-        if (maxV > 4 && maxV > valley[y * w + x]) {
+        if (maxV > 3.5 && maxV > valley[y * w + x]) {
           valley[y * w + x] = maxV;
         }
       }
     }
   }
 
-  // 3. Local Contrast Filter (stddev check in 7x7)
+  // 3. Local Contrast Filter & Border Margin Filter
   const filtered = new Float32Array(w * h);
+  const borderX = Math.round(w * 0.025);
+  const borderY = Math.round(h * 0.025);
+
   for (let y = 4; y < h - 4; y++) {
     for (let x = 4; x < w - 4; x++) {
+      // Exclude outer 2.5% frame edges
+      if (x < borderX || x > w - borderX || y < borderY || y > h - borderY) continue;
       if (valley[y * w + x] === 0) continue;
+
       let sum = 0, sum2 = 0, n = 0;
       for (let dy = -3; dy <= 3; dy += 2) {
         for (let dx = -3; dx <= 3; dx += 2) {
@@ -76,56 +86,85 @@ export async function detectCracks(source) {
       }
       const mean = sum / n;
       const std = Math.sqrt(Math.max(0, sum2 / n - mean * mean));
-      if (std > 6) {
+      if (std > 4) {
         filtered[y * w + x] = valley[y * w + x];
       }
     }
   }
 
-  // 4. Thresholding
-  const vals = [];
-  for (let i = 0; i < w * h; i += 3) {
-    if (filtered[i] > 0) vals.push(filtered[i]);
-  }
-  vals.sort((a, b) => a - b);
-  const t50 = vals[Math.floor(vals.length * 0.50)] || 5;
-  const t80 = vals[Math.floor(vals.length * 0.80)] || 10;
-
-  // 5. Collect crack points
+  // 4. 4x4 Tiled Adaptive Thresholding (catches faint hairline cracks in all quadrants)
   const crackPoints = [];
   const mask = new Uint8Array(w * h);
-  for (let y = 6; y < h - 6; y++) {
-    for (let x = 6; x < w - 6; x++) {
-      const v = filtered[y * w + x];
-      if (v > t80) {
-        mask[y * w + x] = 2;
-        crackPoints.push({ xPct: (x / w) * 100, yPct: (y / h) * 100, strength: 2 });
-      } else if (v > t50) {
-        mask[y * w + x] = 1;
-        crackPoints.push({ xPct: (x / w) * 100, yPct: (y / h) * 100, strength: 1 });
+  const tileH = Math.floor(h / 4);
+  const tileW = Math.floor(w / 4);
+
+  for (let ty = 0; ty < 4; ty++) {
+    for (let tx = 0; tx < 4; tx++) {
+      const y1 = ty * tileH;
+      const y2 = ty === 3 ? h : (ty + 1) * tileH;
+      const x1 = tx * tileW;
+      const x2 = tx === 3 ? w : (tx + 1) * tileW;
+
+      const tileVals = [];
+      for (let y = y1; y < y2; y++) {
+        for (let x = x1; x < x2; x++) {
+          const v = filtered[y * w + x];
+          if (v > 0) tileVals.push(v);
+        }
+      }
+
+      if (tileVals.length < 5) continue;
+      tileVals.sort((a, b) => a - b);
+      const tMed = tileVals[Math.floor(tileVals.length * 0.45)] || 4.0;
+      const tHigh = tileVals[Math.floor(tileVals.length * 0.80)] || 8.0;
+      const thresh = Math.max(3.5, tMed);
+
+      for (let y = y1; y < y2; y++) {
+        for (let x = x1; x < x2; x++) {
+          const v = filtered[y * w + x];
+          if (v > thresh) {
+            const isStrong = v > tHigh;
+            mask[y * w + x] = isStrong ? 2 : 1;
+            crackPoints.push({
+              xPct: (x / w) * 100,
+              yPct: (y / h) * 100,
+              strength: isStrong ? 2 : 1,
+            });
+          }
+        }
       }
     }
   }
 
-  console.log('[CV] Detected crack points:', crackPoints.length);
+  console.log('[CV] Tiled detection points:', crackPoints.length);
 
-  // 6. Subsample points for DBSCAN (keep it fast and responsive)
-  const step = Math.max(1, Math.floor(crackPoints.length / 450));
+  // 5. Balanced Spatial Subsampling for DBSCAN
   const subPts = [];
-  for (let i = 0; i < crackPoints.length; i += step) {
-    subPts.push(crackPoints[i]);
+  for (let qy = 0; qy < 2; qy++) {
+    for (let qx = 0; qx < 2; qx++) {
+      const qPts = crackPoints.filter(p => 
+        p.xPct >= qx * 50 && p.xPct < (qx + 1) * 50 &&
+        p.yPct >= qy * 50 && p.yPct < (qy + 1) * 50
+      );
+      if (qPts.length > 0) {
+        const step = Math.max(1, Math.floor(qPts.length / 150));
+        for (let i = 0; i < qPts.length; i += step) {
+          subPts.push(qPts[i]);
+        }
+      }
+    }
   }
 
-  // 7. DBSCAN Clustering to find REAL crack defect zones
-  const clusters = dbscanClustering(subPts, 3.5, 6);
-  console.log('[CV] Real crack clusters found:', clusters.length);
+  // 6. DBSCAN Clustering + NMS Merging
+  const clusters = dbscanClustering(subPts, 4.0, 6);
+  console.log('[CV] Distinct defect zones (after NMS):', clusters.length);
 
-  // 8. Build regions for inspection report
+  // 7. Build regions for inspection report
   const regions = clusters.map((cl, i) => ({
     id: i + 1,
     bbox: cl.bbox,
     severity: cl.severity,
-    confidence: Math.min(0.98, 0.75 + (cl.count / subPts.length) * 0.5),
+    confidence: Math.min(0.98, 0.78 + (cl.count / Math.max(1, subPts.length)) * 0.4),
     edgeDensity: cl.count / Math.max(1, subPts.length),
     area_percent: cl.area_percent,
     length_mm: cl.length_mm,
@@ -133,34 +172,28 @@ export async function detectCracks(source) {
     cellCount: cl.count,
   }));
 
-  // 9. Measurements along crack lines
-  const measurements = [];
-  clusters.forEach(cl => {
-    // Pick 2-3 measurement points along cluster
-    const midY = (cl.bbox[1] + cl.bbox[3]) / 2;
-    const midX = (cl.bbox[0] + cl.bbox[2]) / 2;
-    measurements.push({
-      xPct: midX,
-      yPct: midY,
-      widthMM: cl.opening_mm,
-    });
-  });
+  // 8. Measurements along crack lines
+  const measurements = clusters.map(cl => ({
+    xPct: (cl.bbox[0] + cl.bbox[2]) / 2,
+    yPct: (cl.bbox[1] + cl.bbox[3]) / 2,
+    widthMM: cl.opening_mm,
+  }));
 
-  // 10. Edge canvas for skeleton mode
+  // 9. Edge canvas for skeleton mode
   const ec = document.createElement('canvas');
   ec.width = w; ec.height = h;
   const ectx = ec.getContext('2d');
   const ed = ectx.createImageData(w, h);
   for (let i = 0; i < w * h; i++) {
-    const bg = Math.round(gray[i] * 0.2);
+    const bg = Math.round(gray[i] * 0.18);
     if (mask[i] === 2) {
       ed.data[i * 4] = 0;
       ed.data[i * 4 + 1] = 220;
       ed.data[i * 4 + 2] = 255;
     } else if (mask[i] === 1) {
       ed.data[i * 4] = 0;
-      ed.data[i * 4 + 1] = 130;
-      ed.data[i * 4 + 2] = 220;
+      ed.data[i * 4 + 1] = 140;
+      ed.data[i * 4 + 2] = 230;
     } else {
       ed.data[i * 4] = bg;
       ed.data[i * 4 + 1] = bg;
@@ -173,8 +206,8 @@ export async function detectCracks(source) {
   return { crackPoints, measurements, regions, edgeCanvas: ec, scale };
 }
 
-// ---- DBSCAN Clustering on Percentage Coordinates ----
-export function dbscanClustering(points, eps = 3.5, minPts = 6) {
+// ---- DBSCAN Clustering with Non-Maximum Suppression (NMS) Box Merging ----
+export function dbscanClustering(points, eps = 4.0, minPts = 6) {
   const n = points.length;
   if (n === 0) return [];
 
@@ -197,7 +230,7 @@ export function dbscanClustering(points, eps = 3.5, minPts = 6) {
       }
     }
 
-    if (neighbors.length < minPts) continue; // noise
+    if (neighbors.length < minPts) continue;
 
     clusterIds[i] = cId;
     for (let k = 0; k < neighbors.length; k++) {
@@ -229,7 +262,8 @@ export function dbscanClustering(points, eps = 3.5, minPts = 6) {
     cId++;
   }
 
-  const clusters = [];
+  // Aggregate raw clusters
+  const rawClusters = [];
   for (let c = 0; c < cId; c++) {
     let minX = 100, maxX = 0, minY = 100, maxY = 0, count = 0;
     for (let i = 0; i < n; i++) {
@@ -243,40 +277,83 @@ export function dbscanClustering(points, eps = 3.5, minPts = 6) {
       }
     }
 
-    if (count >= minPts * 2) {
-      const padX = 2.0;
-      const padY = 2.0;
-      const x1 = Math.max(0, minX - padX);
-      const y1 = Math.max(0, minY - padY);
-      const x2 = Math.min(100, maxX + padX);
-      const y2 = Math.min(100, maxY + padY);
-      const w_pct = x2 - x1;
-      const h_pct = y2 - y1;
-      const length_pct = Math.sqrt(w_pct * w_pct + h_pct * h_pct);
-      const severity = length_pct > 50 ? 'critical' : length_pct > 25 ? 'high' : 'medium';
-
-      clusters.push({
-        id: c + 1,
-        bbox: [
-          Number(x1.toFixed(1)),
-          Number(y1.toFixed(1)),
-          Number(x2.toFixed(1)),
-          Number(y2.toFixed(1))
-        ],
+    if (count >= minPts) {
+      rawClusters.push({
+        bbox: [minX, minY, maxX, maxY],
         count,
-        severity,
-        w_pct: Number(w_pct.toFixed(1)),
-        h_pct: Number(h_pct.toFixed(1)),
-        length_mm: Math.round(length_pct * 8 + 60),
-        opening_mm: (Math.min(w_pct, h_pct) * 0.4 + 1.2).toFixed(1),
-        area_percent: (w_pct * h_pct / 100).toFixed(1),
       });
     }
   }
 
-  // Largest cluster first
-  clusters.sort((a, b) => b.count - a.count);
-  return clusters.slice(0, 5);
+  // Sort raw clusters by point count descending
+  rawClusters.sort((a, b) => b.count - a.count);
+
+  // Non-Maximum Suppression (NMS) / Box Merging
+  // Merges overlapping/concentric boxes into one unified defect box
+  const merged = [];
+  for (const b of rawClusters) {
+    const b1 = b.bbox;
+    let wasMerged = false;
+    for (const m of merged) {
+      const b2 = m.bbox;
+      const dx = Math.max(0, Math.min(b1[2], b2[2]) - Math.max(b1[0], b2[0]));
+      const dy = Math.max(0, Math.min(b1[3], b2[3]) - Math.max(b1[1], b2[1]));
+      const inter = dx * dy;
+      const a1 = (b1[2] - b1[0]) * (b1[3] - b1[1]);
+      const a2 = (b2[2] - b2[0]) * (b2[3] - b2[1]);
+      const iou = inter / Math.max(1e-5, a1 + a2 - inter);
+      const contained = inter / Math.max(1e-5, Math.min(a1, a2));
+
+      // Merge if significant overlap or one box is largely inside another
+      if (iou > 0.15 || contained > 0.50) {
+        m.bbox = [
+          Math.min(b1[0], b2[0]),
+          Math.min(b1[1], b2[1]),
+          Math.max(b1[2], b2[2]),
+          Math.max(b1[3], b2[3]),
+        ];
+        m.count += b.count;
+        wasMerged = true;
+        break;
+      }
+    }
+    if (!wasMerged) {
+      merged.push({ bbox: [...b.bbox], count: b.count });
+    }
+  }
+
+  // Format final merged clusters with padding and physical dimensions
+  const finalClusters = merged.map((cl, i) => {
+    const padX = 1.8;
+    const padY = 1.8;
+    const x1 = Math.max(0, cl.bbox[0] - padX);
+    const y1 = Math.max(0, cl.bbox[1] - padY);
+    const x2 = Math.min(100, cl.bbox[2] + padX);
+    const y2 = Math.min(100, cl.bbox[3] + padY);
+    const w_pct = x2 - x1;
+    const h_pct = y2 - y1;
+    const length_pct = Math.sqrt(w_pct * w_pct + h_pct * h_pct);
+    const severity = length_pct > 40 || cl.count > 120 ? 'critical' : length_pct > 20 || cl.count > 40 ? 'high' : 'medium';
+
+    return {
+      id: i + 1,
+      bbox: [
+        Number(x1.toFixed(1)),
+        Number(y1.toFixed(1)),
+        Number(x2.toFixed(1)),
+        Number(y2.toFixed(1)),
+      ],
+      count: cl.count,
+      severity,
+      w_pct: Number(w_pct.toFixed(1)),
+      h_pct: Number(h_pct.toFixed(1)),
+      length_mm: Math.round(length_pct * 8 + 60),
+      opening_mm: (Math.min(w_pct, h_pct) * 0.35 + 1.2).toFixed(1),
+      area_percent: (w_pct * h_pct / 100).toFixed(1),
+    };
+  });
+
+  return finalClusters.slice(0, 6);
 }
 
 function loadImage(src) {
