@@ -37,9 +37,35 @@ export async function detectCracks(source) {
   }
 
   // 1. Grayscale conversion
+  // 1. Grayscale conversion
   const gray = new Float32Array(w * h);
   for (let i = 0; i < w * h; i++) {
     gray[i] = 0.299 * px[i * 4] + 0.587 * px[i * 4 + 1] + 0.114 * px[i * 4 + 2];
+  }
+
+  // 1b. Dark interior pit/hole rejection (box filter of gray < 40 in 15x15 window)
+  const isDark = new Uint8Array(w * h);
+  for (let i = 0; i < w * h; i++) {
+    if (gray[i] < 42) isDark[i] = 1;
+  }
+  const voidMask = new Uint8Array(w * h);
+  const vR = 7;
+  for (let y = vR; y < h - vR; y += 2) {
+    for (let x = vR; x < w - vR; x += 2) {
+      let darkCount = 0;
+      for (let dy = -vR; dy <= vR; dy += 3) {
+        for (let dx = -vR; dx <= vR; dx += 3) {
+          if (isDark[(y + dy) * w + (x + dx)]) darkCount++;
+        }
+      }
+      if (darkCount >= 13) {
+        for (let dy = 0; dy < 2; dy++) {
+          for (let dx = 0; dx < 2; dx++) {
+            if (y + dy < h && x + dx < w) voidMask[(y + dy) * w + (x + dx)] = 1;
+          }
+        }
+      }
+    }
   }
 
   // 2. Multi-scale Valley Filter (R=2, 4, 6)
@@ -48,8 +74,8 @@ export async function detectCracks(source) {
     for (let y = R; y < h - R; y++) {
       for (let x = R; x < w - R; x++) {
         const center = gray[y * w + x];
-        // Ignore dark letterbox margins (< 18)
-        if (center < 18) continue;
+        // Ignore dark letterbox margins and interior void pits
+        if (center < 20 || voidMask[y * w + x]) continue;
 
         const dH = Math.min(gray[y * w + (x - R)], gray[y * w + (x + R)]) - center;
         const dV = Math.min(gray[(y - R) * w + x], gray[(y + R) * w + x]) - center;
@@ -57,23 +83,21 @@ export async function detectCracks(source) {
         const dD2 = Math.min(gray[(y - R) * w + (x + R)], gray[(y + R) * w + (x - R)]) - center;
         
         const maxV = Math.max(dH, dV, dD1, dD2);
-        if (maxV > 3.5 && maxV > valley[y * w + x]) {
+        if (maxV > 4.0 && maxV > valley[y * w + x]) {
           valley[y * w + x] = maxV;
         }
       }
     }
   }
 
-  // 3. Local Contrast Filter & Border Margin Filter
+  // 3. Local Contrast Filter & Border Margin Filter (3.5% borders)
   const filtered = new Float32Array(w * h);
-  const borderX = Math.round(w * 0.025);
-  const borderY = Math.round(h * 0.025);
+  const borderX = Math.round(w * 0.035);
+  const borderY = Math.round(h * 0.035);
 
-  for (let y = 4; y < h - 4; y++) {
-    for (let x = 4; x < w - 4; x++) {
-      // Exclude outer 2.5% frame edges
-      if (x < borderX || x > w - borderX || y < borderY || y > h - borderY) continue;
-      if (valley[y * w + x] === 0) continue;
+  for (let y = borderY; y < h - borderY; y++) {
+    for (let x = borderX; x < w - borderX; x++) {
+      if (valley[y * w + x] < 4.5) continue;
 
       let sum = 0, sum2 = 0, n = 0;
       for (let dy = -3; dy <= 3; dy += 2) {
@@ -86,13 +110,13 @@ export async function detectCracks(source) {
       }
       const mean = sum / n;
       const std = Math.sqrt(Math.max(0, sum2 / n - mean * mean));
-      if (std > 4) {
+      if (std > 4.5) {
         filtered[y * w + x] = valley[y * w + x];
       }
     }
   }
 
-  // 4. 4x4 Tiled Adaptive Thresholding (catches faint hairline cracks in all quadrants)
+  // 4. 4x4 Tiled Adaptive Thresholding with Contrast Floor
   const crackPoints = [];
   const mask = new Uint8Array(w * h);
   const tileH = Math.floor(h / 4);
@@ -106,18 +130,24 @@ export async function detectCracks(source) {
       const x2 = tx === 3 ? w : (tx + 1) * tileW;
 
       const tileVals = [];
+      let tileMax = 0;
       for (let y = y1; y < y2; y++) {
         for (let x = x1; x < x2; x++) {
           const v = filtered[y * w + x];
-          if (v > 0) tileVals.push(v);
+          if (v > 0) {
+            tileVals.push(v);
+            if (v > tileMax) tileMax = v;
+          }
         }
       }
 
-      if (tileVals.length < 5) continue;
+      // CRITICAL: If tile has no prominent crack valley >= 14.0, DO NOT calculate noise threshold!
+      if (tileVals.length < 10 || tileMax < 14.0) continue;
+
       tileVals.sort((a, b) => a - b);
-      const tMed = tileVals[Math.floor(tileVals.length * 0.45)] || 4.0;
-      const tHigh = tileVals[Math.floor(tileVals.length * 0.80)] || 8.0;
-      const thresh = Math.max(3.5, tMed);
+      const t60 = tileVals[Math.floor(tileVals.length * 0.60)] || 8.0;
+      const tHigh = tileVals[Math.floor(tileVals.length * 0.85)] || 15.0;
+      const thresh = Math.max(9.0, t60);
 
       for (let y = y1; y < y2; y++) {
         for (let x = x1; x < x2; x++) {
@@ -156,20 +186,22 @@ export async function detectCracks(source) {
   }
 
   // 6. DBSCAN Clustering + NMS Merging
-  const clusters = dbscanClustering(subPts, 4.0, 6);
+  const clusters = dbscanClustering(subPts, 4.5, 6);
   console.log('[CV] Distinct defect zones (after NMS):', clusters.length);
 
   // 7. Build regions for inspection report
   const regions = clusters.map((cl, i) => ({
     id: i + 1,
     bbox: cl.bbox,
+    type: cl.typeTitle,
     severity: cl.severity,
-    confidence: Math.min(0.98, 0.78 + (cl.count / Math.max(1, subPts.length)) * 0.4),
+    confidence: Math.min(0.98, 0.82 + (cl.count / Math.max(1, subPts.length)) * 0.35),
     edgeDensity: cl.count / Math.max(1, subPts.length),
     area_percent: cl.area_percent,
     length_mm: cl.length_mm,
     opening_mm: cl.opening_mm,
     cellCount: cl.count,
+    description: `Зона ${i + 1}: ${cl.typeTitle} (длина ${cl.length_mm} мм, раскрытие ${cl.opening_mm} мм, площадь ${cl.area_percent}%)`,
   }));
 
   // 8. Measurements along crack lines
@@ -277,6 +309,11 @@ export function dbscanClustering(points, eps = 4.0, minPts = 6) {
       }
     }
 
+    const bw = maxX - minX;
+    const bh = maxY - minY;
+    // Reject full-image circular rims/outer frames (>55% width AND >55% height)
+    if (bw > 55 && bh > 55) continue;
+
     if (count >= minPts) {
       rawClusters.push({
         bbox: [minX, minY, maxX, maxY],
@@ -289,7 +326,7 @@ export function dbscanClustering(points, eps = 4.0, minPts = 6) {
   rawClusters.sort((a, b) => b.count - a.count);
 
   // Non-Maximum Suppression (NMS) / Box Merging
-  // Merges overlapping/concentric boxes into one unified defect box
+  // Merges overlapping/concentric boxes into one unified defect box without creating giant full-frame boxes
   const merged = [];
   for (const b of rawClusters) {
     const b1 = b.bbox;
@@ -304,8 +341,12 @@ export function dbscanClustering(points, eps = 4.0, minPts = 6) {
       const iou = inter / Math.max(1e-5, a1 + a2 - inter);
       const contained = inter / Math.max(1e-5, Math.min(a1, a2));
 
+      const mergedW = Math.max(b1[2], b2[2]) - Math.min(b1[0], b2[0]);
+      const mergedH = Math.max(b1[3], b2[3]) - Math.min(b1[1], b2[1]);
+      if (mergedW > 50 && mergedH > 50) continue;
+
       // Merge if significant overlap or one box is largely inside another
-      if (iou > 0.15 || contained > 0.50) {
+      if (iou > 0.15 || contained > 0.45) {
         m.bbox = [
           Math.min(b1[0], b2[0]),
           Math.min(b1[1], b2[1]),
@@ -322,7 +363,7 @@ export function dbscanClustering(points, eps = 4.0, minPts = 6) {
     }
   }
 
-  // Format final merged clusters with padding and physical dimensions
+  // Format final merged clusters with padding, type titles, and physical dimensions
   const finalClusters = merged.map((cl, i) => {
     const padX = 1.8;
     const padY = 1.8;
@@ -333,10 +374,15 @@ export function dbscanClustering(points, eps = 4.0, minPts = 6) {
     const w_pct = x2 - x1;
     const h_pct = y2 - y1;
     const length_pct = Math.sqrt(w_pct * w_pct + h_pct * h_pct);
-    const severity = length_pct > 40 || cl.count > 120 ? 'critical' : length_pct > 20 || cl.count > 40 ? 'high' : 'medium';
+    const severity = (length_pct > 32 || cl.count > 100) ? 'critical' : (length_pct > 16 || cl.count > 35) ? 'high' : 'medium';
+    
+    const typeTitle = severity === 'critical' ? 'Глубокий разлом / силовая трещина бетона' :
+                      severity === 'high' ? 'Конструктивная трещина с раскрытием' :
+                      'Усадочная трещина штукатурного слоя / скол';
 
     return {
       id: i + 1,
+      typeTitle,
       bbox: [
         Number(x1.toFixed(1)),
         Number(y1.toFixed(1)),

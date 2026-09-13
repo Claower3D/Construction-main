@@ -88,33 +88,57 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
         for (let i = 0; i < tw * th; i++)
           gray[i] = 0.299 * px[i * 4] + 0.587 * px[i * 4 + 1] + 0.114 * px[i * 4 + 2];
         
+        // Dark interior pit/hole rejection
+        const isDark = new Uint8Array(tw * th);
+        for (let i = 0; i < tw * th; i++) {
+          if (gray[i] < 42) isDark[i] = 1;
+        }
+        const voidMask = new Uint8Array(tw * th);
+        const vR = 7;
+        for (let y = vR; y < th - vR; y += 2) {
+          for (let x = vR; x < tw - vR; x += 2) {
+            let darkCount = 0;
+            for (let dy = -vR; dy <= vR; dy += 3) {
+              for (let dx = -vR; dx <= vR; dx += 3) {
+                if (isDark[(y + dy) * tw + (x + dx)]) darkCount++;
+              }
+            }
+            if (darkCount >= 13) {
+              for (let dy = 0; dy < 2; dy++) {
+                for (let dx = 0; dx < 2; dx++) {
+                  if (y + dy < th && x + dx < tw) voidMask[(y + dy) * tw + (x + dx)] = 1;
+                }
+              }
+            }
+          }
+        }
+
         // Multi-scale Valley (R=2, 4, 6) - detects hairline to wide cracks
         const valley = new Float32Array(tw * th);
         for (const R of [2, 4, 6]) {
           for (let y = R; y < th - R; y++) {
             for (let x = R; x < tw - R; x++) {
               const center = gray[y * tw + x];
-              if (center < 18) continue; // ignore dark viewer margins
+              if (center < 20 || voidMask[y * tw + x]) continue; // ignore dark viewer margins and interior void pits
               const dH = Math.min(gray[y * tw + (x - R)], gray[y * tw + (x + R)]) - center;
               const dV = Math.min(gray[(y - R) * tw + x], gray[(y + R) * tw + x]) - center;
               const dD1 = Math.min(gray[(y - R) * tw + (x - R)], gray[(y + R) * tw + (x + R)]) - center;
               const dD2 = Math.min(gray[(y - R) * tw + (x + R)], gray[(y + R) * tw + (x - R)]) - center;
               const maxV = Math.max(dH, dV, dD1, dD2);
-              if (maxV > 3.5 && maxV > valley[y * tw + x]) {
+              if (maxV > 4.0 && maxV > valley[y * tw + x]) {
                 valley[y * tw + x] = maxV;
               }
             }
           }
         }
         
-        // Local contrast & outer frame filter
+        // Local contrast & outer frame filter (3.5% margins)
         const filtered = new Float32Array(tw * th);
-        const borderX = Math.round(tw * 0.025);
-        const borderY = Math.round(th * 0.025);
-        for (let y = 4; y < th - 4; y++) {
-          for (let x = 4; x < tw - 4; x++) {
-            if (x < borderX || x > tw - borderX || y < borderY || y > th - borderY) continue;
-            if (valley[y * tw + x] === 0) continue;
+        const borderX = Math.round(tw * 0.035);
+        const borderY = Math.round(th * 0.035);
+        for (let y = borderY; y < th - borderY; y++) {
+          for (let x = borderX; x < tw - borderX; x++) {
+            if (valley[y * tw + x] < 4.5) continue;
             let sum = 0, sum2 = 0, n = 0;
             for (let dy = -3; dy <= 3; dy += 2) {
               for (let dx = -3; dx <= 3; dx += 2) {
@@ -124,11 +148,11 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
             }
             const mean = sum / n;
             const std = Math.sqrt(Math.max(0, sum2 / n - mean * mean));
-            if (std > 4) filtered[y * tw + x] = valley[y * tw + x];
+            if (std > 4.5) filtered[y * tw + x] = valley[y * tw + x];
           }
         }
         
-        // 4x4 Tiled adaptive thresholding (ensures hairline cracks in all quadrants are captured)
+        // 4x4 Tiled adaptive thresholding with Contrast Floor
         const crackPts = [];
         let count = 0;
         const tileH = Math.floor(th / 4);
@@ -140,17 +164,22 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
             const x1 = tx * tileW;
             const x2 = tx === 3 ? tw : (tx + 1) * tileW;
             const tileVals = [];
+            let tileMax = 0;
             for (let y = y1; y < y2; y++) {
               for (let x = x1; x < x2; x++) {
                 const v = filtered[y * tw + x];
-                if (v > 0) tileVals.push(v);
+                if (v > 0) {
+                  tileVals.push(v);
+                  if (v > tileMax) tileMax = v;
+                }
               }
             }
-            if (tileVals.length < 5) continue;
+            // CRITICAL: If tile has no prominent crack valley >= 14.0, DO NOT calculate noise threshold!
+            if (tileVals.length < 10 || tileMax < 14.0) continue;
             tileVals.sort((a, b) => a - b);
-            const tMed = tileVals[Math.floor(tileVals.length * 0.45)] || 4.0;
-            const tHigh = tileVals[Math.floor(tileVals.length * 0.80)] || 8.0;
-            const thresh = Math.max(3.5, tMed);
+            const t60 = tileVals[Math.floor(tileVals.length * 0.60)] || 8.0;
+            const tHigh = tileVals[Math.floor(tileVals.length * 0.85)] || 15.0;
+            const thresh = Math.max(9.0, t60);
             
             for (let y = y1; y < y2; y++) {
               for (let x = x1; x < x2; x++) {
@@ -210,20 +239,20 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
 
         // DBSCAN clustering with NMS box merging
         let detectedClusters = [];
-        if (subPts.length >= 10) {
-          detectedClusters = dbscanClustering(subPts, 4.0, 6);
+        if (subPts.length >= 8) {
+          detectedClusters = dbscanClustering(subPts, 4.5, 6);
           console.log('[Overlay] Distinct defect zones (after NMS):', detectedClusters.length);
         }
         
         console.log('[Overlay] Drew', count, 'crack pixels, zones:', detectedClusters.length);
 
-        // Sync real detected clusters to defectMarkers and severitySummary in state
+        // Sync real detected clusters to defectMarkers, severitySummary, and report in state
         if (detectedClusters.length > 0 && lastDetectedCountRef.current !== detectedClusters.length) {
           lastDetectedCountRef.current = detectedClusters.length;
           const newMarkers = detectedClusters.map((cl, i) => {
-            const typeTitle = cl.severity === 'critical' ? 'Глубокий разлом / аварийный дефект бетона' :
+            const typeTitle = cl.typeTitle || (cl.severity === 'critical' ? 'Глубокий разлом / силовая трещина бетона' :
                               cl.severity === 'high' ? 'Конструктивная трещина с раскрытием' :
-                              'Усадочная трещина штукатурного слоя';
+                              'Усадочная трещина штукатурного слоя / скол');
             return {
               id: cl.id || i + 1,
               bbox: cl.bbox,
@@ -233,7 +262,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
               area_percent: cl.area_percent,
               length_mm: cl.length_mm,
               opening_mm: cl.opening_mm,
-              description: `Зона ${i + 1}: Обнаружен дефект (длина ${cl.length_mm} мм, раскрытие ${cl.opening_mm} мм, площадь ${cl.area_percent}%)`,
+              description: `Зона ${i + 1}: ${typeTitle} (длина ${cl.length_mm} мм, раскрытие ${cl.opening_mm} мм, площадь ${cl.area_percent}%)`,
             };
           });
 
@@ -247,6 +276,22 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
                 medium: newMarkers.filter(m => m.severity === 'medium').length,
                 low: newMarkers.filter(m => m.severity === 'low').length,
               }
+            });
+            setReport(prev => {
+              if (!prev) return prev;
+              return {
+                ...prev,
+                defects: { items: newMarkers },
+                defect_severity_summary: {
+                  total: newMarkers.length,
+                  by_severity: {
+                    critical: newMarkers.filter(m => m.severity === 'critical').length,
+                    high: newMarkers.filter(m => m.severity === 'high').length,
+                    medium: newMarkers.filter(m => m.severity === 'medium').length,
+                    low: newMarkers.filter(m => m.severity === 'low').length,
+                  }
+                }
+              };
             });
           }, 0);
         }
@@ -990,16 +1035,22 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
             }
             
             if (cvResult.regions && cvResult.regions.length > 0) {
-              cvItems = cvResult.regions.map((r, i) => ({
-                type: matched.defectType,
-                severity: r.severity,
-                confidence: r.confidence,
-                bbox: r.bbox,
-                length_mm: r.length_mm || Math.round(parseFloat(r.area_percent || '5') * 30 + 50),
-                opening_mm: r.opening_mm || '2.4',
-                area_percent: r.area_percent,
-                description: `Зона ${i + 1}: Обнаружен дефект (длина ${r.length_mm || '450'} мм, раскрытие ${r.opening_mm || '2.4'} мм)`,
-              }));
+              cvItems = cvResult.regions.map((r, i) => {
+                const zoneTitle = r.type || (r.severity === 'critical' ? 'Глубокий разлом / силовая трещина бетона' :
+                                  r.severity === 'high' ? 'Конструктивная трещина с раскрытием' :
+                                  'Усадочная трещина штукатурного слоя / скол');
+                return {
+                  id: r.id || i + 1,
+                  type: zoneTitle,
+                  severity: r.severity,
+                  confidence: r.confidence,
+                  bbox: r.bbox,
+                  length_mm: r.length_mm || Math.round(parseFloat(r.area_percent || '5') * 30 + 50),
+                  opening_mm: r.opening_mm || '2.4',
+                  area_percent: r.area_percent,
+                  description: r.description || `Зона ${i + 1}: ${zoneTitle} (длина ${r.length_mm || '450'} мм, раскрытие ${r.opening_mm || '2.4'} мм)`,
+                };
+              });
             }
           }
         } catch (cvErr) {
@@ -1748,6 +1799,82 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
                 <span className="label">Ориентировочная стоимость ремонта:</span>
                 <strong className="val-price">{report.estimatedCost}</strong>
               </div>
+
+              {/* Detailed Breakdown of All Detected Defect Zones */}
+              {(defectMarkers.length > 0 || (report.defects?.items && report.defects.items.length > 0)) && (
+                <div style={{
+                  gridColumn: '1 / -1',
+                  background: 'rgba(15, 23, 42, 0.65)',
+                  border: '1px solid rgba(56, 189, 248, 0.3)',
+                  borderRadius: '12px',
+                  padding: '16px 18px',
+                  marginTop: '10px',
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                    <span style={{ color: '#38bdf8', fontWeight: 800, fontSize: '0.98rem' }}>
+                      📋 Выявленные дефектные зоны ({defectMarkers.length || report.defects?.items?.length}):
+                    </span>
+                    <span style={{ color: '#94a3b8', fontSize: '0.8rem', fontWeight: 600 }}>
+                      СНиП РК дефектоскопия
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    {(defectMarkers.length > 0 ? defectMarkers : (report.defects?.items || [])).map((m, idx) => (
+                      <div 
+                        key={idx} 
+                        onClick={() => setSelectedDefectId(m.id)}
+                        style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          background: selectedDefectId === m.id ? 'rgba(56, 189, 248, 0.18)' : 'rgba(30, 41, 59, 0.65)',
+                          border: selectedDefectId === m.id ? '1.5px solid #38bdf8' : '1px solid rgba(255, 255, 255, 0.08)',
+                          borderRadius: '10px',
+                          padding: '10px 14px',
+                          fontSize: '0.88rem',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease',
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                          <span style={{
+                            background: m.severity === 'critical' ? '#ef4444' : m.severity === 'high' ? '#f97316' : '#eab308',
+                            color: '#fff',
+                            fontWeight: 900,
+                            borderRadius: '50%',
+                            width: '28px',
+                            height: '28px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '0.84rem',
+                            flexShrink: 0,
+                            boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+                          }}>
+                            {m.id || idx + 1}
+                          </span>
+                          <div>
+                            <div style={{ color: '#f1f5f9', fontWeight: 800, fontSize: '0.94rem' }}>{m.type}</div>
+                            <div style={{ color: '#94a3b8', fontSize: '0.82rem', marginTop: '2px' }}>{m.description}</div>
+                          </div>
+                        </div>
+                        <div style={{ textAlign: 'right', whiteSpace: 'nowrap', display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                          {m.length_mm && (
+                            <span style={{ color: '#38bdf8', fontWeight: 700, fontSize: '0.84rem' }}>
+                              ↕ {m.length_mm} мм
+                            </span>
+                          )}
+                          {m.opening_mm && (
+                            <span style={{ color: '#fbbf24', fontWeight: 700, fontSize: '0.84rem' }}>
+                              ↔ {m.opening_mm} мм
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
