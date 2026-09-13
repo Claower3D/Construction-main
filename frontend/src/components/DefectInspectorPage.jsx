@@ -807,6 +807,11 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
               setSkeletonImage(cvResult.edgeCanvas.toDataURL('image/png'));
             }
             
+            // Set heatmap for stress mode
+            if (cvResult.heatmapDataUrl) {
+              setStressHeatmapImage(cvResult.heatmapDataUrl);
+            }
+            
             if (cvResult.regions.length > 0) {
               cvItems = cvResult.regions.map((r, i) => ({
                 type: matched.defectType,
@@ -1322,7 +1327,8 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
             const fallbackPhoto = photos[0]?.url || null;
             const currentImg = 
               visionMode === 'skeleton' && skeletonImage ? skeletonImage :
-              visionMode === 'clean' ? (fallbackPhoto || annotatedImage) :
+              visionMode === 'stress' && stressHeatmapImage ? stressHeatmapImage :
+              visionMode === 'clean' ? (fallbackPhoto) :
               (annotatedImage || fallbackPhoto);
 
             if (!currentImg) return null;
