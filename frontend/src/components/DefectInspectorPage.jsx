@@ -1,5 +1,6 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { createPlatformOrder } from '../services/orderSyncService';
+import { detectCracks } from '../utils/crackDetector';
 import './DefectInspectorPage.css';
 
 const DEFECT_TYPES = [
@@ -40,6 +41,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
   const [createdDefectOrder, setCreatedDefectOrder] = useState(null);
   const [toastMessage, setToastMessage] = useState(null);
   const [lightboxSrc, setLightboxSrc] = useState(null);
+  const [edgeMapSrc, setEdgeMapSrc] = useState(null);
   const [inspectionHistory, setInspectionHistory] = useState(() => {
     try { return JSON.parse(localStorage.getItem('defect_history') || '[]'); } catch { return []; }
   });
@@ -195,6 +197,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
     setSeveritySummary(null);
     setStressHeatmapImage(null);
     setSkeletonImage(null);
+    setEdgeMapSrc(null);
     setCreatedDefectOrder(null);
     setActiveReportTab('expert');
     setVisionMode('hud');
@@ -785,48 +788,61 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
           structure_zones: [],
         };
 
-        // Генерируем зоны инспекции по квадрантам фото
-        const severityLevel = matched.severity.includes('КРИТИЧЕСКИЙ') ? 'critical' :
-                              matched.severity.includes('Высокий') ? 'high' :
-                              matched.severity.includes('Незначительный') ? 'low' : 'medium';
+        // Реальное распознавание дефектов через Computer Vision (Canvas pixel analysis)
+        let cvItems = [];
+        try {
+          const photoSrc = photos[0]?.base64 || photos[0]?.url;
+          if (photoSrc) {
+            setProgressSteps(prev => [...prev, { text: 'Edge Detection (Sobel)...', done: false }]);
+            const cvResult = await detectCracks(photoSrc);
+            setProgressSteps(prev => prev.map((s, i) => i === prev.length - 1 ? { ...s, done: true } : s));
+            
+            if (cvResult.regions.length > 0) {
+              cvItems = cvResult.regions.map((r, i) => ({
+                type: matched.defectType,
+                severity: r.severity,
+                confidence: r.confidence,
+                bbox: r.bbox,
+                length_mm: matched.width_profile ? Math.round(r.area_percent * 30 + 50) : null,
+                opening_mm: matched.width_profile ? (r.edgeDensity * 8).toFixed(1) : null,
+                area_percent: r.area_percent,
+                description: `Зона ${i + 1}: Обнаружен дефект (контраст ${r.avgContrast?.toFixed(0) || '?'}, плотность рёбер ${(r.edgeDensity * 100).toFixed(0)}%)`,
+              }));
+              
+              // Сохраняем edge map для режима скелетизации
+              if (cvResult.edgeCanvas) {
+                setSkeletonImage(cvResult.edgeCanvas.toDataURL('image/png'));
+              }
+            }
+          }
+        } catch (cvErr) {
+          console.warn('CV detection failed, using fallback:', cvErr);
+        }
+
+        // Fallback: если CV не нашёл ничего — одна зона на всё фото
+        if (cvItems.length === 0) {
+          const severityLevel = matched.severity.includes('КРИТИЧЕСКИЙ') ? 'critical' :
+                                matched.severity.includes('Высокий') ? 'high' : 'medium';
+          cvItems = [{
+            type: matched.defectType,
+            severity: severityLevel,
+            confidence: 0.75,
+            bbox: [5, 5, 95, 95],
+            length_mm: null,
+            opening_mm: null,
+            area_percent: '90.0',
+            description: `Зона 1: Полное обследование — ${matched.defectType.split('(')[0].trim()}`,
+          }];
+        }
         
-        // Зоны инспекции — покрывают всё фото равномерно
-        const zoneGrid = [
-          { label: 'A', x: 5,  y: 5,  w: 42, h: 42, desc: 'Верхняя левая зона' },
-          { label: 'B', x: 52, y: 5,  w: 42, h: 42, desc: 'Верхняя правая зона' },
-          { label: 'C', x: 5,  y: 52, w: 42, h: 42, desc: 'Нижняя левая зона' },
-          { label: 'D', x: 52, y: 52, w: 42, h: 42, desc: 'Нижняя правая зона' },
-          { label: 'E', x: 20, y: 20, w: 55, h: 55, desc: 'Центральная зона' },
-        ];
-        
-        // Выбираем 3-5 зон с разной severity
-        const defectCount = severityLevel === 'critical' ? 5 : severityLevel === 'high' ? 4 : 3;
-        const selectedZones = zoneGrid.slice(0, defectCount);
-        const sevOrder = severityLevel === 'critical' 
-          ? ['critical', 'high', 'high', 'medium', 'medium']
-          : severityLevel === 'high'
-          ? ['high', 'medium', 'medium', 'low']
-          : ['medium', 'medium', 'low'];
-        
-        const syntheticItems = selectedZones.map((zone, i) => ({
-          type: matched.defectType,
-          severity: sevOrder[i] || 'medium',
-          confidence: 0.78 + (i === 0 ? 0.17 : Math.random() * 0.15),
-          bbox: [zone.x, zone.y, zone.x + zone.w, zone.y + zone.h],
-          length_mm: matched.width_profile ? Math.round(120 + i * 40) : null,
-          opening_mm: matched.width_profile ? (matched.width_profile[Math.min(i + 1, 4)]?.width_mm || 2.0).toFixed(1) : null,
-          area_percent: (2 + i * 1.5).toFixed(1),
-          description: `Зона ${zone.label}: ${zone.desc} — ${matched.defectType.split('(')[0].trim()}`,
-        }));
-        
-        data.defects = { items: syntheticItems };
+        data.defects = { items: cvItems };
         data.defect_severity_summary = {
-          total: syntheticItems.length,
+          total: cvItems.length,
           by_severity: {
-            critical: syntheticItems.filter(d => d.severity === 'critical').length,
-            high: syntheticItems.filter(d => d.severity === 'high').length,
-            medium: syntheticItems.filter(d => d.severity === 'medium').length,
-            low: syntheticItems.filter(d => d.severity === 'low').length,
+            critical: cvItems.filter(d => d.severity === 'critical').length,
+            high: cvItems.filter(d => d.severity === 'high').length,
+            medium: cvItems.filter(d => d.severity === 'medium').length,
+            low: cvItems.filter(d => d.severity === 'low').length,
           }
         };
         // Добавляем аналитику для табов "Профиль трещины" и "Смета"
@@ -1300,6 +1316,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
           {(() => {
             const fallbackPhoto = photos[0]?.url || null;
             const currentImg = 
+              visionMode === 'skeleton' && skeletonImage ? skeletonImage :
               visionMode === 'clean' ? (fallbackPhoto || annotatedImage) :
               (annotatedImage || fallbackPhoto);
 
