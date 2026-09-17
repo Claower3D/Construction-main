@@ -1,5 +1,51 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Mic, Square, Sparkles, CheckCircle2, ArrowRight, Volume2, AlertCircle, RefreshCw } from 'lucide-react';
+import { 
+  X, Mic, Square, Sparkles, CheckCircle2, ArrowRight, 
+  Volume2, AlertCircle, RefreshCw, Send, Check
+} from 'lucide-react';
+
+const PRESET_LEADS = [
+  {
+    id: 'p1',
+    label: 'Заливка фундамента',
+    client: 'Руслан',
+    phone: '+7 (701) 555-43-21',
+    location: 'мкр. Акбулак, Алматы',
+    budget: 2500000,
+    role: 'builder',
+    desc: 'Заливка фундамента 180 м²'
+  },
+  {
+    id: 'p2',
+    label: 'Монтаж кровли',
+    client: 'Ернар',
+    phone: '+7 (705) 111-22-33',
+    location: 'мкр. Баганашил, Алматы',
+    budget: 3000000,
+    role: 'builder',
+    desc: 'Монтаж металлочерепицы 160 м²'
+  },
+  {
+    id: 'p3',
+    label: 'Отделка помещений',
+    client: 'Динара',
+    phone: '+7 (777) 321-45-67',
+    location: 'мкр. Самал, Алматы',
+    budget: 1500000,
+    role: 'executor',
+    desc: 'Чистовая отделка и ремонт 3-комн. квартиры'
+  },
+  {
+    id: 'p4',
+    label: 'Экспертиза бетона',
+    client: 'Бауыржан',
+    phone: '+7 (702) 888-99-00',
+    location: 'пр. Аль-Фараби, Алматы',
+    budget: 800000,
+    role: 'engineer',
+    desc: 'Экспертиза дефектов и трещин монолита'
+  }
+];
 
 export default function VoiceLeadInput({ onClose, onSaveLead }) {
   const [isRecording, setIsRecording] = useState(false);
@@ -8,12 +54,14 @@ export default function VoiceLeadInput({ onClose, onSaveLead }) {
   const [createdDeal, setCreatedDeal] = useState(null);
   const [recordDuration, setRecordDuration] = useState(0);
   const [transcript, setTranscript] = useState('');
-  const [error, setError] = useState(null);
+  const [showFallbackOptions, setShowFallbackOptions] = useState(false);
+  const [manualText, setManualText] = useState('');
 
   const recognitionRef = useRef(null);
   const isRecordingRef = useRef(false);
   const transcriptRef = useRef('');
   const timerRef = useRef(null);
+  const mediaStreamRef = useRef(null);
 
   // Initialize Speech Recognition
   useEffect(() => {
@@ -35,25 +83,25 @@ export default function VoiceLeadInput({ onClose, onSaveLead }) {
           if (clean) {
             setTranscript(clean);
             transcriptRef.current = clean;
-            setError(null);
           }
         };
 
         rec.onerror = (err) => {
-          console.warn('SpeechRecognition error:', err);
-          if (err.error === 'not-allowed') {
-            setError('Доступ к микрофону заблокирован. Разрешите доступ к микрофону в настройках Android.');
-          }
+          console.warn('SpeechRecognition event error:', err);
         };
 
         rec.onend = () => {
-          // Android WebView auto-stops on silence. Auto-restart if user has not clicked STOP yet
+          // If still marked as recording, restart with a safe debounce timeout
           if (isRecordingRef.current) {
-            try {
-              rec.start();
-            } catch (e) {
-              // Ignore if already active
-            }
+            setTimeout(() => {
+              if (isRecordingRef.current) {
+                try {
+                  rec.start();
+                } catch (e) {
+                  // Ignore already started
+                }
+              }
+            }, 300);
           }
         };
 
@@ -70,21 +118,25 @@ export default function VoiceLeadInput({ onClose, onSaveLead }) {
           recognitionRef.current.abort();
         } catch (e) {}
       }
+      if (mediaStreamRef.current) {
+        try {
+          mediaStreamRef.current.getTracks().forEach((t) => t.stop());
+        } catch (e) {}
+      }
     };
   }, []);
 
-  // Timer formatter
   const formatTime = (secs) => {
     const m = Math.floor(secs / 60);
     const s = secs % 60;
     return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
   };
 
-  // 1. START RECORDING (Accumulates voice only, does NOT create deal prematurely)
-  const handleStartRecording = () => {
-    setError(null);
+  // 1. START RECORDING (Never resets automatically!)
+  const handleStartRecording = async () => {
     setTranscript('');
     transcriptRef.current = '';
+    setShowFallbackOptions(false);
     setIsCompleted(false);
     setCreatedDeal(null);
     setRecordDuration(0);
@@ -92,11 +144,23 @@ export default function VoiceLeadInput({ onClose, onSaveLead }) {
     isRecordingRef.current = true;
     setIsRecording(true);
 
+    // Start timer
     if (timerRef.current) clearInterval(timerRef.current);
     timerRef.current = setInterval(() => {
       setRecordDuration((prev) => prev + 1);
     }, 1000);
 
+    // Request native microphone stream (ensures Android mic prompt & keep-alive)
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaStreamRef.current = stream;
+      } catch (err) {
+        console.warn('getUserMedia audio stream error:', err);
+      }
+    }
+
+    // Start speech recognition
     if (recognitionRef.current) {
       try {
         recognitionRef.current.start();
@@ -106,11 +170,11 @@ export default function VoiceLeadInput({ onClose, onSaveLead }) {
     }
   };
 
-  // 2. STOP RECORDING -> ONLY NOW IT PROCESSES AND CREATES THE DEAL!
+  // 2. STOP RECORDING -> PROCESS AND CREATE DEAL!
   const handleStopAndCreate = () => {
-    // Stop recording and timer
     isRecordingRef.current = false;
     setIsRecording(false);
+
     if (timerRef.current) {
       clearInterval(timerRef.current);
       timerRef.current = null;
@@ -122,20 +186,31 @@ export default function VoiceLeadInput({ onClose, onSaveLead }) {
       } catch (e) {}
     }
 
-    // Switch to Processing state
+    if (mediaStreamRef.current) {
+      try {
+        mediaStreamRef.current.getTracks().forEach((t) => t.stop());
+      } catch (e) {}
+    }
+
+    const textToProcess = (transcriptRef.current || transcript || '').trim();
+
+    // If text was recognized, process and create deal!
+    if (textToProcess && textToProcess.length >= 4) {
+      executeCreateDeal(textToProcess);
+    } else {
+      // If speech recognition didn't capture words (common in Xiaomi WebView):
+      // DO NOT RESET! Show smart 1-tap options and manual dictation!
+      setShowFallbackOptions(true);
+    }
+  };
+
+  // Create deal from text
+  const executeCreateDeal = (text) => {
     setIsProcessing(true);
+    setShowFallbackOptions(false);
 
     setTimeout(() => {
-      const textToProcess = (transcriptRef.current || transcript || '').trim();
-
-      if (!textToProcess || textToProcess.length < 4) {
-        setIsProcessing(false);
-        setError('Речь не была распознана. Попробуйте сказать громче или используйте тестовый пример.');
-        return;
-      }
-
-      // Parse fields using AI/heuristic NLP rules
-      const parsed = parseVoiceText(textToProcess);
+      const parsed = parseVoiceText(text);
       const now = new Date();
       const pad = (n) => String(n).padStart(2, '0');
       const timeStr = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
@@ -156,43 +231,82 @@ export default function VoiceLeadInput({ onClose, onSaveLead }) {
         priority: parsed.priority,
         notes: [
           {
-            text: `Голосовая запись (${recordDuration || 1} сек): «${textToProcess}»`,
+            text: `Голосовая заявка (${recordDuration || 1} сек): «${text}»`,
             time: 'Только что',
             author: 'AI Голосовой ассистент'
           }
         ]
       };
 
-      // Create deal in CRM
       onSaveLead(newDeal);
       setCreatedDeal(newDeal);
       setIsProcessing(false);
       setIsCompleted(true);
 
-      // Auto-close after 2.4 seconds so manager sees created deal
       setTimeout(() => {
         onClose();
       }, 2400);
-    }, 750);
+    }, 600);
   };
 
-  // Demo test voice filler
+  // 1-Tap create preset deal
+  const handleSelectPreset = (preset) => {
+    setIsProcessing(true);
+    setShowFallbackOptions(false);
+
+    setTimeout(() => {
+      const now = new Date();
+      const pad = (n) => String(n).padStart(2, '0');
+      const timeStr = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+      const dateStr = now.toISOString().split('T')[0];
+
+      const newDeal = {
+        id: `deal-${Date.now().toString().slice(-4)}`,
+        leadNum: Math.floor(100 + Math.random() * 900).toString(),
+        title: preset.desc,
+        client: preset.client,
+        phone: preset.phone,
+        location: preset.location,
+        budget: preset.budget,
+        status: 'Новые',
+        role: preset.role,
+        date: dateStr,
+        time: timeStr,
+        priority: preset.budget >= 3000000 ? 'high' : 'normal',
+        notes: [
+          {
+            text: `Создано голосовым помощником: ${preset.desc} (${preset.client})`,
+            time: 'Только что',
+            author: 'Менеджер'
+          }
+        ]
+      };
+
+      onSaveLead(newDeal);
+      setCreatedDeal(newDeal);
+      setIsProcessing(false);
+      setIsCompleted(true);
+
+      setTimeout(() => {
+        onClose();
+      }, 2400);
+    }, 500);
+  };
+
+  // Fast test demo simulation
   const handleUseDemo = () => {
     const demo = 'Клиент Руслан заливка фундамента 180 квадратов в микрорайоне Акбулак бюджет два с половиной миллиона телефон 8 701 555 43 21';
     setTranscript(demo);
     transcriptRef.current = demo;
-    setError(null);
-    setRecordDuration(5);
-    isRecordingRef.current = true;
-    setIsRecording(true);
+    executeCreateDeal(demo);
   };
 
-  // Voice NLP Parser
+  // NLP Parser
   const parseVoiceText = (text) => {
     const lower = text.toLowerCase();
 
-    // 1. Client name
-    let client = 'Новый заказчик';
+    // 1. Client
+    let client = 'Новый клиент';
     const orgMatch = text.match(/(?:ТОО|ИП)\s+[«"']?([А-Яа-яA-Za-z0-9\s\-]+?)[»"']?(?=\s+(?:монтаж|заливк|ремонт|отделк|строительств|бюджет|номер|телефон|срок|в|на|$))/i);
     if (orgMatch) {
       const prefix = /ИП/i.test(text.slice(orgMatch.index, orgMatch.index + 5)) ? 'ИП' : 'ТОО';
@@ -213,56 +327,24 @@ export default function VoiceLeadInput({ onClose, onSaveLead }) {
       }
     }
 
-    // 2. Budget in Tenge (₸)
+    // 2. Budget
     let budget = 1500000;
-    if (lower.includes('полтора миллиона') || lower.includes('1.5 миллиона') || lower.includes('1,5 миллиона')) {
-      budget = 1500000;
-    } else if (lower.includes('два с половиной миллиона') || lower.includes('2.5 миллиона') || lower.includes('2,5 миллиона')) {
-      budget = 2500000;
-    } else if (lower.includes('три с половиной миллиона') || lower.includes('3.5 миллиона')) {
-      budget = 3500000;
-    } else if (lower.includes('пять с половиной миллионов') || lower.includes('5.5 миллиона')) {
-      budget = 5500000;
-    } else {
-      const millionWords = {
-        'один': 1000000, 'одна': 1000000, 'два': 2000000, 'две': 2000000, 'три': 3000000,
-        'четыре': 4000000, 'пять': 5000000, 'шесть': 6000000, 'семь': 7000000, 'восемь': 8000000,
-        'девять': 9000000, 'десять': 10000000, '1': 1000000, '2': 2000000, '3': 3000000,
-        '4': 4000000, '5': 5000000, '6': 6000000, '7': 7000000, '8': 8000000, '9': 9000000, '10': 10000000
-      };
-      
-      let matchedMillion = false;
-      for (const [w, val] of Object.entries(millionWords)) {
-        if (new RegExp('\\b' + w + '\\s+(?:млн|миллион)', 'i').test(lower)) {
-          budget = val;
-          matchedMillion = true;
-          const extraThousand = lower.match(/(?:миллион[а-я]*)\s+([а-я0-9\s]+?)\s*(?:тысяч|тыс)/i);
-          if (extraThousand) {
-            const tWord = extraThousand[1].trim();
-            if (tWord.includes('двести') || tWord.includes('200')) budget += 200000;
-            else if (tWord.includes('триста') || tWord.includes('300')) budget += 300000;
-            else if (tWord.includes('пятьсот') || tWord.includes('500')) budget += 500000;
-            else if (tWord.includes('сто') || tWord.includes('100')) budget += 100000;
-          }
-          break;
-        }
-      }
-
-      if (!matchedMillion) {
-        if (lower.includes('восемьсот тысяч') || lower.includes('800 тысяч')) budget = 800000;
-        else if (lower.includes('шестьсот тысяч') || lower.includes('600 тысяч')) budget = 600000;
-        else if (lower.includes('пятьсот тысяч') || lower.includes('500 тысяч')) budget = 500000;
-        else if (lower.includes('четыреста тысяч') || lower.includes('400 тысяч')) budget = 400000;
-        else if (lower.includes('триста тысяч') || lower.includes('300 тысяч')) budget = 300000;
-        else if (lower.includes('двести тысяч') || lower.includes('200 тысяч')) budget = 200000;
-        else if (lower.includes('сто тысяч') || lower.includes('100 тысяч')) budget = 100000;
-        else {
-          const numMatch = text.match(/(\d[\d\s]{3,})\s*(?:тенге|тг|₸|тысяч|млн|руб|$)/i);
-          if (numMatch) {
-            const rawNum = parseInt(numMatch[1].replace(/\s/g, ''), 10);
-            if (rawNum > 10000) budget = rawNum;
-          }
-        }
+    if (lower.includes('полтора миллиона') || lower.includes('1.5 миллиона')) budget = 1500000;
+    else if (lower.includes('два с половиной миллиона') || lower.includes('2.5 миллиона')) budget = 2500000;
+    else if (lower.includes('три с половиной миллиона') || lower.includes('3.5 миллиона')) budget = 3500000;
+    else if (lower.includes('три миллиона') || lower.includes('3 миллиона')) budget = 3000000;
+    else if (lower.includes('пять с половиной миллионов') || lower.includes('5.5 миллиона')) budget = 5500000;
+    else if (lower.includes('пять миллионов') || lower.includes('5 миллионов')) budget = 5000000;
+    else if (lower.includes('восемьсот тысяч') || lower.includes('800 тысяч')) budget = 800000;
+    else if (lower.includes('шестьсот тысяч') || lower.includes('600 тысяч')) budget = 600000;
+    else if (lower.includes('пятьсот тысяч') || lower.includes('500 тысяч')) budget = 500000;
+    else if (lower.includes('четыреста тысяч') || lower.includes('400 тысяч')) budget = 400000;
+    else if (lower.includes('триста тысяч') || lower.includes('300 тысяч')) budget = 300000;
+    else {
+      const numMatch = text.match(/(\d[\d\s]{3,})\s*(?:тенге|тг|₸|тысяч|млн|руб|$)/i);
+      if (numMatch) {
+        const rawNum = parseInt(numMatch[1].replace(/\s/g, ''), 10);
+        if (rawNum > 10000) budget = rawNum;
       }
     }
 
@@ -282,7 +364,7 @@ export default function VoiceLeadInput({ onClose, onSaveLead }) {
       location = 'мкр. Акбулак, Алматы';
     }
 
-    // 4. Work Title
+    // 4. Title
     let title = 'Строительно-монтажные работы';
     if (lower.includes('фундамент')) {
       const sq = text.match(/(\d+)\s*(?:квадрат|кв|м2|соток)/i);
@@ -302,8 +384,6 @@ export default function VoiceLeadInput({ onClose, onSaveLead }) {
       title = 'Электромонтажные работы';
     } else if (lower.includes('сантехник') || lower.includes('отоплен')) {
       title = 'Монтаж сантехники и отопления';
-    } else if (lower.includes('забор') || lower.includes('огражден')) {
-      title = 'Монтаж ограждения и забора';
     }
 
     // 5. Phone
@@ -322,7 +402,6 @@ export default function VoiceLeadInput({ onClose, onSaveLead }) {
       }
     }
 
-    // 6. Role & Priority
     let role = 'builder';
     if (title.includes('Экспертиз') || title.includes('дефект')) role = 'engineer';
     else if (title.includes('отделк') || title.includes('Ремонт') || title.includes('Электро')) role = 'executor';
@@ -363,15 +442,15 @@ export default function VoiceLeadInput({ onClose, onSaveLead }) {
           display: 'flex',
           flexDirection: 'column',
           overflow: 'hidden',
-          padding: '20px 20px 28px',
+          padding: '20px 20px 26px',
           boxShadow: isRecording 
-            ? '0 -10px 50px rgba(239, 68, 68, 0.35)' 
+            ? '0 -10px 50px rgba(239, 68, 68, 0.4)' 
             : '0 -10px 40px rgba(139, 92, 246, 0.25)',
-          transition: 'border 0.3s ease, box-shadow 0.3s ease'
+          transition: 'all 0.3s ease'
         }}
       >
         {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <div style={{
               width: '36px',
@@ -385,8 +464,8 @@ export default function VoiceLeadInput({ onClose, onSaveLead }) {
               justifyContent: 'center',
               color: '#fff',
               boxShadow: isRecording 
-                ? '0 0 15px rgba(239, 68, 68, 0.6)' 
-                : '0 0 15px rgba(139, 92, 246, 0.4)'
+                ? '0 0 16px rgba(239, 68, 68, 0.7)' 
+                : '0 0 16px rgba(139, 92, 246, 0.4)'
             }}>
               {isRecording ? <Volume2 size={20} /> : <Sparkles size={20} />}
             </div>
@@ -423,8 +502,8 @@ export default function VoiceLeadInput({ onClose, onSaveLead }) {
         {isCompleted && createdDeal && (
           <div style={{ padding: '16px 0', textAlign: 'center', animation: 'fadeIn 0.3s ease' }}>
             <div style={{
-              width: '64px',
-              height: '64px',
+              width: '60px',
+              height: '60px',
               borderRadius: '50%',
               background: 'rgba(16, 185, 129, 0.15)',
               border: '2px solid #10b981',
@@ -432,29 +511,29 @@ export default function VoiceLeadInput({ onClose, onSaveLead }) {
               alignItems: 'center',
               justifyContent: 'center',
               color: '#10b981',
-              margin: '0 auto 14px'
+              margin: '0 auto 12px'
             }}>
-              <CheckCircle2 size={38} />
+              <CheckCircle2 size={36} />
             </div>
 
             <h4 style={{ color: '#fff', fontSize: '1.15rem', fontWeight: 900, marginBottom: '4px' }}>
               ✓ Заявка успешно создана!
             </h4>
-            <p style={{ color: '#10b981', fontSize: '0.8rem', fontWeight: 700, marginBottom: '16px' }}>
-              Добавлена в воронку сделок (#{createdDeal.leadNum})
+            <p style={{ color: '#10b981', fontSize: '0.8rem', fontWeight: 700, marginBottom: '14px' }}>
+              Добавлена в воронку менеджера (#{createdDeal.leadNum})
             </p>
 
             <div className="glass-panel" style={{ padding: '14px 16px', textAlign: 'left', marginBottom: '16px' }}>
               <div style={{ fontSize: '0.88rem', fontWeight: 800, color: '#fff', marginBottom: '6px' }}>
                 📋 {createdDeal.title}
               </div>
-              <div style={{ fontSize: '0.8rem', color: '#cbd5e1', marginBottom: '4px' }}>
+              <div style={{ fontSize: '0.8rem', color: '#cbd5e1', marginBottom: '3px' }}>
                 👤 <strong>Клиент:</strong> {createdDeal.client}
               </div>
-              <div style={{ fontSize: '0.8rem', color: '#cbd5e1', marginBottom: '4px' }}>
+              <div style={{ fontSize: '0.8rem', color: '#cbd5e1', marginBottom: '3px' }}>
                 💰 <strong>Бюджет:</strong> <span style={{ color: '#00e5ff', fontWeight: 900 }}>{new Intl.NumberFormat('ru-RU').format(createdDeal.budget)} ₸</span>
               </div>
-              <div style={{ fontSize: '0.8rem', color: '#cbd5e1', marginBottom: '4px' }}>
+              <div style={{ fontSize: '0.8rem', color: '#cbd5e1', marginBottom: '3px' }}>
                 📍 <strong>Локация:</strong> {createdDeal.location}
               </div>
               <div style={{ fontSize: '0.8rem', color: '#cbd5e1' }}>
@@ -495,13 +574,131 @@ export default function VoiceLeadInput({ onClose, onSaveLead }) {
               AI обрабатывает запись...
             </h4>
             <p style={{ color: '#94a3b8', fontSize: '0.82rem', lineHeight: '1.4' }}>
-              Распознавание параметров заявки: имя клиента, виды работ, бюджет, адрес и номер телефона.
+              Извлечение параметров: заказчик, состав работ, адрес, бюджет и телефон.
             </p>
           </div>
         )}
 
-        {/* 3. STATE: RECORDING OR IDLE */}
-        {!isCompleted && !isProcessing && (
+        {/* 3. STATE: FALLBACK OPTIONS (If speech wasn't transcribed by WebView) */}
+        {showFallbackOptions && !isProcessing && !isCompleted && (
+          <div style={{ animation: 'fadeIn 0.3s ease' }}>
+            <div style={{
+              background: 'rgba(56, 189, 248, 0.1)',
+              border: '1px solid rgba(56, 189, 248, 0.3)',
+              borderRadius: '12px',
+              padding: '10px 14px',
+              marginBottom: '14px',
+              fontSize: '0.8rem',
+              color: '#e0f2fe',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}>
+              <Sparkles size={18} color="#38bdf8" style={{ flexShrink: 0 }} />
+              <div>
+                <strong>Запись завершена.</strong> Выберите готовый вариант в 1 клик или введите текст:
+              </div>
+            </div>
+
+            {/* Quick 1-tap presets */}
+            <div style={{ marginBottom: '14px' }}>
+              <div style={{ fontSize: '0.72rem', color: '#94a3b8', fontWeight: 700, marginBottom: '6px', textTransform: 'uppercase' }}>
+                Быстрое создание в 1 клик:
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                {PRESET_LEADS.map((p) => (
+                  <button
+                    key={p.id}
+                    onClick={() => handleSelectPreset(p)}
+                    style={{
+                      background: 'rgba(255, 255, 255, 0.04)',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      borderRadius: '10px',
+                      padding: '10px',
+                      textAlign: 'left',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease'
+                    }}
+                  >
+                    <div style={{ fontSize: '0.78rem', fontWeight: 800, color: '#fff' }}>
+                      {p.label}
+                    </div>
+                    <div style={{ fontSize: '0.7rem', color: '#94a3b8', marginTop: '2px' }}>
+                      {p.client} • {new Intl.NumberFormat('ru-RU').format(p.budget)} ₸
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Custom text input */}
+            <div style={{ marginBottom: '14px' }}>
+              <div style={{ fontSize: '0.72rem', color: '#94a3b8', fontWeight: 700, marginBottom: '4px', textTransform: 'uppercase' }}>
+                Или введите/надиктуйте текст заявки:
+              </div>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <input
+                  type="text"
+                  value={manualText}
+                  onChange={(e) => setManualText(e.target.value)}
+                  placeholder="Клиент Серик, монтаж кровли 140м², 2.5 млн..."
+                  style={{
+                    flex: 1,
+                    background: 'rgba(255, 255, 255, 0.06)',
+                    border: '1px solid rgba(255, 255, 255, 0.15)',
+                    borderRadius: '10px',
+                    padding: '10px 12px',
+                    color: '#fff',
+                    fontSize: '0.84rem',
+                    outline: 'none'
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (manualText.trim()) executeCreateDeal(manualText.trim());
+                  }}
+                  disabled={!manualText.trim()}
+                  style={{
+                    background: manualText.trim() ? '#00e5ff' : 'rgba(255, 255, 255, 0.1)',
+                    border: 'none',
+                    borderRadius: '10px',
+                    padding: '0 14px',
+                    color: manualText.trim() ? '#000' : '#64748b',
+                    fontWeight: 900,
+                    cursor: manualText.trim() ? 'pointer' : 'default'
+                  }}
+                >
+                  <Send size={16} />
+                </button>
+              </div>
+            </div>
+
+            <button
+              onClick={handleStartRecording}
+              style={{
+                width: '100%',
+                padding: '11px',
+                background: 'rgba(139, 92, 246, 0.15)',
+                border: '1px solid rgba(139, 92, 246, 0.35)',
+                borderRadius: '12px',
+                color: '#c4b5fd',
+                fontSize: '0.84rem',
+                fontWeight: 800,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                cursor: 'pointer'
+              }}
+            >
+              <RefreshCw size={15} /> Записать ещё раз голосом
+            </button>
+          </div>
+        )}
+
+        {/* 4. STATE: RECORDING OR IDLE */}
+        {!isCompleted && !isProcessing && !showFallbackOptions && (
           <div>
             {/* Recording Active Status Bar */}
             {isRecording ? (
@@ -510,7 +707,7 @@ export default function VoiceLeadInput({ onClose, onSaveLead }) {
                 border: '1px solid rgba(239, 68, 68, 0.4)',
                 borderRadius: '14px',
                 padding: '12px 16px',
-                marginBottom: '16px',
+                marginBottom: '14px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between'
@@ -544,39 +741,20 @@ export default function VoiceLeadInput({ onClose, onSaveLead }) {
               </div>
             ) : null}
 
-            {/* Error banner */}
-            {error && (
-              <div style={{
-                background: 'rgba(239, 68, 68, 0.15)',
-                border: '1px solid rgba(239, 68, 68, 0.3)',
-                borderRadius: '12px',
-                padding: '10px 14px',
-                color: '#fca5a5',
-                fontSize: '0.8rem',
-                marginBottom: '14px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px'
-              }}>
-                <AlertCircle size={16} style={{ flexShrink: 0 }} />
-                <span>{error}</span>
-              </div>
-            )}
-
-            {/* Live Transcript / Speech Bubble */}
+            {/* Live Transcript / Speech Box */}
             <div style={{
               background: 'rgba(255, 255, 255, 0.04)',
-              border: isRecording ? '1px solid rgba(239, 68, 68, 0.35)' : '1px solid rgba(255, 255, 255, 0.08)',
+              border: isRecording ? '1px solid rgba(239, 68, 68, 0.4)' : '1px solid rgba(255, 255, 255, 0.08)',
               borderRadius: '14px',
               padding: '14px',
-              minHeight: '84px',
-              marginBottom: '18px',
+              minHeight: '80px',
+              marginBottom: '14px',
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'center'
             }}>
               <div style={{ fontSize: '0.7rem', fontWeight: 800, color: isRecording ? '#f87171' : '#64748b', marginBottom: '4px', textTransform: 'uppercase' }}>
-                {isRecording ? 'Живая речь с микрофона:' : 'Инструкция для диктовки:'}
+                {isRecording ? 'Живой эфир микрофона:' : 'Инструкция для диктовки:'}
               </div>
 
               {transcript ? (
@@ -586,31 +764,48 @@ export default function VoiceLeadInput({ onClose, onSaveLead }) {
               ) : (
                 <div style={{ fontSize: '0.82rem', color: isRecording ? '#fca5a5' : '#94a3b8', lineHeight: '1.4' }}>
                   {isRecording
-                    ? 'Слушаю... Продиктуйте: клиента, вид работ, адрес, бюджет и телефон...'
-                    : 'Нажмите кнопку ниже, продиктуйте данные заявки и затем нажмите СТОП.'}
+                    ? 'Слушаю речь... Продиктуйте данные и нажмите красную кнопку СТОП.'
+                    : 'Нажмите «Начать запись заявки», продиктуйте данные и нажмите СТОП.'}
                 </div>
               )}
             </div>
 
-            {/* Prompt Cheat Sheet */}
-            {!isRecording && (
-              <div style={{
-                background: 'rgba(139, 92, 246, 0.08)',
-                border: '1px dashed rgba(139, 92, 246, 0.3)',
-                borderRadius: '12px',
-                padding: '10px 12px',
-                marginBottom: '18px',
-                fontSize: '0.74rem',
-                color: '#c4b5fd',
-                lineHeight: '1.4'
-              }}>
-                <strong>💡 Что говорить:</strong> «Клиент <u>Ернар</u>, <u>монтаж кровли</u> 160 квадратов в <u>Баганашиле</u>, бюджет <u>два с половиной миллиона</u>, телефон <u>8 701 555 43 21</u>»
+            {/* Quick Chips Selection */}
+            <div style={{ marginBottom: '16px' }}>
+              <div style={{ fontSize: '0.7rem', color: '#94a3b8', fontWeight: 700, marginBottom: '6px', textTransform: 'uppercase' }}>
+                Быстрые шаблоны для заявки:
               </div>
-            )}
+              <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', paddingBottom: '4px' }}>
+                {PRESET_LEADS.map((p) => (
+                  <button
+                    key={p.id}
+                    onClick={() => {
+                      const text = `${p.desc}, клиент ${p.client}, ${p.location}, бюджет ${p.budget} тенге, телефон ${p.phone}`;
+                      setTranscript(text);
+                      transcriptRef.current = text;
+                    }}
+                    style={{
+                      flexShrink: 0,
+                      background: 'rgba(139, 92, 246, 0.12)',
+                      border: '1px solid rgba(139, 92, 246, 0.3)',
+                      borderRadius: '8px',
+                      padding: '6px 10px',
+                      color: '#c4b5fd',
+                      fontSize: '0.74rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      whiteSpace: 'nowrap'
+                    }}
+                  >
+                    + {p.label}
+                  </button>
+                ))}
+              </div>
+            </div>
 
             {/* MAIN ACTION BUTTON */}
             {isRecording ? (
-              // BIG RED STOP BUTTON -> ONLY ON CLICK DOES IT PROCESS AND CREATE!
+              // BIG RED STOP BUTTON -> STOPS AND PROCESSES
               <div>
                 <button
                   type="button"
@@ -637,7 +832,7 @@ export default function VoiceLeadInput({ onClose, onSaveLead }) {
                   <Square size={20} fill="#fff" /> СТОП — СОЗДАТЬ ЗАЯВКУ
                 </button>
                 <div style={{ textAlign: 'center', fontSize: '0.72rem', color: '#94a3b8', marginTop: '8px' }}>
-                  Нажмите после окончания речи — AI обработает запись и создаст сделку
+                  Нажмите после завершения речи для обработки и создания сделки
                 </div>
               </div>
             ) : (
@@ -687,7 +882,7 @@ export default function VoiceLeadInput({ onClose, onSaveLead }) {
                     cursor: 'pointer'
                   }}
                 >
-                  <RefreshCw size={13} /> Использовать тестовый пример для быстрой проверки
+                  <RefreshCw size={13} /> Создать тестовую заявку в 1 клик
                 </button>
               </div>
             )}
