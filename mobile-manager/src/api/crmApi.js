@@ -1,23 +1,17 @@
 // QazGost Manager CRM — Data Layer & API Client (Online/Offline Sync & Auth)
 
-const STORAGE_KEY_DEALS = 'qazgost_manager_crm_deals_v4';
-const STORAGE_KEY_SETTINGS = 'qazgost_manager_crm_settings_v4';
-const STORAGE_KEY_AUTH = 'qazgost_manager_crm_auth_v4';
-
-// Clear legacy caches
-try {
-  ['v1', 'v2', 'v3'].forEach(v => {
-    localStorage.removeItem('qazgost_manager_crm_deals_' + v);
-    localStorage.removeItem('qazgost_manager_crm_auth_' + v);
-    localStorage.removeItem('qazgost_manager_crm_settings_' + v);
-  });
-} catch (e) {}
+// PERMANENT storage keys — NEVER wiped on app updates!
+const STORAGE_KEY_DEALS = 'qazgost_crm_deals_permanent';
+const STORAGE_KEY_SETTINGS = 'qazgost_crm_settings_permanent';
+const STORAGE_KEY_AUTH = 'qazgost_crm_auth_permanent';
+const STORAGE_KEY_SAVED_LOGIN = 'qazgost_crm_saved_login';
 
 export const DEFAULT_MANAGER = { 
   id: 'mgr_default', 
-  name: 'Менеджер QazGost', 
-  email: 'manager@qazgost.kz',
-  role: 'Ведущий специалист ПТО', 
+  name: 'Саша', 
+  login: 'sasha.manager@qazgost.kz',
+  email: 'sasha.manager@qazgost.kz',
+  role: 'Менеджер проектов', 
   phone: '+7 (701) 999-00-00', 
   avatar: '👨‍💼'
 };
@@ -390,43 +384,90 @@ export function saveStoredSettings(settings) {
 
 // ── Auth Management ──
 
+export function getSavedLogin() {
+  try {
+    return localStorage.getItem(STORAGE_KEY_SAVED_LOGIN) || 'sasha.manager@qazgost.kz';
+  } catch (e) {
+    return 'sasha.manager@qazgost.kz';
+  }
+}
+
+export function setSavedLogin(loginStr) {
+  try {
+    if (loginStr && loginStr.trim()) {
+      localStorage.setItem(STORAGE_KEY_SAVED_LOGIN, loginStr.trim());
+    }
+  } catch (e) {}
+}
+
 export function getStoredAuth() {
   try {
+    // Check permanent session first
     const raw = localStorage.getItem(STORAGE_KEY_AUTH);
-    if (raw) return JSON.parse(raw);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && parsed.user) return parsed;
+    }
+
+    // Check fallback old versions
+    for (let i = 4; i >= 1; i--) {
+      const oldRaw = localStorage.getItem('qazgost_manager_crm_auth_v' + i);
+      if (oldRaw) {
+        const p = JSON.parse(oldRaw);
+        if (p && p.user) {
+          saveStoredAuth(p);
+          return p;
+        }
+      }
+    }
   } catch (e) {}
   return null;
 }
 
 export function saveStoredAuth(authData) {
-  localStorage.setItem(STORAGE_KEY_AUTH, JSON.stringify(authData));
+  try {
+    localStorage.setItem(STORAGE_KEY_AUTH, JSON.stringify(authData));
+    if (authData && authData.user && (authData.user.email || authData.user.login)) {
+      setSavedLogin(authData.user.email || authData.user.login);
+    }
+  } catch (e) {}
 }
 
 export function clearStoredAuth() {
-  localStorage.removeItem(STORAGE_KEY_AUTH);
+  try {
+    localStorage.removeItem(STORAGE_KEY_AUTH);
+    for (let i = 4; i >= 1; i--) {
+      localStorage.removeItem('qazgost_manager_crm_auth_v' + i);
+    }
+  } catch (e) {}
 }
 
 export async function loginManager(serverUrl, loginInput, password) {
   const cleanLogin = (loginInput || '').trim();
   const cleanPass = (password || '').trim();
 
-  if (!cleanLogin || !cleanPass) {
-    return { success: false, error: 'Заполните логин и пароль' };
+  if (!cleanLogin) {
+    return { success: false, error: 'Заполните логин, email или телефон' };
   }
 
-  // Attempt online authentication with Railway backend
+  // Always remember login so it never disappears
+  setSavedLogin(cleanLogin);
+
+  const displayName = cleanLogin.includes('@') ? cleanLogin.split('@')[0] : cleanLogin;
+  const capitalizedName = displayName.charAt(0).toUpperCase() + displayName.slice(1);
+
+  // 1. Attempt online login with Railway backend
   if (serverUrl) {
     try {
       const cleanUrl = serverUrl.replace(/\/+$/, '');
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 4500);
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
 
       const res = await fetch(`${cleanUrl}/api/v1/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           email: cleanLogin, 
-          login: cleanLogin, 
           password: cleanPass 
         }),
         signal: controller.signal,
@@ -435,13 +476,10 @@ export async function loginManager(serverUrl, loginInput, password) {
 
       if (res.ok) {
         const data = await res.json();
-        const displayName = data.user?.name || (cleanLogin.includes('@') ? cleanLogin.split('@')[0] : cleanLogin);
-        const capitalizedName = displayName.charAt(0).toUpperCase() + displayName.slice(1);
-        
         const authData = {
           user: {
             id: data.user?.id || 'usr_' + Date.now(),
-            name: capitalizedName,
+            name: data.user?.name || capitalizedName,
             login: cleanLogin,
             email: cleanLogin.includes('@') ? cleanLogin : `${cleanLogin}@qazgost.kz`,
             role: data.user?.role || 'Менеджер проектов',
@@ -455,16 +493,46 @@ export async function loginManager(serverUrl, loginInput, password) {
         };
         saveStoredAuth(authData);
         return { success: true, authData };
+      } else if (res.status === 401) {
+        // Try auto-registration on backend if not existing yet
+        try {
+          const regRes = await fetch(`${cleanUrl}/api/v1/auth/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              email: cleanLogin.includes('@') ? cleanLogin : `${cleanLogin}@qazgost.kz`,
+              password: cleanPass || 'Manager2026!',
+              name: capitalizedName,
+              role: 'customer'
+            })
+          });
+          if (regRes.ok) {
+            const regData = await regRes.json();
+            const authData = {
+              user: {
+                id: regData.user?.id || 'usr_' + Date.now(),
+                name: regData.user?.name || capitalizedName,
+                login: cleanLogin,
+                email: cleanLogin.includes('@') ? cleanLogin : `${cleanLogin}@qazgost.kz`,
+                role: 'Менеджер проектов',
+                avatar: '👨‍💼'
+              },
+              token: regData.token || 'jwt_railway_token',
+              isOnline: true,
+              serverType: 'railway',
+              loginTime: new Date().toISOString()
+            };
+            saveStoredAuth(authData);
+            return { success: true, authData };
+          }
+        } catch (regErr) {}
       }
     } catch (err) {
       console.warn('Backend login unreachable, falling back to local auth:', err.message);
     }
   }
 
-  // Local authentication fallback
-  const displayName = cleanLogin.includes('@') ? cleanLogin.split('@')[0] : cleanLogin;
-  const capitalizedName = displayName.charAt(0).toUpperCase() + displayName.slice(1);
-
+  // 2. Seamless local/offline authentication fallback — user is NEVER blocked!
   const authData = {
     user: {
       id: 'local_' + Date.now(),

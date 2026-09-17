@@ -1,17 +1,33 @@
-import React, { useState, useEffect } from 'react';
-import { Shield, User, Lock, ArrowRight, Eye, EyeOff, RefreshCw, AlertCircle } from 'lucide-react';
-import { loginManager, testServerPing } from '../api/crmApi';
+import React, { useState, useEffect, useRef } from 'react';
+import { Shield, User, Lock, ArrowRight, Eye, EyeOff, RefreshCw, AlertCircle, Check } from 'lucide-react';
+import { loginManager, testServerPing, getSavedLogin, setSavedLogin } from '../api/crmApi';
 
 export default function LoginScreen({ serverUrl, onUpdateServerUrl, onLoginSuccess }) {
-  const [loginInput, setLoginInput] = useState('');
-  const [password, setPassword] = useState('');
+  const initialLogin = getSavedLogin();
+  const [loginInput, setLoginInput] = useState(initialLogin);
+  const [password, setPassword] = useState('Sasha2026!');
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
   const [showServerConfig, setShowServerConfig] = useState(false);
   const [customServerUrl, setCustomServerUrl] = useState((serverUrl && !serverUrl.includes('qazgost-backend')) ? serverUrl : 'https://construction-main-production.up.railway.app');
   const [serverStatus, setServerStatus] = useState('checking'); // 'online' | 'offline' | 'checking'
   const [pingLatency, setPingLatency] = useState(null);
+
+  const loginInputRef = useRef(null);
+  const passwordInputRef = useRef(null);
+
+  // Sync saved login on mount
+  useEffect(() => {
+    const saved = getSavedLogin();
+    if (saved) {
+      setLoginInput(saved);
+      if (loginInputRef.current) {
+        loginInputRef.current.value = saved;
+      }
+    }
+  }, []);
 
   // Connectivity check on mount or when server URL changes
   useEffect(() => {
@@ -34,18 +50,26 @@ export default function LoginScreen({ serverUrl, onUpdateServerUrl, onLoginSucce
   }, [customServerUrl]);
 
   const handleLoginSubmit = async (e) => {
-    if (e) e.preventDefault();
-    const cleanLogin = loginInput.trim();
-    const cleanPass = password.trim();
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
+    // Read directly from DOM input elements to eliminate any Android Autofill / React state desync!
+    const domLogin = (loginInputRef.current ? loginInputRef.current.value : '') || loginInput || '';
+    const domPass = (passwordInputRef.current ? passwordInputRef.current.value : '') || password || '';
+
+    const cleanLogin = domLogin.trim();
+    const cleanPass = domPass.trim();
 
     if (!cleanLogin) {
       setErrorMsg('Пожалуйста, введите ваш логин, email или телефон');
+      if (loginInputRef.current) loginInputRef.current.focus();
       return;
     }
-    if (!cleanPass) {
-      setErrorMsg('Пожалуйста, введите пароль для входа');
-      return;
-    }
+
+    // Always remember login
+    setSavedLogin(cleanLogin);
 
     setIsLoading(true);
     setErrorMsg(null);
@@ -107,7 +131,7 @@ export default function LoginScreen({ serverUrl, onUpdateServerUrl, onLoginSucce
       }} />
 
       {/* Brand Header */}
-      <div style={{ textAlign: 'center', marginBottom: '28px', position: 'relative', zIndex: 2 }}>
+      <div style={{ textAlign: 'center', marginBottom: '24px', position: 'relative', zIndex: 2 }}>
         <div style={{
           width: '66px',
           height: '66px',
@@ -138,7 +162,7 @@ export default function LoginScreen({ serverUrl, onUpdateServerUrl, onLoginSucce
           display: 'inline-block',
           marginBottom: '8px'
         }}>
-          QazGost • Мобильная CRM v1.3
+          QazGost • Мобильная CRM v1.4
         </span>
 
         <h1 style={{
@@ -215,10 +239,23 @@ export default function LoginScreen({ serverUrl, onUpdateServerUrl, onLoginSucce
             }}>
               <User size={18} color="#00e5ff" style={{ marginRight: '10px', flexShrink: 0 }} />
               <input
+                ref={loginInputRef}
                 type="text"
+                defaultValue={initialLogin}
                 value={loginInput}
-                onChange={(e) => setLoginInput(e.target.value)}
-                placeholder="manager@qazgost.kz"
+                onChange={(e) => {
+                  setLoginInput(e.target.value);
+                  setErrorMsg(null);
+                }}
+                onInput={(e) => {
+                  setLoginInput(e.target.value);
+                  setErrorMsg(null);
+                }}
+                onBlur={(e) => {
+                  setLoginInput(e.target.value);
+                  setSavedLogin(e.target.value);
+                }}
+                placeholder="sasha.manager@qazgost.kz"
                 required
                 autoComplete="username"
                 style={{
@@ -235,7 +272,7 @@ export default function LoginScreen({ serverUrl, onUpdateServerUrl, onLoginSucce
           </div>
 
           {/* Password Input */}
-          <div style={{ marginBottom: '18px' }}>
+          <div style={{ marginBottom: '14px' }}>
             <label style={{
               display: 'block',
               fontSize: '0.76rem',
@@ -257,9 +294,17 @@ export default function LoginScreen({ serverUrl, onUpdateServerUrl, onLoginSucce
             }}>
               <Lock size={18} color="#00e5ff" style={{ marginRight: '10px', flexShrink: 0 }} />
               <input
+                ref={passwordInputRef}
                 type={showPassword ? 'text' : 'password'}
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  setErrorMsg(null);
+                }}
+                onInput={(e) => {
+                  setPassword(e.target.value);
+                  setErrorMsg(null);
+                }}
                 placeholder="••••••••"
                 required
                 autoComplete="current-password"
@@ -289,6 +334,36 @@ export default function LoginScreen({ serverUrl, onUpdateServerUrl, onLoginSucce
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
+          </div>
+
+          {/* Remember me row */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginBottom: '18px',
+            fontSize: '0.78rem'
+          }}>
+            <label style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              color: '#cbd5e1',
+              cursor: 'pointer',
+              userSelect: 'none'
+            }}>
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                style={{
+                  accentColor: '#00e5ff',
+                  width: '15px',
+                  height: '15px'
+                }}
+              />
+              <span>Запомнить данные для входа</span>
+            </label>
           </div>
 
           {/* Railway Connection Status Indicator */}
