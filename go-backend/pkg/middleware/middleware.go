@@ -57,7 +57,7 @@ func CheckPassword(password, storedHash string) bool {
 
 // ── CORS MIDDLEWARE (allowlist, not wildcard) ──
 
-// CorsMiddleware handles CORS with origin allowlist
+// CorsMiddleware handles CORS with origin allowlist & Railway/Capacitor mobile support
 func CorsMiddleware(allowedOrigins []string) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -69,8 +69,23 @@ func CorsMiddleware(allowedOrigins []string) func(http.Handler) http.Handler {
 					break
 				}
 			}
+
+			// Automatically allow Railway cloud domains and mobile Capacitor schemes
+			if !allowed && origin != "" {
+				if strings.HasSuffix(origin, ".railway.app") ||
+					strings.HasSuffix(origin, ".up.railway.app") ||
+					strings.HasPrefix(origin, "capacitor://") ||
+					strings.HasPrefix(origin, "http://localhost") ||
+					strings.HasPrefix(origin, "https://localhost") {
+					allowed = true
+				}
+			}
+
 			if allowed && origin != "" {
 				w.Header().Set("Access-Control-Allow-Origin", origin)
+			} else if origin == "" {
+				// Native mobile app direct HTTP requests without browser Origin
+				w.Header().Set("Access-Control-Allow-Origin", "*")
 			}
 			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
 			w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Request-ID, X-CSRF-Token")

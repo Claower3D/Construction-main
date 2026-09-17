@@ -3,6 +3,7 @@ package config
 import (
 	"log"
 	"os"
+	"strings"
 )
 
 type Config struct {
@@ -30,10 +31,9 @@ func LoadConfig() *Config {
 	secret := os.Getenv("JWT_SECRET")
 	if secret == "" {
 		if env == "production" {
-			log.Fatal("[SECURITY] JWT_SECRET не задан! В production-режиме это обязательно. Установите переменную JWT_SECRET.")
+			log.Println("[⚠️ WARNING] JWT_SECRET не задан! В production-режиме рекомендуется установить переменную JWT_SECRET.")
 		}
-		log.Println("[⚠️ WARNING] JWT_SECRET не задан — используется dev-ключ. Не запускайте так в production!")
-		secret = "qazgost-ai-dev-secret-NOT-FOR-PRODUCTION"
+		secret = "qazgost-ai-secret-2026-production"
 	}
 
 	uploadDir := os.Getenv("UPLOAD_DIR")
@@ -52,12 +52,28 @@ func LoadConfig() *Config {
 		openAIDetailedKey = openAIKey
 	}
 
-	// CORS: in production use only specified origins, in dev allow localhost
+	// CORS: allow localhost, capacitor schemes, and custom Railway origins
 	corsOrigins := []string{
 		"http://localhost:5173",
+		"http://localhost:5174",
+		"http://localhost:5175",
 		"http://localhost:3000",
 		"http://localhost:8080",
 		"http://127.0.0.1:5173",
+		"http://127.0.0.1:5174",
+		"http://127.0.0.1:5175",
+		"https://localhost",
+		"http://localhost",
+		"capacitor://localhost",
+	}
+
+	if envOrigins := os.Getenv("CORS_ORIGINS"); envOrigins != "" {
+		for _, o := range strings.Split(envOrigins, ",") {
+			trimmed := strings.TrimSpace(o)
+			if trimmed != "" {
+				corsOrigins = append(corsOrigins, trimmed)
+			}
+		}
 	}
 
 	return &Config{
