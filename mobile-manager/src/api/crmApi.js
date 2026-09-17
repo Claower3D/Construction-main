@@ -1,8 +1,13 @@
-// QazGost Manager CRM — Data Layer & API Client (Online/Offline Sync & Auth)
+const STORAGE_KEY_DEALS = 'qazgost_manager_crm_deals_v2';
+const STORAGE_KEY_SETTINGS = 'qazgost_manager_crm_settings_v2';
+const STORAGE_KEY_AUTH = 'qazgost_manager_crm_auth_v2';
 
-const STORAGE_KEY_DEALS = 'qazgost_manager_crm_deals_v1';
-const STORAGE_KEY_SETTINGS = 'qazgost_manager_crm_settings_v1';
-const STORAGE_KEY_AUTH = 'qazgost_manager_crm_auth_v1';
+// Clear legacy v1 mock cache on launch
+try {
+  localStorage.removeItem('qazgost_manager_crm_deals_v1');
+  localStorage.removeItem('qazgost_manager_crm_auth_v1');
+  localStorage.removeItem('qazgost_manager_crm_settings_v1');
+} catch (e) {}
 
 export const DEFAULT_MANAGER = { 
   id: 'mgr_default', 
