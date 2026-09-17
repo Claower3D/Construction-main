@@ -5,13 +5,16 @@ export default function HeaderBar({
   executor, 
   isOnline, 
   onRefresh, 
+  onSync,
   isSyncing, 
   onOpenSettings, 
   searchOpen, 
   onToggleSearch, 
   searchQuery, 
-  onSearchChange 
+  onSearchChange,
+  ordersCount
 }) {
+  const handleRefresh = onRefresh || onSync;
   return (
     <div style={{
       background: 'rgba(6, 11, 23, 0.95)',
@@ -78,7 +81,7 @@ export default function HeaderBar({
           </button>
 
           <button
-            onClick={onRefresh}
+            onClick={handleRefresh}
             disabled={isSyncing}
             style={{
               width: '36px',

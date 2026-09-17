@@ -31,6 +31,7 @@ export default function App() {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [showSettings, setShowSettings] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchOpen, setSearchOpen] = useState(false);
   const [isOnline, setIsOnline] = useState(true);
   const [isSyncing, setIsSyncing] = useState(false);
   const [toastMessage, setToastMessage] = useState(null);
@@ -165,11 +166,17 @@ export default function App() {
       {/* Top Header */}
       <HeaderBar
         activeTab={activeTab}
+        executor={authData}
         isOnline={isOnline}
         isSyncing={isSyncing}
         onSync={handleSync}
+        onRefresh={handleSync}
         onOpenSettings={() => setShowSettings(true)}
         ordersCount={orders.length}
+        searchOpen={searchOpen}
+        onToggleSearch={() => setSearchOpen(!searchOpen)}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
       />
 
       {/* Main Content Area */}
@@ -367,7 +374,9 @@ export default function App() {
       {/* Floating Bottom Navigation */}
       <BottomNav
         activeTab={activeTab}
+        onSelectTab={setActiveTab}
         onChangeTab={setActiveTab}
+        activeCount={orders.filter(o => o.status === 'В работе').length}
       />
 
       {/* Work Order Detail Modal */}
