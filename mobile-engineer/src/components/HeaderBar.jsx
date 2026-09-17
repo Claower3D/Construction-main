@@ -40,8 +40,8 @@ export default function HeaderBar({ engineer, isOnline, onRefresh, isSyncing, on
                 background: isOnline ? '#10b981' : '#f59e0b'
               }} />
             </div>
-            <span style={{ fontSize: '0.72rem', color: '#f59e0b', fontWeight: 600 }}>
-              {isOnline ? 'Онлайн • Синхронизировано' : 'Офлайн режим'}
+            <span style={{ fontSize: '0.72rem', color: isOnline ? '#10b981' : '#f59e0b', fontWeight: 700 }}>
+              {isOnline ? '🟢 Сервер онлайн • Railway' : '🟡 Подключение к Railway...'}
             </span>
           </div>
         </div>
