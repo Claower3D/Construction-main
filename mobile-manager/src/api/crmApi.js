@@ -263,10 +263,17 @@ export function saveStoredDeals(deals) {
 export function getStoredSettings() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY_SETTINGS);
-    if (raw) return JSON.parse(raw);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (!parsed.serverUrl || parsed.serverUrl.includes('qazgost-backend')) {
+        parsed.serverUrl = 'https://construction-main-production.up.railway.app';
+        saveStoredSettings(parsed);
+      }
+      return parsed;
+    }
   } catch (e) {}
   return {
-    serverUrl: 'https://qazgost-backend.up.railway.app',
+    serverUrl: 'https://construction-main-production.up.railway.app',
     offlineMode: true,
     lastSyncTime: null,
     autoSyncInterval: 30

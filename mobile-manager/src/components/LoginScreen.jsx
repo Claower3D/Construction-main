@@ -9,7 +9,7 @@ export default function LoginScreen({ serverUrl, onUpdateServerUrl, onLoginSucce
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
   const [showServerConfig, setShowServerConfig] = useState(false);
-  const [customServerUrl, setCustomServerUrl] = useState(serverUrl || 'https://qazgost-backend.up.railway.app');
+  const [customServerUrl, setCustomServerUrl] = useState((serverUrl && !serverUrl.includes('qazgost-backend')) ? serverUrl : 'https://construction-main-production.up.railway.app');
   const [serverStatus, setServerStatus] = useState('checking'); // 'online' | 'offline' | 'checking'
   const [pingLatency, setPingLatency] = useState(null);
 
@@ -138,7 +138,7 @@ export default function LoginScreen({ serverUrl, onUpdateServerUrl, onLoginSucce
           display: 'inline-block',
           marginBottom: '8px'
         }}>
-          QazGost • Мобильная CRM v1.1
+          QazGost • Мобильная CRM v1.2
         </span>
 
         <h1 style={{
@@ -351,7 +351,7 @@ export default function LoginScreen({ serverUrl, onUpdateServerUrl, onLoginSucce
                     type="text"
                     value={customServerUrl}
                     onChange={(e) => setCustomServerUrl(e.target.value)}
-                    placeholder="https://qazgost-backend.up.railway.app"
+                    placeholder="https://construction-main-production.up.railway.app"
                     style={{
                       flex: 1,
                       background: 'rgba(255, 255, 255, 0.06)',

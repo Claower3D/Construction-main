@@ -12,13 +12,13 @@ export default function SettingsModal({
   lastSyncTime,
   syncLatency 
 }) {
-  const [serverUrl, setServerUrl] = useState(settings.serverUrl || 'https://qazgost-backend.up.railway.app');
+  const [serverUrl, setServerUrl] = useState((settings.serverUrl && !settings.serverUrl.includes('qazgost-backend')) ? settings.serverUrl : 'https://construction-main-production.up.railway.app');
   const [autoSyncInterval, setAutoSyncInterval] = useState(settings.autoSyncInterval || 30);
   const [isTesting, setIsTesting] = useState(false);
   const [testResult, setTestResult] = useState(null);
 
   const RAILWAY_PRESETS = [
-    { label: 'Railway Cloud (Основной)', url: 'https://qazgost-backend.up.railway.app' },
+    { label: 'Railway Cloud (Основной)', url: 'https://construction-main-production.up.railway.app' },
     { label: 'Эмулятор Android (10.0.2.2)', url: 'http://10.0.2.2:8080' },
     { label: 'Локальный ПК (localhost)', url: 'http://localhost:8080' }
   ];
@@ -189,7 +189,7 @@ export default function SettingsModal({
                 type="text"
                 value={serverUrl}
                 onChange={(e) => setServerUrl(e.target.value)}
-                placeholder="https://qazgost-backend.up.railway.app"
+                placeholder="https://construction-main-production.up.railway.app"
                 style={{
                   flex: 1,
                   background: 'rgba(255, 255, 255, 0.05)',
