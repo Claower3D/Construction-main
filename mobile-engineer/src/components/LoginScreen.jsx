@@ -139,7 +139,7 @@ export default function LoginScreen({ serverUrl, onUpdateServerUrl, onLoginSucce
           display: 'inline-block',
           marginBottom: '8px'
         }}>
-          QazGost • Инженер ПТО v1.3
+          QazGost • Инженер ПТО v1.4
         </span>
 
         <h1 style={{

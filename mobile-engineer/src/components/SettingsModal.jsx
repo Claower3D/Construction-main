@@ -242,7 +242,7 @@ export default function SettingsModal({ engineer, serverUrl, onUpdateServerUrl, 
 
         {/* Version info */}
         <div style={{ textAlign: 'center', marginTop: '30px', color: '#64748b', fontSize: '0.74rem' }}>
-          QazGost • Мобильный Инженер v1.3 (Маркетплейс • Дефекты • Сметы) • Сборка 2026
+          QazGost • Мобильный Инженер v1.4 (Календарь • Маркетплейс • Дефекты • Сметы) • Сборка 2026
         </div>
       </div>
     </div>

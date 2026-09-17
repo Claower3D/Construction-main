@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import HeaderBar from './components/HeaderBar';
 import BottomNav from './components/BottomNav';
 import InspectionListView from './components/InspectionListView';
+import EngineerCalendarView from './components/EngineerCalendarView';
 import EngineeringCalcView from './components/EngineeringCalcView';
 import MarketplaceView from './components/MarketplaceView';
 import DefectInspectionView from './components/DefectInspectionView';
@@ -11,14 +12,14 @@ import SettingsModal from './components/SettingsModal';
 import LoginScreen from './components/LoginScreen';
 import { 
   getSavedAuth, setSavedAuth, getStoredDeals, fetchServerDeals, 
-  updateDealStatus, saveInspectionReport, DEFAULT_ENGINEER 
+  updateDealStatus, saveInspectionReport, updateDealSchedule, DEFAULT_ENGINEER 
 } from './api/engineerApi';
 
 export default function App() {
   const [authData, setAuthData] = useState(() => getSavedAuth());
   const [serverUrl, setServerUrl] = useState('https://construction-main-production.up.railway.app');
   const [deals, setDeals] = useState(() => getStoredDeals());
-  const [activeTab, setActiveTab] = useState('inspections'); // 'inspections' | 'defects' | 'estimates' | 'marketplace' | 'tools'
+  const [activeTab, setActiveTab] = useState('inspections'); // 'inspections' | 'calendar' | 'defects' | 'estimates' | 'marketplace' | 'tools'
   const [selectedDeal, setSelectedDeal] = useState(null);
   const [showSettings, setShowSettings] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
@@ -56,6 +57,11 @@ export default function App() {
     setDeals([...updated]);
   };
 
+  const handleScheduleVisit = async (dealId, newDate, newTime) => {
+    const updated = await updateDealSchedule(serverUrl, dealId, newDate, newTime, authData?.name || 'Инженер ПТО');
+    setDeals([...updated]);
+  };
+
   const handleLogout = () => {
     setSavedAuth(null);
     setAuthData(null);
@@ -84,6 +90,8 @@ export default function App() {
   }
 
   const activeCount = deals.filter(d => d.status === 'Новые' || d.status === 'Выезд назначен' || d.status === 'На объекте').length;
+  const todayStr = new Date().toISOString().split('T')[0];
+  const todayCount = deals.filter(d => (d.date === todayStr || (!d.date && d.status === 'Выезд назначен')) && d.status !== 'Завершено').length;
 
   return (
     <div className="app-container">
@@ -107,6 +115,14 @@ export default function App() {
             deals={deals}
             onSelectDeal={(deal) => setSelectedDeal(deal)}
             searchQuery={searchQuery}
+          />
+        )}
+
+        {activeTab === 'calendar' && (
+          <EngineerCalendarView
+            deals={deals}
+            onSelectDeal={(deal) => setSelectedDeal(deal)}
+            onScheduleVisit={handleScheduleVisit}
           />
         )}
 
@@ -137,13 +153,14 @@ export default function App() {
         )}
       </div>
 
-      {/* Bottom Nav Bar with 5 core tabs */}
+      {/* Bottom Nav Bar with 6 core tabs */}
       <BottomNav
         activeTab={activeTab}
         onSelectTab={(tab) => {
           setActiveTab(tab);
         }}
         activeCount={activeCount}
+        todayCount={todayCount}
       />
 
       {/* Inspection Modal */}

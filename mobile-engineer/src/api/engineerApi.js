@@ -574,6 +574,41 @@ export async function saveInspectionReport(serverUrl, dealId, inspectionData, au
   return deals;
 }
 
+// Schedule or reschedule visit date and time & push to Railway
+export async function updateDealSchedule(serverUrl, dealId, newDate, newTime, authorName = 'Инженер ПТО') {
+  const deals = getStoredDeals();
+  const idx = deals.findIndex(d => String(d.id) === String(dealId));
+  if (idx !== -1) {
+    deals[idx].date = newDate;
+    deals[idx].time = newTime;
+    if (deals[idx].status === 'Новые') {
+      deals[idx].status = 'Выезд назначен';
+    }
+    deals[idx].notes = deals[idx].notes || [];
+    deals[idx].notes.unshift({
+      text: `Назначен выезд на ${newDate} в ${newTime}`,
+      time: new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }),
+      author: authorName
+    });
+    saveStoredDeals(deals);
+  }
+
+  const cleanUrl = (serverUrl || 'https://construction-main-production.up.railway.app').replace(/\/+$/, '');
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 4000);
+    await fetch(`${cleanUrl}/api/v1/crm/events/sync`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ items: deals }),
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
+  } catch (e) {}
+
+  return deals;
+}
+
 export async function loginEngineer(serverUrl, loginInput, password) {
   const cleanLogin = (loginInput || '').trim();
   const cleanPass = (password || '').trim();
