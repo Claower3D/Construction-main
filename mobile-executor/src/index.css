@@ -1,0 +1,63 @@
+/* QazGost Executor Mobile — Cyan / Emerald Neon Cyber Construction Theme */
+:root {
+  --primary-cyan: #00e5ff;
+  --primary-emerald: #10b981;
+  --accent-amber: #f59e0b;
+  --bg-dark: #060b17;
+  --card-bg: rgba(13, 21, 39, 0.95);
+  --border-glow: rgba(0, 229, 255, 0.2);
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-dark);
+  color: #f8fafc;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  user-select: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+.app-container {
+  min-height: 100vh;
+  max-width: 480px;
+  margin: 0 auto;
+  position: relative;
+  background-color: var(--bg-dark);
+  display: flex;
+  flex-direction: column;
+}
+
+.app-content {
+  flex: 1;
+  padding-bottom: calc(85px + var(--safe-bottom));
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 15px rgba(0, 229, 255, 0.3); }
+  50% { box-shadow: 0 0 25px rgba(0, 229, 255, 0.6); }
+}
+
+.exec-glow-btn {
+  background: linear-gradient(135deg, #00e5ff 0%, #0284c7 100%);
+  color: #060b17;
+  font-weight: 800;
+  border-radius: 14px;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(0, 229, 255, 0.35);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.exec-glow-btn:active {
+  transform: scale(0.98);
+}

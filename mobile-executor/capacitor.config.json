@@ -1,0 +1,10 @@
+{
+  "appId": "kz.qazgost.executor",
+  "appName": "QazGost Исполнитель",
+  "webDir": "dist",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https",
+    "cleartext": true
+  }
+}
