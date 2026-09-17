@@ -4,13 +4,13 @@ import VoiceLeadInput from './VoiceLeadInput';
 
 export default function LeadCreateModal({ onClose, onCreateDeal, initialDate = '', initialTime = '' }) {
   const [leadData, setLeadData] = useState({
-    clientName: 'Артур',
+    clientName: '',
     phone: '',
     service: 'Установка септика',
-    budget: 535000,
-    address: 'Ерубаева 50',
-    date: initialDate || '2026-09-19',
-    time: initialTime || '11:00',
+    budget: '',
+    address: '',
+    date: initialDate || '',
+    time: initialTime || '',
     notes: ''
   });
 
@@ -40,7 +40,7 @@ export default function LeadCreateModal({ onClose, onCreateDeal, initialDate = '
       return;
     }
 
-    const numBudget = parseInt(String(leadData.budget).replace(/[^0-9]/g, ''), 10) || 535000;
+    const numBudget = parseInt(String(leadData.budget).replace(/[^0-9]/g, ''), 10) || 0;
     const now = new Date();
     const dateStr = leadData.date || now.toISOString().split('T')[0];
 
@@ -54,9 +54,9 @@ export default function LeadCreateModal({ onClose, onCreateDeal, initialDate = '
       id: `deal-${Date.now().toString().slice(-4)}`,
       leadNum: Math.floor(100 + Math.random() * 900).toString(),
       title: leadData.service || 'Установка септика',
-      client: leadData.clientName || 'Артур',
-      phone: leadData.phone || '+7 (701) 555-43-21',
-      location: leadData.address || 'Ерубаева 50',
+      client: (leadData.clientName || '').trim() || 'Новый клиент',
+      phone: (leadData.phone || '').trim() || '+7 (701) 555-43-21',
+      location: (leadData.address || '').trim() || 'г. Алматы',
       budget: numBudget,
       status: 'Новые',
       role,
@@ -155,7 +155,7 @@ export default function LeadCreateModal({ onClose, onCreateDeal, initialDate = '
                 value={leadData.budget} 
                 onChange={handleChange} 
                 className="lead-modal-input" 
-                placeholder="535 000"
+                placeholder="Напр., 1 500 000"
               />
             </div>
 
@@ -178,7 +178,7 @@ export default function LeadCreateModal({ onClose, onCreateDeal, initialDate = '
                 value={leadData.address} 
                 onChange={handleChange} 
                 className="lead-modal-input"
-                placeholder="Ерубаева 50"
+                placeholder="Город, улица, дом..."
               />
             </div>
 
