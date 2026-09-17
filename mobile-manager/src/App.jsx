@@ -200,9 +200,10 @@ export default function App() {
   // If user is not logged in, render the LoginScreen!
   if (!auth) {
     return (
-      <LoginScreen
+      <LoginScreen 
         serverUrl={settings.serverUrl}
-        onLoginSuccess={handleLoginSuccess}
+        onUpdateServerUrl={(newUrl) => handleSaveSettings({ ...settings, serverUrl: newUrl })}
+        onLoginSuccess={handleLoginSuccess} 
       />
     );
   }
@@ -327,6 +328,8 @@ export default function App() {
       {showSettingsModal && (
         <SettingsModal
           settings={settings}
+          currentUser={auth?.user}
+          onLogout={handleLogout}
           onSaveSettings={handleSaveSettings}
           onClose={() => setShowSettingsModal(false)}
           onResetDemoData={handleResetDemo}

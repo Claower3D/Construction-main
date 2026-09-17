@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { X, Server, User, RefreshCw, Check, AlertCircle, Info, Database, Globe, Zap, Clock } from 'lucide-react';
-import { MANAGERS_LIST, testServerPing } from '../api/crmApi';
+import { X, Check, Database, Globe, RefreshCw, LogOut, User } from 'lucide-react';
+import { testServerPing } from '../api/crmApi';
 
 export default function SettingsModal({ 
   settings, 
+  currentUser,
+  onLogout,
   onSaveSettings, 
   onClose, 
   onResetDemoData,
@@ -11,7 +13,6 @@ export default function SettingsModal({
   syncLatency 
 }) {
   const [serverUrl, setServerUrl] = useState(settings.serverUrl || 'https://qazgost-backend.up.railway.app');
-  const [activeManagerId, setActiveManagerId] = useState(settings.activeManagerId || 'm1');
   const [autoSyncInterval, setAutoSyncInterval] = useState(settings.autoSyncInterval || 30);
   const [isTesting, setIsTesting] = useState(false);
   const [testResult, setTestResult] = useState(null);
@@ -38,7 +39,6 @@ export default function SettingsModal({
     onSaveSettings({
       ...settings,
       serverUrl: serverUrl.trim(),
-      activeManagerId,
       autoSyncInterval: Number(autoSyncInterval)
     });
     onClose();
@@ -82,7 +82,7 @@ export default function SettingsModal({
               Настройки и Синхронизация
             </h3>
             <span style={{ fontSize: '0.74rem', color: '#94a3b8' }}>
-              Связь с облаком Railway & GitHub
+              Связь с облаком Railway & Сервером
             </span>
           </div>
 
@@ -106,40 +106,68 @@ export default function SettingsModal({
         </div>
 
         <div style={{ flex: 1, overflowY: 'auto' }}>
-          {/* Active Manager Picker */}
+          {/* Active User Profile */}
           <div style={{ marginBottom: '18px' }}>
             <label style={{ fontSize: '0.78rem', color: '#94a3b8', fontWeight: 800, display: 'block', marginBottom: '8px' }}>
-              АКТИВНЫЙ МЕНЕДЖЕР:
+              ТЕКУЩИЙ АККАУНТ:
             </label>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {MANAGERS_LIST.map((m) => {
-                const isSelected = activeManagerId === m.id;
-                return (
-                  <div
-                    key={m.id}
-                    onClick={() => setActiveManagerId(m.id)}
-                    style={{
-                      padding: '10px 14px',
-                      borderRadius: '12px',
-                      border: isSelected ? '1.5px solid #00e5ff' : '1px solid rgba(255, 255, 255, 0.08)',
-                      background: isSelected ? 'rgba(0, 229, 255, 0.12)' : 'rgba(255, 255, 255, 0.03)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <span style={{ fontSize: '1.3rem' }}>{m.avatar}</span>
-                      <div>
-                        <div style={{ color: '#fff', fontWeight: 800, fontSize: '0.88rem' }}>{m.name}</div>
-                        <div style={{ color: '#94a3b8', fontSize: '0.72rem' }}>{m.role} • {m.phone}</div>
-                      </div>
-                    </div>
-                    {isSelected && <Check size={18} color="#00e5ff" />}
+            <div style={{
+              padding: '12px 14px',
+              borderRadius: '14px',
+              border: '1px solid rgba(0, 229, 255, 0.25)',
+              background: 'rgba(0, 229, 255, 0.06)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{
+                  width: '40px',
+                  height: '40px',
+                  borderRadius: '12px',
+                  background: 'linear-gradient(135deg, #00e5ff 0%, #3b82f6 100%)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '1.2rem'
+                }}>
+                  {currentUser?.avatar || '👨‍💼'}
+                </div>
+                <div>
+                  <div style={{ color: '#fff', fontWeight: 800, fontSize: '0.92rem' }}>
+                    {currentUser?.name || currentUser?.login || 'Менеджер'}
                   </div>
-                );
-              })}
+                  <div style={{ color: '#94a3b8', fontSize: '0.72rem' }}>
+                    {currentUser?.email || 'manager@qazgost.kz'} • {currentUser?.role || 'Специалист'}
+                  </div>
+                </div>
+              </div>
+
+              {onLogout && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    onClose();
+                    onLogout();
+                  }}
+                  style={{
+                    background: 'rgba(239, 68, 68, 0.15)',
+                    border: '1px solid rgba(239, 68, 68, 0.3)',
+                    color: '#f87171',
+                    padding: '6px 12px',
+                    borderRadius: '8px',
+                    fontSize: '0.74rem',
+                    fontWeight: 700,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <LogOut size={13} />
+                  <span>Выйти</span>
+                </button>
+              )}
             </div>
           </div>
 

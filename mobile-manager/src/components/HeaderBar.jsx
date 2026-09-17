@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Settings, RefreshCw, LogOut, Search, X } from 'lucide-react';
-import { MANAGERS_LIST } from '../api/crmApi';
+import { DEFAULT_MANAGER } from '../api/crmApi';
 
 export default function HeaderBar({ 
   currentUser,
@@ -13,7 +13,7 @@ export default function HeaderBar({
   onSearchChange 
 }) {
   const [showSearch, setShowSearch] = useState(false);
-  const manager = currentUser || MANAGERS_LIST[0];
+  const manager = currentUser || DEFAULT_MANAGER;
 
   return (
     <header style={{
@@ -130,7 +130,7 @@ export default function HeaderBar({
             <Settings size={17} />
           </button>
 
-          {/* Logout / Switch Account Button */}
+          {/* Logout Button */}
           <button 
             onClick={onLogout}
             style={{

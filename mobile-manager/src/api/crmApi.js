@@ -4,35 +4,17 @@ const STORAGE_KEY_DEALS = 'qazgost_manager_crm_deals_v1';
 const STORAGE_KEY_SETTINGS = 'qazgost_manager_crm_settings_v1';
 const STORAGE_KEY_AUTH = 'qazgost_manager_crm_auth_v1';
 
-export const MANAGERS_LIST = [
-  { 
-    id: 'm1', 
-    name: 'Алихан Касымов', 
-    email: 'alikhan@qazgost.kz',
-    role: 'Ведущий менеджер ПТО', 
-    phone: '+7 (701) 999-11-22', 
-    avatar: '👨‍💼',
-    passcode: '1234'
-  },
-  { 
-    id: 'm2', 
-    name: 'Ернар Сарсенов', 
-    email: 'ernar@qazgost.kz',
-    role: 'Куратор объектов / Инженер', 
-    phone: '+7 (702) 888-33-44', 
-    avatar: '👷',
-    passcode: '1234'
-  },
-  { 
-    id: 'm3', 
-    name: 'Динара Нурланова', 
-    email: 'dinara@qazgost.kz',
-    role: 'Менеджер по работе с клиентами', 
-    phone: '+7 (777) 444-55-66', 
-    avatar: '👩‍💼',
-    passcode: '1234'
-  }
-];
+export const DEFAULT_MANAGER = { 
+  id: 'mgr_default', 
+  name: 'Менеджер QazGost', 
+  email: 'manager@qazgost.kz',
+  role: 'Ведущий специалист ПТО', 
+  phone: '+7 (701) 999-00-00', 
+  avatar: '👨‍💼'
+};
+
+// Exported for backwards compatibility
+export const MANAGERS_LIST = [DEFAULT_MANAGER];
 
 export const ROLE_CONFIG = {
   engineer: {
@@ -64,57 +46,63 @@ export const ROLE_CONFIG = {
   },
   machinery: {
     badge: 'СПЕЦТЕХНИКА',
-    subBadge: 'GPS Логистика',
+    subBadge: 'Аренда крана/экскаватора',
     icon: '🚜',
-    color: '#38bdf8',
-    border: '#38bdf8',
-    bg: 'rgba(56, 189, 248, 0.15)',
-    glow: 'rgba(56, 189, 248, 0.3)'
+    color: '#ec4899',
+    border: '#ec4899',
+    bg: 'rgba(236, 72, 153, 0.15)',
+    glow: 'rgba(236, 72, 153, 0.3)'
   },
   deadline: {
-    badge: 'СДАЧА ЭТАПА',
-    subBadge: 'Приёмка / Акт',
-    icon: '✅',
-    color: '#10b981',
-    border: '#10b981',
-    bg: 'rgba(16, 185, 129, 0.15)',
-    glow: 'rgba(16, 185, 129, 0.3)'
+    badge: 'СРОКИ',
+    subBadge: 'Контроль графика',
+    icon: '⏳',
+    color: '#ef4444',
+    border: '#ef4444',
+    bg: 'rgba(239, 68, 68, 0.15)',
+    glow: 'rgba(239, 68, 68, 0.3)'
   }
 };
 
-export const STAGES = ['Новые', 'В работе', 'Дожим', 'Успешно', 'Отказ'];
+export const PIPELINE_STAGES = [
+  'Новые заявки',
+  'В работе',
+  'КП / Смета',
+  'Договор',
+  'Дожим',
+  'Оплачено / В работе'
+];
 
-const INITIAL_DEALS = [
+export const STAGES = PIPELINE_STAGES;
+
+export const INITIAL_DEALS = [
   {
     id: 'deal-101',
     leadNum: '101',
-    title: 'Оценка фундамента и дефектоскопия бетона',
-    client: 'Касымбеков Арман',
-    phone: '+7 (701) 555-12-34',
-    location: 'г. Алматы, мкр. Баганашил, ул. Санаторная 14',
-    budget: 1850000,
-    status: 'Новые',
+    title: 'Техническое обследование несущих конструкций БЦ "Алматы Тауэрс"',
+    client: 'ТОО "Premier Development"',
+    phone: '+7 (777) 123-45-67',
+    location: 'г. Алматы, пр. Достык, 180',
+    budget: 8500000,
+    status: 'КП / Смета',
     role: 'engineer',
     date: '2026-09-18',
-    time: '10:00',
+    time: '11:00',
     priority: 'urgent',
     updated_at: new Date().toISOString(),
     notes: [
-      { text: 'Клиент запросил срочную экспертизу до заливки перекрытия', time: 'Сегодня, 09:15', author: 'Алихан' }
-    ],
-    estimateItems: [
-      { name: 'Ультразвуковой контроль прочности бетона', qty: '12 точек', sum: 240000 },
-      { name: 'Составление заключения по СНиП РК', qty: '1 отчёт', sum: 1610000 }
+      { text: 'Заказчик запросил выездную группу со сканером LiDAR.', time: '17 сен', author: 'Менеджер' },
+      { text: 'Подготовлен предварительный расчёт сметы.', time: '17 сен', author: 'Инженер ПТО' }
     ]
   },
   {
     id: 'deal-102',
     leadNum: '102',
-    title: 'Монолитные работы 3-этажного коттеджа',
-    client: 'ТОО "GostBuild Almaty"',
-    phone: '+7 (777) 888-99-00',
-    location: 'г. Алматы, Ремизовка, уч. 45',
-    budget: 6450000,
+    title: 'Монолитные работы и армирование фундаментной плиты (Блок Б)',
+    client: 'BI Group Almaty',
+    phone: '+7 (701) 987-65-43',
+    location: 'г. Алматы, р-н Наурызбайский',
+    budget: 42000000,
     status: 'В работе',
     role: 'executor',
     date: '2026-09-18',
@@ -122,82 +110,78 @@ const INITIAL_DEALS = [
     priority: 'high',
     updated_at: new Date().toISOString(),
     notes: [
-      { text: 'Бригада заливает колонны 2-го яруса. Опалубка принята.', time: 'Вчера, 16:40', author: 'Ернар' }
-    ],
-    estimateItems: [
-      { name: 'Вязка арматурного каркаса', qty: '8.4 т', sum: 2520000 },
-      { name: 'Бетонирование насосом B25 М350', qty: '65 м³', sum: 3930000 }
+      { text: 'Бригада из 14 человек на объекте. Бетононасос заказан.', time: '16 сен', author: 'Прораб' }
     ]
   },
   {
     id: 'deal-103',
     leadNum: '103',
-    title: 'Подача автобетононасоса 36м + 3 миксера',
-    client: 'ИП "СтройМастер KZ"',
-    phone: '+7 (705) 123-45-67',
-    location: 'г. Астана, левый берег, ул. Мангилик Ел',
-    budget: 850000,
-    status: 'В работе',
-    role: 'machinery',
+    title: 'Усиление перекрытий углеволокном и инъектирование трещин',
+    client: 'ЖК "Apple City"',
+    phone: '+7 (705) 555-44-33',
+    location: 'г. Алматы, ул. Сатпаева, 45',
+    budget: 3200000,
+    status: 'Новые заявки',
+    role: 'lead',
     date: '2026-09-19',
-    time: '09:00',
+    time: '10:00',
     priority: 'normal',
     updated_at: new Date().toISOString(),
     notes: [
-      { text: 'Диспетчер подтвердил подачу техники на 9 утра.', time: '17 сен, 11:20', author: 'Алихан' }
+      { text: 'Новая входящая заявка с сайта через ИИ-анализ трещин.', time: '17 сен', author: 'Система' }
     ]
   },
   {
     id: 'deal-104',
     leadNum: '104',
-    title: 'Согласование сметы на гидроизоляцию кровли',
-    client: 'Смагулов Бахыт',
-    phone: '+7 (702) 444-55-66',
-    location: 'г. Алматы, мкр. Самал-2',
-    budget: 3200000,
-    status: 'Дожим',
-    role: 'lead',
-    date: '2026-09-19',
-    time: '13:00',
-    priority: 'urgent',
+    title: 'Поставка бетона М350 B25 с противоморозной добавкой (450 м³)',
+    client: 'ТОО "BAZIS Construction"',
+    phone: '+7 (702) 333-22-11',
+    location: 'г. Астана, левый берег',
+    budget: 11250000,
+    status: 'Договор',
+    role: 'executor',
+    date: '2026-09-20',
+    time: '09:00',
+    priority: 'high',
     updated_at: new Date().toISOString(),
     notes: [
-      { text: 'Смета выслана в WhatsApp. Клиент ждёт скидку 5% на материалы.', time: 'Сегодня, 10:00', author: 'Динара' }
+      { text: 'Договор подписан со стороны заказчика. Ждём предоплату 30%.', time: '16 сен', author: 'Менеджер' }
     ]
   },
   {
     id: 'deal-105',
     leadNum: '105',
-    title: 'Финальная сдача объекта и подписание Акта КС-2',
-    client: 'ТОО "ФинансКонсалт"',
-    phone: '+7 (775) 333-22-11',
-    location: 'г. Астана, ул. Достык 18',
-    budget: 9800000,
-    status: 'Успешно',
-    role: 'deadline',
-    date: '2026-09-17',
+    title: 'Аренда автобетононасоса 42м со сменой оператора',
+    client: 'ИП "СтройСнаб KZ"',
+    phone: '+7 (771) 400-50-60',
+    location: 'г. Алматы, Капчагайская трасса',
+    budget: 650000,
+    status: 'Оплачено / В работе',
+    role: 'machinery',
+    date: '2026-09-18',
     time: '16:00',
     priority: 'normal',
     updated_at: new Date().toISOString(),
     notes: [
-      { text: 'Акты подписаны, эскроу-транш разблокирован в банке.', time: 'Вчера, 17:30', author: 'Алихан' }
+      { text: 'Оплата поступила. Выезд назначен на 18 сентября.', time: '17 сен', author: 'Менеджер' }
     ]
   },
   {
     id: 'deal-106',
     leadNum: '106',
-    title: 'Инспекция перекрытий и сканирование арматуры',
-    client: 'Омаров Тимур',
-    phone: '+7 (707) 654-32-10',
-    location: 'г. Алматы, пр. Аль-Фараби 77',
-    budget: 950000,
-    status: 'Новые',
+    title: 'Экспертиза прочности бетона склерометром и ультразвуком',
+    client: 'ТОО "КазСтройЭксперт"',
+    phone: '+7 (707) 777-88-99',
+    location: 'г. Алматы, пр. Аль-Фараби, 77',
+    budget: 1800000,
+    status: 'КП / Смета',
     role: 'engineer',
-    date: '2026-09-15',
-    time: '11:30',
-    priority: 'normal',
+    date: '2026-09-21',
+    time: '12:00',
+    priority: 'urgent',
     updated_at: new Date().toISOString(),
-    notes: [{ text: 'Запланирован выезд с георадаром.', time: '14 сен', author: 'Ернар' }]
+    notes: [{ text: 'Запланирован выезд с георадаром.', time: '14 сен', author: 'Инженер ПТО' }]
   },
   {
     id: 'deal-107',
@@ -213,7 +197,7 @@ const INITIAL_DEALS = [
     time: '10:00',
     priority: 'high',
     updated_at: new Date().toISOString(),
-    notes: [{ text: 'Доставка панелей 1-й партии завершена.', time: '16 сен', author: 'Алихан' }]
+    notes: [{ text: 'Доставка панелей 1-й партии завершена.', time: '16 сен', author: 'Менеджер' }]
   },
   {
     id: 'deal-108',
@@ -229,7 +213,7 @@ const INITIAL_DEALS = [
     time: '08:30',
     priority: 'normal',
     updated_at: new Date().toISOString(),
-    notes: [{ text: 'Договор на согласовании у юриста заказчика.', time: '15 сен', author: 'Динара' }]
+    notes: [{ text: 'Договор на согласовании у юриста заказчика.', time: '15 сен', author: 'Менеджер' }]
   },
   {
     id: 'deal-109',
@@ -245,7 +229,7 @@ const INITIAL_DEALS = [
     time: '15:00',
     priority: 'urgent',
     updated_at: new Date().toISOString(),
-    notes: [{ text: 'Подготовка исполнительной документации.', time: '12 сен', author: 'Алихан' }]
+    notes: [{ text: 'Подготовка исполнительной документации.', time: '12 сен', author: 'Менеджер' }]
   }
 ];
 
@@ -277,8 +261,7 @@ export function getStoredSettings() {
     if (raw) return JSON.parse(raw);
   } catch (e) {}
   return {
-    serverUrl: 'https://qazgost-backend.up.railway.app', // Default Railway server URL
-    activeManagerId: 'm1',
+    serverUrl: 'https://qazgost-backend.up.railway.app',
     offlineMode: true,
     lastSyncTime: null,
     autoSyncInterval: 30
@@ -307,32 +290,48 @@ export function clearStoredAuth() {
   localStorage.removeItem(STORAGE_KEY_AUTH);
 }
 
-export async function loginManager(serverUrl, email, password, selectedManagerId) {
-  if (serverUrl && email && password) {
+export async function loginManager(serverUrl, loginInput, password) {
+  const cleanLogin = (loginInput || '').trim();
+  const cleanPass = (password || '').trim();
+
+  if (!cleanLogin || !cleanPass) {
+    return { success: false, error: 'Заполните логин и пароль' };
+  }
+
+  // 1. First attempt online authentication with Railway backend
+  if (serverUrl) {
     try {
       const cleanUrl = serverUrl.replace(/\/+$/, '');
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 4000);
+      const timeoutId = setTimeout(() => controller.abort(), 4500);
 
       const res = await fetch(`${cleanUrl}/api/v1/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ 
+          email: cleanLogin, 
+          login: cleanLogin, 
+          password: cleanPass 
+        }),
         signal: controller.signal,
       });
       clearTimeout(timeoutId);
 
       if (res.ok) {
         const data = await res.json();
-        const mgr = MANAGERS_LIST.find(m => m.email.toLowerCase() === email.toLowerCase()) || {
-          id: data.user?.id || 'm1',
-          name: data.user?.name || email.split('@')[0],
-          email,
-          role: data.user?.role || 'Менеджер QazGost',
-          avatar: '👨‍💼'
-        };
+        const displayName = data.user?.name || (cleanLogin.includes('@') ? cleanLogin.split('@')[0] : cleanLogin);
+        const capitalizedName = displayName.charAt(0).toUpperCase() + displayName.slice(1);
+        
         const authData = {
-          user: mgr,
+          user: {
+            id: data.user?.id || 'usr_' + Date.now(),
+            name: capitalizedName,
+            login: cleanLogin,
+            email: cleanLogin.includes('@') ? cleanLogin : `${cleanLogin}@qazgost.kz`,
+            role: data.user?.role || 'Менеджер проектов',
+            phone: data.user?.phone || '+7 (701) 000-00-00',
+            avatar: '👨‍💼'
+          },
           token: data.token || 'jwt_railway_token',
           isOnline: true,
           serverType: 'railway',
@@ -346,14 +345,20 @@ export async function loginManager(serverUrl, email, password, selectedManagerId
     }
   }
 
-  // Local / Offline manager authentication fallback
-  const targetManager = MANAGERS_LIST.find(m => 
-    m.id === selectedManagerId || 
-    (email && m.email.toLowerCase() === email.toLowerCase())
-  ) || MANAGERS_LIST[0];
+  // 2. Seamless offline / local authentication fallback
+  const displayName = cleanLogin.includes('@') ? cleanLogin.split('@')[0] : cleanLogin;
+  const capitalizedName = displayName.charAt(0).toUpperCase() + displayName.slice(1);
 
   const authData = {
-    user: targetManager,
+    user: {
+      id: 'local_' + Date.now(),
+      name: capitalizedName,
+      login: cleanLogin,
+      email: cleanLogin.includes('@') ? cleanLogin : `${cleanLogin}@qazgost.kz`,
+      role: 'Менеджер проектов',
+      phone: '+7 (701) 000-00-00',
+      avatar: '👨‍💼'
+    },
     token: `token_offline_${Date.now()}`,
     isOnline: false,
     serverType: 'offline',
@@ -399,96 +404,47 @@ export async function twoWaySyncWithRailway(serverUrl, localDeals) {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 5000);
 
-    // 1. PULL: Fetch server events from Railway PostgreSQL
-    const res = await fetch(`${cleanUrl}/api/v1/crm/events`, {
-      method: 'GET',
-      signal: controller.signal,
-      headers: { 'Content-Type': 'application/json' }
+    const res = await fetch(`${cleanUrl}/api/v1/crm/events/sync`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({
+        source: 'android-manager-crm',
+        timestamp: new Date().toISOString(),
+        deals: localDeals
+      }),
+      signal: controller.signal
     });
     clearTimeout(timeoutId);
 
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    const serverItems = data.items || [];
-
-    // 2. MERGE: Reconcile server events with local storage
-    const dealsMap = new Map();
-
-    // Load server items first
-    serverItems.forEach(item => {
-      dealsMap.set(item.id, {
-        id: item.id,
-        leadNum: item.lead_num || item.leadNum || item.id,
-        title: item.title,
-        status: item.status || 'Новые',
-        role: item.role || 'lead',
-        date: item.date || new Date().toISOString().split('T')[0],
-        time: item.time || '10:00',
-        phone: item.phone || '',
-        client: item.contractor || item.client || 'Заказчик',
-        location: item.location || '',
-        budget: parseInt(String(item.budget || '0').replace(/[^0-9]/g, ''), 10) || 500000,
-        priority: item.priority || 'normal',
-        updated_at: item.updated_at || item.created_at || new Date().toISOString(),
-        notes: item.notes ? (Array.isArray(item.notes) ? item.notes : [{ text: String(item.notes), time: 'Сервер', author: 'Railway' }]) : []
-      });
-    });
-
-    // Merge local items with priority to newer modifications
-    localDeals.forEach(localItem => {
-      if (!dealsMap.has(localItem.id)) {
-        dealsMap.set(localItem.id, localItem);
-      } else {
-        const serverItem = dealsMap.get(localItem.id);
-        const localTime = new Date(localItem.updated_at || 0).getTime();
-        const serverTime = new Date(serverItem.updated_at || 0).getTime();
-        if (localTime > serverTime) {
-          dealsMap.set(localItem.id, localItem);
-        }
-      }
-    });
-
-    const mergedList = Array.from(dealsMap.values());
-
-    // 3. PUSH: Send merged state back to Railway for cloud persistence
-    const pushPayload = mergedList.map(d => ({
-      id: d.id,
-      lead_num: String(d.leadNum || ''),
-      title: d.title,
-      status: d.status,
-      type: d.type || 'request_engineering',
-      role: d.role,
-      date: d.date,
-      time: d.time,
-      phone: d.phone,
-      contractor: d.client,
-      location: d.location,
-      budget: String(d.budget || '0'),
-      notes: JSON.stringify(d.notes || []),
-      updated_at: d.updated_at || new Date().toISOString()
-    }));
-
-    // Fire push in background
-    fetch(`${cleanUrl}/api/v1/crm/events/sync`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ items: pushPayload })
-    }).catch(e => console.warn('Background sync push warning:', e));
-
     const latency = Math.round(performance.now() - start);
 
-    return {
-      success: true,
-      mergedDeals: mergedList,
-      serverCount: serverItems.length,
-      latencyMs: latency,
-      lastSyncTime: new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
-    };
+    if (res.ok) {
+      const data = await res.json();
+      let merged = localDeals;
+      if (data.events && Array.isArray(data.events) && data.events.length > 0) {
+        const remoteMap = new Map();
+        data.events.forEach(e => {
+          if (e.id) remoteMap.set(e.id, e);
+        });
+        localDeals.forEach(d => {
+          if (!remoteMap.has(d.id)) {
+            remoteMap.set(d.id, d);
+          }
+        });
+        merged = Array.from(remoteMap.values());
+      }
+      return {
+        success: true,
+        latencyMs: latency,
+        lastSyncTime: new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+        mergedDeals: merged
+      };
+    }
+    return { success: false, error: `Ошибка сервера: ${res.status}` };
   } catch (err) {
-    return {
-      success: false,
-      error: err.message,
-      latencyMs: 0
-    };
+    return { success: false, error: err.message || 'Сбой сети' };
   }
 }
