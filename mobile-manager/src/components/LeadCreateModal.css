@@ -1,0 +1,218 @@
+/* LeadCreateModal Mobile & Desktop Styles - QazGost Edition */
+.lead-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(5, 7, 12, 0.85);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  animation: fadeIn 0.25s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.lead-modal-container {
+  background: rgba(13, 17, 28, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-top: 2px solid rgba(0, 163, 255, 0.6);
+  border-radius: 24px;
+  width: 520px;
+  max-width: 95vw;
+  max-height: 94vh;
+  padding: 1.6rem 1.4rem 1.8rem;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.85), 0 0 40px rgba(0, 163, 255, 0.15);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+.lead-modal-close {
+  position: absolute;
+  top: 1.2rem;
+  right: 1.2rem;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.lead-modal-close:hover {
+  color: #fff;
+  background: rgba(239, 68, 68, 0.8);
+  border-color: #ef4444;
+}
+
+.lead-modal-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.lead-modal-step-badge {
+  background: linear-gradient(135deg, rgba(0, 163, 255, 0.25), rgba(59, 130, 246, 0.25));
+  border: 1px solid rgba(0, 163, 255, 0.45);
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 163, 255, 0.25);
+}
+
+.lead-modal-role-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.lead-modal-role-title {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: -0.3px;
+}
+
+.lead-modal-role-subtitle {
+  margin: 2px 0 0;
+  font-size: 0.82rem;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.lead-modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  max-height: 72vh;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+/* Custom scrollbar */
+.lead-modal-body::-webkit-scrollbar {
+  width: 5px;
+}
+.lead-modal-body::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+}
+.lead-modal-body::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+.lead-modal-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.lead-modal-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.lead-modal-field.full-width {
+  grid-column: 1 / -1;
+}
+
+.lead-modal-label {
+  color: #cbd5e1;
+  font-size: 0.78rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.lead-modal-input {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  outline: none;
+  padding: 0.75rem 0.9rem;
+  border-radius: 12px;
+  font-family: inherit;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.lead-modal-input::placeholder {
+  color: rgba(255, 255, 255, 0.25);
+}
+
+.lead-modal-input option {
+  background: #0f172a;
+  color: #fff;
+}
+
+.lead-modal-input.textarea {
+  resize: vertical;
+  min-height: 70px;
+}
+
+.lead-modal-input:focus {
+  border-color: #00a3ff;
+  background: rgba(0, 163, 255, 0.08);
+  box-shadow: 0 0 0 2px rgba(0, 163, 255, 0.2);
+}
+
+.select-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.lead-modal-submit-btn {
+  margin-top: 1.2rem;
+  background: linear-gradient(135deg, #0066ff, #00a3ff);
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  padding: 1rem;
+  font-size: 1.05rem;
+  font-weight: 900;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 8px 25px rgba(0, 163, 255, 0.45);
+  letter-spacing: 0.3px;
+  width: 100%;
+  transition: all 0.2s ease;
+}
+
+.lead-modal-submit-btn:hover {
+  filter: brightness(1.1);
+}
+
+.lead-modal-submit-btn:active {
+  transform: translateY(1px);
+}

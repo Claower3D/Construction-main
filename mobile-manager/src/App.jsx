@@ -307,21 +307,13 @@ export default function App() {
         />
       )}
 
-      {showNewLeadModal && (
+      {(showNewLeadModal || showVoiceModal) && (
         <LeadCreateModal
-          onClose={() => setShowNewLeadModal(false)}
-          onCreateDeal={handleCreateDeal}
-          onOpenVoice={() => {
+          onClose={() => {
             setShowNewLeadModal(false);
-            setShowVoiceModal(true);
+            setShowVoiceModal(false);
           }}
-        />
-      )}
-
-      {showVoiceModal && (
-        <VoiceLeadInput
-          onClose={() => setShowVoiceModal(false)}
-          onSaveLead={handleCreateDeal}
+          onCreateDeal={handleCreateDeal}
         />
       )}
 
