@@ -162,7 +162,7 @@ export default function LoginScreen({ serverUrl, onUpdateServerUrl, onLoginSucce
           display: 'inline-block',
           marginBottom: '8px'
         }}>
-          QazGost • Мобильная CRM v1.4
+          QazGost • Мобильная CRM v1.5
         </span>
 
         <h1 style={{
