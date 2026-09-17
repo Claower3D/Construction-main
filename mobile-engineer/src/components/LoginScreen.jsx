@@ -4,8 +4,8 @@ import { loginEngineer, testServerPing, getSavedLogin, setSavedLogin } from '../
 
 export default function LoginScreen({ serverUrl, onUpdateServerUrl, onLoginSuccess }) {
   const initialLogin = getSavedLogin();
-  const [loginInput, setLoginInput] = useState(initialLogin);
-  const [password, setPassword] = useState('Sasha2026!');
+  const [loginInput, setLoginInput] = useState(initialLogin || 'maxim.engineer@qazgost.kz');
+  const [password, setPassword] = useState('Maxim2026!');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
@@ -71,7 +71,7 @@ export default function LoginScreen({ serverUrl, onUpdateServerUrl, onLoginSucce
         }
         onLoginSuccess(res.authData);
       } else {
-        setErrorMsg('Ошибка входа инженера.');
+        setErrorMsg(res.error || 'Ошибка входа инженера. Проверьте логин и пароль.');
       }
     } catch (err) {
       setErrorMsg('Сбой сети: ' + (err.message || 'Проверьте соединение'));
@@ -139,7 +139,7 @@ export default function LoginScreen({ serverUrl, onUpdateServerUrl, onLoginSucce
           display: 'inline-block',
           marginBottom: '8px'
         }}>
-          QazGost • Инженер ПТО v1.2
+          QazGost • Инженер ПТО v1.3
         </span>
 
         <h1 style={{
@@ -214,7 +214,7 @@ export default function LoginScreen({ serverUrl, onUpdateServerUrl, onLoginSucce
                 type="text"
                 defaultValue={loginInput}
                 onChange={(e) => setLoginInput(e.target.value)}
-                placeholder="engineer@qazgost.kz"
+                placeholder="maxim.engineer@qazgost.kz"
                 autoComplete="username"
                 style={{
                   width: '100%',

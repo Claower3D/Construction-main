@@ -5,14 +5,93 @@ const STORAGE_KEY_SAVED_LOGIN = 'qazgost_engineer_saved_login';
 const STORAGE_KEY_SETTINGS = 'qazgost_engineer_settings_perm';
 
 export const DEFAULT_ENGINEER = {
-  id: 'eng_pto_1',
-  name: 'Руслан (ПТО)',
-  login: 'engineer@qazgost.kz',
-  email: 'engineer@qazgost.kz',
+  id: 'eng_pto_maxim',
+  name: 'Максим (ПТО)',
+  login: 'maxim.engineer@qazgost.kz',
+  email: 'maxim.engineer@qazgost.kz',
   role: 'Инженер технического надзора',
-  phone: '+7 (702) 555-12-34',
+  phone: '+7 (701) 777-20-26',
   avatar: '👷‍♂️'
 };
+
+export const KNOWN_ENGINEERS = {
+  'maxim.engineer@qazgost.kz': {
+    id: 'eng_pto_maxim',
+    name: 'Максим (ПТО)',
+    login: 'maxim.engineer@qazgost.kz',
+    email: 'maxim.engineer@qazgost.kz',
+    role: 'Инженер технического надзора',
+    phone: '+7 (701) 777-20-26',
+    avatar: '👷‍♂️'
+  },
+  'engineer@qazgost.kz': {
+    id: 'eng_pto_ruslan',
+    name: 'Руслан (ПТО)',
+    login: 'engineer@qazgost.kz',
+    email: 'engineer@qazgost.kz',
+    role: 'Инженер технического надзора',
+    phone: '+7 (702) 555-12-34',
+    avatar: '👷‍♂️'
+  }
+};
+
+export function resolveEngineerProfile(cleanLogin, serverUser = null) {
+  const lower = (cleanLogin || '').trim().toLowerCase();
+
+  if (serverUser && serverUser.name) {
+    const rawName = serverUser.name;
+    const name = rawName.includes('ПТО') ? rawName : `${rawName} (ПТО)`;
+    return {
+      id: String(serverUser.id || 'eng_' + Date.now()),
+      name: name,
+      login: cleanLogin,
+      email: serverUser.email || (cleanLogin.includes('@') ? cleanLogin : `${cleanLogin}@qazgost.kz`),
+      role: serverUser.role || 'Инженер технического надзора',
+      phone: serverUser.phone || (lower.includes('maxim') ? '+7 (701) 777-20-26' : '+7 (701) 000-00-00'),
+      avatar: '👷‍♂️'
+    };
+  }
+
+  if (KNOWN_ENGINEERS[lower]) {
+    return { ...KNOWN_ENGINEERS[lower] };
+  }
+
+  if (lower.includes('maxim') || lower.startsWith('maxim')) {
+    return {
+      id: 'eng_pto_maxim',
+      name: 'Максим (ПТО)',
+      login: cleanLogin,
+      email: cleanLogin.includes('@') ? cleanLogin : `${cleanLogin}@qazgost.kz`,
+      role: 'Инженер технического надзора',
+      phone: '+7 (701) 777-20-26',
+      avatar: '👷‍♂️'
+    };
+  }
+
+  if (lower.includes('ruslan') || lower.startsWith('ruslan')) {
+    return {
+      id: 'eng_pto_ruslan',
+      name: 'Руслан (ПТО)',
+      login: cleanLogin,
+      email: cleanLogin.includes('@') ? cleanLogin : `${cleanLogin}@qazgost.kz`,
+      role: 'Инженер технического надзора',
+      phone: '+7 (702) 555-12-34',
+      avatar: '👷‍♂️'
+    };
+  }
+
+  const rawPrefix = cleanLogin.split('@')[0].split('.')[0].replace(/[^a-zA-Zа-яА-ЯёЁ]/g, '');
+  const displayName = rawPrefix ? (rawPrefix.charAt(0).toUpperCase() + rawPrefix.slice(1)) : 'Инженер';
+  return {
+    id: 'eng_' + Date.now(),
+    name: `${displayName} (ПТО)`,
+    login: cleanLogin,
+    email: cleanLogin.includes('@') ? cleanLogin : `${cleanLogin}@qazgost.kz`,
+    role: 'Инженер технического надзора',
+    phone: '+7 (701) 000-00-00',
+    avatar: '👷‍♂️'
+  };
+}
 
 export const STATUS_CONFIG = {
   'Новые': { label: 'Новая заявка', color: '#8b5cf6', bg: 'rgba(139, 92, 246, 0.15)', icon: '📝' },
@@ -245,9 +324,11 @@ export const INITIAL_REAL_DEALS = [
 
 export function getSavedLogin() {
   try {
-    return localStorage.getItem(STORAGE_KEY_SAVED_LOGIN) || 'engineer@qazgost.kz';
+    const saved = localStorage.getItem(STORAGE_KEY_SAVED_LOGIN);
+    if (saved && saved !== 'engineer@qazgost.kz') return saved;
+    return 'maxim.engineer@qazgost.kz';
   } catch (e) {
-    return 'engineer@qazgost.kz';
+    return 'maxim.engineer@qazgost.kz';
   }
 }
 
@@ -260,16 +341,35 @@ export function setSavedLogin(login) {
 export function getSavedAuth() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY_AUTH);
-    if (raw) return JSON.parse(raw);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && (parsed.login || parsed.email)) {
+        const loginStr = (parsed.login || parsed.email || '').toLowerCase();
+        // Auto-heal name if login is Maxim but legacy session stored Ruslan
+        if (loginStr.includes('maxim') && (!parsed.name || parsed.name.includes('Руслан'))) {
+          parsed.name = 'Максим (ПТО)';
+          parsed.email = 'maxim.engineer@qazgost.kz';
+          parsed.phone = '+7 (701) 777-20-26';
+          parsed.id = 'eng_pto_maxim';
+          setSavedAuth(parsed);
+        }
+        return parsed;
+      }
+    }
   } catch (e) {}
-  // Default to pre-authenticated real engineer profile!
-  return DEFAULT_ENGINEER;
+  return null;
 }
 
 export function setSavedAuth(authData) {
   try {
-    if (authData) localStorage.setItem(STORAGE_KEY_AUTH, JSON.stringify(authData));
-    else localStorage.removeItem(STORAGE_KEY_AUTH);
+    if (authData) {
+      localStorage.setItem(STORAGE_KEY_AUTH, JSON.stringify(authData));
+      if (authData.login || authData.email) {
+        setSavedLogin(authData.login || authData.email);
+      }
+    } else {
+      localStorage.removeItem(STORAGE_KEY_AUTH);
+    }
   } catch (e) {}
 }
 
@@ -404,7 +504,7 @@ export async function fetchServerDeals(serverUrl) {
 }
 
 // Update status and push to Railway
-export async function updateDealStatus(serverUrl, dealId, newStatus, newNote = null) {
+export async function updateDealStatus(serverUrl, dealId, newStatus, newNote = null, authorName = 'Инженер ПТО') {
   const deals = getStoredDeals();
   const idx = deals.findIndex(d => String(d.id) === String(dealId));
   if (idx !== -1) {
@@ -414,7 +514,7 @@ export async function updateDealStatus(serverUrl, dealId, newStatus, newNote = n
       deals[idx].notes.unshift({
         text: newNote,
         time: new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }),
-        author: 'Инженер ПТО'
+        author: authorName
       });
     }
     saveStoredDeals(deals);
@@ -440,7 +540,7 @@ export async function updateDealStatus(serverUrl, dealId, newStatus, newNote = n
 }
 
 // Save inspection report & push to Railway
-export async function saveInspectionReport(serverUrl, dealId, inspectionData) {
+export async function saveInspectionReport(serverUrl, dealId, inspectionData, authorName = 'Инженер ПТО') {
   const deals = getStoredDeals();
   const idx = deals.findIndex(d => String(d.id) === String(dealId));
   if (idx !== -1) {
@@ -453,7 +553,7 @@ export async function saveInspectionReport(serverUrl, dealId, inspectionData) {
     deals[idx].notes.unshift({
       text: `Выполнен замер объекта: Глубина ${inspectionData.depth || '-'}м, Кольца: ${inspectionData.ringsDiameter || '-'} (${inspectionData.ringsCount || '-'} шт), Труба: ${inspectionData.pipeLength || '-'}м`,
       time: new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }),
-      author: 'Инженер ПТО'
+      author: authorName
     });
     saveStoredDeals(deals);
   }
@@ -474,12 +574,96 @@ export async function saveInspectionReport(serverUrl, dealId, inspectionData) {
   return deals;
 }
 
-export async function loginEngineer(serverUrl, login, password) {
-  setSavedLogin(login);
+export async function loginEngineer(serverUrl, loginInput, password) {
+  const cleanLogin = (loginInput || '').trim();
+  const cleanPass = (password || '').trim();
+
+  if (!cleanLogin) {
+    return { success: false, error: 'Заполните логин или email инженера' };
+  }
+
+  setSavedLogin(cleanLogin);
+
+  const cleanEmail = cleanLogin.includes('@') ? cleanLogin : `${cleanLogin}@qazgost.kz`;
+  const defaultProfile = resolveEngineerProfile(cleanLogin);
+
+  // 1. Attempt online login with Railway Go Backend
+  if (serverUrl) {
+    const cleanUrl = serverUrl.replace(/\/+$/, '');
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+      const res = await fetch(`${cleanUrl}/api/v1/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: cleanEmail,
+          password: cleanPass
+        }),
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+
+      if (res.ok) {
+        const data = await res.json();
+        const profile = resolveEngineerProfile(cleanLogin, data.user);
+        const authData = {
+          ...profile,
+          token: data.token || `jwt_railway_${Date.now()}`,
+          isOnline: true,
+          serverType: 'railway',
+          loginTime: new Date().toISOString()
+        };
+        setSavedAuth(authData);
+        return { success: true, authData };
+      } else if (res.status === 401) {
+        // Not registered on Railway yet: try auto-registration
+        try {
+          const regController = new AbortController();
+          const regTimeout = setTimeout(() => regController.abort(), 4000);
+          const regRes = await fetch(`${cleanUrl}/api/v1/auth/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              email: cleanEmail,
+              password: cleanPass || 'Maxim2026!',
+              name: defaultProfile.name,
+              role: 'engineer'
+            }),
+            signal: regController.signal
+          });
+          clearTimeout(regTimeout);
+
+          if (regRes.ok) {
+            const regData = await regRes.json();
+            const profile = resolveEngineerProfile(cleanLogin, regData.user);
+            const authData = {
+              ...profile,
+              token: regData.token || `jwt_railway_${Date.now()}`,
+              isOnline: true,
+              serverType: 'railway',
+              loginTime: new Date().toISOString()
+            };
+            setSavedAuth(authData);
+            return { success: true, authData };
+          }
+        } catch (regErr) {
+          console.warn('[EngineerApi] Auto-register fallback skipped:', regErr);
+        }
+      }
+    } catch (err) {
+      console.warn('[EngineerApi] Backend auth unreachable, falling back to local session:', err.message);
+    }
+  }
+
+  // 2. Seamless local/offline fallback - engineer is NEVER blocked!
   const authData = {
-    ...DEFAULT_ENGINEER,
-    login: login || DEFAULT_ENGINEER.login,
-    token: `eng_live_token_${Date.now()}`
+    ...defaultProfile,
+    token: `eng_offline_token_${Date.now()}`,
+    isOnline: false,
+    serverType: 'offline',
+    loginTime: new Date().toISOString()
   };
   setSavedAuth(authData);
   return { success: true, authData };

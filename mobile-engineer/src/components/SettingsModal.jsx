@@ -94,7 +94,7 @@ export default function SettingsModal({ engineer, serverUrl, onUpdateServerUrl, 
             👷‍♂️
           </div>
           <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#ffffff', margin: '0 0 4px' }}>
-            {engineer?.name || 'Руслан (ПТО)'}
+            {engineer?.name || 'Инженер ПТО'}
           </h3>
           <p style={{ fontSize: '0.82rem', color: '#f59e0b', margin: '0 0 14px', fontWeight: 600 }}>
             Инженер технического надзора • QazGost
@@ -103,11 +103,11 @@ export default function SettingsModal({ engineer, serverUrl, onUpdateServerUrl, 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.8rem', color: '#94a3b8', textAlign: 'left' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(255, 255, 255, 0.03)', padding: '8px 12px', borderRadius: '10px' }}>
               <Phone size={15} color="#f59e0b" />
-              <span>{engineer?.phone || '+7 (702) 555-12-34'}</span>
+              <span>{engineer?.phone || '+7 (701) 777-20-26'}</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(255, 255, 255, 0.03)', padding: '8px 12px', borderRadius: '10px' }}>
               <Mail size={15} color="#f59e0b" />
-              <span>{engineer?.email || 'engineer@qazgost.kz'}</span>
+              <span>{engineer?.email || engineer?.login || 'maxim.engineer@qazgost.kz'}</span>
             </div>
           </div>
         </div>
@@ -242,7 +242,7 @@ export default function SettingsModal({ engineer, serverUrl, onUpdateServerUrl, 
 
         {/* Version info */}
         <div style={{ textAlign: 'center', marginTop: '30px', color: '#64748b', fontSize: '0.74rem' }}>
-          QazGost • Мобильный Инженер v1.2 (Маркетплейс • Дефекты • Сметы) • Сборка 2026
+          QazGost • Мобильный Инженер v1.3 (Маркетплейс • Дефекты • Сметы) • Сборка 2026
         </div>
       </div>
     </div>

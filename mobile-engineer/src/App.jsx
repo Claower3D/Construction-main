@@ -44,7 +44,7 @@ export default function App() {
   };
 
   const handleUpdateStatus = async (dealId, newStatus, note) => {
-    const updated = await updateDealStatus(serverUrl, dealId, newStatus, note);
+    const updated = await updateDealStatus(serverUrl, dealId, newStatus, note, authData?.name || 'Инженер ПТО');
     setDeals([...updated]);
     if (selectedDeal && selectedDeal.id === dealId) {
       setSelectedDeal({ ...selectedDeal, status: newStatus });
@@ -52,7 +52,7 @@ export default function App() {
   };
 
   const handleSaveInspection = async (dealId, inspectionData) => {
-    const updated = await saveInspectionReport(serverUrl, dealId, inspectionData);
+    const updated = await saveInspectionReport(serverUrl, dealId, inspectionData, authData?.name || 'Инженер ПТО');
     setDeals([...updated]);
   };
 
