@@ -1,4 +1,12 @@
-// QazGost Manager CRM — Data Layer & API Client (Online/Offline Sync & Auth)
+const fs = require('fs');
+const path = require('path');
+
+const rootDir = path.resolve(__dirname, '..');
+
+// 1. Rewrite crmApi.js with REAL deals and robust GET /api/v1/crm/events sync
+const crmApiPath = path.join(rootDir, 'src/api/crmApi.js');
+
+const crmApiContent = `// QazGost Manager CRM — Data Layer & API Client (Online/Offline Sync & Auth)
 
 const STORAGE_KEY_DEALS = 'qazgost_manager_crm_deals_v4';
 const STORAGE_KEY_SETTINGS = 'qazgost_manager_crm_settings_v4';
@@ -417,11 +425,11 @@ export async function loginManager(serverUrl, loginInput, password) {
   // Attempt online authentication with Railway backend
   if (serverUrl) {
     try {
-      const cleanUrl = serverUrl.replace(/\/+$/, '');
+      const cleanUrl = serverUrl.replace(/\\/+$/, '');
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 4500);
 
-      const res = await fetch(`${cleanUrl}/api/v1/auth/login`, {
+      const res = await fetch(\`\${cleanUrl}/api/v1/auth/login\`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -443,7 +451,7 @@ export async function loginManager(serverUrl, loginInput, password) {
             id: data.user?.id || 'usr_' + Date.now(),
             name: capitalizedName,
             login: cleanLogin,
-            email: cleanLogin.includes('@') ? cleanLogin : `${cleanLogin}@qazgost.kz`,
+            email: cleanLogin.includes('@') ? cleanLogin : \`\${cleanLogin}@qazgost.kz\`,
             role: data.user?.role || 'Менеджер проектов',
             phone: data.user?.phone || '+7 (701) 000-00-00',
             avatar: '👨‍💼'
@@ -470,12 +478,12 @@ export async function loginManager(serverUrl, loginInput, password) {
       id: 'local_' + Date.now(),
       name: capitalizedName,
       login: cleanLogin,
-      email: cleanLogin.includes('@') ? cleanLogin : `${cleanLogin}@qazgost.kz`,
+      email: cleanLogin.includes('@') ? cleanLogin : \`\${cleanLogin}@qazgost.kz\`,
       role: 'Менеджер проектов',
       phone: '+7 (701) 000-00-00',
       avatar: '👨‍💼'
     },
-    token: `token_offline_${Date.now()}`,
+    token: \`token_offline_\${Date.now()}\`,
     isOnline: false,
     serverType: 'offline',
     loginTime: new Date().toISOString()
@@ -488,14 +496,14 @@ export async function loginManager(serverUrl, loginInput, password) {
 
 export async function testServerPing(serverUrl) {
   if (!serverUrl) return { ok: false, error: 'Адрес сервера не указан' };
-  const cleanUrl = serverUrl.replace(/\/+$/, '');
+  const cleanUrl = serverUrl.replace(/\\/+$/, '');
   const start = performance.now();
 
   try {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 4000);
 
-    const res = await fetch(`${cleanUrl}/health`, {
+    const res = await fetch(\`\${cleanUrl}/health\`, {
       method: 'GET',
       signal: controller.signal
     });
@@ -505,7 +513,7 @@ export async function testServerPing(serverUrl) {
     if (res.ok) {
       return { ok: true, latency };
     }
-    return { ok: false, error: `HTTP ${res.status}` };
+    return { ok: false, error: \`HTTP \${res.status}\` };
   } catch (e) {
     return { ok: false, error: e.message || 'Таймаут соединения' };
   }
@@ -513,7 +521,7 @@ export async function testServerPing(serverUrl) {
 
 function parseBudget(b) {
   if (typeof b === 'number') return b;
-  if (typeof b === 'string') return parseInt(b.replace(/[^\d]/g, ''), 10) || 0;
+  if (typeof b === 'string') return parseInt(b.replace(/[^\\d]/g, ''), 10) || 0;
   return 0;
 }
 
@@ -545,7 +553,7 @@ function normalizeRemoteItem(item) {
 
 export async function twoWaySyncWithRailway(serverUrl, localDeals) {
   if (!serverUrl) return { success: false, error: 'URL сервера не настроен' };
-  const cleanUrl = serverUrl.replace(/\/+$/, '');
+  const cleanUrl = serverUrl.replace(/\\/+$/, '');
   const start = performance.now();
 
   try {
@@ -553,7 +561,7 @@ export async function twoWaySyncWithRailway(serverUrl, localDeals) {
     const timeoutId = setTimeout(() => controller.abort(), 6000);
 
     // 1. PULL: Fetch all real CRM events from Railway Go Backend (PostgreSQL)
-    const getRes = await fetch(`${cleanUrl}/api/v1/crm/events`, {
+    const getRes = await fetch(\`\${cleanUrl}/api/v1/crm/events\`, {
       method: 'GET',
       headers: {
         'Accept': 'application/json'
@@ -596,7 +604,7 @@ export async function twoWaySyncWithRailway(serverUrl, localDeals) {
         try {
           const pushController = new AbortController();
           const pushTimeout = setTimeout(() => pushController.abort(), 4000);
-          await fetch(`${cleanUrl}/api/v1/crm/events/sync`, {
+          await fetch(\`\${cleanUrl}/api/v1/crm/events/sync\`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ items: localOnlyDeals }),
@@ -615,8 +623,27 @@ export async function twoWaySyncWithRailway(serverUrl, localDeals) {
         mergedDeals: merged
       };
     }
-    return { success: false, error: `Ошибка сервера: ${getRes.status}` };
+    return { success: false, error: \`Ошибка сервера: \${getRes.status}\` };
   } catch (err) {
     return { success: false, error: err.message || 'Сбой сети' };
   }
 }
+`;
+
+fs.writeFileSync(crmApiPath, crmApiContent, 'utf8');
+console.log('✓ crmApi.js rewritten with REAL deals & full GET/POST sync.');
+
+// 2. Update LoginScreen.jsx version badge
+const loginPath = path.join(rootDir, 'src/components/LoginScreen.jsx');
+let loginScreen = fs.readFileSync(loginPath, 'utf8');
+loginScreen = loginScreen.replace(/v1\.[0-2]/g, 'v1.3');
+fs.writeFileSync(loginPath, loginScreen, 'utf8');
+console.log('✓ LoginScreen.jsx updated to v1.3.');
+
+// 3. Update build.gradle to versionCode 4 / versionName 1.3
+const gradlePath = path.join(rootDir, 'android/app/build.gradle');
+let gradle = fs.readFileSync(gradlePath, 'utf8');
+gradle = gradle.replace(/versionCode \d+/, 'versionCode 4');
+gradle = gradle.replace(/versionName "[^"]+"/, 'versionName "1.3"');
+fs.writeFileSync(gradlePath, gradle, 'utf8');
+console.log('✓ build.gradle bumped to v1.3 (versionCode 4).');
