@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import InspectionCard from './InspectionCard';
-import { Filter, Search, PlusCircle, CheckCircle, Clock } from 'lucide-react';
+import EngineerCalendarView from './EngineerCalendarView';
+import { Filter, Search, PlusCircle, CheckCircle, Clock, Calendar, List } from 'lucide-react';
 
 export default function InspectionListView({ deals, onSelectDeal, searchQuery }) {
   const [filterTab, setFilterTab] = useState('all'); // all | urgent | today | in_work | completed
+  const [viewMode, setViewMode] = useState('list'); // 'list' | 'calendar'
 
   const filterTabs = [
     { id: 'all', label: 'Все' },
@@ -15,7 +17,6 @@ export default function InspectionListView({ deals, onSelectDeal, searchQuery })
   ];
 
   const filteredDeals = deals.filter(deal => {
-    // Search query check
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
       const match = 
@@ -48,7 +49,7 @@ export default function InspectionListView({ deals, onSelectDeal, searchQuery })
 
   return (
     <div style={{ padding: '16px' }}>
-      {/* Quick Summary Banner */}
+      {/* Quick Summary Banner with View Mode Switcher */}
       <div style={{
         background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(217, 119, 6, 0.05) 100%)',
         border: '1px solid rgba(245, 158, 11, 0.3)',
@@ -67,72 +68,105 @@ export default function InspectionListView({ deals, onSelectDeal, searchQuery })
             {needDepartureCount} требуют выезда
           </div>
         </div>
+        
+        {/* Toggle List / Calendar */}
         <div style={{
-          width: '42px',
-          height: '42px',
-          borderRadius: '12px',
-          background: 'rgba(245, 158, 11, 0.2)',
           display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: '1.3rem'
+          background: 'rgba(255, 255, 255, 0.08)',
+          borderRadius: '10px',
+          padding: '3px'
         }}>
-          🚗
+          <button
+            onClick={() => setViewMode('list')}
+            style={{
+              background: viewMode === 'list' ? '#f59e0b' : 'none',
+              color: viewMode === 'list' ? '#070a13' : '#94a3b8',
+              border: 'none',
+              borderRadius: '7px',
+              padding: '6px 8px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center'
+            }}
+          >
+            <List size={16} />
+          </button>
+          <button
+            onClick={() => setViewMode('calendar')}
+            style={{
+              background: viewMode === 'calendar' ? '#f59e0b' : 'none',
+              color: viewMode === 'calendar' ? '#070a13' : '#94a3b8',
+              border: 'none',
+              borderRadius: '7px',
+              padding: '6px 8px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center'
+            }}
+          >
+            <Calendar size={16} />
+          </button>
         </div>
       </div>
 
-      {/* Filter Tabs Scroll */}
-      <div style={{
-        display: 'flex',
-        gap: '8px',
-        overflowX: 'auto',
-        paddingBottom: '8px',
-        marginBottom: '14px',
-        scrollbarWidth: 'none'
-      }}>
-        {filterTabs.map(tab => {
-          const isActive = filterTab === tab.id;
-          return (
-            <button
-              key={tab.id}
-              onClick={() => setFilterTab(tab.id)}
-              style={{
-                background: isActive ? '#f59e0b' : 'rgba(255, 255, 255, 0.06)',
-                color: isActive ? '#070a13' : '#94a3b8',
-                border: isActive ? 'none' : '1px solid rgba(255, 255, 255, 0.1)',
-                padding: '6px 14px',
-                borderRadius: '999px',
-                fontSize: '0.78rem',
-                fontWeight: 700,
-                whiteSpace: 'nowrap',
-                cursor: 'pointer',
-                transition: 'all 0.2s'
-              }}
-            >
-              {tab.label}
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Deal List */}
-      {filteredDeals.length === 0 ? (
-        <div style={{
-          textAlign: 'center',
-          padding: '40px 20px',
-          color: '#64748b',
-          fontSize: '0.9rem'
-        }}>
-          Нет объектов в этой категории
-        </div>
+      {viewMode === 'calendar' ? (
+        <EngineerCalendarView deals={deals} onSelectDeal={onSelectDeal} />
       ) : (
-        filteredDeals.map(deal => (
-          <InspectionCard
-            key={deal.id}
-            deal={deal}
-            onSelect={onSelectDeal}
-          />
-        ))
+        <>
+          {/* Filter Tabs Scroll */}
+          <div style={{
+            display: 'flex',
+            gap: '8px',
+            overflowX: 'auto',
+            paddingBottom: '8px',
+            marginBottom: '14px',
+            scrollbarWidth: 'none'
+          }}>
+            {filterTabs.map(tab => {
+              const isActive = filterTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setFilterTab(tab.id)}
+                  style={{
+                    background: isActive ? '#f59e0b' : 'rgba(255, 255, 255, 0.06)',
+                    color: isActive ? '#070a13' : '#94a3b8',
+                    border: isActive ? 'none' : '1px solid rgba(255, 255, 255, 0.1)',
+                    padding: '6px 14px',
+                    borderRadius: '999px',
+                    fontSize: '0.78rem',
+                    fontWeight: 700,
+                    whiteSpace: 'nowrap',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Deal List */}
+          {filteredDeals.length === 0 ? (
+            <div style={{
+              textAlign: 'center',
+              padding: '40px 20px',
+              color: '#64748b',
+              fontSize: '0.9rem'
+            }}>
+              Нет объектов в этой категории
+            </div>
+          ) : (
+            filteredDeals.map(deal => (
+              <InspectionCard
+                key={deal.id}
+                deal={deal}
+                onSelect={onSelectDeal}
+              />
+            ))
+          )}
+        </>
       )}
     </div>
   );

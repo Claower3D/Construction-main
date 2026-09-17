@@ -1,12 +1,12 @@
-import React from 'react';
-import { ClipboardList, Calendar, Calculator, Settings } from 'lucide-react';
+import { ClipboardList, ShieldAlert, Calculator, ShoppingBag, Wrench } from 'lucide-react';
 
 export default function BottomNav({ activeTab, onSelectTab, activeCount = 0 }) {
   const tabs = [
     { id: 'inspections', label: 'Объекты', icon: ClipboardList, count: activeCount },
-    { id: 'calendar', label: 'График', icon: Calendar },
-    { id: 'calculator', label: 'Смета/СНиП', icon: Calculator },
-    { id: 'settings', label: 'Профиль', icon: Settings }
+    { id: 'defects', label: 'Дефекты', icon: ShieldAlert },
+    { id: 'estimates', label: 'Смета AI', icon: Calculator },
+    { id: 'marketplace', label: 'Маркет', icon: ShoppingBag },
+    { id: 'tools', label: 'СНиП/Сети', icon: Wrench }
   ];
 
   return (

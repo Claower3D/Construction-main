@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import HeaderBar from './components/HeaderBar';
 import BottomNav from './components/BottomNav';
 import InspectionListView from './components/InspectionListView';
-import EngineerCalendarView from './components/EngineerCalendarView';
 import EngineeringCalcView from './components/EngineeringCalcView';
+import MarketplaceView from './components/MarketplaceView';
+import DefectInspectionView from './components/DefectInspectionView';
+import PhotoEstimateView from './components/PhotoEstimateView';
 import ObjectInspectionModal from './components/ObjectInspectionModal';
 import SettingsModal from './components/SettingsModal';
 import LoginScreen from './components/LoginScreen';
@@ -16,7 +18,7 @@ export default function App() {
   const [authData, setAuthData] = useState(() => getSavedAuth());
   const [serverUrl, setServerUrl] = useState('https://construction-main-production.up.railway.app');
   const [deals, setDeals] = useState(() => getStoredDeals());
-  const [activeTab, setActiveTab] = useState('inspections'); // 'inspections' | 'calendar' | 'calculator' | 'settings'
+  const [activeTab, setActiveTab] = useState('inspections'); // 'inspections' | 'defects' | 'estimates' | 'marketplace' | 'tools'
   const [selectedDeal, setSelectedDeal] = useState(null);
   const [showSettings, setShowSettings] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
@@ -24,7 +26,7 @@ export default function App() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Initial fetch
+  // Initial live server sync
   useEffect(() => {
     if (authData) {
       handleSync();
@@ -63,6 +65,10 @@ export default function App() {
   const handleResetCache = async () => {
     localStorage.removeItem('qazgost_engineer_deals_perm');
     await handleSync();
+  };
+
+  const handleAddProductToEstimate = (product) => {
+    alert(`Товар «${product.title}» (${product.price} ₸) добавлен в материалы сметы!`);
   };
 
   if (!authData) {
@@ -104,40 +110,38 @@ export default function App() {
           />
         )}
 
-        {activeTab === 'calendar' && (
-          <EngineerCalendarView
-            deals={deals}
-            onSelectDeal={(deal) => setSelectedDeal(deal)}
+        {activeTab === 'defects' && (
+          <DefectInspectionView
+            onAttachToDeal={(defectReport) => {
+              alert('Акт дефектовки прикреплен к выбранному объекту');
+            }}
           />
         )}
 
-        {activeTab === 'calculator' && (
-          <EngineeringCalcView />
+        {activeTab === 'estimates' && (
+          <PhotoEstimateView
+            onAttachToDeal={(estimate) => {
+              alert('Смета прикреплена к объекту');
+            }}
+          />
         )}
 
-        {activeTab === 'settings' && (
-          <div style={{ padding: '16px' }}>
-            <SettingsModal
-              engineer={authData}
-              serverUrl={serverUrl}
-              onUpdateServerUrl={setServerUrl}
-              onLogout={handleLogout}
-              onClose={() => setActiveTab('inspections')}
-              onResetCache={handleResetCache}
-            />
-          </div>
+        {activeTab === 'marketplace' && (
+          <MarketplaceView
+            onAddToEstimate={handleAddProductToEstimate}
+          />
+        )}
+
+        {activeTab === 'tools' && (
+          <EngineeringCalcView />
         )}
       </div>
 
-      {/* Bottom Nav Bar */}
+      {/* Bottom Nav Bar with 5 core tabs */}
       <BottomNav
         activeTab={activeTab}
         onSelectTab={(tab) => {
-          if (tab === 'settings') {
-            setShowSettings(true);
-          } else {
-            setActiveTab(tab);
-          }
+          setActiveTab(tab);
         }}
         activeCount={activeCount}
       />
