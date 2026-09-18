@@ -18,6 +18,9 @@ import {
   getStoredAuth,
   saveStoredAuth,
   clearStoredAuth,
+  createDealOnServer,
+  updateDealOnServer,
+  deleteDealOnServer,
   twoWaySyncWithRailway
 } from './api/crmApi';
 
@@ -108,24 +111,39 @@ export default function App() {
   };
 
   // Create new deal
-  const handleCreateDeal = (newDeal) => {
+  const handleCreateDeal = async (newDeal) => {
     const withTimestamp = {
       ...newDeal,
       updated_at: new Date().toISOString()
     };
     const updated = [withTimestamp, ...deals];
     updateDeals(updated);
-    showToast(`✓ Создана заявка #${newDeal.leadNum}: ${newDeal.title}`);
+    showToast(`⏳ Сохранение заявки #${newDeal.leadNum}...`);
+
+    try {
+      const serverRes = await createDealOnServer(settings.serverUrl, withTimestamp, auth?.user?.name);
+      if (serverRes && serverRes.success && serverRes.deal) {
+        const confirmedList = updated.map(d => String(d.id) === String(withTimestamp.id) ? serverRes.deal : d);
+        updateDeals(confirmedList);
+        setIsOnline(true);
+        showToast(`⚡ Заявка #${newDeal.leadNum} сохранена в базу данных и синхронизирована с сайтом!`);
+      } else {
+        showToast(`✓ Заявка #${newDeal.leadNum} сохранена локально`);
+      }
+    } catch (e) {
+      console.warn('Create deal error:', e);
+    }
 
     // Trigger instant background sync
-    setTimeout(() => handleSync(false), 500);
+    setTimeout(() => handleSync(false), 300);
   };
 
   // Update deal status
   const handleUpdateStatus = (dealId, newStatus) => {
+    let targetDeal = null;
     const updated = deals.map(d => {
-      if (d.id === dealId) {
-        return { 
+      if (String(d.id) === String(dealId)) {
+        targetDeal = { 
           ...d, 
           status: newStatus,
           updated_at: new Date().toISOString(),
@@ -134,50 +152,60 @@ export default function App() {
             ...(d.notes || [])
           ]
         };
+        return targetDeal;
       }
       return d;
     });
     updateDeals(updated);
-    if (selectedDeal && selectedDeal.id === dealId) {
+    if (selectedDeal && String(selectedDeal.id) === String(dealId)) {
       setSelectedDeal(prev => ({ ...prev, status: newStatus }));
     }
     showToast(`Статус обновлён: ${newStatus}`);
+    if (targetDeal) {
+      updateDealOnServer(settings.serverUrl, targetDeal, auth?.user?.name).catch(() => {});
+    }
     setTimeout(() => handleSync(false), 500);
   };
 
   // Add note to deal
   const handleAddNote = (dealId, noteText) => {
+    let targetDeal = null;
     const updated = deals.map(d => {
-      if (d.id === dealId) {
+      if (String(d.id) === String(dealId)) {
         const newNotes = [
           { text: noteText, time: 'Только что', author: auth?.user?.name || 'Менеджер' },
           ...(d.notes || [])
         ];
-        return { 
+        targetDeal = { 
           ...d, 
           notes: newNotes,
           updated_at: new Date().toISOString()
         };
+        return targetDeal;
       }
       return d;
     });
     updateDeals(updated);
-    if (selectedDeal && selectedDeal.id === dealId) {
+    if (selectedDeal && String(selectedDeal.id) === String(dealId)) {
       setSelectedDeal(prev => ({ 
         ...prev, 
         notes: [{ text: noteText, time: 'Только что', author: auth?.user?.name || 'Менеджер' }, ...(prev.notes || [])]
       }));
     }
     showToast('Заметка сохранена');
+    if (targetDeal) {
+      updateDealOnServer(settings.serverUrl, targetDeal, auth?.user?.name).catch(() => {});
+    }
     setTimeout(() => handleSync(false), 500);
   };
 
   // Delete deal
   const handleDeleteDeal = (dealId) => {
-    const updated = deals.filter(d => d.id !== dealId);
+    const updated = deals.filter(d => String(d.id) !== String(dealId));
     updateDeals(updated);
     setSelectedDeal(null);
     showToast('Сделка удалена');
+    deleteDealOnServer(settings.serverUrl, dealId).catch(() => {});
     setTimeout(() => handleSync(false), 500);
   };
 

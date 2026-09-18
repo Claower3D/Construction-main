@@ -50,11 +50,18 @@ export default function LeadCreateModal({ onClose, onCreateDeal, initialDate = '
     if (sLower.includes('экспертиз')) role = 'engineer';
     else if (sLower.includes('ремонт') || sLower.includes('отделк') || sLower.includes('электро')) role = 'executor';
 
+    const clientTitle = (leadData.clientName || '').trim() || 'Новый клиент';
+    const serviceTitle = leadData.service || 'Установка септика';
+    const fullTitle = `${serviceTitle} (${clientTitle})`;
+    const generatedId = String(Math.floor(1000 + Math.random() * 9000));
+    const generatedLeadNum = String(Math.floor(10 + Math.random() * 90));
+
     const newDeal = {
-      id: `deal-${Date.now().toString().slice(-4)}`,
-      leadNum: Math.floor(100 + Math.random() * 900).toString(),
-      title: leadData.service || 'Установка септика',
-      client: (leadData.clientName || '').trim() || 'Новый клиент',
+      id: generatedId,
+      leadNum: generatedLeadNum,
+      title: fullTitle,
+      client: clientTitle,
+      contractor: clientTitle,
       phone: (leadData.phone || '').trim() || '+7 (701) 555-43-21',
       location: (leadData.address || '').trim() || 'г. Алматы',
       budget: numBudget,
@@ -69,7 +76,8 @@ export default function LeadCreateModal({ onClose, onCreateDeal, initialDate = '
           time: 'Только что', 
           author: 'Менеджер' 
         }
-      ]
+      ],
+      rawNotes: leadData.notes || 'Создано через форму «Создание Лида»'
     };
 
     onCreateDeal(newDeal);

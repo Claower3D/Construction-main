@@ -585,7 +585,7 @@ function parseBudget(b) {
   return 0;
 }
 
-function normalizeRemoteItem(item) {
+export function normalizeRemoteItem(item) {
   let notes = [];
   if (typeof item.notes === 'string' && item.notes.trim()) {
     notes = [{ text: item.notes, time: 'Railway', author: item.contractor || 'Менеджер' }];
@@ -593,11 +593,14 @@ function normalizeRemoteItem(item) {
     notes = item.notes;
   }
 
+  const clientName = item.contractor || item.client || item.clientName || 'Клиент';
+
   return {
     id: String(item.id),
     leadNum: String(item.leadNum || item.id),
     title: item.title || ('Заявка #' + item.id),
-    client: item.contractor || item.client || 'Клиент',
+    client: clientName,
+    contractor: clientName,
     phone: item.phone || '',
     location: item.location || '',
     budget: parseBudget(item.budget),
@@ -611,14 +614,145 @@ function normalizeRemoteItem(item) {
   };
 }
 
-export async function twoWaySyncWithRailway(serverUrl, localDeals) {
+export function formatDealForServer(deal, authorName = 'Менеджер') {
+  let noteStr = '';
+  if (typeof deal.notes === 'string') {
+    noteStr = deal.notes;
+  } else if (Array.isArray(deal.notes) && deal.notes.length > 0) {
+    noteStr = deal.notes.map(n => typeof n === 'string' ? n : (n.text || '')).filter(Boolean).join(' | ');
+  } else if (deal.rawNotes) {
+    noteStr = String(deal.rawNotes);
+  }
+
+  const clientName = (deal.contractor || deal.client || deal.clientName || 'Новый клиент').trim();
+  const rawBudget = deal.budget;
+  let budgetStr = '0 ₸';
+  if (typeof rawBudget === 'number') {
+    budgetStr = `${rawBudget.toLocaleString('ru-RU')} ₸`;
+  } else if (typeof rawBudget === 'string' && rawBudget.trim()) {
+    budgetStr = rawBudget;
+  }
+
+  let cleanId = String(deal.id || '').replace(/^deal-/, '');
+  if (!cleanId || cleanId === 'undefined') {
+    cleanId = String(Math.floor(1000 + Math.random() * 9000));
+  }
+
+  return {
+    id: cleanId,
+    date: deal.date || new Date().toISOString().split('T')[0],
+    leadNum: String(deal.leadNum || Math.floor(10 + Math.random() * 90)),
+    title: deal.title || `Заявка (${clientName})`,
+    status: deal.status || 'Новые',
+    type: deal.type || (deal.role === 'executor' ? 'work_stage' : 'request_engineering'),
+    role: deal.role || 'engineer',
+    time: deal.time || '12:00',
+    phone: deal.phone || '',
+    contractor: clientName,
+    location: deal.location || deal.address || 'г. Алматы',
+    budget: budgetStr,
+    notes: noteStr,
+    createdBy: authorName || 'Менеджер'
+  };
+}
+
+// ── Direct Create / Update / Delete on Central Railway Database ──
+
+export async function createDealOnServer(serverUrl, deal, authorName = 'Менеджер') {
+  const cleanUrl = (serverUrl || 'https://construction-main-production.up.railway.app').replace(/\/+$/, '');
+  const payload = formatDealForServer(deal, authorName);
+
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 7000);
+
+    const res = await fetch(`${cleanUrl}/api/v1/crm/events`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify(payload),
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
+
+    if (res.ok) {
+      const data = await res.json();
+      const normalized = normalizeRemoteItem(data);
+      return { success: true, deal: normalized };
+    } else {
+      const errText = await res.text().catch(() => '');
+      console.warn('[CRM API] Create deal server error:', res.status, errText);
+      return { success: false, error: `HTTP ${res.status}: ${errText}` };
+    }
+  } catch (err) {
+    console.warn('[CRM API] Create deal network error:', err);
+    return { success: false, error: err.message || 'Сбой сети' };
+  }
+}
+
+export async function updateDealOnServer(serverUrl, deal, authorName = 'Менеджер') {
+  const cleanUrl = (serverUrl || 'https://construction-main-production.up.railway.app').replace(/\/+$/, '');
+  const payload = formatDealForServer(deal, authorName);
+
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+    const res = await fetch(`${cleanUrl}/api/v1/crm/events`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify(payload),
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
+
+    if (res.ok) {
+      const data = await res.json();
+      return { success: true, deal: normalizeRemoteItem(data) };
+    }
+    return { success: false, error: `HTTP ${res.status}` };
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+}
+
+export async function deleteDealOnServer(serverUrl, dealId) {
+  const cleanUrl = (serverUrl || 'https://construction-main-production.up.railway.app').replace(/\/+$/, '');
+  const cleanId = String(dealId || '').replace(/^deal-/, '');
+
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+    const res = await fetch(`${cleanUrl}/api/v1/crm/events?id=${cleanId}`, {
+      method: 'DELETE',
+      headers: { 'Accept': 'application/json' },
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
+
+    if (res.ok) {
+      return { success: true };
+    }
+    return { success: false, error: `HTTP ${res.status}` };
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+}
+
+export async function twoWaySyncWithRailway(serverUrl, localDeals, authorName = 'Менеджер') {
   if (!serverUrl) return { success: false, error: 'URL сервера не настроен' };
   const cleanUrl = serverUrl.replace(/\/+$/, '');
   const start = performance.now();
 
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 6000);
+    const timeoutId = setTimeout(() => controller.abort(), 7000);
 
     // 1. PULL: Fetch all real CRM events from Railway Go Backend (PostgreSQL)
     const getRes = await fetch(`${cleanUrl}/api/v1/crm/events`, {
@@ -635,45 +769,62 @@ export async function twoWaySyncWithRailway(serverUrl, localDeals) {
     if (getRes.ok) {
       const data = await getRes.json();
       const remoteRaw = data.items || (data.events && Array.isArray(data.events) ? data.events : []);
-      
-      let merged = [];
-      if (remoteRaw.length > 0) {
-        const remoteNormalized = remoteRaw.map(normalizeRemoteItem);
-        const remoteIdMap = new Map();
-        remoteNormalized.forEach(r => remoteIdMap.set(String(r.id), r));
+      const remoteNormalized = remoteRaw.map(normalizeRemoteItem);
 
-        // Preserve any local deals created on phone that aren't old hardcoded demos (deal-101...)
-        (localDeals || []).forEach(local => {
-          const sId = String(local.id);
-          if (!remoteIdMap.has(sId) && !sId.startsWith('deal-')) {
-            remoteIdMap.set(sId, local);
+      const localMap = new Map();
+      (localDeals || []).forEach(loc => {
+        const id = String(loc.id).replace(/^deal-/, '');
+        localMap.set(id, { ...loc, id });
+      });
+
+      const remoteMap = new Map();
+      remoteNormalized.forEach(rem => {
+        remoteMap.set(String(rem.id), rem);
+      });
+
+      const mergedMap = new Map();
+      const pendingPush = [];
+
+      // 1. Process remote items
+      remoteNormalized.forEach(rem => {
+        const sId = String(rem.id);
+        const loc = localMap.get(sId);
+        if (loc) {
+          // If local has newer timestamp and different status, preserve local & push to server
+          const locTime = new Date(loc.updated_at || loc.createdAt || 0).getTime();
+          const remTime = new Date(rem.updated_at || rem.createdAt || 0).getTime();
+          if (locTime > remTime && loc.status !== rem.status) {
+            mergedMap.set(sId, loc);
+            pendingPush.push(loc);
+          } else {
+            mergedMap.set(sId, rem);
           }
-        });
-        merged = Array.from(remoteIdMap.values());
-      } else {
-        merged = localDeals || [];
-      }
+        } else {
+          mergedMap.set(sId, rem);
+        }
+      });
 
-      // 2. PUSH: If there are new local deals created on phone, push them to Railway
-      const localOnlyDeals = (localDeals || []).filter(d => 
-        !remoteRaw.some(r => String(r.id) === String(d.id)) && 
-        !String(d.id).startsWith('deal-')
-      );
+      // 2. Process local-only items (newly created offline or before sync)
+      localMap.forEach((loc, sId) => {
+        if (!remoteMap.has(sId)) {
+          mergedMap.set(sId, loc);
+          pendingPush.push(loc);
+        }
+      });
 
-      if (localOnlyDeals.length > 0) {
-        try {
-          const pushController = new AbortController();
-          const pushTimeout = setTimeout(() => pushController.abort(), 4000);
-          await fetch(`${cleanUrl}/api/v1/crm/events/sync`, {
+      const merged = Array.from(mergedMap.values());
+      saveStoredDeals(merged);
+
+      // 3. PUSH any pending local deals to Railway
+      if (pendingPush.length > 0) {
+        Promise.all(pendingPush.map(item => {
+          const payload = formatDealForServer(item, authorName);
+          return fetch(`${cleanUrl}/api/v1/crm/events`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ items: localOnlyDeals }),
-            signal: pushController.signal
-          });
-          clearTimeout(pushTimeout);
-        } catch (pushErr) {
-          console.warn('Background push failed:', pushErr);
-        }
+            body: JSON.stringify(payload)
+          }).catch(e => console.warn('Background sync push failed for', item.id, e));
+        })).catch(() => {});
       }
 
       return {
