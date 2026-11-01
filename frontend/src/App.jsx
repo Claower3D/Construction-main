@@ -2,14 +2,13 @@ import React, { useState, useEffect, lazy, Suspense } from 'react';
 import AnimatedBackground from './components/AnimatedBackground';
 import Header from './components/Header';
 import HeroSection from './components/HeroSection';
-import LiveAIScannerDemo from './components/LiveAIScannerDemo';
+import EstimateExamples from './components/EstimateExamples';
+import AudienceSection from './components/AudienceSection';
 import FeatureHighlights from './components/FeatureHighlights';
 import PriceCatalogSection from './components/PriceCatalogSection';
 import PlatformServicesSection from './components/PlatformServicesSection';
 import EngineeringServicesSection from './components/EngineeringServicesSection';
-import StatsBanner from './components/StatsBanner';
 import HowItWorksSection from './components/HowItWorksSection';
-import TestimonialsSection from './components/TestimonialsSection';
 import MobileAppBanner from './components/MobileAppBanner';
 import FaqSection from './components/FaqSection';
 import FooterSection from './components/FooterSection';
@@ -454,14 +453,13 @@ export default function App() {
               {/* Секции лендинга больше не «выезжают» по одной при скролле: контент виден сразу,
                   единственный акцентный момент — первый экран (см. HeroSection). */}
               <HeroSection role={role} onOpenAuth={setAuthMode} currentUser={currentUser} onOpenDashboard={navigateToDashboard} />
-              <LiveAIScannerDemo />
               <FeatureHighlights />
+              <EstimateExamples />
+              <HowItWorksSection />
               <PriceCatalogSection onOpenCategory={navigateToCategory} />
+              <AudienceSection />
               <PlatformServicesSection />
               <EngineeringServicesSection />
-              <StatsBanner />
-              <HowItWorksSection />
-              <TestimonialsSection />
               <MobileAppBanner />
               <FaqSection />
             </>
