@@ -116,36 +116,37 @@ export default function EstimateExamples() {
             <li><CheckCircle2 size={20} aria-hidden="true" />Цены 2026 года с поправкой на город</li>
             <li><CheckCircle2 size={20} aria-hidden="true" />Итог и срок работ</li>
           </ul>
-          <div className="lux-tabs" role="tablist" aria-label="Примеры смет">
-            {SAMPLES.map((x, i) => (
-              <button
-                key={x.id}
-                type="button"
-                role="tab"
-                id={`lux-tab-${x.id}`}
-                aria-selected={i === active}
-                aria-controls="lux-doc"
-                tabIndex={i === active ? 0 : -1}
-                className="lux-tab"
-                onClick={() => setActive(i)}
-                onKeyDown={(e) => {
-                  if (e.key === 'ArrowDown' || e.key === 'ArrowRight') { e.preventDefault(); setActive((active + 1) % SAMPLES.length); }
-                  if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') { e.preventDefault(); setActive((active - 1 + SAMPLES.length) % SAMPLES.length); }
-                }}
-              >
-                {x.tab}
-              </button>
-            ))}
-          </div>
         </div>
 
-        <article className="lux-glass lux-doc" id="lux-doc" role="tabpanel" aria-labelledby={`lux-tab-${s.id}`}>
-          <header className="lux-doc-head">
-            <div>
-              <h3>{s.title}</h3>
-              <p>{s.city}, коэффициент ×{s.coef}. {s.size}, около {s.days} дн.</p>
+        <article className="lux-glass lux-doc">
+          <div className="lux-doc-bar">
+            <div className="lux-tabs" role="tablist" aria-label="Примеры смет">
+              {SAMPLES.map((x, i) => (
+                <button
+                  key={x.id}
+                  type="button"
+                  role="tab"
+                  id={`lux-tab-${x.id}`}
+                  aria-selected={i === active}
+                  aria-controls="lux-doc"
+                  tabIndex={i === active ? 0 : -1}
+                  className="lux-tab"
+                  onClick={() => setActive(i)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'ArrowDown' || e.key === 'ArrowRight') { e.preventDefault(); setActive((active + 1) % SAMPLES.length); }
+                    if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') { e.preventDefault(); setActive((active - 1 + SAMPLES.length) % SAMPLES.length); }
+                  }}
+                >
+                  {x.tab}
+                </button>
+              ))}
             </div>
             <span className="lux-status">Готова</span>
+          </div>
+          <div id="lux-doc" role="tabpanel" aria-labelledby={`lux-tab-${s.id}`}>
+          <header className="lux-doc-head">
+            <h3>{s.title}</h3>
+            <p>{s.city}, коэффициент ×{s.coef}. {s.size}, около {s.days} дн.</p>
           </header>
           <div className="lux-table-wrap">
             <table className="lux-table">
@@ -168,6 +169,7 @@ export default function EstimateExamples() {
                 ))}
               </tbody>
             </table>
+          </div>
           </div>
           <footer className="lux-doc-foot">
             <p className="lux-doc-total"><span>Итого по смете</span><strong className="qg-num">{fmt(total)} ₸</strong></p>

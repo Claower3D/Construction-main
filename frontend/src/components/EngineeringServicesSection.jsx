@@ -27,7 +27,7 @@ export default function EngineeringServicesSection() {
           </header>
           <ul className="lux-geo-list">
             {SERVICES.map(({ icon: Icon, title, param }) => (
-              <li key={title} className="lux-glass">
+              <li key={title}>
                 <span className="lux-icon lux-icon--sm"><Icon size={18} aria-hidden="true" /></span>
                 <span>
                   <strong>{title}</strong>
