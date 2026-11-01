@@ -30,7 +30,7 @@ export default function DisputeResolutionModule() {
       <p className="fullpage-sub">Электронная подача претензий, независимая экспертиза СНиП РК и урегулирование Эскроу.</p>
 
       <form onSubmit={handleCreateClaim} style={{ margin: '1.5rem 0' }}>
-        <label style={{ color: '#cbd5e1', fontWeight: 'bold' }}>Подать новую арбитражную претензию:</label>
+        <label style={{ color: '#cbc5e3', fontWeight: 'bold' }}>Подать новую арбитражную претензию:</label>
         <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem' }}>
           <input
             type="text"

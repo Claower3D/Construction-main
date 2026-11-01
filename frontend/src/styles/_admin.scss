@@ -32,7 +32,7 @@
       .admin-icon-box {
         width: 42px !important;
         height: 42px !important;
-        background: linear-gradient(135deg, rgba(37, 99, 235, 0.2), rgba(14, 165, 233, 0.2)) !important;
+        background: linear-gradient(135deg, rgba(124, 58, 237, 0.2), rgba(167, 139, 250, 0.2)) !important;
         border: 1px solid $border-cyan !important;
         border-radius: $radius-md !important;
         display: flex !important;
@@ -97,10 +97,10 @@
       }
 
       &.active {
-        background: rgba(37, 99, 235, 0.18) !important;
-        border: 1px solid rgba(59, 130, 246, 0.45) !important;
+        background: rgba(124, 58, 237, 0.18) !important;
+        border: 1px solid rgba(139, 92, 246, 0.45) !important;
         color: #ffffff !important;
-        box-shadow: 0 0 18px rgba(37, 99, 235, 0.25) !important;
+        box-shadow: 0 0 18px rgba(124, 58, 237, 0.25) !important;
       }
     }
   }
@@ -120,7 +120,7 @@
       gap: 6px !important;
 
       .chip-btn {
-        background: rgba(15, 23, 42, 0.8) !important;
+        background: rgba(21, 18, 42, 0.8) !important;
         border: 1px solid $border-subtle !important;
         color: $text-secondary !important;
         font-size: 12.5px !important;
@@ -136,9 +136,9 @@
         }
 
         &.active {
-          background: rgba(56, 189, 248, 0.15) !important;
-          border-color: rgba(56, 189, 248, 0.4) !important;
-          color: #38bdf8 !important;
+          background: rgba(185, 164, 255, 0.15) !important;
+          border-color: rgba(185, 164, 255, 0.4) !important;
+          color: #b9a4ff !important;
         }
       }
     }
@@ -181,9 +181,9 @@
       // Excel Export Single
       .btn-export-single {
         @include btn-style(
-          rgba(37, 99, 235, 0.12),
-          rgba(59, 130, 246, 0.35),
-          #93c5fd
+          rgba(124, 58, 237, 0.12),
+          rgba(139, 92, 246, 0.35),
+          #ddd6fe
         );
       }
 
@@ -199,9 +199,9 @@
       // Excel Import
       .btn-import-excel {
         @include btn-style(
-          rgba(14, 165, 233, 0.12),
-          rgba(14, 165, 233, 0.35),
-          #7dd3fc
+          rgba(167, 139, 250, 0.12),
+          rgba(167, 139, 250, 0.35),
+          #d6caff
         );
       }
 
@@ -259,7 +259,7 @@
           background: rgba(22, 34, 58, 0.8) !important;
           box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3) !important;
           td {
-            border-color: rgba(59, 130, 246, 0.25) !important;
+            border-color: rgba(139, 92, 246, 0.25) !important;
           }
         }
 
@@ -286,13 +286,13 @@
           &.col-code {
             font-family: $font-family-mono !important;
             font-weight: 700 !important;
-            color: #93c5fd !important;
+            color: #ddd6fe !important;
             font-size: 12.5px !important;
           }
 
           // Category Badge
           .cat-badge {
-            @include mono-badge(rgba(37, 99, 235, 0.15), #93c5fd, rgba(59, 130, 246, 0.3));
+            @include mono-badge(rgba(124, 58, 237, 0.15), #ddd6fe, rgba(139, 92, 246, 0.3));
 
             &.mat {
               background: rgba(16, 185, 129, 0.15) !important;
@@ -334,7 +334,7 @@
               transition: all 0.15s ease !important;
 
               &:hover {
-                background: rgba(37, 99, 235, 0.2) !important;
+                background: rgba(124, 58, 237, 0.2) !important;
                 border-color: $border-accent !important;
                 color: #ffffff !important;
               }
@@ -375,7 +375,7 @@
           margin-bottom: 10px !important;
 
           .geo-kpi-badge {
-            @include mono-badge(rgba(37, 99, 235, 0.15), #93c5fd, rgba(59, 130, 246, 0.3));
+            @include mono-badge(rgba(124, 58, 237, 0.15), #ddd6fe, rgba(139, 92, 246, 0.3));
           }
 
           .geo-kpi-icon {
@@ -413,7 +413,7 @@
     // Interactive Region Comparison Cockpit
     .region-comparator-box {
       background: rgba(11, 18, 32, 0.85) !important;
-      border: 1px solid rgba(59, 130, 246, 0.25) !important;
+      border: 1px solid rgba(139, 92, 246, 0.25) !important;
       border-radius: $radius-lg !important;
       padding: 20px 24px !important;
       margin-bottom: 24px !important;
@@ -438,7 +438,7 @@
         }
 
         .comp-tag {
-          @include mono-badge(rgba(56, 189, 248, 0.12), #38bdf8, rgba(56, 189, 248, 0.3));
+          @include mono-badge(rgba(185, 164, 255, 0.12), #b9a4ff, rgba(185, 164, 255, 0.3));
         }
       }
 
@@ -460,7 +460,7 @@
           }
 
           select {
-            background: rgba(15, 23, 42, 0.9) !important;
+            background: rgba(21, 18, 42, 0.9) !important;
             border: 1px solid $border-subtle !important;
             color: #ffffff !important;
             font-size: 13px !important;
@@ -486,7 +486,7 @@
           flex: 1 !important;
           min-width: 260px !important;
           background: rgba(14, 22, 38, 0.9) !important;
-          border: 1px solid rgba(56, 189, 248, 0.3) !important;
+          border: 1px solid rgba(185, 164, 255, 0.3) !important;
           border-radius: $radius-sm !important;
           padding: 10px 16px !important;
           display: flex !important;
@@ -502,7 +502,7 @@
           .comp-res-val {
             font-size: 14.5px !important;
             font-weight: 800 !important;
-            color: #38bdf8 !important;
+            color: #b9a4ff !important;
             font-family: $font-family-mono !important;
           }
         }
@@ -536,9 +536,9 @@
           transition: all 0.15s ease !important;
 
           &.active {
-            background: rgba(37, 99, 235, 0.25) !important;
+            background: rgba(124, 58, 237, 0.25) !important;
             color: #ffffff !important;
-            border: 1px solid rgba(59, 130, 246, 0.4) !important;
+            border: 1px solid rgba(139, 92, 246, 0.4) !important;
           }
         }
       }
@@ -567,9 +567,9 @@
             font-family: $font-family-mono !important;
             font-size: 13px !important;
             font-weight: 800 !important;
-            color: #93c5fd !important;
-            background: rgba(37, 99, 235, 0.15) !important;
-            border: 1px solid rgba(59, 130, 246, 0.35) !important;
+            color: #ddd6fe !important;
+            background: rgba(124, 58, 237, 0.15) !important;
+            border: 1px solid rgba(139, 92, 246, 0.35) !important;
             padding: 3px 8px !important;
             border-radius: $radius-xs !important;
           }
@@ -588,9 +588,9 @@
             }
 
             &.mid {
-              background: rgba(56, 189, 248, 0.15) !important;
-              color: #38bdf8 !important;
-              border: 1px solid rgba(56, 189, 248, 0.35) !important;
+              background: rgba(185, 164, 255, 0.15) !important;
+              color: #b9a4ff !important;
+              border: 1px solid rgba(185, 164, 255, 0.35) !important;
             }
 
             &.high {
@@ -638,7 +638,7 @@
 
           .fill {
             height: 100% !important;
-            background: linear-gradient(90deg, #2563eb, #38bdf8) !important;
+            background: linear-gradient(90deg, #7c3aed, #b9a4ff) !important;
             border-radius: $radius-pill !important;
           }
         }
@@ -657,13 +657,13 @@
             @include btn-style(
               rgba(255, 255, 255, 0.05),
               rgba(255, 255, 255, 0.1),
-              #e2e8f0
+              #ece9f8
             );
             font-size: 12px !important;
             padding: 5px 12px !important;
 
             &:hover {
-              background: rgba(37, 99, 235, 0.2) !important;
+              background: rgba(124, 58, 237, 0.2) !important;
               border-color: $border-accent !important;
               color: #ffffff !important;
             }

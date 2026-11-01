@@ -79,7 +79,7 @@ export default function LiDARScanPage({ onBack }) {
             <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{
               padding: '10px 24px', borderRadius: 12, border: 'none', cursor: 'pointer',
               fontSize: 14, fontWeight: 600,
-              background: activeTab === tab.id ? 'linear-gradient(135deg, #6366f1, #3b82f6)' : 'rgba(255,255,255,0.08)',
+              background: activeTab === tab.id ? 'linear-gradient(135deg, #6366f1, #8b5cf6)' : 'rgba(255,255,255,0.08)',
               color: '#fff',
             }}>
               {tab.label}
@@ -146,7 +146,7 @@ export default function LiDARScanPage({ onBack }) {
             <button onClick={handleAnalyze} disabled={isLoading || !file} style={{
               width: '100%', marginTop: 20, padding: '16px', borderRadius: 14, border: 'none',
               fontSize: 16, fontWeight: 700, cursor: (isLoading || !file) ? 'not-allowed' : 'pointer',
-              background: (isLoading || !file) ? 'rgba(255,255,255,0.1)' : 'linear-gradient(135deg, #6366f1, #3b82f6)',
+              background: (isLoading || !file) ? 'rgba(255,255,255,0.1)' : 'linear-gradient(135deg, #6366f1, #8b5cf6)',
               color: '#fff', transition: 'all 0.3s', opacity: !file ? 0.5 : 1,
             }}>
               {isLoading ? '⏳ Анализ облака точек...' : '🔍 Анализировать скан'}
@@ -191,7 +191,7 @@ export default function LiDARScanPage({ onBack }) {
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
                       {[
                         { label: 'Длина', val: `${formatNum(result.dimensions.length_m)} м`, color: '#10b981' },
-                        { label: 'Ширина', val: `${formatNum(result.dimensions.width_m)} м`, color: '#3b82f6' },
+                        { label: 'Ширина', val: `${formatNum(result.dimensions.width_m)} м`, color: '#8b5cf6' },
                         { label: 'Высота', val: `${formatNum(result.dimensions.height_m)} м`, color: '#f59e0b' },
                       ].map((d, i) => (
                         <div key={i} style={{ background: 'rgba(255,255,255,0.04)', borderRadius: 12, padding: 16, textAlign: 'center' }}>
@@ -221,7 +221,7 @@ export default function LiDARScanPage({ onBack }) {
                       { label: 'Объём', val: `${formatNum(result.dimensions.volume_m3)} м³`, color: '#f59e0b' },
                       { label: 'Площадь', val: `${formatNum(result.dimensions.area_m2)} м²`, color: '#10b981' },
                       { label: 'Макс глубина', val: `${formatNum(result.dimensions.max_depth_m, 3)} м`, color: '#ef4444' },
-                      { label: 'Средн. глубина', val: `${formatNum(result.dimensions.avg_depth_m, 3)} м`, color: '#3b82f6' },
+                      { label: 'Средн. глубина', val: `${formatNum(result.dimensions.avg_depth_m, 3)} м`, color: '#8b5cf6' },
                     ].map((d, i) => (
                       <div key={i} style={{ background: 'rgba(255,255,255,0.04)', borderRadius: 12, padding: 16, textAlign: 'center' }}>
                         <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{d.label}</div>

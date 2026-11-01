@@ -5,8 +5,8 @@ import { getBalanceKZT } from '../services/walletEngine';
 export function QazGostMark({ size = 36 }) {
   return (
     <svg className="qg-mark" width={size} height={size} viewBox="0 0 36 36" aria-hidden="true">
-      <rect x="1" y="1" width="34" height="34" rx="9" fill="#13203a" stroke="rgba(140,170,214,0.35)" />
-      <path d="M9 11h18M9 8v6M27 8v6" stroke="#5cc8f5" strokeWidth="1.6" fill="none" strokeLinecap="round" />
+      <rect x="1" y="1" width="34" height="34" rx="9" fill="#201c3a" stroke="rgba(196,181,253,0.35)" />
+      <path d="M9 11h18M9 8v6M27 8v6" stroke="#b9a4ff" strokeWidth="1.6" fill="none" strokeLinecap="round" />
       <path d="M17 17l2.5 4-2.5 3.5 2 4.5" stroke="#fbbf24" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
       <rect x="9" y="17" width="18" height="12" rx="1.5" stroke="#e8eef7" strokeWidth="1.6" fill="none" />
     </svg>
@@ -683,7 +683,7 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
                     background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)',
                     borderRadius: '10px', padding: '6px 10px'
                   }}>
-                    <span style={{ color: '#94a3b8', fontSize: '0.85rem' }}>🔍</span>
+                    <span style={{ color: '#a39cc2', fontSize: '0.85rem' }}>🔍</span>
                     <input
                       type="text"
                       placeholder="Поиск города..."
@@ -698,7 +698,7 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
                     {citySearchQuery && (
                       <button
                         onClick={() => setCitySearchQuery('')}
-                        style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer', fontSize: '0.8rem' }}
+                        style={{ background: 'transparent', border: 'none', color: '#a39cc2', cursor: 'pointer', fontSize: '0.8rem' }}
                       >
                         ✕
                       </button>
@@ -708,7 +708,7 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
 
                 {/* Current Selected Indicator */}
                 {selectedCity && (
-                  <div style={{ padding: '6px 16px', background: 'rgba(0, 229, 255, 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.75rem', color: '#38bdf8' }}>
+                  <div style={{ padding: '6px 16px', background: 'rgba(0, 229, 255, 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.75rem', color: '#b9a4ff' }}>
                     <span>Выбранный город:</span>
                     <strong style={{ color: '#00e5ff', fontWeight: 800 }}>📍 {selectedCity}</strong>
                   </div>
@@ -717,7 +717,7 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
                 {/* City List */}
                 <div style={{ maxHeight: '280px', overflowY: 'auto', padding: '6px' }}>
                   {filteredCities.length === 0 ? (
-                    <div style={{ padding: '1.5rem', textAlign: 'center', color: '#94a3b8', fontSize: '0.82rem' }}>
+                    <div style={{ padding: '1.5rem', textAlign: 'center', color: '#a39cc2', fontSize: '0.82rem' }}>
                       Город не найден
                     </div>
                   ) : (
@@ -817,7 +817,7 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
                   padding: '6px', 
                   borderRadius: '12px', 
                   transition: 'all 0.2s ease', 
-                  background: isNotifOpen ? 'rgba(56, 189, 248, 0.18)' : 'transparent' 
+                  background: isNotifOpen ? 'rgba(185, 164, 255, 0.18)' : 'transparent' 
                 }} 
                 onClick={() => setIsNotifOpen(!isNotifOpen)}
                 title="Уведомления"
@@ -839,7 +839,7 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
                     justifyContent: 'center', 
                     alignItems: 'center', 
                     boxShadow: '0 0 10px rgba(239, 68, 68, 0.8)', 
-                    border: '2px solid #0f172a' 
+                    border: '2px solid #15122a' 
                   }}>
                     {unreadNotifsCount}
                   </div>
@@ -862,9 +862,9 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
                       width: '360px',
                       maxWidth: '92vw',
                       background: 'rgba(12, 18, 38, 0.96)',
-                      border: '1.5px solid rgba(56, 189, 248, 0.35)',
+                      border: '1.5px solid rgba(185, 164, 255, 0.35)',
                       borderRadius: '22px',
-                      boxShadow: '0 20px 60px rgba(0,0,0,0.85), 0 0 35px rgba(56, 189, 248, 0.2)',
+                      boxShadow: '0 20px 60px rgba(0,0,0,0.85), 0 0 35px rgba(185, 164, 255, 0.2)',
                       backdropFilter: 'blur(24px)',
                       zIndex: 99999,
                       overflow: 'hidden'
@@ -885,7 +885,7 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
                       {notifications.length > 0 && unreadNotifsCount > 0 && (
                         <button 
                           onClick={handleMarkAllRead}
-                          style={{ background: 'transparent', border: 'none', color: '#38bdf8', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer', textDecoration: 'underline' }}
+                          style={{ background: 'transparent', border: 'none', color: '#b9a4ff', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer', textDecoration: 'underline' }}
                         >
                           Прочитать всё
                         </button>
@@ -895,9 +895,9 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
                     {/* Notifications Body List */}
                     <div style={{ maxHeight: '340px', overflowY: 'auto', padding: '0.6rem' }}>
                       {notifications.length === 0 ? (
-                        <div style={{ padding: '2rem 1rem', textAlign: 'center', color: '#94a3b8' }}>
+                        <div style={{ padding: '2rem 1rem', textAlign: 'center', color: '#a39cc2' }}>
                           <span style={{ fontSize: '2rem', display: 'block', marginBottom: '0.5rem' }}>🔕</span>
-                          <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#cbd5e1' }}>Нет уведомлений</div>
+                          <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#cbc5e3' }}>Нет уведомлений</div>
                           <small style={{ fontSize: '0.78rem' }}>Здесь будут появляться важные сообщения и статусы заявок</small>
                         </div>
                       ) : (
@@ -909,8 +909,8 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
                               padding: '0.85rem 1rem',
                               borderRadius: '16px',
                               marginBottom: '0.4rem',
-                              background: notif.unread ? 'rgba(56, 189, 248, 0.12)' : 'rgba(255, 255, 255, 0.03)',
-                              border: notif.unread ? '1px solid rgba(56, 189, 248, 0.3)' : '1px solid rgba(255, 255, 255, 0.06)',
+                              background: notif.unread ? 'rgba(185, 164, 255, 0.12)' : 'rgba(255, 255, 255, 0.03)',
+                              border: notif.unread ? '1px solid rgba(185, 164, 255, 0.3)' : '1px solid rgba(255, 255, 255, 0.06)',
                               cursor: 'pointer',
                               transition: 'all 0.2s ease',
                               display: 'flex',
@@ -925,15 +925,15 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
                               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.2rem' }}>
                                 <strong style={{ color: '#fff', fontSize: '0.88rem', fontWeight: 800 }}>{notif.title}</strong>
                                 {notif.unread && (
-                                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#38bdf8', boxShadow: '0 0 8px #38bdf8' }} />
+                                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#b9a4ff', boxShadow: '0 0 8px #b9a4ff' }} />
                                 )}
                               </div>
-                              <div style={{ color: '#cbd5e1', fontSize: '0.8rem', lineHeight: '1.35', marginBottom: '0.35rem' }}>
+                              <div style={{ color: '#cbc5e3', fontSize: '0.8rem', lineHeight: '1.35', marginBottom: '0.35rem' }}>
                                 {notif.text}
                               </div>
                               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <span style={{ color: '#94a3b8', fontSize: '0.72rem', fontWeight: 600 }}>{notif.time || 'Только что'}</span>
-                                <span style={{ color: '#38bdf8', fontSize: '0.75rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '3px' }}>
+                                <span style={{ color: '#a39cc2', fontSize: '0.72rem', fontWeight: 600 }}>{notif.time || 'Только что'}</span>
+                                <span style={{ color: '#b9a4ff', fontSize: '0.75rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '3px' }}>
                                   Перейти ➔
                                 </span>
                               </div>
@@ -946,7 +946,7 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
                     {/* Footer Bar */}
                     {notifications.length > 0 && (
                       <div style={{ padding: '0.75rem 1.25rem', borderTop: '1px solid rgba(255, 255, 255, 0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(0,0,0,0.2)' }}>
-                        <span style={{ color: '#94a3b8', fontSize: '0.75rem' }}>Всего: {notifications.length}</span>
+                        <span style={{ color: '#a39cc2', fontSize: '0.75rem' }}>Всего: {notifications.length}</span>
                         <button 
                           onClick={handleClearNotifs}
                           style={{ background: 'transparent', border: 'none', color: '#ef4444', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer' }}
@@ -1160,7 +1160,7 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
               {/* Accordion 3: Engineer Portal Button */}
               <button
                 className="mobile-accordion-btn"
-                style={{ background: 'rgba(37, 99, 235, 0.15)', borderColor: 'var(--primary-light)' }}
+                style={{ background: 'rgba(124, 58, 237, 0.15)', borderColor: 'var(--primary-light)' }}
                 onClick={() => { closeDropdown(); onOpenEngineer(); }}
               >
                 <span>👷 Кабинет Инженера</span>

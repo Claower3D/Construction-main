@@ -375,7 +375,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
           // Physical dimensions badge next to box
           if (m.length_mm) {
             ctx.font = `bold ${Math.max(10, fontSize * 0.85)}px sans-serif`;
-            ctx.fillStyle = '#38bdf8';
+            ctx.fillStyle = '#b9a4ff';
             ctx.fillText(`L = ${m.length_mm}мм`, x + bw + 6, y + bh * 0.4);
           }
           if (m.opening_mm) {
@@ -405,7 +405,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
 
     // HUD grid lines
     if (visionMode === 'hud') {
-      ctx.strokeStyle = 'rgba(56, 189, 248, 0.1)';
+      ctx.strokeStyle = 'rgba(185, 164, 255, 0.1)';
       ctx.lineWidth = 1;
       for (let gx = 0; gx < cw; gx += cw / 8) { ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, ch); ctx.stroke(); }
       for (let gy = 0; gy < ch; gy += ch / 6) { ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(cw, gy); ctx.stroke(); }
@@ -545,28 +545,28 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
         <meta charset="utf-8">
         <title>Акт обследования ${e(report.id)}</title>
         <style>
-          body { font-family: 'Segoe UI', Arial, sans-serif; margin: 30px; color: #1e293b; line-height: 1.5; font-size: 13px; }
-          .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #0f172a; padding-bottom: 12px; margin-bottom: 20px; }
-          .logo { font-size: 18px; font-weight: 900; color: #0284c7; }
+          body { font-family: 'Segoe UI', Arial, sans-serif; margin: 30px; color: #211d38; line-height: 1.5; font-size: 13px; }
+          .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #15122a; padding-bottom: 12px; margin-bottom: 20px; }
+          .logo { font-size: 18px; font-weight: 900; color: #7c3aed; }
           .title { font-size: 15px; font-weight: 800; text-align: center; margin: 15px 0; text-transform: uppercase; }
           table { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
-          .meta td { padding: 5px 10px; border: 1px solid #cbd5e1; font-size: 12px; }
-          .meta td.label { background: #f1f5f9; font-weight: 700; width: 32%; }
-          .est th { background: #0f172a; color: #fff; padding: 6px 8px; text-align: left; font-size: 11px; }
-          .est td { border: 1px solid #cbd5e1; padding: 5px 8px; font-size: 12px; }
-          .est tr.subtotal td { background: #f1f5f9; font-weight: 700; }
-          .est tr.total td { background: #0284c7; color: #fff; font-weight: 900; font-size: 13px; }
+          .meta td { padding: 5px 10px; border: 1px solid #cbc5e3; font-size: 12px; }
+          .meta td.label { background: #f5f3ff; font-weight: 700; width: 32%; }
+          .est th { background: #15122a; color: #fff; padding: 6px 8px; text-align: left; font-size: 11px; }
+          .est td { border: 1px solid #cbc5e3; padding: 5px 8px; font-size: 12px; }
+          .est tr.subtotal td { background: #f5f3ff; font-weight: 700; }
+          .est tr.total td { background: #7c3aed; color: #fff; font-weight: 900; font-size: 13px; }
           .img-box { text-align: center; margin: 16px 0; }
-          .img-box img { max-width: 100%; max-height: 320px; border: 1px solid #94a3b8; border-radius: 4px; }
-          .sign { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 16px; border-top: 1px dashed #94a3b8; }
-          .stamp { width: 100px; height: 100px; border: 2px dashed #0284c7; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-align: center; color: #0284c7; font-size: 9px; font-weight: 700; transform: rotate(-10deg); }
-          h4 { margin: 14px 0 6px; color: #0f172a; font-size: 13px; }
+          .img-box img { max-width: 100%; max-height: 320px; border: 1px solid #a39cc2; border-radius: 4px; }
+          .sign { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 16px; border-top: 1px dashed #a39cc2; }
+          .stamp { width: 100px; height: 100px; border: 2px dashed #7c3aed; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-align: center; color: #7c3aed; font-size: 9px; font-weight: 700; transform: rotate(-10deg); }
+          h4 { margin: 14px 0 6px; color: #15122a; font-size: 13px; }
           @media print { body { margin: 15px; } }
         </style>
       </head>
       <body>
         <div class="header">
-          <div class="logo">QAZGOST AI<br><small style="font-size:10px;color:#64748b;">ТЕХНАДЗОР РК</small></div>
+          <div class="logo">QAZGOST AI<br><small style="font-size:10px;color:#8a82a8;">ТЕХНАДЗОР РК</small></div>
           <div style="text-align:right">
             <strong>АКТ № ${e(report.id)}</strong><br>
             <small>Дата: ${e(report.date)}</small>
@@ -602,7 +602,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
             </thead>
             <tbody>
               ${materials.length > 0 ? `
-                <tr><td colspan="4" style="background:#e0f2fe;font-weight:700;font-size:11px;">Материалы</td></tr>
+                <tr><td colspan="4" style="background:#ede9fe;font-weight:700;font-size:11px;">Материалы</td></tr>
                 ${materialsRows}
                 <tr class="subtotal"><td colspan="3" style="text-align:right">Итого материалы:</td><td style="text-align:right">${money(totalMat)} T</td></tr>
               ` : ''}
@@ -1620,17 +1620,17 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
           {activeReportTab === 'chart' && (
             report.analytics?.width_profile && report.analytics.width_profile.length > 1 ? (
             <div style={{
-              background: 'rgba(15, 23, 42, 0.75)',
-              border: '1px solid rgba(56, 189, 248, 0.25)',
+              background: 'rgba(21, 18, 42, 0.75)',
+              border: '1px solid rgba(185, 164, 255, 0.25)',
               borderRadius: '12px',
               padding: '16px',
               marginBottom: '1rem',
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                <span style={{ color: '#e2e8f0', fontSize: '0.92rem', fontWeight: 800 }}>
+                <span style={{ color: '#ece9f8', fontSize: '0.92rem', fontWeight: 800 }}>
                   📈 График раскрытия трещины по длине: w(L)
                 </span>
-                <span style={{ color: '#38bdf8', fontSize: '0.78rem', fontWeight: 700 }}>
+                <span style={{ color: '#b9a4ff', fontSize: '0.78rem', fontWeight: 700 }}>
                   Макс: {Math.max(...(report.analytics?.width_profile?.map(p => p.width_mm) || [3.5]))} мм
                 </span>
               </div>
@@ -1669,15 +1669,15 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
 
                     return (
                       <>
-                        <path d={areaStr} fill="rgba(56, 189, 248, 0.15)" />
-                        <path d={pathStr} fill="none" stroke="#38bdf8" strokeWidth="2.5" strokeLinecap="round" />
+                        <path d={areaStr} fill="rgba(185, 164, 255, 0.15)" />
+                        <path d={pathStr} fill="none" stroke="#b9a4ff" strokeWidth="2.5" strokeLinecap="round" />
                         {coords.map((c, idx) => (
                           <g key={idx}>
-                            <circle cx={c.x} cy={c.y} r="4" fill="#38bdf8" stroke="#fff" strokeWidth="1.5" />
-                            <text x={c.x} y={c.y - 8} fill="#7dd3fc" fontSize="9" fontWeight="bold" textAnchor="middle">
+                            <circle cx={c.x} cy={c.y} r="4" fill="#b9a4ff" stroke="#fff" strokeWidth="1.5" />
+                            <text x={c.x} y={c.y - 8} fill="#d6caff" fontSize="9" fontWeight="bold" textAnchor="middle">
                               {c.p.width_mm}мм
                             </text>
-                            <text x={c.x} y="116" fill="#64748b" fontSize="8" textAnchor="middle">
+                            <text x={c.x} y="116" fill="#8a82a8" fontSize="8" textAnchor="middle">
                               {c.p.pos_pct}% L
                             </text>
                           </g>
@@ -1697,18 +1697,18 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
             </div>
             ) : (
               <div style={{
-                background: 'rgba(15, 23, 42, 0.75)',
-                border: '1px solid rgba(56, 189, 248, 0.25)',
+                background: 'rgba(21, 18, 42, 0.75)',
+                border: '1px solid rgba(185, 164, 255, 0.25)',
                 borderRadius: '12px',
                 padding: '32px 16px',
                 marginBottom: '1rem',
                 textAlign: 'center',
               }}>
                 <div style={{ fontSize: '2rem', marginBottom: '10px' }}>📐</div>
-                <h4 style={{ color: '#e2e8f0', margin: '0 0 8px', fontWeight: 800 }}>
+                <h4 style={{ color: '#ece9f8', margin: '0 0 8px', fontWeight: 800 }}>
                   Профиль раскрытия не применим
                 </h4>
-                <p style={{ color: '#94a3b8', fontSize: '0.88rem', margin: 0 }}>
+                <p style={{ color: '#a39cc2', fontSize: '0.88rem', margin: 0 }}>
                   Для данного типа дефекта ({report.defectType}) график раскрытия трещины не формируется.
                   Используйте вкладку «СНиП и Риски» для оценки состояния.
                 </p>
@@ -1719,14 +1719,14 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
           {/* TAB 3: 🛠️ Инженерная смета на ремонт и материалы (₸) */}
           {activeReportTab === 'estimate' && (
             <div style={{
-              background: 'rgba(15, 23, 42, 0.75)',
+              background: 'rgba(21, 18, 42, 0.75)',
               border: '1px solid rgba(16, 185, 129, 0.25)',
               borderRadius: '12px',
               padding: '16px',
               marginBottom: '1rem',
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                <span style={{ color: '#e2e8f0', fontSize: '0.92rem', fontWeight: 800 }}>
+                <span style={{ color: '#ece9f8', fontSize: '0.92rem', fontWeight: 800 }}>
                   🛠️ Спецификация ремонтных материалов и работ
                 </span>
                 <span style={{ color: '#10b981', fontSize: '0.88rem', fontWeight: 800 }}>
@@ -1735,7 +1735,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
               </div>
 
               {!(report.analytics?.materials?.length || report.analytics?.labor?.length) ? (
-                <div style={{ color: '#cbd5e1', fontSize: '0.85rem', lineHeight: 1.5 }}>
+                <div style={{ color: '#cbc5e3', fontSize: '0.85rem', lineHeight: 1.5 }}>
                   Детальная спецификация для этого дефекта не сформирована.
                   <div style={{ marginTop: '8px' }}>
                     Ориентировочная стоимость: <strong style={{ color: '#10b981' }}>{report.estimatedCost || '—'}</strong>
@@ -1744,14 +1744,14 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
               ) : (<>
               {/* Materials Table */}
               <div style={{ marginBottom: '12px' }}>
-                <div style={{ color: '#38bdf8', fontSize: '0.82rem', fontWeight: 700, marginBottom: '6px' }}>
+                <div style={{ color: '#b9a4ff', fontSize: '0.82rem', fontWeight: 700, marginBottom: '6px' }}>
                   📦 Сертифицированные материалы:
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                   {(report.analytics?.materials || []).map((m, idx) => (
                     <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', background: 'rgba(255,255,255,0.03)', padding: '6px 10px', borderRadius: '6px', fontSize: '0.8rem' }}>
-                      <span style={{ color: '#cbd5e1' }}>{m.name} <small style={{ color: '#94a3b8' }}>({m.qty})</small></span>
-                      <strong style={{ color: '#f1f5f9', whiteSpace: 'nowrap' }}>{(Number(m.cost_kzt) || 0).toLocaleString('ru-RU')} ₸</strong>
+                      <span style={{ color: '#cbc5e3' }}>{m.name} <small style={{ color: '#a39cc2' }}>({m.qty})</small></span>
+                      <strong style={{ color: '#f5f3ff', whiteSpace: 'nowrap' }}>{(Number(m.cost_kzt) || 0).toLocaleString('ru-RU')} ₸</strong>
                     </div>
                   ))}
                 </div>
@@ -1765,8 +1765,8 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                   {(report.analytics?.labor || []).map((l, idx) => (
                     <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', background: 'rgba(255,255,255,0.03)', padding: '6px 10px', borderRadius: '6px', fontSize: '0.8rem' }}>
-                      <span style={{ color: '#cbd5e1' }}>{l.name} <small style={{ color: '#94a3b8' }}>({l.qty})</small></span>
-                      <strong style={{ color: '#f1f5f9', whiteSpace: 'nowrap' }}>{(Number(l.cost_kzt) || 0).toLocaleString('ru-RU')} ₸</strong>
+                      <span style={{ color: '#cbc5e3' }}>{l.name} <small style={{ color: '#a39cc2' }}>({l.qty})</small></span>
+                      <strong style={{ color: '#f5f3ff', whiteSpace: 'nowrap' }}>{(Number(l.cost_kzt) || 0).toLocaleString('ru-RU')} ₸</strong>
                     </div>
                   ))}
                 </div>
@@ -1774,7 +1774,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
 
               {/* Total Summary Footer */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255,255,255,0.15)', paddingTop: '10px', marginTop: '8px' }}>
-                <span style={{ color: '#e2e8f0', fontWeight: 800, fontSize: '0.9rem' }}>Итого сметная стоимость{report.source !== 'ai' ? ' (ориентировочно)' : ''}:</span>
+                <span style={{ color: '#ece9f8', fontWeight: 800, fontSize: '0.9rem' }}>Итого сметная стоимость{report.source !== 'ai' ? ' (ориентировочно)' : ''}:</span>
                 <strong style={{ color: '#10b981', fontWeight: 900, fontSize: '1.15rem' }}>
                   {(Number(report.analytics?.total_cost_kzt) || 0).toLocaleString('ru-RU')} ₸
                 </strong>
@@ -1872,13 +1872,13 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
       {inspectionHistory.length > 0 && (
         <div style={{ maxWidth: '680px', margin: '1.5rem auto 0' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-            <h3 style={{ color: '#e2e8f0', margin: 0, fontSize: '1rem', fontWeight: 800 }}>
+            <h3 style={{ color: '#ece9f8', margin: 0, fontSize: '1rem', fontWeight: 800 }}>
               📋 История дефектоскопий ({inspectionHistory.length})
             </h3>
             <button
               type="button"
               onClick={() => { setInspectionHistory([]); localStorage.removeItem('defect_history'); showToast('🗑️ История очищена'); }}
-              style={{ background: 'none', border: 'none', color: '#64748b', fontSize: '0.78rem', cursor: 'pointer' }}
+              style={{ background: 'none', border: 'none', color: '#8a82a8', fontSize: '0.78rem', cursor: 'pointer' }}
             >
               Очистить
             </button>
@@ -1886,7 +1886,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {inspectionHistory.map((h, idx) => (
               <div key={idx} style={{
-                background: 'rgba(15, 23, 42, 0.7)',
+                background: 'rgba(21, 18, 42, 0.7)',
                 border: '1px solid rgba(255,255,255,0.08)',
                 borderRadius: '10px',
                 padding: '10px 14px',
@@ -1896,19 +1896,19 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
                 gap: '10px',
               }}>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ color: '#f1f5f9', fontWeight: 700, fontSize: '0.85rem', marginBottom: '2px' }}>
+                  <div style={{ color: '#f5f3ff', fontWeight: 700, fontSize: '0.85rem', marginBottom: '2px' }}>
                     {h.defectType}
                   </div>
-                  <div style={{ color: '#94a3b8', fontSize: '0.75rem' }}>
+                  <div style={{ color: '#a39cc2', fontSize: '0.75rem' }}>
                     {h.id} • {h.date} • {h.clientName || '—'} • {h.address || '—'}
                   </div>
                 </div>
                 <div style={{
-                  background: h.severity?.includes('КРИТИЧЕСКИЙ') ? 'rgba(255,40,40,0.2)' : h.severity?.includes('Высокий') ? 'rgba(255,120,30,0.2)' : 'rgba(56,189,248,0.15)',
-                  border: `1px solid ${h.severity?.includes('КРИТИЧЕСКИЙ') ? '#ef4444' : h.severity?.includes('Высокий') ? '#f59e0b' : '#38bdf8'}`,
+                  background: h.severity?.includes('КРИТИЧЕСКИЙ') ? 'rgba(255,40,40,0.2)' : h.severity?.includes('Высокий') ? 'rgba(255,120,30,0.2)' : 'rgba(185,164,255,0.15)',
+                  border: `1px solid ${h.severity?.includes('КРИТИЧЕСКИЙ') ? '#ef4444' : h.severity?.includes('Высокий') ? '#f59e0b' : '#b9a4ff'}`,
                   borderRadius: '8px',
                   padding: '4px 10px',
-                  color: h.severity?.includes('КРИТИЧЕСКИЙ') ? '#fca5a5' : h.severity?.includes('Высокий') ? '#fbbf24' : '#7dd3fc',
+                  color: h.severity?.includes('КРИТИЧЕСКИЙ') ? '#fca5a5' : h.severity?.includes('Высокий') ? '#fbbf24' : '#d6caff',
                   fontSize: '0.78rem',
                   fontWeight: 700,
                   whiteSpace: 'nowrap',
@@ -1936,7 +1936,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
               onClick={(e) => e.stopPropagation()}
               style={{
                 position: 'fixed', bottom: '24px', left: '50%', transform: 'translateX(-50%)',
-                background: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(12px)',
+                background: 'rgba(21, 18, 42, 0.85)', backdropFilter: 'blur(12px)',
                 border: '1px solid rgba(255,255,255,0.2)', borderRadius: '30px',
                 padding: '8px 18px', display: 'flex', gap: '12px', alignItems: 'center', zIndex: 10001
               }}
@@ -1947,7 +1947,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
               >
                 ➖
               </button>
-              <span style={{ color: '#38bdf8', fontWeight: 800, fontSize: '0.9rem', minWidth: '50px', textAlign: 'center' }}>
+              <span style={{ color: '#b9a4ff', fontWeight: 800, fontSize: '0.9rem', minWidth: '50px', textAlign: 'center' }}>
                 {Math.round(lightboxZoom * 100)}%
               </span>
               <button 
@@ -1958,7 +1958,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
               </button>
               <button 
                 onClick={() => setLightboxZoom(1)}
-                style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: '#94a3b8', borderRadius: '12px', padding: '2px 8px', fontSize: '0.78rem', cursor: 'pointer' }}
+                style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: '#a39cc2', borderRadius: '12px', padding: '2px 8px', fontSize: '0.78rem', cursor: 'pointer' }}
               >
                 100%
               </button>

@@ -410,18 +410,18 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
                   ]
                 }
               ].map((ord) => (
-                <div className="order-item-card" key={ord.id} style={{ padding: '1.25rem', background: 'rgba(15, 23, 42, 0.85)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '16px' }}>
+                <div className="order-item-card" key={ord.id} style={{ padding: '1.25rem', background: 'rgba(21, 18, 42, 0.85)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '16px' }}>
                   <div className="order-head">
                     <strong style={{ fontSize: '1.1rem', color: '#ffffff' }}>{ord.title}</strong>
                     <span className="order-price" style={{ fontSize: '1.2rem', color: '#00ff88' }}>{ord.budget}</span>
                   </div>
                   <div className="order-meta" style={{ margin: '0.75rem 0', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                    <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', fontSize: '0.85rem', color: '#94a3b8' }}>
+                    <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', fontSize: '0.85rem', color: '#a39cc2' }}>
                       <span>📍 Город: {ord.city}</span>
                       <span>🏷️ {ord.category}</span>
                       <span>⏱ {ord.date}</span>
                     </div>
-                    <div style={{ fontSize: '0.85rem', color: '#cbd5e1' }}>👷 Исполнитель: <strong>{ord.contractor}</strong></div>
+                    <div style={{ fontSize: '0.85rem', color: '#cbc5e3' }}>👷 Исполнитель: <strong>{ord.contractor}</strong></div>
                   </div>
 
                   {/* Toggle Stages & Required Machinery Button */}
@@ -430,9 +430,9 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
                       onClick={() => setExpandedOrderStages(prev => ({ ...prev, [ord.id]: !prev[ord.id] }))}
                       style={{
                         flex: 1,
-                        background: 'rgba(56, 189, 248, 0.12)',
-                        border: '1px solid rgba(56, 189, 248, 0.35)',
-                        color: '#38bdf8',
+                        background: 'rgba(185, 164, 255, 0.12)',
+                        border: '1px solid rgba(185, 164, 255, 0.35)',
+                        color: '#b9a4ff',
                         padding: '8px 12px',
                         borderRadius: '10px',
                         fontSize: '0.82rem',
@@ -453,7 +453,7 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
                   {expandedOrderStages[ord.id] && (
                     <div style={{
                       background: 'rgba(8, 12, 22, 0.9)',
-                      border: '1px solid rgba(56, 189, 248, 0.25)',
+                      border: '1px solid rgba(185, 164, 255, 0.25)',
                       borderRadius: '12px',
                       padding: '12px',
                       marginBottom: '12px',
@@ -461,12 +461,12 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
                       flexDirection: 'column',
                       gap: '12px'
                     }}>
-                      <div style={{ fontSize: '0.8rem', fontWeight: '800', color: '#38bdf8', borderBottom: '1px solid rgba(56, 189, 248, 0.2)', paddingBottom: '6px' }}>
+                      <div style={{ fontSize: '0.8rem', fontWeight: '800', color: '#b9a4ff', borderBottom: '1px solid rgba(185, 164, 255, 0.2)', paddingBottom: '6px' }}>
                         📍 Автоподбор ближайшей техники под график производства:
                       </div>
 
                       {ord.stages?.map((stg, sIdx) => (
-                        <div key={sIdx} style={{ background: 'rgba(15, 23, 42, 0.7)', borderRadius: '8px', padding: '10px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                        <div key={sIdx} style={{ background: 'rgba(21, 18, 42, 0.7)', borderRadius: '8px', padding: '10px', border: '1px solid rgba(255,255,255,0.06)' }}>
                           <div style={{ fontSize: '0.84rem', fontWeight: '700', color: '#f8fafc', marginBottom: '8px' }}>
                             {stg.name}
                           </div>
@@ -487,7 +487,7 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
                                   <img src={m.photo} alt={m.name} style={{ width: '48px', height: '40px', objectFit: 'cover', borderRadius: '6px' }} />
                                   <div style={{ flex: 1, minWidth: 0 }}>
                                     <div style={{ fontSize: '0.76rem', fontWeight: '700', color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{m.name}</div>
-                                    <div style={{ fontSize: '0.7rem', color: '#38bdf8' }}>📍 {m.dist} • {m.rate}</div>
+                                    <div style={{ fontSize: '0.7rem', color: '#b9a4ff' }}>📍 {m.dist} • {m.rate}</div>
                                   </div>
                                   <button
                                     onClick={() => {
@@ -495,9 +495,9 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
                                       alert(isBooked ? `Техника ${m.name} отвязана` : `⚡ ${m.name} успешно забронирована на объект по GPS!`);
                                     }}
                                     style={{
-                                      background: isBooked ? 'rgba(239, 68, 68, 0.2)' : 'linear-gradient(135deg, #0284c7, #0369a1)',
+                                      background: isBooked ? 'rgba(239, 68, 68, 0.2)' : 'linear-gradient(135deg, #7c3aed, #0369a1)',
                                       color: isBooked ? '#f87171' : '#fff',
-                                      border: isBooked ? '1px solid rgba(239, 68, 68, 0.4)' : '1px solid rgba(56, 189, 248, 0.5)',
+                                      border: isBooked ? '1px solid rgba(239, 68, 68, 0.4)' : '1px solid rgba(185, 164, 255, 0.5)',
                                       padding: '4px 8px',
                                       borderRadius: '6px',
                                       fontSize: '0.7rem',
@@ -529,8 +529,8 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
             </div>
             {/* SMART GPS MACHINERY PULL FOR EXECUTOR */}
             <div style={{
-              background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(8, 12, 22, 0.98))',
-              border: '1px solid rgba(56, 189, 248, 0.35)',
+              background: 'linear-gradient(135deg, rgba(21, 18, 42, 0.95), rgba(8, 12, 22, 0.98))',
+              border: '1px solid rgba(185, 164, 255, 0.35)',
               borderRadius: '20px',
               padding: '22px',
               marginTop: '2rem',
@@ -542,14 +542,14 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
                     <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#00ff88', boxShadow: '0 0 10px #00ff88' }}></span>
                     <h3 style={{ margin: 0, fontSize: '1.25rem', color: '#ffffff', fontWeight: '800' }}>🚜 Свободная спецтехника рядом с объектами (GPS Online)</h3>
                   </div>
-                  <p style={{ margin: 0, color: '#94a3b8', fontSize: '0.85rem' }}>Автоматический подбор ближайших экскаваторов, кранов и самосвалов в радиусе 5 км с почасовой оплатой (1 час)</p>
+                  <p style={{ margin: 0, color: '#a39cc2', fontSize: '0.85rem' }}>Автоматический подбор ближайших экскаваторов, кранов и самосвалов в радиусе 5 км с почасовой оплатой (1 час)</p>
                 </div>
                 <button
                   onClick={() => onOpenAdminTab ? onOpenAdminTab('equipment') : alert('Переход в полный маркетплейс техники')}
                   style={{
-                    background: 'rgba(56, 189, 248, 0.15)',
-                    border: '1px solid rgba(56, 189, 248, 0.4)',
-                    color: '#38bdf8',
+                    background: 'rgba(185, 164, 255, 0.15)',
+                    border: '1px solid rgba(185, 164, 255, 0.4)',
+                    color: '#b9a4ff',
                     padding: '8px 16px',
                     borderRadius: '10px',
                     fontSize: '0.85rem',
@@ -621,7 +621,7 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
                       <div style={{ position: 'absolute', top: '8px', right: '8px', background: 'rgba(16, 185, 129, 0.9)', color: '#fff', fontSize: '0.72rem', fontWeight: '800', padding: '2px 8px', borderRadius: '6px' }}>
                         {m.operator}
                       </div>
-                      <div style={{ position: 'absolute', bottom: '8px', left: '8px', background: 'rgba(8, 12, 22, 0.85)', backdropFilter: 'blur(8px)', color: '#38bdf8', fontSize: '0.72rem', fontWeight: '700', padding: '2px 8px', borderRadius: '4px', border: '1px solid rgba(56, 189, 248, 0.3)' }}>
+                      <div style={{ position: 'absolute', bottom: '8px', left: '8px', background: 'rgba(8, 12, 22, 0.85)', backdropFilter: 'blur(8px)', color: '#b9a4ff', fontSize: '0.72rem', fontWeight: '700', padding: '2px 8px', borderRadius: '4px', border: '1px solid rgba(185, 164, 255, 0.3)' }}>
                         📍 {m.dist}
                       </div>
                     </div>
@@ -635,12 +635,12 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '10px', borderTop: '1px solid rgba(255, 255, 255, 0.06)' }}>
                         <div>
                           <strong style={{ fontSize: '1.15rem', color: '#fbbf24' }}>{m.price}</strong>
-                          <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}> / {m.unit}</span>
+                          <span style={{ fontSize: '0.75rem', color: '#a39cc2' }}> / {m.unit}</span>
                         </div>
                         <button
                           onClick={() => alert(`⚡ Бронирование техники "${m.title}" к вашему объекту на 1 час (Эскроу QazGost)`)}
                           style={{
-                            background: 'linear-gradient(135deg, #2563eb, #0284c7)',
+                            background: 'linear-gradient(135deg, #7c3aed, #7c3aed)',
                             border: 'none',
                             color: '#ffffff',
                             padding: '6px 12px',
@@ -694,8 +694,8 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
             </div>
             {/* SMART GPS MACHINERY PULL FOR EXECUTOR */}
             <div style={{
-              background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(8, 12, 22, 0.98))',
-              border: '1px solid rgba(56, 189, 248, 0.35)',
+              background: 'linear-gradient(135deg, rgba(21, 18, 42, 0.95), rgba(8, 12, 22, 0.98))',
+              border: '1px solid rgba(185, 164, 255, 0.35)',
               borderRadius: '20px',
               padding: '22px',
               marginTop: '2rem',
@@ -707,14 +707,14 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
                     <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#00ff88', boxShadow: '0 0 10px #00ff88' }}></span>
                     <h3 style={{ margin: 0, fontSize: '1.25rem', color: '#ffffff', fontWeight: '800' }}>🚜 Свободная спецтехника рядом с объектами (GPS Online)</h3>
                   </div>
-                  <p style={{ margin: 0, color: '#94a3b8', fontSize: '0.85rem' }}>Автоматический подбор ближайших экскаваторов, кранов и самосвалов в радиусе 5 км с почасовой оплатой (1 час)</p>
+                  <p style={{ margin: 0, color: '#a39cc2', fontSize: '0.85rem' }}>Автоматический подбор ближайших экскаваторов, кранов и самосвалов в радиусе 5 км с почасовой оплатой (1 час)</p>
                 </div>
                 <button
                   onClick={() => onOpenAdminTab ? onOpenAdminTab('equipment') : alert('Переход в полный маркетплейс техники')}
                   style={{
-                    background: 'rgba(56, 189, 248, 0.15)',
-                    border: '1px solid rgba(56, 189, 248, 0.4)',
-                    color: '#38bdf8',
+                    background: 'rgba(185, 164, 255, 0.15)',
+                    border: '1px solid rgba(185, 164, 255, 0.4)',
+                    color: '#b9a4ff',
                     padding: '8px 16px',
                     borderRadius: '10px',
                     fontSize: '0.85rem',
@@ -786,7 +786,7 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
                       <div style={{ position: 'absolute', top: '8px', right: '8px', background: 'rgba(16, 185, 129, 0.9)', color: '#fff', fontSize: '0.72rem', fontWeight: '800', padding: '2px 8px', borderRadius: '6px' }}>
                         {m.operator}
                       </div>
-                      <div style={{ position: 'absolute', bottom: '8px', left: '8px', background: 'rgba(8, 12, 22, 0.85)', backdropFilter: 'blur(8px)', color: '#38bdf8', fontSize: '0.72rem', fontWeight: '700', padding: '2px 8px', borderRadius: '4px', border: '1px solid rgba(56, 189, 248, 0.3)' }}>
+                      <div style={{ position: 'absolute', bottom: '8px', left: '8px', background: 'rgba(8, 12, 22, 0.85)', backdropFilter: 'blur(8px)', color: '#b9a4ff', fontSize: '0.72rem', fontWeight: '700', padding: '2px 8px', borderRadius: '4px', border: '1px solid rgba(185, 164, 255, 0.3)' }}>
                         📍 {m.dist}
                       </div>
                     </div>
@@ -800,12 +800,12 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '10px', borderTop: '1px solid rgba(255, 255, 255, 0.06)' }}>
                         <div>
                           <strong style={{ fontSize: '1.15rem', color: '#fbbf24' }}>{m.price}</strong>
-                          <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}> / {m.unit}</span>
+                          <span style={{ fontSize: '0.75rem', color: '#a39cc2' }}> / {m.unit}</span>
                         </div>
                         <button
                           onClick={() => alert(`⚡ Бронирование техники "${m.title}" к вашему объекту на 1 час (Эскроу QazGost)`)}
                           style={{
-                            background: 'linear-gradient(135deg, #2563eb, #0284c7)',
+                            background: 'linear-gradient(135deg, #7c3aed, #7c3aed)',
                             border: 'none',
                             color: '#ffffff',
                             padding: '6px 12px',
@@ -835,22 +835,22 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
         {/* CUSTOMER ORDER MODAL */}
         {showOrderModal && (
           <div className="modal-overlay" style={{ zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div className="modal-content" style={{ position: 'relative', width: '100%', maxWidth: '500px', backgroundColor: '#1e293b', padding: '2.5rem 2rem', borderRadius: '16px', boxShadow: '0 20px 40px rgba(0,0,0,0.4)', border: '1px solid #334155' }}>
+            <div className="modal-content" style={{ position: 'relative', width: '100%', maxWidth: '500px', backgroundColor: '#211d38', padding: '2.5rem 2rem', borderRadius: '16px', boxShadow: '0 20px 40px rgba(0,0,0,0.4)', border: '1px solid #3a3458' }}>
               <button 
                 onClick={() => setShowOrderModal(false)}
-                style={{ position: 'absolute', top: '1.25rem', right: '1.25rem', background: 'transparent', border: 'none', color: '#94a3b8', fontSize: '1.5rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px', borderRadius: '50%', transition: 'background 0.2s' }}
-                onMouseOver={(e) => e.target.style.background = '#334155'}
+                style={{ position: 'absolute', top: '1.25rem', right: '1.25rem', background: 'transparent', border: 'none', color: '#a39cc2', fontSize: '1.5rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px', borderRadius: '50%', transition: 'background 0.2s' }}
+                onMouseOver={(e) => e.target.style.background = '#3a3458'}
                 onMouseOut={(e) => e.target.style.background = 'transparent'}
               >✕</button>
               <h2 style={{ color: '#fff', marginBottom: '1.5rem' }}>Сформировать Заявку</h2>
               <form onSubmit={handleCreateCustomerOrder}>
                 <div className="form-item" style={{ marginBottom: '1.5rem' }}>
-                  <label style={{ color: '#94a3b8', display: 'block', marginBottom: '0.5rem' }}>Тип заявки:</label>
+                  <label style={{ color: '#a39cc2', display: 'block', marginBottom: '0.5rem' }}>Тип заявки:</label>
                   <select 
                     value={orderModalType} 
                     onChange={(e) => setOrderModalType(e.target.value)} 
                     className="admin-search-input"
-                    style={{ width: '100%', padding: '0.75rem', backgroundColor: '#0f172a', border: '1px solid #334155', color: '#fff', borderRadius: '6px' }}
+                    style={{ width: '100%', padding: '0.75rem', backgroundColor: '#15122a', border: '1px solid #3a3458', color: '#fff', borderRadius: '6px' }}
                   >
                     <option value="construction">🏗️ Строительство (Добавить в Мои Объекты)</option>
                     <option value="engineering">⚙️ Инженерные решения (Отправить инженеру на проверку)</option>
@@ -858,31 +858,31 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
                 </div>
                 
                 <div className="form-item" style={{ marginBottom: '1.5rem' }}>
-                  <label style={{ color: '#94a3b8', display: 'block', marginBottom: '0.5rem' }}>Название заявки / объекта:</label>
+                  <label style={{ color: '#a39cc2', display: 'block', marginBottom: '0.5rem' }}>Название заявки / объекта:</label>
                   <input 
                     type="text" 
                     value={newOrderTitle} 
                     onChange={(e) => setNewOrderTitle(e.target.value)} 
                     placeholder="Например: Постройка бани 6х4" 
                     className="admin-search-input"
-                    style={{ width: '100%', padding: '0.75rem', backgroundColor: '#0f172a', border: '1px solid #334155', color: '#fff', borderRadius: '6px' }}
+                    style={{ width: '100%', padding: '0.75rem', backgroundColor: '#15122a', border: '1px solid #3a3458', color: '#fff', borderRadius: '6px' }}
                     required 
                   />
                 </div>
 
                 <div className="form-item" style={{ marginBottom: '1.5rem' }}>
-                  <label style={{ color: '#94a3b8', display: 'block', marginBottom: '0.5rem' }}>Описание (опционально):</label>
+                  <label style={{ color: '#a39cc2', display: 'block', marginBottom: '0.5rem' }}>Описание (опционально):</label>
                   <textarea 
                     value={newOrderDesc} 
                     onChange={(e) => setNewOrderDesc(e.target.value)} 
                     placeholder="Укажите детали заказа..." 
                     className="admin-search-input"
-                    style={{ width: '100%', padding: '0.75rem', backgroundColor: '#0f172a', border: '1px solid #334155', color: '#fff', borderRadius: '6px', minHeight: '80px', resize: 'vertical' }}
+                    style={{ width: '100%', padding: '0.75rem', backgroundColor: '#15122a', border: '1px solid #3a3458', color: '#fff', borderRadius: '6px', minHeight: '80px', resize: 'vertical' }}
                   />
                 </div>
 
                 <div className="form-item" style={{ marginBottom: '1.5rem' }}>
-                  <label style={{ color: '#94a3b8', display: 'block', marginBottom: '0.5rem' }}>Прикрепить файлы (чертежи, фото, документы):</label>
+                  <label style={{ color: '#a39cc2', display: 'block', marginBottom: '0.5rem' }}>Прикрепить файлы (чертежи, фото, документы):</label>
                   <input 
                     type="file" 
                     multiple
@@ -896,12 +896,12 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
                   />
                   <label 
                     htmlFor="order-files-upload"
-                    style={{ display: 'inline-block', width: '100%', padding: '0.75rem', backgroundColor: '#0f172a', border: '1px dashed #10b981', color: '#10b981', borderRadius: '6px', textAlign: 'center', cursor: 'pointer' }}
+                    style={{ display: 'inline-block', width: '100%', padding: '0.75rem', backgroundColor: '#15122a', border: '1px dashed #10b981', color: '#10b981', borderRadius: '6px', textAlign: 'center', cursor: 'pointer' }}
                   >
                     + Выбрать файлы
                   </label>
                   {newOrderFiles.length > 0 && (
-                    <div style={{ marginTop: '0.5rem', fontSize: '0.85rem', color: '#94a3b8' }}>
+                    <div style={{ marginTop: '0.5rem', fontSize: '0.85rem', color: '#a39cc2' }}>
                       Выбрано файлов: {newOrderFiles.length}
                       <ul style={{ paddingLeft: '1.2rem', marginTop: '0.25rem', marginBottom: 0 }}>
                         {newOrderFiles.map((f, i) => (
@@ -913,7 +913,7 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
                 </div>
 
                 <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
-                  <button type="button" onClick={() => setShowOrderModal(false)} style={{ flex: 1, padding: '0.75rem', backgroundColor: 'transparent', color: '#94a3b8', border: '1px solid #334155', borderRadius: '6px', cursor: 'pointer' }}>
+                  <button type="button" onClick={() => setShowOrderModal(false)} style={{ flex: 1, padding: '0.75rem', backgroundColor: 'transparent', color: '#a39cc2', border: '1px solid #3a3458', borderRadius: '6px', cursor: 'pointer' }}>
                     Отмена
                   </button>
                   <button type="submit" style={{ flex: 1, padding: '0.75rem', backgroundColor: '#10b981', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>

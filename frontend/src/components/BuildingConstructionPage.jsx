@@ -931,7 +931,7 @@ export default function BuildingConstructionPage({ onBack, hideHeader = false })
                           type="checkbox"
                           checked={isChecked}
                           onChange={() => {}}
-                          style={{ accentColor: '#3b82f6', cursor: 'pointer' }}
+                          style={{ accentColor: '#8b5cf6', cursor: 'pointer' }}
                         />
                         <span className="wbs-icon">{w.icon}</span>
                         <div>
@@ -1256,7 +1256,7 @@ export default function BuildingConstructionPage({ onBack, hideHeader = false })
                       <td><strong>{lot.id}</strong></td>
                       <td>
                         <div style={{ fontWeight: '700', color: '#ffffff' }}>{lot.title}</div>
-                        <small style={{ color: '#94a3b8' }}>Лицензия: {currentObject.licenseReq}</small>
+                        <small style={{ color: '#a39cc2' }}>Лицензия: {currentObject.licenseReq}</small>
                       </td>
                       <td style={{ textAlign: 'right', fontWeight: '800', color: '#fbbf24' }}>
                         {Number(lot.budget).toLocaleString()} ₸
@@ -1267,9 +1267,9 @@ export default function BuildingConstructionPage({ onBack, hideHeader = false })
                         </span>
                       </td>
                       <td style={{ textAlign: 'center' }}>
-                        <strong style={{ color: '#38bdf8' }}>{lot.bidsCount} предложений</strong>
+                        <strong style={{ color: '#b9a4ff' }}>{lot.bidsCount} предложений</strong>
                       </td>
-                      <td style={{ color: '#94a3b8' }}>{lot.deadline}</td>
+                      <td style={{ color: '#a39cc2' }}>{lot.deadline}</td>
                       <td style={{ textAlign: 'center' }}>
                         <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
                           <button
@@ -1389,7 +1389,7 @@ export default function BuildingConstructionPage({ onBack, hideHeader = false })
 
                 <div className="c-meta-row">
                   <span>БИН: <strong>{c.bin}</strong></span>
-                  <span>Лицензия: <strong style={{ color: '#38bdf8' }}>{c.license}</strong></span>
+                  <span>Лицензия: <strong style={{ color: '#b9a4ff' }}>{c.license}</strong></span>
                 </div>
 
                 <div className="c-desc">

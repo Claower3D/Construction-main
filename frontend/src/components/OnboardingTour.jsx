@@ -70,9 +70,9 @@ export default function OnboardingTour({ steps, tourKey }) {
   let tooltipStyle = {
     position: 'fixed',
     zIndex: 100001,
-    background: '#1e293b',
-    border: '1px solid #3b82f6',
-    boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 0 15px rgba(59, 130, 246, 0.5)',
+    background: '#211d38',
+    border: '1px solid #8b5cf6',
+    boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 0 15px rgba(139, 92, 246, 0.5)',
     borderRadius: '12px',
     padding: '1.5rem',
     width: '320px',
@@ -140,7 +140,7 @@ export default function OnboardingTour({ steps, tourKey }) {
           width: targetRect.width + 8,
           height: targetRect.height + 8,
           borderRadius: '8px',
-          boxShadow: '0 0 0 9999px rgba(0,0,0,0.5), 0 0 15px 2px #3b82f6',
+          boxShadow: '0 0 0 9999px rgba(0,0,0,0.5), 0 0 15px 2px #8b5cf6',
           zIndex: 100000, // Same level as overlay, but uses box-shadow to punch a hole
           pointerEvents: 'none',
           transition: 'all 0.3s ease-out'
@@ -151,20 +151,20 @@ export default function OnboardingTour({ steps, tourKey }) {
       <div style={tooltipStyle} className="onboarding-tooltip" onClick={(e) => e.stopPropagation()}>
         
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-          <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 600, color: '#60a5fa' }}>{step.title}</h3>
-          <span style={{ fontSize: '0.8rem', color: '#94a3b8', background: '#334155', padding: '2px 8px', borderRadius: '12px' }}>
+          <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 600, color: '#c4b5fd' }}>{step.title}</h3>
+          <span style={{ fontSize: '0.8rem', color: '#a39cc2', background: '#3a3458', padding: '2px 8px', borderRadius: '12px' }}>
             {currentStep + 1} / {steps.length}
           </span>
         </div>
         
-        <p style={{ margin: '0 0 1.5rem 0', fontSize: '0.95rem', lineHeight: '1.5', color: '#cbd5e1' }}>
+        <p style={{ margin: '0 0 1.5rem 0', fontSize: '0.95rem', lineHeight: '1.5', color: '#cbc5e3' }}>
           {step.content}
         </p>
         
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <button 
             onClick={handleSkip}
-            style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer', fontSize: '0.9rem', padding: '0.5rem' }}
+            style={{ background: 'transparent', border: 'none', color: '#a39cc2', cursor: 'pointer', fontSize: '0.9rem', padding: '0.5rem' }}
           >
             Пропустить
           </button>
@@ -173,14 +173,14 @@ export default function OnboardingTour({ steps, tourKey }) {
             {currentStep > 0 && (
               <button 
                 onClick={() => setCurrentStep(prev => prev - 1)}
-                style={{ background: '#334155', color: '#fff', border: 'none', padding: '0.6rem 1rem', borderRadius: '6px', cursor: 'pointer', fontSize: '0.9rem' }}
+                style={{ background: '#3a3458', color: '#fff', border: 'none', padding: '0.6rem 1rem', borderRadius: '6px', cursor: 'pointer', fontSize: '0.9rem' }}
               >
                 Назад
               </button>
             )}
             <button 
               onClick={handleNext}
-              style={{ background: '#3b82f6', color: '#fff', border: 'none', padding: '0.6rem 1.2rem', borderRadius: '6px', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600 }}
+              style={{ background: '#8b5cf6', color: '#fff', border: 'none', padding: '0.6rem 1.2rem', borderRadius: '6px', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600 }}
             >
               {currentStep === steps.length - 1 ? 'Готово ✓' : 'Далее →'}
             </button>

@@ -394,11 +394,11 @@ export default function VoiceLeadInput({ onFieldsExtracted, onCommand, disabled 
 
           {state === 'idle' && (
             <>
-              <div style={{ color: '#64748b', fontSize: '0.65rem', marginTop: '6px', textAlign: 'center' }}>
+              <div style={{ color: '#8a82a8', fontSize: '0.65rem', marginTop: '6px', textAlign: 'center' }}>
                 Пример: "Клиент Иванов, пятнадцатое сентября, установка септика"
               </div>
               <button onClick={() => setManualMode(true)} style={{
-                background: 'none', border: 'none', color: '#64748b', fontSize: '0.65rem',
+                background: 'none', border: 'none', color: '#8a82a8', fontSize: '0.65rem',
                 cursor: 'pointer', marginTop: '6px', textDecoration: 'underline',
               }}>
                 ⌨️ Или введите текстом
@@ -425,7 +425,7 @@ export default function VoiceLeadInput({ onFieldsExtracted, onCommand, disabled 
               style={{
                 flex: 1, padding: '10px 14px', borderRadius: '10px',
                 border: '1px solid rgba(139,92,246,0.3)', background: 'rgba(0,0,0,0.3)',
-                color: '#e2e8f0', fontSize: '0.82rem', outline: 'none',
+                color: '#ece9f8', fontSize: '0.82rem', outline: 'none',
               }}
             />
             <button type="submit" style={{
@@ -435,7 +435,7 @@ export default function VoiceLeadInput({ onFieldsExtracted, onCommand, disabled 
             }}>✅</button>
           </form>
           <button onClick={() => setManualMode(false)} style={{
-            background: 'none', border: 'none', color: '#64748b', fontSize: '0.65rem',
+            background: 'none', border: 'none', color: '#8a82a8', fontSize: '0.65rem',
             cursor: 'pointer', marginTop: '8px', textDecoration: 'underline', width: '100%',
           }}>
             🎤 Вернуться к голосовому вводу
@@ -462,9 +462,9 @@ export default function VoiceLeadInput({ onFieldsExtracted, onCommand, disabled 
             <>
               <div style={{
                 background: 'rgba(0,0,0,0.2)', borderRadius: '12px 12px 12px 4px',
-                padding: '10px 14px', marginBottom: '8px', color: '#e2e8f0', fontSize: '0.85rem',
+                padding: '10px 14px', marginBottom: '8px', color: '#ece9f8', fontSize: '0.85rem',
               }}>
-                <div style={{ fontSize: '0.65rem', color: '#94a3b8', marginBottom: '4px' }}>Распознано:</div>
+                <div style={{ fontSize: '0.65rem', color: '#a39cc2', marginBottom: '4px' }}>Распознано:</div>
                 "{result.text}"
               </div>
               <div style={{

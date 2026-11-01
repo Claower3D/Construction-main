@@ -63,8 +63,8 @@
 }
 
 .pq-back-btn:hover {
-  background: rgba(37, 99, 235, 0.2);
-  border-color: #2563eb;
+  background: rgba(124, 58, 237, 0.2);
+  border-color: #7c3aed;
   transform: translateX(-3px);
 }
 
@@ -77,7 +77,7 @@
 
 .pq-header-subtitle {
   font-size: 0.85rem;
-  color: #94a3b8;
+  color: #a39cc2;
   display: block;
   margin-top: 0.2rem;
 }
@@ -102,13 +102,13 @@
 }
 
 .pq-card:hover {
-  border-color: rgba(37, 99, 235, 0.25);
+  border-color: rgba(124, 58, 237, 0.25);
 }
 
 /* Progress Card */
 .pq-progress-card {
   background: linear-gradient(135deg, rgba(30, 27, 60, 0.8), rgba(20, 20, 35, 0.8));
-  border: 1px solid rgba(37, 99, 235, 0.3);
+  border: 1px solid rgba(124, 58, 237, 0.3);
 }
 
 .pq-progress-header {
@@ -121,11 +121,11 @@
 .pq-progress-title {
   font-weight: 700;
   font-size: 1.05rem;
-  color: #f1f5f9;
+  color: #f5f3ff;
 }
 
 .pq-progress-percent {
-  color: #93c5fd;
+  color: #ddd6fe;
   font-weight: 800;
   font-size: 1.1rem;
 }
@@ -140,17 +140,17 @@
 
 .pq-progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #3b82f6, #38bdf8);
+  background: linear-gradient(90deg, #8b5cf6, #b9a4ff);
   border-radius: 4px;
   transition: width 0.4s ease;
-  box-shadow: 0 0 12px rgba(56, 189, 248, 0.5);
+  box-shadow: 0 0 12px rgba(185, 164, 255, 0.5);
 }
 
 .pq-progress-steps {
   display: flex;
   justify-content: space-between;
   font-size: 0.85rem;
-  color: #64748b;
+  color: #8a82a8;
   font-weight: 600;
 }
 
@@ -160,7 +160,7 @@
 }
 
 .pq-step:hover {
-  color: #93c5fd;
+  color: #ddd6fe;
 }
 
 .pq-step.active {
@@ -172,7 +172,7 @@
 }
 .pq-step:not(.active)::before {
   content: '● ';
-  color: #475569;
+  color: #5a5378;
 }
 
 /* Card Titles */
@@ -180,7 +180,7 @@
   margin: 0 0 1.5rem 0;
   font-size: 1.15rem;
   font-weight: 700;
-  color: #f1f5f9;
+  color: #f5f3ff;
 }
 .pq-card-title span {
   color: #ef4444;
@@ -212,8 +212,8 @@
 }
 
 .pq-avatar-circle:hover {
-  background: rgba(37, 99, 235, 0.1);
-  border-color: #3b82f6;
+  background: rgba(124, 58, 237, 0.1);
+  border-color: #8b5cf6;
   transform: scale(1.03);
 }
 
@@ -224,13 +224,13 @@
 
 .pq-avatar-text {
   font-size: 0.75rem;
-  color: #cbd5e1;
+  color: #cbc5e3;
   font-weight: 500;
 }
 
 .pq-avatar-hint {
   font-size: 0.8rem;
-  color: #64748b;
+  color: #8a82a8;
 }
 
 /* Form Grid */
@@ -252,7 +252,7 @@
 
 .pq-form-group label {
   font-size: 0.85rem;
-  color: #94a3b8;
+  color: #a39cc2;
   font-weight: 600;
 }
 
@@ -303,8 +303,8 @@
 .pq-form-group input:focus,
 .pq-form-group select:focus,
 .pq-form-group textarea:focus {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  border-color: #8b5cf6;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
   background: rgba(15, 16, 28, 0.9);
 }
 
@@ -331,21 +331,21 @@
 }
 
 .pq-type-card:hover {
-  border-color: rgba(59, 130, 246, 0.4);
+  border-color: rgba(139, 92, 246, 0.4);
   background: rgba(20, 20, 38, 0.7);
 }
 
 .pq-type-card.active {
-  border-color: #3b82f6;
-  background: rgba(59, 130, 246, 0.12);
-  box-shadow: 0 0 20px rgba(59, 130, 246, 0.15);
+  border-color: #8b5cf6;
+  background: rgba(139, 92, 246, 0.12);
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.15);
 }
 
 .pq-type-radio {
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  border: 2px solid #475569;
+  border: 2px solid #5a5378;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -354,13 +354,13 @@
 }
 
 .pq-type-card.active .pq-type-radio {
-  border-color: #93c5fd;
+  border-color: #ddd6fe;
 }
 
 .pq-radio-inner {
   width: 12px;
   height: 12px;
-  background: #93c5fd;
+  background: #ddd6fe;
   border-radius: 50%;
 }
 
@@ -368,13 +368,13 @@
   margin: 0 0 0.3rem 0;
   font-size: 1rem;
   font-weight: 700;
-  color: #f1f5f9;
+  color: #f5f3ff;
 }
 
 .pq-type-info p {
   margin: 0;
   font-size: 0.82rem;
-  color: #94a3b8;
+  color: #a39cc2;
   line-height: 1.4;
 }
 
@@ -382,8 +382,8 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
-  background: rgba(59, 130, 246, 0.05);
-  border: 1px solid rgba(59, 130, 246, 0.2);
+  background: rgba(139, 92, 246, 0.05);
+  border: 1px solid rgba(139, 92, 246, 0.2);
   padding: 1.25rem;
   border-radius: 14px;
 }
@@ -402,7 +402,7 @@
 .pq-pill {
   background: rgba(15, 16, 28, 0.6);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #cbd5e1;
+  color: #cbc5e3;
   padding: 0.6rem 1.1rem;
   border-radius: 30px;
   font-size: 0.9rem;
@@ -421,11 +421,11 @@
 }
 
 .pq-pill.active {
-  background: rgba(59, 130, 246, 0.2);
-  border-color: #3b82f6;
+  background: rgba(139, 92, 246, 0.2);
+  border-color: #8b5cf6;
   color: #ffffff;
   font-weight: 600;
-  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.2);
+  box-shadow: 0 4px 14px rgba(139, 92, 246, 0.2);
 }
 
 .pq-pill-check {
@@ -434,8 +434,8 @@
 }
 
 .pq-selected-count-badge {
-  background: rgba(59, 130, 246, 0.2);
-  color: #93c5fd;
+  background: rgba(139, 92, 246, 0.2);
+  color: #ddd6fe;
   padding: 0.2rem 0.75rem;
   border-radius: 20px;
   font-size: 0.8rem;
@@ -450,7 +450,7 @@
 
 .pq-char-count {
   font-size: 0.75rem;
-  color: #64748b;
+  color: #8a82a8;
 }
 
 /* Quick Prompts */
@@ -460,7 +460,7 @@
 
 .pq-prompts-label {
   font-size: 0.8rem;
-  color: #94a3b8;
+  color: #a39cc2;
   display: block;
   margin-bottom: 0.4rem;
   font-weight: 600;
@@ -475,7 +475,7 @@
 .pq-prompt-btn {
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.06);
-  color: #94a3b8;
+  color: #a39cc2;
   padding: 0.45rem 0.85rem;
   border-radius: 8px;
   font-size: 0.82rem;
@@ -485,16 +485,16 @@
 }
 
 .pq-prompt-btn:hover {
-  background: rgba(59, 130, 246, 0.1);
-  color: #e2e8f0;
-  border-color: rgba(59, 130, 246, 0.3);
+  background: rgba(139, 92, 246, 0.1);
+  color: #ece9f8;
+  border-color: rgba(139, 92, 246, 0.3);
 }
 
 /* Alert Info */
 .pq-alert-info {
-  background: rgba(6, 182, 212, 0.08);
-  border: 1px solid rgba(6, 182, 212, 0.25);
-  color: #22d3ee;
+  background: rgba(167, 139, 250, 0.08);
+  border: 1px solid rgba(167, 139, 250, 0.25);
+  color: #c4b5fd;
   padding: 0.85rem 1rem;
   border-radius: 12px;
   font-size: 0.88rem;
@@ -511,7 +511,7 @@
 .m-0 { margin: 0; }
 
 .pq-vip-badge {
-  background: linear-gradient(90deg, rgba(245, 158, 11, 0.2), rgba(56, 189, 248, 0.2));
+  background: linear-gradient(90deg, rgba(245, 158, 11, 0.2), rgba(185, 164, 255, 0.2));
   color: #fbbf24;
   padding: 0.3rem 0.85rem;
   border-radius: 30px;
@@ -545,7 +545,7 @@
 }
 
 .pq-locked-box p {
-  color: #94a3b8;
+  color: #a39cc2;
   font-size: 0.88rem;
   margin: 0 0 1.5rem 0;
   max-width: 480px;
@@ -553,7 +553,7 @@
 }
 
 .pq-btn-vip {
-  background: linear-gradient(90deg, #f59e0b, #38bdf8);
+  background: linear-gradient(90deg, #f59e0b, #b9a4ff);
   color: #ffffff;
   border: none;
   padding: 0.8rem 1.8rem;
@@ -567,7 +567,7 @@
 
 .pq-btn-vip:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(56, 189, 248, 0.4);
+  box-shadow: 0 8px 25px rgba(185, 164, 255, 0.4);
 }
 
 /* Footer Actions */
@@ -589,7 +589,7 @@
 
 .pq-btn-dark {
   background: rgba(255, 255, 255, 0.08);
-  color: #e2e8f0;
+  color: #ece9f8;
   border: 1px solid rgba(255, 255, 255, 0.12);
   padding: 0.85rem 2.2rem;
   border-radius: 12px;
@@ -605,7 +605,7 @@
 }
 
 .pq-btn-primary {
-  background: linear-gradient(90deg, #2563eb, #38bdf8);
+  background: linear-gradient(90deg, #7c3aed, #b9a4ff);
   color: #ffffff;
   border: none;
   padding: 0.85rem 2.5rem;
@@ -614,12 +614,12 @@
   font-size: 0.95rem;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+  box-shadow: 0 6px 20px rgba(124, 58, 237, 0.4);
 }
 
 .pq-btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 30px rgba(56, 189, 248, 0.5);
+  box-shadow: 0 10px 30px rgba(185, 164, 255, 0.5);
 }
 
 /* VIP Modal */
@@ -662,7 +662,7 @@
   right: 1rem;
   background: none;
   border: none;
-  color: #94a3b8;
+  color: #a39cc2;
   font-size: 1.2rem;
   cursor: pointer;
 }
@@ -679,7 +679,7 @@
 }
 
 .pq-modal-card p {
-  color: #cbd5e1;
+  color: #cbc5e3;
   font-size: 0.92rem;
   line-height: 1.5;
   margin-bottom: 1.5rem;
@@ -704,7 +704,7 @@
 
 .pq-btn-vip-action {
   width: 100%;
-  background: linear-gradient(90deg, #f59e0b, #38bdf8);
+  background: linear-gradient(90deg, #f59e0b, #b9a4ff);
   color: #fff;
   border: none;
   padding: 0.9rem;

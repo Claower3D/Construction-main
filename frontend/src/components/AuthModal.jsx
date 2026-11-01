@@ -123,7 +123,7 @@ export default function AuthModal({ mode, onClose, onLogin }) {
         }}
       >
         {/* Subtle Ambient Glow Orbs */}
-        <div style={{ position: 'absolute', top: '-60px', right: '-60px', width: '180px', height: '180px', background: 'radial-gradient(circle, rgba(59, 130, 246, 0.3), transparent 70%)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', top: '-60px', right: '-60px', width: '180px', height: '180px', background: 'radial-gradient(circle, rgba(139, 92, 246, 0.3), transparent 70%)', pointerEvents: 'none' }} />
         <div style={{ position: 'absolute', bottom: '-60px', left: '-60px', width: '180px', height: '180px', background: 'radial-gradient(circle, rgba(246, 196, 83, 0.25), transparent 70%)', pointerEvents: 'none' }} />
 
         <button 
@@ -142,8 +142,8 @@ export default function AuthModal({ mode, onClose, onLogin }) {
               padding: '0.65rem',
               borderRadius: '12px',
               border: 'none',
-              background: activeTab === 'login' ? '#2563eb' : 'transparent',
-              color: activeTab === 'login' ? '#fff' : '#94a3b8',
+              background: activeTab === 'login' ? '#7c3aed' : 'transparent',
+              color: activeTab === 'login' ? '#fff' : '#a39cc2',
               fontWeight: 800,
               fontSize: '0.9rem',
               cursor: 'pointer',
@@ -160,8 +160,8 @@ export default function AuthModal({ mode, onClose, onLogin }) {
               padding: '0.65rem',
               borderRadius: '12px',
               border: 'none',
-              background: activeTab === 'register' ? '#2563eb' : 'transparent',
-              color: activeTab === 'register' ? '#fff' : '#94a3b8',
+              background: activeTab === 'register' ? '#7c3aed' : 'transparent',
+              color: activeTab === 'register' ? '#fff' : '#a39cc2',
               fontWeight: 800,
               fontSize: '0.9rem',
               cursor: 'pointer',
@@ -178,7 +178,7 @@ export default function AuthModal({ mode, onClose, onLogin }) {
           <h2 style={{ margin: 0, fontSize: '1.6rem', fontWeight: 900, color: '#fff', letterSpacing: '0.4px' }}>
             {activeTab === 'login' ? 'Вход в QazGost AI' : 'Создание учётной записи'}
           </h2>
-          <p style={{ margin: '0.4rem 0 0 0', fontSize: '0.86rem', color: '#cbd5e1', fontWeight: 500 }}>
+          <p style={{ margin: '0.4rem 0 0 0', fontSize: '0.86rem', color: '#cbc5e3', fontWeight: 500 }}>
             {activeTab === 'login'
               ? 'Введите email и пароль для доступа к платформе'
               : 'Заполните данные для создания аккаунта в системе QazGost'}
@@ -194,7 +194,7 @@ export default function AuthModal({ mode, onClose, onLogin }) {
         {/* 2 STUNNING ROLE CARDS FOR REGISTER */}
         {activeTab === 'register' && (
           <div style={{ marginBottom: '1.25rem' }}>
-            <label style={{ fontSize: '0.82rem', fontWeight: 800, color: '#cbd5e1', textTransform: 'uppercase', letterSpacing: '0.6px', display: 'block', marginBottom: '0.6rem' }}>
+            <label style={{ fontSize: '0.82rem', fontWeight: 800, color: '#cbc5e3', textTransform: 'uppercase', letterSpacing: '0.6px', display: 'block', marginBottom: '0.6rem' }}>
               Выберите вашу роль:
             </label>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
@@ -205,10 +205,10 @@ export default function AuthModal({ mode, onClose, onLogin }) {
                 onClick={() => setSelectedRole('customer')}
                 style={{
                   background: selectedRole === 'customer' 
-                    ? 'linear-gradient(135deg, rgba(99, 102, 241, 0.25), rgba(59, 130, 246, 0.25))' 
+                    ? 'linear-gradient(135deg, rgba(99, 102, 241, 0.25), rgba(139, 92, 246, 0.25))' 
                     : 'rgba(255, 255, 255, 0.03)',
                   border: selectedRole === 'customer' 
-                    ? '2px solid #2563eb' 
+                    ? '2px solid #7c3aed' 
                     : '1.5px solid rgba(255, 255, 255, 0.12)',
                   borderRadius: '20px',
                   padding: '1.25rem 0.9rem',
@@ -219,7 +219,7 @@ export default function AuthModal({ mode, onClose, onLogin }) {
                   gap: '0.5rem',
                   textAlign: 'center',
                   boxShadow: selectedRole === 'customer' 
-                    ? '0 10px 25px rgba(37, 99, 235, 0.35)' 
+                    ? '0 10px 25px rgba(124, 58, 237, 0.35)' 
                     : 'none',
                   transform: selectedRole === 'customer' ? 'translateY(-3px)' : 'none',
                   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -227,16 +227,16 @@ export default function AuthModal({ mode, onClose, onLogin }) {
                 }}
               >
                 {selectedRole === 'customer' && (
-                  <span style={{ position: 'absolute', top: '8px', right: '10px', fontSize: '0.72rem', color: '#3b82f6', fontWeight: 900, background: 'rgba(59, 130, 246, 0.2)', padding: '0.15rem 0.45rem', borderRadius: '8px' }}>
+                  <span style={{ position: 'absolute', top: '8px', right: '10px', fontSize: '0.72rem', color: '#8b5cf6', fontWeight: 900, background: 'rgba(139, 92, 246, 0.2)', padding: '0.15rem 0.45rem', borderRadius: '8px' }}>
                     ✓ Выбрано
                   </span>
                 )}
-                <span style={{ fontSize: '2.4rem', filter: selectedRole === 'customer' ? 'drop-shadow(0 0 10px rgba(59, 130, 246, 0.6))' : 'none' }}>
+                <span style={{ fontSize: '2.4rem', filter: selectedRole === 'customer' ? 'drop-shadow(0 0 10px rgba(139, 92, 246, 0.6))' : 'none' }}>
                   📋
                 </span>
                 <div>
                   <strong style={{ fontSize: '1.05rem', fontWeight: 900, color: '#fff', display: 'block' }}>Заказчик</strong>
-                  <small style={{ fontSize: '0.78rem', color: selectedRole === 'customer' ? '#93c5fd' : '#cbd5e1', fontWeight: 600, marginTop: '0.2rem', display: 'block' }}>
+                  <small style={{ fontSize: '0.78rem', color: selectedRole === 'customer' ? '#ddd6fe' : '#cbc5e3', fontWeight: 600, marginTop: '0.2rem', display: 'block' }}>
                     Поиск мастеров и сметы
                   </small>
                 </div>
@@ -279,7 +279,7 @@ export default function AuthModal({ mode, onClose, onLogin }) {
                 </span>
                 <div>
                   <strong style={{ fontSize: '1.05rem', fontWeight: 900, color: '#fff', display: 'block' }}>Исполнитель</strong>
-                  <small style={{ fontSize: '0.78rem', color: selectedRole === 'executor' ? '#34d399' : '#cbd5e1', fontWeight: 600, marginTop: '0.2rem', display: 'block' }}>
+                  <small style={{ fontSize: '0.78rem', color: selectedRole === 'executor' ? '#34d399' : '#cbc5e3', fontWeight: 600, marginTop: '0.2rem', display: 'block' }}>
                     Выполнение заказов
                   </small>
                 </div>
@@ -292,7 +292,7 @@ export default function AuthModal({ mode, onClose, onLogin }) {
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           {activeTab === 'register' && (
             <div className="form-group" style={{ margin: 0 }}>
-              <label style={{ fontSize: '0.82rem', fontWeight: 700, color: '#cbd5e1', display: 'block', marginBottom: '0.4rem' }}>
+              <label style={{ fontSize: '0.82rem', fontWeight: 700, color: '#cbc5e3', display: 'block', marginBottom: '0.4rem' }}>
                 ФИО / Название компании
               </label>
               <input
@@ -302,13 +302,13 @@ export default function AuthModal({ mode, onClose, onLogin }) {
                 required
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
-                style={{ background: 'rgba(15, 23, 42, 0.7)', border: '1px solid rgba(255, 255, 255, 0.15)', borderRadius: '14px', padding: '0.85rem 1.1rem', color: '#fff', fontSize: '0.92rem', outline: 'none' }}
+                style={{ background: 'rgba(21, 18, 42, 0.7)', border: '1px solid rgba(255, 255, 255, 0.15)', borderRadius: '14px', padding: '0.85rem 1.1rem', color: '#fff', fontSize: '0.92rem', outline: 'none' }}
               />
             </div>
           )}
 
           <div className="form-group" style={{ margin: 0 }}>
-            <label style={{ fontSize: '0.82rem', fontWeight: 700, color: '#cbd5e1', display: 'block', marginBottom: '0.4rem' }}>
+            <label style={{ fontSize: '0.82rem', fontWeight: 700, color: '#cbc5e3', display: 'block', marginBottom: '0.4rem' }}>
               Email адрес
             </label>
             <input
@@ -318,12 +318,12 @@ export default function AuthModal({ mode, onClose, onLogin }) {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              style={{ background: 'rgba(15, 23, 42, 0.7)', border: '1px solid rgba(255, 255, 255, 0.15)', borderRadius: '14px', padding: '0.85rem 1.1rem', color: '#fff', fontSize: '0.92rem', outline: 'none' }}
+              style={{ background: 'rgba(21, 18, 42, 0.7)', border: '1px solid rgba(255, 255, 255, 0.15)', borderRadius: '14px', padding: '0.85rem 1.1rem', color: '#fff', fontSize: '0.92rem', outline: 'none' }}
             />
           </div>
 
           <div className="form-group" style={{ margin: 0 }}>
-            <label style={{ fontSize: '0.82rem', fontWeight: 700, color: '#cbd5e1', display: 'block', marginBottom: '0.4rem' }}>
+            <label style={{ fontSize: '0.82rem', fontWeight: 700, color: '#cbc5e3', display: 'block', marginBottom: '0.4rem' }}>
               Пароль
             </label>
             <input
@@ -333,21 +333,21 @@ export default function AuthModal({ mode, onClose, onLogin }) {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              style={{ background: 'rgba(15, 23, 42, 0.7)', border: '1px solid rgba(255, 255, 255, 0.15)', borderRadius: '14px', padding: '0.85rem 1.1rem', color: '#fff', fontSize: '0.92rem', outline: 'none' }}
+              style={{ background: 'rgba(21, 18, 42, 0.7)', border: '1px solid rgba(255, 255, 255, 0.15)', borderRadius: '14px', padding: '0.85rem 1.1rem', color: '#fff', fontSize: '0.92rem', outline: 'none' }}
             />
           </div>
 
           {/* Quick Demo Login Presets — только авторизованные аккаунты команды */}
           {activeTab === 'login' && (
             <div style={{ marginTop: '0.2rem', marginBottom: '0.2rem' }}>
-              <span style={{ fontSize: '0.78rem', color: '#94a3b8', display: 'block', marginBottom: '0.4rem', fontWeight: 600 }}>
+              <span style={{ fontSize: '0.78rem', color: '#a39cc2', display: 'block', marginBottom: '0.4rem', fontWeight: 600 }}>
                 ⚡ Быстрый вход (авторизованные):
               </span>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
                 <button
                   type="button"
                   onClick={() => { setEmail('manager@qazgost.kz'); setPassword('manager123'); }}
-                  style={{ background: 'rgba(56, 189, 248, 0.12)', border: '1px solid rgba(56, 189, 248, 0.3)', color: '#38bdf8', borderRadius: '8px', padding: '0.35rem 0.65rem', fontSize: '0.76rem', fontWeight: 700, cursor: 'pointer' }}
+                  style={{ background: 'rgba(185, 164, 255, 0.12)', border: '1px solid rgba(185, 164, 255, 0.3)', color: '#b9a4ff', borderRadius: '8px', padding: '0.35rem 0.65rem', fontSize: '0.76rem', fontWeight: 700, cursor: 'pointer' }}
                 >
                   💼 Менеджер Саша
                 </button>
@@ -378,13 +378,13 @@ export default function AuthModal({ mode, onClose, onLogin }) {
               {hasEquipment && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '0.85rem' }}>
                   <div>
-                    <label style={{ fontSize: '0.78rem', color: '#cbd5e1', fontWeight: 700, display: 'block', marginBottom: '0.25rem' }}>
+                    <label style={{ fontSize: '0.78rem', color: '#cbc5e3', fontWeight: 700, display: 'block', marginBottom: '0.25rem' }}>
                       Категория техники:
                     </label>
                     <select 
                       value={equipmentCategory} 
                       onChange={e => setEquipmentCategory(e.target.value)}
-                      style={{ width: '100%', background: 'rgba(15, 23, 42, 0.9)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '10px', padding: '0.65rem 0.8rem', color: '#fff', fontSize: '0.88rem' }}
+                      style={{ width: '100%', background: 'rgba(21, 18, 42, 0.9)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '10px', padding: '0.65rem 0.8rem', color: '#fff', fontSize: '0.88rem' }}
                     >
                       <option value="Землеройная техника">⛏️ Экскаватор / Землеройная</option>
                       <option value="Грузоподъемная техника">🏗️ Автокран / Манипулятор</option>
@@ -396,7 +396,7 @@ export default function AuthModal({ mode, onClose, onLogin }) {
                   </div>
 
                   <div>
-                    <label style={{ fontSize: '0.78rem', color: '#cbd5e1', fontWeight: 700, display: 'block', marginBottom: '0.25rem' }}>
+                    <label style={{ fontSize: '0.78rem', color: '#cbc5e3', fontWeight: 700, display: 'block', marginBottom: '0.25rem' }}>
                       Марка и модель (например: CAT 320D, КамАЗ 6520, JCB 3CX):
                     </label>
                     <input 
@@ -404,13 +404,13 @@ export default function AuthModal({ mode, onClose, onLogin }) {
                       placeholder="Гусеничный экскаватор CAT 320D"
                       value={equipmentName}
                       onChange={e => setEquipmentName(e.target.value)}
-                      style={{ width: '100%', background: 'rgba(15, 23, 42, 0.9)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '10px', padding: '0.65rem 0.8rem', color: '#fff', fontSize: '0.88rem' }}
+                      style={{ width: '100%', background: 'rgba(21, 18, 42, 0.9)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '10px', padding: '0.65rem 0.8rem', color: '#fff', fontSize: '0.88rem' }}
                     />
                   </div>
 
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.6rem' }}>
                     <div>
-                      <label style={{ fontSize: '0.78rem', color: '#cbd5e1', fontWeight: 700, display: 'block', marginBottom: '0.25rem' }}>
+                      <label style={{ fontSize: '0.78rem', color: '#cbc5e3', fontWeight: 700, display: 'block', marginBottom: '0.25rem' }}>
                         Аренда (₸/смена):
                       </label>
                       <input 
@@ -418,12 +418,12 @@ export default function AuthModal({ mode, onClose, onLogin }) {
                         placeholder="95000"
                         value={pricePerDay}
                         onChange={e => setPricePerDay(e.target.value)}
-                        style={{ width: '100%', background: 'rgba(15, 23, 42, 0.9)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '10px', padding: '0.65rem 0.8rem', color: '#fff', fontSize: '0.88rem' }}
+                        style={{ width: '100%', background: 'rgba(21, 18, 42, 0.9)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '10px', padding: '0.65rem 0.8rem', color: '#fff', fontSize: '0.88rem' }}
                       />
                     </div>
 
                     <div>
-                      <label style={{ fontSize: '0.78rem', color: '#cbd5e1', fontWeight: 700, display: 'block', marginBottom: '0.25rem' }}>
+                      <label style={{ fontSize: '0.78rem', color: '#cbc5e3', fontWeight: 700, display: 'block', marginBottom: '0.25rem' }}>
                         Город базирования:
                       </label>
                       <input 
@@ -431,14 +431,14 @@ export default function AuthModal({ mode, onClose, onLogin }) {
                         placeholder="Алматы"
                         value={city}
                         onChange={e => setCity(e.target.value)}
-                        style={{ width: '100%', background: 'rgba(15, 23, 42, 0.9)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '10px', padding: '0.65rem 0.8rem', color: '#fff', fontSize: '0.88rem' }}
+                        style={{ width: '100%', background: 'rgba(21, 18, 42, 0.9)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '10px', padding: '0.65rem 0.8rem', color: '#fff', fontSize: '0.88rem' }}
                       />
                     </div>
                   </div>
 
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.6rem' }}>
                     <div>
-                      <label style={{ fontSize: '0.78rem', color: '#cbd5e1', fontWeight: 700, display: 'block', marginBottom: '0.25rem' }}>
+                      <label style={{ fontSize: '0.78rem', color: '#cbc5e3', fontWeight: 700, display: 'block', marginBottom: '0.25rem' }}>
                         Госномер / ID:
                       </label>
                       <input 
@@ -446,12 +446,12 @@ export default function AuthModal({ mode, onClose, onLogin }) {
                         placeholder="01 777 KZ 02"
                         value={plateNumber}
                         onChange={e => setPlateNumber(e.target.value)}
-                        style={{ width: '100%', background: 'rgba(15, 23, 42, 0.9)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '10px', padding: '0.65rem 0.8rem', color: '#fff', fontSize: '0.88rem' }}
+                        style={{ width: '100%', background: 'rgba(21, 18, 42, 0.9)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '10px', padding: '0.65rem 0.8rem', color: '#fff', fontSize: '0.88rem' }}
                       />
                     </div>
 
                     <div>
-                      <label style={{ fontSize: '0.78rem', color: '#cbd5e1', fontWeight: 700, display: 'block', marginBottom: '0.25rem' }}>
+                      <label style={{ fontSize: '0.78rem', color: '#cbc5e3', fontWeight: 700, display: 'block', marginBottom: '0.25rem' }}>
                         Телефон диспетчера:
                       </label>
                       <input 
@@ -459,7 +459,7 @@ export default function AuthModal({ mode, onClose, onLogin }) {
                         placeholder="+7 (777) 123-45-67"
                         value={phone}
                         onChange={e => setPhone(e.target.value)}
-                        style={{ width: '100%', background: 'rgba(15, 23, 42, 0.9)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '10px', padding: '0.65rem 0.8rem', color: '#fff', fontSize: '0.88rem' }}
+                        style={{ width: '100%', background: 'rgba(21, 18, 42, 0.9)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '10px', padding: '0.65rem 0.8rem', color: '#fff', fontSize: '0.88rem' }}
                       />
                     </div>
                   </div>
@@ -473,7 +473,7 @@ export default function AuthModal({ mode, onClose, onLogin }) {
             disabled={loading}
             style={{
               marginTop: '0.5rem',
-              background: 'linear-gradient(90deg, #f59e0b, #38bdf8, #2563eb)',
+              background: 'linear-gradient(90deg, #f59e0b, #b9a4ff, #7c3aed)',
               border: 'none',
               borderRadius: '16px',
               padding: '1rem',
@@ -481,7 +481,7 @@ export default function AuthModal({ mode, onClose, onLogin }) {
               fontWeight: 900,
               fontSize: '1rem',
               cursor: 'pointer',
-              boxShadow: '0 10px 25px rgba(56, 189, 248, 0.4)',
+              boxShadow: '0 10px 25px rgba(185, 164, 255, 0.4)',
               transition: 'all 0.3s ease',
               letterSpacing: '0.4px'
             }}

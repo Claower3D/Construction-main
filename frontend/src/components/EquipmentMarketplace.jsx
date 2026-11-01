@@ -892,7 +892,7 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
             >
               <span>🎛️ Фильтры</span>
               {(category !== 'all' || tariff !== 'all' || location !== 'all' || freeToday || withOperator) && (
-                <span className="wb-active-dot" style={{ color: '#38bdf8' }}>●</span>
+                <span className="wb-active-dot" style={{ color: '#b9a4ff' }}>●</span>
               )}
             </button>
 
@@ -1138,7 +1138,7 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
                             }}
                           />
                           {item.distanceKm ? (
-                            <div className="em-gps-distance-pill" style={{ position: 'absolute', bottom: '8px', left: '10px', background: 'rgba(8, 12, 22, 0.85)', padding: '3px 8px', borderRadius: '6px', fontSize: '0.72rem', color: '#38bdf8', fontWeight: '800', border: '1px solid rgba(56, 189, 248, 0.3)' }}>
+                            <div className="em-gps-distance-pill" style={{ position: 'absolute', bottom: '8px', left: '10px', background: 'rgba(8, 12, 22, 0.85)', padding: '3px 8px', borderRadius: '6px', fontSize: '0.72rem', color: '#b9a4ff', fontWeight: '800', border: '1px solid rgba(185, 164, 255, 0.3)' }}>
                               📍 {item.distanceKm} км от вас
                             </div>
                           ) : null}
@@ -1488,16 +1488,16 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
       {/* Booking Modal with Wallet & Escrow & Manager/Executor Dispatch */}
       {bookingItem && (
         <div className="em-modal-overlay" onClick={() => setBookingItem(null)}>
-          <div className="em-modal-box" style={{ maxWidth: '560px', width: '100%', background: '#0b1329', border: '1px solid rgba(56, 189, 248, 0.4)', borderRadius: '20px', padding: '24px', boxShadow: '0 25px 60px rgba(0,0,0,0.85)' }} onClick={e => e.stopPropagation()}>
+          <div className="em-modal-box" style={{ maxWidth: '560px', width: '100%', background: '#0b1329', border: '1px solid rgba(185, 164, 255, 0.4)', borderRadius: '20px', padding: '24px', boxShadow: '0 25px 60px rgba(0,0,0,0.85)' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <span style={{ fontSize: '1.5rem' }}>🚜</span>
                 <h3 style={{ margin: 0, color: '#fff', fontSize: '1.25rem' }}>Аренда спецтехники с оператором</h3>
               </div>
-              <button className="em-modal-close" onClick={() => setBookingItem(null)} style={{ background: 'transparent', border: 'none', color: '#94a3b8', fontSize: '1.4rem', cursor: 'pointer' }}>✕</button>
+              <button className="em-modal-close" onClick={() => setBookingItem(null)} style={{ background: 'transparent', border: 'none', color: '#a39cc2', fontSize: '1.4rem', cursor: 'pointer' }}>✕</button>
             </div>
 
-            <h4 style={{ color: '#38bdf8', margin: '0 0 1rem 0', fontSize: '1rem' }}>{bookingItem.title}</h4>
+            <h4 style={{ color: '#b9a4ff', margin: '0 0 1rem 0', fontSize: '1rem' }}>{bookingItem.title}</h4>
             
             <div style={{ background: 'rgba(255,255,255,0.04)', padding: '12px 16px', borderRadius: '12px', marginBottom: '1.2rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontSize: '0.85rem' }}>
               <div>Тариф: <strong style={{ color: '#fbbf24' }}>₸ {bookingItem.price} / {bookingItem.unit}</strong></div>
@@ -1505,23 +1505,23 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
               {bookingItem.distanceKm ? <div>📍 Расстояние: <strong style={{ color: '#34d399' }}>{bookingItem.distanceKm} км от вас</strong></div> : null}
               <div>Статус: <strong style={{ color: '#10b981' }}>{bookingItem.status || 'Доступен'}</strong></div>
               {bookingItem.ownerName ? <div>Владелец: <strong>{bookingItem.ownerName}</strong></div> : null}
-              {bookingItem.ownerPhone ? <div>Телефон: <a href={`tel:${bookingItem.ownerPhone.replace(/[^\d+]/g, '')}`} style={{ color: '#7dd3fc' }}>{bookingItem.ownerPhone}</a></div> : null}
+              {bookingItem.ownerPhone ? <div>Телефон: <a href={`tel:${bookingItem.ownerPhone.replace(/[^\d+]/g, '')}`} style={{ color: '#d6caff' }}>{bookingItem.ownerPhone}</a></div> : null}
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
               <div className="em-form-group">
-                <label style={{ display: 'block', fontSize: '0.8rem', color: '#94a3b8', marginBottom: '4px' }}>Дата подачи техники:</label>
+                <label style={{ display: 'block', fontSize: '0.8rem', color: '#a39cc2', marginBottom: '4px' }}>Дата подачи техники:</label>
                 <input 
                   type="date" 
                   className="em-input" 
                   value={bookingDate} 
                   onChange={e => setBookingDate(e.target.value)}
-                  style={{ width: '100%', background: 'rgba(15,23,42,0.8)', border: '1px solid rgba(255,255,255,0.15)', color: '#fff', padding: '8px 12px', borderRadius: '8px' }}
+                  style={{ width: '100%', background: 'rgba(21,18,42,0.8)', border: '1px solid rgba(255,255,255,0.15)', color: '#fff', padding: '8px 12px', borderRadius: '8px' }}
                 />
               </div>
 
               <div className="em-form-group">
-                <label style={{ display: 'block', fontSize: '0.8rem', color: '#94a3b8', marginBottom: '4px' }}>Кол-во смен / часов:</label>
+                <label style={{ display: 'block', fontSize: '0.8rem', color: '#a39cc2', marginBottom: '4px' }}>Кол-во смен / часов:</label>
                 <input 
                   type="number" 
                   min="1" 
@@ -1529,56 +1529,56 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
                   value={bookingDays} 
                   onChange={e => setBookingDays(Math.max(1, parseInt(e.target.value) || 1))}
                   className="em-input"
-                  style={{ width: '100%', background: 'rgba(15,23,42,0.8)', border: '1px solid rgba(255,255,255,0.15)', color: '#fff', padding: '8px 12px', borderRadius: '8px' }}
+                  style={{ width: '100%', background: 'rgba(21,18,42,0.8)', border: '1px solid rgba(255,255,255,0.15)', color: '#fff', padding: '8px 12px', borderRadius: '8px' }}
                 />
               </div>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', color: '#94a3b8', marginBottom: '4px' }}>Имя заказчика:</label>
+                <label style={{ display: 'block', fontSize: '0.8rem', color: '#a39cc2', marginBottom: '4px' }}>Имя заказчика:</label>
                 <input 
                   type="text" 
                   value={bookingClientName} 
                   onChange={e => setBookingClientName(e.target.value)}
                   className="em-input"
-                  style={{ width: '100%', background: 'rgba(15,23,42,0.8)', border: '1px solid rgba(255,255,255,0.15)', color: '#fff', padding: '8px 12px', borderRadius: '8px' }}
+                  style={{ width: '100%', background: 'rgba(21,18,42,0.8)', border: '1px solid rgba(255,255,255,0.15)', color: '#fff', padding: '8px 12px', borderRadius: '8px' }}
                 />
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', color: '#94a3b8', marginBottom: '4px' }}>Телефон:</label>
+                <label style={{ display: 'block', fontSize: '0.8rem', color: '#a39cc2', marginBottom: '4px' }}>Телефон:</label>
                 <input 
                   type="text" 
                   value={bookingClientPhone} 
                   onChange={e => setBookingClientPhone(e.target.value)}
                   className="em-input"
-                  style={{ width: '100%', background: 'rgba(15,23,42,0.8)', border: '1px solid rgba(255,255,255,0.15)', color: '#fff', padding: '8px 12px', borderRadius: '8px' }}
+                  style={{ width: '100%', background: 'rgba(21,18,42,0.8)', border: '1px solid rgba(255,255,255,0.15)', color: '#fff', padding: '8px 12px', borderRadius: '8px' }}
                 />
               </div>
             </div>
 
             <div style={{ marginBottom: '12px' }}>
-              <label style={{ display: 'block', fontSize: '0.8rem', color: '#94a3b8', marginBottom: '4px' }}>Адрес строительного объекта (подача по GPS):</label>
+              <label style={{ display: 'block', fontSize: '0.8rem', color: '#a39cc2', marginBottom: '4px' }}>Адрес строительного объекта (подача по GPS):</label>
               <input 
                 type="text" 
                 value={bookingAddress} 
                 onChange={e => setBookingAddress(e.target.value)}
                 className="em-input"
-                style={{ width: '100%', background: 'rgba(15,23,42,0.8)', border: '1px solid rgba(255,255,255,0.15)', color: '#fff', padding: '8px 12px', borderRadius: '8px' }}
+                style={{ width: '100%', background: 'rgba(21,18,42,0.8)', border: '1px solid rgba(255,255,255,0.15)', color: '#fff', padding: '8px 12px', borderRadius: '8px' }}
               />
             </div>
 
             {/* Financial / Wallet Escrow Box */}
-            <div style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.12), rgba(6,182,212,0.08))', border: '1px solid rgba(16,185,129,0.3)', borderRadius: '12px', padding: '12px 16px', marginBottom: '14px' }}>
+            <div style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.12), rgba(167,139,250,0.08))', border: '1px solid rgba(16,185,129,0.3)', borderRadius: '12px', padding: '12px 16px', marginBottom: '14px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                <span style={{ fontSize: '0.85rem', color: '#cbd5e1' }}>Итоговая стоимость аренды:</span>
+                <span style={{ fontSize: '0.85rem', color: '#cbc5e3' }}>Итоговая стоимость аренды:</span>
                 <strong style={{ fontSize: '1.25rem', color: '#34d399' }}>
                   {((bookingItem.rawPrice || 25000) * bookingDays).toLocaleString()} ₸
                 </strong>
               </div>
               
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '8px', borderTop: '1px solid rgba(255,255,255,0.08)', fontSize: '0.82rem' }}>
-                <span style={{ color: '#94a3b8' }}>💳 Баланс вашего кошелька: <strong style={{ color: '#fff' }}>{walletBalance.toLocaleString()} ₸</strong></span>
+                <span style={{ color: '#a39cc2' }}>💳 Баланс вашего кошелька: <strong style={{ color: '#fff' }}>{walletBalance.toLocaleString()} ₸</strong></span>
                 {walletBalance < ((bookingItem.rawPrice || 25000) * bookingDays) && (
                   <button
                     type="button"
@@ -1587,7 +1587,7 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
                       setWalletBalance(added);
                       showToast('🎉 Кошелёк пополнен на +100 000 ₸ через Kaspi Pay!');
                     }}
-                    style={{ background: 'rgba(56,189,248,0.2)', border: '1px solid #38bdf8', color: '#38bdf8', borderRadius: '6px', padding: '3px 8px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}
+                    style={{ background: 'rgba(185,164,255,0.2)', border: '1px solid #b9a4ff', color: '#b9a4ff', borderRadius: '6px', padding: '3px 8px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}
                   >
                     + Пополнить на 100k ₸
                   </button>
@@ -1596,11 +1596,11 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
             </div>
 
             <div style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', fontSize: '0.8rem', color: '#94a3b8', marginBottom: '4px' }}>Способ оплаты:</label>
+              <label style={{ display: 'block', fontSize: '0.8rem', color: '#a39cc2', marginBottom: '4px' }}>Способ оплаты:</label>
               <select 
                 value={bookingPaymentMethod} 
                 onChange={e => setBookingPaymentMethod(e.target.value)}
-                style={{ width: '100%', background: 'rgba(15,23,42,0.8)', border: '1px solid rgba(255,255,255,0.15)', color: '#fff', padding: '8px 12px', borderRadius: '8px' }}
+                style={{ width: '100%', background: 'rgba(21,18,42,0.8)', border: '1px solid rgba(255,255,255,0.15)', color: '#fff', padding: '8px 12px', borderRadius: '8px' }}
               >
                 <option value="escrow">🛡️ Заморозить в Эскроу с Кошелька (Безопасная сделка)</option>
                 <option value="kaspi">📱 Kaspi Pay QR / Перевод</option>
@@ -1610,7 +1610,7 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
 
             <button 
               className="em-submit-btn w-100"
-              style={{ background: 'linear-gradient(90deg, #0284c7, #10b981)', border: 'none', color: '#fff', padding: '12px', borderRadius: '10px', fontWeight: 800, fontSize: '0.95rem', cursor: 'pointer' }}
+              style={{ background: 'linear-gradient(90deg, #7c3aed, #10b981)', border: 'none', color: '#fff', padding: '12px', borderRadius: '10px', fontWeight: 800, fontSize: '0.95rem', cursor: 'pointer' }}
               onClick={() => {
                 const totalCost = (bookingItem.rawPrice || 25000) * bookingDays;
                 

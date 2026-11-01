@@ -25,7 +25,7 @@ export default function CalendarSchedulePage({ onBack, hideHeader = false, role 
       location: 'г. Астана, ЖК Highvill Park, блок С',
       specialist: 'Куаныш Жумагулов (ГСЛ №0049182)',
       status: 'Подтверждено',
-      badgeColor: '#38bdf8'
+      badgeColor: '#b9a4ff'
     },
     {
       id: 'ev-2',
@@ -91,7 +91,7 @@ export default function CalendarSchedulePage({ onBack, hideHeader = false, role 
                 location: e.location || 'г. Алматы',
                 specialist: e.contractor || e.assignedEngineer || 'Специалист',
                 status: e.status === 'Новые' ? 'Запланировано' : (e.status === 'В работе' ? 'В пути' : e.status || 'Запланировано'),
-                badgeColor: e.type === 'request_engineering' ? '#38bdf8' : (e.role === 'machinery' ? '#f59e0b' : '#10b981')
+                badgeColor: e.type === 'request_engineering' ? '#b9a4ff' : (e.role === 'machinery' ? '#f59e0b' : '#10b981')
               }));
             if (calEvents.length > 0) {
               setEvents(prev => {
@@ -127,7 +127,7 @@ export default function CalendarSchedulePage({ onBack, hideHeader = false, role 
       location: newEventLocation,
       specialist: newEventEngineer,
       status: 'Запланировано',
-      badgeColor: newEventType === 'concrete' ? '#10b981' : newEventType === 'machinery' ? '#f59e0b' : '#38bdf8'
+      badgeColor: newEventType === 'concrete' ? '#10b981' : newEventType === 'machinery' ? '#f59e0b' : '#b9a4ff'
     };
 
     setEvents([newEv, ...events]);
@@ -161,7 +161,7 @@ export default function CalendarSchedulePage({ onBack, hideHeader = false, role 
             <h1 style={{ margin: 0, fontSize: '1.8rem', fontWeight: 900, color: '#fff' }}>
               📅 Календарь выездов и график производства работ
             </h1>
-            <p style={{ margin: '0.4rem 0 0 0', color: '#94a3b8', fontSize: '0.9rem' }}>
+            <p style={{ margin: '0.4rem 0 0 0', color: '#a39cc2', fontSize: '0.9rem' }}>
               Синхронизированное расписание инспекций технадзора, подачи спецтехники и сдачи этапов СМР
             </p>
           </div>
@@ -197,12 +197,12 @@ export default function CalendarSchedulePage({ onBack, hideHeader = false, role 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem' }}>
         
         {/* Left Column: Timeline List */}
-        <div style={{ background: 'rgba(15, 23, 42, 0.85)', border: '1px solid rgba(56, 189, 248, 0.25)', borderRadius: '20px', padding: '1.5rem' }}>
+        <div style={{ background: 'rgba(21, 18, 42, 0.85)', border: '1px solid rgba(185, 164, 255, 0.25)', borderRadius: '20px', padding: '1.5rem' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem' }}>
-            <h3 style={{ margin: 0, fontSize: '1.2rem', color: '#38bdf8', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <h3 style={{ margin: 0, fontSize: '1.2rem', color: '#b9a4ff', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <span>📋</span> Ближайшие выезды и события
             </h3>
-            <span style={{ fontSize: '0.78rem', background: 'rgba(56, 189, 248, 0.15)', color: '#38bdf8', padding: '0.2rem 0.6rem', borderRadius: '8px', fontWeight: 700 }}>
+            <span style={{ fontSize: '0.78rem', background: 'rgba(185, 164, 255, 0.15)', color: '#b9a4ff', padding: '0.2rem 0.6rem', borderRadius: '8px', fontWeight: 700 }}>
               {events.length} событий
             </span>
           </div>
@@ -213,7 +213,7 @@ export default function CalendarSchedulePage({ onBack, hideHeader = false, role 
                 key={ev.id}
                 onClick={() => setSelectedEvent(ev)}
                 style={{
-                  background: selectedEvent?.id === ev.id ? 'rgba(56, 189, 248, 0.12)' : 'rgba(255, 255, 255, 0.03)',
+                  background: selectedEvent?.id === ev.id ? 'rgba(185, 164, 255, 0.12)' : 'rgba(255, 255, 255, 0.03)',
                   borderLeft: `4px solid ${ev.badgeColor}`,
                   borderTop: '1px solid rgba(255, 255, 255, 0.06)',
                   borderRight: '1px solid rgba(255, 255, 255, 0.06)',
@@ -231,16 +231,16 @@ export default function CalendarSchedulePage({ onBack, hideHeader = false, role 
                   </span>
                 </div>
 
-                <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', fontSize: '0.78rem', color: '#94a3b8', marginTop: '0.4rem' }}>
+                <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', fontSize: '0.78rem', color: '#a39cc2', marginTop: '0.4rem' }}>
                   <span>📅 {ev.date}</span>
                   <span>⏱️ {ev.time}</span>
                 </div>
 
-                <div style={{ fontSize: '0.78rem', color: '#cbd5e1', marginTop: '0.4rem' }}>
+                <div style={{ fontSize: '0.78rem', color: '#cbc5e3', marginTop: '0.4rem' }}>
                   📍 {ev.location}
                 </div>
 
-                <div style={{ fontSize: '0.75rem', color: '#38bdf8', marginTop: '0.2rem', fontWeight: 600 }}>
+                <div style={{ fontSize: '0.75rem', color: '#b9a4ff', marginTop: '0.2rem', fontWeight: 600 }}>
                   👷 {ev.specialist}
                 </div>
               </div>
@@ -259,7 +259,7 @@ export default function CalendarSchedulePage({ onBack, hideHeader = false, role 
               </h3>
               <h4 style={{ margin: '0 0 0.8rem 0', fontSize: '1.05rem', color: '#fff' }}>{selectedEvent.title}</h4>
               
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', fontSize: '0.86rem', color: '#cbd5e1' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', fontSize: '0.86rem', color: '#cbc5e3' }}>
                 <div><strong>Дата и время:</strong> {selectedEvent.date} ({selectedEvent.time})</div>
                 <div><strong>Адрес объекта:</strong> {selectedEvent.location}</div>
                 <div><strong>Ответственный инженер / бригада:</strong> {selectedEvent.specialist}</div>
@@ -269,7 +269,7 @@ export default function CalendarSchedulePage({ onBack, hideHeader = false, role 
               <div style={{ display: 'flex', gap: '0.8rem', marginTop: '1.2rem' }}>
                 <button
                   onClick={() => alert(`📞 Вызов диспетчера по объекту "${selectedEvent.location}"`)}
-                  style={{ flex: 1, background: 'linear-gradient(90deg, #38bdf8, #2563eb)', border: 'none', color: '#fff', padding: '0.7rem', borderRadius: '10px', fontWeight: 800, cursor: 'pointer' }}
+                  style={{ flex: 1, background: 'linear-gradient(90deg, #b9a4ff, #7c3aed)', border: 'none', color: '#fff', padding: '0.7rem', borderRadius: '10px', fontWeight: 800, cursor: 'pointer' }}
                 >
                   📞 Связаться с инженером
                 </button>
@@ -282,7 +282,7 @@ export default function CalendarSchedulePage({ onBack, hideHeader = false, role 
               </div>
             </div>
           ) : (
-            <div style={{ background: 'rgba(15, 23, 42, 0.7)', border: '1px dashed rgba(255,255,255,0.15)', borderRadius: '20px', padding: '2rem', textAlign: 'center', color: '#94a3b8' }}>
+            <div style={{ background: 'rgba(21, 18, 42, 0.7)', border: '1px dashed rgba(255,255,255,0.15)', borderRadius: '20px', padding: '2rem', textAlign: 'center', color: '#a39cc2' }}>
               <span style={{ fontSize: '2.5rem', display: 'block', marginBottom: '0.5rem' }}>👆</span>
               <p style={{ margin: 0, fontSize: '0.9rem' }}>Выберите событие из списка слева, чтобы просмотреть подробные данные или проложить маршрут</p>
             </div>
@@ -293,7 +293,7 @@ export default function CalendarSchedulePage({ onBack, hideHeader = false, role 
             <h4 style={{ margin: '0 0 0.5rem 0', color: '#34d399', fontSize: '0.95rem' }}>
               ⚡ Автоматические правила выездов QazGost:
             </h4>
-            <ul style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.82rem', color: '#cbd5e1', lineHeight: '1.6' }}>
+            <ul style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.82rem', color: '#cbc5e3', lineHeight: '1.6' }}>
               <li>Инженер ПТО выезжает в течение 24 часов после заморозки Эскроу.</li>
               <li>Спецтехника прибывает на объект строго в выбранный интервал времени с GPS-маяком.</li>
               <li>Акт скрытых работ (АСР) подписывается в день заливки бетона или закрытия штроб.</li>
@@ -307,15 +307,15 @@ export default function CalendarSchedulePage({ onBack, hideHeader = false, role 
       {/* Modal: Add New Visit / Inspection */}
       {showAddModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(10px)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
-          <div style={{ background: 'linear-gradient(145deg, rgba(20, 26, 48, 0.98), rgba(12, 16, 32, 0.98))', border: '1px solid rgba(56, 189, 248, 0.3)', borderRadius: '24px', padding: '2rem', maxWidth: '480px', width: '100%' }}>
+          <div style={{ background: 'linear-gradient(145deg, rgba(20, 26, 48, 0.98), rgba(12, 16, 32, 0.98))', border: '1px solid rgba(185, 164, 255, 0.3)', borderRadius: '24px', padding: '2rem', maxWidth: '480px', width: '100%' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem' }}>
               <h3 style={{ margin: 0, fontSize: '1.3rem', color: '#fff', fontWeight: 800 }}>➕ Запланировать выезд / этап</h3>
-              <button onClick={() => setShowAddModal(false)} style={{ background: 'transparent', border: 'none', color: '#94a3b8', fontSize: '1.2rem', cursor: 'pointer' }}>✕</button>
+              <button onClick={() => setShowAddModal(false)} style={{ background: 'transparent', border: 'none', color: '#a39cc2', fontSize: '1.2rem', cursor: 'pointer' }}>✕</button>
             </div>
 
             <form onSubmit={handleAddEvent} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div>
-                <label style={{ fontSize: '0.8rem', color: '#cbd5e1', fontWeight: 700, display: 'block', marginBottom: '0.3rem' }}>
+                <label style={{ fontSize: '0.8rem', color: '#cbc5e3', fontWeight: 700, display: 'block', marginBottom: '0.3rem' }}>
                   Название события / работы:
                 </label>
                 <input 
@@ -330,7 +330,7 @@ export default function CalendarSchedulePage({ onBack, hideHeader = false, role 
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem' }}>
                 <div>
-                  <label style={{ fontSize: '0.8rem', color: '#cbd5e1', fontWeight: 700, display: 'block', marginBottom: '0.3rem' }}>
+                  <label style={{ fontSize: '0.8rem', color: '#cbc5e3', fontWeight: 700, display: 'block', marginBottom: '0.3rem' }}>
                     Дата проведения:
                   </label>
                   <input 
@@ -341,7 +341,7 @@ export default function CalendarSchedulePage({ onBack, hideHeader = false, role 
                   />
                 </div>
                 <div>
-                  <label style={{ fontSize: '0.8rem', color: '#cbd5e1', fontWeight: 700, display: 'block', marginBottom: '0.3rem' }}>
+                  <label style={{ fontSize: '0.8rem', color: '#cbc5e3', fontWeight: 700, display: 'block', marginBottom: '0.3rem' }}>
                     Тип события:
                   </label>
                   <select 
@@ -358,7 +358,7 @@ export default function CalendarSchedulePage({ onBack, hideHeader = false, role 
               </div>
 
               <div>
-                <label style={{ fontSize: '0.8rem', color: '#cbd5e1', fontWeight: 700, display: 'block', marginBottom: '0.3rem' }}>
+                <label style={{ fontSize: '0.8rem', color: '#cbc5e3', fontWeight: 700, display: 'block', marginBottom: '0.3rem' }}>
                   Адрес объекта:
                 </label>
                 <input 
@@ -370,7 +370,7 @@ export default function CalendarSchedulePage({ onBack, hideHeader = false, role 
               </div>
 
               <div>
-                <label style={{ fontSize: '0.8rem', color: '#cbd5e1', fontWeight: 700, display: 'block', marginBottom: '0.3rem' }}>
+                <label style={{ fontSize: '0.8rem', color: '#cbc5e3', fontWeight: 700, display: 'block', marginBottom: '0.3rem' }}>
                   Ответственный специалист:
                 </label>
                 <input 

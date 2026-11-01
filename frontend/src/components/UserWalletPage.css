@@ -119,7 +119,7 @@
 
 .uw-balance-label {
   font-size: 0.9rem;
-  color: #94a3b8;
+  color: #a39cc2;
   font-weight: 600;
 }
 
@@ -136,7 +136,7 @@
   display: inline-block;
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #cbd5e1;
+  color: #cbc5e3;
   padding: 0.35rem 0.85rem;
   border-radius: 20px;
   font-size: 0.82rem;
@@ -156,7 +156,7 @@
 .uw-curr-btn {
   background: none;
   border: none;
-  color: #94a3b8;
+  color: #a39cc2;
   padding: 0.4rem 0.9rem;
   border-radius: 8px;
   font-weight: 700;
@@ -181,7 +181,7 @@
 }
 
 .uw-no-data {
-  color: #64748b;
+  color: #8a82a8;
   font-size: 0.9rem;
   font-weight: 600;
 }
@@ -190,12 +190,12 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  color: #e2e8f0;
+  color: #ece9f8;
   font-size: 0.9rem;
 }
 
 .uw-history-time {
-  color: #64748b;
+  color: #8a82a8;
   font-size: 0.8rem;
 }
 
@@ -207,7 +207,7 @@
 }
 
 .uw-btn-gold {
-  background: linear-gradient(90deg, #38bdf8, #2563eb);
+  background: linear-gradient(90deg, #b9a4ff, #7c3aed);
   color: #fff;
   border: none;
   padding: 0.95rem;
@@ -216,18 +216,18 @@
   font-size: 0.95rem;
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 4px 18px rgba(56, 189, 248, 0.45);
+  box-shadow: 0 4px 18px rgba(185, 164, 255, 0.45);
 }
 
 .uw-btn-gold:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 22px rgba(56, 189, 248, 0.6);
+  box-shadow: 0 6px 22px rgba(185, 164, 255, 0.6);
 }
 
 .uw-btn-glass {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #e2e8f0;
+  color: #ece9f8;
   padding: 0.85rem;
   border-radius: 12px;
   font-weight: 700;
@@ -264,13 +264,13 @@
 
 .uw-stat-card:hover {
   transform: translateY(-4px) scale(1.02);
-  border-color: rgba(56, 189, 248, 0.6);
-  box-shadow: 0 12px 30px rgba(56, 189, 248, 0.3);
+  border-color: rgba(185, 164, 255, 0.6);
+  box-shadow: 0 12px 30px rgba(185, 164, 255, 0.3);
 }
 
 .uw-stat-label {
   font-size: 0.82rem;
-  color: #94a3b8;
+  color: #a39cc2;
   font-weight: 600;
 }
 
@@ -281,7 +281,7 @@
 
 .uw-stat-value.success { color: #34d399; }
 .uw-stat-value.danger { color: #ef4444; }
-.uw-stat-value.primary { color: #60a5fa; }
+.uw-stat-value.primary { color: #c4b5fd; }
 
 /* Tariffs Section */
 .uw-tariffs-section {
@@ -319,15 +319,15 @@
 
 .uw-plan-card.popular {
   background: linear-gradient(180deg, rgba(59, 43, 114, 0.6) 0%, rgba(26, 27, 46, 0.8) 100%);
-  border: 2px solid #3b82f6;
-  box-shadow: 0 10px 40px rgba(59, 130, 246, 0.2);
+  border: 2px solid #8b5cf6;
+  box-shadow: 0 10px 40px rgba(139, 92, 246, 0.2);
 }
 
 .uw-popular-badge {
   position: absolute;
   top: -12px;
   right: 1.5rem;
-  background: #3b82f6;
+  background: #8b5cf6;
   color: #fff;
   font-size: 0.72rem;
   font-weight: 900;
@@ -351,14 +351,14 @@
 .uw-plan-price {
   font-size: 2.2rem;
   font-weight: 900;
-  color: #60a5fa;
+  color: #c4b5fd;
   margin-bottom: 1.5rem;
   display: flex;
   flex-direction: column;
 }
 
 .uw-plan-price.popular-color {
-  color: #93c5fd;
+  color: #ddd6fe;
 }
 
 .uw-plan-price.gold-text {
@@ -367,7 +367,7 @@
 
 .uw-plan-period {
   font-size: 0.8rem;
-  color: #64748b;
+  color: #8a82a8;
   font-weight: 500;
   margin-top: 0.2rem;
 }
@@ -380,7 +380,7 @@
   flex-direction: column;
   gap: 0.75rem;
   font-size: 0.88rem;
-  color: #cbd5e1;
+  color: #cbc5e3;
   flex: 1;
 }
 
@@ -413,14 +413,14 @@
 }
 
 .popular-btn {
-  background: linear-gradient(90deg, #3b82f6, #38bdf8);
+  background: linear-gradient(90deg, #8b5cf6, #b9a4ff);
   border: none;
-  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+  box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
 }
 
 .popular-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(56, 189, 248, 0.5);
+  box-shadow: 0 8px 25px rgba(185, 164, 255, 0.5);
 }
 
 .uw-need-more {
@@ -464,7 +464,7 @@
   right: 1rem;
   background: none;
   border: none;
-  color: #94a3b8;
+  color: #a39cc2;
   font-size: 1.2rem;
   cursor: pointer;
 }
@@ -476,7 +476,7 @@
 }
 
 .uw-modal-sub {
-  color: #94a3b8;
+  color: #a39cc2;
   font-size: 0.88rem;
   margin: 0 0 1.5rem 0;
 }
@@ -491,7 +491,7 @@
 .uw-preset-btn {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #cbd5e1;
+  color: #cbc5e3;
   padding: 0.6rem;
   border-radius: 10px;
   font-weight: 700;
@@ -514,7 +514,7 @@
 
 .uw-form-group label {
   font-size: 0.85rem;
-  color: #94a3b8;
+  color: #a39cc2;
   font-weight: 600;
 }
 
@@ -567,9 +567,9 @@
 }
 
 .uw-add-card-link-btn {
-  background: rgba(56, 189, 248, 0.1);
-  border: 1px solid rgba(56, 189, 248, 0.35);
-  color: #38bdf8;
+  background: rgba(185, 164, 255, 0.1);
+  border: 1px solid rgba(185, 164, 255, 0.35);
+  color: #b9a4ff;
   padding: 0.5rem 1rem;
   border-radius: 10px;
   font-weight: 700;
@@ -579,8 +579,8 @@
 }
 
 .uw-add-card-link-btn:hover {
-  background: rgba(56, 189, 248, 0.25);
-  border-color: #38bdf8;
+  background: rgba(185, 164, 255, 0.25);
+  border-color: #b9a4ff;
   transform: translateY(-1px);
 }
 
@@ -612,17 +612,17 @@
 }
 
 .uw-credit-card-item.is-default {
-  border: 2px solid #38bdf8;
-  box-shadow: 0 0 25px rgba(56, 189, 248, 0.3);
+  border: 2px solid #b9a4ff;
+  box-shadow: 0 0 25px rgba(185, 164, 255, 0.3);
 }
 
 .card-default-badge {
   position: absolute;
   top: 10px;
   right: 12px;
-  background: rgba(15, 23, 42, 0.85);
-  color: #38bdf8;
-  border: 1px solid rgba(56, 189, 248, 0.5);
+  background: rgba(21, 18, 42, 0.85);
+  color: #b9a4ff;
+  border: 1px solid rgba(185, 164, 255, 0.5);
   font-size: 0.68rem;
   font-weight: 800;
   padding: 2px 8px;
@@ -697,7 +697,7 @@
 .card-actions-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(15, 23, 42, 0.92);
+  background: rgba(21, 18, 42, 0.92);
   backdrop-filter: blur(8px);
   display: flex;
   flex-direction: column;
@@ -726,12 +726,12 @@
 }
 
 .card-action-btn.default-btn {
-  background: #2563eb;
+  background: #7c3aed;
   color: #fff;
 }
 
 .card-action-btn.default-btn:hover {
-  background: #3b82f6;
+  background: #8b5cf6;
 }
 
 .card-action-btn.delete-btn {
@@ -749,8 +749,8 @@
 .uw-add-card-tile {
   height: 170px;
   border-radius: 18px;
-  border: 2px dashed rgba(56, 189, 248, 0.4);
-  background: rgba(15, 23, 42, 0.4);
+  border: 2px dashed rgba(185, 164, 255, 0.4);
+  background: rgba(21, 18, 42, 0.4);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -761,14 +761,14 @@
 }
 
 .uw-add-card-tile:hover {
-  background: rgba(56, 189, 248, 0.08);
-  border-color: #38bdf8;
+  background: rgba(185, 164, 255, 0.08);
+  border-color: #b9a4ff;
   transform: translateY(-2px);
 }
 
 .add-card-icon {
   font-size: 2rem;
-  color: #38bdf8;
+  color: #b9a4ff;
   font-weight: 300;
   line-height: 1;
   margin-bottom: 0.4rem;
@@ -782,7 +782,7 @@
 
 .add-card-sub {
   font-size: 0.75rem;
-  color: #94a3b8;
+  color: #a39cc2;
   margin-top: 0.2rem;
 }
 
@@ -809,8 +809,8 @@
 }
 
 .uw-card-picker-item:hover, .uw-card-picker-item.active {
-  border-color: #38bdf8;
-  background: rgba(56, 189, 248, 0.12);
+  border-color: #b9a4ff;
+  background: rgba(185, 164, 255, 0.12);
 }
 
 .picker-left {
@@ -825,8 +825,8 @@
 
 .picker-badge {
   font-size: 0.68rem;
-  background: rgba(56, 189, 248, 0.2);
-  color: #38bdf8;
+  background: rgba(185, 164, 255, 0.2);
+  color: #b9a4ff;
   padding: 2px 6px;
   border-radius: 6px;
   font-weight: 800;
@@ -836,7 +836,7 @@
   width: 100%;
   background: transparent;
   border: none;
-  color: #38bdf8;
+  color: #b9a4ff;
   font-size: 0.82rem;
   font-weight: 700;
   padding: 0.4rem 0;
@@ -865,7 +865,7 @@
   align-items: center;
   gap: 0.5rem;
   font-size: 0.82rem;
-  color: #cbd5e1;
+  color: #cbc5e3;
   cursor: pointer;
 }
 
@@ -946,7 +946,7 @@
   font-variant-numeric: tabular-nums;
 }
 .uw-plan-badge, .uw-history-box {
-  background: rgba(140, 170, 214, 0.06) !important;
+  background: rgba(196, 181, 253, 0.06) !important;
   border: 1px solid var(--qg-line) !important;
   color: var(--qg-text-2) !important;
   box-shadow: none !important;
@@ -975,7 +975,7 @@
 }
 .uw-btn-glass:hover, .uw-add-card-link-btn:hover { border-color: var(--qg-text-2) !important; }
 .uw-section-title { color: var(--qg-text) !important; font-size: var(--qg-fs-xl) !important; font-weight: 800 !important; letter-spacing: -0.01em; }
-.uw-count { margin-left: 6px; padding: 1px 8px; border-radius: var(--qg-r-pill); background: rgba(140, 170, 214, 0.12); color: var(--qg-text-2); font-size: 0.8125rem; vertical-align: middle; }
+.uw-count { margin-left: 6px; padding: 1px 8px; border-radius: var(--qg-r-pill); background: rgba(196, 181, 253, 0.12); color: var(--qg-text-2); font-size: 0.8125rem; vertical-align: middle; }
 .uw-add-card-tile {
   font: inherit;
   color: var(--qg-text) !important;

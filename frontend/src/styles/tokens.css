@@ -2,9 +2,10 @@
    QazGost AI — дизайн-токены (единый источник цвета, отступов, радиусов,
    теней и типографики). Подключается глобально последним в main.jsx.
 
-   Идея: «чертёж на планшете». Тёмно-синий фон как синька, тонкие линии
-   как на чертеже, сине-голубой акцент для действий, жёлтый — только для
-   цены (ценник) и разметки опасности. Без неонового свечения.
+   Идея: «вечерняя стройплощадка». Глубокий фиолетово-чернильный фон с
+   мягким светом прожекторов, фиолетовый — для навигации и активных
+   состояний, золото — главная кнопка действия и деньги (ценник).
+   Все пары текст/фон проверены на контраст ≥ 4.5:1 (WCAG AA).
 
    Новые стили пишем на --qg-*. Старые переменные (--accent-*, --radius-*,
    --font-main …) ниже перенаправлены на токены, чтобы legacy-CSS
@@ -13,26 +14,34 @@
 
 :root {
   /* ── Цвет: поверхности ── */
-  --qg-night: #08111f;          /* фон страницы — «синька» */
-  --qg-surface: #0e1829;        /* карточки и панели */
-  --qg-surface-2: #13203a;      /* приподнятые элементы, hover */
-  --qg-field: #0a1424;          /* поля ввода */
-  --qg-line: rgba(140, 170, 214, 0.16);         /* линия чертежа */
-  --qg-line-strong: rgba(140, 170, 214, 0.32);
-  --qg-grid: rgba(92, 150, 230, 0.07);          /* сетка фона */
+  --qg-night: #0c0a16;          /* фон страницы — чернильно-фиолетовый */
+  --qg-surface: #16132a;        /* карточки и панели */
+  --qg-surface-2: #201c3a;      /* приподнятые элементы, hover */
+  --qg-field: #100d20;          /* поля ввода */
+  --qg-line: rgba(196, 181, 253, 0.14);         /* тонкая линия */
+  --qg-line-strong: rgba(196, 181, 253, 0.3);
+  --qg-grid: rgba(167, 139, 250, 0.06);         /* сетка фона */
 
   /* ── Цвет: текст (все пары ≥ 4.5:1 на --qg-surface) ── */
-  --qg-text: #e8eef7;
-  --qg-text-2: #b3c0d4;         /* второстепенный, 9.7:1 */
-  --qg-text-3: #8d9cb4;         /* подписи, 6.4:1 (5.8:1 на surface-2) */
+  --qg-text: #f5f3ff;
+  --qg-text-2: #cbc5e3;         /* второстепенный, ≈10:1 */
+  --qg-text-3: #a39cc2;         /* подписи, ≈6.5:1 (≈5.8:1 на surface-2) */
 
   /* ── Цвет: акценты ── */
-  --qg-blue: #2563eb;           /* основная кнопка (белый текст 5.2:1) */
-  --qg-blue-hover: #1d4ed8;
-  --qg-cyan: #5cc8f5;           /* ссылки, фокус, активные состояния */
-  --qg-cyan-soft: rgba(92, 200, 245, 0.12);
-  --qg-price: #fbbf24;          /* ценник — только деньги и разметка */
-  --qg-price-soft: rgba(251, 191, 36, 0.09);
+  --qg-blue: #7c3aed;           /* фиолетовая кнопка (белый текст 5.7:1) */
+  --qg-blue-hover: #6d28d9;
+  --qg-cyan: #b9a4ff;           /* ссылки, фокус, активные состояния */
+  --qg-cyan-soft: rgba(167, 139, 250, 0.14);
+  --qg-gold: #f6b93b;           /* главная кнопка действия (тёмный текст 10:1) */
+  --qg-gold-hover: #ffca5c;
+  --qg-on-gold: #1d1404;
+  --qg-violet: #8b5cf6;
+  --qg-pink: #f472b6;           /* только в градиенте заголовка */
+  --qg-glow: radial-gradient(60% 50% at 15% 0%, rgba(139, 92, 246, 0.22), transparent 70%),
+             radial-gradient(45% 40% at 90% 10%, rgba(236, 72, 153, 0.12), transparent 70%),
+             radial-gradient(50% 45% at 50% 100%, rgba(246, 185, 59, 0.06), transparent 70%);
+  --qg-price: #fcc94a;          /* ценник — только деньги и разметка */
+  --qg-price-soft: rgba(252, 201, 74, 0.1);
   --qg-ok: #34d399;
   --qg-warn: #f59e0b;
   --qg-danger: #f87171;
@@ -41,7 +50,7 @@
   --qg-danger-soft: rgba(248, 113, 113, 0.12);
 
   /* ── Типографика ── */
-  --qg-font: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --qg-font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --qg-font-code: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace; /* только нормативные коды и номера актов */
   /* шкала 1.25 (большая терция) от 16px */
   --qg-fs-xs: 0.75rem;   /* 12 */
@@ -80,7 +89,7 @@
 
   /* ── Тени: два уровня, без цветного свечения ── */
   --qg-shadow-1: 0 1px 2px rgba(0, 0, 0, 0.35);
-  --qg-shadow-2: 0 18px 40px -18px rgba(0, 0, 0, 0.7);
+  --qg-shadow-2: 0 20px 44px -20px rgba(8, 4, 24, 0.85);
   --qg-focus-ring: 0 0 0 2px var(--qg-night), 0 0 0 4px var(--qg-cyan);
 
   /* ── Движение ── */
@@ -118,13 +127,16 @@
 html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 body {
   background-color: var(--qg-night) !important;
+  background-image: var(--qg-glow) !important;
+  background-attachment: fixed !important;
+  background-repeat: no-repeat !important;
   color: var(--qg-text);
   font-family: var(--qg-font) !important;
 }
 /* защита от горизонтального скролла на 360–1440: лендинг раньше был шире экрана */
 .app-root { overflow-x: clip; max-width: 100vw; }
 
-::selection { background: rgba(92, 200, 245, 0.35); color: #fff; }
+::selection { background: rgba(139, 92, 246, 0.45); color: #fff; }
 
 /* Цифры в таблицах и ценах — табличные */
 .qg-num, .qg-price { font-variant-numeric: tabular-nums; }
@@ -190,12 +202,14 @@ body {
   transition: background-color var(--qg-dur-1) var(--qg-ease), border-color var(--qg-dur-1) var(--qg-ease), color var(--qg-dur-1) var(--qg-ease);
   white-space: nowrap;
 }
-.qg-btn--primary { background: var(--qg-blue); color: #fff; }
-.qg-btn--primary:hover { background: var(--qg-blue-hover); }
+.qg-btn--primary { background: var(--qg-gold); color: var(--qg-on-gold); box-shadow: 0 8px 24px -10px rgba(246, 185, 59, 0.55); }
+.qg-btn--primary:hover { background: var(--qg-gold-hover); }
+.qg-btn--violet { background: var(--qg-blue); color: #fff; }
+.qg-btn--violet:hover { background: var(--qg-blue-hover); }
 .qg-btn--ghost { background: transparent; color: var(--qg-text); border-color: var(--qg-line-strong); }
-.qg-btn--ghost:hover { border-color: var(--qg-text-2); background: rgba(140, 170, 214, 0.06); }
+.qg-btn--ghost:hover { border-color: var(--qg-cyan); background: rgba(167, 139, 250, 0.08); }
 .qg-btn--quiet { background: transparent; color: var(--qg-cyan); padding-inline: 4px; min-height: 36px; }
-.qg-btn--quiet:hover { color: #9fdcf8; text-decoration: underline; text-underline-offset: 3px; }
+.qg-btn--quiet:hover { color: #d6caff; text-decoration: underline; text-underline-offset: 3px; }
 .qg-btn--sm { min-height: 36px; padding: 6px 14px; font-size: var(--qg-fs-sm); }
 .qg-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
@@ -221,7 +235,7 @@ body {
   gap: 6px;
   padding: 3px 9px;
   border-radius: var(--qg-r-sm);
-  background: rgba(140, 170, 214, 0.1);
+  background: rgba(167, 139, 250, 0.12);
   color: var(--qg-text-2);
   font-size: var(--qg-fs-xs);
   font-weight: 600;
@@ -230,7 +244,7 @@ body {
 .qg-chip--ok { background: var(--qg-ok-soft); color: var(--qg-ok); }
 .qg-chip--warn { background: var(--qg-warn-soft); color: #fcd34d; }
 .qg-chip--danger { background: var(--qg-danger-soft); color: #fca5a5; }
-.qg-chip--info { background: var(--qg-cyan-soft); color: #a5e3fb; }
+.qg-chip--info { background: var(--qg-cyan-soft); color: #d6caff; }
 
 .qg-code { font-family: var(--qg-font-code); font-size: 0.86em; letter-spacing: 0; }
 

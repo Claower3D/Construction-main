@@ -142,7 +142,7 @@ export default function WorkflowDiagramSection({ onAction }) {
           </div>
 
           <div className="mock-ui-card" style={{ flex: 'none' }}>
-            <div className="mock-ui-title" style={{ color: currentStep >= 2 ? '#00ff88' : '#64748b' }}>{currentStep >= 2 ? 'Смета #104 сформирована' : 'Ожидает расчет'}</div>
+            <div className="mock-ui-title" style={{ color: currentStep >= 2 ? '#00ff88' : '#8a82a8' }}>{currentStep >= 2 ? 'Смета #104 сформирована' : 'Ожидает расчет'}</div>
             <div className="mock-field">
               <span className="mock-field-label">Тип работ:</span>
               <span className="mock-field-value">{currentStep >= 2 ? orderData.service : '—'}</span>
@@ -180,12 +180,12 @@ export default function WorkflowDiagramSection({ onAction }) {
               <div className="estimate-badge" style={{ background: 'rgba(0, 255, 136, 0.1)', border: '1px solid #00ff88', color: '#00ff88', marginBottom: 0 }}>
                 <i className="fas fa-check-circle"></i> Клиент одобрил смету
               </div>
-              <button className="action-button interactive-btn" style={{ background: 'rgba(255,255,255,0.05)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.1)' }} onClick={() => alert('Смета скачивается в формате PDF...')}>
+              <button className="action-button interactive-btn" style={{ background: 'rgba(255,255,255,0.05)', color: '#a39cc2', border: '1px solid rgba(255,255,255,0.1)' }} onClick={() => alert('Смета скачивается в формате PDF...')}>
                 <i className="fas fa-download"></i> Скачать смету (PDF)
               </button>
             </div>
           ) : (
-             <div className="estimate-badge locked" style={{ opacity: 0.5, borderColor: '#334155' }}>
+             <div className="estimate-badge locked" style={{ opacity: 0.5, borderColor: '#3a3458' }}>
                <i className="fas fa-lock"></i> Ожидает поступления
              </div>
           )}
@@ -211,7 +211,7 @@ export default function WorkflowDiagramSection({ onAction }) {
           </div>
 
           <div className="mock-ui-card">
-            <div className="mock-ui-title" style={{ color: currentStep >= 3 ? '#ffaa00' : '#64748b' }}>Подобранные ресурсы</div>
+            <div className="mock-ui-title" style={{ color: currentStep >= 3 ? '#ffaa00' : '#8a82a8' }}>Подобранные ресурсы</div>
             
             <div className={`resource-item ${currentStep >= 3 ? 'active' : ''}`}>
               <i className="fas fa-tractor resource-icon"></i>
@@ -263,7 +263,7 @@ export default function WorkflowDiagramSection({ onAction }) {
           </div>
 
           <div className="mock-ui-card" style={{ marginTop: '1rem' }}>
-            <div className="mock-ui-title" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: currentStep >= 4 ? '#00e1ff' : '#64748b' }}>
+            <div className="mock-ui-title" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: currentStep >= 4 ? '#00e1ff' : '#8a82a8' }}>
               <span>Детали задачи</span>
               {orderData.statusText === 'В ПРОЦЕССЕ' && (
                 <span className="badge-in-progress" style={{ fontSize: '0.65rem', background: 'rgba(255,170,0,0.2)', color: '#ffaa00', padding: '2px 6px', borderRadius: '4px' }}>● В ПРОЦЕССЕ</span>
@@ -273,15 +273,15 @@ export default function WorkflowDiagramSection({ onAction }) {
               )}
             </div>
             <div className="mock-field">
-              <i className="fas fa-map-marker-alt" style={{ color: '#64748b', marginRight: '8px', width: '12px' }}></i>
+              <i className="fas fa-map-marker-alt" style={{ color: '#8a82a8', marginRight: '8px', width: '12px' }}></i>
               <span className="mock-field-value" style={{ fontSize: '0.75rem' }}>{currentStep >= 4 ? orderData.address : '—'}</span>
             </div>
             <div className="mock-field">
-              <i className="fas fa-tractor" style={{ color: '#64748b', marginRight: '8px', width: '12px' }}></i>
+              <i className="fas fa-tractor" style={{ color: '#8a82a8', marginRight: '8px', width: '12px' }}></i>
               <span className="mock-field-value" style={{ fontSize: '0.75rem' }}>{currentStep >= 4 ? orderData.service : '—'}</span>
             </div>
             <div className="mock-field">
-              <i className="far fa-calendar-alt" style={{ color: '#64748b', marginRight: '8px', width: '12px' }}></i>
+              <i className="far fa-calendar-alt" style={{ color: '#8a82a8', marginRight: '8px', width: '12px' }}></i>
               <span className="mock-field-value" style={{ fontSize: '0.75rem' }}>{currentStep >= 4 ? orderData.date : '—'}</span>
             </div>
           </div>
@@ -319,28 +319,28 @@ export default function WorkflowDiagramSection({ onAction }) {
         </div>
         
         <div className={`timeline-step ${currentStep >= 1 ? 'active' : ''}`}>
-          <div className="timeline-icon" style={{ color: currentStep >= 1 ? '#00e1ff' : '#64748b', boxShadow: currentStep >= 1 ? '0 0 15px rgba(0,225,255,0.4)' : 'none' }}><i className="fas fa-phone-alt"></i></div>
+          <div className="timeline-icon" style={{ color: currentStep >= 1 ? '#00e1ff' : '#8a82a8', boxShadow: currentStep >= 1 ? '0 0 15px rgba(0,225,255,0.4)' : 'none' }}><i className="fas fa-phone-alt"></i></div>
           <div className="timeline-text" style={{ opacity: currentStep >= 1 ? 1 : 0.5 }}>
             <h4>Прием заявки</h4>
             <p>Фиксация данных</p>
           </div>
         </div>
         <div className={`timeline-step ${currentStep >= 2 ? 'active' : ''}`}>
-          <div className="timeline-icon" style={{ color: currentStep >= 2 ? '#00ff88' : '#64748b', boxShadow: currentStep >= 2 ? '0 0 15px rgba(0,255,136,0.4)' : 'none' }}><i className="fas fa-clipboard-check"></i></div>
+          <div className="timeline-icon" style={{ color: currentStep >= 2 ? '#00ff88' : '#8a82a8', boxShadow: currentStep >= 2 ? '0 0 15px rgba(0,255,136,0.4)' : 'none' }}><i className="fas fa-clipboard-check"></i></div>
           <div className="timeline-text" style={{ opacity: currentStep >= 2 ? 1 : 0.5 }}>
             <h4>Выезд инженера</h4>
             <p>Расчет сметы</p>
           </div>
         </div>
         <div className={`timeline-step ${currentStep >= 3 ? 'active' : ''}`}>
-          <div className="timeline-icon" style={{ color: currentStep >= 3 ? '#ffaa00' : '#64748b', boxShadow: currentStep >= 3 ? '0 0 15px rgba(255,170,0,0.4)' : 'none' }}><i className="fas fa-cogs"></i></div>
+          <div className="timeline-icon" style={{ color: currentStep >= 3 ? '#ffaa00' : '#8a82a8', boxShadow: currentStep >= 3 ? '0 0 15px rgba(255,170,0,0.4)' : 'none' }}><i className="fas fa-cogs"></i></div>
           <div className="timeline-text" style={{ opacity: currentStep >= 3 ? 1 : 0.5 }}>
             <h4>Подбор бригады</h4>
             <p>Назначение техники</p>
           </div>
         </div>
         <div className={`timeline-step ${currentStep >= 4 ? 'active' : ''}`}>
-          <div className="timeline-icon" style={{ color: currentStep >= 4 ? '#00e1ff' : '#64748b', boxShadow: currentStep >= 4 ? '0 0 15px rgba(0,225,255,0.4)' : 'none' }}><i className="fas fa-mobile-alt"></i></div>
+          <div className="timeline-icon" style={{ color: currentStep >= 4 ? '#00e1ff' : '#8a82a8', boxShadow: currentStep >= 4 ? '0 0 15px rgba(0,225,255,0.4)' : 'none' }}><i className="fas fa-mobile-alt"></i></div>
           <div className="timeline-text" style={{ opacity: currentStep >= 4 ? 1 : 0.5 }}>
             <h4>Выполнение</h4>
             <p>Отметка в приложении</p>

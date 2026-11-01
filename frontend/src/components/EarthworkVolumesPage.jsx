@@ -173,7 +173,7 @@ export default function EarthworkVolumesPage({ onBack, hideHeader = false }) {
             <h1 style={{ margin: 0, fontSize: '1.8rem', fontWeight: 900, color: '#fff' }}>
               📐 Геодезический 3D-расчёт выемки и насыпи грунта (ГЭСН РК)
             </h1>
-            <p style={{ margin: '0.4rem 0 0 0', color: '#94a3b8', fontSize: '0.9rem' }}>
+            <p style={{ margin: '0.4rem 0 0 0', color: '#a39cc2', fontSize: '0.9rem' }}>
               Точный инженерный расчёт объёмов котлована, коэффициентов разрыхления, смен экскаватора и рейсов самосвалов
             </p>
           </div>
@@ -192,14 +192,14 @@ export default function EarthworkVolumesPage({ onBack, hideHeader = false }) {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '1.5rem' }}>
         
         {/* Left Column: Dimensions & Soil Selection */}
-        <div style={{ background: 'rgba(15, 23, 42, 0.85)', border: '1px solid rgba(56, 189, 248, 0.25)', borderRadius: '20px', padding: '1.5rem' }}>
-          <h3 style={{ margin: '0 0 1.2rem 0', fontSize: '1.15rem', color: '#38bdf8', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <div style={{ background: 'rgba(21, 18, 42, 0.85)', border: '1px solid rgba(185, 164, 255, 0.25)', borderRadius: '20px', padding: '1.5rem' }}>
+          <h3 style={{ margin: '0 0 1.2rem 0', fontSize: '1.15rem', color: '#b9a4ff', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <span>⛏️</span> 1. Геометрические параметры котлована
           </h3>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
             <div>
-              <label style={{ fontSize: '0.8rem', color: '#cbd5e1', fontWeight: 700, display: 'block', marginBottom: '0.3rem' }}>
+              <label style={{ fontSize: '0.8rem', color: '#cbc5e3', fontWeight: 700, display: 'block', marginBottom: '0.3rem' }}>
                 Длина по дну (м):
               </label>
               <input 
@@ -210,7 +210,7 @@ export default function EarthworkVolumesPage({ onBack, hideHeader = false }) {
               />
             </div>
             <div>
-              <label style={{ fontSize: '0.8rem', color: '#cbd5e1', fontWeight: 700, display: 'block', marginBottom: '0.3rem' }}>
+              <label style={{ fontSize: '0.8rem', color: '#cbc5e3', fontWeight: 700, display: 'block', marginBottom: '0.3rem' }}>
                 Ширина по дну (м):
               </label>
               <input 
@@ -224,7 +224,7 @@ export default function EarthworkVolumesPage({ onBack, hideHeader = false }) {
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.2rem' }}>
             <div>
-              <label style={{ fontSize: '0.8rem', color: '#cbd5e1', fontWeight: 700, display: 'block', marginBottom: '0.3rem' }}>
+              <label style={{ fontSize: '0.8rem', color: '#cbc5e3', fontWeight: 700, display: 'block', marginBottom: '0.3rem' }}>
                 Глубина котлована (м):
               </label>
               <input 
@@ -236,7 +236,7 @@ export default function EarthworkVolumesPage({ onBack, hideHeader = false }) {
               />
             </div>
             <div>
-              <label style={{ fontSize: '0.8rem', color: '#cbd5e1', fontWeight: 700, display: 'block', marginBottom: '0.3rem' }}>
+              <label style={{ fontSize: '0.8rem', color: '#cbc5e3', fontWeight: 700, display: 'block', marginBottom: '0.3rem' }}>
                 Крутизна откоса (СНиП):
               </label>
               <select 
@@ -252,12 +252,12 @@ export default function EarthworkVolumesPage({ onBack, hideHeader = false }) {
             </div>
           </div>
 
-          <h3 style={{ margin: '1.2rem 0 0.8rem 0', fontSize: '1.15rem', color: '#38bdf8', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <h3 style={{ margin: '1.2rem 0 0.8rem 0', fontSize: '1.15rem', color: '#b9a4ff', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <span>🧱</span> 2. Характеристики грунта и логистика
           </h3>
 
           <div style={{ marginBottom: '1rem' }}>
-            <label style={{ fontSize: '0.8rem', color: '#cbd5e1', fontWeight: 700, display: 'block', marginBottom: '0.3rem' }}>
+            <label style={{ fontSize: '0.8rem', color: '#cbc5e3', fontWeight: 700, display: 'block', marginBottom: '0.3rem' }}>
               Категория и тип грунта:
             </label>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
@@ -267,8 +267,8 @@ export default function EarthworkVolumesPage({ onBack, hideHeader = false }) {
                   type="button"
                   onClick={() => setSoilType(key)}
                   style={{
-                    background: soilType === key ? 'rgba(56, 189, 248, 0.2)' : 'rgba(255,255,255,0.03)',
-                    border: soilType === key ? '2px solid #38bdf8' : '1px solid rgba(255,255,255,0.1)',
+                    background: soilType === key ? 'rgba(185, 164, 255, 0.2)' : 'rgba(255,255,255,0.03)',
+                    border: soilType === key ? '2px solid #b9a4ff' : '1px solid rgba(255,255,255,0.1)',
                     borderRadius: '10px',
                     padding: '0.6rem',
                     color: '#fff',
@@ -279,7 +279,7 @@ export default function EarthworkVolumesPage({ onBack, hideHeader = false }) {
                   }}
                 >
                   <div>{item.icon} {item.name}</div>
-                  <div style={{ fontSize: '0.7rem', color: '#94a3b8', marginTop: '0.2rem' }}>Кр = {item.factor} • {item.density} т/м³</div>
+                  <div style={{ fontSize: '0.7rem', color: '#a39cc2', marginTop: '0.2rem' }}>Кр = {item.factor} • {item.density} т/м³</div>
                 </button>
               ))}
             </div>
@@ -287,7 +287,7 @@ export default function EarthworkVolumesPage({ onBack, hideHeader = false }) {
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.2rem' }}>
             <div>
-              <label style={{ fontSize: '0.8rem', color: '#cbd5e1', fontWeight: 700, display: 'block', marginBottom: '0.3rem' }}>
+              <label style={{ fontSize: '0.8rem', color: '#cbc5e3', fontWeight: 700, display: 'block', marginBottom: '0.3rem' }}>
                 Плечо вывоза (км):
               </label>
               <input 
@@ -298,7 +298,7 @@ export default function EarthworkVolumesPage({ onBack, hideHeader = false }) {
               />
             </div>
             <div>
-              <label style={{ fontSize: '0.8rem', color: '#cbd5e1', fontWeight: 700, display: 'block', marginBottom: '0.3rem' }}>
+              <label style={{ fontSize: '0.8rem', color: '#cbc5e3', fontWeight: 700, display: 'block', marginBottom: '0.3rem' }}>
                 Грузоподъемность самосвала:
               </label>
               <select 
@@ -318,7 +318,7 @@ export default function EarthworkVolumesPage({ onBack, hideHeader = false }) {
               <strong style={{ color: '#34d399', fontSize: '0.88rem' }}>📸 AI Фото-детекция рельефа ДО/ПОСЛЕ:</strong>
               <span style={{ fontSize: '0.72rem', background: '#10b981', color: '#000', padding: '0.15rem 0.45rem', borderRadius: '6px', fontWeight: 900 }}>Vision 3D</span>
             </div>
-            <p style={{ margin: '0 0 0.8rem 0', fontSize: '0.78rem', color: '#cbd5e1' }}>
+            <p style={{ margin: '0 0 0.8rem 0', fontSize: '0.78rem', color: '#cbc5e3' }}>
               Загрузите фото участка для автоматического расчёта перепада высот лазерной триангуляцией
             </p>
             <button
@@ -353,46 +353,46 @@ export default function EarthworkVolumesPage({ onBack, hideHeader = false }) {
           <div style={{ background: 'linear-gradient(145deg, rgba(20, 26, 48, 0.95), rgba(12, 16, 32, 0.98))', border: '1px solid rgba(246, 196, 83, 0.3)', borderRadius: '20px', padding: '1.5rem', boxShadow: '0 20px 50px rgba(0,0,0,0.6)' }}>
             <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.25rem', color: '#f59e0b', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <span>📊 Сводка объемов (WBS СНиП РК)</span>
-              <span style={{ fontSize: '0.8rem', color: '#94a3b8', fontWeight: 500 }}>ГЭСН-2026</span>
+              <span style={{ fontSize: '0.8rem', color: '#a39cc2', fontWeight: 500 }}>ГЭСН-2026</span>
             </h3>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem', marginBottom: '1.2rem' }}>
               <div style={{ background: 'rgba(255,255,255,0.03)', padding: '0.8rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                <small style={{ color: '#94a3b8', fontSize: '0.74rem', display: 'block' }}>Геометрический объём:</small>
-                <strong style={{ fontSize: '1.2rem', color: '#38bdf8' }}>{calculations.geometricVolumeM3.toLocaleString()} м³</strong>
+                <small style={{ color: '#a39cc2', fontSize: '0.74rem', display: 'block' }}>Геометрический объём:</small>
+                <strong style={{ fontSize: '1.2rem', color: '#b9a4ff' }}>{calculations.geometricVolumeM3.toLocaleString()} м³</strong>
               </div>
               <div style={{ background: 'rgba(255,255,255,0.03)', padding: '0.8rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                <small style={{ color: '#94a3b8', fontSize: '0.74rem', display: 'block' }}>Транспортный объём (Кр):</small>
+                <small style={{ color: '#a39cc2', fontSize: '0.74rem', display: 'block' }}>Транспортный объём (Кр):</small>
                 <strong style={{ fontSize: '1.2rem', color: '#f59e0b' }}>{calculations.transportVolumeM3.toLocaleString()} м³</strong>
               </div>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.6rem', marginBottom: '1.2rem' }}>
               <div style={{ background: 'rgba(255,255,255,0.03)', padding: '0.6rem', borderRadius: '10px', textAlign: 'center' }}>
-                <span style={{ fontSize: '0.7rem', color: '#94a3b8', display: 'block' }}>Вес грунта:</span>
+                <span style={{ fontSize: '0.7rem', color: '#a39cc2', display: 'block' }}>Вес грунта:</span>
                 <strong style={{ fontSize: '1rem', color: '#fff' }}>{calculations.totalMassTons} т</strong>
               </div>
               <div style={{ background: 'rgba(255,255,255,0.03)', padding: '0.6rem', borderRadius: '10px', textAlign: 'center' }}>
-                <span style={{ fontSize: '0.7rem', color: '#94a3b8', display: 'block' }}>Рейсов самосвала:</span>
+                <span style={{ fontSize: '0.7rem', color: '#a39cc2', display: 'block' }}>Рейсов самосвала:</span>
                 <strong style={{ fontSize: '1rem', color: '#10b981' }}>{calculations.truckTripsCount}</strong>
               </div>
               <div style={{ background: 'rgba(255,255,255,0.03)', padding: '0.6rem', borderRadius: '10px', textAlign: 'center' }}>
-                <span style={{ fontSize: '0.7rem', color: '#94a3b8', display: 'block' }}>Смен экскаватора:</span>
-                <strong style={{ fontSize: '1rem', color: '#38bdf8' }}>{calculations.excavatorShifts}</strong>
+                <span style={{ fontSize: '0.7rem', color: '#a39cc2', display: 'block' }}>Смен экскаватора:</span>
+                <strong style={{ fontSize: '1rem', color: '#b9a4ff' }}>{calculations.excavatorShifts}</strong>
               </div>
             </div>
 
             {/* Cost Breakdown */}
             <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: '#cbd5e1' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: '#cbc5e3' }}>
                 <span>⛏️ Выемка грунта экскаватором:</span>
                 <strong>{calculations.excavationCost.toLocaleString()} ₸</strong>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: '#cbd5e1' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: '#cbc5e3' }}>
                 <span>🚚 Вывоз самосвалами ({distanceKm} км):</span>
                 <strong>{calculations.transportCost.toLocaleString()} ₸</strong>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: '#cbd5e1' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: '#cbc5e3' }}>
                 <span>♻️ Утилизация на полигоне ТБО:</span>
                 <strong>{calculations.disposalCost.toLocaleString()} ₸</strong>
               </div>
@@ -408,7 +408,7 @@ export default function EarthworkVolumesPage({ onBack, hideHeader = false }) {
               style={{
                 marginTop: '1.2rem',
                 width: '100%',
-                background: 'linear-gradient(90deg, #f59e0b, #38bdf8, #2563eb)',
+                background: 'linear-gradient(90deg, #f59e0b, #b9a4ff, #7c3aed)',
                 border: 'none',
                 borderRadius: '14px',
                 padding: '1rem',
@@ -416,7 +416,7 @@ export default function EarthworkVolumesPage({ onBack, hideHeader = false }) {
                 fontSize: '1rem',
                 fontWeight: 900,
                 cursor: 'pointer',
-                boxShadow: '0 10px 25px rgba(56, 189, 248, 0.4)',
+                boxShadow: '0 10px 25px rgba(185, 164, 255, 0.4)',
                 transition: 'all 0.3s ease'
               }}
             >
@@ -425,8 +425,8 @@ export default function EarthworkVolumesPage({ onBack, hideHeader = false }) {
           </div>
 
           {/* Quick Machinery Recommendations */}
-          <div style={{ background: 'rgba(15, 23, 42, 0.7)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px', padding: '1.2rem' }}>
-            <h4 style={{ margin: '0 0 0.8rem 0', fontSize: '0.95rem', color: '#38bdf8', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <div style={{ background: 'rgba(21, 18, 42, 0.7)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px', padding: '1.2rem' }}>
+            <h4 style={{ margin: '0 0 0.8rem 0', fontSize: '0.95rem', color: '#b9a4ff', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <span>🚜</span> Рекомендуемый парк техники на объекте:
             </h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>

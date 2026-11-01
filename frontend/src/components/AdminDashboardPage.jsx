@@ -74,8 +74,8 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
       shortLabel: 'Исполнитель',
       icon: '🔧',
       desc: 'Ищу заказы, отправляю предложения, выполняю работы',
-      color: '#38bdf8',
-      glow: 'rgba(56, 189, 248, 0.45)',
+      color: '#b9a4ff',
+      glow: 'rgba(185, 164, 255, 0.45)',
       badge: ''
     },
     {
@@ -84,8 +84,8 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
       shortLabel: 'Инженер',
       icon: '👷',
       desc: 'Принимаю заявки, разрабатываю проектную документацию',
-      color: '#2563eb',
-      glow: 'rgba(37, 99, 235, 0.45)',
+      color: '#7c3aed',
+      glow: 'rgba(124, 58, 237, 0.45)',
       badge: ''
     },
     {
@@ -94,8 +94,8 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
       shortLabel: 'Менеджер',
       icon: '💼',
       desc: 'Управление лидами, клиентами, сделками и CRM-аналитикой',
-      color: '#38bdf8',
-      glow: 'rgba(56, 189, 248, 0.45)',
+      color: '#b9a4ff',
+      glow: 'rgba(185, 164, 255, 0.45)',
       badge: 'CRM'
     },
     {
@@ -104,8 +104,8 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
       shortLabel: 'Компания',
       icon: '🏢',
       desc: 'Управление БИН, сотрудниками и объектами организации',
-      color: '#0ea5e9',
-      glow: 'rgba(14, 165, 233, 0.45)',
+      color: '#a78bfa',
+      glow: 'rgba(167, 139, 250, 0.45)',
       badge: 'ТОО'
     },
     {
@@ -133,84 +133,84 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
   // Dynamic cards configuration for each role
   const roleCardsData = {
     builder: [
-      { id: 'b-objects', title: 'Мои строительные объекты', icon: '🏢', desc: 'Управление портфелем ЖК, БЦ и коттеджных городков с 3D BIM-моделями', btnText: '🏢 Мои объекты', btnGradient: 'linear-gradient(90deg, #6366f1, #3b82f6)' },
+      { id: 'b-objects', title: 'Мои строительные объекты', icon: '🏢', desc: 'Управление портфелем ЖК, БЦ и коттеджных городков с 3D BIM-моделями', btnText: '🏢 Мои объекты', btnGradient: 'linear-gradient(90deg, #6366f1, #8b5cf6)' },
       { id: 'b-create', title: 'Создать объект (СНиП)', icon: '➕', desc: 'Выбор типа объекта, этажности и проверка допуска компаний ГАСК', btnText: '➕ Создать объект', btnGradient: 'linear-gradient(90deg, #10b981, #059669)' },
-      { id: 'b-wbs', title: 'Выбор СМР & Оценка', icon: '📐', desc: 'WBS-калькулятор стоимости работ по сборникам ГЭСН-2026 РК', btnText: '📐 Калькулятор СМР', btnGradient: 'linear-gradient(90deg, #38bdf8, #2563eb)' },
+      { id: 'b-wbs', title: 'Выбор СМР & Оценка', icon: '📐', desc: 'WBS-калькулятор стоимости работ по сборникам ГЭСН-2026 РК', btnText: '📐 Калькулятор СМР', btnGradient: 'linear-gradient(90deg, #b9a4ff, #7c3aed)' },
       { id: 'b-audit', title: 'Инженерный фото-аудит', icon: '🔍', desc: 'AI-проверка чертежей КЖ/АР, замечания технадзора и дефектовка', btnText: '🔍 AI Экспертиза', btnGradient: 'linear-gradient(90deg, #8b5cf6, #ec4899)' },
       { id: 'b-lots', title: 'Лоты & Тендеры', icon: '📦', desc: 'Публикация строительных лотов в "Мои Заказы Строительство"', btnText: '📦 Лоты и тендеры', btnGradient: 'linear-gradient(90deg, #f59e0b, #d97706)' },
-      { id: 'b-docs', title: 'Сметы & Документы PDF', icon: '📄', desc: 'Локальные сметы СНиП, аналитика прогресса и акты КС-2/КС-3', btnText: '📄 Скачать PDF', btnGradient: 'linear-gradient(90deg, #3b82f6, #06b6d4)' },
-      { id: 'b-contractors', title: 'Реестр подрядчиков', icon: '🛡️', desc: 'Проверка лицензий ГАСК I/II категории, БИН и контакты ГИП', btnText: '🛡️ База подрядчиков', btnGradient: 'linear-gradient(90deg, #0ea5e9, #10b981)' },
+      { id: 'b-docs', title: 'Сметы & Документы PDF', icon: '📄', desc: 'Локальные сметы СНиП, аналитика прогресса и акты КС-2/КС-3', btnText: '📄 Скачать PDF', btnGradient: 'linear-gradient(90deg, #8b5cf6, #a78bfa)' },
+      { id: 'b-contractors', title: 'Реестр подрядчиков', icon: '🛡️', desc: 'Проверка лицензий ГАСК I/II категории, БИН и контакты ГИП', btnText: '🛡️ База подрядчиков', btnGradient: 'linear-gradient(90deg, #a78bfa, #10b981)' },
     ],
 
     customer: [
-      { id: 'c-materials', title: 'Маркетплейс материалов', icon: '🧱', desc: 'Оптовые и розничные стройматериалы от заводов РК: цемент, кирпич, арматура, смеси', btnText: '🧱 Открыть маркетплейс', btnGradient: 'linear-gradient(90deg, #10b981, #3b82f6)' },
-      { id: 'c-estimate', title: 'Оценка стоимости', icon: '📊', desc: 'Загрузите фото — получите смету с тремя сценариями цены', btnText: '🚀 Начать оценку', btnGradient: 'linear-gradient(90deg, #38bdf8, #2563eb)' },
+      { id: 'c-materials', title: 'Маркетплейс материалов', icon: '🧱', desc: 'Оптовые и розничные стройматериалы от заводов РК: цемент, кирпич, арматура, смеси', btnText: '🧱 Открыть маркетплейс', btnGradient: 'linear-gradient(90deg, #10b981, #8b5cf6)' },
+      { id: 'c-estimate', title: 'Оценка стоимости', icon: '📊', desc: 'Загрузите фото — получите смету с тремя сценариями цены', btnText: '🚀 Начать оценку', btnGradient: 'linear-gradient(90deg, #b9a4ff, #7c3aed)' },
       { id: 'c-inspect', title: 'Проверка дефектов', icon: '🔍', desc: 'Трещины на фото, акт с нормативами СНиП и ГОСТ и ценой ремонта', btnText: '🔍 Начать проверку', btnGradient: 'linear-gradient(90deg, #f59e0b, #ef4444)' },
-      { id: 'c-vip', title: 'Строительство зданий', icon: '🏗️', desc: 'ПСД, ВВР-документация, сметы полного цикла и генподряд VIP', btnText: '⭐ Открыть', btnGradient: 'linear-gradient(90deg, #6366f1, #2563eb)' },
-      { id: 'c-engineering', title: 'Инженерные решения', icon: '⚙️', desc: 'Электрика, сантехника, HVAC, слаботочные системы и технадзор', btnText: '⚡ Выбрать', btnGradient: 'linear-gradient(90deg, #38bdf8, #93c5fd)' },
+      { id: 'c-vip', title: 'Строительство зданий', icon: '🏗️', desc: 'ПСД, ВВР-документация, сметы полного цикла и генподряд VIP', btnText: '⭐ Открыть', btnGradient: 'linear-gradient(90deg, #6366f1, #7c3aed)' },
+      { id: 'c-engineering', title: 'Инженерные решения', icon: '⚙️', desc: 'Электрика, сантехника, HVAC, слаботочные системы и технадзор', btnText: '⚡ Выбрать', btnGradient: 'linear-gradient(90deg, #b9a4ff, #ddd6fe)' },
       { id: 'c-orders', title: 'Мои заказы', icon: '📬', desc: 'Просмотр активных заявок, откликов мастеров и статусов работ', btnText: '📗 Открыть заказы', btnGradient: 'linear-gradient(90deg, #10b981, #059669)' },
-      { id: 'c-wallet', title: 'Мой кошелёк', icon: '💳', desc: 'Баланс, безопасные эскроу-счета, пополнение и вывод средств', btnText: '💳 Открыть кошелёк', btnGradient: 'linear-gradient(90deg, #2563eb, #f59e0b)' },
-      { id: 'c-equipment', title: 'Маркетплейс техники', icon: '🚜', desc: 'Аренда экскаваторов, кранов, самосвалов по всему Казахстану', btnText: '🚜 Открыть технику', btnGradient: 'linear-gradient(90deg, #3b82f6, #06b6d4)' },
+      { id: 'c-wallet', title: 'Мой кошелёк', icon: '💳', desc: 'Баланс, безопасные эскроу-счета, пополнение и вывод средств', btnText: '💳 Открыть кошелёк', btnGradient: 'linear-gradient(90deg, #7c3aed, #f59e0b)' },
+      { id: 'c-equipment', title: 'Маркетплейс техники', icon: '🚜', desc: 'Аренда экскаваторов, кранов, самосвалов по всему Казахстану', btnText: '🚜 Открыть технику', btnGradient: 'linear-gradient(90deg, #8b5cf6, #a78bfa)' },
       { id: 'c-catalog', title: 'Каталог подрядчиков', icon: '📒', desc: 'Реестр проверенных специалистов и строительных компаний по ИИН/БИН', btnText: '📒 Найти мастеров', btnGradient: 'linear-gradient(90deg, #f59e0b, #d97706)' },
-      { id: 'c-volume', title: 'Расчёт объёмов (BOM)', icon: '📏', desc: 'Автоматический расчёт площадей и спецификации стройматериалов', btnText: '📐 Рассчитать', btnGradient: 'linear-gradient(90deg, #06b6d4, #10b981)' },
+      { id: 'c-volume', title: 'Расчёт объёмов (BOM)', icon: '📏', desc: 'Автоматический расчёт площадей и спецификации стройматериалов', btnText: '📐 Рассчитать', btnGradient: 'linear-gradient(90deg, #a78bfa, #10b981)' },
       { id: 'c-calendar', title: 'Календарь работ', icon: '📅', desc: 'График выполнения строительно-монтажных работ и инспекций', btnText: '📅 График', btnGradient: 'linear-gradient(90deg, #ef4444, #f59e0b)' },
       { id: 'c-profile', title: 'Моя анкета', icon: '📝', desc: 'Личные данные Заказчика, параметры объекта, бюджет и реквизиты', btnText: '📝 Заполнить', btnGradient: 'linear-gradient(90deg, #10b981, #059669)' },
     ],
 
     executor: [
-      { id: 'e-materials', title: 'Маркетплейс материалов', icon: '🧱', desc: 'Оптовый закуп стройматериалов со скидками до 20% для подрядчиков', btnText: '🧱 Закуп материалов', btnGradient: 'linear-gradient(90deg, #10b981, #3b82f6)' },
-      { id: 'e-feed', title: 'Лента заказов', icon: '🌐', desc: 'Живой поток заказов со всего Казахстана без посредников и комиссий', btnText: '🌐 Смотреть заказы', btnGradient: 'linear-gradient(90deg, #38bdf8, #2563eb)' },
+      { id: 'e-materials', title: 'Маркетплейс материалов', icon: '🧱', desc: 'Оптовый закуп стройматериалов со скидками до 20% для подрядчиков', btnText: '🧱 Закуп материалов', btnGradient: 'linear-gradient(90deg, #10b981, #8b5cf6)' },
+      { id: 'e-feed', title: 'Лента заказов', icon: '🌐', desc: 'Живой поток заказов со всего Казахстана без посредников и комиссий', btnText: '🌐 Смотреть заказы', btnGradient: 'linear-gradient(90deg, #b9a4ff, #7c3aed)' },
       { id: 'e-works', title: 'Мои работы', icon: '📌', desc: 'Портфолио, текущие объекты и онлайн-сдача этапов заказчику', btnText: '📌 Мои объекты', btnGradient: 'linear-gradient(90deg, #ef4444, #f59e0b)' },
-      { id: 'e-estimate', title: 'Оценка стоимости', icon: '📸', desc: 'Калькулятор сметных расходов по расценкам ГЭСН 2026', btnText: '🚀 Сметный расчёт', btnGradient: 'linear-gradient(90deg, #38bdf8, #2563eb)' },
+      { id: 'e-estimate', title: 'Оценка стоимости', icon: '📸', desc: 'Калькулятор сметных расходов по расценкам ГЭСН 2026', btnText: '🚀 Сметный расчёт', btnGradient: 'linear-gradient(90deg, #b9a4ff, #7c3aed)' },
       { id: 'e-inspect', title: 'Проверка дефектов', icon: '🔍', desc: 'Экспертная проверка состояния конструкций и дефектоскопия', btnText: '🔍 Проверить дефекты', btnGradient: 'linear-gradient(90deg, #f59e0b, #ef4444)' },
-      { id: 'e-soil', title: 'Фото-объёмы грунта', icon: '📐', desc: 'Геодезический 3D-расчёт выемки и насыпи грунта по фото ДО/ПОСЛЕ', btnText: '📸 Рассчитать объём', btnGradient: 'linear-gradient(90deg, #10b981, #0ea5e9)' },
-      { id: 'e-engineering', title: 'Инженерные решения', icon: '⚙️', desc: 'Техническая спецификация работ и схемы разводки сетей', btnText: '⚡ Спецификация', btnGradient: 'linear-gradient(90deg, #38bdf8, #93c5fd)' },
-      { id: 'e-wallet', title: 'Мой кошелёк', icon: '💳', desc: 'Баланс мастера, выплаты по эскроу и вывод на карту в KZT', btnText: '💳 Открыть кошелёк', btnGradient: 'linear-gradient(90deg, #2563eb, #f59e0b)' },
-      { id: 'e-equipment', title: 'Маркетплейс техники', icon: '🚜', desc: 'Поиск спецтехники в аренду и оптовый закуп стройматериалов', btnText: '🚜 Найти технику', btnGradient: 'linear-gradient(90deg, #3b82f6, #06b6d4)' },
+      { id: 'e-soil', title: 'Фото-объёмы грунта', icon: '📐', desc: 'Геодезический 3D-расчёт выемки и насыпи грунта по фото ДО/ПОСЛЕ', btnText: '📸 Рассчитать объём', btnGradient: 'linear-gradient(90deg, #10b981, #a78bfa)' },
+      { id: 'e-engineering', title: 'Инженерные решения', icon: '⚙️', desc: 'Техническая спецификация работ и схемы разводки сетей', btnText: '⚡ Спецификация', btnGradient: 'linear-gradient(90deg, #b9a4ff, #ddd6fe)' },
+      { id: 'e-wallet', title: 'Мой кошелёк', icon: '💳', desc: 'Баланс мастера, выплаты по эскроу и вывод на карту в KZT', btnText: '💳 Открыть кошелёк', btnGradient: 'linear-gradient(90deg, #7c3aed, #f59e0b)' },
+      { id: 'e-equipment', title: 'Маркетплейс техники', icon: '🚜', desc: 'Поиск спецтехники в аренду и оптовый закуп стройматериалов', btnText: '🚜 Найти технику', btnGradient: 'linear-gradient(90deg, #8b5cf6, #a78bfa)' },
       { id: 'e-calendar', title: 'Календарь выездов', icon: '📅', desc: 'Расписание выездов на замеры и этапов монтажных работ', btnText: '📅 Расписание', btnGradient: 'linear-gradient(90deg, #ef4444, #10b981)' },
       { id: 'e-catalog', title: 'Каталог специалистов', icon: '📒', desc: 'Рейтинг, отзывы и карточки мастеров в едином реестре РК', btnText: '📒 Реестр мастеров', btnGradient: 'linear-gradient(90deg, #f59e0b, #d97706)' },
-      { id: 'e-vip', title: 'Строительство зданий (VIP)', icon: '🏗️', desc: 'Участие в тендерах генподряда, ПСД и аккредитация I/II категории', btnText: '⭐ VIP Тендеры', btnGradient: 'linear-gradient(90deg, #6366f1, #2563eb)' },
+      { id: 'e-vip', title: 'Строительство зданий (VIP)', icon: '🏗️', desc: 'Участие в тендерах генподряда, ПСД и аккредитация I/II категории', btnText: '⭐ VIP Тендеры', btnGradient: 'linear-gradient(90deg, #6366f1, #7c3aed)' },
       { id: 'e-profile', title: 'Анкета мастера', icon: '📝', desc: 'Профиль исполнителя, верификация ИИН/БИН, навыки и портфолио', btnText: '📝 Заполнить профиль', btnGradient: 'linear-gradient(90deg, #10b981, #059669)' },
     ],
 
     engineer: [
-      { id: 'ing-main', title: 'Главная панель', icon: '📊', desc: 'Сводный дашборд технического надзора, статусы проверок и графики', btnText: '📊 Открыть панель', btnGradient: 'linear-gradient(90deg, #2563eb, #38bdf8)' },
+      { id: 'ing-main', title: 'Главная панель', icon: '📊', desc: 'Сводный дашборд технического надзора, статусы проверок и графики', btnText: '📊 Открыть панель', btnGradient: 'linear-gradient(90deg, #7c3aed, #b9a4ff)' },
       { id: 'ing-requests', title: 'Заявки на технадзор', icon: '📬', desc: 'Очередь вызовов инженеров на объекты для проведения инспекций', btnText: '📬 Список заявок', btnGradient: 'linear-gradient(90deg, #ef4444, #f59e0b)' },
       { id: 'ing-objects', title: 'Мои объекты', icon: '🏗️', desc: 'Реестр строящихся объектов под авторским и техническим контролем', btnText: '🏗️ Мои объекты', btnGradient: 'linear-gradient(90deg, #f59e0b, #10b981)' },
-      { id: 'ing-ai', title: 'AI-просчёт по СНиП', icon: '🤖', desc: 'Автоматический анализ ПСД на соответствие ГОСТ и СНиП РК', btnText: '🤖 Запустить AI', btnGradient: 'linear-gradient(90deg, #2563eb, #7c3aed)' },
+      { id: 'ing-ai', title: 'AI-просчёт по СНиП', icon: '🤖', desc: 'Автоматический анализ ПСД на соответствие ГОСТ и СНиП РК', btnText: '🤖 Запустить AI', btnGradient: 'linear-gradient(90deg, #7c3aed, #7c3aed)' },
       { id: 'ing-calendar', title: 'Календарь инспекций', icon: '📅', desc: 'План выездных инспекций и график подписания актов КС-2 / КС-3', btnText: '📅 План инспекций', btnGradient: 'linear-gradient(90deg, #10b981, #059669)' },
-      { id: 'ing-expenses', title: 'Контроль расходов', icon: '💰', desc: 'Анализ отклонений от утвержденной сметы и контроль перерасходов', btnText: '💰 Аудит смет', btnGradient: 'linear-gradient(90deg, #06b6d4, #10b981)' },
+      { id: 'ing-expenses', title: 'Контроль расходов', icon: '💰', desc: 'Анализ отклонений от утвержденной сметы и контроль перерасходов', btnText: '💰 Аудит смет', btnGradient: 'linear-gradient(90deg, #a78bfa, #10b981)' },
     ],
 
     company: [
-      { id: 'comp-tree', title: 'Древо ролей и структуры', icon: '🌳', desc: 'Интерактивное семейное древо ролей, отделов, сотрудников и бригад ТОО', btnText: '🌳 Открыть древо', btnGradient: 'linear-gradient(90deg, #10b981, #0ea5e9)' },
-      { id: 'comp-profile', title: 'Профиль компании', icon: '📝', desc: 'Управление БИН компании, лицензиями ГСЛ и банковскими реквизитами', btnText: '📝 Реквизиты ТОО', btnGradient: 'linear-gradient(90deg, #0ea5e9, #2563eb)' },
-      { id: 'comp-employees', title: 'Сотрудники и бригады', icon: '👥', desc: 'Реестр штатных инженеров, прорабов и привязанных рабочих бригад', btnText: '👥 Управление штатом', btnGradient: 'linear-gradient(90deg, #10b981, #0ea5e9)' },
-      { id: 'comp-stats', title: 'Статистика компании', icon: '📈', desc: 'Сводные финансовые показатели, динамика сдачи объектов и KPI', btnText: '📈 Смотреть отчёты', btnGradient: 'linear-gradient(90deg, #2563eb, #38bdf8)' },
+      { id: 'comp-tree', title: 'Древо ролей и структуры', icon: '🌳', desc: 'Интерактивное семейное древо ролей, отделов, сотрудников и бригад ТОО', btnText: '🌳 Открыть древо', btnGradient: 'linear-gradient(90deg, #10b981, #a78bfa)' },
+      { id: 'comp-profile', title: 'Профиль компании', icon: '📝', desc: 'Управление БИН компании, лицензиями ГСЛ и банковскими реквизитами', btnText: '📝 Реквизиты ТОО', btnGradient: 'linear-gradient(90deg, #a78bfa, #7c3aed)' },
+      { id: 'comp-employees', title: 'Сотрудники и бригады', icon: '👥', desc: 'Реестр штатных инженеров, прорабов и привязанных рабочих бригад', btnText: '👥 Управление штатом', btnGradient: 'linear-gradient(90deg, #10b981, #a78bfa)' },
+      { id: 'comp-stats', title: 'Статистика компании', icon: '📈', desc: 'Сводные финансовые показатели, динамика сдачи объектов и KPI', btnText: '📈 Смотреть отчёты', btnGradient: 'linear-gradient(90deg, #7c3aed, #b9a4ff)' },
     ],
 
     manager: [
-      { id: 'mgr-crm', title: 'CRM-система', icon: '📊', desc: 'Воронка лидов, карточки клиентов, управление компаниями и бригадами', btnText: '📊 Открыть CRM', btnGradient: 'linear-gradient(90deg, #3b82f6, #f59e0b)' },
+      { id: 'mgr-crm', title: 'CRM-система', icon: '📊', desc: 'Воронка лидов, карточки клиентов, управление компаниями и бригадами', btnText: '📊 Открыть CRM', btnGradient: 'linear-gradient(90deg, #8b5cf6, #f59e0b)' },
       { id: 'mgr-reports', title: 'Отчёты по продажам', icon: '📄', desc: 'Конверсия сделок, средний чек смет и аналитика эффективности', btnText: '📄 Сводка продаж', btnGradient: 'linear-gradient(90deg, #10b981, #059669)' },
     ],
 
     admin: [
-      { id: 'adm-tree', title: 'Иерархия ролей (Древо)', icon: '🌳', desc: 'Визуальное древо ролей всех строительных организаций и компаний платформы', btnText: '🌳 Древо ролей', btnGradient: 'linear-gradient(90deg, #10b981, #0ea5e9)' },
+      { id: 'adm-tree', title: 'Иерархия ролей (Древо)', icon: '🌳', desc: 'Визуальное древо ролей всех строительных организаций и компаний платформы', btnText: '🌳 Древо ролей', btnGradient: 'linear-gradient(90deg, #10b981, #a78bfa)' },
       { id: 'adm-prices', title: 'Прайсы ГЭСН-2026', icon: '💰', desc: 'База 23 864+ позиций строительных расценок по 17 областям Казахстана', btnText: '💰 Открыть прайсы', btnGradient: 'linear-gradient(90deg, #f59e0b, #ea580c)' },
       { id: 'adm-moderation', title: 'Модерация заявок', icon: '🛡️', desc: 'Очередь верификации подрядчиков, проверка документов и заказов', btnText: '🛡️ Модерация', btnGradient: 'linear-gradient(90deg, #ef4444, #f59e0b)' },
-      { id: 'adm-regions', title: 'Региональные индексы', icon: '🗺️', desc: 'Коэффициенты удорожания стройматериалов по регионам РК', btnText: '🗺️ Индексы цен', btnGradient: 'linear-gradient(90deg, #2563eb, #38bdf8)' },
-      { id: 'adm-audit', title: 'Журнал действий', icon: '📜', desc: 'Полный аудит логов пользователей, изменений в сметах и AI-вызовов', btnText: '📜 Журнал логов', btnGradient: 'linear-gradient(90deg, #3b82f6, #8b5cf6)' },
-      { id: 'adm-kpi', title: 'KPI Платформы', icon: '📊', desc: 'Метрики скорости расчётов, точности AI и загрузки серверов', btnText: '📊 Открыть KPI', btnGradient: 'linear-gradient(90deg, #10b981, #06b6d4)' },
+      { id: 'adm-regions', title: 'Региональные индексы', icon: '🗺️', desc: 'Коэффициенты удорожания стройматериалов по регионам РК', btnText: '🗺️ Индексы цен', btnGradient: 'linear-gradient(90deg, #7c3aed, #b9a4ff)' },
+      { id: 'adm-audit', title: 'Журнал действий', icon: '📜', desc: 'Полный аудит логов пользователей, изменений в сметах и AI-вызовов', btnText: '📜 Журнал логов', btnGradient: 'linear-gradient(90deg, #8b5cf6, #8b5cf6)' },
+      { id: 'adm-kpi', title: 'KPI Платформы', icon: '📊', desc: 'Метрики скорости расчётов, точности AI и загрузки серверов', btnText: '📊 Открыть KPI', btnGradient: 'linear-gradient(90deg, #10b981, #a78bfa)' },
       { id: 'adm-disputes', title: 'Споры и арбитраж', icon: '⚖️', desc: 'Рассмотрение претензий по качеству работ и разблокировка эскроу', btnText: '⚖️ Разрешить спор', btnGradient: 'linear-gradient(90deg, #f59e0b, #ef4444)' },
-      { id: 'adm-contracts', title: 'Договоры подряда', icon: '📄', desc: 'Шаблоны договоров строительного подряда с поддержкой ЭЦП E-Gov', btnText: '📄 Реестр договоров', btnGradient: 'linear-gradient(90deg, #2563eb, #10b981)' },
-      { id: 'adm-documents', title: 'Документы & Выгрузка Excel', icon: '📁', desc: 'Выгрузка актов КС-2/КС-3, счетов на оплату, ЭСФ и реестров договоров в Excel (.xlsx)', btnText: '📁 Открыть документы', btnGradient: 'linear-gradient(90deg, #10b981, #06b6d4)' },
+      { id: 'adm-contracts', title: 'Договоры подряда', icon: '📄', desc: 'Шаблоны договоров строительного подряда с поддержкой ЭЦП E-Gov', btnText: '📄 Реестр договоров', btnGradient: 'linear-gradient(90deg, #7c3aed, #10b981)' },
+      { id: 'adm-documents', title: 'Документы & Выгрузка Excel', icon: '📁', desc: 'Выгрузка актов КС-2/КС-3, счетов на оплату, ЭСФ и реестров договоров в Excel (.xlsx)', btnText: '📁 Открыть документы', btnGradient: 'linear-gradient(90deg, #10b981, #a78bfa)' },
     ],
 
     analyst: [
       { id: 'an-queue', title: 'Очередь завершённых заявок', icon: '📋', desc: 'Заявки, закрытые исполнителями и переданные аналитику для финальной отчётности', btnText: '📋 Открыть очередь', btnGradient: 'linear-gradient(90deg, #8b5cf6, #6366f1)' },
       { id: 'an-reports', title: 'PDF-отчёты и экспорт', icon: '📄', desc: 'Формирование итоговых отчётов с фотографиями, файлами и хронологией работ', btnText: '📄 Генератор отчётов', btnGradient: 'linear-gradient(90deg, #ef4444, #f59e0b)' },
-      { id: 'an-stats', title: 'Статистика проделанных работ', icon: '📊', desc: 'Сводная аналитика по объектам, бригадам, бюджетам и срокам выполнения', btnText: '📊 Смотреть статистику', btnGradient: 'linear-gradient(90deg, #10b981, #0ea5e9)' },
-      { id: 'an-files', title: 'Архив документации', icon: '📎', desc: 'Договоры, акты КС-2/КС-3, заключения технадзора и гарантийные обязательства', btnText: '📎 Открыть архив', btnGradient: 'linear-gradient(90deg, #3b82f6, #8b5cf6)' },
+      { id: 'an-stats', title: 'Статистика проделанных работ', icon: '📊', desc: 'Сводная аналитика по объектам, бригадам, бюджетам и срокам выполнения', btnText: '📊 Смотреть статистику', btnGradient: 'linear-gradient(90deg, #10b981, #a78bfa)' },
+      { id: 'an-files', title: 'Архив документации', icon: '📎', desc: 'Договоры, акты КС-2/КС-3, заключения технадзора и гарантийные обязательства', btnText: '📎 Открыть архив', btnGradient: 'linear-gradient(90deg, #8b5cf6, #8b5cf6)' },
     ]
   };
 
@@ -372,7 +372,7 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
               title="На главный экран"
             >
               <span className="logo-emoji">🏗️</span>
-              <div>QazGost <span style={{ color: '#38bdf8' }}>AI</span></div>
+              <div>QazGost <span style={{ color: '#b9a4ff' }}>AI</span></div>
             </div>
             <button 
               onClick={() => setIsMobileSidebarOpen(false)}
@@ -383,7 +383,7 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
             </button>
           </div>
 
-          <div style={{ fontSize: '0.72rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: '900', marginBottom: '0.6rem' }}>
+          <div style={{ fontSize: '0.72rem', color: '#a39cc2', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: '900', marginBottom: '0.6rem' }}>
             ВЫБРАТЬ ДАШБОРД
           </div>
 
@@ -430,11 +430,11 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
         </nav>
 
         <div className="sidebar-footer">
-          <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
+          <div style={{ fontSize: '0.8rem', color: '#a39cc2' }}>
             <span className="online-ai-badge" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
               <span className="live-dot" /> Online AI 2.0
             </span>
-            <div style={{ fontSize: '0.75rem', color: '#cbd5e1', lineHeight: '1.3' }}>
+            <div style={{ fontSize: '0.75rem', color: '#cbc5e3', lineHeight: '1.3' }}>
               Система активна и готова к работе.
             </div>
           </div>

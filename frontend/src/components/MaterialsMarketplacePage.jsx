@@ -1643,7 +1643,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
             <span style={{ fontSize: '1.5rem' }}>🤖</span>
             <div>
               <h3>AI-Калькулятор потребности стройматериалов (BOM)</h3>
-              <p style={{ color: '#cbd5e1', fontSize: '0.85rem', margin: '4px 0 0 0' }}>
+              <p style={{ color: '#cbc5e3', fontSize: '0.85rem', margin: '4px 0 0 0' }}>
                 Введите базовые размеры объекта — нейросеть рассчитает точную спецификацию материалов по нормам расхода СНиП РК.
               </p>
             </div>
@@ -1685,7 +1685,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
                   <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.03)', padding: '10px 14px', borderRadius: '8px' }}>
                     <div>
                       <strong>{it.name}</strong>
-                      <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>Количество: {it.count} {it.unit}</div>
+                      <div style={{ fontSize: '0.8rem', color: '#a39cc2' }}>Количество: {it.count} {it.unit}</div>
                     </div>
                     <strong style={{ color: '#10b981', fontSize: '1.1rem' }}>{it.cost.toLocaleString()} ₸</strong>
                   </div>
@@ -1694,8 +1694,8 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
 
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '1rem' }}>
                 <div>
-                  <span style={{ color: '#94a3b8' }}>Ориентировочный бюджет:</span>
-                  <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#38bdf8' }}>{aiBOMResult.totalCost.toLocaleString()} ₸</div>
+                  <span style={{ color: '#a39cc2' }}>Ориентировочный бюджет:</span>
+                  <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#b9a4ff' }}>{aiBOMResult.totalCost.toLocaleString()} ₸</div>
                 </div>
 
                 <button 
@@ -1718,17 +1718,17 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
       {/* TAB 3: RFQ / WHOLESALE TENDER INQUIRY                        */}
       {/* ─────────────────────────────────────────────────────────── */}
       {activeTab === 'rfq' && (
-        <div style={{ maxWidth: '680px', margin: '0 auto', background: 'rgba(15, 23, 42, 0.85)', padding: '2rem', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)' }}>
+        <div style={{ maxWidth: '680px', margin: '0 auto', background: 'rgba(21, 18, 42, 0.85)', padding: '2rem', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)' }}>
           <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.35rem', color: '#fff' }}>
             📋 Запрос оптовой цены у всех заводов и поставщиков РК
           </h3>
-          <p style={{ color: '#cbd5e1', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
+          <p style={{ color: '#cbc5e3', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
             Укажите необходимый перечень стройматериалов. Система автоматически уведомит аккредитованные базы и заводы, и вы получите коммерческие предложения со скидкой до 20%.
           </p>
 
           <form onSubmit={handleRfqSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
             <div>
-              <label style={{ display: 'block', fontSize: '0.85rem', color: '#94a3b8', marginBottom: '0.4rem' }}>Список или описание материалов:</label>
+              <label style={{ display: 'block', fontSize: '0.85rem', color: '#a39cc2', marginBottom: '0.4rem' }}>Список или описание материалов:</label>
               <textarea 
                 rows="4"
                 placeholder="Например: Арматура А500С Ø12мм — 25 тонн, Бетон М350 — 120 м³, Кирпич керамический — 15 000 шт."
@@ -1741,7 +1741,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '0.85rem', color: '#94a3b8', marginBottom: '0.4rem' }}>Город доставки:</label>
+                <label style={{ display: 'block', fontSize: '0.85rem', color: '#a39cc2', marginBottom: '0.4rem' }}>Город доставки:</label>
                 <select 
                   value={rfqCity} 
                   onChange={e => setRfqCity(e.target.value)}
@@ -1755,7 +1755,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.85rem', color: '#94a3b8', marginBottom: '0.4rem' }}>Контактный телефон:</label>
+                <label style={{ display: 'block', fontSize: '0.85rem', color: '#a39cc2', marginBottom: '0.4rem' }}>Контактный телефон:</label>
                 <input 
                   type="text" 
                   placeholder="+7 (707) 000-00-00"
@@ -1787,7 +1787,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
               <h3>
                 <span>🛒</span>
                 <span>Корзина заказа</span>
-                {cart.length > 0 && <span style={{ fontSize: '.82rem', color: '#94a3b8', marginLeft: 6 }}>({cart.length} поз.)</span>}
+                {cart.length > 0 && <span style={{ fontSize: '.82rem', color: '#a39cc2', marginLeft: 6 }}>({cart.length} поз.)</span>}
               </h3>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                 {cart.length > 0 && (
@@ -1804,7 +1804,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
 
             <div className="mmp-cart-items-list">
               {cart.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '3rem 1rem', color: '#94a3b8' }}>
+                <div style={{ textAlign: 'center', padding: '3rem 1rem', color: '#a39cc2' }}>
                   <span style={{ fontSize: '3rem', display: 'block', marginBottom: '1rem' }}>🛒</span>
                   <strong>Ваша корзина пуста</strong>
                   <p style={{ fontSize: '0.85rem', margin: '0.5rem 0 0 0' }}>Выберите товары из каталога и добавьте их в корзину.</p>
@@ -1815,12 +1815,12 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
                     <img src={item.image} alt={item.title} />
                     <div className="mmp-ci-info">
                       <div className="mmp-ci-title">{item.title}</div>
-                      <div style={{ fontSize: '.75rem', color: '#64748b', marginBottom: 4 }}>
+                      <div style={{ fontSize: '.75rem', color: '#8a82a8', marginBottom: 4 }}>
                         {item.supplier} • {item.city}
                       </div>
                       <div className="mmp-ci-price">
                         {(item.price * item.count).toLocaleString()} ₸
-                        <span style={{ fontSize: '0.72rem', color: '#94a3b8', marginLeft: '6px' }}>
+                        <span style={{ fontSize: '0.72rem', color: '#a39cc2', marginLeft: '6px' }}>
                           ({item.count} × {item.price.toLocaleString()} ₸/{item.unit})
                         </span>
                       </div>
@@ -1835,7 +1835,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
                           onClick={() => handleCartQtyChange(item.id, 1)}
                           style={{ width: 28, height: 28, borderRadius: 7, background: 'rgba(16,185,129,.15)', border: '1px solid rgba(16,185,129,.3)', color: '#6ee7b7', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '.9rem' }}
                         >+</button>
-                        <span style={{ fontSize: '.72rem', color: '#64748b', marginLeft: 4 }}>
+                        <span style={{ fontSize: '.72rem', color: '#8a82a8', marginLeft: 4 }}>
                           {item.unit} • {((item.weightKg || 10) * item.count)} кг
                         </span>
                       </div>
@@ -1891,15 +1891,15 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
       {/* ─────────────────────────────────────────────────────────── */}
       {isCheckoutModal && (
         <div className="mmp-modal-backdrop" style={{ alignItems: 'center', justifyContent: 'center' }} onClick={() => setIsCheckoutModal(false)}>
-          <div style={{ background: '#0f172a', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '20px', width: '100%', maxWidth: '520px', padding: '2rem', boxShadow: '0 20px 50px rgba(0,0,0,0.8)' }} onClick={e => e.stopPropagation()}>
+          <div style={{ background: '#15122a', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '20px', width: '100%', maxWidth: '520px', padding: '2rem', boxShadow: '0 20px 50px rgba(0,0,0,0.8)' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
               <h3 style={{ margin: 0, fontSize: '1.3rem', color: '#fff' }}>📦 Оформление заказа стройматериалов</h3>
-              <button onClick={() => setIsCheckoutModal(false)} style={{ background: 'transparent', border: 'none', color: '#94a3b8', fontSize: '1.4rem', cursor: 'pointer' }}>✕</button>
+              <button onClick={() => setIsCheckoutModal(false)} style={{ background: 'transparent', border: 'none', color: '#a39cc2', fontSize: '1.4rem', cursor: 'pointer' }}>✕</button>
             </div>
 
             <form onSubmit={handleCheckoutSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', color: '#94a3b8', marginBottom: '0.3rem' }}>Имя получателя / Название компании:</label>
+                <label style={{ display: 'block', fontSize: '0.8rem', color: '#a39cc2', marginBottom: '0.3rem' }}>Имя получателя / Название компании:</label>
                 <input 
                   type="text" 
                   placeholder="Иван Иванов / ТОО «СтройГрупп»" 
@@ -1911,7 +1911,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', color: '#94a3b8', marginBottom: '0.3rem' }}>Телефон:</label>
+                <label style={{ display: 'block', fontSize: '0.8rem', color: '#a39cc2', marginBottom: '0.3rem' }}>Телефон:</label>
                 <input 
                   type="text" 
                   placeholder="+7 (707) 123-45-67" 
@@ -1923,7 +1923,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', color: '#94a3b8', marginBottom: '0.3rem' }}>Адрес доставки объекта:</label>
+                <label style={{ display: 'block', fontSize: '0.8rem', color: '#a39cc2', marginBottom: '0.3rem' }}>Адрес доставки объекта:</label>
                 <input 
                   type="text" 
                   placeholder="г. Алматы, мкр. Самал-2, д. 45" 
@@ -1935,7 +1935,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', color: '#94a3b8', marginBottom: '0.3rem' }}>Способ оплаты:</label>
+                <label style={{ display: 'block', fontSize: '0.8rem', color: '#a39cc2', marginBottom: '0.3rem' }}>Способ оплаты:</label>
                 <select 
                   value={paymentMethod} 
                   onChange={e => setPaymentMethod(e.target.value)}
@@ -1947,13 +1947,13 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
                 </select>
               </div>
 
-              <div style={{ background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(6, 182, 212, 0.08))', border: '1px solid rgba(16, 185, 129, 0.35)', padding: '12px 16px', borderRadius: '12px', marginTop: '0.5rem' }}>
+              <div style={{ background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(167, 139, 250, 0.08))', border: '1px solid rgba(16, 185, 129, 0.35)', padding: '12px 16px', borderRadius: '12px', marginTop: '0.5rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                  <span style={{ fontSize: '0.9rem', color: '#cbd5e1' }}>Итого к оплате с доставкой:</span>
+                  <span style={{ fontSize: '0.9rem', color: '#cbc5e3' }}>Итого к оплате с доставкой:</span>
                   <strong style={{ fontSize: '1.25rem', color: '#10b981' }}>{cartTotalWithDelivery.toLocaleString()} ₸</strong>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '8px', borderTop: '1px solid rgba(255,255,255,0.08)', fontSize: '0.82rem' }}>
-                  <span style={{ color: '#94a3b8' }}>💳 Баланс кошелька: <strong style={{ color: '#fff' }}>{walletBalance.toLocaleString()} ₸</strong></span>
+                  <span style={{ color: '#a39cc2' }}>💳 Баланс кошелька: <strong style={{ color: '#fff' }}>{walletBalance.toLocaleString()} ₸</strong></span>
                   {walletBalance < cartTotalWithDelivery && (
                     <button
                       type="button"
@@ -1962,7 +1962,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
                         setWalletBalance(added);
                         showToast(`🎉 Кошелёк пополнен на +${cartTotalWithDelivery.toLocaleString()} ₸ через Kaspi!`);
                       }}
-                      style={{ background: 'rgba(56,189,248,0.2)', border: '1px solid #38bdf8', color: '#38bdf8', borderRadius: '6px', padding: '3px 8px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}
+                      style={{ background: 'rgba(185,164,255,0.2)', border: '1px solid #b9a4ff', color: '#b9a4ff', borderRadius: '6px', padding: '3px 8px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}
                     >
                       + Пополнить на сумму заказа
                     </button>

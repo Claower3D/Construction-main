@@ -160,10 +160,10 @@ export default function UserWalletPage({ onBack, currentUser }) {
     const cardId = `card_${Date.now()}`;
 
     // Select color gradient based on bank
-    let bg = 'linear-gradient(135deg, #2563eb, #1d4ed8)';
+    let bg = 'linear-gradient(135deg, #7c3aed, #6d28d9)';
     if (newCardBank.includes('Kaspi')) bg = 'linear-gradient(135deg, #e11d48, #9f1239)';
     if (newCardBank.includes('Halyk')) bg = 'linear-gradient(135deg, #059669, #064e3b)';
-    if (newCardBank.includes('Freedom')) bg = 'linear-gradient(135deg, #10b981, #0284c7)';
+    if (newCardBank.includes('Freedom')) bg = 'linear-gradient(135deg, #10b981, #7c3aed)';
     if (newCardBank.includes('Forte')) bg = 'linear-gradient(135deg, #7c3aed, #4c1d95)';
 
     const newCardObj = {
@@ -453,7 +453,7 @@ export default function UserWalletPage({ onBack, currentUser }) {
         <div className="uw-transactions-section" style={{ marginTop: '2rem', marginBottom: '2rem' }}>
           <h2 className="uw-section-title">История операций</h2>
           {transactions.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '2rem', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', color: '#94a3b8' }}>
+            <div style={{ textAlign: 'center', padding: '2rem', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', color: '#a39cc2' }}>
               У вас еще нет транзакций. Пополните баланс или купите тариф.
             </div>
           ) : (
@@ -463,16 +463,16 @@ export default function UserWalletPage({ onBack, currentUser }) {
                 const isRelease = tx.type === 'escrow_release';
                 const kzt = isRelease ? (Number(tx.releasedAmount) || 0) : (Number(tx.amount) || 0);
                 const incoming = !isRelease && kzt > 0;
-                const color = isRelease ? '#38bdf8' : (incoming ? '#10b981' : '#ef4444');
+                const color = isRelease ? '#b9a4ff' : (incoming ? '#10b981' : '#ef4444');
                 return (
-                <div key={tx.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem 1.5rem', background: 'rgba(15, 23, 42, 0.4)', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+                <div key={tx.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem 1.5rem', background: 'rgba(21, 18, 42, 0.4)', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                     <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: incoming ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)', color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem' }}>
                       {isRelease ? '🔓' : (incoming ? '↓' : '↑')}
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
                       <span style={{ color: '#f8fafc', fontWeight: '600', fontSize: '0.95rem' }}>{tx.title}</span>
-                      <span style={{ color: '#94a3b8', fontSize: '0.8rem', marginTop: '0.2rem' }}>{tx.date}, {TX_STATUS[tx.status] || tx.status}</span>
+                      <span style={{ color: '#a39cc2', fontSize: '0.8rem', marginTop: '0.2rem' }}>{tx.date}, {TX_STATUS[tx.status] || tx.status}</span>
                     </div>
                   </div>
                   <div style={{ fontWeight: '700', fontSize: '1.1rem', color }}>
@@ -632,7 +632,7 @@ export default function UserWalletPage({ onBack, currentUser }) {
                         <span className="picker-icon">💳</span>
                         <div>
                           <strong style={{ color: '#fff', fontSize: '0.88rem' }}>{c.bank} ({c.brand})</strong>
-                          <div style={{ color: '#94a3b8', fontSize: '0.78rem' }}>{c.number}</div>
+                          <div style={{ color: '#a39cc2', fontSize: '0.78rem' }}>{c.number}</div>
                         </div>
                       </div>
                       {c.isDefault && <span className="picker-badge">Основная</span>}
@@ -647,7 +647,7 @@ export default function UserWalletPage({ onBack, currentUser }) {
                       <span className="picker-icon">🔴</span>
                       <div>
                         <strong style={{ color: '#fff', fontSize: '0.88rem' }}>Kaspi Pay / QR</strong>
-                        <div style={{ color: '#94a3b8', fontSize: '0.78rem' }}>Оплата по QR-коду</div>
+                        <div style={{ color: '#a39cc2', fontSize: '0.78rem' }}>Оплата по QR-коду</div>
                       </div>
                     </div>
                   </div>
@@ -683,7 +683,7 @@ export default function UserWalletPage({ onBack, currentUser }) {
             <p className="uw-modal-sub">Введите реквизиты карты для мгновенных пополнений кошелька</p>
 
             {/* LIVE CARD PREVIEW */}
-            <div className="uw-live-card-preview" style={{ background: newCardBank.includes('Kaspi') ? 'linear-gradient(135deg, #e11d48, #9f1239)' : (newCardBank.includes('Halyk') ? 'linear-gradient(135deg, #059669, #064e3b)' : 'linear-gradient(135deg, #2563eb, #1d4ed8)') }}>
+            <div className="uw-live-card-preview" style={{ background: newCardBank.includes('Kaspi') ? 'linear-gradient(135deg, #e11d48, #9f1239)' : (newCardBank.includes('Halyk') ? 'linear-gradient(135deg, #059669, #064e3b)' : 'linear-gradient(135deg, #7c3aed, #6d28d9)') }}>
               <div className="card-top-row">
                 <div className="card-chip-box"><div className="chip-lines"></div></div>
                 <span className="card-bank-name">{newCardBank}</span>

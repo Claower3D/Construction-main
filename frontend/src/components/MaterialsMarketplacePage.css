@@ -18,7 +18,7 @@
   position: fixed;
   top: 24px;
   right: 24px;
-  background: rgba(15, 23, 42, 0.95);
+  background: rgba(21, 18, 42, 0.95);
   border: 1px solid #10b981;
   color: #fff;
   padding: 14px 22px;
@@ -60,9 +60,9 @@
 }
 
 .mmp-back-btn:hover {
-  background: rgba(56, 189, 248, 0.2);
-  border-color: #38bdf8;
-  color: #38bdf8;
+  background: rgba(185, 164, 255, 0.2);
+  border-color: #b9a4ff;
+  color: #b9a4ff;
   transform: translateX(-2px);
 }
 
@@ -90,13 +90,13 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  background: linear-gradient(90deg, #ffffff, #6ee7b7, #38bdf8);
+  background: linear-gradient(90deg, #ffffff, #fcc94a, #b9a4ff);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 .mmp-hero-left p {
-  color: #cbd5e1;
+  color: #cbc5e3;
   font-size: 0.95rem;
   margin: 0;
   max-width: 680px;
@@ -125,7 +125,7 @@
 
 .mmp-stat-pill span {
   font-size: 0.75rem;
-  color: #94a3b8;
+  color: #a39cc2;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -143,7 +143,7 @@
 .mmp-tab-btn {
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #cbd5e1;
+  color: #cbc5e3;
   padding: 0.6rem 1.25rem;
   border-radius: 14px;
   font-weight: 700;
@@ -163,7 +163,7 @@
 }
 
 .mmp-tab-btn.active {
-  background: linear-gradient(90deg, #10b981, #059669);
+  background: linear-gradient(90deg, #7c3aed, #6d28d9);
   border-color: transparent;
   color: #fff;
   font-weight: 900;
@@ -217,7 +217,7 @@
 }
 
 .mmp-search-bar input::placeholder {
-  color: #64748b;
+  color: #8a82a8;
 }
 
 .search-results-count {
@@ -250,9 +250,9 @@
 }
 
 .wb-filter-chip {
-  background: rgba(15, 23, 42, 0.75);
+  background: rgba(21, 18, 42, 0.75);
   border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #cbd5e1;
+  color: #cbc5e3;
   padding: 0.45rem 0.85rem;
   border-radius: 10px;
   font-size: 0.82rem;
@@ -292,7 +292,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  background: rgba(15, 23, 42, 0.75);
+  background: rgba(21, 18, 42, 0.75);
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 10px;
   padding: 0.35rem 0.65rem;
@@ -309,7 +309,7 @@
 }
 
 .wb-quick-select-wrap select option {
-  background: #0f172a;
+  background: #15122a;
   color: #fff;
 }
 
@@ -337,11 +337,11 @@
 .mmp-filter-group label {
   font-size: 0.9rem;
   font-weight: 700;
-  color: #e2e8f0;
+  color: #ece9f8;
 }
 
 .mmp-select {
-  background: #0f172a;
+  background: #15122a;
   color: #fff;
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 10px;
@@ -368,7 +368,7 @@
   align-items: center;
   gap: 0.75rem;
   font-size: 0.88rem;
-  color: #cbd5e1;
+  color: #cbc5e3;
   cursor: pointer;
   font-weight: 500;
   transition: color 0.2s ease;
@@ -397,12 +397,12 @@
   display: flex;
   justify-content: space-between;
   font-size: 0.8rem;
-  color: #94a3b8;
+  color: #a39cc2;
   font-weight: 600;
 }
 
 .mmp-sidebar-submit-btn {
-  background: linear-gradient(90deg, #10b981, #059669);
+  background: linear-gradient(90deg, #7c3aed, #6d28d9);
   color: #fff;
   border: none;
   padding: 1rem;
@@ -436,7 +436,7 @@
   justify-content: flex-end;
   gap: 0.75rem;
   font-size: 0.88rem;
-  color: #94a3b8;
+  color: #a39cc2;
 }
 
 .mmp-select-sm {
@@ -463,9 +463,9 @@
 
 .mmp-cat-chip {
   flex-shrink: 0 !important;
-  background: rgba(15, 23, 42, 0.75) !important;
+  background: rgba(21, 18, 42, 0.75) !important;
   border: 1px solid rgba(255, 255, 255, 0.14) !important;
-  color: #cbd5e1 !important;
+  color: #cbc5e3 !important;
   padding: 0.45rem 0.85rem !important;
   border-radius: 12px !important;
   font-size: 0.82rem !important;
@@ -486,7 +486,7 @@
 }
 
 .mmp-cat-chip.active {
-  background: linear-gradient(135deg, #10b981, #059669) !important;
+  background: linear-gradient(135deg, #7c3aed, #6d28d9) !important;
   border-color: #34d399 !important;
   color: #fff !important;
   font-weight: 900 !important;
@@ -531,7 +531,7 @@
   height: 180px;
   width: 100%;
   position: relative;
-  background: #0f172a;
+  background: #15122a;
   overflow: hidden;
 }
 
@@ -565,9 +565,9 @@
   position: absolute;
   top: 10px;
   right: 10px;
-  background: rgba(15, 23, 42, 0.85);
+  background: rgba(21, 18, 42, 0.85);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #38bdf8;
+  color: #b9a4ff;
   font-size: 0.7rem;
   font-weight: 700;
   padding: 3px 7px;
@@ -591,7 +591,7 @@
 
 .mmp-card-supplier {
   font-size: 0.82rem;
-  color: #94a3b8;
+  color: #a39cc2;
   margin-bottom: 0.75rem;
   display: flex;
   align-items: center;
@@ -599,7 +599,7 @@
 }
 
 .mmp-card-supplier strong {
-  color: #e2e8f0;
+  color: #ece9f8;
 }
 
 .mmp-card-specs {
@@ -613,7 +613,7 @@
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.08);
   font-size: 0.75rem;
-  color: #cbd5e1;
+  color: #cbc5e3;
   padding: 3px 8px;
   border-radius: 6px;
 }
@@ -636,7 +636,7 @@
 
 .mmp-price-unit {
   font-size: 0.78rem;
-  color: #94a3b8;
+  color: #a39cc2;
   margin-left: 4px;
 }
 
@@ -666,7 +666,7 @@
 .mmp-qty-btn {
   background: rgba(255, 255, 255, 0.05);
   border: none;
-  color: #38bdf8;
+  color: #b9a4ff;
   width: 36px;
   height: 42px;
   font-weight: 900;
@@ -679,7 +679,7 @@
 }
 
 .mmp-qty-btn:hover {
-  background: rgba(56, 189, 248, 0.25);
+  background: rgba(185, 164, 255, 0.25);
   color: #fff;
 }
 
@@ -694,7 +694,7 @@
 
 .mmp-btn-add-cart {
   flex: 1;
-  background: linear-gradient(90deg, #10b981, #059669);
+  background: linear-gradient(90deg, #7c3aed, #6d28d9);
   border: none;
   color: #fff;
   font-weight: 800;
@@ -717,8 +717,8 @@
 
 /* AI Assistant Box */
 .mmp-ai-box {
-  background: linear-gradient(135deg, rgba(37, 99, 235, 0.15), rgba(15, 23, 42, 0.9));
-  border: 1px solid rgba(56, 189, 248, 0.35);
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.15), rgba(21, 18, 42, 0.9));
+  border: 1px solid rgba(185, 164, 255, 0.35);
   border-radius: 20px;
   padding: 1.75rem;
   margin-bottom: 2.5rem;
@@ -736,7 +736,7 @@
   margin: 0;
   font-size: 1.25rem;
   font-weight: 800;
-  color: #38bdf8;
+  color: #b9a4ff;
 }
 
 .mmp-ai-grid {
@@ -749,7 +749,7 @@
 .mmp-ai-input-group label {
   display: block;
   font-size: 0.8rem;
-  color: #94a3b8;
+  color: #a39cc2;
   margin-bottom: 0.4rem;
   font-weight: 600;
 }
@@ -767,7 +767,7 @@
 }
 
 .mmp-ai-btn-calc {
-  background: linear-gradient(90deg, #2563eb, #38bdf8);
+  background: linear-gradient(90deg, #7c3aed, #b9a4ff);
   border: none;
   color: #fff;
   font-weight: 800;
@@ -776,12 +776,12 @@
   cursor: pointer;
   font-size: 0.92rem;
   transition: all 0.2s ease;
-  box-shadow: 0 4px 15px rgba(56, 189, 248, 0.3);
+  box-shadow: 0 4px 15px rgba(185, 164, 255, 0.3);
 }
 
 .mmp-ai-btn-calc:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(56, 189, 248, 0.5);
+  box-shadow: 0 6px 20px rgba(185, 164, 255, 0.5);
 }
 
 /* Cart Modal / Drawer */
@@ -798,7 +798,7 @@
 .mmp-cart-drawer {
   width: 100%;
   max-width: 480px;
-  background: #0f172a;
+  background: #15122a;
   border-left: 1px solid rgba(255, 255, 255, 0.1);
   height: 100vh;
   display: flex;
@@ -896,7 +896,7 @@
   align-items: center;
   margin-bottom: 0.5rem;
   font-size: 0.95rem;
-  color: #94a3b8;
+  color: #a39cc2;
 }
 
 .mmp-cart-total-row.main {
@@ -915,7 +915,7 @@
 
 .mmp-btn-checkout {
   width: 100%;
-  background: linear-gradient(90deg, #10b981, #059669);
+  background: linear-gradient(90deg, #7c3aed, #6d28d9);
   border: none;
   color: #fff;
   font-weight: 900;

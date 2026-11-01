@@ -5,7 +5,7 @@ import './RoleHierarchyTreePage.css';
 const COMPANIES_DB = [
   {
     id: 'qazgost', name: 'QAZGOST AI', fullName: 'ТОО «QAZGOST AI»',
-    bin: '240140029182', city: 'Алматы', staff: 48, objects: 12, color: '#0ea5e9',
+    bin: '240140029182', city: 'Алматы', staff: 48, objects: 12, color: '#a78bfa',
     ceo: { name: 'Аскаров Бауржан', role: 'CEO / Генеральный директор' },
     branches: [
       { id: 'q-mgmt', cat: 'mgmt', icon: '💼', title: 'Управление', sub: 'Дирекция',
@@ -112,7 +112,7 @@ const CAT_COLORS = {
   eng:  { border: '#ef4444', bg: 'rgba(239,68,68,.08)', text: '#fb7185' },
   prod: { border: '#10b981', bg: 'rgba(16,185,129,.08)', text: '#34d399' },
   cust: { border: '#8b5cf6', bg: 'rgba(139,92,246,.08)', text: '#a78bfa' },
-  anal: { border: '#3b82f6', bg: 'rgba(59,130,246,.08)', text: '#60a5fa' },
+  anal: { border: '#8b5cf6', bg: 'rgba(139,92,246,.08)', text: '#c4b5fd' },
 };
 
 /* ═══ COMPONENT ════════════════════════════════════════════════════════ */
@@ -228,7 +228,7 @@ export default function RoleHierarchyTreePage({ onBack, hideHeader = false }) {
                       {branch.count} чел.
                     </span>
                     {hasChildren && (
-                      <span style={{ fontSize: '.7rem', color: '#64748b' }}>{branch.children.length} подразд.</span>
+                      <span style={{ fontSize: '.7rem', color: '#8a82a8' }}>{branch.children.length} подразд.</span>
                     )}
                   </div>
                 </div>
@@ -290,7 +290,7 @@ export default function RoleHierarchyTreePage({ onBack, hideHeader = false }) {
               style={isActive ? { '--cc': c.color, borderColor: c.color, background: `${c.color}18` } : {}}
               onClick={() => toggleCompany(c.id)}
             >
-              <span className="ogt-chip-dot" style={{ background: isActive ? c.color : '#475569' }} />
+              <span className="ogt-chip-dot" style={{ background: isActive ? c.color : '#5a5378' }} />
               <span className="ogt-chip-name">{c.name}</span>
               <span className="ogt-chip-meta">{c.staff} чел. • {c.city}</span>
             </button>

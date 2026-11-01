@@ -14,11 +14,11 @@ export default function HeroSection({ role, currentUser }) {
     <section className="lp-hero" id="hero" aria-labelledby="lp-hero-title">
       <div className="qg-container lp-hero-grid">
         <div className="lp-hero-copy">
-          <p className="lp-hero-kicker">Для заказчиков, бригад и инженеров в Казахстане</p>
+          <p className="lp-hero-kicker"><span className="lp-kicker-dot" aria-hidden="true" />Для заказчиков, бригад и инженеров в Казахстане</p>
           <h1 className="lp-hero-title" id="lp-hero-title">
             {isExecutor
-              ? 'Заказы на стройку и ремонт — с честной сметой с первого дня'
-              : 'Смета и проверка дефектов по фото — по нормам РК'}
+              ? <>Заказы на стройку и ремонт — <span className="lp-accent">с честной сметой</span> с первого дня</>
+              : <>Смета и проверка дефектов <span className="lp-accent">по фото</span> — по нормам РК</>}
           </h1>
           <p className="lp-hero-lead">
             {isExecutor
@@ -54,7 +54,7 @@ export default function HeroSection({ role, currentUser }) {
           <svg className="lp-sheet-drawing" viewBox="0 0 480 290" role="img" aria-label="Схема стены: трещина отмечена рамкой с подписью «Трещина, 70%», размеры 2400 на 1800 мм">
             <defs>
               <pattern id="lp-hatch" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-                <line x1="0" y1="0" x2="0" y2="10" stroke="rgba(140,170,214,0.16)" strokeWidth="1" />
+                <line x1="0" y1="0" x2="0" y2="10" stroke="rgba(196,181,253,0.16)" strokeWidth="1" />
               </pattern>
             </defs>
             {/* размер по горизонтали */}
@@ -76,10 +76,10 @@ export default function HeroSection({ role, currentUser }) {
               <text x="24" y="160" textAnchor="middle" transform="rotate(-90 24 160)">1 800</text>
             </g>
             {/* стена */}
-            <rect x="60" y="52" width="360" height="210" fill="url(#lp-hatch)" stroke="rgba(140,170,214,0.45)" strokeWidth="1.5" />
+            <rect x="60" y="52" width="360" height="210" fill="url(#lp-hatch)" stroke="rgba(196,181,253,0.45)" strokeWidth="1.5" />
             {/* проём окна */}
-            <rect x="290" y="92" width="90" height="96" fill="#0a1424" stroke="rgba(140,170,214,0.45)" strokeWidth="1.2" />
-            <line x1="335" y1="92" x2="335" y2="188" stroke="rgba(140,170,214,0.3)" />
+            <rect x="290" y="92" width="90" height="96" fill="#100d20" stroke="rgba(196,181,253,0.45)" strokeWidth="1.2" />
+            <line x1="335" y1="92" x2="335" y2="188" stroke="rgba(196,181,253,0.3)" />
             {/* трещина */}
             <path className="lp-crack" d="M176 58 L182 84 L174 106 L186 128 L180 152 L193 176 L187 200 L198 226 L192 258" />
             {/* рамка детектора */}

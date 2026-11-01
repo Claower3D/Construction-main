@@ -26,10 +26,10 @@ export default function MapViewerModule() {
         </div>
       </div>
 
-      <div className="map-view-placeholder" style={{ background: '#0f172a', border: '1px solid rgba(245,158,11,0.3)', borderRadius: '16px', padding: '2rem', textAlign: 'center', margin: '1.25rem 0' }}>
+      <div className="map-view-placeholder" style={{ background: '#15122a', border: '1px solid rgba(245,158,11,0.3)', borderRadius: '16px', padding: '2rem', textAlign: 'center', margin: '1.25rem 0' }}>
         <span style={{ fontSize: '3rem' }}>🗺️</span>
         <h3 style={{ color: '#fff', margin: '0.5rem 0' }}>Интерактивный картографический модуль QazGost Map 2.0</h3>
-        <p style={{ color: '#94a3b8' }}>Отображено {filtered.length} активных объектов технического контроля</p>
+        <p style={{ color: '#a39cc2' }}>Отображено {filtered.length} активных объектов технического контроля</p>
       </div>
 
       <div className="orders-full-grid">
@@ -39,7 +39,7 @@ export default function MapViewerModule() {
               <strong>{obj.name}</strong>
               <span className="order-price">{obj.stage}</span>
             </div>
-            <p style={{ color: '#94a3b8', fontSize: '0.85rem', margin: '0.5rem 0' }}>📍 {obj.city}, {obj.address}</p>
+            <p style={{ color: '#a39cc2', fontSize: '0.85rem', margin: '0.5rem 0' }}>📍 {obj.city}, {obj.address}</p>
             <div className="status-indicator-badge online">Текущий этап: {obj.status}</div>
           </div>
         ))}

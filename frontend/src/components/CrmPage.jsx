@@ -18,7 +18,7 @@ import { upsertCrmEvent } from '../services/orderSyncService';
 
 const STATUS_COLORS = {
   'Новые':    { bg: 'rgba(139,92,246,0.25)', border: '#8b5cf6', dot: '#a78bfa', text: '#ffffff' },
-  'В работе': { bg: 'rgba(59,130,246,0.25)',  border: '#3b82f6', dot: '#60a5fa', text: '#ffffff' },
+  'В работе': { bg: 'rgba(139,92,246,0.25)',  border: '#8b5cf6', dot: '#c4b5fd', text: '#ffffff' },
   'Дожим':    { bg: 'rgba(245,158,11,0.25)',  border: '#f59e0b', dot: '#fbbf24', text: '#ffffff' },
   'Успешно':  { bg: 'rgba(34,197,94,0.25)',   border: '#22c55e', dot: '#4ade80', text: '#ffffff' },
   'Отказ':    { bg: 'rgba(239,68,68,0.25)',   border: '#ef4444', dot: '#f87171', text: '#ffffff' },
@@ -45,7 +45,7 @@ const ROLE_TYPE_CONFIG = {
     border: '#00e5ff',
     glow: 'rgba(0, 229, 255, 0.35)',
     tagBg: 'rgba(0, 229, 255, 0.25)',
-    tagText: '#38bdf8',
+    tagText: '#b9a4ff',
     barColor: '#00e5ff'
   },
   lead: {
@@ -63,12 +63,12 @@ const ROLE_TYPE_CONFIG = {
     badge: '🚜 ТЕХНИКА',
     subBadge: '📍 GPS Online',
     icon: '🚜',
-    bg: 'linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(14, 165, 233, 0.16))',
-    border: '#38bdf8',
-    glow: 'rgba(56, 189, 248, 0.35)',
-    tagBg: 'rgba(56, 189, 248, 0.25)',
-    tagText: '#7dd3fc',
-    barColor: '#38bdf8'
+    bg: 'linear-gradient(135deg, rgba(185, 164, 255, 0.2), rgba(167, 139, 250, 0.16))',
+    border: '#b9a4ff',
+    glow: 'rgba(185, 164, 255, 0.35)',
+    tagBg: 'rgba(185, 164, 255, 0.25)',
+    tagText: '#d6caff',
+    barColor: '#b9a4ff'
   },
   deadline: {
     badge: '✅ СДАЧА',
@@ -520,7 +520,7 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
 
         {/* Нижняя строка: Время и Бюджет */}
         {!compact && (
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '3px', color: '#94a3b8', fontSize: '0.65rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '3px', color: '#a39cc2', fontSize: '0.65rem' }}>
             <span>⏱ {card.time || '10:00'} • 📍 {card.location?.slice(0, 10) || 'Астана'}</span>
             <strong style={{ color: '#f8fafc', fontWeight: 800 }}>{card.budget}</strong>
           </div>
@@ -593,7 +593,7 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
                 <div style={{ overflow: 'hidden', maxHeight: '66px' }}>
                   {dayEvents.slice(0, 2).map(evt => renderEventChip(evt, dateStr, true))}
                   {dayEvents.length > 2 && (
-                    <div style={{ fontSize: '0.62rem', color: '#38bdf8', textAlign: 'center', marginTop: '2px', fontWeight: 800 }}>
+                    <div style={{ fontSize: '0.62rem', color: '#b9a4ff', textAlign: 'center', marginTop: '2px', fontWeight: 800 }}>
                       +{dayEvents.length - 2} ещё
                     </div>
                   )}
@@ -632,7 +632,7 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
               background: today ? 'rgba(0,229,255,0.2)' : 'rgba(18, 27, 48, 0.95)',
               border: today ? '2px solid #00e5ff' : '1px solid rgba(255,255,255,0.12)',
             }}>
-              <div style={{ fontSize: '0.65rem', color: '#94a3b8', fontWeight: 800 }}>
+              <div style={{ fontSize: '0.65rem', color: '#a39cc2', fontWeight: 800 }}>
                 {DAYS_RU[d.getDay() === 0 ? 6 : d.getDay() - 1]}
               </div>
               <div style={{ fontSize: '0.95rem', fontWeight: 900, color: today ? '#00e5ff' : '#ffffff' }}>
@@ -644,7 +644,7 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
 
         {hours.map(h => (
           <React.Fragment key={h}>
-            <div style={{ padding: '2px 4px', fontSize: '0.65rem', color: '#94a3b8', fontWeight: 800, textAlign: 'right', borderRight: '1px solid rgba(255,255,255,0.1)' }}>
+            <div style={{ padding: '2px 4px', fontSize: '0.65rem', color: '#a39cc2', fontWeight: 800, textAlign: 'right', borderRight: '1px solid rgba(255,255,255,0.1)' }}>
               {String(h).padStart(2, '0')}:00
             </div>
             {days.map(d => {
@@ -695,7 +695,7 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
           <div style={{ fontSize: '1.1rem', fontWeight: 900, color: '#ffffff' }}>
             {DAYS_FULL[dow === 0 ? 6 : dow - 1]}, {currentDate.getDate()} {MONTHS_RU[currentDate.getMonth()]} {currentDate.getFullYear()}
           </div>
-          <div style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '1px' }}>
+          <div style={{ fontSize: '0.75rem', color: '#a39cc2', marginTop: '1px' }}>
             {dayEvents.length} заявок • Бюджет: <strong style={{ color: '#ffd700' }}>{dayEvents.reduce((a, c) => a + parseBudget(c.budget), 0).toLocaleString('ru-RU')} ₸</strong>
           </div>
         </div>
@@ -705,7 +705,7 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
             const hourEvents = dayEvents.filter(evt => parseInt(evt.time?.split(':')[0], 10) === h);
             return (
               <React.Fragment key={h}>
-                <div style={{ padding: '4px 6px', fontSize: '0.72rem', color: '#94a3b8', fontWeight: 800, textAlign: 'right', borderRight: '2px solid rgba(0,229,255,0.3)' }}>
+                <div style={{ padding: '4px 6px', fontSize: '0.72rem', color: '#a39cc2', fontWeight: 800, textAlign: 'right', borderRight: '2px solid rgba(0,229,255,0.3)' }}>
                   {String(h).padStart(2, '0')}:00
                 </div>
                 <div
@@ -926,7 +926,7 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
               {[
                 { key: 'all', label: 'Все заявки', color: '#00e5ff' },
                 { key: 'Новые', label: 'Новые', color: '#a78bfa' },
-                { key: 'В работе', label: 'В работе', color: '#60a5fa' },
+                { key: 'В работе', label: 'В работе', color: '#c4b5fd' },
                 { key: 'Дожим', label: 'Дожим', color: '#fbbf24' },
                 { key: 'Успешно', label: 'Успешно', color: '#4ade80' },
                 { key: 'Отказ', label: 'Отказ', color: '#f87171' },
@@ -944,7 +944,7 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
                       borderRadius: '8px',
                       border: active ? `1.5px solid ${sf.color}` : '1px solid rgba(255, 255, 255, 0.08)',
                       background: active ? `${sf.color}25` : 'rgba(255, 255, 255, 0.03)',
-                      color: active ? '#ffffff' : '#cbd5e1',
+                      color: active ? '#ffffff' : '#cbc5e3',
                       fontSize: '0.78rem',
                       fontWeight: active ? 900 : 700,
                       cursor: 'pointer',
@@ -960,7 +960,7 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
                     </div>
                     <span style={{
                       fontSize: '0.68rem', fontWeight: 900, padding: '1px 6px', borderRadius: '4px',
-                      background: active ? sf.color : 'rgba(255, 255, 255, 0.1)', color: active ? '#0a1628' : '#94a3b8'
+                      background: active ? sf.color : 'rgba(255, 255, 255, 0.1)', color: active ? '#0a1628' : '#a39cc2'
                     }}>
                       ({count})
                     </span>
@@ -987,12 +987,12 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
       }}>
         {[
           { key: 'Новые', label: 'Новые', color: '#a78bfa' },
-          { key: 'В работе', label: 'В работе', color: '#60a5fa' },
+          { key: 'В работе', label: 'В работе', color: '#c4b5fd' },
           { key: 'Дожим', label: 'Дожим', color: '#fbbf24' },
           { key: 'Успешно', label: 'Успешно', color: '#4ade80' },
           { key: 'Отказ', label: 'Отказ', color: '#f87171' },
         ].map(st => (
-          <div key={st.key} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.78rem', fontWeight: 800, color: '#cbd5e1' }}>
+          <div key={st.key} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.78rem', fontWeight: 800, color: '#cbc5e3' }}>
             <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: st.color }} />
             <span>{st.label}</span>
             <strong style={{ color: st.color }}>{stats.byStatus[st.key] || 0}</strong>
@@ -1007,10 +1007,10 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
         flexWrap: 'wrap',
       }}>
         {Object.entries(ROLE_TYPE_CONFIG).map(([key, cfg]) => (
-          <div key={key} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.72rem', color: '#cbd5e1' }}>
+          <div key={key} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.72rem', color: '#cbc5e3' }}>
             <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: cfg.border }} />
             <strong style={{ color: cfg.tagText }}>{cfg.badge}</strong>
-            <span style={{ color: '#64748b' }}>({stats.byRole[key] || 0})</span>
+            <span style={{ color: '#8a82a8' }}>({stats.byRole[key] || 0})</span>
           </div>
         ))}
       </div>

@@ -319,7 +319,7 @@ export default function SmartDealCreateModal({ onClose, onSave, defaultDate }) {
             {/* Display list of uploaded file chips */}
             {uploadedFiles.length > 0 && (
               <div className="mb-4">
-                <div style={{ fontSize: '0.85rem', color: '#94a3b8', marginBottom: '0.5rem', fontWeight: 600 }}>
+                <div style={{ fontSize: '0.85rem', color: '#a39cc2', marginBottom: '0.5rem', fontWeight: 600 }}>
                   Прикреплённые файлы ({uploadedFiles.length} шт):
                 </div>
                 <div className="sd-files-grid">
@@ -506,7 +506,7 @@ export default function SmartDealCreateModal({ onClose, onSave, defaultDate }) {
         {step === 3 && (
           <div className="sd-step-content">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-              <span style={{ fontSize: '0.9rem', color: '#94a3b8', fontWeight: 600 }}>
+              <span style={{ fontSize: '0.9rem', color: '#a39cc2', fontWeight: 600 }}>
                 Позиции работ и материалов по нормам РК:
               </span>
               <span style={{ fontSize: '0.85rem', color: '#10b981', fontWeight: 700 }}>
@@ -530,7 +530,7 @@ export default function SmartDealCreateModal({ onClose, onSave, defaultDate }) {
                 <tbody>
                   {estimateItems.map((item, idx) => (
                     <tr key={item.id}>
-                      <td style={{ color: '#64748b', fontSize: '0.8rem', textAlign: 'center' }}>{idx + 1}</td>
+                      <td style={{ color: '#8a82a8', fontSize: '0.8rem', textAlign: 'center' }}>{idx + 1}</td>
                       <td>
                         <input
                           type="text"

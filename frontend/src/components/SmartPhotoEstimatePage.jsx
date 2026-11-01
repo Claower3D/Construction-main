@@ -460,13 +460,13 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
         ctx.fillStyle = '#0b0f19';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(bgImg, drawX, drawY, drawW, drawH);
-        ctx.fillStyle = 'rgba(15, 23, 42, 0.35)';
+        ctx.fillStyle = 'rgba(21, 18, 42, 0.35)';
         ctx.fillRect(drawX, drawY, drawW, drawH);
       } else {
         ctx.fillStyle = '#0b0f19';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        ctx.strokeStyle = 'rgba(56, 189, 248, 0.08)';
+        ctx.strokeStyle = 'rgba(185, 164, 255, 0.08)';
         ctx.lineWidth = 1;
         const gridSize = 30;
         for (let x = 0; x < canvas.width; x += gridSize) {
@@ -482,7 +482,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
           ctx.stroke();
         }
 
-        ctx.fillStyle = 'rgba(56, 189, 248, 0.35)';
+        ctx.fillStyle = 'rgba(185, 164, 255, 0.35)';
         ctx.font = '10px monospace';
         for (let x = 60; x < canvas.width; x += 60) {
           ctx.fillText(`${(x / 60).toFixed(0)}m`, x + 3, 14);
@@ -498,12 +498,12 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
         }
         if (isContourClosed) {
           ctx.closePath();
-          ctx.fillStyle = 'rgba(56, 189, 248, 0.25)';
+          ctx.fillStyle = 'rgba(185, 164, 255, 0.25)';
           ctx.fill();
         }
-        ctx.strokeStyle = isContourClosed ? '#10b981' : '#38bdf8';
+        ctx.strokeStyle = isContourClosed ? '#10b981' : '#b9a4ff';
         ctx.lineWidth = 3;
-        ctx.shadowColor = isContourClosed ? '#10b981' : '#0284c7';
+        ctx.shadowColor = isContourClosed ? '#10b981' : '#7c3aed';
         ctx.shadowBlur = 8;
         ctx.stroke();
         ctx.shadowBlur = 0;
@@ -512,7 +512,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
         contourPoints.forEach((p, idx) => {
           ctx.beginPath();
           ctx.arc(p.x, p.y, idx === 0 && !isContourClosed && contourPoints.length >= 3 ? 8 : 6, 0, Math.PI * 2);
-          ctx.fillStyle = idx === 0 ? '#fbbf24' : '#38bdf8';
+          ctx.fillStyle = idx === 0 ? '#fbbf24' : '#b9a4ff';
           ctx.fill();
           ctx.strokeStyle = '#ffffff';
           ctx.lineWidth = 2;
@@ -530,7 +530,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
           cx /= contourPoints.length;
           cy /= contourPoints.length;
 
-          ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
+          ctx.fillStyle = 'rgba(21, 18, 42, 0.9)';
           ctx.strokeStyle = '#10b981';
           ctx.lineWidth = 1.5;
           const badgeText = `📐 ${contourAreaM2} м² | ${contourPerimeterM} м`;
@@ -1008,7 +1008,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
               <strong>Контурный режим:</strong> кликайте прямо по фото или сетке чертежа для расстановки точек контура (P1, P2, P3...). Нажмите «Замкнуть» или кликните на первую точку P1 для вычисления точной площади в м².
             </div>
             <div className="spe-contour-scale-btns" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-              <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>Масштаб:</span>
+              <span style={{ fontSize: '0.8rem', color: '#a39cc2' }}>Масштаб:</span>
               <select
                 value={scaleRatioMeters}
                 onChange={e => {
@@ -1041,15 +1041,15 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
           {/* Photo Selector for Contour (if photos exist) */}
           {photos.length > 1 && (
             <div style={{ display: 'flex', gap: '8px', margin: '8px 0 12px', overflowX: 'auto', paddingBottom: '4px' }}>
-              <span style={{ fontSize: '0.8rem', color: '#94a3b8', alignSelf: 'center', whiteSpace: 'nowrap' }}>📸 Выберите фото:</span>
+              <span style={{ fontSize: '0.8rem', color: '#a39cc2', alignSelf: 'center', whiteSpace: 'nowrap' }}>📸 Выберите фото:</span>
               {photos.map((p, idx) => (
                 <button
                   key={p.id}
                   type="button"
                   onClick={() => setSelectedContourPhotoIdx(idx)}
                   style={{
-                    background: selectedContourPhotoIdx === idx ? '#2563eb' : 'rgba(255,255,255,0.06)',
-                    border: selectedContourPhotoIdx === idx ? '2px solid #60a5fa' : '1px solid rgba(255,255,255,0.1)',
+                    background: selectedContourPhotoIdx === idx ? '#7c3aed' : 'rgba(255,255,255,0.06)',
+                    border: selectedContourPhotoIdx === idx ? '2px solid #c4b5fd' : '1px solid rgba(255,255,255,0.1)',
                     color: '#fff',
                     padding: '4px 10px',
                     borderRadius: '8px',
@@ -1106,14 +1106,14 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
               className="spe-ctool-btn highlight"
               disabled={contourPoints.length < 3}
               onClick={handleCloseContour}
-              style={{ background: isContourClosed ? '#10b981' : '#0284c7' }}
+              style={{ background: isContourClosed ? '#10b981' : '#7c3aed' }}
             >
               {isContourClosed ? '✅ Замкнут' : '🔒 Замкнуть контур'}
             </button>
           </div>
 
-          <div className="spe-contour-canvas-box" style={{ padding: '8px', background: '#090d16', border: '1px solid rgba(56,189,248,0.25)', borderRadius: '16px', overflow: 'hidden' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 10px', color: '#94a3b8', fontSize: '0.8rem' }}>
+          <div className="spe-contour-canvas-box" style={{ padding: '8px', background: '#090d16', border: '1px solid rgba(185,164,255,0.25)', borderRadius: '16px', overflow: 'hidden' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 10px', color: '#a39cc2', fontSize: '0.8rem' }}>
               <span>📸 {photos.length > 0 ? `Фото #${selectedContourPhotoIdx + 1} для контура` : 'Архитектурная сетка чертежа (кликните, чтобы нарисовать контур)'}</span>
               {contourAreaM2 > 0 && (
                 <span style={{ color: '#34d399', fontWeight: 800, fontSize: '0.88rem' }}>
@@ -1153,7 +1153,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
 
             {/* Quick action bar below canvas */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 8px', flexWrap: 'wrap', gap: '8px' }}>
-              <span style={{ fontSize: '0.78rem', color: '#64748b' }}>
+              <span style={{ fontSize: '0.78rem', color: '#8a82a8' }}>
                 💡 Подсказка: расставьте угловые точки помещения, кровли или участка. Нажмите «Замкнуть», чтобы рассчитать смету.
               </span>
               {contourPoints.length >= 3 && !isContourClosed && (
@@ -1294,7 +1294,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
           }}
         />
         {contourAreaM2 > 0 && (
-          <span style={{ fontSize: '.78rem', color: '#38bdf8' }}>
+          <span style={{ fontSize: '.78rem', color: '#b9a4ff' }}>
             (по контуру: {contourAreaM2.toFixed(1)} м²)
           </span>
         )}
@@ -1330,7 +1330,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
           <strong style={{ color: '#34d399', display: 'block', fontSize: '0.92rem' }}>
             QAZGOST AI Engine & GPT-4o Vision подключены и активны
           </strong>
-          <span style={{ fontSize: '0.8rem', color: '#cbd5e1' }}>
+          <span style={{ fontSize: '0.8rem', color: '#cbc5e3' }}>
             Собственная нейросеть дефектоскопии + GPT-4o настроены для анализа чертежей, детекции объемов и расчета смет по СНиП РК.
           </span>
         </div>
@@ -1353,7 +1353,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
           }}
           style={{ position: 'relative', cursor: 'pointer' }}
         >
-          <div style={{ position: 'absolute', top: '8px', right: '8px', background: (userGptAccount || userGptKey) ? 'rgba(16, 185, 129, 0.25)' : 'rgba(56, 189, 248, 0.25)', border: (userGptAccount || userGptKey) ? '1px solid #10b981' : '1px solid #38bdf8', color: (userGptAccount || userGptKey) ? '#10b981' : '#38bdf8', fontSize: '0.65rem', fontWeight: '800', padding: '2px 6px', borderRadius: '6px' }}>
+          <div style={{ position: 'absolute', top: '8px', right: '8px', background: (userGptAccount || userGptKey) ? 'rgba(16, 185, 129, 0.25)' : 'rgba(185, 164, 255, 0.25)', border: (userGptAccount || userGptKey) ? '1px solid #10b981' : '1px solid #b9a4ff', color: (userGptAccount || userGptKey) ? '#10b981' : '#b9a4ff', fontSize: '0.65rem', fontWeight: '800', padding: '2px 6px', borderRadius: '6px' }}>
             {(userGptAccount || userGptKey) ? '🟢 CHATGPT АКТИВЕН' : '🔑 ВОЙТИ В CHATGPT'}
           </div>
           <div className="spe-ecard-head">⚡⚡ Авто</div>
@@ -1452,7 +1452,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', margin: '14px 0 16px' }}>
             {[
               { key: 'economy', label: 'Эконом, −20%', color: '#10b981', activeBg: 'rgba(16,185,129,0.2)', activeBorder: '#10b981', activeText: '#6ee7b7' },
-              { key: 'standard', label: 'Стандарт по СНиП', color: '#38bdf8', activeBg: 'rgba(56,189,248,0.2)', activeBorder: '#38bdf8', activeText: '#38bdf8' },
+              { key: 'standard', label: 'Стандарт по СНиП', color: '#b9a4ff', activeBg: 'rgba(185,164,255,0.2)', activeBorder: '#b9a4ff', activeText: '#b9a4ff' },
               { key: 'premium', label: 'Премиум, +35%', color: '#a855f7', activeBg: 'rgba(168,85,247,0.2)', activeBorder: '#a855f7', activeText: '#c084fc' },
             ].map(sc => (
               <button
@@ -1463,14 +1463,14 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
                 style={{
                   background: selectedScenario === sc.key ? sc.activeBg : 'rgba(255,255,255,0.03)',
                   border: selectedScenario === sc.key ? `2px solid ${sc.activeBorder}` : '1px solid rgba(255,255,255,0.08)',
-                  color: selectedScenario === sc.key ? sc.activeText : '#94a3b8',
+                  color: selectedScenario === sc.key ? sc.activeText : '#a39cc2',
                   padding: '10px 8px', borderRadius: '10px', cursor: 'pointer',
                   textAlign: 'center', transition: 'all 0.2s ease',
                 }}
               >
                 <div style={{ fontSize: '0.78rem', fontWeight: 700 }}>{sc.label}</div>
                 {/* Раньше все три кнопки показывали одну и ту же сумму текущего сценария */}
-                <div style={{ fontSize: '0.95rem', fontWeight: 800, color: selectedScenario === sc.key ? '#fff' : '#94a3b8', marginTop: '2px' }}>
+                <div style={{ fontSize: '0.95rem', fontWeight: 800, color: selectedScenario === sc.key ? '#fff' : '#a39cc2', marginTop: '2px' }}>
                   {selectedScenario === sc.key ? `${calculatedEstimate.total?.toLocaleString('ru-RU')} ₸` : 'Пересчитать'}
                 </div>
               </button>
@@ -1506,7 +1506,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
             {calculatedEstimate.pricePerM2 > 0 && (
               <div className="spe-res-col">
                 <span className="label">Стоимость за 1 м²:</span>
-                <strong style={{ color: '#38bdf8' }}>{calculatedEstimate.pricePerM2?.toLocaleString('ru-RU')} ₸/м²</strong>
+                <strong style={{ color: '#b9a4ff' }}>{calculatedEstimate.pricePerM2?.toLocaleString('ru-RU')} ₸/м²</strong>
               </div>
             )}
           </div>
@@ -1568,29 +1568,29 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
 
           {/* Dimensions from AI Vision */}
           {calculatedEstimate.dimensions && Object.keys(calculatedEstimate.dimensions).length > 0 && (
-            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', margin: '12px 0', padding: '10px 14px', background: 'rgba(56,189,248,.06)', borderRadius: '10px', border: '1px solid rgba(56,189,248,.15)' }}>
-              <span style={{ fontSize: '.82rem', color: '#38bdf8', fontWeight: 700 }}>📐 AI определил размеры:</span>
-              {calculatedEstimate.dimensions.area_m2 > 0 && <span style={{ fontSize: '.82rem', color: '#e2e8f0' }}>Площадь: <strong>{calculatedEstimate.dimensions.area_m2} м²</strong></span>}
-              {calculatedEstimate.dimensions.volume_m3 > 0 && <span style={{ fontSize: '.82rem', color: '#e2e8f0' }}>Объём: <strong>{calculatedEstimate.dimensions.volume_m3} м³</strong></span>}
-              {calculatedEstimate.dimensions.length_m > 0 && <span style={{ fontSize: '.82rem', color: '#e2e8f0' }}>Длина: <strong>{calculatedEstimate.dimensions.length_m} п.м.</strong></span>}
+            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', margin: '12px 0', padding: '10px 14px', background: 'rgba(185,164,255,.06)', borderRadius: '10px', border: '1px solid rgba(185,164,255,.15)' }}>
+              <span style={{ fontSize: '.82rem', color: '#b9a4ff', fontWeight: 700 }}>📐 AI определил размеры:</span>
+              {calculatedEstimate.dimensions.area_m2 > 0 && <span style={{ fontSize: '.82rem', color: '#ece9f8' }}>Площадь: <strong>{calculatedEstimate.dimensions.area_m2} м²</strong></span>}
+              {calculatedEstimate.dimensions.volume_m3 > 0 && <span style={{ fontSize: '.82rem', color: '#ece9f8' }}>Объём: <strong>{calculatedEstimate.dimensions.volume_m3} м³</strong></span>}
+              {calculatedEstimate.dimensions.length_m > 0 && <span style={{ fontSize: '.82rem', color: '#ece9f8' }}>Длина: <strong>{calculatedEstimate.dimensions.length_m} п.м.</strong></span>}
             </div>
           )}
 
           {/* Items Table with Group Headers */}
           {calculatedEstimate.items && calculatedEstimate.items.length > 0 && (
             <div style={{ marginTop: '16px' }}>
-              <h4 style={{ margin: '0 0 8px', fontSize: '.92rem', color: '#38bdf8', fontWeight: 800 }}>
+              <h4 style={{ margin: '0 0 8px', fontSize: '.92rem', color: '#b9a4ff', fontWeight: 800 }}>
                 📋 Детализированная смета ({calculatedEstimate.items.length} позиций):
               </h4>
               <div style={{ overflowX: 'auto' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '.82rem' }}>
                   <thead>
                     <tr style={{ borderBottom: '1px solid rgba(255,255,255,.1)' }}>
-                      <th style={{ textAlign: 'left', padding: '8px 6px', color: '#94a3b8', fontWeight: 700, width: '40%' }}>Наименование</th>
-                      <th style={{ textAlign: 'right', padding: '8px 6px', color: '#94a3b8', fontWeight: 700, whiteSpace: 'nowrap' }}>Объём</th>
-                      <th style={{ textAlign: 'center', padding: '8px 6px', color: '#94a3b8', fontWeight: 700 }}>Ед.</th>
-                      <th style={{ textAlign: 'right', padding: '8px 6px', color: '#94a3b8', fontWeight: 700, whiteSpace: 'nowrap' }}>Цена за ед.</th>
-                      <th style={{ textAlign: 'right', padding: '8px 6px', color: '#94a3b8', fontWeight: 700 }}>Сумма</th>
+                      <th style={{ textAlign: 'left', padding: '8px 6px', color: '#a39cc2', fontWeight: 700, width: '40%' }}>Наименование</th>
+                      <th style={{ textAlign: 'right', padding: '8px 6px', color: '#a39cc2', fontWeight: 700, whiteSpace: 'nowrap' }}>Объём</th>
+                      <th style={{ textAlign: 'center', padding: '8px 6px', color: '#a39cc2', fontWeight: 700 }}>Ед.</th>
+                      <th style={{ textAlign: 'right', padding: '8px 6px', color: '#a39cc2', fontWeight: 700, whiteSpace: 'nowrap' }}>Цена за ед.</th>
+                      <th style={{ textAlign: 'right', padding: '8px 6px', color: '#a39cc2', fontWeight: 700 }}>Сумма</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1615,8 +1615,8 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
                         if (item.group && item.group !== lastGroup) {
                           lastGroup = item.group;
                           rows.push(
-                            <tr key={`gh-${i}`} style={{ background: 'rgba(56,189,248,0.06)' }}>
-                              <td colSpan={5} style={{ padding: '6px 8px', fontWeight: 800, fontSize: '.82rem', color: '#38bdf8', borderTop: '1px solid rgba(56,189,248,0.15)' }}>
+                            <tr key={`gh-${i}`} style={{ background: 'rgba(185,164,255,0.06)' }}>
+                              <td colSpan={5} style={{ padding: '6px 8px', fontWeight: 800, fontSize: '.82rem', color: '#b9a4ff', borderTop: '1px solid rgba(185,164,255,0.15)' }}>
                                 {item.group === 'Итого' || item.group === 'ИТОГО' ? '📊' : '📂'} {item.group}
                               </td>
                             </tr>
@@ -1629,16 +1629,16 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
 
                         rows.push(
                           <tr key={i} style={{ borderBottom: '1px solid rgba(255,255,255,.04)' }}>
-                            <td style={{ padding: '7px 6px', color: '#e2e8f0', fontWeight: 500, paddingLeft: item.group ? '18px' : '6px' }}>
+                            <td style={{ padding: '7px 6px', color: '#ece9f8', fontWeight: 500, paddingLeft: item.group ? '18px' : '6px' }}>
                               {item.isMaterial && <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: '#f59e0b', marginRight: '6px', verticalAlign: 'middle' }}></span>}
                               {!item.isMaterial && item.group !== 'Итого' && item.group !== 'ИТОГО' && <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: '#10b981', marginRight: '6px', verticalAlign: 'middle' }}></span>}
                               {item.name}
                             </td>
-                            <td style={{ padding: '7px 6px', color: '#cbd5e1', textAlign: 'right' }}>
+                            <td style={{ padding: '7px 6px', color: '#cbc5e3', textAlign: 'right' }}>
                               {typeof qty === 'number' ? (Number.isInteger(qty) ? qty : qty.toFixed(1)) : qty}
                             </td>
-                            <td style={{ padding: '7px 6px', color: '#64748b', textAlign: 'center' }}>{item.unit || 'ед.'}</td>
-                            <td style={{ padding: '7px 6px', color: '#94a3b8', textAlign: 'right', whiteSpace: 'nowrap' }}>
+                            <td style={{ padding: '7px 6px', color: '#8a82a8', textAlign: 'center' }}>{item.unit || 'ед.'}</td>
+                            <td style={{ padding: '7px 6px', color: '#a39cc2', textAlign: 'right', whiteSpace: 'nowrap' }}>
                               {unitPrice > 0 ? `${unitPrice.toLocaleString('ru-RU')} ₸` : '—'}
                             </td>
                             <td style={{ padding: '7px 6px', color: item.group === 'Итого' || item.group === 'ИТОГО' ? '#f59e0b' : '#fbbf24', fontWeight: item.group === 'Итого' || item.group === 'ИТОГО' ? 900 : 700, textAlign: 'right', whiteSpace: 'nowrap' }}>
@@ -1652,8 +1652,8 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
                   </tbody>
                   {/* MISS-4: Итого в таблице */}
                   <tfoot>
-                    <tr style={{ borderTop: '2px solid rgba(56,189,248,0.3)', background: 'rgba(56,189,248,0.06)' }}>
-                      <td colSpan={4} style={{ padding: '10px 8px', fontWeight: 900, fontSize: '.9rem', color: '#38bdf8' }}>ИТОГО:</td>
+                    <tr style={{ borderTop: '2px solid rgba(185,164,255,0.3)', background: 'rgba(185,164,255,0.06)' }}>
+                      <td colSpan={4} style={{ padding: '10px 8px', fontWeight: 900, fontSize: '.9rem', color: '#b9a4ff' }}>ИТОГО:</td>
                       <td style={{ padding: '10px 8px', fontWeight: 900, fontSize: '1rem', color: '#fff', textAlign: 'right' }}>
                         {calculatedEstimate.total?.toLocaleString('ru-RU')} ₸
                       </td>
@@ -1662,7 +1662,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
                 </table>
               </div>
               {/* Legend */}
-              <div style={{ display: 'flex', gap: '16px', marginTop: '8px', fontSize: '.75rem', color: '#64748b' }}>
+              <div style={{ display: 'flex', gap: '16px', marginTop: '8px', fontSize: '.75rem', color: '#8a82a8' }}>
                 <span><span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: '#10b981', marginRight: '4px', verticalAlign: 'middle' }}></span>Работы (СМР)</span>
                 <span><span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: '#f59e0b', marginRight: '4px', verticalAlign: 'middle' }}></span>Материалы</span>
               </div>
@@ -1673,7 +1673,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
           {calculatedEstimate.rawAiResponse && (
             <div style={{ marginTop: '16px', padding: '14px', background: 'rgba(255,255,255,.03)', borderRadius: '10px', border: '1px solid rgba(255,255,255,.06)' }}>
               <h4 style={{ margin: '0 0 8px', fontSize: '.88rem', color: '#f59e0b', fontWeight: 800 }}>🤖 Полный ответ AI:</h4>
-              <pre style={{ margin: 0, fontSize: '.78rem', color: '#cbd5e1', whiteSpace: 'pre-wrap', lineHeight: 1.55, maxHeight: '400px', overflow: 'auto' }}>{calculatedEstimate.rawAiResponse}</pre>
+              <pre style={{ margin: 0, fontSize: '.78rem', color: '#cbc5e3', whiteSpace: 'pre-wrap', lineHeight: 1.55, maxHeight: '400px', overflow: 'auto' }}>{calculatedEstimate.rawAiResponse}</pre>
             </div>
           )}
 
@@ -1689,12 +1689,12 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
           {/* Action CTAs: Create Order, Download PDF, WhatsApp */}
           <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid rgba(255,255,255,0.08)', display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {createdOrderInfo ? (
-              <div style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.2), rgba(6,182,212,0.15))', border: '1px solid #10b981', borderRadius: '12px', padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
+              <div style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.2), rgba(167,139,250,0.15))', border: '1px solid #10b981', borderRadius: '12px', padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
                 <div>
                   <h4 style={{ margin: '0 0 4px 0', color: '#10b981', fontSize: '1.05rem', fontWeight: 800 }}>
                     ✅ Заявка #{createdOrderInfo.id} успешно передана Менеджеру CRM!
                   </h4>
-                  <p style={{ margin: 0, color: '#cbd5e1', fontSize: '0.84rem' }}>
+                  <p style={{ margin: 0, color: '#cbc5e3', fontSize: '0.84rem' }}>
                     Инженер ПТО назначен на выезд для проверки объекта и подписания договора.
                   </p>
                 </div>
@@ -1724,7 +1724,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
                     setCreatedOrderInfo(newOrder);
                     showToast(`🚀 Заявка ${newOrder.id} [${scenarioName}] успешно отправлена Менеджеру CRM!`);
                   }}
-                  style={{ background: 'linear-gradient(90deg, #0284c7, #10b981)', border: 'none', color: '#fff', padding: '14px 20px', borderRadius: '10px', fontWeight: 900, fontSize: '0.95rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 4px 15px rgba(2,132,199,0.4)' }}
+                  style={{ background: 'linear-gradient(90deg, #7c3aed, #10b981)', border: 'none', color: '#fff', padding: '14px 20px', borderRadius: '10px', fontWeight: 900, fontSize: '0.95rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 4px 15px rgba(2,132,199,0.4)' }}
                 >
                   <span>🚀 Оформить заказ по этой смете</span>
                 </button>
@@ -1810,7 +1810,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
                 <span style={{ fontSize: '1.8rem' }}>🤖</span>
                 <div>
                   <h3 style={{ margin: 0, fontSize: '1.25rem', color: '#fff', fontWeight: 800 }}>Вход в личный аккаунт ChatGPT</h3>
-                  <p style={{ margin: '2px 0 0 0', fontSize: '0.82rem', color: '#94a3b8' }}>
+                  <p style={{ margin: '2px 0 0 0', fontSize: '0.82rem', color: '#a39cc2' }}>
                     Войдите под своей учетной записью OpenAI для расчета смет через ваш тариф
                   </p>
                 </div>
@@ -1834,7 +1834,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
                     </div>
                   </div>
 
-                  <div style={{ background: 'rgba(0,0,0,0.25)', padding: '10px 14px', borderRadius: '10px', fontSize: '0.82rem', color: '#cbd5e1', lineHeight: 1.4 }}>
+                  <div style={{ background: 'rgba(0,0,0,0.25)', padding: '10px 14px', borderRadius: '10px', fontSize: '0.82rem', color: '#cbc5e3', lineHeight: 1.4 }}>
                     ✅ <strong>Ваш аккаунт подключен:</strong> Нейросеть GPT-4o использует вашу персональную сессию для аудита смет и дефектов.
                   </div>
 
@@ -1863,7 +1863,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
                     <form onSubmit={handleSaveGptKey} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
                       {/* Presets for Key #1 and Key #2 */}
                       <div>
-                        <label style={{ display: 'block', fontSize: '0.82rem', color: '#cbd5e1', marginBottom: '0.4rem', fontWeight: 700 }}>
+                        <label style={{ display: 'block', fontSize: '0.82rem', color: '#cbc5e3', marginBottom: '0.4rem', fontWeight: 700 }}>
                           ⚡ Быстрый выбор системного ключа:
                         </label>
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
@@ -1874,8 +1874,8 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
                               showToast('🔹 Выбран Ключ №1: Дефектоскопия & Vision');
                             }}
                             style={{
-                              background: inputGptKey === SYSTEM_OPENAI_PRESETS.KEY_1_VISION_DEFECT ? 'rgba(56, 189, 248, 0.25)' : 'rgba(255, 255, 255, 0.05)',
-                              border: `1px solid ${inputGptKey === SYSTEM_OPENAI_PRESETS.KEY_1_VISION_DEFECT ? '#38bdf8' : 'rgba(255, 255, 255, 0.15)'}`,
+                              background: inputGptKey === SYSTEM_OPENAI_PRESETS.KEY_1_VISION_DEFECT ? 'rgba(185, 164, 255, 0.25)' : 'rgba(255, 255, 255, 0.05)',
+                              border: `1px solid ${inputGptKey === SYSTEM_OPENAI_PRESETS.KEY_1_VISION_DEFECT ? '#b9a4ff' : 'rgba(255, 255, 255, 0.15)'}`,
                               borderRadius: '10px',
                               padding: '8px 10px',
                               color: '#fff',
@@ -1884,8 +1884,8 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
                               fontSize: '0.78rem'
                             }}
                           >
-                            <div style={{ fontWeight: 800, color: '#38bdf8' }}>🔵 Ключ №1 (Vision)</div>
-                            <div style={{ fontSize: '0.7rem', color: '#94a3b8' }}>Дефекты & Базовый</div>
+                            <div style={{ fontWeight: 800, color: '#b9a4ff' }}>🔵 Ключ №1 (Vision)</div>
+                            <div style={{ fontSize: '0.7rem', color: '#a39cc2' }}>Дефекты & Базовый</div>
                           </button>
 
                           <button
@@ -1906,13 +1906,13 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
                             }}
                           >
                             <div style={{ fontWeight: 800, color: '#c084fc' }}>🟣 Ключ №2 (Сметы)</div>
-                            <div style={{ fontSize: '0.7rem', color: '#94a3b8' }}>Детальный расчёт GPT-4o</div>
+                            <div style={{ fontSize: '0.7rem', color: '#a39cc2' }}>Детальный расчёт GPT-4o</div>
                           </button>
                         </div>
                       </div>
 
                       <div>
-                        <label style={{ display: 'block', fontSize: '0.82rem', color: '#cbd5e1', marginBottom: '0.4rem', fontWeight: 700 }}>
+                        <label style={{ display: 'block', fontSize: '0.82rem', color: '#cbc5e3', marginBottom: '0.4rem', fontWeight: 700 }}>
                           Ваш персональный OpenAI Secret Key:
                         </label>
                         <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
@@ -1927,7 +1927,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
                           <button
                             type="button"
                             onClick={() => setShowKeyText(!showKeyText)}
-                            style={{ position: 'absolute', right: '10px', background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer', fontSize: '1rem' }}
+                            style={{ position: 'absolute', right: '10px', background: 'transparent', border: 'none', color: '#a39cc2', cursor: 'pointer', fontSize: '1rem' }}
                             title={showKeyText ? 'Скрыть' : 'Показать'}
                           >
                             {showKeyText ? '🙈' : '👁️'}
@@ -1938,7 +1938,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
                             href="https://platform.openai.com/api-keys"
                             target="_blank"
                             rel="noopener noreferrer"
-                            style={{ color: '#38bdf8', textDecoration: 'none', fontWeight: 600 }}
+                            style={{ color: '#b9a4ff', textDecoration: 'none', fontWeight: 600 }}
                           >
                             🔗 platform.openai.com/api-keys
                           </a>

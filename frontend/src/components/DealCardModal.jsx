@@ -13,7 +13,7 @@ const PIPELINE_STAGES = [
   { id: 'new',                label: 'Заявка',        fullLabel: '1. Новая заявка',            icon: '📝', color: '#8b5cf6' },
   { id: 'engineer_assigned',  label: 'Инженер',       fullLabel: '2. Инженер назначен',        icon: '📋', color: '#f59e0b' },
   { id: 'engineer_visit',     label: 'Выезд',         fullLabel: '3. Выезд и обследование',    icon: '🚗', color: '#f97316' },
-  { id: 'estimate_ready',     label: 'Смета',         fullLabel: '4. Смета и ПСД готовы',       icon: '📊', color: '#06b6d4' },
+  { id: 'estimate_ready',     label: 'Смета',         fullLabel: '4. Смета и ПСД готовы',       icon: '📊', color: '#a78bfa' },
   { id: 'pending_executor',   label: 'Подрядчик',     fullLabel: '5. Поиск исполнителя',       icon: '⏳', color: '#eab308' },
   { id: 'in_progress',        label: 'В работе',      fullLabel: '6. Строительные работы',      icon: '🟢', color: '#10b981' },
   { id: 'completed',          label: 'Сдан',          fullLabel: '7. Объект сдан и принят',     icon: '✅', color: '#22c55e' }
@@ -267,7 +267,7 @@ export default function DealCardModal({ card, onClose, onSave, onDelete, current
   const typeBadgeStyle = formData.dealType === 'engineer'
     ? { bg: 'rgba(245, 158, 11, 0.25)', border: '#f59e0b', color: '#fcd34d', label: '👷 ВЫЕЗД ИНЖЕНЕРА' }
     : formData.dealType === 'executor'
-    ? { bg: 'rgba(0, 229, 255, 0.25)', border: '#00e5ff', color: '#38bdf8', label: '🔨 РАБОТЫ ИСПОЛНИТЕЛЯ' }
+    ? { bg: 'rgba(0, 229, 255, 0.25)', border: '#00e5ff', color: '#b9a4ff', label: '🔨 РАБОТЫ ИСПОЛНИТЕЛЯ' }
     : { bg: 'rgba(139, 92, 246, 0.25)', border: '#8b5cf6', color: '#c4b5fd', label: '📝 НОВЫЙ ЛИД' };
 
   return (
@@ -280,12 +280,12 @@ export default function DealCardModal({ card, onClose, onSave, onDelete, current
       
       {/* Главная карточка */}
       <div style={{
-        backgroundColor: '#0a1424',
+        backgroundColor: '#100d20',
         width: '96vw', maxWidth: '1380px', height: '90vh', maxHeight: '860px',
         borderRadius: '20px', border: `1px solid ${typeBadgeStyle.border}`,
         boxShadow: `0 25px 60px rgba(0, 0, 0, 0.8), 0 0 40px ${typeBadgeStyle.bg}`,
         display: 'flex', flexDirection: 'column',
-        overflow: 'hidden', color: '#e2e8f0', fontFamily: 'system-ui, sans-serif',
+        overflow: 'hidden', color: '#ece9f8', fontFamily: 'system-ui, sans-serif',
         position: 'relative'
       }} onClick={e => e.stopPropagation()}>
 
@@ -309,7 +309,7 @@ export default function DealCardModal({ card, onClose, onSave, onDelete, current
           padding: '1rem 1.75rem',
           display: 'flex', justifyContent: 'space-between', alignItems: 'center',
           borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-          background: 'linear-gradient(90deg, rgba(15, 23, 42, 0.95), rgba(10, 20, 36, 0.95))',
+          background: 'linear-gradient(90deg, rgba(21, 18, 42, 0.95), rgba(16, 13, 32, 0.95))',
           flexWrap: 'wrap', gap: '12px'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
@@ -347,7 +347,7 @@ export default function DealCardModal({ card, onClose, onSave, onDelete, current
                 </span>
               </div>
 
-              <div style={{ fontSize: '0.76rem', color: '#94a3b8', marginTop: '3px', display: 'flex', gap: '10px' }}>
+              <div style={{ fontSize: '0.76rem', color: '#a39cc2', marginTop: '3px', display: 'flex', gap: '10px' }}>
                 <span>📍 {formData.location}</span>
                 <span>•</span>
                 <span>📅 Дата: {formData.date}</span>
@@ -378,10 +378,10 @@ export default function DealCardModal({ card, onClose, onSave, onDelete, current
 
             <button onClick={onClose} style={{
               background: 'rgba(255, 255, 255, 0.06)', border: '1px solid rgba(255, 255, 255, 0.15)',
-              color: '#94a3b8', width: '36px', height: '36px', borderRadius: '50%',
+              color: '#a39cc2', width: '36px', height: '36px', borderRadius: '50%',
               fontSize: '1.1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
               transition: 'all 0.2s'
-            }} onMouseEnter={e => e.currentTarget.style.color = '#fff'} onMouseLeave={e => e.currentTarget.style.color = '#94a3b8'}>
+            }} onMouseEnter={e => e.currentTarget.style.color = '#fff'} onMouseLeave={e => e.currentTarget.style.color = '#a39cc2'}>
               ✕
             </button>
           </div>
@@ -429,9 +429,9 @@ export default function DealCardModal({ card, onClose, onSave, onDelete, current
               >
                 <div style={{
                   width: '36px', height: '36px', borderRadius: '50%',
-                  background: isActive ? stage.color : (isCompleted ? 'rgba(16, 185, 129, 0.2)' : '#0f172a'),
+                  background: isActive ? stage.color : (isCompleted ? 'rgba(16, 185, 129, 0.2)' : '#15122a'),
                   border: `2px solid ${isActive ? '#fff' : (isCompleted ? '#10b981' : 'rgba(255,255,255,0.15)')}`,
-                  color: isActive ? '#0a1628' : (isCompleted ? '#10b981' : '#94a3b8'),
+                  color: isActive ? '#0a1628' : (isCompleted ? '#10b981' : '#a39cc2'),
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   fontSize: '0.95rem', fontWeight: 900,
                   boxShadow: isActive ? `0 0 16px ${stage.color}` : 'none'
@@ -442,7 +442,7 @@ export default function DealCardModal({ card, onClose, onSave, onDelete, current
                 <span style={{
                   fontSize: '0.72rem',
                   fontWeight: isActive ? 800 : (isCompleted ? 700 : 500),
-                  color: isActive ? '#00e5ff' : (isCompleted ? '#10b981' : '#64748b'),
+                  color: isActive ? '#00e5ff' : (isCompleted ? '#10b981' : '#8a82a8'),
                   textAlign: 'center'
                 }}>
                   {stage.label}
@@ -467,16 +467,16 @@ export default function DealCardModal({ card, onClose, onSave, onDelete, current
             
             {/* Блок 1: Объект и Заказчик */}
             <div style={{
-              background: 'rgba(15, 23, 42, 0.8)', borderRadius: '14px',
+              background: 'rgba(21, 18, 42, 0.8)', borderRadius: '14px',
               border: '1px solid rgba(255, 255, 255, 0.08)', padding: '1.1rem'
             }}>
-              <div style={{ fontSize: '0.75rem', color: '#38bdf8', fontWeight: 800, textTransform: 'uppercase', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <div style={{ fontSize: '0.75rem', color: '#b9a4ff', fontWeight: 800, textTransform: 'uppercase', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <span>🏢</span> Объект и Заказчик
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.7rem' }}>
                 <div>
-                  <label style={{ fontSize: '0.68rem', color: '#94a3b8', display: 'block', marginBottom: '3px', fontWeight: 600 }}>НАИМЕНОВАНИЕ ОБЪЕКТА</label>
+                  <label style={{ fontSize: '0.68rem', color: '#a39cc2', display: 'block', marginBottom: '3px', fontWeight: 600 }}>НАИМЕНОВАНИЕ ОБЪЕКТА</label>
                   <input
                     type="text"
                     value={formData.title}
@@ -490,7 +490,7 @@ export default function DealCardModal({ card, onClose, onSave, onDelete, current
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
                   <div>
-                    <label style={{ fontSize: '0.68rem', color: '#94a3b8', display: 'block', marginBottom: '3px', fontWeight: 600 }}>ЗАКАЗЧИК</label>
+                    <label style={{ fontSize: '0.68rem', color: '#a39cc2', display: 'block', marginBottom: '3px', fontWeight: 600 }}>ЗАКАЗЧИК</label>
                     <input
                       type="text"
                       value={formData.clientName}
@@ -502,22 +502,22 @@ export default function DealCardModal({ card, onClose, onSave, onDelete, current
                     />
                   </div>
                   <div>
-                    <label style={{ fontSize: '0.68rem', color: '#94a3b8', display: 'block', marginBottom: '3px', fontWeight: 600 }}>ТЕЛЕФОН</label>
+                    <label style={{ fontSize: '0.68rem', color: '#a39cc2', display: 'block', marginBottom: '3px', fontWeight: 600 }}>ТЕЛЕФОН</label>
                     <input
                       type="text"
                       value={formData.clientPhone}
                       onChange={e => setFormData({ ...formData, clientPhone: e.target.value })}
                       placeholder="+7 (701) 888-00-11"
                       style={{
-                        width: '100%', background: 'rgba(0,0,0,0.35)', border: '1px solid rgba(56, 189, 248, 0.3)',
-                        borderRadius: '8px', padding: '7px 10px', color: '#38bdf8', fontSize: '0.82rem', outline: 'none', fontWeight: 700
+                        width: '100%', background: 'rgba(0,0,0,0.35)', border: '1px solid rgba(185, 164, 255, 0.3)',
+                        borderRadius: '8px', padding: '7px 10px', color: '#b9a4ff', fontSize: '0.82rem', outline: 'none', fontWeight: 700
                       }}
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label style={{ fontSize: '0.68rem', color: '#94a3b8', display: 'block', marginBottom: '3px', fontWeight: 600 }}>АДРЕС ОБЪЕКТА</label>
+                  <label style={{ fontSize: '0.68rem', color: '#a39cc2', display: 'block', marginBottom: '3px', fontWeight: 600 }}>АДРЕС ОБЪЕКТА</label>
                   <input
                     type="text"
                     value={formData.location}
@@ -532,7 +532,7 @@ export default function DealCardModal({ card, onClose, onSave, onDelete, current
                 <div>
                   <label style={{ fontSize: '0.68rem', color: '#ffd700', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3px', fontWeight: 700 }}>
                     <span>💰 БЮДЖЕТ ОБЪЕКТА (₸)</span>
-                    <span style={{ fontSize: '0.65rem', color: '#94a3b8' }}>{formatMoney(formData.budget)}</span>
+                    <span style={{ fontSize: '0.65rem', color: '#a39cc2' }}>{formatMoney(formData.budget)}</span>
                   </label>
                   <input
                     type="number"
@@ -559,7 +559,7 @@ export default function DealCardModal({ card, onClose, onSave, onDelete, current
                     style={{
                       width: '100%', background: isExecutor ? 'rgba(0,0,0,0.5)' : 'rgba(0,0,0,0.35)',
                       border: `1px solid ${isExecutor ? 'rgba(255,255,255,0.06)' : 'rgba(139, 92, 246, 0.3)'}`,
-                      borderRadius: '8px', padding: '7px 10px', color: isExecutor ? '#94a3b8' : '#c4b5fd',
+                      borderRadius: '8px', padding: '7px 10px', color: isExecutor ? '#a39cc2' : '#c4b5fd',
                       fontSize: '0.82rem', outline: 'none', fontWeight: 700,
                       cursor: isExecutor ? 'not-allowed' : 'text'
                     }}
@@ -570,14 +570,14 @@ export default function DealCardModal({ card, onClose, onSave, onDelete, current
 
             {/* Блок 2: ВЫЕЗД ИНЖЕНЕРА (ЗАБЛОКИРОВАН ДЛЯ ИСПОЛНИТЕЛЯ) */}
             <div style={{
-              background: isExecutor ? 'rgba(15, 23, 42, 0.5)' : 'rgba(245, 158, 11, 0.05)',
+              background: isExecutor ? 'rgba(21, 18, 42, 0.5)' : 'rgba(245, 158, 11, 0.05)',
               borderRadius: '14px',
               border: `1px solid ${isExecutor ? 'rgba(255, 255, 255, 0.08)' : 'rgba(245, 158, 11, 0.25)'}`,
               padding: '1.1rem',
               position: 'relative'
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-                <div style={{ fontSize: '0.75rem', color: isExecutor ? '#94a3b8' : '#f59e0b', fontWeight: 800, textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <div style={{ fontSize: '0.75rem', color: isExecutor ? '#a39cc2' : '#f59e0b', fontWeight: 800, textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <span>👷</span> Выезд инженера ПТО
                 </div>
                 {isExecutor ? (
@@ -594,7 +594,7 @@ export default function DealCardModal({ card, onClose, onSave, onDelete, current
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.7rem' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
                   <div>
-                    <label style={{ fontSize: '0.68rem', color: '#94a3b8', display: 'block', marginBottom: '3px', fontWeight: 600 }}>ИНЖЕНЕР ПТО</label>
+                    <label style={{ fontSize: '0.68rem', color: '#a39cc2', display: 'block', marginBottom: '3px', fontWeight: 600 }}>ИНЖЕНЕР ПТО</label>
                     <input
                       type="text"
                       value={formData.assignedEngineer}
@@ -603,14 +603,14 @@ export default function DealCardModal({ card, onClose, onSave, onDelete, current
                       style={{
                         width: '100%', background: isExecutor ? 'rgba(0,0,0,0.5)' : 'rgba(0,0,0,0.35)',
                         border: `1px solid ${isExecutor ? 'rgba(255,255,255,0.06)' : 'rgba(245, 158, 11, 0.3)'}`,
-                        borderRadius: '8px', padding: '7px 10px', color: isExecutor ? '#94a3b8' : '#fcd34d',
+                        borderRadius: '8px', padding: '7px 10px', color: isExecutor ? '#a39cc2' : '#fcd34d',
                         fontSize: '0.82rem', outline: 'none', fontWeight: 700,
                         cursor: isExecutor ? 'not-allowed' : 'text'
                       }}
                     />
                   </div>
                   <div>
-                    <label style={{ fontSize: '0.68rem', color: '#94a3b8', display: 'block', marginBottom: '3px', fontWeight: 600 }}>ДАТА ВЫЕЗДА</label>
+                    <label style={{ fontSize: '0.68rem', color: '#a39cc2', display: 'block', marginBottom: '3px', fontWeight: 600 }}>ДАТА ВЫЕЗДА</label>
                     <input
                       type="text"
                       value={formData.engineerVisitDate}
@@ -619,7 +619,7 @@ export default function DealCardModal({ card, onClose, onSave, onDelete, current
                       style={{
                         width: '100%', background: isExecutor ? 'rgba(0,0,0,0.5)' : 'rgba(0,0,0,0.35)',
                         border: `1px solid ${isExecutor ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.12)'}`,
-                        borderRadius: '8px', padding: '7px 10px', color: isExecutor ? '#94a3b8' : '#38bdf8',
+                        borderRadius: '8px', padding: '7px 10px', color: isExecutor ? '#a39cc2' : '#b9a4ff',
                         fontSize: '0.82rem', outline: 'none', fontWeight: 700,
                         cursor: isExecutor ? 'not-allowed' : 'text'
                       }}
@@ -628,7 +628,7 @@ export default function DealCardModal({ card, onClose, onSave, onDelete, current
                 </div>
 
                 <div>
-                  <label style={{ fontSize: '0.68rem', color: '#94a3b8', display: 'block', marginBottom: '3px', fontWeight: 600 }}>ЗАКЛЮЧЕНИЕ / ОТЧЁТ ОБСЛЕДОВАНИЯ</label>
+                  <label style={{ fontSize: '0.68rem', color: '#a39cc2', display: 'block', marginBottom: '3px', fontWeight: 600 }}>ЗАКЛЮЧЕНИЕ / ОТЧЁТ ОБСЛЕДОВАНИЯ</label>
                   <textarea
                     rows="3"
                     value={formData.engineerReport}
@@ -637,7 +637,7 @@ export default function DealCardModal({ card, onClose, onSave, onDelete, current
                     style={{
                       width: '100%', background: isExecutor ? 'rgba(0,0,0,0.5)' : 'rgba(0,0,0,0.35)',
                       border: `1px solid ${isExecutor ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.12)'}`,
-                      borderRadius: '8px', padding: '7px 10px', color: isExecutor ? '#94a3b8' : '#cbd5e1',
+                      borderRadius: '8px', padding: '7px 10px', color: isExecutor ? '#a39cc2' : '#cbc5e3',
                       fontSize: '0.78rem', outline: 'none', resize: 'none', lineHeight: 1.35,
                       cursor: isExecutor ? 'not-allowed' : 'text'
                     }}
@@ -662,7 +662,7 @@ export default function DealCardModal({ card, onClose, onSave, onDelete, current
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.7rem' }}>
                 <div>
-                  <label style={{ fontSize: '0.68rem', color: '#94a3b8', display: 'block', marginBottom: '3px', fontWeight: 600 }}>ОРГАНИЗАЦИЯ</label>
+                  <label style={{ fontSize: '0.68rem', color: '#a39cc2', display: 'block', marginBottom: '3px', fontWeight: 600 }}>ОРГАНИЗАЦИЯ</label>
                   <input
                     type="text"
                     value={formData.executorName}
@@ -674,27 +674,27 @@ export default function DealCardModal({ card, onClose, onSave, onDelete, current
                   />
                 </div>
                 <div>
-                  <label style={{ fontSize: '0.68rem', color: '#94a3b8', display: 'block', marginBottom: '3px', fontWeight: 600 }}>ДОГОВОР ПОДРЯДА</label>
+                  <label style={{ fontSize: '0.68rem', color: '#a39cc2', display: 'block', marginBottom: '3px', fontWeight: 600 }}>ДОГОВОР ПОДРЯДА</label>
                   <input
                     type="text"
                     value={formData.executorContract}
                     onChange={e => setFormData({ ...formData, executorContract: e.target.value })}
                     style={{
                       width: '100%', background: 'rgba(0,0,0,0.35)', border: '1px solid rgba(255,255,255,0.12)',
-                      borderRadius: '8px', padding: '7px 10px', color: '#94a3b8', fontSize: '0.82rem', outline: 'none'
+                      borderRadius: '8px', padding: '7px 10px', color: '#a39cc2', fontSize: '0.82rem', outline: 'none'
                     }}
                   />
                 </div>
                 <div>
-                  <label style={{ fontSize: '0.68rem', color: '#38bdf8', display: 'block', marginBottom: '3px', fontWeight: 600 }}>👷 НАЗНАЧЕННЫЕ МАСТЕРА / РАБОЧИЕ</label>
+                  <label style={{ fontSize: '0.68rem', color: '#b9a4ff', display: 'block', marginBottom: '3px', fontWeight: 600 }}>👷 НАЗНАЧЕННЫЕ МАСТЕРА / РАБОЧИЕ</label>
                   <input
                     type="text"
                     value={formData.assignedWorkers}
                     onChange={e => setFormData({ ...formData, assignedWorkers: e.target.value })}
                     placeholder="Мастер Владимир, Мастер Данил"
                     style={{
-                      width: '100%', background: 'rgba(0,0,0,0.35)', border: '1px solid rgba(56, 189, 248, 0.3)',
-                      borderRadius: '8px', padding: '7px 10px', color: '#38bdf8', fontSize: '0.82rem', outline: 'none', fontWeight: 700
+                      width: '100%', background: 'rgba(0,0,0,0.35)', border: '1px solid rgba(185, 164, 255, 0.3)',
+                      borderRadius: '8px', padding: '7px 10px', color: '#b9a4ff', fontSize: '0.82rem', outline: 'none', fontWeight: 700
                     }}
                   />
                 </div>
@@ -711,7 +711,7 @@ export default function DealCardModal({ card, onClose, onSave, onDelete, current
             {/* 4 Карточки верхнего финансового дашборда */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px' }}>
               <div style={{
-                background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(255, 215, 0, 0.4)',
+                background: 'rgba(21, 18, 42, 0.8)', border: '1px solid rgba(255, 215, 0, 0.4)',
                 borderRadius: '12px', padding: '10px 14px'
               }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -734,22 +734,22 @@ export default function DealCardModal({ card, onClose, onSave, onDelete, current
                   />
                   <span style={{ color: '#ffd700', fontWeight: 900, fontSize: '0.95rem' }}>₸</span>
                 </div>
-                <div style={{ fontSize: '0.65rem', color: '#94a3b8', marginTop: '2px' }}>
+                <div style={{ fontSize: '0.65rem', color: '#a39cc2', marginTop: '2px' }}>
                   {formatMoney(totalBudget)}
                 </div>
               </div>
 
               <div style={{
-                background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(0, 229, 255, 0.3)',
+                background: 'rgba(21, 18, 42, 0.8)', border: '1px solid rgba(0, 229, 255, 0.3)',
                 borderRadius: '12px', padding: '10px 14px'
               }}>
                 <div style={{ fontSize: '0.68rem', color: '#00e5ff', fontWeight: 800, textTransform: 'uppercase' }}>🔒 В Эскроу</div>
                 <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#00e5ff', marginTop: '2px' }}>{formatMoney(escrowLocked)}</div>
-                <div style={{ fontSize: '0.65rem', color: '#94a3b8', marginTop: '1px' }}>заморожено в работе</div>
+                <div style={{ fontSize: '0.65rem', color: '#a39cc2', marginTop: '1px' }}>заморожено в работе</div>
               </div>
 
               <div style={{
-                background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(16, 185, 129, 0.4)',
+                background: 'rgba(21, 18, 42, 0.8)', border: '1px solid rgba(16, 185, 129, 0.4)',
                 borderRadius: '12px', padding: '10px 14px'
               }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -778,24 +778,24 @@ export default function DealCardModal({ card, onClose, onSave, onDelete, current
                     {formatMoney(escrowPaid)}
                   </div>
                 )}
-                <div style={{ fontSize: '0.65rem', color: '#94a3b8', marginTop: '2px' }}>
+                <div style={{ fontSize: '0.65rem', color: '#a39cc2', marginTop: '2px' }}>
                   {formatMoney(formData.paidAmount !== undefined ? formData.paidAmount : escrowPaid)}
                 </div>
               </div>
 
               <div style={{
-                background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(139, 92, 246, 0.3)',
+                background: 'rgba(21, 18, 42, 0.8)', border: '1px solid rgba(139, 92, 246, 0.3)',
                 borderRadius: '12px', padding: '10px 14px'
               }}>
                 <div style={{ fontSize: '0.68rem', color: '#c4b5fd', fontWeight: 800, textTransform: 'uppercase' }}>🎁 Бонус 3%</div>
                 <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#c4b5fd', marginTop: '2px' }}>{formatMoney(totalBudget * 0.03)}</div>
-                <div style={{ fontSize: '0.65rem', color: '#94a3b8', marginTop: '1px' }}>менеджеру сделки</div>
+                <div style={{ fontSize: '0.65rem', color: '#a39cc2', marginTop: '1px' }}>менеджеру сделки</div>
               </div>
             </div>
 
             {/* Таб-переключатель */}
             <div style={{
-              display: 'flex', gap: '6px', background: 'rgba(15, 23, 42, 0.9)',
+              display: 'flex', gap: '6px', background: 'rgba(21, 18, 42, 0.9)',
               padding: '4px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.08)'
             }}>
               {[
@@ -809,8 +809,8 @@ export default function DealCardModal({ card, onClose, onSave, onDelete, current
                   onClick={() => setActiveTab(t.key)}
                   style={{
                     flex: 1, padding: '7px 12px', borderRadius: '8px', border: 'none',
-                    background: activeTab === t.key ? 'linear-gradient(135deg, #00e5ff, #0284c7)' : 'transparent',
-                    color: activeTab === t.key ? '#0a1628' : '#94a3b8',
+                    background: activeTab === t.key ? 'linear-gradient(135deg, #00e5ff, #7c3aed)' : 'transparent',
+                    color: activeTab === t.key ? '#0a1628' : '#a39cc2',
                     fontWeight: 800, fontSize: '0.78rem', cursor: 'pointer', transition: 'all 0.2s'
                   }}
                 >
@@ -824,7 +824,7 @@ export default function DealCardModal({ card, onClose, onSave, onDelete, current
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', flex: 1 }}>
                 {formData.stages.map((stg, i) => (
                   <div key={stg.id || i} style={{
-                    background: 'rgba(15, 23, 42, 0.85)',
+                    background: 'rgba(21, 18, 42, 0.85)',
                     border: `1px solid ${stg.status === 'completed' ? 'rgba(16, 185, 129, 0.35)' : (stg.status === 'in_progress' ? 'rgba(0, 229, 255, 0.45)' : 'rgba(255, 255, 255, 0.08)')}`,
                     borderRadius: '12px', padding: '12px 14px',
                     boxShadow: stg.status === 'in_progress' ? '0 0 16px rgba(0, 229, 255, 0.12)' : 'none'
@@ -832,8 +832,8 @@ export default function DealCardModal({ card, onClose, onSave, onDelete, current
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                       <div>
                         <div style={{ fontWeight: 800, fontSize: '0.9rem', color: '#f8fafc' }}>{stg.name}</div>
-                        <div style={{ fontSize: '0.72rem', color: '#94a3b8', marginTop: '1px', display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-                          <span>⏱ Сроки: <strong style={{ color: '#38bdf8' }}>{stg.dateRange}</strong></span>
+                        <div style={{ fontSize: '0.72rem', color: '#a39cc2', marginTop: '1px', display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                          <span>⏱ Сроки: <strong style={{ color: '#b9a4ff' }}>{stg.dateRange}</strong></span>
                           <span>•</span>
                           <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
                             Бюджет этапа:
@@ -862,7 +862,7 @@ export default function DealCardModal({ card, onClose, onSave, onDelete, current
                           padding: '4px 12px', borderRadius: '8px', fontSize: '0.72rem', fontWeight: 800,
                           background: stg.status === 'completed' ? 'rgba(16,185,129,0.2)' : (stg.status === 'in_progress' ? 'rgba(0,229,255,0.2)' : 'rgba(255,255,255,0.06)'),
                           border: `1px solid ${stg.status === 'completed' ? '#10b981' : (stg.status === 'in_progress' ? '#00e5ff' : 'rgba(255,255,255,0.15)')}`,
-                          color: stg.status === 'completed' ? '#10b981' : (stg.status === 'in_progress' ? '#00e5ff' : '#94a3b8'),
+                          color: stg.status === 'completed' ? '#10b981' : (stg.status === 'in_progress' ? '#00e5ff' : '#a39cc2'),
                           cursor: 'pointer'
                         }}
                       >
@@ -883,11 +883,11 @@ export default function DealCardModal({ card, onClose, onSave, onDelete, current
 
                     {stg.machinery && stg.machinery.length > 0 && (
                       <div style={{
-                        background: 'rgba(8, 12, 22, 0.6)', border: '1px solid rgba(56, 189, 248, 0.2)',
+                        background: 'rgba(8, 12, 22, 0.6)', border: '1px solid rgba(185, 164, 255, 0.2)',
                         borderRadius: '8px', padding: '6px 10px', marginTop: '6px'
                       }}>
                         {stg.machinery.map((m, mi) => (
-                          <div key={mi} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.75rem', color: '#e2e8f0' }}>
+                          <div key={mi} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.75rem', color: '#ece9f8' }}>
                             <span>🚜 <strong>{m.name}</strong></span>
                             <span style={{ color: '#10b981', fontWeight: 700 }}>{m.status} • {m.rate}</span>
                           </div>
@@ -902,13 +902,13 @@ export default function DealCardModal({ card, onClose, onSave, onDelete, current
             {/* ТАБ 2: СМЕТА МАТЕРИАЛОВ И РАБОТ */}
             {activeTab === 'estimate' && !isExecutor && (
               <div style={{
-                background: 'rgba(15, 23, 42, 0.85)', borderRadius: '12px',
+                background: 'rgba(21, 18, 42, 0.85)', borderRadius: '12px',
                 border: '1px solid rgba(255, 255, 255, 0.08)', padding: '1rem', flex: 1
               }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem', flexWrap: 'wrap', gap: '8px' }}>
                   <div>
-                    <span style={{ fontWeight: 800, color: '#38bdf8', fontSize: '0.85rem' }}>📄 Смета с интеграцией Маркетплейсов (ГОСТ КЗ)</span>
-                    <div style={{ fontSize: '0.68rem', color: '#94a3b8', marginTop: '2px' }}>
+                    <span style={{ fontWeight: 800, color: '#b9a4ff', fontSize: '0.85rem' }}>📄 Смета с интеграцией Маркетплейсов (ГОСТ КЗ)</span>
+                    <div style={{ fontSize: '0.68rem', color: '#a39cc2', marginTop: '2px' }}>
                       Автоматический расчёт стройматериалов и почасовой аренды спецтехники
                     </div>
                   </div>
@@ -976,8 +976,8 @@ export default function DealCardModal({ card, onClose, onSave, onDelete, current
                         showToast('🚜 Самосвал Shacman подтянут из Маркетплейса спецтехники!');
                       }}
                       style={{
-                        background: 'rgba(56, 189, 248, 0.15)', border: '1px solid #38bdf8',
-                        color: '#7dd3fc', borderRadius: '6px', padding: '4px 8px',
+                        background: 'rgba(185, 164, 255, 0.15)', border: '1px solid #b9a4ff',
+                        color: '#d6caff', borderRadius: '6px', padding: '4px 8px',
                         fontSize: '0.7rem', fontWeight: 800, cursor: 'pointer'
                       }}
                     >
@@ -997,9 +997,9 @@ export default function DealCardModal({ card, onClose, onSave, onDelete, current
                   </div>
                 </div>
 
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.78rem', color: '#cbd5e1' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.78rem', color: '#cbc5e3' }}>
                   <thead>
-                    <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', color: '#64748b', textAlign: 'left' }}>
+                    <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', color: '#8a82a8', textAlign: 'left' }}>
                       <th style={{ padding: '6px 4px' }}>Позиция</th>
                       <th style={{ padding: '6px 4px' }}>Ед.</th>
                       <th style={{ padding: '6px 4px' }}>Кол-во</th>
@@ -1030,9 +1030,9 @@ export default function DealCardModal({ card, onClose, onSave, onDelete, current
                           {item.tag && (
                             <span style={{
                               fontSize: '0.62rem', fontWeight: 800, padding: '1px 5px', borderRadius: '4px',
-                              background: item.source === 'materials_marketplace' ? 'rgba(139,92,246,0.2)' : (item.source === 'equipment_marketplace' ? 'rgba(56,189,248,0.2)' : (item.source === 'custom' ? 'rgba(16,185,129,0.2)' : 'rgba(245,158,11,0.2)')),
-                              border: `1px solid ${item.source === 'materials_marketplace' ? '#8b5cf6' : (item.source === 'equipment_marketplace' ? '#38bdf8' : (item.source === 'custom' ? '#10b981' : '#f59e0b'))}`,
-                              color: item.source === 'materials_marketplace' ? '#c4b5fd' : (item.source === 'equipment_marketplace' ? '#7dd3fc' : (item.source === 'custom' ? '#6ee7b7' : '#fcd34d')),
+                              background: item.source === 'materials_marketplace' ? 'rgba(139,92,246,0.2)' : (item.source === 'equipment_marketplace' ? 'rgba(185,164,255,0.2)' : (item.source === 'custom' ? 'rgba(16,185,129,0.2)' : 'rgba(245,158,11,0.2)')),
+                              border: `1px solid ${item.source === 'materials_marketplace' ? '#8b5cf6' : (item.source === 'equipment_marketplace' ? '#b9a4ff' : (item.source === 'custom' ? '#10b981' : '#f59e0b'))}`,
+                              color: item.source === 'materials_marketplace' ? '#c4b5fd' : (item.source === 'equipment_marketplace' ? '#d6caff' : (item.source === 'custom' ? '#6ee7b7' : '#fcd34d')),
                               display: 'inline-block', marginTop: '2px'
                             }}>
                               {item.tag}
@@ -1047,7 +1047,7 @@ export default function DealCardModal({ card, onClose, onSave, onDelete, current
                               onChange={e => handleEstimateItemChange(idx, 'unit', e.target.value)}
                               style={{
                                 width: '45px', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.12)',
-                                borderRadius: '4px', padding: '3px 4px', color: '#cbd5e1', fontSize: '0.78rem',
+                                borderRadius: '4px', padding: '3px 4px', color: '#cbc5e3', fontSize: '0.78rem',
                                 textAlign: 'center', outline: 'none'
                               }}
                             />
@@ -1091,7 +1091,7 @@ export default function DealCardModal({ card, onClose, onSave, onDelete, current
                             `${item.price.toLocaleString('ru-RU')} ₸`
                           )}
                         </td>
-                        <td style={{ padding: '6px 4px', textAlign: 'right', fontWeight: 900, color: '#38bdf8' }}>
+                        <td style={{ padding: '6px 4px', textAlign: 'right', fontWeight: 900, color: '#b9a4ff' }}>
                           {isManagerOrAdmin ? (
                             <div style={{ display: 'inline-flex', alignItems: 'center', gap: '2px', justifyContent: 'flex-end' }}>
                               <input
@@ -1099,12 +1099,12 @@ export default function DealCardModal({ card, onClose, onSave, onDelete, current
                                 value={item.sum || item.price * item.qty}
                                 onChange={e => handleEstimateItemChange(idx, 'sum', e.target.value)}
                                 style={{
-                                  width: '95px', background: 'rgba(0,0,0,0.35)', border: '1px solid rgba(56, 189, 248, 0.4)',
-                                  borderRadius: '4px', padding: '2px 4px', color: '#38bdf8', fontSize: '0.78rem',
+                                  width: '95px', background: 'rgba(0,0,0,0.35)', border: '1px solid rgba(185, 164, 255, 0.4)',
+                                  borderRadius: '4px', padding: '2px 4px', color: '#b9a4ff', fontSize: '0.78rem',
                                   fontWeight: 900, textAlign: 'right', outline: 'none'
                                 }}
                               />
-                              <span style={{ fontSize: '0.75rem', color: '#38bdf8' }}>₸</span>
+                              <span style={{ fontSize: '0.75rem', color: '#b9a4ff' }}>₸</span>
                             </div>
                           ) : (
                             `${(item.sum || item.price * item.qty).toLocaleString('ru-RU')} ₸`
@@ -1150,10 +1150,10 @@ export default function DealCardModal({ card, onClose, onSave, onDelete, current
             {/* ТАБ 3: ФАЙЛЫ И ДОКУМЕНТЫ */}
             {activeTab === 'files' && (
               <div style={{
-                background: 'rgba(15, 23, 42, 0.85)', borderRadius: '12px',
+                background: 'rgba(21, 18, 42, 0.85)', borderRadius: '12px',
                 border: '1px solid rgba(255, 255, 255, 0.08)', padding: '1rem', flex: 1
               }}>
-                <div style={{ fontWeight: 800, color: '#38bdf8', fontSize: '0.85rem', marginBottom: '0.75rem' }}>
+                <div style={{ fontWeight: 800, color: '#b9a4ff', fontSize: '0.85rem', marginBottom: '0.75rem' }}>
                   📁 Прикреплённые акты и фото с объекта
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
@@ -1169,7 +1169,7 @@ export default function DealCardModal({ card, onClose, onSave, onDelete, current
                       <span style={{ fontSize: '1.6rem' }}>{f.icon}</span>
                       <div style={{ overflow: 'hidden' }}>
                         <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#fff', textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden' }}>{f.name}</div>
-                        <div style={{ fontSize: '0.65rem', color: '#64748b' }}>{f.size}</div>
+                        <div style={{ fontSize: '0.65rem', color: '#8a82a8' }}>{f.size}</div>
                       </div>
                     </div>
                   ))}
@@ -1180,10 +1180,10 @@ export default function DealCardModal({ card, onClose, onSave, onDelete, current
             {/* ТАБ 4: ЗАМЕТКИ */}
             {activeTab === 'notes' && (
               <div style={{
-                background: 'rgba(15, 23, 42, 0.85)', borderRadius: '12px',
+                background: 'rgba(21, 18, 42, 0.85)', borderRadius: '12px',
                 border: '1px solid rgba(255, 255, 255, 0.08)', padding: '1rem', flex: 1
               }}>
-                <div style={{ fontWeight: 800, color: '#38bdf8', fontSize: '0.85rem', marginBottom: '0.5rem' }}>
+                <div style={{ fontWeight: 800, color: '#b9a4ff', fontSize: '0.85rem', marginBottom: '0.5rem' }}>
                   📝 Особые комментарии и инструкции
                 </div>
                 <textarea
@@ -1192,7 +1192,7 @@ export default function DealCardModal({ card, onClose, onSave, onDelete, current
                   onChange={e => setFormData({ ...formData, comments: e.target.value })}
                   style={{
                     width: '100%', background: 'rgba(0,0,0,0.35)', border: '1px solid rgba(255,255,255,0.12)',
-                    borderRadius: '8px', padding: '10px', color: '#cbd5e1', fontSize: '0.82rem', outline: 'none', resize: 'none', lineHeight: 1.4
+                    borderRadius: '8px', padding: '10px', color: '#cbc5e3', fontSize: '0.82rem', outline: 'none', resize: 'none', lineHeight: 1.4
                   }}
                 />
               </div>
@@ -1200,7 +1200,7 @@ export default function DealCardModal({ card, onClose, onSave, onDelete, current
 
             {/* Быстрые действия с учётом роли */}
             <div style={{
-              display: 'flex', gap: '8px', background: 'rgba(15, 23, 42, 0.85)',
+              display: 'flex', gap: '8px', background: 'rgba(21, 18, 42, 0.85)',
               borderRadius: '12px', padding: '8px 12px', border: '1px solid rgba(255,255,255,0.06)'
             }}>
               {!isExecutor && (
@@ -1270,7 +1270,7 @@ export default function DealCardModal({ card, onClose, onSave, onDelete, current
           padding: '0.85rem 1.75rem',
           borderTop: '1px solid rgba(255, 255, 255, 0.08)',
           display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-          backgroundColor: '#0a1424'
+          backgroundColor: '#100d20'
         }}>
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
             <button
@@ -1311,7 +1311,7 @@ export default function DealCardModal({ card, onClose, onSave, onDelete, current
               type="button"
               onClick={onClose}
               style={{
-                background: 'rgba(255, 255, 255, 0.06)', color: '#94a3b8',
+                background: 'rgba(255, 255, 255, 0.06)', color: '#a39cc2',
                 border: '1px solid rgba(255, 255, 255, 0.15)', padding: '8px 20px',
                 borderRadius: '8px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 700
               }}

@@ -17,14 +17,14 @@
   position: fixed;
   top: 24px;
   right: 24px;
-  background: linear-gradient(135deg, rgba(37, 99, 235, 0.95), rgba(14, 165, 233, 0.95));
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.95), rgba(167, 139, 250, 0.95));
   backdrop-filter: blur(16px);
   color: #ffffff;
   padding: 12px 24px;
   border-radius: 12px;
   font-weight: 700;
   font-size: 14px;
-  box-shadow: 0 10px 35px rgba(37, 99, 235, 0.45);
+  box-shadow: 0 10px 35px rgba(124, 58, 237, 0.45);
   border: 1px solid rgba(255, 255, 255, 0.2);
   z-index: 10000;
   animation: vipSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -74,8 +74,8 @@
 }
 
 .vip-back-btn:hover {
-  background: rgba(37, 99, 235, 0.25);
-  border-color: #38bdf8;
+  background: rgba(124, 58, 237, 0.25);
+  border-color: #b9a4ff;
   transform: translateX(-3px);
 }
 
@@ -98,9 +98,9 @@
 }
 
 .vip-license-badge {
-  background: rgba(14, 165, 233, 0.15);
-  border: 1px solid rgba(14, 165, 233, 0.35);
-  color: #38bdf8;
+  background: rgba(167, 139, 250, 0.15);
+  border: 1px solid rgba(167, 139, 250, 0.35);
+  color: #b9a4ff;
   font-size: 11px;
   font-weight: 700;
   padding: 3px 10px;
@@ -128,7 +128,7 @@
 .vip-subtitle {
   margin: 0;
   font-size: 0.85rem;
-  color: #94a3b8;
+  color: #a39cc2;
   max-width: 680px;
 }
 
@@ -139,7 +139,7 @@
 }
 
 .v-stat-pill {
-  background: rgba(15, 23, 42, 0.7);
+  background: rgba(21, 18, 42, 0.7);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 12px;
   padding: 10px 16px;
@@ -149,7 +149,7 @@
 
 .v-stat-pill .label {
   font-size: 0.75rem;
-  color: #94a3b8;
+  color: #a39cc2;
 }
 
 .v-stat-pill .val {
@@ -178,7 +178,7 @@
 .vip-tab-btn {
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.06);
-  color: #94a3b8;
+  color: #a39cc2;
   padding: 10px 16px;
   border-radius: 12px;
   cursor: pointer;
@@ -198,10 +198,10 @@
 }
 
 .vip-tab-btn.active {
-  background: linear-gradient(135deg, rgba(37, 99, 235, 0.25), rgba(14, 165, 233, 0.2));
-  border: 1px solid rgba(56, 189, 248, 0.5);
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.25), rgba(167, 139, 250, 0.2));
+  border: 1px solid rgba(185, 164, 255, 0.5);
   color: #ffffff;
-  box-shadow: 0 0 20px rgba(37, 99, 235, 0.25);
+  box-shadow: 0 0 20px rgba(124, 58, 237, 0.25);
 }
 
 .vip-tab-btn .icon {
@@ -218,12 +218,12 @@
 .vip-tab-btn .t-sub {
   display: block;
   font-size: 0.72rem;
-  color: #64748b;
+  color: #8a82a8;
   margin-top: 2px;
 }
 
 .vip-tab-btn.active .t-sub {
-  color: #38bdf8;
+  color: #b9a4ff;
 }
 
 /* 3. Section Content Box */
@@ -255,14 +255,14 @@
 .vip-sec-head p {
   margin: 0;
   font-size: 0.85rem;
-  color: #94a3b8;
+  color: #a39cc2;
 }
 
 .vip-badge-pill {
   display: inline-block;
-  background: rgba(59, 130, 246, 0.2);
-  border: 1px solid rgba(59, 130, 246, 0.4);
-  color: #93c5fd;
+  background: rgba(139, 92, 246, 0.2);
+  border: 1px solid rgba(139, 92, 246, 0.4);
+  color: #ddd6fe;
   font-size: 0.75rem;
   font-weight: 700;
   padding: 2px 10px;
@@ -272,8 +272,8 @@
 
 /* Primary and Secondary Buttons */
 .vip-primary-btn {
-  background: linear-gradient(135deg, #2563eb, #0284c7);
-  border: 1px solid rgba(56, 189, 248, 0.4);
+  background: linear-gradient(135deg, #7c3aed, #7c3aed);
+  border: 1px solid rgba(185, 164, 255, 0.4);
   color: #ffffff;
   font-family: inherit;
   font-size: 13px;
@@ -285,20 +285,20 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  box-shadow: 0 4px 15px rgba(37, 99, 235, 0.35);
+  box-shadow: 0 4px 15px rgba(124, 58, 237, 0.35);
 }
 
 .vip-primary-btn:hover {
-  background: linear-gradient(135deg, #1d4ed8, #0369a1);
-  border-color: #38bdf8;
+  background: linear-gradient(135deg, #6d28d9, #0369a1);
+  border-color: #b9a4ff;
   transform: translateY(-1px);
-  box-shadow: 0 6px 22px rgba(14, 165, 233, 0.45);
+  box-shadow: 0 6px 22px rgba(167, 139, 250, 0.45);
 }
 
 .vip-secondary-btn {
-  background: rgba(15, 23, 42, 0.8);
+  background: rgba(21, 18, 42, 0.8);
   border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #cbd5e1;
+  color: #cbc5e3;
   font-family: inherit;
   font-size: 13px;
   font-weight: 600;
@@ -312,7 +312,7 @@
 }
 
 .vip-secondary-btn:hover {
-  background: rgba(30, 41, 59, 0.9);
+  background: rgba(33, 29, 56, 0.9);
   color: #ffffff;
   border-color: rgba(255, 255, 255, 0.25);
   transform: translateY(-1px);
@@ -323,8 +323,8 @@
   display: grid;
   grid-template-columns: 1.4fr 1fr;
   gap: 20px;
-  background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(11, 18, 32, 0.95));
-  border: 1px solid rgba(59, 130, 246, 0.3);
+  background: linear-gradient(135deg, rgba(21, 18, 42, 0.9), rgba(11, 18, 32, 0.95));
+  border: 1px solid rgba(139, 92, 246, 0.3);
   border-radius: 16px;
   padding: 24px;
   margin-bottom: 2rem;
@@ -345,9 +345,9 @@
 }
 
 .v-type-tag {
-  background: rgba(37, 99, 235, 0.18);
-  border: 1px solid rgba(59, 130, 246, 0.35);
-  color: #93c5fd;
+  background: rgba(124, 58, 237, 0.18);
+  border: 1px solid rgba(139, 92, 246, 0.35);
+  color: #ddd6fe;
   font-size: 0.78rem;
   font-weight: 700;
   padding: 3px 8px;
@@ -357,7 +357,7 @@
 .v-city-tag, .v-id-tag {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  color: #cbd5e1;
+  color: #cbc5e3;
   font-size: 0.78rem;
   padding: 3px 8px;
   border-radius: 6px;
@@ -392,13 +392,13 @@
 
 .v-prog-bar {
   height: 100%;
-  background: linear-gradient(90deg, #2563eb, #38bdf8);
+  background: linear-gradient(90deg, #7c3aed, #b9a4ff);
   border-radius: 999px;
 }
 
 .v-current-stage {
   font-size: 0.82rem;
-  color: #94a3b8;
+  color: #a39cc2;
 }
 
 .v-current-stage strong {
@@ -414,7 +414,7 @@
 }
 
 .v-metric-box {
-  background: rgba(15, 23, 42, 0.6);
+  background: rgba(21, 18, 42, 0.6);
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 10px;
   padding: 10px 14px;
@@ -424,7 +424,7 @@
 
 .v-metric-box .lbl {
   font-size: 0.75rem;
-  color: #94a3b8;
+  color: #a39cc2;
 }
 
 .v-metric-box .val {
@@ -440,7 +440,7 @@
 
 .v-metric-box small {
   font-size: 0.72rem;
-  color: #64748b;
+  color: #8a82a8;
 }
 
 /* Object Actions */
@@ -465,7 +465,7 @@
 .vip-btn-lots, .vip-btn-docs {
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #e2e8f0;
+  color: #ece9f8;
   border-radius: 8px;
   padding: 8px 14px;
   font-weight: 600;
@@ -495,7 +495,7 @@
   align-items: center;
   font-size: 0.85rem;
   font-weight: 700;
-  color: #94a3b8;
+  color: #a39cc2;
   margin-bottom: 8px;
 }
 
@@ -516,7 +516,7 @@
 
 .v-3d-footer {
   font-size: 0.72rem;
-  color: #64748b;
+  color: #8a82a8;
   text-align: center;
   margin-top: 8px;
 }
@@ -529,7 +529,7 @@
 }
 
 .vip-obj-card {
-  background: rgba(15, 23, 42, 0.7);
+  background: rgba(21, 18, 42, 0.7);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 14px;
   padding: 18px;
@@ -542,14 +542,14 @@
 
 .vip-obj-card:hover {
   background: rgba(22, 34, 58, 0.85);
-  border-color: rgba(59, 130, 246, 0.4);
+  border-color: rgba(139, 92, 246, 0.4);
   transform: translateY(-2px);
 }
 
 .vip-obj-card.selected {
-  border-color: #38bdf8;
-  box-shadow: 0 0 20px rgba(56, 189, 248, 0.25);
-  background: rgba(30, 41, 59, 0.9);
+  border-color: #b9a4ff;
+  box-shadow: 0 0 20px rgba(185, 164, 255, 0.25);
+  background: rgba(33, 29, 56, 0.9);
 }
 
 .v-card-top {
@@ -562,8 +562,8 @@
 .v-card-type {
   font-size: 0.78rem;
   font-weight: 700;
-  color: #93c5fd;
-  background: rgba(37, 99, 235, 0.15);
+  color: #ddd6fe;
+  background: rgba(124, 58, 237, 0.15);
   padding: 3px 8px;
   border-radius: 6px;
 }
@@ -571,7 +571,7 @@
 .v-card-del {
   background: transparent;
   border: none;
-  color: #64748b;
+  color: #8a82a8;
   font-size: 1rem;
   cursor: pointer;
 }
@@ -588,7 +588,7 @@
 
 .v-card-loc {
   font-size: 0.78rem;
-  color: #94a3b8;
+  color: #a39cc2;
   margin-bottom: 12px;
 }
 
@@ -598,7 +598,7 @@
 
 .v-card-prog-row span {
   font-size: 0.78rem;
-  color: #94a3b8;
+  color: #a39cc2;
   display: flex;
   justify-content: space-between;
   margin-bottom: 4px;
@@ -613,7 +613,7 @@
 
 .v-mini-bar .fill {
   height: 100%;
-  background: #38bdf8;
+  background: #b9a4ff;
 }
 
 .v-card-budget {
@@ -629,9 +629,9 @@
 
 .v-btn-select {
   width: 100%;
-  background: rgba(59, 130, 246, 0.15);
-  border: 1px solid rgba(59, 130, 246, 0.35);
-  color: #93c5fd;
+  background: rgba(139, 92, 246, 0.15);
+  border: 1px solid rgba(139, 92, 246, 0.35);
+  color: #ddd6fe;
   padding: 8px;
   border-radius: 8px;
   font-weight: 700;
@@ -641,7 +641,7 @@
 }
 
 .v-btn-select:hover {
-  background: #2563eb;
+  background: #7c3aed;
   color: #ffffff;
 }
 
@@ -674,12 +674,12 @@
 .form-group label {
   font-size: 0.82rem;
   font-weight: 700;
-  color: #94a3b8;
+  color: #a39cc2;
   margin-bottom: 6px;
 }
 
 .vip-input, .vip-textarea {
-  background: rgba(15, 23, 42, 0.85);
+  background: rgba(21, 18, 42, 0.85);
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: #ffffff;
   font-family: inherit;
@@ -691,8 +691,8 @@
 }
 
 .vip-input:focus, .vip-textarea:focus {
-  border-color: #38bdf8;
-  box-shadow: 0 0 16px rgba(56, 189, 248, 0.25);
+  border-color: #b9a4ff;
+  box-shadow: 0 0 16px rgba(185, 164, 255, 0.25);
 }
 
 .form-row-2 {
@@ -708,8 +708,8 @@
 }
 
 .vip-license-assurance-box {
-  background: rgba(14, 165, 233, 0.1);
-  border: 1px solid rgba(14, 165, 233, 0.3);
+  background: rgba(167, 139, 250, 0.1);
+  border: 1px solid rgba(167, 139, 250, 0.3);
   border-radius: 12px;
   padding: 14px 18px;
   display: flex;
@@ -724,13 +724,13 @@
 .vip-license-assurance-box h4 {
   margin: 0 0 4px 0;
   font-size: 0.92rem;
-  color: #38bdf8;
+  color: #b9a4ff;
 }
 
 .vip-license-assurance-box p {
   margin: 0;
   font-size: 0.8rem;
-  color: #cbd5e1;
+  color: #cbc5e3;
   line-height: 1.4;
 }
 
@@ -756,7 +756,7 @@
 .preview-card p {
   margin: 0 0 14px 0;
   font-size: 0.8rem;
-  color: #94a3b8;
+  color: #a39cc2;
 }
 
 .preview-3d-box {
@@ -793,7 +793,7 @@
 }
 
 .wbs-item-card {
-  background: rgba(15, 23, 42, 0.7);
+  background: rgba(21, 18, 42, 0.7);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 12px;
   padding: 14px 18px;
@@ -806,12 +806,12 @@
 
 .wbs-item-card:hover {
   background: rgba(22, 34, 58, 0.85);
-  border-color: rgba(59, 130, 246, 0.3);
+  border-color: rgba(139, 92, 246, 0.3);
 }
 
 .wbs-item-card.active {
-  background: rgba(37, 99, 235, 0.15);
-  border-color: #38bdf8;
+  background: rgba(124, 58, 237, 0.15);
+  border-color: #b9a4ff;
 }
 
 .wbs-left {
@@ -832,7 +832,7 @@
 
 .wbs-desc {
   font-size: 0.78rem;
-  color: #94a3b8;
+  color: #a39cc2;
   margin: 2px 0 6px 0;
 }
 
@@ -848,7 +848,7 @@
   font-weight: 600;
 }
 
-.gesn-tag { background: rgba(59, 130, 246, 0.2); color: #93c5fd; }
+.gesn-tag { background: rgba(139, 92, 246, 0.2); color: #ddd6fe; }
 .rate-tag { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
 .labor-tag { background: rgba(16, 185, 129, 0.15); color: #6ee7b7; }
 
@@ -859,8 +859,8 @@
 
 /* Cost Engine Box */
 .vip-cost-engine-card {
-  background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(11, 18, 32, 0.95));
-  border: 1px solid rgba(59, 130, 246, 0.35);
+  background: linear-gradient(135deg, rgba(21, 18, 42, 0.95), rgba(11, 18, 32, 0.95));
+  border: 1px solid rgba(139, 92, 246, 0.35);
   border-radius: 16px;
   padding: 22px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
@@ -877,7 +877,7 @@
 
 .engine-icon {
   font-size: 1.6rem;
-  background: rgba(37, 99, 235, 0.2);
+  background: rgba(124, 58, 237, 0.2);
   width: 40px;
   height: 40px;
   border-radius: 10px;
@@ -893,7 +893,7 @@
 }
 
 .engine-header small {
-  color: #94a3b8;
+  color: #a39cc2;
 }
 
 .scenario-toggles-row {
@@ -906,7 +906,7 @@
 .sc-btn {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  color: #94a3b8;
+  color: #a39cc2;
   padding: 8px 4px;
   border-radius: 8px;
   font-size: 0.78rem;
@@ -930,7 +930,7 @@
 
 .cost-total-display .lbl {
   font-size: 0.75rem;
-  color: #94a3b8;
+  color: #a39cc2;
   font-weight: 700;
   letter-spacing: 0.5px;
 }
@@ -944,7 +944,7 @@
 
 .cost-total-display .sub-val {
   font-size: 0.82rem;
-  color: #cbd5e1;
+  color: #cbc5e3;
 }
 
 .cost-breakdown-list {
@@ -958,7 +958,7 @@
   display: flex;
   justify-content: space-between;
   font-size: 0.82rem;
-  color: #94a3b8;
+  color: #a39cc2;
   padding-bottom: 6px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.04);
 }
@@ -985,7 +985,7 @@
 }
 
 .vip-btn-lot-create {
-  background: linear-gradient(135deg, #2563eb, #0284c7);
+  background: linear-gradient(135deg, #7c3aed, #7c3aed);
   color: #ffffff;
   border: none;
   padding: 10px;
@@ -998,7 +998,7 @@
 .vip-btn-pdf-export {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #cbd5e1;
+  color: #cbc5e3;
   padding: 8px;
   border-radius: 10px;
   font-weight: 600;
@@ -1021,7 +1021,7 @@
 
 .audit-dropzone {
   background: rgba(11, 18, 32, 0.8);
-  border: 2px dashed rgba(59, 130, 246, 0.35);
+  border: 2px dashed rgba(139, 92, 246, 0.35);
   border-radius: 16px;
   padding: 30px;
   text-align: center;
@@ -1043,11 +1043,11 @@
 .audit-dropzone p {
   margin: 0 0 16px 0;
   font-size: 0.82rem;
-  color: #94a3b8;
+  color: #a39cc2;
 }
 
 .audit-report-box {
-  background: rgba(15, 23, 42, 0.9);
+  background: rgba(21, 18, 42, 0.9);
   border: 1px solid rgba(16, 185, 129, 0.35);
   border-radius: 14px;
   padding: 18px;
@@ -1078,7 +1078,7 @@
   margin: 4px 0 12px 18px;
   padding: 0;
   font-size: 0.85rem;
-  color: #cbd5e1;
+  color: #cbc5e3;
 }
 
 .engineer-sign-box {
@@ -1091,7 +1091,7 @@
 }
 
 .ecp-badge {
-  color: #38bdf8;
+  color: #b9a4ff;
   font-weight: 700;
 }
 
@@ -1110,7 +1110,7 @@
 .vip-audit-side-form p {
   margin: 0 0 14px 0;
   font-size: 0.82rem;
-  color: #94a3b8;
+  color: #a39cc2;
 }
 
 .audit-actions-column {
@@ -1131,9 +1131,9 @@
 }
 
 .vip-btn-contractors {
-  background: rgba(14, 165, 233, 0.15);
-  border: 1px solid rgba(14, 165, 233, 0.35);
-  color: #38bdf8;
+  background: rgba(167, 139, 250, 0.15);
+  border: 1px solid rgba(167, 139, 250, 0.35);
+  color: #b9a4ff;
   padding: 10px;
   border-radius: 10px;
   font-weight: 700;
@@ -1173,7 +1173,7 @@
 }
 
 .vip-table th {
-  color: #64748b;
+  color: #8a82a8;
   font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -1186,7 +1186,7 @@
 .vip-table td {
   padding: 12px;
   font-size: 0.85rem;
-  color: #cbd5e1;
+  color: #cbc5e3;
   border-bottom: 1px solid rgba(255, 255, 255, 0.04);
 }
 
@@ -1202,9 +1202,9 @@
 .lot-status-pill.draft { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
 
 .vip-btn-mini {
-  background: rgba(59, 130, 246, 0.2);
-  border: 1px solid rgba(59, 130, 246, 0.4);
-  color: #93c5fd;
+  background: rgba(139, 92, 246, 0.2);
+  border: 1px solid rgba(139, 92, 246, 0.4);
+  color: #ddd6fe;
   padding: 4px 8px;
   border-radius: 6px;
   font-size: 0.75rem;
@@ -1224,7 +1224,7 @@
 .empty-lots-state {
   text-align: center;
   padding: 2rem;
-  color: #94a3b8;
+  color: #a39cc2;
 }
 
 .empty-lots-state span {
@@ -1264,7 +1264,7 @@
 .vip-doc-card p {
   margin: 0 0 16px 0;
   font-size: 0.85rem;
-  color: #94a3b8;
+  color: #a39cc2;
   line-height: 1.4;
 }
 
@@ -1323,12 +1323,12 @@
   display: flex;
   justify-content: space-between;
   font-size: 0.82rem;
-  color: #94a3b8;
+  color: #a39cc2;
 }
 
 .c-desc {
   font-size: 0.82rem;
-  color: #cbd5e1;
+  color: #cbc5e3;
 }
 
 .c-stats-row {
@@ -1343,7 +1343,7 @@
 .c-stats-row .stat span {
   display: block;
   font-size: 0.72rem;
-  color: #94a3b8;
+  color: #a39cc2;
 }
 
 .c-stats-row .stat strong {
@@ -1361,9 +1361,9 @@
 
 .c-contact-info {
   font-size: 0.82rem;
-  color: #cbd5e1;
+  color: #cbc5e3;
 }
 
 .c-contact-info small {
-  color: #64748b;
+  color: #8a82a8;
 }

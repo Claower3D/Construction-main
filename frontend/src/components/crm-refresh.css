@@ -4,7 +4,7 @@
 
 .crm-root .crm-top-bar {
   padding: 12px var(--qg-gutter) !important;
-  background: rgba(8, 17, 31, 0.92) !important;
+  background: rgba(12, 10, 22, 0.92) !important;
   border-bottom: 1px solid var(--qg-line) !important;
   -webkit-backdrop-filter: blur(10px) !important;
   backdrop-filter: blur(10px) !important;
@@ -86,12 +86,12 @@
   padding: 6px;
   border-radius: var(--qg-r-sm);
   border: 1px solid var(--qg-line);
-  background: rgba(140, 170, 214, 0.03);
+  background: rgba(196, 181, 253, 0.03);
   cursor: pointer;
   transition: border-color var(--qg-dur-1) var(--qg-ease), background-color var(--qg-dur-1) var(--qg-ease);
 }
-.crm-day:hover { border-color: var(--qg-line-strong); background: rgba(140, 170, 214, 0.06); }
-.crm-day.is-empty { background: transparent; border-style: dashed; border-color: rgba(140, 170, 214, 0.08); cursor: default; }
+.crm-day:hover { border-color: var(--qg-line-strong); background: rgba(196, 181, 253, 0.06); }
+.crm-day.is-empty { background: transparent; border-style: dashed; border-color: rgba(196, 181, 253, 0.08); cursor: default; }
 .crm-day.is-today { border-color: var(--qg-cyan); background: var(--qg-cyan-soft); }
 .crm-day.is-over { border-color: var(--qg-price); background: var(--qg-price-soft); }
 .crm-day-num { color: var(--qg-text); font-weight: 700; font-size: 0.8125rem; font-variant-numeric: tabular-nums; padding: 1px 4px; }
@@ -112,7 +112,7 @@
   transition: opacity var(--qg-dur-1) var(--qg-ease);
 }
 .crm-day:hover .crm-day-add, .crm-day-add:focus-visible { opacity: 1; color: var(--qg-cyan); border-color: var(--qg-cyan); }
-.crm-day-count { padding: 1px 6px; border-radius: 6px; background: rgba(140, 170, 214, 0.14); color: var(--qg-text-2); font-size: 0.6875rem; font-weight: 700; }
+.crm-day-count { padding: 1px 6px; border-radius: 6px; background: rgba(196, 181, 253, 0.14); color: var(--qg-text-2); font-size: 0.6875rem; font-weight: 700; }
 
 /* Карточка заявки */
 .crm-event {

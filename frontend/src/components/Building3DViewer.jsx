@@ -942,9 +942,9 @@ export default function Building3DViewer({
                 key={m.id}
                 onClick={() => setActiveModel(m.id)}
                 style={{
-                  background: activeModel === m.id ? 'linear-gradient(135deg, #2563eb, #0284c7)' : 'transparent',
+                  background: activeModel === m.id ? 'linear-gradient(135deg, #7c3aed, #7c3aed)' : 'transparent',
                   border: 'none',
-                  color: activeModel === m.id ? '#ffffff' : '#94a3b8',
+                  color: activeModel === m.id ? '#ffffff' : '#a39cc2',
                   padding: '5px 10px',
                   borderRadius: '6px',
                   fontSize: '0.75rem',
@@ -1008,9 +1008,9 @@ export default function Building3DViewer({
             <button
               onClick={() => setViewMode(viewMode === 'bim' ? 'arch' : 'bim')}
               style={{
-                background: viewMode === 'bim' ? 'rgba(56, 189, 248, 0.25)' : 'rgba(255, 255, 255, 0.08)',
-                border: viewMode === 'bim' ? '1px solid #38bdf8' : 'none',
-                color: viewMode === 'bim' ? '#38bdf8' : '#f8fafc',
+                background: viewMode === 'bim' ? 'rgba(185, 164, 255, 0.25)' : 'rgba(255, 255, 255, 0.08)',
+                border: viewMode === 'bim' ? '1px solid #b9a4ff' : 'none',
+                color: viewMode === 'bim' ? '#b9a4ff' : '#f8fafc',
                 padding: '5px 9px',
                 borderRadius: '6px',
                 fontSize: '0.75rem',
@@ -1025,9 +1025,9 @@ export default function Building3DViewer({
             <button
               onClick={() => setAutoRotate(!autoRotate)}
               style={{
-                background: autoRotate ? 'rgba(59, 130, 246, 0.25)' : 'rgba(255, 255, 255, 0.08)',
-                border: autoRotate ? '1px solid #3b82f6' : 'none',
-                color: autoRotate ? '#60a5fa' : '#f8fafc',
+                background: autoRotate ? 'rgba(139, 92, 246, 0.25)' : 'rgba(255, 255, 255, 0.08)',
+                border: autoRotate ? '1px solid #8b5cf6' : 'none',
+                color: autoRotate ? '#c4b5fd' : '#f8fafc',
                 padding: '5px 9px',
                 borderRadius: '6px',
                 fontSize: '0.75rem',
@@ -1052,14 +1052,14 @@ export default function Building3DViewer({
           justifyContent: 'space-between',
           alignItems: 'center',
           fontSize: '0.72rem',
-          color: '#cbd5e1',
+          color: '#cbc5e3',
           pointerEvents: 'none',
           zIndex: 10
         }}>
           <div style={{ background: 'rgba(8, 12, 22, 0.88)', padding: '4px 10px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.08)' }}>
             🖱️ Вращение мышью • Колесо: Зум • Башенный кран Liebherr
           </div>
-          <div style={{ background: 'rgba(8, 12, 22, 0.88)', padding: '4px 10px', borderRadius: '6px', border: '1px solid rgba(56, 189, 248, 0.3)', color: '#38bdf8', fontWeight: '700' }}>
+          <div style={{ background: 'rgba(8, 12, 22, 0.88)', padding: '4px 10px', borderRadius: '6px', border: '1px solid rgba(185, 164, 255, 0.3)', color: '#b9a4ff', fontWeight: '700' }}>
             ⚡ Real-time WebGL 2.0 ArchViz Engine
           </div>
         </div>

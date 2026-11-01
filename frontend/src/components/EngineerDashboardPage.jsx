@@ -1080,7 +1080,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
             <button 
               className="btn-sidebar-toggle" 
               onClick={() => setSelectedOrg(organizations[0])}
-              style={{ background: 'rgba(37, 99, 235, 0.25)', border: '1px solid #2563eb', color: '#fff', padding: '0.5rem 1rem', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+              style={{ background: 'rgba(124, 58, 237, 0.25)', border: '1px solid #7c3aed', color: '#fff', padding: '0.5rem 1rem', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
             >
               <span>◀</span> Меню / Кабинет
             </button>
@@ -1096,14 +1096,14 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
           {/* Header Banner with Search & Actions */}
           <div style={{ background: 'rgba(18, 22, 38, 0.75)', border: '1px solid rgba(255, 255, 255, 0.16)', borderRadius: '28px', padding: '2.25rem 2.8rem', backdropFilter: 'blur(28px)', boxShadow: '0 20px 60px rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1.75rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1.6rem' }}>
-              <div style={{ width: '76px', height: '76px', borderRadius: '24px', background: 'radial-gradient(circle at center, rgba(37, 99, 235, 0.35) 0%, rgba(255,255,255,0.06) 100%)', border: '1px solid rgba(255,255,255,0.22)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '3rem', flexShrink: 0, boxShadow: '0 0 35px rgba(37, 99, 235, 0.45)' }}>
+              <div style={{ width: '76px', height: '76px', borderRadius: '24px', background: 'radial-gradient(circle at center, rgba(124, 58, 237, 0.35) 0%, rgba(255,255,255,0.06) 100%)', border: '1px solid rgba(255,255,255,0.22)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '3rem', flexShrink: 0, boxShadow: '0 0 35px rgba(124, 58, 237, 0.45)' }}>
                 🏢
               </div>
               <div>
                 <h2 style={{ fontSize: '2.1rem', fontWeight: '900', color: '#fff', margin: '0 0 0.4rem 0', letterSpacing: '-0.5px' }}>
                   Выберите рабочую организацию
                 </h2>
-                <p style={{ color: '#cbd5e1', fontSize: '0.96rem', margin: 0, lineHeight: '1.4' }}>
+                <p style={{ color: '#cbc5e3', fontSize: '0.96rem', margin: 0, lineHeight: '1.4' }}>
                   Управление строительными объектами, сметами и командой специалистов
                 </p>
               </div>
@@ -1123,7 +1123,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
               <button 
                 onClick={() => setShowCreateOrgModal(true)}
                 style={{ 
-                  background: 'linear-gradient(90deg, #38bdf8, #2563eb)', 
+                  background: 'linear-gradient(90deg, #b9a4ff, #7c3aed)', 
                   color: '#fff', 
                   border: 'none', 
                   padding: '0.95rem 1.8rem', 
@@ -1131,7 +1131,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                   fontWeight: '800', 
                   fontSize: '0.96rem', 
                   cursor: 'pointer',
-                  boxShadow: '0 8px 25px rgba(56, 189, 248, 0.45)',
+                  boxShadow: '0 8px 25px rgba(185, 164, 255, 0.45)',
                   whiteSpace: 'nowrap',
                   transition: 'all 0.25s ease'
                 }}
@@ -1149,7 +1149,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                 onClick={() => setSelectedOrg(org)}
                 style={{ 
                   background: 'rgba(18, 22, 38, 0.8)', 
-                  border: org.isDefault ? '1px solid rgba(37, 99, 235, 0.7)' : '1px solid rgba(255, 255, 255, 0.14)', 
+                  border: org.isDefault ? '1px solid rgba(124, 58, 237, 0.7)' : '1px solid rgba(255, 255, 255, 0.14)', 
                   borderRadius: '28px', 
                   padding: '2rem', 
                   display: 'flex', 
@@ -1158,13 +1158,13 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                   cursor: 'pointer',
                   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                   backdropFilter: 'blur(28px)',
-                  boxShadow: org.isDefault ? '0 20px 45px rgba(37, 99, 235, 0.3)' : '0 20px 45px rgba(0,0,0,0.4)',
+                  boxShadow: org.isDefault ? '0 20px 45px rgba(124, 58, 237, 0.3)' : '0 20px 45px rgba(0,0,0,0.4)',
                   position: 'relative',
                   overflow: 'hidden'
                 }}
               >
                 {org.isDefault && (
-                  <div style={{ position: 'absolute', top: 0, right: 0, background: 'linear-gradient(135deg, #2563eb, #38bdf8)', color: '#fff', padding: '0.4rem 1.25rem', borderRadius: '0 0 0 20px', fontSize: '0.78rem', fontWeight: '900', boxShadow: '0 4px 15px rgba(37, 99, 235, 0.5)', letterSpacing: '0.6px' }}>
+                  <div style={{ position: 'absolute', top: 0, right: 0, background: 'linear-gradient(135deg, #7c3aed, #b9a4ff)', color: '#fff', padding: '0.4rem 1.25rem', borderRadius: '0 0 0 20px', fontSize: '0.78rem', fontWeight: '900', boxShadow: '0 4px 15px rgba(124, 58, 237, 0.5)', letterSpacing: '0.6px' }}>
                     ⭐ ОСНОВНАЯ
                   </div>
                 )}
@@ -1175,7 +1175,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                   </div>
                   <div style={{ flex: 1, paddingRight: org.isDefault ? '5rem' : 0 }}>
                     <h3 style={{ margin: '0 0 0.4rem 0', fontSize: '1.35rem', fontWeight: '800', color: '#fff' }}>{org.name}</h3>
-                    <p style={{ margin: 0, fontSize: '0.86rem', color: '#cbd5e1', lineHeight: '1.4' }}>
+                    <p style={{ margin: 0, fontSize: '0.86rem', color: '#cbc5e3', lineHeight: '1.4' }}>
                       📍 {org.city} • 🏷️ {org.type} <br />
                       БИН: <strong style={{ color: '#fff', letterSpacing: '0.5px' }}>{org.bin}</strong>
                     </p>
@@ -1185,24 +1185,24 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                 {/* 3 Glowing Activity Metric Pill Boxes */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem', background: 'rgba(0, 0, 0, 0.35)', padding: '1rem', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.08)' }}>
                   <div style={{ textAlign: 'center' }}>
-                    <div style={{ fontSize: '1.3rem', fontWeight: '900', color: '#38bdf8' }}>{org.projectsCount}</div>
-                    <div style={{ fontSize: '0.74rem', color: '#cbd5e1', marginTop: '0.15rem' }}>Объекта</div>
+                    <div style={{ fontSize: '1.3rem', fontWeight: '900', color: '#b9a4ff' }}>{org.projectsCount}</div>
+                    <div style={{ fontSize: '0.74rem', color: '#cbc5e3', marginTop: '0.15rem' }}>Объекта</div>
                   </div>
                   <div style={{ textAlign: 'center' }}>
-                    <div style={{ fontSize: '1.3rem', fontWeight: '900', color: '#93c5fd' }}>{org.estimatesCount}</div>
-                    <div style={{ fontSize: '0.74rem', color: '#cbd5e1', marginTop: '0.15rem' }}>Смет</div>
+                    <div style={{ fontSize: '1.3rem', fontWeight: '900', color: '#ddd6fe' }}>{org.estimatesCount}</div>
+                    <div style={{ fontSize: '0.74rem', color: '#cbc5e3', marginTop: '0.15rem' }}>Смет</div>
                   </div>
                   <div style={{ textAlign: 'center' }}>
                     <div style={{ fontSize: '1.3rem', fontWeight: '900', color: '#34d399' }}>{org.workersCount}</div>
-                    <div style={{ fontSize: '0.74rem', color: '#cbd5e1', marginTop: '0.15rem' }}>Инженеров</div>
+                    <div style={{ fontSize: '0.74rem', color: '#cbc5e3', marginTop: '0.15rem' }}>Инженеров</div>
                   </div>
                 </div>
 
                 {/* Card Role & CTA */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '1.1rem' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.86rem' }}>
-                    <span style={{ color: '#cbd5e1' }}>Ваша роль в компании:</span>
-                    <strong style={{ color: '#93c5fd', background: 'rgba(192, 132, 252, 0.12)', padding: '0.2rem 0.65rem', borderRadius: '8px', border: '1px solid rgba(192, 132, 252, 0.25)' }}>{org.role}</strong>
+                    <span style={{ color: '#cbc5e3' }}>Ваша роль в компании:</span>
+                    <strong style={{ color: '#ddd6fe', background: 'rgba(192, 132, 252, 0.12)', padding: '0.2rem 0.65rem', borderRadius: '8px', border: '1px solid rgba(192, 132, 252, 0.25)' }}>{org.role}</strong>
                   </div>
                   
                   <button 
@@ -1212,7 +1212,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                     }}
                     style={{ 
                       width: '100%',
-                      background: 'linear-gradient(90deg, #6366f1, #2563eb)', 
+                      background: 'linear-gradient(90deg, #6366f1, #7c3aed)', 
                       color: '#fff', 
                       border: 'none', 
                       padding: '0.9rem', 
@@ -1243,7 +1243,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
             <div className="em-modal-box" onClick={e => e.stopPropagation()} style={{ maxWidth: '480px' }}>
               <button className="em-modal-close" onClick={() => setShowCreateOrgModal(false)}>✕</button>
               <h2>🏢 Новая организация</h2>
-              <p style={{ color: '#cbd5e1', fontSize: '0.9rem', marginBottom: '1.5rem' }}>Введите реквизиты строительной компании или ИП</p>
+              <p style={{ color: '#cbc5e3', fontSize: '0.9rem', marginBottom: '1.5rem' }}>Введите реквизиты строительной компании или ИП</p>
 
               <div className="em-form-group mb-3">
                 <label>Название компании / ИП:</label>
@@ -1404,8 +1404,8 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
               <button 
                 onClick={onBackToHome}
                 style={{
-                  background: 'rgba(56, 189, 248, 0.18)',
-                  border: '1.5px solid #38bdf8',
+                  background: 'rgba(185, 164, 255, 0.18)',
+                  border: '1.5px solid #b9a4ff',
                   color: '#fff',
                   padding: '8px 16px',
                   borderRadius: '12px',
@@ -1415,7 +1415,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                   display: 'flex',
                   alignItems: 'center',
                   gap: '8px',
-                  boxShadow: '0 0 15px rgba(56, 189, 248, 0.3)'
+                  boxShadow: '0 0 15px rgba(185, 164, 255, 0.3)'
                 }}
               >
                 <span>←</span>
@@ -1455,7 +1455,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                     <h1 style={{ fontSize: '1.35rem', fontWeight: 900, margin: 0 }}>
                       {viewRole === 'customer' ? 'Мой Календарь' : (viewRole === 'executor' ? 'График работ' : 'Кабинет инженера v2.0')}
                     </h1>
-                    <span className="engineer-sub-tag" style={{ display: 'block', fontSize: '0.75rem', color: '#94a3b8', marginTop: '0.1rem' }}>
+                    <span className="engineer-sub-tag" style={{ display: 'block', fontSize: '0.75rem', color: '#a39cc2', marginTop: '0.1rem' }}>
                       {viewRole === 'customer' ? 'График выполнения заказов' : (viewRole === 'executor' ? 'Ваши проекты и дедлайны' : 'Технический надзор & Экспертиза СНиП РК')}
                     </span>
                   </div>
@@ -1477,25 +1477,25 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
           {activeTab === 'calendar' && (
             <div className="tab-view-container">
               {/* TOP HEADER BAR */}
-              <div className="calendar-top-bar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.5rem', background: 'rgba(15, 23, 42, 0.7)', border: '1px solid rgba(56, 189, 248, 0.2)', padding: '12px 18px', borderRadius: '16px', backdropFilter: 'blur(20px)' }}>
+              <div className="calendar-top-bar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.5rem', background: 'rgba(21, 18, 42, 0.7)', border: '1px solid rgba(185, 164, 255, 0.2)', padding: '12px 18px', borderRadius: '16px', backdropFilter: 'blur(20px)' }}>
                 <div className="calendar-header-left" style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
-                  <button className="btn-back-square" onClick={onBackToHome} title="На главную" style={{ background: 'rgba(56, 189, 248, 0.25)', border: '1.5px solid #38bdf8', color: '#ffffff', width: '40px', height: '40px', borderRadius: '12px', fontSize: '1.2rem', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontWeight: 900 }}>
+                  <button className="btn-back-square" onClick={onBackToHome} title="На главную" style={{ background: 'rgba(185, 164, 255, 0.25)', border: '1.5px solid #b9a4ff', color: '#ffffff', width: '40px', height: '40px', borderRadius: '12px', fontSize: '1.2rem', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontWeight: 900 }}>
                     ←
                   </button>
                   <h2 className="calendar-section-title" style={{ fontSize: '1.45rem', fontWeight: 900, margin: 0, color: '#ffffff', display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-                    <span className="title-icon-badge" style={{ background: 'rgba(56, 189, 248, 0.25)', border: '1.5px solid #38bdf8', borderRadius: '10px', width: '38px', height: '38px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem' }}>🗓️</span>
+                    <span className="title-icon-badge" style={{ background: 'rgba(185, 164, 255, 0.25)', border: '1.5px solid #b9a4ff', borderRadius: '10px', width: '38px', height: '38px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem' }}>🗓️</span>
                     <span style={{ color: '#ffffff', textShadow: '0 0 10px rgba(255,255,255,0.2)' }}>Календарь работ</span>
                   </h2>
                 </div>
 
                 <div className="calendar-controls-right" style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-                  <div className="view-mode-tabs" style={{ display: 'flex', background: '#0f172a', border: '1.5px solid #38bdf8', borderRadius: '12px', padding: '4px' }}>
+                  <div className="view-mode-tabs" style={{ display: 'flex', background: '#15122a', border: '1.5px solid #b9a4ff', borderRadius: '12px', padding: '4px' }}>
                     <button
                       type="button"
                       className={`view-tab ${calendarViewMode === 'month' ? 'active' : ''}`}
                       onClick={() => setCalendarViewMode('month')}
                       style={{
-                        background: calendarViewMode === 'month' ? 'linear-gradient(135deg, #0ea5e9, #2563eb)' : '#1e293b',
+                        background: calendarViewMode === 'month' ? 'linear-gradient(135deg, #a78bfa, #7c3aed)' : '#211d38',
                         color: '#ffffff',
                         border: 'none',
                         padding: '8px 16px',
@@ -1503,7 +1503,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                         fontWeight: 900,
                         fontSize: '0.88rem',
                         cursor: 'pointer',
-                        boxShadow: calendarViewMode === 'month' ? '0 0 12px rgba(14, 165, 233, 0.6)' : 'none',
+                        boxShadow: calendarViewMode === 'month' ? '0 0 12px rgba(167, 139, 250, 0.6)' : 'none',
                         transition: 'all 0.2s ease',
                         marginRight: '3px'
                       }}
@@ -1515,7 +1515,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                       className={`view-tab ${calendarViewMode === 'week' ? 'active' : ''}`}
                       onClick={() => setCalendarViewMode('week')}
                       style={{
-                        background: calendarViewMode === 'week' ? 'linear-gradient(135deg, #0ea5e9, #2563eb)' : '#1e293b',
+                        background: calendarViewMode === 'week' ? 'linear-gradient(135deg, #a78bfa, #7c3aed)' : '#211d38',
                         color: '#ffffff',
                         border: 'none',
                         padding: '8px 16px',
@@ -1523,7 +1523,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                         fontWeight: 900,
                         fontSize: '0.88rem',
                         cursor: 'pointer',
-                        boxShadow: calendarViewMode === 'week' ? '0 0 12px rgba(14, 165, 233, 0.6)' : 'none',
+                        boxShadow: calendarViewMode === 'week' ? '0 0 12px rgba(167, 139, 250, 0.6)' : 'none',
                         transition: 'all 0.2s ease'
                       }}
                     >
@@ -1531,12 +1531,12 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                     </button>
                   </div>
 
-                  <div className="month-navigator" style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#0f172a', border: '1.5px solid #38bdf8', borderRadius: '12px', padding: '5px 12px' }}>
+                  <div className="month-navigator" style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#15122a', border: '1.5px solid #b9a4ff', borderRadius: '12px', padding: '5px 12px' }}>
                     <button
                       type="button"
                       className="btn-nav-arrow-sm"
                       onClick={() => setMonthIndex((prev) => (prev > 0 ? prev - 1 : 11))}
-                      style={{ background: 'rgba(56, 189, 248, 0.3)', border: '1.5px solid #38bdf8', color: '#ffffff', width: '32px', height: '32px', borderRadius: '8px', cursor: 'pointer', fontWeight: 900, fontSize: '1.3rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                      style={{ background: 'rgba(185, 164, 255, 0.3)', border: '1.5px solid #b9a4ff', color: '#ffffff', width: '32px', height: '32px', borderRadius: '8px', cursor: 'pointer', fontWeight: 900, fontSize: '1.3rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                       title="Предыдущий месяц"
                     >
                       ‹
@@ -1546,7 +1546,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                       type="button"
                       className="btn-nav-arrow-sm"
                       onClick={() => setMonthIndex((prev) => (prev < 11 ? prev + 1 : 0))}
-                      style={{ background: 'rgba(56, 189, 248, 0.3)', border: '1.5px solid #38bdf8', color: '#ffffff', width: '32px', height: '32px', borderRadius: '8px', cursor: 'pointer', fontWeight: 900, fontSize: '1.3rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                      style={{ background: 'rgba(185, 164, 255, 0.3)', border: '1.5px solid #b9a4ff', color: '#ffffff', width: '32px', height: '32px', borderRadius: '8px', cursor: 'pointer', fontWeight: 900, fontSize: '1.3rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                       title="Следующий месяц"
                     >
                       ›
@@ -1580,25 +1580,25 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
 
               {/* KPI STATS CARDS ROW (4 Summary Counters) */}
               <div className="calendar-stats-row" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
-                <div className="calendar-kpi-card" style={{ background: 'rgba(15, 23, 42, 0.95)', border: '1.5px solid rgba(6, 182, 212, 0.4)', borderRadius: '16px', padding: '1.25rem 1rem', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', boxShadow: '0 4px 20px rgba(0,0,0,0.3)' }}>
-                  <span className="kpi-big-num cyan" style={{ fontSize: '2.4rem', fontWeight: 900, color: '#38bdf8', textShadow: '0 0 15px rgba(56, 189, 248, 0.5)' }}>{activeProjectsCount}</span>
+                <div className="calendar-kpi-card" style={{ background: 'rgba(21, 18, 42, 0.95)', border: '1.5px solid rgba(167, 139, 250, 0.4)', borderRadius: '16px', padding: '1.25rem 1rem', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', boxShadow: '0 4px 20px rgba(0,0,0,0.3)' }}>
+                  <span className="kpi-big-num cyan" style={{ fontSize: '2.4rem', fontWeight: 900, color: '#b9a4ff', textShadow: '0 0 15px rgba(185, 164, 255, 0.5)' }}>{activeProjectsCount}</span>
                   <span className="kpi-card-label" style={{ fontSize: '0.8rem', fontWeight: 800, color: '#ffffff', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.4rem', letterSpacing: '0.04em' }}>
                     <span>🔨</span> АКТИВНЫХ ПРОЕКТОВ
                   </span>
                 </div>
-                <div className="calendar-kpi-card" style={{ background: 'rgba(15, 23, 42, 0.95)', border: '1.5px solid rgba(245, 158, 11, 0.4)', borderRadius: '16px', padding: '1.25rem 1rem', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', boxShadow: '0 4px 20px rgba(0,0,0,0.3)' }}>
+                <div className="calendar-kpi-card" style={{ background: 'rgba(21, 18, 42, 0.95)', border: '1.5px solid rgba(245, 158, 11, 0.4)', borderRadius: '16px', padding: '1.25rem 1rem', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', boxShadow: '0 4px 20px rgba(0,0,0,0.3)' }}>
                   <span className="kpi-big-num gold" style={{ fontSize: '2.4rem', fontWeight: 900, color: '#fbbf24', textShadow: '0 0 15px rgba(251, 191, 36, 0.5)' }}>{inReviewCount}</span>
                   <span className="kpi-card-label" style={{ fontSize: '0.8rem', fontWeight: 800, color: '#ffffff', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.4rem', letterSpacing: '0.04em' }}>
                     <span>📋</span> НА ПРОВЕРКЕ
                   </span>
                 </div>
-                <div className="calendar-kpi-card" style={{ background: 'rgba(15, 23, 42, 0.95)', border: '1.5px solid rgba(239, 68, 68, 0.4)', borderRadius: '16px', padding: '1.25rem 1rem', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', boxShadow: '0 4px 20px rgba(0,0,0,0.3)' }}>
+                <div className="calendar-kpi-card" style={{ background: 'rgba(21, 18, 42, 0.95)', border: '1.5px solid rgba(239, 68, 68, 0.4)', borderRadius: '16px', padding: '1.25rem 1rem', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', boxShadow: '0 4px 20px rgba(0,0,0,0.3)' }}>
                   <span className="kpi-big-num red" style={{ fontSize: '2.4rem', fontWeight: 900, color: '#f87171', textShadow: '0 0 15px rgba(248, 113, 113, 0.5)' }}>{weekDeadlinesCount}</span>
                   <span className="kpi-card-label" style={{ fontSize: '0.8rem', fontWeight: 800, color: '#ffffff', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.4rem', letterSpacing: '0.04em' }}>
                     <span>⏰</span> ДЕДЛАЙНОВ НА НЕДЕЛЕ
                   </span>
                 </div>
-                <div className="calendar-kpi-card" style={{ background: 'rgba(15, 23, 42, 0.95)', border: '1.5px solid rgba(16, 185, 129, 0.4)', borderRadius: '16px', padding: '1.25rem 1rem', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', boxShadow: '0 4px 20px rgba(0,0,0,0.3)' }}>
+                <div className="calendar-kpi-card" style={{ background: 'rgba(21, 18, 42, 0.95)', border: '1.5px solid rgba(16, 185, 129, 0.4)', borderRadius: '16px', padding: '1.25rem 1rem', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', boxShadow: '0 4px 20px rgba(0,0,0,0.3)' }}>
                   <span className="kpi-big-num green" style={{ fontSize: '2.4rem', fontWeight: 900, color: '#34d399', textShadow: '0 0 15px rgba(52, 211, 153, 0.5)' }}>{completedCount}</span>
                   <span className="kpi-card-label" style={{ fontSize: '0.8rem', fontWeight: 800, color: '#ffffff', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.4rem', letterSpacing: '0.04em' }}>
                     <span>✅</span> ВЫПОЛНЕНО
@@ -1652,8 +1652,8 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                                 const isMachinery = e.type === 'request_construction' || e.title?.toLowerCase().includes('техник') || e.title?.toLowerCase().includes('экскаватор');
                                 
                                 const roleLabel = isEng ? '👷 Инженер' : (isExec ? '🔨 Исполнитель' : (isMachinery ? '🚜 Техника' : '📝 Лид'));
-                                const chipBorder = isEng ? '#f59e0b' : isExec ? '#00e5ff' : isMachinery ? '#38bdf8' : '#8b5cf6';
-                                const tagColor = isEng ? '#fcd34d' : isExec ? '#38bdf8' : isMachinery ? '#7dd3fc' : '#c4b5fd';
+                                const chipBorder = isEng ? '#f59e0b' : isExec ? '#00e5ff' : isMachinery ? '#b9a4ff' : '#8b5cf6';
+                                const tagColor = isEng ? '#fcd34d' : isExec ? '#b9a4ff' : isMachinery ? '#d6caff' : '#c4b5fd';
                                 const cleanTitle = e.stageName || e.title || 'Задача';
 
                                 return (
@@ -1665,7 +1665,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                                       handleOpenEditModal(e);
                                     }}
                                     style={{
-                                      background: 'rgba(15, 23, 42, 0.95)',
+                                      background: 'rgba(21, 18, 42, 0.95)',
                                       border: `1px solid ${chipBorder}80`,
                                       borderLeft: `3px solid ${chipBorder}`,
                                       borderRadius: '5px',
@@ -1699,7 +1699,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                                 );
                               })}
                               {evts.length > 2 && (
-                                <div style={{ fontSize: '0.62rem', color: '#38bdf8', textAlign: 'center', fontWeight: 800 }}>
+                                <div style={{ fontSize: '0.62rem', color: '#b9a4ff', textAlign: 'center', fontWeight: 800 }}>
                                   +{evts.length - 2} ещё
                                 </div>
                               )}
@@ -1842,7 +1842,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
               <div className="glass-panel-card" style={{ padding: 0, overflow: 'hidden' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', color: '#fff', fontSize: '0.88rem' }}>
                   <thead>
-                    <tr style={{ background: '#171933', borderBottom: '1px solid rgba(255,255,255,0.08)', textTransform: 'uppercase', fontSize: '0.75rem', color: '#94a3b8' }}>
+                    <tr style={{ background: '#171933', borderBottom: '1px solid rgba(255,255,255,0.08)', textTransform: 'uppercase', fontSize: '0.75rem', color: '#a39cc2' }}>
                       <th style={{ padding: '12px 16px', textAlign: 'left' }}>Материал</th>
                       <th style={{ padding: '12px 16px', textAlign: 'center' }}>Ед.</th>
                       <th style={{ padding: '12px 16px', textAlign: 'center' }}>Кол-во</th>
@@ -1854,8 +1854,8 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                     {materialsList.map((m) => (
                       <tr key={m.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
                         <td style={{ padding: '12px 16px', fontWeight: 800 }}>{m.name}</td>
-                        <td style={{ padding: '12px 16px', textAlign: 'center', color: '#cbd5e1' }}>{m.unit}</td>
-                        <td style={{ padding: '12px 16px', textAlign: 'center', fontWeight: 800, color: '#06b6d4' }}>{m.qty}</td>
+                        <td style={{ padding: '12px 16px', textAlign: 'center', color: '#cbc5e3' }}>{m.unit}</td>
+                        <td style={{ padding: '12px 16px', textAlign: 'center', fontWeight: 800, color: '#a78bfa' }}>{m.qty}</td>
                         <td style={{ padding: '12px 16px', textAlign: 'right', fontWeight: 800, color: '#f59e0b' }}>{m.price.toLocaleString()} ₸</td>
                         <td style={{ padding: '12px 16px', textAlign: 'center' }}>
                           <span className={`evt-badge ${m.status === 'В наличии' ? 'completed' : 'in_review'}`}>
@@ -1955,7 +1955,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
               <div className="glass-panel-card" style={{ padding: 0, overflow: 'hidden' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', color: '#fff', fontSize: '0.88rem' }}>
                   <thead>
-                    <tr style={{ background: '#171933', borderBottom: '1px solid rgba(255,255,255,0.08)', textTransform: 'uppercase', fontSize: '0.75rem', color: '#94a3b8' }}>
+                    <tr style={{ background: '#171933', borderBottom: '1px solid rgba(255,255,255,0.08)', textTransform: 'uppercase', fontSize: '0.75rem', color: '#a39cc2' }}>
                       <th style={{ padding: '12px 16px', textAlign: 'left' }}>Категория</th>
                       <th style={{ padding: '12px 16px', textAlign: 'left' }}>Наименование</th>
                       <th style={{ padding: '12px 16px', textAlign: 'center' }}>Дата</th>
@@ -1966,9 +1966,9 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                   <tbody>
                     {expensesList.map((exp) => (
                       <tr key={exp.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                        <td style={{ padding: '12px 16px', color: '#06b6d4', fontWeight: 800 }}>{exp.category}</td>
+                        <td style={{ padding: '12px 16px', color: '#a78bfa', fontWeight: 800 }}>{exp.category}</td>
                         <td style={{ padding: '12px 16px', fontWeight: 800 }}>{exp.name}</td>
-                        <td style={{ padding: '12px 16px', textAlign: 'center', color: '#cbd5e1' }}>{exp.date}</td>
+                        <td style={{ padding: '12px 16px', textAlign: 'center', color: '#cbc5e3' }}>{exp.date}</td>
                         <td style={{ padding: '12px 16px', textAlign: 'right', fontWeight: 900, color: '#ef4444' }}>-{exp.amount.toLocaleString()} ₸</td>
                         <td style={{ padding: '12px 16px', textAlign: 'center' }}>
                           <span className="evt-badge completed">● {exp.status}</span>
@@ -2016,8 +2016,8 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                       <div style={{ fontSize: '1.8rem' }}>{notif.icon}</div>
                       <div style={{ flex: 1 }}>
                         <h4 style={{ margin: '0 0 0.2rem 0', color: '#fff', fontSize: '0.95rem', fontWeight: 900 }}>{notif.title}</h4>
-                        <p style={{ margin: 0, color: '#94a3b8', fontSize: '0.85rem' }}>{notif.text}</p>
-                        <span style={{ fontSize: '0.72rem', color: '#64748b', marginTop: '0.3rem', display: 'block' }}>{notif.time}</span>
+                        <p style={{ margin: 0, color: '#a39cc2', fontSize: '0.85rem' }}>{notif.text}</p>
+                        <span style={{ fontSize: '0.72rem', color: '#8a82a8', marginTop: '0.3rem', display: 'block' }}>{notif.time}</span>
                       </div>
                     </div>
                   ))}
@@ -2094,7 +2094,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
               <div className="glass-panel-card" style={{ padding: 0, overflow: 'hidden' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', color: '#fff', fontSize: '0.88rem' }}>
                   <thead>
-                    <tr style={{ background: '#171933', borderBottom: '1px solid rgba(255,255,255,0.08)', textTransform: 'uppercase', fontSize: '0.75rem', color: '#94a3b8' }}>
+                    <tr style={{ background: '#171933', borderBottom: '1px solid rgba(255,255,255,0.08)', textTransform: 'uppercase', fontSize: '0.75rem', color: '#a39cc2' }}>
                       <th style={{ padding: '12px 16px', textAlign: 'left' }}>Объект</th>
                       <th style={{ padding: '12px 16px', textAlign: 'left' }}>Параметр</th>
                       <th style={{ padding: '12px 16px', textAlign: 'center' }}>Норма</th>
@@ -2106,9 +2106,9 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                   <tbody>
                     {measuresList.map((m) => (
                       <tr key={m.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                        <td style={{ padding: '12px 16px', color: '#06b6d4', fontWeight: 800 }}>{m.objectName}</td>
+                        <td style={{ padding: '12px 16px', color: '#a78bfa', fontWeight: 800 }}>{m.objectName}</td>
                         <td style={{ padding: '12px 16px', fontWeight: 800 }}>{m.parameter}</td>
-                        <td style={{ padding: '12px 16px', textAlign: 'center', color: '#cbd5e1' }}>{m.norm}</td>
+                        <td style={{ padding: '12px 16px', textAlign: 'center', color: '#cbc5e3' }}>{m.norm}</td>
                         <td style={{ padding: '12px 16px', textAlign: 'center', fontWeight: 800, color: '#f59e0b' }}>{m.fact}</td>
                         <td style={{ padding: '12px 16px', textAlign: 'center', fontWeight: 800, color: '#10b981' }}>{m.dev}</td>
                         <td style={{ padding: '12px 16px', textAlign: 'center' }}>
@@ -2140,7 +2140,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
               <div className="glass-panel-card" style={{ padding: 0, overflow: 'hidden' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', color: '#fff', fontSize: '0.88rem' }}>
                   <thead>
-                    <tr style={{ background: '#171933', borderBottom: '1px solid rgba(255,255,255,0.08)', textTransform: 'uppercase', fontSize: '0.75rem', color: '#94a3b8' }}>
+                    <tr style={{ background: '#171933', borderBottom: '1px solid rgba(255,255,255,0.08)', textTransform: 'uppercase', fontSize: '0.75rem', color: '#a39cc2' }}>
                       <th style={{ padding: '12px 16px', textAlign: 'left' }}>Наименование работ</th>
                       <th style={{ padding: '12px 16px', textAlign: 'center' }}>Ед.</th>
                       <th style={{ padding: '12px 16px', textAlign: 'center' }}>Кол-во</th>
@@ -2152,9 +2152,9 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                     {estimatesList.map((est) => (
                       <tr key={est.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
                         <td style={{ padding: '12px 16px', fontWeight: 800 }}>{est.name}</td>
-                        <td style={{ padding: '12px 16px', textAlign: 'center', color: '#cbd5e1' }}>{est.unit}</td>
-                        <td style={{ padding: '12px 16px', textAlign: 'center', fontWeight: 800, color: '#06b6d4' }}>{est.qty}</td>
-                        <td style={{ padding: '12px 16px', textAlign: 'right', color: '#cbd5e1' }}>{est.price.toLocaleString()} ₸</td>
+                        <td style={{ padding: '12px 16px', textAlign: 'center', color: '#cbc5e3' }}>{est.unit}</td>
+                        <td style={{ padding: '12px 16px', textAlign: 'center', fontWeight: 800, color: '#a78bfa' }}>{est.qty}</td>
+                        <td style={{ padding: '12px 16px', textAlign: 'right', color: '#cbc5e3' }}>{est.price.toLocaleString()} ₸</td>
                         <td style={{ padding: '12px 16px', textAlign: 'right', fontWeight: 900, color: '#f59e0b' }}>{est.total.toLocaleString()} ₸</td>
                       </tr>
                     ))}
@@ -2243,8 +2243,8 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                     {dayEvents.length > 0 ? (
                       dayEvents.map(e => (
                         <div key={e.id} style={{ background: 'rgba(255,255,255,0.04)', padding: '0.75rem', borderRadius: '10px' }}>
-                          <strong style={{ color: '#06b6d4' }}>⏰ {e.time} — {e.title}</strong>
-                          <p style={{ margin: '4px 0 0 0', color: '#94a3b8', fontSize: '0.8rem' }}>📍 {e.location}</p>
+                          <strong style={{ color: '#a78bfa' }}>⏰ {e.time} — {e.title}</strong>
+                          <p style={{ margin: '4px 0 0 0', color: '#a39cc2', fontSize: '0.8rem' }}>📍 {e.location}</p>
                         </div>
                       ))
                     ) : (
@@ -2261,7 +2261,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                     {notificationsList.slice(0, 3).map(n => (
                       <div key={n.id} style={{ background: 'rgba(255,255,255,0.03)', padding: '0.75rem', borderRadius: '10px' }}>
                         <strong style={{ color: '#fff' }}>{n.icon} {n.title}</strong>
-                        <p style={{ margin: '4px 0 0 0', color: '#94a3b8', fontSize: '0.8rem' }}>{n.text}</p>
+                        <p style={{ margin: '4px 0 0 0', color: '#a39cc2', fontSize: '0.8rem' }}>{n.text}</p>
                       </div>
                     ))}
                   </div>
@@ -2286,7 +2286,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                       <span className="evt-badge request">{req.status}</span>
                     </div>
                     <h4 className="evt-title">{req.client}</h4>
-                    <p style={{ margin: '4px 0', color: '#06b6d4', fontWeight: 800, fontSize: '0.88rem' }}>{req.type}</p>
+                    <p style={{ margin: '4px 0', color: '#a78bfa', fontWeight: 800, fontSize: '0.88rem' }}>{req.type}</p>
                     <div className="evt-meta-row">
                       <span className="evt-location">📍 {req.address}</span>
                       <span className="evt-contractor">📞 {req.phone}</span>
@@ -2356,7 +2356,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                       <div style={{ background: '#5850ec', height: '100%', width: `${obj.progress}%` }} />
                     </div>
                     <div className="evt-actions-bar">
-                      <span style={{ fontSize: '0.78rem', color: '#94a3b8' }}>👷 {obj.brigade}</span>
+                      <span style={{ fontSize: '0.78rem', color: '#a39cc2' }}>👷 {obj.brigade}</span>
                       <div className="evt-btn-group">
                         <button className="btn-evt-edit" onClick={() => setActiveTab('media')} title="Фотофиксация">
                           📸
@@ -2402,7 +2402,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                       <div style={{ height: '120px', background: '#171933', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem' }}>
                         🖼️
                       </div>
-                      <span style={{ fontSize: '0.78rem', color: '#cbd5e1', marginTop: '6px', display: 'block', textAlign: 'center', fontWeight: 800 }}>
+                      <span style={{ fontSize: '0.78rem', color: '#cbc5e3', marginTop: '6px', display: 'block', textAlign: 'center', fontWeight: 800 }}>
                         Снимок #{idx} — ЖК "Алатау"
                       </span>
                     </div>
@@ -2485,16 +2485,16 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                   borderRadius: '18px'
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '0.6rem' }}>
-                    <span style={{ color: '#38bdf8', fontWeight: 800, fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                    <span style={{ color: '#b9a4ff', fontWeight: 800, fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                       📋 Паспорт объекта
                     </span>
-                    <span style={{ fontSize: '0.75rem', background: 'rgba(236,72,153,0.15)', color: '#60a5fa', padding: '0.15rem 0.5rem', borderRadius: '6px', fontWeight: 700 }}>
+                    <span style={{ fontSize: '0.75rem', background: 'rgba(236,72,153,0.15)', color: '#c4b5fd', padding: '0.15rem 0.5rem', borderRadius: '6px', fontWeight: 700 }}>
                       {editingEvent ? 'РЕДАКТИРОВАНИЕ' : 'НОВЫЙ ОБЪЕКТ'}
                     </span>
                   </div>
 
                   <div className="form-group" style={{ marginBottom: 0 }}>
-                    <label style={{ fontSize: '0.82rem', color: '#cbd5e1', fontWeight: 600 }}>📝 Название объекта / инспекции:</label>
+                    <label style={{ fontSize: '0.82rem', color: '#cbc5e3', fontWeight: 600 }}>📝 Название объекта / инспекции:</label>
                     <input
                       type="text"
                       placeholder="Например: Штамповые испытания - Иван Петров"
@@ -2508,7 +2508,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
 
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
                     <div className="form-group" style={{ marginBottom: 0 }}>
-                      <label style={{ fontSize: '0.82rem', color: '#cbd5e1', fontWeight: 600 }}>🏷️ Категория:</label>
+                      <label style={{ fontSize: '0.82rem', color: '#cbc5e3', fontWeight: 600 }}>🏷️ Категория:</label>
                       <select value={evtType} onChange={(e) => setEvtType(e.target.value)} className="modal-select" disabled={viewRole === 'customer' || viewRole === 'engineer'}>
                         <option value="active_project">🔵 Проект</option>
                         <option value="work_stage">🟣 Этап</option>
@@ -2521,7 +2521,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                     </div>
 
                     <div className="form-group" style={{ marginBottom: 0 }}>
-                      <label style={{ fontSize: '0.82rem', color: '#cbd5e1', fontWeight: 600 }}>📊 Статус:</label>
+                      <label style={{ fontSize: '0.82rem', color: '#cbc5e3', fontWeight: 600 }}>📊 Статус:</label>
                       <select value={evtStatus} onChange={(e) => setEvtStatus(e.target.value)} className="modal-select" disabled={viewRole === 'customer' || viewRole === 'engineer'}>
                         <option value="В работе">🟡 В работе</option>
                         <option value="Ожидает приёмки">⏳ Приёмка</option>
@@ -2533,7 +2533,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
 
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
                     <div className="form-group" style={{ marginBottom: 0 }}>
-                      <label style={{ fontSize: '0.82rem', color: '#cbd5e1', fontWeight: 600 }}>📅 Дедлайн:</label>
+                      <label style={{ fontSize: '0.82rem', color: '#cbc5e3', fontWeight: 600 }}>📅 Дедлайн:</label>
                       <input
                         type="text"
                         placeholder="До 18:00"
@@ -2545,7 +2545,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                     </div>
 
                     <div className="form-group" style={{ marginBottom: 0 }}>
-                      <label style={{ fontSize: '0.82rem', color: '#cbd5e1', fontWeight: 600 }}>⏰ Время:</label>
+                      <label style={{ fontSize: '0.82rem', color: '#cbc5e3', fontWeight: 600 }}>⏰ Время:</label>
                       <input
                         type="text"
                         placeholder="09:00 - 18:00"
@@ -2558,7 +2558,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                   </div>
 
                   <div className="form-group" style={{ marginBottom: 0 }}>
-                    <label style={{ fontSize: '0.82rem', color: '#cbd5e1', fontWeight: 600 }}>👷 Ответственная организация:</label>
+                    <label style={{ fontSize: '0.82rem', color: '#cbc5e3', fontWeight: 600 }}>👷 Ответственная организация:</label>
                     <select
                       value={evtContractor}
                       onChange={(e) => setEvtContractor(e.target.value)}
@@ -2579,7 +2579,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                   </div>
 
                   <div className="form-group" style={{ marginBottom: 0 }}>
-                    <label style={{ fontSize: '0.82rem', color: '#cbd5e1', fontWeight: 600 }}>📍 Точный адрес объекта:</label>
+                    <label style={{ fontSize: '0.82rem', color: '#cbc5e3', fontWeight: 600 }}>📍 Точный адрес объекта:</label>
                     <input
                       type="text"
                       placeholder="Алматы, Медеуский р-н, ул. Достык 12"
@@ -2620,12 +2620,12 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                   {/* Summary Card inside Left Column */}
                   <div style={{ marginTop: '0.4rem', padding: '0.85rem', background: 'rgba(10, 12, 28, 0.7)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.06)', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem' }}>
-                      <span style={{ color: '#94a3b8' }}>Итоговая смета:</span>
+                      <span style={{ color: '#a39cc2' }}>Итоговая смета:</span>
                       <strong style={{ color: '#10b981' }}>{evtTotalSum.toLocaleString()} ₸</strong>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem' }}>
-                      <span style={{ color: '#94a3b8' }}>Этапы работ:</span>
-                      <strong style={{ color: '#38bdf8' }}>{evtStages.filter(s => s.status === 'Завершено').length} из {evtStages.length} завершено</strong>
+                      <span style={{ color: '#a39cc2' }}>Этапы работ:</span>
+                      <strong style={{ color: '#b9a4ff' }}>{evtStages.filter(s => s.status === 'Завершено').length} из {evtStages.length} завершено</strong>
                     </div>
                   </div>
                 </div>
@@ -2637,11 +2637,11 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', background: 'rgba(255,255,255,0.02)', borderRadius: '18px', border: '1px solid rgba(255,255,255,0.05)', padding: '3rem', marginTop: '1rem' }}>
                       <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>👋</div>
                       <h2 style={{ color: '#fff', margin: '0 0 1rem 0', fontSize: '1.4rem' }}>Новая заявка поступила</h2>
-                      <p style={{ color: '#94a3b8', textAlign: 'center', marginBottom: '2rem', lineHeight: '1.5' }}>
+                      <p style={{ color: '#a39cc2', textAlign: 'center', marginBottom: '2rem', lineHeight: '1.5' }}>
                         Внимательно ознакомьтесь с паспортом объекта слева. <br />
                         Чтобы начать заполнять этапы, прикреплять фото или сметы, необходимо принять объект в работу.
                       </p>
-                      <button type="button" onClick={handleAcceptLead} style={{ background: 'linear-gradient(90deg, #3b82f6, #2563eb)', color: '#fff', border: 'none', padding: '1rem 2rem', borderRadius: '12px', fontWeight: 900, fontSize: '1.1rem', cursor: 'pointer', boxShadow: '0 8px 25px rgba(59, 130, 246, 0.4)' }}>
+                      <button type="button" onClick={handleAcceptLead} style={{ background: 'linear-gradient(90deg, #8b5cf6, #7c3aed)', color: '#fff', border: 'none', padding: '1rem 2rem', borderRadius: '12px', fontWeight: 900, fontSize: '1.1rem', cursor: 'pointer', boxShadow: '0 8px 25px rgba(139, 92, 246, 0.4)' }}>
                         🚀 В пути (Принять заявку)
                       </button>
                     </div>
@@ -2698,10 +2698,10 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                               padding: '0.65rem 1.4rem',
                               fontSize: '0.9rem',
                               fontWeight: 800,
-                              background: 'linear-gradient(135deg, #0ea5e9, #2563eb)',
-                              border: '1px solid rgba(56, 189, 248, 0.5)',
+                              background: 'linear-gradient(135deg, #a78bfa, #7c3aed)',
+                              border: '1px solid rgba(185, 164, 255, 0.5)',
                               borderRadius: '12px',
-                              boxShadow: '0 4px 18px rgba(37, 99, 235, 0.4)',
+                              boxShadow: '0 4px 18px rgba(124, 58, 237, 0.4)',
                               cursor: 'pointer'
                             }}
                           >
@@ -2721,10 +2721,10 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                       gap: '0.6rem',
                       alignItems: 'center',
                       marginBottom: '1rem',
-                      background: 'rgba(56, 189, 248, 0.1)',
+                      background: 'rgba(185, 164, 255, 0.1)',
                       padding: '0.85rem',
                       borderRadius: '14px',
-                      border: '1px solid rgba(56, 189, 248, 0.35)'
+                      border: '1px solid rgba(185, 164, 255, 0.35)'
                     }}>
                       <input
                         type="text"
@@ -2772,7 +2772,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                             <div className="stage-num-badge">{idx + 1}</div>
                             <div>
                               <h5 className="stage-title-text" style={{ fontSize: '1rem', fontWeight: 800, color: '#f8fafc', margin: 0 }}>{stage.title}</h5>
-                              <span className="stage-deadline-sub" style={{ fontSize: '0.78rem', color: '#94a3b8' }}>⏰ Срок: {stage.deadline}</span>
+                              <span className="stage-deadline-sub" style={{ fontSize: '0.78rem', color: '#a39cc2' }}>⏰ Срок: {stage.deadline}</span>
                             </div>
                           </div>
 
@@ -2806,7 +2806,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', background: 'rgba(255,255,255,0.02)', padding: '0.75rem', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.06)' }}>
                           {/* Crews Multi-Select */}
                           <div>
-                            <label style={{ fontSize: '0.78rem', color: '#38bdf8', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.3rem', marginBottom: '0.3rem' }}>
+                            <label style={{ fontSize: '0.78rem', color: '#b9a4ff', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.3rem', marginBottom: '0.3rem' }}>
                               👷 Задействованные бригады:
                             </label>
 
@@ -2816,7 +2816,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                                   Array.isArray(stage.crew) ? stage.crew.map(c => typeof c === 'object' ? (c.name || JSON.stringify(c)) : String(c)) :
                                   (typeof stage.crew === 'string' && stage.crew ? [stage.crew] : []);
                                 return crewList.map((crewName, cIdx) => (
-                                  <span key={cIdx} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', background: 'rgba(56, 189, 248, 0.15)', border: '1px solid rgba(56, 189, 248, 0.35)', color: '#7dd3fc', padding: '0.2rem 0.5rem', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 600 }}>
+                                  <span key={cIdx} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', background: 'rgba(185, 164, 255, 0.15)', border: '1px solid rgba(185, 164, 255, 0.35)', color: '#d6caff', padding: '0.2rem 0.5rem', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 600 }}>
                                     👷 {crewName}
                                     {viewRole !== 'customer' && (
                                       <button type="button" onClick={() => handleRemoveStageCrew(stage.id, crewName)} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontWeight: 800, padding: 0, marginLeft: '0.2rem' }}>✕</button>
@@ -2838,8 +2838,8 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                                   padding: '0.35rem 0.5rem',
                                   borderRadius: '6px',
                                   background: '#13131e',
-                                  border: '1px dashed rgba(56, 189, 248, 0.4)',
-                                  color: '#38bdf8',
+                                  border: '1px dashed rgba(185, 164, 255, 0.4)',
+                                  color: '#b9a4ff',
                                   fontSize: '0.8rem',
                                   cursor: 'pointer',
                                   outline: 'none'
@@ -2914,7 +2914,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                         {/* STAGE NOTES & MATERIALS GRID */}
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
                           <div>
-                            <label style={{ fontSize: '0.78rem', color: '#cbd5e1', fontWeight: 600, display: 'block', marginBottom: '0.3rem' }}>
+                            <label style={{ fontSize: '0.78rem', color: '#cbc5e3', fontWeight: 600, display: 'block', marginBottom: '0.3rem' }}>
                               📝 Заметки по этапу:
                             </label>
                             <textarea
@@ -2940,12 +2940,12 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                           </div>
 
                           <div>
-                            <label style={{ fontSize: '0.78rem', color: '#cbd5e1', fontWeight: 600, display: 'block', marginBottom: '0.3rem' }}>
+                            <label style={{ fontSize: '0.78rem', color: '#cbc5e3', fontWeight: 600, display: 'block', marginBottom: '0.3rem' }}>
                               📁 Файлы этапа (Фото / Документы):
                             </label>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
                               {viewRole !== 'customer' && (
-                                <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', padding: '0.4rem 0.6rem', background: 'rgba(255,255,255,0.04)', border: '1px dashed rgba(255,255,255,0.2)', borderRadius: '8px', cursor: 'pointer', fontSize: '0.78rem', color: '#94a3b8' }}>
+                                <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', padding: '0.4rem 0.6rem', background: 'rgba(255,255,255,0.04)', border: '1px dashed rgba(255,255,255,0.2)', borderRadius: '8px', cursor: 'pointer', fontSize: '0.78rem', color: '#a39cc2' }}>
                                   <span>📎</span> Прикрепить файл
                                   <input type="file" multiple style={{ display: 'none' }} onChange={(e) => {
                                     if (e.target.files && e.target.files.length > 0) {
@@ -2963,7 +2963,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                               {(stage.photos && stage.photos.length > 0) && (
                                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem' }}>
                                   {stage.photos.map((p, pIdx) => (
-                                    <span key={pIdx} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', background: 'rgba(255,255,255,0.08)', padding: '0.15rem 0.4rem', borderRadius: '5px', fontSize: '0.72rem', color: '#cbd5e1' }}>
+                                    <span key={pIdx} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', background: 'rgba(255,255,255,0.08)', padding: '0.15rem 0.4rem', borderRadius: '5px', fontSize: '0.72rem', color: '#cbc5e3' }}>
                                       {p.isImg ? '🖼️' : '📄'} {p.name}
                                       {viewRole !== 'customer' && (
                                         <span onClick={() => {
@@ -2997,7 +2997,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                         style={{
                           flex: 1,
                           padding: '0.8rem 1.25rem',
-                          background: 'linear-gradient(90deg, #38bdf8, #2563eb)',
+                          background: 'linear-gradient(90deg, #b9a4ff, #7c3aed)',
                           border: 'none',
                           borderRadius: '12px',
                           color: '#fff',
@@ -3008,7 +3008,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                           alignItems: 'center',
                           justifyContent: 'center',
                           gap: '0.5rem',
-                          boxShadow: '0 4px 18px rgba(56, 189, 248, 0.35)',
+                          boxShadow: '0 4px 18px rgba(185, 164, 255, 0.35)',
                           transition: 'all 0.2s ease'
                         }}
                       >
@@ -3089,7 +3089,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                              {photo.isImg && photo.url ? (
                                <img src={photo.url} alt={photo.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                              ) : photo.isVideo ? (
-                               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.2rem', color: '#38bdf8' }}>
+                               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.2rem', color: '#b9a4ff' }}>
                                  <span style={{ fontSize: '1.8rem' }}>▶️</span>
                                  <span style={{ fontSize: '0.7rem', fontWeight: 700 }}>ВИДЕО</span>
                                </div>
@@ -3102,18 +3102,18 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                           </div>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.3rem' }}>
                             <span className="photo-name-tag" style={{ fontSize: '0.75rem', fontWeight: 600 }}>{photo.name}</span>
-                            <span style={{ fontSize: '0.65rem', padding: '0.1rem 0.35rem', background: 'rgba(255,255,255,0.08)', borderRadius: '4px', color: '#94a3b8' }}>
+                            <span style={{ fontSize: '0.65rem', padding: '0.1rem 0.35rem', background: 'rgba(255,255,255,0.08)', borderRadius: '4px', color: '#a39cc2' }}>
                               {photo.tag || 'Отчёт'}
                             </span>
                           </div>
-                          <span className="photo-meta-time" style={{ fontSize: '0.7rem', color: '#64748b' }}>{photo.time}</span>
+                          <span className="photo-meta-time" style={{ fontSize: '0.7rem', color: '#8a82a8' }}>{photo.time}</span>
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <div style={{ textAlign: 'center', padding: '1.5rem', color: '#94a3b8', fontSize: '0.88rem', background: 'rgba(255,255,255,0.02)', borderRadius: '10px' }}>
+                    <div style={{ textAlign: 'center', padding: '1.5rem', color: '#a39cc2', fontSize: '0.88rem', background: 'rgba(255,255,255,0.02)', borderRadius: '10px' }}>
                       <p style={{ margin: 0 }}>Файлы отчёта пока не прикреплены.</p>
-                      <span style={{ fontSize: '0.78rem', color: '#64748b' }}>Вы можете добавить фотофиксации, видеозаписи со стройплощадки, технические акты и схемы.</span>
+                      <span style={{ fontSize: '0.78rem', color: '#8a82a8' }}>Вы можете добавить фотофиксации, видеозаписи со стройплощадки, технические акты и схемы.</span>
                     </div>
                   )}
                 </div>
@@ -3135,7 +3135,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                       <div style={{ fontWeight: 800, color: '#f8fafc', fontSize: '1.05rem' }}>
                         📊 Итоговая смета объекта
                       </div>
-                      <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
+                      <div style={{ fontSize: '0.8rem', color: '#a39cc2' }}>
                         Позиций в смете: {evtEstimateItems.length} шт
                       </div>
                     </div>
@@ -3150,7 +3150,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                   </div>
 
                   {evtEstimateItems.length === 0 ? (
-                    <div style={{ textAlign: 'center', padding: '2rem', color: '#94a3b8', background: 'rgba(255,255,255,0.03)', borderRadius: '10px' }}>
+                    <div style={{ textAlign: 'center', padding: '2rem', color: '#a39cc2', background: 'rgba(255,255,255,0.03)', borderRadius: '10px' }}>
                       <p style={{ margin: 0, fontSize: '0.95rem' }}>Смета для данного объекта ещё не расчитана.</p>
                       {viewRole !== 'customer' && (
                         <button
@@ -3324,7 +3324,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                   <h3 style={{ color: '#10b981', marginBottom: '1.5rem', fontSize: '1.2rem' }}>📋 Данные для исполнителя</h3>
                   
                   <div className="form-group">
-                    <label style={{ fontSize: '0.85rem', color: '#cbd5e1', fontWeight: 600 }}>🛠️ Тип работы:</label>
+                    <label style={{ fontSize: '0.85rem', color: '#cbc5e3', fontWeight: 600 }}>🛠️ Тип работы:</label>
                     <select className="modal-input" style={{ marginTop: '0.4rem' }} value={leadWorkType} onChange={e => setLeadWorkType(e.target.value)}>
                       <option value="Водопровод">Водопровод</option>
                       <option value="Канализация">Канализация</option>
@@ -3337,12 +3337,12 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                   </div>
 
                   <div className="form-group" style={{ marginTop: '1.2rem' }}>
-                    <label style={{ fontSize: '0.85rem', color: '#cbd5e1', fontWeight: 600 }}>📝 Комментарий к работе (описание задачи):</label>
+                    <label style={{ fontSize: '0.85rem', color: '#cbc5e3', fontWeight: 600 }}>📝 Комментарий к работе (описание задачи):</label>
                     <textarea className="modal-input" rows="4" placeholder="Подробно опишите задачу для бригады или специалиста..." style={{ marginTop: '0.4rem', resize: 'vertical' }} value={evtComments} onChange={(e) => setEvtComments(e.target.value)}></textarea>
                   </div>
 
                   <div className="form-group" style={{ marginTop: '1.2rem' }}>
-                    <label style={{ fontSize: '0.85rem', color: '#cbd5e1', fontWeight: 600 }}>📸 Фото отчёт (Прикрепить файлы): {evtPhotos.length > 0 ? `(Добавлено: ${evtPhotos.length})` : ''}</label>
+                    <label style={{ fontSize: '0.85rem', color: '#cbc5e3', fontWeight: 600 }}>📸 Фото отчёт (Прикрепить файлы): {evtPhotos.length > 0 ? `(Добавлено: ${evtPhotos.length})` : ''}</label>
                     <div className="photo-upload-dropzone" style={{ marginTop: '0.4rem', minHeight: '120px', padding: '1.5rem' }} onClick={() => document.getElementById('executor-file-input')?.click()}>
                       <div className="dropzone-icon" style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>📥</div>
                       <div className="dropzone-title" style={{ fontSize: '0.95rem' }}>Нажмите, чтобы прикрепить фото или документы</div>
@@ -3365,7 +3365,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                           setEvtTotalSum(45000 + basePrice + 50000);
                           setModalTab('estimate'); // redirect to estimate to show it!
                         }}
-                        style={{ background: 'linear-gradient(90deg, #2563eb, #38bdf8)', color: '#fff', border: 'none', padding: '1rem', borderRadius: '12px', fontWeight: 900, fontSize: '1.1rem', cursor: 'pointer', boxShadow: '0 8px 25px rgba(56, 189, 248, 0.4)' }}
+                        style={{ background: 'linear-gradient(90deg, #7c3aed, #b9a4ff)', color: '#fff', border: 'none', padding: '1rem', borderRadius: '12px', fontWeight: 900, fontSize: '1.1rem', cursor: 'pointer', boxShadow: '0 8px 25px rgba(185, 164, 255, 0.4)' }}
                       >
                         🧠 Рассчитать смету через ИИ
                       </button>
@@ -3478,12 +3478,12 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
               style={{ maxWidth: '90%', maxHeight: '90%', objectFit: 'contain', borderRadius: '8px', boxShadow: '0 20px 50px rgba(0,0,0,0.8)' }} 
             />
           ) : (
-            <div style={{ backgroundColor: '#0f172a', padding: '3rem', borderRadius: '12px', border: '1px solid #334155', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', minWidth: '300px' }}>
+            <div style={{ backgroundColor: '#15122a', padding: '3rem', borderRadius: '12px', border: '1px solid #3a3458', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', minWidth: '300px' }}>
               <span style={{ fontSize: '5rem' }}>📄</span>
               <h3 style={{ color: '#fff', margin: 0, fontSize: '1.2rem' }}>{previewFile.name}</h3>
-              <p style={{ color: '#94a3b8', margin: 0, fontSize: '0.9rem' }}>Предпросмотр недоступен для этого типа файла</p>
+              <p style={{ color: '#a39cc2', margin: 0, fontSize: '0.9rem' }}>Предпросмотр недоступен для этого типа файла</p>
               <button 
-                style={{ background: '#3b82f6', color: '#fff', border: 'none', padding: '0.8rem 1.8rem', borderRadius: '8px', marginTop: '1.5rem', cursor: 'pointer', fontWeight: 'bold' }}
+                style={{ background: '#8b5cf6', color: '#fff', border: 'none', padding: '0.8rem 1.8rem', borderRadius: '8px', marginTop: '1.5rem', cursor: 'pointer', fontWeight: 'bold' }}
                 onClick={() => alert(`Скачивание файла: ${previewFile.name}`)}
               >
                 Скачать файл

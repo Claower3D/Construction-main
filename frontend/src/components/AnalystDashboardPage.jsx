@@ -13,8 +13,8 @@ const COMPLETED_ORDERS = [
     filesCount: 12, photosCount: 34,
     timeline: [
       { step: 'Заявка создана менеджером', date: '15.06.2024', actor: 'Алиева Динара (CRM)', details: 'Заказчик обратился через сайт. КП отправлено в течение 2 часов.', dotColor: '#8b5cf6' },
-      { step: 'Смета утверждена', date: '18.06.2024', actor: 'Касымов Ербол (ГИП)', details: 'Смета на 18.5 млн ₸ утверждена. Объем: штукатурка 1200м², стяжка 450м², электрика 820п.м.', dotColor: '#3b82f6' },
-      { step: 'Договор подписан', date: '20.06.2024', actor: 'Аскаров Бауржан (CEO)', details: 'Договор подряда №DP-0847. Эскроу открыт на 18.5 млн ₸ (3 транша).', dotColor: '#0ea5e9' },
+      { step: 'Смета утверждена', date: '18.06.2024', actor: 'Касымов Ербол (ГИП)', details: 'Смета на 18.5 млн ₸ утверждена. Объем: штукатурка 1200м², стяжка 450м², электрика 820п.м.', dotColor: '#8b5cf6' },
+      { step: 'Договор подписан', date: '20.06.2024', actor: 'Аскаров Бауржан (CEO)', details: 'Договор подряда №DP-0847. Эскроу открыт на 18.5 млн ₸ (3 транша).', dotColor: '#a78bfa' },
       { step: 'Мобилизация бригады', date: '22.06.2024', actor: 'Жумабеков Арман (Прораб)', details: 'Бригада №1 (8 чел.) мобилизована. Завоз материалов: цемент M500 — 12т, арматура — 3.5т.', dotColor: '#10b981' },
       { step: 'Этап 1: Демонтаж (завершён)', date: '28.06.2024', actor: 'Бригадир Садыков', details: 'Демонтаж старой отделки, вывоз мусора (14 КАМАЗов). Акт КС-2 №1 подписан.', dotColor: '#10b981' },
       { step: 'Этап 2: Черновая отделка (завершён)', date: '18.07.2024', actor: 'Бригадир Садыков', details: 'Штукатурка стен — 1200м², стяжка пола — 450м², электропроводка — 820п.м. Всё по СНиП РК.', dotColor: '#10b981' },
@@ -45,7 +45,7 @@ const COMPLETED_ORDERS = [
     filesCount: 18, photosCount: 67,
     timeline: [
       { step: 'Заявка от частного заказчика', date: '01.03.2024', actor: 'Алиева Динара', details: 'Ахметов М.С. — строительство 2-этажного коттеджа 280м² с цокольным этажом.', dotColor: '#8b5cf6' },
-      { step: 'Проект утверждён (ПСД)', date: '15.03.2024', actor: 'Касымов Ербол (ГИП)', details: 'Проект 2 этажа + цоколь. Монолитный каркас. Площадь застройки 140м².', dotColor: '#3b82f6' },
+      { step: 'Проект утверждён (ПСД)', date: '15.03.2024', actor: 'Касымов Ербол (ГИП)', details: 'Проект 2 этажа + цоколь. Монолитный каркас. Площадь застройки 140м².', dotColor: '#8b5cf6' },
       { step: 'Фундамент завершён', date: '20.04.2024', actor: 'Бригадир Садыков', details: 'Монолитная плита 300мм + ростверк. Бетон B25 — 48м³.', dotColor: '#10b981' },
       { step: 'Коробка завершена', date: '15.06.2024', actor: 'Бригадир Ким', details: 'Стены: газоблок D500 400мм. Перекрытия: монолит B25 200мм. Кровля: металлочерепица.', dotColor: '#10b981' },
       { step: 'Отделка и инженерные сети', date: '20.07.2024', actor: 'Бригада №2', details: 'Электрика, сантехника, отопление, чистовая отделка 100%.', dotColor: '#10b981' },
@@ -196,12 +196,12 @@ export default function AnalystDashboardPage({ onBack, hideHeader = false }) {
           <p className="analyst-stat-val">{stats.pending}</p>
           <p className="analyst-stat-label">Ожидают проверки</p>
         </div>
-        <div className="analyst-stat-card" style={{ '--accent': 'linear-gradient(90deg, #3b82f6, #6366f1)' }}>
+        <div className="analyst-stat-card" style={{ '--accent': 'linear-gradient(90deg, #8b5cf6, #6366f1)' }}>
           <div className="analyst-stat-icon">🔍</div>
           <p className="analyst-stat-val">{stats.review}</p>
           <p className="analyst-stat-label">На проверке</p>
         </div>
-        <div className="analyst-stat-card" style={{ '--accent': 'linear-gradient(90deg, #10b981, #06b6d4)' }}>
+        <div className="analyst-stat-card" style={{ '--accent': 'linear-gradient(90deg, #10b981, #a78bfa)' }}>
           <div className="analyst-stat-icon">✅</div>
           <p className="analyst-stat-val">{stats.done}</p>
           <p className="analyst-stat-label">Отчёты завершены</p>
@@ -216,7 +216,7 @@ export default function AnalystDashboardPage({ onBack, hideHeader = false }) {
           <p className="analyst-stat-val">{stats.totalPhotos}</p>
           <p className="analyst-stat-label">Фото с объектов</p>
         </div>
-        <div className="analyst-stat-card" style={{ '--accent': 'linear-gradient(90deg, #06b6d4, #10b981)' }}>
+        <div className="analyst-stat-card" style={{ '--accent': 'linear-gradient(90deg, #a78bfa, #10b981)' }}>
           <div className="analyst-stat-icon">📎</div>
           <p className="analyst-stat-val">{stats.totalFiles}</p>
           <p className="analyst-stat-label">Документов и файлов</p>
@@ -248,7 +248,7 @@ export default function AnalystDashboardPage({ onBack, hideHeader = false }) {
       {activeTab === 'queue' && (
         <div className="analyst-order-list">
           {filteredOrders.length === 0 && (
-            <div style={{ textAlign: 'center', padding: '3rem', color: '#64748b' }}>
+            <div style={{ textAlign: 'center', padding: '3rem', color: '#8a82a8' }}>
               Нет заявок с выбранным статусом
             </div>
           )}
@@ -294,7 +294,7 @@ export default function AnalystDashboardPage({ onBack, hideHeader = false }) {
             <h4>📊 Объёмы по заказчикам</h4>
             {orders.map(o => (
               <div key={o.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '.5rem 0', borderBottom: '1px solid rgba(255,255,255,.05)', fontSize: '.85rem' }}>
-                <span style={{ color: '#e2e8f0' }}>{o.customer}</span>
+                <span style={{ color: '#ece9f8' }}>{o.customer}</span>
                 <span style={{ color: '#a78bfa', fontWeight: 800 }}>{o.budget}</span>
               </div>
             ))}
@@ -303,7 +303,7 @@ export default function AnalystDashboardPage({ onBack, hideHeader = false }) {
             <h4>🏗️ Завершённые объекты</h4>
             {orders.map(o => (
               <div key={o.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '.5rem 0', borderBottom: '1px solid rgba(255,255,255,.05)', fontSize: '.85rem' }}>
-                <span style={{ color: '#e2e8f0' }}>{o.title.substring(0, 40)}...</span>
+                <span style={{ color: '#ece9f8' }}>{o.title.substring(0, 40)}...</span>
                 <span style={{ color: o.status === 'done' ? '#6ee7b7' : '#fbbf24', fontWeight: 800 }}>
                   {o.status === 'done' ? '✅ Готов' : '⏳ В работе'}
                 </span>
@@ -315,19 +315,19 @@ export default function AnalystDashboardPage({ onBack, hideHeader = false }) {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginTop: '.75rem' }}>
               <div style={{ textAlign: 'center' }}>
                 <div style={{ fontSize: '2rem', fontWeight: 900, color: '#a78bfa' }}>{stats.total}</div>
-                <div style={{ fontSize: '.78rem', color: '#94a3b8' }}>Всего проектов</div>
+                <div style={{ fontSize: '.78rem', color: '#a39cc2' }}>Всего проектов</div>
               </div>
               <div style={{ textAlign: 'center' }}>
                 <div style={{ fontSize: '2rem', fontWeight: 900, color: '#6ee7b7' }}>{(stats.totalBudget / 1000000).toFixed(1)}M</div>
-                <div style={{ fontSize: '.78rem', color: '#94a3b8' }}>Общий оборот (₸)</div>
+                <div style={{ fontSize: '.78rem', color: '#a39cc2' }}>Общий оборот (₸)</div>
               </div>
               <div style={{ textAlign: 'center' }}>
                 <div style={{ fontSize: '2rem', fontWeight: 900, color: '#fbbf24' }}>{stats.totalPhotos}</div>
-                <div style={{ fontSize: '.78rem', color: '#94a3b8' }}>Фотоотчётов</div>
+                <div style={{ fontSize: '.78rem', color: '#a39cc2' }}>Фотоотчётов</div>
               </div>
               <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: '2rem', fontWeight: 900, color: '#60a5fa' }}>{stats.totalFiles}</div>
-                <div style={{ fontSize: '.78rem', color: '#94a3b8' }}>Документов</div>
+                <div style={{ fontSize: '2rem', fontWeight: 900, color: '#c4b5fd' }}>{stats.totalFiles}</div>
+                <div style={{ fontSize: '.78rem', color: '#a39cc2' }}>Документов</div>
               </div>
             </div>
           </div>
@@ -351,12 +351,12 @@ export default function AnalystDashboardPage({ onBack, hideHeader = false }) {
               <div className="analyst-section-block">
                 <h4>📋 Информация о заявке</h4>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '.5rem', fontSize: '.85rem' }}>
-                  <div><span style={{ color: '#94a3b8' }}>Заказчик:</span> <strong style={{ color: '#fff' }}>{selectedOrder.customer}</strong></div>
-                  <div><span style={{ color: '#94a3b8' }}>Исполнитель:</span> <strong style={{ color: '#fff' }}>{selectedOrder.executor}</strong></div>
-                  <div><span style={{ color: '#94a3b8' }}>Менеджер:</span> <strong style={{ color: '#fff' }}>{selectedOrder.manager}</strong></div>
-                  <div><span style={{ color: '#94a3b8' }}>Инженер:</span> <strong style={{ color: '#fff' }}>{selectedOrder.engineer}</strong></div>
-                  <div><span style={{ color: '#94a3b8' }}>Начало:</span> <strong style={{ color: '#fff' }}>{selectedOrder.startDate}</strong></div>
-                  <div><span style={{ color: '#94a3b8' }}>Завершение:</span> <strong style={{ color: '#fff' }}>{selectedOrder.endDate}</strong></div>
+                  <div><span style={{ color: '#a39cc2' }}>Заказчик:</span> <strong style={{ color: '#fff' }}>{selectedOrder.customer}</strong></div>
+                  <div><span style={{ color: '#a39cc2' }}>Исполнитель:</span> <strong style={{ color: '#fff' }}>{selectedOrder.executor}</strong></div>
+                  <div><span style={{ color: '#a39cc2' }}>Менеджер:</span> <strong style={{ color: '#fff' }}>{selectedOrder.manager}</strong></div>
+                  <div><span style={{ color: '#a39cc2' }}>Инженер:</span> <strong style={{ color: '#fff' }}>{selectedOrder.engineer}</strong></div>
+                  <div><span style={{ color: '#a39cc2' }}>Начало:</span> <strong style={{ color: '#fff' }}>{selectedOrder.startDate}</strong></div>
+                  <div><span style={{ color: '#a39cc2' }}>Завершение:</span> <strong style={{ color: '#fff' }}>{selectedOrder.endDate}</strong></div>
                 </div>
               </div>
 
@@ -386,7 +386,7 @@ export default function AnalystDashboardPage({ onBack, hideHeader = false }) {
                   {selectedOrder.files.map((f, i) => (
                     <div key={i} className="analyst-file-chip" onClick={() => flash(`📥 Скачивание: ${f.name}`)}>
                       {f.type === 'pdf' ? '📄' : '📊'} {f.name}
-                      <span style={{ color: '#64748b', fontSize: '.7rem' }}>({f.size})</span>
+                      <span style={{ color: '#8a82a8', fontSize: '.7rem' }}>({f.size})</span>
                     </div>
                   ))}
                 </div>
@@ -410,7 +410,7 @@ export default function AnalystDashboardPage({ onBack, hideHeader = false }) {
               <div className="analyst-upload-zone" onClick={() => flash('📤 Функция загрузки файлов активна')}>
                 <div style={{ fontSize: '2rem', marginBottom: '.5rem' }}>📤</div>
                 <div style={{ color: '#a78bfa', fontWeight: 700, fontSize: '.92rem' }}>Прикрепить дополнительные файлы</div>
-                <div style={{ color: '#64748b', fontSize: '.8rem', marginTop: '.25rem' }}>Договоры, акты, заключения, фотографии — перетащите или нажмите</div>
+                <div style={{ color: '#8a82a8', fontSize: '.8rem', marginTop: '.25rem' }}>Договоры, акты, заключения, фотографии — перетащите или нажмите</div>
               </div>
 
               {/* Actions */}

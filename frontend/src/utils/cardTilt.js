@@ -39,7 +39,7 @@ export function init3DCardTilt() {
       const rotateY = ((x - centerX) / centerX) * 7.5;
 
       el.style.transform = `perspective(1000px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) translateZ(10px)`;
-      spotlight.style.background = `radial-gradient(circle 220px at ${x}px ${y}px, rgba(56, 189, 248, 0.2), transparent 80%)`;
+      spotlight.style.background = `radial-gradient(circle 220px at ${x}px ${y}px, rgba(185, 164, 255, 0.2), transparent 80%)`;
     });
 
     el.addEventListener('mouseleave', () => {

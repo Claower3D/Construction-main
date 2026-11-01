@@ -18,14 +18,14 @@
   --mkt-card: #111a2b;
   --mkt-card-hover: #152036;
   --mkt-field: #0b1322;
-  --mkt-line: rgba(148, 163, 184, 0.16);
-  --mkt-line-strong: rgba(148, 163, 184, 0.34);
-  --mkt-text: #f1f5f9;
+  --mkt-line: rgba(163, 156, 194, 0.16);
+  --mkt-line-strong: rgba(163, 156, 194, 0.34);
+  --mkt-text: #f5f3ff;
   --mkt-muted: #a8b6ca;
   --mkt-price: var(--accent-gold, #fbbf24);
   --mkt-ok: #34d399;
   --mkt-busy: #fca5a5;
-  --mkt-focus: #7dd3fc;
+  --mkt-focus: #d6caff;
   --mkt-r-card: 14px;
   --mkt-r-ctrl: 10px;
   --mkt-sticky-top: 76px;
@@ -97,7 +97,7 @@
 .cc-container :is(.cc-chip, .cc-filter-btn).active {
   background: rgba(125, 211, 252, 0.14) !important;
   border-color: var(--mkt-focus) !important;
-  color: #e0f2fe !important;
+  color: #ede9fe !important;
 }
 .equipment-marketplace-container .wb-filter-chip.mkt-chip-accent {
   border-color: rgba(251, 191, 36, 0.55) !important;
@@ -207,14 +207,14 @@
   padding: 2px 7px;
 }
 /* Штриховки материалов (ГОСТ 2.306): кирпич, бетон, металл, утеплитель, дерево */
-.mmp-container .no-image { --hatch: rgba(148, 163, 184, 0.22); }
+.mmp-container .no-image { --hatch: rgba(163, 156, 194, 0.22); }
 .mmp-container .hatch-brick { background: repeating-linear-gradient(45deg, var(--hatch) 0 1px, transparent 1px 9px), #0d1626; }
 .mmp-container .hatch-metal { background: repeating-linear-gradient(45deg, var(--hatch) 0 1px, transparent 1px 5px, var(--hatch) 5px 6px, transparent 6px 14px), #0d1626; }
 .mmp-container .hatch-concrete {
   background:
     radial-gradient(circle at 30% 40%, var(--hatch) 0 1.4px, transparent 1.6px) 0 0 / 14px 14px,
     radial-gradient(circle at 70% 75%, var(--hatch) 0 1px, transparent 1.2px) 0 0 / 11px 11px,
-    repeating-linear-gradient(60deg, transparent 0 16px, rgba(148, 163, 184, 0.12) 16px 17px),
+    repeating-linear-gradient(60deg, transparent 0 16px, rgba(163, 156, 194, 0.12) 16px 17px),
     #0d1626;
 }
 .mmp-container .hatch-insulation {
@@ -223,7 +223,7 @@
     #0d1626;
 }
 .mmp-container .hatch-wood { background: repeating-radial-gradient(ellipse at 20% 120%, transparent 0 7px, var(--hatch) 7px 8px), #0d1626; }
-.mmp-container .hatch-generic { background: repeating-linear-gradient(-45deg, rgba(148, 163, 184, 0.12) 0 1px, transparent 1px 12px), #0d1626; }
+.mmp-container .hatch-generic { background: repeating-linear-gradient(-45deg, rgba(163, 156, 194, 0.12) 0 1px, transparent 1px 12px), #0d1626; }
 .mmp-container .mmp-stat-pill span { text-transform: none !important; letter-spacing: 0 !important; }
 
 /* Декоративные слои спецтехники убраны: не несут информации */
@@ -291,8 +291,8 @@
 .cc-container .cc-tag-pill {
   font-size: 0.74rem !important;
   font-weight: 600 !important;
-  color: #cbd5e1 !important;
-  background: rgba(148, 163, 184, 0.1) !important;
+  color: #cbc5e3 !important;
+  background: rgba(163, 156, 194, 0.1) !important;
   border: 1px solid transparent !important;
   border-radius: 6px !important;
   padding: 2px 7px !important;
@@ -406,7 +406,7 @@
 .equipment-marketplace-container .em-rating-badge { color: #fde68a !important; }
 .equipment-marketplace-container .em-rating-badge.muted { color: var(--mkt-muted) !important; font-weight: 600 !important; }
 .equipment-marketplace-container .mkt-badge--corner { left: auto; right: 8px; bottom: 8px; }
-.cc-container .cc-stars-empty { color: rgba(148, 163, 184, 0.35); }
+.cc-container .cc-stars-empty { color: rgba(163, 156, 194, 0.35); }
 
 /* ── Действия карточки ── */
 .mmp-container .mmp-card-actions,
@@ -470,7 +470,7 @@
 /* ── Состояния: загрузка / пусто / ошибка ── */
 .mkt-skeleton-card { overflow: hidden; gap: 10px; padding-bottom: 16px; }
 .mkt-skel {
-  background: linear-gradient(90deg, rgba(148, 163, 184, 0.07), rgba(148, 163, 184, 0.17), rgba(148, 163, 184, 0.07));
+  background: linear-gradient(90deg, rgba(163, 156, 194, 0.07), rgba(163, 156, 194, 0.17), rgba(163, 156, 194, 0.07));
   background-size: 200% 100%;
   animation: mkt-shimmer 1.3s linear infinite;
   border-radius: 6px;
@@ -505,8 +505,8 @@
   padding: 10px 14px;
   border-radius: var(--mkt-r-ctrl);
   border: 1px solid var(--mkt-line);
-  background: rgba(148, 163, 184, 0.06);
-  color: #cbd5e1;
+  background: rgba(163, 156, 194, 0.06);
+  color: #cbc5e3;
   font-size: 0.85rem;
   line-height: 1.45;
 }
@@ -530,17 +530,17 @@
 .mkt-btn-secondary,
 .mkt-notice-btn {
   background: transparent;
-  color: var(--mkt-text, #f1f5f9);
-  border: 1px solid var(--mkt-line-strong, rgba(148, 163, 184, 0.34));
+  color: var(--mkt-text, #f5f3ff);
+  border: 1px solid var(--mkt-line-strong, rgba(163, 156, 194, 0.34));
 }
 .mkt-btn-secondary:hover,
 .mkt-notice-btn:hover { border-color: rgba(226, 232, 240, 0.6); }
 .mkt-btn-primary {
-  background: #0ea5e9;
+  background: #a78bfa;
   color: #04121d;
-  border: 1px solid #0ea5e9;
+  border: 1px solid #a78bfa;
 }
-.mkt-btn-primary:hover { background: #38bdf8; }
+.mkt-btn-primary:hover { background: #b9a4ff; }
 .mkt-load-more { display: flex; justify-content: center; margin: 4px 0 28px; }
 
 /* ── Модальное окно размещения ── */
@@ -559,10 +559,10 @@
   max-height: calc(100dvh - 24px);
   overflow-y: auto;
   background: #0f1726;
-  border: 1px solid rgba(148, 163, 184, 0.3);
+  border: 1px solid rgba(163, 156, 194, 0.3);
   border-radius: 16px;
   padding: 18px 20px 20px;
-  color: #f1f5f9;
+  color: #f5f3ff;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -572,9 +572,9 @@
 .mkt-icon-btn {
   width: 36px; height: 36px;
   border-radius: 10px;
-  border: 1px solid rgba(148, 163, 184, 0.34);
+  border: 1px solid rgba(163, 156, 194, 0.34);
   background: transparent;
-  color: #f1f5f9;
+  color: #f5f3ff;
   cursor: pointer;
 }
 .mkt-field { display: flex; flex-direction: column; gap: 6px; font-size: 0.8rem; color: #a8b6ca; font-weight: 600; min-width: 0; }
@@ -582,9 +582,9 @@
   font: inherit;
   font-size: 0.92rem;
   font-weight: 500;
-  color: #f1f5f9;
+  color: #f5f3ff;
   background: #0b1322;
-  border: 1px solid rgba(148, 163, 184, 0.3);
+  border: 1px solid rgba(163, 156, 194, 0.3);
   border-radius: 10px;
   padding: 9px 11px;
   min-height: 40px;
@@ -594,7 +594,7 @@
 .mkt-field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .mkt-form-error { margin: 0; color: #fca5a5; font-size: 0.86rem; font-weight: 600; }
 .mkt-modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 4px; }
-.mkt-modal :focus-visible { outline: 2px solid #7dd3fc; outline-offset: 2px; }
+.mkt-modal :focus-visible { outline: 2px solid #d6caff; outline-offset: 2px; }
 
 /* ── Подрядчики ── */
 .cc-container .cc-card { padding: 16px !important; gap: 10px; cursor: pointer; }

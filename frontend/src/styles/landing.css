@@ -12,7 +12,7 @@ html body::after { content: none !important; display: none !important; }
 /* ════════════ Шапка ════════════ */
 .header-wrapper {
   height: 68px !important;
-  background: rgba(8, 17, 31, 0.88) !important;
+  background: rgba(12, 10, 22, 0.88) !important;
   -webkit-backdrop-filter: saturate(140%) blur(14px) !important;
   backdrop-filter: saturate(140%) blur(14px) !important;
   border-bottom: 1px solid var(--qg-line) !important;
@@ -45,7 +45,7 @@ html body::after { content: none !important; display: none !important; }
 .header-wrapper :is(.header-nav-link, .nav-dropdown-btn):hover,
 .header-wrapper .nav-dropdown-btn.active {
   color: var(--qg-text) !important;
-  background: rgba(140, 170, 214, 0.08) !important;
+  background: rgba(196, 181, 253, 0.08) !important;
   border-color: var(--qg-line) !important;
 }
 .header-wrapper .city-picker-box {
@@ -88,9 +88,9 @@ html body::after { content: none !important; display: none !important; }
   min-height: 40px;
   padding: 8px 16px !important;
   border-radius: var(--qg-r-ctrl) !important;
-  border: 1px solid var(--qg-blue) !important;
-  background: var(--qg-blue) !important;
-  color: #fff !important;
+  border: 1px solid var(--qg-gold) !important;
+  background: var(--qg-gold) !important;
+  color: var(--qg-on-gold) !important;
   font: 700 0.875rem/1.2 var(--qg-font) !important;
   box-shadow: none !important;
   text-shadow: none !important;
@@ -101,7 +101,7 @@ html body::after { content: none !important; display: none !important; }
   text-overflow: ellipsis;
 }
 .header-wrapper .btn-gold-login:hover,
-.mobile-nav-drawer .btn-gold-login:hover { background: var(--qg-blue-hover) !important; }
+.mobile-nav-drawer .btn-gold-login:hover { background: var(--qg-gold-hover) !important; border-color: var(--qg-gold-hover) !important; }
 .header-wrapper .btn-glass-reg,
 .mobile-nav-drawer .btn-glass-reg {
   min-height: 40px;
@@ -160,7 +160,7 @@ html body::after { content: none !important; display: none !important; }
   color: var(--qg-cyan);
   cursor: pointer;
   text-decoration: underline;
-  text-decoration-color: rgba(92, 200, 245, 0.4);
+  text-decoration-color: rgba(185, 164, 255, 0.4);
   text-underline-offset: 3px;
 }
 .lp-inline-link:hover { text-decoration-color: currentColor; }
@@ -245,7 +245,7 @@ html body::after { content: none !important; display: none !important; }
   font-weight: 600;
 }
 .lp-sheet-drawing { display: block; width: 100%; height: auto; padding: 8px 12px 0; }
-.lp-sheet-drawing .lp-dim line { stroke: rgba(140, 170, 214, 0.6); stroke-width: 1; }
+.lp-sheet-drawing .lp-dim line { stroke: rgba(196, 181, 253, 0.6); stroke-width: 1; }
 .lp-sheet-drawing .lp-dim text { fill: var(--qg-text-2); font: 600 11px var(--qg-font-code); }
 .lp-crack {
   fill: none;
@@ -257,7 +257,7 @@ html body::after { content: none !important; display: none !important; }
   stroke-dashoffset: 0;
   animation: lp-draw 1.4s var(--qg-ease) 0.2s both;
 }
-.lp-bbox rect:first-child { fill: rgba(92, 200, 245, 0.08); stroke: var(--qg-cyan); stroke-width: 1.6; stroke-dasharray: 5 4; }
+.lp-bbox rect:first-child { fill: rgba(185, 164, 255, 0.08); stroke: var(--qg-cyan); stroke-width: 1.6; stroke-dasharray: 5 4; }
 .lp-bbox .lp-bbox-label { fill: var(--qg-cyan); }
 .lp-bbox text { fill: #04121d; font: 700 11px var(--qg-font); }
 .lp-bbox { animation: lp-fade 0.4s ease 1.3s both; }
@@ -366,7 +366,7 @@ html body::after { content: none !important; display: none !important; }
 .lp-spec-row:first-child { border-top: 0; }
 .lp-spec-head {
   padding-block: 10px;
-  background: rgba(140, 170, 214, 0.05);
+  background: rgba(196, 181, 253, 0.05);
   color: var(--qg-text-3);
   font-size: var(--qg-fs-xs);
   font-weight: 700;
@@ -375,7 +375,7 @@ html body::after { content: none !important; display: none !important; }
 .lp-spec-what { color: var(--qg-text-2); font-size: var(--qg-fs-sm); line-height: 1.5; }
 .lp-spec-who { color: var(--qg-text-3); font-size: var(--qg-fs-sm); }
 .lp-spec-go { justify-self: end; }
-.lp-spec-row:not(.lp-spec-head):hover { background: rgba(140, 170, 214, 0.04); }
+.lp-spec-row:not(.lp-spec-head):hover { background: rgba(196, 181, 253, 0.04); }
 
 /* ════════════ Цифры ════════════ */
 .lp-facts { position: relative; z-index: 1; padding-block: 8px var(--qg-section-y); }
@@ -551,7 +551,7 @@ html body::after { content: none !important; display: none !important; }
 .catalog-section .category-v2-card:hover { border-color: var(--qg-line-strong) !important; }
 .catalog-section .category-v2-card:focus-visible { outline: 2px solid var(--qg-cyan) !important; outline-offset: 2px; }
 .catalog-section .cat-v2-price-chip-floating {
-  background: rgba(8, 17, 31, 0.9) !important;
+  background: rgba(12, 10, 22, 0.9) !important;
   color: var(--qg-price) !important;
   border: 0 !important;
   border-left: 3px solid var(--qg-price) !important;
@@ -675,3 +675,80 @@ html body::after { content: none !important; display: none !important; }
   min-height: 50px;
 }
 .modal-content-card form > button[type=submit]:hover:not(:disabled) { background: var(--qg-blue-hover) !important; }
+
+
+/* ════════════ Палитра «вечерняя стройплощадка» (2026-11) ════════════ */
+.lp-hero-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border: 1px solid var(--qg-line-strong);
+  border-radius: var(--qg-r-pill);
+  background: rgba(139, 92, 246, 0.1);
+  color: var(--qg-text);
+}
+.lp-kicker-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--qg-gold);
+  box-shadow: 0 0 0 3px rgba(246, 185, 59, 0.2);
+}
+.lp-accent {
+  background: linear-gradient(92deg, var(--qg-gold) 0%, #f9a8d4 55%, #c4b5fd 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: var(--qg-gold);
+}
+@media (forced-colors: active) { .lp-accent { -webkit-text-fill-color: currentColor; background: none; } }
+
+/* стеклянные карточки: светлее фона, видимая граница */
+.lp-sheet,
+.lp-spec,
+.lp-review,
+.lp-feature {
+  background: linear-gradient(180deg, rgba(32, 28, 58, 0.78), rgba(22, 19, 42, 0.78)) !important;
+  border-color: var(--qg-line-strong) !important;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+.lp-sheet { box-shadow: var(--qg-shadow-2), 0 0 0 1px rgba(139, 92, 246, 0.12) inset; }
+
+/* ссылки внутри текста — сиреневые, подчёркнутые: их видно без наведения */
+.lp-inline-link { color: var(--qg-cyan) !important; }
+
+/* разделители секций чуть заметнее и мягче */
+.lp-section + .lp-section { border-top-color: var(--qg-line) !important; }
+
+/* «Что вы получаете» — карточки вместо колонок с линиями: проще сканировать */
+.lp-features-grid { gap: 16px; border-top: 0 !important; }
+.lp-feature,
+.lp-feature + .lp-feature {
+  padding: 24px !important;
+  border: 1px solid var(--qg-line-strong);
+  border-left: 1px solid var(--qg-line-strong) !important;
+  border-radius: var(--qg-r-panel);
+  transition: border-color var(--qg-dur-2) var(--qg-ease), transform var(--qg-dur-2) var(--qg-ease);
+}
+.lp-feature:hover { border-color: rgba(185, 164, 255, 0.55) !important; transform: translateY(-2px); }
+.lp-feature-icon {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 52px; height: 52px; border-radius: 14px;
+  background: rgba(139, 92, 246, 0.16);
+  border: 1px solid rgba(185, 164, 255, 0.28);
+}
+.lp-feature-icon svg { width: 28px !important; height: 28px !important; stroke: var(--qg-gold) !important; }
+.lp-feature-link { margin-top: 8px; }
+@media (max-width: 900px) { .lp-features-grid { grid-template-columns: 1fr; } }
+
+/* свет прожекторов за первым экраном */
+.lp-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 -20% 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(42% 60% at 22% 30%, rgba(139, 92, 246, 0.28), transparent 70%),
+    radial-gradient(30% 45% at 82% 25%, rgba(236, 72, 153, 0.14), transparent 70%);
+}

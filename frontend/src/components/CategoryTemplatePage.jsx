@@ -242,20 +242,20 @@ export default function CategoryTemplatePage({ category, onBack }) {
               
               <div className="service-details-grid" style={{ display: 'grid', gap: '1rem', marginBottom: '1.5rem' }}>
                 <div className="detail-row" style={{ display: 'flex', justifyContent: 'space-between', padding: '1rem', background: 'rgba(255,255,255,0.05)', borderRadius: '8px' }}>
-                  <span style={{ color: '#94a3b8' }}>Базовая стоимость</span>
+                  <span style={{ color: '#a39cc2' }}>Базовая стоимость</span>
                   <strong style={{ color: '#10b981', fontSize: '1.1rem' }}>{selectedService.price}</strong>
                 </div>
                 <div className="detail-row" style={{ display: 'flex', justifyContent: 'space-between', padding: '1rem', background: 'rgba(255,255,255,0.05)', borderRadius: '8px' }}>
-                  <span style={{ color: '#94a3b8' }}>Единица измерения</span>
+                  <span style={{ color: '#a39cc2' }}>Единица измерения</span>
                   <strong style={{ color: '#fff' }}>{selectedService.price.split(' / ')[1] || 'ед.'}</strong>
                 </div>
                 <div className="detail-row" style={{ display: 'flex', justifyContent: 'space-between', padding: '1rem', background: 'rgba(255,255,255,0.05)', borderRadius: '8px' }}>
-                  <span style={{ color: '#94a3b8' }}>Норматив</span>
+                  <span style={{ color: '#a39cc2' }}>Норматив</span>
                   <strong style={{ color: '#fff' }}>{selectedService.code}</strong>
                 </div>
               </div>
 
-              <div className="service-description" style={{ color: '#cbd5e1', lineHeight: '1.6', fontSize: '0.95rem' }}>
+              <div className="service-description" style={{ color: '#cbc5e3', lineHeight: '1.6', fontSize: '0.95rem' }}>
                 <p>Данная расценка включает в себя полный комплекс работ согласно нормативу {selectedService.code}. В стоимость включены базовые трудозатраты и эксплуатация машин. Материалы рассчитываются отдельно по проекту.</p>
               </div>
             </div>

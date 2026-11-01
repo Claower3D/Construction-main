@@ -46,7 +46,7 @@ export default function OrganicBlueprintVisualizer({ activeSample, isScanning })
       {/* Background organic grid */}
       <div className="organic-grid" style={{ 
         position: 'absolute', inset: 0, 
-        backgroundImage: 'linear-gradient(rgba(14, 165, 233, 0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(14, 165, 233, 0.07) 1px, transparent 1px)',
+        backgroundImage: 'linear-gradient(rgba(167, 139, 250, 0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(167, 139, 250, 0.07) 1px, transparent 1px)',
         backgroundSize: '40px 40px',
         backgroundPosition: 'center center',
         opacity: 0.8
@@ -55,8 +55,8 @@ export default function OrganicBlueprintVisualizer({ activeSample, isScanning })
       <svg width="100%" height="100%" style={{ position: 'absolute', inset: 0, zIndex: 10 }}>
         <defs>
           <linearGradient id="pathGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="rgba(14, 165, 233, 0.2)" />
-            <stop offset="100%" stopColor="rgba(56, 189, 248, 0.8)" />
+            <stop offset="0%" stopColor="rgba(167, 139, 250, 0.2)" />
+            <stop offset="100%" stopColor="rgba(185, 164, 255, 0.8)" />
           </linearGradient>
           <filter id="glow">
             <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
@@ -91,7 +91,7 @@ export default function OrganicBlueprintVisualizer({ activeSample, isScanning })
                  cx={`${n.x}%`} 
                  cy={`${n.y}%`} 
                  r={n.size * 2.5} 
-                 fill="rgba(56, 189, 248, 0.15)"
+                 fill="rgba(185, 164, 255, 0.15)"
                  className={isScanning ? "pulse-circle-fast" : "pulse-circle-slow"}
                />
             )}
@@ -99,7 +99,7 @@ export default function OrganicBlueprintVisualizer({ activeSample, isScanning })
               cx={`${n.x}%`} 
               cy={`${n.y}%`} 
               r={n.size} 
-              fill={n.type === 'structural' ? "#0ea5e9" : n.type === 'sensor' ? "#10b981" : "#f59e0b"}
+              fill={n.type === 'structural' ? "#a78bfa" : n.type === 'sensor' ? "#10b981" : "#f59e0b"}
               filter="url(#glow)"
             />
             {n.size > 4 && (
@@ -114,7 +114,7 @@ export default function OrganicBlueprintVisualizer({ activeSample, isScanning })
         {isScanning && (
           <rect 
             x="0" y="0" width="100%" height="100%" 
-            fill="rgba(56, 189, 248, 0.05)"
+            fill="rgba(185, 164, 255, 0.05)"
             className="scanner-flash"
           />
         )}
@@ -122,9 +122,9 @@ export default function OrganicBlueprintVisualizer({ activeSample, isScanning })
       
       {/* HUD Overlays */}
       <div style={{ position: 'absolute', bottom: '20px', left: '20px', zIndex: 20, display: 'flex', gap: '15px' }}>
-        <div style={{ background: 'rgba(15, 23, 42, 0.7)', backdropFilter: 'blur(4px)', padding: '10px 15px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)' }}>
-           <div style={{ fontSize: '10px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px' }}>System Status</div>
-           <div style={{ color: isScanning ? '#10b981' : '#38bdf8', fontSize: '14px', fontWeight: 'bold' }}>
+        <div style={{ background: 'rgba(21, 18, 42, 0.7)', backdropFilter: 'blur(4px)', padding: '10px 15px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)' }}>
+           <div style={{ fontSize: '10px', color: '#a39cc2', textTransform: 'uppercase', letterSpacing: '1px' }}>System Status</div>
+           <div style={{ color: isScanning ? '#10b981' : '#b9a4ff', fontSize: '14px', fontWeight: 'bold' }}>
              {isScanning ? 'ANALYZING TOPOLOGY...' : 'IDLE / READY'}
            </div>
         </div>

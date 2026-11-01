@@ -35,8 +35,8 @@ export default function ScrollToTopButton() {
         left: '50%',
         transform: 'translateX(-50%)',
         zIndex: 998,
-        background: 'linear-gradient(90deg, rgba(56, 189, 248, 0.15), rgba(59, 130, 246, 0.15))',
-        border: '1px solid rgba(56, 189, 248, 0.3)',
+        background: 'linear-gradient(90deg, rgba(185, 164, 255, 0.15), rgba(139, 92, 246, 0.15))',
+        border: '1px solid rgba(185, 164, 255, 0.3)',
         color: '#fff',
         padding: '0.5rem 1.5rem',
         borderRadius: '12px',
@@ -53,7 +53,7 @@ export default function ScrollToTopButton() {
       title="Наверх"
       onMouseEnter={(e) => {
         e.currentTarget.style.transform = 'translateX(-50%) translateY(-3px)';
-        e.currentTarget.style.boxShadow = '0 8px 25px rgba(59, 130, 246, 0.5)';
+        e.currentTarget.style.boxShadow = '0 8px 25px rgba(139, 92, 246, 0.5)';
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.transform = 'translateX(-50%) translateY(0)';

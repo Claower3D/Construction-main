@@ -15,7 +15,7 @@ import { freezeEscrow } from '../services/walletEngine';
 
 const BOOKING_DEPOSIT = 150000;
 
-const AVATAR_TONES = ['#2563eb', '#0e7490', '#7c3aed', '#047857', '#b45309', '#be123c'];
+const AVATAR_TONES = ['#7c3aed', '#0e7490', '#7c3aed', '#047857', '#b45309', '#be123c'];
 
 function capitalize(s) {
   const t = String(s || '').trim();

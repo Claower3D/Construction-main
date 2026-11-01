@@ -206,7 +206,7 @@
 .cc-rating > span[aria-hidden] { color: var(--qg-price); }
 .cc-reviews-count { margin-left: 4px; color: var(--qg-text-3); font-weight: 600; }
 .cc-stars { color: var(--qg-price); letter-spacing: 1px; }
-.cc-stars-empty { color: rgba(140, 170, 214, 0.3); }
+.cc-stars-empty { color: rgba(196, 181, 253, 0.3); }
 
 .cc-tags-wrap { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; margin: 0; padding: 0; }
 .cc-card-desc { margin: 0; color: var(--qg-text-2); font-size: var(--qg-fs-sm); line-height: 1.5; }

@@ -41,7 +41,7 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
     new:                { label: '🆕 Новая заявка',           color: '#8b5cf6' },
     engineer_assigned:  { label: '📋 Инженер назначен',       color: '#f59e0b' },
     engineer_visit:     { label: '🚗 Выезд инженера',         color: '#f97316' },
-    estimate_ready:     { label: '📊 Смета готова',            color: '#06b6d4' },
+    estimate_ready:     { label: '📊 Смета готова',            color: '#a78bfa' },
     pending_executor:   { label: '⏳ Ждёт исполнителя',       color: '#eab308' },
     in_progress:        { label: '🟢 В работе',               color: '#10b981' },
     completed:          { label: '✅ Завершён',               color: '#22c55e' }
@@ -695,8 +695,8 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
                 key={r.key}
                 className={`uo-btn-switch-role ${role === r.key ? 'active' : ''}`}
                 style={{
-                  background: role === r.key ? 'linear-gradient(135deg, #00e5ff, #0284c7)' : 'rgba(255,255,255,0.06)',
-                  color: role === r.key ? '#0a1628' : '#e2e8f0',
+                  background: role === r.key ? 'linear-gradient(135deg, #00e5ff, #7c3aed)' : 'rgba(255,255,255,0.06)',
+                  color: role === r.key ? '#0a1628' : '#ece9f8',
                   border: role === r.key ? '1px solid #00e5ff' : '1px solid rgba(255,255,255,0.12)',
                   padding: '6px 12px',
                   borderRadius: '8px',
@@ -886,18 +886,18 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
                     🏗️ Выезд инженера
                   </h4>
                   {selectedOrder.assignedEngineer && (
-                    <div style={{ fontSize: '0.85rem', color: '#e2e8f0', marginBottom: '6px' }}>
+                    <div style={{ fontSize: '0.85rem', color: '#ece9f8', marginBottom: '6px' }}>
                       👷 Инженер: <strong>{selectedOrder.assignedEngineer}</strong>
                     </div>
                   )}
                   {selectedOrder.engineerVisitDate && (
-                    <div style={{ fontSize: '0.85rem', color: '#94a3b8', marginBottom: '6px' }}>
-                      📅 Дата выезда: <strong style={{ color: '#38bdf8' }}>{selectedOrder.engineerVisitDate}</strong>
+                    <div style={{ fontSize: '0.85rem', color: '#a39cc2', marginBottom: '6px' }}>
+                      📅 Дата выезда: <strong style={{ color: '#b9a4ff' }}>{selectedOrder.engineerVisitDate}</strong>
                     </div>
                   )}
                   {selectedOrder.engineerReport && (
-                    <div style={{ fontSize: '0.85rem', color: '#94a3b8', marginTop: '8px', padding: '10px', background: 'rgba(0,0,0,0.3)', borderRadius: '8px', lineHeight: 1.5 }}>
-                      📝 <strong style={{ color: '#e2e8f0' }}>Отчёт инженера:</strong> {selectedOrder.engineerReport}
+                    <div style={{ fontSize: '0.85rem', color: '#a39cc2', marginTop: '8px', padding: '10px', background: 'rgba(0,0,0,0.3)', borderRadius: '8px', lineHeight: 1.5 }}>
+                      📝 <strong style={{ color: '#ece9f8' }}>Отчёт инженера:</strong> {selectedOrder.engineerReport}
                     </div>
                   )}
                   {selectedOrder.acceptedBy && (
@@ -929,7 +929,7 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
                 {/* Инженер: Завершить осмотр (engineer_visit → estimate_ready) */}
                 {selectedOrder.status === 'engineer_visit' && (role === 'engineer' || role === 'manager' || role === 'admin') && (
                   <button onClick={() => handleCompleteInspection(selectedOrder.id, 'Осмотр проведён. Замечания учтены. Смета сформирована.')}
-                    style={{ background: 'linear-gradient(135deg, #06b6d4, #0891b2)', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 800, cursor: 'pointer' }}>
+                    style={{ background: 'linear-gradient(135deg, #a78bfa, #7c3aed)', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 800, cursor: 'pointer' }}>
                     📊 Завершить осмотр и сформировать смету
                   </button>
                 )}
@@ -953,7 +953,7 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
                 {/* Менеджер: Согласовать возврат и вернуть инженеру */}
                 {selectedOrder.returnedToManager && (role === 'manager' || role === 'admin') && (
                   <button onClick={() => handleManagerResolveReassign(selectedOrder.id)}
-                    style={{ background: 'linear-gradient(135deg, #00e5ff, #0284c7)', color: '#0a1628', border: 'none', padding: '10px 20px', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 900, cursor: 'pointer' }}>
+                    style={{ background: 'linear-gradient(135deg, #00e5ff, #7c3aed)', color: '#0a1628', border: 'none', padding: '10px 20px', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 900, cursor: 'pointer' }}>
                     🔄 Согласовать и вернуть инженеру
                   </button>
                 )}
@@ -963,10 +963,10 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
               {selectedOrder.stages && selectedOrder.stages.length > 0 && (
                 <div className="uo-stages-container" style={{ marginTop: '1.75rem' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-                    <h4 style={{ margin: 0, fontSize: '1.15rem', color: '#38bdf8', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <h4 style={{ margin: 0, fontSize: '1.15rem', color: '#b9a4ff', display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <span>🏗️</span> График этапов работ и подбор спецтехники (GPS)
                     </h4>
-                    <span style={{ fontSize: '0.78rem', background: 'rgba(56, 189, 248, 0.15)', color: '#38bdf8', padding: '4px 10px', borderRadius: '8px', border: '1px solid rgba(56, 189, 248, 0.3)' }}>
+                    <span style={{ fontSize: '0.78rem', background: 'rgba(185, 164, 255, 0.15)', color: '#b9a4ff', padding: '4px 10px', borderRadius: '8px', border: '1px solid rgba(185, 164, 255, 0.3)' }}>
                       📍 Автоподбор ближайших машин
                     </span>
                   </div>
@@ -974,7 +974,7 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                     {selectedOrder.stages.map(stg => (
                       <div key={stg.id} style={{
-                        background: 'rgba(15, 23, 42, 0.75)',
+                        background: 'rgba(21, 18, 42, 0.75)',
                         border: '1px solid rgba(255, 255, 255, 0.1)',
                         borderRadius: '14px',
                         padding: '16px',
@@ -983,7 +983,7 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '8px', marginBottom: '10px' }}>
                           <div>
                             <strong style={{ fontSize: '1rem', color: '#f8fafc' }}>{stg.name}</strong>
-                            <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '2px' }}>
+                            <div style={{ fontSize: '0.8rem', color: '#a39cc2', marginTop: '2px' }}>
                               ⏱ Сроки: {stg.dateRange} • Бюджет этапа: <strong style={{ color: '#00ff88' }}>{formatMoney(stg.budget)}</strong>
                             </div>
                           </div>
@@ -999,7 +999,7 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
                           <div style={{
                             width: `${stg.progress}%`,
                             height: '100%',
-                            background: stg.status === 'completed' ? '#10b981' : 'linear-gradient(90deg, #38bdf8, #00ff88)',
+                            background: stg.status === 'completed' ? '#10b981' : 'linear-gradient(90deg, #b9a4ff, #00ff88)',
                             transition: 'width 0.4s ease'
                           }} />
                         </div>
@@ -1010,7 +1010,7 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
                           <div style={{
                             padding: '4px 10px', borderRadius: '8px', fontSize: '0.72rem', fontWeight: 700,
                             background: stg.status === 'completed' ? 'rgba(16,185,129,0.15)' : stg.status === 'in_progress' ? 'rgba(245,158,11,0.15)' : 'rgba(255,255,255,0.06)',
-                            color: stg.status === 'completed' ? '#10b981' : stg.status === 'in_progress' ? '#f59e0b' : '#64748b',
+                            color: stg.status === 'completed' ? '#10b981' : stg.status === 'in_progress' ? '#f59e0b' : '#8a82a8',
                             border: `1px solid ${stg.status === 'completed' ? 'rgba(16,185,129,0.3)' : stg.status === 'in_progress' ? 'rgba(245,158,11,0.3)' : 'rgba(255,255,255,0.1)'}`
                           }}>
                             {stg.status === 'completed' ? '🔓 Эскроу разморожен' : stg.status === 'in_progress' ? `🔒 Эскроу: ${formatMoney(stg.budget || 0)}` : '💤 Эскроу не активен'}
@@ -1023,8 +1023,8 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
                             <button
                               onClick={() => handleStartStage(selectedOrder.id, stg.id)}
                               style={{
-                                background: 'linear-gradient(135deg, #0284c7, #0369a1)', color: '#fff',
-                                border: '1px solid rgba(56, 189, 248, 0.5)', padding: '6px 14px',
+                                background: 'linear-gradient(135deg, #7c3aed, #0369a1)', color: '#fff',
+                                border: '1px solid rgba(185, 164, 255, 0.5)', padding: '6px 14px',
                                 borderRadius: '8px', fontSize: '0.78rem', fontWeight: 800, cursor: 'pointer'
                               }}
                             >
@@ -1043,7 +1043,7 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
                                 style={{ width: '100px', accentColor: '#00e5ff', cursor: 'pointer' }}
                                 title={`Прогресс: ${stg.progress}%`}
                               />
-                              <span style={{ fontSize: '0.75rem', color: '#38bdf8', fontWeight: 800, minWidth: '35px' }}>{stg.progress}%</span>
+                              <span style={{ fontSize: '0.75rem', color: '#b9a4ff', fontWeight: 800, minWidth: '35px' }}>{stg.progress}%</span>
                               <button
                                 onClick={() => handleCompleteStage(selectedOrder.id, stg.id)}
                                 style={{
@@ -1064,8 +1064,8 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
                         </div>
 
                         {/* Needed Machinery for this stage */}
-                        <div style={{ background: 'rgba(8, 12, 22, 0.6)', border: '1px solid rgba(56, 189, 248, 0.2)', borderRadius: '10px', padding: '12px' }}>
-                          <div style={{ fontSize: '0.82rem', fontWeight: '700', color: '#e2e8f0', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <div style={{ background: 'rgba(8, 12, 22, 0.6)', border: '1px solid rgba(185, 164, 255, 0.2)', borderRadius: '10px', padding: '12px' }}>
+                          <div style={{ fontSize: '0.82rem', fontWeight: '700', color: '#ece9f8', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                             <span>🚜</span> Необходимая спецтехника для этого этапа (Подобрано с маркетплейса):
                           </div>
 
@@ -1089,10 +1089,10 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
                                   <div style={{ fontSize: '0.82rem', fontWeight: '800', color: '#ffffff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                                     {m.name}
                                   </div>
-                                  <div style={{ fontSize: '0.72rem', color: '#38bdf8', fontWeight: '700' }}>
+                                  <div style={{ fontSize: '0.72rem', color: '#b9a4ff', fontWeight: '700' }}>
                                     📍 {m.dist} • {m.rate}
                                   </div>
-                                  <div style={{ fontSize: '0.7rem', color: m.assigned ? '#34d399' : '#94a3b8', marginTop: '2px' }}>
+                                  <div style={{ fontSize: '0.7rem', color: m.assigned ? '#34d399' : '#a39cc2', marginTop: '2px' }}>
                                     {m.assigned ? '✅ Закреплена за этапом' : '🟢 Свободна (GPS Online)'}
                                   </div>
                                 </div>
@@ -1100,9 +1100,9 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
                                   type="button"
                                   onClick={() => handleToggleMachinery(selectedOrder.id, stg.id, m.id)}
                                   style={{
-                                    background: m.assigned ? 'rgba(239, 68, 68, 0.2)' : 'linear-gradient(135deg, #0284c7, #0369a1)',
+                                    background: m.assigned ? 'rgba(239, 68, 68, 0.2)' : 'linear-gradient(135deg, #7c3aed, #0369a1)',
                                     color: m.assigned ? '#f87171' : '#ffffff',
-                                    border: m.assigned ? '1px solid rgba(239, 68, 68, 0.4)' : '1px solid rgba(56, 189, 248, 0.5)',
+                                    border: m.assigned ? '1px solid rgba(239, 68, 68, 0.4)' : '1px solid rgba(185, 164, 255, 0.5)',
                                     padding: '6px 10px',
                                     borderRadius: '8px',
                                     fontSize: '0.75rem',
@@ -1240,7 +1240,7 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
         <div className="uo-modal-overlay" onClick={() => setConfirmAction(null)} style={{ zIndex: 10001 }}>
           <div className="uo-modal-card" onClick={e => e.stopPropagation()} style={{ maxWidth: '440px', textAlign: 'center' }}>
             <h3 style={{ fontSize: '1.3rem', marginBottom: '12px' }}>{confirmAction.title}</h3>
-            <p style={{ color: '#94a3b8', fontSize: '0.9rem', marginBottom: '24px', lineHeight: 1.6 }}>{confirmAction.message}</p>
+            <p style={{ color: '#a39cc2', fontSize: '0.9rem', marginBottom: '24px', lineHeight: 1.6 }}>{confirmAction.message}</p>
             <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
               <button
                 onClick={confirmAction.onConfirm}
@@ -1255,7 +1255,7 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
               <button
                 onClick={() => setConfirmAction(null)}
                 style={{
-                  background: 'rgba(255,255,255,0.08)', color: '#94a3b8',
+                  background: 'rgba(255,255,255,0.08)', color: '#a39cc2',
                   border: '1px solid rgba(255,255,255,0.15)', padding: '10px 28px', borderRadius: '10px',
                   fontSize: '0.9rem', fontWeight: 700, cursor: 'pointer'
                 }}

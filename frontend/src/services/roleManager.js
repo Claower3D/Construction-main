@@ -4,10 +4,10 @@ const ROLE_STORAGE_KEY = 'qazgost_user_role';
 
 export const ROLES = {
   CUSTOMER: { id: 'customer', title: 'Заказчик', icon: '📋', color: '#10b981' },
-  EXECUTOR: { id: 'executor', title: 'Исполнитель', icon: '🔧', color: '#93c5fd' },
-  ENGINEER: { id: 'engineer', title: 'Инженер', icon: '👷', color: '#38bdf8' },
+  EXECUTOR: { id: 'executor', title: 'Исполнитель', icon: '🔧', color: '#ddd6fe' },
+  ENGINEER: { id: 'engineer', title: 'Инженер', icon: '👷', color: '#b9a4ff' },
   ADMIN: { id: 'admin', title: 'Администратор', icon: '👑', color: '#f59e0b' },
-  MANAGER: { id: 'manager', title: 'Менеджер', icon: '💼', color: '#38bdf8' },
+  MANAGER: { id: 'manager', title: 'Менеджер', icon: '💼', color: '#b9a4ff' },
 };
 
 export function getCurrentRole() {

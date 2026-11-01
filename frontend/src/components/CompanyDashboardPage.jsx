@@ -7,7 +7,7 @@ export default function CompanyDashboardPage({ currentUser, initialTab = 'profil
   
   // Settings State
   const defaultSettings = {
-    primaryColor: '#0ea5e9', // default blue
+    primaryColor: '#a78bfa', // default blue
     showStats: true,
     showEmployees: true,
   };
@@ -60,7 +60,7 @@ export default function CompanyDashboardPage({ currentUser, initialTab = 'profil
             <h1 style={{ fontSize: '2rem', fontWeight: 'bold', color: '#fff', marginBottom: '0.5rem' }}>
               Дашборд Компании: {currentUser?.name || 'Неизвестно'}
             </h1>
-            <p style={{ color: '#94a3b8' }}>Управление сотрудниками и реквизитами</p>
+            <p style={{ color: '#a39cc2' }}>Управление сотрудниками и реквизитами</p>
           </div>
         </div>
         <div style={{ display: 'flex', gap: '0.5rem' }}>
@@ -69,7 +69,7 @@ export default function CompanyDashboardPage({ currentUser, initialTab = 'profil
             style={{ 
               padding: '0.5rem 1rem', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: 'bold',
               background: activeTab === 'profile' ? settings.primaryColor : 'rgba(255,255,255,0.1)',
-              color: activeTab === 'profile' ? '#fff' : '#94a3b8',
+              color: activeTab === 'profile' ? '#fff' : '#a39cc2',
               transition: 'all 0.2s'
             }}>
             Профиль
@@ -81,7 +81,7 @@ export default function CompanyDashboardPage({ currentUser, initialTab = 'profil
               style={{ 
                 padding: '0.5rem 1rem', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: 'bold',
                 background: activeTab === 'employees' ? settings.primaryColor : 'rgba(255,255,255,0.1)',
-                color: activeTab === 'employees' ? '#fff' : '#94a3b8',
+                color: activeTab === 'employees' ? '#fff' : '#a39cc2',
                 transition: 'all 0.2s'
               }}>
               Сотрудники
@@ -94,7 +94,7 @@ export default function CompanyDashboardPage({ currentUser, initialTab = 'profil
               style={{ 
                 padding: '0.5rem 1rem', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: 'bold',
                 background: activeTab === 'stats' ? settings.primaryColor : 'rgba(255,255,255,0.1)',
-                color: activeTab === 'stats' ? '#fff' : '#94a3b8',
+                color: activeTab === 'stats' ? '#fff' : '#a39cc2',
                 transition: 'all 0.2s'
               }}>
               Статистика
@@ -106,7 +106,7 @@ export default function CompanyDashboardPage({ currentUser, initialTab = 'profil
             style={{ 
               padding: '0.5rem 1rem', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: 'bold',
               background: activeTab === 'tree' ? settings.primaryColor : 'rgba(255,255,255,0.1)',
-              color: activeTab === 'tree' ? '#fff' : '#94a3b8',
+              color: activeTab === 'tree' ? '#fff' : '#a39cc2',
               transition: 'all 0.2s'
             }}>
             🌳 Древо ролей
@@ -117,7 +117,7 @@ export default function CompanyDashboardPage({ currentUser, initialTab = 'profil
             style={{ 
               padding: '0.5rem 1rem', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: 'bold',
               background: activeTab === 'settings' ? '#4b5563' : 'rgba(255,255,255,0.1)',
-              color: activeTab === 'settings' ? '#fff' : '#94a3b8',
+              color: activeTab === 'settings' ? '#fff' : '#a39cc2',
               transition: 'all 0.2s'
             }}>
             ⚙️ Настройки
@@ -132,25 +132,25 @@ export default function CompanyDashboardPage({ currentUser, initialTab = 'profil
           </h2>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
             <div>
-              <label style={{ display: 'block', color: '#94a3b8', fontSize: '0.85rem', marginBottom: '0.5rem' }}>Название компании (ТОО/ИП)</label>
+              <label style={{ display: 'block', color: '#a39cc2', fontSize: '0.85rem', marginBottom: '0.5rem' }}>Название компании (ТОО/ИП)</label>
               <div style={{ background: 'rgba(0,0,0,0.2)', padding: '0.75rem', borderRadius: '8px', color: '#fff', borderLeft: `3px solid ${settings.primaryColor}` }}>
                 {currentUser?.name || 'Не указано'}
               </div>
             </div>
             <div>
-              <label style={{ display: 'block', color: '#94a3b8', fontSize: '0.85rem', marginBottom: '0.5rem' }}>Email администратора</label>
+              <label style={{ display: 'block', color: '#a39cc2', fontSize: '0.85rem', marginBottom: '0.5rem' }}>Email администратора</label>
               <div style={{ background: 'rgba(0,0,0,0.2)', padding: '0.75rem', borderRadius: '8px', color: '#fff', borderLeft: `3px solid ${settings.primaryColor}` }}>
                 {currentUser?.email || 'Не указано'}
               </div>
             </div>
             <div>
-              <label style={{ display: 'block', color: '#94a3b8', fontSize: '0.85rem', marginBottom: '0.5rem' }}>БИН/ИИН (Демо)</label>
+              <label style={{ display: 'block', color: '#a39cc2', fontSize: '0.85rem', marginBottom: '0.5rem' }}>БИН/ИИН (Демо)</label>
               <div style={{ background: 'rgba(0,0,0,0.2)', padding: '0.75rem', borderRadius: '8px', color: '#fff', borderLeft: `3px solid ${settings.primaryColor}` }}>
                 {currentUser?.bin || 'Не указан'}
               </div>
             </div>
             <div>
-              <label style={{ display: 'block', color: '#94a3b8', fontSize: '0.85rem', marginBottom: '0.5rem' }}>Юридический адрес (Демо)</label>
+              <label style={{ display: 'block', color: '#a39cc2', fontSize: '0.85rem', marginBottom: '0.5rem' }}>Юридический адрес (Демо)</label>
               <div style={{ background: 'rgba(0,0,0,0.2)', padding: '0.75rem', borderRadius: '8px', color: '#fff', borderLeft: `3px solid ${settings.primaryColor}` }}>
                 г. Алматы, пр. Абая 150
               </div>
@@ -167,9 +167,9 @@ export default function CompanyDashboardPage({ currentUser, initialTab = 'profil
             </h2>
             
             <div style={{ background: 'rgba(0,0,0,0.2)', padding: '1rem', borderRadius: '12px', border: `1px dashed ${settings.primaryColor}`, maxWidth: '300px' }}>
-              <div style={{ color: '#94a3b8', fontSize: '0.85rem', marginBottom: '0.5rem' }}>ID Компании (для регистрации сотрудников):</div>
+              <div style={{ color: '#a39cc2', fontSize: '0.85rem', marginBottom: '0.5rem' }}>ID Компании (для регистрации сотрудников):</div>
               <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <code style={{ flex: 1, background: '#0f172a', padding: '0.5rem', borderRadius: '6px', color: '#fff', fontSize: '1.1rem', textAlign: 'center', fontWeight: 'bold' }}>
+                <code style={{ flex: 1, background: '#15122a', padding: '0.5rem', borderRadius: '6px', color: '#fff', fontSize: '1.1rem', textAlign: 'center', fontWeight: 'bold' }}>
                   {currentUser?.inviteCode || currentUser?.id || 'C-DEMO'}
                 </code>
                 <button 
@@ -183,7 +183,7 @@ export default function CompanyDashboardPage({ currentUser, initialTab = 'profil
           </div>
           
           {employees.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '3rem', color: '#94a3b8', background: 'rgba(0,0,0,0.1)', borderRadius: '8px' }}>
+            <div style={{ textAlign: 'center', padding: '3rem', color: '#a39cc2', background: 'rgba(0,0,0,0.1)', borderRadius: '8px' }}>
               К вашей компании пока не привязан ни один сотрудник.
               <br/><br/>
               Чтобы добавить сотрудника, передайте ему ваш <strong>ID Компании</strong> (скопируйте выше).<br/> При самостоятельной регистрации на портале он сможет ввести этот код и автоматически присоединиться к вашей фирме.
@@ -198,7 +198,7 @@ export default function CompanyDashboardPage({ currentUser, initialTab = 'profil
                     </div>
                     <div>
                       <div style={{ color: '#fff', fontWeight: 'bold' }}>{emp.name}</div>
-                      <div style={{ color: '#94a3b8', fontSize: '0.85rem' }}>{emp.email} • Роль: {emp.role}</div>
+                      <div style={{ color: '#a39cc2', fontSize: '0.85rem' }}>{emp.email} • Роль: {emp.role}</div>
                     </div>
                   </div>
                   <div style={{ color: settings.primaryColor, fontWeight: 'bold', fontSize: '0.9rem', background: `${settings.primaryColor}1A`, padding: '0.25rem 0.75rem', borderRadius: '99px' }}>
@@ -217,7 +217,7 @@ export default function CompanyDashboardPage({ currentUser, initialTab = 'profil
             <div key={idx} style={{ background: 'rgba(255,255,255,0.05)', borderRadius: '16px', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', border: `1px solid ${settings.primaryColor}33` }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <span style={{ fontSize: '1.5rem' }}>{s.icon}</span>
-                <span style={{ color: '#94a3b8', fontSize: '0.9rem', fontWeight: 'bold' }}>{s.label}</span>
+                <span style={{ color: '#a39cc2', fontSize: '0.9rem', fontWeight: 'bold' }}>{s.label}</span>
               </div>
               <div style={{ fontSize: '2.5rem', fontWeight: 'bold', color: s.color }}>{s.value}</div>
             </div>
@@ -238,7 +238,7 @@ export default function CompanyDashboardPage({ currentUser, initialTab = 'profil
                 Основной цвет (Branding)
               </label>
               <div style={{ display: 'flex', gap: '1rem' }}>
-                {['#0ea5e9', '#10b981', '#f59e0b', '#ef4444', '#2563eb', '#38bdf8'].map(color => (
+                {['#a78bfa', '#10b981', '#f59e0b', '#ef4444', '#7c3aed', '#b9a4ff'].map(color => (
                   <button
                     key={color}
                     onClick={() => handleSaveSettings({ ...settings, primaryColor: color })}
@@ -252,7 +252,7 @@ export default function CompanyDashboardPage({ currentUser, initialTab = 'profil
                   />
                 ))}
               </div>
-              <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginTop: '0.5rem' }}>
+              <p style={{ color: '#a39cc2', fontSize: '0.85rem', marginTop: '0.5rem' }}>
                 Этот цвет будет применяться ко всем кнопкам, акцентам и иконкам в вашем дашборде.
               </p>
             </div>
@@ -273,7 +273,7 @@ export default function CompanyDashboardPage({ currentUser, initialTab = 'profil
                   />
                   <div>
                     <div style={{ color: '#fff', fontWeight: 'bold' }}>Вкладка "Сотрудники"</div>
-                    <div style={{ color: '#94a3b8', fontSize: '0.85rem' }}>Показывать список инженеров и мастеров, привязанных к фирме.</div>
+                    <div style={{ color: '#a39cc2', fontSize: '0.85rem' }}>Показывать список инженеров и мастеров, привязанных к фирме.</div>
                   </div>
                 </label>
 
@@ -286,7 +286,7 @@ export default function CompanyDashboardPage({ currentUser, initialTab = 'profil
                   />
                   <div>
                     <div style={{ color: '#fff', fontWeight: 'bold' }}>Вкладка "Статистика"</div>
-                    <div style={{ color: '#94a3b8', fontSize: '0.85rem' }}>Аналитика по количеству объектов и статусу работ.</div>
+                    <div style={{ color: '#a39cc2', fontSize: '0.85rem' }}>Аналитика по количеству объектов и статусу работ.</div>
                   </div>
                 </label>
 

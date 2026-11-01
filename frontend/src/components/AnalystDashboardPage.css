@@ -8,7 +8,7 @@
   max-width: 1440px;
   margin: 0 auto;
   padding: 1.5rem 1rem 4rem;
-  color: #f1f5f9;
+  color: #f5f3ff;
   font-family: inherit;
   box-sizing: border-box;
 }
@@ -39,7 +39,7 @@
   background: linear-gradient(135deg,
     rgba(139,92,246,.14) 0%,
     rgba(99,102,241,.10) 50%,
-    rgba(14,165,233,.08) 100%);
+    rgba(167,139,250,.08) 100%);
   border: 1px solid rgba(139,92,246,.30);
   border-radius: 24px;
   padding: 2rem 2.25rem;
@@ -79,7 +79,7 @@
   -webkit-text-fill-color: transparent;
 }
 .analyst-hero-desc {
-  color: #94a3b8;
+  color: #a39cc2;
   font-size: .88rem;
   margin: 0;
   max-width: 640px;
@@ -107,7 +107,7 @@
   margin-bottom: 1.75rem;
 }
 .analyst-stat-card {
-  background: rgba(15,23,42,.75);
+  background: rgba(21,18,42,.75);
   border: 1px solid rgba(255,255,255,.08);
   border-radius: 16px;
   padding: 1.15rem 1.25rem;
@@ -137,7 +137,7 @@
 }
 .analyst-stat-label {
   font-size: .78rem;
-  color: #94a3b8;
+  color: #a39cc2;
   font-weight: 600;
   margin-top: 2px;
 }
@@ -152,7 +152,7 @@
 .analyst-tab {
   background: rgba(255,255,255,.04);
   border: 1px solid rgba(255,255,255,.10);
-  color: #94a3b8;
+  color: #a39cc2;
   padding: 9px 18px;
   border-radius: 12px;
   font-size: .88rem;
@@ -160,7 +160,7 @@
   cursor: pointer;
   transition: all .2s ease;
 }
-.analyst-tab:hover { background: rgba(255,255,255,.10); color: #e2e8f0; }
+.analyst-tab:hover { background: rgba(255,255,255,.10); color: #ece9f8; }
 .analyst-tab.active {
   background: linear-gradient(135deg, rgba(139,92,246,.22), rgba(99,102,241,.22));
   border-color: #8b5cf6;
@@ -175,7 +175,7 @@
   gap: 1rem;
 }
 .analyst-order-card {
-  background: linear-gradient(155deg, rgba(15,23,42,.90), rgba(10,14,28,.95));
+  background: linear-gradient(155deg, rgba(21,18,42,.90), rgba(10,14,28,.95));
   border: 1.5px solid rgba(255,255,255,.08);
   border-radius: 18px;
   padding: 1.25rem 1.5rem;
@@ -199,7 +199,7 @@
   box-shadow: 0 16px 40px rgba(0,0,0,.55), 0 0 20px rgba(139,92,246,.15);
 }
 .analyst-order-card.status-pending { --status-color: #f59e0b; }
-.analyst-order-card.status-review { --status-color: #3b82f6; }
+.analyst-order-card.status-review { --status-color: #8b5cf6; }
 .analyst-order-card.status-done { --status-color: #10b981; }
 
 .analyst-order-head {
@@ -216,7 +216,7 @@
 }
 .analyst-order-id {
   font-size: .75rem;
-  color: #64748b;
+  color: #8a82a8;
   font-weight: 600;
 }
 .analyst-order-status-pill {
@@ -227,7 +227,7 @@
   text-transform: uppercase;
 }
 .analyst-order-status-pill.pending { background: rgba(245,158,11,.15); color: #fbbf24; border: 1px solid rgba(245,158,11,.3); }
-.analyst-order-status-pill.review { background: rgba(59,130,246,.15); color: #60a5fa; border: 1px solid rgba(59,130,246,.3); }
+.analyst-order-status-pill.review { background: rgba(139,92,246,.15); color: #c4b5fd; border: 1px solid rgba(139,92,246,.3); }
 .analyst-order-status-pill.done { background: rgba(16,185,129,.15); color: #6ee7b7; border: 1px solid rgba(16,185,129,.3); }
 
 .analyst-order-meta {
@@ -235,10 +235,10 @@
   gap: 1.5rem;
   flex-wrap: wrap;
   font-size: .82rem;
-  color: #94a3b8;
+  color: #a39cc2;
   margin-bottom: .75rem;
 }
-.analyst-order-meta strong { color: #e2e8f0; }
+.analyst-order-meta strong { color: #ece9f8; }
 
 .analyst-order-footer {
   display: flex;
@@ -249,7 +249,7 @@
 }
 .analyst-files-count {
   font-size: .78rem;
-  color: #94a3b8;
+  color: #a39cc2;
   display: flex;
   align-items: center;
   gap: 4px;
@@ -274,7 +274,7 @@
 }
 .analyst-btn.outline {
   background: rgba(255,255,255,.06);
-  color: #cbd5e1;
+  color: #cbc5e3;
   border: 1px solid rgba(255,255,255,.12);
 }
 .analyst-btn.outline:hover { background: rgba(255,255,255,.12); }
@@ -306,7 +306,7 @@
   width: 95%;
   max-width: 900px;
   max-height: 90vh;
-  background: linear-gradient(180deg, #0f172a, #0a0e1c);
+  background: linear-gradient(180deg, #15122a, #0a0e1c);
   border: 1px solid rgba(139,92,246,.25);
   border-radius: 24px;
   display: flex;
@@ -332,7 +332,7 @@
 .analyst-modal-close {
   background: rgba(255,255,255,.06);
   border: 1px solid rgba(255,255,255,.10);
-  color: #94a3b8;
+  color: #a39cc2;
   width: 34px; height: 34px;
   border-radius: 10px;
   cursor: pointer;
@@ -360,7 +360,7 @@
   position: absolute;
   left: 14px; top: 0;
   width: 3px; height: 100%;
-  background: linear-gradient(to bottom, #8b5cf6, #6366f1, #3b82f6, #10b981);
+  background: linear-gradient(to bottom, #8b5cf6, #6366f1, #8b5cf6, #10b981);
   border-radius: 2px;
 }
 .analyst-step {
@@ -373,7 +373,7 @@
   width: 20px; height: 20px;
   border-radius: 50%;
   background: var(--dot-color, #8b5cf6);
-  border: 3px solid #0f172a;
+  border: 3px solid #15122a;
   box-shadow: 0 0 10px var(--dot-color, rgba(139,92,246,.5));
   display: flex; align-items: center; justify-content: center;
   font-size: .55rem; color: #fff;
@@ -394,13 +394,13 @@
 }
 .analyst-step-text {
   font-size: .88rem;
-  color: #e2e8f0;
+  color: #ece9f8;
   line-height: 1.5;
   margin: 0;
 }
 .analyst-step-date {
   font-size: .72rem;
-  color: #64748b;
+  color: #8a82a8;
   margin-top: 4px;
 }
 

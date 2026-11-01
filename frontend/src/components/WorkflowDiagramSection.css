@@ -152,7 +152,7 @@
 
 /* Internal Mock UI Cards (Premium Glassmorphism) */
 .mock-ui-card {
-  background: linear-gradient(145deg, rgba(15, 23, 42, 0.75), rgba(10, 12, 18, 0.9));
+  background: linear-gradient(145deg, rgba(21, 18, 42, 0.75), rgba(10, 12, 18, 0.9));
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 16px;
   padding: 1.25rem;
@@ -185,7 +185,7 @@
 }
 
 .mock-field-label {
-  color: #94a3b8;
+  color: #a39cc2;
   font-weight: 600;
   margin-bottom: 0.4rem;
   font-size: 0.75rem;
@@ -227,7 +227,7 @@
 }
 
 .mock-field-value {
-  color: #cbd5e1;
+  color: #cbc5e3;
   font-weight: 500;
   padding: 0.6rem 0.8rem;
   background: rgba(255, 255, 255, 0.03);
@@ -278,7 +278,7 @@
 
 .locked-text {
   font-size: 0.75rem;
-  color: #94a3b8;
+  color: #a39cc2;
 }
 
 .estimate-badge {
@@ -343,14 +343,14 @@
 
 .resource-name {
   font-size: 0.8rem;
-  color: #e2e8f0;
+  color: #ece9f8;
   font-weight: 500;
   margin-bottom: 0.1rem;
 }
 
 .resource-date {
   font-size: 0.7rem;
-  color: #64748b;
+  color: #8a82a8;
 }
 
 .check-icon {
@@ -374,14 +374,14 @@
 
 .cal-day-header {
   font-size: 0.6rem;
-  color: #64748b;
+  color: #8a82a8;
   margin-bottom: 0.25rem;
 }
 
 .cal-day-date {
   font-size: 0.9rem;
   font-weight: 600;
-  color: #e2e8f0;
+  color: #ece9f8;
 }
 
 .cal-slot {
@@ -392,9 +392,9 @@
   text-align: left;
 }
 
-.slot-blue { background: rgba(0, 163, 255, 0.15); border-left: 2px solid #00a3ff; color: #cbd5e1; }
-.slot-amber { background: rgba(255, 170, 0, 0.15); border-left: 2px solid #ffaa00; color: #cbd5e1; }
-.slot-green { background: rgba(0, 255, 136, 0.15); border-left: 2px solid #00ff88; color: #cbd5e1; }
+.slot-blue { background: rgba(0, 163, 255, 0.15); border-left: 2px solid #00a3ff; color: #cbc5e3; }
+.slot-amber { background: rgba(255, 170, 0, 0.15); border-left: 2px solid #ffaa00; color: #cbc5e3; }
+.slot-green { background: rgba(0, 255, 136, 0.15); border-left: 2px solid #00ff88; color: #cbc5e3; }
 
 .status-row {
   margin-top: 1rem;
@@ -496,13 +496,13 @@
 .feature-badge-text h4 {
   margin: 0 0 0.2rem;
   font-size: 0.9rem;
-  color: #e2e8f0;
+  color: #ece9f8;
 }
 
 .feature-badge-text p {
   margin: 0;
   font-size: 0.75rem;
-  color: #64748b;
+  color: #8a82a8;
   line-height: 1.4;
 }
 
@@ -554,7 +554,7 @@
 }
 
 .interactive-field input:disabled {
-  color: #94a3b8;
+  color: #a39cc2;
 }
 
 .interactive-btn {

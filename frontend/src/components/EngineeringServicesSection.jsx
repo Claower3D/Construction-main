@@ -36,7 +36,7 @@ export default function EngineeringServicesSection() {
         { icon: '🎯', text: 'Вынос главных осей в натуру' },
         { icon: '🛰️', text: 'Лазерное 3D-сканирование' },
       ],
-      themeGlow: 'rgba(6, 182, 212, 0.15)',
+      themeGlow: 'rgba(167, 139, 250, 0.15)',
     },
     {
       id: 'cpt',
