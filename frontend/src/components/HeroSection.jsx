@@ -1,7 +1,7 @@
 import React from 'react';
 import { Apple, Smartphone, ShieldCheck, Clock3, ScanSearch, Package } from 'lucide-react';
 import { startFlow, scrollToSection } from '../utils/navigate';
-import BlueprintHouse from './BlueprintHouse';
+import HeroHouse from './HeroHouse';
 import { LightTrails, Sparkles as FxSparkles } from './LuxFx';
 
 /*
@@ -61,7 +61,7 @@ export default function HeroSection({ role, currentUser }) {
           </div>
 
           <div className="hx-art">
-            <BlueprintHouse />
+            <HeroHouse />
           </div>
         </div>
 

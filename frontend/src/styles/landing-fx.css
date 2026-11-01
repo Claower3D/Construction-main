@@ -428,7 +428,7 @@
 }
 .hx-lead { margin: 0 0 30px; max-width: 52ch; color: var(--qg-text-2); font-size: 1.0625rem; line-height: 1.65; }
 .hx-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 22px; }
-.hx-btn { min-height: 52px; padding-inline: 22px; gap: 10px; }
+.hx-btn { min-height: 52px; padding-inline: 20px; gap: 10px; }
 .hx-kbd {
   display: inline-flex;
   align-items: center;
@@ -504,3 +504,51 @@ a.hx-app-chip:hover { border-color: var(--lux-gold); color: var(--lux-gold); }
   .hx-stat-value { font-size: 1.6rem; }
 }
 @media (prefers-reduced-motion: reduce) { .bh-scan, .bh-pulse { animation: none; } }
+
+/* ── Дом-рендер с чертежом ── */
+.hx-grid { grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr) !important; }
+.hx-art { margin-right: calc(-1 * clamp(0px, 7vw, 130px)) !important; margin-left: -2vw; }
+.hx-art::before { inset: 10% 0 0 10% !important; background: radial-gradient(50% 50% at 55% 55%, rgba(150, 80, 255, 0.35), transparent 70%) !important; }
+.hh { position: relative; margin: 0; }
+.hh-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 7%, #000 92%, transparent 100%), linear-gradient(180deg, transparent 0%, #000 7%, #000 84%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-image: linear-gradient(90deg, transparent 0%, #000 7%, #000 92%, transparent 100%), linear-gradient(180deg, transparent 0%, #000 7%, #000 84%, transparent 100%);
+  mask-composite: intersect;
+}
+.hh-lines { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+.hh-pulse { transform-box: fill-box; transform-origin: center; animation: bh-pulse 2.4s ease-out infinite; }
+.hh-label {
+  position: absolute;
+  width: auto;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid rgba(201, 182, 255, 0.55);
+  border-radius: 10px;
+  background: rgba(14, 11, 32, 0.82);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  color: #f3f1f9;
+  font-size: clamp(0.6875rem, 0.55rem + 0.3vw, 0.8125rem);
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+  box-shadow: 0 0 24px -8px rgba(160, 90, 255, 0.7);
+}
+.hh-label i { flex: none; width: 7px; height: 7px; border-radius: 50%; background: #fff; box-shadow: 0 0 8px #fff; }
+@media (max-width: 1024px) {
+  .hx-grid { grid-template-columns: minmax(0, 1fr) !important; }
+  .hx-art { margin-right: 0 !important; }
+}
+@media (max-width: 560px) {
+  .hh-label { width: auto; padding: 5px 8px; font-size: 0.625rem; gap: 5px; }
+  .hh-lines polyline { display: none; }
+  .hh-label { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { .hh-pulse { animation: none; } }
