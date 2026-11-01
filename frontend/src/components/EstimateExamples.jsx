@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { CheckCircle2, Download, ArrowRight } from 'lucide-react';
 import { startFlow } from '../utils/navigate';
+import { WaveMesh, PdfDoc } from './LuxFx';
 
 /*
  * «Как выглядит смета»: четыре реальных примера расчёта по базе ГЭСН РК.
@@ -103,7 +104,8 @@ export default function EstimateExamples() {
   };
 
   return (
-    <section className="lux-section" id="examples" aria-labelledby="lux-examples-title">
+    <section className="lux-section lux-section--mesh" id="examples" aria-labelledby="lux-examples-title">
+      <WaveMesh seed={5} className="fx-mesh--examples" />
       <div className="qg-container lux-examples">
         <div className="lux-examples-copy">
           <header className="lux-head">
@@ -118,6 +120,8 @@ export default function EstimateExamples() {
           </ul>
         </div>
 
+        <div className="lux-doc-wrap">
+        <span className="lux-doc-float"><PdfDoc big label="Смета PDF" /></span>
         <article className="lux-glass lux-doc">
           <div className="lux-doc-bar">
             <div className="lux-tabs" role="tablist" aria-label="Примеры смет">
@@ -183,6 +187,7 @@ export default function EstimateExamples() {
             </div>
           </footer>
         </article>
+        </div>
       </div>
     </section>
   );

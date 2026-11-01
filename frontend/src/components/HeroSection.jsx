@@ -1,6 +1,7 @@
 import React from 'react';
 import { Sparkles, PlayCircle, Zap, Package, MapPin, FileText, FolderOpen, Camera, ClipboardList, Store, Download } from 'lucide-react';
 import { startFlow, scrollToSection } from '../utils/navigate';
+import { LightTrails, Sparkles as FxSparkles, Ground } from './LuxFx';
 
 /*
  * Первый экран: слева — обещание и главное действие, справа — ноутбук
@@ -37,6 +38,8 @@ export default function HeroSection({ role, currentUser }) {
   return (
     <section className="lux-hero" id="hero" aria-labelledby="lux-hero-title">
       <div className="lux-hero-bg" aria-hidden="true" />
+      <LightTrails variant="hero" className="fx-trails--hero" />
+      <FxSparkles count={34} seed={11} />
       <div className="qg-container lux-hero-grid">
         <div className="lux-hero-copy">
           <p className="lux-pill"><Sparkles size={15} aria-hidden="true" /> AI для строительства и ремонта</p>
@@ -112,6 +115,7 @@ export default function HeroSection({ role, currentUser }) {
             </div>
             <div className="lux-base" />
           </div>
+          <Ground className="fx-ground--hero" />
         </div>
       </div>
     </section>

@@ -1,0 +1,367 @@
+/* ════════════════════════════════════════════════════════════════════
+   Эффекты главной по макету: световые шлейфы, волновой рельеф, искры,
+   светящиеся рамки панелей, «3D»-объекты на CSS, подсвеченный склон.
+   Всё декоративное — aria-hidden и pointer-events: none.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ── Световые шлейфы ── */
+.fx-trails {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+.fx-trails--hero { inset: 8% 0 auto 0; height: 125%; opacity: 0.9; }
+.fx-trails--geo { inset: 30% 0 0 0; height: 70%; opacity: 0.7; }
+.fx-trails--card { z-index: 0; opacity: 0.55; }
+.fx-trail-line {
+  stroke-dasharray: 260 1400;
+  animation: fx-flow 9s linear infinite;
+}
+@keyframes fx-flow { from { stroke-dashoffset: 1660; } to { stroke-dashoffset: 0; } }
+
+/* ── Волновой рельеф ── */
+.fx-mesh {
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+  -webkit-mask-image: radial-gradient(60% 70% at 60% 60%, #000 30%, transparent 75%);
+  mask-image: radial-gradient(60% 70% at 60% 60%, #000 30%, transparent 75%);
+}
+.fx-mesh--examples { left: 0; right: 0; bottom: -6%; width: 100%; height: 75%; }
+.fx-mesh--catalog { left: 0; right: 0; top: 0; width: 100%; height: 55%; opacity: 0.55; transform: scaleY(-1); }
+.fx-mesh--aud { left: 0; right: 0; bottom: -20%; width: 100%; height: 90%; opacity: 0.6; }
+
+/* ── Искры ── */
+.fx-sparkles { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+.fx-sparkles span {
+  position: absolute;
+  border-radius: 50%;
+  background: #e9d5ff;
+  box-shadow: 0 0 6px 2px rgba(192, 132, 252, 0.8);
+  opacity: 0.2;
+  animation: fx-twinkle 5s ease-in-out infinite;
+}
+.fx-sparkles span.is-gold { background: #ffe1a1; box-shadow: 0 0 6px 2px rgba(242, 184, 75, 0.85); }
+@keyframes fx-twinkle {
+  0%, 100% { opacity: 0.15; transform: scale(0.7); }
+  50% { opacity: 0.95; transform: scale(1.15); }
+}
+
+/* ── Склон под ноутбуком ── */
+.fx-ground { position: absolute; pointer-events: none; }
+.fx-ground--hero {
+  position: relative !important;
+  display: block;
+  width: 124%;
+  height: 150px;
+  margin: -46px 0 -60px -12%;
+  z-index: -1;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 14%, #000 88%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 14%, #000 88%, transparent);
+}
+.lux-device { isolation: isolate; }
+.lux-device::after {
+  /* световое пятно у основания ноутбука */
+  content: '';
+  position: absolute;
+  left: 8%;
+  right: 4%;
+  bottom: -2%;
+  height: 22%;
+  z-index: -1;
+  background:
+    radial-gradient(40% 60% at 55% 60%, rgba(255, 196, 110, 0.45), transparent 70%),
+    radial-gradient(60% 80% at 40% 70%, rgba(170, 80, 255, 0.5), transparent 70%);
+  filter: blur(14px);
+}
+
+/* ── Заголовок первого экрана: лёгкий перелив белого в сирень ── */
+.lux-hero-title {
+  background: linear-gradient(180deg, #ffffff 30%, #d9c9ff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.lux-hero-title .lux-gold { filter: drop-shadow(0 4px 24px rgba(242, 184, 75, 0.35)); }
+
+/* ── Светящиеся рамки стеклянных панелей ── */
+.lux-glass { isolation: isolate; }
+.lux-glass::before {
+  /* градиентная рамка: сирень сверху слева, золото и розовый внизу */
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  padding: 1px;
+  border-radius: inherit;
+  background: linear-gradient(150deg, rgba(220, 200, 255, 0.55), rgba(150, 100, 255, 0.12) 35%, rgba(150, 100, 255, 0.08) 60%, rgba(255, 200, 120, 0.85) 88%, rgba(244, 114, 208, 0.9));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  pointer-events: none;
+}
+.lux-glass::after {
+  /* световой блик по нижней кромке */
+  content: '';
+  position: absolute;
+  left: 12%;
+  right: 6%;
+  bottom: -1px;
+  z-index: 2;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, transparent, rgba(255, 207, 122, 0.95) 40%, rgba(244, 114, 208, 0.95) 75%, transparent);
+  box-shadow: 0 0 14px 3px rgba(236, 120, 220, 0.45), 0 0 30px 6px rgba(170, 80, 255, 0.25);
+  pointer-events: none;
+}
+.lux-glass { border-color: transparent !important; }
+.lux-glass {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 30px 60px -30px rgba(0, 0, 0, 0.9),
+    0 0 60px -18px rgba(160, 80, 255, 0.6) !important;
+}
+.lux-glass--gold::before {
+  background: linear-gradient(150deg, rgba(255, 220, 150, 0.85), rgba(242, 184, 75, 0.25) 35%, rgba(150, 100, 255, 0.15) 60%, rgba(255, 200, 120, 0.9) 85%, rgba(244, 114, 208, 0.9));
+}
+.lux-glass--gold {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 30px 70px -30px rgba(0, 0, 0, 0.9),
+    0 0 70px -16px rgba(242, 184, 75, 0.55),
+    0 0 90px -30px rgba(200, 90, 255, 0.6) !important;
+}
+.lux-glass:hover::after { box-shadow: 0 0 18px 4px rgba(236, 120, 220, 0.6), 0 0 40px 8px rgba(170, 80, 255, 0.35); }
+
+/* рамка у плиток каталога */
+.lux-cat::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  padding: 1px;
+  border-radius: inherit;
+  background: linear-gradient(150deg, rgba(255, 220, 170, 0.75), rgba(150, 100, 255, 0.1) 40%, rgba(150, 100, 255, 0.1) 70%, rgba(244, 114, 208, 0.7));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  pointer-events: none;
+}
+.lux-cat { border-color: transparent !important; box-shadow: 0 20px 40px -24px rgba(0, 0, 0, 0.9), 0 0 40px -20px rgba(170, 80, 255, 0.55); }
+.lux-cat:hover { box-shadow: 0 20px 40px -24px rgba(0, 0, 0, 0.9), 0 0 50px -14px rgba(242, 184, 75, 0.55); }
+.lux-cat img { filter: saturate(1.1) brightness(1.08); }
+
+/* кнопки: золотое свечение как в макете */
+.qg-btn--primary { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55), 0 10px 34px -8px rgba(242, 184, 75, 0.8), 0 0 50px -10px rgba(255, 170, 60, 0.55) !important; }
+
+/* ── «3D»-объекты ── */
+.lux-feature { overflow: visible !important; padding-right: 118px !important; }
+.lux-feature-art {
+  position: absolute !important;
+  top: -26px;
+  right: -10px;
+  z-index: 3 !important;
+  width: 170px;
+  height: 140px;
+  pointer-events: none;
+  transform: scale(0.88);
+  transform-origin: top right;
+}
+
+/* стопка фото */
+.fx-photos { position: absolute; inset: 0; perspective: 600px; }
+.fx-photos span {
+  position: absolute;
+  width: 108px;
+  height: 80px;
+  border: 5px solid #efe9fb;
+  border-bottom-width: 14px;
+  border-radius: 4px;
+  background: #2a2050 center / cover no-repeat;
+  box-shadow: 0 18px 30px -8px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 210, 150, 0.4), 0 0 26px -6px rgba(242, 184, 75, 0.5);
+}
+.fx-photos span:nth-child(1) { left: 14px; top: 34px; transform: rotate(-16deg) rotateY(18deg); filter: brightness(0.75); }
+.fx-photos span:nth-child(2) { left: 40px; top: 18px; transform: rotate(-4deg) rotateY(14deg); filter: brightness(0.9); }
+.fx-photos span:nth-child(3) { left: 62px; top: 32px; transform: rotate(9deg) rotateY(-10deg); }
+.fx-photos--sm span { width: 78px; height: 58px; border-width: 4px 4px 10px; }
+.fx-photos--sm span:nth-child(1) { left: 10px; top: 28px; }
+.fx-photos--sm span:nth-child(2) { left: 30px; top: 12px; }
+.fx-photos--sm span:nth-child(3) { left: 50px; top: 26px; }
+
+/* каска */
+.fx-helmet {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  width: 150px;
+  height: auto;
+  transform: rotate(-12deg);
+  filter: drop-shadow(0 20px 22px rgba(0, 0, 0, 0.6)) drop-shadow(0 0 22px rgba(242, 160, 60, 0.45));
+}
+
+/* документ PDF */
+.fx-doc { position: absolute; right: 18px; top: 6px; width: 110px; height: 130px; transform: rotate(14deg) perspective(500px) rotateY(-16deg); }
+.fx-doc-sheet {
+  position: absolute;
+  inset: 0;
+  border-radius: 10px;
+  background: linear-gradient(160deg, #f6f1ff, #c9b8f6 70%, #9b84e6);
+  box-shadow: 0 20px 34px -10px rgba(0, 0, 0, 0.7), 0 0 30px -6px rgba(190, 140, 255, 0.7), inset 0 1px 0 #fff;
+  overflow: hidden;
+}
+.fx-doc-sheet::before {
+  /* загнутый уголок */
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 26px;
+  height: 26px;
+  background: linear-gradient(225deg, transparent 50%, #b9a6ee 50%);
+  box-shadow: -2px 2px 4px rgba(60, 30, 120, 0.25);
+}
+.fx-doc-sheet--back { transform: translate(-12px, 8px) rotate(-8deg); filter: brightness(0.78); }
+.fx-doc-lines {
+  position: absolute;
+  left: 14px;
+  right: 22px;
+  top: 22px;
+  height: 46px;
+  background: repeating-linear-gradient(180deg, rgba(90, 60, 170, 0.35) 0 3px, transparent 3px 10px);
+  border-radius: 2px;
+}
+.fx-doc-badge {
+  position: absolute;
+  left: 12px;
+  bottom: 14px;
+  padding: 4px 9px;
+  border-radius: 6px;
+  background: linear-gradient(180deg, #ff6b8a, #e23d64);
+  color: #fff;
+  font: 900 0.875rem/1 var(--qg-font);
+  letter-spacing: 0.02em;
+  box-shadow: 0 6px 14px -4px rgba(226, 61, 100, 0.7);
+}
+.fx-doc--big { width: 150px; height: 180px; transform: rotate(-12deg) perspective(600px) rotateY(18deg); }
+.fx-doc--big .fx-doc-badge {
+  left: auto;
+  right: -26px;
+  bottom: 30px;
+  padding: 8px 12px;
+  border: 1px solid rgba(242, 184, 75, 0.7);
+  background: linear-gradient(180deg, #2b2150, #17122f);
+  color: #ffe2a3;
+  font-size: 0.8125rem;
+  box-shadow: 0 10px 20px -6px rgba(0, 0, 0, 0.7), 0 0 20px -4px rgba(242, 184, 75, 0.7);
+  transform: rotate(10deg);
+}
+
+/* AI-чип */
+.fx-chip {
+  position: absolute;
+  right: 22px;
+  top: 6px;
+  width: 92px;
+  height: 92px;
+  border-radius: 18px;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 9px, #f2b84b 9px 13px) top / 70% 8px no-repeat,
+    repeating-linear-gradient(90deg, transparent 0 9px, #f2b84b 9px 13px) bottom / 70% 8px no-repeat,
+    repeating-linear-gradient(0deg, transparent 0 9px, #f2b84b 9px 13px) left / 8px 70% no-repeat,
+    repeating-linear-gradient(0deg, transparent 0 9px, #f2b84b 9px 13px) right / 8px 70% no-repeat;
+  transform: perspective(500px) rotateX(18deg) rotateY(-22deg) rotate(-6deg);
+  filter: drop-shadow(0 0 18px rgba(255, 160, 80, 0.7)) drop-shadow(0 18px 20px rgba(0, 0, 0, 0.6));
+}
+.fx-chip-core {
+  position: absolute;
+  inset: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  border: 2px solid #ffcf7a;
+  background: radial-gradient(circle at 30% 25%, #5b3fb8, #1d1446 75%);
+  color: #fff;
+  font: 900 1.75rem/1 var(--qg-font);
+  font-style: italic;
+  text-shadow: 0 0 12px rgba(190, 150, 255, 0.9);
+  box-shadow: inset 0 0 18px rgba(170, 120, 255, 0.6), 0 0 24px rgba(255, 160, 80, 0.5);
+}
+
+/* документы с печатью */
+.fx-seal { position: absolute; right: 20px; top: 0; width: 92px; height: 110px; transform: rotate(10deg) perspective(500px) rotateY(-14deg); }
+.fx-seal-coin {
+  position: absolute;
+  right: -14px;
+  bottom: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 2px solid #ffe2a3;
+  background: radial-gradient(circle at 35% 30%, #ffe2a3, #e5a03a 60%, #9a5b12);
+  color: #5a3205;
+  font: 900 1.05rem/1 var(--qg-font);
+  box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.6), 0 0 18px rgba(242, 184, 75, 0.7);
+}
+
+/* шаги: объект над карточкой и стрелка между */
+.lux-step { overflow: visible; padding-top: 44px !important; }
+.lux-step + .lux-step::before { content: none !important; }
+.lux-step-art { position: absolute !important; top: -46px; right: 6px; width: 140px; height: 110px; pointer-events: none; z-index: 3 !important; }
+.lux-step-arrow {
+  position: absolute !important;
+  left: -34px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--lux-gold);
+  font-size: 1.75rem;
+  font-weight: 800;
+  text-shadow: 0 0 12px rgba(242, 184, 75, 0.8);
+}
+.lux-steps { margin-top: 40px !important; }
+
+/* «Так выглядит смета»: документ «Смета PDF» парит слева от таблицы */
+.lux-doc-wrap { position: relative; }
+.lux-doc-float { position: absolute; left: -150px; bottom: -30px; z-index: 3; width: 150px; height: 180px; pointer-events: none; }
+.lux-doc-float .fx-doc { right: auto; left: 0; top: 0; }
+.lux-section--mesh { overflow: hidden; }
+
+/* мобильный блок и CTA */
+.lux-app { isolation: isolate; box-shadow: 0 0 80px -20px rgba(170, 80, 255, 0.6), 0 0 60px -30px rgba(242, 184, 75, 0.6) !important; }
+.lux-phone { box-shadow: 0 0 0 1px rgba(242, 184, 75, 0.45), 0 40px 60px -20px rgba(0, 0, 0, 0.8), 0 0 60px -6px rgba(170, 80, 255, 0.7) !important; }
+.lux-cta { overflow: hidden; }
+
+/* иконки в плитках — подсветка */
+.lux-icon { box-shadow: 0 0 22px -4px rgba(242, 184, 75, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important; }
+
+/* ── Адаптив ── */
+@media (max-width: 1024px) {
+  .lux-doc-float { display: none; }
+  .lux-step-arrow { left: 50%; top: -30px; transform: translateX(-50%) rotate(90deg); }
+}
+@media (max-width: 720px) {
+  .lux-feature { padding-right: 26px !important; padding-top: 96px !important; }
+  .lux-feature-art { top: -14px; right: 4px; transform: scale(0.8); transform-origin: top right; }
+  .fx-ground--hero { bottom: -10%; }
+  .lux-step-art { transform: scale(0.8); transform-origin: top right; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fx-trail-line, .fx-sparkles span { animation: none !important; }
+  .fx-sparkles span { opacity: 0.6; }
+}
+
+.fx-doc--big .fx-doc-sheet:not(.fx-doc-sheet--back) { overflow: visible; }
+.lux-app > .fx-trails { position: absolute !important; z-index: 0 !important; }
+.fx-mesh path { filter: drop-shadow(0 0 3px rgba(200, 120, 255, 0.7)); }
+/* свет и склон не обрезаются по нижнему краю первого экрана */
+.lux-hero { overflow-x: clip !important; overflow-y: visible !important; }
+.lux-section { overflow-x: clip; }
+.lux-section--mesh, .lux-budget, .lux-geo { overflow-y: visible !important; overflow-x: clip !important; }

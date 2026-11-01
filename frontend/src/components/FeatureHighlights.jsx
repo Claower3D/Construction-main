@@ -1,34 +1,35 @@
 import React from 'react';
-import { Camera, Zap, Layers } from 'lucide-react';
-import { startFlow, navigateTo } from '../utils/navigate';
+import { Camera, Zap, FileText } from 'lucide-react';
+import { PhotoStack, HardHat3D, PdfDoc, Sparkles } from './LuxFx';
+import { startFlow } from '../utils/navigate';
 
 // Три результата, ради которых приходят на платформу. Только то, что сервис делает сейчас.
 const ITEMS = [
   {
     id: 'photo',
     icon: Camera,
-    title: 'Смета и акт по фото',
-    text: 'Загрузите фото объекта — сервис отметит трещины, посчитает объёмы и соберёт смету по нормам РК.',
+    title: 'Смета по фото за секунды',
+    text: 'Загрузите фото объекта — получите готовую смету с объёмами, ценами и стоимостью по нормам РК.',
     action: 'Рассчитать смету',
-    img: '/assets/landing/feat-photo.webp',
+    art: <PhotoStack />,
     onClick: () => startFlow('register'),
   },
   {
-    id: 'prices',
+    id: 'defects',
     icon: Zap,
-    title: 'Актуальные расценки',
-    text: '23 864 расценки ГЭСН РК и 10 425 материалов с поправкой на город и тип объекта.',
-    action: 'Открыть каталог',
-    img: '/assets/landing/feat-price.webp',
-    onClick: () => navigateTo('/materials'),
+    title: 'Акт дефектов автоматически',
+    text: 'Трещины на фото отмечаются рамкой, к акту добавляются норматив, описание и цена ремонта.',
+    action: 'Проверить дефект',
+    art: <HardHat3D />,
+    onClick: () => startFlow('register'),
   },
   {
     id: 'docs',
-    icon: Layers,
+    icon: FileText,
     title: 'Готовые документы',
-    text: 'Смета, ведомость материалов и акт дефектов в PDF и Excel — для согласования и подрядчика.',
+    text: 'Сметы, акты, ведомости и расчёты — в форматах PDF и Excel, для согласования и подрядчика.',
     action: 'Посмотреть пример',
-    img: '/assets/landing/feat-docs.webp',
+    art: <PdfDoc />,
     onClick: () => document.getElementById('examples')?.scrollIntoView({ behavior: 'smooth' }),
   },
 ];
@@ -36,15 +37,16 @@ const ITEMS = [
 export default function FeatureHighlights() {
   return (
     <section className="lux-section" aria-labelledby="lux-features-title">
+      <Sparkles count={18} seed={21} />
       <div className="qg-container">
         <header className="lux-head lux-head--center">
           <h2 id="lux-features-title">Что вы получаете</h2>
           <p>Полный набор инструментов для быстрой и точной оценки работ.</p>
         </header>
         <ul className="lux-features">
-          {ITEMS.map(({ id, icon: Icon, title, text, action, img, onClick }) => (
+          {ITEMS.map(({ id, icon: Icon, title, text, action, art, onClick }) => (
             <li key={id} className="lux-glass lux-feature">
-              <img className="lux-feature-img" src={img} alt="" loading="lazy" />
+              <span className="lux-feature-art">{art}</span>
               <span className="lux-icon"><Icon size={22} aria-hidden="true" /></span>
               <h3>{title}</h3>
               <p>{text}</p>

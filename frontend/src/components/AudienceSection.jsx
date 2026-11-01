@@ -1,5 +1,6 @@
 import React from 'react';
 import { HardHat, UserRound, Compass, ShieldCheck, Check } from 'lucide-react';
+import { WaveMesh } from './LuxFx';
 
 /*
  * Кому подходит платформа. Вместо отзывов (их пока нечем подтвердить) —
@@ -15,6 +16,7 @@ const ROLES = [
 export default function AudienceSection() {
   return (
     <section className="lux-section" id="audience" aria-labelledby="lux-aud-title">
+      <WaveMesh seed={13} lines={22} className="fx-mesh--aud" />
       <div className="qg-container">
         <header className="lux-head lux-head--center">
           <h2 id="lux-aud-title">Один сервис для всех на объекте</h2>
