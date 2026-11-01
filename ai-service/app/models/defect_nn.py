@@ -183,8 +183,9 @@ class DefectNNDetector:
     _instance = None
     _lock = threading.Lock()
 
-    WEIGHTS_FILE_V2 = "qazgost_defects_v2.pt"  # YOLO11-seg model
-    WEIGHTS_FILE_V1 = "qazgost_defects_v1.pt"  # YOLOv8-seg fallback
+    WEIGHTS_FILE_V26 = "qazgost_defects_v26.pt"  # yo26/2026 SOTA defect model
+    WEIGHTS_FILE_V2 = "qazgost_defects_v2.pt"    # YOLO11-seg model
+    WEIGHTS_FILE_V1 = "qazgost_defects_v1.pt"    # YOLOv8-seg fallback
 
     @classmethod
     def get(cls) -> "DefectNNDetector":
@@ -203,13 +204,17 @@ class DefectNNDetector:
         self._load_model()
 
     def _load_model(self):
-        """Load QazGost AI defect segmentation model (YOLO11-seg or YOLOv8-seg)."""
+        """Load QazGost AI defect segmentation model (yo26/2026, YOLO11-seg, or YOLOv8-seg)."""
         if not YOLO_SEG_AVAILABLE:
             logger.warning("[DefectNN] Ultralytics not available — fallback mode")
             return
 
-        # Check v2 weights first, then v1
-        for w_file, ver in [(self.WEIGHTS_FILE_V2, "v2 (YOLO11-seg)"), (self.WEIGHTS_FILE_V1, "v1 (YOLOv8-seg)")]:
+        # Check v26 (yo26/2026 SOTA) weights first, then v2, then v1
+        for w_file, ver in [
+            (self.WEIGHTS_FILE_V26, "v26 (yo26/2026 SOTA)"),
+            (self.WEIGHTS_FILE_V2, "v2 (YOLO11-seg)"),
+            (self.WEIGHTS_FILE_V1, "v1 (YOLOv8-seg)")
+        ]:
             weights_path = settings.get_model_path(w_file)
             if weights_path.exists():
                 try:

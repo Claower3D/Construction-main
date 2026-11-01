@@ -116,18 +116,37 @@ class ConstructionDetector:
             return
         
         try:
-            # Check for custom construction model first
-            custom_model_path = settings.get_model_path(settings.YOLO_CONSTRUCTION_MODEL)
-            
-            if custom_model_path.exists():
-                logger.info(f"Loading custom model: {custom_model_path}")
-                self.model = YOLO(str(custom_model_path))
-                self.model_name = settings.YOLO_CONSTRUCTION_MODEL
-            else:
-                # Fall back to base YOLOv8 model
-                logger.info(f"Loading base model: {self.model_path}")
-                self.model = YOLO(self.model_path)
-                self.model_name = self.model_path
+            # Check for custom construction model (v26 first, then v1 fallback)
+            candidates = [
+                settings.get_model_path(settings.YOLO_CONSTRUCTION_MODEL),
+                settings.get_model_path("qazgost_detector_v1.pt"),
+            ]
+            loaded_custom = False
+            for c_path in candidates:
+                if c_path.exists():
+                    logger.info(f"Loading custom model: {c_path}")
+                    self.model = YOLO(str(c_path))
+                    self.model_name = c_path.name
+                    loaded_custom = True
+                    break
+
+            if not loaded_custom:
+                # Load base model with graceful fallbacks (yo26 / yolo11 / yolov8)
+                base_candidates = [self.model_path, "yolo11m.pt", "yolov8m.pt"]
+                loaded_base = False
+                last_err = None
+                for b_name in base_candidates:
+                    try:
+                        logger.info(f"Loading base YOLO model: {b_name}")
+                        self.model = YOLO(b_name)
+                        self.model_name = b_name
+                        loaded_base = True
+                        break
+                    except Exception as err:
+                        last_err = err
+                        continue
+                if not loaded_base:
+                    raise last_err or RuntimeError("No YOLO model could be loaded")
             
             # Move to device
             self.model.to(self.device)
@@ -136,7 +155,7 @@ class ConstructionDetector:
             if self.device == "cuda" and settings.HALF_PRECISION:
                 self.model.model.half()
             
-            logger.info(f"✅ Model loaded on {self.device}")
+            logger.info(f"✅ Model ({self.model_name}) loaded on {self.device}")
             
         except Exception as e:
             logger.error(f"Failed to load model: {e}")
