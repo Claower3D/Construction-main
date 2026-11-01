@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { CheckCircle2, Download, ArrowRight } from 'lucide-react';
 import { startFlow } from '../utils/navigate';
 
 /*
@@ -102,89 +103,84 @@ export default function EstimateExamples() {
   };
 
   return (
-    <section className="pro-section" id="examples" aria-labelledby="pro-examples-title">
-      <div className="qg-container">
-        <header className="pro-head">
-          <h2 id="pro-examples-title">Так выглядит смета</h2>
-          <p>Объёмы, цены за единицу и итог по базе ГЭСН РК с коэффициентом вашего города. Ниже — четыре расчёта из практики.</p>
-        </header>
-
-        <div className="pro-doc-layout">
-          <div className="pro-tabs" role="tablist" aria-label="Примеры смет">
+    <section className="lux-section" id="examples" aria-labelledby="lux-examples-title">
+      <div className="qg-container lux-examples">
+        <div className="lux-examples-copy">
+          <header className="lux-head">
+            <h2 id="lux-examples-title">Так выглядит смета</h2>
+            <p>Прозрачная и готовая к работе — как у сметчика с опытом. Цены по базе ГЭСН РК с коэффициентом вашего города.</p>
+          </header>
+          <ul className="lux-checks">
+            <li><CheckCircle2 size={20} aria-hidden="true" />Расчёт объёмов по фото</li>
+            <li><CheckCircle2 size={20} aria-hidden="true" />Разбивка по видам работ и материалам</li>
+            <li><CheckCircle2 size={20} aria-hidden="true" />Цены 2026 года с поправкой на город</li>
+            <li><CheckCircle2 size={20} aria-hidden="true" />Итог и срок работ</li>
+          </ul>
+          <div className="lux-tabs" role="tablist" aria-label="Примеры смет">
             {SAMPLES.map((x, i) => (
               <button
                 key={x.id}
                 type="button"
                 role="tab"
-                id={`pro-tab-${x.id}`}
+                id={`lux-tab-${x.id}`}
                 aria-selected={i === active}
-                aria-controls="pro-doc"
+                aria-controls="lux-doc"
                 tabIndex={i === active ? 0 : -1}
-                className="pro-tab"
+                className="lux-tab"
                 onClick={() => setActive(i)}
                 onKeyDown={(e) => {
                   if (e.key === 'ArrowDown' || e.key === 'ArrowRight') { e.preventDefault(); setActive((active + 1) % SAMPLES.length); }
                   if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') { e.preventDefault(); setActive((active - 1 + SAMPLES.length) % SAMPLES.length); }
                 }}
               >
-                <span className="pro-tab-name">{x.tab}</span>
-                <span className="pro-tab-meta">{x.city}, {fmt(x.items.reduce((a, r) => a + r[3], 0))} ₸</span>
+                {x.tab}
               </button>
             ))}
           </div>
+        </div>
 
-          <article className="pro-doc" id="pro-doc" role="tabpanel" aria-labelledby={`pro-tab-${s.id}`}>
-            <header className="pro-doc-head">
-              <div>
-                <h3>{s.title}</h3>
-                <p>{s.size}. Срок работ около {s.days} дн.</p>
-              </div>
-              <dl className="pro-doc-meta">
-                <div><dt>Город</dt><dd>{s.city}</dd></div>
-                <div><dt>Коэффициент</dt><dd className="qg-num">×{s.coef}</dd></div>
-              </dl>
-            </header>
-
-            <div className="pro-table-wrap">
-              <table className="pro-table">
-                <thead>
-                  <tr>
-                    <th scope="col">Работа или материал</th>
-                    <th scope="col" className="num">Объём</th>
-                    <th scope="col" className="num">Цена за ед.</th>
-                    <th scope="col" className="num">Сумма, ₸</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {s.items.map(([name, qty, price, sum]) => (
-                    <tr key={name}>
-                      <th scope="row">{name}</th>
-                      <td className="num">{qty}</td>
-                      <td className="num">{fmt(price)} ₸</td>
-                      <td className="num">{fmt(sum)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-                <tfoot>
-                  <tr>
-                    <th scope="row" colSpan={2}>Итого по смете</th>
-                    <td aria-hidden="true" />
-                    <td className="num pro-total">{fmt(total)} ₸</td>
-                  </tr>
-                </tfoot>
-              </table>
+        <article className="lux-glass lux-doc" id="lux-doc" role="tabpanel" aria-labelledby={`lux-tab-${s.id}`}>
+          <header className="lux-doc-head">
+            <div>
+              <h3>{s.title}</h3>
+              <p>{s.city}, коэффициент ×{s.coef}. {s.size}, около {s.days} дн.</p>
             </div>
-
-            <footer className="pro-doc-foot">
+            <span className="lux-status">Готова</span>
+          </header>
+          <div className="lux-table-wrap">
+            <table className="lux-table">
+              <thead>
+                <tr>
+                  <th scope="col">Наименование работ</th>
+                  <th scope="col" className="num">Объём</th>
+                  <th scope="col" className="num">Цена за ед.</th>
+                  <th scope="col" className="num">Сумма, ₸</th>
+                </tr>
+              </thead>
+              <tbody>
+                {s.items.map(([name, qty, price, sum]) => (
+                  <tr key={name}>
+                    <th scope="row">{name}</th>
+                    <td className="num">{qty}</td>
+                    <td className="num">{fmt(price)} ₸</td>
+                    <td className="num">{fmt(sum)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <footer className="lux-doc-foot">
+            <p className="lux-doc-total"><span>Итого по смете</span><strong className="qg-num">{fmt(total)} ₸</strong></p>
+            <div className="lux-doc-actions">
               <button type="button" className="qg-btn qg-btn--ghost" onClick={download} disabled={busy}>
-                {busy ? 'Готовим файл…' : 'Скачать в Excel'}
+                <Download size={18} aria-hidden="true" />{busy ? 'Готовим файл…' : 'Скачать Excel'}
               </button>
               <button type="button" className="qg-btn qg-btn--primary" onClick={() => startFlow('register')}>
-                Рассчитать свой объект
+                Рассчитать свой объект <ArrowRight size={18} aria-hidden="true" />
               </button>
-            </footer>
-          </article>
-        </div>
+            </div>
+          </footer>
+        </article>
       </div>
     </section>
   );

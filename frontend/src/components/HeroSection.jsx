@@ -1,133 +1,118 @@
 import React from 'react';
-import { startFlow, scrollToSection, navigateTo } from '../utils/navigate';
+import { Sparkles, PlayCircle, Zap, Package, MapPin, FileText, FolderOpen, Camera, ClipboardList, Store, Download } from 'lucide-react';
+import { startFlow, scrollToSection } from '../utils/navigate';
 
 /*
- * Первый экран. Главный образ — лист заключения в рамке чертежа с основной
- * надписью (штампом), как его выдаёт сервис: стена с найденной трещиной,
- * размеры, норматив и цена ремонта. Это единственный «громкий» элемент
- * страницы; единственная анимация — однократный проход сканера по листу
- * и прорисовка трещины (отключается при prefers-reduced-motion).
+ * Первый экран: слева — обещание и главное действие, справа — ноутбук
+ * с экраном настоящей сметы поверх вечерней стройплощадки.
+ * Единственная анимация — однократная прорисовка трещины на чертеже
+ * (отключается при prefers-reduced-motion).
  */
 
 const PROOF = [
-  { value: '23 864', label: 'расценки ГЭСН РК' },
-  { value: '10 425', label: 'позиций материалов' },
-  { value: '11', label: 'городов с поправкой цены' },
+  { icon: Zap, value: '23 864', label: 'расценки ГЭСН РК' },
+  { icon: Package, value: '10 425', label: 'позиций материалов' },
+  { icon: MapPin, value: '11', label: 'городов с поправкой цены' },
+];
+
+const NAV = [
+  { icon: Camera, name: 'Новая оценка', active: true },
+  { icon: FolderOpen, name: 'Объекты' },
+  { icon: FileText, name: 'Сметы' },
+  { icon: ClipboardList, name: 'Акты дефектов' },
+  { icon: Store, name: 'Каталог услуг' },
+];
+
+const ROWS = [
+  ['Грунтовка стен', '42,6 м²', '6 390'],
+  ['Штукатурка стен', '42,6 м²', '51 120'],
+  ['Окраска в 2 слоя', '42,6 м²', '29 820'],
+  ['Устранение трещин', '12,4 п.м', '16 740'],
+  ['Вывоз мусора', '1 рейс', '12 000'],
 ];
 
 export default function HeroSection({ role, currentUser }) {
   const isExecutor = currentUser && (role === 'executor' || currentUser.role === 'executor');
 
   return (
-    <section className="pro-hero" id="hero" aria-labelledby="pro-hero-title">
-      <div className="qg-container pro-hero-grid">
-        <div className="pro-hero-copy">
-          <p className="pro-hero-kicker">
-            {isExecutor ? 'Для бригад и прорабов в Казахстане' : 'Для заказчиков, бригад и инженеров в Казахстане'}
-          </p>
-          <h1 className="pro-hero-title" id="pro-hero-title">
-            {isExecutor ? 'Заказы со сметой с первого дня' : 'Смета и акт дефектов по фото'}
+    <section className="lux-hero" id="hero" aria-labelledby="lux-hero-title">
+      <div className="lux-hero-bg" aria-hidden="true" />
+      <div className="qg-container lux-hero-grid">
+        <div className="lux-hero-copy">
+          <p className="lux-pill"><Sparkles size={15} aria-hidden="true" /> AI для строительства и ремонта</p>
+          <h1 className="lux-hero-title" id="lux-hero-title">
+            {isExecutor
+              ? <>Заказы со сметой <span className="lux-gold">с первого дня</span></>
+              : <>Смета и акт дефектов <span className="lux-gold">по фото</span></>}
           </h1>
-          <p className="pro-hero-lead">
+          <p className="lux-hero-lead">
             {isExecutor
               ? 'Заявки из вашего города, объёмы по базе ГЭСН РК и сдача этапов онлайн. Оплата заказчика заморожена в эскроу до приёмки.'
-              : 'Сфотографируйте стену, комнату или фасад. Сервис отметит трещины, посчитает объёмы и стоимость по нормам РК и подберёт бригаду в вашем городе.'}
+              : 'Сфотографируйте объект и получите смету и акт дефектов с объёмами, ценами и нормативами РК. Быстро, точно и по актуальным ценам 2026 года.'}
           </p>
-
-          <div className="pro-hero-actions">
-            <button type="button" className="qg-btn qg-btn--primary pro-btn-lg" onClick={() => startFlow('register')}>
-              {isExecutor ? 'Открыть ленту заказов' : 'Оценить объект по фото'}
+          <div className="lux-hero-actions">
+            <button type="button" className="qg-btn qg-btn--primary lux-btn-lg" onClick={() => startFlow('register')}>
+              {isExecutor ? 'Открыть ленту заказов' : 'Создать смету по фото'}
             </button>
-            <button type="button" className="qg-btn qg-btn--ghost pro-btn-lg" onClick={() => scrollToSection('examples')}>
-              Пример сметы
+            <button type="button" className="qg-btn qg-btn--ghost lux-btn-lg" onClick={() => scrollToSection('how-it-works')}>
+              <PlayCircle size={20} aria-hidden="true" /> Как это работает
             </button>
           </div>
-
-          <dl className="pro-proof">
-            {PROOF.map((p) => (
-              <div key={p.label}>
-                <dt>{p.label}</dt>
-                <dd className="qg-num">{p.value}</dd>
+          <dl className="lux-proof">
+            {PROOF.map(({ icon: Icon, value, label }) => (
+              <div key={label}>
+                <dd><Icon size={20} aria-hidden="true" /><span className="qg-num">{value}</span></dd>
+                <dt>{label}</dt>
               </div>
             ))}
           </dl>
         </div>
 
-        <figure className="pro-sheet" aria-labelledby="pro-sheet-caption">
-          <div className="pro-sheet-frame">
-            <svg className="pro-sheet-drawing" viewBox="0 0 480 290" role="img" aria-label="Схема стены: трещина отмечена рамкой с подписью «Трещина, 70%», размеры 2400 на 1800 мм">
-              <defs>
-                <pattern id="pro-hatch" width="9" height="9" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-                  <line x1="0" y1="0" x2="0" y2="9" stroke="rgba(189,178,230,0.13)" strokeWidth="1" />
-                </pattern>
-              </defs>
-              <g className="pro-dim">
-                <line x1="60" y1="26" x2="420" y2="26" />
-                <line x1="60" y1="18" x2="60" y2="52" />
-                <line x1="420" y1="18" x2="420" y2="52" />
-                <line x1="54" y1="32" x2="66" y2="20" />
-                <line x1="414" y1="32" x2="426" y2="20" />
-                <text x="240" y="20" textAnchor="middle">2 400</text>
-              </g>
-              <g className="pro-dim">
-                <line x1="36" y1="52" x2="36" y2="262" />
-                <line x1="28" y1="52" x2="60" y2="52" />
-                <line x1="28" y1="262" x2="60" y2="262" />
-                <line x1="30" y1="58" x2="42" y2="46" />
-                <line x1="30" y1="268" x2="42" y2="256" />
-                <text x="24" y="160" textAnchor="middle" transform="rotate(-90 24 160)">1 800</text>
-              </g>
-              <rect x="60" y="52" width="360" height="210" fill="url(#pro-hatch)" stroke="rgba(189,178,230,0.42)" strokeWidth="1.4" />
-              <rect x="290" y="92" width="90" height="96" fill="#120f20" stroke="rgba(189,178,230,0.42)" strokeWidth="1.2" />
-              <line x1="335" y1="92" x2="335" y2="188" stroke="rgba(189,178,230,0.28)" />
-              <path className="pro-crack" d="M176 58 L182 84 L174 106 L186 128 L180 152 L193 176 L187 200 L198 226 L192 258" />
-              <g className="pro-bbox">
-                <rect x="160" y="56" width="50" height="204" rx="2" />
-                <rect x="160" y="236" width="104" height="24" rx="3" className="pro-bbox-label" />
-                <text x="168" y="252">Трещина, 70%</text>
-              </g>
-              <g className="pro-leader">
-                <line x1="210" y1="120" x2="252" y2="96" />
-                <circle cx="210" cy="120" r="2.5" />
-                <text x="256" y="92">ширина 0,3 мм</text>
-              </g>
-              <rect className="pro-scan" x="60" y="52" width="360" height="3" />
-            </svg>
-
-            {/* Основная надпись — как штамп на листе чертежа */}
-            <dl className="pro-stamp">
-              <div className="pro-stamp-title">
-                <dt>Объект</dt>
-                <dd>Стена по оси Б, 2-й этаж</dd>
-              </div>
-              <div>
-                <dt>Дефект</dt>
-                <dd>Трещина, высокий риск</dd>
-              </div>
-              <div>
-                <dt>Норматив</dt>
-                <dd className="qg-code">ГОСТ 31937-2011</dd>
-              </div>
-              <div className="pro-stamp-price">
-                <dt>Ремонт</dt>
-                <dd className="qg-num">40 800 – 66 300 ₸</dd>
-              </div>
-              <div>
-                <dt>Акт</dt>
-                <dd className="qg-code">DEF-0412</dd>
-              </div>
-              <div>
-                <dt>Лист</dt>
-                <dd className="qg-num">1 из 3</dd>
-              </div>
-            </dl>
+        <div className="lux-device" aria-label="Пример экрана сервиса: смета по фото с чертежом стены и итогами расчёта" role="img">
+          <div className="lux-ai-chip" aria-hidden="true">
+            <span className="lux-ai-mark">AI</span>
+            <span className="lux-ai-steps"><span>Анализ фото</span><span>Расчёт объёмов</span><span>Готовая смета</span></span>
           </div>
-          <figcaption id="pro-sheet-caption" className="pro-sheet-caption">
-            Пример заключения. Модель обучена на трещинах; остальные дефекты подтверждает инженер.
-            {' '}
-            <button type="button" className="pro-link" onClick={() => navigateTo('/catalog')}>Найти инженера</button>
-          </figcaption>
-        </figure>
+          <div className="lux-laptop" aria-hidden="true">
+            <div className="lux-screen">
+              <aside className="lux-app-nav">
+                <span className="lux-app-logo">QazGost</span>
+                {NAV.map(({ icon: Icon, name, active }) => (
+                  <span key={name} className={active ? 'is-active' : undefined}><Icon size={12} />{name}</span>
+                ))}
+              </aside>
+              <div className="lux-app-main">
+                <div className="lux-app-head"><strong>Смета № 3847</strong><span>Ремонт помещения</span></div>
+                <svg className="lux-app-drawing" viewBox="0 0 300 120">
+                  <rect x="20" y="16" width="200" height="92" className="wall" />
+                  <rect x="160" y="34" width="40" height="44" className="win" />
+                  <path className="lux-crack" d="M92 18 L96 34 L90 48 L98 62 L94 76 L101 92 L97 106" />
+                  <rect x="82" y="17" width="26" height="90" className="box" />
+                  <rect x="82" y="96" width="62" height="12" rx="2" className="tag" />
+                  <text x="86" y="105">Трещина 70%</text>
+                  <line x1="20" y1="8" x2="220" y2="8" className="dim" />
+                  <text x="120" y="6" className="dimt">4 200</text>
+                  <path d="M232 92 L252 70 L272 76 L292 40" className="trend" />
+                </svg>
+                <div className="lux-app-rows">
+                  {ROWS.map(([n, q, s]) => (
+                    <span key={n}><b>{n}</b><i>{q}</i><em>{s} ₸</em></span>
+                  ))}
+                </div>
+              </div>
+              <div className="lux-app-side">
+                <strong>Итоги расчёта</strong>
+                <span><i>Объём</i><b>42,6 м²</b></span>
+                <span><i>Дефекты</i><b>1 трещина</b></span>
+                <span><i>Норматив</i><b>ГОСТ 31937</b></span>
+                <span><i>Срок</i><b>4 дня</b></span>
+                <span className="lux-app-total"><i>Итого</i><b className="gold">116 070 ₸</b></span>
+                <span className="lux-app-btn"><Download size={11} />Скачать смету</span>
+              </div>
+            </div>
+            <div className="lux-base" />
+          </div>
+        </div>
       </div>
     </section>
   );

@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { categoriesData } from '../data/categoriesData';
+import { Home, Building2, Briefcase, Factory, Search, ArrowRight, Clock, Boxes } from 'lucide-react';
 import { startFlow } from '../utils/navigate';
 
 /*
@@ -9,11 +10,17 @@ import { startFlow } from '../utils/navigate';
  */
 
 const TYPES = [
-  { id: 'renovation', name: 'Квартира', rate: 38000 },
-  { id: 'office', name: 'Офис', rate: 58000 },
-  { id: 'house', name: 'Частный дом', rate: 105000 },
-  { id: 'industrial', name: 'Промобъект', rate: 150000 },
+  { id: 'renovation', name: 'Квартира', rate: 38000, icon: Building2, days: 0.35 },
+  { id: 'house', name: 'Дом', rate: 105000, icon: Home, days: 0.6 },
+  { id: 'office', name: 'Офис', rate: 58000, icon: Briefcase, days: 0.3 },
+  { id: 'industrial', name: 'Промобъект', rate: 150000, icon: Factory, days: 0.5 },
 ];
+
+// Тонированная копия фото категории для тёмной темы (public/assets/landing), если есть
+const toned = (src) => {
+  const m = /\/assets\/categories\/cat_([a-z_]+)\.jpg$/.exec(src || '');
+  return m ? `/assets/landing/cat-${m[1]}.webp` : src;
+};
 
 const GROUPS = [
   { id: 'all', name: 'Все' },
@@ -52,7 +59,7 @@ export default function PriceCatalogSection({ onOpenCategory }) {
 
   const q = search.trim().toLowerCase();
   const list = categoriesData.filter((c) => (group === 'all' || c.group === group) && (!q || c.name.toLowerCase().includes(q)));
-  const PREVIEW = 8;
+  const PREVIEW = 9;
   const shown = expanded || q || group !== 'all' ? list : list.slice(0, PREVIEW);
 
   const setAreaSafe = (v) => {
@@ -60,161 +67,145 @@ export default function PriceCatalogSection({ onOpenCategory }) {
     if (Number.isFinite(n)) setArea(Math.min(2000, Math.max(10, n)));
   };
 
+  const t = TYPES.find((x) => x.id === type) || TYPES[0];
+  const days = Math.max(3, Math.round(area * t.days));
+
   return (
     <>
-      <section className="pro-section pro-section--tint" id="budget" aria-labelledby="pro-budget-title">
-        <div className="qg-container">
-          <header className="pro-head">
-            <h2 id="pro-budget-title">Прикиньте бюджет за минуту</h2>
-            <p>Средняя цена за квадратный метр по типу объекта на 2026 год. Точную смету по фото и объёмам сервис сделает после загрузки снимков.</p>
-          </header>
+      <section className="lux-section lux-budget" id="budget" aria-labelledby="lux-budget-title">
+        <div className="lux-budget-photo" aria-hidden="true" />
+        <div className="qg-container lux-budget-grid">
+          <div className="lux-budget-form">
+            <header className="lux-head">
+              <h2 id="lux-budget-title">Прикиньте бюджет за минуту</h2>
+              <p>Укажите параметры — получите ориентир по ценам 2026 года. Точную смету сервис соберёт по фото.</p>
+            </header>
 
-          <div className="pro-calc">
-            <div className="pro-calc-form">
-              <div className="pro-field">
-                <div className="pro-field-row">
-                  <label htmlFor="pro-area">Площадь</label>
-                  <span className="pro-area-input">
-                    <input
-                      type="number"
-                      inputMode="numeric"
-                      min="10"
-                      max="2000"
-                      value={area}
-                      onChange={(e) => setAreaSafe(e.target.value)}
-                      aria-label="Площадь, квадратных метров"
-                    />
-                    <span>м²</span>
-                  </span>
+            <div className="lux-glass lux-form">
+              <fieldset className="lux-field">
+                <legend>Тип объекта</legend>
+                <div className="lux-seg">
+                  {TYPES.map(({ id, name, icon: Icon }) => (
+                    <label key={id} className="lux-seg-item">
+                      <input type="radio" name="lux-type" value={id} checked={type === id} onChange={() => setType(id)} />
+                      <span><Icon size={17} aria-hidden="true" />{name}</span>
+                    </label>
+                  ))}
+                </div>
+              </fieldset>
+
+              <div className="lux-field">
+                <div className="lux-field-row">
+                  <label htmlFor="lux-area">Площадь, м²</label>
+                  <input
+                    className="lux-num-input"
+                    type="number"
+                    inputMode="numeric"
+                    min="10"
+                    max="2000"
+                    value={area}
+                    onChange={(e) => setAreaSafe(e.target.value)}
+                    aria-label="Площадь, квадратных метров"
+                  />
                 </div>
                 <input
-                  id="pro-area"
+                  id="lux-area"
                   type="range"
                   min="10"
                   max="500"
                   step="5"
                   value={Math.min(area, 500)}
                   onChange={(e) => setAreaSafe(e.target.value)}
-                  className="pro-range"
-                  style={{ '--pro-fill': `${((Math.min(area, 500) - 10) / 490) * 100}%` }}
+                  className="lux-range"
+                  style={{ '--fill': `${((Math.min(area, 500) - 10) / 490) * 100}%` }}
                 />
-                <div className="pro-range-scale" aria-hidden="true"><span>10</span><span>250</span><span>500 м²</span></div>
               </div>
 
-              <fieldset className="pro-field">
-                <legend>Тип объекта</legend>
-                <div className="pro-segment">
-                  {TYPES.map((t) => (
-                    <label key={t.id} className="pro-segment-item">
-                      <input type="radio" name="pro-type" value={t.id} checked={type === t.id} onChange={() => setType(t.id)} />
-                      <span>
-                        <strong>{t.name}</strong>
-                        <small>от {fmt(t.rate)} ₸/м²</small>
-                      </span>
-                    </label>
-                  ))}
-                </div>
-              </fieldset>
-
-              <fieldset className="pro-field">
+              <fieldset className="lux-field lux-opts">
                 <legend>Что добавить</legend>
-                <label className="pro-check">
-                  <input type="checkbox" checked={withBom} onChange={(e) => setWithBom(e.target.checked)} />
-                  <span><strong>Ведомость материалов</strong><small>запас 10% по нормативу</small></span>
-                </label>
-                <label className="pro-check">
-                  <input type="checkbox" checked={withSupervision} onChange={(e) => setWithSupervision(e.target.checked)} />
-                  <span><strong>Технический надзор</strong><small>инженер на ключевых этапах, +5%</small></span>
-                </label>
-                <label className="pro-check">
-                  <input type="checkbox" checked={withReport} onChange={(e) => setWithReport(e.target.checked)} />
-                  <span><strong>Акт проверки дефектов</strong><small>фиксированно {fmt(AI_REPORT)} ₸</small></span>
-                </label>
+                <label className="lux-check"><input type="checkbox" checked={withBom} onChange={(e) => setWithBom(e.target.checked)} /><span>Запас материалов 10%</span></label>
+                <label className="lux-check"><input type="checkbox" checked={withSupervision} onChange={(e) => setWithSupervision(e.target.checked)} /><span>Технадзор +5%</span></label>
+                <label className="lux-check"><input type="checkbox" checked={withReport} onChange={(e) => setWithReport(e.target.checked)} /><span>Акт дефектов {fmt(AI_REPORT)} ₸</span></label>
               </fieldset>
             </div>
-
-            <aside className="pro-calc-result" aria-live="polite">
-              <p className="pro-result-label">Ориентировочный бюджет</p>
-              <p className="pro-result-sum qg-num">{fmt(total)} ₸</p>
-              <p className="pro-result-unit qg-num">{fmt(total / area)} ₸ за м²</p>
-              <dl className="pro-breakdown">
-                <div><dt>Работы и материалы, {area} м² × {fmt(rate)} ₸</dt><dd className="qg-num">{fmt(base)}</dd></div>
-                {withBom && <div><dt>Запас материалов 10%</dt><dd className="qg-num">{fmt(bom)}</dd></div>}
-                {withSupervision && <div><dt>Технический надзор 5%</dt><dd className="qg-num">{fmt(supervision)}</dd></div>}
-                {withReport && <div><dt>Акт проверки дефектов</dt><dd className="qg-num">{fmt(report)}</dd></div>}
-              </dl>
-              <button type="button" className="qg-btn qg-btn--primary pro-btn-block" onClick={() => startFlow('register')}>
-                Получить точную смету
-              </button>
-            </aside>
           </div>
+
+          <aside className="lux-glass lux-glass--gold lux-result" aria-live="polite">
+            <p className="lux-result-label">Ориентировочный бюджет</p>
+            <p className="lux-result-sum qg-num">{fmt(total)} ₸</p>
+            <p className="lux-result-range qg-num">Диапазон: {fmt(total * 0.93)} – {fmt(total * 1.08)} ₸</p>
+            <dl className="lux-result-list">
+              <div><dt><Clock size={18} aria-hidden="true" />Срок выполнения</dt><dd className="qg-num">≈ {days} дн.</dd></div>
+              <div><dt><Boxes size={18} aria-hidden="true" />Объём работ</dt><dd className="qg-num">{area} м²</dd></div>
+              <div><dt>Работы и материалы</dt><dd className="qg-num">{fmt(base)} ₸</dd></div>
+              {withBom && <div><dt>Запас материалов</dt><dd className="qg-num">{fmt(bom)} ₸</dd></div>}
+              {withSupervision && <div><dt>Технадзор</dt><dd className="qg-num">{fmt(supervision)} ₸</dd></div>}
+              {withReport && <div><dt>Акт дефектов</dt><dd className="qg-num">{fmt(report)} ₸</dd></div>}
+            </dl>
+            <button type="button" className="qg-btn qg-btn--primary lux-btn-block" onClick={() => startFlow('register')}>
+              Получить точную смету <ArrowRight size={18} aria-hidden="true" />
+            </button>
+          </aside>
         </div>
       </section>
 
-      <section className="pro-section" id="prices" aria-labelledby="pro-catalog-title">
+      <section className="lux-section" id="prices" aria-labelledby="lux-catalog-title">
         <div className="qg-container">
-          <header className="pro-head pro-head--split">
+          <header className="lux-head lux-head--split">
             <div>
-              <h2 id="pro-catalog-title">Каталог работ и цен</h2>
-              <p>12 089 расценок в {categoriesData.length} категориях по ценам 2026 года. Откройте категорию, чтобы собрать смету.</p>
+              <h2 id="lux-catalog-title">Каталог работ и цен</h2>
+              <p>12 089 расценок в {categoriesData.length} категориях по ценам 2026 года.</p>
             </div>
-            <div className="pro-search">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>
+            <div className="lux-search">
+              <Search size={18} aria-hidden="true" />
               <input
                 type="search"
                 aria-label="Поиск по категориям работ"
-                placeholder="Плитка, фасад, электрика"
+                placeholder="Найти работу или услугу"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
             </div>
           </header>
 
-          <div className="pro-chips" role="group" aria-label="Группы работ">
+          <div className="lux-chips" role="group" aria-label="Группы работ">
             {GROUPS.map((g) => (
-              <button
-                key={g.id}
-                type="button"
-                className="pro-chip"
-                aria-pressed={group === g.id}
-                onClick={() => setGroup(g.id)}
-              >
-                {g.name} <span className="qg-num">{counts[g.id] || 0}</span>
+              <button key={g.id} type="button" className="lux-chip" aria-pressed={group === g.id} onClick={() => setGroup(g.id)}>
+                {g.name}
               </button>
             ))}
           </div>
 
           {list.length === 0 ? (
-            <div className="pro-empty">
-              <p>По запросу «{search}» категорий нет. Попробуйте другое слово или сбросьте фильтр.</p>
-              <button type="button" className="qg-btn qg-btn--ghost qg-btn--sm" onClick={() => { setSearch(''); setGroup('all'); }}>Показать все категории</button>
+            <div className="lux-empty">
+              <p>По запросу «{search}» категорий нет. Попробуйте другое слово.</p>
+              <button type="button" className="qg-btn qg-btn--ghost qg-btn--sm" onClick={() => { setSearch(''); setGroup('all'); }}>Показать все</button>
             </div>
           ) : (
-            <ul className="pro-cats">
+            <ul className="lux-cats">
               {shown.map((cat) => (
                 <li key={cat.name}>
-                  <button type="button" className="pro-cat" onClick={() => onOpenCategory && onOpenCategory(cat)}>
-                    <span className="pro-cat-img">
-                      {cat.image && <img src={cat.image} alt="" loading="lazy" onError={(e) => { e.currentTarget.style.display = 'none'; }} />}
-                    </span>
-                    <span className="pro-cat-body">
-                      <span className="pro-cat-name">{cat.name}</span>
-                      <span className="pro-cat-meta">
-                        <span className="qg-num">{cat.count} работ</span>
-                        <span className="pro-cat-price qg-num">{cat.priceRange}</span>
-                      </span>
+                  <button type="button" className="lux-cat" onClick={() => onOpenCategory && onOpenCategory(cat)}>
+                    {cat.image && <img src={toned(cat.image)} alt="" loading="lazy" onError={(e) => { e.currentTarget.style.display = 'none'; }} />}
+                    <span className="lux-cat-text">
+                      <span className="lux-cat-name">{cat.name}</span>
+                      <span className="lux-cat-price qg-num">{cat.priceRange}</span>
+                      <span className="lux-cat-count qg-num">{cat.count} работ</span>
                     </span>
                   </button>
                 </li>
               ))}
+              {shown.length < list.length && (
+                <li>
+                  <button type="button" className="lux-cat lux-cat--all" onClick={() => setExpanded(true)}>
+                    <span className="lux-cat-text">
+                      <span className="lux-cat-name">Весь каталог</span>
+                      <span className="lux-cat-price qg-num">{list.length} категорий <ArrowRight size={16} aria-hidden="true" /></span>
+                    </span>
+                  </button>
+                </li>
+              )}
             </ul>
-          )}
-          {shown.length < list.length && (
-            <div className="pro-more">
-              <button type="button" className="qg-btn qg-btn--ghost" onClick={() => setExpanded(true)}>
-                Показать все категории ({list.length})
-              </button>
-            </div>
           )}
         </div>
       </section>

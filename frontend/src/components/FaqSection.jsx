@@ -29,15 +29,15 @@ const FAQS = [
 
 export default function FaqSection() {
   return (
-    <section className="lp-section lp-faq" id="faq" aria-labelledby="lp-faq-title">
-      <div className="qg-container lp-faq-grid">
-        <div className="qg-section-head">
-          <h2 id="lp-faq-title">Частые вопросы</h2>
-          <p>Не нашли ответ? Напишите в чат помощника в правом нижнем углу.</p>
-        </div>
-        <div className="lp-faq-list">
+    <section className="lux-section" id="faq" aria-labelledby="lux-faq-title">
+      <div className="qg-container lux-faq">
+        <header className="lux-head">
+          <h2 id="lux-faq-title">Частые вопросы</h2>
+          <p>Не нашли ответ? Напишите в чат помощника в правом нижнем углу или в WhatsApp.</p>
+        </header>
+        <div className="lux-faq-list">
           {FAQS.map((f, i) => (
-            <details key={f.q} className="lp-faq-item" open={i === 0}>
+            <details key={f.q} className="lux-faq-item" open={i === 0}>
               <summary>{f.q}</summary>
               <p>{f.a}</p>
             </details>

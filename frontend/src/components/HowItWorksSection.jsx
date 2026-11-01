@@ -1,45 +1,36 @@
 import React from 'react';
+import { Camera, Cpu, FileCheck2, ArrowRight } from 'lucide-react';
 import { startFlow } from '../utils/navigate';
 
 // Настоящая последовательность — поэтому здесь (и только здесь) нумерация шагов.
 const STEPS = [
-  {
-    title: 'Сфотографируйте объект',
-    text: 'Стену, комнату, фасад или трещину крупным планом. Подойдёт обычная камера телефона, лучше при дневном свете.',
-    detail: 'До 10 снимков за раз',
-  },
-  {
-    title: 'Получите заключение',
-    text: 'Сервер отмечает дефекты на фото, считает объёмы и стоимость по базе ГЭСН РК и подбирает нормативы СНиП и ГОСТ.',
-    detail: 'Обычно меньше минуты',
-  },
-  {
-    title: 'Выберите бригаду',
-    text: 'Отправьте заказ бригаде из каталога или в общую ленту. Оплата заморожена в эскроу, пока вы не примете работу.',
-    detail: 'Акт и смета в PDF и Excel',
-  },
+  { icon: Camera, title: 'Загрузите фото', text: 'Стена, комната, фасад или трещина крупным планом. Подойдёт камера телефона.' },
+  { icon: Cpu, title: 'Анализ и расчёт', text: 'Сервис находит дефекты, считает объёмы и подбирает расценки ГЭСН РК и нормативы.' },
+  { icon: FileCheck2, title: 'Готовая смета', text: 'Смета и акт дефектов с ценами и рекомендациями — отправьте бригаде из каталога.' },
 ];
 
 export default function HowItWorksSection() {
   return (
-    <section className="lp-section lp-steps" id="how-it-works" aria-labelledby="lp-steps-title">
+    <section className="lux-section" id="how-it-works" aria-labelledby="lux-steps-title">
       <div className="qg-container">
-        <div className="qg-section-head">
-          <h2 id="lp-steps-title">Как это работает</h2>
-          <p>От фотографии до подписанного акта — три шага.</p>
-        </div>
-        <ol className="lp-steps-list">
-          {STEPS.map((s, i) => (
-            <li key={s.title} className="lp-step">
-              <span className="lp-step-num" aria-hidden="true">{i + 1}</span>
-              <h3>{s.title}</h3>
-              <p>{s.text}</p>
-              <span className="lp-step-detail">{s.detail}</span>
+        <header className="lux-head lux-head--center">
+          <h2 id="lux-steps-title">Как это работает</h2>
+          <p>От фото до готовой сметы — в три шага, обычно меньше минуты.</p>
+        </header>
+        <ol className="lux-steps">
+          {STEPS.map(({ icon: Icon, title, text }, i) => (
+            <li key={title} className="lux-glass lux-step">
+              <span className="lux-step-num" aria-hidden="true">{i + 1}</span>
+              <span className="lux-step-icon"><Icon size={30} strokeWidth={1.5} aria-hidden="true" /></span>
+              <h3>{title}</h3>
+              <p>{text}</p>
             </li>
           ))}
         </ol>
-        <div className="lp-steps-cta">
-          <button type="button" className="qg-btn qg-btn--primary" onClick={() => startFlow('register')}>Начать с фото</button>
+        <div className="lux-center">
+          <button type="button" className="qg-btn qg-btn--primary lux-btn-lg" onClick={() => startFlow('register')}>
+            Попробовать сейчас <ArrowRight size={20} aria-hidden="true" />
+          </button>
         </div>
       </div>
     </section>
