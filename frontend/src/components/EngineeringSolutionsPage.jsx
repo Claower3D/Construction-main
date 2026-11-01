@@ -308,6 +308,14 @@ export default function EngineeringSolutionsPage({ onBack, onOpenOrders, hideHea
       return;
     }
 
+    // Аванс 30% замораживается ДО создания заявки; при нехватке средств заявка не создаётся
+    const advance = Math.round(totalPrice * 0.3);
+    const escrow = freezeEscrow(advance, `Аванс инжиниринг ${objectName}`);
+    if (!escrow.ok) {
+      showToast(`⚠️ Недостаточно средств для аванса 30% (${advance.toLocaleString()} ₸). Доступно ${escrow.newBalance.toLocaleString()} ₸ — пополните кошелёк.`);
+      return;
+    }
+
     const newOrder = createPlatformOrder({
       title: `Инжиниринг: ${objectName} (${cart.length} разделов)`,
       category: 'Инженерные решения',
@@ -316,10 +324,11 @@ export default function EngineeringSolutionsPage({ onBack, onOpenOrders, hideHea
       description: `Объект: ${objectName}, Площадь: ${area}м², Этажность: ${floors}, Город: ${city}, Срочность: ${urgency}. Состав пакета: ${cart.map(c => c.title).join(', ')}. Срок разработки: ~${totalDays} дн.`,
       type: 'engineering',
       status: 'new',
-      assignedEngineer: 'Назначен Главный инженер проекта (ГИП)'
+      assignedEngineer: 'Назначен Главный инженер проекта (ГИП)',
+      escrowTxId: escrow.txId,
+      escrowAmount: advance
     });
 
-    freezeEscrow(Math.round(totalPrice * 0.3), `Аванс инжиниринг ${objectName}`);
     setCreatedAppId(newOrder.id);
     setShowSuccessModal(true);
     showToast(`🚀 Заявка ${newOrder.id} на инжиниринг передана Главному инженеру и Менеджеру CRM!`);

@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { PIPELINE_STATUS_LABELS, genId, localDateKey } from '../services/platformUtils';
 
 /* ═══════════════════════════════════════════════════════════════
    QAZGOST AI — КАРТОЧКА СТРОИТЕЛЬНОГО ОБЪЕКТА (COCKPIT v3.0)
@@ -44,10 +45,11 @@ function formatMoney(num) {
 
 export default function DealCardModal({ card, onClose, onSave, onDelete, currentUser }) {
   // Определение роли текущего пользователя
-  const userRole = currentUser?.role || 'manager';
-  const isExecutor = currentUser?.role === 'executor' || userRole === 'executor';
+  // Без вошедшего пользователя — только просмотр (раньше гость получал права менеджера)
+  const userRole = currentUser?.role || 'guest';
+  const isExecutor = userRole === 'executor';
   const isEngineer = userRole === 'engineer';
-  const isManagerOrAdmin = !isExecutor;
+  const isManagerOrAdmin = !!currentUser && !isExecutor;
 
   const [formData, setFormData] = useState(() => {
     const normStatus = normalizeStatus(card.status);
@@ -99,7 +101,7 @@ export default function DealCardModal({ card, onClose, onSave, onDelete, current
     const isExecType = card.role === 'executor' || card.type === 'work_stage' || (card.title && (card.title.toLowerCase().includes('монтаж') || card.title.toLowerCase().includes('фасад') || card.title.toLowerCase().includes('стройка')));
 
     return {
-      id: card.id || String(Date.now()).slice(-4),
+      id: card.id || genId('deal'),
       leadNum: card.leadNum || '01',
       dealType: isEngType ? 'engineer' : (isExecType ? 'executor' : 'lead'),
       title: card.title || 'Строительный объект',
@@ -110,7 +112,7 @@ export default function DealCardModal({ card, onClose, onSave, onDelete, current
       budget: baseSum,
       paidAmount: card.paidAmount !== undefined ? parseMoney(card.paidAmount) : (normStatus === 'completed' ? baseSum : Math.round(baseSum * 0.25)),
       status: normStatus,
-      date: card.date || card.day || new Date().toISOString().split('T')[0],
+      date: card.date || card.day || localDateKey(),
       time: cleanTime,
       assignedEngineer: card.assignedEngineer || 'Асхат Нурланов',
       engineerPosition: 'Ведущий инженер ПТО',
@@ -245,9 +247,11 @@ export default function DealCardModal({ card, onClose, onSave, onDelete, current
   const handleSaveWrapper = () => {
     const finalData = {
       ...formData,
-      status: formData.status === 'new' ? 'Новые' :
-              formData.status === 'completed' ? 'Успешно' :
-              formData.status === 'pending_executor' ? 'Дожим' : 'В работе',
+      // Каждая стадия сохраняется своей подписью (раньше 2–4 схлопывались в «В работе» → прыжок на этап 6)
+      // Статус не меняли → сохраняем исходный (в т.ч. «Отказ»), иначе — подпись выбранной стадии
+      status: (formData.status === normalizeStatus(card.status) && card.status)
+        ? card.status
+        : (PIPELINE_STATUS_LABELS[formData.status] || 'Новые'),
       contractor: formData.clientName,
       budget: formatMoney(formData.budget),
       paidAmount: formData.paidAmount !== undefined ? formData.paidAmount : escrowPaid,
@@ -324,7 +328,7 @@ export default function DealCardModal({ card, onClose, onSave, onDelete, current
                   background: typeBadgeStyle.bg, border: `1px solid ${typeBadgeStyle.border}`,
                   color: typeBadgeStyle.color, letterSpacing: '0.5px'
                 }}>
-                  {typeBadgeStyle.label} #{formData.id}
+                  {typeBadgeStyle.label} #{formData.leadNum && formData.leadNum !== '01' ? formData.leadNum : formData.id}
                 </span>
 
                 <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 900, color: '#f8fafc' }}>

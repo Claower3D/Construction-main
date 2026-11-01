@@ -1,0 +1,166 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="execBgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#041216" />
+      <stop offset="50%" stop-color="#081e22" />
+      <stop offset="100%" stop-color="#030b0e" />
+    </linearGradient>
+
+    <!-- Emerald / Jade Neon Gradient -->
+    <linearGradient id="execEmeraldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6ee7b7" />
+      <stop offset="40%" stop-color="#10b981" />
+      <stop offset="100%" stop-color="#047857" />
+    </linearGradient>
+
+    <!-- Lime / Bright Jade Highlight -->
+    <linearGradient id="execLimeGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#059669" />
+      <stop offset="100%" stop-color="#34d399" />
+    </linearGradient>
+
+    <!-- Electric Cyan Accent -->
+    <linearGradient id="execCyanGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e0f2fe" />
+      <stop offset="50%" stop-color="#00e5ff" />
+      <stop offset="100%" stop-color="#0284c7" />
+    </linearGradient>
+
+    <!-- Titanium Steel Tool Gradient -->
+    <linearGradient id="execSteelGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#475569" />
+      <stop offset="100%" stop-color="#1e293b" />
+    </linearGradient>
+
+    <!-- Glow Filter -->
+    <filter id="execEmeraldGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="12" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+
+    <filter id="execCyanGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="10" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+
+    <!-- Drop Shadow for Icon Body -->
+    <filter id="execDropShadow" x="-10%" y="-10%" width="120%" height="125%">
+      <feDropShadow dx="0" dy="16" stdDeviation="18" flood-color="#000000" flood-opacity="0.75" />
+    </filter>
+
+    <!-- Masonry / Tech Pattern -->
+    <pattern id="execPattern" width="36" height="36" patternUnits="userSpaceOnUse">
+      <path d="M 0 18 L 36 18 M 18 0 L 18 18 M 0 36 L 36 36 M 36 18 L 36 36" fill="none" stroke="rgba(16, 185, 129, 0.05)" stroke-width="1.2" />
+      <circle cx="18" cy="18" r="1.5" fill="rgba(16, 185, 129, 0.2)" />
+    </pattern>
+  </defs>
+
+  <!-- Squircle Base / App Icon Frame -->
+  <rect x="16" y="16" width="480" height="480" rx="112" fill="url(#execBgGrad)" stroke="rgba(16, 185, 129, 0.35)" stroke-width="3" />
+  
+  <!-- Subtle Internal Glow Ring -->
+  <rect x="22" y="22" width="468" height="468" rx="106" fill="none" stroke="rgba(255, 255, 255, 0.06)" stroke-width="1.5" />
+  
+  <!-- Masonry Grid Overlay -->
+  <rect x="20" y="20" width="472" height="472" rx="108" fill="url(#execPattern)" />
+
+  <!-- Ambient Emerald & Cyan Spotlights -->
+  <circle cx="256" cy="245" r="170" fill="url(#execEmeraldGrad)" opacity="0.14" filter="blur(45px)" />
+  <circle cx="270" cy="230" r="95" fill="url(#execCyanGrad)" opacity="0.16" filter="blur(35px)" />
+
+  <!-- Top Brand Wordmark: QazGost -->
+  <g transform="translate(0, 68)">
+    <text x="256" y="0" font-family="'Plus Jakarta Sans', 'Segoe UI', -apple-system, sans-serif" font-size="28" font-weight="900" letter-spacing="3" text-anchor="middle">
+      <tspan fill="#ffffff">Qaz</tspan><tspan fill="#10b981">Gost</tspan>
+    </text>
+    <line x1="216" y1="9" x2="296" y2="9" stroke="url(#execLimeGrad)" stroke-width="2.5" stroke-linecap="round" opacity="0.85" />
+  </g>
+
+  <!-- MAIN SYMBOL: EXECUTOR Q-MONOGRAM WITH CRAFTSMAN TROWEL & CHECKMARK OF QUALITY -->
+  <g filter="url(#execDropShadow)">
+
+    <!-- Heavy Industrial "Q" Outer Shield / Gear Ring -->
+    <!-- Left & Top Arc -->
+    <path d="M 140 180 
+             A 135 135 0 0 1 350 140 
+             L 370 170 
+             A 100 100 0 0 0 175 200 
+             Z" 
+          fill="url(#execLimeGrad)" />
+
+    <!-- Left & Bottom Arc -->
+    <path d="M 140 180 
+             A 135 135 0 0 0 256 385 
+             A 135 135 0 0 0 330 365 
+             L 310 332 
+             A 100 100 0 0 1 256 350 
+             A 100 100 0 0 1 175 200 
+             Z" 
+          fill="url(#execEmeraldGrad)" />
+
+    <!-- Right Upper Arc -->
+    <path d="M 350 140 
+             A 135 135 0 0 1 391 260 
+             L 356 260 
+             A 100 100 0 0 0 326 170 
+             Z" 
+          fill="url(#execEmeraldGrad)" />
+
+    <!-- Central Builder Trowel / Master Blade Geometry (Pointing upward diagonally) -->
+    <path d="M 256 145 
+             L 330 220 
+             L 285 270 
+             L 205 195 
+             Z" 
+          fill="url(#execSteelGrad)" 
+          stroke="rgba(255, 255, 255, 0.2)" 
+          stroke-width="1.5" />
+
+    <!-- Metallic Blade Chamfer Highlight -->
+    <path d="M 256 145 
+             L 330 220 
+             L 305 245 
+             L 256 195 
+             Z" 
+          fill="rgba(255, 255, 255, 0.12)" />
+
+    <!-- Powerful Neon Cyan Checkmark (Guarantee of Done / Zero Defects) -->
+    <g filter="url(#execCyanGlow)">
+      <path d="M 190 250 
+               L 242 302 
+               L 348 185" 
+            fill="none" 
+            stroke="url(#execCyanGrad)" 
+            stroke-width="22" 
+            stroke-linecap="round" 
+            stroke-linejoin="round" />
+    </g>
+
+    <!-- The "Q" Monogram Tail: Heavy Duty Foundation Lever / Power Anchor -->
+    <path d="M 305 315 
+             L 385 395 
+             L 425 365 
+             L 345 285 
+             Z" 
+          fill="url(#execLimeGrad)" 
+          filter="url(#execEmeraldGlow)" />
+
+    <!-- Emerald Work-Ready Power Spark -->
+    <circle cx="405" cy="380" r="9" fill="#10b981" filter="url(#execEmeraldGlow)" />
+    <circle cx="405" cy="380" r="4" fill="#ffffff" />
+
+    <!-- Hex Nut / Bolt Accent Points (Representing Assembly & Construction) -->
+    <circle cx="165" cy="275" r="4.5" fill="#34d399" />
+    <circle cx="210" cy="345" r="4.5" fill="#34d399" />
+    <circle cx="340" cy="140" r="4.5" fill="#34d399" />
+  </g>
+
+  <!-- Technical Spec Badge at Bottom -->
+  <g transform="translate(186, 428)">
+    <rect x="0" y="0" width="140" height="28" rx="7" fill="rgba(16, 185, 129, 0.12)" stroke="rgba(16, 185, 129, 0.4)" stroke-width="1.5" />
+    <text x="70" y="19" font-family="'Plus Jakarta Sans', 'Segoe UI', -apple-system, sans-serif" font-size="12" font-weight="900" fill="#10b981" letter-spacing="3" text-anchor="middle">
+      EXECUTOR
+    </text>
+  </g>
+</svg>

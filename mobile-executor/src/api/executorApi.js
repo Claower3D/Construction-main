@@ -1,4 +1,5 @@
 // QazGost Executor Mobile — Real Production Railway Client & Data Sync
+import { createSyncStore, localDateISO, addDaysISO, authHeaders, makeNote, nowTimeLabel, fetchWithTimeout, cleanServerUrl } from './syncCore';
 const STORAGE_KEY_ORDERS = 'qazgost_executor_orders_perm';
 const STORAGE_KEY_AUTH = 'qazgost_executor_auth_perm';
 const STORAGE_KEY_SAVED_LOGIN = 'qazgost_executor_saved_login';
@@ -33,168 +34,37 @@ export const STATUS_CONFIG = {
   'Завершено': { label: 'Объект сдан', color: '#10b981', bg: 'rgba(16, 185, 129, 0.15)', icon: '✅' }
 };
 
-export const INITIAL_REAL_ORDERS = [
-  {
-    id: "4051",
-    leadNum: "101",
-    title: "Установка септика (Оксана)",
-    client: "Оксана",
-    phone: "+7 (701) 888-00-11",
-    location: "Караганда, Лебедево 17",
-    budget: 700000,
-    status: "В работе",
-    role: "executor",
-    date: new Date().toISOString().split('T')[0],
-    time: "09:00",
-    priority: "urgent",
-    crew: "Бригада №3",
-    stages: [
-      { id: 1, title: 'Разметка и подготовка площадки', done: true, time: '09:30', note: 'Оси вынесены, заезд свободен' },
-      { id: 2, title: 'Копка котлована и траншеи', done: true, time: '12:00', note: 'Котлован глубиной 3.2м готов' },
-      { id: 3, title: 'Монтаж колец ЖБИ / септика', done: false, time: null, note: '' },
-      { id: 4, title: 'Прокладка трубопровода d110', done: false, time: null, note: '' },
-      { id: 5, title: 'Врезка и герметизация швов', done: false, time: null, note: '' },
-      { id: 6, title: 'Монтаж плиты перекрытия и люка', done: false, time: null, note: '' },
-      { id: 7, title: 'Обратная засыпка и сдача', done: false, time: null, note: '' }
-    ],
-    materials: [
-      { name: 'Кольцо ЖБИ КС-15.9 (1.5м)', qty: 3, unit: 'шт', status: 'delivered' },
-      { name: 'Плита перекрытия ПП-15', qty: 1, unit: 'шт', status: 'delivered' },
-      { name: 'Люк полимерно-песчаный 6т', qty: 1, unit: 'шт', status: 'delivered' },
-      { name: 'Труба канализационная рыжая 110 (2м)', qty: 5, unit: 'шт', status: 'delivered' },
-      { name: 'Щебень фракция 20-40', qty: 2, unit: 'т', status: 'pending' }
-    ],
-    photos: [
-      { id: 'p1', tag: 'Котлован', caption: 'Глубина 3.2м, суглинок', time: '12:05' }
-    ],
-    machinery: [
-      { type: 'Экскаватор колесный', date: new Date().toISOString().split('T')[0], time: '10:00', status: 'completed' }
-    ],
-    notes: [
-      { text: 'Начали монтаж. Заказчик на месте, электричество подключено.', time: '09:15', author: 'Тимур' }
-    ]
-  },
-  {
-    id: "5641",
-    leadNum: "52",
-    title: "Установка септика (Заказчик)",
-    client: "Заказчик",
-    phone: "+7 (701) 888-00-11",
-    location: "Сортировка Павлика морозова 53",
-    budget: 375000,
-    status: "В работе",
-    role: "executor",
-    date: new Date().toISOString().split('T')[0],
-    time: "13:30",
-    priority: "normal",
-    crew: "Бригада №3",
-    stages: [
-      { id: 1, title: 'Разметка и подготовка площадки', done: true, time: '13:45', note: '' },
-      { id: 2, title: 'Копка котлована и траншеи', done: false, time: null, note: '' },
-      { id: 3, title: 'Монтаж колец ЖБИ / септика', done: false, time: null, note: '' },
-      { id: 4, title: 'Прокладка трубопровода d110', done: false, time: null, note: '' },
-      { id: 5, title: 'Врезка и герметизация швов', done: false, time: null, note: '' },
-      { id: 6, title: 'Монтаж плиты перекрытия и люка', done: false, time: null, note: '' },
-      { id: 7, title: 'Обратная засыпка и сдача', done: false, time: null, note: '' }
-    ],
-    materials: [
-      { name: 'Кольцо ЖБИ КС-15.9 (1.5м)', qty: 2, unit: 'шт', status: 'delivered' },
-      { name: 'Люк полимерно-песчаный 6т', qty: 1, unit: 'шт', status: 'delivered' },
-      { name: 'Труба рыжая 110 (2м)', qty: 3, unit: 'шт', status: 'delivered' }
-    ],
+export function defaultStages() {
+  return STAGE_CONFIG.map(s => ({ id: s.id, title: s.title, done: false, time: null, note: '' }));
+}
+
+// Demo data: FICTIONAL, shown only offline before the first successful sync, never pushed to the server
+export function buildDemoOrders() {
+  const today = localDateISO();
+  const mk = (n, extra) => ({
+    id: `demo-exec-${n}`,
+    leadNum: `00${n}`,
+    client: `Демо-клиент ${n}`,
+    contractor: `Демо-клиент ${n}`,
+    phone: `+7 700 000 00 0${n}`,
+    location: `Демо-адрес ${n}`,
+    role: 'executor',
+    priority: 'normal',
+    crew: 'Демо-бригада',
+    stages: defaultStages(),
+    materials: [],
     photos: [],
     machinery: [],
-    notes: [
-      { text: 'Люк 6т без вывоза грунта, распланировать на месте, черная труба 6м', time: 'Railway', author: 'Менеджер' }
-    ]
-  },
-  {
-    id: "5866",
-    leadNum: "21",
-    title: "Колодцы Акимат (вдоль дороги)",
-    client: "Акимат",
-    phone: "87058277797",
-    location: "Шахтерский 3 улица, колодец вдоль дороги",
-    budget: 850000,
-    status: "В работе",
-    role: "executor",
-    date: new Date().toISOString().split('T')[0],
-    time: "15:00",
-    priority: "urgent",
-    crew: "Бригада №3",
-    stages: [
-      { id: 1, title: 'Разметка и подготовка площадки', done: true, time: '15:10', note: 'Ограждение выставлено' },
-      { id: 2, title: 'Копка котлована и траншеи', done: true, time: '16:30', note: '' },
-      { id: 3, title: 'Монтаж колец ЖБИ / септика', done: true, time: '17:45', note: 'КС-20 смонтированы' },
-      { id: 4, title: 'Прокладка трубопровода d110', done: false, time: null, note: '' },
-      { id: 5, title: 'Врезка и герметизация швов', done: false, time: null, note: '' },
-      { id: 6, title: 'Монтаж плиты перекрытия и люка', done: false, time: null, note: '' },
-      { id: 7, title: 'Обратная засыпка и сдача', done: false, time: null, note: '' }
-    ],
-    materials: [
-      { name: 'Кольцо ЖБИ КС-20.9 (2.0м)', qty: 3, unit: 'шт', status: 'delivered' },
-      { name: 'Плита перекрытия ПП-20', qty: 1, unit: 'шт', status: 'delivered' },
-      { name: 'Люк чугунный тяжелый 25т', qty: 1, unit: 'шт', status: 'delivered' }
-    ],
-    photos: [],
-    machinery: [
-      { type: 'Манипулятор 10т', date: new Date().toISOString().split('T')[0], time: '17:00', status: 'completed' }
-    ],
-    notes: [
-      { text: 'Требуется соблюдение техники безопасности возле проезжей части.', time: 'Railway', author: 'Акимат' }
-    ]
-  },
-  {
-    id: "8060",
-    leadNum: "76",
-    title: "Установка септика (Ольга)",
-    client: "Ольга",
-    phone: "+77019724104",
-    location: "г. Караганда, ул. Космонавтов, 189",
-    budget: 250000,
-    status: "Выезд назначен",
-    role: "executor",
-    date: new Date().toISOString().split('T')[0],
-    time: "11:00",
-    priority: "normal",
-    crew: "Бригада №3",
-    stages: STAGE_CONFIG.map(s => ({ id: s.id, title: s.title, done: false, time: null, note: '' })),
-    materials: [
-      { name: 'Кольцо ЖБИ КС-15.9 (1.5м)', qty: 3, unit: 'шт', status: 'pending' },
-      { name: 'Люк полимерно-песчаный 6т', qty: 1, unit: 'шт', status: 'pending' }
-    ],
-    photos: [],
-    machinery: [],
-    notes: [
-      { text: 'Замер инженера выполнен. Выгребная яма в 3м, новый септик со смещением.', time: 'Инженер', author: 'Максим (ПТО)' }
-    ]
-  },
-  {
-    id: "1198",
-    leadNum: "81",
-    title: "Установка септика (Наталья)",
-    client: "Наталья",
-    phone: "+7 700 993 2460",
-    location: "г. Караганда, Сортировка, пер. Лесной 1",
-    budget: 350000,
-    status: "Выезд назначен",
-    role: "executor",
-    date: new Date().toISOString().split('T')[0],
-    time: "16:00",
-    priority: "normal",
-    crew: "Бригада №3",
-    stages: STAGE_CONFIG.map(s => ({ id: s.id, title: s.title, done: false, time: null, note: '' })),
-    materials: [
-      { name: 'Кольцо ЖБИ КС-15.9 (1.5м)', qty: 3, unit: 'шт', status: 'pending' },
-      { name: 'Труба 110 (2м)', qty: 4, unit: 'шт', status: 'pending' }
-    ],
-    photos: [],
-    machinery: [],
-    notes: [
-      { text: 'Замер готов, подъезд техники удобный, планируют на 3 кольца.', time: 'Инженер', author: 'Максим (ПТО)' }
-    ]
-  }
-];
+    notes: [{ text: 'Демонстрационный наряд (офлайн-демо, не синхронизируется)', time: '', author: 'Демо' }],
+    ...extra
+  });
+  return [
+    mk(1, { title: 'Установка септика (Демо-клиент 1)', budget: 700000, status: 'В работе', date: today, time: '09:00' }),
+    mk(2, { title: 'Монтаж колодца (Демо-клиент 2)', budget: 375000, status: 'Выезд назначен', date: today, time: '13:30' }),
+    mk(3, { title: 'Прокладка трубы (Демо-клиент 3)', budget: 250000, status: 'Новые', date: addDaysISO(today, 1), time: '10:00' })
+  ];
+}
+
 
 export function resolveExecutorProfile(cleanLogin, serverUser = null) {
   const lower = (cleanLogin || '').trim().toLowerCase();
@@ -292,23 +162,6 @@ export function setSavedAuth(authData) {
   } catch (e) {}
 }
 
-export function getStoredOrders() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY_ORDERS);
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-    }
-  } catch (e) {}
-  localStorage.setItem(STORAGE_KEY_ORDERS, JSON.stringify(INITIAL_REAL_ORDERS));
-  return INITIAL_REAL_ORDERS;
-}
-
-export function saveStoredOrders(orders) {
-  try {
-    localStorage.setItem(STORAGE_KEY_ORDERS, JSON.stringify(orders));
-  } catch (e) {}
-}
 
 export function getSavedServerUrl() {
   try {
@@ -343,198 +196,125 @@ export async function testServerPing(serverUrl) {
   }
 }
 
-export async function fetchServerOrders(serverUrl) {
-  const cleanUrl = (serverUrl || 'https://construction-main-production.up.railway.app').replace(/\/+$/, '');
-  const start = performance.now();
+function currentToken() {
+  try { return getSavedAuth()?.token; } catch (e) { return undefined; }
+}
+
+export function getAuthHeaders() {
+  return authHeaders(currentToken());
+}
+
+export const ordersStore = createSyncStore({
+  dealsKey: STORAGE_KEY_ORDERS,
+  tombKey: 'qazgost_executor_deleted_ids',
+  demoFactory: buildDemoOrders,
+  getServerUrl: getSavedServerUrl,
+  getToken: currentToken,
+  getAuthorName: () => getSavedAuth()?.name || 'Бригадир'
+});
+
+export function getStoredOrders() {
+  return ordersStore.load();
+}
+
+export function saveStoredOrders(orders) {
+  return ordersStore.save(orders);
+}
+
+export function pendingSyncCount(list) {
+  return ordersStore.pendingCount(list);
+}
+
+export function loadDemoOrders() {
+  return ordersStore.loadDemo();
+}
+
+/** Pull → merge (newer side wins, role/materials are never rewritten) → push changed records only. */
+export function syncOrders() {
+  return ordersStore.sync();
+}
+
+export function resetCachedOrders() {
+  const keep = ordersStore.load().filter((o) => o._dirty && !o._demo);
+  ordersStore.save(keep);
+  return keep;
+}
+
+export function updateOrderStatus(orderId, newStatus, newNote = null, authorName = 'Бригадир') {
+  return ordersStore.edit(orderId, (o) => ({
+    ...o,
+    status: newStatus,
+    notes: newNote ? [makeNote(newNote, authorName), ...(o.notes || [])] : (o.notes || [])
+  }));
+}
+
+export function toggleWorkStage(orderId, stageId, isDone, stageNote = '', authorName = 'Бригадир') {
+  return ordersStore.edit(orderId, (o) => {
+    const stages = (o.stages && o.stages.length ? o.stages : defaultStages()).map(s => ({ ...s }));
+    const sIdx = stages.findIndex(s => s.id === stageId);
+    if (sIdx === -1) return o;
+    stages[sIdx].done = isDone;
+    stages[sIdx].time = isDone ? nowTimeLabel() : null;
+    if (stageNote) stages[sIdx].note = stageNote;
+    const doneCount = stages.filter(s => s.done).length;
+    let status = o.status;
+    if (doneCount === stages.length) status = 'Завершено';
+    else if (doneCount > 0 && (o.status === 'Новые' || o.status === 'Выезд назначен')) status = 'В работе';
+    const text = `${isDone ? 'Выполнен этап' : 'Сброшен этап'}: "${stages[sIdx].title}"${stageNote ? ` (${stageNote})` : ''}`
+      + (status !== o.status ? `; статус → «${status}»` : '');
+    return { ...o, stages, status, notes: [makeNote(text, authorName), ...(o.notes || [])] };
+  });
+}
+
+/** Uploads the photo when a real server session exists; otherwise keeps it on the device with a mark. */
+export async function uploadWorkPhoto(blob, fileName = 'photo.jpg') {
+  const token = currentToken();
+  if (!(typeof token === 'string' && token.startsWith('eyJ'))) {
+    return { uploaded: false, reason: 'нет серверной сессии — фото хранится на устройстве' };
+  }
+  const base = cleanServerUrl(getSavedServerUrl());
+  const fd = new FormData();
+  fd.append('file', blob, fileName);
   try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 6000);
-    const res = await fetch(`${cleanUrl}/api/v1/crm/events`, {
-      method: 'GET',
-      headers: { 'Accept': 'application/json' },
-      signal: controller.signal
-    });
-    clearTimeout(timeoutId);
-    const latency = Math.round(performance.now() - start);
-
-    if (res.ok) {
-      const data = await res.json();
-      const remoteRaw = data.items || (data.events && Array.isArray(data.events) ? data.events : []);
-      if (remoteRaw.length > 0) {
-        const local = getStoredOrders();
-        const localMap = new Map(local.map(o => [String(o.id), o]));
-
-        const merged = remoteRaw.map(r => {
-          const sId = String(r.id);
-          const loc = localMap.get(sId) || {};
-          return {
-            id: sId,
-            leadNum: String(r.leadNum || r.id),
-            title: r.title || ('Заказ #' + r.id),
-            client: r.contractor || r.client || 'Клиент',
-            phone: r.phone || '',
-            location: r.location || '',
-            budget: r.budget || 0,
-            status: loc.status || r.status || 'В работе',
-            role: 'executor',
-            date: r.date || new Date().toISOString().slice(0, 10),
-            time: r.time || '10:00',
-            priority: r.priority || 'normal',
-            crew: loc.crew || 'Бригада №3',
-            stages: loc.stages || STAGE_CONFIG.map(s => ({ id: s.id, title: s.title, done: false, time: null, note: '' })),
-            materials: loc.materials || [
-              { name: 'Кольцо КС-15', qty: 3, unit: 'шт', status: 'pending' },
-              { name: 'Люк 6т', qty: 1, unit: 'шт', status: 'pending' },
-              { name: 'Труба 110 (2м)', qty: 4, unit: 'шт', status: 'pending' }
-            ],
-            photos: loc.photos || [],
-            machinery: loc.machinery || [],
-            notes: loc.notes || []
-          };
-        });
-
-        saveStoredOrders(merged);
-        return { success: true, ok: true, latency, orders: merged };
-      }
-    }
+    const res = await fetchWithTimeout(`${base}/api/v1/files/upload`, { method: 'POST', headers: { ...authHeaders(token) }, body: fd }, 30000);
+    if (!res.ok) return { uploaded: false, reason: `загрузка фото: HTTP ${res.status}` };
+    const data = await res.json();
+    if (!data || !data.url) return { uploaded: false, reason: 'сервер не вернул ссылку на фото' };
+    return { uploaded: true, url: /^https?:/i.test(data.url) ? data.url : `${base}${data.url}` };
   } catch (e) {
-    console.warn('[ExecutorApi] Sync fallback:', e);
+    return { uploaded: false, reason: `загрузка фото: ${e.message || 'нет сети'}` };
   }
-  return { success: false, ok: true, fromCache: true, orders: getStoredOrders() };
 }
 
-export async function updateOrderStatus(serverUrl, orderId, newStatus, newNote = null, authorName = 'Тимур (Бригадир)') {
-  const orders = getStoredOrders();
-  const idx = orders.findIndex(o => String(o.id) === String(orderId));
-  if (idx !== -1) {
-    orders[idx].status = newStatus;
-    if (newNote) {
-      orders[idx].notes = orders[idx].notes || [];
-      orders[idx].notes.unshift({
-        text: newNote,
-        time: new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }),
-        author: authorName
-      });
-    }
-    saveStoredOrders(orders);
-  }
-
-  const cleanUrl = (serverUrl || 'https://construction-main-production.up.railway.app').replace(/\/+$/, '');
-  try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 4000);
-    await fetch(`${cleanUrl}/api/v1/crm/events/sync`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ items: orders }),
-      signal: controller.signal
-    });
-    clearTimeout(timeoutId);
-  } catch (e) {}
-
-  return orders;
+export function addWorkPhoto(orderId, photoObj, authorName = 'Бригадир') {
+  return ordersStore.edit(orderId, (o) => ({
+    ...o,
+    photos: [photoObj, ...(o.photos || [])],
+    notes: [makeNote(
+      `Фотоотчёт «${photoObj.tag || 'Этап СМР'}»: ${photoObj.serverUrl ? photoObj.serverUrl : 'фото хранится только на телефоне бригадира'}`,
+      authorName
+    ), ...(o.notes || [])]
+  }));
 }
 
-export async function toggleWorkStage(serverUrl, orderId, stageId, isDone, stageNote = '', authorName = 'Тимур (Бригадир)') {
-  const orders = getStoredOrders();
-  const idx = orders.findIndex(o => String(o.id) === String(orderId));
-  if (idx !== -1) {
-    orders[idx].stages = orders[idx].stages || [];
-    const sIdx = orders[idx].stages.findIndex(s => s.id === stageId);
-    if (sIdx !== -1) {
-      orders[idx].stages[sIdx].done = isDone;
-      orders[idx].stages[sIdx].time = isDone ? new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }) : null;
-      if (stageNote) orders[idx].stages[sIdx].note = stageNote;
-    }
-
-    const doneCount = orders[idx].stages.filter(s => s.done).length;
-    if (doneCount === orders[idx].stages.length) {
-      orders[idx].status = 'Завершено';
-    } else if (doneCount > 0 && orders[idx].status === 'Новые') {
-      orders[idx].status = 'В работе';
-    }
-
-    orders[idx].notes = orders[idx].notes || [];
-    orders[idx].notes.unshift({
-      text: `${isDone ? 'Выполнен этап' : 'Сброшен этап'}: "${orders[idx].stages[sIdx]?.title || stageId}"${stageNote ? ' (' + stageNote + ')' : ''}`,
-      time: new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }),
-      author: authorName
-    });
-
-    saveStoredOrders(orders);
-  }
-
-  const cleanUrl = (serverUrl || 'https://construction-main-production.up.railway.app').replace(/\/+$/, '');
-  try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 4000);
-    await fetch(`${cleanUrl}/api/v1/crm/events/sync`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ items: orders }),
-      signal: controller.signal
-    });
-    clearTimeout(timeoutId);
-  } catch (e) {}
-
-  return orders;
-}
-
-export async function addWorkPhoto(serverUrl, orderId, photoObj, authorName = 'Тимур (Бригадир)') {
-  const orders = getStoredOrders();
-  const idx = orders.findIndex(o => String(o.id) === String(orderId));
-  if (idx !== -1) {
-    orders[idx].photos = orders[idx].photos || [];
-    orders[idx].photos.unshift(photoObj);
-    orders[idx].notes = orders[idx].notes || [];
-    orders[idx].notes.unshift({
-      text: `Загружен фотоотчёт: "${photoObj.tag || 'Этап СМР'}"`,
-      time: new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }),
-      author: authorName
-    });
-    saveStoredOrders(orders);
-  }
-  return orders;
-}
-
-export async function requestMachinery(serverUrl, orderId, machineryType, date, time, comment, authorName = 'Тимур (Бригадир)') {
-  const orders = getStoredOrders();
-  const idx = orders.findIndex(o => String(o.id) === String(orderId));
-  if (idx !== -1) {
-    orders[idx].machinery = orders[idx].machinery || [];
-    orders[idx].machinery.unshift({
+export function requestMachinery(orderId, machineryType, date, time, comment, authorName = 'Бригадир') {
+  const d = date || localDateISO();
+  const t = time || '10:00';
+  return ordersStore.edit(orderId, (o) => ({
+    ...o,
+    machinery: [{
       id: 'mach_' + Date.now(),
       type: machineryType,
-      date: date || new Date().toISOString().split('T')[0],
-      time: time || '10:00',
+      date: d,
+      time: t,
       comment: comment || '',
       status: 'ordered',
       createdAt: new Date().toISOString()
-    });
-    orders[idx].notes = orders[idx].notes || [];
-    orders[idx].notes.unshift({
-      text: `Заказана спецтехника: ${machineryType} на ${date} в ${time}`,
-      time: new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }),
-      author: authorName
-    });
-    saveStoredOrders(orders);
-  }
-
-  const cleanUrl = (serverUrl || 'https://construction-main-production.up.railway.app').replace(/\/+$/, '');
-  try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 4000);
-    await fetch(`${cleanUrl}/api/v1/crm/events/sync`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ items: orders }),
-      signal: controller.signal
-    });
-    clearTimeout(timeoutId);
-  } catch (e) {}
-
-  return orders;
+    }, ...(o.machinery || [])],
+    notes: [makeNote(`Заказана спецтехника: ${machineryType} на ${d} в ${t}${comment ? ` (${comment})` : ''}`, authorName), ...(o.notes || [])]
+  }));
 }
+
 
 export async function loginExecutor(serverUrl, loginInput, password) {
   const cleanLogin = (loginInput || '').trim();

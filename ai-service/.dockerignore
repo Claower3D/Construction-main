@@ -38,11 +38,23 @@ docker-compose*.yml
 .DS_Store
 Thumbs.db
 
-# Models (mounted as volume)
+# Models (mounted as volume) — кроме обученных весов детектора дефектов, они запекаются в образ
 models/*.pth
 models/*.pt
 models/*.bin
 models/*.safetensors
+!models/defect_*.pt
+
+# Секреты и персональные данные не должны попадать в контекст сборки / образ
+.env
+.env.*
+!.env.example
+data/tg_users.json
+app/data/estimates.db*
+
+# Датасет и результаты обучения (сотни МБ, в образе не нужны)
+dataset/
+runs/
 
 # Uploads/Results (mounted as volumes)
 uploads/

@@ -8,7 +8,11 @@ import time
 from contextlib import asynccontextmanager
 from typing import Optional
 
+import math
+
 from fastapi import FastAPI, Request
+from fastapi.encoders import jsonable_encoder
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.openapi.utils import get_openapi
@@ -25,6 +29,7 @@ except ImportError:
 
 from app.config import settings, ensure_dirs
 from app.api.v1 import analyze, health, estimates, metrics, auth
+from app.api.body_limit import BodySizeLimitMiddleware, BodyTooLarge
 from app.api.openapi import tags_metadata, get_openapi_config
 
 
@@ -74,13 +79,22 @@ async def lifespan(app: FastAPI):
         mode = "NN" if dnn.is_nn_mode else "OpenCV-fallback"
         logger.info(f"✅ QazGost AI DefectNN loaded [{mode}]")
 
+    def _load_defect_yolo():
+        from app.services.yolo_defect_scanner import get_yolo_defect_detector
+        det = get_yolo_defect_detector()
+        if det.available:
+            logger.info(f"✅ Defect YOLO loaded [{det.model_path.name}]")
+        else:
+            logger.warning(f"⚠️  Defect YOLO unavailable ({det.error}) — /defect-scan will use fallback")
+
     def _load_pricedb():
         from app.services.estimator import _load_price_db
         db = _load_price_db()
         total = len(db.get("works", {})) + len(db.get("materials", {})) + len(db.get("equipment", {}))
         logger.info(f"✅ PriceDB loaded [{total:,} items]")
 
-    loaders = [_load_rfdetr, _load_sam, _load_gdino, _load_qwen, _load_defect, _load_defect_nn, _load_pricedb]
+    loaders = [_load_rfdetr, _load_sam, _load_gdino, _load_qwen, _load_defect, _load_defect_nn,
+               _load_defect_yolo, _load_pricedb]
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
         futures = {pool.submit(fn): fn.__name__ for fn in loaders}
@@ -123,32 +137,7 @@ if SLOWAPI_AVAILABLE:
 else:
     limiter = None
 
-# CORS middleware
-cors_origins = list(settings.CORS_ORIGINS)
-if settings.CORS_DEV:
-    cors_origins.extend([
-        "http://localhost:3000", "http://localhost:5173",
-        "http://localhost:5174", "http://localhost:8080",
-        "http://127.0.0.1:5174", "http://127.0.0.1:5500",
-    ])
-
-# Production-safe CORS: explicit methods and headers instead of wildcard
-allowed_methods = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
-allowed_headers = ["Content-Type", "Authorization", "X-Request-ID", "X-API-Key"]
-if settings.CORS_DEV:
-    allowed_methods = ["*"]
-    allowed_headers = ["*"]
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=cors_origins,
-    allow_credentials=True,
-    allow_methods=allowed_methods,
-    allow_headers=allowed_headers,
-)
-
-
-# Request timing middleware
+# Request timing middleware (innermost)
 @app.middleware("http")
 async def add_process_time_header(request: Request, call_next):
     start_time = time.time()
@@ -158,7 +147,31 @@ async def add_process_time_header(request: Request, call_next):
     return response
 
 
-# Exception handler
+# Exception handlers
+@app.exception_handler(BodyTooLarge)
+async def body_too_large_handler(request: Request, exc: BodyTooLarge):
+    return JSONResponse(
+        status_code=413,
+        content={"detail": f"Тело запроса слишком большое (максимум {exc.limit // (1024 * 1024)}MB)"},
+    )
+
+
+def _json_safe(o):
+    """Replace NaN/Infinity (echoed back from the invalid input) so the 422 body is valid JSON."""
+    if isinstance(o, float) and not math.isfinite(o):
+        return str(o)
+    if isinstance(o, dict):
+        return {k: _json_safe(v) for k, v in o.items()}
+    if isinstance(o, (list, tuple)):
+        return [_json_safe(v) for v in o]
+    return o
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    return JSONResponse(status_code=422, content={"detail": _json_safe(jsonable_encoder(exc.errors()))})
+
+
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
     logger.exception(f"Unhandled exception: {exc}")
@@ -194,8 +207,41 @@ try:
 except ImportError as e:
     logger.warning(f"⚠️  Speech routes not loaded: {e}")
 
-# Prometheus metrics middleware
+# Middleware order (outer → inner): CORS → metrics/rate-limit → body size limit → timing → app.
+# Starlette: the middleware added LAST is the OUTERMOST, so CORS is added last — then 429/413
+# responses also carry CORS headers.
+app.add_middleware(BodySizeLimitMiddleware)
 app.middleware("http")(metrics.metrics_middleware)
+
+# CORS middleware (outermost)
+cors_origins = list(settings.CORS_ORIGINS)
+if settings.CORS_DEV:
+    cors_origins.extend([
+        "http://localhost:3000", "http://localhost:5173",
+        "http://localhost:5174", "http://localhost:8080",
+        "http://127.0.0.1:5174", "http://127.0.0.1:5500",
+    ])
+
+# Production-safe CORS: explicit methods and headers instead of wildcard
+allowed_methods = ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
+allowed_headers = ["Content-Type", "Authorization", "X-Request-ID", "X-API-Key"]
+if settings.CORS_DEV:
+    allowed_methods = ["*"]
+    allowed_headers = ["*"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=cors_origins,
+    allow_credentials=True,
+    allow_methods=allowed_methods,
+    allow_headers=allowed_headers,
+)
+
+
+# Root health (Go-прокси и docker healthcheck обращаются к /health)
+@app.get("/health", include_in_schema=False)
+async def root_health():
+    return {"status": "healthy", "service": settings.APP_NAME, "version": settings.APP_VERSION}
 
 
 # Root endpoint

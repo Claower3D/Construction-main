@@ -8,7 +8,7 @@ export default function ScrollReveal({
   threshold = 0.02, // Low threshold so elements trigger easily
   distance = '30px',
   blur = false,
-  once = false,
+  once = true, // раньше контент снова прятался при уходе из вьюпорта → «пустые» секции
   className = '',
   style = {}
 }) {
@@ -29,7 +29,8 @@ export default function ScrollReveal({
 
   useEffect(() => {
     // If mobile or no IntersectionObserver, force visible to prevent blank screens on phones
-    if (isMobile || typeof IntersectionObserver === 'undefined') {
+    const reduce = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (isMobile || reduce || typeof IntersectionObserver === 'undefined') {
       setIsVisible(true);
       return;
     }

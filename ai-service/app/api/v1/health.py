@@ -78,6 +78,22 @@ async def detailed_health_check() -> Dict[str, Any]:
         components["qwen"] = {"status": "unhealthy", "error": str(exc)}
         overall_status = "degraded"
 
+    # Defect detector (YOLO, /defect-scan)
+    try:
+        from app.services.yolo_defect_scanner import get_yolo_defect_detector
+        info = get_yolo_defect_detector().info(load=True)
+        components["defect_model"] = {
+            "status": "healthy" if info["loaded"] else "degraded",
+            **{k: info[k] for k in ("name", "model_file", "candidates", "loaded", "error", "params", "classes",
+                                    "validated_classes", "conf_threshold", "imgsz", "validation")},
+            "fallback": None if info["loaded"] else "roboflow (если задан ключ) → cv-heuristic",
+        }
+        if not info["loaded"]:
+            overall_status = "degraded"
+    except Exception as exc:
+        components["defect_model"] = {"status": "unhealthy", "error": str(exc)}
+        overall_status = "degraded"
+
     # GPU info (optional)
     try:
         import torch

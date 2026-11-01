@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
+	"net"
 	"net/http"
 	"os"
 	"strings"
@@ -53,6 +55,21 @@ type openAIResponse struct {
 			Content string `json:"content"`
 		} `json:"message"`
 	} `json:"choices"`
+}
+
+// allowedServerModels: models the server's own OpenAI key may be used with.
+// A client-supplied X-OpenAI-Model is honoured only together with the client's own X-OpenAI-Key.
+var allowedServerModels = map[string]bool{"gpt-4o": true, "gpt-4o-mini": true}
+
+func pickModel(r *http.Request, userKey bool, def string) string {
+	m := r.Header.Get("X-OpenAI-Model")
+	if m == "" {
+		return def
+	}
+	if userKey || allowedServerModels[m] {
+		return m
+	}
+	return def
 }
 
 // EstimateCost handles POST /api/v1/ai/estimate
@@ -108,6 +125,7 @@ func (h *AiHandler) EstimateCost(w http.ResponseWriter, r *http.Request) {
 
 	// Check for custom user OpenAI API Key from header or fallback to server config
 	apiKey := r.Header.Get("X-OpenAI-Key")
+	userKey := apiKey != ""
 	if apiKey == "" {
 		if req.Mode == "detailed" && h.Config.OpenAIDetailedKey != "" {
 			apiKey = h.Config.OpenAIDetailedKey
@@ -115,10 +133,7 @@ func (h *AiHandler) EstimateCost(w http.ResponseWriter, r *http.Request) {
 			apiKey = h.Config.OpenAIKey
 		}
 	}
-	model := r.Header.Get("X-OpenAI-Model")
-	if model == "" {
-		model = "gpt-4o"
-	}
+	model := pickModel(r, userKey, "gpt-4o")
 
 	// If API key is present and user provided an unstructured text description, optionally enhance insights with LLM
 	if apiKey != "" && req.Description != "" {
@@ -143,8 +158,10 @@ func (h *AiHandler) fetchLLMInsightsWithKey(desc, category, city, apiKey, model 
 		model = "gpt-4o-mini"
 	}
 
-	systemPrompt := `You are an expert civil engineer and construction estimator in Kazakhstan. 
-Provide 3 brief professional recommendations in Russian concerning SNiP RK standards, material quality control, or potential hidden works. Output as raw JSON array of strings: ["insight 1", "insight 2", "insight 3"]`
+	// response_format json_object always returns an OBJECT, so ask for {"insights":[...]}
+	// (the old prompt asked for a bare array and the parser never found "insights")
+	systemPrompt := `You are an expert civil engineer and construction estimator in Kazakhstan.
+Provide 3 brief professional recommendations in Russian concerning SNiP RK standards, material quality control, or potential hidden works. Output a JSON object: {"insights": ["insight 1", "insight 2", "insight 3"]}`
 
 	userPrompt := fmt.Sprintf("Category: %s, City: %s. Project Description: %s", category, city, desc)
 
@@ -164,7 +181,7 @@ Provide 3 brief professional recommendations in Russian concerning SNiP RK stand
 		return nil
 	}
 
-	client := &http.Client{Timeout: 6 * time.Second}
+	client := &http.Client{Timeout: 20 * time.Second}
 	httpReq, err := http.NewRequest("POST", "https://api.openai.com/v1/chat/completions", bytes.NewBuffer(jsonBytes))
 	if err != nil {
 		return nil
@@ -186,11 +203,23 @@ Provide 3 brief professional recommendations in Russian concerning SNiP RK stand
 
 	var openAIResp openAIResponse
 	if err := json.Unmarshal(respBody, &openAIResp); err == nil && len(openAIResp.Choices) > 0 {
-		var structResult struct {
-			Insights []string `json:"insights"`
+		// Accept {"insights":[...]} or any object whose first array value is a list of strings
+		var obj map[string]json.RawMessage
+		if json.Unmarshal([]byte(openAIResp.Choices[0].Message.Content), &obj) == nil {
+			if raw, ok := obj["insights"]; ok {
+				var list []string
+				if json.Unmarshal(raw, &list) == nil {
+					return list
+				}
+			}
+			for _, raw := range obj {
+				var list []string
+				if json.Unmarshal(raw, &list) == nil && len(list) > 0 {
+					return list
+				}
+			}
 		}
-		_ = json.Unmarshal([]byte(openAIResp.Choices[0].Message.Content), &structResult)
-		return structResult.Insights
+		return nil
 	}
 
 	return nil
@@ -208,6 +237,12 @@ func (h *AiHandler) InspectDefect(w http.ResponseWriter, r *http.Request) {
 		Description string `json:"description"`
 	}
 	_ = json.NewDecoder(r.Body).Decode(&req)
+	h.inspectDefectByDescription(w, req.Description)
+}
+
+// inspectDefectByDescription: OpenAI text analysis when a key is configured, otherwise SNiP rules
+func (h *AiHandler) inspectDefectByDescription(w http.ResponseWriter, description string) {
+	req := struct{ Description string }{Description: description}
 
 	if h.Config.OpenAIKey != "" && req.Description != "" {
 		systemPrompt := `You are a certified construction defect inspector and technical supervisor in Kazakhstan according to SNiP RK and SP RK standards.
@@ -307,11 +342,12 @@ func (h *AiHandler) VisionProxy(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var req struct {
-		Photos      []string `json:"photos"`
-		Description string   `json:"description"`
-		Category    string   `json:"category"`
-		City        string   `json:"city"`
-		Mode        string   `json:"mode"`
+		Photos      []string           `json:"photos"`
+		Description string             `json:"description"`
+		Category    string             `json:"category"`
+		City        string             `json:"city"`
+		Mode        string             `json:"mode"`
+		Dimensions  map[string]float64 `json:"dimensions"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid request", http.StatusBadRequest)
@@ -319,6 +355,7 @@ func (h *AiHandler) VisionProxy(w http.ResponseWriter, r *http.Request) {
 	}
 
 	apiKey := r.Header.Get("X-OpenAI-Key")
+	userKey := apiKey != ""
 	if apiKey == "" {
 		if req.Mode == "detailed" && h.Config.OpenAIDetailedKey != "" {
 			apiKey = h.Config.OpenAIDetailedKey
@@ -326,9 +363,9 @@ func (h *AiHandler) VisionProxy(w http.ResponseWriter, r *http.Request) {
 			apiKey = h.Config.OpenAIKey
 		}
 	}
-	model := r.Header.Get("X-OpenAI-Model")
-	if model == "" {
-		model = "gpt-4o"
+	model := pickModel(r, userKey, "gpt-4o")
+	if len(req.Photos) > 6 {
+		req.Photos = req.Photos[:6]
 	}
 
 	if apiKey == "" {
@@ -338,6 +375,7 @@ func (h *AiHandler) VisionProxy(w http.ResponseWriter, r *http.Request) {
 			Description: req.Description,
 			City:        req.City,
 			Scenario:    req.Mode,
+			Dimensions:  req.Dimensions,
 		})
 		_ = json.NewEncoder(w).Encode(qtoResult)
 		return
@@ -404,7 +442,7 @@ func (h *AiHandler) VisionProxy(w http.ResponseWriter, r *http.Request) {
 	if err != nil || resp.StatusCode != http.StatusOK {
 		// Fallback to local estimator
 		qtoResult := h.estimator.CalculateEstimate(services.QTOFormulaRequest{
-			Category: req.Category, Description: req.Description, City: req.City,
+			Category: req.Category, Description: req.Description, City: req.City, Dimensions: req.Dimensions,
 		})
 		_ = json.NewEncoder(w).Encode(qtoResult)
 		return
@@ -450,8 +488,9 @@ func (h *AiHandler) DefectVisionProxy(w http.ResponseWriter, r *http.Request) {
 
 	apiKey := h.Config.OpenAIKey
 	if apiKey == "" {
-		// No key — use existing SNiP fallback from InspectDefect
-		h.InspectDefect(w, r)
+		// No key — SNiP rules on the description (the request body is already consumed,
+		// so pass the description explicitly instead of calling InspectDefect(w, r))
+		h.inspectDefectByDescription(w, req.Description)
 		return
 	}
 
@@ -498,8 +537,7 @@ func (h *AiHandler) DefectVisionProxy(w http.ResponseWriter, r *http.Request) {
 	resp, err := client.Do(httpReq)
 	if err != nil || resp.StatusCode != http.StatusOK {
 		// Fallback to SNiP rules
-		fallbackReq, _ := http.NewRequest("POST", "", strings.NewReader(fmt.Sprintf(`{"description":"%s"}`, req.Description)))
-		h.InspectDefect(w, fallbackReq)
+		h.inspectDefectByDescription(w, req.Description)
 		return
 	}
 	defer resp.Body.Close()
@@ -597,10 +635,10 @@ func (h *AiHandler) ProxyToAIService(w http.ResponseWriter, r *http.Request) {
 		targetURL += "?" + r.URL.RawQuery
 	}
 
-	// Read original body
-	bodyBytes, err := io.ReadAll(r.Body)
+	// Read original body (bounded: photos / point clouds up to 50 MB)
+	bodyBytes, err := io.ReadAll(http.MaxBytesReader(w, r.Body, 50<<20))
 	if err != nil {
-		http.Error(w, "Failed to read request body", http.StatusBadRequest)
+		writeError(w, http.StatusRequestEntityTooLarge, "Файл слишком большой (максимум 50 МБ)")
 		return
 	}
 
@@ -612,23 +650,29 @@ func (h *AiHandler) ProxyToAIService(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// SECURITY: copy only safe headers (not all)
-	safeHeaders := []string{"Content-Type", "Accept", "Accept-Language"}
+	safeHeaders := []string{"Content-Type", "Accept", "Accept-Language", "Authorization"}
 	for _, h := range safeHeaders {
 		if v := r.Header.Get(h); v != "" {
 			proxyReq.Header.Set(h, v)
 		}
 	}
+	// Real client IP for the AI service's rate limiter (otherwise every user shares one IP)
+	proxyReq.Header.Set("X-Forwarded-For", clientIP(r))
 
 	client := &http.Client{Timeout: 120 * time.Second}
 	resp, err := client.Do(proxyReq)
 	if err != nil {
-		http.Error(w, fmt.Sprintf(`{"error":"AI service unavailable: %s"}`, err.Error()), http.StatusBadGateway)
+		log.Printf("[AI proxy] %s %s: %v", r.Method, cleanPath, err)
+		writeError(w, http.StatusBadGateway, "AI-сервис временно недоступен")
 		return
 	}
 	defer resp.Body.Close()
 
-	// Copy response headers
+	// Copy response headers (CORS is set by our own middleware — never duplicate it)
 	for key, values := range resp.Header {
+		if strings.HasPrefix(strings.ToLower(key), "access-control-") {
+			continue
+		}
 		for _, value := range values {
 			w.Header().Add(key, value)
 		}
@@ -650,3 +694,15 @@ func getEnv(key string) string {
 	return os.Getenv(key)
 }
 
+
+// clientIP returns the caller's IP (first X-Forwarded-For hop behind Railway's proxy)
+func clientIP(r *http.Request) string {
+	if xff := r.Header.Get("X-Forwarded-For"); xff != "" {
+		return strings.TrimSpace(strings.Split(xff, ",")[0])
+	}
+	host, _, err := net.SplitHostPort(r.RemoteAddr)
+	if err != nil {
+		return r.RemoteAddr
+	}
+	return host
+}

@@ -240,8 +240,9 @@ class QwenVLM:
       3. Mock result (no model available)
     """
 
-    OLLAMA_URL = "http://localhost:11434/api/generate"
-    OLLAMA_MODEL = "qwen2.5vl:7b"
+    # Адрес и модель Ollama — из settings (env OLLAMA_HOST / QWEN_MODEL); в docker-compose это http://ollama:11434
+    OLLAMA_URL = settings.OLLAMA_HOST.rstrip("/") + "/api/generate"
+    OLLAMA_MODEL = settings.QWEN_MODEL
     HF_MODEL_ID  = "Qwen/Qwen2.5-VL-7B-Instruct"
 
     def __init__(self, device: Optional[str] = None):
@@ -273,7 +274,7 @@ class QwenVLM:
         """Check if Ollama is running AND has a Qwen VLM model."""
         try:
             import requests
-            r = requests.get("http://localhost:11434/api/tags", timeout=2)
+            r = requests.get(settings.OLLAMA_HOST.rstrip("/") + "/api/tags", timeout=2)
             if r.status_code != 200:
                 return False
             # Check if qwen model is available

@@ -1,5 +1,7 @@
 // Global Audit Log Store for Admin Actions
 
+import { getStoredCurrentUser } from './platformUtils';
+
 const AUDIT_STORAGE_KEY = 'qazgost_admin_audit_logs';
 
 const initialLogs = [
@@ -51,7 +53,12 @@ export function getAuditLogs() {
   return initialLogs;
 }
 
-export function logAuditAction(actionType, details, module = 'Система', user = 'Администратор') {
+export function logAuditAction(actionType, details, module = 'Система', user = null) {
+  // Исполнитель — реально вошедший пользователь (раньше всегда «Администратор»)
+  if (!user) {
+    const cu = getStoredCurrentUser();
+    user = cu ? `${cu.name || cu.email || 'Пользователь'}${cu.email ? ` <${cu.email}>` : ''} [${cu.role || '—'}]` : 'Неизвестный пользователь';
+  }
   const current = getAuditLogs();
   const newLog = {
     id: `LOG-${Date.now().toString().slice(-5)}`,

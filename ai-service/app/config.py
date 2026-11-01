@@ -10,6 +10,9 @@ from typing import Optional, List
 from pydantic_settings import BaseSettings
 from pydantic import Field
 
+# Корень ai-service (…/ai-service), не зависит от текущего каталога процесса
+BASE_DIR = Path(__file__).resolve().parent.parent
+
 
 class Settings(BaseSettings):
     """Application settings loaded from environment variables."""
@@ -32,10 +35,10 @@ class Settings(BaseSettings):
     ])
     CORS_DEV: bool = Field(default=True)  # Set to false in production
     
-    # Model paths
+    # Model paths (Updated to 2026 SOTA yo26 / YOLO11 architecture with YOLOv8 backward compatibility)
     MODEL_DIR: Path = Field(default=Path("./models"))
-    YOLO_MODEL: str = Field(default="yolov8m.pt")  # base model (internal engine)
-    YOLO_CONSTRUCTION_MODEL: str = Field(default="qazgost_detector_v1.pt")  # QazGost AI trained model
+    YOLO_MODEL: str = Field(default="yolo26m.pt")  # base model 2026 (falls back to yolo11m.pt / yolov8m.pt)
+    YOLO_CONSTRUCTION_MODEL: str = Field(default="qazgost_detector_v26.pt")  # QazGost AI trained 2026 model
     DEPTH_MODEL: str = Field(default="Intel/dpt-large")
     
     # Processing
@@ -49,10 +52,48 @@ class Settings(BaseSettings):
     RATE_LIMIT_ANALYZE: str = Field(default="10/minute")
     RATE_LIMIT_ESTIMATES: str = Field(default="30/minute")
     RATE_LIMIT_DEFAULT: str = Field(default="60/minute")
-    
+    # In-process limiter (app/api/v1/metrics.py): запросов в минуту на клиента
+    RATE_LIMIT_GENERAL_PER_MIN: int = Field(default=120)
+    RATE_LIMIT_HEAVY_PER_MIN: int = Field(default=10)   # /analyze, /analyze-3d, /analyze/intent, /defect-scan
+    # За Go-прокси все запросы приходят с одного IP — берём клиента из X-Forwarded-For / X-Real-IP
+    TRUST_FORWARDED_FOR: bool = Field(default=True)
+
     # Image Validation
     ALLOWED_IMAGE_TYPES: List[str] = Field(default=["image/jpeg", "image/png", "image/webp"])
-    MAX_UPLOAD_IMAGE_SIZE: int = Field(default=20 * 1024 * 1024)  # 20MB for images specifically
+    MAX_UPLOAD_IMAGE_SIZE: int = Field(default=15 * 1024 * 1024)  # 15MB на одно изображение → 413
+    MAX_IMAGE_PIXELS: int = Field(default=40_000_000)             # защита от decompression bomb → 413
+    MAX_UPLOAD_AUDIO_SIZE: int = Field(default=10 * 1024 * 1024)  # 10MB для /speech/recognize
+
+    # Defect detection (YOLO, обученная модель 6 классов)
+    # DEFECT_MODEL_PATH: путь к весам или список через запятую (порядок приоритета).
+    # Пусто → DEFECT_MODEL_CANDIDATES. Относительные пути — от каталога ai-service.
+    DEFECT_MODEL_PATH: Optional[str] = Field(default=None)
+    DEFECT_MODEL_CANDIDATES: List[str] = Field(default=[
+        "models/defect_yolo26_best.pt",
+        "models/defect_yolov8s_best.pt",
+    ])
+    # Как выбирать среди кандидатов (если DEFECT_MODEL_PATH не задан):
+    #   best_map — веса с лучшим mAP50-95 на val по <веса>.meta.json (без meta — в порядке списка);
+    #   first    — первый существующий файл из списка.
+    DEFECT_MODEL_SELECT: str = Field(default="best_map")
+    # Порог уверенности. Пусто → берётся из <веса>.meta.json (max F1 на val, scripts/eval_defects.py),
+    # иначе 0.25. Параметр sensitivity запроса /defect-scan сдвигает порог относительно этого значения.
+    DEFECT_CONF_THRESHOLD: Optional[float] = Field(default=None)
+    DEFECT_IOU: float = Field(default=0.5)
+    DEFECT_IMGSZ: Optional[int] = Field(default=None)  # пусто → imgsz, на котором обучалась модель
+
+    # Налоги. С 01.01.2026 ставка НДС в РК — 16% (новый Налоговый кодекс РК, подписан 18.07.2025;
+    # источник: https://en.tengrinews.kz/laws_initiatives/tokaev-signs-new-tax-code-with-vat-hike-to-16-and-268704)
+    VAT_RATE: float = Field(default=0.16)
+
+    # Отчёты: путь к TTF-шрифту с кириллицей (по умолчанию ищется DejaVuSans)
+    PDF_FONT_PATH: Optional[str] = Field(default=None)
+
+    # Хранилище смет (SQLite). В Docker указывать путь на томе, например /app/db/estimates.db
+    ESTIMATES_DB_PATH: Optional[Path] = Field(default=None)
+
+    # Каталог модуля photo3d (SfM). По умолчанию ../WebVersion/backend или ./photo3d
+    PHOTO3D_DIR: Optional[Path] = Field(default=None)
     
     # Device
     DEVICE: str = Field(default="auto")  # "auto", "cuda", "cpu"

@@ -14,9 +14,49 @@ Usage:
 
 import io
 import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 from pathlib import Path
 from loguru import logger
+
+from app.config import settings
+
+
+def _vat_rate() -> float:
+    return float(settings.VAT_RATE)
+
+
+def _vat_label() -> str:
+    return f"НДС ({_vat_rate() * 100:g}%)"
+
+
+_PDF_FONTS: Optional[Tuple[str, str]] = None
+
+
+def _register_pdf_fonts() -> Tuple[str, str]:
+    """
+    Register a Cyrillic TTF (DejaVuSans) in reportlab once. Returns (regular, bold) font names.
+    Fallback — Helvetica (кириллица не отобразится), с предупреждением в логе.
+    """
+    global _PDF_FONTS
+    if _PDF_FONTS:
+        return _PDF_FONTS
+    from reportlab.pdfbase import pdfmetrics
+    from reportlab.pdfbase.ttfonts import TTFont
+    from app.services.fonts import find_cyrillic_font
+
+    regular, bold = find_cyrillic_font(False), find_cyrillic_font(True)
+    if regular:
+        pdfmetrics.registerFont(TTFont("QG-Regular", regular))
+        pdfmetrics.registerFont(TTFont("QG-Bold", bold or regular))
+        from reportlab.lib.fonts import addMapping
+        addMapping("QG-Regular", 0, 0, "QG-Regular")
+        addMapping("QG-Regular", 1, 0, "QG-Bold")
+        _PDF_FONTS = ("QG-Regular", "QG-Bold")
+        logger.info(f"[Report] PDF font: {regular}")
+    else:
+        logger.warning("[Report] Cyrillic font not found — PDF will use Helvetica (Cyrillic will not render)")
+        _PDF_FONTS = ("Helvetica", "Helvetica-Bold")
+    return _PDF_FONTS
 
 
 # ─── PDF Generator ─────────────────────────────────────────────
@@ -52,10 +92,11 @@ def _generate_pdf_reportlab(estimate: Dict[str, Any]) -> bytes:
                             leftMargin=20*mm, rightMargin=20*mm,
                             topMargin=20*mm, bottomMargin=20*mm)
 
+    font, font_bold = _register_pdf_fonts()
     styles = getSampleStyleSheet()
-    title_style = ParagraphStyle('Title_RU', parent=styles['Title'], fontSize=18)
-    heading_style = ParagraphStyle('Heading_RU', parent=styles['Heading2'], fontSize=14)
-    normal_style = styles['Normal']
+    title_style = ParagraphStyle('Title_RU', parent=styles['Title'], fontName=font_bold, fontSize=18)
+    heading_style = ParagraphStyle('Heading_RU', parent=styles['Heading2'], fontName=font_bold, fontSize=14)
+    normal_style = ParagraphStyle('Normal_RU', parent=styles['Normal'], fontName=font)
 
     elements = []
 
@@ -82,6 +123,7 @@ def _generate_pdf_reportlab(estimate: Dict[str, Any]) -> bytes:
     ]
     info_table = Table(info_data, colWidths=[60*mm, 100*mm])
     info_table.setStyle(TableStyle([
+        ('FONTNAME', (0, 0), (-1, -1), font),
         ('BACKGROUND', (0, 0), (0, -1), colors.Color(0.95, 0.95, 0.95)),
         ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
         ('FONTSIZE', (0, 0), (-1, -1), 10),
@@ -119,6 +161,9 @@ def _generate_pdf_reportlab(estimate: Dict[str, Any]) -> bytes:
 
             t = Table(table_data, colWidths=[10*mm, 60*mm, 20*mm, 15*mm, 25*mm, 30*mm])
             t.setStyle(TableStyle([
+                ('FONTNAME', (0, 0), (-1, -1), font),
+                ('FONTNAME', (0, 0), (-1, 0), font_bold),
+                ('FONTNAME', (0, -1), (-1, -1), font_bold),
                 ('BACKGROUND', (0, 0), (-1, 0), colors.Color(0.2, 0.2, 0.3)),
                 ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
                 ('FONTSIZE', (0, 0), (-1, 0), 9),
@@ -135,7 +180,7 @@ def _generate_pdf_reportlab(estimate: Dict[str, Any]) -> bytes:
 
     # Grand total
     grand_total = estimate.get('grand_total', 0)
-    nds = grand_total * 0.12
+    nds = round(grand_total * _vat_rate())
     total_with_nds = grand_total + nds
 
     elements.append(HRFlowable(width="100%", color=colors.black, thickness=2))
@@ -143,11 +188,13 @@ def _generate_pdf_reportlab(estimate: Dict[str, Any]) -> bytes:
 
     total_data = [
         ['Итого без НДС:', f'{grand_total:,.0f} ₸'],
-        ['НДС (12%):', f'{nds:,.0f} ₸'],
+        [f'{_vat_label()}:', f'{nds:,.0f} ₸'],
         ['ИТОГО с НДС:', f'{total_with_nds:,.0f} ₸'],
     ]
     total_table = Table(total_data, colWidths=[120*mm, 40*mm])
     total_table.setStyle(TableStyle([
+        ('FONTNAME', (0, 0), (-1, -1), font),
+        ('FONTNAME', (0, -1), (-1, -1), font_bold),
         ('ALIGN', (1, 0), (1, -1), 'RIGHT'),
         ('FONTSIZE', (0, 0), (-1, -1), 11),
         ('FONTSIZE', (0, -1), (-1, -1), 14),
@@ -184,8 +231,8 @@ def _generate_pdf_simple(estimate: Dict[str, Any]) -> bytes:
 
     grand = estimate.get('grand_total', 0)
     lines.append(f"ИТОГО без НДС: {grand:,.0f} ₸")
-    lines.append(f"НДС (12%): {grand * 0.12:,.0f} ₸")
-    lines.append(f"ИТОГО с НДС: {grand * 1.12:,.0f} ₸")
+    lines.append(f"{_vat_label()}: {grand * _vat_rate():,.0f} ₸")
+    lines.append(f"ИТОГО с НДС: {grand * (1 + _vat_rate()):,.0f} ₸")
 
     text = "\n".join(lines)
 
@@ -226,6 +273,17 @@ def generate_excel(estimate: Dict[str, Any]) -> bytes:
         raise ImportError("openpyxl required for Excel generation: pip install openpyxl")
 
 
+_FORMULA_PREFIXES = ("=", "+", "-", "@", "\t", "\r")
+
+
+def _text(cell, value):
+    """Write user/text data as a plain string — never as a formula (CSV/Excel injection)."""
+    cell.value = value
+    if isinstance(value, str) and value.startswith(_FORMULA_PREFIXES):
+        cell.data_type = "s"
+    return cell
+
+
 def _generate_excel_openpyxl(estimate: Dict[str, Any]) -> bytes:
     """Generate Excel using openpyxl."""
     from openpyxl import Workbook
@@ -256,12 +314,13 @@ def _generate_excel_openpyxl(estimate: Dict[str, Any]) -> bytes:
     ws['A2'] = 'Дата:'
     ws['B2'] = datetime.datetime.now().strftime('%d.%m.%Y')
     ws['A3'] = 'Город:'
-    ws['B3'] = estimate.get('city', '—').title()
+    _text(ws['B3'], str(estimate.get('city', '—')).title())
     ws['A4'] = 'Площадь:'
     ws['B4'] = f"{estimate.get('area_m2', 0)} м²"
 
     row = 6
     grand_total_row = None
+    subtotal_cells: List[str] = []
 
     for sys in estimate.get('systems', []):
         sys_name = sys.get('system', '')
@@ -269,7 +328,7 @@ def _generate_excel_openpyxl(estimate: Dict[str, Any]) -> bytes:
 
         # System header
         ws.merge_cells(f'A{row}:F{row}')
-        ws[f'A{row}'] = f"{sys_name} ({snip})"
+        _text(ws[f'A{row}'], f"{sys_name} ({snip})")
         ws[f'A{row}'].font = sub_font
         row += 1
 
@@ -288,7 +347,7 @@ def _generate_excel_openpyxl(estimate: Dict[str, Any]) -> bytes:
         first_item_row = row
         for i, item in enumerate(items, 1):
             ws.cell(row=row, column=1, value=i).border = thin_border
-            ws.cell(row=row, column=2, value=item.get('name', '')).border = thin_border
+            _text(ws.cell(row=row, column=2), item.get('name', '')).border = thin_border
             ws.cell(row=row, column=3, value=item.get('volume', 0)).border = thin_border
             ws.cell(row=row, column=4, value=item.get('unit', '')).border = thin_border
 
@@ -296,9 +355,9 @@ def _generate_excel_openpyxl(estimate: Dict[str, Any]) -> bytes:
             price_cell.number_format = money_fmt
             price_cell.border = thin_border
 
-            # Formula: volume × unit_price
+            # Formula: ROUND(volume × unit_price) — совпадает с item["total"] (round half up)
             formula_cell = ws.cell(row=row, column=6)
-            formula_cell.value = f"=C{row}*E{row}"
+            formula_cell.value = f"=ROUND(C{row}*E{row},0)"
             formula_cell.number_format = money_fmt
             formula_cell.border = thin_border
 
@@ -320,6 +379,7 @@ def _generate_excel_openpyxl(estimate: Dict[str, Any]) -> bytes:
         subtotal_cell.font = Font(bold=True)
         subtotal_cell.fill = total_fill
         subtotal_cell.border = thin_border
+        subtotal_cells.append(f"F{row}")
 
         row += 2
 
@@ -328,13 +388,15 @@ def _generate_excel_openpyxl(estimate: Dict[str, Any]) -> bytes:
 
     ws[f'A{row}'] = 'Итого без НДС:'
     ws[f'A{row}'].font = Font(bold=True, size=12)
-    ws.cell(row=row, column=6, value=grand_total).number_format = money_fmt
+    # Итог — формула по подытогам систем (раньше было захардкоженное число, не сходившееся с SUM)
+    grand_formula = f"=SUM({','.join(subtotal_cells)})" if subtotal_cells else grand_total
+    ws.cell(row=row, column=6, value=grand_formula).number_format = money_fmt
     ws[f'F{row}'].font = Font(bold=True, size=12)
     grand_total_row = row
     row += 1
 
-    ws[f'A{row}'] = 'НДС (12%):'
-    ws.cell(row=row, column=6).value = f"=F{grand_total_row}*0.12"
+    ws[f'A{row}'] = f'{_vat_label()}:'
+    ws.cell(row=row, column=6).value = f"=ROUND(F{grand_total_row}*{_vat_rate()},0)"
     ws[f'F{row}'].number_format = money_fmt
     nds_row = row
     row += 1

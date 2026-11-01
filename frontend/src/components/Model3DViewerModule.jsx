@@ -1,5 +1,5 @@
 import React from 'react';
-import Building3DViewer from './Building3DViewer';
+import Building3DViewer from './Building3DViewerLazy';
 
 export default function Model3DViewerModule() {
   return (

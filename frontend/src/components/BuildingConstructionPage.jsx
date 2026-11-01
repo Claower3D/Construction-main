@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './BuildingConstructionPage.css';
-import Building3DViewer from './Building3DViewer';
+import Building3DViewer from './Building3DViewerLazy';
 import { createPlatformOrder } from '../services/orderSyncService';
 
 // Initial preloaded VIP construction sites

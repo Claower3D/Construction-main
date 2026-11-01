@@ -1,4 +1,5 @@
 // QazGost Engineer Mobile — Real Production Railway Client & Data Sync
+import { createSyncStore, localDateISO, addDaysISO, authHeaders, makeNote, formatBudget, fetchWithTimeout, cleanServerUrl } from './syncCore';
 const STORAGE_KEY_DEALS = 'qazgost_engineer_deals_perm';
 const STORAGE_KEY_AUTH = 'qazgost_engineer_auth_perm';
 const STORAGE_KEY_SAVED_LOGIN = 'qazgost_engineer_saved_login';
@@ -104,223 +105,6 @@ export const STATUS_CONFIG = {
   'Завершено': { label: 'Завершено', color: '#22c55e', bg: 'rgba(34, 197, 94, 0.15)', icon: '✅' }
 };
 
-// Real production deals loaded from Railway Go Backend (PostgreSQL)
-export const INITIAL_REAL_DEALS = [
-  {
-    id: "8060",
-    leadNum: "76",
-    title: "Установка септика (Ольга)",
-    client: "Ольга",
-    phone: "+77019724104",
-    location: "г. Караганда, ул. Космонавтов, 189",
-    budget: 250000,
-    status: "Выезд назначен",
-    role: "engineer",
-    date: new Date().toISOString().split('T')[0],
-    time: "11:00",
-    priority: "urgent",
-    notes: [
-      { text: "Выезд мастера. Есть выгребная яма и проложены кан.трубы, которым 4 года. Хотят новый септик", time: "Railway", author: "Ольга" }
-    ],
-    inspection: {
-      depth: '2.8',
-      ringsDiameter: 'КС-15 (1.5м)',
-      ringsCount: '3',
-      pipeLength: '8',
-      soilType: 'Суглинок',
-      groundWater: 'Низкий (>3м)',
-      accessTruck: 'Удобный (прямой заезд)',
-      oldPit: 'Старая яма рядом в 3 метрах',
-      notes: 'Требуется смещение на 2 метра от старого колодца. Подъезд манипулятора свободен.',
-      photos: []
-    }
-  },
-  {
-    id: "0058",
-    leadNum: "55",
-    title: "Установка септика (Заказчик)",
-    client: "Заказчик",
-    phone: "+7 (701) 888-00-11",
-    location: "г. Астана, район Юго-Восток",
-    budget: 1500000,
-    status: "Новые",
-    role: "engineer",
-    date: new Date().toISOString().split('T')[0],
-    time: "14:30",
-    priority: "urgent",
-    notes: [
-      { text: "Заявка передана инженеру ПТО для проведения замеров и составления сметы.", time: "Railway", author: "Заказчик" }
-    ],
-    inspection: {
-      depth: '3.5',
-      ringsDiameter: 'КС-20 (2.0м)',
-      ringsCount: '4',
-      pipeLength: '15',
-      soilType: 'Песок с глиной',
-      groundWater: 'Средний (~2.5м)',
-      accessTruck: 'Затруднён (узкие ворота)',
-      oldPit: 'Нет',
-      notes: '',
-      photos: []
-    }
-  },
-  {
-    id: "2616",
-    leadNum: "74",
-    title: "Установка септика (Татьяна)",
-    client: "Татьяна",
-    phone: "+77009932460",
-    location: "Рабочий посёлок, переулок Лесной, д. 1",
-    budget: 350000,
-    status: "На объекте",
-    role: "engineer",
-    date: new Date().toISOString().split('T')[0],
-    time: "16:00",
-    priority: "normal",
-    notes: [
-      { text: "6 метров чёрной трубы люк 6т, требуется осмотр места врезки", time: "Railway", author: "Татьяна" }
-    ],
-    inspection: {
-      depth: '2.5',
-      ringsDiameter: 'КС-10 (1.0м)',
-      ringsCount: '3',
-      pipeLength: '6',
-      soilType: 'Суглинок',
-      groundWater: 'Низкий',
-      accessTruck: 'Удобный',
-      oldPit: 'Нет',
-      notes: 'Люк полимерно-песчаный 6т. Грунт распланировать на участке.',
-      photos: []
-    }
-  },
-  {
-    id: "1198",
-    leadNum: "81",
-    title: "Установка септика (Наталья)",
-    client: "Наталья",
-    phone: "+7 700 993 2460",
-    location: "г. Караганда, Сортировка, Рабочий поселок, пер. Лесной 1",
-    budget: 350000,
-    status: "Замер выполнен",
-    role: "engineer",
-    date: new Date().toISOString().split('T')[0],
-    time: "17:30",
-    priority: "normal",
-    notes: [
-      { text: "Есть старый колодец, хотят новый. Подъезд техники имеется. Планируют на 3 кольца", time: "Railway", author: "Наталья" }
-    ],
-    inspection: {
-      depth: '3.0',
-      ringsDiameter: 'КС-15 (1.5м)',
-      ringsCount: '3',
-      pipeLength: '10',
-      soilType: 'Суглинок',
-      groundWater: 'Низкий',
-      accessTruck: 'Удобный',
-      oldPit: 'Старый колодец под демонтаж',
-      notes: 'Смета отправлена менеджеру на согласование с клиентом.',
-      photos: []
-    }
-  },
-  {
-    id: "7921",
-    leadNum: "36",
-    title: "Установка септика (Володя)",
-    client: "Володя",
-    phone: "+7 (701) 888-00-11",
-    location: "г. Астана",
-    budget: 375000,
-    status: "Новые",
-    role: "engineer",
-    date: new Date().toISOString().split('T')[0],
-    time: "10:00",
-    priority: "normal",
-    notes: [
-      { text: "Септик на два кольца 6 м трубы три полуотвода 45-х горловина люк плита перекрытия кольца полутораметровые", time: "Railway", author: "Володя" }
-    ]
-  },
-  {
-    id: "1979",
-    leadNum: "12",
-    title: "Установка септика (Ольга Витальевна)",
-    client: "Ольга Витальевна",
-    phone: "+77074849999",
-    location: "Караганда, Республики 32 нп2 строения 1",
-    budget: 530000,
-    status: "Новые",
-    role: "engineer",
-    date: new Date().toISOString().split('T')[0],
-    time: "12:00",
-    priority: "urgent",
-    notes: [
-      { text: "Прокладывание канализации, врезка в колодец", time: "Railway", author: "Ольга Витальевна" }
-    ]
-  },
-  {
-    id: "1311",
-    leadNum: "45",
-    title: "Установка септика (Ира)",
-    client: "Ира",
-    phone: "+7 705 545 8074",
-    location: "Караганда, 1 квартал ул. Вишневая 33",
-    budget: 335000,
-    status: "Новые",
-    role: "engineer",
-    date: new Date().toISOString().split('T')[0],
-    time: "15:00",
-    priority: "normal",
-    notes: [
-      { text: "Заявка передана инженеру ПТО для проведения замеров и составления сметы.", time: "Railway", author: "Ира" }
-    ]
-  },
-  {
-    id: "5232",
-    leadNum: "18",
-    title: "Монтаж отопления (Заказчик)",
-    client: "Заказчик",
-    phone: "+7 (701) 888-00-11",
-    location: "г. Астана",
-    budget: 350000,
-    status: "Новые",
-    role: "engineer",
-    date: new Date().toISOString().split('T')[0],
-    time: "16:30",
-    priority: "normal",
-    notes: [
-      { text: "Люк 6т без вывоза грунта, распланировать на месте, чёрная труба 6м", time: "Railway", author: "Заказчик" }
-    ]
-  },
-  {
-    id: "3862",
-    leadNum: "93",
-    title: "Установка септика (Сарыарка)",
-    client: "Сарыарка",
-    phone: "+905353654286",
-    location: "Сарыарка Завод Взрывчатки",
-    budget: 400000,
-    status: "Новые",
-    role: "engineer",
-    date: new Date().toISOString().split('T')[0],
-    time: "18:00",
-    priority: "normal",
-    notes: []
-  },
-  {
-    id: "5641",
-    leadNum: "52",
-    title: "Установка септика (Заказчик)",
-    client: "Заказчик",
-    phone: "+7 (701) 888-00-11",
-    location: "Юго-Восток Муканова 53",
-    budget: 375000,
-    status: "В работе",
-    role: "engineer",
-    date: new Date().toISOString().split('T')[0],
-    time: "09:30",
-    priority: "normal",
-    notes: []
-  }
-];
 
 export function getSavedLogin() {
   try {
@@ -373,55 +157,6 @@ export function setSavedAuth(authData) {
   } catch (e) {}
 }
 
-export function getStoredDeals() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY_DEALS);
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-    }
-  } catch (e) {}
-  localStorage.setItem(STORAGE_KEY_DEALS, JSON.stringify(INITIAL_REAL_DEALS));
-  return INITIAL_REAL_DEALS;
-}
-
-export function saveStoredDeals(deals) {
-  try {
-    localStorage.setItem(STORAGE_KEY_DEALS, JSON.stringify(deals));
-  } catch (e) {}
-}
-
-function parseBudget(b) {
-  if (typeof b === 'number') return b;
-  if (typeof b === 'string') return parseInt(b.replace(/[^\d]/g, ''), 10) || 0;
-  return 0;
-}
-
-function normalizeRemoteItem(item) {
-  let notes = [];
-  if (typeof item.notes === 'string' && item.notes.trim()) {
-    notes = [{ text: item.notes, time: 'Railway', author: item.contractor || 'Менеджер' }];
-  } else if (Array.isArray(item.notes)) {
-    notes = item.notes;
-  }
-
-  return {
-    id: String(item.id),
-    leadNum: String(item.leadNum || item.id),
-    title: item.title || ('Заявка #' + item.id),
-    client: item.contractor || item.client || 'Клиент',
-    phone: item.phone || '',
-    location: item.location || '',
-    budget: parseBudget(item.budget),
-    status: item.status || 'Новые',
-    role: item.role || 'engineer',
-    date: item.date || new Date().toISOString().slice(0, 10),
-    time: item.time || '10:00',
-    priority: item.priority || 'normal',
-    notes: notes,
-    updated_at: item.updatedAt || item.createdAt || new Date().toISOString()
-  };
-}
 
 // Check real server health
 export async function testServerPing(serverUrl) {
@@ -445,169 +180,295 @@ export async function testServerPing(serverUrl) {
   }
 }
 
-// Fetch live events from Railway PostgreSQL backend
-export async function fetchServerDeals(serverUrl) {
-  const cleanUrl = (serverUrl || 'https://construction-main-production.up.railway.app').replace(/\/+$/, '');
-  const start = performance.now();
+// ── Server URL (persisted) ──
+const DEFAULT_SERVER_URL = 'https://construction-main-production.up.railway.app';
 
+export function getSavedServerUrl() {
   try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 6000);
-
-    const getRes = await fetch(`${cleanUrl}/api/v1/crm/events`, {
-      method: 'GET',
-      headers: { 'Accept': 'application/json' },
-      signal: controller.signal
-    });
-    clearTimeout(timeoutId);
-
-    const latency = Math.round(performance.now() - start);
-
-    if (getRes.ok) {
-      const data = await getRes.json();
-      const remoteRaw = data.items || (data.events && Array.isArray(data.events) ? data.events : []);
-
-      if (remoteRaw.length > 0) {
-        const localDeals = getStoredDeals();
-        const localMap = new Map(localDeals.map(d => [String(d.id), d]));
-
-        const merged = remoteRaw.map(item => {
-          const norm = normalizeRemoteItem(item);
-          const local = localMap.get(norm.id) || {};
-          return {
-            ...norm,
-            status: local.status || norm.status,
-            inspection: local.inspection || {
-              depth: '2.8',
-              ringsDiameter: 'КС-15 (1.5м)',
-              ringsCount: '3',
-              pipeLength: '8',
-              soilType: 'Суглинок',
-              groundWater: 'Низкий (>3м)',
-              accessTruck: 'Удобный (прямой заезд)',
-              oldPit: 'Нет',
-              notes: '',
-              photos: []
-            }
-          };
-        });
-
-        saveStoredDeals(merged);
-        return { success: true, latency, deals: merged };
-      }
-    }
-  } catch (err) {
-    console.warn('[EngineerApi] Server fetch fallback:', err);
-  }
-
-  return { success: false, deals: getStoredDeals() };
-}
-
-// Update status and push to Railway
-export async function updateDealStatus(serverUrl, dealId, newStatus, newNote = null, authorName = 'Инженер ПТО') {
-  const deals = getStoredDeals();
-  const idx = deals.findIndex(d => String(d.id) === String(dealId));
-  if (idx !== -1) {
-    deals[idx].status = newStatus;
-    if (newNote) {
-      deals[idx].notes = deals[idx].notes || [];
-      deals[idx].notes.unshift({
-        text: newNote,
-        time: new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }),
-        author: authorName
-      });
-    }
-    saveStoredDeals(deals);
-  }
-
-  // Sync to Railway
-  const cleanUrl = (serverUrl || 'https://construction-main-production.up.railway.app').replace(/\/+$/, '');
-  try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 4000);
-    await fetch(`${cleanUrl}/api/v1/crm/events/sync`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ items: deals }),
-      signal: controller.signal
-    });
-    clearTimeout(timeoutId);
+    const s = JSON.parse(localStorage.getItem(STORAGE_KEY_SETTINGS) || '{}');
+    return (s && s.serverUrl) || DEFAULT_SERVER_URL;
   } catch (e) {
-    console.warn('[EngineerApi] Railway push deferred:', e);
+    return DEFAULT_SERVER_URL;
   }
-
-  return deals;
 }
 
-// Save inspection report & push to Railway
-export async function saveInspectionReport(serverUrl, dealId, inspectionData, authorName = 'Инженер ПТО') {
-  const deals = getStoredDeals();
-  const idx = deals.findIndex(d => String(d.id) === String(dealId));
-  if (idx !== -1) {
-    deals[idx].inspection = {
-      ...deals[idx].inspection,
-      ...inspectionData
+export function setSavedServerUrl(url) {
+  try {
+    const s = JSON.parse(localStorage.getItem(STORAGE_KEY_SETTINGS) || '{}') || {};
+    s.serverUrl = String(url || '').trim() || DEFAULT_SERVER_URL;
+    localStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify(s));
+  } catch (e) {}
+}
+
+function currentToken() {
+  try { return getSavedAuth()?.token; } catch (e) { return undefined; }
+}
+
+export function getAuthHeaders() {
+  return authHeaders(currentToken());
+}
+
+// ── Demo data: FICTIONAL, shown only offline before the first successful sync, never pushed ──
+export function buildDemoDeals() {
+  const today = localDateISO();
+  const mk = (n, extra) => ({
+    id: `demo-eng-${n}`,
+    leadNum: `00${n}`,
+    client: `Демо-клиент ${n}`,
+    contractor: `Демо-клиент ${n}`,
+    phone: `+7 700 000 00 0${n}`,
+    location: `Демо-адрес ${n}`,
+    role: 'engineer',
+    priority: 'normal',
+    notes: [{ text: 'Демонстрационная запись (офлайн-демо, не синхронизируется)', time: '', author: 'Демо' }],
+    ...extra
+  });
+  return [
+    mk(1, { title: 'Установка септика (Демо-клиент 1)', budget: 350000, status: 'Выезд назначен', date: today, time: '11:00' }),
+    mk(2, { title: 'Техническая экспертиза (Демо-клиент 2)', budget: 150000, status: 'Новые', date: today, time: '14:30' }),
+    mk(3, { title: 'Бурение скважины (Демо-клиент 3)', budget: 600000, status: 'На объекте', date: addDaysISO(today, 1), time: '10:00' })
+  ];
+}
+
+export const dealsStore = createSyncStore({
+  dealsKey: STORAGE_KEY_DEALS,
+  tombKey: 'qazgost_engineer_deleted_ids',
+  demoFactory: buildDemoDeals,
+  getServerUrl: getSavedServerUrl,
+  getToken: currentToken,
+  getAuthorName: () => getSavedAuth()?.name || 'Инженер ПТО'
+});
+
+export function getStoredDeals() {
+  return dealsStore.load();
+}
+
+export function saveStoredDeals(deals) {
+  return dealsStore.save(deals);
+}
+
+export function pendingSyncCount(list) {
+  return dealsStore.pendingCount(list);
+}
+
+export function loadDemoDeals() {
+  return dealsStore.loadDemo();
+}
+
+/** Pull → merge (newer side wins, local-only records kept) → push changed records only. */
+export function syncDeals() {
+  return dealsStore.sync();
+}
+
+/** Forget clean server copies and pull again; unsynced local changes are kept. */
+export function resetCachedDeals() {
+  const keep = dealsStore.load().filter((d) => d._dirty && !d._demo);
+  dealsStore.save(keep);
+  return keep;
+}
+
+// ── Local edits (each marks the record dirty; App triggers sync) ──
+export function updateDealStatus(dealId, newStatus, newNote = null, authorName = 'Инженер ПТО') {
+  return dealsStore.edit(dealId, (d) => ({
+    ...d,
+    status: newStatus,
+    notes: newNote ? [makeNote(newNote, authorName), ...(d.notes || [])] : (d.notes || [])
+  }));
+}
+
+const PRE_MEASURE_STATUSES = ['Новые', 'Выезд назначен', 'Инженер выехал', 'На объекте'];
+
+function inspectionSummary(i) {
+  const parts = [];
+  if (i.depth) parts.push(`глубина ${i.depth} м`);
+  if (i.ringsDiameter || i.ringsCount) parts.push(`кольца ${i.ringsDiameter || '—'}${i.ringsCount ? ` × ${i.ringsCount} шт` : ''}`);
+  if (i.pipeLength) parts.push(`труба ${i.pipeLength} м`);
+  if (i.soilType) parts.push(`грунт: ${i.soilType}`);
+  if (i.groundWater) parts.push(`УГВ: ${i.groundWater}`);
+  if (i.accessTruck) parts.push(`подъезд: ${i.accessTruck}`);
+  if (i.oldPit) parts.push(`старая яма: ${i.oldPit}`);
+  if (i.totalEstimate) parts.push(`смета ${formatBudget(i.totalEstimate)}`);
+  if (i.photos && i.photos.length) parts.push(`фото: ${i.photos.length} (на устройстве инженера)`);
+  if (i.notes) parts.push(`прим.: ${i.notes}`);
+  return parts.length ? `Замер объекта: ${parts.join('; ')}` : 'Осмотр объекта сохранён (замеры не заполнены)';
+}
+
+export function saveInspectionReport(dealId, inspectionData, authorName = 'Инженер ПТО', opts = {}) {
+  return dealsStore.edit(dealId, (d) => {
+    const status = opts.status || (PRE_MEASURE_STATUSES.includes(d.status) ? 'Замер выполнен' : d.status);
+    const notes = [makeNote(inspectionSummary(inspectionData), authorName)];
+    if (opts.note) notes.push(makeNote(opts.note, authorName));
+    if (status !== d.status) notes.push(makeNote(`Статус изменен на «${status}»`, authorName));
+    return {
+      ...d,
+      inspection: { ...(d.inspection || {}), ...inspectionData, savedAt: new Date().toISOString() },
+      status,
+      notes: [...notes, ...(d.notes || [])] // summary first, then comment / status change
     };
-    deals[idx].status = 'Замер выполнен';
-    deals[idx].notes = deals[idx].notes || [];
-    deals[idx].notes.unshift({
-      text: `Выполнен замер объекта: Глубина ${inspectionData.depth || '-'}м, Кольца: ${inspectionData.ringsDiameter || '-'} (${inspectionData.ringsCount || '-'} шт), Труба: ${inspectionData.pipeLength || '-'}м`,
-      time: new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }),
-      author: authorName
-    });
-    saveStoredDeals(deals);
-  }
-
-  const cleanUrl = (serverUrl || 'https://construction-main-production.up.railway.app').replace(/\/+$/, '');
-  try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 4000);
-    await fetch(`${cleanUrl}/api/v1/crm/events/sync`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ items: deals }),
-      signal: controller.signal
-    });
-    clearTimeout(timeoutId);
-  } catch (e) {}
-
-  return deals;
+  });
 }
 
-// Schedule or reschedule visit date and time & push to Railway
-export async function updateDealSchedule(serverUrl, dealId, newDate, newTime, authorName = 'Инженер ПТО') {
-  const deals = getStoredDeals();
-  const idx = deals.findIndex(d => String(d.id) === String(dealId));
-  if (idx !== -1) {
-    deals[idx].date = newDate;
-    deals[idx].time = newTime;
-    if (deals[idx].status === 'Новые') {
-      deals[idx].status = 'Выезд назначен';
-    }
-    deals[idx].notes = deals[idx].notes || [];
-    deals[idx].notes.unshift({
-      text: `Назначен выезд на ${newDate} в ${newTime}`,
-      time: new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }),
-      author: authorName
-    });
-    saveStoredDeals(deals);
-  }
-
-  const cleanUrl = (serverUrl || 'https://construction-main-production.up.railway.app').replace(/\/+$/, '');
-  try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 4000);
-    await fetch(`${cleanUrl}/api/v1/crm/events/sync`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ items: deals }),
-      signal: controller.signal
-    });
-    clearTimeout(timeoutId);
-  } catch (e) {}
-
-  return deals;
+export function updateDealSchedule(dealId, newDate, newTime, authorName = 'Инженер ПТО') {
+  return dealsStore.edit(dealId, (d) => ({
+    ...d,
+    date: newDate,
+    time: newTime,
+    status: d.status === 'Новые' ? 'Выезд назначен' : d.status,
+    notes: [makeNote(`Назначен выезд на ${newDate} в ${newTime}`, authorName), ...(d.notes || [])]
+  }));
 }
+
+// ── Defect detection (YOLO on the server: POST /api/v1/defect-scan, multipart field "file") ──
+function toNumber(v) {
+  if (typeof v === 'number') return v;
+  const n = parseFloat(String(v ?? '').replace(',', '.'));
+  return Number.isFinite(n) ? n : null;
+}
+
+export function normalizeDefectScan(data) {
+  const rawItems = Array.isArray(data?.defects?.items) ? data.defects.items : (Array.isArray(data?.defects) ? data.defects : []);
+  const items = rawItems.map((d) => {
+    let conf = toNumber(d.confidence ?? d.score);
+    if (conf != null && conf > 1) conf = conf / 100;
+    return {
+      type: d.type || d.class || d.label || 'дефект',
+      cls: d.class || '',
+      severity: d.severity || '',
+      confidence: conf,
+      bbox: d.bbox || null,
+      model: d.model || ''
+    };
+  });
+  const sum = data?.defect_severity_summary || data?.severity_summary || {};
+  return {
+    defectType: data?.defectType || (items[0] ? items[0].type : 'Дефектов не обнаружено'),
+    severity: data?.severity || '',
+    snipCode: data?.snipCode || '',
+    fixMethod: data?.fixMethod || '',
+    estimatedCost: data?.estimatedCost ?? null,
+    workDays: data?.workDays ?? null,
+    annotatedImage: data?.defect_annotated_image || data?.annotated_image || null,
+    items,
+    summary: {
+      total: typeof sum.total === 'number' ? sum.total : items.length,
+      bySeverity: sum.by_severity || {},
+      maxSeverity: sum.max_severity || ''
+    },
+    detector: (data?.detector && (data.detector.name || data.detector.model)) || (items[0] && items[0].model) || '',
+    validatedClasses: Array.isArray(data?.detector?.validated_classes) ? data.detector.validated_classes.map(String) : null,
+    detectorNote: (data?.detector && data.detector.note) || '',
+    isMock: !!(data?.is_mock || data?.fallback),
+    scannedAt: new Date().toISOString()
+  };
+}
+
+export async function runDefectScan(fileOrBlob, { sensitivity = 0.5, prompt = '' } = {}) {
+  const base = cleanServerUrl(getSavedServerUrl());
+  const fd = new FormData();
+  fd.append('file', fileOrBlob, (fileOrBlob && fileOrBlob.name) || 'defect.jpg');
+  const qs = new URLSearchParams({ sensitivity: String(sensitivity) });
+  if (prompt) qs.set('prompt', prompt);
+  let res;
+  try {
+    res = await fetchWithTimeout(`${base}/api/v1/defect-scan?${qs.toString()}`, {
+      method: 'POST',
+      headers: { Accept: 'application/json', ...getAuthHeaders() },
+      body: fd
+    }, 90000);
+  } catch (e) {
+    throw new Error(`Сервис выявления дефектов недоступен (${e.name === 'AbortError' ? 'таймаут' : (e.message || 'нет сети')})`);
+  }
+  if (!res.ok) {
+    throw new Error(`Сервис выявления дефектов недоступен (HTTP ${res.status})`);
+  }
+  let data;
+  try { data = await res.json(); } catch (e) { throw new Error('Сервис выявления дефектов вернул некорректный ответ'); }
+  if (!data || data.success === false) {
+    throw new Error(`Сервис выявления дефектов вернул ошибку: ${(data && (data.error || data.detail)) || 'нет данных'}`);
+  }
+  return normalizeDefectScan(data);
+}
+
+export function attachDefectReport(dealId, report, authorName = 'Инженер ПТО') {
+  return dealsStore.edit(dealId, (d) => {
+    const counts = Object.entries(report.summary?.bySeverity || {}).map(([k, v]) => `${k}: ${v}`).join(', ');
+    const cost = report.estimatedCost != null && report.estimatedCost !== '' ? `; оценка устранения: ${typeof report.estimatedCost === 'number' ? formatBudget(report.estimatedCost) : report.estimatedCost}` : '';
+    const text = `Дефектоскопия (ИИ${report.detector ? `, ${report.detector}` : ''}${report.isMock ? ', резервный алгоритм' : ''}): `
+      + `${report.summary?.total ?? report.items.length} деф.${counts ? ` (${counts})` : ''}; основной: ${report.defectType}`
+      + `${report.severity ? `; класс: ${report.severity}` : ''}${report.snipCode ? `; ${report.snipCode}` : ''}${cost}`
+      + `${report.workDays ? `; срок: ${report.workDays} дн.` : ''}`;
+    return {
+      ...d,
+      defects: [{ ...report, attachedAt: new Date().toISOString() }, ...(d.defects || [])].slice(0, 10),
+      notes: [makeNote(text, authorName), ...(d.notes || [])]
+    };
+  });
+}
+
+// ── Photo estimate (POST /api/v1/ai/vision; works without OpenAI key via the local estimator) ──
+export function normalizeVisionEstimate(data) {
+  if (!data || typeof data !== 'object') throw new Error('Пустой ответ сервиса сметы');
+  let r;
+  if (data.recommended || Array.isArray(data.scenarios)) {
+    const sc = data.recommended || data.scenarios[0] || {};
+    r = {
+      source: 'Локальный сметчик QazGost',
+      total: sc.totalCost, works: sc.worksCost, materials: sc.materialsCost, equipment: sc.equipmentCost,
+      contingency: sc.contingency, days: sc.timelineDays,
+      items: (sc.items || []).map((i) => ({ name: i.name, qty: i.quantity, unit: i.unit, unitPrice: i.unitPrice, total: i.total })),
+      insights: data.aiInsights || [],
+      detected: data.category || '',
+      normative: data.normative || ''
+    };
+  } else {
+    r = {
+      source: 'ИИ-анализ фото',
+      total: data.total_cost, works: data.works_cost, materials: data.materials_cost, equipment: data.equipment_cost,
+      contingency: data.contingency, days: data.timeline_days,
+      items: (data.items || []).map((i) => ({ name: i.name, qty: i.volume, unit: i.unit, unitPrice: i.unit_price, total: i.total })),
+      insights: data.insights || [],
+      detected: data.detected_type || '',
+      normative: ''
+    };
+  }
+  const num = (v) => { const n = toNumber(v); return n == null ? 0 : Math.round(n); };
+  r.total = num(r.total); r.works = num(r.works); r.materials = num(r.materials); r.equipment = num(r.equipment);
+  r.contingency = num(r.contingency); r.days = num(r.days);
+  if (!r.total) throw new Error('Сервис сметы вернул пустой расчёт');
+  return r;
+}
+
+export async function runVisionEstimate({ photoDataUrl, description, category, city, mode = 'auto' }) {
+  const base = cleanServerUrl(getSavedServerUrl());
+  let res;
+  try {
+    res = await fetchWithTimeout(`${base}/api/v1/ai/vision`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json', ...getAuthHeaders() },
+      body: JSON.stringify({ photos: photoDataUrl ? [photoDataUrl] : [], description, category, city, mode })
+    }, 90000);
+  } catch (e) {
+    throw new Error(`Сервис сметы недоступен (${e.name === 'AbortError' ? 'таймаут' : (e.message || 'нет сети')})`);
+  }
+  if (!res.ok) throw new Error(`Сервис сметы недоступен (HTTP ${res.status})`);
+  let data;
+  try { data = await res.json(); } catch (e) { throw new Error('Сервис сметы вернул некорректный ответ'); }
+  return normalizeVisionEstimate(data);
+}
+
+export function attachEstimate(dealId, estimate, authorName = 'Инженер ПТО') {
+  return dealsStore.edit(dealId, (d) => ({
+    ...d,
+    estimates: [{ ...estimate, attachedAt: new Date().toISOString() }, ...(d.estimates || [])].slice(0, 10),
+    notes: [makeNote(
+      `Смета по фото (${estimate.source}${estimate.categoryName ? `, ${estimate.categoryName}` : ''}${estimate.city ? `, ${estimate.city}` : ''}): `
+      + `итого ${formatBudget(estimate.total)}; работы ${formatBudget(estimate.works)}, материалы ${formatBudget(estimate.materials)}, `
+      + `техника ${formatBudget(estimate.equipment)}${estimate.days ? `; срок ${estimate.days} дн.` : ''}`,
+      authorName
+    ), ...(d.notes || [])]
+  }));
+}
+
 
 export async function loginEngineer(serverUrl, loginInput, password) {
   const cleanLogin = (loginInput || '').trim();

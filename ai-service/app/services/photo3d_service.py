@@ -15,8 +15,22 @@ from pathlib import Path
 import numpy as np
 from loguru import logger
 
-# Add photo3d location to path
-_PHOTO3D_DIR = Path(__file__).resolve().parent.parent.parent.parent / "WebVersion" / "backend"
+# Add photo3d location to path: env PHOTO3D_DIR → ai-service/photo3d → ../WebVersion/backend (монорепо)
+def _photo3d_dir() -> Path:
+    try:
+        from app.config import settings
+        if settings.PHOTO3D_DIR:
+            return Path(settings.PHOTO3D_DIR)
+    except Exception:
+        pass
+    service_root = Path(__file__).resolve().parent.parent.parent
+    for cand in (service_root / "photo3d", service_root.parent / "WebVersion" / "backend"):
+        if (cand / "photo3d.py").is_file():
+            return cand
+    return service_root.parent / "WebVersion" / "backend"
+
+
+_PHOTO3D_DIR = _photo3d_dir()
 if str(_PHOTO3D_DIR) not in sys.path:
     sys.path.insert(0, str(_PHOTO3D_DIR))
 

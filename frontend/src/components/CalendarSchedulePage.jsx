@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { createPlatformOrder } from '../services/orderSyncService';
+import { createPlatformOrder, upsertCrmEvent } from '../services/orderSyncService';
+import { authHeaders, localDateKey, genId } from '../services/platformUtils';
 
 export default function CalendarSchedulePage({ onBack, hideHeader = false, role = 'executor' }) {
   const [currentDate, setCurrentDate] = useState(() => new Date());
@@ -8,7 +9,7 @@ export default function CalendarSchedulePage({ onBack, hideHeader = false, role 
 
   // New event form state
   const [newEventTitle, setNewEventTitle] = useState('');
-  const [newEventDate, setNewEventDate] = useState(() => new Date().toISOString().split('T')[0]);
+  const [newEventDate, setNewEventDate] = useState(() => localDateKey());
   const [newEventType, setNewEventType] = useState('inspection'); // 'inspection' | 'concrete' | 'machinery' | 'handover'
   const [newEventLocation, setNewEventLocation] = useState('г. Алматы, объект Самал-2');
   const [newEventEngineer, setNewEventEngineer] = useState('Куаныш Жумагулов (ГИП)');
@@ -75,7 +76,7 @@ export default function CalendarSchedulePage({ onBack, hideHeader = false, role 
   // ── SERVER SYNC: Загрузка событий с сервера для кросс-устройственной синхронизации ──
   useEffect(() => {
     const fetchCalendarEvents = () => {
-      fetch('/api/v1/crm/events')
+      fetch('/api/v1/crm/events', { headers: authHeaders() })
         .then(r => r.ok ? r.json() : null)
         .then(data => {
           if (data && data.items && data.items.length > 0) {
@@ -85,7 +86,7 @@ export default function CalendarSchedulePage({ onBack, hideHeader = false, role 
                 id: e.id || `ev-${Date.now()}`,
                 title: e.title || 'Событие',
                 type: e.type === 'request_engineering' ? 'inspection' : (e.role === 'machinery' ? 'machinery' : 'concrete'),
-                date: e.date || new Date().toISOString().split('T')[0],
+                date: e.date || localDateKey(),
                 time: e.time ? `${e.time} - ${String(parseInt(e.time) + 2).padStart(2, '0')}:00` : '10:00 - 12:00',
                 location: e.location || 'г. Алматы',
                 specialist: e.contractor || e.assignedEngineer || 'Специалист',
@@ -118,7 +119,7 @@ export default function CalendarSchedulePage({ onBack, hideHeader = false, role 
     if (!newEventTitle.trim()) return;
 
     const newEv = {
-      id: `ev-${Date.now()}`,
+      id: genId('ev'),
       title: newEventTitle,
       type: newEventType,
       date: newEventDate,
@@ -132,22 +133,20 @@ export default function CalendarSchedulePage({ onBack, hideHeader = false, role 
     setEvents([newEv, ...events]);
 
     // Отправка на сервер для синхронизации между устройствами
-    fetch('/api/v1/crm/events', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        id: newEv.id,
-        title: newEv.title,
-        date: newEv.date,
-        time: '10:00',
-        type: 'request_engineering',
-        role: 'engineer',
-        status: 'Новые',
-        location: newEv.location,
-        contractor: newEv.specialist,
-        budget: '0 ₸'
-      })
-    }).catch(() => {});
+    upsertCrmEvent({
+      id: newEv.id,
+      title: newEv.title,
+      date: newEv.date,
+      time: '10:00',
+      type: 'request_engineering',
+      role: 'engineer',
+      status: 'Новые',
+      location: newEv.location,
+      contractor: newEv.specialist,
+      budget: '0 ₸'
+    }).then(r => {
+      if (!r.ok) alert(`⚠️ Событие сохранено только на этом устройстве: сервер ответил «${r.error}»`);
+    });
 
     setShowAddModal(false);
     setNewEventTitle('');

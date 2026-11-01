@@ -1,180 +1,304 @@
-import React, { useState } from 'react';
-import { ShoppingBag, Search, Plus, Check, Tag } from 'lucide-react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import { Search, Plus, Check, Phone, Star, Truck, Package, RefreshCw, AlertTriangle, MapPin, X, HardHat, Users } from 'lucide-react';
+import { fetchEquipment, fetchMaterials, fetchContractors, formatPrice, telHref } from '../api/marketApi';
+import { EmptyState, SkeletonList } from './ui/kit';
 
-const CATALOG_ITEMS = [
-  { id: 'm1', cat: 'sewer', title: 'Кольцо ЖБИ КС-15.9 (1.5м)', price: 28000, unit: 'шт', badge: 'ГОСТ' },
-  { id: 'm2', cat: 'sewer', title: 'Кольцо ЖБИ КС-20.9 (2.0м)', price: 42000, unit: 'шт', badge: 'ГОСТ' },
-  { id: 'm3', cat: 'sewer', title: 'Плита перекрытия ПП-15', price: 26000, unit: 'шт', badge: 'ГОСТ' },
-  { id: 'm4', cat: 'sewer', title: 'Плита перекрытия ПП-20', price: 38000, unit: 'шт', badge: 'ГОСТ' },
-  { id: 'm5', cat: 'sewer', title: 'Люк полимерно-песчаный 6т', price: 14000, unit: 'шт', badge: 'ХИТ' },
-  { id: 'm6', cat: 'sewer', title: 'Люк чугунный тип Т (25т)', price: 32000, unit: 'шт', badge: 'ГОСТ' },
-  { id: 'm7', cat: 'pipe', title: 'Труба рыжая канализационная 110 (2м)', price: 4200, unit: 'шт', badge: 'SN4' },
-  { id: 'm8', cat: 'pipe', title: 'Труба рыжая канализационная 110 (3м)', price: 6100, unit: 'шт', badge: 'SN4' },
-  { id: 'm9', cat: 'pipe', title: 'Отвод ПВХ 110 / 45°', price: 1200, unit: 'шт', badge: '' },
-  { id: 'm10', cat: 'pipe', title: 'Тройник ПВХ 110 / 110 / 45°', price: 2400, unit: 'шт', badge: '' },
-  { id: 'm11', cat: 'bulk', title: 'Щебень фракция 20-40 (самосвал 10т)', price: 45000, unit: 'рейс', badge: 'ДОСТАВКА' },
-  { id: 'm12', cat: 'bulk', title: 'Песок мытый карьерный (10т)', price: 38000, unit: 'рейс', badge: 'ДОСТАВКА' },
-  { id: 'm13', cat: 'tools', title: 'Гидроизоляция битумная мастика (20л)', price: 12500, unit: 'ведро', badge: '' },
-  { id: 'm14', cat: 'tools', title: 'Цемент М400 (мешок 50кг)', price: 2800, unit: 'мешок', badge: '' }
+// Shared marketplace screen (identical copy in mobile-engineer and mobile-executor).
+// Live data from the server; built-in positions are only an offline fallback marked «Демо».
+
+const TABS = [
+  { id: 'materials', label: 'Материалы', icon: Package },
+  { id: 'equipment', label: 'Техника', icon: Truck },
+  { id: 'contractors', label: 'Бригады', icon: HardHat }
 ];
+const PLACEHOLDER = {
+  materials: 'Кольцо КС-15, труба 110, цемент',
+  equipment: 'Экскаватор, кран, госномер',
+  contractors: 'Септики, кровля, имя бригадира'
+};
 
-export default function MarketplaceView({ onAddRequisition }) {
-  const [selectedCat, setSelectedCat] = useState('all');
-  const [search, setSearch] = useState('');
-  const [addedIds, setAddedIds] = useState(new Set());
+function DemoTag() {
+  return <span className="qz-tag is-warn">Демо</span>;
+}
 
-  const categories = [
-    { id: 'all', label: 'Все товары' },
-    { id: 'sewer', label: 'ЖБИ & Люки' },
-    { id: 'pipe', label: 'Трубы 110/160' },
-    { id: 'bulk', label: 'Щебень & Песок' },
-    { id: 'tools', label: 'Расходники' }
-  ];
+function Rating({ value, count }) {
+  if (!(value > 0)) return null;
+  return (
+    <span className="qz-row qz-small" style={{ gap: 4, color: 'var(--warn)', fontWeight: 650 }}>
+      <Star size={13} fill="currentColor" aria-hidden="true" /> {value.toFixed(1)}
+      {count > 0 && <span className="qz-faint" style={{ fontWeight: 500 }}>({count} отз.)</span>}
+    </span>
+  );
+}
 
-  const filtered = CATALOG_ITEMS.filter(item => {
-    if (selectedCat !== 'all' && item.cat !== selectedCat) return false;
-    if (search && !item.title.toLowerCase().includes(search.toLowerCase())) return false;
-    return true;
-  });
+export default function MarketplaceView({
+  serverUrl,
+  authHeaders,
+  addLabel = 'В заявку',
+  onAddItem,
+  fallbackMaterials = [],
+  fallbackEquipment = [],
+  defaultCity = ''
+}) {
+  const [tab, setTab] = useState('materials');
+  const [query, setQuery] = useState('');
+  const [debounced, setDebounced] = useState('');
+  const [reloadKey, setReloadKey] = useState(0);
+  const [category, setCategory] = useState('all');
+  const [addedIds, setAddedIds] = useState(() => new Set());
+  const timersRef = useRef([]);
 
-  const handleAdd = (item) => {
-    setAddedIds(prev => new Set(prev).add(item.id));
-    if (onAddRequisition) onAddRequisition(item);
-    setTimeout(() => {
-      setAddedIds(prev => {
-        const next = new Set(prev);
-        next.delete(item.id);
-        return next;
+  const [materials, setMaterials] = useState({ status: 'idle', items: [], total: 0, error: null, demo: false });
+  const [equipment, setEquipment] = useState({ status: 'idle', items: [], error: null, demo: false });
+  const [contractors, setContractors] = useState({ status: 'idle', items: [], total: 0, error: null, demo: false });
+
+  useEffect(() => () => timersRef.current.forEach(clearTimeout), []);
+  useEffect(() => {
+    const t = setTimeout(() => setDebounced(query.trim()), 350);
+    return () => clearTimeout(t);
+  }, [query]);
+  useEffect(() => { setCategory('all'); }, [tab]);
+
+  // Materials: server-side search
+  useEffect(() => {
+    if (tab !== 'materials') return undefined;
+    const ac = new AbortController();
+    setMaterials(prev => ({ ...prev, status: 'loading', error: null }));
+    fetchMaterials(serverUrl, authHeaders, debounced, ac.signal)
+      .then(({ items, total }) => setMaterials({ status: 'ready', items, total, error: null, demo: false }))
+      .catch(err => {
+        if (err.aborted) return;
+        const q = debounced.toLowerCase();
+        const items = fallbackMaterials.filter(m => !q || `${m.name} ${m.category}`.toLowerCase().includes(q));
+        setMaterials({ status: 'error', items, total: items.length, error: err.message, demo: true });
       });
+    return () => ac.abort();
+  }, [tab, debounced, reloadKey, serverUrl, authHeaders, fallbackMaterials]);
+
+  // Equipment: whole list, filtered on the device
+  useEffect(() => {
+    if (tab !== 'equipment') return undefined;
+    const ac = new AbortController();
+    setEquipment(prev => ({ ...prev, status: 'loading', error: null }));
+    fetchEquipment(serverUrl, authHeaders, ac.signal)
+      .then(items => setEquipment({ status: 'ready', items, error: null, demo: false }))
+      .catch(err => {
+        if (err.aborted) return;
+        setEquipment({ status: 'error', items: fallbackEquipment, error: err.message, demo: true });
+      });
+    return () => ac.abort();
+  }, [tab, reloadKey, serverUrl, authHeaders, fallbackEquipment]);
+
+  // Contractors (brigades): server-side search, no offline demo — contacts must be real
+  useEffect(() => {
+    if (tab !== 'contractors') return undefined;
+    const ac = new AbortController();
+    setContractors(prev => ({ ...prev, status: 'loading', error: null }));
+    fetchContractors(serverUrl, authHeaders, { city: defaultCity, q: debounced }, ac.signal)
+      .then(({ items, total }) => setContractors({ status: 'ready', items, total, error: null, demo: false }))
+      .catch(err => {
+        if (err.aborted) return;
+        setContractors({ status: 'error', items: [], total: 0, error: err.message, demo: false });
+      });
+    return () => ac.abort();
+  }, [tab, debounced, reloadKey, serverUrl, authHeaders, defaultCity]);
+
+  const source = tab === 'materials' ? materials : (tab === 'equipment' ? equipment : contractors);
+
+  const categories = useMemo(() => {
+    if (tab === 'contractors') return [];
+    const counts = new Map();
+    source.items.forEach(it => { if (it.category) counts.set(it.category, (counts.get(it.category) || 0) + 1); });
+    return [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8).map(([c]) => c);
+  }, [source.items, tab]);
+
+  const visible = useMemo(() => {
+    const q = debounced.toLowerCase();
+    return source.items.filter(it => {
+      if (category !== 'all' && it.category !== category) return false;
+      if (tab === 'equipment' && q) {
+        const hay = `${it.name} ${it.category} ${it.city} ${it.ownerName} ${it.plateNumber} ${it.capacity}`.toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    });
+  }, [source.items, category, debounced, tab]);
+
+  const handleAdd = useCallback((item) => {
+    setAddedIds(prev => new Set(prev).add(item.id));
+    if (onAddItem) onAddItem({ ...item, title: item.name });
+    const t = setTimeout(() => {
+      setAddedIds(prev => { const next = new Set(prev); next.delete(item.id); return next; });
     }, 1500);
-  };
+    timersRef.current.push(t);
+  }, [onAddItem]);
 
   return (
-    <div style={{ padding: '16px' }}>
-      {/* Search Header */}
-      <div style={{ marginBottom: '14px' }}>
-        <h2 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#ffffff', margin: '0 0 4px' }}>
-          Снабжение и дозаказ материалов
-        </h2>
-        <p style={{ fontSize: '0.74rem', color: '#94a3b8', margin: '0 0 12px' }}>
-          Быстрый дозаказ колец, труб, люков и щебня на объект бригады
-        </p>
-
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          background: 'rgba(255, 255, 255, 0.05)',
-          border: '1px solid rgba(0, 229, 255, 0.25)',
-          borderRadius: '12px',
-          padding: '0 12px'
-        }}>
-          <Search size={16} color="#00e5ff" />
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Поиск КС-15, люк, труба рыжая..."
-            style={{
-              width: '100%',
-              background: 'transparent',
-              border: 'none',
-              padding: '10px',
-              color: '#ffffff',
-              fontSize: '0.84rem',
-              outline: 'none'
-            }}
-          />
-        </div>
-      </div>
-
-      {/* Category Pills */}
-      <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '8px', marginBottom: '16px', scrollbarWidth: 'none' }}>
-        {categories.map(c => (
-          <button
-            key={c.id}
-            onClick={() => setSelectedCat(c.id)}
-            style={{
-              background: selectedCat === c.id ? '#00e5ff' : 'rgba(255, 255, 255, 0.05)',
-              color: selectedCat === c.id ? '#060b17' : '#94a3b8',
-              border: 'none',
-              padding: '6px 12px',
-              borderRadius: '10px',
-              fontSize: '0.74rem',
-              fontWeight: 800,
-              cursor: 'pointer',
-              flexShrink: 0
-            }}
-          >
-            {c.label}
+    <div className="qz-page">
+      <div className="qz-segmented" role="tablist" aria-label="Раздел маркетплейса">
+        {TABS.map(({ id, label, icon: Icon }) => (
+          <button key={id} type="button" role="tab" aria-selected={tab === id} onClick={() => setTab(id)}>
+            <span className="qz-row" style={{ justifyContent: 'center', gap: 6 }}><Icon size={16} aria-hidden="true" />{label}</span>
           </button>
         ))}
       </div>
 
-      {/* Catalog Grid */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-        {filtered.map(item => {
-          const isAdded = addedIds.has(item.id);
-          return (
-            <div
-              key={item.id}
-              style={{
-                background: 'rgba(13, 21, 39, 0.9)',
-                border: '1px solid rgba(255, 255, 255, 0.08)',
-                borderRadius: '14px',
-                padding: '12px 14px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between'
-              }}
-            >
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
-                  <span style={{ fontSize: '0.88rem', fontWeight: 800, color: '#ffffff' }}>
-                    {item.title}
-                  </span>
-                  {item.badge && (
-                    <span style={{
-                      fontSize: '0.62rem',
-                      fontWeight: 900,
-                      background: 'rgba(0, 229, 255, 0.15)',
-                      color: '#00e5ff',
-                      padding: '1px 6px',
-                      borderRadius: '4px'
-                    }}>
-                      {item.badge}
-                    </span>
+      <label className="qz-search" style={{ marginTop: 'var(--sp-3)' }}>
+        <Search size={18} aria-hidden="true" />
+        <span className="qz-sr-only">Поиск</span>
+        <input type="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder={PLACEHOLDER[tab]} />
+        {query && (
+          <button type="button" onClick={() => setQuery('')} aria-label="Очистить поиск" className="qz-iconbtn" style={{ width: 36, height: 36 }}>
+            <X size={16} />
+          </button>
+        )}
+      </label>
+
+      {categories.length > 1 && (
+        <div className="qz-chips">
+          {['all', ...categories].map(c => (
+            <button key={c} type="button" className={`qz-chip${category === c ? ' is-active' : ''}`} onClick={() => setCategory(c)}>
+              {c === 'all' ? 'Все' : c}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {source.status === 'error' && (
+        <div className="qz-card is-warn" role="alert" style={{ display: 'flex', gap: 10, alignItems: 'flex-start', margin: 'var(--sp-2) 0 var(--sp-3)', padding: 'var(--sp-3)' }}>
+          <AlertTriangle size={18} style={{ color: 'var(--warn)', flexShrink: 0, marginTop: 2 }} />
+          <div className="qz-grow qz-small" style={{ color: 'var(--text-2)' }}>
+            Сервер недоступен ({source.error}).{' '}
+            {source.items.length ? 'Показаны демонстрационные позиции, цены условные.' : 'Подключитесь к сети, чтобы увидеть список.'}
+          </div>
+          <button type="button" className="qz-btn is-sm" onClick={() => setReloadKey(k => k + 1)}><RefreshCw size={15} /> Повторить</button>
+        </div>
+      )}
+
+      {source.status === 'loading' && <SkeletonList count={3} height={tab === 'materials' ? 84 : 150} />}
+
+      {source.status !== 'loading' && visible.length === 0 && source.status !== 'error' && (
+        <EmptyState
+          icon={tab === 'contractors' ? <Users size={28} /> : <Package size={28} />}
+          title={debounced || category !== 'all' ? 'Ничего не найдено' : 'Список пуст'}
+          text={debounced || category !== 'all' ? 'Измените запрос или категорию.' : 'Позиции появятся, когда их добавят на сервере.'}
+        />
+      )}
+
+      {/* Materials */}
+      {source.status !== 'loading' && tab === 'materials' && visible.length > 0 && (
+        <>
+          {!materials.demo && materials.total > visible.length && (
+            <div className="qz-xs qz-faint" style={{ margin: '0 0 6px' }}>Показано {visible.length} из {materials.total.toLocaleString('ru-RU')}. Уточните поиск.</div>
+          )}
+          <div style={{ display: 'grid', gap: 8 }}>
+            {visible.map(item => {
+              const added = addedIds.has(item.id);
+              return (
+                <div key={item.id} className="qz-card" style={{ padding: 'var(--sp-3)', display: 'flex', gap: 'var(--sp-3)', alignItems: 'center' }}>
+                  <div className="qz-grow">
+                    <div className="qz-row" style={{ alignItems: 'flex-start', gap: 6 }}>
+                      <span className="qz-h3" style={{ lineHeight: 1.3, overflowWrap: 'anywhere' }}>{item.name}</span>
+                      {materials.demo && <DemoTag />}
+                    </div>
+                    {(item.code || item.category) && <div className="qz-xs qz-faint" style={{ marginTop: 2 }}>{[item.code, item.category].filter(Boolean).join(', ')}</div>}
+                    <div className="qz-amount" style={{ fontSize: 'var(--fs-md)', marginTop: 4 }}>
+                      {formatPrice(item.price)} <span className="qz-small qz-faint" style={{ fontWeight: 500 }}>за {item.unit}</span>
+                    </div>
+                  </div>
+                  {onAddItem && (
+                    <button type="button" className={`qz-btn is-sm${added ? ' is-ok' : ''}`} onClick={() => handleAdd(item)} aria-label={`${addLabel}: ${item.name}`}>
+                      {added ? <Check size={16} /> : <Plus size={16} />} {added ? 'Добавлено' : addLabel}
+                    </button>
                   )}
                 </div>
+              );
+            })}
+          </div>
+        </>
+      )}
 
-                <div style={{ fontSize: '0.84rem', fontWeight: 900, color: '#10b981' }}>
-                  {item.price.toLocaleString('ru-RU')} ₸ <span style={{ fontSize: '0.72rem', color: '#94a3b8', fontWeight: 500 }}>/ {item.unit}</span>
+      {/* Equipment */}
+      {source.status !== 'loading' && tab === 'equipment' && visible.length > 0 && (
+        <div style={{ display: 'grid', gap: 'var(--sp-3)' }}>
+          {visible.map(eq => {
+            const tel = telHref(eq.ownerPhone);
+            const free = /доступ|свобод|available/i.test(eq.status);
+            return (
+              <div key={eq.id} className="qz-card" style={{ padding: 'var(--sp-3)' }}>
+                <div className="qz-row" style={{ alignItems: 'flex-start', gap: 'var(--sp-3)' }}>
+                  {eq.image && !equipment.demo ? (
+                    <img src={eq.image} alt="" loading="lazy" onError={(e) => { e.currentTarget.style.display = 'none'; }} style={{ width: 60, height: 60, borderRadius: 'var(--r-md)', objectFit: 'cover', flexShrink: 0, background: 'var(--surface-2)' }} />
+                  ) : (
+                    <span style={{ width: 60, height: 60, borderRadius: 'var(--r-md)', flexShrink: 0, background: 'var(--accent-soft)', color: 'var(--accent)', display: 'grid', placeItems: 'center' }} aria-hidden="true"><Truck size={26} /></span>
+                  )}
+                  <div className="qz-grow">
+                    <div className="qz-row" style={{ alignItems: 'flex-start', gap: 6 }}>
+                      <span className="qz-h3" style={{ lineHeight: 1.25, overflowWrap: 'anywhere' }}>{eq.name}</span>
+                      {equipment.demo && <DemoTag />}
+                    </div>
+                    <div className="qz-small qz-muted" style={{ marginTop: 2 }}>{[eq.category, eq.capacity].filter(Boolean).join(', ')}</div>
+                    <div className="qz-row qz-small" style={{ flexWrap: 'wrap', gap: '2px 10px', marginTop: 4 }}>
+                      {eq.city && <span className="qz-row qz-muted" style={{ gap: 3 }}><MapPin size={13} aria-hidden="true" />{eq.city}</span>}
+                      {eq.plateNumber && <span className="num" style={{ fontWeight: 600 }}>{eq.plateNumber}</span>}
+                      <Rating value={eq.rating} count={eq.reviewsCount} />
+                    </div>
+                    {eq.status && <span className={`qz-status ${free ? 'is-st-done' : 'is-st-attention'}`} style={{ marginTop: 6 }}>{eq.status}</span>}
+                  </div>
+                </div>
+                <hr className="qz-divider" />
+                <div className="qz-row" style={{ justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
+                  <div>
+                    {eq.pricePerHour > 0 && <div className="qz-amount" style={{ fontSize: 'var(--fs-md)' }}>{formatPrice(eq.pricePerHour)} <span className="qz-small qz-faint" style={{ fontWeight: 500 }}>в час</span></div>}
+                    {eq.pricePerDay > 0 && <div className="qz-small qz-muted num">{formatPrice(eq.pricePerDay)} за смену</div>}
+                    {eq.ownerName && <div className="qz-xs qz-faint">Владелец: {eq.ownerName}</div>}
+                  </div>
+                  {tel && !equipment.demo
+                    ? <a className="qz-btn is-ok is-sm" href={tel}><Phone size={16} /> Позвонить</a>
+                    : <span className="qz-xs qz-faint">{equipment.demo ? 'В демо нет контактов' : 'Телефон не указан'}</span>}
                 </div>
               </div>
+            );
+          })}
+        </div>
+      )}
 
-              <button
-                onClick={() => handleAdd(item)}
-                style={{
-                  background: isAdded ? '#10b981' : 'linear-gradient(135deg, #00e5ff 0%, #0284c7 100%)',
-                  border: 'none',
-                  borderRadius: '10px',
-                  padding: '8px 12px',
-                  color: '#060b17',
-                  fontSize: '0.74rem',
-                  fontWeight: 800,
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  cursor: 'pointer',
-                  transition: 'all 0.15s ease'
-                }}
-              >
-                {isAdded ? <Check size={14} /> : <Plus size={14} />}
-                <span>{isAdded ? 'Добавлено' : 'В заявку'}</span>
-              </button>
-            </div>
-          );
-        })}
-      </div>
+      {/* Contractors / brigades */}
+      {source.status !== 'loading' && tab === 'contractors' && visible.length > 0 && (
+        <div style={{ display: 'grid', gap: 'var(--sp-3)' }}>
+          {contractors.total > visible.length && <div className="qz-xs qz-faint">Показано {visible.length} из {contractors.total}</div>}
+          {visible.map(c => {
+            const tel = telHref(c.phone);
+            return (
+              <div key={c.id} className="qz-card" style={{ padding: 'var(--sp-3)' }}>
+                <div className="qz-row" style={{ justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                  <div className="qz-grow">
+                    <div className="qz-h3" style={{ overflowWrap: 'anywhere' }}>{c.name}</div>
+                    {c.companyName && c.companyName !== c.name && <div className="qz-small qz-muted">{c.companyName}</div>}
+                  </div>
+                  <Rating value={c.rating} />
+                </div>
+                <div className="qz-row qz-small qz-muted" style={{ flexWrap: 'wrap', gap: '2px 12px', marginTop: 6 }}>
+                  {c.foreman && <span>Бригадир: {c.foreman}</span>}
+                  {c.size > 0 && <span className="num">{c.size} чел.</span>}
+                  {c.city && <span className="qz-row" style={{ gap: 3 }}><MapPin size={13} aria-hidden="true" />{c.city}</span>}
+                </div>
+                {c.skills.length > 0 && (
+                  <div className="qz-row" style={{ flexWrap: 'wrap', gap: 6, marginTop: 8 }}>
+                    {c.skills.slice(0, 6).map(s => <span key={s} className="qz-tag">{s}</span>)}
+                  </div>
+                )}
+                {(tel || c.email) && (
+                  <div className="qz-row" style={{ marginTop: 10, gap: 8 }}>
+                    {tel && <a className="qz-btn is-ok is-sm" href={tel}><Phone size={16} /> Позвонить</a>}
+                    {c.email && <a className="qz-btn is-sm" href={`mailto:${c.email}`}>Написать</a>}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

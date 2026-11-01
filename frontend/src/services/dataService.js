@@ -6,13 +6,6 @@ const ORDERS_KEY = 'qazgost_orders_store';
 const MODERATION_KEY = 'qazgost_moderation_queue_store';
 const CONTRACTORS_KEY = 'qazgost_contractors_store';
 
-const initialOrders = [
-  { id: 'ORD-901', title: 'Капитальный ремонт бизнес-центра 1200 м²', city: 'Алматы', budget: '42 000 000 ₸', category: 'Отделка', date: '5 мин назад', status: 'published' },
-  { id: 'ORD-902', title: 'Строительство монолитного каркаса коттеджа 320 м²', city: 'Астана', budget: '14 800 000 ₸', category: 'Монолит', date: '18 мин назад', status: 'published' },
-  { id: 'ORD-903', title: 'Монтаж системы приточно-вытяжной вентиляции (HVAC)', city: 'Караганда', budget: '8 500 000 ₸', category: 'Инженерия', date: '45 мин назад', status: 'published' },
-  { id: 'ORD-904', title: 'Электромонтажные работы в новостройке', city: 'Шымкент', budget: '3 600 000 ₸', category: 'Электрика', date: '1 час назад', status: 'published' },
-];
-
 const initialModeration = [
   { id: 'MOD-101', priority: 'high', type: 'Заказ', title: 'Заказ: Капитальный ремонт офиса 450 м²', author: 'ТОО «Алматы Бизнес» (БИН 21044001293)', date: '12 минут назад', status: 'pending', details: { area: '450 м²', budget: '18,500,000 ₸', city: 'Алматы' } },
   { id: 'MOD-102', priority: 'normal', type: 'Верификация', title: 'Заявка на верификацию ИП «СтройМастер»', author: 'ИИН: 880412300451 • Астана', date: '25 минут назад', status: 'pending', details: { bin: '880412300451', city: 'Астана' } },
@@ -20,28 +13,23 @@ const initialModeration = [
 ];
 
 export async function getOrders() {
+  // Ответ сервера (в т.ч. пустой) — источник правды; при недоступности — только реально сохранённые
+  // локальные заказы. Демо-заказы больше не подставляются.
   try {
     const apiOrders = await apiFetchOrders();
-    if (apiOrders && Array.isArray(apiOrders) && apiOrders.length > 0) {
+    if (Array.isArray(apiOrders) && !apiOrders.offline) {
       return apiOrders;
     }
   } catch (e) {
     // API unavailable fallback to local storage
   }
-
-  try {
-    const saved = localStorage.getItem(ORDERS_KEY);
-    if (saved) return JSON.parse(saved);
-  } catch (e) {
-    console.error('DataService getOrders error:', e);
-  }
-  return initialOrders;
+  return getLocalOrders();
 }
 
 export function saveOrder(newOrder) {
   const current = getLocalOrders();
   const orderObj = {
-    id: `ORD-${Math.floor(100 + Math.random() * 900)}`,
+    id: `ORD-${Date.now().toString(36).toUpperCase()}${Math.random().toString(36).slice(2, 6).toUpperCase()}`,
     date: 'Только что',
     status: 'published',
     ...newOrder,
@@ -57,12 +45,12 @@ export function saveOrder(newOrder) {
 
 export function getLocalOrders() {
   try {
-    const saved = localStorage.getItem(ORDERS_KEY);
-    if (saved) return JSON.parse(saved);
+    const saved = JSON.parse(localStorage.getItem(ORDERS_KEY) || '[]');
+    if (Array.isArray(saved)) return saved;
   } catch (e) {
     console.error('DataService getLocalOrders error:', e);
   }
-  return initialOrders;
+  return [];
 }
 
 export function getModerationQueue() {

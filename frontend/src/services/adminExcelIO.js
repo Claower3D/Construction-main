@@ -1,10 +1,33 @@
 // Excel IO Utility for Admin Catalog Management using SheetJS (XLSX)
-import * as XLSX from 'xlsx';
+// SheetJS (~430 КБ) загружается динамически при первом экспорте/импорте, а не в основном бандле.
+let XLSX = null;
+let xlsxPromise = null;
+export function loadXlsx() {
+  if (XLSX) return Promise.resolve(XLSX);
+  if (!xlsxPromise) {
+    xlsxPromise = import('xlsx')
+      .then((m) => { XLSX = m && m.utils ? m : (m.default || m); return XLSX; })
+      .catch((err) => { xlsxPromise = null; throw err; });
+  }
+  return xlsxPromise;
+}
+
+async function withXlsx(fn) {
+  try {
+    await loadXlsx();
+  } catch (err) {
+    console.error('[xlsx] load failed:', err);
+    alert('Не удалось загрузить модуль Excel. Проверьте соединение и повторите.');
+    return undefined;
+  }
+  return fn();
+}
+import { parseMoney } from './platformUtils';
 
 /**
  * Export catalog price list to genuine binary Excel (.xlsx) format with Summary sheet
  */
-export function exportPricesToExcel(items, filename = 'qazgost_prices_catalog.xlsx') {
+function exportPricesToExcelImpl(items, filename = 'qazgost_prices_catalog.xlsx') {
   if (!items || items.length === 0) {
     alert('Нет данных для экспорта');
     return;
@@ -65,7 +88,7 @@ export function exportPricesToExcel(items, filename = 'qazgost_prices_catalog.xl
 /**
  * Export complete 3-sheet catalog (Works, Materials, All)
  */
-export function exportAll3SheetsExcel(pricesList, filename = 'qazgost_full_3sheets_catalog.xlsx') {
+function exportAll3SheetsExcelImpl(pricesList, filename = 'qazgost_full_3sheets_catalog.xlsx') {
   if (!pricesList || pricesList.length === 0) {
     alert('Нет данных для экспорта');
     return;
@@ -121,7 +144,17 @@ export function exportAll3SheetsExcel(pricesList, filename = 'qazgost_full_3shee
 /**
  * Parse uploaded Excel (.xlsx, .xls) / CSV file into items list
  */
-export async function parseExcelOrCsvFile(file) {
+function parseMoneyExact(value) {
+  if (value === null || value === undefined || value === '') return 0;
+  const str = String(value).trim();
+  // Дробная часть важна для расценок: parseMoney округляет до тенге, здесь сохраняем 2 знака
+  const m = str.replace(/[\s\u00A0\u202F₸тгTKZT]/gi, '');
+  if (/^\d+([.,]\d{1,2})?$/.test(m)) return parseFloat(m.replace(',', '.'));
+  return parseMoney(str);
+}
+
+export async function parseExcelOrCsvFile(file, { requirePrice = false } = {}) {
+  try { await loadXlsx(); } catch (err) { console.error('[xlsx] load failed:', err); return null; }
   return new Promise((resolve) => {
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -138,11 +171,13 @@ export async function parseExcelOrCsvFile(file) {
           const code = String(row[0] || '').trim();
           const name = String(row[1] || '').trim();
           const unit = String(row[2] || 'м²').trim();
-          const priceStr = String(row[3] || '1000').replace(/[^\d.]/g, '');
-          const price = parseFloat(priceStr) || 1000;
+          // «1 234,56» → 1234.56 (раньше запятая терялась → ×100); пустая/нечисловая цена → строка пропускается
+          // (раньше молча подставлялось 1000 ₸)
+          const rawPrice = row[3];
+          const price = typeof rawPrice === 'number' ? rawPrice : parseMoneyExact(rawPrice);
           const category = String(row[4] || 'Строительные работы').trim();
 
-          if (code && name) {
+          if (code && name && (price > 0 || !requirePrice)) {
             parsedItems.push({
               id: code,
               code: code,
@@ -171,7 +206,7 @@ export async function parseExcelOrCsvFile(file) {
  * 1. EXPORT ACTS OF COMPLETED WORKS (АКТЫ КС-2, КС-3, СКРЫТЫХ РАБОТ)
  * ──────────────────────────────────────────────────────────────────────────
  */
-export function exportActsToExcel(actsList, filename = 'qazgost_acts_registry_ks2_ks3.xlsx') {
+function exportActsToExcelImpl(actsList, filename = 'qazgost_acts_registry_ks2_ks3.xlsx') {
   if (!actsList || actsList.length === 0) {
     alert('Нет актов для экспорта');
     return;
@@ -275,7 +310,7 @@ export function exportActsToExcel(actsList, filename = 'qazgost_acts_registry_ks
  * 2. EXPORT INVOICES & ESCROW TRANCHES (СЧЕТА НА ОПЛАТУ, ИНВОЙСЫ, ЭСКРОУ)
  * ──────────────────────────────────────────────────────────────────────────
  */
-export function exportInvoicesToExcel(invoicesList, filename = 'qazgost_invoices_and_bills.xlsx') {
+function exportInvoicesToExcelImpl(invoicesList, filename = 'qazgost_invoices_and_bills.xlsx') {
   if (!invoicesList || invoicesList.length === 0) {
     alert('Нет счетов для экспорта');
     return;
@@ -352,7 +387,7 @@ export function exportInvoicesToExcel(invoicesList, filename = 'qazgost_invoices
  * 3. EXPORT CONTRACTS & LEGAL AGREEMENTS (РЕЕСТР ДОГОВОРОВ ПОДРЯДА)
  * ──────────────────────────────────────────────────────────────────────────
  */
-export function exportContractsToExcel(contractsList, filename = 'qazgost_contracts_registry.xlsx') {
+function exportContractsToExcelImpl(contractsList, filename = 'qazgost_contracts_registry.xlsx') {
   if (!contractsList || contractsList.length === 0) {
     alert('Нет договоров для экспорта');
     return;
@@ -401,7 +436,7 @@ export function exportContractsToExcel(contractsList, filename = 'qazgost_contra
  * 4. EXPORT SINGLE DOCUMENT TO EXCEL (ОДИН КОНКРЕТНЫЙ АКТ ИЛИ СЧЕТ)
  * ──────────────────────────────────────────────────────────────────────────
  */
-export function exportSingleDocumentExcel(doc) {
+function exportSingleDocumentExcelImpl(doc) {
   if (!doc) return;
 
   const isAct = (doc.type || '').toLowerCase().includes('акт') || (doc.id || '').startsWith('АКТ') || (doc.id || '').startsWith('ACT');
@@ -449,7 +484,7 @@ export function exportSingleDocumentExcel(doc) {
  * 5. EXPORT FULL AUDIT DOCS PACKAGE (ALL-IN-ONE MASTER EXCEL WORKBOOK)
  * ──────────────────────────────────────────────────────────────────────────
  */
-export function exportAllDocumentsPackageExcel(allData = {}, filename = 'qazgost_full_documents_package_2026.xlsx') {
+function exportAllDocumentsPackageExcelImpl(allData = {}, filename = 'qazgost_full_documents_package_2026.xlsx') {
   const acts = allData.acts || [];
   const invoices = allData.invoices || [];
   const contracts = allData.contracts || [];
@@ -509,3 +544,18 @@ export function exportAllDocumentsPackageExcel(allData = {}, filename = 'qazgost
   const safeFilename = filename.endsWith('.xlsx') ? filename : `${filename}.xlsx`;
   XLSX.writeFile(wb, safeFilename);
 }
+
+
+export function exportPricesToExcel(...args) { return withXlsx(() => exportPricesToExcelImpl(...args)); }
+
+export function exportAll3SheetsExcel(...args) { return withXlsx(() => exportAll3SheetsExcelImpl(...args)); }
+
+export function exportActsToExcel(...args) { return withXlsx(() => exportActsToExcelImpl(...args)); }
+
+export function exportInvoicesToExcel(...args) { return withXlsx(() => exportInvoicesToExcelImpl(...args)); }
+
+export function exportContractsToExcel(...args) { return withXlsx(() => exportContractsToExcelImpl(...args)); }
+
+export function exportSingleDocumentExcel(...args) { return withXlsx(() => exportSingleDocumentExcelImpl(...args)); }
+
+export function exportAllDocumentsPackageExcel(...args) { return withXlsx(() => exportAllDocumentsPackageExcelImpl(...args)); }

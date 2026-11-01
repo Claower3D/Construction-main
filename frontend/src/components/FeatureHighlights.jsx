@@ -1,87 +1,62 @@
 import React from 'react';
-import ScrollReveal from './ScrollReveal';
+import { startFlow, navigateTo } from '../utils/navigate';
+
+// Три задачи, ради которых приходят на платформу. Без фото-заглушек и рекламных процентов:
+// только то, что сервис действительно делает сейчас.
+const ITEMS = [
+  {
+    id: 'estimate',
+    title: 'Смета без выезда мастера',
+    text: 'Объёмы и материалы считаются по 23 864 расценкам ГЭСН РК с поправкой на регион. Три варианта цены — эконом, стандарт и премиум.',
+    action: 'Рассчитать смету',
+    onClick: () => startFlow('register'),
+    icon: (
+      <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M7 4h13l5 5v19H7z" /><path d="M20 4v5h5" /><path d="M11 15h10M11 19h10M11 23h6" /></svg>
+    ),
+  },
+  {
+    id: 'defects',
+    title: 'Трещины видно на фото',
+    text: 'Нейросеть отмечает трещины рамкой и показывает уверенность для каждой зоны. Коррозию, сколы и влагу подтверждает инженер на осмотре.',
+    action: 'Проверить дефект',
+    onClick: () => startFlow('register'),
+    icon: (
+      <svg viewBox="0 0 32 32" aria-hidden="true"><rect x="4" y="5" width="24" height="22" /><path d="M14 5l2 6-3 5 4 5-2 6" /><path d="M10 9h9v15h-9z" strokeDasharray="2 2" /></svg>
+    ),
+  },
+  {
+    id: 'crews',
+    title: 'Бригада с прямыми контактами',
+    text: 'В каталоге — бригады с бригадиром, составом и телефоном компании. Бронь замораживает депозит в эскроу до начала работ.',
+    action: 'Открыть каталог',
+    onClick: () => navigateTo('/catalog'),
+    icon: (
+      <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M5 18a11 11 0 0 1 22 0" /><path d="M3 18h26v4H3z" /><path d="M16 7v4" /></svg>
+    ),
+  },
+];
 
 export default function FeatureHighlights() {
-  const highlights = [
-    {
-      icon: '📊',
-      title: 'Прозрачные цены',
-      badge: '23,884 ПОЗИЦИЙ',
-      badgeColor: 'gold',
-      text: 'Единый классификатор цен по Казахстану. Автоматический расчёт объёмов и материалов с нормативным запасом 10–15%.',
-      metrics: ['🏷️ Актуальность 2026', '📈 Смета за 2 сек', '📋 ГЭСН/СНиП РК'],
-      linkText: 'Рассчитать смету',
-      image: 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&w=800&q=80',
-    },
-    {
-      icon: '🧠',
-      title: 'AI Дефектоскопия',
-      badge: '8 НЕЙРОСЕТЕЙ',
-      badgeColor: 'pink',
-      text: 'Сканирование фото объекта за 2 секунды. Точность детекции трещин, влаги и брака до 95% с планом устранения.',
-      metrics: ['🔍 Сканер трещин', '⚡ 95% Точность', '📝 Экспертный отчёт'],
-      linkText: 'Проверить дефекты',
-      image: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=800&q=80',
-    },
-    {
-      icon: '⭐',
-      title: 'Проверенные мастера',
-      badge: 'ТОП ИСПОЛНИТЕЛИ',
-      badgeColor: 'cyan',
-      text: 'Рейтинг, портфолио выполненных работ и отзывы. Сравнивайте предложения по цене и выбирайте лучших специалистов.',
-      metrics: ['🛡️ Проверка ИИН/БИН', '⭐️ Рейтинг 4.9+', '🤝 Безопасная сделка'],
-      linkText: 'Найти мастера',
-      image: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=800&q=80',
-    },
-  ];
-
   return (
-    <section className="highlights-section">
-      <div className="container">
-        <div className="highlights-grid">
-          {highlights.map((item, idx) => (
-            <ScrollReveal key={idx} direction="up" delay={idx * 120} distance="35px">
-              <div className="highlight-card-v2">
-                {/* Card Image Header with Overlays */}
-                <div className="card-v2-img-wrap">
-                  <img src={item.image} alt={item.title} />
-                  <div className="card-v2-gradient-overlay"></div>
-                  <div className={`card-v2-top-badge badge-${item.badgeColor}`}>
-                    <span className="badge-dot"></span>
-                    {item.badge}
-                  </div>
-                  <div className="card-v2-icon-floating">{item.icon}</div>
-                </div>
-
-                {/* Card Body Content */}
-                <div className="card-v2-body">
-                  <h3 className="card-v2-title">{item.title}</h3>
-                  <p className="card-v2-desc">{item.text}</p>
-
-                  {/* Metrics Chips */}
-                  <div className="card-v2-metrics-row">
-                    {item.metrics.map((m, mIdx) => (
-                      <span className="metric-chip" key={mIdx}>
-                        {m}
-                      </span>
-                    ))}
-                  </div>
-
-                  {/* Action Link Button */}
-                  <button
-                    className="card-v2-action-btn"
-                    onClick={() => alert(`Переход к разделу: ${item.title}`)}
-                  >
-                    <span>{item.linkText}</span>
-                    <span className="action-btn-arrow">→</span>
-                  </button>
-                </div>
-              </div>
-            </ScrollReveal>
-          ))}
+    <section className="lp-section lp-features" aria-labelledby="lp-features-title">
+      <div className="qg-container">
+        <div className="qg-section-head">
+          <h2 id="lp-features-title">Что вы получаете</h2>
+          <p>Три задачи, ради которых к нам приходят: узнать цену, понять, насколько опасен дефект, и найти, кто его устранит.</p>
         </div>
+        <ul className="lp-features-grid">
+          {ITEMS.map((item) => (
+            <li key={item.id} className="lp-feature">
+              <span className="lp-feature-icon">{item.icon}</span>
+              <h3>{item.title}</h3>
+              <p>{item.text}</p>
+              <button type="button" className="qg-btn qg-btn--quiet lp-feature-link" onClick={item.onClick}>
+                {item.action}
+              </button>
+            </li>
+          ))}
+        </ul>
       </div>
     </section>
   );
 }
-

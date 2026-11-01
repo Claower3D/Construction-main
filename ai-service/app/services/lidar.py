@@ -34,6 +34,16 @@ except ImportError:
     logger.info("[LiDAR] laspy not installed — .las/.laz files won't be supported")
 
 
+MIN_POINTS = 100
+# RANSAC/статистика отклонений считаются по случайной подвыборке: на 2.4M точек полный RANSAC
+# занимает ~14 с и держит GIL (open3d), блокируя остальные запросы. 200k точек хватает для плоскости.
+MAX_FIT_POINTS = 200_000
+
+
+class PointCloudError(ValueError):
+    """Invalid / empty / unreadable point cloud (→ HTTP 400)."""
+
+
 class LiDARProcessor:
     """
     QazGost AI LiDAR point cloud processor.
@@ -64,32 +74,59 @@ class LiDARProcessor:
     # Loading
     # ─────────────────────────────────────────────
 
-    def load_point_cloud(self, file_path: str) -> Optional[Any]:
+    def load_point_cloud(self, file_path: str, strict: bool = False) -> Optional[Any]:
         """
         Load point cloud from file.
         Supports: .las, .laz, .ply, .pcd, .xyz
-        Returns: open3d.geometry.PointCloud or None
+        Non-finite points (NaN/Inf) are dropped.
+
+        Returns: open3d.geometry.PointCloud, or None on error (strict=False).
+        strict=True raises PointCloudError with a human-readable reason instead.
         """
         if not self.available:
             logger.error("[LiDAR] open3d not available")
+            if strict:
+                raise PointCloudError("LiDAR module not available")
             return None
 
         path = Path(file_path)
         suffix = path.suffix.lower()
 
         try:
+            if path.stat().st_size == 0:
+                raise PointCloudError("Файл облака точек пустой")
             if suffix in (".las", ".laz"):
-                return self._load_las(path)
+                pcd = self._load_las(path)
             elif suffix in (".ply", ".pcd", ".xyz"):
                 pcd = o3d.io.read_point_cloud(str(path))
-                n_points = len(pcd.points)
-                logger.info(f"[LiDAR] Loaded {n_points:,} points from {path.name}")
-                return pcd
             else:
-                logger.error(f"[LiDAR] Unsupported format: {suffix}")
-                return None
+                raise PointCloudError(f"Неподдерживаемый формат: {suffix}")
+            if pcd is None:
+                raise PointCloudError("Не удалось прочитать облако точек")
+
+            pts = np.asarray(pcd.points)
+            finite = np.isfinite(pts).all(axis=1) if len(pts) else np.zeros(0, dtype=bool)
+            if len(pts) and not finite.all():
+                dropped = int((~finite).sum())
+                pcd = pcd.select_by_index(np.where(finite)[0].tolist())
+                logger.warning(f"[LiDAR] Dropped {dropped} non-finite points")
+            n_points = len(pcd.points)
+            if n_points < MIN_POINTS:
+                raise PointCloudError(
+                    f"Слишком мало корректных точек: {n_points} (нужно минимум {MIN_POINTS}). "
+                    "Файл пустой, повреждён или не является облаком точек."
+                )
+            logger.info(f"[LiDAR] Loaded {n_points:,} points from {path.name}")
+            return pcd
+        except PointCloudError as e:
+            logger.warning(f"[LiDAR] {e}")
+            if strict:
+                raise
+            return None
         except Exception as e:
             logger.error(f"[LiDAR] Load error: {e}")
+            if strict:
+                raise PointCloudError(f"Не удалось прочитать облако точек: {type(e).__name__}")
             return None
 
     def _load_las(self, path: Path) -> Optional[Any]:
@@ -233,59 +270,75 @@ class LiDARProcessor:
         logger.info(f"[LiDAR] Excavation: {area:.1f}m² × {avg_depth:.2f}m = {volume:.1f}m³")
         return result
 
-    def check_deviations(self, pcd) -> Dict[str, Any]:
+    @staticmethod
+    def _sample(pcd, max_points: int = MAX_FIT_POINTS):
+        n = len(pcd.points)
+        if n <= max_points:
+            return pcd
+        return pcd.random_down_sample(max_points / n)
+
+    def dominant_plane(self, pcd, distance_threshold: float = 0.02) -> Dict[str, Any]:
         """
-        Check surface deviations from vertical/horizontal planes.
-        Returns deviation analysis per СНиП РК norms.
+        RANSAC fit of the dominant plane (floor / wall) on a random subsample (<= MAX_FIT_POINTS).
+        Returns plane (a,b,c,d) with unit normal, inlier ratio, normal z-component.
         """
-        if pcd is None:
-            return {"vertical_deviation_mm": 0, "horizontal_deviation_mm": 0, "quality": "N/A"}
+        pcd = self._sample(pcd)
+        plane, inliers = pcd.segment_plane(
+            distance_threshold=distance_threshold, ransac_n=3, num_iterations=1000,
+        )
+        a, b, c, d = plane
+        n = float(np.linalg.norm([a, b, c])) or 1.0
+        return {
+            "plane": (a / n, b / n, c / n, d / n),
+            "inliers": inliers,
+            "inlier_ratio": len(inliers) / max(1, len(pcd.points)),
+            "nz": abs(c / n),
+        }
 
-        points = np.asarray(pcd.points)
+    def check_deviations(self, pcd, band_m: float = 0.05) -> Dict[str, Any]:
+        """
+        Flatness of the dominant surface (RANSAC plane), per SNiP tolerances.
 
-        # Fit plane to points
-        pcd.estimate_normals()
-        normals = np.asarray(pcd.normals)
+        Раньше одна «плоскость» подгонялась под всё облако (пол + стены + потолок) и идеальная
+        комната давала отклонения в метры. Теперь: RANSAC находит доминирующую плоскость, и
+        отклонения считаются только для точек этой поверхности (в полосе ±band_m от плоскости).
+        Качество оценивается по 95-му перцентилю (устойчиво к выбросам), max — справочно.
+        """
+        if pcd is None or len(pcd.points) < 3:
+            return {"surface_type": "N/A", "max_deviation_mm": 0, "avg_deviation_mm": 0, "quality": "N/A"}
 
-        # Average normal direction
-        avg_normal = np.mean(normals, axis=0)
-        avg_normal = avg_normal / np.linalg.norm(avg_normal)
+        sample = self._sample(pcd)
+        points = np.asarray(sample.points)
+        fit = self.dominant_plane(sample)
+        a, b, c, d = fit["plane"]
+        dist = points @ np.array([a, b, c]) + d
+        surface = np.abs(dist) <= band_m
+        dev_mm = np.abs(dist[surface]) * 1000.0
 
-        # Check if surface is vertical or horizontal
-        z_component = abs(avg_normal[2])
+        max_dev = float(np.max(dev_mm)) if dev_mm.size else 0.0
+        avg_dev = float(np.mean(dev_mm)) if dev_mm.size else 0.0
+        p95_dev = float(np.percentile(dev_mm, 95)) if dev_mm.size else 0.0
+        surface_type = "horizontal" if fit["nz"] > 0.9 else ("vertical" if fit["nz"] < 0.1 else "inclined")
 
-        if z_component > 0.7:
-            # Horizontal surface (floor/ceiling)
-            z_vals = points[:, 2]
-            plane_z = np.mean(z_vals)
-            deviations = np.abs(z_vals - plane_z) * 1000  # mm
-            max_dev = float(np.max(deviations))
-            avg_dev = float(np.mean(deviations))
-            surface_type = "horizontal"
-        else:
-            # Vertical surface (wall)
-            # Project onto dominant plane
-            d = np.dot(points - np.mean(points, axis=0), avg_normal)
-            deviations = np.abs(d) * 1000  # mm
-            max_dev = float(np.max(deviations))
-            avg_dev = float(np.mean(deviations))
-            surface_type = "vertical"
-
-        # Quality assessment per СНиП
-        # СНиП 3.04.01-87: допустимое отклонение 3мм/м для штукатурки
-        if max_dev <= 3:
+        # Quality per СНиП 3.04.01-87 (штукатурка: до 3 мм на 1 м) — по p95
+        if p95_dev <= 3:
             quality = "✅ Отлично (< 3мм — СНиП 3.04.01-87)"
-        elif max_dev <= 5:
+        elif p95_dev <= 5:
             quality = "⚠️ Допустимо (3-5мм)"
-        elif max_dev <= 10:
+        elif p95_dev <= 10:
             quality = "❌ Требует исправления (5-10мм)"
         else:
             quality = "🚨 Критическое отклонение (> 10мм)"
 
         return {
             "surface_type": surface_type,
+            "method": "ransac_dominant_plane",
+            "points_used": int(len(points)),
+            "surface_points": int(surface.sum()),
+            "surface_share": round(float(surface.mean()), 3),
             "max_deviation_mm": round(max_dev, 1),
             "avg_deviation_mm": round(avg_dev, 1),
+            "p95_deviation_mm": round(p95_dev, 1),
             "quality": quality,
             "snip_norm": "СНиП 3.04.01-87",
             "max_allowed_mm": 3.0,
@@ -337,32 +390,49 @@ class LiDARProcessor:
         """
         Full analysis of a LiDAR scan file.
 
-        Returns combined results:
-          - dimensions (room or excavation)
-          - deviations
-          - metadata
+        Scan type:
+          room       — высота > 1.5 м;
+          surface    — почти всё облако лежит в одной горизонтальной плоскости (пол, плита);
+          excavation — есть заметная часть точек ниже доминирующей горизонтальной плоскости (грунт).
+        Raises PointCloudError for empty / invalid files.
         """
-        pcd = self.load_point_cloud(file_path)
-        if pcd is None:
-            return {"error": "Failed to load point cloud", "available": self.available}
+        pcd = self.load_point_cloud(file_path, strict=True)
 
         points = np.asarray(pcd.points)
         bbox = pcd.get_axis_aligned_bounding_box()
         height = bbox.max_bound[2] - bbox.min_bound[2]
 
-        # Determine type: room (height > 1.5m) or excavation
         if height > 1.5:
             dimensions = self.calculate_room_dimensions(pcd)
             scan_type = "room"
         else:
-            dimensions = self.calculate_excavation_volume(pcd)
-            scan_type = "excavation"
+            fit = self.dominant_plane(pcd, distance_threshold=0.03)
+            a, b, c, d = fit["plane"]
+            horizontal = fit["nz"] > 0.9
+            ground_z = None
+            below_share = 0.0
+            if horizontal:
+                # высота плоскости в центре облака: z = -(a x + b y + d) / c
+                cx, cy = points[:, 0].mean(), points[:, 1].mean()
+                ground_z = float(-(a * cx + b * cy + d) / c)
+                below_share = float((points[:, 2] < ground_z - 0.10).mean())
+            if horizontal and fit["inlier_ratio"] >= 0.8 and below_share < 0.05:
+                scan_type = "surface"
+                ext = bbox.max_bound - bbox.min_bound
+                dimensions = {
+                    "length_m": round(float(max(ext[0], ext[1])), 3),
+                    "width_m": round(float(min(ext[0], ext[1])), 3),
+                    "area_m2": round(float(ext[0] * ext[1]), 2),
+                    "plane_inlier_ratio": round(fit["inlier_ratio"], 3),
+                }
+            else:
+                scan_type = "excavation"
+                dimensions = self.calculate_excavation_volume(pcd, ground_level=ground_z)
 
         deviations = self.check_deviations(pcd)
 
         return {
             "scan_type": scan_type,
-            "file": Path(file_path).name,
             "n_points": len(points),
             "dimensions": dimensions,
             "deviations": deviations,

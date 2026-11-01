@@ -4,6 +4,8 @@ import (
 	"encoding/csv"
 	"fmt"
 	"net/http"
+	"net/url"
+	"strings"
 	"time"
 
 	"qazgost-ai/backend/pkg/services"
@@ -20,6 +22,14 @@ func NewExportHandler() *ExportHandler {
 		priceDB:   pdb,
 		estimator: services.NewEstimatorService(pdb),
 	}
+}
+
+// csvSafe neutralises spreadsheet formulas in user-influenced cells (CSV injection)
+func csvSafe(v string) string {
+	if v != "" && strings.ContainsAny(v[:1], "=+-@\t\r") {
+		return "'" + v
+	}
+	return v
 }
 
 // ExportEstimateCSV exports an estimate breakdown in standardized Kazakh KS-2 style CSV
@@ -40,7 +50,9 @@ func (h *ExportHandler) ExportEstimateCSV(w http.ResponseWriter, r *http.Request
 
 	filename := fmt.Sprintf("estimate_%s_%s.csv", category, time.Now().Format("20060102"))
 	w.Header().Set("Content-Type", "text/csv; charset=utf-8")
-	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", filename))
+	// ASCII fallback + RFC 5987 UTF-8 name (Cyrillic category names)
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"estimate_%s.csv\"; filename*=UTF-8''%s",
+		time.Now().Format("20060102"), url.PathEscape(filename)))
 
 	// UTF-8 BOM for Excel compatibility
 	_, _ = w.Write([]byte{0xEF, 0xBB, 0xBF})
@@ -50,7 +62,7 @@ func (h *ExportHandler) ExportEstimateCSV(w http.ResponseWriter, r *http.Request
 
 	// Header Info
 	_ = writer.Write([]string{"СМЕТНЫЙ РАСЧЁТ СТОИМОСТИ СТРОИТЕЛЬСТВА (Форма КС-2 / СНиП РК)"})
-	_ = writer.Write([]string{"Категория:", result.Category})
+	_ = writer.Write([]string{"Категория:", csvSafe(result.Category)})
 	_ = writer.Write([]string{"Регион:", result.Region, "Коэффициент:", fmt.Sprintf("%.2f", result.RegionalCoeff)})
 	_ = writer.Write([]string{"Нормативная база:", result.Normative})
 	_ = writer.Write([]string{"Дата расчёта:", result.CalculatedAt.Format("02.01.2006 15:04")})
@@ -63,8 +75,8 @@ func (h *ExportHandler) ExportEstimateCSV(w http.ResponseWriter, r *http.Request
 	for idx, item := range rec.Items {
 		_ = writer.Write([]string{
 			fmt.Sprintf("%d", idx+1),
-			item.Code,
-			item.Name,
+			csvSafe(item.Code),
+			csvSafe(item.Name),
 			item.Unit,
 			fmt.Sprintf("%.2f", item.Quantity),
 			fmt.Sprintf("%.0f", item.UnitPrice),

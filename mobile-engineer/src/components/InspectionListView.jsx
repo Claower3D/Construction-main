@@ -1,172 +1,64 @@
 import React, { useState } from 'react';
+import { ClipboardList } from 'lucide-react';
 import InspectionCard from './InspectionCard';
-import EngineerCalendarView from './EngineerCalendarView';
-import { Filter, Search, PlusCircle, CheckCircle, Clock, Calendar, List } from 'lucide-react';
+import { EmptyState } from './ui/kit';
+import { localDateISO } from '../api/syncCore';
+
+const FILTERS = [
+  { id: 'all', label: 'Все', test: () => true },
+  { id: 'need_departure', label: 'К выезду', test: d => ['Новые', 'Выезд назначен', 'Инженер выехал'].includes(d.status) },
+  { id: 'inspecting', label: 'На объекте', test: d => d.status === 'На объекте' },
+  { id: 'measured', label: 'Замер готов', test: d => ['Замер выполнен', 'Смета готова'].includes(d.status) },
+  { id: 'in_work', label: 'В работе', test: d => d.status === 'В работе' },
+  { id: 'completed', label: 'Завершены', test: d => d.status === 'Завершено' }
+];
 
 export default function InspectionListView({ deals, onSelectDeal, searchQuery }) {
-  const [filterTab, setFilterTab] = useState('all'); // all | urgent | today | in_work | completed
-  const [viewMode, setViewMode] = useState('list'); // 'list' | 'calendar'
+  const [filterTab, setFilterTab] = useState('all');
+  const today = localDateISO();
+  const q = (searchQuery || '').trim().toLowerCase();
 
-  const filterTabs = [
-    { id: 'all', label: 'Все' },
-    { id: 'need_departure', label: 'К выезду' },
-    { id: 'inspecting', label: 'На объекте' },
-    { id: 'measured', label: 'Замер готов' },
-    { id: 'in_work', label: 'В работе' },
-    { id: 'completed', label: 'Завершены' }
-  ];
-
-  const filteredDeals = deals.filter(deal => {
-    if (searchQuery) {
-      const q = searchQuery.toLowerCase();
-      const match = 
-        (deal.client || '').toLowerCase().includes(q) ||
-        (deal.title || '').toLowerCase().includes(q) ||
-        (deal.location || '').toLowerCase().includes(q) ||
-        (deal.phone || '').includes(q);
-      if (!match) return false;
-    }
-
-    if (filterTab === 'need_departure') {
-      return deal.status === 'Новые' || deal.status === 'Выезд назначен' || deal.status === 'Инженер выехал';
-    }
-    if (filterTab === 'inspecting') {
-      return deal.status === 'На объекте';
-    }
-    if (filterTab === 'measured') {
-      return deal.status === 'Замер выполнен' || deal.status === 'Смета готова';
-    }
-    if (filterTab === 'in_work') {
-      return deal.status === 'В работе';
-    }
-    if (filterTab === 'completed') {
-      return deal.status === 'Завершено';
-    }
-    return true;
-  });
-
-  const needDepartureCount = deals.filter(d => d.status === 'Новые' || d.status === 'Выезд назначен' || d.status === 'Инженер выехал').length;
+  const searched = deals.filter(d => !q || [d.client, d.title, d.location, d.phone].some(v => String(v || '').toLowerCase().includes(q)));
+  const active = FILTERS.find(f => f.id === filterTab) || FILTERS[0];
+  const list = searched
+    .filter(active.test)
+    .sort((a, b) => {
+      // today first, then upcoming by date/time, undated last
+      const ka = a.date ? (a.date < today ? `2${a.date}` : `1${a.date}`) : '3';
+      const kb = b.date ? (b.date < today ? `2${b.date}` : `1${b.date}`) : '3';
+      return ka.localeCompare(kb) || String(a.time || '').localeCompare(String(b.time || ''));
+    });
+  const todayCount = deals.filter(d => d.date === today && d.status !== 'Завершено').length;
 
   return (
-    <div style={{ padding: '16px' }}>
-      {/* Quick Summary Banner with View Mode Switcher */}
-      <div style={{
-        background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(217, 119, 6, 0.05) 100%)',
-        border: '1px solid rgba(245, 158, 11, 0.3)',
-        borderRadius: '16px',
-        padding: '14px 16px',
-        marginBottom: '16px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between'
-      }}>
-        <div>
-          <div style={{ fontSize: '0.74rem', color: '#f59e0b', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-            Объекты инженера
-          </div>
-          <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#ffffff', marginTop: '2px' }}>
-            {needDepartureCount} требуют выезда
-          </div>
-        </div>
-        
-        {/* Toggle List / Calendar */}
-        <div style={{
-          display: 'flex',
-          background: 'rgba(255, 255, 255, 0.08)',
-          borderRadius: '10px',
-          padding: '3px'
-        }}>
-          <button
-            onClick={() => setViewMode('list')}
-            style={{
-              background: viewMode === 'list' ? '#f59e0b' : 'none',
-              color: viewMode === 'list' ? '#070a13' : '#94a3b8',
-              border: 'none',
-              borderRadius: '7px',
-              padding: '6px 8px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center'
-            }}
-          >
-            <List size={16} />
-          </button>
-          <button
-            onClick={() => setViewMode('calendar')}
-            style={{
-              background: viewMode === 'calendar' ? '#f59e0b' : 'none',
-              color: viewMode === 'calendar' ? '#070a13' : '#94a3b8',
-              border: 'none',
-              borderRadius: '7px',
-              padding: '6px 8px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center'
-            }}
-          >
-            <Calendar size={16} />
-          </button>
-        </div>
+    <div className="qz-page">
+      <div className="qz-section-head">
+        <h2 className="qz-h2">{todayCount ? `Сегодня выездов: ${todayCount}` : 'Сегодня выездов нет'}</h2>
+        <span className="qz-small qz-faint num">всего {deals.length}</span>
       </div>
 
-      {viewMode === 'calendar' ? (
-        <EngineerCalendarView deals={deals} onSelectDeal={onSelectDeal} />
-      ) : (
-        <>
-          {/* Filter Tabs Scroll */}
-          <div style={{
-            display: 'flex',
-            gap: '8px',
-            overflowX: 'auto',
-            paddingBottom: '8px',
-            marginBottom: '14px',
-            scrollbarWidth: 'none'
-          }}>
-            {filterTabs.map(tab => {
-              const isActive = filterTab === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setFilterTab(tab.id)}
-                  style={{
-                    background: isActive ? '#f59e0b' : 'rgba(255, 255, 255, 0.06)',
-                    color: isActive ? '#070a13' : '#94a3b8',
-                    border: isActive ? 'none' : '1px solid rgba(255, 255, 255, 0.1)',
-                    padding: '6px 14px',
-                    borderRadius: '999px',
-                    fontSize: '0.78rem',
-                    fontWeight: 700,
-                    whiteSpace: 'nowrap',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s'
-                  }}
-                >
-                  {tab.label}
-                </button>
-              );
-            })}
-          </div>
+      <div className="qz-chips" role="tablist" aria-label="Фильтр объектов">
+        {FILTERS.map(f => {
+          const n = searched.filter(f.test).length;
+          const on = filterTab === f.id;
+          return (
+            <button key={f.id} type="button" role="tab" aria-selected={on} className={`qz-chip${on ? ' is-active' : ''}`} onClick={() => setFilterTab(f.id)}>
+              {f.label} <span className="qz-count">{n}</span>
+            </button>
+          );
+        })}
+      </div>
 
-          {/* Deal List */}
-          {filteredDeals.length === 0 ? (
-            <div style={{
-              textAlign: 'center',
-              padding: '40px 20px',
-              color: '#64748b',
-              fontSize: '0.9rem'
-            }}>
-              Нет объектов в этой категории
-            </div>
-          ) : (
-            filteredDeals.map(deal => (
-              <InspectionCard
-                key={deal.id}
-                deal={deal}
-                onSelect={onSelectDeal}
-              />
-            ))
-          )}
-        </>
+      {list.length === 0 ? (
+        <EmptyState
+          icon={<ClipboardList size={28} />}
+          title={q ? 'Ничего не найдено' : 'Здесь пусто'}
+          text={q ? 'Проверьте клиента, адрес или телефон.' : 'Объекты с таким статусом появятся после синхронизации.'}
+        />
+      ) : (
+        <div className="qz-stack" style={{ marginTop: 'var(--sp-2)' }}>
+          {list.map(deal => <InspectionCard key={deal.id} deal={deal} onSelect={onSelectDeal} />)}
+        </div>
       )}
     </div>
   );

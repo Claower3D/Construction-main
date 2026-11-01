@@ -1,189 +1,47 @@
 import React from 'react';
+import { startFlow, navigateTo } from '../utils/navigate';
+
+// «Спецификация» сервисов — как таблица на листе чертежа: что делает, для кого, куда перейти.
+const SERVICES = [
+  { title: 'Оценка стоимости по фото', what: 'Смета, ведомость материалов, три сценария цены', who: 'Заказчик, исполнитель', action: 'Открыть', go: () => startFlow('register') },
+  { title: 'Проверка дефектов', what: 'Трещины на фото, акт с нормативами и ценой ремонта', who: 'Заказчик, инженер', action: 'Открыть', go: () => startFlow('register') },
+  { title: 'Стройматериалы', what: '10 425 позиций с ценами по регионам РК', who: 'Все', action: 'Перейти', go: () => navigateTo('/materials') },
+  { title: 'Спецтехника', what: 'Аренда экскаваторов, кранов и самосвалов посменно', who: 'Все', action: 'Перейти', go: () => navigateTo('/equipment') },
+  { title: 'Каталог подрядчиков', what: 'Бригады с бригадиром, составом и телефоном', who: 'Заказчик', action: 'Перейти', go: () => navigateTo('/catalog') },
+  { title: 'Лента заказов и «Мои работы»', what: 'Заявки по городу, этапы, сдача объекта онлайн', who: 'Исполнитель', action: 'Войти', go: () => startFlow('login') },
+  { title: 'Инженерный калькулятор', what: 'Сечение кабеля, отопление, водоснабжение', who: 'Инженер, исполнитель', action: 'Перейти', go: () => navigateTo('/calc') },
+  { title: 'Инжиниринг и ПСД', what: 'Проект, инженерные сети, технадзор под ключ', who: 'Застройщик', action: 'Перейти', go: () => navigateTo('/engineering') },
+];
 
 export default function PlatformServicesSection() {
-  const card1 = {
-    title: 'AI-Оценка стоимости объекта',
-    bulletsCol1: ['Автоматический расчёт сметы', 'Анализ ТЗ и объёмов работ'],
-    bulletsCol2: ['Расчёт спецификации BOM', '3 сценария цены по ГОСТ РК'],
-    image: 'https://images.unsplash.com/photo-1590069261209-f8e9b8642343?auto=format&fit=crop&w=800&q=80',
-  };
-
-  const card2 = {
-    title: 'AI Дефектоскопия & Контроль',
-    bullets: ['Сканирование трещин по фото', 'Детекция следов влаги', 'Экспертный отчёт РК'],
-    image: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=800&q=80',
-  };
-
-  const row2Cards = [
-    {
-      title: 'Лента заказов LIVE',
-      bullets: ['Отклики за 3 минуты', 'Прозрачные цены и сроки', 'Прямой чат с заказчиком'],
-      image: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=800&q=80',
-    },
-    {
-      title: 'Мои работы & Проекты',
-      bullets: ['Контроль этапов и сроков', 'Чек-листы приемки работ', 'Сдача объекта онлайн'],
-      image: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80',
-    },
-    {
-      title: 'Маркетплейс техники',
-      bullets: ['Аренда спецтехники в РК', 'Бронирование смен online', 'Проверенные машинисты'],
-      image: 'https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&w=800&q=80',
-    },
-  ];
-
-  const card6Full = {
-    title: 'Инжиниринг, ПСД & Строительство под ключ',
-    bulletsCol1: ['Разработка ПСД и WBS-структура', 'Монолитные и фасадные работы под ключ'],
-    bulletsCol2: ['Инженерные сети (ОВК, Электрика, Газ)', 'Технический и авторский надзор РК'],
-    image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80',
-  };
-
   return (
-    <section className="services-section-v2" id="services">
-      <div className="container">
-        <div className="section-header-center">
-          <h2 className="section-title-purple">НАШИ УСЛУГИ</h2>
+    <section className="lp-section lp-services" id="services" aria-labelledby="lp-services-title">
+      <div className="qg-container">
+        <div className="qg-section-head">
+          <h2 id="lp-services-title">Все сервисы платформы</h2>
+          <p>Один аккаунт для заказчика, бригады и инженера. Раздел откроется в вашем кабинете.</p>
         </div>
-
-        {/* 6-Card Exact Layout Grid (Matching Reference Screenshot) */}
-        <div className="exact-ref-grid">
-          {/* Row 1: Card 1 (Wide ~62%) + Card 2 (Medium ~38%) */}
-          <div className="ref-row-1">
-            {/* Card 1 */}
-            <div className="ref-card card-wide-60">
-              <div className="ref-card-text">
-                <h3 className="ref-card-title">{card1.title}</h3>
-                <div className="ref-bullets-2col">
-                  <ul className="ref-bullets-list">
-                    {card1.bulletsCol1.map((b, idx) => (
-                      <li key={idx}>
-                        <span className="ref-dot"></span>
-                        <span>{b}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  <ul className="ref-bullets-list">
-                    {card1.bulletsCol2.map((b, idx) => (
-                      <li key={idx}>
-                        <span className="ref-dot"></span>
-                        <span>{b}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-
-              <div className="ref-card-img-side">
-                <img src={card1.image} alt={card1.title} />
-                <div className="ref-slanted-cut"></div>
-                <button
-                  className="ref-purple-circle"
-                  onClick={() => alert(`Запуск: ${card1.title}`)}
-                >
-                  ↗
-                </button>
-              </div>
-            </div>
-
-            {/* Card 2 */}
-            <div className="ref-card card-medium-40">
-              <div className="ref-card-text">
-                <h3 className="ref-card-title">{card2.title}</h3>
-                <ul className="ref-bullets-list">
-                  {card2.bullets.map((b, idx) => (
-                    <li key={idx}>
-                      <span className="ref-dot"></span>
-                      <span>{b}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className="ref-card-img-side">
-                <img src={card2.image} alt={card2.title} />
-                <div className="ref-slanted-cut"></div>
-                <button
-                  className="ref-purple-circle"
-                  onClick={() => alert(`Запуск: ${card2.title}`)}
-                >
-                  ↗
-                </button>
-              </div>
-            </div>
+        <div className="lp-spec" role="table" aria-label="Сервисы платформы">
+          <div className="lp-spec-row lp-spec-head" role="row">
+            <span role="columnheader">Сервис</span>
+            <span role="columnheader">Что делает</span>
+            <span role="columnheader">Для кого</span>
+            <span role="columnheader"><span className="qg-visually-hidden">Действие</span></span>
           </div>
-
-          {/* Row 2: Card 3, Card 4, Card 5 (Three equal 33% cards) */}
-          <div className="ref-row-2">
-            {row2Cards.map((item, idx) => (
-              <div className="ref-card card-third-33" key={idx}>
-                <div className="ref-card-text">
-                  <h3 className="ref-card-title">{item.title}</h3>
-                  <ul className="ref-bullets-list">
-                    {item.bullets.map((b, bIdx) => (
-                      <li key={bIdx}>
-                        <span className="ref-dot"></span>
-                        <span>{b}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div className="ref-card-img-side">
-                  <img src={item.image} alt={item.title} />
-                  <div className="ref-slanted-cut"></div>
-                  <button
-                    className="ref-purple-circle"
-                    onClick={() => alert(`Запуск: ${item.title}`)}
-                  >
-                    ↗
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Row 3: Card 6 (Full Width 100%) */}
-          <div className="ref-row-3">
-            <div className="ref-card card-full-100">
-              <div className="ref-card-text hero-text">
-                <h3 className="ref-card-title">{card6Full.title}</h3>
-                <div className="ref-bullets-2col">
-                  <ul className="ref-bullets-list">
-                    {card6Full.bulletsCol1.map((b, idx) => (
-                      <li key={idx}>
-                        <span className="ref-dot"></span>
-                        <span>{b}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  <ul className="ref-bullets-list">
-                    {card6Full.bulletsCol2.map((b, idx) => (
-                      <li key={idx}>
-                        <span className="ref-dot"></span>
-                        <span>{b}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-
-              <div className="ref-card-img-side hero-img-side">
-                <img src={card6Full.image} alt={card6Full.title} />
-                <div className="ref-slanted-cut"></div>
-                <button
-                  className="ref-purple-circle"
-                  onClick={() => alert(`Запуск: ${card6Full.title}`)}
-                >
-                  ↗
+          {SERVICES.map((s) => (
+            <div className="lp-spec-row" role="row" key={s.title}>
+              <span role="cell" className="lp-spec-title">{s.title}</span>
+              <span role="cell" className="lp-spec-what">{s.what}</span>
+              <span role="cell" className="lp-spec-who">{s.who}</span>
+              <span role="cell" className="lp-spec-go">
+                <button type="button" className="qg-btn qg-btn--ghost qg-btn--sm" onClick={s.go} aria-label={`${s.action}: ${s.title}`}>
+                  {s.action}
                 </button>
-              </div>
+              </span>
             </div>
-          </div>
+          ))}
         </div>
       </div>
     </section>
   );
 }
-
-

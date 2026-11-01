@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 
 /**
  * VoiceLeadInput v11 — Голосовое сообщение → Заявка
@@ -231,6 +231,15 @@ export default function VoiceLeadInput({ onFieldsExtracted, onCommand, disabled 
     setState('done');
   }, [onFieldsExtracted]);
 
+  // Освобождение микрофона/AudioContext/таймеров при размонтировании (раньше микрофон оставался включённым)
+  useEffect(() => () => {
+    if (animRef.current) cancelAnimationFrame(animRef.current);
+    if (timerRef.current) clearInterval(timerRef.current);
+    try { procRef.current?.disconnect(); } catch (e) { /* ignore */ }
+    try { ctxRef.current?.close(); } catch (e) { /* ignore */ }
+    streamRef.current?.getTracks().forEach(t => t.stop());
+  }, []);
+
   // ═══ НАЧАТЬ ЗАПИСЬ ═══
   const startRecording = useCallback(async () => {
     try {
@@ -274,7 +283,14 @@ export default function VoiceLeadInput({ onFieldsExtracted, onCommand, disabled 
       animate();
 
     } catch(err) {
-      setResult({ error: 'Нет доступа к микрофону. Разрешите в настройках браузера.' });
+      // Если поток уже получен, а упало дальше (AudioContext и т.п.) — микрофон нужно освободить
+      streamRef.current?.getTracks().forEach(t => t.stop());
+      streamRef.current = null;
+      if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null; }
+      const denied = err?.name === 'NotAllowedError' || err?.name === 'NotFoundError' || err?.name === 'SecurityError';
+      setResult({ error: denied
+        ? 'Нет доступа к микрофону. Разрешите в настройках браузера.'
+        : `Не удалось запустить запись: ${err?.message || err}` });
       setState('done');
     }
   }, []);

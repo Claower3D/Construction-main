@@ -1,389 +1,356 @@
-import React, { useState, useRef } from 'react';
-import { Camera, AlertTriangle, CheckCircle, ShieldAlert, Scan, FileText, ChevronRight, Share2, Save, RefreshCw } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Camera, AlertTriangle, ScanSearch, Share2, Paperclip, Maximize2, X, Info, RefreshCw } from 'lucide-react';
+import { runDefectScan } from '../api/engineerApi';
+import { compressImage } from '../utils/image';
+import { formatMoney } from './ui/kit';
 
-export default function DefectInspectionView({ onAttachToDeal }) {
+// Severity scale of the detector (its own semantic colours, worst → mildest)
+const SEVERITY = {
+  critical: { color: '#f87171', label: 'Критический' },
+  high: { color: '#fb923c', label: 'Высокий' },
+  medium: { color: '#fbbf24', label: 'Средний' },
+  low: { color: '#34d399', label: 'Низкий' }
+};
+const sev = (s) => SEVERITY[String(s || '').toLowerCase()] || { color: '#8b98a9', label: s || 'не указан' };
+
+const TYPE_RU = {
+  crack: 'Трещина',
+  spalling: 'Скол, отслоение бетона',
+  corrosion: 'Коррозия',
+  exposed_rebar: 'Оголённая арматура',
+  rebar: 'Оголённая арматура',
+  efflorescence: 'Высолы',
+  leak: 'Протечка',
+  moisture: 'Намокание',
+  mold: 'Плесень',
+  hole: 'Раковина, пустота',
+  deformation: 'Деформация'
+};
+const typeRu = (t) => TYPE_RU[String(t || '').toLowerCase()] || t || 'Дефект';
+
+const LOOK_FOR = [
+  { id: 'crack', label: 'Трещины' },
+  { id: 'spalling', label: 'Сколы бетона' },
+  { id: 'corrosion', label: 'Коррозия' },
+  { id: 'leak', label: 'Протечки' },
+  { id: 'ring', label: 'Кольца ЖБИ' }
+];
+const SENSITIVITY = [
+  { v: 0.35, label: 'Только явные' },
+  { v: 0.5, label: 'Обычная' },
+  { v: 0.7, label: 'Всё подозрительное' }
+];
+
+function ZoomViewer({ src, onClose }) {
+  const [zoom, setZoom] = useState(1);
+  const stageRef = useRef(null);
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose]);
+  const setLevel = (z) => {
+    const st = stageRef.current;
+    const cx = st ? (st.scrollLeft + st.clientWidth / 2) / (st.scrollWidth || 1) : 0.5;
+    const cy = st ? (st.scrollTop + st.clientHeight / 2) / (st.scrollHeight || 1) : 0.5;
+    setZoom(z);
+    requestAnimationFrame(() => {
+      if (!st) return;
+      st.scrollLeft = cx * st.scrollWidth - st.clientWidth / 2;
+      st.scrollTop = cy * st.scrollHeight - st.clientHeight / 2;
+    });
+  };
+  return (
+    <div className="qz-viewer" role="dialog" aria-modal="true" aria-label="Фото с разметкой дефектов">
+      <div className="qz-viewer-bar">
+        <span className="qz-grow qz-h3">Разметка дефектов</span>
+        <button type="button" className="qz-iconbtn" aria-label="Закрыть" onClick={onClose}><X size={22} /></button>
+      </div>
+      <div className="qz-viewer-stage" ref={stageRef} onDoubleClick={() => setLevel(zoom === 1 ? 2 : 1)}>
+        <img src={src} alt="Фото с отмеченными дефектами" style={{ width: `${zoom * 100}%`, maxWidth: 'none' }} />
+      </div>
+      <div className="qz-viewer-zoom" role="group" aria-label="Масштаб">
+        {[1, 2, 3].map(z => (
+          <button key={z} type="button" className={`qz-btn is-sm${zoom === z ? ' is-primary' : ''}`} aria-pressed={zoom === z} onClick={() => setLevel(z)} style={{ minWidth: 64 }}>
+            {z}×
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export default function DefectInspectionView({ deals = [], onAttachToDeal }) {
   const [photoUrl, setPhotoUrl] = useState(null);
-  const [selectedType, setSelectedType] = useState('crack');
+  const [photoBlob, setPhotoBlob] = useState(null);
+  const [lookFor, setLookFor] = useState('');
+  const [sensitivity, setSensitivity] = useState(0.5);
   const [isScanning, setIsScanning] = useState(false);
   const [scanResult, setScanResult] = useState(null);
+  const [scanError, setScanError] = useState(null);
+  const [dealId, setDealId] = useState('');
+  const [attachState, setAttachState] = useState(null); // { busy } | { ok, synced, error }
+  const [viewerOpen, setViewerOpen] = useState(false);
   const fileInputRef = useRef(null);
+  const mountedRef = useRef(true);
+  useEffect(() => () => { mountedRef.current = false; }, []);
 
-  const defectTypes = [
-    { id: 'crack', icon: '🧱', label: 'Трещина в бетоне / стене' },
-    { id: 'leak', icon: '💧', label: 'Протечка / сырость' },
-    { id: 'mold', icon: '🦠', label: 'Плесень / биопоражение' },
-    { id: 'corrosion', icon: '🔩', label: 'Коррозия арматуры' },
-    { id: 'facade', icon: '🏠', label: 'Отслоение фасада' },
-    { id: 'foundation', icon: '🏗️', label: 'Осадка фундамента' },
-    { id: 'window', icon: '🪟', label: 'Продувание окон' },
-    { id: 'level', icon: '📐', label: 'Отклонение уровня' }
-  ];
+  const realDeals = deals.filter(d => !d._demo);
 
-  const handlePhotoUpload = (e) => {
+  const handlePhotoUpload = async (e) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        setPhotoUrl(event.target?.result);
-        setScanResult(null);
-      };
-      reader.readAsDataURL(file);
+    if (e.target) e.target.value = '';
+    if (!file) return;
+    setScanResult(null);
+    setScanError(null);
+    setAttachState(null);
+    try {
+      // the server downsizes to 1600px anyway — send a compact JPEG
+      const { dataUrl, blob } = await compressImage(file, 1600, 0.85);
+      if (!mountedRef.current) return;
+      setPhotoUrl(dataUrl);
+      setPhotoBlob(blob);
+    } catch (err) {
+      setScanError('Не удалось прочитать фото: ' + (err.message || 'ошибка'));
     }
   };
 
-  const runAiScan = () => {
-    if (!photoUrl) {
-      alert('Сначала сделайте или загрузите фото дефекта');
+  const runAiScan = async () => {
+    if (!photoBlob) {
+      setScanError('Сначала сфотографируйте конструкцию');
       return;
     }
     setIsScanning(true);
-
-    setTimeout(() => {
-      setIsScanning(false);
-      // Generate expert engineering report
-      if (selectedType === 'crack') {
-        setScanResult({
-          title: 'Силовая трещина железобетонной конструкции',
-          severity: 'critical', // critical | warning | minor
-          severityText: '🔴 Критический дефект (Превышение СНиП)',
-          widthMm: '2.4 мм',
-          limitMm: '0.3 мм (СНиП РК 2.03-30-2006)',
-          depthEst: 'Сквозная (~120-180 мм)',
-          cause: 'Неравномерная осадка ленточного фундамента / превышение расчетной нагрузки',
-          standards: 'СН РК 1.04-26-2022 «Правила оценки технического состояния зданий»',
-          recommendation: '1. Немедленная установка пластинчатых маяков для мониторинга динамики.\n2. Инъектирование безусадочной двухкомпонентной эпоксидной смолой под давлением.\n3. Усиление углеродной лентой (углеволокно) в зоне максимального растяжения.',
-          urgency: 'Высокая (до начала отделочных работ)'
-        });
-      } else if (selectedType === 'leak' || selectedType === 'mold') {
-        setScanResult({
-          title: 'Капиллярное намокание и биопоражение стены',
-          severity: 'warning',
-          severityText: '🟡 Значительный дефект (Требует гидроизоляции)',
-          widthMm: 'Площадь поражения ~1.8 м²',
-          limitMm: 'Влажность > 18% (Норма < 8%)',
-          depthEst: 'Глубина проникновения сырости: до 40 мм',
-          cause: 'Нарушение внешней оклеечной гидроизоляции цоколя / отсутствие пристенного дренажа',
-          standards: 'СНиП РК 3.02-06-2009 «Гидроизоляция подземных сооружений»',
-          recommendation: '1. Вскрытие наружного периметра фундамента и сушка тепловыми пушками.\n2. Нанесение проникающей гидроизоляции проникающего действия (Пенетрон/Ксайпекс).\n3. Обработка фунгицидным антисептическим составом глубокого проникновения.',
-          urgency: 'Средняя'
-        });
-      } else {
-        setScanResult({
-          title: 'Дефект конструктивного элемента',
-          severity: 'warning',
-          severityText: '🟡 Требует устранения по регламенту технадзора',
-          widthMm: 'Отклонение 12 мм на 2 м рейку',
-          limitMm: 'Допуск по ГОСТ: не более 3 мм',
-          depthEst: 'Поверхностно-структурное',
-          cause: 'Отклонение геометрии опалубки при монолитных работах',
-          standards: 'ГОСТ 21779-82 «Технологические допуски в строительстве»',
-          recommendation: 'Шлифовка бетонной поверхности алмазными чашками с последующим выравниванием ремонтным составом М300.',
-          urgency: 'Плановый ремонт'
-        });
-      }
-    }, 1500);
+    setScanError(null);
+    setScanResult(null);
+    setAttachState(null);
+    try {
+      const prompt = LOOK_FOR.find(t => t.id === lookFor)?.label || '';
+      const result = await runDefectScan(photoBlob, { sensitivity, prompt });
+      if (mountedRef.current) setScanResult(result);
+    } catch (err) {
+      // honest error — no fabricated results
+      if (mountedRef.current) setScanError(err.message || 'Сервис выявления дефектов недоступен');
+    } finally {
+      if (mountedRef.current) setIsScanning(false);
+    }
   };
 
+  const handleAttach = async () => {
+    if (!scanResult || !dealId || !onAttachToDeal) return;
+    setAttachState({ busy: true });
+    // keep a small preview of the annotated photo on the device (full image is not stored)
+    let annotatedThumb = null;
+    if (scanResult.annotatedImage) {
+      try { annotatedThumb = (await compressImage(scanResult.annotatedImage, 640, 0.6)).dataUrl; } catch (e) { annotatedThumb = null; }
+    }
+    const { annotatedImage, ...rest } = scanResult;
+    const res = await onAttachToDeal(dealId, { ...rest, annotatedThumb });
+    if (mountedRef.current) setAttachState(res || { ok: false, error: 'нет ответа' });
+  };
+
+  const items = scanResult ? scanResult.items : [];
+  const maxConf = items.reduce((m, d) => Math.max(m, d.confidence || 0), 0);
+  const validated = scanResult?.validatedClasses;
+  const isValidated = (d) => !validated || validated.includes(String(d.cls || d.type).toLowerCase());
+  const unvalidated = items.filter(d => !isValidated(d));
+  const maxSev = sev(scanResult?.summary?.maxSeverity);
+  const shareText = scanResult
+    ? `Акт дефектовки QazGost: найдено дефектов ${scanResult.summary.total}; основной — ${typeRu(scanResult.defectType)}`
+      + `${scanResult.severity ? `; ${scanResult.severity}` : ''}${scanResult.snipCode ? `; ${scanResult.snipCode}` : ''}`
+      + `${scanResult.estimatedCost != null ? `; оценка устранения ${typeof scanResult.estimatedCost === 'number' ? formatMoney(scanResult.estimatedCost) : scanResult.estimatedCost}` : ''}`
+    : '';
+  const shownImage = scanResult?.annotatedImage || photoUrl;
+
   return (
-    <div style={{ padding: '16px' }}>
-      {/* Banner */}
-      <div style={{
-        background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(220, 38, 38, 0.05) 100%)',
-        border: '1px solid rgba(239, 68, 68, 0.3)',
-        borderRadius: '16px',
-        padding: '14px 16px',
-        marginBottom: '16px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between'
-      }}>
-        <div>
-          <div style={{ fontSize: '0.74rem', color: '#f87171', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-            Технадзор QazGost AI
-          </div>
-          <div style={{ fontSize: '1.2rem', fontWeight: 900, color: '#ffffff', marginTop: '2px' }}>
-            Проверка дефектов
-          </div>
-        </div>
-        <div style={{
-          width: '42px',
-          height: '42px',
-          borderRadius: '12px',
-          background: 'rgba(239, 68, 68, 0.2)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: '1.3rem'
-        }}>
-          🔍
-        </div>
+    <div className="qz-page">
+      <div className="qz-field">
+        <label className="qz-label" htmlFor="defect-object">Объект для акта</label>
+        <select id="defect-object" className="qz-select" value={dealId} onChange={(e) => { setDealId(e.target.value); setAttachState(null); }}>
+          <option value="">Выберите объект</option>
+          {realDeals.map(d => (
+            <option key={d.id} value={d.id}>{d.leadNum ? `№ ${d.leadNum}, ` : ''}{d.title}</option>
+          ))}
+        </select>
       </div>
 
-      {/* Defect Type Selector */}
-      <div style={{ fontSize: '0.76rem', color: '#94a3b8', fontWeight: 700, marginBottom: '8px' }}>
-        ТИП ДЕФЕКТА:
-      </div>
-      <div style={{
-        display: 'flex',
-        gap: '6px',
-        overflowX: 'auto',
-        paddingBottom: '8px',
-        marginBottom: '14px',
-        scrollbarWidth: 'none'
-      }}>
-        {defectTypes.map(t => {
-          const isSelected = selectedType === t.id;
-          return (
+      <input ref={fileInputRef} type="file" accept="image/*" capture="environment" onChange={handlePhotoUpload} style={{ display: 'none' }} />
+
+      {/* Photo, edge to edge */}
+      <div style={{ margin: 'var(--sp-4) calc(-1 * var(--sp-4)) 0', position: 'relative', background: '#05080c', borderTop: '1px solid var(--line)', borderBottom: '1px solid var(--line)' }}>
+        {shownImage ? (
+          <>
             <button
-              key={t.id}
-              onClick={() => { setSelectedType(t.id); setScanResult(null); }}
-              style={{
-                background: isSelected ? '#ef4444' : 'rgba(255, 255, 255, 0.04)',
-                color: isSelected ? '#ffffff' : '#94a3b8',
-                border: isSelected ? 'none' : '1px solid rgba(255, 255, 255, 0.08)',
-                padding: '6px 12px',
-                borderRadius: '999px',
-                fontSize: '0.76rem',
-                fontWeight: 700,
-                whiteSpace: 'nowrap',
-                cursor: 'pointer'
-              }}
+              type="button"
+              onClick={() => scanResult?.annotatedImage && setViewerOpen(true)}
+              aria-label={scanResult?.annotatedImage ? 'Открыть фото с разметкой крупно' : 'Фото конструкции'}
+              style={{ display: 'block', width: '100%', padding: 0, border: 0, background: 'none', cursor: scanResult?.annotatedImage ? 'zoom-in' : 'default' }}
             >
-              {t.icon} {t.label}
+              <img src={shownImage} alt={scanResult ? 'Фото с отмеченными дефектами' : 'Фото конструкции'} style={{ display: 'block', width: '100%', maxHeight: '62vh', objectFit: 'contain' }} />
             </button>
-          );
-        })}
-      </div>
-
-      {/* Photo Frame */}
-      <div style={{
-        background: 'rgba(13, 21, 39, 0.9)',
-        border: '1px solid rgba(255, 255, 255, 0.08)',
-        borderRadius: '18px',
-        overflow: 'hidden',
-        marginBottom: '16px',
-        position: 'relative'
-      }}>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          capture="environment"
-          onChange={handlePhotoUpload}
-          style={{ display: 'none' }}
-        />
-
-        {photoUrl ? (
-          <div style={{ position: 'relative' }}>
-            <img
-              src={photoUrl}
-              alt="Дефект"
-              style={{ width: '100%', height: '230px', objectFit: 'cover', display: 'block' }}
-            />
             {isScanning && (
-              <div style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                background: 'rgba(7, 10, 19, 0.6)',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '10px'
-              }}>
-                <Scan size={36} color="#ef4444" style={{ animation: 'spin 2s infinite linear' }} />
-                <span style={{ fontSize: '0.86rem', color: '#ef4444', fontWeight: 800 }}>
-                  Нейросеть QazGost сканирует дефект...
-                </span>
+              <div role="status" style={{ position: 'absolute', inset: 0, background: 'rgba(5, 8, 12, 0.65)', display: 'grid', placeItems: 'center', alignContent: 'center', gap: 10, color: 'var(--text)' }}>
+                <ScanSearch size={34} className="qz-spin" style={{ color: 'var(--accent)' }} />
+                <span className="qz-h3">Модель ищет дефекты…</span>
               </div>
             )}
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              style={{
-                position: 'absolute',
-                bottom: '10px',
-                right: '10px',
-                background: 'rgba(7, 10, 19, 0.8)',
-                color: '#ffffff',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                borderRadius: '8px',
-                padding: '6px 10px',
-                fontSize: '0.74rem',
-                cursor: 'pointer'
-              }}
-            >
-              Переснять
-            </button>
-          </div>
-        ) : (
-          <div
-            onClick={() => fileInputRef.current?.click()}
-            style={{
-              height: '180px',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '10px',
-              cursor: 'pointer',
-              color: '#64748b'
-            }}
-          >
-            <Camera size={40} color="#f59e0b" />
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '0.9rem', color: '#ffffff', fontWeight: 700 }}>
-                Сфотографируйте дефект на объекте
-              </div>
-              <div style={{ fontSize: '0.74rem', color: '#94a3b8', marginTop: '2px' }}>
-                Камера определит параметры раскрытия и класс аварийности
-              </div>
+            <div className="qz-row" style={{ position: 'absolute', right: 10, bottom: 10, gap: 8 }}>
+              {scanResult?.annotatedImage && (
+                <button type="button" className="qz-btn is-sm" onClick={() => setViewerOpen(true)} style={{ background: 'rgba(15,21,29,0.86)' }}>
+                  <Maximize2 size={16} /> Увеличить
+                </button>
+              )}
+              <button type="button" className="qz-btn is-sm" onClick={() => fileInputRef.current?.click()} style={{ background: 'rgba(15,21,29,0.86)' }}>
+                <Camera size={16} /> Переснять
+              </button>
             </div>
-          </div>
+          </>
+        ) : (
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            style={{ width: '100%', minHeight: 220, display: 'grid', placeItems: 'center', alignContent: 'center', gap: 10, border: 0, background: 'var(--surface)', color: 'var(--text-2)' }}
+          >
+            <Camera size={40} style={{ color: 'var(--accent)' }} />
+            <span className="qz-h3" style={{ color: 'var(--text)' }}>Сфотографировать конструкцию</span>
+            <span className="qz-small">Одно фото — одна проверка. Снимайте ровно, при дневном свете.</span>
+          </button>
         )}
       </div>
 
-      {/* Action Scan Button */}
-      {photoUrl && !scanResult && (
-        <button
-          onClick={runAiScan}
-          disabled={isScanning}
-          className="eng-glow-btn"
-          style={{ width: '100%', padding: '14px', marginBottom: '16px', background: 'linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)', boxShadow: '0 4px 20px rgba(239, 68, 68, 0.35)' }}
-        >
-          <Scan size={18} />
-          <span>{isScanning ? 'Идёт анализ...' : 'Запустить AI-экспертизу дефекта'}</span>
-        </button>
+      {/* Detector settings */}
+      {!scanResult && (
+        <>
+          <div className="qz-label" style={{ marginTop: 'var(--sp-4)' }}>Что ищем</div>
+          <div className="qz-chips" style={{ marginTop: 6 }}>
+            <button type="button" className={`qz-chip${lookFor === '' ? ' is-active' : ''}`} onClick={() => setLookFor('')}>Все дефекты</button>
+            {LOOK_FOR.map(t => (
+              <button key={t.id} type="button" className={`qz-chip${lookFor === t.id ? ' is-active' : ''}`} onClick={() => setLookFor(lookFor === t.id ? '' : t.id)}>{t.label}</button>
+            ))}
+          </div>
+          <div className="qz-label" style={{ marginTop: 'var(--sp-2)' }}>Чувствительность</div>
+          <div className="qz-segmented" role="radiogroup" aria-label="Чувствительность" style={{ marginTop: 6 }}>
+            {SENSITIVITY.map(s => (
+              <button key={s.v} type="button" role="radio" aria-selected={sensitivity === s.v} aria-checked={sensitivity === s.v} onClick={() => setSensitivity(s.v)}>{s.label}</button>
+            ))}
+          </div>
+          <button type="button" className="qz-btn is-primary is-block" style={{ marginTop: 'var(--sp-4)' }} onClick={runAiScan} disabled={isScanning || !photoBlob}>
+            <ScanSearch size={20} /> {isScanning ? 'Идёт анализ…' : 'Найти дефекты'}
+          </button>
+        </>
       )}
 
-      {/* AI Scan Report Result */}
-      {scanResult && (
-        <div style={{
-          background: 'rgba(13, 21, 39, 0.95)',
-          border: scanResult.severity === 'critical' ? '1px solid rgba(239, 68, 68, 0.4)' : '1px solid rgba(245, 158, 11, 0.4)',
-          borderRadius: '18px',
-          padding: '16px',
-          boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
-          marginBottom: '16px'
-        }}>
-          {/* Status badge */}
-          <div style={{
-            display: 'inline-block',
-            fontSize: '0.74rem',
-            fontWeight: 800,
-            color: scanResult.severity === 'critical' ? '#ef4444' : '#f59e0b',
-            background: scanResult.severity === 'critical' ? 'rgba(239, 68, 68, 0.15)' : 'rgba(245, 158, 11, 0.15)',
-            padding: '4px 10px',
-            borderRadius: '8px',
-            marginBottom: '10px'
-          }}>
-            {scanResult.severityText}
-          </div>
-
-          <h3 style={{ fontSize: '1.05rem', fontWeight: 900, color: '#ffffff', margin: '0 0 10px' }}>
-            {scanResult.title}
-          </h3>
-
-          {/* Measurements Grid */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            gap: '8px',
-            background: 'rgba(255, 255, 255, 0.03)',
-            borderRadius: '10px',
-            padding: '10px',
-            marginBottom: '12px',
-            fontSize: '0.76rem'
-          }}>
-            <div>
-              <span style={{ color: '#94a3b8' }}>Замер раскрытия:</span>
-              <div style={{ fontWeight: 800, color: '#ef4444', fontSize: '0.9rem', marginTop: '2px' }}>
-                {scanResult.widthMm}
-              </div>
-            </div>
-            <div>
-              <span style={{ color: '#94a3b8' }}>Допуск по СНиП:</span>
-              <div style={{ fontWeight: 700, color: '#cbd5e1', fontSize: '0.84rem', marginTop: '2px' }}>
-                {scanResult.limitMm}
-              </div>
-            </div>
-          </div>
-
-          {/* Cause */}
-          <div style={{ marginBottom: '10px' }}>
-            <div style={{ fontSize: '0.72rem', color: '#94a3b8', fontWeight: 700 }}>ПРИЧИНА ВОЗНИКНОВЕНИЯ:</div>
-            <div style={{ fontSize: '0.82rem', color: '#e2e8f0', marginTop: '2px', lineHeight: 1.3 }}>
-              {scanResult.cause}
-            </div>
-          </div>
-
-          {/* Recommendation */}
-          <div style={{
-            background: 'rgba(16, 185, 129, 0.08)',
-            border: '1px solid rgba(16, 185, 129, 0.2)',
-            borderRadius: '10px',
-            padding: '10px',
-            marginBottom: '14px'
-          }}>
-            <div style={{ fontSize: '0.72rem', color: '#10b981', fontWeight: 800, textTransform: 'uppercase' }}>
-              💡 Рекомендация технадзора:
-            </div>
-            <div style={{ fontSize: '0.8rem', color: '#e2e8f0', marginTop: '4px', whiteSpace: 'pre-line', lineHeight: 1.4 }}>
-              {scanResult.recommendation}
-            </div>
-          </div>
-
-          {/* Actions */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-            <button
-              onClick={() => alert('Дефектная ведомость сохранена в акт осмотра объекта.')}
-              style={{
-                background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-                color: '#070a13',
-                border: 'none',
-                borderRadius: '10px',
-                padding: '10px',
-                fontSize: '0.78rem',
-                fontWeight: 800,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '4px',
-                cursor: 'pointer'
-              }}
-            >
-              <Save size={14} />
-              <span>В акт осмотра</span>
-            </button>
-
-            <button
-              onClick={() => {
-                const text = encodeURIComponent(`Акт дефектовки QazGost: ${scanResult.title}. Раскрытие: ${scanResult.widthMm}. ${scanResult.severityText}`);
-                window.open(`https://wa.me/?text=${text}`, '_system');
-              }}
-              style={{
-                background: 'rgba(34, 197, 94, 0.15)',
-                color: '#4ade80',
-                border: '1px solid rgba(34, 197, 94, 0.3)',
-                borderRadius: '10px',
-                padding: '10px',
-                fontSize: '0.78rem',
-                fontWeight: 800,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '4px',
-                cursor: 'pointer'
-              }}
-            >
-              <Share2 size={14} />
-              <span>В WhatsApp</span>
-            </button>
+      {scanError && (
+        <div className="qz-card is-danger" role="alert" style={{ marginTop: 'var(--sp-4)', display: 'flex', gap: 10 }}>
+          <AlertTriangle size={20} style={{ color: 'var(--danger)', flexShrink: 0 }} />
+          <div className="qz-grow">
+            <div className="qz-h3">{scanError}</div>
+            <div className="qz-small qz-muted" style={{ marginTop: 4 }}>Результат не сформирован. Проверьте связь и адрес сервера в настройках.</div>
+            {photoBlob && <button type="button" className="qz-btn is-sm" style={{ marginTop: 10 }} onClick={runAiScan}><RefreshCw size={16} /> Повторить</button>}
           </div>
         </div>
       )}
+
+      {scanResult && (
+        <>
+          {/* Model + summary */}
+          <div className="qz-row" style={{ marginTop: 'var(--sp-4)', flexWrap: 'wrap', gap: 8 }}>
+            {scanResult.detector && <span className="qz-tag is-accent">{scanResult.detector}</span>}
+            {maxConf > 0 && <span className="qz-small qz-muted">уверенность до {Math.round(maxConf * 100)}%</span>}
+            {scanResult.isMock && <span className="qz-tag is-warn">резервный алгоритм</span>}
+          </div>
+          {scanResult.detectorNote && !(validated && unvalidated.length > 0) && <div className="qz-xs qz-faint" style={{ marginTop: 4 }}>{scanResult.detectorNote}</div>}
+          <div className="qz-row" style={{ alignItems: 'baseline', marginTop: 6 }}>
+            <h2 className="qz-h2 qz-grow" style={{ fontSize: 'var(--fs-2xl)' }}>
+              {scanResult.summary.total > 0 ? `${scanResult.summary.total} ${plural(scanResult.summary.total, 'дефект', 'дефекта', 'дефектов')}` : 'Дефектов не найдено'}
+            </h2>
+            {scanResult.summary.total > 0 && <span className="qz-small" style={{ color: maxSev.color, fontWeight: 650 }}>худший: {maxSev.label.toLowerCase()}</span>}
+          </div>
+          {scanResult.severity && <div className="qz-small qz-muted">{scanResult.severity}</div>}
+
+          {validated && unvalidated.length > 0 && (
+            <div className="qz-card is-flat" style={{ marginTop: 'var(--sp-3)', display: 'flex', gap: 10, borderColor: 'var(--line-strong)' }}>
+              <Info size={18} className="qz-faint" style={{ flexShrink: 0, marginTop: 2 }} />
+              <div className="qz-small qz-muted">
+                Модель проверена на классе «{validated.map(typeRu).join(', ').toLowerCase()}». Остальные находки
+                ({[...new Set(unvalidated.map(d => typeRu(d.type).toLowerCase()))].join(', ')}) — подсказка, подтвердите их на месте.
+              </div>
+            </div>
+          )}
+
+          {/* Defects */}
+          {items.length > 0 && (
+            <div style={{ display: 'grid', gap: 8, marginTop: 'var(--sp-3)' }}>
+              {items.map((d, i) => {
+                const s = sev(d.severity);
+                const pct = d.confidence != null ? Math.round(d.confidence * 100) : null;
+                return (
+                  <div key={i} className="qz-card" style={{ padding: 'var(--sp-3)', boxShadow: `inset 3px 0 0 ${s.color}` }}>
+                    <div className="qz-row" style={{ justifyContent: 'space-between' }}>
+                      <span className="qz-h3">{typeRu(d.type)}</span>
+                      <span className="qz-small" style={{ color: s.color, fontWeight: 650 }}>{s.label}</span>
+                    </div>
+                    <div className="qz-row" style={{ marginTop: 8, gap: 10 }}>
+                      <span className="qz-meter qz-grow" style={{ '--st': s.color }} aria-hidden="true"><i style={{ width: `${pct || 0}%` }} /></span>
+                      <span className="qz-small num qz-muted" style={{ minWidth: 92, textAlign: 'right' }}>{pct != null ? `уверенность ${pct}%` : '—'}</span>
+                    </div>
+                    {!isValidated(d) && <div className="qz-xs qz-faint" style={{ marginTop: 6 }}>класс не проверен на валидации — проверьте визуально</div>}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* What to do, cost, norms */}
+          {(scanResult.fixMethod || scanResult.estimatedCost != null || scanResult.snipCode) && (
+            <div className="qz-card" style={{ marginTop: 'var(--sp-4)' }}>
+              <h3 className="qz-h3">Что делать</h3>
+              {scanResult.fixMethod && <p className="qz-small" style={{ marginTop: 6, lineHeight: 1.45, whiteSpace: 'pre-line' }}>{scanResult.fixMethod}</p>}
+              <hr className="qz-divider" />
+              <dl className="qz-kv">
+                <dt>Стоимость устранения</dt>
+                <dd className="num">{scanResult.estimatedCost == null || scanResult.estimatedCost === '' ? '—' : (typeof scanResult.estimatedCost === 'number' ? formatMoney(scanResult.estimatedCost) : scanResult.estimatedCost)}</dd>
+                <dt>Срок работ</dt>
+                <dd className="num">{scanResult.workDays ? `${scanResult.workDays} ${plural(scanResult.workDays, 'день', 'дня', 'дней')}` : '—'}</dd>
+                <dt>Нормативы</dt>
+                <dd>{scanResult.snipCode || '—'}</dd>
+              </dl>
+            </div>
+          )}
+
+          <div className="qz-grid-2" style={{ marginTop: 'var(--sp-4)' }}>
+            <button type="button" className="qz-btn is-primary" onClick={handleAttach} disabled={!dealId || attachState?.busy}>
+              <Paperclip size={18} /> {attachState?.busy ? 'Сохраняем…' : 'В акт объекта'}
+            </button>
+            <button type="button" className="qz-btn" onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_system')}>
+              <Share2 size={18} /> Поделиться
+            </button>
+          </div>
+          {!dealId && <div className="qz-xs qz-faint" style={{ marginTop: 6 }}>Чтобы приложить акт, выберите объект вверху экрана.</div>}
+          {attachState && !attachState.busy && (
+            <div role="status" className="qz-small" style={{ marginTop: 10, fontWeight: 600, color: attachState.ok && attachState.synced ? 'var(--ok)' : 'var(--warn)' }}>
+              {!attachState.ok
+                ? `Не сохранено: ${attachState.error}`
+                : attachState.synced
+                  ? 'Акт приложен к объекту и отправлен на сервер.'
+                  : `Акт сохранён на телефоне, но не отправлен (${attachState.error}). Отправится при следующей синхронизации.`}
+            </div>
+          )}
+          <button type="button" className="qz-btn is-ghost is-block" style={{ marginTop: 'var(--sp-3)' }} onClick={() => { setScanResult(null); setAttachState(null); fileInputRef.current?.click(); }}>
+            <Camera size={18} /> Проверить другое фото
+          </button>
+        </>
+      )}
+
+      {viewerOpen && scanResult?.annotatedImage && <ZoomViewer src={scanResult.annotatedImage} onClose={() => setViewerOpen(false)} />}
     </div>
   );
+}
+
+function plural(n, one, few, many) {
+  const m10 = n % 10;
+  const m100 = n % 100;
+  if (m10 === 1 && m100 !== 11) return one;
+  if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few;
+  return many;
 }

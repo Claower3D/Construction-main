@@ -1,0 +1,169 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="engBgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0a1020" />
+      <stop offset="50%" stop-color="#0e172e" />
+      <stop offset="100%" stop-color="#060913" />
+    </linearGradient>
+
+    <!-- Amber Glow Gradient -->
+    <linearGradient id="engAmberGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fbbf24" />
+      <stop offset="50%" stop-color="#f59e0b" />
+      <stop offset="100%" stop-color="#d97706" />
+    </linearGradient>
+
+    <!-- Hot Orange Gradient -->
+    <linearGradient id="engOrangeGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ea580c" />
+      <stop offset="100%" stop-color="#f97316" />
+    </linearGradient>
+
+    <!-- Cyan Laser Gradient -->
+    <linearGradient id="engCyanLaser" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#a5f3fc" />
+      <stop offset="50%" stop-color="#00e5ff" />
+      <stop offset="100%" stop-color="#0284c7" />
+    </linearGradient>
+
+    <!-- Metal Steel Gradient -->
+    <linearGradient id="engSteelGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#334155" />
+      <stop offset="100%" stop-color="#1e293b" />
+    </linearGradient>
+
+    <!-- Glow Filter -->
+    <filter id="engAmberGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="12" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+
+    <filter id="engLaserGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+
+    <!-- Drop Shadow for Icon Body -->
+    <filter id="engDropShadow" x="-10%" y="-10%" width="120%" height="125%">
+      <feDropShadow dx="0" dy="16" stdDeviation="18" flood-color="#000000" flood-opacity="0.65" />
+    </filter>
+
+    <!-- Blueprint Grid Pattern -->
+    <pattern id="engGrid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <path d="M 32 0 L 0 0 0 32" fill="none" stroke="rgba(245, 158, 11, 0.05)" stroke-width="1" />
+      <circle cx="0" cy="0" r="1.5" fill="rgba(0, 229, 255, 0.15)" />
+    </pattern>
+  </defs>
+
+  <!-- Squircle Base / App Icon Frame -->
+  <rect x="16" y="16" width="480" height="480" rx="112" fill="url(#engBgGrad)" stroke="rgba(245, 158, 11, 0.35)" stroke-width="3" />
+  
+  <!-- Subtle Internal Glow Ring -->
+  <rect x="22" y="22" width="468" height="468" rx="106" fill="none" stroke="rgba(255, 255, 255, 0.06)" stroke-width="1.5" />
+  
+  <!-- Blueprint Grid Overlay -->
+  <rect x="20" y="20" width="472" height="472" rx="108" fill="url(#engGrid)" />
+
+  <!-- Ambient Amber Spotlight in Center -->
+  <circle cx="256" cy="240" r="170" fill="url(#engAmberGrad)" opacity="0.12" filter="blur(40px)" />
+  <!-- Ambient Cyan Laser Point -->
+  <circle cx="256" cy="235" r="90" fill="url(#engCyanLaser)" opacity="0.15" filter="blur(30px)" />
+
+  <!-- Top Brand Wordmark: QazGost -->
+  <g transform="translate(0, 68)">
+    <text x="256" y="0" font-family="'Plus Jakarta Sans', 'Segoe UI', -apple-system, sans-serif" font-size="28" font-weight="900" letter-spacing="3" text-anchor="middle">
+      <tspan fill="#ffffff">Qaz</tspan><tspan fill="#f59e0b">Gost</tspan>
+    </text>
+    <line x1="216" y1="9" x2="296" y2="9" stroke="url(#engAmberGrad)" stroke-width="2.5" stroke-linecap="round" opacity="0.85" />
+  </g>
+
+  <!-- MAIN SYMBOL: ENGINEER Q-MONOGRAM WITH HARD HAT & LIDAR LASER -->
+  <g filter="url(#engDropShadow)">
+    
+    <!-- Outer Technical Octagon / GOST Ring Arc (Top & Left) -->
+    <path d="M 160 125 
+             L 300 125 
+             A 135 135 0 0 1 391 256 
+             A 135 135 0 0 1 345 352" 
+          fill="none" 
+          stroke="url(#engAmberGrad)" 
+          stroke-width="16" 
+          stroke-linecap="round" />
+
+    <path d="M 165 352 
+             A 135 135 0 0 1 121 256 
+             A 135 135 0 0 1 170 155" 
+          fill="none" 
+          stroke="url(#engAmberGrad)" 
+          stroke-width="16" 
+          stroke-linecap="round" />
+
+    <!-- Technical Calibration Notches (GOST measurement ticks) -->
+    <line x1="256" y1="102" x2="256" y2="116" stroke="#f59e0b" stroke-width="3.5" stroke-linecap="round" />
+    <line x1="105" y1="246" x2="125" y2="246" stroke="#f59e0b" stroke-width="4" stroke-linecap="round" />
+    <line x1="387" y1="246" x2="407" y2="246" stroke="#f59e0b" stroke-width="4" stroke-linecap="round" />
+    <line x1="149" y1="139" x2="163" y2="153" stroke="rgba(245, 158, 11, 0.6)" stroke-width="3" stroke-linecap="round" />
+    <line x1="363" y1="139" x2="349" y2="153" stroke="rgba(245, 158, 11, 0.6)" stroke-width="3" stroke-linecap="round" />
+
+    <!-- Engineer Hard Hat Geometry inside Q -->
+    <!-- Helmet Dome -->
+    <path d="M 180 250 
+             C 180 185, 214 165, 256 165 
+             C 298 165, 332 185, 332 250 
+             Z" 
+          fill="url(#engOrangeGrad)" />
+
+    <!-- Helmet Ridge / Apex Reinforcement -->
+    <path d="M 248 165 
+             L 264 165 
+             L 262 250 
+             L 250 250 
+             Z" 
+          fill="#fbbf24" 
+          opacity="0.85" />
+
+    <!-- Helmet Brim / Visor Shield -->
+    <path d="M 164 246 
+             C 164 242, 185 240, 256 240 
+             C 327 240, 348 242, 348 246 
+             C 348 256, 327 262, 256 262 
+             C 185 262, 164 256, 164 246 
+             Z" 
+          fill="url(#engAmberGrad)" />
+
+    <!-- LiDAR Laser Optical Crosshair Sensor -->
+    <g filter="url(#engLaserGlow)">
+      <!-- Horizontal laser guide line -->
+      <line x1="150" y1="290" x2="362" y2="290" stroke="url(#engCyanLaser)" stroke-width="3.5" stroke-dasharray="8 5" opacity="0.9" />
+      <!-- Vertical target axis -->
+      <line x1="256" y1="215" x2="256" y2="335" stroke="url(#engCyanLaser)" stroke-width="3.5" stroke-dasharray="8 5" opacity="0.9" />
+      
+      <!-- Central Target Reticle Circles -->
+      <circle cx="256" cy="290" r="28" fill="none" stroke="#00e5ff" stroke-width="3.5" />
+      <circle cx="256" cy="290" r="14" fill="none" stroke="#00e5ff" stroke-width="2" />
+      <circle cx="256" cy="290" r="5" fill="#ffffff" />
+    </g>
+
+    <!-- The "Q" Monogram Tail: Precision Laser Measure & Drafting Pointer -->
+    <path d="M 315 315 
+             L 395 395 
+             L 420 380 
+             L 340 300 
+             Z" 
+          fill="url(#engAmberGrad)" 
+          filter="url(#engAmberGlow)" />
+
+    <!-- Glowing Laser Emitter Tip on Tail -->
+    <circle cx="408" cy="388" r="8" fill="#00e5ff" filter="url(#engLaserGlow)" />
+    <circle cx="408" cy="388" r="3.5" fill="#ffffff" />
+  </g>
+
+  <!-- Technical Spec Badge at Bottom -->
+  <g transform="translate(186, 428)">
+    <rect x="0" y="0" width="140" height="28" rx="7" fill="rgba(245, 158, 11, 0.12)" stroke="rgba(245, 158, 11, 0.4)" stroke-width="1.5" />
+    <text x="70" y="19" font-family="'Plus Jakarta Sans', 'Segoe UI', -apple-system, sans-serif" font-size="12" font-weight="900" fill="#f59e0b" letter-spacing="3" text-anchor="middle">
+      ENGINEER
+    </text>
+  </g>
+</svg>

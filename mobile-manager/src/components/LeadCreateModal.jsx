@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import './LeadCreateModal.css';
 import VoiceLeadInput from './VoiceLeadInput';
+import { genId, genLeadNum, localDateISO, makeNote, parseBudget } from '../api/syncCore';
 
 export default function LeadCreateModal({ onClose, onCreateDeal, initialDate = '', initialTime = '' }) {
   const [leadData, setLeadData] = useState({
@@ -40,44 +41,35 @@ export default function LeadCreateModal({ onClose, onCreateDeal, initialDate = '
       return;
     }
 
-    const numBudget = parseInt(String(leadData.budget).replace(/[^0-9]/g, ''), 10) || 0;
-    const now = new Date();
-    const dateStr = leadData.date || now.toISOString().split('T')[0];
+    const numBudget = parseBudget(leadData.budget);
+    const dateStr = leadData.date || localDateISO();
 
-    // Determine direction / role
-    let role = 'builder';
+    // Determine direction / role (only roles known to ROLE_CONFIG)
+    let role = 'lead';
     const sLower = (leadData.service || '').toLowerCase();
-    if (sLower.includes('экспертиз')) role = 'engineer';
-    else if (sLower.includes('ремонт') || sLower.includes('отделк') || sLower.includes('электро')) role = 'executor';
+    if (sLower.includes('экспертиз') || sLower.includes('псд')) role = 'engineer';
+    else if (sLower.includes('аренда')) role = 'machinery';
+    else if (sLower.includes('ремонт') || sLower.includes('отделк') || sLower.includes('электро') || sLower.includes('кровел')) role = 'executor';
 
     const clientTitle = (leadData.clientName || '').trim() || 'Новый клиент';
     const serviceTitle = leadData.service || 'Установка септика';
     const fullTitle = `${serviceTitle} (${clientTitle})`;
-    const generatedId = String(Math.floor(1000 + Math.random() * 9000));
-    const generatedLeadNum = String(Math.floor(10 + Math.random() * 90));
 
     const newDeal = {
-      id: generatedId,
-      leadNum: generatedLeadNum,
+      id: genId('m'),            // globally unique (timestamp + random), not a 4-digit number
+      leadNum: genLeadNum(),     // short number for display only
       title: fullTitle,
       client: clientTitle,
       contractor: clientTitle,
-      phone: (leadData.phone || '').trim() || '+7 (701) 555-43-21',
-      location: (leadData.address || '').trim() || 'г. Алматы',
+      phone: (leadData.phone || '').trim(),
+      location: (leadData.address || '').trim(),
       budget: numBudget,
       status: 'Новые',
       role,
       date: dateStr,
       time: leadData.time || '12:00',
       priority: numBudget >= 3000000 ? 'high' : 'normal',
-      notes: [
-        { 
-          text: leadData.notes || 'Создано через форму «Создание Лида»', 
-          time: 'Только что', 
-          author: 'Менеджер' 
-        }
-      ],
-      rawNotes: leadData.notes || 'Создано через форму «Создание Лида»'
+      notes: [makeNote(leadData.notes || 'Создано через форму «Создание Лида»', 'Менеджер')]
     };
 
     onCreateDeal(newDeal);

@@ -29,6 +29,10 @@ COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
 # Copy built backend binary
 COPY --from=backend-builder /app/go-backend/server ./server
 
+# Price database (23 864 SNiP/GESN items). Without it production served only 10 fallback prices.
+COPY ai-service/app/data/price_db.json ./ai-service/app/data/price_db.json
+ENV PRICE_DB_PATH=/app/ai-service/app/data/price_db.json
+
 # Default port for local / Railway (overridden by Railway's $PORT)
 ENV PORT=8080
 EXPOSE 8080

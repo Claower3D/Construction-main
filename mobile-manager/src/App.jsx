@@ -7,26 +7,29 @@ import CalendarView from './components/CalendarView';
 import ClientsView from './components/ClientsView';
 import DealDetailModal from './components/DealDetailModal';
 import LeadCreateModal from './components/LeadCreateModal';
-import VoiceLeadInput from './components/VoiceLeadInput';
 import SettingsModal from './components/SettingsModal';
 import LoginScreen from './components/LoginScreen';
-import { 
-  getStoredDeals, 
-  saveStoredDeals, 
-  getStoredSettings, 
-  saveStoredSettings, 
+import { Toast, SyncBanner } from './components/ui/kit';
+import {
+  getStoredDeals,
+  getStoredSettings,
+  saveStoredSettings,
   getStoredAuth,
-  saveStoredAuth,
   clearStoredAuth,
-  createDealOnServer,
-  updateDealOnServer,
-  deleteDealOnServer,
-  twoWaySyncWithRailway
+  createLocalDeal,
+  updateLocalDeal,
+  deleteLocalDeal,
+  loadDemoDeals,
+  pendingSyncCount,
+  syncDeals,
+  dealsStore,
+  makeNote
 } from './api/crmApi';
 
 export default function App() {
   const [auth, setAuth] = useState(getStoredAuth());
-  const [deals, setDeals] = useState([]);
+  // Hydrate synchronously from storage so the very first sync works on the real local list
+  const [deals, setDeals] = useState(() => getStoredDeals());
   const [settings, setSettings] = useState(getStoredSettings());
   const [activeTab, setActiveTab] = useState('dashboard');
   const [selectedDeal, setSelectedDeal] = useState(null);
@@ -39,67 +42,78 @@ export default function App() {
   const [syncLatency, setSyncLatency] = useState(null);
   const [lastSyncTime, setLastSyncTime] = useState(null);
   const [toastMessage, setToastMessage] = useState(null);
-  const dealsRef = useRef(deals);
-  dealsRef.current = deals;
+  const [pendingCount, setPendingCount] = useState(() => pendingSyncCount());
+  const [syncError, setSyncError] = useState(null);
+  const toastTimerRef = useRef(null);
 
   // Show temporary toast
   const showToast = useCallback((msg) => {
     setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 3200);
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    toastTimerRef.current = setTimeout(() => setToastMessage(null), 3200);
   }, []);
 
-  // Save deals on change
-  const updateDeals = useCallback((newDeals) => {
-    setDeals(newDeals);
-    saveStoredDeals(newDeals);
+  useEffect(() => () => { if (toastTimerRef.current) clearTimeout(toastTimerRef.current); }, []);
+
+  const applyList = useCallback((list) => {
+    setDeals(list);
+    setPendingCount(pendingSyncCount(list));
+    setSelectedDeal(prev => (prev ? (list.find(d => String(d.id) === String(prev.id)) || null) : prev));
   }, []);
 
-  // Two-Way Sync Handler with Railway
-  const handleSync = useCallback(async (notify = true) => {
+  // Two-way sync (reads the current list and server URL from storage — no stale closures)
+  const runSync = useCallback(async () => {
     setIsSyncing(true);
-    const res = await twoWaySyncWithRailway(settings.serverUrl, dealsRef.current);
+    const res = await syncDeals();
     setIsSyncing(false);
-
     if (res.success) {
       setIsOnline(true);
       setSyncLatency(res.latencyMs);
       setLastSyncTime(res.lastSyncTime);
-      if (res.mergedDeals && res.mergedDeals.length > 0) {
-        updateDeals(res.mergedDeals);
-      }
-      if (notify) {
-        showToast(`✓ Railway синхронизирован (${res.latencyMs} мс, ${res.mergedDeals.length} сделок)`);
-      }
+      setSyncError(res.errors && res.errors.length ? res.errors[0] : null);
+      applyList(res.deals);
     } else {
       setIsOnline(false);
       setSyncLatency(null);
-      if (notify) {
-        showToast('Офлайн-режим. Данные сохранены локально на телефоне');
-      }
+      setSyncError(res.error);
+      // First launch without network: offline demo (never synchronized)
+      applyList(dealsStore.isInitialized() ? res.deals : loadDemoDeals());
     }
-  }, [settings.serverUrl, updateDeals, showToast]);
+    return res;
+  }, [applyList]);
 
-  // Initial load
+  const handleSync = useCallback(async (notify = true) => {
+    const res = await runSync();
+    if (!notify) return res;
+    if (res.success) {
+      showToast(res.errors && res.errors.length
+        ? `⚠ Синхронизировано частично: ошибок ${res.errors.length}`
+        : `✓ Синхронизировано (${res.latencyMs} мс, ${res.deals.length} сделок)`);
+    } else {
+      showToast(`Офлайн (${res.error}). Данные сохранены на телефоне`);
+    }
+    return res;
+  }, [runSync, showToast]);
+
+  const scheduleSync = useCallback(() => {
+    setTimeout(() => { handleSync(false); }, 300);
+  }, [handleSync]);
+
+  // Initial sync + heartbeat — only for a logged-in user
   useEffect(() => {
-    const loadedDeals = getStoredDeals();
-    setDeals(loadedDeals);
-
-    // Initial sync
+    if (!auth) return undefined;
     handleSync(false);
-
-    // Auto-sync heartbeat every 30 seconds
-    const interval = setInterval(() => {
-      handleSync(false);
-    }, (settings.autoSyncInterval || 30) * 1000);
-
+    const intervalMs = Math.max(5, Number(settings.autoSyncInterval) || 30) * 1000;
+    const interval = setInterval(() => { handleSync(false); }, intervalMs);
     return () => clearInterval(interval);
-  }, [handleSync, settings.autoSyncInterval]);
+  }, [auth, handleSync, settings.autoSyncInterval]);
+
+  const authorName = auth?.user?.name || 'Менеджер';
 
   // Auth Handlers
   const handleLoginSuccess = (authData) => {
-    setAuth(authData);
+    setAuth(authData); // sync starts from the effect above
     showToast(`✓ Добро пожаловать, ${authData.user.name.split(' ')[0]}!`);
-    handleSync(true);
   };
 
   const handleLogout = () => {
@@ -110,111 +124,64 @@ export default function App() {
     }
   };
 
-  // Create new deal
+  // Create new deal (saved locally first, then pushed; no stale `deals` closure)
   const handleCreateDeal = async (newDeal) => {
-    const withTimestamp = {
+    const res = createLocalDeal({
       ...newDeal,
-      updated_at: new Date().toISOString()
-    };
-    const updated = [withTimestamp, ...deals];
-    updateDeals(updated);
-    showToast(`⏳ Сохранение заявки #${newDeal.leadNum}...`);
-
-    try {
-      const serverRes = await createDealOnServer(settings.serverUrl, withTimestamp, auth?.user?.name);
-      if (serverRes && serverRes.success && serverRes.deal) {
-        const confirmedList = updated.map(d => String(d.id) === String(withTimestamp.id) ? serverRes.deal : d);
-        updateDeals(confirmedList);
-        setIsOnline(true);
-        showToast(`⚡ Заявка #${newDeal.leadNum} сохранена в базу данных и синхронизирована с сайтом!`);
-      } else {
-        showToast(`✓ Заявка #${newDeal.leadNum} сохранена локально`);
-      }
-    } catch (e) {
-      console.warn('Create deal error:', e);
+      createdBy: authorName,
+      notes: (newDeal.notes || []).map(n => ({ ...n, author: n.author && n.author !== 'Менеджер' ? n.author : authorName }))
+    });
+    applyList(res.list);
+    if (!res.ok) {
+      showToast(`⚠ ${res.error}`);
+      return;
     }
-
-    // Trigger instant background sync
-    setTimeout(() => handleSync(false), 300);
+    showToast(`⏳ Сохранение заявки #${newDeal.leadNum}...`);
+    const s = await runSync();
+    const rec = (s.deals || []).find(d => String(d.id) === String(res.record.id));
+    if (s.success && rec && !rec._dirty) {
+      showToast(`⚡ Заявка #${newDeal.leadNum} сохранена в базе данных`);
+    } else {
+      showToast(`✓ Заявка #${newDeal.leadNum} сохранена на телефоне — отправится при появлении связи`);
+    }
   };
 
   // Update deal status
   const handleUpdateStatus = (dealId, newStatus) => {
-    let targetDeal = null;
-    const updated = deals.map(d => {
-      if (String(d.id) === String(dealId)) {
-        targetDeal = { 
-          ...d, 
-          status: newStatus,
-          updated_at: new Date().toISOString(),
-          notes: [
-            { text: `Статус изменен на «${newStatus}»`, time: 'Только что', author: auth?.user?.name || 'Менеджер' },
-            ...(d.notes || [])
-          ]
-        };
-        return targetDeal;
-      }
-      return d;
-    });
-    updateDeals(updated);
-    if (selectedDeal && String(selectedDeal.id) === String(dealId)) {
-      setSelectedDeal(prev => ({ ...prev, status: newStatus }));
-    }
-    showToast(`Статус обновлён: ${newStatus}`);
-    if (targetDeal) {
-      updateDealOnServer(settings.serverUrl, targetDeal, auth?.user?.name).catch(() => {});
-    }
-    setTimeout(() => handleSync(false), 500);
+    const res = updateLocalDeal(dealId, d => ({
+      ...d,
+      status: newStatus,
+      notes: [makeNote(`Статус изменен на «${newStatus}»`, authorName), ...(d.notes || [])]
+    }));
+    applyList(res.list);
+    showToast(res.ok ? `Статус обновлён: ${newStatus}` : `⚠ ${res.error}`);
+    if (res.ok) scheduleSync();
   };
 
   // Add note to deal
   const handleAddNote = (dealId, noteText) => {
-    let targetDeal = null;
-    const updated = deals.map(d => {
-      if (String(d.id) === String(dealId)) {
-        const newNotes = [
-          { text: noteText, time: 'Только что', author: auth?.user?.name || 'Менеджер' },
-          ...(d.notes || [])
-        ];
-        targetDeal = { 
-          ...d, 
-          notes: newNotes,
-          updated_at: new Date().toISOString()
-        };
-        return targetDeal;
-      }
-      return d;
-    });
-    updateDeals(updated);
-    if (selectedDeal && String(selectedDeal.id) === String(dealId)) {
-      setSelectedDeal(prev => ({ 
-        ...prev, 
-        notes: [{ text: noteText, time: 'Только что', author: auth?.user?.name || 'Менеджер' }, ...(prev.notes || [])]
-      }));
-    }
-    showToast('Заметка сохранена');
-    if (targetDeal) {
-      updateDealOnServer(settings.serverUrl, targetDeal, auth?.user?.name).catch(() => {});
-    }
-    setTimeout(() => handleSync(false), 500);
+    const res = updateLocalDeal(dealId, d => ({
+      ...d,
+      notes: [makeNote(noteText, authorName), ...(d.notes || [])]
+    }));
+    applyList(res.list);
+    showToast(res.ok ? 'Заметка сохранена' : `⚠ ${res.error}`);
+    if (res.ok) scheduleSync();
   };
 
-  // Delete deal
+  // Delete deal (tombstone + offline DELETE queue → never resurrected)
   const handleDeleteDeal = (dealId) => {
-    const updated = deals.filter(d => String(d.id) !== String(dealId));
-    updateDeals(updated);
+    const res = deleteLocalDeal(dealId);
+    applyList(res.list);
     setSelectedDeal(null);
     showToast('Сделка удалена');
-    deleteDealOnServer(settings.serverUrl, dealId).catch(() => {});
-    setTimeout(() => handleSync(false), 500);
+    scheduleSync();
   };
 
-  // Reset demo
+  // Offline demo data (fictional, never synchronized; replaced by real data on the next successful sync)
   const handleResetDemo = () => {
-    localStorage.removeItem('qazgost_manager_crm_deals_v1');
-    const fresh = getStoredDeals();
-    setDeals(fresh);
-    showToast('Демо-данные восстановлены');
+    applyList(loadDemoDeals());
+    showToast('Показаны демо-данные (только офлайн, не синхронизируются)');
   };
 
   // Save settings
@@ -222,7 +189,7 @@ export default function App() {
     setSettings(newSettings);
     saveStoredSettings(newSettings);
     showToast('Настройки сохранены');
-    handleSync(true);
+    if (auth) handleSync(true);
   };
 
   // If user is not logged in, render the LoginScreen!
@@ -237,29 +204,32 @@ export default function App() {
   }
 
   const newLeadsCount = deals.filter(d => d.status === 'Новые').length;
+  const TITLES = { dashboard: 'Сводка', kanban: 'Воронка продаж', calendar: 'Календарь', clients: 'Клиенты' };
+  const modalOpen = !!selectedDeal || showNewLeadModal || showVoiceModal || showSettingsModal;
 
   return (
-    <div className="app-container">
-      {/* Top Header with Railway connection state */}
+    <div className="qz-app">
       <HeaderBar
+        title={TITLES[activeTab] || 'QazGost CRM'}
         currentUser={auth?.user}
-        onLogout={handleLogout}
         onOpenSettings={() => setShowSettingsModal(true)}
         isOnline={isOnline}
         onSync={() => handleSync(true)}
         isSyncing={isSyncing}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
+        showSearch={activeTab === 'kanban' || activeTab === 'clients'}
       />
 
-      {/* Main Content Body */}
-      <main className="app-content">
+      <SyncBanner pending={pendingCount} error={syncError} onRetry={() => handleSync(true)} />
+
+      <main className="qz-main has-fab">
         {activeTab === 'dashboard' && (
           <DashboardView
             deals={deals}
             onSelectDeal={setSelectedDeal}
             onOpenNewLead={() => setShowNewLeadModal(true)}
-            onOpenVoice={() => setShowVoiceModal(true)}
+            onOpenTab={setActiveTab}
           />
         )}
 
@@ -288,31 +258,8 @@ export default function App() {
         )}
       </main>
 
-      {/* Toast Notification */}
-      {toastMessage && (
-        <div style={{
-          position: 'fixed',
-          top: '70px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          background: 'rgba(15, 23, 42, 0.95)',
-          border: '1px solid #00e5ff',
-          color: '#fff',
-          padding: '8px 18px',
-          borderRadius: '20px',
-          fontSize: '0.8rem',
-          fontWeight: 800,
-          zIndex: 200,
-          boxShadow: '0 4px 20px rgba(0, 229, 255, 0.3)',
-          pointerEvents: 'none',
-          animation: 'fadeIn 0.2s ease',
-          whiteSpace: 'nowrap'
-        }}>
-          {toastMessage}
-        </div>
-      )}
+      <Toast message={toastMessage} withFab={!modalOpen} />
 
-      {/* Bottom Nav */}
       <BottomNav
         activeTab={activeTab}
         onTabChange={(tab) => {
@@ -320,7 +267,7 @@ export default function App() {
           setSearchQuery('');
         }}
         onOpenNewLead={() => setShowNewLeadModal(true)}
-        onOpenVoiceLead={() => setShowVoiceModal(true)}
+        showFab={!modalOpen}
         unreadCount={newLeadsCount}
       />
 

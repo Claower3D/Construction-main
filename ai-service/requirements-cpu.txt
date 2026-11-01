@@ -1,0 +1,47 @@
+# ═══════════════════════════════════════════════════════════════════
+# QAZGOST AI — облегчённые зависимости для CPU-образа (Dockerfile.cpu, Railway)
+#
+# torch/torchvision ставятся ОТДЕЛЬНО из CPU-индекса PyTorch (см. Dockerfile.cpu), иначе pip
+# притянет CUDA-сборку (~2.5 ГБ). Тяжёлые GPU-модели (RF-DETR, SAM, GroundingDINO, Qwen/transformers,
+# bitsandbytes) сюда не входят — без весов они всё равно работают в mock-режиме (ответы помечены is_mock).
+# Детекция дефектов (/defect-scan) работает полностью: ultralytics + models/defect_*.pt.
+# ═══════════════════════════════════════════════════════════════════
+
+# Core
+fastapi==0.115.8
+uvicorn[standard]==0.34.0
+python-multipart==0.0.20
+pydantic==2.10.6
+pydantic-settings==2.7.1
+slowapi==0.1.9
+
+# Defect detection (YOLO26 / YOLOv8)
+ultralytics>=8.4.0
+opencv-python-headless==4.11.0.86
+numpy==1.26.4
+pillow==11.1.0
+pi-heif>=0.18
+PyYAML>=6.0
+
+# Image processing / CV fallback
+scikit-image==0.24.0
+scipy>=1.12.0
+
+# LiDAR
+open3d>=0.18.0
+laspy[lazrs]>=2.5.0
+
+# Reports
+reportlab==4.2.5
+openpyxl==3.1.5
+
+# Speech-to-Text (ffmpeg ставится apt-пакетом)
+SpeechRecognition>=3.10
+pydub>=0.25.1
+
+# Utils
+requests==2.32.3
+httpx==0.28.1
+python-dotenv==1.0.1
+loguru==0.7.3
+aiofiles==24.1.0

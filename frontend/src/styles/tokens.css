@@ -1,0 +1,317 @@
+/* ════════════════════════════════════════════════════════════════════
+   QazGost AI — дизайн-токены (единый источник цвета, отступов, радиусов,
+   теней и типографики). Подключается глобально последним в main.jsx.
+
+   Идея: «чертёж на планшете». Тёмно-синий фон как синька, тонкие линии
+   как на чертеже, сине-голубой акцент для действий, жёлтый — только для
+   цены (ценник) и разметки опасности. Без неонового свечения.
+
+   Новые стили пишем на --qg-*. Старые переменные (--accent-*, --radius-*,
+   --font-main …) ниже перенаправлены на токены, чтобы legacy-CSS
+   постепенно сходился к одной системе.
+   ════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Цвет: поверхности ── */
+  --qg-night: #08111f;          /* фон страницы — «синька» */
+  --qg-surface: #0e1829;        /* карточки и панели */
+  --qg-surface-2: #13203a;      /* приподнятые элементы, hover */
+  --qg-field: #0a1424;          /* поля ввода */
+  --qg-line: rgba(140, 170, 214, 0.16);         /* линия чертежа */
+  --qg-line-strong: rgba(140, 170, 214, 0.32);
+  --qg-grid: rgba(92, 150, 230, 0.07);          /* сетка фона */
+
+  /* ── Цвет: текст (все пары ≥ 4.5:1 на --qg-surface) ── */
+  --qg-text: #e8eef7;
+  --qg-text-2: #b3c0d4;         /* второстепенный, 9.7:1 */
+  --qg-text-3: #8d9cb4;         /* подписи, 6.4:1 (5.8:1 на surface-2) */
+
+  /* ── Цвет: акценты ── */
+  --qg-blue: #2563eb;           /* основная кнопка (белый текст 5.2:1) */
+  --qg-blue-hover: #1d4ed8;
+  --qg-cyan: #5cc8f5;           /* ссылки, фокус, активные состояния */
+  --qg-cyan-soft: rgba(92, 200, 245, 0.12);
+  --qg-price: #fbbf24;          /* ценник — только деньги и разметка */
+  --qg-price-soft: rgba(251, 191, 36, 0.09);
+  --qg-ok: #34d399;
+  --qg-warn: #f59e0b;
+  --qg-danger: #f87171;
+  --qg-ok-soft: rgba(52, 211, 153, 0.12);
+  --qg-warn-soft: rgba(245, 158, 11, 0.12);
+  --qg-danger-soft: rgba(248, 113, 113, 0.12);
+
+  /* ── Типографика ── */
+  --qg-font: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --qg-font-code: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace; /* только нормативные коды и номера актов */
+  /* шкала 1.25 (большая терция) от 16px */
+  --qg-fs-xs: 0.75rem;   /* 12 */
+  --qg-fs-sm: 0.875rem;  /* 14 */
+  --qg-fs-md: 1rem;      /* 16 */
+  --qg-fs-lg: 1.25rem;   /* 20 */
+  --qg-fs-xl: 1.5625rem; /* 25 */
+  --qg-fs-2xl: 1.953rem; /* 31 */
+  --qg-fs-3xl: clamp(1.75rem, 1.2rem + 2.2vw, 2.44rem);   /* 28 → 39 */
+  --qg-fs-display: clamp(2.1rem, 1.3rem + 3.4vw, 3.6rem); /* 34 → 58 */
+  --qg-lh-tight: 1.12;
+  --qg-lh-snug: 1.3;
+  --qg-lh-body: 1.6;
+  --qg-measure: 64ch;    /* длина строки абзаца */
+
+  /* ── Отступы (шаг 4px) ── */
+  --qg-space-1: 4px;
+  --qg-space-2: 8px;
+  --qg-space-3: 12px;
+  --qg-space-4: 16px;
+  --qg-space-5: 24px;
+  --qg-space-6: 32px;
+  --qg-space-7: 48px;
+  --qg-space-8: 64px;
+  --qg-space-9: 96px;
+  --qg-section-y: clamp(56px, 4vw + 32px, 96px);
+  --qg-gutter: clamp(16px, 3vw, 32px);
+  --qg-container: 1200px;
+
+  /* ── Радиусы по иерархии ── */
+  --qg-r-sm: 8px;    /* чипы-метки, бейджи */
+  --qg-r-ctrl: 10px; /* кнопки, поля */
+  --qg-r-card: 14px; /* карточки */
+  --qg-r-panel: 20px;/* крупные панели и секции */
+  --qg-r-pill: 999px;
+
+  /* ── Тени: два уровня, без цветного свечения ── */
+  --qg-shadow-1: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --qg-shadow-2: 0 18px 40px -18px rgba(0, 0, 0, 0.7);
+  --qg-focus-ring: 0 0 0 2px var(--qg-night), 0 0 0 4px var(--qg-cyan);
+
+  /* ── Движение ── */
+  --qg-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --qg-dur-1: 120ms;
+  --qg-dur-2: 220ms;
+
+  /* ── Слои ── */
+  --qg-z-header: 1000;
+  --qg-z-overlay: 1200;
+  --qg-z-toast: 10000;
+
+  /* ── Мост к legacy-переменным (index.css / modern-theme.css) ── */
+  --font-main: var(--qg-font);
+  --font-sans: var(--qg-font);
+  --font-code: var(--qg-font-code);
+  --font-mono: var(--qg-font-code);
+  --bg-core: var(--qg-night);
+  --bg-surface: var(--qg-surface);
+  --accent-gold: var(--qg-price);
+  --text-primary: var(--qg-text);
+  --text-secondary: var(--qg-text-2);
+  --radius-sm: var(--qg-r-sm);
+  --radius-md: var(--qg-r-card);
+  --radius-lg: var(--qg-r-panel);
+  --radius-pill: var(--qg-r-pill);
+  --glow-blue: none;
+  --glow-cyan: none;
+  --glow-amber: none;
+
+  color-scheme: dark;
+}
+
+/* ════════════ База ════════════ */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body {
+  background-color: var(--qg-night) !important;
+  color: var(--qg-text);
+  font-family: var(--qg-font) !important;
+}
+/* защита от горизонтального скролла на 360–1440: лендинг раньше был шире экрана */
+.app-root { overflow-x: clip; max-width: 100vw; }
+
+::selection { background: rgba(92, 200, 245, 0.35); color: #fff; }
+
+/* Цифры в таблицах и ценах — табличные */
+.qg-num, .qg-price { font-variant-numeric: tabular-nums; }
+
+/* ════════════ Доступность ════════════ */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--qg-cyan) !important;
+  outline-offset: 2px !important;
+}
+
+.qg-skip-link {
+  position: fixed;
+  left: 12px;
+  top: -60px;
+  z-index: calc(var(--qg-z-toast) + 1);
+  padding: 10px 16px;
+  border-radius: var(--qg-r-ctrl);
+  background: var(--qg-blue);
+  color: #fff;
+  font-weight: 700;
+  text-decoration: none;
+  transition: top var(--qg-dur-1) var(--qg-ease);
+}
+.qg-skip-link:focus { top: 12px; }
+
+.qg-visually-hidden {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0);
+  white-space: nowrap; border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ════════════ Общие примитивы ════════════ */
+.qg-container {
+  width: 100%;
+  max-width: var(--qg-container);
+  margin-inline: auto;
+  padding-inline: var(--qg-gutter);
+}
+
+.qg-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--qg-space-2);
+  min-height: 44px;
+  padding: 10px 20px;
+  border-radius: var(--qg-r-ctrl);
+  border: 1px solid transparent;
+  font: 600 var(--qg-fs-md)/1.2 var(--qg-font);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color var(--qg-dur-1) var(--qg-ease), border-color var(--qg-dur-1) var(--qg-ease), color var(--qg-dur-1) var(--qg-ease);
+  white-space: nowrap;
+}
+.qg-btn--primary { background: var(--qg-blue); color: #fff; }
+.qg-btn--primary:hover { background: var(--qg-blue-hover); }
+.qg-btn--ghost { background: transparent; color: var(--qg-text); border-color: var(--qg-line-strong); }
+.qg-btn--ghost:hover { border-color: var(--qg-text-2); background: rgba(140, 170, 214, 0.06); }
+.qg-btn--quiet { background: transparent; color: var(--qg-cyan); padding-inline: 4px; min-height: 36px; }
+.qg-btn--quiet:hover { color: #9fdcf8; text-decoration: underline; text-underline-offset: 3px; }
+.qg-btn--sm { min-height: 36px; padding: 6px 14px; font-size: var(--qg-fs-sm); }
+.qg-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Ценник: единственный жёлтый акцент интерфейса */
+.qg-price-tag {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 6px 10px 6px 11px;
+  border-left: 3px solid var(--qg-price);
+  border-radius: 0 var(--qg-r-sm) var(--qg-r-sm) 0;
+  background: var(--qg-price-soft);
+  color: var(--qg-price);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.qg-price-tag small { color: var(--qg-text-2); font-weight: 600; font-size: 0.8em; }
+
+.qg-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+  border-radius: var(--qg-r-sm);
+  background: rgba(140, 170, 214, 0.1);
+  color: var(--qg-text-2);
+  font-size: var(--qg-fs-xs);
+  font-weight: 600;
+  line-height: 1.5;
+}
+.qg-chip--ok { background: var(--qg-ok-soft); color: var(--qg-ok); }
+.qg-chip--warn { background: var(--qg-warn-soft); color: #fcd34d; }
+.qg-chip--danger { background: var(--qg-danger-soft); color: #fca5a5; }
+.qg-chip--info { background: var(--qg-cyan-soft); color: #a5e3fb; }
+
+.qg-code { font-family: var(--qg-font-code); font-size: 0.86em; letter-spacing: 0; }
+
+/* Заголовок секции: слева, без капса; короткий «размерный» штрих вместо eyebrow-надписи */
+.qg-section-head { max-width: 760px; margin: 0 0 var(--qg-space-6); }
+.qg-section-head h2 {
+  position: relative;
+  margin: 0 0 var(--qg-space-3);
+  padding-top: 18px;
+  color: var(--qg-text);
+  font-size: var(--qg-fs-3xl);
+  font-weight: 800;
+  line-height: var(--qg-lh-tight);
+  letter-spacing: -0.02em;
+  text-align: left;
+}
+.qg-section-head h2::before {
+  /* размерная линия с засечками, как на чертеже */
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 56px;
+  height: 7px;
+  border-left: 2px solid var(--qg-cyan);
+  border-right: 2px solid var(--qg-cyan);
+  background: linear-gradient(var(--qg-cyan), var(--qg-cyan)) center / 100% 2px no-repeat;
+  opacity: 0.85;
+}
+.qg-section-head p {
+  margin: 0;
+  max-width: var(--qg-measure);
+  color: var(--qg-text-2);
+  font-size: var(--qg-fs-md);
+  line-height: var(--qg-lh-body);
+  text-align: left;
+}
+
+/* ════════════ Загрузка чанков (Suspense) ════════════ */
+.qg-loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  min-height: 60vh;
+  color: var(--qg-text-2);
+  font-size: var(--qg-fs-sm);
+  font-weight: 600;
+}
+.qg-loader--compact { min-height: 160px; }
+.qg-loader__bar {
+  position: relative;
+  width: 160px;
+  height: 3px;
+  border-radius: 3px;
+  background: var(--qg-line);
+  overflow: hidden;
+}
+.qg-loader__bar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  width: 40%;
+  background: var(--qg-cyan);
+  border-radius: 3px;
+  animation: qg-loader-slide 1.1s var(--qg-ease) infinite;
+}
+@keyframes qg-loader-slide { from { transform: translateX(-100%); } to { transform: translateX(260%); } }
+
+.qg-3d-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  border-radius: var(--qg-r-card);
+  border: 1px dashed var(--qg-line-strong);
+  background:
+    linear-gradient(var(--qg-grid) 1px, transparent 1px) 0 0 / 24px 24px,
+    linear-gradient(90deg, var(--qg-grid) 1px, transparent 1px) 0 0 / 24px 24px,
+    var(--qg-field);
+  color: var(--qg-text-2);
+  font-weight: 600;
+}

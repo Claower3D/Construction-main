@@ -1,26 +1,31 @@
-import React, { useState, useEffect } from 'react';
-import AdminDashboardModal from './AdminDashboardModal';
-import DisputeResolutionModule from './DisputeResolutionModule';
-import MapViewerModule from './MapViewerModule';
-import Model3DViewerModule from './Model3DViewerModule';
-import KpiAnalyticsModule from './KpiAnalyticsModule';
-import EquipmentMarketplace from './EquipmentMarketplace';
-import ProfileQuestionnaire from './ProfileQuestionnaire';
-import UserWalletPage from './UserWalletPage';
-import ContractorsCatalogPage from './ContractorsCatalogPage';
-import UserOrdersPage from './UserOrdersPage';
-import EngineeringSolutionsPage from './EngineeringSolutionsPage';
-import DefectInspectorPage from './DefectInspectorPage';
-import SmartPhotoEstimatePage from './SmartPhotoEstimatePage';
-import BuildingConstructionPage from './BuildingConstructionPage';
-import MaterialsMarketplacePage from './MaterialsMarketplacePage';
-import RoleHierarchyTreePage from './RoleHierarchyTreePage';
-import AnalystDashboardPage from './AnalystDashboardPage';
-import EarthworkVolumesPage from './EarthworkVolumesPage';
-import CalendarSchedulePage from './CalendarSchedulePage';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
+import PageLoader from './PageLoader';
+import { ensureMobilenet } from '../utils/loadExternalScript';
+
+// Модули грузятся по требованию: открыли «Проверку дефектов» — пришёл только её чанк
+const AdminDashboardModal = lazy(() => import('./AdminDashboardModal'));
+const DisputeResolutionModule = lazy(() => import('./DisputeResolutionModule'));
+const MapViewerModule = lazy(() => import('./MapViewerModule'));
+const Model3DViewerModule = lazy(() => import('./Model3DViewerModule'));
+const KpiAnalyticsModule = lazy(() => import('./KpiAnalyticsModule'));
+const EquipmentMarketplace = lazy(() => import('./EquipmentMarketplace'));
+const ProfileQuestionnaire = lazy(() => import('./ProfileQuestionnaire'));
+const UserWalletPage = lazy(() => import('./UserWalletPage'));
+const ContractorsCatalogPage = lazy(() => import('./ContractorsCatalogPage'));
+const UserOrdersPage = lazy(() => import('./UserOrdersPage'));
+const EngineeringSolutionsPage = lazy(() => import('./EngineeringSolutionsPage'));
+const DefectInspectorPage = lazy(() => import('./DefectInspectorPage'));
+const SmartPhotoEstimatePage = lazy(() => import('./SmartPhotoEstimatePage'));
+const BuildingConstructionPage = lazy(() => import('./BuildingConstructionPage'));
+const MaterialsMarketplacePage = lazy(() => import('./MaterialsMarketplacePage'));
+const RoleHierarchyTreePage = lazy(() => import('./RoleHierarchyTreePage'));
+const AnalystDashboardPage = lazy(() => import('./AnalystDashboardPage'));
+const EarthworkVolumesPage = lazy(() => import('./EarthworkVolumesPage'));
+const CalendarSchedulePage = lazy(() => import('./CalendarSchedulePage'));
 import { calculateSmartEstimate, evaluateDefectScan } from '../services/smartEstimateEngine';
 import { getBalanceKZT, topupBalance } from '../services/walletEngine';
 import { getOrders } from '../services/dataService';
+import { localDateKey } from '../services/platformUtils';
 
 export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) {
   // Common interactive states
@@ -100,8 +105,9 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
     if (uploadedFile) {
       setScanStepMessage('Анализ изображения через TensorFlow Vision...');
 
-      // TensorFlow.js MobileNet Classification
-      if (uploadedFile.type.startsWith('image/') && window.mobilenet) {
+      // TensorFlow.js MobileNet: скрипты с CDN подгружаются только здесь (раньше — синхронно в <head> на каждой странице)
+      const mobilenet = uploadedFile.type.startsWith('image/') ? await ensureMobilenet() : null;
+      if (mobilenet) {
         try {
           const img = document.createElement('img');
           img.src = uploadedPreview;
@@ -109,7 +115,7 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
             img.onload = resolve;
           });
 
-          const model = await window.mobilenet.load();
+          const model = await mobilenet.load();
           const predictions = await model.classify(img);
           
           if (predictions && predictions.length > 0) {
@@ -218,7 +224,7 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
     try {
       const savedEvents = localStorage.getItem('qazgost_calendar_events');
       let crmEvents = savedEvents ? JSON.parse(savedEvents) : {};
-      const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+      const today = localDateKey(); // YYYY-MM-DD (локальная дата, не UTC)
       if (!crmEvents[today]) crmEvents[today] = [];
       
       crmEvents[today].push({
@@ -254,24 +260,24 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
   };
 
   // Safely derive name and icon to prevent crashes if itemData properties are missing
-  const displayName = (itemData?.name || itemData?.title || itemData?.label || 'МОДУЛЬ').toUpperCase();
-  const displayIcon = itemData?.icon || '⚙️';
+  const displayName = itemData?.name || itemData?.title || itemData?.label || 'Модуль';
 
   // If item is an Admin module, render Admin inline page container
   if (itemId && itemId.startsWith('adm-')) {
     return (
       <div className="inline-fullpage-wrapper">
         <div className="fullpage-top-bar">
-          <button className="btn-back-inline" onClick={onBack}>← Назад к списку элементов</button>
-          <div className="page-title-badge">⚙️ АДМИНИСТРАТИВНЫЙ МОДУЛЬ: {displayName}</div>
+          <h1 className="page-title-badge">{displayName}</h1>
         </div>
         <div className="inline-admin-container">
-          <AdminDashboardModal 
-            isOpen={true} 
-            inline={true} 
-            startTab={itemId.replace('adm-', '')} 
-            onClose={onBack} 
-          />
+          <Suspense fallback={<PageLoader label="Загружаем модуль…" />}>
+            <AdminDashboardModal 
+              isOpen={true} 
+              inline={true} 
+              startTab={itemId.replace('adm-', '')} 
+              onClose={onBack} 
+            />
+          </Suspense>
         </div>
       </div>
     );
@@ -280,15 +286,14 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
   return (
     <div className="inline-fullpage-wrapper">
       {/* Top Breadcrumb & Action Bar */}
+      {/* «Назад» уже есть в липкой шапке кабинета — здесь только заголовок инструмента */}
       <div className="fullpage-top-bar">
-        <button className="btn-back-inline" onClick={onBack}>← Назад к выбору инструмента</button>
-        <div className="page-title-badge">
-          <span>{displayIcon}</span> {displayName}
-        </div>
+        <h1 className="page-title-badge">{displayName}</h1>
       </div>
 
       {/* Main Full Page Body */}
       <div className="fullpage-main-body">
+        <Suspense fallback={<PageLoader label="Загружаем инструмент…" />}>
         {/* 1. ESTIMATE CALCULATOR (c-estimate / e-estimate) */}
         {(itemId === 'c-estimate' || itemId === 'e-estimate') && (
           <SmartPhotoEstimatePage onBack={onBack} hideHeader={true} />
@@ -981,6 +986,7 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
 
         {/* 13. KPI & ANALYTICS */}
         {(itemId?.includes('kpi') || itemId === 'adm-kpi' || itemId === 'c-kpi') && <KpiAnalyticsModule />}
+        </Suspense>
       </div>
     </div>
   );

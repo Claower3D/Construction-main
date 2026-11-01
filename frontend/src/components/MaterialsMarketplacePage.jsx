@@ -1,8 +1,57 @@
-﻿import React, { useState, useMemo, useEffect } from 'react';
+﻿import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { getBalanceKZT, freezeEscrow, topupBalance } from '../services/walletEngine';
 import { createPlatformOrder } from '../services/orderSyncService';
+import { authHeaders, responseError } from '../services/platformUtils';
 import { MARKETPLACE_PRODUCTS } from '../data/marketplaceProducts';
 import './MaterialsMarketplacePage.css';
+import './marketplace-refresh.css';
+
+// ── Каталог цен API: GET /api/v1/prices?type=material (10 000+ позиций) ──
+const PAGE_SIZE = 24;
+const SORT_LOAD_LIMIT = 500; // при сортировке по цене подгружаем всю выборку, если она ≤ 500
+// Чип категории → подстрока кода категории в каталоге цен
+const MAT_CATEGORY_API = {
+  zhbi: 'jbi', cement: 'mix', blocks: 'brick', metal: 'metal', bulk: 'aggregates',
+  insulation: 'insulation', roofing: 'roofing', drywall: 'drywall', electric: 'electr',
+  plumbing: 'plumbing', sewer: 'sewe', water: 'water_', heating: 'heating', tools: 'tools',
+  fasteners: 'fasten', paint: 'paint', flooring: 'floor',
+};
+const CATEGORY_IMAGES = [
+  [/jbi/, 'zhbi'], [/mix|plaster|screed|putty/, 'cement'], [/brick|block|masonry/, 'blocks'],
+  [/metal|rebar|steel|weld/, 'metal'], [/aggregat|bulk|concrete/, 'bulk'], [/insulat|waterproof|soundproof/, 'insulation'],
+  [/roof|facade/, 'roofing'], [/drywall|ceiling/, 'drywall'], [/cable|electr|light|earthing/, 'electric_cables'],
+  [/switch|lowvolt|low_volt|smart/, 'electric_switches'], [/sewe|drain/, 'sewer'], [/water/, 'water'],
+  [/plumb|sanit|pipe|piping/, 'plumbing'], [/heat|radiat|warmfloor|chimney|fireplace/, 'heating'],
+  [/tool|consumab/, 'tools'], [/fasten|metiz|fixing/, 'fasteners'], [/paint|wood_protect/, 'paint'],
+  [/floor|tile|tiling/, 'flooring'],
+];
+function categoryImage(code) {
+  const c = String(code || '').toLowerCase();
+  const hit = CATEGORY_IMAGES.find(([re]) => re.test(c));
+  return hit ? `/images/products/${hit[1]}.jpg` : null;
+}
+// Без фото — условная штриховка материала, как на строительных чертежах
+function hatchClass(code) {
+  const c = String(code || '').toLowerCase();
+  if (/brick|block|masonry|stone|tile|ceramic/.test(c)) return 'hatch-brick';
+  if (/concrete|jbi|mix|screed|aggregat|bulk|plaster|drymix/.test(c)) return 'hatch-concrete';
+  if (/metal|steel|rebar|pipe|profile|weld|fasten|metiz/.test(c)) return 'hatch-metal';
+  if (/insul|sound|waterproof|roof|membrane/.test(c)) return 'hatch-insulation';
+  if (/wood|lumber|timber|floor|door|furniture|kitchen/.test(c)) return 'hatch-wood';
+  return 'hatch-generic';
+}
+// Дробное количество допустимо только для мерных единиц
+export function isFractionalUnit(unit) {
+  return /^(м³|м3|т|тн|м²|м2|п\.?\s?м\.?|м\.?\s?п\.?|пог\.?\s?м\.?|м|кг|л)$/i.test(String(unit || '').trim());
+}
+export function parseQty(raw, unit) {
+  const n = Number(String(raw ?? '').replace(',', '.').trim());
+  if (!Number.isFinite(n) || n <= 0) return { ok: false, error: 'Количество должно быть больше 0' };
+  if (!isFractionalUnit(unit) && !Number.isInteger(n)) return { ok: false, error: `Для единицы «${unit}» укажите целое количество` };
+  if (n > 100000) return { ok: false, error: 'Слишком большое количество для одной позиции' };
+  return { ok: true, value: isFractionalUnit(unit) ? Math.round(n * 100) / 100 : n };
+}
+const fmtKzt = (n) => `${Math.round(Number(n) || 0).toLocaleString('ru-RU')} ₸`;
 
 export default function MaterialsMarketplacePage({ onBack, hideHeader = false }) {
   const [activeTab, setActiveTab] = useState('catalog'); // 'catalog' | 'ai_calc' | 'rfq' | 'my_orders'
@@ -37,6 +86,80 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
     }
   }, [isCheckoutModal]);
   const [toastMessage, setToastMessage] = useState(null);
+
+  // ── Каталог из API (debounce поиска, пагинация, региональный коэффициент) ──
+  const [debouncedQuery, setDebouncedQuery] = useState('');
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedQuery(searchQuery.trim()), 350);
+    return () => clearTimeout(t);
+  }, [searchQuery]);
+  const [regions, setRegions] = useState(null); // { Город: коэффициент }
+  const [catalog, setCatalog] = useState({ status: 'loading', items: [], filtered: 0, total: 0, coefficient: 1, error: null });
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
+
+  useEffect(() => {
+    fetch('/api/v1/prices/regions', { headers: authHeaders() })
+      .then(r => (r.ok ? r.json() : null))
+      .then(d => { if (d && d.regions && typeof d.regions === 'object') setRegions(d.regions); })
+      .catch(() => {});
+  }, []);
+
+  const mapApiItem = useCallback((it, region) => ({
+    id: `api-${it.code}`,
+    code: it.code,
+    title: it.name,
+    supplier: 'Каталог цен QazGost (ГЭСН / поставщики РК)',
+    city: region || 'Вся РК',
+    price: Math.round(Number(it.price) || 0),
+    unit: it.unit || 'шт',
+    category: it.category,
+    image: categoryImage(it.category),
+    isApi: true,
+  }), []);
+
+  const fetchCatalogPage = useCallback(async (offset, limit) => {
+    const params = new URLSearchParams({ type: 'material', limit: String(limit), offset: String(offset) });
+    if (debouncedQuery) params.set('q', debouncedQuery);
+    if (MAT_CATEGORY_API[selectedCategory]) params.set('category', MAT_CATEGORY_API[selectedCategory]);
+    if (selectedCity !== 'all') params.set('region', selectedCity);
+    const res = await fetch(`/api/v1/prices?${params.toString()}`, { headers: authHeaders() });
+    if (!res.ok) throw new Error(await responseError(res));
+    const data = await res.json();
+    if (!data || !Array.isArray(data.items)) throw new Error('Некорректный ответ каталога');
+    return data;
+  }, [debouncedQuery, selectedCategory, selectedCity]);
+
+  useEffect(() => {
+    let cancelled = false;
+    setCatalog(c => ({ ...c, status: 'loading', error: null }));
+    setVisibleCount(PAGE_SIZE);
+    (async () => {
+      try {
+        let data = await fetchCatalogPage(0, PAGE_SIZE);
+        // Сортировка по цене должна учитывать всю выборку, а не первую страницу
+        if (sortBy !== 'popular' && data.filtered > data.items.length && data.filtered <= SORT_LOAD_LIMIT) {
+          data = await fetchCatalogPage(0, SORT_LOAD_LIMIT);
+        }
+        if (cancelled) return;
+        const region = selectedCity !== 'all' ? selectedCity : '';
+        setCatalog({
+          status: 'ready',
+          items: data.items.map(it => mapApiItem(it, region)),
+          filtered: Number(data.filtered) || 0,
+          total: Number(data.total) || 0,
+          coefficient: Number(data.coefficient) || 1,
+          error: null,
+        });
+      } catch (e) {
+        if (!cancelled) setCatalog({ status: 'error', items: [], filtered: 0, total: 0, coefficient: 1, error: e.message || 'Сеть недоступна' });
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [fetchCatalogPage, sortBy, selectedCity, mapApiItem, reloadKey]);
+
+  const apiMode = catalog.status !== 'error';
 
   // AI BOM Calculator State
   const [calcArea, setCalcArea] = useState(100);
@@ -837,7 +960,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
       const matchCat = selectedCategory === 'all' || p.category === selectedCategory;
       const matchSearch = p.title.toLowerCase().includes(searchQuery.toLowerCase()) || p.supplier.toLowerCase().includes(searchQuery.toLowerCase());
       const matchCity = selectedCity === 'all' || p.city.toLowerCase() === selectedCity.toLowerCase();
-      const matchPrice = p.price <= priceMax;
+      const matchPrice = priceMax >= 250000 || p.price <= priceMax;
       const matchInStock = !inStockOnly || p.inStock > 0;
       const matchGost = !gostOnly || (p.gost && p.gost.length > 0);
       const matchWholesale = !wholesaleOnly || (p.wholesaleNote && p.wholesaleNote.length > 0);
@@ -850,18 +973,60 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
     });
   }, [products, selectedCategory, searchQuery, selectedCity, sortBy, priceMax, inStockOnly, gostOnly, wholesaleOnly]);
 
-  // Quantity helpers
-  const handleQtyChange = (productId, delta) => {
-    const cur = quantities[productId] || 1;
-    const next = Math.max(1, cur + delta);
-    setQuantities({ ...quantities, [productId]: next });
+  // Отображаемый список: каталог API (цена/сортировка на клиенте по загруженной выборке) или демо-товары
+  const apiSorted = useMemo(() => {
+    // Ползунок в крайнем правом положении (250 000) = без ограничения цены
+    const list = priceMax >= 250000 ? catalog.items : catalog.items.filter(p => p.price <= priceMax);
+    if (sortBy === 'price_asc') return [...list].sort((a, b) => a.price - b.price);
+    if (sortBy === 'price_desc') return [...list].sort((a, b) => b.price - a.price);
+    return list;
+  }, [catalog.items, priceMax, sortBy]);
+  const displayProducts = apiMode ? apiSorted.slice(0, visibleCount) : filteredProducts;
+  const foundCount = apiMode ? catalog.filtered : filteredProducts.length;
+  const canLoadMore = apiMode && catalog.status === 'ready'
+    && (apiSorted.length > visibleCount || catalog.items.length < catalog.filtered);
+  const sortPartial = apiMode && sortBy !== 'popular' && catalog.filtered > catalog.items.length;
+
+  const handleLoadMore = async () => {
+    if (apiSorted.length > visibleCount) { setVisibleCount(v => v + PAGE_SIZE); return; }
+    setLoadingMore(true);
+    try {
+      const data = await fetchCatalogPage(catalog.items.length, PAGE_SIZE);
+      const region = selectedCity !== 'all' ? selectedCity : '';
+      setCatalog(c => ({ ...c, items: [...c.items, ...data.items.map(it => mapApiItem(it, region))], filtered: Number(data.filtered) || c.filtered }));
+      setVisibleCount(v => v + PAGE_SIZE);
+    } catch (e) {
+      showToast(`⚠️ Не удалось загрузить следующую страницу: ${e.message}`);
+    } finally {
+      setLoadingMore(false);
+    }
+  };
+
+  const resetFilters = () => {
+    setSelectedCategory('all'); setSelectedCity('all'); setSortBy('popular');
+    setPriceMax(250000); setRadius(100); setInStockOnly(false); setGostOnly(false);
+    setWholesaleOnly(false); setDeliveryType('all'); setSearchQuery('');
+  };
+
+  // Quantity helpers (количество: > 0, целое для штучных единиц)
+  const handleQtyChange = (product, delta) => {
+    const cur = Number(String(quantities[product.id] ?? 1).replace(',', '.')) || 1;
+    const next = Math.max(1, Math.round((cur + delta) * 100) / 100);
+    setQuantities({ ...quantities, [product.id]: isFractionalUnit(product.unit) ? next : Math.round(next) });
+  };
+
+  const handleQtyInput = (product, value) => {
+    setQuantities({ ...quantities, [product.id]: value });
   };
 
   const handleAddToCart = (product) => {
-    const qty = quantities[product.id] || 1;
+    const parsed = parseQty(quantities[product.id] ?? 1, product.unit);
+    if (!parsed.ok) { showToast(`⚠️ ${parsed.error}`); return; }
+    if (!(product.price > 0)) { showToast('⚠️ У позиции нет цены — запросите цену у поставщика'); return; }
+    const qty = parsed.value;
     const existing = cart.find(c => c.id === product.id);
     if (existing) {
-      setCart(cart.map(c => c.id === product.id ? { ...c, count: c.count + qty } : c));
+      setCart(cart.map(c => c.id === product.id ? { ...c, count: Math.round((c.count + qty) * 100) / 100 } : c));
     } else {
       setCart([...cart, { ...product, count: qty }]);
     }
@@ -875,8 +1040,8 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
   const handleCartQtyChange = (productId, delta) => {
     setCart(cart.map(c => {
       if (c.id !== productId) return c;
-      const newCount = Math.max(1, c.count + delta);
-      return { ...c, count: newCount };
+      const newCount = Math.max(1, Math.round((c.count + delta) * 100) / 100);
+      return { ...c, count: isFractionalUnit(c.unit) ? newCount : Math.round(newCount) };
     }));
   };
 
@@ -947,6 +1112,12 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
   const handleCheckoutSubmit = (e) => {
     e.preventDefault();
     if (cart.length === 0) return;
+    const badLine = cart.find(c => !parseQty(c.count, c.unit).ok || !(c.price > 0));
+    if (badLine) { showToast(`⚠️ Проверьте количество и цену: «${badLine.title}»`); return; }
+    if (!checkoutName.trim() || !checkoutPhone.trim() || !checkoutAddress.trim()) {
+      showToast('⚠️ Укажите имя, телефон и адрес доставки');
+      return;
+    }
 
     const totalCost = cartTotalWithDelivery;
 
@@ -955,6 +1126,11 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
     if (paymentMethod === 'escrow') {
       escrowInfo = freezeEscrow(totalCost, `Стройматериалы: ${cart.map(c => c.title).slice(0, 2).join(', ')}...`);
       setWalletBalance(escrowInfo.newBalance);
+      if (!escrowInfo.ok) {
+        // Недостаточно средств — заказ НЕ оформляется (раньше баланс обнулялся, а заказ считался оплаченным)
+        showToast(`⚠️ Недостаточно средств в кошельке: нужно ${totalCost.toLocaleString()} ₸, доступно ${escrowInfo.newBalance.toLocaleString()} ₸`);
+        return;
+      }
     }
 
     // 2. Dispatch Platform Order to Manager CRM and Shared Orders
@@ -970,7 +1146,9 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
       type: 'materials',
       status: 'new',
       paymentMethod: paymentMethod === 'escrow' ? 'Эскроу QazGost' : (paymentMethod === 'kaspi' ? 'Kaspi Pay' : 'Безналичный расчет с НДС'),
-      materials: cart
+      materials: cart,
+      escrowTxId: escrowInfo?.txId || null,
+      escrowAmount: escrowInfo?.ok ? totalCost : 0
     });
 
     // Also persist in legacy materials list
@@ -1023,16 +1201,16 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
 
         <div className="mmp-hero-stats">
           <div className="mmp-stat-pill">
-            <strong>1 450+</strong>
-            <span>Товаров в наличии</span>
+            <strong>{apiMode && catalog.status === 'ready' && !debouncedQuery && selectedCategory === 'all' ? catalog.filtered.toLocaleString('ru-RU') : '10 000+'}</strong>
+            <span>материалов в каталоге цен</span>
           </div>
           <div className="mmp-stat-pill">
-            <strong>24/7</strong>
-            <span>Эскроу & Доставка</span>
+            <strong>×{(apiMode ? catalog.coefficient : 1).toLocaleString('ru-RU')}</strong>
+            <span>{selectedCity !== 'all' ? `коэффициент: ${selectedCity}` : 'региональный коэффициент'}</span>
           </div>
           <div className="mmp-stat-pill">
-            <strong>100%</strong>
-            <span>ГОСТ РК Сертификаты</span>
+            <strong>Эскроу</strong>
+            <span>оплата после приёмки</span>
           </div>
         </div>
       </div>
@@ -1080,6 +1258,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
             <span className="search-icon">🔍</span>
             <input 
               type="text" 
+              aria-label="Поиск материалов"
               placeholder="Поиск материалов: цемент, арматура, кирпич, гипсокартон..." 
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
@@ -1087,8 +1266,17 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
             {searchQuery && (
               <button className="mmp-search-clear" onClick={() => setSearchQuery('')}>✕</button>
             )}
-            <span className="search-results-count">Найдено: {filteredProducts.length}</span>
+            <span className="search-results-count" aria-live="polite">
+              {catalog.status === 'loading' && apiMode ? 'Поиск…' : `Найдено: ${foundCount.toLocaleString('ru-RU')}`}
+            </span>
           </div>
+
+          {!apiMode && (
+            <div className="mkt-notice mkt-notice--warn" role="status">
+              <span>Каталог цен недоступен ({catalog.error}). Показаны демо-товары: цены и наличие условные.</span>
+              <button type="button" className="mkt-notice-btn" onClick={() => setReloadKey(k => k + 1)}>Повторить</button>
+            </div>
+          )}
 
           {/* WB / Ozon Quick Filter Strip — Sticky */}
           <div className="wb-quick-filter-strip">
@@ -1105,26 +1293,27 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
 
             <div className="wb-quick-select-wrap">
               <span>📍</span>
-              <select value={selectedCity} onChange={e => setSelectedCity(e.target.value)}>
-                <option value="all">Все города</option>
-                <option value="Алматы">Алматы</option>
-                <option value="Астана">Астана</option>
-                <option value="Шымкент">Шымкент</option>
-                <option value="Караганда">Караганда</option>
+              <select aria-label="Регион цен" value={selectedCity} onChange={e => setSelectedCity(e.target.value)}>
+                <option value="all">Все регионы</option>
+                {(regions ? Object.keys(regions).filter(r => r !== 'default').sort((a, b) => a.localeCompare(b, 'ru')) : ['Алматы', 'Астана', 'Шымкент', 'Караганда']).map(r => (
+                  <option key={r} value={r}>{r}{regions && regions[r] !== 1 ? ` (×${regions[r]})` : ''}</option>
+                ))}
               </select>
             </div>
 
             <div className="wb-quick-select-wrap">
               <span>⚡</span>
-              <select value={sortBy} onChange={e => setSortBy(e.target.value)}>
+              <select aria-label="Сортировка" value={sortBy} onChange={e => setSortBy(e.target.value)}>
                 <option value="popular">По популярности</option>
                 <option value="price_asc">Сначала дешевле</option>
                 <option value="price_desc">Сначала дороже</option>
               </select>
             </div>
 
+            {!apiMode && (<>
             <button 
               className={`wb-filter-chip ${inStockOnly ? 'active' : ''}`}
+              aria-pressed={inStockOnly}
               onClick={() => setInStockOnly(!inStockOnly)}
             >
               <span>📦 В наличии</span>
@@ -1132,6 +1321,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
 
             <button 
               className={`wb-filter-chip ${gostOnly ? 'active' : ''}`}
+              aria-pressed={gostOnly}
               onClick={() => setGostOnly(!gostOnly)}
             >
               <span>📜 ГОСТ</span>
@@ -1139,10 +1329,12 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
 
             <button 
               className={`wb-filter-chip ${wholesaleOnly ? 'active' : ''}`}
+              aria-pressed={wholesaleOnly}
               onClick={() => setWholesaleOnly(!wholesaleOnly)}
             >
               <span>⚡ Опт</span>
             </button>
+            </>)}
           </div>
 
           <div className="mmp-main-layout">
@@ -1162,6 +1354,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
                 <label>🏷️ Категория</label>
                 <select 
                   className="mmp-select"
+                  aria-label="Категория материалов"
                   value={selectedCategory}
                   onChange={e => setSelectedCategory(e.target.value)}
                 >
@@ -1172,24 +1365,26 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
               </div>
 
               <div className="mmp-filter-group">
-                <label>📍 Локация склада</label>
+                <label>📍 Регион цен</label>
                 <select 
                   className="mmp-select"
+                  aria-label="Регион цен"
                   value={selectedCity}
                   onChange={e => setSelectedCity(e.target.value)}
                 >
-                  <option value="all">🌐 Все города / склады РК</option>
-                  <option value="Алматы">Алматы (Северное кольцо)</option>
-                  <option value="Астана">Астана (Промзона)</option>
-                  <option value="Шымкент">Шымкент</option>
-                  <option value="Караганда">Караганда</option>
+                  <option value="all">Все регионы (базовые цены)</option>
+                  {(regions ? Object.keys(regions).filter(r => r !== 'default').sort((a, b) => a.localeCompare(b, 'ru')) : ['Алматы', 'Астана', 'Шымкент', 'Караганда']).map(r => (
+                    <option key={r} value={r}>{r}{regions && regions[r] !== 1 ? ` — коэффициент ×${regions[r]}` : ''}</option>
+                  ))}
                 </select>
               </div>
 
+              {!apiMode && (<>
               <div className="mmp-filter-group">
                 <label>📏 Радиус поставки: {radius} км</label>
                 <input 
                   type="range" 
+                  aria-label="Радиус поставки, км"
                   min="10" 
                   max="200" 
                   step="10"
@@ -1232,14 +1427,16 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
                   </label>
                 </div>
               </div>
+              </>)}
 
               <div className="mmp-filter-group">
                 <label>💰 Макс. цена (за ед.)</label>
                 <div className="mmp-slider-labels">
-                  <span>до {priceMax.toLocaleString()} ₸</span>
+                  <span>{priceMax >= 250000 ? "Без ограничения" : `до ${priceMax.toLocaleString("ru-RU")} ₸`}</span>
                 </div>
                 <input 
                   type="range" 
+                  aria-label="Максимальная цена, ₸"
                   min="500" 
                   max="250000" 
                   step="1000"
@@ -1283,17 +1480,12 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
               </div>
 
               <div className="mmp-sidebar-actions">
-                <button className="mmp-sidebar-submit-btn" onClick={() => { setIsFilterOpen(false); showToast(`🔍 Найдено ${filteredProducts.length} позиций стройматериалов`); }}>
-                  Показать {filteredProducts.length} товаров
+                <button className="mmp-sidebar-submit-btn" onClick={() => setIsFilterOpen(false)}>
+                  Показать {foundCount.toLocaleString('ru-RU')} товаров
                 </button>
                 <button 
                   className="mmp-sidebar-reset-btn" 
-                  onClick={() => { 
-                    setSelectedCategory('all'); setSelectedCity('all'); setSortBy('popular');
-                    setPriceMax(250000); setRadius(100); setInStockOnly(false); setGostOnly(false);
-                    setWholesaleOnly(false); setDeliveryType('all'); setSearchQuery('');
-                    showToast('🔄 Фильтры сброшены');
-                  }}
+                  onClick={() => { resetFilters(); showToast('🔄 Фильтры сброшены'); }}
                 >
                   🔄 Сбросить фильтры
                 </button>
@@ -1308,6 +1500,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
                   <button
                     key={cat.id}
                     className={`mmp-cat-chip ${selectedCategory === cat.id ? 'active' : ''}`}
+                    aria-pressed={selectedCategory === cat.id}
                     onClick={() => setSelectedCategory(cat.id)}
                   >
                     {cat.label}
@@ -1320,6 +1513,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
                 <span>Сортировка:</span>
                 <select 
                   className="mmp-select-sm"
+                  aria-label="Сортировка результатов"
                   value={sortBy}
                   onChange={e => setSortBy(e.target.value)}
                 >
@@ -1329,56 +1523,112 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
                 </select>
               </div>
 
+              {sortPartial && (
+                <div className="mkt-notice" role="status">
+                  Сортировка по цене применена к {catalog.items.length.toLocaleString('ru-RU')} загруженным позициям из {catalog.filtered.toLocaleString('ru-RU')}. Уточните поиск или категорию, чтобы отсортировать всю выборку.
+                </div>
+              )}
+
               {/* Products Grid */}
+              {apiMode && catalog.status === 'loading' ? (
+                <div className="mmp-products-grid" aria-busy="true" aria-label="Загрузка каталога">
+                  {Array.from({ length: 8 }).map((_, i) => (
+                    <div key={i} className="mkt-skeleton-card" aria-hidden="true">
+                      <div className="mkt-skel mkt-skel-img" />
+                      <div className="mkt-skel mkt-skel-line" />
+                      <div className="mkt-skel mkt-skel-line short" />
+                      <div className="mkt-skel mkt-skel-price" />
+                    </div>
+                  ))}
+                </div>
+              ) : displayProducts.length === 0 ? (
+                <div className="mkt-empty" role="status">
+                  <h3>Ничего не найдено</h3>
+                  <p>{searchQuery ? `По запросу «${searchQuery}» нет материалов` : 'В этой категории нет позиций'}{selectedCity !== 'all' ? ` для региона ${selectedCity}` : ''}. Измените запрос или сбросьте фильтры.</p>
+                  <button type="button" className="mkt-btn-secondary" onClick={resetFilters}>Сбросить фильтры</button>
+                </div>
+              ) : (
               <div className="mmp-products-grid">
-                {filteredProducts.map(p => {
-                  const currentQty = quantities[p.id] || 1;
+                {displayProducts.map(p => {
+                  const currentQty = quantities[p.id] ?? 1;
+                  const fractional = isFractionalUnit(p.unit);
                   return (
-                    <div key={p.id} className="mmp-product-card">
-                      <div className="mmp-card-img-wrap">
-                        <img src={p.image} alt={p.title} />
-                        {p.badge && <span className="mmp-card-badge">{p.badge}</span>}
-                        <span className="mmp-card-gost">{p.gost}</span>
+                    <article key={p.id} className={`mmp-product-card ${p.isApi ? 'is-api' : 'is-demo'}`}>
+                      <div className={`mmp-card-img-wrap ${p.image ? '' : `no-image ${hatchClass(p.category)}`}`}>
+                        {p.image
+                          ? <img src={p.image} alt={p.isApi ? `Иллюстрация категории: ${p.title}` : p.title} loading="lazy" />
+                          : <span className="mkt-img-placeholder">Фото нет · {p.unit}</span>}
+                        {!p.isApi && <span className="mkt-badge mkt-badge--demo">Демо</span>}
+                        {!p.isApi && p.badge && <span className="mmp-card-badge">{p.badge}</span>}
+                        {p.gost && <span className="mmp-card-gost">{p.gost}</span>}
                       </div>
 
                       <div className="mmp-card-body">
-                        <h4 className="mmp-card-title">{p.title}</h4>
+                        <h4 className="mmp-card-title" title={p.title}>{p.title}</h4>
                         <div className="mmp-card-supplier">
-                          <span>🏭</span>
+                          <span aria-hidden="true">🏭</span>
                           <span>{p.supplier}</span>
                         </div>
 
                         <div className="mmp-card-specs">
-                          <span className="mmp-spec-tag">📍 {p.city}</span>
-                          <span className="mmp-spec-tag">📦 Склад: {p.inStock} {p.unit}</span>
-                          <span className="mmp-spec-tag">⚖️ {p.weightKg} кг / ед.</span>
+                          {p.isApi ? (
+                            <>
+                              <span className="mmp-spec-tag">Код: {p.code}</span>
+                              {catalog.coefficient !== 1 && <span className="mmp-spec-tag">{p.city} ×{catalog.coefficient}</span>}
+                            </>
+                          ) : (
+                            <>
+                              <span className="mmp-spec-tag">📍 {p.city}</span>
+                              {p.inStock !== undefined && <span className="mmp-spec-tag">📦 Склад: {Number(p.inStock).toLocaleString('ru-RU')} {p.unit}</span>}
+                              {p.weightKg ? <span className="mmp-spec-tag">⚖️ {p.weightKg} кг / ед.</span> : null}
+                            </>
+                          )}
                         </div>
 
                         <div className="mmp-card-price-row">
-                          <div>
-                            <span className="mmp-price-val">{p.price.toLocaleString()} ₸</span>
-                            <span className="mmp-price-unit">/ {p.unit}</span>
+                          <div className="mkt-price-tag">
+                            {p.price > 0
+                              ? <><span className="mmp-price-val">{fmtKzt(p.price)}</span><span className="mmp-price-unit">за {p.unit}</span></>
+                              : <span className="mmp-price-unit">Цена по запросу</span>}
                             {p.wholesaleNote && <span className="mmp-wholesale-note">{p.wholesaleNote}</span>}
                           </div>
                         </div>
 
                         <div className="mmp-card-actions">
                           <div className="mmp-qty-control">
-                            <button className="mmp-qty-btn" onClick={() => handleQtyChange(p.id, -1)}>-</button>
-                            <span className="mmp-qty-val">{currentQty}</span>
-                            <button className="mmp-qty-btn" onClick={() => handleQtyChange(p.id, 1)}>+</button>
+                            <button type="button" className="mmp-qty-btn" aria-label="Уменьшить количество" onClick={() => handleQtyChange(p, -1)}>−</button>
+                            <input
+                              className="mmp-qty-val mkt-qty-input"
+                              type="number"
+                              inputMode={fractional ? 'decimal' : 'numeric'}
+                              min={fractional ? 0.01 : 1}
+                              step={fractional ? 0.1 : 1}
+                              value={currentQty}
+                              aria-label={`Количество, ${p.unit}`}
+                              onChange={e => handleQtyInput(p, e.target.value)}
+                            />
+                            <button type="button" className="mmp-qty-btn" aria-label="Увеличить количество" onClick={() => handleQtyChange(p, 1)}>+</button>
                           </div>
 
-                          <button className="mmp-btn-add-cart" onClick={() => handleAddToCart(p)}>
-                            <span>🛒</span>
+                          <button type="button" className="mmp-btn-add-cart" disabled={!(p.price > 0)} onClick={() => handleAddToCart(p)}>
+                            <span aria-hidden="true">🛒</span>
                             <span>В корзину</span>
                           </button>
                         </div>
                       </div>
-                    </div>
+                    </article>
                   );
                 })}
               </div>
+              )}
+
+              {canLoadMore && (
+                <div className="mkt-load-more">
+                  <button type="button" className="mkt-btn-secondary" onClick={handleLoadMore} disabled={loadingMore}>
+                    {loadingMore ? 'Загрузка…' : `Показать ещё (показано ${displayProducts.length.toLocaleString('ru-RU')} из ${catalog.filtered.toLocaleString('ru-RU')})`}
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>

@@ -1,9 +1,22 @@
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import './UserOrdersPage.css';
+import { authHeaders, parseMoney, localDateKey, reportSyncError } from '../services/platformUtils';
+import { createPlatformOrder, upsertCrmEvent } from '../services/orderSyncService';
+import { releaseEscrow } from '../services/walletEngine';
 
 // ── Ключ для localStorage (Единый реестр заказов для всех ролей и устройств) ──
 function getOrdersKey() {
   return 'qazgost_orders_shared';
+}
+
+// Локальные заказы этого устройства (создаются orderSyncService.createPlatformOrder)
+function loadLocalOrders() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(getOrdersKey()) || '[]');
+    return Array.isArray(parsed) ? parsed.filter(o => o && o.id) : [];
+  } catch {
+    return [];
+  }
 }
 
 export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
@@ -36,174 +49,26 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
 
   const getStatusLabel = (status) => STATUS_CONFIG[status]?.label || status;
 
-  // Initial Sample Orders — показываем все этапы пайплайна
-  const [orders, setOrders] = useState([
-    {
-      id: 'ORD-2026-081',
-      title: 'Ремонт офиса 120 м² "под ключ"',
-      clientName: 'ТОО «КазИнвестГрупп»',
-      clientPhone: '+7 (701) 555-44-33',
-      amount: 4850000,
-      status: 'in_progress',
-      date: '12 авг 2026',
-      city: 'Алматы',
-      category: 'Отделочные работы',
-      description: 'Комплексный ремонт офисного помещения: демонтаж, новая электрика, перегородки из ГКЛ, чистовая отделка.',
-      assignedEngineer: 'Асхат Нурланов',
-      engineerVisitDate: '13.08.2026 10:00',
-      engineerReport: 'Осмотр проведён. Выявлены трещины в несущей стене, требуется усиление. Смета скорректирована.',
-      acceptedBy: 'СтройМастер KZ',
-      acceptedAt: '14.08.2026 16:30',
-      stages: [
-        {
-          id: 'STG-1',
-          name: '1. Демонтажные работы и вывоз мусора',
-          status: 'completed', progress: 100,
-          dateRange: '12.08 – 15.08.2026', budget: 650000,
-          machinery: [
-            { id: 18, name: 'Самосвал Shacman F3000 (25 т)', photo: '/assets/machinery/shacman_dump_truck.jpg', rate: '18 000 ₸ / час', dist: '1.4 км от объекта', status: '🟢 Свободен', assigned: true },
-            { id: 11, name: 'Мини-погрузчик Bobcat S530', photo: '/assets/machinery/bobcat_skid_steer.jpg', rate: '14 000 ₸ / час', dist: '1.6 км от объекта', status: '🟢 Свободен', assigned: true }
-          ]
-        },
-        {
-          id: 'STG-2',
-          name: '2. Монтаж перегородок, потолков и электрики',
-          status: 'in_progress', progress: 65,
-          dateRange: '16.08 – 24.08.2026', budget: 1850000,
-          machinery: [
-            { id: 8, name: 'Кран-манипулятор КАМАЗ 65117 (КМУ 7 т)', photo: '/assets/machinery/kamaz_manipulator.jpg', rate: '20 000 ₸ / час', dist: '1.8 км от объекта', status: '🟢 Свободен', assigned: true }
-          ]
-        },
-        {
-          id: 'STG-3',
-          name: '3. Чистовая отделка, полы и освещение',
-          status: 'pending', progress: 0,
-          dateRange: '25.08 – 05.09.2026', budget: 2350000,
-          machinery: [
-            { id: 12, name: 'Телескопический погрузчик Manitou MT 1840', photo: '/assets/machinery/manitou_telehandler.jpg', rate: '24 000 ₸ / час', dist: '2.3 км от объекта', status: '🟢 Свободен', assigned: false }
-          ]
-        }
-      ]
-    },
-    {
-      id: 'ORD-2026-090',
-      title: 'Установка вентиляции в ресторане',
-      clientName: 'ИП «ДастарханГрупп»',
-      clientPhone: '+7 (702) 311-22-44',
-      amount: 2200000,
-      status: 'new',
-      date: '20 авг 2026',
-      city: 'Алматы',
-      category: 'Инженерные сети',
-      description: 'Монтаж приточно-вытяжной вентиляции с рекуперацией для ресторана 180 м².',
-      stages: []
-    },
-    {
-      id: 'ORD-2026-088',
-      title: 'Утепление фасада 5-этажного дома',
-      clientName: 'КСК «Ботанический»',
-      clientPhone: '+7 (771) 900-88-77',
-      amount: 8900000,
-      status: 'engineer_assigned',
-      date: '18 авг 2026',
-      city: 'Астана',
-      category: 'Фасадные работы',
-      description: 'Утепление фасада минватой 100мм, штукатурка, покраска. 5 этажей, 2 подъезда.',
-      assignedEngineer: 'Тимур Каримов',
-      engineerVisitDate: '22.08.2026 09:00',
-      stages: []
-    },
-    {
-      id: 'ORD-2026-085',
-      title: 'Строительство забора и ворот',
-      clientName: 'Марат Сулейменов',
-      clientPhone: '+7 (700) 123-45-67',
-      amount: 1850000,
-      status: 'engineer_visit',
-      date: '16 авг 2026',
-      city: 'Караганда',
-      category: 'Ограждения',
-      description: 'Забор из профнастила 120 м, откатные ворота 4 м, калитка.',
-      assignedEngineer: 'Даулет Жумабаев',
-      engineerVisitDate: '22.08.2026 14:00',
-      stages: []
-    },
-    {
-      id: 'ORD-2026-082',
-      title: 'Ремонт кровли торгового центра',
-      clientName: 'ТОО «МегаМаркет»',
-      clientPhone: '+7 (7172) 55-44-33',
-      amount: 6700000,
-      status: 'estimate_ready',
-      date: '14 авг 2026',
-      city: 'Астана',
-      category: 'Кровельные работы',
-      description: 'Замена мягкой кровли 800 м², ремонт парапетов, установка водостоков.',
-      assignedEngineer: 'Асхат Нурланов',
-      engineerVisitDate: '15.08.2026 11:00',
-      engineerReport: 'Осмотр завершён. Кровля изношена на 70%. Требуется полная замена с гидроизоляцией.',
-      stages: [
-        {
-          id: 'STG-1', name: '1. Демонтаж старого покрытия', status: 'pending', progress: 0,
-          dateRange: '25.08 – 28.08.2026', budget: 1500000,
-          machinery: [
-            { id: 6, name: 'Автовышка телескопическая Hyundai HD78', photo: '/assets/machinery/hyundai_cherry_picker.jpg', rate: '18 000 ₸ / час', dist: '2.0 км', status: '🟢 Свободен', assigned: false }
-          ]
-        },
-        {
-          id: 'STG-2', name: '2. Гидроизоляция и укладка нового покрытия', status: 'pending', progress: 0,
-          dateRange: '29.08 – 08.09.2026', budget: 4200000,
-          machinery: [
-            { id: 5, name: 'Автокран XCMG QY25K5', photo: '/assets/machinery/xcmg_mobile_crane.jpg', rate: '28 000 ₸ / час', dist: '2.1 км', status: '🟢 Свободен', assigned: false }
-          ]
-        },
-        {
-          id: 'STG-3', name: '3. Установка водостоков и парапетов', status: 'pending', progress: 0,
-          dateRange: '09.09 – 12.09.2026', budget: 1000000,
-          machinery: []
-        }
-      ]
-    },
-    {
-      id: 'ORD-2026-074',
-      title: 'Строительство монолитного коттеджа 320 м²',
-      clientName: 'ИП «СтройСервис»',
-      clientPhone: '+7 (705) 888-11-22',
-      amount: 14800000,
-      status: 'pending_executor',
-      date: '05 авг 2026',
-      city: 'Астана',
-      category: 'Монолитные работы',
-      description: 'Земляные работы, свайное поле, заливка фундаментной плиты и возведение монолитного каркаса.',
-      assignedEngineer: 'Тимур Каримов',
-      engineerVisitDate: '06.08.2026 10:00',
-      engineerReport: 'Грунт скальный, рекомендую увеличить кол-во свай. Геодезическая разбивка выполнена.',
-      stages: [
-        {
-          id: 'STG-1', name: '1. Земляные работы и разработка котлована', status: 'pending', progress: 0,
-          dateRange: '25.08 – 02.09.2026', budget: 2800000,
-          machinery: [
-            { id: 1, name: 'Гусеничный экскаватор Hitachi ZX240', photo: '/assets/machinery/hitachi_excavator.jpg', rate: '25 000 ₸ / час', dist: '1.8 км', status: '🟢 Свободен', assigned: false },
-            { id: 4, name: 'Тяжелый бульдозер CAT D6R', photo: '/assets/machinery/cat_bulldozer.jpg', rate: '32 000 ₸ / час', dist: '2.2 км', status: '🟢 Свободен', assigned: false }
-          ]
-        },
-        {
-          id: 'STG-2', name: '2. Устройство свайного поля и фундамента', status: 'pending', progress: 0,
-          dateRange: '03.09 – 15.09.2026', budget: 5200000,
-          machinery: [
-            { id: 21, name: 'Буровая сваебойная установка Bauer BG 28', photo: '/assets/machinery/bauer_piling_rig.jpg', rate: '95 000 ₸ / час', dist: '3.1 км', status: '🟢 Свободен', assigned: false }
-          ]
-        },
-        {
-          id: 'STG-3', name: '3. Монтаж колонн, перекрытий и кровли', status: 'pending', progress: 0,
-          dateRange: '16.09 – 10.10.2026', budget: 6800000,
-          machinery: [
-            { id: 5, name: 'Автокран XCMG QY25K5', photo: '/assets/machinery/xcmg_mobile_crane.jpg', rate: '28 000 ₸ / час', dist: '2.1 км', status: '🟢 Свободен', assigned: false }
-          ]
-        }
-      ]
-    }
-  ]);
+  // Раньше здесь были демо-заказы, которые перезаписывали реальные локальные заказы в localStorage
+  const [orders, setOrders] = useState(loadLocalOrders);
+
+  // ── Видимость: заказчик видит только свои заказы; исполнитель — свои и ожидающие исполнителя; персонал — все ──
+  const actualRole = currentUser?.role || 'guest';
+  const myKeys = useMemo(() => new Set(
+    [currentUser?.email, currentUser?.login, currentUser?.name, currentUser?.id].filter(Boolean).map(String)
+  ), [currentUser]);
+  const canSeeOrder = useCallback((o) => {
+    if (!o) return false;
+    if (['admin', 'manager', 'engineer'].includes(actualRole)) return true;
+    const mine = myKeys.has(String(o.createdBy || '')) || myKeys.has(String(o.ownerName || ''))
+      || myKeys.has(String(o.clientName || '')) || myKeys.has(String(o.acceptedByEmail || ''))
+      || myKeys.has(String(o.acceptedBy || ''));
+    if (mine) return true;
+    return actualRole === 'executor' && o.status === 'pending_executor';
+  }, [actualRole, myKeys]);
+  const canSeeRef = useRef(canSeeOrder);
+  canSeeRef.current = canSeeOrder;
+  const syncFailedRef = useRef(false);
 
 
   // Form State
@@ -217,92 +82,88 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
     setTimeout(() => setToastMessage(null), 3500);
   };
 
-  // ── SERVER-FIRST: загрузка заказов с сервера + localStorage fallback ──
+  // ── SERVER-FIRST: загрузка заказов с сервера (локальные заказы уже в состоянии) ──
   const fetchServerOrders = useCallback(async () => {
+    const canSee = canSeeRef.current;
     try {
-      // 1. Загрузить заказы с Go Backend
-      const token = localStorage.getItem('auth_token') || '';
-      const ordersRes = await fetch('/api/v1/orders', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
+      // 1. Заказы с Go Backend (только с настоящим JWT; без него сервер ответит 401)
+      const ordersRes = await fetch('/api/v1/orders', { headers: authHeaders() });
       if (ordersRes.ok) {
-        const serverOrders = await ordersRes.json();
+        const serverOrders = await ordersRes.json().catch(() => null);
         if (Array.isArray(serverOrders) && serverOrders.length > 0) {
           setOrders(prev => {
             const merged = [...prev];
+            // Заказ, созданный на этом устройстве и уже отправленный на сервер, не дублируем
+            const knownServerIds = new Set(prev.map(o => o.serverId).filter(v => v !== undefined && v !== null).map(String));
             serverOrders.forEach(so => {
-              const orderId = so.id ? `ORD-${so.id}` : `ORD-server-${Date.now()}`;
-              if (!merged.some(m => m.id === orderId || m.id === String(so.id))) {
-                merged.unshift({
-                  id: orderId,
-                  title: so.title || 'Строительная заявка',
-                  clientName: so.clientName || so.contractor || 'Заказчик',
-                  clientPhone: so.clientPhone || '',
-                  amount: so.totalSum || 0,
-                  status: so.status === 'Запланировано' ? 'new' : (so.status === 'В работе' ? 'in_progress' : (so.status === 'Завершено' ? 'completed' : 'new')),
-                  date: so.createdAt ? new Date(so.createdAt).toLocaleDateString('ru-RU', { day: '2-digit', month: 'short', year: 'numeric' }) : 'Сегодня',
-                  city: so.location || 'г. Алматы',
-                  category: so.jobType || 'Общестроительные работы',
-                  description: '',
-                  stages: so.stages || []
-                });
-              }
+              if (!so || so.id === undefined || knownServerIds.has(String(so.id))) return;
+              const orderId = `ORD-${so.id}`;
+              if (merged.some(m => m.id === orderId || m.id === String(so.id))) return;
+              const mapped = {
+                id: orderId,
+                serverId: so.id,
+                source: 'server',
+                title: so.title || 'Строительная заявка',
+                clientName: so.clientName || so.contractor || 'Заказчик',
+                clientPhone: so.clientPhone || '',
+                createdBy: so.createdBy || '',
+                amount: parseMoney(so.totalSum),
+                status: so.status === 'В работе' ? 'in_progress' : (so.status === 'Завершено' ? 'completed' : 'new'),
+                date: so.createdAt ? new Date(so.createdAt).toLocaleDateString('ru-RU', { day: '2-digit', month: 'short', year: 'numeric' }) : '',
+                city: so.location || '',
+                category: so.jobType || 'Общестроительные работы',
+                description: '',
+                stages: Array.isArray(so.stages) ? so.stages : []
+              };
+              if (canSee(mapped)) merged.unshift(mapped);
             });
             return merged;
           });
         }
       }
 
-      // 2. Загрузить CRM-события от всех пользователей (включая Сашу)
-      const crmRes = await fetch('/api/v1/crm/events');
-      if (crmRes.ok) {
-        const data = await crmRes.json();
-        if (data && data.items && data.items.length > 0) {
-          setOrders(prev => {
-            const next = [...prev];
-            data.items.forEach(evt => {
-              const orderId = evt.id?.startsWith?.('ORD-') ? evt.id : `ORD-2026-${evt.id}`;
-              if (!next.some(o => o.id === orderId || o.id === evt.id)) {
-                next.unshift({
-                  id: orderId,
-                  title: evt.title || 'Строительная заявка',
-                  clientName: evt.contractor || evt.clientName || 'Заказчик',
-                  clientPhone: evt.phone || '',
-                  amount: parseInt(String(evt.budget).replace(/\D/g, '')) || 1500000,
-                  status: evt.status === 'В работе' ? 'in_progress' : (evt.status === 'Успешно' ? 'completed' : 'new'),
-                  date: evt.date || 'Сегодня',
-                  city: evt.location || 'г. Астана',
-                  category: 'Общестроительные работы',
-                  description: evt.notes || evt.description || 'Заявка передана из CRM',
-                  assignedEngineer: evt.role === 'engineer' ? 'Асхат Нурланов' : '',
-                  stages: []
-                });
-              }
-            });
-            return next;
+      // 2. CRM-события (заявки, созданные через CRM/другие устройства)
+      const crmRes = await fetch('/api/v1/crm/events', { headers: authHeaders() });
+      if (!crmRes.ok) throw new Error(`CRM HTTP ${crmRes.status}`);
+      const data = await crmRes.json().catch(() => null);
+      if (data && Array.isArray(data.items) && data.items.length > 0) {
+        setOrders(prev => {
+          const next = [...prev];
+          // CRM-событие локального заказа имеет id `crm-<orderId>` — не дублируем заказ
+          const localCrmIds = new Set(prev.map(o => o.crmEventId || `crm-${o.id}`));
+          data.items.forEach(evt => {
+            if (!evt || !evt.id || localCrmIds.has(evt.id)) return;
+            const orderId = String(evt.id).startsWith('ORD-') ? evt.id : `CRM-${evt.id}`;
+            if (next.some(o => o.id === orderId || o.id === evt.id)) return;
+            const mapped = {
+              id: orderId,
+              source: 'crm',
+              crmEventId: evt.id,
+              title: evt.title || 'Строительная заявка',
+              clientName: evt.contractor || evt.clientName || 'Заказчик',
+              clientPhone: evt.phone || '',
+              createdBy: evt.createdBy || '',
+              amount: parseMoney(evt.budget), // без выдуманных 1 500 000 по умолчанию
+              status: evt.status === 'В работе' ? 'in_progress' : (evt.status === 'Успешно' ? 'completed' : 'new'),
+              date: evt.date || '',
+              city: evt.location || '',
+              category: 'Общестроительные работы',
+              description: evt.notes || evt.description || 'Заявка передана из CRM',
+              assignedEngineer: evt.assignedEngineer || '',
+              stages: []
+            };
+            if (canSee(mapped)) next.unshift(mapped);
           });
-        }
+          return next;
+        });
       }
+      syncFailedRef.current = false;
     } catch (e) {
-      // Сервер недоступен — загружаем из localStorage как fallback
-      console.warn('Server unavailable, using localStorage fallback:', e);
-      try {
-        const saved = localStorage.getItem('qazgost_orders_shared');
-        if (saved) {
-          const parsed = JSON.parse(saved);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            setOrders(prev => {
-              const merged = [...prev];
-              parsed.forEach(item => {
-                if (item && item.id && !merged.some(x => x.id === item.id)) {
-                  merged.unshift(item);
-                }
-              });
-              return merged;
-            });
-          }
-        }
-      } catch (le) {}
+      // Сервер недоступен — работаем с локальными заказами, сообщаем один раз
+      if (!syncFailedRef.current) {
+        syncFailedRef.current = true;
+        showToast('⚠️ Сервер недоступен — показаны только заказы с этого устройства');
+      }
     }
   }, []);
 
@@ -317,10 +178,13 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
     return () => clearInterval(pollInterval);
   }, [fetchServerOrders]);
 
-  // ── localStorage: кеширование заказов (единый ключ) ──
+  // ── localStorage: кешируем ЛОКАЛЬНЫЕ заказы, не затирая чужие (других пользователей этого устройства) ──
   useEffect(() => {
     try {
-      localStorage.setItem('qazgost_orders_shared', JSON.stringify(orders));
+      const existing = loadLocalOrders();
+      const own = orders.filter(o => o.source !== 'server' && o.source !== 'crm');
+      const ownIds = new Set(own.map(o => o.id));
+      localStorage.setItem(getOrdersKey(), JSON.stringify([...own, ...existing.filter(o => !ownIds.has(o.id))]));
     } catch (e) { console.warn('Orders cache error:', e); }
   }, [orders]);
 
@@ -339,6 +203,25 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
     return order;
   }, []);
 
+  // Выплата исполнителю из эскроу заказчика (walletEngine.releaseEscrow)
+  const payoutEscrow = useCallback((order, amount, title) => {
+    if (!order) return { ok: false, reason: 'заказ не найден' };
+    const receiver = order.acceptedByEmail || order.acceptedBy
+      ? { email: order.acceptedByEmail || undefined, name: order.acceptedBy }
+      : null;
+    if (!receiver) return { ok: false, reason: 'исполнитель не назначен' };
+    const r = releaseEscrow({
+      amount: amount > 0 ? amount : undefined,
+      title,
+      fromUser: currentUser,
+      toUser: receiver,
+      escrowTxId: order.escrowTxId || null,
+      orderId: order.id,
+    });
+    if (r.ok) return { ok: true, released: r.released };
+    return { ok: false, reason: r.error === 'no_escrow' ? 'нет удерживаемых средств по заказу' : r.error };
+  }, [currentUser]);
+
   // ═══════════════════════════════════════
   // ►  ПРОГРЕССИЯ ЭТАПОВ (Начать / Завершить)
   // ═══════════════════════════════════════
@@ -354,7 +237,7 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
       };
       return recalcOrderStatus(updated);
     }));
-    showToast(`🚀 Этап начат! Эскроу заморожен на сумму этапа`);
+    showToast(`🚀 Этап начат!`);
   }, [recalcOrderStatus]);
 
   const handleCompleteStage = useCallback((orderId, stageId) => {
@@ -385,11 +268,16 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
           };
           return recalcOrderStatus(updated);
         });
-        showToast(`✅ Этап завершён! Эскроу ${formatMoney(0)} разморожен → исполнителю`);
+        const ord = orders.find(o => o.id === orderId);
+        const stg = ord?.stages?.find(st => st.id === stageId);
+        const payout = payoutEscrow(ord, parseMoney(stg?.budget), `Этап «${stg?.name || stageId}» заказа ${orderId}`);
+        showToast(payout.ok
+          ? `✅ Этап завершён! Эскроу ${formatMoney(payout.released)} разморожен → исполнителю`
+          : `✅ Этап завершён. ⚠️ Выплата не проведена: ${payout.reason}`);
         setConfirmAction(null);
       }
     });
-  }, [recalcOrderStatus]);
+  }, [recalcOrderStatus, orders, payoutEscrow]);
 
   const handleUpdateProgress = useCallback((orderId, stageId, newProgress) => {
     setOrders(prev => prev.map(ord => {
@@ -420,14 +308,16 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
   //    + АВТОГЕНЕРАЦИЯ ГРАФИКА РАБОТ В CRM КАЛЕНДАРЬ
   // ═══════════════════════════════════════
   const handleAcceptOrder = useCallback((orderId) => {
-    let acceptedOrder = null;
+    // Берём заказ из текущего состояния (раньше читали переменную, заполняемую внутри updater setState — ненадёжно)
+    const acceptedOrder = orders.find(ord => ord.id === orderId) || null;
+    const scheduleEvents = [];
     setOrders(prev => prev.map(ord => {
       if (ord.id !== orderId) return ord;
-      acceptedOrder = ord;
       return {
         ...ord,
         status: 'in_progress',
         acceptedBy: currentUser?.name || 'Исполнитель',
+        acceptedByEmail: currentUser?.email || '',
         acceptedAt: new Date().toLocaleString()
       };
     }));
@@ -455,6 +345,7 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
 
           // Создаём event на дату начала этапа
           if (!existing[startDate]) existing[startDate] = [];
+          scheduleEvents.push({ date: startDate, idx: existing[startDate].length });
           existing[startDate].push({
             id: `${acceptedOrder.id}-${stg.id}-start`,
             title: `🚀 НАЧАЛО: ${stg.name}`,
@@ -472,6 +363,7 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
           // Создаём event на дату окончания этапа
           if (startDate !== endDate) {
             if (!existing[endDate]) existing[endDate] = [];
+            scheduleEvents.push({ date: endDate, idx: existing[endDate].length });
             existing[endDate].push({
               id: `${acceptedOrder.id}-${stg.id}-end`,
               title: `✅ СДАЧА: ${stg.name}`,
@@ -492,8 +384,9 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
             const machineryNames = stg.machinery.filter(m => m.assigned).map(m => m.name).join(', ');
             if (machineryNames) {
               const nextDay = new Date(year, parseInt(startMatch[2]) - 1, parseInt(startMatch[1]) + 1);
-              const techDate = `${nextDay.getFullYear()}-${String(nextDay.getMonth()+1).padStart(2,'0')}-${String(nextDay.getDate()).padStart(2,'0')}`;
+              const techDate = localDateKey(nextDay);
               if (!existing[techDate]) existing[techDate] = [];
+              scheduleEvents.push({ date: techDate, idx: existing[techDate].length });
               existing[techDate].push({
                 id: `${acceptedOrder.id}-${stg.id}-tech`,
                 title: `🚜 Техника: ${machineryNames.slice(0, 60)}`,
@@ -514,12 +407,20 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
         localStorage.setItem(calendarKey, JSON.stringify(existing));
         // Уведомляем CRM-календарь об обновлении
         window.dispatchEvent(new CustomEvent('crm_calendar_updated'));
+
+        // График сохраняется на сервере (иначе опрос CRM затирал его через 8 сек)
+        const toPush = scheduleEvents.map(({ date, idx }) => ({ ...existing[date][idx], date }));
+        Promise.all(toPush.map(ev => upsertCrmEvent({ ...ev, createdBy: currentUser?.email || currentUser?.name || '' })))
+          .then(results => {
+            const failed = results.filter(r => !r.ok);
+            if (failed.length) reportSyncError(`График заказа ${orderId}: ${failed.length} из ${results.length} событий не сохранены на сервере (${failed[0].error})`);
+          });
       } catch (e) { console.warn('Calendar auto-schedule error:', e); }
     }
 
     showToast(`✅ Заказ ${orderId} принят! График работ автоматически создан в CRM-календаре 📅`);
     setSelectedOrder(null);
-  }, [currentUser]);
+  }, [currentUser, orders]);
 
   // ═══════════════════════════════════════
   // ►  ЗАВЕРШЕНИЕ ЗАКАЗА (все этапы done)
@@ -632,16 +533,21 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
             completedAt: new Date().toLocaleString()
           };
         }));
-        showToast(`🎉 Заказ ${orderId} завершён! Все средства разморожены.`);
+        const payout = payoutEscrow(orders.find(o => o.id === orderId), undefined, `Остаток эскроу по заказу ${orderId}`);
+        showToast(payout.ok
+          ? `🎉 Заказ ${orderId} завершён! Остаток эскроу ${formatMoney(payout.released)} выплачен исполнителю.`
+          : `🎉 Заказ ${orderId} завершён. ${payout.reason === 'нет удерживаемых средств по заказу' ? 'Остатка эскроу нет.' : `⚠️ Выплата не проведена: ${payout.reason}`}`);
         setSelectedOrder(null);
         setConfirmAction(null);
       }
     });
-  }, []);
+  }, [orders, payoutEscrow]);
 
   // Dynamic Filtering (с учётом роли!)
   const filteredOrders = useMemo(() => {
     return orders.filter(ord => {
+      // Видимость по реальной роли/владельцу (раньше «Мои заказы» показывали заказы всех клиентов)
+      if (!canSeeOrder(ord)) return false;
       // ═══ РОЛЕВАЯ ФИЛЬТРАЦИЯ ═══
       // Исполнитель видит ТОЛЬКО: pending_executor, in_progress, completed
       if (role === 'engineer' || role === 'executor') {
@@ -651,9 +557,9 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
       // Поиск
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
-        const matchesTitle = ord.title.toLowerCase().includes(q);
-        const matchesClient = ord.clientName.toLowerCase().includes(q);
-        const matchesId = ord.id.toLowerCase().includes(q);
+        const matchesTitle = String(ord.title || '').toLowerCase().includes(q);
+        const matchesClient = String(ord.clientName || '').toLowerCase().includes(q);
+        const matchesId = String(ord.id || '').toLowerCase().includes(q);
         if (!matchesTitle && !matchesClient && !matchesId) return false;
       }
 
@@ -667,11 +573,11 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
 
       return true;
     });
-  }, [orders, searchQuery, statusFilter, role]);
+  }, [orders, searchQuery, statusFilter, role, canSeeOrder]);
 
   // Stats
   const totalCount = filteredOrders.length;
-  const totalSum = filteredOrders.reduce((acc, o) => acc + o.amount, 0);
+  const totalSum = filteredOrders.reduce((acc, o) => acc + (Number(o.amount) || 0), 0);
   const handleToggleMachinery = (orderId, stageId, machineId) => {
     setOrders(prevOrders => prevOrders.map(ord => {
       if (ord.id !== orderId) return ord;
@@ -709,29 +615,30 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
     }
   };
 
-  const formatMoney = (sum) => {
-    return sum.toLocaleString('ru-RU') + ' ₸';
-  };
+  function formatMoney(sum) {
+    return (Number(sum) || 0).toLocaleString('ru-RU') + ' ₸';
+  }
 
   const handleCreateOrder = (e) => {
     e.preventDefault();
     if (!newOrderTitle || !newOrderClient || !newOrderAmount) return;
 
-    const newOrd = {
-      id: `ORD-2026-${Math.floor(100 + Math.random() * 900)}`,
+    const amount = parseMoney(newOrderAmount);
+    if (!(amount > 0)) { showToast('⚠️ Укажите корректную сумму заказа'); return; }
+    // Через общий сервис: уникальный ID, синхронизация с сервером и CRM
+    const newOrd = createPlatformOrder({
       title: newOrderTitle,
       clientName: newOrderClient,
-      clientPhone: '+7 (700) 000-00-00',
-      amount: parseFloat(newOrderAmount),
-      status: 'new',
-      date: 'Сегодня',
+      amount,
       city: newOrderCity,
       category: 'Общее строительство',
       description: 'Новый созданный заказ.',
-      stages: []
-    };
+      type: 'general',
+      status: 'new',
+      paymentMethod: 'По договорённости',
+    });
 
-    setOrders([newOrd, ...orders]);
+    setOrders([newOrd, ...orders.filter(o => o.id !== newOrd.id)]);
     setShowCreateModal(false);
     setNewOrderTitle('');
     setNewOrderClient('');

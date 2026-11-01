@@ -1,4 +1,17 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { getBalanceKZT } from '../services/walletEngine';
+
+// Знак QazGost: лист с размерной линией и «трещиной» — без эмодзи
+export function QazGostMark({ size = 36 }) {
+  return (
+    <svg className="qg-mark" width={size} height={size} viewBox="0 0 36 36" aria-hidden="true">
+      <rect x="1" y="1" width="34" height="34" rx="9" fill="#13203a" stroke="rgba(140,170,214,0.35)" />
+      <path d="M9 11h18M9 8v6M27 8v6" stroke="#5cc8f5" strokeWidth="1.6" fill="none" strokeLinecap="round" />
+      <path d="M17 17l2.5 4-2.5 3.5 2 4.5" stroke="#fbbf24" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+      <rect x="9" y="17" width="18" height="12" rx="1.5" stroke="#e8eef7" strokeWidth="1.6" fill="none" />
+    </svg>
+  );
+}
 
 function getDefaultNotificationsForRole(userRole) {
   if (userRole === 'engineer') {
@@ -63,6 +76,15 @@ const KZ_CITIES = [
 export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, onOpenAdmin, onOpenEngineer, currentUser, onLogout, onOpenDashboard, onLogoClick, onOpenProfile, onOpenWallet, onOpenMaterials, onOpenEquipment, onOpenCalc, onOpenLidar }) {
   const [activeNavDropdown, setActiveNavDropdown] = useState(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  // Баланс кошелька текущего пользователя (₸), а не захардкоженные «$0.00»
+  const [walletBalance, setWalletBalance] = useState(() => (currentUser ? getBalanceKZT(currentUser) : 0));
+  useEffect(() => {
+    const refresh = () => setWalletBalance(currentUser ? getBalanceKZT(currentUser) : 0);
+    refresh();
+    window.addEventListener('storage', refresh);
+    window.addEventListener('focus', refresh);
+    return () => { window.removeEventListener('storage', refresh); window.removeEventListener('focus', refresh); };
+  }, [currentUser]);
   const [mobileAccordion, setMobileAccordion] = useState(null);
   const [unreadNotifsCount, setUnreadNotifsCount] = useState(0);
 
@@ -276,16 +298,12 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
         <div className="container header-container">
         {/* Brand Logo */}
         <a href="#" className="logo-brand" onClick={handleLogoClick}>
-          <div className="logo-icon-wrap">
-            <span className="logo-spark">✨</span>
-            <span className="logo-emoji">🏗️</span>
-          </div>
+          <QazGostMark />
           <div className="logo-text">
             <div className="logo-title-row">
               <span className="logo-title">QazGost AI</span>
-              <span className="logo-version-badge">2.0</span>
             </div>
-            <span className="logo-subtitle">Платформа смет & AI дефектовки</span>
+            <span className="logo-subtitle">Сметы и дефекты по нормам РК</span>
           </div>
         </a>
 
@@ -562,7 +580,6 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
             onClick={() => { closeDropdown(); if (onOpenMaterials) onOpenMaterials(); }}
             title="Маркетплейс строительных материалов"
           >
-            <span>🧱</span>
             <span>Стройматериалы</span>
           </button>
 
@@ -571,8 +588,7 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
             onClick={() => { closeDropdown(); if (onOpenEquipment) onOpenEquipment(); }}
             title="Маркетплейс спецтехники"
           >
-            <span>🚜</span>
-            <span>Техника</span>
+            <span>Спецтехника</span>
           </button>
 
         </div>
@@ -760,7 +776,8 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
           <button
             className="mobile-menu-btn"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            aria-label="Toggle Navigation Menu"
+            aria-label={isMobileMenuOpen ? 'Закрыть меню' : 'Открыть меню'}
+            aria-expanded={isMobileMenuOpen}
           >
             {isMobileMenuOpen ? '✕' : '☰'}
           </button>
@@ -770,19 +787,22 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
         <div className="header-right-actions">
           {/* Utility Capsule Group */}
           <div className="header-utility-group">
-            <div 
-              className="balance-chip" 
-              title="Открыть Мой Кошелёк"
-              onClick={onOpenWallet}
-            >
-              <span>💳</span>
-              <span>$0.00</span>
-            </div>
+            {currentUser && (
+              <button
+                type="button"
+                className="balance-chip"
+                title="Открыть кошелёк"
+                aria-label={`Кошелёк: ${walletBalance.toLocaleString('ru-RU')} тенге`}
+                onClick={onOpenWallet}
+              >
+                <span className="qg-num">{walletBalance.toLocaleString('ru-RU')} ₸</span>
+              </button>
+            )}
 
             <div className="lang-switch">
-              <button className="lang-btn active">RU</button>
-              <button className="lang-btn">KZ</button>
-              <button className="lang-btn">EN</button>
+              <button className="lang-btn active" aria-pressed="true">RU</button>
+              <button className="lang-btn" aria-pressed="false" title="Казахская версия готовится">KZ</button>
+              <button className="lang-btn" aria-pressed="false" title="Английская версия готовится">EN</button>
             </div>
           </div>
 
@@ -944,10 +964,10 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
           {currentUser ? (
             <>
               <button className="btn-gold-login" onClick={() => onOpenDashboard(currentUser.role)}>
-                <span className="item-icon">👤</span> {currentUser.name || 'Дашборд'}
+                {currentUser.name || 'Кабинет'}
               </button>
-              <button className="btn-glass-reg" onClick={onOpenProfile}>
-                📋 Моя анкета
+              <button className="btn-glass-reg hdr-profile-btn" onClick={onOpenProfile}>
+                Анкета
               </button>
               <button className="btn-glass-reg" onClick={onLogout}>
                 Выйти
@@ -956,10 +976,10 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
           ) : (
             <>
               <button className="btn-gold-login" onClick={() => onOpenAuth('login')}>
-                🔑 Вход
+                Войти
               </button>
               <button className="btn-glass-reg" onClick={() => onOpenAuth('register')}>
-                📝 Регистрация
+                Регистрация
               </button>
             </>
           )}
@@ -974,10 +994,8 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
           <div className="mobile-nav-drawer">
             <div className="mobile-drawer-header">
               <div className="logo-brand">
-                <div className="logo-icon-wrap" style={{ width: '32px', height: '32px', fontSize: '1rem' }}>
-                  <span>🏗️</span>
-                </div>
-                <span className="logo-title" style={{ fontSize: '1.1rem' }}>QazGost AI 2.0</span>
+                <QazGostMark size={30} />
+                <span className="logo-title" style={{ fontSize: '1.1rem' }}>QazGost AI</span>
               </div>
               <button className="mobile-drawer-close" onClick={closeDropdown}>
                 ✕
@@ -1073,7 +1091,7 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
               <div 
                 className="balance-badge" 
                 style={{ justifyContent: 'center', padding: '0.6rem 1rem', cursor: 'pointer' }}
-                onClick={() => { if (onOpenWallet) onOpenWallet(); setMobileMenuOpen(false); }}
+                onClick={() => { if (onOpenWallet) onOpenWallet(); setIsMobileMenuOpen(false); }}
               >
                 <span className="balance-icon">💰</span>
                 <span>Баланс: $0.00</span>

@@ -1,7 +1,43 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { createPlatformOrder } from '../services/orderSyncService';
+import { jsonAuthHeaders, csvCell } from '../services/platformUtils';
 import { generateDetailedEstimate, SCENARIO_COEFFICIENTS, COMPLEX_TEMPLATES } from '../data/estimateTemplates';
 import './SmartPhotoEstimatePage.css';
+
+const isRealOpenAIKey = (k) => typeof k === 'string' && /^sk-[A-Za-z0-9_-]{10,}/.test(k.trim());
+
+const SCENARIO_INDEX = { economy: 0, standard: 1, premium: 2 };
+
+// Позиции сметы с сервера (AI: volume/unit_price; серверный сметчик: quantity/unitPrice/type) → единый формат UI
+function normalizeServerItems(items) {
+  if (!Array.isArray(items)) return [];
+  const typeGroup = { work: 'Работы', material: 'Материалы', equipment: 'Техника' };
+  return items.filter(Boolean).map((it) => {
+    const volume = Number(it.volume ?? it.quantity ?? 1) || 0;
+    const unitPrice = Number(it.unit_price ?? it.unitPrice ?? 0) || 0;
+    return {
+      name: String(it.name || 'Позиция'),
+      unit: it.unit || 'ед.',
+      volume: Math.round(volume * 100) / 100,
+      unit_price: Math.round(unitPrice),
+      total: Math.round(Number(it.total) || volume * unitPrice),
+      isMaterial: it.type === 'material' || !!it.isMaterial,
+      group: it.stage || it.group || typeGroup[it.type] || undefined,
+    };
+  });
+}
+
+function mapServerScenario(sc) {
+  return {
+    total: Math.round(Number(sc.totalCost) || 0),
+    worksCost: Math.round(Number(sc.worksCost) || 0),
+    materialsCost: Math.round(Number(sc.materialsCost) || 0),
+    equipmentCost: Math.round(Number(sc.equipmentCost) || 0),
+    timelineDays: sc.timelineDays || 7,
+    items: normalizeServerItems(sc.items),
+    scenarioLabel: sc.name || 'Стандарт',
+  };
+}
 
 const SYSTEM_OPENAI_PRESETS = {
   KEY_1_VISION_DEFECT: 'system-key-1-vision',
@@ -106,13 +142,13 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
     }
   });
 
+  // Только настоящий пользовательский ключ OpenAI (sk-…); заглушки system-key-* больше не подставляются и не отправляются
   const [userGptKey, setUserGptKey] = useState(() => {
     const key = (typeof window !== 'undefined' && localStorage.getItem('qazgost_user_openai_key')) || '';
-    if (key && key !== 'sk-user-connected-session') return key;
-    return SYSTEM_OPENAI_PRESETS.KEY_2_DETAILED_ESTIMATE;
+    return isRealOpenAIKey(key) ? key : '';
   });
 
-  const [inputGptKey, setInputGptKey] = useState(userGptKey || SYSTEM_OPENAI_PRESETS.KEY_2_DETAILED_ESTIMATE);
+  const [inputGptKey, setInputGptKey] = useState(userGptKey || '');
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
   const [userPlan, setUserPlan] = useState('ChatGPT Plus (GPT-4o Vision)');
@@ -253,7 +289,8 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
   const handleSaveGptKey = (e) => {
     if (e) e.preventDefault();
     const cleanKey = inputGptKey.trim();
-    if (!cleanKey) {
+    if (!cleanKey || !isRealOpenAIKey(cleanKey)) {
+      // Пресеты system-key-* — это выбор серверного ключа: в браузере ничего не храним и не отправляем
       localStorage.removeItem('qazgost_user_openai_key');
       setUserGptKey('');
       showToast('🗑️ Пользовательский GPT ключ удален. Используется ключ системы.');
@@ -544,7 +581,16 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
   // BUG-1 FIX: Пересчитать смету при смене сценария (вместо умножения ×0.85/×1.25)
   const recalculateScenario = useCallback((newScenario) => {
     setSelectedScenario(newScenario);
-    if (!lastEstimateParams) return;
+    if (!lastEstimateParams) {
+      // Результат серверного сметчика: переключаемся между его сценариями
+      setCalculatedEstimate(prev => {
+        const list = prev?.serverScenarios;
+        if (!Array.isArray(list) || list.length === 0) return prev;
+        const sc = list[SCENARIO_INDEX[newScenario]] || list[0];
+        return { ...prev, ...mapServerScenario(sc) };
+      });
+      return;
+    }
     const params = { ...lastEstimateParams, scenario: newScenario };
     const detailed = generateDetailedEstimate(params);
     const regionObj = REGIONS.find(r => r.id === selectedRegion) || REGIONS[0];
@@ -588,138 +634,129 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
     const regionObj = REGIONS.find(r => r.id === selectedRegion) || REGIONS[0];
 
     try {
-      const customGptKey = userGptKey || (typeof window !== 'undefined' && localStorage.getItem('qazgost_user_openai_key'));
+      const customGptKey = userGptKey || (typeof window !== 'undefined' && localStorage.getItem('qazgost_user_openai_key')) || '';
       const customGptModel = gptModel || (typeof window !== 'undefined' && localStorage.getItem('qazgost_user_openai_model')) || 'gpt-4o';
 
-      const token = typeof window !== 'undefined' ? (localStorage.getItem('qazgost_token') || localStorage.getItem('token')) : null;
-      const headers = { 'Content-Type': 'application/json' };
-      if (token) headers['Authorization'] = `Bearer ${token}`;
-      if (customGptKey) headers['X-OpenAI-Key'] = customGptKey;
-      if (customGptModel) headers['X-OpenAI-Model'] = customGptModel;
+      // Authorization — только при настоящем JWT (ключ auth_token); X-OpenAI-Key — только настоящий ключ пользователя
+      const headers = jsonAuthHeaders();
+      if (isRealOpenAIKey(customGptKey)) {
+        headers['X-OpenAI-Key'] = customGptKey.trim();
+        headers['X-OpenAI-Model'] = customGptModel;
+      }
 
-      // ═══ STEP 1: Try AI Vision analysis (send photos to backend pipeline) ═══
-      if (photos.length > 0) {
-        setScanStep(`📤 Отправка ${Math.min(photos.length, 5)} фото в AI Vision...`);
+      const photosBase64 = photos.slice(0, 5).map(p => p.base64).filter(b => typeof b === 'string' && b.startsWith('data:'));
 
-        const photosBase64 = photos.slice(0, 5).filter(p => p.base64).map(p => p.base64);
-        setScanStep(`🧠 AI Vision анализирует ${photosBase64.length} фото... (10-30 сек)`);
+      // Явно заданная площадь: контур → ручной ввод → «NN м²» в описании
+      const manualAreaNum = parseFloat(manualArea);
+      const explicitArea = contourAreaM2 > 0 ? contourAreaM2 : (manualAreaNum > 0 ? manualAreaNum : (() => {
+        const m = description.match(/(\d+[\.,]?\d*)\s*м[²2]/i);
+        return m ? parseFloat(m[1].replace(',', '.')) : null;
+      })());
 
-        try {
-          // Correct endpoint: /api/v1/analyze (pipeline.py)
-          const visionRes = await fetch('/api/v1/analyze', {
-            method: 'POST',
-            headers,
-            body: JSON.stringify({
-              photos: photosBase64,
-              description: description || '',
-              category: isCategorySkipped ? '' : activeCatObj.title,
-              city: regionObj.name,
-              region: regionObj.id,
+      let serverNote = '';
+
+      // ═══ STEP 1: POST /api/v1/ai/vision — AI Vision (при ключе OpenAI на сервере/у пользователя) или серверный сметчик ═══
+      // (раньше вызывались /api/v1/analyze с несовместимым форматом и несуществующий /api/v1/estimates)
+      setScanStep(photosBase64.length
+        ? `🧠 AI Vision анализирует ${photosBase64.length} фото... (10-30 сек)`
+        : `🤖 Расчёт сметы через QAZGOST AI Engine (${regionObj.name})...`);
+      try {
+        const visionRes = await fetch('/api/v1/ai/vision', {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({
+            photos: photosBase64,
+            description: description || `${activeCatObj.title}: стандартный комплекс работ`,
+            category: isCategorySkipped ? '' : activeCatObj.title,
+            city: regionObj.name,
+            mode: aiEngineMode,
+            // площадь передаётся серверному сметчику (раньше он всегда считал дефолтные 80–200 м²)
+            ...(explicitArea ? { dimensions: { area: explicitArea } } : {}),
+          })
+        });
+
+        if (visionRes.ok) {
+          const parsed = await visionRes.json().catch(() => null);
+          const isQto = parsed && parsed.recommended && Array.isArray(parsed.scenarios);
+          const isAi = parsed && !isQto && (parsed.total_cost !== undefined || parsed.detected_type || Array.isArray(parsed.items));
+          setScanStep('📊 Обработка результатов...');
+
+          if (isAi) {
+            const items = normalizeServerItems(parsed.items);
+            const total = Math.round(Number(parsed.total_cost ?? parsed.totalCost) || items.reduce((acc, it) => acc + it.total, 0));
+            const data = {
+              category: parsed.detected_type || activeCatObj.title,
               mode: aiEngineMode,
-            })
-          });
+              total,
+              worksCost: Math.round(Number(parsed.works_cost ?? parsed.worksCost) || 0),
+              materialsCost: Math.round(Number(parsed.materials_cost ?? parsed.materialsCost) || 0),
+              equipmentCost: Math.round(Number(parsed.equipment_cost ?? parsed.equipmentCost) || 0),
+              timelineDays: parsed.timeline_days || parsed.timelineDays || 7,
+              dimensions: parsed.dimensions || {},
+              area: parsed.dimensions?.area_m2 || undefined,
+              items,
+              aiInsights: (Array.isArray(parsed.insights) && parsed.insights.length ? parsed.insights : (parsed.aiInsights || [
+                `🤖 AI-анализ завершён в режиме «${aiEngineMode.toUpperCase()}»`,
+              ])).concat([`📐 Регион: ${regionObj.name}`]),
+              isRealVision: photosBase64.length > 0,
+              photosAnalyzed: photosBase64.length,
+              region: regionObj.name,
+              regionalCoeff: regionObj.coeff,
+              source: 'ai-vision',
+            };
+            setLastEstimateParams(null);
+            setScanStep('✨ Компиляция итоговой сметы...');
+            setTimeout(() => {
+              setIsScanning(false);
+              setCalculatedEstimate(data);
+              saveToHistory(data);
+              showToast(`✅ AI-анализ завершён в режиме «${aiEngineMode.toUpperCase()}»!`);
+            }, 400);
+            return;
+          }
 
-          if (visionRes.ok) {
-            const parsed = await visionRes.json();
-            setScanStep('📊 Обработка результатов AI-анализа...');
-
-            if (parsed && (parsed.total_cost || parsed.items || parsed.total || parsed.recommended)) {
-              const rec = parsed.recommended || parsed;
+          if (isQto) {
+            const serverArea = Number(parsed.calculatedArea) || 0;
+            const areaMismatch = explicitArea && serverArea && Math.abs(serverArea - explicitArea) / explicitArea > 0.05;
+            if (!areaMismatch) {
+              const sc = parsed.scenarios[SCENARIO_INDEX[selectedScenario]] || parsed.recommended;
               const data = {
-                category: rec.detected_type || parsed.category || activeCatObj.title,
+                category: parsed.category || activeCatObj.title,
                 mode: aiEngineMode,
-                total: rec.totalCost || rec.total_cost || parsed.total || 0,
-                worksCost: rec.worksCost || rec.works_cost || 0,
-                materialsCost: rec.materialsCost || rec.materials_cost || 0,
-                equipmentCost: rec.equipmentCost || rec.equipment_cost || 0,
-                timelineDays: rec.timeline_days || rec.timelineDays || 7,
-                dimensions: parsed.dimensions || rec.dimensions || {},
-                items: rec.items || parsed.items || [],
-                aiInsights: parsed.aiInsights || rec.aiInsights || [
-                  `🤖 AI-анализ завершён в режиме «${aiEngineMode.toUpperCase()}»`,
-                  `📐 Регион: ${regionObj.name} (коэффициент ×${regionObj.coeff})`,
-                  `🔍 Рекомендация: перед началом работ произвести освидетельствование скрытых работ.`
+                ...mapServerScenario(sc),
+                area: serverArea || undefined,
+                aiInsights: [
+                  ...(Array.isArray(parsed.aiInsights) ? parsed.aiInsights : []),
+                  `ℹ️ Расчёт серверного сметчика по нормативам (${parsed.normative || 'ГЭСН РК'}), без AI Vision: ключ OpenAI на сервере не задан`,
+                  `📐 Площадь расчёта: ${serverArea} м², регион: ${parsed.region || regionObj.name} (×${parsed.regionalCoeff || 1})`,
                 ],
-                scenarios: parsed.scenarios || null,
-                isRealVision: true,
-                photosAnalyzed: photosBase64.length,
-                region: regionObj.name,
-                regionalCoeff: regionObj.coeff,
+                serverScenarios: parsed.scenarios,
+                region: parsed.region || regionObj.name,
+                regionalCoeff: parsed.regionalCoeff || regionObj.coeff,
+                source: 'server-estimator',
               };
-
+              setLastEstimateParams(null);
               setScanStep('✨ Компиляция итоговой сметы...');
               setTimeout(() => {
                 setIsScanning(false);
                 setCalculatedEstimate(data);
                 saveToHistory(data);
-                showToast(`✅ Анализ завершён в режиме «${aiEngineMode.toUpperCase()}»!`);
+                showToast('✅ Смета рассчитана серверным сметчиком (без AI Vision)');
               }, 400);
               return;
             }
-          } else {
-            const errBody = await visionRes.json().catch(() => ({}));
-            console.warn('AI Vision fallback:', errBody);
-            showToast(`⚠️ AI Vision (${visionRes.status}): переход к локальному расчёту...`);
+            serverNote = `Серверный сметчик считает площадь ${serverArea} м², а указано ${Math.round(explicitArea)} м² — использован локальный расчёт по шаблонам`;
           }
-        } catch (netErr) {
-          console.warn('AI Vision network error, using fallback:', netErr);
+        } else {
+          const errBody = await visionRes.json().catch(() => ({}));
+          console.warn('AI Vision error:', visionRes.status, errBody);
+          serverNote = `Сервер смет ответил ошибкой ${visionRes.status} — использован локальный расчёт по шаблонам`;
         }
+      } catch (netErr) {
+        console.warn('AI Vision network error, using fallback:', netErr);
+        serverNote = 'Сервер смет недоступен — использован локальный расчёт по шаблонам';
       }
-
-      // ═══ STEP 2: Fallback — backend estimate endpoint ═══
-      setScanStep(`🤖 Расчёт сметы через QAZGOST AI Engine (${regionObj.name})...`);
-
-      try {
-        // Correct endpoint: /api/v1/estimates (estimates.py)
-        const res = await fetch('/api/v1/estimates', {
-          method: 'POST',
-          headers,
-          body: JSON.stringify({
-            description: description || `${activeCatObj.title}: стандартный комплекс работ`,
-            mode: aiEngineMode,
-            scenario: selectedScenario,
-            category: isCategorySkipped ? '' : activeCatObj.title,
-            city: regionObj.name,
-            region: regionObj.id,
-            contour_area_m2: contourAreaM2 || 0,
-            contour_perimeter_m: contourPerimeterM || 0,
-          })
-        });
-
-        if (res.ok) {
-          const rawData = await res.json();
-          const rec = rawData.recommended || rawData;
-          const data = {
-            id: rawData.id || null,
-            category: rawData.category || activeCatObj.title,
-            mode: aiEngineMode,
-            total: rec.totalCost || rec.total || rec.estimate_total || 0,
-            worksCost: rec.worksCost || Math.round((rec.totalCost || rec.total || 0) * 0.55),
-            materialsCost: rec.materialsCost || Math.round((rec.totalCost || rec.total || 0) * 0.45),
-            timelineDays: rec.timelineDays || rec.timeline_days || 7,
-            items: rec.items || [],
-            scenarios: rawData.scenarios || null,
-            aiInsights: rawData.aiInsights || [
-              `🤖 Расчёт по нормам СНиП РК в режиме «${aiEngineMode.toUpperCase()}»`,
-              `📐 Регион: ${regionObj.name} (×${regionObj.coeff})`,
-              `🔍 Рекомендация технадзора: произвести освидетельствование скрытых работ.`
-            ],
-            region: regionObj.name,
-            regionalCoeff: regionObj.coeff,
-          };
-
-          setScanStep('✨ Компиляция итоговой сметы...');
-          setTimeout(() => {
-            setIsScanning(false);
-            setCalculatedEstimate(data);
-            saveToHistory(data);
-            showToast('✅ AI-Расчёт сметы завершён!');
-          }, 400);
-          return;
-        }
-      } catch (backendErr) {
-        console.warn('Backend estimate fallback:', backendErr);
-      }
+      if (serverNote) showToast(`⚠️ ${serverNote}`);
 
       // ═══ STEP 3: Smart local estimate with detailed templates ═══
       setScanStep('📱 Умный расчёт по шаблонам СНиП РК...');
@@ -788,7 +825,9 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
         regionalCoeff: regionObj.coeff,
         groups: detailed.groups,
         scenarioLabel: detailed.scenarioLabel,
+        source: 'local-templates',
       };
+      if (serverNote) data.aiInsights.push(`ℹ️ ${serverNote}`);
 
       setScanStep('✨ Компиляция итоговой сметы...');
       setTimeout(() => {
@@ -839,7 +878,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
           <div className="spe-step-title-row">
             <div className="spe-step-badge">
               <span className="spe-num">1</span>
-              <h3>ВЫБЕРИТЕ КАТЕГОРИЮ РАБОТ</h3>
+              <h3>Выберите категорию работ</h3>
             </div>
 
             <input
@@ -1144,7 +1183,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
       <div className="spe-step-title-row mt-4">
         <div className="spe-step-badge">
           <span className="spe-num">2</span>
-          <h3>ЗАГРУЗИТЕ ФОТО ОБЪЕКТА</h3>
+          <h3>Загрузите фото объекта</h3>
         </div>
         <span className="spe-step-optional">(необязательно, до 10 фото - {photos.length}/10)</span>
       </div>
@@ -1179,7 +1218,8 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
           id="spe-file-picker"
           multiple
           accept="image/*"
-          style={{ display: 'none' }}
+          className="qg-visually-hidden"
+          aria-label="Выбрать фото объекта"
           onChange={handleFileUpload}
         />
         <div className="spe-drop-icon">{isDraggingOver ? '📥' : '📸'}</div>
@@ -1196,6 +1236,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
               <button
                 type="button"
                 className="spe-thumb-remove"
+                aria-label={`Удалить ${p.name}`}
                 onClick={(e) => {
                   e.stopPropagation();
                   removePhoto(p.id);
@@ -1212,7 +1253,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
       <div className="spe-step-title-row mt-4">
         <div className="spe-step-badge">
           <span className="spe-num">3</span>
-          <h3>ОПИСАНИЕ ДЛЯ ИИ</h3>
+          <h3>Опишите задачу</h3>
         </div>
       </div>
 
@@ -1224,7 +1265,9 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
         </div>
       </div>
 
+      <label htmlFor="spe-description" className="qg-visually-hidden">Описание объекта и задачи</label>
       <textarea
+        id="spe-description"
         rows="4"
         className="spe-description-textarea"
         placeholder={`Опишите объект и задачу, например:\n• Ванная комната 3×4 метра, замена плитки и сантехники\n• Крыша частного дома, площадь 120 м², замена кровли\n• Офис 50 м², косметический ремонт стен и потолка`}
@@ -1234,8 +1277,9 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
 
       {/* MISS-3: Поле ввода площади */}
       <div style={{ display: 'flex', gap: '10px', alignItems: 'center', margin: '8px 0 12px' }}>
-        <label style={{ fontSize: '.85rem', color: '#94a3b8', fontWeight: 600, whiteSpace: 'nowrap' }}>📐 Площадь (м²):</label>
+        <label htmlFor="spe-area" style={{ fontSize: '.875rem', color: '#b3c0d4', fontWeight: 600, whiteSpace: 'nowrap' }}>Площадь, м²</label>
         <input
+          id="spe-area"
           type="number"
           min="1"
           max="100000"
@@ -1258,8 +1302,9 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
 
       {/* Region Selector */}
       <div className="spe-region-row">
-        <label className="spe-region-label">📍 Регион строительства:</label>
+        <label className="spe-region-label" htmlFor="spe-region">Регион строительства</label>
         <select
+          id="spe-region"
           className="spe-region-select"
           value={selectedRegion}
           onChange={e => {
@@ -1389,7 +1434,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
       {calculatedEstimate && (
         <div className="spe-result-box" ref={resultRef}>
           <div className="spe-res-head">
-            <span className="spe-res-title">📊 Итоговая смета AI 2026</span>
+            <h3 className="spe-res-title">Итоговая смета</h3>
             <span className="spe-res-badge">{calculatedEstimate.category}</span>
             {calculatedEstimate.isRealVision && (
               <span className="spe-res-badge" style={{ background: 'rgba(16,185,129,.15)', color: '#6ee7b7', borderColor: 'rgba(16,185,129,.4)' }}>
@@ -1406,13 +1451,14 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
           {/* 3 Price Scenarios Tabs — BUG-1 FIX: пересчёт вместо умножения */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', margin: '14px 0 16px' }}>
             {[
-              { key: 'economy', label: '🟢 Эконом (-20%)', color: '#10b981', activeBg: 'rgba(16,185,129,0.2)', activeBorder: '#10b981', activeText: '#6ee7b7' },
-              { key: 'standard', label: '🔵 Стандарт (СНиП)', color: '#38bdf8', activeBg: 'rgba(56,189,248,0.2)', activeBorder: '#38bdf8', activeText: '#38bdf8' },
-              { key: 'premium', label: '🟣 Премиум (+35%)', color: '#a855f7', activeBg: 'rgba(168,85,247,0.2)', activeBorder: '#a855f7', activeText: '#c084fc' },
+              { key: 'economy', label: 'Эконом, −20%', color: '#10b981', activeBg: 'rgba(16,185,129,0.2)', activeBorder: '#10b981', activeText: '#6ee7b7' },
+              { key: 'standard', label: 'Стандарт по СНиП', color: '#38bdf8', activeBg: 'rgba(56,189,248,0.2)', activeBorder: '#38bdf8', activeText: '#38bdf8' },
+              { key: 'premium', label: 'Премиум, +35%', color: '#a855f7', activeBg: 'rgba(168,85,247,0.2)', activeBorder: '#a855f7', activeText: '#c084fc' },
             ].map(sc => (
               <button
                 key={sc.key}
                 type="button"
+                aria-pressed={selectedScenario === sc.key}
                 onClick={() => recalculateScenario(sc.key)}
                 style={{
                   background: selectedScenario === sc.key ? sc.activeBg : 'rgba(255,255,255,0.03)',
@@ -1423,16 +1469,17 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
                 }}
               >
                 <div style={{ fontSize: '0.78rem', fontWeight: 700 }}>{sc.label}</div>
-                <div style={{ fontSize: '0.95rem', fontWeight: 900, color: '#fff', marginTop: '2px' }}>
-                  {calculatedEstimate.total?.toLocaleString()} ₸
+                {/* Раньше все три кнопки показывали одну и ту же сумму текущего сценария */}
+                <div style={{ fontSize: '0.95rem', fontWeight: 800, color: selectedScenario === sc.key ? '#fff' : '#94a3b8', marginTop: '2px' }}>
+                  {selectedScenario === sc.key ? `${calculatedEstimate.total?.toLocaleString('ru-RU')} ₸` : 'Пересчитать'}
                 </div>
               </button>
             ))}
           </div>
 
           {calculatedEstimate.total > 0 && (
-            <div className="spe-res-sum">
-              {calculatedEstimate.total.toLocaleString()} ₸
+            <div className="spe-res-sum qg-price-tag">
+              {calculatedEstimate.total.toLocaleString('ru-RU')} ₸
             </div>
           )}
 
@@ -1440,14 +1487,14 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
             {calculatedEstimate.worksCost > 0 && (
               <div className="spe-res-col">
                 <span className="label">Строительно-монтажные работы (СМР):</span>
-                <strong>{calculatedEstimate.worksCost.toLocaleString()} ₸</strong>
+                <strong>{calculatedEstimate.worksCost.toLocaleString('ru-RU')} ₸</strong>
               </div>
             )}
 
             {calculatedEstimate.materialsCost > 0 && (
               <div className="spe-res-col">
                 <span className="label">Материалы и ресурсы (BOM):</span>
-                <strong>{calculatedEstimate.materialsCost.toLocaleString()} ₸</strong>
+                <strong>{calculatedEstimate.materialsCost.toLocaleString('ru-RU')} ₸</strong>
               </div>
             )}
 
@@ -1459,7 +1506,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
             {calculatedEstimate.pricePerM2 > 0 && (
               <div className="spe-res-col">
                 <span className="label">Стоимость за 1 м²:</span>
-                <strong style={{ color: '#38bdf8' }}>{calculatedEstimate.pricePerM2?.toLocaleString()} ₸/м²</strong>
+                <strong style={{ color: '#38bdf8' }}>{calculatedEstimate.pricePerM2?.toLocaleString('ru-RU')} ₸/м²</strong>
               </div>
             )}
           </div>
@@ -1479,11 +1526,11 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
               <div style={{ flex: 1 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '.82rem', marginBottom: '4px' }}>
                   <span style={{ color: '#10b981' }}>● Работы: {calculatedEstimate.worksPercent}%</span>
-                  <span style={{ color: '#10b981', fontWeight: 700 }}>{calculatedEstimate.worksCost?.toLocaleString()} ₸</span>
+                  <span style={{ color: '#10b981', fontWeight: 700 }}>{calculatedEstimate.worksCost?.toLocaleString('ru-RU')} ₸</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '.82rem' }}>
                   <span style={{ color: '#f59e0b' }}>● Материалы: {calculatedEstimate.materialsPercent}%</span>
-                  <span style={{ color: '#f59e0b', fontWeight: 700 }}>{calculatedEstimate.materialsCost?.toLocaleString()} ₸</span>
+                  <span style={{ color: '#f59e0b', fontWeight: 700 }}>{calculatedEstimate.materialsCost?.toLocaleString('ru-RU')} ₸</span>
                 </div>
               </div>
             </div>
@@ -1514,7 +1561,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
             >
               🛒 Купить материалы в маркетплейсе ({calculatedEstimate.marketplaceMaterials.length} поз.)
               <span style={{ fontSize: '0.8rem', opacity: 0.8 }}>
-                ~{calculatedEstimate.materialsCost?.toLocaleString()} ₸
+                ~{calculatedEstimate.materialsCost?.toLocaleString('ru-RU')} ₸
               </span>
             </button>
           )}
@@ -1592,10 +1639,10 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
                             </td>
                             <td style={{ padding: '7px 6px', color: '#64748b', textAlign: 'center' }}>{item.unit || 'ед.'}</td>
                             <td style={{ padding: '7px 6px', color: '#94a3b8', textAlign: 'right', whiteSpace: 'nowrap' }}>
-                              {unitPrice > 0 ? `${unitPrice.toLocaleString()} ₸` : '—'}
+                              {unitPrice > 0 ? `${unitPrice.toLocaleString('ru-RU')} ₸` : '—'}
                             </td>
                             <td style={{ padding: '7px 6px', color: item.group === 'Итого' || item.group === 'ИТОГО' ? '#f59e0b' : '#fbbf24', fontWeight: item.group === 'Итого' || item.group === 'ИТОГО' ? 900 : 700, textAlign: 'right', whiteSpace: 'nowrap' }}>
-                              {total.toLocaleString()} ₸
+                              {total.toLocaleString('ru-RU')} ₸
                             </td>
                           </tr>
                         );
@@ -1608,7 +1655,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
                     <tr style={{ borderTop: '2px solid rgba(56,189,248,0.3)', background: 'rgba(56,189,248,0.06)' }}>
                       <td colSpan={4} style={{ padding: '10px 8px', fontWeight: 900, fontSize: '.9rem', color: '#38bdf8' }}>ИТОГО:</td>
                       <td style={{ padding: '10px 8px', fontWeight: 900, fontSize: '1rem', color: '#fff', textAlign: 'right' }}>
-                        {calculatedEstimate.total?.toLocaleString()} ₸
+                        {calculatedEstimate.total?.toLocaleString('ru-RU')} ₸
                       </td>
                     </tr>
                   </tfoot>
@@ -1668,8 +1715,8 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
                       title: `СМР по смете (${scenarioName}): ${calculatedEstimate.category || 'Комплексный ремонт'}`,
                       category: calculatedEstimate.category || 'Отделочные работы',
                       amount: finalAmount,
-                      budget: `${finalAmount.toLocaleString()} ₸`,
-                      description: `Смета сформирована AI [${scenarioName}]. Работы: ${(calculatedEstimate.worksCost || 0).toLocaleString()} ₸, Материалы: ${(calculatedEstimate.materialsCost || 0).toLocaleString()} ₸, Срок: ~${calculatedEstimate.timelineDays || 7} дн.`,
+                      budget: `${finalAmount.toLocaleString('ru-RU')} ₸`,
+                      description: `Смета сформирована AI [${scenarioName}]. Работы: ${(calculatedEstimate.worksCost || 0).toLocaleString('ru-RU')} ₸, Материалы: ${(calculatedEstimate.materialsCost || 0).toLocaleString('ru-RU')} ₸, Срок: ~${calculatedEstimate.timelineDays || 7} дн.`,
                       type: 'estimate',
                       status: 'new',
                       estimateData: { ...calculatedEstimate, finalAmount, scenario: scenarioName }
@@ -1686,36 +1733,37 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
                   onClick={() => {
                     // BUG-4 FIX: CSV — skip isSection, no scMult
                     const scenarioName = calculatedEstimate.scenarioLabel || 'Стандарт';
+                    // Все ячейки экранируются (кавычки, «;», переводы строк, защита от формул =+-@); BOM для Excel
+                    const row = (...cells) => cells.map(csvCell).join(';');
                     const lines = [
-                      '\ufeff',
-                      `СМЕТА (${scenarioName}) — QazGost AI Engine`,
-                      `Категория: ${calculatedEstimate.category}`,
-                      `Регион: ${calculatedEstimate.region || 'Алматы'}`,
-                      `Площадь: ${calculatedEstimate.area || '—'} м²`,
-                      `Дата: ${new Date().toLocaleDateString('ru-RU')}`,
+                      row(`СМЕТА (${scenarioName}) — QazGost AI Engine`),
+                      row('Категория', calculatedEstimate.category || ''),
+                      row('Регион', calculatedEstimate.region || 'Алматы'),
+                      row('Площадь, м²', calculatedEstimate.area || '—'),
+                      row('Дата', new Date().toLocaleDateString('ru-RU')),
                       '',
-                      '№;Наименование;Объём;Ед.;Цена за ед.;Сумма',
+                      row('№', 'Наименование', 'Объём', 'Ед.', 'Цена за ед.', 'Сумма'),
                     ];
                     let idx = 0;
                     (calculatedEstimate.items || []).forEach((item) => {
                       if (item.isSection) {
-                        lines.push(`;;${item.name.replace(/═/g, '').trim()};;;`);
+                        lines.push(row('', String(item.name || '').replace(/═/g, '').trim(), '', '', '', ''));
                         return;
                       }
                       idx++;
                       const qty = item.volume || item.quantity || 1;
                       const up = item.unit_price || item.unitPrice || 0;
                       const tot = item.total || Math.round(qty * up);
-                      lines.push(`${idx};${item.name};${qty};${item.unit || 'ед.'};${up};${tot}`);
+                      lines.push(row(idx, item.name, qty, item.unit || 'ед.', up, tot));
                     });
                     lines.push('');
-                    lines.push(`;;;;;;ИТОГО СМР: ${(calculatedEstimate.worksCost || 0).toLocaleString()} ₸`);
-                    lines.push(`;;;;;;ИТОГО Материалы: ${(calculatedEstimate.materialsCost || 0).toLocaleString()} ₸`);
-                    lines.push(`;;;;;;ВСЕГО: ${(calculatedEstimate.total || 0).toLocaleString()} ₸`);
-                    lines.push(`;;;;;;Стоимость за м²: ${(calculatedEstimate.pricePerM2 || 0).toLocaleString()} ₸`);
-                    lines.push(`;;;;;;Срок: ~${calculatedEstimate.timelineDays || 7} дней`);
+                    lines.push(row('', 'ИТОГО СМР', '', '', '', calculatedEstimate.worksCost || 0));
+                    lines.push(row('', 'ИТОГО Материалы', '', '', '', calculatedEstimate.materialsCost || 0));
+                    lines.push(row('', 'ВСЕГО', '', '', '', calculatedEstimate.total || 0));
+                    lines.push(row('', 'Стоимость за м²', '', '', '', calculatedEstimate.pricePerM2 || 0));
+                    lines.push(row('', 'Срок, дней', '', '', '', calculatedEstimate.timelineDays || 7));
 
-                    const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8' });
+                    const blob = new Blob(['\ufeff' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = url;
@@ -1736,9 +1784,9 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
                       `Строительная смета QazGost AI\n` +
                       `Категория: ${calculatedEstimate.category}\n` +
                       `Сценарий: ${scenarioName}\n` +
-                      `Работы: ${(calculatedEstimate.worksCost || 0).toLocaleString()} ₸\n` +
-                      `Материалы: ${(calculatedEstimate.materialsCost || 0).toLocaleString()} ₸\n` +
-                      `ИТОГО: ${(calculatedEstimate.total || 0).toLocaleString()} ₸\n` +
+                      `Работы: ${(calculatedEstimate.worksCost || 0).toLocaleString('ru-RU')} ₸\n` +
+                      `Материалы: ${(calculatedEstimate.materialsCost || 0).toLocaleString('ru-RU')} ₸\n` +
+                      `ИТОГО: ${(calculatedEstimate.total || 0).toLocaleString('ru-RU')} ₸\n` +
                       `Срок: ~${calculatedEstimate.timelineDays || 7} дней`
                     )}`, '_blank');
                   }}
@@ -1936,7 +1984,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
                   {h.itemCount > 0 && ` • ${h.itemCount} поз.`}
                 </div>
               </div>
-              <div className="spe-history-total">{(h.total || 0).toLocaleString()} ₸</div>
+              <div className="spe-history-total">{(h.total || 0).toLocaleString('ru-RU')} ₸</div>
             </div>
           ))}
         </div>

@@ -1,564 +1,219 @@
-import React, { useState, useRef } from 'react';
-import { 
-  X, Phone, Navigation, MapPin, CheckCircle, Clock, 
-  Camera, Plus, Trash2, Save, Send, Truck, Layers, 
-  FileText, CheckSquare, Square, AlertCircle, ChevronRight
-} from 'lucide-react';
-import { STATUS_CONFIG, STAGE_CONFIG } from '../api/executorApi';
+import React, { useState, useRef, useEffect } from 'react';
+import { X, Phone, Navigation, MapPin, UserRound, Camera, Truck, Package } from 'lucide-react';
+import { STATUS_CONFIG, defaultStages } from '../api/executorApi';
+import { compressImage } from '../utils/image';
+import { Status, StepProgress, EmptyState, statusTone } from './ui/kit';
+import StageChecklist from './StageChecklist';
+import MachineryForm from './MachineryForm';
 
-export default function WorkOrderDetailModal({ 
-  order, 
-  onClose, 
-  onUpdateStatus, 
-  onToggleStage, 
-  onAddPhoto, 
-  onRequestMachinery 
-}) {
-  const [activeSubTab, setActiveSubTab] = useState('stages'); // 'stages' | 'photos' | 'materials' | 'machinery'
-  const [stageNotesInput, setStageNotesInput] = useState({});
+const PHOTO_TAGS = ['Скрытые работы', 'Котлован', 'Монтаж ЖБИ', 'Сдача'];
+const MACH_STATUS = { ordered: 'заказана', confirmed: 'подтверждена', completed: 'отработала', cancelled: 'отменена' };
+
+export default function WorkOrderDetailModal({ order, onClose, onUpdateStatus, onToggleStage, onAddPhoto, onRequestMachinery }) {
+  const [tab, setTab] = useState('stages'); // stages | photos | materials | machinery | status
   const [selectedStatus, setSelectedStatus] = useState(order.status || 'В работе');
-  const [customComment, setCustomComment] = useState('');
-
-  // Photo state
-  const [photoTag, setPhotoTag] = useState('Скрытые работы');
+  const [comment, setComment] = useState('');
+  const [photoTag, setPhotoTag] = useState(PHOTO_TAGS[0]);
+  const [photoBusy, setPhotoBusy] = useState(false);
+  const [photoError, setPhotoError] = useState(null);
   const fileInputRef = useRef(null);
 
-  // Machinery state
-  const [machType, setMachType] = useState('Манипулятор 10т');
-  const [machDate, setMachDate] = useState(new Date().toISOString().split('T')[0]);
-  const [machTime, setMachTime] = useState('10:00');
-  const [machNote, setMachNote] = useState('');
+  const stages = order.stages && order.stages.length ? order.stages : defaultStages();
+  const phone = String(order.phone || '');
+  const tel = phone.replace(/[^\d+]/g, '');
+  const photos = order.photos || [];
+  const machinery = order.machinery || [];
+  const materials = order.materials || [];
 
-  const stages = order.stages || STAGE_CONFIG.map(s => ({ id: s.id, title: s.title, done: false, time: null, note: '' }));
-  const completedCount = stages.filter(s => s.done).length;
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose]);
 
-  const handleToggleStage = (stageId, currentDone) => {
-    const note = stageNotesInput[stageId] || '';
-    onToggleStage(order.id, stageId, !currentDone, note);
-  };
-
-  const handlePhotoUpload = (e) => {
+  const handlePhotoUpload = async (e) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const newPhoto = {
-          id: `photo_${Date.now()}`,
-          url: event.target?.result,
-          tag: photoTag,
-          caption: `${photoTag} (${new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })})`,
-          time: new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })
-        };
-        onAddPhoto(order.id, newPhoto);
-      };
-      reader.readAsDataURL(file);
+    if (e.target) e.target.value = '';
+    if (!file) return;
+    setPhotoBusy(true);
+    setPhotoError(null);
+    try {
+      // compress (~1280px, JPEG 0.7) before storing on the phone / uploading
+      const { dataUrl, blob } = await compressImage(file, 1280, 0.7);
+      const time = new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+      await onAddPhoto(order.id, { id: `photo_${Date.now()}`, url: dataUrl, blob, tag: photoTag, caption: `${photoTag} (${time})`, time });
+    } catch (err) {
+      setPhotoError('Не удалось сохранить фото: ' + (err.message || 'ошибка'));
+    } finally {
+      setPhotoBusy(false);
     }
   };
 
-  const handleSendMachineryRequest = () => {
-    onRequestMachinery(order.id, machType, machDate, machTime, machNote);
-    setMachNote('');
-    alert(`Заявка на ${machType} оформлена на ${machDate} в ${machTime}!`);
-  };
-
-  const handleApplyStatusChange = () => {
-    onUpdateStatus(order.id, selectedStatus, customComment || `Статус изменен на "${selectedStatus}"`);
+  const applyStatus = () => {
+    onUpdateStatus(order.id, selectedStatus, comment.trim() || `Статус изменён на «${selectedStatus}»`);
     onClose();
   };
 
+  const TABS = [
+    ['stages', `Этапы ${stages.filter(s => s.done).length}/${stages.length}`],
+    ['photos', `Фото ${photos.length || ''}`.trim()],
+    ['machinery', 'Техника'],
+    ['materials', 'Материалы'],
+    ['status', 'Статус']
+  ];
+
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      background: 'rgba(5, 8, 16, 0.95)',
-      backdropFilter: 'blur(16px)',
-      zIndex: 100,
-      display: 'flex',
-      flexDirection: 'column',
-      maxWidth: '480px',
-      margin: '0 auto',
-      animation: 'fadeIn 0.2s ease-out'
-    }}>
-      {/* Modal Top Header */}
-      <div style={{
-        padding: 'calc(14px + var(--safe-top)) 16px 12px',
-        background: 'rgba(13, 21, 39, 0.98)',
-        borderBottom: '1px solid rgba(0, 229, 255, 0.15)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between'
-      }}>
-        <div>
-          <span style={{ fontSize: '0.72rem', color: '#00e5ff', fontWeight: 900 }}>
-            НАРЯД #{order.leadNum || order.id}
-          </span>
-          <h2 style={{
-            fontSize: '1.05rem',
-            fontWeight: 800,
-            color: '#ffffff',
-            margin: '2px 0 0',
-            maxWidth: '320px',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap'
-          }}>
-            {order.title}
-          </h2>
+    <div className="qz-scrim" onClick={onClose}>
+      <div className="qz-sheet" role="dialog" aria-modal="true" aria-labelledby="order-title" onClick={(e) => e.stopPropagation()} style={{ height: 'calc(100dvh - var(--safe-top) - 24px)' }}>
+        <div className="qz-sheet-head">
+          <div className="qz-grow">
+            <div className="qz-row" style={{ gap: 8, marginBottom: 6, flexWrap: 'wrap' }}>
+              <Status status={order.status} />
+              {order.leadNum && <span className="qz-ticket-no">№ {order.leadNum}</span>}
+              {order._dirty && <span className="qz-tag is-warn">Не отправлено</span>}
+            </div>
+            <h2 id="order-title" className="qz-h2" style={{ fontSize: 'var(--fs-xl)' }}>{order.title}</h2>
+            <div className="qz-small qz-muted" style={{ marginTop: 6, display: 'grid', gap: 2 }}>
+              {order.client && <span className="qz-row" style={{ gap: 6 }}><UserRound size={14} />{order.client}</span>}
+              {order.location && <span className="qz-row" style={{ gap: 6 }}><MapPin size={14} />{order.location}</span>}
+            </div>
+          </div>
+          <button type="button" className="qz-iconbtn" aria-label="Закрыть" onClick={onClose}><X size={22} /></button>
         </div>
 
-        <button
-          onClick={onClose}
-          style={{
-            width: '36px',
-            height: '36px',
-            borderRadius: '50%',
-            background: 'rgba(255, 255, 255, 0.08)',
-            border: 'none',
-            color: '#ffffff',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer'
-          }}
-        >
-          <X size={20} />
-        </button>
-      </div>
-
-      {/* Sub Tabs: Этапы | Фотоотчёт | Материалы | Техника */}
-      <div style={{
-        display: 'flex',
-        background: 'rgba(10, 16, 31, 0.98)',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-        padding: '4px 10px'
-      }}>
-        {[
-          { id: 'stages', label: `Этапы (${completedCount}/7)` },
-          { id: 'photos', label: `Фото (${(order.photos || []).length})` },
-          { id: 'materials', label: `Материалы` },
-          { id: 'machinery', label: `Техника` }
-        ].map(tab => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveSubTab(tab.id)}
-            style={{
-              flex: 1,
-              padding: '10px 4px',
-              background: 'none',
-              border: 'none',
-              borderBottom: activeSubTab === tab.id ? '2px solid #00e5ff' : '2px solid transparent',
-              color: activeSubTab === tab.id ? '#00e5ff' : '#94a3b8',
-              fontSize: '0.78rem',
-              fontWeight: activeSubTab === tab.id ? 800 : 600,
-              cursor: 'pointer',
-              whiteSpace: 'nowrap'
-            }}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Content Body */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '16px' }}>
-        {/* TAB 1: STAGES CHECKLIST */}
-        {activeSubTab === 'stages' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            <div style={{
-              background: 'rgba(0, 229, 255, 0.08)',
-              border: '1px solid rgba(0, 229, 255, 0.2)',
-              borderRadius: '14px',
-              padding: '12px 14px',
-              marginBottom: '6px'
-            }}>
-              <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#ffffff', marginBottom: '2px' }}>
-                Пошаговый чек-лист монтажа
-              </div>
-              <p style={{ fontSize: '0.72rem', color: '#94a3b8', margin: 0 }}>
-                Отмечайте выполненные этапы. Время фиксируется в акте на сервере.
-              </p>
+        <div style={{ padding: 'var(--sp-3) var(--sp-4)', borderBottom: '1px solid var(--line)', display: 'grid', gap: 'var(--sp-3)' }}>
+          <StepProgress stages={stages} />
+          {(tel || order.location) && (
+            <div className="qz-row" style={{ gap: 8 }}>
+              {tel && <a className="qz-btn is-ok is-sm qz-grow" href={`tel:${tel}`}><Phone size={16} /> Позвонить</a>}
+              {order.location && (
+                <button type="button" className="qz-btn is-sm qz-grow" onClick={() => window.open(`https://2gis.kz/search/${encodeURIComponent(order.location)}`, '_blank')}>
+                  <Navigation size={16} /> Маршрут
+                </button>
+              )}
             </div>
+          )}
+        </div>
 
-            {stages.map((stage, idx) => (
-              <div
-                key={stage.id}
-                style={{
-                  background: stage.done ? 'rgba(16, 185, 129, 0.1)' : 'rgba(13, 21, 39, 0.85)',
-                  border: stage.done ? '1px solid rgba(16, 185, 129, 0.35)' : '1px solid rgba(255, 255, 255, 0.08)',
-                  borderRadius: '14px',
-                  padding: '12px',
-                  transition: 'all 0.15s ease'
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
-                  <button
-                    onClick={() => handleToggleStage(stage.id, stage.done)}
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      padding: 0,
-                      cursor: 'pointer',
-                      marginTop: '2px'
-                    }}
-                  >
-                    {stage.done ? (
-                      <CheckCircle size={22} color="#10b981" />
-                    ) : (
-                      <Square size={22} color="#64748b" />
-                    )}
-                  </button>
+        <div className="qz-sheet-tabs" role="tablist" aria-label="Разделы наряда">
+          {TABS.map(([id, label]) => (
+            <button key={id} type="button" role="tab" aria-selected={tab === id} onClick={() => setTab(id)}>{label}</button>
+          ))}
+        </div>
 
-                  <div style={{ flex: 1 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{
-                        fontSize: '0.88rem',
-                        fontWeight: 800,
-                        color: stage.done ? '#ffffff' : '#f1f5f9',
-                        textDecoration: stage.done ? 'line-through' : 'none'
-                      }}>
-                        {idx + 1}. {stage.title}
-                      </span>
-                      {stage.time && (
-                        <span style={{ fontSize: '0.7rem', color: '#10b981', fontWeight: 700 }}>
-                          ✓ {stage.time}
-                        </span>
-                      )}
-                    </div>
+        <div className="qz-sheet-body">
+          {tab === 'stages' && (
+            <>
+              <p className="qz-small qz-muted" style={{ marginBottom: 'var(--sp-3)' }}>Отмечайте этапы по мере выполнения. Отметка с временем уходит менеджеру.</p>
+              <StageChecklist order={order} onToggleStage={onToggleStage} withNotes />
+            </>
+          )}
 
-                    {stage.note && (
-                      <div style={{ fontSize: '0.74rem', color: '#00e5ff', marginTop: '4px', fontStyle: 'italic' }}>
-                        Примечание: {stage.note}
-                      </div>
-                    )}
-
-                    {!stage.done && (
-                      <div style={{ marginTop: '8px', display: 'flex', gap: '6px' }}>
-                        <input
-                          type="text"
-                          placeholder="Заметка к этапу (глубина, уклон...)"
-                          value={stageNotesInput[stage.id] || ''}
-                          onChange={(e) => setStageNotesInput({ ...stageNotesInput, [stage.id]: e.target.value })}
-                          style={{
-                            flex: 1,
-                            background: 'rgba(255, 255, 255, 0.05)',
-                            border: '1px solid rgba(255, 255, 255, 0.1)',
-                            borderRadius: '8px',
-                            padding: '6px 8px',
-                            color: '#ffffff',
-                            fontSize: '0.74rem',
-                            outline: 'none'
-                          }}
-                        />
-                        <button
-                          onClick={() => handleToggleStage(stage.id, false)}
-                          style={{
-                            background: 'linear-gradient(135deg, #00e5ff 0%, #0284c7 100%)',
-                            border: 'none',
-                            borderRadius: '8px',
-                            padding: '6px 12px',
-                            color: '#060b17',
-                            fontSize: '0.72rem',
-                            fontWeight: 800,
-                            cursor: 'pointer'
-                          }}
-                        >
-                          Сдать этап
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* TAB 2: PHOTOS */}
-        {activeSubTab === 'photos' && (
-          <div>
-            <div style={{
-              background: 'rgba(13, 21, 39, 0.85)',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
-              borderRadius: '16px',
-              padding: '16px',
-              marginBottom: '16px'
-            }}>
-              <h4 style={{ fontSize: '0.9rem', fontWeight: 800, color: '#ffffff', margin: '0 0 10px' }}>
-                Фотофиксация и скрытые работы
-              </h4>
-
-              <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
-                {['Скрытые работы', 'Котлован', 'Монтаж ЖБИ', 'Сдача'].map(tag => (
-                  <button
-                    key={tag}
-                    onClick={() => setPhotoTag(tag)}
-                    style={{
-                      background: photoTag === tag ? '#00e5ff' : 'rgba(255, 255, 255, 0.05)',
-                      color: photoTag === tag ? '#060b17' : '#94a3b8',
-                      border: 'none',
-                      borderRadius: '8px',
-                      padding: '6px 10px',
-                      fontSize: '0.72rem',
-                      fontWeight: 800,
-                      cursor: 'pointer'
-                    }}
-                  >
-                    {tag}
-                  </button>
+          {tab === 'photos' && (
+            <>
+              <input ref={fileInputRef} type="file" accept="image/*" capture="environment" onChange={handlePhotoUpload} style={{ display: 'none' }} />
+              <div className="qz-label">Что на фото</div>
+              <div className="qz-chips" style={{ marginTop: 6 }}>
+                {PHOTO_TAGS.map(t => (
+                  <button key={t} type="button" className={`qz-chip${photoTag === t ? ' is-active' : ''}`} onClick={() => setPhotoTag(t)}>{t}</button>
                 ))}
               </div>
-
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                capture="environment"
-                onChange={handlePhotoUpload}
-                style={{ display: 'none' }}
-              />
-
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                className="exec-glow-btn"
-                style={{ width: '100%', padding: '12px', fontSize: '0.88rem' }}
-              >
-                <Camera size={18} />
-                <span>Сделать снимок / Загрузить фото</span>
+              <button type="button" className="qz-btn is-primary is-block" onClick={() => fileInputRef.current?.click()} disabled={photoBusy}>
+                <Camera size={18} /> {photoBusy ? 'Сохраняем фото…' : 'Сфотографировать'}
               </button>
-            </div>
+              {photoError && <div className="qz-small" role="alert" style={{ color: 'var(--danger)', marginTop: 8 }}>{photoError}</div>}
+              {photos.length === 0 ? (
+                <EmptyState icon={<Camera size={28} />} title="Фото пока нет" text="Снимите скрытые работы до засыпки: это главный аргумент при приёмке." />
+              ) : (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 8, marginTop: 'var(--sp-3)' }}>
+                  {photos.map((p, i) => (
+                    <figure key={p.id || i} className="qz-card" style={{ margin: 0, padding: 0, overflow: 'hidden' }}>
+                      {(p.url || p.serverUrl)
+                        ? <img src={p.url || p.serverUrl} alt={p.tag || 'Фото работ'} loading="lazy" style={{ display: 'block', width: '100%', aspectRatio: '4 / 3', objectFit: 'cover' }} />
+                        : <div style={{ aspectRatio: '4 / 3', display: 'grid', placeItems: 'center', color: 'var(--text-3)' }}><Camera size={24} /></div>}
+                      <figcaption style={{ padding: '6px 8px' }}>
+                        <div className="qz-small" style={{ fontWeight: 600 }}>{p.tag || 'Фото'}</div>
+                        <div className="qz-xs qz-faint">{p.time || ''}{p.localOnly ? ', только на телефоне' : (p.serverUrl ? ', на сервере' : '')}</div>
+                      </figcaption>
+                    </figure>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
 
-            {/* Photos Grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px' }}>
-              {(order.photos || []).map((p, idx) => (
-                <div
-                  key={idx}
-                  style={{
-                    background: 'rgba(13, 21, 39, 0.9)',
-                    border: '1px solid rgba(255, 255, 255, 0.08)',
-                    borderRadius: '12px',
-                    overflow: 'hidden'
-                  }}
-                >
-                  {p.url ? (
-                    <img src={p.url} alt="" style={{ width: '100%', height: '110px', objectFit: 'cover' }} />
-                  ) : (
-                    <div style={{ height: '110px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0, 229, 255, 0.08)', color: '#00e5ff' }}>
-                      📷 Фото #{idx + 1}
+          {tab === 'machinery' && (
+            <>
+              <MachineryForm orderId={order.id} onSubmit={onRequestMachinery} />
+              <div className="qz-section-head" style={{ marginTop: 'var(--sp-6)' }}>
+                <h3 className="qz-h3">Заявки по объекту</h3>
+                <span className="qz-xs qz-faint num">{machinery.length}</span>
+              </div>
+              {machinery.length === 0 ? (
+                <div className="qz-small qz-faint">Заявок на технику ещё не было.</div>
+              ) : (
+                <div style={{ display: 'grid', gap: 8 }}>
+                  {machinery.map((m, i) => (
+                    <div key={m.id || i} className="qz-card" style={{ padding: 'var(--sp-3)', display: 'flex', gap: 10, alignItems: 'center' }}>
+                      <Truck size={20} className="qz-faint" style={{ flexShrink: 0 }} />
+                      <div className="qz-grow">
+                        <div className="qz-h3">{m.type}</div>
+                        <div className="qz-xs qz-faint num">{m.date} в {m.time}{m.comment ? `, ${m.comment}` : ''}</div>
+                      </div>
+                      <span className={`qz-status is-st-${m.status === 'completed' ? 'done' : (m.status === 'cancelled' ? 'lost' : 'progress')}`}>{MACH_STATUS[m.status] || m.status}</span>
                     </div>
-                  )}
-                  <div style={{ padding: '8px' }}>
-                    <div style={{ fontSize: '0.74rem', fontWeight: 800, color: '#ffffff' }}>
-                      {p.tag || 'СМР'}
-                    </div>
-                    <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>
-                      {p.caption || p.time}
-                    </div>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+
+          {tab === 'materials' && (
+            materials.length === 0 ? (
+              <EmptyState icon={<Package size={28} />} title="Список материалов не заполнен" text="Нужное можно найти и добавить в разделе «Снабжение»." />
+            ) : (
+              <div style={{ display: 'grid', gap: 8 }}>
+                {materials.map((m, i) => (
+                  <div key={i} className="qz-card" style={{ padding: 'var(--sp-3)', display: 'flex', justifyContent: 'space-between', gap: 10 }}>
+                    <span className="qz-grow">{m.name}</span>
+                    <span className="num qz-muted">{m.qty} {m.unit}</span>
+                    <span className={`qz-status is-st-${m.status === 'delivered' ? 'done' : 'attention'}`}>{m.status === 'delivered' ? 'на объекте' : 'ждём'}</span>
                   </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* TAB 3: MATERIALS */}
-        {activeSubTab === 'materials' && (
-          <div>
-            <div style={{ fontSize: '0.84rem', fontWeight: 800, color: '#ffffff', marginBottom: '10px' }}>
-              Материалы под объект
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {(order.materials || []).map((m, idx) => (
-                <div
-                  key={idx}
-                  style={{
-                    background: 'rgba(13, 21, 39, 0.85)',
-                    border: '1px solid rgba(255, 255, 255, 0.08)',
-                    borderRadius: '12px',
-                    padding: '10px 14px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between'
-                  }}
-                >
-                  <div>
-                    <div style={{ fontSize: '0.84rem', fontWeight: 700, color: '#ffffff' }}>
-                      {m.name}
-                    </div>
-                    <div style={{ fontSize: '0.72rem', color: '#94a3b8' }}>
-                      Количество: {m.qty} {m.unit}
-                    </div>
-                  </div>
-
-                  <span style={{
-                    fontSize: '0.7rem',
-                    fontWeight: 800,
-                    padding: '3px 8px',
-                    borderRadius: '6px',
-                    background: m.status === 'delivered' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(245, 158, 11, 0.15)',
-                    color: m.status === 'delivered' ? '#10b981' : '#f59e0b'
-                  }}>
-                    {m.status === 'delivered' ? '✓ Доставлено' : '⏳ В доставке'}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* TAB 4: MACHINERY */}
-        {activeSubTab === 'machinery' && (
-          <div>
-            {/* Request Form */}
-            <div style={{
-              background: 'rgba(13, 21, 39, 0.85)',
-              border: '1px solid rgba(0, 229, 255, 0.2)',
-              borderRadius: '16px',
-              padding: '16px',
-              marginBottom: '16px'
-            }}>
-              <h4 style={{ fontSize: '0.92rem', fontWeight: 800, color: '#ffffff', margin: '0 0 12px' }}>
-                Заказать спецтехнику на объект
-              </h4>
-
-              <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'block', fontSize: '0.72rem', color: '#94a3b8', marginBottom: '4px' }}>Тип техники:</label>
-                <select
-                  value={machType}
-                  onChange={(e) => setMachType(e.target.value)}
-                  style={{
-                    width: '100%',
-                    background: 'rgba(255, 255, 255, 0.05)',
-                    border: '1px solid rgba(255, 255, 255, 0.12)',
-                    borderRadius: '8px',
-                    padding: '8px',
-                    color: '#ffffff',
-                    fontSize: '0.82rem'
-                  }}
-                >
-                  <option value="Манипулятор 10т">Манипулятор 10т (подача колец)</option>
-                  <option value="Экскаватор колесный">Экскаватор колесный (копка котлована)</option>
-                  <option value="Мини-экскаватор 3т">Мини-экскаватор 3т (стесненные условия)</option>
-                  <option value="Самосвал 20т">Самосвал 20т (вывоз грунта / доставка щебня)</option>
-                  <option value="Ассенизатор 10м³">Ассенизатор 10м³ (откачка старой ямы)</option>
-                </select>
+                ))}
               </div>
+            )
+          )}
 
-              <div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
-                <div style={{ flex: 1 }}>
-                  <label style={{ display: 'block', fontSize: '0.72rem', color: '#94a3b8', marginBottom: '4px' }}>Дата:</label>
-                  <input
-                    type="date"
-                    value={machDate}
-                    onChange={(e) => setMachDate(e.target.value)}
-                    style={{ width: '100%', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.12)', borderRadius: '8px', padding: '8px', color: '#00e5ff', fontSize: '0.8rem' }}
-                  />
-                </div>
-                <div style={{ flex: 1 }}>
-                  <label style={{ display: 'block', fontSize: '0.72rem', color: '#94a3b8', marginBottom: '4px' }}>Время подачи:</label>
-                  <input
-                    type="time"
-                    value={machTime}
-                    onChange={(e) => setMachTime(e.target.value)}
-                    style={{ width: '100%', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.12)', borderRadius: '8px', padding: '8px', color: '#ffffff', fontSize: '0.8rem' }}
-                  />
-                </div>
+          {tab === 'status' && (
+            <>
+              <div role="radiogroup" aria-label="Статус наряда" style={{ display: 'grid', gap: 6 }}>
+                {Object.entries(STATUS_CONFIG).map(([key, cfg]) => {
+                  const on = selectedStatus === key;
+                  return (
+                    <button
+                      key={key}
+                      type="button"
+                      role="radio"
+                      aria-checked={on}
+                      onClick={() => setSelectedStatus(key)}
+                      style={{ minHeight: 48, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 12px', borderRadius: 'var(--r-md)', border: `1px solid ${on ? 'var(--accent-line)' : 'var(--line)'}`, background: on ? 'var(--accent-soft)' : 'var(--surface)', color: 'var(--text)' }}
+                    >
+                      <span className={`qz-status is-st-${statusTone(key)}`} style={{ fontSize: 'var(--fs-md)' }}>{cfg.label}</span>
+                      {order.status === key && <span className="qz-xs qz-faint">сейчас</span>}
+                    </button>
+                  );
+                })}
               </div>
-
-              <div style={{ marginBottom: '14px' }}>
-                <input
-                  type="text"
-                  placeholder="Примечание (заезд со двора, узкие ворота...)"
-                  value={machNote}
-                  onChange={(e) => setMachNote(e.target.value)}
-                  style={{ width: '100%', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.12)', borderRadius: '8px', padding: '8px', color: '#ffffff', fontSize: '0.8rem', outline: 'none' }}
-                />
+              <div className="qz-field" style={{ marginTop: 'var(--sp-3)' }}>
+                <label className="qz-label" htmlFor="status-comment">Комментарий</label>
+                <input id="status-comment" className="qz-input" value={comment} onChange={(e) => setComment(e.target.value)} placeholder="Что сделано, что мешает" />
               </div>
-
-              <button
-                onClick={handleSendMachineryRequest}
-                className="exec-glow-btn"
-                style={{ width: '100%', padding: '10px', fontSize: '0.84rem' }}
-              >
-                <Truck size={16} />
-                <span>Отправить заявку на технику</span>
+              <button type="button" className="qz-btn is-primary is-block" style={{ marginTop: 'var(--sp-3)' }} onClick={applyStatus} disabled={selectedStatus === order.status && !comment.trim()}>
+                Сохранить статус
               </button>
-            </div>
-
-            {/* Existing requests */}
-            <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#ffffff', marginBottom: '8px' }}>
-              История заявок на технику
-            </div>
-            {(order.machinery || []).map((m, idx) => (
-              <div
-                key={idx}
-                style={{
-                  background: 'rgba(13, 21, 39, 0.85)',
-                  border: '1px solid rgba(255, 255, 255, 0.08)',
-                  borderRadius: '12px',
-                  padding: '10px 14px',
-                  marginBottom: '8px',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center'
-                }}
-              >
-                <div>
-                  <div style={{ fontSize: '0.84rem', fontWeight: 800, color: '#00e5ff' }}>
-                    {m.type}
-                  </div>
-                  <div style={{ fontSize: '0.72rem', color: '#94a3b8' }}>
-                    {m.date} в {m.time} {m.comment && `(${m.comment})`}
-                  </div>
-                </div>
-                <span style={{ fontSize: '0.7rem', color: '#10b981', fontWeight: 700 }}>
-                  ✓ Оформлено
-                </span>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Footer Controls: Status switcher & apply */}
-      <div style={{
-        padding: '12px 16px calc(12px + var(--safe-bottom))',
-        background: 'rgba(13, 21, 39, 0.98)',
-        borderTop: '1px solid rgba(255, 255, 255, 0.08)',
-        display: 'flex',
-        gap: '10px',
-        alignItems: 'center'
-      }}>
-        <select
-          value={selectedStatus}
-          onChange={(e) => setSelectedStatus(e.target.value)}
-          style={{
-            flex: 1,
-            background: 'rgba(255, 255, 255, 0.06)',
-            border: '1px solid rgba(0, 229, 255, 0.3)',
-            borderRadius: '12px',
-            padding: '12px 10px',
-            color: '#00e5ff',
-            fontSize: '0.84rem',
-            fontWeight: 800,
-            outline: 'none'
-          }}
-        >
-          <option value="В работе" style={{ background: '#060b17' }}>⚙️ В работе</option>
-          <option value="На объекте" style={{ background: '#060b17' }}>📍 На объекте</option>
-          <option value="Приёмка" style={{ background: '#060b17' }}>🔍 Готов к приёмке</option>
-          <option value="Завершено" style={{ background: '#060b17' }}>✅ Объект сдан</option>
-        </select>
-
-        <button
-          onClick={handleApplyStatusChange}
-          className="exec-glow-btn"
-          style={{ padding: '12px 20px', fontSize: '0.86rem' }}
-        >
-          <span>Сохранить</span>
-        </button>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );

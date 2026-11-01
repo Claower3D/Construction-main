@@ -4,8 +4,8 @@ services:
   # ── Go Backend API ──
   backend:
     build:
-      context: ./go-backend
-      dockerfile: Dockerfile
+      context: .                       # repo root: the image also needs ai-service/app/data/price_db.json
+      dockerfile: go-backend/Dockerfile
     container_name: qazgost-backend
     restart: unless-stopped
     ports:
@@ -14,15 +14,13 @@ services:
       - PORT=8080
       - NODE_ENV=production
       - JWT_SECRET=${JWT_SECRET:-change-me-in-production}
-      - DB_PATH=/app/data/qazgost.db
+      - DATABASE_URL=postgres://qazgost:${POSTGRES_PASSWORD:-qazgost}@postgres:5432/qazgost?sslmode=disable
       - UPLOAD_DIR=/app/uploads
       - FRONTEND_URL=http://localhost:5173
       - OPENAI_API_KEY=${OPENAI_API_KEY:-}
       - AI_SERVICE_URL=http://ai-service:8001
     volumes:
-      - backend-data:/app/data
       - backend-uploads:/app/uploads
-      - ./ai-service/app/data:/app/ai-service/app/data:ro
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health"]
       interval: 30s
@@ -30,8 +28,29 @@ services:
       retries: 3
       start_period: 10s
     depends_on:
+      postgres:
+        condition: service_healthy
       ai-service:
         condition: service_healthy
+    networks:
+      - qazgost-net
+
+  # ── PostgreSQL (the Go backend has no SQLite mode any more) ──
+  postgres:
+    image: postgres:16-alpine
+    container_name: qazgost-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=qazgost
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-qazgost}
+      - POSTGRES_DB=qazgost
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U qazgost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
     networks:
       - qazgost-net
 
@@ -45,8 +64,8 @@ services:
     ports:
       - "5173:5173"
     environment:
-      - VITE_API_URL=http://backend:8080
-      - VITE_AI_SERVICE_URL=http://ai-service:8001
+      - VITE_PROXY_TARGET=http://backend:8080
+      - VITE_AI_PROXY_TARGET=http://ai-service:8001
     depends_on:
       backend:
         condition: service_healthy
@@ -57,7 +76,7 @@ services:
   ai-service:
     build:
       context: ./ai-service
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.cpu
     container_name: qazgost-ai
     restart: unless-stopped
     ports:
@@ -66,10 +85,10 @@ services:
       - PORT=8001
       - OPENAI_API_KEY=${OPENAI_API_KEY:-}
     volumes:
-      - ./ai-service/app/data:/app/data:ro
-      - ai-models:/app/models
+      - ./ai-service/app/data:/app/app/data
+      - ./ai-service/models:/app/models:ro   # defect_yolov8s_best.pt (trained defect detector)
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8001/health')"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8001/api/v1/health')"]
       interval: 30s
       timeout: 5s
       retries: 3
@@ -78,11 +97,9 @@ services:
       - qazgost-net
 
 volumes:
-  backend-data:
+  pg-data:
     driver: local
   backend-uploads:
-    driver: local
-  ai-models:
     driver: local
 
 networks:

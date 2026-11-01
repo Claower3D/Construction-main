@@ -13,7 +13,7 @@
 │              │     │              │     │                  │
 │ • Калькулятор│     │ • REST API   │     │ • RF-DETR        │
 │ • LiDAR      │     │ • JWT Auth   │     │ • SAM            │
-│ • Дефекты    │     │ • SQLite     │     │ • Qwen2.5-VL     │
+│ • Дефекты    │     │ • PostgreSQL │     │ • Qwen2.5-VL     │
 │ • PDF/Excel  │     │ • Proxy→AI   │     │ • QazGost DefNN  │
 └──────────────┘     └──────────────┘     └──────────────────┘
                             │
@@ -43,7 +43,7 @@ cd Construction-main
 cp .env.example .env
 # Отредактировать .env: JWT_SECRET, OPENAI_API_KEY
 
-# 3. Запустить
+# 3. Запустить (PostgreSQL + Go + AI-сервис + фронт)
 docker compose up -d
 
 # 4. Открыть
@@ -120,6 +120,31 @@ Construction-main/
 
 ---
 
+## ☁️ Деплой на Railway
+
+Нужно **два сервиса** и база:
+
+| Сервис | Откуда собирается | Переменные |
+|--------|-------------------|------------|
+| `web` (Go + React) | корневой `Dockerfile` | `DATABASE_URL` (из Railway PostgreSQL), `JWT_SECRET`, `AI_SERVICE_URL=http://<ai-service>.railway.internal:8001`, `CORS_ORIGINS` |
+| `ai-service` (FastAPI + YOLO) | `ai-service/Dockerfile.cpu`, root directory `ai-service` | `PORT=8001`, `DEFECT_MODEL_PATH=models/defect_yolov8s_best.pt` |
+| PostgreSQL | плагин Railway | — |
+
+Без отдельного `ai-service` на проде не работают дефектоскопия, LiDAR и инженерный калькулятор (Go отвечает 502 «AI-сервис временно недоступен»).
+Модель `ai-service/models/defect_yolov8s_best.pt` должна попасть в образ (она не в git — закоммитьте её или загрузите в volume).
+
+### Локальный запуск без Docker
+
+Go-бэкенду нужен PostgreSQL. Пропишите в корневом `.env`:
+
+```
+DATABASE_URL=postgres://postgres:postgres@localhost:5432/qazgost?sslmode=disable
+```
+
+Сервер сам читает `.env` (из `go-backend/` или корня). Без базы он стартует, но `/health` отдаёт 503, а API — «База данных недоступна».
+
+---
+
 ## 🧬 AI Модели
 
 | Модель | Назначение | Лицензия | Fallback |
@@ -188,7 +213,7 @@ POST /api/v1/lidar/deviations   # Проверка отклонений по С�
 
 ---
 
-## 🏋️ Обучение модели дефектов
+## 🏋️ Обучение модели дефектов (yo26version)
 
 ```bash
 # 1. Скачать датасет из Roboflow
@@ -196,10 +221,10 @@ cd ai-service
 export ROBOFLOW_API_KEY=your_key
 python scripts/download_roboflow.py --project qazgost-defects --version 1
 
-# 2. Обучить (нужен GPU, ~$2-3 на RunPod)
-python scripts/train_defects.py --epochs 150 --batch 16 --imgsz 640
+# 2. Обучить (SOTA yo26version / YOLO11)
+python scripts/train_defects.py --model yolo11n.pt --epochs 150 --batch 16 --imgsz 640
 
-# 3. Модель автоматически → models/qazgost_defects_v1.pt
+# 3. Модель автоматически сохранится → models/defect_yolov26_best.pt и models/qazgost_defects_v26.pt
 ```
 
 ---

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { loginUser, registerUser } from '../services/api';
 
 export default function AuthModal({ mode, onClose, onLogin }) {
@@ -20,6 +20,14 @@ export default function AuthModal({ mode, onClose, onLogin }) {
   const [plateNumber, setPlateNumber] = useState('');
   const [city, setCity] = useState('Алматы');
   const [phone, setPhone] = useState('');
+
+  // Вкладка синхронизируется с режимом открытия (раньше «Регистрация» в шапке открывала вкладку входа)
+  useEffect(() => {
+    if (mode) {
+      setActiveTab(mode);
+      setError(null);
+    }
+  }, [mode]);
 
   if (!mode) return null;
 
@@ -46,6 +54,7 @@ export default function AuthModal({ mode, onClose, onLogin }) {
           email, 
           password, 
           fullName, 
+          name: fullName, // Go-бэкенд ожидает поле name (fullName игнорировался → пустое имя)
           bin, 
           role: selectedRole, 
           companyId: finalCompanyId,
@@ -133,17 +142,17 @@ export default function AuthModal({ mode, onClose, onLogin }) {
               padding: '0.65rem',
               borderRadius: '12px',
               border: 'none',
-              background: activeTab === 'login' ? 'linear-gradient(90deg, #f59e0b, #d97706)' : 'transparent',
+              background: activeTab === 'login' ? '#2563eb' : 'transparent',
               color: activeTab === 'login' ? '#fff' : '#94a3b8',
               fontWeight: 800,
               fontSize: '0.9rem',
               cursor: 'pointer',
-              boxShadow: activeTab === 'login' ? '0 4px 15px rgba(245, 158, 11, 0.4)' : 'none',
+              boxShadow: activeTab === 'login' ? 'none' : 'none',
               transition: 'all 0.25s ease'
             }}
             onClick={() => setActiveTab('login')}
           >
-            🔑 Вход в систему
+            Вход
           </button>
           <button
             style={{
@@ -151,17 +160,17 @@ export default function AuthModal({ mode, onClose, onLogin }) {
               padding: '0.65rem',
               borderRadius: '12px',
               border: 'none',
-              background: activeTab === 'register' ? 'linear-gradient(90deg, #f59e0b, #d97706)' : 'transparent',
+              background: activeTab === 'register' ? '#2563eb' : 'transparent',
               color: activeTab === 'register' ? '#fff' : '#94a3b8',
               fontWeight: 800,
               fontSize: '0.9rem',
               cursor: 'pointer',
-              boxShadow: activeTab === 'register' ? '0 4px 15px rgba(245, 158, 11, 0.4)' : 'none',
+              boxShadow: activeTab === 'register' ? 'none' : 'none',
               transition: 'all 0.25s ease'
             }}
             onClick={() => setActiveTab('register')}
           >
-            📝 Регистрация
+            Регистрация
           </button>
         </div>
 

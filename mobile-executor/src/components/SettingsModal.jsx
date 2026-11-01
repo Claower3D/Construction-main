@@ -15,7 +15,11 @@ export default function SettingsModal({ executor, serverUrl, onUpdateServerUrl, 
   };
 
   const handleSave = () => {
-    onUpdateServerUrl(urlInput);
+    if (!import.meta.env.DEV && /^http:\/\//i.test(String(urlInput).trim())) {
+      alert('В рабочей сборке разрешён только HTTPS-адрес сервера (http:// заблокирован).');
+      return;
+    }
+    onUpdateServerUrl(String(urlInput).trim());
     onClose();
   };
 

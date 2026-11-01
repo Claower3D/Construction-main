@@ -17,10 +17,13 @@ export default function SettingsModal({
   const [isTesting, setIsTesting] = useState(false);
   const [testResult, setTestResult] = useState(null);
 
+  // http:// presets are for local debugging only (release builds block cleartext traffic)
   const RAILWAY_PRESETS = [
     { label: 'Railway Cloud (Основной)', url: 'https://construction-main-production.up.railway.app' },
-    { label: 'Эмулятор Android (10.0.2.2)', url: 'http://10.0.2.2:8080' },
-    { label: 'Локальный ПК (localhost)', url: 'http://localhost:8080' }
+    ...(import.meta.env.DEV ? [
+      { label: 'DEV: эмулятор Android (10.0.2.2, http)', url: 'http://10.0.2.2:8080' },
+      { label: 'DEV: локальный ПК (localhost, http)', url: 'http://localhost:8080' }
+    ] : [])
   ];
 
   const handleTestConnection = async () => {
@@ -36,6 +39,10 @@ export default function SettingsModal({
   };
 
   const handleSave = () => {
+    if (!import.meta.env.DEV && /^http:\/\//i.test(serverUrl.trim())) {
+      alert('В рабочей сборке разрешён только HTTPS-адрес сервера (http:// заблокирован).');
+      return;
+    }
     onSaveSettings({
       ...settings,
       serverUrl: serverUrl.trim(),

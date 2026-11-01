@@ -46,12 +46,18 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - OLLAMA_HOST=http://ollama:11434
       - CORS_ORIGINS=["http://localhost:3000","http://localhost:5173","http://localhost:8080"]
+      - CORS_DEV=false
+      - ESTIMATES_DB_PATH=/app/db/estimates.db
+      # - DEFECT_MODEL_PATH=models/defect_yolo26_best.pt   # переключение модели дефектов
 
     volumes:
+      # Том с весами. Пустой именованный том Docker один раз заполняет из образа (в т.ч. models/defect_*.pt);
+      # после обновления образа новые defect_*.pt в старый том НЕ попадут — скопируйте их или удалите том.
       - ai-models:/app/models
       - ai-uploads:/app/uploads
       - ai-results:/app/results
       - ai-logs:/app/logs
+      - ai-db:/app/db
 
     depends_on:
       ollama:
@@ -87,14 +93,15 @@ services:
               count: 1
               capabilities: [ gpu ]
 
+    # Только localhost хоста: у Ollama нет авторизации. Внутри сети compose доступен как ollama:11434
     ports:
-      - "${OLLAMA_PORT:-11434}:11434"
+      - "127.0.0.1:${OLLAMA_PORT:-11434}:11434"
 
     volumes:
       - ollama-data:/root/.ollama
 
     environment:
-      - OLLAMA_HOST=0.0.0.0
+      - OLLAMA_HOST=0.0.0.0   # слушать внутри контейнера; наружу проброшен только 127.0.0.1
       - OLLAMA_NUM_PARALLEL=2
       - OLLAMA_MAX_LOADED_MODELS=2
 
@@ -123,8 +130,9 @@ services:
       - dev
       - full
 
+    # отдельный порт, чтобы профиль full (GPU + CPU) не конфликтовал с ai-service
     ports:
-      - "${AI_PORT:-8001}:8001"
+      - "${AI_CPU_PORT:-8002}:8001"
 
     environment:
       - DEVICE=cpu
@@ -132,12 +140,14 @@ services:
       - LOG_LEVEL=DEBUG
       - OLLAMA_HOST=http://ollama-cpu:11434
       - CORS_ORIGINS=["http://localhost:3000","http://localhost:5173","http://localhost:8080"]
+      - ESTIMATES_DB_PATH=/app/db/estimates.db
 
     volumes:
       - ai-models:/app/models
       - ai-uploads:/app/uploads
       - ai-results:/app/results
       - ai-logs:/app/logs
+      - ai-db-cpu:/app/db
 
     depends_on:
       ollama-cpu:
@@ -161,7 +171,7 @@ services:
       - full
 
     ports:
-      - "${OLLAMA_PORT:-11434}:11434"
+      - "127.0.0.1:${OLLAMA_CPU_PORT:-11435}:11434"
 
     volumes:
       - ollama-data:/root/.ollama
@@ -253,6 +263,10 @@ volumes:
     name: qazgost-ai-results
   ai-logs:
     name: qazgost-ai-logs
+  ai-db:
+    name: qazgost-ai-db
+  ai-db-cpu:
+    name: qazgost-ai-db-cpu
   ollama-data:
     name: qazgost-ollama-data
   prometheus-data:

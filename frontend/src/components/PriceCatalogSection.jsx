@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { categoriesData } from '../data/categoriesData';
-import ScrollReveal from './ScrollReveal';
 
 export default function PriceCatalogSection({ onOpenCategory }) {
   const [search, setSearch] = useState('');
@@ -49,7 +48,7 @@ export default function PriceCatalogSection({ onOpenCategory }) {
             <div className="estimator-title-group">
               <div className="cockpit-pill-tag">
                 <span className="live-pulse"></span>
-                <span>🧮 AI Калькулятор Смет v2.0 • ГОСТ РК</span>
+                <span>Экспресс-расчёт по ценам 2026</span>
               </div>
               <h3 className="estimator-main-title">Экспресс-расчёт стоимости объекта</h3>
               <p className="estimator-desc">
@@ -83,13 +82,13 @@ export default function PriceCatalogSection({ onOpenCategory }) {
             {/* Control 1: Area Range Slider */}
             <div className="cockpit-card">
               <div className="cockpit-card-header">
-                <span className="card-icon">📐</span>
-                <label className="cockpit-label">Площадь объекта</label>
+                                <label className="cockpit-label" htmlFor="pc-area">Площадь объекта</label>
                 <span className="area-badge-highlight">{area} м²</span>
               </div>
 
               <div className="slider-container">
                 <input
+                  id="pc-area"
                   type="range"
                   min="10"
                   max="500"
@@ -114,8 +113,7 @@ export default function PriceCatalogSection({ onOpenCategory }) {
             {/* Control 2: Project Type Cards */}
             <div className="cockpit-card">
               <div className="cockpit-card-header">
-                <span className="card-icon">🏢</span>
-                <label className="cockpit-label">Тип объекта</label>
+                                <span className="cockpit-label" id="pc-type-label">Тип объекта</span>
               </div>
 
               <div className="project-types-v2-grid">
@@ -172,8 +170,7 @@ export default function PriceCatalogSection({ onOpenCategory }) {
             {/* Control 3: AI Service Toggles */}
             <div className="cockpit-card">
               <div className="cockpit-card-header">
-                <span className="card-icon">⚡</span>
-                <label className="cockpit-label">Дополнительные AI-сервисы</label>
+                                <span className="cockpit-label">Дополнительные сервисы</span>
               </div>
 
               <div className="toggle-switches-v2">
@@ -231,16 +228,10 @@ export default function PriceCatalogSection({ onOpenCategory }) {
 
 
         {/* Section Title, Filter Tabs & Search */}
-        <div className="catalog-header-v2" style={{ marginTop: '4.5rem' }}>
-          <div className="section-header-center">
-            <span className="section-pill-badge">🏷️ Официальный справочник РК 2026</span>
-            <h2 className="section-title">
-              <span>💰</span>
-              <span>Каталог строительных работ и цен</span>
-            </h2>
-            <p className="section-subtitle">
-              12 089 проверенных расценок • 29 категорий • Фильтрация по типам работ
-            </p>
+        <div className="catalog-header-v2">
+          <div className="qg-section-head">
+            <h2>Каталог работ и цен</h2>
+            <p>12 089 расценок в {categories.length} категориях по ценам 2026 года. Откройте категорию, чтобы собрать смету.</p>
           </div>
 
           {/* Interactive Category Filter Group Tabs */}
@@ -250,7 +241,7 @@ export default function PriceCatalogSection({ onOpenCategory }) {
               className={`filter-chip ${activeFilter === 'all' ? 'active' : ''}`}
               onClick={() => setActiveFilter('all')}
             >
-              <span>🌐</span> Все категории ({categories.length})
+              Все категории ({categories.length})
             </button>
 
             <button
@@ -258,7 +249,7 @@ export default function PriceCatalogSection({ onOpenCategory }) {
               className={`filter-chip ${activeFilter === 'general' ? 'active' : ''}`}
               onClick={() => setActiveFilter('general')}
             >
-              <span>🏗️</span> Общестроительные ({categories.filter((c) => c.group === 'general').length})
+              Общестроительные ({categories.filter((c) => c.group === 'general').length})
             </button>
 
             <button
@@ -266,7 +257,7 @@ export default function PriceCatalogSection({ onOpenCategory }) {
               className={`filter-chip ${activeFilter === 'finishing' ? 'active' : ''}`}
               onClick={() => setActiveFilter('finishing')}
             >
-              <span>🎨</span> Отделка и ремонт ({categories.filter((c) => c.group === 'finishing').length})
+              Отделка и ремонт ({categories.filter((c) => c.group === 'finishing').length})
             </button>
 
             <button
@@ -274,7 +265,7 @@ export default function PriceCatalogSection({ onOpenCategory }) {
               className={`filter-chip ${activeFilter === 'engineering' ? 'active' : ''}`}
               onClick={() => setActiveFilter('engineering')}
             >
-              <span>⚡</span> Инженерные сети ({categories.filter((c) => c.group === 'engineering').length})
+              Инженерные сети ({categories.filter((c) => c.group === 'engineering').length})
             </button>
 
             <button
@@ -282,17 +273,17 @@ export default function PriceCatalogSection({ onOpenCategory }) {
               className={`filter-chip ${activeFilter === 'special' ? 'active' : ''}`}
               onClick={() => setActiveFilter('special')}
             >
-              <span>📐</span> Проектирование & Спец ({categories.filter((c) => c.group === 'special').length})
+              Проектирование & Спец ({categories.filter((c) => c.group === 'special').length})
             </button>
           </div>
 
           {/* Sleek Search Bar */}
           <div className="search-box-v2-wrap">
-            <span className="search-icon-inside">🔍</span>
             <input
-              type="text"
+              type="search"
+              aria-label="Поиск по категориям работ"
               className="search-input-v2"
-              placeholder="Поиск по 12 089 работам... (например: плитка, фасад, электрика, гидроизоляция)"
+              placeholder="Плитка, фасад, электрика, гидроизоляция…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -310,13 +301,14 @@ export default function PriceCatalogSection({ onOpenCategory }) {
         {/* High-End Category Cards Grid */}
         <div className="categories-v2-grid">
           {filtered.map((cat, idx) => (
-            <ScrollReveal key={idx} direction="up" delay={(idx % 5) * 55} distance="30px">
-              <div
+              <button
+                type="button"
+                key={idx}
                 className="category-v2-card"
                 onClick={() => onOpenCategory && onOpenCategory(cat)}
               >
                 <div className="cat-v2-cover">
-                  <img src={cat.image} alt={cat.name} className="cat-v2-cover-img" />
+                  <img src={cat.image} alt="" loading="lazy" className="cat-v2-cover-img" />
                   <span className="cat-v2-price-chip-floating">{cat.priceRange}</span>
                 </div>
 
@@ -328,12 +320,11 @@ export default function PriceCatalogSection({ onOpenCategory }) {
                       {cat.count} работ
                     </span>
                     <span className="cat-v2-open-btn">
-                      Смета ➔
+                      Смета
                     </span>
                   </div>
                 </div>
-              </div>
-            </ScrollReveal>
+              </button>
           ))}
         </div>
 

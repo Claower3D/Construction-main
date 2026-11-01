@@ -10,8 +10,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"net"
 	"net/http"
+	"net/url"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -57,46 +60,120 @@ func CheckPassword(password, storedHash string) bool {
 
 // ── CORS MIDDLEWARE (allowlist, not wildcard) ──
 
-// CorsMiddleware handles CORS with origin allowlist & Railway/Capacitor mobile support
+// isLocalOrigin: exact host match. The old prefix check ("http://localhost") also
+// trusted http://localhost.evil.com, and any *.railway.app site was trusted too.
+func isLocalOrigin(origin string) bool {
+	u, err := url.Parse(origin)
+	if err != nil || u.Host == "" {
+		return false
+	}
+	switch u.Scheme {
+	case "http", "https", "capacitor", "ionic":
+	default:
+		return false
+	}
+	h := u.Hostname()
+	return h == "localhost" || h == "127.0.0.1"
+}
+
+// CorsMiddleware handles CORS with an exact origin allowlist (+ localhost / Capacitor WebViews).
+// Extra production origins come from CORS_ORIGINS (comma-separated).
 func CorsMiddleware(allowedOrigins []string) func(http.Handler) http.Handler {
+	allowed := map[string]bool{}
+	for _, o := range allowedOrigins {
+		allowed[strings.TrimRight(o, "/")] = true
+	}
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			origin := r.Header.Get("Origin")
-			allowed := false
-			for _, ao := range allowedOrigins {
-				if ao == "*" || ao == origin {
-					allowed = true
-					break
-				}
-			}
-
-			// Automatically allow Railway cloud domains and mobile Capacitor schemes
-			if !allowed && origin != "" {
-				if strings.HasSuffix(origin, ".railway.app") ||
-					strings.HasSuffix(origin, ".up.railway.app") ||
-					strings.HasPrefix(origin, "capacitor://") ||
-					strings.HasPrefix(origin, "http://localhost") ||
-					strings.HasPrefix(origin, "https://localhost") {
-					allowed = true
-				}
-			}
-
-			if allowed && origin != "" {
+			if origin != "" && (allowed[origin] || isLocalOrigin(origin)) {
 				w.Header().Set("Access-Control-Allow-Origin", origin)
-			} else if origin == "" {
-				// Native mobile app direct HTTP requests without browser Origin
-				w.Header().Set("Access-Control-Allow-Origin", "*")
+				w.Header().Set("Access-Control-Allow-Credentials", "true")
+				w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
+				w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Request-ID, X-CSRF-Token, X-OpenAI-Key, X-OpenAI-Model")
 			}
-			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
-			w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Request-ID, X-CSRF-Token")
-			w.Header().Set("Access-Control-Allow-Credentials", "true")
-			w.Header().Set("Vary", "Origin")
+			w.Header().Add("Vary", "Origin")
 			if r.Method == http.MethodOptions {
 				w.WriteHeader(http.StatusOK)
 				return
 			}
 			next.ServeHTTP(w, r)
 		})
+	}
+}
+
+// ── SECURITY HEADERS ──
+
+func SecurityHeadersMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		h := w.Header()
+		h.Set("X-Content-Type-Options", "nosniff")
+		h.Set("X-Frame-Options", "SAMEORIGIN")
+		h.Set("Referrer-Policy", "strict-origin-when-cross-origin")
+		if r.TLS != nil || r.Header.Get("X-Forwarded-Proto") == "https" {
+			h.Set("Strict-Transport-Security", "max-age=31536000")
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
+// ── BODY SIZE LIMIT ──
+
+// BodyLimitMiddleware caps every request body (JSON decoders read without limits otherwise)
+func BodyLimitMiddleware(maxBytes int64) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if r.Body != nil {
+				r.Body = http.MaxBytesReader(w, r.Body, maxBytes)
+			}
+			next.ServeHTTP(w, r)
+		})
+	}
+}
+
+// ── RATE LIMIT (per client IP, fixed window) ──
+
+type rateWindow struct {
+	start time.Time
+	count int
+}
+
+// RateLimit allows `limit` requests per `window` per client IP.
+func RateLimit(limit int, window time.Duration, next http.HandlerFunc) http.HandlerFunc {
+	var mu sync.Mutex
+	hits := map[string]*rateWindow{}
+	return func(w http.ResponseWriter, r *http.Request) {
+		ip := r.RemoteAddr
+		if xff := r.Header.Get("X-Forwarded-For"); xff != "" {
+			ip = strings.TrimSpace(strings.Split(xff, ",")[0])
+		} else if host, _, err := net.SplitHostPort(r.RemoteAddr); err == nil {
+			ip = host
+		}
+		now := time.Now()
+		mu.Lock()
+		if len(hits) > 10000 { // drop stale windows
+			for k, v := range hits {
+				if now.Sub(v.start) > window {
+					delete(hits, k)
+				}
+			}
+		}
+		rw := hits[ip]
+		if rw == nil || now.Sub(rw.start) > window {
+			rw = &rateWindow{start: now}
+			hits[ip] = rw
+		}
+		rw.count++
+		over := rw.count > limit
+		mu.Unlock()
+		if over {
+			w.Header().Set("Content-Type", "application/json")
+			w.Header().Set("Retry-After", fmt.Sprintf("%d", int(window.Seconds())))
+			w.WriteHeader(http.StatusTooManyRequests)
+			_ = json.NewEncoder(w).Encode(map[string]string{"error": "Слишком много запросов, попробуйте через минуту"})
+			return
+		}
+		next(w, r)
 	}
 }
 
@@ -150,6 +227,23 @@ func AuthMiddleware(secret string, next http.HandlerFunc) http.HandlerFunc {
 		ctx = context.WithValue(ctx, ContextEmail, claims.Email)
 		ctx = context.WithValue(ctx, ContextRole, claims.Role)
 		next.ServeHTTP(w, r.WithContext(ctx))
+	}
+}
+
+// OptionalAuthMiddleware injects claims when a valid Bearer token is present,
+// but lets anonymous requests through (used where clients do not send tokens yet).
+func OptionalAuthMiddleware(secret string, next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		authHeader := r.Header.Get("Authorization")
+		if strings.HasPrefix(authHeader, "Bearer ") {
+			if claims, err := ValidateJWT(strings.TrimPrefix(authHeader, "Bearer "), secret); err == nil {
+				ctx := context.WithValue(r.Context(), ContextUserID, claims.UserID)
+				ctx = context.WithValue(ctx, ContextEmail, claims.Email)
+				ctx = context.WithValue(ctx, ContextRole, claims.Role)
+				r = r.WithContext(ctx)
+			}
+		}
+		next(w, r)
 	}
 }
 

@@ -1,71 +1,120 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
+import { getAuthHeaders } from '../api/crmApi';
+import { fetchWithTimeout } from '../api/syncCore';
 
 /**
  * VoiceLeadInput — Голосовой ввод заявки для менеджера
  * Точная копия компонента с ПК версии с поддержкой мобильных устройств и Railway backend
  */
 
-// ═══ ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ПАРСИНГА (из ПК-версии) ═══
-function fmt(d) { 
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; 
+// ═══ ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ПАРСИНГА ═══
+function fmt(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
 
-function parseDate(text) {
-  const lower = text.toLowerCase();
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth();
-  if (lower.includes('сегодня')) return fmt(now);
+const MONTH_STEMS = [
+  ['январ[а-яё]*', 1], ['феврал[а-яё]*', 2], ['март[а-яё]*', 3], ['апрел[а-яё]*', 4],
+  ['ма[йя]', 5], ['июн[а-яё]*', 6], ['июл[а-яё]*', 7], ['август[а-яё]*', 8],
+  ['сентябр[а-яё]*', 9], ['октябр[а-яё]*', 10], ['ноябр[а-яё]*', 11], ['декабр[а-яё]*', 12]
+];
+// Month word only as a whole word: «май/мая», never a substring like «Самат», «замер», «мастер»
+function monthAtStart(str) {
+  for (const [stem, num] of MONTH_STEMS) {
+    if (new RegExp(`^${stem}(?![а-яё])`).test(str)) return num;
+  }
+  return null;
+}
+
+// Ordinal day words («пятнадцатое», «двадцать пятого», «третье»). Cardinals from budgets
+// («пятьсот тридцать пять тысяч») are NOT ordinals and are ignored.
+const ORD_STEMS = [
+  ['девятнадцат', 19], ['восемнадцат', 18], ['семнадцат', 17], ['шестнадцат', 16], ['пятнадцат', 15],
+  ['четырнадцат', 14], ['тринадцат', 13], ['двенадцат', 12], ['одиннадцат', 11], ['двадцат', 20],
+  ['тридцат', 30], ['десят', 10], ['девят', 9], ['восьм', 8], ['седьм', 7], ['шест', 6], ['пят', 5],
+  ['четв[её]рт', 4], ['трет', 3], ['втор', 2], ['перв', 1]
+];
+const ORD_RE = new RegExp(
+  `(?:^|[^а-яё])(?:(двадцать|тридцать)\\s+)?(${ORD_STEMS.map(s => s[0]).join('|')})(?:ое|ого|ому|ый|ой|ье|ьего|ьему|ий|ья)(?![а-яё])`,
+  'g'
+);
+const NOT_A_DAY_AFTER = /^(?:тысяч|тыс|млн|миллион|метр|м(?![а-яё])|см|мм|человек|кольц|шт|т(?![а-яё])|тонн|сот|час|минут|этаж|кв|дом|раз)/;
+
+function resolveDate(day, month, now) {
+  if (!day || day < 1 || day > 31) return null;
+  const y = now.getFullYear();
+  if (month) {
+    // past months → next year
+    const year = month < now.getMonth() + 1 ? y + 1 : y;
+    const d = new Date(year, month - 1, day);
+    return d.getDate() === day ? fmt(d) : null;
+  }
+  // no month: this month, or next month if that day already passed
+  let d = new Date(y, now.getMonth(), day);
+  if (day < now.getDate()) d = new Date(y, now.getMonth() + 1, day);
+  return d.getDate() === day ? fmt(d) : null;
+}
+
+export function parseDate(text, now = new Date()) {
+  const lower = ` ${String(text || '').toLowerCase().replace(/ё/g, 'е')} `;
   if (lower.includes('послезавтра')) { const d = new Date(now); d.setDate(d.getDate()+2); return fmt(d); }
   if (lower.includes('завтра')) { const d = new Date(now); d.setDate(d.getDate()+1); return fmt(d); }
-  
-  const compoundNums = [
-    [/тридцать\s*перв/, 31], [/тридцат/, 30],
-    [/двадцать\s*девят/, 29], [/двадцать\s*восьм/, 28], [/двадцать\s*седьм/, 27],
-    [/двадцать\s*шест/, 26], [/двадцать\s*пят/, 25], [/двадцать\s*четв[её]рт/, 24],
-    [/двадцать\s*трет/, 23], [/двадцать\s*втор/, 22], [/двадцать\s*перв/, 21],
-    [/двадцат/, 20], [/девятнадцат/, 19], [/восемнадцат/, 18], [/семнадцат/, 17],
-    [/шестнадцат/, 16], [/пятнадцат/, 15], [/четырнадцат/, 14],
-    [/тринадцат/, 13], [/двенадцат/, 12], [/одиннадцат/, 11],
-  ];
-  const simpleNums = [
-    [/(?:^|\s)десят(?:ое|ого|ый|ому|е|\s|$)/, 10],
-    [/(?:^|\s)девят(?:ое|ого|ый|ому|е|\s|$)/, 9],
-    [/(?:^|\s)восьм(?:ое|ого|ой|ому|е|\s|$)/, 8],
-    [/(?:^|\s)седьм(?:ое|ого|ой|ому|е|\s|$)/, 7],
-    [/(?:^|\s)шест(?:ое|ого|ой|ому|е|\s|$)/, 6],
-    [/(?:^|\s)пят(?:ое|ого|ый|ому|е|\s|$)/, 5],
-    [/(?:^|\s)четв[её]рт(?:ое|ого|ый|ому|е|\s|$)/, 4],
-    [/(?:^|\s)трет(?:ье|ьего|ий|ьему|ей|\s|$)/, 3],
-    [/(?:^|\s)втор(?:ое|ого|ой|ому|е|\s|$)/, 2],
-    [/(?:^|\s)перв(?:ое|ого|ый|ому|е|\s|$)/, 1],
-  ];
+  if (lower.includes('сегодня')) return fmt(now);
 
-  let day = null;
-  for (const [re, num] of compoundNums) { if (re.test(lower)) { day = num; break; } }
-  if (!day) {
-    for (const [re, num] of simpleNums) { if (re.test(lower)) { day = num; break; } }
+  // 1) dd.mm[.yyyy]  (not «1.5 миллиона», not «535.000»)
+  const dm = lower.match(/(?:^|\s)(\d{1,2})[./](\d{1,2})(?:[./](\d{2,4}))?(?=[\s,;]|$)/);
+  if (dm) {
+    const rest = lower.slice(lower.indexOf(dm[0]) + dm[0].length).trimStart();
+    const mo = parseInt(dm[2], 10);
+    if (mo >= 1 && mo <= 12 && !NOT_A_DAY_AFTER.test(rest)) {
+      const r = resolveDate(parseInt(dm[1], 10), mo, now);
+      if (r) return r;
+    }
   }
 
-  const months = {'январ':1,'феврал':2,'март':3,'апрел':4,'ма':5,'июн':6,'июл':7,'август':8,'сентябр':9,'октябр':10,'ноябр':11,'декабр':12};
+  // 2) digits with context: «19 сентября», «на 19», «19-го», «19 числа», «дата 19»
+  const digitRe = /(^|[^\d.,])(\d{1,2})(-?(?:е|го|ое|ого))?(?![\d.,])/g;
+  let m;
+  while ((m = digitRe.exec(lower)) !== null) {
+    const day = parseInt(m[2], 10);
+    const start = m.index + m[1].length;
+    const rest = lower.slice(start + m[2].length + (m[3] || '').length).trimStart();
+    const before = lower.slice(0, start).trimEnd();
+    if (NOT_A_DAY_AFTER.test(rest)) continue;
+    const month = monthAtStart(rest);
+    if (month) { const r = resolveDate(day, month, now); if (r) return r; continue; }
+    const contextual = !!m[3] || /^числ/.test(rest) || /(?:^|\s)(?:на|дата|дату|число|числа)$/.test(before);
+    if (contextual && !/(?:дом|д\.|кв|квартира|улица|ул\.|корпус|офис|участок)$/.test(before)) {
+      const r = resolveDate(day, null, now);
+      if (r) return r;
+    }
+  }
 
-  if (!day) {
-    const digitDateMatch = lower.match(/(?:дат[ау]|числ[оа]|на)\s+(\d{1,2})/);
-    if (digitDateMatch) { const d = parseInt(digitDateMatch[1]); if (d >= 1 && d <= 31) day = d; }
+  // 3) ordinal words: «пятнадцатое сентября», «на двадцать пятое», «третьего числа»
+  ORD_RE.lastIndex = 0;
+  while ((m = ORD_RE.exec(lower)) !== null) {
+    const stemNum = ORD_STEMS.find(([re]) => new RegExp(`^${re}$`).test(m[2]))?.[1];
+    if (!stemNum) continue;
+    let day = stemNum;
+    if (m[1] === 'двадцать' && stemNum < 10) day = 20 + stemNum;
+    else if (m[1] === 'тридцать' && stemNum < 2) day = 30 + stemNum;
+    const end = m.index + m[0].length;
+    const rest = lower.slice(end).trimStart();
+    const lead = /^[^а-яё]/.test(m[0]) ? 1 : 0;
+    const before = lower.slice(0, m.index + lead).trimEnd();
+    const month = monthAtStart(rest);
+    if (month) { const r = resolveDate(day, month, now); if (r) return r; continue; }
+    if (/^числ/.test(rest) || /(?:^|\s)(?:на|дата|дату)$/.test(before)) {
+      const r = resolveDate(day, null, now);
+      if (r) return r;
+    }
   }
-  if (!day) {
-    const beforeMonth = lower.match(/(\d{1,2})\s*(?:январ|феврал|март|апрел|ма[яй]|июн|июл|август|сентябр|октябр|ноябр|декабр)/);
-    if (beforeMonth) { const d = parseInt(beforeMonth[1]); if (d >= 1 && d <= 31) day = d; }
-  }
-  if (!day) {
-    const m = lower.match(/(?:^|\s)(\d{1,2})(?:-[ео]е?|-го|(?:\s+числ)|\s|$)/);
-    if (m) { const d = parseInt(m[1]); if (d >= 1 && d <= 31) day = d; }
-  }
-  
-  let mo = null;
-  for (const [prefix, num] of Object.entries(months)) { if (lower.includes(prefix)) { mo = num; break; } }
-  if (day && day >= 1 && day <= 31) return `${year}-${String(mo||(month+1)).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
   return null;
+}
+
+// Voice command words are removed only as whole words («лид», not «Лидия»; «заказ», not «заказчик»)
+const COMMAND_WORDS_RE = /(^|[\s,.!?;:])(?:создай(?:те)?|сделай(?:те)?|новую|новый|новая|заявк[уаеи]|лид|лида|заказ)(?=$|[\s,.!?;:])/gi;
+export function stripCommandWords(text) {
+  return String(text || '').replace(COMMAND_WORDS_RE, '$1').replace(/\s{2,}/g, ' ').trim();
 }
 
 const SERVICES = [
@@ -105,7 +154,7 @@ function matchService(text) {
   return 'Установка септика';
 }
 
-function parseAllFields(text) {
+export function parseAllFields(text) {
   const result = {};
   const lower = text.toLowerCase();
 
@@ -233,15 +282,43 @@ export default function VoiceLeadInput({ onFieldsExtracted }) {
   const animRef = useRef(null);
   const recognitionRef = useRef(null);
   const webSpeechTextRef = useRef('');
+  const mountedRef = useRef(true);
+  const stopRecordingRef = useRef(null);
+
+  // Release microphone, audio graph, timers and speech recognition
+  const releaseAll = useCallback((abortRecognition = false) => {
+    if (animRef.current) { cancelAnimationFrame(animRef.current); animRef.current = null; }
+    if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null; }
+    if (procRef.current) { try { procRef.current.onaudioprocess = null; procRef.current.disconnect(); } catch (e) {} procRef.current = null; }
+    if (ctxRef.current) { try { ctxRef.current.close(); } catch (e) {} ctxRef.current = null; }
+    if (streamRef.current) { try { streamRef.current.getTracks().forEach(t => t.stop()); } catch (e) {} streamRef.current = null; }
+    if (recognitionRef.current) {
+      const rec = recognitionRef.current;
+      recognitionRef.current = null;
+      try {
+        if (abortRecognition) { rec.onresult = null; rec.abort ? rec.abort() : rec.stop(); } else { rec.stop(); }
+      } catch (e) {}
+    }
+  }, []);
+
+  // Cleanup when the modal is closed while recording
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+      releaseAll(true);
+    };
+  }, [releaseAll]);
 
   // Обработка распознанного текста
   const processRecognizedText = useCallback((text) => {
+    if (!mountedRef.current) return;
     if (!text || !text.trim()) {
       setResult({ error: 'Речь не распознана. Попробуйте ещё раз или введите текстом.' });
       setState('done');
       return;
     }
-    const cleaned = text.replace(/создай|сделай|новую?|заявк[уа]?|лид|заказ/gi, '').trim();
+    const cleaned = stripCommandWords(text);
     const fields = parseAllFields(cleaned || text);
     if (!fields.date) { const d = parseDate(text); if (d) fields.date = d; }
     
@@ -307,7 +384,7 @@ export default function VoiceLeadInput({ onFieldsExtracted }) {
       timerRef.current = setInterval(() => { 
         sec++; 
         setSeconds(sec); 
-        if (sec >= 60) stopRecording(); 
+        if (sec >= 60 && stopRecordingRef.current) stopRecordingRef.current(); 
       }, 1000);
 
       const dataArray = new Uint8Array(analyser.frequencyBinCount);
@@ -321,19 +398,19 @@ export default function VoiceLeadInput({ onFieldsExtracted }) {
 
     } catch(err) {
       console.warn('Mic error:', err);
-      setResult({ error: 'Нет доступа к микрофону. Разрешите микрофон в настройках Android.' });
+      releaseAll(true); // do not leave the microphone / recognition running
+      if (!mountedRef.current) return;
+      setResult({ error: err && err.name === 'NotAllowedError'
+        ? 'Нет доступа к микрофону. Разрешите микрофон в настройках Android.'
+        : 'Не удалось начать запись: ' + ((err && err.message) || 'ошибка аудио') });
       setState('done');
     }
-  }, []);
+  }, [releaseAll]);
 
   // ОСТАНОВИТЬ И ОБРАБОТАТЬ
   const stopRecording = useCallback(async () => {
-    if (animRef.current) cancelAnimationFrame(animRef.current);
-    if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null; }
-    if (procRef.current) { procRef.current.disconnect(); procRef.current = null; }
-    if (ctxRef.current) { try { ctxRef.current.close(); } catch(e){} ctxRef.current = null; }
-    if (streamRef.current) { streamRef.current.getTracks().forEach(t => t.stop()); streamRef.current = null; }
-    if (recognitionRef.current) { try { recognitionRef.current.stop(); } catch(e){} }
+    releaseAll(false);
+    if (!mountedRef.current) return;
     setAmplitude(0);
 
     setState('processing');
@@ -356,12 +433,13 @@ export default function VoiceLeadInput({ onFieldsExtracted }) {
     const wavBlob = encodeWAV(allSamples, 16000);
 
     try {
-      const resp = await fetch(SPEECH_URL, {
+      const resp = await fetchWithTimeout(SPEECH_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'audio/wav' },
+        headers: { 'Content-Type': 'audio/wav', ...getAuthHeaders() },
         body: wavBlob,
-      });
+      }, 30000);
       const data = await resp.json();
+      if (!mountedRef.current) return;
 
       if (data.text) {
         processRecognizedText(data.text);
@@ -372,6 +450,7 @@ export default function VoiceLeadInput({ onFieldsExtracted }) {
         setState('done');
       }
     } catch(err) {
+      if (!mountedRef.current) return;
       if (webSpeechTextRef.current) {
         processRecognizedText(webSpeechTextRef.current);
       } else {
@@ -379,7 +458,8 @@ export default function VoiceLeadInput({ onFieldsExtracted }) {
         setState('done');
       }
     }
-  }, [processRecognizedText]);
+  }, [processRecognizedText, releaseAll]);
+  stopRecordingRef.current = stopRecording;
 
   const handleClick = useCallback(() => {
     if (state === 'recording') { 

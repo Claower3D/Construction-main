@@ -3,6 +3,8 @@ import AnimatedBackground from './AnimatedBackground';
 import '../engineer-modal.css';
 import OnboardingTour from './OnboardingTour';
 import SmartDealCreateModal from './SmartDealCreateModal';
+import { jsonAuthHeaders, getAuthToken, reportSyncError, responseError, parseMoney } from '../services/platformUtils';
+import { upsertCrmEvent } from '../services/orderSyncService';
 
 export default function EngineerDashboardPage({ onBackToHome, initialTab = 'calendar', currentUser, viewRole = 'engineer', hideHeader = false, sidebarToggleNode }) {
   const isExecutor = (currentUser?.role === 'executor') || (viewRole === 'executor');
@@ -576,14 +578,63 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
 
     const key = viewRole === 'engineer' ? 'qazgost_calendar_events' : `qazgost_calendar_events_${viewRole}`;
 
-    // Sync payload with local storage and backend API
-    try {
-      fetch('/api/v1/orders', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(eventPayload)
-      }).catch(() => {});
-    } catch(err) {}
+    const localEventId = editingEvent ? editingEvent.id : Date.now();
+
+    // ── Синхронизация с Go Backend: POST /api/v1/orders (новое) или PUT /api/v1/orders/{id} (редактирование) ──
+    // Раньше: POST без Authorization (всегда 401) и каждое редактирование создавало новый заказ.
+    const serverPayload = {
+      title: evtTitle,
+      location: eventPayload.location,
+      time: evtTime,
+      type: evtType,
+      contractor: evtContractor,
+      status: evtStatus,
+      deadline: evtDeadline,
+      stages: (evtStages || []).map(st => ({
+        id: String(st.id ?? ''),
+        title: String(st.title || ''),
+        deadline: String(st.deadline || ''),
+        status: String(st.status || ''),
+        description: String(st.description || ''),
+        photos: (st.photos || []).map(ph => (typeof ph === 'string' ? ph : ph?.url)).filter(u => typeof u === 'string' && /^https?:|^\/uploads\//.test(u)),
+      })),
+      estimateItems: (evtEstimateItems || []).map(it => ({
+        name: String(it.name || ''),
+        unit: String(it.unit || ''),
+        qty: Number(it.qty) || 0,
+        price: parseMoney(it.price),
+        sum: parseMoney(it.sum) || Math.round((Number(it.qty) || 0) * parseMoney(it.price)),
+      })),
+      totalSum: parseMoney(evtTotalSum),
+      createdBy: editingEvent?.createdBy || currentUser?.email || currentUser?.id || '',
+    };
+    const serverOrderId = editingEvent?.serverOrderId;
+    if (!getAuthToken()) {
+      reportSyncError('Событие сохранено только на этом устройстве: нет действующей серверной сессии (войдите в аккаунт).');
+    } else {
+      fetch(serverOrderId ? `/api/v1/orders/${encodeURIComponent(serverOrderId)}` : '/api/v1/orders', {
+        method: serverOrderId ? 'PUT' : 'POST',
+        headers: jsonAuthHeaders(),
+        body: JSON.stringify(serverPayload)
+      })
+        .then(async (res) => {
+          if (!res.ok) { reportSyncError(`Заказ «${evtTitle}» не сохранён на сервере: ${await responseError(res)}`); return; }
+          if (serverOrderId) return;
+          const created = await res.json().catch(() => null);
+          if (!created || created.id === undefined) return;
+          // Запоминаем серверный id, чтобы следующее редактирование шло через PUT
+          setScheduledEvents(prev => {
+            const next = {};
+            for (const k in prev) next[k] = (prev[k] || []).map(ev => (ev.id === localEventId ? { ...ev, serverOrderId: created.id } : ev));
+            try {
+              localStorage.setItem(key, JSON.stringify(next));
+              localStorage.setItem('qazgost_calendar_events', JSON.stringify(next));
+            } catch (e) {}
+            return next;
+          });
+        })
+        .catch((err) => reportSyncError(`Заказ «${evtTitle}» не отправлен на сервер: ${err.message}`));
+    }
 
     if (editingEvent) {
       // Update existing event across multiple days if estimatedDays > 1
@@ -626,7 +677,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
     } else {
       // Create new event
       const newEvt = {
-        id: Date.now(),
+        id: localEventId,
         ...eventPayload
       };
 
@@ -845,15 +896,21 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
     // 3. Синхронизация статуса в CRM менеджера
     try {
       const crmCal = JSON.parse(localStorage.getItem('qazgost_crm_calendar') || '{}');
+      const changed = [];
       for (const d in crmCal) {
         crmCal[d] = (crmCal[d] || []).map(e => {
-          if (String(e.id) === String(reqId) || (e.title && title.includes(e.title))) {
-            return { ...e, status: 'В работе', role: 'executor', type: 'work_stage', assignedWorkers: 'Мастер Владимир, Мастер Данил, Радион (Манипулятор)' };
+          // Только точное совпадение id (раньше совпадение по подстроке названия задевало чужие сделки)
+          if (String(e.id) === String(reqId) || `REQ-${e.id}` === String(reqId)) {
+            const upd = { ...e, status: 'В работе', role: 'executor', type: 'work_stage', assignedWorkers: 'Мастер Владимир, Мастер Данил, Радион (Манипулятор)' };
+            changed.push({ ...upd, date: d });
+            return upd;
           }
           return e;
         });
       }
       localStorage.setItem('qazgost_crm_calendar', JSON.stringify(crmCal));
+      // Изменение статуса сохраняется на сервере (иначе опрос CRM откатывал его)
+      changed.forEach(ev => upsertCrmEvent(ev).then(r => { if (!r.ok) reportSyncError(`Статус сделки не сохранён на сервере: ${r.error}`); }));
     } catch (e) {}
 
     // 4. Обновление статуса в заявках инженера

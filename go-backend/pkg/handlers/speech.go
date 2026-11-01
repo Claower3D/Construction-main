@@ -68,7 +68,7 @@ func (h *SpeechHandler) Recognize(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Send to Google Speech API v2
-	googleURL := fmt.Sprintf("http://www.google.com/speech-api/v2/recognize?output=json&lang=ru-RU&key=AIzaSyBOti4mM-6x9WDnZIjIeyEU21OpBXqWBgw")
+	googleURL := fmt.Sprintf("https://www.google.com/speech-api/v2/recognize?output=json&lang=ru-RU&key=AIzaSyBOti4mM-6x9WDnZIjIeyEU21OpBXqWBgw")
 	contentType := fmt.Sprintf("audio/l16; rate=%d", sampleRate)
 
 	client := &http.Client{Timeout: 15 * time.Second}

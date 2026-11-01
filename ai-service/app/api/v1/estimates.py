@@ -5,6 +5,8 @@ Endpoints for saving, listing, and retrieving estimates.
 Uses SQLite for lightweight persistence.
 """
 
+import csv
+import io
 import json
 import sqlite3
 import uuid
@@ -12,7 +14,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Query
 from fastapi.responses import PlainTextResponse
 from pydantic import BaseModel, Field
 from loguru import logger
@@ -21,8 +23,13 @@ from app.api.v1.jwt_auth import get_current_user, get_optional_user
 router = APIRouter(prefix="/api/v1/estimates", tags=["estimates"])
 
 # ── Database Setup ────────────────────────────────────────────────────────────
-DB_DIR = Path(__file__).parent.parent.parent / "data"
-DB_PATH = DB_DIR / "estimates.db"
+# ESTIMATES_DB_PATH (env) — например /app/db/estimates.db на docker-томе; по умолчанию app/data/estimates.db
+from app.config import settings as _settings
+
+DB_PATH = Path(_settings.ESTIMATES_DB_PATH) if _settings.ESTIMATES_DB_PATH else (
+    Path(__file__).parent.parent.parent / "data" / "estimates.db"
+)
+DB_DIR = DB_PATH.parent
 
 
 def _get_db() -> sqlite3.Connection:
@@ -244,36 +251,37 @@ async def export_estimate_csv(estimate_id: str, user: dict = Depends(get_current
         data = dict(row)
         items = json.loads(data.get("estimate_items", "[]"))
 
-        BOM = "\ufeff"
-        lines = [
-            f'{BOM}"QAZGOST AI — Смета"',
-            f'"ID","{data["id"]}"',
-            f'"Дата","{data["created_at"]}"',
-            f'"Клиент","{data.get("client_name", "")}"',
-            f'"Адрес","{data.get("client_address", "")}"',
-            f'"Регион","{data.get("region", "almaty")}"',
-            f'"Тип объекта","{data.get("object_type", "")}"',
-            f'"Сценарий","{data.get("scenario", "standard")}"',
-            '',
-            '"#","Код","Наименование","Ед.изм","Кол-во","Цена","Сумма","Источник цены"',
-        ]
+        buf = io.StringIO()
+        w = csv.writer(buf, quoting=csv.QUOTE_ALL, lineterminator="\r\n")
+        w.writerow(["QAZGOST AI — Смета"])
+        w.writerow(["ID", data["id"]])
+        w.writerow(["Дата", data["created_at"]])
+        w.writerow(["Клиент", _csv_safe(data.get("client_name", ""))])
+        w.writerow(["Адрес", _csv_safe(data.get("client_address", ""))])
+        w.writerow(["Регион", _csv_safe(data.get("region", "almaty"))])
+        w.writerow(["Тип объекта", _csv_safe(data.get("object_type", ""))])
+        w.writerow(["Сценарий", _csv_safe(data.get("scenario", "standard"))])
+        w.writerow([])
+        w.writerow(["#", "Код", "Наименование", "Ед.изм", "Кол-во", "Цена", "Сумма", "Источник цены"])
 
         total = 0
         for idx, item in enumerate(items, 1):
-            qty = item.get("qty", item.get("quantity", 0))
-            price = item.get("unit_price", 0)
-            subtotal = item.get("total_price", item.get("total", qty * price))
+            if not isinstance(item, dict):
+                continue
+            qty = _num(item.get("qty", item.get("quantity", 0)))
+            price = _num(item.get("unit_price", 0))
+            subtotal = _num(item.get("total_price", item.get("total", qty * price)))
             total += subtotal
             name = item.get("work_name", item.get("name", ""))
             code = item.get("work_code", "")
             unit = item.get("unit_label", item.get("unit", ""))
             src = "БД" if item.get("price_source") == "database" else "Базовая"
-            lines.append(f'{idx},"{code}","{name}","{unit}",{qty},{price},{subtotal},"{src}"')
+            w.writerow([idx, _csv_safe(code), _csv_safe(name), _csv_safe(unit), qty, price, subtotal, src])
 
-        lines.append(f'\n"","","ИТОГО","","","",{total}')
-        lines.append(f'"AI уверенность","{data.get("ai_confidence", 0)}"')
-
-        csv_text = "\r\n".join(lines)
+        w.writerow([])
+        w.writerow(["", "", "ИТОГО", "", "", "", total])
+        w.writerow(["AI уверенность", data.get("ai_confidence", 0)])
+        csv_text = "\ufeff" + buf.getvalue()  # BOM — Excel корректно открывает UTF-8
 
         logger.info(f"[Estimates] CSV export: {estimate_id} ({len(items)} items, total={total:.0f} KZT)")
 
@@ -290,8 +298,8 @@ async def export_estimate_csv(estimate_id: str, user: dict = Depends(get_current
 
 @router.get("", response_model=EstimateListResponse)
 async def list_estimates(
-    page: int = 1,
-    per_page: int = 20,
+    page: int = Query(1, ge=1, le=100_000),
+    per_page: int = Query(20, ge=1, le=100),
     status: Optional[str] = None,
     client: Optional[str] = None,
     user: dict = Depends(get_current_user),
@@ -412,6 +420,23 @@ async def delete_estimate(estimate_id: str, user: dict = Depends(get_current_use
 
 
 # ── Helpers ──────────────────────────────────────────────────────────────────
+
+_FORMULA_PREFIXES = ("=", "+", "-", "@", "\t", "\r")
+
+
+def _csv_safe(value) -> str:
+    """Neutralize spreadsheet formulas (CSV injection): prefix with an apostrophe."""
+    s = "" if value is None else str(value)
+    return "'" + s if s.startswith(_FORMULA_PREFIXES) else s
+
+
+def _num(value) -> float:
+    try:
+        v = float(value)
+        return v if v == v and abs(v) != float("inf") else 0.0
+    except (TypeError, ValueError):
+        return 0.0
+
 
 def _get_estimate_by_id(estimate_id: str) -> Optional[dict]:
     """Fetch a single estimate by ID."""

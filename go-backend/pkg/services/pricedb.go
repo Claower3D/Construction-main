@@ -72,14 +72,23 @@ func (s *PriceDBService) LoadDatabase() {
 	defer s.mu.Unlock()
 
 	// Candidate paths for price_db.json
-	candidatePaths := []string{
+	candidatePaths := []string{}
+	if env := os.Getenv("PRICE_DB_PATH"); env != "" {
+		candidatePaths = append(candidatePaths, env)
+	}
+	if exe, err := os.Executable(); err == nil { // next to the binary (Docker: /app/server)
+		dir := filepath.Dir(exe)
+		candidatePaths = append(candidatePaths,
+			filepath.Join(dir, "ai-service/app/data/price_db.json"),
+			filepath.Join(dir, "../ai-service/app/data/price_db.json"))
+	}
+	candidatePaths = append(candidatePaths,
 		"../ai-service/app/data/price_db.json",
 		"../../ai-service/app/data/price_db.json",
 		"ai-service/app/data/price_db.json",
 		"data/price_db.json",
 		"pkg/data/price_db.json",
-		"C:/Users/SystemX/Documents/Construction-main/ai-service/app/data/price_db.json",
-	}
+	)
 
 	var data []byte
 	var loadedPath string
@@ -111,7 +120,7 @@ func (s *PriceDBService) LoadDatabase() {
 
 	// Ensure default regional coefficients for all major Kazakhstan cities
 	defaultRegions := map[string]float64{
-		"Астана": 1.20, "Алматы": 1.15, "Шымкент": 0.95, "Атырау": 1.25,
+		"Астана": 1.15, "Алматы": 1.00, "Шымкент": 0.95, "Атырау": 1.25,
 		"Актау": 1.20, "Караганда": 1.05, "Актобе": 1.05, "Павлодар": 1.00,
 		"Усть-Каменогорск": 1.05, "Костанай": 1.00, "Тараз": 0.95, "Семей": 1.00,
 		"Кызылорда": 0.95, "Уральск": 1.05, "Петропавловск": 1.00, "Туркестан": 0.90,
@@ -195,7 +204,8 @@ func (s *PriceDBService) loadFallbackData() {
 		s.itemByCode[item.Code] = item
 		s.categories[item.Category]++
 	}
-	s.coefficients = map[string]float64{"Астана": 1.20, "Алматы": 1.15, "Шымкент": 0.95}
+	// Same base as price_db.json / README: Алматы = 1.00
+	s.coefficients = map[string]float64{"Астана": 1.15, "Алматы": 1.00, "Шымкент": 0.95}
 	s.totalCount = len(s.items)
 }
 

@@ -1,27 +1,31 @@
-import React, { useState } from 'react';
-import { X, Phone, MessageSquare, MapPin, Calendar, Clock, Plus, Trash2, CheckCircle2, ShieldAlert } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { X, Phone, MessageCircle, MapPin, Plus, Trash2, UserRound } from 'lucide-react';
 import { ROLE_CONFIG, STAGES } from '../api/crmApi';
+import { parseLocalDate } from '../api/syncCore';
+import { Status, formatMoney, statusTone } from './ui/kit';
+
+const MONTHS_GEN = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
 
 export default function DealDetailModal({ deal, onClose, onUpdateStatus, onAddNote, onDeleteDeal }) {
   const [newNote, setNewNote] = useState('');
-  const roleInfo = ROLE_CONFIG[deal.role] || ROLE_CONFIG.lead;
+  const role = ROLE_CONFIG[deal.role];
+  const phone = String(deal.phone || '');
+  const tel = phone.replace(/[^0-9+]/g, '');
+  const wa = phone.replace(/[^0-9]/g, '');
 
-  const handleCall = () => {
-    const cleanPhone = deal.phone.replace(/[^0-9+]/g, '');
-    window.location.href = `tel:${cleanPhone}`;
-  };
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose]);
 
   const handleWhatsApp = () => {
-    const cleanPhone = deal.phone.replace(/[^0-9]/g, '');
     const msg = encodeURIComponent(`Здравствуйте, ${deal.client}! Пишу по объекту «${deal.title}» в QazGost.`);
-    window.open(`https://wa.me/${cleanPhone}?text=${msg}`, '_blank');
+    window.open(`https://wa.me/${wa}?text=${msg}`, '_blank');
   };
-
   const handleOpenMap = () => {
-    const query = encodeURIComponent(deal.location);
-    window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, '_blank');
+    window.open(`https://2gis.kz/search/${encodeURIComponent(deal.location || '')}`, '_blank');
   };
-
   const handleAddNoteSubmit = (e) => {
     e.preventDefault();
     if (!newNote.trim()) return;
@@ -29,339 +33,107 @@ export default function DealDetailModal({ deal, onClose, onUpdateStatus, onAddNo
     setNewNote('');
   };
 
-  const formattedBudget = new Intl.NumberFormat('ru-RU').format(deal.budget) + ' ₸';
+  const when = deal.date
+    ? (() => { const d = parseLocalDate(deal.date); return `${d.getDate()} ${MONTHS_GEN[d.getMonth()]} ${d.getFullYear()}${deal.time ? `, ${deal.time}` : ''}`; })()
+    : 'не назначена';
 
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      zIndex: 100,
-      background: 'rgba(0, 0, 0, 0.75)',
-      backdropFilter: 'blur(10px)',
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'flex-end',
-      maxWidth: '480px',
-      margin: '0 auto',
-    }}>
-      <div 
-        className="bottom-sheet"
-        style={{
-          background: '#0d1527',
-          borderTop: '1px solid rgba(56, 189, 248, 0.3)',
-          borderTopLeftRadius: '24px',
-          borderTopRightRadius: '24px',
-          maxHeight: '90vh',
-          display: 'flex',
-          flexDirection: 'column',
-          overflow: 'hidden',
-          boxShadow: '0 -10px 40px rgba(0, 0, 0, 0.8)',
-        }}
-      >
-        {/* Modal Handle & Header */}
-        <div style={{
-          padding: '16px 20px 12px',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-          position: 'relative',
-        }}>
-          <div style={{
-            width: '40px',
-            height: '4px',
-            borderRadius: '2px',
-            background: 'rgba(255, 255, 255, 0.2)',
-            margin: '0 auto 12px'
-          }} />
-
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span 
-                className="tag-badge"
-                style={{ 
-                  background: roleInfo.bg, 
-                  color: roleInfo.color,
-                  border: `1px solid ${roleInfo.border}40`,
-                }}
-              >
-                {roleInfo.icon} {roleInfo.badge}
-              </span>
-              <span style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 700 }}>
-                #{deal.leadNum || deal.id}
-              </span>
+    <div className="qz-scrim" onClick={onClose}>
+      <div className="qz-sheet" role="dialog" aria-modal="true" aria-labelledby="deal-title" onClick={(e) => e.stopPropagation()}>
+        <div className="qz-sheet-head">
+          <div className="qz-grow">
+            <div className="qz-row" style={{ gap: 8, marginBottom: 6, flexWrap: 'wrap' }}>
+              <Status status={deal.status} />
+              {role && <span className="qz-tag">{role.badge.charAt(0) + role.badge.slice(1).toLowerCase()}</span>}
+              {deal.leadNum && <span className="qz-ticket-no">№ {deal.leadNum}</span>}
+              {deal._dirty && <span className="qz-tag is-warn">Не отправлено</span>}
             </div>
-
-            <button 
-              onClick={onClose}
-              style={{
-                background: 'rgba(255, 255, 255, 0.08)',
-                border: 'none',
-                borderRadius: '50%',
-                width: '32px',
-                height: '32px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#cbd5e1',
-                cursor: 'pointer',
-              }}
-            >
-              <X size={18} />
-            </button>
+            <h2 id="deal-title" className="qz-h2" style={{ fontSize: 'var(--fs-xl)' }}>{deal.title}</h2>
           </div>
-
-          <h3 style={{ color: '#fff', fontSize: '1.1rem', fontWeight: 800, marginTop: '8px', lineHeight: '1.3' }}>
-            {deal.title}
-          </h3>
+          <button type="button" className="qz-iconbtn" aria-label="Закрыть" onClick={onClose}><X size={22} /></button>
         </div>
 
-        {/* Scrollable Content */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: '16px 20px 30px' }}>
-          {/* Status Changer Pills */}
-          <div style={{ marginBottom: '18px' }}>
-            <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 700, display: 'block', marginBottom: '8px' }}>
-              СТАДИЯ СДЕЛКИ:
-            </span>
-            <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', paddingBottom: '4px' }}>
-              {STAGES.map((st) => {
-                const isActive = deal.status === st;
-                return (
-                  <button
-                    key={st}
-                    onClick={() => onUpdateStatus(deal.id, st)}
-                    style={{
-                      padding: '7px 14px',
-                      borderRadius: '10px',
-                      fontSize: '0.8rem',
-                      fontWeight: 800,
-                      border: isActive ? '1px solid #00e5ff' : '1px solid rgba(255, 255, 255, 0.08)',
-                      background: isActive ? 'linear-gradient(135deg, rgba(0, 229, 255, 0.25), rgba(2, 132, 199, 0.25))' : 'rgba(255, 255, 255, 0.04)',
-                      color: isActive ? '#00e5ff' : '#94a3b8',
-                      cursor: 'pointer',
-                      whiteSpace: 'nowrap',
-                      boxShadow: isActive ? '0 0 12px rgba(0, 229, 255, 0.25)' : 'none',
-                      transition: 'all 0.15s ease'
-                    }}
-                  >
-                    {st}
-                  </button>
-                );
-              })}
+        <div className="qz-sheet-body">
+          {/* Money and time — the two things a manager checks first */}
+          <div className="qz-grid-2">
+            <div className="qz-card" style={{ padding: 'var(--sp-3)' }}>
+              <div className="qz-xs qz-faint">Бюджет</div>
+              <div className="qz-amount" style={{ marginTop: 2 }}>{Number(deal.budget) > 0 ? formatMoney(deal.budget) : '—'}</div>
+            </div>
+            <div className="qz-card" style={{ padding: 'var(--sp-3)' }}>
+              <div className="qz-xs qz-faint">Встреча / выезд</div>
+              <div className="qz-h3 num" style={{ marginTop: 4 }}>{when}</div>
             </div>
           </div>
 
-          {/* Quick Action One-Tap Bar */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr 1fr',
-            gap: '10px',
-            marginBottom: '20px'
-          }}>
-            <button
-              onClick={handleCall}
-              style={{
-                background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.25), rgba(22, 163, 74, 0.15))',
-                border: '1px solid rgba(34, 197, 94, 0.4)',
-                borderRadius: '14px',
-                padding: '12px 8px',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: '6px',
-                color: '#4ade80',
-                cursor: 'pointer',
-                fontWeight: 800,
-                fontSize: '0.78rem'
-              }}
-            >
-              <Phone size={22} />
-              <span>Позвонить</span>
-            </button>
-
-            <button
-              onClick={handleWhatsApp}
-              style={{
-                background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(5, 150, 105, 0.15))',
-                border: '1px solid rgba(16, 185, 129, 0.4)',
-                borderRadius: '14px',
-                padding: '12px 8px',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: '6px',
-                color: '#34d399',
-                cursor: 'pointer',
-                fontWeight: 800,
-                fontSize: '0.78rem'
-              }}
-            >
-              <MessageSquare size={22} />
-              <span>WhatsApp</span>
-            </button>
-
-            <button
-              onClick={handleOpenMap}
-              style={{
-                background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(2, 132, 199, 0.15))',
-                border: '1px solid rgba(56, 189, 248, 0.4)',
-                borderRadius: '14px',
-                padding: '12px 8px',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: '6px',
-                color: '#38bdf8',
-                cursor: 'pointer',
-                fontWeight: 800,
-                fontSize: '0.78rem'
-              }}
-            >
-              <MapPin size={22} />
-              <span>Карта 2GIS</span>
-            </button>
+          <div className="qz-card" style={{ marginTop: 'var(--sp-3)', display: 'grid', gap: 10 }}>
+            <div className="qz-row"><UserRound size={18} className="qz-faint" /><span className="qz-grow">{deal.client || 'Клиент'}</span></div>
+            {phone && <div className="qz-row"><Phone size={18} className="qz-faint" /><span className="qz-grow num">{phone}</span></div>}
+            {deal.location && <div className="qz-row"><MapPin size={18} className="qz-faint" /><span className="qz-grow">{deal.location}</span></div>}
           </div>
 
-          {/* Details Card */}
-          <div className="glass-panel" style={{ padding: '16px', marginBottom: '16px' }}>
-            <div style={{ marginBottom: '12px' }}>
-              <span style={{ fontSize: '0.7rem', color: '#94a3b8', display: 'block' }}>Клиент / Заказчик:</span>
-              <strong style={{ color: '#fff', fontSize: '0.98rem' }}>{deal.client}</strong>
-              <div style={{ color: '#38bdf8', fontSize: '0.85rem', marginTop: '2px' }}>{deal.phone}</div>
-            </div>
-
-            {deal.location && (
-              <div style={{ marginBottom: '12px' }}>
-                <span style={{ fontSize: '0.7rem', color: '#94a3b8', display: 'block' }}>Адрес объекта:</span>
-                <span style={{ color: '#e2e8f0', fontSize: '0.86rem' }}>{deal.location}</span>
-              </div>
-            )}
-
-            <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '10px' }}>
-              <div>
-                <span style={{ fontSize: '0.7rem', color: '#94a3b8', display: 'block' }}>Дата / Время:</span>
-                <span style={{ color: '#e2e8f0', fontSize: '0.85rem' }}>{deal.date} в {deal.time || '10:00'}</span>
-              </div>
-              <div style={{ textAlign: 'right' }}>
-                <span style={{ fontSize: '0.7rem', color: '#94a3b8', display: 'block' }}>Бюджет сделки:</span>
-                <strong style={{ color: '#00e5ff', fontSize: '1.05rem' }}>{formattedBudget}</strong>
-              </div>
-            </div>
+          <div className="qz-row" style={{ marginTop: 'var(--sp-3)', gap: 8 }}>
+            {tel && <a className="qz-btn is-ok qz-grow" href={`tel:${tel}`}><Phone size={18} />Позвонить</a>}
+            {wa && <button type="button" className="qz-btn qz-grow" onClick={handleWhatsApp}><MessageCircle size={18} />WhatsApp</button>}
+            {deal.location && <button type="button" className="qz-btn" aria-label="Открыть в 2GIS" onClick={handleOpenMap}><MapPin size={18} />2GIS</button>}
           </div>
 
-          {/* Estimate breakdown if available */}
-          {deal.estimateItems && deal.estimateItems.length > 0 && (
-            <div className="glass-panel" style={{ padding: '16px', marginBottom: '16px' }}>
-              <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#f59e0b', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <CheckCircle2 size={16} /> Позиции сметы ГОСТ:
-              </div>
-              {deal.estimateItems.map((item, idx) => (
-                <div key={idx} style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  padding: '6px 0',
-                  borderBottom: idx < deal.estimateItems.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none',
-                  fontSize: '0.8rem'
-                }}>
-                  <div>
-                    <div style={{ color: '#fff', fontWeight: 600 }}>{item.name}</div>
-                    <div style={{ color: '#64748b', fontSize: '0.72rem' }}>{item.qty}</div>
-                  </div>
-                  <strong style={{ color: '#38bdf8' }}>
-                    {new Intl.NumberFormat('ru-RU').format(item.sum)} ₸
-                  </strong>
+          <div className="qz-section-head" style={{ marginTop: 'var(--sp-6)' }}>
+            <h3 className="qz-h3">Этап сделки</h3>
+          </div>
+          <div className="qz-chips" role="radiogroup" aria-label="Этап сделки" style={{ margin: '0 calc(-1 * var(--sp-4))' }}>
+            {STAGES.map(st => {
+              const active = deal.status === st;
+              return (
+                <button
+                  key={st}
+                  type="button"
+                  role="radio"
+                  aria-checked={active}
+                  className={`qz-chip${active ? ' is-active' : ''}`}
+                  onClick={() => !active && onUpdateStatus(deal.id, st)}
+                >
+                  <span className={`qz-status is-st-${statusTone(st)}`} style={{ fontSize: 'var(--fs-sm)', color: active ? 'var(--text)' : undefined }}>{st}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="qz-section-head" style={{ marginTop: 'var(--sp-5)' }}>
+            <h3 className="qz-h3">Заметки</h3>
+            <span className="qz-xs qz-faint num">{(deal.notes || []).length}</span>
+          </div>
+          <form onSubmit={handleAddNoteSubmit} className="qz-row" style={{ gap: 8 }}>
+            <label className="qz-sr-only" htmlFor="deal-note">Новая заметка</label>
+            <input id="deal-note" className="qz-input qz-grow" value={newNote} onChange={(e) => setNewNote(e.target.value)} placeholder="Итог звонка или встречи" />
+            <button type="submit" className="qz-btn is-primary" aria-label="Добавить заметку" disabled={!newNote.trim()} style={{ width: 48, padding: 0 }}><Plus size={22} /></button>
+          </form>
+          <div style={{ display: 'grid', gap: 8, marginTop: 'var(--sp-3)' }}>
+            {(deal.notes || []).map((n, i) => (
+              <div key={i} className="qz-card" style={{ padding: 'var(--sp-3)', boxShadow: 'inset 3px 0 0 var(--line-strong)' }}>
+                <div className="qz-small" style={{ lineHeight: 1.4, overflowWrap: 'anywhere' }}>{n.text}</div>
+                <div className="qz-row qz-xs qz-faint" style={{ justifyContent: 'space-between', marginTop: 4 }}>
+                  <span>{n.author || 'Менеджер'}</span>
+                  <span className="num">{n.time || ''}</span>
                 </div>
-              ))}
-            </div>
-          )}
-
-          {/* Notes & History Timeline */}
-          <div style={{ marginBottom: '16px' }}>
-            <span style={{ fontSize: '0.82rem', color: '#94a3b8', fontWeight: 800, display: 'block', marginBottom: '8px' }}>
-              Заметки менеджера ({deal.notes?.length || 0}):
-            </span>
-
-            {/* Note input form */}
-            <form onSubmit={handleAddNoteSubmit} style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
-              <input
-                type="text"
-                value={newNote}
-                onChange={(e) => setNewNote(e.target.value)}
-                placeholder="Добавить заметку о созвоне или встрече..."
-                style={{
-                  flex: 1,
-                  background: 'rgba(255, 255, 255, 0.05)',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
-                  borderRadius: '10px',
-                  padding: '9px 12px',
-                  color: '#fff',
-                  fontSize: '0.82rem',
-                  outline: 'none'
-                }}
-              />
-              <button
-                type="submit"
-                style={{
-                  background: '#00e5ff',
-                  border: 'none',
-                  borderRadius: '10px',
-                  color: '#000',
-                  padding: '0 14px',
-                  fontWeight: 800,
-                  cursor: 'pointer',
-                  fontSize: '0.85rem'
-                }}
-              >
-                <Plus size={18} />
-              </button>
-            </form>
-
-            {/* Notes List */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {deal.notes && deal.notes.map((n, i) => (
-                <div key={i} style={{
-                  background: 'rgba(255, 255, 255, 0.03)',
-                  borderLeft: '3px solid #38bdf8',
-                  borderRadius: '8px',
-                  padding: '8px 12px',
-                  fontSize: '0.8rem'
-                }}>
-                  <div style={{ color: '#e2e8f0', lineHeight: '1.4' }}>{n.text}</div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', color: '#64748b', fontSize: '0.7rem', marginTop: '4px' }}>
-                    <span>{n.author || 'Менеджер'}</span>
-                    <span>{n.time || 'Недавно'}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
+              </div>
+            ))}
+            {(deal.notes || []).length === 0 && <div className="qz-small qz-faint">Заметок пока нет.</div>}
           </div>
 
-          {/* Delete action */}
-          <div style={{ textAlign: 'center', marginTop: '20px' }}>
-            <button
-              onClick={() => {
-                if (window.confirm('Удалить эту сделку из CRM?')) {
-                  onDeleteDeal(deal.id);
-                  onClose();
-                }
-              }}
-              style={{
-                background: 'none',
-                border: 'none',
-                color: '#ef4444',
-                fontSize: '0.8rem',
-                fontWeight: 700,
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-                cursor: 'pointer',
-                opacity: 0.8
-              }}
-            >
-              <Trash2 size={14} /> Удалить сделку из базы
-            </button>
-          </div>
+          <button
+            type="button"
+            className="qz-btn is-danger is-block"
+            style={{ marginTop: 'var(--sp-8)' }}
+            onClick={() => {
+              if (window.confirm('Удалить эту сделку из CRM?')) {
+                onDeleteDeal(deal.id);
+                onClose();
+              }
+            }}
+          >
+            <Trash2 size={18} /> Удалить сделку
+          </button>
         </div>
       </div>
     </div>

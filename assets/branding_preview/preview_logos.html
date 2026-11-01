@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QazGost Mobile Suite — Концепты логотипов для утверждения</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #070a13;
+      --card-bg: rgba(13, 21, 39, 0.7);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent-eng: #f59e0b;
+      --accent-exec: #10b981;
+      --accent-mgr: #00e5ff;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.5;
+      padding: 40px 20px 80px;
+      min-height: 100vh;
+      background-image: 
+        radial-gradient(circle at 20% 15%, rgba(245, 158, 11, 0.07) 0%, transparent 40%),
+        radial-gradient(circle at 50% 15%, rgba(16, 185, 129, 0.07) 0%, transparent 40%),
+        radial-gradient(circle at 80% 15%, rgba(0, 229, 255, 0.07) 0%, transparent 40%),
+        linear-gradient(to bottom, #070a13 0%, #03050a 100%);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 50px;
+    }
+
+    .badge-pill {
+      display: inline-block;
+      padding: 6px 16px;
+      border-radius: 999px;
+      background: rgba(0, 229, 255, 0.1);
+      border: 1px solid rgba(0, 229, 255, 0.3);
+      color: #00e5ff;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      font-size: 2.6rem;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, #ffffff 30%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    p.subtitle {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    /* GRID OF 3 LOGOS */
+    .logos-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 30px;
+      margin-bottom: 60px;
+    }
+
+    .logo-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 24px;
+      padding: 32px 24px;
+      backdrop-filter: blur(20px);
+      transition: all 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .logo-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+    }
+
+    .logo-card.engineer { border-color: rgba(245, 158, 11, 0.25); }
+    .logo-card.engineer::before { background: linear-gradient(90deg, #f59e0b, #f97316); }
+    .logo-card.engineer:hover { border-color: rgba(245, 158, 11, 0.6); box-shadow: 0 12px 40px rgba(245, 158, 11, 0.15); }
+
+    .logo-card.executor { border-color: rgba(16, 185, 129, 0.25); }
+    .logo-card.executor::before { background: linear-gradient(90deg, #10b981, #34d399); }
+    .logo-card.executor:hover { border-color: rgba(16, 185, 129, 0.6); box-shadow: 0 12px 40px rgba(16, 185, 129, 0.15); }
+
+    .logo-card.manager { border-color: rgba(0, 229, 255, 0.25); }
+    .logo-card.manager::before { background: linear-gradient(90deg, #00e5ff, #3b82f6); }
+    .logo-card.manager:hover { border-color: rgba(0, 229, 255, 0.6); box-shadow: 0 12px 40px rgba(0, 229, 255, 0.15); }
+
+    .logo-icon-wrapper {
+      width: 220px;
+      height: 220px;
+      margin: 0 auto 28px;
+      position: relative;
+      transition: transform 0.3s ease;
+    }
+
+    .logo-card:hover .logo-icon-wrapper {
+      transform: scale(1.04);
+    }
+
+    .logo-icon-wrapper img, .logo-icon-wrapper svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+      filter: drop-shadow(0 15px 25px rgba(0,0,0,0.5));
+    }
+
+    .app-meta {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .app-meta .app-id {
+      font-size: 0.75rem;
+      font-family: monospace;
+      color: #64748b;
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .app-meta h2 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 4px;
+    }
+
+    .app-meta .app-role {
+      font-size: 0.92rem;
+      font-weight: 600;
+    }
+
+    .engineer .app-role { color: #f59e0b; }
+    .executor .app-role { color: #10b981; }
+    .manager .app-role { color: #00e5ff; }
+
+    .concept-box {
+      background: rgba(0, 0, 0, 0.35);
+      border-radius: 14px;
+      padding: 16px;
+      font-size: 0.88rem;
+      color: #cbd5e1;
+      margin-top: auto;
+    }
+
+    .concept-box strong {
+      color: #ffffff;
+      display: block;
+      margin-bottom: 6px;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    .palette-dots {
+      display: flex;
+      gap: 8px;
+      margin-top: 14px;
+      align-items: center;
+    }
+
+    .palette-dot {
+      width: 20px;
+      height: 20px;
+      border-radius: 6px;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    /* PHONE SCREEN MOCKUP */
+    .mockup-section {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 28px;
+      padding: 40px 30px;
+      margin-bottom: 60px;
+    }
+
+    .mockup-section h3 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .mockup-section p {
+      color: var(--text-muted);
+      text-align: center;
+      margin-bottom: 36px;
+    }
+
+    .phone-grid {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 36px;
+      flex-wrap: wrap;
+    }
+
+    .phone-app-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100px;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .phone-app-item:hover {
+      transform: translateY(-4px);
+    }
+
+    .phone-icon-squircle {
+      width: 80px;
+      height: 80px;
+      border-radius: 19px;
+      overflow: hidden;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.45);
+      margin-bottom: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .phone-icon-squircle svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .phone-icon-round {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      overflow: hidden;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.45);
+      margin-bottom: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .phone-icon-round svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .phone-app-label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #e2e8f0;
+      line-height: 1.2;
+    }
+
+    /* HORIZONTAL COMBINED LOGOS */
+    .branding-row {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      margin-top: 30px;
+    }
+
+    .banner-preview {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      padding: 20px 28px;
+      background: rgba(10, 16, 30, 0.85);
+      border-radius: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .banner-preview .mini-icon {
+      width: 64px;
+      height: 64px;
+      flex-shrink: 0;
+    }
+
+    .banner-title {
+      font-size: 1.4rem;
+      font-weight: 900;
+      letter-spacing: -0.3px;
+    }
+
+    .banner-desc {
+      font-size: 0.85rem;
+      color: #94a3b8;
+    }
+
+    /* ACTIONS / DECISION BAR */
+    .action-panel {
+      text-align: center;
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(0, 229, 255, 0.1) 100%);
+      border: 1px solid rgba(0, 229, 255, 0.25);
+      border-radius: 24px;
+      padding: 36px 24px;
+    }
+
+    .action-panel h3 {
+      font-size: 1.4rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .action-panel p {
+      color: #cbd5e1;
+      max-width: 650px;
+      margin: 0 auto 20px;
+      font-size: 0.95rem;
+    }
+
+    .action-btn-group {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 12px 28px;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: #ffffff;
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.35);
+    }
+    .btn-primary:hover {
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
+      transform: translateY(-2px);
+    }
+
+    .btn-outline {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #ffffff;
+    }
+    .btn-outline:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    
+    <header>
+      <div class="badge-pill">QazGost Mobile Suite Identity 2026</div>
+      <h1>Концепты логотипов для 3-х мобильных приложений</h1>
+      <p class="subtitle">
+        Единая дизайн-система бренда QazGost: технологичная буква <strong>«Q»</strong>, 
+        прецизионная геометрия и мгновенно узнаваемые символы для каждой строительной роли.
+      </p>
+    </header>
+
+    <!-- 3 MAIN LOGOS -->
+    <div class="logos-grid">
+      
+      <!-- 1. ENGINEER -->
+      <div class="logo-card engineer">
+        <div class="logo-icon-wrapper">
+          <object type="image/svg+xml" data="logo-engineer.svg" width="100%" height="100%"></object>
+        </div>
+        <div class="app-meta">
+          <span class="app-id">kz.qazgost.engineer</span>
+          <h2>QazGost Engineer</h2>
+          <div class="app-role">Мобильное приложение Инженера</div>
+        </div>
+        <div class="concept-box">
+          <strong>Символизм и метафора:</strong>
+          Инженерная каска в форме литеры <b>«Q»</b>, прецизионный оптический визир LiDAR/лазерного дальномера и калибровочные засечки ГОСТ.
+          Символизирует технический надзор, точность замеров, дефектоскопию и строительные нормативы.
+          <div class="palette-dots">
+            <span style="font-size:0.75rem; color:#94a3b8;">Цвета:</span>
+            <div class="palette-dot" style="background: #f59e0b;" title="#F59E0B Янтарь"></div>
+            <div class="palette-dot" style="background: #f97316;" title="#F97316 Оранжевый"></div>
+            <div class="palette-dot" style="background: #00e5ff;" title="#00E5FF Лазерный Циан"></div>
+            <div class="palette-dot" style="background: #0a1020;" title="#0A1020 Обсидиан"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. EXECUTOR -->
+      <div class="logo-card executor">
+        <div class="logo-icon-wrapper">
+          <object type="image/svg+xml" data="logo-executor.svg" width="100%" height="100%"></object>
+        </div>
+        <div class="app-meta">
+          <span class="app-id">kz.qazgost.executor</span>
+          <h2>QazGost Исполнитель</h2>
+          <div class="app-role">Мобильное приложение Мастера / Бригадира</div>
+        </div>
+        <div class="concept-box">
+          <strong>Символизм и метафора:</strong>
+          Динамичный мастерок и молот созидания, объединенные с мощной неоновой <b>галочкой качества (Checkmark)</b> и фундаментным анкером.
+          Символизирует работу на объекте, выполнение задач в срок и 100% гарантию сдачи без брака.
+          <div class="palette-dots">
+            <span style="font-size:0.75rem; color:#94a3b8;">Цвета:</span>
+            <div class="palette-dot" style="background: #10b981;" title="#10B981 Неоновый Изумруд"></div>
+            <div class="palette-dot" style="background: #34d399;" title="#34D399 Лайм-Нефрит"></div>
+            <div class="palette-dot" style="background: #00e5ff;" title="#00E5FF Электрик Циан"></div>
+            <div class="palette-dot" style="background: #041216;" title="#041216 Глубокий Ночной"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. MANAGER -->
+      <div class="logo-card manager">
+        <div class="logo-icon-wrapper">
+          <object type="image/svg+xml" data="logo-manager.svg" width="100%" height="100%"></object>
+        </div>
+        <div class="app-meta">
+          <span class="app-id">kz.qazgost.manager</span>
+          <h2>QazGost CRM</h2>
+          <div class="app-role">Приложение Руководителя / Менеджера</div>
+        </div>
+        <div class="concept-box">
+          <strong>Символизм и метафора:</strong>
+          Три современных небоскреба девелопмента, плавно восходящих в виде диаграммы роста, орбита контроля и <b>золотая стрела финансового прорыва</b>.
+          Символизирует управление проектами, CRM-воронку сделок, контроль финансов и девелопмент.
+          <div class="palette-dots">
+            <span style="font-size:0.75rem; color:#94a3b8;">Цвета:</span>
+            <div class="palette-dot" style="background: #00e5ff;" title="#00E5FF Электрик Циан"></div>
+            <div class="palette-dot" style="background: #3b82f6;" title="#3B82F6 Кобальт"></div>
+            <div class="palette-dot" style="background: #f59e0b;" title="#F59E0B Золотой Вектор"></div>
+            <div class="palette-dot" style="background: #050a1a;" title="#050A1A Космический Индиго"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- MOCKUP: HOME SCREEN PREVIEW -->
+    <div class="mockup-section">
+      <h3>Как иконки смотрятся на экране смартфона</h3>
+      <p>Сравнение классического стиля Android/iOS Squircle и адаптивных круглых иконок</p>
+
+      <div style="margin-bottom: 30px;">
+        <h4 style="text-align:center; font-size: 0.95rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px;">
+          Сетка приложений (Squircle Icons)
+        </h4>
+        <div class="phone-grid">
+          <div class="phone-app-item">
+            <div class="phone-icon-squircle">
+              <object type="image/svg+xml" data="logo-engineer.svg" width="100%" height="100%"></object>
+            </div>
+            <span class="phone-app-label">QazGost<br>Инженер</span>
+          </div>
+
+          <div class="phone-app-item">
+            <div class="phone-icon-squircle">
+              <object type="image/svg+xml" data="logo-executor.svg" width="100%" height="100%"></object>
+            </div>
+            <span class="phone-app-label">QazGost<br>Мастер</span>
+          </div>
+
+          <div class="phone-app-item">
+            <div class="phone-icon-squircle">
+              <object type="image/svg+xml" data="logo-manager.svg" width="100%" height="100%"></object>
+            </div>
+            <span class="phone-app-label">QazGost<br>CRM</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="border-top: 1px solid rgba(255,255,255,0.08); padding-top: 25px;">
+        <h4 style="text-align:center; font-size: 0.95rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px;">
+          Адаптивные круглые иконки (Android Round Launcher)
+        </h4>
+        <div class="phone-grid">
+          <div class="phone-app-item">
+            <div class="phone-icon-round">
+              <object type="image/svg+xml" data="logo-engineer.svg" width="100%" height="100%"></object>
+            </div>
+            <span class="phone-app-label">Инженер</span>
+          </div>
+
+          <div class="phone-app-item">
+            <div class="phone-icon-round">
+              <object type="image/svg+xml" data="logo-executor.svg" width="100%" height="100%"></object>
+            </div>
+            <span class="phone-app-label">Мастер</span>
+          </div>
+
+          <div class="phone-app-item">
+            <div class="phone-icon-round">
+              <object type="image/svg+xml" data="logo-manager.svg" width="100%" height="100%"></object>
+            </div>
+            <span class="phone-app-label">CRM</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HEADER / BANNER COMBINATIONS -->
+    <div class="mockup-section">
+      <h3>Горизонтальные версии для шапок экранов и сплэш-скринов</h3>
+      <p>Отображение знака в комбинации с фирменной типографикой</p>
+
+      <div class="branding-row">
+        <!-- 1 -->
+        <div class="banner-preview">
+          <div class="mini-icon">
+            <object type="image/svg+xml" data="logo-engineer.svg" width="100%" height="100%"></object>
+          </div>
+          <div>
+            <div class="banner-title" style="color: #ffffff;">QAZGOST <span style="color: #f59e0b;">ENGINEER</span></div>
+            <div class="banner-desc">Строительный аудит, лазерные замеры, дефектоскопия и ГОСТ</div>
+          </div>
+        </div>
+
+        <!-- 2 -->
+        <div class="banner-preview">
+          <div class="mini-icon">
+            <object type="image/svg+xml" data="logo-executor.svg" width="100%" height="100%"></object>
+          </div>
+          <div>
+            <div class="banner-title" style="color: #ffffff;">QAZGOST <span style="color: #10b981;">EXECUTOR</span></div>
+            <div class="banner-desc">Мобильное рабочее место мастера, бригады и техконтроль работ</div>
+          </div>
+        </div>
+
+        <!-- 3 -->
+        <div class="banner-preview">
+          <div class="mini-icon">
+            <object type="image/svg+xml" data="logo-manager.svg" width="100%" height="100%"></object>
+          </div>
+          <div>
+            <div class="banner-title" style="color: #ffffff;">QAZGOST <span style="color: #00e5ff;">CRM</span></div>
+            <div class="banner-desc">Управление строительным бизнесом, воронка объектов, сметы и финансы</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACTION / APPROVAL PANEL -->
+    <div class="action-panel">
+      <h3>Ожидание вашего одобрения</h3>
+      <p>
+        Оцените цветовую дифференциацию, символику и читаемость логотипов. 
+        Если концепты нравятся — подтвердите установку, и я автоматически сгенерирую все размеры иконок 
+        (mipmap-mdpi, hdpi, xhdpi, xxhdpi, xxxhdpi) и установлю их во все три приложения!
+      </p>
+      <div class="action-btn-group">
+        <a href="logo-engineer.svg" target="_blank" class="btn btn-outline">Открыть SVG Инженера</a>
+        <a href="logo-executor.svg" target="_blank" class="btn btn-outline">Открыть SVG Исполнителя</a>
+        <a href="logo-manager.svg" target="_blank" class="btn btn-outline">Открыть SVG CRM</a>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>

@@ -25,10 +25,27 @@ func NewChatHandler() *ChatHandler {
 func (h *ChatHandler) GetMessages(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	orderID := r.URL.Query().Get("orderId")
+	uid, role := currentUser(r)
 
 	msgs, err := database.GetChatMessages(orderID)
 	if err != nil {
 		msgs = []*models.ChatMessage{}
+	}
+	// Without an orderId a regular user gets only the threads they took part in
+	if orderID == "" && !isStaff(role) {
+		mine := map[string]bool{}
+		for _, m := range msgs {
+			if m.SenderID == uid {
+				mine[m.OrderID] = true
+			}
+		}
+		filtered := make([]*models.ChatMessage, 0, len(msgs))
+		for _, m := range msgs {
+			if mine[m.OrderID] {
+				filtered = append(filtered, m)
+			}
+		}
+		msgs = filtered
 	}
 
 	_ = json.NewEncoder(w).Encode(msgs)
@@ -50,11 +67,19 @@ func (h *ChatHandler) SendMessage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if req.SenderName == "" {
-		req.SenderName = "Пользователь"
+	if len([]rune(req.Text)) > 4000 {
+		w.WriteHeader(http.StatusBadRequest)
+		_ = json.NewEncoder(w).Encode(map[string]string{"error": "Сообщение длиннее 4000 символов"})
+		return
 	}
-	if req.SenderRole == "" {
-		req.SenderRole = "customer"
+
+	// Sender identity always comes from the JWT, never from the request body
+	uid, role := currentUser(r)
+	req.SenderID = uid
+	req.SenderRole = role
+	req.SenderName = "Пользователь"
+	if u, err := database.GetUserByID(uid); err == nil && u.Name != "" {
+		req.SenderName = u.Name
 	}
 
 	msg := &models.ChatMessage{
@@ -67,7 +92,11 @@ func (h *ChatHandler) SendMessage(w http.ResponseWriter, r *http.Request) {
 		CreatedAt:  time.Now(),
 	}
 
-	database.AddChatMessage(msg)
+	if err := database.AddChatMessage(msg); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		_ = json.NewEncoder(w).Encode(map[string]string{"error": "Не удалось сохранить сообщение"})
+		return
+	}
 
 	chatMutex.Lock()
 	for ch := range chatClients {
@@ -94,6 +123,7 @@ func (h *ChatHandler) StreamMessages(w http.ResponseWriter, r *http.Request) {
 	}
 
 	msgChan := make(chan *models.ChatMessage, 20)
+	orderFilter := r.URL.Query().Get("orderId")
 
 	chatMutex.Lock()
 	chatClients[msgChan] = true
@@ -112,6 +142,9 @@ func (h *ChatHandler) StreamMessages(w http.ResponseWriter, r *http.Request) {
 		case <-notify:
 			return
 		case msg := <-msgChan:
+			if orderFilter != "" && msg.OrderID != orderFilter {
+				continue
+			}
 			data, _ := json.Marshal(msg)
 			fmt.Fprintf(w, "data: %s\n\n", data)
 			flusher.Flush()

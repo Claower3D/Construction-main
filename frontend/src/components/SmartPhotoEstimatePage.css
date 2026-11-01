@@ -1367,3 +1367,52 @@
     min-width: unset;
   }
 }
+
+/* ════════════ Обновление на токенах (round 2): формы и итоговая карточка ════════════ */
+.spe-step-badge h3 { text-transform: none !important; letter-spacing: 0 !important; font-size: var(--qg-fs-lg) !important; color: var(--qg-text) !important; }
+.spe-dropzone:focus-within { outline: 2px solid var(--qg-cyan); outline-offset: 2px; }
+.spe-dropzone {
+  border-radius: var(--qg-r-card) !important;
+  border: 1.5px dashed var(--qg-line-strong) !important;
+  background:
+    linear-gradient(var(--qg-grid) 1px, transparent 1px) 0 0 / 20px 20px,
+    linear-gradient(90deg, var(--qg-grid) 1px, transparent 1px) 0 0 / 20px 20px,
+    var(--qg-field) !important;
+  box-shadow: none !important;
+}
+.spe-dropzone:hover, .spe-dropzone.drag-active { border-color: var(--qg-cyan) !important; }
+.spe-description-textarea, .spe-region-select, #spe-area {
+  border-radius: var(--qg-r-ctrl) !important;
+  border: 1px solid var(--qg-line-strong) !important;
+  background: var(--qg-field) !important;
+  color: var(--qg-text) !important;
+  font-family: var(--qg-font) !important;
+  min-height: 44px;
+}
+.spe-description-textarea:focus, .spe-region-select:focus, #spe-area:focus { border-color: var(--qg-cyan) !important; outline: none; }
+.spe-result-box {
+  background: var(--qg-surface) !important;
+  border: 1px solid var(--qg-line) !important;
+  border-radius: var(--qg-r-panel) !important;
+  box-shadow: none !important;
+}
+.spe-res-head { flex-wrap: wrap; gap: 8px; }
+.spe-res-title { margin: 0; color: var(--qg-text) !important; font-size: var(--qg-fs-xl) !important; font-weight: 800 !important; }
+.spe-res-badge { border-radius: var(--qg-r-sm) !important; background: rgba(140, 170, 214, 0.1) !important; color: var(--qg-text-2) !important; font-weight: 600; }
+.spe-res-sum.qg-price-tag {
+  display: inline-flex;
+  margin-bottom: 1.25rem;
+  font-size: clamp(1.6rem, 1.1rem + 2vw, 2.4rem) !important;
+  color: var(--qg-price) !important;
+}
+.spe-res-col {
+  background: var(--qg-field) !important;
+  border: 1px solid var(--qg-line) !important;
+  border-radius: var(--qg-r-card) !important;
+  box-shadow: none !important;
+}
+.spe-res-col .label { color: var(--qg-text-3) !important; }
+.spe-res-col strong { color: var(--qg-text) !important; font-variant-numeric: tabular-nums; }
+@media (max-width: 640px) {
+  .spe-res-grid { grid-template-columns: 1fr !important; }
+}

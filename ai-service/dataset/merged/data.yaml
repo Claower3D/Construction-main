@@ -1,3 +1,5 @@
+# Пути относительно каталога этого файла (без абсолютного path — переносимо между ПК).
+# Обучение: python scripts/train_defects.py   Оценка: python scripts/eval_defects.py
 names:
 - crack
 - corrosion
@@ -6,6 +8,5 @@ names:
 - damage
 - stain
 nc: 6
-path: C:\Users\SystemX\Documents\Construction-main\ai-service\dataset\merged
 train: images/train
 val: images/val

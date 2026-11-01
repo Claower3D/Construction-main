@@ -544,13 +544,13 @@ class AutoEstimator:
                 merged[code]["total_price"] += item["total_price"]
                 # Track confidence sum for proper averaging
                 merge_counts[code] += 1
-                merged[code]["_conf_sum"] += item["confidence"]
+                merged[code]["_conf_sum"] += item.get("confidence", 0.5)
                 merged[code]["confidence"] = round(
                     merged[code]["_conf_sum"] / merge_counts[code], 3
                 )
             else:
                 merged[code] = item.copy()
-                merged[code]["_conf_sum"] = item["confidence"]
+                merged[code]["_conf_sum"] = item.get("confidence", 0.5)
                 merge_counts[code] = 1
         
         # Clean up internal tracking field
@@ -622,8 +622,10 @@ class AutoEstimator:
         }
 
         for d in defects:
-            dtype = d.get("type", "defect")
+            # DefectAnalyzer / DefectNN отдают defect_type, детекторы /defect-scan — type
+            dtype = d.get("defect_type") or d.get("type") or "defect"
             severity = d.get("severity", "medium")
+            det_conf = float(d.get("confidence", 0.6) or 0.6)
             area_m2 = d.get("area_pct", 1.0) / 100.0  # rough conversion
             length_m = d.get("length_px", 100) * 0.005  # assume ~5mm/px
 
@@ -656,6 +658,7 @@ class AutoEstimator:
                     "total_price": round(total, 2),
                     "source_defect": dtype,
                     "severity": severity,
+                    "confidence": round(det_conf, 3),
                 })
 
         items = self._merge_items(items)

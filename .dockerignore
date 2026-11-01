@@ -1,0 +1,24 @@
+# Keep the Railway/compose build context small: only frontend/, go-backend/ and
+# ai-service/app/data/price_db.json are needed by ./Dockerfile and go-backend/Dockerfile
+.git
+**/node_modules
+**/dist
+*.apk
+*.docx
+AndroidProject
+WebVersion
+extension
+mobile-engineer
+mobile-executor
+mobile-manager
+ai-service/dataset
+ai-service/runs
+ai-service/data
+ai-service/uploads
+ai-service/*.pt
+ai-service/models
+uploads
+assets
+**/.env
+**/.env.*
+!**/.env.example

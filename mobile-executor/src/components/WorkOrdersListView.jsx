@@ -1,147 +1,60 @@
 import React, { useState } from 'react';
+import { ClipboardList } from 'lucide-react';
 import WorkOrderCard from './WorkOrderCard';
-import { Hammer, Filter, CheckCircle2, Clock, Truck } from 'lucide-react';
+import { EmptyState } from './ui/kit';
+import { localDateISO } from '../api/syncCore';
+
+const FILTERS = [
+  { id: 'all', label: 'Все', test: () => true },
+  { id: 'in_work', label: 'В работе', test: o => o.status === 'В работе' || o.status === 'На объекте' },
+  { id: 'departure', label: 'К выезду', test: o => o.status === 'Новые' || o.status === 'Выезд назначен' },
+  { id: 'acceptance', label: 'Приёмка', test: o => o.status === 'Приёмка' },
+  { id: 'completed', label: 'Сданы', test: o => o.status === 'Завершено' }
+];
 
 export default function WorkOrdersListView({ orders = [], onSelectOrder, searchQuery }) {
-  const [filterTab, setFilterTab] = useState('all'); // all | in_work | ready | completed
-
-  const filterTabs = [
-    { id: 'all', label: 'Все наряды' },
-    { id: 'in_work', label: 'В работе' },
-    { id: 'departure', label: 'К выезду' },
-    { id: 'acceptance', label: 'Приёмка' },
-    { id: 'completed', label: 'Сданы' }
-  ];
-
-  const filteredOrders = orders.filter(o => {
-    if (searchQuery) {
-      const q = searchQuery.toLowerCase();
-      const match =
-        (o.client || '').toLowerCase().includes(q) ||
-        (o.title || '').toLowerCase().includes(q) ||
-        (o.location || '').toLowerCase().includes(q) ||
-        (o.phone || '').includes(q);
-      if (!match) return false;
-    }
-
-    if (filterTab === 'in_work') {
-      return o.status === 'В работе' || o.status === 'На объекте';
-    }
-    if (filterTab === 'departure') {
-      return o.status === 'Новые' || o.status === 'Выезд назначен';
-    }
-    if (filterTab === 'acceptance') {
-      return o.status === 'Приёмка';
-    }
-    if (filterTab === 'completed') {
-      return o.status === 'Завершено';
-    }
-    return true;
+  const [filterTab, setFilterTab] = useState('all');
+  const today = localDateISO();
+  const q = (searchQuery || '').trim().toLowerCase();
+  const searched = orders.filter(o => !q || [o.client, o.title, o.location, o.phone].some(v => String(v || '').toLowerCase().includes(q)));
+  const active = FILTERS.find(f => f.id === filterTab) || FILTERS[0];
+  const list = searched.filter(active.test).sort((a, b) => {
+    const ka = a.date ? (a.date < today ? `2${a.date}` : `1${a.date}`) : '3';
+    const kb = b.date ? (b.date < today ? `2${b.date}` : `1${b.date}`) : '3';
+    return ka.localeCompare(kb) || String(a.time || '').localeCompare(String(b.time || ''));
   });
-
-  const inWorkCount = orders.filter(o => o.status === 'В работе' || o.status === 'На объекте').length;
-  const totalStagesDone = orders.reduce((sum, o) => sum + (o.stages || []).filter(s => s.done).length, 0);
+  const stagesDone = orders.reduce((s, o) => s + (o.stages || []).filter(x => x.done).length, 0);
+  const inWork = orders.filter(FILTERS[1].test).length;
 
   return (
-    <div style={{ padding: '16px' }}>
-      {/* Summary KPI Banner */}
-      <div style={{
-        background: 'linear-gradient(135deg, rgba(0, 229, 255, 0.15) 0%, rgba(2, 132, 199, 0.05) 100%)',
-        border: '1px solid rgba(0, 229, 255, 0.3)',
-        borderRadius: '18px',
-        padding: '16px',
-        marginBottom: '16px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between'
-      }}>
-        <div>
-          <div style={{ fontSize: '0.74rem', color: '#00e5ff', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-            Строймонтаж и объекты
-          </div>
-          <div style={{ fontSize: '1.35rem', fontWeight: 900, color: '#ffffff', marginTop: '2px' }}>
-            {inWorkCount} нарядов в работе
-          </div>
-        </div>
-
-        <div style={{
-          background: 'rgba(0, 229, 255, 0.12)',
-          borderRadius: '12px',
-          padding: '8px 12px',
-          textAlign: 'center'
-        }}>
-          <div style={{ fontSize: '1.1rem', fontWeight: 900, color: '#00e5ff' }}>
-            {totalStagesDone}
-          </div>
-          <div style={{ fontSize: '0.64rem', color: '#94a3b8', fontWeight: 700 }}>
-            этапов сдано
-          </div>
-        </div>
+    <div className="qz-page">
+      <div className="qz-section-head">
+        <h2 className="qz-h2">{inWork ? `В работе: ${inWork}` : 'Нарядов в работе нет'}</h2>
+        <span className="qz-small qz-faint num">этапов сдано: {stagesDone}</span>
       </div>
 
-      {/* Filter Tabs Scroll */}
-      <div style={{
-        display: 'flex',
-        gap: '8px',
-        overflowX: 'auto',
-        paddingBottom: '8px',
-        marginBottom: '16px',
-        scrollbarWidth: 'none'
-      }}>
-        {filterTabs.map(tab => {
-          const isActive = filterTab === tab.id;
+      <div className="qz-chips" role="tablist" aria-label="Фильтр нарядов">
+        {FILTERS.map(f => {
+          const on = filterTab === f.id;
           return (
-            <button
-              key={tab.id}
-              onClick={() => setFilterTab(tab.id)}
-              style={{
-                background: isActive ? '#00e5ff' : 'rgba(255, 255, 255, 0.05)',
-                color: isActive ? '#060b17' : '#94a3b8',
-                border: isActive ? 'none' : '1px solid rgba(255, 255, 255, 0.08)',
-                padding: '7px 14px',
-                borderRadius: '12px',
-                fontSize: '0.78rem',
-                fontWeight: 800,
-                cursor: 'pointer',
-                flexShrink: 0,
-                transition: 'all 0.15s ease'
-              }}
-            >
-              {tab.label}
+            <button key={f.id} type="button" role="tab" aria-selected={on} className={`qz-chip${on ? ' is-active' : ''}`} onClick={() => setFilterTab(f.id)}>
+              {f.label} <span className="qz-count">{searched.filter(f.test).length}</span>
             </button>
           );
         })}
       </div>
 
-      {/* Orders List */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-        {filteredOrders.length === 0 ? (
-          <div style={{
-            background: 'rgba(255, 255, 255, 0.02)',
-            border: '1px dashed rgba(255, 255, 255, 0.1)',
-            borderRadius: '16px',
-            padding: '36px 20px',
-            textAlign: 'center',
-            color: '#64748b'
-          }}>
-            <Hammer size={36} style={{ margin: '0 auto 10px', opacity: 0.5 }} />
-            <div style={{ fontSize: '0.92rem', fontWeight: 700, color: '#ffffff', marginBottom: '4px' }}>
-              Нет нарядов в данной категории
-            </div>
-            <p style={{ fontSize: '0.76rem', margin: 0 }}>
-              Выберите другую вкладку фильтра или сбросьте поиск
-            </p>
-          </div>
-        ) : (
-          filteredOrders.map(order => (
-            <WorkOrderCard
-              key={order.id}
-              order={order}
-              onSelectOrder={onSelectOrder}
-            />
-          ))
-        )}
-      </div>
+      {list.length === 0 ? (
+        <EmptyState
+          icon={<ClipboardList size={28} />}
+          title={q ? 'Ничего не найдено' : 'Нарядов нет'}
+          text={q ? 'Проверьте объект, клиента или адрес.' : 'Новые наряды появятся после синхронизации с сервером.'}
+        />
+      ) : (
+        <div className="qz-stack" style={{ marginTop: 'var(--sp-2)' }}>
+          {list.map(order => <WorkOrderCard key={order.id} order={order} onSelectOrder={onSelectOrder} />)}
+        </div>
+      )}
     </div>
   );
 }

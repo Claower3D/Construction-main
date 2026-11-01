@@ -900,3 +900,96 @@
   }
 }
 
+
+/* ════════════ Обновление на токенах (round 2) ════════════
+   Баланс — «ценник» (жёлтый — только деньги), действия — синяя основная и контурные кнопки,
+   без свечения и градиентов. */
+.uw-container { font-family: var(--qg-font); color: var(--qg-text); }
+.uw-header-bar { align-items: flex-start !important; gap: 16px !important; }
+.uw-header-title { display: flex; flex-direction: column; align-items: flex-start !important; gap: 6px; }
+.uw-balance-info { display: flex; flex-direction: column; align-items: flex-start; }
+.uw-title { margin: 0; color: var(--qg-text); font-size: var(--qg-fs-3xl); font-weight: 800; letter-spacing: -0.02em; line-height: var(--qg-lh-tight); }
+.uw-subtitle { margin: 0; max-width: 60ch; color: var(--qg-text-2); line-height: var(--qg-lh-body); }
+.uw-back-btn {
+  width: 44px !important; height: 44px !important;
+  border-radius: var(--qg-r-ctrl) !important;
+  border: 1px solid var(--qg-line-strong) !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+.uw-card,
+.uw-balance-card,
+.uw-stat-card,
+.uw-plan-card {
+  background: var(--qg-surface) !important;
+  border: 1px solid var(--qg-line) !important;
+  border-radius: var(--qg-r-panel) !important;
+  box-shadow: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+.uw-stat-card, .uw-plan-card { border-radius: var(--qg-r-card) !important; }
+.uw-balance-label { color: var(--qg-text-2) !important; font-size: var(--qg-fs-sm) !important; font-weight: 600 !important; }
+.uw-balance-amount {
+  display: inline-block;
+  margin: 8px 0 14px !important;
+  padding: 4px 0 4px 14px !important;
+  border-left: 4px solid var(--qg-price);
+  color: var(--qg-price) !important;
+  font-size: clamp(2rem, 1.4rem + 2.6vw, 3.25rem) !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.02em;
+  line-height: 1.05 !important;
+  background: none !important;
+  -webkit-text-fill-color: var(--qg-price) !important;
+  text-shadow: none !important;
+  font-variant-numeric: tabular-nums;
+}
+.uw-plan-badge, .uw-history-box {
+  background: rgba(140, 170, 214, 0.06) !important;
+  border: 1px solid var(--qg-line) !important;
+  color: var(--qg-text-2) !important;
+  box-shadow: none !important;
+}
+.uw-currency-toggle { background: var(--qg-field) !important; border: 1px solid var(--qg-line) !important; border-radius: var(--qg-r-ctrl) !important; }
+.uw-curr-btn { border-radius: 7px !important; color: var(--qg-text-2) !important; box-shadow: none !important; }
+.uw-curr-btn.active { background: var(--qg-surface-2) !important; color: var(--qg-text) !important; box-shadow: inset 0 0 0 1px var(--qg-line-strong) !important; }
+.uw-btn-gold {
+  background: var(--qg-blue) !important;
+  color: #fff !important;
+  border: 1px solid var(--qg-blue) !important;
+  border-radius: var(--qg-r-ctrl) !important;
+  box-shadow: none !important;
+  transform: none !important;
+  font-weight: 700 !important;
+}
+.uw-btn-gold:hover { background: var(--qg-blue-hover) !important; }
+.uw-btn-glass, .uw-add-card-link-btn {
+  background: transparent !important;
+  color: var(--qg-text) !important;
+  border: 1px solid var(--qg-line-strong) !important;
+  border-radius: var(--qg-r-ctrl) !important;
+  box-shadow: none !important;
+  transform: none !important;
+  font-weight: 600 !important;
+}
+.uw-btn-glass:hover, .uw-add-card-link-btn:hover { border-color: var(--qg-text-2) !important; }
+.uw-section-title { color: var(--qg-text) !important; font-size: var(--qg-fs-xl) !important; font-weight: 800 !important; letter-spacing: -0.01em; }
+.uw-count { margin-left: 6px; padding: 1px 8px; border-radius: var(--qg-r-pill); background: rgba(140, 170, 214, 0.12); color: var(--qg-text-2); font-size: 0.8125rem; vertical-align: middle; }
+.uw-add-card-tile {
+  font: inherit;
+  color: var(--qg-text) !important;
+  background: transparent !important;
+  border: 1.5px dashed var(--qg-line-strong) !important;
+  border-radius: var(--qg-r-card) !important;
+  box-shadow: none !important;
+  cursor: pointer;
+}
+.uw-add-card-tile:hover { border-color: var(--qg-cyan) !important; }
+.uw-add-card-tile .add-card-icon { color: var(--qg-cyan) !important; }
+.uw-stat-label { color: var(--qg-text-3) !important; font-weight: 600 !important; }
+.uw-stat-value { font-variant-numeric: tabular-nums; text-shadow: none !important; }
+.uw-plan-card .uw-plan-price { color: var(--qg-price) !important; -webkit-text-fill-color: var(--qg-price) !important; background: none !important; text-shadow: none !important; }
+.uw-plan-btn { border-radius: var(--qg-r-ctrl) !important; box-shadow: none !important; transform: none !important; }
+.uw-popular-badge { box-shadow: none !important; }
+.uw-transactions-list > div { background: var(--qg-surface) !important; border-color: var(--qg-line) !important; }

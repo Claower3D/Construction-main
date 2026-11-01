@@ -578,8 +578,29 @@ class AnalysisPipeline:
                 for r in defect_report["recommendations"]
             )
 
+        # ── Mock / demo mode detection ──
+        # Если и детектор объектов, и VLM работают заглушками — объекты, размеры и смета
+        # сгенерированы и не отражают фото. Явно помечаем это в ответе.
+        mock_components = []
+        if getattr(detector, "_mock_mode", False):
+            mock_components.append("rfdetr")
+        if qwen_result.get("_mock"):
+            mock_components.append("qwen")
+        is_mock = "rfdetr" in mock_components and "qwen" in mock_components
+        if is_mock:
+            warnings.insert(0, (
+                "ДЕМО-РЕЖИМ: нейросети не загружены (RF-DETR и Qwen2.5-VL в mock-режиме) — "
+                "объекты, размеры и смета сгенерированы заглушкой и НЕ отражают содержимое фото."
+            ))
+        detected_dicts = [self._det_to_dict(d) for d in detections]
+        if is_mock:
+            for dd in detected_dicts:
+                dd["mock"] = True
+
         result = {
             "success": True,
+            "is_mock": is_mock,
+            "mock_components": mock_components,
             "image_id": image_id,
             "image_width": w,
             "image_height": h,
@@ -588,7 +609,7 @@ class AnalysisPipeline:
             "intent": intent,
 
             # ── Vision ──
-            "detected_objects": [self._det_to_dict(d) for d in detections],
+            "detected_objects": detected_dicts,
             "object_count": len(detections),
             "detection_sources": {
                 "rfdetr": len(raw_detections),
@@ -626,6 +647,7 @@ class AnalysisPipeline:
             "estimate_items": estimate_items,
             "estimate_total": estimate_total,
             "estimate_confidence": estimate_confidence,
+            "estimate_is_mock": is_mock,
 
             # ── Plan ──
             "plan": plan_result,

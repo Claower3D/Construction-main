@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import HeaderBar from './components/HeaderBar';
 import BottomNav from './components/BottomNav';
 import LoginScreen from './components/LoginScreen';
@@ -8,6 +8,9 @@ import WorkOrderDetailModal from './components/WorkOrderDetailModal';
 import MachineryRequestView from './components/MachineryRequestView';
 import ExecutorCalendarView from './components/ExecutorCalendarView';
 import MarketplaceView from './components/MarketplaceView';
+import StageChecklist from './components/StageChecklist';
+import { Toast, SyncBanner, StepProgress, EmptyState } from './components/ui/kit';
+import { ListChecks } from 'lucide-react';
 
 import {
   getSavedAuth,
@@ -15,13 +18,23 @@ import {
   getSavedServerUrl,
   setSavedServerUrl,
   testServerPing,
-  fetchServerOrders,
+  syncOrders,
+  pendingSyncCount,
+  loadDemoOrders,
+  resetCachedOrders,
+  ordersStore,
   updateOrderStatus,
   toggleWorkStage,
   addWorkPhoto,
+  uploadWorkPhoto,
   requestMachinery,
-  getStoredOrders
+  getStoredOrders,
+  defaultStages,
+  getAuthHeaders
 } from './api/executorApi';
+import { FALLBACK_MATERIALS, FALLBACK_EQUIPMENT } from './data/marketFallback';
+
+const HEARTBEAT_MS = 60000;
 
 export default function App() {
   const [authData, setAuthData] = useState(() => getSavedAuth());
@@ -35,12 +48,27 @@ export default function App() {
   const [isOnline, setIsOnline] = useState(true);
   const [isSyncing, setIsSyncing] = useState(false);
   const [toastMessage, setToastMessage] = useState(null);
+  const [pendingCount, setPendingCount] = useState(() => pendingSyncCount());
+  const [syncError, setSyncError] = useState(null);
+  const toastTimerRef = useRef(null);
+
+  const authorName = authData?.name || 'Бригадир';
+  // stable reference: the marketplace refetches only when the session changes
+  const marketHeaders = useMemo(() => getAuthHeaders(), [authData]);
 
   const showToast = useCallback((msg) => {
     setToastMessage(msg);
-    setTimeout(() => {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    toastTimerRef.current = setTimeout(() => {
       setToastMessage(null);
-    }, 3200);
+    }, 3500);
+  }, []);
+  useEffect(() => () => { if (toastTimerRef.current) clearTimeout(toastTimerRef.current); }, []);
+
+  const applyOrders = useCallback((list) => {
+    setOrders(list);
+    setPendingCount(pendingSyncCount(list));
+    setSelectedOrder(prev => (prev ? (list.find(o => String(o.id) === String(prev.id)) || prev) : prev));
   }, []);
 
   // Check server connection on mount and every 45 seconds
@@ -54,79 +82,88 @@ export default function App() {
     return () => clearInterval(interval);
   }, [serverUrl]);
 
-  // Initial fetch from server
+  const runSync = useCallback(async () => {
+    setIsSyncing(true);
+    const res = await syncOrders();
+    setIsSyncing(false);
+    setIsOnline(!!res.success);
+    if (res.success) {
+      setSyncError(res.errors && res.errors.length ? res.errors[0] : null);
+      applyOrders(res.deals);
+    } else {
+      setSyncError(res.error);
+      applyOrders(ordersStore.isInitialized() ? res.deals : loadDemoOrders());
+    }
+    return res;
+  }, [applyOrders]);
+
+  // Initial sync + heartbeat
   useEffect(() => {
-    const loadInit = async () => {
-      if (authData) {
-        setIsSyncing(true);
-        const res = await fetchServerOrders(serverUrl);
-        if (res && res.orders) {
-          setOrders(res.orders);
-        }
-        setIsSyncing(false);
-      }
-    };
-    loadInit();
-  }, [serverUrl, authData]);
+    if (!authData) return undefined;
+    runSync();
+    const t = setInterval(() => { runSync(); }, HEARTBEAT_MS);
+    return () => clearInterval(t);
+  }, [serverUrl, authData, runSync]);
 
   // Handle Sync
   const handleSync = async () => {
-    setIsSyncing(true);
-    const res = await fetchServerOrders(serverUrl);
-    setIsSyncing(false);
-    if (res && res.orders) {
-      setOrders(res.orders);
-      setIsOnline(res.ok !== false && !res.fromCache);
-      showToast(res.fromCache ? '🔄 Загружено из локальной базы' : '⚡ Синхронизировано с Railway сервером!');
-    } else {
-      setIsOnline(false);
-      showToast('⚠️ Ошибка соединения с сервером. Данные сохранены локально.');
+    const res = await runSync();
+    if (!res.success) showToast(`⚠️ Нет связи с сервером (${res.error}). Данные сохранены локально.`);
+    else if (res.errors && res.errors.length) showToast(`⚠️ Не всё отправлено: ${res.errors[0]}`);
+    else showToast('⚡ Синхронизировано с сервером');
+  };
+
+  // Save locally → push → tell the truth about delivery
+  const commitAndSync = async (res, okMsg) => {
+    applyOrders(res.list);
+    if (!res.ok) {
+      showToast(`⚠️ ${res.error}`);
+      return { ok: false };
     }
+    const s = await runSync();
+    const rec = (s.deals || []).find(o => String(o.id) === String(res.record?.id));
+    const synced = !!(s.success && rec && !rec._dirty);
+    showToast(synced ? `${okMsg} — отправлено на сервер` : `${okMsg} — сохранено на телефоне, НЕ отправлено`);
+    return { ok: true, synced };
   };
 
   // Handle Status Update
-  const handleUpdateStatus = async (orderId, newStatus, newNote) => {
-    const updated = await updateOrderStatus(serverUrl, orderId, newStatus, newNote, authData?.name || 'Тимур (Бригадир)');
-    setOrders(updated);
-    if (selectedOrder && String(selectedOrder.id) === String(orderId)) {
-      setSelectedOrder(updated.find(o => String(o.id) === String(orderId)));
-    }
-    showToast(`Статус наряда #${orderId} изменен: "${newStatus}"`);
-  };
+  const handleUpdateStatus = (orderId, newStatus, newNote) =>
+    commitAndSync(updateOrderStatus(orderId, newStatus, newNote, authorName), `Статус «${newStatus}»`);
 
   // Handle Toggle Stage
-  const handleToggleStage = async (orderId, stageId, isDone, stageNote) => {
-    const updated = await toggleWorkStage(serverUrl, orderId, stageId, isDone, stageNote, authData?.name || 'Тимур (Бригадир)');
-    setOrders(updated);
-    if (selectedOrder && String(selectedOrder.id) === String(orderId)) {
-      setSelectedOrder(updated.find(o => String(o.id) === String(orderId)));
-    }
-    showToast(`${isDone ? '✅ Выполнен' : '↩️ Отменён'}: Этап #${stageId}`);
-  };
+  const handleToggleStage = (orderId, stageId, isDone, stageNote) =>
+    commitAndSync(toggleWorkStage(orderId, stageId, isDone, stageNote, authorName), `${isDone ? '✅ Выполнен' : '↩️ Отменён'} этап #${stageId}`);
 
-  // Handle Add Photo
+  // Handle Add Photo (upload when a server session exists, otherwise keep on device with a mark)
   const handleAddPhoto = async (orderId, photoObj) => {
-    const updated = await addWorkPhoto(serverUrl, orderId, photoObj, authData?.name || 'Тимур (Бригадир)');
-    setOrders(updated);
-    if (selectedOrder && String(selectedOrder.id) === String(orderId)) {
-      setSelectedOrder(updated.find(o => String(o.id) === String(orderId)));
+    const { blob, ...photo } = photoObj;
+    let stored = { ...photo, localOnly: true };
+    if (blob) {
+      const up = await uploadWorkPhoto(blob, `${photo.id || 'photo'}.jpg`);
+      if (up.uploaded) stored = { ...photo, serverUrl: up.url, localOnly: false };
+      else stored = { ...photo, localOnly: true, localReason: up.reason };
     }
-    showToast('📷 Фотоотчёт сохранён в наряд объекта!');
+    return commitAndSync(addWorkPhoto(orderId, stored, authorName), stored.localOnly ? '📷 Фото сохранено на телефоне' : '📷 Фото загружено');
   };
 
   // Handle Request Machinery
-  const handleRequestMachinery = async (orderId, machType, machDate, machTime, machNote) => {
-    const updated = await requestMachinery(serverUrl, orderId, machType, machDate, machTime, machNote, authData?.name || 'Тимур (Бригадир)');
-    setOrders(updated);
-    if (selectedOrder && String(selectedOrder.id) === String(orderId)) {
-      setSelectedOrder(updated.find(o => String(o.id) === String(orderId)));
-    }
-    showToast(`🚜 Заявка на ${machType} создана на ${machDate}!`);
-  };
+  const handleRequestMachinery = (orderId, machType, machDate, machTime, machNote) =>
+    commitAndSync(requestMachinery(orderId, machType, machDate, machTime, machNote, authorName), `🚜 Заявка на ${machType}`);
 
   // Handle Quick Order from Marketplace
   const handleMarketOrder = (product) => {
-    showToast(`🛒 "${product.title}" добавлен в наряд снабжения!`);
+    showToast(`🛒 «${product.name}» (${Math.round(product.price).toLocaleString('ru-RU')} ₸ / ${product.unit}) добавлен в список снабжения`);
+  };
+
+  const handleUpdateServerUrl = (newUrl) => {
+    setSavedServerUrl(newUrl);
+    setServerUrl(getSavedServerUrl());
+  };
+
+  const handleResetCache = async () => {
+    applyOrders(resetCachedOrders());
+    await handleSync();
   };
 
   // Login handler
@@ -148,23 +185,20 @@ export default function App() {
     return (
       <LoginScreen
         serverUrl={serverUrl}
+        onUpdateServerUrl={handleUpdateServerUrl}
         onLoginSuccess={handleLoginSuccess}
         onSettingsOpen={() => setShowSettings(true)}
       />
     );
   }
 
+  const TITLES = { orders: 'Наряды', stages: 'Этапы работ', machinery: 'Спецтехника', calendar: 'График', market: 'Снабжение' };
+
   return (
-    <div style={{
-      minHeight: '100vh',
-      backgroundColor: '#060b17',
-      color: '#f8fafc',
-      display: 'flex',
-      flexDirection: 'column',
-      position: 'relative'
-    }}>
-      {/* Top Header */}
+    <div className="qz-app">
       <HeaderBar
+        title={TITLES[activeTab] || 'Наряды'}
+        showSearch={activeTab === 'orders'}
         activeTab={activeTab}
         executor={authData}
         isOnline={isOnline}
@@ -179,12 +213,10 @@ export default function App() {
         onSearchChange={setSearchQuery}
       />
 
+      <SyncBanner pending={pendingCount} error={syncError} onRetry={handleSync} />
+
       {/* Main Content Area */}
-      <main style={{
-        flex: 1,
-        paddingBottom: '85px',
-        overflowY: 'auto'
-      }}>
+      <main className="qz-main">
         {activeTab === 'orders' && (
           <WorkOrdersListView
             orders={orders}
@@ -196,157 +228,33 @@ export default function App() {
         )}
 
         {activeTab === 'stages' && (
-          <div style={{ padding: '16px' }}>
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              marginBottom: '16px'
-            }}>
-              <div>
-                <h2 style={{ fontSize: '18px', fontWeight: '800', color: '#00e5ff', margin: 0 }}>
-                  📋 Чек-лист 7 этапов СМР
-                </h2>
-                <p style={{ fontSize: '12px', color: '#94a3b8', margin: '2px 0 0' }}>
-                  Нажмите на этап для подтверждения выполнения
-                </p>
-              </div>
-              <span style={{
-                fontSize: '11px',
-                fontWeight: 700,
-                color: '#10b981',
-                background: 'rgba(16, 185, 129, 0.12)',
-                padding: '4px 10px',
-                borderRadius: '8px'
-              }}>
-                В работе: {orders.filter(o => o.status === 'В работе').length}
-              </span>
+          <div className="qz-page">
+            <p className="qz-small qz-muted" style={{ marginBottom: 'var(--sp-3)' }}>
+              Нажмите на этап, чтобы отметить его выполненным. Отметка с временем уходит менеджеру.
+            </p>
+            {orders.filter(o => o.status !== 'Завершено').length === 0 && (
+              <EmptyState icon={<ListChecks size={28} />} title="Активных нарядов нет" text="Когда менеджер назначит наряд, его этапы появятся здесь." />
+            )}
+            <div style={{ display: 'grid', gap: 'var(--sp-5)' }}>
+              {orders.filter(o => o.status !== 'Завершено').map(order => {
+                const stages = order.stages && order.stages.length ? order.stages : defaultStages();
+                return (
+                  <section key={order.id} className="qz-card" aria-label={order.title}>
+                    <div className="qz-row" style={{ alignItems: 'flex-start', marginBottom: 'var(--sp-3)' }}>
+                      <div className="qz-grow">
+                        <h2 className="qz-h3">{order.title}</h2>
+                        <div className="qz-xs qz-faint">{[order.client, order.location].filter(Boolean).join(', ')}</div>
+                      </div>
+                      <button type="button" className="qz-btn is-sm" onClick={() => setSelectedOrder(order)}>Наряд</button>
+                    </div>
+                    <StepProgress stages={stages} />
+                    <div style={{ marginTop: 'var(--sp-3)' }}>
+                      <StageChecklist order={order} onToggleStage={handleToggleStage} compact />
+                    </div>
+                  </section>
+                );
+              })}
             </div>
-
-            {orders.map(order => {
-              const stages = order.stages || [];
-              const doneCount = stages.filter(s => s.done).length;
-              const totalCount = stages.length || 7;
-              const pct = Math.round((doneCount / totalCount) * 100);
-
-              return (
-                <div
-                  key={order.id}
-                  style={{
-                    backgroundColor: '#0f172a',
-                    border: '1px solid #1e293b',
-                    borderRadius: '14px',
-                    padding: '16px',
-                    marginBottom: '16px'
-                  }}
-                >
-                  <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'flex-start',
-                    marginBottom: '12px'
-                  }}>
-                    <div>
-                      <div style={{ fontSize: '15px', fontWeight: '700', color: '#f8fafc' }}>
-                        Заказ #{order.leadNum || order.id} • {order.client}
-                      </div>
-                      <div style={{ fontSize: '12px', color: '#94a3b8', marginTop: '2px' }}>
-                        📍 {order.location || 'Адрес не указан'}
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => setSelectedOrder(order)}
-                      style={{
-                        padding: '6px 12px',
-                        backgroundColor: 'rgba(0, 229, 255, 0.1)',
-                        border: '1px solid #00e5ff',
-                        borderRadius: '8px',
-                        color: '#00e5ff',
-                        fontSize: '12px',
-                        fontWeight: '700',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      Наряд ↗
-                    </button>
-                  </div>
-
-                  {/* Progress bar */}
-                  <div style={{ marginBottom: '14px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '4px' }}>
-                      <span style={{ color: '#94a3b8' }}>Готовность объекта</span>
-                      <span style={{ color: pct === 100 ? '#10b981' : '#00e5ff', fontWeight: '800' }}>
-                        {doneCount}/{totalCount} ({pct}%)
-                      </span>
-                    </div>
-                    <div style={{ width: '100%', height: '8px', backgroundColor: '#1e293b', borderRadius: '4px', overflow: 'hidden' }}>
-                      <div style={{
-                        width: `${pct}%`,
-                        height: '100%',
-                        backgroundColor: pct === 100 ? '#10b981' : '#00e5ff',
-                        borderRadius: '4px',
-                        transition: 'width 0.3s'
-                      }} />
-                    </div>
-                  </div>
-
-                  {/* Stages items quick checklist */}
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    {stages.map(st => (
-                      <div
-                        key={st.id}
-                        onClick={() => handleToggleStage(order.id, st.id, !st.done, st.note || '')}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '12px',
-                          padding: '10px 12px',
-                          backgroundColor: st.done ? 'rgba(16, 185, 129, 0.08)' : '#1e293b',
-                          border: `1px solid ${st.done ? 'rgba(16, 185, 129, 0.4)' : '#334155'}`,
-                          borderRadius: '10px',
-                          cursor: 'pointer'
-                        }}
-                      >
-                        <span style={{
-                          width: '24px',
-                          height: '24px',
-                          borderRadius: '6px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          backgroundColor: st.done ? '#10b981' : 'transparent',
-                          border: `2px solid ${st.done ? '#10b981' : '#64748b'}`,
-                          color: '#fff',
-                          fontSize: '13px',
-                          fontWeight: '800',
-                          flexShrink: 0
-                        }}>
-                          {st.done ? '✓' : ''}
-                        </span>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{
-                            fontSize: '13px',
-                            fontWeight: '600',
-                            color: st.done ? '#10b981' : '#f8fafc',
-                            textDecoration: st.done ? 'line-through' : 'none'
-                          }}>
-                            {st.id}. {st.title}
-                          </div>
-                          {st.time && (
-                            <div style={{ fontSize: '11px', color: '#64748b' }}>
-                              Отметка: {st.time} {st.note ? `• ${st.note}` : ''}
-                            </div>
-                          )}
-                        </div>
-                        <span style={{ fontSize: '11px', color: st.done ? '#10b981' : '#64748b' }}>
-                          {st.done ? 'Сделано' : 'Отметить'}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              );
-            })}
           </div>
         )}
 
@@ -366,7 +274,12 @@ export default function App() {
 
         {activeTab === 'market' && (
           <MarketplaceView
-            onOrderProduct={handleMarketOrder}
+            serverUrl={serverUrl}
+            authHeaders={marketHeaders}
+            addLabel="В заявку"
+            fallbackMaterials={FALLBACK_MATERIALS}
+            fallbackEquipment={FALLBACK_EQUIPMENT}
+            onAddItem={handleMarketOrder}
           />
         )}
       </main>
@@ -394,41 +307,20 @@ export default function App() {
       {/* Settings Modal */}
       {showSettings && (
         <SettingsModal
-          isOpen={showSettings}
+          executor={authData}
           onClose={() => setShowSettings(false)}
-          authData={authData}
           serverUrl={serverUrl}
           onUpdateServerUrl={(newUrl) => {
-            setSavedServerUrl(newUrl);
-            setServerUrl(newUrl);
+            handleUpdateServerUrl(newUrl);
             showToast('Адрес сервера сохранен!');
           }}
+          onResetCache={handleResetCache}
           onLogout={handleLogout}
         />
       )}
 
       {/* Toast Notification */}
-      {toastMessage && (
-        <div style={{
-          position: 'fixed',
-          bottom: '90px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          backgroundColor: '#00e5ff',
-          color: '#060b17',
-          padding: '10px 20px',
-          borderRadius: '24px',
-          fontWeight: '700',
-          fontSize: '13px',
-          boxShadow: '0 8px 24px rgba(0, 229, 255, 0.4)',
-          zIndex: 9999,
-          textAlign: 'center',
-          maxWidth: '90%',
-          animation: 'fadeIn 0.2s ease-out'
-        }}>
-          {toastMessage}
-        </div>
-      )}
+      <Toast message={toastMessage} />
     </div>
   );
 }

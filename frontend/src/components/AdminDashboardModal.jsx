@@ -802,9 +802,10 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
     setAuditLogsList(getAuditLogs());
 
     // Ping backend price status safely
+    // Честный статус: getStatus() возвращает { ok:false } при недоступности бэкенда
     getStatus()
-      .then(() => setBackendStatus('online'))
-      .catch(() => setBackendStatus('online'));
+      .then((st) => setBackendStatus(st && st.ok ? 'online' : 'offline'))
+      .catch(() => setBackendStatus('offline'));
   }, []);
 
   if (!isOpen) return null;
@@ -866,7 +867,7 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const imported = await parseExcelOrCsvFile(file);
+    const imported = await parseExcelOrCsvFile(file, { requirePrice: true });
     if (imported && imported.length > 0) {
       setPricesList([...imported, ...pricesList]);
       logAuditAction('create', `Импортировано ${imported.length} позиций расценок из файла ${file.name}`, 'Прайсы');
@@ -1127,7 +1128,7 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
 
           <div className="admin-header-actions">
             <span className={`admin-live-badge ${backendStatus === 'online' ? 'status-online' : 'status-offline'}`}>
-              {backendStatus === 'online' ? '● AI BACKEND ONLINE' : '⚠️ CHECKING BACKEND...'}
+              {backendStatus === 'online' ? '● AI BACKEND ONLINE' : backendStatus === 'offline' ? '⚠️ BACKEND OFFLINE' : '⏳ CHECKING BACKEND...'}
             </span>
             {!inline && (
               <button className="admin-close-btn" onClick={onClose}>

@@ -1,0 +1,204 @@
+/* Кабинет (AdminDashboardPage): шапка, меню ролей и инструментов — на токенах. */
+
+.admin-redesign-layout {
+  font-family: var(--qg-font) !important;
+  color: var(--qg-text) !important;
+}
+
+/* Рабочая область — единственный скролл-контейнер кабинета */
+.qg-dash-workspace {
+  flex: 1;
+  overflow-y: auto;
+  padding: 32px var(--qg-gutter) 72px;
+  scroll-padding-top: 80px;
+}
+.qg-dash-workspace.is-tool { padding: 0; }
+
+/* ── Шапка ── */
+.admin-redesign-main .qg-dash-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  height: auto;
+  min-height: 60px;
+  margin: 0 !important;
+  padding: 10px var(--qg-gutter) !important;
+  border: 0 !important;
+  border-bottom: 1px solid var(--qg-line) !important;
+  border-radius: 0 !important;
+  background: rgba(8, 17, 31, 0.9) !important;
+  -webkit-backdrop-filter: saturate(140%) blur(12px) !important;
+  backdrop-filter: saturate(140%) blur(12px) !important;
+  box-shadow: none !important;
+}
+.qg-dash-topbar .topbar-left-group { gap: 12px !important; min-width: 0; }
+.qg-dash-topbar .topbar-right-group { gap: 12px !important; }
+.qg-dash-back {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 6px 14px !important;
+  border-radius: var(--qg-r-ctrl) !important;
+  border: 1px solid var(--qg-line-strong) !important;
+  background: transparent !important;
+  color: var(--qg-text) !important;
+  font: 600 0.875rem/1.2 var(--qg-font) !important;
+  cursor: pointer;
+  box-shadow: none !important;
+  white-space: nowrap;
+}
+.qg-dash-back:hover { border-color: var(--qg-text-2) !important; background: rgba(140, 170, 214, 0.06) !important; }
+.qg-dash-crumbs { display: flex; align-items: center; gap: 8px; min-width: 0; font-size: 0.875rem; }
+.qg-dash-crumb-role { color: var(--qg-text-2); font-weight: 600; white-space: nowrap; }
+.qg-dash-crumb-sep { color: var(--qg-text-3); }
+.qg-dash-crumb-item { color: var(--qg-text); font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.qg-dash-user { color: var(--qg-text-2); font-size: 0.875rem; font-weight: 600; white-space: nowrap; }
+.mobile-menu-trigger-btn {
+  border-radius: var(--qg-r-ctrl) !important;
+  border: 1px solid var(--qg-line-strong) !important;
+  background: transparent !important;
+  color: var(--qg-text) !important;
+  box-shadow: none !important;
+}
+
+/* ── Меню кабинета ── */
+.qg-cockpit { max-width: 1180px; margin: 0 auto; display: flex; flex-direction: column; gap: 28px; }
+.qg-cockpit-head h1 {
+  margin: 0 0 8px;
+  color: var(--qg-text);
+  font-size: var(--qg-fs-3xl);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: var(--qg-lh-tight);
+}
+.qg-cockpit-head p { margin: 0; max-width: 62ch; color: var(--qg-text-2); line-height: var(--qg-lh-body); }
+
+/* Переключатель ролей — сегменты с описанием, цвет роли только тонкой кромкой */
+.qg-role-switch {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
+}
+.qg-role-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 16px;
+  border-radius: var(--qg-r-card);
+  border: 1px solid var(--qg-line);
+  border-top: 3px solid transparent;
+  background: var(--qg-surface);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color var(--qg-dur-1) var(--qg-ease), background-color var(--qg-dur-1) var(--qg-ease);
+}
+.qg-role-tab:hover { background: var(--qg-surface-2); }
+.qg-role-tab.is-active { border-color: var(--qg-line-strong); border-top-color: var(--role-color, var(--qg-cyan)); background: var(--qg-surface-2); }
+.qg-role-tab-title { display: flex; align-items: center; gap: 8px; color: var(--qg-text); font-weight: 700; font-size: 1rem; }
+.qg-role-tab-badge { padding: 1px 6px; border-radius: 6px; background: rgba(140, 170, 214, 0.12); color: var(--qg-text-2); font-size: 0.6875rem; font-weight: 700; }
+.qg-role-tab-desc { color: var(--qg-text-3); font-size: 0.8125rem; line-height: 1.45; }
+
+.qg-tools-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.qg-tools-head h2 { margin: 0; color: var(--qg-text); font-size: var(--qg-fs-lg); font-weight: 700; }
+.qg-tools-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.qg-tools-grid > li { display: flex; min-width: 0; }
+.qg-tool {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: 1fr auto;
+  gap: 10px 14px;
+  width: 100%;
+  padding: 16px;
+  border-radius: var(--qg-r-card);
+  border: 1px solid var(--qg-line);
+  background: var(--qg-surface);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color var(--qg-dur-1) var(--qg-ease), background-color var(--qg-dur-1) var(--qg-ease);
+}
+.qg-tool:hover { border-color: var(--qg-line-strong); background: var(--qg-surface-2); }
+.qg-tool:hover .qg-tool-action { color: #9fdcf8; }
+.qg-tool-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--qg-r-ctrl);
+  background: var(--qg-field);
+  border: 1px solid var(--qg-line);
+  font-size: 1.15rem;
+  filter: saturate(0.55);
+}
+.qg-tool-body { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.qg-tool-title { color: var(--qg-text); font-weight: 700; font-size: 0.975rem; line-height: 1.3; }
+.qg-tool-desc { color: var(--qg-text-2); font-size: 0.8125rem; line-height: 1.5; }
+.qg-tool-action { grid-column: 2; color: var(--qg-cyan); font-weight: 700; font-size: 0.8125rem; }
+
+/* Боковое меню (мобильный дровер) */
+.admin-redesign-sidebar.mobile-drawer {
+  background: var(--qg-surface) !important;
+  border-right: 1px solid var(--qg-line-strong) !important;
+  box-shadow: var(--qg-shadow-2) !important;
+}
+.admin-redesign-sidebar .sidebar-item { border-radius: var(--qg-r-ctrl) !important; }
+.admin-redesign-sidebar .sidebar-item.active {
+  background: var(--qg-cyan-soft) !important;
+  border-color: var(--qg-cyan) !important;
+  box-shadow: none !important;
+  color: var(--qg-text) !important;
+}
+
+/* Обёртка инструмента внутри кабинета (FeaturePageModule) */
+.inline-fullpage-wrapper .fullpage-top-bar {
+  padding: 12px var(--qg-gutter) !important;
+  margin: 0 !important;
+  border: 0 !important;
+  border-bottom: 1px solid var(--qg-line) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+.inline-fullpage-wrapper .btn-back-inline {
+  min-height: 36px;
+  border-radius: var(--qg-r-ctrl) !important;
+  border: 1px solid var(--qg-line-strong) !important;
+  background: transparent !important;
+  color: var(--qg-text) !important;
+  font: 600 0.8125rem/1.2 var(--qg-font) !important;
+  box-shadow: none !important;
+}
+.inline-fullpage-wrapper .page-title-badge {
+  background: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  color: var(--qg-text) !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+  font: 700 1rem/1.2 var(--qg-font) !important;
+  -webkit-text-fill-color: var(--qg-text) !important;
+}
+
+@media (max-width: 900px) {
+  .qg-dash-workspace { padding: 20px 14px 64px; }
+  .qg-dash-crumbs { display: none !important; }
+  .qg-dash-back span:last-child { display: inline !important; }
+}
+@media (max-width: 560px) {
+  .qg-role-switch { grid-template-columns: 1fr 1fr; }
+  .qg-role-tab-desc { display: none; }
+  .qg-tools-grid { grid-template-columns: 1fr; }
+  .qg-tools-head .qg-btn { width: 100%; }
+}

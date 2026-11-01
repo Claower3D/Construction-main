@@ -104,7 +104,7 @@ export default function AiAssistantWidget() {
           <div className="ai-chat-header">
             <div className="ai-chat-title-group">
               <div className="ai-avatar">
-                <img src="/ai-avatar.png" alt="AI Avatar" className="ai-header-avatar-img" />
+                <img src="/ai-avatar-160.jpg" alt="AI Avatar" className="ai-header-avatar-img" />
               </div>
               <div>
                 <h4 className="ai-chat-title">QazGost AI Ассистент</h4>
@@ -124,7 +124,7 @@ export default function AiAssistantWidget() {
                 key={idx}
                 className={`chat-bubble ${m.sender === 'ai' ? 'ai-bubble' : 'user-bubble'}`}
               >
-                {m.sender === 'ai' && <img src="/ai-avatar.png" alt="AI" className="bubble-avatar-img" />}
+                {m.sender === 'ai' && <img src="/ai-avatar-160.jpg" alt="AI" className="bubble-avatar-img" />}
                 <div>{m.text}</div>
               </div>
             ))}
@@ -168,7 +168,7 @@ export default function AiAssistantWidget() {
         title="AI Ассистент QazGost"
       >
         <span className="ai-trigger-icon">
-          <img src="/ai-avatar.png" alt="AI Assistant" className="ai-trigger-avatar-img" />
+          <img src="/ai-avatar-160.jpg" alt="AI Assistant" className="ai-trigger-avatar-img" />
         </span>
         {!isOpen && <span className="widget-notif-badge">1</span>}
       </button>

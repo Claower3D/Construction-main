@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import HeaderBar from './components/HeaderBar';
 import BottomNav from './components/BottomNav';
 import InspectionListView from './components/InspectionListView';
@@ -10,14 +10,22 @@ import PhotoEstimateView from './components/PhotoEstimateView';
 import ObjectInspectionModal from './components/ObjectInspectionModal';
 import SettingsModal from './components/SettingsModal';
 import LoginScreen from './components/LoginScreen';
-import { 
-  getSavedAuth, setSavedAuth, getStoredDeals, fetchServerDeals, 
-  updateDealStatus, saveInspectionReport, updateDealSchedule, DEFAULT_ENGINEER 
+import {
+  getSavedAuth, setSavedAuth, getStoredDeals, syncDeals, pendingSyncCount, loadDemoDeals, resetCachedDeals,
+  updateDealStatus, saveInspectionReport, updateDealSchedule, attachDefectReport, attachEstimate,
+  getSavedServerUrl, setSavedServerUrl, dealsStore, getAuthHeaders
 } from './api/engineerApi';
+import { FALLBACK_MATERIALS, FALLBACK_EQUIPMENT } from './data/marketFallback';
+import { localDateISO } from './api/syncCore';
+import { Toast, SyncBanner } from './components/ui/kit';
+
+const TITLES = { inspections: 'Объекты', calendar: 'Календарь выездов', defects: 'Дефекты по фото', estimates: 'Смета по фото', marketplace: 'Маркет', tools: 'Расчёты и СНиП' };
+
+const HEARTBEAT_MS = 60000;
 
 export default function App() {
   const [authData, setAuthData] = useState(() => getSavedAuth());
-  const [serverUrl, setServerUrl] = useState('https://construction-main-production.up.railway.app');
+  const [serverUrl, setServerUrl] = useState(() => getSavedServerUrl());
   const [deals, setDeals] = useState(() => getStoredDeals());
   const [activeTab, setActiveTab] = useState('inspections'); // 'inspections' | 'calendar' | 'defects' | 'estimates' | 'marketplace' | 'tools'
   const [selectedDeal, setSelectedDeal] = useState(null);
@@ -26,40 +34,96 @@ export default function App() {
   const [isOnline, setIsOnline] = useState(true);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [pendingCount, setPendingCount] = useState(() => pendingSyncCount());
+  const [syncError, setSyncError] = useState(null);
+  const [toastMessage, setToastMessage] = useState(null);
+  const toastTimerRef = useRef(null);
 
-  // Initial live server sync
-  useEffect(() => {
-    if (authData) {
-      handleSync();
-    }
-  }, [authData]);
+  const authorName = authData?.name || 'Инженер ПТО';
+  // stable reference: the marketplace refetches only when the session changes
+  const marketHeaders = useMemo(() => getAuthHeaders(), [authData]);
 
-  const handleSync = async () => {
+  const showToast = useCallback((msg) => {
+    setToastMessage(msg);
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    toastTimerRef.current = setTimeout(() => setToastMessage(null), 3500);
+  }, []);
+  useEffect(() => () => { if (toastTimerRef.current) clearTimeout(toastTimerRef.current); }, []);
+
+  const applyDeals = useCallback((list) => {
+    setDeals(list);
+    setPendingCount(pendingSyncCount(list));
+    setSelectedDeal(prev => (prev ? (list.find(d => String(d.id) === String(prev.id)) || prev) : prev));
+  }, []);
+
+  const runSync = useCallback(async () => {
     setIsSyncing(true);
-    const res = await fetchServerDeals(serverUrl);
-    setIsOnline(res.success);
-    if (res.deals) {
-      setDeals(res.deals);
-    }
+    const res = await syncDeals();
     setIsSyncing(false);
-  };
-
-  const handleUpdateStatus = async (dealId, newStatus, note) => {
-    const updated = await updateDealStatus(serverUrl, dealId, newStatus, note, authData?.name || 'Инженер ПТО');
-    setDeals([...updated]);
-    if (selectedDeal && selectedDeal.id === dealId) {
-      setSelectedDeal({ ...selectedDeal, status: newStatus });
+    setIsOnline(!!res.success);
+    if (res.success) {
+      setSyncError(res.errors && res.errors.length ? res.errors[0] : null);
+      applyDeals(res.deals);
+    } else {
+      setSyncError(res.error);
+      applyDeals(dealsStore.isInitialized() ? res.deals : loadDemoDeals());
     }
-  };
+    return res;
+  }, [applyDeals]);
 
-  const handleSaveInspection = async (dealId, inspectionData) => {
-    const updated = await saveInspectionReport(serverUrl, dealId, inspectionData, authData?.name || 'Инженер ПТО');
-    setDeals([...updated]);
-  };
+  const handleSync = useCallback(async (notify = false) => {
+    const res = await runSync();
+    if (notify) {
+      if (!res.success) showToast(`Офлайн (${res.error}). Изменения сохранены на телефоне`);
+      else if (res.errors && res.errors.length) showToast(`⚠ Не всё синхронизировано: ${res.errors[0]}`);
+      else showToast('✓ Синхронизировано с сервером');
+    }
+    return res;
+  }, [runSync, showToast]);
 
-  const handleScheduleVisit = async (dealId, newDate, newTime) => {
-    const updated = await updateDealSchedule(serverUrl, dealId, newDate, newTime, authData?.name || 'Инженер ПТО');
-    setDeals([...updated]);
+  // Initial sync + heartbeat (only when logged in)
+  useEffect(() => {
+    if (!authData) return undefined;
+    handleSync(false);
+    const t = setInterval(() => handleSync(false), HEARTBEAT_MS);
+    return () => clearInterval(t);
+  }, [authData, serverUrl, handleSync]);
+
+  // Save locally, then push; returns whether the change really reached the server
+  const commitAndSync = useCallback(async (res, okMsg) => {
+    applyDeals(res.list);
+    if (!res.ok) {
+      showToast(`⚠ ${res.error}`);
+      return { ok: false, synced: false, error: res.error };
+    }
+    const s = await runSync();
+    const rec = (s.deals || []).find(d => String(d.id) === String(res.record?.id));
+    const synced = !!(s.success && rec && !rec._dirty);
+    const error = synced ? null : (s.error || (s.errors && s.errors[0]) || 'нет связи с сервером');
+    if (okMsg) {
+      showToast(synced ? `✓ ${okMsg} — отправлено на сервер` : `⚠ ${okMsg} — сохранено на телефоне, НЕ отправлено (${error})`);
+    }
+    return { ok: true, synced, error };
+  }, [applyDeals, runSync, showToast]);
+
+  const handleUpdateStatus = (dealId, newStatus, note) =>
+    commitAndSync(updateDealStatus(dealId, newStatus, note, authorName), `Статус «${newStatus}»`);
+
+  const handleSaveInspection = (dealId, inspectionData, opts) =>
+    commitAndSync(saveInspectionReport(dealId, inspectionData, authorName, opts), 'Замеры сохранены');
+
+  const handleScheduleVisit = (dealId, newDate, newTime) =>
+    commitAndSync(updateDealSchedule(dealId, newDate, newTime, authorName), `Выезд на ${newDate} ${newTime}`);
+
+  const handleAttachDefect = (dealId, report) =>
+    commitAndSync(attachDefectReport(dealId, report, authorName), null);
+
+  const handleAttachEstimate = (dealId, estimate) =>
+    commitAndSync(attachEstimate(dealId, estimate, authorName), null);
+
+  const handleUpdateServerUrl = (url) => {
+    setSavedServerUrl(url);
+    setServerUrl(getSavedServerUrl());
   };
 
   const handleLogout = () => {
@@ -69,19 +133,19 @@ export default function App() {
   };
 
   const handleResetCache = async () => {
-    localStorage.removeItem('qazgost_engineer_deals_perm');
-    await handleSync();
+    applyDeals(resetCachedDeals());
+    await handleSync(true);
   };
 
   const handleAddProductToEstimate = (product) => {
-    alert(`Товар «${product.title}» (${product.price} ₸) добавлен в материалы сметы!`);
+    showToast(`«${product.name}» (${Math.round(product.price).toLocaleString('ru-RU')} ₸ / ${product.unit}) добавлен в список материалов`);
   };
 
   if (!authData) {
     return (
       <LoginScreen
         serverUrl={serverUrl}
-        onUpdateServerUrl={setServerUrl}
+        onUpdateServerUrl={handleUpdateServerUrl}
         onLoginSuccess={(auth) => {
           setAuthData(auth);
         }}
@@ -90,16 +154,17 @@ export default function App() {
   }
 
   const activeCount = deals.filter(d => d.status === 'Новые' || d.status === 'Выезд назначен' || d.status === 'На объекте').length;
-  const todayStr = new Date().toISOString().split('T')[0];
+  const todayStr = localDateISO();
   const todayCount = deals.filter(d => (d.date === todayStr || (!d.date && d.status === 'Выезд назначен')) && d.status !== 'Завершено').length;
 
   return (
-    <div className="app-container">
-      {/* Top Header */}
+    <div className="qz-app">
       <HeaderBar
+        title={TITLES[activeTab] || 'QazGost Engineer'}
+        showSearch={activeTab === 'inspections'}
         engineer={authData}
         isOnline={isOnline}
-        onRefresh={handleSync}
+        onRefresh={() => handleSync(true)}
         isSyncing={isSyncing}
         onOpenSettings={() => setShowSettings(true)}
         searchOpen={searchOpen}
@@ -108,8 +173,10 @@ export default function App() {
         onSearchChange={setSearchQuery}
       />
 
+      <SyncBanner pending={pendingCount} error={syncError} onRetry={() => handleSync(true)} />
+
       {/* Main Content View */}
-      <div className="app-content">
+      <main className="qz-main">
         {activeTab === 'inspections' && (
           <InspectionListView
             deals={deals}
@@ -128,30 +195,33 @@ export default function App() {
 
         {activeTab === 'defects' && (
           <DefectInspectionView
-            onAttachToDeal={(defectReport) => {
-              alert('Акт дефектовки прикреплен к выбранному объекту');
-            }}
+            deals={deals}
+            onAttachToDeal={handleAttachDefect}
           />
         )}
 
         {activeTab === 'estimates' && (
           <PhotoEstimateView
-            onAttachToDeal={(estimate) => {
-              alert('Смета прикреплена к объекту');
-            }}
+            deals={deals}
+            onAttachToDeal={handleAttachEstimate}
           />
         )}
 
         {activeTab === 'marketplace' && (
           <MarketplaceView
-            onAddToEstimate={handleAddProductToEstimate}
+            serverUrl={serverUrl}
+            authHeaders={marketHeaders}
+            addLabel="В смету"
+            fallbackMaterials={FALLBACK_MATERIALS}
+            fallbackEquipment={FALLBACK_EQUIPMENT}
+            onAddItem={handleAddProductToEstimate}
           />
         )}
 
         {activeTab === 'tools' && (
           <EngineeringCalcView />
         )}
-      </div>
+      </main>
 
       {/* Bottom Nav Bar with 6 core tabs */}
       <BottomNav
@@ -178,12 +248,14 @@ export default function App() {
         <SettingsModal
           engineer={authData}
           serverUrl={serverUrl}
-          onUpdateServerUrl={setServerUrl}
+          onUpdateServerUrl={handleUpdateServerUrl}
           onLogout={handleLogout}
           onClose={() => setShowSettings(false)}
           onResetCache={handleResetCache}
         />
       )}
+
+      <Toast message={toastMessage} />
     </div>
   );
 }

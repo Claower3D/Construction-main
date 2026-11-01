@@ -110,11 +110,18 @@ export default function EarthworkVolumesPage({ onBack, hideHeader = false }) {
 
     try {
       // Freeze 30% first stage escrow
-      freezeEscrow(Math.round(cost * 0.3), title);
+      const escrow = freezeEscrow(Math.round(cost * 0.3), title);
+      if (!escrow.ok) {
+        alert(`⚠️ Не удалось заморозить аванс 30%: недостаточно средств (доступно ${escrow.newBalance.toLocaleString()} ₸).`);
+        return;
+      }
 
       // Create Order in Go Backend
       await createPlatformOrder({
         title,
+        amount: cost,
+        escrowTxId: escrow.txId,
+        escrowAmount: Math.round(cost * 0.3),
         type: 'earthworks',
         city: 'Алматы',
         clientName: 'Подрядчик / Исполнитель',
@@ -124,9 +131,9 @@ export default function EarthworkVolumesPage({ onBack, hideHeader = false }) {
         totalSum: cost,
         description: `Выемка: ${calculations.geometricVolumeM3} м³, вывоз ${calculations.truckTripsCount} рейсов самосвалов (${truckCapacityTons}т). Грунт: ${currentSoil.name}`,
         stages: [
-          { name: 'Этап 1: Снятие растительного слоя и планировка', percent: 15, cost: Math.round(cost * 0.15) },
-          { name: 'Этап 2: Механизированная выемка грунта экскаватором', percent: 50, cost: Math.round(cost * 0.50) },
-          { name: 'Этап 3: Погрузка, вывоз самосвалами и утилизация на полигоне', percent: 35, cost: Math.round(cost * 0.35) }
+          { id: 'STG-1', name: 'Этап 1: Снятие растительного слоя и планировка', status: 'pending', progress: 0, percent: 15, budget: Math.round(cost * 0.15) },
+          { id: 'STG-2', name: 'Этап 2: Механизированная выемка грунта экскаватором', status: 'pending', progress: 0, percent: 50, budget: Math.round(cost * 0.50) },
+          { id: 'STG-3', name: 'Этап 3: Погрузка, вывоз самосвалами и утилизация на полигоне', status: 'pending', progress: 0, percent: 35, budget: Math.round(cost * 0.35) }
         ]
       });
 

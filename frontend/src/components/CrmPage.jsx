@@ -2,8 +2,9 @@ import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import DealCardModal from './DealCardModal';
 import LeadCreateModal from './LeadCreateModal';
 import VoiceLeadInput from './VoiceLeadInput';
-import AnimatedBackground from './AnimatedBackground';
-import '../index.css';
+import './crm-refresh.css';
+import { jsonAuthHeaders, authHeaders, genId, shortNum, parseMoney, crmStatusBucket, userKeyOf, responseError } from '../services/platformUtils';
+import { upsertCrmEvent } from '../services/orderSyncService';
 
 /* ═══════════════════════════════════════════════════════════════
    QAZGOST AI — CRM КАЛЕНДАРЬ (v2.5)
@@ -86,34 +87,11 @@ const MONTHS_RU = ['Январь','Февраль','Март','Апрель','М
 const DAYS_RU = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
 const DAYS_FULL = ['Понедельник','Вторник','Среда','Четверг','Пятница','Суббота','Воскресенье'];
 
-const DEFAULT_CRM_DEALS = {
-  "2026-08-14": [
-    { id: '1084', leadNum: '1', title: 'Оценка фундамента и замеры', status: 'Новые', type: 'request_engineering', role: 'engineer', time: '09:00', phone: '+7 (701) 555-12-34', contractor: 'ИП "Астана-Строй"', location: 'г. Астана', budget: '1 250 000 ₸' },
-    { id: '1085', leadNum: '2', title: 'Монтаж 5-эт монолитного блока', status: 'В работе', type: 'work_stage', role: 'executor', time: '10:00', phone: '+7 (777) 888-99-00', contractor: 'ТОО "GostBuild"', location: 'г. Алматы', budget: '3 450 000 ₸' },
-  ],
-  "2026-08-18": [
-    { id: '1087', leadNum: '3', title: 'Экспертиза несущих конструкций', status: 'В работе', type: 'request_engineering', role: 'engineer', time: '11:00', phone: '+7 (702) 444-55-66', contractor: 'ООО "ТехЭксперт"', location: 'г. Караганда', budget: '450 000 ₸' },
-  ],
-  "2026-08-20": [
-    { id: '1088', leadNum: '4', title: 'Проверка смет и актов ВВР', status: 'Дожим', type: 'request_engineering', role: 'engineer', time: '09:30', phone: '+7 (701) 888-00-11', contractor: 'ТОО "ФинансКонсалт"', location: 'г. Астана', budget: '2 100 000 ₸' },
-    { id: '1089', leadNum: '5', title: 'Эскроу-транш 2-го этапа', status: 'Дожим', type: 'work_stage', role: 'executor', time: '15:00', phone: '+7 (775) 333-22-11', contractor: 'Банк ЦентрКредит', location: 'г. Алматы', budget: '5 000 000 ₸' },
-  ],
-  "2026-08-22": [
-    { id: '1090', leadNum: '6', title: 'Аренда 3 экскаваторов CAT 320', status: 'В работе', type: 'request_construction', role: 'machinery', time: '08:00', phone: '+7 (708) 999-00-11', contractor: 'ТОО "СпецТехКЗ"', location: 'г. Актобе', budget: '1 800 000 ₸' },
-    { id: '1091', leadNum: '7', title: 'Ремонт кровли ТЦ "МегаМаркет"', status: 'Новые', type: 'request', role: 'lead', time: '13:00', phone: '+7 (7172) 55-44-33', contractor: 'ТОО "МегаМаркет"', location: 'г. Астана', budget: '6 700 000 ₸' },
-  ],
-  "2026-08-24": [
-    { id: '1092', leadNum: '8', title: 'Выезд на объект: забор и ворота', status: 'Новые', type: 'request_engineering', role: 'engineer', time: '10:00', phone: '+7 (700) 123-45-67', contractor: 'Марат С.', location: 'г. Караганда', budget: '1 850 000 ₸' },
-  ],
-  "2026-08-28": [
-    { id: '1093', leadNum: '9', title: 'Утепление фасада 5-этажки', status: 'В работе', type: 'work_stage', role: 'executor', time: '09:00', phone: '+7 (771) 900-88-77', contractor: 'КСК "Ботанический"', location: 'г. Астана', budget: '8 900 000 ₸' },
-  ],
-};
-
 function getMonday(d) { const dt = new Date(d); const day = dt.getDay(); const diff = (day === 0 ? -6 : 1) - day; dt.setDate(dt.getDate() + diff); return dt; }
 function fmtDate(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
 function isToday(dateStr) { return dateStr === fmtDate(new Date()); }
-function parseBudget(s) { if (!s) return 0; return parseInt(String(s).replace(/[^\d]/g, ''), 10) || 0; }
+// «55 000 – 120 000 ₸» → нижняя граница (раньше склейка цифр → 55 млрд)
+function parseBudget(s) { return parseMoney(s, 'min'); }
 
 export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }) {
   const [events, setEvents] = useState({});
@@ -131,30 +109,34 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
 
   // Sync CRM events from Go Backend Server
   const backendAliveRef = useRef(false);
+  const pendingWritesRef = useRef(0); // пока идут записи — не перетираем локальное состояние ответом опроса
   const syncServerEvents = useCallback(async () => {
+    if (pendingWritesRef.current > 0) return;
     try {
-      const res = await fetch('/api/v1/crm/events');
+      const res = await fetch('/api/v1/crm/events', { headers: authHeaders() });
       if (!res.ok) { backendAliveRef.current = false; return; }
       backendAliveRef.current = true;
       const data = await res.json();
-      if (data.grouped !== undefined) {
-        if (data.total > 0 || localStorage.getItem('qazgost_crm_calendar_initialized')) {
-          setEvents(data.grouped);
-          localStorage.setItem('qazgost_crm_calendar', JSON.stringify(data.grouped));
-          localStorage.setItem('qazgost_crm_calendar_initialized', 'true');
-        } else {
-          localStorage.setItem('qazgost_crm_calendar_initialized', 'true');
-          setEvents(DEFAULT_CRM_DEALS);
-          localStorage.setItem('qazgost_crm_calendar', JSON.stringify(DEFAULT_CRM_DEALS));
-          fetch('/api/v1/crm/events/sync', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ events: DEFAULT_CRM_DEALS })
-          }).catch(() => {});
-        }
+      if (pendingWritesRef.current > 0) return;
+      if (data && data.grouped && typeof data.grouped === 'object') {
+        // Демо-сделки в боевую БД больше НЕ заливаются: пустой сервер = пустой календарь
+        setEvents(data.grouped);
+        localStorage.setItem('qazgost_crm_calendar', JSON.stringify(data.grouped));
       }
     } catch (err) {
       backendAliveRef.current = false;
+    }
+  }, []);
+
+  // Запись на сервер (upsert / delete) с учётом «висящих» записей и показом ошибок
+  const pushEvent = useCallback(async (payload) => {
+    pendingWritesRef.current += 1;
+    try {
+      const r = await upsertCrmEvent(payload);
+      if (!r.ok) showToast(`⚠️ Не сохранено на сервере: ${r.error}`);
+      return r.ok;
+    } finally {
+      pendingWritesRef.current -= 1;
     }
   }, []);
 
@@ -162,16 +144,15 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
     const saved = localStorage.getItem('qazgost_crm_calendar');
     if (saved) {
       try {
-        setEvents(JSON.parse(saved));
+        setEvents(JSON.parse(saved) || {});
       } catch { setEvents({}); }
     }
 
-    // Initial server fetch (single try)
     syncServerEvents();
 
-    // Poll only if backend responded successfully
+    // Опрос сервера (если сервер был недоступен — продолжаем пробовать)
     const interval = setInterval(() => {
-      if (backendAliveRef.current) syncServerEvents();
+      syncServerEvents();
     }, 8000);
 
     return () => clearInterval(interval);
@@ -222,7 +203,7 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
   }, []);
 
   const isEventVisible = useCallback((evt) => {
-    if (statusFilter !== 'all' && evt.status !== statusFilter) return false;
+    if (statusFilter !== 'all' && crmStatusBucket(evt.status) !== statusFilter) return false;
     if (roleFilter !== 'all') {
       const typeKey = getCardTypeKey(evt);
       if (typeKey !== roleFilter) return false;
@@ -233,7 +214,7 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
       const contractorMatch = evt.contractor?.toLowerCase().includes(q);
       const locationMatch = evt.location?.toLowerCase().includes(q);
       const phoneMatch = evt.phone?.toLowerCase().includes(q);
-      const idMatch = evt.id?.toLowerCase().includes(q);
+      const idMatch = String(evt.id ?? '').toLowerCase().includes(q);
       if (!titleMatch && !contractorMatch && !locationMatch && !phoneMatch && !idMatch) return false;
     }
     return true;
@@ -258,9 +239,8 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
       s.totalBudget += parseBudget(c.budget);
       const t = getCardTypeKey(c);
       s.byRole[t] = (s.byRole[t] || 0) + 1;
-      if (c.status) {
-        s.byStatus[c.status] = (s.byStatus[c.status] || 0) + 1;
-      }
+      const bucket = crmStatusBucket(c.status);
+      s.byStatus[bucket] = (s.byStatus[bucket] || 0) + 1;
     });
     return s;
   }, [allCards, getCardTypeKey]);
@@ -284,11 +264,13 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
       if (!newEvents[targetDate]) newEvents[targetDate] = [];
       const { date: _, ...cardWithoutDate } = card;
       if (targetTime) cardWithoutDate.time = targetTime;
-      newEvents[targetDate].push(cardWithoutDate);
+      newEvents[targetDate] = [...newEvents[targetDate], cardWithoutDate];
       saveEvents(newEvents);
-      showToast(`📅 Заявка #${card.id} перенесена на ${targetDate}`);
+      showToast(`📅 Заявка #${card.leadNum || card.id} перенесена на ${targetDate}`);
+      // Перенос сохраняется на сервере (upsert по тому же id), иначе опрос откатывал его через 8 сек
+      pushEvent({ ...cardWithoutDate, date: targetDate });
     } catch (err) { console.error(err); }
-  }, [events, saveEvents]);
+  }, [events, saveEvents, pushEvent]);
 
   const navigate = (dir) => {
     const d = new Date(currentDate);
@@ -300,26 +282,23 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
 
   const handleSaveCard = (updatedCard) => {
     const date = updatedCard.date || fmtDate(new Date());
-    const newEvents = { ...events };
-    if (!newEvents[date]) newEvents[date] = [];
-    const idx = newEvents[date].findIndex(e => e.id === updatedCard.id);
-    if (idx >= 0) newEvents[date][idx] = { ...updatedCard, date: undefined };
+    const { date: _d, ...cardData } = updatedCard;
+    // Без мутации состояния: убираем карточку со всех дат (дата могла поменяться) и кладём на нужную
+    const newEvents = {};
+    for (const d in events) {
+      const list = (events[d] || []).filter(e => String(e.id) !== String(updatedCard.id));
+      if (list.length) newEvents[d] = list;
+    }
+    newEvents[date] = [...(newEvents[date] || []), cardData];
     saveEvents(newEvents);
     setSelectedCard(null);
 
-    // Direct server update
-    fetch('/api/v1/crm/events', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...updatedCard, date })
-    }).catch(() => {});
-
-    showToast('💾 Карточка сохранена');
+    pushEvent({ ...cardData, date }).then(ok => { if (ok) showToast('💾 Карточка сохранена'); });
   };
 
   const handleDeleteCard = (cardId) => {
     if (!cardId) return;
-    if (!window.confirm(`Вы уверены, что хотите полностью удалить заявку #${cardId} из CRM и у всех исполнителей?`)) {
+    if (!window.confirm(`Вы уверены, что хотите полностью удалить заявку #${shortNum(cardId)} из CRM и у всех исполнителей?`)) {
       return;
     }
 
@@ -327,40 +306,46 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
 
     // 1. Удаление из events текущего календаря CRM
     const newEvents = { ...events };
+    // Только ТОЧНОЕ совпадение id (раньше includes() удалял чужие записи: "-108" ⊂ "REQ-1084")
+    const relatedIds = new Set([strId, `REQ-${strId}`, `EVT-${strId}`, `OBJ-${strId}`]);
+    const isRelated = (e) => e && (relatedIds.has(String(e.id)) || String(e.dealId) === strId || String(e.parentDealId) === strId);
     for (const d in newEvents) {
-      newEvents[d] = (newEvents[d] || []).filter(e => String(e.id) !== strId && !String(e.id).includes(strId));
+      newEvents[d] = (newEvents[d] || []).filter(e => String(e.id) !== strId);
     }
     saveEvents(newEvents);
 
     // Удаление с сервера БД для всех аккаунтов и устройств
-    fetch(`/api/v1/crm/events?id=${cardId}`, { method: 'DELETE' }).catch(() => {});
+    pendingWritesRef.current += 1;
+    fetch(`/api/v1/crm/events?id=${encodeURIComponent(strId)}`, { method: 'DELETE', headers: authHeaders() })
+      .then(async (res) => { if (!res.ok) showToast(`⚠️ Сервер не удалил заявку: ${await responseError(res)}`); })
+      .catch((e) => showToast(`⚠️ Сервер недоступен, заявка удалена только локально: ${e.message}`))
+      .finally(() => { pendingWritesRef.current -= 1; });
 
-    // 2. Удаление из общего календаря и календаря исполнителя / инженера
-    try {
-      const calKey = 'qazgost_calendar_events';
-      const cal = JSON.parse(localStorage.getItem(calKey) || '{}');
-      for (const d in cal) {
-        cal[d] = (cal[d] || []).filter(e => String(e.id) !== strId && !String(e.id).includes(strId) && String(e.dealId) !== strId && String(e.parentDealId) !== strId);
-      }
-      localStorage.setItem(calKey, JSON.stringify(cal));
-      localStorage.setItem('qazgost_calendar_events_executor', JSON.stringify(cal));
-      localStorage.setItem('qazgost_calendar_events_engineer', JSON.stringify(cal));
-    } catch(e) {}
+    // 2. Удаление из календарей (каждый календарь фильтруется отдельно, без перезаписи чужих)
+    for (const calKey of ['qazgost_calendar_events', 'qazgost_calendar_events_executor', 'qazgost_calendar_events_engineer']) {
+      try {
+        const raw = localStorage.getItem(calKey);
+        if (!raw) continue;
+        const cal = JSON.parse(raw) || {};
+        for (const d in cal) {
+          cal[d] = (cal[d] || []).filter(e => !isRelated(e));
+        }
+        localStorage.setItem(calKey, JSON.stringify(cal));
+      } catch(e) {}
+    }
 
     // 3. Удаление из очереди заявок инженера
     try {
       const reqKey = 'qazgost_engineer_requests';
       const reqs = JSON.parse(localStorage.getItem(reqKey) || '[]');
-      const updatedReqs = reqs.filter(r => String(r.id) !== strId && String(r.id) !== `REQ-${strId}` && !String(r.id).includes(strId));
-      localStorage.setItem(reqKey, JSON.stringify(updatedReqs));
+      localStorage.setItem(reqKey, JSON.stringify(reqs.filter(r => !isRelated(r))));
     } catch(e) {}
 
     // 4. Удаление из реестра объектов исполнителя
     try {
       const objKey = 'qazgost_executor_objects';
       const objs = JSON.parse(localStorage.getItem(objKey) || '[]');
-      const updatedObjs = objs.filter(o => String(o.id) !== strId && String(o.id) !== `OBJ-${strId}` && !String(o.id).includes(strId));
-      localStorage.setItem(objKey, JSON.stringify(updatedObjs));
+      localStorage.setItem(objKey, JSON.stringify(objs.filter(o => !isRelated(o))));
     } catch(e) {}
 
     setSelectedCard(null);
@@ -374,7 +359,7 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
     // 6. Принудительная синхронизация с сервером для консистентности
     setTimeout(() => syncServerEvents(), 500);
 
-    showToast(`🗑️ Заявка #${cardId} удалена из CRM и всех календарей`);
+    showToast(`🗑️ Заявка #${shortNum(cardId)} удалена из CRM и всех календарей`);
   };
 
   const handleNewLead = (leadPayload) => {
@@ -382,7 +367,8 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
     const time = leadPayload.time || leadModalDefaults.time || new Date().toLocaleTimeString().slice(0,5);
     const newEvents = { ...events };
     if (!newEvents[date]) newEvents[date] = [];
-    const newId = Date.now().toString().slice(-4);
+    const newId = genId('lead'); // было Date.now().slice(-4): повтор каждые 10 сек → перезапись чужих сделок на сервере
+    const displayNum = shortNum(newId);
     
     const clientTitle = leadPayload.clientName || leadPayload.contractor || 'Заказчик';
     const serviceTitle = leadPayload.service || leadPayload.title || 'Выезд на объект и замеры';
@@ -392,7 +378,7 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
 
     const newLeadItem = {
       id: newId,
-      leadNum: String(Math.floor(10 + Math.random() * 90)),
+      leadNum: displayNum,
       title: fullTitle,
       status: 'Новые',
       type: 'request_engineering',
@@ -404,7 +390,7 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
       clientName: clientTitle,
       clientPhone: leadPayload.phone || '+7 (701) 888-00-11',
       location: leadPayload.address || leadPayload.location || 'г. Астана',
-      budget: typeof leadPayload.budget === 'number' ? `${leadPayload.budget.toLocaleString('ru-RU')} ₸` : (leadPayload.budget || '1 500 000 ₸'),
+      budget: typeof leadPayload.budget === 'number' ? `${leadPayload.budget.toLocaleString('ru-RU')} ₸` : (leadPayload.budget || 'По смете'),
       service: serviceTitle,
       notes: leadPayload.notes || 'Заявка передана инженеру ПТО для проведения замеров и составления сметы.',
       assignedEngineer: assignedEng,
@@ -413,15 +399,11 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
       assignedWorkers: 'Мастер Владимир, Мастер Данил, Радион (Манипулятор)'
     };
 
-    newEvents[date].push(newLeadItem);
+    newEvents[date] = [...newEvents[date], newLeadItem];
     saveEvents(newEvents);
 
     // Отправка новой заявки на центральный сервер БД для всех устройств
-    fetch('/api/v1/crm/events', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...newLeadItem, date })
-    }).catch(() => {});
+    pushEvent({ ...newLeadItem, date, createdBy: userKeyOf(currentUser) || '' });
 
     // 1. Автоматическая передача в реестр заявок Инженера (qazgost_engineer_requests)
     try {
@@ -435,7 +417,7 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
         status: 'Новая',
         time: `${date}, ${time}`,
         managerName: manager,
-        budget: leadPayload.budget || 1500000,
+        budget: parseMoney(leadPayload.budget),
         notes: leadPayload.notes || ''
       };
       localStorage.setItem('qazgost_engineer_requests', JSON.stringify([newEngineerReq, ...savedRequests]));
@@ -445,9 +427,9 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
     try {
       const calendarKey = 'qazgost_calendar_events';
       const calEvents = JSON.parse(localStorage.getItem(calendarKey) || '{}');
-      const dayNum = parseInt(date.split('-')[2], 10) || new Date().getDate();
-      if (!calEvents[dayNum]) calEvents[dayNum] = [];
-      calEvents[dayNum].push({
+      // Ключ — полная дата YYYY-MM-DD (раньше номер дня → событие появлялось в каждом месяце)
+      if (!calEvents[date]) calEvents[date] = [];
+      calEvents[date].push({
         id: `EVT-${newId}`,
         title: fullTitle,
         client: clientTitle,
@@ -459,7 +441,7 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
         deadline: 'Сегодня до 18:00',
         managerName: manager,
         assignedEngineer: assignedEng,
-        budget: typeof leadPayload.budget === 'number' ? leadPayload.budget : 1500000
+        budget: parseMoney(leadPayload.budget)
       });
       localStorage.setItem(calendarKey, JSON.stringify(calEvents));
     } catch (e) { console.error(e); }
@@ -485,7 +467,7 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
 
     setShowLeadModal(false);
     setLeadModalDefaults({ date: '', time: '' });
-    showToast(`🚀 Заявка #${newId} создана и автоматически передана инженеру ПТО (${assignedEng})!`);
+    showToast(`🚀 Заявка #${displayNum} создана и автоматически передана инженеру ПТО (${assignedEng})!`);
   };
 
   const openCreateModalForSlot = (dateStr, timeStr = '10:00') => {
@@ -506,28 +488,16 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
         draggable
         onDragStart={e => handleDragStart(e, { ...card, date: dateStr })}
         onClick={(e) => { e.stopPropagation(); setSelectedCard({ ...card, date: dateStr, day: dateStr }); }}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); setSelectedCard({ ...card, date: dateStr, day: dateStr }); } }}
+        className={`crm-event${compact ? ' is-compact' : ''}`}
         style={{
           background: cfg.bg,
-          border: `1px solid ${cfg.border}`,
-          borderLeft: `4px solid ${cfg.barColor}`,
-          borderRadius: '7px',
-          padding: compact ? '3px 6px' : '5px 8px',
-          cursor: 'grab',
-          marginBottom: '4px',
-          transition: 'all 0.15s ease',
-          fontSize: compact ? '0.65rem' : '0.74rem',
-          boxShadow: `0 2px 8px rgba(0,0,0,0.4), 0 0 10px ${cfg.glow}`,
-          position: 'relative'
+          borderColor: cfg.border,
+          borderLeftColor: cfg.barColor,
         }}
-        onMouseEnter={e => {
-          e.currentTarget.style.transform = 'translateY(-2px) scale(1.02)';
-          e.currentTarget.style.boxShadow = `0 6px 16px ${cfg.glow}, 0 0 14px ${cfg.border}`;
-        }}
-        onMouseLeave={e => {
-          e.currentTarget.style.transform = 'none';
-          e.currentTarget.style.boxShadow = `0 2px 8px rgba(0,0,0,0.4), 0 0 10px ${cfg.glow}`;
-        }}
-        title={`${cfg.badge} #${card.id || card.leadNum}
+        title={`${cfg.badge} #${card.leadNum || card.id}
 🏢 ${card.title}
 👤 ${card.contractor}
 📍 ${card.location || 'г. Астана'}
@@ -535,20 +505,16 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
       >
         {/* Верхняя строка: Ролевой бейдж + ID */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '4px', marginBottom: '2px' }}>
-          <span style={{
-            fontSize: '0.6rem', fontWeight: 900, padding: '1px 5px', borderRadius: '4px',
-            background: cfg.tagBg, color: cfg.tagText, border: `1px solid ${cfg.border}60`,
-            display: 'inline-flex', alignItems: 'center', gap: '3px', textTransform: 'uppercase', letterSpacing: '0.3px'
-          }}>
+          <span className="crm-event-tag" style={{ background: cfg.tagBg, color: cfg.tagText }}>
             {cfg.badge}
           </span>
-          <span style={{ fontSize: '0.62rem', fontWeight: 800, color: '#ffd700' }}>
-            #{card.id || card.leadNum || '01'}
+          <span className="crm-event-num">
+            #{card.leadNum || card.id || '01'}
           </span>
         </div>
 
         {/* Название объекта */}
-        <div style={{ fontWeight: 800, color: '#ffffff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', lineHeight: 1.2 }}>
+        <div className="crm-event-title">
           {compact ? card.title.slice(0, 22) : card.title}
         </div>
 
@@ -582,13 +548,13 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
       <div className="crm-month-scroll-wrapper">
         <div className="crm-month-grid">
           {DAYS_RU.map(d => (
-            <div key={d} style={{ textAlign: 'center', padding: '6px 2px', fontWeight: 900, fontSize: '0.75rem', color: '#e2e8f0', background: 'rgba(255, 255, 255, 0.08)', borderRadius: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+            <div key={d} className="crm-dow">
               {d}
             </div>
           ))}
 
           {cells.map((day, idx) => {
-            if (day === null) return <div key={`e${idx}`} style={{ minHeight: '92px', background: 'rgba(10, 16, 30, 0.75)', borderRadius: '8px', border: '1px dashed rgba(255, 255, 255, 0.06)' }} />;
+            if (day === null) return <div key={`e${idx}`} className="crm-day is-empty" aria-hidden="true" />;
             const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
             const dayEvents = (events[dateStr] || []).filter(isEventVisible);
             const today = isToday(dateStr);
@@ -601,34 +567,22 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
                 onDragLeave={() => setDragOverDate(null)}
                 onDrop={e => handleDrop(e, dateStr)}
                 onClick={() => { setCurrentDate(new Date(year, month, day)); setView('day'); }}
-                style={{
-                  minHeight: '94px', padding: '6px', borderRadius: '10px', cursor: 'pointer',
-                  background: today ? 'rgba(0, 229, 255, 0.15)' : isOver ? 'rgba(245, 158, 11, 0.22)' : 'rgba(15, 24, 44, 0.94)',
-                  border: today ? '2px solid #00e5ff' : isOver ? '2px solid #f59e0b' : '1px solid rgba(255, 255, 255, 0.12)',
-                  boxShadow: today ? '0 0 16px rgba(0, 229, 255, 0.3)' : '0 2px 6px rgba(0,0,0,0.4)',
-                  transition: 'all 0.15s ease', position: 'relative'
-                }}
+                className={`crm-day${today ? ' is-today' : ''}${isOver ? ' is-over' : ''}`}
               >
                 {/* Шапка дня */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                  <span style={{
-                    fontWeight: 900, fontSize: today ? '0.85rem' : '0.78rem',
-                    color: today ? '#00e5ff' : '#ffffff',
-                    background: today ? 'rgba(0,229,255,0.3)' : 'rgba(255,255,255,0.06)',
-                    borderRadius: '5px', padding: '1px 6px',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  }}>
-                    {day}
-                  </span>
+                  <span className="crm-day-num">{day}</span>
 
                   <div style={{ display: 'flex', gap: '3px', alignItems: 'center' }}>
                     <button
+                      type="button"
+                      className="crm-day-add"
                       onClick={(e) => { e.stopPropagation(); openCreateModalForSlot(dateStr); }}
-                      style={{ background: 'rgba(0,229,255,0.15)', border: '1px solid rgba(0,229,255,0.4)', color: '#00e5ff', borderRadius: '4px', width: '18px', height: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 900 }}
-                      title="Создать лид на этот день"
+                      title="Создать заявку на этот день"
+                      aria-label={`Создать заявку на ${day} число`}
                     >+</button>
                     {dayEvents.length > 0 && (
-                      <span style={{ fontSize: '0.62rem', background: 'rgba(255,255,255,0.12)', color: '#fff', padding: '1px 5px', borderRadius: '4px', fontWeight: 800 }}>
+                      <span className="crm-day-count">
                         {dayEvents.length}
                       </span>
                     )}
@@ -786,8 +740,7 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
     : `${currentDate.getDate()} ${MONTHS_RU[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
 
   return (
-    <div style={{ position: 'relative', minHeight: '100vh', padding: '0' }}>
-      <AnimatedBackground />
+    <div className="crm-root">
       {toastMsg && (
         <div style={{
           position: 'fixed', top: '16px', right: '16px', zIndex: 10002,
@@ -802,33 +755,22 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
       {/* ═══ TOP BAR ═══ */}
       <div className="crm-top-bar">
         <div className="crm-top-group-1">
-          <button onClick={onBackToHome} style={{
-            background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.18)',
-            color: '#ffffff', borderRadius: '6px', padding: '6px 12px', cursor: 'pointer',
-            fontWeight: 800, fontSize: '0.78rem', transition: 'all 0.15s'
-          }}>← На сайт</button>
-
-          <h1 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 900, color: '#ffffff', display: 'flex', alignItems: 'center', gap: '6px', letterSpacing: '0.5px' }}>
-            📅 CRM КАЛЕНДАРЬ
-          </h1>
+          <h1 className="crm-title">Календарь заявок</h1>
 
           {/* Ролевые фильтры-табы */}
           <div className="crm-role-tabs">
             {[
               { key: 'all', label: 'Все' },
-              { key: 'engineer', label: '👷 Выезды инженера' },
-              { key: 'executor', label: '🔨 Работы подрядчика' },
-              { key: 'lead', label: '📝 Новые лиды' }
+              { key: 'engineer', label: 'Выезды инженера' },
+              { key: 'executor', label: 'Работы подрядчика' },
+              { key: 'lead', label: 'Новые лиды' }
             ].map(rf => (
               <button
                 key={rf.key}
+                type="button"
                 onClick={() => setRoleFilter(rf.key)}
-                style={{
-                  padding: '5px 10px', borderRadius: '6px', fontSize: '0.72rem', fontWeight: 800, cursor: 'pointer',
-                  background: roleFilter === rf.key ? 'linear-gradient(135deg, #00e5ff, #0284c7)' : 'rgba(255,255,255,0.06)',
-                  color: roleFilter === rf.key ? '#0a1628' : '#cbd5e1',
-                  border: roleFilter === rf.key ? '1px solid #00e5ff' : '1px solid rgba(255,255,255,0.12)'
-                }}
+                aria-pressed={roleFilter === rf.key}
+                className={`crm-chip${roleFilter === rf.key ? ' is-active' : ''}`}
               >
                 {rf.label}
               </button>
@@ -839,14 +781,12 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
         {/* Навигация по датам и Переключатель вида */}
         <div className="crm-top-group-2">
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <button onClick={() => navigate(-1)} style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '6px', padding: '4px 10px', color: '#fff', cursor: 'pointer', fontWeight: 900, fontSize: '0.85rem' }}>‹</button>
-            <span style={{ fontWeight: 900, fontSize: '0.95rem', color: '#ffffff', minWidth: '130px', textAlign: 'center', letterSpacing: '0.5px' }}>
-              {headerLabel}
-            </span>
-            <button onClick={() => navigate(1)} style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '6px', padding: '4px 10px', color: '#fff', cursor: 'pointer', fontWeight: 900, fontSize: '0.85rem' }}>›</button>
+            <button type="button" className="crm-nav-btn" onClick={() => navigate(-1)} aria-label="Предыдущий период">‹</button>
+            <span className="crm-period" aria-live="polite">{headerLabel}</span>
+            <button type="button" className="crm-nav-btn" onClick={() => navigate(1)} aria-label="Следующий период">›</button>
           </div>
 
-          <div style={{ display: 'flex', gap: '3px', background: 'rgba(255,255,255,0.08)', borderRadius: '8px', padding: '3px' }}>
+          <div className="crm-view-switch" role="group" aria-label="Вид календаря">
             {[
               { key: 'day', label: 'День' },
               { key: 'week', label: 'Неделя' },
@@ -854,14 +794,10 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
             ].map(v => (
               <button
                 key={v.key}
+                type="button"
                 onClick={() => setView(v.key)}
-                style={{
-                  padding: '5px 14px', borderRadius: '6px', border: 'none', cursor: 'pointer',
-                  fontWeight: 900, fontSize: '0.78rem',
-                  background: view === v.key ? '#00e5ff' : 'transparent',
-                  color: view === v.key ? '#0a1628' : '#94a3b8',
-                  transition: 'all 0.15s ease'
-                }}
+                aria-pressed={view === v.key}
+                className={view === v.key ? 'is-active' : ''}
               >
                 {v.label}
               </button>
@@ -876,50 +812,21 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
         <div className="crm-sidebar-panel">
           {/* Кнопка Создать заявку */}
           <button
+            type="button"
+            className="qg-btn qg-btn--primary crm-create-btn"
             onClick={() => openCreateModalForSlot(fmtDate(currentDate))}
-            style={{
-              width: '100%',
-              padding: '10px 14px',
-              borderRadius: '10px',
-              border: 'none',
-              background: 'linear-gradient(135deg, #00e5ff, #0284c7)',
-              color: '#0a1628',
-              fontWeight: 900,
-              fontSize: '0.85rem',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '6px',
-              boxShadow: '0 4px 14px rgba(0, 229, 255, 0.35)',
-              transition: 'all 0.15s ease'
-            }}
           >
-            <span style={{ fontSize: '1rem' }}>➕</span> Создать заявку
+            Создать заявку
           </button>
 
           {/* 🎙️ Голосовое создание лида */}
           <button
+            type="button"
+            className="qg-btn qg-btn--ghost crm-voice-btn"
+            aria-expanded={showVoicePanel}
             onClick={() => setShowVoicePanel(!showVoicePanel)}
-            style={{
-              width: '100%',
-              padding: '10px 14px',
-              borderRadius: '10px',
-              border: showVoicePanel ? '2px solid #8b5cf6' : '2px dashed rgba(139, 92, 246, 0.4)',
-              background: showVoicePanel ? 'rgba(139, 92, 246, 0.2)' : 'rgba(139, 92, 246, 0.08)',
-              color: '#c4b5fd',
-              fontWeight: 900,
-              fontSize: '0.85rem',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '8px',
-              transition: 'all 0.2s ease',
-            }}
           >
-            <span style={{ fontSize: '1.1rem' }}>🎙️</span> 
-            {showVoicePanel ? 'Скрыть голосовой ввод' : 'Создать лид голосом'}
+            {showVoicePanel ? 'Скрыть голосовой ввод' : 'Надиктовать заявку'}
           </button>
 
           {showVoicePanel && (
@@ -972,28 +879,15 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
 
           {/* Блок Поиск */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-            <span style={{ fontSize: '0.65rem', fontWeight: 900, color: '#94a3b8', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
-              🔍 ПОИСК ЗАЯВКИ
-            </span>
-            <div style={{ position: 'relative' }}>
-              <span style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', fontSize: '0.75rem' }}>🔍</span>
-              <input
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-                placeholder="Поиск..."
-                style={{
-                  width: '100%',
-                  background: 'rgba(255,255,255,0.06)',
-                  border: '1px solid rgba(255,255,255,0.14)',
-                  borderRadius: '8px',
-                  padding: '7px 8px 7px 28px',
-                  color: '#ffffff',
-                  fontSize: '0.78rem',
-                  outline: 'none',
-                  boxSizing: 'border-box'
-                }}
-              />
-            </div>
+            <label className="crm-side-label" htmlFor="crm-search">Поиск заявки</label>
+            <input
+              id="crm-search"
+              type="search"
+              className="crm-search"
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              placeholder="Клиент, объект, телефон"
+            />
           </div>
 
           {/* Виджеты KPI */}
@@ -1005,9 +899,7 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
               padding: '8px',
               textAlign: 'center'
             }}>
-              <div style={{ fontSize: '0.62rem', fontWeight: 900, color: '#00e5ff', textTransform: 'uppercase', letterSpacing: '0.3px' }}>
-                ВСЕГО
-              </div>
+              <div className="crm-kpi-label">Всего</div>
               <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#ffffff', marginTop: '2px' }}>
                 {stats.total}
               </div>
@@ -1020,9 +912,7 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
               padding: '8px',
               textAlign: 'center'
             }}>
-              <div style={{ fontSize: '0.62rem', fontWeight: 900, color: '#ffd700', textTransform: 'uppercase', letterSpacing: '0.3px' }}>
-                БЮДЖЕТ
-              </div>
+              <div className="crm-kpi-label">Бюджет</div>
               <div style={{ fontSize: '0.78rem', fontWeight: 900, color: '#ffd700', marginTop: '4px', lineHeight: 1.1 }}>
                 {(stats.totalBudget / 1000000).toFixed(1)}M ₸
               </div>
@@ -1031,9 +921,7 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
 
           {/* Фильтр по статусам */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-            <span style={{ fontSize: '0.65rem', fontWeight: 900, color: '#94a3b8', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
-              🏷️ ФИЛЬТР ПО СТАТУСАМ
-            </span>
+            <span className="crm-side-label">Статус</span>
             <div className="crm-sidebar-status-filters">
               {[
                 { key: 'all', label: 'Все заявки', color: '#00e5ff' },
@@ -1048,6 +936,8 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
                 return (
                   <button
                     key={sf.key}
+                    type="button"
+                    aria-pressed={active}
                     onClick={() => setStatusFilter(sf.key)}
                     style={{
                       padding: '7px 10px',

@@ -218,7 +218,8 @@ def scan_defects(image: np.ndarray, sensitivity: float = 0.65) -> Dict[str, Any]
 
     # 4. Extract Real Defect Contours
     all_defects = []
-    claimed_mask = np.zeros_like(gray, dtype=bool)
+    # uint8, not bool: cv2.fillPoly does not support bool images (OpenCV >= 4.x raises Bad argument)
+    claimed_mask = np.zeros_like(gray, dtype=np.uint8)
 
     # Cracks processing
     cnts_cracks, _ = cv2.findContours(crack_connected, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -274,7 +275,7 @@ def scan_defects(image: np.ndarray, sensitivity: float = 0.65) -> Dict[str, Any]
             "analytics": analytics,
             "priority_score": 5000 + area * 2 + 25 * length_px,
         })
-        cv2.fillPoly(claimed_mask, [np.array(poly)], True)
+        cv2.fillPoly(claimed_mask, [np.array(poly, dtype=np.int32)], 1)
 
     # Spalls and chips processing
     cnts_spalls, _ = cv2.findContours(spall_connected, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -315,7 +316,7 @@ def scan_defects(image: np.ndarray, sensitivity: float = 0.65) -> Dict[str, Any]
             "analytics": analytics,
             "priority_score": 1000 + area * 2,
         })
-        cv2.fillPoly(claimed_mask, [np.array(poly)], True)
+        cv2.fillPoly(claimed_mask, [np.array(poly, dtype=np.int32)], 1)
 
     # NMS Deduplication
     def iou(b1, b2):
@@ -336,6 +337,7 @@ def scan_defects(image: np.ndarray, sensitivity: float = 0.65) -> Dict[str, Any]
     for idx, d in enumerate(clean_defects):
         d["id"] = idx + 1
 
+    claimed_mask = claimed_mask.astype(bool)
     intact_concrete_mask = concrete_filled.astype(bool) & (~claimed_mask)
 
     # Output 1: Laser AR Holographic HUD

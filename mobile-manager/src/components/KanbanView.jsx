@@ -1,165 +1,122 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
+import { Inbox } from 'lucide-react';
 import DealCard from './DealCard';
 import { STAGES, ROLE_CONFIG } from '../api/crmApi';
-import { Filter, Inbox } from 'lucide-react';
+import { EmptyState, formatMoney } from './ui/kit';
+
+// Deals with statuses from other apps (engineer/executor/web calendar) go to «Прочие» instead of vanishing
+const OTHER_STAGE = 'Прочие';
+const inStage = (d, st) => (st === OTHER_STAGE ? !STAGES.includes(d.status) : d.status === st);
 
 export default function KanbanView({ deals, onSelectDeal, searchQuery }) {
-  const [activeStage, setActiveStage] = useState('Новые');
-  const [selectedRoleFilter, setSelectedRoleFilter] = useState('all');
+  const [activeIdx, setActiveIdx] = useState(0);
+  const [roleFilter, setRoleFilter] = useState('all');
+  const boardRef = useRef(null);
+  const tabsRef = useRef(null);
 
-  // Filter deals by stage, search, and role
-  const filteredDeals = deals.filter((d) => {
-    if (d.status !== activeStage) return false;
-    if (selectedRoleFilter !== 'all' && d.role !== selectedRoleFilter) return false;
-    if (searchQuery) {
-      const q = searchQuery.toLowerCase();
-      const matchTitle = (d.title || '').toLowerCase().includes(q);
-      const matchClient = (d.client || '').toLowerCase().includes(q);
-      const matchLocation = (d.location || '').toLowerCase().includes(q);
-      const matchPhone = (d.phone || '').toLowerCase().includes(q);
-      if (!matchTitle && !matchClient && !matchLocation && !matchPhone) return false;
-    }
-    return true;
+  const stages = useMemo(
+    () => [...STAGES, ...(deals.some(d => inStage(d, OTHER_STAGE)) ? [OTHER_STAGE] : [])],
+    [deals]
+  );
+
+  const visibleDeals = useMemo(() => {
+    const q = (searchQuery || '').trim().toLowerCase();
+    return deals.filter(d => {
+      if (roleFilter !== 'all' && d.role !== roleFilter) return false;
+      if (!q) return true;
+      return [d.title, d.client, d.location, d.phone].some(v => String(v || '').toLowerCase().includes(q));
+    });
+  }, [deals, roleFilter, searchQuery]);
+
+  const columns = stages.map(st => {
+    const items = visibleDeals
+      .filter(d => inStage(d, st))
+      .sort((a, b) => String(a.date || '9999').localeCompare(String(b.date || '9999')) || String(a.time || '').localeCompare(String(b.time || '')));
+    return { stage: st, items, sum: items.reduce((s, d) => s + (Number(d.budget) || 0), 0) };
   });
 
+  const roleCounts = Object.keys(ROLE_CONFIG)
+    .map(k => ({ key: k, label: ROLE_CONFIG[k].subBadge ? ROLE_CONFIG[k].badge.charAt(0) + ROLE_CONFIG[k].badge.slice(1).toLowerCase() : k, count: deals.filter(d => d.role === k).length }))
+    .filter(r => r.count > 0);
+
+  // keep the active stage tab in sync with the swiped column
+  const onScroll = useCallback(() => {
+    const el = boardRef.current;
+    if (!el || !el.firstElementChild) return;
+    const colW = el.firstElementChild.getBoundingClientRect().width + 12;
+    const idx = Math.max(0, Math.min(stages.length - 1, Math.round(el.scrollLeft / colW)));
+    setActiveIdx(prev => (prev === idx ? prev : idx));
+  }, [stages.length]);
+
+  useEffect(() => {
+    const tab = tabsRef.current?.querySelector(`[data-idx="${activeIdx}"]`);
+    if (tab && tab.scrollIntoView) tab.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
+  }, [activeIdx]);
+
+  const goTo = (idx) => {
+    const el = boardRef.current;
+    const col = el?.children[idx];
+    if (el && col) el.scrollTo({ left: col.offsetLeft - 16, behavior: 'smooth' });
+    setActiveIdx(idx);
+  };
+
   return (
-    <div style={{ padding: '12px 16px 20px' }}>
-      {/* Stages Horizontal Scroller */}
-      <div style={{
-        display: 'flex',
-        gap: '8px',
-        overflowX: 'auto',
-        paddingBottom: '10px',
-        marginBottom: '10px',
-        scrollbarWidth: 'none',
-        msOverflowStyle: 'none'
-      }}>
-        {STAGES.map((st) => {
-          const isActive = activeStage === st;
-          const count = deals.filter(d => d.status === st).length;
-          return (
-            <button
-              key={st}
-              onClick={() => setActiveStage(st)}
-              style={{
-                flexShrink: 0,
-                padding: '9px 14px',
-                borderRadius: '12px',
-                border: isActive ? '1px solid #00e5ff' : '1px solid rgba(255, 255, 255, 0.08)',
-                background: isActive 
-                  ? 'linear-gradient(135deg, rgba(0, 229, 255, 0.25) 0%, rgba(2, 132, 199, 0.25) 100%)' 
-                  : 'rgba(255, 255, 255, 0.03)',
-                color: isActive ? '#00e5ff' : '#94a3b8',
-                fontWeight: 800,
-                fontSize: '0.84rem',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                cursor: 'pointer',
-                boxShadow: isActive ? '0 4px 14px rgba(0, 229, 255, 0.25)' : 'none',
-                transition: 'all 0.15s ease'
-              }}
-            >
-              <span>{st}</span>
-              <span style={{
-                background: isActive ? '#00e5ff' : 'rgba(255, 255, 255, 0.1)',
-                color: isActive ? '#000' : '#cbd5e1',
-                fontSize: '0.7rem',
-                fontWeight: 900,
-                padding: '1px 6px',
-                borderRadius: '8px',
-              }}>
-                {count}
-              </span>
-            </button>
-          );
-        })}
+    <div style={{ paddingTop: 'var(--sp-3)' }}>
+      {/* Stage tabs (also a summary of the pipeline) */}
+      <div className="qz-chips" ref={tabsRef} role="tablist" aria-label="Этапы воронки" style={{ margin: 0 }}>
+        {columns.map((c, i) => (
+          <button
+            key={c.stage}
+            type="button"
+            role="tab"
+            data-idx={i}
+            aria-selected={activeIdx === i}
+            className={`qz-chip${activeIdx === i ? ' is-active' : ''}`}
+            onClick={() => goTo(i)}
+          >
+            {c.stage} <span className="qz-count">{c.items.length}</span>
+          </button>
+        ))}
       </div>
 
-      {/* Role Filter Pills */}
-      <div style={{
-        display: 'flex',
-        gap: '6px',
-        overflowX: 'auto',
-        paddingBottom: '12px',
-        marginBottom: '10px',
-        scrollbarWidth: 'none'
-      }}>
-        <button
-          onClick={() => setSelectedRoleFilter('all')}
-          style={{
-            flexShrink: 0,
-            padding: '5px 10px',
-            borderRadius: '8px',
-            border: selectedRoleFilter === 'all' ? '1px solid #38bdf8' : '1px solid rgba(255, 255, 255, 0.06)',
-            background: selectedRoleFilter === 'all' ? 'rgba(56, 189, 248, 0.15)' : 'transparent',
-            color: selectedRoleFilter === 'all' ? '#38bdf8' : '#64748b',
-            fontSize: '0.74rem',
-            fontWeight: 700,
-            cursor: 'pointer'
-          }}
-        >
-          Все ({deals.filter(d => d.status === activeStage).length})
-        </button>
-
-        {Object.entries(ROLE_CONFIG).map(([rKey, rCfg]) => {
-          const isSelected = selectedRoleFilter === rKey;
-          const count = deals.filter(d => d.status === activeStage && d.role === rKey).length;
-          return (
-            <button
-              key={rKey}
-              onClick={() => setSelectedRoleFilter(rKey)}
-              style={{
-                flexShrink: 0,
-                padding: '5px 10px',
-                borderRadius: '8px',
-                border: isSelected ? `1px solid ${rCfg.border}` : '1px solid rgba(255, 255, 255, 0.06)',
-                background: isSelected ? rCfg.bg : 'transparent',
-                color: isSelected ? rCfg.color : '#64748b',
-                fontSize: '0.74rem',
-                fontWeight: 700,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px'
-              }}
-            >
-              <span>{rCfg.icon}</span>
-              <span>{rCfg.badge}</span>
-              <span style={{ opacity: 0.8 }}>({count})</span>
+      {roleCounts.length > 1 && (
+        <div className="qz-chips" style={{ margin: 0 }} aria-label="Направление">
+          <button type="button" className={`qz-chip${roleFilter === 'all' ? ' is-active' : ''}`} onClick={() => setRoleFilter('all')} style={{ minHeight: 36 }}>
+            Все направления
+          </button>
+          {roleCounts.map(r => (
+            <button key={r.key} type="button" className={`qz-chip${roleFilter === r.key ? ' is-active' : ''}`} onClick={() => setRoleFilter(roleFilter === r.key ? 'all' : r.key)} style={{ minHeight: 36 }}>
+              {r.label} <span className="qz-count">{r.count}</span>
             </button>
-          );
-        })}
+          ))}
+        </div>
+      )}
+
+      <div className="qz-dots" aria-hidden="true">
+        {columns.map((c, i) => <i key={c.stage} className={i === activeIdx ? 'is-active' : ''} />)}
       </div>
 
-      {/* Deals List */}
-      <div>
-        {filteredDeals.length > 0 ? (
-          filteredDeals.map((deal) => (
-            <DealCard
-              key={deal.id}
-              deal={deal}
-              onClick={onSelectDeal}
-            />
-          ))
-        ) : (
-          <div style={{
-            textAlign: 'center',
-            padding: '40px 20px',
-            background: 'rgba(255, 255, 255, 0.02)',
-            borderRadius: '16px',
-            border: '1px dashed rgba(255, 255, 255, 0.08)',
-            marginTop: '10px'
-          }}>
-            <Inbox size={40} color="#64748b" style={{ margin: '0 auto 10px', opacity: 0.6 }} />
-            <div style={{ color: '#cbd5e1', fontWeight: 700, fontSize: '0.92rem' }}>
-              Нет сделок в стадии «{activeStage}»
+      {/* Swipeable columns */}
+      <div className="qz-board" ref={boardRef} onScroll={onScroll}>
+        {columns.map(c => (
+          <section key={c.stage} className="qz-col" aria-label={`${c.stage}: ${c.items.length}`}>
+            <div className="qz-col-head">
+              <h2 className="qz-h2">{c.stage} <span className="qz-faint num" style={{ fontWeight: 500 }}>{c.items.length}</span></h2>
+              <span className="qz-col-sum">{c.sum > 0 ? formatMoney(c.sum) : ''}</span>
             </div>
-            <div style={{ color: '#64748b', fontSize: '0.78rem', marginTop: '4px' }}>
-              Переместите сделку из другого этапа или добавьте новую заявку через кнопку «+»
-            </div>
-          </div>
-        )}
+            {c.items.length === 0 ? (
+              <div className="qz-card is-flat" style={{ borderStyle: 'dashed' }}>
+                <EmptyState
+                  icon={<Inbox size={26} />}
+                  title={searchQuery ? 'Ничего не найдено' : 'Пока пусто'}
+                  text={searchQuery ? 'Измените запрос или направление.' : 'Сделки с этим статусом появятся здесь.'}
+                />
+              </div>
+            ) : (
+              c.items.map(deal => <DealCard key={deal.id} deal={deal} onClick={onSelectDeal} />)
+            )}
+          </section>
+        ))}
       </div>
     </div>
   );

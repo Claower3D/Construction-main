@@ -1,6 +1,55 @@
 package models
 
-import "time"
+import (
+	"bytes"
+	"encoding/json"
+	"strings"
+	"time"
+)
+
+// FlexString accepts a JSON string, number, bool or null and stores it as text.
+// Arrays/objects are stored as their raw JSON text. Mobile clients send budget
+// as a number, web clients as a string — both must be accepted.
+type FlexString string
+
+func (f *FlexString) UnmarshalJSON(b []byte) error {
+	t := bytes.TrimSpace(b)
+	if len(t) == 0 || string(t) == "null" {
+		*f = ""
+		return nil
+	}
+	if t[0] == '"' {
+		var v string
+		if err := json.Unmarshal(t, &v); err != nil {
+			return err
+		}
+		*f = FlexString(v)
+		return nil
+	}
+	*f = FlexString(t)
+	return nil
+}
+
+// FlexJSON is like FlexString, but when the stored text is a JSON array/object
+// it is emitted back as raw JSON (round-trip of notes arrays from mobile apps).
+type FlexJSON string
+
+func (f *FlexJSON) UnmarshalJSON(b []byte) error {
+	var s FlexString
+	if err := s.UnmarshalJSON(b); err != nil {
+		return err
+	}
+	*f = FlexJSON(s)
+	return nil
+}
+
+func (f FlexJSON) MarshalJSON() ([]byte, error) {
+	t := strings.TrimSpace(string(f))
+	if len(t) > 0 && (t[0] == '[' || t[0] == '{') && json.Valid([]byte(t)) {
+		return []byte(t), nil
+	}
+	return json.Marshal(string(f))
+}
 
 // User represents a system user
 type User struct {
@@ -52,6 +101,7 @@ type Order struct {
 	EstimateItems []EstimateItem `json:"estimateItems"`
 	TotalSum      float64        `json:"totalSum"`
 	Stages        []Stage        `json:"stages"`
+	EngineerID    string         `json:"engineerId,omitempty"`
 	CreatedBy     string         `json:"createdBy"`
 	CreatedAt     time.Time      `json:"createdAt"`
 }
@@ -177,21 +227,21 @@ type Client struct {
 
 // CRMEvent represents a synchronized CRM deal / calendar card across all accounts and devices
 type CRMEvent struct {
-	ID          string    `json:"id"`
-	Date        string    `json:"date"`
-	LeadNum     string    `json:"leadNum,omitempty"`
-	Title       string    `json:"title"`
-	Status      string    `json:"status"`
-	Type        string    `json:"type,omitempty"`
-	Role        string    `json:"role,omitempty"`
-	Time        string    `json:"time,omitempty"`
-	Phone       string    `json:"phone,omitempty"`
-	Contractor  string    `json:"contractor,omitempty"`
-	Location    string    `json:"location,omitempty"`
-	Budget      string    `json:"budget,omitempty"`
-	Description string    `json:"description,omitempty"`
-	Notes       string    `json:"notes,omitempty"`
-	CreatedBy   string    `json:"createdBy,omitempty"`
-	CreatedAt   time.Time `json:"createdAt"`
-	UpdatedAt   time.Time `json:"updatedAt"`
+	ID          FlexString `json:"id"`
+	Date        FlexString `json:"date"`
+	LeadNum     FlexString `json:"leadNum,omitempty"`
+	Title       FlexString `json:"title"`
+	Status      FlexString `json:"status"`
+	Type        FlexString `json:"type,omitempty"`
+	Role        FlexString `json:"role,omitempty"`
+	Time        FlexString `json:"time,omitempty"`
+	Phone       FlexString `json:"phone,omitempty"`
+	Contractor  FlexString `json:"contractor,omitempty"`
+	Location    FlexString `json:"location,omitempty"`
+	Budget      FlexString `json:"budget,omitempty"`
+	Description FlexString `json:"description,omitempty"`
+	Notes       FlexJSON   `json:"notes,omitempty"`
+	CreatedBy   FlexString `json:"createdBy,omitempty"`
+	CreatedAt   time.Time  `json:"createdAt"`
+	UpdatedAt   time.Time  `json:"updatedAt"`
 }

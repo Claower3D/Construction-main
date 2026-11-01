@@ -37,6 +37,74 @@ REGIONAL_COEFF = {
     "туркестан": 0.90,
 }
 
+# Латинские / альтернативные написания → ключ REGIONAL_COEFF
+CITY_ALIASES = {
+    "almaty": "алматы", "alma-ata": "алматы", "алма-ата": "алматы",
+    "astana": "астана", "nur-sultan": "астана", "нур-султан": "астана",
+    "shymkent": "шымкент", "chimkent": "шымкент",
+    "karaganda": "караганда", "karagandy": "караганда", "қарағанды": "караганда",
+    "atyrau": "атырау",
+    "aktau": "актау", "ақтау": "актау",
+    "aktobe": "актобе", "ақтөбе": "актобе",
+    "pavlodar": "павлодар",
+    "ust-kamenogorsk": "усть-каменогорск", "oskemen": "усть-каменогорск", "өскемен": "усть-каменогорск",
+    "semey": "семей", "semei": "семей",
+    "taraz": "тараз",
+    "kyzylorda": "кызылорда", "қызылорда": "кызылорда",
+    "kostanay": "костанай", "qostanay": "костанай",
+    "petropavlovsk": "петропавловск", "petropavl": "петропавловск",
+    "turkestan": "туркестан", "türkistan": "туркестан",
+}
+
+SUPPORTED_SYSTEMS = ("sewage", "water_supply", "electrical")
+
+
+def normalize_city(name: Optional[str]) -> Optional[str]:
+    """Return the REGIONAL_COEFF key for a city name (Cyrillic/Latin, any case) or None if unknown."""
+    if not name:
+        return None
+    key = " ".join(str(name).strip().lower().replace("ё", "е").split())
+    key = key.replace("г. ", "").replace("город ", "").strip()
+    if key in REGIONAL_COEFF:
+        return key
+    return CITY_ALIASES.get(key)
+
+
+def round_half_up(x: float) -> int:
+    """Commercial rounding (0.5 → up), same as Excel ROUND(x, 0) — Python's round() is banker's."""
+    from decimal import Decimal, ROUND_HALF_UP
+    return int(Decimal(str(x)).quantize(Decimal(1), rounding=ROUND_HALF_UP))
+
+
+def make_item(norm: Dict[str, Any], volume: float, coeff: float, decimals: int = 1) -> Dict[str, Any]:
+    """
+    One bill-of-quantities line.
+
+    unit_price = (материал + работа) × коэффициент, округление до тенге;
+    total = ROUND(volume × unit_price) — ровно то, что считает формула в Excel;
+    materials/works — доля материала и работы в total по нормативу.
+    """
+    vol = round(float(volume), decimals) if decimals else int(volume)
+    unit_price = round_half_up((norm["price"] + norm["labor"]) * coeff)
+    total = round_half_up(vol * unit_price) if decimals else int(vol) * unit_price
+    denom = norm["price"] + norm["labor"]
+    materials = round_half_up(total * norm["price"] / denom) if denom else 0
+    return {
+        "name": norm["name"],
+        "volume": vol,
+        "unit": norm["unit"],
+        "unit_price": unit_price,
+        "total": total,
+        "materials": materials,
+        "works": total - materials,
+    }
+
+
+def _summary(items: List[Dict[str, Any]]) -> Dict[str, int]:
+    total = sum(i["total"] for i in items)
+    materials = sum(i["materials"] for i in items)
+    return {"works_cost": total - materials, "materials_cost": materials, "total_cost": total}
+
 
 # ─────────────────────────────────────────────
 # Нормативы по типам коммуникаций
@@ -112,6 +180,11 @@ class EngineeringCalculator:
     based on room dimensions and project type.
     """
 
+    @staticmethod
+    def _coeff(city: str) -> float:
+        key = normalize_city(city)
+        return REGIONAL_COEFF[key] if key else 1.0
+
     def calculate_sewage(
         self,
         length_m: float,
@@ -126,78 +199,33 @@ class EngineeringCalculator:
         Args:
             length_m: Длина трассы в метрах
             depth_m: Глубина заложения
-            pipe_diameter: Тип трубы
+            pipe_diameter: Тип трубы (ключ SEWAGE_NORMS)
             manholes: Количество колодцев
             city: Город для регионального коэффициента
+
+        Цена позиции уже включает материал и работу, поэтому итог = сумма позиций
+        (раньше сверху добавлялось ещё 45% «материалов» — двойной счёт).
         """
-        coeff = REGIONAL_COEFF.get(city.lower(), 1.0)
-        items = []
-
-        # Трубы
+        coeff = self._coeff(city)
         pipe = SEWAGE_NORMS.get(pipe_diameter, SEWAGE_NORMS["pipe_pvc_110"])
-        items.append({
-            "name": pipe["name"],
-            "volume": round(length_m * 1.05, 1),  # +5% запас
-            "unit": pipe["unit"],
-            "unit_price": round((pipe["price"] + pipe["labor"]) * coeff),
-            "total": round(length_m * 1.05 * (pipe["price"] + pipe["labor"]) * coeff),
-        })
+        trench = SEWAGE_NORMS["trench_1_5m" if depth_m >= 1.3 else "trench_1m"]
+        backfill_vol = length_m * 0.5 * depth_m * 0.8  # траншея 0.5 м, 80% объёма — засыпка
 
-        # Траншея
-        trench_key = "trench_1_5m" if depth_m >= 1.3 else "trench_1m"
-        trench = SEWAGE_NORMS[trench_key]
-        items.append({
-            "name": trench["name"],
-            "volume": round(length_m, 1),
-            "unit": trench["unit"],
-            "unit_price": round(trench["labor"] * coeff),
-            "total": round(length_m * trench["labor"] * coeff),
-        })
-
-        # Песчаное основание
-        bed = SEWAGE_NORMS["sand_bed"]
-        items.append({
-            "name": bed["name"],
-            "volume": round(length_m, 1),
-            "unit": bed["unit"],
-            "unit_price": round((bed["price"] + bed["labor"]) * coeff),
-            "total": round(length_m * (bed["price"] + bed["labor"]) * coeff),
-        })
-
-        # Обратная засыпка
-        backfill_vol = length_m * 0.5 * depth_m * 0.8  # 80% заполнение
-        bf = SEWAGE_NORMS["backfill"]
-        items.append({
-            "name": bf["name"],
-            "volume": round(backfill_vol, 1),
-            "unit": bf["unit"],
-            "unit_price": round((bf["price"] + bf["labor"]) * coeff),
-            "total": round(backfill_vol * (bf["price"] + bf["labor"]) * coeff),
-        })
-
-        # Колодцы
+        items = [
+            make_item(pipe, length_m * 1.05, coeff),               # +5% запас
+            make_item(trench, length_m, coeff),
+            make_item(SEWAGE_NORMS["sand_bed"], length_m, coeff),
+            make_item(SEWAGE_NORMS["backfill"], backfill_vol, coeff),
+        ]
         if manholes > 0:
-            mh = SEWAGE_NORMS["manhole_d1000"]
-            items.append({
-                "name": mh["name"],
-                "volume": manholes,
-                "unit": mh["unit"],
-                "unit_price": round((mh["price"] + mh["labor"]) * coeff),
-                "total": round(manholes * (mh["price"] + mh["labor"]) * coeff),
-            })
-
-        works_cost = sum(i["total"] for i in items)
-        materials_cost = round(works_cost * 0.45)
-        total = works_cost + materials_cost
+            items.append(make_item(SEWAGE_NORMS["manhole_d1000"], manholes, coeff, decimals=0))
 
         return {
             "system": "Канализация",
             "snip_code": "СНиП РК 4.01-02-2009",
             "items": items,
-            "works_cost": works_cost,
-            "materials_cost": materials_cost,
-            "total_cost": total,
-            "timeline_days": max(3, round(length_m / 10)),
+            **_summary(items),
+            "timeline_days": max(3, round_half_up(length_m / 10)),
             "city": city,
             "regional_coeff": coeff,
         }
@@ -210,62 +238,24 @@ class EngineeringCalculator:
         city: str = "алматы",
     ) -> Dict[str, Any]:
         """Рассчитать стоимость водоснабжения."""
-        coeff = REGIONAL_COEFF.get(city.lower(), 1.0)
-        items = []
+        coeff = self._coeff(city)
+        k = 2 if hot_water else 1
 
-        # Трубы ПП
-        pipe = WATER_SUPPLY_NORMS["pipe_pp_25"]
-        total_length = pipe_length_m * (2 if hot_water else 1) * 1.1
-        items.append({
-            "name": pipe["name"] + (" (ХВС+ГВС)" if hot_water else " (ХВС)"),
-            "volume": round(total_length, 1),
-            "unit": pipe["unit"],
-            "unit_price": round((pipe["price"] + pipe["labor"]) * coeff),
-            "total": round(total_length * (pipe["price"] + pipe["labor"]) * coeff),
-        })
-
-        # Краны по точкам
-        valve = WATER_SUPPLY_NORMS["valve_25"]
-        items.append({
-            "name": valve["name"],
-            "volume": points_count * (2 if hot_water else 1),
-            "unit": valve["unit"],
-            "unit_price": round((valve["price"] + valve["labor"]) * coeff),
-            "total": round(points_count * (2 if hot_water else 1) * (valve["price"] + valve["labor"]) * coeff),
-        })
-
-        # Счётчики
-        meter = WATER_SUPPLY_NORMS["meter_water"]
-        n_meters = 2 if hot_water else 1
-        items.append({
-            "name": meter["name"],
-            "volume": n_meters,
-            "unit": meter["unit"],
-            "unit_price": round((meter["price"] + meter["labor"]) * coeff),
-            "total": round(n_meters * (meter["price"] + meter["labor"]) * coeff),
-        })
-
-        # Фильтр
-        filt = WATER_SUPPLY_NORMS["filter_coarse"]
-        items.append({
-            "name": filt["name"],
-            "volume": 1,
-            "unit": filt["unit"],
-            "unit_price": round((filt["price"] + filt["labor"]) * coeff),
-            "total": round((filt["price"] + filt["labor"]) * coeff),
-        })
-
-        works_cost = sum(i["total"] for i in items)
-        total = works_cost
+        pipe = dict(WATER_SUPPLY_NORMS["pipe_pp_25"])
+        pipe["name"] = pipe["name"] + (" (ХВС+ГВС)" if hot_water else " (ХВС)")
+        items = [
+            make_item(pipe, pipe_length_m * k * 1.1, coeff),        # +10% запас
+            make_item(WATER_SUPPLY_NORMS["valve_25"], points_count * k, coeff, decimals=0),
+            make_item(WATER_SUPPLY_NORMS["meter_water"], k, coeff, decimals=0),
+            make_item(WATER_SUPPLY_NORMS["filter_coarse"], 1, coeff, decimals=0),
+        ]
 
         return {
             "system": "Водоснабжение",
             "snip_code": "СНиП РК 4.01-02-2009",
             "items": items,
-            "works_cost": round(works_cost * 0.55),
-            "materials_cost": round(works_cost * 0.45),
-            "total_cost": total,
-            "timeline_days": max(2, round(pipe_length_m / 15)),
+            **_summary(items),
+            "timeline_days": max(2, round_half_up(pipe_length_m / 15)),
             "city": city,
             "regional_coeff": coeff,
         }
@@ -278,87 +268,30 @@ class EngineeringCalculator:
         city: str = "алматы",
     ) -> Dict[str, Any]:
         """Рассчитать стоимость электрики."""
-        coeff = REGIONAL_COEFF.get(city.lower(), 1.0)
-        items = []
+        coeff = self._coeff(city)
 
         # Авторасчёт если не указано
         if sockets == 0:
-            sockets = max(6, round(area_m2 / 4))  # 1 розетка на 4м²
+            sockets = max(6, round_half_up(area_m2 / 4))   # 1 розетка на 4 м²
         if switches == 0:
-            switches = max(3, round(area_m2 / 12))  # 1 выключатель на 12м²
+            switches = max(3, round_half_up(area_m2 / 12))  # 1 выключатель на 12 м²
+        n_breakers = max(6, round_half_up(sockets / 3))
 
-        # Кабель: ~5 п.м. на м² площади
-        wire_length = round(area_m2 * 5, 1)
-        wire = ELECTRICAL_NORMS["wire_vvg_3x2_5"]
-        items.append({
-            "name": wire["name"],
-            "volume": wire_length,
-            "unit": wire["unit"],
-            "unit_price": round((wire["price"] + wire["labor"]) * coeff),
-            "total": round(wire_length * (wire["price"] + wire["labor"]) * coeff),
-        })
-
-        # Розетки
-        sock = ELECTRICAL_NORMS["socket_install"]
-        items.append({
-            "name": sock["name"],
-            "volume": sockets,
-            "unit": sock["unit"],
-            "unit_price": round((sock["price"] + sock["labor"]) * coeff),
-            "total": round(sockets * (sock["price"] + sock["labor"]) * coeff),
-        })
-
-        # Выключатели
-        sw = ELECTRICAL_NORMS["switch_install"]
-        items.append({
-            "name": sw["name"],
-            "volume": switches,
-            "unit": sw["unit"],
-            "unit_price": round((sw["price"] + sw["labor"]) * coeff),
-            "total": round(switches * (sw["price"] + sw["labor"]) * coeff),
-        })
-
-        # Щиток
-        panel = ELECTRICAL_NORMS["panel_12"] if area_m2 < 80 else ELECTRICAL_NORMS["panel_24"]
-        items.append({
-            "name": panel["name"],
-            "volume": 1,
-            "unit": panel["unit"],
-            "unit_price": round((panel["price"] + panel["labor"]) * coeff),
-            "total": round((panel["price"] + panel["labor"]) * coeff),
-        })
-
-        # Автоматы
-        n_breakers = max(6, round(sockets / 3))
-        br = ELECTRICAL_NORMS["breaker_16a"]
-        items.append({
-            "name": br["name"],
-            "volume": n_breakers,
-            "unit": br["unit"],
-            "unit_price": round((br["price"] + br["labor"]) * coeff),
-            "total": round(n_breakers * (br["price"] + br["labor"]) * coeff),
-        })
-
-        # УЗО
-        rcd = ELECTRICAL_NORMS["rcd_40a"]
-        items.append({
-            "name": rcd["name"],
-            "volume": 1,
-            "unit": rcd["unit"],
-            "unit_price": round((rcd["price"] + rcd["labor"]) * coeff),
-            "total": round((rcd["price"] + rcd["labor"]) * coeff),
-        })
-
-        works_cost = sum(i["total"] for i in items)
+        items = [
+            make_item(ELECTRICAL_NORMS["wire_vvg_3x2_5"], area_m2 * 5, coeff),  # ~5 п.м. кабеля на м²
+            make_item(ELECTRICAL_NORMS["socket_install"], sockets, coeff, decimals=0),
+            make_item(ELECTRICAL_NORMS["switch_install"], switches, coeff, decimals=0),
+            make_item(ELECTRICAL_NORMS["panel_12" if area_m2 < 80 else "panel_24"], 1, coeff, decimals=0),
+            make_item(ELECTRICAL_NORMS["breaker_16a"], n_breakers, coeff, decimals=0),
+            make_item(ELECTRICAL_NORMS["rcd_40a"], 1, coeff, decimals=0),
+        ]
 
         return {
             "system": "Электрика",
             "snip_code": "ПУЭ 7-е изд., СНиП РК 4.04-05-2008",
             "items": items,
-            "works_cost": round(works_cost * 0.55),
-            "materials_cost": round(works_cost * 0.45),
-            "total_cost": works_cost,
-            "timeline_days": max(3, round(area_m2 / 15)),
+            **_summary(items),
+            "timeline_days": max(3, round_half_up(area_m2 / 15)),
             "city": city,
             "regional_coeff": coeff,
         }
@@ -379,7 +312,7 @@ class EngineeringCalculator:
             city: Город
         """
         if systems is None:
-            systems = ["sewage", "water_supply", "electrical"]
+            systems = list(SUPPORTED_SYSTEMS)
 
         results = []
         grand_total = 0
@@ -388,7 +321,8 @@ class EngineeringCalculator:
             r = self.calculate_sewage(
                 length_m=kwargs.get("sewage_length_m", max(10, area_m2 * 0.3)),
                 depth_m=kwargs.get("sewage_depth_m", 1.2),
-                manholes=kwargs.get("manholes", max(1, round(area_m2 / 50))),
+                pipe_diameter=kwargs.get("pipe_type", "pipe_pvc_110"),
+                manholes=kwargs.get("manholes", max(1, round_half_up(area_m2 / 50))),
                 city=city,
             )
             results.append(r)
@@ -396,7 +330,7 @@ class EngineeringCalculator:
 
         if "water_supply" in systems:
             r = self.calculate_water_supply(
-                points_count=kwargs.get("water_points", max(4, round(area_m2 / 8))),
+                points_count=kwargs.get("water_points", max(4, round_half_up(area_m2 / 8))),
                 pipe_length_m=kwargs.get("water_pipe_m", max(15, area_m2 * 0.4)),
                 hot_water=kwargs.get("hot_water", True),
                 city=city,
@@ -419,6 +353,7 @@ class EngineeringCalculator:
             "grand_total": grand_total,
             "area_m2": area_m2,
             "city": city,
+            "regional_coeff": self._coeff(city),
             "timeline_days": max(r["timeline_days"] for r in results) if results else 0,
         }
 

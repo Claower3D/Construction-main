@@ -3,6 +3,7 @@ package database
 import (
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"qazgost-ai/backend/pkg/models"
@@ -216,18 +217,20 @@ func GetAllEngineers() ([]*models.Engineer, error) {
 }
 
 func GetAllEquipment() ([]*models.Equipment, error) {
-	rows, err := DB.Query("SELECT id,name,category,price_per_day,city,status,image FROM equipment ORDER BY id DESC")
+	rows, err := DB.Query(`SELECT id,name,category,price_per_day,COALESCE(price_per_hour,0),city,status,image,
+		COALESCE(owner_id,''),COALESCE(owner_name,''),COALESCE(owner_phone,''),COALESCE(plate_number,''),COALESCE(capacity,''),
+		COALESCE(rating,0),COALESCE(reviews_count,0) FROM equipment ORDER BY id DESC`)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []*models.Equipment
+	items := []*models.Equipment{}
 	for rows.Next() {
 		e := &models.Equipment{}
-		rows.Scan(&e.ID, &e.Name, &e.Category, &e.PricePerDay, &e.City, &e.Status, &e.Image)
-		e.Rating = 4.9
-		e.ReviewsCount = 12
-		e.DistanceKm = 2.4
+		if err := rows.Scan(&e.ID, &e.Name, &e.Category, &e.PricePerDay, &e.PricePerHour, &e.City, &e.Status, &e.Image,
+			&e.OwnerID, &e.OwnerName, &e.OwnerPhone, &e.PlateNumber, &e.Capacity, &e.Rating, &e.ReviewsCount); err != nil {
+			continue
+		}
 		items = append(items, e)
 	}
 	return items, nil
@@ -243,8 +246,10 @@ func AddEquipment(e *models.Equipment) error {
 	if e.Image == "" {
 		e.Image = "https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&w=400&q=80"
 	}
-	_, err := DB.Exec("INSERT INTO equipment (id,name,category,price_per_day,city,status,image) VALUES ($1,$2,$3,$4,$5,$6,$7)",
-		e.ID, e.Name, e.Category, e.PricePerDay, e.City, e.Status, e.Image)
+	_, err := DB.Exec(`INSERT INTO equipment (id,name,category,price_per_day,price_per_hour,city,status,image,owner_id,owner_name,owner_phone,plate_number,capacity,rating,reviews_count)
+		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)`,
+		e.ID, e.Name, e.Category, e.PricePerDay, e.PricePerHour, e.City, e.Status, e.Image,
+		e.OwnerID, e.OwnerName, e.OwnerPhone, e.PlateNumber, e.Capacity, e.Rating, e.ReviewsCount)
 	return err
 }
 
@@ -272,7 +277,7 @@ func GetAllCRMEvents() ([]*models.CRMEvent, error) {
 	}
 	defer rows.Close()
 
-	var items []*models.CRMEvent
+	items := []*models.CRMEvent{}
 	for rows.Next() {
 		evt := &models.CRMEvent{}
 		if err := rows.Scan(&evt.ID, &evt.Date, &evt.LeadNum, &evt.Title, &evt.Status, &evt.Type, &evt.Role, &evt.Time, &evt.Phone, &evt.Contractor, &evt.Location, &evt.Budget, &evt.Description, &evt.Notes, &evt.CreatedBy, &evt.CreatedAt, &evt.UpdatedAt); err == nil {
@@ -284,7 +289,7 @@ func GetAllCRMEvents() ([]*models.CRMEvent, error) {
 
 func SaveCRMEvent(evt *models.CRMEvent) error {
 	if evt.ID == "" {
-		evt.ID = fmt.Sprintf("evt_%d", time.Now().UnixNano())
+		evt.ID = models.FlexString(fmt.Sprintf("evt_%d", time.Now().UnixNano()))
 	}
 	if evt.Status == "" {
 		evt.Status = "Новые"
@@ -315,14 +320,73 @@ func SaveCRMEvent(evt *models.CRMEvent) error {
 	return err
 }
 
-func DeleteCRMEvent(id string) error {
-	_, err := DB.Exec("DELETE FROM crm_events WHERE id = $1 OR lead_num = $2 OR id LIKE $3", id, id, "%"+id+"%")
-	return err
+// DeleteCRMEvent deletes by exact id (or exact lead number). Returns the number of deleted rows.
+// Previously used `id LIKE '%'||id||'%'`, which wiped unrelated deals (id=1 → every id containing "1",
+// id=% → the whole table).
+func DeleteCRMEvent(id string) (int64, error) {
+	res, err := DB.Exec(`DELETE FROM crm_events WHERE id = $1 OR (lead_num <> '' AND lead_num = $1)`, id)
+	if err != nil {
+		return 0, err
+	}
+	return res.RowsAffected()
 }
 
-func BulkSyncCRMEvents(evts []*models.CRMEvent) error {
+// BulkSyncCRMEvents upserts every event and returns how many were saved
+func BulkSyncCRMEvents(evts []*models.CRMEvent) (int, error) {
+	saved := 0
+	var lastErr error
 	for _, e := range evts {
-		_ = SaveCRMEvent(e)
+		if err := SaveCRMEvent(e); err != nil {
+			lastErr = err
+			continue
+		}
+		saved++
 	}
-	return nil
+	return saved, lastErr
+}
+
+// Contractor is a public marketplace view of a brigade and its company
+type Contractor struct {
+	ID           string   `json:"id"`
+	Name         string   `json:"name"`
+	CompanyID    string   `json:"companyId"`
+	CompanyName  string   `json:"companyName"`
+	CompanyType  string   `json:"companyType"`
+	CompanyPhone string   `json:"companyPhone"`
+	CompanyEmail string   `json:"companyEmail"`
+	Foreman      string   `json:"foreman"`
+	Size         int      `json:"size"`
+	Skills       []string `json:"skills"`
+	City         string   `json:"city"`
+	Rating       float64  `json:"rating"`
+	Status       string   `json:"status"`
+}
+
+// GetContractors returns active brigades with company contacts for the public catalog
+func GetContractors() ([]*Contractor, error) {
+	rows, err := DB.Query(`SELECT b.id, b.name, b.company_id, COALESCE(c.name,''), COALESCE(c.type,''), COALESCE(c.phone,''), COALESCE(c.email,''),
+		b.foreman, b.size, b.skills, b.city, b.rating, b.status
+		FROM brigades b LEFT JOIN companies c ON c.id = b.company_id
+		WHERE b.status = 'active' ORDER BY b.rating DESC, b.name`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*Contractor{}
+	for rows.Next() {
+		c := &Contractor{}
+		var skills string
+		if err := rows.Scan(&c.ID, &c.Name, &c.CompanyID, &c.CompanyName, &c.CompanyType, &c.CompanyPhone, &c.CompanyEmail,
+			&c.Foreman, &c.Size, &skills, &c.City, &c.Rating, &c.Status); err != nil {
+			continue
+		}
+		c.Skills = []string{}
+		for _, s := range strings.Split(skills, ",") {
+			if s = strings.TrimSpace(s); s != "" {
+				c.Skills = append(c.Skills, s)
+			}
+		}
+		items = append(items, c)
+	}
+	return items, nil
 }

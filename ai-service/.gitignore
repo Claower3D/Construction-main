@@ -52,6 +52,8 @@ htmlcov/
 *.tflite
 *.engine
 !models/.gitkeep
+# Обученные веса детектора дефектов (5–6 МБ) — нужны в git: Railway/Docker собирают образ из репозитория
+!models/defect_*.pt
 
 # Uploads and results
 uploads/

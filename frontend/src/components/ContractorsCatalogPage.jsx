@@ -1,816 +1,564 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
+import './marketplace-refresh.css';
 import './ContractorsCatalogPage.css';
 import { createPlatformOrder } from '../services/orderSyncService';
 import { freezeEscrow } from '../services/walletEngine';
 
+/*
+ * Каталог подрядчиков.
+ * Источник — публичный GET /api/v1/contractors?city=&q= → { total, items: [{ id, name, companyId,
+ * companyName, companyType, companyPhone, companyEmail, foreman, size, skills[], city, rating, status }] }.
+ * Город фильтруется на сервере; поиск по словам («бетон караганда») и навыки — на клиенте
+ * (серверный q ищет одну подстроку и не учитывает город). Демо-анкеты — только если API недоступен,
+ * с явной пометкой.
+ */
+
+const BOOKING_DEPOSIT = 150000;
+
+const AVATAR_TONES = ['#2563eb', '#0e7490', '#7c3aed', '#047857', '#b45309', '#be123c'];
+
+function capitalize(s) {
+  const t = String(s || '').trim();
+  return t ? t.charAt(0).toUpperCase() + t.slice(1) : '';
+}
+
+function initialsOf(name) {
+  const words = String(name || '')
+    .replace(/[«»"'()№—–-]/g, ' ')
+    .split(/\s+/)
+    .filter((w) => w && !/^(ТОО|ИП|АО|ООО|\d+)$/i.test(w));
+  return (words[0]?.[0] || '?').toUpperCase() + (words[1]?.[0] || '').toUpperCase();
+}
+
+function toneOf(key) {
+  let h = 0;
+  for (const ch of String(key)) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  return AVATAR_TONES[h % AVATAR_TONES.length];
+}
+
+function telHref(phone) {
+  const digits = String(phone || '').replace(/[^\d+]/g, '');
+  return digits.replace(/\D/g, '').length >= 10 ? `tel:${digits.startsWith('+') ? digits : `+${digits}`}` : null;
+}
+
+function mailHref(email, subject) {
+  const e = String(email || '').trim();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)) return null;
+  return `mailto:${e}?subject=${encodeURIComponent(subject)}`;
+}
+
+function peopleLabel(n) {
+  const v = Math.abs(Number(n)) % 100;
+  const d = v % 10;
+  if (v > 10 && v < 20) return `${n} человек`;
+  if (d === 1) return `${n} человек`;
+  if (d >= 2 && d <= 4) return `${n} человека`;
+  return `${n} человек`;
+}
+
+function normalizeApiItem(it) {
+  const skills = (Array.isArray(it.skills) ? it.skills : [])
+    .map(capitalize)
+    .filter(Boolean);
+  return {
+    id: String(it.id),
+    source: 'api',
+    name: it.name || 'Бригада',
+    company: it.companyName || '',
+    companyId: it.companyId || '',
+    companyType: it.companyType || '',
+    foreman: it.foreman || '',
+    size: Number(it.size) > 0 ? Number(it.size) : null,
+    skills,
+    city: it.city || '',
+    rating: Number(it.rating) || 0,
+    available: (it.status || 'active') === 'active',
+    phone: it.companyPhone || '',
+    email: it.companyEmail || '',
+    reviewsCount: null,
+    description: '',
+  };
+}
+
+// ── Демо-анкеты: показываются только когда сервер каталога недоступен ──
+const DEMO_CONTRACTORS = [
+  { id: 'demo-medina', name: 'ИП «Медина» (ЖБИ и люки)', company: 'ИП «Медина»', companyType: 'Поставщик ЖБИ', foreman: 'Манарбек', skills: ['Завод ЖБИ', 'Бетон и ЖБИ'], city: 'Караганда', rating: 4.95, reviewsCount: 29, available: true, phone: '+7 700 370 55 99', email: 'ip.medina@mail.ru', description: 'Кольца колодцев КС, плиты 1ПП/2ПП, днища ПН, полимерные и чугунно-бетонные люки. Отгрузка по Караганде.' },
+  { id: 'demo-brigada-astana', name: 'БригадаАстана', company: 'БригадаАстана', companyType: 'Компания', foreman: '', skills: ['Сантехник', 'Отопление и вентиляция'], city: 'Шымкент', rating: 4.9, reviewsCount: 42, available: false, phone: '+7 701 555 01 11', email: '', description: 'Сантехника и отопление, 8 лет опыта.' },
+  { id: 'demo-master', name: 'Мастер на все руки', company: 'Частный мастер', companyType: 'Мастер', foreman: '', skills: ['Сантехник', 'Маляр'], city: 'Астана', rating: 4.7, reviewsCount: 18, available: true, phone: '+7 702 444 22 33', email: '', description: 'Мелкий ремонт, выезд на замер в день обращения.' },
+  { id: 'demo-yuzhstroy', name: 'ЮжСтрой', company: 'ЮжСтрой', companyType: 'Компания', foreman: '', skills: ['Отделка под ключ', 'Отопление и вентиляция', 'Дизайнер интерьера'], city: 'Алматы', rating: 4.6, reviewsCount: 89, available: false, phone: '+7 777 123 45 67', email: '', description: 'Полный цикл отделочных работ, 17 лет опыта.' },
+  { id: 'demo-tehnostroy', name: 'ТехноСтрой', company: 'ТехноСтрой', companyType: 'Компания', foreman: '', skills: ['Фасадчик', 'Благоустройство', 'Электрик'], city: 'Алматы', rating: 4.4, reviewsCount: 31, available: true, phone: '+7 705 888 99 00', email: '', description: 'Фасады, благоустройство и электромонтаж. Гарантия 3 года.' },
+  { id: 'demo-alibek', name: 'Алибек Нурланов', company: 'Частный мастер', companyType: 'Мастер', foreman: '', skills: ['Демонтажник', 'Генподрядчик', 'Сантехник'], city: 'Астана', rating: 4.3, reviewsCount: 15, available: false, phone: '+7 700 333 22 11', email: '', description: 'Демонтаж и монтаж, 11 лет опыта.' },
+  { id: 'demo-serik', name: 'Серик Каримов', company: 'Частный мастер', companyType: 'Мастер', foreman: '', skills: ['Напольные покрытия', 'Электрик'], city: 'Актобе', rating: 4.3, reviewsCount: 24, available: false, phone: '+7 771 999 88 77', email: '', description: 'Электрика и напольные покрытия, 9 лет опыта.' },
+  { id: 'demo-qsg', name: 'ТОО «QazStroyGroup»', company: 'ТОО «QazStroyGroup»', companyType: 'Генподрядчик', foreman: '', skills: ['Генподрядчик', 'Бетонщик', 'Кровельщик'], city: 'Караганда', rating: 5.0, reviewsCount: 112, available: true, phone: '+7 7212 50 60 70', email: '', description: 'Жилые и коммерческие здания под ключ.' },
+  { id: 'demo-erzhan', name: 'Ержан, сварочные работы', company: 'Частный мастер', companyType: 'Мастер', foreman: '', skills: ['Сварщик', 'Заборы и ворота'], city: 'Алматы', rating: 4.8, reviewsCount: 37, available: true, phone: '+7 708 777 66 55', email: '', description: 'Аттестованный сварщик: металлоконструкции, навесы, ворота.' },
+].map((d) => ({ size: null, companyId: '', ...d, source: 'demo' }));
+
+const SORTS = {
+  rating_desc: { label: 'Лучший рейтинг', fn: (a, b) => b.rating - a.rating || (b.size || 0) - (a.size || 0) },
+  rating_asc: { label: 'Низкий рейтинг', fn: (a, b) => a.rating - b.rating },
+  size_desc: { label: 'Крупные бригады', fn: (a, b) => (b.size || 0) - (a.size || 0) || b.rating - a.rating, needs: 'size' },
+  reviews_desc: { label: 'Больше отзывов', fn: (a, b) => (b.reviewsCount || 0) - (a.reviewsCount || 0), needs: 'reviews' },
+};
+
+function Stars({ value }) {
+  const full = Math.round(Number(value) || 0);
+  return (
+    <span className="cc-stars" aria-hidden="true">
+      {'★'.repeat(full)}<span className="cc-stars-empty">{'★'.repeat(Math.max(0, 5 - full))}</span>
+    </span>
+  );
+}
+
+function ContactLinks({ c, compact = false }) {
+  const tel = telHref(c.phone);
+  const mail = mailHref(c.email, `Заявка через QazGost AI — ${c.name}`);
+  if (!tel && !mail) return <span className="cc-contact-missing">Контакты не указаны</span>;
+  return (
+    <div className={`cc-contact-actions${compact ? ' is-compact' : ''}`} onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
+      {tel && (
+        <a className="cc-call-btn" href={tel} aria-label={`Позвонить: ${c.company || c.name}, ${c.phone}`}>
+          <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1A17 17 0 0 1 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1l-2.3 2.2Z" /></svg>
+          <span>{compact ? 'Позвонить' : c.phone}</span>
+        </a>
+      )}
+      {mail && (
+        <a className="cc-mail-btn" href={mail} aria-label={`Написать на почту: ${c.email}`}>
+          <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Zm8 7.2L5 7.6V17h14V7.6l-7 4.6Zm-6.2-5.2L12 11l6.2-4H5.8Z" /></svg>
+          <span>{compact ? 'Написать' : c.email}</span>
+        </a>
+      )}
+    </div>
+  );
+}
+
 export default function ContractorsCatalogPage({ onBack }) {
+  const [items, setItems] = useState([]);
+  const [status, setStatus] = useState('loading'); // loading | ok | demo
+  const [loadError, setLoadError] = useState('');
+  const [cities, setCities] = useState([]);
+  const [city, setCity] = useState('all');
+  const [reloadKey, setReloadKey] = useState(0);
+
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedSpecialty, setSelectedSpecialty] = useState('all');
-  const [typeFilter, setTypeFilter] = useState('all'); // 'all' | 'master' | 'company'
+  const [debouncedQuery, setDebouncedQuery] = useState('');
+  const [skill, setSkill] = useState('all');
   const [availableOnly, setAvailableOnly] = useState(false);
-  const [withReviewsOnly, setWithReviewsOnly] = useState(false);
-  const [sortOrder, setSortOrder] = useState('rating_desc'); // 'rating_desc' | 'rating_asc'
-  const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'list'
-  
-  // Interactive States
-  const [favorites, setFavorites] = useState([1, 4]); // list of item ids
-  const [selectedContractor, setSelectedContractor] = useState(null);
+  const [sortOrder, setSortOrder] = useState('rating_desc');
+
+  const [selected, setSelected] = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [toastMessage, setToastMessage] = useState(null);
+  const toastTimer = useRef(null);
 
-  const specialtyChips = [
-    { id: 'all', label: '🪄 Все специалисты' },
-    { id: 'supplier_zhbi', label: '🏭 Завод ЖБИ и кольца' },
-    { id: 'general', label: '🏗️ Генподрядчик' },
-    { id: 'concrete', label: '🧱 Бетон и ЖБИ' },
-    { id: 'plumber', label: '🔧 Сантехник' },
-    { id: 'electrician', label: '⚡ Электрик' },
-    { id: 'painter', label: '🎨 Маляр' },
-    { id: 'tiler', label: '🏠 Плиточник' },
-    { id: 'welder', label: '🔥 Сварщик' },
-    { id: 'carpenter', label: '🪵 Плотник / Столяр' },
-    { id: 'roofer', label: '🏚️ Кровельщик' },
-    { id: 'hvac', label: '❄️ Отопление / Вентиляция' },
-    { id: 'demolition', label: '💥 Демонтажник' },
-    { id: 'landscaper', label: '🌳 Благоустройство' },
-    { id: 'designer', label: '✏️ Дизайнер интерьера' },
-    { id: 'architect', label: '📐 Архитектор / Проектировщик' },
-    { id: 'surveyor', label: '📏 Геодезист / Замерщик' },
-    { id: 'finishing', label: '✨ Отделочник под ключ' },
-    { id: 'facade', label: '🏢 Фасадчик' },
-    { id: 'window', label: '🚪 Окна / Двери' },
-    { id: 'flooring', label: '🟫 Напольные покрытия' },
-    { id: 'drywall', label: '📐 Гипсокартонщик' }
-  ];
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedQuery(searchQuery.trim().toLowerCase()), 300);
+    return () => clearTimeout(t);
+  }, [searchQuery]);
 
-  const contractorsList = [
-    {
-      id: 'medina-manarbek',
-      name: 'ИП «Медина» (ЖБИ & Люки)',
-      initials: 'МЕ',
-      gradient: 'linear-gradient(135deg, #f59e0b, #ef4444)',
-      type: 'company',
-      typeLabel: 'ПОСТАВЩИК ЖБИ / ПРОИЗВОДСТВО',
-      subtitle: 'Кольца КС, плиты 1ПП/ПН, опорные кольца КО-6, люки полимерные и ЖБ',
-      rating: 4.95,
-      reviewsCount: 29,
-      specialties: [
-        { id: 'supplier_zhbi', label: '🏭 Завод ЖБИ' },
-        { id: 'concrete', label: '🧱 Бетон и ЖБИ' }
-      ],
-      description: 'Производство и продажа стеновых колец колодцев КС (15.9, 15.6, 10.9, 10.3, 7.3), усиленных крышек 1ПП/2ПП, днищ ПН, а также полимерных (25т) и чугунно-бетонных люков. Быстрая отгрузка по Караганде.',
-      city: 'Караганда',
-      address: '100022, г. Караганда, ул. Камали Дюсембекова',
-      contactPerson: 'Манарбек',
-      isAvailable: true,
-      tier: 'Премиум',
-      tierBadge: '⭐ Проверенный Поставщик',
-      phone: '+7 700 370 55 99',
-      email: 'ip.medina@mail.ru',
-      experience: '9 лет',
-      completedProjects: 310
-    },
-    {
-      id: 'tabys-asm',
-      name: 'ТОО «ТАБЫС - АСМ» (ЖБИ Завод)',
-      initials: 'ТА',
-      gradient: 'linear-gradient(135deg, #10b981, #0284c7)',
-      type: 'company',
-      typeLabel: 'ЗАВОД ЖБИ / ПОСТАВЩИК',
-      subtitle: 'Производство и поставка ЖБИ, колец, плит, ФБС, стоек ЛЭП',
-      rating: 5.0,
-      reviewsCount: 38,
-      specialties: [
-        { id: 'supplier_zhbi', label: '🏭 Завод ЖБИ' },
-        { id: 'concrete', label: '🧱 Бетон и ЖБИ' }
-      ],
-      description: 'Официальный производитель и поставщик сертифицированных ЖБИ изделий (кольца КС, плиты ПП/ПН, блоки ФБС, опоры ЛЭП СВ). Возможна оперативная доставка автомобилем-манипулятором по Караганде и всей области.',
-      city: 'Караганда',
-      address: 'г. Караганда, район им. Казыбек Би, пр. С. Сейфуллина 105-К',
-      bin: '131040012428',
-      bik: 'HSBKZKX',
-      iban: 'KZ086017191000004493',
-      bank: 'АО «Народный Банк Казахстана» (Halyk Bank)',
-      director: 'Пекушева Н.Р.',
-      contactPerson: 'Наталья',
-      isAvailable: true,
-      tier: 'Премиум',
-      tierBadge: '⭐ Проверенный Завод',
-      phone: '+7 702 364 08 71',
-      email: 'tabys-asm@mail.ru',
-      experience: '12 лет',
-      completedProjects: 450
-    },
-    {
-      id: 1,
-      name: 'БригадаАстана',
-      initials: 'БР',
-      gradient: 'linear-gradient(135deg, #3b82f6, #38bdf8)',
-      type: 'company',
-      typeLabel: 'КОМПАНИЯ',
-      subtitle: 'БригадаАстана',
-      rating: 4.9,
-      reviewsCount: 42,
-      specialties: [
-        { id: 'plumber', label: '🔧 Сантехник' },
-        { id: 'hvac', label: '❄️ Отопление / Вентиляция' }
-      ],
-      description: 'Опытный специалист в сфере строительства. Более 8 лет опыта. Выполняем подряды любой сложности.',
-      city: 'Шымкент',
-      isAvailable: false,
-      tier: 'Стандарт',
-      tierBadge: '🥈 Стандарт',
-      phone: '+7 (701) 555-01-11',
-      experience: '8 лет',
-      completedProjects: 64
-    },
-    {
-      id: 2,
-      name: 'Мастер на все руки',
-      initials: 'МА',
-      gradient: 'linear-gradient(135deg, #38bdf8, #ef4444)',
-      type: 'company',
-      typeLabel: 'КОМПАНИЯ',
-      subtitle: 'Частный мастер',
-      rating: 4.7,
-      reviewsCount: 18,
-      specialties: [
-        { id: 'plumber', label: '🔧 Сантехник' },
-        { id: 'painter', label: '🎨 Маляр' }
-      ],
-      description: 'Опытный специалист в сфере строительства. Более 4 лет опыта. Быстрый выезд на замер.',
-      city: 'Астана',
-      isAvailable: true,
-      tier: 'Стандарт',
-      tierBadge: '🥈 Стандарт',
-      phone: '+7 (702) 444-22-33',
-      experience: '4 года',
-      completedProjects: 28
-    },
-    {
-      id: 3,
-      name: 'ЮжСтрой',
-      initials: 'ЮЖ',
-      gradient: 'linear-gradient(135deg, #0ea5e9, #2563eb)',
-      type: 'company',
-      typeLabel: 'КОМПАНИЯ',
-      subtitle: 'ЮжСтрой',
-      rating: 4.6,
-      reviewsCount: 89,
-      specialties: [
-        { id: 'finishing', label: '✨ Отделочник под ключ' },
-        { id: 'hvac', label: '❄️ Отопление / Вентиляция' },
-        { id: 'designer', label: '✏️ Дизайнер интерьера' }
-      ],
-      description: 'Опытный специалист в сфере строительства. Более 17 лет опыта. Полный цикл работ по СНиП РК.',
-      city: 'Алматы',
-      isAvailable: false,
-      tier: 'Премиум',
-      tierBadge: '🥇 Премиум',
-      phone: '+7 (777) 123-45-67',
-      experience: '17 лет',
-      completedProjects: 140
-    },
-    {
-      id: 4,
-      name: 'ТехноСтрой',
-      initials: 'ТЕ',
-      gradient: 'linear-gradient(135deg, #2563eb, #3b82f6)',
-      type: 'company',
-      typeLabel: 'КОМПАНИЯ',
-      subtitle: 'ТехноСтрой',
-      rating: 4.4,
-      reviewsCount: 31,
-      specialties: [
-        { id: 'facade', label: '🏢 Фасадчик' },
-        { id: 'landscaper', label: '🌳 Благоустройство' },
-        { id: 'electrician', label: '⚡ Электрик' }
-      ],
-      description: 'Опытный специалист в сфере строительства. Более 5 лет опыта. Лицензия СРО и гарантия 3 года.',
-      city: 'Алматы',
-      isAvailable: true,
-      tier: 'Эконом',
-      tierBadge: '🥉 Эконом',
-      phone: '+7 (705) 888-99-00',
-      experience: '5 лет',
-      completedProjects: 45
-    },
-    {
-      id: 5,
-      name: 'Алибек Нурланов',
-      initials: 'АЛ',
-      gradient: 'linear-gradient(135deg, #f59e0b, #ef4444)',
-      type: 'master',
-      typeLabel: 'МАСТЕР',
-      subtitle: 'Частный специалист',
-      rating: 4.3,
-      reviewsCount: 15,
-      specialties: [
-        { id: 'demolition', label: '💥 Демонтажник' },
-        { id: 'general', label: '🏗️ Генподрядчик' },
-        { id: 'plumber', label: '🔧 Сантехник' }
-      ],
-      description: 'Опытный специалист в сфере строительства. Более 11 лет опыта. Качественный демонтаж и монтаж.',
-      city: 'Астана',
-      isAvailable: false,
-      tier: 'Стандарт',
-      tierBadge: '🥈 Стандарт',
-      phone: '+7 (700) 333-22-11',
-      experience: '11 лет',
-      completedProjects: 72
-    },
-    {
-      id: 6,
-      name: 'Серик Каримов',
-      initials: 'СЕ',
-      gradient: 'linear-gradient(135deg, #10b981, #06b6d4)',
-      type: 'master',
-      typeLabel: 'МАСТЕР',
-      subtitle: 'Частный мастер',
-      rating: 4.3,
-      reviewsCount: 24,
-      specialties: [
-        { id: 'flooring', label: '🪵 Напольные покрытия' },
-        { id: 'electrician', label: '⚡ Электрик' }
-      ],
-      description: 'Опытный специалист в сфере строительства. Более 9 лет опыта. Профессиональный монтаж электрики.',
-      city: 'Актобе',
-      isAvailable: false,
-      tier: 'Стандарт',
-      tierBadge: '🥈 Стандарт',
-      phone: '+7 (771) 999-88-77',
-      experience: '9 лет',
-      completedProjects: 53
-    },
-    {
-      id: 7,
-      name: 'ТОО «QazStroyGroup»',
-      initials: 'QS',
-      gradient: 'linear-gradient(135deg, #3b82f6, #6366f1)',
-      type: 'company',
-      typeLabel: 'КОМПАНИЯ',
-      subtitle: 'Генподрядная организация',
-      rating: 5.0,
-      reviewsCount: 112,
-      specialties: [
-        { id: 'general', label: '🏗️ Генподрядчик' },
-        { id: 'concrete', label: '🧱 Бетонщик' },
-        { id: 'roofer', label: '🏚️ Кровельщик' }
-      ],
-      description: 'Крупная строительная компания. Строительство жилых комплексов и коммерческих зданий "под ключ".',
-      city: 'Караганда',
-      isAvailable: true,
-      tier: 'Премиум',
-      tierBadge: '🥇 Премиум',
-      phone: '+7 (7212) 50-60-70',
-      experience: '14 лет',
-      completedProjects: 210
-    },
-    {
-      id: 8,
-      name: 'Ержан Сварочные Работы',
-      initials: 'ЕС',
-      gradient: 'linear-gradient(135deg, #f97316, #eab308)',
-      type: 'master',
-      typeLabel: 'МАСТЕР',
-      subtitle: 'Сварщик 6 разряда',
-      rating: 4.8,
-      reviewsCount: 37,
-      specialties: [
-        { id: 'welder', label: '🔥 Сварщик' },
-        { id: 'fence', label: '🚧 Заборы / Ворота' }
-      ],
-      description: 'Аттестованный НАКС сварщик. Изготовление металлоконструкций, ангаров, навесов и ворот любой сложности.',
-      city: 'Алматы',
-      isAvailable: true,
-      tier: 'Стандарт',
-      tierBadge: '🥈 Стандарт',
-      phone: '+7 (708) 777-66-55',
-      experience: '12 лет',
-      completedProjects: 95
-    }
-  ];
+  const showToast = useCallback((msg) => {
+    setToastMessage(msg);
+    clearTimeout(toastTimer.current);
+    toastTimer.current = setTimeout(() => setToastMessage(null), 3500);
+  }, []);
+  useEffect(() => () => clearTimeout(toastTimer.current), []);
 
-  // Dynamic Filtering Logic
-  const filteredContractors = useMemo(() => {
-    let result = contractorsList.filter(c => {
-      // 1. Search Filter
-      if (searchQuery.trim()) {
-        const q = searchQuery.toLowerCase();
-        const matchesName = c.name.toLowerCase().includes(q);
-        const matchesCity = c.city.toLowerCase().includes(q);
-        const matchesDesc = c.description.toLowerCase().includes(q);
-        const matchesSpec = c.specialties.some(s => s.label.toLowerCase().includes(q));
-        if (!matchesName && !matchesCity && !matchesDesc && !matchesSpec) return false;
+  // ── Загрузка из API (город — серверный фильтр) ──
+  useEffect(() => {
+    const ctrl = new AbortController();
+    setStatus((s) => (s === 'demo' ? 'demo' : 'loading'));
+    const qs = new URLSearchParams();
+    if (city !== 'all') qs.set('city', city);
+    const url = `/api/v1/contractors${qs.toString() ? `?${qs}` : ''}`;
+    fetch(url, { signal: ctrl.signal, headers: { Accept: 'application/json' } })
+      .then(async (res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        if (!data || !Array.isArray(data.items)) throw new Error('неожиданный ответ сервера');
+        const list = data.items.map(normalizeApiItem);
+        setItems(list);
+        setStatus('ok');
+        setLoadError('');
+        if (city === 'all') {
+          setCities([...new Set(list.map((c) => c.city).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'ru')));
+        }
+      })
+      .catch((err) => {
+        if (err.name === 'AbortError') return;
+        console.warn('[contractors] API недоступен:', err.message);
+        setItems(DEMO_CONTRACTORS);
+        setCities([...new Set(DEMO_CONTRACTORS.map((c) => c.city))].sort((a, b) => a.localeCompare(b, 'ru')));
+        setStatus('demo');
+        setLoadError(err.message);
+      });
+    return () => ctrl.abort();
+  }, [city, reloadKey]);
+
+  const isDemo = status === 'demo';
+
+  // Навыки из данных (без дублей, по частоте)
+  const skillOptions = useMemo(() => {
+    const freq = new Map();
+    items.forEach((c) => c.skills.forEach((s) => {
+      const k = s.toLowerCase();
+      const prev = freq.get(k);
+      freq.set(k, { label: prev?.label || s, n: (prev?.n || 0) + 1 });
+    }));
+    return [...freq.entries()]
+      .sort((a, b) => b[1].n - a[1].n || a[1].label.localeCompare(b[1].label, 'ru'))
+      .map(([key, v]) => ({ key, label: v.label, n: v.n }));
+  }, [items]);
+
+  useEffect(() => {
+    if (skill !== 'all' && !skillOptions.some((s) => s.key === skill)) setSkill('all');
+  }, [skillOptions, skill]);
+
+  const hasSize = items.some((c) => c.size);
+  const hasReviews = items.some((c) => c.reviewsCount != null);
+  const sortOptions = Object.entries(SORTS).filter(([, s]) => !s.needs || (s.needs === 'size' ? hasSize : hasReviews));
+  useEffect(() => {
+    if (!sortOptions.some(([k]) => k === sortOrder)) setSortOrder('rating_desc');
+  }, [sortOptions, sortOrder]);
+
+  const filtered = useMemo(() => {
+    const words = debouncedQuery.split(/\s+/).filter(Boolean);
+    const list = items.filter((c) => {
+      if (isDemo && city !== 'all' && c.city !== city) return false;
+      if (skill !== 'all' && !c.skills.some((s) => s.toLowerCase() === skill)) return false;
+      if (availableOnly && !c.available) return false;
+      if (words.length) {
+        const hay = [c.name, c.company, c.companyType, c.foreman, c.city, c.description, ...c.skills].join(' ').toLowerCase();
+        if (!words.every((w) => hay.includes(w))) return false;
       }
-
-      // 2. Specialty Filter
-      if (selectedSpecialty !== 'all') {
-        const hasSpec = c.specialties.some(s => s.id === selectedSpecialty);
-        if (!hasSpec) return false;
-      }
-
-      // 3. Type Filter (Master / Company)
-      if (typeFilter !== 'all' && c.type !== typeFilter) return false;
-
-      // 4. Availability Filter
-      if (availableOnly && !c.isAvailable) return false;
-
-      // 5. Reviews Filter
-      if (withReviewsOnly && c.reviewsCount === 0) return false;
-
       return true;
     });
+    return [...list].sort((SORTS[sortOrder] || SORTS.rating_desc).fn);
+  }, [items, isDemo, city, skill, availableOnly, debouncedQuery, sortOrder]);
 
-    // Sort order
-    if (sortOrder === 'rating_desc') {
-      result.sort((a, b) => b.rating - a.rating);
-    } else if (sortOrder === 'rating_asc') {
-      result.sort((a, b) => a.rating - b.rating);
+  const summary = useMemo(() => {
+    const companies = new Set(items.map((c) => c.companyId || c.company).filter(Boolean)).size;
+    const rated = items.filter((c) => c.rating > 0);
+    const avg = rated.length ? rated.reduce((s, c) => s + c.rating, 0) / rated.length : 0;
+    return {
+      total: items.length,
+      available: items.filter((c) => c.available).length,
+      companies,
+      avg: avg ? avg.toLocaleString('ru-RU', { minimumFractionDigits: 1, maximumFractionDigits: 2 }) : '—',
+    };
+  }, [items]);
+
+  const resetFilters = () => {
+    setSearchQuery('');
+    setSkill('all');
+    setAvailableOnly(false);
+    setSortOrder('rating_desc');
+    setCity('all');
+  };
+
+  const openCard = (c) => setSelected(c);
+
+  // Esc закрывает модальные окна
+  useEffect(() => {
+    if (!selected && !showAddModal) return undefined;
+    const onKey = (e) => { if (e.key === 'Escape') { setSelected(null); setShowAddModal(false); } };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [selected, showAddModal]);
+
+  const inviteToProject = (c) => {
+    const specName = c.skills.join(', ') || 'Строительные работы';
+    const escrow = freezeEscrow(BOOKING_DEPOSIT, `Бронь подрядчика ${c.name}`);
+    if (!escrow.ok) {
+      showToast(`Недостаточно средств для депозита брони ${BOOKING_DEPOSIT.toLocaleString('ru-RU')} ₸ (доступно ${Number(escrow.newBalance || 0).toLocaleString('ru-RU')} ₸). Пополните кошелёк.`);
+      return;
     }
-
-    return result;
-  }, [searchQuery, selectedSpecialty, typeFilter, availableOnly, withReviewsOnly, sortOrder]);
-
-  const toggleFavorite = (id, e) => {
-    e.stopPropagation();
-    setFavorites(prev => {
-      const exists = prev.includes(id);
-      const updated = exists ? prev.filter(fId => fId !== id) : [...prev, id];
-      showToast(exists ? '💔 Удалено из избранного' : '❤️ Добавлено в избранное');
-      return updated;
+    const order = createPlatformOrder({
+      title: `Подряд: ${c.name} (${specName})`,
+      category: c.skills[0] || 'Строительные работы',
+      amount: BOOKING_DEPOSIT,
+      budget: `${BOOKING_DEPOSIT.toLocaleString('ru-RU')} ₸ (депозит брони)`,
+      description: `Прямой вызов подрядчика: ${c.name}${c.company ? ` (${c.company})` : ''}. Город: ${c.city}. Телефон: ${c.phone || '—'}.${c.foreman ? ` Бригадир: ${c.foreman}.` : ''}`,
+      type: 'contractor',
+      status: 'new',
+      assignedTo: c.company || c.name,
+      assignedEngineer: 'Назначен Менеджер CRM',
+      escrowTxId: escrow.txId,
+      escrowAmount: BOOKING_DEPOSIT,
     });
+    showToast(`Заявка ${order.id} отправлена: «${c.name}» и менеджер CRM получили уведомление.`);
+    setSelected(null);
   };
-
-  const showToast = (msg) => {
-    setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 3000);
-  };
-
-  // Stats calculation
-  const totalCount = contractorsList.length;
-  const availableCount = contractorsList.filter(c => c.isAvailable).length;
-  const companyCount = contractorsList.filter(c => c.type === 'company').length;
-  const avgRating = (contractorsList.reduce((acc, c) => acc + c.rating, 0) / totalCount).toFixed(1);
 
   return (
     <div className="cc-container">
-      {/* Toast Notification */}
-      {toastMessage && <div className="cc-toast">{toastMessage}</div>}
+      {toastMessage && <div className="cc-toast" role="status">{toastMessage}</div>}
 
-      {/* Top Header Bar */}
-      <div className="cc-header-bar">
-        <button className="cc-back-btn" onClick={onBack} title="Вернуться назад">←</button>
+      <header className="cc-header-bar">
+        <button className="cc-back-btn" onClick={onBack} aria-label="Вернуться назад">←</button>
         <div className="cc-header-title-wrap">
-          <div className="cc-title-flex">
-            <span className="cc-header-icon">🔍</span>
-            <h2>Каталог подрядчиков</h2>
-          </div>
-          <span className="cc-header-subtitle">Найдите надёжного мастера или компанию для вашего проекта</span>
+          <h1 className="cc-title">Каталог подрядчиков</h1>
+          <p className="cc-header-subtitle">Бригады и компании, которые принимают заказы через QazGost. Звоните напрямую или бронируйте через эскроу.</p>
         </div>
-
-        <button 
-          className="cc-btn-add-contractor"
-          onClick={() => setShowAddModal(true)}
-        >
-          ➕ Добавить анкету
-        </button>
-      </div>
+        <button className="cc-btn-add-contractor" onClick={() => setShowAddModal(true)}>Добавить анкету</button>
+      </header>
 
       <div className="cc-content">
+        <dl className="cc-summary" aria-label="Сводка каталога">
+          <div><dt>Бригад и мастеров</dt><dd>{status === 'loading' ? '…' : summary.total}</dd></div>
+          <div><dt>Принимают заказы</dt><dd>{status === 'loading' ? '…' : summary.available}</dd></div>
+          <div><dt>Компаний</dt><dd>{status === 'loading' ? '…' : summary.companies}</dd></div>
+          <div><dt>Средний рейтинг</dt><dd>{status === 'loading' ? '…' : summary.avg}</dd></div>
+        </dl>
 
-        {/* 4 Stat KPI Cards */}
-        <div className="cc-kpi-grid">
-          <div className="cc-kpi-card">
-            <div className="cc-kpi-icon yellow">👷</div>
-            <div>
-              <div className="cc-kpi-value">{totalCount}</div>
-              <div className="cc-kpi-label">Подрядчиков</div>
-            </div>
-          </div>
-
-          <div className="cc-kpi-card">
-            <div className="cc-kpi-icon green">✅</div>
-            <div>
-              <div className="cc-kpi-value">{availableCount}</div>
-              <div className="cc-kpi-label">Доступны</div>
-            </div>
-          </div>
-
-          <div className="cc-kpi-card">
-            <div className="cc-kpi-icon cyan">🏢</div>
-            <div>
-              <div className="cc-kpi-value">{companyCount}</div>
-              <div className="cc-kpi-label">Компании</div>
-            </div>
-          </div>
-
-          <div className="cc-kpi-card">
-            <div className="cc-kpi-icon gold">⭐</div>
-            <div>
-              <div className="cc-kpi-value">{avgRating}</div>
-              <div className="cc-kpi-label">Рейтинг</div>
-            </div>
-          </div>
-        </div>
-
-        {/* Search Bar */}
-        <div className="cc-search-box">
-          <span className="cc-search-icon">🔍</span>
-          <input 
-            type="text" 
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-            placeholder="Поиск: имя, услуга, город... (например, «электрик Алматы»)" 
-          />
-          {searchQuery && (
-            <button className="cc-clear-search" onClick={() => setSearchQuery('')}>✕</button>
-          )}
-        </div>
-
-        {/* Specialty Chips Carousel */}
-        <div className="cc-chips-scroll">
-          {specialtyChips.map(chip => (
-            <button 
-              key={chip.id}
-              className={`cc-chip ${selectedSpecialty === chip.id ? 'active' : ''}`}
-              onClick={() => setSelectedSpecialty(chip.id)}
-            >
-              {chip.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Filter Toggles Row & Layout Switch */}
-        <div className="cc-filters-bar">
-          <div className="cc-filters-left">
-            <button 
-              className={`cc-filter-btn ${typeFilter === 'all' ? 'active' : ''}`}
-              onClick={() => setTypeFilter('all')}
-            >
-              Все
-            </button>
-            <button 
-              className={`cc-filter-btn ${typeFilter === 'master' ? 'active' : ''}`}
-              onClick={() => setTypeFilter('master')}
-            >
-              👤 Мастер
-            </button>
-            <button 
-              className={`cc-filter-btn ${typeFilter === 'company' ? 'active' : ''}`}
-              onClick={() => setTypeFilter('company')}
-            >
-              🏢 Компания
-            </button>
-            <button 
-              className={`cc-filter-btn ${availableOnly ? 'active green-glow' : ''}`}
-              onClick={() => setAvailableOnly(!availableOnly)}
-            >
-              🟢 Доступен сейчас
-            </button>
-            <button 
-              className={`cc-filter-btn ${withReviewsOnly ? 'active' : ''}`}
-              onClick={() => setWithReviewsOnly(!withReviewsOnly)}
-            >
-              💬 С отзывами
-            </button>
-            <select 
-              value={sortOrder} 
-              onChange={e => setSortOrder(e.target.value)}
-              className="cc-sort-select"
-            >
-              <option value="rating_desc">⭐ Рейтинг ↓</option>
-              <option value="rating_asc">⭐ Рейтинг ↑</option>
-            </select>
-          </div>
-
-          <div className="cc-layout-toggle">
-            <button 
-              className={`cc-layout-btn ${viewMode === 'grid' ? 'active' : ''}`}
-              onClick={() => setViewMode('grid')}
-              title="Сетка"
-            >
-              ▦
-            </button>
-            <button 
-              className={`cc-layout-btn ${viewMode === 'list' ? 'active' : ''}`}
-              onClick={() => setViewMode('list')}
-              title="Список"
-            >
-              ≡
-            </button>
-          </div>
-        </div>
-
-        {/* Results Counter */}
-        <div className="cc-results-count">
-          Найдено: <strong>{filteredContractors.length}</strong> подрядчиков
-        </div>
-
-        {/* Contractor Cards Grid / List */}
-        {filteredContractors.length === 0 ? (
-          <div className="cc-empty-state">
-            <span className="cc-empty-icon">🔍</span>
-            <h3>Подрядчики не найдены</h3>
-            <p>Попробуйте изменить запрос или сбросить фильтры.</p>
-            <button 
-              className="cc-btn-reset"
-              onClick={() => {
-                setSearchQuery('');
-                setSelectedSpecialty('all');
-                setTypeFilter('all');
-                setAvailableOnly(false);
-                setWithReviewsOnly(false);
-              }}
-            >
-              🔄 Сбросить все фильтры
-            </button>
-          </div>
-        ) : (
-          <div className={viewMode === 'grid' ? 'cc-cards-grid' : 'cc-cards-list'}>
-            {filteredContractors.map(contractor => {
-              const isFav = favorites.includes(contractor.id);
-              return (
-                <div 
-                  key={contractor.id} 
-                  className="cc-card"
-                  onClick={() => setSelectedContractor(contractor)}
-                >
-                  {/* Top Header */}
-                  <div className="cc-card-top">
-                    <div className="cc-avatar-flex">
-                      <div 
-                        className="cc-avatar-circle" 
-                        style={{ background: contractor.gradient }}
-                      >
-                        {contractor.initials}
-                      </div>
-
-                      <div className="cc-title-info">
-                        <div className="cc-name-flex">
-                          <h4>{contractor.name}</h4>
-                        </div>
-                        <span className={`cc-type-badge ${contractor.type}`}>
-                          {contractor.typeLabel}
-                        </span>
-                      </div>
-                    </div>
-
-                    <button 
-                      className={`cc-fav-btn ${isFav ? 'active' : ''}`}
-                      onClick={(e) => toggleFavorite(contractor.id, e)}
-                      title={isFav ? "Удалить из избранного" : "В избранное"}
-                    >
-                      {isFav ? '❤️' : '🤍'}
-                    </button>
-                  </div>
-
-                  {/* Rating */}
-                  <div className="cc-rating-row">
-                    <span className="cc-stars">★★★★★</span>
-                    <span className="cc-rating-num">{contractor.rating}</span>
-                    <span className="cc-reviews-count">({contractor.reviewsCount})</span>
-                  </div>
-
-                  {/* Specialty Tags */}
-                  <div className="cc-tags-wrap">
-                    {contractor.specialties.map((spec, sIdx) => (
-                      <span key={sIdx} className="cc-tag-pill">
-                        {spec.label}
-                      </span>
-                    ))}
-                  </div>
-
-                  {/* Description */}
-                  <p className="cc-card-desc">{contractor.description}</p>
-
-                  {/* Footer Stats Row */}
-                  <div className="cc-card-footer">
-                    <span className="cc-footer-item">📍 {contractor.city}</span>
-                    
-                    <span className={`cc-status-dot ${contractor.isAvailable ? 'available' : 'busy'}`}>
-                      {contractor.isAvailable ? '🟢 Доступен' : '🔴 Занят'}
-                    </span>
-
-                    <span className="cc-tier-badge">
-                      {contractor.tierBadge}
-                    </span>
-                  </div>
-                </div>
-              );
-            })}
+        {isDemo && (
+          <div className="mkt-notice mkt-notice--warn" role="status" data-testid="contractors-demo-notice">
+            <span>Сервер каталога недоступен — показаны демо-анкеты. Контакты и рейтинги в них условные.</span>
+            <button type="button" className="mkt-notice-btn" onClick={() => setReloadKey((k) => k + 1)}>Повторить</button>
           </div>
         )}
 
+        <div className="cc-toolbar">
+          <div className="cc-search-box">
+            <svg className="cc-search-icon" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M10.5 3a7.5 7.5 0 0 1 5.9 12.1l4.2 4.2-1.4 1.4-4.2-4.2A7.5 7.5 0 1 1 10.5 3Zm0 2a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11Z" /></svg>
+            <label htmlFor="cc-search" className="qg-visually-hidden">Поиск подрядчиков</label>
+            <input
+              id="cc-search"
+              type="search"
+              aria-label="Поиск подрядчиков"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Название, навык или бригадир, например «бетон»"
+            />
+            {searchQuery && (
+              <button className="cc-clear-search" aria-label="Очистить поиск" onClick={() => setSearchQuery('')}>✕</button>
+            )}
+          </div>
+
+          <label className="cc-select-field">
+            <span>Город</span>
+            <select aria-label="Город" value={city} onChange={(e) => setCity(e.target.value)}>
+              <option value="all">Все города</option>
+              {cities.map((c) => <option key={c} value={c}>{c}</option>)}
+            </select>
+          </label>
+
+          <label className="cc-select-field">
+            <span>Порядок</span>
+            <select aria-label="Сортировка подрядчиков" value={sortOrder} onChange={(e) => setSortOrder(e.target.value)}>
+              {sortOptions.map(([k, s]) => <option key={k} value={k}>{s.label}</option>)}
+            </select>
+          </label>
+        </div>
+
+        <div className="cc-skills-row">
+          <div className="cc-chips-scroll" role="group" aria-label="Навыки">
+            <button
+              className={`cc-chip ${skill === 'all' ? 'active' : ''}`}
+              aria-pressed={skill === 'all'}
+              onClick={() => setSkill('all')}
+            >
+              Все навыки
+            </button>
+            {skillOptions.map((s) => (
+              <button
+                key={s.key}
+                className={`cc-chip ${skill === s.key ? 'active' : ''}`}
+                aria-pressed={skill === s.key}
+                onClick={() => setSkill(skill === s.key ? 'all' : s.key)}
+              >
+                {s.label}
+              </button>
+            ))}
+          </div>
+          <button
+            className={`cc-filter-btn ${availableOnly ? 'active' : ''}`}
+            aria-pressed={availableOnly}
+            onClick={() => setAvailableOnly((v) => !v)}
+          >
+            Только свободные
+          </button>
+        </div>
+
+        <p className="cc-results-count" aria-live="polite">
+          {status === 'loading' ? 'Загружаем каталог…' : <>Найдено: <strong>{filtered.length}</strong>{city !== 'all' ? ` в городе ${city}` : ''}</>}
+        </p>
+
+        {status === 'loading' && items.length === 0 ? (
+          <div className="cc-cards-grid" aria-hidden="true">
+            {[0, 1, 2].map((i) => (
+              <div key={i} className="mkt-skeleton-card cc-skeleton">
+                <div className="mkt-skel mkt-skel-line" style={{ marginTop: 18 }} />
+                <div className="mkt-skel mkt-skel-line short" />
+                <div className="mkt-skel mkt-skel-line" />
+                <div className="mkt-skel mkt-skel-price" />
+              </div>
+            ))}
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="mkt-empty cc-empty-state">
+            <h3>Никого не нашли</h3>
+            <p>{city !== 'all' ? `В городе ${city} нет подходящих бригад. ` : ''}Уберите часть фильтров или поищите по другому навыку.</p>
+            <button className="mkt-btn-secondary" onClick={resetFilters}>Сбросить фильтры</button>
+          </div>
+        ) : (
+          <ul className="cc-cards-grid" role="list">
+            {filtered.map((c) => (
+              <li key={c.id} className="cc-card-item">
+                <article className={`cc-card ${c.source === 'api' ? 'is-api' : 'is-demo'}`} onClick={() => openCard(c)}>
+                  <div className="cc-card-top">
+                    <span className="cc-avatar" style={{ background: toneOf(c.companyId || c.name) }} aria-hidden="true">{initialsOf(c.name)}</span>
+                    <div className="cc-title-info">
+                      <h3 className="cc-card-title">
+                        {/* «растянутая» кнопка: вся карточка кликабельна, а ссылки «Позвонить/Написать» остаются отдельными */}
+                        <button
+                          type="button"
+                          className="cc-card-open"
+                          onClick={(e) => { e.stopPropagation(); openCard(c); }}
+                          aria-label={`${c.name}${c.company ? `, ${c.company}` : ''}: подробнее`}
+                        >
+                          {c.name}
+                        </button>
+                      </h3>
+                      <p className="cc-card-company">
+                        {c.company && c.company !== c.name ? <span>{c.company}</span> : null}
+                        {c.companyType ? <span className="cc-company-type">{c.companyType}</span> : null}
+                      </p>
+                    </div>
+                    <span className="cc-rating" title={`Рейтинг ${c.rating}`}>
+                      <span aria-hidden="true">★</span> {c.rating ? c.rating.toLocaleString('ru-RU') : '—'}
+                      {c.reviewsCount != null && <span className="cc-reviews-count">({c.reviewsCount})</span>}
+                    </span>
+                  </div>
+
+                  {c.skills.length > 0 && (
+                    <ul className="cc-tags-wrap" aria-label="Навыки">
+                      {c.skills.map((s) => <li key={s} className="cc-tag-pill">{s}</li>)}
+                    </ul>
+                  )}
+
+                  {c.description && <p className="cc-card-desc">{c.description}</p>}
+
+                  <dl className="cc-facts">
+                    <div><dt>Город</dt><dd>{c.city || '—'}</dd></div>
+                    {c.foreman && <div><dt>Бригадир</dt><dd>{c.foreman}</dd></div>}
+                    {c.size && <div><dt>Состав</dt><dd>{peopleLabel(c.size)}</dd></div>}
+                  </dl>
+
+                  <div className="cc-card-footer">
+                    <span className={`qg-chip ${c.available ? 'qg-chip--ok' : 'qg-chip--danger'}`}>
+                      {c.available ? 'Принимает заказы' : 'Сейчас занята'}
+                    </span>
+                    {c.source === 'demo' && <span className="qg-chip qg-chip--warn">Демо</span>}
+                  </div>
+
+                  <ContactLinks c={c} compact />
+                </article>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
 
-      {/* Contractor Profile Modal Drawer */}
-      {selectedContractor && (
-        <div className="cc-modal-overlay" onClick={() => setSelectedContractor(null)}>
-          <div className="cc-modal-card" onClick={e => e.stopPropagation()}>
-            <button className="cc-modal-close" onClick={() => setSelectedContractor(null)}>✕</button>
-            
-            {/* Header */}
+      {selected && (
+        <div className="cc-modal-overlay" onClick={() => setSelected(null)}>
+          <div className="cc-modal-card" role="dialog" aria-modal="true" aria-labelledby="cc-modal-title" onClick={(e) => e.stopPropagation()}>
+            <button className="cc-modal-close" onClick={() => setSelected(null)} aria-label="Закрыть">✕</button>
+
             <div className="cc-modal-header">
-              <div className="cc-avatar-circle large" style={{ background: selectedContractor.gradient }}>
-                {selectedContractor.initials}
-              </div>
+              <span className="cc-avatar large" style={{ background: toneOf(selected.companyId || selected.name) }} aria-hidden="true">{initialsOf(selected.name)}</span>
               <div className="cc-modal-header-info">
-                <h2>{selectedContractor.name}</h2>
-                <div className="cc-modal-sub-flex">
-                  <span className={`cc-type-badge ${selectedContractor.type}`}>
-                    {selectedContractor.typeLabel}
-                  </span>
-                  <span>· {selectedContractor.city}</span>
-                  <span className={`cc-status-dot ${selectedContractor.isAvailable ? 'available' : 'busy'}`}>
-                    · {selectedContractor.isAvailable ? '🟢 Доступен' : '🔴 Занят'}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Rating & Truthfulness Card */}
-            <div className="cc-m-rating-card">
-              <div className="cc-m-rating-top">
-                <span className="cc-m-rating-num">{selectedContractor.rating}</span>
-                <div>
-                  <div className="cc-stars">★★★★★</div>
-                  <div className="cc-m-reviews-sub">{selectedContractor.reviewsCount} отзывов</div>
-                </div>
-              </div>
-
-              <div className="cc-truth-row">
-                <div className="cc-truth-label">
-                  Правдивость: <span>{selectedContractor.truthPercent || '94%'}</span>
-                </div>
-                <div className="cc-truth-track">
-                  <div className="cc-truth-fill" style={{ width: selectedContractor.truthPercent || '94%' }}></div>
+                <h2 id="cc-modal-title">{selected.name}</h2>
+                <p className="cc-card-company">
+                  {[selected.company !== selected.name ? selected.company : null, selected.companyType, selected.city].filter(Boolean).join(', ')}
+                </p>
+                <div className="cc-modal-badges">
+                  <span className={`qg-chip ${selected.available ? 'qg-chip--ok' : 'qg-chip--danger'}`}>{selected.available ? 'Принимает заказы' : 'Сейчас занята'}</span>
+                  <span className="qg-chip"><Stars value={selected.rating} />&nbsp;{selected.rating ? selected.rating.toLocaleString('ru-RU') : '—'}{selected.reviewsCount != null ? `, отзывов: ${selected.reviewsCount}` : ''}</span>
+                  {selected.source === 'demo' && <span className="qg-chip qg-chip--warn">Демо-анкета</span>}
                 </div>
               </div>
             </div>
 
             <div className="cc-modal-body">
-              {/* 📝 О СЕБЕ */}
-              <div className="cc-modal-section">
-                <h4>📝 О СЕБЕ</h4>
-                <p>{selectedContractor.description}</p>
-              </div>
+              {selected.description && (
+                <section className="cc-modal-section">
+                  <h3>О подрядчике</h3>
+                  <p>{selected.description}</p>
+                </section>
+              )}
 
-              {/* 🛠️ СПЕЦИАЛИЗАЦИЯ */}
-              <div className="cc-modal-section mt-3">
-                <h4>🛠️ СПЕЦИАЛИЗАЦИЯ</h4>
-                <div className="cc-tags-wrap">
-                  {selectedContractor.specialties.map((s, idx) => (
-                    <span key={idx} className="cc-tag-pill active-pill">
-                      {s.label}
-                    </span>
-                  ))}
-                </div>
-              </div>
+              {selected.skills.length > 0 && (
+                <section className="cc-modal-section">
+                  <h3>Навыки</h3>
+                  <ul className="cc-tags-wrap">
+                    {selected.skills.map((s) => <li key={s} className="cc-tag-pill">{s}</li>)}
+                  </ul>
+                </section>
+              )}
 
-              {/* 💼 УСЛОВИЯ (4 Grid Box Cards) */}
-              <div className="cc-modal-section mt-3">
-                <h4>💼 УСЛОВИЯ</h4>
-                <div className="cc-conditions-grid">
-                  <div className="cc-cond-card">
-                    <span className="cc-cond-icon">💰</span>
-                    <div>
-                      <div className="cc-cond-label">Уровень цен</div>
-                      <div className="cc-cond-val">{selectedContractor.tier}</div>
-                    </div>
-                  </div>
+              <section className="cc-modal-section">
+                <h3>Бригада</h3>
+                <dl className="cc-facts is-modal">
+                  <div><dt>Бригадир</dt><dd>{selected.foreman || '—'}</dd></div>
+                  <div><dt>Состав</dt><dd>{selected.size ? peopleLabel(selected.size) : '—'}</dd></div>
+                  <div><dt>Город</dt><dd>{selected.city || '—'}</dd></div>
+                  <div><dt>Компания</dt><dd>{selected.company || '—'}</dd></div>
+                </dl>
+              </section>
 
-                  <div className="cc-cond-card">
-                    <span className="cc-cond-icon">📋</span>
-                    <div>
-                      <div className="cc-cond-label">Мин. заказ</div>
-                      <div className="cc-cond-val">{selectedContractor.minOrder || '20 000 ₸'}</div>
-                    </div>
-                  </div>
-
-                  <div className="cc-cond-card">
-                    <span className="cc-cond-icon">🛡️</span>
-                    <div>
-                      <div className="cc-cond-label">Гарантия</div>
-                      <div className="cc-cond-val">{selectedContractor.guarantee || '12 мес.'}</div>
-                    </div>
-                  </div>
-
-                  <div className="cc-cond-card">
-                    <span className="cc-cond-icon">📅</span>
-                    <div>
-                      <div className="cc-cond-label">Начало работ</div>
-                      <div className="cc-cond-val">{selectedContractor.startTime || 'Завтра'}</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* 📞 КОНТАКТЫ */}
-              <div className="cc-modal-section mt-3">
-                <h4>📞 КОНТАКТЫ</h4>
-                <div className="cc-contacts-list">
-                  <div className="cc-contact-row" onClick={() => showToast(`📞 Звонок: ${selectedContractor.phone}`)}>
-                    <span className="cc-contact-icon">📱</span>
-                    <span>{selectedContractor.phone}</span>
-                  </div>
-                  <div className="cc-contact-row">
-                    <span className="cc-contact-icon">✉️</span>
-                    <span>{selectedContractor.email || `contact@${selectedContractor.name.toLowerCase().replace(/[^a-z0-9]/g, '') || 'stroy'}.kz`}</span>
-                  </div>
-                  <div className="cc-contact-row">
-                    <span className="cc-contact-icon">📍</span>
-                    <span>{selectedContractor.city} · Радиус 25 км</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* 💬 ОТЗЫВЫ */}
-              <div className="cc-modal-section mt-3">
-                <h4>💬 ОТЗЫВЫ ({selectedContractor.reviewsCount})</h4>
-                <div className="cc-empty-reviews">
-                  {selectedContractor.reviewsCount === 0 ? 'Пока нет отзывов' : `⭐ ${selectedContractor.rating}/5 на основе ${selectedContractor.reviewsCount} проверенных объектов`}
-                </div>
-              </div>
-
+              <section className="cc-modal-section">
+                <h3>Контакты компании</h3>
+                <ContactLinks c={selected} />
+              </section>
             </div>
 
-            {/* Footer Action Buttons */}
             <div className="cc-modal-actions-bar">
-              <button 
-                className="cc-btn-invite"
-                onClick={() => {
-                  const specName = selectedContractor.specialties?.map(s => s.label).join(', ') || 'Строительные работы';
-                  const newOrder = createPlatformOrder({
-                    title: `Подряд: ${selectedContractor.name} (${specName})`,
-                    category: selectedContractor.specialties?.[0]?.label || 'Строительные работы',
-                    amount: 150000,
-                    budget: '150 000 ₸ (Депозит брони)',
-                    description: `Прямой вызов подрядчика: ${selectedContractor.name}. Город: ${selectedContractor.city}, Телефон: ${selectedContractor.phone}. Опыт: ${selectedContractor.experience || 'от 5 лет'}.`,
-                    type: 'contractor',
-                    status: 'new',
-                    assignedTo: selectedContractor.name,
-                    assignedEngineer: 'Назначен Менеджер CRM'
-                  });
-                  freezeEscrow(150000, `Бронь подрядчика ${selectedContractor.name}`);
-                  showToast(`🚀 Заявка ${newOrder.id} направлена подрядчику «${selectedContractor.name}» и Менеджеру CRM!`);
-                  setSelectedContractor(null);
-                }}
-              >
-                📥 Пригласить на проект (Эскроу)
+              <button className="cc-btn-invite" onClick={() => inviteToProject(selected)} disabled={!selected.available}>
+                Пригласить на проект
               </button>
-
-              <button 
-                className={`cc-btn-fav-modal ${favorites.includes(selectedContractor.id) ? 'active' : ''}`}
-                onClick={(e) => toggleFavorite(selectedContractor.id, e)}
-              >
-                {favorites.includes(selectedContractor.id) ? '❤️ В избранном' : '🤍 В избранное'}
-              </button>
+              <p className="cc-modal-note">
+                {selected.available
+                  ? <>Бронь замораживает <span className="qg-price-tag">{BOOKING_DEPOSIT.toLocaleString('ru-RU')} ₸</span> в эскроу вашего кошелька до начала работ.</>
+                  : 'Бригада сейчас занята — позвоните, чтобы договориться о сроках.'}
+              </p>
             </div>
-
           </div>
         </div>
       )}
 
-      {/* Add Contractor Modal */}
       {showAddModal && (
         <div className="cc-modal-overlay" onClick={() => setShowAddModal(false)}>
-          <div className="cc-modal-card" onClick={e => e.stopPropagation()}>
-            <button className="cc-modal-close" onClick={() => setShowAddModal(false)}>✕</button>
-            <h3>➕ Добавить анкету подрядчика</h3>
-            <p className="cc-modal-sub-text">Разместите свою карточку в каталоге для получения заказов</p>
+          <div className="cc-modal-card" role="dialog" aria-modal="true" aria-labelledby="cc-add-title" onClick={(e) => e.stopPropagation()}>
+            <button className="cc-modal-close" onClick={() => setShowAddModal(false)} aria-label="Закрыть">✕</button>
+            <h2 id="cc-add-title" className="cc-add-title">Добавить анкету</h2>
+            <p className="cc-modal-sub-text">Анкету проверит модератор, после этого она появится в каталоге.</p>
 
-            <form onSubmit={(e) => {
-              e.preventDefault();
-              setShowAddModal(false);
-              showToast('🎉 Ваша анкета отправлена на модерацию!');
-            }}>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                setShowAddModal(false);
+                showToast('Анкета отправлена на модерацию.');
+              }}
+            >
               <div className="cc-form-group">
-                <label>Имя мастера / Название компании <span>*</span></label>
-                <input type="text" required placeholder="например, ТОО 'КазСтрой' или Арман Касымов" className="cc-input" />
+                <label htmlFor="cc-add-name">Имя мастера или название компании</label>
+                <input id="cc-add-name" type="text" required placeholder="ТОО «КазСтрой» или Арман Касымов" className="cc-input" />
               </div>
-
-              <div className="cc-form-group mt-3">
-                <label>Тип аккаунта <span>*</span></label>
-                <select className="cc-input">
-                  <option value="master">👤 Частный мастер</option>
-                  <option value="company">🏢 Компания (ТОО / ИП)</option>
+              <div className="cc-form-group">
+                <label htmlFor="cc-add-type">Тип</label>
+                <select id="cc-add-type" className="cc-input">
+                  <option value="master">Частный мастер</option>
+                  <option value="company">Компания (ТОО / ИП)</option>
                 </select>
               </div>
-
-              <div className="cc-form-group mt-3">
-                <label>Основная специализация <span>*</span></label>
-                <input type="text" required placeholder="например, Электрика, Отделка под ключ" className="cc-input" />
+              <div className="cc-form-group">
+                <label htmlFor="cc-add-skill">Основные навыки</label>
+                <input id="cc-add-skill" type="text" required placeholder="Бетон, опалубка, арматура" className="cc-input" />
               </div>
-
-              <div className="cc-form-group mt-3">
-                <label>Телефон <span>*</span></label>
-                <input type="text" required placeholder="+7 (7XX) XXX-XX-XX" className="cc-input" />
+              <div className="cc-form-group">
+                <label htmlFor="cc-add-phone">Телефон</label>
+                <input id="cc-add-phone" type="tel" required placeholder="+7 7XX XXX XX XX" className="cc-input" autoComplete="tel" />
               </div>
-
-              <button type="submit" className="cc-btn-submit-form mt-4">
-                🚀 Опубликовать анкету в каталоге
-              </button>
+              <button type="submit" className="cc-btn-submit-form">Отправить на модерацию</button>
             </form>
           </div>
         </div>

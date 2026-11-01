@@ -42,3 +42,7 @@ ai-service/dataset/
 ai-service/runs/
 # Keep model weights
 !ai-service/models/
+
+# Python bytecode
+__pycache__/
+*.pyc

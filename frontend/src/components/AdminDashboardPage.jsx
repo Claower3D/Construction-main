@@ -1,11 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import AnimatedBackground from './AnimatedBackground';
-import EngineerDashboardPage from './EngineerDashboardPage';
-import CompanyDashboardPage from './CompanyDashboardPage';
-import AdminDashboardModal from './AdminDashboardModal';
-import FeaturePageModule from './FeaturePageModule';
-import CrmPage from './CrmPage';
-import BuildingConstructionPage from './BuildingConstructionPage';
+import PageLoader from './PageLoader';
+import './dashboard-refresh.css';
+
+// Каждый инструмент кабинета — отдельный чанк: открываем меню карточек без загрузки CRM, админки, 3D и т.п.
+const EngineerDashboardPage = lazy(() => import('./EngineerDashboardPage'));
+const CompanyDashboardPage = lazy(() => import('./CompanyDashboardPage'));
+const AdminDashboardModal = lazy(() => import('./AdminDashboardModal'));
+const FeaturePageModule = lazy(() => import('./FeaturePageModule'));
+const CrmPage = lazy(() => import('./CrmPage'));
+const BuildingConstructionPage = lazy(() => import('./BuildingConstructionPage'));
 
 export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userRole = 'customer', currentUser }) {
   // Active selected role ('customer' | 'executor' | 'engineer' | 'company' | 'manager' | 'admin')
@@ -140,8 +144,8 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
 
     customer: [
       { id: 'c-materials', title: 'Маркетплейс материалов', icon: '🧱', desc: 'Оптовые и розничные стройматериалы от заводов РК: цемент, кирпич, арматура, смеси', btnText: '🧱 Открыть маркетплейс', btnGradient: 'linear-gradient(90deg, #10b981, #3b82f6)' },
-      { id: 'c-estimate', title: 'Оценка стоимости', icon: '📊', desc: 'Загрузите фото → AI-анализ → смета за 2 сек... 3 сценария цены', btnText: '🚀 Начать оценку', btnGradient: 'linear-gradient(90deg, #38bdf8, #2563eb)' },
-      { id: 'c-inspect', title: 'Проверка дефектов', icon: '🔍', desc: 'Трещины, влага, плесень. AI-отчёт + план устранения по ГОСТ РК', btnText: '🔍 Начать проверку', btnGradient: 'linear-gradient(90deg, #f59e0b, #ef4444)' },
+      { id: 'c-estimate', title: 'Оценка стоимости', icon: '📊', desc: 'Загрузите фото — получите смету с тремя сценариями цены', btnText: '🚀 Начать оценку', btnGradient: 'linear-gradient(90deg, #38bdf8, #2563eb)' },
+      { id: 'c-inspect', title: 'Проверка дефектов', icon: '🔍', desc: 'Трещины на фото, акт с нормативами СНиП и ГОСТ и ценой ремонта', btnText: '🔍 Начать проверку', btnGradient: 'linear-gradient(90deg, #f59e0b, #ef4444)' },
       { id: 'c-vip', title: 'Строительство зданий', icon: '🏗️', desc: 'ПСД, ВВР-документация, сметы полного цикла и генподряд VIP', btnText: '⭐ Открыть', btnGradient: 'linear-gradient(90deg, #6366f1, #2563eb)' },
       { id: 'c-engineering', title: 'Инженерные решения', icon: '⚙️', desc: 'Электрика, сантехника, HVAC, слаботочные системы и технадзор', btnText: '⚡ Выбрать', btnGradient: 'linear-gradient(90deg, #38bdf8, #93c5fd)' },
       { id: 'c-orders', title: 'Мои заказы', icon: '📬', desc: 'Просмотр активных заявок, откликов мастеров и статусов работ', btnText: '📗 Открыть заказы', btnGradient: 'linear-gradient(90deg, #10b981, #059669)' },
@@ -324,7 +328,9 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
       setEmbeddedModule('engineer');
       setSelectedItemId('ing-main');
     } else if (selectedRole === 'executor') {
-      setSelectedItemId('e-feed');
+      // раньше выставлялся только id без объекта карточки → пустой экран
+      const feed = (roleCardsData.executor || []).find(c => c.id === 'e-feed');
+      if (feed) handleSelectItem(feed);
     } else if (selectedRole === 'manager' || selectedRole === 'crm') {
       setEmbeddedModule('crm');
       setSelectedItemId('mgr-crm');
@@ -335,7 +341,8 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
       setEmbeddedModule('admin_panel');
       setSelectedItemId('adm-prices');
     } else {
-      setSelectedItemId('c-estimate');
+      const card = activeCards.find(c => c.id === 'c-estimate') || activeCards[0];
+      if (card) handleSelectItem(card);
     }
   };
 
@@ -343,46 +350,6 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
     <div className="admin-redesign-layout" style={{ minHeight: '100vh', width: '100vw', overflowX: 'hidden', position: 'relative' }}>
       {/* 3D Holographic Background with BIM Skyline & Electricity */}
       <AnimatedBackground />
-
-      {/* ALWAYS VISIBLE FLOATING "BACK TO MENU" BUTTON */}
-      {isInnerToolActive && (
-        <button
-          onClick={handleBackToCardMenu}
-          className="floating-back-to-cards-btn"
-          style={{
-            position: 'fixed',
-            bottom: '24px',
-            left: '24px',
-            zIndex: 99999,
-            background: 'rgba(12, 18, 38, 0.94)',
-            border: '2px solid #38bdf8',
-            color: '#fff',
-            padding: '12px 24px',
-            borderRadius: '50px',
-            fontWeight: '900',
-            fontSize: '1rem',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px',
-            boxShadow: '0 10px 30px rgba(56, 189, 248, 0.6), 0 0 25px rgba(0,0,0,0.85)',
-            backdropFilter: 'blur(24px)',
-            transition: 'all 0.25s ease'
-          }}
-          onMouseOver={(e) => {
-            e.currentTarget.style.transform = 'translateY(-3px) scale(1.04)';
-            e.currentTarget.style.boxShadow = '0 15px 40px rgba(56, 189, 248, 0.8)';
-          }}
-          onMouseOut={(e) => {
-            e.currentTarget.style.transform = 'none';
-            e.currentTarget.style.boxShadow = '0 10px 30px rgba(56, 189, 248, 0.6), 0 0 25px rgba(0,0,0,0.85)';
-          }}
-          title="Вернуться к выбору карточек (Esc)"
-        >
-          <span style={{ fontSize: '1.25rem', fontWeight: '900' }}>←</span>
-          <span>Назад к карточкам</span>
-        </button>
-      )}
 
       {/* ─────────────────────────────────────────────────────────── */}
       {/* MOBILE DRAWER SIDEBAR (Only visible when toggled on mobile) */}
@@ -479,112 +446,56 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
       {/* ─────────────────────────────────────────────────────────── */}
       <main className="admin-redesign-main full-width-workspace" style={{ width: '100%', flex: 1, display: 'flex', flexDirection: 'column', position: 'relative', zIndex: 5 }}>
         
-        {/* TOP COMPACT HEADER — STICKY AT TOP */}
-        <header className="main-top-header modern-topbar">
+        {/* Шапка кабинета (липкая) */}
+        <header className="main-top-header modern-topbar qg-dash-topbar">
           <div className="topbar-left-group">
-            {/* Mobile Hamburger Button */}
-            <button 
+            <button
               onClick={() => setIsMobileSidebarOpen(true)}
               className="mobile-menu-trigger-btn"
-              title="Открыть меню"
+              aria-label="Открыть меню разделов"
             >
-              <span>☰</span>
+              <span aria-hidden="true">☰</span>
               <span className="btn-text-mobile">Меню</span>
             </button>
 
-            {/* Back to Card Hub Button */}
             {isInnerToolActive ? (
-              <button 
-                onClick={handleBackToCardMenu}
-                className="btn-back-to-cards"
-                title="Вернуться ко всем карточкам"
-                style={{
-                  background: 'rgba(56, 189, 248, 0.2)',
-                  border: '1.5px solid #38bdf8',
-                  color: '#fff',
-                  borderRadius: '12px',
-                  padding: '8px 18px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  cursor: 'pointer',
-                  fontWeight: '800',
-                  fontSize: '0.92rem',
-                  boxShadow: '0 0 18px rgba(56, 189, 248, 0.4)'
-                }}
-              >
-                <span style={{ fontSize: '1.1rem' }}>←</span>
-                <span>Назад к карточкам</span>
+              <button onClick={handleBackToCardMenu} className="btn-back-to-cards qg-dash-back" title="Вернуться ко всем разделам (Esc)">
+                <span aria-hidden="true">←</span>
+                <span>Все разделы</span>
               </button>
             ) : (
-              <button 
-                onClick={onBackToHome}
-                className="btn-back-to-cards"
-                title="На главную"
-                style={{
-                  background: 'rgba(255, 255, 255, 0.06)',
-                  border: '1px solid rgba(255, 255, 255, 0.12)',
-                  color: '#fff',
-                  borderRadius: '12px',
-                  padding: '8px 16px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  cursor: 'pointer',
-                  fontWeight: '600',
-                  fontSize: '0.88rem'
-                }}
-              >
-                <span>🏠</span>
+              <button onClick={onBackToHome} className="btn-back-to-cards qg-dash-back" title="На главную страницу">
+                <span aria-hidden="true">←</span>
                 <span>На главную</span>
               </button>
             )}
 
-            <div className="header-breadcrumbs-box" style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem' }}>
-              <span style={{ color: activeRoleObj.color, fontWeight: '800' }}>
-                {activeRoleObj.icon} {activeRoleObj.title}
-              </span>
+            <nav className="header-breadcrumbs-box qg-dash-crumbs" aria-label="Путь">
+              <span className="qg-dash-crumb-role" style={{ '--role-color': activeRoleObj.color }}>{activeRoleObj.shortLabel}</span>
               {selectedItemObject && (
                 <>
-                  <span style={{ color: 'rgba(255, 255, 255, 0.3)' }}>/</span>
-                  <span style={{ color: '#fff', fontWeight: '700' }}>{selectedItemObject.title}</span>
+                  <span className="qg-dash-crumb-sep" aria-hidden="true">/</span>
+                  <span className="qg-dash-crumb-item" aria-current="page">{selectedItemObject.title}</span>
                 </>
               )}
-            </div>
+            </nav>
           </div>
 
           <div className="topbar-right-group">
-            <div className="live-ai-chip" style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.3)', padding: '4px 12px', borderRadius: '20px', fontSize: '0.8rem', color: '#10b981', fontWeight: '700' }}>
-              <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#10b981', boxShadow: '0 0 8px #10b981' }} />
-              <span>Online AI 2.0</span>
-            </div>
-
-            <button 
-              onClick={onBackToHome}
-              style={{
-                background: 'linear-gradient(90deg, #2563eb, #38bdf8)',
-                color: '#fff',
-                border: 'none',
-                padding: '6px 14px',
-                borderRadius: '10px',
-                fontWeight: '700',
-                fontSize: '0.85rem',
-                cursor: 'pointer'
-              }}
-            >
-              На сайт
-            </button>
+            {currentUser?.name && <span className="qg-dash-user" title={currentUser.email || ''}>{currentUser.name}</span>}
+            <button onClick={onBackToHome} className="qg-btn qg-btn--ghost qg-btn--sm qg-dash-site">На сайт</button>
           </div>
         </header>
 
         {/* ────────────────────────────────────────────────────────── */}
         {/* WORKSPACE: INNER TOOL OR FULL CARD DASHBOARD               */}
         {/* ────────────────────────────────────────────────────────── */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: isInnerToolActive ? '0' : '2rem 1.5rem' }}>
+        <div className={`qg-dash-workspace${isInnerToolActive ? ' is-tool' : ''}`}>
 
           {/* 1. INNER TOOL VIEW */}
           {isInnerToolActive && (
             <div style={{ width: '100%', minHeight: '85vh' }}>
+              <Suspense fallback={<PageLoader label="Загружаем инструмент…" />}>
               {embeddedModule === 'engineer' && (
                 <EngineerDashboardPage
                   key={selectedRole + '_' + selectedItemId}
@@ -647,169 +558,67 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
                   }}
                 />
               )}
+              </Suspense>
             </div>
           )}
 
-          {/* 2. CARD COCKPIT VIEW (Matching Screenshot 3) */}
+          {/* 2. Меню разделов кабинета */}
           {!isInnerToolActive && (
-            <div style={{ maxWidth: '1240px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-              
-              {/* Header Titles */}
-              <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <h1 style={{ fontSize: '2.6rem', fontWeight: '900', color: '#fff', margin: '0 0 0.6rem 0', letterSpacing: '-0.5px' }}>
-                  Умная оценка <span style={{ background: 'linear-gradient(90deg, #38bdf8, #2563eb, #38bdf8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>строительных работ</span>
-                </h1>
-
-                <p style={{ color: '#cbd5e1', fontSize: '1.05rem', margin: 0, maxWidth: '680px', lineHeight: '1.5' }}>
-                  Загрузите фото объекта — получите точный расчёт материалов, стоимости или найдите дефекты
-                </p>
+            <div className="qg-cockpit">
+              <div className="qg-cockpit-head">
+                <h1>{currentUser?.name ? `${currentUser.name.split(' ')[0]}, что делаем сегодня?` : 'Ваш кабинет'}</h1>
+                <p>Выберите роль и инструмент. Фото объекта превращается в смету, акт о дефектах или заказ для бригады.</p>
               </div>
 
-              {/* ROLE SELECTION CARDS (Mobile-friendly 2x2 grid & VIP featured layout) */}
-              <div className="home-role-cards-grid">
-                {visibleRoles.map(r => {
-                  const isActive = selectedRole === r.id;
-                  const isVip = r.id === 'builder';
-                  return (
-                    <div 
-                      key={r.id}
-                      onClick={() => handleSelectRole(r.id)}
-                      className={`home-role-card ${isActive ? 'active' : ''} ${isVip ? 'vip-card' : ''}`}
-                      style={{
-                        '--role-color': r.color,
-                        '--role-glow': r.glow
-                      }}
-                    >
-                      {/* Active Glowing Checkmark */}
-                      {isActive && (
-                        <div className="home-role-check">
-                          ✓
-                        </div>
-                      )}
-
-                      {/* VIP Badge */}
-                      {isVip && !isActive && (
-                        <div className="home-role-vip-tag">VIP</div>
-                      )}
-
-                      <div className="home-role-icon">{r.icon}</div>
-                      <div className="home-role-content">
-                        <h3 className="home-role-title">{r.title}</h3>
-                        <p className="home-role-desc">{r.desc}</p>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Big Primary Action Button (as in Screenshot 3) */}
-              <div style={{ display: 'flex', justifyContent: 'center', margin: '0.25rem 0' }}>
-                <button 
-                  onClick={handlePrimaryRoleAction}
-                  style={{
-                    background: selectedRole === 'engineer' 
-                      ? 'linear-gradient(90deg, #2563eb, #38bdf8)' 
-                      : selectedRole === 'executor' 
-                      ? 'linear-gradient(90deg, #38bdf8, #f59e0b)' 
-                      : selectedRole === 'manager'
-                      ? 'linear-gradient(90deg, #f59e0b, #ea580c)'
-                      : selectedRole === 'company'
-                      ? 'linear-gradient(90deg, #0ea5e9, #2563eb)'
-                      : selectedRole === 'admin'
-                      ? 'linear-gradient(90deg, #a855f7, #6366f1)'
-                      : 'linear-gradient(90deg, #38bdf8, #f59e0b)',
-                    color: '#fff',
-                    border: 'none',
-                    padding: '1.1rem 3.5rem',
-                    borderRadius: '22px',
-                    fontWeight: '900',
-                    fontSize: '1.2rem',
-                    cursor: 'pointer',
-                    boxShadow: '0 12px 35px rgba(56, 189, 248, 0.45)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.75rem',
-                    transition: 'all 0.28s ease'
-                  }}
-                  onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
-                  onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                >
-                  <span>🚀 Перейти в раздел «{activeRoleObj.title}»</span>
-                  <span style={{ fontSize: '1.35rem' }}>→</span>
-                </button>
-              </div>
-
-              {/* Metrics Telemetry Strip (as in Screenshot 3) */}
-              <div style={{
-                background: 'rgba(18, 24, 44, 0.75)',
-                border: '1px solid rgba(255, 255, 255, 0.12)',
-                borderRadius: '24px',
-                padding: '1.25rem 2rem',
-                display: 'grid',
-                gridTemplateColumns: 'repeat(3, 1fr)',
-                textAlign: 'center',
-                backdropFilter: 'blur(20px)',
-                boxShadow: '0 10px 30px rgba(0,0,0,0.3)'
-              }}>
-                <div>
-                  <div style={{ fontSize: '1.75rem', fontWeight: '900', color: '#93c5fd' }}>10K+</div>
-                  <div style={{ fontSize: '0.78rem', fontWeight: '800', color: '#cbd5e1', letterSpacing: '1px', textTransform: 'uppercase' }}>ПРОЕКТОВ</div>
-                </div>
-                <div>
-                  <div style={{ fontSize: '1.75rem', fontWeight: '900', color: '#38bdf8' }}>98%</div>
-                  <div style={{ fontSize: '0.78rem', fontWeight: '800', color: '#cbd5e1', letterSpacing: '1px', textTransform: 'uppercase' }}>ТОЧНОСТЬ</div>
-                </div>
-                <div>
-                  <div style={{ fontSize: '1.75rem', fontWeight: '900', color: '#38bdf8' }}>2 сек</div>
-                  <div style={{ fontSize: '0.78rem', fontWeight: '800', color: '#cbd5e1', letterSpacing: '1px', textTransform: 'uppercase' }}>СКОРОСТЬ</div>
-                </div>
-              </div>
-
-              {/* ────────────────────────────────────────────────────── */}
-              {/* DYNAMIC INTERACTIVE CARDS GRID (as in Screenshot 3)    */}
-              {/* ────────────────────────────────────────────────────── */}
-              <div>
-                <div style={{ fontSize: '0.85rem', fontWeight: '800', color: activeRoleObj.color, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span>{activeRoleObj.icon}</span>
-                  <span>ДОСТУПНЫЕ ИНСТРУМЕНТЫ РАЗДЕЛА «{activeRoleObj.title.toUpperCase()}»:</span>
-                </div>
-
-                <div className="sub-tools-cards-grid">
-                  {activeCards.map(card => (
-                    <div 
-                      key={card.id}
-                      onClick={() => handleSelectItem(card)}
-                      className="sub-tool-card"
-                      style={{
-                        '--role-color': activeRoleObj.color,
-                        '--role-glow': activeRoleObj.glow
-                      }}
-                    >
-                      {/* Card Icon */}
-                      <div className="sub-tool-icon">
-                        {card.icon}
-                      </div>
-
-                      {/* Card Text */}
-                      <div className="sub-tool-content">
-                        <h4 className="sub-tool-title">{card.title}</h4>
-                        <p className="sub-tool-desc">{card.desc}</p>
-                      </div>
-
-                      {/* Card Action Button */}
-                      <button 
-                        className="sub-tool-btn"
-                        style={{
-                          background: card.btnGradient
-                        }}
+              {visibleRoles.length > 1 && (
+                <div className="qg-role-switch" role="tablist" aria-label="Роль в кабинете">
+                  {visibleRoles.map(r => {
+                    const isActive = selectedRole === r.id;
+                    return (
+                      <button
+                        key={r.id}
+                        type="button"
+                        role="tab"
+                        aria-selected={isActive}
+                        onClick={() => handleSelectRole(r.id)}
+                        className={`qg-role-tab${isActive ? ' is-active' : ''}`}
+                        style={{ '--role-color': r.color }}
                       >
-                        {card.btnText}
+                        <span className="qg-role-tab-title">{r.title.replace(/^Я\s+/, '')}{r.badge ? <span className="qg-role-tab-badge">{r.badge}</span> : null}</span>
+                        <span className="qg-role-tab-desc">{r.desc}</span>
                       </button>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
-              </div>
+              )}
 
+              <section aria-labelledby="qg-tools-title">
+                <div className="qg-tools-head">
+                  <h2 id="qg-tools-title">Инструменты: {activeRoleObj.shortLabel.toLowerCase()}</h2>
+                  <button type="button" className="qg-btn qg-btn--primary qg-btn--sm" onClick={handlePrimaryRoleAction}>
+                    {selectedRole === 'executor' ? 'Открыть ленту заказов' : selectedRole === 'engineer' ? 'Открыть панель инженера' : selectedRole === 'manager' ? 'Открыть CRM' : 'Начать оценку по фото'}
+                  </button>
+                </div>
+                <ul className="qg-tools-grid">
+                  {activeCards.map(card => (
+                    <li key={card.id}>
+                      <button
+                        type="button"
+                        onClick={() => handleSelectItem(card)}
+                        className="qg-tool"
+                        style={{ '--role-color': activeRoleObj.color }}
+                      >
+                        <span className="qg-tool-icon" aria-hidden="true">{card.icon}</span>
+                        <span className="qg-tool-body">
+                          <span className="qg-tool-title">{card.title}</span>
+                          <span className="qg-tool-desc">{card.desc}</span>
+                        </span>
+                        <span className="qg-tool-action">{card.btnText.replace(/^[^\p{L}\p{N}]+/u, '')}</span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </section>
             </div>
           )}
 

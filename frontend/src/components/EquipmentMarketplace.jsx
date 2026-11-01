@@ -1,7 +1,66 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { getBalanceKZT, freezeEscrow, topupBalance } from '../services/walletEngine';
 import { createPlatformOrder } from '../services/orderSyncService';
+import { localDateKey, authHeaders, jsonAuthHeaders, getAuthToken, responseError } from '../services/platformUtils';
 import './EquipmentMarketplace.css';
+import './marketplace-refresh.css';
+
+// ── Спецтехника с сервера: GET /api/v1/equipment?category=&city=&q= ──
+const EQ_CATEGORY_API = { earth: 'землерой', lift: 'грузоподъ', loader: 'погруз', road: 'дорож', concrete: 'бетон', transport: 'самосвал', drill: 'буров', power: 'энерг' };
+const EQ_CITY_API = { almaty: 'Алматы', astana: 'Астана', shymkent: 'Шымкент', karaganda: 'Караганда' };
+const EQ_CATEGORY_OPTIONS = [
+  'Землеройная техника', 'Грузоподъемная техника', 'Погрузчики', 'Дорожная техника',
+  'Бетонное оборудование', 'Самосвалы и тягачи', 'Буровое оборудование', 'Энергетика и генераторы',
+];
+const EQ_PLACEHOLDER_IMG = '/assets/machinery/hitachi_excavator.jpg';
+function eqCategoryKey(name) {
+  const c = String(name || '').toLowerCase();
+  if (c.includes('грузо') || c.includes('кран')) return 'lift';
+  if (c.includes('погруз')) return 'loader';
+  if (c.includes('бетон')) return 'concrete';
+  if (c.includes('самосвал') || c.includes('транспорт') || c.includes('тягач')) return 'transport';
+  if (c.includes('бур')) return 'drill';
+  if (c.includes('дорож')) return 'road';
+  if (c.includes('энерг') || c.includes('генератор')) return 'power';
+  return 'earth';
+}
+const EQ_CATEGORY_LABEL = { earth: 'Землеройная', lift: 'Подъёмная', loader: 'Погрузчик', road: 'Дорожная', concrete: 'Бетон и раствор', transport: 'Транспорт', drill: 'Буровая', power: 'Энергетика' };
+function mapServerEquipment(e) {
+  const price = Math.round(Number(e.pricePerDay) || 0);
+  const city = e.city || '';
+  const available = !e.status || /доступ|свобод/i.test(e.status);
+  const tags = [];
+  if (Number(e.pricePerHour) > 0) tags.push({ type: 'hourly', label: `${Math.round(e.pricePerHour).toLocaleString('ru-RU')} ₸ / час`, icon: '⏱️' });
+  if (e.capacity) tags.push({ type: 'capacity', label: e.capacity, icon: '⚖️' });
+  if (e.plateNumber) tags.push({ type: 'plate', label: e.plateNumber, icon: '🔖' });
+  if (city) tags.push({ type: 'location', label: city });
+  return {
+    id: e.id,
+    category: e.category ? eqCategoryKey(e.category) : 'other',
+    categoryName: e.category || 'Без категории',
+    image: e.image || EQ_PLACEHOLDER_IMG,
+    backupImage: EQ_PLACEHOLDER_IMG,
+    title: e.name,
+    rawPrice: price,
+    price: price ? price.toLocaleString('ru-RU') : '',
+    unit: 'смена',
+    tariffType: 'shift',
+    city: city.toLowerCase(),
+    cityName: city,
+    status: e.status || '',
+    availableToday: available,
+    hasOperator: true,
+    hasDelivery: true,
+    ownerName: e.ownerName || '',
+    ownerPhone: e.ownerPhone || '',
+    plateNumber: e.plateNumber || '',
+    rating: Number(e.rating) > 0 ? Number(e.rating) : null,
+    reviewsCount: Number(e.reviewsCount) || 0,
+    distanceKm: typeof e.distanceKm === 'number' && e.distanceKm > 0 ? e.distanceKm : null,
+    isServer: true,
+    tags,
+  };
+}
 
 export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
   const [activeTab, setActiveTab] = useState('marketplace');
@@ -19,12 +78,26 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
   // Interactive Modal state
   const [bookingItem, setBookingItem] = useState(null);
   const [bookingDays, setBookingDays] = useState(1);
-  const [bookingDate, setBookingDate] = useState(() => new Date().toISOString().split('T')[0]);
+  const [bookingDate, setBookingDate] = useState(() => localDateKey());
   const [bookingPaymentMethod, setBookingPaymentMethod] = useState('escrow'); // 'escrow' | 'kaspi' | 'invoice'
   const [bookingClientName, setBookingClientName] = useState('Заказчик');
   const [bookingClientPhone, setBookingClientPhone] = useState('+7 (707) 888-99-00');
   const [bookingAddress, setBookingAddress] = useState('г. Алматы, строительный объект');
   const [walletBalance, setWalletBalance] = useState(() => getBalanceKZT());
+  const [sortBy, setSortBy] = useState('popular'); // 'popular' | 'price_asc' | 'price_desc' | 'rating_desc'
+  const [debouncedQuery, setDebouncedQuery] = useState('');
+  const [eqApi, setEqApi] = useState({ status: 'loading', items: [], error: null });
+  const [eqReload, setEqReload] = useState(0);
+  // Размещение техники (POST /api/v1/equipment, нужен серверный JWT)
+  const [showPlaceModal, setShowPlaceModal] = useState(false);
+  const [placeForm, setPlaceForm] = useState({ name: '', category: EQ_CATEGORY_OPTIONS[0], pricePerDay: '', pricePerHour: '', city: 'Алматы', plateNumber: '', capacity: '', ownerPhone: '' });
+  const [placeError, setPlaceError] = useState(null);
+  const [placing, setPlacing] = useState(false);
+
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedQuery(searchQuery.trim()), 350);
+    return () => clearTimeout(t);
+  }, [searchQuery]);
   
   useEffect(() => {
     setWalletBalance(getBalanceKZT());
@@ -573,7 +646,31 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
     } catch (e) {}
   }, [activeTab]);
 
+  // Загрузка каталога спецтехники с сервера (фильтры категории/города/поиска — на сервере)
+  useEffect(() => {
+    let cancelled = false;
+    setEqApi(s => ({ ...s, status: 'loading', error: null }));
+    const params = new URLSearchParams();
+    if (EQ_CATEGORY_API[category]) params.set('category', EQ_CATEGORY_API[category]);
+    if (EQ_CITY_API[location]) params.set('city', EQ_CITY_API[location]);
+    if (debouncedQuery) params.set('q', debouncedQuery);
+    fetch(`/api/v1/equipment${params.toString() ? `?${params}` : ''}`, { headers: authHeaders() })
+      .then(async (res) => {
+        if (!res.ok) throw new Error(await responseError(res));
+        const data = await res.json();
+        const list = Array.isArray(data) ? data : (Array.isArray(data?.items) ? data.items : null);
+        if (!list) throw new Error('Некорректный ответ сервера');
+        if (!cancelled) setEqApi({ status: 'ready', items: list.filter(e => e && e.id && e.name).map(mapServerEquipment), error: null });
+      })
+      .catch((e) => { if (!cancelled) setEqApi({ status: 'error', items: [], error: e.message || 'Сеть недоступна' }); });
+    return () => { cancelled = true; };
+  }, [category, location, debouncedQuery, eqReload]);
+
+  const eqApiMode = eqApi.status !== 'error';
+
   const combinedEquipment = useMemo(() => {
+    // Сервер доступен → только реальные объявления; демо-список — лишь при недоступности API
+    if (eqApiMode) return eqApi.items;
     const formattedCustom = customList.map(c => {
       let catKey = 'earth';
       const cCat = (c.category || '').toLowerCase();
@@ -589,7 +686,8 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
         category: catKey,
         image: c.image || '/assets/machinery/hitachi_excavator.jpg',
         backupImage: 'https://images.unsplash.com/photo-1579829366248-204fe8413f31?auto=format&fit=crop&w=800&q=80',
-        distanceKm: c.distanceKm || 1.8,
+        distanceKm: null,
+        isDemo: true,
         title: `${c.name} (${c.ownerName || 'Частный владелец'})`,
         rawPrice: c.pricePerDay || 95000,
         price: (c.pricePerDay || 95000).toLocaleString(),
@@ -610,8 +708,8 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
       };
     });
 
-    return [...formattedCustom, ...fullEquipmentList];
-  }, [customList]);
+    return [...formattedCustom, ...fullEquipmentList.map(e => ({ ...e, isDemo: true, distanceKm: null }))];
+  }, [customList, eqApiMode, eqApi.items]);
 
   // Real-time Dynamic Filtering Engine
   const filteredEquipment = useMemo(() => {
@@ -653,14 +751,66 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
       if (delivery === 'yes' && !item.hasDelivery) return false;
       if (delivery === 'no' && item.hasDelivery) return false;
 
-      // 8. Price Slider Filter
-      if (item.rawPrice > priceMax) {
+      // 8. Price Slider Filter (100 000 = «без лимита»; позиции «цена по запросу» не скрываем)
+      if (priceMax < 100000 && item.rawPrice > priceMax) {
         return false;
       }
 
       return true;
+    }).sort((a, b) => {
+      if (sortBy === 'price_asc') return (a.rawPrice || Infinity) - (b.rawPrice || Infinity);
+      if (sortBy === 'price_desc') return (b.rawPrice || 0) - (a.rawPrice || 0);
+      if (sortBy === 'rating_desc') return (b.rating || 0) - (a.rating || 0) || (b.reviewsCount || 0) - (a.reviewsCount || 0);
+      return 0;
     });
-  }, [searchQuery, category, tariff, location, freeToday, withOperator, delivery, priceMax]);
+  }, [combinedEquipment, searchQuery, category, tariff, location, freeToday, withOperator, delivery, priceMax, sortBy]);
+
+  const handlePlaceSubmit = async (e) => {
+    e.preventDefault();
+    setPlaceError(null);
+    const name = placeForm.name.trim();
+    const pricePerDay = Number(String(placeForm.pricePerDay).replace(/\s/g, ''));
+    const pricePerHour = Number(String(placeForm.pricePerHour || 0).replace(/\s/g, ''));
+    if (!name) { setPlaceError('Укажите марку и модель техники'); return; }
+    if (!Number.isFinite(pricePerDay) || pricePerDay <= 0) { setPlaceError('Укажите цену за смену больше 0'); return; }
+    if (!Number.isFinite(pricePerHour) || pricePerHour < 0) { setPlaceError('Цена за час не может быть отрицательной'); return; }
+    if (!getAuthToken()) {
+      setPlaceError('Размещение доступно только с серверной учётной записью: войдите под серверной учёткой и повторите. Объявление не сохранено.');
+      return;
+    }
+    setPlacing(true);
+    try {
+      const res = await fetch('/api/v1/equipment', {
+        method: 'POST',
+        headers: jsonAuthHeaders(),
+        body: JSON.stringify({
+          name,
+          category: placeForm.category,
+          pricePerDay: Math.round(pricePerDay),
+          pricePerHour: Math.round(pricePerHour) || undefined,
+          city: placeForm.city.trim(),
+          plateNumber: placeForm.plateNumber.trim() || undefined,
+          capacity: placeForm.capacity.trim() || undefined,
+          ownerPhone: placeForm.ownerPhone.trim() || undefined,
+          status: 'Доступен',
+        }),
+      });
+      if (!res.ok) {
+        const msg = await responseError(res);
+        setPlaceError(res.status === 401 ? 'Сессия недействительна: войдите под серверной учёткой и повторите.' : `Сервер не принял объявление: ${msg}`);
+        return;
+      }
+      setShowPlaceModal(false);
+      setPlaceForm(f => ({ ...f, name: '', pricePerDay: '', pricePerHour: '', plateNumber: '', capacity: '' }));
+      setEqReload(k => k + 1);
+      setActiveTab('marketplace');
+      showToast('✅ Объявление опубликовано в маркетплейсе');
+    } catch (err) {
+      setPlaceError(`Сервер недоступен: ${err.message}`);
+    } finally {
+      setPlacing(false);
+    }
+  };
 
   const showToast = (msg) => {
     setToastMessage(msg);
@@ -724,8 +874,15 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Искать по спецтехнике, модели или характеристикам (например: Hitachi, 25т)..." 
             />
-            <span className="search-results-count">Найдено: {filteredEquipment.length}</span>
+            <span className="search-results-count" aria-live="polite">{eqApi.status === 'loading' ? 'Поиск…' : `Найдено: ${filteredEquipment.length}`}</span>
           </div>
+
+          {!eqApiMode && (
+            <div className="mkt-notice mkt-notice--warn" role="status">
+              <span>Каталог спецтехники недоступен ({eqApi.error}). Показаны демо-объявления: цены и статусы условные, бронирование недоступно.</span>
+              <button type="button" className="mkt-notice-btn" onClick={() => setEqReload(k => k + 1)}>Повторить</button>
+            </div>
+          )}
 
           {/* WB / Ozon Quick Filter Strip */}
           <div className="wb-quick-filter-strip">
@@ -760,11 +917,26 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
               </select>
             </div>
 
+            <div className="wb-quick-select-wrap">
+              <span aria-hidden="true">⇅</span>
+              <select aria-label="Сортировка" value={sortBy} onChange={e => setSortBy(e.target.value)}>
+                <option value="popular">Сначала новые</option>
+                <option value="price_asc">Сначала дешевле</option>
+                <option value="price_desc">Сначала дороже</option>
+                <option value="rating_desc">По рейтингу</option>
+              </select>
+            </div>
+
             <button 
               className={`wb-filter-chip ${freeToday ? 'active' : ''}`}
+              aria-pressed={freeToday}
               onClick={() => setFreeToday(!freeToday)}
             >
               <span>⚡ Свободны сегодня</span>
+            </button>
+
+            <button type="button" className="wb-filter-chip mkt-chip-accent" onClick={() => { setPlaceError(null); setShowPlaceModal(true); }}>
+              <span>➕ Разместить технику</span>
             </button>
           </div>
 
@@ -890,6 +1062,7 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
                   <button 
                     key={chip.id} 
                     className={`em-chip ${category === chip.id ? 'active' : ''}`}
+                    aria-pressed={category === chip.id}
                     onClick={() => setCategory(chip.id)}
                   >
                     {chip.label}
@@ -897,7 +1070,18 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
                 ))}
               </div>
 
-              {filteredEquipment.length === 0 ? (
+              {eqApi.status === 'loading' && eqApiMode ? (
+                <div className="em-grid" aria-busy="true" aria-label="Загрузка спецтехники">
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <div key={i} className="mkt-skeleton-card" aria-hidden="true">
+                      <div className="mkt-skel mkt-skel-img" />
+                      <div className="mkt-skel mkt-skel-line" />
+                      <div className="mkt-skel mkt-skel-line short" />
+                      <div className="mkt-skel mkt-skel-price" />
+                    </div>
+                  ))}
+                </div>
+              ) : filteredEquipment.length === 0 ? (
                 <div className="em-empty-state">
                   <span className="empty-icon">🚜</span>
                   <h3>По вашему запросу техника не найдена</h3>
@@ -913,15 +1097,19 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
                       setWithOperator(false);
                       setDelivery('all');
                       setPriceMax(100000);
+                      setSortBy('popular');
                     }}
                   >
                     🔄 Сбросить все фильтры
+                  </button>
+                  <button type="button" className="mkt-btn-secondary" onClick={() => { setPlaceError(null); setShowPlaceModal(true); }}>
+                    Разместить свою технику
                   </button>
                 </div>
               ) : (
                 <div className="em-grid">
                   {filteredEquipment.map((item) => (
-                    <div className="em-card luxury-em-card" key={item.id}>
+                    <article className={`em-card luxury-em-card ${item.isDemo ? 'is-demo' : ''}`} key={item.id}>
                       <div className="em-card-image luxury-image-container">
                         <div className="em-card-blueprint-grid"></div>
                         <div className="em-brand-watermark">
@@ -937,8 +1125,9 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
                         
                         <div className="em-card-main-visual" style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0, overflow: 'hidden' }}>
                           <img 
-                            src={item.image || item.backupImage || 'https://images.unsplash.com/photo-1579829366248-204fe8413f31?auto=format&fit=crop&w=800&q=80'} 
+                            src={item.image || item.backupImage || EQ_PLACEHOLDER_IMG} 
                             alt={item.title} 
+                            loading="lazy" 
                             style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s ease', filter: 'brightness(0.88) contrast(1.1)' }}
                             className="em-machine-photo"
                             onError={(e) => {
@@ -948,47 +1137,50 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
                               }
                             }}
                           />
-                          <div className="em-gps-distance-pill" style={{ position: 'absolute', bottom: '8px', left: '10px', background: 'rgba(8, 12, 22, 0.85)', backdropFilter: 'blur(10px)', padding: '3px 8px', borderRadius: '6px', fontSize: '0.72rem', color: '#38bdf8', fontWeight: '800', border: '1px solid rgba(56, 189, 248, 0.3)' }}>
-                            📍 GPS: {item.distanceKm ? `${item.distanceKm} км от вас` : '2.4 км'}
-                          </div>
+                          {item.distanceKm ? (
+                            <div className="em-gps-distance-pill" style={{ position: 'absolute', bottom: '8px', left: '10px', background: 'rgba(8, 12, 22, 0.85)', padding: '3px 8px', borderRadius: '6px', fontSize: '0.72rem', color: '#38bdf8', fontWeight: '800', border: '1px solid rgba(56, 189, 248, 0.3)' }}>
+                              📍 {item.distanceKm} км от вас
+                            </div>
+                          ) : null}
+                          {item.isDemo && <span className="mkt-badge mkt-badge--demo mkt-badge--corner">Демо</span>}
                         </div>
 
                         <div className="em-telemetry-badge-top">
                           {item.availableToday ? (
                             <span className="em-status-pill available">
-                              <span className="pulse-green-dot"></span> Готов к выезду
+                              <span className="pulse-green-dot" aria-hidden="true"></span> {item.status || 'Доступен'}
                             </span>
                           ) : (
                             <span className="em-status-pill busy">
-                              ● На объекте (с 18:00)
+                              ● {item.status || 'Занят'}
                             </span>
                           )}
-                          <span className="em-rating-badge">★ 4.95</span>
+                          {item.rating ? (
+                            <span className="em-rating-badge" title={`${item.reviewsCount} отзывов`}>★ {item.rating.toFixed(1)}{item.reviewsCount ? ` (${item.reviewsCount})` : ''}</span>
+                          ) : (
+                            <span className="em-rating-badge muted">Нет отзывов</span>
+                          )}
                         </div>
                       </div>
                       
                       <div className="em-card-content luxury-content">
                         <div className="em-card-category-strip">
-                          <span className="em-cat-tag">
-                            {item.category === 'earth' && 'ЗЕМЛЕРОЙНАЯ ТЕХНИКА'}
-                            {item.category === 'lift' && 'ПОДЪЁМНАЯ ТЕХНИКА'}
-                            {item.category === 'loader' && 'ПОГРУЗОЧНАЯ ТЕХНИКА'}
-                            {item.category === 'road' && 'ДОРОЖНОЕ СТРОИТЕЛЬСТВО'}
-                            {item.category === 'concrete' && 'БЕТОННЫЕ РАБОТЫ'}
-                            {item.category === 'transport' && 'ТРАНСПОРТ И ЛОГИСТИКА'}
-                            {item.category === 'drill' && 'БУРОВЫЕ УСТАНОВКИ'}
-                            {item.category === 'power' && 'ЭНЕРГОСНАБЖЕНИЕ'}
-                          </span>
-                          <span className="em-gps-tag">🛰️ GPS Online</span>
+                          <span className="em-cat-tag">{item.categoryName || EQ_CATEGORY_LABEL[item.category] || 'Спецтехника'}</span>
+                          {item.ownerName && <span className="em-gps-tag">{item.ownerName}</span>}
                         </div>
 
-                        <h3 className="em-card-title">{item.title}</h3>
+                        <h3 className="em-card-title" title={item.title}>{item.title}</h3>
                         
                         <div className="em-price-cockpit">
-                          <div className="em-main-price">
-                            <span className="kzt-currency">₸</span>
-                            <span className="kzt-value">{item.price}</span>
-                            <span className="kzt-unit">/ {item.unit}</span>
+                          <div className="em-main-price mkt-price-tag">
+                            {item.rawPrice > 0 ? (
+                              <>
+                                <span className="kzt-value">{item.rawPrice.toLocaleString('ru-RU')} ₸</span>
+                                <span className="kzt-unit">за {item.unit}</span>
+                              </>
+                            ) : (
+                              <span className="kzt-unit">Цена по запросу</span>
+                            )}
                           </div>
                           <div className="em-escrow-guarantee">🛡️ Эскроу QazGost</div>
                         </div>
@@ -1003,12 +1195,15 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
 
                         <div className="em-card-actions">
                           <button 
+                            type="button"
                             className="em-btn-primary luxury-book-btn"
+                            disabled={item.isDemo || !(item.rawPrice > 0) || !item.availableToday}
+                            title={item.isDemo ? 'Демо-объявление: бронирование недоступно' : (!(item.rawPrice > 0) ? 'Цена не указана — свяжитесь с владельцем' : (!item.availableToday ? 'Техника занята' : ''))}
                             onClick={() => {
                               setBookingItem(item);
                             }}
                           >
-                            <span>⚡ Забронировать</span>
+                            <span>{item.availableToday ? '⚡ Забронировать' : 'Занята'}</span>
                           </button>
                           <button 
                             className="em-btn-secondary luxury-compare-btn"
@@ -1018,7 +1213,7 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
                           </button>
                         </div>
                       </div>
-                    </div>
+                    </article>
                   ))}
                 </div>
               )}
@@ -1048,7 +1243,7 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
                 <span className="metric-val">2</span>
                 <span className="metric-lbl">Свободно</span>
               </div>
-              <button className="em-btn-action-primary" onClick={() => showToast('➕ Форма добавления техники в автопарк')}>
+              <button className="em-btn-action-primary" onClick={() => { setPlaceError(null); setShowPlaceModal(true); }}>
                 + Добавить технику в парк
               </button>
             </div>
@@ -1168,7 +1363,7 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
                 <span className="metric-val">348</span>
                 <span className="metric-lbl">Просмотров</span>
               </div>
-              <button className="em-btn-action-primary" onClick={() => showToast('📝 Форма публикации объявлений')}>
+              <button className="em-btn-action-primary" onClick={() => { setPlaceError(null); setShowPlaceModal(true); }}>
                 + Опубликовать объявление
               </button>
             </div>
@@ -1306,9 +1501,11 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
             
             <div style={{ background: 'rgba(255,255,255,0.04)', padding: '12px 16px', borderRadius: '12px', marginBottom: '1.2rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontSize: '0.85rem' }}>
               <div>Тариф: <strong style={{ color: '#fbbf24' }}>₸ {bookingItem.price} / {bookingItem.unit}</strong></div>
-              <div>Город: <strong>{bookingItem.tags?.find(t => t.type === 'location')?.label || 'Алматы'}</strong></div>
-              <div>📍 GPS дистанция: <strong style={{ color: '#34d399' }}>{bookingItem.distanceKm} км от вас</strong></div>
-              <div>Статус: <strong style={{ color: '#10b981' }}>🟢 Готов к выезду</strong></div>
+              <div>Город: <strong>{bookingItem.cityName || bookingItem.tags?.find(t => t.type === 'location')?.label || '—'}</strong></div>
+              {bookingItem.distanceKm ? <div>📍 Расстояние: <strong style={{ color: '#34d399' }}>{bookingItem.distanceKm} км от вас</strong></div> : null}
+              <div>Статус: <strong style={{ color: '#10b981' }}>{bookingItem.status || 'Доступен'}</strong></div>
+              {bookingItem.ownerName ? <div>Владелец: <strong>{bookingItem.ownerName}</strong></div> : null}
+              {bookingItem.ownerPhone ? <div>Телефон: <a href={`tel:${bookingItem.ownerPhone.replace(/[^\d+]/g, '')}`} style={{ color: '#7dd3fc' }}>{bookingItem.ownerPhone}</a></div> : null}
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
@@ -1422,6 +1619,10 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
                 if (bookingPaymentMethod === 'escrow') {
                   escrowInfo = freezeEscrow(totalCost, `Аренда: ${bookingItem.title} (${bookingDays} см.)`);
                   setWalletBalance(escrowInfo.newBalance);
+                  if (!escrowInfo.ok) {
+                    showToast(`⚠️ Недостаточно средств в кошельке: нужно ${totalCost.toLocaleString()} ₸, доступно ${escrowInfo.newBalance.toLocaleString()} ₸`);
+                    return;
+                  }
                 }
 
                 // 2. Dispatch Order to Manager CRM and Executor
@@ -1432,7 +1633,7 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
                   budget: `${totalCost.toLocaleString()} ₸`,
                   clientName: bookingClientName,
                   clientPhone: bookingClientPhone,
-                  city: bookingItem.tags?.find(t => t.type === 'location')?.label || 'Алматы',
+                  city: bookingItem.cityName || bookingItem.tags?.find(t => t.type === 'location')?.label || 'Алматы',
                   description: `Аренда ${bookingItem.title} на ${bookingDays} смен/дней с ${bookingDate}. Доставка на объект: ${bookingAddress}. Оператор: ${bookingItem.hasOperator ? 'Да' : 'Нет'}. Оплата: ${bookingPaymentMethod === 'escrow' ? 'Эскроу заморожено' : 'Kaspi'}`,
                   type: 'machinery',
                   status: 'in_progress',
@@ -1443,11 +1644,13 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
                       name: bookingItem.title,
                       photo: bookingItem.image,
                       rate: `${bookingItem.price} ₸ / ${bookingItem.unit}`,
-                      dist: `${bookingItem.distanceKm} км`,
+                      dist: bookingItem.distanceKm ? `${bookingItem.distanceKm} км` : '',
                       status: '🟢 Назначен на объект (GPS Online)',
                       assigned: true
                     }
-                  ]
+                  ],
+                  escrowTxId: escrowInfo?.txId || null,
+                  escrowAmount: escrowInfo?.ok ? totalCost : 0
                 });
 
                 setBookingItem(null);
@@ -1457,6 +1660,66 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
               🚀 Подтвердить бронирование и передать Менеджеру
             </button>
           </div>
+        </div>
+      )}
+
+      {/* ── Размещение техники (POST /api/v1/equipment) ── */}
+      {showPlaceModal && (
+        <div className="em-modal-overlay mkt-modal-overlay" onClick={() => setShowPlaceModal(false)}>
+          <form className="mkt-modal" role="dialog" aria-modal="true" aria-labelledby="place-eq-title" onClick={e => e.stopPropagation()} onSubmit={handlePlaceSubmit} noValidate>
+            <div className="mkt-modal-head">
+              <h3 id="place-eq-title">Разместить спецтехнику</h3>
+              <button type="button" className="mkt-icon-btn" aria-label="Закрыть" onClick={() => setShowPlaceModal(false)}>✕</button>
+            </div>
+            {!getAuthToken() && (
+              <p className="mkt-notice mkt-notice--warn">Для публикации нужна серверная учётная запись. Без неё объявление не будет сохранено.</p>
+            )}
+            <label className="mkt-field">
+              <span>Марка и модель *</span>
+              <input required value={placeForm.name} onChange={e => setPlaceForm(f => ({ ...f, name: e.target.value }))} placeholder="Например: CAT 320D, гусеничный" />
+            </label>
+            <label className="mkt-field">
+              <span>Категория</span>
+              <select value={placeForm.category} onChange={e => setPlaceForm(f => ({ ...f, category: e.target.value }))}>
+                {EQ_CATEGORY_OPTIONS.map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
+            </label>
+            <div className="mkt-field-row">
+              <label className="mkt-field">
+                <span>Цена за смену, ₸ *</span>
+                <input required type="number" inputMode="numeric" min="1" step="1000" value={placeForm.pricePerDay} onChange={e => setPlaceForm(f => ({ ...f, pricePerDay: e.target.value }))} />
+              </label>
+              <label className="mkt-field">
+                <span>Цена за час, ₸</span>
+                <input type="number" inputMode="numeric" min="0" step="500" value={placeForm.pricePerHour} onChange={e => setPlaceForm(f => ({ ...f, pricePerHour: e.target.value }))} />
+              </label>
+            </div>
+            <div className="mkt-field-row">
+              <label className="mkt-field">
+                <span>Город</span>
+                <input value={placeForm.city} onChange={e => setPlaceForm(f => ({ ...f, city: e.target.value }))} />
+              </label>
+              <label className="mkt-field">
+                <span>Госномер</span>
+                <input value={placeForm.plateNumber} onChange={e => setPlaceForm(f => ({ ...f, plateNumber: e.target.value }))} placeholder="01 777 KZ 02" />
+              </label>
+            </div>
+            <div className="mkt-field-row">
+              <label className="mkt-field">
+                <span>Грузоподъёмность / объём</span>
+                <input value={placeForm.capacity} onChange={e => setPlaceForm(f => ({ ...f, capacity: e.target.value }))} placeholder="25 т, ковш 1 м³" />
+              </label>
+              <label className="mkt-field">
+                <span>Телефон диспетчера</span>
+                <input type="tel" value={placeForm.ownerPhone} onChange={e => setPlaceForm(f => ({ ...f, ownerPhone: e.target.value }))} placeholder="+7 7__ ___ __ __" />
+              </label>
+            </div>
+            {placeError && <p className="mkt-form-error" role="alert">{placeError}</p>}
+            <div className="mkt-modal-actions">
+              <button type="button" className="mkt-btn-secondary" onClick={() => setShowPlaceModal(false)}>Отмена</button>
+              <button type="submit" className="mkt-btn-primary" disabled={placing}>{placing ? 'Публикация…' : 'Опубликовать'}</button>
+            </div>
+          </form>
         </div>
       )}
     </div>

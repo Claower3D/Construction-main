@@ -111,7 +111,8 @@ class TestPipelineSchema:
         assert isinstance(result["defects"], dict)
         assert isinstance(result["processing_time_ms"], int)
         assert isinstance(result["warnings"], list)
-        assert result["pipeline_version"] == "2.0"
+        assert result["pipeline_version"] == "3.0"
+        assert isinstance(result["is_mock"], bool)
 
     def test_detection_sources_structure(self):
         """detection_sources should contain rfdetr, grounding_dino, gdino_defects, merged."""
@@ -383,9 +384,9 @@ class TestEstimatorDefectRepair:
         from app.services.estimator import AutoEstimator
         est = AutoEstimator()
         empty_report = {"defects": [], "summary": {"total": 0}}
-        result = est.estimate_defect_repair(empty_report)
-        assert isinstance(result, list)
-        assert len(result) == 0
+        items, total = est.estimate_defect_repair(empty_report)  # API: (items, total)
+        assert items == []
+        assert total == 0
 
     def test_defect_repair_crack(self):
         """Crack defect should generate repair items."""
@@ -401,12 +402,14 @@ class TestEstimatorDefectRepair:
             }],
             "summary": {"total": 1, "cracks": 1, "stains": 0, "rust": 0},
         }
-        result = est.estimate_defect_repair(report)
+        result, total = est.estimate_defect_repair(report)
         assert isinstance(result, list)
         assert len(result) > 0
-        # Each item should have work_name and total_price
+        assert total == pytest.approx(sum(i["total_price"] for i in result))
+        # Each item should have work_name, total_price and confidence (was KeyError 'confidence')
         for item in result:
             assert "work_name" in item or "name" in item
+            assert 0 <= item["confidence"] <= 1
 
     def test_defect_repair_multiple(self):
         """Multiple defects should merge into separate items."""
@@ -420,10 +423,11 @@ class TestEstimatorDefectRepair:
             ],
             "summary": {"total": 3, "cracks": 1, "stains": 1, "rust": 1},
         }
-        result = est.estimate_defect_repair(report)
+        result, total = est.estimate_defect_repair(report)
         assert isinstance(result, list)
         # Should have items for at least 2 different defect types
         assert len(result) >= 2
+        assert len({i["source_defect"] for i in result}) >= 2
 
     def test_tax_and_margin(self):
         """НДС + margin calculation should be correct."""

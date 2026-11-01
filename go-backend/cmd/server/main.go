@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"qazgost-ai/backend/pkg/config"
 	"qazgost-ai/backend/pkg/database"
@@ -20,17 +21,28 @@ func main() {
 	// Initialize PostgreSQL database (Railway provides DATABASE_URL)
 	dbURL := os.Getenv("DATABASE_URL")
 	if dbURL == "" {
-		log.Println("[⚠️ WARNING] DATABASE_URL not set — please configure PostgreSQL connection")
+		log.Println("[⚠️ WARNING] DATABASE_URL not set — running with offline/degraded database")
 	}
 	if err := database.InitDB(dbURL); err != nil {
-		log.Fatalf("[FATAL] Database init failed: %v", err)
+		log.Printf("[⚠️ WARNING] Database connection not established: %v (server will continue running)", err)
+	} else if database.DB != nil {
+		defer database.DB.Close()
 	}
-	defer database.DB.Close()
 	auth := func(next http.HandlerFunc) http.HandlerFunc {
 		return middleware.AuthMiddleware(cfg.JwtSecret, next)
 	}
 	roleAdmin := func(next http.HandlerFunc) http.HandlerFunc {
 		return middleware.RoleMiddleware(cfg.JwtSecret, []string{"admin", "manager"}, next)
+	}
+	// CRM is still reachable without a token because the web "linked accounts" and the
+	// mobile apps do not have server JWTs yet (login flow left unchanged on request).
+	// A valid token, when sent, is used for createdBy.
+	optAuth := func(next http.HandlerFunc) http.HandlerFunc {
+		return middleware.OptionalAuthMiddleware(cfg.JwtSecret, next)
+	}
+	// Public AI endpoints spend the server's OpenAI key / CPU — limit per client IP
+	aiLimit := func(next http.HandlerFunc) http.HandlerFunc {
+		return middleware.RateLimit(30, time.Minute, next)
 	}
 
 	// Initialize handlers
@@ -77,6 +89,15 @@ func main() {
 	})
 	mux.HandleFunc("/api/v1/disputes", auth(disputesHnd.GetDisputes))
 
+	// Contractors catalog — public read (brigades + company contacts)
+	mux.HandleFunc("/api/v1/contractors", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet {
+			w.WriteHeader(http.StatusMethodNotAllowed)
+			return
+		}
+		crmHnd.GetContractors(w, r)
+	})
+
 	// ── PROTECTED ENDPOINTS (auth required) ──
 
 	// Orders — auth required
@@ -102,19 +123,18 @@ func main() {
 	})
 
 	// AI & QTO — Public estimation & defect inspection (accessible to all users & guests)
-	mux.HandleFunc("/api/v1/ai/estimate", aiHnd.EstimateCost)
-	mux.HandleFunc("/api/v1/ai/defect", aiHnd.InspectDefect)
-	mux.HandleFunc("/api/v1/ai/vision", aiHnd.VisionProxy)
-	mux.HandleFunc("/api/v1/ai/defect-vision", aiHnd.DefectVisionProxy)
-	mux.HandleFunc("/api/v1/ai/validate-key", aiHnd.ValidateKey)
+	mux.HandleFunc("/api/v1/ai/estimate", aiLimit(aiHnd.EstimateCost))
+	mux.HandleFunc("/api/v1/ai/defect", aiLimit(aiHnd.InspectDefect))
+	mux.HandleFunc("/api/v1/ai/vision", aiLimit(aiHnd.VisionProxy))
+	mux.HandleFunc("/api/v1/ai/defect-vision", aiLimit(aiHnd.DefectVisionProxy))
+	mux.HandleFunc("/api/v1/ai/validate-key", aiLimit(aiHnd.ValidateKey))
 
-	// Phase 2: Engineering & LiDAR — proxy to Python AI service
-	mux.HandleFunc("/api/v1/engineering/", aiHnd.ProxyToAIService)
-	mux.HandleFunc("/api/v1/lidar/", aiHnd.ProxyToAIService)
-	mux.HandleFunc("/api/v1/defect-scan", aiHnd.ProxyToAIService)
-	mux.HandleFunc("/api/v1/analyze", aiHnd.ProxyToAIService)
+	// Phase 2: Engineering & LiDAR & defect detection — proxy to Python AI service
+	mux.HandleFunc("/api/v1/engineering/", aiLimit(aiHnd.ProxyToAIService))
+	mux.HandleFunc("/api/v1/lidar/", aiLimit(aiHnd.ProxyToAIService))
+	mux.HandleFunc("/api/v1/defect-scan", aiLimit(aiHnd.ProxyToAIService))
+	mux.HandleFunc("/api/v1/analyze", aiLimit(aiHnd.ProxyToAIService))
 	mux.HandleFunc("/api/v1/prices/", aiHnd.ProxyToAIService)
-	mux.HandleFunc("/api/v1/defects/", aiHnd.ProxyToAIService)
 
 	// Speech Recognition — public (for CRM voice input)
 	mux.HandleFunc("/api/v1/speech/recognize", speechHnd.Recognize)
@@ -189,11 +209,11 @@ func main() {
 	crmEventsHandler := func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:
-			crmHnd.GetCRMEvents(w, r)
+			optAuth(crmHnd.GetCRMEvents)(w, r)
 		case http.MethodPost, http.MethodPut:
-			crmHnd.CreateOrUpdateCRMEvent(w, r)
+			optAuth(crmHnd.CreateOrUpdateCRMEvent)(w, r)
 		case http.MethodDelete:
-			crmHnd.DeleteCRMEvent(w, r)
+			optAuth(crmHnd.DeleteCRMEvent)(w, r)
 		default:
 			w.WriteHeader(http.StatusMethodNotAllowed)
 		}
@@ -203,7 +223,7 @@ func main() {
 
 	crmSyncHandler := func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodPost {
-			crmHnd.BulkSyncCRMEvents(w, r)
+			optAuth(crmHnd.BulkSyncCRMEvents)(w, r)
 		} else {
 			w.WriteHeader(http.StatusMethodNotAllowed)
 		}
@@ -211,10 +231,9 @@ func main() {
 	mux.HandleFunc("/api/v1/crm/events/sync", crmSyncHandler)
 	mux.HandleFunc("/api/crm/events/sync", crmSyncHandler)
 
-	// Static Files (/uploads)
+	// Static Files (/uploads) — no directory listing, nosniff, sandbox CSP
 	_ = os.MkdirAll(cfg.UploadDir, 0755)
-	fileServer := http.FileServer(http.Dir(cfg.UploadDir))
-	mux.Handle("/uploads/", http.StripPrefix("/uploads/", fileServer))
+	mux.Handle("/uploads/", handlers.UploadsServer(cfg.UploadDir))
 
 	// Frontend SPA Fallback (if built dist exists)
 	frontendDist, _ := filepath.Abs("./frontend/dist")
@@ -234,10 +253,14 @@ func main() {
 		})
 	}
 
-	// Chain Middleware: Recovery -> Logger -> CORS (allowlist)
+	// Chain Middleware: Recovery -> Logger -> Security headers -> Body limit -> CORS (allowlist) -> DB guard
 	handler := middleware.RecoveryMiddleware(
 		middleware.LoggerMiddleware(
-			middleware.CorsMiddleware(cfg.CorsOrigins)(mux),
+			middleware.SecurityHeadersMiddleware(
+				middleware.BodyLimitMiddleware(55<<20)(
+					middleware.CorsMiddleware(cfg.CorsOrigins)(requireDB(mux)),
+				),
+			),
 		),
 	)
 
@@ -261,4 +284,32 @@ func main() {
 	if err := http.ListenAndServe(addr, handler); err != nil {
 		log.Fatalf("Server failed to start: %v", err)
 	}
+}
+
+// dbFreePrefixes: endpoints that work without PostgreSQL (price catalog, AI, health)
+var dbFreePrefixes = []string{
+	"/health", "/api/csrf-token", "/api/v1/prices", "/api/v1/ai/", "/api/v1/engineering/",
+	"/api/v1/lidar/", "/api/v1/defect-scan", "/api/v1/analyze", "/api/v1/speech/", "/uploads/",
+}
+
+// requireDB answers 503 instead of panicking (nil *sql.DB) when the server runs without a database
+func requireDB(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if database.DB == nil && strings.HasPrefix(r.URL.Path, "/api") && r.URL.Path != "/api" {
+			free := false
+			for _, p := range dbFreePrefixes {
+				if strings.HasPrefix(r.URL.Path, p) {
+					free = true
+					break
+				}
+			}
+			if !free {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusServiceUnavailable)
+				_, _ = w.Write([]byte(`{"error":"База данных недоступна: задайте DATABASE_URL (PostgreSQL)"}`))
+				return
+			}
+		}
+		next.ServeHTTP(w, r)
+	})
 }

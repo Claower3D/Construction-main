@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"encoding/json"
+	"log"
 	"net/http"
 	"runtime"
 	"time"
@@ -23,24 +24,35 @@ func (h *HealthHandler) HealthCheck(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	// Check database
+	// The DB error text is logged, not returned: it may contain host names / connection details
 	dbStatus := "ok"
 	dbTables := 0
+	httpStatus := http.StatusOK
+	overall := "ok"
 	if database.DB != nil {
-		err := database.DB.Ping()
-		if err != nil {
-			dbStatus = "error: " + err.Error()
+		if err := database.DB.Ping(); err != nil {
+			log.Printf("[health] database ping failed: %v", err)
+			dbStatus = "error"
+		} else {
+			dbTables = database.CountTables()
 		}
-		database.DB.QueryRow("SELECT COUNT(*) FROM sqlite_master WHERE type='table'").Scan(&dbTables)
 	} else {
 		dbStatus = "not initialized"
+	}
+	if dbStatus != "ok" {
+		// 503 lets Railway's healthcheck restart the service instead of keeping
+		// a backend that answers 500 to every login / order request.
+		httpStatus = http.StatusServiceUnavailable
+		overall = "degraded"
 	}
 
 	// Memory stats
 	var mem runtime.MemStats
 	runtime.ReadMemStats(&mem)
 
+	w.WriteHeader(httpStatus)
 	_ = json.NewEncoder(w).Encode(map[string]interface{}{
-		"status":     "ok",
+		"status":     overall,
 		"version":    "3.3.0",
 		"engine":     "Go " + runtime.Version() + " High-Performance Server",
 		"uptime":     time.Since(h.startTime).String(),
@@ -70,8 +82,8 @@ func (h *HealthHandler) ApiStatus(w http.ResponseWriter, r *http.Request) {
 		"version":     "3.3.0",
 		"status":      "running",
 		"performance": "sub-millisecond latency",
-		"storage":     "SQLite WAL",
-		"auth":        "JWT HMAC-SHA256 + SHA-256 Password Hash",
+		"storage":     "PostgreSQL",
+		"auth":        "JWT HMAC-SHA256",
 		"users":       userCount,
 		"orders":      orderCount,
 		"endpoints":   30,

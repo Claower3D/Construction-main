@@ -1,24 +1,47 @@
 import React, { useState, useEffect } from 'react';
-import { getBalanceKZT, getTransactions, topupBalance, freezeEscrow, spendBalance } from '../services/walletEngine';
+import { getBalanceKZT, getTransactions, topupBalance, spendBalance } from '../services/walletEngine';
 import './UserWalletPage.css';
+
+const TX_STATUS = {
+  completed: 'проведено',
+  held_in_escrow: 'заморожено в эскроу',
+  released: 'выплачено',
+  partially_released: 'выплачено частично',
+  refunded: 'возвращено',
+  pending: 'в обработке',
+  failed: 'ошибка',
+};
 
 export default function UserWalletPage({ onBack, currentUser }) {
   // Уникальный ключ пользователя для изоляции данных кошелька
   const userKey = currentUser?.login || currentUser?.email || currentUser?.name || 'guest';
 
   const [currency, setCurrency] = useState('KZT'); // 'KZT' | 'USD' | 'RUB'
+  // Единственный источник правды — walletEngine (сумма в KZT); в UI баланс хранится в USD (курс 470).
   const [balance, setBalance] = useState(() => getBalanceKZT(currentUser) / 470);
-  const [totalDeposited, setTotalDeposited] = useState(0);
-  const [totalSpent, setTotalSpent] = useState(0);
-  const [opsCount, setOpsCount] = useState(0);
-  const [selectedPlan, setSelectedPlan] = useState(null);
+  const [selectedPlan, setSelectedPlan] = useState(() => {
+    try { return localStorage.getItem(`qazgost_plan_${userKey}`) || null; } catch { return null; }
+  });
   const [transactions, setTransactions] = useState(() => getTransactions(currentUser));
+  const totalDeposited = transactions.filter(t => t.amount > 0).reduce((s, t) => s + t.amount, 0) / 470;
+  const totalSpent = transactions.filter(t => t.amount < 0).reduce((s, t) => s - t.amount, 0) / 470;
+  const opsCount = transactions.length;
+
+  const refreshWallet = () => {
+    setBalance(getBalanceKZT(currentUser) / 470);
+    setTransactions(getTransactions(currentUser));
+  };
 
   // Saved Bank Cards State — привязаны к конкретному пользователю
+  // Полный номер карты и CVC НЕ храним: только маска и последние 4 цифры.
+  const sanitizeCards = (list) => (Array.isArray(list) ? list : []).map(({ rawNumber, cvc, ...c }) => {
+    const last4 = c.last4 || String(rawNumber || c.number || '').replace(/\D/g, '').slice(-4);
+    return { ...c, last4, number: `•••• •••• •••• ${last4}` };
+  });
   const [savedCards, setSavedCards] = useState(() => {
     try {
       const stored = localStorage.getItem(`qazgost_cards_${userKey}`);
-      if (stored) return JSON.parse(stored);
+      if (stored) return sanitizeCards(JSON.parse(stored));
     } catch (e) {}
     return [];
   });
@@ -60,7 +83,7 @@ export default function UserWalletPage({ onBack, currentUser }) {
     try {
       const stored = localStorage.getItem(`qazgost_cards_${userKey}`);
       if (stored) {
-        setSavedCards(JSON.parse(stored));
+        setSavedCards(sanitizeCards(JSON.parse(stored)));
       } else {
         setSavedCards([]);
       }
@@ -78,8 +101,8 @@ export default function UserWalletPage({ onBack, currentUser }) {
     const curr = rates[currency];
     const val = amountUsd * curr.rate;
     if (currency === 'USD') return `$${val.toFixed(2)}`;
-    if (currency === 'KZT') return `${Math.round(val).toLocaleString()} ₸`;
-    if (currency === 'RUB') return `${Math.round(val).toLocaleString()} ₽`;
+    if (currency === 'KZT') return `${Math.round(val).toLocaleString('ru-RU')} ₸`;
+    if (currency === 'RUB') return `${Math.round(val).toLocaleString('ru-RU')} ₽`;
     return `$${val}`;
   };
 
@@ -126,7 +149,8 @@ export default function UserWalletPage({ onBack, currentUser }) {
       alert('⚠️ Введите имя держателя карты (на латинице).');
       return;
     }
-    if (newCardExp.length < 5) {
+    const expMonth = parseInt(newCardExp.slice(0, 2), 10);
+    if (newCardExp.length < 5 || !(expMonth >= 1 && expMonth <= 12)) {
       alert('⚠️ Введите срок действия карты в формате ММ/ГГ.');
       return;
     }
@@ -146,8 +170,8 @@ export default function UserWalletPage({ onBack, currentUser }) {
       id: cardId,
       bank: newCardBank,
       brand: brand,
-      number: `${cleanNum.slice(0, 4)} •••• •••• ${last4}`,
-      rawNumber: newCardNumber,
+      number: `•••• •••• •••• ${last4}`,
+      last4,
       holder: newCardHolder.toUpperCase(),
       exp: newCardExp,
       isDefault: setAsDefaultCard || savedCards.length === 0,
@@ -226,46 +250,28 @@ export default function UserWalletPage({ onBack, currentUser }) {
   };
 
   const executeTopupSuccess = (amountUsd, sourceText) => {
-    setBalance(prev => prev + amountUsd);
-    setTotalDeposited(prev => prev + amountUsd);
-    setOpsCount(prev => prev + 1);
-
-    // Sync into central walletEngine
-    topupBalance(Math.round(amountUsd * 470), sourceText, currentUser);
-
-    const newTx = {
-      id: Date.now().toString(),
-      type: 'topup',
-      amountUsd: amountUsd,
-      date: new Date().toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
-      desc: `Пополнение через ${sourceText}`,
-      status: 'Успешно (3D Secure)'
-    };
-    setTransactions(prev => [newTx, ...prev]);
+    try {
+      topupBalance(Math.round(amountUsd * 470), sourceText, currentUser);
+    } catch (err) {
+      showToast(`⚠️ ${err.message}`);
+      return;
+    }
+    refreshWallet();
     showToast(`🎉 Баланс пополнен на ${formatMoney(amountUsd)}!`);
   };
 
   // Buy Tariff
   const handleBuyTariff = (plan) => {
-    if (balance < plan.priceUsd) {
+    // Реальное списание через walletEngine (раньше менялся только React-state и после F5 деньги «возвращались»)
+    const res = spendBalance(Math.round(plan.priceUsd * 470), `Покупка тарифа "${plan.title}"`, currentUser, 'purchase');
+    if (!res.ok) {
       setShowPayModal(plan);
-    } else {
-      setBalance(prev => prev - plan.priceUsd);
-      setTotalSpent(prev => prev + plan.priceUsd);
-      setSelectedPlan(plan.title);
-      setOpsCount(prev => prev + 1);
-
-      const newTx = {
-        id: Date.now().toString(),
-        type: 'purchase',
-        amountUsd: plan.priceUsd,
-        date: new Date().toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
-        desc: `Покупка тарифа "${plan.title}"`,
-        status: 'Успешно'
-      };
-      setTransactions(prev => [newTx, ...prev]);
-      showToast(`⭐ Тариф "${plan.title}" успешно активирован!`);
+      return;
     }
+    setSelectedPlan(plan.title);
+    try { localStorage.setItem(`qazgost_plan_${userKey}`, plan.title); } catch (e) {}
+    refreshWallet();
+    showToast(`⭐ Тариф "${plan.title}" успешно активирован!`);
   };
 
   const scrollToTariffs = () => {
@@ -288,8 +294,8 @@ export default function UserWalletPage({ onBack, currentUser }) {
       <div className="uw-header-bar">
         <button className="uw-back-btn" onClick={onBack} title="Назад">←</button>
         <div className="uw-header-title">
-          <span className="uw-header-icon">💳</span>
-          <h2>Мой кошелёк и привязанные карты</h2>
+          <h1 className="uw-title">Кошелёк</h1>
+          <p className="uw-subtitle">Баланс, карты и эскроу по заказам. Деньги за работу заморожены, пока вы не примете этап.</p>
         </div>
       </div>
 
@@ -299,19 +305,20 @@ export default function UserWalletPage({ onBack, currentUser }) {
         <div className="uw-card uw-balance-card">
           <div className="uw-balance-top">
             <div className="uw-balance-info">
-              <span className="uw-balance-label">💰 Доступный баланс</span>
-              <h1 className="uw-balance-amount">{formatMoney(balance)}</h1>
+              <span className="uw-balance-label">Доступно</span>
+              <p className="uw-balance-amount qg-num">{formatMoney(balance)}</p>
               <div className="uw-plan-badge">
-                📋 {selectedPlan ? `Тариф: ${selectedPlan}` : 'Тариф не выбран'}
+                {selectedPlan ? `Тариф: ${selectedPlan}` : 'Тариф не выбран'}
               </div>
             </div>
 
             {/* Currency Switcher */}
-            <div className="uw-currency-toggle">
+            <div className="uw-currency-toggle" role="group" aria-label="Валюта отображения">
               {['USD', 'KZT', 'RUB'].map(curr => (
                 <button 
                   key={curr}
                   className={`uw-curr-btn ${currency === curr ? 'active' : ''}`}
+                  aria-pressed={currency === curr}
                   onClick={() => setCurrency(curr)}
                 >
                   {curr}
@@ -326,7 +333,7 @@ export default function UserWalletPage({ onBack, currentUser }) {
               <span className="uw-no-data">Нет транзакций. Нажмите «Пополнить», чтобы пополнить баланс с карты.</span>
             ) : (
               <div className="uw-history-summary">
-                <span>Последняя операция: <strong>Пополнение баланса</strong> ({formatMoney(totalDeposited)})</span>
+                <span>Последняя операция: <strong>{transactions[0]?.title || '—'}</strong> ({formatMoney(Math.abs(Number(transactions[0]?.amount) || 0) / 470)})</span>
                 <span className="uw-history-time">Сегодня, {new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
               </div>
             )}
@@ -338,19 +345,19 @@ export default function UserWalletPage({ onBack, currentUser }) {
               className="uw-btn-gold" 
               onClick={() => setShowTopupModal(true)}
             >
-              💳 Пополнить с карты
+              Пополнить с карты
             </button>
             <button 
               className="uw-btn-glass"
               onClick={() => setShowAddCardModal(true)}
             >
-              ➕ Привязать карту
+              Привязать карту
             </button>
             <button 
               className="uw-btn-glass"
               onClick={scrollToTariffs}
             >
-              ⭐ Тарифы
+              Тарифы
             </button>
           </div>
         </div>
@@ -358,9 +365,9 @@ export default function UserWalletPage({ onBack, currentUser }) {
         {/* LINKED BANK CARDS MANAGEMENT SECTION */}
         <div className="uw-cards-section">
           <div className="uw-section-header">
-            <h3 className="uw-section-title">💳 Мои привязанные банковские карты ({savedCards.length})</h3>
+            <h2 className="uw-section-title">Карты <span className="uw-count">{savedCards.length}</span></h2>
             <button className="uw-add-card-link-btn" onClick={() => setShowAddCardModal(true)}>
-              + Привязать новую карту
+              Привязать новую карту
             </button>
           </div>
 
@@ -371,7 +378,7 @@ export default function UserWalletPage({ onBack, currentUser }) {
                 className={`uw-credit-card-item ${card.isDefault ? 'is-default' : ''}`}
                 style={{ background: card.bgGradient }}
               >
-                {card.isDefault && <span className="card-default-badge">⭐ Основная</span>}
+                {card.isDefault && <span className="card-default-badge">Основная</span>}
                 
                 <div className="card-top-row">
                   <div className="card-chip-box">
@@ -416,64 +423,71 @@ export default function UserWalletPage({ onBack, currentUser }) {
             ))}
 
             {/* Add Card Plus Tile */}
-            <div className="uw-add-card-tile" onClick={() => setShowAddCardModal(true)}>
-              <div className="add-card-icon">+</div>
-              <div className="add-card-title">Привязать карту</div>
-              <div className="add-card-sub">Visa, Mastercard, Kaspi</div>
-            </div>
+            <button type="button" className="uw-add-card-tile" onClick={() => setShowAddCardModal(true)}>
+              <span className="add-card-icon" aria-hidden="true">+</span>
+              <span className="add-card-title">Привязать карту</span>
+              <span className="add-card-sub">Visa, Mastercard, Kaspi</span>
+            </button>
           </div>
         </div>
 
         {/* Stats Row */}
         <div className="uw-stats-grid">
           <div className="uw-stat-card">
-            <span className="uw-stat-label">💰 Всего пополнено</span>
+            <span className="uw-stat-label">Пополнено</span>
             <span className="uw-stat-value success">+{formatMoney(totalDeposited)}</span>
           </div>
 
           <div className="uw-stat-card">
-            <span className="uw-stat-label">💸 Всего потрачено</span>
-            <span className="uw-stat-value danger">+{formatMoney(totalSpent)}</span>
+            <span className="uw-stat-label">Потрачено</span>
+            <span className="uw-stat-value danger">{totalSpent > 0 ? '−' : ''}{formatMoney(totalSpent)}</span>
           </div>
 
           <div className="uw-stat-card">
-            <span className="uw-stat-label">📋 Операций</span>
+            <span className="uw-stat-label">Операций</span>
             <span className="uw-stat-value primary">{opsCount}</span>
           </div>
         </div>
 
         {/* Transaction History Section */}
         <div className="uw-transactions-section" style={{ marginTop: '2rem', marginBottom: '2rem' }}>
-          <h3 className="uw-section-title">📜 История операций</h3>
+          <h2 className="uw-section-title">История операций</h2>
           {transactions.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '2rem', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', color: '#94a3b8' }}>
               У вас еще нет транзакций. Пополните баланс или купите тариф.
             </div>
           ) : (
             <div className="uw-transactions-list" style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
-              {transactions.map(tx => (
+              {transactions.map(tx => {
+                // Транзакции walletEngine: amount в KZT со знаком; formatMoney принимает USD
+                const isRelease = tx.type === 'escrow_release';
+                const kzt = isRelease ? (Number(tx.releasedAmount) || 0) : (Number(tx.amount) || 0);
+                const incoming = !isRelease && kzt > 0;
+                const color = isRelease ? '#38bdf8' : (incoming ? '#10b981' : '#ef4444');
+                return (
                 <div key={tx.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem 1.5rem', background: 'rgba(15, 23, 42, 0.4)', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: tx.type === 'topup' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)', color: tx.type === 'topup' ? '#10b981' : '#ef4444', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem' }}>
-                      {tx.type === 'topup' ? '↓' : '↑'}
+                    <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: incoming ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)', color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem' }}>
+                      {isRelease ? '🔓' : (incoming ? '↓' : '↑')}
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
-                      <span style={{ color: '#f8fafc', fontWeight: '600', fontSize: '0.95rem' }}>{tx.desc}</span>
-                      <span style={{ color: '#94a3b8', fontSize: '0.8rem', marginTop: '0.2rem' }}>{tx.date} • {tx.status}</span>
+                      <span style={{ color: '#f8fafc', fontWeight: '600', fontSize: '0.95rem' }}>{tx.title}</span>
+                      <span style={{ color: '#94a3b8', fontSize: '0.8rem', marginTop: '0.2rem' }}>{tx.date}, {TX_STATUS[tx.status] || tx.status}</span>
                     </div>
                   </div>
-                  <div style={{ fontWeight: '700', fontSize: '1.1rem', color: tx.type === 'topup' ? '#10b981' : '#ef4444' }}>
-                    {tx.type === 'topup' ? '+' : '-'}{formatMoney(tx.amountUsd)}
+                  <div style={{ fontWeight: '700', fontSize: '1.1rem', color }}>
+                    {isRelease ? '' : (incoming ? '+' : '-')}{formatMoney(Math.abs(kzt) / 470)}
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
 
         {/* Tariff Plans Section */}
         <div className="uw-tariffs-section" id="tariffs-section">
-          <h3 className="uw-section-title">⭐ Тарифные планы</h3>
+          <h2 className="uw-section-title">Тарифы</h2>
 
           <div className="uw-plans-grid">
             

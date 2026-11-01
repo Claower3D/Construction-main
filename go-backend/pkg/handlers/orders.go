@@ -1,7 +1,10 @@
 package handlers
 
 import (
+	"database/sql"
 	"encoding/json"
+	"errors"
+	"math"
 	"net/http"
 	"strconv"
 	"strings"
@@ -17,29 +20,62 @@ func NewOrdersHandler() *OrdersHandler {
 	return &OrdersHandler{}
 }
 
+// canSeeAllOrders: staff, engineers (technical supervision) and executors see the order board;
+// customers see only the orders they created.
+func canSeeAllOrders(role string) bool {
+	return isStaff(role) || role == "engineer" || role == "executor" || role == "company"
+}
+
+// canModifyOrder: creator, admin/manager, engineers (technical supervision), or an executor whose company is the contractor
+func canModifyOrder(r *http.Request, o *models.Order) bool {
+	uid, role := currentUser(r)
+	if isStaff(role) || (uid != "" && o.CreatedBy == uid) {
+		return true
+	}
+	if role == "engineer" { // technical supervision works on every object
+		return true
+	}
+	if role == "executor" {
+		if u, err := database.GetUserByID(uid); err == nil && u.Company != "" && u.Company == o.Contractor {
+			return true
+		}
+	}
+	return false
+}
+
+func orderIDFromPath(path string) (int64, error) {
+	parts := strings.Split(strings.TrimRight(path, "/"), "/")
+	return strconv.ParseInt(parts[len(parts)-1], 10, 64)
+}
+
 func (h *OrdersHandler) GetOrders(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
+	uid, role := currentUser(r)
 	orders, err := database.GetAllOrders()
 	if err != nil {
 		orders = []*models.Order{}
 	}
-	_ = json.NewEncoder(w).Encode(orders)
+	if !canSeeAllOrders(role) {
+		own := make([]*models.Order, 0, len(orders))
+		for _, o := range orders {
+			if o.CreatedBy == uid {
+				own = append(own, o)
+			}
+		}
+		orders = own
+	}
+	writeJSON(w, http.StatusOK, orders)
 }
 
 func (h *OrdersHandler) CreateOrder(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-
 	var order models.Order
 	if err := json.NewDecoder(r.Body).Decode(&order); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		_ = json.NewEncoder(w).Encode(map[string]string{"error": "Неверный формат заказа"})
+		writeError(w, http.StatusBadRequest, "Неверный формат заказа")
 		return
 	}
-
-	order.ID = time.Now().UnixNano() / 1e6
-	order.CreatedAt = time.Now()
-	if order.Status == "" {
-		order.Status = "Запланировано"
+	order.Title = strings.TrimSpace(order.Title)
+	if order.Title == "" {
+		writeError(w, http.StatusBadRequest, "Укажите название заказа")
+		return
 	}
 	if order.TotalSum == 0 && len(order.EstimateItems) > 0 {
 		var sum float64
@@ -48,74 +84,130 @@ func (h *OrdersHandler) CreateOrder(w http.ResponseWriter, r *http.Request) {
 		}
 		order.TotalSum = sum
 	}
-
-	if err := database.CreateOrder(&order); err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		_ = json.NewEncoder(w).Encode(map[string]string{"error": "Ошибка создания заказа"})
+	if order.TotalSum < 0 || math.IsNaN(order.TotalSum) || math.IsInf(order.TotalSum, 0) {
+		writeError(w, http.StatusBadRequest, "Сумма заказа не может быть отрицательной")
 		return
 	}
 
-	w.WriteHeader(http.StatusCreated)
-	_ = json.NewEncoder(w).Encode(order)
+	uid, _ := currentUser(r)
+	order.CreatedBy = uid // never trust createdBy from the request body
+	order.CreatedAt = time.Now()
+	if order.Status == "" {
+		order.Status = "Запланировано"
+	}
+
+	if err := database.CreateOrder(&order); err != nil { // sets order.ID from the database
+		writeError(w, http.StatusInternalServerError, "Ошибка создания заказа")
+		return
+	}
+	writeJSON(w, http.StatusCreated, order)
 }
 
+// UpdateOrder applies a partial update: only fields present in the JSON body change.
 func (h *OrdersHandler) UpdateOrder(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-
-	pathParts := strings.Split(r.URL.Path, "/")
-	if len(pathParts) < 4 {
-		w.WriteHeader(http.StatusBadRequest)
-		_ = json.NewEncoder(w).Encode(map[string]string{"error": "ID заказа не указан"})
-		return
-	}
-
-	id, err := strconv.ParseInt(pathParts[len(pathParts)-1], 10, 64)
+	id, err := orderIDFromPath(r.URL.Path)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		_ = json.NewEncoder(w).Encode(map[string]string{"error": "Некорректный ID заказа"})
+		writeError(w, http.StatusBadRequest, "Некорректный ID заказа")
+		return
+	}
+	existing, err := database.GetOrderByID(id)
+	if err != nil {
+		writeError(w, http.StatusNotFound, "Заказ не найден")
+		return
+	}
+	if !canModifyOrder(r, existing) {
+		writeError(w, http.StatusForbidden, "Недостаточно прав для изменения этого заказа")
 		return
 	}
 
-	var updatePayload models.Order
-	if err := json.NewDecoder(r.Body).Decode(&updatePayload); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		_ = json.NewEncoder(w).Encode(map[string]string{"error": "Некорректные данные"})
+	var raw map[string]json.RawMessage
+	if err := json.NewDecoder(r.Body).Decode(&raw); err != nil {
+		writeError(w, http.StatusBadRequest, "Некорректные данные")
 		return
 	}
 
-	if len(updatePayload.EstimateItems) > 0 {
-		var total float64
-		for _, item := range updatePayload.EstimateItems {
-			total += item.Sum
+	fields := map[string]interface{}{}
+	for key, val := range raw {
+		col, ok := database.OrderPatchColumns[key]
+		if !ok {
+			continue // id, createdBy, createdAt, engineerId are not client-editable here
 		}
-		updatePayload.TotalSum = total
+		switch key {
+		case "estimateItems":
+			var items []models.EstimateItem
+			if err := json.Unmarshal(val, &items); err != nil {
+				writeError(w, http.StatusBadRequest, "Некорректные позиции сметы")
+				return
+			}
+			b, _ := json.Marshal(items)
+			fields[col] = string(b)
+			if _, hasTotal := raw["totalSum"]; !hasTotal {
+				var total float64
+				for _, it := range items {
+					total += it.Sum
+				}
+				fields["total_sum"] = total
+			}
+		case "stages":
+			var stages []models.Stage
+			if err := json.Unmarshal(val, &stages); err != nil {
+				writeError(w, http.StatusBadRequest, "Некорректные этапы")
+				return
+			}
+			b, _ := json.Marshal(stages)
+			fields[col] = string(b)
+		case "totalSum":
+			var v float64
+			if err := json.Unmarshal(val, &v); err != nil || v < 0 || math.IsNaN(v) || math.IsInf(v, 0) {
+				writeError(w, http.StatusBadRequest, "Некорректная сумма")
+				return
+			}
+			fields[col] = v
+		default:
+			var v string
+			if err := json.Unmarshal(val, &v); err != nil {
+				writeError(w, http.StatusBadRequest, "Поле "+key+" должно быть строкой")
+				return
+			}
+			if key == "title" && strings.TrimSpace(v) == "" {
+				writeError(w, http.StatusBadRequest, "Название заказа не может быть пустым")
+				return
+			}
+			fields[col] = v
+		}
 	}
 
-	if err := database.UpdateOrder(id, &updatePayload); err != nil {
-		w.WriteHeader(http.StatusNotFound)
-		_ = json.NewEncoder(w).Encode(map[string]string{"error": "Заказ не найден"})
+	if err := database.PatchOrder(id, fields); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			writeError(w, http.StatusNotFound, "Заказ не найден")
+			return
+		}
+		writeError(w, http.StatusInternalServerError, "Ошибка обновления заказа")
 		return
 	}
-
-	_ = json.NewEncoder(w).Encode(map[string]string{"message": "Заказ обновлён"})
+	updated, _ := database.GetOrderByID(id)
+	writeJSON(w, http.StatusOK, map[string]interface{}{"message": "Заказ обновлён", "order": updated})
 }
 
 func (h *OrdersHandler) DeleteOrder(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-
-	pathParts := strings.Split(r.URL.Path, "/")
-	id, err := strconv.ParseInt(pathParts[len(pathParts)-1], 10, 64)
+	id, err := orderIDFromPath(r.URL.Path)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		_ = json.NewEncoder(w).Encode(map[string]string{"error": "Некорректный ID"})
+		writeError(w, http.StatusBadRequest, "Некорректный ID")
 		return
 	}
-
+	existing, err := database.GetOrderByID(id)
+	if err != nil {
+		writeError(w, http.StatusNotFound, "Заказ не найден")
+		return
+	}
+	uid, role := currentUser(r)
+	if !isStaff(role) && existing.CreatedBy != uid {
+		writeError(w, http.StatusForbidden, "Удалить заказ может только его автор или администратор")
+		return
+	}
 	if err := database.DeleteOrder(id); err != nil {
-		w.WriteHeader(http.StatusNotFound)
-		_ = json.NewEncoder(w).Encode(map[string]string{"error": "Заказ не найден"})
+		writeError(w, http.StatusNotFound, "Заказ не найден")
 		return
 	}
-
-	_ = json.NewEncoder(w).Encode(map[string]string{"message": "Заказ успешно удален"})
+	writeJSON(w, http.StatusOK, map[string]string{"message": "Заказ успешно удален"})
 }

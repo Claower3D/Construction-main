@@ -176,7 +176,7 @@ export default function LiveAIScannerDemo() {
             className="scanner-upload-btn"
             onClick={() => fileInputRef.current?.click()}
           >
-            📤 Загрузить свой чертёж (.dwg, .pdf, .png)
+            Загрузить свой чертёж
           </button>
           <input
             type="file"
@@ -185,7 +185,7 @@ export default function LiveAIScannerDemo() {
             onChange={handleFileUpload}
             style={{ display: 'none' }}
           />
-          <span className="scanner-badge-kz">⚡ YOLOv8 + СНиП РК 2026 (&lt;1ms)</span>
+          <span className="scanner-badge-kz">Демо на образцах чертежей</span>
         </div>
       </div>
 

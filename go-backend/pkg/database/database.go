@@ -26,7 +26,7 @@ func InitDB(dbURL string) error {
 		dbURL = os.Getenv("DATABASE_URL")
 	}
 	if dbURL == "" {
-		log.Fatal("[FATAL] DATABASE_URL is not set. Please configure PostgreSQL connection string.")
+		return fmt.Errorf("DATABASE_URL is not set")
 	}
 
 	// Railway internal connections don't support SSL
@@ -64,6 +64,12 @@ func InitDB(dbURL string) error {
 
 	if err := seedCRMData(); err != nil {
 		return fmt.Errorf("CRM seed failed: %w", err)
+	}
+
+	// Seed inserts orders 101/102 with explicit ids; keep SERIAL ahead of MAX(id),
+	// otherwise the 101st order fails with a duplicate key.
+	if _, err := DB.Exec(`SELECT setval(pg_get_serial_sequence('orders','id'), GREATEST((SELECT COALESCE(MAX(id),0) FROM orders), 1))`); err != nil {
+		log.Printf("[PostgreSQL] orders sequence repair failed: %v", err)
 	}
 
 	log.Printf("✅ [PostgreSQL] Database ready")
@@ -153,6 +159,19 @@ func runMigrations() error {
 			created_at TIMESTAMP DEFAULT NOW()
 		)`,
 	}
+
+	// Idempotent column additions for existing databases (Railway prod)
+	migrations = append(migrations,
+		`ALTER TABLE orders ADD COLUMN IF NOT EXISTS engineer_id TEXT DEFAULT ''`,
+		`ALTER TABLE equipment ADD COLUMN IF NOT EXISTS price_per_hour REAL DEFAULT 0`,
+		`ALTER TABLE equipment ADD COLUMN IF NOT EXISTS owner_id TEXT DEFAULT ''`,
+		`ALTER TABLE equipment ADD COLUMN IF NOT EXISTS owner_name TEXT DEFAULT ''`,
+		`ALTER TABLE equipment ADD COLUMN IF NOT EXISTS owner_phone TEXT DEFAULT ''`,
+		`ALTER TABLE equipment ADD COLUMN IF NOT EXISTS plate_number TEXT DEFAULT ''`,
+		`ALTER TABLE equipment ADD COLUMN IF NOT EXISTS capacity TEXT DEFAULT ''`,
+		`ALTER TABLE equipment ADD COLUMN IF NOT EXISTS rating REAL DEFAULT 0`,
+		`ALTER TABLE equipment ADD COLUMN IF NOT EXISTS reviews_count INTEGER DEFAULT 0`,
+	)
 
 	for _, m := range migrations {
 		if _, err := DB.Exec(m); err != nil {
@@ -268,44 +287,110 @@ func CreateUser(u *models.User) error {
 	return err
 }
 
-// GetAllOrders returns all orders
-func GetAllOrders() ([]*models.Order, error) {
-	rows, err := DB.Query(`SELECT id,title,location,time_range,type,contractor,status,deadline,job_type,client_name,client_phone,estimate_items,total_sum,stages,created_by,created_at FROM orders ORDER BY created_at DESC`)
-	if err != nil {
+const orderColumns = `id,title,location,time_range,type,contractor,status,deadline,job_type,client_name,client_phone,estimate_items,total_sum,stages,COALESCE(engineer_id,''),created_by,created_at`
+
+type rowScanner interface {
+	Scan(dest ...interface{}) error
+}
+
+func scanOrder(sc rowScanner) (*models.Order, error) {
+	o := &models.Order{}
+	var itemsJSON, stagesJSON string
+	if err := sc.Scan(&o.ID, &o.Title, &o.Location, &o.Time, &o.Type, &o.Contractor, &o.Status, &o.Deadline, &o.JobType, &o.ClientName, &o.ClientPhone, &itemsJSON, &o.TotalSum, &stagesJSON, &o.EngineerID, &o.CreatedBy, &o.CreatedAt); err != nil {
 		return nil, err
 	}
+	_ = json.Unmarshal([]byte(itemsJSON), &o.EstimateItems)
+	_ = json.Unmarshal([]byte(stagesJSON), &o.Stages)
+	if o.EstimateItems == nil {
+		o.EstimateItems = []models.EstimateItem{}
+	}
+	if o.Stages == nil {
+		o.Stages = []models.Stage{}
+	}
+	return o, nil
+}
+
+// GetAllOrders returns all orders (never nil — an empty DB returns [])
+func GetAllOrders() ([]*models.Order, error) {
+	rows, err := DB.Query(`SELECT ` + orderColumns + ` FROM orders ORDER BY created_at DESC`)
+	if err != nil {
+		return []*models.Order{}, err
+	}
 	defer rows.Close()
-	var orders []*models.Order
+	orders := []*models.Order{}
 	for rows.Next() {
-		o := &models.Order{}
-		var itemsJSON, stagesJSON string
-		err := rows.Scan(&o.ID, &o.Title, &o.Location, &o.Time, &o.Type, &o.Contractor, &o.Status, &o.Deadline, &o.JobType, &o.ClientName, &o.ClientPhone, &itemsJSON, &o.TotalSum, &stagesJSON, &o.CreatedBy, &o.CreatedAt)
+		o, err := scanOrder(rows)
 		if err != nil {
 			continue
 		}
-		json.Unmarshal([]byte(itemsJSON), &o.EstimateItems)
-		json.Unmarshal([]byte(stagesJSON), &o.Stages)
 		orders = append(orders, o)
 	}
 	return orders, nil
 }
 
-// CreateOrder inserts a new order
+// GetOrderByID returns one order or sql.ErrNoRows
+func GetOrderByID(id int64) (*models.Order, error) {
+	return scanOrder(DB.QueryRow(`SELECT `+orderColumns+` FROM orders WHERE id=$1`, id))
+}
+
+// CreateOrder inserts a new order and sets o.ID to the id assigned by the database
 func CreateOrder(o *models.Order) error {
 	itemsJSON, _ := json.Marshal(o.EstimateItems)
 	stagesJSON, _ := json.Marshal(o.Stages)
-	_, err := DB.Exec(`INSERT INTO orders (title,location,time_range,type,contractor,status,deadline,job_type,client_name,client_phone,estimate_items,total_sum,stages,created_by,created_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)`,
-		o.Title, o.Location, o.Time, o.Type, o.Contractor, o.Status, o.Deadline, o.JobType, o.ClientName, o.ClientPhone, string(itemsJSON), o.TotalSum, string(stagesJSON), o.CreatedBy, o.CreatedAt)
-	return err
+	return DB.QueryRow(`INSERT INTO orders (title,location,time_range,type,contractor,status,deadline,job_type,client_name,client_phone,estimate_items,total_sum,stages,created_by,created_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) RETURNING id`,
+		o.Title, o.Location, o.Time, o.Type, o.Contractor, o.Status, o.Deadline, o.JobType, o.ClientName, o.ClientPhone, string(itemsJSON), o.TotalSum, string(stagesJSON), o.CreatedBy, o.CreatedAt).Scan(&o.ID)
 }
 
-// UpdateOrder updates an existing order
-func UpdateOrder(id int64, o *models.Order) error {
-	itemsJSON, _ := json.Marshal(o.EstimateItems)
-	stagesJSON, _ := json.Marshal(o.Stages)
-	_, err := DB.Exec(`UPDATE orders SET title=$1,status=$2,contractor=$3,estimate_items=$4,total_sum=$5,stages=$6 WHERE id=$7`,
-		o.Title, o.Status, o.Contractor, string(itemsJSON), o.TotalSum, string(stagesJSON), id)
-	return err
+// OrderPatchColumns maps JSON field names accepted by PATCH/PUT to DB columns
+var OrderPatchColumns = map[string]string{
+	"title": "title", "location": "location", "time": "time_range", "type": "type",
+	"contractor": "contractor", "status": "status", "deadline": "deadline", "jobType": "job_type",
+	"clientName": "client_name", "clientPhone": "client_phone", "estimateItems": "estimate_items",
+	"totalSum": "total_sum", "stages": "stages",
+}
+
+// PatchOrder updates only the provided columns. Returns sql.ErrNoRows if the order does not exist.
+func PatchOrder(id int64, fields map[string]interface{}) error {
+	if len(fields) == 0 {
+		if _, err := GetOrderByID(id); err != nil {
+			return err
+		}
+		return nil
+	}
+	sets := make([]string, 0, len(fields))
+	args := make([]interface{}, 0, len(fields)+1)
+	for col, val := range fields {
+		args = append(args, val)
+		sets = append(sets, fmt.Sprintf("%s=$%d", col, len(args)))
+	}
+	args = append(args, id)
+	res, err := DB.Exec(fmt.Sprintf(`UPDATE orders SET %s WHERE id=$%d`, strings.Join(sets, ","), len(args)), args...)
+	if err != nil {
+		return err
+	}
+	if n, _ := res.RowsAffected(); n == 0 {
+		return sql.ErrNoRows
+	}
+	return nil
+}
+
+// AssignEngineer links an engineer to an order
+func AssignEngineer(orderID int64, engineerID string) error {
+	var exists bool
+	if err := DB.QueryRow(`SELECT EXISTS(SELECT 1 FROM engineers WHERE id=$1)`, engineerID).Scan(&exists); err != nil {
+		return err
+	}
+	if !exists {
+		return fmt.Errorf("engineer not found")
+	}
+	res, err := DB.Exec(`UPDATE orders SET engineer_id=$1 WHERE id=$2`, engineerID, orderID)
+	if err != nil {
+		return err
+	}
+	if n, _ := res.RowsAffected(); n == 0 {
+		return sql.ErrNoRows
+	}
+	return nil
 }
 
 // DeleteOrder removes an order
@@ -334,17 +419,67 @@ func GetBalance(userID string) (balance, escrow float64) {
 
 // UpdateBalance atomically updates balance
 func UpdateBalance(userID string, delta float64) error {
-	_, err := DB.Exec(`INSERT INTO balances (user_id, balance, escrow_locked) VALUES ($1, 100000 + $2, 0)
-		ON CONFLICT(user_id) DO UPDATE SET balance = balances.balance + $3`, userID, delta, delta)
+	_, err := DB.Exec(`INSERT INTO balances (user_id, balance, escrow_locked) VALUES ($1, 100000 + $2::double precision, 0)
+		ON CONFLICT(user_id) DO UPDATE SET balance = balances.balance + $2::double precision`, userID, delta)
 	return err
 }
 
 // UpdateEscrow atomically updates escrow
 func UpdateEscrow(userID string, delta float64) error {
-	_, err := DB.Exec(`INSERT INTO balances (user_id, balance, escrow_locked) VALUES ($1, 100000, $2)
-		ON CONFLICT(user_id) DO UPDATE SET escrow_locked = CASE WHEN balances.escrow_locked + $3 < 0 THEN 0 ELSE balances.escrow_locked + $4 END`,
-		userID, delta, delta, delta)
+	_, err := DB.Exec(`INSERT INTO balances (user_id, balance, escrow_locked) VALUES ($1, 100000, GREATEST($2::double precision, 0))
+		ON CONFLICT(user_id) DO UPDATE SET escrow_locked = GREATEST(balances.escrow_locked + $2::double precision, 0)`,
+		userID, delta)
 	return err
+}
+
+// LockEscrowAtomic reserves amount only if available (balance - escrow) covers it.
+// Single UPDATE — concurrent requests cannot double-spend.
+func LockEscrowAtomic(userID string, amount float64) (bool, error) {
+	GetBalance(userID) // ensure row exists
+	res, err := DB.Exec(`UPDATE balances SET escrow_locked = escrow_locked + $2::double precision
+		WHERE user_id=$1 AND balance - escrow_locked >= $2::double precision`, userID, amount)
+	if err != nil {
+		return false, err
+	}
+	n, _ := res.RowsAffected()
+	return n == 1, nil
+}
+
+// ReleaseEscrowAtomic moves amount from the payer's escrow to the payee's balance in one transaction.
+// Fails (false) if the payer's escrow is smaller than amount.
+func ReleaseEscrowAtomic(fromUserID, toUserID string, amount float64) (bool, error) {
+	tx, err := DB.Begin()
+	if err != nil {
+		return false, err
+	}
+	defer tx.Rollback()
+	res, err := tx.Exec(`UPDATE balances SET balance = balance - $2::double precision, escrow_locked = escrow_locked - $2::double precision
+		WHERE user_id=$1 AND escrow_locked >= $2::double precision`, fromUserID, amount)
+	if err != nil {
+		return false, err
+	}
+	if n, _ := res.RowsAffected(); n != 1 {
+		return false, nil
+	}
+	if _, err := tx.Exec(`INSERT INTO balances (user_id, balance, escrow_locked) VALUES ($1, 100000 + $2::double precision, 0)
+		ON CONFLICT(user_id) DO UPDATE SET balance = balances.balance + $2::double precision`, toUserID, amount); err != nil {
+		return false, err
+	}
+	return true, tx.Commit()
+}
+
+// UserExists reports whether a user id is registered
+func UserExists(id string) bool {
+	var ok bool
+	_ = DB.QueryRow(`SELECT EXISTS(SELECT 1 FROM users WHERE id=$1)`, id).Scan(&ok)
+	return ok
+}
+
+// CountTables returns the number of tables in the public schema
+func CountTables() int {
+	n := 0
+	_ = DB.QueryRow(`SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='public'`).Scan(&n)
+	return n
 }
 
 // AddTransaction records a financial transaction
@@ -354,14 +489,20 @@ func AddTransaction(tx *models.Transaction) error {
 	return err
 }
 
-// GetTransactions returns all transactions
-func GetTransactions() ([]*models.Transaction, error) {
-	rows, err := DB.Query(`SELECT id,user_id,amount,type,method,status,created_at FROM transactions ORDER BY created_at DESC`)
+// GetTransactions returns transactions; userID != "" limits them to one user
+func GetTransactions(userID string) ([]*models.Transaction, error) {
+	var rows *sql.Rows
+	var err error
+	if userID != "" {
+		rows, err = DB.Query(`SELECT id,user_id,amount,type,method,status,created_at FROM transactions WHERE user_id=$1 ORDER BY created_at DESC`, userID)
+	} else {
+		rows, err = DB.Query(`SELECT id,user_id,amount,type,method,status,created_at FROM transactions ORDER BY created_at DESC`)
+	}
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var txs []*models.Transaction
+	txs := []*models.Transaction{}
 	for rows.Next() {
 		t := &models.Transaction{}
 		rows.Scan(&t.ID, &t.UserID, &t.Amount, &t.Type, &t.Method, &t.Status, &t.CreatedAt)
@@ -390,7 +531,7 @@ func GetChatMessages(orderID string) ([]*models.ChatMessage, error) {
 		return nil, err
 	}
 	defer rows.Close()
-	var msgs []*models.ChatMessage
+	msgs := []*models.ChatMessage{}
 	for rows.Next() {
 		m := &models.ChatMessage{}
 		rows.Scan(&m.ID, &m.OrderID, &m.SenderID, &m.SenderName, &m.SenderRole, &m.Text, &m.CreatedAt)

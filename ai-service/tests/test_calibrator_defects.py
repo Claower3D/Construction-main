@@ -365,43 +365,34 @@ class TestVolumeBreakdown:
             pytest.skip("VolumeCalculator not available")
 
     def test_trench_volume(self):
-        """Trench volume = length × width × depth."""
-        try:
-            from app.services.volume import VolumeCalculator
-            vol = VolumeCalculator()
-            result = vol.volume_breakdown(
-                length=10, width=2, depth=1.5,
-                soil_type="clay",
-            )
-            assert result["excavation_m3"] == pytest.approx(30.0, rel=0.01)
-            assert "weight_kg" in result or "total_weight_tons" in result
-        except (ImportError, AttributeError):
-            pytest.skip("VolumeCalculator.volume_breakdown not available")
+        """Trench breakdown: excavation (with soil-dependent wall slopes) <= L×W×D, parts are consistent."""
+        from app.services.volume import VolumeCalculator
+        vol = VolumeCalculator()
+        result = vol.volume_breakdown("trench", width_m=2, height_m=10, depth_m=1.5, soil_type="clay")
+        expected = vol.trench_volume(length=10, width=2, depth=1.5, soil_type="clay")
+        assert result["excavation_m3"] == pytest.approx(expected, rel=0.01)
+        assert 0 < result["excavation_m3"] <= 30.0  # с откосами меньше, чем вертикальные стенки 10×2×1.5
+        assert result["backfill_m3"] + result["leftover_m3"] <= result["excavation_m3"] + 1e-6
+        assert result["weight"]["weight_tonnes"] >= 0
 
     def test_material_weight_estimate(self):
         """Material weight should use soil density coefficient."""
-        try:
-            from app.services.volume import VolumeCalculator
-            vol = VolumeCalculator()
-            result = vol.material_weight_estimate(
-                volume_m3=10, soil_type="sand",
-            )
-            assert result["weight_tons"] > 0
-            assert result["kamaz_count"] >= 1
-        except (ImportError, AttributeError):
-            pytest.skip("material_weight_estimate not available")
+        from app.services.volume import VolumeCalculator
+        vol = VolumeCalculator()
+        result = vol.material_weight_estimate(volume_m3=10, material="sand")
+        assert result["density_kg_m3"] == vol.SOIL_DENSITY["sand"]
+        assert result["weight_tonnes"] == pytest.approx(10 * vol.SOIL_DENSITY["sand"] / 1000)
+        assert result["trucks_10t"] >= 1
 
     def test_soil_density_knowledge_base(self):
         """SOIL_DENSITY should have common soil types."""
-        try:
-            from app.services.volume import SOIL_DENSITY
-            assert "sand" in SOIL_DENSITY
-            assert "clay" in SOIL_DENSITY
-            assert "gravel" in SOIL_DENSITY
-            for soil, density in SOIL_DENSITY.items():
-                assert density > 0, f"Invalid density for {soil}"
-        except ImportError:
-            pytest.skip("SOIL_DENSITY not importable")
+        from app.services.volume import VolumeCalculator
+        SOIL_DENSITY = VolumeCalculator.SOIL_DENSITY  # атрибут класса, а не модуля
+        assert "sand" in SOIL_DENSITY
+        assert "clay" in SOIL_DENSITY
+        assert "gravel" in SOIL_DENSITY
+        for soil, density in SOIL_DENSITY.items():
+            assert density > 0, f"Invalid density for {soil}"
 
 
 if __name__ == "__main__":

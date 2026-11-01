@@ -11,7 +11,8 @@ import time
 from typing import Optional, List, Dict, Any
 import numpy as np
 
-from fastapi import APIRouter, File, UploadFile, Query, HTTPException, Depends
+from fastapi import APIRouter, File, UploadFile, Query, HTTPException, Depends, Request
+from fastapi.concurrency import run_in_threadpool
 from pydantic import BaseModel
 from PIL import Image
 from loguru import logger
@@ -21,6 +22,9 @@ from app.services.pipeline import create_pipeline
 from app.models.rfdetr import get_rfdetr  # for /detect and /classes
 from app.services.estimator import search_items, get_price, _load_price_db
 from app.api.v1.jwt_auth import get_current_user, get_optional_user
+from app.api.uploads import (
+    read_upload_limited, decode_image_with_size, read_image_upload, read_image_upload_with_size,
+)
 
 try:
     from app.services.photo3d_service import get_photo3d_service
@@ -191,63 +195,20 @@ async def analyze_image(
     # Log authenticated user
     logger.info(f"📸 Analyze request from user={user.get('uid', '?')} ({user.get('name', '')})")
 
-    # Validate file
-    if not file.content_type or not file.content_type.startswith("image/"):
-        raise HTTPException(400, "File must be an image")
+    # Read with size limit (413), decode with format/pixel checks (400/413/415)
+    contents = await read_upload_limited(file, settings.MAX_UPLOAD_IMAGE_SIZE, what="Изображение")
+    pil_img, (w, h) = decode_image_with_size(contents, max_side=settings.MAX_IMAGE_SIZE)
+    if min(h, w) < settings.MIN_IMAGE_SIZE:
+        raise HTTPException(
+            400, f"Image too small ({w}x{h}). Minimum dimension: {settings.MIN_IMAGE_SIZE}px"
+        )
+    logger.info(f"Image validated: {w}x{h}, {len(contents)//1024}KB")
+    image_np = np.array(pil_img)
 
-    # Read and validate image
-    try:
-        contents = await file.read()
-
-        # A4: File size validation
-        if len(contents) > settings.MAX_UPLOAD_IMAGE_SIZE:
-            max_mb = settings.MAX_UPLOAD_IMAGE_SIZE // (1024 * 1024)
-            raise HTTPException(413, f"Image too large (max {max_mb}MB, got {len(contents) // (1024*1024)}MB)")
-
-        # A4: Magic bytes validation (don't trust Content-Type header)
-        MAGIC_BYTES = {
-            b'\xff\xd8': "image/jpeg",      # JPEG
-            b'\x89P': "image/png",           # PNG
-            b'RIFF': "image/webp",           # WebP
-        }
-        detected_type = None
-        for magic, mime in MAGIC_BYTES.items():
-            if contents[:len(magic)] == magic:
-                detected_type = mime
-                break
-        if detected_type is None:
-            raise HTTPException(415, "Unsupported image format. Allowed: JPEG, PNG, WebP")
-
-        pil_img = Image.open(io.BytesIO(contents))
-        if pil_img.mode != "RGB":
-            pil_img = pil_img.convert("RGB")
-
-        h, w = pil_img.height, pil_img.width
-
-        # A4: Minimum resolution check
-        if min(h, w) < settings.MIN_IMAGE_SIZE:
-            raise HTTPException(
-                400,
-                f"Image too small ({w}x{h}). Minimum dimension: {settings.MIN_IMAGE_SIZE}px"
-            )
-
-        logger.info(f"Image validated: {w}x{h}, {len(contents)//1024}KB, type={detected_type}")
-
-        # Resize if too large
-        if max(h, w) > settings.MAX_IMAGE_SIZE:
-            scale = settings.MAX_IMAGE_SIZE / max(h, w)
-            pil_img = pil_img.resize((int(w * scale), int(h * scale)), Image.LANCZOS)
-
-        image_np = np.array(pil_img)
-    except HTTPException:
-        raise  # Re-raise our validation errors
-    except Exception as exc:
-        logger.error(f"Failed to read image: {exc}")
-        raise HTTPException(400, f"Invalid image file: {exc}")
-
-    # ── Run full pipeline v3.0 ───────────────────────────────────────────────
+    # ── Run full pipeline v3.0 (CPU/GPU heavy → threadpool, не блокируем event loop) ──
     pipeline = create_pipeline(region=region)
-    result = pipeline.run(
+    result = await run_in_threadpool(
+        pipeline.run,
         image=image_np,
         confidence=confidence,
         reference_object=reference_object,
@@ -299,150 +260,88 @@ async def analyze_image(
     return result
 
 
+@router.post("/analyze/intent")
+async def analyze_intent(request: Request) -> Dict[str, Any]:
+    """
+    Упрощённый анализ для Telegram-бота (app/bot.py): фото + описание → объекты и смета.
+
+    multipart/form-data: file (фото), description, category, region.
+    JSON без фото → 422: текстовый расчёт бот выполняет локально (_fallback_estimate).
+    Ответ в формате, который ожидает bot._format_estimate_result().
+    """
+    ctype = request.headers.get("content-type", "")
+    upload = None
+    if ctype.startswith("multipart/form-data"):
+        form = await request.form()
+        upload = form.get("file")
+        description = str(form.get("description") or "")[:500]
+        region = str(form.get("region") or "almaty")[:40]
+        category = str(form.get("category") or "")[:40]
+    else:
+        try:
+            body = await request.json()
+        except Exception:
+            raise HTTPException(400, "Ожидается multipart/form-data с полем file или JSON")
+        if not isinstance(body, dict):
+            raise HTTPException(400, "Ожидается JSON-объект")
+        description = str(body.get("description") or "")[:500]
+        region = str(body.get("region") or "almaty")[:40]
+        category = str(body.get("category") or "")[:40]
+
+    if upload is None or not hasattr(upload, "read"):
+        raise HTTPException(
+            422, "Для AI-анализа нужно фото (multipart, поле file). Расчёт по тексту выполняется без AI-сервиса."
+        )
+
+    image_np = await read_image_upload(upload, max_side=settings.MAX_IMAGE_SIZE)
+    pipeline = create_pipeline(region=region)
+    result = await run_in_threadpool(
+        pipeline.run, image=image_np, calculate_depth=False, custom_text_prompt=description or None,
+    )
+
+    items = []
+    for it in result.get("estimate_items") or []:
+        items.append({
+            "name": it.get("work_name") or it.get("name") or it.get("work_code", ""),
+            "category": it.get("category") or ("material" if it.get("type") == "material" else "work"),
+            "total": float(it.get("total_price") or it.get("total") or 0),
+        })
+    return {
+        "success": True,
+        "is_mock": bool(result.get("is_mock")),
+        "category": category,
+        "region": region,
+        "detections": [
+            {"label": d.get("class_name"), "confidence": d.get("confidence", 0)}
+            for d in (result.get("detected_objects") or [])
+        ],
+        "estimate_items": items,
+        "estimate_total": float(result.get("estimate_total") or 0),
+        "confidence": float(result.get("estimate_confidence") or 0),
+        "warnings": result.get("warnings", []),
+    }
+
+
 @router.post("/defect-scan")
 async def defect_scan(
     file: UploadFile = File(..., description="Photo to scan for defects"),
-    sensitivity: float = Query(0.65, ge=0.1, le=1.0, description="Detection sensitivity (0.1=low, 1.0=high)"),
-    prompt: Optional[str] = Query(None, description="User prompt describing specific defects or inspection target"),
+    sensitivity: float = Query(
+        0.65, ge=0.1, le=1.0,
+        description="Чувствительность 0.1…1.0: 0.5–0.65 = откалиброванный порог модели, выше — больше находок",
+    ),
+    prompt: Optional[str] = Query(None, max_length=500, description="Подсказка (используется только внешним детектором Roboflow)"),
 ) -> Dict[str, Any]:
     """
-    Scan photo for construction defects.
+    Сканирование фото на строительные дефекты.
+
+    Детекторы: обученная YOLO-модель (основной) → Roboflow (если YOLO недоступна и задан ключ)
+    → эвристический CV-сканер (fallback). Ответ содержит аннотированное изображение,
+    список дефектов (bbox в пикселях исходного фото), метод устранения и оценку стоимости.
     """
-    try:
-        contents = await file.read()
-        pil_img = Image.open(io.BytesIO(contents))
-        if pil_img.mode != "RGB":
-            pil_img = pil_img.convert("RGB")
-        
-        # Limit size for speed
-        h, w = pil_img.height, pil_img.width
-        if max(h, w) > 1600:
-            scale = 1600 / max(h, w)
-            pil_img = pil_img.resize((int(w * scale), int(h * scale)), Image.LANCZOS)
-        
-        image_np = np.array(pil_img)
-    except Exception as exc:
-        raise HTTPException(400, f"Invalid image file: {exc}")
-    
-    result = None
-    yolo_defects = []
-    
-    # Step 1: Check Direct Roboflow Inference first
-    from app.models.roboflow_detector import get_roboflow_detector
-    rf_detector = get_roboflow_detector()
-    rf_defects = []
-    if rf_detector.is_configured():
-        rf_defects = rf_detector.infer(image_np, confidence=sensitivity * 0.5, prompt=prompt)
+    from app.services.defect_scan import run_defect_scan
 
-    # Step 2: Dynamic CV / Deep Feature Analysis
-    from app.services.cv_defect_scanner import scan_defects, _draw_annotations
-    cv_result = scan_defects(image_np, sensitivity=sensitivity)
-    
-    if rf_defects:
-        all_defects = rf_defects
-        logger.info(f"[DefectScan] Using {len(rf_defects)} defects directly from Roboflow model")
-        # Draw on image with solid ring
-        annotated_mat = _draw_annotations(image_np.copy(), all_defects)
-        pil_out = Image.fromarray(annotated_mat)
-        buf = io.BytesIO()
-        pil_out.save(buf, format="JPEG", quality=92)
-        annotated_b64 = f"data:image/jpeg;base64,{base64.b64encode(buf.getvalue()).decode()}"
-    else:
-        all_defects = list(cv_result["defects"])
-        annotated_b64 = cv_result["annotated_image"]
-
-    sev_order = {"critical": 4, "high": 3, "medium": 2, "low": 1}
-    structure_zones = cv_result.get("structure_zones", [])
-
-    # Build summary
-    sev_counts = {}
-    for d in all_defects:
-        s = d["severity"]
-        sev_counts[s] = sev_counts.get(s, 0) + 1
-    max_sev = max(sev_counts.keys(), key=lambda s: sev_order.get(s, 0)) if sev_counts else "low"
-
-    result = {
-        "defects": all_defects,
-        "structure_zones": structure_zones,
-        "annotated_image": annotated_b64,
-        "severity_summary": {"total": len(all_defects), "by_severity": sev_counts, "max_severity": max_sev},
-    }
-    
-    # Format response
-    defect_items = result["defects"]
-    sev_summary = result["severity_summary"]
-    
-    # Build text report
-    if defect_items:
-        primary = defect_items[0]
-        defect_type = primary["type"]
-        severity_map = {
-            "critical": "5 класс — КРИТИЧЕСКИЙ (аварийный)",
-            "high": "4 класс — Высокий риск",
-            "medium": "3 класс — Требует устранения",
-            "low": "2 класс — Незначительный",
-        }
-        severity_text = severity_map.get(primary["severity"], "3 класс — Требует устранения")
-    else:
-        defect_type = "Дефектов не обнаружено"
-        severity_text = "Норма"
-    
-    raw_response = {
-        "success": True,
-        "defectType": defect_type,
-        "severity": severity_text,
-        "snipCode": "СНиП РК 3.02-04-2019 / СП РК 1.03-106-2012",
-        "fixMethod": _get_fix_method(defect_type),
-        "estimatedCost": _estimate_cost(defect_items),
-        "workDays": max(1, len(defect_items)),
-        "defect_annotated_image": result["annotated_image"],
-        "stress_heatmap_image": cv_result.get("stress_heatmap_image"),
-        "skeleton_image": cv_result.get("skeleton_image"),
-        "defect_severity_summary": sev_summary,
-        "structure_zones": structure_zones,
-        "defects": {
-            "items": defect_items,
-            "total": len(defect_items),
-        },
-    }
-
-    # Convert all numpy types to standard JSON-serializable Python types
-    def _sanitize(o):
-        if isinstance(o, (np.integer, np.int32, np.int64)):
-            return int(o)
-        if isinstance(o, (np.floating, np.float32, np.float64)):
-            return float(o)
-        if isinstance(o, (np.ndarray, list, tuple)):
-            return [_sanitize(x) for x in o]
-        if isinstance(o, dict):
-            return {k: _sanitize(v) for k, v in o.items()}
-        return o
-
-    return _sanitize(raw_response)
-
-
-def _get_fix_method(defect_type: str) -> str:
-    methods = {
-        "Трещина": "Расшивка трещины на глубину 10 мм, обеспыливание, грунтовка глубокого проникновения, армирование серпянкой и шпатлевание полимерцементным составом.",
-        "Глубокое повреждение": "Демонтаж повреждённого участка, восстановление армокаркаса, заливка ремонтным составом повышенной прочности.",
-        "Коррозия / ржавчина": "Зачистка коррозии до чистого металла, обработка преобразователем ржавчины, нанесение антикоррозийного грунта и защитного покрытия.",
-        "Биопоражение / плесень": "Обработка фунгицидным составом, сушка, нанесение антисептической грунтовки и защитного слоя.",
-        "Отслоение / сколы": "Удаление отслоившегося материала, обеспыливание, грунтовка контактная, восстановление ремонтной смесью.",
-        "Дефект поверхности": "Локальный ремонт с применением сертифицированных ремонтных смесей.",
-    }
-    return methods.get(defect_type, methods["Дефект поверхности"])
-
-
-def _estimate_cost(defects: List) -> str:
-    if not defects:
-        return "0 ₸"
-    base = 0
-    for d in defects:
-        sev_cost = {"critical": 80000, "high": 50000, "medium": 30000, "low": 15000}
-        base += sev_cost.get(d["severity"], 30000)
-    low = int(base * 0.8)
-    high = int(base * 1.3)
-    return f"{low:,} – {high:,} ₸".replace(",", " ")
+    image_np, orig_size = await read_image_upload_with_size(file, max_side=1600)
+    return await run_in_threadpool(run_defect_scan, image_np, orig_size, sensitivity, prompt)
 
 
 @router.post("/detect")
@@ -457,24 +356,32 @@ async def detect_only(
     Faster than full analysis, returns only bounding boxes.
     """
     start_time = time.time()
-    
-    # Read image
-    contents = await file.read()
-    image = Image.open(io.BytesIO(contents)).convert("RGB")
-    image_np = np.array(image)
-    
+
+    image_np = await read_image_upload(file, max_side=settings.MAX_IMAGE_SIZE)
+
     # Run RF-DETR detection (fast path — no SAM/Qwen)
     detector = get_rfdetr()
-    detections = detector.detect(image_np, confidence=confidence)
-    
-    processing_time = int((time.time() - start_time) * 1000)
-    
-    return {
+    detections = await run_in_threadpool(detector.detect, image_np, confidence=confidence)
+    objects = [d.to_dict() for d in detections]
+    if classes:
+        wanted = {c.strip() for c in classes.split(",") if c.strip()}
+        objects = [o for o in objects if o.get("class_name") in wanted]
+
+    is_mock = bool(getattr(detector, "_mock_mode", False))
+    resp: Dict[str, Any] = {
         "success": True,
-        "objects": [d.to_dict() for d in detections],
-        "count": len(detections),
-        "processing_time_ms": processing_time
+        "is_mock": is_mock,
+        "objects": objects,
+        "count": len(objects),
+        "processing_time_ms": int((time.time() - start_time) * 1000),
     }
+    if is_mock:
+        for o in objects:
+            o["mock"] = True
+        resp["warnings"] = [
+            "ДЕМО-РЕЖИМ: детектор RF-DETR не загружен — объекты сгенерированы заглушкой и не отражают фото."
+        ]
+    return resp
 
 
 @router.get("/classes")
@@ -502,11 +409,11 @@ async def analyze_3d(
         description="3-10 photos of construction object from different angles"
     ),
     scale_hint: Optional[float] = Query(
-        None,
+        None, gt=0, le=10,
         description="Known scale factor (meters/pixel). If not provided, ArUco detection or heuristic is used."
     ),
     marker_size_m: Optional[float] = Query(
-        0.15,
+        0.15, gt=0, le=5,
         description="ArUco marker side length in meters (default 15cm)"
     ),
 ) -> Dict[str, Any]:
@@ -525,43 +432,33 @@ async def analyze_3d(
     if len(files) > 15:
         raise HTTPException(400, "Maximum 15 photos allowed")
 
-    # Read and decode images
+    # Read and decode images (each with size / pixel limits)
     images = []
     warnings = []
     for i, f in enumerate(files):
-        if not f.content_type or not f.content_type.startswith("image/"):
-            warnings.append(f"File {i}: skipped (not an image)")
-            continue
         try:
-            # Read directly into PIL (avoids double RAM allocation)
-            pil_img = Image.open(f.file).convert("RGB")
-
-            # Resize if too large
-            h, w = pil_img.height, pil_img.width
-            max_dim = 1600
-            if max(h, w) > max_dim:
-                scale = max_dim / max(h, w)
-                pil_img = pil_img.resize(
-                    (int(w * scale), int(h * scale)), Image.LANCZOS
-                )
-
-            images.append(np.array(pil_img))
-        except Exception as exc:
-            warnings.append(f"File {i} ({f.filename}): failed to read — {exc}")
+            images.append(await read_image_upload(f, max_side=1600))
+        except HTTPException as exc:
+            if exc.status_code == 413:
+                raise
+            warnings.append(f"File {i} ({f.filename}): skipped — {exc.detail}")
 
     if len(images) < 2:
         raise HTTPException(400, f"Need at least 2 valid images, got {len(images)}")
 
     logger.info(f"[API] analyze-3d: {len(images)} valid photos received")
 
-    # Run SfM pipeline
+    # Run SfM pipeline (heavy → threadpool)
     service = get_photo3d_service()
-    result = service.analyze_images(images, scale_hint=scale_hint)
+    result = await run_in_threadpool(service.analyze_images, images, scale_hint=scale_hint)
 
     processing_time = int((time.time() - start_time) * 1000)
 
     result["processing_time_ms"] = processing_time
     result["num_images_received"] = len(images)
+    result["is_mock"] = result.get("method") == "mock"
+    if result["is_mock"]:
+        warnings.insert(0, "ДЕМО-РЕЖИМ: модуль photo3d недоступен — размеры сгенерированы заглушкой и не отражают фото.")
     if warnings:
         result.setdefault("warnings", []).extend(warnings)
 

@@ -228,18 +228,6 @@ export const ESTIMATE_TEMPLATES = {
     ]
   },
 
-  stairs: {
-    title: 'Лестницы и балконы',
-    items: [
-      { group: 'Лестница', name: 'Устройство бетонной лестницы', unit: 'п.м', baseQtyPer: 0.1, unitPrice: 40000, isMaterial: false },
-      { group: 'Лестница', name: 'Облицовка ступеней плиткой', unit: 'м²', baseQtyPer: 0.3, unitPrice: 6000, isMaterial: false },
-      { group: 'Лестница', name: 'Керамогранит для ступеней', unit: 'м²', baseQtyPer: 0.33, unitPrice: 9500, isMaterial: true, marketplaceCategory: 'flooring' },
-      { group: 'Ограждение', name: 'Установка перил', unit: 'п.м', baseQtyPer: 0.15, unitPrice: 14000, isMaterial: false },
-      { group: 'Ограждение', name: 'Перила металлические', unit: 'п.м', baseQtyPer: 0.15, unitPrice: 28000, isMaterial: true, marketplaceCategory: 'metal' },
-      { group: 'Балкон', name: 'Остекление балкона', unit: 'м²', baseQtyPer: 0.2, unitPrice: 20000, isMaterial: false },
-      { group: 'Балкон', name: 'Утепление балкона', unit: 'м²', baseQtyPer: 0.2, unitPrice: 5000, isMaterial: false },
-    ]
-  },
 
   // ──────────── ИНЖЕНЕРИЯ ────────────
   electric: {
@@ -304,130 +292,16 @@ export const ESTIMATE_TEMPLATES = {
     ]
   },
 
-  gas: {
-    title: 'Газоснабжение',
-    items: [
-      { group: 'Проект', name: 'Проектирование газоснабжения', unit: 'компл', baseQtyPer: 0.003, unitPrice: 210000, isMaterial: false },
-      { group: 'Трубы', name: 'Прокладка газопровода', unit: 'п.м', baseQtyPer: 0.3, unitPrice: 9500, isMaterial: false },
-      { group: 'Трубы', name: 'Труба газовая стальная', unit: 'п.м', baseQtyPer: 0.32, unitPrice: 4200, isMaterial: true },
-      { group: 'Оборудование', name: 'Установка газового счётчика', unit: 'шт', baseQtyPer: 0.005, unitPrice: 14000, isMaterial: false },
-      { group: 'Оборудование', name: 'Счётчик газовый', unit: 'шт', baseQtyPer: 0.005, unitPrice: 42000, isMaterial: true },
-      { group: 'Врезка', name: 'Врезка в газопровод', unit: 'шт', baseQtyPer: 0.003, unitPrice: 95000, isMaterial: false },
-    ]
-  },
 
-  automation: {
-    title: 'Автоматизация и слаботочные',
-    items: [
-      { group: 'СКС', name: 'Прокладка кабеля UTP Cat6', unit: 'п.м', baseQtyPer: 0.5, unitPrice: 400, isMaterial: false },
-      { group: 'СКС', name: 'Кабель UTP Cat6', unit: 'п.м', baseQtyPer: 0.55, unitPrice: 300, isMaterial: true, marketplaceCategory: 'electric' },
-      { group: 'Видеонаблюдение', name: 'Установка камеры', unit: 'шт', baseQtyPer: 0.02, unitPrice: 6500, isMaterial: false },
-      { group: 'Видеонаблюдение', name: 'IP-камера 2Мп', unit: 'шт', baseQtyPer: 0.02, unitPrice: 28000, isMaterial: true },
-      { group: 'Видеонаблюдение', name: 'Видеорегистратор 4-кан.', unit: 'шт', baseQtyPer: 0.003, unitPrice: 72000, isMaterial: true },
-      { group: 'Домофон', name: 'Установка домофона', unit: 'компл', baseQtyPer: 0.005, unitPrice: 14000, isMaterial: false },
-      { group: 'Домофон', name: 'Домофон видео', unit: 'компл', baseQtyPer: 0.005, unitPrice: 52000, isMaterial: true },
-    ]
-  },
 
-  fire_safety: {
-    title: 'Пожарная безопасность',
-    items: [
-      { group: 'Сигнализация', name: 'Монтаж пожарных извещателей', unit: 'шт', baseQtyPer: 0.04, unitPrice: 4000, isMaterial: false },
-      { group: 'Сигнализация', name: 'Извещатель дымовой', unit: 'шт', baseQtyPer: 0.04, unitPrice: 5200, isMaterial: true },
-      { group: 'Сигнализация', name: 'Монтаж приёмного прибора', unit: 'шт', baseQtyPer: 0.003, unitPrice: 18000, isMaterial: false },
-      { group: 'Сигнализация', name: 'Прибор приёмно-контрольный', unit: 'шт', baseQtyPer: 0.003, unitPrice: 52000, isMaterial: true },
-      { group: 'Кабель', name: 'Прокладка огнестойкого кабеля', unit: 'п.м', baseQtyPer: 0.5, unitPrice: 500, isMaterial: false },
-      { group: 'Кабель', name: 'Кабель огнестойкий КПСнг', unit: 'п.м', baseQtyPer: 0.55, unitPrice: 450, isMaterial: true },
-      { group: 'Средства', name: 'Огнетушитель ОП-5', unit: 'шт', baseQtyPer: 0.01, unitPrice: 9500, isMaterial: true },
-    ]
-  },
 
-  external_nets: {
-    title: 'Наружные сети',
-    items: [
-      { group: 'Водоснабжение', name: 'Прокладка водопровода ПЭ d32', unit: 'п.м', baseQtyPer: 0.3, unitPrice: 7500, isMaterial: false },
-      { group: 'Водоснабжение', name: 'Труба ПЭ 100 d32', unit: 'п.м', baseQtyPer: 0.32, unitPrice: 1400, isMaterial: true, marketplaceCategory: 'water' },
-      { group: 'Канализация', name: 'Прокладка канализации d110', unit: 'п.м', baseQtyPer: 0.2, unitPrice: 9500, isMaterial: false },
-      { group: 'Канализация', name: 'Труба канализ. наружная d110', unit: 'п.м', baseQtyPer: 0.22, unitPrice: 2200, isMaterial: true, marketplaceCategory: 'sewer' },
-      { group: 'Колодцы', name: 'Устройство смотрового колодца', unit: 'шт', baseQtyPer: 0.003, unitPrice: 95000, isMaterial: false },
-      { group: 'Электрика', name: 'Прокладка кабеля в траншее', unit: 'п.м', baseQtyPer: 0.2, unitPrice: 4000, isMaterial: false },
-      { group: 'Электрика', name: 'Кабель ВВГнг 4x10', unit: 'п.м', baseQtyPer: 0.22, unitPrice: 3200, isMaterial: true, marketplaceCategory: 'electric' },
-    ]
-  },
 
   // ──────────── ПРОЧЕЕ ────────────
-  landscaping: {
-    title: 'Благоустройство',
-    items: [
-      { group: 'Планировка', name: 'Планировка территории', unit: 'м²', baseQtyPer: 1.0, unitPrice: 500, isMaterial: false },
-      { group: 'Дорожки', name: 'Устройство пешеходных дорожек', unit: 'м²', baseQtyPer: 0.15, unitPrice: 5000, isMaterial: false },
-      { group: 'Дорожки', name: 'Тротуарная плитка', unit: 'м²', baseQtyPer: 0.16, unitPrice: 4200, isMaterial: true },
-      { group: 'Забор', name: 'Установка забора из профнастила', unit: 'п.м', baseQtyPer: 0.1, unitPrice: 9500, isMaterial: false },
-      { group: 'Забор', name: 'Профнастил С8 + столбы', unit: 'п.м', baseQtyPer: 0.1, unitPrice: 14000, isMaterial: true, marketplaceCategory: 'roofing' },
-      { group: 'Озеленение', name: 'Устройство газона', unit: 'м²', baseQtyPer: 0.3, unitPrice: 950, isMaterial: false },
-      { group: 'Озеленение', name: 'Семена газонной травы', unit: 'кг', baseQtyPer: 0.01, unitPrice: 6500, isMaterial: true },
-    ]
-  },
 
-  roads: {
-    title: 'Дороги и мосты',
-    items: [
-      { group: 'Подготовка', name: 'Снятие грунта и планировка', unit: 'м²', baseQtyPer: 1.0, unitPrice: 750, isMaterial: false },
-      { group: 'Основание', name: 'Устройство щебёночного основания', unit: 'м²', baseQtyPer: 1.0, unitPrice: 2800, isMaterial: false },
-      { group: 'Основание', name: 'Щебень фр. 20-40', unit: 'м³', baseQtyPer: 0.15, unitPrice: 9500, isMaterial: true, marketplaceCategory: 'bulk' },
-      { group: 'Покрытие', name: 'Укладка асфальтобетона', unit: 'м²', baseQtyPer: 1.0, unitPrice: 4200, isMaterial: false },
-      { group: 'Покрытие', name: 'Асфальтобетонная смесь', unit: 'т', baseQtyPer: 0.1, unitPrice: 25000, isMaterial: true },
-      { group: 'Бордюры', name: 'Установка бордюрного камня', unit: 'п.м', baseQtyPer: 0.1, unitPrice: 3200, isMaterial: false },
-      { group: 'Бордюры', name: 'Бордюр бетонный БР100.30.15', unit: 'шт', baseQtyPer: 0.1, unitPrice: 2800, isMaterial: true },
-    ]
-  },
 
-  wood: {
-    title: 'Деревянные конструкции',
-    items: [
-      { group: 'Каркас', name: 'Устройство деревянного каркаса', unit: 'м²', baseQtyPer: 1.0, unitPrice: 5000, isMaterial: false },
-      { group: 'Каркас', name: 'Брус строганый 100x150', unit: 'м³', baseQtyPer: 0.02, unitPrice: 105000, isMaterial: true },
-      { group: 'Обшивка', name: 'Обшивка вагонкой/имитацией', unit: 'м²', baseQtyPer: 1.0, unitPrice: 2800, isMaterial: false },
-      { group: 'Обшивка', name: 'Вагонка сосна сорт А', unit: 'м²', baseQtyPer: 1.1, unitPrice: 4500, isMaterial: true },
-      { group: 'Обработка', name: 'Антисептирование древесины', unit: 'м²', baseQtyPer: 1.0, unitPrice: 750, isMaterial: false },
-      { group: 'Обработка', name: 'Антисептик (Сенеж/аналог)', unit: 'л', baseQtyPer: 0.15, unitPrice: 3000, isMaterial: true, marketplaceCategory: 'paint' },
-    ]
-  },
 
-  interior: {
-    title: 'Мебель и оборудование',
-    items: [
-      { group: 'Кухня', name: 'Сборка и монтаж кухни', unit: 'п.м', baseQtyPer: 0.03, unitPrice: 18000, isMaterial: false },
-      { group: 'Кухня', name: 'Кухонный гарнитур (модульный)', unit: 'п.м', baseQtyPer: 0.03, unitPrice: 95000, isMaterial: true },
-      { group: 'Шкафы', name: 'Сборка встроенного шкафа', unit: 'шт', baseQtyPer: 0.01, unitPrice: 14000, isMaterial: false },
-      { group: 'Шкафы', name: 'Шкаф-купе встроенный', unit: 'шт', baseQtyPer: 0.01, unitPrice: 210000, isMaterial: true },
-      { group: 'Техника', name: 'Подключение бытовой техники', unit: 'шт', baseQtyPer: 0.03, unitPrice: 6500, isMaterial: false },
-    ]
-  },
 
-  design: {
-    title: 'Проектирование',
-    items: [
-      { group: 'АР', name: 'Архитектурный проект (АР)', unit: 'м²', baseQtyPer: 1.0, unitPrice: 1800, isMaterial: false },
-      { group: 'КР', name: 'Конструктивные решения (КР)', unit: 'м²', baseQtyPer: 1.0, unitPrice: 1400, isMaterial: false },
-      { group: 'ИОС', name: 'Инженерные системы (ИОС)', unit: 'м²', baseQtyPer: 1.0, unitPrice: 950, isMaterial: false },
-      { group: 'Сметы', name: 'Составление сметной документации', unit: 'м²', baseQtyPer: 1.0, unitPrice: 600, isMaterial: false },
-      { group: 'Дизайн', name: 'Дизайн-проект интерьера', unit: 'м²', baseQtyPer: 1.0, unitPrice: 4200, isMaterial: false },
-      { group: 'Согласование', name: 'Экспертиза и согласование', unit: 'компл', baseQtyPer: 0.005, unitPrice: 420000, isMaterial: false },
-    ]
-  },
 
-  special: {
-    title: 'Специальные работы',
-    items: [
-      { group: 'Высотные', name: 'Высотные работы (альпинизм)', unit: 'м²', baseQtyPer: 0.2, unitPrice: 6500, isMaterial: false },
-      { group: 'Сварочные', name: 'Сварочные работы', unit: 'п.м', baseQtyPer: 0.3, unitPrice: 4000, isMaterial: false },
-      { group: 'Буровые', name: 'Бурение скважин', unit: 'п.м', baseQtyPer: 0.05, unitPrice: 22000, isMaterial: false },
-      { group: 'Гидроизоляция', name: 'Инъекционная гидроизоляция', unit: 'п.м', baseQtyPer: 0.1, unitPrice: 14000, isMaterial: false },
-      { group: 'Усиление', name: 'Усиление конструкций углеволокном', unit: 'м²', baseQtyPer: 0.1, unitPrice: 18000, isMaterial: false },
-      { group: 'Геодезия', name: 'Геодезическая съёмка', unit: 'компл', baseQtyPer: 0.003, unitPrice: 140000, isMaterial: false },
-    ]
-  },
 
   other: {
     title: 'Прочие работы',
@@ -745,6 +619,7 @@ export function generateDetailedEstimate({
   regionCoeff = 1.0,
   perimeter = 0,
   categoryTitle = '',
+  includeContingency = true, // false — для подсмет комплексного объекта (резерв 5% добавляется один раз сверху)
 }) {
   // Проверка: комплексный объект?
   const complexTemplate = COMPLEX_TEMPLATES[categoryId];
@@ -817,17 +692,19 @@ export function generateDetailedEstimate({
   }
 
   // Непредвиденные (5%)
-  const contingency = Math.round((worksCost + materialsCost) * 0.05);
-  items.push({
-    name: 'Непредвиденные расходы (5%)',
-    group: 'Итого',
-    unit: '₸',
-    volume: 1,
-    unit_price: contingency,
-    total: contingency,
-    isMaterial: false,
-  });
-  worksCost += contingency;
+  if (includeContingency) {
+    const contingency = Math.round((worksCost + materialsCost) * 0.05);
+    items.push({
+      name: 'Непредвиденные расходы (5%)',
+      group: 'Итого',
+      unit: '₸',
+      volume: 1,
+      unit_price: contingency,
+      total: contingency,
+      isMaterial: false,
+    });
+    worksCost += contingency;
+  }
 
   const total = worksCost + materialsCost;
   const pricePerM2 = estimatedArea > 0 ? Math.round(total / estimatedArea) : 0;
@@ -878,6 +755,7 @@ function _generateComplexEstimate({ complexId, area, description, scenario, regi
   let allMarketplace = [];
 
   for (const catId of complex.includes) {
+    // Без резерва в подсметах: раньше 5% считались в каждой подсмете (скрыто) и ещё раз сверху → итог на 4.75% больше суммы строк
     const sub = generateDetailedEstimate({
       categoryId: catId,
       area,
@@ -885,6 +763,7 @@ function _generateComplexEstimate({ complexId, area, description, scenario, regi
       scenario,
       regionCoeff,
       perimeter,
+      includeContingency: false,
     });
 
     // Добавляем разделитель группы

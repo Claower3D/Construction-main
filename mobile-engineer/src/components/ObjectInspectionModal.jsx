@@ -1,10 +1,11 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   X, Phone, MessageCircle, Navigation, MapPin, CheckCircle, 
   Mic, MicOff, Camera, Plus, Trash2, Save, Send, Clock, 
   AlertTriangle, FileText, Calculator, Layers, Info
 } from 'lucide-react';
 import { STATUS_CONFIG } from '../api/engineerApi';
+import { compressImage } from '../utils/image';
 
 export default function ObjectInspectionModal({ deal, onClose, onUpdateStatus, onSaveInspection }) {
   const [activeTab, setActiveTab] = useState('measurements'); // 'measurements' | 'status' | 'photos' | 'estimate'
@@ -15,14 +16,14 @@ export default function ObjectInspectionModal({ deal, onClose, onUpdateStatus, o
 
   // Measurements checklist state
   const inspection = deal.inspection || {};
-  const [depth, setDepth] = useState(inspection.depth || '2.8');
-  const [ringsDiameter, setRingsDiameter] = useState(inspection.ringsDiameter || 'КС-15 (1.5м)');
-  const [ringsCount, setRingsCount] = useState(inspection.ringsCount || '3');
-  const [pipeLength, setPipeLength] = useState(inspection.pipeLength || '8');
-  const [soilType, setSoilType] = useState(inspection.soilType || 'Суглинок');
-  const [groundWater, setGroundWater] = useState(inspection.groundWater || 'Низкий (>3м)');
-  const [accessTruck, setAccessTruck] = useState(inspection.accessTruck || 'Удобный (прямой заезд)');
-  const [oldPit, setOldPit] = useState(inspection.oldPit || 'Нет');
+  const [depth, setDepth] = useState(inspection.depth || '');
+  const [ringsDiameter, setRingsDiameter] = useState(inspection.ringsDiameter || '');
+  const [ringsCount, setRingsCount] = useState(inspection.ringsCount || '');
+  const [pipeLength, setPipeLength] = useState(inspection.pipeLength || '');
+  const [soilType, setSoilType] = useState(inspection.soilType || '');
+  const [groundWater, setGroundWater] = useState(inspection.groundWater || '');
+  const [accessTruck, setAccessTruck] = useState(inspection.accessTruck || '');
+  const [oldPit, setOldPit] = useState(inspection.oldPit || '');
   const [customNotes, setCustomNotes] = useState(inspection.notes || '');
 
   // Voice recording state
@@ -31,9 +32,8 @@ export default function ObjectInspectionModal({ deal, onClose, onUpdateStatus, o
   const recognitionRef = useRef(null);
 
   // Photos state
-  const [photos, setPhotos] = useState(inspection.photos || [
-    { id: 'p1', tag: 'Общий вид', caption: 'Место будущего котлована', time: '11:20' }
-  ]);
+  const [photos, setPhotos] = useState(inspection.photos || []);
+  const [photoError, setPhotoError] = useState(null);
   const [photoTag, setPhotoTag] = useState('Общий вид');
   const fileInputRef = useRef(null);
 
@@ -48,6 +48,14 @@ export default function ObjectInspectionModal({ deal, onClose, onUpdateStatus, o
   ]);
   const [newItemName, setNewItemName] = useState('');
   const [newItemPrice, setNewItemPrice] = useState('');
+
+  // stop speech recognition if the modal is closed while dictating
+  useEffect(() => () => {
+    if (recognitionRef.current) {
+      try { recognitionRef.current.onresult = null; recognitionRef.current.abort ? recognitionRef.current.abort() : recognitionRef.current.stop(); } catch (e) {}
+      recognitionRef.current = null;
+    }
+  }, []);
 
   const calculateTotal = () => {
     return estimateItems.reduce((acc, item) => acc + (item.qty * item.price), 0);
@@ -74,12 +82,17 @@ export default function ObjectInspectionModal({ deal, onClose, onUpdateStatus, o
       rec.interimResults = true;
 
       rec.onresult = (e) => {
-        let text = '';
-        for (let i = 0; i < e.results.length; i++) {
-          text += e.results[i][0].transcript + ' ';
+        let finalText = '';
+        let interim = '';
+        for (let i = e.resultIndex; i < e.results.length; i++) {
+          const t = e.results[i][0].transcript;
+          if (e.results[i].isFinal) finalText += t + ' ';
+          else interim += t + ' ';
         }
-        setVoiceTranscript(text);
-        setCustomNotes(prev => (prev ? prev + ' ' : '') + text);
+        setVoiceTranscript(interim.trim());
+        if (finalText.trim()) {
+          setCustomNotes(prev => (prev ? prev.trimEnd() + ' ' : '') + finalText.trim());
+        }
       };
 
       rec.onerror = (err) => {
@@ -101,21 +114,25 @@ export default function ObjectInspectionModal({ deal, onClose, onUpdateStatus, o
   };
 
   // Add photo
-  const handlePhotoUpload = (e) => {
+  const handlePhotoUpload = async (e) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const newPhoto = {
-          id: `photo_${Date.now()}`,
-          url: event.target?.result,
-          tag: photoTag,
-          caption: `${photoTag} (${new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })})`,
-          time: new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })
-        };
-        setPhotos(prev => [newPhoto, ...prev]);
-      };
-      reader.readAsDataURL(file);
+    if (e.target) e.target.value = '';
+    if (!file) return;
+    setPhotoError(null);
+    try {
+      // ~1280px JPEG 0.7 keeps each photo around 150–250 KB in local storage
+      const { dataUrl } = await compressImage(file, 1280, 0.7);
+      const time = new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+      setPhotos(prev => [{
+        id: `photo_${Date.now()}`,
+        url: dataUrl,
+        tag: photoTag,
+        caption: `${photoTag} (${time})`,
+        time,
+        localOnly: true
+      }, ...prev]);
+    } catch (err) {
+      setPhotoError('Не удалось обработать фото: ' + (err.message || 'ошибка'));
     }
   };
 
@@ -134,10 +151,10 @@ export default function ObjectInspectionModal({ deal, onClose, onUpdateStatus, o
       estimate: estimateItems,
       totalEstimate: calculateTotal()
     };
-    onSaveInspection(deal.id, inspectionData);
-    if (currentStatus !== deal.status) {
-      onUpdateStatus(deal.id, currentStatus, engineerNote || 'Обновлены замеры инженера');
-    }
+    onSaveInspection(deal.id, inspectionData, {
+      status: currentStatus !== deal.status ? currentStatus : null,
+      note: engineerNote.trim()
+    });
     onClose();
   };
 
@@ -363,6 +380,7 @@ export default function ObjectInspectionModal({ deal, onClose, onUpdateStatus, o
                     outline: 'none'
                   }}
                 >
+                  <option value="">— не указано —</option>
                   <option value="КС-10 (1.0м)">КС-10 (1.0м)</option>
                   <option value="КС-15 (1.5м)">КС-15 (1.5м)</option>
                   <option value="КС-20 (2.0м)">КС-20 (2.0м)</option>
@@ -412,6 +430,7 @@ export default function ObjectInspectionModal({ deal, onClose, onUpdateStatus, o
                     outline: 'none'
                   }}
                 >
+                  <option value="">— не указано —</option>
                   <option value="Суглинок">Суглинок</option>
                   <option value="Песок / Супесь">Песок / Супесь</option>
                   <option value="Глина плотная">Глина плотная</option>
@@ -438,6 +457,7 @@ export default function ObjectInspectionModal({ deal, onClose, onUpdateStatus, o
                     outline: 'none'
                   }}
                 >
+                  <option value="">— не указано —</option>
                   <option value="Низкий (>3м)">Низкий (&gt;3м)</option>
                   <option value="Средний (2-3м)">Средний (2-3м)</option>
                   <option value="Высокий (<2м)">Высокий (&lt;2м, плывун)</option>
@@ -464,6 +484,7 @@ export default function ObjectInspectionModal({ deal, onClose, onUpdateStatus, o
                   outline: 'none'
                 }}
               >
+                <option value="">— не указано —</option>
                 <option value="Удобный (прямой заезд)">Удобный (прямой заезд)</option>
                 <option value="Затруднён (узкие ворота / провода)">Затруднён (узкие ворота / провода)</option>
                 <option value="Только вручную (заезд невозможен)">Только вручную (заезд невозможен)</option>
@@ -667,6 +688,15 @@ export default function ObjectInspectionModal({ deal, onClose, onUpdateStatus, o
                 </button>
               ))}
             </div>
+
+            {photoError && (
+              <div style={{ color: '#fca5a5', fontSize: '0.74rem', marginBottom: '10px' }}>⚠ {photoError}</div>
+            )}
+            {photos.length > 0 && (
+              <div style={{ color: '#64748b', fontSize: '0.7rem', marginBottom: '8px' }}>
+                Фото хранятся на этом устройстве (сжатые); на сервер уходит только отметка о них в заметках объекта.
+              </div>
+            )}
 
             {/* Photos Grid */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>

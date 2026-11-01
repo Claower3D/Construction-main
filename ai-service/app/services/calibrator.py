@@ -31,6 +31,23 @@ except ImportError:
     PIL_AVAILABLE = False
 
 
+class _DetView:
+    """Minimal Detection-like view over a dict {label|class_name, bbox:[x1,y1,x2,y2], confidence}."""
+
+    def __init__(self, d: dict):
+        self.class_name = d.get("class_name") or d.get("label") or d.get("type") or ""
+        x1, y1, x2, y2 = (list(d.get("bbox") or [0, 0, 0, 0]) + [0, 0, 0, 0])[:4]
+        self.bbox = [x1, y1, x2, y2]
+        self.width = float(d.get("width", x2 - x1))
+        self.height = float(d.get("height", y2 - y1))
+        self.confidence = float(d.get("confidence", 0.5))
+
+
+def _as_detection(d):
+    """Calibrator accepts both Detection objects and plain dicts (API / tests)."""
+    return _DetView(d) if isinstance(d, dict) else d
+
+
 class ScaleCalibrator:
     """
     Multi-method scale calibration for construction photos.
@@ -410,6 +427,7 @@ class ScaleCalibrator:
         """
         if not detections:
             return None
+        detections = [_as_detection(d) for d in detections]
 
         # Priority order for auto-detection
         priority = ["measuring_tape", "brick", "concrete_block", "door", "person", "car"]
@@ -509,6 +527,7 @@ class ScaleCalibrator:
         Try all calibration methods in priority order.
         Returns result with full calibration_report showing all tried methods.
         """
+        detections = [_as_detection(d) for d in (detections or [])]
         import time
         method_chain: List[Dict[str, Any]] = []
         confidence_breakdown: Dict[str, float] = {}

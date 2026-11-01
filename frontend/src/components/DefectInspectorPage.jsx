@@ -1,6 +1,7 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { createPlatformOrder } from '../services/orderSyncService';
 import { detectCracks, dbscanClustering } from '../utils/crackDetector';
+import { authHeaders, escapeHtml, safeImgSrc, responseError, genId } from '../services/platformUtils';
 import './DefectInspectorPage.css';
 
 const DEFECT_TYPES = [
@@ -15,6 +16,15 @@ const DEFECT_TYPES = [
   { id: 'level', icon: '📐', label: 'Перепад пола / потолка', keywords: 'Перепад, неровности, кривой пол, горизонт, уровень' },
   { id: 'other', icon: '❓', label: 'Другое (описать вручную)', keywords: '' },
 ];
+
+function defectsWord(n) {
+  const v = Math.abs(n) % 100;
+  const d = v % 10;
+  if (v > 10 && v < 20) return `Найдено ${n} дефектов`;
+  if (d === 1) return `Найден ${n} дефект`;
+  if (d >= 2 && d <= 4) return `Найдено ${n} дефекта`;
+  return `Найдено ${n} дефектов`;
+}
 
 export default function DefectInspectorPage({ onBack, hideHeader = false }) {
   const [photos, setPhotos] = useState([]);
@@ -31,7 +41,9 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
   const [defectMarkers, setDefectMarkers] = useState([]);
   const [severitySummary, setSeveritySummary] = useState(null);
   const [showCriticalLayer, setShowCriticalLayer] = useState(true);
-  const [sensitivity, setSensitivity] = useState(0.65);
+  const [sensitivity, setSensitivity] = useState(0.5);
+  const [progressSteps, setProgressSteps] = useState([]); // шаги локального CV (раньше state не был объявлен → CV не запускался)
+  const [scanError, setScanError] = useState(null);
   const [selectedDefectId, setSelectedDefectId] = useState(null);
   const [activeReportTab, setActiveReportTab] = useState('expert');
   const [visionMode, setVisionMode] = useState('hud');
@@ -42,6 +54,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
   const [toastMessage, setToastMessage] = useState(null);
   const [lightboxSrc, setLightboxSrc] = useState(null);
   const [edgeMapSrc, setEdgeMapSrc] = useState(null);
+  const [isDragOver, setIsDragOver] = useState(false);
   const [inspectionHistory, setInspectionHistory] = useState(() => {
     try { return JSON.parse(localStorage.getItem('defect_history') || '[]'); } catch { return []; }
   });
@@ -49,6 +62,10 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
   const canvasRef = useRef(null);
   const imgRef = useRef(null);
   const lastDetectedCountRef = useRef(0);
+  // Источник текущего результата: 'ai' (YOLO на сервере) или 'local' (CV в браузере).
+  // При 'ai' клиентский пиксельный детектор НЕ запускается и не перезаписывает результаты модели.
+  const [reportSource, setReportSource] = useState(null);
+  const reportSourceRef = useRef(null);
   const [crackData, setCrackData] = useState(null); // {crackPoints, measurements} from CV
 
   const drawOverlay = useCallback(() => {
@@ -67,6 +84,11 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
     canvas.height = ch;
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, cw, ch);
+
+    // Результат от AI-сервиса: рамки модели уже нарисованы на аннотированном фото сервера.
+    // Раньше этот оверлей запускал свой пиксельный «детектор» и ПЕРЕЗАПИСЫВАЛ найденные
+    // моделью дефекты выдуманными зонами с «точностью 92%».
+    if (reportSourceRef.current === 'ai') return;
 
     // ========== INLINE CRACK DETECTION: Valley/Line detector ==========
     // Cracks = dark LINES (darker than BOTH sides). Not edges (one side dark, other bright).
@@ -258,7 +280,8 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
               bbox: cl.bbox,
               type: typeTitle,
               severity: cl.severity,
-              confidence: 0.92,
+              confidence: null, // пиксельный анализ в браузере не даёт вероятности
+              model: 'cv',
               area_percent: cl.area_percent,
               length_mm: cl.length_mm,
               opening_mm: cl.opening_mm,
@@ -397,6 +420,8 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
   };
 
   const handleReset = () => {
+    setScanError(null);
+    setProgressSteps([]);
     setPhotos([]);
     setClientName('');
     setClientPhone('');
@@ -484,28 +509,32 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
       return;
     }
 
-    const materials = report.analytics?.materials || [];
-    const labor = report.analytics?.labor || [];
-    const totalMat = materials.reduce((s, m) => s + m.cost_kzt, 0);
-    const totalLab = labor.reduce((s, l) => s + l.cost_kzt, 0);
-    const totalAll = report.analytics?.total_cost_kzt || (totalMat + totalLab);
-    const photoSrc = photos[0]?.base64 || annotatedImage || '';
+    // ВСЕ значения экранируются: данные приходят от пользователя и от AI-сервиса,
+    // а окно печати имеет тот же origin (доступ к localStorage с токеном).
+    const e = escapeHtml;
+    const money = (v) => (Number(v) || 0).toLocaleString('ru-RU');
+    const materials = Array.isArray(report.analytics?.materials) ? report.analytics.materials : [];
+    const labor = Array.isArray(report.analytics?.labor) ? report.analytics.labor : [];
+    const totalMat = materials.reduce((s, m) => s + (Number(m.cost_kzt) || 0), 0);
+    const totalLab = labor.reduce((s, l) => s + (Number(l.cost_kzt) || 0), 0);
+    const totalAll = Number(report.analytics?.total_cost_kzt) || (totalMat + totalLab);
+    const photoSrc = safeImgSrc(annotatedImage || photos[0]?.base64 || '');
 
     const materialsRows = materials.map((m, i) => `
       <tr>
         <td>${i+1}</td>
-        <td>${m.name}</td>
-        <td style="text-align:center">${m.qty}</td>
-        <td style="text-align:right">${m.cost_kzt.toLocaleString('ru-RU')} T</td>
+        <td>${e(m.name)}</td>
+        <td style="text-align:center">${e(m.qty)}</td>
+        <td style="text-align:right">${money(m.cost_kzt)} T</td>
       </tr>
     `).join('');
 
     const laborRows = labor.map((l, i) => `
       <tr>
         <td>${i+1}</td>
-        <td>${l.name}</td>
-        <td style="text-align:center">${l.qty}</td>
-        <td style="text-align:right">${l.cost_kzt.toLocaleString('ru-RU')} T</td>
+        <td>${e(l.name)}</td>
+        <td style="text-align:center">${e(l.qty)}</td>
+        <td style="text-align:right">${money(l.cost_kzt)} T</td>
       </tr>
     `).join('');
 
@@ -514,7 +543,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
       <html lang="ru">
       <head>
         <meta charset="utf-8">
-        <title>Акт обследования ${report.id}</title>
+        <title>Акт обследования ${e(report.id)}</title>
         <style>
           body { font-family: 'Segoe UI', Arial, sans-serif; margin: 30px; color: #1e293b; line-height: 1.5; font-size: 13px; }
           .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #0f172a; padding-bottom: 12px; margin-bottom: 20px; }
@@ -539,28 +568,29 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
         <div class="header">
           <div class="logo">QAZGOST AI<br><small style="font-size:10px;color:#64748b;">ТЕХНАДЗОР РК</small></div>
           <div style="text-align:right">
-            <strong>АКТ № ${report.id}</strong><br>
-            <small>Дата: ${report.date}</small>
+            <strong>АКТ № ${e(report.id)}</strong><br>
+            <small>Дата: ${e(report.date)}</small>
           </div>
         </div>
         <div class="title">Акт инструментального дефектоскопического обследования</div>
 
         <table class="meta">
-          <tr><td class="label">Заказчик:</td><td>${report.clientName}</td></tr>
-          <tr><td class="label">Телефон:</td><td>${report.clientPhone}</td></tr>
-          <tr><td class="label">Адрес объекта:</td><td>${report.address}</td></tr>
-          <tr><td class="label">Вид дефекта:</td><td><strong>${report.defectType}</strong></td></tr>
-          <tr><td class="label">Класс опасности:</td><td>${report.severity}</td></tr>
-          <tr><td class="label">Нормативный документ:</td><td>${report.snipCode}</td></tr>
-          <tr><td class="label">Категория (ГОСТ 31937):</td><td>${report.analytics?.gost_status || 'Категория III'}</td></tr>
-          <tr><td class="label">Метод устранения:</td><td>${report.fixMethod}</td></tr>
-          <tr><td class="label">Срок работ:</td><td>${report.workDays} раб. дн.</td></tr>
+          <tr><td class="label">Заказчик:</td><td>${e(report.clientName)}</td></tr>
+          <tr><td class="label">Телефон:</td><td>${e(report.clientPhone)}</td></tr>
+          <tr><td class="label">Адрес объекта:</td><td>${e(report.address)}</td></tr>
+          <tr><td class="label">Источник анализа:</td><td>${report.source === 'ai' ? 'AI-сервис дефектоскопии' : 'Локальный анализ в браузере (ориентировочно)'}</td></tr>
+          <tr><td class="label">Вид дефекта:</td><td><strong>${e(report.defectType)}</strong></td></tr>
+          <tr><td class="label">Класс опасности:</td><td>${e(report.severity)}</td></tr>
+          <tr><td class="label">Нормативный документ:</td><td>${e(report.snipCode)}</td></tr>
+          <tr><td class="label">Категория (ГОСТ 31937):</td><td>${e(report.analytics?.gost_status || '—')}</td></tr>
+          <tr><td class="label">Метод устранения:</td><td>${e(report.fixMethod)}</td></tr>
+          <tr><td class="label">Срок работ:</td><td>${report.workDays ? `${e(report.workDays)} раб. дн.` : '—'}</td></tr>
         </table>
 
         ${photoSrc ? `
           <div class="img-box">
             <div style="font-weight:700;margin-bottom:4px;font-size:12px;">Фото дефекта:</div>
-            <img src="${photoSrc}" alt="Фото дефекта" />
+            <img src="${e(photoSrc)}" alt="Фото дефекта" />
           </div>
         ` : ''}
 
@@ -574,18 +604,18 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
               ${materials.length > 0 ? `
                 <tr><td colspan="4" style="background:#e0f2fe;font-weight:700;font-size:11px;">Материалы</td></tr>
                 ${materialsRows}
-                <tr class="subtotal"><td colspan="3" style="text-align:right">Итого материалы:</td><td style="text-align:right">${totalMat.toLocaleString('ru-RU')} T</td></tr>
+                <tr class="subtotal"><td colspan="3" style="text-align:right">Итого материалы:</td><td style="text-align:right">${money(totalMat)} T</td></tr>
               ` : ''}
               ${labor.length > 0 ? `
                 <tr><td colspan="4" style="background:#fef3c7;font-weight:700;font-size:11px;">Работы</td></tr>
                 ${laborRows}
-                <tr class="subtotal"><td colspan="3" style="text-align:right">Итого работы:</td><td style="text-align:right">${totalLab.toLocaleString('ru-RU')} T</td></tr>
+                <tr class="subtotal"><td colspan="3" style="text-align:right">Итого работы:</td><td style="text-align:right">${money(totalLab)} T</td></tr>
               ` : ''}
-              <tr class="total"><td colspan="3" style="text-align:right">ИТОГО СМЕТНАЯ СТОИМОСТЬ:</td><td style="text-align:right">${totalAll.toLocaleString('ru-RU')} T</td></tr>
+              <tr class="total"><td colspan="3" style="text-align:right">ИТОГО СМЕТНАЯ СТОИМОСТЬ:</td><td style="text-align:right">${money(totalAll)} T</td></tr>
             </tbody>
           </table>
         ` : `
-          <h4>Ориентировочная стоимость: ${report.estimatedCost}</h4>
+          <h4>Ориентировочная стоимость: ${e(report.estimatedCost || '—')}</h4>
         `}
 
         <div class="sign">
@@ -621,150 +651,133 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
     setDefectMarkers([]);
     setSeveritySummary(null);
     lastDetectedCountRef.current = 0;
+    reportSourceRef.current = null;
+    setReportSource(null);
     setScanStepMessage('🔬 QazGost AI анализирует фото на дефекты...');
+    setScanError(null);
+    setProgressSteps([]);
+    setStressHeatmapImage(null);
+    setSkeletonImage(null);
+    setCrackData(null);
+
+    // Фото → Blob для multipart (file или dataURL)
+    const photoToBlob = (ph) => {
+      if (ph.file) return ph.file;
+      if (typeof ph.base64 === 'string' && ph.base64.startsWith('data:')) {
+        try {
+          const [head, b64] = ph.base64.split(',');
+          const mimeMatch = head.match(/:(.*?);/);
+          const bin = atob(b64);
+          const arr = new Uint8Array(bin.length);
+          for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+          return new Blob([arr], { type: mimeMatch ? mimeMatch[1] : 'image/jpeg' });
+        } catch (e) {
+          console.warn('[DefectScan] base64 → Blob failed:', e);
+        }
+      }
+      return null;
+    };
 
     try {
       let data = null;
+      let aiUnavailable = false;
+      const rejected = [];
+      const perPhoto = [];
 
-      // ═══ STEP 1: Send photo to /defect-scan (CV detection, NO JWT needed, returns annotated image) ═══
-      const firstPhoto = photos[0];
-      if (firstPhoto) {
-        setScanStepMessage('🧠 QazGost CV сканирует фото на дефекты...');
-        
+      // ═══ STEP 1: AI-сервис дефектов — POST /api/v1/defect-scan (multipart, поле file; по запросу на каждое фото) ═══
+      for (let i = 0; i < photos.length; i++) {
+        const ph = photos[i];
+        setScanStepMessage(`🧠 AI-сервис сканирует фото ${i + 1} из ${photos.length}...`);
+        const blob = photoToBlob(ph);
+        if (!blob) { rejected.push(`фото ${i + 1}: не удалось прочитать файл`); continue; }
         const formData = new FormData();
-        if (firstPhoto.file) {
-          formData.append('file', firstPhoto.file, firstPhoto.file.name || 'photo.jpg');
-        } else if (firstPhoto.base64) {
-          try {
-            const byteString = atob(firstPhoto.base64.split(',')[1]);
-            const mimeMatch = firstPhoto.base64.split(',')[0].match(/:(.*?);/);
-            const mimeType = mimeMatch ? mimeMatch[1] : 'image/jpeg';
-            const ab = new ArrayBuffer(byteString.length);
-            const ia = new Uint8Array(ab);
-            for (let i = 0; i < byteString.length; i++) {
-              ia[i] = byteString.charCodeAt(i);
-            }
-            const blob = new Blob([ab], { type: mimeType });
-            formData.append('file', blob, 'photo.jpg');
-          } catch (e) {
-            console.warn('[DefectScan] Failed to convert base64 to Blob:', e);
-          }
-        }
-        if (aiDescription) {
-          formData.append('prompt', aiDescription);
-        }
-
+        formData.append('file', blob, ph.file?.name || ph.name || `photo_${i + 1}.jpg`);
+        const qs = new URLSearchParams({ sensitivity: String(sensitivity) });
+        if (aiDescription.trim()) qs.set('prompt', aiDescription.trim());
         try {
-          const queryParams = new URLSearchParams({
-            sensitivity: sensitivity.toString(),
-            prompt: aiDescription || ''
-          });
-          const aiRes = await fetch(`/api/v1/defect-scan?${queryParams.toString()}`, {
-            method: 'POST',
-            body: formData,
-          });
+          // Content-Type не задаём вручную: браузер сам выставит multipart boundary
+          const res = await fetch(`/api/v1/defect-scan?${qs.toString()}`, { method: 'POST', body: formData, headers: authHeaders() });
+          if (res.status >= 500 || res.status === 404) { aiUnavailable = true; continue; }
+          if (!res.ok) { rejected.push(`фото ${i + 1}: ${await responseError(res)}`); continue; }
+          const j = await res.json().catch(() => null);
+          if (!j || j.success === false) { rejected.push(`фото ${i + 1}: ${j?.error || j?.detail || 'сервис не смог обработать фото'}`); continue; }
+          perPhoto.push({ index: i, name: ph.name || ph.file?.name || `Фото ${i + 1}`, data: j });
+        } catch (netErr) {
+          console.warn('[DefectScan] network error:', netErr);
+          aiUnavailable = true;
+        }
+      }
 
-          console.log('[DefectScan] Response status:', aiRes.status);
-
-          if (aiRes.ok) {
-            const aiData = await aiRes.json();
-            console.log('[DefectScan] Response:', {
-              success: aiData.success,
-              defectType: aiData.defectType,
-              defectsCount: aiData.defects?.items?.length,
-              hasAnnotatedImage: !!aiData.defect_annotated_image,
-            });
-            
-            if (aiData.success && aiData.defects?.items?.length > 0) {
-              data = {
-                defectType: aiData.defectType,
-                severity: aiData.severity,
-                snipCode: aiData.snipCode,
-                fixMethod: aiData.fixMethod,
-                estimatedCost: aiData.estimatedCost,
-                workDays: aiData.workDays,
-                defects: aiData.defects,
-                defect_annotated_image: aiData.defect_annotated_image,
-                stress_heatmap_image: aiData.stress_heatmap_image,
-                skeleton_image: aiData.skeleton_image,
-                defect_severity_summary: aiData.defect_severity_summary,
-                structure_zones: aiData.structure_zones || [],
-              };
-              
-              setScanStepMessage(`✅ Обнаружено ${aiData.defects.items.length} дефектов! Формирую карту...`);
-            } else if (aiData.defect_annotated_image) {
-              // Even if no items array, use the annotated image if present
-              data = {
-                defectType: aiData.defectType || 'Дефект строительной конструкции',
-                severity: aiData.severity || '3 класс — Требует устранения',
-                snipCode: aiData.snipCode || 'СНиП РК 3.02-04-2019',
-                fixMethod: aiData.fixMethod || 'Требуется детальный осмотр.',
-                estimatedCost: aiData.estimatedCost || '45 000 – 75 000 ₸',
-                workDays: aiData.workDays || 2,
-                defects: aiData.defects,
-                defect_annotated_image: aiData.defect_annotated_image,
-                defect_severity_summary: aiData.defect_severity_summary,
-                structure_zones: aiData.structure_zones || [],
-              };
-              setScanStepMessage('✅ Анализ завершён!');
-            }
+      if (perPhoto.length > 0) {
+        // Агрегируем результаты всех фото; «главный» результат — с максимальной тяжестью
+        const SEV_RANK = { low: 1, medium: 2, high: 3, critical: 4 };
+        const bySeverity = { critical: 0, high: 0, medium: 0, low: 0 };
+        const allItems = [];
+        let primary = perPhoto[0];
+        let primaryRank = -1;
+        perPhoto.forEach(r => {
+          const d = r.data;
+          const items = d.defects?.items || d.defects?.detections || (Array.isArray(d.defects) ? d.defects : []);
+          items.forEach(it => allItems.push({ ...it, photoIndex: r.index, photoName: r.name }));
+          const bs = d.defect_severity_summary?.by_severity;
+          if (bs) {
+            Object.keys(bySeverity).forEach(k => { bySeverity[k] += Number(bs[k]) || 0; });
           } else {
-            console.warn('[DefectScan] Non-OK status:', aiRes.status);
+            items.forEach(it => { if (bySeverity[it.severity] !== undefined) bySeverity[it.severity] += 1; });
           }
-        } catch (aiErr) {
-          console.warn('[DefectScan] Failed:', aiErr.message);
+          const rank = Math.max(SEV_RANK[d.defect_severity_summary?.max_severity] || 0, ...items.map(it => SEV_RANK[it.severity] || 0));
+          if (rank > primaryRank) { primaryRank = rank; primary = r; }
+        });
+        const maxSeverity = Object.keys(SEV_RANK).find(k => SEV_RANK[k] === primaryRank) || null;
+        const p = primary.data;
+        const warnings = [...new Set(perPhoto.flatMap(r => (Array.isArray(r.data.warnings) ? r.data.warnings : []).map(String)))];
+        data = {
+          source: 'ai',
+          detectorName: p.detector?.name || null,
+          detector: p.detector || perPhoto.find(r => r.data.detector)?.data.detector || null,
+          isMock: perPhoto.some(r => r.data.is_mock === true),
+          fallback: perPhoto.some(r => r.data.fallback === true),
+          warnings,
+          defectType: p.defectType || (allItems.length ? 'Дефект строительной конструкции' : 'Дефекты не обнаружены'),
+          severity: p.severity || (allItems.length ? '—' : 'Дефектов не выявлено'),
+          snipCode: p.snipCode || '—',
+          fixMethod: p.fixMethod || (allItems.length ? '—' : 'Ремонт не требуется'),
+          estimatedCost: p.estimatedCost || '—',
+          workDays: p.workDays || null,
+          defects: { items: allItems, total: allItems.length },
+          defect_annotated_image: p.defect_annotated_image || perPhoto.find(r => r.data.defect_annotated_image)?.data.defect_annotated_image || null,
+          stress_heatmap_image: p.stress_heatmap_image || null,
+          skeleton_image: p.skeleton_image || null,
+          defect_severity_summary: { total: allItems.length, by_severity: bySeverity, max_severity: maxSeverity },
+          structure_zones: p.structure_zones || [],
+          analytics: p.analytics || null,
+          perPhoto: perPhoto.map(r => ({
+            index: r.index,
+            name: r.name,
+            annotated: r.data.defect_annotated_image || null,
+            count: (r.data.defects?.items || []).length,
+            maxSeverity: r.data.defect_severity_summary?.max_severity || null,
+          })),
+          partial: aiUnavailable || rejected.length > 0,
+        };
+        if (data.partial) {
+          setScanError(`Часть фото не обработана${aiUnavailable ? ' (AI-сервис отвечал с ошибкой)' : ''}${rejected.length ? `: ${rejected.join('; ')}` : ''}`);
         }
+        setScanStepMessage(`✅ AI: обнаружено дефектов — ${allItems.length}. Формирую отчёт...`);
+      } else if (!aiUnavailable) {
+        // Все фото отклонены сервисом (4xx) — честная ошибка, без выдуманного результата
+        setIsScanning(false);
+        setScanStepMessage('');
+        setScanError(`Сервис не смог обработать фото: ${rejected.join('; ') || 'неизвестная ошибка'}`);
+        showToast('❌ Анализ не выполнен — см. сообщение об ошибке');
+        return;
+      } else {
+        setScanError('AI-сервис дефектов недоступен. Выполнен локальный анализ в браузере — результат ориентировочный, требуется подтверждение инженером.');
       }
 
-      // ═══ STEP 2: Fallback — Go backend text analysis (OpenAI GPT-4o or SNiP heuristics) ═══
+      // ═══ STEP 2: AI-сервис недоступен — локальный анализ (CV в браузере + оценка по описанию) ═══
       if (!data) {
-        setScanStepMessage('📸 AI Vision анализирует дефект по пикселям...');
-        
-        const token = localStorage.getItem('qazgost_token') || localStorage.getItem('token') || '';
-        const headers = { 'Content-Type': 'application/json' };
-        if (token) headers['Authorization'] = `Bearer ${token}`;
-
-        // Try defect-vision with base64 photos
-        if (photos.some(p => p.base64)) {
-          const photosBase64 = photos.slice(0, 4).filter(p => p.base64).map(p => p.base64);
-          
-          const vRes = await fetch('/api/v1/ai/defect-vision', {
-            method: 'POST',
-            headers,
-            body: JSON.stringify({
-              photos: photosBase64,
-              description: aiDescription || '',
-            })
-          });
-
-          if (vRes.ok) {
-            const vData = await vRes.json();
-            if (vData && vData.defectType) {
-              data = vData;
-            }
-          }
-        }
-
-        // Try text-only defect analysis
-        if (!data) {
-          setScanStepMessage('🤖 Нейросеть анализирует дефект по описанию...');
-          
-          const res = await fetch('/api/v1/ai/defect', {
-            method: 'POST',
-            headers,
-            body: JSON.stringify({
-              description: aiDescription || 'Анализ дефекта строительных конструкций и отделки по фото'
-            })
-          });
-
-          if (res.ok) {
-            data = await res.json();
-          }
-        }
-      }
-
-      // ═══ STEP 3: Offline fallback — expert domain heuristics (расширенный) ═══
-      if (!data) {
+        setScanStepMessage('🖥️ Локальный анализ фото в браузере...');
         const descLower = (aiDescription || '').toLowerCase();
         
         // Расширенная база дефектов по СНиП РК
@@ -958,46 +971,21 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
           }
         }
 
-        // Дефолт — усадочная трещина
-        if (!matched) {
-          matched = {
-            defectType: 'Усадочная трещина штукатурного слоя',
-            severity: '3 класс — Требует устранения',
-            snipCode: 'СНиП РК 3.02-04-2019 / СП РК 1.03-106-2012',
-            fixMethod: 'Расшивка шва на глубину 10 мм, обеспыливание, грунтовка глубокого проникновения, армирование серпянкой и шпатлевание полимерцементным составом.',
-            estimatedCost: '35 000 – 65 000 ₸',
-            workDays: 2,
-            materials: [
-              { name: 'Инъекционная эпоксидная смола низкой вязкости', qty: '1.2 кг', cost_kzt: 18500 },
-              { name: 'Пакеры металлические d=10мм с клапаном', qty: '6 шт', cost_kzt: 6400 },
-              { name: 'Тиксотропная безусадочная смесь M600', qty: '5.0 кг', cost_kzt: 5800 },
-              { name: 'Грунтовка глубокого проникновения', qty: '1.0 л', cost_kzt: 3200 },
-            ],
-            labor: [
-              { name: 'Расшивка шва штраборезом и обеспыливание', qty: '0.8 пог.м', cost_kzt: 8500 },
-              { name: 'Бурение шпуров и установка пакеров', qty: '1 компл.', cost_kzt: 12000 },
-              { name: 'Нагнетание эпоксидного состава', qty: '1 компл.', cost_kzt: 17500 },
-              { name: 'Демонтаж пакеров и зачеканка M600', qty: '1 компл.', cost_kzt: 6000 },
-            ],
-            width_profile: [
-              { pos_pct: 0, width_mm: 1.2 }, { pos_pct: 20, width_mm: 2.1 },
-              { pos_pct: 40, width_mm: 3.4 }, { pos_pct: 60, width_mm: 2.8 },
-              { pos_pct: 80, width_mm: 1.9 }, { pos_pct: 100, width_mm: 0.9 },
-            ],
-          };
-        }
-
+        // Раньше при отсутствии совпадений подставлялась выдуманная «усадочная трещина».
+        // Теперь шаблон используется ТОЛЬКО при совпадении с описанием и помечается как оценка по описанию.
         // Подсчёт суммы
-        const totalMaterials = (matched.materials || []).reduce((s, m) => s + m.cost_kzt, 0);
-        const totalLabor = (matched.labor || []).reduce((s, l) => s + l.cost_kzt, 0);
+        const totalMaterials = (matched?.materials || []).reduce((s, m) => s + m.cost_kzt, 0);
+        const totalLabor = (matched?.labor || []).reduce((s, l) => s + l.cost_kzt, 0);
 
         data = {
-          defectType: matched.defectType,
-          severity: matched.severity,
-          snipCode: matched.snipCode,
-          fixMethod: matched.fixMethod,
-          estimatedCost: matched.estimatedCost,
-          workDays: matched.workDays,
+          source: 'local',
+          descriptionEstimate: !!matched,
+          defectType: matched ? `${matched.defectType} — оценка по описанию` : 'Локальный анализ фото',
+          severity: matched ? `${matched.severity} (по описанию)` : 'Не определён — нужен AI-анализ или осмотр инженера',
+          snipCode: matched ? matched.snipCode : '—',
+          fixMethod: matched ? matched.fixMethod : 'Требуется осмотр инженером: AI-сервис дефектов недоступен.',
+          estimatedCost: matched ? `${matched.estimatedCost} (ориентировочно, по описанию)` : '—',
+          workDays: matched ? matched.workDays : null,
           defect_severity_summary: null,
           structure_zones: [],
         };
@@ -1057,8 +1045,8 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
           console.error('[Scan] CV detection FAILED:', cvErr);
         }
 
-        // Если CV не выделил отдельные зоны — создаём одну запись из шаблона (без огромного бокса)
-        if (cvItems.length === 0) {
+        // Если CV не выделил отдельные зоны — одна запись из шаблона ТОЛЬКО при оценке по описанию
+        if (cvItems.length === 0 && matched) {
           const severityLevel = matched.severity.includes('КРИТИЧЕСКИЙ') ? 'critical' :
                                 matched.severity.includes('Высокий') ? 'high' : 'medium';
           cvItems = [{
@@ -1069,8 +1057,18 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
             length_mm: null,
             opening_mm: null,
             area_percent: null,
-            description: `Дефекты выделены цветом на фото — ${matched.defectType.split('(')[0].trim()}`,
+            description: `Оценка по описанию (не по фото) — ${matched.defectType.split('(')[0].trim()}`,
+            model: 'description',
           }];
+        }
+        cvItems = cvItems.map(it => ({ model: 'cv', ...it }));
+        if (!matched && cvItems.length > 0) {
+          const sevs = cvItems.map(c => c.severity);
+          const top = sevs.includes('critical') ? 'critical' : sevs.includes('high') ? 'high' : sevs.includes('medium') ? 'medium' : 'low';
+          data.defectType = `Трещины / повреждения поверхности (локальный CV, зон: ${cvItems.length})`;
+          data.severity = { critical: 'Критический (по CV, требует проверки)', high: 'Высокий (по CV, требует проверки)', medium: 'Средний (по CV)', low: 'Низкий (по CV)' }[top];
+        } else if (!matched) {
+          data.defectType = 'Локальным анализом явных трещин не найдено';
         }
         
         data.defects = { items: cvItems };
@@ -1084,7 +1082,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
           }
         };
         // Добавляем аналитику для табов "Профиль трещины" и "Смета"
-        data.analytics = {
+        data.analytics = !matched ? null : {
           materials: matched.materials || [],
           labor: matched.labor || [],
           total_cost_kzt: totalMaterials + totalLabor,
@@ -1099,6 +1097,8 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
       }
 
       setScanStepMessage('✨ Формирование технического заключения по СНиП РК...');
+      reportSourceRef.current = data.source || 'local';
+      setReportSource(data.source || 'local');
       
       // Store defect annotation data
       if (data.defect_annotated_image) {
@@ -1133,6 +1133,8 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
             orientation_deg: d.orientation_deg || 0,
             description: d.description || '',
             analytics: d.analytics || null,
+            model: d.model || (data.source === 'ai' ? 'ai' : 'cv'),
+            photoIndex: d.photoIndex,
           };
         }));
       }
@@ -1140,43 +1142,48 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
       setTimeout(() => {
         setIsScanning(false);
         const reportData = {
-          id: `DEF-${Math.floor(1000 + Math.random() * 9000)}`,
+          id: genId('DEF').slice(0, 16).toUpperCase(),
           date: new Date().toLocaleString('ru-RU'),
-          defectType: data.defectType || 'Дефект строительной конструкции',
-          severity: data.severity || '3 класс — Требует устранения',
-          snipCode: data.snipCode || 'СНиП РК 3.02-04-2019',
-          fixMethod: data.fixMethod || 'Локальный ремонт с применением сертифицированных смесей.',
-          estimatedCost: data.estimatedCost || '45 000 – 75 000 ₸',
-          workDays: data.workDays || 2,
+          source: data.source || 'local',
+          detectorName: data.detectorName || null,
+          detector: data.detector || null,
+          isMock: !!data.isMock,
+          fallback: !!data.fallback,
+          warnings: data.warnings || [],
+          descriptionEstimate: !!data.descriptionEstimate,
+          partial: !!data.partial,
+          perPhoto: data.perPhoto || [],
+          defectType: data.defectType || '—',
+          severity: data.severity || '—',
+          snipCode: data.snipCode || '—',
+          fixMethod: data.fixMethod || '—',
+          estimatedCost: data.estimatedCost || '—',
+          workDays: data.workDays || null,
           clientName: clientName || 'Заказчик',
-          clientPhone: clientPhone || '+7 (707) ***-**-**',
-          address: clientAddress || 'г. Алматы',
+          clientPhone: clientPhone || '',
+          address: clientAddress || '',
           defectCount: items.length || 0,
           markers: items,
           analytics: data.analytics || items[0]?.analytics || null,
         };
         setReport(reportData);
         saveToHistory(reportData);
-        showToast('✅ Экспертиза дефекта завершена!');
+        if (reportData.source === 'ai') {
+          showToast(items.length > 0
+            ? `✅ AI-анализ завершён: найдено дефектов — ${items.length}`
+            : '✅ AI-анализ завершён: дефекты не обнаружены');
+        } else {
+          showToast('⚠️ AI-сервис дефектов недоступен — показан локальный анализ (ориентировочно)');
+        }
       }, 500);
 
     } catch (err) {
+      // Никаких выдуманных результатов при ошибке
       console.error(err);
       setIsScanning(false);
-      setReport({
-        id: `DEF-${Math.floor(1000 + Math.random() * 9000)}`,
-        date: new Date().toLocaleString('ru-RU'),
-        defectType: 'Дефект штукатурного/отделочного слоя',
-        severity: '3 класс — Требует устранения',
-        snipCode: 'СНиП РК 3.02-04-2019',
-        fixMethod: 'Расшивка, обеспыливание, армирование и защитное оштукатуривание.',
-        estimatedCost: '35 000 – 65 000 ₸',
-        workDays: 2,
-        clientName: clientName || 'Заказчик',
-        clientPhone: clientPhone || '+7 (707) ***-**-**',
-        address: clientAddress || 'г. Алматы'
-      });
-      showToast('✅ Экспертиза дефекта успешно завершена!');
+      setScanStepMessage('');
+      setScanError(`Ошибка анализа: ${err.message || err}`);
+      showToast('❌ Анализ не выполнен из-за ошибки');
     }
   };
 
@@ -1196,684 +1203,415 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
         </div>
       )}
 
-      {/* Main Glass Card */}
-      <div className="di-main-card">
-        
-        {/* AI Provider Status Banner */}
-        <div className="di-provider-banner" style={{ background: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.35)', color: '#6ee7b7', padding: '10px 16px', borderRadius: '12px', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.85rem' }}>
-          <span style={{ fontSize: '1.2rem' }}>🔬</span>
-          <div>
-            <strong>Анализ по СНиП РК:</strong> Выберите тип дефекта, загрузите фото и получите экспертное заключение с расчётом сметы.
-          </div>
-        </div>
+      {/* Форма проверки */}
+      <form className="di-main-card" onSubmit={handleRunInspection} noValidate>
+        <p className="di-intro">
+          Загрузите фото дефекта — нейросеть отметит трещины на снимке, а заключение подскажет, что делать,
+          сколько стоит ремонт и какой норматив применяется.
+        </p>
 
-        {/* SECTION 0: 🎯 Выберите тип дефекта */}
-        <div className="di-section">
-          <div className="di-section-title">
-            <span className="di-sec-icon">🎯</span>
-            <h3>Выберите тип дефекта</h3>
-          </div>
+        {/* 1. Фото */}
+        <fieldset className="di-section">
+          <legend className="di-section-title"><span className="di-step">1</span>Фото дефекта</legend>
+          <label
+            className={`di-dropzone${isDragOver ? ' is-dragover' : ''}`}
+            htmlFor="di-file-input"
+            onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
+            onDragLeave={() => setIsDragOver(false)}
+            onDrop={(e) => {
+              e.preventDefault();
+              setIsDragOver(false);
+              const files = Array.from(e.dataTransfer?.files || []).filter(f => f.type.startsWith('image/'));
+              if (files.length) handlePhotoUpload({ target: { files } });
+            }}
+          >
+            <input
+              type="file"
+              id="di-file-input"
+              className="qg-visually-hidden"
+              multiple
+              accept="image/*"
+              onChange={handlePhotoUpload}
+              aria-describedby="di-drop-sub"
+            />
+            <span className="di-drop-content">
+              <svg width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M9 3h6l1.8 2H20a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h3.2L9 3Zm3 5a5 5 0 1 0 0 10 5 5 0 0 0 0-10Zm0 2a3 3 0 1 1 0 6 3 3 0 0 1 0-6Z" /></svg>
+              <span className="di-drop-main">Выберите фото или перетащите сюда</span>
+              <span className="di-drop-sub" id="di-drop-sub">JPG или PNG, до 10 снимков. Снимайте дефект целиком, при дневном свете.</span>
+            </span>
+          </label>
 
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',
-            gap: '8px',
-          }}>
+          {photos.length > 0 && (
+            <ul className="di-thumbs-grid" aria-label="Загруженные фото">
+              {photos.map(p => (
+                <li key={p.id} className="di-thumb-item">
+                  <button type="button" className="di-thumb-open" onClick={() => setLightboxSrc(p.url)} aria-label={`Открыть ${p.name}`}>
+                    <img src={p.url} alt={p.name} />
+                  </button>
+                  <button
+                    type="button"
+                    className="di-thumb-remove"
+                    aria-label={`Удалить ${p.name}`}
+                    onClick={(e) => { e.stopPropagation(); removePhoto(p.id); }}
+                  >
+                    ✕
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </fieldset>
+
+        {/* 2. Тип и описание */}
+        <fieldset className="di-section">
+          <legend className="di-section-title"><span className="di-step">2</span>Что беспокоит</legend>
+          <div className="di-type-grid" role="group" aria-label="Тип дефекта">
             {DEFECT_TYPES.map(type => (
               <button
                 key={type.id}
                 type="button"
+                className={`di-type-btn${selectedDefectType === type.id ? ' is-active' : ''}`}
+                aria-pressed={selectedDefectType === type.id}
                 onClick={() => handleSelectDefectType(type)}
-                style={{
-                  background: selectedDefectType === type.id
-                    ? 'linear-gradient(135deg, rgba(56, 189, 248, 0.3), rgba(37, 99, 235, 0.3))'
-                    : 'rgba(255,255,255,0.04)',
-                  border: `1.5px solid ${selectedDefectType === type.id ? '#38bdf8' : 'rgba(255,255,255,0.1)'}`,
-                  borderRadius: '10px',
-                  padding: '10px 8px',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  gap: '4px',
-                  transition: 'all 0.2s ease',
-                  boxShadow: selectedDefectType === type.id ? '0 0 12px rgba(56, 189, 248, 0.3)' : 'none',
-                }}
               >
-                <span style={{ fontSize: '1.4rem' }}>{type.icon}</span>
-                <span style={{
-                  color: selectedDefectType === type.id ? '#7dd3fc' : '#cbd5e1',
-                  fontSize: '0.72rem',
-                  fontWeight: 700,
-                  textAlign: 'center',
-                  lineHeight: 1.2,
-                }}>{type.label}</span>
+                {type.label}
               </button>
             ))}
           </div>
-        </div>
 
-        {/* SECTION 1: 📸 Загрузите фото */}
-        <div className="di-section mt-4">
-          <div className="di-section-title">
-            <span className="di-sec-icon">📸</span>
-            <h3>Загрузите фото</h3>
-          </div>
-
-          <div 
-            className="di-dropzone"
-            onClick={() => document.getElementById('di-file-input').click()}
-          >
-            <input 
-              type="file" 
-              id="di-file-input"
-              multiple 
-              accept="image/*"
-              style={{ display: 'none' }}
-              onChange={handlePhotoUpload}
-            />
-
-            <div className="di-drop-content">
-              <span className="di-drop-icon">🔍</span>
-              <p className="di-drop-main">Перетащите или нажмите для загрузки</p>
-              <p className="di-drop-sub">До 10 фото со смартфона или камеры</p>
-            </div>
-          </div>
-
-          {/* Photos Thumbnails Grid */}
-          {photos.length > 0 && (
-            <div className="di-thumbs-grid">
-              {photos.map(p => (
-                <div key={p.id} className="di-thumb-item" onClick={() => setLightboxSrc(p.url)}>
-                  <img src={p.url} alt={p.name} />
-                  <button 
-                    type="button" 
-                    className="di-thumb-remove" 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      removePhoto(p.id);
-                    }}
-                  >
-                    ✕
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* SECTION 2: 📞 Контактные данные клиента */}
-        <div className="di-section mt-4">
-          <div className="di-section-title">
-            <span className="di-sec-icon">📞</span>
-            <h3>Контактные данные клиента</h3>
-          </div>
-
-          <div className="di-form-stack">
-            <input 
-              type="text" 
-              placeholder="Имя клиента"
-              value={clientName}
-              onChange={e => setClientName(e.target.value)}
-              className="di-input"
-            />
-
-            <input 
-              type="text" 
-              placeholder="Телефон (+7...)"
-              value={clientPhone}
-              onChange={e => setClientPhone(e.target.value)}
-              className="di-input"
-            />
-
-            <input 
-              type="text" 
-              placeholder="Адрес объекта (необязательно)"
-              value={clientAddress}
-              onChange={e => setClientAddress(e.target.value)}
-              className="di-input"
-            />
-          </div>
-        </div>
-
-        {/* SECTION 3: 🤖 Описание для ИИ */}
-        <div className="di-section mt-4">
-          <div className="di-section-title">
-            <span className="di-sec-icon">🤖</span>
-            <h3>Описание для ИИ</h3>
-          </div>
-
-          <textarea 
-            rows="4"
-            placeholder="Опишите проблему или что нужно проверить (например: 'Трещина на стене в углу комнаты, появилась после зимы')"
-            value={aiDescription}
-            onChange={e => setAiDescription(e.target.value)}
-            className="di-textarea"
-          ></textarea>
-
-          {/* Quick Preset Prompt Chips */}
+          <label className="di-field" htmlFor="di-description">
+            <span className="di-label">Описание <span className="di-optional">необязательно</span></span>
+            <textarea
+              id="di-description"
+              rows="3"
+              placeholder="Например: трещина в углу комнаты, появилась после зимы, расширяется"
+              value={aiDescription}
+              onChange={e => setAiDescription(e.target.value)}
+              className="di-textarea"
+            ></textarea>
+          </label>
           <div className="di-preset-chips">
-            <span className="di-chips-label">Быстрые подсказки:</span>
-            <button type="button" onClick={() => applyPresetPrompt('Трещина в стене')}>🧱 Трещина в стене</button>
-            <button type="button" onClick={() => applyPresetPrompt('Протечка / сырость')}>💧 Протечка / сырость</button>
-            <button type="button" onClick={() => applyPresetPrompt('Перепад пола / потолка')}>📐 Перепад пола / потолка</button>
-            <button type="button" onClick={() => applyPresetPrompt('Брак штукатурки')}>🔨 Брак штукатурки</button>
+            <span className="di-chips-label">Добавить в описание:</span>
+            <button type="button" onClick={() => applyPresetPrompt('Трещина в стене')}>Трещина в стене</button>
+            <button type="button" onClick={() => applyPresetPrompt('Протечка / сырость')}>Протечка, сырость</button>
+            <button type="button" onClick={() => applyPresetPrompt('Перепад пола / потолка')}>Перепад пола</button>
+            <button type="button" onClick={() => applyPresetPrompt('Брак штукатурки')}>Брак штукатурки</button>
           </div>
-        </div>
+        </fieldset>
 
-        {/* Submit + Reset Buttons */}
-        <div style={{ display: 'flex', gap: '10px', marginTop: '0.5rem' }}>
-          <button 
-            className="di-btn-submit"
-            onClick={handleRunInspection}
-            disabled={isScanning}
-            style={{ flex: 1 }}
-          >
+        {/* 3. Контакты */}
+        <fieldset className="di-section">
+          <legend className="di-section-title"><span className="di-step">3</span>Для акта <span className="di-optional">необязательно</span></legend>
+          <div className="di-form-grid">
+            <label className="di-field" htmlFor="di-client-name">
+              <span className="di-label">Имя заказчика</span>
+              <input id="di-client-name" type="text" autoComplete="name" value={clientName} onChange={e => setClientName(e.target.value)} className="di-input" />
+            </label>
+            <label className="di-field" htmlFor="di-client-phone">
+              <span className="di-label">Телефон</span>
+              <input id="di-client-phone" type="tel" autoComplete="tel" placeholder="+7" value={clientPhone} onChange={e => setClientPhone(e.target.value)} className="di-input" />
+            </label>
+            <label className="di-field di-field--wide" htmlFor="di-client-address">
+              <span className="di-label">Адрес объекта</span>
+              <input id="di-client-address" type="text" autoComplete="street-address" value={clientAddress} onChange={e => setClientAddress(e.target.value)} className="di-input" />
+            </label>
+          </div>
+        </fieldset>
+
+        <div className="di-submit-row">
+          <button type="submit" className="di-btn-submit" disabled={isScanning}>
             {isScanning ? (
               <span className="di-scanning-flex">
-                <span className="di-spinner">⚙️</span>
+                <span className="di-spinner" aria-hidden="true" />
                 {scanStepMessage}
               </span>
             ) : (
-              <span>🔍 Проверить и сформировать отчёт</span>
+              <span>Проверить и сформировать отчёт</span>
             )}
           </button>
-          
           {report && (
-            <button
-              type="button"
-              onClick={handleReset}
-              style={{
-                background: 'rgba(255,255,255,0.06)',
-                border: '1.5px solid rgba(255,255,255,0.15)',
-                color: '#94a3b8',
-                borderRadius: '12px',
-                padding: '14px 18px',
-                fontWeight: 800,
-                fontSize: '0.88rem',
-                cursor: 'pointer',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              🔄 Новое
+            <button type="button" className="qg-btn qg-btn--ghost" onClick={handleReset}>
+              Новая проверка
             </button>
           )}
         </div>
+      </form>
 
-      </div>
-
-      {/* ===== SCANNING PROGRESS CARD ===== */}
+      {/* Ход анализа */}
       {isScanning && (
-        <div className="di-section mt-4" style={{ 
-          maxWidth: '680px', 
-          margin: '1.5rem auto 0', 
-          textAlign: 'center', 
-          padding: '2.5rem 1.5rem',
-          background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.95))',
-          border: '1.5px solid rgba(56, 189, 248, 0.4)',
-          borderRadius: '16px',
-          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
-        }}>
-          <div style={{ fontSize: '2.5rem', marginBottom: '1rem', animation: 'spin 2s linear infinite' }}>
-            🛰️
-          </div>
-          <h3 style={{ color: '#38bdf8', fontSize: '1.25rem', fontWeight: 800, margin: '0 0 0.5rem 0' }}>
-            Анализ дефекта по СНиП РК...
-          </h3>
-          <p style={{ color: '#94a3b8', fontSize: '0.95rem', margin: '0 0 1.25rem 0' }}>
-            Пожалуйста, подождите. Определяется тип дефекта, класс риска, формируется смета и зоны инспекции.
-          </p>
-          <div style={{ 
-            background: 'rgba(56, 189, 248, 0.12)', 
-            border: '1px solid rgba(56, 189, 248, 0.3)',
-            borderRadius: '10px',
-            padding: '10px 16px',
-            color: '#e2e8f0',
-            fontWeight: 700,
-            fontSize: '0.9rem',
-            display: 'inline-block'
-          }}>
-            {scanStepMessage}
+        <div className="di-progress" role="status" aria-live="polite">
+          <span className="qg-loader__bar" aria-hidden="true" />
+          <div>
+            <h3>Анализируем фото</h3>
+            <p>{scanStepMessage || 'Ищем дефекты и готовим заключение…'}</p>
           </div>
         </div>
       )}
 
-      {/* ===== DEFECT VISUALIZATION SECTION ===== */}
-      {report && (
-        <div className="di-section mt-4" style={{ padding: 0, overflow: 'hidden', maxWidth: '680px', margin: '1.5rem auto 0' }}>
-          <div style={{ padding: '16px 20px 8px' }}>
-            <h3 style={{ color: '#e2e8f0', margin: 0, fontSize: '1.1rem', fontWeight: 800 }}>
-              🔬 Зоны инспекции — техническое обследование
-            </h3>
-          </div>
-          
-          {/* Severity Summary Bar */}
+      {/* Ошибка / предупреждение анализа (честное сообщение вместо выдуманного результата) */}
+      {scanError && !isScanning && (
+        <div data-testid="defect-scan-error" className="di-note di-note--warn di-scan-error" role="alert">
+          {scanError}
+        </div>
+      )}
+
+      {/* ===== РЕЗУЛЬТАТ: фото с зонами, детектор, список дефектов ===== */}
+      {report && (() => {
+        const det = report.detector || null;
+        const validated = Array.isArray(det?.validated_classes) ? det.validated_classes.map(String) : null;
+        const onlyCracksValidated = report.source === 'ai' && validated && validated.length > 0 && validated.every(c => c.toLowerCase() === 'crack');
+        const conf = Number(det?.conf_threshold);
+        const aiView = reportSource === 'ai';
+        const modes = [
+          { id: 'hud', label: report.source === 'ai' ? 'Зоны модели' : 'Разметка', show: true },
+          { id: 'stress', label: 'Теплокарта напряжений', show: !aiView || !!stressHeatmapImage },
+          { id: 'skeleton', label: 'Скелет трещины', show: !!skeletonImage || !aiView },
+          { id: 'clean', label: 'Исходное фото', show: true },
+        ].filter(m => m.show);
+        const fallbackPhoto = photos[0]?.url || null;
+        const currentImg =
+          visionMode === 'skeleton' && skeletonImage ? skeletonImage :
+          aiView && visionMode === 'stress' && stressHeatmapImage ? stressHeatmapImage :
+          aiView && visionMode !== 'clean' && annotatedImage ? annotatedImage :
+          fallbackPhoto; // локальный режим: оригинал, drawOverlay рисует поверх
+        const n = defectMarkers.length;
+        const caption =
+          visionMode === 'stress' ? 'Теплокарта напряжений' :
+          visionMode === 'skeleton' ? 'Скелет трещины' :
+          visionMode === 'clean' ? 'Исходное фото без разметки' :
+          n > 0 ? `${defectsWord(n)} на фото` : 'Дефекты на фото не отмечены';
+        const SEV = {
+          critical: { label: 'Критический', cls: 'critical' },
+          high: { label: 'Высокий', cls: 'high' },
+          medium: { label: 'Средний', cls: 'medium' },
+          low: { label: 'Низкий', cls: 'low' },
+        };
+        return (
+        <section className="di-result" aria-labelledby="di-result-title">
+          <header className="di-result-head">
+            <div>
+              <h3 id="di-result-title">Результат проверки</h3>
+              <p className="di-result-sub">
+                {report.source === 'ai'
+                  ? 'Нейросеть отметила найденные зоны прямо на фото. Окончательный вывод делает инженер.'
+                  : 'Локальный анализ в браузере — ориентировочный, требует подтверждения инженером.'}
+              </p>
+            </div>
+            {report.source === 'ai' && (det?.name || report.detectorName) && (
+              <dl className="di-detector-badge" data-testid="defect-detector-badge" title={det?.note || undefined}>
+                <div><dt>Модель</dt><dd>{det?.name || report.detectorName}</dd></div>
+                {Number.isFinite(conf) && conf > 0 && <div><dt>Порог</dt><dd>{conf.toLocaleString('ru-RU', { maximumFractionDigits: 2 })}</dd></div>}
+                {det?.imgsz ? <div><dt>Кадр</dt><dd>{det.imgsz} px</dd></div> : null}
+              </dl>
+            )}
+          </header>
+
+          {onlyCracksValidated && (
+            <p className="di-note" data-testid="defect-validated-note">
+              Модель обучена на трещинах; коррозия и сколы — по осмотру инженера.
+            </p>
+          )}
+          {(report.isMock || report.fallback) && (
+            <p className="di-note di-note--warn">
+              {report.isMock ? 'Сервис ответил в демо-режиме: зоны условные. ' : ''}
+              {report.fallback ? 'Основная модель недоступна, использован резервный детектор. ' : ''}
+              Перед ремонтом нужен осмотр инженера.
+            </p>
+          )}
+          {report.warnings && report.warnings.length > 0 && (
+            <ul className="di-note di-note--warn di-warnings">
+              {report.warnings.map((w, i) => <li key={i}>{w}</li>)}
+            </ul>
+          )}
+
           {severitySummary && (
-            <div style={{ display: 'flex', gap: '8px', padding: '8px 20px 14px', flexWrap: 'wrap' }}>
-              {(severitySummary.by_severity?.critical > 0) && (
-                <div style={{ background: 'rgba(255,40,40,0.2)', border: '1px solid rgba(255,40,40,0.5)', borderRadius: '8px', padding: '6px 12px' }}>
-                  <span style={{ color: '#ff4444', fontWeight: 800, fontSize: '0.9rem' }}>
-                    🔴 Критических: {severitySummary.by_severity.critical}
-                  </span>
-                </div>
-              )}
-              {(severitySummary.by_severity?.high > 0) && (
-                <div style={{ background: 'rgba(255,120,30,0.2)', border: '1px solid rgba(255,120,30,0.5)', borderRadius: '8px', padding: '6px 12px' }}>
-                  <span style={{ color: '#ff781e', fontWeight: 800, fontSize: '0.9rem' }}>
-                    🟠 Высоких: {severitySummary.by_severity.high}
-                  </span>
-                </div>
-              )}
-              {(severitySummary.by_severity?.medium > 0) && (
-                <div style={{ background: 'rgba(255,200,0,0.15)', border: '1px solid rgba(255,200,0,0.4)', borderRadius: '8px', padding: '6px 12px' }}>
-                  <span style={{ color: '#ffc800', fontWeight: 800, fontSize: '0.9rem' }}>
-                    🟡 Средних: {severitySummary.by_severity.medium}
-                  </span>
-                </div>
-              )}
-              {(severitySummary.by_severity?.low > 0) && (
-                <div style={{ background: 'rgba(80,200,80,0.15)', border: '1px solid rgba(80,200,80,0.4)', borderRadius: '8px', padding: '6px 12px' }}>
-                  <span style={{ color: '#50c850', fontWeight: 800, fontSize: '0.9rem' }}>
-                    🟢 Низких: {severitySummary.by_severity.low}
-                  </span>
-                </div>
-              )}
-              <div style={{ background: 'rgba(100,160,255,0.1)', borderRadius: '8px', padding: '6px 12px', marginLeft: 'auto' }}>
-                <span style={{ color: '#cbd5e1', fontWeight: 700, fontSize: '0.9rem' }}>
-                  Всего: {severitySummary.total}
-                </span>
-              </div>
+            <div className="di-severity-row" aria-label="Сводка по тяжести">
+              {severitySummary.by_severity?.critical > 0 && <span className="di-sev-chip critical">Критических: {severitySummary.by_severity.critical}</span>}
+              {severitySummary.by_severity?.high > 0 && <span className="di-sev-chip high">Высоких: {severitySummary.by_severity.high}</span>}
+              {severitySummary.by_severity?.medium > 0 && <span className="di-sev-chip medium">Средних: {severitySummary.by_severity.medium}</span>}
+              {severitySummary.by_severity?.low > 0 && <span className="di-sev-chip low">Низких: {severitySummary.by_severity.low}</span>}
+              <span className="di-sev-total">Всего: {severitySummary.total}</span>
             </div>
           )}
-          
-          {/* Vision Mode Switcher (Laser AR HUD / FEA Stress Heatmap / Skeleton / Clean Photo) */}
-          <div style={{
-            display: 'flex',
-            gap: '8px',
-            padding: '0 20px 14px',
-            flexWrap: 'wrap',
-            alignItems: 'center',
-            borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-            marginBottom: '12px'
-          }}>
-            <span style={{ color: '#94a3b8', fontSize: '0.84rem', fontWeight: 800, marginRight: '4px' }}>Режим Vision:</span>
-            
-            <button
-              type="button"
-              onClick={() => setVisionMode('hud')}
-              style={{
-                background: visionMode === 'hud' ? 'linear-gradient(135deg, rgba(56, 189, 248, 0.35), rgba(37, 99, 235, 0.35))' : 'rgba(255,255,255,0.05)',
-                border: `1.5px solid ${visionMode === 'hud' ? '#38bdf8' : 'rgba(255,255,255,0.15)'}`,
-                color: visionMode === 'hud' ? '#7dd3fc' : '#94a3b8',
-                borderRadius: '8px', padding: '6px 12px', fontSize: '0.82rem', fontWeight: 800, cursor: 'pointer',
-                boxShadow: visionMode === 'hud' ? '0 0 12px rgba(56, 189, 248, 0.3)' : 'none',
-              }}
-            >
-              🟢 Laser AR HUD (СНиП)
-            </button>
 
-            <button
-              type="button"
-              onClick={() => setVisionMode('stress')}
-              style={{
-                background: visionMode === 'stress' ? 'linear-gradient(135deg, rgba(239, 68, 68, 0.35), rgba(245, 158, 11, 0.35))' : 'rgba(255,255,255,0.05)',
-                border: `1.5px solid ${visionMode === 'stress' ? '#ef4444' : 'rgba(255,255,255,0.15)'}`,
-                color: visionMode === 'stress' ? '#fca5a5' : '#94a3b8',
-                borderRadius: '8px', padding: '6px 12px', fontSize: '0.82rem', fontWeight: 800, cursor: 'pointer',
-                boxShadow: visionMode === 'stress' ? '0 0 12px rgba(239, 68, 68, 0.3)' : 'none',
-              }}
-            >
-              🌡️ Теплокарта напряжений (FEA)
-            </button>
+          {/* Результаты по каждому фото (AI-сервис: отдельный запрос на фото) */}
+          {report.perPhoto && report.perPhoto.length > 1 && (
+            <div className="di-perphoto-row">
+              {report.perPhoto.map(pp => (
+                <button
+                  key={pp.index}
+                  type="button"
+                  className={`di-perphoto-btn${annotatedImage === pp.annotated ? ' is-active' : ''}`}
+                  aria-pressed={annotatedImage === pp.annotated}
+                  onClick={() => pp.annotated && setAnnotatedImage(pp.annotated)}
+                  title={pp.name}
+                >
+                  {pp.annotated && <img src={pp.annotated} alt="" />}
+                  <span>Фото {pp.index + 1}: {pp.count} деф.{pp.maxSeverity ? ` • ${pp.maxSeverity}` : ''}</span>
+                </button>
+              ))}
+            </div>
+          )}
 
-            <button
-              type="button"
-              onClick={() => setVisionMode('skeleton')}
-              style={{
-                background: visionMode === 'skeleton' ? 'linear-gradient(135deg, rgba(168, 85, 247, 0.35), rgba(59, 130, 246, 0.35))' : 'rgba(255,255,255,0.05)',
-                border: `1.5px solid ${visionMode === 'skeleton' ? '#a855f7' : 'rgba(255,255,255,0.15)'}`,
-                color: visionMode === 'skeleton' ? '#d8b4fe' : '#94a3b8',
-                borderRadius: '8px', padding: '6px 12px', fontSize: '0.82rem', fontWeight: 800, cursor: 'pointer',
-                boxShadow: visionMode === 'skeleton' ? '0 0 12px rgba(168, 85, 247, 0.3)' : 'none',
-              }}
-            >
-              🔬 Скелетизация дефекта
-            </button>
+          {modes.length > 1 && (
+            <div className="di-mode-switch" role="group" aria-label="Режим просмотра фото">
+              {modes.map(m => (
+                <button
+                  key={m.id}
+                  type="button"
+                  className={visionMode === m.id ? 'is-active' : ''}
+                  aria-pressed={visionMode === m.id}
+                  onClick={() => setVisionMode(m.id)}
+                >
+                  {m.label}
+                </button>
+              ))}
+            </div>
+          )}
 
-            <button
-              type="button"
-              onClick={() => setVisionMode('clean')}
-              style={{
-                background: visionMode === 'clean' ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.05)',
-                border: `1.5px solid ${visionMode === 'clean' ? '#ffffff' : 'rgba(255,255,255,0.15)'}`,
-                color: visionMode === 'clean' ? '#ffffff' : '#94a3b8',
-                borderRadius: '8px', padding: '6px 12px', fontSize: '0.82rem', fontWeight: 800, cursor: 'pointer',
-              }}
-            >
-              📷 Исходное фото
-            </button>
-          </div>
-
-          {/* Active Image View — with Canvas overlay for defect markers */}
-          {(() => {
-            const fallbackPhoto = photos[0]?.url || null;
-            const currentImg = 
-              visionMode === 'skeleton' && skeletonImage ? skeletonImage :
-              fallbackPhoto; // HUD/stress/clean all show original — drawOverlay paints on top
-
-            if (!currentImg) return null;
-
-            return (
-              <div 
-                className="di-defect-image-wrap" 
+          {currentImg && (
+            <figure className="di-figure">
+              <button
+                type="button"
+                className="di-defect-image-wrap"
                 onClick={() => { setLightboxSrc(currentImg); setLightboxZoom(1); }}
-                style={{ position: 'relative', overflow: 'hidden' }}
+                aria-label="Открыть фото крупно"
               >
-                <img 
+                <img
                   ref={imgRef}
-                  src={currentImg} 
-                  alt="Дефекты" 
+                  src={currentImg}
+                  alt={n > 0 ? `Фото с отмеченными дефектами: ${n}` : 'Фото объекта'}
                   onLoad={() => drawOverlay()}
-                  style={{ display: 'block', width: '100%' }}
                 />
-                <canvas 
-                  ref={canvasRef}
-                  style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none' }}
-                />
-                <span className="di-zoom-hint">
-                  {visionMode === 'stress' ? '🌡️ Теплокарта напряжений' :
-                   visionMode === 'skeleton' ? '🔬 Скелетизация разлома' :
-                   visionMode === 'clean' ? '📷 Исходное фото' :
-                   `🔍 Обнаружено ${defectMarkers.length} зон — нажмите для зума`}
-                </span>
-              </div>
-            );
-          })()}
+                <canvas ref={canvasRef} aria-hidden="true" />
+              </button>
+              {/* Подсказка — под фото, а не поверх: раньше перекрывала подпись рамки модели */}
+              <figcaption className="di-zoom-hint">
+                <span>{caption}</span>
+                <span className="di-zoom-cta">Нажмите на фото, чтобы увеличить</span>
+              </figcaption>
+            </figure>
+          )}
 
-          {/* Defect Cards List */}
-          {defectMarkers.length > 0 && (
-            <div style={{ padding: '16px 20px 20px' }}>
-              <h4 style={{ color: '#f1f5f9', margin: '0 0 12px', fontSize: '1.05rem', fontWeight: 800 }}>
-                📋 Обнаруженные дефекты ({defectMarkers.length}):
-              </h4>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {defectMarkers.map((marker, idx) => {
-                  const sevConfig = {
-                    critical: { bg: 'rgba(255,40,40,0.12)', border: 'rgba(255,40,40,0.5)', color: '#ff4444', dot: '#ff2828', label: 'КРИТИЧЕСКИЙ' },
-                    high: { bg: 'rgba(255,120,30,0.1)', border: 'rgba(255,120,30,0.45)', color: '#ff8c3a', dot: '#ff781e', label: 'ВЫСОКИЙ' },
-                    medium: { bg: 'rgba(255,200,0,0.08)', border: 'rgba(255,200,0,0.4)', color: '#ffd000', dot: '#ffc800', label: 'СРЕДНИЙ' },
-                    low: { bg: 'rgba(80,200,80,0.08)', border: 'rgba(80,200,80,0.4)', color: '#66cc66', dot: '#50c850', label: 'НИЗКИЙ' },
-                  };
-                  const s = sevConfig[marker.severity] || sevConfig.medium;
+          {n > 0 && (
+            <div className="di-defects-block">
+              <h4 className="di-block-title">Найденные дефекты</h4>
+              <ol className="di-defect-list">
+                {defectMarkers.map((marker) => {
+                  const sv = SEV[marker.severity] || SEV.medium;
+                  const pct = marker.confidence > 0 ? Math.round(Number(marker.confidence) * 100) : null;
                   const isSelected = selectedDefectId === marker.id;
-                  
                   return (
-                    <div 
-                      key={idx} 
-                      onClick={() => setSelectedDefectId(isSelected ? null : marker.id)}
-                      style={{
-                        background: isSelected ? 'rgba(56, 189, 248, 0.15)' : s.bg, 
-                        border: isSelected ? '2px solid #38bdf8' : `1.5px solid ${s.border}`,
-                        boxShadow: isSelected ? '0 0 16px rgba(56, 189, 248, 0.4)' : 'none',
-                        borderRadius: '12px', 
-                        padding: '14px 18px',
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        gap: '14px',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s ease',
-                      }}
-                    >
-                      {/* Severity dot with number */}
-                      <div style={{
-                        width: '40px', height: '40px', borderRadius: '50%',
-                        background: s.dot, display: 'flex', alignItems: 'center',
-                        justifyContent: 'center', color: '#fff', fontWeight: 900,
-                        fontSize: '1rem', flexShrink: 0,
-                        boxShadow: `0 2px 12px ${s.dot}66`,
-                      }}>
-                        {marker.id}
-                      </div>
-                      
-                      {/* Info */}
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontWeight: 800, color: '#f1f5f9', fontSize: '1rem', marginBottom: '3px' }}>
-                          {marker.type}
-                        </div>
-                        <div style={{ color: s.color, fontSize: '0.88rem', fontWeight: 700 }}>
-                          {s.label} • Точность: {(marker.confidence * 100).toFixed(0)}%
-                        </div>
-                        {marker.description && (
-                          <div style={{ color: '#b0bec5', fontSize: '0.85rem', marginTop: '4px' }}>
-                            {marker.description}
-                          </div>
+                    <li key={marker.id}>
+                      <button
+                        type="button"
+                        className={`di-defect-item sev-${sv.cls}${isSelected ? ' is-selected' : ''}`}
+                        aria-pressed={isSelected}
+                        onClick={() => setSelectedDefectId(isSelected ? null : marker.id)}
+                      >
+                        <span className="di-defect-num" aria-hidden="true">{marker.id}</span>
+                        <span className="di-defect-main">
+                          <span className="di-defect-title">{marker.type}</span>
+                          <span className="di-defect-meta">
+                            <span className={`di-sev-chip ${sv.cls}`}>{sv.label} риск</span>
+                            <span className="qg-chip">{pct !== null ? `уверенность ${pct}%` : 'оценка локального CV, требует проверки'}</span>
+                            {marker.model && (
+                              <span className="qg-chip">модель: {marker.model}{marker.model === 'yolo' && report.detectorName ? ` (${report.detectorName})` : ''}</span>
+                            )}
+                            {marker.photoIndex !== undefined && <span className="qg-chip">фото {marker.photoIndex + 1}</span>}
+                            {marker.length_mm ? <span className="qg-chip qg-chip--info">длина {marker.length_mm} мм</span> : null}
+                            {marker.opening_mm ? <span className="qg-chip qg-chip--warn">раскрытие {marker.opening_mm} мм</span> : null}
+                          </span>
+                          {marker.description && <span className="di-defect-desc">{marker.description}</span>}
+                        </span>
+                        {pct !== null && (
+                          <span className="di-conf-meter" aria-hidden="true"><span style={{ width: `${pct}%` }} /></span>
                         )}
-                      </div>
-
-                      {/* Dimension metrics */}
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-end' }}>
-                        {marker.length_mm && (
-                          <div style={{
-                            background: 'rgba(56, 189, 248, 0.15)',
-                            border: '1px solid rgba(56, 189, 248, 0.4)',
-                            borderRadius: '6px', padding: '2px 8px',
-                            color: '#38bdf8', fontSize: '0.78rem', fontWeight: 700,
-                            whiteSpace: 'nowrap',
-                          }}>
-                            ↕ {marker.length_mm} мм
-                          </div>
-                        )}
-                        {marker.opening_mm && (
-                          <div style={{
-                            background: 'rgba(245, 158, 11, 0.15)',
-                            border: '1px solid rgba(245, 158, 11, 0.4)',
-                            borderRadius: '6px', padding: '2px 8px',
-                            color: '#fbbf24', fontSize: '0.78rem', fontWeight: 700,
-                            whiteSpace: 'nowrap',
-                          }}>
-                            ↔ {marker.opening_mm} мм
-                          </div>
-                        )}
-                      </div>
-                    </div>
+                      </button>
+                    </li>
                   );
                 })}
-              </div>
+              </ol>
             </div>
           )}
-        </div>
-      )}
+        </section>
+        );
+      })()}
 
-      {/* AI Scanner Result Card with Interactive Tabs */}
+      {/* Заключение: что делать / стоимость / норматив + вкладки */}
       {report && (
-        <div className="di-report-card" style={{ maxWidth: '680px', margin: '1.5rem auto 0' }}>
+        <div className="di-report-card">
           <div className="di-report-header">
-            <span className="di-report-badge">📋 Инженерная дефектоскопия QazGost AI</span>
-            <span className="di-report-id">Акт № {report.id}</span>
+            <div>
+              <h3 className="di-report-title">Заключение</h3>
+              <p className="di-report-id">Акт <span className="qg-code">№ {report.id}</span>, {report.date}</p>
+            </div>
+            <span
+              data-testid="defect-report-source"
+              className={`di-source-badge ${report.source === 'ai' ? 'is-ai' : 'is-local'}`}
+            >
+              {report.source === 'ai'
+                ? `AI-сервис дефектов${report.detectorName ? ` · ${report.detectorName}` : ''}`
+                : 'Локальный анализ — ориентировочно'}
+            </span>
           </div>
 
-          {/* Navigation Tab Bar */}
-          <div style={{
-            display: 'flex',
-            gap: '6px',
-            background: 'rgba(15, 23, 42, 0.65)',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
-            borderRadius: '10px',
-            padding: '4px',
-            margin: '12px 0 16px 0',
-          }}>
-            <button
-              type="button"
-              onClick={() => setActiveReportTab('expert')}
-              style={{
-                flex: 1,
-                padding: '8px 10px',
-                borderRadius: '8px',
-                border: 'none',
-                background: activeReportTab === 'expert' ? 'linear-gradient(135deg, #0284c7, #2563eb)' : 'transparent',
-                color: activeReportTab === 'expert' ? '#fff' : '#94a3b8',
-                fontWeight: activeReportTab === 'expert' ? 800 : 600,
-                fontSize: '0.82rem',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-              }}
-            >
-              📑 СНиП и Риски
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveReportTab('chart')}
-              style={{
-                flex: 1,
-                padding: '8px 10px',
-                borderRadius: '8px',
-                border: 'none',
-                background: activeReportTab === 'chart' ? 'linear-gradient(135deg, #0284c7, #2563eb)' : 'transparent',
-                color: activeReportTab === 'chart' ? '#fff' : '#94a3b8',
-                fontWeight: activeReportTab === 'chart' ? 800 : 600,
-                fontSize: '0.82rem',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-              }}
-            >
-              📊 Профиль трещины
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveReportTab('estimate')}
-              style={{
-                flex: 1,
-                padding: '8px 10px',
-                borderRadius: '8px',
-                border: 'none',
-                background: activeReportTab === 'estimate' ? 'linear-gradient(135deg, #0284c7, #2563eb)' : 'transparent',
-                color: activeReportTab === 'estimate' ? '#fff' : '#94a3b8',
-                fontWeight: activeReportTab === 'estimate' ? 800 : 600,
-                fontSize: '0.82rem',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-              }}
-            >
-              🛠️ Смета ремонта (₸)
-            </button>
+          <div className="di-tabs" role="tablist" aria-label="Разделы заключения">
+            {[
+              { id: 'expert', label: 'Что делать' },
+              { id: 'chart', label: 'Профиль трещины' },
+              { id: 'estimate', label: 'Смета ремонта' },
+            ].map(t => (
+              <button
+                key={t.id}
+                type="button"
+                role="tab"
+                aria-selected={activeReportTab === t.id}
+                className={activeReportTab === t.id ? 'is-active' : ''}
+                onClick={() => setActiveReportTab(t.id)}
+              >
+                {t.label}
+              </button>
+            ))}
           </div>
 
-          {/* TAB 1: 📑 Экспертиза СНиП РК и Риски */}
+          {/* TAB 1: что делать / стоимость / норматив */}
           {activeReportTab === 'expert' && (
-            <div className="di-report-grid">
-              <div className="di-r-item">
-                <span className="label">Обнаруженный дефект:</span>
-                <strong className="val pink">{report.defectType}</strong>
+            <div className="di-plan" role="tabpanel">
+              <div className="di-plan-defect">
+                <span className="di-plan-label">Дефект</span>
+                <strong className="di-plan-defect-name">{report.defectType}</strong>
+                {report.severity && report.severity !== '—' && <span className="di-plan-severity">{report.severity}</span>}
               </div>
 
-              <div className="di-r-item">
-                <span className="label">Класс риска по СНиП:</span>
-                <strong className="val warning">{report.severity}</strong>
+              <div className="di-plan-grid">
+                <section className="di-plan-cell di-plan-what">
+                  <h4>Что делать</h4>
+                  <p>{report.fixMethod}</p>
+                </section>
+                <section className="di-plan-cell di-plan-cost">
+                  <h4>Стоимость ремонта</h4>
+                  <span className="qg-price-tag di-plan-price">{report.estimatedCost}</span>
+                  <p className="di-plan-hint">
+                    {report.workDays ? `Срок работ: около ${report.workDays} ${report.workDays === 1 ? 'дня' : 'дней'}. ` : ''}
+                    {report.source === 'ai' ? 'Оценка по ценам базы ГЭСН РК.' : 'Ориентировочно, без осмотра.'}
+                  </p>
+                </section>
+                <section className="di-plan-cell di-plan-norm">
+                  <h4>Норматив</h4>
+                  <code className="qg-code di-plan-code">{report.snipCode}</code>
+                </section>
               </div>
 
-              <div className="di-r-item">
-                <span className="label">Нормативный код СНиП РК:</span>
-                <code className="val-code">{report.snipCode}</code>
-              </div>
-
-              <div className="di-r-item">
-                <span className="label">Категория состояния (ГОСТ 31937):</span>
-                <strong style={{ color: '#fbbf24', fontSize: '0.9rem' }}>
-                  {report.analytics?.gost_status || 'Категория III — Ограниченно-работоспособное'}
-                </strong>
-              </div>
-
-              <div className="di-r-item">
-                <span className="label">Коррозионный риск арматуры:</span>
-                <p className="val-desc" style={{ color: '#f87171', fontWeight: 700 }}>
-                  ⚠️ {report.analytics?.rebar_risk || 'Умеренный риск коррозии рабочего армокаркаса'}
-                </p>
-              </div>
-
-              <div className="di-r-item">
-                <span className="label">Рекомендуемый метод устранения:</span>
-                <p className="val-desc">{report.fixMethod}</p>
-              </div>
-
-              <div className="di-r-item highlight">
-                <span className="label">Ориентировочная стоимость ремонта:</span>
-                <strong className="val-price">{report.estimatedCost}</strong>
-              </div>
-
-              {/* Detailed Breakdown of All Detected Defect Zones */}
-              {(defectMarkers.length > 0 || (report.defects?.items && report.defects.items.length > 0)) && (
-                <div style={{
-                  gridColumn: '1 / -1',
-                  background: 'rgba(15, 23, 42, 0.65)',
-                  border: '1px solid rgba(56, 189, 248, 0.3)',
-                  borderRadius: '12px',
-                  padding: '16px 18px',
-                  marginTop: '10px',
-                }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                    <span style={{ color: '#38bdf8', fontWeight: 800, fontSize: '0.98rem' }}>
-                      📋 Выявленные дефектные зоны ({defectMarkers.length || report.defects?.items?.length}):
-                    </span>
-                    <span style={{ color: '#94a3b8', fontSize: '0.8rem', fontWeight: 600 }}>
-                      СНиП РК дефектоскопия
-                    </span>
-                  </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                    {(defectMarkers.length > 0 ? defectMarkers : (report.defects?.items || [])).map((m, idx) => (
-                      <div 
-                        key={idx} 
-                        onClick={() => setSelectedDefectId(m.id)}
-                        style={{
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
-                          background: selectedDefectId === m.id ? 'rgba(56, 189, 248, 0.18)' : 'rgba(30, 41, 59, 0.65)',
-                          border: selectedDefectId === m.id ? '1.5px solid #38bdf8' : '1px solid rgba(255, 255, 255, 0.08)',
-                          borderRadius: '10px',
-                          padding: '10px 14px',
-                          fontSize: '0.88rem',
-                          cursor: 'pointer',
-                          transition: 'all 0.2s ease',
-                        }}
-                      >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                          <span style={{
-                            background: m.severity === 'critical' ? '#ef4444' : m.severity === 'high' ? '#f97316' : '#eab308',
-                            color: '#fff',
-                            fontWeight: 900,
-                            borderRadius: '50%',
-                            width: '28px',
-                            height: '28px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            fontSize: '0.84rem',
-                            flexShrink: 0,
-                            boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
-                          }}>
-                            {m.id || idx + 1}
-                          </span>
-                          <div>
-                            <div style={{ color: '#f1f5f9', fontWeight: 800, fontSize: '0.94rem' }}>{m.type}</div>
-                            <div style={{ color: '#94a3b8', fontSize: '0.82rem', marginTop: '2px' }}>{m.description}</div>
-                          </div>
-                        </div>
-                        <div style={{ textAlign: 'right', whiteSpace: 'nowrap', display: 'flex', flexDirection: 'column', gap: '3px' }}>
-                          {m.length_mm && (
-                            <span style={{ color: '#38bdf8', fontWeight: 700, fontSize: '0.84rem' }}>
-                              ↕ {m.length_mm} мм
-                            </span>
-                          )}
-                          {m.opening_mm && (
-                            <span style={{ color: '#fbbf24', fontWeight: 700, fontSize: '0.84rem' }}>
-                              ↔ {m.opening_mm} мм
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+              {(report.analytics?.gost_status || report.analytics?.rebar_risk) && (
+                <dl className="di-plan-facts">
+                  {report.analytics?.gost_status && (
+                    <div><dt>Категория состояния (ГОСТ 31937)</dt><dd>{report.analytics.gost_status}</dd></div>
+                  )}
+                  {report.analytics?.rebar_risk && (
+                    <div><dt>Коррозионный риск арматуры</dt><dd>{report.analytics.rebar_risk}</dd></div>
+                  )}
+                </dl>
               )}
             </div>
           )}
@@ -1996,21 +1734,24 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
                 </span>
               </div>
 
+              {!(report.analytics?.materials?.length || report.analytics?.labor?.length) ? (
+                <div style={{ color: '#cbd5e1', fontSize: '0.85rem', lineHeight: 1.5 }}>
+                  Детальная спецификация для этого дефекта не сформирована.
+                  <div style={{ marginTop: '8px' }}>
+                    Ориентировочная стоимость: <strong style={{ color: '#10b981' }}>{report.estimatedCost || '—'}</strong>
+                  </div>
+                </div>
+              ) : (<>
               {/* Materials Table */}
               <div style={{ marginBottom: '12px' }}>
                 <div style={{ color: '#38bdf8', fontSize: '0.82rem', fontWeight: 700, marginBottom: '6px' }}>
                   📦 Сертифицированные материалы:
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  {(report.analytics?.materials || [
-                    { name: 'Инъекционная эпоксидная смола низкой вязкости', qty: '1.2 кг', cost_kzt: 18500 },
-                    { name: 'Пакеры металлические d=10мм с клапаном', qty: '6 шт', cost_kzt: 6400 },
-                    { name: 'Тиксотропная безусадочная смесь M600', qty: '5.0 кг', cost_kzt: 5800 },
-                    { name: 'Грунтовка глубокого проникновения', qty: '1.0 л', cost_kzt: 3200 },
-                  ]).map((m, idx) => (
+                  {(report.analytics?.materials || []).map((m, idx) => (
                     <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', background: 'rgba(255,255,255,0.03)', padding: '6px 10px', borderRadius: '6px', fontSize: '0.8rem' }}>
                       <span style={{ color: '#cbd5e1' }}>{m.name} <small style={{ color: '#94a3b8' }}>({m.qty})</small></span>
-                      <strong style={{ color: '#f1f5f9', whiteSpace: 'nowrap' }}>{m.cost_kzt.toLocaleString('ru-RU')} ₸</strong>
+                      <strong style={{ color: '#f1f5f9', whiteSpace: 'nowrap' }}>{(Number(m.cost_kzt) || 0).toLocaleString('ru-RU')} ₸</strong>
                     </div>
                   ))}
                 </div>
@@ -2022,15 +1763,10 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
                   👷 Ремонтно-восстановительные работы (ПТО):
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  {(report.analytics?.labor || [
-                    { name: 'Расшивка шва штраборезом и обеспыливание', qty: '0.8 пог.м', cost_kzt: 8500 },
-                    { name: 'Бурение шпуров и установка инъекционных пакеров', qty: '1 компл.', cost_kzt: 12000 },
-                    { name: 'Нагнетание эпоксидного состава под давлением до 15 атм', qty: '1 компл.', cost_kzt: 17500 },
-                    { name: 'Демонтаж пакеров и зачеканка ремонтным составом M600', qty: '1 компл.', cost_kzt: 6000 },
-                  ]).map((l, idx) => (
+                  {(report.analytics?.labor || []).map((l, idx) => (
                     <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', background: 'rgba(255,255,255,0.03)', padding: '6px 10px', borderRadius: '6px', fontSize: '0.8rem' }}>
                       <span style={{ color: '#cbd5e1' }}>{l.name} <small style={{ color: '#94a3b8' }}>({l.qty})</small></span>
-                      <strong style={{ color: '#f1f5f9', whiteSpace: 'nowrap' }}>{l.cost_kzt.toLocaleString('ru-RU')} ₸</strong>
+                      <strong style={{ color: '#f1f5f9', whiteSpace: 'nowrap' }}>{(Number(l.cost_kzt) || 0).toLocaleString('ru-RU')} ₸</strong>
                     </div>
                   ))}
                 </div>
@@ -2038,34 +1774,32 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
 
               {/* Total Summary Footer */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255,255,255,0.15)', paddingTop: '10px', marginTop: '8px' }}>
-                <span style={{ color: '#e2e8f0', fontWeight: 800, fontSize: '0.9rem' }}>Итого сметная стоимость:</span>
+                <span style={{ color: '#e2e8f0', fontWeight: 800, fontSize: '0.9rem' }}>Итого сметная стоимость{report.source !== 'ai' ? ' (ориентировочно)' : ''}:</span>
                 <strong style={{ color: '#10b981', fontWeight: 900, fontSize: '1.15rem' }}>
-                  {(report.analytics?.total_cost_kzt || 77900).toLocaleString('ru-RU')} ₸
+                  {(Number(report.analytics?.total_cost_kzt) || 0).toLocaleString('ru-RU')} ₸
                 </strong>
               </div>
+              </>)}
             </div>
           )}
 
-          <div className="di-report-actions" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div className="di-report-actions">
             {createdDefectOrder ? (
-              <div style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.2), rgba(6,182,212,0.15))', border: '1px solid #10b981', borderRadius: '12px', padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', width: '100%' }}>
+              <div className="di-order-done" role="status">
                 <div>
-                  <h4 style={{ margin: '0 0 4px 0', color: '#10b981', fontSize: '1.05rem', fontWeight: 800 }}>
-                    ✅ Заявка на выезд инженера #{createdDefectOrder.id} создана!
-                  </h4>
-                  <p style={{ margin: 0, color: '#cbd5e1', fontSize: '0.84rem' }}>
-                    Инженер ПТО уведомлен и выезжает на объект для инструментального обследования.
-                  </p>
+                  <h4>Заявка на выезд инженера {createdDefectOrder.id} создана</h4>
+                  <p>Инженер получил заключение и свяжется с вами, чтобы согласовать время осмотра.</p>
                 </div>
                 <button
+                  type="button"
+                  className="qg-btn qg-btn--ghost qg-btn--sm"
                   onClick={() => onBack ? onBack() : showToast('Перейдите в «Мои заказы»')}
-                  style={{ background: '#10b981', color: '#0a1628', border: 'none', padding: '10px 18px', borderRadius: '8px', fontWeight: 800, cursor: 'pointer', fontSize: '0.85rem' }}
                 >
-                  📬 Открыть в «Мои заказы» →
+                  Открыть «Мои заказы»
                 </button>
               </div>
             ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px', width: '100%' }}>
+              <div className="di-actions-grid">
                 <button 
                   onClick={() => {
                     const newOrder = createPlatformOrder({
@@ -2082,23 +1816,24 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
                       defectReport: report
                     });
                     setCreatedDefectOrder(newOrder);
-                    showToast(`🛠️ Заявка ${newOrder.id} передана Инженеру и Менеджеру CRM!`);
+                    showToast(`Заявка ${newOrder.id} передана инженеру и менеджеру CRM`);
                   }}
-                  style={{ background: 'linear-gradient(90deg, #f59e0b, #ef4444)', border: 'none', color: '#fff', padding: '14px 18px', borderRadius: '10px', fontWeight: 900, fontSize: '0.92rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 4px 15px rgba(239,68,68,0.4)' }}
+                  type="button"
+                  className="qg-btn qg-btn--primary di-btn-engineer"
                 >
-                  <span>🛠️ Вызвать инженера / Устранить дефект</span>
+                  Вызвать инженера
                 </button>
 
                 <button 
-                  className="di-btn-pdf"
+                  type="button"
+                  className="qg-btn qg-btn--ghost di-btn-pdf"
                   onClick={handlePrintTechnicalAct}
-                  style={{ padding: '14px 16px', borderRadius: '10px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
                 >
-                  <span>📄 Печать Акта СНиП (PDF)</span>
+                  Печать акта (PDF)
                 </button>
 
                 <button 
-                  className="di-btn-wa"
+                  className="qg-btn qg-btn--ghost di-btn-wa"
                   onClick={() => {
                     const materials = report.analytics?.materials || [];
                     const labor = report.analytics?.labor || [];
@@ -2122,9 +1857,9 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
                     msg += `\nЗаказчик: ${report.clientName}\nАдрес: ${report.address}`;
                     window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
                   }}
-                  style={{ padding: '14px 16px', borderRadius: '10px', fontSize: '0.9rem' }}
+                  type="button"
                 >
-                  💬 В WhatsApp
+                  Отправить в WhatsApp
                 </button>
               </div>
             )}

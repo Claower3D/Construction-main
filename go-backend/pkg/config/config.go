@@ -1,10 +1,43 @@
 package config
 
 import (
+	"bufio"
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
 )
+
+// loadDotEnv reads KEY=VALUE pairs from .env in the working directory or its parent
+// (START_*.bat runs the binary from go-backend/, the .env lives in the repo root).
+// Variables already set in the real environment always win (Railway, Docker).
+func loadDotEnv() {
+	for _, p := range []string{".env", filepath.Join("..", ".env")} {
+		f, err := os.Open(p)
+		if err != nil {
+			continue
+		}
+		sc := bufio.NewScanner(f)
+		for sc.Scan() {
+			line := strings.TrimSpace(sc.Text())
+			if line == "" || strings.HasPrefix(line, "#") {
+				continue
+			}
+			k, v, ok := strings.Cut(line, "=")
+			if !ok {
+				continue
+			}
+			k = strings.TrimSpace(strings.TrimPrefix(k, "export "))
+			v = strings.Trim(strings.TrimSpace(v), `"'`)
+			if _, exists := os.LookupEnv(k); !exists && k != "" {
+				_ = os.Setenv(k, v)
+			}
+		}
+		f.Close()
+		log.Printf("[config] loaded %s", p)
+		return
+	}
+}
 
 type Config struct {
 	Port              string
@@ -18,6 +51,7 @@ type Config struct {
 }
 
 func LoadConfig() *Config {
+	loadDotEnv()
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
@@ -65,6 +99,10 @@ func LoadConfig() *Config {
 		"https://localhost",
 		"http://localhost",
 		"capacitor://localhost",
+		"https://construction-main-production.up.railway.app",
+	}
+	if frontendURL != "" {
+		corsOrigins = append(corsOrigins, strings.TrimRight(frontendURL, "/"))
 	}
 
 	if envOrigins := os.Getenv("CORS_ORIGINS"); envOrigins != "" {

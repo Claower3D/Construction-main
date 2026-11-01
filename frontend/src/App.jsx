@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import AnimatedBackground from './components/AnimatedBackground';
 import Header from './components/Header';
 import HeroSection from './components/HeroSection';
@@ -15,23 +15,39 @@ import FaqSection from './components/FaqSection';
 import FooterSection from './components/FooterSection';
 import AiAssistantWidget from './components/AiAssistantWidget';
 import AuthModal from './components/AuthModal';
-import AdminDashboardPage from './components/AdminDashboardPage';
-import EngineerDashboardPage from './components/EngineerDashboardPage';
 import VoiceControlWidget from './components/VoiceControlWidget';
-import CrmPage from './components/CrmPage';
-import CategoryTemplatePage from './components/CategoryTemplatePage';
-import ProfileQuestionnaire from './components/ProfileQuestionnaire';
-import UserWalletPage from './components/UserWalletPage';
-import ContractorsCatalogPage from './components/ContractorsCatalogPage';
-import UserOrdersPage from './components/UserOrdersPage';
-import EngineeringSolutionsPage from './components/EngineeringSolutionsPage';
-import MaterialsMarketplacePage from './components/MaterialsMarketplacePage';
-import EquipmentMarketplace from './components/EquipmentMarketplace';
-import EngineeringCalcPage from './components/EngineeringCalcPage';
-import LiDARScanPage from './components/LiDARScanPage';
 import ScrollToTopButton from './components/ScrollToTopButton';
-import ScrollReveal from './components/ScrollReveal';
+import PageLoader from './components/PageLoader';
 import { categoriesData } from './data/categoriesData';
+
+// Тяжёлые разделы грузятся отдельными чанками только при переходе в них
+// (раньше всё приложение, включая three.js и xlsx, приходило одним JS-файлом ~2,3 МБ).
+const AdminDashboardPage = lazy(() => import('./components/AdminDashboardPage'));
+const CategoryTemplatePage = lazy(() => import('./components/CategoryTemplatePage'));
+const ProfileQuestionnaire = lazy(() => import('./components/ProfileQuestionnaire'));
+const UserWalletPage = lazy(() => import('./components/UserWalletPage'));
+const ContractorsCatalogPage = lazy(() => import('./components/ContractorsCatalogPage'));
+const UserOrdersPage = lazy(() => import('./components/UserOrdersPage'));
+const EngineeringSolutionsPage = lazy(() => import('./components/EngineeringSolutionsPage'));
+const MaterialsMarketplacePage = lazy(() => import('./components/MaterialsMarketplacePage'));
+const EquipmentMarketplace = lazy(() => import('./components/EquipmentMarketplace'));
+const EngineeringCalcPage = lazy(() => import('./components/EngineeringCalcPage'));
+const LiDARScanPage = lazy(() => import('./components/LiDARScanPage'));
+
+const DASHBOARD_VIEWS = ['admin', 'customer', 'executor', 'company', 'engineer', 'crm', 'manager'];
+// Панели с ограничением по роли (UI-guard; реальная защита данных — на сервере)
+const ROLE_RESTRICTED_VIEWS = {
+  admin: ['admin'],
+  crm: ['manager', 'admin'],
+  manager: ['manager', 'admin'],
+  company: ['company', 'admin'],
+};
+
+function canOpenDashboard(view, user) {
+  if (!user) return false;
+  const allowed = ROLE_RESTRICTED_VIEWS[view];
+  return !allowed || allowed.includes(user.role);
+}
 
 export default function App() {
   const [role, setRole] = useState(() => {
@@ -40,10 +56,37 @@ export default function App() {
   const [theme, setTheme] = useState('dark');
   const [authMode, setAuthMode] = useState(null);
   const [currentUser, setCurrentUser] = useState(() => {
-    const saved = localStorage.getItem('app_currentUser');
-    return saved ? JSON.parse(saved) : null;
+    try {
+      const saved = localStorage.getItem('app_currentUser');
+      const parsed = saved ? JSON.parse(saved) : null;
+      return parsed && typeof parsed === 'object' ? parsed : null;
+    } catch {
+      // Повреждённое значение больше не роняет приложение (белый экран)
+      localStorage.removeItem('app_currentUser');
+      return null;
+    }
   });
+  const [syncNotice, setSyncNotice] = useState(null);
+
+  // Ошибки серверной синхронизации (заказы/CRM) показываются пользователю, а не глотаются
+  useEffect(() => {
+    let timer = null;
+    const onSyncError = (e) => {
+      setSyncNotice(e.detail?.message || 'Ошибка синхронизации с сервером');
+      clearTimeout(timer);
+      timer = setTimeout(() => setSyncNotice(null), 8000);
+    };
+    window.addEventListener('qazgost_sync_error', onSyncError);
+    return () => { window.removeEventListener('qazgost_sync_error', onSyncError); clearTimeout(timer); };
+  }, []);
   const [currentCategory, setCurrentCategory] = useState(null);
+
+  // CTA лендинга открывают окно входа через событие (utils/navigate.js → openAuth)
+  useEffect(() => {
+    const onOpenAuth = (e) => setAuthMode(e.detail?.mode === 'register' ? 'register' : 'login');
+    window.addEventListener('qazgost_open_auth', onOpenAuth);
+    return () => window.removeEventListener('qazgost_open_auth', onOpenAuth);
+  }, []);
 
   // Initialize view from URL path (e.g. /admin, /customer, etc.)
   const [currentView, setCurrentView] = useState(() => {
@@ -135,10 +178,32 @@ export default function App() {
   };
 
   const handleLogout = () => {
+    // Чистим сессию полностью: токен, профиль, личный ключ OpenAI (раньше оставались после выхода)
+    try {
+      localStorage.removeItem('auth_token');
+      localStorage.removeItem('qazgost_current_user');
+      localStorage.removeItem('qazgost_user_openai_key');
+      localStorage.removeItem('qazgost_user_openai_account');
+    } catch (e) { /* ignore */ }
     setCurrentUser(null);
     setRole('executor');
     navigateToLanding();
   };
+
+  // Guard дашбордов: без входа — на лендинг + окно входа; панель чужой роли — на свою панель
+  const dashboardBlocked = DASHBOARD_VIEWS.includes(currentView) && !canOpenDashboard(currentView, currentUser);
+  useEffect(() => {
+    if (!dashboardBlocked) return;
+    if (!currentUser) {
+      window.history.replaceState({}, '', '/');
+      setCurrentView('landing');
+      setAuthMode('login');
+    } else {
+      const own = DASHBOARD_VIEWS.includes(currentUser.role) ? currentUser.role : 'customer';
+      window.history.replaceState({}, '', `/${own}`);
+      setCurrentView(own);
+    }
+  }, [dashboardBlocked, currentUser]);
 
   const navigateToAdmin = () => navigateToDashboard('admin');
   const navigateToEngineer = () => navigateToDashboard('engineer');
@@ -204,27 +269,40 @@ export default function App() {
     }
   };
 
-  // --- ROLE ACCESS & DASHBOARD ROUTING ---
-  const isDashboardAllowed = (view) => {
-    // Allow demo/guest exploration of dashboards, or match user role if logged in
-    return true;
-  };
+  // --- ROLE ACCESS & DASHBOARD ROUTING --- (см. canOpenDashboard / dashboardBlocked выше)
 
   // Unified Dashboard view for all roles (Customer, Executor, Engineer, Company, Manager/CRM, Admin)
-  if (['admin', 'customer', 'executor', 'company', 'engineer', 'crm', 'manager'].includes(currentView)) {
+  const syncBanner = syncNotice && (
+    <div
+      role="alert"
+      data-testid="sync-error-banner"
+      onClick={() => setSyncNotice(null)}
+      style={{ position: 'fixed', left: '16px', bottom: '16px', zIndex: 10000, maxWidth: '420px', padding: '12px 16px', borderRadius: '12px', background: 'rgba(120, 53, 15, 0.95)', border: '1px solid #f59e0b', color: '#fde68a', fontSize: '0.85rem', fontWeight: 600, boxShadow: '0 8px 24px rgba(0,0,0,0.4)', cursor: 'pointer' }}
+    >
+      ⚠️ {syncNotice}
+    </div>
+  );
+
+  if (DASHBOARD_VIEWS.includes(currentView) && !dashboardBlocked) {
     const roleForPage = currentView === 'crm' ? 'manager' : currentView;
     return (
-      <AdminDashboardPage 
-        userRole={roleForPage} 
-        onBackToHome={navigateToLanding} 
-        onOpenEngineer={navigateToEngineer} 
-        currentUser={currentUser} 
-      />
+      <>
+        <Suspense fallback={<PageLoader label="Открываем рабочий кабинет…" />}>
+          <AdminDashboardPage 
+            userRole={roleForPage} 
+            onBackToHome={navigateToLanding} 
+            onOpenEngineer={navigateToEngineer} 
+            currentUser={currentUser} 
+          />
+        </Suspense>
+        {syncBanner}
+      </>
     );
   }
 
   return (
     <div className="app-root">
+      <a className="qg-skip-link" href="#main-content">Перейти к содержимому</a>
       <AnimatedBackground />
 
       <Header 
@@ -247,7 +325,8 @@ export default function App() {
         onOpenLidar={navigateToLidar}
       />
 
-        <main style={{ position: 'relative', zIndex: 1 }}>
+        <main id="main-content" style={{ position: 'relative', zIndex: 1 }}>
+          <Suspense fallback={<PageLoader />}>
           {currentView === 'category' && currentCategory && (
             <CategoryTemplatePage 
               category={currentCategory} 
@@ -372,49 +451,22 @@ export default function App() {
 
           {currentView === 'landing' && (
             <>
-              <HeroSection role={role} />
-
-              <ScrollReveal direction="up" distance="45px">
-                <LiveAIScannerDemo />
-              </ScrollReveal>
-
-              <ScrollReveal direction="up" distance="45px">
-                <FeatureHighlights />
-              </ScrollReveal>
-
-              <ScrollReveal direction="up" distance="45px">
-                <PriceCatalogSection onOpenCategory={navigateToCategory} />
-              </ScrollReveal>
-
-              <ScrollReveal direction="up" distance="45px">
-                <PlatformServicesSection />
-              </ScrollReveal>
-
-              <ScrollReveal direction="up" distance="45px">
-                <EngineeringServicesSection />
-              </ScrollReveal>
-
-              <ScrollReveal direction="zoom" distance="0px">
-                <StatsBanner />
-              </ScrollReveal>
-
-              <ScrollReveal direction="up" distance="45px">
-                <HowItWorksSection />
-              </ScrollReveal>
-
-              <ScrollReveal direction="up" distance="45px">
-                <TestimonialsSection />
-              </ScrollReveal>
-
-              <ScrollReveal direction="up" distance="45px">
-                <MobileAppBanner />
-              </ScrollReveal>
-
-              <ScrollReveal direction="up" distance="45px">
-                <FaqSection />
-              </ScrollReveal>
+              {/* Секции лендинга больше не «выезжают» по одной при скролле: контент виден сразу,
+                  единственный акцентный момент — первый экран (см. HeroSection). */}
+              <HeroSection role={role} onOpenAuth={setAuthMode} currentUser={currentUser} onOpenDashboard={navigateToDashboard} />
+              <LiveAIScannerDemo />
+              <FeatureHighlights />
+              <PriceCatalogSection onOpenCategory={navigateToCategory} />
+              <PlatformServicesSection />
+              <EngineeringServicesSection />
+              <StatsBanner />
+              <HowItWorksSection />
+              <TestimonialsSection />
+              <MobileAppBanner />
+              <FaqSection />
             </>
           )}
+          </Suspense>
         </main>
 
       <FooterSection />
@@ -425,6 +477,7 @@ export default function App() {
       <ScrollToTopButton />
 
       <AuthModal mode={authMode} onClose={() => setAuthMode(null)} onLogin={handleLogin} />
+      {syncBanner}
     </div>
   );
 }

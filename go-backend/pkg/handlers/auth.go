@@ -80,6 +80,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		Email             string  `json:"email"`
 		Password          string  `json:"password"`
 		Name              string  `json:"name"`
+		FullName          string  `json:"fullName"`
 		Role              string  `json:"role"`
 		Phone             string  `json:"phone"`
 		City              string  `json:"city"`
@@ -114,11 +115,22 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	role := req.Role
-	if role == "" {
-		role = "customer"
+	// The web form sends "fullName", the API used to read only "name" → names were saved empty
+	if strings.TrimSpace(req.Name) == "" {
+		req.Name = req.FullName
 	}
-	if role == "admin" || role == "manager" {
+	req.Name = strings.TrimSpace(req.Name)
+	if len([]rune(req.Name)) > 200 || len(req.Phone) > 50 || len(req.City) > 100 || len(req.Company) > 300 || len(email) > 254 {
+		w.WriteHeader(http.StatusBadRequest)
+		_ = json.NewEncoder(w).Encode(map[string]string{"error": "Слишком длинные поля регистрации"})
+		return
+	}
+
+	// Only known self-service roles; admin/manager (and anything unknown) become customer
+	role := req.Role
+	switch role {
+	case "customer", "executor", "engineer", "company":
+	default:
 		role = "customer"
 	}
 
@@ -219,12 +231,10 @@ func (h *AuthHandler) GetMe(w http.ResponseWriter, r *http.Request) {
 
 	currentUser, err := database.GetUserByID(claims.UserID)
 	if err != nil {
-		currentUser = &models.User{
-			ID:    claims.UserID,
-			Email: claims.Email,
-			Name:  strings.Split(claims.Email, "@")[0],
-			Role:  claims.Role,
-		}
+		// A validly signed token for a user that does not exist (deleted, or forged) is not a session
+		w.WriteHeader(http.StatusUnauthorized)
+		_ = json.NewEncoder(w).Encode(map[string]string{"error": "Пользователь не найден"})
+		return
 	}
 
 	_ = json.NewEncoder(w).Encode(map[string]interface{}{

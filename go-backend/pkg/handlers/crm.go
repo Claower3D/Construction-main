@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"regexp"
+	"strings"
 	"time"
 
 	"qazgost-ai/backend/pkg/database"
@@ -144,7 +146,7 @@ func (h *CRMHandler) GetCRMEvents(w http.ResponseWriter, r *http.Request) {
 	grouped := make(map[string][]*models.CRMEvent)
 	for _, item := range items {
 		if item.Date != "" {
-			grouped[item.Date] = append(grouped[item.Date], item)
+			grouped[string(item.Date)] = append(grouped[string(item.Date)], item)
 		}
 	}
 
@@ -155,69 +157,98 @@ func (h *CRMHandler) GetCRMEvents(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+var (
+	isoDateRe = regexp.MustCompile(`^\d{4}-\d{2}-\d{2}$`)
+	ruDateRe  = regexp.MustCompile(`^(\d{1,2})\.(\d{1,2})\.(\d{4})$`)
+)
+
+// normalizeCRMEvent trims fields, normalizes the date to YYYY-MM-DD and validates required fields.
+func normalizeCRMEvent(e *models.CRMEvent, r *http.Request) error {
+	e.ID = models.FlexString(strings.TrimSpace(string(e.ID)))
+	e.Title = models.FlexString(strings.TrimSpace(string(e.Title)))
+	d := strings.TrimSpace(string(e.Date))
+	if len(d) > 10 && isoDateRe.MatchString(d[:10]) { // "2026-11-01T10:00:00Z" → "2026-11-01"
+		d = d[:10]
+	}
+	if ruDateRe.MatchString(d) { // "01.11.2026" / "1.11.2026" → "2026-11-01"
+		if t, err := time.Parse("2.1.2006", d); err == nil {
+			d = t.Format("2006-01-02")
+		}
+	}
+	if _, err := time.Parse("2006-01-02", d); err != nil {
+		return fmt.Errorf("дата должна быть в формате ГГГГ-ММ-ДД")
+	}
+	e.Date = models.FlexString(d)
+	if e.Title == "" {
+		return fmt.Errorf("укажите название заявки")
+	}
+	if len([]rune(string(e.Title))) > 300 || len(e.Description) > 20000 || len(e.Notes) > 100000 {
+		return fmt.Errorf("слишком длинные поля заявки")
+	}
+	if e.Status == "" {
+		e.Status = "Новые"
+	}
+	if uid, _ := currentUser(r); uid != "" && e.CreatedBy == "" {
+		e.CreatedBy = models.FlexString(uid)
+	}
+	e.UpdatedAt = time.Now()
+	return nil
+}
+
 func (h *CRMHandler) CreateOrUpdateCRMEvent(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
 	var req models.CRMEvent
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.Title == "" || req.Date == "" {
-		w.WriteHeader(http.StatusBadRequest)
-		_ = json.NewEncoder(w).Encode(map[string]string{"error": "Укажите название и дату заявки"})
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		writeError(w, http.StatusBadRequest, "Неверный формат заявки")
 		return
 	}
-
+	if err := normalizeCRMEvent(&req, r); err != nil {
+		writeError(w, http.StatusBadRequest, "Ошибка: "+err.Error())
+		return
+	}
 	if req.ID == "" {
-		req.ID = fmt.Sprintf("evt_%d", time.Now().UnixNano())
+		req.ID = models.FlexString(fmt.Sprintf("evt_%d", time.Now().UnixNano()))
 	}
-	if req.Status == "" {
-		req.Status = "Новые"
-	}
-	req.UpdatedAt = time.Now()
 
 	if err := database.SaveCRMEvent(&req); err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		_ = json.NewEncoder(w).Encode(map[string]string{"error": "Ошибка сохранения заявки в БД"})
+		writeError(w, http.StatusInternalServerError, "Ошибка сохранения заявки в БД")
 		return
 	}
-
-	w.WriteHeader(http.StatusOK)
-	_ = json.NewEncoder(w).Encode(req)
+	writeJSON(w, http.StatusOK, req)
 }
 
 func (h *CRMHandler) DeleteCRMEvent(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	id := r.URL.Query().Get("id")
+	id := strings.TrimSpace(r.URL.Query().Get("id"))
 	if id == "" {
-		// Also support JSON body or path
 		var req struct {
-			ID string `json:"id"`
+			ID models.FlexString `json:"id"`
 		}
 		_ = json.NewDecoder(r.Body).Decode(&req)
-		id = req.ID
+		id = strings.TrimSpace(string(req.ID))
 	}
 	if id == "" {
-		w.WriteHeader(http.StatusBadRequest)
-		_ = json.NewEncoder(w).Encode(map[string]string{"error": "Укажите ID заявки"})
+		writeError(w, http.StatusBadRequest, "Укажите ID заявки")
 		return
 	}
 
-	if err := database.DeleteCRMEvent(id); err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		_ = json.NewEncoder(w).Encode(map[string]string{"error": "Ошибка удаления заявки"})
+	n, err := database.DeleteCRMEvent(id)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "Ошибка удаления заявки")
 		return
 	}
-
-	w.WriteHeader(http.StatusOK)
-	_ = json.NewEncoder(w).Encode(map[string]interface{}{"success": true, "deletedId": id})
+	if n == 0 {
+		writeError(w, http.StatusNotFound, "Заявка не найдена")
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]interface{}{"success": true, "deletedId": id, "deleted": n})
 }
 
 func (h *CRMHandler) BulkSyncCRMEvents(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
 	var req struct {
 		Events map[string][]*models.CRMEvent `json:"events"`
 		Items  []*models.CRMEvent            `json:"items"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		_ = json.NewEncoder(w).Encode(map[string]string{"error": "Неверный формат данных"})
+		writeError(w, http.StatusBadRequest, "Неверный формат данных")
 		return
 	}
 
@@ -227,19 +258,60 @@ func (h *CRMHandler) BulkSyncCRMEvents(w http.ResponseWriter, r *http.Request) {
 	} else if len(req.Events) > 0 {
 		for date, evts := range req.Events {
 			for _, e := range evts {
-				if e.Date == "" {
-					e.Date = date
+				if e != nil && e.Date == "" {
+					e.Date = models.FlexString(date)
 				}
 				allToSync = append(allToSync, e)
 			}
 		}
 	}
-
-	if err := database.BulkSyncCRMEvents(allToSync); err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		_ = json.NewEncoder(w).Encode(map[string]string{"error": "Ошибка синхронизации"})
+	if len(allToSync) > 2000 {
+		writeError(w, http.StatusRequestEntityTooLarge, "Не более 2000 заявок за один запрос")
 		return
 	}
 
-	_ = json.NewEncoder(w).Encode(map[string]interface{}{"success": true, "syncedCount": len(allToSync)})
+	valid := make([]*models.CRMEvent, 0, len(allToSync))
+	skipped := []string{}
+	for _, e := range allToSync {
+		if e == nil {
+			continue
+		}
+		if err := normalizeCRMEvent(e, r); err != nil || e.ID == "" {
+			skipped = append(skipped, string(e.ID))
+			continue
+		}
+		valid = append(valid, e)
+	}
+
+	saved, err := database.BulkSyncCRMEvents(valid)
+	if err != nil && saved == 0 && len(valid) > 0 {
+		writeError(w, http.StatusInternalServerError, "Ошибка синхронизации")
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]interface{}{"success": true, "syncedCount": saved, "skipped": skipped})
+}
+
+// GetContractors: public catalog of active brigades (GET /api/v1/contractors?city=&q=)
+func (h *CRMHandler) GetContractors(w http.ResponseWriter, r *http.Request) {
+	items, err := database.GetContractors()
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "Ошибка загрузки подрядчиков")
+		return
+	}
+	city := strings.ToLower(strings.TrimSpace(r.URL.Query().Get("city")))
+	q := strings.ToLower(strings.TrimSpace(r.URL.Query().Get("q")))
+	out := items[:0]
+	for _, c := range items {
+		if city != "" && !strings.Contains(strings.ToLower(c.City), city) {
+			continue
+		}
+		if q != "" {
+			hay := strings.ToLower(c.Name + " " + c.CompanyName + " " + strings.Join(c.Skills, " ") + " " + c.CompanyType)
+			if !strings.Contains(hay, q) {
+				continue
+			}
+		}
+		out = append(out, c)
+	}
+	writeJSON(w, http.StatusOK, map[string]interface{}{"total": len(out), "items": out})
 }
