@@ -69,6 +69,20 @@ wire = wire + glow2[..., None] * violet * 1.3 + glow1[..., None] * violet * 1.2 
 warm = np.clip((beauty[..., 0] - beauty[..., 2]) * 2.2, 0, 1) * (beauty.mean(-1) > 0.35)
 wire = wire + warm[..., None] * np.array([0.25, 0.14, 0.45]) * 0.6
 
+# рентген инженерных систем: электрика, вода, отопление, канализация, газ
+try:
+    mep = np.asarray(Image.open(f'{D}/pass_mep.png').convert('RGBA')).astype(np.float32) / 255
+    mep_rgb = mep[..., :3] * mep[..., 3:4]
+except FileNotFoundError:
+    mep_rgb = np.zeros_like(beauty)
+def blur_rgb(a, r):
+    return np.stack([np.asarray(Image.fromarray((a[..., c] * 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(r))).astype(np.float32) / 255 for c in range(3)], -1)
+mep_glow = blur_rgb(mep_rgb, 5) * 1.1 + blur_rgb(mep_rgb, 16) * 0.7
+# под трассами линии корпуса чуть приглушаем, чтобы инженерия читалась
+mep_mask = np.clip(blur_rgb(mep_rgb, 3).max(-1) * 3, 0, 1)
+wire = wire * (1 - 0.35 * mep_mask[..., None])
+wire = wire + mep_glow + mep_rgb * 1.25
+
 # узлы каркаса
 meta = json.load(open(f'{D}/anchors.json'))
 nodes_layer = np.zeros((H, W), np.float32)
@@ -79,14 +93,14 @@ for nx, ny in meta['nodes']:
 wire = wire + nodes_layer[..., None] * np.array([1.0, 0.95, 1.0]) * 1.2
 
 # переход: диагональ слева направо, слегка наклонённая
-t = (xx / W - 0.53 - (yy / H - 0.5) * 0.10)
+t = (xx / W - 0.47 - (yy / H - 0.5) * 0.10)
 blend = np.clip((t + 0.06) / 0.16, 0, 1)
 blend = blend * blend * (3 - 2 * blend)
 img = beauty * (1 - blend[..., None]) + wire * blend[..., None]
 # линии слегка проступают и на «фото» у стыка
 img = img + line[..., None] * lilac * 0.25 * np.clip((t + 0.2) / 0.2, 0, 1)[..., None] * (1 - blend[..., None])
 # светящаяся линия сканирования по стыку
-scan = (np.exp(-(t ** 2) / (2 * 0.0025 ** 2)) * 0.35 + np.exp(-(t ** 2) / (2 * 0.018 ** 2)) * 0.12) * mask_obj.astype(np.float32)
+scan = (np.exp(-(t ** 2) / (2 * 0.0025 ** 2)) * 0.22 + np.exp(-(t ** 2) / (2 * 0.018 ** 2)) * 0.08) * mask_obj.astype(np.float32)
 img = img + scan[..., None] * np.array([0.75, 0.55, 1.0])
 
 # мягкая виньетка к фону сайта (#0b0a1c)

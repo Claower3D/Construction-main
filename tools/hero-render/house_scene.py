@@ -19,7 +19,8 @@ from bpy_extras.object_utils import world_to_camera_view
 OUT = sys.argv[1] if len(sys.argv) > 1 else '/tmp/house'
 WIDTH = int(sys.argv[2]) if len(sys.argv) > 2 else 1600
 SAMPLES = int(sys.argv[3]) if len(sys.argv) > 3 else 96
-PREVIEW = len(sys.argv) > 4 and sys.argv[4] == 'preview'
+MODE = sys.argv[4] if len(sys.argv) > 4 else ''
+PREVIEW = MODE == 'preview'
 HEIGHT = int(WIDTH * 0.72)
 os.makedirs(OUT, exist_ok=True)
 random.seed(7)
@@ -118,7 +119,79 @@ M = {
     'lamp': emissive('lamp', (1.0, 0.72, 0.42), 14),
     'strip': emissive('strip', (1.0, 0.74, 0.45), 5),
     'water': principled('water', (0.02, 0.05, 0.07), 0.02, **{'Transmission Weight': 0.0}),
+    'rug': textured('rug', (0.32, 0.29, 0.26), (0.42, 0.38, 0.33), 30, 0.95, bump=0.2),
+    'steel': principled('steel', (0.55, 0.55, 0.56), 0.25, 1.0),
+    'cabinet': principled('cabinet', (0.12, 0.11, 0.105), 0.35),
+    'art1': principled('art1', (0.55, 0.25, 0.12), 0.6),
+    'art2': principled('art2', (0.12, 0.18, 0.32), 0.6),
+    'grass': principled('grass', (0.02, 0.06, 0.018), 0.6),
+    'fabric': principled('fabric', (0.70, 0.66, 0.60), 0.95),
+    'glow_fascia': emissive('glow_fascia', (1.0, 0.70, 0.40), 6),
 }
+
+
+def stone_mat(name, axes):
+    # облицовка камнем: кирпичная раскладка с неровным тоном и тёмным швом;
+    # axes — какие оси объекта дают горизонталь и вертикаль плитки
+    m = bpy.data.materials.new(name)
+    m.use_nodes = True
+    nt = m.node_tree
+    b = nt.nodes['Principled BSDF']
+    tc = nt.nodes.new('ShaderNodeTexCoord')
+    br = nt.nodes.new('ShaderNodeTexBrick')
+    br.inputs['Scale'].default_value = 2.2
+    br.inputs['Mortar Size'].default_value = 0.012
+    br.inputs['Brick Width'].default_value = 0.9
+    br.inputs['Row Height'].default_value = 0.18
+    br.inputs['Color1'].default_value = (0.42, 0.40, 0.38, 1)
+    br.inputs['Color2'].default_value = (0.30, 0.29, 0.28, 1)
+    br.inputs['Mortar'].default_value = (0.06, 0.06, 0.065, 1)
+    nz = nt.nodes.new('ShaderNodeTexNoise')
+    nz.inputs['Scale'].default_value = 25
+    mix = nt.nodes.new('ShaderNodeMix')
+    mix.data_type = 'RGBA'
+    mix.blend_type = 'MULTIPLY'
+    mix.inputs['Factor'].default_value = 0.35
+    sep = nt.nodes.new('ShaderNodeSeparateXYZ')
+    comb = nt.nodes.new('ShaderNodeCombineXYZ')
+    nt.links.new(tc.outputs['Object'], sep.inputs[0])
+    nt.links.new(sep.outputs[axes[0]], comb.inputs['X'])
+    nt.links.new(sep.outputs[axes[1]], comb.inputs['Y'])
+    nt.links.new(comb.outputs[0], br.inputs['Vector'])
+    nt.links.new(comb.outputs[0], nz.inputs['Vector'])
+    nt.links.new(br.outputs['Color'], mix.inputs['A'])
+    nt.links.new(nz.outputs['Color'], mix.inputs['B'])
+    nt.links.new(mix.outputs['Result'], b.inputs['Base Color'])
+    b.inputs['Roughness'].default_value = 0.85
+    bp = nt.nodes.new('ShaderNodeBump')
+    bp.inputs['Strength'].default_value = 0.35
+    nt.links.new(br.outputs['Fac'], bp.inputs['Height'])
+    nt.links.new(bp.outputs['Normal'], b.inputs['Normal'])
+    return m
+
+
+M['stone'] = stone_mat('stone_front', ('X', 'Z'))
+M['stone_l'] = stone_mat('stone_left', ('Y', 'Z'))
+
+# ── инженерные системы: цвет линии на схеме (sRGB) ──
+SYSTEMS = {
+    'el': '#FFC34D',   # электрика
+    'cw': '#4FC3FF',   # холодная вода
+    'hw': '#FF5C7A',   # горячая вода
+    'ht': '#FF8A3D',   # отопление
+    'sw': '#2EE6C5',   # канализация
+    'gs': '#D4F25A',   # газ
+    'fx': '#E9E2FF',   # сантехприборы
+}
+
+
+def srgb_to_lin(h):
+    c = [int(h[i:i + 2], 16) / 255 for i in (1, 3, 5)]
+    return tuple(x / 12.92 if x <= 0.04045 else ((x + 0.055) / 1.055) ** 2.4 for x in c)
+
+
+MEP_MAT = {k: emissive('mep_' + k, srgb_to_lin(v), 1.0) for k, v in SYSTEMS.items()}
+MEP = []
 
 
 # ── примитивы ──
@@ -238,19 +311,26 @@ box('G_ceiling', 0.0, 15.0, 0.0, 9.0, 3.05, 3.2, M['intwall'], facade=False)
 box('G_back', 0.0, 15.0, 8.8, 9.0, 0.15, 3.2, M['intwall'], facade=False)
 box('G_right', 14.8, 15.0, 0.0, 9.0, 0.15, 3.2, M['stucco'])
 # левая стена — штукатурка с узким окном
-box('G_left_a', -0.2, 0.0, 0.0, 3.2, 0.15, 3.2, M['stucco'], bevel=0.01)
-box('G_left_b', -0.2, 0.0, 4.0, 9.0, 0.15, 3.2, M['stucco'], bevel=0.01)
-box('G_left_top', -0.2, 0.0, 3.2, 4.0, 2.8, 3.2, M['stucco'])
+box('G_left_a', -0.2, 0.0, 0.0, 3.2, 0.15, 3.2, M['stone_l'], bevel=0.01)
+box('G_left_b', -0.2, 0.0, 4.0, 9.0, 0.15, 3.2, M['stone_l'], bevel=0.01)
+box('G_left_top', -0.2, 0.0, 3.2, 4.0, 2.8, 3.2, M['stone_l'])
 glazing('G_lw', 'y', 3.2, 4.0, -0.1, 0.25, 2.8, 1)
 # фасад первого этажа: глухая часть слева, вход, витражи
-box('G_front_a', 0.0, 2.6, -0.2, 0.0, 0.15, 3.2, M['stucco'], bevel=0.01)
+box('G_front_a', 0.0, 2.6, -0.2, 0.0, 0.15, 3.2, M['stone'], bevel=0.01)
 box('G_door', 2.6, 3.8, -0.12, -0.02, 0.15, 2.6, M['wood'])
 box('G_door_top', 2.6, 3.8, -0.2, 0.0, 2.6, 3.2, M['charcoal'])
 glazing('G_f1', 'x', 3.8, 9.4, -0.1, 0.2, 3.05, 4)
 box('G_pier', 9.4, 10.2, -0.2, 0.0, 0.15, 3.2, M['charcoal'], bevel=0.01)
-glazing('G_f2', 'x', 10.2, 14.6, -0.1, 0.2, 3.05, 3)
-box('G_front_c', 14.6, 15.0, -0.2, 0.0, 0.15, 3.2, M['stucco'])
-box('G_band', 3.8, 14.6, -0.2, 0.0, 3.05, 3.2, M['charcoal'])
+glazing('G_f2', 'x', 10.2, 13.6, -0.1, 0.2, 3.05, 3)
+box('G_front_c', 13.6, 15.0, -0.2, 0.0, 0.15, 3.2, M['stucco'], bevel=0.01)
+box('G_band', 3.8, 13.6, -0.2, 0.0, 3.05, 3.2, M['charcoal'])
+# шкаф учёта электроэнергии на фасаде
+box('meter_cab', 13.95, 14.65, -0.34, -0.2, 1.1, 2.0, M['cabinet'], bevel=0.01)
+box('meter_win', 14.1, 14.5, -0.35, -0.34, 1.6, 1.85, M['glass'])
+# дверная ручка, ступени, козырёк
+box('door_handle', 3.55, 3.59, -0.2, -0.16, 0.8, 2.0, M['steel'])
+box('step1', 2.3, 4.1, -0.9, -0.2, 0.0, 0.08, M['concrete'], bevel=0.005)
+box('canopy', 2.2, 4.2, -1.2, 0.0, 3.0, 3.06, M['frame'])
 
 # второй этаж U (консоль вперёд и влево): x -1.6..10, y -1.6..8, z 3.4..6.5
 box('slab_mid', -1.9, 10.3, -1.9, 8.3, 3.2, 3.42, M['stucco'], bevel=0.015)
@@ -259,6 +339,13 @@ box('U_ceiling', -1.6, 10.0, -1.6, 8.0, 6.35, 6.5, M['intwall'], facade=False)
 box('U_back', -1.6, 10.0, 7.8, 8.0, 3.42, 6.5, M['intwall'], facade=False)
 box('U_right', 9.8, 10.0, -1.6, 8.0, 3.42, 6.5, M['wood'])
 box('slab_top', -1.9, 10.3, -1.9, 8.3, 6.5, 6.82, M['stucco'], bevel=0.015)
+# парапет с металлическим отливом
+box('coping', -1.95, 10.35, -1.95, 8.35, 6.82, 6.86, M['frame'])
+# светодиодная линия под консолью (подсветка торца)
+box('fascia_led', -1.85, 10.25, -1.9, -1.86, 3.18, 3.2, M['glow_fascia'], facade=False)
+box('fascia_led_l', -1.9, -1.86, -1.85, 8.25, 3.18, 3.2, M['glow_fascia'], facade=False)
+# водосточная труба
+box('downpipe', 10.31, 10.39, -1.8, -1.72, 0.0, 6.8, M['frame'])
 # белая «рамка» фасада второго этажа
 box('U_frame_l', -1.9, -1.6, -1.9, 8.3, 3.42, 6.5, M['stucco'], bevel=0.01)
 box('U_frame_r', 9.7, 10.3, -1.9, -1.55, 3.42, 6.5, M['stucco'], bevel=0.01)
@@ -279,6 +366,12 @@ box('column', -1.35, -1.15, -1.35, -1.15, 0.15, 3.2, M['frame'])
 box('T_slab', 10.0, 15.3, -0.35, 9.3, 3.2, 3.42, M['stucco'], bevel=0.015)
 box('T_rail', 10.2, 15.1, -0.3, -0.26, 3.42, 4.45, M['railglass'])
 box('T_rail_top', 10.2, 15.1, -0.32, -0.24, 4.45, 4.5, M['frame'])
+for i, x in enumerate([10.2, 12.65, 15.06]):
+    box(f'T_post{i}', x, x + 0.04, -0.33, -0.23, 3.42, 4.45, M['steel'])
+# мебель на террасе
+box('T_chair1', 11.0, 11.7, 0.6, 1.3, 3.42, 3.85, M['fabric'], facade=False)
+box('T_chair2', 12.6, 13.3, 0.6, 1.3, 3.42, 3.85, M['fabric'], facade=False)
+box('T_table', 11.8, 12.5, 0.7, 1.2, 3.42, 3.82, M['wood'], facade=False)
 
 # ════════════ Интерьер (виден через стекло) ════════════
 box('sofa', 4.4, 7.2, 3.0, 3.9, 0.2, 0.75, M['sofa'], facade=False)
@@ -301,6 +394,47 @@ area_light('in_u1', (2.5, 2.5, 6.3), (7.0, 5.0), 380)
 area_light('in_u2', (7.5, 2.5, 6.3), (3.0, 5.0), 180)
 # растения внутри
 ico('inplant', (8.6, 1.0, 0.9), 0.5, M['leaf'], scale=(1, 1, 1.4), disp=0.15)
+box('inpot', 8.35, 8.85, 0.75, 1.25, 0.2, 0.6, M['concrete'], facade=False)
+ico('inplant2', (0.8, 1.0, 4.4), 0.45, M['leaf'], scale=(1, 1, 1.5), disp=0.15)
+box('inpot2', 0.55, 1.05, 0.75, 1.25, 3.47, 3.85, M['concrete'], facade=False)
+# ковёр, ТВ-стена, картины, торшер
+box('rug', 3.9, 7.8, 1.2, 4.2, 0.2, 0.215, M['rug'], facade=False)
+box('tvwall', 3.6, 8.2, 8.55, 8.62, 0.6, 2.4, M['cabinet'], facade=False)
+box('tv', 4.9, 6.9, 8.5, 8.55, 1.1, 2.2, M['dark'], facade=False)
+box('art_a', 1.0, 2.2, 8.75, 8.79, 1.2, 2.2, M['art1'], facade=False)
+box('art_b', 2.4, 3.2, 8.75, 8.79, 1.4, 2.0, M['art2'], facade=False)
+box('floorlamp', 7.6, 7.65, 3.6, 3.65, 0.2, 1.7, M['steel'], facade=False)
+ico('floorlamp_shade', (7.62, 3.62, 1.75), 0.18, M['lamp'], sub=2)
+# кухня: нижние и верхние шкафы, техника, барные стулья
+box('k_base', 10.4, 14.6, 8.2, 8.8, 0.2, 1.1, M['cabinet'], facade=False)
+box('k_top', 10.4, 14.6, 8.18, 8.8, 1.1, 1.14, M['stucco'], facade=False)
+box('k_upper', 10.4, 14.6, 8.45, 8.8, 1.7, 2.6, M['cabinet'], facade=False)
+box('k_hood', 12.0, 12.8, 8.3, 8.8, 1.9, 2.5, M['steel'], facade=False)
+box('k_led', 10.4, 14.6, 8.44, 8.46, 1.68, 1.7, M['strip'], facade=False)
+box('island_top', 10.75, 13.85, 3.45, 4.55, 1.1, 1.15, M['concrete'], facade=False)
+for i, x in enumerate([11.2, 12.0, 12.8, 13.5]):
+    box(f'stool{i}', x - 0.18, x + 0.18, 2.9, 3.26, 0.2, 0.8, M['dark'], facade=False)
+# лестница на второй этаж (парящие ступени)
+for i in range(15):
+    z = 0.2 + i * 0.215
+    y = 7.9 - i * 0.28
+    box(f'stair{i}', 8.2, 9.3, y - 0.3, y, z, z + 0.06, M['wood'], facade=False)
+box('stair_rail', 9.28, 9.3, 3.7, 7.9, 0.9, 4.2, M['railglass'], facade=False)
+# второй этаж: кровать с изголовьем, шкаф, книжные полки
+box('headboard', -0.2, 3.2, 6.6, 6.7, 3.47, 4.5, M['wood'], facade=False)
+box('bedding', 0.1, 2.9, 4.2, 6.5, 4.0, 4.12, M['fabric'], facade=False)
+box('wardrobe', 3.6, 5.6, 7.1, 7.8, 3.47, 5.8, M['cabinet'], facade=False)
+for i in range(4):
+    zb = 3.9 + i * 0.5
+    box(f'bshelf{i}', 6.2, 9.4, 7.3, 7.75, zb, zb + 0.03, M['wood'], facade=False)
+    xb = 6.25
+    while xb < 9.3:
+        wb = random.uniform(0.04, 0.09)
+        hb = random.uniform(0.25, 0.42)
+        col = random.choice([M['art1'], M['art2'], M['fabric'], M['cabinet'], M['sofa']])
+        box(f'book{i}_{xb:.2f}', xb, xb + wb, 7.35, 7.7, zb + 0.03, zb + 0.03 + hb, col, facade=False)
+        xb += wb + 0.005
+area_light('in_u_shelf', (7.8, 6.9, 6.2), (3.0, 1.0), 60)
 
 # ════════════ Участок ════════════
 ground = box('ground', -60, 60, -60, 60, -0.1, 0.0, M['lawn'], facade=False)
@@ -325,20 +459,196 @@ for i, x in enumerate([-0.6, 0.6, 1.6, 15.8, 16.6]):
 box('planter', -2.4, 2.4, -1.4, -0.4, 0.0, 0.35, M['charcoal'])
 # деревья
 def tree(name, x, y, h, r):
-    cyl(name + 'trunk', (x, y, 0), 0.16, h * 0.55, M['bark'])
-    for k in range(7):
-        ico(f'{name}c{k}', (x + random.uniform(-r, r) * 0.6, y + random.uniform(-r, r) * 0.6, h * 0.55 + random.uniform(0, h * 0.4)),
-            r * random.uniform(0.55, 0.8), M['leaf'], disp=0.5)
+    cyl(name + 'trunk', (x, y, 0), 0.16, h * 0.6, M['bark'])
+    for k in range(4):
+        a = random.uniform(0, 6.28)
+        cyl(f'{name}br{k}', (x + math.cos(a) * 0.3, y + math.sin(a) * 0.3, h * 0.45), 0.06, h * 0.3, M['bark'])
+    # крона из множества мелких «облаков» листвы — живой силуэт
+    for k in range(34):
+        u = random.uniform(0, 6.28)
+        v = random.uniform(-0.6, 1.0)
+        rr = r * random.uniform(0.35, 1.0)
+        ico(f'{name}c{k}', (x + math.cos(u) * rr, y + math.sin(u) * rr, h * 0.62 + v * r * 0.9),
+            r * random.uniform(0.22, 0.42), M['leaf'], sub=2, disp=0.22)
 tree('t1', 19.0, 2.0, 7.5, 2.2)
 tree('t2', 22.5, 7.0, 9.0, 2.6)
 tree('t3', -7.5, 9.0, 8.0, 2.4)
 tree('t4', 6.0, 15.0, 10.0, 3.0)
 tree('t5', 26.0, -2.0, 6.0, 1.8)
+tree('t6', -12.0, -2.0, 7.0, 2.2)
+# лежаки и столик у бассейна
+for i, x in enumerate([10.4, 11.7]):
+    box(f'lounger{i}', x, x + 0.75, -8.4, -6.6, 0.0, 0.32, M['fabric'], facade=False)
+    box(f'lounger_b{i}', x, x + 0.75, -6.75, -6.55, 0.3, 0.75, M['fabric'], facade=False)
+box('pool_table', 13.0, 13.5, -8.0, -7.5, 0.0, 0.45, M['wood'], facade=False)
+# низкая ограда участка с подсветкой
+box('fence', -14, 30, 20.0, 20.25, 0.0, 1.1, M['concrete'], facade=False)
+# живая изгородь вдоль левой границы
+for k in range(9):
+    ico(f'hedge{k}', (-6.5, 0.5 + k * 2.1, 0.55), 0.95, M['leaf'], scale=(0.8, 1.3, 0.7), sub=2, disp=0.25)
+# газон из травинок (вокруг дома, без мощения, бассейна и дорожки)
+def free_of_hardscape(x, y):
+    if -2.6 <= x <= 15.6 and -6.5 <= y <= 9.5:
+        return False
+    if 2.2 <= x <= 4.2 and -14 <= y <= -6:
+        return False
+    if 9.6 <= x <= 15.6 and -8.6 <= y <= -3.2:
+        return False
+    return True
+
+tm = bpy.data.meshes.new('turf')
+bm = bmesh.new()
+bmesh.ops.create_grid(bm, x_segments=96, y_segments=84, size=1.0)
+for v in bm.verts:
+    v.co.x = 8 + v.co.x * 24
+    v.co.y = 2 + v.co.y * 21
+    v.co.z = 0.001
+bm.to_mesh(tm)
+bm.free()
+turf = bpy.data.objects.new('turf', tm)
+bpy.context.collection.objects.link(turf)
+turf.data.materials.append(M['lawn'])
+turf.data.materials.append(M['grass'])
+vg = turf.vertex_groups.new(name='density')
+for v in tm.vertices:
+    vg.add([v.index], 1.0 if free_of_hardscape(v.co.x, v.co.y) else 0.0, 'REPLACE')
+ps = turf.modifiers.new('grass', 'PARTICLE_SYSTEM').particle_system
+pset = ps.settings
+pset.type = 'HAIR'
+pset.count = 26000 if not PREVIEW else 6000
+pset.hair_length = 0.11
+pset.use_advanced_hair = False
+pset.material_slot = 'grass'
+pset.child_type = 'INTERPOLATED'
+pset.rendered_child_count = 9 if not PREVIEW else 3
+pset.child_length = 1.0
+pset.child_length_threshold = 0.4
+pset.roughness_1 = 0.015
+pset.roughness_endpoint = 0.02
+pset.roughness_2 = 0.01
+pset.radius_scale = 0.004
+pset.root_radius = 1.0
+pset.tip_radius = 0.0
+ps.vertex_group_density = 'density'
 # дальняя линия деревьев, чтобы горизонт не был пустым
 for k in range(26):
     x = -40 + k * 3.4 + random.uniform(-1, 1)
     y = 34 + random.uniform(-4, 6)
     ico(f'far{k}', (x, y, random.uniform(2.5, 4.5)), random.uniform(2.6, 4.2), M['leaf'], scale=(1, 1, random.uniform(0.9, 1.4)), disp=0.8)
+
+# ════════════ Инженерные системы (видны только на схеме) ════════════
+def run(name, sys_key, pts, r=0.03):
+    cu = bpy.data.curves.new(name, 'CURVE')
+    cu.dimensions = '3D'
+    cu.bevel_depth = r
+    cu.bevel_resolution = 2
+    sp = cu.splines.new('POLY')
+    sp.points.add(len(pts) - 1)
+    for i, p in enumerate(pts):
+        sp.points[i].co = (*p, 1)
+    ob = bpy.data.objects.new(name, cu)
+    bpy.context.collection.objects.link(ob)
+    ob.data.materials.append(MEP_MAT[sys_key])
+    MEP.append(ob)
+    return ob
+
+
+def wirebox(name, sys_key, x0, x1, y0, y1, z0, z1, r=0.014):
+    P = [(x0, y0, z0), (x1, y0, z0), (x1, y1, z0), (x0, y1, z0), (x0, y0, z1), (x1, y0, z1), (x1, y1, z1), (x0, y1, z1)]
+    for k, (i, j) in enumerate([(0, 1), (1, 2), (2, 3), (3, 0), (4, 5), (5, 6), (6, 7), (7, 4), (0, 4), (1, 5), (2, 6), (3, 7)]):
+        run(f'{name}_{k}', sys_key, [P[i], P[j]], r)
+
+
+def dot(name, sys_key, p, r=0.07):
+    ob = ico(name, p, r, MEP_MAT[sys_key], sub=2)
+    MEP.append(ob)
+
+
+# — электрика: ввод → счётчик на фасаде → щит → линии освещения и розеток
+wirebox('m_el', 'el', 13.95, 14.65, -0.34, -0.2, 1.1, 2.0, 0.016)
+dot('m_el_dial', 'el', (14.3, -0.36, 1.72), 0.09)
+run('el_in', 'el', [(14.3, -4.0, -0.6), (14.3, -0.6, -0.6), (14.3, -0.6, 1.1)], 0.03)
+run('el_feed', 'el', [(14.3, -0.2, 1.55), (14.3, 0.05, 1.55), (14.3, 0.05, 2.95), (14.7, 0.05, 2.95), (14.7, 6.3, 2.95), (14.7, 6.3, 2.1)], 0.025)
+wirebox('panel', 'el', 14.6, 14.78, 6.0, 6.7, 1.2, 2.1, 0.016)
+run('el_trunk', 'el', [(14.7, 6.4, 2.1), (14.7, 6.4, 2.98), (14.7, 4.5, 2.98), (0.4, 4.5, 2.98)], 0.022)
+for i, x in enumerate([1.2, 3.6, 6.0, 8.0, 11.0, 13.2]):
+    run(f'el_s{i}', 'el', [(x, 4.5, 2.98), (x, 8.72, 2.98), (x, 8.72, 0.35)], 0.016)
+    wirebox(f'sock{i}', 'el', x - 0.07, x + 0.07, 8.66, 8.76, 0.28, 0.42, 0.01)
+    dot(f'lamp_pt{i}', 'el', (x, 4.5, 2.95), 0.08)
+run('el_sw', 'el', [(2.2, 4.5, 2.98), (2.2, 0.06, 2.98), (2.2, 0.06, 1.0)], 0.016)
+wirebox('switch', 'el', 2.13, 2.27, 0.03, 0.1, 0.93, 1.07, 0.01)
+run('el_riser', 'el', [(9.6, 4.5, 2.98), (9.6, 7.6, 2.98), (9.6, 7.6, 6.3), (9.6, 3.0, 6.3), (-1.3, 3.0, 6.3)], 0.022)
+for i, x in enumerate([-0.6, 2.2, 5.0, 7.6]):
+    run(f'el_us{i}', 'el', [(x, 3.0, 6.3), (x, 7.72, 6.3), (x, 7.72, 3.75)], 0.016)
+    wirebox(f'usock{i}', 'el', x - 0.07, x + 0.07, 7.66, 7.76, 3.68, 3.82, 0.01)
+    dot(f'ulamp{i}', 'el', (x, 3.0, 6.27), 0.08)
+# — холодная вода: ввод с улицы → колодец с водомером → котельная → кухня, санузлы
+run('cw_main', 'cw', [(12.8, -5.0, -1.2), (12.8, -3.0, -1.2)], 0.055)
+wirebox('m_water', 'cw', 12.4, 13.2, -3.0, -2.2, -1.5, -0.6, 0.016)
+dot('m_water_dial', 'cw', (12.8, -2.6, -1.15), 0.12)
+run('cw_in', 'cw', [(12.8, -2.2, -1.0), (12.8, -2.2, -0.35), (12.8, 8.4, -0.35), (12.8, 8.4, 0.45), (14.05, 8.4, 0.45), (14.05, 8.4, 1.0)], 0.05)
+run('cw_dist', 'cw', [(12.8, 8.55, 0.45), (6.6, 8.55, 0.45)], 0.045)
+run('cw_riser', 'cw', [(9.2, 8.55, 0.45), (9.2, 7.6, 0.45), (9.2, 7.6, 4.0), (7.4, 7.6, 4.0), (7.4, 7.4, 3.75)], 0.045)
+run('cw_shower', 'cw', [(8.5, 7.6, 4.0), (8.5, 7.6, 5.6)], 0.035)
+run('cw_kitchen', 'cw', [(12.0, 8.55, 0.45), (12.0, 8.55, 0.12), (12.0, 4.1, 0.12), (12.0, 4.1, 0.95)], 0.04)
+run('cw_wc', 'cw', [(7.4, 8.55, 0.45), (7.4, 8.3, 0.3)], 0.035)
+run('cw_basin', 'cw', [(6.6, 8.55, 0.45), (6.6, 8.4, 0.75)], 0.035)
+
+# — горячая вода: от котла параллельно холодной
+run('hw_main', 'hw', [(14.3, 8.25, 1.9), (13.6, 8.25, 1.9), (13.6, 8.25, 0.62), (6.75, 8.25, 0.62)], 0.045)
+run('hw_riser', 'hw', [(8.75, 8.25, 0.62), (8.75, 7.3, 0.62), (8.75, 7.3, 4.25), (8.65, 7.3, 4.25), (8.65, 7.3, 5.6)], 0.05)
+run('hw_kitchen', 'hw', [(12.15, 8.25, 0.62), (12.15, 8.25, 0.15), (12.15, 4.1, 0.15), (12.15, 4.1, 0.95)], 0.04)
+run('hw_basin', 'hw', [(6.75, 8.25, 0.62), (6.75, 8.4, 0.75)], 0.035)
+
+# — котёл, коллектор, тёплый пол, внутрипольные конвекторы
+wirebox('boiler', 'ht', 14.0, 14.6, 8.25, 8.75, 1.0, 2.0, 0.018)
+dot('boiler_flame', 'ht', (14.3, 8.24, 1.35), 0.09)
+run('ht_supply', 'ht', [(14.0, 8.68, 1.4), (10.0, 8.68, 1.4), (10.0, 8.68, 0.75)], 0.045)
+wirebox('collector', 'ht', 9.6, 10.4, 8.6, 8.75, 0.35, 0.75, 0.014)
+def floor_loop(name, x0, x1, y0, y1, step, z, start):
+    pts = [start]
+    y = y1
+    left = False
+    pts.append((x1, y1, z))
+    while y >= y0:
+        pts.append((x0 if not left else x1, y, z))
+        y -= step
+        if y < y0:
+            break
+        pts.append((x0 if not left else x1, y, z))
+        left = not left
+    run(name, 'ht', pts, 0.018)
+floor_loop('ufh_living', 0.8, 9.0, 0.8, 8.0, 0.5, 0.18, (9.7, 8.6, 0.18))
+floor_loop('ufh_kitchen', 10.6, 14.4, 0.8, 7.6, 0.5, 0.18, (10.3, 8.6, 0.18))
+run('ht_riser', 'ht', [(10.2, 8.68, 0.75), (9.7, 7.7, 0.75), (9.7, 7.7, 3.38), (9.7, -1.32, 3.38), (-1.3, -1.32, 3.38), (-1.3, 4.4, 3.38)], 0.035)
+for i, (x0, x1) in enumerate([(-1.2, 1.4), (1.7, 4.3), (4.6, 7.2)]):
+    wirebox(f'conv{i}', 'ht', x0, x1, -1.45, -1.2, 3.28, 3.42, 0.012)
+wirebox('conv_l', 'ht', -1.48, -1.28, -1.0, 4.2, 3.28, 3.42, 0.012)
+
+# — канализация: стояк из санузла 2-го этажа, выпуск в септик
+run('sw_stack', 'sw', [(9.5, 7.9, 7.4), (9.5, 7.9, -0.8), (9.5, 13.0, -1.0), (7.5, 13.0, -1.2)], 0.075)
+run('sw_up', 'sw', [(7.4, 7.4, 3.55), (9.5, 7.4, 3.5), (9.5, 7.9, 3.5)], 0.06)
+run('sw_shower', 'sw', [(8.5, 7.25, 3.5), (8.5, 7.9, 3.5)], 0.05)
+run('sw_wc', 'sw', [(7.4, 8.3, 0.3), (7.4, 8.3, -0.4), (9.5, 8.3, -0.6)], 0.06)
+run('sw_kitchen', 'sw', [(12.0, 4.3, 0.6), (12.0, 4.3, -0.4), (12.0, 9.6, -0.5), (12.0, 13.0, -0.9), (7.5, 13.0, -1.2)], 0.06)
+wirebox('septic', 'sw', 5.0, 7.5, 12.0, 14.5, -2.4, -0.6, 0.02)
+
+# — газ: ввод с улицы → счётчик на стене → котёл
+run('gs_main', 'gs', [(15.9, -4.5, -1.0), (15.9, 1.3, -1.0), (15.9, 1.3, 0.9), (15.22, 1.3, 0.9)], 0.045)
+wirebox('m_gas', 'gs', 15.02, 15.25, 1.0, 1.6, 0.9, 1.5, 0.014)
+dot('m_gas_dial', 'gs', (15.27, 1.3, 1.28), 0.08)
+run('gs_boiler', 'gs', [(15.12, 1.3, 1.5), (15.12, 1.3, 2.6), (15.12, 8.5, 2.6), (14.5, 8.5, 2.6), (14.5, 8.5, 2.0)], 0.04)
+
+# — сантехприборы (контуры)
+wirebox('wc1', 'fx', 7.2, 7.6, 8.0, 8.7, 0.2, 0.6, 0.014)
+wirebox('basin1', 'fx', 6.3, 7.0, 8.3, 8.75, 0.75, 0.9, 0.014)
+wirebox('shower2', 'fx', 8.0, 9.0, 6.8, 7.75, 3.47, 3.55, 0.014)
+wirebox('shower2_head', 'fx', 8.4, 8.7, 7.55, 7.7, 5.55, 5.65, 0.012)
+wirebox('wc2', 'fx', 7.2, 7.6, 7.1, 7.75, 3.47, 3.85, 0.014)
+wirebox('sink_k', 'fx', 11.8, 12.4, 3.75, 4.25, 0.95, 1.12, 0.012)
+
+for ob in MEP:
+    ob.hide_render = True  # в красивом кадре инженерия скрыта
 
 # ════════════ Свет снаружи ════════════
 # даунлайты в софите консоли и над витражами
@@ -446,6 +756,11 @@ def to2d(p):
     return [round(v.x, 4), round(1 - v.y, 4)]
 
 anchors = {
+    'm_el': to2d((14.3, -0.36, 1.72)),
+    'm_water': to2d((12.8, -2.6, -1.0)),
+    'm_gas': to2d((15.27, 1.3, 1.28)),
+    'boiler': to2d((14.3, 8.5, 1.5)),
+    'panel': to2d((14.7, 6.35, 1.65)),
     'bom': to2d((10.3, -1.9, 6.82)),
     'price': to2d((-1.9, -1.9, 6.82)),
     'defect': to2d((-1.0, -0.2, 1.6)),
@@ -460,12 +775,40 @@ with open(os.path.join(OUT, 'anchors.json'), 'w') as f:
 if len(sys.argv) > 4 and sys.argv[4] == 'anchors':
     sys.exit(0)
 
+# ════════════ Рентген инженерных систем ════════════
+def render_mep():
+    scene.view_settings.view_transform = 'Standard'
+    scene.view_settings.look = 'None'
+    scene.view_settings.exposure = 0.0
+    scene.cycles.use_denoising = False
+    scene.view_layers[0].material_override = None
+    scene.render.film_transparent = True
+    scene.render.image_settings.color_mode = 'RGBA'
+    scene.render.image_settings.color_depth = '8'
+    scene.cycles.samples = 16
+    scene.cycles.pixel_filter_type = 'BLACKMAN_HARRIS'
+    scene.cycles.filter_width = 1.5
+    for ob in scene.objects:
+        if ob.type in ('MESH', 'CURVE'):
+            ob.hide_render = ob not in MEP
+        if ob.type == 'LIGHT':
+            ob.hide_render = True
+    scene.render.filepath = os.path.join(OUT, 'pass_mep.png')
+    bpy.ops.render.render(write_still=True)
+    print('mep done', flush=True)
+
+
+
+if MODE == 'meponly':
+    render_mep()
+    sys.exit(0)
+
 # ════════════ Рендер красивого кадра ════════════
 scene.render.filepath = os.path.join(OUT, 'beauty.png')
 bpy.ops.render.render(write_still=True)
 print('beauty done', flush=True)
 
-if PREVIEW:
+if PREVIEW and not os.environ.get('MEP_PREVIEW'):
     sys.exit(0)
 
 # ════════════ Служебные проходы для чертежа ════════════
@@ -482,7 +825,7 @@ for ob in list(scene.objects):
     if ob.type == 'LIGHT':
         ob.hide_render = True
 for ob in scene.objects:
-    if ob.type == 'MESH' and ob not in FACADE:
+    if ob.type in ('MESH', 'CURVE') and ob not in FACADE:
         ob.hide_render = True
 
 
@@ -520,3 +863,7 @@ for kind in ('normal', 'depth', 'id'):
     scene.render.filepath = os.path.join(OUT, f'pass_{kind}.png')
     bpy.ops.render.render(write_still=True)
     print(kind, 'done', flush=True)
+
+
+
+render_mep()

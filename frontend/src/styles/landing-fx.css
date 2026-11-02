@@ -506,8 +506,8 @@ a.hx-app-chip:hover { border-color: var(--lux-gold); color: var(--lux-gold); }
 @media (prefers-reduced-motion: reduce) { .bh-scan, .bh-pulse { animation: none; } }
 
 /* ── Дом-рендер с чертежом ── */
-.hx-grid { grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr) !important; }
-.hx-art { margin-right: calc(-1 * clamp(0px, 7vw, 130px)) !important; margin-left: -2vw; }
+.hx-grid { grid-template-columns: minmax(0, 0.84fr) minmax(0, 1.16fr) !important; }
+.hx-art { margin-right: calc(-1 * max(var(--qg-gutter), (100vw - var(--qg-container)) / 2 + var(--qg-gutter) - 8px)) !important; margin-left: -3vw; }
 .hx-art::before { inset: 10% 0 0 10% !important; background: radial-gradient(50% 50% at 55% 55%, rgba(150, 80, 255, 0.35), transparent 70%) !important; }
 .hh { position: relative; margin: 0; }
 .hh-img {
@@ -552,3 +552,48 @@ a.hx-app-chip:hover { border-color: var(--lux-gold); color: var(--lux-gold); }
   .hh-label { display: none; }
 }
 @media (prefers-reduced-motion: reduce) { .hh-pulse { animation: none; } }
+
+/* ── Инженерные системы на чертеже дома ── */
+.hh-frame { position: relative; }
+.hh-tag {
+  position: absolute;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 9px 4px 7px;
+  border: 1px solid color-mix(in srgb, var(--c) 60%, transparent);
+  border-radius: 999px;
+  background: rgba(12, 9, 28, 0.85);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  color: #f3f1f9;
+  font-size: clamp(0.625rem, 0.5rem + 0.25vw, 0.75rem);
+  font-weight: 700;
+  white-space: nowrap;
+  box-shadow: 0 0 16px -6px var(--c);
+}
+.hh-tag svg { color: var(--c); flex: none; }
+.hh-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px 16px;
+  margin: 6px auto 0;
+  padding: 10px 16px;
+  max-width: 92%;
+  border: 1px solid rgba(189, 178, 230, 0.18);
+  border-radius: 14px;
+  background: rgba(14, 11, 32, 0.6);
+  color: var(--qg-text-2);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+.hh-legend-title { color: var(--qg-text); font-weight: 800; }
+.hh-legend-item { display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; }
+.hh-legend-item i { width: 16px; height: 3px; border-radius: 2px; }
+@media (max-width: 560px) {
+  .hh-tag, .hh-meter-line { display: none; }
+  .hh-legend { gap: 6px 12px; font-size: 0.75rem; padding: 8px 12px; }
+}
