@@ -507,7 +507,8 @@ a.hx-app-chip:hover { border-color: var(--lux-gold); color: var(--lux-gold); }
 
 /* ── Дом-рендер с чертежом ── */
 .hx-grid { grid-template-columns: minmax(0, 0.84fr) minmax(0, 1.16fr) !important; }
-.hx-art { margin-right: calc(-1 * max(var(--qg-gutter), (100vw - var(--qg-container)) / 2 + var(--qg-gutter) - 8px)) !important; margin-left: -3vw; }
+.hx-art { margin-right: calc(-1 * clamp(0px, 4vw, 64px)) !important; margin-left: calc(-1 * clamp(0px, 2vw, 32px)); }
+.hx .qg-container { max-width: 1320px; }
 .hx-art::before { inset: 10% 0 0 10% !important; background: radial-gradient(50% 50% at 55% 55%, rgba(150, 80, 255, 0.35), transparent 70%) !important; }
 .hh { position: relative; margin: 0; }
 .hh-img {
