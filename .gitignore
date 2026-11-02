@@ -48,3 +48,4 @@ ai-service/runs/
 # Python bytecode
 __pycache__/
 *.pyc
+QazGost-iOS.zip

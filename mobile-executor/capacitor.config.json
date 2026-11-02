@@ -4,11 +4,19 @@
   "webDir": "dist",
   "bundledWebRuntime": false,
   "server": {
-    "androidScheme": "https"
+    "androidScheme": "https",
+    "iosScheme": "capacitor"
   },
   "android": {
     "allowMixedContent": false,
     "webContentsDebuggingEnabled": false,
     "captureInput": true
+  },
+  "ios": {
+    "contentInset": "never",
+    "scheme": "App",
+    "limitsNavigationsToAppBoundDomains": false,
+    "webContentsDebuggingEnabled": false,
+    "backgroundColor": "#0b0a1c"
   }
 }
