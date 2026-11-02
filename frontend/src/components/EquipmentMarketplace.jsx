@@ -4,6 +4,8 @@ import { createPlatformOrder } from '../services/orderSyncService';
 import { localDateKey, authHeaders, jsonAuthHeaders, getAuthToken, responseError } from '../services/platformUtils';
 import './EquipmentMarketplace.css';
 import './marketplace-refresh.css';
+import MarketBackdrop from './MarketBackdrop';
+import './marketplace-lux.css';
 
 // ── Спецтехника с сервера: GET /api/v1/equipment?category=&city=&q= ──
 const EQ_CATEGORY_API = { earth: 'землерой', lift: 'грузоподъ', loader: 'погруз', road: 'дорож', concrete: 'бетон', transport: 'самосвал', drill: 'буров', power: 'энерг' };
@@ -818,7 +820,8 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
   };
 
   return (
-    <div className="equipment-marketplace-container">
+    <div className="equipment-marketplace-container mk-page">
+      <MarketBackdrop variant="equipment" />
       {/* Toast */}
       {toastMessage && (
         <div className="em-toast">
@@ -861,6 +864,20 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
             ))}
           </div>
         </div>
+      )}
+
+      {activeTab === 'marketplace' && !hideHeader && (
+        <section className="mk-hero mk-hero--equipment" aria-labelledby="mk-eq-title">
+          <div className="mk-hero-copy">
+            <h2 id="mk-eq-title">Аренда спецтехники</h2>
+            <p>Экскаваторы, краны, самосвалы и бетононасосы по сменам и часам. Бронь через эскроу: оплата уходит владельцу только после смены.</p>
+          </div>
+          <dl className="mk-hero-stats">
+            <div><dt>объявлений</dt><dd className="qg-num">{filteredEquipment.length}</dd></div>
+            <div><dt>оплата</dt><dd>эскроу</dd></div>
+            <div><dt>доставка</dt><dd>на объект</dd></div>
+          </dl>
+        </section>
       )}
 
       {activeTab === 'marketplace' && (

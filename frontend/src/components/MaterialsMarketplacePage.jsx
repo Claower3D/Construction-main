@@ -5,6 +5,8 @@ import { authHeaders, responseError } from '../services/platformUtils';
 import { MARKETPLACE_PRODUCTS } from '../data/marketplaceProducts';
 import './MaterialsMarketplacePage.css';
 import './marketplace-refresh.css';
+import MarketBackdrop from './MarketBackdrop';
+import './marketplace-lux.css';
 
 // ── Каталог цен API: GET /api/v1/prices?type=material (10 000+ позиций) ──
 const PAGE_SIZE = 24;
@@ -1174,7 +1176,8 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
   };
 
   return (
-    <div className="mmp-container">
+    <div className="mmp-container mk-page">
+      <MarketBackdrop variant="materials" />
       {toastMessage && <div className="mmp-toast">{toastMessage}</div>}
 
       {/* Top Header Bar */}
@@ -1188,10 +1191,9 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
       )}
 
       {/* Hero Banner */}
-      <div className="mmp-hero-banner">
+      <div className="mmp-hero-banner mk-hero mk-hero--materials">
         <div className="mmp-hero-left">
           <h2>
-            <span>🧱</span>
             <span>Маркетплейс строительных материалов</span>
           </h2>
           <p>

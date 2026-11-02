@@ -1,6 +1,8 @@
 import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import './marketplace-refresh.css';
 import './ContractorsCatalogPage.css';
+import MarketBackdrop from './MarketBackdrop';
+import './marketplace-lux.css';
 import { createPlatformOrder } from '../services/orderSyncService';
 import { freezeEscrow } from '../services/walletEngine';
 
@@ -289,10 +291,11 @@ export default function ContractorsCatalogPage({ onBack }) {
   };
 
   return (
-    <div className="cc-container">
+    <div className="cc-container mk-page">
+      <MarketBackdrop variant="crews" />
       {toastMessage && <div className="cc-toast" role="status">{toastMessage}</div>}
 
-      <header className="cc-header-bar">
+      <header className="cc-header-bar mk-hero mk-hero--crews">
         <button className="cc-back-btn" onClick={onBack} aria-label="Вернуться назад">←</button>
         <div className="cc-header-title-wrap">
           <h1 className="cc-title">Каталог подрядчиков</h1>
