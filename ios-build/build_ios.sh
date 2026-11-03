@@ -11,7 +11,7 @@ APPS=()
 for a in "$@"; do
   if [ "$a" = "archive" ]; then MODE=archive; else APPS+=("$a"); fi
 done
-[ ${#APPS[@]} -eq 0 ] && APPS=(mobile-manager mobile-engineer mobile-executor)
+[ ${#APPS[@]} -eq 0 ] && APPS=(mobile-customer mobile-manager mobile-engineer mobile-executor)
 
 command -v xcodebuild >/dev/null || { echo "Установите Xcode из App Store и запустите его один раз."; exit 1; }
 command -v node >/dev/null || { echo "Нужен Node.js 18+: https://nodejs.org или brew install node"; exit 1; }

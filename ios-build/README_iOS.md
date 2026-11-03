@@ -1,9 +1,10 @@
 # QazGost — сборка iOS на MacBook
 
-В архиве три готовых Xcode-проекта (Capacitor 6):
+Четыре готовых Xcode-проекта (Capacitor 6):
 
 | Папка | Приложение | Bundle ID | Версия |
 |---|---|---|---|
+| `mobile-customer` | QazGost (для заказчиков) | `kz.qazgost.client` | 1.0 (1) |
 | `mobile-manager` | QazGost CRM | `kz.qazgost.manager` | 2.1 (21) |
 | `mobile-engineer` | QazGost Инженер | `kz.qazgost.engineer` | 2.1 (21) |
 | `mobile-executor` | QazGost Исполнитель | `kz.qazgost.executor` | 2.1 (21) |
