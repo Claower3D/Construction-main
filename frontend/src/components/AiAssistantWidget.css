@@ -97,7 +97,7 @@
   pointer-events: none;
 }
 .arm-g-hand img { display: block; width: 100%; height: 100%; }
-.arm-g-hand.is-swipe { animation: arm-swipe 1.05s cubic-bezier(0.45, 0, 0.3, 1); }
+.arm-g-hand.is-swipe { animation: arm-swipe 1.1s cubic-bezier(0.45, 0, 0.35, 1); }
 
 /* кольцо-панель */
 .arm-ring {
@@ -414,10 +414,12 @@
 @keyframes arm-breathe { 0%, 100% { transform: scale(1) translateY(0); } 50% { transform: scale(1.012) translateY(-1.5px); } }
 @keyframes arm-hover { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
 @keyframes arm-swipe {
-  0% { transform: rotate(0) translate(0, 0); }
-  30% { transform: rotate(13deg) translate(-7%, 3%); }
-  70% { transform: rotate(-10deg) translate(12%, -2%); }
-  100% { transform: rotate(0) translate(0, 0); }
+  /* кисть проводит по панели: замах вниз-влево и проводка вправо, от запястья */
+  0% { transform: rotate(0); }
+  28% { transform: rotate(7deg) translate(-1.5%, 1%); }
+  68% { transform: rotate(-6deg) translate(2.5%, -0.5%); }
+  100% { transform: rotate(0); }
+}
 }
 @keyframes arm-sweep { to { stroke-dashoffset: -100; } }
 @keyframes arm-sway { 0%, 100% { transform: rotate(-1.2deg); } 50% { transform: rotate(1.4deg); } }
