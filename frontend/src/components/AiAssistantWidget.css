@@ -420,7 +420,6 @@
   68% { transform: rotate(-6deg) translate(2.5%, -0.5%); }
   100% { transform: rotate(0); }
 }
-}
 @keyframes arm-sweep { to { stroke-dashoffset: -100; } }
 @keyframes arm-sway { 0%, 100% { transform: rotate(-1.2deg); } 50% { transform: rotate(1.4deg); } }
 @keyframes arm-pad { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(0.86); opacity: 0.75; } }

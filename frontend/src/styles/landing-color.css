@@ -1,0 +1,299 @@
+/* ════════════════════════════════════════════════════════════════════
+   QazGost — цветовой код инженерных систем (2026-11).
+
+   Палитра взята из схемы на первом экране: электрика, холодная и горячая вода,
+   отопление, канализация, газ. Цвет здесь — метка раздела, а не украшение:
+   каждая карточка, категория и группа сервисов получает свой «системный» цвет.
+   Золото по-прежнему только у главных кнопок и денег.
+
+   Механика: элементу задаётся --tone (цвет), остальное считается от него.
+   ════════════════════════════════════════════════════════════════════ */
+
+:root {
+  --t-amber: #ffc34d;   /* электрика */
+  --t-cyan: #4fc3ff;    /* холодная вода */
+  --t-rose: #ff5c8a;    /* горячая вода */
+  --t-orange: #ff8a3d;  /* отопление */
+  --t-mint: #2ee6c5;    /* канализация */
+  --t-lime: #c9f25a;    /* газ */
+  --t-violet: #a78bfa;
+}
+
+/* ── Фон: к фиолетовому сиянию добавлены бирюза, роза и мята ── */
+body {
+  background-image:
+    radial-gradient(55% 38% at 82% 0%, rgba(140, 70, 240, 0.34), transparent 70%),
+    radial-gradient(40% 30% at 0% 18%, rgba(79, 195, 255, 0.13), transparent 70%),
+    radial-gradient(42% 30% at 100% 46%, rgba(255, 92, 138, 0.1), transparent 70%),
+    radial-gradient(45% 30% at 0% 72%, rgba(46, 230, 197, 0.09), transparent 70%),
+    radial-gradient(45% 30% at 100% 92%, rgba(255, 138, 61, 0.08), transparent 70%) !important;
+}
+.lux-section:nth-of-type(5n + 1)::before { background: radial-gradient(45% 55% at 88% 40%, rgba(79, 195, 255, 0.11), transparent 70%); }
+.lux-section:nth-of-type(5n + 2)::before { background: radial-gradient(45% 55% at 8% 50%, rgba(255, 92, 138, 0.1), transparent 70%); }
+.lux-section:nth-of-type(5n + 3)::before { background: radial-gradient(45% 55% at 90% 50%, rgba(46, 230, 197, 0.09), transparent 70%); }
+.lux-section:nth-of-type(5n + 4)::before { background: radial-gradient(45% 55% at 10% 40%, rgba(150, 70, 255, 0.16), transparent 70%); }
+.lux-section:nth-of-type(5n + 5)::before { background: radial-gradient(45% 55% at 85% 50%, rgba(255, 138, 61, 0.09), transparent 70%); }
+
+/* ── Метка над заголовками секций: четыре системных цвета, как легенда на схеме ── */
+.lux-head h2::before,
+.svc .lux-head h2::before {
+  content: '';
+  display: block;
+  width: 64px;
+  height: 4px;
+  margin-bottom: 18px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--t-amber) 0 25%, var(--t-cyan) 25% 50%, var(--t-rose) 50% 75%, var(--t-mint) 75%);
+  box-shadow: 0 0 14px rgba(79, 195, 255, 0.35);
+}
+.lux-head--center h2::before { margin-inline: auto; }
+
+/* ── Тонированные карточки: рамка, свечение, нижний блик и иконка в цвете --tone ── */
+.hx-stat,
+.lux-feature,
+.lux-step,
+.lux-role,
+.svc-card {
+  --tone-a: color-mix(in srgb, var(--tone, #f2b84b) 55%, transparent);
+  --tone-b: color-mix(in srgb, var(--tone, #f2b84b) 22%, transparent);
+}
+.hx-stat[style], .lux-feature, .lux-step, .lux-role, .svc-card, .hx-stat {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 30px 60px -30px rgba(0, 0, 0, 0.9),
+    0 0 60px -22px var(--tone-a) !important;
+  background:
+    radial-gradient(90% 70% at 100% 0%, var(--tone-b), transparent 60%),
+    var(--lux-glass) !important;
+}
+.hx-stat::before, .lux-feature::before, .lux-step::before, .lux-role::before, .svc-card::before {
+  background: linear-gradient(150deg, rgba(230, 220, 255, 0.5), rgba(150, 100, 255, 0.1) 35%, rgba(150, 100, 255, 0.06) 60%, var(--tone-a) 85%, var(--tone, #f2b84b)) !important;
+}
+.hx-stat::after, .lux-feature::after, .lux-step::after, .lux-role::after, .svc-card::after {
+  background: linear-gradient(90deg, transparent, var(--tone, #f2b84b) 45%, color-mix(in srgb, var(--tone, #f2b84b) 50%, #fff) 70%, transparent) !important;
+  box-shadow: 0 0 14px 3px var(--tone-a), 0 0 30px 6px var(--tone-b) !important;
+}
+.hx-stat .lux-icon, .lux-feature .lux-icon, .lux-step .lux-icon, .lux-role .lux-icon {
+  border-color: var(--tone-a) !important;
+  background: linear-gradient(160deg, var(--tone-b), rgba(150, 80, 255, 0.1)) !important;
+  color: var(--tone) !important;
+  box-shadow: 0 0 22px -4px var(--tone-a), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+}
+
+/* первый экран: четыре показателя — четыре системы */
+.hx-stat:nth-child(1) { --tone: var(--t-amber); }
+.hx-stat:nth-child(2) { --tone: var(--t-cyan); }
+.hx-stat:nth-child(3) { --tone: var(--t-mint); }
+.hx-stat:nth-child(4) { --tone: var(--t-orange); }
+.hx-stat .hx-stat-label { color: color-mix(in srgb, var(--tone) 70%, #fff) !important; }
+.hx-stat .hx-stat-label svg { color: var(--tone) !important; }
+.hx-stat .hx-stat-value { color: var(--tone) !important; text-shadow: 0 0 24px var(--tone-a) !important; }
+
+/* «Что вы получаете» */
+.lux-feature:nth-child(1) { --tone: var(--t-cyan); }
+.lux-feature:nth-child(2) { --tone: var(--t-rose); }
+.lux-feature:nth-child(3) { --tone: var(--t-mint); }
+.lux-feature .lux-link { color: var(--tone) !important; }
+
+/* «Как это работает»: номера шагов и стрелки */
+.lux-step:nth-child(1) { --tone: var(--t-cyan); }
+.lux-step:nth-child(2) { --tone: var(--t-violet); }
+.lux-step:nth-child(3) { --tone: var(--t-mint); }
+.lux-step .lux-step-num {
+  border-color: var(--tone) !important;
+  color: var(--tone) !important;
+  box-shadow: 0 0 18px -2px var(--tone-a);
+}
+
+/* «Один сервис для всех на объекте» */
+.lux-role:nth-child(1) { --tone: var(--t-orange); }
+.lux-role:nth-child(2) { --tone: var(--t-cyan); }
+.lux-role:nth-child(3) { --tone: var(--t-rose); }
+.lux-role:nth-child(4) { --tone: var(--t-mint); }
+.lux-role li svg { color: var(--tone) !important; }
+
+/* списки с галочками: цвета идут по кругу */
+.lux-checks li:nth-child(4n + 1) svg { color: var(--t-cyan); }
+.lux-checks li:nth-child(4n + 2) svg { color: var(--t-mint); }
+.lux-checks li:nth-child(4n + 3) svg { color: var(--t-rose); }
+.lux-checks li:nth-child(4n + 4) svg { color: var(--t-amber); }
+
+/* ── Каталог работ: группы = системы ── */
+[data-group='general'] { --tone: var(--t-orange); }
+[data-group='finishing'] { --tone: var(--t-rose); }
+[data-group='engineering'] { --tone: var(--t-cyan); }
+[data-group='special'] { --tone: var(--t-mint); }
+.lux-chip[data-group]:not([data-group='all'])::before {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 8px;
+  border-radius: 50%;
+  background: var(--tone);
+  box-shadow: 0 0 8px var(--tone);
+  vertical-align: 1px;
+}
+.lux-chip[data-group]:not([data-group='all'])[aria-pressed='true'] {
+  background: var(--tone) !important;
+  color: #0d0a1c !important;
+}
+.lux-chip[data-group]:not([data-group='all'])[aria-pressed='true']::before { background: #0d0a1c; box-shadow: none; }
+.lux-cat[data-group] { box-shadow: 0 20px 40px -24px rgba(0, 0, 0, 0.9), 0 0 36px -18px color-mix(in srgb, var(--tone) 60%, transparent) !important; }
+.lux-cat[data-group]::before {
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.35), rgba(150, 100, 255, 0.08) 40%, rgba(150, 100, 255, 0.08) 65%, var(--tone)) !important;
+}
+.lux-cat[data-group]:hover { box-shadow: 0 20px 40px -24px rgba(0, 0, 0, 0.9), 0 0 50px -12px var(--tone) !important; }
+.lux-cat[data-group] .lux-cat-price { color: var(--tone) !important; }
+.lux-cat[data-group] .lux-cat-text::before {
+  content: '';
+  display: block;
+  width: 26px;
+  height: 3px;
+  margin-bottom: 8px;
+  border-radius: 3px;
+  background: var(--tone);
+  box-shadow: 0 0 10px var(--tone);
+}
+/* плитка без фото — цветной градиент вместо пустого тёмного блока */
+.lux-cat[data-group] {
+  background:
+    radial-gradient(80% 70% at 80% 10%, color-mix(in srgb, var(--tone) 30%, transparent), transparent 70%),
+    linear-gradient(160deg, #221a46, #120e26) !important;
+}
+
+/* ── Все сервисы платформы: категории = системы ── */
+[data-tone='ai'] { --tone: var(--t-cyan); }
+[data-tone='market'] { --tone: var(--t-orange); }
+[data-tone='crews'] { --tone: var(--t-mint); }
+[data-tone='eng'] { --tone: var(--t-rose); }
+.svc-group[data-tone] .svc-card {
+  --tone-a: color-mix(in srgb, var(--tone) 55%, transparent);
+  --tone-b: color-mix(in srgb, var(--tone) 22%, transparent);
+}
+.svc-group-head h3 { display: flex; align-items: center; gap: 10px; }
+.svc-group-head h3::before {
+  content: '';
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--tone);
+  box-shadow: 0 0 10px var(--tone);
+}
+.svc-group .svc-points li::before { background: var(--tone) !important; box-shadow: 0 0 8px var(--tone) !important; }
+.svc-group .svc-result { color: var(--tone) !important; }
+.svc-group .svc-art::before { background: radial-gradient(closest-side, var(--tone-a), transparent) !important; }
+.svc-group .svc-card:hover .svc-open { border-color: var(--tone) !important; background: var(--tone) !important; color: #0d0a1c !important; }
+.svc-jump a[data-tone]::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  margin-right: 8px;
+  border-radius: 50%;
+  background: var(--tone);
+  box-shadow: 0 0 8px var(--tone);
+}
+.svc-jump a[data-tone]:hover { border-color: var(--tone) !important; }
+
+/* ── Изыскания: шесть услуг — шесть цветов ── */
+.lux-geo-list li { --tone: var(--t-amber); }
+.lux-geo-list li:nth-child(6n + 1) { --tone: var(--t-amber); }
+.lux-geo-list li:nth-child(6n + 2) { --tone: var(--t-cyan); }
+.lux-geo-list li:nth-child(6n + 3) { --tone: var(--t-rose); }
+.lux-geo-list li:nth-child(6n + 4) { --tone: var(--t-orange); }
+.lux-geo-list li:nth-child(6n + 5) { --tone: var(--t-mint); }
+.lux-geo-list li:nth-child(6n + 6) { --tone: var(--t-lime); }
+.lux-geo-list .lux-icon {
+  border-color: color-mix(in srgb, var(--tone) 55%, transparent) !important;
+  background: linear-gradient(160deg, color-mix(in srgb, var(--tone) 22%, transparent), rgba(150, 80, 255, 0.1)) !important;
+  color: var(--tone) !important;
+  box-shadow: 0 0 20px -4px color-mix(in srgb, var(--tone) 60%, transparent) !important;
+}
+.lux-geo-list li > span:last-child > span { color: var(--tone) !important; }
+
+/* ── Калькулятор бюджета: шкала от бирюзы к золоту ── */
+.lux-range::-webkit-slider-runnable-track { background: linear-gradient(90deg, var(--t-cyan), var(--lux-gold) var(--fill), rgba(189, 178, 230, 0.18) var(--fill)) !important; }
+.lux-range::-moz-range-track { background: rgba(189, 178, 230, 0.18); }
+.lux-range::-moz-range-progress { background: linear-gradient(90deg, var(--t-cyan), var(--lux-gold)); }
+
+/* ── FAQ: открытый вопрос подсвечен бирюзой ── */
+.lux-faq-item { transition: border-color 0.25s, box-shadow 0.25s; }
+.lux-faq-item[open] { border-color: color-mix(in srgb, var(--t-cyan) 55%, transparent) !important; box-shadow: 0 0 40px -18px var(--t-cyan); }
+.lux-faq-item:nth-child(4n + 2)[open] { border-color: color-mix(in srgb, var(--t-rose) 55%, transparent) !important; box-shadow: 0 0 40px -18px var(--t-rose); }
+.lux-faq-item:nth-child(4n + 3)[open] { border-color: color-mix(in srgb, var(--t-mint) 55%, transparent) !important; box-shadow: 0 0 40px -18px var(--t-mint); }
+.lux-faq-item:nth-child(4n + 4)[open] { border-color: color-mix(in srgb, var(--t-orange) 55%, transparent) !important; box-shadow: 0 0 40px -18px var(--t-orange); }
+
+/* ── Подвал: заголовки колонок в цветах систем ── */
+.lux-footer-grid > :nth-child(2) .lux-footer-h { color: var(--t-cyan); }
+.lux-footer-grid > :nth-child(3) .lux-footer-h { color: var(--t-mint); }
+.lux-footer-grid > :nth-child(4) .lux-footer-h { color: var(--t-rose); }
+
+/* ── Финальный призыв: рамка из всех цветов систем ── */
+.lux-footer .lux-glass--gold::before {
+  background: linear-gradient(100deg, var(--t-amber), var(--t-cyan) 30%, var(--t-mint) 55%, var(--t-rose) 80%, var(--t-orange)) !important;
+}
+.lux-footer .lux-glass--gold {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 30px 70px -30px rgba(0, 0, 0, 0.9),
+    -40px 0 70px -40px rgba(79, 195, 255, 0.55),
+    40px 0 70px -40px rgba(255, 92, 138, 0.5) !important;
+}
+
+/* ════════════ Маркетплейсы ════════════ */
+/* показатели в шапке страницы — по цвету на каждый */
+.mk-page.mk-page :is(.mk-hero-stats > div, .mmp-stat-pill, .mk-hero .mmp-hero-stat):nth-child(3n + 1) { --tone: var(--t-amber); }
+.mk-page.mk-page :is(.mk-hero-stats > div, .mmp-stat-pill, .mk-hero .mmp-hero-stat):nth-child(3n + 2) { --tone: var(--t-cyan); }
+.mk-page.mk-page :is(.mk-hero-stats > div, .mmp-stat-pill, .mk-hero .mmp-hero-stat):nth-child(3n + 3) { --tone: var(--t-mint); }
+.mk-page.mk-page :is(.mk-hero-stats > div, .mmp-stat-pill, .mk-hero .mmp-hero-stat) {
+  border-color: color-mix(in srgb, var(--tone) 50%, transparent) !important;
+  box-shadow: 0 0 26px -12px var(--tone);
+}
+.mk-page.mk-page :is(.mk-hero-stats dd, .mmp-stat-pill strong, .mk-hero .mmp-hero-stat :is(strong, span:first-child, .mmp-hero-stat-val, .mmp-hero-stat-value)) {
+  color: var(--tone) !important;
+  text-shadow: 0 0 18px color-mix(in srgb, var(--tone) 45%, transparent) !important;
+}
+/* чипы категорий: цветная точка, по кругу шесть систем */
+.mk-page.mk-page :is(.mmp-cat-chip, .em-chip, .cc-chip):nth-child(6n + 1) { --tone: var(--t-amber); }
+.mk-page.mk-page :is(.mmp-cat-chip, .em-chip, .cc-chip):nth-child(6n + 2) { --tone: var(--t-orange); }
+.mk-page.mk-page :is(.mmp-cat-chip, .em-chip, .cc-chip):nth-child(6n + 3) { --tone: var(--t-cyan); }
+.mk-page.mk-page :is(.mmp-cat-chip, .em-chip, .cc-chip):nth-child(6n + 4) { --tone: var(--t-rose); }
+.mk-page.mk-page :is(.mmp-cat-chip, .em-chip, .cc-chip):nth-child(6n + 5) { --tone: var(--t-mint); }
+.mk-page.mk-page :is(.mmp-cat-chip, .em-chip, .cc-chip):nth-child(6n + 6) { --tone: var(--t-lime); }
+.mk-page.mk-page :is(.mmp-cat-chip, .em-chip, .cc-chip):not(.active):not([aria-pressed='true']):hover {
+  border-color: var(--tone) !important;
+  color: #fff !important;
+  box-shadow: 0 0 18px -6px var(--tone);
+}
+.mk-page.mk-page :is(.mmp-cat-chip, .em-chip, .cc-chip):not(.active):not([aria-pressed='true']) {
+  border-color: color-mix(in srgb, var(--tone) 60%, transparent) !important;
+  color: color-mix(in srgb, var(--tone) 35%, #e9e4f7) !important;
+}
+/* карточки товаров/техники/бригад: цвет по кругу у верхней кромки и свечения */
+.mk-page.mk-page :is(.mmp-product-card, .em-card, .cc-card):nth-child(5n + 1) { --tone: var(--t-cyan); }
+.mk-page.mk-page :is(.mmp-product-card, .em-card, .cc-card):nth-child(5n + 2) { --tone: var(--t-rose); }
+.mk-page.mk-page :is(.mmp-product-card, .em-card, .cc-card):nth-child(5n + 3) { --tone: var(--t-mint); }
+.mk-page.mk-page :is(.mmp-product-card, .em-card, .cc-card):nth-child(5n + 4) { --tone: var(--t-orange); }
+.mk-page.mk-page :is(.mmp-product-card, .em-card, .cc-card):nth-child(5n + 5) { --tone: var(--t-violet); }
+.mk-page.mk-page :is(.mmp-product-card, .em-card, .cc-card) {
+  border-top: 2px solid color-mix(in srgb, var(--tone) 70%, transparent) !important;
+}
+.mk-page.mk-page :is(.mmp-product-card, .em-card, .cc-card):hover {
+  border-color: color-mix(in srgb, var(--tone) 60%, transparent) !important;
+  box-shadow: 0 24px 50px -26px rgba(0, 0, 0, 0.9), 0 0 40px -14px var(--tone) !important;
+}
+/* фон страниц маркетплейсов: добавлены бирюзовое и розовое сияние */
+.mk-page.mk-page .mk-bg-aurora {
+  background:
+    radial-gradient(40% 35% at 85% 18%, rgba(150, 70, 255, 0.34), transparent 70%),
+    radial-gradient(40% 35% at 8% 30%, rgba(79, 195, 255, 0.16), transparent 70%),
+    radial-gradient(40% 35% at 95% 60%, rgba(255, 92, 138, 0.12), transparent 70%),
+    radial-gradient(40% 30% at 30% 95%, rgba(46, 230, 197, 0.1), transparent 70%);
+}
+/* сводка каталога подрядчиков: каждая цифра своим цветом */
+.mk-page.mk-page .cc-summary > div:nth-child(1) { --tone: var(--t-cyan); }
+.mk-page.mk-page .cc-summary > div:nth-child(2) { --tone: var(--t-mint); }
+.mk-page.mk-page .cc-summary > div:nth-child(3) { --tone: var(--t-rose); }
+.mk-page.mk-page .cc-summary > div:nth-child(4) { --tone: var(--t-amber); }
+.mk-page.mk-page .cc-summary dd { color: var(--tone, #fff) !important; text-shadow: 0 0 18px color-mix(in srgb, var(--tone, #fff) 40%, transparent); }
+.mk-page.mk-page .cc-summary > div { box-shadow: inset 0 2px 0 color-mix(in srgb, var(--tone, #fff) 70%, transparent); }

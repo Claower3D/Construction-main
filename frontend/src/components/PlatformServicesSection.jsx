@@ -108,12 +108,12 @@ export default function PlatformServicesSection() {
         </header>
 
         <nav className="svc-jump" aria-label="Категории сервисов">
-          {GROUPS.map((g) => <a key={g.id} href={`#svc-${g.id}`}>{g.title}</a>)}
+          {GROUPS.map((g) => <a key={g.id} href={`#svc-${g.id}`} data-tone={g.id}>{g.title}</a>)}
         </nav>
 
         <div className="svc-groups">
           {GROUPS.map((g, gi) => (
-            <section key={g.id} id={`svc-${g.id}`} className="svc-group" aria-labelledby={`svc-${g.id}-t`}>
+            <section key={g.id} id={`svc-${g.id}`} className="svc-group" data-tone={g.id} aria-labelledby={`svc-${g.id}-t`}>
               <div className="svc-group-head">
                 <h3 id={`svc-${g.id}-t`}>{g.title}</h3>
                 <p>{g.note}</p>

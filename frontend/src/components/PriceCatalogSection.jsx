@@ -174,7 +174,7 @@ export default function PriceCatalogSection({ onOpenCategory }) {
 
           <div className="lux-chips" role="group" aria-label="Группы работ">
             {GROUPS.map((g) => (
-              <button key={g.id} type="button" className="lux-chip" aria-pressed={group === g.id} onClick={() => setGroup(g.id)}>
+              <button key={g.id} type="button" className="lux-chip" data-group={g.id} aria-pressed={group === g.id} onClick={() => setGroup(g.id)}>
                 {g.name}
               </button>
             ))}
@@ -189,7 +189,7 @@ export default function PriceCatalogSection({ onOpenCategory }) {
             <ul className="lux-cats">
               {shown.map((cat) => (
                 <li key={cat.name}>
-                  <button type="button" className="lux-cat" onClick={() => onOpenCategory && onOpenCategory(cat)}>
+                  <button type="button" className="lux-cat" data-group={cat.group} onClick={() => onOpenCategory && onOpenCategory(cat)}>
                     {cat.image && <img src={toned(cat.image)} alt="" loading="lazy" onError={(e) => { e.currentTarget.style.display = 'none'; }} />}
                     <span className="lux-cat-text">
                       <span className="lux-cat-name">{cat.name}</span>
