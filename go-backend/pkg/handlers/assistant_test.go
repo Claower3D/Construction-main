@@ -44,3 +44,25 @@ func TestAssistantRejectsEmptyQuestion(t *testing.T) {
 		t.Fatalf("ожидали 400, получили %d", rec.Code)
 	}
 }
+
+func TestQuantityAndPhrases(t *testing.T) {
+	if q, u := quantity("стяжка пола 50 м2"); q != 50 || u != "м²" {
+		t.Fatalf("got %v %q", q, u)
+	}
+	if got := qtyPhrase(3, "смена"); got != "на 3 смены" {
+		t.Fatalf("got %q", got)
+	}
+	if got := qtyPhrase(21, "мешок"); got != "на 21 мешок" {
+		t.Fatalf("got %q", got)
+	}
+}
+
+func TestKnowledgeAnswersHowItWorksWithoutPrices(t *testing.T) {
+	q := "Смета по фото — как это работает?"
+	if len(findPricesForQuestion(q, 8)) != 0 {
+		t.Fatal("вопрос о работе сервиса не должен искать цены (фотообои, фотореле)")
+	}
+	if !strings.Contains(knowledgeAnswer(q, nil), "три цены") {
+		t.Fatal("ожидали объяснение сметы по фото")
+	}
+}
