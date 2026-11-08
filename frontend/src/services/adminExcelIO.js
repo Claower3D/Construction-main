@@ -261,7 +261,7 @@ function exportActsToExcelImpl(actsList, filename = 'qazgost_acts_registry_ks2_k
       itemRows.push({
         '№ Акта': act.id || act.code || '',
         '№ п/п': idx + 1,
-        'Обоснование (ГЭСН/СНиП)': item.code || 'ГЭСН-2026',
+        'Обоснование (ЭСН РК/СНиП)': item.code || 'ЭСН РК',
         'Наименование работ / затрат': item.name || '',
         'Ед. изм.': item.unit || 'м²',
         'Количество': Number(item.qty || 1),

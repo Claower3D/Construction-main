@@ -28,7 +28,6 @@ export const ESTIMATE_TEMPLATES = {
       { group: 'Обратная засыпка', name: 'Обратная засыпка пазух с трамбовкой', unit: 'м³', baseQtyPer: 0.15, unitPrice: 2200, isMaterial: false },
       { group: 'Материалы', name: 'Песок строительный (подсыпка)', unit: 'м³', baseQtyPer: 0.05, unitPrice: 7500, isMaterial: true, marketplaceCategory: 'bulk', searchQuery: 'песок строительный' },
       { group: 'Материалы', name: 'Щебень фр. 20-40 (подготовка)', unit: 'м³', baseQtyPer: 0.04, unitPrice: 9500, isMaterial: true, marketplaceCategory: 'bulk', searchQuery: 'щебень' },
-      { group: 'Спецтехника', name: 'Аренда экскаватора (смена)', unit: 'смена', baseQtyPer: 0.003, unitPrice: 140000, isMaterial: false },
     ]
   },
 
@@ -37,13 +36,15 @@ export const ESTIMATE_TEMPLATES = {
     items: [
       { group: 'Земляные', name: 'Разработка траншей/котлована', unit: 'м³', baseQtyPer: 0.5, unitPrice: 3500, isMaterial: false },
       { group: 'Подготовка', name: 'Щебёночная подготовка (h=150мм)', unit: 'м²', baseQtyPer: 1.0, unitPrice: 2000, isMaterial: false },
+      { group: 'Подготовка', name: 'Щебень фр. 20-40 для подготовки (h=150мм, К упл. 1.2)', unit: 'м³', baseQtyPer: 0.18, unitPrice: 9500, isMaterial: true, marketplaceCategory: 'bulk', searchQuery: 'щебень' },
       { group: 'Подготовка', name: 'Бетонная подготовка (h=100мм, B7.5)', unit: 'м²', baseQtyPer: 1.0, unitPrice: 3200, isMaterial: false },
+      { group: 'Подготовка', name: 'Бетон B7.5 (М100) для подготовки', unit: 'м³', baseQtyPer: 0.102, unitPrice: 28000, isMaterial: true, marketplaceCategory: 'bulk', searchQuery: 'бетон М100' },
       { group: 'Опалубка', name: 'Устройство опалубки фундамента', unit: 'м²', baseQtyPer: 0.8, unitPrice: 4000, isMaterial: false },
-      { group: 'Армирование', name: 'Армирование фундамента (80 кг/м³)', unit: 'т', baseQtyPer: 0.025, unitPrice: 430000, isMaterial: true, marketplaceCategory: 'metal', searchQuery: 'арматура' },
+      { group: 'Армирование', name: 'Армирование фундамента (80 кг/м³)', unit: 'т', baseQtyPer: 0.028, unitPrice: 430000, isMaterial: true, marketplaceCategory: 'metal', searchQuery: 'арматура' },
       { group: 'Бетонирование', name: 'Бетон М300 (В22.5) с доставкой', unit: 'м³', baseQtyPer: 0.35, unitPrice: 35000, isMaterial: true, marketplaceCategory: 'bulk', searchQuery: 'бетон' },
       { group: 'Бетонирование', name: 'Укладка бетона с вибрированием', unit: 'м³', baseQtyPer: 0.35, unitPrice: 9500, isMaterial: false },
       { group: 'Гидроизоляция', name: 'Обмазочная гидроизоляция (битумная)', unit: 'м²', baseQtyPer: 1.2, unitPrice: 1800, isMaterial: false },
-      { group: 'Гидроизоляция', name: 'Мастика битумная', unit: 'кг', baseQtyPer: 0.4, unitPrice: 950, isMaterial: true, marketplaceCategory: 'insulation', searchQuery: 'мастика битумная' },
+      { group: 'Гидроизоляция', name: 'Мастика битумная', unit: 'кг', baseQtyPer: 2.4, unitPrice: 950, isMaterial: true, marketplaceCategory: 'insulation', searchQuery: 'мастика битумная' },
       { group: 'Утепление', name: 'Утепление фундамента ЭППС 50мм', unit: 'м²', baseQtyPer: 0.8, unitPrice: 2500, isMaterial: false },
       { group: 'Материалы', name: 'Пенополистирол ЭППС 50мм', unit: 'м²', baseQtyPer: 0.8, unitPrice: 2200, isMaterial: true, marketplaceCategory: 'insulation', searchQuery: 'пенополистирол' },
     ]
@@ -68,13 +69,13 @@ export const ESTIMATE_TEMPLATES = {
     // NOTE: items разделены тегами — filterItemsByDescription выберет кирпич ИЛИ газоблок
     items: [
       // --- Газоблоки (по умолчанию) ---
-      { group: 'Кладка', name: 'Кладка из газобетонных блоков D500', unit: 'м²', baseQtyPer: 1.0, unitPrice: 4800, isMaterial: false, tag: 'gazoblock' },
-      { group: 'Материалы', name: 'Газобетонные блоки D500 (600x300x200)', unit: 'шт', baseQtyPer: 8, unitPrice: 1350, isMaterial: true, tag: 'gazoblock', marketplaceCategory: 'blocks', searchQuery: 'газобетон блок' },
+      { group: 'Кладка', name: 'Кладка из газобетонных блоков D500 (300мм)', unit: 'м²', baseQtyPer: 1.0, unitPrice: 4800, isMaterial: false, tag: 'gazoblock' },
+      { group: 'Материалы', name: 'Газобетонные блоки D500 (600x300x200)', unit: 'шт', baseQtyPer: 8.6, unitPrice: 1350, isMaterial: true, tag: 'gazoblock', marketplaceCategory: 'blocks', searchQuery: 'газобетон блок' },
       { group: 'Материалы', name: 'Клей для газоблоков (25 кг)', unit: 'мешок', baseQtyPer: 0.3, unitPrice: 2800, isMaterial: true, tag: 'gazoblock', marketplaceCategory: 'cement', searchQuery: 'клей газобетон' },
       // --- Кирпич (альтернатива) ---
       { group: 'Кладка', name: 'Кирпичная кладка стен (250мм)', unit: 'м²', baseQtyPer: 1.0, unitPrice: 6000, isMaterial: false, tag: 'brick' },
-      { group: 'Материалы', name: 'Кирпич облицовочный М150', unit: 'шт', baseQtyPer: 50, unitPrice: 160, isMaterial: true, tag: 'brick', marketplaceCategory: 'blocks', searchQuery: 'кирпич' },
-      { group: 'Материалы', name: 'Раствор кладочный М100', unit: 'м³', baseQtyPer: 0.025, unitPrice: 32000, isMaterial: true, tag: 'brick', marketplaceCategory: 'cement', searchQuery: 'раствор кладочный' },
+      { group: 'Материалы', name: 'Кирпич керамический одинарный М150 (250x120x65)', unit: 'шт', baseQtyPer: 102, unitPrice: 160, isMaterial: true, tag: 'brick', marketplaceCategory: 'blocks', searchQuery: 'кирпич' },
+      { group: 'Материалы', name: 'Раствор кладочный М100', unit: 'м³', baseQtyPer: 0.058, unitPrice: 32000, isMaterial: true, tag: 'brick', marketplaceCategory: 'cement', searchQuery: 'раствор кладочный' },
       // --- Общие (всегда) ---
       { group: 'Армирование', name: 'Армирование кладки сеткой', unit: 'м²', baseQtyPer: 0.3, unitPrice: 950, isMaterial: false },
       { group: 'Армирование', name: 'Устройство армопояса', unit: 'п.м', baseQtyPer: 0.15, unitPrice: 9500, isMaterial: false },
@@ -122,7 +123,8 @@ export const ESTIMATE_TEMPLATES = {
       { group: 'Утепление', name: 'Дюбели тарельчатые', unit: 'шт', baseQtyPer: 6, unitPrice: 150, isMaterial: true, marketplaceCategory: 'fasteners', searchQuery: 'дюбель тарельчатый' },
       { group: 'Штукатурка', name: 'Армирование сеткой + клей', unit: 'м²', baseQtyPer: 1.0, unitPrice: 1800, isMaterial: false },
       { group: 'Штукатурка', name: 'Декоративная штукатурка "короед"', unit: 'м²', baseQtyPer: 1.0, unitPrice: 2200, isMaterial: false },
-      { group: 'Материалы', name: 'Клей для утеплителя (25 кг)', unit: 'мешок', baseQtyPer: 0.12, unitPrice: 4200, isMaterial: true, marketplaceCategory: 'cement', searchQuery: 'клей для утеплителя' },
+      { group: 'Материалы', name: 'Клей для утеплителя (25 кг)', unit: 'мешок', baseQtyPer: 0.4, unitPrice: 4200, isMaterial: true, marketplaceCategory: 'cement', searchQuery: 'клей для утеплителя' },
+      { group: 'Материалы', name: 'Сетка фасадная стеклотканевая 160 г/м²', unit: 'м²', baseQtyPer: 1.15, unitPrice: 350, isMaterial: true, marketplaceCategory: 'insulation', searchQuery: 'сетка фасадная' },
       { group: 'Материалы', name: 'Штукатурка декоративная (25 кг)', unit: 'мешок', baseQtyPer: 0.12, unitPrice: 5500, isMaterial: true, marketplaceCategory: 'cement', searchQuery: 'штукатурка декоративная' },
       { group: 'Покраска', name: 'Покраска фасада (2 слоя)', unit: 'м²', baseQtyPer: 1.0, unitPrice: 950, isMaterial: false },
       { group: 'Покраска', name: 'Краска фасадная', unit: 'л', baseQtyPer: 0.2, unitPrice: 4200, isMaterial: true, marketplaceCategory: 'paint', searchQuery: 'краска фасадная' },
@@ -198,7 +200,7 @@ export const ESTIMATE_TEMPLATES = {
     // NOTE: плитка ИЛИ ламинат — выбирается по описанию (по умолчанию ламинат)
     items: [
       { group: 'Стяжка', name: 'Устройство стяжки пола (50мм)', unit: 'м²', baseQtyPer: 1.0, unitPrice: 3200, isMaterial: false },
-      { group: 'Стяжка', name: 'Смесь для стяжки (пескобетон)', unit: 'кг', baseQtyPer: 8, unitPrice: 95, isMaterial: true, marketplaceCategory: 'cement', searchQuery: 'пескобетон' },
+      { group: 'Стяжка', name: 'Смесь для стяжки (пескобетон М300)', unit: 'кг', baseQtyPer: 100, unitPrice: 55, isMaterial: true, marketplaceCategory: 'cement', searchQuery: 'пескобетон' },
       { group: 'Гидроизоляция', name: 'Гидроизоляция пола (мокрые зоны)', unit: 'м²', baseQtyPer: 0.2, unitPrice: 2500, isMaterial: false },
       // --- Ламинат (по умолчанию для жилых) ---
       { group: 'Покрытие', name: 'Укладка ламината', unit: 'м²', baseQtyPer: 1.0, unitPrice: 2000, isMaterial: false, tag: 'laminate' },
@@ -208,6 +210,7 @@ export const ESTIMATE_TEMPLATES = {
       { group: 'Покрытие', name: 'Укладка керамогранита', unit: 'м²', baseQtyPer: 1.0, unitPrice: 5000, isMaterial: false, tag: 'tile' },
       { group: 'Покрытие', name: 'Керамогранит 600x600', unit: 'м²', baseQtyPer: 1.08, unitPrice: 7500, isMaterial: true, tag: 'tile', marketplaceCategory: 'flooring', searchQuery: 'керамогранит' },
       { group: 'Покрытие', name: 'Плиточный клей', unit: 'кг', baseQtyPer: 4, unitPrice: 250, isMaterial: true, tag: 'tile', marketplaceCategory: 'cement', searchQuery: 'плиточный клей' },
+      { group: 'Покрытие', name: 'Затирка для швов (цементная)', unit: 'кг', baseQtyPer: 0.15, unitPrice: 1000, isMaterial: true, tag: 'tile', marketplaceCategory: 'cement', searchQuery: 'затирка для швов' },
       // --- Общее ---
       { group: 'Плинтус', name: 'Установка плинтуса', unit: 'п.м', baseQtyPer: 0.4, unitPrice: 750, isMaterial: false },
       { group: 'Плинтус', name: 'Плинтус ПВХ с кабель-каналом', unit: 'п.м', baseQtyPer: 0.42, unitPrice: 950, isMaterial: true },
@@ -837,7 +840,7 @@ function _generateComplexEstimate({ complexId, area, description, scenario, regi
 function _extractAreaFromText(text) {
   const m2Match = text.match(/(\d+[\.,]?\d*)\s*м[²2]/i);
   if (m2Match) return parseFloat(m2Match[1].replace(',', '.'));
-  const dimMatch = text.match(/(\d+[\.,]?\d*)\s*[xXхна*]\s*(\d+[\.,]?\d*)/);
+  const dimMatch = text.match(/(\d+[\.,]?\d*)\s*(?:[×xXх*]|на)\s*(\d+[\.,]?\d*)/);
   if (dimMatch) return parseFloat(dimMatch[1].replace(',', '.')) * parseFloat(dimMatch[2].replace(',', '.'));
   const areaWord = text.match(/площад\w*\s+(\d+[\.,]?\d*)/);
   if (areaWord) return parseFloat(areaWord[1].replace(',', '.'));

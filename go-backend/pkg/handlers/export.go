@@ -61,7 +61,7 @@ func (h *ExportHandler) ExportEstimateCSV(w http.ResponseWriter, r *http.Request
 	defer writer.Flush()
 
 	// Header Info
-	_ = writer.Write([]string{"СМЕТНЫЙ РАСЧЁТ СТОИМОСТИ СТРОИТЕЛЬСТВА (Форма КС-2 / СНиП РК)"})
+	_ = writer.Write([]string{"ПРЕДВАРИТЕЛЬНЫЙ СМЕТНЫЙ РАСЧЁТ (укрупнённая оценка, не заменяет проектную смету)"})
 	_ = writer.Write([]string{"Категория:", csvSafe(result.Category)})
 	_ = writer.Write([]string{"Регион:", result.Region, "Коэффициент:", fmt.Sprintf("%.2f", result.RegionalCoeff)})
 	_ = writer.Write([]string{"Нормативная база:", result.Normative})
@@ -69,7 +69,7 @@ func (h *ExportHandler) ExportEstimateCSV(w http.ResponseWriter, r *http.Request
 	_ = writer.Write([]string{""})
 
 	// Table Header
-	_ = writer.Write([]string{"№", "Обоснование (ГЭСН)", "Наименование работ и затрат", "Ед. изм.", "Кол-во", "Цена за ед. (KZT)", "Всего (KZT)", "Тип", "СНиП Ссылка"})
+	_ = writer.Write([]string{"№", "Код позиции", "Наименование работ и затрат", "Ед. изм.", "Кол-во", "Цена за ед. (KZT)", "Всего (KZT)", "Тип", "Норматив"})
 
 	rec := result.Recommended
 	for idx, item := range rec.Items {
@@ -91,6 +91,8 @@ func (h *ExportHandler) ExportEstimateCSV(w http.ResponseWriter, r *http.Request
 	_ = writer.Write([]string{"", "", "ИТОГО МАТЕРИАЛЫ:", "", "", "", fmt.Sprintf("%.0f", rec.MaterialsCost)})
 	_ = writer.Write([]string{"", "", "ИТОГО СПЕЦТЕХНИКА:", "", "", "", fmt.Sprintf("%.0f", rec.EquipmentCost)})
 	_ = writer.Write([]string{"", "", "НЕПРЕДВИДЕННЫЕ ЗАТРАТЫ (5%):", "", "", "", fmt.Sprintf("%.0f", rec.Contingency)})
-	_ = writer.Write([]string{"", "", "ВСЕГО ПО СМЕТЕ (KZT):", "", "", "", fmt.Sprintf("%.0f", rec.TotalCost)})
+	_ = writer.Write([]string{"", "", "ВСЕГО БЕЗ НДС (KZT):", "", "", "", fmt.Sprintf("%.0f", rec.TotalCost)})
+	_ = writer.Write([]string{"", "", fmt.Sprintf("НДС %.0f%%:", rec.VATRate*100), "", "", "", fmt.Sprintf("%.0f", rec.VAT)})
+	_ = writer.Write([]string{"", "", "ВСЕГО С НДС (KZT):", "", "", "", fmt.Sprintf("%.0f", rec.TotalWithVAT)})
 	_ = writer.Write([]string{"", "", "ПРИМЕРНЫЙ СРОК (ДНЕЙ):", "", "", "", fmt.Sprintf("%d", rec.TimelineDays)})
 }

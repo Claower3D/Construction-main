@@ -76,17 +76,38 @@ func main() {
 	mux.HandleFunc("/api/v1/prices/stats", pricesHnd.GetStats)
 	mux.HandleFunc("/api/v1/prices/regions", pricesHnd.GetRegions)
 
-	// Equipment — public GET, POST requires auth
+	// Equipment marketplace — public GET (token optional: owner=me, phones), writes require auth
 	mux.HandleFunc("/api/v1/equipment", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:
-			equipmentHnd.GetEquipment(w, r)
+			optAuth(equipmentHnd.GetEquipment)(w, r)
 		case http.MethodPost:
 			auth(equipmentHnd.CreateEquipment)(w, r)
 		default:
 			w.WriteHeader(http.StatusMethodNotAllowed)
 		}
 	})
+	mux.HandleFunc("/api/v1/equipment/", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodGet {
+			optAuth(equipmentHnd.EquipmentItem)(w, r)
+			return
+		}
+		auth(equipmentHnd.EquipmentItem)(w, r)
+	})
+	mux.HandleFunc("/api/v1/equipment-bookings", auth(equipmentHnd.Bookings))
+	mux.HandleFunc("/api/v1/equipment-bookings/", auth(equipmentHnd.Bookings))
+
+	// Materials marketplace — supplier offers (reference prices stay in /api/v1/prices)
+	materialsHnd := handlers.NewMaterialsHandler()
+	materialsRoute := func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodGet {
+			optAuth(materialsHnd.Offers)(w, r)
+			return
+		}
+		auth(materialsHnd.Offers)(w, r)
+	}
+	mux.HandleFunc("/api/v1/materials", materialsRoute)
+	mux.HandleFunc("/api/v1/materials/", materialsRoute)
 	mux.HandleFunc("/api/v1/disputes", auth(disputesHnd.GetDisputes))
 
 	// Contractors catalog — public read (brigades + company contacts)
@@ -258,7 +279,7 @@ func main() {
 	handler := middleware.RecoveryMiddleware(
 		middleware.LoggerMiddleware(
 			middleware.SecurityHeadersMiddleware(
-				middleware.BodyLimitMiddleware(55<<20)(
+				middleware.BodyLimitMiddleware(55 << 20)(
 					middleware.CorsMiddleware(cfg.CorsOrigins)(requireDB(mux)),
 				),
 			),

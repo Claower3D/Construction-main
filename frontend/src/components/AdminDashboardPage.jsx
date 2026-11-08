@@ -135,7 +135,7 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
     builder: [
       { id: 'b-objects', title: 'Мои строительные объекты', icon: '🏢', desc: 'Управление портфелем ЖК, БЦ и коттеджных городков с 3D BIM-моделями', btnText: '🏢 Мои объекты', btnGradient: 'linear-gradient(90deg, #6366f1, #8b5cf6)' },
       { id: 'b-create', title: 'Создать объект (СНиП)', icon: '➕', desc: 'Выбор типа объекта, этажности и проверка допуска компаний ГАСК', btnText: '➕ Создать объект', btnGradient: 'linear-gradient(90deg, #10b981, #059669)' },
-      { id: 'b-wbs', title: 'Выбор СМР & Оценка', icon: '📐', desc: 'WBS-калькулятор стоимости работ по сборникам ГЭСН-2026 РК', btnText: '📐 Калькулятор СМР', btnGradient: 'linear-gradient(90deg, #b9a4ff, #7c3aed)' },
+      { id: 'b-wbs', title: 'Выбор СМР & Оценка', icon: '📐', desc: 'WBS-калькулятор стоимости работ по сборникам ЭСН РК', btnText: '📐 Калькулятор СМР', btnGradient: 'linear-gradient(90deg, #b9a4ff, #7c3aed)' },
       { id: 'b-audit', title: 'Инженерный фото-аудит', icon: '🔍', desc: 'AI-проверка чертежей КЖ/АР, замечания технадзора и дефектовка', btnText: '🔍 AI Экспертиза', btnGradient: 'linear-gradient(90deg, #8b5cf6, #ec4899)' },
       { id: 'b-lots', title: 'Лоты & Тендеры', icon: '📦', desc: 'Публикация строительных лотов в "Мои Заказы Строительство"', btnText: '📦 Лоты и тендеры', btnGradient: 'linear-gradient(90deg, #f59e0b, #d97706)' },
       { id: 'b-docs', title: 'Сметы & Документы PDF', icon: '📄', desc: 'Локальные сметы СНиП, аналитика прогресса и акты КС-2/КС-3', btnText: '📄 Скачать PDF', btnGradient: 'linear-gradient(90deg, #8b5cf6, #a78bfa)' },
@@ -161,7 +161,7 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
       { id: 'e-materials', title: 'Маркетплейс материалов', icon: '🧱', desc: 'Оптовый закуп стройматериалов со скидками до 20% для подрядчиков', btnText: '🧱 Закуп материалов', btnGradient: 'linear-gradient(90deg, #10b981, #8b5cf6)' },
       { id: 'e-feed', title: 'Лента заказов', icon: '🌐', desc: 'Живой поток заказов со всего Казахстана без посредников и комиссий', btnText: '🌐 Смотреть заказы', btnGradient: 'linear-gradient(90deg, #b9a4ff, #7c3aed)' },
       { id: 'e-works', title: 'Мои работы', icon: '📌', desc: 'Портфолио, текущие объекты и онлайн-сдача этапов заказчику', btnText: '📌 Мои объекты', btnGradient: 'linear-gradient(90deg, #ef4444, #f59e0b)' },
-      { id: 'e-estimate', title: 'Оценка стоимости', icon: '📸', desc: 'Калькулятор сметных расходов по расценкам ГЭСН 2026', btnText: '🚀 Сметный расчёт', btnGradient: 'linear-gradient(90deg, #b9a4ff, #7c3aed)' },
+      { id: 'e-estimate', title: 'Оценка стоимости', icon: '📸', desc: 'Калькулятор сметных расходов по расценкам ЭСН РК', btnText: '🚀 Сметный расчёт', btnGradient: 'linear-gradient(90deg, #b9a4ff, #7c3aed)' },
       { id: 'e-inspect', title: 'Проверка дефектов', icon: '🔍', desc: 'Экспертная проверка состояния конструкций и дефектоскопия', btnText: '🔍 Проверить дефекты', btnGradient: 'linear-gradient(90deg, #f59e0b, #ef4444)' },
       { id: 'e-soil', title: 'Фото-объёмы грунта', icon: '📐', desc: 'Геодезический 3D-расчёт выемки и насыпи грунта по фото ДО/ПОСЛЕ', btnText: '📸 Рассчитать объём', btnGradient: 'linear-gradient(90deg, #10b981, #a78bfa)' },
       { id: 'e-engineering', title: 'Инженерные решения', icon: '⚙️', desc: 'Техническая спецификация работ и схемы разводки сетей', btnText: '⚡ Спецификация', btnGradient: 'linear-gradient(90deg, #b9a4ff, #ddd6fe)' },
@@ -196,7 +196,7 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
 
     admin: [
       { id: 'adm-tree', title: 'Иерархия ролей (Древо)', icon: '🌳', desc: 'Визуальное древо ролей всех строительных организаций и компаний платформы', btnText: '🌳 Древо ролей', btnGradient: 'linear-gradient(90deg, #10b981, #a78bfa)' },
-      { id: 'adm-prices', title: 'Прайсы ГЭСН-2026', icon: '💰', desc: 'База 23 864+ позиций строительных расценок по 17 областям Казахстана', btnText: '💰 Открыть прайсы', btnGradient: 'linear-gradient(90deg, #f59e0b, #ea580c)' },
+      { id: 'adm-prices', title: 'Прайсы ЭСН РК', icon: '💰', desc: 'База 23 864+ позиций строительных расценок по 17 областям Казахстана', btnText: '💰 Открыть прайсы', btnGradient: 'linear-gradient(90deg, #f59e0b, #ea580c)' },
       { id: 'adm-moderation', title: 'Модерация заявок', icon: '🛡️', desc: 'Очередь верификации подрядчиков, проверка документов и заказов', btnText: '🛡️ Модерация', btnGradient: 'linear-gradient(90deg, #ef4444, #f59e0b)' },
       { id: 'adm-regions', title: 'Региональные индексы', icon: '🗺️', desc: 'Коэффициенты удорожания стройматериалов по регионам РК', btnText: '🗺️ Индексы цен', btnGradient: 'linear-gradient(90deg, #7c3aed, #b9a4ff)' },
       { id: 'adm-audit', title: 'Журнал действий', icon: '📜', desc: 'Полный аудит логов пользователей, изменений в сметах и AI-вызовов', btnText: '📜 Журнал логов', btnGradient: 'linear-gradient(90deg, #8b5cf6, #8b5cf6)' },

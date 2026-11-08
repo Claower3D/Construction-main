@@ -6,11 +6,11 @@ import { MARKETPLACE_PRODUCTS } from '../data/marketplaceProducts';
 import './MaterialsMarketplacePage.css';
 import './marketplace-refresh.css';
 import MarketBackdrop from './MarketBackdrop';
+import { SupplierPanel, useMaterialOffers } from './MaterialOffersPanel';
 import './marketplace-lux.css';
 
 // ── Каталог цен API: GET /api/v1/prices?type=material (10 000+ позиций) ──
 const PAGE_SIZE = 24;
-const SORT_LOAD_LIMIT = 500; // при сортировке по цене подгружаем всю выборку, если она ≤ 500
 // Чип категории → подстрока кода категории в каталоге цен
 const MAT_CATEGORY_API = {
   zhbi: 'jbi', cement: 'mix', blocks: 'brick', metal: 'metal', bulk: 'aggregates',
@@ -54,9 +54,14 @@ export function parseQty(raw, unit) {
   return { ok: true, value: isFractionalUnit(unit) ? Math.round(n * 100) / 100 : n };
 }
 const fmtKzt = (n) => `${Math.round(Number(n) || 0).toLocaleString('ru-RU')} ₸`;
+// Цена строки корзины: оптовая цена поставщика действует от указанного количества
+export function cartUnitPrice(item) {
+  return item.wholesalePrice > 0 && item.wholesaleFrom > 0 && item.count >= item.wholesaleFrom ? item.wholesalePrice : item.price;
+}
 
 export default function MaterialsMarketplacePage({ onBack, hideHeader = false }) {
-  const [activeTab, setActiveTab] = useState('catalog'); // 'catalog' | 'ai_calc' | 'rfq' | 'my_orders'
+  const [activeTab, setActiveTab] = useState('catalog'); // 'catalog' | 'ai_calc' | 'rfq' | 'my_orders' | 'supplier'
+  const [offersReload, setOffersReload] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCity, setSelectedCity] = useState('all');
@@ -112,7 +117,8 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
     id: `api-${it.code}`,
     code: it.code,
     title: it.name,
-    supplier: 'Каталог цен QazGost (ГЭСН / поставщики РК)',
+    supplier: 'Справочная цена QazGost (рынок РК, 2026)',
+    corrected: it.qa === 'corrected',
     city: region || 'Вся РК',
     price: Math.round(Number(it.price) || 0),
     unit: it.unit || 'шт',
@@ -122,8 +128,11 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
   }), []);
 
   const fetchCatalogPage = useCallback(async (offset, limit) => {
-    const params = new URLSearchParams({ type: 'material', limit: String(limit), offset: String(offset) });
+    // unique=1 — одна строка на материал (дубли источников скрыты); позиции с ценой вне коридора сервер не отдаёт
+    const params = new URLSearchParams({ type: 'material', limit: String(limit), offset: String(offset), unique: '1' });
     if (debouncedQuery) params.set('q', debouncedQuery);
+    if (sortBy === 'price_asc' || sortBy === 'price_desc') params.set('sort', sortBy);
+    if (priceMax < 250000) params.set('maxPrice', String(priceMax));
     if (MAT_CATEGORY_API[selectedCategory]) params.set('category', MAT_CATEGORY_API[selectedCategory]);
     if (selectedCity !== 'all') params.set('region', selectedCity);
     const res = await fetch(`/api/v1/prices?${params.toString()}`, { headers: authHeaders() });
@@ -131,7 +140,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
     const data = await res.json();
     if (!data || !Array.isArray(data.items)) throw new Error('Некорректный ответ каталога');
     return data;
-  }, [debouncedQuery, selectedCategory, selectedCity]);
+  }, [debouncedQuery, selectedCategory, selectedCity, sortBy, priceMax]);
 
   useEffect(() => {
     let cancelled = false;
@@ -139,11 +148,8 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
     setVisibleCount(PAGE_SIZE);
     (async () => {
       try {
-        let data = await fetchCatalogPage(0, PAGE_SIZE);
-        // Сортировка по цене должна учитывать всю выборку, а не первую страницу
-        if (sortBy !== 'popular' && data.filtered > data.items.length && data.filtered <= SORT_LOAD_LIMIT) {
-          data = await fetchCatalogPage(0, SORT_LOAD_LIMIT);
-        }
+        // сортировка и фильтр цены — на сервере, по всей выборке
+        const data = await fetchCatalogPage(0, PAGE_SIZE);
         if (cancelled) return;
         const region = selectedCity !== 'all' ? selectedCity : '';
         setCatalog({
@@ -159,7 +165,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
       }
     })();
     return () => { cancelled = true; };
-  }, [fetchCatalogPage, sortBy, selectedCity, mapApiItem, reloadKey]);
+  }, [fetchCatalogPage, selectedCity, mapApiItem, reloadKey]);
 
   const apiMode = catalog.status !== 'error';
 
@@ -976,18 +982,31 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
   }, [products, selectedCategory, searchQuery, selectedCity, sortBy, priceMax, inStockOnly, gostOnly, wholesaleOnly]);
 
   // Отображаемый список: каталог API (цена/сортировка на клиенте по загруженной выборке) или демо-товары
-  const apiSorted = useMemo(() => {
-    // Ползунок в крайнем правом положении (250 000) = без ограничения цены
-    const list = priceMax >= 250000 ? catalog.items : catalog.items.filter(p => p.price <= priceMax);
+  const apiSorted = catalog.items; // уже отфильтровано и отсортировано сервером
+
+  // Предложения поставщиков (реальные остатки и цены) — показываются выше справочного каталога
+  const offersState = useMaterialOffers({ q: debouncedQuery, category: selectedCategory, city: selectedCity, reloadKey: offersReload });
+  const offers = useMemo(() => {
+    const list = offersState.items.filter(o =>
+      (priceMax >= 250000 || o.price <= priceMax)
+      && (!inStockOnly || o.inStock > 0)
+      && (!gostOnly || o.gost)
+      && (!wholesaleOnly || o.wholesalePrice > 0)
+      && (deliveryType === 'all' || (deliveryType === 'delivery' ? o.delivery : o.pickup)));
     if (sortBy === 'price_asc') return [...list].sort((a, b) => a.price - b.price);
     if (sortBy === 'price_desc') return [...list].sort((a, b) => b.price - a.price);
     return list;
-  }, [catalog.items, priceMax, sortBy]);
-  const displayProducts = apiMode ? apiSorted.slice(0, visibleCount) : filteredProducts;
-  const foundCount = apiMode ? catalog.filtered : filteredProducts.length;
-  const canLoadMore = apiMode && catalog.status === 'ready'
+  }, [offersState.items, priceMax, inStockOnly, gostOnly, wholesaleOnly, deliveryType, sortBy]);
+  // Фильтры «в наличии / ГОСТ / опт / доставка» есть только у предложений поставщиков
+  const offerOnlyFilters = inStockOnly || gostOnly || wholesaleOnly || deliveryType !== 'all';
+
+  const displayProducts = apiMode
+    ? [...offers, ...(offerOnlyFilters ? [] : apiSorted.slice(0, visibleCount))]
+    : filteredProducts;
+  const foundCount = apiMode ? offers.length + (offerOnlyFilters ? 0 : catalog.filtered) : filteredProducts.length;
+  const canLoadMore = apiMode && !offerOnlyFilters && catalog.status === 'ready'
     && (apiSorted.length > visibleCount || catalog.items.length < catalog.filtered);
-  const sortPartial = apiMode && sortBy !== 'popular' && catalog.filtered > catalog.items.length;
+  const sortPartial = false;
 
   const handleLoadMore = async () => {
     if (apiSorted.length > visibleCount) { setVisibleCount(v => v + PAGE_SIZE); return; }
@@ -1027,6 +1046,10 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
     if (!(product.price > 0)) { showToast('⚠️ У позиции нет цены — запросите цену у поставщика'); return; }
     const qty = parsed.value;
     const existing = cart.find(c => c.id === product.id);
+    if (product.isOffer && product.inStock > 0 && qty + (existing?.count || 0) > product.inStock) {
+      showToast(`⚠️ На складе поставщика только ${product.inStock.toLocaleString('ru-RU')} ${product.unit}`);
+      return;
+    }
     if (existing) {
       setCart(cart.map(c => c.id === product.id ? { ...c, count: Math.round((c.count + qty) * 100) / 100 } : c));
     } else {
@@ -1054,7 +1077,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
 
   // Cart Totals
   const cartSubtotal = useMemo(() => {
-    return cart.reduce((acc, item) => acc + (item.price * item.count), 0);
+    return cart.reduce((acc, item) => acc + (cartUnitPrice(item) * item.count), 0);
   }, [cart]);
 
   const cartWeightKg = useMemo(() => {
@@ -1144,7 +1167,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
       clientName: checkoutName || 'Заказчик',
       clientPhone: checkoutPhone || '+7 (707) 123-45-67',
       city: selectedCity === 'all' ? 'Алматы' : selectedCity,
-      description: `Заказ стройматериалов на объект: ${checkoutAddress}. Состав: ${cart.map(c => `${c.title} (${c.count} ${c.unit})`).join(', ')}. Транспорт: ${recommendedVehicle.name}. Оплата: ${paymentMethod === 'escrow' ? 'Эскроу заморожено' : 'Kaspi Pay'}`,
+      description: `Заказ стройматериалов на объект: ${checkoutAddress}. Состав: ${cart.map(c => `${c.title} (${c.count} ${c.unit} × ${cartUnitPrice(c)} ₸${c.isOffer ? `, поставщик ${c.supplier}` : ', справочная цена'})`).join(', ')}. Транспорт: ${recommendedVehicle.name}. Оплата: ${paymentMethod === 'escrow' ? 'Эскроу заморожено' : 'Kaspi Pay'}`,
       type: 'materials',
       status: 'new',
       paymentMethod: paymentMethod === 'escrow' ? 'Эскроу QazGost' : (paymentMethod === 'kaspi' ? 'Kaspi Pay' : 'Безналичный расчет с НДС'),
@@ -1238,6 +1261,13 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
           onClick={() => setActiveTab('rfq')}
         >
           <span>📋 Оптовый тендер (Запрос цен)</span>
+        </button>
+
+        <button 
+          className={`mmp-tab-btn ${activeTab === 'supplier' ? 'active' : ''}`}
+          onClick={() => setActiveTab('supplier')}
+        >
+          <span>🏭 Я поставщик</span>
         </button>
 
         <button 
@@ -1555,13 +1585,15 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
                   const currentQty = quantities[p.id] ?? 1;
                   const fractional = isFractionalUnit(p.unit);
                   return (
-                    <article key={p.id} className={`mmp-product-card ${p.isApi ? 'is-api' : 'is-demo'}`}>
+                    <article key={p.id} className={`mmp-product-card ${p.isOffer ? 'is-offer' : p.isApi ? 'is-api' : 'is-demo'}`}>
                       <div className={`mmp-card-img-wrap ${p.image ? '' : `no-image ${hatchClass(p.category)}`}`}>
                         {p.image
                           ? <img src={p.image} alt={p.isApi ? `Иллюстрация категории: ${p.title}` : p.title} loading="lazy" />
                           : <span className="mkt-img-placeholder">Фото нет · {p.unit}</span>}
-                        {!p.isApi && <span className="mkt-badge mkt-badge--demo">Демо</span>}
-                        {!p.isApi && p.badge && <span className="mmp-card-badge">{p.badge}</span>}
+                        {!p.isApi && !p.isOffer && <span className="mkt-badge mkt-badge--demo">Демо</span>}
+                        {!p.isApi && !p.isOffer && p.badge && <span className="mmp-card-badge">{p.badge}</span>}
+                        {p.isOffer && <span className="mkt-badge mkt-badge--offer">Поставщик</span>}
+                        {p.isApi && <span className="mkt-badge mkt-badge--ref" title="Ориентир рынка из прайс-базы QazGost; закупку выполняет менеджер платформы">Справочная цена</span>}
                         {p.gost && <span className="mmp-card-gost">{p.gost}</span>}
                       </div>
 
@@ -1582,6 +1614,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
                             <>
                               <span className="mmp-spec-tag">📍 {p.city}</span>
                               {p.inStock !== undefined && <span className="mmp-spec-tag">📦 Склад: {Number(p.inStock).toLocaleString('ru-RU')} {p.unit}</span>}
+                              {p.isOffer && <span className="mmp-spec-tag">{p.delivery && p.pickup ? '🚚 Доставка / самовывоз' : p.delivery ? '🚚 Доставка' : '🏬 Самовывоз'}</span>}
                               {p.weightKg ? <span className="mmp-spec-tag">⚖️ {p.weightKg} кг / ед.</span> : null}
                             </>
                           )}
@@ -1593,6 +1626,9 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
                               ? <><span className="mmp-price-val">{fmtKzt(p.price)}</span><span className="mmp-price-unit">за {p.unit}</span></>
                               : <span className="mmp-price-unit">Цена по запросу</span>}
                             {p.wholesaleNote && <span className="mmp-wholesale-note">{p.wholesaleNote}</span>}
+                            {p.isOffer && p.referencePrice > 0 && (
+                              <span className="mmp-wholesale-note">Справочно: {fmtKzt(p.referencePrice)} ({p.price <= p.referencePrice ? 'ниже' : 'выше'} рынка на {Math.abs(Math.round((p.price / p.referencePrice - 1) * 100))}%)</span>
+                            )}
                           </div>
                         </div>
 
@@ -1634,6 +1670,10 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
             </div>
           </div>
         </div>
+      )}
+
+      {activeTab === 'supplier' && (
+        <SupplierPanel showToast={showToast} onChanged={() => setOffersReload(k => k + 1)} />
       )}
 
       {/* ─────────────────────────────────────────────────────────── */}
@@ -1821,9 +1861,9 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
                         {item.supplier} • {item.city}
                       </div>
                       <div className="mmp-ci-price">
-                        {(item.price * item.count).toLocaleString()} ₸
+                        {Math.round(cartUnitPrice(item) * item.count).toLocaleString('ru-RU')} ₸
                         <span style={{ fontSize: '0.72rem', color: '#a39cc2', marginLeft: '6px' }}>
-                          ({item.count} × {item.price.toLocaleString()} ₸/{item.unit})
+                          ({item.count} × {cartUnitPrice(item).toLocaleString('ru-RU')} ₸/{item.unit}{cartUnitPrice(item) < item.price ? ', опт' : ''})
                         </span>
                       </div>
                       {/* Qty Controls */}

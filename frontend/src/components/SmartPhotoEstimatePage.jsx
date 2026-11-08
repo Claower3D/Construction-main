@@ -727,7 +727,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
                 area: serverArea || undefined,
                 aiInsights: [
                   ...(Array.isArray(parsed.aiInsights) ? parsed.aiInsights : []),
-                  `ℹ️ Расчёт серверного сметчика по нормативам (${parsed.normative || 'ГЭСН РК'}), без AI Vision: ключ OpenAI на сервере не задан`,
+                  `ℹ️ Расчёт серверного сметчика по нормативам (${parsed.normative || 'ЭСН РК 8.04-01-2022'}), без AI Vision: ключ OpenAI на сервере не задан`,
                   `📐 Площадь расчёта: ${serverArea} м², регион: ${parsed.region || regionObj.name} (×${parsed.regionalCoeff || 1})`,
                 ],
                 serverScenarios: parsed.scenarios,
@@ -759,7 +759,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
       if (serverNote) showToast(`⚠️ ${serverNote}`);
 
       // ═══ STEP 3: Smart local estimate with detailed templates ═══
-      setScanStep('📱 Умный расчёт по шаблонам СНиП РК...');
+      setScanStep('📱 Умный расчёт по шаблонам (нормы расхода ЭСН РК)...');
       await new Promise(r => setTimeout(r, 300));
       setScanStep('📊 Подбор позиций по категории...');
       await new Promise(r => setTimeout(r, 400));
@@ -771,7 +771,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
         || (() => {
           const m = description.match(/(\d+[\.,]?\d*)\s*м[²2]/i);
           if (m) return parseFloat(m[1].replace(',', '.'));
-          const dim = description.match(/(\d+[\.,]?\d*)\s*[×xXхна*]\s*(\d+[\.,]?\d*)/);
+          const dim = description.match(/(\d+[\.,]?\d*)\s*(?:[×xXх*]|на)\s*(\d+[\.,]?\d*)/);
           if (dim) return parseFloat(dim[1].replace(',', '.')) * parseFloat(dim[2].replace(',', '.'));
           const aw = description.match(/площад\w*\s+(\d+[\.,]?\d*)/);
           if (aw) return parseFloat(aw[1].replace(',', '.'));
@@ -1331,7 +1331,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
             QAZGOST AI Engine & GPT-4o Vision подключены и активны
           </strong>
           <span style={{ fontSize: '0.8rem', color: '#cbc5e3' }}>
-            Собственная нейросеть дефектоскопии + GPT-4o настроены для анализа чертежей, детекции объемов и расчета смет по СНиП РК.
+            Собственная нейросеть дефектоскопии + GPT-4o настроены для анализа чертежей, детекции объемов и расчета смет по сметным нормам РК (ЭСН РК 8.04-01-2022, НДЦС РК 8.01-08-2022).
           </span>
         </div>
       </div>
@@ -1452,7 +1452,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', margin: '14px 0 16px' }}>
             {[
               { key: 'economy', label: 'Эконом, −20%', color: '#10b981', activeBg: 'rgba(16,185,129,0.2)', activeBorder: '#10b981', activeText: '#6ee7b7' },
-              { key: 'standard', label: 'Стандарт по СНиП', color: '#b9a4ff', activeBg: 'rgba(185,164,255,0.2)', activeBorder: '#b9a4ff', activeText: '#b9a4ff' },
+              { key: 'standard', label: 'Стандарт по нормам', color: '#b9a4ff', activeBg: 'rgba(185,164,255,0.2)', activeBorder: '#b9a4ff', activeText: '#b9a4ff' },
               { key: 'premium', label: 'Премиум, +35%', color: '#a855f7', activeBg: 'rgba(168,85,247,0.2)', activeBorder: '#a855f7', activeText: '#c084fc' },
             ].map(sc => (
               <button

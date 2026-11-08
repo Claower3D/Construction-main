@@ -381,7 +381,7 @@ func (h *AiHandler) VisionProxy(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	modeInstruction := "РЕЖИМ: АВТО (AUTO MULTI-PASS). Комплексный расчёт с автоматическим определением скрытых объемов (5-6 позиций работ и материалов), разделение на этапы, сроки по ГЭСН РК 2026."
+	modeInstruction := "РЕЖИМ: АВТО (AUTO MULTI-PASS). Комплексный расчёт с автоматическим определением скрытых объемов (5-6 позиций работ и материалов), разделение на этапы, сроки по ЭСН РК."
 	if req.Mode == "fast" {
 		modeInstruction = "РЕЖИМ: БЫСТРЫЙ (FAST EXPRESS). Выдай компактную экспресс-смету из 3 ключевых укрупненных позиций: 1. Подготовка основания, 2. Основные строительно-монтажные работы, 3. Финишная отделка и сдача. Базовые расценки, запас 5%."
 	} else if req.Mode == "detailed" {
@@ -693,7 +693,6 @@ func getEnvOr(key, fallback string) (string, bool) {
 func getEnv(key string) string {
 	return os.Getenv(key)
 }
-
 
 // clientIP returns the caller's IP (first X-Forwarded-For hop behind Railway's proxy)
 func clientIP(r *http.Request) string {

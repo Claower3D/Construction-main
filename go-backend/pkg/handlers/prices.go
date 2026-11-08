@@ -60,13 +60,30 @@ func (h *PricesHandler) GetPrices(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	num := func(k string) float64 {
+		v, err := strconv.ParseFloat(query.Get(k), 64)
+		if err != nil || v < 0 {
+			return 0
+		}
+		return v
+	}
+	sortBy := query.Get("sort")
+	if sortBy != "price_asc" && sortBy != "price_desc" && sortBy != "name" {
+		sortBy = ""
+	}
+
 	res := h.priceDB.Search(services.SearchParams{
-		Query:    q,
-		Category: category,
-		Type:     itemType,
-		Region:   region,
-		Limit:    limit,
-		Offset:   offset,
+		Query:          q,
+		Category:       category,
+		Type:           itemType,
+		Region:         region,
+		Limit:          limit,
+		Offset:         offset,
+		Sort:           sortBy,
+		MinPrice:       num("minPrice"),
+		MaxPrice:       num("maxPrice"),
+		IncludeSuspect: query.Get("includeSuspect") == "1",
+		Unique:         query.Get("unique") == "1",
 	})
 
 	_ = json.NewEncoder(w).Encode(res)

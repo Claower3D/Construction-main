@@ -99,6 +99,35 @@ def search_items(query: str, item_type: str = "all", limit: int = 10) -> List[Di
     return results[:limit]
 
 
+def default_vat_pct() -> float:
+    """Ставка НДС в процентах из настроек (settings.VAT_RATE = 0.16 → 16.0)."""
+    try:
+        from app.config import settings
+        return round(float(settings.VAT_RATE) * 100, 4)
+    except Exception:  # pragma: no cover — config недоступен
+        return 16.0
+
+
+# Единицы позиций сметы (m3/m2/m/kg/pcs) → допустимые единицы price_db и множитель цены
+# (цена позиции = цена_БД × множитель). Без проверки единиц цена «за шт»/«за м.п.»/«за т»
+# подставлялась в позицию «за м³»/«за кг» (напр. «Блоки стеновые», шт → «Волнолом», 120 000 ₸/м.п.).
+_UNIT_COMPAT = {
+    "m3": {"м³": 1.0, "м3": 1.0, "куб.м": 1.0},
+    "m2": {"м²": 1.0, "м2": 1.0, "кв.м": 1.0},
+    "m": {"м": 1.0, "м.п.": 1.0, "п.м.": 1.0, "пог.м": 1.0, "мп": 1.0},
+    "kg": {"кг": 1.0, "т": 0.001},
+    "pcs": {"шт": 1.0},
+}
+
+
+def _unit_price_factor(item_unit: str, db_unit: str) -> Optional[float]:
+    """Множитель для пересчёта цены БД в единицу позиции; None — единицы несовместимы."""
+    allowed = _UNIT_COMPAT.get((item_unit or "").strip().lower())
+    if allowed is None:
+        return None
+    return allowed.get((db_unit or "").strip().lower())
+
+
 def get_price(code: str) -> Optional[Dict]:
     """Get item by exact code from any section."""
     db = _load_price_db()
@@ -134,18 +163,23 @@ class AutoEstimator:
             {"code": "WORK-REBAR", "name": "Армирование", "unit": "kg", "multiplier": 100, "base_price": 150},
             {"code": "WORK-CONCRETE-POUR", "name": "Заливка бетона", "unit": "m3", "multiplier": 1.0, "base_price": 8000},
         ],
+        # Стыки/сварка: multiplier — штук на 1 м.п. трубы (ПВХ 1 стык на ~5 м, ПНД ~7 м, сталь ~10 м),
+        # поэтому basis=length; раньше получалось 0.1–0.2 шт. на трубу любой длины.
         "pipe_pvc": [
             {"code": "WORK-PIPE-LAY", "name": "Укладка ПВХ трубы", "unit": "m", "multiplier": 1.0, "base_price": 800},
-            {"code": "WORK-PIPE-JOIN", "name": "Соединение труб", "unit": "pcs", "multiplier": 0.2, "base_price": 500},
-            {"code": "MAT-SAND-BED", "name": "Песчаная подушка под трубу", "unit": "m3", "multiplier": 0.1, "base_price": 8000},
+            {"code": "WORK-PIPE-JOIN", "name": "Соединение труб", "unit": "pcs", "multiplier": 0.2, "base_price": 500, "basis": "length"},
+            # 0.1 м³ на 1 м.п. трубы (траншея 0.5 м × слой 0.2 м). basis=length: считать от длины трубы —
+            # volume_m3 у детекции трубы — это объём стенки трубы (VolumeCalculator.pipe_volume), а не траншеи,
+            # и 0.1 × объём стенки давало песка в ~1000 раз меньше нормы.
+            {"code": "MAT-SAND-BED", "name": "Песчаная подушка под трубу", "unit": "m3", "multiplier": 0.1, "base_price": 8000, "basis": "length"},
         ],
         "pipe_hdpe": [
             {"code": "WORK-PIPE-LAY", "name": "Укладка ПНД трубы", "unit": "m", "multiplier": 1.0, "base_price": 900},
-            {"code": "WORK-PIPE-FUSION", "name": "Сварка ПНД", "unit": "pcs", "multiplier": 0.15, "base_price": 800},
+            {"code": "WORK-PIPE-FUSION", "name": "Сварка ПНД", "unit": "pcs", "multiplier": 0.15, "base_price": 800, "basis": "length"},
         ],
         "pipe_metal": [
             {"code": "WORK-PIPE-LAY", "name": "Укладка металлической трубы", "unit": "m", "multiplier": 1.0, "base_price": 1200},
-            {"code": "WORK-PIPE-WELD", "name": "Сварка стыков", "unit": "pcs", "multiplier": 0.1, "base_price": 1500},
+            {"code": "WORK-PIPE-WELD", "name": "Сварка стыков", "unit": "pcs", "multiplier": 0.1, "base_price": 1500, "basis": "length"},
         ],
         "manhole": [
             {"code": "WORK-MANHOLE-INSTALL", "name": "Установка колодца", "unit": "pcs", "multiplier": 1.0, "base_price": 45000},
@@ -215,11 +249,15 @@ class AutoEstimator:
         "slab": [
             {"code": "WORK-SLAB-FORMWORK", "name": "Опалубка перекрытия", "unit": "m2", "multiplier": 1.0, "base_price": 2500},
             {"code": "WORK-SLAB-REBAR", "name": "Армирование перекрытия", "unit": "kg", "multiplier": 150, "base_price": 150},
-            {"code": "WORK-SLAB-CONCRETE", "name": "Заливка плиты перекрытия М300", "unit": "m3", "multiplier": 0.2, "base_price": 9500},
+            # volume_m3 детекции = площадь × толщина плиты, поэтому бетон = 1.0 × объём (было 0.2 — толщина
+            # учитывалась дважды, бетона в 5 раз меньше, а арматура 150 кг/м³ считалась от полного объёма).
+            {"code": "WORK-SLAB-CONCRETE", "name": "Заливка плиты перекрытия М300", "unit": "m3", "multiplier": 1.0, "base_price": 9500},
         ],
         "floor_screed": [
             {"code": "WORK-SCREED", "name": "Устройство цементной стяжки", "unit": "m2", "multiplier": 1.0, "base_price": 1500},
-            {"code": "MAT-SCREED-MIX", "name": "Сухая смесь для стяжки", "unit": "kg", "multiplier": 20, "base_price": 60},
+            # Расход ЦПС ≈ 2 кг/м² на 1 мм толщины; 20 кг/м² — это стяжка 10 мм (нереально).
+            # Принята стяжка 40 мм → 80 кг/м². Количество для kg-позиции со стяжкой считается от площади.
+            {"code": "MAT-SCREED-MIX", "name": "Сухая смесь для стяжки", "unit": "kg", "multiplier": 80, "base_price": 60, "basis": "area"},
         ],
         "concrete_slab": [
             {"code": "WORK-SLAB-INSTALL", "name": "Монтаж ж/б плит", "unit": "pcs", "multiplier": 1.0, "base_price": 15000},
@@ -267,7 +305,8 @@ class AutoEstimator:
         ],
     }
     
-    # Regional price coefficients
+    # Regional price coefficients (fallback, если price_db не загружен). Для городов из
+    # price_db.json → regional_coefficients значения совпадают с ней (общая таблица с Go-бэкендом).
     REGIONAL_COEFFICIENTS = {
         "almaty": 1.0,
         "astana": 1.15,
@@ -275,13 +314,13 @@ class AutoEstimator:
         "karaganda": 1.05,
         "aktobe": 1.10,
         "aktau": 1.25,
-        "atyrau": 1.30,
-        "ust-kamenogorsk": 1.08,
-        "pavlodar": 1.05,
-        "kostanay": 1.02,
+        "atyrau": 1.25,
+        "ust-kamenogorsk": 1.12,
+        "pavlodar": 1.08,
+        "kostanay": 1.05,
         "petropavl": 1.03,
-        "taraz": 0.98,
-        "semey": 1.02,
+        "taraz": 0.90,
+        "semey": 1.00,
         "kyzylorda": 1.15,
         "oral": 1.12,
         "taldykorgan": 1.05,
@@ -328,6 +367,12 @@ class AutoEstimator:
             "pavlodar": "Павлодар", "kostanay": "Костанай", "semey": "Семей",
             "taraz": "Тараз", "ust-kamenogorsk": "Усть-Каменогорск",
         }
+        # Кириллица тоже принимается: «Алматы» → «almaty» (раньше молча давало коэффициент 1.0)
+        ru_to_code = {v.lower(): k for k, v in region_name_map.items()}
+        ru_to_code.update({"актау": "aktau", "кызылорда": "kyzylorda", "уральск": "oral", "орал": "oral",
+                           "петропавловск": "petropavl", "талдыкорган": "taldykorgan", "туркестан": "turkestan",
+                           "нур-султан": "astana", "өскемен": "ust-kamenogorsk"})
+        self.region = ru_to_code.get(self.region, self.region)
         ru_name = region_name_map.get(self.region, "")
         if ru_name and ru_name in db_regions:
             self.regional_coef = db_regions[ru_name]
@@ -363,14 +408,28 @@ class AutoEstimator:
         enriched = []
         for item in items:
             work_name = item.get("work_name", "")
-            
-            # Search for matching work in database
-            matches = search_items(work_name, item_type="works", limit=3)
-            
-            if matches and matches[0]["score"] >= 0.5:
-                best = matches[0]
-                # Use real price from database
-                real_price = best["price"] * self.total_coefficient
+
+            # Материалы (MAT-*) ищем среди материалов, остальное — среди работ
+            section = "materials" if str(item.get("work_code", "")).startswith("MAT-") else "works"
+            matches = search_items(work_name, item_type=section, limit=20)
+
+            # Лучшее совпадение с совместимой единицей измерения; позиции БД с qa="suspect"
+            # (сомнительная цена после калибровки) не используем.
+            best, factor = None, None
+            for m in matches:
+                if m["score"] < 0.5:
+                    break
+                f = _unit_price_factor(item.get("unit", ""), m.get("unit", ""))
+                if f is None:
+                    continue
+                if (self.price_db.get(m["type"], {}).get(m["code"], {}) or {}).get("qa") == "suspect":
+                    continue
+                best, factor = m, f
+                break
+
+            if best is not None:
+                # Use real price from database (converted to the item's unit)
+                real_price = best["price"] * factor * self.total_coefficient
                 old_total = item["total_price"]
                 new_total = item["quantity"] * real_price
                 
@@ -418,7 +477,8 @@ class AutoEstimator:
         """
         items = []
         total_confidence = 0
-        
+        used_detections = 0
+
         for det in detections:
             class_name = det.class_name
             
@@ -433,13 +493,21 @@ class AutoEstimator:
                 continue
             
             # Calculate quantities based on measurements
+            det_used = False
             for mapping in mappings:
                 unit = mapping["unit"]
                 multiplier = mapping["multiplier"]
                 base_price = mapping["base_price"]
                 
-                # Determine quantity based on unit
-                quantity = self._calculate_quantity(det, unit, multiplier)
+                # Determine quantity based on unit (or on an explicit measurement basis:
+                # "length" — норма на 1 м.п., "area" — норма на 1 м², независимо от единицы позиции)
+                basis = mapping.get("basis")
+                if basis == "length":
+                    quantity = self._calculate_quantity(det, "m", multiplier)
+                elif basis == "area":
+                    quantity = self._calculate_quantity(det, "m2", multiplier)
+                else:
+                    quantity = self._calculate_quantity(det, unit, multiplier)
                 
                 if quantity <= 0:
                     continue
@@ -459,8 +527,14 @@ class AutoEstimator:
                     "source_object": class_name
                 }
                 items.append(item)
+                det_used = True
+
+            # Уверенность учитывается один раз на детекцию (раньше — на каждую позицию маппинга,
+            # и «средняя» уверенность объекта с 3–5 позициями получалась 2–4, т.е. > 1).
+            if det_used:
                 total_confidence += det.confidence
-        
+                used_detections += 1
+
         # Merge duplicate items
         items = self._merge_items(items)
         
@@ -469,7 +543,7 @@ class AutoEstimator:
         
         # Calculate totals
         total_price = sum(item["total_price"] for item in items)
-        avg_confidence = total_confidence / len(detections) if detections else 0
+        avg_confidence = total_confidence / used_detections if used_detections else 0
         
         db_count = sum(1 for i in items if i.get("price_source") == "database")
         logger.info(
@@ -517,11 +591,10 @@ class AutoEstimator:
                 return 1.0 * multiplier
         
         elif unit == "kg":
-            # Weight (typically for rebar, based on volume)
-            if detection.volume_m3:
-                return detection.volume_m3 * multiplier  # multiplier = kg/m3
-            else:
-                return 10.0 * multiplier  # Fallback
+            # Weight (typically rebar): multiplier = kg per m³ of concrete. The volume basis must be
+            # the same as for the m3 (concrete) lines of the same object — раньше без volume_m3 брался
+            # фиксированный объём 10 м³, а бетон — 1 м³ (или площадь × глубина): арматура 1000–1500 кг на 1 м³.
+            return self._calculate_quantity(detection, "m3", 1.0) * multiplier
         
         elif unit == "pcs":
             # Pieces (count)
@@ -531,12 +604,18 @@ class AutoEstimator:
             return 1.0 * multiplier
     
     def _merge_items(self, items: List[Dict]) -> List[Dict]:
-        """Merge items with same work code."""
+        """Merge identical items (same code, name, unit and unit price).
+
+        Одним кодом помечены разные работы (WORK-PIPE-LAY: ПВХ 800 / ПНД 900 / сталь 1200 ₸,
+        WORK-COMPACTION 800 / 600 ₸, WORK-SLAB-CONCRETE М300 / М350 …). Слияние только по коду давало
+        позицию с чужим названием и unit_price, при которой quantity × unit_price ≠ total_price,
+        а enrich_with_real_prices затем пересчитывал сумму по цене первой работы.
+        """
         merged = {}
         merge_counts = {}  # track count for proper confidence averaging
-        
+
         for item in items:
-            code = item["work_code"]
+            code = (item["work_code"], item.get("work_name"), item.get("unit"), item.get("unit_price"))
             
             if code in merged:
                 # Add quantities
@@ -674,14 +753,19 @@ class AutoEstimator:
         self,
         subtotal: float,
         margin_pct: float = 15.0,
-        tax_pct: float = 12.0,
+        tax_pct: Optional[float] = None,
     ) -> Dict[str, float]:
         """
         Calculate total with contractor margin and VAT (НДС).
 
+        Порядок: наценка на сумму без НДС, затем НДС на (сумма + наценка).
+        tax_pct по умолчанию — settings.VAT_RATE (16% с 01.01.2026; раньше было зашито 12%).
+
         Returns:
             {subtotal, margin, tax, grand_total}
         """
+        if tax_pct is None:
+            tax_pct = default_vat_pct()
         margin = subtotal * margin_pct / 100
         subtotal_with_margin = subtotal + margin
         tax = subtotal_with_margin * tax_pct / 100

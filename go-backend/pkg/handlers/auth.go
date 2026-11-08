@@ -170,9 +170,9 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		if priceHour <= 0 {
 			priceHour = 12000
 		}
-		img := req.EquipmentImage
-		if img == "" {
-			img = "https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&w=400&q=80"
+		img := strings.TrimSpace(req.EquipmentImage)
+		if !strings.HasPrefix(img, "/uploads/") && !strings.HasPrefix(img, "https://") {
+			img = "" // the marketplace shows a placeholder by category
 		}
 		city := req.City
 		if city == "" {
@@ -193,9 +193,8 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 			OwnerPhone:   user.Phone,
 			PlateNumber:  req.PlateNumber,
 			Capacity:     req.Capacity,
-			Rating:       5.0,
-			ReviewsCount: 1,
-			DistanceKm:   1.8,
+			WithOperator: true,
+			Delivery:     true,
 		}
 		_ = database.AddEquipment(eq)
 	}

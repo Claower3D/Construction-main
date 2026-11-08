@@ -169,6 +169,54 @@ type Equipment struct {
 	DistanceKm   float64 `json:"distanceKm,omitempty"`
 	Rating       float64 `json:"rating,omitempty"`
 	ReviewsCount int     `json:"reviewsCount,omitempty"`
+	Description  string  `json:"description,omitempty"`
+	WithOperator bool    `json:"withOperator"`
+	Delivery     bool    `json:"delivery"`
+	CreatedAt    string  `json:"createdAt,omitempty"`
+}
+
+// EquipmentBooking is a rental of one machine for a date range (shifts)
+type EquipmentBooking struct {
+	ID            string  `json:"id"`
+	EquipmentID   string  `json:"equipmentId"`
+	EquipmentName string  `json:"equipmentName"`
+	OwnerID       string  `json:"ownerId,omitempty"`
+	RenterID      string  `json:"renterId,omitempty"`
+	RenterName    string  `json:"renterName"`
+	RenterPhone   string  `json:"renterPhone"`
+	Address       string  `json:"address"`
+	DateFrom      string  `json:"dateFrom"` // YYYY-MM-DD
+	Shifts        int     `json:"shifts"`
+	DateTo        string  `json:"dateTo"` // inclusive, YYYY-MM-DD
+	PricePerShift float64 `json:"pricePerShift"`
+	Total         float64 `json:"total"`
+	PaymentMethod string  `json:"paymentMethod"`
+	Status        string  `json:"status"` // pending | confirmed | completed | cancelled
+	CreatedAt     string  `json:"createdAt"`
+}
+
+// MaterialOffer is a supplier's listing in the materials marketplace
+type MaterialOffer struct {
+	ID             string  `json:"id"`
+	Name           string  `json:"name"`
+	Category       string  `json:"category"`
+	Unit           string  `json:"unit"`
+	Price          float64 `json:"price"`
+	WholesalePrice float64 `json:"wholesalePrice,omitempty"`
+	WholesaleFrom  float64 `json:"wholesaleFrom,omitempty"`
+	City           string  `json:"city"`
+	Stock          float64 `json:"stock"`
+	Gost           string  `json:"gost,omitempty"`
+	Delivery       bool    `json:"delivery"`
+	Pickup         bool    `json:"pickup"`
+	PriceCode      string  `json:"priceCode,omitempty"` // link to the price base (сметная цена)
+	Image          string  `json:"image,omitempty"`
+	Description    string  `json:"description,omitempty"`
+	SupplierID     string  `json:"supplierId,omitempty"`
+	SupplierName   string  `json:"supplierName"`
+	SupplierPhone  string  `json:"supplierPhone,omitempty"`
+	Status         string  `json:"status"` // active | hidden
+	CreatedAt      string  `json:"createdAt,omitempty"`
 }
 
 // Dispute represents a quality claim/dispute

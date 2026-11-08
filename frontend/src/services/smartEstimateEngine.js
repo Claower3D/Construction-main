@@ -1,9 +1,9 @@
 // SmartEstimateEngine v3.0 - AI Multi-Pass Estimate & QTO Calculation Engine
 
 export const ESTIMATE_SCENARIOS = {
-  ECONOMY: { id: 'economy', title: 'Эконом / Базовый', multiplier: 0.85, laborRate: 1800 },
+  ECONOMY: { id: 'economy', title: 'Эконом / Базовый', multiplier: 0.80, laborRate: 1800 },
   STANDARD: { id: 'standard', title: 'Стандарт / Комфорт', multiplier: 1.0, laborRate: 2800 },
-  PREMIUM: { id: 'premium', title: 'Премиум / Дизайнерский', multiplier: 1.45, laborRate: 4500 },
+  PREMIUM: { id: 'premium', title: 'Премиум / Дизайнерский', multiplier: 1.35, laborRate: 4500 },
 };
 
 /**
@@ -39,7 +39,7 @@ export function calculateSmartEstimate({ area = 50, propertyType = 'кварти
     aiInsights: hasFile ? [
       `Компьютерное зрение распознало технический план: ${fileName || 'Загруженный документ'}`,
       'Автоматически учтены 4 дверных проема и 2 несущие конструкции',
-      'Расход строительных материалов (BOM) скорректирован на 4.2% согласно СНиП РК для данного типа помещения'
+      'Расход строительных материалов (BOM) скорректирован на 4.2% по нормам расхода (ЭСН РК 8.04-01-2022) для данного типа помещения'
     ] : []
   };
 }
@@ -49,7 +49,7 @@ export function calculateSmartEstimate({ area = 50, propertyType = 'кварти
  */
 export function evaluateDefectScan(imageMetadata = {}) {
   return {
-    defectType: 'Штукатурные микротрещины и деформация шва (СНиП РК 3.02-04-2019)',
+    defectType: 'Штукатурные микротрещины и деформация шва',
     severity: 'Низкая (Поверхностная)',
     confidenceScore: 0.94,
     recommendedActions: [

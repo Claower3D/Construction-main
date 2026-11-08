@@ -54,7 +54,7 @@ export default function CategoryTemplatePage({ category, onBack }) {
     {
       title: 'Монтаж и подготовка поверхности',
       price: 'от 2 800 ₸ / м²',
-      code: 'ГЭСН 08-01-002',
+      code: 'Поз. 08-01-002',
       image: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&q=80&w=800'
     },
     {

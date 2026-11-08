@@ -97,7 +97,7 @@ const WBS_WORKS_CATALOG = [
     desc: 'Разработка котлована, вывоз грунта, шпунтовое ограждение, водопонижение',
     basePricePerM2: 8500,
     laborHoursPerM2: 0.45,
-    gesnCode: 'ГЭСН 01-01-002',
+    gesnCode: 'Поз. 01-01-002',
     items: ['Разработка грунта экскаватором', 'Устройство песчано-гравийной подушки', 'Шпунтовое ограждение Larsen IV']
   },
   {
@@ -107,7 +107,7 @@ const WBS_WORKS_CATALOG = [
     desc: 'Буронабивные сваи Ø600-800, ростверк, плита, пилоны, перекрытия B25/B30',
     basePricePerM2: 24500,
     laborHoursPerM2: 1.85,
-    gesnCode: 'ГЭСН 06-01-005',
+    gesnCode: 'Поз. 06-01-005',
     items: ['Устройство свайного поля', 'Армирование каркасов A500C', 'Заливка бетона B25/B30 бетононасосом', 'Опалубка DOKA/PERI']
   },
   {
@@ -117,7 +117,7 @@ const WBS_WORKS_CATALOG = [
     desc: 'Газобетон D500/D600, кирпич керамический полнотелый, перегородки ПГП',
     basePricePerM2: 12800,
     laborHoursPerM2: 0.95,
-    gesnCode: 'ГЭСН 08-02-001',
+    gesnCode: 'Поз. 08-02-001',
     items: ['Кладка наружных стен из газоблока', 'Облицовочный кирпич', 'Межквартирные перегородки 200мм']
   },
   {
@@ -127,7 +127,7 @@ const WBS_WORKS_CATALOG = [
     desc: 'Мембранная ПВХ-кровля, утепление PIR/XPS, металлочерепица, водостоки',
     basePricePerM2: 9200,
     laborHoursPerM2: 0.65,
-    gesnCode: 'ГЭСН 12-01-001',
+    gesnCode: 'Поз. 12-01-001',
     items: ['Мембранная гидроизоляция Технониколь', 'Утепление минеральной ватой 200мм', 'Устройство парапетов и воронок']
   },
   {
@@ -137,7 +137,7 @@ const WBS_WORKS_CATALOG = [
     desc: 'Керамогранит, алюминиевые композитные панели, витражное остекление Alutech',
     basePricePerM2: 18500,
     laborHoursPerM2: 1.20,
-    gesnCode: 'ГЭСН 15-01-010',
+    gesnCode: 'Поз. 15-01-010',
     items: ['Подсистема NordFox оцинкованная', 'Утеплитель фасадный Rockwool 150мм', 'Остекление витражей триплекс']
   },
   {
@@ -147,7 +147,7 @@ const WBS_WORKS_CATALOG = [
     desc: 'Электроснабжение, отопление, приточно-вытяжная вентиляция, канализация',
     basePricePerM2: 16400,
     laborHoursPerM2: 1.10,
-    gesnCode: 'ГЭСН 67-01-001',
+    gesnCode: 'Поз. 67-01-001',
     items: ['Прокладка кабелей ВВГнг-LS в лотках', 'Разводка труб Rehau/PPR', 'Монтаж шкафов ВРУ и автоматики', 'Установка чиллеров и фанкойлов']
   },
   {
@@ -157,7 +157,7 @@ const WBS_WORKS_CATALOG = [
     desc: 'Полусухая стяжка, машинная штукатурка Knauf, керамогранит, дизайнерское лобби',
     basePricePerM2: 14200,
     laborHoursPerM2: 0.90,
-    gesnCode: 'ГЭСН 15-02-005',
+    gesnCode: 'Поз. 15-02-005',
     items: ['Механизированная штукатурка стен', 'Стяжка с фиброволокном', 'Облицовка лестничных маршей и холлов']
   },
   {
@@ -167,7 +167,7 @@ const WBS_WORKS_CATALOG = [
     desc: 'Асфальтирование, тротуарная плитка, освещение, детские площадки, шлагбаумы',
     basePricePerM2: 6800,
     laborHoursPerM2: 0.40,
-    gesnCode: 'ГЭСН 27-01-001',
+    gesnCode: 'Поз. 27-01-001',
     items: ['Укладка брусчатки 60мм', 'Установка опор LED освещения', 'Озеленение и автополив']
   }
 ];
@@ -353,7 +353,7 @@ export default function BuildingConstructionPage({ onBack, hideHeader = false })
 
   // Cost calculation based on selected WBS works and scenario
   const calculateTotalEstimate = () => {
-    const scenarioMultiplier = costScenario === 'economy' ? 0.88 : costScenario === 'premium' ? 1.35 : 1.0;
+    const scenarioMultiplier = costScenario === 'economy' ? 0.80 : costScenario === 'premium' ? 1.35 : 1.0;
     const selectedWorksList = WBS_WORKS_CATALOG.filter(w => selectedWbsIds.includes(w.id));
     const basePerM2 = selectedWorksList.reduce((sum, w) => sum + w.basePricePerM2, 0);
     const totalM2Price = Math.round(basePerM2 * scenarioMultiplier);
@@ -362,7 +362,10 @@ export default function BuildingConstructionPage({ onBack, hideHeader = false })
     const materialCost = Math.round(totalEstimate * 0.58);
     const laborCost = Math.round(totalEstimate * 0.24);
     const machineryCost = Math.round(totalEstimate * 0.10);
+    // остаток 8% — накладные расходы; НДС 16% (с 01.01.2026) начисляется сверху
     const overheadVat = totalEstimate - materialCost - laborCost - machineryCost;
+    const vat = Math.round(totalEstimate * 0.16);
+    const totalWithVat = totalEstimate + vat;
 
     return {
       basePerM2,
@@ -372,6 +375,8 @@ export default function BuildingConstructionPage({ onBack, hideHeader = false })
       laborCost,
       machineryCost,
       overheadVat,
+      vat,
+      totalWithVat,
       selectedWorksCount: selectedWorksList.length
     };
   };
@@ -896,7 +901,7 @@ export default function BuildingConstructionPage({ onBack, hideHeader = false })
             <div>
               <span className="vip-badge-pill">Объект: {currentObject.title}</span>
               <h2>📐 Выбор из списка всех видов работ & Оценка стоимости</h2>
-              <p>WBS-декомпозиция строительно-монтажных работ по сборникам ГЭСН-2026 и СНиП РК</p>
+              <p>WBS-декомпозиция строительно-монтажных работ по укрупнённым показателям (ориентир ЭСН РК 8.04-01-2022)</p>
             </div>
             <div className="vip-obj-quick-switch">
               <label>Выбрать другой объект:</label>
@@ -987,7 +992,7 @@ export default function BuildingConstructionPage({ onBack, hideHeader = false })
 
               {/* Cost Summary Box */}
               <div className="cost-total-display">
-                <div className="lbl">ИТОГОВАЯ СМЕТНАЯ СТОИМОСТЬ:</div>
+                <div className="lbl">СМЕТНАЯ СТОИМОСТЬ БЕЗ НДС:</div>
                 <div className="val">{estimate.totalEstimate.toLocaleString()} ₸</div>
                 <div className="sub-val">В пересчете: <strong>{estimate.totalM2Price.toLocaleString()} ₸ / м²</strong></div>
               </div>
@@ -1007,8 +1012,16 @@ export default function BuildingConstructionPage({ onBack, hideHeader = false })
                   <strong>{estimate.machineryCost.toLocaleString()} ₸</strong>
                 </div>
                 <div className="cost-row">
-                  <span>📑 Накладные расходы и НДС 12% (8%):</span>
+                  <span>📑 Накладные расходы (8%):</span>
                   <strong>{estimate.overheadVat.toLocaleString()} ₸</strong>
+                </div>
+                <div className="cost-row">
+                  <span>🧾 НДС 16%:</span>
+                  <strong>{estimate.vat.toLocaleString()} ₸</strong>
+                </div>
+                <div className="cost-row">
+                  <span>💼 Итого с НДС:</span>
+                  <strong>{estimate.totalWithVat.toLocaleString()} ₸</strong>
                 </div>
               </div>
 
@@ -1311,13 +1324,13 @@ export default function BuildingConstructionPage({ onBack, hideHeader = false })
             {/* Doc Card 1: Local Estimate PDF */}
             <div className="vip-doc-card">
               <div className="d-icon">📑</div>
-              <h3>Локальная Смета СНиП РК (PDF / Excel)</h3>
+              <h3>Предварительная смета (PDF / Excel)</h3>
               <p>
-                Сводный сметный расчет по нормам ГЭСН 2026: объемы материалов, трудоемкость (чел-часы), спецтехника, накладные расходы и НДС 12%.
+                Укрупнённый сметный расчёт (ориентир ЭСН РК 8.04-01-2022, рыночные цены РК): объёмы материалов, трудоёмкость, спецтехника, накладные расходы и НДС 16%.
               </p>
               <div className="d-meta">
                 <span>Объект: {currentObject.title}</span>
-                <span>Сумма: <strong>{estimate.totalEstimate.toLocaleString()} ₸</strong></span>
+                <span>Сумма с НДС: <strong>{estimate.totalWithVat.toLocaleString()} ₸</strong></span>
               </div>
               <button
                 className="vip-primary-btn"

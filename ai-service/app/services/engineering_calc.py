@@ -11,6 +11,7 @@ QazGost AI — Engineering Cost Calculator
 Все цены — Казахстан 2026 (₸), с региональным коэффициентом.
 """
 
+import math
 from typing import Dict, Any, List, Optional
 from loguru import logger
 
@@ -19,20 +20,22 @@ from loguru import logger
 # Региональные коэффициенты
 # ─────────────────────────────────────────────
 
+# Города, которые есть в app/data/price_db.json → "regional_coefficients" (общая таблица с Go-бэкендом),
+# должны совпадать с ней один в один; остальные (актау, кызылорда, петропавловск, туркестан) — только здесь.
 REGIONAL_COEFF = {
     "алматы": 1.0,
     "астана": 1.15,
-    "шымкент": 0.90,
+    "шымкент": 0.95,
     "караганда": 1.05,
-    "атырау": 1.35,   # Нефтяной регион — дороже
+    "атырау": 1.25,   # Нефтяной регион — дороже
     "актау": 1.30,
-    "актобе": 1.05,
-    "павлодар": 1.00,
-    "усть-каменогорск": 1.05,
-    "семей": 0.95,
+    "актобе": 1.10,
+    "павлодар": 1.08,
+    "усть-каменогорск": 1.12,
+    "семей": 1.00,
     "тараз": 0.90,
     "кызылорда": 1.10,
-    "костанай": 1.00,
+    "костанай": 1.05,
     "петропавловск": 1.00,
     "туркестан": 0.90,
 }
@@ -57,6 +60,16 @@ CITY_ALIASES = {
 }
 
 SUPPORTED_SYSTEMS = ("sewage", "water_supply", "electrical")
+
+# Геометрия траншеи канализации (для объёма обратной засыпки)
+SEWAGE_TRENCH_WIDTH_M = 0.5      # ширина траншеи по дну, м (принятая в калькуляторе)
+SEWAGE_SAND_BED_M = 0.2          # толщина песчаного основания (см. sand_bed «200мм»), м
+# Наружный диаметр трубы, м — вычитается из объёма засыпки
+SEWAGE_PIPE_OD_M = {
+    "pipe_pvc_110": 0.110,
+    "pipe_pvc_50": 0.050,
+    "pipe_cast_iron_100": 0.118,  # чугун ДУ100 — наружный ∅118 мм
+}
 
 
 def normalize_city(name: Optional[str]) -> Optional[str]:
@@ -207,9 +220,15 @@ class EngineeringCalculator:
         (раньше сверху добавлялось ещё 45% «материалов» — двойной счёт).
         """
         coeff = self._coeff(city)
-        pipe = SEWAGE_NORMS.get(pipe_diameter, SEWAGE_NORMS["pipe_pvc_110"])
+        pipe_key = pipe_diameter if pipe_diameter in SEWAGE_NORMS else "pipe_pvc_110"
+        pipe = SEWAGE_NORMS[pipe_key]
         trench = SEWAGE_NORMS["trench_1_5m" if depth_m >= 1.3 else "trench_1m"]
-        backfill_vol = length_m * 0.5 * depth_m * 0.8  # траншея 0.5 м, 80% объёма — засыпка
+        # Засыпка = объём траншеи − песчаное основание − объём трубы (раньше — фиксированные 80% объёма,
+        # без учёта глубины и диаметра трубы).
+        w = SEWAGE_TRENCH_WIDTH_M
+        pipe_od = SEWAGE_PIPE_OD_M.get(pipe_key, 0.110)
+        pipe_area = math.pi * (pipe_od / 2) ** 2
+        backfill_vol = length_m * max(0.0, w * depth_m - w * SEWAGE_SAND_BED_M - pipe_area)
 
         items = [
             make_item(pipe, length_m * 1.05, coeff),               # +5% запас
@@ -222,7 +241,8 @@ class EngineeringCalculator:
 
         return {
             "system": "Канализация",
-            "snip_code": "СНиП РК 4.01-02-2009",
+            # СНиП РК 4.01-02-2009 — это «Водоснабжение. Наружные сети», не канализация
+            "snip_code": "СП РК 4.01-103-2013",
             "items": items,
             **_summary(items),
             "timeline_days": max(3, round_half_up(length_m / 10)),
@@ -252,7 +272,8 @@ class EngineeringCalculator:
 
         return {
             "system": "Водоснабжение",
-            "snip_code": "СНиП РК 4.01-02-2009",
+            # Внутренний водопровод (точки, краны, счётчики), а не наружные сети
+            "snip_code": "СП РК 4.01-101-2012",
             "items": items,
             **_summary(items),
             "timeline_days": max(2, round_half_up(pipe_length_m / 15)),
@@ -288,7 +309,7 @@ class EngineeringCalculator:
 
         return {
             "system": "Электрика",
-            "snip_code": "ПУЭ 7-е изд., СНиП РК 4.04-05-2008",
+            "snip_code": "ПУЭ РК, СП РК 4.04-106-2013",
             "items": items,
             **_summary(items),
             "timeline_days": max(3, round_half_up(area_m2 / 15)),

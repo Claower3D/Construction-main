@@ -5,16 +5,18 @@ import { localDateKey, authHeaders, jsonAuthHeaders, getAuthToken, responseError
 import './EquipmentMarketplace.css';
 import './marketplace-refresh.css';
 import MarketBackdrop from './MarketBackdrop';
+import { FleetPanel, BookingsPanel, equipmentPlaceholder } from './EquipmentAccountPanels';
 import './marketplace-lux.css';
 
 // ── Спецтехника с сервера: GET /api/v1/equipment?category=&city=&q= ──
 const EQ_CATEGORY_API = { earth: 'землерой', lift: 'грузоподъ', loader: 'погруз', road: 'дорож', concrete: 'бетон', transport: 'самосвал', drill: 'буров', power: 'энерг' };
-const EQ_CITY_API = { almaty: 'Алматы', astana: 'Астана', shymkent: 'Шымкент', karaganda: 'Караганда' };
+const EQ_CITIES = ['Алматы', 'Астана', 'Шымкент', 'Караганда', 'Актобе', 'Атырау', 'Актау', 'Павлодар', 'Усть-Каменогорск', 'Семей', 'Костанай', 'Тараз', 'Кызылорда', 'Уральск', 'Петропавловск', 'Туркестан', 'Талдыкорган', 'Кокшетау'];
 const EQ_CATEGORY_OPTIONS = [
   'Землеройная техника', 'Грузоподъемная техника', 'Погрузчики', 'Дорожная техника',
   'Бетонное оборудование', 'Самосвалы и тягачи', 'Буровое оборудование', 'Энергетика и генераторы',
 ];
 const EQ_PLACEHOLDER_IMG = '/assets/machinery/hitachi_excavator.jpg';
+const BOOKING_MAX_SHIFTS = 90;
 function eqCategoryKey(name) {
   const c = String(name || '').toLowerCase();
   if (c.includes('грузо') || c.includes('кран')) return 'lift';
@@ -31,17 +33,20 @@ function mapServerEquipment(e) {
   const price = Math.round(Number(e.pricePerDay) || 0);
   const city = e.city || '';
   const available = !e.status || /доступ|свобод/i.test(e.status);
+  const bookable = !/ремонт|снят/i.test(e.status || '');
+  const placeholder = equipmentPlaceholder(e.category);
   const tags = [];
   if (Number(e.pricePerHour) > 0) tags.push({ type: 'hourly', label: `${Math.round(e.pricePerHour).toLocaleString('ru-RU')} ₸ / час`, icon: '⏱️' });
   if (e.capacity) tags.push({ type: 'capacity', label: e.capacity, icon: '⚖️' });
   if (e.plateNumber) tags.push({ type: 'plate', label: e.plateNumber, icon: '🔖' });
+  if (e.withOperator !== false) tags.push({ type: 'operator', label: 'С оператором', icon: '👷' });
   if (city) tags.push({ type: 'location', label: city });
   return {
     id: e.id,
     category: e.category ? eqCategoryKey(e.category) : 'other',
     categoryName: e.category || 'Без категории',
-    image: e.image || EQ_PLACEHOLDER_IMG,
-    backupImage: EQ_PLACEHOLDER_IMG,
+    image: e.image || placeholder,
+    backupImage: placeholder,
     title: e.name,
     rawPrice: price,
     price: price ? price.toLocaleString('ru-RU') : '',
@@ -51,8 +56,10 @@ function mapServerEquipment(e) {
     cityName: city,
     status: e.status || '',
     availableToday: available,
-    hasOperator: true,
-    hasDelivery: true,
+    bookable,
+    hasOperator: e.withOperator !== false,
+    hasDelivery: e.delivery !== false,
+    description: e.description || '',
     ownerName: e.ownerName || '',
     ownerPhone: e.ownerPhone || '',
     plateNumber: e.plateNumber || '',
@@ -80,6 +87,8 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
   // Interactive Modal state
   const [bookingItem, setBookingItem] = useState(null);
   const [bookingDays, setBookingDays] = useState(1);
+  const [bookingError, setBookingError] = useState(null);
+  const [bookingSending, setBookingSending] = useState(false);
   const [bookingDate, setBookingDate] = useState(() => localDateKey());
   const [bookingPaymentMethod, setBookingPaymentMethod] = useState('escrow'); // 'escrow' | 'kaspi' | 'invoice'
   const [bookingClientName, setBookingClientName] = useState('Заказчик');
@@ -92,7 +101,7 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
   const [eqReload, setEqReload] = useState(0);
   // Размещение техники (POST /api/v1/equipment, нужен серверный JWT)
   const [showPlaceModal, setShowPlaceModal] = useState(false);
-  const [placeForm, setPlaceForm] = useState({ name: '', category: EQ_CATEGORY_OPTIONS[0], pricePerDay: '', pricePerHour: '', city: 'Алматы', plateNumber: '', capacity: '', ownerPhone: '' });
+  const [placeForm, setPlaceForm] = useState({ name: '', category: EQ_CATEGORY_OPTIONS[0], pricePerDay: '', pricePerHour: '', city: 'Алматы', plateNumber: '', capacity: '', ownerPhone: '', description: '', withOperator: true, delivery: true });
   const [placeError, setPlaceError] = useState(null);
   const [placing, setPlacing] = useState(false);
 
@@ -109,7 +118,7 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
   const topTabs = [
     { id: 'marketplace', label: '🏪 Маркетплейс' },
     { id: 'fleet', label: '🚜 Мой парк' },
-    { id: 'ads', label: '📄 Мои объявления' },
+    { id: 'ads', label: '📥 Заявки на технику' },
     { id: 'rentals', label: '📦 Мои аренды' }
   ];
 
@@ -654,7 +663,7 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
     setEqApi(s => ({ ...s, status: 'loading', error: null }));
     const params = new URLSearchParams();
     if (EQ_CATEGORY_API[category]) params.set('category', EQ_CATEGORY_API[category]);
-    if (EQ_CITY_API[location]) params.set('city', EQ_CITY_API[location]);
+    if (location !== 'all') params.set('city', location);
     if (debouncedQuery) params.set('q', debouncedQuery);
     fetch(`/api/v1/equipment${params.toString() ? `?${params}` : ''}`, { headers: authHeaders() })
       .then(async (res) => {
@@ -735,7 +744,7 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
       }
 
       // 4. Location Filter
-      if (location !== 'all' && item.city !== location) {
+      if (location !== 'all' && (item.cityName || item.city || '').toLowerCase() !== location.toLowerCase()) {
         return false;
       }
 
@@ -794,6 +803,9 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
           plateNumber: placeForm.plateNumber.trim() || undefined,
           capacity: placeForm.capacity.trim() || undefined,
           ownerPhone: placeForm.ownerPhone.trim() || undefined,
+          description: placeForm.description.trim() || undefined,
+          withOperator: placeForm.withOperator,
+          delivery: placeForm.delivery,
           status: 'Доступен',
         }),
       });
@@ -803,9 +815,9 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
         return;
       }
       setShowPlaceModal(false);
-      setPlaceForm(f => ({ ...f, name: '', pricePerDay: '', pricePerHour: '', plateNumber: '', capacity: '' }));
+      setPlaceForm(f => ({ ...f, name: '', pricePerDay: '', pricePerHour: '', plateNumber: '', capacity: '', description: '' }));
       setEqReload(k => k + 1);
-      setActiveTab('marketplace');
+      setActiveTab(t => (t === 'fleet' ? 'fleet' : 'marketplace'));
       showToast('✅ Объявление опубликовано в маркетплейсе');
     } catch (err) {
       setPlaceError(`Сервер недоступен: ${err.message}`);
@@ -917,10 +929,7 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
               <span>📍</span>
               <select value={location} onChange={e => setLocation(e.target.value)}>
                 <option value="all">Все города</option>
-                <option value="almaty">Алматы</option>
-                <option value="astana">Астана</option>
-                <option value="shymkent">Шымкент</option>
-                <option value="karaganda">Караганда</option>
+                {EQ_CITIES.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
 
@@ -1009,10 +1018,7 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
                 <label>📍 Локация</label>
                 <select value={location} onChange={e => setLocation(e.target.value)} className="em-select">
                   <option value="all">Все города</option>
-                  <option value="almaty">Алматы</option>
-                  <option value="astana">Астана</option>
-                  <option value="shymkent">Шымкент</option>
-                  <option value="karaganda">Караганда</option>
+                  {EQ_CITIES.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
                 
                 <div className="slider-group">
@@ -1214,20 +1220,30 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
                           <button 
                             type="button"
                             className="em-btn-primary luxury-book-btn"
-                            disabled={item.isDemo || !(item.rawPrice > 0) || !item.availableToday}
-                            title={item.isDemo ? 'Демо-объявление: бронирование недоступно' : (!(item.rawPrice > 0) ? 'Цена не указана — свяжитесь с владельцем' : (!item.availableToday ? 'Техника занята' : ''))}
+                            disabled={item.isDemo || !(item.rawPrice > 0) || item.bookable === false}
+                            title={item.isDemo ? 'Демо-объявление: бронирование недоступно' : (!(item.rawPrice > 0) ? 'Цена не указана — свяжитесь с владельцем' : (item.bookable === false ? 'Техника на ремонте' : (!item.availableToday ? 'Сегодня занята — выберите другие даты' : '')))}
                             onClick={() => {
+                              setBookingError(null);
+                              if (!item.availableToday) {
+                                const d = new Date(); d.setDate(d.getDate() + 1);
+                                setBookingDate(localDateKey(d));
+                              }
                               setBookingItem(item);
                             }}
                           >
-                            <span>{item.availableToday ? '⚡ Забронировать' : 'Занята'}</span>
+                            <span>{item.bookable === false ? 'На ремонте' : item.availableToday ? '⚡ Забронировать' : '📅 Выбрать даты'}</span>
                           </button>
-                          <button 
-                            className="em-btn-secondary luxury-compare-btn"
-                            onClick={() => showToast(`⚖️ Модель "${item.title}" добавлена в сравнение`)}
-                          >
-                            ⚖️ Сравнить
-                          </button>
+                          {item.ownerPhone ? (
+                            <a className="em-btn-secondary luxury-compare-btn" href={`tel:${item.ownerPhone.replace(/[^\d+]/g, '')}`}>📞 Позвонить</a>
+                          ) : (
+                            <button
+                              type="button"
+                              className="em-btn-secondary luxury-compare-btn"
+                              onClick={() => showToast(getAuthToken() ? 'Владелец не указал телефон — забронируйте, он свяжется с вами' : '🔐 Телефон владельца виден после входа')}
+                            >
+                              📞 Контакты
+                            </button>
+                          )}
                         </div>
                       </div>
                     </article>
@@ -1239,267 +1255,15 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
         </div>
       )}
 
-      {/* FLEET TAB */}
+      {/* Кабинет владельца и арендатора — живые данные с сервера */}
       {activeTab === 'fleet' && (
-        <div className="em-tab-view-container">
-          <div className="em-view-header-bar">
-            <div className="em-header-left">
-              <h2 className="em-view-title">🚜 Мой автопарк спецтехники</h2>
-              <p className="em-view-subtitle">Мониторинг единиц в режиме реального времени, смены и GPS-телеметрия</p>
-            </div>
-            <div className="em-header-metrics">
-              <div className="em-metric-pill">
-                <span className="metric-val">6</span>
-                <span className="metric-lbl">Всего машин</span>
-              </div>
-              <div className="em-metric-pill success">
-                <span className="metric-val">4</span>
-                <span className="metric-lbl">В работе</span>
-              </div>
-              <div className="em-metric-pill info">
-                <span className="metric-val">2</span>
-                <span className="metric-lbl">Свободно</span>
-              </div>
-              <button className="em-btn-action-primary" onClick={() => { setPlaceError(null); setShowPlaceModal(true); }}>
-                + Добавить технику в парк
-              </button>
-            </div>
-          </div>
-
-          <div className="em-fleet-grid">
-            <div className="em-fleet-card-luxury">
-              <div className="em-fleet-card-top">
-                <div className="em-fleet-icon-aura">🚜</div>
-                <div className="em-fleet-main-info">
-                  <div className="em-fleet-title-row">
-                    <h3>Гусеничный экскаватор CAT 320D</h3>
-                    <span className="em-tag-status active">🟢 В работе (Объект №4)</span>
-                  </div>
-                  <p className="em-fleet-subtext">2022 г.в. • Ковш 1.2 м³ • Заводской номер #CAT-99214</p>
-                  
-                  <div className="em-fleet-spec-pills">
-                    <span className="spec-pill">⛽ Топливо: 85%</span>
-                    <span className="spec-pill">📍 GPS: 🟢 Онлайн</span>
-                    <span className="spec-pill">👨‍✈️ Машинист: Руслан Б.</span>
-                    <span className="spec-pill">⌛ Наработка: 1 420 м/ч</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="em-fleet-progress-box">
-                <div className="progress-labels">
-                  <span>Текущая смена (Дневная)</span>
-                  <span>6 из 8 часов (75%)</span>
-                </div>
-                <div className="progress-track">
-                  <div className="progress-fill" style={{ width: '75%' }}></div>
-                </div>
-              </div>
-
-              <div className="em-fleet-card-footer">
-                <span className="footer-status-text">Занят на объекте ЖК «Capital Park» до 20 авг</span>
-                <div className="em-fleet-actions-row">
-                  <button className="em-btn-glass-sm" onClick={() => showToast('📍 Карта GPS-трекинга открыта')}>📍 GPS Карта</button>
-                  <button className="em-btn-glass-sm" onClick={() => showToast('📋 Журнал смен и ТО')}>📋 Журнал ТО</button>
-                  <button className="em-btn-glass-sm primary" onClick={() => showToast('⚡ Управление сменой')}>⚡ Смена</button>
-                </div>
-              </div>
-            </div>
-
-            <div className="em-fleet-card-luxury">
-              <div className="em-fleet-card-top">
-                <div className="em-fleet-icon-aura">🏗️</div>
-                <div className="em-fleet-main-info">
-                  <div className="em-fleet-title-row">
-                    <h3>Автокран Liebherr LTM 1050</h3>
-                    <span className="em-tag-status free">⚡ Свободен на базе</span>
-                  </div>
-                  <p className="em-fleet-subtext">50 тонн • Стрела 38 м + гусек • Заводской номер #LBH-4402</p>
-                  
-                  <div className="em-fleet-spec-pills">
-                    <span className="spec-pill">⛽ Топливо: 92%</span>
-                    <span className="spec-pill">📍 База: Алматы Север</span>
-                    <span className="spec-pill">👨‍✈️ Машинист: Алихан С.</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="em-fleet-card-footer">
-                <span className="footer-status-text">Готов к моментальному выезду и сдаче в аренду</span>
-                <div className="em-fleet-actions-row">
-                  <button className="em-btn-glass-sm" onClick={() => showToast('📍 Локация на базе подтверждена')}>📍 На базе</button>
-                  <button className="em-btn-glass-sm primary" onClick={() => showToast('📢 Сдать в аренду на маркетплейсе')}>📢 Сдать в аренду</button>
-                </div>
-              </div>
-            </div>
-
-            <div className="em-fleet-card-luxury">
-              <div className="em-fleet-card-top">
-                <div className="em-fleet-icon-aura">🚚</div>
-                <div className="em-fleet-main-info">
-                  <div className="em-fleet-title-row">
-                    <h3>Самосвал KAMAZ-6520 (20 тонн)</h3>
-                    <span className="em-tag-status active">🟢 В рейсе</span>
-                  </div>
-                  <p className="em-fleet-subtext">2023 г.в. • Кузов 16 м³ • Перевозка инертных материалов</p>
-                  
-                  <div className="em-fleet-spec-pills">
-                    <span className="spec-pill">⛽ Топливо: 60%</span>
-                    <span className="spec-pill">📍 Маршрут: Карьер → Объект №2</span>
-                    <span className="spec-pill">🚚 Рейсы: 8/10 сделано</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="em-fleet-card-footer">
-                <span className="footer-status-text">Доставка щебня фракции 20-40</span>
-                <div className="em-fleet-actions-row">
-                  <button className="em-btn-glass-sm" onClick={() => showToast('📍 Маршрут самосвала')}>📍 Рейсы</button>
-                  <button className="em-btn-glass-sm primary" onClick={() => showToast('⚡ Управление выгрузкой')}>⚡ Детали</button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <FleetPanel reloadKey={eqReload} showToast={showToast} onAdd={() => { setPlaceError(null); setShowPlaceModal(true); }} />
       )}
-
-      {/* ADS TAB */}
       {activeTab === 'ads' && (
-        <div className="em-tab-view-container">
-          <div className="em-view-header-bar">
-            <div className="em-header-left">
-              <h2 className="em-view-title">📄 Мои объявления на маркетплейсе</h2>
-              <p className="em-view-subtitle">Управление вашей рекламной витриной и входящими заявками от заказчиков</p>
-            </div>
-            <div className="em-header-metrics">
-              <div className="em-metric-pill">
-                <span className="metric-val">3</span>
-                <span className="metric-lbl">Объявления</span>
-              </div>
-              <div className="em-metric-pill success">
-                <span className="metric-val">348</span>
-                <span className="metric-lbl">Просмотров</span>
-              </div>
-              <button className="em-btn-action-primary" onClick={() => { setPlaceError(null); setShowPlaceModal(true); }}>
-                + Опубликовать объявление
-              </button>
-            </div>
-          </div>
-
-          <div className="em-ads-list">
-            <div className="em-ad-item-card-luxury">
-              <div className="em-ad-top">
-                <div className="em-fleet-icon-aura">🚜</div>
-                <div className="em-ad-body">
-                  <div className="em-ad-header-row">
-                    <div className="em-ad-title-group">
-                      <h4>Аренда экскаватора CAT 320D с опытно машинистом</h4>
-                      <span className="em-vip-badge">⭐ VIP Приоритет</span>
-                    </div>
-                    <span className="em-tag-status active">🟢 Активно</span>
-                  </div>
-                  <p className="em-ad-price-row">
-                    <strong>28 000 ₸</strong> / смена (8 ч) • 📍 Алматы • 🚚 Доставка тралом
-                  </p>
-                  <div className="em-ad-stats-bar">
-                    <span>👁️ 142 просмотра</span>
-                    <span>📩 12 откликов</span>
-                    <span>⭐ Рейтинг 4.9 (18 отзывов)</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="em-ad-actions-footer">
-                <span className="ad-expiry">Действительно до 14 сен 2026</span>
-                <div className="em-fleet-actions-row">
-                  <button className="em-btn-glass-sm" onClick={() => showToast('🚀 Объявление поднято в ТОП!')}>🚀 Поднять в ТОП</button>
-                  <button className="em-btn-glass-sm" onClick={() => showToast('✏️ Редактирование объявления')}>✏️ Изменить</button>
-                  <button className="em-btn-glass-sm danger" onClick={() => showToast('⏸️ Объявление временно остановлено')}>⏸️ Пауза</button>
-                </div>
-              </div>
-            </div>
-
-            <div className="em-ad-item-card-luxury">
-              <div className="em-ad-top">
-                <div className="em-fleet-icon-aura">🏗️</div>
-                <div className="em-ad-body">
-                  <div className="em-ad-header-row">
-                    <div className="em-ad-title-group">
-                      <h4>Услуги автокрана Liebherr 50т (Стрела 38м)</h4>
-                      <span className="em-tag-status active">🟢 Активно</span>
-                    </div>
-                  </div>
-                  <p className="em-ad-price-row">
-                    <strong>55 000 ₸</strong> / смена • 📍 Астана и область
-                  </p>
-                  <div className="em-ad-stats-bar">
-                    <span>👁️ 206 просмотров</span>
-                    <span>📩 24 отклика</span>
-                    <span>⭐ Рейтинг 5.0 (31 отзыв)</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="em-ad-actions-footer">
-                <span className="ad-expiry">Действительно до 02 сен 2026</span>
-                <div className="em-fleet-actions-row">
-                  <button className="em-btn-glass-sm" onClick={() => showToast('🚀 Объявление поднято в ТОП!')}>🚀 Поднять в ТОП</button>
-                  <button className="em-btn-glass-sm" onClick={() => showToast('✏️ Редактирование объявления')}>✏️ Изменить</button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <BookingsPanel role="owner" reloadKey={eqReload} showToast={showToast} onBrowse={() => setActiveTab('marketplace')} />
       )}
-
-      {/* RENTALS TAB */}
       {activeTab === 'rentals' && (
-        <div className="em-tab-view-container">
-          <div className="em-view-header-bar">
-            <div className="em-header-left">
-              <h2 className="em-view-title">📦 Мои аренды и заказы</h2>
-              <p className="em-view-subtitle">Текущие договоры бронирования, счета и электронные акты выполненных работ (ЭСФ)</p>
-            </div>
-            <button className="em-btn-action-primary" onClick={() => setActiveTab('marketplace')}>
-              🔍 Найти технику в каталоге
-            </button>
-          </div>
-
-          <div className="em-rentals-list">
-            <div className="em-rental-card-luxury">
-              <div className="em-rental-card-header">
-                <div className="rental-contract-badge">
-                  <span>Договор №AR-8842</span>
-                  <span className="em-tag-status active">🟢 Активная аренда (Смена 3/7)</span>
-                </div>
-                <span className="rental-date">14 авг - 21 авг 2026</span>
-              </div>
-
-              <div className="em-rental-main">
-                <div className="em-fleet-icon-aura">🏗️</div>
-                <div className="em-rental-details">
-                  <h3>Автокран XCMG QY25K5 (25 тонн)</h3>
-                  <p>Исполнитель: <strong>ТОО «СпецТрансАлматы»</strong> • Объект: <strong>мкр. Самал-2, д.14</strong></p>
-                  
-                  <div className="em-rental-stats-pills">
-                    <span>💰 Сумма договора: ₸ 196 000</span>
-                    <span>💳 Оплачено: ₸ 196 000 (100% Предоплата)</span>
-                    <span>👨‍✈️ Машинист: Бахтияр Н. (+7 777 221 4400)</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="em-fleet-card-footer">
-                <span className="footer-status-text">Техника работает на объекте согласно графику</span>
-                <div className="em-fleet-actions-row">
-                  <button className="em-btn-glass-sm" onClick={() => showToast('📞 Звонок машинисту отправлен')}>📞 Позвонить водителю</button>
-                  <button className="em-btn-glass-sm" onClick={() => showToast('📄 Акт ЭСФ скачан')}>📄 Акт выполненных работ</button>
-                  <button className="em-btn-glass-sm primary" onClick={() => showToast('🔄 Заявка на продление отправлена')}>🔄 Продлить аренду</button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <BookingsPanel role="renter" reloadKey={eqReload} showToast={showToast} onBrowse={() => setActiveTab('marketplace')} />
       )}
 
       {/* Booking Modal with Wallet & Escrow & Manager/Executor Dispatch */}
@@ -1531,6 +1295,7 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
                 <input 
                   type="date" 
                   className="em-input" 
+                  min={localDateKey()}
                   value={bookingDate} 
                   onChange={e => setBookingDate(e.target.value)}
                   style={{ width: '100%', background: 'rgba(21,18,42,0.8)', border: '1px solid rgba(255,255,255,0.15)', color: '#fff', padding: '8px 12px', borderRadius: '8px' }}
@@ -1538,13 +1303,13 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
               </div>
 
               <div className="em-form-group">
-                <label style={{ display: 'block', fontSize: '0.8rem', color: '#a39cc2', marginBottom: '4px' }}>Кол-во смен / часов:</label>
+                <label style={{ display: 'block', fontSize: '0.8rem', color: '#a39cc2', marginBottom: '4px' }}>Количество смен:</label>
                 <input 
                   type="number" 
                   min="1" 
-                  max="30"
+                  max={BOOKING_MAX_SHIFTS}
                   value={bookingDays} 
-                  onChange={e => setBookingDays(Math.max(1, parseInt(e.target.value) || 1))}
+                  onChange={e => setBookingDays(Math.min(BOOKING_MAX_SHIFTS, Math.max(1, parseInt(e.target.value, 10) || 1)))}
                   className="em-input"
                   style={{ width: '100%', background: 'rgba(21,18,42,0.8)', border: '1px solid rgba(255,255,255,0.15)', color: '#fff', padding: '8px 12px', borderRadius: '8px' }}
                 />
@@ -1590,13 +1355,13 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                 <span style={{ fontSize: '0.85rem', color: '#cbc5e3' }}>Итоговая стоимость аренды:</span>
                 <strong style={{ fontSize: '1.25rem', color: '#34d399' }}>
-                  {((bookingItem.rawPrice || 25000) * bookingDays).toLocaleString()} ₸
+                  {((bookingItem.rawPrice || 0) * bookingDays).toLocaleString('ru-RU')} ₸
                 </strong>
               </div>
               
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '8px', borderTop: '1px solid rgba(255,255,255,0.08)', fontSize: '0.82rem' }}>
                 <span style={{ color: '#a39cc2' }}>💳 Баланс вашего кошелька: <strong style={{ color: '#fff' }}>{walletBalance.toLocaleString()} ₸</strong></span>
-                {walletBalance < ((bookingItem.rawPrice || 25000) * bookingDays) && (
+                {bookingPaymentMethod === 'escrow' && walletBalance < ((bookingItem.rawPrice || 0) * bookingDays) && (
                   <button
                     type="button"
                     onClick={() => {
@@ -1625,35 +1390,73 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
               </select>
             </div>
 
+            {bookingError && <p className="mkt-form-error" role="alert" style={{ marginBottom: '10px' }}>{bookingError}</p>}
+            {bookingItem.isServer && !getAuthToken() && (
+              <p className="mkt-notice mkt-notice--warn" style={{ marginBottom: '10px' }}>Без входа заявка уйдёт менеджеру платформы, а даты у владельца не будут зарезервированы.</p>
+            )}
             <button 
               className="em-submit-btn w-100"
-              style={{ background: 'linear-gradient(90deg, #7c3aed, #10b981)', border: 'none', color: '#fff', padding: '12px', borderRadius: '10px', fontWeight: 800, fontSize: '0.95rem', cursor: 'pointer' }}
-              onClick={() => {
-                const totalCost = (bookingItem.rawPrice || 25000) * bookingDays;
-                
-                // 1. Freeze in Wallet if escrow
-                let escrowInfo = null;
-                if (bookingPaymentMethod === 'escrow') {
-                  escrowInfo = freezeEscrow(totalCost, `Аренда: ${bookingItem.title} (${bookingDays} см.)`);
-                  setWalletBalance(escrowInfo.newBalance);
-                  if (!escrowInfo.ok) {
-                    showToast(`⚠️ Недостаточно средств в кошельке: нужно ${totalCost.toLocaleString()} ₸, доступно ${escrowInfo.newBalance.toLocaleString()} ₸`);
-                    return;
-                  }
+              disabled={bookingSending}
+              style={{ background: 'linear-gradient(90deg, #7c3aed, #10b981)', border: 'none', color: '#fff', padding: '12px', borderRadius: '10px', fontWeight: 800, fontSize: '0.95rem', cursor: 'pointer', opacity: bookingSending ? 0.7 : 1 }}
+              onClick={async () => {
+                setBookingError(null);
+                const shifts = Math.min(BOOKING_MAX_SHIFTS, Math.max(1, parseInt(bookingDays, 10) || 1));
+                const totalCost = (bookingItem.rawPrice || 0) * shifts;
+                if (!(totalCost > 0)) { setBookingError('У объявления не указана цена — свяжитесь с владельцем.'); return; }
+                if (!bookingDate || bookingDate < localDateKey()) { setBookingError('Выберите дату подачи не раньше сегодняшней.'); return; }
+                if (!bookingClientPhone.trim() || !bookingAddress.trim()) { setBookingError('Укажите телефон и адрес объекта.'); return; }
+                if (bookingPaymentMethod === 'escrow' && getBalanceKZT() < totalCost) {
+                  setBookingError(`Недостаточно средств в кошельке: нужно ${totalCost.toLocaleString('ru-RU')} ₸, доступно ${getBalanceKZT().toLocaleString('ru-RU')} ₸.`);
+                  return;
                 }
 
-                // 2. Dispatch Order to Manager CRM and Executor
+                // 1. Резерв дат у владельца (сервер проверяет пересечения и сам считает сумму)
+                let booking = null;
+                if (bookingItem.isServer && getAuthToken()) {
+                  setBookingSending(true);
+                  try {
+                    const res = await fetch(`/api/v1/equipment/${encodeURIComponent(bookingItem.id)}/book`, {
+                      method: 'POST',
+                      headers: jsonAuthHeaders(),
+                      body: JSON.stringify({
+                        dateFrom: bookingDate,
+                        shifts,
+                        renterName: bookingClientName.trim(),
+                        renterPhone: bookingClientPhone.trim(),
+                        address: bookingAddress.trim(),
+                        paymentMethod: bookingPaymentMethod === 'escrow' ? 'Эскроу QazGost' : bookingPaymentMethod === 'kaspi' ? 'Kaspi Pay' : 'Безнал с НДС',
+                      }),
+                    });
+                    if (!res.ok) { setBookingError(await responseError(res)); return; }
+                    booking = await res.json();
+                  } catch (e) {
+                    setBookingError(`Сервер недоступен: ${e.message}`);
+                    return;
+                  } finally {
+                    setBookingSending(false);
+                  }
+                }
+                const payable = booking ? Number(booking.total) || totalCost : totalCost;
+
+                // 2. Эскроу: деньги замораживаются и уходят владельцу только после смены
+                let escrowInfo = null;
+                if (bookingPaymentMethod === 'escrow') {
+                  escrowInfo = freezeEscrow(payable, `Аренда: ${bookingItem.title} (${shifts} см.)`);
+                  setWalletBalance(escrowInfo.newBalance);
+                }
+
+                // 3. Заявка в CRM менеджера
                 const newOrder = createPlatformOrder({
                   title: `Аренда спецтехники: ${bookingItem.title}`,
                   category: 'Аренда спецтехники',
-                  amount: totalCost,
-                  budget: `${totalCost.toLocaleString()} ₸`,
+                  amount: payable,
+                  budget: `${payable.toLocaleString('ru-RU')} ₸`,
                   clientName: bookingClientName,
                   clientPhone: bookingClientPhone,
                   city: bookingItem.cityName || bookingItem.tags?.find(t => t.type === 'location')?.label || 'Алматы',
-                  description: `Аренда ${bookingItem.title} на ${bookingDays} смен/дней с ${bookingDate}. Доставка на объект: ${bookingAddress}. Оператор: ${bookingItem.hasOperator ? 'Да' : 'Нет'}. Оплата: ${bookingPaymentMethod === 'escrow' ? 'Эскроу заморожено' : 'Kaspi'}`,
+                  description: `Аренда ${bookingItem.title} на ${shifts} смен с ${bookingDate}${booking ? ` по ${booking.dateTo} (бронь ${booking.id})` : ''}. Объект: ${bookingAddress}. Оператор: ${bookingItem.hasOperator ? 'да' : 'нет'}. Оплата: ${bookingPaymentMethod === 'escrow' ? 'эскроу заморожено' : bookingPaymentMethod === 'kaspi' ? 'Kaspi' : 'безнал'}`,
                   type: 'machinery',
-                  status: 'in_progress',
+                  status: 'new',
                   paymentMethod: bookingPaymentMethod === 'escrow' ? 'Эскроу QazGost' : 'Kaspi Pay',
                   machinery: [
                     {
@@ -1662,19 +1465,22 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
                       photo: bookingItem.image,
                       rate: `${bookingItem.price} ₸ / ${bookingItem.unit}`,
                       dist: bookingItem.distanceKm ? `${bookingItem.distanceKm} км` : '',
-                      status: '🟢 Назначен на объект (GPS Online)',
-                      assigned: true
+                      status: booking ? '🕓 Ждёт подтверждения владельца' : '🕓 Заявка у менеджера',
+                      assigned: false
                     }
                   ],
                   escrowTxId: escrowInfo?.txId || null,
-                  escrowAmount: escrowInfo?.ok ? totalCost : 0
+                  escrowAmount: escrowInfo?.ok ? payable : 0
                 });
 
                 setBookingItem(null);
-                showToast(`🎉 Заявка ${newOrder.id} успешно создана и передана Менеджеру CRM и Водителю! 🚜`);
+                setEqReload(k => k + 1);
+                showToast(booking
+                  ? `🎉 Бронь оформлена: ${shifts} см. с ${bookingDate}. Владелец подтвердит её во вкладке заявок.`
+                  : `🎉 Заявка ${newOrder.id} передана менеджеру платформы`);
               }}
             >
-              🚀 Подтвердить бронирование и передать Менеджеру
+              {bookingSending ? 'Оформляем…' : '🚀 Забронировать'}
             </button>
           </div>
         </div>
@@ -1714,7 +1520,9 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
             <div className="mkt-field-row">
               <label className="mkt-field">
                 <span>Город</span>
-                <input value={placeForm.city} onChange={e => setPlaceForm(f => ({ ...f, city: e.target.value }))} />
+                <select value={placeForm.city} onChange={e => setPlaceForm(f => ({ ...f, city: e.target.value }))}>
+                  {EQ_CITIES.map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
               </label>
               <label className="mkt-field">
                 <span>Госномер</span>
@@ -1731,6 +1539,20 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
                 <input type="tel" value={placeForm.ownerPhone} onChange={e => setPlaceForm(f => ({ ...f, ownerPhone: e.target.value }))} placeholder="+7 7__ ___ __ __" />
               </label>
             </div>
+            <div className="mkt-field-row">
+              <label className="mkt-check">
+                <input type="checkbox" checked={placeForm.withOperator} onChange={e => setPlaceForm(f => ({ ...f, withOperator: e.target.checked }))} />
+                <span>С оператором (машинистом)</span>
+              </label>
+              <label className="mkt-check">
+                <input type="checkbox" checked={placeForm.delivery} onChange={e => setPlaceForm(f => ({ ...f, delivery: e.target.checked }))} />
+                <span>Доставка на объект</span>
+              </label>
+            </div>
+            <label className="mkt-field">
+              <span>Описание</span>
+              <textarea rows={3} maxLength={2000} value={placeForm.description} onChange={e => setPlaceForm(f => ({ ...f, description: e.target.value }))} placeholder="Год выпуска, состояние, минимальный заказ, условия" />
+            </label>
             {placeError && <p className="mkt-form-error" role="alert">{placeError}</p>}
             <div className="mkt-modal-actions">
               <button type="button" className="mkt-btn-secondary" onClick={() => setShowPlaceModal(false)}>Отмена</button>

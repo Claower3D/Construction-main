@@ -234,12 +234,14 @@ class VolumeCalculator:
                 length_bottom = max(length_bottom, 0.5)
                 width_bottom = max(width_bottom, 0.5)
                 
-                # Frustum volume formula
+                # Prismatoid formula V = h/6 · (A_top + A_bottom + 4·A_mid). Формула усечённой пирамиды
+                # h/3·(A1 + A2 + √(A1·A2)) верна только для подобных оснований, а при одинаковом
+                # заложении откосов по всем сторонам прямоугольные основания не подобны.
                 area_top = length * width
                 area_bottom = length_bottom * width_bottom
-                area_mid = math.sqrt(area_top * area_bottom)
-                
-                volume = (depth / 3) * (area_top + area_bottom + area_mid)
+                area_mid = ((length + length_bottom) / 2) * ((width + width_bottom) / 2)
+
+                volume = (depth / 6) * (area_top + area_bottom + 4 * area_mid)
             else:
                 volume = length * width * depth
         
@@ -334,13 +336,17 @@ class VolumeCalculator:
         if trench_depth is None:
             trench_depth = pipe_diameter + bedding_thickness + 0.7
         
-        # Excavation
+        # Excavation. trench_width — это ширина ПО ДНУ (труба + рабочее пространство), поэтому стенки
+        # вертикальные (slope_angle=90). Раньше trench_volume с откосом по умолчанию (50°) сужал дно до
+        # 0.3 м — уже требуемой ширины (и уже самой трубы при D ≥ 0.3 м), объём выемки занижался,
+        # а основание ниже считается по полной ширине прямоугольной траншеи.
         excavation = self.trench_volume(
             length=pipe_length,
             width=trench_width,
-            depth=trench_depth
+            depth=trench_depth,
+            slope_angle=90,
         )
-        
+
         # Bedding (sand layer under and around pipe)
         bedding = pipe_length * trench_width * bedding_thickness
         

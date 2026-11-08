@@ -1526,3 +1526,24 @@
     padding-bottom: 0.35rem;
   }
 }
+
+/* ── Кабинет: мой парк, заявки, аренды (живые данные) ── */
+.em-fleet-thumb { width: 96px; height: 72px; object-fit: cover; border-radius: 12px; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.04); }
+.em-loading-line { color: #a39cc2; padding: 1.5rem 0; text-align: center; }
+.em-empty-icon { font-size: 2.4rem; margin-bottom: 0.4rem; }
+.em-fleet-edit-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+.em-fleet-edit-row label { display: flex; flex-direction: column; gap: 4px; font-size: 0.78rem; color: #a39cc2; }
+.em-fleet-edit-row input { width: 140px; background: rgba(21,18,42,0.8); border: 1px solid rgba(255,255,255,0.18); color: #fff; padding: 7px 10px; border-radius: 8px; }
+.em-fleet-status-select { display: flex; align-items: center; gap: 8px; font-size: 0.82rem; color: #a39cc2; }
+.em-fleet-status-select select { background: rgba(21,18,42,0.8); border: 1px solid rgba(255,255,255,0.18); color: #fff; padding: 6px 10px; border-radius: 8px; }
+.em-tag-status.pending { background: rgba(245,158,11,0.15); color: #fbbf24; border-color: rgba(245,158,11,0.35); }
+.em-tag-status.info { background: rgba(96,165,250,0.15); color: #93c5fd; border-color: rgba(96,165,250,0.35); }
+.em-tag-status.done { background: rgba(16,185,129,0.12); color: #6ee7b7; border-color: rgba(16,185,129,0.3); }
+.em-tag-status.cancelled, .em-tag-status.muted { background: rgba(148,163,184,0.12); color: #cbd5e1; border-color: rgba(148,163,184,0.3); }
+.em-rental-stats-pills a { color: #d6caff; }
+.mkt-check { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: #cbc5e3; cursor: pointer; }
+.mkt-check input { width: 16px; height: 16px; accent-color: #f6c453; }
+.mkt-field textarea { width: 100%; resize: vertical; background: rgba(21,18,42,0.8); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 8px 12px; border-radius: 8px; font: inherit; }
+a.luxury-compare-btn { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; }
+.em-fleet-card-footer { flex-wrap: wrap; gap: 10px; }
+.em-fleet-actions-row .em-btn-glass-sm { white-space: nowrap; }

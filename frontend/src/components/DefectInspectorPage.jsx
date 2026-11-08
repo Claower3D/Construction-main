@@ -1594,7 +1594,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
                   <span className="qg-price-tag di-plan-price">{report.estimatedCost}</span>
                   <p className="di-plan-hint">
                     {report.workDays ? `Срок работ: около ${report.workDays} ${report.workDays === 1 ? 'дня' : 'дней'}. ` : ''}
-                    {report.source === 'ai' ? 'Оценка по ценам базы ГЭСН РК.' : 'Ориентировочно, без осмотра.'}
+                    {report.source === 'ai' ? 'Оценка по ценам базы ЭСН РК.' : 'Ориентировочно, без осмотра.'}
                   </p>
                 </section>
                 <section className="di-plan-cell di-plan-norm">

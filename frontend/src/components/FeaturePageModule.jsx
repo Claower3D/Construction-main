@@ -156,7 +156,7 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
 
       setScanStepMessage('Распознавание несущих конструкций и геометрии...');
       await new Promise(r => setTimeout(r, 1200));
-      setScanStepMessage('Применение сметных нормативов (ГЭСН 2026 РК)...');
+      setScanStepMessage('Применение сметных нормативов (ЭСН РК)...');
       await new Promise(r => setTimeout(r, 1500));
       setScanStepMessage('Формирование итогового отчета...');
       await new Promise(r => setTimeout(r, 1000));
@@ -172,7 +172,7 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
       });
       setCalculatedEstimate(est);
     } else {
-      setScanStepMessage('Идёт AI-просчёт по нормам ГЭСН 2026 РК...');
+      setScanStepMessage('Идёт AI-просчёт по нормам ЭСН РК...');
       setTimeout(() => {
         setIsScanning(false);
         setScanStepMessage('');

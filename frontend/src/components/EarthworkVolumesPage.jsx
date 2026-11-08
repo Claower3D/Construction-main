@@ -171,7 +171,7 @@ export default function EarthworkVolumesPage({ onBack, hideHeader = false }) {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
           <div>
             <h1 style={{ margin: 0, fontSize: '1.8rem', fontWeight: 900, color: '#fff' }}>
-              📐 Геодезический 3D-расчёт выемки и насыпи грунта (ГЭСН РК)
+              📐 Геодезический 3D-расчёт выемки и насыпи грунта (ЭСН РК)
             </h1>
             <p style={{ margin: '0.4rem 0 0 0', color: '#a39cc2', fontSize: '0.9rem' }}>
               Точный инженерный расчёт объёмов котлована, коэффициентов разрыхления, смен экскаватора и рейсов самосвалов
@@ -353,7 +353,7 @@ export default function EarthworkVolumesPage({ onBack, hideHeader = false }) {
           <div style={{ background: 'linear-gradient(145deg, rgba(20, 26, 48, 0.95), rgba(12, 16, 32, 0.98))', border: '1px solid rgba(246, 196, 83, 0.3)', borderRadius: '20px', padding: '1.5rem', boxShadow: '0 20px 50px rgba(0,0,0,0.6)' }}>
             <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.25rem', color: '#f59e0b', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <span>📊 Сводка объемов (WBS СНиП РК)</span>
-              <span style={{ fontSize: '0.8rem', color: '#a39cc2', fontWeight: 500 }}>ГЭСН-2026</span>
+              <span style={{ fontSize: '0.8rem', color: '#a39cc2', fontWeight: 500 }}>ЭСН РК</span>
             </h3>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem', marginBottom: '1.2rem' }}>

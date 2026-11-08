@@ -94,7 +94,7 @@ export default function FeatureModuleModal({ moduleId, itemData, onClose, onOpen
           {(moduleId === 'c-estimate' || moduleId === 'e-estimate') && (
             <div className="feature-content-box">
               <h3>📸 Умный AI-Калькулятор оценки стоимости сметы</h3>
-              <p className="sub-text">Выберите параметры объекта или загрузите фото для автоматического расчёта по ГЭСН-2026 РК.</p>
+              <p className="sub-text">Выберите параметры объекта или загрузите фото для автоматического расчёта по ЭСН РК.</p>
 
               <div className="form-grid-2">
                 <div className="form-item">
@@ -130,7 +130,7 @@ export default function FeatureModuleModal({ moduleId, itemData, onClose, onOpen
               </div>
 
               <button className="btn-action-hero" onClick={handleRunAiEstimate} disabled={isScanning}>
-                {isScanning ? '⏳ AI анализирует параметры и базы ГЭСН...' : '🚀 Рассчитать точную смету'}
+                {isScanning ? '⏳ AI анализирует параметры и базы ЭСН РК...' : '🚀 Рассчитать точную смету'}
               </button>
 
               {calculatedEstimate && (

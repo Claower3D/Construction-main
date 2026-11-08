@@ -217,18 +217,15 @@ func GetAllEngineers() ([]*models.Engineer, error) {
 }
 
 func GetAllEquipment() ([]*models.Equipment, error) {
-	rows, err := DB.Query(`SELECT id,name,category,price_per_day,COALESCE(price_per_hour,0),city,status,image,
-		COALESCE(owner_id,''),COALESCE(owner_name,''),COALESCE(owner_phone,''),COALESCE(plate_number,''),COALESCE(capacity,''),
-		COALESCE(rating,0),COALESCE(reviews_count,0) FROM equipment ORDER BY id DESC`)
+	rows, err := DB.Query(`SELECT ` + equipmentCols + ` FROM equipment ORDER BY created_at DESC NULLS LAST, id DESC`)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 	items := []*models.Equipment{}
 	for rows.Next() {
-		e := &models.Equipment{}
-		if err := rows.Scan(&e.ID, &e.Name, &e.Category, &e.PricePerDay, &e.PricePerHour, &e.City, &e.Status, &e.Image,
-			&e.OwnerID, &e.OwnerName, &e.OwnerPhone, &e.PlateNumber, &e.Capacity, &e.Rating, &e.ReviewsCount); err != nil {
+		e, err := scanEquipment(rows)
+		if err != nil {
 			continue
 		}
 		items = append(items, e)
@@ -243,13 +240,12 @@ func AddEquipment(e *models.Equipment) error {
 	if e.Status == "" {
 		e.Status = "Доступен"
 	}
-	if e.Image == "" {
-		e.Image = "https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&w=400&q=80"
-	}
-	_, err := DB.Exec(`INSERT INTO equipment (id,name,category,price_per_day,price_per_hour,city,status,image,owner_id,owner_name,owner_phone,plate_number,capacity,rating,reviews_count)
-		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)`,
+	_, err := DB.Exec(`INSERT INTO equipment (id,name,category,price_per_day,price_per_hour,city,status,image,owner_id,owner_name,owner_phone,
+		plate_number,capacity,rating,reviews_count,description,with_operator,delivery)
+		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18)`,
 		e.ID, e.Name, e.Category, e.PricePerDay, e.PricePerHour, e.City, e.Status, e.Image,
-		e.OwnerID, e.OwnerName, e.OwnerPhone, e.PlateNumber, e.Capacity, e.Rating, e.ReviewsCount)
+		e.OwnerID, e.OwnerName, e.OwnerPhone, e.PlateNumber, e.Capacity, e.Rating, e.ReviewsCount,
+		e.Description, e.WithOperator, e.Delivery)
 	return err
 }
 

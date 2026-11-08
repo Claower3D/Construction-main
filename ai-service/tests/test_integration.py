@@ -74,7 +74,7 @@ def test_city_aliases_and_coefficients(client):
     r = client.post("/api/v1/engineering/sewage", json={"length_m": 10, "city": "Astana"})
     assert r.status_code == 200 and r.json()["regional_coeff"] == 1.15
     r = client.post("/api/v1/engineering/sewage", json={"length_m": 10, "city": "Атырау"})
-    assert r.json()["regional_coeff"] == 1.35
+    assert r.json()["regional_coeff"] == 1.25  # = price_db.json regional_coefficients (было 1.35)
 
 
 @pytest.mark.parametrize("body", [

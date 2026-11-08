@@ -5,7 +5,7 @@ Generates 3 cost scenarios (economy / standard / premium) from estimate items.
 Server-side replacement for frontend smartEstimate.js scenario logic.
 """
 
-from typing import List, Dict, Any, Tuple
+from typing import List, Dict, Any, Tuple, Optional
 from loguru import logger
 
 
@@ -102,11 +102,18 @@ class ScenarioBuilder:
         estimate_total: float,
         estimate_confidence: float = 0.5,
         margin_pct: float = 15.0,
-        tax_pct: float = 12.0,
+        tax_pct: Optional[float] = None,
     ) -> Dict[str, Any]:
         """
         Build scenarios with contractor margin and VAT included.
+
+        Наценка — на сумму без НДС, НДС — на (сумма + наценка). tax_pct по умолчанию берётся из
+        settings.VAT_RATE (16% с 01.01.2026); раньше было зашито 12%, и pipeline (вызывает без tax_pct)
+        считал сценарии по старой ставке.
         """
+        if tax_pct is None:
+            from app.services.estimator import default_vat_pct
+            tax_pct = default_vat_pct()
         scenarios = self.build(estimate_items, estimate_total, estimate_confidence)
 
         for key, scenario in scenarios.items():

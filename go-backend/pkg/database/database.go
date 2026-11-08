@@ -58,6 +58,10 @@ func InitDB(dbURL string) error {
 		return fmt.Errorf("CRM migrations failed: %w", err)
 	}
 
+	if err := runMarketplaceMigrations(); err != nil {
+		return fmt.Errorf("marketplace migrations failed: %w", err)
+	}
+
 	if err := seedData(); err != nil {
 		return fmt.Errorf("seed data failed: %w", err)
 	}

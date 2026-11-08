@@ -32,7 +32,7 @@ function getDefaultNotificationsForRole(userRole) {
     return [
       { id: 'n-adm-1', icon: '🛡️', title: 'Заявка на верификацию ИП', text: 'ИП «ТемирСтрой» отправил документы на проверку ИИН/БИН.', time: '10 мин назад', unread: true, target: 'admin' },
       { id: 'n-adm-2', icon: '⚖️', title: 'Новый арбитражный спор', text: 'Открыта претензия по качеству заливки монолита (DSP-882).', time: '40 мин назад', unread: true, target: 'admin' },
-      { id: 'n-adm-3', icon: '💰', title: 'Обновление ГЭСН 2026', text: 'Индексы удорожания по 17 регионам Казахстана обновлены.', time: '3 часа назад', unread: false, target: 'admin' }
+      { id: 'n-adm-3', icon: '💰', title: 'Обновление ЭСН РК', text: 'Индексы удорожания по 17 регионам Казахстана обновлены.', time: '3 часа назад', unread: false, target: 'admin' }
     ];
   }
   if (userRole === 'executor') {

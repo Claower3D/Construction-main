@@ -166,7 +166,7 @@ export default function SmartDealCreateModal({ onClose, onSave, defaultDate }) {
       } else if (p < 70) {
         setAnalysisStageText('📐 Определение конструкций, диаметра труб и трассировки по СНиП РК...');
       } else if (p < 100) {
-        setAnalysisStageText('⚙️ Составление первичной сметной ведомости ГЭСН РК...');
+        setAnalysisStageText('⚙️ Составление первичной сметной ведомости ЭСН РК...');
       } else {
         p = 100;
         clearInterval(interval);
@@ -442,7 +442,7 @@ export default function SmartDealCreateModal({ onClose, onSave, defaultDate }) {
                     {errors.address && <span className="sd-field-error">{errors.address}</span>}
                   </div>
                   <div className="sd-form-group">
-                    <label>Тип работ (авто-смета ГЭСН РК)</label>
+                    <label>Тип работ (авто-смета ЭСН РК)</label>
                     <select value={jobType} onChange={e => handleJobTypeChange(e.target.value)} className="sd-input sd-select">
                       <option value="Водопровод">Водопровод</option>
                       <option value="Канализация">Канализация</option>
@@ -590,7 +590,7 @@ export default function SmartDealCreateModal({ onClose, onSave, defaultDate }) {
             <div className="sd-total-row">
               <div className="sd-total-info">
                 <span className="sd-total-label">Итоговая расчитанная смета:</span>
-                <span className="sd-total-subtext">Сумма включает ГЭСН РК и материалы</span>
+                <span className="sd-total-subtext">Сумма включает ЭСН РК и материалы</span>
               </div>
               <span className="sd-total-sum">{totalSum.toLocaleString()} ₸</span>
             </div>

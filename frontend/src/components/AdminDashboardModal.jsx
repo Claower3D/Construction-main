@@ -24,10 +24,10 @@ const INITIAL_DOCUMENTS_LIST = [
     status: 'Подписан ЭЦП',
     signedBy: 'Аскаров Б. К. (Гендиректор)',
     items: [
-      { name: 'Устройство монолитных перекрытий 8-12 этажи', unit: 'м³', qty: 180, price: 42000, total: 7560000, code: 'ГЭСН 06-01-005' },
-      { name: 'Монтаж арматурных каркасов А500С Ø16', unit: 'т', qty: 12.5, price: 340000, total: 4250000, code: 'ГЭСН 06-01-015' },
-      { name: 'Опалубочные работы щитовые DOKA/PERI', unit: 'м²', qty: 450, price: 4800, total: 2160000, code: 'ГЭСН 06-01-020' },
-      { name: 'Уход за бетоном и электропрогрев', unit: 'м³', qty: 180, price: 4888, total: 880000, code: 'ГЭСН 06-01-032' }
+      { name: 'Устройство монолитных перекрытий 8-12 этажи', unit: 'м³', qty: 180, price: 42000, total: 7560000, code: 'Поз. 06-01-005' },
+      { name: 'Монтаж арматурных каркасов А500С Ø16', unit: 'т', qty: 12.5, price: 340000, total: 4250000, code: 'Поз. 06-01-015' },
+      { name: 'Опалубочные работы щитовые DOKA/PERI', unit: 'м²', qty: 450, price: 4800, total: 2160000, code: 'Поз. 06-01-020' },
+      { name: 'Уход за бетоном и электропрогрев', unit: 'м³', qty: 180, price: 4888, total: 880000, code: 'Поз. 06-01-032' }
     ]
   },
   {
@@ -48,9 +48,9 @@ const INITIAL_DOCUMENTS_LIST = [
     status: 'Подписан ЭЦП',
     signedBy: 'Хамитов А. (CEO)',
     items: [
-      { name: 'Кладка наружных стен из газоблока D500', unit: 'м³', qty: 140, price: 28000, total: 3920000, code: 'ГЭСН 08-02-001' },
-      { name: 'Утепление фасада минераловатными плитами 100мм', unit: 'м²', qty: 580, price: 6200, total: 3596000, code: 'ГЭСН 12-01-008' },
-      { name: 'Установка оконных блоков ПВХ 5-камерных', unit: 'м²', qty: 65, price: 21900, total: 1424000, code: 'ГЭСН 10-01-034' }
+      { name: 'Кладка наружных стен из газоблока D500', unit: 'м³', qty: 140, price: 28000, total: 3920000, code: 'Поз. 08-02-001' },
+      { name: 'Утепление фасада минераловатными плитами 100мм', unit: 'м²', qty: 580, price: 6200, total: 3596000, code: 'Поз. 12-01-008' },
+      { name: 'Установка оконных блоков ПВХ 5-камерных', unit: 'м²', qty: 65, price: 21900, total: 1424000, code: 'Поз. 10-01-034' }
     ]
   },
   {
@@ -195,10 +195,10 @@ const WBS_GROUPS = [
   { id: 21, name: '21. Ввод в эксплуатацию / Спецработы', icon: '📋', coverage: 75, count: 35, normTypes: 8 },
 ];
 
-// Base Norms Database (ГЭСН / QAZGOST) — Полная база строительных материалов Казахстана 2026
+// Base Norms Database (ЭСН РК / QAZGOST) — Полная база строительных материалов Казахстана 2026
 const BASE_NORMS_LIST = [
   // ═══════════════════════════════════════════════════════════════════════
-  // РАБОТЫ (ГЭСН 2026) — 20 позиций
+  // РАБОТЫ (ЭСН РК) — 20 позиций
   // ═══════════════════════════════════════════════════════════════════════
   { id: 'E15-01-001', name: 'Штукатурка стен цементно-известковым раствором', category: 'Работы', section: 'Черновая отделка', unit: 'м²', laborNorm: 1.45, price: 2850, file: 'GESN-15-2026.xlsx' },
   { id: 'E15-01-002', name: 'Шпатлевка стен гипсовыми смесями в 2 слоя', category: 'Работы', section: 'Чистовая отделка', unit: 'м²', laborNorm: 0.85, price: 1650, file: 'GESN-15-2026.xlsx' },
@@ -881,7 +881,7 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
   const handleResetPrices = () => {
     if (window.confirm('Сбросить все пользовательские расценки к базам по умолчанию?')) {
       setPricesList(BASE_NORMS_LIST);
-      logAuditAction('update', 'Сброс цен и расценок к базам по умолчанию ГЭСН 2026', 'Прайсы');
+      logAuditAction('update', 'Сброс цен и расценок к базам по умолчанию ЭСН РК', 'Прайсы');
       setAuditLogsList(getAuditLogs());
     }
   };
@@ -1183,7 +1183,7 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
                 <div className="target-header-row">
                   <div>
                     <h3 className="admin-box-title">📊 Совокупный объём базы строительных нормативов РК</h3>
-                    <p className="admin-box-sub">Целевой показатель наполнения сметной базы: 33 000 позиций (ГЭСН/СНиП 2026)</p>
+                    <p className="admin-box-sub">Целевой показатель наполнения сметной базы: 33 000 позиций (ЭСН РК/СНиП 2026)</p>
                   </div>
                   <div className="target-count-badge">
                     <span>14 750</span> / 33 000 позиций (44.7%)
@@ -1202,7 +1202,7 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
                     <span className="card-icon-emoji">🔧</span>
                     <span className="target-chip">Цель: 20 000</span>
                   </div>
-                  <div className="admin-stat-title">Работы (ГЭСН-2026)</div>
+                  <div className="admin-stat-title">Работы (ЭСН РК)</div>
                   <div className="admin-stat-value">8 240 позиций</div>
                   <div className="admin-stat-sub">145 файлов источников • Нажмите для перехода ➔</div>
                 </div>
@@ -2933,7 +2933,7 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
             <h3 className="modal-title">{editingPriceItem ? '✏️ Редактирование расценки' : '✨ Добавление новой расценки'}</h3>
             <form onSubmit={handleSavePriceForm}>
               <div className="form-group">
-                <label>Код ГЭСН / Идентификатор</label>
+                <label>Код ЭСН РК / Идентификатор</label>
                 <input type="text" value={priceForm.id} onChange={(e) => setPriceForm({ ...priceForm, id: e.target.value })} required />
               </div>
               <div className="form-group">

@@ -220,7 +220,7 @@ export default function EngineeringCalcPage({ onBack }) {
               </div>
               <div className="ec-total-price">
                 <span className="qg-price-tag ec-price-big">{formatPrice(result.grand_total)} ₸</span>
-                <span className="ec-total-vat">с НДС 12%: {formatPrice(result.grand_total * 1.12)} ₸</span>
+                <span className="ec-total-vat">с НДС 16%: {formatPrice(result.grand_total * 1.16)} ₸</span>
               </div>
             </div>
 

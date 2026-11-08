@@ -3,8 +3,10 @@ package services
 import (
 	"encoding/json"
 	"log"
+	"math"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	"sync"
 )
@@ -18,13 +20,17 @@ type PriceItem struct {
 	Category string  `json:"category"`
 	Source   string  `json:"source,omitempty"`
 	Type     string  `json:"type"` // "work", "material", "equipment"
+	// QA: "" (ok), "corrected" (price fixed by tools/pricedb/calibrate.py), "suspect" (outside the reference corridor)
+	QA       string  `json:"qa,omitempty"`
+	PriceRaw float64 `json:"priceRaw,omitempty"`
+	dup      bool    // a non-canonical duplicate (same type+name+unit as another item)
 }
 
 // RawPriceDB represents the raw JSON structure of price_db.json
 type RawPriceDB struct {
 	Version              string                            `json:"version"`
 	ExportedAt           string                            `json:"exported_at"`
-	RegionalCoefficients map[string]float64               `json:"regional_coefficients"`
+	RegionalCoefficients map[string]float64                `json:"regional_coefficients"`
 	Works                map[string]map[string]interface{} `json:"works"`
 	Materials            map[string]map[string]interface{} `json:"materials"`
 	Equipment            map[string]map[string]interface{} `json:"equipment"`
@@ -40,6 +46,7 @@ type PriceDBService struct {
 	coefficients map[string]float64
 	version      string
 	totalCount   int
+	audit        map[string]interface{}
 }
 
 var (
@@ -142,6 +149,10 @@ func (s *PriceDBService) LoadDatabase() {
 	s.parseCategoryMap(raw.Materials, "material")
 	// Parse Equipment
 	s.parseCategoryMap(raw.Equipment, "equipment")
+	if a, ok := raw.Stats["audit"].(map[string]interface{}); ok {
+		s.audit = a
+	}
+	s.finalize()
 
 	s.totalCount = len(s.items)
 	log.Printf("✅ [PriceDB] Loaded %d items (%s) from %s", s.totalCount, s.version, loadedPath)
@@ -161,6 +172,8 @@ func (s *PriceDBService) parseCategoryMap(data map[string]map[string]interface{}
 		case int:
 			price = float64(p)
 		}
+		qa, _ := val["qa"].(string)
+		priceRaw, _ := val["priceRaw"].(float64)
 
 		if name == "" {
 			name = code
@@ -177,6 +190,8 @@ func (s *PriceDBService) parseCategoryMap(data map[string]map[string]interface{}
 			Category: category,
 			Source:   source,
 			Type:     itemType,
+			QA:       qa,
+			PriceRaw: priceRaw,
 		}
 
 		s.items = append(s.items, item)
@@ -185,18 +200,62 @@ func (s *PriceDBService) parseCategoryMap(data map[string]map[string]interface{}
 	}
 }
 
+// finalize sorts items deterministically (map order is random) and marks duplicates:
+// for every (type, name, unit) group the item with the median price is canonical.
+func (s *PriceDBService) finalize() {
+	sort.SliceStable(s.items, func(i, j int) bool {
+		a, b := s.items[i], s.items[j]
+		if a.Type != b.Type {
+			return a.Type < b.Type
+		}
+		if a.Category != b.Category {
+			return a.Category < b.Category
+		}
+		if a.Name != b.Name {
+			return a.Name < b.Name
+		}
+		return a.Code < b.Code
+	})
+	groups := map[string][]int{}
+	for i, it := range s.items {
+		key := it.Type + "|" + strings.ToLower(strings.Join(strings.Fields(it.Name), " ")) + "|" + it.Unit
+		groups[key] = append(groups[key], i)
+	}
+	for _, idx := range groups {
+		if len(idx) < 2 {
+			continue
+		}
+		cand := make([]int, 0, len(idx))
+		for _, i := range idx {
+			if s.items[i].QA != "suspect" {
+				cand = append(cand, i)
+			}
+		}
+		if len(cand) == 0 {
+			cand = idx
+		}
+		sort.SliceStable(cand, func(a, b int) bool { return s.items[cand[a]].Price < s.items[cand[b]].Price })
+		keep := cand[len(cand)/2]
+		for _, i := range idx {
+			if i != keep {
+				s.items[i].dup = true
+			}
+		}
+	}
+}
+
 func (s *PriceDBService) loadFallbackData() {
 	fallbackWorks := []PriceItem{
-		{Code: "GESN-01-01-001", Name: "Разработка грунта механизированным способом в траншеях", Unit: "м³", Price: 3500, Category: "Земляные работы", Type: "work"},
-		{Code: "GESN-06-01-003", Name: "Устройство песчано-гравийного основания под фундамент", Unit: "м³", Price: 8500, Category: "Фундаменты", Type: "work"},
-		{Code: "GESN-06-01-001", Name: "Устройство ленточного монолитного ж/б фундамента В25", Unit: "м³", Price: 42000, Category: "Фундаменты", Type: "work"},
-		{Code: "GESN-08-02-001", Name: "Кладка стен из кирпича керамического М150", Unit: "м³", Price: 38000, Category: "Стены и перегородки", Type: "work"},
-		{Code: "GESN-12-01-001", Name: "Устройство плоской кровли из рулонных материалов", Unit: "м²", Price: 6500, Category: "Кровля", Type: "work"},
-		{Code: "GESN-15-01-001", Name: "Штукатурка стен цементно-песчаным раствором", Unit: "м²", Price: 2800, Category: "Отделка", Type: "work"},
-		{Code: "FSSC-01-01-001", Name: "Кирпич керамический одинарный полнотелый М150", Unit: "шт", Price: 120, Category: "Материалы", Type: "material"},
-		{Code: "FSSC-04-01-001", Name: "Бетон тяжелый класса В25 (М350)", Unit: "м³", Price: 26000, Category: "Материалы", Type: "material"},
-		{Code: "EM-01-01-001", Name: "Экскаватор гусеничный 1.0 м³ (аренда)", Unit: "маш-час", Price: 18000, Category: "Спецтехника", Type: "equipment"},
-		{Code: "EM-01-02-001", Name: "Автобетононасос 36м", Unit: "маш-час", Price: 25000, Category: "Спецтехника", Type: "equipment"},
+		{Code: "QG-W-01-01-001", Name: "Разработка грунта механизированным способом в траншеях", Unit: "м³", Price: 3500, Category: "Земляные работы", Type: "work"},
+		{Code: "QG-W-06-01-003", Name: "Устройство песчано-гравийного основания под фундамент", Unit: "м³", Price: 8500, Category: "Фундаменты", Type: "work"},
+		{Code: "QG-W-06-01-001", Name: "Устройство ленточного монолитного ж/б фундамента В25", Unit: "м³", Price: 42000, Category: "Фундаменты", Type: "work"},
+		{Code: "QG-W-08-02-001", Name: "Кладка стен из кирпича керамического М150", Unit: "м³", Price: 38000, Category: "Стены и перегородки", Type: "work"},
+		{Code: "QG-W-12-01-001", Name: "Устройство плоской кровли из рулонных материалов", Unit: "м²", Price: 6500, Category: "Кровля", Type: "work"},
+		{Code: "QG-W-15-01-001", Name: "Штукатурка стен цементно-песчаным раствором", Unit: "м²", Price: 2800, Category: "Отделка", Type: "work"},
+		{Code: "QG-M-01-01-001", Name: "Кирпич керамический одинарный полнотелый М150", Unit: "шт", Price: 120, Category: "Материалы", Type: "material"},
+		{Code: "QG-M-04-01-001", Name: "Бетон тяжелый класса В25 (М350)", Unit: "м³", Price: 26000, Category: "Материалы", Type: "material"},
+		{Code: "QG-E-01-01-001", Name: "Экскаватор гусеничный 1.0 м³ (аренда)", Unit: "маш-час", Price: 18000, Category: "Спецтехника", Type: "equipment"},
+		{Code: "QG-E-01-02-001", Name: "Автобетононасос 36м", Unit: "маш-час", Price: 25000, Category: "Спецтехника", Type: "equipment"},
 	}
 
 	for _, item := range fallbackWorks {
@@ -206,6 +265,7 @@ func (s *PriceDBService) loadFallbackData() {
 	}
 	// Same base as price_db.json / README: Алматы = 1.00
 	s.coefficients = map[string]float64{"Астана": 1.15, "Алматы": 1.00, "Шымкент": 0.95}
+	s.finalize()
 	s.totalCount = len(s.items)
 }
 
@@ -217,6 +277,14 @@ type SearchParams struct {
 	Region   string
 	Limit    int
 	Offset   int
+	// Sort: "" (catalogue order), "price_asc", "price_desc", "name"
+	Sort     string
+	MinPrice float64 // after the regional coefficient; 0 = no limit
+	MaxPrice float64
+	// IncludeSuspect returns items whose price failed the sanity check (hidden by default)
+	IncludeSuspect bool
+	// Unique hides duplicates (same type+name+unit) — one row per material
+	Unique bool
 }
 
 // SearchResult holds search query response
@@ -256,8 +324,15 @@ func (s *PriceDBService) Search(params SearchParams) SearchResult {
 		}
 	}
 
+	terms := strings.Fields(q)
 	var matched []PriceItem
 	for _, item := range s.items {
+		if item.QA == "suspect" && !params.IncludeSuspect {
+			continue
+		}
+		if item.dup && params.Unique {
+			continue
+		}
 		// Type filter
 		if itemType != "" && item.Type != itemType {
 			continue
@@ -267,21 +342,42 @@ func (s *PriceDBService) Search(params SearchParams) SearchResult {
 			continue
 		}
 		// Text Query filter
-		if q != "" {
-			nameLower := strings.ToLower(item.Name)
-			codeLower := strings.ToLower(item.Code)
-			catLower := strings.ToLower(item.Category)
-
-			if !strings.Contains(nameLower, q) && !strings.Contains(codeLower, q) && !strings.Contains(catLower, q) {
+		// every word of the query must occur in name, code or category ("кирпич м150" finds "Кирпич керамич. одинарный М150")
+		if len(terms) > 0 {
+			hay := strings.ToLower(item.Name + " " + item.Code + " " + item.Category)
+			hay = strings.ReplaceAll(hay, "ё", "е")
+			ok := true
+			for _, t := range terms {
+				if !strings.Contains(hay, strings.ReplaceAll(t, "ё", "е")) {
+					ok = false
+					break
+				}
+			}
+			if !ok {
 				continue
 			}
 		}
 
 		adjustedItem := item
 		if regionCoef != 1.0 {
-			adjustedItem.Price = float64(int(item.Price * regionCoef))
+			adjustedItem.Price = math.Round(item.Price * regionCoef)
+		}
+		if params.MinPrice > 0 && adjustedItem.Price < params.MinPrice {
+			continue
+		}
+		if params.MaxPrice > 0 && adjustedItem.Price > params.MaxPrice {
+			continue
 		}
 		matched = append(matched, adjustedItem)
+	}
+
+	switch params.Sort {
+	case "price_asc":
+		sort.SliceStable(matched, func(i, j int) bool { return matched[i].Price < matched[j].Price })
+	case "price_desc":
+		sort.SliceStable(matched, func(i, j int) bool { return matched[i].Price > matched[j].Price })
+	case "name":
+		sort.SliceStable(matched, func(i, j int) bool { return matched[i].Name < matched[j].Name })
 	}
 
 	filteredTotal := len(matched)
@@ -319,7 +415,7 @@ func (s *PriceDBService) GetByCode(code string, region string) (PriceItem, bool)
 
 	if region != "" {
 		if coef, hasCoef := s.coefficients[region]; hasCoef {
-			item.Price = float64(int(item.Price * coef))
+			item.Price = math.Round(item.Price * coef)
 		}
 	}
 	return item, true
@@ -335,7 +431,9 @@ func (s *PriceDBService) GetStats() map[string]interface{} {
 		"version":      s.version,
 		"categories":   s.categories,
 		"regionsCount": len(s.coefficients),
-		"normative":    "ГЭСН / СНиП РК 2026",
+		// Ориентировочные рыночные цены; методика сметы — НДЦС РК 8.01-08-2022, нормы расхода — ЭСН РК 8.04-01-2022
+		"normative": "Рыночные цены РК 2026 (ориентир); методика НДЦС РК 8.01-08-2022",
+		"audit":     s.audit,
 	}
 }
 
