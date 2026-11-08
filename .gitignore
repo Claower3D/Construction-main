@@ -49,3 +49,4 @@ ai-service/runs/
 __pycache__/
 *.pyc
 QazGost-iOS.zip
+_to_delete/
