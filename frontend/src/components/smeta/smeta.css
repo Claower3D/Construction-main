@@ -177,7 +177,9 @@
 .sm-sources li { display: flex; justify-content: space-between; gap: 1rem; }
 .sm-sources a, .sm-table a { color: #93c5fd; }
 .sm-src-links { display: flex; flex-wrap: wrap; gap: 0.2rem 0.8rem; font-size: 0.74rem; margin-top: 0.15rem; }
-.sm-sources small { color: #8f88ad; }
+.sm-sources li > span { min-width: 0; }
+.sm-src-links a { overflow-wrap: anywhere; }
+.sm-sources small { color: #8f88ad; flex-shrink: 0; white-space: nowrap; }
 
 .sm-actions { margin-top: 1.2rem; padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.08); display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.6rem; }
 .sm-actions button { padding: 0.8rem 1rem; border-radius: 11px; font-weight: 800; font-size: 0.88rem; cursor: pointer; border: 1px solid rgba(255, 255, 255, 0.14); background: rgba(255, 255, 255, 0.05); color: #fff; }
