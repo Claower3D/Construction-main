@@ -4,7 +4,7 @@ import { navigateTo, openAuth } from '../utils/navigate';
 import './AiAssistantWidget.css';
 
 /*
- * Арман — ИИ-инженер QazGost.
+ * Ассистент — ИИ-инженер QazGost.
  * Живой аватар: дыхание, моргание, движение губ во время ответа, параллакс за курсором.
  * Ответы — POST /api/v1/ai/assistant (стриминг SSE): OpenAI + реальные цены из базы,
  * без ключа — база знаний платформы.
@@ -14,7 +14,7 @@ const IMG = '/assistant/guide';
 const STORE = 'qg_arman_chat_v1';
 const GREETING = {
   role: 'assistant',
-  content: 'Сәлем! Я Арман, ИИ-инженер QazGost. Подскажу цены на работы и материалы, посчитаю смету по фото, найду бригаду или спецтехнику. С чего начнём?',
+  content: 'Сәлем! Я ИИ-ассистент QazGost. Подскажу цены на работы и материалы, посчитаю смету по фото, найду бригаду или спецтехнику. С чего начнём?',
 };
 const QUICK = [
   'Сколько стоит стяжка пола?',
@@ -76,7 +76,7 @@ function CraneIcon(props) {
   );
 }
 
-// Панель-кольцо, которую Арман вращает рукой. Каждая плитка — раздел платформы.
+// Панель-кольцо, которую ассистент вращает рукой. Каждая плитка — раздел платформы.
 const TILES = [
   { Icon: Calculator, label: 'Калькулятор', ask: 'Как посчитать сечение кабеля и отопление?' },
   { Icon: HardHat, label: 'Бригады', ask: 'Нужна бригада на ремонт' },
@@ -419,11 +419,11 @@ export default function AiAssistantWidget() {
   return (
     <div className="arm-widget">
       {open && (
-        <section className="arm-window" role="dialog" aria-label="Чат с ИИ-инженером Арманом">
+        <section className="arm-window" role="dialog" aria-label="Чат с ИИ-ассистентом QazGost">
           <header className="arm-head">
             <ArmanAvatar talking={talking} />
             <div className="arm-head-text">
-              <h2 className="arm-name">Арман <span>ИИ-инженер QazGost</span></h2>
+              <h2 className="arm-name">Ассистент <span>ИИ-инженер QazGost</span></h2>
               <p className={`arm-status${busy || streaming || speaking || listening ? ' is-active' : ''}`}><i />{status}</p>
             </div>
             <div className="arm-tools">
@@ -445,7 +445,7 @@ export default function AiAssistantWidget() {
                 </div>
               )
             ))}
-            {busy && <div className="arm-msg arm-msg--ai arm-typing" aria-label="Арман печатает"><span /><span /><span /></div>}
+            {busy && <div className="arm-msg arm-msg--ai arm-typing" aria-label="Ассистент печатает"><span /><span /><span /></div>}
             {userCount === 0 && (
               <div className="arm-quick">
                 {QUICK.map((q) => <button key={q} type="button" onClick={() => send(q)}>{q}</button>)}
@@ -459,7 +459,7 @@ export default function AiAssistantWidget() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder={listening ? 'Говорите…' : 'Спросите про цены, смету, бригаду…'}
-              aria-label="Сообщение Арману"
+              aria-label="Сообщение ассистенту"
               maxLength={1000}
             />
             {hasSR && (
@@ -477,7 +477,7 @@ export default function AiAssistantWidget() {
       {teaser && !open && (
         <div className="arm-teaser">
           <button type="button" className="arm-teaser-msg" onClick={() => setOpen(true)}>
-            Сәлем! Я Арман. Посчитать смету или подсказать цены?
+            Сәлем! Я ИИ-ассистент. Посчитать смету или подсказать цены?
           </button>
           <button type="button" className="arm-teaser-x" aria-label="Скрыть подсказку" onClick={() => setTeaser(false)}>×</button>
         </div>
@@ -489,7 +489,7 @@ export default function AiAssistantWidget() {
           className="arm-trigger"
           onClick={() => setOpen((v) => !v)}
           aria-expanded={open}
-          aria-label={open ? 'Свернуть чат с Арманом' : 'Открыть чат с ИИ-инженером Арманом'}
+          aria-label={open ? 'Свернуть чат с ассистентом' : 'Открыть чат с ИИ-ассистентом'}
         >
           <span className="arm-label">
             <span className="arm-online" />
