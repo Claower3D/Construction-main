@@ -52,6 +52,7 @@ func main() {
 	engineersHnd := handlers.NewEngineersHandler()
 	financeHnd := handlers.NewFinanceHandler()
 	pricesHnd := handlers.NewPricesHandler()
+	smetaHnd := handlers.NewSmetaHandler()
 	chatHnd := handlers.NewChatHandler()
 	filesHnd := handlers.NewFilesHandler(cfg)
 	equipmentHnd := handlers.NewEquipmentHandler()
@@ -75,6 +76,10 @@ func main() {
 	mux.HandleFunc("/api/v1/prices", pricesHnd.GetPrices)
 	mux.HandleFunc("/api/v1/prices/stats", pricesHnd.GetStats)
 	mux.HandleFunc("/api/v1/prices/regions", pricesHnd.GetRegions)
+
+	// Смета по технологическим картам и реальным ценам — публичный расчёт без БД
+	mux.HandleFunc("/api/v1/estimate/techmaps", smetaHnd.TechMaps)
+	mux.HandleFunc("/api/v1/estimate/calc", middleware.RateLimit(60, time.Minute, smetaHnd.Calc))
 
 	// Equipment marketplace — public GET (token optional: owner=me, phones), writes require auth
 	mux.HandleFunc("/api/v1/equipment", func(w http.ResponseWriter, r *http.Request) {
@@ -310,7 +315,7 @@ func main() {
 
 // dbFreePrefixes: endpoints that work without PostgreSQL (price catalog, AI, health)
 var dbFreePrefixes = []string{
-	"/health", "/api/csrf-token", "/api/v1/prices", "/api/v1/ai/", "/api/v1/engineering/",
+	"/health", "/api/csrf-token", "/api/v1/prices", "/api/v1/estimate/", "/api/v1/ai/", "/api/v1/engineering/",
 	"/api/v1/lidar/", "/api/v1/defect-scan", "/api/v1/analyze", "/api/v1/speech/", "/uploads/",
 }
 

@@ -144,7 +144,7 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
 
     customer: [
       { id: 'c-materials', title: 'Маркетплейс материалов', icon: '🧱', desc: 'Оптовые и розничные стройматериалы от заводов РК: цемент, кирпич, арматура, смеси', btnText: '🧱 Открыть маркетплейс', btnGradient: 'linear-gradient(90deg, #10b981, #8b5cf6)' },
-      { id: 'c-estimate', title: 'Оценка стоимости', icon: '📊', desc: 'Загрузите фото — получите смету с тремя сценариями цены', btnText: '🚀 Начать оценку', btnGradient: 'linear-gradient(90deg, #b9a4ff, #7c3aed)' },
+      { id: 'c-estimate', title: 'Оценка стоимости', icon: '📊', desc: 'Обмерьте помещение — смета по техкартам и ценам с источниками, три сценария', btnText: '🚀 Начать оценку', btnGradient: 'linear-gradient(90deg, #b9a4ff, #7c3aed)' },
       { id: 'c-inspect', title: 'Проверка дефектов', icon: '🔍', desc: 'Трещины на фото, акт с нормативами СНиП и ГОСТ и ценой ремонта', btnText: '🔍 Начать проверку', btnGradient: 'linear-gradient(90deg, #f59e0b, #ef4444)' },
       { id: 'c-vip', title: 'Строительство зданий', icon: '🏗️', desc: 'ПСД, ВВР-документация, сметы полного цикла и генподряд VIP', btnText: '⭐ Открыть', btnGradient: 'linear-gradient(90deg, #6366f1, #7c3aed)' },
       { id: 'c-engineering', title: 'Инженерные решения', icon: '⚙️', desc: 'Электрика, сантехника, HVAC, слаботочные системы и технадзор', btnText: '⚡ Выбрать', btnGradient: 'linear-gradient(90deg, #b9a4ff, #ddd6fe)' },
@@ -161,7 +161,7 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
       { id: 'e-materials', title: 'Маркетплейс материалов', icon: '🧱', desc: 'Оптовый закуп стройматериалов со скидками до 20% для подрядчиков', btnText: '🧱 Закуп материалов', btnGradient: 'linear-gradient(90deg, #10b981, #8b5cf6)' },
       { id: 'e-feed', title: 'Лента заказов', icon: '🌐', desc: 'Живой поток заказов со всего Казахстана без посредников и комиссий', btnText: '🌐 Смотреть заказы', btnGradient: 'linear-gradient(90deg, #b9a4ff, #7c3aed)' },
       { id: 'e-works', title: 'Мои работы', icon: '📌', desc: 'Портфолио, текущие объекты и онлайн-сдача этапов заказчику', btnText: '📌 Мои объекты', btnGradient: 'linear-gradient(90deg, #ef4444, #f59e0b)' },
-      { id: 'e-estimate', title: 'Оценка стоимости', icon: '📸', desc: 'Калькулятор сметных расходов по расценкам ЭСН РК', btnText: '🚀 Сметный расчёт', btnGradient: 'linear-gradient(90deg, #b9a4ff, #7c3aed)' },
+      { id: 'e-estimate', title: 'Оценка стоимости', icon: '📸', desc: 'Смета по технологическим картам и рыночным ценам с источниками', btnText: '🚀 Сметный расчёт', btnGradient: 'linear-gradient(90deg, #b9a4ff, #7c3aed)' },
       { id: 'e-inspect', title: 'Проверка дефектов', icon: '🔍', desc: 'Экспертная проверка состояния конструкций и дефектоскопия', btnText: '🔍 Проверить дефекты', btnGradient: 'linear-gradient(90deg, #f59e0b, #ef4444)' },
       { id: 'e-soil', title: 'Фото-объёмы грунта', icon: '📐', desc: 'Геодезический 3D-расчёт выемки и насыпи грунта по фото ДО/ПОСЛЕ', btnText: '📸 Рассчитать объём', btnGradient: 'linear-gradient(90deg, #10b981, #a78bfa)' },
       { id: 'e-engineering', title: 'Инженерные решения', icon: '⚙️', desc: 'Техническая спецификация работ и схемы разводки сетей', btnText: '⚡ Спецификация', btnGradient: 'linear-gradient(90deg, #b9a4ff, #ddd6fe)' },

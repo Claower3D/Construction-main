@@ -7,18 +7,13 @@ import UserOrdersPage from './UserOrdersPage';
 import EngineeringSolutionsPage from './EngineeringSolutionsPage';
 import DefectInspectorPage from './DefectInspectorPage';
 import BuildingConstructionPage from './BuildingConstructionPage';
+import SmartPhotoEstimatePage from './SmartPhotoEstimatePage';
 
 export default function FeatureModuleModal({ moduleId, itemData, onClose, onOpenAdminTab }) {
   // Common states for interactive forms
   const [photoUploaded, setPhotoUploaded] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
   const [scanResult, setScanResult] = useState(null);
-
-  // Estimate calculator states
-  const [area, setArea] = useState(65);
-  const [propertyType, setPropertyType] = useState('квартира');
-  const [qualityLevel, setQualityLevel] = useState('комфорт');
-  const [calculatedEstimate, setCalculatedEstimate] = useState(null);
 
   // Order submission proposal state
   const [appliedOrders, setAppliedOrders] = useState({});
@@ -30,21 +25,6 @@ export default function FeatureModuleModal({ moduleId, itemData, onClose, onOpen
   if (!moduleId) return null;
 
   // Handlers
-  const handleRunAiEstimate = () => {
-    setIsScanning(true);
-    setTimeout(() => {
-      setIsScanning(false);
-      const rate = propertyType === 'дом' ? 45000 : qualityLevel === 'премиум' ? 55000 : 32000;
-      const total = area * rate;
-      setCalculatedEstimate({
-        total,
-        worksCost: Math.round(total * 0.65),
-        materialsCost: Math.round(total * 0.35),
-        timelineDays: Math.round(area * 0.8),
-      });
-    }, 1200);
-  };
-
   const handleRunDefectInspect = () => {
     setIsScanning(true);
     setTimeout(() => {
@@ -92,59 +72,7 @@ export default function FeatureModuleModal({ moduleId, itemData, onClose, onOpen
         <div className="feature-modal-body">
           {/* 1. ESTIMATE CALCULATOR (c-estimate / e-estimate) */}
           {(moduleId === 'c-estimate' || moduleId === 'e-estimate') && (
-            <div className="feature-content-box">
-              <h3>📸 Умный AI-Калькулятор оценки стоимости сметы</h3>
-              <p className="sub-text">Выберите параметры объекта или загрузите фото для автоматического расчёта по ЭСН РК.</p>
-
-              <div className="form-grid-2">
-                <div className="form-item">
-                  <label>Тип объекта:</label>
-                  <select value={propertyType} onChange={(e) => setPropertyType(e.target.value)}>
-                    <option value="квартира">🏢 Квартира (Вторичка/Новостройка)</option>
-                    <option value="дом">🏠 Частный дом / Коттедж</option>
-                    <option value="офис">🏬 Офис / Коммерческое помещение</option>
-                  </select>
-                </div>
-
-                <div className="form-item">
-                  <label>Уровень отделки:</label>
-                  <select value={qualityLevel} onChange={(e) => setQualityLevel(e.target.value)}>
-                    <option value="эконом">Базовый / Эконом</option>
-                    <option value="комфорт">Стандарт / Комфорт</option>
-                    <option value="премиум">Дизайнерский / Премиум</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="form-item" style={{ marginTop: '1rem' }}>
-                <label>Площадь помещения: <strong>{area} м²</strong></label>
-                <input type="range" min="10" max="500" value={area} onChange={(e) => setArea(parseInt(e.target.value))} className="range-slider" />
-              </div>
-
-              <div className="photo-upload-dropzone" onClick={() => setPhotoUploaded(true)}>
-                <span className="drop-icon">📷</span>
-                <div>
-                  <strong>{photoUploaded ? '✅ Фото объекта успешно прикреплено' : 'Перетащите сюда фото объекта или нажмите для выбора'}</strong>
-                  <div className="small-text">AI автоматически распознает геометрию стен и текущее состояние</div>
-                </div>
-              </div>
-
-              <button className="btn-action-hero" onClick={handleRunAiEstimate} disabled={isScanning}>
-                {isScanning ? '⏳ AI анализирует параметры и базы ЭСН РК...' : '🚀 Рассчитать точную смету'}
-              </button>
-
-              {calculatedEstimate && (
-                <div className="result-card-glow">
-                  <h4>📊 Итоговый расчёт стоимости сметы:</h4>
-                  <div className="big-price">{calculatedEstimate.total.toLocaleString()} ₸</div>
-                  <div className="calc-details-grid">
-                    <div><span>Стоимость работ:</span> <strong>{calculatedEstimate.worksCost.toLocaleString()} ₸</strong></div>
-                    <div><span>Стоимость материалов:</span> <strong>{calculatedEstimate.materialsCost.toLocaleString()} ₸</strong></div>
-                    <div><span>Срок выполнения:</span> <strong>~{calculatedEstimate.timelineDays} дней</strong></div>
-                  </div>
-                </div>
-              )}
-            </div>
+            <SmartPhotoEstimatePage onBack={onClose} hideHeader={true} />
           )}
 
           {/* 2. DEFECT INSPECTOR (c-inspect / e-inspect) */}

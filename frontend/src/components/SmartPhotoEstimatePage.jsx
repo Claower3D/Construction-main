@@ -1,76 +1,86 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { createPlatformOrder } from '../services/orderSyncService';
-import { jsonAuthHeaders, csvCell } from '../services/platformUtils';
-import { generateDetailedEstimate, SCENARIO_COEFFICIENTS, COMPLEX_TEMPLATES } from '../data/estimateTemplates';
+import { jsonAuthHeaders } from '../services/platformUtils';
+import { COMPLEX_TEMPLATES } from '../data/estimateTemplates';
+import ContourMeasure from './smeta/ContourMeasure';
+import SmetaParams, { buildParams } from './smeta/SmetaParams';
+import SmetaResultView from './smeta/SmetaResultView';
+import { loadTechmaps, calcSmeta, detectCategory, smetaToCSV, downloadText, fmt } from './smeta/smetaApi';
 import './SmartPhotoEstimatePage.css';
+import './smeta/smeta.css';
 
 const isRealOpenAIKey = (k) => typeof k === 'string' && /^sk-[A-Za-z0-9_-]{10,}/.test(k.trim());
-
-const SCENARIO_INDEX = { economy: 0, standard: 1, premium: 2 };
-
-// Позиции сметы с сервера (AI: volume/unit_price; серверный сметчик: quantity/unitPrice/type) → единый формат UI
-function normalizeServerItems(items) {
-  if (!Array.isArray(items)) return [];
-  const typeGroup = { work: 'Работы', material: 'Материалы', equipment: 'Техника' };
-  return items.filter(Boolean).map((it) => {
-    const volume = Number(it.volume ?? it.quantity ?? 1) || 0;
-    const unitPrice = Number(it.unit_price ?? it.unitPrice ?? 0) || 0;
-    return {
-      name: String(it.name || 'Позиция'),
-      unit: it.unit || 'ед.',
-      volume: Math.round(volume * 100) / 100,
-      unit_price: Math.round(unitPrice),
-      total: Math.round(Number(it.total) || volume * unitPrice),
-      isMaterial: it.type === 'material' || !!it.isMaterial,
-      group: it.stage || it.group || typeGroup[it.type] || undefined,
-    };
-  });
-}
-
-function mapServerScenario(sc) {
-  return {
-    total: Math.round(Number(sc.totalCost) || 0),
-    worksCost: Math.round(Number(sc.worksCost) || 0),
-    materialsCost: Math.round(Number(sc.materialsCost) || 0),
-    equipmentCost: Math.round(Number(sc.equipmentCost) || 0),
-    timelineDays: sc.timelineDays || 7,
-    items: normalizeServerItems(sc.items),
-    scenarioLabel: sc.name || 'Стандарт',
-  };
-}
 
 const SYSTEM_OPENAI_PRESETS = {
   KEY_1_VISION_DEFECT: 'system-key-1-vision',
   KEY_2_DETAILED_ESTIMATE: 'system-key-2-detailed'
 };
 
-const REGIONS = [
-  { id: 'almaty', name: 'Алматы', coeff: 1.00 },
-  { id: 'astana', name: 'Астана', coeff: 1.15 },
-  { id: 'shymkent', name: 'Шымкент', coeff: 0.95 },
-  { id: 'atyrau', name: 'Атырау', coeff: 1.30 },
-  { id: 'aktau', name: 'Актау', coeff: 1.25 },
-  { id: 'karaganda', name: 'Караганда', coeff: 1.05 },
-  { id: 'aktobe', name: 'Актобе', coeff: 1.10 },
-  { id: 'pavlodar', name: 'Павлодар', coeff: 1.08 },
-  { id: 'ust-kamenogorsk', name: 'Усть-Каменогорск', coeff: 1.12 },
-  { id: 'semey', name: 'Семей', coeff: 1.05 },
-  { id: 'kostanay', name: 'Костанай', coeff: 1.05 },
-  { id: 'petropavlovsk', name: 'Петропавловск', coeff: 1.08 },
-  { id: 'uralsk', name: 'Уральск', coeff: 1.10 },
-  { id: 'taldykorgan', name: 'Талдыкорган', coeff: 0.95 },
-  { id: 'turkestan', name: 'Туркестан', coeff: 0.90 },
-  { id: 'kyzylorda', name: 'Кызылорда', coeff: 1.05 },
-  { id: 'taraz', name: 'Тараз', coeff: 0.95 },
+// Старые идентификаторы регионов (сохранены у пользователей в localStorage) → название города
+const LEGACY_REGION_IDS = {
+  almaty: 'Алматы', astana: 'Астана', shymkent: 'Шымкент', atyrau: 'Атырау', aktau: 'Актау', karaganda: 'Караганда',
+  aktobe: 'Актобе', pavlodar: 'Павлодар', 'ust-kamenogorsk': 'Усть-Каменогорск', semey: 'Семей', kostanay: 'Костанай',
+  petropavlovsk: 'Петропавловск', uralsk: 'Уральск', taldykorgan: 'Талдыкорган', turkestan: 'Туркестан',
+  kyzylorda: 'Кызылорда', taraz: 'Тараз',
+};
+
+const MODES = [
+  { id: 'fast', title: 'Быстрый', points: ['объёмы по обмеру и нормам расхода', 'цена и источник в каждой строке', 'три сценария с разным составом работ'] },
+  { id: 'detailed', title: 'Детальный', points: ['всё из быстрого', 'проверка геометрии и рыночного ориентира', 'сверка цен с базой QazGost', 'ИИ-разбор фото, если подключён ключ OpenAI'] },
+  { id: 'full', title: 'Полный', points: ['всё из детального', 'график работ по этапам с перерывами', 'ведомость закупки материалов', 'CSV со всеми разделами'] },
 ];
+
+const CATEGORY_CARDS = [
+  { id: 'earth', group: 'Общестрой', icon: '🔨', title: 'Земляные работы' },
+  { id: 'foundation', group: 'Общестрой', icon: '🏗️', title: 'Фундамент' },
+  { id: 'concrete', group: 'Общестрой', icon: '🧱', title: 'Бетон и монолит' },
+  { id: 'masonry', group: 'Общестрой', icon: '🧱', title: 'Кладка' },
+  { id: 'metal', group: 'Общестрой', icon: '🔩', title: 'Металлоконструкции' },
+  { id: 'roof', group: 'Общестрой', icon: '🏠', title: 'Кровля' },
+  { id: 'facade', group: 'Общестрой', icon: '🏢', title: 'Фасад' },
+  { id: 'windows', group: 'Общестрой', icon: '🪟', title: 'Окна' },
+  { id: 'insulation', group: 'Общестрой', icon: '🧶', title: 'Утепление фасада' },
+  { id: 'demolition', group: 'Общестрой', icon: '💥', title: 'Демонтаж' },
+  { id: 'wall_finish', group: 'Отделка', icon: '🎨', title: 'Отделка стен' },
+  { id: 'floors', group: 'Отделка', icon: '🟫', title: 'Полы и плитка' },
+  { id: 'ceilings', group: 'Отделка', icon: '💡', title: 'Потолки' },
+  { id: 'stairs', group: 'Отделка', icon: '🪜', title: 'Лестницы' },
+  { id: 'electric', group: 'Инженерия', icon: '⚡', title: 'Электрика' },
+  { id: 'plumbing', group: 'Инженерия', icon: '🚿', title: 'Сантехника' },
+  { id: 'heating', group: 'Инженерия', icon: '🔥', title: 'Отопление' },
+  { id: 'hvac', group: 'Инженерия', icon: '❄️', title: 'Кондиционирование' },
+  { id: 'gas', group: 'Инженерия', icon: '🔵', title: 'Газоснабжение' },
+  { id: 'automation', group: 'Инженерия', icon: '📡', title: 'Видеонаблюдение' },
+  { id: 'fire_safety', group: 'Инженерия', icon: '🧯', title: 'Пожарная сигнализация' },
+  { id: 'external_nets', group: 'Инженерия', icon: '🔌', title: 'Наружный водопровод' },
+  { id: 'landscaping', group: 'Прочее', icon: '🌳', title: 'Брусчатка' },
+  { id: 'roads', group: 'Общестрой', icon: '🛣️', title: 'Асфальтирование' },
+  { id: 'wood', group: 'Общестрой', icon: '🪵', title: 'Деревянный настил' },
+  { id: 'interior', group: 'Отделка', icon: '🛋️', title: 'Двери и мебель' },
+  { id: 'design', group: 'Прочее', icon: '📐', title: 'Дизайн-проект' },
+  { id: 'special', group: 'Прочее', icon: '🏭', title: 'Специальные работы' },
+  { id: 'other', group: 'Прочее', icon: '📦', title: 'Прочие работы' },
+];
+
+const plural = (n, one, few, many) => {
+  const m10 = n % 10;
+  const m100 = n % 100;
+  if (m10 === 1 && m100 !== 11) return one;
+  if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few;
+  return many;
+};
 
 export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeGroup, setActiveGroup] = useState('Все');
-  const [selectedCategory, setSelectedCategory] = useState('demolition');
+  const [selectedCategory, setSelectedCategory] = useState('apartment_renovation');
   const [isCategorySkipped, setIsCategorySkipped] = useState(false);
-  const [selectedRegion, setSelectedRegion] = useState(() => {
-    try { return localStorage.getItem('qazgost_estimate_region') || 'almaty'; } catch { return 'almaty'; }
+  const [city, setCity] = useState(() => {
+    try {
+      const saved = localStorage.getItem('qazgost_estimate_city');
+      if (saved) return saved;
+      return LEGACY_REGION_IDS[localStorage.getItem('qazgost_estimate_region')] || 'Алматы';
+    } catch { return 'Алматы'; }
   });
   const [isDraggingOver, setIsDraggingOver] = useState(false);
   const [estimateHistory, setEstimateHistory] = useState(() => {
@@ -79,47 +89,32 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
       return saved ? JSON.parse(saved) : [];
     } catch { return []; }
   });
-  const [analysisModeTab, setAnalysisModeTab] = useState(() => {
-    try {
-      return localStorage.getItem('qazgost_estimate_analysis_tab') || 'contour';
-    } catch {
-      return 'contour';
-    }
-  });
 
-  const handleSetAnalysisTab = (tab) => {
-    setAnalysisModeTab(tab);
-    try {
-      localStorage.setItem('qazgost_estimate_analysis_tab', tab);
-    } catch {}
-  };
+  // Справочник технологических карт с сервера
+  const [catalog, setCatalog] = useState(null);
+  const [catalogError, setCatalogError] = useState('');
 
-  // Contour mode sub-states
-  const canvasRef = useRef(null);
-  const [isDrawing, setIsDrawing] = useState(true);
-  const [contourPoints, setContourPoints] = useState([]);
-  const [isContourClosed, setIsContourClosed] = useState(false);
-  const [contourAreaM2, setContourAreaM2] = useState(0);
-  const [contourPerimeterM, setContourPerimeterM] = useState(0);
-  const [selectedContourPhotoIdx, setSelectedContourPhotoIdx] = useState(0);
-  const [scaleSize, setScaleSize] = useState('3.0 м');
-  const [scaleRatioMeters, setScaleRatioMeters] = useState(3.0);
+  // Обмер и параметры
+  const [geo, setGeo] = useState({ area: 0, perimeter: 0, height: 2.7, doors: 1, windows: 1, source: '' });
+  const [paramValues, setParamValues] = useState({});
 
   // Photo & Uploads State
   const [photos, setPhotos] = useState([]);
   const [description, setDescription] = useState('');
 
-  // AI Provider & Multi-Pass Mode State
-  const [aiEngineMode, setAiEngineMode] = useState('auto'); // 'auto' | 'fast' | 'detailed' | 'vip'
+  // Режим анализа и результат
+  const [smetaMode, setSmetaMode] = useState(() => {
+    try { return localStorage.getItem('qazgost_smeta_mode') || 'detailed'; } catch { return 'detailed'; }
+  });
   const [isScanning, setIsScanning] = useState(false);
   const [scanStep, setScanStep] = useState('');
-  const [calculatedEstimate, setCalculatedEstimate] = useState(null);
-  const [selectedScenario, setSelectedScenario] = useState('standard'); // 'economy' | 'standard' | 'premium'
+  const [result, setResult] = useState(null);
+  const [scenarioId, setScenarioId] = useState('std');
+  const [photoAnalysis, setPhotoAnalysis] = useState(null);
+  const [calcError, setCalcError] = useState('');
   const [createdOrderInfo, setCreatedOrderInfo] = useState(null);
   const [toastMessage, setToastMessage] = useState(null);
-  const [lastEstimateParams, setLastEstimateParams] = useState(null); // для пересчёта сценариев
-  const [manualArea, setManualArea] = useState(''); // ручной ввод площади
-  const resultRef = useRef(null); // автоскролл к результату
+  const resultRef = useRef(null);
 
   // User Custom ChatGPT / OpenAI Account State
   const [showGptModal, setShowGptModal] = useState(false);
@@ -162,53 +157,56 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
   const [isTestingGptKey, setIsTestingGptKey] = useState(false);
   const [gptTestResult, setGptTestResult] = useState(null);
 
-  const showToast = (msg) => {
+  const showToast = useCallback((msg) => {
     setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 3000);
-  };
+    setTimeout(() => setToastMessage(null), 3200);
+  }, []);
 
-  const categories = [
-    { id: 'earth', group: 'Общестрой', image: '/assets/categories/cat_earth.jpg', icon: '🔨', title: 'Земляные работы', count: '319 работ', rate: 2500, minPrice: '1 200 ₸/м³' },
-    { id: 'foundation', group: 'Общестрой', image: '/assets/categories/cat_foundation.jpg', icon: '🏗️', title: 'Фундамент', count: '273 работ', rate: 18000, minPrice: '18 500 ₸/м³' },
-    { id: 'concrete', group: 'Общестрой', image: '/assets/categories/cat_concrete.jpg', icon: '🧱', title: 'Бетон и монолит', count: '656 работ', rate: 22000, minPrice: '22 000 ₸/м³' },
-    { id: 'masonry', group: 'Общестрой', image: '/assets/categories/cat_masonry.jpg', icon: '🧱', title: 'Кладка', count: '259 работ', rate: 4500, minPrice: '4 500 ₸/м²' },
-    { id: 'metal', group: 'Общестрой', image: '/assets/categories/cat_metal.jpg', icon: '🔩', title: 'Металлоконструкции', count: '306 работ', rate: 14000, minPrice: '45 000 ₸/т' },
-    { id: 'roof', group: 'Общестрой', image: '/assets/categories/cat_roof.jpg', icon: '🏠', title: 'Кровля', count: '336 работ', rate: 6500, minPrice: '3 800 ₸/м²' },
-    { id: 'facade', group: 'Общестрой', image: '/assets/categories/cat_facade.jpg', icon: '🏢', title: 'Фасад', count: '235 работ', rate: 5800, minPrice: '5 200 ₸/м²' },
-    { id: 'windows', group: 'Общестрой', image: '/assets/categories/cat_windows.jpg', icon: '🚪', title: 'Окна и двери', count: '462 работ', rate: 12000, minPrice: '12 000 ₸/шт' },
-    { id: 'insulation', group: 'Общестрой', image: '/assets/categories/cat_insulation.jpg', icon: '🥊', title: 'Утепление и изоляция', count: '267 работ', rate: 2800, minPrice: '1 800 ₸/м²' },
-    { id: 'demolition', group: 'Общестрой', image: '/assets/categories/cat_demolition.jpg', icon: '💥', title: 'Демонтаж', count: '87 работ', rate: 1800, minPrice: '850 ₸/м²' },
-    { id: 'wall_finish', group: 'Отделка', image: '/assets/categories/cat_wall_finish.jpg', icon: '🎨', title: 'Отделка стен', count: '920 работ', rate: 3500, minPrice: '2 200 ₸/м²' },
-    { id: 'floors', group: 'Отделка', image: '/assets/categories/cat_floors.jpg', icon: '🟫', title: 'Полы и плитка', count: '566 работ', rate: 4200, minPrice: '3 500 ₸/м²' },
-    { id: 'ceilings', group: 'Отделка', image: '/assets/categories/cat_ceilings.jpg', icon: '💡', title: 'Потолки', count: '128 работ', rate: 2900, minPrice: '2 800 ₸/м²' },
-    { id: 'stairs', group: 'Отделка', image: '/assets/categories/cat_stairs.jpg', icon: '🪜', title: 'Лестницы и балконы', count: '121 работ', rate: 15000, minPrice: '15 000 ₸/п.м' },
-    { id: 'electric', group: 'Инженерия', image: '/assets/categories/cat_electric.jpg', icon: '⚡', title: 'Электрика', count: '777 работ', rate: 3800, minPrice: '1 200 ₸/тчк' },
-    { id: 'plumbing', group: 'Инженерия', image: '/assets/categories/cat_plumbing.jpg', icon: '🚿', title: 'Сантехника и водоснабжение', count: '633 работ', rate: 4500, minPrice: '4 500 ₸/тчк' },
-    { id: 'heating', group: 'Инженерия', image: '/assets/categories/cat_heating.jpg', icon: '🔥', title: 'Отопление', count: '292 работ', rate: 5200, minPrice: '8 500 ₸/прибор' },
-    { id: 'hvac', group: 'Инженерия', image: '/assets/categories/cat_hvac.jpg', icon: '❄️', title: 'Вентиляция и кондиц.', count: '551 работ', rate: 6000, minPrice: '14 000 ₸/компл' },
-    { id: 'gas', group: 'Инженерия', image: '/assets/categories/cat_gas.jpg', icon: '🔵', title: 'Газоснабжение', count: '128 работ', rate: 8500, minPrice: '25 000 ₸/врезка' },
-    { id: 'automation', group: 'Инженерия', image: '/assets/categories/cat_automation.jpg', icon: '📡', title: 'Автоматизация и слаботоч.', count: '561 работ', rate: 4800, minPrice: '2 100 ₸/м' },
-    { id: 'fire_safety', group: 'Инженерия', image: '/assets/categories/cat_fire_safety.jpg', icon: '🧯', title: 'Пожарная безопасность', count: '218 работ', rate: 5500, minPrice: '3 400 ₸/датчик' },
-    { id: 'external_nets', group: 'Инженерия', image: '/assets/categories/cat_external_nets.jpg', icon: '🔌', title: 'Наружные сети', count: '361 работ', rate: 7200, minPrice: '6 200 ₸/п.м' },
-    { id: 'landscaping', group: 'Прочее', image: '/assets/categories/cat_landscaping.jpg', icon: '🌳', title: 'Благоустройство', count: '370 работ', rate: 3200, minPrice: '2 500 ₸/м²' },
-    { id: 'roads', group: 'Общестрой', image: '/assets/categories/cat_roads.jpg', icon: '🛣️', title: 'Дороги и мосты', count: '313 работ', rate: 9500, minPrice: '8 900 ₸/м²' },
-    { id: 'wood', group: 'Общестрой', image: '/assets/categories/cat_wood.jpg', icon: '🪵', title: 'Деревянные конструкции', count: '213 работ', rate: 6800, minPrice: '4 800 ₸/м²' },
-    { id: 'interior', group: 'Отделка', image: '/assets/categories/cat_interior.jpg', icon: '🛋️', title: 'Мебель и оборудование', count: '424 работ', rate: 8200, minPrice: '18 000 ₸/ед' },
-    { id: 'design', group: 'Прочее', image: '/assets/categories/cat_design.jpg', icon: '📐', title: 'Проектирование', count: '134 работ', rate: 12000, minPrice: '1 500 ₸/м²' },
-    { id: 'special', group: 'Прочее', image: '/assets/categories/cat_special.jpg', icon: '🏭', title: 'Специальные работы', count: '1320 работ', rate: 11000, minPrice: '5 000 ₸/смена' },
-    { id: 'other', group: 'Прочее', image: '/assets/categories/cat_other.jpg', icon: '📦', title: 'Прочие работы', count: '816 работ', rate: 3000, minPrice: '1 000 ₸/усл' },
-    // ═══ Комплексные объекты ═══
-    ...Object.entries(COMPLEX_TEMPLATES).map(([id, tpl]) => ({
-      id, group: 'Комплекс', icon: tpl.icon, title: tpl.title,
-      count: `${tpl.includes.length} этапов`, rate: 0, minPrice: tpl.description,
-      isComplex: true,
+  useEffect(() => {
+    let alive = true;
+    loadTechmaps()
+      .then((data) => { if (alive) { setCatalog(data); setCatalogError(''); } })
+      .catch((err) => { if (alive) setCatalogError(err.message); });
+    return () => { alive = false; };
+  }, []);
+
+  const techmaps = useMemo(() => {
+    const m = {};
+    (catalog?.techmaps || []).forEach((t) => { m[t.id] = t; });
+    return m;
+  }, [catalog]);
+  const complexes = catalog?.complexes || [];
+
+  const regions = useMemo(() => {
+    const r = catalog?.regions || { 'Алматы': 1 };
+    return Object.entries(r).sort((a, b) => (a[0] === 'Алматы' ? -1 : b[0] === 'Алматы' ? 1 : a[0].localeCompare(b[0], 'ru')));
+  }, [catalog]);
+
+  const categories = useMemo(() => [
+    ...CATEGORY_CARDS.map((c) => {
+      const n = techmaps[c.id]?.stages?.length || 0;
+      return { ...c, count: n ? `${n} ${plural(n, 'этап', 'этапа', 'этапов')}` : '' };
+    }),
+    ...complexes.map((cx) => ({
+      id: cx.id, group: 'Комплекс', icon: COMPLEX_TEMPLATES[cx.id]?.icon || '🏗️', title: cx.title,
+      count: `${cx.parts.length} ${plural(cx.parts.length, 'раздел', 'раздела', 'разделов')}`, isComplex: true,
     })),
-  ];
+  ], [techmaps, complexes]);
 
   const filteredCategories = categories.filter(cat =>
     (activeGroup === 'Все' || cat.group === activeGroup) &&
     cat.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  // Что считаем: выбранная категория или определённая по описанию
+  const detected = isCategorySkipped ? detectCategory(description) : null;
+  const selectionId = isCategorySkipped ? detected?.id : selectedCategory;
+  const selection = selectionId
+    ? (complexes.some((c) => c.id === selectionId) ? { type: 'complex', id: selectionId } : { type: 'cat', id: selectionId })
+    : null;
+  const selectionTitle = selection
+    ? (selection.type === 'complex' ? complexes.find((c) => c.id === selection.id)?.title : techmaps[selection.id]?.title) || ''
+    : '';
 
   const handleFileUpload = (e) => {
     const files = Array.from(e.target.files || []);
@@ -235,7 +233,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
       reader.readAsDataURL(file);
     });
 
-    showToast(`📸 Загружено ${files.length} фото — будут отправлены в GPT-4o Vision для анализа`);
+    showToast(`📸 Загружено фото: ${files.length}`);
   };
 
   const removePhoto = (id) => {
@@ -350,569 +348,223 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
     }
   };
 
-  // ═══ CONTOUR CANVAS ENGINE ═══
-  const computePolygonStats = (pts, scaleM = 3.0) => {
-    if (pts.length < 3) return { area: 0, perimeter: 0 };
-    let areaPixels = 0;
-    let perimeterPixels = 0;
-    for (let i = 0; i < pts.length; i++) {
-      const j = (i + 1) % pts.length;
-      areaPixels += pts[i].x * pts[j].y;
-      areaPixels -= pts[j].x * pts[i].y;
-      const dx = pts[j].x - pts[i].x;
-      const dy = pts[j].y - pts[i].y;
-      perimeterPixels += Math.sqrt(dx * dx + dy * dy);
-    }
-    areaPixels = Math.abs(areaPixels) / 2;
-    const pxPerMeter = 60;
-    const scaleFactor = scaleM / 3.0;
-    const rawArea = areaPixels / (pxPerMeter * pxPerMeter);
-    // Area scales quadratically: (scaleFactor)^2
-    const areaM2 = Math.round(rawArea * scaleFactor * scaleFactor * 10) / 10;
-    // Perimeter scales linearly
-    const perimeterM = Math.round((perimeterPixels / pxPerMeter) * scaleFactor * 10) / 10;
-    return {
-      area: Math.max(0.5, areaM2),
-      perimeter: Math.max(1.0, perimeterM)
-    };
-  };
-
-  const handleCloseContour = () => {
-    if (contourPoints.length < 3) {
-      showToast('⚠️ Нужно минимум 3 точки для замыкания контура!');
-      return;
-    }
-    setIsContourClosed(true);
-    const stats = computePolygonStats(contourPoints, scaleRatioMeters);
-    setContourAreaM2(stats.area);
-    setContourPerimeterM(stats.perimeter);
-    setDescription(prev => {
-      const base = prev ? prev.replace(/📐 Контур:.*$/g, '').trim() : '';
-      return `${base}\n📐 Контур: вычисленная площадь ~${stats.area} м², периметр ~${stats.perimeter} п.м.`.trim();
-    });
-    showToast(`✅ Контур замкнут! Площадь: ${stats.area} м² (Периметр ${stats.perimeter} м)`);
-  };
-
-  const handleCanvasClick = (e) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const rect = canvas.getBoundingClientRect();
-    const scaleX = canvas.width / rect.width;
-    const scaleY = canvas.height / rect.height;
-    const x = (e.clientX - rect.left) * scaleX;
-    const y = (e.clientY - rect.top) * scaleY;
-
-    // If clicking near first point (within 25px) and >= 3 points, close polygon
-    if (contourPoints.length >= 3 && !isContourClosed) {
-      const p0 = contourPoints[0];
-      const dist = Math.sqrt((x - p0.x) ** 2 + (y - p0.y) ** 2);
-      if (dist < 25) {
-        handleCloseContour();
-        return;
-      }
-    }
-
-    if (isContourClosed) {
-      // Start fresh contour if user clicks again after closing
-      setContourPoints([{ x, y }]);
-      setIsContourClosed(false);
-      setContourAreaM2(0);
-      setContourPerimeterM(0);
-      return;
-    }
-
-    const nextPoints = [...contourPoints, { x, y }];
-    setContourPoints(nextPoints);
-    if (nextPoints.length >= 3) {
-      const stats = computePolygonStats(nextPoints, scaleRatioMeters);
-      setContourAreaM2(stats.area);
-      setContourPerimeterM(stats.perimeter);
-    }
-  };
-
-  // Re-draw canvas
-  useEffect(() => {
-    if (analysisModeTab !== 'contour') return;
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    const renderCanvas = (bgImg = null) => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      if (bgImg) {
-        // Draw with correct aspect ratio (contain mode)
-        const imgRatio = bgImg.width / bgImg.height;
-        const canvasRatio = canvas.width / canvas.height;
-        let drawW, drawH, drawX, drawY;
-        if (imgRatio > canvasRatio) {
-          drawW = canvas.width;
-          drawH = canvas.width / imgRatio;
-          drawX = 0;
-          drawY = (canvas.height - drawH) / 2;
-        } else {
-          drawH = canvas.height;
-          drawW = canvas.height * imgRatio;
-          drawX = (canvas.width - drawW) / 2;
-          drawY = 0;
-        }
-        ctx.fillStyle = '#0b0f19';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(bgImg, drawX, drawY, drawW, drawH);
-        ctx.fillStyle = 'rgba(21, 18, 42, 0.35)';
-        ctx.fillRect(drawX, drawY, drawW, drawH);
-      } else {
-        ctx.fillStyle = '#0b0f19';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        ctx.strokeStyle = 'rgba(185, 164, 255, 0.08)';
-        ctx.lineWidth = 1;
-        const gridSize = 30;
-        for (let x = 0; x < canvas.width; x += gridSize) {
-          ctx.beginPath();
-          ctx.moveTo(x, 0);
-          ctx.lineTo(x, canvas.height);
-          ctx.stroke();
-        }
-        for (let y = 0; y < canvas.height; y += gridSize) {
-          ctx.beginPath();
-          ctx.moveTo(0, y);
-          ctx.lineTo(canvas.width, y);
-          ctx.stroke();
-        }
-
-        ctx.fillStyle = 'rgba(185, 164, 255, 0.35)';
-        ctx.font = '10px monospace';
-        for (let x = 60; x < canvas.width; x += 60) {
-          ctx.fillText(`${(x / 60).toFixed(0)}m`, x + 3, 14);
-        }
-      }
-
-      // Draw Polygon
-      if (contourPoints.length > 0) {
-        ctx.beginPath();
-        ctx.moveTo(contourPoints[0].x, contourPoints[0].y);
-        for (let i = 1; i < contourPoints.length; i++) {
-          ctx.lineTo(contourPoints[i].x, contourPoints[i].y);
-        }
-        if (isContourClosed) {
-          ctx.closePath();
-          ctx.fillStyle = 'rgba(185, 164, 255, 0.25)';
-          ctx.fill();
-        }
-        ctx.strokeStyle = isContourClosed ? '#10b981' : '#b9a4ff';
-        ctx.lineWidth = 3;
-        ctx.shadowColor = isContourClosed ? '#10b981' : '#7c3aed';
-        ctx.shadowBlur = 8;
-        ctx.stroke();
-        ctx.shadowBlur = 0;
-
-        // Draw Vertices
-        contourPoints.forEach((p, idx) => {
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, idx === 0 && !isContourClosed && contourPoints.length >= 3 ? 8 : 6, 0, Math.PI * 2);
-          ctx.fillStyle = idx === 0 ? '#fbbf24' : '#b9a4ff';
-          ctx.fill();
-          ctx.strokeStyle = '#ffffff';
-          ctx.lineWidth = 2;
-          ctx.stroke();
-
-          ctx.fillStyle = '#ffffff';
-          ctx.font = 'bold 11px sans-serif';
-          ctx.fillText(`P${idx + 1}`, p.x + 8, p.y - 6);
-        });
-
-        // Centroid Badge
-        if (isContourClosed && contourAreaM2 > 0) {
-          let cx = 0, cy = 0;
-          contourPoints.forEach(p => { cx += p.x; cy += p.y; });
-          cx /= contourPoints.length;
-          cy /= contourPoints.length;
-
-          ctx.fillStyle = 'rgba(21, 18, 42, 0.9)';
-          ctx.strokeStyle = '#10b981';
-          ctx.lineWidth = 1.5;
-          const badgeText = `📐 ${contourAreaM2} м² | ${contourPerimeterM} м`;
-          ctx.font = 'bold 13px sans-serif';
-          const textW = ctx.measureText(badgeText).width;
-          ctx.beginPath();
-          ctx.roundRect(cx - textW / 2 - 10, cy - 14, textW + 20, 28, 8);
-          ctx.fill();
-          ctx.stroke();
-
-          ctx.fillStyle = '#34d399';
-          ctx.fillText(badgeText, cx - textW / 2, cy + 5);
-        }
-      }
-    };
-
-    if (photos.length > 0 && photos[selectedContourPhotoIdx]?.url) {
-      const img = new Image();
-      img.crossOrigin = 'anonymous';
-      img.src = photos[selectedContourPhotoIdx].url;
-      img.onload = () => renderCanvas(img);
-      img.onerror = () => renderCanvas(null);
-    } else {
-      renderCanvas(null);
-    }
-  }, [analysisModeTab, photos, selectedContourPhotoIdx, contourPoints, isContourClosed, contourAreaM2, contourPerimeterM, isDrawing, scaleRatioMeters]);
-
-  // Helper: save estimate to history (BUG-6: extended)
-  const saveToHistory = useCallback((data, detailed) => {
+  const saveToHistory = useCallback((res) => {
+    const sc = res.scenarios.find((s) => s.id === 'std') || res.scenarios[0];
     const entry = {
       id: Date.now().toString(36),
       date: new Date().toLocaleString('ru-RU'),
-      category: data.category,
-      total: data.total,
-      scenario: data.scenarioLabel || 'standard',
-      region: REGIONS.find(r => r.id === selectedRegion)?.name || 'Алматы',
-      area: detailed?.area || data.area || 0,
-      itemCount: detailed?.itemCount || data.items?.length || 0,
-      pricePerM2: detailed?.pricePerM2 || data.pricePerM2 || 0,
+      category: res.title,
+      total: sc.subtotal,
+      region: res.city,
+      area: res.geometry.area,
+      itemCount: sc.items.length,
     };
     setEstimateHistory(prev => {
       const updated = [entry, ...prev].slice(0, 10);
-      try { localStorage.setItem('qazgost_estimate_history', JSON.stringify(updated)); } catch {}
+      try { localStorage.setItem('qazgost_estimate_history', JSON.stringify(updated)); } catch { /* квота */ }
       return updated;
     });
-  }, [selectedRegion]);
+  }, []);
 
-  // BUG-1 FIX: Пересчитать смету при смене сценария (вместо умножения ×0.85/×1.25)
-  const recalculateScenario = useCallback((newScenario) => {
-    setSelectedScenario(newScenario);
-    if (!lastEstimateParams) {
-      // Результат серверного сметчика: переключаемся между его сценариями
-      setCalculatedEstimate(prev => {
-        const list = prev?.serverScenarios;
-        if (!Array.isArray(list) || list.length === 0) return prev;
-        const sc = list[SCENARIO_INDEX[newScenario]] || list[0];
-        return { ...prev, ...mapServerScenario(sc) };
+  // ИИ-разбор фото: только подсказка (тип работ, дефекты), цены и объёмы — из обмера и справочника
+  const runPhotoAnalysis = async () => {
+    const photosBase64 = photos.slice(0, 5).map(p => p.base64).filter(b => typeof b === 'string' && b.startsWith('data:'));
+    if (!photosBase64.length) return null;
+    const headers = jsonAuthHeaders();
+    const customGptKey = userGptKey || (typeof window !== 'undefined' && localStorage.getItem('qazgost_user_openai_key')) || '';
+    if (isRealOpenAIKey(customGptKey)) {
+      headers['X-OpenAI-Key'] = customGptKey.trim();
+      headers['X-OpenAI-Model'] = gptModel || 'gpt-4o';
+    }
+    try {
+      const res = await fetch('/api/v1/ai/vision', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          photos: photosBase64,
+          description: description || selectionTitle,
+          category: selectionTitle,
+          city,
+          mode: 'detailed',
+        }),
       });
+      const parsed = await res.json().catch(() => null);
+      if (!res.ok) {
+        return { status: 'error', message: `ИИ-разбор фото не выполнен: сервер ответил ${res.status}${parsed?.error ? ` (${parsed.error})` : ''}.` };
+      }
+      const isQto = parsed && parsed.recommended && Array.isArray(parsed.scenarios);
+      if (!parsed || isQto) {
+        return { status: 'nokey', message: 'ИИ-разбор фото не выполнен: к серверу не подключён ключ OpenAI. Подключите свой ключ кнопкой «Ключ OpenAI» — смета от этого не зависит.' };
+      }
+      const insights = (Array.isArray(parsed.insights) ? parsed.insights : []).map(String).slice(0, 8);
+      return {
+        status: 'ok',
+        photos: photosBase64.length,
+        detected: parsed.detected_type || '',
+        area: Number(parsed.dimensions?.area_m2) || 0,
+        insights,
+      };
+    } catch {
+      return { status: 'error', message: 'ИИ-разбор фото не выполнен: нет связи с сервером.' };
+    }
+  };
+
+  const handleCalculate = async () => {
+    setCalcError('');
+    if (!catalog) {
+      setCalcError(catalogError || 'Справочник ещё загружается — подождите пару секунд.');
       return;
     }
-    const params = { ...lastEstimateParams, scenario: newScenario };
-    const detailed = generateDetailedEstimate(params);
-    const regionObj = REGIONS.find(r => r.id === selectedRegion) || REGIONS[0];
-    setCalculatedEstimate(prev => ({
-      ...prev,
-      total: detailed.total,
-      worksCost: detailed.worksCost,
-      materialsCost: detailed.materialsCost,
-      items: detailed.items,
-      pricePerM2: detailed.pricePerM2,
-      worksPercent: detailed.worksPercent,
-      materialsPercent: detailed.materialsPercent,
-      marketplaceMaterials: detailed.marketplaceMaterials || [],
-      timelineDays: detailed.timelineDays,
-      scenarioLabel: detailed.scenarioLabel,
-      groups: detailed.groups,
-      aiInsights: [
-        `📱 ${detailed.aiInsights[0]}`,
-        `📐 ${detailed.aiInsights[1]}`,
-        `📍 ${detailed.aiInsights[2]}`,
-        `💰 ${detailed.aiInsights[3]}`,
-        `📅 ${detailed.aiInsights[4]}`,
-        ...(detailed.aiInsights.slice(5).map(s => `ℹ️ ${s}`)),
-      ],
-    }));
-  }, [lastEstimateParams, selectedRegion]);
-
-  const handleRunAiEstimate = async () => {
-    const activeCatObj = categories.find(c => c.id === selectedCategory) || categories[9];
-
-    // Validation
-    if (photos.length === 0 && description.trim().length < 20 && contourAreaM2 === 0) {
-      showToast('⚠️ Загрузите фото, нарисуйте контур или опишите задачу (минимум 20 символов)');
+    if (!selection) {
+      setCalcError(isCategorySkipped
+        ? 'По описанию не удалось определить вид работ. Опишите задачу подробнее или выберите категорию вручную.'
+        : 'Выберите вид работ.');
+      return;
+    }
+    if (!(geo.area > 0 && geo.perimeter > 0)) {
+      setCalcError('Нет размеров: обведите помещение на сетке, на плане или введите длину и ширину.');
       return;
     }
 
     setIsScanning(true);
-    setCalculatedEstimate(null);
-    setScanStep('⏳ Подготовка данных для анализа...');
+    setResult(null);
+    setPhotoAnalysis(null);
+    setCreatedOrderInfo(null);
+    const withPhotos = smetaMode !== 'fast' && photos.length > 0;
+    setScanStep(withPhotos ? 'Считаем смету и разбираем фото…' : 'Считаем смету по технологической карте…');
 
-    const regionObj = REGIONS.find(r => r.id === selectedRegion) || REGIONS[0];
-
+    const body = {
+      ...(selection.type === 'complex' ? { complex: selection.id } : { category: selection.id }),
+      geometry: { area: geo.area, perimeter: geo.perimeter, height: geo.height, doors: geo.doors, windows: geo.windows },
+      params: buildParams(techmaps, selection, complexes, paramValues),
+      city,
+      mode: smetaMode,
+    };
     try {
-      const customGptKey = userGptKey || (typeof window !== 'undefined' && localStorage.getItem('qazgost_user_openai_key')) || '';
-      const customGptModel = gptModel || (typeof window !== 'undefined' && localStorage.getItem('qazgost_user_openai_model')) || 'gpt-4o';
-
-      // Authorization — только при настоящем JWT (ключ auth_token); X-OpenAI-Key — только настоящий ключ пользователя
-      const headers = jsonAuthHeaders();
-      if (isRealOpenAIKey(customGptKey)) {
-        headers['X-OpenAI-Key'] = customGptKey.trim();
-        headers['X-OpenAI-Model'] = customGptModel;
-      }
-
-      const photosBase64 = photos.slice(0, 5).map(p => p.base64).filter(b => typeof b === 'string' && b.startsWith('data:'));
-
-      // Явно заданная площадь: контур → ручной ввод → «NN м²» в описании
-      const manualAreaNum = parseFloat(manualArea);
-      const explicitArea = contourAreaM2 > 0 ? contourAreaM2 : (manualAreaNum > 0 ? manualAreaNum : (() => {
-        const m = description.match(/(\d+[\.,]?\d*)\s*м[²2]/i);
-        return m ? parseFloat(m[1].replace(',', '.')) : null;
-      })());
-
-      let serverNote = '';
-
-      // ═══ STEP 1: POST /api/v1/ai/vision — AI Vision (при ключе OpenAI на сервере/у пользователя) или серверный сметчик ═══
-      // (раньше вызывались /api/v1/analyze с несовместимым форматом и несуществующий /api/v1/estimates)
-      setScanStep(photosBase64.length
-        ? `🧠 AI Vision анализирует ${photosBase64.length} фото... (10-30 сек)`
-        : `🤖 Расчёт сметы через QAZGOST AI Engine (${regionObj.name})...`);
-      try {
-        const visionRes = await fetch('/api/v1/ai/vision', {
-          method: 'POST',
-          headers,
-          body: JSON.stringify({
-            photos: photosBase64,
-            description: description || `${activeCatObj.title}: стандартный комплекс работ`,
-            category: isCategorySkipped ? '' : activeCatObj.title,
-            city: regionObj.name,
-            mode: aiEngineMode,
-            // площадь передаётся серверному сметчику (раньше он всегда считал дефолтные 80–200 м²)
-            ...(explicitArea ? { dimensions: { area: explicitArea } } : {}),
-          })
-        });
-
-        if (visionRes.ok) {
-          const parsed = await visionRes.json().catch(() => null);
-          const isQto = parsed && parsed.recommended && Array.isArray(parsed.scenarios);
-          const isAi = parsed && !isQto && (parsed.total_cost !== undefined || parsed.detected_type || Array.isArray(parsed.items));
-          setScanStep('📊 Обработка результатов...');
-
-          if (isAi) {
-            const items = normalizeServerItems(parsed.items);
-            const total = Math.round(Number(parsed.total_cost ?? parsed.totalCost) || items.reduce((acc, it) => acc + it.total, 0));
-            const data = {
-              category: parsed.detected_type || activeCatObj.title,
-              mode: aiEngineMode,
-              total,
-              worksCost: Math.round(Number(parsed.works_cost ?? parsed.worksCost) || 0),
-              materialsCost: Math.round(Number(parsed.materials_cost ?? parsed.materialsCost) || 0),
-              equipmentCost: Math.round(Number(parsed.equipment_cost ?? parsed.equipmentCost) || 0),
-              timelineDays: parsed.timeline_days || parsed.timelineDays || 7,
-              dimensions: parsed.dimensions || {},
-              area: parsed.dimensions?.area_m2 || undefined,
-              items,
-              aiInsights: (Array.isArray(parsed.insights) && parsed.insights.length ? parsed.insights : (parsed.aiInsights || [
-                `🤖 AI-анализ завершён в режиме «${aiEngineMode.toUpperCase()}»`,
-              ])).concat([`📐 Регион: ${regionObj.name}`]),
-              isRealVision: photosBase64.length > 0,
-              photosAnalyzed: photosBase64.length,
-              region: regionObj.name,
-              regionalCoeff: regionObj.coeff,
-              source: 'ai-vision',
-            };
-            setLastEstimateParams(null);
-            setScanStep('✨ Компиляция итоговой сметы...');
-            setTimeout(() => {
-              setIsScanning(false);
-              setCalculatedEstimate(data);
-              saveToHistory(data);
-              showToast(`✅ AI-анализ завершён в режиме «${aiEngineMode.toUpperCase()}»!`);
-            }, 400);
-            return;
-          }
-
-          if (isQto) {
-            const serverArea = Number(parsed.calculatedArea) || 0;
-            const areaMismatch = explicitArea && serverArea && Math.abs(serverArea - explicitArea) / explicitArea > 0.05;
-            if (!areaMismatch) {
-              const sc = parsed.scenarios[SCENARIO_INDEX[selectedScenario]] || parsed.recommended;
-              const data = {
-                category: parsed.category || activeCatObj.title,
-                mode: aiEngineMode,
-                ...mapServerScenario(sc),
-                area: serverArea || undefined,
-                aiInsights: [
-                  ...(Array.isArray(parsed.aiInsights) ? parsed.aiInsights : []),
-                  `ℹ️ Расчёт серверного сметчика по нормативам (${parsed.normative || 'ЭСН РК 8.04-01-2022'}), без AI Vision: ключ OpenAI на сервере не задан`,
-                  `📐 Площадь расчёта: ${serverArea} м², регион: ${parsed.region || regionObj.name} (×${parsed.regionalCoeff || 1})`,
-                ],
-                serverScenarios: parsed.scenarios,
-                region: parsed.region || regionObj.name,
-                regionalCoeff: parsed.regionalCoeff || regionObj.coeff,
-                source: 'server-estimator',
-              };
-              setLastEstimateParams(null);
-              setScanStep('✨ Компиляция итоговой сметы...');
-              setTimeout(() => {
-                setIsScanning(false);
-                setCalculatedEstimate(data);
-                saveToHistory(data);
-                showToast('✅ Смета рассчитана серверным сметчиком (без AI Vision)');
-              }, 400);
-              return;
-            }
-            serverNote = `Серверный сметчик считает площадь ${serverArea} м², а указано ${Math.round(explicitArea)} м² — использован локальный расчёт по шаблонам`;
-          }
-        } else {
-          const errBody = await visionRes.json().catch(() => ({}));
-          console.warn('AI Vision error:', visionRes.status, errBody);
-          serverNote = `Сервер смет ответил ошибкой ${visionRes.status} — использован локальный расчёт по шаблонам`;
-        }
-      } catch (netErr) {
-        console.warn('AI Vision network error, using fallback:', netErr);
-        serverNote = 'Сервер смет недоступен — использован локальный расчёт по шаблонам';
-      }
-      if (serverNote) showToast(`⚠️ ${serverNote}`);
-
-      // ═══ STEP 3: Smart local estimate with detailed templates ═══
-      setScanStep('📱 Умный расчёт по шаблонам (нормы расхода ЭСН РК)...');
-      await new Promise(r => setTimeout(r, 300));
-      setScanStep('📊 Подбор позиций по категории...');
-      await new Promise(r => setTimeout(r, 400));
-
-      // Площадь: контур > ручной ввод > парсинг из описания > 25 м²
-      const parsedManual = parseFloat(manualArea);
-      const estArea = contourAreaM2 > 0 ? contourAreaM2
-        : (parsedManual > 0 ? parsedManual : null)
-        || (() => {
-          const m = description.match(/(\d+[\.,]?\d*)\s*м[²2]/i);
-          if (m) return parseFloat(m[1].replace(',', '.'));
-          const dim = description.match(/(\d+[\.,]?\d*)\s*(?:[×xXх*]|на)\s*(\d+[\.,]?\d*)/);
-          if (dim) return parseFloat(dim[1].replace(',', '.')) * parseFloat(dim[2].replace(',', '.'));
-          const aw = description.match(/площад\w*\s+(\d+[\.,]?\d*)/);
-          if (aw) return parseFloat(aw[1].replace(',', '.'));
-          return 25;
-        })();
-
-      setScanStep(`🧮 Расчёт ${Math.round(estArea)} м² × ${regionObj.name}...`);
-      await new Promise(r => setTimeout(r, 400));
-
-      // BUG-1 FIX: scenario из selectedScenario, НЕ из aiEngineMode
-      const estimateParams = {
-        categoryId: selectedCategory,
-        area: estArea,
-        description: description || '',
-        scenario: selectedScenario,
-        regionCoeff: regionObj.coeff,
-        perimeter: contourPerimeterM || 0,
-        categoryTitle: activeCatObj.title,
-      };
-      setLastEstimateParams(estimateParams);
-
-      const detailed = generateDetailedEstimate(estimateParams);
-
-      setScanStep(`✅ Сформировано ${detailed.itemCount} позиций сметы...`);
-      await new Promise(r => setTimeout(r, 300));
-
-      const data = {
-        category: activeCatObj.title,
-        mode: aiEngineMode,
-        total: detailed.total,
-        worksCost: detailed.worksCost,
-        materialsCost: detailed.materialsCost,
-        timelineDays: detailed.timelineDays,
-        items: detailed.items,
-        pricePerM2: detailed.pricePerM2,
-        worksPercent: detailed.worksPercent,
-        materialsPercent: detailed.materialsPercent,
-        marketplaceMaterials: detailed.marketplaceMaterials || [],
-        area: detailed.area,
-        isComplex: detailed.isComplex || false,
-        complexTitle: detailed.complexTitle || '',
-        aiInsights: [
-          `📱 ${detailed.aiInsights[0]}`,
-          `📐 ${detailed.aiInsights[1]}`,
-          `📍 ${detailed.aiInsights[2]}`,
-          `💰 ${detailed.aiInsights[3]}`,
-          `📅 ${detailed.aiInsights[4]}`,
-          ...(detailed.aiInsights.slice(5).map(s => `ℹ️ ${s}`)),
-        ],
-        region: regionObj.name,
-        regionalCoeff: regionObj.coeff,
-        groups: detailed.groups,
-        scenarioLabel: detailed.scenarioLabel,
-        source: 'local-templates',
-      };
-      if (serverNote) data.aiInsights.push(`ℹ️ ${serverNote}`);
-
-      setScanStep('✨ Компиляция итоговой сметы...');
-      setTimeout(() => {
-        setIsScanning(false);
-        setCalculatedEstimate(data);
-        saveToHistory(data, detailed);
-        showToast(`✅ Смета рассчитана: ${detailed.itemCount} позиций, ${detailed.total.toLocaleString('ru-RU')} ₸`);
-        // UX-4: автоскролл к результату
-        setTimeout(() => resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
-      }, 500);
-
+      const [res, pa] = await Promise.all([calcSmeta(body), withPhotos ? runPhotoAnalysis() : Promise.resolve(null)]);
+      setResult(res);
+      setPhotoAnalysis(pa);
+      setScenarioId('std');
+      saveToHistory(res);
+      const std = res.scenarios.find((s) => s.id === 'std');
+      showToast(`Смета готова: ${std.items.length} позиций, ${fmt(std.subtotal)} ₸`);
+      setTimeout(() => resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 120);
     } catch (err) {
-      console.error('Estimate error:', err);
+      setCalcError(err.message || 'Не удалось рассчитать смету.');
+    } finally {
       setIsScanning(false);
-      showToast('❌ Ошибка расчёта. Попробуйте ещё раз.');
+      setScanStep('');
     }
   };
 
+  const currentScenario = result ? (result.scenarios.find((s) => s.id === scenarioId) || result.scenarios[1]) : null;
+
+  const resultActions = result && currentScenario ? (
+    <div className="sm-actions">
+      {createdOrderInfo ? (
+        <div style={{ gridColumn: '1 / -1', background: 'rgba(16,185,129,0.14)', border: '1px solid #10b981', borderRadius: '12px', padding: '14px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+          <div>
+            <strong style={{ color: '#6ee7b7' }}>Заявка #{createdOrderInfo.id} отправлена менеджеру.</strong>
+            <div className="sm-hint">Инженер свяжется, чтобы приехать на замер и уточнить смету.</div>
+          </div>
+          <button type="button" onClick={() => (onBack ? onBack() : showToast('Откройте раздел «Мои заказы»'))}>Открыть «Мои заказы»</button>
+        </div>
+      ) : (
+        <button type="button" className="sm-act-main" onClick={() => {
+          const sc = currentScenario;
+          const newOrder = createPlatformOrder({
+            title: `Работы по смете (${sc.name}): ${result.title}`,
+            category: result.title,
+            amount: sc.subtotal,
+            budget: `${fmt(sc.subtotal)} ₸`,
+            description: `Смета QazGost [${sc.name}], ${result.city}, ${result.geometry.area} м². Работы ${fmt(sc.works)} ₸, материалы ${fmt(sc.materials)} ₸, резерв ${fmt(sc.reserve)} ₸.`,
+            type: 'estimate',
+            status: 'new',
+            estimateData: { title: result.title, city: result.city, geometry: result.geometry, scenario: sc, priceDate: result.priceDate },
+          });
+          setCreatedOrderInfo(newOrder);
+          showToast(`Заявка ${newOrder.id} отправлена менеджеру`);
+        }}>Оформить заказ по смете</button>
+      )}
+      <button type="button" onClick={() => {
+        downloadText(smetaToCSV(result, currentScenario.id), `smeta_${result.parts.join('_')}_${currentScenario.id}_${Date.now()}.csv`);
+        showToast('Смета сохранена в CSV');
+      }} data-testid="smeta-csv">Скачать CSV</button>
+      <button type="button" onClick={() => {
+        const sc = currentScenario;
+        window.open(`https://wa.me/?text=${encodeURIComponent(
+          `Смета QazGost: ${result.title} (${sc.name})\n${result.city}, ${result.geometry.area} м²\n` +
+          `Работы: ${fmt(sc.works)} ₸\nМатериалы: ${fmt(sc.materials)} ₸\nИтого: ${fmt(sc.subtotal)} ₸\nС резервом 10%: ${fmt(sc.total)} ₸\nЦены на ${result.priceDate}`,
+        )}`, '_blank', 'noopener');
+      }}>Отправить в WhatsApp</button>
+    </div>
+  ) : null;
+
   return (
     <div className="spe-container">
-      {toastMessage && <div className="spe-toast">{toastMessage}</div>}
+      {toastMessage && <div className="spe-toast" role="status">{toastMessage}</div>}
 
-      {/* Top Header Bar */}
       {!hideHeader && (
         <div className="spe-header-bar">
-          <button className="spe-back-btn" onClick={onBack} title="Назад">←</button>
+          <button className="spe-back-btn" onClick={onBack} title="Назад" aria-label="Назад">←</button>
           <div className="spe-title-flex">
-            <span className="spe-header-icon">📸</span>
-            <h2>Оценка стоимости по фото</h2>
+            <span className="spe-header-icon">📐</span>
+            <h2>Оценка стоимости</h2>
           </div>
         </div>
       )}
 
-      {/* Hero Header Card */}
       <div className="spe-hero-card">
-        <div className="spe-hero-icon">📸</div>
-        <h3>Оценка стоимости по фото</h3>
-        <p>Выберите категорию, загрузите фото, опишите задачу — ИИ подберёт работы и рассчитает стоимость</p>
+        <div className="spe-hero-icon">📐</div>
+        <h3>Оценка стоимости работ</h3>
+        <p>Выберите вид работ и обмерьте помещение — смета посчитается по технологической карте: объём каждой позиции из ваших размеров, цена из прайсов и объявлений с источником.</p>
         <div className="spe-hero-badge">
           <span className="spe-pulse"></span>
-          <span>AI-распознавание активно</span>
+          <span>{catalog ? `Цены на ${catalog.priceDate}` : (catalogError ? 'Справочник недоступен' : 'Загрузка справочника…')}</span>
         </div>
       </div>
 
-      {/* STEP 1: CATEGORY SELECTION OR SKIPPED STATE */}
+      {/* ШАГ 1: ВИД РАБОТ */}
       {!isCategorySkipped ? (
         <>
           <div className="spe-step-title-row">
             <div className="spe-step-badge">
               <span className="spe-num">1</span>
-              <h3>Выберите категорию работ</h3>
+              <h3>Что делаем</h3>
             </div>
-
             <input
               type="text"
-              placeholder="🔎 Поиск категорий..."
+              placeholder="🔎 Поиск вида работ…"
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               className="spe-search-field"
+              aria-label="Поиск вида работ"
             />
           </div>
 
           <div className="spe-filter-tabs">
             {['Все', 'Комплекс', 'Общестрой', 'Инженерия', 'Отделка', 'Прочее'].map(group => (
-              <button
-                key={group}
-                className={`spe-filter-tab ${activeGroup === group ? 'active' : ''}`}
-                onClick={() => setActiveGroup(group)}
-              >
+              <button key={group} type="button" className={`spe-filter-tab ${activeGroup === group ? 'active' : ''}`} onClick={() => setActiveGroup(group)}>
                 {group}
               </button>
             ))}
           </div>
 
-          {/* 5-Column Category Grid matching screenshot */}
           <div className="spe-categories-grid">
             {filteredCategories.map(cat => {
               const isSelected = selectedCategory === cat.id;
               return (
                 <div
                   key={cat.id}
+                  role="button"
+                  tabIndex={0}
                   className={`spe-cat-box ${isSelected ? 'selected' : ''}`}
                   onClick={() => setSelectedCategory(cat.id)}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedCategory(cat.id); } }}
+                  aria-pressed={isSelected}
+                  data-testid={`cat-${cat.id}`}
                 >
-                  <div className="spe-cat-bg" style={{ backgroundImage: `url(${cat.image})` }}></div>
+                  <div className="spe-cat-bg" style={cat.isComplex ? undefined : { backgroundImage: `url(/assets/categories/cat_${cat.id}.jpg)` }}></div>
                   <div className="spe-cat-content">
                     <div className="spe-cat-icon">{cat.icon}</div>
                     <div className="spe-cat-name">{cat.title}</div>
@@ -923,283 +575,68 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
             })}
           </div>
 
-          {/* Skip Option Button */}
           <div className="spe-skip-row">
-            <button
-              className="spe-btn-skip"
-              onClick={() => {
-                setIsCategorySkipped(true);
-                showToast('✨ Категория пропущена: ИИ определит всё по описанию!');
-              }}
-            >
-              ✨ Пропустить → ИИ определит по описанию
+            <button type="button" className="spe-btn-skip" onClick={() => setIsCategorySkipped(true)}>
+              Не знаю, что выбрать — определить по описанию
             </button>
           </div>
         </>
       ) : (
-        /* Skipped Category Banner (matches screenshot) */
         <div className="spe-category-skipped-banner">
           <div className="spe-skipped-left">
-            <span className="spe-check-green">✅</span>
-            <strong>КАТЕГОРИЯ: ОПРЕДЕЛИТ ИИ ПО ОПИСАНИЮ</strong>
+            <span className="spe-check-green">{detected ? '✅' : '✍️'}</span>
+            <strong>
+              {detected
+                ? `По описанию: ${selectionTitle} (слово «${detected.word}»)`
+                : 'Опишите задачу в шаге 4 — вид работ определится по словам'}
+            </strong>
           </div>
-          <button
-            type="button"
-            className="spe-btn-manual-select"
-            onClick={() => setIsCategorySkipped(false)}
-          >
+          <button type="button" className="spe-btn-manual-select" onClick={() => setIsCategorySkipped(false)}>
             Выбрать вручную
           </button>
         </div>
       )}
 
-      {/* Mode Selection Tabs (Быстрый / Полный 3D / Контур) */}
-      <div className="spe-modes-tabs-row mt-4">
-        <button
-          className={`spe-mode-tab ${analysisModeTab === 'fast' ? 'active' : ''}`}
-          onClick={() => handleSetAnalysisTab('fast')}
-        >
-          <span>📸</span>
-          <div>
-            <strong>Быстрый</strong>
-            <small>1 фото</small>
-          </div>
-        </button>
-
-        <button
-          className={`spe-mode-tab ${analysisModeTab === '3d' ? 'active' : ''}`}
-          onClick={() => handleSetAnalysisTab('3d')}
-        >
-          <span>📐</span>
-          <div>
-            <strong>Полный 3D</strong>
-            <small>5–10 фото</small>
-          </div>
-        </button>
-
-        <button
-          className={`spe-mode-tab ${analysisModeTab === 'contour' ? 'active' : ''}`}
-          onClick={() => handleSetAnalysisTab('contour')}
-        >
-          <span>✏️</span>
-          <div>
-            <strong>Контур</strong>
-            <small>рисовать на фото</small>
-          </div>
-        </button>
-      </div>
-
-      {/* Mode 3D Info Banner */}
-      {analysisModeTab === '3d' && (
-        <div className="spe-mode-info-banner mode-3d">
-          <span className="spe-mode-icon">📐</span>
-          <div>
-            <strong>Полный 3D-анализ:</strong> загрузите 5–10 фото объекта с разных ракурсов. Для точного масштаба положите <strong>ArUco маркер</strong> или лист А4 рядом с объектом. Система автоматически построит 3D-облако точек и извлечёт реальные размеры.
-          </div>
-        </div>
-      )}
-
-      {/* Mode Contour Tool Bar */}
-      {analysisModeTab === 'contour' && (
-        <div className="spe-contour-container">
-          <div className="spe-mode-info-banner mode-contour">
-            <span className="spe-mode-icon">✏️</span>
-            <div style={{ flex: 1 }}>
-              <strong>Контурный режим:</strong> кликайте прямо по фото или сетке чертежа для расстановки точек контура (P1, P2, P3...). Нажмите «Замкнуть» или кликните на первую точку P1 для вычисления точной площади в м².
-            </div>
-            <div className="spe-contour-scale-btns" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-              <span style={{ fontSize: '0.8rem', color: '#a39cc2' }}>Масштаб:</span>
-              <select
-                value={scaleRatioMeters}
-                onChange={e => {
-                  const val = parseFloat(e.target.value);
-                  setScaleRatioMeters(val);
-                  setScaleSize(`${val} м`);
-                  if (contourPoints.length >= 3) {
-                    const stats = computePolygonStats(contourPoints, val);
-                    setContourAreaM2(stats.area);
-                    setContourPerimeterM(stats.perimeter);
-                  }
-                }}
-                style={{
-                  background: 'rgba(20, 21, 38, 0.9)',
-                  border: '1px solid rgba(255, 255, 255, 0.2)',
-                  color: '#fff',
-                  padding: '4px 8px',
-                  borderRadius: '8px',
-                  fontSize: '0.82rem'
-                }}
-              >
-                <option value={2.0}>2.0 м (Дверной проём / Санузел)</option>
-                <option value={3.0}>3.0 м (Комната / Высота этажа)</option>
-                <option value={5.0}>5.0 м (Фасад / Большой зал)</option>
-                <option value={10.0}>10.0 м (Кровля / Участок)</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Photo Selector for Contour (if photos exist) */}
-          {photos.length > 1 && (
-            <div style={{ display: 'flex', gap: '8px', margin: '8px 0 12px', overflowX: 'auto', paddingBottom: '4px' }}>
-              <span style={{ fontSize: '0.8rem', color: '#a39cc2', alignSelf: 'center', whiteSpace: 'nowrap' }}>📸 Выберите фото:</span>
-              {photos.map((p, idx) => (
-                <button
-                  key={p.id}
-                  type="button"
-                  onClick={() => setSelectedContourPhotoIdx(idx)}
-                  style={{
-                    background: selectedContourPhotoIdx === idx ? '#7c3aed' : 'rgba(255,255,255,0.06)',
-                    border: selectedContourPhotoIdx === idx ? '2px solid #c4b5fd' : '1px solid rgba(255,255,255,0.1)',
-                    color: '#fff',
-                    padding: '4px 10px',
-                    borderRadius: '8px',
-                    fontSize: '0.78rem',
-                    cursor: 'pointer',
-                    whiteSpace: 'nowrap'
-                  }}
-                >
-                  Фото #{idx + 1}
-                </button>
-              ))}
-            </div>
-          )}
-
-          <div className="spe-contour-toolbar" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '10px' }}>
-            <button
-              type="button"
-              className={`spe-ctool-btn ${isDrawing ? 'active' : ''}`}
-              onClick={() => {
-                setIsDrawing(!isDrawing);
-                showToast(isDrawing ? 'Режим рисования выключен' : '🖊️ Кликайте по экрану для добавления точек');
-              }}
-            >
-              🖊️ Рисовать ({contourPoints.length} точек)
-            </button>
-            <button
-              type="button"
-              className="spe-ctool-btn"
-              disabled={contourPoints.length === 0}
-              onClick={() => {
-                setContourPoints(prev => prev.slice(0, -1));
-                setIsContourClosed(false);
-                showToast('↩️ Отменена последняя точка');
-              }}
-            >
-              ↩️ Отмена
-            </button>
-            <button
-              type="button"
-              className="spe-ctool-btn"
-              disabled={contourPoints.length === 0}
-              onClick={() => {
-                setContourPoints([]);
-                setIsContourClosed(false);
-                setContourAreaM2(0);
-                setContourPerimeterM(0);
-                showToast('🗑️ Холст очищен');
-              }}
-            >
-              🗑️ Очистить
-            </button>
-            <button
-              type="button"
-              className="spe-ctool-btn highlight"
-              disabled={contourPoints.length < 3}
-              onClick={handleCloseContour}
-              style={{ background: isContourClosed ? '#10b981' : '#7c3aed' }}
-            >
-              {isContourClosed ? '✅ Замкнут' : '🔒 Замкнуть контур'}
-            </button>
-          </div>
-
-          <div className="spe-contour-canvas-box" style={{ padding: '8px', background: '#090d16', border: '1px solid rgba(185,164,255,0.25)', borderRadius: '16px', overflow: 'hidden' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 10px', color: '#a39cc2', fontSize: '0.8rem' }}>
-              <span>📸 {photos.length > 0 ? `Фото #${selectedContourPhotoIdx + 1} для контура` : 'Архитектурная сетка чертежа (кликните, чтобы нарисовать контур)'}</span>
-              {contourAreaM2 > 0 && (
-                <span style={{ color: '#34d399', fontWeight: 800, fontSize: '0.88rem' }}>
-                  📐 Площадь: {contourAreaM2} м² • Периметр: {contourPerimeterM} м
-                </span>
-              )}
-            </div>
-
-            <div style={{ position: 'relative', width: '100%', display: 'flex', justifyContent: 'center' }}>
-              <canvas
-                ref={canvasRef}
-                width={800}
-                height={450}
-                onClick={handleCanvasClick}
-                onTouchEnd={(e) => {
-                  e.preventDefault();
-                  const touch = e.changedTouches[0];
-                  if (touch) {
-                    const rect = canvasRef.current.getBoundingClientRect();
-                    handleCanvasClick({
-                      clientX: touch.clientX,
-                      clientY: touch.clientY,
-                      target: canvasRef.current,
-                    });
-                  }
-                }}
-                style={{
-                  width: '100%',
-                  maxHeight: '450px',
-                  borderRadius: '12px',
-                  cursor: isDrawing ? 'crosshair' : 'default',
-                  touchAction: 'none',
-                  display: 'block'
-                }}
-              />
-            </div>
-
-            {/* Quick action bar below canvas */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 8px', flexWrap: 'wrap', gap: '8px' }}>
-              <span style={{ fontSize: '0.78rem', color: '#8a82a8' }}>
-                💡 Подсказка: расставьте угловые точки помещения, кровли или участка. Нажмите «Замкнуть», чтобы рассчитать смету.
-              </span>
-              {contourPoints.length >= 3 && !isContourClosed && (
-                <button
-                  type="button"
-                  onClick={handleCloseContour}
-                  style={{
-                    background: '#10b981',
-                    border: 'none',
-                    color: '#fff',
-                    padding: '6px 14px',
-                    borderRadius: '8px',
-                    fontWeight: 700,
-                    fontSize: '0.82rem',
-                    cursor: 'pointer'
-                  }}
-                >
-                  ✅ Завершить и замкнуть ({contourPoints.length} тчк)
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* STEP 2: ЗАГРУЗИТЕ ФОТО ОБЪЕКТА */}
+      {/* ШАГ 2: ОБМЕР */}
       <div className="spe-step-title-row mt-4">
         <div className="spe-step-badge">
           <span className="spe-num">2</span>
-          <h3>Загрузите фото объекта</h3>
+          <h3>Обмер</h3>
         </div>
-        <span className="spe-step-optional">(необязательно, до 10 фото - {photos.length}/10)</span>
+        {selection && techmaps[selection.id] && (
+          <span className="spe-step-optional">контур: {techmaps[selection.id].baseLabel.toLowerCase()}</span>
+        )}
+      </div>
+      <ContourMeasure photos={photos} geo={geo} setGeo={setGeo} showToast={showToast} />
+
+      {/* ШАГ 3: ПАРАМЕТРЫ */}
+      {selection && catalog && (
+        <>
+          <div className="spe-step-title-row mt-4">
+            <div className="spe-step-badge">
+              <span className="spe-num">3</span>
+              <h3>Как делаем</h3>
+            </div>
+          </div>
+          <SmetaParams techmaps={techmaps} selection={selection} complexes={complexes} values={paramValues} setValues={setParamValues} />
+        </>
+      )}
+
+      {/* ШАГ 4: ФОТО И ОПИСАНИЕ */}
+      <div className="spe-step-title-row mt-4">
+        <div className="spe-step-badge">
+          <span className="spe-num">4</span>
+          <h3>Фото и описание</h3>
+        </div>
+        <span className="spe-step-optional">необязательно · фото {photos.length}/10</span>
       </div>
 
-      {/* Tip Banner */}
-      <div className="spe-tip-banner">
-        <span className="spe-tip-icon">💡</span>
-        <div>
-          <strong>Для точного AI-анализа:</strong> хорошее освещение, минимум 1280×720, разные ракурсы объекта. AI распознаёт конструкции и автоматически формирует смету.
-        </div>
-      </div>
-
-      {/* Upload Dropzone with Drag-and-Drop */}
       <div
         className={`spe-dropzone ${isDraggingOver ? 'drag-active' : ''}`}
+        role="button"
+        tabIndex={0}
         onClick={() => document.getElementById('spe-file-picker').click()}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); document.getElementById('spe-file-picker').click(); } }}
         onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
         onDragEnter={(e) => { e.preventDefault(); e.stopPropagation(); setIsDraggingOver(true); }}
         onDragLeave={(e) => { e.preventDefault(); e.stopPropagation(); setIsDraggingOver(false); }}
@@ -1208,595 +645,106 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
           e.stopPropagation();
           setIsDraggingOver(false);
           const dt = e.dataTransfer;
-          if (dt?.files?.length > 0) {
-            handleFileUpload({ target: { files: dt.files } });
-          }
+          if (dt?.files?.length > 0) handleFileUpload({ target: { files: dt.files } });
         }}
       >
-        <input
-          type="file"
-          id="spe-file-picker"
-          multiple
-          accept="image/*"
-          className="qg-visually-hidden"
-          aria-label="Выбрать фото объекта"
-          onChange={handleFileUpload}
-        />
+        <input type="file" id="spe-file-picker" multiple accept="image/*" className="qg-visually-hidden" aria-label="Выбрать фото объекта" onChange={handleFileUpload} />
         <div className="spe-drop-icon">{isDraggingOver ? '📥' : '📸'}</div>
-        <p className="spe-drop-main">{isDraggingOver ? 'Отпустите файлы для загрузки' : 'Перетащите фото или нажмите для выбора'}</p>
-        <p className="spe-drop-sub">JPG, PNG - до 10MB каждое - до 10 фото</p>
+        <p className="spe-drop-main">{isDraggingOver ? 'Отпустите файлы' : 'Фото объекта или плана'}</p>
+        <p className="spe-drop-sub">План можно обвести в шаге 2 («Контур на плане»); в режимах «Детальный» и «Полный» фото разберёт ИИ</p>
       </div>
 
-      {/* Photos Thumbnails */}
       {photos.length > 0 && (
         <div className="spe-thumbs-wrap">
           {photos.map(p => (
             <div key={p.id} className="spe-thumb-box">
               <img src={p.url} alt={p.name} />
-              <button
-                type="button"
-                className="spe-thumb-remove"
-                aria-label={`Удалить ${p.name}`}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  removePhoto(p.id);
-                }}
-              >
-                ✕
-              </button>
+              <button type="button" className="spe-thumb-remove" aria-label={`Удалить ${p.name}`} onClick={(e) => { e.stopPropagation(); removePhoto(p.id); }}>✕</button>
             </div>
           ))}
         </div>
       )}
 
-      {/* STEP 3: ОПИСАНИЕ ДЛЯ ИИ */}
-      <div className="spe-step-title-row mt-4">
-        <div className="spe-step-badge">
-          <span className="spe-num">3</span>
-          <h3>Опишите задачу</h3>
-        </div>
-      </div>
-
-      {/* Info Notice Box */}
-      <div className="spe-info-notice">
-        <span className="spe-notice-icon">🤖</span>
-        <div>
-          <strong>Как работает ИИ-анализ:</strong> ИИ распознаёт фото и сопоставляет с описанием. Из описания извлекаются площади, объёмы и тип работ. Чем точнее описание — тем точнее расчёт.
-        </div>
-      </div>
-
-      <label htmlFor="spe-description" className="qg-visually-hidden">Описание объекта и задачи</label>
+      <label htmlFor="spe-description" className="qg-visually-hidden">Описание задачи</label>
       <textarea
         id="spe-description"
-        rows="4"
+        rows="3"
         className="spe-description-textarea"
-        placeholder={`Опишите объект и задачу, например:\n• Ванная комната 3×4 метра, замена плитки и сантехники\n• Крыша частного дома, площадь 120 м², замена кровли\n• Офис 50 м², косметический ремонт стен и потолка`}
+        placeholder={'Например: ванная 2×2 м, снять старую плитку, положить керамогранит, поставить душевую кабину'}
         value={description}
         onChange={e => setDescription(e.target.value)}
       ></textarea>
 
-      {/* MISS-3: Поле ввода площади */}
-      <div style={{ display: 'flex', gap: '10px', alignItems: 'center', margin: '8px 0 12px' }}>
-        <label htmlFor="spe-area" style={{ fontSize: '.875rem', color: '#b3c0d4', fontWeight: 600, whiteSpace: 'nowrap' }}>Площадь, м²</label>
-        <input
-          id="spe-area"
-          type="number"
-          min="1"
-          max="100000"
-          step="0.1"
-          placeholder="напр. 50"
-          value={manualArea}
-          onChange={e => setManualArea(e.target.value)}
-          style={{
-            flex: 1, maxWidth: '140px', padding: '8px 12px', background: 'rgba(255,255,255,0.04)',
-            border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff',
-            fontSize: '.9rem', outline: 'none',
-          }}
-        />
-        {contourAreaM2 > 0 && (
-          <span style={{ fontSize: '.78rem', color: '#b9a4ff' }}>
-            (по контуру: {contourAreaM2.toFixed(1)} м²)
-          </span>
-        )}
-      </div>
-
-      {/* Region Selector */}
       <div className="spe-region-row">
-        <label className="spe-region-label" htmlFor="spe-region">Регион строительства</label>
+        <label className="spe-region-label" htmlFor="spe-region">Город</label>
         <select
           id="spe-region"
           className="spe-region-select"
-          value={selectedRegion}
+          value={city}
           onChange={e => {
-            setSelectedRegion(e.target.value);
-            try { localStorage.setItem('qazgost_estimate_region', e.target.value); } catch {}
+            setCity(e.target.value);
+            try { localStorage.setItem('qazgost_estimate_city', e.target.value); } catch { /* приватный режим */ }
           }}
         >
-          {REGIONS.map(r => (
-            <option key={r.id} value={r.id}>
-              {r.name} {r.coeff !== 1.0 ? `(×${r.coeff.toFixed(2)})` : '(базовый)'}
-            </option>
+          {regions.map(([name, k]) => (
+            <option key={name} value={name}>{name} {k !== 1 ? `(×${Number(k).toFixed(2)})` : '(базовые цены)'}</option>
           ))}
         </select>
-        <span className="spe-region-coeff">
-          Коэфф. ×{(REGIONS.find(r => r.id === selectedRegion)?.coeff || 1.0).toFixed(2)}
-        </span>
+        <span className="spe-region-coeff">цены Алматы × {Number((catalog?.regions || {})[city] || 1).toFixed(2)}</span>
       </div>
 
-      {/* AI Provider Status */}
-      <div className="spe-provider-banner" style={{ background: 'rgba(16, 185, 129, 0.14)', border: '1px solid rgba(16, 185, 129, 0.4)', color: '#6ee7b7', display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 16px', borderRadius: '12px', marginTop: '10px' }}>
-        <span style={{ fontSize: '1.3rem' }}>🟢</span>
-        <div>
-          <strong style={{ color: '#34d399', display: 'block', fontSize: '0.92rem' }}>
-            QAZGOST AI Engine & GPT-4o Vision подключены и активны
-          </strong>
-          <span style={{ fontSize: '0.8rem', color: '#cbc5e3' }}>
-            Собственная нейросеть дефектоскопии + GPT-4o настроены для анализа чертежей, детекции объемов и расчета смет по сметным нормам РК (ЭСН РК 8.04-01-2022, НДЦС РК 8.01-08-2022).
-          </span>
-        </div>
-      </div>
-
-      {/* MULTI-PASS AI ENGINE */}
+      {/* РЕЖИМ АНАЛИЗА */}
       <div className="spe-engine-header">
-        <span className="spe-engine-icon">🚀</span>
-        <h3>РЕЖИМ АНАЛИЗА (MULTI-PASS AI ENGINE)</h3>
+        <span className="spe-engine-icon">🧮</span>
+        <h3>Режим анализа</h3>
+      </div>
+      <div className="sm-modes" role="radiogroup" aria-label="Режим анализа">
+        {MODES.map((m) => (
+          <button key={m.id} type="button" role="radio" aria-checked={smetaMode === m.id}
+            className={`sm-mode ${smetaMode === m.id ? 'is-on' : ''}`} data-testid={`mode-${m.id}`}
+            onClick={() => { setSmetaMode(m.id); try { localStorage.setItem('qazgost_smeta_mode', m.id); } catch { /* приватный режим */ } }}>
+            <strong>{m.title}</strong>
+            <ul>{m.points.map((p) => <li key={p}>{p}</li>)}</ul>
+          </button>
+        ))}
+      </div>
+      <div className="sm-key-row">
+        <span>
+          {userGptKey || userGptAccount
+            ? 'Ключ OpenAI подключён — в детальном и полном режиме фото разберёт ИИ.'
+            : 'ИИ-разбор фото работает с ключом OpenAI на сервере или вашим собственным.'}
+        </span>
+        <button type="button" onClick={() => setShowGptModal(true)}>Ключ OpenAI</button>
       </div>
 
-      <div className="spe-engine-modes-grid">
-
-        {/* Mode 1: Авто */}
-        <div
-          className={`spe-engine-card ${aiEngineMode === 'auto' ? 'selected' : ''}`}
-          onClick={() => {
-            setAiEngineMode('auto');
-            setShowGptModal(true);
-          }}
-          style={{ position: 'relative', cursor: 'pointer' }}
-        >
-          <div style={{ position: 'absolute', top: '8px', right: '8px', background: (userGptAccount || userGptKey) ? 'rgba(16, 185, 129, 0.25)' : 'rgba(185, 164, 255, 0.25)', border: (userGptAccount || userGptKey) ? '1px solid #10b981' : '1px solid #b9a4ff', color: (userGptAccount || userGptKey) ? '#10b981' : '#b9a4ff', fontSize: '0.65rem', fontWeight: '800', padding: '2px 6px', borderRadius: '6px' }}>
-            {(userGptAccount || userGptKey) ? '🟢 CHATGPT АКТИВЕН' : '🔑 ВОЙТИ В CHATGPT'}
-          </div>
-          <div className="spe-ecard-head">⚡⚡ Авто</div>
-          <p className="spe-ecard-desc">
-            {userGptAccount ? `Аккаунт: ${userGptAccount.email}` : 'Вход в аккаунт ChatGPT + авто-выбор'}
-          </p>
-          <button className="spe-btn-select-mode">
-            {aiEngineMode === 'auto' ? ((userGptAccount || userGptKey) ? '✓ Аккаунт подключен ⚙️' : '✓ Войти в ChatGPT') : 'Выбрать'}
-          </button>
-        </div>
-
-        {/* Mode 2: Быстрый */}
-        <div
-          className={`spe-engine-card ${aiEngineMode === 'fast' ? 'selected' : ''}`}
-          onClick={() => setAiEngineMode('fast')}
-        >
-          <div className="spe-ecard-head">⚡⚡ Быстрый</div>
-          <p className="spe-ecard-desc">1 AI-вызов, быстрый результат</p>
-          <button className="spe-btn-select-mode">
-            {aiEngineMode === 'fast' ? '✓ Выбран' : 'Выбрать'}
-          </button>
-        </div>
-
-        {/* Mode 3: Детальный */}
-        <div
-          className={`spe-engine-card ${aiEngineMode === 'detailed' ? 'selected' : ''}`}
-          onClick={() => setAiEngineMode('detailed')}
-          style={{ position: 'relative' }}
-        >
-          <div style={{ position: 'absolute', top: '8px', right: '8px', background: 'rgba(16, 185, 129, 0.2)', border: '1px solid #10b981', color: '#10b981', fontSize: '0.65rem', fontWeight: '800', padding: '2px 6px', borderRadius: '6px' }}>
-            PRO KEY
-          </div>
-          <div className="spe-ecard-head">🏗️🏗️ Детальный</div>
-          <p className="spe-ecard-desc">Несколько проходов + аудит</p>
-          <button className="spe-btn-select-mode">
-            {aiEngineMode === 'detailed' ? '✓ Выбран' : 'Выбрать'}
-          </button>
-        </div>
-
-        {/* Mode 4: VIP */}
-        <div
-          className={`spe-engine-card ${aiEngineMode === 'vip' ? 'selected' : ''}`}
-          onClick={() => setAiEngineMode('vip')}
-        >
-          <div className="spe-ecard-head">👑👑 VIP</div>
-          <p className="spe-ecard-desc">Полный pipeline + WBS маппинг</p>
-          <button className="spe-btn-select-mode">
-            {aiEngineMode === 'vip' ? '✓ Выбран' : 'Выбрать'}
-          </button>
-        </div>
-
-      </div>
-
-      {/* Dynamic CTA Pill Button matching active tab */}
       <div className="spe-cta-wrap">
-        <button
-          className="spe-btn-cta-glow"
-          onClick={handleRunAiEstimate}
-          disabled={isScanning}
-        >
+        <button className="spe-btn-cta-glow" onClick={handleCalculate} disabled={isScanning} data-testid="smeta-calc">
           {isScanning ? (
-            <span className="spe-cta-scanning">
-              <span className="spe-spinner">⚙️</span>
-              {scanStep}
-            </span>
+            <span className="spe-cta-scanning"><span className="spe-spinner">⚙️</span>{scanStep}</span>
           ) : (
-            <span>
-              {analysisModeTab === 'fast' && `🔍 Быстрый анализ (${photos.length > 0 ? photos.length : 1} фото)`}
-              {analysisModeTab === '3d' && `📐 Полный 3D-анализ (SfM)`}
-              {analysisModeTab === 'contour' && `✏️ Рассчитать по контуру`}
-            </span>
+            <span>Рассчитать смету{selectionTitle ? ` · ${selectionTitle}` : ''}{geo.area > 0 ? ` · ${geo.area.toLocaleString('ru-RU')} м²` : ''}</span>
           )}
         </button>
-        <p className="spe-cta-note">AI-сервер проанализирует фото, определит объекты и рассчитает смету</p>
+        <p className="spe-cta-note">Расчёт идёт на сервере QazGost по технологическим картам; ничего не выдумывается и не подставляется «примерно».</p>
       </div>
 
-      {/* Calculated AI Estimate Result Box */}
-      {calculatedEstimate && (
-        <div className="spe-result-box" ref={resultRef}>
-          <div className="spe-res-head">
-            <h3 className="spe-res-title">Итоговая смета</h3>
-            <span className="spe-res-badge">{calculatedEstimate.category}</span>
-            {calculatedEstimate.isRealVision && (
-              <span className="spe-res-badge" style={{ background: 'rgba(16,185,129,.15)', color: '#6ee7b7', borderColor: 'rgba(16,185,129,.4)' }}>
-                👁️ Vision AI • {calculatedEstimate.photosAnalyzed} фото
-              </span>
-            )}
-            {calculatedEstimate.isComplex && (
-              <span className="spe-res-badge" style={{ background: 'rgba(168,85,247,.15)', color: '#c084fc', borderColor: 'rgba(168,85,247,.4)' }}>
-                🏗️ Комплексный
-              </span>
-            )}
-          </div>
+      {calcError && (
+        <div className="sm-error" role="alert" data-testid="smeta-error">
+          <span>{calcError}</span>
+          {!isScanning && selection && geo.area > 0 && <button type="button" className="sm-btn" onClick={handleCalculate}>Повторить</button>}
+        </div>
+      )}
 
-          {/* 3 Price Scenarios Tabs — BUG-1 FIX: пересчёт вместо умножения */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', margin: '14px 0 16px' }}>
-            {[
-              { key: 'economy', label: 'Эконом, −20%', color: '#10b981', activeBg: 'rgba(16,185,129,0.2)', activeBorder: '#10b981', activeText: '#6ee7b7' },
-              { key: 'standard', label: 'Стандарт по нормам', color: '#b9a4ff', activeBg: 'rgba(185,164,255,0.2)', activeBorder: '#b9a4ff', activeText: '#b9a4ff' },
-              { key: 'premium', label: 'Премиум, +35%', color: '#a855f7', activeBg: 'rgba(168,85,247,0.2)', activeBorder: '#a855f7', activeText: '#c084fc' },
-            ].map(sc => (
-              <button
-                key={sc.key}
-                type="button"
-                aria-pressed={selectedScenario === sc.key}
-                onClick={() => recalculateScenario(sc.key)}
-                style={{
-                  background: selectedScenario === sc.key ? sc.activeBg : 'rgba(255,255,255,0.03)',
-                  border: selectedScenario === sc.key ? `2px solid ${sc.activeBorder}` : '1px solid rgba(255,255,255,0.08)',
-                  color: selectedScenario === sc.key ? sc.activeText : '#a39cc2',
-                  padding: '10px 8px', borderRadius: '10px', cursor: 'pointer',
-                  textAlign: 'center', transition: 'all 0.2s ease',
-                }}
-              >
-                <div style={{ fontSize: '0.78rem', fontWeight: 700 }}>{sc.label}</div>
-                {/* Раньше все три кнопки показывали одну и ту же сумму текущего сценария */}
-                <div style={{ fontSize: '0.95rem', fontWeight: 800, color: selectedScenario === sc.key ? '#fff' : '#a39cc2', marginTop: '2px' }}>
-                  {selectedScenario === sc.key ? `${calculatedEstimate.total?.toLocaleString('ru-RU')} ₸` : 'Пересчитать'}
-                </div>
-              </button>
-            ))}
-          </div>
-
-          {calculatedEstimate.total > 0 && (
-            <div className="spe-res-sum qg-price-tag">
-              {calculatedEstimate.total.toLocaleString('ru-RU')} ₸
-            </div>
-          )}
-
-          <div className="spe-res-grid">
-            {calculatedEstimate.worksCost > 0 && (
-              <div className="spe-res-col">
-                <span className="label">Строительно-монтажные работы (СМР):</span>
-                <strong>{calculatedEstimate.worksCost.toLocaleString('ru-RU')} ₸</strong>
-              </div>
-            )}
-
-            {calculatedEstimate.materialsCost > 0 && (
-              <div className="spe-res-col">
-                <span className="label">Материалы и ресурсы (BOM):</span>
-                <strong>{calculatedEstimate.materialsCost.toLocaleString('ru-RU')} ₸</strong>
-              </div>
-            )}
-
-            <div className="spe-res-col">
-              <span className="label">Срок выполнения:</span>
-              <strong>~{calculatedEstimate.timelineDays} дней</strong>
-            </div>
-
-            {calculatedEstimate.pricePerM2 > 0 && (
-              <div className="spe-res-col">
-                <span className="label">Стоимость за 1 м²:</span>
-                <strong style={{ color: '#b9a4ff' }}>{calculatedEstimate.pricePerM2?.toLocaleString('ru-RU')} ₸/м²</strong>
-              </div>
-            )}
-          </div>
-
-          {/* Works vs Materials donut chart */}
-          {calculatedEstimate.worksPercent > 0 && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '20px', margin: '14px 0', padding: '12px 16px', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.06)' }}>
-              <svg width="70" height="70" viewBox="0 0 36 36">
-                <circle cx="18" cy="18" r="15.9" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="3" />
-                <circle cx="18" cy="18" r="15.9" fill="none" stroke="#10b981" strokeWidth="3"
-                  strokeDasharray={`${calculatedEstimate.worksPercent} ${100 - calculatedEstimate.worksPercent}`}
-                  strokeDashoffset="25" strokeLinecap="round" />
-                <circle cx="18" cy="18" r="15.9" fill="none" stroke="#f59e0b" strokeWidth="3"
-                  strokeDasharray={`${calculatedEstimate.materialsPercent} ${100 - calculatedEstimate.materialsPercent}`}
-                  strokeDashoffset={`${25 - calculatedEstimate.worksPercent}`} strokeLinecap="round" />
-              </svg>
-              <div style={{ flex: 1 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '.82rem', marginBottom: '4px' }}>
-                  <span style={{ color: '#10b981' }}>● Работы: {calculatedEstimate.worksPercent}%</span>
-                  <span style={{ color: '#10b981', fontWeight: 700 }}>{calculatedEstimate.worksCost?.toLocaleString('ru-RU')} ₸</span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '.82rem' }}>
-                  <span style={{ color: '#f59e0b' }}>● Материалы: {calculatedEstimate.materialsPercent}%</span>
-                  <span style={{ color: '#f59e0b', fontWeight: 700 }}>{calculatedEstimate.materialsCost?.toLocaleString('ru-RU')} ₸</span>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Buy Materials CTA */}
-          {calculatedEstimate.marketplaceMaterials && calculatedEstimate.marketplaceMaterials.length > 0 && (
-            <button
-              type="button"
-              onClick={() => {
-                // Передаём материалы в маркетплейс через CustomEvent
-                const event = new CustomEvent('open_marketplace_bom', {
-                  detail: {
-                    materials: calculatedEstimate.marketplaceMaterials,
-                    category: calculatedEstimate.category,
-                    total: calculatedEstimate.materialsCost,
-                  }
-                });
-                window.dispatchEvent(event);
-                showToast(`🛒 Открываем маркетплейс: ${calculatedEstimate.marketplaceMaterials.length} позиций`);
-              }}
-              style={{
-                width: '100%', padding: '14px', background: 'linear-gradient(135deg, #f59e0b, #d97706)',
-                border: 'none', borderRadius: '12px', color: '#0a1628', fontWeight: 800, fontSize: '0.95rem',
-                cursor: 'pointer', marginTop: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                boxShadow: '0 4px 15px rgba(245, 158, 11, 0.3)',
-              }}
-            >
-              🛒 Купить материалы в маркетплейсе ({calculatedEstimate.marketplaceMaterials.length} поз.)
-              <span style={{ fontSize: '0.8rem', opacity: 0.8 }}>
-                ~{calculatedEstimate.materialsCost?.toLocaleString('ru-RU')} ₸
-              </span>
-            </button>
-          )}
-
-          {/* Dimensions from AI Vision */}
-          {calculatedEstimate.dimensions && Object.keys(calculatedEstimate.dimensions).length > 0 && (
-            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', margin: '12px 0', padding: '10px 14px', background: 'rgba(185,164,255,.06)', borderRadius: '10px', border: '1px solid rgba(185,164,255,.15)' }}>
-              <span style={{ fontSize: '.82rem', color: '#b9a4ff', fontWeight: 700 }}>📐 AI определил размеры:</span>
-              {calculatedEstimate.dimensions.area_m2 > 0 && <span style={{ fontSize: '.82rem', color: '#ece9f8' }}>Площадь: <strong>{calculatedEstimate.dimensions.area_m2} м²</strong></span>}
-              {calculatedEstimate.dimensions.volume_m3 > 0 && <span style={{ fontSize: '.82rem', color: '#ece9f8' }}>Объём: <strong>{calculatedEstimate.dimensions.volume_m3} м³</strong></span>}
-              {calculatedEstimate.dimensions.length_m > 0 && <span style={{ fontSize: '.82rem', color: '#ece9f8' }}>Длина: <strong>{calculatedEstimate.dimensions.length_m} п.м.</strong></span>}
-            </div>
-          )}
-
-          {/* Items Table with Group Headers */}
-          {calculatedEstimate.items && calculatedEstimate.items.length > 0 && (
-            <div style={{ marginTop: '16px' }}>
-              <h4 style={{ margin: '0 0 8px', fontSize: '.92rem', color: '#b9a4ff', fontWeight: 800 }}>
-                📋 Детализированная смета ({calculatedEstimate.items.length} позиций):
-              </h4>
-              <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '.82rem' }}>
-                  <thead>
-                    <tr style={{ borderBottom: '1px solid rgba(255,255,255,.1)' }}>
-                      <th style={{ textAlign: 'left', padding: '8px 6px', color: '#a39cc2', fontWeight: 700, width: '40%' }}>Наименование</th>
-                      <th style={{ textAlign: 'right', padding: '8px 6px', color: '#a39cc2', fontWeight: 700, whiteSpace: 'nowrap' }}>Объём</th>
-                      <th style={{ textAlign: 'center', padding: '8px 6px', color: '#a39cc2', fontWeight: 700 }}>Ед.</th>
-                      <th style={{ textAlign: 'right', padding: '8px 6px', color: '#a39cc2', fontWeight: 700, whiteSpace: 'nowrap' }}>Цена за ед.</th>
-                      <th style={{ textAlign: 'right', padding: '8px 6px', color: '#a39cc2', fontWeight: 700 }}>Сумма</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {(() => {
-                      let lastGroup = '';
-                      const rows = [];
-                      calculatedEstimate.items.forEach((item, i) => {
-                        // Skip section headers for complex estimates
-                        if (item.isSection) {
-                          rows.push(
-                            <tr key={`sec-${i}`} style={{ background: 'rgba(168,85,247,0.08)' }}>
-                              <td colSpan={5} style={{ padding: '8px 8px', fontWeight: 900, fontSize: '.85rem', color: '#c084fc', borderTop: '2px solid rgba(168,85,247,0.2)' }}>
-                                🏗️ {item.name.replace(/═/g, '').trim()}
-                              </td>
-                            </tr>
-                          );
-                          lastGroup = '';
-                          return;
-                        }
-
-                        // Group header
-                        if (item.group && item.group !== lastGroup) {
-                          lastGroup = item.group;
-                          rows.push(
-                            <tr key={`gh-${i}`} style={{ background: 'rgba(185,164,255,0.06)' }}>
-                              <td colSpan={5} style={{ padding: '6px 8px', fontWeight: 800, fontSize: '.82rem', color: '#b9a4ff', borderTop: '1px solid rgba(185,164,255,0.15)' }}>
-                                {item.group === 'Итого' || item.group === 'ИТОГО' ? '📊' : '📂'} {item.group}
-                              </td>
-                            </tr>
-                          );
-                        }
-
-                        const qty = item.volume !== undefined ? item.volume : (item.quantity !== undefined ? item.quantity : 1);
-                        const unitPrice = item.unit_price !== undefined ? item.unit_price : (item.unitPrice !== undefined ? item.unitPrice : 0);
-                        const total = item.total || Math.round(qty * unitPrice);
-
-                        rows.push(
-                          <tr key={i} style={{ borderBottom: '1px solid rgba(255,255,255,.04)' }}>
-                            <td style={{ padding: '7px 6px', color: '#ece9f8', fontWeight: 500, paddingLeft: item.group ? '18px' : '6px' }}>
-                              {item.isMaterial && <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: '#f59e0b', marginRight: '6px', verticalAlign: 'middle' }}></span>}
-                              {!item.isMaterial && item.group !== 'Итого' && item.group !== 'ИТОГО' && <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: '#10b981', marginRight: '6px', verticalAlign: 'middle' }}></span>}
-                              {item.name}
-                            </td>
-                            <td style={{ padding: '7px 6px', color: '#cbc5e3', textAlign: 'right' }}>
-                              {typeof qty === 'number' ? (Number.isInteger(qty) ? qty : qty.toFixed(1)) : qty}
-                            </td>
-                            <td style={{ padding: '7px 6px', color: '#8a82a8', textAlign: 'center' }}>{item.unit || 'ед.'}</td>
-                            <td style={{ padding: '7px 6px', color: '#a39cc2', textAlign: 'right', whiteSpace: 'nowrap' }}>
-                              {unitPrice > 0 ? `${unitPrice.toLocaleString('ru-RU')} ₸` : '—'}
-                            </td>
-                            <td style={{ padding: '7px 6px', color: item.group === 'Итого' || item.group === 'ИТОГО' ? '#f59e0b' : '#fbbf24', fontWeight: item.group === 'Итого' || item.group === 'ИТОГО' ? 900 : 700, textAlign: 'right', whiteSpace: 'nowrap' }}>
-                              {total.toLocaleString('ru-RU')} ₸
-                            </td>
-                          </tr>
-                        );
-                      });
-                      return rows;
-                    })()}
-                  </tbody>
-                  {/* MISS-4: Итого в таблице */}
-                  <tfoot>
-                    <tr style={{ borderTop: '2px solid rgba(185,164,255,0.3)', background: 'rgba(185,164,255,0.06)' }}>
-                      <td colSpan={4} style={{ padding: '10px 8px', fontWeight: 900, fontSize: '.9rem', color: '#b9a4ff' }}>ИТОГО:</td>
-                      <td style={{ padding: '10px 8px', fontWeight: 900, fontSize: '1rem', color: '#fff', textAlign: 'right' }}>
-                        {calculatedEstimate.total?.toLocaleString('ru-RU')} ₸
-                      </td>
-                    </tr>
-                  </tfoot>
-                </table>
-              </div>
-              {/* Legend */}
-              <div style={{ display: 'flex', gap: '16px', marginTop: '8px', fontSize: '.75rem', color: '#8a82a8' }}>
-                <span><span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: '#10b981', marginRight: '4px', verticalAlign: 'middle' }}></span>Работы (СМР)</span>
-                <span><span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: '#f59e0b', marginRight: '4px', verticalAlign: 'middle' }}></span>Материалы</span>
-              </div>
-            </div>
-          )}
-
-          {/* Raw AI response (if JSON parse failed) */}
-          {calculatedEstimate.rawAiResponse && (
-            <div style={{ marginTop: '16px', padding: '14px', background: 'rgba(255,255,255,.03)', borderRadius: '10px', border: '1px solid rgba(255,255,255,.06)' }}>
-              <h4 style={{ margin: '0 0 8px', fontSize: '.88rem', color: '#f59e0b', fontWeight: 800 }}>🤖 Полный ответ AI:</h4>
-              <pre style={{ margin: 0, fontSize: '.78rem', color: '#cbc5e3', whiteSpace: 'pre-wrap', lineHeight: 1.55, maxHeight: '400px', overflow: 'auto' }}>{calculatedEstimate.rawAiResponse}</pre>
-            </div>
-          )}
-
-          <div className="spe-res-insights mt-3">
-            <h4>✨ Экспертный вывод AI:</h4>
-            <ul>
-              {calculatedEstimate.aiInsights.map((ins, i) => (
-                <li key={i}>{ins}</li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Action CTAs: Create Order, Download PDF, WhatsApp */}
-          <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid rgba(255,255,255,0.08)', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {createdOrderInfo ? (
-              <div style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.2), rgba(167,139,250,0.15))', border: '1px solid #10b981', borderRadius: '12px', padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
-                <div>
-                  <h4 style={{ margin: '0 0 4px 0', color: '#10b981', fontSize: '1.05rem', fontWeight: 800 }}>
-                    ✅ Заявка #{createdOrderInfo.id} успешно передана Менеджеру CRM!
-                  </h4>
-                  <p style={{ margin: 0, color: '#cbc5e3', fontSize: '0.84rem' }}>
-                    Инженер ПТО назначен на выезд для проверки объекта и подписания договора.
-                  </p>
-                </div>
-                <button
-                  onClick={() => onBack ? onBack() : showToast('Перейдите во вкладку «Мои заказы»')}
-                  style={{ background: '#10b981', color: '#0a1628', border: 'none', padding: '10px 18px', borderRadius: '8px', fontWeight: 800, cursor: 'pointer', fontSize: '0.85rem' }}
-                >
-                  📬 Открыть в «Мои заказы» →
-                </button>
-              </div>
-            ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '10px' }}>
-                <button
-                  onClick={() => {
-                    const finalAmount = calculatedEstimate.total || 0;
-                    const scenarioName = calculatedEstimate.scenarioLabel || (selectedScenario === 'economy' ? 'Эконом' : (selectedScenario === 'premium' ? 'Премиум' : 'Стандарт'));
-                    const newOrder = createPlatformOrder({
-                      title: `СМР по смете (${scenarioName}): ${calculatedEstimate.category || 'Комплексный ремонт'}`,
-                      category: calculatedEstimate.category || 'Отделочные работы',
-                      amount: finalAmount,
-                      budget: `${finalAmount.toLocaleString('ru-RU')} ₸`,
-                      description: `Смета сформирована AI [${scenarioName}]. Работы: ${(calculatedEstimate.worksCost || 0).toLocaleString('ru-RU')} ₸, Материалы: ${(calculatedEstimate.materialsCost || 0).toLocaleString('ru-RU')} ₸, Срок: ~${calculatedEstimate.timelineDays || 7} дн.`,
-                      type: 'estimate',
-                      status: 'new',
-                      estimateData: { ...calculatedEstimate, finalAmount, scenario: scenarioName }
-                    });
-                    setCreatedOrderInfo(newOrder);
-                    showToast(`🚀 Заявка ${newOrder.id} [${scenarioName}] успешно отправлена Менеджеру CRM!`);
-                  }}
-                  style={{ background: 'linear-gradient(90deg, #7c3aed, #10b981)', border: 'none', color: '#fff', padding: '14px 20px', borderRadius: '10px', fontWeight: 900, fontSize: '0.95rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 4px 15px rgba(2,132,199,0.4)' }}
-                >
-                  <span>🚀 Оформить заказ по этой смете</span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    // BUG-4 FIX: CSV — skip isSection, no scMult
-                    const scenarioName = calculatedEstimate.scenarioLabel || 'Стандарт';
-                    // Все ячейки экранируются (кавычки, «;», переводы строк, защита от формул =+-@); BOM для Excel
-                    const row = (...cells) => cells.map(csvCell).join(';');
-                    const lines = [
-                      row(`СМЕТА (${scenarioName}) — QazGost AI Engine`),
-                      row('Категория', calculatedEstimate.category || ''),
-                      row('Регион', calculatedEstimate.region || 'Алматы'),
-                      row('Площадь, м²', calculatedEstimate.area || '—'),
-                      row('Дата', new Date().toLocaleDateString('ru-RU')),
-                      '',
-                      row('№', 'Наименование', 'Объём', 'Ед.', 'Цена за ед.', 'Сумма'),
-                    ];
-                    let idx = 0;
-                    (calculatedEstimate.items || []).forEach((item) => {
-                      if (item.isSection) {
-                        lines.push(row('', String(item.name || '').replace(/═/g, '').trim(), '', '', '', ''));
-                        return;
-                      }
-                      idx++;
-                      const qty = item.volume || item.quantity || 1;
-                      const up = item.unit_price || item.unitPrice || 0;
-                      const tot = item.total || Math.round(qty * up);
-                      lines.push(row(idx, item.name, qty, item.unit || 'ед.', up, tot));
-                    });
-                    lines.push('');
-                    lines.push(row('', 'ИТОГО СМР', '', '', '', calculatedEstimate.worksCost || 0));
-                    lines.push(row('', 'ИТОГО Материалы', '', '', '', calculatedEstimate.materialsCost || 0));
-                    lines.push(row('', 'ВСЕГО', '', '', '', calculatedEstimate.total || 0));
-                    lines.push(row('', 'Стоимость за м²', '', '', '', calculatedEstimate.pricePerM2 || 0));
-                    lines.push(row('', 'Срок, дней', '', '', '', calculatedEstimate.timelineDays || 7));
-
-                    const blob = new Blob(['\ufeff' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `smeta_${calculatedEstimate.category}_${Date.now()}.csv`;
-                    a.click();
-                    URL.revokeObjectURL(url);
-                    showToast('📥 Смета скачана в формате CSV');
-                  }}
-                  className="spe-btn-export"
-                >
-                  <span>📥 Скачать смету (CSV)</span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    const scenarioName = calculatedEstimate.scenarioLabel || 'Стандарт';
-                    window.open(`https://wa.me/?text=${encodeURIComponent(
-                      `Строительная смета QazGost AI\n` +
-                      `Категория: ${calculatedEstimate.category}\n` +
-                      `Сценарий: ${scenarioName}\n` +
-                      `Работы: ${(calculatedEstimate.worksCost || 0).toLocaleString('ru-RU')} ₸\n` +
-                      `Материалы: ${(calculatedEstimate.materialsCost || 0).toLocaleString('ru-RU')} ₸\n` +
-                      `ИТОГО: ${(calculatedEstimate.total || 0).toLocaleString('ru-RU')} ₸\n` +
-                      `Срок: ~${calculatedEstimate.timelineDays || 7} дней`
-                    )}`, '_blank');
-                  }}
-                  style={{ background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.3)', color: '#4ade80', padding: '14px 16px', borderRadius: '10px', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
-                >
-                  <span>💬 В WhatsApp</span>
-                </button>
-              </div>
-            )}
-          </div>
+      {result && (
+        <div ref={resultRef}>
+          <SmetaResultView
+            result={result}
+            scenarioId={scenarioId}
+            setScenarioId={setScenarioId}
+            photoAnalysis={photoAnalysis}
+            techmaps={techmaps}
+            actions={resultActions}
+          />
         </div>
       )}
 
@@ -1970,10 +918,9 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
         </div>
       )}
 
-      {/* Estimate History */}
       {estimateHistory.length > 0 && (
         <div className="spe-history-section">
-          <div className="spe-history-title">📋 История расчётов (последние {estimateHistory.length})</div>
+          <div className="spe-history-title">История расчётов (последние {estimateHistory.length})</div>
           {estimateHistory.map((h, i) => (
             <div key={h.id || i} className="spe-history-item">
               <div>
