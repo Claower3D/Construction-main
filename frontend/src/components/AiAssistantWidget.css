@@ -1,0 +1,415 @@
+/* ════════════ Арман — ИИ-инженер QazGost ════════════ */
+.arm-widget {
+  --arm-gold: #f2b84b;
+  --arm-violet: #8b5cf6;
+  --arm-bg: #120e26;
+  --arm-bottom: 92px;
+  position: fixed;
+  right: 20px;
+  bottom: var(--arm-bottom);
+  z-index: 1060;
+  font-family: var(--qg-font, 'Manrope', system-ui, sans-serif);
+}
+
+/* ── Кнопка с лицом ── */
+.arm-trigger {
+  position: relative;
+  display: block;
+  width: 64px;
+  height: 64px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  cursor: pointer;
+  transition: transform 0.25s ease;
+}
+.arm-trigger::before {
+  /* вращающееся золото-фиолетовое кольцо */
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, #f2b84b, #8b5cf6 30%, #f472d0 55%, #f2b84b 80%, #8b5cf6);
+  animation: arm-spin 6s linear infinite;
+  filter: drop-shadow(0 0 10px rgba(160, 90, 255, 0.55));
+}
+.arm-trigger::after {
+  /* волна «говорит» */
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  border: 2px solid rgba(242, 184, 75, 0.7);
+  opacity: 0;
+}
+.arm-trigger.is-talking::after { animation: arm-ripple 1.1s ease-out infinite; }
+.arm-trigger:hover { transform: translateY(-2px) scale(1.04); }
+.arm-trigger:focus-visible { outline: 2px solid var(--qg-cyan, #ad9cff); outline-offset: 5px; }
+.arm-face {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: 50%;
+  background: #2a1d5c;
+  box-shadow: inset 0 0 0 2px #0f0b22;
+  animation: arm-breathe-face 4.6s ease-in-out infinite;
+}
+.arm-face img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.arm-online {
+  position: absolute;
+  right: 2px;
+  bottom: 3px;
+  width: 13px;
+  height: 13px;
+  border: 2px solid #0f0b22;
+  border-radius: 50%;
+  background: #34d399;
+  box-shadow: 0 0 8px rgba(52, 211, 153, 0.8);
+}
+.arm-trigger.is-open { transform: scale(0.92); }
+
+/* ── Подсказка-приветствие ── */
+.arm-teaser {
+  position: absolute;
+  right: 76px;
+  bottom: 8px;
+  display: flex;
+  align-items: flex-start;
+  width: max-content;
+  max-width: 250px;
+  animation: arm-pop 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.3) both;
+}
+.arm-teaser-msg {
+  padding: 12px 16px;
+  border: 1px solid rgba(176, 140, 255, 0.4);
+  border-radius: 16px 16px 4px 16px;
+  background: linear-gradient(160deg, #2b1f63, #1a1338);
+  box-shadow: 0 18px 40px -16px rgba(0, 0, 0, 0.8), 0 0 30px -10px rgba(150, 80, 255, 0.6);
+  color: #f3f1f9;
+  font: 600 0.875rem/1.4 var(--qg-font, sans-serif);
+  text-align: left;
+  cursor: pointer;
+}
+.arm-teaser-x {
+  position: absolute;
+  top: -9px;
+  left: -9px;
+  width: 22px;
+  height: 22px;
+  border: 1px solid rgba(176, 140, 255, 0.4);
+  border-radius: 50%;
+  background: #1a1338;
+  color: #bfb8d6;
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+/* ── Окно чата ── */
+.arm-window {
+  position: absolute;
+  right: 0;
+  bottom: 80px;
+  display: flex;
+  flex-direction: column;
+  width: 392px;
+  height: min(660px, calc(100dvh - var(--arm-bottom) - 104px));
+  overflow: hidden;
+  border: 1px solid rgba(176, 140, 255, 0.32);
+  border-radius: 24px;
+  background: var(--arm-bg);
+  box-shadow: 0 40px 90px -30px rgba(0, 0, 0, 0.95), 0 0 70px -20px rgba(150, 80, 255, 0.55);
+  transform-origin: 100% 100%;
+  animation: arm-open 0.38s cubic-bezier(0.2, 0.9, 0.3, 1.1) both;
+}
+
+/* Сцена с живым портретом */
+.arm-stage {
+  --px: 0;
+  --py: 0;
+  position: relative;
+  flex: none;
+  height: 300px;
+  overflow: hidden;
+  background: radial-gradient(80% 90% at 50% 30%, #3b2484, #1b1240 70%);
+  transition: height 0.5s cubic-bezier(0.3, 0.8, 0.3, 1);
+}
+.arm-stage.is-compact { height: 160px; }
+.arm-stage.is-compact + .arm-head { margin-top: -58px; padding-top: 22px; }
+.arm-rig {
+  position: absolute;
+  left: -3%;
+  top: 0;
+  width: 106%;
+  transform: translate(calc(var(--px) * -10px), calc(var(--py) * -6px));
+  transition: transform 0.5s cubic-bezier(0.3, 0.8, 0.3, 1);
+}
+.arm-stage.is-compact .arm-rig {
+  transform: translate(calc(var(--px) * -10px), calc(-9.5% + var(--py) * -6px));
+}
+.arm-body {
+  position: relative;
+  transform-origin: 50% 100%;
+  animation: arm-breathe 4.6s ease-in-out infinite;
+}
+.arm-body img { display: block; }
+.arm-base { width: 100%; height: auto; }
+.arm-eyes, .arm-mouth { position: absolute; pointer-events: none; }
+.arm-eyes { left: 41.761%; top: 15.167%; width: 15.35%; height: 5.858%; }
+.arm-mouth { left: 43.341%; top: 23.013%; width: 10.835%; height: 7.95%; }
+.arm-ear {
+  /* светодиод гарнитуры у уха */
+  position: absolute;
+  left: 35.6%;
+  top: 17.2%;
+  width: 4%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(140, 220, 255, 0.95), rgba(80, 160, 255, 0.4) 55%, transparent);
+  mix-blend-mode: screen;
+  animation: arm-led 2.4s ease-in-out infinite;
+}
+.arm-stage.is-talking .arm-ear { animation-duration: 0.5s; }
+.arm-stage.is-thinking .arm-ear { animation-duration: 0.9s; }
+
+/* голограммы поверх */
+.arm-holo {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transform: translate(calc(var(--px) * 12px), calc(var(--py) * 8px));
+  transition: transform 0.5s ease;
+}
+.arm-scan {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 0 46%, rgba(160, 120, 255, 0.16) 49%, rgba(242, 184, 75, 0.22) 50%, transparent 54%);
+  background-size: 100% 260%;
+  mix-blend-mode: screen;
+  animation: arm-scan 6.5s linear infinite;
+}
+.arm-holo i {
+  position: absolute;
+  left: calc(6% + var(--i) * 9.5%);
+  bottom: -8px;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--arm-gold);
+  box-shadow: 0 0 6px 1px rgba(242, 184, 75, 0.8);
+  opacity: 0;
+  animation: arm-float calc(5s + var(--i) * 0.45s) linear calc(var(--i) * -0.9s) infinite;
+}
+.arm-holo i:nth-child(odd) { background: #c4b0ff; box-shadow: 0 0 6px 1px rgba(170, 130, 255, 0.9); }
+
+/* эквалайзер голоса */
+.arm-voice {
+  position: absolute;
+  left: 50%;
+  bottom: 74px;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  height: 18px;
+  padding: 0 8px;
+  border-radius: 9px;
+  background: rgba(18, 14, 38, 0.55);
+  opacity: 0;
+  transform: translateX(-50%);
+  transition: opacity 0.25s;
+}
+.arm-stage.is-compact .arm-voice { bottom: 62px; left: auto; right: 14px; transform: none; }
+.arm-stage.is-talking .arm-voice { opacity: 1; }
+.arm-voice b { width: 3px; height: 4px; border-radius: 2px; background: var(--arm-gold); }
+.arm-stage.is-talking .arm-voice b { animation: arm-eq 0.6s ease-in-out infinite alternate; }
+.arm-voice b:nth-child(2) { animation-delay: -0.2s !important; }
+.arm-voice b:nth-child(3) { animation-delay: -0.45s !important; }
+.arm-voice b:nth-child(4) { animation-delay: -0.1s !important; }
+.arm-voice b:nth-child(5) { animation-delay: -0.35s !important; }
+
+/* Шапка поверх низа сцены */
+.arm-head {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: -78px;
+  padding: 30px 14px 12px 18px;
+  background: linear-gradient(180deg, transparent, rgba(18, 14, 38, 0.86) 45%, var(--arm-bg));
+  border-bottom: 1px solid rgba(176, 140, 255, 0.16);
+}
+.arm-name { margin: 0; color: #fff; font-size: 1.1875rem; font-weight: 800; line-height: 1.2; letter-spacing: -0.01em; }
+.arm-name span { margin-left: 6px; color: var(--arm-gold); font-size: 0.8125rem; font-weight: 700; letter-spacing: 0; }
+.arm-status { display: flex; align-items: center; gap: 7px; margin: 4px 0 0; color: #bfb8d6; font-size: 0.8125rem; }
+.arm-status i { width: 7px; height: 7px; border-radius: 50%; background: #34d399; box-shadow: 0 0 6px rgba(52, 211, 153, 0.9); }
+.arm-status.is-active { color: var(--arm-gold); }
+.arm-status.is-active i { background: var(--arm-gold); box-shadow: 0 0 6px rgba(242, 184, 75, 0.9); animation: arm-led 0.9s ease-in-out infinite; }
+.arm-tools { display: flex; gap: 6px; }
+.arm-tools button {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid rgba(176, 140, 255, 0.28);
+  border-radius: 50%;
+  background: rgba(30, 22, 62, 0.75);
+  color: #e7e3f5;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+.arm-tools button:hover, .arm-tools button[aria-pressed='true'] { border-color: var(--arm-gold); color: var(--arm-gold); }
+
+/* Сообщения */
+.arm-body-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 16px 14px 8px;
+  scroll-behavior: smooth;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(176, 140, 255, 0.3) transparent;
+}
+.arm-msg {
+  max-width: 88%;
+  margin-bottom: 10px;
+  padding: 10px 14px;
+  border-radius: 16px;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+  animation: arm-msg 0.3s ease both;
+}
+.arm-msg--ai {
+  border: 1px solid rgba(176, 140, 255, 0.18);
+  border-bottom-left-radius: 5px;
+  background: linear-gradient(160deg, rgba(58, 40, 112, 0.55), rgba(30, 22, 62, 0.6));
+  color: #ece9f7;
+}
+.arm-msg--me {
+  margin-left: auto;
+  border-bottom-right-radius: 5px;
+  background: linear-gradient(135deg, #f2b84b, #e5a03a);
+  color: #1a1205;
+  font-weight: 600;
+}
+.arm-msg.is-error { border-color: rgba(248, 113, 113, 0.5); }
+.arm-msg p { margin: 0 0 8px; }
+.arm-msg p:last-child, .arm-msg ul:last-child { margin-bottom: 0; }
+.arm-msg ul { margin: 0 0 8px; padding-left: 18px; }
+.arm-msg li { margin: 3px 0; }
+.arm-msg li::marker { color: var(--arm-gold); }
+.arm-msg strong { color: #fff; font-weight: 800; }
+.arm-link {
+  display: inline;
+  padding: 0;
+  border: 0;
+  border-bottom: 1px solid rgba(242, 184, 75, 0.5);
+  background: none;
+  color: var(--arm-gold);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.arm-link:hover { border-bottom-color: var(--arm-gold); }
+.arm-typing { display: inline-flex; gap: 5px; padding: 14px 16px; }
+.arm-typing span { width: 7px; height: 7px; border-radius: 50%; background: #c4b0ff; animation: arm-dot 1.1s ease-in-out infinite; }
+.arm-typing span:nth-child(2) { animation-delay: 0.15s; }
+.arm-typing span:nth-child(3) { animation-delay: 0.3s; }
+
+.arm-quick { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+.arm-quick button {
+  padding: 8px 12px;
+  border: 1px solid rgba(242, 184, 75, 0.38);
+  border-radius: 999px;
+  background: rgba(242, 184, 75, 0.06);
+  color: #f3e6c8;
+  font: 600 0.8125rem var(--qg-font, sans-serif);
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+.arm-quick button:hover { border-color: var(--arm-gold); background: rgba(242, 184, 75, 0.16); }
+
+/* Ввод */
+.arm-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px 12px;
+  border-top: 1px solid rgba(176, 140, 255, 0.14);
+  background: rgba(10, 8, 24, 0.6);
+}
+.arm-input input {
+  flex: 1;
+  min-width: 0;
+  height: 44px;
+  padding: 0 14px;
+  border: 1px solid rgba(176, 140, 255, 0.26);
+  border-radius: 14px;
+  background: #1a1433;
+  color: #f3f1f9;
+  font: 500 0.9375rem var(--qg-font, sans-serif);
+}
+.arm-input input::placeholder { color: #8d84ab; }
+.arm-input input:focus { outline: none; border-color: var(--arm-gold); box-shadow: 0 0 0 3px rgba(242, 184, 75, 0.18); }
+.arm-input button {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 14px;
+  cursor: pointer;
+}
+.arm-send { background: var(--arm-gold); color: #1a1205; }
+.arm-send:disabled { background: #2a2350; color: #6f6893; cursor: default; }
+.arm-mic { background: #241c47; color: #d9d2f2; }
+.arm-mic.is-on { background: #f87171; color: #fff; animation: arm-ripple-sq 1.2s ease-out infinite; }
+
+/* ── Анимации ── */
+@keyframes arm-spin { to { transform: rotate(360deg); } }
+@keyframes arm-ripple { 0% { opacity: 0.9; transform: scale(1); } 100% { opacity: 0; transform: scale(1.45); } }
+@keyframes arm-ripple-sq { 0% { box-shadow: 0 0 0 0 rgba(248, 113, 113, 0.6); } 100% { box-shadow: 0 0 0 10px rgba(248, 113, 113, 0); } }
+@keyframes arm-breathe { 0%, 100% { transform: scale(1) translateY(0); } 50% { transform: scale(1.012) translateY(-1.5px); } }
+@keyframes arm-breathe-face { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.025); } }
+@keyframes arm-led { 0%, 100% { opacity: 0.35; } 50% { opacity: 1; } }
+@keyframes arm-scan { from { background-position: 0 100%; } to { background-position: 0 -160%; } }
+@keyframes arm-float {
+  0% { opacity: 0; transform: translateY(0); }
+  15% { opacity: 0.9; }
+  80% { opacity: 0.6; }
+  100% { opacity: 0; transform: translateY(-300px) translateX(14px); }
+}
+@keyframes arm-eq { from { height: 4px; } to { height: 14px; } }
+@keyframes arm-dot { 0%, 60%, 100% { opacity: 0.35; transform: translateY(0); } 30% { opacity: 1; transform: translateY(-4px); } }
+@keyframes arm-msg { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@keyframes arm-open { from { opacity: 0; transform: translateY(14px) scale(0.94); } to { opacity: 1; transform: none; } }
+@keyframes arm-pop { from { opacity: 0; transform: translateX(10px) scale(0.9); } to { opacity: 1; transform: none; } }
+
+/* ── Телефон: окно на весь экран ── */
+@media (max-width: 640px) {
+  .arm-widget { --arm-bottom: 86px; right: 16px; }
+  .arm-window {
+    position: fixed;
+    inset: 0;
+    width: auto;
+    height: 100dvh;
+    border: 0;
+    border-radius: 0;
+    transform-origin: 50% 100%;
+  }
+  .arm-stage { height: 280px; }
+  .arm-stage.is-compact { height: 160px; }
+.arm-stage.is-compact + .arm-head { margin-top: -58px; padding-top: 22px; }
+  .arm-widget:has(.arm-window) .arm-trigger { display: none; }
+  .arm-teaser { max-width: 210px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .arm-trigger::before, .arm-face, .arm-body, .arm-ear, .arm-scan, .arm-holo i, .arm-window, .arm-msg, .arm-teaser { animation: none !important; }
+  .arm-rig, .arm-holo, .arm-stage { transition: none; }
+}

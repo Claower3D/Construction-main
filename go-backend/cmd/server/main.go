@@ -128,6 +128,7 @@ func main() {
 	mux.HandleFunc("/api/v1/ai/vision", aiLimit(aiHnd.VisionProxy))
 	mux.HandleFunc("/api/v1/ai/defect-vision", aiLimit(aiHnd.DefectVisionProxy))
 	mux.HandleFunc("/api/v1/ai/validate-key", aiLimit(aiHnd.ValidateKey))
+	mux.HandleFunc("/api/v1/ai/assistant", middleware.RateLimit(20, time.Minute, aiHnd.Assistant))
 
 	// Phase 2: Engineering & LiDAR & defect detection — proxy to Python AI service
 	mux.HandleFunc("/api/v1/engineering/", aiLimit(aiHnd.ProxyToAIService))
