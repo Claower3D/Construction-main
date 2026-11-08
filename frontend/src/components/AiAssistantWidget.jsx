@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { X, Send, Mic, Volume2, VolumeX, RotateCcw } from 'lucide-react';
+import { X, Send, Mic, Volume2, VolumeX, RotateCcw, Calculator, HardHat, Layers, ClipboardList, TrendingUp } from 'lucide-react';
 import { navigateTo, openAuth } from '../utils/navigate';
 import './AiAssistantWidget.css';
 
@@ -10,7 +10,7 @@ import './AiAssistantWidget.css';
  * без ключа — база знаний платформы.
  */
 
-const IMG = '/assistant/arman';
+const IMG = '/assistant/guide';
 const STORE = 'qg_arman_chat_v1';
 const GREETING = {
   role: 'assistant',
@@ -66,60 +66,147 @@ function useFace(talking) {
   return { eyes, mouth };
 }
 
-function ArmanStage({ talking, thinking, compact }) {
-  const { eyes, mouth } = useFace(talking);
-  const ref = useRef(null);
-  const onMove = (e) => {
-    if (reduceMotion() || !ref.current) return;
-    const r = ref.current.getBoundingClientRect();
-    const x = (e.clientX - r.left) / r.width - 0.5;
-    const y = (e.clientY - r.top) / r.height - 0.5;
-    ref.current.style.setProperty('--px', x.toFixed(3));
-    ref.current.style.setProperty('--py', y.toFixed(3));
-  };
-  const onLeave = () => { ref.current?.style.setProperty('--px', 0); ref.current?.style.setProperty('--py', 0); };
+// Башенный кран — в lucide его нет
+function CraneIcon(props) {
   return (
-    <div ref={ref} className={`arm-stage${compact ? ' is-compact' : ''}${talking ? ' is-talking' : ''}${thinking ? ' is-thinking' : ''}`} onPointerMove={onMove} onPointerLeave={onLeave} aria-hidden="true">
-      <div className="arm-rig">
-        <div className="arm-body">
-          <img className="arm-base" src={`${IMG}.webp`} alt="" width="886" height="956" />
-          {['blink-half', 'blink'].map((k) => (
-            <img key={k} className="arm-eyes" src={`${IMG}-${k}.webp`} alt="" style={{ opacity: eyes === k ? 1 : 0 }} />
-          ))}
-          {['talk1', 'talk2', 'talk3'].map((k) => (
-            <img key={k} className="arm-mouth" src={`${IMG}-${k}.webp`} alt="" style={{ opacity: mouth === k ? 1 : 0 }} />
-          ))}
-          <span className="arm-ear" />
-        </div>
-      </div>
-      <div className="arm-holo">
-        <span className="arm-scan" />
-        {Array.from({ length: 10 }, (_, i) => <i key={i} style={{ '--i': i }} />)}
-      </div>
-      <div className="arm-voice"><b /><b /><b /><b /><b /></div>
-    </div>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="M7 21V5M11 21V5M7 9l4-4M7 13l4-4M7 17l4-4M3 5h19M7 5l2-3 2 3M19 5v5M17.5 10h3l-1.5 2.5z" />
+      <path d="M5 21h8" />
+    </svg>
   );
 }
 
-function ArmanFigure({ talking, thinking }) {
+// Панель-кольцо, которую Арман вращает рукой. Каждая плитка — раздел платформы.
+const TILES = [
+  { Icon: Calculator, label: 'Калькулятор', ask: 'Как посчитать сечение кабеля и отопление?' },
+  { Icon: HardHat, label: 'Бригады', ask: 'Нужна бригада на ремонт' },
+  { Icon: Layers, label: 'Материалы', ask: 'Сколько стоит цемент М500?' },
+  { Icon: CraneIcon, label: 'Спецтехника', ask: 'Сколько стоит экскаватор на смену?' },
+  { Icon: ClipboardList, label: 'Смета по фото', ask: 'Смета по фото — как это работает?' },
+  { Icon: TrendingUp, label: 'Цены', ask: 'Сколько стоит штукатурка стен 60 м²?' },
+];
+const STEP = (Math.PI * 2) / TILES.length;
+// геометрия кольца в долях ширины фигуры (по исходной картинке 1024×930)
+const RING = { cx: 0.508, cy: 0.94, rx: 0.47, ry: 0.115, tilt: -0.1 };
+
+function useRing(active, onActive) {
+  const tiles = useRef([]);
+  const hand = useRef(null);
+  const ring = useRef(null);
+  useEffect(() => {
+    const reduce = reduceMotion();
+    let raf; let start = performance.now(); let idx = 0; let from = 0; let to = 0; let stepAt = start + 900;
+    const PERIOD = active ? 2400 : 3200; const DUR = 950;
+    const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
+    const place = (theta) => {
+      const el = ring.current; if (!el) return;
+      const W = el.clientWidth; const H = (W * 654) / 720; // высота тела (кольцо привязано к нему)
+      const cos = Math.cos(RING.tilt); const sin = Math.sin(RING.tilt);
+      let best = -2; let bestI = 0;
+      tiles.current.forEach((t, i) => {
+        if (!t) return;
+        const phi = theta + i * STEP;
+        const depth = Math.cos(phi);                       // 1 — ближе всего к зрителю
+        const x0 = Math.sin(phi) * RING.rx * W; const y0 = depth * RING.ry * W;
+        const x = RING.cx * W + x0 * cos - y0 * sin; const y = RING.cy * H + x0 * sin + y0 * cos;
+        const sc = 0.62 + 0.38 * ((depth + 1) / 2);
+        t.style.transform = `translate(${x}px, ${y}px) translate(-50%, -50%) scale(${sc.toFixed(3)})`;
+        t.style.opacity = (0.35 + 0.65 * ((depth + 1) / 2)).toFixed(3);
+        t.style.zIndex = depth > -0.05 ? String(30 + Math.round(depth * 10)) : '1';
+        t.dataset.front = depth > -0.05 ? '1' : '0';
+        if (depth > best) { best = depth; bestI = i; }
+      });
+      tiles.current.forEach((t, i) => t && t.classList.toggle('is-active', i === bestI));
+      return bestI;
+    };
+    let lastActive = -1;
+    const frame = (now) => {
+      if (!reduce && now >= stepAt) {
+        from = to; to = from - STEP; idx += 1; stepAt = now + PERIOD; start = now;
+        if (hand.current) { hand.current.classList.remove('is-swipe'); void hand.current.offsetWidth; hand.current.classList.add('is-swipe'); }
+      }
+      const p = Math.min(1, (now - start) / DUR);
+      const theta = from + (to - from) * ease(p);
+      const a = place(theta);
+      if (a !== lastActive) { lastActive = a; onActive(a); }
+      raf = requestAnimationFrame(frame);
+    };
+    raf = requestAnimationFrame(frame);
+    const onResize = () => place(to);
+    window.addEventListener('resize', onResize);
+    return () => { cancelAnimationFrame(raf); window.removeEventListener('resize', onResize); };
+  }, [active, onActive]);
+  return { tiles, hand, ring };
+}
+
+function ArmanGuide({ talking, thinking, open, onTile, onOpen }) {
   const { eyes, mouth } = useFace(talking);
+  const [act, setAct] = useState(0);
+  const onActive = useCallback((i) => setAct(i), []);
+  const { tiles, hand, ring } = useRing(open, onActive);
+  const pos = (b) => ({ left: `${b[0]}%`, top: `${b[1]}%`, width: `${b[2]}%`, height: `${b[3]}%` });
   return (
-    <span className={`arm-fig${talking ? ' is-talking' : ''}${thinking ? ' is-thinking' : ''}`} aria-hidden="true">
-      <span className="arm-fig-pad"><i /><i /></span>
-      <span className="arm-fig-float">
-        <span className="arm-fig-body">
-          <img className="arm-fig-base" src={`${IMG}-fig.webp`} alt="" width="480" height="391" />
-          {['blink-half', 'blink'].map((k) => (
-            <img key={k} className="arm-fig-eyes" src={`${IMG}-fig-${k}.webp`} alt="" style={{ opacity: eyes === k ? 1 : 0 }} />
-          ))}
-          {['talk1', 'talk2', 'talk3'].map((k) => (
-            <img key={k} className="arm-fig-mouth" src={`${IMG}-fig-${k}.webp`} alt="" style={{ opacity: mouth === k ? 1 : 0 }} />
-          ))}
-          <span className="arm-fig-ear" />
-          <span className="arm-fig-tablet" />
-        </span>
+    <span className={`arm-guide${talking ? ' is-talking' : ''}${thinking ? ' is-thinking' : ''}`} ref={ring} onClick={open ? undefined : onOpen}>
+      <svg className="arm-ring arm-ring--back" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+        <g transform="rotate(-5.7 50.8 94)">
+          <ellipse className="arm-ring-band" cx="50.8" cy="94" rx="47" ry="13" />
+          <ellipse cx="50.8" cy="91.5" rx="47" ry="13" />
+        </g>
+      </svg>
+      <span className="arm-guide-body" aria-hidden="true">
+        <img className="arm-g-base" src={`${IMG}-body.webp`} alt="" width="720" height="654" />
+        {['blink-half', 'blink'].map((k) => (
+          <img key={k} className="arm-g-eyes" src={`${IMG}-${k}.webp`} alt="" style={{ ...pos([42.773, 17.419, 14.453, 4.731]), opacity: eyes === k ? 1 : 0 }} />
+        ))}
+        {['talk1', 'talk2', 'talk3'].map((k) => (
+          <img key={k} className="arm-g-mouth" src={`${IMG}-${k}.webp`} alt="" style={{ ...pos([44.727, 27.957, 9.961, 8.065]), opacity: mouth === k ? 1 : 0 }} />
+        ))}
+        <span className="arm-g-ear" />
+        <span className="arm-g-tablet" />
       </span>
-      <span className="arm-fig-sparks">{Array.from({ length: 6 }, (_, i) => <i key={i} style={{ '--i': i }} />)}</span>
+      <svg className="arm-ring arm-ring--front" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+        <defs>
+          <clipPath id="armRingFront"><rect x="-5" y="92" width="110" height="30" transform="rotate(-5.7 50.8 94)" /></clipPath>
+        </defs>
+        <g clipPath="url(#armRingFront)">
+          <g transform="rotate(-5.7 50.8 94)">
+            <ellipse className="arm-ring-band" cx="50.8" cy="94" rx="47" ry="13" />
+            <ellipse cx="50.8" cy="91.2" rx="47" ry="13" />
+            <ellipse className="arm-ring-edge" cx="50.8" cy="97" rx="47" ry="13" />
+            <ellipse className="arm-ring-sweep" cx="50.8" cy="97" rx="47" ry="13" pathLength="100" />
+          </g>
+        </g>
+      </svg>
+      {TILES.map(({ Icon, label, ask }, i) => (
+        <span
+          key={label}
+          ref={(el) => { tiles.current[i] = el; }}
+          className="arm-tile"
+          title={label}
+          onClick={open ? (e) => { e.stopPropagation(); onTile(ask); } : undefined}
+          role={open ? 'button' : undefined}
+          tabIndex={open ? 0 : -1}
+          onKeyDown={open ? (e) => { if (e.key === 'Enter') onTile(ask); } : undefined}
+          aria-label={open ? `Спросить: ${label}` : undefined}
+          aria-hidden={open ? undefined : 'true'}
+        >
+          <Icon />
+        </span>
+      ))}
+      <span className="arm-g-hand" ref={hand} aria-hidden="true" style={pos([19.141, 61.935, 25.977, 28.387])}>
+        <img src={`${IMG}-hand.webp`} alt="" />
+      </span>
+      {open && <span className="arm-tile-caption" aria-live="off">{TILES[act].label}</span>}
+    </span>
+  );
+}
+
+function ArmanAvatar({ talking }) {
+  const { eyes } = useFace(talking);
+  return (
+    <span className="arm-avatar" aria-hidden="true">
+      <img src={`${IMG}-face.webp`} alt="" />
+      <img src={`${IMG}-face-blink.webp`} alt="" style={{ opacity: eyes === 'blink' ? 1 : 0 }} />
     </span>
   );
 }
@@ -333,9 +420,9 @@ export default function AiAssistantWidget() {
     <div className="arm-widget">
       {open && (
         <section className="arm-window" role="dialog" aria-label="Чат с ИИ-инженером Арманом">
-          <ArmanStage talking={talking} thinking={busy} compact={userCount > 0} />
           <header className="arm-head">
-            <div>
+            <ArmanAvatar talking={talking} />
+            <div className="arm-head-text">
               <h2 className="arm-name">Арман <span>ИИ-инженер QazGost</span></h2>
               <p className={`arm-status${busy || streaming || speaking || listening ? ' is-active' : ''}`}><i />{status}</p>
             </div>
@@ -396,19 +483,21 @@ export default function AiAssistantWidget() {
         </div>
       )}
 
-      <button
-        type="button"
-        className={`arm-trigger${open ? ' is-open' : ''}`}
-        onClick={() => setOpen((v) => !v)}
-        aria-expanded={open}
-        aria-label={open ? 'Свернуть чат с Арманом' : 'Открыть чат с ИИ-инженером Арманом'}
-      >
-        <ArmanFigure talking={talking} thinking={busy} />
-        <span className="arm-label">
-          <span className="arm-online" />
-          {busy ? 'Думает…' : talking ? 'Отвечает…' : open ? 'Свернуть' : 'AI Ассистент'}
-        </span>
-      </button>
+      <div className={`arm-stand${open ? ' is-open' : ''}`}>
+        <button
+          type="button"
+          className="arm-trigger"
+          onClick={() => setOpen((v) => !v)}
+          aria-expanded={open}
+          aria-label={open ? 'Свернуть чат с Арманом' : 'Открыть чат с ИИ-инженером Арманом'}
+        >
+          <span className="arm-label">
+            <span className="arm-online" />
+            {busy ? 'Думает…' : talking ? 'Отвечает…' : open ? 'Свернуть' : 'AI Ассистент'}
+          </span>
+        </button>
+        <ArmanGuide talking={talking} thinking={busy} open={open} onTile={(q) => send(q)} onOpen={() => setOpen(true)} />
+      </div>
     </div>
   );
 }

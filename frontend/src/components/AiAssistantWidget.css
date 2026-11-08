@@ -1,54 +1,70 @@
-/* ════════════ Арман — ИИ-инженер QazGost ════════════ */
+/* ════════════ Арман — ИИ-инженер QazGost ════════════
+   Закрыт: фигура-кнопка в углу. Открыт: окно чата справа, Арман стоит рядом слева
+   и вращает голо-панель с разделами платформы. */
 .arm-widget {
   --arm-gold: #f2b84b;
   --arm-violet: #8b5cf6;
   --arm-bg: #120e26;
-  --arm-bottom: 86px;
-  position: fixed;
-  right: 6px;
-  bottom: var(--arm-bottom);
-  z-index: 1060;
+  --arm-bottom: 84px;
+  --arm-win: 392px;
   font-family: var(--qg-font, 'Manrope', system-ui, sans-serif);
 }
 
-/* ── Кнопка: Арман в полный рост на голо-платформе ── */
-.arm-trigger {
-  position: relative;
+/* ── Фигура ── */
+.arm-stand {
+  position: fixed;
+  right: 4px;
+  bottom: var(--arm-bottom);
+  z-index: 1061;
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 156px;
-  padding: 0;
-  border: 0;
-  background: none;
+  width: 176px;
+  transition: width 0.55s cubic-bezier(0.3, 0.9, 0.3, 1), right 0.55s cubic-bezier(0.3, 0.9, 0.3, 1), bottom 0.55s cubic-bezier(0.3, 0.9, 0.3, 1);
+}
+.arm-stand.is-open {
+  right: calc(20px + var(--arm-win) - 18px);
+  bottom: 44px;
+  width: min(380px, calc(100vw - var(--arm-win) - 60px));
+}
+.arm-stand.is-open::before {
+  /* мягкая подсветка, чтобы фигура отделялась от страницы */
+  content: '';
+  position: absolute;
+  inset: 4% -8% -6%;
+  z-index: -1;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(28, 16, 70, 0.92), rgba(28, 16, 70, 0.55) 60%, transparent);
+  pointer-events: none;
+}
+.arm-guide {
+  position: relative;
+  order: 0;
+  display: block;
+  width: 100%;
+  aspect-ratio: 720 / 760;      /* картинка 720×654 + место под кольцо */
+  container-type: inline-size;
   cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
+  animation: arm-hover 4.2s ease-in-out infinite;
 }
-.arm-trigger:focus-visible { outline: none; }
-.arm-trigger:focus-visible .arm-label { outline: 2px solid var(--qg-cyan, #ad9cff); outline-offset: 3px; }
-
-.arm-fig { position: relative; display: block; width: 156px; height: 127px; }
-.arm-fig-float {
+.arm-stand.is-open .arm-guide { cursor: default; animation-duration: 5.5s; }
+.arm-guide-body {
   position: absolute;
-  inset: 0;
-  animation: arm-hover 3.6s ease-in-out infinite;
-  transition: transform 0.35s cubic-bezier(0.3, 1.4, 0.5, 1);
+  left: 0;
+  top: 0;
+  z-index: 10;
+  width: 100%;
+  aspect-ratio: 720 / 654;
+  transform-origin: 50% 100%;
+  animation: arm-breathe 4.6s ease-in-out infinite;
+  filter: drop-shadow(0 14px 18px rgba(10, 6, 30, 0.5)) drop-shadow(0 0 22px rgba(140, 80, 255, 0.3));
 }
-.arm-fig-body {
+.arm-guide-body img { position: absolute; display: block; pointer-events: none; }
+.arm-g-base { inset: 0; width: 100%; height: 100%; }
+.arm-g-ear {
   position: absolute;
-  inset: 0;
-  transform-origin: 40% 100%;
-  animation: arm-sway 7.2s ease-in-out infinite;
-  filter: drop-shadow(0 10px 14px rgba(10, 6, 30, 0.55)) drop-shadow(0 0 18px rgba(140, 80, 255, 0.35));
-}
-.arm-fig-body img { position: absolute; display: block; pointer-events: none; }
-.arm-fig-base { inset: 0; width: 100%; height: 100%; }
-.arm-fig-eyes { left: 41.667%; top: 14.578%; width: 15.417%; height: 7.673%; }
-.arm-fig-mouth { left: 43.333%; top: 25.064%; width: 10.833%; height: 10.486%; }
-.arm-fig-ear {
-  position: absolute;
-  left: 34.3%;
-  top: 16.3%;
+  left: 37.6%;
+  top: 22.8%;
   width: 4%;
   aspect-ratio: 1;
   border-radius: 50%;
@@ -56,86 +72,117 @@
   mix-blend-mode: screen;
   animation: arm-led 2.4s ease-in-out infinite;
 }
-.arm-fig-tablet {
-  /* свечение экрана планшета */
+.arm-g-tablet {
   position: absolute;
-  left: 70%;
-  top: 60%;
-  width: 24%;
-  height: 26%;
+  left: 72%;
+  top: 66%;
+  width: 22%;
+  height: 22%;
   border-radius: 40%;
-  background: radial-gradient(closest-side, rgba(120, 170, 255, 0.55), transparent);
+  background: radial-gradient(closest-side, rgba(120, 170, 255, 0.5), transparent);
   mix-blend-mode: screen;
   animation: arm-led 3.2s ease-in-out infinite;
 }
-.arm-fig.is-talking .arm-fig-ear { animation-duration: 0.5s; }
-.arm-fig.is-thinking .arm-fig-ear, .arm-fig.is-thinking .arm-fig-tablet { animation-duration: 0.8s; }
+.arm-guide.is-talking .arm-g-ear { animation-duration: 0.5s; }
+.arm-guide.is-thinking .arm-g-ear, .arm-guide.is-thinking .arm-g-tablet { animation-duration: 0.8s; }
 
-/* голографическая платформа */
-.arm-fig-pad {
+/* рука: проводит по панели при каждом повороте */
+.arm-g-hand {
+  position: absolute;
+  z-index: 60;
+  /* координаты в долях высоты тела: тело занимает 654/760 высоты блока */
+  top: calc(61.935% * 654 / 760) !important;
+  height: calc(28.387% * 654 / 760) !important;
+  transform-origin: 14.7% 81%;
+  pointer-events: none;
+}
+.arm-g-hand img { display: block; width: 100%; height: 100%; }
+.arm-g-hand.is-swipe { animation: arm-swipe 1.05s cubic-bezier(0.45, 0, 0.3, 1); }
+
+/* кольцо-панель */
+.arm-ring {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: calc(100% * 654 / 760);
+  overflow: visible;
+  pointer-events: none;
+}
+.arm-ring ellipse { fill: none; stroke-width: 0.9; vector-effect: non-scaling-stroke; }
+.arm-ring--back { z-index: 2; }
+.arm-ring--back ellipse { stroke: rgba(200, 165, 255, 0.4); stroke-width: 2; }
+.arm-ring .arm-ring-band { stroke: rgba(150, 110, 255, 0.2); stroke-width: 7cqw; filter: none; }
+.arm-ring--back .arm-ring-band { stroke: rgba(150, 110, 255, 0.14); }
+.arm-ring--front { z-index: 40; }
+.arm-ring--front ellipse { stroke: rgba(220, 195, 255, 0.55); stroke-width: 1.5; }
+.arm-ring--front .arm-ring-edge { stroke: rgba(242, 184, 75, 0.9); stroke-width: 2.5; filter: drop-shadow(0 0 4px rgba(242, 184, 75, 0.95)); }
+.arm-ring--front .arm-ring-sweep {
+  stroke: #fff6dc;
+  stroke-width: 3.5;
+  stroke-dasharray: 10 90;
+  animation: arm-sweep 3.4s linear infinite;
+}
+.arm-tile {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: grid;
+  place-items: center;
+  width: 13.5cqw;
+  aspect-ratio: 1;
+  border: 1px solid rgba(200, 175, 255, 0.45);
+  border-radius: 22%;
+  background: linear-gradient(160deg, rgba(120, 90, 220, 0.55), rgba(50, 30, 110, 0.65));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 0 1.6cqw rgba(140, 90, 255, 0.55);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+  color: #e4dbff;
+  will-change: transform;
+  transition: background 0.35s, border-color 0.35s, box-shadow 0.35s, color 0.35s;
+}
+.arm-tile svg { width: 58%; height: 58%; stroke-width: 1.8; }
+.arm-tile.is-active {
+  border-color: rgba(255, 214, 120, 0.95);
+  background: linear-gradient(160deg, rgba(255, 196, 90, 0.35), rgba(120, 70, 30, 0.5));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 0 2.6cqw rgba(242, 184, 75, 0.9), 0 0 6cqw rgba(242, 184, 75, 0.45);
+  color: #ffd27a;
+}
+.arm-stand.is-open .arm-tile[data-front='1'] { cursor: pointer; }
+.arm-stand.is-open .arm-tile[data-front='1']:hover { border-color: #ffd27a; }
+.arm-tile-caption {
   position: absolute;
   left: 50%;
-  bottom: -10px;
-  width: 128px;
-  height: 30px;
-  margin-left: -64px;
-  pointer-events: none;
-  animation: arm-pad 3.6s ease-in-out infinite;
+  bottom: -30px;
+  z-index: 70;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgba(18, 14, 38, 0.8);
+  color: var(--arm-gold);
+  font-size: 0.8125rem;
+  font-weight: 800;
+  white-space: nowrap;
+  transform: translateX(-50%);
+  animation: arm-msg 0.3s ease both;
 }
-.arm-fig-pad::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  background: radial-gradient(closest-side, rgba(170, 110, 255, 0.55), rgba(120, 60, 230, 0.18) 65%, transparent);
-  filter: blur(2px);
-}
-.arm-fig-pad i {
-  position: absolute;
-  inset: 4px 10px;
-  border-radius: 50%;
-  border: 1.5px solid rgba(242, 184, 75, 0.75);
-  box-shadow: 0 0 10px rgba(242, 184, 75, 0.6), inset 0 0 8px rgba(242, 184, 75, 0.4);
-  -webkit-mask: conic-gradient(#000 0 62%, transparent 70% 92%, #000);
-  mask: conic-gradient(#000 0 62%, transparent 70% 92%, #000);
-  animation: arm-spin 5s linear infinite;
-}
-.arm-fig-pad i + i {
-  inset: 9px 26px;
-  border-color: rgba(190, 150, 255, 0.8);
-  box-shadow: 0 0 8px rgba(170, 120, 255, 0.7);
-  animation-duration: 3.4s;
-  animation-direction: reverse;
-}
-
-/* искры при наведении и ответе */
-.arm-fig-sparks { position: absolute; inset: 0; pointer-events: none; }
-.arm-fig-sparks i {
-  position: absolute;
-  left: calc(18% + var(--i) * 13%);
-  bottom: 6px;
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background: var(--arm-gold);
-  box-shadow: 0 0 8px 2px rgba(242, 184, 75, 0.8);
-  opacity: 0;
-}
-.arm-trigger:hover .arm-fig-sparks i,
-.arm-fig.is-talking .arm-fig-sparks i { animation: arm-spark 1.4s ease-out calc(var(--i) * 0.18s) infinite; }
-.arm-fig-sparks i:nth-child(even) { background: #c4b0ff; box-shadow: 0 0 8px 2px rgba(170, 130, 255, 0.9); }
-
-.arm-trigger:hover .arm-fig-float { transform: translateY(-6px) scale(1.05); }
-.arm-trigger.is-open .arm-fig-float { transform: scale(0.94); }
 
 /* плашка «AI Ассистент» */
+.arm-trigger {
+  order: 1;
+  margin-top: -6px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+.arm-stand.is-open .arm-trigger { display: none; }
+.arm-trigger:focus-visible { outline: none; }
+.arm-trigger:focus-visible .arm-label { outline: 2px solid var(--qg-cyan, #ad9cff); outline-offset: 3px; }
 .arm-label {
   position: relative;
-  z-index: 2;
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  margin-top: 2px;
   padding: 7px 14px 7px 11px;
   border: 1px solid rgba(242, 184, 75, 0.55);
   border-radius: 999px;
@@ -147,7 +194,6 @@
   overflow: hidden;
 }
 .arm-label::after {
-  /* пробегающий блик */
   content: '';
   position: absolute;
   inset: 0;
@@ -155,20 +201,14 @@
   transform: translateX(-120%);
   animation: arm-shine 5.5s ease-in-out 2s infinite;
 }
-.arm-online {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #34d399;
-  box-shadow: 0 0 8px rgba(52, 211, 153, 0.9);
-}
-.arm-fig.is-talking + .arm-label .arm-online, .arm-fig.is-thinking + .arm-label .arm-online { background: var(--arm-gold); box-shadow: 0 0 8px rgba(242, 184, 75, 0.9); }
+.arm-online { width: 8px; height: 8px; border-radius: 50%; background: #34d399; box-shadow: 0 0 8px rgba(52, 211, 153, 0.9); }
 
 /* ── Подсказка-приветствие ── */
 .arm-teaser {
-  position: absolute;
-  right: 150px;
-  bottom: 104px;
+  position: fixed;
+  right: 172px;
+  bottom: calc(var(--arm-bottom) + 120px);
+  z-index: 1061;
   display: flex;
   align-items: flex-start;
   width: max-content;
@@ -203,13 +243,14 @@
 
 /* ── Окно чата ── */
 .arm-window {
-  position: absolute;
-  right: 14px;
-  bottom: calc(100% + 10px);
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 1062;
   display: flex;
   flex-direction: column;
-  width: 392px;
-  height: min(640px, calc(100dvh - var(--arm-bottom) - 190px));
+  width: var(--arm-win);
+  height: min(640px, calc(100dvh - 40px));
   overflow: hidden;
   border: 1px solid rgba(176, 140, 255, 0.32);
   border-radius: 24px;
@@ -218,127 +259,28 @@
   transform-origin: 100% 100%;
   animation: arm-open 0.38s cubic-bezier(0.2, 0.9, 0.3, 1.1) both;
 }
-
-/* Сцена с живым портретом */
-.arm-stage {
-  --px: 0;
-  --py: 0;
-  position: relative;
-  flex: none;
-  height: 300px;
-  overflow: hidden;
-  background: radial-gradient(80% 90% at 50% 30%, #3b2484, #1b1240 70%);
-  transition: height 0.5s cubic-bezier(0.3, 0.8, 0.3, 1);
-}
-.arm-stage.is-compact { height: 160px; }
-.arm-stage.is-compact + .arm-head { margin-top: -58px; padding-top: 22px; }
-.arm-rig {
-  position: absolute;
-  left: -3%;
-  top: 0;
-  width: 106%;
-  transform: translate(calc(var(--px) * -10px), calc(var(--py) * -6px));
-  transition: transform 0.5s cubic-bezier(0.3, 0.8, 0.3, 1);
-}
-.arm-stage.is-compact .arm-rig {
-  transform: translate(calc(var(--px) * -10px), calc(-9.5% + var(--py) * -6px));
-}
-.arm-body {
-  position: relative;
-  transform-origin: 50% 100%;
-  animation: arm-breathe 4.6s ease-in-out infinite;
-}
-.arm-body img { display: block; }
-.arm-base { width: 100%; height: auto; }
-.arm-eyes, .arm-mouth { position: absolute; pointer-events: none; }
-.arm-eyes { left: 41.761%; top: 15.167%; width: 15.35%; height: 5.858%; }
-.arm-mouth { left: 43.341%; top: 23.013%; width: 10.835%; height: 7.95%; }
-.arm-ear {
-  /* светодиод гарнитуры у уха */
-  position: absolute;
-  left: 35.6%;
-  top: 17.2%;
-  width: 4%;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  background: radial-gradient(closest-side, rgba(140, 220, 255, 0.95), rgba(80, 160, 255, 0.4) 55%, transparent);
-  mix-blend-mode: screen;
-  animation: arm-led 2.4s ease-in-out infinite;
-}
-.arm-stage.is-talking .arm-ear { animation-duration: 0.5s; }
-.arm-stage.is-thinking .arm-ear { animation-duration: 0.9s; }
-
-/* голограммы поверх */
-.arm-holo {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  transform: translate(calc(var(--px) * 12px), calc(var(--py) * 8px));
-  transition: transform 0.5s ease;
-}
-.arm-scan {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, transparent 0 46%, rgba(160, 120, 255, 0.16) 49%, rgba(242, 184, 75, 0.22) 50%, transparent 54%);
-  background-size: 100% 260%;
-  mix-blend-mode: screen;
-  animation: arm-scan 6.5s linear infinite;
-}
-.arm-holo i {
-  position: absolute;
-  left: calc(6% + var(--i) * 9.5%);
-  bottom: -8px;
-  width: 3px;
-  height: 3px;
-  border-radius: 50%;
-  background: var(--arm-gold);
-  box-shadow: 0 0 6px 1px rgba(242, 184, 75, 0.8);
-  opacity: 0;
-  animation: arm-float calc(5s + var(--i) * 0.45s) linear calc(var(--i) * -0.9s) infinite;
-}
-.arm-holo i:nth-child(odd) { background: #c4b0ff; box-shadow: 0 0 6px 1px rgba(170, 130, 255, 0.9); }
-
-/* эквалайзер голоса */
-.arm-voice {
-  position: absolute;
-  left: 50%;
-  bottom: 74px;
+.arm-head {
   display: flex;
   align-items: center;
-  gap: 3px;
-  height: 18px;
-  padding: 0 8px;
-  border-radius: 9px;
-  background: rgba(18, 14, 38, 0.55);
-  opacity: 0;
-  transform: translateX(-50%);
-  transition: opacity 0.25s;
-}
-.arm-stage.is-compact .arm-voice { bottom: 62px; left: auto; right: 14px; transform: none; }
-.arm-stage.is-talking .arm-voice { opacity: 1; }
-.arm-voice b { width: 3px; height: 4px; border-radius: 2px; background: var(--arm-gold); }
-.arm-stage.is-talking .arm-voice b { animation: arm-eq 0.6s ease-in-out infinite alternate; }
-.arm-voice b:nth-child(2) { animation-delay: -0.2s !important; }
-.arm-voice b:nth-child(3) { animation-delay: -0.45s !important; }
-.arm-voice b:nth-child(4) { animation-delay: -0.1s !important; }
-.arm-voice b:nth-child(5) { animation-delay: -0.35s !important; }
-
-/* Шапка поверх низа сцены */
-.arm-head {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
   gap: 12px;
-  margin-top: -78px;
-  padding: 30px 14px 12px 18px;
-  background: linear-gradient(180deg, transparent, rgba(18, 14, 38, 0.86) 45%, var(--arm-bg));
+  padding: 14px 12px 12px 14px;
   border-bottom: 1px solid rgba(176, 140, 255, 0.16);
+  background: radial-gradient(120% 140% at 0% 0%, rgba(120, 70, 240, 0.35), transparent 60%), #17113a;
 }
+.arm-head-text { flex: 1; min-width: 0; }
+.arm-avatar {
+  position: relative;
+  flex: none;
+  width: 46px;
+  height: 46px;
+  overflow: hidden;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px #17113a, 0 0 0 3.5px var(--arm-gold), 0 0 16px rgba(242, 184, 75, 0.45);
+}
+.arm-avatar img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .arm-name { margin: 0; color: #fff; font-size: 1.1875rem; font-weight: 800; line-height: 1.2; letter-spacing: -0.01em; }
-.arm-name span { margin-left: 6px; color: var(--arm-gold); font-size: 0.8125rem; font-weight: 700; letter-spacing: 0; }
-.arm-status { display: flex; align-items: center; gap: 7px; margin: 4px 0 0; color: #bfb8d6; font-size: 0.8125rem; }
+.arm-name span { display: block; margin: 2px 0 0; font-size: 0.75rem !important; color: var(--arm-gold); font-size: 0.8125rem; font-weight: 700; letter-spacing: 0; }
+.arm-status { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; gap: 7px; margin: 4px 0 0; color: #bfb8d6; font-size: 0.8125rem; }
 .arm-status i { width: 7px; height: 7px; border-radius: 50%; background: #34d399; box-shadow: 0 0 6px rgba(52, 211, 153, 0.9); }
 .arm-status.is-active { color: var(--arm-gold); }
 .arm-status.is-active i { background: var(--arm-gold); box-shadow: 0 0 6px rgba(242, 184, 75, 0.9); animation: arm-led 0.9s ease-in-out infinite; }
@@ -470,7 +412,14 @@
 @keyframes arm-ripple { 0% { opacity: 0.9; transform: scale(1); } 100% { opacity: 0; transform: scale(1.45); } }
 @keyframes arm-ripple-sq { 0% { box-shadow: 0 0 0 0 rgba(248, 113, 113, 0.6); } 100% { box-shadow: 0 0 0 10px rgba(248, 113, 113, 0); } }
 @keyframes arm-breathe { 0%, 100% { transform: scale(1) translateY(0); } 50% { transform: scale(1.012) translateY(-1.5px); } }
-@keyframes arm-hover { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+@keyframes arm-hover { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+@keyframes arm-swipe {
+  0% { transform: rotate(0) translate(0, 0); }
+  30% { transform: rotate(13deg) translate(-7%, 3%); }
+  70% { transform: rotate(-10deg) translate(12%, -2%); }
+  100% { transform: rotate(0) translate(0, 0); }
+}
+@keyframes arm-sweep { to { stroke-dashoffset: -100; } }
 @keyframes arm-sway { 0%, 100% { transform: rotate(-1.2deg); } 50% { transform: rotate(1.4deg); } }
 @keyframes arm-pad { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(0.86); opacity: 0.75; } }
 @keyframes arm-spark { 0% { opacity: 0; transform: translateY(0) scale(0.6); } 20% { opacity: 1; } 100% { opacity: 0; transform: translateY(-90px) translateX(calc((var(--i) - 2.5) * 6px)) scale(1); } }
@@ -489,31 +438,19 @@
 @keyframes arm-open { from { opacity: 0; transform: translateY(14px) scale(0.94); } to { opacity: 1; transform: none; } }
 @keyframes arm-pop { from { opacity: 0; transform: translateX(10px) scale(0.9); } to { opacity: 1; transform: none; } }
 
+/* ── Средние экраны: фигура не помещается рядом — прячем, когда чат открыт ── */
+@media (max-width: 860px) {
+  .arm-stand.is-open { display: none; }
+}
 /* ── Телефон: окно на весь экран ── */
 @media (max-width: 640px) {
-  .arm-widget { --arm-bottom: 82px; right: 0; }
-  .arm-trigger, .arm-fig { width: 124px; }
-  .arm-fig { height: 101px; }
-  .arm-fig-pad { width: 104px; margin-left: -52px; }
+  .arm-widget { --arm-bottom: 80px; }
+  .arm-stand { width: 138px; right: 0; }
+  .arm-window { inset: 0; width: auto; height: 100dvh; border: 0; border-radius: 0; transform-origin: 50% 100%; }
   .arm-label { padding: 6px 11px 6px 9px; font-size: 0.75rem; }
-  .arm-teaser { right: 122px; bottom: 84px; max-width: 190px; }
-  .arm-window {
-    position: fixed;
-    inset: 0;
-    width: auto;
-    height: 100dvh;
-    border: 0;
-    border-radius: 0;
-    transform-origin: 50% 100%;
-  }
-  .arm-stage { height: 280px; }
-  .arm-stage.is-compact { height: 160px; }
-.arm-stage.is-compact + .arm-head { margin-top: -58px; padding-top: 22px; }
-  .arm-widget:has(.arm-window) .arm-trigger { display: none; }
-  .arm-teaser { max-width: 210px; }
+  .arm-teaser { right: 126px; bottom: 150px; max-width: 190px; }
 }
-
 @media (prefers-reduced-motion: reduce) {
-  .arm-fig-float, .arm-fig-body, .arm-fig-pad, .arm-fig-pad i, .arm-fig-ear, .arm-fig-tablet, .arm-label::after, .arm-body, .arm-ear, .arm-scan, .arm-holo i, .arm-window, .arm-msg, .arm-teaser { animation: none !important; }
-  .arm-rig, .arm-holo, .arm-stage { transition: none; }
+  .arm-guide, .arm-guide-body, .arm-g-ear, .arm-g-tablet, .arm-g-hand, .arm-ring-sweep, .arm-label::after, .arm-window, .arm-msg, .arm-teaser { animation: none !important; }
+  .arm-stand { transition: none; }
 }
