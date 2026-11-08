@@ -139,20 +139,28 @@ type rateWindow struct {
 	count int
 }
 
-// clientIP — адрес клиента для лимитов. X-Forwarded-For учитывается, только если запрос пришёл
-// от прокси из внутренней сети (балансировщик Railway), и берётся ПОСЛЕДНИЙ адрес — его дописал
-// этот прокси. Первый адрес задаёт сам клиент: раньше, подставив любой, он обходил лимит.
+// clientIP — адрес клиента для лимитов. Заголовкам прокси верим, только если запрос пришёл
+// от самого прокси (внутренний адрес: частная сеть, loopback, 100.64.0.0/10 — так подключается
+// edge-прокси Railway). Порядок:
+//  1. X-Real-IP — его ставит edge-прокси (Railway, nginx), клиентская копия перезаписывается;
+//  2. последний адрес X-Forwarded-For — его дописывает ближайший прокси (первые клиент может подделать);
+//  3. адрес соединения.
 func clientIP(r *http.Request) string {
 	remote := r.RemoteAddr
 	if host, _, err := net.SplitHostPort(r.RemoteAddr); err == nil {
 		remote = host
 	}
+	ip := net.ParseIP(remote)
+	if !trustAllProxies && (ip == nil || !(ip.IsPrivate() || ip.IsLoopback() || cgnat.Contains(ip))) {
+		return remote
+	}
+	if xr := strings.TrimSpace(r.Header.Get("X-Real-IP")); xr != "" && net.ParseIP(xr) != nil {
+		return xr
+	}
 	if xff := r.Header.Get("X-Forwarded-For"); xff != "" {
-		if ip := net.ParseIP(remote); trustAllProxies || (ip != nil && (ip.IsPrivate() || ip.IsLoopback() || cgnat.Contains(ip))) {
-			parts := strings.Split(xff, ",")
-			if last := strings.TrimSpace(parts[len(parts)-1]); last != "" {
-				return last
-			}
+		parts := strings.Split(xff, ",")
+		if last := strings.TrimSpace(parts[len(parts)-1]); net.ParseIP(last) != nil {
+			return last
 		}
 	}
 	return remote
@@ -160,7 +168,7 @@ func clientIP(r *http.Request) string {
 
 var cgnat = &net.IPNet{IP: net.IPv4(100, 64, 0, 0), Mask: net.CIDRMask(10, 32)}
 
-// TRUST_PROXY_HEADERS=1 — доверять X-Forwarded-For от прокси с публичным адресом (если хостинг так устроен).
+// TRUST_PROXY_HEADERS=1 — доверять заголовкам прокси, даже если он подключается с публичного адреса.
 var trustAllProxies = os.Getenv("TRUST_PROXY_HEADERS") == "1"
 
 // RateLimit allows `limit` requests per `window` per client IP.

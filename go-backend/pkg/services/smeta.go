@@ -5,6 +5,7 @@ import (
 	"math"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 )
@@ -187,6 +188,9 @@ type SmetaDBMatch struct {
 	DBMin    float64 `json:"dbMin"`
 	DBMax    float64 `json:"dbMax"`
 	DBCount  int     `json:"dbCount"`
+	DBQ1     float64 `json:"dbQ1,omitempty"`      // нижний квартиль аналогов
+	DBQ3     float64 `json:"dbQ3,omitempty"`      // верхний квартиль аналогов
+	Dropped  int     `json:"dbDropped,omitempty"` // отброшено выбросов
 	Ratio    float64 `json:"ratio"`
 	Status   string  `json:"status"` // ok | high | low | none
 	Example  string  `json:"example,omitempty"`
@@ -737,9 +741,9 @@ func buildAudit(res SmetaResult, g SmetaGeo, db *PriceDBService) *SmetaAudit {
 			}
 		}
 		if n > 0 {
-			txt := fmt.Sprintf("Сверка со справочной базой QazGost: у %d позиций есть аналоги, %d из них в пределах ×0,5–×2 от медианы базы.", n, okN)
+			txt := fmt.Sprintf("Сверка со справочной базой QazGost: у %d позиций есть не меньше %d аналогов, у %d из них цена в коридоре базы (от ½ нижнего квартиля до 2 × верхнего, без выбросов).", n, dbMinAnalogs, okN)
 			if off > 0 {
-				warn(txt + fmt.Sprintf(" По %d позициям база заметно расходится с актуальными прайсами — в смете оставлена цена прайса со ссылкой.", off))
+				warn(txt + fmt.Sprintf(" По %d позициям цена базы заметно отличается — в смете оставлена цена справочника с источником, разбор в таблице сверки.", off))
 			} else {
 				ok(txt)
 			}
@@ -775,6 +779,24 @@ func WarmSmetaAudit(db *PriceDBService) {
 	}
 }
 
+// Фасовка в названии: «Цемент М500, 50 кг», «Краска акриловая (10л)».
+var packRe = regexp.MustCompile(`(\d+(?:[.,]\d+)?)\s*(кг|л)(?:[^\p{L}]|$)`)
+
+// Единицы-упаковки: цены таких позиций сравниваются в пересчёте на одинаковую фасовку.
+var packUnits = map[string]bool{"мешок": true, "ведро": true, "канистра": true, "банка": true, "баллон": true, "шт": true}
+
+func packOf(name string) (float64, string, bool) {
+	m := packRe.FindStringSubmatch(strings.ToLower(name))
+	if m == nil {
+		return 0, "", false
+	}
+	v, err := strconv.ParseFloat(strings.ReplaceAll(m[1], ",", "."), 64)
+	if err != nil || v <= 0 {
+		return 0, "", false
+	}
+	return v, m[2], true
+}
+
 func dbAnalogLookup(db *PriceDBService, key, city string) dbAnalogHit {
 	ck := key + "|" + city
 	if v, ok := dbAnalogCache.Load(ck); ok {
@@ -784,9 +806,30 @@ func dbAnalogLookup(db *PriceDBService, key, city string) dbAnalogHit {
 	terms := smetaWords(rate.DBQuery)
 	sr := db.Search(SearchParams{Query: rate.DBQuery, Type: rate.Kind, Region: city, Limit: 500, Unique: true})
 	want := normUnit(rate.Unit)
+	ourSize, ourMeas, ourPack := packOf(rate.Name)
+	ourPack = ourPack && packUnits[want]
 	hit := dbAnalogHit{}
 	for _, p := range sr.Items {
-		if p.Price <= 0 || normUnit(p.Unit) != want {
+		if p.Price <= 0 {
+			continue
+		}
+		price, unit := p.Price, normUnit(p.Unit)
+		normalized := false
+		if ourPack {
+			// мешок 25 кг и мешок 50 кг — разные товары: сравниваем цену за одинаковую фасовку,
+			// а позиции в другой мере (литры против килограммов) не сравниваем вовсе
+			if size, meas, ok := packOf(p.Name); ok {
+				if meas != ourMeas || !packUnits[unit] {
+					continue
+				}
+				if size != ourSize {
+					price = p.Price * ourSize / size
+					normalized = true
+				}
+				unit = want
+			}
+		}
+		if unit != want {
 			continue
 		}
 		ws := smetaWords(p.Name)
@@ -807,9 +850,13 @@ func dbAnalogLookup(db *PriceDBService, key, city string) dbAnalogHit {
 		if !match {
 			continue
 		}
-		hit.prices = append(hit.prices, p.Price)
+		hit.prices = append(hit.prices, price)
 		if len(hit.examples) < 3 {
-			hit.examples = append(hit.examples, fmt.Sprintf("%s — %s ₸", p.Name, fmtMoney(p.Price)))
+			ex := fmt.Sprintf("%s — %s ₸", p.Name, fmtMoney(p.Price))
+			if normalized {
+				ex += fmt.Sprintf(" (≈%s ₸ за %s %s)", fmtMoney(price), f(ourSize), ourMeas)
+			}
+			hit.examples = append(hit.examples, ex)
 		}
 	}
 	sort.Float64s(hit.prices)
@@ -817,26 +864,69 @@ func dbAnalogLookup(db *PriceDBService, key, city string) dbAnalogHit {
 	return hit
 }
 
+// Минимум аналогов для сверки: по одной-двум позициям базы вывод не делается.
+const dbMinAnalogs = 3
+
+// quantile — квантиль отсортированного ряда с линейной интерполяцией.
+func quantile(sorted []float64, q float64) float64 {
+	if len(sorted) == 0 {
+		return 0
+	}
+	pos := q * float64(len(sorted)-1)
+	lo := int(math.Floor(pos))
+	hi := int(math.Ceil(pos))
+	return sorted[lo] + (sorted[hi]-sorted[lo])*(pos-float64(lo))
+}
+
+// robustPrices отбрасывает выбросы по правилу Тьюки на логарифмах цен
+// (за пределами Q1 − 1,5·IQR … Q3 + 1,5·IQR): в базе встречаются позиции
+// другого масштаба (демонтаж плитки по 25 ₸ рядом с 1 600 ₸), и одна такая
+// позиция сдвигает медиану маленькой выборки. Вход отсортирован.
+func robustPrices(sorted []float64) []float64 {
+	if len(sorted) < 4 {
+		return sorted
+	}
+	logs := make([]float64, len(sorted))
+	for i, p := range sorted {
+		logs[i] = math.Log(p)
+	}
+	q1, q3 := quantile(logs, 0.25), quantile(logs, 0.75)
+	iqr := q3 - q1
+	lo, hi := q1-1.5*iqr, q3+1.5*iqr
+	out := make([]float64, 0, len(sorted))
+	for i, p := range sorted {
+		if logs[i] >= lo-1e-9 && logs[i] <= hi+1e-9 {
+			out = append(out, p)
+		}
+	}
+	return out
+}
+
 // dbAnalogs ищет в базе QazGost аналоги позиции: каждое слово запроса — начало слова в названии,
-// единица измерения совпадает. Позиции с пометкой «подозрительная» не учитываются.
+// единица измерения совпадает. Позиции с пометкой «подозрительная» не учитываются,
+// выбросы отбрасываются (robustPrices). Цена сметы считается совпадающей с базой, если
+// лежит в межквартильном коридоре аналогов, расширенном вдвое: [Q1 / 2; Q3 × 2].
+// Коридор, а не медиана, потому что в базе под одним запросом лежат и эконом-, и премиум-позиции.
 func dbAnalogs(db *PriceDBService, it SmetaItem, city string) (SmetaDBMatch, bool) {
 	rate := smetaRates[it.Key]
 	if rate.DBQuery == "" {
 		return SmetaDBMatch{}, false
 	}
 	hit := dbAnalogLookup(db, it.Key, city)
-	prices := hit.prices
-	m := SmetaDBMatch{Key: it.Key, Name: it.Name, Unit: it.Unit, Our: it.Price, DBCount: len(prices), Status: "none", Example: strings.Join(hit.examples, "; ")}
-	if len(prices) == 0 {
+	prices := robustPrices(hit.prices)
+	m := SmetaDBMatch{Key: it.Key, Name: it.Name, Unit: it.Unit, Our: it.Price, DBCount: len(prices),
+		Dropped: len(hit.prices) - len(prices), Status: "none", Example: strings.Join(hit.examples, "; ")}
+	if len(prices) < dbMinAnalogs {
 		return m, true
 	}
-	m.DBMedian = prices[len(prices)/2]
+	m.DBMedian = quantile(prices, 0.5)
 	m.DBMin, m.DBMax = prices[0], prices[len(prices)-1]
+	m.DBQ1, m.DBQ3 = quantile(prices, 0.25), quantile(prices, 0.75)
 	m.Ratio = math.Round(it.Price/m.DBMedian*100) / 100
 	switch {
-	case m.Ratio > 2:
+	case it.Price > m.DBQ3*2:
 		m.Status = "high"
-	case m.Ratio < 0.5:
+	case it.Price < m.DBQ1/2:
 		m.Status = "low"
 	default:
 		m.Status = "ok"

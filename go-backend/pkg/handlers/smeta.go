@@ -3,8 +3,11 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
+	"io"
 	"log"
 	"net/http"
+	"reflect"
+	"strings"
 
 	"qazgost-ai/backend/pkg/services"
 )
@@ -45,7 +48,7 @@ func (h *SmetaHandler) Calc(w http.ResponseWriter, r *http.Request) {
 	r.Body = http.MaxBytesReader(w, r.Body, 64<<10)
 	var req services.SmetaRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		writeError(w, http.StatusBadRequest, "Некорректный запрос: "+err.Error())
+		writeError(w, http.StatusBadRequest, decodeErrorText(err))
 		return
 	}
 	res, err := services.CalcSmeta(req, h.priceDB)
@@ -60,4 +63,46 @@ func (h *SmetaHandler) Calc(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeJSON(w, http.StatusOK, res)
+}
+
+// Названия полей запроса для сообщений об ошибках — без внутренних имён структур Go.
+var smetaFieldNames = map[string]string{
+	"area": "площадь", "perimeter": "периметр", "height": "высота стен", "doors": "число дверей",
+	"windows": "число окон", "category": "вид работ", "complex": "комплекс работ", "mode": "режим",
+	"city": "город", "params": "параметры", "geometry": "размеры",
+}
+
+// decodeErrorText — понятная причина, почему тело запроса не разобрано.
+func decodeErrorText(err error) string {
+	var typeErr *json.UnmarshalTypeError
+	var syntaxErr *json.SyntaxError
+	var tooBig *http.MaxBytesError
+	switch {
+	case errors.As(err, &tooBig):
+		return "Запрос слишком большой (больше 64 КБ)"
+	case errors.As(err, &typeErr):
+		field := typeErr.Field
+		if i := strings.LastIndex(field, "."); i >= 0 {
+			field = field[i+1:]
+		}
+		name, ok := smetaFieldNames[field]
+		if !ok {
+			name = "«" + field + "»"
+		}
+		want := "числом"
+		switch typeErr.Type.Kind() {
+		case reflect.String:
+			want = "строкой"
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+			want = "целым числом"
+		case reflect.Map, reflect.Struct:
+			want = "объектом"
+		}
+		return "Некорректный запрос: поле " + name + " должно быть " + want
+	case errors.As(err, &syntaxErr), errors.Is(err, io.ErrUnexpectedEOF):
+		return "Некорректный запрос: тело не является корректным JSON"
+	case errors.Is(err, io.EOF):
+		return "Некорректный запрос: пустое тело"
+	}
+	return "Некорректный запрос"
 }

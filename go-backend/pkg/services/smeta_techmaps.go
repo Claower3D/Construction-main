@@ -114,8 +114,8 @@ var tmWallFinish = &TechMap{
 		case 2:
 			return [3]string{
 				"без маяков: керамогранит 60×60 по существующей поверхности",
-				"штукатурка по маякам, керамогранит 60×60",
-				"штукатурка по маякам, керамогранит 60×60 под травертин",
+				"штукатурка по маякам, керамогранит 60×60 под мрамор",
+				"штукатурка по маякам, керамогранит 60×60 премиум-серии",
 			}
 		}
 		return [3]string{
@@ -203,7 +203,7 @@ var tmFloors = &TechMap{
 	},
 	ScenarioFn: func(c *smetaCtx) [3]string {
 		if c.pi("cover") == 1 {
-			return [3]string{"керамогранит 60×60 по существующему основанию", "полусухая стяжка, керамогранит 60×60", "полусухая стяжка, керамогранит 60×60 под травертин"}
+			return [3]string{"керамогранит 60×60 по существующему основанию", "полусухая стяжка, керамогранит 60×60 под мрамор", "полусухая стяжка, керамогранит 60×60 премиум-серии"}
 		}
 		return [3]string{"ламинат 32–33 класса по существующему основанию", "полусухая стяжка, ламинат 33 класса", "полусухая стяжка, ламинат 33 класса «ёлочкой»"}
 	},
@@ -576,8 +576,11 @@ func demDebris(c *smetaCtx) (float64, string) {
 	if c.p("tile_all") > 0 {
 		v += g.WallArea() * 0.02
 	}
-	if c.p("floor") > 0 {
+	switch c.pi("floor") {
+	case 1:
 		v += g.Area * 0.015
+	case 2:
+		v += g.Area * 0.02 // плитка с клеевым слоем
 	}
 	if c.p("screed") > 0 {
 		v += g.Area * 0.06
@@ -597,7 +600,7 @@ var tmDemolition = &TechMap{
 		{Key: "wallpaper", Label: "Снять обои", Default: 1, Min: 0, Max: 1, Options: yesNo},
 		{Key: "plaster", Label: "Сбить штукатурку", Default: 0, Min: 0, Max: 1, Options: yesNo},
 		{Key: "tile_all", Label: "Снять плитку со стен", Default: 0, Min: 0, Max: 1, Options: yesNo},
-		{Key: "floor", Label: "Снять напольное покрытие", Default: 1, Min: 0, Max: 1, Options: yesNo},
+		{Key: "floor", Label: "Снять напольное покрытие", Default: 1, Min: 0, Max: 2, Options: []SmetaOption{{0, "Нет"}, {1, "Ламинат, линолеум"}, {2, "Плитка"}}},
 		{Key: "screed", Label: "Демонтаж стяжки", Default: 0, Min: 0, Max: 1, Options: yesNo},
 		{Key: "partitions", Label: "Снос перегородок в ½ кирпича", Unit: "м²", Default: 0, Min: 0, Max: 500},
 		{Key: "doors_out", Label: "Демонтаж дверных блоков", Unit: "шт", Default: 0, Min: 0, Max: 50},
@@ -609,7 +612,8 @@ var tmDemolition = &TechMap{
 		{Stage: "Демонтаж", Rate: "w.dem.wallpaper", PerDay: 40, Qty: when(pOn("wallpaper"), wallQ)},
 		{Stage: "Демонтаж", Rate: "w.dem.plaster", PerDay: 25, Qty: when(pOn("plaster"), wallQ)},
 		{Stage: "Демонтаж", Rate: "w.dem.tile_wall", PerDay: 15, Qty: when(pOn("tile_all"), wallQ)},
-		{Stage: "Демонтаж", Rate: "w.dem.floor", PerDay: 30, Qty: when(pOn("floor"), areaQ)},
+		{Stage: "Демонтаж", Rate: "w.dem.floor", PerDay: 30, Qty: when(pEq("floor", 1), areaQ)},
+		{Stage: "Демонтаж", Rate: "w.dem.tile_floor", PerDay: 15, Qty: when(pEq("floor", 2), areaQ)},
 		{Stage: "Демонтаж", Rate: "w.dem.screed", PerDay: 10, Qty: when(pOn("screed"), areaQ)},
 		{Stage: "Демонтаж", Rate: "w.dem.wall_half_brick", PerDay: 6, Qty: byParam("partitions", "площадь перегородок")},
 		{Stage: "Демонтаж", Rate: "w.dem.door", PerDay: 6, Qty: byParam("doors_out", "дверные блоки")},
@@ -997,7 +1001,7 @@ var tmStairs = &TechMap{
 	ID: "stairs", Title: "Облицовка лестницы", Group: "Отделка", BaseLabel: "Контур лестничной клетки",
 	Params:   []SmetaParam{{Key: "steps", Label: "Ступени", Unit: "шт", Default: 15, Min: 1, Max: 300}},
 	Stages:   []tmStage{{"Облицовка ступеней", 0, ""}},
-	Scenario: [3]string{"керамогранит 60×60", "керамогранит 60×60", "керамогранит под травертин"},
+	Scenario: [3]string{"керамогранит 60×60", "керамогранит 60×60 под мрамор", "керамогранит 60×60 премиум-серии"},
 	Lines: []tmLine{
 		{Stage: "Облицовка ступеней", Rate: "w.stairs.tile", PerDay: 3, Qty: byParam("steps", "число ступеней")},
 		{Stage: "Облицовка ступеней", Rate: "m.tile", Qty: func(c *smetaCtx) (float64, string) {
@@ -1217,7 +1221,7 @@ var smetaComplexes = map[string]smetaComplex{
 		{"ceilings", map[string]float64{"type": 0}},
 	}},
 	"bathroom": {"Ремонт санузла", []smetaComplexPart{
-		{"demolition", map[string]float64{"wallpaper": 0, "tile_all": 1, "floor": 1, "doors_out": 1}},
+		{"demolition", map[string]float64{"wallpaper": 0, "tile_all": 1, "floor": 2, "doors_out": 1}},
 		{"plumbing", nil},
 		{"electric", map[string]float64{"sockets": 2, "switches": 1, "lamps": 1, "panel": 0}},
 		{"wall_finish", map[string]float64{"finish": 2}},

@@ -1,7 +1,11 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react';
+import { polyStats, homography, applyH, homW, isConvexQuad, fitSideScale } from './measureGeom';
 
 // Обмер помещения: контур на сетке с заданным масштабом, контур на фото плана
-// с калибровкой по эталону, или размеры вручную. Отдаёт площадь и периметр в метрах.
+// с калибровкой по эталону (линия известной длины или прямоугольник известного
+// размера — он же исправляет перспективу), или размеры вручную. Отдаёт площадь
+// и периметр в метрах. После замыкания контура масштаб комнаты можно уточнить
+// по реальным длинам сторон (размерам, подписанным на плане).
 
 const W = 800;
 const H = 480;
@@ -14,17 +18,6 @@ const num = (v) => {
   return Number.isFinite(n) ? n : 0;
 };
 const mStr = (v) => r2(v).toLocaleString('ru-RU');
-
-function polyStats(pts) {
-  let a = 0;
-  let p = 0;
-  for (let i = 0; i < pts.length; i++) {
-    const j = (i + 1) % pts.length;
-    a += pts[i].x * pts[j].y - pts[j].x * pts[i].y;
-    p += Math.hypot(pts[j].x - pts[i].x, pts[j].y - pts[i].y);
-  }
-  return { areaPx: Math.abs(a) / 2, perPx: p };
-}
 
 function segIntersect(a, b, c, d) {
   const cross = (p, q, r) => (q.x - p.x) * (r.y - p.y) - (q.y - p.y) * (r.x - p.x);
@@ -60,47 +53,97 @@ export default function ContourMeasure({ photos = [], geo, setGeo, showToast }) 
   // ref нужен для быстрых кликов: два клика до перерисовки не должны терять точку
   const pointsRef = useRef([]);
   const closedRef = useRef(false);
+  const [sideFix, setSideFix] = useState({}); // номер стороны → реальная длина, м (строка из поля)
   const setPoints = useCallback((v) => {
     const next = typeof v === 'function' ? v(pointsRef.current) : v;
     pointsRef.current = next;
     setPointsState(next);
+    setSideFix({});
   }, []);
   const setClosed = useCallback((v) => {
     closedRef.current = v;
     setClosedState(v);
   }, []);
   const [photoIdx, setPhotoIdx] = useState(0);
+  const [calibMode, setCalibModeState] = useState(() => {
+    try { return localStorage.getItem('qazgost_measure_calib') === 'rect' ? 'rect' : 'line'; } catch { return 'line'; }
+  });
   const [calibrating, setCalibrating] = useState(false);
   const [refPts, setRefPts] = useState([]);
+  const refPtsRef = useRef([]);
   const [refMeters, setRefMeters] = useState('0.9');
+  const [rectA, setRectA] = useState('0.6');
+  const [rectB, setRectB] = useState('0.6');
   const [manual, setManual] = useState({ kind: 'rect', len: '', wid: '', area: '', per: '' });
   const [hover, setHover] = useState(null);
 
+  const setRef = (pts) => { refPtsRef.current = pts; setRefPts(pts); };
+  const resetContour = () => { setPoints([]); setClosed(false); };
+
   const pickTab = (t) => {
     setTab(t);
-    setPoints([]);
-    setClosed(false);
+    resetContour();
     setCalibrating(false);
     setGeo((g) => ({ ...g, area: 0, perimeter: 0, source: '' }));
     try { localStorage.setItem('qazgost_measure_tab', t); } catch { /* приватный режим */ }
   };
 
-  const refLenPx = refPts.length === 2 ? Math.hypot(refPts[1].x - refPts[0].x, refPts[1].y - refPts[0].y) : 0;
-  const metersPerPx = tab === 'grid'
+  const pickCalibMode = (m) => {
+    if (m === calibMode) return;
+    setCalibModeState(m);
+    setRef([]);
+    setCalibrating(false);
+    resetContour();
+    try { localStorage.setItem('qazgost_measure_calib', m); } catch { /* приватный режим */ }
+  };
+
+  // ---- Калибровка: точка холста → метры ----
+  const refLenPx = calibMode === 'line' && refPts.length === 2 ? Math.hypot(refPts[1].x - refPts[0].x, refPts[1].y - refPts[0].y) : 0;
+  const mpp = tab === 'grid'
     ? cellM / CELL
-    : (refLenPx > 0 && num(refMeters) > 0 ? num(refMeters) / refLenPx : 0);
+    : (calibMode === 'line' && refLenPx > 0 && num(refMeters) > 0 ? num(refMeters) / refLenPx : 0);
+  const rA = num(rectA);
+  const rB = num(rectB);
+  const Hm = useMemo(() => {
+    if (tab !== 'photo' || calibMode !== 'rect' || refPts.length !== 4 || !(rA > 0) || !(rB > 0) || !isConvexQuad(refPts)) return null;
+    return homography(refPts, [{ x: 0, y: 0 }, { x: rA, y: 0 }, { x: rA, y: rB }, { x: 0, y: rB }]);
+  }, [tab, calibMode, refPts, rA, rB]);
+  const calibrated = tab === 'grid' || (tab === 'photo' && (calibMode === 'line' ? mpp > 0 : !!Hm));
+  const toM = useCallback((p) => (tab === 'photo' && calibMode === 'rect'
+    ? applyH(Hm, p)
+    : { x: p.x * mpp, y: p.y * mpp }), [tab, calibMode, Hm, mpp]);
+  // точка по ту же сторону «горизонта», что и эталон (иначе проекция теряет смысл)
+  const horizonSign = Hm ? Math.sign(homW(Hm, refPts[0])) : 0;
+  const beyondHorizon = (p) => !!Hm && Math.sign(homW(Hm, p)) !== horizonSign;
+
+  // контур в метрах по калибровке (до уточнения по сторонам)
+  const rawM = useMemo(() => (calibrated && points.length ? points.map(toM) : []), [calibrated, points, toM]);
+  const sideVecs = useMemo(() => rawM.map((a, i) => {
+    const b = rawM[(i + 1) % rawM.length];
+    return { x: b.x - a.x, y: b.y - a.y };
+  }), [rawM]);
+  const fit = useMemo(() => {
+    if (tab !== 'photo' || !closed) return null;
+    const fixes = Object.entries(sideFix).map(([i, v]) => ({ i: Number(i), len: num(v) })).filter((f) => f.len > 0 && f.i < sideVecs.length);
+    return fitSideScale(sideVecs, fixes);
+  }, [tab, closed, sideFix, sideVecs]);
+  const finalM = useMemo(() => (fit ? rawM.map((p) => ({ x: p.x * fit.sx, y: p.y * fit.sy })) : rawM), [rawM, fit]);
+  const sideLen = (i) => {
+    const v = sideVecs[i];
+    return v ? Math.hypot(v.x * (fit ? fit.sx : 1), v.y * (fit ? fit.sy : 1)) : 0;
+  };
 
   // Итог контура → геометрия
   useEffect(() => {
     if (tab === 'manual') return;
-    if (!closed || points.length < 3 || !metersPerPx) {
+    if (!closed || points.length < 3 || !calibrated) {
       if (geo.source === 'contour') setGeo((g) => ({ ...g, area: 0, perimeter: 0, source: '' }));
       return;
     }
-    const { areaPx, perPx } = polyStats(points);
-    setGeo((g) => ({ ...g, area: r2(areaPx * metersPerPx * metersPerPx), perimeter: r2(perPx * metersPerPx), source: 'contour' }));
+    const { area, perimeter } = polyStats(finalM);
+    setGeo((g) => ({ ...g, area: r2(area), perimeter: r2(perimeter), source: 'contour' }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [closed, points, metersPerPx, tab]);
+  }, [closed, points, calibrated, finalM, tab]);
 
   // Ручной ввод → геометрия
   useEffect(() => {
@@ -131,55 +174,77 @@ export default function ContourMeasure({ photos = [], geo, setGeo, showToast }) 
     return { x: Math.max(0, Math.min(W, x)), y: Math.max(0, Math.min(H, y)) };
   };
 
+  const needCalibMsg = calibMode === 'rect'
+    ? 'Сначала задайте масштаб: нажмите «Отметить 4 угла» и кликните по углам прямоугольника известного размера'
+    : 'Сначала задайте масштаб: нажмите «Отметить эталон» и проведите линию по предмету известной длины';
+
   const closeContour = useCallback(() => {
-    const points = pointsRef.current;
-    if (points.length < 3) {
+    const pts = pointsRef.current;
+    if (pts.length < 3) {
       showToast?.('Нужно минимум 3 точки, чтобы замкнуть контур');
       return;
     }
-    if (selfIntersects(points)) {
+    if (selfIntersects(pts)) {
       showToast?.('Стороны контура пересекаются — уберите лишнюю точку кнопкой «Отменить точку»');
       return;
     }
-    if (!metersPerPx) {
-      showToast?.('Сначала задайте масштаб: отметьте эталон известной длины');
+    if (!calibrated) {
+      showToast?.(needCalibMsg);
       return;
     }
     setClosed(true);
-  }, [metersPerPx, showToast, setClosed]);
+  }, [calibrated, needCalibMsg, showToast, setClosed]);
 
   const onPointerDown = (e) => {
     if (e.pointerType === 'mouse' && e.button !== 0) return;
     e.preventDefault();
     const p = toCanvas(e);
     if (calibrating) {
-      const next = [...refPts, p].slice(-2);
-      setRefPts(next);
+      if (calibMode === 'rect') {
+        const next = [...refPtsRef.current, p].slice(0, 4);
+        setRef(next);
+        if (next.length === 4) {
+          setCalibrating(false);
+          if (!isConvexQuad(next)) {
+            setRef([]);
+            showToast?.('Углы отмечены не по кругу или три угла на одной линии — отметьте 4 угла заново, обходя прямоугольник по краю');
+            return;
+          }
+          showToast?.('Прямоугольник отмечен — проверьте его размеры: первое число — сторона от 1-го угла ко 2-му');
+        }
+        return;
+      }
+      const next = [...refPtsRef.current, p].slice(-2);
+      setRef(next);
       if (next.length === 2) {
         setCalibrating(false);
         showToast?.('Эталон отмечен — укажите его реальную длину в метрах');
       }
       return;
     }
-    if (tab === 'photo' && !metersPerPx) {
-      showToast?.('Сначала задайте масштаб: нажмите «Отметить эталон» и проведите линию по предмету известной длины');
+    if (tab === 'photo' && !calibrated) {
+      showToast?.(needCalibMsg);
       return;
     }
     if (closedRef.current) {
       showToast?.('Контур замкнут. Чтобы начать заново, нажмите «Очистить»');
       return;
     }
-    const points = pointsRef.current;
-    if (points.length >= 3) {
-      const p0 = points[0];
+    if (beyondHorizon(p)) {
+      showToast?.('Эта точка за линией горизонта прямоугольника-эталона — её нельзя пересчитать в метры. Отмечайте только пол той же плоскости');
+      return;
+    }
+    const pts = pointsRef.current;
+    if (pts.length >= 3) {
+      const p0 = pts[0];
       if (Math.hypot(p.x - p0.x, p.y - p0.y) < 18 * Math.min(2.2, Math.max(1, W / (canvasRef.current?.clientWidth || W)))) {
         closeContour();
         return;
       }
     }
-    const last = points[points.length - 1];
+    const last = pts[pts.length - 1];
     if (last && last.x === p.x && last.y === p.y) return;
-    setPoints([...points, p]);
+    setPoints([...pts, p]);
   };
 
   const onPointerMove = (e) => {
@@ -197,15 +262,22 @@ export default function ContourMeasure({ photos = [], geo, setGeo, showToast }) 
 
     // на узком экране холст уменьшен — подписи и точки увеличиваем, чтобы читались
     const k = Math.min(2.2, Math.max(1, W / (c.clientWidth || W)));
+    const tag = (label, x, y, bg = 'rgba(11,15,25,0.85)', fg = '#e9e4ff') => {
+      const tw = ctx.measureText(label).width;
+      ctx.fillStyle = bg;
+      ctx.fillRect(x - tw / 2 - 4, y - 9 * k, tw + 8, 18 * k);
+      ctx.fillStyle = fg;
+      ctx.fillText(label, x - tw / 2, y + 4 * k);
+    };
     const draw = (img) => {
       if (cancelled) return;
       ctx.clearRect(0, 0, W, H);
       ctx.fillStyle = '#0b0f19';
       ctx.fillRect(0, 0, W, H);
       if (img) {
-        const k = Math.min(W / img.width, H / img.height);
-        const dw = img.width * k;
-        const dh = img.height * k;
+        const s = Math.min(W / img.width, H / img.height);
+        const dw = img.width * s;
+        const dh = img.height * s;
         ctx.drawImage(img, (W - dw) / 2, (H - dh) / 2, dw, dh);
         ctx.fillStyle = 'rgba(11,15,25,0.25)';
         ctx.fillRect(0, 0, W, H);
@@ -228,21 +300,31 @@ export default function ContourMeasure({ photos = [], geo, setGeo, showToast }) 
         for (let j = 2; j < H / CELL; j += 2) ctx.fillText(`${mStr(j * cellM)} м`, 3, j * CELL - 3);
       }
 
-      // эталон на фото
-      if (refPts.length) {
+      // эталон на фото: линия или прямоугольник
+      if (tab === 'photo' && refPts.length) {
         ctx.strokeStyle = '#fbbf24';
         ctx.lineWidth = 3;
         ctx.setLineDash([8, 5]);
         ctx.beginPath();
         ctx.moveTo(refPts[0].x, refPts[0].y);
-        if (refPts[1]) ctx.lineTo(refPts[1].x, refPts[1].y);
+        refPts.slice(1).forEach((q) => ctx.lineTo(q.x, q.y));
+        if (calibMode === 'rect' && refPts.length === 4) ctx.closePath();
+        else if (calibMode === 'rect' && calibrating && hover) ctx.lineTo(hover.x, hover.y);
         ctx.stroke();
         ctx.setLineDash([]);
-        refPts.forEach((p) => { ctx.beginPath(); ctx.arc(p.x, p.y, 5, 0, Math.PI * 2); ctx.fillStyle = '#fbbf24'; ctx.fill(); });
-        if (refPts[1] && num(refMeters) > 0) {
-          ctx.fillStyle = '#fde68a';
-          ctx.font = 'bold 12px Inter, sans-serif';
-          ctx.fillText(`эталон ${mStr(num(refMeters))} м`, (refPts[0].x + refPts[1].x) / 2 + 6, (refPts[0].y + refPts[1].y) / 2 - 6);
+        ctx.font = `bold ${Math.round(12 * k)}px Inter, sans-serif`;
+        refPts.forEach((q, i) => {
+          ctx.beginPath(); ctx.arc(q.x, q.y, 5 * k, 0, Math.PI * 2); ctx.fillStyle = '#fbbf24'; ctx.fill();
+          if (calibMode === 'rect') tag(String(i + 1), q.x + 12 * k, q.y - 10 * k, '#fbbf24', '#1a1033');
+        });
+        if (calibMode === 'line' && refPts[1] && num(refMeters) > 0) {
+          tag(`эталон ${mStr(num(refMeters))} м`, (refPts[0].x + refPts[1].x) / 2, (refPts[0].y + refPts[1].y) / 2 - 14 * k, 'rgba(11,15,25,0.85)', '#fde68a');
+        }
+        if (calibMode === 'rect' && refPts.length === 4 && rA > 0 && rB > 0) {
+          const m01 = { x: (refPts[0].x + refPts[1].x) / 2, y: (refPts[0].y + refPts[1].y) / 2 };
+          const m12 = { x: (refPts[1].x + refPts[2].x) / 2, y: (refPts[1].y + refPts[2].y) / 2 };
+          tag(`${mStr(rA)} м`, m01.x, m01.y, 'rgba(11,15,25,0.85)', '#fde68a');
+          tag(`${mStr(rB)} м`, m12.x, m12.y, 'rgba(11,15,25,0.85)', '#fde68a');
         }
       }
 
@@ -250,39 +332,33 @@ export default function ContourMeasure({ photos = [], geo, setGeo, showToast }) 
         const path = [...points];
         ctx.beginPath();
         ctx.moveTo(path[0].x, path[0].y);
-        path.slice(1).forEach((p) => ctx.lineTo(p.x, p.y));
+        path.slice(1).forEach((q) => ctx.lineTo(q.x, q.y));
         if (closed) {
           ctx.closePath();
           ctx.fillStyle = 'rgba(16,185,129,0.18)';
           ctx.fill();
-        } else if (hover) {
+        } else if (hover && !calibrating) {
           ctx.lineTo(hover.x, hover.y);
         }
         ctx.strokeStyle = closed ? '#10b981' : '#b9a4ff';
         ctx.lineWidth = 2.5 * k;
         ctx.stroke();
 
-        // длины сторон
-        if (metersPerPx) {
+        // длины сторон (с номерами — по ним уточняют масштаб)
+        if (calibrated) {
           ctx.font = `bold ${Math.round(12 * k)}px Inter, sans-serif`;
           const n = closed ? path.length : path.length - 1;
           for (let i = 0; i < n; i++) {
             const a = path[i];
             const b = path[(i + 1) % path.length];
-            const len = Math.hypot(b.x - a.x, b.y - a.y) * metersPerPx;
-            const label = `${mStr(len)} м`;
-            const mx = (a.x + b.x) / 2;
-            const my = (a.y + b.y) / 2;
-            const tw = ctx.measureText(label).width;
-            ctx.fillStyle = 'rgba(11,15,25,0.85)';
-            ctx.fillRect(mx - tw / 2 - 4, my - 9 * k, tw + 8, 18 * k);
-            ctx.fillStyle = '#e9e4ff';
-            ctx.fillText(label, mx - tw / 2, my + 4 * k);
+            const fixed = closed && num(sideFix[i]) > 0;
+            const label = `${tab === 'photo' && closed ? `${i + 1}: ` : ''}${mStr(sideLen(i))} м`;
+            tag(label, (a.x + b.x) / 2, (a.y + b.y) / 2, fixed ? 'rgba(4,120,87,0.92)' : 'rgba(11,15,25,0.85)');
           }
         }
-        points.forEach((p, i) => {
+        points.forEach((q, i) => {
           ctx.beginPath();
-          ctx.arc(p.x, p.y, (i === 0 && !closed && points.length >= 3 ? 8 : 5) * k, 0, Math.PI * 2);
+          ctx.arc(q.x, q.y, (i === 0 && !closed && points.length >= 3 ? 8 : 5) * k, 0, Math.PI * 2);
           ctx.fillStyle = i === 0 ? '#fbbf24' : '#b9a4ff';
           ctx.fill();
           ctx.strokeStyle = '#fff';
@@ -302,7 +378,8 @@ export default function ContourMeasure({ photos = [], geo, setGeo, showToast }) 
       draw(null);
     }
     return () => { cancelled = true; };
-  }, [tab, points, closed, hover, cellM, refPts, refMeters, metersPerPx, photos, photoIdx]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tab, points, closed, hover, cellM, refPts, refMeters, rA, rB, calibMode, calibrating, calibrated, sideVecs, fit, sideFix, photos, photoIdx]);
 
   const wallArea = Math.max(0, geo.perimeter * geo.height - geo.doors * 0.9 * 2.1 - geo.windows * 1.5 * 1.5);
   const setG = (k, v) => setGeo((g) => ({ ...g, [k]: v }));
@@ -342,21 +419,47 @@ export default function ContourMeasure({ photos = [], geo, setGeo, showToast }) 
             ) : (
               <>
                 {photos.length > 1 && (
-                  <select value={photoIdx} onChange={(e) => { setPhotoIdx(Number(e.target.value)); setPoints([]); setClosed(false); setRefPts([]); }} aria-label="Фото для обмера">
+                  <select value={photoIdx} onChange={(e) => { setPhotoIdx(Number(e.target.value)); resetContour(); setRef([]); }} aria-label="Фото для обмера">
                     {photos.map((p, i) => <option key={p.id} value={i}>Фото {i + 1}</option>)}
                   </select>
                 )}
-                <button type="button" className={`sm-btn ${calibrating ? 'is-on' : ''}`}
-                  disabled={!photos.length}
-                  onClick={() => { setCalibrating(true); setRefPts([]); setPoints([]); setClosed(false); }}>
-                  {refPts.length === 2 ? 'Перемерить эталон' : 'Отметить эталон'}
-                </button>
-                <label className="sm-field-inline">
-                  <span>длина эталона</span>
-                  <input type="number" min="0.05" step="0.01" value={refMeters} onChange={(e) => setRefMeters(e.target.value)} aria-label="Длина эталона в метрах" />
-                  <span>м</span>
-                </label>
-                <span className="sm-hint">дверь 0,9 м · лист А4 0,297 м · размерная линия на плане</span>
+                <div className="sm-seg sm-seg-sm" role="radiogroup" aria-label="Эталон масштаба">
+                  <button type="button" role="radio" aria-checked={calibMode === 'line'} className={calibMode === 'line' ? 'is-on' : ''}
+                    onClick={() => pickCalibMode('line')}>Линия</button>
+                  <button type="button" role="radio" aria-checked={calibMode === 'rect'} className={calibMode === 'rect' ? 'is-on' : ''}
+                    onClick={() => pickCalibMode('rect')} data-testid="calib-rect">Прямоугольник (фото под углом)</button>
+                </div>
+                {calibMode === 'line' ? (
+                  <>
+                    <button type="button" className={`sm-btn ${calibrating ? 'is-on' : ''}`}
+                      disabled={!photos.length}
+                      onClick={() => { setCalibrating(true); setRef([]); resetContour(); }}>
+                      {refPts.length === 2 ? 'Перемерить эталон' : 'Отметить эталон'}
+                    </button>
+                    <label className="sm-field-inline">
+                      <span>длина эталона</span>
+                      <input type="number" min="0.05" step="0.01" value={refMeters} onChange={(e) => setRefMeters(e.target.value)} aria-label="Длина эталона в метрах" />
+                      <span>м</span>
+                    </label>
+                    <span className="sm-hint">дверь 0,9 м · лист А4 0,297 м · размерная линия на плане</span>
+                  </>
+                ) : (
+                  <>
+                    <button type="button" className={`sm-btn ${calibrating ? 'is-on' : ''}`}
+                      disabled={!photos.length} data-testid="calib-rect-start"
+                      onClick={() => { setCalibrating(true); setRef([]); resetContour(); }}>
+                      {refPts.length === 4 ? 'Перемерить углы' : 'Отметить 4 угла'}
+                    </button>
+                    <label className="sm-field-inline">
+                      <span>размер</span>
+                      <input type="number" min="0.05" step="0.01" value={rectA} onChange={(e) => setRectA(e.target.value)} aria-label="Сторона прямоугольника от 1-го угла ко 2-му, м" data-testid="rect-a" />
+                      <span>×</span>
+                      <input type="number" min="0.05" step="0.01" value={rectB} onChange={(e) => setRectB(e.target.value)} aria-label="Сторона прямоугольника от 2-го угла к 3-му, м" data-testid="rect-b" />
+                      <span>м</span>
+                    </label>
+                    <span className="sm-hint">плитка 0,6×0,6 · лист А4 0,21×0,297 · ковёр или комната с известными размерами — на том же полу</span>
+                  </>
+                )}
               </>
             )}
           </div>
@@ -369,7 +472,13 @@ export default function ContourMeasure({ photos = [], geo, setGeo, showToast }) 
                 data-testid="contour-canvas"
                 style={{ cursor: closed ? 'default' : 'crosshair' }}
                 onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerLeave={() => setHover(null)} />
-              {calibrating && <div className="sm-canvas-tip">Кликните в начало и в конец предмета известной длины</div>}
+              {calibrating && (
+                <div className="sm-canvas-tip">
+                  {calibMode === 'rect'
+                    ? `Кликните по 4 углам прямоугольника по кругу — отмечено ${refPts.length} из 4`
+                    : 'Кликните в начало и в конец предмета известной длины'}
+                </div>
+              )}
             </div>
           )}
 
@@ -383,10 +492,45 @@ export default function ContourMeasure({ photos = [], geo, setGeo, showToast }) 
             </button>
             <span className="sm-hint">
               {tab === 'photo'
-                ? 'Точно только для плана или снимка строго сверху. Для лучшей точности отмечайте эталон в той же комнате, которую обводите.'
+                ? (calibMode === 'rect'
+                  ? 'Прямоугольник-эталон исправляет перспективу: обводите только пол в той же плоскости, что и эталон.'
+                  : 'Линия-эталон точна для плана или снимка строго сверху. Снимок под углом — выберите эталон «Прямоугольник».')
                 : 'Кликайте по углам помещения по часовой стрелке; клик по первой точке замыкает контур.'}
             </span>
           </div>
+
+          {tab === 'photo' && closed && calibrated && (
+            <div className="sm-sides" data-testid="side-fix">
+              <div className="sm-sides-head">
+                <strong>Уточнить масштаб этой комнаты</strong>
+                <span className="sm-hint">Планировки часто нарисованы не в масштабе. Впишите реальную длину одной-двух сторон — например, размеры комнаты, подписанные на плане. Две стороны разного направления исправляют и растяжение плана по ширине и высоте.</span>
+              </div>
+              <div className="sm-sides-list">
+                {sideVecs.map((v, i) => (
+                  <label key={i} className="sm-side">
+                    <span>Сторона {i + 1}: <b>{mStr(Math.hypot(v.x, v.y))} м</b> по эталону</span>
+                    <input type="number" min="0" step="0.01" inputMode="decimal" placeholder="реальная, м"
+                      value={sideFix[i] ?? ''} aria-label={`Реальная длина стороны ${i + 1}, м`} data-testid={`side-fix-${i + 1}`}
+                      onChange={(e) => setSideFix((f) => ({ ...f, [i]: e.target.value }))} />
+                  </label>
+                ))}
+              </div>
+              {fit && (
+                <p className={`sm-sides-status ${fit.maxDev > 0.03 || fit.note ? 'is-warn' : ''}`} role="status">
+                  {fit.kind === 'axes'
+                    ? `Масштаб уточнён по ${fit.count} сторонам отдельно по ширине и высоте: ×${mStr(fit.sx)} и ×${mStr(fit.sy)}.`
+                    : `Масштаб уточнён по ${fit.count === 1 ? 'одной стороне' : `${fit.count} сторонам`}: ×${mStr(fit.sx)}.`}
+                  {fit.note === 'one' && ' Впишите ещё одну сторону другого направления: планы часто растянуты по одной оси, и одной стороны мало.'}
+                  {fit.note === 'parallel' && ' Указанные стороны параллельны — растяжение по второй оси по ним не определить, нужна сторона другого направления.'}
+                  {fit.note === 'stretch' && ' Длины противоречат друг другу так сильно, что масштаб по осям не подобрать — взят общий множитель.'}
+                  {fit.maxDev > 0.03 && ` Введённые длины расходятся с формой контура на ${mStr(fit.maxDev * 100)} % — проверьте, те ли стороны указаны и нет ли ниш и шкафов внутри размера.`}
+                </p>
+              )}
+              {Object.keys(sideFix).some((i) => num(sideFix[i]) > 0) && (
+                <button type="button" className="sm-btn" onClick={() => setSideFix({})}>Сбросить уточнение</button>
+              )}
+            </div>
+          )}
         </>
       )}
 

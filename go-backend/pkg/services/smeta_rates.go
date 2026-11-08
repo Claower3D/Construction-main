@@ -25,21 +25,23 @@ type SmetaRate struct {
 const SmetaPriceDate = "ноябрь 2026"
 
 const (
-	srcProff     = "Прайс «Профф-Ремонт», Алматы, 2026"
-	urlProff     = "https://proff-remont.kz/ceny/"
-	srcRekrovli  = "Прайс «Рекровли», Алматы, 2026"
-	urlRekrovli  = "https://rekrovli.kz/"
-	srcSatu      = "Satu.kz, предложения продавцов, 2026"
-	srcOLX       = "OLX.kz, объявления, 2026"
-	srcKaspi     = "Kaspi Объявления, Алматы, 2026"
-	srcBizmedia  = "Bizmedia.kz по данным OLX, июнь 2026"
-	urlBizmedia  = "https://bizmedia.kz/2026-06-29-stroitelnyj-sezon-startoval-kak-izmenilis-czeny-na-materialy-i-uslugi-v-kazahstane/"
-	srcDigital   = "Digitalbusiness.kz: средние цены строительных рынков"
-	urlDigital   = "https://digitalbusiness.kz/2025-02-10/stroymateriali-v-kazahstane-podorozhali-gid-po-tsenam-pered-nachalom-remonta/"
-	srcSilver    = "Прайс «Silver-Ремонт», Алматы"
-	srcEstimate  = "Оценка QazGost"
-	urlSatuRoof  = "https://satu.kz/Metallocherepitsa-v-almate.html"
-	urlKaspiTile = "https://obyavleniya.kaspi.kz/a/kafelschik-master-120758607"
+	srcProff      = "Прайс «Профф-Ремонт», Алматы, 2026"
+	urlProff      = "https://proff-remont.kz/ceny/"
+	srcRekrovli   = "Прайс «Рекровли», Алматы, 2026"
+	urlRekrovli   = "https://rekrovli.kz/"
+	srcSatu       = "Satu.kz, предложения продавцов, 2026"
+	srcOLX        = "OLX.kz, объявления, 2026"
+	srcKaspi      = "Kaspi Объявления, Алматы, 2026"
+	srcBizmedia   = "Bizmedia.kz по данным OLX, июнь 2026"
+	urlBizmedia   = "https://bizmedia.kz/2026-06-29-stroitelnyj-sezon-startoval-kak-izmenilis-czeny-na-materialy-i-uslugi-v-kazahstane/"
+	srcSilver     = "Прайс «Silver-Ремонт», Алматы"
+	srcEstimate   = "Оценка QazGost"
+	urlSatuRoof   = "https://satu.kz/Metallocherepitsa-v-almate.html"
+	urlKaspiTile  = "https://obyavleniya.kaspi.kz/a/kafelschik-master-120758607"
+	urlKaspiTiler = "https://obyavleniya.kaspi.kz/a/kafelschik-114185822"
+	urlSatuPorc   = "https://satu.kz/almaty/Keramogranit-6060.html"
+	urlKaspiFound = "https://obyavleniya.kaspi.kz/a/fundament-117422153"
+	urlSatuLam    = "https://satu.kz/almaty/Laminirovannyj-parket-33-klass.html"
 )
 
 func rateW(key, name, unit string, price float64, src, url, q string) SmetaRate {
@@ -68,13 +70,13 @@ var smetaRateList = []SmetaRate{
 	rateW("w.dem.plaster", "Демонтаж штукатурки со стен", "м²", 970, srcProff, urlProff, "демонтаж штукатур"),
 	rateW("w.dem.tile_wall", "Демонтаж плитки со стен", "м²", 855, srcProff, urlProff, "демонтаж плитк"),
 	rateW("w.dem.floor", "Демонтаж напольного покрытия (ламинат, линолеум, ПВХ-плитка)", "м²", 625, srcProff, urlProff, "демонтаж пол"),
+	rateW("w.dem.tile_floor", "Демонтаж плитки с пола", "м²", 1200, srcKaspi, urlKaspiTiler, "демонтаж плитк"),
 	rateW("w.dem.screed", "Демонтаж стяжки", "м²", 2000, srcProff, urlProff, "демонтаж стяжк"),
 	rateW("w.dem.wallpaper", "Очистка стен от обоев", "м²", 515, srcProff, urlProff, "обои"),
 	rateW("w.dem.wall_half_brick", "Демонтаж перегородки в ½ кирпича", "м²", 2050, srcProff, urlProff, "демонтаж перегород"),
-	rateW("w.dem.door", "Демонтаж дверного блока", "шт", 9700, srcProff, urlProff, "демонтаж двер"),
+	rateW("w.dem.door", "Демонтаж деревянного дверного блока", "шт", 6950, srcProff, urlProff, "демонтаж двер"),
 	rateW("w.dem.building", "Снос строения механизированный (по строительному объёму)", "м³", 3200, srcSatu, "https://satu.kz/Kotlovany.html", "снос"),
-	rateEst(rateW("w.dem.trash", "Погрузка и вывоз строительного мусора (самосвал до 6 м³)", "рейс", 25000, "", "", "вывоз мусор"),
-		"Цена рейса самосвала по объявлениям «вывоз мусора» в Алматы (20–30 тыс. ₸)"),
+	rateW("w.dem.trash", "Погрузка и вывоз строительного мусора (самосвал до 6 м³)", "рейс", 25000, srcKaspi, "https://obyavleniya.kaspi.kz/a/vyivoz-musora-119668975", "вывоз мусор"),
 
 	// ── Стены ──
 	rateW("w.wall.primer", "Грунтовка стен глубокого проникновения", "м²", 400, srcProff, urlProff, "грунтовк"),
@@ -88,22 +90,21 @@ var smetaRateList = []SmetaRate{
 	rateW("w.wall.gkl_insul", "Укладка звукоизоляции в перегородку ГКЛ", "м²", 685, srcProff, urlProff, "утеплител"),
 
 	rateM("m.rotband", "Штукатурка гипсовая Knauf Ротбанд, 30 кг", "мешок", 3200, srcSatu, "https://satu.kz/Rotband.html", 30, "ротбанд"),
-	rateM("m.primer", "Грунтовка акриловая Remalux, 10 л", "канистра", 4000, srcSatu, "", 10, "грунтовк"),
+	rateM("m.primer", "Грунтовка акриловая Remalux, 10 л", "канистра", 4000, srcSatu, "https://satu.kz/almaty/Remalux.html", 10, "грунтовк"),
 	rateM("m.putty", "Шпаклёвка гипсовая Knauf Фуген, 25 кг", "мешок", 3850, srcSatu, "https://satu.kz/Gipsovye-materialy.html", 25, "шпатлевк"),
-	rateM("m.putty_prem", "Шпаклёвка финишная AlinEX Glatt Plus, 25 кг", "мешок", 7250, srcDigital, urlDigital, 25, "шпатлевк"),
+	rateM("m.putty_prem", "Шпаклёвка финишная AlinEX Glatt Plus, 25 кг", "мешок", 6850, srcSatu, "https://almaty.satu.kz/Glatt-plyus.html", 25, "шпатлевк"),
 	rateM("m.paint_eco", "Краска интерьерная Gaudi «Белоснежка», 10 кг", "ведро", 5500, srcSatu, "https://satu.kz/almaty/Gaudi.html", 10, "краск"),
 	rateM("m.paint_std", "Краска интерьерная Gaudi Standart, 10 кг", "ведро", 10600, srcSatu, "https://satu.kz/almaty/Gaudi.html", 10, "краск"),
-	rateM("m.paint_prem", "Краска интерьерная Remalux, 25 кг", "ведро", 19170, srcSatu, "", 25, "краск"),
-	rateEst(rateM("m.wallpaper", "Обои флизелиновые, рулон 1,06×10 м", "рулон", 9000, "", "", 0, "обои"),
-		"Средняя цена рулона в строймаркетах Алматы; зависит от коллекции"),
+	rateM("m.paint_prem", "Краска интерьерная Remalux, 25 кг", "ведро", 16500, srcSatu, "https://satu.kz/brands/Remalux", 25, "краск"),
+	rateM("m.wallpaper", "Обои флизелиновые Pure Rose, рулон 1,06×10,05 м", "рулон", 9900, srcSatu, "https://satu.kz/p45013722-oboi-pure-rose.html", 0, "обои"),
 	rateEst(rateM("m.wallpaper_glue", "Клей для флизелиновых обоев (пачка на 25 м²)", "шт", 2500, "", "", 25, "клей обойн"),
 		"Розничная цена пачки клея Quelyd/Metylan в Алматы"),
-	rateM("m.gkl", "Лист гипсокартона влагостойкий 2,5×1,2 м", "лист", 2800, srcDigital, urlDigital, 3, "гипсокартон"),
-	rateM("m.profile_ps", "Профиль стоечный ПС 75×50, 3 м (573 ₸/м)", "шт", 1719, srcSatu, "", 3, "профиль"),
-	rateM("m.profile_cd", "Профиль для гипсокартона, 3 м", "шт", 1200, srcDigital, urlDigital, 3, "профиль"),
-	rateM("m.tile_glue", "Клей плиточный AlinEX Set 300, 25 кг", "мешок", 3400, srcDigital, urlDigital, 25, "клей плит"),
-	rateM("m.grout", "Затирка Ceresit CE 33, 5 кг", "мешок", 3100, srcDigital, urlDigital, 5, "затирк"),
-	rateM("m.foam", "Пена монтажная", "баллон", 3200, srcDigital, urlDigital, 1, "пена"),
+	rateM("m.gkl", "Лист гипсокартона влагостойкий Knauf 12,5 мм, 2,5×1,2 м", "лист", 3420, srcSatu, "https://satu.kz/Gipsokarton-stenovoj-razmer.html", 3, "гипсокартон"),
+	rateM("m.profile_ps", "Профиль стоечный ПС 75×50, 3 м (573 ₸/м)", "шт", 1719, srcSatu, "https://satu.kz/almaty/Profil-stoechnyj-ps-7550.html", 3, "профиль"),
+	rateM("m.profile_cd", "Профиль потолочный Knauf ПП 60×27, 3 м", "шт", 1750, srcSatu, "https://satu.kz/almaty/Profil-dlya-gipsokartona-60-27.html", 3, "профиль"),
+	rateM("m.tile_glue", "Клей плиточный Ceresit CM 11 Plus, 25 кг", "мешок", 3190, srcSatu, "https://satu.kz/almaty/Klej-ceresit-cm-11.html", 25, "клей плит"),
+	rateM("m.grout", "Затирка Ceresit CE 33, 5 кг", "мешок", 3110, srcSatu, "https://satu.kz/almaty/Zatirka-ceresit.html", 5, "затирк"),
+	rateM("m.foam", "Пена монтажная Makroflex Standard, 750 мл", "баллон", 3400, srcSatu, "https://satu.kz/almaty/Pena-montazhnaya-makroflex.html", 1, "пена"),
 
 	// ── Полы ──
 	rateW("w.floor.screed", "Полусухая стяжка пола", "м²", 2550, srcProff, urlProff, "стяжк"),
@@ -117,19 +118,18 @@ var smetaRateList = []SmetaRate{
 
 	rateM("m.cement", "Цемент М500, 50 кг", "мешок", 2300, srcOLX, "https://www.olx.kz/alma-ata/q-цемент/", 50, "цемент"),
 	rateEst(rateM("m.sand", "Песок мытый с доставкой", "м³", 7000, "", "", 1, "песок"),
-		"Средняя цена песка с доставкой по объявлениям Алматинской области"),
-	rateM("m.laminate_eco", "Ламинат 32–33 класса, эконом", "м²", 2990, srcOLX, "", 1, "ламинат"),
-	rateEst(rateM("m.laminate_std", "Ламинат 33 класса", "м²", 4100, "", "", 1, "ламинат"),
-		"Середина диапазона объявлений OLX 2 990–5 200 ₸/м²"),
-	rateM("m.laminate_prem", "Ламинат 33 класса «ёлочка»", "м²", 5200, srcOLX, "", 1, "ламинат"),
-	rateEst(rateM("m.underlay", "Подложка под ламинат 3 мм", "м²", 450, "", "", 1, "подложк"),
-		"Розничная цена рулонной подложки в строймаркетах Алматы"),
-	rateEst(rateM("m.skirting", "Плинтус ПВХ с заглушками и углами", "м.п.", 900, "", "", 1, "плинтус"),
-		"Цена плинтуса 2,5 м с фурнитурой в пересчёте на метр"),
-	rateM("m.porcelain", "Керамогранит 60×60", "м²", 2750, srcSatu, "", 1, "керамогранит"),
-	rateM("m.porcelain_prem", "Керамогранит 60×60 под травертин", "м²", 5990, srcSatu, "", 1, "керамогранит"),
+		"Satu: песок мытый мелкий 5 900 ₸/м³, доставка КамАЗом по 10 м³ оговаривается отдельно; с доставкой по Алматы ≈7 000 ₸/м³"),
+	rateM("m.laminate_eco", "Ламинат Super Natural Narrow, 33 класс, 8 мм", "м²", 3024, srcSatu, urlSatuLam, 1, "ламинат"),
+	rateM("m.laminate_std", "Ламинат Kastamonu Floorpan Black, 33 класс, 8 мм", "м²", 4700, srcSatu, urlSatuLam, 1, "ламинат"),
+	rateM("m.laminate_prem", "Ламинат «французская ёлка», 33 класс, 8 мм", "м²", 7150, srcSatu, "https://llp.satu.kz/p127805819-laminat-frantsuzskaya-yolka.html", 1, "ламинат"),
+	rateM("m.underlay", "Подложка листовая 3 мм (упаковка 8,4 м² — 2 144 ₸)", "м²", 255, srcSatu, "https://satu.kz/p97767459-podlozhka-pod-laminat.html", 1, "подложк"),
+	rateEst(rateM("m.skirting", "Плинтус ПВХ с заглушками и углами", "м.п.", 300, "", "", 1, "плинтус"),
+		"Satu: плинтус ПВХ VOX 65 мм, 2,5 м — 505 ₸ (≈200 ₸/м); углы, заглушки и соединители ≈100 ₸ на метр"),
+	rateM("m.porcelain", "Керамогранит 60×60 «Тянь-Шань Керамик»", "м²", 2800, srcSatu, urlSatuPorc, 1, "керамогранит"),
+	rateM("m.porcelain_std", "Керамогранит 60×60 под мрамор", "м²", 4200, srcSatu, urlSatuPorc, 1, "керамогранит"),
+	rateM("m.porcelain_prem", "Керамогранит 60×60 «Пиастрелла» МС 600", "м²", 7000, srcSatu, "https://bazaplitki.satu.kz/p120656821-keramogranit-bezhevyj-odnotonnyj.html", 1, "керамогранит"),
 	rateEst(rateM("m.waterproof", "Гидроизоляция обмазочная, 15 кг", "ведро", 12000, "", "", 15, "гидроизоляц"),
-		"Средняя цена обмазочной гидроизоляции 15 кг (Ceresit CR 166 и аналоги)"),
+		"Satu: Ceresit CL 51 5 кг — 11 016 ₸, CR 65 20 кг — 7 052 ₸, CR 166 комплект — 52 000 ₸; взята средняя цена эластичного состава за 15 кг"),
 
 	// ── Потолки ──
 	rateW("w.ceil.stretch_mat", "Натяжной потолок матовый (полотно и монтаж)", "м²", 2800, srcProff, urlProff, "натяжн"),
@@ -137,11 +137,10 @@ var smetaRateList = []SmetaRate{
 	rateW("w.ceil.stretch_gloss", "Натяжной потолок глянцевый (полотно и монтаж)", "м²", 4100, srcProff, urlProff, "натяжн"),
 	rateW("w.ceil.gkl", "Потолок из ГКЛ в один уровень", "м²", 1500, srcSilver, "", "потолок"),
 	rateW("w.ceil.light", "Установка точечного светильника", "шт", 625, srcProff, urlProff, "светильник"),
-	rateEst(rateM("m.spot", "Светильник точечный LED", "шт", 2500, "", "", 1, "светильник"),
-		"Средняя цена точечного LED-светильника 7–9 Вт в электромагазинах Алматы"),
+	rateM("m.spot", "Светильник точечный LED Gauss Frameless, 6 Вт", "шт", 3244, srcSatu, "https://satu.kz/almaty/Diodnyj-vstraivaemyj-svetilnik-6w.html", 1, "светильник"),
 
 	// ── Электрика ──
-	rateW("w.el.chase", "Штробление стен под кабель", "м.п.", 1750, srcProff, urlProff, "штроб"),
+	rateW("w.el.chase", "Штробление бетона/кирпича под кабель (штроба до 25 мм)", "м.п.", 800, srcProff, urlProff, "штроб"),
 	rateW("w.el.chase_fill", "Заделка штроб", "м.п.", 625, srcProff, urlProff, "штроб"),
 	rateW("w.el.socket", "Установка розетки", "шт", 1150, srcProff, urlProff, "розетк"),
 	rateW("w.el.switch", "Установка выключателя", "шт", 1650, srcProff, urlProff, "выключател"),
@@ -152,11 +151,9 @@ var smetaRateList = []SmetaRate{
 	rateW("w.el.light", "Монтаж люстры / потолочного светильника", "шт", 3350, srcProff, urlProff, "люстр"),
 	rateM("m.cable", "Кабель ВВГнг-LS 3×2,5", "м", 720, srcSatu, "https://satu.kz/Vvg.html", 1, "кабель"),
 	rateEst(rateM("m.socket", "Розетка / выключатель с рамкой и подрозетником", "шт", 1800, "", "", 1, "розетк"),
-		"Средняя цена механизма бюджетной серии с рамкой и подрозетником"),
-	rateEst(rateM("m.panel_kit", "Щит на 12 модулей, 8 автоматов и УЗО", "компл", 45000, "", "", 1, "щит"),
-		"Сумма розничных цен щита и модульных автоматов IEK/ABB в Алматы"),
-	rateEst(rateM("m.rcd", "Дифавтомат 16 А, 30 мА", "шт", 9000, "", "", 1, "дифавтомат"),
-		"Средняя цена дифавтомата IEK/ABB"),
+		"Satu: механизм Schneider AtlasDesign 16 А — 1 050 ₸; рамка и подрозетник ≈750 ₸"),
+	rateM("m.panel_kit", "Щит ЩРН-12 IEK, 8 автоматов ВА47-29 16 А и УЗО ВД1-63", "компл", 17045, srcSatu, "https://almaty.satu.kz/Shkaf-schrn-12.html", 1, "щит"),
+	rateM("m.rcd", "Дифавтомат IEK АД12 2P 16 А 30 мА", "шт", 3846, srcSatu, "https://satu.kz/almaty/Difavtomat-16a-10ma.html", 1, "дифавтомат"),
 
 	// ── Сантехника, отопление, вентиляция, газ ──
 	rateW("w.pl.pipe", "Разводка водопровода (полипропилен)", "м.п.", 1450, srcProff, urlProff, "разводк"),
@@ -167,32 +164,25 @@ var smetaRateList = []SmetaRate{
 	rateW("w.pl.sink", "Установка раковины с тумбой", "шт", 12000, srcProff, urlProff, "раковин"),
 	rateW("w.pl.mixer", "Установка смесителя", "шт", 5600, srcProff, urlProff, "смесител"),
 	rateW("w.pl.bath", "Установка акриловой ванны", "шт", 7200, srcProff, urlProff, "ванн"),
-	rateW("w.pl.shower", "Установка душевой кабины", "шт", 68000, srcProff, urlProff, "душев"),
+	rateW("w.pl.shower", "Сборка и установка душевой кабины с поддоном", "шт", 25000, srcSatu, "https://almaty.satu.kz/Ustanovka-dushevyh-kabin.html", "душев"),
 	rateW("w.pl.boiler", "Монтаж водонагревателя", "шт", 16000, srcProff, urlProff, "водонагрев"),
 	rateW("w.pl.towel", "Установка полотенцесушителя", "шт", 9650, srcProff, urlProff, "полотенцесуш"),
 	rateW("w.pl.washer", "Подключение стиральной машины", "шт", 8000, srcProff, urlProff, "стиральн"),
 	rateW("w.ht.radiator", "Монтаж и подключение радиатора", "шт", 6150, srcProff, urlProff, "радиатор"),
 	rateW("w.ht.supply", "Подводка труб к радиатору", "шт", 18000, srcProff, urlProff, "радиатор"),
-	rateM("m.toilet_eco", "Унитаз-компакт, бюджетный", "шт", 35000, srcOLX, "", 1, "унитаз"),
-	rateM("m.toilet", "Унитаз-компакт", "шт", 43500, srcSatu, "", 1, "унитаз"),
-	rateM("m.toilet_prem", "Унитаз-компакт, верхний сегмент", "шт", 52000, srcSatu, "", 1, "унитаз"),
+	rateM("m.toilet_eco", "Унитаз-компакт «Стандарт»", "шт", 37500, srcSatu, "https://satu.kz/almaty/Kompakt-unitaz.html", 1, "унитаз"),
+	rateM("m.toilet", "Унитаз-компакт Santeri «Грация»", "шт", 42530, srcSatu, "https://satu.kz/almaty/Unitaz-napolnyj.html", 1, "унитаз"),
+	rateM("m.toilet_prem", "Унитаз-компакт Santek «Анимо», сиденье дюропласт", "шт", 68460, srcSatu, "https://satu.kz/almaty/Unitaz-s-pryamym-vypuskom.html", 1, "унитаз"),
 	rateM("m.radiator", "Радиатор биметаллический 500 мм, 10 секций", "шт", 28800, srcSatu, "https://satu.kz/Radiator-bez-pokrytiya.html", 1, "радиатор"),
 	rateEst(rateM("m.ppr", "Труба PPR 20 мм с фитингами и креплением", "м", 650, "", "", 1, "труба"),
-		"Труба PN20 ≈350 ₸/м и фитинги с креплением ≈300 ₸ на метр трассы"),
-	rateEst(rateM("m.install_set", "Инсталляция с подвесным унитазом и кнопкой", "компл", 120000, "", "", 1, "инсталляц"),
-		"Средняя цена комплекта Cersanit/Grohe базовой серии в Алматы"),
-	rateEst(rateM("m.sink", "Раковина с тумбой 60 см", "шт", 45000, "", "", 1, "раковин"),
-		"Средняя цена комплекта в строймаркетах Алматы"),
-	rateEst(rateM("m.mixer", "Смеситель однорычажный", "шт", 15000, "", "", 1, "смесител"),
-		"Средняя цена смесителя средней ценовой категории"),
-	rateEst(rateM("m.bath", "Ванна акриловая 170×70 с ножками", "шт", 75000, "", "", 1, "ванн"),
-		"Средняя цена акриловой ванны 170×70 в Алматы"),
-	rateEst(rateM("m.shower", "Душевая кабина с поддоном 90×90", "шт", 160000, "", "", 1, "душев"),
-		"Средняя цена душевой кабины 90×90 в Алматы"),
-	rateEst(rateM("m.boiler", "Водонагреватель накопительный 80 л", "шт", 75000, "", "", 1, "водонагрев"),
-		"Средняя цена водонагревателя 80 л (Ariston/Thermex)"),
-	rateEst(rateM("m.towel", "Полотенцесушитель водяной", "шт", 30000, "", "", 1, "полотенцесуш"),
-		"Средняя цена водяного полотенцесушителя из нержавеющей стали"),
+		"Satu: труба PPR PN20 Ø20 — 350 ₸/м; фитинги и крепёж ≈300 ₸ на метр трассы"),
+	rateM("m.install_set", "Инсталляция Creavit с подвесным унитазом и кнопкой", "компл", 132000, srcSatu, "https://satu.kz/almaty/Installyatsiya-unitaz.html", 1, "инсталляц"),
+	rateM("m.sink", "Тумба с раковиной «Енисей Классик» 60 см", "шт", 42990, srcSatu, "https://satu.kz/almaty/Tumba-rakovina-klassik.html", 1, "раковин"),
+	rateM("m.mixer", "Смеситель для раковины однорычажный Aquadeus 80", "шт", 15800, srcSatu, "https://neptunsw.satu.kz/g2561991-smesiteli-dlya-rakoviny", 1, "смесител"),
+	rateM("m.bath", "Ванна акриловая VentoSPa AQUA LA 170×70", "шт", 73800, srcSatu, "https://satu.kz/almaty/Vanna-akrilovaya-175h70.html", 1, "ванн"),
+	rateM("m.shower", "Душевая кабина Erlit 90×90 с поддоном", "шт", 160000, srcSatu, "https://almaty.satu.kz/Zakrytye-dushevye-kabiny.html", 1, "душев"),
+	rateM("m.boiler", "Водонагреватель Ariston PRO1 R ABS 80 л", "шт", 67500, srcSatu, "https://satu.kz/almaty/Ariston-80-litrov.html", 1, "водонагрев"),
+	rateM("m.towel", "Полотенцесушитель водяной «Лира» 710×400, нержавеющая сталь", "шт", 28000, srcSatu, "https://satu.kz/almaty/Vodyanoj-polotentsesushitel-iz-nerzhaveyuschej-stali.html", 1, "полотенцесуш"),
 	rateE("e.split", "Сплит-система 9000 BTU с установкой", "компл", 139900, srcOLX, "", "сплит"),
 	rateEst(rateW("w.hvac.vent", "Установка вытяжного вентилятора / решётки", "шт", 4000, "", "", "вентилятор"),
 		"Ставка электриков и сантехников по объявлениям Алматы"),
@@ -213,12 +203,9 @@ var smetaRateList = []SmetaRate{
 		"Ставка кровельщиков по объявлениям Алматы 1–2 тыс. ₸/м²"),
 	rateEst(rateM("m.gutter", "Водосточная система: желоб, трубы, крепления", "м.п.", 4500, "", "", 1, "водосток"),
 		"Средняя цена металлической водосточной системы в пересчёте на метр карниза"),
-	rateEst(rateM("m.mesh", "Сетка фасадная стеклотканевая", "м²", 350, "", "", 1, "сетк"),
-		"Рулон 50 м² ≈17 000 ₸ в строймаркетах Алматы"),
-	rateEst(rateM("m.dowel", "Дюбель тарельчатый для утеплителя", "шт", 60, "", "", 1, "дюбел"),
-		"Розничная цена тарельчатого дюбеля 10×160"),
-	rateEst(rateM("m.door_entrance", "Дверь входная металлическая", "шт", 150000, "", "", 1, "двер входн"),
-		"Средняя цена входной металлической двери с замками в Алматы"),
+	rateM("m.mesh", "Сетка фасадная 160 г/м² (рулон 50 м² — 12 000 ₸)", "м²", 240, srcSatu, "https://satu.kz/Setka-fasadnaya-160.html", 1, "сетк"),
+	rateM("m.dowel", "Дюбель тарельчатый 10×160 с металлическим гвоздём", "шт", 75, srcSatu, "https://satu.kz/Dyubel-gvozd.html", 1, "дюбел"),
+	rateM("m.door_entrance", "Дверь входная металлическая «Титан 120»", "шт", 159990, srcSatu, "https://satu.kz/almaty/Vhodnye-stalnye-dveri.html", 1, "двер входн"),
 
 	// ── Окна и двери ──
 	rateW("w.win.pvc", "Окно ПВХ 1,3×1,3 м с монтажом", "шт", 110000, srcProff, urlProff, "окно"),
@@ -227,27 +214,21 @@ var smetaRateList = []SmetaRate{
 	rateW("w.win.drip", "Отлив с установкой", "шт", 1300, srcProff, urlProff, "отлив"),
 	rateW("w.win.slopes", "Откосы из сэндвич-панели", "шт", 2450, srcProff, urlProff, "откос"),
 	rateW("w.door.entrance", "Монтаж входной двери", "шт", 22000, srcProff, urlProff, "двер"),
-	rateEst(rateW("w.door.interior", "Монтаж межкомнатной двери с коробкой и наличниками", "шт", 15000, "", "", "двер"),
-		"В прайсе «Профф-Ремонт» двустворчатая дверь — 22 000 ₸; одностворчатая оценена ниже"),
-	rateEst(rateM("m.door_interior", "Дверь межкомнатная с коробкой и наличниками", "компл", 65000, "", "", 1, "двер"),
-		"Средняя цена комплекта экошпон/ПВХ в салонах Алматы"),
+	rateW("w.door.interior", "Монтаж межкомнатной двери с коробкой и наличниками", "шт", 15000, srcKaspi, "https://obyavleniya.kaspi.kz/a/esik-ornatu-111235176", "двер"),
+	rateM("m.door_interior", "Дверь межкомнатная NEAPOL, экошпон, с коробкой и наличниками", "компл", 49900, srcSatu, "https://satu.kz/almaty/Horoshie-mezhkomnatnye-dveri.html", 1, "двер"),
 
 	// ── Общестрой ──
 	rateM("m.concrete", "Бетон товарный М300 (В22,5)", "м³", 28000, srcSatu, "https://satu.kz/Beton-v300.html", 1, "бетон"),
 	rateM("m.rebar", "Арматура А500С Ø12", "т", 350000, srcOLX, "https://www.olx.kz/talgar/q-арматура/", 1, "арматур"),
 	rateM("m.aerated", "Газоблок автоклавный D500", "м³", 34500, srcSatu, "https://satu.kz/Gazoblok-100.html", 1, "газоблок"),
-	rateEst(rateM("m.aerated_glue", "Клей для газоблока, 25 кг", "мешок", 2600, "", "", 25, "клей"),
-		"Средняя цена клея для ячеистого бетона 25 кг в Алматы"),
+	rateM("m.aerated_glue", "Клей для газоблока STRONG, 25 кг", "мешок", 2050, srcSatu, "https://satu.kz/almaty/Kladka-penoblokov.html", 25, "клей"),
 	rateW("w.mas.aerated", "Кладка стен из газоблока на клей", "м³", 15000, srcKaspi, "", "кладк"),
 	rateW("w.mas.partition", "Кладка перегородок из газобетона до 100 мм", "м²", 4450, srcProff, urlProff, "перегородк"),
-	rateEst(rateW("w.found.strip", "Ленточный фундамент: опалубка, армирование, бетонирование", "м³", 22000, "", "", "фундамент"),
-		"Работа бригады по объявлениям Алматы 15–25 тыс. ₸/м³; взята середина. Бетон и арматура посчитаны отдельно"),
-	rateEst(rateW("w.conc.monolith", "Монолитная плита: опалубка, армирование, бетонирование", "м³", 22000, "", "", "монолит"),
-		"Та же ставка бригад, что для фундамента: 15–25 тыс. ₸/м³"),
+	rateW("w.found.strip", "Ленточный фундамент: опалубка, армирование, бетонирование", "м³", 30000, srcKaspi, urlKaspiFound, "фундамент"),
+	rateW("w.conc.monolith", "Монолитная плита: опалубка, армирование, бетонирование", "м³", 30000, srcKaspi, urlKaspiFound, "монолит"),
 	rateEst(rateM("m.formwork", "Пиломатериал на опалубку (3 оборота)", "м²", 1800, "", "", 1, "опалубк"),
 		"Доска и фанера на 1 м² щита опалубки с учётом трёх оборотов"),
-	rateEst(rateM("m.crushed", "Щебень 20–40 с доставкой", "м³", 9000, "", "", 1, "щебень"),
-		"Средняя цена щебня с доставкой по объявлениям Алматинской области"),
+	rateM("m.crushed", "Щебень 20–40 с доставкой по Алматы", "м³", 6200, srcSatu, "https://satu.kz/almaty/Scheben-fraktsii-20-40.html", 1, "щебень"),
 
 	// ── Земляные работы ──
 	rateE("e.miniexc", "Мини-экскаватор с оператором", "маш.-ч", 15000, srcSatu, "https://satu.kz/Kotlovany.html", "экскаватор"),
@@ -268,34 +249,28 @@ var smetaRateList = []SmetaRate{
 	rateM("m.metal_tile", "Металлочерепица «СуперМонтеррей», матовая 0,45 мм", "м²", 2600, srcSatu, urlSatuRoof, 1, "металлочерепиц"),
 	rateM("m.metal_tile_prem", "Металлочерепица «СуперМонтеррей», матовая, Россия", "м²", 3400, srcSatu, urlSatuRoof, 1, "металлочерепиц"),
 	rateM("m.roof_insul", "Минплита MakWool П80, 100 мм (35 800 ₸/м³)", "м²", 3580, srcSatu, "https://satu.kz/semey/Minplit.html", 1, "утеплител"),
-	rateEst(rateM("m.membrane", "Гидроветрозащитная мембрана", "м²", 450, "", "", 1, "мембран"),
-		"Рулон 75 м² ≈33 000 ₸ в строймаркетах Алматы"),
-	rateEst(rateM("m.timber", "Пиломатериал хвойный обрезной", "м³", 140000, "", "", 1, "пиломатериал"),
-		"Средняя цена обрезной доски и бруса 1 сорта в Алматы"),
+	rateM("m.membrane", "Мембрана ветро-влагозащитная Изоспан А (рулон 70 м² — 19 950 ₸)", "м²", 285, srcSatu, "https://satu.kz/almaty/Vetrozaschitnaya-membrana.html", 1, "мембран"),
+	rateM("m.timber", "Доска обрезная хвойная 1–2 сорта", "м³", 165000, srcSatu, "https://satu.kz/almaty/Doski-obreznye-hvojnyh-porod.html", 1, "пиломатериал"),
 	rateEst(rateW("w.fac.scaffold", "Аренда и монтаж строительных лесов", "м²", 900, "", "", "леса"),
 		"Аренда лесов на месяц с монтажом в пересчёте на м² фасада"),
 	rateEst(rateW("w.fac.plaster", "Штукатурка фасада по сетке", "м²", 2500, "", "", "штукатурк"),
-		"Ставка фасадчиков по объявлениям Алматы 2–3 тыс. ₸/м²"),
+		"Объявления Kaspi «штукатурка фасада», Алматы: 2 000–4 000 ₸/м², чаще всего 2 500"),
 	rateEst(rateW("w.fac.decor", "Декоративная штукатурка фасада «короед»", "м²", 3500, "", "", "декоратив"),
-		"Ставка фасадчиков по объявлениям Алматы 3–4 тыс. ₸/м²"),
+		"Объявления Kaspi, Алматы: «короед» от 2 500 ₸/м², с грунтованием и откосами 3–4 тыс. ₸/м²"),
 	rateEst(rateW("w.fac.paint", "Окраска фасада в 2 слоя", "м²", 1500, "", "", "окраск"),
 		"Окраска стен по прайсу «Профф-Ремонт» 1 250 ₸/м² плюс работа на высоте"),
-	rateEst(rateW("w.fac.insul", "Утепление фасада: клей, плита, дюбели, армирующий слой", "м²", 6500, "", "", "утеплен"),
-		"Работа «мокрого фасада» по объявлениям Алматы 5,5–7,5 тыс. ₸/м²"),
+	rateW("w.fac.insul", "Утепление фасада: клей, плита, дюбели, армирующий слой", "м²", 5000, srcSatu, "https://satu.kz/almaty/Uteplenie-sten-fasadov-minvatoj.html", "утеплен"),
 	rateM("m.facade_wool", "Минплита фасадная IZOTERM П100, 100 мм (38 900 ₸/м³)", "м²", 3890, srcSatu, "https://satu.kz/semey/Minplit.html", 1, "минплит"),
-	rateEst(rateM("m.facade_glue", "Клей для минплиты и армирующий состав, 25 кг", "мешок", 3500, "", "", 25, "клей"),
-		"Средняя цена клеевого состава для утепления фасада"),
+	rateM("m.facade_glue", "Клей для минплиты и армирующий состав Ceresit CT 190, 25 кг", "мешок", 4588, srcSatu, "https://satu.kz/almaty/Smesi-suhie-kleevye.html", 25, "клей"),
 	rateEst(rateM("m.facade_plaster", "Штукатурка цементная фасадная, 25 кг", "мешок", 2200, "", "", 25, "штукатурк"),
 		"Средняя цена цементной штукатурки 25 кг в Алматы"),
-	rateEst(rateM("m.decor_plaster", "Декоративная штукатурка «короед», 25 кг", "мешок", 6500, "", "", 25, "декоратив"),
-		"Средняя цена фасадного «короеда» 25 кг"),
+	rateM("m.decor_plaster", "Декоративная штукатурка «короед» Ceresit CT 35, 25 кг", "мешок", 6400, srcSatu, "https://satu.kz/almaty/Koroed-25-kg.html", 25, "декоратив"),
 	rateM("m.facade_paint", "Краска фасадная, 25 кг", "ведро", 18000, srcSatu, "", 25, "краск"),
 
 	// ── Благоустройство, дороги, металл, дерево ──
 	rateW("w.land.paving", "Укладка брусчатки на подготовленное основание", "м²", 2500, srcKaspi, "https://obyavleniya.kaspi.kz/a/ukladka-bruschatki-122343348", "брусчатк"),
 	rateM("m.paving", "Брусчатка вибропрессованная 6 см", "м²", 2500, srcOLX, "", 1, "брусчатк"),
-	rateEst(rateW("w.land.curb", "Установка бордюра на бетон", "м.п.", 2500, "", "", "бордюр"),
-		"Ставка мостовщиков по объявлениям Алматы"),
+	rateW("w.land.curb", "Установка тротуарного бордюра на бетон", "м.п.", 2300, srcSatu, "https://satu.kz/almaty/Ukladka-bordyurov.html", "бордюр"),
 	rateEst(rateM("m.curb", "Бордюр тротуарный 1000×200×80", "шт", 1800, "", "", 1, "бордюр"),
 		"Средняя цена у производителей Алматинской области"),
 	rateW("w.road.asphalt", "Асфальтирование (материал и укладка)", "м²", 6000, srcKaspi, "", "асфальт"),
@@ -315,12 +290,12 @@ var smetaRateList = []SmetaRate{
 		"Средняя цена дымового извещателя ИП 212"),
 	rateEst(rateM("m.fire.panel", "Прибор приёмно-контрольный с аккумулятором", "шт", 60000, "", "", 1, "прибор"),
 		"Средняя цена прибора на 4–8 шлейфов"),
-	rateEst(rateW("w.cctv.camera", "Монтаж IP-камеры с прокладкой кабеля", "шт", 12000, "", "", "камер"),
-		"Ставка монтажников видеонаблюдения по объявлениям Алматы"),
+	rateEst(rateW("w.cctv.camera", "Монтаж IP-камеры с прокладкой кабеля", "шт", 10000, "", "", "камер"),
+		"Объявления Kaspi, Алматы: установка камеры 5 000–12 000 ₸; с прокладкой кабеля — верхняя половина диапазона"),
 	rateEst(rateM("m.cctv.camera", "IP-камера 4 Мп", "шт", 25000, "", "", 1, "камер"),
 		"Средняя цена IP-камеры начального уровня"),
 	rateEst(rateM("m.cctv.nvr", "Видеорегистратор с диском 1 ТБ", "шт", 55000, "", "", 1, "регистратор"),
-		"Средняя цена 8-канального видеорегистратора с диском"),
+		"Satu: 8-канальный Hikvision DS-7108NI-Q1/M — 39 500–52 750 ₸ без диска, DS-E08NI-Q1 с SSD 1 ТБ — 58 500 ₸"),
 
 	// ── Проектирование и прочее ──
 	rateW("w.design.flat", "Дизайн-проект интерьера квартиры", "м²", 2650, srcProff, urlProff, "дизайн"),
@@ -343,7 +318,7 @@ var smetaTiers = map[string][3]string{
 	"m.putty_fin":    {"m.putty", "m.putty", "m.putty_prem"},
 	"m.laminate":     {"m.laminate_eco", "m.laminate_std", "m.laminate_prem"},
 	"w.laminate":     {"w.floor.laminate", "w.floor.laminate", "w.floor.laminate_herring"},
-	"m.tile":         {"m.porcelain", "m.porcelain", "m.porcelain_prem"},
+	"m.tile":         {"m.porcelain", "m.porcelain_std", "m.porcelain_prem"},
 	"w.ceil.stretch": {"w.ceil.stretch_mat", "w.ceil.stretch_satin", "w.ceil.stretch_gloss"},
 	"w.win":          {"w.win.pvc", "w.win.pvc", "w.win.pvc_prem"},
 	"m.toilet":       {"m.toilet_eco", "m.toilet", "m.toilet_prem"},
@@ -361,24 +336,45 @@ var smetaRates = func() map[string]SmetaRate {
 
 // Диапазоны предложений, из которых взята середина (показываются в смете рядом с ценой).
 var smetaRangeNotes = map[string]string{
-	"m.rotband":      "Предложения Satu 2 700–3 600 ₸ за мешок (ноябрь 2026)",
-	"m.cable":        "Предложения Satu 620–735 ₸/м (ноябрь 2026)",
-	"m.concrete":     "Предложения Satu 17 000–56 150 ₸/м³, медиана 26 850 (ноябрь 2026)",
-	"m.rebar":        "OLX Талгар 325 000 ₸/т, Satu 380 000 ₸/т (октябрь–ноябрь 2026)",
-	"m.aerated":      "Среднее двух предложений D500: Kaspi 28 000 и Satu 41 000 ₸/м³",
-	"m.toilet":       "Предложения OLX и Satu 35 000–52 000 ₸",
-	"m.cement":       "Объявления OLX, Алматы: 2 250–2 400 ₸ за мешок М450–М500",
-	"m.paving":       "Объявления OLX 2 099–2 800 ₸/м²",
-	"w.land.paving":  "Объявления Kaspi 2 000–3 000 ₸/м²",
-	"w.road.asphalt": "Объявления Kaspi 4 000–8 000 ₸/м²",
-	"w.metal.canopy": "Объявления Kaspi 20 000–26 000 ₸/м², с материалом",
-	"w.geodesy":      "Bizmedia/OLX: 30 000–80 000 ₸ за выезд",
-	"e.split":        "OLX: кондиционер с установкой от 139 900 ₸",
-	"w.mas.aerated":  "Объявления Kaspi «кладка газоблока», Алматы",
-	"w.floor.tile":   "Kaspi, плиточник в Алматы: пол от 7 000 ₸/м²; диапазон объявлений 5 000–12 000",
-	"w.wall.tile":    "Kaspi, плиточник в Алматы: стены от 8 000 ₸/м²",
-	"m.radiator":     "Satu: 500 мм, 10 секций — 22 392 и 35 209 ₸, взято среднее",
-	"m.paint_eco":    "Satu, Алматы: от 5 500 ₸ (ноябрь 2026)",
+	"m.rotband":        "Предложения Satu 2 700–3 600 ₸ за мешок (ноябрь 2026)",
+	"m.cable":          "Предложения Satu 620–735 ₸/м (ноябрь 2026)",
+	"m.concrete":       "Предложения Satu 17 000–56 150 ₸/м³, медиана 26 850 (ноябрь 2026)",
+	"m.rebar":          "OLX Талгар 325 000 ₸/т, Satu 380 000 ₸/т (октябрь–ноябрь 2026)",
+	"m.aerated":        "Среднее двух предложений D500: Kaspi 28 000 и Satu 41 000 ₸/м³",
+	"m.toilet":         "Satu, Алматы: унитазы-компакт 37 500–68 460 ₸ (ноябрь 2026)",
+	"m.cement":         "Объявления OLX, Алматы: 2 250–2 400 ₸ за мешок М450–М500",
+	"m.paving":         "Объявления OLX 2 099–2 800 ₸/м²",
+	"w.land.paving":    "Объявления Kaspi 2 000–3 000 ₸/м²",
+	"w.road.asphalt":   "Объявления Kaspi 4 000–8 000 ₸/м²",
+	"w.metal.canopy":   "Объявления Kaspi 20 000–26 000 ₸/м², с материалом",
+	"w.geodesy":        "Bizmedia/OLX: 30 000–80 000 ₸ за выезд",
+	"e.split":          "OLX: кондиционер с установкой от 139 900 ₸",
+	"w.mas.aerated":    "Объявления Kaspi «кладка газоблока», Алматы",
+	"w.floor.tile":     "Kaspi, плиточник в Алматы: пол от 7 000 ₸/м²; диапазон объявлений 5 000–12 000",
+	"w.wall.tile":      "Kaspi, плиточник в Алматы: стены от 8 000 ₸/м²",
+	"m.radiator":       "Satu: 500 мм, 10 секций — 22 392 и 35 209 ₸, взято среднее",
+	"m.paint_eco":      "Satu, Алматы: от 5 500 ₸ (ноябрь 2026)",
+	"w.dem.tile_floor": "Kaspi, плиточник в Алматы: демонтаж плитки от 1 200 ₸/м²; у «Профф-Ремонт» демонтаж полов в целом — 1 800 ₸/м²",
+	"m.porcelain":      "Satu, Алматы: 25 предложений 60×60 — 2 800–7 990 ₸/м², медиана 2 800 (ноябрь 2026)",
+	"m.porcelain_std":  "Satu, Алматы: 60×60 под мрамор и белый — 3 850–4 200 ₸/м²; диапазон страницы 2 800–7 990",
+	"m.dowel":          "Satu: дюбели 10×160 — 20–75 ₸; для минваты нужен металлический гвоздь (FIX PLAST — 75 ₸)",
+	"w.door.interior":  "Kaspi, Алматы: установка межкомнатной двери 10 000–20 000 ₸, чаще 15 000",
+	"w.dem.door":       "Прайс «Профф-Ремонт»: снятие деревянной дверной конструкции — 6 950 ₸, металлической — 14 000 ₸",
+	"m.wallpaper":      "Satu: флизелиновые обои 1,06×10 м — 3 900–16 700 ₸ за рулон, коллекции премиум — до 34 000",
+	"w.pl.shower":      "Satu и Kaspi, Алматы: установка душевой кабины 18 000–30 000 ₸; у «Профф-Ремонт» — 68 000 ₸",
+	"w.fac.insul":      "Satu и Kaspi, Алматы: утепление стен минплитой с армирующим слоем 3 500–5 000 ₸/м², от 5 000 у компаний",
+	"w.land.curb":      "Satu, Алматы: установка бордюра 1 200–3 000 ₸/м.п., медиана предложений 2 300",
+	"w.dem.trash":      "Kaspi, Алматы: вывоз мусора 10 000–25 000 ₸ за рейс; взята верхняя граница — с погрузкой",
+	"w.found.strip":    "Kaspi, Алматы: работа бригады 30 000 ₸/м³; бетон, арматура и опалубка посчитаны отдельными строками",
+	"w.conc.monolith":  "Kaspi, Алматы: работа бригады 30 000 ₸/м³; бетон, арматура и опалубка посчитаны отдельными строками",
+	"m.laminate_std":   "Satu, Алматы: ламинат 33 класса 8 мм — 3 024–6 888 ₸/м² (ноябрь 2026)",
+	"m.laminate_prem":  "Satu, Алматы: ламинат «ёлочка» 33 класса — 6 400–7 150 ₸/м²",
+	"m.panel_kit":      "Сумма цен Satu: щит ЩРН-12 — 5 610 ₸, 8 автоматов ВА47-29 1P 16 А по 808 ₸, УЗО ВД1-63 2P 16 А — 4 971 ₸",
+	"m.crushed":        "Satu, Алматы: 2 800–3 000 ₸/м³ на карьере; с доставкой по Алматы и области — 6 200 ₸/м³",
+	"m.membrane":       "Satu: Изоспан А, рулон 70 м² — 19 950 ₸ (285 ₸/м²)",
+	"m.mesh":           "Satu: сетка 160 г/м², рулон 50 м² — 12 000 ₸ (240 ₸/м²)",
+	"m.underlay":       "Satu: подложка Solid 3 мм, упаковка 8,4 м² — 2 144 ₸ (255 ₸/м²)",
+	"w.el.chase":       "Прайс «Профф-Ремонт»: штроба до 25 мм — 800 ₸/м.п., 25–60 мм — 1 750; под кабель ВВГ 3×2,5 хватает 20–25 мм",
 }
 
 func init() {
@@ -412,9 +408,9 @@ var smetaDBQuery = map[string]string{
 	"w.land.curb": "установка бордюра", "w.fire.sensor": "установка датчика", "w.cctv.camera": "монтаж ip камеры", "w.design.flat": "дизайн проект",
 	"w.design.house": "дизайн проект", "w.earth.manual": "разработка грунта вручную", "w.earth.backfill": "обратная засыпка",
 	"m.rotband": "ротбанд", "m.primer": "грунтовка", "m.putty": "шпатлевка гипсовая", "m.putty_prem": "шпатлевка финишная",
-	"m.paint_eco": "краска акриловая", "m.paint_std": "краска акриловая", "m.paint_prem": "краска акриловая", "m.wallpaper": "обои", "m.gkl": "гкл",
+	"m.paint_eco": "краска акриловая", "m.paint_std": "краска акриловая", "m.paint_prem": "краска акриловая", "m.wallpaper": "обои флизелин", "m.gkl": "гкл",
 	"m.tile_glue": "клей плиточный", "m.cement": "цемент", "m.sand": "песок", "m.laminate_eco": "ламинат", "m.laminate_std": "ламинат 33",
-	"m.laminate_prem": "ламинат 33", "m.underlay": "подложка", "m.porcelain": "керамогранит 60", "m.porcelain_prem": "керамогранит 60",
+	"m.laminate_prem": "ламинат 33", "m.underlay": "подложка", "m.porcelain": "керамогранит 60", "m.porcelain_std": "керамогранит 60", "m.porcelain_prem": "керамогранит 60",
 	"m.waterproof": "гидроизоляция", "m.spot": "светильник точечный", "m.cable": "кабель ввгнг", "m.socket": "розетка", "m.rcd": "дифавтомат",
 	"m.toilet_eco": "унитаз компакт", "m.toilet": "унитаз компакт", "m.toilet_prem": "унитаз компакт", "m.radiator": "радиатор биметалл",
 	"m.mixer": "смеситель для раковины", "m.bath": "ванна акрил", "m.shower": "душевая кабина", "m.boiler": "водонагреватель",

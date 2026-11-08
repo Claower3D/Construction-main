@@ -153,7 +153,7 @@ function Audit({ audit }) {
   const [showDb, setShowDb] = useState(false);
   if (!audit) return null;
   const compared = (audit.db || []).filter((m) => m.status !== 'none');
-  const label = { ok: 'совпадает', high: 'выше базы', low: 'ниже базы' };
+  const label = { ok: 'в коридоре базы', high: 'выше коридора', low: 'ниже коридора' };
   return (
     <section className="sm-block" data-testid="smeta-audit">
       <h4>Проверка сметы</h4>
@@ -176,7 +176,7 @@ function Audit({ audit }) {
                     <tr key={m.key} className={`sm-db-${m.status}`}>
                       <td>{m.name}<small className="sm-why">{m.unit}</small></td>
                       <td className="sm-num-cell">{fmt(m.our)}</td>
-                      <td className="sm-num-cell">{fmt(m.dbMedian)}<small className="sm-why">{fmt(m.dbMin)}–{fmt(m.dbMax)}, {m.dbCount} поз.</small></td>
+                      <td className="sm-num-cell">{fmt(m.dbMedian)}<small className="sm-why">{m.dbQ1 ? `середина ${fmt(m.dbQ1)}–${fmt(m.dbQ3)}` : `${fmt(m.dbMin)}–${fmt(m.dbMax)}`}, {m.dbCount} поз.{m.dbDropped ? `, без ${m.dbDropped} выбр.` : ''}</small></td>
                       <td><small>{m.example}</small></td>
                       <td>{label[m.status]}</td>
                     </tr>

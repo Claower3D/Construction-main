@@ -89,3 +89,31 @@ func TestSmetaTechMapsHTTP(t *testing.T) {
 		t.Fatalf("техкарт %d, комплексов %d, регионы %v", len(res.TechMaps), len(res.Complexes), res.Regions)
 	}
 }
+
+// Ошибки разбора запроса — понятным текстом, без внутренних имён структур Go.
+func TestSmetaCalcBadBodyMessages(t *testing.T) {
+	h := NewSmetaHandler()
+	cases := []struct{ body, want string }{
+		{`{"category":"wall_finish","geometry":{"area":"двадцать","perimeter":18}}`, "поле площадь должно быть числом"},
+		{`{"category":"wall_finish","geometry":{"area":20,"perimeter":18,"doors":1.5}}`, "поле число дверей должно быть целым числом"},
+		{`{"category":12}`, "поле вид работ должно быть строкой"},
+		{`{"category":"wall_finish",`, "тело не является корректным JSON"},
+		{`{"area": NaN}`, "тело не является корректным JSON"},
+		{``, "пустое тело"},
+		{`{"category":"` + strings.Repeat("x", 70<<10) + `"}`, "Запрос слишком большой"},
+	}
+	for _, c := range cases {
+		rr := httptest.NewRecorder()
+		h.Calc(rr, httptest.NewRequest(http.MethodPost, "/api/v1/estimate/calc", strings.NewReader(c.body)))
+		if rr.Code != http.StatusBadRequest {
+			t.Fatalf("%.40q: статус %d", c.body, rr.Code)
+		}
+		msg := rr.Body.String()
+		if !strings.Contains(msg, c.want) {
+			t.Errorf("%.40q: ожидалось %q, получено %s", c.body, c.want, msg)
+		}
+		if strings.Contains(msg, "Smeta") || strings.Contains(msg, "Go struct") || strings.Contains(msg, "float64") {
+			t.Errorf("%.40q: в ответе внутренние имена: %s", c.body, msg)
+		}
+	}
+}

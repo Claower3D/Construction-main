@@ -1,14 +1,14 @@
 # Аудит прайс-базы QazGost
 
-Дата: 04.11.2026. Файл: `ai-service/app/data/price_db.json`. Скрипт: `python3 tools/pricedb/calibrate.py` (повторный запуск безопасен).
+Дата: 08.11.2026. Файл: `ai-service/app/data/price_db.json`. Скрипт: `python3 tools/pricedb/calibrate.py` (повторный запуск безопасен).
 
 ## Итог
 
 - Позиций всего: 23864
-- Сверка с опорными ценами **до**: 412/1814 в коридоре (23%), занижено 1383, завышено 19
-- Сверка с опорными ценами **после**: 1458/1814 в коридоре (80%), занижено 270, завышено 86
-- Источников с поправочным множителем: 65, позиций пересчитано: 5045
-- Позиций под вопросом (`qa: "suspect"`, скрываются из маркетплейса): 356
+- Сверка с опорными ценами **до**: 516/2129 в коридоре (24%), занижено 1594, завышено 19
+- Сверка с опорными ценами **после**: 1727/2129 в коридоре (81%), занижено 305, завышено 97
+- Источников с поправочным множителем: 86, позиций пересчитано: 6687
+- Позиций под вопросом (`qa: "suspect"`, скрываются из маркетплейса): 402
 - Нормализовано единиц: 433
 
 Исходная цена каждой пересчитанной позиции сохранена в `priceRaw`, множитель — в `priceFactor`.
@@ -17,6 +17,7 @@
 
 | Раздел | Источник | Множитель | Основание |
 |---|---|---|---|
+| works | `ai_wrk_demolition_full` | ×50 | опорные цены: n=5, медиана ×83.3, согласованность 100% |
 | works | `ai_wrk_painting_full` | ×50 | опорные цены: n=15, медиана ×55.0, согласованность 100% |
 | works | `ai_wrk_plastering_full` | ×50 | опорные цены: n=18, медиана ×73.2, согласованность 100% |
 | works | `ai_wrk_plaster_paint_full` | ×30 | опорные цены: n=20, медиана ×27.5, согласованность 100% |
@@ -42,7 +43,9 @@
 | materials | `ai_mat_fencing_catalog` | ×10 | опорные цены: n=7, медиана ×10.0, согласованность 100% |
 | materials | `ai_mat_fixings_catalog` | ×10 | опорные цены: n=21, медиана ×10.0, согласованность 100% |
 | materials | `ai_mat_paving_catalog` | ×10 | опорные цены: n=17, медиана ×10.0, согласованность 100% |
+| works | `ai_wrk_ceiling` | ×10 | опорные цены: n=5, медиана ×10.7, согласованность 100% |
 | works | `ai_wrk_earthwork` | ×10 | опорные цены: n=9, медиана ×9.0, согласованность 100% |
+| works | `ai_wrk_roofing` | ×10 | опорные цены: n=5, медиана ×10.4, согласованность 100% |
 | materials | `ai_mat_blocks_catalog` | ×8 | опорные цены: n=19, медиана ×7.1, согласованность 100% |
 | materials | `ai_mat_brick_catalog` | ×8 | опорные цены: n=73, медиана ×8.2, согласованность 99% |
 | materials | `ai_mat_drywall_catalog` | ×8 | опорные цены: n=47, медиана ×7.0, согласованность 98% |
@@ -50,8 +53,10 @@
 | materials | `ai_mat_rebar_catalog` | ×8 | опорные цены: n=17, медиана ×7.9, согласованность 88% |
 | works | `ai_work_electrical_catalog` | ×8 | опорные цены: n=9, медиана ×7.5, согласованность 100% |
 | works | `ai_work_plaster_paint_catalog` | ×8 | опорные цены: n=18, медиана ×7.1, согласованность 100% |
-| works | `ai_work_plumbing_catalog` | ×8 | совпадения с выверенными источниками: n=6, медиана ×7.3, согласованность 100% |
+| works | `ai_work_roofing_catalog` | ×8 | совпадения с выверенными источниками: n=20, медиана ×8.0, согласованность 100% |
+| works | `ai_work_special_catalog` | ×8 | совпадения с выверенными источниками: n=6, медиана ×7.9, согласованность 100% |
 | works | `ai_wrk_electrical` | ×8 | опорные цены: n=19, медиана ×7.5, согласованность 100% |
+| works | `ai_wrk_facade` | ×8 | совпадения с выверенными источниками: n=15, медиана ×7.7, согласованность 100% |
 | works | `ai_wrk_flooring` | ×8 | опорные цены: n=16, медиана ×7.7, согласованность 100% |
 | materials | `ai_mat_bulkmaterials_catalog` | ×6 | опорные цены: n=16, медиана ×5.9, согласованность 100% |
 | materials | `ai_mat_drymix_catalog` | ×6 | опорные цены: n=45, медиана ×6.6, согласованность 100% |
@@ -59,26 +64,42 @@
 | materials | `ai_mat_fence_catalog` | ×6 | опорные цены: n=5, медиана ×6.4, согласованность 100% |
 | materials | `ai_mat_floor_catalog` | ×6 | опорные цены: n=21, медиана ×6.4, согласованность 100% |
 | materials | `ai_mat_mixes_catalog` | ×6 | опорные цены: n=6, медиана ×5.6, согласованность 100% |
+| materials | `ai_mat_security_catalog` | ×6 | опорные цены: n=9, медиана ×5.6, согласованность 89% |
 | materials | `ai_mat_tile_catalog` | ×6 | опорные цены: n=90, медиана ×6.4, согласованность 98% |
 | works | `ai_work_concrete_catalog` | ×6 | опорные цены: n=7, медиана ×6.2, согласованность 100% |
+| works | `ai_work_facade_windows_catalog` | ×6 | опорные цены: n=6, медиана ×6.4, согласованность 100% |
+| works | `ai_work_plumbing_catalog` | ×6 | опорные цены: n=12, медиана ×6.0, согласованность 100% |
 | works | `ai_work_tiling_floor_catalog` | ×6 | опорные цены: n=19, медиана ×6.9, согласованность 100% |
 | works | `ai_wrk_concrete` | ×6 | опорные цены: n=9, медиана ×5.6, согласованность 100% |
+| works | `ai_wrk_drywall` | ×6 | опорные цены: n=7, медиана ×6.0, согласованность 100% |
 | works | `ai_wrk_plaster` | ×6 | опорные цены: n=30, медиана ×6.6, согласованность 100% |
 | works | `ai_wrk_tiling` | ×6 | опорные цены: n=43, медиана ×6.9, согласованность 100% |
 | materials | `ai_mat_elec_panels` | ×5 | опорные цены: n=5, медиана ×4.9, согласованность 100% |
 | materials | `ai_mat_electrical` | ×5 | опорные цены: n=29, медиана ×4.9, согласованность 93% |
 | materials | `ai_mat_floorcover_catalog` | ×5 | опорные цены: n=6, медиана ×5.1, согласованность 100% |
 | materials | `ai_mat_metal_ext` | ×5 | опорные цены: n=18, медиана ×4.7, согласованность 100% |
+| materials | `ai_mat_water_catalog` | ×5 | опорные цены: n=16, медиана ×5.0, согласованность 100% |
+| works | `ai_work_drywall_ceiling_catalog` | ×5 | опорные цены: n=8, медиана ×4.9, согласованность 100% |
 | works | `ai_work_masonry_catalog` | ×5 | опорные цены: n=16, медиана ×5.1, согласованность 100% |
 | works | `ai_wrk_masonry` | ×5 | опорные цены: n=51, медиана ×5.4, согласованность 100% |
+| materials | `ai_mat_doors_catalog` | ×4 | опорные цены: n=9, медиана ×4.0, согласованность 100% |
 | materials | `ai_mat_lumber_catalog` | ×4 | совпадения с выверенными источниками: n=7, медиана ×4.1, согласованность 100% |
+| materials | `ai_mat_piping_catalog` | ×4 | совпадения с выверенными источниками: n=7, медиана ×3.5, согласованность 100% |
+| materials | `ai_mat_sanitary_catalog` | ×4 | опорные цены: n=27, медиана ×4.3, согласованность 81% |
+| materials | `ai_mat_sanitaryware_catalog` | ×4 | опорные цены: n=12, медиана ×4.0, согласованность 100% |
+| materials | `ai_mat_windows_doors` | ×4 | опорные цены: n=5, медиана ×4.0, согласованность 100% |
 | works | `ai_wrk_finishing_ext` | ×4 | опорные цены: n=20, медиана ×3.8, согласованность 100% |
-| works | `ai_wrk_finishing_full` | ×4 | опорные цены: n=19, медиана ×3.7, согласованность 100% |
+| works | `ai_wrk_finishing_full` | ×4 | опорные цены: n=20, медиана ×3.7, согласованность 100% |
+| works | `ai_wrk_heating` | ×4 | опорные цены: n=8, медиана ×4.0, согласованность 100% |
+| works | `ai_wrk_plumbing` | ×4 | опорные цены: n=18, медиана ×4.1, согласованность 100% |
 | works | `ai_wrk_tiling_floor_ext` | ×4 | опорные цены: n=21, медиана ×4.0, согласованность 100% |
-| works | `aipricedatabase` | ×4 | опорные цены: n=35, медиана ×3.6, согласованность 94% |
+| works | `aipricedatabase` | ×4 | опорные цены: n=49, медиана ×3.6, согласованность 90% |
+| materials | `ai_mat_heating_catalog` | ×3 | опорные цены: n=6, медиана ×2.9, согласованность 83% |
 | materials | `ai_mat_landscape` | ×3 | опорные цены: n=11, медиана ×3.4, согласованность 91% |
+| materials | `ai_mat_plumbing_catalog` | ×3 | опорные цены: n=25, медиана ×3.4, согласованность 80% |
 | materials | `ai_mat_timber_catalog` | ×3 | совпадения с выверенными источниками: n=9, медиана ×3.4, согласованность 100% |
 | works | `ai_wrk_indfloor` | ×3 | опорные цены: n=10, медиана ×2.8, согласованность 80% |
+| works | `ai_wrk_roofing_ext` | ×3 | опорные цены: n=6, медиана ×3.2, согласованность 100% |
 | materials | `ai_mat_road` | ×2.5 | опорные цены: n=10, медиана ×2.7, согласованность 90% |
 | works | `ai_wrk_electrical_ext2` | ×2.5 | опорные цены: n=6, медиана ×2.7, согласованность 83% |
 | works | `ai_wrk_monolith_full` | ×2.5 | опорные цены: n=6, медиана ×2.7, согласованность 100% |
@@ -92,12 +113,16 @@
 - тонна → т: 24
 - мес → месяц: 7
 
-## Позиции под вопросом (356)
+## Позиции под вопросом (402)
 
 Цена вне коридора опорной (×2.5 в обе стороны) и источник целиком не выправлен. Нужна ручная проверка по прайсу поставщика.
 
 | Раздел | Код | Наименование | Ед. | Цена | Опорная | Источник |
 |---|---|---|---|---|---|---|
+| materials | alu_entrance_door_double | Дверь входная алюминиевая двустворч. | шт | 35000.0 | 120000 | ai_mat_aluminum_catalog |
+| materials | alu_entrance_door_single | Дверь входная алюминиевая одностворч. | шт | 20000.0 | 120000 | ai_mat_aluminum_catalog |
+| materials | vanity_60_floor | Тумба под раковину 60см (напольная) | шт | 12000.0 | 43000 | ai_mat_bathroom |
+| materials | vanity_60_wall | Тумба под раковину 60см (подвесная) | шт | 15000.0 | 43000 | ai_mat_bathroom |
 | materials | brick_hand_formed | Кирпич ручной формовки | шт | 360.0 | 80 | ai_mat_brick_catalog |
 | materials | brick_fire_sha44 | Кирпич шамотный ША-44 (клиновой) | шт | 280.0 | 80 | ai_mat_brick_catalog |
 | materials | brick_fireclay_sha22 | Кирпич шамотный ША-22 (клин трапец.) | шт | 540.0 | 80 | ai_mat_brick_full_catalog |
@@ -118,6 +143,8 @@
 | materials | ceiling_rosette_500mm | Розетка потолочная Ø500мм | шт | 300.0 | 1500 | ai_mat_ceilings_catalog |
 | materials | porcelain_120x120_large | Керамогранит 120×120см крупноформат | м² | 20000.0 | 7000 | ai_mat_ceramictile_catalog |
 | materials | porcelain_tech_30x30 | Керамогранит технический 30×30см | м² | 2500.0 | 7000 | ai_mat_ceramictile_catalog |
+| materials | door_entry_double | Дверь входная двустворчатая | шт | 20000.0 | 120000 | ai_mat_doorsext_catalog |
+| materials | door_entry_steel_std | Дверь входная стальная (стандарт) | шт | 8000.0 | 120000 | ai_mat_doorsext_catalog |
 | materials | putty_ready_paste_11 | Шпатлёвка готовая паста (11кг) | шт | 4200.0 | 1430 | ai_mat_drymix_catalog |
 | materials | putty_ready_paste_15 | Шпатлёвка готовая паста (15кг) | шт | 5400.0 | 1950 | ai_mat_drymix_catalog |
 | materials | putty_ready_paste_28 | Шпатлёвка готовая паста (28кг) | шт | 9600.0 | 3640 | ai_mat_drymix_catalog |
@@ -228,7 +255,12 @@
 | materials | mat_fx_screw_concrete_7_5x72 | Шуруп по бетону 7.5×72 (100шт) | уп. | 1200.0 | 400 | ai_mat_fasteners_ext |
 | materials | mat_fx_screw_facade_7_5x152 | Шуруп фасадный 7.5×152 (100шт) | уп. | 2200.0 | 400 | ai_mat_fasteners_ext |
 | materials | screw_fence_5_5x19_250 | Саморез для профлиста 5.5×19мм (250шт) | уп. | 3000.0 | 1000 | ai_mat_fencing_catalog |
+| materials | fire_detector_smoke | Извещатель дымовой (ИП 212) | шт | 800.0 | 3000 | ai_mat_fire |
 | materials | firebrick_std | Кирпич огнеупорный ШБ-5 | шт | 25.0 | 80 | ai_mat_fireplace_catalog |
+| materials | smoke_detector_standalone_10y | Извещатель дымовой автон. (батарея 10 лет) | шт | 500.0 | 3000 | ai_mat_firesafety_catalog |
+| materials | smoke_detector_standalone | Извещатель дымовой автономный | шт | 300.0 | 3000 | ai_mat_firesafety_catalog |
+| materials | smoke_detector_opt | Извещатель дымовой оптический | шт | 200.0 | 3000 | ai_mat_firesafety_catalog |
+| materials | smoke_detector_combined | Извещатель комбинированный (дым+тепло) | шт | 400.0 | 3000 | ai_mat_firesafety_catalog |
 | materials | dowel_gkl_driva_metal | Дюбель Дрива для ГКЛ металл | шт | 50.0 | 15 | ai_mat_fixings_catalog |
 | materials | dowel_gkl_molly_m4 | Дюбель Молли для ГКЛ M4 | шт | 50.0 | 15 | ai_mat_fixings_catalog |
 | materials | dowel_nylon_6x30_100 | Дюбель нейлон 6×30мм (100шт) | уп. | 300.0 | 1500 | ai_mat_fixings_catalog |
@@ -240,6 +272,8 @@
 | materials | screw_wood_3_5x35_500 | Саморез по дер. 3.5×35мм (500шт) | уп. | 600.0 | 2000 | ai_mat_fixings_catalog |
 | materials | garden_border_rubber_1m | Бордюр садовый резиновый (1м) | шт | 150.0 | 2500 | ai_mat_gardenequip_catalog |
 | materials | septic_ring_concrete_1m | Кольцо бетонное КС 10-9 (1м) | шт | 2000.0 | 30000 | ai_mat_gardenequip_catalog |
+| materials | dowel_insul_10x100 | Дюбель тарельчатый 10×100мм | шт | 12.0 | 40 | ai_mat_insulation |
+| materials | dowel_insul_10x140 | Дюбель тарельчатый 10×140мм | шт | 15.0 | 40 | ai_mat_insulation |
 | materials | bigun_hpp_1x10m | Бикрост ХПП (1×10м) | рулон | 4000.0 | 15000 | ai_mat_insulation_catalog |
 | materials | bigun_epp_1x10m | Бикрост ЭПП (1×10м) | рулон | 4800.0 | 15000 | ai_mat_insulation_catalog |
 | materials | dubel_140_insul_50 | Дюбель тарельчатый 140мм (50шт) | уп. | 2000.0 | 750 | ai_mat_insulation_catalog |
@@ -249,9 +283,13 @@
 | materials | rosette_ceil_500mm | Розетка потолочная Ø500мм | шт | 300.0 | 1500 | ai_mat_interior_catalog |
 | materials | curb_garden_100_20_6 | Бордюр садовый 1000×200×60 | шт | 750.0 | 2500 | ai_mat_jbi_blocks_catalog |
 | materials | curb_500x200x60 | Бордюр садовый 500×200×60мм | шт | 600.0 | 2500 | ai_mat_jbi_catalog |
+| materials | faucet_kitchen_std | Смеситель кухонный стандартный | шт | 1500.0 | 10000 | ai_mat_kitchenext_catalog |
 | materials | gravel_decorative | Щебень декоративный (белый мрамор) | м³ | 24000.0 | 6500 | ai_mat_landscape |
 | materials | ring_kc10_9 | Кольцо КС10.9 (1м Ø, h=0.9м) | шт | 3000.0 | 30000 | ai_mat_landscape_catalog |
 | materials | ring_kc15_9 | Кольцо КС15.9 (1.5м Ø, h=0.9м) | шт | 5000.0 | 55000 | ai_mat_landscape_catalog |
+| materials | cctv_nvr_16ch | Видеорегистратор NVR 16 каналов | шт | 12000.0 | 45000 | ai_mat_lowvoltage_catalog |
+| materials | cctv_nvr_4ch | Видеорегистратор NVR 4 канала | шт | 5000.0 | 45000 | ai_mat_lowvoltage_catalog |
+| materials | cctv_nvr_8ch | Видеорегистратор NVR 8 каналов | шт | 8000.0 | 45000 | ai_mat_lowvoltage_catalog |
 | materials | board_unedged_25_m3 | Доска необрезная 25мм (м³) | м³ | 20000.0 | 120000 | ai_mat_lumber_catalog |
 | materials | board_unedged_40_m3 | Доска необрезная 40мм (м³) | м³ | 22000.0 | 120000 | ai_mat_lumber_catalog |
 | materials | board_unedged_50_m3 | Доска необрезная 50мм (м³) | м³ | 24000.0 | 120000 | ai_mat_lumber_catalog |
@@ -268,6 +306,10 @@
 | materials | wood_screw_10x100_50 | Шуруп по дереву 10×100мм (50шт) | уп. | 1800.0 | 200 | ai_mat_metiz_catalog |
 | materials | wood_screw_10x120_50 | Шуруп по дереву 10×120мм (50шт) | уп. | 2160.0 | 200 | ai_mat_metiz_catalog |
 | materials | wood_screw_8x80_100 | Шуруп по дереву 8×80мм (100шт) | уп. | 2400.0 | 400 | ai_mat_metiz_catalog |
+| materials | mat_op_door_ent_steel_860 | Дверь входная стальная 860×2050 | шт | 45000.0 | 120000 | ai_mat_openings_ext |
+| materials | wallpaper_vinyl_standard | Обои виниловые на флизелине (рулон 10м) | рулон | 2500.0 | 8000 | ai_mat_paint |
+| materials | wallpaper_fliz_paint | Обои флизелиновые под покраску (рулон) | рулон | 1800.0 | 8000 | ai_mat_paint |
+| materials | wallpaper_fleece_10m_white | Обои флизелиновые 10м белые под покраску | рулон | 1000.0 | 8000 | ai_mat_paint_catalog |
 | materials | molding_pu_rosette_400 | Розетка потолочная Ø400мм | шт | 500.0 | 1500 | ai_mat_paint_catalog |
 | materials | curb_plastic_1m | Бордюр пластиковый (1м) | шт | 800.0 | 2500 | ai_mat_paving_catalog |
 | materials | curb_garden_50x21x7 | Бордюр садовый малый 50×21×7см | шт | 600.0 | 2500 | ai_mat_paving_catalog |
@@ -278,6 +320,10 @@
 | materials | floor_self_level_thick | Наливной пол толстослойный 10-80мм (25кг) | мешок | 1200.0 | 3500 | ai_mat_plaster |
 | materials | putty_cement_grey | Шпаклёвка цементная серая (25кг) | мешок | 1100.0 | 3250 | ai_mat_plaster |
 | materials | sewer_110_plug | Заглушка ПВХ Ø110 | шт | 30.0 | 600 | ai_mat_plumbing |
+| materials | mixer_bath_premium | Смеситель для ванны премиум | шт | 30000.0 | 10000 | ai_mat_plumbing_catalog |
+| materials | mixer_sink_sensor | Смеситель сенсорный | шт | 36000.0 | 10000 | ai_mat_plumbing_catalog |
+| materials | mixer_shower_thermo | Смеситель термостатический для душа | шт | 36000.0 | 10000 | ai_mat_plumbing_catalog |
+| materials | vanity_50_white | Тумба под раковину 50см белая | шт | 15000.0 | 43000 | ai_mat_plumbing_catalog |
 | materials | tool_screwdriver_18v | Шуруповёрт акк. 18В 2Ач | шт | 5000.0 | 4 | ai_mat_powertools_catalog |
 | materials | tool_screwdriver_18v_pro | Шуруповёрт акк. 18В 4Ач профи | шт | 10000.0 | 4 | ai_mat_powertools_catalog |
 | materials | profile_pn_27x28_4m | Профиль ПН 27×28мм (4м) | шт | 110.0 | 600 | ai_mat_profiles_catalog |
@@ -294,11 +340,22 @@
 | materials | uniflex_epv | Унифлекс ЭПВ (нижний, 10м²) | рулон | 2500.0 | 15000 | ai_mat_roofing |
 | materials | mt_monterrey_0_4_ral3005 | Металлочерепица Монтеррей 0.4мм RAL3005 (м²) | м² | 350.0 | 4200 | ai_mat_roofing_catalog |
 | materials | mt_monterrey_0_5_ral7024 | Металлочерепица Монтеррей 0.5мм RAL7024 (м²) | м² | 550.0 | 4200 | ai_mat_roofing_catalog |
+| materials | towel_rail_water_500 | Полотенцесушитель водяной 500мм | шт | 8000.0 | 25000 | ai_mat_sanitary |
+| materials | faucet_bath_thermo | Смеситель для ванны термостатический | шт | 32000.0 | 10000 | ai_mat_sanitary_catalog |
+| materials | faucet_shower_thermo | Смеситель для душа термостатический | шт | 28000.0 | 10000 | ai_mat_sanitary_catalog |
+| materials | faucet_basin_sensor | Смеситель для раковины сенсорный | шт | 32000.0 | 10000 | ai_mat_sanitary_catalog |
+| materials | faucet_kitchen_spring | Смеситель кухонный пружинный проф. | шт | 40000.0 | 10000 | ai_mat_sanitary_catalog |
+| materials | nvr_16ch | Видеорегистратор NVR 16-канальный | шт | 120000.0 | 45000 | ai_mat_security_catalog |
+| materials | nvr_32ch | Видеорегистратор NVR 32-канальный | шт | 210000.0 | 45000 | ai_mat_security_catalog |
 | materials | sewer_plug_110 | Заглушка канал. Ø110 | шт | 10.0 | 600 | ai_mat_sewer_catalog |
 | materials | sewer_ext_plug_110 | Заглушка наружн. Ø110 | шт | 15.0 | 600 | ai_mat_sewer_catalog |
 | materials | smart_switch_2g | Выключатель умный 2-клавишный Wi-Fi | шт | 4000.0 | 1500 | ai_mat_smart_home |
 | materials | soundproof_panel_gkl_12_5mm | ГКЛ акустический 12.5мм | лист | 600.0 | 2800 | ai_mat_soundproof_catalog |
 | materials | vibro_profile_pn_66 | Профиль виброизоляционный ПН 66мм | шт | 200.0 | 600 | ai_mat_soundproof_catalog |
+| materials | facade_anchor_10x120 | Тарельчатый дюбель 10×120мм | шт | 5.0 | 40 | ai_mat_special_catalog |
+| materials | facade_anchor_10x140 | Тарельчатый дюбель 10×140мм | шт | 6.0 | 40 | ai_mat_special_catalog |
+| materials | facade_anchor_10x160 | Тарельчатый дюбель 10×160мм | шт | 7.0 | 40 | ai_mat_special_catalog |
+| materials | facade_anchor_10x200 | Тарельчатый дюбель 10×200мм | шт | 10.0 | 40 | ai_mat_special_catalog |
 | materials | tile_border_30x600 | Бордюр 30×600мм | шт | 720.0 | 2500 | ai_mat_tile_catalog |
 | materials | tile_border_50x400 | Бордюр 50×400мм | шт | 600.0 | 2500 | ai_mat_tile_catalog |
 | materials | kg_1200x1200_marble | Керамогранит 1200×1200мм мрамор | м² | 24000.0 | 7000 | ai_mat_tile_catalog |
@@ -311,6 +368,7 @@
 | materials | drill_driver_18v_2ah | Шуруповёрт аккум. 18В 2Ач | шт | 6000.0 | 4 | ai_mat_tools_catalog |
 | materials | drill_driver_18v_4ah | Шуруповёрт аккум. 18В 4Ач | шт | 10000.0 | 4 | ai_mat_tools_catalog |
 | materials | drill_driver_18v_5ah_pro | Шуруповёрт аккум. 18В 5Ач проф. | шт | 18000.0 | 4 | ai_mat_tools_catalog |
+| materials | wallpaper_fleece_10m | Обои флизелиновые (10м рулон) | рулон | 600.0 | 8000 | ai_mat_wallpanels_catalog |
 | materials | blind_area_tile | Плитка тротуарная для отмостки (40мм) | м² | 1200.0 | 5500 | ai_mat_waterproof |
 | materials | fit_kan_plug_110 | Заглушка канализ. Ø110 | шт | 20.0 | 600 | ai_mat_watersystem_catalog |
 | materials | breaker_16a | Автомат 16А (свет) | шт | 450.0 | 2200 | aipricedatabase |
@@ -342,32 +400,26 @@
 | materials | mortar_M150 | Раствор М150 | м³ | 5500.0 | 22000 | aipricedatabase |
 | materials | outlet_single | Розетка одинарная | шт | 550.0 | 1500 | aipricedatabase |
 | works | work_screed_beacons | Установка маяков для стяжки | м² | 300.0 | 2500 | ai_work_concrete_catalog |
-| works | work_ceiling_demo_gkl | Демонтаж потолка из ГКЛ | м² | 100.0 | 3800 | ai_work_drywall_ceiling_catalog |
+| works | work_ceiling_demo_gkl | Демонтаж потолка из ГКЛ | м² | 500.0 | 3800 | ai_work_drywall_ceiling_catalog |
 | works | work_elec_demo_socket | Демонтаж розетки / выключателя | шт | 400.0 | 1500 | ai_work_electrical_catalog |
-| works | work_facade_clinker | Облицовка фасада клинкерной плиткой | м² | 1000.0 | 5500 | ai_work_facade_windows_catalog |
-| works | work_facade_tsokol_tile | Облицовка цоколя плиткой | м² | 800.0 | 5500 | ai_work_facade_windows_catalog |
+| works | work_door_demo | Демонтаж старой двери | шт | 1800.0 | 5000 | ai_work_facade_windows_catalog |
 | works | work_rosette_ceiling | Монтаж потолочной розетки | шт | 4000.0 | 1500 | ai_work_plaster_paint_catalog |
-| works | work_pool_tile | Облицовка бассейна плиткой | м² | 1500.0 | 5500 | ai_work_special_catalog |
 | works | work_floor_vinyl_click | Укладка виниловой плитки (замковая) | м² | 1500.0 | 5500 | ai_work_tiling_floor_catalog |
 | works | work_floor_vinyl_glue | Укладка виниловой плитки (клеевая) | м² | 1800.0 | 5500 | ai_work_tiling_floor_catalog |
 | works | work_floor_substrate | Укладка подложки под ламинат | м² | 180.0 | 1800 | ai_work_tiling_floor_catalog |
 | works | wrk_ac_floor_stye | Стяжка плавающая | м² | 550.0 | 2500 | ai_wrk_acoustics |
+| works | wrk_balc_ceil_stretch | Натяжной потолок на балконе | м² | 350.0 | 3000 | ai_wrk_balcony |
 | works | wrk_balc_wall_paint | Покраска стен балкона | м² | 100.0 | 1100 | ai_wrk_balcony |
 | works | wrk_balc_floor_screed | Стяжка пола балкона | м² | 300.0 | 2500 | ai_wrk_balcony |
 | works | wrk_balc_wall_plaster | Штукатурка стен балкона | м² | 300.0 | 2200 | ai_wrk_balcony |
-| works | wrk_ceil_demo_gkl | Демонтаж потолка ГКЛ | м² | 50.0 | 3800 | ai_wrk_ceiling |
-| works | wrk_ceil_gkl_putty_paint | Шпаклёвка + покраска потолка ГКЛ | м² | 150.0 | 1500 | ai_wrk_ceiling |
-| works | wrk_ceil_putty_2x | Шпаклёвка потолка 2 слоя | м² | 100.0 | 1500 | ai_wrk_ceiling |
-| works | wrk_ceil_putty_3x | Шпаклёвка потолка 3 слоя | м² | 140.0 | 1500 | ai_wrk_ceiling |
+| works | wrk_ceil_demo_gkl | Демонтаж потолка ГКЛ | м² | 500.0 | 3800 | ai_wrk_ceiling |
+| works | wrk_ceil_str_3d | Натяжной 3D-потолок | м² | 8000.0 | 3000 | ai_wrk_ceiling |
 | works | wrk_rebar_mesh_slab | Укладка сварной сетки в стяжку | м² | 180.0 | 2500 | ai_wrk_concrete |
 | works | wrk_conc_beacons | Установка маяков для стяжки | м² | 300.0 | 2500 | ai_wrk_concrete |
 | works | wrk_dec_ceiling_rosette | Монтаж потолочной розетки | шт | 300.0 | 1500 | ai_wrk_decorative |
 | works | wrk_dm_gkl_partition | Демонтаж перегородки из ГКЛ | м² | 250.0 | 3800 | ai_wrk_demolition_ext2 |
 | works | wrk_dm_ceiling_gkl | Демонтаж потолка из ГКЛ | м² | 250.0 | 3800 | ai_wrk_demolition_ext2 |
-| works | wrk_dem_floor_screed_100 | Демонтаж стяжки 100мм | м² | 50.0 | 2500 | ai_wrk_demolition_full |
-| works | wrk_dem_floor_screed_30 | Демонтаж стяжки 30мм | м² | 20.0 | 2500 | ai_wrk_demolition_full |
-| works | wrk_dem_floor_screed_50 | Демонтаж стяжки 50мм | м² | 30.0 | 2500 | ai_wrk_demolition_full |
-| works | wrk_sound_floor_premium | Звукоизоляция пола (плавающая стяжка) | м² | 600.0 | 2500 | ai_wrk_drywall |
+| works | wrk_dr_demo | Демонтаж двери | шт | 200.0 | 5000 | ai_wrk_doors_ext |
 | works | wrk_earth_exc_man_1cat | Разработка грунта (ручн.) 1 категория | м³ | 300.0 | 9000 | ai_wrk_earth_ext |
 | works | wrk_earth_exc_man_2cat | Разработка грунта (ручн.) 2 категория | м³ | 400.0 | 9000 | ai_wrk_earth_ext |
 | works | wrk_earth_exc_man_3cat | Разработка грунта (ручн.) 3 категория | м³ | 500.0 | 9000 | ai_wrk_earth_ext |
@@ -396,9 +448,9 @@
 | works | wrk_fl_park_putty | Шпатлёвка паркета | м² | 10.0 | 1500 | ai_wrk_flooring_full |
 | works | wrk_hf_carbon_rod_screed | Стяжка над стержневым полом | м² | 550.0 | 2500 | ai_wrk_heatfloor |
 | works | wrk_hf_water_screed | Стяжка над тёплым полом (50мм) | м² | 550.0 | 2500 | ai_wrk_heatfloor |
-| works | wrk_heat_fireplace_clad_tile | Облицовка камина плиткой | м² | 1000.0 | 5500 | ai_wrk_heating |
 | works | wrk_if_screed_reinforced | Армирование стяжки сеткой 4Вр1 | м² | 750.0 | 2500 | ai_wrk_indfloor |
 | works | wrk_if_screed_film_pe | Укладка плёнки ПЭ под стяжку | м² | 150.0 | 2500 | ai_wrk_indfloor |
+| works | wrk_kit_faucet_install | Установка смесителя кухонного | шт | 500.0 | 5000 | ai_wrk_kitchen |
 | works | wrk_lv_tv_socket | Монтаж ТВ-розетки | шт | 150.0 | 1500 | ai_wrk_low_voltage |
 | works | wrk_lv_sks_socket_rj45 | Монтаж розетки RJ-45 | шт | 200.0 | 1500 | ai_wrk_low_voltage |
 | works | wrk_lv_sks_socket_rj45_2 | Монтаж розетки RJ-45 (двойная) | шт | 300.0 | 1500 | ai_wrk_low_voltage |
@@ -424,6 +476,10 @@
 | works | wrk_my2_brick_2_510 | Кладка кирпича рядового 510мм (2 кирпича) | м² | 4500.0 | 12500 | ai_wrk_masonry_full2 |
 | works | wrk_my2_cinder_200 | Кладка шлакоблока 200мм | м² | 850.0 | 3800 | ai_wrk_masonry_full2 |
 | works | wrk_my2_cinder_390 | Кладка шлакоблока 390мм | м² | 1500.0 | 3800 | ai_wrk_masonry_full2 |
+| works | wrk_op_door_entrance_steel_eco | Монтаж двери входной (эконом) | шт | 5500.0 | 18000 | ai_wrk_openings_ext2 |
+| works | wrk_op_door_ext_metal | Монтаж входной металлической двери | шт | 5500.0 | 18000 | ai_wrk_openings_full |
+| works | wrk_op_door_int_glass | Монтаж межкомнатной двери (остеклённая) | шт | 4500.0 | 15000 | ai_wrk_openings_full |
+| works | wrk_op_door_int_std | Монтаж межкомнатной двери (стандарт) | шт | 3500.0 | 15000 | ai_wrk_openings_full |
 | works | wrk_paint_ind_airless_wall | Окраска аппаратом безвоздушным (стены) | м² | 360.0 | 1100 | ai_wrk_painting |
 | works | wrk_pnt_wall_water_1 | Покраска стен водоэмульсионная (1 слой) | м² | 400.0 | 1100 | ai_wrk_painting_full |
 | works | wrk_pip_uf_elec_cable | Тёплый пол (кабель в стяжку) | м² | 30.0 | 2500 | ai_wrk_piping_full |
@@ -432,13 +488,19 @@
 | works | wrk_plt_putty_finish_3x | Шпаклёвка финишная 3 слоя | м² | 100.0 | 1500 | ai_wrk_plaster_ext |
 | works | wrk_pl_screed_pe_film | Плёнка ПЭ (под стяжку) | м² | 150.0 | 2500 | ai_wrk_plastering_full |
 | works | wrk_pl_screed_fiber | Фиброволокно (в стяжку) | м² | 150.0 | 2500 | ai_wrk_plastering_full |
+| works | wrk_plumb_faucet_sink | Установка смесителя раковины | шт | 2000.0 | 8000 | ai_wrk_plumbing |
+| works | wrk_pf2_boiler_30l | Установка водонагревателя 30л | шт | 3500.0 | 12000 | ai_wrk_plumbing_full2 |
+| works | wrk_pf2_boiler_50l | Установка водонагревателя 50л | шт | 4500.0 | 12000 | ai_wrk_plumbing_full2 |
+| works | wrk_pf2_sink_single | Установка раковины (одинарная) | шт | 2500.0 | 8000 | ai_wrk_plumbing_full2 |
+| works | wrk_pf2_toilet_floor_std | Установка унитаза напольного (стандарт) | шт | 3500.0 | 10000 | ai_wrk_plumbing_full2 |
+| works | wrk_pf2_toilet_floor_eco | Установка унитаза напольного (эконом) | шт | 2500.0 | 10000 | ai_wrk_plumbing_full2 |
 | works | wrk_rc2_demo_partition_gkl | Демонтаж перегородки (ГКЛ) | м² | 200.0 | 3800 | ai_wrk_reconstruction2 |
 | works | wrk_rc2_demo_floor | Демонтаж стяжки/пола | м² | 350.0 | 2500 | ai_wrk_reconstruction2 |
 | works | wrk_road_paving_40 | Укладка тротуарной плитки h=40мм | м² | 1200.0 | 5500 | ai_wrk_road |
 | works | wrk_road_paving_60 | Укладка тротуарной плитки h=60мм | м² | 1500.0 | 5500 | ai_wrk_road |
 | works | wrk_road_paving_80 | Укладка тротуарной плитки h=80мм | м² | 1800.0 | 5500 | ai_wrk_road |
-| works | wrk_roof_flat_concrete_screed | Цементная стяжка кровли h=50мм | м² | 650.0 | 2500 | ai_wrk_roofing_ext |
 | works | wrk_rf2_flat_screed_40 | Устройство уклонообразующей стяжки 40мм | м² | 550.0 | 2500 | ai_wrk_roofing_full2 |
+| works | wrk_san_faucet_kitchen | Установка смесителя для кухни | шт | 1500.0 | 5000 | ai_wrk_sanitary |
 | works | wrk_scr_hydr_bitum | Гидроизоляция под стяжку (битум) | м² | 600.0 | 2500 | ai_wrk_screed_leveling |
 | works | wrk_scr_sound_pe_10 | Звукоизоляция ПЭ 10мм (под стяжку) | м² | 300.0 | 2500 | ai_wrk_screed_leveling |
 | works | wrk_scr_sound_pe_5 | Звукоизоляция ПЭ 5мм (под стяжку) | м² | 200.0 | 2500 | ai_wrk_screed_leveling |
@@ -450,7 +512,11 @@
 | works | wrk_tf_lvt_click | Укладка кварц-виниловой плитки (SPC) | м² | 2000.0 | 5500 | ai_wrk_tiling_floor_ext |
 | works | wrk_tf_carpet_tile | Укладка ковровой плитки | м² | 1400.0 | 5500 | ai_wrk_tiling_floor_ext |
 | works | wrk_tile_lay_brick | Укладка «кирпичная кладка» | м² | 110.0 | 6500 | ai_wrk_tiling_full |
+| works | wrk_door_entry_premium | Монтаж входной премиум двери | шт | 5000.0 | 18000 | ai_wrk_windows |
+| works | wrk_door_entry_steel | Монтаж входной стальной двери | шт | 3000.0 | 18000 | ai_wrk_windows |
+| works | wrk_door_inter_install | Монтаж межкомнатной двери | шт | 2000.0 | 15000 | ai_wrk_windows |
+| works | wrk_door_inter_premium | Монтаж межкомнатной двери (премиум) | шт | 3000.0 | 15000 | ai_wrk_windows |
 | works | formwork_remove | Демонтаж опалубки | м² | 1200.0 | 3500 | aipricedatabase |
 | works | demolish_wall_gkl | Демонтаж стены ГКЛ | м² | 1000.0 | 3800 | aipricedatabase |
 | works | glass_block_lay | Кладка стеклоблоков | м² | 10000.0 | 3800 | aipricedatabase |
-| works | plaster_ceiling | Штукатурка потолков | м² | 6000.0 | 2200 | aipricedatabase |
+| … | ещё 2 | | | | | |
