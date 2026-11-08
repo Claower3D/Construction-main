@@ -19,6 +19,7 @@ import './styles/landing-pro.css';
 import './styles/landing-lux.css';
 import './styles/landing-fx.css';
 import './styles/landing-color.css';
+import './styles/landing-bg.css';
 import './utils/audioFX.js';
 // 3D-наклон карточек (utils/cardTilt.js) отключён: MutationObserver на весь документ
 // и «прыгающие» карточки мешали чтению и нагружали CPU.

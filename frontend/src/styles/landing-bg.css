@@ -1,0 +1,158 @@
+/* ════════════════════════════════════════════════════════════════════
+   QazGost — фоны секций (2026-11).
+
+   У каждой секции свой оттенок основы и свой тонкий инженерный узор:
+   чертёжная сетка, миллиметровка, трубопровод, изометрия, топография,
+   электросхема, радиоволны, соты. Узор виден по краям и гаснет к центру,
+   чтобы не мешать тексту. ::before — оттенок и сияние, ::after — узор.
+   ════════════════════════════════════════════════════════════════════ */
+
+.lux-section::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  pointer-events: none;
+  /* узор плотнее у краёв, к центру и к стыкам секций гаснет */
+  -webkit-mask-image: radial-gradient(ellipse 75% 70% at 50% 50%, rgba(0, 0, 0, 0.25) 20%, #000 62%, transparent 100%);
+  mask-image: radial-gradient(ellipse 75% 70% at 50% 50%, rgba(0, 0, 0, 0.25) 20%, #000 62%, transparent 100%);
+}
+
+/* ── «Что вы получаете» — синий чертёж ── */
+section[aria-labelledby='lux-features-title']::before {
+  background:
+    radial-gradient(45% 60% at 90% 40%, rgba(79, 195, 255, 0.14), transparent 70%),
+    linear-gradient(180deg, transparent, rgba(12, 28, 66, 0.55) 22%, rgba(12, 28, 66, 0.55) 78%, transparent) !important;
+}
+section[aria-labelledby='lux-features-title']::after {
+  background:
+    linear-gradient(rgba(79, 195, 255, 0.16) 1px, transparent 1px) 0 0 / 120px 120px,
+    linear-gradient(90deg, rgba(79, 195, 255, 0.16) 1px, transparent 1px) 0 0 / 120px 120px,
+    linear-gradient(rgba(79, 195, 255, 0.07) 1px, transparent 1px) 0 0 / 24px 24px,
+    linear-gradient(90deg, rgba(79, 195, 255, 0.07) 1px, transparent 1px) 0 0 / 24px 24px;
+}
+
+/* ── «Так выглядит смета» — миллиметровка в золотых точках ── */
+#examples::before {
+  background:
+    radial-gradient(40% 55% at 10% 60%, rgba(255, 195, 77, 0.1), transparent 70%),
+    linear-gradient(180deg, transparent, rgba(40, 22, 48, 0.6) 25%, rgba(40, 22, 48, 0.6) 75%, transparent) !important;
+}
+#examples::after {
+  background:
+    radial-gradient(circle, rgba(255, 195, 77, 0.32) 1px, transparent 1.7px) 0 0 / 22px 22px,
+    repeating-linear-gradient(135deg, rgba(255, 195, 77, 0.05) 0 1px, transparent 1px 14px);
+}
+
+/* ── «Как это работает» — трубопровод, по трубам идёт поток ── */
+#how-it-works::before {
+  background:
+    radial-gradient(45% 60% at 50% 30%, rgba(46, 230, 197, 0.12), transparent 70%),
+    linear-gradient(180deg, transparent, rgba(8, 40, 48, 0.55) 22%, rgba(8, 40, 48, 0.55) 78%, transparent) !important;
+}
+#how-it-works::after {
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='180' fill='none'%3E%3Cg stroke='%234fc3ff' stroke-opacity='.28' stroke-width='1.2'%3E%3Cpath d='M0 40h170a20 20 0 0 1 20 20v60a20 20 0 0 0 20 20h210'/%3E%3Cpath d='M0 52h164a14 14 0 0 1 14 14v54a32 32 0 0 0 32 32h210'/%3E%3C/g%3E%3Cg stroke='%232ee6c5' stroke-opacity='.5' stroke-width='1.2' stroke-dasharray='6 10'%3E%3Cpath d='M0 46h167a17 17 0 0 1 17 17v57a26 26 0 0 0 26 26h210'/%3E%3C/g%3E%3Cg fill='%234fc3ff' fill-opacity='.35'%3E%3Crect x='96' y='34' width='6' height='24' rx='1'/%3E%3Crect x='300' y='134' width='6' height='24' rx='1'/%3E%3C/g%3E%3Ccircle cx='250' cy='146' r='9' stroke='%232ee6c5' stroke-opacity='.45'/%3E%3Cpath d='M244 146h12M250 140v12' stroke='%232ee6c5' stroke-opacity='.45'/%3E%3C/svg%3E") 0 0 / 420px 180px;
+  animation: bg-flow 18s linear infinite;
+}
+
+/* ── Калькулятор бюджета: к фото стройки добавлен тёплый оранжевый край ── */
+#budget::before {
+  background:
+    radial-gradient(40% 70% at 100% 50%, rgba(255, 138, 61, 0.14), transparent 70%),
+    radial-gradient(35% 60% at 0% 100%, rgba(255, 92, 138, 0.1), transparent 70%) !important;
+}
+#budget::after {
+  background: repeating-linear-gradient(90deg, rgba(255, 138, 61, 0.07) 0 1px, transparent 1px 64px);
+}
+
+/* ── Каталог работ — изометрическая сетка в розовом ── */
+#prices::before {
+  background:
+    radial-gradient(40% 55% at 92% 30%, rgba(255, 92, 138, 0.12), transparent 70%),
+    linear-gradient(180deg, transparent, rgba(46, 14, 50, 0.55) 22%, rgba(46, 14, 50, 0.55) 78%, transparent) !important;
+}
+#prices::after {
+  background:
+    repeating-linear-gradient(30deg, rgba(255, 92, 138, 0.1) 0 1px, transparent 1px 34px),
+    repeating-linear-gradient(150deg, rgba(255, 92, 138, 0.1) 0 1px, transparent 1px 34px),
+    repeating-linear-gradient(90deg, rgba(167, 139, 250, 0.07) 0 1px, transparent 1px 39px);
+}
+
+/* ── «Один сервис для всех» — топография в мяте ── */
+#audience::before {
+  background:
+    radial-gradient(45% 60% at 8% 50%, rgba(46, 230, 197, 0.12), transparent 70%),
+    linear-gradient(180deg, transparent, rgba(6, 38, 40, 0.5) 22%, rgba(6, 38, 40, 0.5) 78%, transparent) !important;
+}
+#audience::after {
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='520' height='360' fill='none' stroke='%232ee6c5' stroke-opacity='.22' stroke-width='1.1'%3E%3Cpath d='M260 60c90-6 170 40 160 110s-110 120-200 112S70 230 82 160 170 66 260 60z'/%3E%3Cpath d='M258 92c66-4 124 28 116 80s-80 86-146 80-110-38-102-88 66-68 132-72z'/%3E%3Cpath d='M256 124c44-2 82 18 76 52s-54 56-98 52-72-24-66-58 44-44 88-46z'/%3E%3Cpath d='M254 156c22-1 40 9 36 26s-26 26-48 24-34-12-30-28 20-21 42-22z'/%3E%3Cpath d='M-40 330c80-30 160 10 240-10s150-70 240-40 140 40 120 40' stroke-opacity='.14'/%3E%3Cpath d='M-40 20c90 30 170-10 250 10s160 60 250 30 110-30 100-30' stroke-opacity='.14'/%3E%3C/svg%3E") 0 0 / 520px 360px;
+}
+
+/* ── «Все сервисы платформы» — электросхема в золоте и бирюзе ── */
+#services::before {
+  background:
+    radial-gradient(40% 50% at 95% 20%, rgba(255, 195, 77, 0.1), transparent 70%),
+    radial-gradient(40% 50% at 0% 80%, rgba(79, 195, 255, 0.1), transparent 70%),
+    linear-gradient(180deg, transparent, rgba(14, 18, 52, 0.6) 15%, rgba(14, 18, 52, 0.6) 85%, transparent) !important;
+}
+#services::after {
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300' fill='none' stroke-width='1.2'%3E%3Cg stroke='%23ffc34d' stroke-opacity='.3'%3E%3Cpath d='M0 40h70l20 20h60v50h80l20-20h50'/%3E%3Cpath d='M40 300v-60l30-30h90v-40'/%3E%3Cpath d='M300 200h-60l-30 30v70'/%3E%3C/g%3E%3Cg stroke='%234fc3ff' stroke-opacity='.25'%3E%3Cpath d='M0 150h40l20 20v40'/%3E%3Cpath d='M180 0v30l20 20h60l40 40'/%3E%3Cpath d='M120 300v-30'/%3E%3C/g%3E%3Cg fill='%23ffc34d' fill-opacity='.45'%3E%3Ccircle cx='150' cy='110' r='3'/%3E%3Ccircle cx='160' cy='170' r='3'/%3E%3Ccircle cx='210' cy='230' r='3'/%3E%3C/g%3E%3Cg fill='%234fc3ff' fill-opacity='.4'%3E%3Ccircle cx='60' cy='210' r='3'/%3E%3Ccircle cx='260' cy='50' r='3'/%3E%3Ccircle cx='120' cy='270' r='3'/%3E%3C/g%3E%3Crect x='86' y='96' width='34' height='22' rx='3' stroke='%23ffc34d' stroke-opacity='.3'/%3E%3C/svg%3E") 0 0 / 300px 300px;
+}
+
+/* ── Изыскания — топоплан в оранжевом справа от фото ── */
+#engineering::after {
+  -webkit-mask-image: linear-gradient(90deg, transparent 35%, #000 70%), linear-gradient(transparent, #000 15%, #000 85%, transparent);
+  -webkit-mask-composite: source-in;
+  mask-image: linear-gradient(90deg, transparent 35%, #000 70%);
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400' fill='none' stroke='%23ff8a3d' stroke-opacity='.2' stroke-width='1.1'%3E%3Cpath d='M-20 80c120-40 220 30 330 0s200-60 310-20'/%3E%3Cpath d='M-20 130c130-40 230 30 340 0s190-50 300-10'/%3E%3Cpath d='M-20 180c140-40 240 30 350 0s180-40 290 0'/%3E%3Cpath d='M-20 230c150-40 250 30 360 0s170-30 280 10'/%3E%3Cpath d='M-20 280c160-40 260 30 370 0s160-20 270 20'/%3E%3Cpath d='M-20 330c170-40 270 30 380 0s150-10 260 30'/%3E%3C/svg%3E") 0 0 / 600px 400px;
+}
+
+/* ── «На объекте — с телефона» — радиоволны от телефона ── */
+#mobile-app::before {
+  background:
+    radial-gradient(35% 60% at 40% 50%, rgba(79, 195, 255, 0.14), transparent 70%),
+    linear-gradient(180deg, transparent, rgba(10, 30, 60, 0.5) 25%, rgba(10, 30, 60, 0.5) 75%, transparent) !important;
+}
+#mobile-app::after {
+  background: repeating-radial-gradient(circle at 42% 50%, rgba(79, 195, 255, 0.13) 0 1px, transparent 1px 38px);
+  animation: bg-pulse 6s ease-in-out infinite;
+}
+
+/* ── FAQ — соты ── */
+#faq::before {
+  background:
+    radial-gradient(40% 55% at 15% 40%, rgba(167, 139, 250, 0.14), transparent 70%),
+    radial-gradient(35% 50% at 95% 80%, rgba(255, 92, 138, 0.08), transparent 70%) !important;
+}
+#faq::after {
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='97' fill='none' stroke='%23a78bfa' stroke-opacity='.16' stroke-width='1'%3E%3Cpath d='M28 0l28 16v32L28 64 0 48V16z'/%3E%3Cpath d='M28 64v33M0 97V81l28-17 28 17v16'/%3E%3C/svg%3E") 0 0 / 56px 97px;
+}
+
+/* ── Подвал — горизонт: многоцветное зарево снизу и звёзды ── */
+.lux-footer { position: relative; isolation: isolate; }
+.lux-footer::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: -80px 0 0;
+  pointer-events: none;
+  background:
+    radial-gradient(60% 50% at 50% 115%, rgba(150, 70, 255, 0.35), transparent 70%),
+    radial-gradient(30% 35% at 15% 110%, rgba(79, 195, 255, 0.22), transparent 70%),
+    radial-gradient(30% 35% at 85% 110%, rgba(255, 92, 138, 0.2), transparent 70%),
+    radial-gradient(circle, rgba(255, 255, 255, 0.5) 0.8px, transparent 1.3px) 0 0 / 83px 71px,
+    radial-gradient(circle, rgba(255, 220, 160, 0.4) 0.8px, transparent 1.3px) 31px 17px / 127px 109px;
+  -webkit-mask-image: linear-gradient(transparent, #000 30%);
+  mask-image: linear-gradient(transparent, #000 30%);
+}
+
+@keyframes bg-flow { to { background-position: 420px 0; } }
+@keyframes bg-pulse { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; } }
+
+@media (max-width: 720px) {
+  /* на телефоне узоры мельче и бледнее */
+  .lux-section::after { opacity: 0.75; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #how-it-works::after, #mobile-app::after { animation: none; }
+}
