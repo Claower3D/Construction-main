@@ -16,7 +16,7 @@
   position: fixed;
   top: 20px;
   right: 20px;
-  background: rgba(16, 185, 129, 0.95);
+  background: #047857; /* белый текст на зелёном: контраст 5,5:1 */
   color: #fff;
   padding: 1rem 1.5rem;
   border-radius: 14px;
@@ -24,6 +24,8 @@
   box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4);
   z-index: 10000;
   backdrop-filter: blur(12px);
+  pointer-events: none; /* уведомление не должно перекрывать клики по холсту и кнопкам */
+  max-width: min(420px, calc(100vw - 40px));
 }
 
 /* Header Bar */
@@ -269,7 +271,7 @@
 .spe-filter-tab.active {
   background: #b9a4ff;
   border-color: #b9a4ff;
-  color: #fff;
+  color: #1a1033; /* тёмный текст на светло-лиловом: контраст 8,9:1 вместо 2,1:1 */
   box-shadow: 0 4px 12px rgba(185, 164, 255, 0.3);
 }
 

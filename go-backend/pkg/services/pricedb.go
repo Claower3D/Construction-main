@@ -24,6 +24,7 @@ type PriceItem struct {
 	QA       string  `json:"qa,omitempty"`
 	PriceRaw float64 `json:"priceRaw,omitempty"`
 	dup      bool    // a non-canonical duplicate (same type+name+unit as another item)
+	hay      string  // name+code+category в нижнем регистре, ё→е — строится один раз при загрузке
 }
 
 // RawPriceDB represents the raw JSON structure of price_db.json
@@ -216,6 +217,10 @@ func (s *PriceDBService) finalize() {
 		}
 		return a.Code < b.Code
 	})
+	for i := range s.items {
+		it := &s.items[i]
+		it.hay = strings.ReplaceAll(strings.ToLower(it.Name+" "+it.Code+" "+it.Category), "ё", "е")
+	}
 	groups := map[string][]int{}
 	for i, it := range s.items {
 		key := it.Type + "|" + strings.ToLower(strings.Join(strings.Fields(it.Name), " ")) + "|" + it.Unit
@@ -344,8 +349,10 @@ func (s *PriceDBService) Search(params SearchParams) SearchResult {
 		// Text Query filter
 		// every word of the query must occur in name, code or category ("кирпич м150" finds "Кирпич керамич. одинарный М150")
 		if len(terms) > 0 {
-			hay := strings.ToLower(item.Name + " " + item.Code + " " + item.Category)
-			hay = strings.ReplaceAll(hay, "ё", "е")
+			hay := item.hay
+			if hay == "" {
+				hay = strings.ReplaceAll(strings.ToLower(item.Name+" "+item.Code+" "+item.Category), "ё", "е")
+			}
 			ok := true
 			for _, t := range terms {
 				if !strings.Contains(hay, strings.ReplaceAll(t, "ё", "е")) {

@@ -13,6 +13,7 @@ import (
 	"net"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
 	"sync"
 	"time"
@@ -138,17 +139,36 @@ type rateWindow struct {
 	count int
 }
 
+// clientIP — адрес клиента для лимитов. X-Forwarded-For учитывается, только если запрос пришёл
+// от прокси из внутренней сети (балансировщик Railway), и берётся ПОСЛЕДНИЙ адрес — его дописал
+// этот прокси. Первый адрес задаёт сам клиент: раньше, подставив любой, он обходил лимит.
+func clientIP(r *http.Request) string {
+	remote := r.RemoteAddr
+	if host, _, err := net.SplitHostPort(r.RemoteAddr); err == nil {
+		remote = host
+	}
+	if xff := r.Header.Get("X-Forwarded-For"); xff != "" {
+		if ip := net.ParseIP(remote); trustAllProxies || (ip != nil && (ip.IsPrivate() || ip.IsLoopback() || cgnat.Contains(ip))) {
+			parts := strings.Split(xff, ",")
+			if last := strings.TrimSpace(parts[len(parts)-1]); last != "" {
+				return last
+			}
+		}
+	}
+	return remote
+}
+
+var cgnat = &net.IPNet{IP: net.IPv4(100, 64, 0, 0), Mask: net.CIDRMask(10, 32)}
+
+// TRUST_PROXY_HEADERS=1 — доверять X-Forwarded-For от прокси с публичным адресом (если хостинг так устроен).
+var trustAllProxies = os.Getenv("TRUST_PROXY_HEADERS") == "1"
+
 // RateLimit allows `limit` requests per `window` per client IP.
 func RateLimit(limit int, window time.Duration, next http.HandlerFunc) http.HandlerFunc {
 	var mu sync.Mutex
 	hits := map[string]*rateWindow{}
 	return func(w http.ResponseWriter, r *http.Request) {
-		ip := r.RemoteAddr
-		if xff := r.Header.Get("X-Forwarded-For"); xff != "" {
-			ip = strings.TrimSpace(strings.Split(xff, ",")[0])
-		} else if host, _, err := net.SplitHostPort(r.RemoteAddr); err == nil {
-			ip = host
-		}
+		ip := clientIP(r)
 		now := time.Now()
 		mu.Lock()
 		if len(hits) > 10000 { // drop stale windows

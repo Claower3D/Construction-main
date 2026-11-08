@@ -15,7 +15,9 @@ type SmetaHandler struct {
 }
 
 func NewSmetaHandler() *SmetaHandler {
-	return &SmetaHandler{priceDB: services.GetPriceDBService()}
+	h := &SmetaHandler{priceDB: services.GetPriceDBService()}
+	go services.WarmSmetaAudit(h.priceDB) // аналоги в базе для «Детального» режима — заранее, в фоне
+	return h
 }
 
 // TechMaps — GET /api/v1/estimate/techmaps: категории, их параметры, комплексы и регионы.

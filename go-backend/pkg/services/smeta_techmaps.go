@@ -173,7 +173,7 @@ var tmWallFinish = &TechMap{
 			return c.G.WallArea() * 4.5, fmt.Sprintf("4,5 кг/м² (гребёнка 8 мм) × %s м²", f(r1(c.G.WallArea())))
 		}))},
 		{Stage: "Чистовая отделка", Rate: "m.grout", Qty: when(pEq("finish", 2), packsOf("m.grout", func(c *smetaCtx) (float64, string) {
-			return c.G.WallArea() * 0.5, fmt.Sprintf("≈0,5 кг/м² × %s м²", f(r1(c.G.WallArea())))
+			return c.G.WallArea() * 0.3, fmt.Sprintf("Ceresit CE 33: ≈0,3 кг/м² для плитки 30×60 со швом 2–3 мм × %s м²", f(r1(c.G.WallArea())))
 		}))},
 	},
 	Assume: func(c *smetaCtx) []string {
@@ -239,7 +239,7 @@ var tmFloors = &TechMap{
 			return c.G.Area * 5, fmt.Sprintf("5 кг/м² для плитки 60×60 × %s м²", f(r1(c.G.Area)))
 		}))},
 		{Stage: "Покрытие", Rate: "m.grout", Qty: when(pEq("cover", 1), packsOf("m.grout", func(c *smetaCtx) (float64, string) {
-			return c.G.Area * 0.4, fmt.Sprintf("≈0,4 кг/м² × %s м²", f(r1(c.G.Area)))
+			return c.G.Area * 0.2, fmt.Sprintf("Ceresit CE 33: ≈0,2 кг/м² для плитки 60×60 со швом 2–3 мм × %s м²", f(r1(c.G.Area)))
 		}))},
 		{Stage: "Плинтус", Rate: "w.floor.skirting", PerDay: 40, Qty: when(pEq("cover", 0), func(c *smetaCtx) (float64, string) {
 			return c.G.SkirtingLength(), fmt.Sprintf("периметр %s м − двери %d × 0,9 м", f(r1(c.G.Perimeter)), c.G.Doors)
@@ -249,7 +249,7 @@ var tmFloors = &TechMap{
 		})},
 	},
 	Assume: func(c *smetaCtx) []string {
-		return []string{fmt.Sprintf("Стяжка %s мм, раствор 1:3 (цемента 400 кг на 1 м³). Плитка 60×60: клей 5 кг/м², затирка 0,4 кг/м².", f(c.p("screed_mm")))}
+		return []string{fmt.Sprintf("Стяжка %s мм, раствор 1:3 (цемента 400 кг на 1 м³). Плитка 60×60: клей 5 кг/м², затирка 0,2 кг/м² (Ceresit CE 33).", f(c.p("screed_mm")))}
 	},
 }
 

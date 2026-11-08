@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
@@ -79,7 +80,7 @@ func main() {
 
 	// Смета по технологическим картам и реальным ценам — публичный расчёт без БД
 	mux.HandleFunc("/api/v1/estimate/techmaps", smetaHnd.TechMaps)
-	mux.HandleFunc("/api/v1/estimate/calc", middleware.RateLimit(60, time.Minute, smetaHnd.Calc))
+	mux.HandleFunc("/api/v1/estimate/calc", middleware.RateLimit(envInt("ESTIMATE_RATE_LIMIT", 60), time.Minute, smetaHnd.Calc))
 
 	// Equipment marketplace — public GET (token optional: owner=me, phones), writes require auth
 	mux.HandleFunc("/api/v1/equipment", func(w http.ResponseWriter, r *http.Request) {
@@ -320,6 +321,14 @@ var dbFreePrefixes = []string{
 }
 
 // requireDB answers 503 instead of panicking (nil *sql.DB) when the server runs without a database
+// envInt — целое из переменной окружения (для нагрузочных тестов лимит сметы можно поднять)
+func envInt(name string, def int) int {
+	if v, err := strconv.Atoi(strings.TrimSpace(os.Getenv(name))); err == nil && v > 0 {
+		return v
+	}
+	return def
+}
+
 func requireDB(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if database.DB == nil && strings.HasPrefix(r.URL.Path, "/api") && r.URL.Path != "/api" {

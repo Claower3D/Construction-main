@@ -200,6 +200,16 @@ func TestSmetaValidation(t *testing.T) {
 	if _, err := CalcSmeta(SmetaRequest{Complex: "nope", Geometry: room}, nil); err == nil {
 		t.Fatal("неизвестный комплекс должен давать ошибку")
 	}
+	if _, err := CalcSmeta(SmetaRequest{Category: "floors", Geometry: SmetaGeo{Area: 100, Perimeter: 4}}, nil); err == nil {
+		t.Fatal("площадь больше возможной при таком периметре должна давать ошибку")
+	}
+	if _, err := CalcSmeta(SmetaRequest{Category: "wall_finish", Geometry: SmetaGeo{Area: 20, Perimeter: 18, Height: 270}}, nil); err == nil {
+		t.Fatal("высота 270 м (ввод в сантиметрах) должна давать ошибку")
+	}
+	res := calc(t, SmetaRequest{Category: "floors", Geometry: room, City: "Москва"})
+	if res.City != "Алматы" || res.RegionCoef != 1 {
+		t.Fatalf("неизвестный город: %s ×%v", res.City, res.RegionCoef)
+	}
 }
 
 func TestSmetaModes(t *testing.T) {

@@ -201,3 +201,7 @@
 @media (prefers-reduced-motion: reduce) {
   .sm-acc-head::after { transition: none; }
 }
+
+/* зона загрузки — <label> файлового поля: клик и клавиатура работают без вложенных кнопок */
+.spe-dropzone { display: block; cursor: pointer; }
+.spe-dropzone:focus-within { outline: 2px solid #c4b5fd; outline-offset: 3px; }

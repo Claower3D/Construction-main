@@ -631,12 +631,9 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
         <span className="spe-step-optional">необязательно · фото {photos.length}/10</span>
       </div>
 
-      <div
+      <label
+        htmlFor="spe-file-picker"
         className={`spe-dropzone ${isDraggingOver ? 'drag-active' : ''}`}
-        role="button"
-        tabIndex={0}
-        onClick={() => document.getElementById('spe-file-picker').click()}
-        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); document.getElementById('spe-file-picker').click(); } }}
         onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
         onDragEnter={(e) => { e.preventDefault(); e.stopPropagation(); setIsDraggingOver(true); }}
         onDragLeave={(e) => { e.preventDefault(); e.stopPropagation(); setIsDraggingOver(false); }}
@@ -652,7 +649,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
         <div className="spe-drop-icon">{isDraggingOver ? '📥' : '📸'}</div>
         <p className="spe-drop-main">{isDraggingOver ? 'Отпустите файлы' : 'Фото объекта или плана'}</p>
         <p className="spe-drop-sub">План можно обвести в шаге 2 («Контур на плане»); в режимах «Детальный» и «Полный» фото разберёт ИИ</p>
-      </div>
+      </label>
 
       {photos.length > 0 && (
         <div className="spe-thumbs-wrap">

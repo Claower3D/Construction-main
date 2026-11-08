@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+	"sync"
 )
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -326,6 +327,12 @@ func CalcSmeta(req SmetaRequest, db *PriceDBService) (SmetaResult, error) {
 	if g.Height <= 0 {
 		g.Height = 2.7
 	}
+	if g.Height > 50 {
+		return SmetaResult{}, SmetaError{"Высота больше 50 м — проверьте ввод (указывается высота стен, а не дома целиком)"}
+	}
+	if g.Area > g.Perimeter*g.Perimeter/(4*math.Pi)*1.1 {
+		return SmetaResult{}, SmetaError{fmt.Sprintf("Площадь %s м² невозможна при периметре %s м (максимум %s м²) — проверьте размеры", f(r1(g.Area)), f(r1(g.Perimeter)), f(r1(g.Perimeter*g.Perimeter/(4*math.Pi))))}
+	}
 	if g.Doors < 0 || g.Windows < 0 || g.Doors > 200 || g.Windows > 400 {
 		return SmetaResult{}, SmetaError{"Некорректное число проёмов"}
 	}
@@ -366,8 +373,9 @@ func CalcSmeta(req SmetaRequest, db *PriceDBService) (SmetaResult, error) {
 	}
 	regions := SmetaRegions(db)
 	coef, ok := regions[city]
+	unknownCity := ""
 	if !ok {
-		coef = 1
+		unknownCity, city, coef = city, "Алматы", 1
 	}
 
 	// параметры: значения по умолчанию → переопределения комплекса → ввод пользователя
@@ -521,6 +529,9 @@ func CalcSmeta(req SmetaRequest, db *PriceDBService) (SmetaResult, error) {
 			res.Assumptions = append(res.Assumptions, s)
 		}
 	}
+	if unknownCity != "" {
+		add(fmt.Sprintf("Города «%s» нет в справочнике — расчёт по ценам Алматы.", unknownCity))
+	}
 	add(fmt.Sprintf("Проёмы: двери %d × 0,9×2,1 м, окна %d × 1,5×1,5 м — вычтены из площади стен.", g.Doors, g.Windows))
 	if coef != 1 {
 		add(fmt.Sprintf("Цены Алматы пересчитаны для г. %s с коэффициентом %s.", city, f(coef)))
@@ -549,7 +560,7 @@ func CalcSmeta(req SmetaRequest, db *PriceDBService) (SmetaResult, error) {
 
 func buildPurchases(items []SmetaItem) []SmetaPurchase {
 	idx := map[string]int{}
-	var out []SmetaPurchase
+	out := []SmetaPurchase{} // пустой список, а не null, когда материалов нет
 	for _, it := range items {
 		if it.Kind != "material" {
 			continue
@@ -743,18 +754,37 @@ func smetaWords(s string) []string {
 	return wordRe.FindAllString(strings.ReplaceAll(strings.ToLower(s), "ё", "е"), -1)
 }
 
-// dbAnalogs ищет в базе QazGost аналоги позиции: каждое слово запроса — начало слова в названии,
-// единица измерения совпадает. Позиции с пометкой «подозрительная» не учитываются.
-func dbAnalogs(db *PriceDBService, it SmetaItem, city string) (SmetaDBMatch, bool) {
-	rate := smetaRates[it.Key]
-	if rate.DBQuery == "" {
-		return SmetaDBMatch{}, false
+// Аналоги в базе не меняются, пока работает сервер: результат поиска кэшируется
+// по позиции и городу, иначе «Детальный» режим перебирал 23 864 позиции на каждую строку.
+type dbAnalogHit struct {
+	prices   []float64
+	examples []string
+}
+
+var dbAnalogCache sync.Map // "key|city" → dbAnalogHit
+
+// WarmSmetaAudit заранее находит аналоги для базового города, чтобы первый запрос не ждал.
+func WarmSmetaAudit(db *PriceDBService) {
+	if db == nil {
+		return
 	}
+	for _, r := range smetaRateList {
+		if smetaRates[r.Key].DBQuery != "" {
+			dbAnalogLookup(db, r.Key, "Алматы")
+		}
+	}
+}
+
+func dbAnalogLookup(db *PriceDBService, key, city string) dbAnalogHit {
+	ck := key + "|" + city
+	if v, ok := dbAnalogCache.Load(ck); ok {
+		return v.(dbAnalogHit)
+	}
+	rate := smetaRates[key]
 	terms := smetaWords(rate.DBQuery)
 	sr := db.Search(SearchParams{Query: rate.DBQuery, Type: rate.Kind, Region: city, Limit: 500, Unique: true})
 	want := normUnit(rate.Unit)
-	var prices []float64
-	var examples []string
+	hit := dbAnalogHit{}
 	for _, p := range sr.Items {
 		if p.Price <= 0 || normUnit(p.Unit) != want {
 			continue
@@ -777,16 +807,29 @@ func dbAnalogs(db *PriceDBService, it SmetaItem, city string) (SmetaDBMatch, boo
 		if !match {
 			continue
 		}
-		prices = append(prices, p.Price)
-		if len(examples) < 3 {
-			examples = append(examples, fmt.Sprintf("%s — %s ₸", p.Name, fmtMoney(p.Price)))
+		hit.prices = append(hit.prices, p.Price)
+		if len(hit.examples) < 3 {
+			hit.examples = append(hit.examples, fmt.Sprintf("%s — %s ₸", p.Name, fmtMoney(p.Price)))
 		}
 	}
-	m := SmetaDBMatch{Key: it.Key, Name: it.Name, Unit: it.Unit, Our: it.Price, DBCount: len(prices), Status: "none", Example: strings.Join(examples, "; ")}
+	sort.Float64s(hit.prices)
+	dbAnalogCache.Store(ck, hit)
+	return hit
+}
+
+// dbAnalogs ищет в базе QazGost аналоги позиции: каждое слово запроса — начало слова в названии,
+// единица измерения совпадает. Позиции с пометкой «подозрительная» не учитываются.
+func dbAnalogs(db *PriceDBService, it SmetaItem, city string) (SmetaDBMatch, bool) {
+	rate := smetaRates[it.Key]
+	if rate.DBQuery == "" {
+		return SmetaDBMatch{}, false
+	}
+	hit := dbAnalogLookup(db, it.Key, city)
+	prices := hit.prices
+	m := SmetaDBMatch{Key: it.Key, Name: it.Name, Unit: it.Unit, Our: it.Price, DBCount: len(prices), Status: "none", Example: strings.Join(hit.examples, "; ")}
 	if len(prices) == 0 {
 		return m, true
 	}
-	sort.Float64s(prices)
 	m.DBMedian = prices[len(prices)/2]
 	m.DBMin, m.DBMax = prices[0], prices[len(prices)-1]
 	m.Ratio = math.Round(it.Price/m.DBMedian*100) / 100
