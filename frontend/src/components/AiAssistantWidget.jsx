@@ -101,14 +101,25 @@ function ArmanStage({ talking, thinking, compact }) {
   );
 }
 
-function ArmanFace({ talking }) {
+function ArmanFigure({ talking, thinking }) {
   const { eyes, mouth } = useFace(talking);
-  const src = eyes === 'blink' ? 'face-blink' : mouth && mouth !== 'talk1' ? 'face-talk' : 'face';
   return (
-    <span className="arm-face">
-      {['face', 'face-blink', 'face-talk'].map((k) => (
-        <img key={k} src={`${IMG}-${k}.webp`} alt="" style={{ opacity: src === k ? 1 : 0 }} />
-      ))}
+    <span className={`arm-fig${talking ? ' is-talking' : ''}${thinking ? ' is-thinking' : ''}`} aria-hidden="true">
+      <span className="arm-fig-pad"><i /><i /></span>
+      <span className="arm-fig-float">
+        <span className="arm-fig-body">
+          <img className="arm-fig-base" src={`${IMG}-fig.webp`} alt="" width="480" height="391" />
+          {['blink-half', 'blink'].map((k) => (
+            <img key={k} className="arm-fig-eyes" src={`${IMG}-fig-${k}.webp`} alt="" style={{ opacity: eyes === k ? 1 : 0 }} />
+          ))}
+          {['talk1', 'talk2', 'talk3'].map((k) => (
+            <img key={k} className="arm-fig-mouth" src={`${IMG}-fig-${k}.webp`} alt="" style={{ opacity: mouth === k ? 1 : 0 }} />
+          ))}
+          <span className="arm-fig-ear" />
+          <span className="arm-fig-tablet" />
+        </span>
+      </span>
+      <span className="arm-fig-sparks">{Array.from({ length: 6 }, (_, i) => <i key={i} style={{ '--i': i }} />)}</span>
     </span>
   );
 }
@@ -387,13 +398,16 @@ export default function AiAssistantWidget() {
 
       <button
         type="button"
-        className={`arm-trigger${open ? ' is-open' : ''}${talking ? ' is-talking' : ''}`}
+        className={`arm-trigger${open ? ' is-open' : ''}`}
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-label={open ? 'Свернуть чат с Арманом' : 'Открыть чат с ИИ-инженером Арманом'}
       >
-        <ArmanFace talking={talking} />
-        <span className="arm-online" />
+        <ArmanFigure talking={talking} thinking={busy} />
+        <span className="arm-label">
+          <span className="arm-online" />
+          {busy ? 'Думает…' : talking ? 'Отвечает…' : open ? 'Свернуть' : 'AI Ассистент'}
+        </span>
       </button>
     </div>
   );
