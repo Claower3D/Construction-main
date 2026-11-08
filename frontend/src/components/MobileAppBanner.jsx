@@ -1,7 +1,6 @@
 import React from 'react';
 import { Check, ArrowRight } from 'lucide-react';
 import { startFlow } from '../utils/navigate';
-import { LightTrails } from './LuxFx';
 import PhoneDemo from './PhoneDemo';
 
 /*
@@ -17,7 +16,6 @@ export default function MobileAppBanner() {
       <div className="qg-container">
         <div className="lux-app">
           <div className="lux-app-bg" aria-hidden="true" />
-          <LightTrails variant="low" className="fx-trails--card" />
           <div className="lux-app-copy">
             <h2 id="lux-app-title">На объекте — с телефона</h2>
             <p>Создавайте сметы и акты дефектов прямо на объекте. Быстро, удобно, без ноутбука.</p>

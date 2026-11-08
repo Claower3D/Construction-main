@@ -1,7 +1,6 @@
 import React from 'react';
 import { Pickaxe, Compass, Gauge, Hammer, CircleDot, FlaskConical, ArrowRight } from 'lucide-react';
 import { navigateTo } from '../utils/navigate';
-import { LightTrails, Sparkles } from './LuxFx';
 
 /*
  * Изыскания и геотехника: фото техники слева, шесть услуг с ключевым
@@ -19,9 +18,6 @@ const SERVICES = [
 export default function EngineeringServicesSection() {
   return (
     <section className="lux-section lux-geo" id="engineering" aria-labelledby="lux-geo-title">
-      <div className="lux-geo-photo" aria-hidden="true" />
-      <LightTrails variant="low" className="fx-trails--geo" />
-      <Sparkles count={16} seed={41} />
       <div className="qg-container lux-geo-grid">
         <div className="lux-geo-body">
           <header className="lux-head">

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Camera, Zap, FileText } from 'lucide-react';
-import { PhotoStack, HardHat3D, PdfDoc, Sparkles } from './LuxFx';
+import { PhotoStack, HardHat3D, PdfDoc } from './LuxFx';
 import { startFlow } from '../utils/navigate';
 
 // Три результата, ради которых приходят на платформу. Только то, что сервис делает сейчас.
@@ -37,7 +37,6 @@ const ITEMS = [
 export default function FeatureHighlights() {
   return (
     <section className="lux-section" aria-labelledby="lux-features-title">
-      <Sparkles count={18} seed={21} />
       <div className="qg-container">
         <header className="lux-head lux-head--center">
           <h2 id="lux-features-title">Что вы получаете</h2>

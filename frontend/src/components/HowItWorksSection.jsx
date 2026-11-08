@@ -1,7 +1,7 @@
 import React from 'react';
 import { ArrowRight } from 'lucide-react';
 import { startFlow } from '../utils/navigate';
-import { PhotoStack, AiChip, SealDoc, LightTrails } from './LuxFx';
+import { PhotoStack, AiChip, SealDoc } from './LuxFx';
 
 // Настоящая последовательность — поэтому здесь (и только здесь) нумерация шагов.
 const ART = [<PhotoStack small key="a" />, <AiChip key="b" />, <SealDoc key="c" />];
@@ -15,7 +15,6 @@ const STEPS = [
 export default function HowItWorksSection() {
   return (
     <section className="lux-section" id="how-it-works" aria-labelledby="lux-steps-title">
-      <LightTrails variant="low" />
       <div className="qg-container">
         <header className="lux-head lux-head--center">
           <h2 id="lux-steps-title">Как это работает</h2>

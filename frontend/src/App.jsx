@@ -450,6 +450,7 @@ export default function App() {
 
           {currentView === 'landing' && (
             <>
+              <div className="qg-scene" aria-hidden="true" />
               {/* Секции лендинга больше не «выезжают» по одной при скролле: контент виден сразу,
                   единственный акцентный момент — первый экран (см. HeroSection). */}
               <HeroSection role={role} onOpenAuth={setAuthMode} currentUser={currentUser} onOpenDashboard={navigateToDashboard} />

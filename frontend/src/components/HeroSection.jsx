@@ -2,7 +2,6 @@ import React from 'react';
 import { Apple, Smartphone, ShieldCheck, Clock3, ScanSearch, Package } from 'lucide-react';
 import { startFlow, scrollToSection } from '../utils/navigate';
 import HeroHouse from './HeroHouse';
-import { LightTrails, Sparkles as FxSparkles } from './LuxFx';
 
 /*
  * Первый экран: слева — обещание для своей роли и действия,
@@ -25,8 +24,6 @@ export default function HeroSection({ role, currentUser }) {
 
   return (
     <section className="hx" id="hero" aria-labelledby="hx-title">
-      <LightTrails variant="hero" className="fx-trails--hero" />
-      <FxSparkles count={30} seed={11} />
       <div className="qg-container">
         <div className="hx-grid">
           <div className="hx-copy">

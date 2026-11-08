@@ -2,7 +2,6 @@ import React, { useMemo, useState } from 'react';
 import { categoriesData } from '../data/categoriesData';
 import { Home, Building2, Briefcase, Factory, Search, ArrowRight, Clock, Boxes } from 'lucide-react';
 import { startFlow } from '../utils/navigate';
-import { LightTrails, Sparkles, WaveMesh } from './LuxFx';
 
 /*
  * Два блока: быстрый расчёт бюджета (ориентир по цене за м² для типа объекта)
@@ -74,9 +73,6 @@ export default function PriceCatalogSection({ onOpenCategory }) {
   return (
     <>
       <section className="lux-section lux-budget" id="budget" aria-labelledby="lux-budget-title">
-        <div className="lux-budget-photo" aria-hidden="true" />
-        <LightTrails variant="sweep" />
-        <Sparkles count={22} seed={31} />
         <div className="qg-container lux-budget-grid">
           <div className="lux-budget-form">
             <header className="lux-head">
@@ -153,7 +149,6 @@ export default function PriceCatalogSection({ onOpenCategory }) {
       </section>
 
       <section className="lux-section" id="prices" aria-labelledby="lux-catalog-title">
-        <WaveMesh seed={9} lines={26} className="fx-mesh--catalog" />
         <div className="qg-container">
           <header className="lux-head lux-head--split">
             <div>

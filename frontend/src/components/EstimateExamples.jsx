@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { CheckCircle2, Download, ArrowRight } from 'lucide-react';
 import { startFlow } from '../utils/navigate';
-import { WaveMesh, PdfDoc } from './LuxFx';
+import { PdfDoc } from './LuxFx';
 
 /*
  * «Как выглядит смета»: четыре реальных примера расчёта по базе ЭСН РК.
@@ -105,7 +105,6 @@ export default function EstimateExamples() {
 
   return (
     <section className="lux-section lux-section--mesh" id="examples" aria-labelledby="lux-examples-title">
-      <WaveMesh seed={5} className="fx-mesh--examples" />
       <div className="qg-container lux-examples">
         <div className="lux-examples-copy">
           <header className="lux-head">

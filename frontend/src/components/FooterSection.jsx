@@ -1,7 +1,6 @@
 import React from 'react';
 import { ArrowRight, Send } from 'lucide-react';
 import { startFlow, navigateTo, scrollToSection } from '../utils/navigate';
-import { LightTrails, Sparkles } from './LuxFx';
 
 export default function FooterSection() {
   const go = (path) => (e) => { e.preventDefault(); navigateTo(path); };
@@ -10,8 +9,6 @@ export default function FooterSection() {
     <footer className="lux-footer">
       <div className="qg-container">
         <div className="lux-glass lux-glass--gold lux-cta">
-          <LightTrails variant="sweep" className="fx-trails--card" />
-          <Sparkles count={14} seed={51} />
           <div>
             <h2>Превратите фото в готовую смету</h2>
             <p>Регистрация занимает минуту, первую оценку можно сделать сразу.</p>

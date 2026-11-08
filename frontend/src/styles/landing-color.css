@@ -19,21 +19,6 @@
   --t-violet: #a78bfa;
 }
 
-/* ── Фон: к фиолетовому сиянию добавлены бирюза, роза и мята ── */
-body {
-  background-image:
-    radial-gradient(55% 38% at 82% 0%, rgba(140, 70, 240, 0.34), transparent 70%),
-    radial-gradient(40% 30% at 0% 18%, rgba(79, 195, 255, 0.13), transparent 70%),
-    radial-gradient(42% 30% at 100% 46%, rgba(255, 92, 138, 0.1), transparent 70%),
-    radial-gradient(45% 30% at 0% 72%, rgba(46, 230, 197, 0.09), transparent 70%),
-    radial-gradient(45% 30% at 100% 92%, rgba(255, 138, 61, 0.08), transparent 70%) !important;
-}
-.lux-section:nth-of-type(5n + 1)::before { background: radial-gradient(45% 55% at 88% 40%, rgba(79, 195, 255, 0.11), transparent 70%); }
-.lux-section:nth-of-type(5n + 2)::before { background: radial-gradient(45% 55% at 8% 50%, rgba(255, 92, 138, 0.1), transparent 70%); }
-.lux-section:nth-of-type(5n + 3)::before { background: radial-gradient(45% 55% at 90% 50%, rgba(46, 230, 197, 0.09), transparent 70%); }
-.lux-section:nth-of-type(5n + 4)::before { background: radial-gradient(45% 55% at 10% 40%, rgba(150, 70, 255, 0.16), transparent 70%); }
-.lux-section:nth-of-type(5n + 5)::before { background: radial-gradient(45% 55% at 85% 50%, rgba(255, 138, 61, 0.09), transparent 70%); }
-
 /* ── Метка над заголовками секций: четыре системных цвета, как легенда на схеме ── */
 .lux-head h2::before,
 .svc .lux-head h2::before {
