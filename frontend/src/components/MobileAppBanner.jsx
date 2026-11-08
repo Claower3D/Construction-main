@@ -1,7 +1,8 @@
 import React from 'react';
-import { Check, ArrowRight, Camera, FileText, ClipboardList } from 'lucide-react';
+import { Check, ArrowRight } from 'lucide-react';
 import { startFlow } from '../utils/navigate';
 import { LightTrails } from './LuxFx';
+import PhoneDemo from './PhoneDemo';
 
 /*
  * Мобильный блок. Сайт работает в браузере телефона; Android-приложения
@@ -22,14 +23,7 @@ export default function MobileAppBanner() {
             <p>Создавайте сметы и акты дефектов прямо на объекте. Быстро, удобно, без ноутбука.</p>
           </div>
 
-          <div className="lux-phone" aria-hidden="true">
-            <div className="lux-phone-screen">
-              <span className="lux-phone-logo">QazGost</span>
-              <span className="lux-phone-btn"><Camera size={13} />Сделать фото</span>
-              <span className="lux-phone-btn"><FileText size={13} />Создать смету</span>
-              <span className="lux-phone-btn"><ClipboardList size={13} />Акт дефектов</span>
-            </div>
-          </div>
+          <PhoneDemo />
 
           <div className="lux-mob-side">
             <ul className="lux-checks lux-checks--tight">

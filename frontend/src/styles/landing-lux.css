@@ -728,7 +728,7 @@ body {
 .lux-app {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 220px minmax(0, 1.1fr);
+  grid-template-columns: minmax(0, 1fr) 290px minmax(0, 1.1fr);
   gap: 32px;
   align-items: center;
   padding: 36px clamp(24px, 4vw, 48px);
