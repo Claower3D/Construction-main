@@ -1,5 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { loginUser, registerUser } from '../services/api';
+import { KZ_CITIES } from './Header';
+import { LEGAL_VERSION } from '../data/legal';
+import './AuthModal.css';
+
+// Телефон: в поле — 10 цифр номера, «+7» стоит слева постоянно.
+// Вставка полного номера (+7 701…, 8 701…) распознаётся: лишняя первая цифра отбрасывается.
+function localPhoneDigits(raw, prevDigits = '') {
+  let d = String(raw || '').replace(/\D/g, '');
+  if (d.length >= 11 && (d[0] === '7' || d[0] === '8') && d.length - prevDigits.length > 1) d = d.slice(1);
+  return d.slice(0, 10);
+}
+function formatLocalPhone(d) {
+  if (!d) return '';
+  if (d.length <= 3) return '(' + d;
+  let out = '(' + d.slice(0, 3) + ') ' + d.slice(3, 6);
+  if (d.length > 6) out += '-' + d.slice(6, 8);
+  if (d.length > 8) out += '-' + d.slice(8, 10);
+  return out;
+}
+const isFullKzPhone = (digits) => String(digits || '').length === 10;
+const normalizedPhone = (digits) => (isFullKzPhone(digits) ? '+7' + digits : '');
+
+const fieldStyle = { width: '100%', background: 'rgba(10, 8, 28, 0.62)', border: '1px solid rgba(189, 178, 230, 0.22)', borderRadius: '14px', padding: '0.85rem 1.1rem', color: '#fff', fontSize: '0.92rem', outline: 'none', boxSizing: 'border-box' };
 
 export default function AuthModal({ mode, onClose, onLogin }) {
   const [activeTab, setActiveTab] = useState(mode || 'login');
@@ -18,8 +41,15 @@ export default function AuthModal({ mode, onClose, onLogin }) {
   const [equipmentCategory, setEquipmentCategory] = useState('Землеройная техника');
   const [pricePerDay, setPricePerDay] = useState('95000');
   const [plateNumber, setPlateNumber] = useState('');
-  const [city, setCity] = useState('Алматы');
+  const [city, setCity] = useState(() => {
+    try { return localStorage.getItem('qazgost_city') || ''; } catch { return ''; }
+  });
   const [phone, setPhone] = useState('');
+  // Согласия при регистрации (Закон РК «О персональных данных и их защите»)
+  const [acceptTerms, setAcceptTerms] = useState(false);
+  const [acceptPrivacy, setAcceptPrivacy] = useState(false);
+  const [marketingOptIn, setMarketingOptIn] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState({});
 
   // Вкладка синхронизируется с режимом открытия (раньше «Регистрация» в шапке открывала вкладку входа)
   useEffect(() => {
@@ -40,6 +70,23 @@ export default function AuthModal({ mode, onClose, onLogin }) {
         const res = await loginUser(email, password);
         if (onLogin && res.user) onLogin(res.user);
       } else {
+        const errs = {};
+        if (!isFullKzPhone(phone)) errs.phone = 'Укажите номер полностью: 10 цифр после +7';
+        if (!city) errs.city = 'Выберите город';
+        if (!acceptTerms) errs.terms = 'Нужно принять пользовательское соглашение';
+        if (!acceptPrivacy) errs.privacy = 'Нужно согласие на обработку персональных данных';
+        setFieldErrors(errs);
+        if (Object.keys(errs).length) {
+          const order = ['phone', 'city', 'terms', 'privacy'];
+          const first = order.find((k) => errs[k]);
+          const el = document.getElementById(`auth-${first}`);
+          if (el) el.focus();
+          const onlyConsents = !errs.phone && !errs.city;
+          throw new Error(onlyConsents
+            ? 'Чтобы зарегистрироваться, примите соглашение и дайте согласие на обработку персональных данных'
+            : 'Проверьте отмеченные поля');
+        }
+
         let finalCompanyId = null;
         if (inviteCodeInput.trim()) {
           const savedUsers = JSON.parse(localStorage.getItem('qazgost_registered_users') || '[]');
@@ -63,8 +110,12 @@ export default function AuthModal({ mode, onClose, onLogin }) {
           equipmentCategory,
           pricePerDay: Number(pricePerDay) || 95000,
           plateNumber,
-          city: city || 'Алматы',
-          phone: phone || '+7 (777) 123-45-67'
+          city,
+          phone: normalizedPhone(phone),
+          acceptTerms,
+          acceptPrivacy,
+          marketingOptIn,
+          consentVersion: LEGAL_VERSION
         });
 
         // If registered with equipment, also cache in localStorage for instant frontend visibility in EquipmentMarketplace
@@ -75,13 +126,13 @@ export default function AuthModal({ mode, onClose, onLogin }) {
             category: equipmentCategory,
             pricePerDay: Number(pricePerDay) || 95000,
             pricePerHour: Math.round((Number(pricePerDay) || 95000) / 8),
-            city: (city || 'Алматы'),
+            city: city || 'Алматы',
             status: 'Доступен',
             image: equipmentCategory.includes('Грузоподъем') 
               ? 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=400&q=80'
               : 'https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&w=400&q=80',
             ownerName: fullName || email.split('@')[0],
-            ownerPhone: phone || '+7 (777) 123-45-67',
+            ownerPhone: normalizedPhone(phone),
             plateNumber: plateNumber || '01 777 KZ 02',
             rating: 5.0,
             reviewsCount: 1,
@@ -106,14 +157,17 @@ export default function AuthModal({ mode, onClose, onLogin }) {
   };
 
   return (
-    <div className="modal-overlay" onClick={onClose} style={{ backdropFilter: 'blur(16px)', background: 'rgba(5, 8, 18, 0.75)' }}>
+    <div className="modal-overlay qg-auth-overlay" onClick={onClose} style={{ backdropFilter: 'blur(16px)', background: 'rgba(5, 8, 18, 0.75)' }}>
       <div 
-        className="modal-content-card" 
+        className="modal-content-card qg-auth-card" 
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="auth-title"
         onClick={(e) => e.stopPropagation()}
         style={{
-          background: 'linear-gradient(145deg, rgba(20, 26, 48, 0.95), rgba(12, 16, 32, 0.98))',
-          border: '1px solid rgba(246, 196, 83, 0.3)',
-          boxShadow: '0 30px 80px rgba(0,0,0,0.8), 0 0 60px rgba(246, 196, 83, 0.12)',
+          background: 'linear-gradient(160deg, rgba(44, 32, 90, 0.97), rgba(18, 13, 40, 0.98)) padding-box, linear-gradient(150deg, rgba(220, 200, 255, 0.5), rgba(150, 100, 255, 0.12) 38%, rgba(150, 100, 255, 0.08) 62%, rgba(255, 200, 120, 0.7) 88%, rgba(244, 114, 208, 0.75)) border-box',
+          border: '1px solid transparent',
+          boxShadow: '0 40px 80px -30px rgba(0,0,0,0.95), 0 0 70px -26px rgba(160, 80, 255, 0.6)',
           borderRadius: '28px',
           padding: '2.2rem',
           maxWidth: '480px',
@@ -127,7 +181,9 @@ export default function AuthModal({ mode, onClose, onLogin }) {
         <div style={{ position: 'absolute', bottom: '-60px', left: '-60px', width: '180px', height: '180px', background: 'radial-gradient(circle, rgba(246, 196, 83, 0.25), transparent 70%)', pointerEvents: 'none' }} />
 
         <button 
-          className="modal-close-btn" 
+          type="button"
+          className="modal-close-btn"
+          aria-label="Закрыть"
           onClick={onClose}
           style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', color: '#fff', borderRadius: '12px', width: '36px', height: '36px', cursor: 'pointer', fontSize: '1.1rem', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s ease' }}
         >
@@ -142,15 +198,17 @@ export default function AuthModal({ mode, onClose, onLogin }) {
               padding: '0.65rem',
               borderRadius: '12px',
               border: 'none',
-              background: activeTab === 'login' ? '#7c3aed' : 'transparent',
-              color: activeTab === 'login' ? '#fff' : '#a39cc2',
+              background: activeTab === 'login' ? 'linear-gradient(180deg, #f8d27a, #e5a03a)' : 'transparent',
+              color: activeTab === 'login' ? '#1c1203' : '#cbc5e3',
               fontWeight: 800,
               fontSize: '0.9rem',
               cursor: 'pointer',
               boxShadow: activeTab === 'login' ? 'none' : 'none',
               transition: 'all 0.25s ease'
             }}
-            onClick={() => setActiveTab('login')}
+            type="button"
+            aria-pressed={activeTab === 'login'}
+            onClick={() => { setActiveTab('login'); setError(null); setFieldErrors({}); }}
           >
             Вход
           </button>
@@ -160,22 +218,24 @@ export default function AuthModal({ mode, onClose, onLogin }) {
               padding: '0.65rem',
               borderRadius: '12px',
               border: 'none',
-              background: activeTab === 'register' ? '#7c3aed' : 'transparent',
-              color: activeTab === 'register' ? '#fff' : '#a39cc2',
+              background: activeTab === 'register' ? 'linear-gradient(180deg, #f8d27a, #e5a03a)' : 'transparent',
+              color: activeTab === 'register' ? '#1c1203' : '#cbc5e3',
               fontWeight: 800,
               fontSize: '0.9rem',
               cursor: 'pointer',
               boxShadow: activeTab === 'register' ? 'none' : 'none',
               transition: 'all 0.25s ease'
             }}
-            onClick={() => setActiveTab('register')}
+            type="button"
+            aria-pressed={activeTab === 'register'}
+            onClick={() => { setActiveTab('register'); setError(null); setFieldErrors({}); }}
           >
             Регистрация
           </button>
         </div>
 
         <div style={{ textAlign: 'center', marginBottom: '1.25rem' }}>
-          <h2 style={{ margin: 0, fontSize: '1.6rem', fontWeight: 900, color: '#fff', letterSpacing: '0.4px' }}>
+          <h2 id="auth-title" style={{ margin: 0, fontSize: '1.6rem', fontWeight: 800, color: '#fff', letterSpacing: '-0.02em' }}>
             {activeTab === 'login' ? 'Вход в QazGost AI' : 'Создание учётной записи'}
           </h2>
           <p style={{ margin: '0.4rem 0 0 0', fontSize: '0.86rem', color: '#cbc5e3', fontWeight: 500 }}>
@@ -302,8 +362,53 @@ export default function AuthModal({ mode, onClose, onLogin }) {
                 required
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
+                id="auth-name"
+                autoComplete="name"
                 style={{ background: 'rgba(21, 18, 42, 0.7)', border: '1px solid rgba(255, 255, 255, 0.15)', borderRadius: '14px', padding: '0.85rem 1.1rem', color: '#fff', fontSize: '0.92rem', outline: 'none' }}
               />
+            </div>
+          )}
+
+          {activeTab === 'register' && (
+            <div className="qg-auth-row">
+              <div className="form-group" style={{ margin: 0 }}>
+                <label htmlFor="auth-phone" className="qg-auth-label">Телефон</label>
+                <div className="qg-auth-phone">
+                  <span className="qg-auth-phone-prefix" aria-hidden="true">+7</span>
+                  <input
+                    id="auth-phone"
+                    type="tel"
+                    inputMode="tel"
+                    autoComplete="tel-national"
+                    placeholder="(701) 555-44-33"
+                    required
+                    value={formatLocalPhone(phone)}
+                    onChange={(e) => { const v = e.target.value; setPhone((prev) => localPhoneDigits(v, prev)); if (fieldErrors.phone) setFieldErrors((f) => ({ ...f, phone: null })); }}
+                    aria-invalid={fieldErrors.phone ? 'true' : undefined}
+                    aria-describedby={fieldErrors.phone ? 'auth-phone-err' : 'auth-phone-hint'}
+                    style={{ ...fieldStyle, paddingLeft: '2.6rem', borderColor: fieldErrors.phone ? 'rgba(255, 92, 138, 0.8)' : fieldStyle.borderColor }}
+                  />
+                </div>
+                {fieldErrors.phone
+                  ? <p id="auth-phone-err" className="qg-auth-err">{fieldErrors.phone}</p>
+                  : <p id="auth-phone-hint" className="qg-auth-hint">+7 и 10 цифр — для связи по заказам</p>}
+              </div>
+              <div className="form-group" style={{ margin: 0 }}>
+                <label htmlFor="auth-city" className="qg-auth-label">Город</label>
+                <select
+                  id="auth-city"
+                  required
+                  value={city}
+                  onChange={(e) => { setCity(e.target.value); if (fieldErrors.city) setFieldErrors((f) => ({ ...f, city: null })); }}
+                  aria-invalid={fieldErrors.city ? 'true' : undefined}
+                  aria-describedby={fieldErrors.city ? 'auth-city-err' : undefined}
+                  style={{ ...fieldStyle, borderColor: fieldErrors.city ? 'rgba(255, 92, 138, 0.8)' : fieldStyle.borderColor }}
+                >
+                  <option value="" disabled>Выберите город</option>
+                  {KZ_CITIES.map((c) => <option key={c.name} value={c.name}>{c.name}</option>)}
+                </select>
+                {fieldErrors.city && <p id="auth-city-err" className="qg-auth-err">{fieldErrors.city}</p>}
+              </div>
             </div>
           )}
 
@@ -424,21 +529,6 @@ export default function AuthModal({ mode, onClose, onLogin }) {
 
                     <div>
                       <label style={{ fontSize: '0.78rem', color: '#cbc5e3', fontWeight: 700, display: 'block', marginBottom: '0.25rem' }}>
-                        Город базирования:
-                      </label>
-                      <input 
-                        type="text" 
-                        placeholder="Алматы"
-                        value={city}
-                        onChange={e => setCity(e.target.value)}
-                        style={{ width: '100%', background: 'rgba(21, 18, 42, 0.9)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '10px', padding: '0.65rem 0.8rem', color: '#fff', fontSize: '0.88rem' }}
-                      />
-                    </div>
-                  </div>
-
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.6rem' }}>
-                    <div>
-                      <label style={{ fontSize: '0.78rem', color: '#cbc5e3', fontWeight: 700, display: 'block', marginBottom: '0.25rem' }}>
                         Госномер / ID:
                       </label>
                       <input 
@@ -449,23 +539,63 @@ export default function AuthModal({ mode, onClose, onLogin }) {
                         style={{ width: '100%', background: 'rgba(21, 18, 42, 0.9)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '10px', padding: '0.65rem 0.8rem', color: '#fff', fontSize: '0.88rem' }}
                       />
                     </div>
-
-                    <div>
-                      <label style={{ fontSize: '0.78rem', color: '#cbc5e3', fontWeight: 700, display: 'block', marginBottom: '0.25rem' }}>
-                        Телефон диспетчера:
-                      </label>
-                      <input 
-                        type="tel" 
-                        placeholder="+7 (777) 123-45-67"
-                        value={phone}
-                        onChange={e => setPhone(e.target.value)}
-                        style={{ width: '100%', background: 'rgba(21, 18, 42, 0.9)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '10px', padding: '0.65rem 0.8rem', color: '#fff', fontSize: '0.88rem' }}
-                      />
-                    </div>
                   </div>
+                  <p className="qg-auth-hint" style={{ margin: 0 }}>Город и телефон для заказов техники берутся из полей выше.</p>
                 </div>
               )}
             </div>
+          )}
+
+          {activeTab === 'register' && (
+            <fieldset className="qg-auth-consents">
+              <legend className="qg-auth-sr">Согласия</legend>
+              <label className={`qg-auth-check${fieldErrors.terms ? ' is-invalid' : ''}`}>
+                <input
+                  id="auth-terms"
+                  type="checkbox"
+                  checked={acceptTerms}
+                  onChange={(e) => { setAcceptTerms(e.target.checked); if (fieldErrors.terms) setFieldErrors((f) => ({ ...f, terms: null })); }}
+                  aria-invalid={fieldErrors.terms ? 'true' : undefined}
+                  aria-describedby={fieldErrors.terms ? 'auth-terms-err' : undefined}
+                />
+                <span>
+                  Мне есть 18 лет, я принимаю{' '}
+                  <a href="/terms" target="_blank" rel="noopener noreferrer">пользовательское соглашение</a>
+                  <b className="qg-auth-req" aria-hidden="true"> *</b>
+                </span>
+              </label>
+              {fieldErrors.terms && <p id="auth-terms-err" className="qg-auth-err">{fieldErrors.terms}</p>}
+
+              <label className={`qg-auth-check${fieldErrors.privacy ? ' is-invalid' : ''}`}>
+                <input
+                  id="auth-privacy"
+                  type="checkbox"
+                  checked={acceptPrivacy}
+                  onChange={(e) => { setAcceptPrivacy(e.target.checked); if (fieldErrors.privacy) setFieldErrors((f) => ({ ...f, privacy: null })); }}
+                  aria-invalid={fieldErrors.privacy ? 'true' : undefined}
+                  aria-describedby={fieldErrors.privacy ? 'auth-privacy-err' : undefined}
+                />
+                <span>
+                  Даю{' '}
+                  <a href="/consent" target="_blank" rel="noopener noreferrer">согласие на сбор и обработку персональных данных</a>
+                  , в том числе на их передачу за рубеж, и ознакомлен(а) с{' '}
+                  <a href="/privacy" target="_blank" rel="noopener noreferrer">политикой конфиденциальности</a>
+                  <b className="qg-auth-req" aria-hidden="true"> *</b>
+                </span>
+              </label>
+              {fieldErrors.privacy && <p id="auth-privacy-err" className="qg-auth-err">{fieldErrors.privacy}</p>}
+
+              <label className="qg-auth-check">
+                <input
+                  id="auth-marketing"
+                  type="checkbox"
+                  checked={marketingOptIn}
+                  onChange={(e) => setMarketingOptIn(e.target.checked)}
+                />
+                <span>Хочу получать новости и предложения по email, SMS и WhatsApp. Можно отказаться в любой момент.</span>
+              </label>
+              <p className="qg-auth-hint" style={{ margin: 0 }}><b className="qg-auth-req" aria-hidden="true">*</b> — обязательно для регистрации</p>
+            </fieldset>
           )}
 
           <button 
@@ -473,20 +603,20 @@ export default function AuthModal({ mode, onClose, onLogin }) {
             disabled={loading}
             style={{
               marginTop: '0.5rem',
-              background: 'linear-gradient(90deg, #f59e0b, #b9a4ff, #7c3aed)',
+              background: 'linear-gradient(180deg, #f8d27a, #e5a03a)',
               border: 'none',
               borderRadius: '16px',
               padding: '1rem',
-              color: '#fff',
-              fontWeight: 900,
+              color: '#1c1203',
+              fontWeight: 800,
               fontSize: '1rem',
               cursor: 'pointer',
-              boxShadow: '0 10px 25px rgba(185, 164, 255, 0.4)',
+              boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 12px 30px -12px rgba(242, 184, 75, 0.75)',
               transition: 'all 0.3s ease',
               letterSpacing: '0.4px'
             }}
           >
-            {loading ? 'Обработка...' : activeTab === 'login' ? 'Войти в систему ➔' : 'Зарегистрироваться ➔'}
+            {loading ? 'Обработка…' : activeTab === 'login' ? 'Войти в систему →' : 'Зарегистрироваться →'}
           </button>
         </form>
       </div>

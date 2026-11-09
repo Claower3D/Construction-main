@@ -93,6 +93,11 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		PlateNumber       string  `json:"plateNumber"`
 		Capacity          string  `json:"capacity"`
 		EquipmentImage    string  `json:"equipmentImage"`
+		// Согласия из формы регистрации
+		AcceptTerms    bool   `json:"acceptTerms"`
+		AcceptPrivacy  bool   `json:"acceptPrivacy"`
+		MarketingOptIn bool   `json:"marketingOptIn"`
+		ConsentVersion string `json:"consentVersion"`
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.Email == "" {
@@ -126,6 +131,36 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Телефон: храним в едином виде +7XXXXXXXXXX
+	if strings.TrimSpace(req.Phone) != "" {
+		phone, ok := NormalizeKzPhone(req.Phone)
+		if !ok {
+			w.WriteHeader(http.StatusBadRequest)
+			_ = json.NewEncoder(w).Encode(map[string]string{"error": "Неверный номер телефона: нужен формат +7 и 10 цифр"})
+			return
+		}
+		req.Phone = phone
+	}
+
+	// Новая форма регистрации передаёт версию документов — тогда согласия обязательны.
+	// Старые мобильные приложения версию не передают: регистрируем, но без отметки согласия.
+	req.ConsentVersion = strings.TrimSpace(req.ConsentVersion)
+	if len(req.ConsentVersion) > 32 {
+		req.ConsentVersion = req.ConsentVersion[:32]
+	}
+	if req.ConsentVersion != "" {
+		if !req.AcceptTerms || !req.AcceptPrivacy {
+			w.WriteHeader(http.StatusBadRequest)
+			_ = json.NewEncoder(w).Encode(map[string]string{"error": "Чтобы зарегистрироваться, примите пользовательское соглашение и дайте согласие на обработку персональных данных"})
+			return
+		}
+		if req.Phone == "" {
+			w.WriteHeader(http.StatusBadRequest)
+			_ = json.NewEncoder(w).Encode(map[string]string{"error": "Укажите номер телефона"})
+			return
+		}
+	}
+
 	// Only known self-service roles; admin/manager (and anything unknown) become customer
 	role := req.Role
 	switch role {
@@ -144,6 +179,16 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		City:         req.City,
 		Company:      req.Company,
 		CreatedAt:    time.Now(),
+	}
+	if req.ConsentVersion != "" {
+		now := user.CreatedAt
+		user.ConsentVersion = req.ConsentVersion
+		user.TermsAcceptedAt = &now
+		user.PrivacyAcceptedAt = &now
+		if req.MarketingOptIn {
+			user.MarketingOptIn = true
+			user.MarketingOptInAt = &now
+		}
 	}
 
 	if err := database.CreateUser(user); err != nil {
@@ -239,4 +284,24 @@ func (h *AuthHandler) GetMe(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewEncoder(w).Encode(map[string]interface{}{
 		"user": currentUser,
 	})
+}
+
+// NormalizeKzPhone приводит номер к виду +7XXXXXXXXXX. Принимает «8 701…», «+7 (701) …», «7701…».
+func NormalizeKzPhone(raw string) (string, bool) {
+	digits := make([]byte, 0, 16)
+	for i := 0; i < len(raw); i++ {
+		if c := raw[i]; c >= '0' && c <= '9' {
+			digits = append(digits, c)
+		}
+	}
+	if len(digits) == 11 && digits[0] == '8' {
+		digits[0] = '7'
+	}
+	if len(digits) == 10 {
+		digits = append([]byte{'7'}, digits...)
+	}
+	if len(digits) != 11 || digits[0] != '7' {
+		return "", false
+	}
+	return "+" + string(digits), true
 }

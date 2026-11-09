@@ -50,7 +50,7 @@ function getDefaultNotificationsForRole(userRole) {
 }
 
 // ── Список городов Казахстана с координатами для автоопределения ──
-const KZ_CITIES = [
+export const KZ_CITIES = [
   { name: 'Алматы', lat: 43.2380, lng: 76.9457 },
   { name: 'Астана', lat: 51.1694, lng: 71.4491 },
   { name: 'Шымкент', lat: 42.3417, lng: 69.5901 },

@@ -804,6 +804,12 @@ body {
 .lux-footer-grid a:hover { color: var(--lux-gold); }
 .lux-footer-contact strong { color: var(--qg-text); }
 .lux-footer-copy { margin: 18px 0 0; color: var(--qg-text-3); font-size: 0.8125rem; }
+.lux-footer-bottom { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 40px; }
+.lux-footer-legal { display: flex; flex-wrap: wrap; gap: 6px 20px; margin-top: 18px; }
+/* последняя строка подвала не уходит под плавающую кнопку «Наверх» */
+.lux-footer { padding-bottom: 88px !important; }
+.lux-footer-legal a { color: var(--qg-text-3); font-size: 0.8125rem; text-decoration: none; }
+.lux-footer-legal a:hover { color: var(--qg-text); text-decoration: underline; }
 
 /* ════════════ Адаптив ════════════ */
 @media (max-width: 1180px) {

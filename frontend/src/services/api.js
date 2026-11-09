@@ -188,33 +188,43 @@ export async function loginUser(email, password) {
 }
 
 export async function registerUser(userData) {
+  // Демо-режим без сервера включается только когда сервер недоступен (сеть, 502–504).
+  // Ответы сервера с ошибкой (занятый email, неверный телефон, нет согласия) показываем пользователю:
+  // раньше любая ошибка превращалась в «успешную» локальную регистрацию.
+  let res = null;
   try {
-    const res = await fetch(`${BASE_URL}/auth/register`, {
+    res = await fetch(`${BASE_URL}/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(userData),
     });
+  } catch (error) {
+    console.warn('Registration fallback activated (network):', error.message);
+  }
+
+  if (res && ![502, 503, 504].includes(res.status)) {
     const data = await safeJsonParse(res);
     if (!res.ok) throw new Error(data.error || 'Ошибка регистрации');
     if (data.token) {
       localStorage.setItem('auth_token', data.token);
     }
     return data;
-  } catch (error) {
-    console.warn('Registration fallback activated:', error.message);
-    const mockToken = `token-go-${Date.now()}`;
-    localStorage.setItem('auth_token', mockToken);
-    return {
-      message: 'Registered successfully',
-      token: mockToken,
-      user: { 
-        id: `u_${Date.now()}`, 
-        email: userData.email, 
-        role: userData.role || 'customer', 
-        name: userData.fullName || userData.name || userData.email.split('@')[0]
-      }
-    };
   }
+
+  const mockToken = `token-go-${Date.now()}`;
+  localStorage.setItem('auth_token', mockToken);
+  return {
+    message: 'Registered successfully',
+    token: mockToken,
+    user: {
+      id: `u_${Date.now()}`,
+      email: userData.email,
+      role: userData.role || 'customer',
+      name: userData.fullName || userData.name || userData.email.split('@')[0],
+      phone: userData.phone || '',
+      city: userData.city || '',
+    }
+  };
 }
 
 // ==========================================

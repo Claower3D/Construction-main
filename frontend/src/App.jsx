@@ -18,6 +18,7 @@ import VoiceControlWidget from './components/VoiceControlWidget';
 import ScrollToTopButton from './components/ScrollToTopButton';
 import PageLoader from './components/PageLoader';
 import { categoriesData } from './data/categoriesData';
+import { LEGAL_PATHS } from './data/legal';
 
 // Тяжёлые разделы грузятся отдельными чанками только при переходе в них
 // (раньше всё приложение, включая three.js и xlsx, приходило одним JS-файлом ~2,3 МБ).
@@ -32,6 +33,7 @@ const MaterialsMarketplacePage = lazy(() => import('./components/MaterialsMarket
 const EquipmentMarketplace = lazy(() => import('./components/EquipmentMarketplace'));
 const EngineeringCalcPage = lazy(() => import('./components/EngineeringCalcPage'));
 const LiDARScanPage = lazy(() => import('./components/LiDARScanPage'));
+const LegalPage = lazy(() => import('./components/LegalPage'));
 
 const DASHBOARD_VIEWS = ['admin', 'customer', 'executor', 'company', 'engineer', 'crm', 'manager'];
 // Панели с ограничением по роли (UI-guard; реальная защита данных — на сервере)
@@ -87,6 +89,9 @@ export default function App() {
     return () => window.removeEventListener('qazgost_open_auth', onOpenAuth);
   }, []);
 
+  // Переключение между /terms, /privacy, /consent — тот же вид 'legal', нужен повторный рендер
+  const [legalTick, setLegalTick] = useState(0);
+
   // Initialize view from URL path (e.g. /admin, /customer, etc.)
   const [currentView, setCurrentView] = useState(() => {
     const path = window.location.pathname;
@@ -107,6 +112,7 @@ export default function App() {
     if (path.startsWith('/lidar')) return 'lidar';
     if (path.startsWith('/materials')) return 'materials';
     if (path.startsWith('/equipment')) return 'equipment';
+    if (LEGAL_PATHS[path.replace(/\/+$/, '')]) return 'legal';
     return 'landing';
   });
 
@@ -144,6 +150,7 @@ export default function App() {
       else if (path.startsWith('/lidar')) setCurrentView('lidar');
       else if (path.startsWith('/materials')) setCurrentView('materials');
       else if (path.startsWith('/equipment')) setCurrentView('equipment');
+      else if (LEGAL_PATHS[path.replace(/\/+$/, '')]) { setCurrentView('legal'); setLegalTick((t) => t + 1); }
       else setCurrentView('landing');
     };
     window.addEventListener('popstate', handlePopState);
@@ -432,6 +439,17 @@ export default function App() {
                 } else {
                   navigateToLanding();
                 }
+              }}
+            />
+          )}
+
+          {currentView === 'legal' && (
+            <LegalPage
+              key={`legal-${legalTick}`}
+              docKey={LEGAL_PATHS[window.location.pathname.replace(/\/+$/, '')]}
+              onBack={() => {
+                if (window.history.length > 1) window.history.back();
+                else navigateToLanding();
               }}
             />
           )}

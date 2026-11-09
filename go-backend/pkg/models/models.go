@@ -63,6 +63,14 @@ type User struct {
 	Company      string    `json:"company,omitempty"`
 	Token        string    `json:"token,omitempty"`
 	CreatedAt    time.Time `json:"createdAt"`
+
+	// Согласия при регистрации (Закон РК «О персональных данных и их защите», ст. 8):
+	// дата и версия текста — доказательство того, с чем пользователь согласился.
+	ConsentVersion    string     `json:"consentVersion,omitempty"`
+	TermsAcceptedAt   *time.Time `json:"termsAcceptedAt,omitempty"`
+	PrivacyAcceptedAt *time.Time `json:"privacyAcceptedAt,omitempty"`
+	MarketingOptIn    bool       `json:"marketingOptIn"`
+	MarketingOptInAt  *time.Time `json:"marketingOptInAt,omitempty"`
 }
 
 // EstimateItem represents a line item in a cost estimate

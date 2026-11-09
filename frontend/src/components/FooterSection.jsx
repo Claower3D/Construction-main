@@ -44,7 +44,14 @@ export default function FooterSection() {
             <a href="https://wa.me/77716983869" target="_blank" rel="noopener noreferrer">WhatsApp +7 771 698 3869</a>
           </div>
         </div>
-        <p className="lux-footer-copy">© 2026 QazGost AI. Сделано в Казахстане.</p>
+        <div className="lux-footer-bottom">
+          <p className="lux-footer-copy">© 2026 QazGost AI. Сделано в Казахстане.</p>
+          <nav className="lux-footer-legal" aria-label="Документы">
+            <a href="/terms" onClick={go('/terms')}>Пользовательское соглашение</a>
+            <a href="/privacy" onClick={go('/privacy')}>Политика конфиденциальности</a>
+            <a href="/consent" onClick={go('/consent')}>Согласие на обработку данных</a>
+          </nav>
+        </div>
       </div>
     </footer>
   );

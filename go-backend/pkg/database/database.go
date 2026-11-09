@@ -175,6 +175,12 @@ func runMigrations() error {
 		`ALTER TABLE equipment ADD COLUMN IF NOT EXISTS capacity TEXT DEFAULT ''`,
 		`ALTER TABLE equipment ADD COLUMN IF NOT EXISTS rating REAL DEFAULT 0`,
 		`ALTER TABLE equipment ADD COLUMN IF NOT EXISTS reviews_count INTEGER DEFAULT 0`,
+		// согласия при регистрации: версия документов и время согласия
+		`ALTER TABLE users ADD COLUMN IF NOT EXISTS consent_version TEXT DEFAULT ''`,
+		`ALTER TABLE users ADD COLUMN IF NOT EXISTS terms_accepted_at TIMESTAMP NULL`,
+		`ALTER TABLE users ADD COLUMN IF NOT EXISTS privacy_accepted_at TIMESTAMP NULL`,
+		`ALTER TABLE users ADD COLUMN IF NOT EXISTS marketing_opt_in BOOLEAN DEFAULT FALSE`,
+		`ALTER TABLE users ADD COLUMN IF NOT EXISTS marketing_opt_in_at TIMESTAMP NULL`,
 	)
 
 	for _, m := range migrations {
@@ -286,8 +292,9 @@ func GetUserByID(id string) (*models.User, error) {
 
 // CreateUser inserts a new user
 func CreateUser(u *models.User) error {
-	_, err := DB.Exec(`INSERT INTO users (id,email,name,password_hash,role,phone,city,company,created_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
-		u.ID, u.Email, u.Name, u.PasswordHash, u.Role, u.Phone, u.City, u.Company, u.CreatedAt)
+	_, err := DB.Exec(`INSERT INTO users (id,email,name,password_hash,role,phone,city,company,created_at,consent_version,terms_accepted_at,privacy_accepted_at,marketing_opt_in,marketing_opt_in_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)`,
+		u.ID, u.Email, u.Name, u.PasswordHash, u.Role, u.Phone, u.City, u.Company, u.CreatedAt,
+		u.ConsentVersion, u.TermsAcceptedAt, u.PrivacyAcceptedAt, u.MarketingOptIn, u.MarketingOptInAt)
 	return err
 }
 
