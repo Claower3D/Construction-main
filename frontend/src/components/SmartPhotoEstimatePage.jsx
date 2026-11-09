@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { createPlatformOrder } from '../services/orderSyncService';
 import { jsonAuthHeaders } from '../services/platformUtils';
-import { COMPLEX_TEMPLATES } from '../data/estimateTemplates';
 import ContourMeasure from './smeta/ContourMeasure';
 import SmetaParams, { buildParams } from './smeta/SmetaParams';
 import SmetaResultView from './smeta/SmetaResultView';
@@ -72,7 +71,7 @@ const plural = (n, one, few, many) => {
 
 export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeGroup, setActiveGroup] = useState('Все');
+  const [activeGroup, setActiveGroup] = useState('Комплекс');
   const [selectedCategory, setSelectedCategory] = useState('apartment_renovation');
   const [isCategorySkipped, setIsCategorySkipped] = useState(false);
   const [city, setCity] = useState(() => {
@@ -115,6 +114,19 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
   const [createdOrderInfo, setCreatedOrderInfo] = useState(null);
   const [toastMessage, setToastMessage] = useState(null);
   const resultRef = useRef(null);
+  const slipRef = useRef(null);
+  const ctaRef = useRef(null);
+  const measureRef = useRef(null);
+  const [ctaVisible, setCtaVisible] = useState(true);
+
+  // Нижняя панель на телефоне прячется, когда основная кнопка расчёта уже на экране
+  useEffect(() => {
+    const el = ctaRef.current;
+    if (!el || typeof IntersectionObserver === 'undefined') return undefined;
+    const io = new IntersectionObserver(([e]) => setCtaVisible(e.isIntersecting), { threshold: 0.4 });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
 
   // User Custom ChatGPT / OpenAI Account State
   const [showGptModal, setShowGptModal] = useState(false);
@@ -188,15 +200,21 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
       return { ...c, count: n ? `${n} ${plural(n, 'этап', 'этапа', 'этапов')}` : '' };
     }),
     ...complexes.map((cx) => ({
-      id: cx.id, group: 'Комплекс', icon: COMPLEX_TEMPLATES[cx.id]?.icon || '🏗️', title: cx.title,
+      id: cx.id, group: 'Комплекс', title: cx.title, parts: cx.parts,
       count: `${cx.parts.length} ${plural(cx.parts.length, 'раздел', 'раздела', 'разделов')}`, isComplex: true,
     })),
   ], [techmaps, complexes]);
 
-  const filteredCategories = categories.filter(cat =>
-    (activeGroup === 'Все' || cat.group === activeGroup) &&
-    cat.title.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Поиск идёт по всем видам работ, вкладка — только когда строка поиска пуста
+  const query = searchQuery.trim().toLowerCase();
+  const filteredCategories = categories.filter((cat) => (query
+    ? cat.title.toLowerCase().includes(query)
+    : (activeGroup === 'Все' || cat.group === activeGroup)));
+  const groupCounts = useMemo(() => {
+    const c = { 'Все': categories.length };
+    categories.forEach((cat) => { c[cat.group] = (c[cat.group] || 0) + 1; });
+    return c;
+  }, [categories]);
 
   // Что считаем: выбранная категория или определённая по описанию
   const detected = isCategorySkipped ? detectCategory(description) : null;
@@ -500,6 +518,25 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
     </div>
   ) : null;
 
+  const num = (v) => Number(v || 0).toLocaleString('ru-RU', { maximumFractionDigits: 2 });
+  const wallArea = Math.max(0, geo.perimeter * geo.height - geo.doors * 0.9 * 2.1 - geo.windows * 1.5 * 1.5);
+  const hasGeo = geo.area > 0 && geo.perimeter > 0;
+  const modeInfo = MODES.find((m) => m.id === smetaMode) || MODES[1];
+  const missing = [
+    !catalog && 'справочник загружается',
+    !selection && (isCategorySkipped ? 'опишите задачу в шаге 4' : 'выберите вид работ'),
+    !hasGeo && 'обмерьте помещение',
+  ].filter(Boolean);
+  const scrollTo = (ref) => ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const calcFromBar = () => {
+    handleCalculate();
+    setTimeout(() => slipRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' }), 60);
+  };
+  const tileImage = (cat) => {
+    if (!cat.isComplex) return [`/assets/categories/cat_${cat.id}.jpg`];
+    return (cat.parts || []).slice(0, 4).map((part) => `/assets/categories/cat_${part}.jpg`);
+  };
+
   return (
     <div className="spe-container">
       {toastMessage && <div className="spe-toast" role="status">{toastMessage}</div>}
@@ -507,233 +544,313 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
       {!hideHeader && (
         <div className="spe-header-bar">
           <button className="spe-back-btn" onClick={onBack} title="Назад" aria-label="Назад">←</button>
-          <div className="spe-title-flex">
-            <span className="spe-header-icon">📐</span>
-            <h2>Оценка стоимости</h2>
-          </div>
+          <h2 className="spe-header-title">Оценка стоимости</h2>
         </div>
       )}
 
-      <div className="spe-hero-card">
-        <div className="spe-hero-icon">📐</div>
-        <h3>Оценка стоимости работ</h3>
-        <p>Выберите вид работ и обмерьте помещение — смета посчитается по технологической карте: объём каждой позиции из ваших размеров, цена из прайсов и объявлений с источником.</p>
-        <div className="spe-hero-badge">
-          <span className="spe-pulse"></span>
-          <span>{catalog ? `Цены на ${catalog.priceDate}` : (catalogError ? 'Справочник недоступен' : 'Загрузка справочника…')}</span>
+      <div className="spe-intro">
+        <p className="spe-intro-lead">
+          Смета по технологической карте: объём каждой позиции — из ваших размеров, цена — из прайсов и объявлений с источником в каждой строке.
+        </p>
+        <div className="spe-intro-meta">
+          <span className={`spe-chip ${catalog ? 'is-live' : ''}`}>
+            <i aria-hidden="true" />
+            {catalog ? `Цены на ${catalog.priceDate}` : (catalogError ? 'Справочник недоступен' : 'Загрузка справочника…')}
+          </span>
+          {catalog && <span className="spe-chip">{catalog.techmaps.length} видов работ и {complexes.length} комплексов</span>}
+          {catalog && <span className="spe-chip">{regions.length} {plural(regions.length, 'город', 'города', 'городов')}</span>}
         </div>
       </div>
 
-      {/* ШАГ 1: ВИД РАБОТ */}
-      {!isCategorySkipped ? (
-        <>
-          <div className="spe-step-title-row">
-            <div className="spe-step-badge">
-              <span className="spe-num">1</span>
-              <h3>Что делаем</h3>
+      <div className="spe-layout">
+        <div className="spe-flow">
+          {/* ШАГ 1: ВИД РАБОТ */}
+          <section className="spe-step" aria-labelledby="spe-step-1">
+            <div className="spe-step-head">
+              <span className="spe-num" aria-hidden="true">1</span>
+              <h3 id="spe-step-1">Что делаем</h3>
+              {!isCategorySkipped && (
+                <label className="spe-search">
+                  <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5" /><path d="m13 13 4 4" /></svg>
+                  <input
+                    type="search"
+                    placeholder="Поиск вида работ"
+                    value={searchQuery}
+                    onChange={e => setSearchQuery(e.target.value)}
+                    className="spe-search-field"
+                    aria-label="Поиск вида работ"
+                  />
+                </label>
+              )}
             </div>
-            <input
-              type="text"
-              placeholder="🔎 Поиск вида работ…"
-              value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-              className="spe-search-field"
-              aria-label="Поиск вида работ"
-            />
-          </div>
 
-          <div className="spe-filter-tabs">
-            {['Все', 'Комплекс', 'Общестрой', 'Инженерия', 'Отделка', 'Прочее'].map(group => (
-              <button key={group} type="button" className={`spe-filter-tab ${activeGroup === group ? 'active' : ''}`} onClick={() => setActiveGroup(group)}>
-                {group}
-              </button>
-            ))}
-          </div>
-
-          <div className="spe-categories-grid">
-            {filteredCategories.map(cat => {
-              const isSelected = selectedCategory === cat.id;
-              return (
-                <div
-                  key={cat.id}
-                  role="button"
-                  tabIndex={0}
-                  className={`spe-cat-box ${isSelected ? 'selected' : ''}`}
-                  onClick={() => setSelectedCategory(cat.id)}
-                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedCategory(cat.id); } }}
-                  aria-pressed={isSelected}
-                  data-testid={`cat-${cat.id}`}
-                >
-                  <div className="spe-cat-bg" style={cat.isComplex ? undefined : { backgroundImage: `url(/assets/categories/cat_${cat.id}.jpg)` }}></div>
-                  <div className="spe-cat-content">
-                    <div className="spe-cat-icon">{cat.icon}</div>
-                    <div className="spe-cat-name">{cat.title}</div>
-                    <div className="spe-cat-count">{cat.count}</div>
+            {!isCategorySkipped ? (
+              <>
+                {!query && (
+                  <div className="spe-tabs" role="group" aria-label="Группы работ">
+                    {['Комплекс', 'Общестрой', 'Отделка', 'Инженерия', 'Прочее', 'Все'].map(group => (
+                      <button key={group} type="button" aria-pressed={activeGroup === group}
+                        className={`spe-tab ${activeGroup === group ? 'is-on' : ''}`} onClick={() => setActiveGroup(group)}>
+                        {group === 'Комплекс' ? 'Комплексы' : group}
+                        <small>{groupCounts[group] || 0}</small>
+                      </button>
+                    ))}
                   </div>
+                )}
+
+                <div className="spe-tiles">
+                  {filteredCategories.map(cat => {
+                    const isSelected = selectedCategory === cat.id;
+                    const imgs = tileImage(cat);
+                    return (
+                      <button
+                        key={cat.id}
+                        type="button"
+                        className={`spe-tile ${isSelected ? 'is-on' : ''} ${cat.isComplex ? 'is-complex' : ''}`}
+                        onClick={() => setSelectedCategory(cat.id)}
+                        aria-pressed={isSelected}
+                        data-testid={`cat-${cat.id}`}
+                      >
+                        <span className={`spe-tile-img n${imgs.length}`} aria-hidden="true">
+                          {imgs.map((src) => <span key={src} style={{ backgroundImage: `url(${src})` }} />)}
+                        </span>
+                        <span className="spe-tile-text">
+                          <span className="spe-tile-name">{cat.title}</span>
+                          {cat.count && <span className="spe-tile-meta">{cat.count}</span>}
+                        </span>
+                        <span className="spe-tile-check" aria-hidden="true">
+                          <svg viewBox="0 0 16 16"><path d="m3.5 8.5 3 3 6-7" /></svg>
+                        </span>
+                      </button>
+                    );
+                  })}
+                  {filteredCategories.length === 0 && (
+                    <p className="spe-tiles-empty">
+                      По запросу «{searchQuery}» ничего нет. Попробуйте другое слово или опишите задачу — вид работ определится по описанию.
+                    </p>
+                  )}
                 </div>
-              );
-            })}
-          </div>
 
-          <div className="spe-skip-row">
-            <button type="button" className="spe-btn-skip" onClick={() => setIsCategorySkipped(true)}>
-              Не знаю, что выбрать — определить по описанию
-            </button>
-          </div>
-        </>
-      ) : (
-        <div className="spe-category-skipped-banner">
-          <div className="spe-skipped-left">
-            <span className="spe-check-green">{detected ? '✅' : '✍️'}</span>
-            <strong>
-              {detected
-                ? `По описанию: ${selectionTitle} (слово «${detected.word}»)`
-                : 'Опишите задачу в шаге 4 — вид работ определится по словам'}
-            </strong>
-          </div>
-          <button type="button" className="spe-btn-manual-select" onClick={() => setIsCategorySkipped(false)}>
-            Выбрать вручную
-          </button>
-        </div>
-      )}
+                <button type="button" className="spe-btn-skip" onClick={() => setIsCategorySkipped(true)}>
+                  Не знаю, что выбрать — определить по описанию
+                </button>
+              </>
+            ) : (
+              <div className="spe-category-skipped-banner">
+                <strong>
+                  {detected
+                    ? `По описанию: ${selectionTitle} (слово «${detected.word}»)`
+                    : 'Опишите задачу в шаге 4 — вид работ определится по словам'}
+                </strong>
+                <button type="button" className="spe-btn-manual-select" onClick={() => setIsCategorySkipped(false)}>
+                  Выбрать вручную
+                </button>
+              </div>
+            )}
+          </section>
 
-      {/* ШАГ 2: ОБМЕР */}
-      <div className="spe-step-title-row mt-4">
-        <div className="spe-step-badge">
-          <span className="spe-num">2</span>
-          <h3>Обмер</h3>
-        </div>
-        {selection && techmaps[selection.id] && (
-          <span className="spe-step-optional">контур: {techmaps[selection.id].baseLabel.toLowerCase()}</span>
-        )}
-      </div>
-      <ContourMeasure photos={photos} geo={geo} setGeo={setGeo} showToast={showToast} />
-
-      {/* ШАГ 3: ПАРАМЕТРЫ */}
-      {selection && catalog && (
-        <>
-          <div className="spe-step-title-row mt-4">
-            <div className="spe-step-badge">
-              <span className="spe-num">3</span>
-              <h3>Как делаем</h3>
+          {/* ШАГ 2: ОБМЕР */}
+          <section className="spe-step" aria-labelledby="spe-step-2" ref={measureRef}>
+            <div className="spe-step-head">
+              <span className="spe-num" aria-hidden="true">2</span>
+              <h3 id="spe-step-2">Обмер</h3>
+              {selection && techmaps[selection.id] && (
+                <span className="spe-step-optional">контур: {techmaps[selection.id].baseLabel.toLowerCase()}</span>
+              )}
             </div>
-          </div>
-          <SmetaParams techmaps={techmaps} selection={selection} complexes={complexes} values={paramValues} setValues={setParamValues} />
-        </>
-      )}
+            <ContourMeasure photos={photos} geo={geo} setGeo={setGeo} showToast={showToast} />
+          </section>
 
-      {/* ШАГ 4: ФОТО И ОПИСАНИЕ */}
-      <div className="spe-step-title-row mt-4">
-        <div className="spe-step-badge">
-          <span className="spe-num">4</span>
-          <h3>Фото и описание</h3>
-        </div>
-        <span className="spe-step-optional">необязательно · фото {photos.length}/10</span>
-      </div>
-
-      <label
-        htmlFor="spe-file-picker"
-        className={`spe-dropzone ${isDraggingOver ? 'drag-active' : ''}`}
-        onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
-        onDragEnter={(e) => { e.preventDefault(); e.stopPropagation(); setIsDraggingOver(true); }}
-        onDragLeave={(e) => { e.preventDefault(); e.stopPropagation(); setIsDraggingOver(false); }}
-        onDrop={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          setIsDraggingOver(false);
-          const dt = e.dataTransfer;
-          if (dt?.files?.length > 0) handleFileUpload({ target: { files: dt.files } });
-        }}
-      >
-        <input type="file" id="spe-file-picker" multiple accept="image/*" className="qg-visually-hidden" aria-label="Выбрать фото объекта" onChange={handleFileUpload} />
-        <div className="spe-drop-icon">{isDraggingOver ? '📥' : '📸'}</div>
-        <p className="spe-drop-main">{isDraggingOver ? 'Отпустите файлы' : 'Фото объекта или плана'}</p>
-        <p className="spe-drop-sub">План можно обвести в шаге 2 («Контур на плане»); в режимах «Детальный» и «Полный» фото разберёт ИИ</p>
-      </label>
-
-      {photos.length > 0 && (
-        <div className="spe-thumbs-wrap">
-          {photos.map(p => (
-            <div key={p.id} className="spe-thumb-box">
-              <img src={p.url} alt={p.name} />
-              <button type="button" className="spe-thumb-remove" aria-label={`Удалить ${p.name}`} onClick={(e) => { e.stopPropagation(); removePhoto(p.id); }}>✕</button>
-            </div>
-          ))}
-        </div>
-      )}
-
-      <label htmlFor="spe-description" className="qg-visually-hidden">Описание задачи</label>
-      <textarea
-        id="spe-description"
-        rows="3"
-        className="spe-description-textarea"
-        placeholder={'Например: ванная 2×2 м, снять старую плитку, положить керамогранит, поставить душевую кабину'}
-        value={description}
-        onChange={e => setDescription(e.target.value)}
-      ></textarea>
-
-      <div className="spe-region-row">
-        <label className="spe-region-label" htmlFor="spe-region">Город</label>
-        <select
-          id="spe-region"
-          className="spe-region-select"
-          value={city}
-          onChange={e => {
-            setCity(e.target.value);
-            try { localStorage.setItem('qazgost_estimate_city', e.target.value); } catch { /* приватный режим */ }
-          }}
-        >
-          {regions.map(([name, k]) => (
-            <option key={name} value={name}>{name} {k !== 1 ? `(×${Number(k).toFixed(2)})` : '(базовые цены)'}</option>
-          ))}
-        </select>
-        <span className="spe-region-coeff">цены Алматы × {Number((catalog?.regions || {})[city] || 1).toFixed(2)}</span>
-      </div>
-
-      {/* РЕЖИМ АНАЛИЗА */}
-      <div className="spe-engine-header">
-        <span className="spe-engine-icon">🧮</span>
-        <h3>Режим анализа</h3>
-      </div>
-      <div className="sm-modes" role="radiogroup" aria-label="Режим анализа">
-        {MODES.map((m) => (
-          <button key={m.id} type="button" role="radio" aria-checked={smetaMode === m.id}
-            className={`sm-mode ${smetaMode === m.id ? 'is-on' : ''}`} data-testid={`mode-${m.id}`}
-            onClick={() => { setSmetaMode(m.id); try { localStorage.setItem('qazgost_smeta_mode', m.id); } catch { /* приватный режим */ } }}>
-            <strong>{m.title}</strong>
-            <ul>{m.points.map((p) => <li key={p}>{p}</li>)}</ul>
-          </button>
-        ))}
-      </div>
-      <div className="sm-key-row">
-        <span>
-          {userGptKey || userGptAccount
-            ? 'Ключ OpenAI подключён — в детальном и полном режиме фото разберёт ИИ.'
-            : 'ИИ-разбор фото работает с ключом OpenAI на сервере или вашим собственным.'}
-        </span>
-        <button type="button" onClick={() => setShowGptModal(true)}>Ключ OpenAI</button>
-      </div>
-
-      <div className="spe-cta-wrap">
-        <button className="spe-btn-cta-glow" onClick={handleCalculate} disabled={isScanning} data-testid="smeta-calc">
-          {isScanning ? (
-            <span className="spe-cta-scanning"><span className="spe-spinner">⚙️</span>{scanStep}</span>
-          ) : (
-            <span>Рассчитать смету{selectionTitle ? ` · ${selectionTitle}` : ''}{geo.area > 0 ? ` · ${geo.area.toLocaleString('ru-RU')} м²` : ''}</span>
+          {/* ШАГ 3: ПАРАМЕТРЫ */}
+          {selection && catalog && (
+            <section className="spe-step" aria-labelledby="spe-step-3">
+              <div className="spe-step-head">
+                <span className="spe-num" aria-hidden="true">3</span>
+                <h3 id="spe-step-3">Как делаем</h3>
+              </div>
+              <SmetaParams techmaps={techmaps} selection={selection} complexes={complexes} values={paramValues} setValues={setParamValues} />
+            </section>
           )}
-        </button>
-        <p className="spe-cta-note">Расчёт идёт на сервере QazGost по технологическим картам; ничего не выдумывается и не подставляется «примерно».</p>
-      </div>
 
-      {calcError && (
-        <div className="sm-error" role="alert" data-testid="smeta-error">
-          <span>{calcError}</span>
-          {!isScanning && selection && geo.area > 0 && <button type="button" className="sm-btn" onClick={handleCalculate}>Повторить</button>}
+          {/* ШАГ 4: ФОТО И ОПИСАНИЕ */}
+          <section className="spe-step" aria-labelledby="spe-step-4">
+            <div className="spe-step-head">
+              <span className="spe-num" aria-hidden="true">{selection && catalog ? 4 : 3}</span>
+              <h3 id="spe-step-4">Фото и описание</h3>
+              <span className="spe-step-optional">необязательно</span>
+            </div>
+            <div className="spe-media">
+              <label
+                htmlFor="spe-file-picker"
+                className={`spe-dropzone ${isDraggingOver ? 'drag-active' : ''}`}
+                onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                onDragEnter={(e) => { e.preventDefault(); e.stopPropagation(); setIsDraggingOver(true); }}
+                onDragLeave={(e) => { e.preventDefault(); e.stopPropagation(); setIsDraggingOver(false); }}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setIsDraggingOver(false);
+                  const dt = e.dataTransfer;
+                  if (dt?.files?.length > 0) handleFileUpload({ target: { files: dt.files } });
+                }}
+              >
+                <input type="file" id="spe-file-picker" multiple accept="image/*" className="qg-visually-hidden" aria-label="Выбрать фото объекта" onChange={handleFileUpload} />
+                <svg className="spe-drop-icon" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M4 8h3l1.5-2h7L17 8h3v11H4z" /><circle cx="12" cy="13" r="3.5" />
+                </svg>
+                <span className="spe-drop-main">{isDraggingOver ? 'Отпустите файлы' : 'Добавить фото объекта или плана'}</span>
+                <span className="spe-drop-sub">до 10 фото · план можно обвести в шаге 2, в режимах «Детальный» и «Полный» фото разберёт ИИ</span>
+              </label>
+              <div className="spe-desc">
+                <label htmlFor="spe-description" className="spe-desc-label">Описание задачи</label>
+                <textarea
+                  id="spe-description"
+                  rows="4"
+                  className="spe-description-textarea"
+                  placeholder={'Например: ванная 2×2 м, снять старую плитку, положить керамогранит, поставить душевую кабину'}
+                  value={description}
+                  onChange={e => setDescription(e.target.value)}
+                ></textarea>
+              </div>
+            </div>
+
+            {photos.length > 0 && (
+              <div className="spe-thumbs-wrap">
+                {photos.map(p => (
+                  <div key={p.id} className="spe-thumb-box">
+                    <img src={p.url} alt={p.name} />
+                    <button type="button" className="spe-thumb-remove" aria-label={`Удалить ${p.name}`} onClick={(e) => { e.stopPropagation(); removePhoto(p.id); }}>✕</button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
         </div>
-      )}
+
+        {/* СМЕТА: сводка, город, режим и расчёт — закреплена справа на компьютере */}
+        <aside className="spe-slip" aria-labelledby="spe-slip-title" ref={slipRef}>
+          <div className="spe-slip-card">
+            <div className="spe-slip-head">
+              <h3 id="spe-slip-title">Смета</h3>
+              {catalog && <span>на {catalog.priceDate}</span>}
+            </div>
+
+            <dl className="spe-slip-rows">
+              <div>
+                <dt>Вид работ</dt>
+                <dd>{selectionTitle || <span className="spe-slip-miss">{isCategorySkipped ? 'по описанию' : 'не выбран'}</span>}</dd>
+              </div>
+              <div>
+                <dt>Площадь</dt>
+                <dd>
+                  {hasGeo ? `${num(geo.area)} м²` : (
+                    <button type="button" className="spe-slip-link" onClick={() => scrollTo(measureRef)}>обмерить</button>
+                  )}
+                </dd>
+              </div>
+              {hasGeo && (
+                <div>
+                  <dt>Периметр · стены</dt>
+                  <dd>{num(geo.perimeter)} м · {num(wallArea)} м²</dd>
+                </div>
+              )}
+              <div>
+                <dt>Фото</dt>
+                <dd>{photos.length ? `${photos.length} из 10` : 'нет'}</dd>
+              </div>
+            </dl>
+
+            <div className="spe-slip-field">
+              <label htmlFor="spe-region">Город</label>
+              <select
+                id="spe-region"
+                className="spe-region-select"
+                value={city}
+                onChange={e => {
+                  setCity(e.target.value);
+                  try { localStorage.setItem('qazgost_estimate_city', e.target.value); } catch { /* приватный режим */ }
+                }}
+              >
+                {regions.map(([name, k]) => (
+                  <option key={name} value={name}>{name} {k !== 1 ? `(×${Number(k).toFixed(2)})` : '(базовые цены)'}</option>
+                ))}
+              </select>
+              <small>цены Алматы × {Number((catalog?.regions || {})[city] || 1).toFixed(2)}</small>
+            </div>
+
+            <div className="spe-slip-field">
+              <span className="spe-slip-label" id="spe-mode-label">Режим анализа</span>
+              <div className="spe-modes" role="radiogroup" aria-labelledby="spe-mode-label">
+                {MODES.map((m) => (
+                  <button key={m.id} type="button" role="radio" aria-checked={smetaMode === m.id}
+                    className={`spe-mode ${smetaMode === m.id ? 'is-on' : ''}`} data-testid={`mode-${m.id}`}
+                    onClick={() => { setSmetaMode(m.id); try { localStorage.setItem('qazgost_smeta_mode', m.id); } catch { /* приватный режим */ } }}>
+                    {m.title}
+                  </button>
+                ))}
+              </div>
+              <ul className="spe-mode-points">{modeInfo.points.map((p) => <li key={p}>{p}</li>)}</ul>
+              {smetaMode !== 'fast' && (
+                <div className="spe-slip-ai">
+                  <span>
+                    {userGptKey || userGptAccount
+                      ? 'Ключ OpenAI подключён — фото разберёт ИИ.'
+                      : 'ИИ-разбор фото — по ключу OpenAI сервера или вашему.'}
+                  </span>
+                  <button type="button" onClick={() => setShowGptModal(true)}>Ключ OpenAI</button>
+                </div>
+              )}
+            </div>
+
+            {result && currentScenario && (
+              <div className="spe-slip-total">
+                <span>Итого · {currentScenario.name}</span>
+                <b className="qg-price-tag">{fmt(currentScenario.subtotal)} ₸</b>
+                <button type="button" className="spe-slip-link" onClick={() => scrollTo(resultRef)}>Открыть смету</button>
+              </div>
+            )}
+
+            {missing.length > 0 && !calcError && (
+              <p className="spe-slip-todo">Осталось: {missing.join(', ')}.</p>
+            )}
+
+            <button ref={ctaRef} className="spe-cta" onClick={handleCalculate} disabled={isScanning} data-testid="smeta-calc">
+              {isScanning ? (
+                <span className="spe-cta-scanning"><span className="spe-spinner" aria-hidden="true" />{scanStep}</span>
+              ) : (
+                <span>{result ? 'Пересчитать смету' : 'Рассчитать смету'}</span>
+              )}
+            </button>
+
+            {calcError && (
+              <div className="sm-error" role="alert" data-testid="smeta-error">
+                <span>{calcError}</span>
+                {!isScanning && selection && geo.area > 0 && <button type="button" className="sm-btn" onClick={handleCalculate}>Повторить</button>}
+              </div>
+            )}
+
+            <p className="spe-cta-note">Расчёт идёт на сервере QazGost по технологическим картам; ничего не выдумывается и не подставляется «примерно».</p>
+          </div>
+
+          {estimateHistory.length > 0 && (
+            <details className="spe-history">
+              <summary>Недавние расчёты <small>{estimateHistory.length}</small></summary>
+              <ul>
+                {estimateHistory.map((h, i) => (
+                  <li key={h.id || i}>
+                    <span className="spe-history-name">{h.category}</span>
+                    <span className="spe-history-meta">{h.date} · {h.region}{h.area > 0 ? ` · ${h.area} м²` : ''}</span>
+                    <b className="spe-history-total">{(h.total || 0).toLocaleString('ru-RU')} ₸</b>
+                  </li>
+                ))}
+              </ul>
+            </details>
+          )}
+        </aside>
+      </div>
 
       {result && (
-        <div ref={resultRef}>
+        <div ref={resultRef} className="spe-result-wrap">
           <SmetaResultView
             result={result}
             scenarioId={scenarioId}
@@ -744,6 +861,21 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
           />
         </div>
       )}
+
+      {/* Телефон и планшет: итог и кнопка расчёта всегда под рукой */}
+      <div className={`spe-bar ${ctaVisible ? 'is-hidden' : ''}`} aria-hidden={ctaVisible}>
+        <div className="spe-bar-info">
+          <strong>{selectionTitle || 'Вид работ не выбран'}</strong>
+          <span>
+            {result && currentScenario
+              ? `${fmt(currentScenario.subtotal)} ₸ · ${currentScenario.name}`
+              : (hasGeo ? `${num(geo.area)} м² · ${city}` : 'нет размеров')}
+          </span>
+        </div>
+        <button type="button" className="spe-cta spe-cta-sm" onClick={calcFromBar} disabled={isScanning} tabIndex={ctaVisible ? -1 : 0}>
+          {isScanning ? 'Считаем…' : (result ? 'Пересчитать' : 'Рассчитать')}
+        </button>
+      </div>
 
       {/* ChatGPT / OpenAI Account Connection Modal */}
       {showGptModal && (
@@ -915,24 +1047,6 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
         </div>
       )}
 
-      {estimateHistory.length > 0 && (
-        <div className="spe-history-section">
-          <div className="spe-history-title">История расчётов (последние {estimateHistory.length})</div>
-          {estimateHistory.map((h, i) => (
-            <div key={h.id || i} className="spe-history-item">
-              <div>
-                <div className="spe-history-category">{h.category}</div>
-                <div className="spe-history-meta">
-                  {h.date} • {h.region}
-                  {h.area > 0 && ` • ${h.area} м²`}
-                  {h.itemCount > 0 && ` • ${h.itemCount} поз.`}
-                </div>
-              </div>
-              <div className="spe-history-total">{(h.total || 0).toLocaleString('ru-RU')} ₸</div>
-            </div>
-          ))}
-        </div>
-      )}
     </div>
   );
 }

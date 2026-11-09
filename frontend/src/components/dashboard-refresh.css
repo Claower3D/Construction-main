@@ -14,6 +14,12 @@
 }
 .qg-dash-workspace.is-tool { padding: 0; }
 
+/* Прокручивается только рабочая область. На ≥1024px index.css делал прокручиваемым и main:
+   элементы с position:absolute внутри инструментов (например, скрытые поля ввода) считались
+   от main и растягивали его, а после конца страницы колесо «докручивало» main в пустоту. */
+.admin-redesign-main.full-width-workspace { overflow: hidden !important; }
+.qg-dash-workspace { position: relative; overscroll-behavior: contain; }
+
 /* ── Шапка ── */
 .admin-redesign-main .qg-dash-topbar {
   position: sticky;
