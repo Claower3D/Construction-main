@@ -241,10 +241,16 @@
 .uo-filter-tabs {
   display: flex;
   gap: 0.4rem;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
   background: rgba(15, 16, 28, 0.6);
   padding: 4px;
-  border-radius: 10px;
+  border-radius: 999px;
 }
+.uo-filter-tabs::-webkit-scrollbar { display: none; }
+.uo-filter-tabs .uo-tab { flex: none; white-space: nowrap; }
 
 .uo-tab {
   background: none;

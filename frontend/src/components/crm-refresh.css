@@ -49,7 +49,7 @@
   font: 600 0.8125rem/1.2 var(--qg-font);
   cursor: pointer;
 }
-.crm-view-switch button.is-active { background: var(--qg-blue); color: #fff; }
+.crm-view-switch button.is-active { background: linear-gradient(180deg, #f8d27a, #e5a03a); color: #1c1203; font-weight: 800; }
 
 .crm-root .crm-main-layout { max-width: 1440px; padding-inline: var(--qg-gutter); margin-block: 20px; }
 .crm-root :is(.crm-sidebar-panel, .crm-calendar-container) {

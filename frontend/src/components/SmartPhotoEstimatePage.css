@@ -102,8 +102,8 @@
 }
 .spe-tab small { color: var(--qg-text-3); font-size: 0.75rem; font-weight: 700; font-variant-numeric: tabular-nums; }
 .spe-tab:hover { border-color: var(--qg-text-3); color: var(--qg-text); }
-.spe-tab.is-on { background: var(--qg-cyan-soft); border-color: var(--qg-cyan); color: var(--qg-text); }
-.spe-tab.is-on small { color: var(--qg-cyan); }
+.spe-tab.is-on { background: linear-gradient(180deg, #f8d27a, #e5a03a); border-color: transparent; color: #1c1203; font-weight: 800; }
+.spe-tab.is-on small { color: rgba(28, 18, 3, 0.7); }
 .spe-tab:focus-visible { outline: none; box-shadow: var(--qg-focus-ring); }
 
 /* плитки видов работ */
@@ -230,7 +230,7 @@
   color: var(--qg-text-2); font: 600 0.8125rem var(--qg-font);
 }
 .spe-mode:hover { color: var(--qg-text); }
-.spe-mode.is-on { background: var(--qg-blue); color: #fff; }
+.spe-mode.is-on { background: linear-gradient(180deg, #f8d27a, #e5a03a); color: #1c1203; font-weight: 800; }
 .spe-mode:focus-visible { outline: none; box-shadow: var(--qg-focus-ring); }
 .spe-mode-points { display: grid; gap: 2px; margin: 4px 0 0; padding-left: 16px; color: var(--qg-text-2); font-size: 0.78rem; line-height: 1.45; }
 .spe-slip-ai { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 4px; font-size: 0.75rem; color: var(--qg-text-3); line-height: 1.4; }

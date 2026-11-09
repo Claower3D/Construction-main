@@ -1,0 +1,393 @@
+/* ════════════════════════════════════════════════════════════════════
+   QazGost — внутренние страницы в стилистике главной (2026-11).
+
+   Главная задаёт язык: ночной город за стеклом, стеклянные панели
+   с градиентной кромкой, системные цвета инженерных сетей как метки
+   карточек, золото — только главное действие и деньги.
+   Этот слой переносит тот же язык на кабинет, инструменты и отдельные
+   страницы (заказы, кошелёк, анкета, калькуляторы, CRM, админка).
+
+   Область действия: .qg-dash-workspace (кабинет) и .qg-app-page
+   (страницы вне кабинета). Главная (.qg-scene) не затрагивается.
+   Маркетплейсы (.mk-page) уже оформлены в marketplace-lux.css —
+   здесь им меняется только фон.
+   ════════════════════════════════════════════════════════════════════ */
+
+:root {
+  --app-glass: linear-gradient(160deg, rgba(52, 37, 104, 0.74), rgba(21, 15, 47, 0.84));
+  --app-glass-strong: linear-gradient(160deg, rgba(44, 32, 90, 0.95), rgba(18, 13, 40, 0.97));
+  --app-edge: linear-gradient(150deg, rgba(220, 200, 255, 0.5), rgba(150, 100, 255, 0.12) 38%, rgba(150, 100, 255, 0.08) 62%, rgba(255, 200, 120, 0.7) 88%, rgba(244, 114, 208, 0.75));
+  --app-edge-gold: linear-gradient(150deg, rgba(255, 220, 150, 0.85), rgba(242, 184, 75, 0.25) 35%, rgba(150, 100, 255, 0.15) 60%, rgba(255, 200, 120, 0.9) 85%, rgba(244, 114, 208, 0.9));
+  --app-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 30px 60px -32px rgba(0, 0, 0, 0.9), 0 0 56px -26px rgba(160, 80, 255, 0.55);
+  --app-field: rgba(10, 8, 28, 0.62);
+  --app-field-line: rgba(189, 178, 230, 0.22);
+  --app-sub: rgba(255, 255, 255, 0.035);
+  --app-gold: linear-gradient(180deg, #f8d27a, #e5a03a);
+  --app-gold-hover: linear-gradient(180deg, #fbdc94, #efae46);
+  --app-bar: linear-gradient(90deg, var(--t-amber) 0 25%, var(--t-cyan) 25% 50%, var(--t-rose) 50% 75%, var(--t-mint) 75%);
+}
+
+/* ═════════════ 1. Фон: тот же ночной город, что на главной ═════════════
+   Общая подложка .qg-backdrop стоит под всеми страницами и кабинетом.
+   Затемнение сильнее, чем на главной: в кабинете плотные таблицы и формы. */
+.qg-backdrop {
+  background:
+    linear-gradient(180deg, rgba(7, 6, 22, 0.8) 0%, rgba(7, 6, 22, 0.62) 42%, rgba(7, 6, 22, 0.56) 72%, rgba(7, 6, 22, 0.74) 100%),
+    url('/assets/landing/site-bg.webp') 50% 100% / cover no-repeat,
+    #0a0820 !important;
+}
+@media (max-aspect-ratio: 4 / 5) {
+  .qg-backdrop {
+    background:
+      linear-gradient(180deg, rgba(7, 6, 22, 0.82) 0%, rgba(7, 6, 22, 0.6) 45%, rgba(7, 6, 22, 0.55) 72%, rgba(7, 6, 22, 0.78) 100%),
+      url('/assets/landing/site-bg-m.webp') 50% 100% / cover no-repeat,
+      #0a0820 !important;
+  }
+}
+/* на главной своя сцена — общая подложка не нужна */
+body:has(.qg-scene) .qg-backdrop { display: none; }
+/* страницы, встроенные в кабинет или в общий каркас, приносят свою подложку (position: fixed, z-index 0);
+   она ложилась поверх непозиционированного содержимого (например, шапки «Мои объекты») — убираем дубликат */
+.qg-dash-workspace .qg-backdrop,
+.qg-app-page .qg-backdrop { display: none !important; }
+
+/* непрозрачные подложки страниц и встроенной админки убираем — сквозь стекло виден город */
+.mk-bg { background: transparent !important; }
+.mk-bg > * { display: none !important; }
+.admin-modal-inline,
+.admin-modal-inline > .admin-modal-container,
+.inline-fullpage-wrapper,
+.engineer-cabinet-root,
+.lidar-page { background: transparent !important; }
+
+/* ═════════════ 2. Заголовки: метка из четырёх системных цветов ═════════════ */
+:is(.qg-dash-workspace, .qg-app-page) :is(
+  .qg-tools-head h2, .fullpage-heading, .uw-title, .crm-title, .calendar-section-title, .view-title,
+  .doc-header-title-text, .pq-header-title-wrap h2, .uo-title-flex h2, .es-title-flex h2, .ec-head h1,
+  .lidar-head h1, .cmp-title, .category-services-list > .section-title
+)::before {
+  content: '';
+  display: block;
+  width: 56px;
+  height: 4px;
+  margin-bottom: 14px;
+  border-radius: 4px;
+  background: var(--app-bar);
+  box-shadow: 0 0 14px rgba(79, 195, 255, 0.35);
+}
+:is(.qg-dash-workspace, .qg-app-page) :is(
+  .qg-tools-head h2, .fullpage-heading, .uw-title, .crm-title, .calendar-section-title, .view-title,
+  .doc-header-title-text, .pq-header-title-wrap h2, .uo-title-flex h2, .es-title-flex h2, .ec-head h1, .lidar-head h1, .cmp-title
+) {
+  display: block !important;
+  color: var(--qg-text) !important;
+  -webkit-text-fill-color: currentColor !important;
+  background: none !important;
+  font-family: var(--qg-font) !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.03em !important;
+  line-height: 1.14 !important;
+  text-wrap: balance;
+}
+/* заголовки страниц — как заголовки секций главной */
+:is(.qg-dash-workspace, .qg-app-page) :is(.uw-title, .pq-header-title-wrap h2, .uo-title-flex h2, .es-title-flex h2, .ec-head h1, .lidar-head h1, .fullpage-heading, .crm-title, .calendar-section-title, .view-title, .doc-header-title-text, .cmp-title) {
+  font-size: clamp(1.5rem, 1.1rem + 1.2vw, 2.25rem) !important;
+}
+:is(.qg-dash-workspace, .qg-app-page) :is(h2, h3, h4) { letter-spacing: -0.015em; }
+
+/* ═════════════ 3. Стеклянные панели ═════════════
+   Градиентная кромка: заливка по padding-box, кромка — по border-box. */
+:is(.qg-dash-workspace, .qg-app-page) :is(
+  .fullpage-card-box, .pq-card, .uw-card, .uw-section, .uo-list-card, .uo-summary-box, .uo-role-card,
+  .calendar-card-panel, .sidebar-panel-card, .calendar-top-bar, .glass-panel-card,
+  .es-form-card, .es-cart-card, .crm-calendar-container, .crm-sidebar-panel, .crm-toolbar,
+  .admin-section-box, .vip-content-section, .vip-flow-tabs-bar, .v-bento-right, .vip-current-object-bento,
+  .ec-card, .ec-result, .di-main-card, .spe-step, .spe-slip-card, .spe-result-wrap > .sm-result,
+  .doc-header-card, .doc-dropzone-box, .doc-toolbar-bar, .region-comparator-box,
+  .lidar-card, .ep-panel, .cmp-panel, .help-box
+) {
+  border: 1px solid transparent !important;
+  background: var(--app-glass) padding-box, var(--app-edge) border-box !important;
+  box-shadow: var(--app-shadow) !important;
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+}
+
+/* итоговая панель с деньгами — золотая кромка, как блок призыва на главной */
+:is(.qg-dash-workspace, .qg-app-page) :is(.ep-panel--gold, .spe-slip-card, .ai-estimate-box) {
+  background: var(--app-glass) padding-box, var(--app-edge-gold) border-box !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 30px 70px -30px rgba(0, 0, 0, 0.9), 0 0 70px -22px rgba(242, 184, 75, 0.45) !important;
+}
+
+/* вложенные подложки внутри стекла — полупрозрачные, без собственной тени */
+:is(.qg-dash-workspace, .qg-app-page) :is(
+  .uw-history-box, .pq-locked-box, .ai-step-row, .sm-geo, .days-number-grid-full, .lidar-sub,
+  .ec-fieldset.ec-sub, .comp-result-card, .uo-order-row
+) {
+  border: 1px solid rgba(189, 178, 230, 0.14) !important;
+  background: rgba(10, 8, 28, 0.38) !important;
+  box-shadow: none !important;
+}
+
+/* ═════════════ 4. Карточки-плитки с системным цветом ═════════════
+   Как «Что вы получаете» и показатели первого экрана на главной:
+   у каждой плитки свой --tone — подсветка угла, кромка, светящаяся линия снизу. */
+:is(.qg-dash-workspace, .qg-app-page) :is(
+  .qg-tool, .qg-role-tab, .uw-stat-card, .uw-plan-card, .calendar-kpi-card, .stat-card, .expense-stat-card,
+  .admin-stat-card, .geo-kpi-card, .backend-metric-item, .role-counter-card, .doc-cat-card, .es-card,
+  .order-item-card, .event-item-card, .vip-obj-card, .region-bento-card, .v-metric-box, .pq-type-card,
+  .lidar-tile, .cs-stat, .ep-stat, .eng-v2-card
+) {
+  --tone-a: color-mix(in srgb, var(--tone, #a78bfa) 55%, transparent);
+  --tone-b: color-mix(in srgb, var(--tone, #a78bfa) 20%, transparent);
+  position: relative;
+  border: 1px solid transparent !important;
+  background:
+    radial-gradient(90% 70% at 100% 0%, var(--tone-b), transparent 60%) padding-box,
+    var(--app-glass) padding-box,
+    linear-gradient(150deg, rgba(230, 220, 255, 0.45), rgba(150, 100, 255, 0.1) 38%, rgba(150, 100, 255, 0.06) 62%, var(--tone-a) 86%, var(--tone, #a78bfa)) border-box !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 26px 50px -30px rgba(0, 0, 0, 0.9), 0 0 50px -24px var(--tone-a) !important;
+  transition: box-shadow var(--qg-dur-2) var(--qg-ease), transform var(--qg-dur-2) var(--qg-ease);
+}
+/* светящаяся линия по нижней кромке */
+:is(.qg-dash-workspace, .qg-app-page) :is(
+  .qg-tool, .qg-role-tab, .uw-stat-card, .uw-plan-card, .calendar-kpi-card, .stat-card, .expense-stat-card,
+  .admin-stat-card, .geo-kpi-card, .backend-metric-item, .role-counter-card, .doc-cat-card, .es-card,
+  .order-item-card, .event-item-card, .vip-obj-card, .region-bento-card, .v-metric-box,
+  .lidar-tile, .cs-stat, .ep-stat
+)::after {
+  content: '';
+  position: absolute;
+  left: 14%;
+  right: 8%;
+  bottom: -1px;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, transparent, var(--tone, #a78bfa) 45%, color-mix(in srgb, var(--tone, #a78bfa) 50%, #fff) 70%, transparent);
+  box-shadow: 0 0 12px 2px var(--tone-a), 0 0 26px 5px var(--tone-b);
+  opacity: 0.85;
+  pointer-events: none;
+}
+:is(.qg-dash-workspace, .qg-app-page) :is(.qg-tool, .qg-role-tab, .es-card, .order-item-card, .event-item-card, .vip-obj-card, .doc-cat-card, .admin-stat-card.clickable-card, .uw-plan-card, .pq-type-card):hover {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 30px 60px -30px rgba(0, 0, 0, 0.9), 0 0 60px -16px var(--tone-a) !important;
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  :is(.qg-dash-workspace, .qg-app-page) :is(.qg-tool, .es-card, .order-item-card, .vip-obj-card, .doc-cat-card):hover { transform: translateY(-2px); }
+}
+
+/* системные цвета по кругу: электрика, холодная вода, горячая вода, канализация, отопление, газ */
+:is(.qg-dash-workspace, .qg-app-page) :is(
+  .uw-stat-card, .uw-plan-card, .calendar-kpi-card, .stat-card, .expense-stat-card, .admin-stat-card, .geo-kpi-card,
+  .backend-metric-item, .role-counter-card, .doc-cat-card, .es-card, .order-item-card, .event-item-card, .vip-obj-card,
+  .region-bento-card, .v-metric-box, .pq-type-card, .lidar-tile, .cs-stat, .ep-stat, .qg-role-tab, .eng-v2-card
+):nth-child(6n + 1),
+.qg-tools-grid > li:nth-child(6n + 1) .qg-tool { --tone: var(--t-cyan); }
+:is(.qg-dash-workspace, .qg-app-page) :is(
+  .uw-stat-card, .uw-plan-card, .calendar-kpi-card, .stat-card, .expense-stat-card, .admin-stat-card, .geo-kpi-card,
+  .backend-metric-item, .role-counter-card, .doc-cat-card, .es-card, .order-item-card, .event-item-card, .vip-obj-card,
+  .region-bento-card, .v-metric-box, .pq-type-card, .lidar-tile, .cs-stat, .ep-stat, .qg-role-tab, .eng-v2-card
+):nth-child(6n + 2),
+.qg-tools-grid > li:nth-child(6n + 2) .qg-tool { --tone: var(--t-rose); }
+:is(.qg-dash-workspace, .qg-app-page) :is(
+  .uw-stat-card, .uw-plan-card, .calendar-kpi-card, .stat-card, .expense-stat-card, .admin-stat-card, .geo-kpi-card,
+  .backend-metric-item, .role-counter-card, .doc-cat-card, .es-card, .order-item-card, .event-item-card, .vip-obj-card,
+  .region-bento-card, .v-metric-box, .pq-type-card, .lidar-tile, .cs-stat, .ep-stat, .qg-role-tab, .eng-v2-card
+):nth-child(6n + 3),
+.qg-tools-grid > li:nth-child(6n + 3) .qg-tool { --tone: var(--t-mint); }
+:is(.qg-dash-workspace, .qg-app-page) :is(
+  .uw-stat-card, .uw-plan-card, .calendar-kpi-card, .stat-card, .expense-stat-card, .admin-stat-card, .geo-kpi-card,
+  .backend-metric-item, .role-counter-card, .doc-cat-card, .es-card, .order-item-card, .event-item-card, .vip-obj-card,
+  .region-bento-card, .v-metric-box, .pq-type-card, .lidar-tile, .cs-stat, .ep-stat, .qg-role-tab, .eng-v2-card
+):nth-child(6n + 4),
+.qg-tools-grid > li:nth-child(6n + 4) .qg-tool { --tone: var(--t-amber); }
+:is(.qg-dash-workspace, .qg-app-page) :is(
+  .uw-stat-card, .uw-plan-card, .calendar-kpi-card, .stat-card, .expense-stat-card, .admin-stat-card, .geo-kpi-card,
+  .backend-metric-item, .role-counter-card, .doc-cat-card, .es-card, .order-item-card, .event-item-card, .vip-obj-card,
+  .region-bento-card, .v-metric-box, .pq-type-card, .lidar-tile, .cs-stat, .ep-stat, .qg-role-tab, .eng-v2-card
+):nth-child(6n + 5),
+.qg-tools-grid > li:nth-child(6n + 5) .qg-tool { --tone: var(--t-orange); }
+:is(.qg-dash-workspace, .qg-app-page) :is(
+  .uw-stat-card, .uw-plan-card, .calendar-kpi-card, .stat-card, .expense-stat-card, .admin-stat-card, .geo-kpi-card,
+  .backend-metric-item, .role-counter-card, .doc-cat-card, .es-card, .order-item-card, .event-item-card, .vip-obj-card,
+  .region-bento-card, .v-metric-box, .pq-type-card, .lidar-tile, .cs-stat, .ep-stat, .qg-role-tab, .eng-v2-card
+):nth-child(6n + 6),
+.qg-tools-grid > li:nth-child(6n + 6) .qg-tool { --tone: var(--t-violet); }
+
+/* выбранная карточка — золотая кромка, как у главной панели на главной */
+:is(.qg-dash-workspace, .qg-app-page) :is(.qg-role-tab.is-active, .pq-type-card.active, .vip-obj-card.selected, .uw-plan-card.popular) {
+  --tone: #f2b84b;
+  background:
+    radial-gradient(90% 70% at 100% 0%, rgba(242, 184, 75, 0.18), transparent 60%) padding-box,
+    var(--app-glass) padding-box,
+    var(--app-edge-gold) border-box !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 30px 60px -30px rgba(0, 0, 0, 0.9), 0 0 60px -18px rgba(242, 184, 75, 0.5) !important;
+}
+
+/* крупные цифры в показателях — цветом системы, как на главной */
+:is(.qg-dash-workspace, .qg-app-page) :is(.uw-stat-card, .calendar-kpi-card, .stat-card, .expense-stat-card, .admin-stat-card, .geo-kpi-card, .backend-metric-item, .role-counter-card, .v-metric-box, .cs-stat, .ep-stat)
+  :is(.uw-stat-value, .kpi-value, .stat-value, .expense-value, .admin-stat-value, .geo-kpi-value, .metric-value, .counter-value, .v-metric-val, .cs-stat-value, .ep-stat-value) {
+  color: var(--tone) !important;
+  -webkit-text-fill-color: currentColor !important;
+  background: none !important;
+  text-shadow: 0 0 22px var(--tone-a);
+}
+
+/* ═════════════ 5. Кнопки ═════════════ */
+/* главное действие — золото с объёмом, как «Открыть ленту заказов» на главной */
+:is(.qg-dash-workspace, .qg-app-page) :is(
+  .admin-primary-btn, .pq-btn-primary, .uw-btn-gold, .uo-btn-create, .di-btn-submit, .vip-primary-btn, .btn-sm-add,
+  .uw-plan-btn.popular-btn, .btn-apply-order:not(.applied), .btn-action-hero, .spe-cta, .ec-submit, .lidar-cta,
+  .es-submit-btn, .crm-save-btn, .btn-save-primary, .doc-btn-purple, .btn-primary-action, .ai-generate-btn, .view-estimate-btn
+) {
+  border: 0 !important;
+  background: var(--app-gold) !important;
+  color: #1c1203 !important;
+  -webkit-text-fill-color: #1c1203 !important;
+  font-weight: 800 !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 12px 30px -12px rgba(242, 184, 75, 0.75) !important;
+  text-shadow: none !important;
+}
+:is(.qg-dash-workspace, .qg-app-page) :is(
+  .admin-primary-btn, .pq-btn-primary, .uw-btn-gold, .uo-btn-create, .di-btn-submit, .vip-primary-btn, .btn-sm-add,
+  .uw-plan-btn.popular-btn, .btn-apply-order:not(.applied), .btn-action-hero, .spe-cta, .ec-submit, .lidar-cta,
+  .es-submit-btn, .crm-save-btn, .btn-save-primary, .doc-btn-purple, .btn-primary-action, .ai-generate-btn, .view-estimate-btn
+):hover:not(:disabled) { background: var(--app-gold-hover) !important; }
+:is(.qg-dash-workspace, .qg-app-page) :is(.lidar-cta, .di-btn-submit, .spe-cta, .ec-submit):disabled {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: var(--qg-text-3) !important;
+  -webkit-text-fill-color: var(--qg-text-3) !important;
+  box-shadow: none !important;
+}
+
+/* кнопка «+ Новый объект / + Добавить расход» в кабинете инженера своих размеров не имела */
+:is(.qg-dash-workspace, .qg-app-page) .btn-primary-action {
+  padding: 0.65rem 1.25rem;
+  border-radius: 12px;
+  font-family: var(--qg-font);
+  font-size: 0.82rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* второстепенные — стекло с тонкой рамкой, при наведении золотая кромка */
+:is(.qg-dash-workspace, .qg-app-page) :is(
+  .uw-plan-btn:not(.popular-btn), .pq-btn-dark, .uo-btn-details, .vip-btn-lots, .vip-btn-docs, .vip-btn-wbs,
+  .es-btn-more, .es-btn-add, .btn-excel-export, .doc-btn-emerald, .v-btn-select, .btn-evt-edit, .btn-evt-action,
+  .btn-back-inline, .uo-back-btn, .pq-back-btn, .btn-back-square, .es-back-btn, .lidar-back, .btn-table-action,
+  .uw-btn-secondary, .uw-btn-ghost, .sm-btn:not(.sm-btn-primary), .btn-excel-import, .doc-btn-choose-file, .btn-today-indigo,
+  .btn-reset-demo, .btn-nav-arrow, .btn-nav-arrow-sm, .btn-glass-dark, .help-btn, .view-all-services-btn, .back-to-catalog-btn
+) {
+  border: 1px solid rgba(189, 178, 230, 0.3) !important;
+  background: rgba(25, 21, 50, 0.55) !important;
+  color: var(--qg-text) !important;
+  -webkit-text-fill-color: var(--qg-text) !important;
+  box-shadow: none !important;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+:is(.qg-dash-workspace, .qg-app-page) :is(
+  .uw-plan-btn:not(.popular-btn), .pq-btn-dark, .uo-btn-details, .vip-btn-lots, .vip-btn-docs, .vip-btn-wbs,
+  .es-btn-more, .es-btn-add, .btn-excel-export, .doc-btn-emerald, .v-btn-select, .btn-evt-edit, .btn-evt-action,
+  .btn-back-inline, .uo-back-btn, .pq-back-btn, .btn-back-square, .es-back-btn, .lidar-back, .btn-table-action,
+  .uw-btn-secondary, .uw-btn-ghost, .sm-btn:not(.sm-btn-primary), .btn-excel-import, .doc-btn-choose-file, .btn-today-indigo,
+  .btn-reset-demo, .btn-nav-arrow, .btn-nav-arrow-sm, .btn-glass-dark, .help-btn, .view-all-services-btn, .back-to-catalog-btn
+):hover { border-color: rgba(242, 184, 75, 0.45) !important; background: rgba(36, 30, 70, 0.7) !important; }
+
+/* необратимые действия — стекло с розовой кромкой, без заливки */
+:is(.qg-dash-workspace, .qg-app-page) :is(.btn-reset-danger, .btn-danger-outline) {
+  border: 1px solid rgba(255, 92, 138, 0.5) !important;
+  background: rgba(255, 92, 138, 0.08) !important;
+  color: #ff9cb9 !important;
+  box-shadow: none !important;
+}
+:is(.qg-dash-workspace, .qg-app-page) :is(.btn-reset-danger, .btn-danger-outline):hover { background: rgba(255, 92, 138, 0.16) !important; }
+
+/* вкладки и фильтры — стеклянные «таблетки», выбранная залита золотом (как вкладки примеров сметы) */
+:is(.qg-dash-workspace, .qg-app-page) :is(
+  .admin-tab-btn, .uo-tab, .view-tab, .subtab-btn, .vip-tab-btn, .es-chip-btn, .crm-chip, .pq-pill, .uo-btn-switch-role,
+  .lidar-tab, .cmp-tab, .type-btn, .doc-filter-btn, .admin-filter-chip
+) {
+  border: 1px solid rgba(189, 178, 230, 0.26) !important;
+  background: rgba(25, 21, 50, 0.5) !important;
+  color: var(--qg-text-2) !important;
+  -webkit-text-fill-color: currentColor !important;
+  box-shadow: none !important;
+}
+:is(.qg-dash-workspace, .qg-app-page) :is(
+  .admin-tab-btn, .uo-tab, .view-tab, .subtab-btn, .vip-tab-btn, .es-chip-btn, .crm-chip, .pq-pill, .uo-btn-switch-role,
+  .lidar-tab, .cmp-tab, .type-btn, .doc-filter-btn, .admin-filter-chip
+):hover { color: var(--qg-text) !important; border-color: rgba(242, 184, 75, 0.4) !important; }
+:is(.qg-dash-workspace, .qg-app-page) :is(
+  .admin-tab-btn.active, .uo-tab.active, .view-tab.active, .subtab-btn.active, .vip-tab-btn.active, .es-chip-btn.active,
+  .crm-chip.is-active, .pq-pill.active, .pq-pill.selected, .uo-btn-switch-role.active,
+  .lidar-tab[aria-selected='true'], .cmp-tab.is-active, .type-btn.active, .doc-filter-btn.active, .admin-filter-chip.active
+) {
+  border-color: transparent !important;
+  background: var(--app-gold) !important;
+  color: #1c1203 !important;
+  -webkit-text-fill-color: #1c1203 !important;
+  font-weight: 800 !important;
+  box-shadow: 0 10px 24px -14px rgba(242, 184, 75, 0.8) !important;
+}
+:is(.qg-dash-workspace, .qg-app-page) :is(.admin-tab-btn, .uo-tab, .view-tab, .subtab-btn, .es-chip-btn, .crm-chip, .pq-pill, .uo-btn-switch-role, .lidar-tab, .cmp-tab, .doc-filter-btn, .admin-filter-chip) {
+  border-radius: 999px !important;
+}
+
+/* метка «популярный тариф» — золото, как деньги на главной (фиолетовая не проходила по контрасту) */
+:is(.qg-dash-workspace, .qg-app-page) .uw-popular-badge {
+  background: var(--app-gold) !important;
+  color: #1c1203 !important;
+}
+
+/* ═════════════ 6. Поля ввода ═════════════ */
+:is(.qg-dash-workspace, .qg-app-page) :is(
+  input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']):not([type='color']):not([type='hidden']),
+  select, textarea
+):not(.mk-page *):not([class*='spe-gpt']) {
+  border-color: var(--app-field-line) !important;
+  background-color: var(--app-field) !important;
+  color: var(--qg-text) !important;
+  border-radius: 12px;
+}
+:is(.qg-dash-workspace, .qg-app-page) :is(input, select, textarea):not(.mk-page *):not([class*='spe-gpt']):focus-visible {
+  border-color: rgba(242, 184, 75, 0.7) !important;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(242, 184, 75, 0.2) !important;
+}
+:is(.qg-dash-workspace, .qg-app-page) select:not(.mk-page *) option { background: #15122b; color: var(--qg-text); }
+
+/* ═════════════ 7. Таблицы — как таблица сметы на главной ═════════════ */
+:is(.qg-dash-workspace, .qg-app-page) table:not(.mk-page *) thead :is(tr, th) {
+  background: rgba(9, 8, 22, 0.5) !important;
+  color: var(--qg-text-3) !important;
+}
+:is(.qg-dash-workspace, .qg-app-page) table:not(.mk-page *) :is(td, th) {
+  border-color: rgba(189, 178, 230, 0.09) !important;
+}
+:is(.qg-dash-workspace, .qg-app-page) table:not(.mk-page *) tbody tr:hover > td { background: rgba(167, 139, 250, 0.06); }
+
+/* ═════════════ 8. Модальные окна инструментов ═════════════
+   Только оформление контейнера; окно ключа OpenAI (spe-gpt-*) и вход не трогаем. */
+:is(.qg-dash-workspace, .qg-app-page) .modal-content:not([class*='spe-gpt']),
+.admin-modal-overlay > .admin-modal-container {
+  border: 1px solid transparent !important;
+  background: var(--app-glass-strong) padding-box, var(--app-edge) border-box !important;
+  box-shadow: 0 40px 80px -30px rgba(0, 0, 0, 0.95), 0 0 70px -26px rgba(160, 80, 255, 0.6) !important;
+}
+
+/* ═════════════ 9. Боковое меню кабинета на телефоне ═════════════ */
+.admin-redesign-sidebar.mobile-drawer {
+  border-right: 1px solid transparent !important;
+  background: var(--app-glass-strong) padding-box, var(--app-edge) border-box !important;
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+}
+.admin-redesign-sidebar .sidebar-item.active {
+  background: rgba(242, 184, 75, 0.14) !important;
+  border-color: rgba(242, 184, 75, 0.5) !important;
+  color: #ffd98a !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :is(.qg-dash-workspace, .qg-app-page) * { transition: none !important; }
+}

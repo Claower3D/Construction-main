@@ -59,28 +59,25 @@ export default function LiDARScanPage({ onBack }) {
   const formatNum = (n, digits = 2) => typeof n === 'number' ? n.toFixed(digits) : '—';
 
   return (
-    <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #0a0a1a 0%, #1a1a3e 100%)', color: '#fff', padding: '20px' }}>
+    <div className="lidar-page" style={{ minHeight: '100vh', color: '#fff', padding: '20px' }}>
       <div style={{ maxWidth: 900, margin: '0 auto' }}>
-        <button onClick={onBack} style={backBtnStyle}>← Назад</button>
+        <button type="button" onClick={onBack} className="lidar-back" style={backBtnStyle}>← Назад</button>
 
-        <div style={{ textAlign: 'center', marginBottom: 30 }}>
-          <h1 style={{ fontSize: 32, margin: 0 }}>📡 LiDAR Сканер</h1>
-          <p style={{ color: 'rgba(255,255,255,0.6)', margin: '8px 0 0' }}>
+        <div className="lidar-head" style={{ marginBottom: 28 }}>
+          <h1 style={{ margin: 0 }}>LiDAR-сканер</h1>
+          <p style={{ color: 'var(--qg-text-2)', margin: '10px 0 0', maxWidth: '56ch', lineHeight: 1.6 }}>
             QazGost AI — анализ облака точек, обмеры помещений, проверка отклонений
           </p>
         </div>
 
         {/* Tabs */}
-        <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
+        <div role="tablist" aria-label="Разделы сканера" style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
           {[
             { id: 'upload', label: '📤 Загрузка' },
             { id: 'results', label: '📊 Результаты' },
           ].map(tab => (
-            <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{
-              padding: '10px 24px', borderRadius: 12, border: 'none', cursor: 'pointer',
-              fontSize: 14, fontWeight: 600,
-              background: activeTab === tab.id ? 'linear-gradient(135deg, #6366f1, #8b5cf6)' : 'rgba(255,255,255,0.08)',
-              color: '#fff',
+            <button key={tab.id} type="button" role="tab" aria-selected={activeTab === tab.id} className="lidar-tab" onClick={() => setActiveTab(tab.id)} style={{
+              padding: '10px 24px', cursor: 'pointer', fontSize: 14, fontWeight: 600,
             }}>
               {tab.label}
             </button>
@@ -89,7 +86,7 @@ export default function LiDARScanPage({ onBack }) {
 
         {/* Upload tab */}
         {activeTab === 'upload' && (
-          <div style={cardStyle}>
+          <div className="lidar-card" style={cardStyle}>
             <h3 style={{ margin: '0 0 16px', fontSize: 18 }}>📁 Загрузите LiDAR скан</h3>
             <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 13, margin: '0 0 20px' }}>
               Поддерживаемые форматы: .las, .laz, .ply, .pcd, .xyz<br/>
@@ -133,9 +130,7 @@ export default function LiDARScanPage({ onBack }) {
                 { icon: '📐', label: 'Отклонения', desc: 'Проверка по СНиП 3.04.01-87' },
                 { icon: '🧊', label: '3D Mesh', desc: 'Экспорт для визуализации' },
               ].map((card, i) => (
-                <div key={i} style={{
-                  background: 'rgba(255,255,255,0.04)', borderRadius: 12, padding: 14, textAlign: 'center'
-                }}>
+                <div key={i} className="lidar-tile" style={{ borderRadius: 14, padding: 14, textAlign: 'center' }}>
                   <div style={{ fontSize: 28 }}>{card.icon}</div>
                   <div style={{ fontSize: 13, fontWeight: 600, marginTop: 4 }}>{card.label}</div>
                   <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{card.desc}</div>
@@ -143,11 +138,9 @@ export default function LiDARScanPage({ onBack }) {
               ))}
             </div>
 
-            <button onClick={handleAnalyze} disabled={isLoading || !file} style={{
-              width: '100%', marginTop: 20, padding: '16px', borderRadius: 14, border: 'none',
-              fontSize: 16, fontWeight: 700, cursor: (isLoading || !file) ? 'not-allowed' : 'pointer',
-              background: (isLoading || !file) ? 'rgba(255,255,255,0.1)' : 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-              color: '#fff', transition: 'all 0.3s', opacity: !file ? 0.5 : 1,
+            <button type="button" className="lidar-cta" onClick={handleAnalyze} disabled={isLoading || !file} style={{
+              width: '100%', marginTop: 20, padding: '16px', borderRadius: 14,
+              fontSize: 16, cursor: (isLoading || !file) ? 'not-allowed' : 'pointer',
             }}>
               {isLoading ? '⏳ Анализ облака точек...' : '🔍 Анализировать скан'}
             </button>
@@ -164,7 +157,7 @@ export default function LiDARScanPage({ onBack }) {
         {activeTab === 'results' && result && (
           <div>
             {/* Scan info */}
-            <div style={cardStyle}>
+            <div className="lidar-card" style={cardStyle}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                 <h3 style={{ margin: 0, fontSize: 18 }}>📊 Результат анализа</h3>
                 <span style={{
@@ -184,7 +177,7 @@ export default function LiDARScanPage({ onBack }) {
 
             {/* Dimensions */}
             {result.dimensions && (
-              <div style={{ ...cardStyle, marginTop: 16 }}>
+              <div className="lidar-card" style={{ ...cardStyle, marginTop: 16 }}>
                 <h3 style={{ margin: '0 0 16px', fontSize: 18 }}>📏 Размеры</h3>
                 {result.scan_type === 'room' ? (
                   <>
@@ -235,7 +228,7 @@ export default function LiDARScanPage({ onBack }) {
 
             {/* Deviations */}
             {result.deviations && (
-              <div style={{ ...cardStyle, marginTop: 16 }}>
+              <div className="lidar-card" style={{ ...cardStyle, marginTop: 16 }}>
                 <h3 style={{ margin: '0 0 16px', fontSize: 18 }}>📐 Отклонения</h3>
                 <div style={{
                   padding: 16, borderRadius: 12, textAlign: 'center', marginBottom: 14,
@@ -262,7 +255,7 @@ export default function LiDARScanPage({ onBack }) {
         )}
 
         {activeTab === 'results' && !result && (
-          <div style={{ ...cardStyle, textAlign: 'center', padding: 60 }}>
+          <div className="lidar-card" style={{ ...cardStyle, textAlign: 'center', padding: 60 }}>
             <div style={{ fontSize: 48, marginBottom: 12 }}>📡</div>
             <div style={{ fontSize: 16, color: 'rgba(255,255,255,0.5)' }}>
               Загрузите и проанализируйте скан, чтобы увидеть результаты
@@ -275,13 +268,11 @@ export default function LiDARScanPage({ onBack }) {
 }
 
 const backBtnStyle = {
-  background: 'rgba(255,255,255,0.1)', border: 'none', color: '#fff',
-  padding: '10px 20px', borderRadius: 12, cursor: 'pointer', fontSize: 14, marginBottom: 20,
+  padding: '10px 20px', borderRadius: 12, cursor: 'pointer', fontSize: 14, fontWeight: 700, marginBottom: 20,
 };
 
 const cardStyle = {
-  background: 'rgba(255,255,255,0.05)', borderRadius: 16, padding: 24,
-  border: '1px solid rgba(255,255,255,0.1)',
+  borderRadius: 20, padding: 24,
 };
 
 const infoRow = {

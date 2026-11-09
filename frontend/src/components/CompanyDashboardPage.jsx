@@ -53,19 +53,22 @@ export default function CompanyDashboardPage({ currentUser, initialTab = 'profil
 
   return (
     <div style={{ padding: '2rem', height: '100%', overflowY: 'auto' }}>
-      <div style={{ marginBottom: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ marginBottom: '2rem', display: 'flex', flexWrap: 'wrap', alignItems: 'flex-end', justifyContent: 'space-between', gap: '1rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           {sidebarToggleNode}
           <div>
-            <h1 style={{ fontSize: '2rem', fontWeight: 'bold', color: '#fff', marginBottom: '0.5rem' }}>
+            <h1 className="cmp-title" style={{ color: '#fff', marginBottom: '0.5rem' }}>
               Дашборд Компании: {currentUser?.name || 'Неизвестно'}
             </h1>
             <p style={{ color: '#a39cc2' }}>Управление сотрудниками и реквизитами</p>
           </div>
         </div>
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
           <button 
             onClick={() => setActiveTab('profile')}
+            type="button"
+            className={`cmp-tab${activeTab === 'profile' ? ' is-active' : ''}`}
+            aria-pressed={activeTab === 'profile'}
             style={{ 
               padding: '0.5rem 1rem', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: 'bold',
               background: activeTab === 'profile' ? settings.primaryColor : 'rgba(255,255,255,0.1)',
@@ -78,6 +81,9 @@ export default function CompanyDashboardPage({ currentUser, initialTab = 'profil
           {settings.showEmployees && (
             <button 
               onClick={() => setActiveTab('employees')}
+            type="button"
+            className={`cmp-tab${activeTab === 'employees' ? ' is-active' : ''}`}
+            aria-pressed={activeTab === 'employees'}
               style={{ 
                 padding: '0.5rem 1rem', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: 'bold',
                 background: activeTab === 'employees' ? settings.primaryColor : 'rgba(255,255,255,0.1)',
@@ -91,6 +97,9 @@ export default function CompanyDashboardPage({ currentUser, initialTab = 'profil
           {settings.showStats && (
             <button 
               onClick={() => setActiveTab('stats')}
+            type="button"
+            className={`cmp-tab${activeTab === 'stats' ? ' is-active' : ''}`}
+            aria-pressed={activeTab === 'stats'}
               style={{ 
                 padding: '0.5rem 1rem', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: 'bold',
                 background: activeTab === 'stats' ? settings.primaryColor : 'rgba(255,255,255,0.1)',
@@ -103,6 +112,9 @@ export default function CompanyDashboardPage({ currentUser, initialTab = 'profil
 
           <button 
             onClick={() => setActiveTab('tree')}
+            type="button"
+            className={`cmp-tab${activeTab === 'tree' ? ' is-active' : ''}`}
+            aria-pressed={activeTab === 'tree'}
             style={{ 
               padding: '0.5rem 1rem', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: 'bold',
               background: activeTab === 'tree' ? settings.primaryColor : 'rgba(255,255,255,0.1)',
@@ -114,6 +126,9 @@ export default function CompanyDashboardPage({ currentUser, initialTab = 'profil
 
           <button 
             onClick={() => setActiveTab('settings')}
+            type="button"
+            className={`cmp-tab${activeTab === 'settings' ? ' is-active' : ''}`}
+            aria-pressed={activeTab === 'settings'}
             style={{ 
               padding: '0.5rem 1rem', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: 'bold',
               background: activeTab === 'settings' ? '#4b5563' : 'rgba(255,255,255,0.1)',
@@ -126,7 +141,7 @@ export default function CompanyDashboardPage({ currentUser, initialTab = 'profil
       </div>
 
       {activeTab === 'profile' && (
-        <div style={{ background: 'rgba(255,255,255,0.05)', borderRadius: '16px', padding: '2rem', border: `1px solid ${settings.primaryColor}33` }}>
+        <div className="cmp-panel" style={{ borderRadius: '20px', padding: '2rem', border: `1px solid ${settings.primaryColor}33` }}>
           <h2 style={{ fontSize: '1.25rem', color: '#fff', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <span style={{ color: settings.primaryColor }}>📝</span> Реквизиты компании
           </h2>
@@ -160,7 +175,7 @@ export default function CompanyDashboardPage({ currentUser, initialTab = 'profil
       )}
 
       {activeTab === 'employees' && settings.showEmployees && (
-        <div style={{ background: 'rgba(255,255,255,0.05)', borderRadius: '16px', padding: '2rem', border: `1px solid ${settings.primaryColor}33` }}>
+        <div className="cmp-panel" style={{ borderRadius: '20px', padding: '2rem', border: `1px solid ${settings.primaryColor}33` }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem' }}>
             <h2 style={{ fontSize: '1.25rem', color: '#fff', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
               <span style={{ color: settings.primaryColor }}>👥</span> Привязанные сотрудники ({employees.length})
@@ -214,19 +229,19 @@ export default function CompanyDashboardPage({ currentUser, initialTab = 'profil
       {activeTab === 'stats' && settings.showStats && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem' }}>
           {stats.map((s, idx) => (
-            <div key={idx} style={{ background: 'rgba(255,255,255,0.05)', borderRadius: '16px', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', border: `1px solid ${settings.primaryColor}33` }}>
+            <div key={idx} className="cs-stat" style={{ borderRadius: '18px', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <span style={{ fontSize: '1.5rem' }}>{s.icon}</span>
                 <span style={{ color: '#a39cc2', fontSize: '0.9rem', fontWeight: 'bold' }}>{s.label}</span>
               </div>
-              <div style={{ fontSize: '2.5rem', fontWeight: 'bold', color: s.color }}>{s.value}</div>
+              <div className="cs-stat-value" style={{ fontSize: '2.5rem', fontWeight: 800, letterSpacing: '-0.03em', color: s.color }}>{s.value}</div>
             </div>
           ))}
         </div>
       )}
 
       {activeTab === 'settings' && (
-        <div style={{ background: 'rgba(255,255,255,0.05)', borderRadius: '16px', padding: '2rem', border: '1px solid rgba(255,255,255,0.1)' }}>
+        <div className="cmp-panel" style={{ borderRadius: '20px', padding: '2rem', border: '1px solid rgba(255,255,255,0.1)' }}>
           <h2 style={{ fontSize: '1.25rem', color: '#fff', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             ⚙️ Персонализация дашборда Компании
           </h2>

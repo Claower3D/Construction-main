@@ -173,14 +173,14 @@ export default function OnboardingTour({ steps, tourKey }) {
             {currentStep > 0 && (
               <button 
                 onClick={() => setCurrentStep(prev => prev - 1)}
-                style={{ background: '#3a3458', color: '#fff', border: 'none', padding: '0.6rem 1rem', borderRadius: '6px', cursor: 'pointer', fontSize: '0.9rem' }}
+                style={{ background: 'rgba(25, 21, 50, 0.6)', color: '#fff', border: '1px solid rgba(189, 178, 230, 0.3)', padding: '0.6rem 1rem', borderRadius: '10px', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 700 }}
               >
                 Назад
               </button>
             )}
             <button 
               onClick={handleNext}
-              style={{ background: '#8b5cf6', color: '#fff', border: 'none', padding: '0.6rem 1.2rem', borderRadius: '6px', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600 }}
+              style={{ background: 'linear-gradient(180deg, #f8d27a, #e5a03a)', color: '#1c1203', border: 'none', padding: '0.6rem 1.2rem', borderRadius: '10px', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 800, boxShadow: '0 10px 24px -12px rgba(242, 184, 75, 0.8)' }}
             >
               {currentStep === steps.length - 1 ? 'Готово ✓' : 'Далее →'}
             </button>

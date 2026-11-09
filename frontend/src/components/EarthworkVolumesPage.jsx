@@ -192,7 +192,7 @@ export default function EarthworkVolumesPage({ onBack, hideHeader = false }) {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '1.5rem' }}>
         
         {/* Left Column: Dimensions & Soil Selection */}
-        <div style={{ background: 'rgba(21, 18, 42, 0.85)', border: '1px solid rgba(185, 164, 255, 0.25)', borderRadius: '20px', padding: '1.5rem' }}>
+        <div className="ep-panel" style={{ borderRadius: '20px', padding: '1.5rem' }}>
           <h3 style={{ margin: '0 0 1.2rem 0', fontSize: '1.15rem', color: '#b9a4ff', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <span>⛏️</span> 1. Геометрические параметры котлована
           </h3>
@@ -350,7 +350,7 @@ export default function EarthworkVolumesPage({ onBack, hideHeader = false }) {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           
           {/* Engineering Calculations Summary Card */}
-          <div style={{ background: 'linear-gradient(145deg, rgba(20, 26, 48, 0.95), rgba(12, 16, 32, 0.98))', border: '1px solid rgba(246, 196, 83, 0.3)', borderRadius: '20px', padding: '1.5rem', boxShadow: '0 20px 50px rgba(0,0,0,0.6)' }}>
+          <div className="ep-panel ep-panel--gold" style={{ borderRadius: '20px', padding: '1.5rem' }}>
             <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.25rem', color: '#f59e0b', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <span>📊 Сводка объемов (WBS СНиП РК)</span>
               <span style={{ fontSize: '0.8rem', color: '#a39cc2', fontWeight: 500 }}>ЭСН РК</span>
@@ -398,12 +398,14 @@ export default function EarthworkVolumesPage({ onBack, hideHeader = false }) {
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.5rem', paddingTop: '0.8rem', borderTop: '1px solid rgba(246, 196, 83, 0.3)' }}>
                 <span style={{ fontSize: '1rem', fontWeight: 800, color: '#fff' }}>Итого сметная стоимость:</span>
-                <strong style={{ fontSize: '1.5rem', color: '#10b981' }}>{calculations.totalEstimatedCost.toLocaleString()} ₸</strong>
+                <strong style={{ fontSize: '1.5rem', color: '#f2b84b' }}>{calculations.totalEstimatedCost.toLocaleString()} ₸</strong>
               </div>
             </div>
 
             {/* Action Button */}
             <button
+              type="button"
+              className="btn-save-primary"
               onClick={handleCreateEarthworkOrder}
               style={{
                 marginTop: '1.2rem',
@@ -425,7 +427,7 @@ export default function EarthworkVolumesPage({ onBack, hideHeader = false }) {
           </div>
 
           {/* Quick Machinery Recommendations */}
-          <div style={{ background: 'rgba(21, 18, 42, 0.7)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px', padding: '1.2rem' }}>
+          <div className="ep-panel" style={{ borderRadius: '20px', padding: '1.2rem' }}>
             <h4 style={{ margin: '0 0 0.8rem 0', fontSize: '0.95rem', color: '#b9a4ff', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <span>🚜</span> Рекомендуемый парк техники на объекте:
             </h4>

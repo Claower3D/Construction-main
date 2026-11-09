@@ -1,6 +1,7 @@
 import React, { useState, useEffect, lazy, Suspense } from 'react';
 import AnimatedBackground from './AnimatedBackground';
 import PageLoader from './PageLoader';
+import { QazGostMark } from './Header';
 import './dashboard-refresh.css';
 
 // Каждый инструмент кабинета — отдельный чанк: открываем меню карточек без загрузки CRM, админки, 3D и т.п.
@@ -416,14 +417,16 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
             </div>
             <div className="sidebar-items-group">
               {activeCards.map(item => (
-                <div 
-                  key={item.id} 
+                <button
+                  type="button"
+                  key={item.id}
                   className={`sidebar-item ${selectedItemId === item.id ? 'active' : ''}`}
+                  aria-current={selectedItemId === item.id ? 'page' : undefined}
                   onClick={() => handleSelectItem(item)}
                 >
-                  <span style={{ fontSize: '1.1rem' }}>{item.icon}</span>
+                  <span style={{ fontSize: '1.1rem' }} aria-hidden="true">{item.icon}</span>
                   <span>{item.title}</span>
-                </div>
+                </button>
               ))}
             </div>
           </div>
@@ -449,6 +452,13 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
         {/* Шапка кабинета (липкая) */}
         <header className="main-top-header modern-topbar qg-dash-topbar">
           <div className="topbar-left-group">
+            <a href="/" className="qg-dash-brand" onClick={(e) => { e.preventDefault(); onBackToHome(); }} aria-label="QazGost AI — на главную">
+              <QazGostMark size={34} />
+              <span className="qg-dash-brand-text">
+                <span className="qg-dash-brand-title">QazGost AI</span>
+                <span className="qg-dash-brand-sub">Сметы и дефекты по нормам РК</span>
+              </span>
+            </a>
             <button
               onClick={() => setIsMobileSidebarOpen(true)}
               className="mobile-menu-trigger-btn"
@@ -566,7 +576,12 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
           {!isInnerToolActive && (
             <div className="qg-cockpit">
               <div className="qg-cockpit-head">
-                <h1>{currentUser?.name ? `${currentUser.name.split(' ')[0]}, что делаем сегодня?` : 'Ваш кабинет'}</h1>
+                <p className="qg-cockpit-pill"><span className="qg-cockpit-dot" aria-hidden="true" />Кабинет: {activeRoleObj.shortLabel.toLowerCase()} • нормы СНиП и ГОСТ РК</p>
+                <h1>
+                  {currentUser?.name
+                    ? <><span className="qg-cockpit-name">{currentUser.name.split(' ')[0]}</span>, что делаем сегодня?</>
+                    : 'Ваш кабинет'}
+                </h1>
                 <p>Выберите роль и инструмент. Фото объекта превращается в смету, акт о дефектах или заказ для бригады.</p>
               </div>
 
@@ -584,7 +599,7 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
                         className={`qg-role-tab${isActive ? ' is-active' : ''}`}
                         style={{ '--role-color': r.color }}
                       >
-                        <span className="qg-role-tab-title">{r.title.replace(/^Я\s+/, '')}{r.badge ? <span className="qg-role-tab-badge">{r.badge}</span> : null}</span>
+                        <span className="qg-role-tab-title">{r.title.replace(/^Я\s+/, '').replace(r.badge ? /\s*\((VIP|CRM)\)/ : /$^/, '')}{r.badge ? <span className="qg-role-tab-badge">{r.badge}</span> : null}</span>
                         <span className="qg-role-tab-desc">{r.desc}</span>
                       </button>
                     );

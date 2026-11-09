@@ -324,7 +324,7 @@ export default function App() {
         onOpenLidar={navigateToLidar}
       />
 
-        <main id="main-content" style={{ position: 'relative', zIndex: 1 }}>
+        <main id="main-content" className={currentView === 'landing' ? undefined : 'qg-app-page'} style={{ position: 'relative', zIndex: 1 }}>
           <Suspense fallback={<PageLoader />}>
           {currentView === 'category' && currentCategory && (
             <CategoryTemplatePage 

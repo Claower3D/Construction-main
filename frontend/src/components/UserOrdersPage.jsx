@@ -780,7 +780,7 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
           </div>
 
           {/* Table */}
-          <div className="uo-table-wrap">
+          <div className="uo-table-wrap" tabIndex={0} role="region" aria-label="Таблица заказов">
             <table className="uo-table">
               <thead>
                 <tr>

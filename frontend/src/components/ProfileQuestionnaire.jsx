@@ -223,10 +223,10 @@ export default function ProfileQuestionnaire({ onBack }) {
             </div>
 
             <div className="pq-form-group">
-              <label>Город <span>*</span></label>
+              <label htmlFor="pq-city">Город <span>*</span></label>
               <div className="pq-input-wrapper">
-                <span className="pq-input-icon">📍</span>
-                <select value={city} onChange={(e) => setCity(e.target.value)}>
+                <span className="pq-input-icon" aria-hidden="true">📍</span>
+                <select id="pq-city" value={city} onChange={(e) => setCity(e.target.value)}>
                   <option value="" disabled>Выберите город</option>
                   <option value="almaty">Алматы</option>
                   <option value="astana">Астана</option>
