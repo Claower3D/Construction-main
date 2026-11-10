@@ -4,6 +4,7 @@ import { registerUser } from '../services/api';
 import { KZ_CITIES } from './Header';
 import { LEGAL_VERSION } from '../data/legal';
 import { localPhoneDigits, formatLocalPhone, isFullKzPhone, normalizedPhone } from '../utils/phone';
+import { useLang } from '../i18n';
 import './RegisterPage.css';
 
 const ROLES = [
@@ -34,7 +35,40 @@ const EQUIPMENT_CATEGORIES = [
 ];
 
 // Отдельная страница регистрации (/register): компактная форма, помещается в экран при масштабе 100%
+// Тексты согласий со ссылками: порядок слов в казахском и английском другой,
+// поэтому каждая фраза собрана целиком на своём языке (слой перевода их не трогает).
+const docLink = (href, text) => <a href={href} target="_blank" rel="noopener noreferrer">{text}</a>;
+
+function ConsentTerms({ lang }) {
+  if (lang === 'kk') return <span translate="no">Маған 18 жас толды, {docLink('/terms', 'пайдаланушы келісімін')} қабылдаймын</span>;
+  if (lang === 'en') return <span translate="no">I am 18 or older and accept the {docLink('/terms', 'Terms of Use')}</span>;
+  return <span translate="no">Мне есть 18 лет, принимаю {docLink('/terms', 'пользовательское соглашение')}</span>;
+}
+
+function ConsentPrivacy({ lang }) {
+  if (lang === 'kk') {
+    return (
+      <span translate="no">
+        {docLink('/privacy', 'Құпиялылық саясатына')} сәйкес {docLink('/consent', 'дербес деректерімді өңдеуге')}, оның ішінде шетелге беруге келісім беремін
+      </span>
+    );
+  }
+  if (lang === 'en') {
+    return (
+      <span translate="no">
+        I consent to the {docLink('/consent', 'processing of my personal data')}, including transfer abroad, under the {docLink('/privacy', 'Privacy Policy')}
+      </span>
+    );
+  }
+  return (
+    <span translate="no">
+      Даю {docLink('/consent', 'согласие на обработку персональных данных')}, в том числе передачу за рубеж, по {docLink('/privacy', 'политике конфиденциальности')}
+    </span>
+  );
+}
+
 export default function RegisterPage({ currentUser, onRegistered, onOpenLogin, onOpenDashboard }) {
+  const lang = useLang();
   const [role, setRole] = useState('customer');
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
@@ -151,7 +185,7 @@ export default function RegisterPage({ currentUser, onRegistered, onOpenLogin, o
       <div className="rg-page">
         <div className="rg-done">
           <h1>Вы уже вошли</h1>
-          <p>Аккаунт: {currentUser.name || currentUser.email}. Чтобы создать другой, сначала выйдите из этого.</p>
+          <p>{`Аккаунт: ${currentUser.name || currentUser.email}. Чтобы создать другой, сначала выйдите из этого.`}</p>
           <button type="button" className="rg-submit" onClick={() => onOpenDashboard && onOpenDashboard(currentUser.role)}>Перейти в кабинет →</button>
         </div>
       </div>
@@ -323,10 +357,7 @@ export default function RegisterPage({ currentUser, onRegistered, onOpenLogin, o
                 aria-invalid={errors.terms ? 'true' : undefined}
                 aria-describedby={errors.terms ? 'reg-terms-err' : undefined}
               />
-              <span>
-                Мне есть 18 лет, принимаю{' '}
-                <a href="/terms" target="_blank" rel="noopener noreferrer">пользовательское соглашение</a>
-              </span>
+              <ConsentTerms lang={lang} />
             </label>
             {err('terms')}
             <label className={`rg-check${errors.privacy ? ' is-invalid' : ''}`}>
@@ -338,10 +369,7 @@ export default function RegisterPage({ currentUser, onRegistered, onOpenLogin, o
                 aria-invalid={errors.privacy ? 'true' : undefined}
                 aria-describedby={errors.privacy ? 'reg-privacy-err' : undefined}
               />
-              <span>
-                Даю <a href="/consent" target="_blank" rel="noopener noreferrer">согласие на обработку персональных данных</a>,
-                {' '}в том числе передачу за рубеж, по <a href="/privacy" target="_blank" rel="noopener noreferrer">политике конфиденциальности</a>
-              </span>
+              <ConsentPrivacy lang={lang} />
             </label>
             {err('privacy')}
             <label className="rg-check rg-check--opt">

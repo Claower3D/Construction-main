@@ -30,7 +30,7 @@ import (
 const assistantSystemPrompt = `Ты — ИИ-ассистент строительной платформы QazGost (Казахстан). Говоришь живо и дружелюбно, как опытный прораб-инженер, но по делу.
 
 Правила:
-- Отвечай на языке пользователя (русский или казахский). Коротко: 2–6 предложений или короткий список. Без воды и канцелярита.
+- Отвечай на языке пользователя (русский, казахский или английский). Коротко: 2–6 предложений или короткий список. Без воды и канцелярита.
 - Деньги — в тенге (₸). Нормы — СНиП РК, СП РК, ГОСТ. Если не уверен в цифре — так и скажи и предложи точный расчёт на платформе.
 - Если в сообщении есть блок «Цены из базы QazGost» — опирайся на эти цены и называй их, это реальная база платформы. Цены ориентировочные, без доставки.
 - Не выдумывай функции платформы. Когда уместно, дай ссылку на раздел в формате [текст](путь). Доступные разделы:
@@ -59,6 +59,19 @@ type assistantMsg struct {
 type assistantReq struct {
 	Messages []assistantMsg `json:"messages"`
 	City     string         `json:"city"`
+	Lang     string         `json:"lang"` // язык интерфейса: ru, kk, en
+}
+
+// assistantLangHint — какой язык ответа просить у модели. Интерфейс на казахском или
+// английском — отвечаем на нём, если пользователь сам не пишет на другом языке.
+func assistantLangHint(lang string) string {
+	switch lang {
+	case "kk":
+		return "\nИнтерфейс пользователя на казахском: отвечай на казахском языке, если пользователь явно не пишет на другом."
+	case "en":
+		return "\nThe user's interface is in English: answer in English unless the user clearly writes in another language."
+	}
+	return ""
 }
 
 // Assistant — обработчик чата ассистента.
@@ -113,7 +126,7 @@ func (h *AiHandler) Assistant(w http.ResponseWriter, r *http.Request) {
 	}
 	if apiKey != "" {
 		model := pickModel(r, userKey, "gpt-4o-mini")
-		if err := streamOpenAIAssistant(apiKey, model, msgs, prices, req.City, func(t string) { send(map[string]string{"t": t}) }); err == nil {
+		if err := streamOpenAIAssistant(apiKey, model, msgs, prices, req.City, req.Lang, func(t string) { send(map[string]string{"t": t}) }); err == nil {
 			send(map[string]interface{}{"done": true, "source": "openai"})
 			return
 		} else {
@@ -314,11 +327,12 @@ func openAIBaseURL() string {
 	return "https://api.openai.com/v1"
 }
 
-func streamOpenAIAssistant(apiKey, model string, msgs []assistantMsg, prices []services.PriceItem, city string, emit func(string)) error {
+func streamOpenAIAssistant(apiKey, model string, msgs []assistantMsg, prices []services.PriceItem, city, lang string, emit func(string)) error {
 	sys := assistantSystemPrompt
 	if city != "" {
 		sys += "\nГород пользователя: " + city + "."
 	}
+	sys += assistantLangHint(lang)
 	chat := []map[string]string{{"role": "system", "content": sys}}
 	for i, m := range msgs {
 		content := m.Content

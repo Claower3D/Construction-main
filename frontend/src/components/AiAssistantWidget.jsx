@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { X, Send, Mic, Volume2, VolumeX, RotateCcw, Calculator, HardHat, Layers, ClipboardList, TrendingUp } from 'lucide-react';
 import { navigateTo, openAuth } from '../utils/navigate';
 import './AiAssistantWidget.css';
+import { getLang } from '../i18n';
 
 /*
  * Ассистент — ИИ-инженер QazGost.
@@ -297,11 +298,14 @@ export default function AiAssistantWidget() {
     const synth = window.speechSynthesis;
     synth.cancel();
     const u = new SpeechSynthesisUtterance(plain(text).slice(0, 600));
-    u.lang = 'ru-RU';
+    // голос — на языке интерфейса; казахского голоса в браузере может не быть, тогда русский
+    const ui = getLang();
+    const want = ui === 'en' ? /^en/i : ui === 'kk' ? /^kk/i : /^ru/i;
+    u.lang = ui === 'en' ? 'en-US' : ui === 'kk' ? 'kk-KZ' : 'ru-RU';
     const voices = synth.getVoices();
-    const male = voices.find((v) => /ru/i.test(v.lang) && /(dmitry|pavel|maxim|male|муж)/i.test(v.name));
-    const ru = male || voices.find((v) => /ru/i.test(v.lang));
-    if (ru) u.voice = ru;
+    const male = voices.find((v) => want.test(v.lang) && /(dmitry|pavel|maxim|male|муж)/i.test(v.name));
+    const voice = male || voices.find((v) => want.test(v.lang)) || (ui === 'kk' ? voices.find((v) => /^ru/i.test(v.lang)) : null);
+    if (voice) { u.voice = voice; u.lang = voice.lang; }
     u.rate = 1.04; u.pitch = 0.95;
     u.onstart = () => setSpeaking(true);
     u.onend = () => setSpeaking(false);
@@ -349,7 +353,7 @@ export default function AiAssistantWidget() {
       const resp = await fetch('/api/v1/ai/assistant', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...(key ? { 'X-OpenAI-Key': key } : {}) },
-        body: JSON.stringify({ messages: history.slice(-12).map(({ role, content }) => ({ role, content })), city }),
+        body: JSON.stringify({ messages: history.slice(-12).map(({ role, content }) => ({ role, content })), city, lang: getLang() }),
         signal: ctrl.signal,
       });
       if (!resp.ok || !resp.body) throw new Error(`HTTP ${resp.status}`);
@@ -391,7 +395,7 @@ export default function AiAssistantWidget() {
     if (!SR) return;
     if (listening) { recRef.current?.stop(); return; }
     const rec = new SR();
-    rec.lang = 'ru-RU'; rec.interimResults = true; rec.maxAlternatives = 1;
+    rec.lang = { en: 'en-US', kk: 'kk-KZ' }[getLang()] || 'ru-RU'; rec.interimResults = true; rec.maxAlternatives = 1;
     let final = '';
     rec.onresult = (e) => {
       let txt = '';

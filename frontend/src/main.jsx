@@ -22,6 +22,7 @@ import './styles/landing-color.css';
 import './styles/landing-scene.css';
 import './styles/app-lux.css';
 import './utils/audioFX.js';
+import { initI18n } from './i18n';
 // 3D-наклон карточек (utils/cardTilt.js) отключён: MutationObserver на весь документ
 // и «прыгающие» карточки мешали чтению и нагружали CPU.
 
@@ -30,3 +31,6 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     <App />
   </React.StrictMode>
 );
+
+// Язык интерфейса (RU / KZ / EN): сохранённый выбор применяется сразу после монтирования
+initI18n();

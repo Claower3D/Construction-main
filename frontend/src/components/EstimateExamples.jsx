@@ -149,7 +149,7 @@ export default function EstimateExamples() {
           <div id="lux-doc" role="tabpanel" aria-labelledby={`lux-tab-${s.id}`}>
           <header className="lux-doc-head">
             <h3>{s.title}</h3>
-            <p>{s.city}, коэффициент ×{s.coef}. {s.size}, около {s.days} дн.</p>
+            <p>{`${s.city}, коэффициент ×${s.coef}. ${s.size}, около ${s.days} дн.`}</p>
           </header>
           <div className="lux-table-wrap">
             <table className="lux-table">

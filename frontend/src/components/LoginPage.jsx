@@ -38,7 +38,7 @@ export default function LoginPage({ currentUser, onLogin, onOpenRegister, onOpen
       <div className="rg-page">
         <div className="rg-done">
           <h1>Вы уже вошли</h1>
-          <p>Аккаунт: {currentUser.name || currentUser.email}.</p>
+          <p>{`Аккаунт: ${currentUser.name || currentUser.email}.`}</p>
           <button type="button" className="rg-submit" onClick={() => onOpenDashboard && onOpenDashboard(currentUser.role)}>Перейти в кабинет →</button>
         </div>
       </div>

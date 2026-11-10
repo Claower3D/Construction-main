@@ -391,3 +391,6 @@ body:has(.qg-scene) .qg-backdrop { display: none; }
 @media (prefers-reduced-motion: reduce) {
   :is(.qg-dash-workspace, .qg-app-page) * { transition: none !important; }
 }
+
+/* Переключатель языка в мобильном меню — золотая активная кнопка, как вкладки лендинга */
+.lang-switch .lang-btn.active { background: linear-gradient(135deg, #f8d27a, #e5a03a); color: #1c1203; box-shadow: none; }

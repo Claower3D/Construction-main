@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { getBalanceKZT, PAYMENTS_ENABLED } from '../services/walletEngine';
+import LangSwitch from './LangSwitch';
 
 // Знак QazGost: лист с размерной линией и «трещиной» — без эмодзи
 export function QazGostMark({ size = 36 }) {
@@ -798,11 +799,7 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
               </button>
             )}
 
-            <div className="lang-switch">
-              <button className="lang-btn active" aria-pressed="true">RU</button>
-              <button className="lang-btn" aria-pressed="false" title="Казахская версия готовится">KZ</button>
-              <button className="lang-btn" aria-pressed="false" title="Английская версия готовится">EN</button>
-            </div>
+            <LangSwitch />
           </div>
 
           {currentUser && (
@@ -1189,11 +1186,7 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
               )}
 
               {/* Language Switcher */}
-              <div className="lang-switch" style={{ width: '100%', justifyContent: 'space-around', padding: '4px' }}>
-                <button className="lang-btn active" style={{ flex: 1, padding: '0.4rem' }}>RU</button>
-                <button className="lang-btn" style={{ flex: 1, padding: '0.4rem' }}>KZ</button>
-                <button className="lang-btn" style={{ flex: 1, padding: '0.4rem' }}>EN</button>
-              </div>
+              <LangSwitch style={{ width: '100%', justifyContent: 'space-around', padding: '4px' }} buttonStyle={{ flex: 1, padding: '0.4rem' }} />
 
               {/* Auth Action Buttons */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem', marginTop: '1rem', paddingTop: '1rem' }}>

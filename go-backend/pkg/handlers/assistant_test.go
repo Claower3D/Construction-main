@@ -66,3 +66,15 @@ func TestKnowledgeAnswersHowItWorksWithoutPrices(t *testing.T) {
 		t.Fatal("ожидали объяснение сметы по фото")
 	}
 }
+
+func TestAssistantLangHint(t *testing.T) {
+	if assistantLangHint("ru") != "" || assistantLangHint("") != "" {
+		t.Fatal("для русского подсказка не нужна")
+	}
+	if !strings.Contains(assistantLangHint("kk"), "казахском") {
+		t.Fatal("kk: нет просьбы отвечать по-казахски")
+	}
+	if !strings.Contains(assistantLangHint("en"), "English") {
+		t.Fatal("en: нет просьбы отвечать по-английски")
+	}
+}

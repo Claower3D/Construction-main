@@ -1,11 +1,13 @@
 import React, { useEffect } from 'react';
 import { LEGAL_DOCS, LEGAL_OPERATOR, LEGAL_VERSION_LABEL } from '../data/legal';
+import { useLang } from '../i18n';
 import './LegalPage.css';
 
 // Страницы /terms, /privacy, /consent — тексты из data/legal.js
 export default function LegalPage({ docKey = 'privacy', onBack }) {
   const doc = LEGAL_DOCS[docKey] || LEGAL_DOCS.privacy;
   const sections = doc.sections();
+  const lang = useLang();
 
   useEffect(() => {
     const prev = document.title;
@@ -32,7 +34,14 @@ export default function LegalPage({ docKey = 'privacy', onBack }) {
         <header className="lg-head">
           <h1>{doc.title}</h1>
           <p>{doc.lead}</p>
-          <p className="lg-version">Редакция от {LEGAL_VERSION_LABEL}</p>
+          <p className="lg-version">{`Редакция от ${LEGAL_VERSION_LABEL}`}</p>
+          {lang !== 'ru' && (
+            <p className="lg-lang-note" role="note">
+              {lang === 'kk'
+                ? 'Құжаттың ресми мәтіні орыс тілінде берілген.'
+                : 'The official text of this document is provided in Russian.'}
+            </p>
+          )}
         </header>
 
         <nav className="lg-tabs" aria-label="Документы">
@@ -43,7 +52,7 @@ export default function LegalPage({ docKey = 'privacy', onBack }) {
           ))}
         </nav>
 
-        <article className="lg-card">
+        <article className="lg-card" translate="no" lang="ru">
           {sections.map((s) => (
             <section key={s.h} className="lg-section">
               <h2>{s.h}</h2>

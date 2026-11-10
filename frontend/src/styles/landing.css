@@ -140,14 +140,21 @@ html body::after { content: none !important; display: none !important; }
   box-shadow: var(--qg-shadow-2) !important;
 }
 
-/* На ноутбуках 1280–1366 прячем подпись логотипа и переключатель языка, чтобы шапка не переносилась */
+/* На ноутбуках 1280–1366 прячем подпись логотипа, чтобы шапка не переносилась.
+   Переключатель языка остаётся всегда — только становится компактнее. */
 @media (max-width: 1400px) {
   .header-wrapper .logo-subtitle { display: none !important; }
 }
 @media (max-width: 1440px) {
-  .header-wrapper .lang-switch,
   .header-wrapper .hdr-profile-btn { display: none !important; }
+  .header-wrapper .lang-btn { padding: 0.2rem 0.32rem !important; }
 }
+.header-wrapper .lang-btn:hover:not(.active) { color: var(--qg-text) !important; }
+/* На казахском и английском пункты шапки длиннее: у вошедшего пользователя убираем подпись
+   логотипа и кнопку «Анкета» (она есть в меню роли), чтобы шапка не вылезала за край */
+html:not([lang="ru"]) .header-wrapper:has(.hdr-profile-btn) .logo-subtitle,
+html:not([lang="ru"]) .header-wrapper .hdr-profile-btn { display: none !important; }
+.lang-btn:focus-visible { outline: 2px solid #f8d27a; outline-offset: 1px; }
 .header-wrapper .balance-chip { white-space: nowrap; }
 .header-wrapper .header-right-actions { gap: 8px !important; flex-wrap: nowrap; }
 

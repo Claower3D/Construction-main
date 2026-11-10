@@ -132,7 +132,7 @@ export default function PriceCatalogSection({ onOpenCategory }) {
           <aside className="lux-glass lux-glass--gold lux-result" aria-live="polite">
             <p className="lux-result-label">Ориентировочный бюджет</p>
             <p className="lux-result-sum qg-num">{fmt(total)} ₸</p>
-            <p className="lux-result-range qg-num">Диапазон: {fmt(total * 0.93)} – {fmt(total * 1.08)} ₸</p>
+            <p className="lux-result-range qg-num">{`Диапазон: ${fmt(total * 0.93)} – ${fmt(total * 1.08)} ₸`}</p>
             <dl className="lux-result-list">
               <div><dt><Clock size={18} aria-hidden="true" />Срок выполнения</dt><dd className="qg-num">≈ {days} дн.</dd></div>
               <div><dt><Boxes size={18} aria-hidden="true" />Объём работ</dt><dd className="qg-num">{area} м²</dd></div>
@@ -153,7 +153,7 @@ export default function PriceCatalogSection({ onOpenCategory }) {
           <header className="lux-head lux-head--split">
             <div>
               <h2 id="lux-catalog-title">Каталог работ и цен</h2>
-              <p>12 089 расценок в {categoriesData.length} категориях по ценам 2026 года.</p>
+              <p>{`12 089 расценок в ${categoriesData.length} категориях по ценам 2026 года.`}</p>
             </div>
             <div className="lux-search">
               <Search size={18} aria-hidden="true" />
@@ -177,7 +177,7 @@ export default function PriceCatalogSection({ onOpenCategory }) {
 
           {list.length === 0 ? (
             <div className="lux-empty">
-              <p>По запросу «{search}» категорий нет. Попробуйте другое слово.</p>
+              <p>{`По запросу «${search}» категорий нет. Попробуйте другое слово.`}</p>
               <button type="button" className="qg-btn qg-btn--ghost qg-btn--sm" onClick={() => { setSearch(''); setGroup('all'); }}>Показать все</button>
             </div>
           ) : (
