@@ -13,7 +13,6 @@ import MobileAppBanner from './components/MobileAppBanner';
 import FaqSection from './components/FaqSection';
 import FooterSection from './components/FooterSection';
 import AiAssistantWidget from './components/AiAssistantWidget';
-import AuthModal from './components/AuthModal';
 import VoiceControlWidget from './components/VoiceControlWidget';
 import ScrollToTopButton from './components/ScrollToTopButton';
 import PageLoader from './components/PageLoader';
@@ -35,6 +34,7 @@ const EngineeringCalcPage = lazy(() => import('./components/EngineeringCalcPage'
 const LiDARScanPage = lazy(() => import('./components/LiDARScanPage'));
 const LegalPage = lazy(() => import('./components/LegalPage'));
 const RegisterPage = lazy(() => import('./components/RegisterPage'));
+const LoginPage = lazy(() => import('./components/LoginPage'));
 
 const DASHBOARD_VIEWS = ['admin', 'customer', 'executor', 'company', 'engineer', 'crm', 'manager'];
 // Панели с ограничением по роли (UI-guard; реальная защита данных — на сервере)
@@ -56,7 +56,6 @@ export default function App() {
     return localStorage.getItem('app_role') || 'executor';
   });
   const [theme, setTheme] = useState('dark');
-  const [authMode, setAuthMode] = useState(null);
   const [currentUser, setCurrentUser] = useState(() => {
     try {
       const saved = localStorage.getItem('app_currentUser');
@@ -85,16 +84,12 @@ export default function App() {
 
   // CTA лендинга открывают окно входа через событие (utils/navigate.js → openAuth)
   useEffect(() => {
-    // Регистрация — отдельная страница /register, вход — окно
+    // Вход и регистрация — отдельные страницы /login и /register
     const onOpenAuth = (e) => {
-      if (e.detail?.mode === 'register') {
-        setAuthMode(null);
-        if (window.location.pathname !== '/register') window.history.pushState({}, '', '/register');
-        setCurrentView('register');
-        window.scrollTo(0, 0);
-      } else {
-        setAuthMode('login');
-      }
+      const view = e.detail?.mode === 'register' ? 'register' : 'login';
+      if (window.location.pathname !== `/${view}`) window.history.pushState({}, '', `/${view}`);
+      setCurrentView(view);
+      window.scrollTo(0, 0);
     };
     window.addEventListener('qazgost_open_auth', onOpenAuth);
     return () => window.removeEventListener('qazgost_open_auth', onOpenAuth);
@@ -125,6 +120,7 @@ export default function App() {
     if (path.startsWith('/equipment')) return 'equipment';
     if (LEGAL_PATHS[path.replace(/\/+$/, '')]) return 'legal';
     if (path.startsWith('/register')) return 'register';
+    if (path.startsWith('/login')) return 'login';
     return 'landing';
   });
 
@@ -164,6 +160,7 @@ export default function App() {
       else if (path.startsWith('/equipment')) setCurrentView('equipment');
       else if (LEGAL_PATHS[path.replace(/\/+$/, '')]) { setCurrentView('legal'); setLegalTick((t) => t + 1); }
       else if (path.startsWith('/register')) setCurrentView('register');
+      else if (path.startsWith('/login')) setCurrentView('login');
       else setCurrentView('landing');
     };
     window.addEventListener('popstate', handlePopState);
@@ -190,20 +187,15 @@ export default function App() {
   };
 
   const openAuthFlow = (mode) => {
-    if (mode === 'register') {
-      setAuthMode(null);
-      if (window.location.pathname !== '/register') window.history.pushState({}, '', '/register');
-      setCurrentView('register');
-      window.scrollTo(0, 0);
-    } else {
-      setAuthMode(mode);
-    }
+    const view = mode === 'register' ? 'register' : 'login';
+    if (window.location.pathname !== `/${view}`) window.history.pushState({}, '', `/${view}`);
+    setCurrentView(view);
+    window.scrollTo(0, 0);
   };
 
   const handleLogin = (user) => {
     setCurrentUser(user);
     setRole(user.role);
-    setAuthMode(null);
     navigateToDashboard(user.role);
   };
 
@@ -225,9 +217,9 @@ export default function App() {
   useEffect(() => {
     if (!dashboardBlocked) return;
     if (!currentUser) {
-      window.history.replaceState({}, '', '/');
-      setCurrentView('landing');
-      setAuthMode('login');
+      // без входа кабинет не открыть — ведём на страницу входа
+      window.history.replaceState({}, '', '/login');
+      setCurrentView('login');
     } else {
       const own = DASHBOARD_VIEWS.includes(currentUser.role) ? currentUser.role : 'customer';
       window.history.replaceState({}, '', `/${own}`);
@@ -467,11 +459,20 @@ export default function App() {
             />
           )}
 
+          {currentView === 'login' && (
+            <LoginPage
+              currentUser={currentUser}
+              onLogin={handleLogin}
+              onOpenRegister={() => openAuthFlow('register')}
+              onOpenDashboard={navigateToDashboard}
+            />
+          )}
+
           {currentView === 'register' && (
             <RegisterPage
               currentUser={currentUser}
               onRegistered={handleLogin}
-              onOpenLogin={() => setAuthMode('login')}
+              onOpenLogin={() => openAuthFlow('login')}
               onOpenDashboard={navigateToDashboard}
             />
           )}
@@ -526,7 +527,6 @@ export default function App() {
       <VoiceControlWidget />
       <ScrollToTopButton />
 
-      <AuthModal mode={authMode} onClose={() => setAuthMode(null)} onLogin={handleLogin} onRegister={() => openAuthFlow('register')} />
       {syncBanner}
     </div>
   );
