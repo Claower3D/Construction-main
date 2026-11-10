@@ -204,22 +204,20 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
   const loadNotifs = React.useCallback(() => {
     if (!currentUser) return;
     const key = `${currentUser.role}_notifications`;
-    let raw = localStorage.getItem(key);
-    let list = [];
-    if (!raw) {
+    const raw = localStorage.getItem(key);
+    let list = null;
+    // Стандартные уведомления подставляем только при первом входе (ключа ещё нет) или если запись испорчена.
+    // Пустой список — это «пользователь очистил уведомления», его не перезаписываем:
+    // раньше после «Очистить все» демо-уведомления тут же появлялись снова.
+    if (raw !== null) {
+      try {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) list = parsed;
+      } catch (e) { /* испорченная запись — заменим стандартными */ }
+    }
+    if (list === null) {
       list = getDefaultNotificationsForRole(currentUser.role);
       localStorage.setItem(key, JSON.stringify(list));
-    } else {
-      try {
-        list = JSON.parse(raw);
-        if (!Array.isArray(list) || list.length === 0) {
-          list = getDefaultNotificationsForRole(currentUser.role);
-          localStorage.setItem(key, JSON.stringify(list));
-        }
-      } catch (e) {
-        list = getDefaultNotificationsForRole(currentUser.role);
-        localStorage.setItem(key, JSON.stringify(list));
-      }
     }
     setNotifications(list);
     setUnreadNotifsCount(list.filter(n => n.unread).length);
@@ -808,23 +806,28 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
 
           {currentUser && (
             <div style={{ position: 'relative' }}>
-              <div 
+              <button
                 style={{ 
                   position: 'relative', 
                   cursor: 'pointer', 
                   display: 'flex', 
                   alignItems: 'center', 
                   padding: '6px', 
+                  border: 0,
+                  color: 'inherit',
                   borderRadius: '12px', 
                   transition: 'all 0.2s ease', 
                   background: isNotifOpen ? 'rgba(185, 164, 255, 0.18)' : 'transparent' 
                 }} 
+                type="button"
                 onClick={() => setIsNotifOpen(!isNotifOpen)}
                 title="Уведомления"
+                aria-label={unreadNotifsCount > 0 ? `Уведомления, новых: ${unreadNotifsCount}` : 'Уведомления'}
+                aria-expanded={isNotifOpen}
               >
-                <span style={{ fontSize: '1.4rem' }}>🔔</span>
+                <span style={{ fontSize: '1.4rem' }} aria-hidden="true">🔔</span>
                 {unreadNotifsCount > 0 && (
-                  <div style={{ 
+                  <span aria-hidden="true" style={{ 
                     position: 'absolute', 
                     top: 2, 
                     right: 2, 
@@ -842,9 +845,9 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
                     border: '2px solid #15122a' 
                   }}>
                     {unreadNotifsCount}
-                  </div>
+                  </span>
                 )}
-              </div>
+              </button>
 
               {/* NOTIFICATIONS DROPDOWN POPOVER */}
               {isNotifOpen && (
@@ -884,6 +887,7 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
 
                       {notifications.length > 0 && unreadNotifsCount > 0 && (
                         <button 
+                          type="button"
                           onClick={handleMarkAllRead}
                           style={{ background: 'transparent', border: 'none', color: '#b9a4ff', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer', textDecoration: 'underline' }}
                         >
@@ -948,6 +952,7 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
                       <div style={{ padding: '0.75rem 1.25rem', borderTop: '1px solid rgba(255, 255, 255, 0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(0,0,0,0.2)' }}>
                         <span style={{ color: '#a39cc2', fontSize: '0.75rem' }}>Всего: {notifications.length}</span>
                         <button 
+                          type="button"
                           onClick={handleClearNotifs}
                           style={{ background: 'transparent', border: 'none', color: '#ef4444', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer' }}
                         >
