@@ -19,6 +19,9 @@ import { FALLBACK_MATERIALS, FALLBACK_EQUIPMENT } from './data/marketFallback';
 import { localDateISO } from './api/syncCore';
 import { Toast, SyncBanner } from './components/ui/kit';
 
+// Ошибки браузера («Failed to fetch») показываем по-русски
+const humanSyncError = (msg) => (/failed to fetch|networkerror|load failed|network request failed/i.test(String(msg || '')) ? 'Нет связи с сервером, данные сохранены на телефоне' : msg);
+
 const TITLES = { inspections: 'Объекты', calendar: 'Календарь выездов', defects: 'Дефекты по фото', estimates: 'Смета по фото', marketplace: 'Маркет', tools: 'Расчёты и СНиП' };
 
 const HEARTBEAT_MS = 60000;
@@ -62,10 +65,10 @@ export default function App() {
     setIsSyncing(false);
     setIsOnline(!!res.success);
     if (res.success) {
-      setSyncError(res.errors && res.errors.length ? res.errors[0] : null);
+      setSyncError(res.errors && res.errors.length ? humanSyncError(res.errors[0]) : null);
       applyDeals(res.deals);
     } else {
-      setSyncError(res.error);
+      setSyncError(humanSyncError(res.error));
       applyDeals(dealsStore.isInitialized() ? res.deals : loadDemoDeals());
     }
     return res;

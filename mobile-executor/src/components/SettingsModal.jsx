@@ -111,7 +111,7 @@ export default function SettingsModal({ executor, serverUrl, onUpdateServerUrl, 
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(255, 255, 255, 0.03)', padding: '8px 12px', borderRadius: '10px' }}>
               <Mail size={15} color="#00e5ff" />
-              <span>{executor?.email || executor?.login || 'timur.executor@qazgost.kz'}</span>
+              <span>{executor?.email || executor?.login || '—'}</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(255, 255, 255, 0.03)', padding: '8px 12px', borderRadius: '10px' }}>
               <Users size={15} color="#00e5ff" />

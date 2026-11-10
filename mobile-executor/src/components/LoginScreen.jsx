@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Hammer, User, Lock, ArrowRight, Eye, EyeOff, RefreshCw, HardHat } from 'lucide-react';
-import { loginExecutor, testServerPing, getSavedLogin, setSavedLogin } from '../api/executorApi';
+import { loginExecutor, testServerPing, getSavedLogin } from '../api/executorApi';
 
 export default function LoginScreen({ serverUrl, onUpdateServerUrl, onLoginSuccess }) {
   const initialLogin = getSavedLogin();
-  const [loginInput, setLoginInput] = useState(initialLogin || 'timur.executor@qazgost.kz');
-  const [password, setPassword] = useState('Master2026!');
+  const [loginInput, setLoginInput] = useState(initialLogin || '');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
@@ -59,7 +59,6 @@ export default function LoginScreen({ serverUrl, onUpdateServerUrl, onLoginSucce
       return;
     }
 
-    setSavedLogin(cleanLogin);
     setIsLoading(true);
     setErrorMsg(null);
 
@@ -214,7 +213,7 @@ export default function LoginScreen({ serverUrl, onUpdateServerUrl, onLoginSucce
                 type="text"
                 defaultValue={loginInput}
                 onChange={(e) => setLoginInput(e.target.value)}
-                placeholder="timur.executor@qazgost.kz"
+                placeholder="name@company.kz"
                 autoComplete="username"
                 style={{
                   width: '100%',

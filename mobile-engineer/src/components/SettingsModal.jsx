@@ -111,7 +111,7 @@ export default function SettingsModal({ engineer, serverUrl, onUpdateServerUrl, 
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(255, 255, 255, 0.03)', padding: '8px 12px', borderRadius: '10px' }}>
               <Mail size={15} color="#f59e0b" />
-              <span>{engineer?.email || engineer?.login || 'maxim.engineer@qazgost.kz'}</span>
+              <span>{engineer?.email || engineer?.login || '—'}</span>
             </div>
           </div>
         </div>

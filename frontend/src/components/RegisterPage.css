@@ -225,18 +225,6 @@ select.rg-input option { background: #15122b; color: #fff; }
 .rg-card--single { grid-template-columns: minmax(0, 1fr); width: 100%; max-width: 460px; justify-self: start; gap: 14px; }
 .rg-forgot { margin: 8px 0 0; color: var(--qg-text-3); font-size: 0.8125rem; }
 .rg-forgot a { color: #f2b84b; font-weight: 700; text-decoration: underline; text-underline-offset: 2px; }
-.rg-presets span { display: block; margin-bottom: 6px; color: #a39cc2; font-size: 0.78rem; font-weight: 600; }
-.rg-presets div { display: flex; flex-wrap: wrap; gap: 6px; }
-.rg-presets button {
-  padding: 6px 10px;
-  border: 1px solid rgba(189, 178, 230, 0.3);
-  border-radius: 8px;
-  background: rgba(25, 21, 50, 0.6);
-  color: #ddd6fe;
-  font: 700 0.76rem var(--qg-font);
-  cursor: pointer;
-}
-.rg-presets button:hover { border-color: rgba(242, 184, 75, 0.45); }
 
 /* плавающий ассистент на ноутбуках и телефонах закрывал согласия и кнопку — на этой странице его нет */
 body:has(.rg-page) .arm-widget { display: none; }

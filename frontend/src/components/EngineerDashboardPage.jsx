@@ -3,6 +3,7 @@ import AnimatedBackground from './AnimatedBackground';
 import '../engineer-modal.css';
 import OnboardingTour from './OnboardingTour';
 import SmartDealCreateModal from './SmartDealCreateModal';
+import TaskCalendar from './calendar/TaskCalendar';
 import { jsonAuthHeaders, getAuthToken, reportSyncError, responseError, parseMoney } from '../services/platformUtils';
 import { upsertCrmEvent } from '../services/orderSyncService';
 
@@ -356,10 +357,13 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
 
 
   // Open Create Modal
-  const handleOpenCreateModal = () => {
+  // date — необязательная дата {y, m, d}: календарь передаёт день, на который нажали
+  // (состояние выбранного дня обновится только при следующей отрисовке)
+  const handleOpenCreateModal = (date) => {
+    const pick = date && typeof date.d === 'number' ? date : { y: currentYear, m: monthIndex, d: selectedDay };
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const selectedDate = new Date(currentYear, monthIndex, selectedDay);
+    const selectedDate = new Date(pick.y, pick.m, pick.d);
     const isAdmin = currentUser?.role === 'admin' || viewRole === 'admin';
     
     if (selectedDate < today && !isAdmin) {
@@ -375,7 +379,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
     setEvtType('object');
     setEvtContractor('ТОО «QazGost»');
     setEvtStatus('В работе');
-    setEvtDeadline(`До 18:00 (${selectedDay} ${monthsList[monthIndex]})`);
+    setEvtDeadline(`До 18:00 (${pick.d} ${monthNames[pick.m]} ${pick.y})`);
     setEvtStages([
       { id: 's1', title: '1. Подготовительные работы и нулевой цикл', deadline: 'До 10 Авг', status: 'Завершено', description: '', photos: [], documents: [] },
       { id: 's2', title: '2. Возведение несущих стен и монолита', deadline: 'До 20 Авг', status: 'В работе', description: '', photos: [], documents: [] },
@@ -971,6 +975,72 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
     });
   };
 
+  // Галочка «выполнено» в календаре: статус «Завершено» и обратно (прежний статус запоминается)
+  const handleToggleEventDone = (evt) => {
+    const isDone = (ev) => ev.status === 'Завершено' || ev.type === 'completed';
+    let updated = null;
+    setScheduledEvents(prev => {
+      const next = {};
+      for (const k in prev) {
+        next[k] = (prev[k] || []).map(ev => {
+          if (String(ev.id) !== String(evt.id)) return ev;
+          const changed = isDone(ev)
+            ? { ...ev, status: ev.prevStatus || 'В работе', type: ev.type === 'completed' ? (ev.prevType || 'object') : ev.type, prevStatus: undefined, prevType: undefined }
+            : { ...ev, prevStatus: ev.status, prevType: ev.type, status: 'Завершено' };
+          updated = changed;
+          return changed;
+        });
+      }
+      try {
+        const key = viewRole === 'engineer' ? 'qazgost_calendar_events' : `qazgost_calendar_events_${viewRole}`;
+        localStorage.setItem(key, JSON.stringify(next));
+        localStorage.setItem('qazgost_calendar_events', JSON.stringify(next));
+      } catch (e) {}
+      return next;
+    });
+    // На сервер — только статус уже синхронизированного заказа
+    setTimeout(() => {
+      if (!updated || !updated.serverOrderId || !getAuthToken()) return;
+      fetch(`/api/v1/orders/${encodeURIComponent(updated.serverOrderId)}`, {
+        method: 'PUT',
+        headers: jsonAuthHeaders(),
+        body: JSON.stringify({
+          title: updated.title || '', location: updated.location || '', time: updated.time || '', type: updated.type || '',
+          contractor: updated.contractor || '', status: updated.status || '', deadline: updated.deadline || '',
+          stages: (updated.stages || []).map(st => ({
+            id: String(st.id ?? ''), title: String(st.title || ''), deadline: String(st.deadline || ''), status: String(st.status || ''), description: String(st.description || ''),
+            photos: (st.photos || []).map(ph => (typeof ph === 'string' ? ph : ph?.url)).filter(u => typeof u === 'string' && /^https?:|^\/uploads\//.test(u)),
+          })),
+          estimateItems: (updated.estimateItems || []).map(it => ({
+            name: String(it.name || ''), unit: String(it.unit || ''), qty: Number(it.qty) || 0, price: parseMoney(it.price),
+            sum: parseMoney(it.sum) || Math.round((Number(it.qty) || 0) * parseMoney(it.price)),
+          })),
+          totalSum: parseMoney(updated.totalSum),
+          createdBy: updated.createdBy || '',
+        })
+      })
+        .then(async (res) => { if (!res.ok) reportSyncError(`Статус «${updated.title}» не сохранён на сервере: ${await responseError(res)}`); })
+        .catch((err) => reportSyncError(`Статус «${updated.title}» не отправлен на сервер: ${err.message}`));
+    }, 0);
+  };
+
+  // Удаление из календаря по id — из любого дня (старая функция удаляла только из выбранного дня)
+  const handleDeleteEventEverywhere = (evtId) => {
+    if (!window.confirm('Удалить задачу из календаря?')) return;
+    const strip = (obj) => {
+      const next = {};
+      for (const k in obj) next[k] = (obj[k] || []).filter(item => String(item.id) !== String(evtId));
+      return next;
+    };
+    ['qazgost_calendar_events', `qazgost_calendar_events_${viewRole}`].forEach((storageKey) => {
+      try {
+        const saved = localStorage.getItem(storageKey);
+        if (saved) localStorage.setItem(storageKey, JSON.stringify(strip(JSON.parse(saved))));
+      } catch (e) {}
+    });
+    setScheduledEvents(prev => strip(prev));
+  };
+
   // Delete Event
   const handleDeleteEvent = (evtId) => {
     if (!window.confirm('Удалить данное событие из календаря?')) return;
@@ -1476,352 +1546,22 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
           {/* ======================================================= */}
           {activeTab === 'calendar' && (
             <div className="tab-view-container">
-              {/* TOP HEADER BAR */}
-              <div className="calendar-top-bar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.5rem', background: 'rgba(21, 18, 42, 0.7)', border: '1px solid rgba(185, 164, 255, 0.2)', padding: '12px 18px', borderRadius: '16px', backdropFilter: 'blur(20px)' }}>
-                <div className="calendar-header-left" style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
-                  <button className="btn-back-square" onClick={onBackToHome} title="На главную" style={{ background: 'rgba(185, 164, 255, 0.25)', border: '1.5px solid #b9a4ff', color: '#ffffff', width: '40px', height: '40px', borderRadius: '12px', fontSize: '1.2rem', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontWeight: 900 }}>
-                    ←
-                  </button>
-                  <h2 className="calendar-section-title" style={{ fontSize: '1.45rem', fontWeight: 900, margin: 0, color: '#ffffff', display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-                    <span className="title-icon-badge" style={{ background: 'rgba(185, 164, 255, 0.25)', border: '1.5px solid #b9a4ff', borderRadius: '10px', width: '38px', height: '38px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem' }}>🗓️</span>
-                    <span style={{ color: '#ffffff', textShadow: '0 0 10px rgba(255,255,255,0.2)' }}>Календарь работ</span>
-                  </h2>
-                </div>
-
-                <div className="calendar-controls-right" style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-                  <div className="view-mode-tabs" style={{ display: 'flex', background: '#15122a', border: '1.5px solid #b9a4ff', borderRadius: '12px', padding: '4px' }}>
-                    <button
-                      type="button"
-                      className={`view-tab ${calendarViewMode === 'month' ? 'active' : ''}`}
-                      onClick={() => setCalendarViewMode('month')}
-                      style={{
-                        background: calendarViewMode === 'month' ? 'linear-gradient(135deg, #a78bfa, #7c3aed)' : '#211d38',
-                        color: '#ffffff',
-                        border: 'none',
-                        padding: '8px 16px',
-                        borderRadius: '8px',
-                        fontWeight: 900,
-                        fontSize: '0.88rem',
-                        cursor: 'pointer',
-                        boxShadow: calendarViewMode === 'month' ? '0 0 12px rgba(167, 139, 250, 0.6)' : 'none',
-                        transition: 'all 0.2s ease',
-                        marginRight: '3px'
-                      }}
-                    >
-                      🗓️ Месяц
-                    </button>
-                    <button
-                      type="button"
-                      className={`view-tab ${calendarViewMode === 'week' ? 'active' : ''}`}
-                      onClick={() => setCalendarViewMode('week')}
-                      style={{
-                        background: calendarViewMode === 'week' ? 'linear-gradient(135deg, #a78bfa, #7c3aed)' : '#211d38',
-                        color: '#ffffff',
-                        border: 'none',
-                        padding: '8px 16px',
-                        borderRadius: '8px',
-                        fontWeight: 900,
-                        fontSize: '0.88rem',
-                        cursor: 'pointer',
-                        boxShadow: calendarViewMode === 'week' ? '0 0 12px rgba(167, 139, 250, 0.6)' : 'none',
-                        transition: 'all 0.2s ease'
-                      }}
-                    >
-                      📅 Неделя
-                    </button>
-                  </div>
-
-                  <div className="month-navigator" style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#15122a', border: '1.5px solid #b9a4ff', borderRadius: '12px', padding: '5px 12px' }}>
-                    <button
-                      type="button"
-                      className="btn-nav-arrow-sm"
-                      onClick={() => setMonthIndex((prev) => (prev > 0 ? prev - 1 : 11))}
-                      style={{ background: 'rgba(185, 164, 255, 0.3)', border: '1.5px solid #b9a4ff', color: '#ffffff', width: '32px', height: '32px', borderRadius: '8px', cursor: 'pointer', fontWeight: 900, fontSize: '1.3rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                      title="Предыдущий месяц"
-                    >
-                      ‹
-                    </button>
-                    <span className="month-nav-label" style={{ color: '#ffffff', fontWeight: 900, fontSize: '1rem', minWidth: '130px', textAlign: 'center', letterSpacing: '0.02em' }}>{monthsList[monthIndex]}</span>
-                    <button
-                      type="button"
-                      className="btn-nav-arrow-sm"
-                      onClick={() => setMonthIndex((prev) => (prev < 11 ? prev + 1 : 0))}
-                      style={{ background: 'rgba(185, 164, 255, 0.3)', border: '1.5px solid #b9a4ff', color: '#ffffff', width: '32px', height: '32px', borderRadius: '8px', cursor: 'pointer', fontWeight: 900, fontSize: '1.3rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                      title="Следующий месяц"
-                    >
-                      ›
-                    </button>
-                  </div>
-
-                  <button
-                    type="button"
-                    className="btn-today-indigo"
-                    onClick={() => {
-                      const now = new Date();
-                      setMonthIndex(now.getMonth());
-                      setSelectedDay(now.getDate());
-                    }}
-                    style={{
-                      background: 'linear-gradient(135deg, #6366f1, #4f46e5)',
-                      color: '#ffffff',
-                      border: '1.5px solid #a5b4fc',
-                      borderRadius: '12px',
-                      padding: '8px 22px',
-                      fontWeight: 900,
-                      fontSize: '0.92rem',
-                      cursor: 'pointer',
-                      boxShadow: '0 0 18px rgba(99, 102, 241, 0.6)'
-                    }}
-                  >
-                    ⚡ Сегодня
-                  </button>
-                </div>
-              </div>
-
-              {/* KPI STATS CARDS ROW (4 Summary Counters) */}
-              <div className="calendar-stats-row" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
-                <div className="calendar-kpi-card" style={{ background: 'rgba(21, 18, 42, 0.95)', border: '1.5px solid rgba(167, 139, 250, 0.4)', borderRadius: '16px', padding: '1.25rem 1rem', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', boxShadow: '0 4px 20px rgba(0,0,0,0.3)' }}>
-                  <span className="kpi-big-num cyan" style={{ fontSize: '2.4rem', fontWeight: 900, color: '#b9a4ff', textShadow: '0 0 15px rgba(185, 164, 255, 0.5)' }}>{activeProjectsCount}</span>
-                  <span className="kpi-card-label" style={{ fontSize: '0.8rem', fontWeight: 800, color: '#ffffff', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.4rem', letterSpacing: '0.04em' }}>
-                    <span>🔨</span> АКТИВНЫХ ПРОЕКТОВ
-                  </span>
-                </div>
-                <div className="calendar-kpi-card" style={{ background: 'rgba(21, 18, 42, 0.95)', border: '1.5px solid rgba(245, 158, 11, 0.4)', borderRadius: '16px', padding: '1.25rem 1rem', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', boxShadow: '0 4px 20px rgba(0,0,0,0.3)' }}>
-                  <span className="kpi-big-num gold" style={{ fontSize: '2.4rem', fontWeight: 900, color: '#fbbf24', textShadow: '0 0 15px rgba(251, 191, 36, 0.5)' }}>{inReviewCount}</span>
-                  <span className="kpi-card-label" style={{ fontSize: '0.8rem', fontWeight: 800, color: '#ffffff', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.4rem', letterSpacing: '0.04em' }}>
-                    <span>📋</span> НА ПРОВЕРКЕ
-                  </span>
-                </div>
-                <div className="calendar-kpi-card" style={{ background: 'rgba(21, 18, 42, 0.95)', border: '1.5px solid rgba(239, 68, 68, 0.4)', borderRadius: '16px', padding: '1.25rem 1rem', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', boxShadow: '0 4px 20px rgba(0,0,0,0.3)' }}>
-                  <span className="kpi-big-num red" style={{ fontSize: '2.4rem', fontWeight: 900, color: '#f87171', textShadow: '0 0 15px rgba(248, 113, 113, 0.5)' }}>{weekDeadlinesCount}</span>
-                  <span className="kpi-card-label" style={{ fontSize: '0.8rem', fontWeight: 800, color: '#ffffff', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.4rem', letterSpacing: '0.04em' }}>
-                    <span>⏰</span> ДЕДЛАЙНОВ НА НЕДЕЛЕ
-                  </span>
-                </div>
-                <div className="calendar-kpi-card" style={{ background: 'rgba(21, 18, 42, 0.95)', border: '1.5px solid rgba(16, 185, 129, 0.4)', borderRadius: '16px', padding: '1.25rem 1rem', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', boxShadow: '0 4px 20px rgba(0,0,0,0.3)' }}>
-                  <span className="kpi-big-num green" style={{ fontSize: '2.4rem', fontWeight: 900, color: '#34d399', textShadow: '0 0 15px rgba(52, 211, 153, 0.5)' }}>{completedCount}</span>
-                  <span className="kpi-card-label" style={{ fontSize: '0.8rem', fontWeight: 800, color: '#ffffff', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.4rem', letterSpacing: '0.04em' }}>
-                    <span>✅</span> ВЫПОЛНЕНО
-                  </span>
-                </div>
-              </div>
-
-              {/* MAIN WORKSPACE GRID: MONTH GRID + RIGHT SIDEBAR */}
-              <div className="calendar-workspace-grid">
-                {/* LEFT: MONTH CALENDAR GRID */}
-                <div className="calendar-card-panel">
-                  {/* Weekday headers */}
-                  <div className="weekdays-grid-header">
-                    <span className="weekday-col">ПН</span>
-                    <span className="weekday-col">ВТ</span>
-                    <span className="weekday-col">СР</span>
-                    <span className="weekday-col">ЧТ</span>
-                    <span className="weekday-col">ПТ</span>
-                    <span className="weekday-col weekend">СБ</span>
-                    <span className="weekday-col weekend">ВС</span>
-                  </div>
-
-                  {/* Days grid: 42 cells dynamically generated */}
-                  <div className="days-number-grid-full">
-                    {/* Previous Month Days */}
-                    {prevMonthDays.map((prevDay) => (
-                      <div key={`prev-${prevDay}`} className="month-day-cell faded">
-                        <span className="day-number-tag">{prevDay}</span>
-                      </div>
-                    ))}
-
-                    {/* Current Month Days */}
-                    {currentMonthDays.map((dayNum) => {
-                      const fullDateKey = `${currentYear}-${String(monthIndex + 1).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
-                      const evts = [...(scheduledEvents[dayNum] || []), ...(scheduledEvents[fullDateKey] || [])];
-                      const isSel = selectedDay === dayNum;
-                      return (
-                        <div
-                          key={`curr-${dayNum}`}
-                          className={`month-day-cell ${isSel ? 'selected-day' : ''}`}
-                          onClick={() => setSelectedDay(dayNum)}
-                        >
-                          <span className="day-number-tag">{dayNum}</span>
-
-                          {/* Render Individual Role-Differentiated Event Chips */}
-                          {evts.length > 0 && (
-                            <div className="day-events-wrapper" style={{ display: 'flex', flexDirection: 'column', gap: '3px', marginTop: '2px', width: '100%', minWidth: 0, overflow: 'hidden' }}>
-                              {evts.slice(0, 2).map((e, eIdx) => {
-                                const isEng = e.role === 'engineer' || e.authorRole === 'engineer' || e.type?.includes('engineer') || e.type === 'request_engineering' || e.title?.toLowerCase().includes('экспертиз') || e.title?.toLowerCase().includes('псд') || e.title?.toLowerCase().includes('инженер') || e.title?.toLowerCase().includes('выезд');
-                                const isExec = e.role === 'executor' || e.type === 'work_stage' || e.type === 'active_project' || e.title?.toLowerCase().includes('монтаж') || e.title?.toLowerCase().includes('стройк');
-                                const isMachinery = e.type === 'request_construction' || e.title?.toLowerCase().includes('техник') || e.title?.toLowerCase().includes('экскаватор');
-                                
-                                const roleLabel = isEng ? '👷 Инженер' : (isExec ? '🔨 Исполнитель' : (isMachinery ? '🚜 Техника' : '📝 Лид'));
-                                const chipBorder = isEng ? '#f59e0b' : isExec ? '#00e5ff' : isMachinery ? '#b9a4ff' : '#8b5cf6';
-                                const tagColor = isEng ? '#fcd34d' : isExec ? '#b9a4ff' : isMachinery ? '#d6caff' : '#c4b5fd';
-                                const cleanTitle = e.stageName || e.title || 'Задача';
-
-                                return (
-                                  <div
-                                    key={e.id || eIdx}
-                                    onClick={(evtClick) => {
-                                      evtClick.stopPropagation();
-                                      setSelectedDay(dayNum);
-                                      handleOpenEditModal(e);
-                                    }}
-                                    style={{
-                                      background: 'rgba(21, 18, 42, 0.95)',
-                                      border: `1px solid ${chipBorder}80`,
-                                      borderLeft: `3px solid ${chipBorder}`,
-                                      borderRadius: '5px',
-                                      padding: '2px 5px',
-                                      cursor: 'pointer',
-                                      fontSize: '0.66rem',
-                                      lineHeight: 1.2,
-                                      width: '100%',
-                                      minWidth: 0,
-                                      boxSizing: 'border-box',
-                                      overflow: 'hidden',
-                                      boxShadow: '0 2px 5px rgba(0,0,0,0.4)',
-                                      transition: 'all 0.15s ease'
-                                    }}
-                                    onMouseEnter={evt => evt.currentTarget.style.borderColor = chipBorder}
-                                    onMouseLeave={evt => evt.currentTarget.style.borderColor = `${chipBorder}80`}
-                                    title={`${roleLabel} #${e.id || eIdx+1}: ${e.title}\nКлиент: ${e.contractor || '—'}`}
-                                  >
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '2px', minWidth: 0 }}>
-                                      <span style={{ fontWeight: 800, fontSize: '0.58rem', color: tagColor, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                        {roleLabel}
-                                      </span>
-                                      <span style={{ fontWeight: 800, fontSize: '0.56rem', color: '#ffd700', flexShrink: 0 }}>
-                                        #{e.dealId || e.id || (eIdx + 1)}
-                                      </span>
-                                    </div>
-                                    <div style={{ color: '#ffffff', fontWeight: 700, fontSize: '0.65rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%' }}>
-                                      {cleanTitle}
-                                    </div>
-                                  </div>
-                                );
-                              })}
-                              {evts.length > 2 && (
-                                <div style={{ fontSize: '0.62rem', color: '#b9a4ff', textAlign: 'center', fontWeight: 800 }}>
-                                  +{evts.length - 2} ещё
-                                </div>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-
-                    {/* Next Month Days */}
-                    {nextMonthDays.map((nextDay) => (
-                      <div key={`next-${nextDay}`} className="month-day-cell faded">
-                        <span className="day-number-tag">{nextDay}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* RIGHT SIDEBAR: UPCOMING TASKS & LEGEND */}
-                <div className="calendar-sidebar-column">
-                  {/* Panel 1: Ближайшие задачи */}
-                  <div className="sidebar-panel-card">
-                    <div className="sidebar-card-header">
-                      <h3 className="sidebar-card-title">
-                        <span>📋</span> Ближайшие задачи
-                      </h3>
-                      {(() => {
-                        const today = new Date();
-                        today.setHours(0, 0, 0, 0);
-                        const selectedDate = new Date(currentYear, monthIndex, selectedDay);
-                        const isPast = selectedDate < today;
-                        const isAdmin = currentUser?.role === 'admin' || viewRole === 'admin';
-                        
-                        return viewRole !== 'customer' && (!isPast || isAdmin) && (
-                          <button className="btn-sm-add" onClick={handleOpenCreateModal}>
-                            + Добавить
-                          </button>
-                        );
-                      })()}
-                    </div>
-
-                    {dayEvents.length > 0 ? (
-                      <div className="events-list">
-                        {dayEvents.map((evt) => (
-                          <div key={evt.id} className="event-item-card">
-                            <div className="evt-card-top">
-                              <span className="evt-time">⏰ {evt.time}</span>
-                              <span className={`evt-badge ${evt.type}`}>
-                                {evt.type === 'active_project'
-                                  ? '🏭 Проект'
-                                  : evt.type === 'work_stage'
-                                  ? '🟣 Этап'
-                                  : evt.type === 'deadline'
-                                  ? '🔴 Дедлайн'
-                                  : evt.type === 'in_review'
-                                  ? '🟡 Проверка'
-                                  : '🟢 Завершено'}
-                              </span>
-                            </div>
-
-                            <h4 className="evt-title">{evt.title}</h4>
-                            <div className="evt-meta-row">
-                              <span className="evt-location">📍 {evt.location}</span>
-                              <span className="evt-contractor">🏢 {evt.contractor}</span>
-                            </div>
-
-                            <div className="evt-actions-bar">
-                              <span className="evt-status">● {evt.status}</span>
-                              <div className="evt-btn-group">
-                                <button className="btn-evt-edit" onClick={() => handleOpenEditModal(evt)} title={viewRole === 'customer' ? 'Просмотр' : 'Изменить'}>
-                                  {viewRole === 'customer' ? '👁️' : '✏️'}
-                                </button>
-                                {viewRole !== 'customer' && (currentUser?.role === 'admin' || evt.createdBy === currentUser?.id || evt.assignedTo === currentUser?.id || !evt.createdBy) && (
-                                  <button className="btn-evt-delete" onClick={() => handleDeleteEvent(evt.id)} title="Удалить">
-                                    🗑️
-                                  </button>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="upcoming-clean-state">
-                        <div className="confetti-icon">🎉</div>
-                        <h4 className="clean-title">Всё чисто!</h4>
-                        <p className="clean-desc">Нет предстоящих задач</p>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Panel 2: Обозначения (Legend) */}
-                  <div className="sidebar-panel-card">
-                    <h3 className="sidebar-card-title">
-                      <span>🏷️</span> Обозначения
-                    </h3>
-
-                    <div className="legend-items-list">
-                      <div className="legend-row-item">
-                        <span className="dot-indicator cyan" />
-                        <span>Активный проект</span>
-                      </div>
-                      <div className="legend-row-item">
-                        <span className="dot-indicator cyan" />
-                        <span>Этап работ</span>
-                      </div>
-                      <div className="legend-row-item">
-                        <span className="dot-indicator red" />
-                        <span>Дедлайн</span>
-                      </div>
-                      <div className="legend-row-item">
-                        <span className="dot-indicator gold" />
-                        <span>На проверке</span>
-                      </div>
-                      <div className="legend-row-item">
-                        <span className="dot-indicator green" />
-                        <span>Завершено</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <TaskCalendar
+                events={scheduledEvents}
+                year={currentYear}
+                month={monthIndex}
+                day={selectedDay}
+                view={calendarViewMode}
+                onViewChange={setCalendarViewMode}
+                onNavigate={(y, m, d) => { setCurrentYear(y); setMonthIndex(m); setSelectedDay(d); }}
+                viewRole={viewRole}
+                currentUser={currentUser}
+                onBack={onBackToHome}
+                onOpen={handleOpenEditModal}
+                onCreate={(y, m, d) => handleOpenCreateModal({ y, m, d })}
+                onToggleDone={handleToggleEventDone}
+                onDelete={handleDeleteEventEverywhere}
+              />
             </div>
           )}
 

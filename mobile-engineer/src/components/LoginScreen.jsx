@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Shield, User, Lock, ArrowRight, Eye, EyeOff, RefreshCw, HardHat } from 'lucide-react';
-import { loginEngineer, testServerPing, getSavedLogin, setSavedLogin } from '../api/engineerApi';
+import { loginEngineer, testServerPing, getSavedLogin } from '../api/engineerApi';
 
 export default function LoginScreen({ serverUrl, onUpdateServerUrl, onLoginSuccess }) {
   const initialLogin = getSavedLogin();
-  const [loginInput, setLoginInput] = useState(initialLogin || 'maxim.engineer@qazgost.kz');
-  const [password, setPassword] = useState('Maxim2026!');
+  const [loginInput, setLoginInput] = useState(initialLogin || '');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
@@ -59,7 +59,6 @@ export default function LoginScreen({ serverUrl, onUpdateServerUrl, onLoginSucce
       return;
     }
 
-    setSavedLogin(cleanLogin);
     setIsLoading(true);
     setErrorMsg(null);
 
@@ -214,7 +213,7 @@ export default function LoginScreen({ serverUrl, onUpdateServerUrl, onLoginSucce
                 type="text"
                 defaultValue={loginInput}
                 onChange={(e) => setLoginInput(e.target.value)}
-                placeholder="maxim.engineer@qazgost.kz"
+                placeholder="name@company.kz"
                 autoComplete="username"
                 style={{
                   width: '100%',

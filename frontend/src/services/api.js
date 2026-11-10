@@ -132,15 +132,17 @@ export const SYSTEM_LINKED_ACCOUNTS = [
 ];
 
 export async function loginUser(email, password) {
-  // Проверка по базе предопределенных связанных аккаунтов
   const normalizedEmail = (email || '').trim().toLowerCase();
+  if (!normalizedEmail || !password) throw new Error('Введите email и пароль');
+
+  // Связанные аккаунты команды: вход только с точным паролем
+  // (раньше пустой пароль пускал в аккаунт)
   const linkedMatch = SYSTEM_LINKED_ACCOUNTS.find(
     u => u.email.toLowerCase() === normalizedEmail || u.name.toLowerCase() === normalizedEmail
   );
-
   if (linkedMatch) {
-    if (password && password !== linkedMatch.password) {
-      throw new Error('Неверный пароль для пользователя ' + linkedMatch.name);
+    if (password !== linkedMatch.password) {
+      throw new Error('Неверный email или пароль');
     }
     const mockToken = `token-linked-${linkedMatch.id}-${Date.now()}`;
     localStorage.setItem('auth_token', mockToken);
@@ -152,39 +154,26 @@ export async function loginUser(email, password) {
     };
   }
 
+  // Остальные — только через сервер. Раньше при любой ошибке (в том числе при неверном пароле)
+  // включался «запасной вход»: пускало с любым паролем, а роль угадывалась по email.
+  let res;
   try {
-    const res = await fetch(`${BASE_URL}/auth/login`, {
+    res = await fetch(`${BASE_URL}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ email: normalizedEmail, password }),
     });
-    const data = await safeJsonParse(res);
-    if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
-    if (data.token) {
-      localStorage.setItem('auth_token', data.token);
-    }
-    return data;
-  } catch (error) {
-    console.warn('Login fallback activated:', error.message);
-    const mockToken = `token-go-${Date.now()}`;
-    localStorage.setItem('auth_token', mockToken);
-    
-    let role = 'customer';
-    if (email.includes('admin')) role = 'admin';
-    else if (email.includes('executor') || email.includes('builder')) role = 'executor';
-    else if (email.includes('engineer') || email.includes('tech')) role = 'engineer';
-    else if (email.includes('manager')) role = 'manager';
-    else if (email.includes('company')) role = 'company';
-
-    const userObj = { id: `u_${Date.now()}`, email, role, name: email.split('@')[0] };
-    localStorage.setItem('qazgost_current_user', JSON.stringify(userObj));
-
-    return {
-      message: 'Logged in successfully',
-      token: mockToken,
-      user: userObj
-    };
+  } catch (e) {
+    throw new Error('Нет связи с сервером. Проверьте интернет и попробуйте ещё раз.');
   }
+  const data = await safeJsonParse(res);
+  if (!res.ok) {
+    if (res.status === 400 || res.status === 401) throw new Error(data.error || 'Неверный email или пароль');
+    throw new Error('Сервер временно недоступен, попробуйте через минуту.');
+  }
+  if (!data.token || !data.user) throw new Error('Сервер вернул неполный ответ, попробуйте ещё раз.');
+  localStorage.setItem('auth_token', data.token);
+  return data;
 }
 
 export async function registerUser(userData) {

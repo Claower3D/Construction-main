@@ -34,6 +34,9 @@ import {
 } from './api/executorApi';
 import { FALLBACK_MATERIALS, FALLBACK_EQUIPMENT } from './data/marketFallback';
 
+// Ошибки браузера («Failed to fetch») показываем по-русски
+const humanSyncError = (msg) => (/failed to fetch|networkerror|load failed|network request failed/i.test(String(msg || '')) ? 'Нет связи с сервером, данные сохранены на телефоне' : msg);
+
 const HEARTBEAT_MS = 60000;
 
 export default function App() {
@@ -88,10 +91,10 @@ export default function App() {
     setIsSyncing(false);
     setIsOnline(!!res.success);
     if (res.success) {
-      setSyncError(res.errors && res.errors.length ? res.errors[0] : null);
+      setSyncError(res.errors && res.errors.length ? humanSyncError(res.errors[0]) : null);
       applyOrders(res.deals);
     } else {
-      setSyncError(res.error);
+      setSyncError(humanSyncError(res.error));
       applyOrders(ordersStore.isInitialized() ? res.deals : loadDemoOrders());
     }
     return res;

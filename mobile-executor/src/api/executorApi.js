@@ -1,5 +1,6 @@
 // QazGost Executor Mobile — Real Production Railway Client & Data Sync
 import { createSyncStore, localDateISO, addDaysISO, authHeaders, makeNote, nowTimeLabel, fetchWithTimeout, cleanServerUrl } from './syncCore';
+import { rememberVerifiedLogin, checkVerifiedLogin, forgetVerifiedLogin } from './offlineAuth';
 const STORAGE_KEY_ORDERS = 'qazgost_executor_orders_perm';
 const STORAGE_KEY_AUTH = 'qazgost_executor_auth_perm';
 const STORAGE_KEY_SAVED_LOGIN = 'qazgost_executor_saved_login';
@@ -126,9 +127,9 @@ export function resolveExecutorProfile(cleanLogin, serverUser = null) {
 
 export function getSavedLogin() {
   try {
-    return localStorage.getItem(STORAGE_KEY_SAVED_LOGIN) || 'timur.executor@qazgost.kz';
+    return localStorage.getItem(STORAGE_KEY_SAVED_LOGIN) || '';
   } catch (e) {
-    return 'timur.executor@qazgost.kz';
+    return '';
   }
 }
 
@@ -146,7 +147,8 @@ export function getSavedAuth() {
       if (parsed && (parsed.login || parsed.email)) return parsed;
     }
   } catch (e) {}
-  return DEFAULT_EXECUTOR;
+  // Без сохранённого входа — экран входа (раньше сразу открывался аккаунт по умолчанию)
+  return null;
 }
 
 export function setSavedAuth(authData) {
@@ -321,80 +323,84 @@ export async function loginExecutor(serverUrl, loginInput, password) {
   const cleanPass = (password || '').trim();
 
   if (!cleanLogin) {
-    return { success: false, error: 'Заполните логин или email исполнителя' };
+    return { success: false, error: 'Заполните логин или email' };
+  }
+  if (!cleanPass) {
+    return { success: false, error: 'Введите пароль' };
   }
 
-  setSavedLogin(cleanLogin);
   const cleanEmail = cleanLogin.includes('@') ? cleanLogin : `${cleanLogin}@qazgost.kz`;
   const defaultProfile = resolveExecutorProfile(cleanLogin);
 
+  const finishOnline = async (user, token) => {
+    const profile = resolveExecutorProfile(cleanLogin, user);
+    const authData = {
+      ...profile,
+      token: token || `jwt_railway_${Date.now()}`,
+      isOnline: true,
+      serverType: 'railway',
+      loginTime: new Date().toISOString()
+    };
+    setSavedAuth(authData);
+    await rememberVerifiedLogin('executor', cleanLogin, cleanPass, profile);
+    return { success: true, authData };
+  };
+
+  // 1. Вход через сервер. Неверный пароль — отказ (раньше пускало с любым паролем).
   if (serverUrl) {
     const cleanUrl = serverUrl.replace(/\/+$/, '');
     try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000);
-      const res = await fetch(`${cleanUrl}/api/v1/auth/login`, {
+      const res = await fetchWithTimeout(`${cleanUrl}/api/v1/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: cleanEmail, password: cleanPass }),
-        signal: controller.signal
-      });
-      clearTimeout(timeoutId);
+        body: JSON.stringify({ email: cleanEmail, password: cleanPass })
+      }, 5000);
 
       if (res.ok) {
         const data = await res.json();
-        const profile = resolveExecutorProfile(cleanLogin, data.user);
-        const authData = {
-          ...profile,
-          token: data.token || `jwt_railway_${Date.now()}`,
-          isOnline: true,
-          serverType: 'railway',
-          loginTime: new Date().toISOString()
-        };
-        setSavedAuth(authData);
-        return { success: true, authData };
-      } else if (res.status === 401) {
+        return finishOnline(data.user, data.token);
+      }
+      if (res.status === 400 || res.status === 401) {
+        // Аккаунта ещё нет на сервере — создаём его с введённым паролем.
+        // Если аккаунт есть, сервер ответит «уже существует» → значит, пароль неверный.
         try {
-          const regController = new AbortController();
-          const regTimeout = setTimeout(() => regController.abort(), 4000);
-          const regRes = await fetch(`${cleanUrl}/api/v1/auth/register`, {
+          const regRes = await fetchWithTimeout(`${cleanUrl}/api/v1/auth/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              email: cleanEmail,
-              password: cleanPass || 'Master2026!',
-              name: defaultProfile.name,
-              role: 'executor'
-            }),
-            signal: regController.signal
-          });
-          clearTimeout(regTimeout);
-
+            body: JSON.stringify({ email: cleanEmail, password: cleanPass, name: defaultProfile.name, role: 'executor' })
+          }, 5000);
           if (regRes.ok) {
             const regData = await regRes.json();
-            const profile = resolveExecutorProfile(cleanLogin, regData.user);
-            const authData = {
-              ...profile,
-              token: regData.token || `jwt_railway_${Date.now()}`,
-              isOnline: true,
-              serverType: 'railway',
-              loginTime: new Date().toISOString()
-            };
-            setSavedAuth(authData);
-            return { success: true, authData };
+            return finishOnline(regData.user, regData.token);
           }
-        } catch (regErr) {}
+        } catch (regErr) {
+          console.warn('[ExecutorApi] auto-register skipped:', regErr && regErr.message);
+        }
+        forgetVerifiedLogin('executor', cleanLogin);
+        return { success: false, error: 'Неверный логин или пароль' };
       }
-    } catch (e) {}
+      // 5xx и прочее — сервер недоступен, пробуем офлайн-вход ниже
+    } catch (err) {
+      console.warn('[ExecutorApi] server unreachable, trying offline login:', err && err.message);
+    }
   }
 
-  const authData = {
-    ...defaultProfile,
-    token: `exec_offline_token_${Date.now()}`,
-    isOnline: false,
-    serverType: 'offline',
-    loginTime: new Date().toISOString()
+  // 2. Без связи — только аккаунт, который уже входил на этом телефоне, и с тем же паролем
+  const offlineProfile = await checkVerifiedLogin('executor', cleanLogin, cleanPass);
+  if (offlineProfile) {
+    const authData = {
+      ...defaultProfile,
+      ...offlineProfile,
+      token: `exec_offline_token_${Date.now()}`,
+      isOnline: false,
+      serverType: 'offline',
+      loginTime: new Date().toISOString()
+    };
+    setSavedAuth(authData);
+    return { success: true, authData };
+  }
+  return {
+    success: false,
+    error: 'Нет связи с сервером. Без интернета можно войти только в аккаунт, который уже входил на этом телефоне.'
   };
-  setSavedAuth(authData);
-  return { success: true, authData };
 }

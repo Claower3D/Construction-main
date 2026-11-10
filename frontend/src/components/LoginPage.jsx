@@ -5,7 +5,7 @@ import { LEGAL_OPERATOR } from '../data/legal';
 import './RegisterPage.css';
 
 // Страница входа /login — в той же стилистике, что и /register.
-// Логика входа та же, что была в окне: loginUser(email, password) → onLogin(user).
+// loginUser(email, password) → onLogin(user). Поля входа всегда пустые: никаких вписанных аккаунтов.
 export default function LoginPage({ currentUser, onLogin, onOpenRegister, onOpenDashboard }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -104,15 +104,6 @@ export default function LoginPage({ currentUser, onLogin, onOpenRegister, onOpen
               Забыли пароль?{' '}
               <a href={LEGAL_OPERATOR.whatsappUrl} target="_blank" rel="noopener noreferrer">Напишите нам в WhatsApp</a>
             </p>
-          </div>
-
-          {/* Быстрый вход — только авторизованные аккаунты команды */}
-          <div className="rg-presets">
-            <span>Быстрый вход (авторизованные):</span>
-            <div>
-              <button type="button" onClick={() => { setEmail('manager@qazgost.kz'); setPassword('manager123'); }}>💼 Менеджер Саша</button>
-              <button type="button" onClick={() => { setEmail('admin@qazgost.kz'); setPassword('admin123'); }}>👑 Админ</button>
-            </div>
           </div>
 
           <button type="submit" className="rg-submit" disabled={loading}>
