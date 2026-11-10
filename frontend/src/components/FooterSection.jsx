@@ -35,7 +35,7 @@ export default function FooterSection() {
             <a href="/catalog" onClick={go('/catalog')}>Подрядчики</a>
             <a href="/materials" onClick={go('/materials')}>Стройматериалы</a>
             <a href="/equipment" onClick={go('/equipment')}>Спецтехника</a>
-            <a href="/wallet" onClick={go('/wallet')}>Кошелёк</a>
+            <a href="/wallet" onClick={go('/wallet')}>Оплата</a>
           </nav>
           <div className="lux-footer-contact">
             <p className="lux-footer-h">Создатель</p>

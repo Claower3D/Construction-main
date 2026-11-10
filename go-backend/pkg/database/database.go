@@ -114,7 +114,7 @@ func runMigrations() error {
 		`CREATE TABLE IF NOT EXISTS transactions (
 			id TEXT PRIMARY KEY,
 			user_id TEXT NOT NULL,
-			amount REAL NOT NULL,
+			amount NUMERIC(16,2) NOT NULL,
 			type TEXT NOT NULL,
 			method TEXT DEFAULT '',
 			status TEXT DEFAULT '',
@@ -122,8 +122,12 @@ func runMigrations() error {
 		)`,
 		`CREATE TABLE IF NOT EXISTS balances (
 			user_id TEXT PRIMARY KEY,
-			balance REAL DEFAULT 0,
-			escrow_locked REAL DEFAULT 0
+			balance NUMERIC(16,2) DEFAULT 0,
+			escrow_locked NUMERIC(16,2) DEFAULT 0
+		)`,
+		`CREATE TABLE IF NOT EXISTS app_flags (
+			name TEXT PRIMARY KEY,
+			applied_at TIMESTAMP DEFAULT NOW()
 		)`,
 		`CREATE TABLE IF NOT EXISTS chat_messages (
 			id TEXT PRIMARY KEY,
@@ -188,7 +192,49 @@ func runMigrations() error {
 			return fmt.Errorf("migration error: %w\nSQL: %s", err, m)
 		}
 	}
+	if err := resetDemoWallets(); err != nil {
+		return fmt.Errorf("wallet reset: %w", err)
+	}
 	log.Println("✅ [PostgreSQL] Migrations complete (8 tables)")
+	return nil
+}
+
+// resetDemoWallets — один раз переводит кошельки в честный режим (2026-11).
+// Онлайн-оплаты ещё не было, поэтому все балансы и операции в базе — демо: стартовые 100 000 ₸,
+// «пополнения» без оплаты и тестовые записи. Обнуляем их и переводим суммы из REAL (4-байтное число
+// с плавающей точкой — теряло точность на суммах больше ~16,7 млн ₸) в NUMERIC(16,2).
+func resetDemoWallets() error {
+	const flag = "wallet_demo_reset_2026_11"
+	var done bool
+	if err := DB.QueryRow(`SELECT EXISTS(SELECT 1 FROM app_flags WHERE name=$1)`, flag).Scan(&done); err != nil {
+		return err
+	}
+	if done {
+		return nil
+	}
+	tx, err := DB.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	for _, q := range []string{
+		`ALTER TABLE balances ALTER COLUMN balance TYPE NUMERIC(16,2) USING ROUND(balance::numeric, 2)`,
+		`ALTER TABLE balances ALTER COLUMN escrow_locked TYPE NUMERIC(16,2) USING ROUND(escrow_locked::numeric, 2)`,
+		`ALTER TABLE transactions ALTER COLUMN amount TYPE NUMERIC(16,2) USING ROUND(amount::numeric, 2)`,
+		`UPDATE balances SET balance = 0, escrow_locked = 0`,
+		`DELETE FROM transactions`,
+	} {
+		if _, err := tx.Exec(q); err != nil {
+			return fmt.Errorf("%w\nSQL: %s", err, q)
+		}
+	}
+	if _, err := tx.Exec(`INSERT INTO app_flags (name) VALUES ($1)`, flag); err != nil {
+		return err
+	}
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+	log.Println("✅ [PostgreSQL] Демо-балансы обнулены: кошелёк в честном режиме до подключения онлайн-оплаты")
 	return nil
 }
 
@@ -244,25 +290,13 @@ func seedData() error {
 	DB.Exec(`INSERT INTO orders (id,title,location,time_range,type,contractor,status,deadline,job_type,client_name,client_phone,estimate_items,total_sum,stages,created_by,created_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)`,
 		102, "Септик 3-камерный - Аскар Сериков", "Астана, пос. Косшы, ул. Мира 15", "10:00 - 17:00", "object", "ИП «Мастер Сервис»", "Запланировано", "До 18:00 (20 Август)", "Септик", "Аскар Сериков", "+7 777 333 9988", string(items2), 413000, string(stages2), "admin", time.Now())
 
-	// Balances
-	DB.Exec(`INSERT INTO balances (user_id, balance, escrow_locked) VALUES ($1,$2,$3)`, "u_admin_1", 2500000, 0)
-	DB.Exec(`INSERT INTO balances (user_id, balance, escrow_locked) VALUES ($1,$2,$3)`, "u_customer_1", 1500000, 500000)
-	DB.Exec(`INSERT INTO balances (user_id, balance, escrow_locked) VALUES ($1,$2,$3)`, "u_eng_1", 480000, 0)
-	DB.Exec(`INSERT INTO balances (user_id, balance, escrow_locked) VALUES ($1,$2,$3)`, "u_exec_1", 320000, 0)
-
-	// Transactions
-	DB.Exec(`INSERT INTO transactions (id,user_id,amount,type,method,status,created_at) VALUES ($1,$2,$3,$4,$5,$6,$7)`,
-		"tx_01", "u_customer_1", 500000, "deposit", "Freedom Pay / Kaspi", "Успешно", time.Now().Add(-48*time.Hour))
-	DB.Exec(`INSERT INTO transactions (id,user_id,amount,type,method,status,created_at) VALUES ($1,$2,$3,$4,$5,$6,$7)`,
-		"tx_02", "u_customer_1", 500000, "escrow_lock", "Гарантийный счет (Этап 1)", "Заблокировано", time.Now().Add(-24*time.Hour))
-
 	// Chat
 	DB.Exec(`INSERT INTO chat_messages (id,order_id,sender_id,sender_name,sender_role,text,created_at) VALUES ($1,$2,$3,$4,$5,$6,$7)`,
 		"msg_01", "101", "u_customer_1", "Заказчик (ТОО Алатау)", "customer", "Здравствуйте! Заливка фундамента запланирована на четверг?", time.Now().Add(-2*time.Hour))
 	DB.Exec(`INSERT INTO chat_messages (id,order_id,sender_id,sender_name,sender_role,text,created_at) VALUES ($1,$2,$3,$4,$5,$6,$7)`,
 		"msg_02", "101", "u_eng_1", "Инженер технадзора Куаныш", "engineer", "Добрый день! Армирование принято без замечаний. Бетононасос заказан на 09:30.", time.Now().Add(-1*time.Hour))
 
-	log.Println("✅ [PostgreSQL] Seeded 5 users, 2 orders, 4 balances, 2 transactions, 2 messages")
+	log.Println("✅ [PostgreSQL] Seeded 5 users, 2 orders, 2 messages")
 	return nil
 }
 
@@ -421,23 +455,23 @@ func DeleteOrder(id int64) error {
 func GetBalance(userID string) (balance, escrow float64) {
 	err := DB.QueryRow(`SELECT balance, escrow_locked FROM balances WHERE user_id=$1`, userID).Scan(&balance, &escrow)
 	if err != nil {
-		// Create default balance
-		DB.Exec(`INSERT INTO balances (user_id, balance, escrow_locked) VALUES ($1,$2,$3)`, userID, 100000, 0)
-		return 100000, 0
+		// Новый кошелёк — с нуля: денег «из воздуха» больше нет
+		DB.Exec(`INSERT INTO balances (user_id, balance, escrow_locked) VALUES ($1,0,0) ON CONFLICT (user_id) DO NOTHING`, userID)
+		return 0, 0
 	}
 	return
 }
 
 // UpdateBalance atomically updates balance
 func UpdateBalance(userID string, delta float64) error {
-	_, err := DB.Exec(`INSERT INTO balances (user_id, balance, escrow_locked) VALUES ($1, 100000 + $2::double precision, 0)
+	_, err := DB.Exec(`INSERT INTO balances (user_id, balance, escrow_locked) VALUES ($1, $2::double precision, 0)
 		ON CONFLICT(user_id) DO UPDATE SET balance = balances.balance + $2::double precision`, userID, delta)
 	return err
 }
 
 // UpdateEscrow atomically updates escrow
 func UpdateEscrow(userID string, delta float64) error {
-	_, err := DB.Exec(`INSERT INTO balances (user_id, balance, escrow_locked) VALUES ($1, 100000, GREATEST($2::double precision, 0))
+	_, err := DB.Exec(`INSERT INTO balances (user_id, balance, escrow_locked) VALUES ($1, 0, GREATEST($2::double precision, 0))
 		ON CONFLICT(user_id) DO UPDATE SET escrow_locked = GREATEST(balances.escrow_locked + $2::double precision, 0)`,
 		userID, delta)
 	return err
@@ -472,7 +506,7 @@ func ReleaseEscrowAtomic(fromUserID, toUserID string, amount float64) (bool, err
 	if n, _ := res.RowsAffected(); n != 1 {
 		return false, nil
 	}
-	if _, err := tx.Exec(`INSERT INTO balances (user_id, balance, escrow_locked) VALUES ($1, 100000 + $2::double precision, 0)
+	if _, err := tx.Exec(`INSERT INTO balances (user_id, balance, escrow_locked) VALUES ($1, $2::double precision, 0)
 		ON CONFLICT(user_id) DO UPDATE SET balance = balances.balance + $2::double precision`, toUserID, amount); err != nil {
 		return false, err
 	}

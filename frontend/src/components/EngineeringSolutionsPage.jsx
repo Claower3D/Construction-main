@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './EngineeringSolutionsPage.css';
 import { createPlatformOrder } from '../services/orderSyncService';
-import { freezeEscrow } from '../services/walletEngine';
+import { noPrepaymentLabel } from '../services/walletEngine';
 
 export default function EngineeringSolutionsPage({ onBack, onOpenOrders, hideHeader = false }) {
   // Object Info Form State
@@ -308,14 +308,7 @@ export default function EngineeringSolutionsPage({ onBack, onOpenOrders, hideHea
       return;
     }
 
-    // Аванс 30% замораживается ДО создания заявки; при нехватке средств заявка не создаётся
-    const advance = Math.round(totalPrice * 0.3);
-    const escrow = freezeEscrow(advance, `Аванс инжиниринг ${objectName}`);
-    if (!escrow.ok) {
-      showToast(`⚠️ Недостаточно средств для аванса 30% (${advance.toLocaleString()} ₸). Доступно ${escrow.newBalance.toLocaleString()} ₸ — пополните кошелёк.`);
-      return;
-    }
-
+    // Онлайн-оплата не подключена: заявка без аванса, условия оплаты согласуются с ГИП
     const newOrder = createPlatformOrder({
       title: `Инжиниринг: ${objectName} (${cart.length} разделов)`,
       category: 'Инженерные решения',
@@ -325,8 +318,7 @@ export default function EngineeringSolutionsPage({ onBack, onOpenOrders, hideHea
       type: 'engineering',
       status: 'new',
       assignedEngineer: 'Назначен Главный инженер проекта (ГИП)',
-      escrowTxId: escrow.txId,
-      escrowAmount: advance
+      paymentMethod: noPrepaymentLabel()
     });
 
     setCreatedAppId(newOrder.id);

@@ -30,7 +30,7 @@ const GROUPS = [
       {
         key: 'equipment', title: 'Спецтехника',
         points: ['Экскаваторы и погрузчики', 'Автокраны и самосвалы', 'Посменная аренда'],
-        result: 'Бронь с эскроу', go: () => navigateTo('/equipment'),
+        result: 'Бронь на нужные даты', go: () => navigateTo('/equipment'),
       },
       {
         key: 'materials', wide: true, title: 'Стройматериалы',

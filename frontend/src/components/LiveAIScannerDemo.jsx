@@ -278,7 +278,7 @@ export default function LiveAIScannerDemo() {
               📄 Скачать акт КС-2 (Excel .xlsx)
             </button>
             <div className="spec-guarantee-note">
-              🛡️ Расчёт соответствует нормам СН РК 8.02-05 и защищен эскроу-гарантией
+              🛡️ Расчёт по нормам СН РК 8.02-05
             </div>
           </div>
         </div>

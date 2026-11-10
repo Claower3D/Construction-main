@@ -5,7 +5,6 @@ import {
   localDateKey, genId, shortNum, parseMoney, reportSyncError, responseError,
   PIPELINE_STATUS_LABELS,
 } from './platformUtils';
-import { linkEscrowToOrder } from './walletEngine';
 
 const SHARED_KEY = 'qazgost_orders_shared';
 
@@ -126,8 +125,6 @@ export function createPlatformOrder({
     estimateData,
     materials
   };
-
-  if (escrowTxId) linkEscrowToOrder(escrowTxId, orderId);
 
   // 1. Sync to localStorage Order Stores for All Roles
   try {

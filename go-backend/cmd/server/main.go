@@ -175,6 +175,7 @@ func main() {
 	mux.HandleFunc("/api/v1/engineers/assign", roleAdmin(engineersHnd.AssignEngineer))
 
 	// Finance — auth required
+	mux.HandleFunc("/api/v1/finance/config", financeHnd.Config)
 	mux.HandleFunc("/api/v1/finance/balance", auth(financeHnd.GetBalance))
 	mux.HandleFunc("/api/v1/finance/topup", auth(financeHnd.Topup))
 	mux.HandleFunc("/api/v1/finance/escrow/lock", auth(financeHnd.LockEscrow))

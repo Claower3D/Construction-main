@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { getBalanceKZT, freezeEscrow, topupBalance } from '../services/walletEngine';
+import { PAYMENTS_NOTE, noPrepaymentLabel } from '../services/walletEngine';
 import { createPlatformOrder } from '../services/orderSyncService';
-import { localDateKey, authHeaders, jsonAuthHeaders, getAuthToken, responseError } from '../services/platformUtils';
+import { localDateKey, authHeaders, jsonAuthHeaders, getAuthToken, responseError, getStoredCurrentUser } from '../services/platformUtils';
 import './EquipmentMarketplace.css';
 import './marketplace-refresh.css';
 import MarketBackdrop from './MarketBackdrop';
@@ -90,11 +90,11 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
   const [bookingError, setBookingError] = useState(null);
   const [bookingSending, setBookingSending] = useState(false);
   const [bookingDate, setBookingDate] = useState(() => localDateKey());
-  const [bookingPaymentMethod, setBookingPaymentMethod] = useState('escrow'); // 'escrow' | 'kaspi' | 'invoice'
-  const [bookingClientName, setBookingClientName] = useState('Заказчик');
-  const [bookingClientPhone, setBookingClientPhone] = useState('+7 (707) 888-99-00');
-  const [bookingAddress, setBookingAddress] = useState('г. Алматы, строительный объект');
-  const [walletBalance, setWalletBalance] = useState(() => getBalanceKZT());
+  const [bookingPaymentMethod, setBookingPaymentMethod] = useState('kaspi'); // 'kaspi' | 'invoice' — онлайн-оплата не подключена
+  // Контакты арендатора — из профиля; раньше подставлялись вымышленные «+7 (707) 888-99-00» и адрес
+  const [bookingClientName, setBookingClientName] = useState(() => getStoredCurrentUser()?.name || '');
+  const [bookingClientPhone, setBookingClientPhone] = useState(() => getStoredCurrentUser()?.phone || '');
+  const [bookingAddress, setBookingAddress] = useState('');
   const [sortBy, setSortBy] = useState('popular'); // 'popular' | 'price_asc' | 'price_desc' | 'rating_desc'
   const [debouncedQuery, setDebouncedQuery] = useState('');
   const [eqApi, setEqApi] = useState({ status: 'loading', items: [], error: null });
@@ -110,9 +110,6 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
     return () => clearTimeout(t);
   }, [searchQuery]);
   
-  useEffect(() => {
-    setWalletBalance(getBalanceKZT());
-  }, [bookingItem]);
   const [toastMessage, setToastMessage] = useState(null);
 
   const topTabs = [
@@ -882,11 +879,11 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
         <section className="mk-hero mk-hero--equipment" aria-labelledby="mk-eq-title">
           <div className="mk-hero-copy">
             <h2 id="mk-eq-title">Аренда спецтехники</h2>
-            <p>Экскаваторы, краны, самосвалы и бетононасосы по сменам и часам. Бронь через эскроу: оплата уходит владельцу только после смены.</p>
+            <p>Экскаваторы, краны, самосвалы и бетононасосы по сменам и часам. Бронь без предоплаты: дату резервирует владелец, оплату вы согласуете с ним напрямую.</p>
           </div>
           <dl className="mk-hero-stats">
             <div><dt>объявлений</dt><dd className="qg-num">{filteredEquipment.length}</dd></div>
-            <div><dt>оплата</dt><dd>эскроу</dd></div>
+            <div><dt>оплата</dt><dd>владельцу</dd></div>
             <div><dt>доставка</dt><dd>на объект</dd></div>
           </dl>
         </section>
@@ -1205,7 +1202,6 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
                               <span className="kzt-unit">Цена по запросу</span>
                             )}
                           </div>
-                          <div className="em-escrow-guarantee">🛡️ Эскроу QazGost</div>
                         </div>
                         
                         <div className="em-card-tags">
@@ -1359,22 +1355,9 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
                 </strong>
               </div>
               
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '8px', borderTop: '1px solid rgba(255,255,255,0.08)', fontSize: '0.82rem' }}>
-                <span style={{ color: '#a39cc2' }}>💳 Баланс вашего кошелька: <strong style={{ color: '#fff' }}>{walletBalance.toLocaleString()} ₸</strong></span>
-                {bookingPaymentMethod === 'escrow' && walletBalance < ((bookingItem.rawPrice || 0) * bookingDays) && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const added = topupBalance(100000);
-                      setWalletBalance(added);
-                      showToast('🎉 Кошелёк пополнен на +100 000 ₸ через Kaspi Pay!');
-                    }}
-                    style={{ background: 'rgba(185,164,255,0.2)', border: '1px solid #b9a4ff', color: '#b9a4ff', borderRadius: '6px', padding: '3px 8px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}
-                  >
-                    + Пополнить на 100k ₸
-                  </button>
-                )}
-              </div>
+              <p style={{ margin: 0, paddingTop: '8px', borderTop: '1px solid rgba(255,255,255,0.08)', fontSize: '0.8rem', color: '#cbc5e3', lineHeight: 1.45 }}>
+                {PAYMENTS_NOTE}
+              </p>
             </div>
 
             <div style={{ marginBottom: '16px' }}>
@@ -1384,9 +1367,8 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
                 onChange={e => setBookingPaymentMethod(e.target.value)}
                 style={{ width: '100%', background: 'rgba(21,18,42,0.8)', border: '1px solid rgba(255,255,255,0.15)', color: '#fff', padding: '8px 12px', borderRadius: '8px' }}
               >
-                <option value="escrow">🛡️ Заморозить в Эскроу с Кошелька (Безопасная сделка)</option>
-                <option value="kaspi">📱 Kaspi Pay QR / Перевод</option>
-                <option value="invoice">📄 Безналичный расчет с НДС (для юрлиц)</option>
+                <option value="kaspi">Kaspi или перевод владельцу после смены</option>
+                <option value="invoice">Безналичный расчёт по счёту с НДС (для юрлиц)</option>
               </select>
             </div>
 
@@ -1404,11 +1386,7 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
                 const totalCost = (bookingItem.rawPrice || 0) * shifts;
                 if (!(totalCost > 0)) { setBookingError('У объявления не указана цена — свяжитесь с владельцем.'); return; }
                 if (!bookingDate || bookingDate < localDateKey()) { setBookingError('Выберите дату подачи не раньше сегодняшней.'); return; }
-                if (!bookingClientPhone.trim() || !bookingAddress.trim()) { setBookingError('Укажите телефон и адрес объекта.'); return; }
-                if (bookingPaymentMethod === 'escrow' && getBalanceKZT() < totalCost) {
-                  setBookingError(`Недостаточно средств в кошельке: нужно ${totalCost.toLocaleString('ru-RU')} ₸, доступно ${getBalanceKZT().toLocaleString('ru-RU')} ₸.`);
-                  return;
-                }
+                if (!bookingClientName.trim() || !bookingClientPhone.trim() || !bookingAddress.trim()) { setBookingError('Укажите имя, телефон и адрес объекта.'); return; }
 
                 // 1. Резерв дат у владельца (сервер проверяет пересечения и сам считает сумму)
                 let booking = null;
@@ -1424,7 +1402,7 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
                         renterName: bookingClientName.trim(),
                         renterPhone: bookingClientPhone.trim(),
                         address: bookingAddress.trim(),
-                        paymentMethod: bookingPaymentMethod === 'escrow' ? 'Эскроу QazGost' : bookingPaymentMethod === 'kaspi' ? 'Kaspi Pay' : 'Безнал с НДС',
+                        paymentMethod: noPrepaymentLabel(bookingPaymentMethod),
                       }),
                     });
                     if (!res.ok) { setBookingError(await responseError(res)); return; }
@@ -1438,13 +1416,6 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
                 }
                 const payable = booking ? Number(booking.total) || totalCost : totalCost;
 
-                // 2. Эскроу: деньги замораживаются и уходят владельцу только после смены
-                let escrowInfo = null;
-                if (bookingPaymentMethod === 'escrow') {
-                  escrowInfo = freezeEscrow(payable, `Аренда: ${bookingItem.title} (${shifts} см.)`);
-                  setWalletBalance(escrowInfo.newBalance);
-                }
-
                 // 3. Заявка в CRM менеджера
                 const newOrder = createPlatformOrder({
                   title: `Аренда спецтехники: ${bookingItem.title}`,
@@ -1454,10 +1425,10 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
                   clientName: bookingClientName,
                   clientPhone: bookingClientPhone,
                   city: bookingItem.cityName || bookingItem.tags?.find(t => t.type === 'location')?.label || 'Алматы',
-                  description: `Аренда ${bookingItem.title} на ${shifts} смен с ${bookingDate}${booking ? ` по ${booking.dateTo} (бронь ${booking.id})` : ''}. Объект: ${bookingAddress}. Оператор: ${bookingItem.hasOperator ? 'да' : 'нет'}. Оплата: ${bookingPaymentMethod === 'escrow' ? 'эскроу заморожено' : bookingPaymentMethod === 'kaspi' ? 'Kaspi' : 'безнал'}`,
+                  description: `Аренда ${bookingItem.title} на ${shifts} смен с ${bookingDate}${booking ? ` по ${booking.dateTo} (бронь ${booking.id})` : ''}. Объект: ${bookingAddress}. Оператор: ${bookingItem.hasOperator ? 'да' : 'нет'}. Оплата: ${noPrepaymentLabel(bookingPaymentMethod)}`,
                   type: 'machinery',
                   status: 'new',
-                  paymentMethod: bookingPaymentMethod === 'escrow' ? 'Эскроу QazGost' : 'Kaspi Pay',
+                  paymentMethod: noPrepaymentLabel(bookingPaymentMethod),
                   machinery: [
                     {
                       id: bookingItem.id,
@@ -1469,8 +1440,6 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
                       assigned: false
                     }
                   ],
-                  escrowTxId: escrowInfo?.txId || null,
-                  escrowAmount: escrowInfo?.ok ? payable : 0
                 });
 
                 setBookingItem(null);

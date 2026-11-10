@@ -14,7 +14,37 @@ import (
 // maxFinanceOperation caps a single top-up / escrow operation (KZT)
 const maxFinanceOperation = 1_000_000_000
 
+// PaymentsEnabled — приём денег через платформу. Пока нет договора с платёжным провайдером
+// и его адаптера (страница оплаты + подписанный callback), пополнение, эскроу и выплаты выключены:
+// раньше Topup зачислял любую сумму без оплаты, а новый кошелёк стартовал со 100 000 ₸.
+// Перед включением Topup нужно заменить на создание платежа у провайдера и зачисление по callback.
+// Внимание: хранить деньги пользователей на балансе платформы (электронные деньги) в РК можно
+// только через банк-эмитента — согласуйте схему с провайдером и юристом.
+var PaymentsEnabled = false
+
+const paymentsDisabledMsg = "Онлайн-оплата пока не подключена: заявки оформляются без предоплаты, оплата — напрямую исполнителю"
+
+func paymentsDisabled(w http.ResponseWriter) bool {
+	if PaymentsEnabled {
+		return false
+	}
+	writeJSON(w, http.StatusServiceUnavailable, map[string]interface{}{
+		"error":           paymentsDisabledMsg,
+		"paymentsEnabled": false,
+	})
+	return true
+}
+
 type FinanceHandler struct{}
+
+// Config сообщает клиентам, подключена ли онлайн-оплата (публичный, без авторизации).
+func (h *FinanceHandler) Config(w http.ResponseWriter, r *http.Request) {
+	writeJSON(w, http.StatusOK, map[string]interface{}{
+		"paymentsEnabled": PaymentsEnabled,
+		"provider":        "",
+		"note":            paymentsDisabledMsg,
+	})
+}
 
 func NewFinanceHandler() *FinanceHandler {
 	return &FinanceHandler{}
@@ -58,10 +88,12 @@ func (h *FinanceHandler) GetBalance(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// Topup credits the caller's own balance.
-// NOTE: there is no payment-provider callback yet (Kaspi / Freedom Pay), so this is still
-// a demo top-up — but it can no longer credit someone else's account or arbitrary amounts.
+// Topup credits the caller's own balance. Выключен (503), пока PaymentsEnabled == false:
+// без платёжного провайдера это было бы зачисление денег без оплаты.
 func (h *FinanceHandler) Topup(w http.ResponseWriter, r *http.Request) {
+	if paymentsDisabled(w) {
+		return
+	}
 	var req struct {
 		UserID string  `json:"userId"`
 		Amount float64 `json:"amount"`
@@ -110,6 +142,9 @@ func (h *FinanceHandler) Topup(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *FinanceHandler) LockEscrow(w http.ResponseWriter, r *http.Request) {
+	if paymentsDisabled(w) {
+		return
+	}
 	var req struct {
 		UserID  string  `json:"userId"`
 		OrderID int64   `json:"orderId"`
@@ -158,6 +193,9 @@ func (h *FinanceHandler) LockEscrow(w http.ResponseWriter, r *http.Request) {
 // ReleaseEscrow pays the contractor from the payer's escrow.
 // Only the payer (or admin/manager) may release, and never more than is locked.
 func (h *FinanceHandler) ReleaseEscrow(w http.ResponseWriter, r *http.Request) {
+	if paymentsDisabled(w) {
+		return
+	}
 	var req struct {
 		FromUserID string  `json:"fromUserId"`
 		ToUserID   string  `json:"toUserId"`

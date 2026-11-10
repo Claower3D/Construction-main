@@ -97,6 +97,9 @@ func TestOrdersHandler_CreateAndGet(t *testing.T) {
 }
 
 func TestFinanceHandler_TopupAndEscrow(t *testing.T) {
+	// логика учёта на будущее: включаем оплату только на время теста
+	PaymentsEnabled = true
+	defer func() { PaymentsEnabled = false }()
 	h := NewFinanceHandler()
 
 	// 1. Topup
@@ -333,6 +336,9 @@ func TestCRMEvent_Validation(t *testing.T) {
 }
 
 func TestFinance_OwnershipAndLimits(t *testing.T) {
+	// логика учёта на будущее: включаем оплату только на время теста
+	PaymentsEnabled = true
+	defer func() { PaymentsEnabled = false }()
 	h := NewFinanceHandler()
 
 	w := httptest.NewRecorder()
@@ -479,5 +485,42 @@ func TestHealth_CountsPostgresTables(t *testing.T) {
 	_ = json.NewDecoder(w.Body).Decode(&res)
 	if w.Code != http.StatusOK || res["dbTables"].(float64) < 12 {
 		t.Fatalf("health: %d %v", w.Code, res)
+	}
+}
+
+// Честный режим: пока онлайн-оплата не подключена, денег «из воздуха» нет —
+// новый кошелёк с нуля, пополнение/эскроу/выплата отвечают 503 и ничего не меняют.
+func TestFinance_PaymentsDisabled(t *testing.T) {
+	PaymentsEnabled = false
+	h := NewFinanceHandler()
+
+	w := httptest.NewRecorder()
+	h.Config(w, httptest.NewRequest("GET", "/api/v1/finance/config", nil))
+	var cfg map[string]interface{}
+	_ = json.NewDecoder(w.Body).Decode(&cfg)
+	if cfg["paymentsEnabled"] != false {
+		t.Fatalf("config должен сообщать paymentsEnabled=false, получили %v", cfg)
+	}
+
+	before, _ := database.GetBalance("u_exec_1")
+	for name, call := range map[string]func(http.ResponseWriter, *http.Request){
+		"topup":   h.Topup,
+		"lock":    h.LockEscrow,
+		"release": h.ReleaseEscrow,
+	} {
+		w := httptest.NewRecorder()
+		call(w, asUser(jsonReq("POST", "/", map[string]interface{}{"amount": 100000, "toUserId": "u_customer_1"}), "u_exec_1", "executor"))
+		if w.Code != http.StatusServiceUnavailable {
+			t.Errorf("%s при выключенной оплате: ожидали 503, получили %d", name, w.Code)
+		}
+	}
+	after, _ := database.GetBalance("u_exec_1")
+	if after != before {
+		t.Errorf("баланс изменился без оплаты: %v → %v", before, after)
+	}
+
+	// новый пользователь начинает с нуля, а не со 100 000 ₸
+	if bal, esc := database.GetBalance("u_new_wallet_check"); bal != 0 || esc != 0 {
+		t.Errorf("новый кошелёк должен быть пустым, получили %v / %v", bal, esc)
 	}
 }

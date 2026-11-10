@@ -23,7 +23,6 @@ const AnalystDashboardPage = lazy(() => import('./AnalystDashboardPage'));
 const EarthworkVolumesPage = lazy(() => import('./EarthworkVolumesPage'));
 const CalendarSchedulePage = lazy(() => import('./CalendarSchedulePage'));
 import { calculateSmartEstimate, evaluateDefectScan } from '../services/smartEstimateEngine';
-import { getBalanceKZT, topupBalance } from '../services/walletEngine';
 import { getOrders } from '../services/dataService';
 import { localDateKey } from '../services/platformUtils';
 
@@ -71,8 +70,6 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
   ]);
 
   // Wallet state
-  const [balance, setBalance] = useState(() => getBalanceKZT());
-  const [topupAmount, setTopupAmount] = useState('');
 
   useEffect(() => {
     getOrders().then((data) => setLiveOrders(data));
@@ -248,16 +245,6 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
     setShowOrderModal(false);
   };
 
-  const handleTopupWallet = (e) => {
-    e.preventDefault();
-    const val = parseFloat(topupAmount);
-    if (val && val > 0) {
-      const nextBal = topupBalance(val, 'Kaspi Pay');
-      setBalance(nextBal);
-      setTopupAmount('');
-      alert(`🎉 Баланс кошелька успешно пополнен на ${val.toLocaleString()} ₸!`);
-    }
-  };
 
   // Safely derive name and icon to prevent crashes if itemData properties are missing
   const displayName = itemData?.name || itemData?.title || itemData?.label || 'Модуль';
@@ -638,7 +625,7 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
                           <span style={{ fontSize: '0.75rem', color: '#a39cc2' }}> / {m.unit}</span>
                         </div>
                         <button
-                          onClick={() => alert(`⚡ Бронирование техники "${m.title}" к вашему объекту на 1 час (Эскроу QazGost)`)}
+                          onClick={() => alert(`⚡ Бронирование техники "${m.title}" к вашему объекту на 1 час: заявка отправлена владельцу, оплата напрямую после смены`)}
                           style={{
                             background: 'linear-gradient(135deg, #7c3aed, #7c3aed)',
                             border: 'none',
@@ -803,7 +790,7 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
                           <span style={{ fontSize: '0.75rem', color: '#a39cc2' }}> / {m.unit}</span>
                         </div>
                         <button
-                          onClick={() => alert(`⚡ Бронирование техники "${m.title}" к вашему объекту на 1 час (Эскроу QazGost)`)}
+                          onClick={() => alert(`⚡ Бронирование техники "${m.title}" к вашему объекту на 1 час: заявка отправлена владельцу, оплата напрямую после смены`)}
                           style={{
                             background: 'linear-gradient(135deg, #7c3aed, #7c3aed)',
                             border: 'none',
@@ -962,7 +949,7 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab }) 
 
         {/* 7. WALLET & ESCROW (c-wallet / e-wallet) */}
         {(itemId === 'c-wallet' || itemId === 'e-wallet') && (
-          <UserWalletPage onBack={onBack} />
+          <UserWalletPage onBack={onBack} currentUser={{ role: itemId === 'e-wallet' ? 'executor' : 'customer' }} />
         )}
 
         {/* 8. PROFILE & QUESTIONNAIRE (c-profile / e-profile) */}

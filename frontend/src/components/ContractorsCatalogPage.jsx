@@ -4,7 +4,7 @@ import './ContractorsCatalogPage.css';
 import MarketBackdrop from './MarketBackdrop';
 import './marketplace-lux.css';
 import { createPlatformOrder } from '../services/orderSyncService';
-import { freezeEscrow } from '../services/walletEngine';
+import { noPrepaymentLabel } from '../services/walletEngine';
 
 /*
  * Каталог подрядчиков.
@@ -15,7 +15,6 @@ import { freezeEscrow } from '../services/walletEngine';
  * с явной пометкой.
  */
 
-const BOOKING_DEPOSIT = 150000;
 
 const AVATAR_TONES = ['#7c3aed', '#0e7490', '#7c3aed', '#047857', '#b45309', '#be123c'];
 
@@ -268,25 +267,20 @@ export default function ContractorsCatalogPage({ onBack }) {
 
   const inviteToProject = (c) => {
     const specName = c.skills.join(', ') || 'Строительные работы';
-    const escrow = freezeEscrow(BOOKING_DEPOSIT, `Бронь подрядчика ${c.name}`);
-    if (!escrow.ok) {
-      showToast(`Недостаточно средств для депозита брони ${BOOKING_DEPOSIT.toLocaleString('ru-RU')} ₸ (доступно ${Number(escrow.newBalance || 0).toLocaleString('ru-RU')} ₸). Пополните кошелёк.`);
-      return;
-    }
+    // Онлайн-оплата не подключена: приглашение без депозита, условия оплаты согласуются с подрядчиком
     const order = createPlatformOrder({
       title: `Подряд: ${c.name} (${specName})`,
       category: c.skills[0] || 'Строительные работы',
-      amount: BOOKING_DEPOSIT,
-      budget: `${BOOKING_DEPOSIT.toLocaleString('ru-RU')} ₸ (депозит брони)`,
-      description: `Прямой вызов подрядчика: ${c.name}${c.company ? ` (${c.company})` : ''}. Город: ${c.city}. Телефон: ${c.phone || '—'}.${c.foreman ? ` Бригадир: ${c.foreman}.` : ''}`,
+      amount: 0,
+      budget: 'По договорённости',
+      description: `Прямой вызов подрядчика: ${c.name}${c.company ? ` (${c.company})` : ''}. Город: ${c.city}. Телефон: ${c.phone || '—'}.${c.foreman ? ` Бригадир: ${c.foreman}.` : ''} ${noPrepaymentLabel()}.`,
       type: 'contractor',
       status: 'new',
       assignedTo: c.company || c.name,
       assignedEngineer: 'Назначен Менеджер CRM',
-      escrowTxId: escrow.txId,
-      escrowAmount: BOOKING_DEPOSIT,
+      paymentMethod: noPrepaymentLabel(),
     });
-    showToast(`Заявка ${order.id} отправлена: «${c.name}» и менеджер CRM получили уведомление.`);
+    showToast(`Заявка ${order.id} отправлена без предоплаты: «${c.name}» и менеджер CRM получили уведомление.`);
     setSelected(null);
   };
 
@@ -299,7 +293,7 @@ export default function ContractorsCatalogPage({ onBack }) {
         <button className="cc-back-btn" onClick={onBack} aria-label="Вернуться назад">←</button>
         <div className="cc-header-title-wrap">
           <h1 className="cc-title">Каталог подрядчиков</h1>
-          <p className="cc-header-subtitle">Бригады и компании, которые принимают заказы через QazGost. Звоните напрямую или бронируйте через эскроу.</p>
+          <p className="cc-header-subtitle">Бригады и компании, которые принимают заказы через QazGost. Звоните напрямую или отправьте приглашение на проект.</p>
         </div>
         <button className="cc-btn-add-contractor" onClick={() => setShowAddModal(true)}>Добавить анкету</button>
       </header>
@@ -520,7 +514,7 @@ export default function ContractorsCatalogPage({ onBack }) {
               </button>
               <p className="cc-modal-note">
                 {selected.available
-                  ? <>Бронь замораживает <span className="qg-price-tag">{BOOKING_DEPOSIT.toLocaleString('ru-RU')} ₸</span> в эскроу вашего кошелька до начала работ.</>
+                  ? 'Приглашение без предоплаты: бригада и менеджер получат заявку, цену и оплату вы согласуете напрямую.'
                   : 'Бригада сейчас занята — позвоните, чтобы договориться о сроках.'}
               </p>
             </div>

@@ -54,7 +54,7 @@ export default function LoginPage({ currentUser, onLogin, onOpenRegister, onOpen
           <ul className="rg-benefits">
             <li><Check size={18} aria-hidden="true" />Сохранённые сметы и акты о дефектах</li>
             <li><Check size={18} aria-hidden="true" />Заказы, отклики и календарь работ</li>
-            <li><Check size={18} aria-hidden="true" />Кошелёк: баланс и эскроу по заказам</li>
+            <li><Check size={18} aria-hidden="true" />Анкета, каталоги и лента заказов</li>
           </ul>
         </aside>
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { getBalanceKZT } from '../services/walletEngine';
+import { getBalanceKZT, PAYMENTS_ENABLED } from '../services/walletEngine';
 
 // Знак QazGost: лист с размерной линией и «трещиной» — без эмодзи
 export function QazGostMark({ size = 36 }) {
@@ -24,7 +24,7 @@ function getDefaultNotificationsForRole(userRole) {
   if (userRole === 'manager') {
     return [
       { id: 'n-mgr-1', icon: '💼', title: 'Новый лид в CRM', text: 'Поступила новая коммерческая заявка от ТОО «КазСтройИнвест».', time: '2 мин назад', unread: true, target: 'manager' },
-      { id: 'n-mgr-2', icon: '📊', title: 'Сделка переведена в Дожим', text: 'Заказчик №1085 запросил счет на эскроу-транш №2.', time: '15 мин назад', unread: true, target: 'manager' },
+      { id: 'n-mgr-2', icon: '📊', title: 'Сделка переведена в Дожим', text: 'Заказчик №1085 запросил коммерческое предложение по второму этапу.', time: '15 мин назад', unread: true, target: 'manager' },
       { id: 'n-mgr-3', icon: '✅', title: 'Успешная сдача объекта', text: 'Подрядчик сдал сметный этап №3 без замечаний.', time: '1 час назад', unread: false, target: 'manager' }
     ];
   }
@@ -38,13 +38,13 @@ function getDefaultNotificationsForRole(userRole) {
   if (userRole === 'executor') {
     return [
       { id: 'n-exe-1', icon: '🌐', title: 'Новый доступный заказ', text: 'В ленте заказов: Ремонт офисного помещения 450 м² в г. Астана.', time: '8 мин назад', unread: true, target: 'executor' },
-      { id: 'n-exe-2', icon: '💳', title: 'Эскроу-транш зачислен', text: 'Заказчик подтвердил этап №1. Средства готовы к выводу.', time: '45 мин назад', unread: true, target: 'wallet' },
+      { id: 'n-exe-2', icon: '✅', title: 'Этап принят заказчиком', text: 'Заказчик подтвердил этап №1. Оплату этапа согласуйте с ним напрямую.', time: '45 мин назад', unread: true, target: 'wallet' },
       { id: 'n-exe-3', icon: '📌', title: 'Отклик принят', text: 'Ваше коммерческое предложение выбрано главным исполнителем.', time: '2 часа назад', unread: false, target: 'orders' }
     ];
   }
   return [
     { id: 'n-cus-1', icon: '📸', title: 'Смета готова (AI 2.0)', text: 'Загруженные фото проанализированы: рассчитано 3 сценария цены.', time: '4 мин назад', unread: true, target: 'orders' },
-    { id: 'n-cus-2', icon: '💳', title: 'Резерв эскроу-счета', text: 'Безопасная сделка успешно оформлена и защищена гарантом.', time: '30 мин назад', unread: true, target: 'wallet' },
+    { id: 'n-cus-2', icon: '💬', title: 'Исполнитель откликнулся', text: 'На ваш заказ пришёл отклик с ценой и сроками. Сравните предложения.', time: '30 мин назад', unread: true, target: 'wallet' },
     { id: 'n-cus-3', icon: '🔍', title: 'Отчёт дефектовки', text: 'AI-сканер выявил 2 микротрещины и сформировал отчёт по СНиП.', time: '1 час назад', unread: false, target: 'customer' }
   ];
 }
@@ -364,7 +364,7 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
                 </a>
                 <a href="#wallet" className="dropdown-item" onClick={closeDropdown}>
                   <span className="item-icon">💳</span>
-                  <span>Мой кошелёк</span>
+                  <span>Оплата</span>
                 </a>
 
                 <div className="dropdown-divider"></div>
@@ -785,7 +785,8 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
         <div className="header-right-actions">
           {/* Utility Capsule Group */}
           <div className="header-utility-group">
-            {currentUser && (
+            {/* Баланс показываем, только когда подключена онлайн-оплата: до этого денег на платформе нет */}
+            {currentUser && PAYMENTS_ENABLED && (
               <button
                 type="button"
                 className="balance-chip"
@@ -1092,15 +1093,16 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
                     </div>
                   </div>
 
-              {/* Account Balance */}
-              <div 
-                className="balance-badge" 
-                style={{ justifyContent: 'center', padding: '0.6rem 1rem', cursor: 'pointer' }}
+              {/* Оплата — без баланса: онлайн-оплата ещё не подключена */}
+              <button
+                type="button"
+                className="balance-badge"
+                style={{ justifyContent: 'center', padding: '0.6rem 1rem', cursor: 'pointer', width: '100%', font: 'inherit', color: 'inherit' }}
                 onClick={() => { if (onOpenWallet) onOpenWallet(); setIsMobileMenuOpen(false); }}
               >
-                <span className="balance-icon">💰</span>
-                <span>Баланс: $0.00</span>
-              </div>
+                <span className="balance-icon" aria-hidden="true">💳</span>
+                <span>{PAYMENTS_ENABLED ? `Баланс: ${walletBalance.toLocaleString('ru-RU')} ₸` : 'Оплата и кошелёк'}</span>
+              </button>
 
               {/* Accordion 1: Orderer Menu */}
               <div className="mobile-accordion-wrap">

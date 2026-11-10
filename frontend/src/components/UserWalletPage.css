@@ -993,3 +993,31 @@
 .uw-plan-btn { border-radius: var(--qg-r-ctrl) !important; box-shadow: none !important; transform: none !important; }
 .uw-popular-badge { box-shadow: none !important; }
 .uw-transactions-list > div { background: var(--qg-surface) !important; border-color: var(--qg-line) !important; }
+
+/* ═════════════ Раздел «Оплата» — честный режим без баланса (2026-11) ═════════════ */
+.uw-pay-status { display: grid; gap: 14px; padding: clamp(20px, 3vw, 32px); border-radius: 22px; }
+.uw-pay-badge {
+  justify-self: start;
+  padding: 6px 12px;
+  border: 1px solid rgba(242, 184, 75, 0.5);
+  border-radius: 999px;
+  background: rgba(242, 184, 75, 0.12);
+  color: #ffd98a;
+  font-size: 0.8125rem;
+  font-weight: 800;
+}
+.uw-pay-title { margin: 0; color: var(--qg-text, #fff); font-size: clamp(1.25rem, 1rem + 1vw, 1.75rem); font-weight: 800; letter-spacing: -0.02em; }
+.uw-pay-text { margin: 0; max-width: 68ch; color: var(--qg-text-2, #cbc5e3); font-size: 1rem; line-height: 1.6; }
+.uw-pay-facts { display: grid; gap: 8px; margin: 0; padding-left: 20px; max-width: 72ch; color: var(--qg-text-2, #cbc5e3); line-height: 1.55; }
+.uw-pay-facts li::marker { color: #f2b84b; }
+.uw-pay-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
+.uw-pay-actions .uw-btn-gold,
+.uw-pay-actions .uw-btn-glass { display: inline-flex; align-items: center; justify-content: center; min-height: 46px; padding: 0 20px; border-radius: 12px; font-weight: 800; text-decoration: none; cursor: pointer; }
+.uw-pay-steps { margin-top: 28px; }
+.uw-pay-steps ol { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin: 14px 0 0; padding: 0; list-style: none; }
+.uw-pay-steps li { display: grid; gap: 6px; padding: 18px; border-radius: 18px; }
+.uw-pay-steps li strong { color: var(--qg-text, #fff); font-size: 1rem; }
+.uw-pay-steps li span:last-child { color: var(--qg-text-2, #cbc5e3); font-size: 0.9rem; line-height: 1.5; }
+.uw-step-num { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 10px; background: rgba(255, 255, 255, 0.08); color: var(--tone, #f2b84b); font-weight: 800; }
+.uw-tariffs-section { margin-top: 28px; }
+.uw-plan-btn { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; }

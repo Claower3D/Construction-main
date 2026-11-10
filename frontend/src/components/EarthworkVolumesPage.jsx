@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { getBalanceKZT, freezeEscrow } from '../services/walletEngine';
+import { noPrepaymentLabel } from '../services/walletEngine';
 import { createPlatformOrder } from '../services/orderSyncService';
 
 export default function EarthworkVolumesPage({ onBack, hideHeader = false }) {
@@ -96,32 +96,17 @@ export default function EarthworkVolumesPage({ onBack, hideHeader = false }) {
     }, 1800);
   };
 
-  // Save Order to Go Backend and Lock Escrow
+  // Заявка на земляные работы. Онлайн-оплата не подключена — без аванса через платформу.
   const handleCreateEarthworkOrder = async () => {
     const title = `[🚜 ЗЕМЛЯНЫЕ РАБОТЫ] Разработка котлована ${calculations.geometricVolumeM3} м³ (${currentSoil.name})`;
     const cost = calculations.totalEstimatedCost;
-    
-    // Check wallet balance
-    const currentBal = getBalanceKZT();
-    if (currentBal < cost * 0.3) {
-      alert(`⚠️ Недостаточно средств для авансового Эскроу (30% = ${(cost * 0.3).toLocaleString()} ₸). Текущий баланс: ${currentBal.toLocaleString()} ₸. Пожалуйста, пополните кошелёк.`);
-      return;
-    }
 
     try {
-      // Freeze 30% first stage escrow
-      const escrow = freezeEscrow(Math.round(cost * 0.3), title);
-      if (!escrow.ok) {
-        alert(`⚠️ Не удалось заморозить аванс 30%: недостаточно средств (доступно ${escrow.newBalance.toLocaleString()} ₸).`);
-        return;
-      }
-
       // Create Order in Go Backend
       await createPlatformOrder({
         title,
         amount: cost,
-        escrowTxId: escrow.txId,
-        escrowAmount: Math.round(cost * 0.3),
+        paymentMethod: noPrepaymentLabel(),
         type: 'earthworks',
         city: 'Алматы',
         clientName: 'Подрядчик / Исполнитель',
@@ -137,7 +122,7 @@ export default function EarthworkVolumesPage({ onBack, hideHeader = false }) {
         ]
       });
 
-      setToastMessage(`🎉 Заказ на земляные работы успешно сформирован в Go Backend! Эскроу 30% заморожен.`);
+      setToastMessage('🎉 Заявка на земляные работы отправлена диспетчеру. Предоплата не списывается — оплату согласуете с подрядчиком.');
       setTimeout(() => setToastMessage(null), 5000);
     } catch(e) {
       alert('Заказ сохранен локально и передан диспетчеру!');
@@ -422,7 +407,7 @@ export default function EarthworkVolumesPage({ onBack, hideHeader = false }) {
                 transition: 'all 0.3s ease'
               }}
             >
-              🚀 Сформировать сметный заказ & Заморозить Эскроу ➔
+              Отправить заявку на земляные работы →
             </button>
           </div>
 

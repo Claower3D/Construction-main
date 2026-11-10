@@ -2,7 +2,6 @@ import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react'
 import './UserOrdersPage.css';
 import { authHeaders, parseMoney, localDateKey, reportSyncError } from '../services/platformUtils';
 import { createPlatformOrder, upsertCrmEvent } from '../services/orderSyncService';
-import { releaseEscrow } from '../services/walletEngine';
 
 // ── Ключ для localStorage (Единый реестр заказов для всех ролей и устройств) ──
 function getOrdersKey() {
@@ -203,24 +202,7 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
     return order;
   }, []);
 
-  // Выплата исполнителю из эскроу заказчика (walletEngine.releaseEscrow)
-  const payoutEscrow = useCallback((order, amount, title) => {
-    if (!order) return { ok: false, reason: 'заказ не найден' };
-    const receiver = order.acceptedByEmail || order.acceptedBy
-      ? { email: order.acceptedByEmail || undefined, name: order.acceptedBy }
-      : null;
-    if (!receiver) return { ok: false, reason: 'исполнитель не назначен' };
-    const r = releaseEscrow({
-      amount: amount > 0 ? amount : undefined,
-      title,
-      fromUser: currentUser,
-      toUser: receiver,
-      escrowTxId: order.escrowTxId || null,
-      orderId: order.id,
-    });
-    if (r.ok) return { ok: true, released: r.released };
-    return { ok: false, reason: r.error === 'no_escrow' ? 'нет удерживаемых средств по заказу' : r.error };
-  }, [currentUser]);
+
 
   // ═══════════════════════════════════════
   // ►  ПРОГРЕССИЯ ЭТАПОВ (Начать / Завершить)
@@ -243,7 +225,7 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
   const handleCompleteStage = useCallback((orderId, stageId) => {
     setConfirmAction({
       title: '✅ Завершить этап?',
-      message: 'Подтвердите завершение этапа. Эскроу по этапу будет разморожен и переведён исполнителю.',
+      message: 'Подтвердите, что этап выполнен. Онлайн-оплата пока не подключена — оплату этапа проведите напрямую исполнителю по договорённости.',
       onConfirm: () => {
         setOrders(prev => prev.map(ord => {
           if (ord.id !== orderId) return ord;
@@ -270,14 +252,14 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
         });
         const ord = orders.find(o => o.id === orderId);
         const stg = ord?.stages?.find(st => st.id === stageId);
-        const payout = payoutEscrow(ord, parseMoney(stg?.budget), `Этап «${stg?.name || stageId}» заказа ${orderId}`);
-        showToast(payout.ok
-          ? `✅ Этап завершён! Эскроу ${formatMoney(payout.released)} разморожен → исполнителю`
-          : `✅ Этап завершён. ⚠️ Выплата не проведена: ${payout.reason}`);
+        const stageSum = parseMoney(stg?.budget);
+        showToast(stageSum > 0
+          ? `✅ Этап принят. Сумма этапа ${formatMoney(stageSum)} — оплатите исполнителю напрямую.`
+          : '✅ Этап принят.');
         setConfirmAction(null);
       }
     });
-  }, [recalcOrderStatus, orders, payoutEscrow]);
+  }, [recalcOrderStatus, orders]);
 
   const handleUpdateProgress = useCallback((orderId, stageId, newProgress) => {
     setOrders(prev => prev.map(ord => {
@@ -523,7 +505,7 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
   const handleCompleteOrder = useCallback((orderId) => {
     setConfirmAction({
       title: '🎉 Завершить заказ?',
-      message: 'Все этапы выполнены. Подтвердите завершение заказа. Остатки эскроу будут разморожены. Заказчик получит уведомление.',
+      message: 'Все этапы выполнены. Подтвердите завершение заказа — заказчик получит уведомление.',
       onConfirm: () => {
         setOrders(prev => prev.map(ord => {
           if (ord.id !== orderId) return ord;
@@ -533,15 +515,12 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
             completedAt: new Date().toLocaleString()
           };
         }));
-        const payout = payoutEscrow(orders.find(o => o.id === orderId), undefined, `Остаток эскроу по заказу ${orderId}`);
-        showToast(payout.ok
-          ? `🎉 Заказ ${orderId} завершён! Остаток эскроу ${formatMoney(payout.released)} выплачен исполнителю.`
-          : `🎉 Заказ ${orderId} завершён. ${payout.reason === 'нет удерживаемых средств по заказу' ? 'Остатка эскроу нет.' : `⚠️ Выплата не проведена: ${payout.reason}`}`);
+        showToast(`🎉 Заказ ${orderId} завершён.`);
         setSelectedOrder(null);
         setConfirmAction(null);
       }
     });
-  }, [orders, payoutEscrow]);
+  }, []);
 
   // Dynamic Filtering (с учётом роли!)
   const filteredOrders = useMemo(() => {
@@ -1006,14 +985,14 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
 
                         {/* ═══ УПРАВЛЕНИЕ ЭТАПОМ ═══ */}
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
-                          {/* Эскроу индикатор */}
+                          {/* Сумма этапа */}
                           <div style={{
                             padding: '4px 10px', borderRadius: '8px', fontSize: '0.72rem', fontWeight: 700,
                             background: stg.status === 'completed' ? 'rgba(16,185,129,0.15)' : stg.status === 'in_progress' ? 'rgba(245,158,11,0.15)' : 'rgba(255,255,255,0.06)',
                             color: stg.status === 'completed' ? '#10b981' : stg.status === 'in_progress' ? '#f59e0b' : '#8a82a8',
                             border: `1px solid ${stg.status === 'completed' ? 'rgba(16,185,129,0.3)' : stg.status === 'in_progress' ? 'rgba(245,158,11,0.3)' : 'rgba(255,255,255,0.1)'}`
                           }}>
-                            {stg.status === 'completed' ? '🔓 Эскроу разморожен' : stg.status === 'in_progress' ? `🔒 Эскроу: ${formatMoney(stg.budget || 0)}` : '💤 Эскроу не активен'}
+                            {stg.status === 'completed' ? '✅ Этап принят' : `Сумма этапа: ${formatMoney(stg.budget || 0)}`}
                           </div>
 
                           <div style={{ flex: 1 }} />
@@ -1235,7 +1214,7 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
         </div>
       )}
 
-      {/* ═══ Модалка подтверждения (Эскроу / Завершение) ═══ */}
+      {/* ═══ Модалка подтверждения (этап / завершение) ═══ */}
       {confirmAction && (
         <div className="uo-modal-overlay" onClick={() => setConfirmAction(null)} style={{ zIndex: 10001 }}>
           <div className="uo-modal-card" onClick={e => e.stopPropagation()} style={{ maxWidth: '440px', textAlign: 'center' }}>

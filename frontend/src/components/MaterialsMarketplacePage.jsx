@@ -1,5 +1,5 @@
 ﻿import React, { useState, useMemo, useEffect, useCallback } from 'react';
-import { getBalanceKZT, freezeEscrow, topupBalance } from '../services/walletEngine';
+import { PAYMENTS_NOTE, noPrepaymentLabel } from '../services/walletEngine';
 import { createPlatformOrder } from '../services/orderSyncService';
 import { authHeaders, responseError } from '../services/platformUtils';
 import { MARKETPLACE_PRODUCTS } from '../data/marketplaceProducts';
@@ -85,13 +85,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
   const [checkoutPhone, setCheckoutPhone] = useState('');
   const [checkoutAddress, setCheckoutAddress] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('kaspi');
-  const [walletBalance, setWalletBalance] = useState(() => getBalanceKZT());
   
-  useEffect(() => {
-    if (isCheckoutModal) {
-      setWalletBalance(getBalanceKZT());
-    }
-  }, [isCheckoutModal]);
   const [toastMessage, setToastMessage] = useState(null);
 
   // ── Каталог из API (debounce поиска, пагинация, региональный коэффициент) ──
@@ -1146,17 +1140,7 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
 
     const totalCost = cartTotalWithDelivery;
 
-    // 1. If escrow payment, freeze funds from wallet
-    let escrowInfo = null;
-    if (paymentMethod === 'escrow') {
-      escrowInfo = freezeEscrow(totalCost, `Стройматериалы: ${cart.map(c => c.title).slice(0, 2).join(', ')}...`);
-      setWalletBalance(escrowInfo.newBalance);
-      if (!escrowInfo.ok) {
-        // Недостаточно средств — заказ НЕ оформляется (раньше баланс обнулялся, а заказ считался оплаченным)
-        showToast(`⚠️ Недостаточно средств в кошельке: нужно ${totalCost.toLocaleString()} ₸, доступно ${escrowInfo.newBalance.toLocaleString()} ₸`);
-        return;
-      }
-    }
+    // Онлайн-оплата не подключена: заказ без предоплаты, оплата поставщику после подтверждения
 
     // 2. Dispatch Platform Order to Manager CRM and Shared Orders
     const newOrder = createPlatformOrder({
@@ -1167,13 +1151,11 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
       clientName: checkoutName || 'Заказчик',
       clientPhone: checkoutPhone || '+7 (707) 123-45-67',
       city: selectedCity === 'all' ? 'Алматы' : selectedCity,
-      description: `Заказ стройматериалов на объект: ${checkoutAddress}. Состав: ${cart.map(c => `${c.title} (${c.count} ${c.unit} × ${cartUnitPrice(c)} ₸${c.isOffer ? `, поставщик ${c.supplier}` : ', справочная цена'})`).join(', ')}. Транспорт: ${recommendedVehicle.name}. Оплата: ${paymentMethod === 'escrow' ? 'Эскроу заморожено' : 'Kaspi Pay'}`,
+      description: `Заказ стройматериалов на объект: ${checkoutAddress}. Состав: ${cart.map(c => `${c.title} (${c.count} ${c.unit} × ${cartUnitPrice(c)} ₸${c.isOffer ? `, поставщик ${c.supplier}` : ', справочная цена'})`).join(', ')}. Транспорт: ${recommendedVehicle.name}. Оплата: ${noPrepaymentLabel(paymentMethod)}`,
       type: 'materials',
       status: 'new',
-      paymentMethod: paymentMethod === 'escrow' ? 'Эскроу QazGost' : (paymentMethod === 'kaspi' ? 'Kaspi Pay' : 'Безналичный расчет с НДС'),
+      paymentMethod: noPrepaymentLabel(paymentMethod),
       materials: cart,
-      escrowTxId: escrowInfo?.txId || null,
-      escrowAmount: escrowInfo?.ok ? totalCost : 0
     });
 
     // Also persist in legacy materials list
@@ -1234,8 +1216,8 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
             <span>{selectedCity !== 'all' ? `коэффициент: ${selectedCity}` : 'региональный коэффициент'}</span>
           </div>
           <div className="mmp-stat-pill">
-            <strong>Эскроу</strong>
-            <span>оплата после приёмки</span>
+            <strong>Без предоплаты</strong>
+            <span>оплата поставщику после подтверждения</span>
           </div>
         </div>
       </div>
@@ -1983,9 +1965,8 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
                   onChange={e => setPaymentMethod(e.target.value)}
                   style={{ width: '100%', background: 'rgba(10,14,28,0.8)', border: '1px solid rgba(255,255,255,0.15)', color: '#fff', padding: '10px', borderRadius: '8px' }}
                 >
-                  <option value="kaspi">📱 Kaspi Pay (QR / Перевод)</option>
-                  <option value="escrow">🛡️ Безопасная сделка QAZGOST Эскроу</option>
-                  <option value="invoice">📄 Безналичный расчет (Счет с НДС для юрлиц)</option>
+                  <option value="kaspi">Kaspi или перевод поставщику после подтверждения</option>
+                  <option value="invoice">Безналичный расчёт по счёту с НДС (для юрлиц)</option>
                 </select>
               </div>
 
@@ -1994,22 +1975,9 @@ export default function MaterialsMarketplacePage({ onBack, hideHeader = false })
                   <span style={{ fontSize: '0.9rem', color: '#cbc5e3' }}>Итого к оплате с доставкой:</span>
                   <strong style={{ fontSize: '1.25rem', color: '#10b981' }}>{cartTotalWithDelivery.toLocaleString()} ₸</strong>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '8px', borderTop: '1px solid rgba(255,255,255,0.08)', fontSize: '0.82rem' }}>
-                  <span style={{ color: '#a39cc2' }}>💳 Баланс кошелька: <strong style={{ color: '#fff' }}>{walletBalance.toLocaleString()} ₸</strong></span>
-                  {walletBalance < cartTotalWithDelivery && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const added = topupBalance(cartTotalWithDelivery);
-                        setWalletBalance(added);
-                        showToast(`🎉 Кошелёк пополнен на +${cartTotalWithDelivery.toLocaleString()} ₸ через Kaspi!`);
-                      }}
-                      style={{ background: 'rgba(185,164,255,0.2)', border: '1px solid #b9a4ff', color: '#b9a4ff', borderRadius: '6px', padding: '3px 8px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}
-                    >
-                      + Пополнить на сумму заказа
-                    </button>
-                  )}
-                </div>
+                <p style={{ margin: 0, paddingTop: '8px', borderTop: '1px solid rgba(255,255,255,0.08)', fontSize: '0.8rem', color: '#cbc5e3', lineHeight: 1.45 }}>
+                  {PAYMENTS_NOTE}
+                </p>
               </div>
 
               <button 
