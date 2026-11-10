@@ -34,6 +34,7 @@ const EquipmentMarketplace = lazy(() => import('./components/EquipmentMarketplac
 const EngineeringCalcPage = lazy(() => import('./components/EngineeringCalcPage'));
 const LiDARScanPage = lazy(() => import('./components/LiDARScanPage'));
 const LegalPage = lazy(() => import('./components/LegalPage'));
+const RegisterPage = lazy(() => import('./components/RegisterPage'));
 
 const DASHBOARD_VIEWS = ['admin', 'customer', 'executor', 'company', 'engineer', 'crm', 'manager'];
 // Панели с ограничением по роли (UI-guard; реальная защита данных — на сервере)
@@ -84,7 +85,17 @@ export default function App() {
 
   // CTA лендинга открывают окно входа через событие (utils/navigate.js → openAuth)
   useEffect(() => {
-    const onOpenAuth = (e) => setAuthMode(e.detail?.mode === 'register' ? 'register' : 'login');
+    // Регистрация — отдельная страница /register, вход — окно
+    const onOpenAuth = (e) => {
+      if (e.detail?.mode === 'register') {
+        setAuthMode(null);
+        if (window.location.pathname !== '/register') window.history.pushState({}, '', '/register');
+        setCurrentView('register');
+        window.scrollTo(0, 0);
+      } else {
+        setAuthMode('login');
+      }
+    };
     window.addEventListener('qazgost_open_auth', onOpenAuth);
     return () => window.removeEventListener('qazgost_open_auth', onOpenAuth);
   }, []);
@@ -113,6 +124,7 @@ export default function App() {
     if (path.startsWith('/materials')) return 'materials';
     if (path.startsWith('/equipment')) return 'equipment';
     if (LEGAL_PATHS[path.replace(/\/+$/, '')]) return 'legal';
+    if (path.startsWith('/register')) return 'register';
     return 'landing';
   });
 
@@ -151,6 +163,7 @@ export default function App() {
       else if (path.startsWith('/materials')) setCurrentView('materials');
       else if (path.startsWith('/equipment')) setCurrentView('equipment');
       else if (LEGAL_PATHS[path.replace(/\/+$/, '')]) { setCurrentView('legal'); setLegalTick((t) => t + 1); }
+      else if (path.startsWith('/register')) setCurrentView('register');
       else setCurrentView('landing');
     };
     window.addEventListener('popstate', handlePopState);
@@ -174,6 +187,17 @@ export default function App() {
     window.history.pushState({}, '', `/${targetRole}`);
     setCurrentView(targetRole);
     setRole(targetRole);
+  };
+
+  const openAuthFlow = (mode) => {
+    if (mode === 'register') {
+      setAuthMode(null);
+      if (window.location.pathname !== '/register') window.history.pushState({}, '', '/register');
+      setCurrentView('register');
+      window.scrollTo(0, 0);
+    } else {
+      setAuthMode(mode);
+    }
   };
 
   const handleLogin = (user) => {
@@ -316,7 +340,7 @@ export default function App() {
         setRole={setRole} 
         theme={theme} 
         toggleTheme={toggleTheme} 
-        onOpenAuth={setAuthMode} 
+        onOpenAuth={openAuthFlow} 
         onOpenAdmin={navigateToAdmin}
         onOpenEngineer={navigateToEngineer}
         currentUser={currentUser}
@@ -443,6 +467,15 @@ export default function App() {
             />
           )}
 
+          {currentView === 'register' && (
+            <RegisterPage
+              currentUser={currentUser}
+              onRegistered={handleLogin}
+              onOpenLogin={() => setAuthMode('login')}
+              onOpenDashboard={navigateToDashboard}
+            />
+          )}
+
           {currentView === 'legal' && (
             <LegalPage
               key={`legal-${legalTick}`}
@@ -471,7 +504,7 @@ export default function App() {
               <div className="qg-scene" aria-hidden="true" />
               {/* Секции лендинга больше не «выезжают» по одной при скролле: контент виден сразу,
                   единственный акцентный момент — первый экран (см. HeroSection). */}
-              <HeroSection role={role} onOpenAuth={setAuthMode} currentUser={currentUser} onOpenDashboard={navigateToDashboard} />
+              <HeroSection role={role} onOpenAuth={openAuthFlow} currentUser={currentUser} onOpenDashboard={navigateToDashboard} />
               <FeatureHighlights />
               <EstimateExamples />
               <HowItWorksSection />
@@ -493,7 +526,7 @@ export default function App() {
       <VoiceControlWidget />
       <ScrollToTopButton />
 
-      <AuthModal mode={authMode} onClose={() => setAuthMode(null)} onLogin={handleLogin} />
+      <AuthModal mode={authMode} onClose={() => setAuthMode(null)} onLogin={handleLogin} onRegister={() => openAuthFlow('register')} />
       {syncBanner}
     </div>
   );

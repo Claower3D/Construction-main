@@ -1,0 +1,273 @@
+/* ════════════════════════════════════════════════════════════════════
+   Страница регистрации /register — в стилистике главной.
+   Слева: зачем регистрироваться (зависит от роли). Справа: компактная
+   форма в две колонки, которая помещается в экран при масштабе 100%
+   (1366×768, 1440×900, узкое окно ~940×900). На телефоне — одна колонка.
+   ════════════════════════════════════════════════════════════════════ */
+
+.rg-page {
+  min-height: calc(100vh - 68px);
+  padding: clamp(16px, 4vh, 40px) var(--qg-gutter, 20px) 48px;
+  display: flex;
+  align-items: center;
+}
+.rg-grid {
+  width: 100%;
+  max-width: 1140px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  gap: clamp(28px, 4vw, 64px);
+  align-items: center;
+}
+
+/* ── Левая колонка ── */
+.rg-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 18px;
+  padding: 7px 14px;
+  border: 1px solid rgba(173, 156, 255, 0.4);
+  border-radius: 999px;
+  background: rgba(98, 74, 214, 0.18);
+  color: var(--qg-text);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+.rg-pill span { width: 8px; height: 8px; border-radius: 50%; background: #f2b84b; box-shadow: 0 0 10px rgba(242, 184, 75, 0.8); }
+.rg-aside h1 {
+  margin: 0 0 14px;
+  font-family: var(--qg-font);
+  font-size: clamp(2rem, 1.3rem + 2vw, 3rem);
+  font-weight: 800;
+  line-height: 1.06;
+  letter-spacing: -0.035em;
+  background: linear-gradient(180deg, #ffffff 30%, #d9c9ff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-wrap: balance;
+}
+.rg-lead { margin: 0 0 24px; max-width: 40ch; color: var(--qg-text-2); font-size: 1.0625rem; line-height: 1.6; }
+.rg-benefits { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; }
+.rg-benefits li { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 10px; color: var(--qg-text); font-weight: 600; line-height: 1.45; }
+.rg-benefits li svg { margin-top: 2px; }
+.rg-benefits li:nth-child(1) svg { color: #4fc3ff; }
+.rg-benefits li:nth-child(2) svg { color: #2ee6c5; }
+.rg-benefits li:nth-child(3) svg { color: #ff5c8a; }
+
+/* ── Форма ── */
+.rg-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px 14px;
+  padding: clamp(18px, 2.4vw, 28px);
+  border: 1px solid transparent;
+  border-radius: 22px;
+  background:
+    linear-gradient(160deg, rgba(52, 37, 104, 0.82), rgba(21, 15, 47, 0.9)) padding-box,
+    linear-gradient(150deg, rgba(255, 220, 150, 0.8), rgba(242, 184, 75, 0.22) 35%, rgba(150, 100, 255, 0.15) 60%, rgba(255, 200, 120, 0.85) 85%, rgba(244, 114, 208, 0.85)) border-box;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 30px 70px -30px rgba(0, 0, 0, 0.9), 0 0 70px -24px rgba(242, 184, 75, 0.4);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+}
+.rg-span { grid-column: 1 / -1; }
+.rg-card-title,
+.rg-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+.rg-alert {
+  grid-column: 1 / -1;
+  padding: 10px 14px;
+  border: 1px solid rgba(255, 92, 138, 0.45);
+  border-radius: 12px;
+  background: rgba(255, 92, 138, 0.12);
+  color: #ffc2d4;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+/* Роль — два крупных переключателя */
+.rg-roles { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.rg-role {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 56px;
+  padding: 8px 12px;
+  border: 1px solid rgba(189, 178, 230, 0.24);
+  border-radius: 14px;
+  background: rgba(25, 21, 50, 0.5);
+  color: var(--qg-text-2);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color var(--qg-dur-1, 0.15s), background-color var(--qg-dur-1, 0.15s);
+}
+.rg-role svg { flex: none; color: var(--qg-text-3); }
+.rg-role span { display: grid; gap: 1px; min-width: 0; }
+.rg-role b { color: var(--qg-text); font-size: 0.9375rem; font-weight: 800; }
+.rg-role small { color: var(--qg-text-3); font-size: 0.75rem; line-height: 1.3; }
+.rg-role:hover { border-color: rgba(242, 184, 75, 0.4); }
+.rg-role[aria-checked='true'] {
+  border-color: rgba(242, 184, 75, 0.75);
+  background: linear-gradient(160deg, rgba(242, 184, 75, 0.16), rgba(150, 80, 255, 0.1));
+  box-shadow: 0 0 24px -10px rgba(242, 184, 75, 0.7);
+}
+.rg-role[aria-checked='true'] svg,
+.rg-role[aria-checked='true'] b { color: #ffd98a; }
+
+/* Поля */
+.rg-field { min-width: 0; }
+.rg-field label { display: block; margin-bottom: 6px; color: #cbc5e3; font-size: 0.8125rem; font-weight: 700; }
+.rg-input {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid rgba(189, 178, 230, 0.22);
+  border-radius: 12px;
+  background: rgba(10, 8, 28, 0.62);
+  color: #fff;
+  font: 500 0.9375rem var(--qg-font);
+  outline: none;
+}
+select.rg-input { padding-right: 32px; cursor: pointer; }
+select.rg-input option { background: #15122b; color: #fff; }
+.rg-input::placeholder { color: rgba(203, 197, 227, 0.5); }
+.rg-input:focus,
+.rg-input:focus-visible { border-color: rgba(242, 184, 75, 0.75) !important; box-shadow: 0 0 0 3px rgba(242, 184, 75, 0.2) !important; outline: none !important; }
+.rg-input.is-invalid { border-color: rgba(255, 92, 138, 0.85); }
+.rg-err { margin: 5px 0 0; color: #ff9cb9; font-size: 0.75rem; font-weight: 700; line-height: 1.35; }
+
+.rg-phone,
+.rg-password { position: relative; }
+.rg-phone span {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #fff;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  pointer-events: none;
+}
+.rg-phone .rg-input { padding-left: 40px; }
+.rg-password .rg-input { padding-right: 46px; }
+.rg-eye {
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--qg-text-3);
+  cursor: pointer;
+}
+.rg-eye:hover { color: #fff; background: rgba(255, 255, 255, 0.06); }
+
+/* Техника исполнителя */
+.rg-equip { padding: 12px; border: 1px solid rgba(46, 230, 197, 0.28); border-radius: 14px; background: rgba(46, 230, 197, 0.05); }
+.rg-equip-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 12px; margin-top: 12px; }
+
+/* Согласия */
+.rg-consents { display: grid; gap: 8px; margin: 2px 0 0; padding: 0; border: 0; }
+.rg-check {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr);
+  align-items: start;
+  gap: 10px;
+  color: #dcd6f0;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  cursor: pointer;
+}
+.rg-check input { width: 18px; height: 18px; margin: 1px 0 0; accent-color: #f2b84b; cursor: pointer; }
+.rg-check a { color: #f2b84b; font-weight: 700; text-decoration: underline; text-underline-offset: 2px; }
+.rg-check a:hover { color: #ffd98a; }
+.rg-check--opt { color: #b6afd3; }
+.rg-check.is-invalid input { outline: 2px solid rgba(255, 92, 138, 0.85); outline-offset: 2px; }
+.rg-consents > .rg-err { margin: -4px 0 0 30px; }
+
+.rg-submit {
+  min-height: 50px;
+  border: 0;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #f8d27a, #e5a03a);
+  color: #1c1203;
+  font: 800 1rem var(--qg-font);
+  cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 12px 30px -12px rgba(242, 184, 75, 0.75);
+}
+.rg-submit:hover:not(:disabled) { background: linear-gradient(180deg, #fbdc94, #efae46); }
+.rg-submit:disabled { opacity: 0.7; cursor: progress; }
+.rg-switch { margin: 0; color: #cbc5e3; font-size: 0.875rem; text-align: center; }
+.rg-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #f2b84b;
+  font: 800 0.875rem var(--qg-font);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+.rg-page :is(button, input, select, a):focus-visible { outline: 2px solid #f2b84b; outline-offset: 2px; }
+
+/* плавающий ассистент на ноутбуках и телефонах закрывал согласия и кнопку — на этой странице его нет */
+body:has(.rg-page) .arm-widget { display: none; }
+
+/* призыв «Начать бесплатно» в подвале на самой странице регистрации не нужен */
+body:has(.rg-page) .lux-footer .lux-cta { display: none; }
+
+/* уже вошли */
+.rg-done {
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 28px;
+  border: 1px solid rgba(189, 178, 230, 0.24);
+  border-radius: 22px;
+  background: rgba(25, 21, 50, 0.7);
+  text-align: center;
+}
+.rg-done h1 { margin: 0 0 8px; color: #fff; font-size: 1.75rem; font-weight: 800; }
+.rg-done p { margin: 0 0 20px; color: var(--qg-text-2); }
+.rg-done .rg-submit { padding: 0 24px; }
+
+/* ── Невысокие экраны ноутбуков: всё должно поместиться без прокрутки ── */
+@media (min-width: 1001px) and (max-height: 800px) {
+  .rg-page { padding-top: 16px; padding-bottom: 24px; }
+  .rg-aside h1 { font-size: clamp(1.9rem, 1.2rem + 1.6vw, 2.5rem); }
+  .rg-lead { margin-bottom: 18px; font-size: 1rem; }
+  .rg-card { gap: 10px 14px; padding: 18px 22px; }
+  .rg-input { min-height: 42px; }
+  .rg-role { min-height: 50px; }
+}
+
+/* ── Узкое окно / планшет: одна колонка, вступление короче ── */
+@media (max-width: 1000px) {
+  .rg-page { align-items: flex-start; }
+  .rg-grid { grid-template-columns: minmax(0, 1fr); gap: 18px; max-width: 640px; }
+  .rg-pill { display: none; }
+  .rg-aside h1 { margin-bottom: 6px; font-size: clamp(1.6rem, 1.2rem + 2vw, 2.2rem); }
+  .rg-lead { margin: 0; font-size: 0.9375rem; }
+  .rg-benefits { display: none; }
+}
+
+/* ── Телефон ── */
+@media (max-width: 560px) {
+  .rg-page { padding: 16px 12px 40px; }
+  .rg-card { grid-template-columns: minmax(0, 1fr); padding: 16px; border-radius: 18px; }
+  .rg-roles { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .rg-role { padding: 8px 10px; }
+  .rg-role small { display: none; }
+  .rg-equip-grid { grid-template-columns: 1fr; }
+  .rg-input { min-height: 46px; font-size: 1rem; }
+}

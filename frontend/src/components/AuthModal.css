@@ -1,72 +1,115 @@
-/* Окно входа и регистрации: прокрутка на невысоких экранах, телефон и город, согласия */
+/* Окно входа — стекло и золото, как на главной; помещается в экран при масштабе 100% */
 .qg-auth-overlay {
   overflow-y: auto;
   overscroll-behavior: contain;
   align-items: flex-start !important;
   padding: 24px 12px;
+  background: rgba(5, 8, 18, 0.75) !important;
 }
-.qg-auth-overlay > .qg-auth-card { margin: auto; flex: none; }
-
-.qg-auth-row { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 12px; }
-.qg-auth-label { display: block; margin-bottom: 0.4rem; color: #cbc5e3; font-size: 0.82rem; font-weight: 700; }
-.qg-auth-card select option { background: #15122b; color: #fff; }
-.qg-auth-card input:focus-visible,
-.qg-auth-card select:focus-visible {
-  border-color: rgba(242, 184, 75, 0.7) !important;
-  box-shadow: 0 0 0 3px rgba(242, 184, 75, 0.2);
+.qg-auth-card {
+  position: relative;
+  flex: none;
+  width: 100%;
+  max-width: 420px;
+  margin: auto;
+  padding: 26px 26px 22px;
+  color: #fff;
 }
-.qg-auth-hint { margin: 6px 0 0; color: #a39cc2; font-size: 0.75rem; line-height: 1.4; }
-.qg-auth-err { margin: 6px 0 0; color: #ff9cb9; font-size: 0.78rem; font-weight: 700; line-height: 1.4; }
-
-.qg-auth-consents {
-  display: grid;
-  gap: 10px;
-  margin: 0;
-  padding: 14px;
+.qg-auth-close {
+  position: absolute !important;
+  top: 14px;
+  right: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid rgba(189, 178, 230, 0.3) !important;
+  border-radius: 12px !important;
+  background: rgba(25, 21, 50, 0.6) !important;
+  color: #fff !important;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.qg-auth-tabs {
+  display: flex;
+  gap: 4px;
+  margin: 0 48px 18px 0;
+  padding: 4px;
   border: 1px solid rgba(189, 178, 230, 0.16);
-  border-radius: 16px;
-  background: rgba(10, 8, 28, 0.38);
+  border-radius: 14px;
+  background: rgba(0, 0, 0, 0.3);
 }
-.qg-auth-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-.qg-auth-check {
-  display: grid;
-  grid-template-columns: 20px minmax(0, 1fr);
-  align-items: start;
-  gap: 10px;
-  color: #dcd6f0;
-  font-size: 0.84rem;
-  line-height: 1.45;
+.qg-auth-tab {
+  flex: 1;
+  min-height: 38px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: #cbc5e3;
+  font: 800 0.875rem var(--qg-font);
   cursor: pointer;
 }
-.qg-auth-check input {
-  width: 18px;
-  height: 18px;
-  margin: 1px 0 0;
-  accent-color: #f2b84b;
+.qg-auth-tab[aria-pressed='true'] { background: linear-gradient(180deg, #f8d27a, #e5a03a); color: #1c1203; }
+.qg-auth-tab[aria-pressed='false']:hover { color: #fff; background: rgba(255, 255, 255, 0.06); }
+.qg-auth-head { margin-bottom: 16px; }
+.qg-auth-head h2 { margin: 0; color: #fff; font: 800 1.5rem/1.2 var(--qg-font); letter-spacing: -0.02em; }
+.qg-auth-head p { margin: 6px 0 0; color: #cbc5e3; font-size: 0.875rem; line-height: 1.45; }
+.qg-auth-alert {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+  padding: 10px 14px;
+  border: 1px solid rgba(255, 92, 138, 0.45);
+  border-radius: 12px;
+  background: rgba(255, 92, 138, 0.12);
+  color: #ffc2d4;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+.qg-auth-form { display: grid; gap: 14px; }
+.qg-auth-label { display: block; margin-bottom: 6px; color: #cbc5e3; font-size: 0.82rem; font-weight: 700; }
+.qg-auth-input {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 46px;
+  padding: 0 14px !important;
+  font-size: 0.95rem;
+  outline: none;
+}
+.qg-auth-presets span { display: block; margin-bottom: 6px; color: #a39cc2; font-size: 0.78rem; font-weight: 600; }
+.qg-auth-presets div { display: flex; flex-wrap: wrap; gap: 6px; }
+.qg-auth-presets button {
+  padding: 6px 10px;
+  border: 1px solid rgba(189, 178, 230, 0.3);
+  border-radius: 8px;
+  background: rgba(25, 21, 50, 0.6);
+  color: #ddd6fe;
+  font: 700 0.76rem var(--qg-font);
   cursor: pointer;
 }
-.qg-auth-check input:focus-visible { outline: 2px solid #f2b84b; outline-offset: 2px; }
-.qg-auth-check a { color: #f2b84b; font-weight: 700; text-decoration: underline; text-underline-offset: 2px; }
-.qg-auth-check a:hover { color: #ffd98a; }
-.qg-auth-check.is-invalid span { color: #ffd0de; }
-.qg-auth-check.is-invalid input { outline: 2px solid rgba(255, 92, 138, 0.8); outline-offset: 2px; }
-.qg-auth-req { color: #f2b84b; font-weight: 800; }
+.qg-auth-submit {
+  min-height: 50px;
+  border: 0;
+  font-size: 1rem;
+  cursor: pointer;
+}
+.qg-auth-switch { margin: 16px 0 0; color: #cbc5e3; font-size: 0.875rem; text-align: center; }
+.qg-auth-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #f2b84b;
+  font: 800 0.875rem var(--qg-font);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+.qg-auth-link:hover { color: #ffd98a; }
+.qg-auth-card :is(button, input):focus-visible { outline: 2px solid #f2b84b; outline-offset: 2px; }
 
 @media (max-width: 480px) {
   .qg-auth-overlay { padding: 10px 8px; }
-  .qg-auth-overlay > .qg-auth-card { padding: 1.4rem 1.1rem !important; border-radius: 22px !important; }
-  .qg-auth-row { grid-template-columns: 1fr; }
+  .qg-auth-card { padding: 20px 16px 18px; }
 }
-
-.qg-auth-phone { position: relative; }
-.qg-auth-phone-prefix {
-  position: absolute;
-  left: 1.1rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #fff;
-  font-size: 0.92rem;
-  font-weight: 700;
-  pointer-events: none;
-}
-.qg-auth-consents > .qg-auth-err { margin: -4px 0 0; padding-left: 30px; }
