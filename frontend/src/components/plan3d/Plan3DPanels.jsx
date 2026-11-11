@@ -188,49 +188,67 @@ export function ModelsList({ items, loading, error, onOpen, onDelete, serverMode
 
 // ── Камера: наложение модели на площадку ──────────────────────────────────────
 export function ArPanel({ support, anchors, onOverlay, onStart, onQuickLook, busy, hasWalls, error }) {
+  const off = busy || !hasWalls;
   return (
     <section className="p3-panel p3-ar-panel" aria-labelledby="p3-ar-title">
       <h2 id="p3-ar-title" className="p3-h3">Навести камеру</h2>
-      <p className="p3-muted">
-        Модель рисуется прямо поверх картинки с камеры, без фона: наведите телефон на участок и увидите будущее здание на месте.
-        Её можно подвинуть и повернуть пальцами, отключить слои и сделать снимок.
-      </p>
-      <div className="p3-actions">
-        <button type="button" className="p3-btn p3-btn--gold" onClick={onOverlay} disabled={busy || !hasWalls} data-testid="p3-cam-open"><Camera size={18} aria-hidden="true" />Навести камеру</button>
-      </div>
-      <p className="p3-note">Работает на любом телефоне с камерой. Телефон чувствует повороты, но не шаги: если отойти в сторону, модель нужно поправить пальцем.</p>
-
-      {support === 'checking' && <p className="p3-muted" role="status">Проверяем, умеет ли устройство точную привязку…</p>}
+      {support === 'checking' && <p className="p3-muted" role="status">Проверяем, что умеет это устройство…</p>}
 
       {support === 'webxr' && (
         <>
-          <h3 className="p3-h4">Точная привязка к площадке</h3>
-          <p className="p3-muted">Этот телефон умеет следить за своим положением: модель останется на месте, даже если её обойти. Поводите телефоном, пока на земле не появится золотое кольцо.</p>
-          <div className="p3-ar-modes">
-            <div className="p3-ar-mode">
-              <p className="p3-export-title">Макет</p>
-              <p className="p3-muted">Уменьшенная модель на столе или на полу. Удобно показать заказчику и обойти здание вокруг.</p>
-              <button type="button" className="p3-btn p3-btn--ghost" onClick={() => onStart('table')} disabled={busy || !hasWalls}><Camera size={18} aria-hidden="true" />Показать макет</button>
-            </div>
-            <div className="p3-ar-mode">
-              <p className="p3-export-title">На площадке, 1:1</p>
-              <p className="p3-muted">
-                Модель в натуральную величину. Встаньте у угла A, отметьте его, затем отметьте угол B
-                {anchors ? ` — он в ${fmt(anchors.distance)} м от A` : ''}. Точки A и B показаны на плане.
-              </p>
-              <button type="button" className="p3-btn p3-btn--ghost" onClick={() => onStart('site')} disabled={busy || !hasWalls}><Camera size={18} aria-hidden="true" />Поставить на площадку</button>
-            </div>
+          <p className="p3-muted">
+            На экране — то, что видит камера, и поверх него здание в настоящую величину. Оно стоит на месте:
+            к нему можно подойти, обойти вокруг и зайти внутрь через дверные проёмы.
+          </p>
+          <div className="p3-actions">
+            <button type="button" className="p3-btn p3-btn--gold" onClick={() => onStart('walk')} disabled={off} data-testid="p3-ar-walk"><Camera size={18} aria-hidden="true" />Навести камеру</button>
           </div>
-          <p className="p3-note">Рядом с точкой A точность — сантиметры, в десятках метров от неё модель может уплыть. Для разбивки осей нужен геодезический прибор.</p>
+          <ol className="p3-steps">
+            <li>Поводите телефоном, пока на земле не появится золотое кольцо.</li>
+            <li>Наведите кольцо туда, где должен быть ближний край здания, и нажмите «Поставить».</li>
+            <li>Идите к зданию. Кнопками его можно довернуть, подвинуть, сделать прозрачным или уменьшить до макета.</li>
+          </ol>
+          <h3 className="p3-h4">Точно по разметке</h3>
+          <p className="p3-muted">
+            Если на площадке вынесены углы: встаньте у угла A, отметьте его, затем отметьте угол B
+            {anchors ? ` — он в ${fmt(anchors.distance)} м от A` : ''}. Точки A и B показаны на плане. Рядом с точкой A точность — сантиметры,
+            в десятках метров от неё модель может уплыть; для разбивки осей нужен геодезический прибор.
+          </p>
+          <div className="p3-actions">
+            <button type="button" className="p3-btn p3-btn--ghost" onClick={() => onStart('site')} disabled={off}><Camera size={18} aria-hidden="true" />Поставить по углам A и B</button>
+            <button type="button" className="p3-btn p3-btn--ghost" onClick={onOverlay} disabled={off} data-testid="p3-cam-open">Просто наложить на камеру</button>
+          </div>
         </>
       )}
 
       {support === 'quicklook' && (
         <>
-          <h3 className="p3-h4">Обойти модель вокруг</h3>
-          <p className="p3-muted">На iPhone и iPad модель можно открыть в «Быстром просмотре»: она встанет на пол в натуральную величину и останется на месте, пока вы ходите вокруг.</p>
+          <p className="p3-muted">
+            На iPhone и iPad здание открывается в «Быстром просмотре»: на экране — то, что видит камера, и модель в настоящую величину.
+            Она стоит на месте: к ней можно подойти и обойти вокруг. Пальцами её можно подвинуть, повернуть и уменьшить.
+          </p>
           <div className="p3-actions">
-            <button type="button" className="p3-btn p3-btn--ghost" onClick={onQuickLook} disabled={busy || !hasWalls}><Smartphone size={18} aria-hidden="true" />Открыть в «Быстром просмотре»</button>
+            <button type="button" className="p3-btn p3-btn--gold" onClick={onQuickLook} disabled={off}><Camera size={18} aria-hidden="true" />Навести камеру</button>
+            <button type="button" className="p3-btn p3-btn--ghost" onClick={onOverlay} disabled={off} data-testid="p3-cam-open">Просто наложить на камеру</button>
+          </div>
+          <p className="p3-note">«Просто наложить» — режим со слоями, прозрачностью и снимком, но без ходьбы: модель держится только при повороте телефона.</p>
+        </>
+      )}
+
+      {support === 'none' && (
+        <>
+          <p className="p3-muted">
+            На экране будет то, что видит камера, и поверх него — модель. Её можно подвинуть и повернуть пальцами, отключить слои и сделать снимок.
+          </p>
+          <div className="p3-actions">
+            <button type="button" className="p3-btn p3-btn--gold" onClick={onOverlay} disabled={off} data-testid="p3-cam-open"><Camera size={18} aria-hidden="true" />Навести камеру</button>
+          </div>
+          <div className="p3-notice" role="note">
+            <Smartphone size={18} aria-hidden="true" />
+            <p>
+              Это устройство не умеет следить за шагами, поэтому подойти к модели не получится: она держится на месте только при повороте.
+              Чтобы подойти, обойти и зайти внутрь, откройте страницу в Chrome на Android-телефоне с «Сервисами Google Play для AR» или в Safari на iPhone.
+            </p>
           </div>
         </>
       )}
@@ -241,7 +259,7 @@ export function ArPanel({ support, anchors, onOverlay, onStart, onQuickLook, bus
 
 /** Экран поверх камеры. Корень должен существовать в DOM до запуска сеанса — браузер разворачивает именно его. */
 export const ArOverlay = React.forwardRef(function ArOverlay({ active, state, controller, floors }, ref) {
-  const fine = state?.mode === 'table' ? 0.01 : 0.05;
+  const fine = state?.ratio ? 0.01 : 0.05;
   const placed = state?.step === 'placed';
   const hold = useRef(null);
   useEffect(() => () => clearInterval(hold.current), []);
@@ -259,18 +277,21 @@ export const ArOverlay = React.forwardRef(function ArOverlay({ active, state, co
     if (!state.hit && !placed) {
       title = 'Ищем поверхность';
       text = 'Медленно поводите телефоном, чтобы камера увидела пол или землю.';
-    } else if (state.mode === 'table' && !placed) {
-      title = 'Куда поставить макет';
-      text = 'Наведите золотое кольцо на стол или пол и нажмите «Поставить».';
+    } else if (state.mode === 'walk' && !placed) {
+      title = 'Где будет здание';
+      text = 'Наведите золотое кольцо на землю там, где должен быть ближний край здания, и нажмите «Поставить».';
     } else if (state.step === 'A') {
       title = 'Точка A';
       text = 'Наведите кольцо на угол здания, отмеченный на плане буквой A.';
     } else if (state.step === 'B') {
       title = 'Точка B';
       text = `Перейдите ко второму углу — он в ${fmt(state.expected)} м от A — и наведите кольцо на него.`;
-    } else if (state.mode === 'table') {
+    } else if (state.ratio) {
       title = `Макет 1:${state.ratio}`;
-      text = 'Обойдите макет вокруг. Кнопками ниже его можно повернуть и подвинуть.';
+      text = 'Обойдите макет вокруг. Кнопка «1:1» вернёт настоящую величину.';
+    } else if (state.mode === 'walk') {
+      title = `Здание стоит на месте · ${fmt(state.width, 1)} × ${fmt(state.depth, 1)} м`;
+      text = 'Подойдите ближе, обойдите вокруг, зайдите внутрь. Кнопками ниже его можно довернуть и подвинуть.';
     } else {
       title = 'Модель в натуральную величину';
       text = state.mismatch == null
@@ -279,7 +300,7 @@ export const ArOverlay = React.forwardRef(function ArOverlay({ active, state, co
     }
   }
   const warn = placed && state.mode === 'site' && state.mismatch != null && Math.abs(state.mismatch) > 0.3;
-  const placeLabel = state?.mode === 'table' ? 'Поставить' : state?.step === 'B' ? 'Отметить B' : 'Отметить A';
+  const placeLabel = state?.mode === 'walk' ? 'Поставить' : state?.step === 'B' ? 'Отметить B' : 'Отметить A';
 
   return (
     <div ref={ref} className="p3-ar" data-active={active ? '1' : '0'} data-step={state?.step || ''} data-mode={state?.mode || ''}>
@@ -326,6 +347,7 @@ export const ArOverlay = React.forwardRef(function ArOverlay({ active, state, co
                     </div>
                   )}
                   <button type="button" className="p3-ar-key" aria-pressed={state.ghost} onClick={() => controller.setGhost(!state.ghost)}><Eye size={20} aria-hidden="true" />Прозрачно</button>
+                  <button type="button" className="p3-ar-key" aria-pressed={Boolean(state.ratio)} onClick={() => controller.setModel(!state.ratio)}>Макет</button>
                   <button type="button" className="p3-ar-key" onClick={() => controller.reset()}>Переставить</button>
                 </div>
               </>

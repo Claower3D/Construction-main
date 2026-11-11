@@ -1,10 +1,10 @@
 // Дополненная реальность через WebXR (Chrome на Android): модель поверх картинки с камеры.
-// Два режима: «макет» — уменьшенная модель на столе или на земле; «натура» — в настоящую величину
-// с привязкой по двум точкам A и B, отмеченным на площадке.
+// Два режима: «подойти» — здание в настоящую величину встаёт перед человеком, к нему можно подойти, обойти и зайти внутрь
+// (там же переключатель «макет»); «по точкам» — точная привязка по двум углам A и B, отмеченным на площадке.
 
 import * as THREE from 'three';
 import { buildBuilding, disposeBuilding } from './geometry3d.js';
-import { alignTwoPoints, placeAtPoint, placeTabletop, rotateAbout } from './arMath.js';
+import { alignTwoPoints, placeAtPoint, placeFacing, rescaleAbout, rotateAbout } from './arMath.js';
 
 /** @returns {Promise<'webxr'|'quicklook'|'none'>} что умеет это устройство */
 export async function arSupport() {
@@ -20,10 +20,10 @@ export async function arSupport() {
 const TABLE_SIZE = 0.5; // большая сторона макета, м
 
 /**
- * @param {{ project:object, overlayRoot:HTMLElement, mode:'table'|'site', onState:(s:object)=>void, onEnd:()=>void }} options
+ * @param {{ project:object, overlayRoot:HTMLElement, mode:'walk'|'site', onState:(s:object)=>void, onEnd:()=>void }} options
  * @returns {Promise<object>} управление сеансом
  */
-export async function startArSession({ project, overlayRoot, mode: initialMode = 'table', onState, onEnd }) {
+export async function startArSession({ project, overlayRoot, mode: initialMode = 'walk', onState, onEnd }) {
   const session = await navigator.xr.requestSession('immersive-ar', {
     requiredFeatures: ['hit-test'],
     optionalFeatures: ['dom-overlay'],
@@ -68,9 +68,12 @@ export async function startArSession({ project, overlayRoot, mode: initialMode =
   const bottomY = project.groundSlab ? -project.slab : 0;
   const floors = project.floors.length;
 
+  const front = { x: center.x, z: center.z + size.z / 2 }; // середина фасада, обращённого к зрителю
+  const modelScale = TABLE_SIZE / Math.max(size.x, size.z, 0.01);
   const state = {
     mode: initialMode, step: initialMode === 'site' ? 'A' : 'aim', hit: false,
     mismatch: null, expected: anchors ? anchors.distance : 0, ratio: null, levels: floors, ghost: false, overlay: true,
+    width: size.x, depth: size.z, height: size.y,
   };
   let lastHit = null;
   let worldA = null;
@@ -91,11 +94,13 @@ export async function startArSession({ project, overlayRoot, mode: initialMode =
     place() {
       if (!lastHit || ended) return false;
       const hit = { ...lastHit };
-      if (state.mode === 'table') {
-        const t = placeTabletop(size, center, bottomY, hit, TABLE_SIZE, 0);
-        applyTransform(t);
+      if (state.mode === 'walk') {
+        // ближний фасад — в отмеченную точку, здание уходит от человека вглубь
+        const eye = new THREE.Vector3();
+        renderer.xr.getCamera().getWorldPosition(eye);
+        applyTransform(placeFacing(front, hit, { x: eye.x, z: eye.z }, 1, 0));
         pivot = hit;
-        state.ratio = t.ratio;
+        state.ratio = null;
         state.step = 'placed';
       } else if (state.step === 'A' || !anchors) {
         worldA = hit;
@@ -129,6 +134,7 @@ export async function startArSession({ project, overlayRoot, mode: initialMode =
     },
     reset() {
       holder.visible = false;
+      holder.scale.setScalar(1);
       pinA.visible = false;
       pinB.visible = false;
       worldA = null;
@@ -139,9 +145,22 @@ export async function startArSession({ project, overlayRoot, mode: initialMode =
       emit();
     },
     setMode(mode) {
-      if (mode !== 'table' && mode !== 'site') return;
+      if (mode !== 'walk' && mode !== 'site') return;
       state.mode = mode;
       controller.reset();
+    },
+    /** Натуральная величина ↔ макет размером с полметра. Точка привязки остаётся на месте. */
+    setModel(on) {
+      if (state.step !== 'placed' || !pivot) return;
+      const from = holder.scale.x;
+      const to = on ? modelScale : 1;
+      if (Math.abs(from - to) < 1e-9) return;
+      // макет ставим на поверхность низом плиты; здание в натуре — нулевой отметкой
+      const p = rescaleAbout(holder.position, pivot, from, to, pivot.y - (on ? bottomY * to : 0));
+      holder.position.set(p.x, p.y, p.z);
+      holder.scale.setScalar(to);
+      state.ratio = on ? Math.round(1 / to) : null;
+      emit();
     },
     /** Доворот вокруг точки привязки, в градусах. */
     rotate(deg) {

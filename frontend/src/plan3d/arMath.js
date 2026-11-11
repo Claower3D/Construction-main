@@ -38,27 +38,33 @@ export function placeAtPoint(modelA, worldA, rotationY = 0) {
   return { position: { x: worldA.x - a.x, y: worldA.y, z: worldA.z - a.z }, rotationY };
 }
 
-/**
- * Макет на столе: модель уменьшаем так, чтобы большая сторона была target метров, и ставим центром в отмеченную точку.
- * @param {{x:number,y:number,z:number}} size габариты модели @param {{x:number,y:number,z:number}} center её центр
- * @param {number} bottomY отметка низа модели (плита пола уходит ниже нуля)
- */
-export function placeTabletop(size, center, bottomY, world, target = 0.5, rotationY = 0) {
-  const span = Math.max(size.x, size.z, 0.01);
-  const scale = target / span;
-  const c = rotateXZ(center.x * scale, center.z * scale, rotationY);
-  return {
-    scale,
-    rotationY,
-    position: { x: world.x - c.x, y: world.y - bottomY * scale, z: world.z - c.z },
-    ratio: Math.round(1 / scale),
-  };
-}
-
 /** Поворот уже поставленной модели вокруг точки (обычно вокруг точки A), чтобы подправить направление не сдвигая привязку. */
 export function rotateAbout(position, rotationY, pivot, delta) {
   const dx = position.x - pivot.x;
   const dz = position.z - pivot.z;
   const r = rotateXZ(dx, dz, delta);
   return { position: { x: pivot.x + r.x, y: position.y, z: pivot.z + r.z }, rotationY: rotationY + delta };
+}
+
+/**
+ * «Подойти и рассмотреть»: середина ближнего фасада встаёт в отмеченную точку, здание уходит от человека вглубь,
+ * фасад смотрит на него. Дальше телефон сам держит модель на месте.
+ * @param {{x:number,z:number}} front середина фасада в координатах модели
+ * @param {{x:number,y:number,z:number}} world отмеченная точка на земле
+ * @param {{x:number,z:number}} viewer где стоит человек
+ */
+export function placeFacing(front, world, viewer, scale = 1, lift = 0) {
+  let dx = world.x - viewer.x;
+  let dz = world.z - viewer.z;
+  const len = Math.hypot(dx, dz);
+  if (len < 1e-6) { dx = 0; dz = -1; } else { dx /= len; dz /= len; }
+  const rotationY = Math.atan2(-dx, -dz); // ось «к зрителю» модели (+Z) разворачиваем навстречу человеку
+  const f = rotateXZ(front.x * scale, front.z * scale, rotationY);
+  return { scale, rotationY, position: { x: world.x - f.x, y: world.y + lift, z: world.z - f.z } };
+}
+
+/** Смена масштаба вокруг точки привязки: сама точка остаётся на месте. */
+export function rescaleAbout(position, pivot, from, to, y = position.y) {
+  const k = to / from;
+  return { x: pivot.x + (position.x - pivot.x) * k, y, z: pivot.z + (position.z - pivot.z) * k };
 }

@@ -374,6 +374,7 @@ export default function Plan3DPage() {
       const a = document.createElement('a');
       a.rel = 'ar';
       a.href = url;
+      a.download = 'model.usdz'; // у ссылки на blob нет расширения — так Safari понимает, что это модель
       a.appendChild(document.createElement('img')); // «Быстрый просмотр» открывается только по ссылке с картинкой внутри
       a.click();
       setTimeout(() => URL.revokeObjectURL(url), 60000);

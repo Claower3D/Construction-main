@@ -333,7 +333,7 @@ test('векторный PDF: линии по толщине, стены в ма
 });
 
 test('AR: постановка по двум точкам, макет и доворот', async () => {
-  const { alignTwoPoints, placeTabletop, rotateAbout, rotateXZ, placeAtPoint } = await import('./arMath.js');
+  const { alignTwoPoints, placeFacing, rescaleAbout, rotateAbout, rotateXZ, placeAtPoint } = await import('./arMath.js');
   const A = { x: 0.2, z: -0.2 };
   const B = { x: 9.8, z: -0.2 };
   const apply = (p, t) => { const r = rotateXZ(p.x, p.z, t.rotationY); return { x: r.x + t.position.x, z: r.z + t.position.z }; };
@@ -363,12 +363,29 @@ test('AR: постановка по двум точкам, макет и дов�
   near(a2.x, wA.x, 1e-9); near(a2.z, wA.z, 1e-9);
   near(turned.rotationY, ang + 0.05, 1e-12);
 
-  const table = placeTabletop({ x: 10, y: 6.2, z: 8 }, { x: 5, y: 2.9, z: -4 }, -0.2, { x: 1, y: 0.7, z: 1 }, 0.5);
-  near(table.scale, 0.05, 1e-12);
-  assert.equal(table.ratio, 20);
-  near(table.position.x, 1 - 0.25, 1e-9);
-  near(table.position.z, 1 + 0.2, 1e-9);
-  near(table.position.y, 0.71, 1e-9); // низ плиты встаёт на стол
+  // «подойти и рассмотреть»: человек в (2, 3), отметил землю в 4 м перед собой по диагонали
+  const front = { x: 5, z: 0 }; // дом 10 × 8: середина фасада, центр здания в (5, −4)
+  const hit = { x: 2 + 4 * Math.SQRT1_2, y: -1.5, z: 3 - 4 * Math.SQRT1_2 };
+  const w = placeFacing(front, hit, { x: 2, z: 3 });
+  const at = (p, tr) => { const r = rotateXZ(p.x * tr.scale, p.z * tr.scale, tr.rotationY); return { x: r.x + tr.position.x, z: r.z + tr.position.z }; };
+  const f = at(front, w);
+  near(f.x, hit.x, 1e-9); near(f.z, hit.z, 1e-9); // фасад — ровно в отмеченной точке
+  assert.equal(w.position.y, -1.5);
+  const centre = at({ x: 5, z: -4 }, w);
+  near(Math.hypot(centre.x - 2, centre.z - 3), 8, 1e-9); // центр здания — на 4 м дальше фасада, на той же линии взгляда
+  const corner1 = at({ x: 0, z: 0 }, w);
+  const corner2 = at({ x: 10, z: 0 }, w);
+  near(Math.hypot(corner1.x - 2, corner1.z - 3), Math.hypot(corner2.x - 2, corner2.z - 3), 1e-9); // фасад развёрнут к человеку
+  // человек стоит прямо над отмеченной точкой — без деления на ноль
+  assert.ok(Number.isFinite(placeFacing(front, hit, { x: hit.x, z: hit.z }).rotationY));
+
+  // макет: уменьшаем вокруг отмеченной точки — она остаётся на месте
+  const small = rescaleAbout(w.position, hit, 1, 0.05, hit.y + 0.01);
+  const fs = at(front, { ...w, scale: 0.05, position: small });
+  near(fs.x, hit.x, 1e-9); near(fs.z, hit.z, 1e-9);
+  near(small.y, hit.y + 0.01, 1e-12);
+  const back = rescaleAbout(small, hit, 0.05, 1, hit.y);
+  near(back.x, w.position.x, 1e-9); near(back.z, w.position.z, 1e-9);
 });
 
 test('наружный контур: Г-образный дом с разной толщиной стен', () => {
