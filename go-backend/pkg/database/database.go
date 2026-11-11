@@ -189,6 +189,8 @@ func runMigrations() error {
 		`ALTER TABLE users ADD COLUMN IF NOT EXISTS privacy_accepted_at TIMESTAMP NULL`,
 		`ALTER TABLE users ADD COLUMN IF NOT EXISTS marketing_opt_in BOOLEAN DEFAULT FALSE`,
 		`ALTER TABLE users ADD COLUMN IF NOT EXISTS marketing_opt_in_at TIMESTAMP NULL`,
+		// время последней смены пароля (unix): токены, выданные раньше, не принимаются
+		`ALTER TABLE users ADD COLUMN IF NOT EXISTS password_changed_unix BIGINT NOT NULL DEFAULT 0`,
 	)
 
 	for _, m := range migrations {
@@ -326,6 +328,37 @@ func GetUserByID(id string) (*models.User, error) {
 		return nil, err
 	}
 	return u, nil
+}
+
+// UpdateUserPassword сохраняет новый хеш пароля и момент смены
+func UpdateUserPassword(id, passwordHash string, changedUnix int64) error {
+	res, err := DB.Exec(`UPDATE users SET password_hash=$1, password_changed_unix=$2 WHERE id=$3`, passwordHash, changedUnix, id)
+	if err != nil {
+		return err
+	}
+	if n, _ := res.RowsAffected(); n == 0 {
+		return sql.ErrNoRows
+	}
+	return nil
+}
+
+// PasswordChangeTimes возвращает id пользователей, менявших пароль, и время смены (unix)
+func PasswordChangeTimes() (map[string]int64, error) {
+	rows, err := DB.Query(`SELECT id, password_changed_unix FROM users WHERE password_changed_unix > 0`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	out := map[string]int64{}
+	for rows.Next() {
+		var id string
+		var at int64
+		if err := rows.Scan(&id, &at); err != nil {
+			return nil, err
+		}
+		out[id] = at
+	}
+	return out, rows.Err()
 }
 
 // CreateUser inserts a new user

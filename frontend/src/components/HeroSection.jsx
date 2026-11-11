@@ -13,7 +13,7 @@ const STATS = [
   { icon: ShieldCheck, label: 'База ЭСН РК', value: '23 864', title: 'расценки работ и материалов', sub: 'с поправкой на 11 городов' },
   { icon: Clock3, label: 'Скорость', value: 'до 1 мин', title: 'смета по фото', sub: 'объёмы, материалы и итог' },
   { icon: ScanSearch, label: 'Нейросеть YOLO26', value: '86%', title: 'точность детектора трещин', sub: 'на проверочной выборке' },
-  { icon: Package, label: 'Каталог', value: '10 425', title: 'позиций стройматериалов', sub: 'цены по регионам РК' },
+  { icon: Package, label: 'Каталог', value: '9 706', title: 'позиций стройматериалов', sub: 'цены по регионам РК' },
 ];
 
 const WA = 'https://wa.me/77716983869?text=' + encodeURIComponent('Здравствуйте! Хочу установить приложение QazGost для Android.');

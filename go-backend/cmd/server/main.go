@@ -28,6 +28,14 @@ func main() {
 		log.Printf("[⚠️ WARNING] Database connection not established: %v (server will continue running)", err)
 	} else if database.DB != nil {
 		defer database.DB.Close()
+		// Сессии, выданные до смены пароля, остаются отозванными и после перезапуска сервера
+		if changed, err := database.PasswordChangeTimes(); err != nil {
+			log.Printf("[auth] не удалось прочитать даты смены паролей: %v", err)
+		} else {
+			for id, at := range changed {
+				middleware.RevokeTokensIssuedBefore(id, at)
+			}
+		}
 	}
 	auth := func(next http.HandlerFunc) http.HandlerFunc {
 		return middleware.AuthMiddleware(cfg.JwtSecret, next)
@@ -74,6 +82,8 @@ func main() {
 	mux.HandleFunc("/api/v1/auth/login", middleware.RateLimit(envInt("LOGIN_RATE_LIMIT", 30), time.Minute, authHnd.Login))
 	mux.HandleFunc("/api/v1/auth/register", middleware.RateLimit(envInt("REGISTER_RATE_LIMIT", 15), time.Minute, authHnd.Register))
 	mux.HandleFunc("/api/v1/auth/me", authHnd.GetMe) // self-validates token internally
+	// Смена пароля: нужен действующий вход и текущий пароль
+	mux.HandleFunc("/api/v1/auth/password", auth(middleware.RateLimit(10, time.Minute, authHnd.ChangePassword)))
 
 	// Prices catalog — public read access
 	mux.HandleFunc("/api/v1/prices", pricesHnd.GetPrices)

@@ -2,6 +2,7 @@ import React, { useState, useEffect, lazy, Suspense } from 'react';
 import AnimatedBackground from './AnimatedBackground';
 import PageLoader from './PageLoader';
 import { QazGostMark } from './Header';
+import { getAuthToken } from '../services/platformUtils';
 import './dashboard-refresh.css';
 
 // Каждый инструмент кабинета — отдельный чанк: открываем меню карточек без загрузки CRM, админки, 3D и т.п.
@@ -240,7 +241,7 @@ const defaultCard = (roleId) => {
   return id ? (ROLE_CARDS[roleId] || []).find((c) => c.id === id) || null : null;
 };
 
-export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userRole = 'customer', currentUser }) {
+export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, onOpenPassword, userRole = 'customer', currentUser }) {
   // Начальное состояние — из адреса: /роль или /роль/инструмент
   const [initialRoute] = useState(() => {
     const { base, slug } = parseDashPath();
@@ -532,6 +533,10 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
 
           <div className="topbar-right-group">
             {currentUser?.name && <span className="qg-dash-user" title={currentUser.email || ''}>{currentUser.name}</span>}
+            {/* Смена пароля — только у аккаунтов с серверной сессией (у общих аккаунтов команды её нет) */}
+            {onOpenPassword && getAuthToken() && (
+              <button onClick={onOpenPassword} className="qg-btn qg-btn--ghost qg-btn--sm qg-dash-pass" data-testid="open-password">Сменить пароль</button>
+            )}
             <button onClick={onBackToHome} className="qg-btn qg-btn--ghost qg-btn--sm qg-dash-site">На сайт</button>
           </div>
         </header>

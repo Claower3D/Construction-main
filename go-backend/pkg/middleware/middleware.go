@@ -356,6 +356,42 @@ type JWTClaims struct {
 	Role   string `json:"role"`
 	Email  string `json:"email"`
 	Exp    int64  `json:"exp"`
+	Iat    int64  `json:"iat,omitempty"` // время выдачи; у токенов, выданных до 11.2026, его нет
+}
+
+// tokenLifetime — срок жизни сессии
+const tokenLifetime = 24 * time.Hour
+
+// ── ОТЗЫВ СЕССИЙ ПОСЛЕ СМЕНЫ ПАРОЛЯ ──
+// После смены пароля все токены, выданные раньше, перестают приниматься: иначе тот, кто успел
+// войти со старым паролем, оставался бы в аккаунте ещё до суток.
+var (
+	revokedMu     sync.RWMutex
+	revokedBefore = map[string]int64{} // id пользователя → время смены пароля (unix)
+)
+
+// RevokeTokensIssuedBefore отзывает токены пользователя, выданные раньше момента unixTime.
+// Вызывается при смене пароля и при запуске сервера (значения хранятся в базе).
+func RevokeTokensIssuedBefore(userID string, unixTime int64) {
+	if userID == "" || unixTime <= 0 {
+		return
+	}
+	revokedMu.Lock()
+	if unixTime > revokedBefore[userID] {
+		revokedBefore[userID] = unixTime
+	}
+	revokedMu.Unlock()
+}
+
+func tokenRevoked(c *JWTClaims) bool {
+	issued := c.Iat
+	if issued == 0 {
+		issued = c.Exp - int64(tokenLifetime.Seconds())
+	}
+	revokedMu.RLock()
+	cut, ok := revokedBefore[c.UserID]
+	revokedMu.RUnlock()
+	return ok && issued < cut
 }
 
 func GenerateJWT(userID, email, role, secret string) (string, error) {
@@ -364,7 +400,8 @@ func GenerateJWT(userID, email, role, secret string) (string, error) {
 		UserID: userID,
 		Role:   role,
 		Email:  email,
-		Exp:    time.Now().Add(24 * time.Hour).Unix(),
+		Exp:    time.Now().Add(tokenLifetime).Unix(),
+		Iat:    time.Now().Unix(),
 	}
 	claimsBytes, err := json.Marshal(claims)
 	if err != nil {
@@ -401,6 +438,9 @@ func ValidateJWT(tokenStr, secret string) (*JWTClaims, error) {
 	}
 	if claims.Exp < time.Now().Unix() {
 		return nil, fmt.Errorf("token expired")
+	}
+	if tokenRevoked(&claims) {
+		return nil, fmt.Errorf("token revoked: password changed")
 	}
 	return &claims, nil
 }

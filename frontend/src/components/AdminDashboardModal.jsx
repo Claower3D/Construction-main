@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { getAuditLogs, logAuditAction, exportAuditLogTxt } from '../services/adminAuditStore';
 import { exportPricesToExcel, exportAll3SheetsExcel, parseExcelOrCsvFile, exportActsToExcel, exportInvoicesToExcel, exportContractsToExcel, exportSingleDocumentExcel, exportAllDocumentsPackageExcel } from '../services/adminExcelIO';
 import { getStatus } from '../services/api';
+import { authHeaders, getAuthToken } from '../services/platformUtils';
 import RoleHierarchyTreePage from './RoleHierarchyTreePage';
 
 // Documents & Invoices registry for Excel export
@@ -418,14 +419,33 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
       setSettingsSubTab(startTab);
     } else if (startTab === 'kpi' || startTab === 'analytics' || startTab === 'overview') {
       setActiveTab('overview');
-    } else if (startTab === 'disputes' || startTab === 'contracts' || startTab === 'users') {
+    } else if (startTab === 'users') {
       setActiveTab('users');
-    } else if (startTab === 'roles') {
+    } else if (startTab === 'disputes') {
+      // «Споры и арбитраж» раньше открывали таблицу пользователей
+      setActiveTab('disputes');
+    } else if (startTab === 'roles' || startTab === 'tree') {
+      // «Иерархия ролей (Древо)»: древо находится на вкладке «Роли»
       setActiveTab('roles');
-    } else if (startTab === 'documents') {
+    } else if (startTab === 'documents' || startTab === 'contracts') {
+      // «Договоры подряда»: реестр договоров — на вкладке документов
       setActiveTab('documents');
     }
   }, [startTab]);
+
+  // Споры: настоящий список с сервера (GET /api/v1/disputes — только администратор и менеджер)
+  const [disputes, setDisputes] = useState({ status: 'idle', items: [] });
+  useEffect(() => {
+    if (activeTab !== 'disputes') return undefined;
+    if (!getAuthToken()) { setDisputes({ status: 'guest', items: [] }); return undefined; }
+    let cancelled = false;
+    setDisputes((d) => ({ ...d, status: 'loading' }));
+    fetch('/api/v1/disputes', { headers: authHeaders() })
+      .then((res) => (res.ok ? res.json() : Promise.reject(new Error(`HTTP ${res.status}`))))
+      .then((data) => { if (!cancelled) setDisputes({ status: 'ready', items: Array.isArray(data) ? data : [] }); })
+      .catch(() => { if (!cancelled) setDisputes({ status: 'error', items: [] }); });
+    return () => { cancelled = true; };
+  }, [activeTab]);
 
   // Backend PriceDB Status
   const [backendStatus, setBackendStatus] = useState('checking'); // checking | online | offline
@@ -1166,6 +1186,9 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
           <button className={`admin-tab-btn ${activeTab === 'roles' ? 'active' : ''}`} onClick={() => setActiveTab('roles')}>
             <span>🔐</span> Роли
           </button>
+          <button className={`admin-tab-btn ${activeTab === 'disputes' ? 'active' : ''}`} onClick={() => setActiveTab('disputes')}>
+            <span>⚖️</span> Споры
+          </button>
           <button className={`admin-tab-btn ${activeTab === 'documents' ? 'active' : ''}`} onClick={() => setActiveTab('documents')}>
             <span>📁</span> Документооборот
             <span className="admin-tab-count">{documentsList.length}</span>
@@ -1175,11 +1198,13 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
         {/* Modal Body Content */}
         <div className="admin-body">
           {/* Панель — макет: её данные живут в этой вкладке браузера, сервер их не знает */}
+          {activeTab !== 'disputes' && (
           <DemoNotice title="Панель администратора пока макет">
             Сводка, очередь модерации, пользователи, документы и «живые» счётчики на этих вкладках — образцы.
             Они не загружаются с сервера, а правки цен, пользователей и документов на сервер не сохраняются.
             Настоящие аккаунты, заказы и база расценок хранятся в базе данных сервера.
           </DemoNotice>
+          )}
           {/* ========================================================================= */}
           {/* TAB 1: OVERVIEW (📊 Обзор)                                                */}
           {/* ========================================================================= */}
@@ -2452,6 +2477,56 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
           {/* ========================================================================= */}
           {/* TAB 7: ROLES (🎭 Роли)                                                    */}
           {/* ========================================================================= */}
+          {activeTab === 'disputes' && (
+            <div className="admin-tab-content" data-testid="admin-disputes">
+              <div className="admin-controls-row" style={{ marginBottom: '1rem' }}>
+                <h2 style={{ margin: 0, fontSize: '1.2rem', color: '#fff' }}>⚖️ Споры и арбитраж</h2>
+              </div>
+              <div className="admin-section-box">
+                {disputes.status === 'loading' && <p style={{ margin: 0, color: '#cbd5e1' }}>Загружаем список споров…</p>}
+                {disputes.status === 'guest' && (
+                  <p style={{ margin: 0, color: '#cbd5e1' }}>
+                    Список споров хранится на сервере. Войдите под учётной записью администратора или менеджера, чтобы его увидеть.
+                  </p>
+                )}
+                {disputes.status === 'error' && (
+                  <p style={{ margin: 0, color: '#fca5a5' }}>Не удалось загрузить список споров. Обновите страницу или войдите заново.</p>
+                )}
+                {disputes.status === 'ready' && disputes.items.length === 0 && (
+                  <p style={{ margin: 0, color: '#cbd5e1' }}>
+                    Споров нет. Подать претензию через сайт пока нельзя — список заполнится, когда появится форма претензии по заказу.
+                  </p>
+                )}
+                {disputes.status === 'ready' && disputes.items.length > 0 && (
+                  <table className="admin-table">
+                    <thead>
+                      <tr>
+                        <th>Спор</th>
+                        <th>Заказ</th>
+                        <th>Кто подал</th>
+                        <th>Причина</th>
+                        <th>Статус</th>
+                        <th>Дата</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {disputes.items.map((d) => (
+                        <tr key={d.id}>
+                          <td>{d.id}</td>
+                          <td>{d.orderId || '—'}</td>
+                          <td>{d.claimant || '—'}</td>
+                          <td>{d.reason || '—'}</td>
+                          <td>{d.status || '—'}</td>
+                          <td>{d.createdAt ? new Date(d.createdAt).toLocaleDateString('ru-RU') : '—'}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+            </div>
+          )}
+
           {activeTab === 'roles' && (
             <div className="admin-tab-content">
               <div className="admin-controls-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>

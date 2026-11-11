@@ -36,6 +36,8 @@ const LiDARScanPage = lazy(() => import('./components/LiDARScanPage'));
 const LegalPage = lazy(() => import('./components/LegalPage'));
 const RegisterPage = lazy(() => import('./components/RegisterPage'));
 const LoginPage = lazy(() => import('./components/LoginPage'));
+const ChangePasswordPage = lazy(() => import('./components/ChangePasswordPage'));
+const NotFoundPage = lazy(() => import('./components/NotFoundPage'));
 
 const DASHBOARD_VIEWS = ['admin', 'customer', 'executor', 'company', 'engineer', 'crm', 'manager'];
 // Панели с ограничением по роли (UI-guard; реальная защита данных — на сервере)
@@ -59,12 +61,18 @@ const VIEW_BY_SEGMENT = {
   admin: 'admin', engineer: 'engineer', customer: 'customer', executor: 'executor', company: 'company',
   crm: 'crm', manager: 'manager', category: 'category', profile: 'profile', wallet: 'wallet',
   catalog: 'catalog', orders: 'orders', engineering: 'engineering', calc: 'calc', lidar: 'lidar',
-  materials: 'materials', equipment: 'equipment', register: 'register', login: 'login',
+  materials: 'materials', equipment: 'equipment', register: 'register', login: 'login', password: 'password',
 };
 function viewFromPath(path) {
   if (LEGAL_PATHS[path.replace(/\/+$/, '')]) return 'legal';
   const seg = (path.split('/')[1] || '').toLowerCase();
-  return VIEW_BY_SEGMENT[seg] || 'landing';
+  if (!seg || seg === 'index.html') return 'landing';
+  const view = VIEW_BY_SEGMENT[seg];
+  // Неизвестный адрес — честная страница «не найдено», а не главная под чужим адресом
+  if (!view) return 'notfound';
+  // Раздел каталога, которого нет: раньше оставался пустой экран между шапкой и подвалом
+  if (view === 'category' && !categoriesData.some((c) => c.slug === path.split('/')[2])) return 'notfound';
+  return view;
 }
 
 export default function App() {
@@ -213,6 +221,12 @@ export default function App() {
     window.scrollTo(0, 0);
   };
 
+  const navigateToPassword = () => {
+    if (window.location.pathname !== '/password') window.history.pushState({}, '', '/password');
+    setCurrentView('password');
+    window.scrollTo(0, 0);
+  };
+
   const handleLogin = (user) => {
     setCurrentUser(user);
     setRole(user.role);
@@ -334,6 +348,7 @@ export default function App() {
             userRole={roleForPage} 
             onBackToHome={navigateToLanding} 
             onOpenEngineer={navigateToEngineer} 
+            onOpenPassword={navigateToPassword}
             currentUser={currentUser} 
           />
         </Suspense>
@@ -360,6 +375,7 @@ export default function App() {
         onOpenDashboard={navigateToDashboard}
         onLogoClick={handleLogoClick}
         onOpenProfile={navigateToProfile}
+        onOpenPassword={navigateToPassword}
         onOpenWallet={navigateToWallet}
         onOpenMaterials={navigateToMaterials}
         onOpenEquipment={navigateToEquipment}
@@ -488,6 +504,14 @@ export default function App() {
             />
           )}
 
+          {currentView === 'password' && (
+            <ChangePasswordPage
+              currentUser={currentUser}
+              onOpenLogin={() => openAuthFlow('login')}
+              onOpenDashboard={navigateToDashboard}
+            />
+          )}
+
           {currentView === 'register' && (
             <RegisterPage
               currentUser={currentUser}
@@ -518,6 +542,10 @@ export default function App() {
                 }
               }}
             />
+          )}
+
+          {currentView === 'notfound' && (
+            <NotFoundPage onHome={navigateToLanding} onOpenCatalog={navigateToMaterials} />
           )}
 
           {currentView === 'landing' && (

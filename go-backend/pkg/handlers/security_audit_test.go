@@ -12,6 +12,7 @@ import (
 
 	"qazgost-ai/backend/pkg/config"
 	"qazgost-ai/backend/pkg/database"
+	"qazgost-ai/backend/pkg/middleware"
 	"qazgost-ai/backend/pkg/models"
 )
 
@@ -266,5 +267,81 @@ func TestOrders_SizeLimits(t *testing.T) {
 	h.UpdateOrder(w, asUser(jsonReq("PATCH", fmt.Sprintf("/api/v1/orders/%d", order.ID), map[string]string{"title": strings.Repeat("я", 501)}), "u_customer_1", "customer"))
 	if w.Code != http.StatusBadRequest {
 		t.Errorf("PATCH с названием длиннее 500 символов принят: %d", w.Code)
+	}
+}
+
+// Смена пароля: нужен текущий пароль, слабые пароли не принимаются, старые сессии отзываются.
+func TestChangePassword(t *testing.T) {
+	cfg := &config.Config{JwtSecret: "test-secret-123"}
+	h := NewAuthHandler(cfg)
+	email := fmt.Sprintf("chpass_%d@test.kz", time.Now().UnixNano())
+	const oldPass, newPass = "Start-pass-1", "New-strong-pass-2"
+	w := postRegister(t, h, map[string]interface{}{"email": email, "password": oldPass, "name": "Смена Пароля"})
+	if w.Code != http.StatusCreated {
+		t.Fatalf("регистрация: %d %s", w.Code, w.Body.String())
+	}
+	var reg struct {
+		Token string `json:"token"`
+		User  struct {
+			ID string `json:"id"`
+		} `json:"user"`
+	}
+	_ = json.NewDecoder(w.Body).Decode(&reg)
+	t.Cleanup(func() { _, _ = database.DB.Exec(`DELETE FROM users WHERE email=$1`, email) })
+
+	change := func(method, current, next string) *httptest.ResponseRecorder {
+		rec := httptest.NewRecorder()
+		h.ChangePassword(rec, asUser(jsonReq(method, "/api/v1/auth/password", map[string]string{"currentPassword": current, "newPassword": next}), reg.User.ID, "customer"))
+		return rec
+	}
+
+	if rec := change("GET", oldPass, newPass); rec.Code != http.StatusMethodNotAllowed {
+		t.Errorf("GET: ожидался 405, получен %d", rec.Code)
+	}
+	if rec := change("POST", "wrong-current", newPass); rec.Code != http.StatusUnauthorized {
+		t.Errorf("неверный текущий пароль: ожидался 401, получен %d", rec.Code)
+	}
+	for _, weak := range []string{"short7!", "admin123", "12345678", "Password123", strings.SplitN(email, "@", 2)[0], email} {
+		if rec := change("POST", oldPass, weak); rec.Code != http.StatusBadRequest {
+			t.Errorf("слабый пароль %q принят: %d", weak, rec.Code)
+		}
+	}
+	if rec := change("POST", oldPass, oldPass); rec.Code != http.StatusBadRequest {
+		t.Errorf("новый пароль равен текущему: ожидался 400, получен %d", rec.Code)
+	}
+	if rec := postLogin(h, email, oldPass); rec.Code != http.StatusOK {
+		t.Fatalf("после отклонённых попыток старый пароль должен работать: %d", rec.Code)
+	}
+
+	time.Sleep(1100 * time.Millisecond) // токен регистрации должен оказаться «старше» смены пароля
+	rec := change("POST", oldPass, newPass)
+	if rec.Code != http.StatusOK {
+		t.Fatalf("смена пароля: %d %s", rec.Code, rec.Body.String())
+	}
+	var out struct {
+		OK    bool   `json:"ok"`
+		Token string `json:"token"`
+	}
+	_ = json.NewDecoder(rec.Body).Decode(&out)
+	if !out.OK || out.Token == "" {
+		t.Fatalf("в ответе нет нового токена: %+v", out)
+	}
+
+	if rec := postLogin(h, email, oldPass); rec.Code != http.StatusUnauthorized {
+		t.Errorf("старый пароль всё ещё работает: %d", rec.Code)
+	}
+	if rec := postLogin(h, email, newPass); rec.Code != http.StatusOK {
+		t.Errorf("новый пароль не работает: %d", rec.Code)
+	}
+	if _, err := middleware.ValidateJWT(reg.Token, cfg.JwtSecret); err == nil {
+		t.Error("сессия, выданная до смены пароля, осталась действующей")
+	}
+	if _, err := middleware.ValidateJWT(out.Token, cfg.JwtSecret); err != nil {
+		t.Errorf("новая сессия после смены пароля не принимается: %v", err)
+	}
+	// момент смены сохранён в базе — отзыв переживёт перезапуск сервера
+	times, err := database.PasswordChangeTimes()
+	if err != nil || times[reg.User.ID] == 0 {
+		t.Errorf("время смены пароля не сохранено: %v %v", times[reg.User.ID], err)
 	}
 }

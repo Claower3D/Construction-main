@@ -277,6 +277,7 @@
   .qg-dash-workspace { padding: 20px 14px 64px; }
   .qg-dash-brand-text { display: none; }
   .qg-dash-user { display: none; }
+  .qg-dash-pass { display: none; } /* на телефоне «Сменить пароль» — в меню сайта */
   .qg-dash-crumbs { display: none !important; }
   .qg-dash-back span:last-child { display: inline !important; }
 }

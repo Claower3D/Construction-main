@@ -185,12 +185,19 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole, embe
   useEffect(() => {
     fetchServerOrders();
 
-    // Поллинг сервера каждые 5 секунд для кросс-устройственной синхронизации
+    // Поллинг сервера каждые 5 секунд для кросс-устройственной синхронизации.
+    // На скрытой вкладке не опрашиваем (раньше страница слала запросы сутками в фоне);
+    // при возврате на вкладку обновляем сразу.
     const pollInterval = setInterval(() => {
-      fetchServerOrders();
+      if (!document.hidden) fetchServerOrders();
     }, 5000);
+    const onVisible = () => { if (!document.hidden) fetchServerOrders(); };
+    document.addEventListener('visibilitychange', onVisible);
 
-    return () => clearInterval(pollInterval);
+    return () => {
+      clearInterval(pollInterval);
+      document.removeEventListener('visibilitychange', onVisible);
+    };
   }, [fetchServerOrders]);
 
   // ── localStorage: кешируем ЛОКАЛЬНЫЕ заказы, не затирая чужие (других пользователей этого устройства) ──

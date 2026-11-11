@@ -239,13 +239,14 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
   ]);
 
   const [notificationsList, setNotificationsList] = useState(() => {
-    const saved = localStorage.getItem('engineer_notifications');
-    if (saved) return JSON.parse(saved);
-    return [
-      { id: 'NOT-1', icon: '📬', title: 'Новая заявка', text: 'Поступила новая заявка на приёмку сетей от ИП «Сатов А.В.»', time: '10 мин назад', unread: true },
-      { id: 'NOT-2', icon: '⚠️', title: 'Дедлайн инспекции', text: 'Сегодня до 18:00 — Инспекция монолита ТОО «Алматы Сити»', time: '1 час назад', unread: true },
-      { id: 'NOT-3', icon: '✅', title: 'Акт КС-2 подписан', text: 'Заказчик подписал Акт выполненных работ по объекту БЦ "Нурлы Тау"', time: 'Вчера', unread: false }
-    ];
+    // Без выдуманных уведомлений по умолчанию («Новая заявка от ИП Сатов», «Акт КС-2 подписан»…):
+    // список начинается пустым, старые образцы NOT-1…3 убираются у тех, у кого они сохранены.
+    try {
+      const saved = JSON.parse(localStorage.getItem('engineer_notifications') || '[]');
+      return Array.isArray(saved) ? saved.filter((n) => !/^NOT-[123]$/.test(String(n?.id))) : [];
+    } catch (e) {
+      return [];
+    }
   });
 
   React.useEffect(() => {

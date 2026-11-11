@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { getBalanceKZT, PAYMENTS_ENABLED } from '../services/walletEngine';
 import LangSwitch from './LangSwitch';
+import { getAuthToken } from '../services/platformUtils';
 
 // Знак QazGost: лист с размерной линией и «трещиной» — без эмодзи
 export function QazGostMark({ size = 36 }) {
@@ -14,41 +15,31 @@ export function QazGostMark({ size = 36 }) {
   );
 }
 
+// Первое уведомление нового пользователя — приветствие с подсказкой, с чего начать.
+// Раньше здесь были три выдуманных события («Смета готова», «Ваш отклик выбран главным
+// исполнителем», «Новый арбитражный спор DSP-882»…): человек, который только что
+// зарегистрировался, видел «3 новых» о том, чего не было.
+const WELCOME_TEXT = {
+  customer: 'Начните со сметы по фото или проверки дефектов. Отклики исполнителей и статусы заказов появятся здесь.',
+  executor: 'Заполните анкету и откройте ленту заказов. Отклики и приёмка этапов появятся здесь.',
+  engineer: 'Заявки на технадзор и результаты проверок появятся здесь.',
+  manager: 'Новые заявки и изменения по сделкам появятся здесь.',
+  admin: 'Заявки на проверку и события платформы появятся здесь.',
+  company: 'Заказы компании и приглашения на проекты появятся здесь.',
+};
 function getDefaultNotificationsForRole(userRole) {
-  if (userRole === 'engineer') {
-    return [
-      { id: 'n-eng-1', icon: '👷', title: 'Назначена инспекция', text: 'Новая заявка на технический надзор по объекту ЖК «Кабанбай».', time: '5 мин назад', unread: true, target: 'engineer' },
-      { id: 'n-eng-2', icon: '🤖', title: 'AI-проверка ГОСТ завершена', text: 'Проверка раздела ПСД закончена: 0 критических дефектов.', time: '35 мин назад', unread: true, target: 'engineer' },
-      { id: 'n-eng-3', icon: '📋', title: 'Подписание акта КС-2', text: 'Заказчик согласовал промежуточный акт скрытых работ.', time: '2 часа назад', unread: false, target: 'engineer' }
-    ];
-  }
-  if (userRole === 'manager') {
-    return [
-      { id: 'n-mgr-1', icon: '💼', title: 'Новый лид в CRM', text: 'Поступила новая коммерческая заявка от ТОО «КазСтройИнвест».', time: '2 мин назад', unread: true, target: 'manager' },
-      { id: 'n-mgr-2', icon: '📊', title: 'Сделка переведена в Дожим', text: 'Заказчик №1085 запросил коммерческое предложение по второму этапу.', time: '15 мин назад', unread: true, target: 'manager' },
-      { id: 'n-mgr-3', icon: '✅', title: 'Успешная сдача объекта', text: 'Подрядчик сдал сметный этап №3 без замечаний.', time: '1 час назад', unread: false, target: 'manager' }
-    ];
-  }
-  if (userRole === 'admin') {
-    return [
-      { id: 'n-adm-1', icon: '🛡️', title: 'Заявка на верификацию ИП', text: 'ИП «ТемирСтрой» отправил документы на проверку ИИН/БИН.', time: '10 мин назад', unread: true, target: 'admin' },
-      { id: 'n-adm-2', icon: '⚖️', title: 'Новый арбитражный спор', text: 'Открыта претензия по качеству заливки монолита (DSP-882).', time: '40 мин назад', unread: true, target: 'admin' },
-      { id: 'n-adm-3', icon: '💰', title: 'Обновление ЭСН РК', text: 'Индексы удорожания по 17 регионам Казахстана обновлены.', time: '3 часа назад', unread: false, target: 'admin' }
-    ];
-  }
-  if (userRole === 'executor') {
-    return [
-      { id: 'n-exe-1', icon: '🌐', title: 'Новый доступный заказ', text: 'В ленте заказов: Ремонт офисного помещения 450 м² в г. Астана.', time: '8 мин назад', unread: true, target: 'executor' },
-      { id: 'n-exe-2', icon: '✅', title: 'Этап принят заказчиком', text: 'Заказчик подтвердил этап №1. Оплату этапа согласуйте с ним напрямую.', time: '45 мин назад', unread: true, target: 'wallet' },
-      { id: 'n-exe-3', icon: '📌', title: 'Отклик принят', text: 'Ваше коммерческое предложение выбрано главным исполнителем.', time: '2 часа назад', unread: false, target: 'orders' }
-    ];
-  }
-  return [
-    { id: 'n-cus-1', icon: '📸', title: 'Смета готова (AI 2.0)', text: 'Загруженные фото проанализированы: рассчитано 3 сценария цены.', time: '4 мин назад', unread: true, target: 'orders' },
-    { id: 'n-cus-2', icon: '💬', title: 'Исполнитель откликнулся', text: 'На ваш заказ пришёл отклик с ценой и сроками. Сравните предложения.', time: '30 мин назад', unread: true, target: 'wallet' },
-    { id: 'n-cus-3', icon: '🔍', title: 'Отчёт дефектовки', text: 'AI-сканер выявил 2 микротрещины и сформировал отчёт по СНиП.', time: '1 час назад', unread: false, target: 'customer' }
-  ];
+  return [{
+    id: 'welcome',
+    icon: '👋',
+    title: 'Добро пожаловать в QazGost AI',
+    text: WELCOME_TEXT[userRole] || WELCOME_TEXT.customer,
+    time: 'сейчас',
+    unread: true,
+    target: userRole || 'customer',
+  }];
 }
+// Идентификаторы старых выдуманных уведомлений: убираем их у тех, у кого они уже сохранены
+const LEGACY_FAKE_NOTIF = /^(n-(eng|mgr|adm|exe|cus)-\d+|NOT-[123])$/;
 
 // ── Список городов Казахстана с координатами для автоопределения ──
 export const KZ_CITIES = [
@@ -74,7 +65,7 @@ export const KZ_CITIES = [
   { name: 'Темиртау', lat: 50.0547, lng: 72.9647 },
 ];
 
-export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, onOpenAdmin, onOpenEngineer, currentUser, onLogout, onOpenDashboard, onLogoClick, onOpenProfile, onOpenWallet, onOpenMaterials, onOpenEquipment, onOpenCalc, onOpenLidar }) {
+export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, onOpenAdmin, onOpenEngineer, currentUser, onLogout, onOpenDashboard, onLogoClick, onOpenProfile, onOpenPassword, onOpenWallet, onOpenMaterials, onOpenEquipment, onOpenCalc, onOpenLidar }) {
   const [activeNavDropdown, setActiveNavDropdown] = useState(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   // Баланс кошелька текущего пользователя (₸), а не захардкоженные «$0.00»
@@ -218,6 +209,9 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
     }
     if (list === null) {
       list = getDefaultNotificationsForRole(currentUser.role);
+      localStorage.setItem(key, JSON.stringify(list));
+    } else if (list.some((n) => LEGACY_FAKE_NOTIF.test(String(n?.id)))) {
+      list = list.filter((n) => !LEGACY_FAKE_NOTIF.test(String(n?.id)));
       localStorage.setItem(key, JSON.stringify(list));
     }
     setNotifications(list);
@@ -1198,6 +1192,11 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
                     <button className="btn-glass-reg" style={{ width: '100%', textAlign: 'center', padding: '0.75rem' }} onClick={() => { closeDropdown(); if (onOpenProfile) onOpenProfile(); }}>
                       📋 Моя анкета
                     </button>
+                    {onOpenPassword && getAuthToken() && (
+                      <button className="btn-glass-reg" style={{ width: '100%', textAlign: 'center', padding: '0.75rem' }} onClick={() => { closeDropdown(); onOpenPassword(); }}>
+                        🔑 Сменить пароль
+                      </button>
+                    )}
                     <button className="btn-glass-reg" style={{ width: '100%', textAlign: 'center', padding: '0.75rem' }} onClick={() => { closeDropdown(); onLogout(); }}>
                       Выйти
                     </button>

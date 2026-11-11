@@ -1,7 +1,10 @@
 package middleware
 
 import (
+	"crypto/hmac"
+	"crypto/sha256"
 	"encoding/base64"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -75,4 +78,51 @@ func TestAttemptLimiter(t *testing.T) {
 	if blocked, _ := l.Blocked("c@b.kz"); blocked {
 		t.Fatal("блокировка должна сниматься по истечении окна")
 	}
+}
+
+// После смены пароля токены, выданные раньше, не принимаются; выданные позже — принимаются.
+func TestRevokeTokensIssuedBefore(t *testing.T) {
+	const secret = "test-secret-for-jwt-checks-0002"
+	uid := "u_revoke_test"
+	old, _ := GenerateJWT(uid, "r@b.kz", "customer", secret)
+	other, _ := GenerateJWT("u_other_user", "o@b.kz", "customer", secret)
+
+	// токен старого образца, без времени выдачи: считается выданным за сутки до истечения
+	legacyClaims := base64.RawURLEncoding.EncodeToString([]byte(`{"sub":"` + uid + `","role":"customer","email":"r@b.kz","exp":` + itoa(time.Now().Add(23*time.Hour).Unix()) + `}`))
+	legacy := signFor(t, base64.RawURLEncoding.EncodeToString([]byte(`{"alg":"HS256","typ":"JWT"}`))+"."+legacyClaims, secret)
+	if _, err := ValidateJWT(legacy, secret); err != nil {
+		t.Fatalf("токен старого образца должен приниматься до смены пароля: %v", err)
+	}
+
+	RevokeTokensIssuedBefore(uid, time.Now().Unix()+1)
+	if _, err := ValidateJWT(old, secret); err == nil {
+		t.Error("токен, выданный до смены пароля, принят")
+	}
+	if _, err := ValidateJWT(legacy, secret); err == nil {
+		t.Error("токен старого образца, выданный до смены пароля, принят")
+	}
+	if _, err := ValidateJWT(other, secret); err != nil {
+		t.Errorf("отзыв задел другого пользователя: %v", err)
+	}
+
+	time.Sleep(1100 * time.Millisecond)
+	fresh, _ := GenerateJWT(uid, "r@b.kz", "customer", secret)
+	if _, err := ValidateJWT(fresh, secret); err != nil {
+		t.Errorf("токен, выданный после смены пароля, не принят: %v", err)
+	}
+
+	// более ранний момент не отменяет более поздний отзыв
+	RevokeTokensIssuedBefore(uid, 1)
+	if _, err := ValidateJWT(old, secret); err == nil {
+		t.Error("ранняя отметка сняла более поздний отзыв")
+	}
+}
+
+func itoa(v int64) string { return strconv.FormatInt(v, 10) }
+
+func signFor(t *testing.T, unsigned, secret string) string {
+	t.Helper()
+	mac := hmac.New(sha256.New, []byte(secret))
+	mac.Write([]byte(unsigned))
+	return unsigned + "." + base64.RawURLEncoding.EncodeToString(mac.Sum(nil))
 }

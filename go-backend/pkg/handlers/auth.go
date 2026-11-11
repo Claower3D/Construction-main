@@ -287,6 +287,84 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// weakPasswords — пароли, которые нельзя поставить: служебные пароли по умолчанию (они записаны
+// в открытом коде проекта) и самые частые сочетания.
+var weakPasswords = map[string]bool{
+	"admin123": true, "manager123": true, "engineer123": true, "customer123": true, "executor123": true,
+	"12345678": true, "123456789": true, "1234567890": true, "87654321": true, "11111111": true, "00000000": true,
+	"password": true, "password1": true, "password123": true, "qwerty123": true, "qwertyui": true, "qwerty12345": true,
+	"qazgost123": true, "qazgost2026": true, "пароль123": true,
+}
+
+type ChangePasswordRequest struct {
+	CurrentPassword string `json:"currentPassword"`
+	NewPassword     string `json:"newPassword"`
+}
+
+// ChangePassword меняет пароль вошедшего пользователя. Нужен текущий пароль; после смены все
+// прежние сессии отзываются, а в ответе приходит новый токен для этого устройства.
+func (h *AuthHandler) ChangePassword(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		writeError(w, http.StatusMethodNotAllowed, "Метод не поддерживается")
+		return
+	}
+	uid, _ := currentUser(r)
+	user, err := database.GetUserByID(uid)
+	if err != nil {
+		writeError(w, http.StatusUnauthorized, "Пользователь не найден")
+		return
+	}
+	var req ChangePasswordRequest
+	if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 16<<10)).Decode(&req); err != nil {
+		writeError(w, http.StatusBadRequest, "Неверный формат запроса")
+		return
+	}
+	email := strings.ToLower(strings.TrimSpace(user.Email))
+	if blocked, wait := loginFailures.Blocked(email); blocked {
+		w.Header().Set("Retry-After", fmt.Sprintf("%d", int(wait.Seconds())+1))
+		writeError(w, http.StatusTooManyRequests, fmt.Sprintf("Слишком много неверных попыток. Попробуйте через %d мин.", int(wait.Minutes())+1))
+		return
+	}
+
+	newPass := req.NewPassword
+	switch {
+	case len([]rune(newPass)) < 8:
+		writeError(w, http.StatusBadRequest, "Новый пароль должен быть не короче 8 символов")
+		return
+	case len(newPass) > 1024:
+		writeError(w, http.StatusBadRequest, "Слишком длинный пароль")
+		return
+	case weakPasswords[strings.ToLower(newPass)] || strings.EqualFold(newPass, email) || strings.EqualFold(newPass, strings.SplitN(email, "@", 2)[0]):
+		writeError(w, http.StatusBadRequest, "Этот пароль слишком простой или общеизвестный. Придумайте другой")
+		return
+	}
+	if !middleware.CheckPassword(req.CurrentPassword, user.PasswordHash) {
+		loginFailures.Fail(email)
+		writeError(w, http.StatusUnauthorized, "Текущий пароль указан неверно")
+		return
+	}
+	if newPass == req.CurrentPassword {
+		writeError(w, http.StatusBadRequest, "Новый пароль совпадает с текущим")
+		return
+	}
+
+	// Отзываем токены, выданные раньше этой секунды. Новый токен выдаётся в ту же секунду
+	// или позже — под отзыв он не попадает (отзываются только выданные строго раньше).
+	changedAt := time.Now().Unix()
+	if err := database.UpdateUserPassword(user.ID, middleware.HashPassword(newPass), changedAt); err != nil {
+		writeError(w, http.StatusInternalServerError, "Не удалось сохранить пароль")
+		return
+	}
+	middleware.RevokeTokensIssuedBefore(user.ID, changedAt)
+	loginFailures.Reset(email)
+	token, err := middleware.GenerateJWT(user.ID, user.Email, user.Role, h.cfg.JwtSecret)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "Пароль изменён, но выдать новую сессию не удалось — войдите с новым паролем")
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]interface{}{"ok": true, "token": token})
+}
+
 func (h *AuthHandler) GetMe(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
