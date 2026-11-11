@@ -51,6 +51,21 @@ function canOpenDashboard(view, user) {
   return !allowed || allowed.includes(user.role);
 }
 
+// Вид по первому сегменту адреса. Раньше сравнивали по началу строки, и «/engineering»
+// открывал кабинет инженера («/engineer…»). Вложенные адреса кабинета («/executor/calendar»)
+// остаются видом кабинета — инструмент внутри выбирает AdminDashboardPage.
+const VIEW_BY_SEGMENT = {
+  admin: 'admin', engineer: 'engineer', customer: 'customer', executor: 'executor', company: 'company',
+  crm: 'crm', manager: 'manager', category: 'category', profile: 'profile', wallet: 'wallet',
+  catalog: 'catalog', orders: 'orders', engineering: 'engineering', calc: 'calc', lidar: 'lidar',
+  materials: 'materials', equipment: 'equipment', register: 'register', login: 'login',
+};
+function viewFromPath(path) {
+  if (LEGAL_PATHS[path.replace(/\/+$/, '')]) return 'legal';
+  const seg = (path.split('/')[1] || '').toLowerCase();
+  return VIEW_BY_SEGMENT[seg] || 'landing';
+}
+
 export default function App() {
   const [role, setRole] = useState(() => {
     return localStorage.getItem('app_role') || 'executor';
@@ -99,30 +114,7 @@ export default function App() {
   const [legalTick, setLegalTick] = useState(0);
 
   // Initialize view from URL path (e.g. /admin, /customer, etc.)
-  const [currentView, setCurrentView] = useState(() => {
-    const path = window.location.pathname;
-    if (path.startsWith('/admin')) return 'admin';
-    if (path.startsWith('/engineer')) return 'engineer';
-    if (path.startsWith('/customer')) return 'customer';
-    if (path.startsWith('/executor')) return 'executor';
-    if (path.startsWith('/company')) return 'company';
-    if (path.startsWith('/crm')) return 'crm';
-    if (path.startsWith('/manager')) return 'manager';
-    if (path.startsWith('/category')) return 'category';
-    if (path.startsWith('/profile')) return 'profile';
-    if (path.startsWith('/wallet')) return 'wallet';
-    if (path.startsWith('/catalog')) return 'catalog';
-    if (path.startsWith('/orders')) return 'orders';
-    if (path.startsWith('/engineering')) return 'engineering';
-    if (path.startsWith('/calc')) return 'calc';
-    if (path.startsWith('/lidar')) return 'lidar';
-    if (path.startsWith('/materials')) return 'materials';
-    if (path.startsWith('/equipment')) return 'equipment';
-    if (LEGAL_PATHS[path.replace(/\/+$/, '')]) return 'legal';
-    if (path.startsWith('/register')) return 'register';
-    if (path.startsWith('/login')) return 'login';
-    return 'landing';
-  });
+  const [currentView, setCurrentView] = useState(() => viewFromPath(window.location.pathname));
 
   useEffect(() => {
     const path = window.location.pathname;
@@ -136,32 +128,14 @@ export default function App() {
   useEffect(() => {
     const handlePopState = () => {
       const path = window.location.pathname;
-      if (path.startsWith('/admin')) setCurrentView('admin');
-      else if (path.startsWith('/engineer')) setCurrentView('engineer');
-      else if (path.startsWith('/customer')) setCurrentView('customer');
-      else if (path.startsWith('/executor')) setCurrentView('executor');
-      else if (path.startsWith('/company')) setCurrentView('company');
-      else if (path.startsWith('/crm')) setCurrentView('crm');
-      else if (path.startsWith('/manager')) setCurrentView('manager');
-      else if (path.startsWith('/category')) {
+      const view = viewFromPath(path);
+      if (view === 'category') {
         const slug = path.split('/')[2];
         const foundCat = categoriesData.find((c) => c.slug === slug);
         if (foundCat) setCurrentCategory(foundCat);
-        setCurrentView('category');
       }
-      else if (path.startsWith('/profile')) setCurrentView('profile');
-      else if (path.startsWith('/wallet')) setCurrentView('wallet');
-      else if (path.startsWith('/catalog')) setCurrentView('catalog');
-      else if (path.startsWith('/orders')) setCurrentView('orders');
-      else if (path.startsWith('/engineering')) setCurrentView('engineering');
-      else if (path.startsWith('/calc')) setCurrentView('calc');
-      else if (path.startsWith('/lidar')) setCurrentView('lidar');
-      else if (path.startsWith('/materials')) setCurrentView('materials');
-      else if (path.startsWith('/equipment')) setCurrentView('equipment');
-      else if (LEGAL_PATHS[path.replace(/\/+$/, '')]) { setCurrentView('legal'); setLegalTick((t) => t + 1); }
-      else if (path.startsWith('/register')) setCurrentView('register');
-      else if (path.startsWith('/login')) setCurrentView('login');
-      else setCurrentView('landing');
+      if (view === 'legal') setLegalTick((t) => t + 1);
+      setCurrentView(view);
     };
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);

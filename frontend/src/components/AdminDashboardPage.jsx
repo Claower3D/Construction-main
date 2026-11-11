@@ -12,29 +12,245 @@ const FeaturePageModule = lazy(() => import('./FeaturePageModule'));
 const CrmPage = lazy(() => import('./CrmPage'));
 const BuildingConstructionPage = lazy(() => import('./BuildingConstructionPage'));
 
+// Роли кабинета
+const ROLES = [
+  {
+    id: 'builder',
+    title: 'Я Застройщик (VIP)',
+    shortLabel: 'Застройщик',
+    icon: '🏗️',
+    desc: 'Капитальное строительство зданий, ПСД, сметы СНиП и генподряд',
+    color: '#6366f1',
+    glow: 'rgba(99, 102, 241, 0.45)',
+    badge: 'VIP'
+  },
+  {
+    id: 'customer',
+    title: 'Я Заказчик',
+    shortLabel: 'Заказчик',
+    icon: '📋',
+    desc: 'Создаю заказы, выбираю исполнителей, принимаю работу',
+    color: '#10b981',
+    glow: 'rgba(16, 185, 129, 0.45)',
+    badge: ''
+  },
+  {
+    id: 'executor',
+    title: 'Я Исполнитель',
+    shortLabel: 'Исполнитель',
+    icon: '🔧',
+    desc: 'Ищу заказы, отправляю предложения, выполняю работы',
+    color: '#b9a4ff',
+    glow: 'rgba(185, 164, 255, 0.45)',
+    badge: ''
+  },
+  {
+    id: 'engineer',
+    title: 'Я Инженер',
+    shortLabel: 'Инженер',
+    icon: '👷',
+    desc: 'Принимаю заявки, разрабатываю проектную документацию',
+    color: '#7c3aed',
+    glow: 'rgba(124, 58, 237, 0.45)',
+    badge: ''
+  },
+  {
+    id: 'manager',
+    title: 'Я Менеджер CRM',
+    shortLabel: 'Менеджер',
+    icon: '💼',
+    desc: 'Управление лидами, клиентами, сделками и CRM-аналитикой',
+    color: '#b9a4ff',
+    glow: 'rgba(185, 164, 255, 0.45)',
+    badge: 'CRM'
+  },
+  {
+    id: 'company',
+    title: 'Я Компания',
+    shortLabel: 'Компания',
+    icon: '🏢',
+    desc: 'Управление БИН, сотрудниками и объектами организации',
+    color: '#a78bfa',
+    glow: 'rgba(167, 139, 250, 0.45)',
+    badge: 'ТОО'
+  },
+  {
+    id: 'admin',
+    title: 'Я Администратор',
+    shortLabel: 'Админ',
+    icon: '⚙️',
+    desc: 'Управление платформой, прайсами, модерацией и арбитражем',
+    color: '#f59e0b',
+    glow: 'rgba(245, 158, 11, 0.45)',
+    badge: 'ROOT'
+  },
+  {
+    id: 'analyst',
+    title: 'Я Аналитик',
+    shortLabel: 'Аналитик',
+    icon: '📊',
+    desc: 'Финальная отчётность, проверка документации, PDF-экспорт',
+    color: '#8b5cf6',
+    glow: 'rgba(139, 92, 246, 0.45)',
+    badge: 'QA'
+  }
+];
+
+// Инструменты каждой роли (карточки кабинета)
+const ROLE_CARDS = {
+  builder: [
+    { id: 'b-objects', title: 'Мои строительные объекты', icon: '🏢', desc: 'Управление портфелем ЖК, БЦ и коттеджных городков с 3D BIM-моделями', btnText: '🏢 Мои объекты', btnGradient: 'linear-gradient(90deg, #6366f1, #8b5cf6)' },
+    { id: 'b-create', title: 'Создать объект (СНиП)', icon: '➕', desc: 'Выбор типа объекта, этажности и проверка допуска компаний ГАСК', btnText: '➕ Создать объект', btnGradient: 'linear-gradient(90deg, #10b981, #059669)' },
+    { id: 'b-wbs', title: 'Выбор СМР & Оценка', icon: '📐', desc: 'WBS-калькулятор стоимости работ по сборникам ЭСН РК', btnText: '📐 Калькулятор СМР', btnGradient: 'linear-gradient(90deg, #b9a4ff, #7c3aed)' },
+    { id: 'b-audit', title: 'Инженерный фото-аудит', icon: '🔍', desc: 'AI-проверка чертежей КЖ/АР, замечания технадзора и дефектовка', btnText: '🔍 AI Экспертиза', btnGradient: 'linear-gradient(90deg, #8b5cf6, #ec4899)' },
+    { id: 'b-lots', title: 'Лоты & Тендеры', icon: '📦', desc: 'Публикация строительных лотов в "Мои Заказы Строительство"', btnText: '📦 Лоты и тендеры', btnGradient: 'linear-gradient(90deg, #f59e0b, #d97706)' },
+    { id: 'b-docs', title: 'Сметы & Документы PDF', icon: '📄', desc: 'Локальные сметы СНиП, аналитика прогресса и акты КС-2/КС-3', btnText: '📄 Скачать PDF', btnGradient: 'linear-gradient(90deg, #8b5cf6, #a78bfa)' },
+    { id: 'b-contractors', title: 'Реестр подрядчиков', icon: '🛡️', desc: 'Проверка лицензий ГАСК I/II категории, БИН и контакты ГИП', btnText: '🛡️ База подрядчиков', btnGradient: 'linear-gradient(90deg, #a78bfa, #10b981)' },
+  ],
+
+  customer: [
+    { id: 'c-materials', title: 'Маркетплейс материалов', icon: '🧱', desc: 'Оптовые и розничные стройматериалы от заводов РК: цемент, кирпич, арматура, смеси', btnText: '🧱 Открыть маркетплейс', btnGradient: 'linear-gradient(90deg, #10b981, #8b5cf6)' },
+    { id: 'c-estimate', title: 'Оценка стоимости', icon: '📊', desc: 'Обмерьте помещение — смета по техкартам и ценам с источниками, три сценария', btnText: '🚀 Начать оценку', btnGradient: 'linear-gradient(90deg, #b9a4ff, #7c3aed)' },
+    { id: 'c-inspect', title: 'Проверка дефектов', icon: '🔍', desc: 'Трещины на фото, акт с нормативами СНиП и ГОСТ и ценой ремонта', btnText: '🔍 Начать проверку', btnGradient: 'linear-gradient(90deg, #f59e0b, #ef4444)' },
+    { id: 'c-vip', title: 'Строительство зданий', icon: '🏗️', desc: 'ПСД, ВВР-документация, сметы полного цикла и генподряд VIP', btnText: '⭐ Открыть', btnGradient: 'linear-gradient(90deg, #6366f1, #7c3aed)' },
+    { id: 'c-engineering', title: 'Инженерные решения', icon: '⚙️', desc: 'Электрика, сантехника, HVAC, слаботочные системы и технадзор', btnText: '⚡ Выбрать', btnGradient: 'linear-gradient(90deg, #b9a4ff, #ddd6fe)' },
+    { id: 'c-orders', title: 'Мои заказы', icon: '📬', desc: 'Просмотр активных заявок, откликов мастеров и статусов работ', btnText: '📗 Открыть заказы', btnGradient: 'linear-gradient(90deg, #10b981, #059669)' },
+    { id: 'c-wallet', title: 'Оплата', icon: '💳', desc: 'Как сейчас оплачиваются заказы и когда появится онлайн-оплата', btnText: '💳 Открыть', btnGradient: 'linear-gradient(90deg, #7c3aed, #f59e0b)' },
+    { id: 'c-equipment', title: 'Маркетплейс техники', icon: '🚜', desc: 'Аренда экскаваторов, кранов, самосвалов по всему Казахстану', btnText: '🚜 Открыть технику', btnGradient: 'linear-gradient(90deg, #8b5cf6, #a78bfa)' },
+    { id: 'c-catalog', title: 'Каталог подрядчиков', icon: '📒', desc: 'Реестр проверенных специалистов и строительных компаний по ИИН/БИН', btnText: '📒 Найти мастеров', btnGradient: 'linear-gradient(90deg, #f59e0b, #d97706)' },
+    { id: 'c-volume', title: 'Расчёт объёмов (BOM)', icon: '📏', desc: 'Автоматический расчёт площадей и спецификации стройматериалов', btnText: '📐 Рассчитать', btnGradient: 'linear-gradient(90deg, #a78bfa, #10b981)' },
+    { id: 'c-calendar', title: 'Календарь работ', icon: '📅', desc: 'График выполнения строительно-монтажных работ и инспекций', btnText: '📅 График', btnGradient: 'linear-gradient(90deg, #ef4444, #f59e0b)' },
+    { id: 'c-profile', title: 'Моя анкета', icon: '📝', desc: 'Личные данные Заказчика, параметры объекта, бюджет и реквизиты', btnText: '📝 Заполнить', btnGradient: 'linear-gradient(90deg, #10b981, #059669)' },
+  ],
+
+  executor: [
+    { id: 'e-materials', title: 'Маркетплейс материалов', icon: '🧱', desc: 'Оптовый закуп стройматериалов со скидками до 20% для подрядчиков', btnText: '🧱 Закуп материалов', btnGradient: 'linear-gradient(90deg, #10b981, #8b5cf6)' },
+    { id: 'e-feed', title: 'Лента заказов', icon: '🌐', desc: 'Живой поток заказов со всего Казахстана без посредников и комиссий', btnText: '🌐 Смотреть заказы', btnGradient: 'linear-gradient(90deg, #b9a4ff, #7c3aed)' },
+    { id: 'e-works', title: 'Мои работы', icon: '📌', desc: 'Портфолио, текущие объекты и онлайн-сдача этапов заказчику', btnText: '📌 Мои объекты', btnGradient: 'linear-gradient(90deg, #ef4444, #f59e0b)' },
+    { id: 'e-estimate', title: 'Оценка стоимости', icon: '📸', desc: 'Смета по технологическим картам и рыночным ценам с источниками', btnText: '🚀 Сметный расчёт', btnGradient: 'linear-gradient(90deg, #b9a4ff, #7c3aed)' },
+    { id: 'e-inspect', title: 'Проверка дефектов', icon: '🔍', desc: 'Экспертная проверка состояния конструкций и дефектоскопия', btnText: '🔍 Проверить дефекты', btnGradient: 'linear-gradient(90deg, #f59e0b, #ef4444)' },
+    { id: 'e-soil', title: 'Фото-объёмы грунта', icon: '📐', desc: 'Геодезический 3D-расчёт выемки и насыпи грунта по фото ДО/ПОСЛЕ', btnText: '📸 Рассчитать объём', btnGradient: 'linear-gradient(90deg, #10b981, #a78bfa)' },
+    { id: 'e-engineering', title: 'Инженерные решения', icon: '⚙️', desc: 'Техническая спецификация работ и схемы разводки сетей', btnText: '⚡ Спецификация', btnGradient: 'linear-gradient(90deg, #b9a4ff, #ddd6fe)' },
+    { id: 'e-wallet', title: 'Оплата', icon: '💳', desc: 'Как исполнитель получает оплату по заказам', btnText: '💳 Открыть', btnGradient: 'linear-gradient(90deg, #7c3aed, #f59e0b)' },
+    { id: 'e-equipment', title: 'Маркетплейс техники', icon: '🚜', desc: 'Поиск спецтехники в аренду и оптовый закуп стройматериалов', btnText: '🚜 Найти технику', btnGradient: 'linear-gradient(90deg, #8b5cf6, #a78bfa)' },
+    { id: 'e-calendar', title: 'Календарь выездов', icon: '📅', desc: 'Расписание выездов на замеры и этапов монтажных работ', btnText: '📅 Расписание', btnGradient: 'linear-gradient(90deg, #ef4444, #10b981)' },
+    { id: 'e-catalog', title: 'Каталог специалистов', icon: '📒', desc: 'Рейтинг, отзывы и карточки мастеров в едином реестре РК', btnText: '📒 Реестр мастеров', btnGradient: 'linear-gradient(90deg, #f59e0b, #d97706)' },
+    { id: 'e-vip', title: 'Строительство зданий (VIP)', icon: '🏗️', desc: 'Участие в тендерах генподряда, ПСД и аккредитация I/II категории', btnText: '⭐ VIP Тендеры', btnGradient: 'linear-gradient(90deg, #6366f1, #7c3aed)' },
+    { id: 'e-profile', title: 'Анкета мастера', icon: '📝', desc: 'Профиль исполнителя, верификация ИИН/БИН, навыки и портфолио', btnText: '📝 Заполнить профиль', btnGradient: 'linear-gradient(90deg, #10b981, #059669)' },
+  ],
+
+  engineer: [
+    { id: 'ing-main', title: 'Главная панель', icon: '📊', desc: 'Сводный дашборд технического надзора, статусы проверок и графики', btnText: '📊 Открыть панель', btnGradient: 'linear-gradient(90deg, #7c3aed, #b9a4ff)' },
+    { id: 'ing-requests', title: 'Заявки на технадзор', icon: '📬', desc: 'Очередь вызовов инженеров на объекты для проведения инспекций', btnText: '📬 Список заявок', btnGradient: 'linear-gradient(90deg, #ef4444, #f59e0b)' },
+    { id: 'ing-objects', title: 'Мои объекты', icon: '🏗️', desc: 'Реестр строящихся объектов под авторским и техническим контролем', btnText: '🏗️ Мои объекты', btnGradient: 'linear-gradient(90deg, #f59e0b, #10b981)' },
+    { id: 'ing-ai', title: 'AI-просчёт по СНиП', icon: '🤖', desc: 'Автоматический анализ ПСД на соответствие ГОСТ и СНиП РК', btnText: '🤖 Запустить AI', btnGradient: 'linear-gradient(90deg, #7c3aed, #7c3aed)' },
+    { id: 'ing-calendar', title: 'Календарь инспекций', icon: '📅', desc: 'План выездных инспекций и график подписания актов КС-2 / КС-3', btnText: '📅 План инспекций', btnGradient: 'linear-gradient(90deg, #10b981, #059669)' },
+    { id: 'ing-expenses', title: 'Контроль расходов', icon: '💰', desc: 'Анализ отклонений от утвержденной сметы и контроль перерасходов', btnText: '💰 Аудит смет', btnGradient: 'linear-gradient(90deg, #a78bfa, #10b981)' },
+  ],
+
+  company: [
+    { id: 'comp-tree', title: 'Древо ролей и структуры', icon: '🌳', desc: 'Интерактивное семейное древо ролей, отделов, сотрудников и бригад ТОО', btnText: '🌳 Открыть древо', btnGradient: 'linear-gradient(90deg, #10b981, #a78bfa)' },
+    { id: 'comp-profile', title: 'Профиль компании', icon: '📝', desc: 'Управление БИН компании, лицензиями ГСЛ и банковскими реквизитами', btnText: '📝 Реквизиты ТОО', btnGradient: 'linear-gradient(90deg, #a78bfa, #7c3aed)' },
+    { id: 'comp-employees', title: 'Сотрудники и бригады', icon: '👥', desc: 'Реестр штатных инженеров, прорабов и привязанных рабочих бригад', btnText: '👥 Управление штатом', btnGradient: 'linear-gradient(90deg, #10b981, #a78bfa)' },
+    { id: 'comp-stats', title: 'Статистика компании', icon: '📈', desc: 'Сводные финансовые показатели, динамика сдачи объектов и KPI', btnText: '📈 Смотреть отчёты', btnGradient: 'linear-gradient(90deg, #7c3aed, #b9a4ff)' },
+  ],
+
+  manager: [
+    { id: 'mgr-crm', title: 'CRM-система', icon: '📊', desc: 'Воронка лидов, карточки клиентов, управление компаниями и бригадами', btnText: '📊 Открыть CRM', btnGradient: 'linear-gradient(90deg, #8b5cf6, #f59e0b)' },
+    { id: 'mgr-reports', title: 'Отчёты по продажам', icon: '📄', desc: 'Конверсия сделок, средний чек смет и аналитика эффективности', btnText: '📄 Сводка продаж', btnGradient: 'linear-gradient(90deg, #10b981, #059669)' },
+  ],
+
+  admin: [
+    { id: 'adm-tree', title: 'Иерархия ролей (Древо)', icon: '🌳', desc: 'Визуальное древо ролей всех строительных организаций и компаний платформы', btnText: '🌳 Древо ролей', btnGradient: 'linear-gradient(90deg, #10b981, #a78bfa)' },
+    { id: 'adm-prices', title: 'Прайсы ЭСН РК', icon: '💰', desc: 'База 23 864+ позиций строительных расценок по 17 областям Казахстана', btnText: '💰 Открыть прайсы', btnGradient: 'linear-gradient(90deg, #f59e0b, #ea580c)' },
+    { id: 'adm-moderation', title: 'Модерация заявок', icon: '🛡️', desc: 'Очередь верификации подрядчиков, проверка документов и заказов', btnText: '🛡️ Модерация', btnGradient: 'linear-gradient(90deg, #ef4444, #f59e0b)' },
+    { id: 'adm-regions', title: 'Региональные индексы', icon: '🗺️', desc: 'Коэффициенты удорожания стройматериалов по регионам РК', btnText: '🗺️ Индексы цен', btnGradient: 'linear-gradient(90deg, #7c3aed, #b9a4ff)' },
+    { id: 'adm-audit', title: 'Журнал действий', icon: '📜', desc: 'Полный аудит логов пользователей, изменений в сметах и AI-вызовов', btnText: '📜 Журнал логов', btnGradient: 'linear-gradient(90deg, #8b5cf6, #8b5cf6)' },
+    { id: 'adm-kpi', title: 'KPI Платформы', icon: '📊', desc: 'Метрики скорости расчётов, точности AI и загрузки серверов', btnText: '📊 Открыть KPI', btnGradient: 'linear-gradient(90deg, #10b981, #a78bfa)' },
+    { id: 'adm-disputes', title: 'Споры и арбитраж', icon: '⚖️', desc: 'Рассмотрение претензий по качеству работ и разблокировка эскроу', btnText: '⚖️ Разрешить спор', btnGradient: 'linear-gradient(90deg, #f59e0b, #ef4444)' },
+    { id: 'adm-contracts', title: 'Договоры подряда', icon: '📄', desc: 'Шаблоны договоров строительного подряда с поддержкой ЭЦП E-Gov', btnText: '📄 Реестр договоров', btnGradient: 'linear-gradient(90deg, #7c3aed, #10b981)' },
+    { id: 'adm-documents', title: 'Документы & Выгрузка Excel', icon: '📁', desc: 'Выгрузка актов КС-2/КС-3, счетов на оплату, ЭСФ и реестров договоров в Excel (.xlsx)', btnText: '📁 Открыть документы', btnGradient: 'linear-gradient(90deg, #10b981, #a78bfa)' },
+  ],
+
+  analyst: [
+    { id: 'an-queue', title: 'Очередь завершённых заявок', icon: '📋', desc: 'Заявки, закрытые исполнителями и переданные аналитику для финальной отчётности', btnText: '📋 Открыть очередь', btnGradient: 'linear-gradient(90deg, #8b5cf6, #6366f1)' },
+    { id: 'an-reports', title: 'PDF-отчёты и экспорт', icon: '📄', desc: 'Формирование итоговых отчётов с фотографиями, файлами и хронологией работ', btnText: '📄 Генератор отчётов', btnGradient: 'linear-gradient(90deg, #ef4444, #f59e0b)' },
+    { id: 'an-stats', title: 'Статистика проделанных работ', icon: '📊', desc: 'Сводная аналитика по объектам, бригадам, бюджетам и срокам выполнения', btnText: '📊 Смотреть статистику', btnGradient: 'linear-gradient(90deg, #10b981, #a78bfa)' },
+    { id: 'an-files', title: 'Архив документации', icon: '📎', desc: 'Договоры, акты КС-2/КС-3, заключения технадзора и гарантийные обязательства', btnText: '📎 Открыть архив', btnGradient: 'linear-gradient(90deg, #8b5cf6, #8b5cf6)' },
+  ]
+};
+
+// ── Адреса инструментов ─────────────────────────────────────────────
+// Каждый инструмент — отдельная страница: /executor/calendar, /customer/materials, /admin/prices…
+// Работают кнопки «Назад/Вперёд» браузера, обновление страницы и прямые ссылки.
+const ROUTABLE_ROLES = ['customer', 'executor', 'engineer', 'company', 'manager', 'admin'];
+const SLUG_OVERRIDES = {
+  'c-inspect': 'defects', 'e-inspect': 'defects',
+  'c-wallet': 'payment', 'e-wallet': 'payment',
+  'c-vip': 'building', 'e-vip': 'building',
+  'ing-main': 'overview',
+};
+// Роли, которые сразу открываются на своём основном инструменте
+const DEFAULT_TOOL = { manager: 'mgr-crm', admin: 'adm-prices', company: 'comp-profile', builder: 'b-objects' };
+
+export function toolSlug(id) {
+  if (SLUG_OVERRIDES[id]) return SLUG_OVERRIDES[id];
+  if (id.startsWith('b-')) return `builder-${id.slice(2)}`;
+  if (id.startsWith('an-')) return `analyst-${id.slice(3)}`;
+  return id.replace(/^(c|e|ing|comp|mgr|adm)-/, '');
+}
+
+function moduleFor(id) {
+  if (id.startsWith('b-')) return 'builder';
+  if (id.startsWith('adm-')) return 'admin_panel';
+  if (id.startsWith('comp-')) return 'company';
+  if (id.startsWith('ing-') || id === 'c-calendar' || id === 'e-calendar' || id === 'e-works') return 'engineer';
+  if (id.startsWith('mgr-')) return 'crm';
+  return null;
+}
+
+function parseDashPath(pathname = window.location.pathname) {
+  const parts = pathname.split('/');
+  const base = (parts[1] || '').toLowerCase();
+  let slug = '';
+  try { slug = decodeURIComponent(parts[2] || '').toLowerCase(); } catch (e) { slug = ''; }
+  return { base: base === 'crm' ? 'manager' : base, slug };
+}
+
+function findTool(baseRole, slug) {
+  if (!slug) return null;
+  const own = (ROLE_CARDS[baseRole] || []).find((c) => toolSlug(c.id) === slug);
+  if (own) return { role: baseRole, card: own };
+  for (const r of ['builder', 'analyst']) {
+    const c = (ROLE_CARDS[r] || []).find((x) => toolSlug(x.id) === slug);
+    if (c) return { role: r, card: c };
+  }
+  return null;
+}
+
+const defaultCard = (roleId) => {
+  const id = DEFAULT_TOOL[roleId];
+  return id ? (ROLE_CARDS[roleId] || []).find((c) => c.id === id) || null : null;
+};
+
 export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userRole = 'customer', currentUser }) {
-  // Active selected role ('customer' | 'executor' | 'engineer' | 'company' | 'manager' | 'admin')
-  const [selectedRole, setSelectedRole] = useState(() => {
-    if (['customer', 'executor', 'engineer', 'company', 'manager', 'admin'].includes(userRole)) {
-      return userRole;
-    }
-    return currentUser?.role || 'customer';
+  // Начальное состояние — из адреса: /роль или /роль/инструмент
+  const [initialRoute] = useState(() => {
+    const { base, slug } = parseDashPath();
+    const fallbackRole = ['customer', 'executor', 'engineer', 'company', 'manager', 'admin'].includes(userRole)
+      ? userRole
+      : (currentUser?.role || 'customer');
+    const role = ROUTABLE_ROLES.includes(base) ? base : fallbackRole;
+    const hit = findTool(role, slug);
+    if (hit) return { role: hit.role, card: hit.card, canonical: false };
+    // без инструмента в адресе: CRM, админка и компания сразу открывают основной раздел
+    return { role, card: defaultCard(role), canonical: true };
   });
 
-  // Active opened tool/module
-  const [selectedItemId, setSelectedItemId] = useState(() => {
-    if (userRole === 'crm' || userRole === 'manager') return 'mgr-crm';
-    if (userRole === 'admin') return 'adm-prices';
-    if (userRole === 'company') return 'comp-profile';
-    return null;
-  });
-  const [selectedItemObject, setSelectedItemObject] = useState(null);
-  const [embeddedModule, setEmbeddedModule] = useState(() => {
-    if (userRole === 'crm' || userRole === 'manager') return 'crm';
-    if (userRole === 'admin') return 'admin_panel';
-    if (userRole === 'company') return 'company';
-    return null;
-  });
+  const [selectedRole, setSelectedRole] = useState(initialRoute.role);
+  const [selectedItemId, setSelectedItemId] = useState(initialRoute.card ? initialRoute.card.id : null);
+  const [selectedItemObject, setSelectedItemObject] = useState(initialRoute.card);
+  const [embeddedModule, setEmbeddedModule] = useState(initialRoute.card ? moduleFor(initialRoute.card.id) : null);
 
   // Mobile sidebar drawer state
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
@@ -47,173 +263,8 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
     }));
   };
 
-  // Roles Definition
-  const roles = [
-    {
-      id: 'builder',
-      title: 'Я Застройщик (VIP)',
-      shortLabel: 'Застройщик',
-      icon: '🏗️',
-      desc: 'Капитальное строительство зданий, ПСД, сметы СНиП и генподряд',
-      color: '#6366f1',
-      glow: 'rgba(99, 102, 241, 0.45)',
-      badge: 'VIP'
-    },
-    {
-      id: 'customer',
-      title: 'Я Заказчик',
-      shortLabel: 'Заказчик',
-      icon: '📋',
-      desc: 'Создаю заказы, выбираю исполнителей, принимаю работу',
-      color: '#10b981',
-      glow: 'rgba(16, 185, 129, 0.45)',
-      badge: ''
-    },
-    {
-      id: 'executor',
-      title: 'Я Исполнитель',
-      shortLabel: 'Исполнитель',
-      icon: '🔧',
-      desc: 'Ищу заказы, отправляю предложения, выполняю работы',
-      color: '#b9a4ff',
-      glow: 'rgba(185, 164, 255, 0.45)',
-      badge: ''
-    },
-    {
-      id: 'engineer',
-      title: 'Я Инженер',
-      shortLabel: 'Инженер',
-      icon: '👷',
-      desc: 'Принимаю заявки, разрабатываю проектную документацию',
-      color: '#7c3aed',
-      glow: 'rgba(124, 58, 237, 0.45)',
-      badge: ''
-    },
-    {
-      id: 'manager',
-      title: 'Я Менеджер CRM',
-      shortLabel: 'Менеджер',
-      icon: '💼',
-      desc: 'Управление лидами, клиентами, сделками и CRM-аналитикой',
-      color: '#b9a4ff',
-      glow: 'rgba(185, 164, 255, 0.45)',
-      badge: 'CRM'
-    },
-    {
-      id: 'company',
-      title: 'Я Компания',
-      shortLabel: 'Компания',
-      icon: '🏢',
-      desc: 'Управление БИН, сотрудниками и объектами организации',
-      color: '#a78bfa',
-      glow: 'rgba(167, 139, 250, 0.45)',
-      badge: 'ТОО'
-    },
-    {
-      id: 'admin',
-      title: 'Я Администратор',
-      shortLabel: 'Админ',
-      icon: '⚙️',
-      desc: 'Управление платформой, прайсами, модерацией и арбитражем',
-      color: '#f59e0b',
-      glow: 'rgba(245, 158, 11, 0.45)',
-      badge: 'ROOT'
-    },
-    {
-      id: 'analyst',
-      title: 'Я Аналитик',
-      shortLabel: 'Аналитик',
-      icon: '📊',
-      desc: 'Финальная отчётность, проверка документации, PDF-экспорт',
-      color: '#8b5cf6',
-      glow: 'rgba(139, 92, 246, 0.45)',
-      badge: 'QA'
-    }
-  ];
-
-  // Dynamic cards configuration for each role
-  const roleCardsData = {
-    builder: [
-      { id: 'b-objects', title: 'Мои строительные объекты', icon: '🏢', desc: 'Управление портфелем ЖК, БЦ и коттеджных городков с 3D BIM-моделями', btnText: '🏢 Мои объекты', btnGradient: 'linear-gradient(90deg, #6366f1, #8b5cf6)' },
-      { id: 'b-create', title: 'Создать объект (СНиП)', icon: '➕', desc: 'Выбор типа объекта, этажности и проверка допуска компаний ГАСК', btnText: '➕ Создать объект', btnGradient: 'linear-gradient(90deg, #10b981, #059669)' },
-      { id: 'b-wbs', title: 'Выбор СМР & Оценка', icon: '📐', desc: 'WBS-калькулятор стоимости работ по сборникам ЭСН РК', btnText: '📐 Калькулятор СМР', btnGradient: 'linear-gradient(90deg, #b9a4ff, #7c3aed)' },
-      { id: 'b-audit', title: 'Инженерный фото-аудит', icon: '🔍', desc: 'AI-проверка чертежей КЖ/АР, замечания технадзора и дефектовка', btnText: '🔍 AI Экспертиза', btnGradient: 'linear-gradient(90deg, #8b5cf6, #ec4899)' },
-      { id: 'b-lots', title: 'Лоты & Тендеры', icon: '📦', desc: 'Публикация строительных лотов в "Мои Заказы Строительство"', btnText: '📦 Лоты и тендеры', btnGradient: 'linear-gradient(90deg, #f59e0b, #d97706)' },
-      { id: 'b-docs', title: 'Сметы & Документы PDF', icon: '📄', desc: 'Локальные сметы СНиП, аналитика прогресса и акты КС-2/КС-3', btnText: '📄 Скачать PDF', btnGradient: 'linear-gradient(90deg, #8b5cf6, #a78bfa)' },
-      { id: 'b-contractors', title: 'Реестр подрядчиков', icon: '🛡️', desc: 'Проверка лицензий ГАСК I/II категории, БИН и контакты ГИП', btnText: '🛡️ База подрядчиков', btnGradient: 'linear-gradient(90deg, #a78bfa, #10b981)' },
-    ],
-
-    customer: [
-      { id: 'c-materials', title: 'Маркетплейс материалов', icon: '🧱', desc: 'Оптовые и розничные стройматериалы от заводов РК: цемент, кирпич, арматура, смеси', btnText: '🧱 Открыть маркетплейс', btnGradient: 'linear-gradient(90deg, #10b981, #8b5cf6)' },
-      { id: 'c-estimate', title: 'Оценка стоимости', icon: '📊', desc: 'Обмерьте помещение — смета по техкартам и ценам с источниками, три сценария', btnText: '🚀 Начать оценку', btnGradient: 'linear-gradient(90deg, #b9a4ff, #7c3aed)' },
-      { id: 'c-inspect', title: 'Проверка дефектов', icon: '🔍', desc: 'Трещины на фото, акт с нормативами СНиП и ГОСТ и ценой ремонта', btnText: '🔍 Начать проверку', btnGradient: 'linear-gradient(90deg, #f59e0b, #ef4444)' },
-      { id: 'c-vip', title: 'Строительство зданий', icon: '🏗️', desc: 'ПСД, ВВР-документация, сметы полного цикла и генподряд VIP', btnText: '⭐ Открыть', btnGradient: 'linear-gradient(90deg, #6366f1, #7c3aed)' },
-      { id: 'c-engineering', title: 'Инженерные решения', icon: '⚙️', desc: 'Электрика, сантехника, HVAC, слаботочные системы и технадзор', btnText: '⚡ Выбрать', btnGradient: 'linear-gradient(90deg, #b9a4ff, #ddd6fe)' },
-      { id: 'c-orders', title: 'Мои заказы', icon: '📬', desc: 'Просмотр активных заявок, откликов мастеров и статусов работ', btnText: '📗 Открыть заказы', btnGradient: 'linear-gradient(90deg, #10b981, #059669)' },
-      { id: 'c-wallet', title: 'Оплата', icon: '💳', desc: 'Как сейчас оплачиваются заказы и когда появится онлайн-оплата', btnText: '💳 Открыть', btnGradient: 'linear-gradient(90deg, #7c3aed, #f59e0b)' },
-      { id: 'c-equipment', title: 'Маркетплейс техники', icon: '🚜', desc: 'Аренда экскаваторов, кранов, самосвалов по всему Казахстану', btnText: '🚜 Открыть технику', btnGradient: 'linear-gradient(90deg, #8b5cf6, #a78bfa)' },
-      { id: 'c-catalog', title: 'Каталог подрядчиков', icon: '📒', desc: 'Реестр проверенных специалистов и строительных компаний по ИИН/БИН', btnText: '📒 Найти мастеров', btnGradient: 'linear-gradient(90deg, #f59e0b, #d97706)' },
-      { id: 'c-volume', title: 'Расчёт объёмов (BOM)', icon: '📏', desc: 'Автоматический расчёт площадей и спецификации стройматериалов', btnText: '📐 Рассчитать', btnGradient: 'linear-gradient(90deg, #a78bfa, #10b981)' },
-      { id: 'c-calendar', title: 'Календарь работ', icon: '📅', desc: 'График выполнения строительно-монтажных работ и инспекций', btnText: '📅 График', btnGradient: 'linear-gradient(90deg, #ef4444, #f59e0b)' },
-      { id: 'c-profile', title: 'Моя анкета', icon: '📝', desc: 'Личные данные Заказчика, параметры объекта, бюджет и реквизиты', btnText: '📝 Заполнить', btnGradient: 'linear-gradient(90deg, #10b981, #059669)' },
-    ],
-
-    executor: [
-      { id: 'e-materials', title: 'Маркетплейс материалов', icon: '🧱', desc: 'Оптовый закуп стройматериалов со скидками до 20% для подрядчиков', btnText: '🧱 Закуп материалов', btnGradient: 'linear-gradient(90deg, #10b981, #8b5cf6)' },
-      { id: 'e-feed', title: 'Лента заказов', icon: '🌐', desc: 'Живой поток заказов со всего Казахстана без посредников и комиссий', btnText: '🌐 Смотреть заказы', btnGradient: 'linear-gradient(90deg, #b9a4ff, #7c3aed)' },
-      { id: 'e-works', title: 'Мои работы', icon: '📌', desc: 'Портфолио, текущие объекты и онлайн-сдача этапов заказчику', btnText: '📌 Мои объекты', btnGradient: 'linear-gradient(90deg, #ef4444, #f59e0b)' },
-      { id: 'e-estimate', title: 'Оценка стоимости', icon: '📸', desc: 'Смета по технологическим картам и рыночным ценам с источниками', btnText: '🚀 Сметный расчёт', btnGradient: 'linear-gradient(90deg, #b9a4ff, #7c3aed)' },
-      { id: 'e-inspect', title: 'Проверка дефектов', icon: '🔍', desc: 'Экспертная проверка состояния конструкций и дефектоскопия', btnText: '🔍 Проверить дефекты', btnGradient: 'linear-gradient(90deg, #f59e0b, #ef4444)' },
-      { id: 'e-soil', title: 'Фото-объёмы грунта', icon: '📐', desc: 'Геодезический 3D-расчёт выемки и насыпи грунта по фото ДО/ПОСЛЕ', btnText: '📸 Рассчитать объём', btnGradient: 'linear-gradient(90deg, #10b981, #a78bfa)' },
-      { id: 'e-engineering', title: 'Инженерные решения', icon: '⚙️', desc: 'Техническая спецификация работ и схемы разводки сетей', btnText: '⚡ Спецификация', btnGradient: 'linear-gradient(90deg, #b9a4ff, #ddd6fe)' },
-      { id: 'e-wallet', title: 'Оплата', icon: '💳', desc: 'Как исполнитель получает оплату по заказам', btnText: '💳 Открыть', btnGradient: 'linear-gradient(90deg, #7c3aed, #f59e0b)' },
-      { id: 'e-equipment', title: 'Маркетплейс техники', icon: '🚜', desc: 'Поиск спецтехники в аренду и оптовый закуп стройматериалов', btnText: '🚜 Найти технику', btnGradient: 'linear-gradient(90deg, #8b5cf6, #a78bfa)' },
-      { id: 'e-calendar', title: 'Календарь выездов', icon: '📅', desc: 'Расписание выездов на замеры и этапов монтажных работ', btnText: '📅 Расписание', btnGradient: 'linear-gradient(90deg, #ef4444, #10b981)' },
-      { id: 'e-catalog', title: 'Каталог специалистов', icon: '📒', desc: 'Рейтинг, отзывы и карточки мастеров в едином реестре РК', btnText: '📒 Реестр мастеров', btnGradient: 'linear-gradient(90deg, #f59e0b, #d97706)' },
-      { id: 'e-vip', title: 'Строительство зданий (VIP)', icon: '🏗️', desc: 'Участие в тендерах генподряда, ПСД и аккредитация I/II категории', btnText: '⭐ VIP Тендеры', btnGradient: 'linear-gradient(90deg, #6366f1, #7c3aed)' },
-      { id: 'e-profile', title: 'Анкета мастера', icon: '📝', desc: 'Профиль исполнителя, верификация ИИН/БИН, навыки и портфолио', btnText: '📝 Заполнить профиль', btnGradient: 'linear-gradient(90deg, #10b981, #059669)' },
-    ],
-
-    engineer: [
-      { id: 'ing-main', title: 'Главная панель', icon: '📊', desc: 'Сводный дашборд технического надзора, статусы проверок и графики', btnText: '📊 Открыть панель', btnGradient: 'linear-gradient(90deg, #7c3aed, #b9a4ff)' },
-      { id: 'ing-requests', title: 'Заявки на технадзор', icon: '📬', desc: 'Очередь вызовов инженеров на объекты для проведения инспекций', btnText: '📬 Список заявок', btnGradient: 'linear-gradient(90deg, #ef4444, #f59e0b)' },
-      { id: 'ing-objects', title: 'Мои объекты', icon: '🏗️', desc: 'Реестр строящихся объектов под авторским и техническим контролем', btnText: '🏗️ Мои объекты', btnGradient: 'linear-gradient(90deg, #f59e0b, #10b981)' },
-      { id: 'ing-ai', title: 'AI-просчёт по СНиП', icon: '🤖', desc: 'Автоматический анализ ПСД на соответствие ГОСТ и СНиП РК', btnText: '🤖 Запустить AI', btnGradient: 'linear-gradient(90deg, #7c3aed, #7c3aed)' },
-      { id: 'ing-calendar', title: 'Календарь инспекций', icon: '📅', desc: 'План выездных инспекций и график подписания актов КС-2 / КС-3', btnText: '📅 План инспекций', btnGradient: 'linear-gradient(90deg, #10b981, #059669)' },
-      { id: 'ing-expenses', title: 'Контроль расходов', icon: '💰', desc: 'Анализ отклонений от утвержденной сметы и контроль перерасходов', btnText: '💰 Аудит смет', btnGradient: 'linear-gradient(90deg, #a78bfa, #10b981)' },
-    ],
-
-    company: [
-      { id: 'comp-tree', title: 'Древо ролей и структуры', icon: '🌳', desc: 'Интерактивное семейное древо ролей, отделов, сотрудников и бригад ТОО', btnText: '🌳 Открыть древо', btnGradient: 'linear-gradient(90deg, #10b981, #a78bfa)' },
-      { id: 'comp-profile', title: 'Профиль компании', icon: '📝', desc: 'Управление БИН компании, лицензиями ГСЛ и банковскими реквизитами', btnText: '📝 Реквизиты ТОО', btnGradient: 'linear-gradient(90deg, #a78bfa, #7c3aed)' },
-      { id: 'comp-employees', title: 'Сотрудники и бригады', icon: '👥', desc: 'Реестр штатных инженеров, прорабов и привязанных рабочих бригад', btnText: '👥 Управление штатом', btnGradient: 'linear-gradient(90deg, #10b981, #a78bfa)' },
-      { id: 'comp-stats', title: 'Статистика компании', icon: '📈', desc: 'Сводные финансовые показатели, динамика сдачи объектов и KPI', btnText: '📈 Смотреть отчёты', btnGradient: 'linear-gradient(90deg, #7c3aed, #b9a4ff)' },
-    ],
-
-    manager: [
-      { id: 'mgr-crm', title: 'CRM-система', icon: '📊', desc: 'Воронка лидов, карточки клиентов, управление компаниями и бригадами', btnText: '📊 Открыть CRM', btnGradient: 'linear-gradient(90deg, #8b5cf6, #f59e0b)' },
-      { id: 'mgr-reports', title: 'Отчёты по продажам', icon: '📄', desc: 'Конверсия сделок, средний чек смет и аналитика эффективности', btnText: '📄 Сводка продаж', btnGradient: 'linear-gradient(90deg, #10b981, #059669)' },
-    ],
-
-    admin: [
-      { id: 'adm-tree', title: 'Иерархия ролей (Древо)', icon: '🌳', desc: 'Визуальное древо ролей всех строительных организаций и компаний платформы', btnText: '🌳 Древо ролей', btnGradient: 'linear-gradient(90deg, #10b981, #a78bfa)' },
-      { id: 'adm-prices', title: 'Прайсы ЭСН РК', icon: '💰', desc: 'База 23 864+ позиций строительных расценок по 17 областям Казахстана', btnText: '💰 Открыть прайсы', btnGradient: 'linear-gradient(90deg, #f59e0b, #ea580c)' },
-      { id: 'adm-moderation', title: 'Модерация заявок', icon: '🛡️', desc: 'Очередь верификации подрядчиков, проверка документов и заказов', btnText: '🛡️ Модерация', btnGradient: 'linear-gradient(90deg, #ef4444, #f59e0b)' },
-      { id: 'adm-regions', title: 'Региональные индексы', icon: '🗺️', desc: 'Коэффициенты удорожания стройматериалов по регионам РК', btnText: '🗺️ Индексы цен', btnGradient: 'linear-gradient(90deg, #7c3aed, #b9a4ff)' },
-      { id: 'adm-audit', title: 'Журнал действий', icon: '📜', desc: 'Полный аудит логов пользователей, изменений в сметах и AI-вызовов', btnText: '📜 Журнал логов', btnGradient: 'linear-gradient(90deg, #8b5cf6, #8b5cf6)' },
-      { id: 'adm-kpi', title: 'KPI Платформы', icon: '📊', desc: 'Метрики скорости расчётов, точности AI и загрузки серверов', btnText: '📊 Открыть KPI', btnGradient: 'linear-gradient(90deg, #10b981, #a78bfa)' },
-      { id: 'adm-disputes', title: 'Споры и арбитраж', icon: '⚖️', desc: 'Рассмотрение претензий по качеству работ и разблокировка эскроу', btnText: '⚖️ Разрешить спор', btnGradient: 'linear-gradient(90deg, #f59e0b, #ef4444)' },
-      { id: 'adm-contracts', title: 'Договоры подряда', icon: '📄', desc: 'Шаблоны договоров строительного подряда с поддержкой ЭЦП E-Gov', btnText: '📄 Реестр договоров', btnGradient: 'linear-gradient(90deg, #7c3aed, #10b981)' },
-      { id: 'adm-documents', title: 'Документы & Выгрузка Excel', icon: '📁', desc: 'Выгрузка актов КС-2/КС-3, счетов на оплату, ЭСФ и реестров договоров в Excel (.xlsx)', btnText: '📁 Открыть документы', btnGradient: 'linear-gradient(90deg, #10b981, #a78bfa)' },
-    ],
-
-    analyst: [
-      { id: 'an-queue', title: 'Очередь завершённых заявок', icon: '📋', desc: 'Заявки, закрытые исполнителями и переданные аналитику для финальной отчётности', btnText: '📋 Открыть очередь', btnGradient: 'linear-gradient(90deg, #8b5cf6, #6366f1)' },
-      { id: 'an-reports', title: 'PDF-отчёты и экспорт', icon: '📄', desc: 'Формирование итоговых отчётов с фотографиями, файлами и хронологией работ', btnText: '📄 Генератор отчётов', btnGradient: 'linear-gradient(90deg, #ef4444, #f59e0b)' },
-      { id: 'an-stats', title: 'Статистика проделанных работ', icon: '📊', desc: 'Сводная аналитика по объектам, бригадам, бюджетам и срокам выполнения', btnText: '📊 Смотреть статистику', btnGradient: 'linear-gradient(90deg, #10b981, #a78bfa)' },
-      { id: 'an-files', title: 'Архив документации', icon: '📎', desc: 'Договоры, акты КС-2/КС-3, заключения технадзора и гарантийные обязательства', btnText: '📎 Открыть архив', btnGradient: 'linear-gradient(90deg, #8b5cf6, #8b5cf6)' },
-    ]
-  };
+  const roles = ROLES;
+  const roleCardsData = ROLE_CARDS;
 
   // Determine effective user role
   const effectiveUserRole = currentUser?.role || userRole || 'customer';
@@ -239,24 +290,14 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
   const activeRoleObj = roles.find((r) => r.id === selectedRole) || visibleRoles.find(r => r.id === selectedRole) || visibleRoles[0] || roles[0];
   const activeCards = roleCardsData[selectedRole] || roleCardsData.customer;
 
-  const handleSelectRole = (roleKey) => {
-    setSelectedRole(roleKey);
-    if (roleKey === 'builder' || roleKey === 'vip') {
-      setEmbeddedModule('builder');
-      setSelectedItemId('b-objects');
-      setSelectedItemObject(roleCardsData.builder ? roleCardsData.builder[0] : null);
-    } else if (roleKey === 'manager' || roleKey === 'crm') {
-      setEmbeddedModule('crm');
-      setSelectedItemId('mgr-crm');
-      setSelectedItemObject(roleCardsData.manager ? roleCardsData.manager[0] : null);
-    } else if (roleKey === 'admin') {
-      setEmbeddedModule('admin_panel');
-      setSelectedItemId('adm-prices');
-      setSelectedItemObject(roleCardsData.admin ? roleCardsData.admin[0] : null);
-    } else if (roleKey === 'company') {
-      setEmbeddedModule('company');
-      setSelectedItemId('comp-profile');
-      setSelectedItemObject(roleCardsData.company ? roleCardsData.company[0] : null);
+  // Показать роль/инструмент (без смены адреса)
+  const applyRoute = (roleId, card) => {
+    setSelectedRole(roleId);
+    setIsMobileSidebarOpen(false);
+    if (card) {
+      setSelectedItemId(card.id);
+      setSelectedItemObject(card);
+      setEmbeddedModule(moduleFor(card.id));
     } else {
       setSelectedItemId(null);
       setSelectedItemObject(null);
@@ -264,54 +305,59 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
     }
   };
 
-  const handleSelectItem = (item) => {
-    setSelectedItemId(item.id);
-    setIsMobileSidebarOpen(false);
-    
-    // Check if it's builder module
-    if (item.id.startsWith('b-')) {
-      setEmbeddedModule('builder');
-      setSelectedItemObject(item);
-    }
-    // Check if it's admin section
-    else if (item.id.startsWith('adm-')) {
-      setEmbeddedModule('admin_panel');
-      setSelectedItemObject(item);
-    } 
-    // Check if it's company module
-    else if (item.id.startsWith('comp-')) {
-      setEmbeddedModule('company');
-      setSelectedItemObject(item);
-    }
-    // Check if it's engineer or calendar/works module
-    else if (
-      item.id.startsWith('ing-') || 
-      item.id === 'c-calendar' || 
-      item.id === 'e-calendar' ||
-      item.id === 'e-works'
-    ) {
-      setEmbeddedModule('engineer');
-      setSelectedItemObject(item);
-    } 
-    // Check if it's manager module
-    else if (item.id.startsWith('mgr-')) {
-      setEmbeddedModule('crm');
-      setSelectedItemObject(item);
-    }
-    // Otherwise it's a standard feature module
-    else {
-      setEmbeddedModule(null);
-      setSelectedItemObject(item);
-    }
+  // Адрес страницы: у «Застройщика» и «Аналитика» своего раздела нет — они живут под текущим кабинетом
+  const baseFor = (roleId) => {
+    if (ROUTABLE_ROLES.includes(roleId)) return roleId;
+    const cur = parseDashPath().base;
+    if (ROUTABLE_ROLES.includes(cur)) return cur;
+    return ROUTABLE_ROLES.includes(userRole) ? userRole : 'customer';
+  };
+  const urlFor = (roleId, card) => `/${baseFor(roleId)}${card ? `/${toolSlug(card.id)}` : ''}`;
+
+  // Перейти на страницу инструмента (или к списку инструментов роли) с записью в историю браузера
+  const navigate = (roleId, card, { replace = false } = {}) => {
+    applyRoute(roleId, card);
+    const url = urlFor(roleId, card);
+    if (window.location.pathname !== url) window.history[replace ? 'replaceState' : 'pushState']({}, '', url);
+    window.scrollTo(0, 0);
   };
 
-  const handleBackToCardMenu = () => {
-    setSelectedItemId(null);
-    setSelectedItemObject(null);
-    setEmbeddedModule(null);
-  };
+  // Адрес без инструмента у CRM/админки/компании → сразу адрес их основного раздела; неизвестный инструмент → адрес роли
+  useEffect(() => {
+    const url = urlFor(initialRoute.role, initialRoute.card);
+    if (initialRoute.canonical && window.location.pathname !== url) window.history.replaceState({}, '', url);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // «Назад/Вперёд» в браузере внутри кабинета
+  useEffect(() => {
+    const onPop = () => {
+      const { base, slug } = parseDashPath();
+      if (!ROUTABLE_ROLES.includes(base)) return; // ушли из кабинета — это решает App
+      const hit = findTool(base, slug);
+      applyRoute(hit ? hit.role : base, hit ? hit.card : null);
+    };
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, []);
+
+  const handleSelectRole = (roleKey) => navigate(roleKey, defaultCard(roleKey));
+  const handleSelectItem = (item) => navigate(selectedRole, item);
+  const handleBackToCardMenu = () => navigate(selectedRole, null);
 
   const isInnerToolActive = !!(embeddedModule || selectedItemObject || selectedItemId);
+
+  // Заголовок вкладки браузера — название страницы
+  useEffect(() => {
+    const prev = document.title;
+    return () => { document.title = prev; };
+  }, []);
+  useEffect(() => {
+    const roleObj = ROLES.find((r) => r.id === selectedRole);
+    document.title = selectedItemObject
+      ? `${selectedItemObject.title} — QazGost AI`
+      : `Кабинет${roleObj ? `: ${roleObj.shortLabel.toLowerCase()}` : ''} — QazGost AI`;
+  }, [selectedItemObject, selectedRole]);
 
   // Keyboard shortcut: Escape to return to card cockpit
   useEffect(() => {
@@ -322,29 +368,15 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isInnerToolActive]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isInnerToolActive, selectedRole]);
 
   const handlePrimaryRoleAction = () => {
-    if (selectedRole === 'engineer') {
-      setEmbeddedModule('engineer');
-      setSelectedItemId('ing-main');
-    } else if (selectedRole === 'executor') {
-      // раньше выставлялся только id без объекта карточки → пустой экран
-      const feed = (roleCardsData.executor || []).find(c => c.id === 'e-feed');
-      if (feed) handleSelectItem(feed);
-    } else if (selectedRole === 'manager' || selectedRole === 'crm') {
-      setEmbeddedModule('crm');
-      setSelectedItemId('mgr-crm');
-    } else if (selectedRole === 'company') {
-      setEmbeddedModule('company');
-      setSelectedItemId('comp-profile');
-    } else if (selectedRole === 'admin') {
-      setEmbeddedModule('admin_panel');
-      setSelectedItemId('adm-prices');
-    } else {
-      const card = activeCards.find(c => c.id === 'c-estimate') || activeCards[0];
-      if (card) handleSelectItem(card);
-    }
+    const primaryId = {
+      engineer: 'ing-main', executor: 'e-feed', manager: 'mgr-crm', crm: 'mgr-crm', company: 'comp-profile', admin: 'adm-prices',
+    }[selectedRole] || 'c-estimate';
+    const card = activeCards.find((c) => c.id === primaryId) || activeCards[0];
+    if (card) handleSelectItem(card);
   };
 
   return (
@@ -563,8 +595,8 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
                   itemData={selectedItemObject}
                   onBack={handleBackToCardMenu}
                   onOpenAdminTab={(tab) => {
-                    setEmbeddedModule('admin_panel');
-                    setSelectedItemId(`adm-${tab}`);
+                    const card = (ROLE_CARDS.admin || []).find((c) => c.id === `adm-${tab}`);
+                    if (card) navigate('admin', card);
                   }}
                 />
               )}
