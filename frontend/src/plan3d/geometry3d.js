@@ -6,6 +6,7 @@ import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js
 import { anchorPoints, joinExtension, wallJoins, wallLength } from './model.js';
 import { buildRooms } from './rooms.js';
 
+export const SCHEME = { wall: 0x7d6bff, wallEdge: 0xcfc6ff, slab: 0xf04fd6, slabEdge: 0xffb3f2, glass: 0x5fe0ff };
 export const COLORS = { wall: 0xe9e3d8, slab: 0x8f93b5, glass: 0x7fd4ff, edge: 0x2a2146, anchorA: 0xf8d27a, anchorB: 0x4fc3ff };
 
 function box(len, height, depth, cx, cy, cz, angle) {
@@ -97,16 +98,22 @@ function merged(list) {
  * @returns {THREE.Group} группа с детьми-этажами; userData.size — габариты, userData.center — центр в плане
  */
 export function buildBuilding(project, options = {}) {
-  const { edges = true, anchors = false } = options;
+  const { edges = true, anchors = false, scheme = false } = options;
   const wallHeight = Math.max(0.5, project.floorHeight - project.slab);
   const root = new THREE.Group();
   root.name = project.name || 'building';
 
-  const mats = {
+  // «Схема» — для наложения на камеру: полупрозрачные цветные объёмы с яркими рёбрами, чтобы читались на любом фоне
+  const mats = scheme ? {
+    wall: new THREE.MeshStandardMaterial({ color: SCHEME.wall, roughness: 0.7, metalness: 0, transparent: true, opacity: 0.5, depthWrite: false }),
+    slab: new THREE.MeshStandardMaterial({ color: SCHEME.slab, roughness: 0.7, metalness: 0, transparent: true, opacity: 0.42, depthWrite: false }),
+    glass: new THREE.MeshStandardMaterial({ color: SCHEME.glass, roughness: 0.2, metalness: 0, transparent: true, opacity: 0.5, depthWrite: false }),
+    edge: { wall: new THREE.LineBasicMaterial({ color: SCHEME.wallEdge }), slab: new THREE.LineBasicMaterial({ color: SCHEME.slabEdge }) },
+  } : {
     wall: new THREE.MeshStandardMaterial({ color: COLORS.wall, roughness: 0.92, metalness: 0 }),
     slab: new THREE.MeshStandardMaterial({ color: COLORS.slab, roughness: 0.85, metalness: 0 }),
     glass: new THREE.MeshStandardMaterial({ color: COLORS.glass, roughness: 0.15, metalness: 0, transparent: true, opacity: 0.45 }),
-    edge: new THREE.LineBasicMaterial({ color: COLORS.edge }),
+    edge: { wall: new THREE.LineBasicMaterial({ color: COLORS.edge }), slab: new THREE.LineBasicMaterial({ color: COLORS.edge }) },
   };
   const add = (group, geometry, kind) => {
     if (!geometry) return;
@@ -115,7 +122,7 @@ export function buildBuilding(project, options = {}) {
     mesh.userData.kind = kind;
     group.add(mesh);
     if (edges && kind !== 'glass') {
-      const lines = new THREE.LineSegments(new THREE.EdgesGeometry(geometry, 30), mats.edge);
+      const lines = new THREE.LineSegments(new THREE.EdgesGeometry(geometry, 30), mats.edge[kind]);
       lines.name = `${kind}-edges`;
       lines.userData.kind = kind;
       lines.userData.helper = true;

@@ -187,20 +187,30 @@ export function ModelsList({ items, loading, error, onOpen, onDelete, serverMode
 }
 
 // ── Камера: наложение модели на площадку ──────────────────────────────────────
-export function ArPanel({ support, anchors, onStart, onQuickLook, busy, hasWalls, error }) {
+export function ArPanel({ support, anchors, onOverlay, onStart, onQuickLook, busy, hasWalls, error }) {
   return (
     <section className="p3-panel p3-ar-panel" aria-labelledby="p3-ar-title">
       <h2 id="p3-ar-title" className="p3-h3">Навести камеру</h2>
-      {support === 'checking' && <p className="p3-muted" role="status">Проверяем, что умеет это устройство…</p>}
+      <p className="p3-muted">
+        Модель рисуется прямо поверх картинки с камеры, без фона: наведите телефон на участок и увидите будущее здание на месте.
+        Её можно подвинуть и повернуть пальцами, отключить слои и сделать снимок.
+      </p>
+      <div className="p3-actions">
+        <button type="button" className="p3-btn p3-btn--gold" onClick={onOverlay} disabled={busy || !hasWalls} data-testid="p3-cam-open"><Camera size={18} aria-hidden="true" />Навести камеру</button>
+      </div>
+      <p className="p3-note">Работает на любом телефоне с камерой. Телефон чувствует повороты, но не шаги: если отойти в сторону, модель нужно поправить пальцем.</p>
+
+      {support === 'checking' && <p className="p3-muted" role="status">Проверяем, умеет ли устройство точную привязку…</p>}
 
       {support === 'webxr' && (
         <>
-          <p className="p3-muted">Модель появится поверх картинки с камеры. Телефон должен видеть пол или землю: поводите им из стороны в сторону, пока не появится золотое кольцо.</p>
+          <h3 className="p3-h4">Точная привязка к площадке</h3>
+          <p className="p3-muted">Этот телефон умеет следить за своим положением: модель останется на месте, даже если её обойти. Поводите телефоном, пока на земле не появится золотое кольцо.</p>
           <div className="p3-ar-modes">
             <div className="p3-ar-mode">
               <p className="p3-export-title">Макет</p>
               <p className="p3-muted">Уменьшенная модель на столе или на полу. Удобно показать заказчику и обойти здание вокруг.</p>
-              <button type="button" className="p3-btn p3-btn--gold" onClick={() => onStart('table')} disabled={busy || !hasWalls}><Camera size={18} aria-hidden="true" />Показать макет</button>
+              <button type="button" className="p3-btn p3-btn--ghost" onClick={() => onStart('table')} disabled={busy || !hasWalls}><Camera size={18} aria-hidden="true" />Показать макет</button>
             </div>
             <div className="p3-ar-mode">
               <p className="p3-export-title">На площадке, 1:1</p>
@@ -208,25 +218,21 @@ export function ArPanel({ support, anchors, onStart, onQuickLook, busy, hasWalls
                 Модель в натуральную величину. Встаньте у угла A, отметьте его, затем отметьте угол B
                 {anchors ? ` — он в ${fmt(anchors.distance)} м от A` : ''}. Точки A и B показаны на плане.
               </p>
-              <button type="button" className="p3-btn p3-btn--gold" onClick={() => onStart('site')} disabled={busy || !hasWalls}><Camera size={18} aria-hidden="true" />Поставить на площадку</button>
+              <button type="button" className="p3-btn p3-btn--ghost" onClick={() => onStart('site')} disabled={busy || !hasWalls}><Camera size={18} aria-hidden="true" />Поставить на площадку</button>
             </div>
           </div>
-          <p className="p3-note">Телефон держит привязку по камере и датчикам: рядом с точкой A точность — сантиметры, в десятках метров от неё модель может уплыть. Для разбивки осей нужен геодезический прибор.</p>
+          <p className="p3-note">Рядом с точкой A точность — сантиметры, в десятках метров от неё модель может уплыть. Для разбивки осей нужен геодезический прибор.</p>
         </>
       )}
 
       {support === 'quicklook' && (
         <>
-          <p className="p3-muted">На iPhone и iPad модель открывается в «Быстром просмотре»: она встанет на пол в натуральную величину, её можно двигать, вращать и уменьшать пальцами. Привязки по точкам A и B в этом режиме нет.</p>
-          <button type="button" className="p3-btn p3-btn--gold" onClick={onQuickLook} disabled={busy || !hasWalls}><Smartphone size={18} aria-hidden="true" />Открыть в AR</button>
+          <h3 className="p3-h4">Обойти модель вокруг</h3>
+          <p className="p3-muted">На iPhone и iPad модель можно открыть в «Быстром просмотре»: она встанет на пол в натуральную величину и останется на месте, пока вы ходите вокруг.</p>
+          <div className="p3-actions">
+            <button type="button" className="p3-btn p3-btn--ghost" onClick={onQuickLook} disabled={busy || !hasWalls}><Smartphone size={18} aria-hidden="true" />Открыть в «Быстром просмотре»</button>
+          </div>
         </>
-      )}
-
-      {support === 'none' && (
-        <div className="p3-notice" role="status">
-          <Smartphone size={18} aria-hidden="true" />
-          <p>Этот браузер не умеет накладывать модель на камеру. Сохраните модель и откройте эту страницу на телефоне: в Chrome на Android с поддержкой ARCore или в Safari на iPhone.</p>
-        </div>
       )}
       {error && <p className="p3-alert" role="alert"><AlertTriangle size={18} aria-hidden="true" />{error}</p>}
     </section>

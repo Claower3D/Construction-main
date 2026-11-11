@@ -13,6 +13,7 @@ import { canUseServer, clearDraft, deleteModel, listModels, loadDraft, loadModel
 import './Plan3D.css';
 
 const Model3DView = lazy(() => import('./Model3DView'));
+const CameraOverlay = lazy(() => import('./CameraOverlay'));
 
 const TABS = [
   { id: 'plan', label: 'План' },
@@ -57,6 +58,7 @@ export default function Plan3DPage() {
   const [arSupportState, setArSupportState] = useState('checking');
   const [ar, setAr] = useState({ active: false, state: null, error: '' });
   const [pending, setPending] = useState(null); // действие, которое сотрёт несохранённую работу
+  const [camOpen, setCamOpen] = useState(false);
   const arController = useRef(null);
   const arRoot = useRef(null);
   const editorRef = useRef(null);
@@ -354,6 +356,16 @@ export default function Plan3DPage() {
   };
   useEffect(() => () => arController.current?.end(), []);
 
+  const openCamera = () => {
+    // iPhone спрашивает доступ к датчикам поворота только в ответ на нажатие — спрашиваем прямо здесь
+    try {
+      const D = window.DeviceOrientationEvent;
+      if (D && typeof D.requestPermission === 'function') D.requestPermission().catch(() => {});
+    } catch { /* датчиков нет — модель двигают пальцем */ }
+    setAr((a) => ({ ...a, error: '' }));
+    setCamOpen(true);
+  };
+
   const quickLook = async () => {
     setBusy('Готовим модель для iPhone…');
     try {
@@ -536,7 +548,7 @@ export default function Plan3DPage() {
 
             {tab === 'qty' && <QuantitiesPanel q={q} onExport={() => doExport('xlsx')} busy={Boolean(busy)} />}
 
-            {tab === 'ar' && <ArPanel support={arSupportState} anchors={anchors} onStart={startAr} onQuickLook={quickLook} busy={Boolean(busy)} hasWalls={hasWalls} error={ar.error} />}
+            {tab === 'ar' && <ArPanel support={arSupportState} anchors={anchors} onOverlay={openCamera} onStart={startAr} onQuickLook={quickLook} busy={Boolean(busy)} hasWalls={hasWalls} error={ar.error} />}
 
             {tab === 'out' && <ExportPanel floorName={floor.name} onExport={doExport} busy={Boolean(busy)} hasWalls={hasWalls} />}
           </div>
@@ -615,6 +627,11 @@ export default function Plan3DPage() {
       </div>
 
       <ArOverlay ref={arRoot} active={ar.active} state={ar.state} controller={arController.current} floors={project.floors.length} />
+      {camOpen && (
+        <Suspense fallback={null}>
+          <CameraOverlay project={project} name={project.name} onClose={() => setCamOpen(false)} />
+        </Suspense>
+      )}
     </div>
   );
 }

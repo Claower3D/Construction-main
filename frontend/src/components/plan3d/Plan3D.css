@@ -345,6 +345,45 @@
 .p3 .p3-ar-key[aria-pressed='true'] { background: var(--p3-gold); border-color: transparent; color: #1c1203; }
 .p3-ar-levels { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; }
 
+/* ── модель поверх камеры: видео фоном, прозрачный слой с моделью, управление по краям ── */
+.p3-cam { position: fixed; inset: 0; z-index: 9998; background: #000; color: #fff; font-family: var(--qg-font, 'Manrope', sans-serif); overflow: hidden; }
+.p3-cam-video, .p3-cam-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.p3-cam-video { object-fit: cover; }
+.p3-cam-canvas { display: block; touch-action: none; cursor: grab; background: transparent; }
+.p3-cam-top { position: absolute; inset: max(12px, env(safe-area-inset-top)) 12px auto; display: flex; align-items: flex-start; gap: 10px; pointer-events: none; }
+.p3-cam-top > * { pointer-events: auto; }
+.p3-cam-msg { flex: 1; min-width: 0; max-width: 560px; padding: 10px 14px; border-radius: 16px; background: rgba(14, 10, 32, 0.78); font-size: 0.875rem; line-height: 1.45; }
+.p3-cam-msg p { display: flex; gap: 8px; align-items: flex-start; }
+.p3-cam-msg svg { flex: none; margin-top: 2px; }
+.p3 .p3-cam-title { font-weight: 800; font-size: 0.9375rem; font-variant-numeric: tabular-nums; }
+.p3 .p3-cam-round { display: grid; place-items: center; flex: none; width: 48px; height: 48px; margin-left: auto; border: 0; border-radius: 50%; background: rgba(14, 10, 32, 0.78); color: #fff; cursor: pointer; }
+.p3-cam-bottom { position: absolute; inset: auto 12px max(14px, env(safe-area-inset-bottom)); display: flex; flex-direction: column; align-items: center; gap: 10px; pointer-events: none; }
+.p3-cam-bottom > * { pointer-events: auto; }
+.p3-cam-bar { display: flex; gap: 4px; padding: 6px; border-radius: 22px; background: rgba(14, 10, 32, 0.82); }
+.p3 .p3-cam-tool {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  min-width: 76px; min-height: 60px; padding: 8px 10px;
+  border: 0; border-radius: 16px; background: none; color: #fff;
+  font-size: 0.75rem; font-weight: 700; cursor: pointer; touch-action: manipulation;
+}
+.p3 .p3-cam-tool:hover { background: rgba(255, 255, 255, 0.12); }
+.p3 .p3-cam-tool[aria-pressed='true'] { background: var(--p3-gold); color: #1c1203; }
+.p3-cam-panel { display: flex; flex-direction: column; align-items: center; gap: 8px; max-width: 100%; padding: 10px; border-radius: 20px; background: rgba(14, 10, 32, 0.82); }
+.p3-cam-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px; }
+.p3 .p3-cam-key {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-width: 48px; min-height: 48px; padding: 8px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.28); border-radius: 14px;
+  background: rgba(255, 255, 255, 0.06); color: #fff;
+  font-weight: 700; font-size: 0.9375rem; cursor: pointer; touch-action: manipulation; user-select: none;
+}
+.p3 .p3-cam-key:disabled { opacity: 0.4; }
+.p3 .p3-cam-key[aria-pressed='true'] { background: var(--p3-gold); border-color: transparent; color: #1c1203; }
+.p3 .p3-cam-key--wide { width: 100%; font-size: 0.875rem; text-align: left; }
+.p3-cam-label { padding: 0 8px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.p3-cam-slider { display: flex; align-items: center; gap: 12px; width: 100%; padding: 4px 6px; font-size: 0.875rem; font-weight: 700; }
+.p3-cam-slider input { flex: 1; min-width: 120px; height: 32px; accent-color: #e5a03a; }
+
 /* ── узкие экраны ──────────────────────────────────────── */
 @media (max-width: 1100px) {
   .p3-body { grid-template-columns: minmax(0, 1fr); }
