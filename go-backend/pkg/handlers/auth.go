@@ -21,6 +21,10 @@ func NewAuthHandler(cfg *config.Config) *AuthHandler {
 	return &AuthHandler{cfg: cfg}
 }
 
+// loginFailures: не больше 10 неверных паролей на один email за 10 минут, с каких бы адресов
+// ни шли попытки. Лимит запросов с одного адреса стоит отдельно, на маршруте (main.go).
+var loginFailures = middleware.NewAttemptLimiter(10, 10*time.Minute)
+
 type LoginRequest struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
@@ -43,19 +47,35 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	email := strings.ToLower(strings.TrimSpace(req.Email))
+	if len(email) > 254 || len(req.Password) > 1024 {
+		w.WriteHeader(http.StatusBadRequest)
+		_ = json.NewEncoder(w).Encode(map[string]string{"error": "Неверный формат запроса"})
+		return
+	}
+
+	if blocked, wait := loginFailures.Blocked(email); blocked {
+		minutes := int(wait.Minutes()) + 1
+		w.Header().Set("Retry-After", fmt.Sprintf("%d", int(wait.Seconds())+1))
+		w.WriteHeader(http.StatusTooManyRequests)
+		_ = json.NewEncoder(w).Encode(map[string]string{"error": fmt.Sprintf("Слишком много неверных попыток входа. Попробуйте через %d мин.", minutes)})
+		return
+	}
 
 	user, err := database.GetUserByEmail(email)
 	if err != nil {
+		loginFailures.Fail(email)
 		w.WriteHeader(http.StatusUnauthorized)
 		_ = json.NewEncoder(w).Encode(map[string]string{"error": "Неверный email или пароль"})
 		return
 	}
 
 	if !middleware.CheckPassword(req.Password, user.PasswordHash) {
+		loginFailures.Fail(email)
 		w.WriteHeader(http.StatusUnauthorized)
 		_ = json.NewEncoder(w).Encode(map[string]string{"error": "Неверный email или пароль"})
 		return
 	}
+	loginFailures.Reset(email)
 
 	token, err := middleware.GenerateJWT(user.ID, user.Email, user.Role, h.cfg.JwtSecret)
 	if err != nil {
@@ -113,6 +133,18 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	}
 
 	email := strings.ToLower(strings.TrimSpace(req.Email))
+	// Мобильные приложения дописывают к логину «@qazgost.kz», поэтому проверка мягкая:
+	// нужен знак «@» с непустыми частями по обе стороны. Строгая проверка адреса — на форме сайта.
+	if at := strings.LastIndex(email, "@"); at <= 0 || at == len(email)-1 {
+		w.WriteHeader(http.StatusBadRequest)
+		_ = json.NewEncoder(w).Encode(map[string]string{"error": "Укажите email в формате name@example.kz"})
+		return
+	}
+	if len(req.Password) > 1024 {
+		w.WriteHeader(http.StatusBadRequest)
+		_ = json.NewEncoder(w).Encode(map[string]string{"error": "Слишком длинный пароль"})
+		return
+	}
 
 	if _, err := database.GetUserByEmail(email); err == nil {
 		w.WriteHeader(http.StatusConflict)

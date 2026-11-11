@@ -26,6 +26,20 @@ import { initI18n } from './i18n';
 // 3D-наклон карточек (utils/cardTilt.js) отключён: MutationObserver на весь документ
 // и «прыгающие» карточки мешали чтению и нагружали CPU.
 
+// После обновления сайта у открытой вкладки остаётся старый список файлов. Когда она пытается
+// догрузить раздел, которого на сервере уже нет, Vite сообщает событием vite:preloadError.
+// Один раз перезагружаем страницу — человек получает свежую версию вместо пустого экрана.
+// Отметка в sessionStorage не даёт перезагружаться по кругу, если файл недоступен по другой причине.
+window.addEventListener('vite:preloadError', (event) => {
+  const KEY = 'qazgost_chunk_reload_at';
+  let last = 0;
+  try { last = Number(sessionStorage.getItem(KEY)) || 0; } catch (e) { /* хранилище недоступно */ }
+  if (Date.now() - last < 60000) return; // уже перезагружались меньше минуты назад — пусть ошибку покажет страница
+  try { sessionStorage.setItem(KEY, String(Date.now())); } catch (e) { /* хранилище недоступно */ }
+  event.preventDefault();
+  window.location.reload();
+});
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <App />

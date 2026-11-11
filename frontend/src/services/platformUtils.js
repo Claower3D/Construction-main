@@ -16,6 +16,17 @@ export function getAuthToken() {
   }
 }
 
+/** Время истечения JWT (секунды Unix) или null, если токен не разобрать. Подпись здесь не проверяется. */
+export function jwtExpiry(token) {
+  try {
+    const body = String(token).split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+    const exp = JSON.parse(atob(body + '='.repeat((4 - (body.length % 4)) % 4))).exp;
+    return Number.isFinite(exp) ? exp : null;
+  } catch {
+    return null;
+  }
+}
+
 /** Заголовки для fetch к /api: Authorization добавляется только при наличии настоящего JWT. */
 export function authHeaders(extra = {}) {
   const headers = { ...extra };

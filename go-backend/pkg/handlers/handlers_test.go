@@ -423,8 +423,9 @@ func TestOrders_IDPatchAndOwnership(t *testing.T) {
 
 func TestChat_SenderFromToken(t *testing.T) {
 	h := NewChatHandler()
+	order := newTestOrder(t, "u_customer_1", "customer") // писать можно только в чат своего заказа
 	w := httptest.NewRecorder()
-	h.SendMessage(w, asUser(jsonReq("POST", "/api/v1/chat", map[string]string{"orderId": "101", "text": "hi", "senderId": "u_admin_1", "senderRole": "admin", "senderName": "Админ"}), "u_customer_1", "customer"))
+	h.SendMessage(w, asUser(jsonReq("POST", "/api/v1/chat", map[string]string{"orderId": fmt.Sprintf("%d", order.ID), "text": "hi", "senderId": "u_admin_1", "senderRole": "admin", "senderName": "Админ"}), "u_customer_1", "customer"))
 	var msg models.ChatMessage
 	_ = json.NewDecoder(w.Body).Decode(&msg)
 	if msg.SenderID != "u_customer_1" || msg.SenderRole != "customer" {

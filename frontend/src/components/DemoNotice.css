@@ -1,0 +1,31 @@
+/* Пометка «это пример»: спокойная золотая полоса над содержимым раздела */
+.qg-demo-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin: 0 0 1rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid rgba(242, 184, 75, 0.45);
+  border-radius: 12px;
+  background: rgba(242, 184, 75, 0.1);
+  color: #f3e7cf;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  text-align: left;
+}
+.qg-demo-notice p { margin: 0; }
+.qg-demo-notice strong { color: #ffe2a8; font-weight: 700; }
+.qg-demo-notice-tag {
+  flex: none;
+  margin-top: 0.1rem;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  background: #f2b84b;
+  color: #1a1206;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+@media (max-width: 640px) {
+  .qg-demo-notice { flex-direction: column; gap: 0.4rem; padding: 0.7rem 0.85rem; font-size: 0.8125rem; }
+}

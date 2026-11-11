@@ -10,6 +10,7 @@ export default function VoiceControlWidget() {
       target="_blank"
       rel="noopener noreferrer"
       className="voice-control-widget"
+      aria-label="Написать в WhatsApp: +7 771 698 3869"
       style={{
         position: 'fixed',
         bottom: '24px',

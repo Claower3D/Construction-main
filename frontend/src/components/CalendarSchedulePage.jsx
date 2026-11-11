@@ -22,7 +22,7 @@ export default function CalendarSchedulePage({ onBack, hideHeader = false, role 
       type: 'inspection',
       date: '2026-08-23',
       time: '10:00 - 12:30',
-      location: 'г. Астана, ЖК Highvill Park, блок С',
+      location: 'г. Астана, ЖК «Пример Парк», блок С',
       specialist: 'Куаныш Жумагулов (ГСЛ №0049182)',
       status: 'Подтверждено',
       badgeColor: '#b9a4ff'

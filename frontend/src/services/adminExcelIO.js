@@ -446,8 +446,8 @@ function exportSingleDocumentExcelImpl(doc) {
   const headerInfo = [
     { 'Реквизит': 'Наименование документа', 'Значение': `${doc.type || (isAct ? 'Акт выполненных работ КС-2' : 'Счет на оплату')} № ${doc.id || doc.code}` },
     { 'Реквизит': 'Дата документа', 'Значение': doc.date || new Date().toLocaleDateString() },
-    { 'Реквизит': 'Объект строительства', 'Значение': doc.objectName || doc.object || 'ЖК Nomad Palace' },
-    { 'Реквизит': 'Заказчик', 'Значение': doc.customer || doc.payer || 'ТОО «Prime Development KZ»' },
+    { 'Реквизит': 'Объект строительства', 'Значение': doc.objectName || doc.object || 'ЖК Пример Палас' },
+    { 'Реквизит': 'Заказчик', 'Значение': doc.customer || doc.payer || 'ТОО «Пример Застройщик»' },
     { 'Реквизит': 'Подрядчик / Исполнитель', 'Значение': doc.contractor || doc.receiver || 'ТОО «QAZGOST AI»' },
     { 'Реквизит': 'Сумма без НДС', 'Значение': `${(doc.amountNet || Math.round((doc.amount || 0) / 1.12)).toLocaleString()} ₸` },
     { 'Реквизит': 'НДС 12%', 'Значение': `${(doc.vat || Math.round((doc.amount || 0) - (doc.amount || 0) / 1.12)).toLocaleString()} ₸` },

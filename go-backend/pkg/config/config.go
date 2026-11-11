@@ -2,6 +2,9 @@ package config
 
 import (
 	"bufio"
+	"crypto/rand"
+	"crypto/sha256"
+	"encoding/hex"
 	"log"
 	"os"
 	"path/filepath"
@@ -39,6 +42,42 @@ func loadDotEnv() {
 	}
 }
 
+// weakJWTSecrets — заглушки из примеров настроек и ключ, который раньше был вшит в код.
+// Их знает любой, кто видел репозиторий: с таким ключом можно подписать токен администратора.
+var weakJWTSecrets = map[string]bool{
+	"qazgost-ai-secret-2026-production":         true,
+	"change-me-to-random-string":                true,
+	"change-me-in-production":                   true,
+	"your-super-secret-key-change-in-production": true,
+	"your-jwt-secret-here":                      true,
+}
+
+// minJWTSecretLen — ключ короче подбирается перебором по любому выданному токену.
+const minJWTSecretLen = 16
+
+// ResolveJWTSecret выбирает ключ подписи сессий и сообщает, откуда он взят:
+//   - "env" — JWT_SECRET из окружения (не заглушка и не короче 16 символов);
+//   - "database" — ключ выведен из DATABASE_URL: строка подключения секретна, одинакова на всех
+//     экземплярах сервера и не меняется между перезапусками, поэтому сессии переживают деплой;
+//   - "random" — нет ни ключа, ни базы (локальный запуск): случайный ключ на время работы процесса.
+//
+// Вшитого в код ключа больше нет ни в одной ветке.
+func ResolveJWTSecret(envSecret, dbURL string) (secret, source string) {
+	envSecret = strings.TrimSpace(envSecret)
+	if len(envSecret) >= minJWTSecretLen && !weakJWTSecrets[envSecret] {
+		return envSecret, "env"
+	}
+	if dbURL = strings.TrimSpace(dbURL); dbURL != "" {
+		sum := sha256.Sum256([]byte("qazgost-jwt-v1|" + dbURL))
+		return hex.EncodeToString(sum[:]), "database"
+	}
+	buf := make([]byte, 32)
+	if _, err := rand.Read(buf); err != nil {
+		log.Fatalf("[config] не удалось получить случайный ключ подписи сессий: %v", err)
+	}
+	return hex.EncodeToString(buf), "random"
+}
+
 type Config struct {
 	Port              string
 	Env               string
@@ -62,12 +101,12 @@ func LoadConfig() *Config {
 		env = "development"
 	}
 
-	secret := os.Getenv("JWT_SECRET")
-	if secret == "" {
-		if env == "production" {
-			log.Println("[⚠️ WARNING] JWT_SECRET не задан! В production-режиме рекомендуется установить переменную JWT_SECRET.")
-		}
-		secret = "qazgost-ai-secret-2026-production"
+	secret, secretSource := ResolveJWTSecret(os.Getenv("JWT_SECRET"), os.Getenv("DATABASE_URL"))
+	switch secretSource {
+	case "database":
+		log.Println("[config] JWT_SECRET не задан или небезопасен: ключ подписи сессий выведен из DATABASE_URL. Надёжнее задать свой JWT_SECRET (32+ случайных символа).")
+	case "random":
+		log.Println("[config] JWT_SECRET и DATABASE_URL не заданы: ключ подписи сессий случайный, сессии сбросятся при перезапуске.")
 	}
 
 	uploadDir := os.Getenv("UPLOAD_DIR")

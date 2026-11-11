@@ -924,7 +924,7 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
 
             <div className="wb-quick-select-wrap">
               <span>📍</span>
-              <select value={location} onChange={e => setLocation(e.target.value)}>
+              <select aria-label="Город" value={location} onChange={e => setLocation(e.target.value)}>
                 <option value="all">Все города</option>
                 {EQ_CITIES.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
@@ -932,7 +932,7 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
 
             <div className="wb-quick-select-wrap">
               <span>⏱️</span>
-              <select value={tariff} onChange={e => setTariff(e.target.value)}>
+              <select aria-label="Тариф" value={tariff} onChange={e => setTariff(e.target.value)}>
                 <option value="all">Все тарифы</option>
                 <option value="hourly">Почасовая</option>
                 <option value="shift">Посменная</option>
@@ -973,6 +973,7 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
               <div className="filter-group">
                 <label>📁 Категория</label>
                 <select 
+                  aria-label="Категория"
                   value={category} 
                   onChange={e => setCategory(e.target.value)} 
                   className="em-select"
@@ -1013,7 +1014,7 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
 
               <div className="filter-group">
                 <label>📍 Локация</label>
-                <select value={location} onChange={e => setLocation(e.target.value)} className="em-select">
+                <select aria-label="Локация" value={location} onChange={e => setLocation(e.target.value)} className="em-select">
                   <option value="all">Все города</option>
                   {EQ_CITIES.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
@@ -1023,7 +1024,7 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
                     <span>Радиус поиска</span>
                     <span>{radius} км</span>
                   </div>
-                  <input type="range" min="10" max="300" value={radius} onChange={e => setRadius(e.target.value)} className="em-slider" />
+                  <input type="range" aria-label="Радиус поиска, км" min="10" max="300" value={radius} onChange={e => setRadius(e.target.value)} className="em-slider" />
                 </div>
               </div>
 
@@ -1045,7 +1046,7 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
                     <span>до</span>
                     <span>{priceMax >= 100000 ? 'Без лимита' : `${priceMax.toLocaleString()} ₸`}</span>
                   </div>
-                  <input type="range" min="10000" max="100000" step="5000" value={priceMax} onChange={e => setPriceMax(Number(e.target.value))} className="em-slider" />
+                  <input type="range" aria-label="Максимальная цена за смену, ₸" min="10000" max="100000" step="5000" value={priceMax} onChange={e => setPriceMax(Number(e.target.value))} className="em-slider" />
                 </div>
               </div>
 
@@ -1363,6 +1364,7 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
             <div style={{ marginBottom: '16px' }}>
               <label style={{ display: 'block', fontSize: '0.8rem', color: '#a39cc2', marginBottom: '4px' }}>Способ оплаты:</label>
               <select 
+                aria-label="Способ оплаты"
                 value={bookingPaymentMethod} 
                 onChange={e => setBookingPaymentMethod(e.target.value)}
                 style={{ width: '100%', background: 'rgba(21,18,42,0.8)', border: '1px solid rgba(255,255,255,0.15)', color: '#fff', padding: '8px 12px', borderRadius: '8px' }}

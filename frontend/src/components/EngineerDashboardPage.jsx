@@ -1,3 +1,4 @@
+import DemoNotice from './DemoNotice';
 import React, { useState, useEffect } from 'react';
 import AnimatedBackground from './AnimatedBackground';
 import '../engineer-modal.css';
@@ -6,6 +7,9 @@ import SmartDealCreateModal from './SmartDealCreateModal';
 import TaskCalendar from './calendar/TaskCalendar';
 import { jsonAuthHeaders, getAuthToken, reportSyncError, responseError, parseMoney } from '../services/platformUtils';
 import { upsertCrmEvent } from '../services/orderSyncService';
+
+// Вкладки, наполненные образцами (локальное состояние, сервер не участвует)
+const DEMO_TABS = new Set(['overview', 'requests', 'objects', 'media', 'measures', 'estimates', 'teams', 'materials', 'reports', 'expenses', 'notifications']);
 
 export default function EngineerDashboardPage({ onBackToHome, initialTab = 'calendar', currentUser, viewRole = 'engineer', hideHeader = false, sidebarToggleNode }) {
   const isExecutor = (currentUser?.role === 'executor') || (viewRole === 'executor');
@@ -125,70 +129,10 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
       return allEvents;
     }
 
-    // Return a default set of mock data for ALL roles so the calendar isn't empty.
-    // Different roles might see different global views, but for demonstration, we show all active projects.
-    return {
-    3: [
-      {
-        id: 101,
-        type: 'active_project',
-        title: 'Реконструкция объекта №1',
-        icon: '🏭',
-        time: '09:00 - 18:00',
-        location: 'Алматы, Объект №1',
-        status: 'В работе',
-        contractor: 'ТОО «QazGost»',
-        deadline: 'Сегодня до 18:00',
-        stages: [
-          { id: 's1', title: '1. Демонтаж и устройство котлована', deadline: '01 Авг 2026', status: 'Завершено' },
-          { id: 's2', title: '2. Заливка монолитного фундамента', deadline: '05 Авг 2026', status: 'В работе' },
-          { id: 's3', title: '3. Монтаж несущих колонн и ригелей', deadline: '15 Авг 2026', status: 'Запланировано' },
-          { id: 's4', title: '4. Устройство мягкой кровли', deadline: '25 Авг 2026', status: 'Запланировано' }
-        ],
-        photos: [
-          { id: 'p1', name: 'Фундамент_арматура.jpg', tag: 'Замеры', time: '05 Авг 14:20', preview: '🧱' },
-          { id: 'p2', name: 'Бетонирование_плиты.jpg', tag: 'В процессе', time: '05 Авг 16:45', preview: '📸' }
-        ]
-      }
-    ],
-    5: [
-      {
-        id: 1,
-        type: 'object',
-        title: 'Инспекция монолита: ТОО «Алматы Сити»',
-        time: '10:00 - 12:00',
-        location: 'Алматы, ЖК "Алатау"',
-        status: 'В работе',
-        contractor: 'ТОО «Алматы Сити»',
-        deadline: 'Сегодня до 18:00',
-        stages: [
-          { id: 's1', title: '1. Армирование фундаментной плиты', deadline: '02 Авг 2026', status: 'Завершено' },
-          { id: 's2', title: '2. Заливка бетона М350 B25', deadline: '05 Авг 2026', status: 'В работе' },
-          { id: 's3', title: '3. Проверка прочности молотком Кашкарова', deadline: '07 Авг 2026', status: 'Запланировано' }
-        ],
-        photos: [
-          { id: 'p1', name: 'Монолит_арматура_Блок_А.jpg', tag: 'Скрытые работы', time: '04 Авг 11:30', preview: '🏗️' }
-        ]
-      },
-    ],
-    12: [
-      {
-        id: 3,
-        type: 'event',
-        title: 'Подписание Акта КС-2',
-        time: '11:00 - 12:30',
-        location: 'Астана, БЦ "Нурлы"',
-        status: 'Ожидает приёмки',
-        contractor: 'ТОО «QazGost»',
-        deadline: '12 Августа',
-        stages: [
-          { id: 's1', title: '1. Проверка объёмов КС-2', deadline: '10 Авг 2026', status: 'Завершено' },
-          { id: 's2', title: '2. Подписание акта ЭЦП', deadline: '12 Авг 2026', status: 'Ожидает приёмки' }
-        ],
-        photos: []
-      },
-    ],
-    };
+    // Раньше пустой календарь заполнялся тремя выдуманными событиями («Реконструкция объекта №1»,
+    // «Инспекция монолита: ТОО Алматы Сити», «Подписание Акта КС-2») — каждый месяц, у каждого
+    // пользователя. Новый календарь теперь честно пустой: события появляются из заказов и вручную.
+    return {};
   });
 
   useEffect(() => {
@@ -1541,6 +1485,13 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
 
         {/* MAIN WORKSPACE PANEL SWITCHER */}
         <main className="engineer-main-content" style={{ flex: 1 }}>
+          {/* Разделы с образцами: заявки, объекты, расходы и т.д. заполнены примерами и хранятся в браузере */}
+          {DEMO_TABS.has(activeTab) && (
+            <DemoNotice>
+              Заявки, объекты, бригады и суммы в этом разделе — образец, чтобы было видно, как он устроен.
+              Это не ваши данные. Записи, которые вы добавите сами, сохраняются только в этом браузере.
+            </DemoNotice>
+          )}
           {/* ======================================================= */}
           {/* 1. CALENDAR TAB (📅 Календарь)                          */}
           {/* ======================================================= */}

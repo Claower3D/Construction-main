@@ -87,6 +87,12 @@
   font-weight: 600;
   line-height: 1.4;
 }
+/* Пояснение без ошибки: «сессия истекла, войдите снова» */
+.rg-alert--info {
+  border-color: rgba(242, 184, 75, 0.5);
+  background: rgba(242, 184, 75, 0.12);
+  color: #ffe2a8;
+}
 
 /* Роль — два крупных переключателя */
 .rg-roles { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }

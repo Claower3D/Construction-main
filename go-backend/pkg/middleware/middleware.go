@@ -205,6 +205,64 @@ func RateLimit(limit int, window time.Duration, next http.HandlerFunc) http.Hand
 	}
 }
 
+// ── ЗАЩИТА ОТ ПОДБОРА ПАРОЛЯ ──
+
+// AttemptLimiter считает неудачные попытки по ключу (например, по email). Окно времени начинается
+// с первой неудачи; после `limit` неудач ключ блокируется до конца окна, успешный вход счётчик сбрасывает.
+type AttemptLimiter struct {
+	mu     sync.Mutex
+	limit  int
+	window time.Duration
+	hits   map[string]*rateWindow
+}
+
+func NewAttemptLimiter(limit int, window time.Duration) *AttemptLimiter {
+	return &AttemptLimiter{limit: limit, window: window, hits: map[string]*rateWindow{}}
+}
+
+// Blocked сообщает, исчерпаны ли попытки, и сколько ждать до следующей.
+func (a *AttemptLimiter) Blocked(key string) (bool, time.Duration) {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+	rw := a.hits[key]
+	if rw == nil {
+		return false, 0
+	}
+	left := a.window - time.Since(rw.start)
+	if left <= 0 {
+		delete(a.hits, key)
+		return false, 0
+	}
+	return rw.count >= a.limit, left
+}
+
+// Fail записывает неудачную попытку.
+func (a *AttemptLimiter) Fail(key string) {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+	now := time.Now()
+	if len(a.hits) > 10000 { // забытые окна не копятся
+		for k, v := range a.hits {
+			if now.Sub(v.start) > a.window {
+				delete(a.hits, k)
+			}
+		}
+	}
+	rw := a.hits[key]
+	if rw == nil || now.Sub(rw.start) > a.window {
+		rw = &rateWindow{start: now}
+		a.hits[key] = rw
+	}
+	rw.count++
+}
+
+// Reset снимает счётчик после успешного входа.
+func (a *AttemptLimiter) Reset(key string) {
+	a.mu.Lock()
+	delete(a.hits, key)
+	a.mu.Unlock()
+}
+
 // ── LOGGER MIDDLEWARE ──
 
 func LoggerMiddleware(next http.Handler) http.Handler {
@@ -329,7 +387,8 @@ func ValidateJWT(tokenStr, secret string) (*JWTClaims, error) {
 	mac := hmac.New(sha256.New, []byte(secret))
 	mac.Write([]byte(unsignedToken))
 	expectedSig := base64.RawURLEncoding.EncodeToString(mac.Sum(nil))
-	if parts[2] != expectedSig {
+	// Сравнение за постоянное время: по времени ответа нельзя подобрать подпись по символу
+	if !hmac.Equal([]byte(parts[2]), []byte(expectedSig)) {
 		return nil, fmt.Errorf("invalid signature")
 	}
 	payloadBytes, err := base64.RawURLEncoding.DecodeString(parts[1])

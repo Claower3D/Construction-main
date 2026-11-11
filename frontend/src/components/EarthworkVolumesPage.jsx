@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { noPrepaymentLabel } from '../services/walletEngine';
 import { createPlatformOrder } from '../services/orderSyncService';
+import { getAuthToken, getStoredCurrentUser } from '../services/platformUtils';
 
 export default function EarthworkVolumesPage({ onBack, hideHeader = false }) {
   // Input dimensions (meters)
@@ -12,11 +13,6 @@ export default function EarthworkVolumesPage({ onBack, hideHeader = false }) {
   const [distanceKm, setDistanceKm] = useState(18); // distance to disposal landfill (км)
   const [truckCapacityTons, setTruckCapacityTons] = useState(25); // 15 or 25 tons
   
-  // AI Photo Depth Scan
-  const [beforePhoto, setBeforePhoto] = useState(null);
-  const [afterPhoto, setAfterPhoto] = useState(null);
-  const [isAiScanning, setIsAiScanning] = useState(false);
-  const [aiElevationDifference, setAiElevationDifference] = useState(null);
   const [toastMessage, setToastMessage] = useState(null);
 
   // Soil parameters: density (t/m3), loosening factor (Кр), base excavation rate (₸/m3)
@@ -84,37 +80,29 @@ export default function EarthworkVolumesPage({ onBack, hideHeader = false }) {
     };
   }, [length, width, depth, slopeAngle, soilType, distanceKm, truckCapacityTons, currentSoil]);
 
-  // AI Depth Map Scanning Simulation
-  const handleRunAiPhotoDepthScan = () => {
-    setIsAiScanning(true);
-    setTimeout(() => {
-      setIsAiScanning(false);
-      const measuredElevation = (depth * (0.95 + Math.random() * 0.1)).toFixed(2);
-      setAiElevationDifference(measuredElevation);
-      setToastMessage(`✅ Нейросеть QazGost Vision определила среднюю глубину выемки: ${measuredElevation} м (точность 98.4%)`);
-      setTimeout(() => setToastMessage(null), 5000);
-    }, 1800);
-  };
+  // Здесь была кнопка «AI-анализ глубины»: через 1,8 с она показывала введённую пользователем
+  // глубину со случайным отклонением ±5% и подпись «точность 98.4%». Измерения по фото не было —
+  // блок убран. Глубину задаёт пользователь по проекту или замеру на месте.
 
   // Заявка на земляные работы. Онлайн-оплата не подключена — без аванса через платформу.
   const handleCreateEarthworkOrder = async () => {
     const title = `[🚜 ЗЕМЛЯНЫЕ РАБОТЫ] Разработка котлована ${calculations.geometricVolumeM3} м³ (${currentSoil.name})`;
     const cost = calculations.totalEstimatedCost;
+    // Имя и телефон — из профиля вошедшего (подставляет createPlatformOrder). Раньше в заявку
+    // вписывались вымышленные «+7 (701) 555-44-33» и «сектор А-3»: менеджер звонил в никуда.
+    const user = getStoredCurrentUser();
+    const city = (user?.city || '').trim() || (() => { try { return localStorage.getItem('app_region') || ''; } catch { return ''; } })() || 'Алматы';
 
     try {
-      // Create Order in Go Backend
-      await createPlatformOrder({
+      createPlatformOrder({
         title,
         amount: cost,
         paymentMethod: noPrepaymentLabel(),
         type: 'earthworks',
-        city: 'Алматы',
-        clientName: 'Подрядчик / Исполнитель',
-        clientPhone: '+7 (701) 555-44-33',
-        address: 'Строительный котлован, сектор А-3',
-        budget: `${cost.toLocaleString()} ₸`,
+        city,
+        budget: `${cost.toLocaleString('ru-RU')} ₸`,
         totalSum: cost,
-        description: `Выемка: ${calculations.geometricVolumeM3} м³, вывоз ${calculations.truckTripsCount} рейсов самосвалов (${truckCapacityTons}т). Грунт: ${currentSoil.name}`,
+        description: `Выемка: ${calculations.geometricVolumeM3} м³, вывоз ${calculations.truckTripsCount} рейсов самосвалов (${truckCapacityTons} т), плечо ${distanceKm} км. Грунт: ${currentSoil.name}. Котлован ${length} × ${width} × ${depth} м.`,
         stages: [
           { id: 'STG-1', name: 'Этап 1: Снятие растительного слоя и планировка', status: 'pending', progress: 0, percent: 15, budget: Math.round(cost * 0.15) },
           { id: 'STG-2', name: 'Этап 2: Механизированная выемка грунта экскаватором', status: 'pending', progress: 0, percent: 50, budget: Math.round(cost * 0.50) },
@@ -122,10 +110,13 @@ export default function EarthworkVolumesPage({ onBack, hideHeader = false }) {
         ]
       });
 
-      setToastMessage('🎉 Заявка на земляные работы отправлена диспетчеру. Предоплата не списывается — оплату согласуете с подрядчиком.');
-      setTimeout(() => setToastMessage(null), 5000);
-    } catch(e) {
-      alert('Заказ сохранен локально и передан диспетчеру!');
+      setToastMessage(getAuthToken()
+        ? 'Заявка на земляные работы отправлена менеджеру. Предоплата не списывается — оплату согласуете с подрядчиком.'
+        : 'Заявка сохранена только на этом устройстве. Войдите в аккаунт, чтобы отправить её менеджеру.');
+      setTimeout(() => setToastMessage(null), 6000);
+    } catch (e) {
+      setToastMessage('Не удалось создать заявку. Попробуйте ещё раз.');
+      setTimeout(() => setToastMessage(null), 6000);
     }
   };
 
@@ -189,6 +180,7 @@ export default function EarthworkVolumesPage({ onBack, hideHeader = false }) {
               </label>
               <input 
                 type="number" 
+                aria-label="Длина по дну, м"
                 value={length} 
                 onChange={e => setLength(Math.max(1, Number(e.target.value)))}
                 style={{ width: '100%', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '10px', padding: '0.65rem 0.8rem', color: '#fff', fontWeight: 700 }}
@@ -200,6 +192,7 @@ export default function EarthworkVolumesPage({ onBack, hideHeader = false }) {
               </label>
               <input 
                 type="number" 
+                aria-label="Ширина по дну, м"
                 value={width} 
                 onChange={e => setWidth(Math.max(1, Number(e.target.value)))}
                 style={{ width: '100%', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '10px', padding: '0.65rem 0.8rem', color: '#fff', fontWeight: 700 }}
@@ -215,6 +208,7 @@ export default function EarthworkVolumesPage({ onBack, hideHeader = false }) {
               <input 
                 type="number" 
                 step="0.1"
+                aria-label="Глубина котлована, м"
                 value={depth} 
                 onChange={e => setDepth(Math.max(0.5, Number(e.target.value)))}
                 style={{ width: '100%', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '10px', padding: '0.65rem 0.8rem', color: '#fff', fontWeight: 700 }}
@@ -225,6 +219,7 @@ export default function EarthworkVolumesPage({ onBack, hideHeader = false }) {
                 Крутизна откоса (СНиП):
               </label>
               <select 
+                aria-label="Крутизна откоса"
                 value={slopeAngle}
                 onChange={e => setSlopeAngle(e.target.value)}
                 style={{ width: '100%', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '10px', padding: '0.65rem 0.8rem', color: '#fff', fontWeight: 700 }}
@@ -277,6 +272,7 @@ export default function EarthworkVolumesPage({ onBack, hideHeader = false }) {
               </label>
               <input 
                 type="number" 
+                aria-label="Плечо вывоза, км"
                 value={distanceKm} 
                 onChange={e => setDistanceKm(Math.max(1, Number(e.target.value)))}
                 style={{ width: '100%', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '10px', padding: '0.65rem 0.8rem', color: '#fff', fontWeight: 700 }}
@@ -287,6 +283,7 @@ export default function EarthworkVolumesPage({ onBack, hideHeader = false }) {
                 Грузоподъемность самосвала:
               </label>
               <select 
+                aria-label="Грузоподъёмность самосвала"
                 value={truckCapacityTons}
                 onChange={e => setTruckCapacityTons(Number(e.target.value))}
                 style={{ width: '100%', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '10px', padding: '0.65rem 0.8rem', color: '#fff', fontWeight: 700 }}
@@ -297,38 +294,6 @@ export default function EarthworkVolumesPage({ onBack, hideHeader = false }) {
             </div>
           </div>
 
-          {/* AI Vision Scan Section */}
-          <div style={{ background: 'rgba(16, 185, 129, 0.08)', border: '1px dashed rgba(16, 185, 129, 0.4)', borderRadius: '14px', padding: '1rem', marginTop: '1rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-              <strong style={{ color: '#34d399', fontSize: '0.88rem' }}>📸 AI Фото-детекция рельефа ДО/ПОСЛЕ:</strong>
-              <span style={{ fontSize: '0.72rem', background: '#10b981', color: '#000', padding: '0.15rem 0.45rem', borderRadius: '6px', fontWeight: 900 }}>Vision 3D</span>
-            </div>
-            <p style={{ margin: '0 0 0.8rem 0', fontSize: '0.78rem', color: '#cbc5e3' }}>
-              Загрузите фото участка для автоматического расчёта перепада высот лазерной триангуляцией
-            </p>
-            <button
-              onClick={handleRunAiPhotoDepthScan}
-              disabled={isAiScanning}
-              style={{
-                width: '100%',
-                background: 'linear-gradient(90deg, #10b981, #059669)',
-                border: 'none',
-                color: '#fff',
-                padding: '0.7rem',
-                borderRadius: '10px',
-                fontWeight: 800,
-                fontSize: '0.85rem',
-                cursor: 'pointer'
-              }}
-            >
-              {isAiScanning ? '⏳ Лазерное сканирование фото...' : '🔍 Запустить AI-анализ глубины'}
-            </button>
-            {aiElevationDifference && (
-              <div style={{ marginTop: '0.6rem', fontSize: '0.82rem', color: '#34d399', fontWeight: 700 }}>
-                🎯 AI подтвердил глубину котлована: {aiElevationDifference} м
-              </div>
-            )}
-          </div>
         </div>
 
         {/* Right Column: 3D Visualization, Bill of Quantities & Order Action */}

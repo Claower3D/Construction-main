@@ -451,6 +451,18 @@
   .arm-label { padding: 6px 11px 6px 9px; font-size: 0.75rem; }
   .arm-teaser { right: 126px; bottom: 150px; max-width: 190px; }
 }
+/* ── Телефон, рабочие страницы (всё, кроме главной): фигура ассистента закрывала кнопку «В корзину»
+   в карточках, фильтры заказов и поля анкеты. Оставляем только плашку «AI Ассистент»;
+   на главной фигура остаётся — там нет рабочих кнопок у правого края. ── */
+@media (max-width: 640px) {
+  .app-root:not([data-view='landing']) .arm-guide,
+  .app-root:not([data-view='landing']) .arm-teaser { display: none; }
+  .app-root:not([data-view='landing']) .arm-stand:not(.is-open) { width: auto; right: 12px; }
+  .app-root:not([data-view='landing']) .arm-trigger { margin-top: 0; }
+  /* страница с нижней панелью действий (анкета): плавающие кнопки встают над панелью, а не на неё */
+  body:has(.pq-footer) .arm-stand:not(.is-open) { bottom: 176px; }
+  body:has(.pq-footer) .voice-control-widget { bottom: 112px !important; }
+}
 @media (prefers-reduced-motion: reduce) {
   .arm-guide, .arm-guide-body, .arm-g-ear, .arm-g-tablet, .arm-g-hand, .arm-ring-sweep, .arm-label::after, .arm-window, .arm-msg, .arm-teaser { animation: none !important; }
   .arm-stand { transition: none; }

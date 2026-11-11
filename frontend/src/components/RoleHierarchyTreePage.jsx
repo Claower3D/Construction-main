@@ -29,7 +29,7 @@ const COMPANIES_DB = [
       { id: 'q-cust', cat: 'cust', icon: '💎', title: 'Заказчики', sub: 'Инвесторы',
         head: 'Корпоративные клиенты', headRole: '', count: 15,
         children: [
-          { id: 'q-dev', icon: '🏛️', title: 'Девелопер', sub: 'ТОО/АО', head: 'Prime Development KZ', count: 850 },
+          { id: 'q-dev', icon: '🏛️', title: 'Девелопер', sub: 'ТОО/АО', head: 'Пример Застройщик', count: 850 },
           { id: 'q-priv', icon: '👤', title: 'Частные', sub: 'Физлица', head: 'Ахметов Марат +14', count: 14 },
         ]},
       { id: 'q-anal', cat: 'anal', icon: '📊', title: 'Аналитик', sub: 'Отчётность',
@@ -38,8 +38,8 @@ const COMPANIES_DB = [
     ],
   },
   {
-    id: 'bi_group', name: 'BI Group', fullName: 'ТОО «BI Group Engineering»',
-    bin: '190340011293', city: 'Астана', staff: 1200, objects: 45, color: '#f59e0b',
+    id: 'bi_group', name: 'Пример Инжиниринг', fullName: 'ТОО «Пример Инжиниринг»',
+    bin: '000000000002', city: 'Астана', staff: 1200, objects: 45, color: '#f59e0b',
     ceo: { name: 'Хамитов Айдын', role: 'CEO' },
     branches: [
       { id: 'bi-mgmt', cat: 'mgmt', icon: '💼', title: 'Управление', sub: 'Дирекция',
@@ -57,7 +57,7 @@ const COMPANIES_DB = [
         head: 'Кенесов Бекзат', headRole: 'Директор СМР', count: 850,
         children: [
           { id: 'bi-jk1', icon: '🏢', title: 'ЖК «Астана Хаб»', sub: '24 этажа', head: 'Прораб Сатов', count: 120 },
-          { id: 'bi-jk2', icon: '🏢', title: 'ЖК «Green City»', sub: '18 этажей', head: 'Прораб Жунусов', count: 95 },
+          { id: 'bi-jk2', icon: '🏢', title: 'ЖК «Пример Сити»', sub: '18 этажей', head: 'Прораб Жунусов', count: 95 },
           { id: 'bi-infra', icon: '🛣️', title: 'Инфраструктура', sub: 'Дороги/мосты', head: 'Бекмуратов К.', count: 200 },
         ]},
       { id: 'bi-cust', cat: 'cust', icon: '💎', title: 'Заказчики', sub: 'Инвесторы',
@@ -66,8 +66,8 @@ const COMPANIES_DB = [
     ],
   },
   {
-    id: 'bazis', name: 'Базис-А', fullName: 'ТОО «Базис-А МонолитСтрой»',
-    bin: '150840003412', city: 'Алматы', staff: 85, objects: 8, color: '#10b981',
+    id: 'bazis', name: 'Пример МонолитСтрой', fullName: 'ТОО «Пример МонолитСтрой»',
+    bin: '000000000003', city: 'Алматы', staff: 85, objects: 8, color: '#10b981',
     ceo: { name: 'Касымбеков Ерболат', role: 'Директор' },
     branches: [
       { id: 'bz-mgmt', cat: 'mgmt', icon: '💼', title: 'Управление', sub: 'Дирекция',
@@ -88,8 +88,8 @@ const COMPANIES_DB = [
     ],
   },
   {
-    id: 'prime_dev', name: 'Prime Development', fullName: 'ТОО «Prime Development KZ»',
-    bin: '180240009871', city: 'Алматы', staff: 35, objects: 3, color: '#8b5cf6',
+    id: 'prime_dev', name: 'Пример Застройщик', fullName: 'ТОО «Пример Застройщик»',
+    bin: '000000000001', city: 'Алматы', staff: 35, objects: 3, color: '#8b5cf6',
     ceo: { name: 'Тулеубаев Арман', role: 'Управляющий директор' },
     branches: [
       { id: 'pd-inv', cat: 'cust', icon: '💰', title: 'Инвестиции', sub: 'Финансирование',
@@ -100,8 +100,8 @@ const COMPANIES_DB = [
       { id: 'pd-dev', cat: 'mgmt', icon: '🏢', title: 'Девелопмент', sub: 'Объекты',
         head: 'Кусаинов Т.', headRole: 'Руководитель', count: 15,
         children: [
-          { id: 'pd-jk1', icon: '🏙️', title: 'ЖК «Nomad Palace»', sub: '12 000 м²', head: 'Менеджер Асет', count: 1 },
-          { id: 'pd-jk2', icon: '🏙️', title: 'ЖК «Green Hills»', sub: '8 500 м²', head: 'Менеджер Алия', count: 1 },
+          { id: 'pd-jk1', icon: '🏙️', title: 'ЖК «Пример Палас»', sub: '12 000 м²', head: 'Менеджер Асет', count: 1 },
+          { id: 'pd-jk2', icon: '🏙️', title: 'ЖК «Пример Хиллс»', sub: '8 500 м²', head: 'Менеджер Алия', count: 1 },
         ]},
     ],
   },

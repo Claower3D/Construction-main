@@ -69,8 +69,10 @@ func main() {
 	mux.HandleFunc("/health", healthHnd.HealthCheck)
 	mux.HandleFunc("/api", healthHnd.ApiStatus)
 	mux.HandleFunc("/api/csrf-token", healthHnd.GetCsrfToken)
-	mux.HandleFunc("/api/v1/auth/login", authHnd.Login)
-	mux.HandleFunc("/api/v1/auth/register", authHnd.Register)
+	// Вход и регистрация — с ограничением по адресу клиента: защита от перебора паролей и
+	// массовых регистраций. Счётчик неверных паролей по email стоит в самом обработчике входа.
+	mux.HandleFunc("/api/v1/auth/login", middleware.RateLimit(envInt("LOGIN_RATE_LIMIT", 30), time.Minute, authHnd.Login))
+	mux.HandleFunc("/api/v1/auth/register", middleware.RateLimit(envInt("REGISTER_RATE_LIMIT", 15), time.Minute, authHnd.Register))
 	mux.HandleFunc("/api/v1/auth/me", authHnd.GetMe) // self-validates token internally
 
 	// Prices catalog — public read access
@@ -162,10 +164,11 @@ func main() {
 	mux.HandleFunc("/api/v1/lidar/", aiLimit(aiHnd.ProxyToAIService))
 	mux.HandleFunc("/api/v1/defect-scan", aiLimit(aiHnd.ProxyToAIService))
 	mux.HandleFunc("/api/v1/analyze", aiLimit(aiHnd.ProxyToAIService))
-	mux.HandleFunc("/api/v1/prices/", aiHnd.ProxyToAIService)
+	mux.HandleFunc("/api/v1/prices/", middleware.RateLimit(120, time.Minute, aiHnd.ProxyToAIService))
 
-	// Speech Recognition — public (for CRM voice input)
-	mux.HandleFunc("/api/v1/speech/recognize", speechHnd.Recognize)
+	// Speech Recognition — public (for CRM voice input). Лимит по адресу: без него сервер был
+	// открытым бесплатным распознаванием речи для кого угодно.
+	mux.HandleFunc("/api/v1/speech/recognize", middleware.RateLimit(60, time.Minute, speechHnd.Recognize))
 
 	// Export — auth required
 	mux.HandleFunc("/api/v1/export/estimate.csv", auth(exportHnd.ExportEstimateCSV))
@@ -269,22 +272,10 @@ func main() {
 	_ = os.MkdirAll(cfg.UploadDir, 0755)
 	mux.Handle("/uploads/", handlers.UploadsServer(cfg.UploadDir))
 
-	// Frontend SPA Fallback (if built dist exists)
+	// Собранный сайт: кэш по типу файла, 404 для пропавших файлов сборки, без списков папок
 	frontendDist, _ := filepath.Abs("./frontend/dist")
 	if _, err := os.Stat(frontendDist); err == nil {
-		spaHandler := http.FileServer(http.Dir(frontendDist))
-		mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-			if strings.HasPrefix(r.URL.Path, "/api") || strings.HasPrefix(r.URL.Path, "/health") || strings.HasPrefix(r.URL.Path, "/uploads") {
-				http.NotFound(w, r)
-				return
-			}
-			path := filepath.Join(frontendDist, r.URL.Path)
-			if _, err := os.Stat(path); os.IsNotExist(err) {
-				http.ServeFile(w, r, filepath.Join(frontendDist, "index.html"))
-				return
-			}
-			spaHandler.ServeHTTP(w, r)
-		})
+		mux.HandleFunc("/", handlers.SPAHandler(frontendDist))
 	}
 
 	// Chain Middleware: Recovery -> Logger -> Security headers -> Body limit -> CORS (allowlist) -> DB guard
@@ -314,8 +305,16 @@ func main() {
 `
 	fmt.Printf(banner, cfg.Port, cfg.Port, cfg.Port, cfg.Port)
 
-	addr := fmt.Sprintf(":%s", cfg.Port)
-	if err := http.ListenAndServe(addr, handler); err != nil {
+	// Таймауты на чтение заголовков и простой соединения: без них медленные «зависшие»
+	// подключения копятся бесконечно. Таймаута на ответ нет намеренно — чат отдаётся потоком,
+	// а разбор фото в AI-сервисе идёт до двух минут.
+	srv := &http.Server{
+		Addr:              fmt.Sprintf(":%s", cfg.Port),
+		Handler:           handler,
+		ReadHeaderTimeout: 15 * time.Second,
+		IdleTimeout:       120 * time.Second,
+	}
+	if err := srv.ListenAndServe(); err != nil {
 		log.Fatalf("Server failed to start: %v", err)
 	}
 }

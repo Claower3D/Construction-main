@@ -1,3 +1,4 @@
+import DemoNotice from './DemoNotice';
 import React, { useState, useEffect, useRef } from 'react';
 import './BuildingConstructionPage.css';
 import Building3DViewer from './Building3DViewerLazy';
@@ -7,7 +8,7 @@ import { createPlatformOrder } from '../services/orderSyncService';
 const INITIAL_VIP_OBJECTS = [
   {
     id: 'OBJ-101',
-    title: 'ЖК «Nomad Palace» - Блок А и Б',
+    title: 'ЖК «Пример Палас» - Блок А и Б',
     type: 'Жилой комплекс',
     typeIcon: '🏢',
     city: 'Астана',
@@ -175,8 +176,8 @@ const WBS_WORKS_CATALOG = [
 // Accredited Construction Companies Registry (GASK Licenses)
 const ACCREDITED_CONTRACTORS = [
   {
-    bin: '190340011293',
-    name: 'ТОО «BI Group Engineering»',
+    bin: '000000000002',
+    name: 'ТОО «Пример Инжиниринг»',
     license: 'I Категория (ГАСК №001928)',
     rating: 5.0,
     completedProjects: 48,
@@ -185,11 +186,11 @@ const ACCREDITED_CONTRACTORS = [
     specialization: 'Многоэтажные ЖК, Инфраструктура, Монолит',
     verified: true,
     contact: '+7 7172 58-00-58',
-    email: 'tenders@bi.group'
+    email: 'tender1@example.kz'
   },
   {
-    bin: '150840003412',
-    name: 'ТОО «Базис-А МонолитСтрой»',
+    bin: '000000000003',
+    name: 'ТОО «Пример МонолитСтрой»',
     license: 'I Категория (ГАСК №003411)',
     rating: 4.9,
     completedProjects: 42,
@@ -198,11 +199,11 @@ const ACCREDITED_CONTRACTORS = [
     specialization: 'Бизнес-центры A-класса, Премиум ЖК, Фасады',
     verified: true,
     contact: '+7 727 277-77-77',
-    email: 'tender@bazis.kz'
+    email: 'tender2@example.kz'
   },
   {
-    bin: '210440012935',
-    name: 'ТОО «Highvill Kazakhstan»',
+    bin: '000000000007',
+    name: 'ТОО «Пример Девелопмент»',
     license: 'I Категория (ГАСК №005819)',
     rating: 4.9,
     completedProjects: 24,
@@ -211,11 +212,11 @@ const ACCREDITED_CONTRACTORS = [
     specialization: 'Умные дома, Высотное строительство, Инженерия',
     verified: true,
     contact: '+7 7172 79-79-79',
-    email: 'contract@highvill.kz'
+    email: 'tender3@example.kz'
   },
   {
-    bin: '180240009871',
-    name: 'ТОО «Prime Development KZ»',
+    bin: '000000000001',
+    name: 'ТОО «Пример Застройщик»',
     license: 'II Категория (ГАСК №011920)',
     rating: 4.8,
     completedProjects: 18,
@@ -456,6 +457,10 @@ export default function BuildingConstructionPage({ onBack, hideHeader = false })
   return (
     <div className="vip-construction-module">
       {toastMessage && <div className="vip-toast">{toastMessage}</div>}
+      <DemoNotice>
+        Объекты, бюджеты, подрядчики, лоты и документы в этом разделе — образец, чтобы было видно, как он устроен.
+        Это не ваши данные и не реальные компании. Объекты, которые вы добавите сами, хранятся только в этом браузере.
+      </DemoNotice>
 
       {/* ── 1. MODULE HEADER & FLOW STATUS BAR ── */}
       {!hideHeader && (
@@ -751,7 +756,7 @@ export default function BuildingConstructionPage({ onBack, hideHeader = false })
                 <input
                   type="text"
                   className="vip-input"
-                  placeholder="Например: ЖК «Панорама Towers» (Блок C) или Бизнес-центр"
+                  placeholder="Например: ЖК «Пример Тауэрс» (Блок C) или Бизнес-центр"
                   value={newObj.title}
                   onChange={(e) => setNewObj({ ...newObj, title: e.target.value })}
                   required

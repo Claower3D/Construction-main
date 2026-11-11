@@ -1,3 +1,4 @@
+import DemoNotice from './DemoNotice';
 import React, { useState, useEffect } from 'react';
 import { getAuditLogs, logAuditAction, exportAuditLogTxt } from '../services/adminAuditStore';
 import { exportPricesToExcel, exportAll3SheetsExcel, parseExcelOrCsvFile, exportActsToExcel, exportInvoicesToExcel, exportContractsToExcel, exportSingleDocumentExcel, exportAllDocumentsPackageExcel } from '../services/adminExcelIO';
@@ -11,9 +12,9 @@ const INITIAL_DOCUMENTS_LIST = [
     code: 'АКТ-КС2-2026/088',
     type: 'Акт КС-2',
     category: 'acts',
-    objectName: 'ЖК «Nomad Palace» (Блок А)',
-    customer: 'ТОО «Prime Development KZ»',
-    customerBin: '180240009871',
+    objectName: 'ЖК «Пример Палас» (Блок А)',
+    customer: 'ТОО «Пример Застройщик»',
+    customerBin: '000000000001',
     contractor: 'ТОО «QAZGOST AI»',
     contractorBin: '240140029182',
     date: '18.08.2026',
@@ -35,11 +36,11 @@ const INITIAL_DOCUMENTS_LIST = [
     code: 'АКТ-КС2-2026/089',
     type: 'Акт КС-2',
     category: 'acts',
-    objectName: 'ЖК «Green City» (Корпус 2)',
-    customer: 'ТОО «BI Group Engineering»',
-    customerBin: '190340011293',
-    contractor: 'ТОО «Базис-А МонолитСтрой»',
-    contractorBin: '150840003412',
+    objectName: 'ЖК «Пример Сити» (Корпус 2)',
+    customer: 'ТОО «Пример Инжиниринг»',
+    customerBin: '000000000002',
+    contractor: 'ТОО «Пример МонолитСтрой»',
+    contractorBin: '000000000003',
     date: '19.08.2026',
     period: 'Август 2026',
     amount: 8940000,
@@ -59,8 +60,8 @@ const INITIAL_DOCUMENTS_LIST = [
     type: 'Акт КС-3',
     category: 'acts',
     objectName: 'Бизнес-центр «QazTech Hub»',
-    customer: 'АО «Самрук-Казына Констракшн»',
-    customerBin: '090140005521',
+    customer: 'АО «Пример Констракшн»',
+    customerBin: '000000000004',
     contractor: 'ТОО «QAZGOST AI»',
     contractorBin: '240140029182',
     date: '20.08.2026',
@@ -79,9 +80,9 @@ const INITIAL_DOCUMENTS_LIST = [
     code: 'СЧЕТ-KZ-2026/1049',
     type: 'Счет на оплату',
     category: 'invoices',
-    objectName: 'ЖК «Nomad Palace»',
-    payer: 'ТОО «Prime Development KZ»',
-    payerBin: '180240009871',
+    objectName: 'ЖК «Пример Палас»',
+    payer: 'ТОО «Пример Застройщик»',
+    payerBin: '000000000001',
     receiver: 'ТОО «QAZGOST AI»',
     receiverBin: '240140029182',
     date: '15.08.2026',
@@ -101,9 +102,9 @@ const INITIAL_DOCUMENTS_LIST = [
     category: 'invoices',
     objectName: 'Коттеджный городок «Garden Hills»',
     payer: 'Ахметов Марат Сабитович (ФЛ)',
-    payerBin: '840512301948',
+    payerBin: '000000000005',
     receiver: 'ИП «Садыков Строй»',
-    receiverBin: '910304400192',
+    receiverBin: '000000000006',
     date: '19.08.2026',
     dueDate: '22.08.2026',
     purpose: 'Авансовый платеж за кровельные работы и металлочерепицу',
@@ -120,8 +121,8 @@ const INITIAL_DOCUMENTS_LIST = [
     type: 'ЭСФ (Счет-фактура)',
     category: 'invoices',
     objectName: 'ЖК «Астана Хаб» (СМР)',
-    payer: 'ТОО «BI Group Engineering»',
-    payerBin: '190340011293',
+    payer: 'ТОО «Пример Инжиниринг»',
+    payerBin: '000000000002',
     receiver: 'ТОО «QAZGOST AI»',
     receiverBin: '240140029182',
     date: '12.08.2026',
@@ -139,9 +140,9 @@ const INITIAL_DOCUMENTS_LIST = [
     code: 'ДОГ-QG-2026/412',
     type: 'Договор генподряда',
     category: 'contracts',
-    objectName: 'ЖК «Nomad Palace»',
+    objectName: 'ЖК «Пример Палас»',
     subject: 'Генеральный строительный подряд и технический надзор',
-    customer: 'ТОО «Prime Development KZ»',
+    customer: 'ТОО «Пример Застройщик»',
     contractor: 'ТОО «QAZGOST AI»',
     startDate: '01.03.2026',
     endDate: '30.11.2026',
@@ -156,10 +157,10 @@ const INITIAL_DOCUMENTS_LIST = [
     code: 'ДОГ-QG-2026/413',
     type: 'Договор подряда',
     category: 'contracts',
-    objectName: 'ЖК «Green City»',
+    objectName: 'ЖК «Пример Сити»',
     subject: 'Монтаж внутренних инженерных сетей (ОВ, ВК, ЭОМ)',
-    customer: 'ТОО «BI Group Engineering»',
-    contractor: 'ТОО «Базис-А МонолитСтрой»',
+    customer: 'ТОО «Пример Инжиниринг»',
+    contractor: 'ТОО «Пример МонолитСтрой»',
     startDate: '15.05.2026',
     endDate: '15.10.2026',
     amount: 64200000,
@@ -560,7 +561,7 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
       category: 'orders',
       title: 'Капитальный ремонт офиса 450 м²',
       author: 'ТОО «Алматы Бизнес»',
-      bin: '210440012935',
+      bin: '000000000007',
       city: 'Алматы',
       date: '12 мин назад',
       status: 'pending',
@@ -585,7 +586,7 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
       category: 'verification',
       title: 'Верификация подрядчика ИП «СтройМастер»',
       author: 'ИП «СтройМастер» (Бекжанов К.М.)',
-      bin: '880412300451',
+      bin: '000000000008',
       city: 'Астана',
       date: '25 мин назад',
       status: 'pending',
@@ -594,7 +595,7 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
       riskLevel: 'low',
       docCount: 'Свид. ИП + Лицензия III',
       details: {
-        bin: '880412300451',
+        bin: '000000000008',
         docType: 'Свидетельство ИП + Гос. лицензия III категории',
         city: 'Астана',
         regDate: '12.04.2018',
@@ -609,7 +610,7 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
       category: 'complaints',
       title: 'Претензия: трещины на монолитном перекрытии',
       author: 'Заказчик: Касымов А.Б.',
-      bin: '910315450290',
+      bin: '000000000009',
       city: 'Караганда',
       date: '1 ч назад',
       status: 'pending',
@@ -653,8 +654,8 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
       type: 'Заказ',
       category: 'orders',
       title: 'Свайное поле 24 буронабивные сваи Ø600мм',
-      author: 'ТОО «Orda Group Development»',
-      bin: '190540028710',
+      author: 'ТОО «Пример Групп»',
+      bin: '000000000010',
       city: 'Шымкент',
       date: '3 ч назад',
       status: 'pending',
@@ -678,7 +679,7 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
       category: 'verification',
       title: 'Верификация генподрядчика ТОО «Astana Build»',
       author: 'ТОО «Astana Build» (Рахимов Д.А.)',
-      bin: '220140039280',
+      bin: '000000000011',
       city: 'Астана',
       date: '4 ч назад',
       status: 'pending',
@@ -687,7 +688,7 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
       riskLevel: 'low',
       docCount: 'Устав + Лицензия II + Аудит',
       details: {
-        bin: '220140039280',
+        bin: '000000000011',
         docType: 'Лицензия II категории (СМР)',
         city: 'Астана',
         regDate: '20.01.2022',
@@ -702,7 +703,7 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
       category: 'complaints',
       title: 'Нарушение сроков поставки кабельной продукции',
       author: 'ТОО «ТемирСтрой Монтаж»',
-      bin: '180340052170',
+      bin: '000000000012',
       city: 'Актау',
       date: '5 ч назад',
       status: 'pending',
@@ -725,7 +726,7 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
       category: 'orders',
       title: 'Монтаж керамогранитного фасада 2 200 м²',
       author: 'ИП «Назарбеков и К»',
-      bin: '850920300156',
+      bin: '000000000013',
       city: 'Алматы',
       date: '6 ч назад',
       status: 'pending',
@@ -1128,7 +1129,7 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
 
           <div className="admin-header-actions">
             <span className={`admin-live-badge ${backendStatus === 'online' ? 'status-online' : 'status-offline'}`}>
-              {backendStatus === 'online' ? '● AI BACKEND ONLINE' : backendStatus === 'offline' ? '⚠️ BACKEND OFFLINE' : '⏳ CHECKING BACKEND...'}
+              {backendStatus === 'online' ? '● База цен на связи' : backendStatus === 'offline' ? '⚠️ База цен недоступна' : '⏳ Проверяем связь…'}
             </span>
             {!inline && (
               <button className="admin-close-btn" onClick={onClose}>
@@ -1173,6 +1174,12 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
 
         {/* Modal Body Content */}
         <div className="admin-body">
+          {/* Панель — макет: её данные живут в этой вкладке браузера, сервер их не знает */}
+          <DemoNotice title="Панель администратора пока макет">
+            Сводка, очередь модерации, пользователи, документы и «живые» счётчики на этих вкладках — образцы.
+            Они не загружаются с сервера, а правки цен, пользователей и документов на сервер не сохраняются.
+            Настоящие аккаунты, заказы и база расценок хранятся в базе данных сервера.
+          </DemoNotice>
           {/* ========================================================================= */}
           {/* TAB 1: OVERVIEW (📊 Обзор)                                                */}
           {/* ========================================================================= */}
@@ -1772,6 +1779,7 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
                           <th style={{ width: '36px', textAlign: 'center' }}>
                             <input
                               type="checkbox"
+                              aria-label="Выбрать все заявки"
                               checked={allFilteredSelected}
                               onChange={() => handleToggleSelectAllMod(filteredModQueue)}
                               title="Выбрать все"
@@ -1810,6 +1818,7 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
                               <td style={{ textAlign: 'center' }}>
                                 <input
                                   type="checkbox"
+                                  aria-label={`Выбрать заявку ${item.id}`}
                                   checked={isSelected}
                                   onChange={() => handleToggleSelectModItem(item.id)}
                                   style={{ cursor: 'pointer', accentColor: '#8b5cf6' }}
@@ -1996,6 +2005,7 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
                               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                 <input
                                   type="checkbox"
+                                  aria-label={`Выбрать заявку ${item.id}`}
                                   checked={isSelected}
                                   onChange={() => handleToggleSelectModItem(item.id)}
                                   style={{ cursor: 'pointer', accentColor: '#8b5cf6' }}
@@ -2257,7 +2267,7 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
                     <div className="comparator-controls-row">
                       <div className="comp-select-group">
                         <label>Регион А:</label>
-                        <select value={compareCity1} onChange={(e) => setCompareCity1(e.target.value)}>
+                        <select aria-label="Регион А" value={compareCity1} onChange={(e) => setCompareCity1(e.target.value)}>
                           {regions.map(r => (
                             <option key={r.code} value={r.code}>{r.name} (×{r.coeff})</option>
                           ))}
@@ -2268,7 +2278,7 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
 
                       <div className="comp-select-group">
                         <label>Регион B:</label>
-                        <select value={compareCity2} onChange={(e) => setCompareCity2(e.target.value)}>
+                        <select aria-label="Регион B" value={compareCity2} onChange={(e) => setCompareCity2(e.target.value)}>
                           {regions.map(r => (
                             <option key={r.code} value={r.code}>{r.name} (×{r.coeff})</option>
                           ))}
@@ -2816,7 +2826,7 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
                 <label className="doc-input-label">Объект строительства / Назначение *</label>
                 <input 
                   className="doc-modal-input" 
-                  placeholder="ЖК «Nomad Palace» (Блок А)" 
+                  placeholder="ЖК «Пример Палас» (Блок А)" 
                   value={docForm.objectName}
                   onChange={e => setDocForm(f => ({...f, objectName: e.target.value}))} 
                 />
@@ -2827,7 +2837,7 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
                 <label className="doc-input-label">Заказчик / Плательщик</label>
                 <input 
                   className="doc-modal-input" 
-                  placeholder="ТОО «Prime Development KZ»" 
+                  placeholder="ТОО «Пример Застройщик»" 
                   value={docForm.customer || docForm.payer}
                   onChange={e => setDocForm(f => ({...f, customer: e.target.value, payer: e.target.value}))} 
                 />
@@ -2837,7 +2847,7 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
                 <label className="doc-input-label">БИН / ИИН Заказчика</label>
                 <input 
                   className="doc-modal-input" 
-                  placeholder="180240009871" 
+                  placeholder="000000000001" 
                   value={docForm.customerBin || docForm.payerBin}
                   onChange={e => setDocForm(f => ({...f, customerBin: e.target.value, payerBin: e.target.value}))} 
                 />

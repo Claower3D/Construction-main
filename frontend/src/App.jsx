@@ -18,6 +18,7 @@ import ScrollToTopButton from './components/ScrollToTopButton';
 import PageLoader from './components/PageLoader';
 import { categoriesData } from './data/categoriesData';
 import { LEGAL_PATHS } from './data/legal';
+import { getAuthToken, jwtExpiry } from './services/platformUtils';
 
 // Тяжёлые разделы грузятся отдельными чанками только при переходе в них
 // (раньше всё приложение, включая three.js и xlsx, приходило одним JS-файлом ~2,3 МБ).
@@ -153,6 +154,51 @@ export default function App() {
   }, [currentUser, role]);
 
 
+
+  // Серверная сессия живёт 24 часа. Раньше после её истечения сайт продолжал выглядеть «вошедшим»:
+  // запросы молча получали отказ, списки пустели, сохранения не проходили. Теперь срок токена
+  // проверяется при открытии, при возврате на вкладку и раз в минуту; истёкшую или отозванную
+  // сессию закрываем и ведём на страницу входа с объяснением.
+  // Связанные аккаунты команды (без серверного токена) эта проверка не затрагивает.
+  const sessionUserKey = currentUser ? (currentUser.id || currentUser.email || 'user') : null;
+  useEffect(() => {
+    if (!sessionUserKey) return undefined;
+    let stopped = false;
+    const expire = () => {
+      if (stopped) return;
+      stopped = true;
+      try {
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('qazgost_current_user');
+        sessionStorage.setItem('qazgost_session_expired', '1');
+      } catch (e) { /* хранилище недоступно */ }
+      setCurrentUser(null);
+      setRole('executor');
+      window.history.replaceState({}, '', '/login');
+      setCurrentView('login');
+    };
+    const check = async (askServer) => {
+      const token = getAuthToken();
+      if (!token || stopped) return;
+      const exp = jwtExpiry(token);
+      if (exp && exp * 1000 <= Date.now()) { expire(); return; }
+      if (!askServer) return;
+      try {
+        const res = await fetch('/api/v1/auth/me', { headers: { Authorization: `Bearer ${token}` } });
+        // 401 — токен не принят сервером (истёк, отозван, аккаунт удалён). Сбои сети и сервера не выкидывают из кабинета.
+        if (res.status === 401 && getAuthToken() === token) expire();
+      } catch (e) { /* нет связи — оставляем как есть */ }
+    };
+    check(true);
+    const timer = setInterval(() => check(false), 60000);
+    const onVisible = () => { if (document.visibilityState === 'visible') check(false); };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => {
+      stopped = true;
+      clearInterval(timer);
+      document.removeEventListener('visibilitychange', onVisible);
+    };
+  }, [sessionUserKey]);
 
   const navigateToDashboard = (targetRole) => {
     window.history.pushState({}, '', `/${targetRole}`);
@@ -297,7 +343,7 @@ export default function App() {
   }
 
   return (
-    <div className="app-root">
+    <div className="app-root" data-view={currentView}>
       <a className="qg-skip-link" href="#main-content">Перейти к содержимому</a>
       <AnimatedBackground />
 

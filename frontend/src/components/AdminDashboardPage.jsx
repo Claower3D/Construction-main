@@ -119,7 +119,7 @@ const ROLE_CARDS = {
     { id: 'c-wallet', title: 'Оплата', icon: '💳', desc: 'Как сейчас оплачиваются заказы и когда появится онлайн-оплата', btnText: '💳 Открыть', btnGradient: 'linear-gradient(90deg, #7c3aed, #f59e0b)' },
     { id: 'c-equipment', title: 'Маркетплейс техники', icon: '🚜', desc: 'Аренда экскаваторов, кранов, самосвалов по всему Казахстану', btnText: '🚜 Открыть технику', btnGradient: 'linear-gradient(90deg, #8b5cf6, #a78bfa)' },
     { id: 'c-catalog', title: 'Каталог подрядчиков', icon: '📒', desc: 'Реестр проверенных специалистов и строительных компаний по ИИН/БИН', btnText: '📒 Найти мастеров', btnGradient: 'linear-gradient(90deg, #f59e0b, #d97706)' },
-    { id: 'c-volume', title: 'Расчёт объёмов (BOM)', icon: '📏', desc: 'Автоматический расчёт площадей и спецификации стройматериалов', btnText: '📐 Рассчитать', btnGradient: 'linear-gradient(90deg, #a78bfa, #10b981)' },
+    { id: 'c-volume', title: 'Объёмы земляных работ', icon: '📏', desc: 'Объём котлована по размерам, рейсы самосвалов и стоимость выемки и вывоза грунта', btnText: '📐 Рассчитать', btnGradient: 'linear-gradient(90deg, #a78bfa, #10b981)' },
     { id: 'c-calendar', title: 'Календарь работ', icon: '📅', desc: 'График выполнения строительно-монтажных работ и инспекций', btnText: '📅 График', btnGradient: 'linear-gradient(90deg, #ef4444, #f59e0b)' },
     { id: 'c-profile', title: 'Моя анкета', icon: '📝', desc: 'Личные данные Заказчика, параметры объекта, бюджет и реквизиты', btnText: '📝 Заполнить', btnGradient: 'linear-gradient(90deg, #10b981, #059669)' },
   ],
@@ -131,7 +131,7 @@ const ROLE_CARDS = {
     { id: 'e-estimate', title: 'Оценка стоимости', icon: '📸', desc: 'Смета по технологическим картам и рыночным ценам с источниками', btnText: '🚀 Сметный расчёт', btnGradient: 'linear-gradient(90deg, #b9a4ff, #7c3aed)' },
     { id: 'e-inspect', title: 'Проверка дефектов', icon: '🔍', desc: 'Экспертная проверка состояния конструкций и дефектоскопия', btnText: '🔍 Проверить дефекты', btnGradient: 'linear-gradient(90deg, #f59e0b, #ef4444)' },
     { id: 'e-scan', title: 'Сканер трещин', icon: '📷', desc: 'Камера находит трещины на объекте и считает материалы на ремонт', btnText: '📷 Открыть сканер', btnGradient: 'linear-gradient(90deg, #ff5c8a, #f59e0b)' },
-    { id: 'e-soil', title: 'Фото-объёмы грунта', icon: '📐', desc: 'Геодезический 3D-расчёт выемки и насыпи грунта по фото ДО/ПОСЛЕ', btnText: '📸 Рассчитать объём', btnGradient: 'linear-gradient(90deg, #10b981, #a78bfa)' },
+    { id: 'e-soil', title: 'Объёмы грунта', icon: '📐', desc: 'Объём котлована по размерам, рейсы самосвалов, смены экскаватора и стоимость работ', btnText: '📐 Рассчитать объём', btnGradient: 'linear-gradient(90deg, #10b981, #a78bfa)' },
     { id: 'e-engineering', title: 'Инженерные решения', icon: '⚙️', desc: 'Техническая спецификация работ и схемы разводки сетей', btnText: '⚡ Спецификация', btnGradient: 'linear-gradient(90deg, #b9a4ff, #ddd6fe)' },
     { id: 'e-wallet', title: 'Оплата', icon: '💳', desc: 'Как исполнитель получает оплату по заказам', btnText: '💳 Открыть', btnGradient: 'linear-gradient(90deg, #7c3aed, #f59e0b)' },
     { id: 'e-equipment', title: 'Маркетплейс техники', icon: '🚜', desc: 'Поиск спецтехники в аренду и оптовый закуп стройматериалов', btnText: '🚜 Найти технику', btnGradient: 'linear-gradient(90deg, #8b5cf6, #a78bfa)' },
@@ -592,7 +592,8 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
                   currentUser={currentUser} 
                   initialTab={
                     selectedItemId === 'comp-employees' ? 'employees' :
-                    selectedItemId === 'comp-stats' ? 'stats' : 'profile'
+                    selectedItemId === 'comp-stats' ? 'stats' :
+                    selectedItemId === 'comp-tree' ? 'tree' : 'profile'
                   }
                 />
               )}

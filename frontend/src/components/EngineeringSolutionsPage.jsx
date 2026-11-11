@@ -423,6 +423,7 @@ export default function EngineeringSolutionsPage({ onBack, onOpenOrders, hideHea
               <div className="es-field">
                 <label>Срочность</label>
                 <select 
+                  aria-label="Срочность"
                   value={urgency} 
                   onChange={e => setUrgency(e.target.value)} 
                   className="es-input"

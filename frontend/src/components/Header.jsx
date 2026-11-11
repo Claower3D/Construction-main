@@ -454,7 +454,7 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
                 </a>
                 <a href="#volume" className="dropdown-item" onClick={closeDropdown}>
                   <span className="item-icon">📐</span>
-                  <span>Фото-объёмы грунта</span>
+                  <span>Объёмы грунта</span>
                 </a>
               </div>
             )}

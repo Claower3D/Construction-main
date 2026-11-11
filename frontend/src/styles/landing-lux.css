@@ -882,3 +882,14 @@ body {
   background: radial-gradient(closest-side, rgba(130, 60, 230, 0.32), transparent);
 }
 .lux-screen { box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06), 0 0 0 1px rgba(176, 140, 255, 0.4), 0 0 60px -10px rgba(160, 80, 255, 0.6); }
+
+/* Телефон: ссылки подвала были высотой 25 px с зазором 8 px — палец попадал в соседнюю.
+   Каждая ссылка теперь занимает строку не ниже 40 px. */
+@media (max-width: 640px) {
+  .lux-footer-grid nav,
+  .lux-footer-contact { gap: 0; }
+  .lux-footer-grid nav a,
+  .lux-footer-contact a,
+  .lux-footer-legal a { display: inline-flex; align-items: center; min-height: 40px; }
+  .lux-footer-legal { gap: 0 20px; }
+}

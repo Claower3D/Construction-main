@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import RoleHierarchyTreePage from './RoleHierarchyTreePage';
+import { getAuthToken, jsonAuthHeaders } from '../services/platformUtils';
+
+const DONE_STATUS = /заверш|выполн|сдан|закрыт|done|completed/i;
+const WORK_STATUS = /в работе|in_progress|progress/i;
 
 export default function CompanyDashboardPage({ currentUser, initialTab = 'profile', sidebarToggleNode }) {
   const [activeTab, setActiveTab] = useState(initialTab);
@@ -43,11 +47,32 @@ export default function CompanyDashboardPage({ currentUser, initialTab = 'profil
     localStorage.setItem(`company_settings_${currentUser?.id}`, JSON.stringify(newSettings));
   };
 
-  // Example dummy stats
+  // Статистика — по заказам компании на сервере. Раньше здесь стояли вшитые «12 объектов,
+  // 5 заявок, 34 проекта» — одинаковые у любой, даже только что созданной компании.
+  const [orderStats, setOrderStats] = useState(null); // null — ещё не загружено или нет связи
+  useEffect(() => {
+    if (!currentUser?.id || !getAuthToken()) return undefined;
+    let cancelled = false;
+    fetch('/api/v1/orders', { headers: jsonAuthHeaders() })
+      .then((res) => (res.ok ? res.json() : Promise.reject(new Error(String(res.status)))))
+      .then((orders) => {
+        if (cancelled || !Array.isArray(orders)) return;
+        const company = (currentUser.company || currentUser.name || '').trim().toLowerCase();
+        const mine = orders.filter((o) => o.createdBy === currentUser.id
+          || (company && String(o.contractor || '').trim().toLowerCase() === company));
+        const done = mine.filter((o) => DONE_STATUS.test(o.status || '')).length;
+        const inWork = mine.filter((o) => WORK_STATUS.test(o.status || '')).length;
+        setOrderStats({ active: mine.length - done, inWork, done });
+      })
+      .catch(() => { if (!cancelled) setOrderStats(null); });
+    return () => { cancelled = true; };
+  }, [currentUser?.id, currentUser?.company, currentUser?.name]);
+
+  const stat = (v) => (orderStats ? String(v) : '—');
   const stats = [
-    { label: 'Активных объектов', value: '12', icon: '🏗️', color: settings.primaryColor },
-    { label: 'Заявок в работе', value: '5', icon: '📬', color: settings.primaryColor },
-    { label: 'Завершено проектов', value: '34', icon: '✅', color: settings.primaryColor },
+    { label: 'Активных объектов', value: stat(orderStats?.active), icon: '🏗️', color: settings.primaryColor },
+    { label: 'Заявок в работе', value: stat(orderStats?.inWork), icon: '📬', color: settings.primaryColor },
+    { label: 'Завершено проектов', value: stat(orderStats?.done), icon: '✅', color: settings.primaryColor },
     { label: 'Всего сотрудников', value: employees.length, icon: '👥', color: settings.primaryColor },
   ];
 
@@ -159,15 +184,15 @@ export default function CompanyDashboardPage({ currentUser, initialTab = 'profil
               </div>
             </div>
             <div>
-              <label style={{ display: 'block', color: '#a39cc2', fontSize: '0.85rem', marginBottom: '0.5rem' }}>БИН/ИИН (Демо)</label>
+              <label style={{ display: 'block', color: '#a39cc2', fontSize: '0.85rem', marginBottom: '0.5rem' }}>БИН/ИИН</label>
               <div style={{ background: 'rgba(0,0,0,0.2)', padding: '0.75rem', borderRadius: '8px', color: '#fff', borderLeft: `3px solid ${settings.primaryColor}` }}>
                 {currentUser?.bin || 'Не указан'}
               </div>
             </div>
             <div>
-              <label style={{ display: 'block', color: '#a39cc2', fontSize: '0.85rem', marginBottom: '0.5rem' }}>Юридический адрес (Демо)</label>
+              <label style={{ display: 'block', color: '#a39cc2', fontSize: '0.85rem', marginBottom: '0.5rem' }}>Юридический адрес</label>
               <div style={{ background: 'rgba(0,0,0,0.2)', padding: '0.75rem', borderRadius: '8px', color: '#fff', borderLeft: `3px solid ${settings.primaryColor}` }}>
-                г. Алматы, пр. Абая 150
+                {currentUser?.address || (currentUser?.city ? `г. ${currentUser.city} (адрес не указан)` : 'Не указан')}
               </div>
             </div>
           </div>
@@ -180,28 +205,14 @@ export default function CompanyDashboardPage({ currentUser, initialTab = 'profil
             <h2 style={{ fontSize: '1.25rem', color: '#fff', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
               <span style={{ color: settings.primaryColor }}>👥</span> Привязанные сотрудники ({employees.length})
             </h2>
-            
-            <div style={{ background: 'rgba(0,0,0,0.2)', padding: '1rem', borderRadius: '12px', border: `1px dashed ${settings.primaryColor}`, maxWidth: '300px' }}>
-              <div style={{ color: '#a39cc2', fontSize: '0.85rem', marginBottom: '0.5rem' }}>ID Компании (для регистрации сотрудников):</div>
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <code style={{ flex: 1, background: '#15122a', padding: '0.5rem', borderRadius: '6px', color: '#fff', fontSize: '1.1rem', textAlign: 'center', fontWeight: 'bold' }}>
-                  {currentUser?.inviteCode || currentUser?.id || 'C-DEMO'}
-                </code>
-                <button 
-                  onClick={() => navigator.clipboard.writeText(currentUser?.inviteCode || currentUser?.id || 'C-DEMO')}
-                  style={{ background: settings.primaryColor, color: '#fff', border: 'none', borderRadius: '6px', padding: '0 1rem', cursor: 'pointer', fontWeight: 'bold' }}
-                >
-                  Копировать
-                </button>
-              </div>
-            </div>
           </div>
           
           {employees.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '3rem', color: '#a39cc2', background: 'rgba(0,0,0,0.1)', borderRadius: '8px' }}>
               К вашей компании пока не привязан ни один сотрудник.
               <br/><br/>
-              Чтобы добавить сотрудника, передайте ему ваш <strong>ID Компании</strong> (скопируйте выше).<br/> При самостоятельной регистрации на портале он сможет ввести этот код и автоматически присоединиться к вашей фирме.
+              Привязка сотрудников по коду компании пока не работает: в форме регистрации ещё нет поля для этого кода.
+              Раздел заработает вместе с этой функцией.
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>

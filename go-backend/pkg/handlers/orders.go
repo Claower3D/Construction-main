@@ -43,6 +43,31 @@ func canModifyOrder(r *http.Request, o *models.Order) bool {
 	return false
 }
 
+// Пределы заказа — защита от мусора и переполнения базы, а не проверка формы:
+// обычный заказ в сотни раз меньше. Тело до 8 МБ оставляет место для фото этапов.
+const (
+	maxOrderBody   = 8 << 20
+	maxOrderTitle  = 500
+	maxOrderText   = 1000
+	maxOrderItems  = 2000
+	maxOrderStages = 300
+)
+
+func tooLong(v string, max int) bool { return len([]rune(v)) > max }
+
+// orderTextTooLong проверяет короткие текстовые поля заказа
+func orderTextTooLong(o *models.Order) bool {
+	if tooLong(o.Title, maxOrderTitle) {
+		return true
+	}
+	for _, v := range []string{o.Location, o.Time, o.Type, o.Contractor, o.Status, o.Deadline, o.JobType, o.ClientName, o.ClientPhone} {
+		if tooLong(v, maxOrderText) {
+			return true
+		}
+	}
+	return false
+}
+
 func orderIDFromPath(path string) (int64, error) {
 	parts := strings.Split(strings.TrimRight(path, "/"), "/")
 	return strconv.ParseInt(parts[len(parts)-1], 10, 64)
@@ -68,13 +93,17 @@ func (h *OrdersHandler) GetOrders(w http.ResponseWriter, r *http.Request) {
 
 func (h *OrdersHandler) CreateOrder(w http.ResponseWriter, r *http.Request) {
 	var order models.Order
-	if err := json.NewDecoder(r.Body).Decode(&order); err != nil {
+	if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, maxOrderBody)).Decode(&order); err != nil {
 		writeError(w, http.StatusBadRequest, "Неверный формат заказа")
 		return
 	}
 	order.Title = strings.TrimSpace(order.Title)
 	if order.Title == "" {
 		writeError(w, http.StatusBadRequest, "Укажите название заказа")
+		return
+	}
+	if orderTextTooLong(&order) || len(order.EstimateItems) > maxOrderItems || len(order.Stages) > maxOrderStages {
+		writeError(w, http.StatusBadRequest, "Слишком длинные поля заказа: сократите название, адрес или число позиций сметы")
 		return
 	}
 	if order.TotalSum == 0 && len(order.EstimateItems) > 0 {
@@ -121,7 +150,7 @@ func (h *OrdersHandler) UpdateOrder(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var raw map[string]json.RawMessage
-	if err := json.NewDecoder(r.Body).Decode(&raw); err != nil {
+	if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, maxOrderBody)).Decode(&raw); err != nil {
 		writeError(w, http.StatusBadRequest, "Некорректные данные")
 		return
 	}
@@ -139,6 +168,10 @@ func (h *OrdersHandler) UpdateOrder(w http.ResponseWriter, r *http.Request) {
 				writeError(w, http.StatusBadRequest, "Некорректные позиции сметы")
 				return
 			}
+			if len(items) > maxOrderItems {
+				writeError(w, http.StatusBadRequest, "Слишком много позиций сметы")
+				return
+			}
 			b, _ := json.Marshal(items)
 			fields[col] = string(b)
 			if _, hasTotal := raw["totalSum"]; !hasTotal {
@@ -152,6 +185,10 @@ func (h *OrdersHandler) UpdateOrder(w http.ResponseWriter, r *http.Request) {
 			var stages []models.Stage
 			if err := json.Unmarshal(val, &stages); err != nil {
 				writeError(w, http.StatusBadRequest, "Некорректные этапы")
+				return
+			}
+			if len(stages) > maxOrderStages {
+				writeError(w, http.StatusBadRequest, "Слишком много этапов")
 				return
 			}
 			b, _ := json.Marshal(stages)
@@ -171,6 +208,10 @@ func (h *OrdersHandler) UpdateOrder(w http.ResponseWriter, r *http.Request) {
 			}
 			if key == "title" && strings.TrimSpace(v) == "" {
 				writeError(w, http.StatusBadRequest, "Название заказа не может быть пустым")
+				return
+			}
+			if (key == "title" && tooLong(v, maxOrderTitle)) || tooLong(v, maxOrderText) {
+				writeError(w, http.StatusBadRequest, "Поле "+key+" слишком длинное")
 				return
 			}
 			fields[col] = v

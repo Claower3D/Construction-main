@@ -43,6 +43,35 @@ export async function upsertCrmEvent(eventPayload) {
   }
 }
 
+/** Строки сметы в формате сервера: { name, unit, qty, price, sum }. Сервер принимает до 2000 строк. */
+export function serverEstimateItems(estimateData) {
+  const items = estimateData?.scenario?.items || estimateData?.items;
+  if (!Array.isArray(items)) return [];
+  return items.slice(0, 2000).map((it) => {
+    const qty = Number(it.qty ?? it.quantity ?? it.volume) || 0;
+    const price = Number(it.price ?? it.unit_price ?? it.unitPrice) || 0;
+    return {
+      name: String(it.name || 'Позиция').slice(0, 300),
+      unit: String(it.unit || '').slice(0, 30),
+      qty,
+      price,
+      sum: Number(it.total ?? it.sum) || Math.round(qty * price),
+    };
+  });
+}
+
+/** Этапы в формате сервера: { id, title, deadline, status, description }. */
+export function serverStages(stages) {
+  if (!Array.isArray(stages)) return [];
+  return stages.slice(0, 300).map((st, i) => ({
+    id: String(st.id || `STG-${i + 1}`),
+    title: String(st.name || st.title || `Этап ${i + 1}`).slice(0, 300),
+    deadline: String(st.dateRange || st.deadline || ''),
+    status: String(st.status || 'pending'),
+    description: Number(st.budget) > 0 ? `Бюджет этапа: ${Math.round(Number(st.budget)).toLocaleString('ru-RU')} ₸` : '',
+  }));
+}
+
 export function createPlatformOrder({
   title,
   category = 'Общестроительные работы',
@@ -77,6 +106,10 @@ export function createPlatformOrder({
   const orderId = newOrderId();
   const owner = getStoredCurrentUser();
   const ownerKey = userKeyOf(owner);
+  // Контакт заказчика. Раньше, если форма не передавала имя и телефон, заказ уходил менеджеру
+  // как «Заказчик» без номера — перезвонить было некуда. Берём данные из профиля вошедшего.
+  if (!clientName || clientName === 'Заказчик') clientName = (owner?.name || '').trim() || 'Заказчик';
+  if (!clientPhone) clientPhone = (owner?.phone || '').trim();
 
   const orderObj = {
     id: orderId,
@@ -158,6 +191,10 @@ export function createPlatformOrder({
         clientName: orderObj.clientName || '',
         clientPhone: orderObj.clientPhone || '',
         totalSum: orderObj.amount || 0,
+        // Строки сметы и этапы: без них заказ на сервере был только названием и суммой,
+        // а менеджер и инженер с другого устройства не видели, из чего сумма сложилась.
+        estimateItems: serverEstimateItems(estimateData),
+        stages: serverStages(orderObj.stages),
         createdBy: ownerKey || 'System'
       })
     })

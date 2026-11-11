@@ -12,6 +12,19 @@ export default function LoginPage({ currentUser, onLogin, onOpenRegister, onOpen
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  // Сюда приводит и истёкшая сессия (App.jsx): объясняем, почему снова нужен пароль
+  // Отметку читаем без побочных действий (в режиме разработки React вызывает инициализатор дважды),
+  // а снимаем её отдельным эффектом — чтобы после обновления страницы объяснение не повторялось.
+  const [notice] = useState(() => {
+    try {
+      return sessionStorage.getItem('qazgost_session_expired')
+        ? 'Сессия истекла. Войдите снова — так мы защищаем ваш аккаунт.'
+        : null;
+    } catch { return null; }
+  });
+  useEffect(() => {
+    try { sessionStorage.removeItem('qazgost_session_expired'); } catch { /* хранилище недоступно */ }
+  }, []);
 
   useEffect(() => {
     const prev = document.title;
@@ -61,6 +74,7 @@ export default function LoginPage({ currentUser, onLogin, onOpenRegister, onOpen
         <form className="rg-card rg-card--single" onSubmit={handleSubmit} aria-labelledby="lg-form-title">
           <h2 id="lg-form-title" className="rg-card-title">Вход</h2>
 
+          {notice && !error && <div className="rg-alert rg-alert--info" role="status" data-testid="session-expired">{notice}</div>}
           {error && <div className="rg-alert" role="alert">{error}</div>}
 
           <div className="rg-field">
