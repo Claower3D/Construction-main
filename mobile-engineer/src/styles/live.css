@@ -1,0 +1,96 @@
+/* Живая камера: кадр сверху, под ним — что найдено прямо сейчас, нормативы и смета.
+   Рамки трещин — красным (цвет «опасно» в палитре приложения), чтобы читались на бетоне и штукатурке. */
+
+.qz-live { position: fixed; inset: 0; z-index: 320; display: flex; flex-direction: column; background: var(--bg); color: var(--text); }
+.qz-live-bar { display: flex; align-items: center; gap: var(--sp-2); padding: calc(var(--safe-top) + 6px) var(--sp-3) 6px var(--sp-4); border-bottom: 1px solid var(--line); }
+.qz-live-scroll { flex: 1; overflow-y: auto; overscroll-behavior: contain; padding-bottom: calc(var(--sp-6) + var(--safe-bottom)); }
+
+/* ── кадр ─────────────────────────────────────────────── */
+.qz-live-stagewrap { background: #05080c; display: grid; place-items: center; }
+.qz-live-stage {
+  position: relative;
+  /* ширина по экрану, но не выше 58% экрана: под кадром должны быть видны длина и стоимость */
+  width: min(100%, calc(58vh * var(--ar)));
+  aspect-ratio: var(--ar);
+  overflow: hidden;
+}
+.qz-live-video { display: block; width: 100%; height: 100%; object-fit: cover; background: #05080c; }
+.qz-live-box { position: absolute; border: 2px solid var(--danger); border-radius: 4px; box-shadow: 0 0 0 1px rgba(5, 8, 12, 0.6); pointer-events: none; }
+.qz-live-box span {
+  position: absolute; left: -2px; bottom: 100%;
+  padding: 2px 6px; border-radius: 4px 4px 4px 0;
+  background: var(--danger); color: #2a0606;
+  font-size: var(--fs-xs); font-weight: 700; line-height: 1.3; white-space: nowrap; font-variant-numeric: tabular-nums;
+}
+.qz-live-box span.is-inside { bottom: auto; top: -2px; border-radius: 0 0 4px 0; }
+.qz-live-status {
+  position: absolute; left: 10px; top: 10px; margin: 0;
+  padding: 6px 10px; border-radius: 999px;
+  background: rgba(15, 21, 29, 0.86); color: var(--text);
+  font-size: var(--fs-sm); font-weight: 650; font-variant-numeric: tabular-nums;
+}
+.qz-live-status[data-found='true'] { background: var(--danger); color: #2a0606; }
+.qz-live-status:empty { display: none; }
+.qz-live-tools { position: absolute; right: 10px; bottom: 10px; display: flex; gap: 8px; }
+.qz-live-round {
+  width: 48px; height: 48px; display: grid; place-items: center;
+  border: 1px solid var(--line-strong); border-radius: 50%;
+  background: rgba(15, 21, 29, 0.86); color: var(--text);
+}
+.qz-live-round.is-on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.qz-live-wait { min-height: 46vh; width: 100%; display: grid; place-items: center; align-content: center; gap: var(--sp-3); padding: var(--sp-5); text-align: center; color: var(--text-2); }
+
+/* ── под кадром ───────────────────────────────────────── */
+.qz-live-body { display: flex; flex-direction: column; gap: var(--sp-4); padding: var(--sp-4); }
+.qz-live-now { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--sp-3); }
+.qz-live-big { font-size: var(--fs-2xl); font-weight: 750; line-height: 1.15; letter-spacing: -0.01em; }
+.qz-live-field { display: flex; flex-direction: column; gap: 6px; }
+.qz-live-stepper { display: grid; grid-template-columns: 56px 1fr 56px; align-items: center; border: 1px solid var(--line-strong); border-radius: var(--r-md); background: var(--surface); overflow: hidden; }
+.qz-live-stepper button { height: 52px; display: grid; place-items: center; border: 0; background: var(--surface-2); color: var(--text); }
+.qz-live-stepper button:active { background: var(--surface-3); }
+.qz-live-stepper button[disabled] { opacity: 0.4; }
+.qz-live-stepper output { text-align: center; font-size: var(--fs-lg); font-weight: 700; }
+
+.qz-live .qz-segmented button[aria-pressed='true'] { background: var(--surface-3); color: var(--text); }
+
+.qz-live-list, .qz-live-rows, .qz-live-zones { list-style: none; margin: 0; padding: 0; }
+.qz-live-list { display: grid; gap: 6px; padding: var(--sp-3); border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface); }
+.qz-live-list li { display: flex; justify-content: space-between; gap: var(--sp-3); font-size: var(--fs-sm); color: var(--text-2); }
+.qz-live-list b { color: var(--text); white-space: nowrap; }
+
+.qz-live-zones { display: grid; gap: 8px; margin-top: var(--sp-3); }
+.qz-live-zones li { display: flex; align-items: center; gap: var(--sp-3); padding: 8px; border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface); }
+.qz-live-zones img, .qz-live-zone-ph { width: 64px; height: 48px; flex-shrink: 0; object-fit: cover; border-radius: 8px; background: var(--surface-3); }
+.qz-live-zones b, .qz-live-rows b { display: block; font-size: var(--fs-sm); font-weight: 650; }
+.qz-live-zones span, .qz-live-rows span { display: block; margin-top: 2px; font-size: var(--fs-xs); color: var(--text-3); }
+.qz-live-rows { display: grid; gap: 10px; margin-top: 8px; }
+.qz-live-rows li { display: flex; align-items: flex-start; gap: var(--sp-3); }
+.qz-live-rows li > b { white-space: nowrap; }
+.qz-live-grand { font-size: var(--fs-lg); font-weight: 750; color: var(--accent); }
+
+.qz-live-toast {
+  position: absolute; left: var(--sp-4); right: var(--sp-4); bottom: calc(var(--sp-5) + var(--safe-bottom));
+  width: fit-content; max-width: calc(100% - 2 * var(--sp-4)); margin: 0 auto;
+  padding: 10px 14px; border-radius: var(--r-md);
+  background: var(--surface-3); color: var(--text); border: 1px solid var(--line-strong);
+  font-size: var(--fs-sm); font-weight: 600; text-align: center;
+  opacity: 0; transform: translateY(8px); pointer-events: none;
+  transition: opacity 0.18s, transform 0.18s;
+}
+.qz-live-toast.is-on { opacity: 1; transform: none; }
+
+/* вход в живую камеру с вкладки «Дефекты» */
+.qz-live-entry {
+  display: flex; align-items: center; gap: var(--sp-3); width: 100%;
+  padding: var(--sp-4); margin-top: var(--sp-4);
+  border: 1px solid var(--accent-line); border-radius: var(--r-md);
+  background: var(--accent-soft); color: var(--text); text-align: left;
+}
+.qz-live-entry:active { transform: translateY(1px); }
+.qz-live-entry-icon { width: 48px; height: 48px; flex-shrink: 0; display: grid; place-items: center; border-radius: 50%; background: var(--accent); color: var(--accent-ink); }
+.qz-live-entry b { display: block; font-size: var(--fs-lg); font-weight: 700; }
+.qz-live-entry span span { display: block; margin-top: 2px; font-size: var(--fs-sm); color: var(--text-2); line-height: 1.4; }
+
+@media (prefers-reduced-motion: reduce) {
+  .qz-live-toast { transition: none; }
+}

@@ -17,6 +17,7 @@
     "@capacitor/ios": "^6.2.3",
     "@capacitor/status-bar": "^6.0.0",
     "lucide-react": "^0.344.0",
+    "onnxruntime-web": "^1.31.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },

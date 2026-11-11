@@ -1,8 +1,12 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Camera, AlertTriangle, ScanSearch, Share2, Paperclip, Maximize2, X, Info, RefreshCw } from 'lucide-react';
+import React, { useState, useRef, useEffect, lazy, Suspense } from 'react';
+import { Camera, AlertTriangle, ScanSearch, Share2, Paperclip, Maximize2, X, Info, RefreshCw, Video } from 'lucide-react';
 import { runDefectScan } from '../api/engineerApi';
 import { compressImage } from '../utils/image';
 import { formatMoney } from './ui/kit';
+import '../styles/live.css';
+
+// распознавание в живом кадре тянет за собой модель и WebAssembly — грузим только по нажатию
+const LiveCrackScanner = lazy(() => import('./LiveCrackScanner'));
 
 // Severity scale of the detector (its own semantic colours, worst → mildest)
 const SEVERITY = {
@@ -91,7 +95,23 @@ export default function DefectInspectionView({ deals = [], onAttachToDeal }) {
   const [dealId, setDealId] = useState('');
   const [attachState, setAttachState] = useState(null); // { busy } | { ok, synced, error }
   const [viewerOpen, setViewerOpen] = useState(false);
+  const [liveOpen, setLiveOpen] = useState(false);
   const fileInputRef = useRef(null);
+
+  // Живая камера открывается «шагом истории»: кнопка «Назад» на телефоне закрывает камеру, а не всё приложение
+  const openLive = () => {
+    try { window.history.pushState({ qzLive: true }, ''); } catch (e) { /* история недоступна — закроется крестиком */ }
+    setLiveOpen(true);
+  };
+  const closeLive = () => {
+    if (window.history.state && window.history.state.qzLive) window.history.back(); // дальше сработает popstate
+    else setLiveOpen(false);
+  };
+  useEffect(() => {
+    const onPop = () => setLiveOpen(false);
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, []);
   const mountedRef = useRef(true);
   useEffect(() => () => { mountedRef.current = false; }, []);
 
@@ -164,6 +184,17 @@ export default function DefectInspectionView({ deals = [], onAttachToDeal }) {
 
   return (
     <div className="qz-page">
+      <button type="button" className="qz-live-entry" onClick={openLive} style={{ marginTop: 0, marginBottom: 'var(--sp-4)' }}>
+        <span className="qz-live-entry-icon"><Video size={24} aria-hidden="true" /></span>
+        <span className="qz-grow">
+          <b>Живая камера</b>
+          <span>Наведите телефон на стену — трещины подсветятся сразу, без фото. Тут же длина, материалы, смета и норматив.</span>
+        </span>
+      </button>
+
+      <div className="qz-section-head" style={{ marginBottom: 'var(--sp-2)' }}>
+        <h2 className="qz-h3">Проверка по фото</h2>
+      </div>
       <div className="qz-field">
         <label className="qz-label" htmlFor="defect-object">Объект для акта</label>
         <select id="defect-object" className="qz-select" value={dealId} onChange={(e) => { setDealId(e.target.value); setAttachState(null); }}>
@@ -343,6 +374,17 @@ export default function DefectInspectionView({ deals = [], onAttachToDeal }) {
       )}
 
       {viewerOpen && scanResult?.annotatedImage && <ZoomViewer src={scanResult.annotatedImage} onClose={() => setViewerOpen(false)} />}
+      {liveOpen && (
+        <Suspense fallback={<div className="qz-live" role="status"><div className="qz-live-wait"><p className="qz-h3">Открываю камеру…</p></div></div>}>
+          <LiveCrackScanner
+            deals={deals}
+            dealId={dealId}
+            onDealChange={(id) => { setDealId(id); setAttachState(null); }}
+            onAttachToDeal={onAttachToDeal}
+            onClose={closeLive}
+          />
+        </Suspense>
+      )}
     </div>
   );
 }

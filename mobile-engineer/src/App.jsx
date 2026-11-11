@@ -22,7 +22,7 @@ import { Toast, SyncBanner } from './components/ui/kit';
 // Ошибки браузера («Failed to fetch») показываем по-русски
 const humanSyncError = (msg) => (/failed to fetch|networkerror|load failed|network request failed/i.test(String(msg || '')) ? 'Нет связи с сервером, данные сохранены на телефоне' : msg);
 
-const TITLES = { inspections: 'Объекты', calendar: 'Календарь выездов', defects: 'Дефекты по фото', estimates: 'Смета по фото', marketplace: 'Маркет', tools: 'Расчёты и СНиП' };
+const TITLES = { inspections: 'Объекты', calendar: 'Календарь выездов', defects: 'Дефекты', estimates: 'Смета по фото', marketplace: 'Маркет', tools: 'Расчёты и СНиП' };
 
 const HEARTBEAT_MS = 60000;
 
