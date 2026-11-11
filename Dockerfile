@@ -1,9 +1,11 @@
 # Stage 1: Build Frontend
-FROM node:18-alpine AS frontend-builder
+# Node 18 снят с поддержки в апреле 2025 — сборка идёт на текущей LTS-версии
+FROM node:22-alpine AS frontend-builder
 WORKDIR /app
 
 COPY frontend/package*.json ./frontend/
-RUN cd frontend && npm install
+# npm ci ставит ровно те версии, что записаны в package-lock.json (сборка повторяема)
+RUN cd frontend && npm ci
 COPY frontend/ ./frontend/
 RUN cd frontend && npm run build
 
@@ -18,7 +20,8 @@ COPY go-backend/ ./go-backend/
 RUN cd go-backend && CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o server ./cmd/server/main.go
 
 # Stage 3: Final Production Image
-FROM alpine:3.19
+# Alpine 3.19 снят с поддержки в ноябре 2025
+FROM alpine:3.22
 WORKDIR /app
 
 RUN apk --no-cache add ca-certificates tzdata
