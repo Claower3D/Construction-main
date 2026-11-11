@@ -24,6 +24,7 @@ const EarthworkVolumesPage = lazy(() => import('./EarthworkVolumesPage'));
 const CalendarSchedulePage = lazy(() => import('./CalendarSchedulePage'));
 const OrderFeedPage = lazy(() => import('./feed/OrderFeedPage'));
 const LiveDefectScanner = lazy(() => import('./scanner/LiveDefectScanner'));
+const Plan3DPage = lazy(() => import('./plan3d/Plan3DPage'));
 import { calculateSmartEstimate, evaluateDefectScan } from '../services/smartEstimateEngine';
 import { localDateKey } from '../services/platformUtils';
 
@@ -284,6 +285,9 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab, on
 
         {/* 2b. Сканер трещин с живой камерой (c-scan / e-scan / ing-scan) */}
         {itemId.endsWith('-scan') && <LiveDefectScanner />}
+
+        {/* 2c. «План → 3D»: модель здания из 2D-чертежа (ing-plan) */}
+        {itemId === 'ing-plan' && <Plan3DPage />}
 
         {/* 3. VOLUME & EARTHWORK CALCULATOR (c-volume / e-volume / e-soil) */}
         {(itemId === 'c-volume' || itemId === 'e-volume' || itemId === 'e-soil') && (

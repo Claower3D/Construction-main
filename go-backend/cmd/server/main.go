@@ -195,6 +195,11 @@ func main() {
 	})
 	mux.HandleFunc("/api/v1/chat/stream", auth(chatHnd.StreamMessages))
 
+	// «План → 3D» — модели инженера, доступны только автору
+	planHnd := handlers.NewPlanModelsHandler()
+	mux.HandleFunc("/api/v1/plan-models", auth(planHnd.Models))
+	mux.HandleFunc("/api/v1/plan-models/", auth(planHnd.Models))
+
 	// File Upload — auth required
 	mux.HandleFunc("/api/v1/files/upload", auth(filesHnd.UploadFile))
 

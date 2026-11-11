@@ -145,6 +145,7 @@ const ROLE_CARDS = {
     { id: 'ing-main', title: 'Главная панель', icon: '📊', desc: 'Сводный дашборд технического надзора, статусы проверок и графики', btnText: '📊 Открыть панель', btnGradient: 'linear-gradient(90deg, #7c3aed, #b9a4ff)' },
     { id: 'ing-requests', title: 'Заявки на технадзор', icon: '📬', desc: 'Очередь вызовов инженеров на объекты для проведения инспекций', btnText: '📬 Список заявок', btnGradient: 'linear-gradient(90deg, #ef4444, #f59e0b)' },
     { id: 'ing-scan', title: 'Сканер трещин', icon: '📷', desc: 'Осмотр с камерой: трещины в кадре, длина и ведомость материалов', btnText: '📷 Открыть сканер', btnGradient: 'linear-gradient(90deg, #ff5c8a, #f59e0b)' },
+    { id: 'ing-plan', title: 'План → 3D', icon: '🧊', desc: 'Чертёж этажа превращается в 3D-модель: объёмы стен и перекрытий, выгрузка чертежей, показ через камеру телефона', btnText: '🧊 Открыть', btnGradient: 'linear-gradient(90deg, #4fc3ff, #7c3aed)' },
     { id: 'ing-objects', title: 'Мои объекты', icon: '🏗️', desc: 'Реестр строящихся объектов под авторским и техническим контролем', btnText: '🏗️ Мои объекты', btnGradient: 'linear-gradient(90deg, #f59e0b, #10b981)' },
     { id: 'ing-ai', title: 'AI-просчёт по СНиП', icon: '🤖', desc: 'Автоматический анализ ПСД на соответствие ГОСТ и СНиП РК', btnText: '🤖 Запустить AI', btnGradient: 'linear-gradient(90deg, #7c3aed, #7c3aed)' },
     { id: 'ing-calendar', title: 'Календарь инспекций', icon: '📅', desc: 'План выездных инспекций и график подписания актов КС-2 / КС-3', btnText: '📅 План инспекций', btnGradient: 'linear-gradient(90deg, #10b981, #059669)' },
@@ -192,6 +193,7 @@ const SLUG_OVERRIDES = {
   'c-wallet': 'payment', 'e-wallet': 'payment',
   'c-vip': 'building', 'e-vip': 'building',
   'ing-main': 'overview',
+  'ing-plan': 'plan-3d',
 };
 // Роли, которые сразу открываются на своём основном инструменте
 const DEFAULT_TOOL = { manager: 'mgr-crm', admin: 'adm-prices', company: 'comp-profile', builder: 'b-objects' };
@@ -205,6 +207,7 @@ export function toolSlug(id) {
 
 function moduleFor(id) {
   if (id.endsWith('-scan')) return null; // сканер трещин — обычная страница инструмента, в том числе у инженера
+  if (id === 'ing-plan') return null; // «План → 3D» — тоже отдельная страница, а не вкладка кабинета инженера
   if (id.startsWith('b-')) return 'builder';
   if (id.startsWith('adm-')) return 'admin_panel';
   if (id.startsWith('comp-')) return 'company';
