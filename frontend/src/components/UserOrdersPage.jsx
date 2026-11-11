@@ -18,7 +18,23 @@ function loadLocalOrders() {
   }
 }
 
-export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
+// Подписи статусов и вкладок без значков-эмодзи (цвет статуса несёт сама плашка)
+const noEmoji = (label) => String(label || '').replace(/^[^\p{L}\p{N}]+/u, '');
+const ordersWord = (n) => {
+  const a = Math.abs(n) % 100; const b = a % 10;
+  if (a > 10 && a < 20) return 'заказов';
+  if (b > 1 && b < 5) return 'заказа';
+  return b === 1 ? 'заказ' : 'заказов';
+};
+const VIEW_AS = [
+  { key: 'manager', label: 'Менеджер' },
+  { key: 'engineer', label: 'Инженер' },
+  { key: 'executor', label: 'Исполнитель' },
+  { key: 'customer', label: 'Заказчик' },
+];
+
+// embedded — раздел внутри страницы кабинета: без своей шапки «Назад» и на всю ширину
+export default function UserOrdersPage({ currentUser, onBack, onSwitchRole, embedded = false }) {
   const [role, setRole] = useState(currentUser?.role || 'customer');
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -626,9 +642,43 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
   };
 
   return (
-    <div className="uo-container">
-      {toastMessage && <div className="uo-toast">{toastMessage}</div>}
+    <div className={`uo-container${embedded ? ' uo-container--embedded' : ''}`}>
+      {toastMessage && <div className="uo-toast" role="status">{toastMessage}</div>}
 
+      {embedded ? (
+        <div className="uo-embed-head">
+          <div className="uo-embed-text">
+            <h2 className="uo-embed-title">Мои заказы</h2>
+            <p className="uo-embed-sub">
+              {totalCount > 0 ? `${totalCount} ${ordersWord(totalCount)} на ${formatMoney(totalSum)}` : 'Пока нет заказов'}
+            </p>
+          </div>
+          <div className="uo-embed-tools">
+            <div className="uo-viewas" role="group" aria-label="Смотреть как">
+              <span className="uo-viewas-label">Смотреть как</span>
+              {VIEW_AS.map(r => (
+                <button
+                  key={r.key}
+                  type="button"
+                  aria-pressed={role === r.key}
+                  className={role === r.key ? 'is-active' : ''}
+                  onClick={() => {
+                    setRole(r.key);
+                    setStatusFilter('all');
+                    if (onSwitchRole) onSwitchRole(r.key);
+                  }}
+                >
+                  {r.label}
+                </button>
+              ))}
+            </div>
+            <button type="button" className="uo-btn-create" onClick={() => setShowCreateModal(true)}>
+              Создать заказ
+            </button>
+          </div>
+        </div>
+      ) : (
+        <>
       {/* Header Bar */}
       <div className="uo-header-bar">
         <button className="uo-back-btn" onClick={onBack} title="Вернуться">←</button>
@@ -641,8 +691,13 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
           ➕ Создать заказ
         </button>
       </div>
+        </>
+      )}
 
       <div className="uo-content">
+        {!embedded && (
+        <>
+
         
         {/* User Role Card Header */}
         <div className="uo-role-card">
@@ -709,12 +764,13 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
             <div className="uo-kpi-sub">ОБЩАЯ СУММА</div>
           </div>
         </div>
+        </>
+        )}
 
         {/* Orders Table Container */}
         <div className="uo-list-card">
           <div className="uo-list-header">
             <div className="uo-list-title flex-align">
-              <span>📋</span>
               <h3>Список заказов</h3>
             </div>
 
@@ -738,7 +794,7 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
                   className={`uo-tab ${statusFilter === tab.key ? 'active' : ''}`}
                   onClick={() => setStatusFilter(tab.key)}
                 >
-                  {tab.label}
+                  {noEmoji(tab.label)}
                 </button>
               ))}
             </div>
@@ -776,8 +832,8 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
                   <tr>
                     <td colSpan="5" className="uo-empty-td">
                       <div className="uo-empty">
-                        <span>📭</span>
                         <p>Заказы не найдены</p>
+                        <small>{searchQuery || statusFilter !== 'all' ? 'Измените поиск или вкладку' : 'Создайте заказ или откликнитесь на заявку из ленты'}</small>
                       </div>
                     </td>
                   </tr>
@@ -786,7 +842,7 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
                     <tr key={ord.id} onClick={() => setSelectedOrder(ord)} className="uo-tr-hover">
                       <td>
                         <div className="uo-ord-title">{ord.title}</div>
-                        <div className="uo-ord-id">{ord.id} • 📍 {ord.city}</div>
+                        <div className="uo-ord-id">{[ord.id, ord.city].filter(Boolean).join(' · ')}</div>
                       </td>
 
                       <td>
@@ -800,7 +856,7 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
 
                       <td>
                         <span className={`uo-status-pill ${ord.status}`}>
-                          {getStatusLabel(ord.status)}
+                          {noEmoji(getStatusLabel(ord.status))}
                         </span>
                       </td>
 
@@ -812,7 +868,7 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole }) {
                             setSelectedOrder(ord);
                           }}
                         >
-                          👁️ Детали
+                          Открыть
                         </button>
                       </td>
                     </tr>

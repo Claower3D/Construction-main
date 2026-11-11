@@ -594,6 +594,12 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, userR
                 <FeaturePageModule
                   itemData={selectedItemObject}
                   onBack={handleBackToCardMenu}
+                  currentUser={currentUser}
+                  onOpenTool={(id) => {
+                    const card = (ROLE_CARDS[selectedRole] || []).find((c) => c.id === id)
+                      || Object.values(ROLE_CARDS).flat().find((c) => c.id === id);
+                    if (card) navigate(selectedRole, card);
+                  }}
                   onOpenAdminTab={(tab) => {
                     const card = (ROLE_CARDS.admin || []).find((c) => c.id === `adm-${tab}`);
                     if (card) navigate('admin', card);
