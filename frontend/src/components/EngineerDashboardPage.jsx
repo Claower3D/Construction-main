@@ -3165,7 +3165,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
           
           {previewFile.isImg || previewFile.url ? (
             <img 
-              src={previewFile.url || `https://images.unsplash.com/photo-1541888086925-ebca89bba4c9?w=800&q=80`} 
+              src={previewFile.url || '/assets/categories/cat_concrete.jpg'} 
               alt={previewFile.name} 
               style={{ maxWidth: '90%', maxHeight: '90%', objectFit: 'contain', borderRadius: '8px', boxShadow: '0 20px 50px rgba(0,0,0,0.8)' }} 
             />
