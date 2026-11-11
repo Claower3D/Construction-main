@@ -511,3 +511,30 @@
 @media (max-width: 480px) {
   .di-tabs button { flex: 1 1 0; padding-inline: 6px; white-space: normal; line-height: 1.15; }
 }
+
+/* Ссылка на сканер трещин с живой камерой */
+.di-scan-promo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 20px;
+  flex-wrap: wrap;
+  margin: 0 auto 14px;
+  padding: 14px 18px;
+  border: 1px solid rgba(255, 92, 138, 0.4);
+  border-radius: 16px;
+  background: rgba(255, 92, 138, 0.07);
+}
+.di-scan-promo p { flex: 1 1 320px; margin: 0; color: var(--qg-text-2, #bfb8d6); font-size: 0.925rem; line-height: 1.45; }
+.di-scan-promo b { color: var(--qg-text, #f3f1f9); }
+.di-scan-promo-btn {
+  min-height: 44px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #f8d27a, #e5a03a);
+  color: #1c1203;
+  font: 800 0.9rem var(--qg-font, 'Manrope', sans-serif);
+  cursor: pointer;
+}
+.di-scan-promo-btn:focus-visible { outline: 2px solid #f8d27a; outline-offset: 2px; }

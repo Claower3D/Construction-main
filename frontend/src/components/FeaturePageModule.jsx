@@ -23,6 +23,7 @@ const AnalystDashboardPage = lazy(() => import('./AnalystDashboardPage'));
 const EarthworkVolumesPage = lazy(() => import('./EarthworkVolumesPage'));
 const CalendarSchedulePage = lazy(() => import('./CalendarSchedulePage'));
 const OrderFeedPage = lazy(() => import('./feed/OrderFeedPage'));
+const LiveDefectScanner = lazy(() => import('./scanner/LiveDefectScanner'));
 import { calculateSmartEstimate, evaluateDefectScan } from '../services/smartEstimateEngine';
 import { localDateKey } from '../services/platformUtils';
 
@@ -274,8 +275,15 @@ export default function FeaturePageModule({ itemData, onBack, onOpenAdminTab, on
 
         {/* 2. DEFECT INSPECTOR (c-inspect / e-inspect) */}
         {(itemId === 'c-inspect' || itemId === 'e-inspect') && (
-          <DefectInspectorPage onBack={onBack} hideHeader={true} />
+          <DefectInspectorPage
+            onBack={onBack}
+            hideHeader={true}
+            onOpenScanner={onOpenTool ? () => onOpenTool(itemId === 'c-inspect' ? 'c-scan' : 'e-scan') : undefined}
+          />
         )}
+
+        {/* 2b. Сканер трещин с живой камерой (c-scan / e-scan / ing-scan) */}
+        {itemId.endsWith('-scan') && <LiveDefectScanner />}
 
         {/* 3. VOLUME & EARTHWORK CALCULATOR (c-volume / e-volume / e-soil) */}
         {(itemId === 'c-volume' || itemId === 'e-volume' || itemId === 'e-soil') && (

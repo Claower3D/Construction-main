@@ -26,7 +26,7 @@ function defectsWord(n) {
   return `Найдено ${n} дефектов`;
 }
 
-export default function DefectInspectorPage({ onBack, hideHeader = false }) {
+export default function DefectInspectorPage({ onBack, hideHeader = false, onOpenScanner }) {
   const [photos, setPhotos] = useState([]);
   const [clientName, setClientName] = useState('');
   const [clientPhone, setClientPhone] = useState('');
@@ -1200,6 +1200,13 @@ export default function DefectInspectorPage({ onBack, hideHeader = false }) {
             <span className="di-header-icon">🔍</span>
             <h2>Проверка дефектов</h2>
           </div>
+        </div>
+      )}
+
+      {onOpenScanner && (
+        <div className="di-scan-promo">
+          <p><b>Быстрая проверка камерой.</b> Наведите телефон на стену — трещины подсветятся в кадре, сразу посчитаются материалы на ремонт.</p>
+          <button type="button" className="di-scan-promo-btn" onClick={onOpenScanner}>Открыть сканер трещин</button>
         </div>
       )}
 

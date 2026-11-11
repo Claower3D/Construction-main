@@ -112,6 +112,7 @@ const ROLE_CARDS = {
     { id: 'c-materials', title: 'Маркетплейс материалов', icon: '🧱', desc: 'Оптовые и розничные стройматериалы от заводов РК: цемент, кирпич, арматура, смеси', btnText: '🧱 Открыть маркетплейс', btnGradient: 'linear-gradient(90deg, #10b981, #8b5cf6)' },
     { id: 'c-estimate', title: 'Оценка стоимости', icon: '📊', desc: 'Обмерьте помещение — смета по техкартам и ценам с источниками, три сценария', btnText: '🚀 Начать оценку', btnGradient: 'linear-gradient(90deg, #b9a4ff, #7c3aed)' },
     { id: 'c-inspect', title: 'Проверка дефектов', icon: '🔍', desc: 'Трещины на фото, акт с нормативами СНиП и ГОСТ и ценой ремонта', btnText: '🔍 Начать проверку', btnGradient: 'linear-gradient(90deg, #f59e0b, #ef4444)' },
+    { id: 'c-scan', title: 'Сканер трещин', icon: '📷', desc: 'Наведите камеру телефона — трещины подсветятся, сразу расчёт материалов и работы', btnText: '📷 Открыть сканер', btnGradient: 'linear-gradient(90deg, #ff5c8a, #f59e0b)' },
     { id: 'c-vip', title: 'Строительство зданий', icon: '🏗️', desc: 'ПСД, ВВР-документация, сметы полного цикла и генподряд VIP', btnText: '⭐ Открыть', btnGradient: 'linear-gradient(90deg, #6366f1, #7c3aed)' },
     { id: 'c-engineering', title: 'Инженерные решения', icon: '⚙️', desc: 'Электрика, сантехника, HVAC, слаботочные системы и технадзор', btnText: '⚡ Выбрать', btnGradient: 'linear-gradient(90deg, #b9a4ff, #ddd6fe)' },
     { id: 'c-orders', title: 'Мои заказы', icon: '📬', desc: 'Просмотр активных заявок, откликов мастеров и статусов работ', btnText: '📗 Открыть заказы', btnGradient: 'linear-gradient(90deg, #10b981, #059669)' },
@@ -129,6 +130,7 @@ const ROLE_CARDS = {
     { id: 'e-works', title: 'Мои работы', icon: '📌', desc: 'Портфолио, текущие объекты и онлайн-сдача этапов заказчику', btnText: '📌 Мои объекты', btnGradient: 'linear-gradient(90deg, #ef4444, #f59e0b)' },
     { id: 'e-estimate', title: 'Оценка стоимости', icon: '📸', desc: 'Смета по технологическим картам и рыночным ценам с источниками', btnText: '🚀 Сметный расчёт', btnGradient: 'linear-gradient(90deg, #b9a4ff, #7c3aed)' },
     { id: 'e-inspect', title: 'Проверка дефектов', icon: '🔍', desc: 'Экспертная проверка состояния конструкций и дефектоскопия', btnText: '🔍 Проверить дефекты', btnGradient: 'linear-gradient(90deg, #f59e0b, #ef4444)' },
+    { id: 'e-scan', title: 'Сканер трещин', icon: '📷', desc: 'Камера находит трещины на объекте и считает материалы на ремонт', btnText: '📷 Открыть сканер', btnGradient: 'linear-gradient(90deg, #ff5c8a, #f59e0b)' },
     { id: 'e-soil', title: 'Фото-объёмы грунта', icon: '📐', desc: 'Геодезический 3D-расчёт выемки и насыпи грунта по фото ДО/ПОСЛЕ', btnText: '📸 Рассчитать объём', btnGradient: 'linear-gradient(90deg, #10b981, #a78bfa)' },
     { id: 'e-engineering', title: 'Инженерные решения', icon: '⚙️', desc: 'Техническая спецификация работ и схемы разводки сетей', btnText: '⚡ Спецификация', btnGradient: 'linear-gradient(90deg, #b9a4ff, #ddd6fe)' },
     { id: 'e-wallet', title: 'Оплата', icon: '💳', desc: 'Как исполнитель получает оплату по заказам', btnText: '💳 Открыть', btnGradient: 'linear-gradient(90deg, #7c3aed, #f59e0b)' },
@@ -142,6 +144,7 @@ const ROLE_CARDS = {
   engineer: [
     { id: 'ing-main', title: 'Главная панель', icon: '📊', desc: 'Сводный дашборд технического надзора, статусы проверок и графики', btnText: '📊 Открыть панель', btnGradient: 'linear-gradient(90deg, #7c3aed, #b9a4ff)' },
     { id: 'ing-requests', title: 'Заявки на технадзор', icon: '📬', desc: 'Очередь вызовов инженеров на объекты для проведения инспекций', btnText: '📬 Список заявок', btnGradient: 'linear-gradient(90deg, #ef4444, #f59e0b)' },
+    { id: 'ing-scan', title: 'Сканер трещин', icon: '📷', desc: 'Осмотр с камерой: трещины в кадре, длина и ведомость материалов', btnText: '📷 Открыть сканер', btnGradient: 'linear-gradient(90deg, #ff5c8a, #f59e0b)' },
     { id: 'ing-objects', title: 'Мои объекты', icon: '🏗️', desc: 'Реестр строящихся объектов под авторским и техническим контролем', btnText: '🏗️ Мои объекты', btnGradient: 'linear-gradient(90deg, #f59e0b, #10b981)' },
     { id: 'ing-ai', title: 'AI-просчёт по СНиП', icon: '🤖', desc: 'Автоматический анализ ПСД на соответствие ГОСТ и СНиП РК', btnText: '🤖 Запустить AI', btnGradient: 'linear-gradient(90deg, #7c3aed, #7c3aed)' },
     { id: 'ing-calendar', title: 'Календарь инспекций', icon: '📅', desc: 'План выездных инспекций и график подписания актов КС-2 / КС-3', btnText: '📅 План инспекций', btnGradient: 'linear-gradient(90deg, #10b981, #059669)' },
@@ -201,6 +204,7 @@ export function toolSlug(id) {
 }
 
 function moduleFor(id) {
+  if (id.endsWith('-scan')) return null; // сканер трещин — обычная страница инструмента, в том числе у инженера
   if (id.startsWith('b-')) return 'builder';
   if (id.startsWith('adm-')) return 'admin_panel';
   if (id.startsWith('comp-')) return 'company';

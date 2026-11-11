@@ -11,6 +11,8 @@ const AI_TARGET = process.env.VITE_AI_PROXY_TARGET || API_TARGET
 
 export default defineConfig({
   plugins: [react()],
+  // воркер распознавания трещин подгружает onnxruntime динамическим импортом — нужен ES-формат
+  worker: { format: 'es' },
   server: {
     port: 5173,
     proxy: {

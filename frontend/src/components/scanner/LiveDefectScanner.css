@@ -1,0 +1,244 @@
+/* Сканер трещин — в языке главной: стекло с градиентной кромкой, золото — главное действие.
+   Рамки трещин — розовым (цвет «дефекта» в палитре сетей), чтобы читались на любой стене. */
+
+.ls {
+  --ls-text: var(--qg-text, #f3f1f9);
+  --ls-text-2: var(--qg-text-2, #bfb8d6);
+  --ls-text-3: var(--qg-text-3, #978fb3);
+  --ls-line: rgba(189, 178, 230, 0.16);
+  --ls-gold: linear-gradient(180deg, #f8d27a, #e5a03a);
+  --ls-rose: var(--t-rose, #ff5c8a);
+  --ls-mint: var(--t-mint, #2ee6c5);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px var(--qg-gutter, 24px) 40px;
+  color: var(--ls-text);
+  font-family: var(--qg-font, 'Manrope', sans-serif);
+}
+.ls *, .ls *::before, .ls *::after { box-sizing: border-box; }
+:where(.ls) :where(button) { font: inherit; color: inherit; }
+.ls :is(button, input):focus-visible { outline: 2px solid #f8d27a; outline-offset: 2px; }
+.ls :is(h2, h3, p, ul, dl, dd) { margin: 0; padding: 0; }
+.ls ul { list-style: none; }
+.ls-file { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+
+.ls-panel {
+  border: 1px solid transparent;
+  border-radius: 20px;
+  background:
+    linear-gradient(160deg, rgba(46, 33, 94, 0.78), rgba(18, 13, 40, 0.9)) padding-box,
+    linear-gradient(150deg, rgba(220, 200, 255, 0.42), rgba(150, 100, 255, 0.1) 40%, rgba(150, 100, 255, 0.08) 62%, rgba(255, 200, 120, 0.5) 88%, rgba(244, 114, 208, 0.55)) border-box;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 30px 60px -36px rgba(0, 0, 0, 0.9);
+  backdrop-filter: blur(14px);
+}
+
+/* ── шапка ─────────────────────────────────────────────── */
+.ls-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px 28px; flex-wrap: wrap; padding: 22px 26px; }
+.ls .ls-title {
+  font-family: var(--qg-font-display, var(--qg-font));
+  font-size: clamp(1.3rem, 1rem + 1vw, 1.75rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  color: var(--ls-text);
+}
+.ls .ls-title::before {
+  content: '';
+  display: block;
+  width: 56px;
+  height: 4px;
+  margin-bottom: 12px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #ffc34d 0 25%, #4fc3ff 25% 50%, #ff5c8a 50% 75%, #2ee6c5 75%);
+}
+.ls-sub { margin-top: 8px !important; max-width: 60ch; color: var(--ls-text-2); font-size: 0.95rem; line-height: 1.5; }
+.ls .ls-model { display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; border: 1px solid var(--ls-line); color: var(--ls-text-2); font-size: 0.8125rem; font-weight: 700; font-variant-numeric: tabular-nums; border-radius: 14px; line-height: 1.35; }
+.ls-model[data-state='ready'] { border-color: rgba(46, 230, 197, 0.4); color: var(--ls-mint); }
+.ls-model svg { flex: none; }
+.ls-model[data-state='error'] { border-color: rgba(255, 92, 138, 0.5); color: #ff9db8; border-radius: 14px; }
+
+/* ── раскладка ─────────────────────────────────────────── */
+.ls-body { display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: 16px; align-items: start; }
+.ls-main { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+
+/* ── старт ─────────────────────────────────────────────── */
+.ls-start { display: flex; flex-direction: column; align-items: center; gap: 18px; padding: 36px 24px; text-align: center; }
+.ls-start-frame { position: relative; display: grid; place-items: center; width: 132px; height: 132px; color: var(--ls-text-3); }
+.ls-start-frame i { position: absolute; width: 26px; height: 26px; border: 3px solid #f8d27a; }
+.ls-start-frame i:nth-child(1) { top: 0; left: 0; border-right: 0; border-bottom: 0; border-radius: 10px 0 0 0; }
+.ls-start-frame i:nth-child(2) { top: 0; right: 0; border-left: 0; border-bottom: 0; border-radius: 0 10px 0 0; }
+.ls-start-frame i:nth-child(3) { bottom: 0; left: 0; border-right: 0; border-top: 0; border-radius: 0 0 0 10px; }
+.ls-start-frame i:nth-child(4) { bottom: 0; right: 0; border-left: 0; border-top: 0; border-radius: 0 0 10px 0; }
+.ls-start-text { max-width: 46ch; color: var(--ls-text-2); line-height: 1.5; }
+.ls-start-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.ls .ls-alert { max-width: 52ch; padding: 10px 14px; border: 1px solid rgba(255, 92, 138, 0.45); border-radius: 12px; background: rgba(255, 92, 138, 0.08); color: #ffc2d2; font-size: 0.9rem; line-height: 1.45; }
+
+.ls-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 46px;
+  padding: 0 18px;
+  border-radius: 13px;
+  font-size: 0.95rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+.ls-btn--gold { border: 0; background: var(--ls-gold); color: #1c1203; box-shadow: 0 10px 28px -12px rgba(242, 184, 75, 0.8); }
+.ls-btn--gold:hover:not(:disabled) { background: linear-gradient(180deg, #fbdc94, #efae46); }
+.ls-btn--gold:disabled { background: rgba(255, 255, 255, 0.08); color: var(--ls-text-3); box-shadow: none; cursor: not-allowed; }
+.ls-btn--ghost { border: 1px solid var(--ls-line); background: rgba(23, 18, 48, 0.6); color: var(--ls-text); }
+.ls-btn--ghost:hover { border-color: rgba(248, 210, 122, 0.5); }
+.ls-btn--block { width: 100%; }
+
+/* ── камера ────────────────────────────────────────────── */
+.ls-viewer { display: flex; flex-direction: column; gap: 14px; padding: 12px; }
+.ls-stage {
+  position: relative;
+  width: min(100%, calc(62svh * var(--ls-ar, 1.78)));
+  margin: 0 auto;
+  border-radius: 14px;
+  background: #05040d;
+  overflow: hidden;
+}
+.ls-media { display: block; width: 100%; height: 100%; object-fit: fill; }
+.ls-box { position: absolute; border: 2px solid var(--ls-rose); border-radius: 6px; box-shadow: 0 0 0 1px rgba(5, 4, 13, 0.6), 0 0 18px rgba(255, 92, 138, 0.55); pointer-events: none; }
+.ls-box span {
+  position: absolute;
+  left: -2px;
+  bottom: 100%;
+  padding: 2px 7px;
+  border-radius: 6px 6px 6px 0;
+  background: var(--ls-rose);
+  color: #2a0612;
+  font-size: 0.72rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.ls-box span.is-inside { bottom: auto; top: -2px; border-radius: 6px 0 6px 0; }
+.ls .ls-status {
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(8, 6, 22, 0.78);
+  color: var(--ls-text);
+  font-size: 0.8125rem;
+  font-weight: 800;
+  backdrop-filter: blur(6px);
+}
+.ls-status[data-found='true'] { background: var(--ls-rose); color: #2a0612; }
+.ls-stage-tools { position: absolute; right: 10px; bottom: 10px; display: flex; gap: 8px; }
+.ls-round { display: inline-grid; place-items: center; width: 44px; height: 44px; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 50%; background: rgba(8, 6, 22, 0.72); color: #fff; cursor: pointer; backdrop-filter: blur(6px); }
+.ls-round.is-on { background: var(--ls-gold); color: #1c1203; border-color: transparent; }
+
+.ls-controls { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 12px 24px; padding: 0 6px; }
+.ls-field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.ls-label { color: var(--ls-text-3); font-size: 0.8rem; font-weight: 700; }
+.ls-stepper { display: inline-flex; align-items: center; gap: 4px; padding: 3px; border: 1px solid var(--ls-line); border-radius: 13px; background: rgba(10, 8, 28, 0.55); }
+.ls-stepper button { display: inline-grid; place-items: center; width: 44px; height: 40px; border: 0; border-radius: 10px; background: rgba(255, 255, 255, 0.06); cursor: pointer; }
+.ls-stepper button:disabled { opacity: 0.35; cursor: not-allowed; }
+.ls-stepper output { min-width: 76px; text-align: center; font-weight: 800; font-variant-numeric: tabular-nums; }
+.ls-seg { display: flex; padding: 3px; border: 1px solid var(--ls-line); border-radius: 13px; background: rgba(10, 8, 28, 0.55); }
+.ls-seg button { flex: 1; min-height: 40px; padding: 0 10px; border: 0; border-radius: 10px; background: transparent; color: var(--ls-text-2); font-size: 0.9rem; font-weight: 700; cursor: pointer; }
+.ls-seg button.is-active { background: var(--ls-gold); color: #1c1203; }
+
+.ls-live { display: flex; flex-direction: column; gap: 12px; padding: 14px; border: 1px solid var(--ls-line); border-radius: 16px; background: rgba(10, 8, 28, 0.5); }
+.ls-live-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.ls-live-num, .ls-live-sum { display: flex; flex-direction: column; gap: 2px; }
+.ls-live-sum { align-items: flex-end; }
+.ls-live-num b { font-family: var(--qg-font-display, var(--qg-font)); font-size: 1.6rem; font-weight: 600; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.ls-live-sum b { font-size: 1.1rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+.ls-live-num span, .ls-live-sum span { color: var(--ls-text-3); font-size: 0.8rem; font-weight: 600; }
+.ls-live-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 4px 20px; }
+.ls-live-list li { display: flex; justify-content: space-between; gap: 12px; padding: 5px 0; border-bottom: 1px dashed var(--ls-line); color: var(--ls-text-2); font-size: 0.875rem; }
+.ls-live-list b { color: var(--ls-text); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ls-method { color: var(--ls-text-3); font-size: 0.85rem; line-height: 1.45; }
+.ls-live-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.ls .ls-honest { padding: 0 6px; color: var(--ls-text-3); font-size: 0.8125rem; line-height: 1.5; max-width: 90ch; }
+
+/* ── расчёт ────────────────────────────────────────────── */
+.ls-total { position: sticky; top: 12px; display: flex; flex-direction: column; gap: 14px; padding: 20px; }
+.ls-total-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.ls .ls-total h3 { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.015em; }
+.ls-link { display: inline-flex; align-items: center; gap: 5px; min-height: 32px; padding: 0 8px; border: 0; border-radius: 8px; background: transparent; color: var(--ls-text-2); font-size: 0.8125rem; font-weight: 700; cursor: pointer; }
+.ls-link:hover { color: var(--ls-text); background: rgba(255, 255, 255, 0.06); }
+.ls-empty { color: var(--ls-text-3); font-size: 0.9rem; line-height: 1.5; }
+.ls-total-sum { color: var(--ls-text-2); font-size: 0.9rem; font-weight: 700; }
+.ls-zones { display: grid; gap: 8px; }
+.ls-zones li { display: flex; align-items: center; gap: 10px; padding: 6px; border: 1px solid var(--ls-line); border-radius: 12px; background: rgba(10, 8, 28, 0.5); }
+.ls-zones img, .ls-zone-ph { flex: none; width: 64px; height: 48px; border-radius: 8px; object-fit: cover; background: rgba(255, 255, 255, 0.06); }
+.ls-zones div { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.ls-zones b { font-size: 0.875rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+.ls-zones span { color: var(--ls-text-3); font-size: 0.78rem; }
+.ls-icon { flex: none; display: inline-grid; place-items: center; width: 36px; height: 36px; border: 1px solid var(--ls-line); border-radius: 10px; background: transparent; color: var(--ls-text-2); cursor: pointer; }
+.ls-icon:hover { color: var(--ls-rose); border-color: rgba(255, 92, 138, 0.5); }
+
+.ls-table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
+.ls .ls-table :is(th, td) { background: transparent; border: 0; }
+.ls-table caption { padding: 0 0 6px; color: var(--ls-text-3); font-size: 0.78rem; font-weight: 800; text-align: left; letter-spacing: 0.03em; }
+.ls-table thead th { padding: 0 0 6px; color: var(--ls-text-3); font-size: 0.72rem; font-weight: 700; text-align: right; }
+.ls-table thead th:first-child { text-align: left; }
+.ls-table tbody th { padding: 7px 8px 7px 0; font-weight: 700; text-align: left; line-height: 1.3; }
+.ls-table td { padding: 7px 0 7px 8px; color: var(--ls-text-2); text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; vertical-align: top; }
+.ls-table td:last-child { color: var(--ls-text); font-weight: 800; }
+.ls-table tbody tr { border-top: 1px solid rgba(189, 178, 230, 0.1); }
+
+.ls-totals { display: grid; gap: 6px; padding-top: 12px !important; border-top: 1px solid var(--ls-line); }
+.ls-totals div { display: flex; justify-content: space-between; gap: 12px; color: var(--ls-text-2); font-size: 0.9rem; }
+.ls-totals dd { font-weight: 800; font-variant-numeric: tabular-nums; color: var(--ls-text); }
+.ls-totals .is-grand { margin-top: 4px; font-size: 1rem; color: var(--ls-text); }
+.ls-totals .is-grand dd { font-family: var(--qg-font-display, var(--qg-font)); font-size: 1.3rem; font-weight: 600; }
+.ls-price-note { color: var(--ls-text-3); font-size: 0.78rem; line-height: 1.45; }
+
+.ls-toast {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: 24px;
+  z-index: 60;
+  width: fit-content;
+  max-width: min(calc(100vw - 24px), 520px);
+  margin: 0 auto;
+  padding: 12px 18px;
+  border: 1px solid rgba(46, 230, 197, 0.45);
+  border-radius: 14px;
+  background: rgba(14, 22, 40, 0.96);
+  font-weight: 700;
+  font-size: 0.9rem;
+  transform: translateY(20px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.ls-toast.is-on { opacity: 1; transform: none; }
+
+/* ── адаптив ───────────────────────────────────────────── */
+@media (max-width: 1100px) {
+  .ls-body { grid-template-columns: minmax(0, 1fr); }
+  .ls-total { position: static; }
+}
+@media (max-width: 640px) {
+  .ls { padding: 12px 10px 32px; gap: 12px; }
+  .ls-head { padding: 18px; }
+  .ls-viewer { padding: 8px; gap: 12px; }
+  .ls-stage { width: min(100%, calc(56svh * var(--ls-ar, 1.78))); }
+  .ls-controls { grid-template-columns: minmax(0, 1fr); }
+  .ls-stepper { align-self: flex-start; }
+  .ls-live-actions .ls-btn { flex: 1 1 100%; }
+  .ls-start { padding: 28px 16px; }
+  .ls-start-actions .ls-btn { flex: 1 1 100%; }
+  /* таблицы расчёта на телефоне — карточками: название и сумма, ниже «нужно» и «купить» */
+  .ls-table thead { display: none; }
+  .ls-table tbody tr { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 12px; padding: 9px 0; }
+  .ls-table tbody th { grid-column: 1; grid-row: 1; padding: 0; }
+  .ls-table td { grid-column: 1; padding: 0; text-align: left; font-size: 0.8rem; }
+  .ls-table td:last-child { grid-column: 2; grid-row: 1; text-align: right; font-size: 0.9rem; }
+  .ls-table td[data-label]::before { content: attr(data-label) ': '; color: var(--ls-text-3); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ls * { transition: none !important; }
+}
