@@ -128,6 +128,16 @@ func main() {
 	mux.HandleFunc("/api/v1/materials/", materialsRoute)
 	mux.HandleFunc("/api/v1/disputes", auth(disputesHnd.GetDisputes))
 
+	// Мобильная админка: только роль admin (проверяется и в обработчиках)
+	adminHnd := handlers.NewAdminHandler()
+	adminOnly := func(next http.HandlerFunc) http.HandlerFunc {
+		return middleware.RoleMiddleware(cfg.JwtSecret, []string{"admin"}, next)
+	}
+	mux.HandleFunc("/api/v1/admin/overview", adminOnly(middleware.RateLimit(60, time.Minute, adminHnd.Overview)))
+	mux.HandleFunc("/api/v1/admin/users", adminOnly(adminHnd.Users))
+	mux.HandleFunc("/api/v1/admin/users/", adminOnly(adminHnd.Users))
+	mux.HandleFunc("/api/v1/admin/audit", adminOnly(adminHnd.Audit))
+
 	// Contractors catalog — public read (brigades + company contacts)
 	mux.HandleFunc("/api/v1/contractors", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodGet {

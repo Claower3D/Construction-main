@@ -191,6 +191,18 @@ func runMigrations() error {
 		`ALTER TABLE users ADD COLUMN IF NOT EXISTS marketing_opt_in_at TIMESTAMP NULL`,
 		// время последней смены пароля (unix): токены, выданные раньше, не принимаются
 		`ALTER TABLE users ADD COLUMN IF NOT EXISTS password_changed_unix BIGINT NOT NULL DEFAULT 0`,
+		// админка: подтверждение специалиста, принудительный выход после смены роли, журнал
+		`ALTER TABLE users ADD COLUMN IF NOT EXISTS verified_at TIMESTAMP NULL`,
+		`ALTER TABLE users ADD COLUMN IF NOT EXISTS sessions_revoked_unix BIGINT NOT NULL DEFAULT 0`,
+		`CREATE TABLE IF NOT EXISTS admin_audit (
+			id BIGSERIAL PRIMARY KEY,
+			at TIMESTAMP NOT NULL DEFAULT NOW(),
+			actor_id TEXT NOT NULL DEFAULT '',
+			actor_email TEXT NOT NULL DEFAULT '',
+			action TEXT NOT NULL,
+			target TEXT NOT NULL DEFAULT '',
+			details TEXT NOT NULL DEFAULT ''
+		)`,
 	)
 
 	for _, m := range migrations {
@@ -344,7 +356,9 @@ func UpdateUserPassword(id, passwordHash string, changedUnix int64) error {
 
 // PasswordChangeTimes возвращает id пользователей, менявших пароль, и время смены (unix)
 func PasswordChangeTimes() (map[string]int64, error) {
-	rows, err := DB.Query(`SELECT id, password_changed_unix FROM users WHERE password_changed_unix > 0`)
+	// после смены пароля или смены роли администратором старые токены не принимаются
+	rows, err := DB.Query(`SELECT id, GREATEST(password_changed_unix, sessions_revoked_unix) FROM users
+		WHERE password_changed_unix > 0 OR sessions_revoked_unix > 0`)
 	if err != nil {
 		return nil, err
 	}

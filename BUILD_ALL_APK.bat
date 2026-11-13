@@ -3,21 +3,22 @@ chcp 65001 >nul
 title QazGost - сборка всех APK
 setlocal EnableDelayedExpansion
 set "ROOT=%~dp0"
-set "OUT=%USERPROFILE%\Downloads\QazGost-APK"
+set "OUT=%USERPROFILE%\Downloads\QazGost-Android"
 if not exist "%OUT%" mkdir "%OUT%"
 
 if not defined JAVA_HOME if exist "C:\Program Files\Android\Android Studio\jbr" set "JAVA_HOME=C:\Program Files\Android\Android Studio\jbr"
 if not defined JAVA_HOME if exist "%LOCALAPPDATA%\Programs\Android Studio\jbr" set "JAVA_HOME=%LOCALAPPDATA%\Programs\Android Studio\jbr"
 
 set FAILED=
-call :build mobile-customer QazGost-Client-v1.0
+call :build mobile-customer QazGost-Customer-v1.0
 call :build mobile-manager QazGost-Manager-CRM-v2.1
-call :build mobile-engineer QazGost-Engineer-v2.1
+call :build mobile-engineer QazGost-Engineer-v2.2
 call :build mobile-executor QazGost-Executor-v2.1
+call :build mobile-admin QazGost-Admin-v1.0
 
 echo.
 echo ============================================================
-if defined FAILED (echo   Не собрались:!FAILED!) else (echo   Все 4 APK собраны.)
+if defined FAILED (echo   Не собрались:!FAILED!) else (echo   Все 5 APK собраны.)
 echo   Папка: %OUT%
 echo ============================================================
 start "" "%OUT%"

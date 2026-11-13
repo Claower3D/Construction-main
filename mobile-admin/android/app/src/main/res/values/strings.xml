@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">QazGost Админ</string>
+    <string name="title_activity_main">QazGost Админ</string>
+    <string name="package_name">kz.qazgost.admin</string>
+    <string name="custom_url_scheme">kz.qazgost.admin</string>
+</resources>
