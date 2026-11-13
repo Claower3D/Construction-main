@@ -17700,3 +17700,10 @@ body.dark .split-service-card {
   height: 100%;
   border-radius: 50%;
 }
+/* На телефоне эмблема в шапке чуть меньше, чтобы хватило места кнопкам */
+@media (max-width: 640px) {
+  .header-wrapper .logo-brand > .qg-mark {
+    width: 40px !important;
+    height: 40px !important;
+  }
+}

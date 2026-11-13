@@ -5,12 +5,12 @@ import { getAuthToken } from '../services/platformUtils';
 
 // Знак QazGost — круглая эмблема из логотипа (public/brand). Рядом всегда стоит
 // надпись «QazGost AI», поэтому для программ чтения с экрана картинка скрыта.
-export function QazGostMark({ size = 36 }) {
+export function QazGostMark({ size = 46 }) {
   return (
     <picture className="qg-mark" style={{ width: size, height: size }}>
-      <source srcSet="/brand/qazgost-mark-128.webp" type="image/webp" />
+      <source srcSet="/brand/qazgost-mark-160.webp" type="image/webp" />
       <img
-        src="/brand/qazgost-mark-128.png"
+        src="/brand/qazgost-mark-160.png"
         width={size}
         height={size}
         alt=""
@@ -302,7 +302,6 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
             <div className="logo-title-row">
               <span className="logo-title">QazGost AI</span>
             </div>
-            <span className="logo-subtitle">Сметы и дефекты по нормам РК</span>
           </div>
         </a>
 
@@ -997,7 +996,7 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
           <div className="mobile-nav-drawer">
             <div className="mobile-drawer-header">
               <div className="logo-brand">
-                <QazGostMark size={30} />
+                <QazGostMark size={38} />
                 <span className="logo-title" style={{ fontSize: '1.1rem' }}>QazGost AI</span>
               </div>
               <button className="mobile-drawer-close" onClick={closeDropdown}>

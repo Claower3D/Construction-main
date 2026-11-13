@@ -412,7 +412,7 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, onOpe
               style={{ cursor: 'pointer', marginBottom: 0 }}
               title="На главный экран"
             >
-              <QazGostMark size={36} />
+              <QazGostMark size={40} />
               <div>QazGost <span style={{ color: '#b9a4ff' }}>AI</span></div>
             </div>
             <button 
@@ -493,10 +493,9 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, onOpe
         <header className="main-top-header modern-topbar qg-dash-topbar">
           <div className="topbar-left-group">
             <a href="/" className="qg-dash-brand" onClick={(e) => { e.preventDefault(); onBackToHome(); }} aria-label="QazGost AI — на главную">
-              <QazGostMark size={34} />
+              <QazGostMark size={42} />
               <span className="qg-dash-brand-text">
                 <span className="qg-dash-brand-title">QazGost AI</span>
-                <span className="qg-dash-brand-sub">Сметы и дефекты по нормам РК</span>
               </span>
             </a>
             <button
