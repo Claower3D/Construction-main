@@ -3,15 +3,21 @@ import { getBalanceKZT, PAYMENTS_ENABLED } from '../services/walletEngine';
 import LangSwitch from './LangSwitch';
 import { getAuthToken } from '../services/platformUtils';
 
-// Знак QazGost: лист с размерной линией и «трещиной» — без эмодзи
+// Знак QazGost — круглая эмблема из логотипа (public/brand). Рядом всегда стоит
+// надпись «QazGost AI», поэтому для программ чтения с экрана картинка скрыта.
 export function QazGostMark({ size = 36 }) {
   return (
-    <svg className="qg-mark" width={size} height={size} viewBox="0 0 36 36" aria-hidden="true">
-      <rect x="1" y="1" width="34" height="34" rx="9" fill="#201c3a" stroke="rgba(196,181,253,0.35)" />
-      <path d="M9 11h18M9 8v6M27 8v6" stroke="#b9a4ff" strokeWidth="1.6" fill="none" strokeLinecap="round" />
-      <path d="M17 17l2.5 4-2.5 3.5 2 4.5" stroke="#fbbf24" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-      <rect x="9" y="17" width="18" height="12" rx="1.5" stroke="#e8eef7" strokeWidth="1.6" fill="none" />
-    </svg>
+    <picture className="qg-mark" style={{ width: size, height: size }}>
+      <source srcSet="/brand/qazgost-mark-128.webp" type="image/webp" />
+      <img
+        src="/brand/qazgost-mark-128.png"
+        width={size}
+        height={size}
+        alt=""
+        aria-hidden="true"
+        decoding="async"
+      />
+    </picture>
   );
 }
 

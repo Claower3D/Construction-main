@@ -412,7 +412,7 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, onOpe
               style={{ cursor: 'pointer', marginBottom: 0 }}
               title="На главный экран"
             >
-              <span className="logo-emoji">🏗️</span>
+              <QazGostMark size={36} />
               <div>QazGost <span style={{ color: '#b9a4ff' }}>AI</span></div>
             </div>
             <button 

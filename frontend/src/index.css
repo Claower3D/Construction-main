@@ -17686,3 +17686,17 @@ body.dark .split-service-card {
     min-height: 125px;
   }
 }
+/* Эмблема QazGost (Header.jsx → QazGostMark): круглый значок из логотипа */
+.qg-mark {
+  display: inline-block;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px rgba(246, 196, 83, 0.35), 0 4px 14px rgba(0, 0, 0, 0.35);
+  line-height: 0;
+}
+.qg-mark img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
