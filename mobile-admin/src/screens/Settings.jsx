@@ -3,7 +3,7 @@ import { KeyRound, LogOut, Server } from 'lucide-react';
 import { api, getServer, setServer, DEFAULT_SERVER, updateStoredToken } from '../api/adminApi';
 import { PageHead, Kv } from '../components/kit';
 
-const APP_VERSION = '1.0';
+const APP_VERSION = '1.1';
 
 export default function Settings({ me, onLogout, toast }) {
   const [cur, setCur] = useState('');
@@ -42,9 +42,9 @@ export default function Settings({ me, onLogout, toast }) {
 
       <form className="qz-card qz-stack" onSubmit={change} noValidate>
         <h3 className="qz-h3 qz-row"><KeyRound size={18} />Сменить пароль</h3>
-        <label className="qz-field"><span className="qz-label">Текущий пароль</span><input id="qga-cur" className="qz-input" type="password" autoComplete="current-password" value={cur} onChange={(e) => setCur(e.target.value)} /></label>
-        <label className="qz-field"><span className="qz-label">Новый пароль</span><input id="qga-new" className="qz-input" type="password" autoComplete="new-password" value={next} onChange={(e) => setNext(e.target.value)} /></label>
-        <label className="qz-field"><span className="qz-label">Новый пароль ещё раз</span><input id="qga-rep" className="qz-input" type="password" autoComplete="new-password" value={rep} onChange={(e) => setRep(e.target.value)} /></label>
+        <label className="qz-field"><span className="qz-label">Текущий пароль</span><input id="qga-cur" className="qz-input" type="password" autoCapitalize="none" autoCorrect="off" spellCheck={false} autoComplete="current-password" value={cur} onChange={(e) => setCur(e.target.value)} /></label>
+        <label className="qz-field"><span className="qz-label">Новый пароль</span><input id="qga-new" className="qz-input" type="password" autoCapitalize="none" autoCorrect="off" spellCheck={false} autoComplete="new-password" value={next} onChange={(e) => setNext(e.target.value)} /></label>
+        <label className="qz-field"><span className="qz-label">Новый пароль ещё раз</span><input id="qga-rep" className="qz-input" type="password" autoCapitalize="none" autoCorrect="off" spellCheck={false} autoComplete="new-password" value={rep} onChange={(e) => setRep(e.target.value)} /></label>
         <p className="qz-xs qz-faint" style={{ margin: 0 }}>Не короче 8 символов, не из общеизвестных и не совпадает с почтой.</p>
         {err && <p className="qga-error" role="alert">{err}</p>}
         <button type="submit" className="qz-btn is-primary is-block" disabled={busy || !cur || !next}>{busy ? 'Меняем…' : 'Сменить пароль'}</button>

@@ -67,7 +67,15 @@ async function request(path, { method = 'GET', body, auth = true, timeout = 2000
 }
 
 export async function login(email, password) {
-  const data = await request('/api/v1/auth/login', { method: 'POST', body: { email: email.trim().toLowerCase(), password }, auth: false });
+  const body = { email: email.trim().toLowerCase(), password };
+  let data;
+  try {
+    data = await request('/api/v1/auth/login', { method: 'POST', body, auth: false });
+  } catch (e) {
+    // клавиатура телефона часто добавляет пробел после слова: пробуем ещё раз без пробелов по краям
+    if (e.status !== 401 || password.trim() === password || !password.trim()) throw e;
+    data = await request('/api/v1/auth/login', { method: 'POST', body: { ...body, password: password.trim() }, auth: false });
+  }
   if (!data || !data.token || !data.user) throw new ApiError('Сервер вернул неполный ответ', 500);
   if (data.user.role !== 'admin') {
     throw new ApiError('Это приложение только для администраторов. У этого аккаунта роль «' + roleLabel(data.user.role) + '».', 403);
