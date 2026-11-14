@@ -299,3 +299,34 @@ func ListAudit(limit int) ([]AuditEntry, error) {
 	}
 	return out, rows.Err()
 }
+
+// RecoverAdmin — аварийное восстановление доступа администратора (переменная ADMIN_RESET_PASSWORD).
+// Если пользователя с этой почтой нет — создаёт администратора; если есть — ставит роль admin и
+// новый пароль. Пароль меняется, только если он ещё не такой (повторные перезапуски ничего не
+// делают и не выкидывают из аккаунта). Возвращает: "created", "updated" или "unchanged".
+func RecoverAdmin(email, password string, check func(pw, hash string) bool, hash func(string) string) (string, error) {
+	email = strings.ToLower(strings.TrimSpace(email))
+	var id, role, stored string
+	err := DB.QueryRow(`SELECT id, COALESCE(role,''), COALESCE(password_hash,'') FROM users WHERE LOWER(email)=$1`, email).Scan(&id, &role, &stored)
+	if err == sql.ErrNoRows {
+		id = fmt.Sprintf("u_admin_%d", time.Now().UnixNano())
+		_, err = DB.Exec(`INSERT INTO users (id,email,name,password_hash,role,created_at,password_changed_unix) VALUES ($1,$2,$3,$4,'admin',NOW(),$5)`,
+			id, email, "Администратор", hash(password), time.Now().Unix())
+		if err != nil {
+			return "", err
+		}
+		return "created", nil
+	}
+	if err != nil {
+		return "", err
+	}
+	if role == "admin" && check(password, stored) {
+		return "unchanged", nil
+	}
+	// новый пароль закрывает все прежние сессии этого аккаунта
+	_, err = DB.Exec(`UPDATE users SET role='admin', password_hash=$1, password_changed_unix=$2 WHERE id=$3`, hash(password), time.Now().Unix(), id)
+	if err != nil {
+		return "", err
+	}
+	return "updated", nil
+}

@@ -28,6 +28,21 @@ func main() {
 		log.Printf("[⚠️ WARNING] Database connection not established: %v (server will continue running)", err)
 	} else if database.DB != nil {
 		defer database.DB.Close()
+		// Аварийный вход администратора: ADMIN_RESET_PASSWORD (и при желании ADMIN_RESET_EMAIL)
+		// в переменных Railway. После входа переменную нужно удалить. Пароль в журнал не пишется.
+		if pw := os.Getenv("ADMIN_RESET_PASSWORD"); pw != "" {
+			email := os.Getenv("ADMIN_RESET_EMAIL")
+			if email == "" {
+				email = "admin@qazgost.kz"
+			}
+			if len([]rune(pw)) < 8 || len(pw) > 1024 {
+				log.Printf("[auth] ADMIN_RESET_PASSWORD не применён: нужен пароль от 8 символов")
+			} else if res, err := database.RecoverAdmin(email, pw, middleware.CheckPassword, middleware.HashPassword); err != nil {
+				log.Printf("[auth] ADMIN_RESET_PASSWORD: ошибка: %v", err)
+			} else {
+				log.Printf("[auth] ADMIN_RESET_PASSWORD: администратор %s — %s. Войдите и удалите переменную в Railway.", email, res)
+			}
+		}
 		// Сессии, выданные до смены пароля, остаются отозванными и после перезапуска сервера
 		if changed, err := database.PasswordChangeTimes(); err != nil {
 			log.Printf("[auth] не удалось прочитать даты смены паролей: %v", err)
