@@ -138,9 +138,11 @@ export default function UserOrdersPage({ currentUser, onBack, onSwitchRole, embe
       }
 
       // 2. CRM-события (заявки, созданные через CRM/другие устройства)
-      const crmRes = await fetch('/api/v1/crm/events', { headers: authHeaders() });
-      if (!crmRes.ok) throw new Error(`CRM HTTP ${crmRes.status}`);
-      const data = await crmRes.json().catch(() => null);
+      // Сделки CRM сервер отдаёт только после входа; гость видит свои заказы с этого устройства
+      const crmHeaders = authHeaders();
+      const crmRes = crmHeaders.Authorization ? await fetch('/api/v1/crm/events', { headers: crmHeaders }) : null;
+      if (crmRes && !crmRes.ok && crmRes.status !== 401) throw new Error(`CRM HTTP ${crmRes.status}`);
+      const data = crmRes && crmRes.ok ? await crmRes.json().catch(() => null) : null;
       if (data && Array.isArray(data.items) && data.items.length > 0) {
         setOrders(prev => {
           const next = [...prev];

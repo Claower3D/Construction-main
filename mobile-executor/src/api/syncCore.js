@@ -391,6 +391,9 @@ export function createSyncStore(cfg) {
     let remoteRaw;
     try {
       const res = await fetchWithTimeout(`${base}/api/v1/crm/events`, { method: 'GET', headers }, 8000);
+      if (res.status === 401 || res.status === 403) {
+        return { success: false, authRequired: true, error: 'Войдите в аккаунт заново — без входа сервер не отдаёт сделки', deals: load(), pendingCount: pendingCount() };
+      }
       if (!res.ok) {
         return { success: false, error: `Сервер ответил HTTP ${res.status}`, deals: load(), pendingCount: pendingCount() };
       }
@@ -415,8 +418,11 @@ export function createSyncStore(cfg) {
       if (t.confirmed) continue;
       try {
         const res = await fetchWithTimeout(`${base}/api/v1/crm/events?id=${encodeURIComponent(id)}`, { method: 'DELETE', headers }, 8000);
-        if (res.ok) t.confirmed = true;
-        else errors.push(`Удаление ${id}: HTTP ${res.status}`);
+        if (res.ok || res.status === 404) t.confirmed = true;
+        else if (res.status === 403) {
+          t.confirmed = true; // удалять может только автор или менеджер — сделка вернётся при следующей синхронизации
+          errors.push(`Удаление ${id}: удалить может только автор сделки или менеджер`);
+        } else errors.push(`Удаление ${id}: HTTP ${res.status}`);
       } catch (e) {
         errors.push(`Удаление ${id}: ${e.message || 'сбой сети'}`);
       }
@@ -434,6 +440,15 @@ export function createSyncStore(cfg) {
           headers: { ...headers, 'Content-Type': 'application/json' },
           body: JSON.stringify(toServerPayload(d, cfg.getAuthorName && cfg.getAuthorName()))
         }, 10000);
+        if (res.status === 403) {
+          // чужая заявка: сервер не примет изменения — не пытаемся отправлять их снова
+          failed++;
+          const fresh = load();
+          const i = fresh.findIndex((x) => String(x.id) === String(d.id));
+          if (i !== -1) { fresh[i] = { ...fresh[i], _dirty: false }; save(fresh); }
+          errors.push(`«${d.title}»: это не ваша заявка, изменения не сохранены на сервере`);
+          continue;
+        }
         if (!res.ok) {
           failed++;
           const txt = await res.text().catch(() => '');

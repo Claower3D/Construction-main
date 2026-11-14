@@ -38,7 +38,9 @@ func (h *CRMHandler) CreateCompany(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	req.ID = fmt.Sprintf("comp_%d", time.Now().UnixNano())
-	if req.Status == "" { req.Status = "active" }
+	if req.Status == "" {
+		req.Status = "active"
+	}
 	req.CreatedAt = time.Now()
 
 	if err := database.CreateCompany(&req); err != nil {
@@ -70,7 +72,9 @@ func (h *CRMHandler) CreateBrigade(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	req.ID = fmt.Sprintf("brig_%d", time.Now().UnixNano())
-	if req.Status == "" { req.Status = "active" }
+	if req.Status == "" {
+		req.Status = "active"
+	}
 	req.CreatedAt = time.Now()
 
 	if err := database.CreateBrigade(&req); err != nil {
@@ -102,7 +106,9 @@ func (h *CRMHandler) CreateClient(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	req.ID = fmt.Sprintf("cli_%d", time.Now().UnixNano())
-	if req.Status == "" { req.Status = "new" }
+	if req.Status == "" {
+		req.Status = "new"
+	}
 	req.CreatedAt = time.Now()
 
 	if err := database.CreateClient(&req); err != nil {
@@ -136,10 +142,21 @@ func (h *CRMHandler) GetDashboard(w http.ResponseWriter, r *http.Request) {
 // ── CRM Events & Calendar Multi-Device Synchronization ──
 
 func (h *CRMHandler) GetCRMEvents(w http.ResponseWriter, r *http.Request) {
+	v := newCRMViewer(r)
+	if v.uid == "" {
+		writeError(w, http.StatusUnauthorized, "Войдите, чтобы видеть заявки")
+		return
+	}
 	w.Header().Set("Content-Type", "application/json")
-	items, err := database.GetAllCRMEvents()
+	all, err := database.GetAllCRMEvents()
 	if err != nil {
-		items = []*models.CRMEvent{}
+		all = []*models.CRMEvent{}
+	}
+	items := make([]*models.CRMEvent, 0, len(all))
+	for _, e := range all {
+		if v.canSee(e) {
+			items = append(items, e)
+		}
 	}
 
 	// Group by Date for fast calendar consumption
@@ -205,6 +222,10 @@ func (h *CRMHandler) CreateOrUpdateCRMEvent(w http.ResponseWriter, r *http.Reque
 		writeError(w, http.StatusBadRequest, "Ошибка: "+err.Error())
 		return
 	}
+	if code, msg := newCRMViewer(r).checkWrite(&req); code != 0 {
+		writeError(w, code, msg)
+		return
+	}
 	if req.ID == "" {
 		req.ID = models.FlexString(fmt.Sprintf("evt_%d", time.Now().UnixNano()))
 	}
@@ -230,6 +251,25 @@ func (h *CRMHandler) DeleteCRMEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	v := newCRMViewer(r)
+	if v.uid == "" {
+		writeError(w, http.StatusUnauthorized, "Войдите, чтобы удалить заявку")
+		return
+	}
+	createdBy, _, found, err := database.GetCRMEventOwner(id)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "Ошибка удаления заявки")
+		return
+	}
+	if !found {
+		writeError(w, http.StatusNotFound, "Заявка не найдена")
+		return
+	}
+	if !v.canDelete(createdBy) {
+		writeError(w, http.StatusForbidden, "Удалить заявку может автор или менеджер")
+		return
+	}
+
 	n, err := database.DeleteCRMEvent(id)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "Ошибка удаления заявки")
@@ -243,6 +283,11 @@ func (h *CRMHandler) DeleteCRMEvent(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *CRMHandler) BulkSyncCRMEvents(w http.ResponseWriter, r *http.Request) {
+	v := newCRMViewer(r)
+	if v.uid == "" {
+		writeError(w, http.StatusUnauthorized, "Войдите, чтобы синхронизировать заявки")
+		return
+	}
 	var req struct {
 		Events map[string][]*models.CRMEvent `json:"events"`
 		Items  []*models.CRMEvent            `json:"items"`
@@ -277,6 +322,10 @@ func (h *CRMHandler) BulkSyncCRMEvents(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 		if err := normalizeCRMEvent(e, r); err != nil || e.ID == "" {
+			skipped = append(skipped, string(e.ID))
+			continue
+		}
+		if code, _ := v.checkWrite(e); code != 0 {
 			skipped = append(skipped, string(e.ID))
 			continue
 		}

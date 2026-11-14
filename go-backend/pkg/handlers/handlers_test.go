@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"strings"
 	"testing"
 
 	"qazgost-ai/backend/pkg/config"
@@ -266,7 +267,7 @@ func TestCRMDelete_ExactMatchOnly(t *testing.T) {
 	h := NewCRMHandler()
 	for _, id := range []string{"del_a1", "del_a12", "del_b1"} {
 		w := httptest.NewRecorder()
-		h.CreateOrUpdateCRMEvent(w, jsonReq("POST", "/api/v1/crm/events", map[string]interface{}{"id": id, "title": "t " + id, "date": "2026-11-05"}))
+		h.CreateOrUpdateCRMEvent(w, asUser(jsonReq("POST", "/api/v1/crm/events", map[string]interface{}{"id": id, "title": "t " + id, "date": "2026-11-05"}), "u_mgr_t", "manager"))
 		if w.Code != http.StatusOK {
 			t.Fatalf("create %s: %d %s", id, w.Code, w.Body.String())
 		}
@@ -282,12 +283,12 @@ func TestCRMDelete_ExactMatchOnly(t *testing.T) {
 		return n
 	}
 	w := httptest.NewRecorder()
-	h.DeleteCRMEvent(w, httptest.NewRequest("DELETE", "/api/v1/crm/events?id=del_a1", nil))
+	h.DeleteCRMEvent(w, asUser(httptest.NewRequest("DELETE", "/api/v1/crm/events?id=del_a1", nil), "u_mgr_t", "manager"))
 	if w.Code != http.StatusOK || count() != 2 {
 		t.Fatalf("delete del_a1 must remove exactly one event, left %d (code %d)", count(), w.Code)
 	}
 	w = httptest.NewRecorder()
-	h.DeleteCRMEvent(w, httptest.NewRequest("DELETE", "/api/v1/crm/events?id=%25", nil))
+	h.DeleteCRMEvent(w, asUser(httptest.NewRequest("DELETE", "/api/v1/crm/events?id=%25", nil), "u_mgr_t", "manager"))
 	if w.Code != http.StatusNotFound || count() != 2 {
 		t.Fatalf("delete id=%% must not wipe anything, code %d, left %d", w.Code, count())
 	}
@@ -300,7 +301,7 @@ func TestCRMEvent_AcceptsMobilePayloadTypes(t *testing.T) {
 		"notes": []map[string]string{{"text": "замер", "author": "Максим"}},
 	}}}
 	w := httptest.NewRecorder()
-	h.BulkSyncCRMEvents(w, jsonReq("POST", "/api/v1/crm/events/sync", body))
+	h.BulkSyncCRMEvents(w, asUser(jsonReq("POST", "/api/v1/crm/events/sync", body), "u_eng_t", "engineer"))
 	if w.Code != http.StatusOK {
 		t.Fatalf("mobile sync payload rejected: %d %s", w.Code, w.Body.String())
 	}
@@ -323,15 +324,82 @@ func TestCRMEvent_Validation(t *testing.T) {
 	h := NewCRMHandler()
 	for _, bad := range []map[string]interface{}{{"title": "", "date": "2026-11-01"}, {"title": "x", "date": "не-дата"}} {
 		w := httptest.NewRecorder()
-		h.CreateOrUpdateCRMEvent(w, jsonReq("POST", "/api/v1/crm/events", bad))
+		h.CreateOrUpdateCRMEvent(w, asUser(jsonReq("POST", "/api/v1/crm/events", bad), "u_mgr_t", "manager"))
 		if w.Code != http.StatusBadRequest {
 			t.Errorf("expected 400 for %v, got %d", bad, w.Code)
 		}
 	}
 	w := httptest.NewRecorder()
-	h.CreateOrUpdateCRMEvent(w, jsonReq("POST", "/api/v1/crm/events", map[string]interface{}{"title": "ru date", "date": "05.11.2026"}))
+	h.CreateOrUpdateCRMEvent(w, asUser(jsonReq("POST", "/api/v1/crm/events", map[string]interface{}{"title": "ru date", "date": "05.11.2026"}), "u_mgr_t", "manager"))
 	if w.Code != http.StatusOK || !bytes.Contains(w.Body.Bytes(), []byte(`"2026-11-05"`)) {
 		t.Errorf("dd.mm.yyyy must be normalised: %d %s", w.Code, w.Body.String())
+	}
+}
+
+func TestCRMEvent_Access(t *testing.T) {
+	h := NewCRMHandler()
+	_, _ = database.DB.Exec(`DELETE FROM crm_events WHERE id LIKE 'acc_%'`)
+	post := func(body map[string]interface{}, uid, role string) int {
+		r := jsonReq("POST", "/api/v1/crm/events", body)
+		if uid != "" {
+			r = asUser(r, uid, role)
+		}
+		w := httptest.NewRecorder()
+		h.CreateOrUpdateCRMEvent(w, r)
+		return w.Code
+	}
+	list := func(uid, role string) (int, string) {
+		r := httptest.NewRequest("GET", "/api/v1/crm/events", nil)
+		if uid != "" {
+			r = asUser(r, uid, role)
+		}
+		w := httptest.NewRecorder()
+		h.GetCRMEvents(w, r)
+		return w.Code, w.Body.String()
+	}
+	// guest may send a new request, but not read or overwrite
+	if c := post(map[string]interface{}{"id": "acc_lead", "title": "Заявка с сайта", "date": "2026-11-14", "createdBy": "u_admin_1"}, "", ""); c != http.StatusOK {
+		t.Fatalf("guest lead: %d", c)
+	}
+	if c := post(map[string]interface{}{"id": "acc_lead", "title": "взлом", "date": "2026-11-14"}, "", ""); c != http.StatusUnauthorized {
+		t.Fatalf("guest overwrite must be 401, got %d", c)
+	}
+	if c, _ := list("", ""); c != http.StatusUnauthorized {
+		t.Fatalf("guest list must be 401, got %d", c)
+	}
+	// customer sees only own deals and cannot touch others
+	if c := post(map[string]interface{}{"id": "acc_own", "title": "Моя заявка", "date": "2026-11-14"}, "u_cust_acc", "customer"); c != http.StatusOK {
+		t.Fatalf("customer create: %d", c)
+	}
+	if c := post(map[string]interface{}{"id": "acc_lead", "title": "чужая", "date": "2026-11-14"}, "u_cust_acc", "customer"); c != http.StatusForbidden {
+		t.Fatalf("customer editing foreign deal must be 403, got %d", c)
+	}
+	_, body := list("u_cust_acc", "customer")
+	if !strings.Contains(body, "acc_own") || strings.Contains(body, "acc_lead") {
+		t.Fatalf("customer list must contain only own deals: %s", body)
+	}
+	// staff and workers see everything; engineer cannot delete foreign deals, manager can
+	if _, body := list("u_eng_acc", "engineer"); !strings.Contains(body, "acc_lead") || !strings.Contains(body, "acc_own") {
+		t.Fatalf("engineer must see all deals")
+	}
+	del := func(id, uid, role string) int {
+		w := httptest.NewRecorder()
+		h.DeleteCRMEvent(w, asUser(httptest.NewRequest("DELETE", "/api/v1/crm/events?id="+id, nil), uid, role))
+		return w.Code
+	}
+	if c := del("acc_own", "u_eng_acc", "engineer"); c != http.StatusForbidden {
+		t.Fatalf("engineer deleting foreign deal must be 403, got %d", c)
+	}
+	if c := del("acc_own", "u_cust_acc", "customer"); c != http.StatusOK {
+		t.Fatalf("author delete: %d", c)
+	}
+	if c := del("acc_lead", "u_mgr_acc", "manager"); c != http.StatusOK {
+		t.Fatalf("manager delete: %d", c)
+	}
+	w := httptest.NewRecorder()
+	h.BulkSyncCRMEvents(w, jsonReq("POST", "/api/v1/crm/events/sync", map[string]interface{}{"items": []map[string]interface{}{{"id": "acc_bulk", "title": "x", "date": "2026-11-14"}}}))
+	if w.Code != http.StatusUnauthorized {
+		t.Fatalf("guest bulk sync must be 401, got %d", w.Code)
 	}
 }
 

@@ -23,6 +23,7 @@ import './styles/landing-scene.css';
 import './styles/app-lux.css';
 import './utils/audioFX.js';
 import { initI18n } from './i18n';
+import { startUserDataSync } from './services/userDataSync';
 // 3D-наклон карточек (utils/cardTilt.js) отключён: MutationObserver на весь документ
 // и «прыгающие» карточки мешали чтению и нагружали CPU.
 
@@ -48,3 +49,5 @@ ReactDOM.createRoot(document.getElementById('root')).render(
 
 // Язык интерфейса (RU / KZ / EN): сохранённый выбор применяется сразу после монтирования
 initI18n();
+// Личные данные (календарь, объекты, уведомления, история смет…) — на сервер и на все устройства
+startUserDataSync();

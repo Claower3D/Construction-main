@@ -113,7 +113,9 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
   const syncServerEvents = useCallback(async () => {
     if (pendingWritesRef.current > 0) return;
     try {
-      const res = await fetch('/api/v1/crm/events', { headers: authHeaders() });
+      const headers = authHeaders();
+      if (!headers.Authorization) { backendAliveRef.current = false; return; } // без входа сервер сделки не отдаёт
+      const res = await fetch('/api/v1/crm/events', { headers });
       if (!res.ok) { backendAliveRef.current = false; return; }
       backendAliveRef.current = true;
       const data = await res.json();

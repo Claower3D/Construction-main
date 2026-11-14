@@ -246,56 +246,34 @@ export async function loginManager(serverUrl, loginInput, password) {
 
       if (res.ok) {
         const data = await res.json();
+        const serverRole = data.user?.role || '';
+        if (serverRole !== 'manager' && serverRole !== 'admin') {
+          return { success: false, error: 'У этого аккаунта нет роли «Менеджер». Попросите администратора выдать её в приложении «QazGost Админ» → Пользователи.' };
+        }
         const authData = {
           user: {
             id: data.user?.id || 'usr_' + Date.now(),
             name: data.user?.name || capitalizedName,
             login: cleanLogin,
-            email: cleanLogin.includes('@') ? cleanLogin : `${cleanLogin}@qazgost.kz`,
-            role: data.user?.role || 'Менеджер проектов',
-            phone: data.user?.phone || '+7 (701) 000-00-00',
+            email: data.user?.email || cleanLogin,
+            role: serverRole === 'admin' ? 'Администратор' : 'Менеджер проектов',
+            phone: data.user?.phone || '',
             avatar: '👨‍💼'
           },
-          token: data.token || 'jwt_railway_token',
+          token: data.token,
           isOnline: true,
           serverType: 'railway',
           loginTime: new Date().toISOString()
         };
         saveStoredAuth(authData);
         return { success: true, authData };
-      } else if (res.status === 401) {
-        // Try auto-registration on backend if not existing yet
-        try {
-          const regRes = await fetch(`${cleanUrl}/api/v1/auth/register`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              email: cleanLogin.includes('@') ? cleanLogin : `${cleanLogin}@qazgost.kz`,
-              password: cleanPass || 'Manager2026!',
-              name: capitalizedName,
-              role: 'customer'
-            })
-          });
-          if (regRes.ok) {
-            const regData = await regRes.json();
-            const authData = {
-              user: {
-                id: regData.user?.id || 'usr_' + Date.now(),
-                name: regData.user?.name || capitalizedName,
-                login: cleanLogin,
-                email: cleanLogin.includes('@') ? cleanLogin : `${cleanLogin}@qazgost.kz`,
-                role: 'Менеджер проектов',
-                avatar: '👨‍💼'
-              },
-              token: regData.token || 'jwt_railway_token',
-              isOnline: true,
-              serverType: 'railway',
-              loginTime: new Date().toISOString()
-            };
-            saveStoredAuth(authData);
-            return { success: true, authData };
-          }
-        } catch (regErr) {}
+      }
+      if (res.status === 400 || res.status === 401) {
+        // Раньше здесь создавался новый аккаунт-«заказчик» с введённым паролем — без доступа к CRM
+        return { success: false, error: 'Неверный логин или пароль' };
+      }
+      if (res.status === 429) {
+        return { success: false, error: 'Слишком много попыток входа. Подождите несколько минут.' };
       }
     } catch (err) {
       console.warn('Backend login unreachable, falling back to local auth:', err.message);

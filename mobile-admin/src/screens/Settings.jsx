@@ -3,7 +3,7 @@ import { KeyRound, LogOut, Server } from 'lucide-react';
 import { api, getServer, setServer, DEFAULT_SERVER, updateStoredToken } from '../api/adminApi';
 import { PageHead, Kv } from '../components/kit';
 
-const APP_VERSION = '1.1';
+const APP_VERSION = '1.2';
 
 export default function Settings({ me, onLogout, toast }) {
   const [cur, setCur] = useState('');

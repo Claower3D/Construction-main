@@ -76,7 +76,9 @@ export default function CalendarSchedulePage({ onBack, hideHeader = false, role 
   // ── SERVER SYNC: Загрузка событий с сервера для кросс-устройственной синхронизации ──
   useEffect(() => {
     const fetchCalendarEvents = () => {
-      fetch('/api/v1/crm/events', { headers: authHeaders() })
+      const headers = authHeaders();
+      if (!headers.Authorization) return; // сделки CRM доступны только после входа
+      fetch('/api/v1/crm/events', { headers })
         .then(r => r.ok ? r.json() : null)
         .then(data => {
           if (data && data.items && data.items.length > 0) {

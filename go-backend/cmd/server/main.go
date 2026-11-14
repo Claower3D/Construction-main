@@ -58,9 +58,7 @@ func main() {
 	roleAdmin := func(next http.HandlerFunc) http.HandlerFunc {
 		return middleware.RoleMiddleware(cfg.JwtSecret, []string{"admin", "manager"}, next)
 	}
-	// CRM is still reachable without a token because the web "linked accounts" and the
-	// mobile apps do not have server JWTs yet (login flow left unchanged on request).
-	// A valid token, when sent, is used for createdBy.
+	// CRM deals: reading needs a login; a guest may only send a new request (see handlers/crm_access.go).
 	optAuth := func(next http.HandlerFunc) http.HandlerFunc {
 		return middleware.OptionalAuthMiddleware(cfg.JwtSecret, next)
 	}
@@ -237,6 +235,11 @@ func main() {
 	planHnd := handlers.NewPlanModelsHandler()
 	mux.HandleFunc("/api/v1/plan-models", auth(planHnd.Models))
 	mux.HandleFunc("/api/v1/plan-models/", auth(planHnd.Models))
+
+	// Личные данные пользователя с сайта — одинаковые на всех устройствах
+	userDataHnd := handlers.NewUserDataHandler()
+	mux.HandleFunc("/api/v1/me/data", auth(userDataHnd.Serve))
+	mux.HandleFunc("/api/v1/me/data/", auth(userDataHnd.Serve))
 
 	// File Upload — auth required
 	mux.HandleFunc("/api/v1/files/upload", auth(filesHnd.UploadFile))

@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { LayoutDashboard, Users as UsersIcon, ClipboardList, ShieldCheck, Menu, ArrowLeft, RefreshCw } from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
-import { getSession, clearSession, setUnauthorizedHandler, api } from './api/adminApi';
+import { getSession, clearSession, setUnauthorizedHandler, api, onNetState } from './api/adminApi';
 import Login from './screens/Login';
 import Overview from './screens/Overview';
 import Users from './screens/Users';
@@ -10,6 +10,7 @@ import Moderation from './screens/Moderation';
 import More, { MORE_ITEMS } from './screens/More';
 import Settings from './screens/Settings';
 import { Disputes, Prices, Regions, Kpi, Server, Roles, Audit, Market, Documents } from './screens/Sections';
+import { Deals, Directory, Bookings, Chats, Offers } from './screens/Data';
 import mark from './assets/mark.png';
 
 const TABS = [
@@ -20,6 +21,14 @@ const TABS = [
   { id: 'more', label: 'Ещё', icon: Menu },
 ];
 const SUB = Object.fromEntries(MORE_ITEMS.map((m) => [m.id, m]));
+function clock(t) { return new Date(t).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }); }
+function ago(t) {
+  if (!t) return 'загрузка…';
+  const s = Math.round((Date.now() - t) / 1000);
+  if (s < 45) return 'обновлено только что';
+  const m = Math.round(s / 60);
+  return m < 60 ? `обновлено ${m} мин назад` : `обновлено в ${clock(t)}`;
+}
 const TITLES = { overview: 'Обзор', users: 'Пользователи', orders: 'Заказы', moderation: 'Модерация', more: 'Ещё' };
 
 export default function App() {
@@ -32,6 +41,21 @@ export default function App() {
   const [badge, setBadge] = useState(0);
   const toastTimer = useRef(null);
   const mainRef = useRef(null);
+  const [net, setNet] = useState({ online: true, lastOk: null, staleSince: null });
+  const [, setTick] = useState(0);
+  useEffect(() => onNetState(setNet), []);
+
+  // Автообновление: каждые 30 с, пока приложение на экране, и сразу при возврате в него
+  useEffect(() => {
+    if (!session) return undefined;
+    const bump = () => { if (document.visibilityState === 'visible') setRefreshKey((k) => k + 1); };
+    const timer = setInterval(bump, 30000);
+    const clock = setInterval(() => setTick((t) => t + 1), 15000); // «обновлено N мин назад»
+    const onVis = () => { if (document.visibilityState === 'visible') bump(); };
+    document.addEventListener('visibilitychange', onVis);
+    window.addEventListener('online', bump);
+    return () => { clearInterval(timer); clearInterval(clock); document.removeEventListener('visibilitychange', onVis); window.removeEventListener('online', bump); };
+  }, [session]);
 
   const toast = useCallback((text, kind = 'ok') => {
     clearTimeout(toastTimer.current);
@@ -90,6 +114,11 @@ export default function App() {
     case 'orders': body = <Orders {...common} />; break;
     case 'moderation': body = <Moderation {...common} onPending={setBadge} />; break;
     case 'more': body = <More go={go} />; break;
+    case 'deals': body = <Deals {...common} />; break;
+    case 'directory': body = <Directory {...common} />; break;
+    case 'bookings': body = <Bookings {...common} />; break;
+    case 'chats': body = <Chats {...common} />; break;
+    case 'offers': body = <Offers {...common} />; break;
     case 'disputes': body = <Disputes {...common} />; break;
     case 'prices': body = <Prices {...common} />; break;
     case 'regions': body = <Regions {...common} />; break;
@@ -112,7 +141,10 @@ export default function App() {
             : <img src={mark} alt="" width="36" height="36" className="qga-header-mark" />}
           <div className="qz-header-titles">
             <h1 className="qz-header-title">{title}</h1>
-            <div className="qz-header-sub"><span className="qz-net is-online" aria-hidden="true" /><span>QazGost Админ · {me?.name || me?.email}</span></div>
+            <div className="qz-header-sub" data-testid="net-state">
+              <span className={`qz-net ${net.online ? 'is-online' : 'is-offline'}`} aria-hidden="true" />
+              <span>{net.online ? `${ago(net.lastOk)} · ${me?.name || me?.email}` : `нет связи · данные ${net.staleSince ? `от ${clock(net.staleSince)}` : 'не загружены'}`}</span>
+            </div>
           </div>
           <button type="button" className="qz-iconbtn" aria-label="Обновить данные" onClick={() => { setRefreshKey((k) => k + 1); toast('Данные обновлены'); }}>
             <RefreshCw size={20} />

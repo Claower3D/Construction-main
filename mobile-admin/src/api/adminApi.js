@@ -28,7 +28,7 @@ export function getSession() {
   } catch { clearSession(); return null; }
 }
 function saveSession(token, user) { write(K_TOKEN, token); write(K_USER, JSON.stringify(user)); }
-export function clearSession() { write(K_TOKEN, null); write(K_USER, null); }
+export function clearSession() { write(K_TOKEN, null); write(K_USER, null); clearCache(); }
 
 export class ApiError extends Error {
   constructor(message, status) { super(message); this.status = status; }
@@ -36,6 +36,27 @@ export class ApiError extends Error {
 
 let onUnauthorized = () => {};
 export function setUnauthorizedHandler(fn) { onUnauthorized = fn; }
+
+// ── Состояние связи и кэш последних ответов ──────────────────────
+// Каждый удачный GET сохраняется на телефоне. Нет сети — показываем сохранённое
+// и сообщаем, от какого времени эти данные.
+const CACHE_PREFIX = 'qga_cache:';
+const netListeners = new Set();
+let netState = { online: true, lastOk: null, staleSince: null };
+export function onNetState(fn) { netListeners.add(fn); fn(netState); return () => netListeners.delete(fn); }
+function setNet(patch) { netState = { ...netState, ...patch }; netListeners.forEach((fn) => fn(netState)); }
+function cacheGet(path) {
+  try { const v = JSON.parse(read(CACHE_PREFIX + path) || 'null'); return v && v.t ? v : null; } catch { return null; }
+}
+function cachePut(path, data) {
+  try {
+    const raw = JSON.stringify({ t: Date.now(), data });
+    if (raw.length < 1_500_000) localStorage.setItem(CACHE_PREFIX + path, raw);
+  } catch { /* память телефона заполнена — просто не кэшируем */ }
+}
+export function clearCache() {
+  try { Object.keys(localStorage).filter((k) => k.startsWith(CACHE_PREFIX)).forEach((k) => localStorage.removeItem(k)); } catch { /* */ }
+}
 
 async function request(path, { method = 'GET', body, auth = true, timeout = 20000 } = {}) {
   const headers = {};
@@ -51,6 +72,9 @@ async function request(path, { method = 'GET', body, auth = true, timeout = 2000
   try {
     res = await fetch(getServer() + path, { method, headers, body: body !== undefined ? JSON.stringify(body) : undefined, signal: ctrl.signal });
   } catch (e) {
+    const cached = method === 'GET' ? cacheGet(path) : null;
+    setNet({ online: false, staleSince: cached ? cached.t : netState.staleSince });
+    if (cached) return cached.data;
     throw new ApiError(e.name === 'AbortError' ? 'Сервер не ответил вовремя. Проверьте интернет.' : 'Нет связи с сервером. Проверьте интернет.', 0);
   } finally {
     clearTimeout(timer);
@@ -63,6 +87,8 @@ async function request(path, { method = 'GET', body, auth = true, timeout = 2000
     if (res.status === 401 && auth) { clearSession(); onUnauthorized(); }
     throw new ApiError(msg, res.status);
   }
+  if (method === 'GET') cachePut(path, data);
+  setNet({ online: true, lastOk: Date.now(), staleSince: null });
   return data;
 }
 
@@ -109,6 +135,18 @@ export const api = {
   equipment: () => request('/api/v1/equipment', { auth: false }),
   materials: () => request('/api/v1/materials', { auth: false }),
   health: () => request('/health', { auth: false }),
+  // CRM: сделки, клиенты, компании, бригады
+  crmEvents: () => request('/api/v1/crm/events'),
+  saveCrmEvent: (ev) => request('/api/v1/crm/events', { method: 'POST', body: ev }),
+  crmClients: () => request('/api/v1/crm/clients'),
+  crmCompanies: () => request('/api/v1/crm/companies'),
+  crmBrigades: () => request('/api/v1/crm/brigades'),
+  // Брони техники всех пользователей (менеджер и администратор видят все)
+  bookings: () => request('/api/v1/equipment-bookings?role=all'),
+  updateBooking: (id, status) => request(`/api/v1/equipment-bookings/${encodeURIComponent(id)}`, { method: 'PATCH', body: { status } }),
+  // Переписка по заказам
+  chat: (orderId) => request(`/api/v1/chat${orderId ? `?orderId=${encodeURIComponent(orderId)}` : ''}`),
+  sendChat: (orderId, text, me) => request('/api/v1/chat', { method: 'POST', body: { orderId: String(orderId), text, senderName: me?.name || 'Администратор', senderRole: 'admin' } }),
   changePassword: (currentPassword, newPassword) => request('/api/v1/auth/password', { method: 'POST', body: { currentPassword, newPassword } }),
 };
 

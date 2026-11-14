@@ -1,8 +1,13 @@
 import React from 'react';
-import { ChevronRight, Scale, Coins, Map, Gauge, Network, ScrollText, Truck, FileText, Settings, Database } from 'lucide-react';
+import { ChevronRight, Scale, Coins, Map, Gauge, Network, ScrollText, Truck, FileText, Settings, Database, Briefcase, Contact, CalendarCheck, MessagesSquare, Package } from 'lucide-react';
 
 // Все пункты панели администратора сайта, которых нет в нижнем меню
 export const MORE_ITEMS = [
+  { id: 'deals', icon: Briefcase, title: 'Сделки CRM', text: 'Воронка менеджера, инженера и исполнителя' },
+  { id: 'directory', icon: Contact, title: 'Клиенты, компании, бригады', text: 'Справочники CRM' },
+  { id: 'chats', icon: MessagesSquare, title: 'Переписка по заказам', text: 'Все чаты, ответ от администратора' },
+  { id: 'bookings', icon: CalendarCheck, title: 'Брони техники', text: 'Подтвердить, завершить, отменить' },
+  { id: 'offers', icon: Package, title: 'Предложения материалов', text: 'Цены поставщиков' },
   { id: 'disputes', icon: Scale, title: 'Споры и арбитраж', text: 'Претензии по качеству работ' },
   { id: 'prices', icon: Coins, title: 'Прайсы и база расценок', text: 'Поиск по 23 тыс. позиций, состав базы' },
   { id: 'regions', icon: Map, title: 'Региональные индексы', text: 'Коэффициенты цен по городам РК' },
@@ -31,7 +36,6 @@ export default function More({ go }) {
           </button>
         ))}
       </div>
-      <p className="qz-xs qz-faint" style={{ margin: 0 }}>CRM (сделки, клиенты, бригады) — в приложении менеджера.</p>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 package database
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
 	"strings"
@@ -385,4 +386,16 @@ func GetContractors() ([]*Contractor, error) {
 		items = append(items, c)
 	}
 	return items, nil
+}
+
+// GetCRMEventOwner returns who created a deal and its phone; found=false when there is no such deal
+func GetCRMEventOwner(id string) (createdBy, phone string, found bool, err error) {
+	err = DB.QueryRow(`SELECT COALESCE(created_by,''), COALESCE(phone,'') FROM crm_events WHERE id = $1 OR (lead_num <> '' AND lead_num = $1) LIMIT 1`, id).Scan(&createdBy, &phone)
+	if err == sql.ErrNoRows {
+		return "", "", false, nil
+	}
+	if err != nil {
+		return "", "", false, err
+	}
+	return createdBy, phone, true, nil
 }

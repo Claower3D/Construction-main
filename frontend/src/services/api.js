@@ -144,6 +144,22 @@ export async function loginUser(email, password) {
     if (password !== linkedMatch.password) {
       throw new Error('Неверный email или пароль');
     }
+    // Если администратор завёл этот аккаунт на сервере — входим по-настоящему,
+    // чтобы сделки и заказы синхронизировались со всеми устройствами.
+    try {
+      const sres = await fetch(`${BASE_URL}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: linkedMatch.email.toLowerCase(), password }),
+      });
+      if (sres.ok) {
+        const sdata = await safeJsonParse(sres);
+        if (sdata.token && sdata.user) {
+          localStorage.setItem('auth_token', sdata.token);
+          return sdata;
+        }
+      }
+    } catch { /* нет связи — входим локально, как раньше */ }
     const mockToken = `token-linked-${linkedMatch.id}-${Date.now()}`;
     localStorage.setItem('auth_token', mockToken);
     localStorage.setItem('qazgost_current_user', JSON.stringify(linkedMatch));
