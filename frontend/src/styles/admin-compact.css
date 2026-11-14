@@ -1,0 +1,424 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   Веб-админка: компактная раскладка по центру.
+   Всё ограничено классом .qg-admin-compact на контейнере админки, поэтому
+   остальные страницы сайта не меняются. !important нужен, чтобы перекрыть
+   общие правила app-lux.css (они тоже с !important).
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.admin-modal-container.qg-admin-compact {
+  --adm-gap: 12px;
+  --adm-pad: 16px;
+  --adm-radius: 14px;
+  --adm-line: rgba(189, 178, 230, 0.16);
+  --adm-glass: rgba(22, 18, 44, 0.55);
+  --adm-gold: #f2b84b;
+  --adm-gold-soft: rgba(242, 184, 75, 0.14);
+  width: 100% !important;
+  max-width: 1240px !important;
+  margin: 0 auto !important;
+  font-size: 13.5px;
+}
+
+/* ── шапка ── */
+.admin-modal-container.qg-admin-compact .admin-header,
+.admin-modal-container.qg-admin-compact .admin-tabs-bar {
+  flex-shrink: 0 !important;
+}
+.admin-modal-container.qg-admin-compact .admin-header {
+  padding: 14px var(--adm-pad) !important;
+  gap: 12px !important;
+  min-height: 0 !important;
+}
+.admin-modal-container.qg-admin-compact .admin-icon {
+  width: 36px !important;
+  height: 36px !important;
+  font-size: 18px !important;
+  border-radius: 10px !important;
+  flex: 0 0 36px;
+  display: inline-grid !important;
+  place-items: center;
+}
+.admin-modal-container.qg-admin-compact .admin-title {
+  font-size: 17px !important;
+  line-height: 1.25 !important;
+}
+.admin-modal-container.qg-admin-compact .admin-subtitle {
+  font-size: 12px !important;
+  margin-top: 2px !important;
+}
+.admin-modal-container.qg-admin-compact .admin-header-actions > * {
+  font-size: 12px !important;
+  padding: 5px 10px !important;
+}
+
+/* ── вкладки: одна аккуратная полоса, без огромных «таблеток» ── */
+.admin-modal-container.qg-admin-compact .admin-tabs-bar {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 4px !important;
+  padding: 6px !important;
+  margin: 0 var(--adm-pad) !important;
+  border: 1px solid var(--adm-line) !important;
+  border-radius: 12px !important;
+  background: var(--adm-glass) !important;
+  overflow: visible !important;
+}
+.admin-modal-container.qg-admin-compact .admin-tab-btn {
+  height: 32px !important;
+  padding: 0 12px !important;
+  gap: 6px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  border-radius: 8px !important;
+  border: 1px solid transparent !important;
+  background: transparent !important;
+  color: var(--qg-text-2, #c9c3e6) !important;
+  -webkit-text-fill-color: currentColor !important;
+  box-shadow: none !important;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s;
+}
+.admin-modal-container.qg-admin-compact .admin-tab-btn:hover {
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: var(--qg-text, #fff) !important;
+}
+.admin-modal-container.qg-admin-compact .admin-tab-btn.active {
+  background: var(--adm-gold-soft) !important;
+  border-color: rgba(242, 184, 75, 0.45) !important;
+  color: var(--adm-gold) !important;
+  -webkit-text-fill-color: var(--adm-gold) !important;
+  font-weight: 700 !important;
+  box-shadow: none !important;
+}
+.admin-modal-container.qg-admin-compact .admin-tab-count {
+  min-width: 18px !important;
+  height: 18px !important;
+  padding: 0 5px !important;
+  font-size: 10.5px !important;
+  line-height: 18px !important;
+  border-radius: 9px !important;
+}
+
+/* ── содержимое ── */
+.admin-modal-container.qg-admin-compact .admin-body {
+  padding: var(--adm-pad) !important;
+}
+.admin-modal-container.qg-admin-compact .admin-tab-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--adm-gap);
+}
+.admin-modal-container.qg-admin-compact .admin-tab-content > * {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+.admin-modal-container.qg-admin-compact [data-testid='demo-notice'] {
+  padding: 8px 12px !important;
+  font-size: 12px !important;
+  line-height: 1.45 !important;
+  border-radius: 10px !important;
+  margin: 0 0 var(--adm-gap) !important;
+}
+
+.admin-modal-container.qg-admin-compact .admin-section-box {
+  padding: var(--adm-pad) !important;
+  border-radius: var(--adm-radius) !important;
+  margin: 0 !important;
+}
+.admin-modal-container.qg-admin-compact .admin-box-title {
+  font-size: 15px !important;
+  margin: 0 0 4px !important;
+}
+.admin-modal-container.qg-admin-compact .admin-box-sub {
+  font-size: 12px !important;
+  margin: 0 !important;
+}
+.admin-modal-container.qg-admin-compact .target-header-row {
+  gap: 12px !important;
+  margin-bottom: 12px !important;
+  align-items: center !important;
+}
+.admin-modal-container.qg-admin-compact .target-count-badge {
+  padding: 6px 12px !important;
+  font-size: 13px !important;
+  border-radius: 10px !important;
+}
+.admin-modal-container.qg-admin-compact .progress-bar-track {
+  height: 8px !important;
+}
+
+/* карточки-счётчики */
+.admin-modal-container.qg-admin-compact .admin-overview-grid,
+.admin-modal-container.qg-admin-compact .backend-metrics-grid {
+  gap: var(--adm-gap) !important;
+  margin: 0 !important;
+}
+.admin-modal-container.qg-admin-compact .admin-stat-card {
+  padding: 14px var(--adm-pad) !important;
+  min-height: 0 !important;
+  border-radius: var(--adm-radius) !important;
+  gap: 2px !important;
+}
+.admin-modal-container.qg-admin-compact .card-top-row {
+  margin-bottom: 6px !important;
+}
+.admin-modal-container.qg-admin-compact .card-icon-emoji {
+  font-size: 20px !important;
+}
+.admin-modal-container.qg-admin-compact .target-chip {
+  font-size: 11px !important;
+  padding: 2px 8px !important;
+}
+.admin-modal-container.qg-admin-compact .admin-stat-title {
+  font-size: 12.5px !important;
+  margin: 0 !important;
+}
+.admin-modal-container.qg-admin-compact .admin-stat-value {
+  font-size: 22px !important;
+  line-height: 1.2 !important;
+  margin: 2px 0 !important;
+}
+.admin-modal-container.qg-admin-compact .admin-stat-sub {
+  font-size: 11.5px !important;
+}
+.admin-modal-container.qg-admin-compact .backend-monitor-header {
+  margin-bottom: 12px !important;
+}
+.admin-modal-container.qg-admin-compact .backend-metric-item {
+  padding: 10px 14px !important;
+  border-radius: 12px !important;
+  gap: 2px !important;
+}
+.admin-modal-container.qg-admin-compact .metric-label {
+  font-size: 11.5px !important;
+}
+.admin-modal-container.qg-admin-compact .metric-val {
+  font-size: 15px !important;
+}
+
+/* счётчики ролей и прочие сеточные карточки на вкладках */
+.admin-modal-container.qg-admin-compact :is(.role-counter-card, .geo-kpi-card, .doc-cat-card, .wbs-card) {
+  padding: 12px 14px !important;
+  min-height: 0 !important;
+  border-radius: 12px !important;
+}
+.admin-modal-container.qg-admin-compact :is(.role-counter-card, .geo-kpi-card, .doc-cat-card) :is(h2, h3, strong, .counter-value, .geo-kpi-value) {
+  font-size: 20px !important;
+  line-height: 1.2 !important;
+}
+
+/* строка поиска и управления */
+.admin-modal-container.qg-admin-compact .admin-controls-row {
+  gap: 8px !important;
+  margin: 0 !important;
+  align-items: center !important;
+}
+.admin-modal-container.qg-admin-compact .admin-search-input,
+.admin-modal-container.qg-admin-compact .admin-controls-row input,
+.admin-modal-container.qg-admin-compact .admin-tab-content > div > input[type='text'] {
+  height: 36px !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  font-size: 13px !important;
+  border-radius: 10px !important;
+}
+
+/* ── кнопки: одна высота, одна форма ── */
+.admin-modal-container.qg-admin-compact .admin-body :is(
+  .admin-primary-btn, .admin-secondary-btn, .btn-excel-export, .btn-excel-import, .btn-reset-danger, .btn-cancel,
+  .doc-btn-purple, .doc-btn-emerald, .doc-btn-choose-file, .doc-btn-cancel, .doc-btn-submit, .btn-edit-region
+) {
+  height: 34px !important;
+  padding: 0 14px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  border-radius: 9px !important;
+  line-height: 1 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  white-space: nowrap;
+  box-shadow: none !important;
+  transform: none !important;
+}
+.admin-modal-container.qg-admin-compact .admin-body :is(.btn-excel-export, .btn-excel-import, .admin-secondary-btn, .btn-cancel, .doc-btn-cancel, .doc-btn-choose-file) {
+  cursor: pointer;
+  margin: 0 !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid var(--adm-line) !important;
+  color: var(--qg-text, #fff) !important;
+}
+.admin-modal-container.qg-admin-compact .admin-body :is(.btn-excel-export, .btn-excel-import, .admin-secondary-btn, .btn-cancel, .doc-btn-cancel, .doc-btn-choose-file):hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(242, 184, 75, 0.4) !important;
+}
+.admin-modal-container.qg-admin-compact .admin-body .admin-primary-btn {
+  background: var(--adm-gold) !important;
+  color: #1c1203 !important;
+  -webkit-text-fill-color: #1c1203 !important;
+  border: 1px solid transparent !important;
+}
+.admin-modal-container.qg-admin-compact .admin-body .admin-primary-btn:hover {
+  filter: brightness(1.06);
+}
+
+/* переключатели внутри вкладок (Все / Работы / Материалы…, фильтры, подвкладки) */
+.admin-modal-container.qg-admin-compact .admin-body :is(.type-btn, .mode-btn, .subtab-btn, .view-pill, .admin-filter-chip, .doc-filter-btn) {
+  height: 30px !important;
+  padding: 0 12px !important;
+  font-size: 12.5px !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+}
+.admin-modal-container.qg-admin-compact .admin-body :is(.type-btn, .mode-btn, .subtab-btn, .view-pill, .admin-filter-chip, .doc-filter-btn).active {
+  background: var(--adm-gold-soft) !important;
+  border: 1px solid rgba(242, 184, 75, 0.45) !important;
+  color: var(--adm-gold) !important;
+  -webkit-text-fill-color: var(--adm-gold) !important;
+  font-weight: 700 !important;
+}
+.admin-modal-container.qg-admin-compact .admin-body :is(.type-toggle-group, .view-mode-group) {
+  padding: 3px !important;
+  gap: 3px !important;
+  border-radius: 10px !important;
+}
+
+/* кнопки действий в строках таблиц */
+.admin-modal-container.qg-admin-compact .btn-table-action {
+  width: 28px !important;
+  height: 28px !important;
+  padding: 0 !important;
+  font-size: 13px !important;
+  border-radius: 7px !important;
+  display: inline-grid !important;
+  place-items: center;
+}
+
+/* ряды кнопок и подвкладок */
+.admin-modal-container.qg-admin-compact :is(.admin-actions-bar, .settings-subtabs-row, .region-controls-bar) {
+  display: flex !important;
+  flex-wrap: wrap;
+  align-items: center !important;
+  gap: 8px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* настройки → регионы */
+.admin-modal-container.qg-admin-compact .admin-regions-wrapper {
+  padding: 0 !important;
+  margin: 0 !important;
+  display: flex;
+  flex-direction: column;
+  gap: var(--adm-gap) !important;
+}
+.admin-modal-container.qg-admin-compact .admin-regions-wrapper > * {
+  margin: 0 !important;
+}
+.admin-modal-container.qg-admin-compact :is(.geo-metrics-grid, .region-cards-grid) {
+  gap: var(--adm-gap) !important;
+  margin: 0 !important;
+}
+.admin-modal-container.qg-admin-compact .geo-kpi-top {
+  margin-bottom: 8px !important;
+}
+.admin-modal-container.qg-admin-compact .geo-kpi-val {
+  font-size: 19px !important;
+  line-height: 1.2 !important;
+  margin: 0 0 2px !important;
+}
+.admin-modal-container.qg-admin-compact :is(.geo-kpi-card, .region-bento-card) p,
+.admin-modal-container.qg-admin-compact .geo-kpi-desc {
+  font-size: 12px !important;
+  margin: 0 !important;
+}
+.admin-modal-container.qg-admin-compact :is(.region-comparator-box, .region-bento-card) {
+  padding: 14px var(--adm-pad) !important;
+  border-radius: var(--adm-radius) !important;
+  min-height: 0 !important;
+}
+.admin-modal-container.qg-admin-compact .comparator-header {
+  margin-bottom: 10px !important;
+}
+.admin-modal-container.qg-admin-compact .comp-title {
+  font-size: 15px !important;
+}
+.admin-modal-container.qg-admin-compact .admin-body select {
+  height: 34px !important;
+  font-size: 13px !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+/* документооборот: шапка раздела без огромного заголовка */
+.admin-modal-container.qg-admin-compact :is(.doc-header-card, .doc-upload-zone, .doc-dropzone) {
+  padding: 14px var(--adm-pad) !important;
+  border-radius: var(--adm-radius) !important;
+  margin: 0 !important;
+  min-height: 0 !important;
+}
+.admin-modal-container.qg-admin-compact .doc-header-title-text {
+  font-size: 19px !important;
+  line-height: 1.25 !important;
+  margin: 0 0 2px !important;
+}
+.admin-modal-container.qg-admin-compact .doc-header-title-text::before {
+  display: none !important;
+}
+.admin-modal-container.qg-admin-compact .doc-header-subtext {
+  font-size: 12px !important;
+  margin: 0 !important;
+}
+.admin-modal-container.qg-admin-compact .doc-header-icon-orb {
+  width: 40px !important;
+  height: 40px !important;
+  font-size: 20px !important;
+  flex: 0 0 40px;
+}
+
+/* ── таблицы ── */
+.admin-modal-container.qg-admin-compact .admin-table {
+  font-size: 13px !important;
+  border-spacing: 0 4px !important;
+}
+.admin-modal-container.qg-admin-compact .admin-table th {
+  padding: 8px 12px !important;
+  font-size: 11px !important;
+}
+.admin-modal-container.qg-admin-compact .admin-table td {
+  padding: 8px 12px !important;
+}
+.admin-modal-container.qg-admin-compact .admin-section-box:has(> .admin-table),
+.admin-modal-container.qg-admin-compact .admin-section-box:has(> div > .admin-table) {
+  padding: 8px !important;
+}
+
+/* ── телефоны ── */
+@media (max-width: 720px) {
+  .admin-modal-container.qg-admin-compact {
+    --adm-pad: 12px;
+    --adm-gap: 10px;
+  }
+  .admin-modal-container.qg-admin-compact .admin-tabs-bar {
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    scrollbar-width: none;
+  }
+  .admin-modal-container.qg-admin-compact .admin-tabs-bar::-webkit-scrollbar { display: none; }
+  .admin-modal-container.qg-admin-compact .admin-subtitle { display: none; }
+  .admin-modal-container.qg-admin-compact .admin-body :is(.type-toggle-group, .view-mode-group) {
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    max-width: 100%;
+    scrollbar-width: none;
+  }
+  .admin-modal-container.qg-admin-compact .admin-body :is(.type-btn, .mode-btn, .subtab-btn, .view-pill, .admin-filter-chip, .doc-filter-btn) {
+    white-space: nowrap !important;
+    flex: 0 0 auto !important;
+  }
+  .admin-modal-container.qg-admin-compact .admin-stat-value { font-size: 19px !important; }
+}

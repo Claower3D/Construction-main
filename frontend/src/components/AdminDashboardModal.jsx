@@ -5,6 +5,7 @@ import { exportPricesToExcel, exportAll3SheetsExcel, parseExcelOrCsvFile, export
 import { getStatus } from '../services/api';
 import { authHeaders, getAuthToken } from '../services/platformUtils';
 import RoleHierarchyTreePage from './RoleHierarchyTreePage';
+import '../styles/admin-compact.css';
 
 // Documents & Invoices registry for Excel export
 const INITIAL_DOCUMENTS_LIST = [
@@ -1134,7 +1135,7 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
 
   return (
     <div className={inline ? "admin-modal-inline" : "admin-modal-overlay"}>
-      <div className="admin-modal-container">
+      <div className="admin-modal-container qg-admin-compact">
         {/* Header Bar */}
         <div className="admin-header">
           <div className="admin-title-wrap">
