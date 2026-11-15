@@ -14,8 +14,26 @@
 
 const MAX_SIZE = 512;
 
-export async function detectCracks(source) {
-  console.log('[CV] v10 Multi-Scale Tiled Valley + NMS starting...');
+import { createCrackDetector, DEFAULT_CONF } from '../services/crackVision';
+import { measureCrackInBox, crackSeverity, CRACK_TITLES, CRACK_TITLES_NO_SCALE } from './crackMeasure';
+
+// Модель трещин грузится один раз на страницу (≈10 МБ, потом из кэша браузера)
+let modelDetector = null;
+function getModel() {
+  if (!modelDetector) modelDetector = createCrackDetector();
+  return modelDetector;
+}
+
+/**
+ * Найти трещины на фото.
+ * Зоны находит обученная модель (YOLO26n, точность 0,87): пиксельный фильтр сам по себе
+ * принимал за трещины край люка, песок, швы и тени. Пиксельная карта используется только
+ * внутри рамок модели — для скелета, теплокарты и измерения длины/раскрытия.
+ * @param source  фото
+ * @param opts.spanMm  реальная ширина участка на фото в мм (если известна) — тогда размеры в мм
+ */
+export async function detectCracks(source, opts = {}) {
+  console.log('[CV] v11: модель находит зоны, пиксели — только для измерения');
   const img = await loadImage(source);
   const w0 = img.naturalWidth || img.width;
   const h0 = img.naturalHeight || img.height;
@@ -168,47 +186,84 @@ export async function detectCracks(source) {
 
   console.log('[CV] Tiled detection points:', crackPoints.length);
 
-  // 5. Balanced Spatial Subsampling for DBSCAN
-  const subPts = [];
-  for (let qy = 0; qy < 2; qy++) {
-    for (let qx = 0; qx < 2; qx++) {
-      const qPts = crackPoints.filter(p => 
-        p.xPct >= qx * 50 && p.xPct < (qx + 1) * 50 &&
-        p.yPct >= qy * 50 && p.yPct < (qy + 1) * 50
-      );
-      if (qPts.length > 0) {
-        const step = Math.max(1, Math.floor(qPts.length / 150));
-        for (let i = 0; i < qPts.length; i += step) {
-          subPts.push(qPts[i]);
-        }
-      }
-    }
+  // 5. Модель: где на фото трещины
+  let modelBoxes = null;
+  let modelError = null;
+  try {
+    const det = getModel();
+    await det.ready;
+    const res = await det.detect(img, DEFAULT_CONF);
+    modelBoxes = res.boxes;
+  } catch (e) {
+    modelError = e.message || String(e);
+    console.warn('[CV] Модель трещин недоступна:', modelError);
   }
 
-  // 6. DBSCAN Clustering + NMS Merging
-  const clusters = dbscanClustering(subPts, 4.5, 6);
-  console.log('[CV] Distinct defect zones (after NMS):', clusters.length);
+  const spanMm = Number(opts.spanMm) > 0 ? Number(opts.spanMm) : null;
+  const mmPerPx = spanMm ? spanMm / w0 : null;
+  const diag0 = Math.hypot(w0, h0);
+  let regions = [];
+  let kept = [];
 
-  // 7. Build regions for inspection report
-  const regions = clusters.map((cl, i) => ({
-    id: i + 1,
-    bbox: cl.bbox,
-    type: cl.typeTitle,
-    severity: cl.severity,
-    confidence: Math.min(0.98, 0.82 + (cl.count / Math.max(1, subPts.length)) * 0.35),
-    edgeDensity: cl.count / Math.max(1, subPts.length),
-    area_percent: cl.area_percent,
-    length_mm: cl.length_mm,
-    opening_mm: cl.opening_mm,
-    cellCount: cl.count,
-    description: `Зона ${i + 1}: ${cl.typeTitle} (длина ${cl.length_mm} мм, раскрытие ${cl.opening_mm} мм, площадь ${cl.area_percent}%)`,
-  }));
+  if (modelBoxes) {
+    // 6. Измеряем трещину в каждой рамке модели
+    const PAD = 0.02;
+    for (const b of modelBoxes) {
+      const bx = { x: Math.max(0, b.x - PAD), y: Math.max(0, b.y - PAD), w: Math.min(1, b.w + 2 * PAD), h: Math.min(1, b.h + 2 * PAD) };
+      const m = measureCrackInBox(img, bx);
+      const lengthPx = m.found ? m.lengthPx : Math.hypot(b.w * w0, b.h * h0) * 0.9;
+      const lengthRel = lengthPx / diag0;
+      const openingMm = m.found && mmPerPx ? Math.round(m.widthPx * mmPerPx * 10) / 10 : null;
+      const lengthMm = mmPerPx ? Math.round(lengthPx * mmPerPx) : null;
+      const severity = crackSeverity({ openingMm, lengthRel, conf: b.conf });
+      kept.push({ b, m, lengthPx, lengthRel, openingMm, lengthMm, severity });
+    }
+    kept.sort((a, c) => c.b.conf - a.b.conf);
+    kept = kept.slice(0, 8);
+    regions = kept.map((k, i) => {
+      const bbox = [k.b.x * 100, k.b.y * 100, (k.b.x + k.b.w) * 100, (k.b.y + k.b.h) * 100].map((v) => Number(v.toFixed(1)));
+      const title = mmPerPx ? CRACK_TITLES[k.severity] : (CRACK_TITLES_NO_SCALE[k.severity] || CRACK_TITLES_NO_SCALE.low);
+      const lenTxt = k.lengthMm != null ? `длина ≈ ${k.lengthMm} мм` : `длина ≈ ${Math.round(k.lengthRel * 100)}% диагонали кадра`;
+      const coarse = k.openingMm != null && k.m.widthPx < 2;
+      const openTxt = k.openingMm != null ? `, раскрытие ≈ ${k.openingMm} мм${coarse ? ' — трещина тоньше 2 пикселей фото, для точного раскрытия снимите ближе' : ''}` : '';
+      return {
+        id: i + 1,
+        bbox,
+        type: title,
+        severity: k.severity,
+        confidence: Number(k.b.conf.toFixed(2)),
+        length_mm: k.lengthMm,
+        opening_mm: k.openingMm,
+        length_rel: Number(k.lengthRel.toFixed(3)),
+        area_percent: null,
+        measured: k.m.found,
+        opening_coarse: coarse,
+        description: `Зона ${i + 1}: ${title} (${lenTxt}${openTxt}; уверенность модели ${Math.round(k.b.conf * 100)}%)`,
+      };
+    });
 
-  // 8. Measurements along crack lines
-  const measurements = clusters.map(cl => ({
-    xPct: (cl.bbox[0] + cl.bbox[2]) / 2,
-    yPct: (cl.bbox[1] + cl.bbox[3]) / 2,
-    widthMM: cl.opening_mm,
+    // Пиксельная карта — только внутри рамок модели, остальное (песок, края, тени) убираем
+    const inside = new Uint8Array(w * h);
+    for (const k of kept) {
+      const x0 = Math.floor(k.b.x * w), y0 = Math.floor(k.b.y * h);
+      const x1 = Math.ceil((k.b.x + k.b.w) * w), y1 = Math.ceil((k.b.y + k.b.h) * h);
+      for (let y = Math.max(0, y0); y < Math.min(h, y1); y++) for (let x = Math.max(0, x0); x < Math.min(w, x1); x++) inside[y * w + x] = 1;
+    }
+    for (let i = 0; i < w * h; i++) if (!inside[i]) mask[i] = 0;
+    crackPoints.length = 0;
+    for (const k of kept) for (const p of k.m.points) crackPoints.push(p);
+  } else {
+    crackPoints.length = 0;
+    mask.fill(0);
+  }
+
+  console.log('[CV] Зон от модели:', regions.length, modelError ? `(модель: ${modelError})` : '');
+
+  // 8. Отметки измерений
+  const measurements = regions.map((r) => ({
+    xPct: (r.bbox[0] + r.bbox[2]) / 2,
+    yPct: (r.bbox[1] + r.bbox[3]) / 2,
+    widthMM: r.opening_mm,
   }));
 
   // 9. Edge canvas for skeleton mode
@@ -235,7 +290,11 @@ export async function detectCracks(source) {
   }
   ectx.putImageData(ed, 0, 0);
 
-  return { crackPoints, measurements, regions, edgeCanvas: ec, scale };
+  // Скелет найденных трещин поверх затемнённого фото
+  ectx.fillStyle = 'rgb(0,220,255)';
+  for (const p of crackPoints) ectx.fillRect((p.xPct / 100) * w - 1, (p.yPct / 100) * h - 1, 2, 2);
+
+  return { crackPoints, measurements, regions, edgeCanvas: ec, scale, modelError, scaled: !!mmPerPx };
 }
 
 // ---- DBSCAN Clustering with Non-Maximum Suppression (NMS) Box Merging ----

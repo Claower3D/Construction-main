@@ -1,6 +1,6 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { createPlatformOrder } from '../services/orderSyncService';
-import { detectCracks, dbscanClustering } from '../utils/crackDetector';
+import { detectCracks } from '../utils/crackDetector';
 import { authHeaders, escapeHtml, safeImgSrc, responseError, genId } from '../services/platformUtils';
 import './DefectInspectorPage.css';
 
@@ -32,6 +32,8 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
   const [clientPhone, setClientPhone] = useState('');
   const [clientAddress, setClientAddress] = useState('');
   const [aiDescription, setAiDescription] = useState('');
+  // Реальная ширина участка на фото (м) — масштаб для измерения трещин в миллиметрах
+  const [frameWidthM, setFrameWidthM] = useState('');
   const [selectedDefectType, setSelectedDefectType] = useState(null);
 
   const [isScanning, setIsScanning] = useState(false);
@@ -90,233 +92,24 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
     // моделью дефекты выдуманными зонами с «точностью 92%».
     if (reportSourceRef.current === 'ai') return;
 
-    // ========== INLINE CRACK DETECTION: Valley/Line detector ==========
-    // Cracks = dark LINES (darker than BOTH sides). Not edges (one side dark, other bright).
+    // Трещины находит модель при анализе (detectCracks): здесь только рисуем её зоны
+    // и измеренные линии трещин. Раньше оверлей сам искал «трещины» по тёмным пикселям
+    // и подменял результат — край люка, песок и тени становились «критическими дефектами».
     if (visionMode === 'hud' || visionMode === 'stress') {
       try {
-        const tmpC = document.createElement('canvas');
-        const sz = 320;
-        const imgW = imgEl.naturalWidth || cw;
-        const imgH = imgEl.naturalHeight || ch;
-        const sc = Math.min(sz / imgW, sz / imgH, 1);
-        const tw = Math.round(imgW * sc), th = Math.round(imgH * sc);
-        tmpC.width = tw; tmpC.height = th;
-        const tmpCtx = tmpC.getContext('2d');
-        tmpCtx.drawImage(imgEl, 0, 0, tw, th);
-        const px = tmpCtx.getImageData(0, 0, tw, th).data;
-        
-        // Grayscale
-        const gray = new Float32Array(tw * th);
-        for (let i = 0; i < tw * th; i++)
-          gray[i] = 0.299 * px[i * 4] + 0.587 * px[i * 4 + 1] + 0.114 * px[i * 4 + 2];
-        
-        // Dark interior pit/hole rejection
-        const isDark = new Uint8Array(tw * th);
-        for (let i = 0; i < tw * th; i++) {
-          if (gray[i] < 42) isDark[i] = 1;
-        }
-        const voidMask = new Uint8Array(tw * th);
-        const vR = 7;
-        for (let y = vR; y < th - vR; y += 2) {
-          for (let x = vR; x < tw - vR; x += 2) {
-            let darkCount = 0;
-            for (let dy = -vR; dy <= vR; dy += 3) {
-              for (let dx = -vR; dx <= vR; dx += 3) {
-                if (isDark[(y + dy) * tw + (x + dx)]) darkCount++;
-              }
-            }
-            if (darkCount >= 13) {
-              for (let dy = 0; dy < 2; dy++) {
-                for (let dx = 0; dx < 2; dx++) {
-                  if (y + dy < th && x + dx < tw) voidMask[(y + dy) * tw + (x + dx)] = 1;
-                }
-              }
-            }
+        const pts = (crackData && crackData.crackPoints) || [];
+        for (const p of pts) {
+          const cx = (p.xPct / 100) * cw, cy = (p.yPct / 100) * ch;
+          if (visionMode === 'stress') {
+            const grad = ctx.createRadialGradient(cx, cy, 1, cx, cy, 12);
+            grad.addColorStop(0, 'rgba(255,40,30,0.22)');
+            grad.addColorStop(1, 'rgba(0,0,0,0)');
+            ctx.fillStyle = grad;
+            ctx.fillRect(cx - 12, cy - 12, 24, 24);
+          } else {
+            ctx.fillStyle = 'rgba(0, 220, 255, 0.9)';
+            ctx.fillRect(cx - 1.5, cy - 1.5, 3, 3);
           }
-        }
-
-        // Multi-scale Valley (R=2, 4, 6) - detects hairline to wide cracks
-        const valley = new Float32Array(tw * th);
-        for (const R of [2, 4, 6]) {
-          for (let y = R; y < th - R; y++) {
-            for (let x = R; x < tw - R; x++) {
-              const center = gray[y * tw + x];
-              if (center < 20 || voidMask[y * tw + x]) continue; // ignore dark viewer margins and interior void pits
-              const dH = Math.min(gray[y * tw + (x - R)], gray[y * tw + (x + R)]) - center;
-              const dV = Math.min(gray[(y - R) * tw + x], gray[(y + R) * tw + x]) - center;
-              const dD1 = Math.min(gray[(y - R) * tw + (x - R)], gray[(y + R) * tw + (x + R)]) - center;
-              const dD2 = Math.min(gray[(y - R) * tw + (x + R)], gray[(y + R) * tw + (x - R)]) - center;
-              const maxV = Math.max(dH, dV, dD1, dD2);
-              if (maxV > 4.0 && maxV > valley[y * tw + x]) {
-                valley[y * tw + x] = maxV;
-              }
-            }
-          }
-        }
-        
-        // Local contrast & outer frame filter (3.5% margins)
-        const filtered = new Float32Array(tw * th);
-        const borderX = Math.round(tw * 0.035);
-        const borderY = Math.round(th * 0.035);
-        for (let y = borderY; y < th - borderY; y++) {
-          for (let x = borderX; x < tw - borderX; x++) {
-            if (valley[y * tw + x] < 4.5) continue;
-            let sum = 0, sum2 = 0, n = 0;
-            for (let dy = -3; dy <= 3; dy += 2) {
-              for (let dx = -3; dx <= 3; dx += 2) {
-                const v = gray[(y + dy) * tw + (x + dx)];
-                sum += v; sum2 += v * v; n++;
-              }
-            }
-            const mean = sum / n;
-            const std = Math.sqrt(Math.max(0, sum2 / n - mean * mean));
-            if (std > 4.5) filtered[y * tw + x] = valley[y * tw + x];
-          }
-        }
-        
-        // 4x4 Tiled adaptive thresholding with Contrast Floor
-        const crackPts = [];
-        let count = 0;
-        const tileH = Math.floor(th / 4);
-        const tileW = Math.floor(tw / 4);
-        for (let ty = 0; ty < 4; ty++) {
-          for (let tx = 0; tx < 4; tx++) {
-            const y1 = ty * tileH;
-            const y2 = ty === 3 ? th : (ty + 1) * tileH;
-            const x1 = tx * tileW;
-            const x2 = tx === 3 ? tw : (tx + 1) * tileW;
-            const tileVals = [];
-            let tileMax = 0;
-            for (let y = y1; y < y2; y++) {
-              for (let x = x1; x < x2; x++) {
-                const v = filtered[y * tw + x];
-                if (v > 0) {
-                  tileVals.push(v);
-                  if (v > tileMax) tileMax = v;
-                }
-              }
-            }
-            // CRITICAL: If tile has no prominent crack valley >= 14.0, DO NOT calculate noise threshold!
-            if (tileVals.length < 10 || tileMax < 14.0) continue;
-            tileVals.sort((a, b) => a - b);
-            const t60 = tileVals[Math.floor(tileVals.length * 0.60)] || 8.0;
-            const tHigh = tileVals[Math.floor(tileVals.length * 0.85)] || 15.0;
-            const thresh = Math.max(9.0, t60);
-            
-            for (let y = y1; y < y2; y++) {
-              for (let x = x1; x < x2; x++) {
-                const v = filtered[y * tw + x];
-                if (v > thresh) {
-                  const cx = (x / tw) * cw;
-                  const cy = (y / th) * ch;
-                  const isStrong = v > tHigh;
-                  if (isStrong) {
-                    ctx.fillStyle = 'rgba(0, 220, 255, 0.9)';
-                    ctx.fillRect(cx - 1.5, cy - 1.5, 4, 4);
-                    crackPts.push({ xPct: (x / tw) * 100, yPct: (y / th) * 100, strength: 2 });
-                  } else {
-                    ctx.fillStyle = 'rgba(0, 160, 255, 0.55)';
-                    ctx.fillRect(cx - 0.5, cy - 0.5, 2, 2);
-                    crackPts.push({ xPct: (x / tw) * 100, yPct: (y / th) * 100, strength: 1 });
-                  }
-                  count++;
-                }
-              }
-            }
-          }
-        }
-        
-        // Stress mode: heat overlay
-        if (visionMode === 'stress' && count > 0) {
-          for (let y = 6; y < th - 6; y += 3) {
-            for (let x = 6; x < tw - 6; x += 3) {
-              const v = filtered[y * tw + x];
-              if (v > 5) {
-                const cx = (x / tw) * cw, cy = (y / th) * ch;
-                const r = v > 10 ? 14 : 7;
-                const grad = ctx.createRadialGradient(cx, cy, 1, cx, cy, r);
-                grad.addColorStop(0, v > 10 ? 'rgba(255,30,30,0.28)' : 'rgba(255,150,0,0.16)');
-                grad.addColorStop(1, 'rgba(0,0,0,0)');
-                ctx.fillStyle = grad;
-                ctx.fillRect(cx - r, cy - r, r * 2, r * 2);
-              }
-            }
-          }
-        }
-
-        // Balanced spatial subsampling for DBSCAN (ensures all quadrants get fair representation)
-        const subPts = [];
-        for (let qy = 0; qy < 2; qy++) {
-          for (let qx = 0; qx < 2; qx++) {
-            const qPts = crackPts.filter(p =>
-              p.xPct >= qx * 50 && p.xPct < (qx + 1) * 50 &&
-              p.yPct >= qy * 50 && p.yPct < (qy + 1) * 50
-            );
-            if (qPts.length > 0) {
-              const step = Math.max(1, Math.floor(qPts.length / 150));
-              for (let i = 0; i < qPts.length; i += step) subPts.push(qPts[i]);
-            }
-          }
-        }
-
-        // DBSCAN clustering with NMS box merging
-        let detectedClusters = [];
-        if (subPts.length >= 8) {
-          detectedClusters = dbscanClustering(subPts, 4.5, 6);
-          console.log('[Overlay] Distinct defect zones (after NMS):', detectedClusters.length);
-        }
-        
-        console.log('[Overlay] Drew', count, 'crack pixels, zones:', detectedClusters.length);
-
-        // Sync real detected clusters to defectMarkers, severitySummary, and report in state
-        if (detectedClusters.length > 0 && lastDetectedCountRef.current !== detectedClusters.length) {
-          lastDetectedCountRef.current = detectedClusters.length;
-          const newMarkers = detectedClusters.map((cl, i) => {
-            const typeTitle = cl.typeTitle || (cl.severity === 'critical' ? 'Глубокий разлом / силовая трещина бетона' :
-                              cl.severity === 'high' ? 'Конструктивная трещина с раскрытием' :
-                              'Усадочная трещина штукатурного слоя / скол');
-            return {
-              id: cl.id || i + 1,
-              bbox: cl.bbox,
-              type: typeTitle,
-              severity: cl.severity,
-              confidence: null, // пиксельный анализ в браузере не даёт вероятности
-              model: 'cv',
-              area_percent: cl.area_percent,
-              length_mm: cl.length_mm,
-              opening_mm: cl.opening_mm,
-              description: `Зона ${i + 1}: ${typeTitle} (длина ${cl.length_mm} мм, раскрытие ${cl.opening_mm} мм, площадь ${cl.area_percent}%)`,
-            };
-          });
-
-          setTimeout(() => {
-            setDefectMarkers(newMarkers);
-            setSeveritySummary({
-              total: newMarkers.length,
-              by_severity: {
-                critical: newMarkers.filter(m => m.severity === 'critical').length,
-                high: newMarkers.filter(m => m.severity === 'high').length,
-                medium: newMarkers.filter(m => m.severity === 'medium').length,
-                low: newMarkers.filter(m => m.severity === 'low').length,
-              }
-            });
-            setReport(prev => {
-              if (!prev) return prev;
-              return {
-                ...prev,
-                defects: { items: newMarkers },
-                defect_severity_summary: {
-                  total: newMarkers.length,
-                  by_severity: {
-                    critical: newMarkers.filter(m => m.severity === 'critical').length,
-                    high: newMarkers.filter(m => m.severity === 'high').length,
-                    medium: newMarkers.filter(m => m.severity === 'medium').length,
-                    low: newMarkers.filter(m => m.severity === 'low').length,
-                  }
-                }
-              };
-            });
-          }, 0);
         }
 
         const sevColors = {
@@ -332,7 +125,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
           m.bbox && !(m.bbox[0] === 0 && m.bbox[1] === 0 && m.bbox[2] === 50 && m.bbox[3] === 50)
         );
 
-        const boxesToDraw = detectedClusters.length > 0 ? detectedClusters : validStateMarkers;
+        const boxesToDraw = validStateMarkers;
 
         boxesToDraw.forEach((m, idx) => {
           if (!m.bbox) return;
@@ -363,7 +156,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
           // Label
           const fontSize = Math.max(11, Math.min(cw * 0.024, 16));
           ctx.font = `bold ${fontSize}px sans-serif`;
-          const label = `#${idx + 1} ${s.text} ${m.area_percent ? m.area_percent + '%' : ''}`;
+          const label = `#${idx + 1} ${s.text}${typeof m.confidence === 'number' ? ' · ' + Math.round(m.confidence * 100) + '%' : ''}`;
           const twL = ctx.measureText(label).width;
           const lh = fontSize + 6;
           const ly = y - lh - 2;
@@ -372,31 +165,22 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
           ctx.fillStyle = '#fff';
           ctx.fillText(label, x + 5, (ly < 0 ? y + lh - 4 : ly + lh - 4));
 
-          // Physical dimensions badge next to box
-          if (m.length_mm) {
-            ctx.font = `bold ${Math.max(10, fontSize * 0.85)}px sans-serif`;
-            ctx.fillStyle = '#b9a4ff';
-            ctx.fillText(`L = ${m.length_mm}мм`, x + bw + 6, y + bh * 0.4);
-          }
-          if (m.opening_mm) {
-            ctx.font = `bold ${Math.max(10, fontSize * 0.85)}px sans-serif`;
-            ctx.fillStyle = '#fbbf24';
-            ctx.fillText(`d = ${m.opening_mm}мм`, x + bw + 6, y + bh * 0.65);
-          }
-
-          // Yellow measurement dot with opening width
-          const midX = x + bw / 2;
-          const midY = y + bh / 2;
-          ctx.fillStyle = '#FFD700';
-          ctx.beginPath();
-          ctx.arc(midX, midY, 5, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.strokeStyle = '#FF6600';
-          ctx.lineWidth = 2;
-          ctx.stroke();
-          ctx.font = 'bold 11px sans-serif';
-          ctx.fillStyle = '#FFD700';
-          ctx.fillText(`d=${m.opening_mm || '2.4'}мм`, midX + 8, midY - 4);
+          // Размеры — только измеренные; без масштаба мм не показываем
+          const dimFont = `bold ${Math.max(10, fontSize * 0.85)}px sans-serif`;
+          const dims = [];
+          if (m.length_mm) dims.push({ t: `L ≈ ${m.length_mm} мм`, c: '#b9a4ff' });
+          else if (m.length_rel) dims.push({ t: `L ≈ ${Math.round(m.length_rel * 100)}% кадра`, c: '#b9a4ff' });
+          if (m.opening_mm) dims.push({ t: `d ≈ ${m.opening_mm} мм`, c: '#fbbf24' });
+          ctx.font = dimFont;
+          dims.forEach((d, k) => {
+            const tw2 = ctx.measureText(d.t).width;
+            const tx = x + bw + 6 + tw2 > cw ? Math.max(2, x + bw - tw2 - 6) : x + bw + 6;
+            const ty = y + bh * (k === 0 ? 0.4 : 0.65);
+            ctx.fillStyle = 'rgba(10,8,24,0.72)';
+            ctx.fillRect(tx - 3, ty - fontSize, tw2 + 6, fontSize + 5);
+            ctx.fillStyle = d.c;
+            ctx.fillText(d.t, tx, ty);
+          });
         });
       } catch (e) {
         console.error('[Overlay] Inline CV error:', e);
@@ -410,7 +194,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
       for (let gx = 0; gx < cw; gx += cw / 8) { ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, ch); ctx.stroke(); }
       for (let gy = 0; gy < ch; gy += ch / 6) { ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(cw, gy); ctx.stroke(); }
     }
-  }, [visionMode, defectMarkers]);
+  }, [visionMode, defectMarkers, crackData]);
 
   useEffect(() => { drawOverlay(); }, [visionMode, defectMarkers, drawOverlay]);
 
@@ -992,11 +776,16 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
 
         // Реальное распознавание дефектов через Computer Vision (Canvas pixel analysis)
         let cvItems = [];
+        let cvModelError = null;
+        let cvScaled = false;
         try {
           const photoSrc = imgRef.current || photos[0]?.base64 || photos[0]?.url;
           if (photoSrc) {
             setProgressSteps(prev => [...prev, { text: 'Vision AI: Поиск дефектов и трещин...', done: false }]);
-            const cvResult = await detectCracks(photoSrc);
+            const spanMm = parseFloat(String(frameWidthM).replace(',', '.')) * 1000;
+            const cvResult = await detectCracks(photoSrc, { spanMm: spanMm > 0 ? spanMm : null });
+            cvModelError = cvResult.modelError || null;
+            cvScaled = !!cvResult.scaled;
             setProgressSteps(prev => prev.map((s, i) => i === prev.length - 1 ? { ...s, done: true } : s));
             
             console.log('[Scan] CV result:', {
@@ -1023,22 +812,19 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
             }
             
             if (cvResult.regions && cvResult.regions.length > 0) {
-              cvItems = cvResult.regions.map((r, i) => {
-                const zoneTitle = r.type || (r.severity === 'critical' ? 'Глубокий разлом / силовая трещина бетона' :
-                                  r.severity === 'high' ? 'Конструктивная трещина с раскрытием' :
-                                  'Усадочная трещина штукатурного слоя / скол');
-                return {
-                  id: r.id || i + 1,
-                  type: zoneTitle,
-                  severity: r.severity,
-                  confidence: r.confidence,
-                  bbox: r.bbox,
-                  length_mm: r.length_mm || Math.round(parseFloat(r.area_percent || '5') * 30 + 50),
-                  opening_mm: r.opening_mm || '2.4',
-                  area_percent: r.area_percent,
-                  description: r.description || `Зона ${i + 1}: ${zoneTitle} (длина ${r.length_mm || '450'} мм, раскрытие ${r.opening_mm || '2.4'} мм)`,
-                };
-              });
+              cvItems = cvResult.regions.map((r, i) => ({
+                id: r.id || i + 1,
+                type: r.type,
+                severity: r.severity,
+                confidence: r.confidence,
+                bbox: r.bbox,
+                length_mm: r.length_mm,
+                opening_mm: r.opening_mm,
+                length_rel: r.length_rel,
+                area_percent: null,
+                description: r.description,
+                model: 'yolo-browser',
+              }));
             }
           }
         } catch (cvErr) {
@@ -1062,13 +848,18 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
           }];
         }
         cvItems = cvItems.map(it => ({ model: 'cv', ...it }));
+        if (cvItems.length && !cvScaled && cvItems.some(it => it.model === 'yolo-browser')) {
+          data.warnings = [...(data.warnings || []), 'Размеры в миллиметрах не посчитаны: укажите ширину участка на фото — тогда длина и раскрытие трещин будут измерены.'];
+        }
         if (!matched && cvItems.length > 0) {
           const sevs = cvItems.map(c => c.severity);
           const top = sevs.includes('critical') ? 'critical' : sevs.includes('high') ? 'high' : sevs.includes('medium') ? 'medium' : 'low';
-          data.defectType = `Трещины / повреждения поверхности (локальный CV, зон: ${cvItems.length})`;
-          data.severity = { critical: 'Критический (по CV, требует проверки)', high: 'Высокий (по CV, требует проверки)', medium: 'Средний (по CV)', low: 'Низкий (по CV)' }[top];
+          data.defectType = `Трещины (нейросеть на устройстве, зон: ${cvItems.length})`;
+          data.severity = { critical: 'Критический (раскрытие > 3 мм)', high: cvScaled ? 'Высокий (раскрытие 1–3 мм)' : 'Высокий (протяжённая трещина, без масштаба)', medium: 'Средний', low: 'Низкий' }[top];
         } else if (!matched) {
-          data.defectType = 'Локальным анализом явных трещин не найдено';
+          data.defectType = cvModelError
+            ? 'Модель распознавания не загрузилась — проверьте интернет и повторите анализ'
+            : 'Трещин на фото не найдено';
         }
         
         data.defects = { items: cvItems };
@@ -1130,6 +921,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
             area_percent: d.area_percent || 0,
             length_mm: d.length_mm || null,
             opening_mm: d.opening_mm || null,
+            length_rel: d.length_rel || null,
             orientation_deg: d.orientation_deg || 0,
             description: d.description || '',
             analytics: d.analytics || null,
@@ -1296,6 +1088,19 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
               onChange={e => setAiDescription(e.target.value)}
               className="di-textarea"
             ></textarea>
+          </label>
+          <label className="di-field" htmlFor="di-frame-width">
+            <span className="di-label">Ширина участка на фото, м <span className="di-optional">для размеров в мм</span></span>
+            <input
+              id="di-frame-width"
+              type="text"
+              inputMode="decimal"
+              placeholder="Например: 1,2 — если в кадр попало 1,2 м стены"
+              value={frameWidthM}
+              onChange={e => setFrameWidthM(e.target.value.replace(/[^0-9.,]/g, '').slice(0, 6))}
+              className="di-textarea"
+              style={{ minHeight: 0, height: 42 }}
+            />
           </label>
           <div className="di-preset-chips">
             <span className="di-chips-label">Добавить в описание:</span>
@@ -1523,11 +1328,11 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
                             <span className={`di-sev-chip ${sv.cls}`}>{sv.label} риск</span>
                             <span className="qg-chip">{pct !== null ? `уверенность ${pct}%` : 'оценка локального CV, требует проверки'}</span>
                             {marker.model && (
-                              <span className="qg-chip">модель: {marker.model}{marker.model === 'yolo' && report.detectorName ? ` (${report.detectorName})` : ''}</span>
+                              <span className="qg-chip">модель: {marker.model === 'yolo-browser' ? 'YOLO26n на устройстве' : marker.model}{marker.model === 'yolo' && report.detectorName ? ` (${report.detectorName})` : ''}</span>
                             )}
                             {marker.photoIndex !== undefined && <span className="qg-chip">фото {marker.photoIndex + 1}</span>}
-                            {marker.length_mm ? <span className="qg-chip qg-chip--info">длина {marker.length_mm} мм</span> : null}
-                            {marker.opening_mm ? <span className="qg-chip qg-chip--warn">раскрытие {marker.opening_mm} мм</span> : null}
+                            {marker.length_mm ? <span className="qg-chip qg-chip--info">длина ≈ {marker.length_mm} мм</span> : marker.length_rel ? <span className="qg-chip qg-chip--info">длина ≈ {Math.round(marker.length_rel * 100)}% кадра</span> : null}
+                            {marker.opening_mm ? <span className="qg-chip qg-chip--warn">раскрытие ≈ {marker.opening_mm} мм</span> : null}
                           </span>
                           {marker.description && <span className="di-defect-desc">{marker.description}</span>}
                         </span>
