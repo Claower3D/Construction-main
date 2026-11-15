@@ -1,11 +1,11 @@
 # Источники данных для обучения модели дефектов
 
 Модель QazGost обучается на своих фото и на открытых наборах — одна общая база по всем материалам:
-бетон, кирпич, асфальт, плитка, дерево, отделка стен, металл. Наборы с лицензией CC BY 4.0 разрешают
-использование в коммерческом продукте при указании источника — он указан здесь.
+бетон, кирпич, асфальт, плитка, дерево, отделка стен, металл, стекло, пластик. Наборы с лицензией
+CC BY 4.0 разрешают использование в коммерческом продукте при указании источника — он указан здесь.
 
 Виды дефектов модели (v3): трещина, коррозия, скол / разрушение, высолы, оголённая арматура,
-пятно / протечка, выбоина, отслоение отделки, плесень, сучок (дерево).
+пятно / протечка, выбоина, отслоение отделки, плесень, сучок (дерево), царапина, вмятина.
 
 | Набор | Материал | Что берётся | Лицензия |
 |---|---|---|---|
@@ -25,8 +25,8 @@
 | [pothole-detection-zyupq/pothole-and-crack-detection](https://universe.roboflow.com/pothole-detection-zyupq/pothole-and-crack-detection) | асфальт | трещины, выбоины | CC BY 4.0 |
 | [tsuisl/pothole-detection-636sr](https://universe.roboflow.com/tsuisl/pothole-detection-636sr) | асфальт | трещины, выбоины | CC BY 4.0 |
 | [road-crack-project/road-crack-detection-combined-dataset](https://universe.roboflow.com/road-crack-project/road-crack-detection-combined-dataset) | асфальт | трещины, выбоины | CC BY 4.0 |
-| [manendrasinh/tiles-defect-detection-pssvq](https://universe.roboflow.com/manendrasinh/tiles-defect-detection-pssvq) | плитка | трещины, сколы | CC BY 4.0 |
-| [ceramic/ceramic-defect-detection](https://universe.roboflow.com/ceramic/ceramic-defect-detection) | плитка | трещины, сколы | CC BY 4.0 |
+| [manendrasinh/tiles-defect-detection-pssvq](https://universe.roboflow.com/manendrasinh/tiles-defect-detection-pssvq) | плитка | трещины, сколы, царапины | CC BY 4.0 |
+| [ceramic/ceramic-defect-detection](https://universe.roboflow.com/ceramic/ceramic-defect-detection) | плитка | трещины, сколы, царапины | CC BY 4.0 |
 | [omar-r6wdo/wood-surface-defects-xzowk](https://universe.roboflow.com/omar-r6wdo/wood-surface-defects-xzowk) | дерево | трещины, сучки | CC BY 4.0 |
 | [detect-detect/new-defects-in-wood](https://universe.roboflow.com/detect-detect/new-defects-in-wood) | дерево | трещины, сучки | CC BY 4.0 |
 | [tunku-abdul-rahman-university-of-management-and-technology-ttt1n/wood-defects-8lcdv](https://universe.roboflow.com/tunku-abdul-rahman-university-of-management-and-technology-ttt1n/wood-defects-8lcdv) | дерево | трещины, сучки | CC BY 4.0 |
@@ -35,14 +35,22 @@
 | [elaas-workspace/wall-defect-7fdkt-jpjpa](https://universe.roboflow.com/elaas-workspace/wall-defect-7fdkt-jpjpa) | отделка | отслоение краски, плесень, протечки, трещины | CC BY 4.0 |
 | [cuhk-ldjub/indoor_apartment_defects](https://universe.roboflow.com/cuhk-ldjub/indoor_apartment_defects) | отделка | отслоение краски, плесень, протечки, трещины | CC BY 4.0 |
 | [fardas-workspace/peeling-paint-project](https://universe.roboflow.com/fardas-workspace/peeling-paint-project) | отделка | отслоение краски, плесень, протечки, трещины | CC BY 4.0 |
-| [corrosion-project/rust-detection-final](https://universe.roboflow.com/corrosion-project/rust-detection-final) | металл | ржавчина | CC BY 4.0 |
+| [corrosion-project/rust-detection-final](https://universe.roboflow.com/corrosion-project/rust-detection-final) | металл | ржавчина, царапины, вмятины | CC BY 4.0 |
+| [dank1ng/industrial-defects-detection](https://universe.roboflow.com/dank1ng/industrial-defects-detection) | металл | ржавчина, царапины, вмятины | CC BY 4.0 |
+| [glassdefectsdetection/glassdefectscheckingmodel](https://universe.roboflow.com/glassdefectsdetection/glassdefectscheckingmodel) | стекло | трещины и разбитое стекло | CC BY 4.0 |
+| [nhabduls-workspace/cracked-glass-detection](https://universe.roboflow.com/nhabduls-workspace/cracked-glass-detection) | стекло | трещины и разбитое стекло | CC BY 4.0 |
+| [minnnnnnnn/-umuos](https://universe.roboflow.com/minnnnnnnn/-umuos) | стекло | трещины и разбитое стекло | CC BY 4.0 |
+| [plastic-defect/plastic-defects-mcaxc](https://universe.roboflow.com/plastic-defect/plastic-defects-mcaxc) | пластик | трещины, царапины, вмятины, сколы | CC BY 4.0 |
+| [thesis-2fdkj/4-classes-scratch-better](https://universe.roboflow.com/thesis-2fdkj/4-classes-scratch-better) | пластик | трещины, царапины, вмятины, сколы | CC BY 4.0 |
+| [radopmr/fine-3ea92](https://universe.roboflow.com/radopmr/fine-3ea92) | пластик | трещины, царапины, вмятины, сколы | CC BY 4.0 |
+| [raja-nidft/damage-detection-bqzff](https://universe.roboflow.com/raja-nidft/damage-detection-bqzff) | пластик | трещины, царапины, вмятины, сколы | CC BY 4.0 |
 
 Какие наборы реально скачались, какие классы из них взяты, какие пропущены и сколько фото дал каждый
 материал, записывается при каждом обучении в `runs/qazgost_v3/REPORT.json` (поля `extra_datasets`,
 `by_material`). Недоступный набор пропускается. Фото с метками, смысл которых не определён
-(например, классы «1», «2», «3»), в обучение не берутся.
+(например, классы «1», «2», «3» или «Damage»), в обучение не берутся.
 
 Не используется: dacl10k — его лицензия CC BY-NC 4.0 запрещает коммерческое использование.
 
 Свои фото: `dataset/own/images` + `dataset/own/labels` (разметка YOLO, классы по порядку:
-crack, corrosion, spalling, efflorescence, exposed_rebar, stain, pothole, peeling, mold, knot).
+crack, corrosion, spalling, efflorescence, exposed_rebar, stain, pothole, peeling, mold, knot, scratch, dent).

@@ -52,9 +52,10 @@ EXPORT = ROOT / "models" / "export"
 
 # Единые классы модели. Индекс 0 — трещина: сайт и приложения уже читают его.
 # Первые шесть — как в v2 (на них же размечаются свои примеры с сайта); дальше — новые виды v3.
-CLASS_NAMES = ["crack", "corrosion", "spalling", "efflorescence", "exposed_rebar", "stain", "pothole", "peeling", "mold", "knot"]
+CLASS_NAMES = ["crack", "corrosion", "spalling", "efflorescence", "exposed_rebar", "stain", "pothole", "peeling", "mold", "knot",
+               "scratch", "dent"]
 CLASS_RU = ["трещина", "коррозия", "скол / отслоение", "высолы", "оголённая арматура", "пятно / протечка",
-            "выбоина", "отслоение отделки", "плесень", "сучок (дерево)"]
+            "выбоина", "отслоение отделки", "плесень", "сучок (дерево)", "царапина", "вмятина"]
 IGNORE = -1  # метка не наш дефект (кирпич, окно, смола…): её пропускаем, фото оставляем
 
 # Как называются классы в чужих наборах → наш индекс. Чего здесь нет — не берём.
@@ -103,8 +104,18 @@ EXTRA_DATASETS = [
     ("fardas-workspace", "peeling-paint-project", "отделка"),
     # металл
     ("corrosion-project", "rust-detection-final", "металл"),
+    ("dank1ng", "industrial-defects-detection", "металл"),
+    # стекло
+    ("glassdefectsdetection", "glassdefectscheckingmodel", "стекло"),
+    ("nhabduls-workspace", "cracked-glass-detection", "стекло"),
+    ("minnnnnnnn", "-umuos", "стекло"),
+    # пластик и окрашенные поверхности: трещины, царапины, вмятины, сколы
+    ("plastic-defect", "plastic-defects-mcaxc", "пластик"),
+    ("thesis-2fdkj", "4-classes-scratch-better", "пластик"),
+    ("radopmr", "fine-3ea92", "пластик"),
+    ("raja-nidft", "damage-detection-bqzff", "пластик"),
 ]
-REPEAT = {"кирпич": 2}   # фото кладки мало по сравнению с бетоном — в обучении каждое идёт дважды
+REPEAT = {"кирпич": 2, "стекло": 2, "пластик": 2}   # фото кладки мало по сравнению с бетоном — в обучении каждое идёт дважды
 VAL_SHARE = 0.3          # из чужих частей valid/test в проверку идёт 30%, остальное — в обучение
 MAX_TRAIN_PER_SET = 2500  # чтобы один большой набор (дерево, дороги) не задавил остальные
 MAX_VAL_PER_SET = 500
@@ -158,11 +169,16 @@ def map_class(name):
     idx = class_index(name)
     if idx is not None:
         return idx
-    if n in ("unlabeled", "background", "images", "object", "normal", "good") or has(n, "no defect", "no crack", "non corroded", "no corrosion"):
+    if n in ("unlabeled", "background", "images", "object", "good") or has(n, "no defect", "no crack", "non corroded", "no corrosion", "normal", "healthy", "crackless"):
         return IGNORE
+    # детали машин и прочее постороннее из наборов по пластику и стеклу
+    if has(n, "lamp", "tire", "headlight", "mirror", "license", "insulator"):
+        return IGNORE
+    if has(n, "glass") and has(n, "broken", "crack", "damage", "shatter", "lost"):
+        return 0  # разбитое или треснувшее стекло
     if has(n, "knot"):
         return 9
-    if has(n, "crack", "retak", "crocodile", "alligator", "longitudinal", "transverse", "fissure"):
+    if has(n, "crack", "retak", "crocodile", "alligator", "longitudinal", "transverse", "fissure", "fracture"):
         return 0
     if has(n, "pothole", "pot hole", "lubang"):
         return 6
@@ -180,11 +196,15 @@ def map_class(name):
         return None
     if has(n, "stain", "seepage", "damp", "leak", "wetspot", "wet spot", "moist", "water"):
         return 5
+    if has(n, "scratch"):
+        return 10
+    if re.search(r"\bdents?\b", n):
+        return 11
     if has(n, "spall", "scaling", "chip", "broken", "brick damage", "delamination"):
         return 2
     # не дефекты и то, чего у нас нет: метку пропускаем, фото остаётся
-    if has(n, "brick", "window", "plant", "marrow", "resin", "quartzity", "overgrown", "hole", "glaze", "scratch",
-           "wiring", "electrical", "patch", "settlement", "other corruption"):
+    if has(n, "brick", "window", "plant", "marrow", "resin", "quartzity", "overgrown", "hole", "glaze", "pit", "smudge", "dirty", "speck",
+           "wiring", "electrical", "patch", "settlement", "other corruption", "joint", "debris", "deposit", "glass", "pipe", "pvc"):
         return IGNORE
     return None
 
