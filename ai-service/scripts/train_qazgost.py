@@ -51,8 +51,11 @@ RUN_DIR = RUNS / RUN_NAME
 EXPORT = ROOT / "models" / "export"
 
 # Единые классы модели. Индекс 0 — трещина: сайт и приложения уже читают его.
-CLASS_NAMES = ["crack", "corrosion", "spalling", "efflorescence", "exposed_rebar", "stain"]
-CLASS_RU = ["трещина", "коррозия", "скол / отслоение", "высолы", "оголённая арматура", "пятно / протечка"]
+# Первые шесть — как в v2 (на них же размечаются свои примеры с сайта); дальше — новые виды v3.
+CLASS_NAMES = ["crack", "corrosion", "spalling", "efflorescence", "exposed_rebar", "stain", "pothole", "peeling", "mold", "knot"]
+CLASS_RU = ["трещина", "коррозия", "скол / отслоение", "высолы", "оголённая арматура", "пятно / протечка",
+            "выбоина", "отслоение отделки", "плесень", "сучок (дерево)"]
+IGNORE = -1  # метка не наш дефект (кирпич, окно, смола…): её пропускаем, фото оставляем
 
 # Как называются классы в чужих наборах → наш индекс. Чего здесь нет — не берём.
 SYNONYMS = {
@@ -66,22 +69,45 @@ SYNONYMS = {
 
 # Открытые наборы Roboflow Universe, на страницах которых указана лицензия CC BY 4.0
 # (можно использовать в коммерческом продукте с указанием источника — см. ai-service/DATA_SOURCES.md).
-# Третье поле: "" — классы берутся по словарю SYNONYMS; "crack" — набор трещин по кирпичной кладке:
-# любой класс со словом crack (или единственный класс набора) — трещина, остальное (кирпичи, окна) не берём.
+# Третье поле — материал: одна общая база по бетону, кирпичу, асфальту, плитке, дереву, отделке, металлу.
 EXTRA_DATASETS = [
-    ("defect-detection-edbnh", "concrete-merge-632p6", ""),
-    ("defect-detection-0atjo", "concrete-defect-detection-zuym8", ""),
-    ("rebar-exposure-and-spalling", "aperi", ""),
-    ("new-workspace-yur70", "concrete_defect", ""),
-    # v3: трещины по кирпичу и кладке (в т.ч. ступенчатые по швам) — в v2 их не было совсем
-    ("brick-detection-in-a-brick-wall", "masonry-hzess", "crack"),
-    ("student-from-uminho", "crack-detection-brick", "crack"),
-    ("bharati-vidhypeeth-college-of-engineering-pune", "brick-crack-detection-2", "crack"),
-    ("buildscan", "buildscandamagedetection", "crack"),
-    ("assess-mortar-cracks-by-using-image-and-machine-learning", "masonry-2-instance", "crack"),
+    ("defect-detection-edbnh", "concrete-merge-632p6", "бетон"),
+    ("defect-detection-0atjo", "concrete-defect-detection-zuym8", "бетон"),
+    ("rebar-exposure-and-spalling", "aperi", "бетон"),
+    ("new-workspace-yur70", "concrete_defect", "бетон"),
+    # кирпич и кладка (в т.ч. ступенчатые трещины по швам)
+    ("brick-detection-in-a-brick-wall", "masonry-hzess", "кирпич"),
+    ("student-from-uminho", "crack-detection-brick", "кирпич"),
+    ("bharati-vidhypeeth-college-of-engineering-pune", "brick-crack-detection-2", "кирпич"),
+    ("buildscan", "buildscandamagedetection", "кирпич"),
+    ("assess-mortar-cracks-by-using-image-and-machine-learning", "masonry-2-instance", "кирпич"),
+    # асфальт: трещины и выбоины
+    ("btp-project-l7tdo", "pothole-detection-bz8co", "асфальт"),
+    ("vignesh-waran-wup7f", "road-cracks-detection-sinws", "асфальт"),
+    ("own-data-label", "road-crack-detection-and-classification", "асфальт"),
+    ("pothole-detection-zyupq", "pothole-and-crack-detection", "асфальт"),
+    ("tsuisl", "pothole-detection-636sr", "асфальт"),
+    ("road-crack-project", "road-crack-detection-combined-dataset", "асфальт"),
+    # плитка и керамика
+    ("manendrasinh", "tiles-defect-detection-pssvq", "плитка"),
+    ("ceramic", "ceramic-defect-detection", "плитка"),
+    # дерево
+    ("omar-r6wdo", "wood-surface-defects-xzowk", "дерево"),
+    ("detect-detect", "new-defects-in-wood", "дерево"),
+    ("tunku-abdul-rahman-university-of-management-and-technology-ttt1n", "wood-defects-8lcdv", "дерево"),
+    ("wood-detection-omca6", "detect-defect-of-wooden", "дерево"),
+    # стены и отделка: отслоение краски, плесень, протечки
+    ("technical-university-of-crete", "dipl-td5ld", "отделка"),
+    ("elaas-workspace", "wall-defect-7fdkt-jpjpa", "отделка"),
+    ("cuhk-ldjub", "indoor_apartment_defects", "отделка"),
+    ("fardas-workspace", "peeling-paint-project", "отделка"),
+    # металл
+    ("corrosion-project", "rust-detection-final", "металл"),
 ]
-MASONRY_REPEAT = 2   # фото кладки мало по сравнению с бетоном — в обучении каждое идёт дважды
-VAL_SHARE = 0.3      # из чужих частей valid/test в проверку идёт 30%, остальное — в обучение
+REPEAT = {"кирпич": 2}   # фото кладки мало по сравнению с бетоном — в обучении каждое идёт дважды
+VAL_SHARE = 0.3          # из чужих частей valid/test в проверку идёт 30%, остальное — в обучение
+MAX_TRAIN_PER_SET = 2500  # чтобы один большой набор (дерево, дороги) не задавил остальные
+MAX_VAL_PER_SET = 500
 
 IMG_EXT = {".jpg", ".jpeg", ".png", ".bmp", ".webp"}
 
@@ -121,6 +147,48 @@ def class_index(name):
     return None
 
 
+def has(n, *words):
+    return any(w in n for w in words)
+
+
+def map_class(name):
+    """Название класса чужого набора → наш индекс, IGNORE (метку пропустить) или None (класс непонятен:
+    фото с такой меткой в обучение не берём, иначе настоящий дефект попал бы в «чистый фон»)."""
+    n = norm_name(name)
+    idx = class_index(name)
+    if idx is not None:
+        return idx
+    if n in ("unlabeled", "background", "images", "object", "normal", "good") or has(n, "no defect", "no crack", "non corroded", "no corrosion"):
+        return IGNORE
+    if has(n, "knot"):
+        return 9
+    if has(n, "crack", "retak", "crocodile", "alligator", "longitudinal", "transverse", "fissure"):
+        return 0
+    if has(n, "pothole", "pot hole", "lubang"):
+        return 6
+    if has(n, "rust", "corros"):
+        return 1
+    if has(n, "rebar", "reinforcement"):
+        return 4
+    if has(n, "efflorescence"):
+        return 3
+    if has(n, "peel", "paint", "blister", "tile delamination", "glaze detachment", "glazedetachment"):
+        return 7
+    if has(n, "mold", "mould", "algae", "moss"):
+        return 8
+    if has(n, "blue stain"):
+        return None
+    if has(n, "stain", "seepage", "damp", "leak", "wetspot", "wet spot", "moist", "water"):
+        return 5
+    if has(n, "spall", "scaling", "chip", "broken", "brick damage", "delamination"):
+        return 2
+    # не дефекты и то, чего у нас нет: метку пропускаем, фото остаётся
+    if has(n, "brick", "window", "plant", "marrow", "resin", "quartzity", "overgrown", "hole", "glaze", "scratch",
+           "wiring", "electrical", "patch", "settlement", "other corruption"):
+        return IGNORE
+    return None
+
+
 def status(report, stage, **extra):
     report["stage"] = stage
     report["updated"] = datetime.now().isoformat(timespec="seconds")
@@ -157,7 +225,7 @@ def val_bucket(stem):
     return int(hashlib.md5(base.encode("utf-8")).hexdigest()[:8], 16) / 0xFFFFFFFF < VAL_SHARE
 
 
-def add_source(tag, img_dir, lbl_dir, split, cmap, counts, limit=None, files=None):
+def add_source(tag, img_dir, lbl_dir, split, cmap, counts, limit=None, files=None, strict=False):
     """Копирует фото и разметку одного источника в общий набор. cmap: индекс класса источника → наш индекс."""
     if files is None:
         if not img_dir.is_dir():
@@ -170,6 +238,7 @@ def add_source(tag, img_dir, lbl_dir, split, cmap, counts, limit=None, files=Non
     n = 0
     for img in files:
         lines = []
+        drop = False
         lbl = lbl_dir / (img.stem + ".txt")
         if lbl.is_file():
             for raw in lbl.read_text(encoding="utf-8", errors="ignore").splitlines():
@@ -182,11 +251,19 @@ def add_source(tag, img_dir, lbl_dir, split, cmap, counts, limit=None, files=Non
                     continue
                 cls = cmap.get(src_cls)
                 if cls is None:
+                    if strict:
+                        drop = True
+                        break
+                    continue
+                if cls == IGNORE:
                     continue
                 line = to_box_line(parts[1:], cls)
                 if line:
                     lines.append(line)
-                    counts[split][cls] += 1
+        if drop:
+            continue
+        for ln in lines:
+            counts[split][int(ln.split()[0])] += 1
         name = f"{tag}_{img.stem}"[:150]
         dst_img = BUILD / "images" / split / (name + img.suffix.lower())
         try:
@@ -251,17 +328,21 @@ def download_extra(report):
                 ver = max(versions, key=lambda v: int(str(getattr(v, "version", "0")).split("/")[-1] or 0))
                 ver.download("yolov8", location=str(dst))
             names = read_names(dst / "data.yaml")
-            if mode == "crack":
-                cmap = {j: 0 for j, n in enumerate(names) if "crack" in norm_name(n)}
-                if not cmap and len(names) == 1 and "crack" in norm_name(pj):
-                    cmap = {0: 0}  # единственный класс назван «0» или «object», а набор — про трещины
-            else:
-                cmap = {j: class_index(n) for j, n in enumerate(names)}
-                cmap = {j: c for j, c in cmap.items() if c is not None}
-            if not cmap:
+            cmap = {j: map_class(n) for j, n in enumerate(names)}
+            cmap = {j: c for j, c in cmap.items() if c is not None}
+            if not any(c != IGNORE for c in cmap.values()) and len(names) == 1:
+                # единственный класс назван «0» или «object» — смотрим на название набора
+                pn = norm_name(pj)
+                if "crack" in pn:
+                    cmap = {0: 0}
+                elif "rust" in pn or "corros" in pn:
+                    cmap = {0: 1}
+            if not any(c != IGNORE for c in cmap.values()):
                 raise RuntimeError(f"нет подходящих классов среди {names}")
-            entry["classes_used"] = {names[j]: CLASS_NAMES[c] for j, c in cmap.items()}
-            entry["classes_skipped"] = [n for j, n in enumerate(names) if j not in cmap]
+            entry["material"] = mode
+            entry["classes_used"] = {names[j]: CLASS_NAMES[c] for j, c in cmap.items() if c != IGNORE}
+            entry["classes_ignored"] = [names[j] for j, c in cmap.items() if c == IGNORE]
+            entry["classes_unknown_photos_dropped"] = [n for j, n in enumerate(names) if j not in cmap]
             got.append((tag, dst, cmap, mode))
             entry["ok"] = True
         except Exception as e:
@@ -297,10 +378,17 @@ def build_dataset(report, extra, smoke=False):
     # 3. открытые наборы других дефектов
     if not smoke:
         for tag, path, cmap, mode in extra:
-            reps = MASONRY_REPEAT if mode == "crack" else 1
+            reps = REPEAT.get(mode, 1)
+            n_before = dict(images)
+            tr_dir = path / "train" / "images"
+            tr_files = sorted(p for p in tr_dir.iterdir() if p.suffix.lower() in IMG_EXT) if tr_dir.is_dir() else []
+            random.Random(7).shuffle(tr_files)
+            tr_files = tr_files[:MAX_TRAIN_PER_SET]
             for r in range(reps):
                 rtag = tag if r == 0 else f"{tag}r{r}"
-                images["train"] += add_source(rtag, path / "train" / "images", path / "train" / "labels", "train", cmap, counts)
+                images["train"] += add_source(rtag, tr_dir, path / "train" / "labels", "train", cmap, counts, files=tr_files, strict=True)
+            room = max(0, MAX_TRAIN_PER_SET - len(tr_files))
+            val_room = MAX_VAL_PER_SET
             # В чужих наборах части valid/test бывают больше обучающей. Они не содержат размноженных
             # копий обучающих фото, поэтому большую долю можно отдать в обучение без подглядывания.
             for src_split in ("valid", "test"):
@@ -308,12 +396,17 @@ def build_dataset(report, extra, smoke=False):
                 if not d.is_dir():
                     continue
                 files = sorted(p for p in d.iterdir() if p.suffix.lower() in IMG_EXT)
-                to_val = [p for p in files if val_bucket(p.stem)]
-                to_train = [p for p in files if not val_bucket(p.stem)]
-                images["val"] += add_source(tag, d, path / src_split / "labels", "val", cmap, counts, files=to_val)
+                to_val = [p for p in files if val_bucket(p.stem)][:val_room]
+                to_train = [p for p in files if not val_bucket(p.stem)][:room]
+                val_room -= len(to_val)
+                room -= len(to_train)
+                images["val"] += add_source(tag, d, path / src_split / "labels", "val", cmap, counts, files=to_val, strict=True)
                 for r in range(reps):
                     rtag = tag if r == 0 else f"{tag}r{r}"
-                    images["train"] += add_source(rtag, d, path / src_split / "labels", "train", cmap, counts, files=to_train)
+                    images["train"] += add_source(rtag, d, path / src_split / "labels", "train", cmap, counts, files=to_train, strict=True)
+            report.setdefault("by_material", {}).setdefault(mode, {"train": 0, "val": 0})
+            report["by_material"][mode]["train"] += images["train"] - n_before["train"]
+            report["by_material"][mode]["val"] += images["val"] - n_before["val"]
 
     yaml_text = "path: " + str(BUILD).replace("\\", "/") + "\ntrain: images/train\nval: images/val\nnc: %d\nnames:\n" % len(CLASS_NAMES)
     yaml_text += "".join(f"  {i}: {n}\n" for i, n in enumerate(CLASS_NAMES))
@@ -357,7 +450,7 @@ def train_one(weights, data_yaml, device, args, report):
         if args.smoke:
             kw.update(epochs=1, imgsz=256, batch=8, workers=0, plots=False)
         elif gpu:
-            kw.update(epochs=100, imgsz=640, batch=-1, workers=4)
+            kw.update(epochs=80, imgsz=640, batch=-1, workers=4, patience=20)
         else:
             cpus = os.cpu_count() or 2
             kw.update(epochs=100, imgsz=512, batch=16, workers=min(4, max(1, cpus // 2)), time=args.hours)

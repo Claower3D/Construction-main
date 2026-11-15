@@ -7,7 +7,7 @@ cd /d "%~dp0"
 echo ==============================================================
 echo   QazGost AI - обучение своей модели дефектов
 echo   Трещины, сколы, оголённая арматура, коррозия, высолы, пятна
-echo   Окно не закрывайте. Журнал: runs\qazgost_v2\train_log.txt
+echo   Окно не закрывайте. Журнал: runs\qazgost_v3\train_log.txt
 echo ==============================================================
 echo.
 
@@ -48,7 +48,7 @@ echo [3/3] Обучение...
 python scripts\train_qazgost.py %*
 if errorlevel 1 goto trainerror
 echo.
-echo Готово. Отчёт: runs\qazgost_v2\REPORT.json, модели: models\export
+echo Готово. Отчёт: runs\qazgost_v3\REPORT.json, модели: models\export
 echo Напишите Claude, что обучение закончилось - он проверит модель и поставит её на сайт.
 pause
 exit /b 0
@@ -65,7 +65,7 @@ exit /b 1
 
 :trainerror
 echo.
-echo [ОШИБКА] Обучение не завершилось. Журнал: runs\qazgost_v2\train_log.txt
+echo [ОШИБКА] Обучение не завершилось. Журнал: runs\qazgost_v3\train_log.txt
 echo Чтобы продолжить с места остановки: TRAIN_QAZGOST.bat --resume
 pause
 exit /b 1
