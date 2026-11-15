@@ -1,6 +1,7 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { createPlatformOrder } from '../services/orderSyncService';
 import { detectCracks } from '../utils/crackDetector';
+import { buildCrackReport } from '../utils/crackReport';
 import { authHeaders, escapeHtml, safeImgSrc, responseError, genId } from '../services/platformUtils';
 import './DefectInspectorPage.css';
 
@@ -153,34 +154,55 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
           ctx.beginPath(); ctx.moveTo(x, y + bh - bLen); ctx.lineTo(x, y + bh); ctx.lineTo(x + bLen, y + bh); ctx.stroke();
           ctx.beginPath(); ctx.moveTo(x + bw - bLen, y + bh); ctx.lineTo(x + bw, y + bh); ctx.lineTo(x + bw, y + bh - bLen); ctx.stroke();
 
-          // Label
-          const fontSize = Math.max(11, Math.min(cw * 0.024, 16));
+        });
+
+        // Подписи — после всех рамок и без наложений: каждая ищет свободное место рядом с зоной
+        const placed = [];
+        const hits = (r) => placed.some((q) => r.x < q.x + q.w && r.x + r.w > q.x && r.y < q.y + q.h && r.y + r.h > q.y);
+        const fit = (r) => ({ ...r, x: Math.min(Math.max(0, r.x), Math.max(0, cw - r.w)), y: Math.min(Math.max(0, r.y), Math.max(0, ch - r.h)) });
+        const place = (cands, w, h) => {
+          for (const c of cands) { const r = fit({ x: c[0], y: c[1], w, h }); if (!hits(r)) { placed.push(r); return r; } }
+          // всё занято — сдвигаем вниз от первой позиции
+          let r = fit({ x: cands[0][0], y: cands[0][1], w, h });
+          for (let k = 0; k < 12 && hits(r); k++) r = fit({ ...r, y: r.y + h + 2 });
+          placed.push(r);
+          return r;
+        };
+        const fontSize = Math.max(11, Math.min(cw * 0.022, 15));
+        const lh = fontSize + 6;
+        boxesToDraw.forEach((m, idx) => {
+          if (!m.bbox) return;
+          const s = sevColors[m.severity] || sevColors.medium;
+          const x = (m.bbox[0] / 100) * cw;
+          const y = (m.bbox[1] / 100) * ch;
+          const bw = ((m.bbox[2] - m.bbox[0]) / 100) * cw;
+          const bh = ((m.bbox[3] - m.bbox[1]) / 100) * ch;
+
           ctx.font = `bold ${fontSize}px sans-serif`;
           const label = `#${idx + 1} ${s.text}${typeof m.confidence === 'number' ? ' · ' + Math.round(m.confidence * 100) + '%' : ''}`;
-          const twL = ctx.measureText(label).width;
-          const lh = fontSize + 6;
-          const ly = y - lh - 2;
+          const lw = ctx.measureText(label).width + 10;
+          const r1 = place([[x, y - lh - 2], [x, y + bh + 2], [x + bw - lw, y - lh - 2], [x, y + 2]], lw, lh);
           ctx.fillStyle = s.stroke;
-          ctx.fillRect(x, ly < 0 ? y : ly, twL + 10, lh);
+          ctx.fillRect(r1.x, r1.y, r1.w, r1.h);
           ctx.fillStyle = '#fff';
-          ctx.fillText(label, x + 5, (ly < 0 ? y + lh - 4 : ly + lh - 4));
+          ctx.fillText(label, r1.x + 5, r1.y + lh - 5);
 
-          // Размеры — только измеренные; без масштаба мм не показываем
-          const dimFont = `bold ${Math.max(10, fontSize * 0.85)}px sans-serif`;
-          const dims = [];
-          if (m.length_mm) dims.push({ t: `L ≈ ${m.length_mm} мм`, c: '#b9a4ff' });
-          else if (m.length_rel) dims.push({ t: `L ≈ ${Math.round(m.length_rel * 100)}% кадра`, c: '#b9a4ff' });
-          if (m.opening_mm) dims.push({ t: `d ≈ ${m.opening_mm} мм`, c: '#fbbf24' });
-          ctx.font = dimFont;
-          dims.forEach((d, k) => {
-            const tw2 = ctx.measureText(d.t).width;
-            const tx = x + bw + 6 + tw2 > cw ? Math.max(2, x + bw - tw2 - 6) : x + bw + 6;
-            const ty = y + bh * (k === 0 ? 0.4 : 0.65);
-            ctx.fillStyle = 'rgba(10,8,24,0.72)';
-            ctx.fillRect(tx - 3, ty - fontSize, tw2 + 6, fontSize + 5);
-            ctx.fillStyle = d.c;
-            ctx.fillText(d.t, tx, ty);
-          });
+          // Размеры: длина и наибольшее раскрытие
+          const parts = [];
+          if (m.length_mm) parts.push(`L ≈ ${m.length_mm} мм`);
+          else if (m.length_rel) parts.push(`L ≈ ${Math.round(Math.min(1, m.length_rel) * 100)}% кадра`);
+          if (m.opening_mm) parts.push(`d до ${m.opening_mm} мм`);
+          if (!parts.length) return;
+          const dimText = parts.join(' · ');
+          const dFont = Math.max(10, Math.round(fontSize * 0.88));
+          ctx.font = `bold ${dFont}px sans-serif`;
+          const dw = ctx.measureText(dimText).width + 10;
+          const dh = dFont + 7;
+          const r2 = place([[r1.x, r1.y + lh + 1], [x + bw + 4, y + bh / 2 - dh / 2], [x - dw - 4, y + bh / 2 - dh / 2], [x, y + bh + 2], [r1.x, r1.y - dh - 1]], dw, dh);
+          ctx.fillStyle = 'rgba(10,8,24,0.8)';
+          ctx.fillRect(r2.x, r2.y, r2.w, r2.h);
+          ctx.fillStyle = '#fde68a';
+          ctx.fillText(dimText, r2.x + 5, r2.y + dh - 5);
         });
       } catch (e) {
         console.error('[Overlay] Inline CV error:', e);
@@ -778,6 +800,8 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
         let cvItems = [];
         let cvModelError = null;
         let cvScaled = false;
+        let cvScaleAssumed = true;
+        let cvSpanMm = 1500;
         try {
           const photoSrc = imgRef.current || photos[0]?.base64 || photos[0]?.url;
           if (photoSrc) {
@@ -786,6 +810,8 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
             const cvResult = await detectCracks(photoSrc, { spanMm: spanMm > 0 ? spanMm : null });
             cvModelError = cvResult.modelError || null;
             cvScaled = !!cvResult.scaled;
+            cvScaleAssumed = cvResult.scaleAssumed !== false;
+            cvSpanMm = cvResult.spanMm || 1500;
             setProgressSteps(prev => prev.map((s, i) => i === prev.length - 1 ? { ...s, done: true } : s));
             
             console.log('[Scan] CV result:', {
@@ -820,6 +846,9 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
                 bbox: r.bbox,
                 length_mm: r.length_mm,
                 opening_mm: r.opening_mm,
+                opening_mean_mm: r.opening_mean_mm,
+                width_profile: r.width_profile,
+                scale_assumed: r.scale_assumed,
                 length_rel: r.length_rel,
                 area_percent: null,
                 description: r.description,
@@ -848,14 +877,20 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
           }];
         }
         cvItems = cvItems.map(it => ({ model: 'cv', ...it }));
-        if (cvItems.length && !cvScaled && cvItems.some(it => it.model === 'yolo-browser')) {
-          data.warnings = [...(data.warnings || []), 'Размеры в миллиметрах не посчитаны: укажите ширину участка на фото — тогда длина и раскрытие трещин будут измерены.'];
+        let crackRep = null;
+        if (cvItems.length && cvScaleAssumed && cvItems.some(it => it.model === 'yolo-browser')) {
+          data.warnings = [...(data.warnings || []), `Размеры посчитаны при допущении, что ширина кадра ≈ ${(cvSpanMm / 1000).toLocaleString('ru-RU')} м. Укажите реальную ширину участка на фото — длина, раскрытие и класс опасности уточнятся.`];
         }
         if (!matched && cvItems.length > 0) {
-          const sevs = cvItems.map(c => c.severity);
-          const top = sevs.includes('critical') ? 'critical' : sevs.includes('high') ? 'high' : sevs.includes('medium') ? 'medium' : 'low';
-          data.defectType = `Трещины (нейросеть на устройстве, зон: ${cvItems.length})`;
-          data.severity = { critical: 'Критический (раскрытие > 3 мм)', high: cvScaled ? 'Высокий (раскрытие 1–3 мм)' : 'Высокий (протяжённая трещина, без масштаба)', medium: 'Средний', low: 'Низкий' }[top];
+          crackRep = buildCrackReport(cvItems, { scaleAssumed: cvScaleAssumed, spanMm: cvSpanMm });
+          if (crackRep) {
+            data.defectType = crackRep.defectType;
+            data.severity = crackRep.severity;
+            data.snipCode = crackRep.snipCode;
+            data.fixMethod = crackRep.fixMethod;
+            data.estimatedCost = crackRep.estimatedCost;
+            data.workDays = crackRep.workDays;
+          }
         } else if (!matched) {
           data.defectType = cvModelError
             ? 'Модель распознавания не загрузилась — проверьте интернет и повторите анализ'
@@ -873,7 +908,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
           }
         };
         // Добавляем аналитику для табов "Профиль трещины" и "Смета"
-        data.analytics = !matched ? null : {
+        data.analytics = !matched ? (crackRep ? crackRep.analytics : null) : {
           materials: matched.materials || [],
           labor: matched.labor || [],
           total_cost_kzt: totalMaterials + totalLabor,
@@ -921,6 +956,8 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
             area_percent: d.area_percent || 0,
             length_mm: d.length_mm || null,
             opening_mm: d.opening_mm || null,
+            opening_mean_mm: d.opening_mean_mm || null,
+            scale_assumed: !!d.scale_assumed,
             length_rel: d.length_rel || null,
             orientation_deg: d.orientation_deg || 0,
             description: d.description || '',
@@ -1332,7 +1369,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
                             )}
                             {marker.photoIndex !== undefined && <span className="qg-chip">фото {marker.photoIndex + 1}</span>}
                             {marker.length_mm ? <span className="qg-chip qg-chip--info">длина ≈ {marker.length_mm} мм</span> : marker.length_rel ? <span className="qg-chip qg-chip--info">длина ≈ {Math.round(marker.length_rel * 100)}% кадра</span> : null}
-                            {marker.opening_mm ? <span className="qg-chip qg-chip--warn">раскрытие ≈ {marker.opening_mm} мм</span> : null}
+                            {marker.opening_mm ? <span className="qg-chip qg-chip--warn">раскрытие до ≈ {marker.opening_mm} мм{marker.scale_assumed ? ' (оценка)' : ''}</span> : null}
                           </span>
                           {marker.description && <span className="di-defect-desc">{marker.description}</span>}
                         </span>
@@ -1563,7 +1600,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
                   {(report.analytics?.materials || []).map((m, idx) => (
                     <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', background: 'rgba(255,255,255,0.03)', padding: '6px 10px', borderRadius: '6px', fontSize: '0.8rem' }}>
                       <span style={{ color: '#cbc5e3' }}>{m.name} <small style={{ color: '#a39cc2' }}>({m.qty})</small></span>
-                      <strong style={{ color: '#f5f3ff', whiteSpace: 'nowrap' }}>{(Number(m.cost_kzt) || 0).toLocaleString('ru-RU')} ₸</strong>
+                      <strong style={{ color: '#f5f3ff', whiteSpace: 'nowrap' }}>{m.cost_kzt == null ? 'по осмотру' : `${(Number(m.cost_kzt) || 0).toLocaleString('ru-RU')} ₸`}</strong>
                     </div>
                   ))}
                 </div>
@@ -1578,7 +1615,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
                   {(report.analytics?.labor || []).map((l, idx) => (
                     <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', background: 'rgba(255,255,255,0.03)', padding: '6px 10px', borderRadius: '6px', fontSize: '0.8rem' }}>
                       <span style={{ color: '#cbc5e3' }}>{l.name} <small style={{ color: '#a39cc2' }}>({l.qty})</small></span>
-                      <strong style={{ color: '#f5f3ff', whiteSpace: 'nowrap' }}>{(Number(l.cost_kzt) || 0).toLocaleString('ru-RU')} ₸</strong>
+                      <strong style={{ color: '#f5f3ff', whiteSpace: 'nowrap' }}>{l.cost_kzt == null ? 'по осмотру' : `${(Number(l.cost_kzt) || 0).toLocaleString('ru-RU')} ₸`}</strong>
                     </div>
                   ))}
                 </div>
@@ -1658,11 +1695,11 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
                     msg += `*Метод:* ${report.fixMethod}\n\n`;
                     if (materials.length > 0) {
                       msg += `*Материалы:*\n`;
-                      materials.forEach(m => { msg += `  - ${m.name} (${m.qty}) — ${m.cost_kzt.toLocaleString('ru-RU')} T\n`; });
+                      materials.forEach(m => { msg += `  - ${m.name} (${m.qty}) — ${m.cost_kzt == null ? 'по осмотру' : m.cost_kzt.toLocaleString('ru-RU') + ' T'}\n`; });
                     }
                     if (labor.length > 0) {
                       msg += `*Работы:*\n`;
-                      labor.forEach(l => { msg += `  - ${l.name} (${l.qty}) — ${l.cost_kzt.toLocaleString('ru-RU')} T\n`; });
+                      labor.forEach(l => { msg += `  - ${l.name} (${l.qty}) — ${l.cost_kzt == null ? 'по осмотру' : l.cost_kzt.toLocaleString('ru-RU') + ' T'}\n`; });
                     }
                     if (totalCost > 0) msg += `\n*ИТОГО: ${totalCost.toLocaleString('ru-RU')} T*\n`;
                     else msg += `\n*Стоимость: ${report.estimatedCost}*\n`;

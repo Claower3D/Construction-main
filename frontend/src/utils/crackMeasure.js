@@ -76,98 +76,116 @@ function components(mask, w, h) {
 
 /**
  * Измерить трещину в рамке модели.
+ * Участок берётся с запасом вокруг рамки (CONTEXT): линия, которая в основном лежит ЗА
+ * рамкой (край кольца, шов, граница поверхностей), — это контур предмета, а не трещина.
+ * Трещина заканчивается внутри зоны, найденной моделью.
  * @param img     загруженное изображение
  * @param box     рамка в долях кадра {x, y, w, h}
- * @returns { lengthPx, widthPx, points:[{xPct,yPct,strength}], found }
- *          lengthPx / widthPx — в пикселях исходного фото
+ * @returns { found, lengthPx, widthPx, contrast, gapPx, profile, tight, points }
+ *          lengthPx / widthPx — в пикселях исходного фото; contrast — глубина «ложбины»
+ *          в уровнях яркости; profile — раскрытие вдоль трещины [{pos, widthPx}]
  */
+const CONTEXT = 0.35;
+const NOT_FOUND = { found: false, lengthPx: 0, widthPx: 0, contrast: 0, points: [] };
+
 export function measureCrackInBox(img, box) {
   const W = img.naturalWidth || img.width;
   const H = img.naturalHeight || img.height;
-  const sx = Math.max(0, Math.floor(box.x * W));
-  const sy = Math.max(0, Math.floor(box.y * H));
-  const sw = Math.max(4, Math.min(W - sx, Math.ceil(box.w * W)));
-  const sh = Math.max(4, Math.min(H - sy, Math.ceil(box.h * H)));
+  // внутренняя рамка (пиксели фото) и участок с запасом
+  const ix0 = Math.max(0, Math.floor(box.x * W));
+  const iy0 = Math.max(0, Math.floor(box.y * H));
+  const ix1 = Math.min(W, Math.ceil((box.x + box.w) * W));
+  const iy1 = Math.min(H, Math.ceil((box.y + box.h) * H));
+  const mx = (ix1 - ix0) * CONTEXT, my = (iy1 - iy0) * CONTEXT;
+  const sx = Math.max(0, Math.floor(ix0 - mx));
+  const sy = Math.max(0, Math.floor(iy0 - my));
+  const sw = Math.max(4, Math.min(W, Math.ceil(ix1 + mx)) - sx);
+  const sh = Math.max(4, Math.min(H, Math.ceil(iy1 + my)) - sy);
   const k = Math.min(1, CROP_MAX / Math.max(sw, sh));
   const w = Math.max(4, Math.round(sw * k));
   const h = Math.max(4, Math.round(sh * k));
+  // внутренняя рамка в координатах участка
+  const bx0 = (ix0 - sx) * k, by0 = (iy0 - sy) * k, bx1 = (ix1 - sx) * k, by1 = (iy1 - sy) * k;
+  const inBox = (x, y) => x >= bx0 && x < bx1 && y >= by0 && y < by1;
 
   const c = document.createElement('canvas');
   c.width = w; c.height = h;
   const ctx = c.getContext('2d', { willReadFrequently: true });
   ctx.drawImage(img, sx, sy, sw, sh, 0, 0, w, h);
   let px;
-  try { px = ctx.getImageData(0, 0, w, h).data; } catch { return { found: false, lengthPx: 0, widthPx: 0, points: [] }; }
+  try { px = ctx.getImageData(0, 0, w, h).data; } catch { return NOT_FOUND; }
   const g = grayOf(px, w * h);
 
   // Трещина — «ложбина»: пиксель темнее соседей ПО ОБЕ стороны (в одном из 4 направлений).
-  // Граница двух поверхностей (край кольца, тень, шов плитки к стене) темна лишь с одной
-  // стороны и сюда не попадает. Несколько радиусов — для волосяных и широких трещин.
+  // Граница двух поверхностей темна лишь с одной стороны и сюда не попадает.
   const radii = [2, 4, 7].filter((R) => R * 3 < Math.min(w, h));
-  const diff = new Float32Array(w * h);
   const Rmax = radii[radii.length - 1] || 2;
+  const diff = new Float32Array(w * h);
   for (const R of radii) {
     for (let y = R; y < h - R; y++) {
       for (let x = R; x < w - R; x++) {
         const i = y * w + x;
         const c0 = g[i];
-        const dH = Math.min(g[i - R], g[i + R]) - c0;
-        const dV = Math.min(g[i - R * w], g[i + R * w]) - c0;
-        const d1 = Math.min(g[i - R * w - R], g[i + R * w + R]) - c0;
-        const d2 = Math.min(g[i - R * w + R], g[i + R * w - R]) - c0;
-        const v = Math.max(dH, dV, d1, d2);
+        const v = Math.max(
+          Math.min(g[i - R], g[i + R]) - c0,
+          Math.min(g[i - R * w], g[i + R * w]) - c0,
+          Math.min(g[i - R * w - R], g[i + R * w + R]) - c0,
+          Math.min(g[i - R * w + R], g[i + R * w - R]) - c0,
+        );
         if (v > diff[i]) diff[i] = v;
       }
     }
   }
   const vals = [];
-  for (let i = 0; i < w * h; i++) if (diff[i] > 0) vals.push(diff[i]);
+  for (let y = Math.floor(by0); y < by1; y++) for (let x = Math.floor(bx0); x < bx1; x++) { const d = diff[y * w + x]; if (d > 0) vals.push(d); }
   vals.sort((a, b) => a - b);
   const p90 = vals.length ? vals[Math.floor(vals.length * 0.9)] : 0;
   const thr = Math.max(12, p90);
   const mask = new Uint8Array(w * h);
   for (let y = Rmax; y < h - Rmax; y++) for (let x = Rmax; x < w - Rmax; x++) { const i = y * w + x; if (diff[i] > thr) mask[i] = 1; }
 
-  // Оставляем вытянутые линии и отбрасываем «крошку» (песок, поры, пятна)
   const { label, comps } = components(mask, w, h);
-  const minSpan = Math.max(w, h) * 0.12;
-  // Сила линии: средняя глубина «ложбины» по её пикселям
   const strength = new Float64Array(comps.length);
-  for (let i = 0; i < w * h; i++) if (label[i] >= 0) strength[label[i]] += diff[i];
+  const nIn = new Int32Array(comps.length);
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      const i = y * w + x;
+      const l = label[i];
+      if (l < 0) continue;
+      strength[l] += diff[i];
+      if (inBox(x, y)) nIn[l]++;
+    }
+  }
+  const boxSide = Math.max(bx1 - bx0, by1 - by0);
+  const minSpan = boxSide * 0.25;
   const cands = [];
   for (const cp of comps) {
     const elongated = cp.span * cp.span / Math.max(1, cp.n) > 3; // площадь мала относительно размаха
-    if (cp.n >= 15 && cp.span >= minSpan && elongated) {
+    const inside = nIn[cp.id] / cp.n;
+    // трещина в основном внутри зоны; контур предмета уходит далеко за неё
+    if (cp.n >= 15 && elongated && inside >= 0.6 && cp.span >= minSpan && cp.span <= boxSide * 1.9) {
       cp.mean = strength[cp.id] / cp.n;
       cp.score = cp.span * cp.mean;
       cands.push(cp);
     }
   }
-  // Главная линия трещины и те, что сопоставимы с ней; мелкая шероховатость (щебень,
-  // поры, фактура) короче и бледнее — её отбрасываем
+  if (!cands.length) return NOT_FOUND;
+  // Главная линия — длинная и самая тёмная; рядом с ней — только сопоставимые ветви
   cands.sort((a, b) => b.score - a.score);
+  const top = cands[0];
   const keep = new Uint8Array(comps.length);
-  if (cands.length) {
-    const top = cands[0];
-    for (const cp of cands) {
-      if (cp === top || (cp.score >= 0.45 * top.score && cp.mean >= 0.6 * top.mean)) keep[cp.id] = 1;
-    }
-  }
+  for (const cp of cands) if (cp === top || (cp.score >= 0.6 * top.score && cp.mean >= 0.75 * top.mean)) keep[cp.id] = 1;
   let area = 0;
   for (let i = 0; i < w * h; i++) {
     if (mask[i] && keep[label[i]]) area++;
     else mask[i] = 0;
   }
-  if (area === 0) return { found: false, lengthPx: 0, widthPx: 0, points: [] };
 
   const skel = thin(mask, w, h);
-  // Длина скелета по цепочке шагов
-  let bx0 = w, by0 = h, bx1 = -1, by1 = -1;
-  let n4Links = 0;
-  let ndLinks = 0;
-  let skelN = 0;
-  let coreDark = 0;
-  let maskDark = 0;
+  let tx0 = w, ty0 = h, tx1 = -1, ty1 = -1;
+  let n4Links = 0, ndLinks = 0, skelN = 0, coreDark = 0, maskDark = 0;
+  let mx2 = 0, my2 = 0;
+  const sk = [];
   const points = [];
   const step = Math.max(1, Math.round(Math.max(w, h) / 160));
   for (let y = 0; y < h; y++) {
@@ -176,34 +194,57 @@ export function measureCrackInBox(img, box) {
       if (mask[i]) maskDark += diff[i];
       if (!skel[i]) continue;
       skelN++;
-      if (x < bx0) bx0 = x; if (x > bx1) bx1 = x; if (y < by0) by0 = y; if (y > by1) by1 = y;
       coreDark += diff[i];
-      // Связи с соседями «вперёд» (каждая считается один раз). Диагональ не считаем,
-      // если её уже замыкают два прямых шага — иначе уголки лестницы удваивают длину.
+      mx2 += x; my2 += y;
+      sk.push(i);
+      if (x < tx0) tx0 = x; if (x > tx1) tx1 = x; if (y < ty0) ty0 = y; if (y > ty1) ty1 = y;
+      // связи «вперёд»; диагональ не считаем, если её замыкают два прямых шага
       if (x < w - 1 && skel[i + 1]) n4Links++;
       if (y < h - 1 && skel[i + w]) n4Links++;
       if (x < w - 1 && y < h - 1 && skel[i + w + 1] && !skel[i + 1] && !skel[i + w]) ndLinks++;
       if (x > 0 && y < h - 1 && skel[i + w - 1] && !skel[i - 1] && !skel[i + w]) ndLinks++;
-      if ((x + y) % step === 0) {
-        points.push({ xPct: ((sx + x / k) / W) * 100, yPct: ((sy + y / k) / H) * 100, strength: 2 });
-      }
+      if ((x + y) % step === 0) points.push({ xPct: ((sx + x / k) / W) * 100, yPct: ((sy + y / k) / H) * 100, strength: 2 });
     }
   }
-  if (skelN < 3) return { found: false, lengthPx: 0, widthPx: 0, points: [] };
+  if (skelN < 3) return NOT_FOUND;
   // Оценка Кульпы для цифровой линии: прямой шаг 0,948, диагональный 1,343
   const lengthCrop = Math.max(0.948 * n4Links + 1.343 * ndLinks, skelN * 0.9);
-  // Раскрытие: «сколько темноты» поперёк линии, делённое на темноту её середины.
-  // Размытые края тонкой трещины дают доли пикселя, а не целые пиксели маски.
+  // Раскрытие: «сколько темноты» поперёк линии, делённое на темноту её середины
   const coreMean = coreDark / skelN;
   const widthCrop = Math.max(0.5, maskDark / Math.max(1e-6, coreMean) / lengthCrop);
-  // Рамка по самой линии трещины (в долях кадра) — точнее, чем рамка модели
-  const tight = { x: (sx + bx0 / k) / W, y: (sy + by0 / k) / H, w: (bx1 - bx0 + 1) / k / W, h: (by1 - by0 + 1) / k / H };
-  return { found: true, lengthPx: lengthCrop / k, widthPx: widthCrop / k, contrast: coreMean, tight, points };
+
+  // Профиль раскрытия: делим трещину на 8 участков вдоль её главной оси
+  mx2 /= skelN; my2 /= skelN;
+  let sxx = 0, syy = 0, sxy = 0;
+  for (const i of sk) { const x = i % w - mx2, y = (i - (i % w)) / w - my2; sxx += x * x; syy += y * y; sxy += x * y; }
+  const ang = 0.5 * Math.atan2(2 * sxy, sxx - syy);
+  const ux = Math.cos(ang), uy = Math.sin(ang);
+  let pmin = Infinity, pmax = -Infinity;
+  const proj = (x, y) => (x - mx2) * ux + (y - my2) * uy;
+  for (const i of sk) { const t = proj(i % w, (i - (i % w)) / w); if (t < pmin) pmin = t; if (t > pmax) pmax = t; }
+  const BINS = 8;
+  const binDark = new Float64Array(BINS), binCore = new Float64Array(BINS), binN = new Float64Array(BINS);
+  const binOf = (x, y) => Math.min(BINS - 1, Math.max(0, Math.floor((proj(x, y) - pmin) / Math.max(1e-6, pmax - pmin) * BINS)));
+  for (const i of sk) { const b = binOf(i % w, (i - (i % w)) / w); binCore[b] += diff[i]; binN[b]++; }
+  for (let i = 0; i < w * h; i++) if (mask[i]) binDark[binOf(i % w, (i - (i % w)) / w)] += diff[i];
+  const profile = [];
+  for (let b = 0; b < BINS; b++) {
+    if (binN[b] < 2) continue;
+    const cm = binCore[b] / binN[b];
+    profile.push({ pos: (b + 0.5) / BINS, widthPx: Math.max(0.5, binDark[b] / Math.max(1e-6, cm) / binN[b]) / k });
+  }
+  // Самое широкое место — по нему оценивается класс опасности
+  const gapPx = profile.length ? Math.max(...profile.map((p) => p.widthPx)) : widthCrop / k;
+
+  const tight = { x: (sx + tx0 / k) / W, y: (sy + ty0 / k) / H, w: (tx1 - tx0 + 1) / k / W, h: (ty1 - ty0 + 1) / k / H };
+  return { found: true, lengthPx: lengthCrop / k, widthPx: widthCrop / k, gapPx, contrast: coreMean, profile, tight, points };
 }
 
 /**
- * Класс опасности. С масштабом — по раскрытию (СП РК / СП 63: до 0,3 мм допустимо),
- * без масштаба — только по относительной длине, и никогда не «критический».
+ * Класс опасности по наибольшему раскрытию трещины.
+ * СП РК EN 1992-1-1, п. 7.3: допустимое раскрытие для железобетона обычно 0,3 мм.
+ * Свыше 3 мм — раскрытая (как правило сквозная) трещина: аварийная категория по ГОСТ 31937.
+ * Без измеренной линии — только по относительной длине, «критический» не ставится.
  */
 export function crackSeverity({ openingMm, lengthRel, conf }) {
   if (openingMm != null) {
@@ -218,7 +259,7 @@ export function crackSeverity({ openingMm, lengthRel, conf }) {
 }
 
 export const CRACK_TITLES = {
-  critical: 'Сквозная / силовая трещина (раскрытие > 3 мм)',
+  critical: 'Раскрытая (вероятно сквозная) трещина — раскрытие более 3 мм',
   high: 'Трещина с раскрытием 1–3 мм',
   medium: 'Трещина с раскрытием 0,3–1 мм',
   low: 'Волосяная трещина (до 0,3 мм)',
