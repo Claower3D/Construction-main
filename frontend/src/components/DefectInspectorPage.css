@@ -204,7 +204,7 @@
 
 /* ── Пометки ── */
 .di-note {
-  margin: 0;
+  margin-block: 0; /* по бокам — auto от колонки .di-container, иначе пометка прилипала к левому краю */
   padding: 10px 14px;
   border-radius: var(--qg-r-ctrl);
   border: 1px solid var(--qg-line);
@@ -569,3 +569,188 @@
 .di-train-btn:hover:not(:disabled) { background: rgba(95, 184, 242, 0.22); }
 .di-train-btn:disabled { opacity: 0.6; cursor: default; }
 .di-train-stats { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; }
+
+/* ════════════════════════════════════════════════════════════════════
+   В стилистике главной (qazgost.kz): стекло с градиентной кромкой,
+   золото — главное действие и выбранная вкладка, метка из системных
+   цветов над заголовками. Переменные --app-* и --t-* — из app-lux.css
+   и landing-color.css (подключены глобально).
+   ════════════════════════════════════════════════════════════════════ */
+
+/* пометки уровня страницы — по центру колонки, с отступом от формы */
+.di-container > .di-note { margin-top: 20px; }
+
+/* все крупные блоки — одно стекло, как форма и панели главной */
+.di-main-card,
+.di-result,
+.di-report-card,
+.di-progress {
+  border: 1px solid transparent;
+  background: var(--app-glass) padding-box, var(--app-edge) border-box;
+  box-shadow: var(--app-shadow);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+}
+.di-progress { border-radius: var(--qg-r-panel); }
+
+/* заголовки блоков — с меткой из четырёх системных цветов */
+.di-result-head h3::before,
+.di-report-title::before {
+  content: '';
+  display: block;
+  width: 56px;
+  height: 4px;
+  margin-bottom: 12px;
+  border-radius: 4px;
+  background: var(--app-bar);
+  box-shadow: 0 0 14px rgba(79, 195, 255, 0.35);
+}
+.di-result-head h3,
+.di-report-title { letter-spacing: -0.03em; }
+
+/* номера шагов — золотые, как акценты главной */
+.di-step {
+  border-color: rgba(242, 184, 75, 0.55);
+  background: rgba(242, 184, 75, 0.12);
+  color: #f8d27a;
+}
+
+/* пометки — стекло с цветной кромкой слева */
+.di-note {
+  border-color: rgba(189, 178, 230, 0.18);
+  border-left: 3px solid var(--t-cyan, #4fc3ff);
+  background: rgba(14, 11, 34, 0.72);
+  color: var(--qg-text-2);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+.di-note b, .di-note strong { color: var(--qg-text); }
+.di-note--warn {
+  border-left-color: var(--t-amber, #ffc34d);
+  background: linear-gradient(90deg, rgba(255, 195, 77, 0.1), rgba(14, 11, 34, 0.72) 60%);
+  color: #fde3a7;
+}
+
+/* главная кнопка — золото с объёмом */
+.di-btn-submit {
+  border-radius: 12px;
+  background: var(--app-gold);
+  color: #1c1203;
+  font-weight: 800;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 12px 30px -12px rgba(242, 184, 75, 0.75);
+}
+.di-btn-submit:hover:not(:disabled) { background: var(--app-gold-hover); }
+.di-btn-submit .di-spinner { border-color: rgba(28, 18, 3, 0.25); border-top-color: #1c1203; }
+.di-submit-row .qg-btn { min-height: 52px; border-radius: 12px; }
+
+/* зона загрузки и поля — полупрозрачные, город просвечивает */
+.di-dropzone {
+  border-color: rgba(189, 178, 230, 0.3);
+  background:
+    linear-gradient(var(--qg-grid) 1px, transparent 1px) 0 0 / 20px 20px,
+    linear-gradient(90deg, var(--qg-grid) 1px, transparent 1px) 0 0 / 20px 20px,
+    var(--app-field);
+}
+.di-dropzone:hover, .di-dropzone.is-dragover { border-color: rgba(242, 184, 75, 0.6); }
+.di-drop-content { color: #f8d27a; }
+.di-input, .di-textarea, .di-mark-kind select {
+  border-color: var(--app-field-line);
+  background-color: var(--app-field);
+  border-radius: 12px;
+}
+.di-input:focus, .di-textarea:focus, .di-mark-kind select:focus {
+  border-color: rgba(242, 184, 75, 0.7);
+  box-shadow: 0 0 0 3px rgba(242, 184, 75, 0.2);
+}
+
+/* выбор типа дефекта и чипы — стеклянные таблетки, выбранная золотая */
+.di-type-btn,
+.di-preset-chips button {
+  border-color: rgba(189, 178, 230, 0.26);
+  background: rgba(25, 21, 50, 0.5);
+}
+.di-type-btn:hover,
+.di-preset-chips button:hover { border-color: rgba(242, 184, 75, 0.4); color: var(--qg-text); }
+.di-type-btn.is-active {
+  border-color: transparent;
+  background: var(--app-gold);
+  color: #1c1203;
+  font-weight: 800;
+  box-shadow: 0 10px 24px -14px rgba(242, 184, 75, 0.8);
+}
+.di-preset-chips button { border-radius: 999px; }
+
+/* вкладки заключения и режимы просмотра фото — как вкладки примеров сметы */
+.di-tabs,
+.di-mode-switch {
+  border-color: rgba(189, 178, 230, 0.18);
+  border-radius: 999px;
+  background: rgba(10, 8, 28, 0.55);
+}
+.di-tabs button,
+.di-mode-switch button { border-radius: 999px; }
+.di-tabs button.is-active,
+.di-mode-switch button.is-active {
+  background: var(--app-gold);
+  color: #1c1203;
+  font-weight: 800;
+  box-shadow: 0 10px 24px -14px rgba(242, 184, 75, 0.8);
+}
+.di-perphoto-btn { border-color: rgba(189, 178, 230, 0.26); background: rgba(25, 21, 50, 0.5); }
+.di-perphoto-btn.is-active { border-color: rgba(242, 184, 75, 0.6); background: rgba(242, 184, 75, 0.12); }
+
+/* фото и подпись под ним */
+.di-defect-image-wrap { border-color: rgba(189, 178, 230, 0.18); background: #07061a; }
+.di-zoom-hint { border-color: rgba(189, 178, 230, 0.18); background: rgba(10, 8, 28, 0.55); }
+
+/* бейдж детектора */
+.di-detector-badge { border-color: rgba(189, 178, 230, 0.26); background: rgba(10, 8, 28, 0.4); }
+.di-detector-badge > div:first-child { background: rgba(79, 195, 255, 0.1); }
+.di-detector-badge > div:first-child dd { color: #a8e1ff; }
+
+/* список дефектов — вложенное стекло, выбранный — золотая кромка */
+.di-defect-item {
+  border-color: rgba(189, 178, 230, 0.14);
+  background: rgba(10, 8, 28, 0.38);
+}
+.di-defect-item:hover { background: rgba(36, 30, 70, 0.55); }
+.di-defect-item.is-selected { border-color: rgba(242, 184, 75, 0.6); box-shadow: inset 0 0 0 1px rgba(242, 184, 75, 0.45), 0 0 30px -14px rgba(242, 184, 75, 0.6); }
+
+/* таблица плана ремонта */
+.di-plan-grid { border-color: rgba(189, 178, 230, 0.14); background: rgba(189, 178, 230, 0.14); }
+.di-plan-cell { background: rgba(14, 11, 34, 0.85); }
+.di-plan-code { color: #a8e1ff; }
+.di-report-actions { border-top-color: rgba(189, 178, 230, 0.14); }
+
+/* мелкие кнопки внутри результата — стекло, без собственных цветов */
+.di-zone-remove {
+  border-color: rgba(189, 178, 230, 0.26);
+  background: rgba(25, 21, 50, 0.5);
+  color: var(--qg-text-2);
+  border-radius: 999px;
+}
+.di-train-btn {
+  border-color: rgba(79, 195, 255, 0.45);
+  background: rgba(79, 195, 255, 0.1);
+  color: #a8e1ff;
+  border-radius: 12px;
+}
+.di-mark-btn { border-radius: 12px; }
+
+/* промо сканера — стекло с розовой кромкой (горячая вода) */
+.di-scan-promo {
+  border: 1px solid transparent;
+  border-radius: var(--qg-r-panel);
+  background:
+    linear-gradient(160deg, rgba(52, 37, 104, 0.7), rgba(21, 15, 47, 0.82)) padding-box,
+    linear-gradient(150deg, rgba(255, 92, 138, 0.7), rgba(150, 100, 255, 0.15) 50%, rgba(255, 92, 138, 0.5)) border-box;
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+
+/* всплывающее сообщение — тоже стекло */
+.di-toast {
+  border: 1px solid transparent;
+  border-radius: 14px;
+  background: var(--app-glass-strong) padding-box, var(--app-edge) border-box;
+}
