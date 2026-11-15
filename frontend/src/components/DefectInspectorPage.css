@@ -554,3 +554,18 @@
   border: 1px solid var(--qg-line); background: transparent; color: var(--qg-text-3); font-size: 12px;
 }
 .di-zone-remove:hover { color: #ff8f8f; border-color: rgba(255, 120, 120, 0.5); }
+
+/* Вид дефекта для ручной отметки и сохранение учебного примера */
+.di-mark-kind select {
+  height: 36px; padding: 0 10px; border-radius: 9px; border: 1px solid var(--qg-line);
+  background: var(--qg-field); color: var(--qg-text); font-size: var(--qg-fs-sm);
+}
+.di-train-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-top: 8px; }
+.di-train-btn {
+  height: 36px; padding: 0 14px; border-radius: 9px; cursor: pointer; white-space: nowrap;
+  border: 1px solid rgba(95, 184, 242, 0.5); background: rgba(95, 184, 242, 0.12);
+  color: #8fd0ff; font-weight: 700; font-size: var(--qg-fs-sm);
+}
+.di-train-btn:hover:not(:disabled) { background: rgba(95, 184, 242, 0.22); }
+.di-train-btn:disabled { opacity: 0.6; cursor: default; }
+.di-train-stats { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; }

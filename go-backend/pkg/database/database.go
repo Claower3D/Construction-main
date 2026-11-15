@@ -68,6 +68,9 @@ func InitDB(dbURL string) error {
 	if err := runUserDataMigrations(); err != nil {
 		return fmt.Errorf("user data migrations failed: %w", err)
 	}
+	if err := runDefectSampleMigrations(); err != nil {
+		return fmt.Errorf("defect sample migrations failed: %w", err)
+	}
 
 	if err := seedData(); err != nil {
 		return fmt.Errorf("seed data failed: %w", err)

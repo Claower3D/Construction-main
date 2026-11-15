@@ -6,6 +6,19 @@ import { buildCrackReport, buildVisionReport } from '../utils/crackReport';
 import { authHeaders, escapeHtml, safeImgSrc, responseError, genId } from '../services/platformUtils';
 import './DefectInspectorPage.css';
 
+// Что можно отметить вручную; cls — номер класса своей модели (ai-service/scripts/train_qazgost.py)
+const MARK_KINDS = [
+  { id: 'crack', label: 'Трещина', cls: 0 },
+  { id: 'spall', label: 'Скол / разрушение', cls: 2 },
+  { id: 'exposed_rebar', label: 'Оголённая арматура', cls: 4 },
+  { id: 'corrosion', label: 'Коррозия / ржавчина', cls: 1 },
+  { id: 'efflorescence', label: 'Высолы', cls: 3 },
+  { id: 'leak', label: 'Пятно / протечка', cls: 5 },
+];
+// Класс для учебного примера: зоны без вида (нейросеть на устройстве, ручная трещина) — трещины
+const KIND_CLASS = { crack: 0, corrosion: 1, spall: 2, delamination: 2, efflorescence: 3, exposed_rebar: 4, leak: 5, stain: 5 };
+const zoneClass = (m) => (m.model === 'description' ? null : !m.kind ? 0 : (KIND_CLASS[m.kind] ?? null));
+
 const DEFECT_TYPES = [
   { id: 'crack', icon: '🧱', label: 'Трещина в стене / потолке', keywords: 'Трещина в стене, потолке' },
   { id: 'leak', icon: '💧', label: 'Протечка / сырость', keywords: 'Протечка, сырость, вода, затопление' },
@@ -39,6 +52,12 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
   // Ручная отметка пропущенной трещины: человек обводит её рамкой на фото
   const [markMode, setMarkMode] = useState(false);
   const dragRef = useRef(null);
+  const [markKind, setMarkKind] = useState('crack');
+  // Учебные примеры для своей модели: сохранение (после входа) и сводка для администратора
+  const [sampleState, setSampleState] = useState(null); // null | 'saving' | {mine, zones}
+  const [sampleStats, setSampleStats] = useState(null);
+  const canSaveSamples = !!authHeaders().Authorization;
+  const isAdmin = (() => { try { return JSON.parse(localStorage.getItem('app_currentUser') || '{}').role === 'admin'; } catch { return false; } })();
   const skipClickRef = useRef(false); // щелчок сразу после рисования рамки не должен открывать увеличение
   const [selectedDefectType, setSelectedDefectType] = useState(null);
 
@@ -284,6 +303,21 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
       const span = parseFloat(String(frameWidthM).replace(',', '.')) * 1000;
       const res = await measureManualZone(imgRef.current, box, { spanMm: span > 0 ? span : null });
       const base = defectMarkers.filter(m => m.model !== 'description');
+      if (markKind !== 'crack') {
+        // скол, арматура, пятно… — в миллиметрах не измеряются, сохраняются как зона этого вида
+        const label = (MARK_KINDS.find(k => k.id === markKind) || {}).label || 'Дефект';
+        applyZones([...base, {
+          bbox: [box.x * 100, box.y * 100, (box.x + box.w) * 100, (box.y + box.h) * 100].map(v => Number(v.toFixed(1))),
+          type: label, severity: 'medium', confidence: null, model: 'manual', kind: markKind,
+          length_mm: null, opening_mm: null, opening_mean_mm: null, width_profile: null, length_rel: null,
+          scale_assumed: false, measured: false, polygon: null, orientation_deg: 0, analytics: null,
+          description: `Зона: ${label} — отмечено вручную; класс опасности уточняет инженер.`,
+        }]);
+        setSampleState(null);
+        showToast(`Отмечено: ${label}`);
+        return;
+      }
+      setSampleState(null);
       applyZones([...base, { ...res.region, polygon: null, orientation_deg: 0, analytics: null }]);
       setCrackData(prev => ({ crackPoints: [...((prev && prev.crackPoints) || []), ...res.points], measurements: (prev && prev.measurements) || [] }));
       showToast(res.region.measured ? 'Трещина отмечена и измерена — заключение пересчитано' : 'Зона добавлена, но линия трещины в ней не выделилась — обведите точнее');
@@ -299,8 +333,63 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
       const [x0, y0, x1, y1] = gone.bbox;
       setCrackData(prev => prev ? { ...prev, crackPoints: (prev.crackPoints || []).filter(pt => !(pt.xPct >= x0 && pt.xPct <= x1 && pt.yPct >= y0 && pt.yPct <= y1)) } : prev);
     }
+    setSampleState(null);
     showToast('Зона убрана — заключение пересчитано');
   };
+
+  // ── Учебные примеры ──
+  const saveSample = async () => {
+    if (!canSaveSamples || sampleState === 'saving') return;
+    setSampleState('saving');
+    try {
+      const img = await loadImage(photos[0]?.base64 || photos[0]?.url || imgRef.current);
+      const W = img.naturalWidth || img.width, H = img.naturalHeight || img.height;
+      const k = Math.min(1, 1280 / Math.max(W, H));
+      const c = document.createElement('canvas');
+      c.width = Math.round(W * k); c.height = Math.round(H * k);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      const zones = defectMarkers
+        .map(m => ({ cls: zoneClass(m), m }))
+        .filter(z => z.cls !== null && Array.isArray(z.m.bbox))
+        .map(({ cls, m }) => ({
+          cls, x: m.bbox[0] / 100, y: m.bbox[1] / 100, w: (m.bbox[2] - m.bbox[0]) / 100, h: (m.bbox[3] - m.bbox[1]) / 100,
+          origin: m.model === 'manual' ? 'manual' : m.model === 'vision' ? 'vision' : 'model',
+        }));
+      const res = await fetch('/api/v1/defect-samples', {
+        method: 'POST',
+        headers: { ...authHeaders(), 'Content-Type': 'application/json' },
+        body: JSON.stringify({ photo: c.toDataURL('image/jpeg', 0.85), width: c.width, height: c.height, zones, source: report?.vision ? 'vision' : 'local', consent: true }),
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data) throw new Error((data && data.error) || `HTTP ${res.status}`);
+      setSampleState({ mine: data.mine, zones: data.zones });
+      showToast(`Пример сохранён для обучения (зон: ${data.zones})`);
+      if (isAdmin) loadSampleStats();
+    } catch (e) {
+      setSampleState(null);
+      showToast(`Не удалось сохранить пример: ${e.message}`);
+    }
+  };
+  const loadSampleStats = async () => {
+    try {
+      const res = await fetch('/api/v1/admin/defect-samples', { headers: authHeaders() });
+      if (res.ok) setSampleStats(await res.json());
+    } catch { /* сводка необязательна */ }
+  };
+  const downloadSamples = async () => {
+    try {
+      const res = await fetch('/api/v1/admin/defect-samples/export', { headers: authHeaders() });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const url = URL.createObjectURL(await res.blob());
+      const a = document.createElement('a');
+      a.href = url; a.download = 'qazgost-defect-samples.zip';
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
+    } catch (e) {
+      showToast(`Не удалось скачать набор: ${e.message}`);
+    }
+  };
+  useEffect(() => { if (isAdmin && canSaveSamples) loadSampleStats(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, []);
 
   // Положение указателя в долях изображения (0…1)
   const pointerPos = (e) => {
@@ -355,6 +444,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
     lastDetectedCountRef.current = 0;
     setMarkMode(false);
     dragRef.current = null;
+    setSampleState(null);
     setStressHeatmapImage(null);
     setSkeletonImage(null);
     setEdgeMapSrc(null);
@@ -1183,6 +1273,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
           analytics: data.analytics || items[0]?.analytics || null,
         };
         setReport(reportData);
+        setSampleState(null);
         saveToHistory(reportData);
         if (reportData.source === 'ai') {
           showToast(items.length > 0
@@ -1396,6 +1487,16 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
         </div>
       )}
 
+      {isAdmin && sampleStats && (
+        <div className="di-note di-train-stats" data-testid="train-stats">
+          <span>
+            <b>Учебных примеров: {sampleStats.total}</b>
+            {sampleStats.total > 0 && ` — ${MARK_KINDS.map(k => `${k.label.toLowerCase()}: ${sampleStats.zones_by_class?.[['crack', 'corrosion', 'spalling', 'efflorescence', 'exposed_rebar', 'stain'][k.cls]] || 0}`).join(', ')}; без дефектов: ${sampleStats.without_defects || 0}`}
+          </span>
+          {sampleStats.total > 0 && <button type="button" className="di-zone-remove" style={{ margin: 0 }} onClick={downloadSamples}>Скачать набор (ZIP)</button>}
+        </div>
+      )}
+
       {/* ===== РЕЗУЛЬТАТ: фото с зонами, детектор, список дефектов ===== */}
       {report && (() => {
         const det = report.detector || null;
@@ -1548,9 +1649,29 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
                     aria-pressed={markMode}
                     onClick={() => { if (!markMode) setVisionMode('hud'); dragRef.current = null; setMarkMode(v => !v); }}
                   >
-                    {markMode ? 'Отменить отметку' : '+ Отметить трещину вручную'}
+                    {markMode ? 'Отменить отметку' : '+ Отметить вручную'}
                   </button>
-                  <span className="di-mark-hint">Модель могла что-то пропустить или отметить лишнее: обведите пропущенную трещину — она будет измерена и попадёт в заключение; лишнюю зону можно убрать в списке ниже.</span>
+                  <label className="di-mark-kind">
+                    <span className="qg-visually-hidden">Что отмечаю</span>
+                    <select value={markKind} onChange={e => setMarkKind(e.target.value)} disabled={markMode}>
+                      {MARK_KINDS.map(k => <option key={k.id} value={k.id}>{k.label}</option>)}
+                    </select>
+                  </label>
+                  <span className="di-mark-hint">Модель могла что-то пропустить или отметить лишнее: выберите вид дефекта и обведите его на фото. Трещина будет измерена и попадёт в заключение; лишнюю зону можно убрать в списке ниже.</span>
+                </div>
+              )}
+              {!aiView && (
+                <div className="di-train-row" data-testid="train-row">
+                  <button type="button" className="di-train-btn" onClick={saveSample} disabled={!canSaveSamples || sampleState === 'saving' || (sampleState && typeof sampleState === 'object')}>
+                    {sampleState === 'saving' ? 'Сохраняю…' : sampleState ? '✓ Пример сохранён' : 'Сохранить как пример для обучения'}
+                  </button>
+                  <span className="di-mark-hint">
+                    {!canSaveSamples
+                      ? 'Войдите в аккаунт, чтобы сохранять примеры для обучения модели.'
+                      : sampleState && typeof sampleState === 'object'
+                        ? `Спасибо! Ваших примеров: ${sampleState.mine}. Если поправите зоны — сохраните ещё раз.`
+                        : 'Проверьте зоны (уберите лишние, отметьте пропущенные) и сохраните. Фото и зоны будут храниться на сервере QazGost и использоваться для обучения модели распознавания.'}
+                  </span>
                 </div>
               )}
             </figure>

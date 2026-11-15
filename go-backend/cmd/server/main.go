@@ -151,6 +151,12 @@ func main() {
 	mux.HandleFunc("/api/v1/admin/users/", adminOnly(adminHnd.Users))
 	mux.HandleFunc("/api/v1/admin/audit", adminOnly(adminHnd.Audit))
 
+	// Учебные примеры для своей модели дефектов
+	sampleHnd := handlers.NewDefectSampleHandler()
+	mux.HandleFunc("/api/v1/defect-samples", auth(middleware.RateLimit(40, time.Minute, sampleHnd.Save)))
+	mux.HandleFunc("/api/v1/admin/defect-samples", adminOnly(sampleHnd.Admin))
+	mux.HandleFunc("/api/v1/admin/defect-samples/", adminOnly(sampleHnd.Admin))
+
 	// Contractors catalog — public read (brigades + company contacts)
 	mux.HandleFunc("/api/v1/contractors", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodGet {
