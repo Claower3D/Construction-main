@@ -1,12 +1,12 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { createPlatformOrder } from '../services/orderSyncService';
-import { detectCracks } from '../utils/crackDetector';
+import { detectCracks, measureManualZone } from '../utils/crackDetector';
 import { buildCrackReport } from '../utils/crackReport';
 import { authHeaders, escapeHtml, safeImgSrc, responseError, genId } from '../services/platformUtils';
 import './DefectInspectorPage.css';
 
 const DEFECT_TYPES = [
-  { id: 'crack', icon: '🧱', label: 'Трещина в стене / потолке', keywords: 'Трещина в стене, потолке, штукатурке' },
+  { id: 'crack', icon: '🧱', label: 'Трещина в стене / потолке', keywords: 'Трещина в стене, потолке' },
   { id: 'leak', icon: '💧', label: 'Протечка / сырость', keywords: 'Протечка, сырость, вода, затопление' },
   { id: 'mold', icon: '🦠', label: 'Плесень / грибок', keywords: 'Плесень, грибок, биопоражение, чёрные пятна' },
   { id: 'corrosion', icon: '🔩', label: 'Коррозия арматуры', keywords: 'Коррозия арматуры, ржавчина, оголение металла' },
@@ -35,6 +35,10 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
   const [aiDescription, setAiDescription] = useState('');
   // Реальная ширина участка на фото (м) — масштаб для измерения трещин в миллиметрах
   const [frameWidthM, setFrameWidthM] = useState('');
+  // Ручная отметка пропущенной трещины: человек обводит её рамкой на фото
+  const [markMode, setMarkMode] = useState(false);
+  const dragRef = useRef(null);
+  const skipClickRef = useRef(false); // щелчок сразу после рисования рамки не должен открывать увеличение
   const [selectedDefectType, setSelectedDefectType] = useState(null);
 
   const [isScanning, setIsScanning] = useState(false);
@@ -71,6 +75,17 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
   const reportSourceRef = useRef(null);
   const [crackData, setCrackData] = useState(null); // {crackPoints, measurements} from CV
 
+  // Где внутри элемента <img> лежит само изображение
+  const photoRect = (imgEl) => {
+    const fullW = imgEl.clientWidth || imgEl.offsetWidth || 400;
+    const fullH = imgEl.clientHeight || imgEl.offsetHeight || 300;
+    const nw = imgEl.naturalWidth || fullW;
+    const nh = imgEl.naturalHeight || fullH;
+    const sc = Math.min(fullW / nw, fullH / nh);
+    const iw = nw * sc, ih = nh * sc;
+    return { fullW, fullH, iw, ih, ox: (fullW - iw) / 2, oy: (fullH - ih) / 2 };
+  };
+
   const drawOverlay = useCallback(() => {
     const imgEl = imgRef.current;
     const canvas = canvasRef.current;
@@ -81,12 +96,16 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
       return;
     }
     
-    const cw = imgEl.clientWidth || imgEl.offsetWidth || 400;
-    const ch = imgEl.clientHeight || imgEl.offsetHeight || 300;
-    canvas.width = cw;
-    canvas.height = ch;
+    const R = photoRect(imgEl);
+    canvas.width = R.fullW;
+    canvas.height = R.fullH;
     const ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, cw, ch);
+    ctx.clearRect(0, 0, R.fullW, R.fullH);
+    // Фото вписано в элемент с полями (object-fit: contain): считаем от самого изображения,
+    // иначе на вертикальных снимках рамки уезжают за край
+    ctx.translate(R.ox, R.oy);
+    const cw = R.iw;
+    const ch = R.ih;
 
     // Результат от AI-сервиса: рамки модели уже нарисованы на аннотированном фото сервера.
     // Раньше этот оверлей запускал свой пиксельный «детектор» и ПЕРЕЗАПИСЫВАЛ найденные
@@ -216,6 +235,15 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
       for (let gx = 0; gx < cw; gx += cw / 8) { ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, ch); ctx.stroke(); }
       for (let gy = 0; gy < ch; gy += ch / 6) { ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(cw, gy); ctx.stroke(); }
     }
+    // рамка, которую человек тянет при ручной отметке
+    const d = dragRef.current;
+    if (d) {
+      ctx.setLineDash([6, 4]);
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = '#fde68a';
+      ctx.strokeRect(Math.min(d.x0, d.x1) * cw, Math.min(d.y0, d.y1) * ch, Math.abs(d.x1 - d.x0) * cw, Math.abs(d.y1 - d.y0) * ch);
+      ctx.setLineDash([]);
+    }
   }, [visionMode, defectMarkers, crackData]);
 
   useEffect(() => { drawOverlay(); }, [visionMode, defectMarkers, drawOverlay]);
@@ -223,6 +251,88 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
   const showToast = (msg) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3000);
+  };
+
+  // ── Правка зон человеком: добавить пропущенную трещину, убрать лишнюю зону ──
+  const applyZones = (zones) => {
+    const items = zones.map((z, i) => ({ ...z, id: i + 1, description: (z.description || '').replace(/^Зона \d+/, `Зона ${i + 1}`) }));
+    const by = (sv) => items.filter(m => m.severity === sv).length;
+    const summary = { total: items.length, by_severity: { critical: by('critical'), high: by('high'), medium: by('medium'), low: by('low') } };
+    const span = parseFloat(String(frameWidthM).replace(',', '.')) * 1000;
+    const rep = buildCrackReport(items, { scaleAssumed: items.some(m => m.scale_assumed), spanMm: span > 0 ? span : 1500 });
+    setDefectMarkers(items);
+    setSeveritySummary(summary);
+    setSelectedDefectId(null);
+    setReport(prev => {
+      if (!prev) return prev;
+      const next = { ...prev, descriptionEstimate: false, defectCount: items.length, markers: items, defect_severity_summary: summary };
+      if (rep) {
+        Object.assign(next, { defectType: rep.defectType, severity: rep.severity, snipCode: rep.snipCode, fixMethod: rep.fixMethod, estimatedCost: rep.estimatedCost, workDays: rep.workDays, analytics: rep.analytics });
+      } else {
+        Object.assign(next, { defectType: 'Трещин на фото не отмечено', severity: '—', fixMethod: 'Зоны убраны. Если дефект есть — отметьте его на фото вручную или вызовите инженера на осмотр.', estimatedCost: '—', workDays: null, analytics: null });
+      }
+      return next;
+    });
+  };
+
+  const addManualZone = async (box) => {
+    try {
+      const span = parseFloat(String(frameWidthM).replace(',', '.')) * 1000;
+      const res = await measureManualZone(imgRef.current, box, { spanMm: span > 0 ? span : null });
+      const base = defectMarkers.filter(m => m.model !== 'description');
+      applyZones([...base, { ...res.region, polygon: null, orientation_deg: 0, analytics: null }]);
+      setCrackData(prev => ({ crackPoints: [...((prev && prev.crackPoints) || []), ...res.points], measurements: (prev && prev.measurements) || [] }));
+      showToast(res.region.measured ? 'Трещина отмечена и измерена — заключение пересчитано' : 'Зона добавлена, но линия трещины в ней не выделилась — обведите точнее');
+    } catch {
+      showToast('Не удалось измерить отмеченную зону');
+    }
+  };
+
+  const removeZone = (id) => {
+    const gone = defectMarkers.find(m => m.id === id);
+    applyZones(defectMarkers.filter(m => m.id !== id && m.model !== 'description'));
+    if (gone && gone.bbox) {
+      const [x0, y0, x1, y1] = gone.bbox;
+      setCrackData(prev => prev ? { ...prev, crackPoints: (prev.crackPoints || []).filter(pt => !(pt.xPct >= x0 && pt.xPct <= x1 && pt.yPct >= y0 && pt.yPct <= y1)) } : prev);
+    }
+    showToast('Зона убрана — заключение пересчитано');
+  };
+
+  // Положение указателя в долях изображения (0…1)
+  const pointerPos = (e) => {
+    const imgEl = imgRef.current;
+    if (!imgEl) return null;
+    const box = imgEl.getBoundingClientRect();
+    const R = photoRect(imgEl);
+    const clamp = (v) => Math.min(1, Math.max(0, v));
+    return { x: clamp((e.clientX - box.left - R.ox) / R.iw), y: clamp((e.clientY - box.top - R.oy) / R.ih) };
+  };
+  const onMarkDown = (e) => {
+    if (!markMode) return;
+    const pt = pointerPos(e);
+    if (!pt) return;
+    e.preventDefault();
+    try { e.currentTarget.setPointerCapture(e.pointerId); } catch { /* старый браузер */ }
+    dragRef.current = { x0: pt.x, y0: pt.y, x1: pt.x, y1: pt.y };
+  };
+  const onMarkMove = (e) => {
+    if (!markMode || !dragRef.current) return;
+    const pt = pointerPos(e);
+    if (!pt) return;
+    dragRef.current = { ...dragRef.current, x1: pt.x, y1: pt.y };
+    drawOverlay();
+  };
+  const onMarkUp = () => {
+    if (!markMode || !dragRef.current) return;
+    const d = dragRef.current;
+    dragRef.current = null;
+    skipClickRef.current = true;
+    setTimeout(() => { skipClickRef.current = false; }, 400);
+    const box = { x: Math.min(d.x0, d.x1), y: Math.min(d.y0, d.y1), w: Math.abs(d.x1 - d.x0), h: Math.abs(d.y1 - d.y0) };
+    setMarkMode(false);
+    if (box.w < 0.01 && box.h < 0.01) { drawOverlay(); showToast('Обведите трещину рамкой: нажмите и тяните по фото'); return; }
+    box.w = Math.max(box.w, 0.02); box.h = Math.max(box.h, 0.02);
+    addManualZone(box);
   };
 
   const handleReset = () => {
@@ -239,6 +349,8 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
     setDefectMarkers([]);
     setSeveritySummary(null);
     lastDetectedCountRef.current = 0;
+    setMarkMode(false);
+    dragRef.current = null;
     setStressHeatmapImage(null);
     setSkeletonImage(null);
     setEdgeMapSrc(null);
@@ -281,22 +393,37 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
       return;
     }
 
+    // Принимаем только то, что браузер действительно открывает как изображение
+    // (текстовый файл с расширением .jpg раньше проходил и получал «заключение»)
+    let added = 0; let rejected = 0; let left = files.length;
+    const done = () => {
+      left -= 1;
+      if (left > 0) return;
+      if (rejected) showToast(`⚠️ ${rejected} файл(ов) не являются изображением и не добавлены`);
+      else showToast(`📸 Добавлено фото: ${added}`);
+    };
     files.forEach(file => {
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        const base64 = ev.target.result;
-        setPhotos(prev => [...prev, {
-          id: Math.random().toString(36).substring(7),
-          name: file.name,
-          url: URL.createObjectURL(file),
-          base64: base64,
-          file: file
-        }]);
+      const url = URL.createObjectURL(file);
+      const probe = new Image();
+      probe.onerror = () => { URL.revokeObjectURL(url); rejected += 1; done(); };
+      probe.onload = () => {
+        if (!probe.naturalWidth || !probe.naturalHeight) { URL.revokeObjectURL(url); rejected += 1; done(); return; }
+        const reader = new FileReader();
+        reader.onerror = () => { rejected += 1; done(); };
+        reader.onload = (ev) => {
+          setPhotos(prev => [...prev, {
+            id: Math.random().toString(36).substring(7),
+            name: file.name,
+            url,
+            base64: ev.target.result,
+            file: file
+          }]);
+          added += 1; done();
+        };
+        reader.readAsDataURL(file);
       };
-      reader.readAsDataURL(file);
+      probe.src = url;
     });
-
-    showToast(`📸 Добавлено ${files.length} фото дефектов (подготовлены для Vision AI)`);
   };
 
   const removePhoto = (id) => {
@@ -680,7 +807,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
             ],
           },
           {
-            keywords: ['фасад', 'облицов', 'штукатурк', 'отваливает', 'отслоен'],
+            keywords: ['фасад', 'облицов', 'отваливает', 'отслоен', 'осыпа'],
             defectType: 'Деструкция фасадной отделки (отслоение / осыпание)',
             severity: '3 класс — Требует устранения',
             snipCode: 'СНиП РК 3.02-04-2019 «Штукатурные и облицовочные работы»',
@@ -867,8 +994,8 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
           cvItems = [{
             type: matched.defectType,
             severity: severityLevel,
-            confidence: 0.80,
-            bbox: null, // Без рамки — дефекты выделены цветом на фото
+            confidence: null,
+            bbox: null, // на фото ничего не отмечено — это оценка только по тексту описания
             length_mm: null,
             opening_mm: null,
             area_percent: null,
@@ -881,7 +1008,8 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
         if (cvItems.length && cvScaleAssumed && cvItems.some(it => it.model === 'yolo-browser')) {
           data.warnings = [...(data.warnings || []), `Размеры посчитаны при допущении, что ширина кадра ≈ ${(cvSpanMm / 1000).toLocaleString('ru-RU')} м. Укажите реальную ширину участка на фото — длина, раскрытие и класс опасности уточнятся.`];
         }
-        if (!matched && cvItems.length > 0) {
+        const cracksFound = cvItems.some(it => it.model === 'yolo-browser');
+        if (cracksFound) {
           crackRep = buildCrackReport(cvItems, { scaleAssumed: cvScaleAssumed, spanMm: cvSpanMm });
           if (crackRep) {
             data.defectType = crackRep.defectType;
@@ -890,6 +1018,10 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
             data.fixMethod = crackRep.fixMethod;
             data.estimatedCost = crackRep.estimatedCost;
             data.workDays = crackRep.workDays;
+            data.descriptionEstimate = false;
+            if (matched) {
+              data.warnings = [...(data.warnings || []), `В описании также упомянуто: «${matched.defectType}». Заключение составлено по трещинам, найденным на фото; остальное модель на снимке не определяет — нужен осмотр.`];
+            }
           }
         } else if (!matched) {
           data.defectType = cvModelError
@@ -908,7 +1040,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
           }
         };
         // Добавляем аналитику для табов "Профиль трещины" и "Смета"
-        data.analytics = !matched ? (crackRep ? crackRep.analytics : null) : {
+        data.analytics = crackRep ? crackRep.analytics : !matched ? null : {
           materials: matched.materials || [],
           labor: matched.labor || [],
           total_cost_kzt: totalMaterials + totalLabor,
@@ -959,6 +1091,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
             opening_mean_mm: d.opening_mean_mm || null,
             scale_assumed: !!d.scale_assumed,
             length_rel: d.length_rel || null,
+            width_profile: d.width_profile || null,
             orientation_deg: d.orientation_deg || 0,
             description: d.description || '',
             analytics: d.analytics || null,
@@ -1228,6 +1361,8 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
           visionMode === 'stress' ? 'Теплокарта напряжений' :
           visionMode === 'skeleton' ? 'Скелет трещины' :
           visionMode === 'clean' ? 'Исходное фото без разметки' :
+          markMode ? 'Обведите трещину рамкой: нажмите и тяните по фото' :
+          n > 0 && defectMarkers.every(m => m.model === 'description') ? 'На фото дефекты не отмечены — оценка только по описанию' :
           n > 0 ? `${defectsWord(n)} на фото` : 'Дефекты на фото не отмечены';
         const SEV = {
           critical: { label: 'Критический', cls: 'critical' },
@@ -1323,8 +1458,13 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
               <button
                 type="button"
                 className="di-defect-image-wrap"
-                onClick={() => { setLightboxSrc(currentImg); setLightboxZoom(1); }}
-                aria-label="Открыть фото крупно"
+                onClick={() => { if (markMode || skipClickRef.current) { skipClickRef.current = false; return; } setLightboxSrc(currentImg); setLightboxZoom(1); }}
+                onPointerDown={onMarkDown}
+                onPointerMove={onMarkMove}
+                onPointerUp={onMarkUp}
+                onPointerCancel={() => { dragRef.current = null; drawOverlay(); }}
+                style={markMode ? { cursor: 'crosshair', touchAction: 'none' } : undefined}
+                aria-label={markMode ? 'Обведите трещину рамкой' : 'Открыть фото крупно'}
               >
                 <img
                   ref={imgRef}
@@ -1337,8 +1477,21 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
               {/* Подсказка — под фото, а не поверх: раньше перекрывала подпись рамки модели */}
               <figcaption className="di-zoom-hint">
                 <span>{caption}</span>
-                <span className="di-zoom-cta">Нажмите на фото, чтобы увеличить</span>
+                {!markMode && <span className="di-zoom-cta">Нажмите на фото, чтобы увеличить</span>}
               </figcaption>
+              {!aiView && (
+                <div className="di-mark-row">
+                  <button
+                    type="button"
+                    className={`di-mark-btn ${markMode ? 'is-active' : ''}`}
+                    aria-pressed={markMode}
+                    onClick={() => { if (!markMode) setVisionMode('hud'); dragRef.current = null; setMarkMode(v => !v); }}
+                  >
+                    {markMode ? 'Отменить отметку' : '+ Отметить трещину вручную'}
+                  </button>
+                  <span className="di-mark-hint">Модель могла что-то пропустить или отметить лишнее: обведите пропущенную трещину — она будет измерена и попадёт в заключение; лишнюю зону можно убрать в списке ниже.</span>
+                </div>
+              )}
             </figure>
           )}
 
@@ -1363,9 +1516,9 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
                           <span className="di-defect-title">{marker.type}</span>
                           <span className="di-defect-meta">
                             <span className={`di-sev-chip ${sv.cls}`}>{sv.label} риск</span>
-                            <span className="qg-chip">{pct !== null ? `уверенность ${pct}%` : 'оценка локального CV, требует проверки'}</span>
+                            <span className="qg-chip">{pct !== null ? `уверенность ${pct}%` : marker.model === 'manual' ? 'отмечена вручную' : marker.model === 'description' ? 'по описанию, не по фото' : 'оценка, требует проверки'}</span>
                             {marker.model && (
-                              <span className="qg-chip">модель: {marker.model === 'yolo-browser' ? 'YOLO26n на устройстве' : marker.model}{marker.model === 'yolo' && report.detectorName ? ` (${report.detectorName})` : ''}</span>
+                              <span className="qg-chip">модель: {marker.model === 'yolo-browser' ? 'YOLO26n на устройстве' : marker.model === 'manual' ? 'измерение по отметке' : marker.model === 'description' ? 'нет' : marker.model}{marker.model === 'yolo' && report.detectorName ? ` (${report.detectorName})` : ''}</span>
                             )}
                             {marker.photoIndex !== undefined && <span className="qg-chip">фото {marker.photoIndex + 1}</span>}
                             {marker.length_mm ? <span className="qg-chip qg-chip--info">длина ≈ {marker.length_mm} мм</span> : marker.length_rel ? <span className="qg-chip qg-chip--info">длина ≈ {Math.round(marker.length_rel * 100)}% кадра</span> : null}
@@ -1377,6 +1530,11 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
                           <span className="di-conf-meter" aria-hidden="true"><span style={{ width: `${pct}%` }} /></span>
                         )}
                       </button>
+                      {!aiView && marker.model !== 'description' && (
+                        <button type="button" className="di-zone-remove" onClick={() => removeZone(marker.id)}>
+                          Это не дефект — убрать зону
+                        </button>
+                      )}
                     </li>
                   );
                 })}

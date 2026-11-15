@@ -538,3 +538,19 @@
   cursor: pointer;
 }
 .di-scan-promo-btn:focus-visible { outline: 2px solid #f8d27a; outline-offset: 2px; }
+
+/* Ручная отметка трещины и удаление лишней зоны */
+.di-mark-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-top: 10px; }
+.di-mark-btn {
+  height: 36px; padding: 0 14px; border-radius: 9px; cursor: pointer;
+  border: 1px solid rgba(242, 184, 75, 0.5); background: rgba(242, 184, 75, 0.12);
+  color: #f2b84b; font-weight: 700; font-size: var(--qg-fs-sm); white-space: nowrap;
+}
+.di-mark-btn:hover { background: rgba(242, 184, 75, 0.2); }
+.di-mark-btn.is-active { background: #f2b84b; color: #1c1203; }
+.di-mark-hint { flex: 1 1 260px; color: var(--qg-text-3); font-size: var(--qg-fs-sm); line-height: 1.4; }
+.di-zone-remove {
+  margin: 6px 0 2px 44px; padding: 4px 10px; border-radius: 8px; cursor: pointer;
+  border: 1px solid var(--qg-line); background: transparent; color: var(--qg-text-3); font-size: 12px;
+}
+.di-zone-remove:hover { color: #ff8f8f; border-color: rgba(255, 120, 120, 0.5); }
