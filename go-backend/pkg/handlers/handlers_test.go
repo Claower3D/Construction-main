@@ -517,12 +517,18 @@ func TestUpload_RejectsHTML(t *testing.T) {
 	}
 }
 
-func TestDefectVision_NoKeyUsesDescription(t *testing.T) {
+// Оценка по одному описанию — отдельный адрес /api/v1/ai/defect; распознавание по фото без фото не работает
+func TestDefectByDescription_NoKey(t *testing.T) {
 	h := NewAiHandler(&config.Config{})
 	w := httptest.NewRecorder()
-	h.DefectVisionProxy(w, jsonReq("POST", "/api/v1/ai/defect-vision", map[string]interface{}{"description": "протечка воды с потолка"}))
+	h.inspectDefectByDescription(w, "протечка воды с потолка")
 	if !bytes.Contains(w.Body.Bytes(), []byte("гидроизоляц")) {
 		t.Fatalf("description ignored: %s", w.Body.String())
+	}
+	w = httptest.NewRecorder()
+	h.DefectVisionProxy(w, jsonReq("POST", "/api/v1/ai/defect-vision", map[string]interface{}{"description": "протечка воды с потолка"}))
+	if w.Code != http.StatusBadRequest {
+		t.Fatalf("vision without a photo must be 400, got %d", w.Code)
 	}
 }
 

@@ -112,3 +112,61 @@ export function buildCrackReport(items, { scaleAssumed = false, spanMm = 1500 } 
     },
   };
 }
+
+const GENERIC_SEVERITY = {
+  critical: '5 класс — КРИТИЧЕСКИЙ',
+  high: '4 класс — Высокий',
+  medium: '3 класс — Средний',
+  low: '2 класс — Низкий',
+};
+const STATE_BY_SEV = { critical: 'аварийное', high: 'ограниченно-работоспособное', medium: 'работоспособное', low: 'работоспособное' };
+
+/**
+ * Заключение по дефектам, распознанным большой моделью зрения.
+ * Виды дефектов, причины и порядок действий — от модели; размеры трещин и смета по ним — измеренные;
+ * нормативы — фиксированные (модель номера документов не называет: она их может выдумать).
+ * @param vision  ответ сервера {object, overall:{state, summary, actions}}
+ * @param items   зоны (assessVisionDefects)
+ */
+export function buildVisionReport(vision, items, opts = {}) {
+  const cracks = items.filter((it) => it.kind === 'crack');
+  const others = items.filter((it) => it.kind !== 'crack');
+  const crackRep = cracks.length ? buildCrackReport(cracks, opts) : null;
+  const object = (vision && vision.object) || '';
+  const overall = (vision && vision.overall) || {};
+  if (!items.length) {
+    return {
+      defectType: `Дефектов на фото не найдено${object ? ` (${object})` : ''}`,
+      severity: '—', snipCode: NORMS,
+      fixMethod: overall.summary || 'ИИ-модель не увидела на снимке дефектов. Если дефект есть — снимите ближе и при хорошем свете или отметьте его на фото вручную.',
+      estimatedCost: '—', workDays: null, analytics: null,
+    };
+  }
+  const top = items.reduce((a, b) => (RANK[b.severity] > RANK[a.severity] ? b : a)).severity;
+  const titles = [...new Set(items.map((it) => it.type))];
+  const state = STATE_BY_SEV[top];
+  const labor = [...(crackRep ? crackRep.analytics.labor : [])];
+  for (const o of others) labor.push({ name: `${o.type}${o.fix ? ` — ${o.fix}` : ''}`, qty: 'по осмотру', cost_kzt: null });
+  const rebar = items.some((it) => it.kind === 'exposed_rebar' || it.kind === 'corrosion')
+    ? 'Высокий: арматура оголена или корродирует — сечение теряется, нужен осмотр и защита'
+    : crackRep ? crackRep.analytics.rebar_risk : 'По фото не определяется';
+  const cost = crackRep
+    ? crackRep.estimatedCost + (others.length ? '; остальные дефекты — по осмотру' : '')
+    : 'По осмотру — зависит от объёма работ';
+  return {
+    defectType: `${object ? `${object.charAt(0).toUpperCase()}${object.slice(1)}: ` : ''}${titles.join('; ')}`.slice(0, 240),
+    severity: `${GENERIC_SEVERITY[top]} · состояние: ${state}`,
+    snipCode: NORMS,
+    fixMethod: [overall.summary, overall.actions].filter(Boolean).join(' ') || (crackRep ? crackRep.fixMethod : 'Нужен осмотр инженером.'),
+    estimatedCost: cost,
+    workDays: crackRep ? crackRep.workDays : null,
+    analytics: {
+      materials: crackRep ? crackRep.analytics.materials : [],
+      labor,
+      total_cost_kzt: crackRep ? crackRep.analytics.total_cost_kzt : 0,
+      width_profile: crackRep ? crackRep.analytics.width_profile : null,
+      gost_status: `Категория: ${state}`,
+      rebar_risk: rebar,
+    },
+  };
+}

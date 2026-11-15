@@ -140,6 +140,7 @@ function regionOf(k, i, env) {
     opening_coarse: !!k.thin,
     severity_unsure: !!k.unsure,
     weak: !!k.weak,
+    measure_note: `${lenTxt}${openTxt}`,
     description: `Зона ${i + 1}: ${title} (${lenTxt}${openTxt}; ${who})`,
   };
 }
@@ -167,6 +168,63 @@ export async function measureManualZone(source, box, opts = {}) {
   const k = assessZone(img, { ...box, conf: null }, m, env);
   return { region: regionOf(k, 0, env), points: m.points || [], scaleAssumed: env.scaleAssumed, spanMm: env.spanMm };
 }
+
+const SEV_RANK = { low: 1, medium: 2, high: 3, critical: 4 };
+
+/**
+ * Дефекты, названные большой моделью зрения: трещины измеряем по пикселям внутри её ячеек,
+ * остальные виды (скол, арматура, протечка…) берём как есть — их в миллиметрах не измерить.
+ * @param defects  [{type, title, severity, through, description, cause, fix, box:{x,y,w,h}}]
+ * @returns { regions, points, scaleAssumed, spanMm }
+ */
+export async function assessVisionDefects(source, defects, opts = {}) {
+  const img = await loadImage(source);
+  const env = scaleEnv(img, opts);
+  const regions = [];
+  const points = [];
+  for (const d of defects) {
+    const n = regions.length + 1;
+    const extra = { model: 'vision', kind: d.type, cause: d.cause || '', fix: d.fix || '', confidence: null, weak: false };
+    const text = [d.description, d.cause ? `Вероятная причина: ${d.cause}` : ''].filter(Boolean).join(' ');
+    if (d.type === 'crack') {
+      const m = measureCrackInBox(img, d.box);
+      const k = assessZone(img, { ...d.box, conf: null }, m, env);
+      const r = regionOf(k, n - 1, env);
+      if (m.found) points.push(...m.points);
+      // класс — больший из измеренного по фото и оценённого моделью (она видит, что трещина сквозная)
+      const byModel = SEV_RANK[d.severity] > SEV_RANK[r.severity];
+      const severity = byModel ? d.severity : r.severity;
+      const basis = byModel ? ` Класс — по оценке ИИ-модели${d.through ? ' (трещина сквозная или раскрытая)' : ''}.` : '';
+      regions.push({ ...r, ...extra, id: n, type: d.title || r.type, severity, through: !!d.through,
+        description: `Зона ${n}: ${d.title || r.type}. ${text} Измерено по фото: ${r.measure_note}.${basis}`.replace(/\s+/g, ' ') });
+    } else {
+      const b = d.box;
+      regions.push({ ...extra, id: n, bbox: [b.x * 100, b.y * 100, (b.x + b.w) * 100, (b.y + b.h) * 100].map((v) => Number(v.toFixed(1))),
+        type: d.title, severity: d.severity, length_mm: null, opening_mm: null, opening_mean_mm: null, width_profile: null,
+        scale_assumed: env.scaleAssumed, length_rel: null, area_percent: null, measured: false,
+        description: `Зона ${n}: ${d.title}. ${text}`.replace(/\s+/g, ' ') });
+    }
+  }
+  return { regions, points, scaleAssumed: env.scaleAssumed, spanMm: env.spanMm };
+}
+
+/** Затемнённое фото с линиями найденных трещин — для вкладки «Скелет трещины» */
+export async function renderCrackMap(source, points) {
+  const img = await loadImage(source);
+  const W = img.naturalWidth || img.width, H = img.naturalHeight || img.height;
+  const k = Math.min(1, 1024 / Math.max(W, H));
+  const c = document.createElement('canvas');
+  c.width = Math.round(W * k); c.height = Math.round(H * k);
+  const ctx = c.getContext('2d');
+  ctx.drawImage(img, 0, 0, c.width, c.height);
+  ctx.fillStyle = 'rgba(4,8,20,0.82)';
+  ctx.fillRect(0, 0, c.width, c.height);
+  ctx.fillStyle = 'rgb(0,220,255)';
+  for (const p of points) ctx.fillRect((p.xPct / 100) * c.width - 1, (p.yPct / 100) * c.height - 1, 3, 3);
+  return c.toDataURL('image/png');
+}
+
+export { loadImage };
 
 // Модель трещин грузится один раз на страницу (≈10 МБ, потом из кэша браузера)
 let modelDetector = null;

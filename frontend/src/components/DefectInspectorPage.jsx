@@ -1,7 +1,8 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { createPlatformOrder } from '../services/orderSyncService';
-import { detectCracks, measureManualZone } from '../utils/crackDetector';
-import { buildCrackReport } from '../utils/crackReport';
+import { detectCracks, measureManualZone, assessVisionDefects, renderCrackMap, loadImage } from '../utils/crackDetector';
+import { askVision } from '../utils/defectVision';
+import { buildCrackReport, buildVisionReport } from '../utils/crackReport';
 import { authHeaders, escapeHtml, safeImgSrc, responseError, genId } from '../services/platformUtils';
 import './DefectInspectorPage.css';
 
@@ -198,7 +199,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
           const bh = ((m.bbox[3] - m.bbox[1]) / 100) * ch;
 
           ctx.font = `bold ${fontSize}px sans-serif`;
-          const label = `#${idx + 1} ${s.text}${typeof m.confidence === 'number' ? ' · ' + Math.round(m.confidence * 100) + '%' : ''}`;
+          const label = `#${idx + 1} ${s.text}${m.confidence > 0 ? ' · ' + Math.round(m.confidence * 100) + '%' : ''}`;
           const lw = ctx.measureText(label).width + 10;
           const r1 = place([[x, y - lh - 2], [x, y + bh + 2], [x + bw - lw, y - lh - 2], [x, y + 2]], lw, lh);
           ctx.fillStyle = s.stroke;
@@ -259,7 +260,10 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
     const by = (sv) => items.filter(m => m.severity === sv).length;
     const summary = { total: items.length, by_severity: { critical: by('critical'), high: by('high'), medium: by('medium'), low: by('low') } };
     const span = parseFloat(String(frameWidthM).replace(',', '.')) * 1000;
-    const rep = buildCrackReport(items, { scaleAssumed: items.some(m => m.scale_assumed), spanMm: span > 0 ? span : 1500 });
+    const crackLike = items.filter(m => !m.kind || m.kind === 'crack');
+    const otherKinds = items.filter(m => m.kind && m.kind !== 'crack');
+    const rep = buildCrackReport(crackLike, { scaleAssumed: crackLike.some(m => m.scale_assumed), spanMm: span > 0 ? span : 1500 });
+    if (rep && otherKinds.length) rep.defectType += `; также: ${[...new Set(otherKinds.map(m => m.type))].join('; ')}`;
     setDefectMarkers(items);
     setSeveritySummary(summary);
     setSelectedDefectId(null);
@@ -268,7 +272,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
       const next = { ...prev, descriptionEstimate: false, defectCount: items.length, markers: items, defect_severity_summary: summary };
       if (rep) {
         Object.assign(next, { defectType: rep.defectType, severity: rep.severity, snipCode: rep.snipCode, fixMethod: rep.fixMethod, estimatedCost: rep.estimatedCost, workDays: rep.workDays, analytics: rep.analytics });
-      } else {
+      } else if (!items.length) {
         Object.assign(next, { defectType: 'Трещин на фото не отмечено', severity: '—', fixMethod: 'Зоны убраны. Если дефект есть — отметьте его на фото вручную или вызовите инженера на осмотр.', estimatedCost: '—', workDays: null, analytics: null });
       }
       return next;
@@ -424,6 +428,8 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
       };
       probe.src = url;
     });
+    // чтобы тот же файл можно было выбрать снова после «Новой проверки»
+    try { if (e.target && 'value' in e.target) e.target.value = ''; } catch { /* перетаскивание: поля нет */ }
   };
 
   const removePhoto = (id) => {
@@ -511,7 +517,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
           <tr><td class="label">Заказчик:</td><td>${e(report.clientName)}</td></tr>
           <tr><td class="label">Телефон:</td><td>${e(report.clientPhone)}</td></tr>
           <tr><td class="label">Адрес объекта:</td><td>${e(report.address)}</td></tr>
-          <tr><td class="label">Источник анализа:</td><td>${report.source === 'ai' ? 'AI-сервис дефектоскопии' : 'Локальный анализ в браузере (ориентировочно)'}</td></tr>
+          <tr><td class="label">Источник анализа:</td><td>${report.source === 'ai' ? 'AI-сервис дефектоскопии' : report.vision ? 'ИИ-модель зрения + измерение по фото' : 'Локальный анализ в браузере (ориентировочно)'}</td></tr>
           <tr><td class="label">Вид дефекта:</td><td><strong>${e(report.defectType)}</strong></td></tr>
           <tr><td class="label">Класс опасности:</td><td>${e(report.severity)}</td></tr>
           <tr><td class="label">Нормативный документ:</td><td>${e(report.snipCode)}</td></tr>
@@ -929,11 +935,35 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
         let cvScaled = false;
         let cvScaleAssumed = true;
         let cvSpanMm = 1500;
+        let visionData = null;   // ответ большой модели зрения, если она доступна
+        let visionReason = null; // почему недоступна
         try {
           const photoSrc = imgRef.current || photos[0]?.base64 || photos[0]?.url;
           if (photoSrc) {
             setProgressSteps(prev => [...prev, { text: 'Vision AI: Поиск дефектов и трещин...', done: false }]);
             const spanMm = parseFloat(String(frameWidthM).replace(',', '.')) * 1000;
+            // 2а. Большая модель зрения: понимает, что на фото, и различает виды дефектов.
+            // Доступна, когда на сервере (или у пользователя) задан ключ; иначе — нейросеть на устройстве.
+            try {
+              const vImg = await loadImage(photoSrc);
+              const vis = await askVision(vImg, { description: aiDescription });
+              if (vis.ok) {
+                const vr = await assessVisionDefects(vImg, vis.defects, { spanMm: spanMm > 0 ? spanMm : null });
+                visionData = vis.data;
+                cvItems = vr.regions;
+                cvScaled = true;
+                cvScaleAssumed = vr.scaleAssumed;
+                cvSpanMm = vr.spanMm;
+                setCrackData({ crackPoints: vr.points, measurements: [] });
+                try { setSkeletonImage(await renderCrackMap(vImg, vr.points)); } catch { /* вкладка скелета останется без картинки */ }
+              } else {
+                visionReason = vis.reason;
+              }
+            } catch (vErr) {
+              visionReason = 'network';
+              console.warn('[Scan] vision model failed:', vErr);
+            }
+            if (!visionData) {
             const cvResult = await detectCracks(photoSrc, { spanMm: spanMm > 0 ? spanMm : null });
             cvModelError = cvResult.modelError || null;
             cvScaled = !!cvResult.scaled;
@@ -982,13 +1012,16 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
                 model: 'yolo-browser',
               }));
             }
+            } else {
+              setProgressSteps(prev => prev.map((s, i) => i === prev.length - 1 ? { ...s, done: true } : s));
+            }
           }
         } catch (cvErr) {
           console.error('[Scan] CV detection FAILED:', cvErr);
         }
 
         // Если CV не выделил отдельные зоны — одна запись из шаблона ТОЛЬКО при оценке по описанию
-        if (cvItems.length === 0 && matched) {
+        if (cvItems.length === 0 && matched && !visionData) {
           const severityLevel = matched.severity.includes('КРИТИЧЕСКИЙ') ? 'critical' :
                                 matched.severity.includes('Высокий') ? 'high' : 'medium';
           cvItems = [{
@@ -1005,11 +1038,23 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
         }
         cvItems = cvItems.map(it => ({ model: 'cv', ...it }));
         let crackRep = null;
-        if (cvItems.length && cvScaleAssumed && cvItems.some(it => it.model === 'yolo-browser')) {
+        if (cvItems.length && cvScaleAssumed && cvItems.some(it => it.model === 'yolo-browser' || it.kind === 'crack')) {
           data.warnings = [...(data.warnings || []), `Размеры посчитаны при допущении, что ширина кадра ≈ ${(cvSpanMm / 1000).toLocaleString('ru-RU')} м. Укажите реальную ширину участка на фото — длина, раскрытие и класс опасности уточнятся.`];
         }
         const cracksFound = cvItems.some(it => it.model === 'yolo-browser');
-        if (cracksFound) {
+        let visionRep = null;
+        if (visionData) {
+          visionRep = buildVisionReport(visionData, cvItems, { scaleAssumed: cvScaleAssumed, spanMm: cvSpanMm });
+          Object.assign(data, {
+            defectType: visionRep.defectType, severity: visionRep.severity, snipCode: visionRep.snipCode, fixMethod: visionRep.fixMethod,
+            estimatedCost: visionRep.estimatedCost, workDays: visionRep.workDays, descriptionEstimate: false,
+            vision: true, detectorName: visionData.model || 'GPT-4o',
+          });
+          if (visionData.photo_quality && visionData.photo_quality !== 'ok') {
+            const q = { blurry: 'Фото нерезкое', dark: 'Фото тёмное', far: 'Снято издалека', not_construction: 'На фото не строительный объект' }[visionData.photo_quality];
+            if (q) data.warnings = [...(data.warnings || []), `${q} — результат может быть неполным, переснимите ближе и при хорошем свете.`];
+          }
+        } else if (cracksFound) {
           crackRep = buildCrackReport(cvItems, { scaleAssumed: cvScaleAssumed, spanMm: cvSpanMm });
           if (crackRep) {
             data.defectType = crackRep.defectType;
@@ -1023,7 +1068,11 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
               data.warnings = [...(data.warnings || []), `В описании также упомянуто: «${matched.defectType}». Заключение составлено по трещинам, найденным на фото; остальное модель на снимке не определяет — нужен осмотр.`];
             }
           }
-        } else if (!matched) {
+        }
+        if (!visionData) {
+          data.warnings = [...(data.warnings || []), 'Расширенное распознавание ИИ-моделью зрения сейчас недоступно. Работает упрощённый анализ на устройстве: он знает только трещины, часть пропускает и может принять за трещину шов, край или тень. Пропущенное отметьте на фото вручную, лишнее уберите.'];
+        }
+        if (!visionData && !cracksFound && !matched) {
           data.defectType = cvModelError
             ? 'Модель распознавания не загрузилась — проверьте интернет и повторите анализ'
             : 'Трещин на фото не найдено';
@@ -1040,7 +1089,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
           }
         };
         // Добавляем аналитику для табов "Профиль трещины" и "Смета"
-        data.analytics = crackRep ? crackRep.analytics : !matched ? null : {
+        data.analytics = visionRep ? visionRep.analytics : crackRep ? crackRep.analytics : !matched ? null : {
           materials: matched.materials || [],
           labor: matched.labor || [],
           total_cost_kzt: totalMaterials + totalLabor,
@@ -1095,6 +1144,10 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
             orientation_deg: d.orientation_deg || 0,
             description: d.description || '',
             analytics: d.analytics || null,
+            kind: d.kind || null,
+            cause: d.cause || '',
+            fix: d.fix || '',
+            through: !!d.through,
             model: d.model || (data.source === 'ai' ? 'ai' : 'cv'),
             photoIndex: d.photoIndex,
           };
@@ -1108,6 +1161,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
           date: new Date().toLocaleString('ru-RU'),
           source: data.source || 'local',
           detectorName: data.detectorName || null,
+          vision: !!data.vision,
           detector: data.detector || null,
           isMock: !!data.isMock,
           fallback: !!data.fallback,
@@ -1135,7 +1189,12 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
             ? `✅ AI-анализ завершён: найдено дефектов — ${items.length}`
             : '✅ AI-анализ завершён: дефекты не обнаружены');
         } else {
-          showToast('⚠️ AI-сервис дефектов недоступен — показан локальный анализ (ориентировочно)');
+          if (reportData.vision) {
+            setScanError(null);
+            showToast(items.length > 0 ? `✅ ИИ-модель зрения нашла дефектов: ${items.length}` : '✅ ИИ-модель зрения дефектов не нашла');
+          } else {
+            showToast('⚠️ Расширенное распознавание недоступно — показан упрощённый анализ на устройстве');
+          }
         }
       }, 500);
 
@@ -1378,7 +1437,9 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
               <p className="di-result-sub">
                 {report.source === 'ai'
                   ? 'Нейросеть отметила найденные зоны прямо на фото. Окончательный вывод делает инженер.'
-                  : 'Локальный анализ в браузере — ориентировочный, требует подтверждения инженером.'}
+                  : report.vision
+                    ? 'Дефекты распознала ИИ-модель зрения, размеры трещин измерены по фото. Окончательный вывод делает инженер на месте.'
+                    : 'Локальный анализ в браузере — ориентировочный, требует подтверждения инженером.'}
               </p>
             </div>
             {report.source === 'ai' && (det?.name || report.detectorName) && (
@@ -1516,9 +1577,9 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
                           <span className="di-defect-title">{marker.type}</span>
                           <span className="di-defect-meta">
                             <span className={`di-sev-chip ${sv.cls}`}>{sv.label} риск</span>
-                            <span className="qg-chip">{pct !== null ? `уверенность ${pct}%` : marker.model === 'manual' ? 'отмечена вручную' : marker.model === 'description' ? 'по описанию, не по фото' : 'оценка, требует проверки'}</span>
+                            <span className="qg-chip">{pct !== null ? `уверенность ${pct}%` : marker.model === 'manual' ? 'отмечена вручную' : marker.model === 'vision' ? 'распознано ИИ-моделью зрения' : marker.model === 'description' ? 'по описанию, не по фото' : 'оценка, требует проверки'}</span>
                             {marker.model && (
-                              <span className="qg-chip">модель: {marker.model === 'yolo-browser' ? 'YOLO26n на устройстве' : marker.model === 'manual' ? 'измерение по отметке' : marker.model === 'description' ? 'нет' : marker.model}{marker.model === 'yolo' && report.detectorName ? ` (${report.detectorName})` : ''}</span>
+                              <span className="qg-chip">модель: {marker.model === 'yolo-browser' ? 'YOLO26n на устройстве' : marker.model === 'manual' ? 'измерение по отметке' : marker.model === 'vision' ? `${report.detectorName || 'GPT-4o'} + измерение по фото` : marker.model === 'description' ? 'нет' : marker.model}{marker.model === 'yolo' && report.detectorName ? ` (${report.detectorName})` : ''}</span>
                             )}
                             {marker.photoIndex !== undefined && <span className="qg-chip">фото {marker.photoIndex + 1}</span>}
                             {marker.length_mm ? <span className="qg-chip qg-chip--info">длина ≈ {marker.length_mm} мм</span> : marker.length_rel ? <span className="qg-chip qg-chip--info">длина ≈ {Math.round(marker.length_rel * 100)}% кадра</span> : null}
@@ -1559,7 +1620,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
             >
               {report.source === 'ai'
                 ? `AI-сервис дефектов${report.detectorName ? ` · ${report.detectorName}` : ''}`
-                : 'Локальный анализ — ориентировочно'}
+                : report.vision ? `ИИ-модель зрения · ${report.detectorName || 'GPT-4o'}` : 'Локальный анализ — ориентировочно'}
             </span>
           </div>
 
