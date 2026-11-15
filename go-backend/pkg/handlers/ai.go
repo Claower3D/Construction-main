@@ -59,7 +59,7 @@ type openAIResponse struct {
 
 // allowedServerModels: models the server's own OpenAI key may be used with.
 // A client-supplied X-OpenAI-Model is honoured only together with the client's own X-OpenAI-Key.
-var allowedServerModels = map[string]bool{"gpt-4o": true, "gpt-4o-mini": true}
+var allowedServerModels = map[string]bool{"gpt-4o": true, "gpt-4o-mini": true, "gpt-6.1-terra": true, "gpt-6.1-sol": true, "gpt-6-luna": true}
 
 func pickModel(r *http.Request, userKey bool, def string) string {
 	m := r.Header.Get("X-OpenAI-Model")

@@ -7,12 +7,13 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"os"
 	"regexp"
 	"strings"
 	"time"
 )
 
-// Распознавание дефектов на фото большой моделью зрения (GPT-4o).
+// Распознавание дефектов на фото большой моделью зрения OpenAI (по умолчанию gpt-6.1-terra).
 //
 // Маленькая нейросеть в браузере знает только трещины и путает их со швами, краями и тенями.
 // Большая модель понимает, что изображено (кладка, кольцо колодца, плита), и различает виды
@@ -60,6 +61,15 @@ type visionResult struct {
 	Defects      []visionDefect `json:"defects"`
 	Overall      visionOverall  `json:"overall"`
 	PhotoQuality string         `json:"photo_quality"`
+}
+
+// defectVisionModel: модель зрения по умолчанию. Задаётся переменной OPENAI_VISION_MODEL;
+// иначе gpt-6.1-terra — актуальная недорогая модель OpenAI с вводом изображений (ноябрь 2026).
+func defectVisionModel() string {
+	if v := strings.TrimSpace(os.Getenv("OPENAI_VISION_MODEL")); v != "" {
+		return v
+	}
+	return "gpt-6.1-terra"
 }
 
 func defectVisionPrompt(cols, rows int, description string) string {
@@ -212,44 +222,64 @@ func (h *AiHandler) DefectVisionProxy(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	model := pickModel(r, userKey, "gpt-4o")
+	model := pickModel(r, userKey, defectVisionModel())
 
-	body := map[string]interface{}{
-		"model":           model,
-		"temperature":     0,
-		"max_tokens":      1800,
-		"response_format": map[string]string{"type": "json_object"},
-		"messages": []map[string]interface{}{
-			{"role": "user", "content": []map[string]interface{}{
-				{"type": "text", "text": defectVisionPrompt(req.Cols, req.Rows, req.Description)},
-				{"type": "image_url", "image_url": map[string]string{"url": req.Photo, "detail": "high"}},
-			}},
-		},
+	// Старые модели (gpt-4…) принимают max_tokens и temperature; новые (gpt-5, gpt-6…) —
+	// только max_completion_tokens и температуру по умолчанию. Если сервер отверг один набор
+	// параметров (400), пробуем второй.
+	legacy := strings.HasPrefix(model, "gpt-4") || strings.HasPrefix(model, "gpt-3")
+	var raw []byte
+	var statusCode int
+	for attempt := 0; attempt < 2; attempt++ {
+		body := map[string]interface{}{
+			"model":           model,
+			"response_format": map[string]string{"type": "json_object"},
+			"messages": []map[string]interface{}{
+				{"role": "user", "content": []map[string]interface{}{
+					{"type": "text", "text": defectVisionPrompt(req.Cols, req.Rows, req.Description)},
+					{"type": "image_url", "image_url": map[string]string{"url": req.Photo, "detail": "high"}},
+				}},
+			},
+		}
+		if legacy {
+			body["max_tokens"] = 1800
+			body["temperature"] = 0
+		} else {
+			body["max_completion_tokens"] = 6000 // с запасом: у новых моделей сюда входят и «размышления»
+		}
+		payload, _ := json.Marshal(body)
+		httpReq, err := http.NewRequestWithContext(r.Context(), http.MethodPost, openAIBaseURL()+"/chat/completions", bytes.NewReader(payload))
+		if err != nil {
+			writeError(w, http.StatusInternalServerError, "Не удалось подготовить запрос")
+			return
+		}
+		httpReq.Header.Set("Content-Type", "application/json")
+		httpReq.Header.Set("Authorization", "Bearer "+apiKey)
+		resp, err := defectVisionHTTP.Do(httpReq)
+		if err != nil {
+			log.Printf("defect-vision: upstream error: %v", err)
+			writeJSON(w, http.StatusBadGateway, map[string]interface{}{"error": "upstream", "message": "ИИ-модель не ответила"})
+			return
+		}
+		raw, _ = io.ReadAll(io.LimitReader(resp.Body, 1<<20))
+		resp.Body.Close()
+		statusCode = resp.StatusCode
+		if statusCode == http.StatusBadRequest && attempt == 0 {
+			legacy = !legacy
+			continue
+		}
+		break
 	}
-	payload, _ := json.Marshal(body)
-	httpReq, err := http.NewRequestWithContext(r.Context(), http.MethodPost, openAIBaseURL()+"/chat/completions", bytes.NewReader(payload))
-	if err != nil {
-		writeError(w, http.StatusInternalServerError, "Не удалось подготовить запрос")
-		return
-	}
-	httpReq.Header.Set("Content-Type", "application/json")
-	httpReq.Header.Set("Authorization", "Bearer "+apiKey)
-
-	resp, err := defectVisionHTTP.Do(httpReq)
-	if err != nil {
-		log.Printf("defect-vision: upstream error: %v", err)
-		writeJSON(w, http.StatusBadGateway, map[string]interface{}{"error": "upstream", "message": "ИИ-модель не ответила"})
-		return
-	}
-	defer resp.Body.Close()
-	raw, _ := io.ReadAll(io.LimitReader(resp.Body, 1<<20))
-	if resp.StatusCode != http.StatusOK {
-		log.Printf("defect-vision: upstream status %d", resp.StatusCode)
+	if statusCode != http.StatusOK {
+		log.Printf("defect-vision: upstream status %d (model %s)", statusCode, model)
 		code := "upstream"
-		if resp.StatusCode == http.StatusUnauthorized {
+		switch statusCode {
+		case http.StatusUnauthorized:
 			code = "bad_key"
-		} else if resp.StatusCode == http.StatusTooManyRequests {
+		case http.StatusTooManyRequests:
 			code = "quota"
+		case http.StatusNotFound, http.StatusBadRequest:
+			code = "bad_model"
 		}
 		writeJSON(w, http.StatusBadGateway, map[string]interface{}{"error": code, "message": "ИИ-модель отклонила запрос"})
 		return

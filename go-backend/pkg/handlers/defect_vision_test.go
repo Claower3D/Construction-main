@@ -13,6 +13,7 @@ import (
 
 func TestDefectVision(t *testing.T) {
 	var gotAuth, gotBody string
+	calls := 0
 	answer := `{"object":"кирпичная стена","defects":[
 	 {"type":"crack","title":"Ступенчатая трещина в кладке","cells":["f3","F4","Z9","F4","G4"],"severity":"high","through":true,"description":"идёт по швам","cause":"осадка","fix":"маяки"},
 	 {"type":"ghost","title":"","cells":["B2"],"severity":"awful"},
@@ -22,6 +23,16 @@ func TestDefectVision(t *testing.T) {
 		gotAuth = r.Header.Get("Authorization")
 		b, _ := io.ReadAll(r.Body)
 		gotBody = string(b)
+		calls++
+		// как у новых моделей: старые параметры отвергаются
+		if strings.Contains(gotBody, `"max_tokens"`) && !strings.Contains(gotBody, "gpt-4") {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		if strings.Contains(gotBody, "gpt-4") && strings.Contains(gotBody, "max_completion_tokens") {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
 		_ = json.NewEncoder(w).Encode(map[string]interface{}{"choices": []map[string]interface{}{{"message": map[string]string{"role": "assistant", "content": "```json\n" + answer + "\n```"}}}})
 	}))
 	defer fake.Close()
@@ -53,7 +64,7 @@ func TestDefectVision(t *testing.T) {
 	if w.Code != http.StatusOK {
 		t.Fatalf("status %d %s", w.Code, w.Body.String())
 	}
-	if gotAuth != "Bearer server-key" || !strings.Contains(gotBody, "gpt-4o") || !strings.Contains(gotBody, "трещина над воротами") || !strings.Contains(gotBody, "A–H") {
+	if gotAuth != "Bearer server-key" || !strings.Contains(gotBody, "gpt-6.1-terra") || !strings.Contains(gotBody, "max_completion_tokens") || strings.Contains(gotBody, "temperature") || !strings.Contains(gotBody, "трещина над воротами") || !strings.Contains(gotBody, "A–H") {
 		t.Fatalf("upstream request is wrong: auth=%q", gotAuth)
 	}
 	var out struct {
@@ -77,6 +88,18 @@ func TestDefectVision(t *testing.T) {
 	if out.Overall.Severity != "high" {
 		t.Fatalf("overall severity: %q", out.Overall.Severity)
 	}
+	// старая модель из настроек сервера: параметры max_tokens/temperature
+	t.Setenv("OPENAI_VISION_MODEL", "gpt-4o")
+	if w := call(h, map[string]interface{}{"photo": photo, "cols": 8, "rows": 6}, ""); w.Code != http.StatusOK || !strings.Contains(gotBody, `"max_tokens"`) {
+		t.Fatalf("legacy model params: %d", w.Code)
+	}
+	// модель с незнакомым именем, которой нужны старые параметры: одна повторная попытка
+	t.Setenv("OPENAI_VISION_MODEL", "gpt-4.1")
+	calls = 0
+	if w := call(h, map[string]interface{}{"photo": photo, "cols": 8, "rows": 6}, ""); w.Code != http.StatusOK || calls != 1 {
+		t.Fatalf("gpt-4.1: %d calls=%d", w.Code, calls)
+	}
+	t.Setenv("OPENAI_VISION_MODEL", "")
 	// a client key is forwarded instead of the server one
 	_ = call(h, map[string]interface{}{"photo": photo, "cols": 6, "rows": 8}, "user-key")
 	if gotAuth != "Bearer user-key" {

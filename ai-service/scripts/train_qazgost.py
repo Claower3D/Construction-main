@@ -59,7 +59,7 @@ SYNONYMS = {
     1: ["corrosion", "rust", "ruststrain", "rust stain", "corrosion stain", "rebar rust", "corrosion corrosion"],
     2: ["spalling", "spall", "spall defect", "scaling", "spallation", "break", "delamination"],
     3: ["efflorescence"],
-    4: ["exposed rebar", "exposed rebars", "exposed reinforcement", "rebar exposure", "exposedrebars"],
+    4: ["exposed rebar", "exposed rebars", "exposed reinforcement", "rebar exposure", "exposedrebars", "rebar"],
     5: ["stain", "water stain", "wetspot", "wet spot", "leak"],
 }
 
@@ -311,7 +311,7 @@ def train_one(weights, data_yaml, device, args, report):
         if args.smoke:
             kw.update(epochs=1, imgsz=256, batch=8, workers=0, plots=False)
         elif gpu:
-            kw.update(epochs=150, imgsz=640, batch=-1, workers=4)
+            kw.update(epochs=100, imgsz=640, batch=-1, workers=4)
         else:
             cpus = os.cpu_count() or 2
             kw.update(epochs=100, imgsz=512, batch=16, workers=min(4, max(1, cpus // 2)), time=args.hours)

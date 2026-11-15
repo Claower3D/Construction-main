@@ -1138,7 +1138,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
           Object.assign(data, {
             defectType: visionRep.defectType, severity: visionRep.severity, snipCode: visionRep.snipCode, fixMethod: visionRep.fixMethod,
             estimatedCost: visionRep.estimatedCost, workDays: visionRep.workDays, descriptionEstimate: false,
-            vision: true, detectorName: visionData.model || 'GPT-4o',
+            vision: true, detectorName: visionData.model || 'OpenAI',
           });
           if (visionData.photo_quality && visionData.photo_quality !== 'ok') {
             const q = { blurry: 'Фото нерезкое', dark: 'Фото тёмное', far: 'Снято издалека', not_construction: 'На фото не строительный объект' }[visionData.photo_quality];
@@ -1700,7 +1700,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
                             <span className={`di-sev-chip ${sv.cls}`}>{sv.label} риск</span>
                             <span className="qg-chip">{pct !== null ? `уверенность ${pct}%` : marker.model === 'manual' ? 'отмечена вручную' : marker.model === 'vision' ? 'распознано ИИ-моделью зрения' : marker.model === 'description' ? 'по описанию, не по фото' : 'оценка, требует проверки'}</span>
                             {marker.model && (
-                              <span className="qg-chip">модель: {marker.model === 'yolo-browser' ? 'YOLO26n на устройстве' : marker.model === 'manual' ? 'измерение по отметке' : marker.model === 'vision' ? `${report.detectorName || 'GPT-4o'} + измерение по фото` : marker.model === 'description' ? 'нет' : marker.model}{marker.model === 'yolo' && report.detectorName ? ` (${report.detectorName})` : ''}</span>
+                              <span className="qg-chip">модель: {marker.model === 'yolo-browser' ? 'YOLO26n на устройстве' : marker.model === 'manual' ? 'измерение по отметке' : marker.model === 'vision' ? `${report.detectorName || 'OpenAI'} + измерение по фото` : marker.model === 'description' ? 'нет' : marker.model}{marker.model === 'yolo' && report.detectorName ? ` (${report.detectorName})` : ''}</span>
                             )}
                             {marker.photoIndex !== undefined && <span className="qg-chip">фото {marker.photoIndex + 1}</span>}
                             {marker.length_mm ? <span className="qg-chip qg-chip--info">длина ≈ {marker.length_mm} мм</span> : marker.length_rel ? <span className="qg-chip qg-chip--info">длина ≈ {Math.round(marker.length_rel * 100)}% кадра</span> : null}
@@ -1741,7 +1741,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
             >
               {report.source === 'ai'
                 ? `AI-сервис дефектов${report.detectorName ? ` · ${report.detectorName}` : ''}`
-                : report.vision ? `ИИ-модель зрения · ${report.detectorName || 'GPT-4o'}` : 'Локальный анализ — ориентировочно'}
+                : report.vision ? `ИИ-модель зрения · ${report.detectorName || 'OpenAI'}` : 'Локальный анализ — ориентировочно'}
             </span>
           </div>
 

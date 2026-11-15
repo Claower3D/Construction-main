@@ -29,9 +29,18 @@ if "%HASGPU%"=="0" goto train
 python -c "import torch,sys; sys.exit(0 if torch.cuda.is_available() else 1)" 2>nul
 if not errorlevel 1 goto train
 echo   Ставлю PyTorch с поддержкой видеокарты. Скачивание около 2,5 ГБ, один раз.
-python -m pip install -U torch torchvision --index-url https://download.pytorch.org/whl/cu124
+python -m pip uninstall -y torch torchvision
+python -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cu126
 python -c "import torch,sys; sys.exit(0 if torch.cuda.is_available() else 1)" 2>nul
-if errorlevel 1 echo   Видеокарту подключить не удалось - обучение пойдёт на процессоре.
+if not errorlevel 1 goto train
+echo   Сборка cu126 не подошла, пробую cu124...
+python -m pip uninstall -y torch torchvision
+python -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cu124
+python -c "import torch,sys; sys.exit(0 if torch.cuda.is_available() else 1)" 2>nul
+if not errorlevel 1 goto train
+echo   Видеокарту подключить не удалось - возвращаю обычный PyTorch, обучение пойдёт на процессоре.
+python -m pip uninstall -y torch torchvision
+python -m pip install torch torchvision
 
 :train
 echo.
