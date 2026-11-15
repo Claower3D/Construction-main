@@ -17,6 +17,49 @@ const MAX_SIZE = 512;
 import { createCrackDetector, DEFAULT_CONF } from '../services/crackVision';
 import { measureCrackInBox, crackSeverity, CRACK_TITLES, CRACK_TITLES_NO_SCALE } from './crackMeasure';
 
+// Слабые зоны модели (уверенность 25–40%) принимаются, только если
+// внутри рамки действительно есть линия трещины. Пороги подобраны на размеченных фото
+// (audit/crack_eval.cjs): так находим больше трещин, не возвращая «трещины» на песке и швах.
+export const WEAK_CONF = 0.25;
+const VERIFY_LEN = 0.5;      // линия не короче половины диагонали рамки
+const VERIFY_CONTRAST = 18;  // и заметно темнее окружения (уровни яркости 0–255)
+
+// Увеличенные четверти кадра с перекрытием: мелкие трещины на большом кадре модель
+// иначе видит в 512 пикселях и пропускает
+const TILE = 0.6;
+const TILE_OFFS = [[0, 0], [0.4, 0], [0, 0.4], [0.4, 0.4]];
+
+function boxIoU(a, b) {
+  const ix = Math.max(0, Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x));
+  const iy = Math.max(0, Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y));
+  const inter = ix * iy;
+  return { iou: inter / (a.w * a.h + b.w * b.h - inter + 1e-9), inMin: inter / (Math.min(a.w * a.h, b.w * b.h) + 1e-9) };
+}
+
+async function proposeBoxes(det, img, minConf, useTiles) {
+  const all = (await det.detect(img, minConf)).boxes.map((b) => ({ ...b }));
+  if (useTiles) {
+    const W = img.naturalWidth || img.width;
+    const H = img.naturalHeight || img.height;
+    const c = document.createElement('canvas');
+    c.width = Math.round(W * TILE); c.height = Math.round(H * TILE);
+    const cx = c.getContext('2d');
+    for (const [ox, oy] of TILE_OFFS) {
+      cx.drawImage(img, Math.round(ox * W), Math.round(oy * H), c.width, c.height, 0, 0, c.width, c.height);
+      const r = await det.detect(c, minConf);
+      for (const b of r.boxes) all.push({ x: ox + b.x * TILE, y: oy + b.y * TILE, w: b.w * TILE, h: b.h * TILE, conf: b.conf });
+    }
+  }
+  // Объединяем повторы одной трещины с разных масштабов: оставляем самую уверенную рамку
+  all.sort((a, b) => b.conf - a.conf);
+  const keep = [];
+  for (const b of all) {
+    const dup = keep.find((k) => { const o = boxIoU(k, b); return o.iou > 0.3 || o.inMin > 0.6; });
+    if (!dup) keep.push(b);
+  }
+  return keep;
+}
+
 // Модель трещин грузится один раз на страницу (≈10 МБ, потом из кэша браузера)
 let modelDetector = null;
 function getModel() {
@@ -192,8 +235,8 @@ export async function detectCracks(source, opts = {}) {
   try {
     const det = getModel();
     await det.ready;
-    const res = await det.detect(img, DEFAULT_CONF);
-    modelBoxes = res.boxes;
+    const weak = opts.weakConf != null ? opts.weakConf : WEAK_CONF;
+    modelBoxes = await proposeBoxes(det, img, weak, opts.tiles !== false);
   } catch (e) {
     modelError = e.message || String(e);
     console.warn('[CV] Модель трещин недоступна:', modelError);
@@ -208,17 +251,35 @@ export async function detectCracks(source, opts = {}) {
   if (modelBoxes) {
     // 6. Измеряем трещину в каждой рамке модели
     const PAD = 0.02;
+    const strongConf = opts.minConf != null ? opts.minConf : DEFAULT_CONF;
+    const vLen = opts.verifyLen != null ? opts.verifyLen : VERIFY_LEN;
+    const vContrast = opts.verifyContrast != null ? opts.verifyContrast : VERIFY_CONTRAST;
     for (const b of modelBoxes) {
       const bx = { x: Math.max(0, b.x - PAD), y: Math.max(0, b.y - PAD), w: Math.min(1, b.w + 2 * PAD), h: Math.min(1, b.h + 2 * PAD) };
       const m = measureCrackInBox(img, bx);
+      if (b.conf < strongConf) {
+        // слабая зона: нужна видимая линия трещины внутри
+        const boxDiag = Math.hypot(b.w * w0, b.h * h0);
+        if (!m.found || m.lengthPx < vLen * boxDiag || m.contrast < vContrast) continue;
+      }
       const lengthPx = m.found ? m.lengthPx : Math.hypot(b.w * w0, b.h * h0) * 0.9;
       const lengthRel = lengthPx / diag0;
       const openingMm = m.found && mmPerPx ? Math.round(m.widthPx * mmPerPx * 10) / 10 : null;
       const lengthMm = mmPerPx ? Math.round(lengthPx * mmPerPx) : null;
       const severity = crackSeverity({ openingMm, lengthRel, conf: b.conf });
-      kept.push({ b, m, lengthPx, lengthRel, openingMm, lengthMm, severity });
+      // Рамку сужаем до найденной линии трещины (модель часто даёт рамку с запасом)
+      let shown = b;
+      if (m.found && m.tight) {
+        const P = 0.015;
+        const t = m.tight;
+        const x = Math.max(0, t.x - P); const y = Math.max(0, t.y - P);
+        shown = { x, y, w: Math.min(1 - x, t.w + 2 * P), h: Math.min(1 - y, t.h + 2 * P), conf: b.conf };
+      }
+      kept.push({ b: shown, m, lengthPx, lengthRel, openingMm, lengthMm, severity, weak: b.conf < strongConf });
     }
     kept.sort((a, c) => c.b.conf - a.b.conf);
+    // после сужения разные рамки могут указывать на одну и ту же трещину
+    kept = kept.filter((k, i) => !kept.slice(0, i).some((q) => { const o = boxIoU(q.b, k.b); return o.iou > 0.3 || o.inMin > 0.6; }));
     kept = kept.slice(0, 8);
     regions = kept.map((k, i) => {
       const bbox = [k.b.x * 100, k.b.y * 100, (k.b.x + k.b.w) * 100, (k.b.y + k.b.h) * 100].map((v) => Number(v.toFixed(1)));
@@ -238,7 +299,8 @@ export async function detectCracks(source, opts = {}) {
         area_percent: null,
         measured: k.m.found,
         opening_coarse: coarse,
-        description: `Зона ${i + 1}: ${title} (${lenTxt}${openTxt}; уверенность модели ${Math.round(k.b.conf * 100)}%)`,
+        weak: k.weak,
+        description: `Зона ${i + 1}: ${title} (${lenTxt}${openTxt}; уверенность модели ${Math.round(k.b.conf * 100)}%${k.weak ? ', невысокая — зона принята, потому что на фото видна линия трещины; проверьте на месте' : ''})`,
       };
     });
 
