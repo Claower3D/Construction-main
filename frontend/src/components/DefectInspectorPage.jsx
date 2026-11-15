@@ -2,7 +2,7 @@ import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { createPlatformOrder } from '../services/orderSyncService';
 import { detectCracks, measureManualZone, assessVisionDefects, renderCrackMap, loadImage } from '../utils/crackDetector';
 import { askVision } from '../utils/defectVision';
-import { buildCrackReport, buildVisionReport } from '../utils/crackReport';
+import { buildLocalReport, buildVisionReport } from '../utils/crackReport';
 import { authHeaders, escapeHtml, safeImgSrc, responseError, genId } from '../services/platformUtils';
 import './DefectInspectorPage.css';
 
@@ -218,7 +218,9 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
           const bh = ((m.bbox[3] - m.bbox[1]) / 100) * ch;
 
           ctx.font = `bold ${fontSize}px sans-serif`;
-          const label = `#${idx + 1} ${s.text}${m.confidence > 0 ? ' · ' + Math.round(m.confidence * 100) + '%' : ''}`;
+          // у трещин в подписи класс опасности, у остальных видов — что это за дефект
+          const kindText = { spall: 'СКОЛ', exposed_rebar: 'АРМАТУРА', corrosion: 'РЖАВЧИНА', efflorescence: 'ВЫСОЛЫ', leak: 'ПЯТНО' }[m.model === 'vision' ? '' : m.kind];
+          const label = `#${idx + 1} ${kindText || s.text}${m.confidence > 0 ? ' · ' + Math.round(m.confidence * 100) + '%' : ''}`;
           const lw = ctx.measureText(label).width + 10;
           const r1 = place([[x, y - lh - 2], [x, y + bh + 2], [x + bw - lw, y - lh - 2], [x, y + 2]], lw, lh);
           ctx.fillStyle = s.stroke;
@@ -280,9 +282,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
     const summary = { total: items.length, by_severity: { critical: by('critical'), high: by('high'), medium: by('medium'), low: by('low') } };
     const span = parseFloat(String(frameWidthM).replace(',', '.')) * 1000;
     const crackLike = items.filter(m => !m.kind || m.kind === 'crack');
-    const otherKinds = items.filter(m => m.kind && m.kind !== 'crack');
-    const rep = buildCrackReport(crackLike, { scaleAssumed: crackLike.some(m => m.scale_assumed), spanMm: span > 0 ? span : 1500 });
-    if (rep && otherKinds.length) rep.defectType += `; также: ${[...new Set(otherKinds.map(m => m.type))].join('; ')}`;
+    const rep = buildLocalReport(items, { scaleAssumed: crackLike.some(m => m.scale_assumed), spanMm: span > 0 ? span : 1500 });
     setDefectMarkers(items);
     setSeveritySummary(summary);
     setSelectedDefectId(null);
@@ -292,7 +292,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
       if (rep) {
         Object.assign(next, { defectType: rep.defectType, severity: rep.severity, snipCode: rep.snipCode, fixMethod: rep.fixMethod, estimatedCost: rep.estimatedCost, workDays: rep.workDays, analytics: rep.analytics });
       } else if (!items.length) {
-        Object.assign(next, { defectType: 'Трещин на фото не отмечено', severity: '—', fixMethod: 'Зоны убраны. Если дефект есть — отметьте его на фото вручную или вызовите инженера на осмотр.', estimatedCost: '—', workDays: null, analytics: null });
+        Object.assign(next, { defectType: 'Дефектов на фото не отмечено', severity: '—', fixMethod: 'Зоны убраны. Если дефект есть — отметьте его на фото вручную или вызовите инженера на осмотр.', estimatedCost: '—', workDays: null, analytics: null });
       }
       return next;
     });
@@ -311,6 +311,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
           type: label, severity: 'medium', confidence: null, model: 'manual', kind: markKind,
           length_mm: null, opening_mm: null, opening_mean_mm: null, width_profile: null, length_rel: null,
           scale_assumed: false, measured: false, polygon: null, orientation_deg: 0, analytics: null,
+          fix: 'Объём и способ ремонта определяет инженер при осмотре.',
           description: `Зона: ${label} — отмечено вручную; класс опасности уточняет инженер.`,
         }]);
         setSampleState(null);
@@ -1097,8 +1098,12 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
                 width_profile: r.width_profile,
                 scale_assumed: r.scale_assumed,
                 length_rel: r.length_rel,
-                area_percent: null,
+                area_percent: r.area_percent ?? null,
                 description: r.description,
+                kind: r.kind || 'crack',
+                cause: r.cause || '',
+                fix: r.fix || '',
+                weak: !!r.weak,
                 model: 'yolo-browser',
               }));
             }
@@ -1131,7 +1136,8 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
         if (cvItems.length && cvScaleAssumed && cvItems.some(it => it.model === 'yolo-browser' || it.kind === 'crack')) {
           data.warnings = [...(data.warnings || []), `Размеры посчитаны при допущении, что ширина кадра ≈ ${(cvSpanMm / 1000).toLocaleString('ru-RU')} м. Укажите реальную ширину участка на фото — длина, раскрытие и класс опасности уточнятся.`];
         }
-        const cracksFound = cvItems.some(it => it.model === 'yolo-browser');
+        const cracksFound = cvItems.some(it => it.model === 'yolo-browser'); // найдены зоны моделями на устройстве (любой вид дефекта)
+        const onlyCracks = cvItems.every(it => !it.kind || it.kind === 'crack');
         let visionRep = null;
         if (visionData) {
           visionRep = buildVisionReport(visionData, cvItems, { scaleAssumed: cvScaleAssumed, spanMm: cvSpanMm });
@@ -1145,7 +1151,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
             if (q) data.warnings = [...(data.warnings || []), `${q} — результат может быть неполным, переснимите ближе и при хорошем свете.`];
           }
         } else if (cracksFound) {
-          crackRep = buildCrackReport(cvItems, { scaleAssumed: cvScaleAssumed, spanMm: cvSpanMm });
+          crackRep = buildLocalReport(cvItems, { scaleAssumed: cvScaleAssumed, spanMm: cvSpanMm });
           if (crackRep) {
             data.defectType = crackRep.defectType;
             data.severity = crackRep.severity;
@@ -1155,17 +1161,17 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
             data.workDays = crackRep.workDays;
             data.descriptionEstimate = false;
             if (matched) {
-              data.warnings = [...(data.warnings || []), `В описании также упомянуто: «${matched.defectType}». Заключение составлено по трещинам, найденным на фото; остальное модель на снимке не определяет — нужен осмотр.`];
+              data.warnings = [...(data.warnings || []), `В описании также упомянуто: «${matched.defectType}». Заключение составлено по ${onlyCracks ? 'трещинам' : 'дефектам'}, найденным на фото; остальное модель на снимке не определяет — нужен осмотр.`];
             }
           }
         }
         if (!visionData) {
-          data.warnings = [...(data.warnings || []), 'Расширенное распознавание ИИ-моделью зрения сейчас недоступно. Работает упрощённый анализ на устройстве: он знает только трещины, часть пропускает и может принять за трещину шов, край или тень. Пропущенное отметьте на фото вручную, лишнее уберите.'];
+          data.warnings = [...(data.warnings || []), 'Расширенное распознавание ИИ-моделью зрения сейчас недоступно. Работает анализ на устройстве: он находит трещины, сколы, оголённую арматуру, высолы и ржавчину на бетоне; пятна и протечки не определяет, часть дефектов пропускает (особенно на кирпичной кладке) и может принять за трещину шов, край или тень. Пропущенное отметьте на фото вручную, лишнее уберите.'];
         }
         if (!visionData && !cracksFound && !matched) {
           data.defectType = cvModelError
             ? 'Модель распознавания не загрузилась — проверьте интернет и повторите анализ'
-            : 'Трещин на фото не найдено';
+            : 'Дефектов на фото не найдено';
         }
         
         data.defects = { items: cvItems };
@@ -1700,7 +1706,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
                             <span className={`di-sev-chip ${sv.cls}`}>{sv.label} риск</span>
                             <span className="qg-chip">{pct !== null ? `уверенность ${pct}%` : marker.model === 'manual' ? 'отмечена вручную' : marker.model === 'vision' ? 'распознано ИИ-моделью зрения' : marker.model === 'description' ? 'по описанию, не по фото' : 'оценка, требует проверки'}</span>
                             {marker.model && (
-                              <span className="qg-chip">модель: {marker.model === 'yolo-browser' ? 'YOLO26n на устройстве' : marker.model === 'manual' ? 'измерение по отметке' : marker.model === 'vision' ? `${report.detectorName || 'OpenAI'} + измерение по фото` : marker.model === 'description' ? 'нет' : marker.model}{marker.model === 'yolo' && report.detectorName ? ` (${report.detectorName})` : ''}</span>
+                              <span className="qg-chip">модель: {marker.model === 'yolo-browser' ? 'QazGost YOLO26n на устройстве' : marker.model === 'manual' ? 'измерение по отметке' : marker.model === 'vision' ? `${report.detectorName || 'OpenAI'} + измерение по фото` : marker.model === 'description' ? 'нет' : marker.model}{marker.model === 'yolo' && report.detectorName ? ` (${report.detectorName})` : ''}</span>
                             )}
                             {marker.photoIndex !== undefined && <span className="qg-chip">фото {marker.photoIndex + 1}</span>}
                             {marker.length_mm ? <span className="qg-chip qg-chip--info">длина ≈ {marker.length_mm} мм</span> : marker.length_rel ? <span className="qg-chip qg-chip--info">длина ≈ {Math.round(marker.length_rel * 100)}% кадра</span> : null}

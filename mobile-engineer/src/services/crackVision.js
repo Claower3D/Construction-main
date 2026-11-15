@@ -1,12 +1,16 @@
 // Поиск трещин на кадре камеры — прямо на телефоне (см. workers/crackWorker.js), связь не нужна.
 // detect(source) принимает <video>, <img> или <canvas> и возвращает рамки в долях кадра (0…1).
 // Модель одна на сайт и приложение: берём её из папки сайта, сборщик кладёт копию внутрь приложения.
-import modelUrl from '../../../frontend/public/models/crack-yolo26n.onnx?url';
+import modelUrl from '../../../frontend/public/models/qazgost-defects-n.onnx?url';
 
 const SIZE = 512;
-// Порог уверенности: 0,4 — лучшая точка по F1 на проверочной выборке (точность 0,87, полнота 0,73)
-export const DEFAULT_CONF = 0.4;
-export const MODEL_INFO = { name: 'YOLO26n', precision: 0.87, recall: 0.73, classes: 'трещины' };
+// Своя модель дефектов (ai-service/scripts/train_qazgost.py, 100 эпох, 13 тыс. фото): классы
+// 0 трещина, 1 коррозия, 2 скол, 3 высолы, 4 оголённая арматура (5 «пятно» — примеров пока нет).
+// Порог 0,25 для трещин: на отложенных фото точность 0,97, полнота 0,81.
+export const DEFAULT_CONF = 0.25;
+export const MODEL_INFO = { name: 'QazGost YOLO26n', precision: 0.97, recall: 0.81, classes: 'трещины' };
+// Прежняя модель (только трещины, порог 0,4) — второе мнение при разборе фото
+export const LEGACY_CONF = 0.4;
 
 export function createCrackDetector({ onProgress } = {}) {
   const worker = new Worker(new URL('../workers/crackWorker.js', import.meta.url), { type: 'module' });
@@ -32,7 +36,7 @@ export function createCrackDetector({ onProgress } = {}) {
   worker.onerror = (e) => readyReject(new Error(e.message || 'Не удалось запустить распознавание'));
   worker.postMessage({ type: 'init', modelUrl: new URL(modelUrl, window.location.href).href });
 
-  async function detect(source, minConf = DEFAULT_CONF) {
+  async function detect(source, minConf = DEFAULT_CONF, { multi = false } = {}) {
     await ready;
     const sw = source.videoWidth || source.naturalWidth || source.width;
     const sh = source.videoHeight || source.naturalHeight || source.height;
@@ -55,13 +59,13 @@ export function createCrackDetector({ onProgress } = {}) {
     const id = ++seq;
     const res = await new Promise((resolve, reject) => {
       pending.set(id, { resolve, reject });
-      worker.postMessage({ type: 'run', id, input, minConf }, [input.buffer]);
+      worker.postMessage({ type: 'run', id, input, minConf, multi }, [input.buffer]);
     });
     const clamp = (v) => Math.min(1, Math.max(0, v));
     const boxes = res.boxes.map((b) => {
       const x1 = clamp((b.x1 - dx) / nw); const y1 = clamp((b.y1 - dy) / nh);
       const x2 = clamp((b.x2 - dx) / nw); const y2 = clamp((b.y2 - dy) / nh);
-      return { x: x1, y: y1, w: x2 - x1, h: y2 - y1, conf: b.conf };
+      return { x: x1, y: y1, w: x2 - x1, h: y2 - y1, conf: b.conf, cls: b.cls || 0 };
     }).filter((b) => b.w > 0.005 && b.h > 0.005);
     return { boxes, ms: res.ms, width: sw, height: sh };
   }

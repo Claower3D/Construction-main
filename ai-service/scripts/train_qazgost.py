@@ -6,7 +6,7 @@ QazGost AI — обучение своей модели дефектов, пол
 
 Что делает:
   1. Пишет, на чём идёт обучение (видеокарта или процессор).
-  2. Собирает набор dataset/qazgost_v2:
+  2. Собирает набор dataset/qazgost_v3:
        - трещины из dataset/merged (уже есть в проекте);
        - свои примеры из dataset/own (images/ + labels/ в формате YOLO), если папка есть;
        - открытые наборы других дефектов с Roboflow Universe (лицензия CC BY 4.0) — сколы,
@@ -17,7 +17,7 @@ QazGost AI — обучение своей модели дефектов, пол
   4. Проверяет на отложенных фото, которых модель не видела, и пишет метрики по каждому классу.
   5. Экспортирует в ONNX 512 px для сайта/приложений.
 
-Результаты: runs/qazgost_v2/REPORT.json, журнал runs/qazgost_v2/train_log.txt,
+Результаты: runs/qazgost_v3/REPORT.json, журнал runs/qazgost_v3/train_log.txt,
 модели models/export/ (боевые файлы сайта и сервиса НЕ перезаписываются — их ставят после проверки).
 
 Параметры:
@@ -28,6 +28,7 @@ QazGost AI — обучение своей модели дефектов, пол
   --smoke          быстрая проверка, что всё запускается (минута, без пользы для качества)
 """
 import argparse
+import hashlib
 import json
 import os
 import random
@@ -43,9 +44,9 @@ DATASET = ROOT / "dataset"
 MERGED = DATASET / "merged"
 OWN = DATASET / "own"
 EXTRA_RAW = DATASET / "extra_raw"
-BUILD = DATASET / "qazgost_v2"
+BUILD = DATASET / "qazgost_v3"
 RUNS = ROOT / "runs"
-RUN_NAME = "qazgost_v2"
+RUN_NAME = "qazgost_v3"
 RUN_DIR = RUNS / RUN_NAME
 EXPORT = ROOT / "models" / "export"
 
@@ -65,12 +66,22 @@ SYNONYMS = {
 
 # Открытые наборы Roboflow Universe, на страницах которых указана лицензия CC BY 4.0
 # (можно использовать в коммерческом продукте с указанием источника — см. ai-service/DATA_SOURCES.md).
+# Третье поле: "" — классы берутся по словарю SYNONYMS; "crack" — набор трещин по кирпичной кладке:
+# любой класс со словом crack (или единственный класс набора) — трещина, остальное (кирпичи, окна) не берём.
 EXTRA_DATASETS = [
-    ("defect-detection-edbnh", "concrete-merge-632p6"),
-    ("defect-detection-0atjo", "concrete-defect-detection-zuym8"),
-    ("rebar-exposure-and-spalling", "aperi"),
-    ("new-workspace-yur70", "concrete_defect"),
+    ("defect-detection-edbnh", "concrete-merge-632p6", ""),
+    ("defect-detection-0atjo", "concrete-defect-detection-zuym8", ""),
+    ("rebar-exposure-and-spalling", "aperi", ""),
+    ("new-workspace-yur70", "concrete_defect", ""),
+    # v3: трещины по кирпичу и кладке (в т.ч. ступенчатые по швам) — в v2 их не было совсем
+    ("brick-detection-in-a-brick-wall", "masonry-hzess", "crack"),
+    ("student-from-uminho", "crack-detection-brick", "crack"),
+    ("bharati-vidhypeeth-college-of-engineering-pune", "brick-crack-detection-2", "crack"),
+    ("buildscan", "buildscandamagedetection", "crack"),
+    ("assess-mortar-cracks-by-using-image-and-machine-learning", "masonry-2-instance", "crack"),
 ]
+MASONRY_REPEAT = 2   # фото кладки мало по сравнению с бетоном — в обучении каждое идёт дважды
+VAL_SHARE = 0.3      # из чужих частей valid/test в проверку идёт 30%, остальное — в обучение
 
 IMG_EXT = {".jpg", ".jpeg", ".png", ".bmp", ".webp"}
 
@@ -138,6 +149,12 @@ def to_box_line(parts, cls):
     if w <= 0.002 or h <= 0.002:
         return None
     return f"{cls} {(x0 + x1) / 2:.6f} {(y0 + y1) / 2:.6f} {w:.6f} {h:.6f}"
+
+
+def val_bucket(stem):
+    """Постоянное (не случайное) деление: одно и то же исходное фото всегда попадает в одну часть."""
+    base = stem.split(".rf.")[0]
+    return int(hashlib.md5(base.encode("utf-8")).hexdigest()[:8], 16) / 0xFFFFFFFF < VAL_SHARE
 
 
 def add_source(tag, img_dir, lbl_dir, split, cmap, counts, limit=None, files=None):
@@ -220,7 +237,7 @@ def download_extra(report):
         print(f"! Roboflow недоступен: {e}")
         return got
     EXTRA_RAW.mkdir(parents=True, exist_ok=True)
-    for i, (ws, pj) in enumerate(EXTRA_DATASETS):
+    for i, (ws, pj, mode) in enumerate(EXTRA_DATASETS):
         tag = f"x{i}"
         dst = EXTRA_RAW / f"{ws}__{pj}"
         entry = {"source": f"https://universe.roboflow.com/{ws}/{pj}", "license": "CC BY 4.0"}
@@ -234,13 +251,18 @@ def download_extra(report):
                 ver = max(versions, key=lambda v: int(str(getattr(v, "version", "0")).split("/")[-1] or 0))
                 ver.download("yolov8", location=str(dst))
             names = read_names(dst / "data.yaml")
-            cmap = {j: class_index(n) for j, n in enumerate(names)}
-            cmap = {j: c for j, c in cmap.items() if c is not None}
+            if mode == "crack":
+                cmap = {j: 0 for j, n in enumerate(names) if "crack" in norm_name(n)}
+                if not cmap and len(names) == 1 and "crack" in norm_name(pj):
+                    cmap = {0: 0}  # единственный класс назван «0» или «object», а набор — про трещины
+            else:
+                cmap = {j: class_index(n) for j, n in enumerate(names)}
+                cmap = {j: c for j, c in cmap.items() if c is not None}
             if not cmap:
                 raise RuntimeError(f"нет подходящих классов среди {names}")
             entry["classes_used"] = {names[j]: CLASS_NAMES[c] for j, c in cmap.items()}
             entry["classes_skipped"] = [n for j, n in enumerate(names) if j not in cmap]
-            got.append((tag, dst, cmap))
+            got.append((tag, dst, cmap, mode))
             entry["ok"] = True
         except Exception as e:
             entry["ok"] = False
@@ -274,9 +296,24 @@ def build_dataset(report, extra, smoke=False):
 
     # 3. открытые наборы других дефектов
     if not smoke:
-        for tag, path, cmap in extra:
-            for src_split, split in (("train", "train"), ("valid", "val"), ("test", "val")):
-                images[split] += add_source(tag, path / src_split / "images", path / src_split / "labels", split, cmap, counts)
+        for tag, path, cmap, mode in extra:
+            reps = MASONRY_REPEAT if mode == "crack" else 1
+            for r in range(reps):
+                rtag = tag if r == 0 else f"{tag}r{r}"
+                images["train"] += add_source(rtag, path / "train" / "images", path / "train" / "labels", "train", cmap, counts)
+            # В чужих наборах части valid/test бывают больше обучающей. Они не содержат размноженных
+            # копий обучающих фото, поэтому большую долю можно отдать в обучение без подглядывания.
+            for src_split in ("valid", "test"):
+                d = path / src_split / "images"
+                if not d.is_dir():
+                    continue
+                files = sorted(p for p in d.iterdir() if p.suffix.lower() in IMG_EXT)
+                to_val = [p for p in files if val_bucket(p.stem)]
+                to_train = [p for p in files if not val_bucket(p.stem)]
+                images["val"] += add_source(tag, d, path / src_split / "labels", "val", cmap, counts, files=to_val)
+                for r in range(reps):
+                    rtag = tag if r == 0 else f"{tag}r{r}"
+                    images["train"] += add_source(rtag, d, path / src_split / "labels", "train", cmap, counts, files=to_train)
 
     yaml_text = "path: " + str(BUILD).replace("\\", "/") + "\ntrain: images/train\nval: images/val\nnc: %d\nnames:\n" % len(CLASS_NAMES)
     yaml_text += "".join(f"  {i}: {n}\n" for i, n in enumerate(CLASS_NAMES))
@@ -303,7 +340,16 @@ def train_one(weights, data_yaml, device, args, report):
         model = YOLO(str(last))
         model.train(resume=True)
     else:
-        model = YOLO(weights)
+        prev = EXPORT / f"qazgost_defects_{tag}.pt"
+        if prev.is_file() and not args.smoke and not args.fresh:
+            # дообучение: начинаем с весов прошлой версии своей модели, а не с нуля
+            keep = EXPORT / f"qazgost_defects_{tag}_prev.pt"
+            shutil.copy2(prev, keep)
+            print(f"\n== {tag}: дообучение от прошлой версии ({prev.name})")
+            report.setdefault("started_from", {})[tag] = prev.name
+            model = YOLO(str(keep))
+        else:
+            model = YOLO(weights)
         kw = dict(
             data=str(data_yaml), project=str(RUNS), name=name, exist_ok=True, device=device,
             patience=30, cos_lr=True, close_mosaic=10, plots=True, verbose=True, seed=0,
@@ -373,6 +419,7 @@ def main():
     ap.add_argument("--resume", action="store_true")
     ap.add_argument("--models", type=str, default="")
     ap.add_argument("--smoke", action="store_true")
+    ap.add_argument("--fresh", action="store_true", help="не дообучать прошлую версию, а учить с нуля")
     args = ap.parse_args()
 
     RUN_DIR.mkdir(parents=True, exist_ok=True)

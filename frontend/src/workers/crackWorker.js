@@ -1,12 +1,13 @@
-// Детектор трещин в браузере: модель YOLO26n (та же, что на сервере в /defect-scan),
-// экспортированная в ONNX, работает на телефоне через WebAssembly — кадры никуда не отправляются.
+// Детектор дефектов в браузере: модель YOLO26n, экспортированная в ONNX, работает на телефоне
+// через WebAssembly — кадры никуда не отправляются.
 // Воркер нужен, чтобы расчёт (0,1–0,5 с на кадр) не подвешивал интерфейс.
 import * as ort from 'onnxruntime-web/wasm';
 import wasmUrl from 'onnxruntime-web/ort-wasm-simd-threaded.wasm?url';
 import mjsUrl from 'onnxruntime-web/ort-wasm-simd-threaded.mjs?url';
 
 const SIZE = 512;        // вход модели
-const CRACK_ROW = 4;     // выход [1, 4 + 6 классов, 5376]: строка 4 — «трещина», единственный класс с проверенной точностью
+const CLS_ROW = 4;       // выход [1, 4 + 6 классов, 5376]: строки 4…9 — трещина, коррозия, скол, высолы, арматура, пятно
+const CLASSES = 6;
 const IOU = 0.45;
 
 ort.env.wasm.wasmPaths = { wasm: wasmUrl, mjs: mjsUrl };
@@ -44,20 +45,23 @@ function iou(a, b) {
 }
 
 // Рамки в пикселях входа 512×512 (с полями letterbox — их снимает основной поток)
-function decode(data, dims, minConf) {
+// multi = false — только трещины (класс 0); true — все классы, у рамки появляется cls
+function decode(data, dims, minConf, multi) {
   const n = dims[2];
+  const rows = multi ? Math.min(CLASSES, dims[1] - CLS_ROW) : 1;
   const boxes = [];
   for (let i = 0; i < n; i++) {
-    const conf = data[CRACK_ROW * n + i];
+    let conf = data[CLS_ROW * n + i]; let cls = 0;
+    for (let c = 1; c < rows; c++) { const v = data[(CLS_ROW + c) * n + i]; if (v > conf) { conf = v; cls = c; } }
     if (conf < minConf) continue;
     const cx = data[i]; const cy = data[n + i]; const w = data[2 * n + i]; const h = data[3 * n + i];
-    boxes.push({ x1: cx - w / 2, y1: cy - h / 2, x2: cx + w / 2, y2: cy + h / 2, conf });
+    boxes.push({ x1: cx - w / 2, y1: cy - h / 2, x2: cx + w / 2, y2: cy + h / 2, conf, cls });
   }
   boxes.sort((a, b) => b.conf - a.conf);
   const keep = [];
   for (const b of boxes) {
-    if (keep.every((k) => iou(b, k) < IOU)) keep.push(b);
-    if (keep.length >= 30) break;
+    if (keep.every((k) => k.cls !== b.cls || iou(b, k) < IOU)) keep.push(b);
+    if (keep.length >= 40) break;
   }
   return keep;
 }
@@ -76,7 +80,7 @@ self.onmessage = async (e) => {
       const t0 = performance.now();
       const out = await session.run({ [session.inputNames[0]]: new ort.Tensor('float32', msg.input, [1, 3, SIZE, SIZE]) });
       const tensor = out[session.outputNames[0]];
-      const boxes = decode(tensor.data, tensor.dims, msg.minConf);
+      const boxes = decode(tensor.data, tensor.dims, msg.minConf, !!msg.multi);
       self.postMessage({ type: 'result', id: msg.id, boxes, ms: Math.round(performance.now() - t0) });
     }
   } catch (err) {

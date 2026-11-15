@@ -12,7 +12,7 @@ if not defined JAVA_HOME if exist "%LOCALAPPDATA%\Programs\Android Studio\jbr" s
 set FAILED=
 call :build mobile-customer QazGost-Customer-v1.0
 call :build mobile-manager QazGost-Manager-CRM-v2.2
-call :build mobile-engineer QazGost-Engineer-v2.3
+call :build mobile-engineer QazGost-Engineer-v2.4
 call :build mobile-executor QazGost-Executor-v2.2
 call :build mobile-admin QazGost-Admin-v1.2
 

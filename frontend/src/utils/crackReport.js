@@ -170,3 +170,34 @@ export function buildVisionReport(vision, items, opts = {}) {
     },
   };
 }
+
+/**
+ * Заключение по зонам, найденным моделями на устройстве или отмеченным вручную:
+ * трещины — с размерами и сметой; сколы, арматура, высолы, ржавчина — что делать, объём по осмотру.
+ * @param items  зоны (detectCracks / ручные отметки); без вида считаются трещинами
+ */
+export function buildLocalReport(items, opts = {}) {
+  const zones = (items || []).filter((it) => it && it.severity && it.model !== 'description')
+    .map((it) => ({ ...it, kind: it.kind || 'crack' }));
+  if (!zones.length) return null;
+  const cracks = zones.filter((it) => it.kind === 'crack');
+  const others = zones.filter((it) => it.kind !== 'crack');
+  if (!others.length) return buildCrackReport(cracks, opts);
+  const crackRep = cracks.length ? buildCrackReport(cracks, opts) : null;
+  const rep = buildVisionReport(null, zones, opts);
+  const groups = [];
+  for (const o of others) {
+    const g = groups.find((x) => x.type === o.type);
+    if (g) g.n += 1; else groups.push({ type: o.type, fix: o.fix || '', n: 1 });
+  }
+  rep.defectType = [crackRep ? crackRep.defectType : '', ...groups.map((g) => `${g.type} — ${g.n} шт.`)].filter(Boolean).join('; ').slice(0, 300);
+  rep.fixMethod = [
+    crackRep ? `Трещины. ${crackRep.fixMethod}` : '',
+    ...groups.map((g) => `${g.type}. ${g.fix || 'Нужен осмотр инженером.'}`),
+  ].filter(Boolean).join(' ');
+  rep.analytics.labor = [
+    ...(crackRep ? crackRep.analytics.labor : []),
+    ...groups.map((g) => ({ name: `${g.type}: ремонт`, qty: `${g.n} шт., объём — по осмотру`, cost_kzt: null })),
+  ];
+  return rep;
+}
