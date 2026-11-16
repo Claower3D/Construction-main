@@ -31,7 +31,7 @@ func TestDefectSamples(t *testing.T) {
 	zones := []map[string]interface{}{
 		{"cls": 0, "x": 0.1, "y": 0.2, "w": 0.3, "h": 0.4, "origin": "manual"},
 		{"cls": 4, "x": 0.8, "y": 0.8, "w": 0.5, "h": 0.5},   // выходит за край — обрезается
-		{"cls": 9, "x": 0.1, "y": 0.1, "w": 0.2, "h": 0.2},   // неизвестный класс — отбрасывается
+		{"cls": 99, "x": 0.1, "y": 0.1, "w": 0.2, "h": 0.2},   // неизвестный класс — отбрасывается
 		{"cls": 2, "x": 0.5, "y": 0.5, "w": 0.001, "h": 0.2}, // вырожденная — отбрасывается
 	}
 	ok := map[string]interface{}{"photo": photo, "width": 640, "height": 480, "zones": zones, "source": "vision", "consent": true}

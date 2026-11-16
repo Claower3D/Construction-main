@@ -24,7 +24,8 @@ import (
 // Архив распаковывается в ai-service/dataset/own — оттуда его берёт scripts/train_qazgost.py.
 
 // Классы — как в ai-service/scripts/train_qazgost.py (CLASS_NAMES)
-var defectSampleClasses = []string{"crack", "corrosion", "spalling", "efflorescence", "exposed_rebar", "stain"}
+var defectSampleClasses = []string{"crack", "corrosion", "spalling", "efflorescence", "exposed_rebar", "stain",
+	"pothole", "peeling", "mold", "knot", "scratch", "dent"}
 
 const (
 	defectSampleMaxPhoto = 1536 << 10 // байт JPEG

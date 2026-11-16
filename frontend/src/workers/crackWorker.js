@@ -6,8 +6,7 @@ import wasmUrl from 'onnxruntime-web/ort-wasm-simd-threaded.wasm?url';
 import mjsUrl from 'onnxruntime-web/ort-wasm-simd-threaded.mjs?url';
 
 const SIZE = 512;        // вход модели
-const CLS_ROW = 4;       // выход [1, 4 + 6 классов, 5376]: строки 4…9 — трещина, коррозия, скол, высолы, арматура, пятно
-const CLASSES = 6;
+const CLS_ROW = 4;       // выход [1, 4 + число классов, 5376]: строка 4 — трещина, дальше остальные виды дефектов (см. OTHER_KINDS)
 const IOU = 0.45;
 
 ort.env.wasm.wasmPaths = { wasm: wasmUrl, mjs: mjsUrl };
@@ -48,7 +47,7 @@ function iou(a, b) {
 // multi = false — только трещины (класс 0); true — все классы, у рамки появляется cls
 function decode(data, dims, minConf, multi) {
   const n = dims[2];
-  const rows = multi ? Math.min(CLASSES, dims[1] - CLS_ROW) : 1;
+  const rows = multi ? dims[1] - CLS_ROW : 1;
   const boxes = [];
   for (let i = 0; i < n; i++) {
     let conf = data[CLS_ROW * n + i]; let cls = 0;

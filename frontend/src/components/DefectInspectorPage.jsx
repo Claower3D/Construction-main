@@ -14,9 +14,16 @@ const MARK_KINDS = [
   { id: 'corrosion', label: 'Коррозия / ржавчина', cls: 1 },
   { id: 'efflorescence', label: 'Высолы', cls: 3 },
   { id: 'leak', label: 'Пятно / протечка', cls: 5 },
+  { id: 'pothole', label: 'Выбоина', cls: 6 },
+  { id: 'peeling', label: 'Отслоение отделки', cls: 7 },
+  { id: 'mold', label: 'Плесень', cls: 8 },
+  { id: 'knot', label: 'Сучок (дерево)', cls: 9 },
+  { id: 'scratch', label: 'Царапина', cls: 10 },
+  { id: 'dent', label: 'Вмятина', cls: 11 },
 ];
+const SAMPLE_CLASSES = ['crack', 'corrosion', 'spalling', 'efflorescence', 'exposed_rebar', 'stain', 'pothole', 'peeling', 'mold', 'knot', 'scratch', 'dent'];
 // Класс для учебного примера: зоны без вида (нейросеть на устройстве, ручная трещина) — трещины
-const KIND_CLASS = { crack: 0, corrosion: 1, spall: 2, delamination: 2, efflorescence: 3, exposed_rebar: 4, leak: 5, stain: 5 };
+const KIND_CLASS = { crack: 0, corrosion: 1, spall: 2, delamination: 2, efflorescence: 3, exposed_rebar: 4, leak: 5, stain: 5, pothole: 6, peeling: 7, mold: 8, knot: 9, scratch: 10, dent: 11 };
 const zoneClass = (m) => (m.model === 'description' ? null : !m.kind ? 0 : (KIND_CLASS[m.kind] ?? null));
 
 const DEFECT_TYPES = [
@@ -219,7 +226,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
 
           ctx.font = `bold ${fontSize}px sans-serif`;
           // у трещин в подписи класс опасности, у остальных видов — что это за дефект
-          const kindText = { spall: 'СКОЛ', exposed_rebar: 'АРМАТУРА', corrosion: 'РЖАВЧИНА', efflorescence: 'ВЫСОЛЫ', leak: 'ПЯТНО' }[m.model === 'vision' ? '' : m.kind];
+          const kindText = { spall: 'СКОЛ', exposed_rebar: 'АРМАТУРА', corrosion: 'РЖАВЧИНА', efflorescence: 'ВЫСОЛЫ', leak: 'ПЯТНО', pothole: 'ВЫБОИНА', peeling: 'ОТСЛОЕНИЕ', mold: 'ПЛЕСЕНЬ', knot: 'СУЧОК', scratch: 'ЦАРАПИНА', dent: 'ВМЯТИНА' }[m.model === 'vision' ? '' : m.kind];
           const label = `#${idx + 1} ${kindText || s.text}${m.confidence > 0 ? ' · ' + Math.round(m.confidence * 100) + '%' : ''}`;
           const lw = ctx.measureText(label).width + 10;
           const r1 = place([[x, y - lh - 2], [x, y + bh + 2], [x + bw - lw, y - lh - 2], [x, y + 2]], lw, lh);
@@ -1166,7 +1173,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
           }
         }
         if (!visionData) {
-          data.warnings = [...(data.warnings || []), 'Расширенное распознавание ИИ-моделью зрения сейчас недоступно. Работает анализ на устройстве: он находит трещины, сколы, оголённую арматуру, высолы и ржавчину на бетоне; пятна и протечки не определяет, часть дефектов пропускает (особенно на кирпичной кладке) и может принять за трещину шов, край или тень. Пропущенное отметьте на фото вручную, лишнее уберите.'];
+          data.warnings = [...(data.warnings || []), 'Расширенное распознавание ИИ-моделью зрения сейчас недоступно. Работает анализ на устройстве: он находит трещины, сколы, оголённую арматуру, высолы, ржавчину, пятна, выбоины, отслоение отделки, плесень, сучки, царапины и вмятины; часть дефектов пропускает (хуже всего видит плесень, ржавчину, выбоины и дефекты на плитке и стекле) и может принять за трещину шов, край или тень. Пропущенное отметьте на фото вручную, лишнее уберите.'];
         }
         if (!visionData && !cracksFound && !matched) {
           data.defectType = cvModelError
@@ -1497,7 +1504,7 @@ export default function DefectInspectorPage({ onBack, hideHeader = false, onOpen
         <div className="di-note di-train-stats" data-testid="train-stats">
           <span>
             <b>Учебных примеров: {sampleStats.total}</b>
-            {sampleStats.total > 0 && ` — ${MARK_KINDS.map(k => `${k.label.toLowerCase()}: ${sampleStats.zones_by_class?.[['crack', 'corrosion', 'spalling', 'efflorescence', 'exposed_rebar', 'stain'][k.cls]] || 0}`).join(', ')}; без дефектов: ${sampleStats.without_defects || 0}`}
+            {sampleStats.total > 0 && ` — ${MARK_KINDS.map(k => `${k.label.toLowerCase()}: ${sampleStats.zones_by_class?.[SAMPLE_CLASSES[k.cls]] || 0}`).join(', ')}; без дефектов: ${sampleStats.without_defects || 0}`}
           </span>
           {sampleStats.total > 0 && <button type="button" className="di-zone-remove" style={{ margin: 0 }} onClick={downloadSamples}>Скачать набор (ZIP)</button>}
         </div>

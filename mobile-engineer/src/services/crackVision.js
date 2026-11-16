@@ -4,11 +4,12 @@
 import modelUrl from '../../../frontend/public/models/qazgost-defects-n.onnx?url';
 
 const SIZE = 512;
-// Своя модель дефектов (ai-service/scripts/train_qazgost.py, 100 эпох, 13 тыс. фото): классы
-// 0 трещина, 1 коррозия, 2 скол, 3 высолы, 4 оголённая арматура (5 «пятно» — примеров пока нет).
-// Порог 0,25 для трещин: на отложенных фото точность 0,97, полнота 0,81.
+// Своя модель дефектов v3 (ai-service/scripts/train_qazgost.py, 80 эпох, 37 тыс. фото, все материалы):
+// 0 трещина, 1 коррозия, 2 скол, 3 высолы, 4 оголённая арматура, 5 пятно, 6 выбоина, 7 отслоение
+// отделки, 8 плесень, 9 сучок, 10 царапина, 11 вмятина.
+// Порог 0,25 для трещин: на отложенных фото бетона точность 0,97, полнота 0,81; по всем материалам — 0,95 и 0,57.
 export const DEFAULT_CONF = 0.25;
-export const MODEL_INFO = { name: 'QazGost YOLO26n', precision: 0.97, recall: 0.81, classes: 'трещины' };
+export const MODEL_INFO = { name: 'QazGost YOLO26n', precision: 0.95, recall: 0.57, classes: 'трещины' };
 // Прежняя модель (только трещины, порог 0,4) — второе мнение при разборе фото
 export const LEGACY_CONF = 0.4;
 
