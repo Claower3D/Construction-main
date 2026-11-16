@@ -92,6 +92,8 @@ EXTRA_DATASETS = [
     # плитка и керамика
     ("manendrasinh", "tiles-defect-detection-pssvq", "плитка"),
     ("ceramic", "ceramic-defect-detection", "плитка"),
+    ("datn-6f5ux", "ceramic-tile-defects", "плитка"),
+    ("spencerworkspace", "ceramic-tile-defects-xhvxa", "плитка"),
     # дерево
     ("omar-r6wdo", "wood-surface-defects-xzowk", "дерево"),
     ("detect-detect", "new-defects-in-wood", "дерево"),
@@ -350,6 +352,11 @@ def download_extra(report):
             names = read_names(dst / "data.yaml")
             cmap = {j: map_class(n) for j, n in enumerate(names)}
             cmap = {j: c for j, c in cmap.items() if c is not None}
+            if mode == "стекло":
+                # в наборах стекла класс «broken» — разбитое или треснувшее стекло, а не скол бетона
+                for j, n in enumerate(names):
+                    if has(norm_name(n), "broken", "crack", "shatter", "damage"):
+                        cmap[j] = 0
             if not any(c != IGNORE for c in cmap.values()) and len(names) == 1:
                 # единственный класс назван «0» или «object» — смотрим на название набора
                 pn = norm_name(pj)
@@ -556,7 +563,7 @@ def main():
     data_yaml = build_dataset(report, extra, smoke=args.smoke)
     status(report, "обучение")
 
-    models = [m.strip() for m in args.models.split(",") if m.strip()] or (["yolo26n.pt", "yolo26s.pt"] if gpu and not args.smoke else ["yolo26n.pt"])
+    models = [m.strip() for m in args.models.split(",") if m.strip()] or ["yolo26n.pt"]  # yolo26s в 4 раза тяжелее, а на проверке дала лишь +3% найденных трещин: --models yolo26n.pt,yolo26s.pt
     for w in models:
         try:
             train_one(w, data_yaml, device, args, report)

@@ -27,6 +27,8 @@ CC BY 4.0 разрешают использование в коммерческ�
 | [road-crack-project/road-crack-detection-combined-dataset](https://universe.roboflow.com/road-crack-project/road-crack-detection-combined-dataset) | асфальт | трещины, выбоины | CC BY 4.0 |
 | [manendrasinh/tiles-defect-detection-pssvq](https://universe.roboflow.com/manendrasinh/tiles-defect-detection-pssvq) | плитка | трещины, сколы, царапины | CC BY 4.0 |
 | [ceramic/ceramic-defect-detection](https://universe.roboflow.com/ceramic/ceramic-defect-detection) | плитка | трещины, сколы, царапины | CC BY 4.0 |
+| [datn-6f5ux/ceramic-tile-defects](https://universe.roboflow.com/datn-6f5ux/ceramic-tile-defects) | плитка | трещины, сколы, царапины | CC BY 4.0 |
+| [spencerworkspace/ceramic-tile-defects-xhvxa](https://universe.roboflow.com/spencerworkspace/ceramic-tile-defects-xhvxa) | плитка | трещины, сколы, царапины | CC BY 4.0 |
 | [omar-r6wdo/wood-surface-defects-xzowk](https://universe.roboflow.com/omar-r6wdo/wood-surface-defects-xzowk) | дерево | трещины, сучки | CC BY 4.0 |
 | [detect-detect/new-defects-in-wood](https://universe.roboflow.com/detect-detect/new-defects-in-wood) | дерево | трещины, сучки | CC BY 4.0 |
 | [tunku-abdul-rahman-university-of-management-and-technology-ttt1n/wood-defects-8lcdv](https://universe.roboflow.com/tunku-abdul-rahman-university-of-management-and-technology-ttt1n/wood-defects-8lcdv) | дерево | трещины, сучки | CC BY 4.0 |
