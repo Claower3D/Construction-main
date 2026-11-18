@@ -80,6 +80,8 @@ func InitDB(dbURL string) error {
 		return fmt.Errorf("CRM seed failed: %w", err)
 	}
 
+	restoreTeamManagerRole()
+
 	// Seed inserts orders 101/102 with explicit ids; keep SERIAL ahead of MAX(id),
 	// otherwise the 101st order fails with a duplicate key.
 	if _, err := DB.Exec(`SELECT setval(pg_get_serial_sequence('orders','id'), GREATEST((SELECT COALESCE(MAX(id),0) FROM orders), 1))`); err != nil {
@@ -640,4 +642,41 @@ func GetChatMessages(orderID string) ([]*models.ChatMessage, error) {
 		msgs = append(msgs, m)
 	}
 	return msgs, nil
+}
+
+// restoreTeamManagerRole — разовая правка: аккаунт менеджера команды (Саша) при регистрации получил
+// роль «заказчик», потому что регистрация не выдаёт роль менеджера. Возвращаем ему роль менеджера.
+// Выполняется один раз: если администратор потом сам сменит роль, она останется такой, как он выбрал.
+func restoreTeamManagerRole() {
+	const fix = "sasha_manager_role"
+	if _, err := DB.Exec(`CREATE TABLE IF NOT EXISTS applied_fixes (name TEXT PRIMARY KEY, applied_at BIGINT NOT NULL DEFAULT 0)`); err != nil {
+		log.Printf("[PostgreSQL] applied_fixes: %v", err)
+		return
+	}
+	now := time.Now().Unix()
+	// Отметку ставим только если аккаунт уже есть: иначе правка сработает при первом запуске после его появления
+	var id, email string
+	err := DB.QueryRow(`SELECT id, email FROM users WHERE LOWER(email) = 'sasha.manager@qazgost.kz'`).Scan(&id, &email)
+	if err != nil {
+		return
+	}
+	res, err := DB.Exec(`INSERT INTO applied_fixes (name, applied_at) VALUES ($1, $2) ON CONFLICT (name) DO NOTHING`, fix, now)
+	if err != nil {
+		log.Printf("[PostgreSQL] applied_fixes insert: %v", err)
+		return
+	}
+	if n, _ := res.RowsAffected(); n == 0 {
+		return // уже выполнялась
+	}
+	// в выданных токенах записана старая роль — они перестают действовать, нужно войти заново
+	upd, err := DB.Exec(`UPDATE users SET role = 'manager', sessions_revoked_unix = GREATEST(sessions_revoked_unix, $1)
+		WHERE id = $2 AND role = 'customer'`, now, id)
+	if err != nil {
+		log.Printf("[PostgreSQL] restore manager role: %v", err)
+		return
+	}
+	if n, _ := upd.RowsAffected(); n > 0 {
+		AddAudit("system", "system", "role", id, email+": customer → manager (разовая правка)")
+		log.Printf("✅ [PostgreSQL] Роль менеджера возвращена: %s", email)
+	}
 }
