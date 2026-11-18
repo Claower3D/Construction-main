@@ -26,6 +26,15 @@ export const KNOWN_ENGINEERS = {
     phone: '+7 (701) 777-20-26',
     avatar: '👷‍♂️'
   },
+  'askhat.engineer@qazgost.kz': {
+    id: 'eng_pto_askhat',
+    name: 'Асхат (ПТО)',
+    login: 'askhat.engineer@qazgost.kz',
+    email: 'askhat.engineer@qazgost.kz',
+    role: 'Инженер технического надзора',
+    phone: '',
+    avatar: '👷‍♂️'
+  },
   'engineer@qazgost.kz': {
     id: 'eng_pto_ruslan',
     name: 'Руслан (ПТО)',
