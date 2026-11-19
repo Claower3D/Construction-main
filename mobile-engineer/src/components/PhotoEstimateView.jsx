@@ -138,6 +138,12 @@ export default function PhotoEstimateView({ deals = [], onAttachToDeal }) {
             >
               Сменить фото
             </button>
+            <button
+              onClick={() => { setPhotoUrl(null); setEstimateResult(null); setError(null); }}
+              style={{ position: 'absolute', bottom: '10px', left: '10px', background: 'rgba(7, 10, 19, 0.8)', color: '#ffffff', border: '1px solid rgba(255, 255, 255, 0.2)', borderRadius: '8px', padding: '4px 10px', fontSize: '0.72rem', cursor: 'pointer' }}
+            >
+              Убрать фото
+            </button>
           </div>
         ) : (
           <div onClick={() => fileInputRef.current?.click()} style={{ height: '140px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer', color: '#64748b' }}>

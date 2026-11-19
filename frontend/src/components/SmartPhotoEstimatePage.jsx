@@ -408,6 +408,8 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
       });
       const parsed = await res.json().catch(() => null);
       if (!res.ok) {
+        // сервер посмотрел фото и увидел на нём не объект (например, человека)
+        if (parsed?.code === 'photo_not_object' && parsed.error) return { status: 'error', message: parsed.error };
         return { status: 'error', message: `ИИ-разбор фото не выполнен: сервер ответил ${res.status}${parsed?.error ? ` (${parsed.error})` : ''}.` };
       }
       const isQto = parsed && parsed.recommended && Array.isArray(parsed.scenarios);

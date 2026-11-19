@@ -368,6 +368,12 @@ func (h *AiHandler) VisionProxy(w http.ResponseWriter, r *http.Request) {
 		req.Photos = req.Photos[:6]
 	}
 
+	// На фото человек, а не объект — смету не считаем (ни своим сметчиком, ни через ИИ)
+	if photosShowPerson(req.Photos) {
+		writePhotoNotObject(w, photoPersonMsg)
+		return
+	}
+
 	if apiKey == "" {
 		// No API key — fallback to local Go estimator
 		qtoResult := h.estimator.CalculateEstimate(services.QTOFormulaRequest{
@@ -394,6 +400,7 @@ func (h *AiHandler) VisionProxy(w http.ResponseWriter, r *http.Request) {
 			"type": "text",
 			"text": fmt.Sprintf(`Ты — профессиональный строительный инженер-сметчик и эксперт технадзора Казахстана. Проанализируй приложенные фотографии/чертежи строительного объекта.
 ЗАДАЧА: Определи из изображения: тип работ, размеры и объёмы (м², м³), материалы и количество, стоимость по ценам Казахстана 2026.
+ВАЖНО: если на фото нет строительного объекта (человек, животное, еда, документ, пейзаж и т. п.) — смету НЕ составляй, ответь только {"not_object":true,"reason":"что на фото, 2-5 слов"}.
 %s
 %s %s
 ОТВЕТЬ СТРОГО в формате JSON:
@@ -457,6 +464,10 @@ func (h *AiHandler) VisionProxy(w http.ResponseWriter, r *http.Request) {
 		start := strings.Index(raw, "{")
 		end := strings.LastIndex(raw, "}")
 		if start >= 0 && end > start {
+			if msg, no := notObjectReply(raw[start : end+1]); no {
+				writePhotoNotObject(w, msg)
+				return
+			}
 			w.Write([]byte(raw[start : end+1]))
 			return
 		}

@@ -460,7 +460,13 @@ export async function runVisionEstimate({ photoDataUrl, description, category, c
   } catch (e) {
     throw new Error(`Сервис сметы недоступен (${e.name === 'AbortError' ? 'таймаут' : (e.message || 'нет сети')})`);
   }
-  if (!res.ok) throw new Error(`Сервис сметы недоступен (HTTP ${res.status})`);
+  if (!res.ok) {
+    // 422 — сервер посмотрел фото и отказал (например, на снимке человек, а не объект): показываем его слова
+    let why = '';
+    try { const j = await res.json(); why = (j && (j.error || j.detail)) || ''; } catch (e) { /* не JSON */ }
+    if (res.status === 422 && why) throw new Error(why);
+    throw new Error(`Сервис сметы недоступен (HTTP ${res.status})`);
+  }
   let data;
   try { data = await res.json(); } catch (e) { throw new Error('Сервис сметы вернул некорректный ответ'); }
   return normalizeVisionEstimate(data);
