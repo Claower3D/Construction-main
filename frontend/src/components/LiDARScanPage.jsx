@@ -44,7 +44,7 @@ export default function LiDARScanPage({ onBack }) {
       });
       if (!resp.ok) {
         const errData = await resp.json().catch(() => ({}));
-        throw new Error(errData.detail || `Ошибка ${resp.status}`);
+        throw new Error(errData.detail || errData.error || `Ошибка ${resp.status}`);
       }
       const data = await resp.json();
       setResult(data);
@@ -165,7 +165,7 @@ export default function LiDARScanPage({ onBack }) {
                   background: result.scan_type === 'room' ? 'rgba(16,185,129,0.2)' : 'rgba(245,158,11,0.2)',
                   color: result.scan_type === 'room' ? '#10b981' : '#f59e0b',
                 }}>
-                  {result.scan_type === 'room' ? '🏠 Помещение' : '🕳️ Котлован'}
+                  {result.scan_type === 'room' ? '🏠 Помещение' : result.scan_type === 'surface' ? '▭ Плоскость' : '🕳️ Котлован'}
                 </span>
               </div>
 
@@ -208,6 +208,20 @@ export default function LiDARScanPage({ onBack }) {
                       ))}
                     </div>
                   </>
+                ) : result.scan_type === 'surface' ? (
+                  /* ровная площадка (пол, плита): объёма и глубины нет — только размеры в плане */
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+                    {[
+                      { label: 'Длина', val: `${formatNum(result.dimensions.length_m)} м`, color: '#10b981' },
+                      { label: 'Ширина', val: `${formatNum(result.dimensions.width_m)} м`, color: '#8b5cf6' },
+                      { label: 'Площадь', val: `${formatNum(result.dimensions.area_m2)} м²`, color: '#f59e0b' },
+                    ].map((d, i) => (
+                      <div key={i} style={{ background: 'rgba(255,255,255,0.04)', borderRadius: 12, padding: 16, textAlign: 'center' }}>
+                        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>{d.label}</div>
+                        <div style={{ fontSize: 22, fontWeight: 700, color: d.color, marginTop: 4 }}>{d.val}</div>
+                      </div>
+                    ))}
+                  </div>
                 ) : (
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
                     {[
@@ -242,7 +256,7 @@ export default function LiDARScanPage({ onBack }) {
                   <div style={{ fontSize: 16, fontWeight: 600 }}>{result.deviations.quality}</div>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, fontSize: 13 }}>
-                  <div style={infoRow}><span style={infoLabel}>Тип:</span> {result.deviations.surface_type === 'horizontal' ? 'Горизонт' : 'Вертикаль'}</div>
+                  <div style={infoRow}><span style={infoLabel}>Тип:</span> {result.deviations.surface_type === 'horizontal' ? 'Горизонт' : result.deviations.surface_type === 'vertical' ? 'Вертикаль' : 'Наклонная'}</div>
                   <div style={infoRow}><span style={infoLabel}>Макс:</span> {formatNum(result.deviations.max_deviation_mm, 1)} мм</div>
                   <div style={infoRow}><span style={infoLabel}>Средн:</span> {formatNum(result.deviations.avg_deviation_mm, 1)} мм</div>
                 </div>

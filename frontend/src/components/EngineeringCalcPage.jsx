@@ -65,7 +65,10 @@ export default function EngineeringCalcPage({ onBack }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
       });
-      if (!resp.ok) throw new Error(`Ошибка ${resp.status}`);
+      if (!resp.ok) {
+        const errData = await resp.json().catch(() => ({}));
+        throw new Error(errData.detail || errData.error || `Ошибка ${resp.status}`);
+      }
       const data = await resp.json();
       setResult(data);
     } catch (e) {
@@ -96,7 +99,10 @@ export default function EngineeringCalcPage({ onBack }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
       });
-      if (!resp.ok) throw new Error(`Ошибка ${resp.status}`);
+      if (!resp.ok) {
+        const errData = await resp.json().catch(() => ({}));
+        throw new Error(errData.detail || errData.error || `Ошибка ${resp.status}`);
+      }
 
       const blob = await resp.blob();
       const url = window.URL.createObjectURL(blob);

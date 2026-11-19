@@ -572,7 +572,8 @@ func (h *AiHandler) ProxyToAIService(w http.ResponseWriter, r *http.Request) {
 	resp, err := client.Do(proxyReq)
 	if err != nil {
 		log.Printf("[AI proxy] %s %s: %v", r.Method, cleanPath, err)
-		writeError(w, http.StatusBadGateway, "AI-сервис временно недоступен")
+		// 503, а не 502: ответ 502 Cloudflare подменяет своей страницей, и приложение не видит причину
+		writeError(w, http.StatusServiceUnavailable, "AI-сервис временно недоступен")
 		return
 	}
 	defer resp.Body.Close()

@@ -199,8 +199,9 @@ func main() {
 	mux.HandleFunc("/api/v1/ai/assistant", middleware.RateLimit(20, time.Minute, aiHnd.Assistant))
 
 	// Phase 2: Engineering & LiDAR & defect detection — proxy to Python AI service
-	mux.HandleFunc("/api/v1/engineering/", aiLimit(aiHnd.ProxyToAIService))
-	mux.HandleFunc("/api/v1/lidar/", aiLimit(aiHnd.ProxyToAIService))
+	// Инженерный калькулятор и анализ облака точек считает сам сервер (раньше — отдельный Python-сервис → 502)
+	mux.HandleFunc("/api/v1/engineering/", aiLimit(handlers.Engineering))
+	mux.HandleFunc("/api/v1/lidar/", aiLimit(handlers.Lidar))
 	mux.HandleFunc("/api/v1/defect-scan", aiLimit(aiHnd.ProxyToAIService))
 	mux.HandleFunc("/api/v1/analyze", aiLimit(aiHnd.ProxyToAIService))
 	mux.HandleFunc("/api/v1/prices/", middleware.RateLimit(120, time.Minute, aiHnd.ProxyToAIService))
