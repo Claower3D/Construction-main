@@ -128,6 +128,22 @@ export const SYSTEM_LINKED_ACCOUNTS = [
     linkedManager: 'Менеджер Саша',
     assignedWorkers: ['Мастер Владимир', 'Мастер Данил', 'Радион (Манипулятор)'],
     linkedTeam: 'Мастер Владимир, Мастер Данил, Радион (Манипулятор)'
+  },
+  {
+    id: 'usr_engineer_saken',
+    email: 'saken@qazgost.kz',
+    password: 'Saken2026!',
+    name: 'Инженер Сакен',
+    fullName: 'Сакен (Инженер ПТО)',
+    role: 'engineer',
+    companyId: 'GOST-777',
+    companyName: 'ТОО «GostBuild Инжиниринг»',
+    position: 'Инженер ПТО & Технадзор СНиП РК',
+    phone: '',
+    managerName: 'Менеджер Саша',
+    linkedManager: 'Менеджер Саша',
+    assignedWorkers: ['Мастер Владимир', 'Мастер Данил', 'Радион (Манипулятор)'],
+    linkedTeam: 'Мастер Владимир, Мастер Данил, Радион (Манипулятор)'
   }
 ];
 
