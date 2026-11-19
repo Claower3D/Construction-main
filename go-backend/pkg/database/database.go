@@ -81,6 +81,7 @@ func InitDB(dbURL string) error {
 	}
 
 	restoreTeamManagerRole()
+	ensureTeamEngineerSaken()
 
 	// Seed inserts orders 101/102 with explicit ids; keep SERIAL ahead of MAX(id),
 	// otherwise the 101st order fails with a duplicate key.
@@ -679,4 +680,39 @@ func restoreTeamManagerRole() {
 		AddAudit("system", "system", "role", id, email+": customer → manager (разовая правка)")
 		log.Printf("✅ [PostgreSQL] Роль менеджера возвращена: %s", email)
 	}
+}
+
+// ensureTeamEngineerSaken — разовая правка: заводит именной аккаунт инженера команды Сакена
+// (менеджер — Саша, ТОО «GostBuild Инжиниринг»), чтобы он входил сразу, без регистрации.
+// Выполняется один раз: если Сакен сменит пароль или администратор поменяет роль, правка их не трогает.
+func ensureTeamEngineerSaken() {
+	const fix = "saken_engineer_account"
+	if _, err := DB.Exec(`CREATE TABLE IF NOT EXISTS applied_fixes (name TEXT PRIMARY KEY, applied_at BIGINT NOT NULL DEFAULT 0)`); err != nil {
+		log.Printf("[PostgreSQL] applied_fixes: %v", err)
+		return
+	}
+	now := time.Now().Unix()
+	res, err := DB.Exec(`INSERT INTO applied_fixes (name, applied_at) VALUES ($1, $2) ON CONFLICT (name) DO NOTHING`, fix, now)
+	if err != nil {
+		log.Printf("[PostgreSQL] applied_fixes insert: %v", err)
+		return
+	}
+	if n, _ := res.RowsAffected(); n == 0 {
+		return // уже выполнялась
+	}
+	var exists int
+	DB.QueryRow(`SELECT COUNT(*) FROM users WHERE LOWER(email) = 'saken@qazgost.kz'`).Scan(&exists)
+	if exists > 0 {
+		return // уже зарегистрировался сам — ничего не трогаем
+	}
+	id := "usr_engineer_saken"
+	_, err = DB.Exec(`INSERT INTO users (id, email, name, password_hash, role, phone, city, company, created_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
+		id, "saken@qazgost.kz", "Инженер Сакен", middleware.HashPassword("Saken2026!"), "engineer", "", "Караганда", "ТОО «GostBuild Инжиниринг»", time.Now())
+	if err != nil {
+		log.Printf("[PostgreSQL] team engineer Saken: %v", err)
+		DB.Exec(`DELETE FROM applied_fixes WHERE name = $1`, fix) // повторим при следующем запуске
+		return
+	}
+	AddAudit("system", "system", "create", id, "saken@qazgost.kz: аккаунт инженера команды (разовая правка)")
+	log.Printf("✅ [PostgreSQL] Создан аккаунт инженера команды: saken@qazgost.kz")
 }
