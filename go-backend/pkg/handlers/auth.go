@@ -96,8 +96,12 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 // teamAccounts — именные логины сотрудников. Роли здесь только те, что доступны при обычной
 // регистрации (не менеджер и не администратор): запись закрепляет имя и роль, но не даёт лишних прав.
 var teamAccounts = map[string]struct{ Name, Role string }{
-	"askhat.engineer@qazgost.kz": {Name: "Асхат (ПТО)", Role: "engineer"},
-	"saken@qazgost.kz":           {Name: "Сакен", Role: "engineer"},
+	"askhat.engineer@qazgost.kz":    {Name: "Асхат (ПТО)", Role: "engineer"},
+	"saken@qazgost.kz":              {Name: "Сакен", Role: "engineer"},
+	"maxim.engineer@qazgost.kz":     {Name: "Инженер Максим", Role: "engineer"},
+	"vladimir.master@qazgost.kz":    {Name: "Мастер Владимир", Role: "executor"},
+	"danil.master@qazgost.kz":       {Name: "Мастер Данил", Role: "executor"},
+	"radion.manipulator@qazgost.kz": {Name: "Радион (Манипулятор)", Role: "executor"},
 }
 
 func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {

@@ -48,146 +48,27 @@ export async function getStatus() {
 }
 
 // ==========================================
-// 2. AUTHENTICATION & USERS (СВЯЗАННЫЕ АККАУНТЫ КОМАНДЫ)
+// 2. AUTHENTICATION & USERS
 // ==========================================
 
-export const SYSTEM_LINKED_ACCOUNTS = [
-  {
-    id: 'usr_manager_sasha',
-    email: 'sasha.manager@qazgost.kz',
-    password: 'Sasha2026!',
-    name: 'Менеджер Саша',
-    fullName: 'Саша (Менеджер проектов)',
-    role: 'manager',
-    companyId: 'GOST-777',
-    companyName: 'ТОО «GostBuild Инжиниринг»',
-    position: 'Менеджер проектов и CRM',
-    phone: '+7 (701) 555-01-01',
-    assignedWorkers: ['Мастер Владимир', 'Мастер Данил', 'Радион (Манипулятор)'],
-    linkedTeam: 'Мастер Владимир, Мастер Данил, Радион (Манипулятор)'
-  },
-  {
-    id: 'usr_master_vladimir',
-    email: 'vladimir.master@qazgost.kz',
-    password: 'Vladimir2026!',
-    name: 'Мастер Владимир',
-    fullName: 'Владимир (Мастер)',
-    role: 'executor',
-    companyId: 'GOST-777',
-    companyName: 'ТОО «GostBuild Инжиниринг»',
-    position: 'Мастер участка / Старший прораб',
-    phone: '+7 (702) 555-02-02',
-    managerName: 'Менеджер Саша',
-    linkedManager: 'Менеджер Саша',
-    partnerWorker: 'Мастер Данил, Радион (Манипулятор)'
-  },
-  {
-    id: 'usr_master_danil',
-    email: 'danil.master@qazgost.kz',
-    password: 'Danil2026!',
-    name: 'Мастер Данил',
-    fullName: 'Данил (Мастер)',
-    role: 'executor',
-    companyId: 'GOST-777',
-    companyName: 'ТОО «GostBuild Инжиниринг»',
-    position: 'Мастер строительно-монтажных работ',
-    phone: '+7 (703) 555-03-03',
-    managerName: 'Менеджер Саша',
-    linkedManager: 'Менеджер Саша',
-    partnerWorker: 'Мастер Владимир, Радион (Манипулятор)'
-  },
-  {
-    id: 'usr_machinist_radion',
-    email: 'radion.manipulator@qazgost.kz',
-    password: 'Radion2026!',
-    name: 'Радион (Манипулятор)',
-    fullName: 'Радион (Оператор КМУ)',
-    role: 'executor',
-    companyId: 'GOST-777',
-    companyName: 'ТОО «GostBuild Инжиниринг»',
-    position: 'Водитель-оператор крана-манипулятора (GPS Online)',
-    equipmentName: 'Кран-манипулятор КамАЗ 65117 (КМУ Kanglim 7т, борт 12т)',
-    plateNumber: '742 MAN 01',
-    phone: '+7 (705) 555-04-04',
-    managerName: 'Менеджер Саша',
-    linkedManager: 'Менеджер Саша',
-    partnerWorker: 'Мастер Владимир, Мастер Данил'
-  },
-  {
-    id: 'usr_engineer_maxim',
-    email: 'maxim.engineer@qazgost.kz',
-    password: 'Maxim2026!',
-    name: 'Инженер Максим',
-    fullName: 'Максим (Инженер ПТО)',
-    role: 'engineer',
-    companyId: 'GOST-777',
-    companyName: 'ТОО «GostBuild Инжиниринг»',
-    position: 'Ведущий инженер ПТО & Технадзор СНиП РК',
-    phone: '+7 (707) 555-05-05',
-    managerName: 'Менеджер Саша',
-    linkedManager: 'Менеджер Саша',
-    assignedWorkers: ['Мастер Владимир', 'Мастер Данил', 'Радион (Манипулятор)'],
-    linkedTeam: 'Мастер Владимир, Мастер Данил, Радион (Манипулятор)'
-  },
-  {
-    id: 'usr_engineer_saken',
-    email: 'saken@qazgost.kz',
-    password: 'Saken2026!',
-    name: 'Инженер Сакен',
-    fullName: 'Сакен (Инженер ПТО)',
-    role: 'engineer',
-    companyId: 'GOST-777',
-    companyName: 'ТОО «GostBuild Инжиниринг»',
-    position: 'Инженер ПТО & Технадзор СНиП РК',
-    phone: '',
-    managerName: 'Менеджер Саша',
-    linkedManager: 'Менеджер Саша',
-    assignedWorkers: ['Мастер Владимир', 'Мастер Данил', 'Радион (Манипулятор)'],
-    linkedTeam: 'Мастер Владимир, Мастер Данил, Радион (Манипулятор)'
-  }
-];
+// Аккаунты команды. Паролей здесь нет и быть не должно: этот файл скачивает любой посетитель сайта.
+// Пароль проверяет только сервер. В списке — сотрудники, чей аккаунт создаётся при первом входе
+// с тем паролем, который человек ввёл; значение — роль. Имя и роль закрепляет сервер
+// (teamAccounts в go-backend/pkg/handlers/auth.go).
+const TEAM_FIRST_SIGN_IN = {
+  'vladimir.master@qazgost.kz': 'executor',
+  'danil.master@qazgost.kz': 'executor',
+  'radion.manipulator@qazgost.kz': 'executor',
+  'maxim.engineer@qazgost.kz': 'engineer',
+};
 
 export async function loginUser(email, password) {
   const normalizedEmail = (email || '').trim().toLowerCase();
   if (!normalizedEmail || !password) throw new Error('Введите email и пароль');
+  const firstSignInRole = TEAM_FIRST_SIGN_IN[normalizedEmail];
 
-  // Связанные аккаунты команды: вход только с точным паролем
-  // (раньше пустой пароль пускал в аккаунт)
-  const linkedMatch = SYSTEM_LINKED_ACCOUNTS.find(
-    u => u.email.toLowerCase() === normalizedEmail || u.name.toLowerCase() === normalizedEmail
-  );
-  if (linkedMatch) {
-    if (password !== linkedMatch.password) {
-      throw new Error('Неверный email или пароль');
-    }
-    // Если администратор завёл этот аккаунт на сервере — входим по-настоящему,
-    // чтобы сделки и заказы синхронизировались со всеми устройствами.
-    try {
-      const sres = await fetch(`${BASE_URL}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: linkedMatch.email.toLowerCase(), password }),
-      });
-      if (sres.ok) {
-        const sdata = await safeJsonParse(sres);
-        if (sdata.token && sdata.user) {
-          localStorage.setItem('auth_token', sdata.token);
-          return sdata;
-        }
-      }
-    } catch { /* нет связи — входим локально, как раньше */ }
-    const mockToken = `token-linked-${linkedMatch.id}-${Date.now()}`;
-    localStorage.setItem('auth_token', mockToken);
-    localStorage.setItem('qazgost_current_user', JSON.stringify(linkedMatch));
-    return {
-      message: 'Успешный вход в связанный аккаунт',
-      token: mockToken,
-      user: linkedMatch
-    };
-  }
-
-  // Остальные — только через сервер. Раньше при любой ошибке (в том числе при неверном пароле)
-  // включался «запасной вход»: пускало с любым паролем, а роль угадывалась по email.
+  // Вход — только через сервер, без «запасных» входов в браузере: раньше они пускали с паролем,
+  // записанным прямо в этом файле, или вовсе с любым.
   let res;
   try {
     res = await fetch(`${BASE_URL}/auth/login`, {
@@ -198,7 +79,19 @@ export async function loginUser(email, password) {
   } catch (e) {
     throw new Error('Нет связи с сервером. Проверьте интернет и попробуйте ещё раз.');
   }
-  const data = await safeJsonParse(res);
+  let data = await safeJsonParse(res);
+  if (!res.ok && (res.status === 400 || res.status === 401) && firstSignInRole) {
+    // Первый вход сотрудника: аккаунта на сервере ещё нет — создаём его с введённым паролем.
+    // Если аккаунт уже есть, сервер ответит отказом, и это просто неверный пароль.
+    try {
+      const reg = await fetch(`${BASE_URL}/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: normalizedEmail, password, role: firstSignInRole }),
+      });
+      if (reg.ok) { res = reg; data = await safeJsonParse(reg); }
+    } catch { /* нет связи — ниже покажем обычную ошибку входа */ }
+  }
   if (!res.ok) {
     if (res.status === 400 || res.status === 401) throw new Error(data.error || 'Неверный email или пароль');
     // 429 — сработала защита от подбора пароля: сервер сам пишет, сколько подождать

@@ -685,6 +685,7 @@ func restoreTeamManagerRole() {
 // ensureTeamEngineerSaken — разовая правка: заводит именной аккаунт инженера команды Сакена
 // (менеджер — Саша, ТОО «GostBuild Инжиниринг»), чтобы он входил сразу, без регистрации.
 // Выполняется один раз: если Сакен сменит пароль или администратор поменяет роль, правка их не трогает.
+// Пароль в коде не хранится — только его отпечаток (соль:хеш), как в базе.
 func ensureTeamEngineerSaken() {
 	const fix = "saken_engineer_account"
 	if _, err := DB.Exec(`CREATE TABLE IF NOT EXISTS applied_fixes (name TEXT PRIMARY KEY, applied_at BIGINT NOT NULL DEFAULT 0)`); err != nil {
@@ -707,7 +708,7 @@ func ensureTeamEngineerSaken() {
 	}
 	id := "usr_engineer_saken"
 	_, err = DB.Exec(`INSERT INTO users (id, email, name, password_hash, role, phone, city, company, created_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
-		id, "saken@qazgost.kz", "Инженер Сакен", middleware.HashPassword("Saken2026!"), "engineer", "", "Караганда", "ТОО «GostBuild Инжиниринг»", time.Now())
+		id, "saken@qazgost.kz", "Инженер Сакен", "c489057f20f0640922c509a51dca5e7a:ee3bd59b67ba83fb887bd5699a24a2c79795557a2ff7c6f04213ce31fa3d1463", "engineer", "", "Караганда", "ТОО «GostBuild Инжиниринг»", time.Now())
 	if err != nil {
 		log.Printf("[PostgreSQL] team engineer Saken: %v", err)
 		DB.Exec(`DELETE FROM applied_fixes WHERE name = $1`, fix) // повторим при следующем запуске
