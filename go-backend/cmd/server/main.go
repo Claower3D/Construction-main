@@ -150,6 +150,8 @@ func main() {
 	mux.HandleFunc("/api/v1/admin/users", adminOnly(adminHnd.Users))
 	mux.HandleFunc("/api/v1/admin/users/", adminOnly(adminHnd.Users))
 	mux.HandleFunc("/api/v1/admin/audit", adminOnly(adminHnd.Audit))
+	mux.HandleFunc("/api/v1/admin/companies", adminOnly(adminHnd.Companies))
+	mux.HandleFunc("/api/v1/admin/companies/", adminOnly(adminHnd.Companies))
 
 	// Учебные примеры для своей модели дефектов
 	sampleHnd := handlers.NewDefectSampleHandler()
@@ -194,6 +196,7 @@ func main() {
 	mux.HandleFunc("/api/v1/ai/estimate", aiLimit(aiHnd.EstimateCost))
 	mux.HandleFunc("/api/v1/ai/defect", aiLimit(aiHnd.InspectDefect))
 	mux.HandleFunc("/api/v1/ai/vision", aiLimit(aiHnd.VisionProxy))
+	mux.HandleFunc("/api/v1/ai/proposal", aiLimit(aiHnd.Proposal))
 	mux.HandleFunc("/api/v1/ai/defect-vision", aiLimit(aiHnd.DefectVisionProxy))
 	mux.HandleFunc("/api/v1/ai/validate-key", aiLimit(aiHnd.ValidateKey))
 	mux.HandleFunc("/api/v1/ai/assistant", middleware.RateLimit(20, time.Minute, aiHnd.Assistant))
@@ -253,6 +256,8 @@ func main() {
 
 	// ── CRM MODULE — auth required ──
 	mux.HandleFunc("/api/v1/crm/dashboard", auth(crmHnd.GetDashboard))
+
+	mux.HandleFunc("/api/v1/crm/team", auth(crmHnd.GetTeam))
 
 	mux.HandleFunc("/api/v1/crm/companies", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {

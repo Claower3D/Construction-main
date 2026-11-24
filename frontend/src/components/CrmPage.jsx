@@ -5,6 +5,8 @@ import VoiceLeadInput from './VoiceLeadInput';
 import './crm-refresh.css';
 import { jsonAuthHeaders, authHeaders, genId, shortNum, parseMoney, crmStatusBucket, userKeyOf, responseError } from '../services/platformUtils';
 import { upsertCrmEvent } from '../services/orderSyncService';
+import { buildCalendarMarks, MARK_KINDS, formatPeriod } from './calendarMarks';
+import { loadTeam } from './TeamPicker';
 
 /* ═══════════════════════════════════════════════════════════════
    QAZGOST AI — CRM КАЛЕНДАРЬ (v2.5)
@@ -93,7 +95,33 @@ function isToday(dateStr) { return dateStr === fmtDate(new Date()); }
 // «55 000 – 120 000 ₸» → нижняя граница (раньше склейка цифр → 55 млрд)
 function parseBudget(s) { return parseMoney(s, 'min'); }
 
-export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }) {
+// scope="team" — календарь исполнителя: только его задачи или задачи его фирмы, без создания заявок.
+export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode, scope = '' }) {
+  const teamMode = scope === 'team';
+  const [teamScope, setTeamScope] = useState('mine'); // 'mine' | 'firm'
+  const [me, setMe] = useState({ id: currentUser?.id || '', companyId: '', companyName: '' });
+  useEffect(() => {
+    if (!teamMode) return undefined;
+    let alive = true;
+    loadTeam().then((t) => {
+      if (!alive || !t || !t.me) return;
+      const firm = (t.companies || []).find((c) => c.id === t.me.companyId);
+      setMe({ id: t.me.id, companyId: t.me.companyId || '', companyName: firm ? firm.name : '' });
+    }).catch(() => {});
+    return () => { alive = false; };
+  }, [teamMode]);
+  // Задача «моя», если я назначен на объект (по списку мастеров или по имени), «фирмы» — если назначена моя фирма
+  const isTeamCard = useCallback((evt) => {
+    const ids = Array.isArray(evt.assignedWorkerIds) ? evt.assignedWorkerIds.map(String) : [];
+    const firms = Array.isArray(evt.assignedCompanyIds) ? evt.assignedCompanyIds.map(String) : [];
+    const low = (v) => String(v || '').trim().toLowerCase();
+    const myName = low(currentUser?.name);
+    const names = low(evt.assignedWorkers).split(',').map((n) => n.trim());
+    const mine = (me.id && ids.includes(String(me.id))) || (myName && (names.includes(myName) || low(evt.acceptedBy) === myName || low(evt.assignedEngineer) === myName));
+    if (teamScope === 'mine') return !!mine;
+    const firmHit = me.companyId && (firms.includes(String(me.companyId)) || (me.companyName && [low(evt.executorName), low(evt.acceptedBy)].includes(low(me.companyName))));
+    return !!(mine || firmHit);
+  }, [me, teamScope, currentUser]);
   const [events, setEvents] = useState({});
   const [selectedCard, setSelectedCard] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -205,6 +233,7 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
   }, []);
 
   const isEventVisible = useCallback((evt) => {
+    if (teamMode && !isTeamCard(evt)) return false;
     if (statusFilter !== 'all' && crmStatusBucket(evt.status) !== statusFilter) return false;
     if (roleFilter !== 'all') {
       const typeKey = getCardTypeKey(evt);
@@ -220,7 +249,28 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
       if (!titleMatch && !contractorMatch && !locationMatch && !phoneMatch && !idMatch) return false;
     }
     return true;
-  }, [statusFilter, roleFilter, searchQuery, getCardTypeKey]);
+  }, [statusFilter, roleFilter, searchQuery, getCardTypeKey, teamMode, isTeamCard]);
+
+  // Дни, на которые заявка «тянется»: период «с — по», выезд, работы по этапам, сдача
+  const calendarMarks = useMemo(() => buildCalendarMarks(events), [events]);
+  const dayMarks = useCallback((dateStr) => (calendarMarks[dateStr] || []).filter((m) => isEventVisible(m.card)), [calendarMarks, isEventVisible]);
+  const renderMark = (m) => {
+    const kind = MARK_KINDS[m.kind];
+    const open = (e) => { e.stopPropagation(); setSelectedCard({ ...m.card, date: m.homeDate, day: m.homeDate }); };
+    return (
+      <div
+        key={`mark-${m.key}`}
+        className={`crm-mark crm-mark--${m.kind}`}
+        role="button"
+        tabIndex={0}
+        onClick={open}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(e); } }}
+        title={`${kind.label}${m.text ? ` · ${m.text}` : ''}\n${m.card.title}\nЗаявка от ${formatPeriod(m.homeDate)}`}
+      >
+        <span aria-hidden="true">{kind.icon}</span> {m.kind === 'range' ? m.card.title : `${m.kind === 'work' && m.text ? m.text : `${kind.label}${m.text ? ` ${m.text}` : ''}`} · ${m.card.title}`}
+      </div>
+    );
+  };
 
   const allCards = useMemo(() => {
     const cards = [];
@@ -255,6 +305,7 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
   const handleDrop = useCallback((e, targetDate, targetTime = null) => {
     e.preventDefault();
     setDragOverDate(null);
+    if (teamMode) return; // в календаре исполнителя заявки не переносятся
     try {
       const card = JSON.parse(e.dataTransfer.getData('application/json'));
       if (card.date === targetDate && (!targetTime || card.time === targetTime)) return;
@@ -398,7 +449,11 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
       assignedEngineer: assignedEng,
       engineerPosition: 'Ведущий инженер ПТО',
       managerName: manager,
-      assignedWorkers: 'Мастер Владимир, Мастер Данил, Радион (Манипулятор)'
+      assignedWorkers: '',
+      // период работ «с — по» и группа работ из каталога
+      ...(leadPayload.dateEnd ? { dateEnd: leadPayload.dateEnd } : {}),
+      ...(leadPayload.category ? { category: leadPayload.category } : {}),
+      ...(leadPayload.proposal ? { proposal: leadPayload.proposal } : {}),
     };
 
     newEvents[date] = [...newEvents[date], newLeadItem];
@@ -473,6 +528,7 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
   };
 
   const openCreateModalForSlot = (dateStr, timeStr = '10:00') => {
+    if (teamMode) return; // исполнитель заявок не создаёт
     setLeadModalDefaults({ date: dateStr, time: timeStr });
     setShowLeadModal(true);
   };
@@ -559,6 +615,7 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
             if (day === null) return <div key={`e${idx}`} className="crm-day is-empty" aria-hidden="true" />;
             const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
             const dayEvents = (events[dateStr] || []).filter(isEventVisible);
+            const marks = dayMarks(dateStr);
             const today = isToday(dateStr);
             const isOver = dragOverDate === dateStr;
 
@@ -576,13 +633,13 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
                   <span className="crm-day-num">{day}</span>
 
                   <div style={{ display: 'flex', gap: '3px', alignItems: 'center' }}>
-                    <button
+                    {!teamMode && <button
                       type="button"
                       className="crm-day-add"
                       onClick={(e) => { e.stopPropagation(); openCreateModalForSlot(dateStr); }}
                       title="Создать заявку на этот день"
                       aria-label={`Создать заявку на ${day} число`}
-                    >+</button>
+                    >+</button>}
                     {dayEvents.length > 0 && (
                       <span className="crm-day-count">
                         {dayEvents.length}
@@ -592,11 +649,12 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
                 </div>
 
                 {/* Список разноцветных карточек внутри ячейки */}
-                <div style={{ overflow: 'hidden', maxHeight: '66px' }}>
+                <div style={{ overflow: 'hidden', maxHeight: '74px' }}>
                   {dayEvents.slice(0, 2).map(evt => renderEventChip(evt, dateStr, true))}
-                  {dayEvents.length > 2 && (
+                  {marks.slice(0, 3 - Math.min(dayEvents.length, 2)).map(renderMark)}
+                  {dayEvents.length + marks.length > 3 && (
                     <div style={{ fontSize: '0.62rem', color: '#b9a4ff', textAlign: 'center', marginTop: '2px', fontWeight: 800 }}>
-                      +{dayEvents.length - 2} ещё
+                      +{dayEvents.length + marks.length - Math.min(dayEvents.length, 2) - Math.min(marks.length, 3 - Math.min(dayEvents.length, 2))} ещё
                     </div>
                   )}
                 </div>
@@ -671,6 +729,7 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
                     cursor: 'pointer'
                   }}
                 >
+                  {h === hours[0] && dayMarks(dateStr).map(renderMark)}
                   {dayEvents.map(evt => renderEventChip(evt, dateStr, false))}
                 </div>
               );
@@ -722,6 +781,7 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
                     cursor: 'pointer'
                   }}
                 >
+                  {h === hours[0] && dayMarks(dateStr).map(renderMark)}
                   {hourEvents.map(evt => renderEventChip(evt, dateStr, false))}
                 </div>
               </React.Fragment>
@@ -757,7 +817,17 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
       {/* ═══ TOP BAR ═══ */}
       <div className="crm-top-bar">
         <div className="crm-top-group-1">
-          <h1 className="crm-title">Календарь заявок</h1>
+          <h1 className="crm-title">{teamMode ? 'Мой календарь' : 'Календарь заявок'}</h1>
+          {teamMode && (
+            <div className="crm-team-scope" role="group" aria-label="Чьи задачи показывать">
+              <button type="button" className={`crm-chip${teamScope === 'mine' ? ' is-active' : ''}`} aria-pressed={teamScope === 'mine'} onClick={() => setTeamScope('mine')}>Мои задачи</button>
+              {me.companyId ? (
+                <button type="button" className={`crm-chip${teamScope === 'firm' ? ' is-active' : ''}`} aria-pressed={teamScope === 'firm'} onClick={() => setTeamScope('firm')}>Моя фирма{me.companyName ? `: ${me.companyName}` : ''}</button>
+              ) : (
+                <span className="crm-team-solo">Вы работаете без фирмы — показаны только ваши задачи</span>
+              )}
+            </div>
+          )}
 
           {/* Ролевые фильтры-табы */}
           <div className="crm-role-tabs">
@@ -812,6 +882,7 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
       <div className="crm-main-layout">
         {/* ═══ ЛЕВАЯ ПАНЕЛЬ С УПРАВЛЕНИЕМ И ФИЛЬТРАМИ ═══ */}
         <div className="crm-sidebar-panel">
+          {!teamMode && (<>
           {/* Кнопка Создать заявку */}
           <button
             type="button"
@@ -830,6 +901,7 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode }
           >
             {showVoicePanel ? 'Скрыть голосовой ввод' : 'Надиктовать заявку'}
           </button>
+          </>)}
 
           {showVoicePanel && (
             <VoiceLeadInput 

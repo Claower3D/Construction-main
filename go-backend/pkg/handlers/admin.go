@@ -75,6 +75,10 @@ func (h *AdminHandler) Users(w http.ResponseWriter, r *http.Request) {
 	}
 	id := strings.Trim(strings.TrimPrefix(r.URL.Path, "/api/v1/admin/users"), "/")
 	if id == "" {
+		if r.Method == http.MethodPost { // новый работник без пароля — пароль он задаст при первом входе
+			h.createUser(w, r, actorID, actorEmail)
+			return
+		}
 		if r.Method != http.MethodGet {
 			writeError(w, http.StatusMethodNotAllowed, "Метод не поддерживается")
 			return
@@ -105,11 +109,12 @@ func (h *AdminHandler) Users(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusOK, u)
 	case http.MethodPatch:
 		var body struct {
-			Role     *string `json:"role"`
-			Verified *bool   `json:"verified"`
+			Role      *string `json:"role"`
+			Verified  *bool   `json:"verified"`
+			CompanyID *string `json:"companyId"` // "" — убрать из фирмы
 		}
-		if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 4<<10)).Decode(&body); err != nil || (body.Role == nil && body.Verified == nil) {
-			writeError(w, http.StatusBadRequest, "Укажите новую роль или отметку подтверждения")
+		if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 4<<10)).Decode(&body); err != nil || (body.Role == nil && body.Verified == nil && body.CompanyID == nil) {
+			writeError(w, http.StatusBadRequest, "Укажите новую роль, фирму или отметку подтверждения")
 			return
 		}
 		u, err := database.GetAdminUser(id)
@@ -139,6 +144,22 @@ func (h *AdminHandler) Users(w http.ResponseWriter, r *http.Request) {
 			}
 			middleware.RevokeTokensIssuedBefore(id, now)
 			database.AddAudit(actorID, actorEmail, "role", id, u.Email+": "+u.Role+" → "+newRole)
+		}
+		if body.CompanyID != nil && *body.CompanyID != u.CompanyID {
+			companyName := ""
+			if *body.CompanyID != "" {
+				c, err := database.GetCompany(*body.CompanyID)
+				if err != nil {
+					writeError(w, http.StatusBadRequest, "Фирма не найдена")
+					return
+				}
+				companyName = c.Name
+			}
+			if err := database.SetUserCompany(id, *body.CompanyID, companyName); err != nil {
+				writeError(w, http.StatusInternalServerError, "Не удалось сохранить фирму")
+				return
+			}
+			database.AddAudit(actorID, actorEmail, "user_company", id, u.Email+": фирма → "+companyName)
 		}
 		if body.Verified != nil {
 			if err := database.SetUserVerified(id, *body.Verified); err != nil {

@@ -2,6 +2,7 @@ package database
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"log"
 	"strings"
@@ -76,6 +77,33 @@ func runCRMMigrations() error {
 	}
 	log.Println("✅ [PostgreSQL] CRM migrations complete (4 tables)")
 	return nil
+}
+
+// ensureCRMExtraColumn добавляет колонку для дополнительных полей карточки сделки.
+func ensureCRMExtraColumn() {
+	if _, err := DB.Exec(`ALTER TABLE crm_events ADD COLUMN IF NOT EXISTS extra TEXT NOT NULL DEFAULT ''`); err != nil {
+		log.Printf("[PostgreSQL] crm_events.extra: %v", err)
+	}
+}
+
+// mergeCRMExtra: поля, которых нет в новой записи, сохраняют прежние значения. Так старое приложение,
+// не знающее про даты работ или назначенных мастеров, не стирает их при сохранении сделки.
+func mergeCRMExtra(stored string, incoming map[string]json.RawMessage) (map[string]json.RawMessage, string) {
+	merged := map[string]json.RawMessage{}
+	if strings.TrimSpace(stored) != "" {
+		_ = json.Unmarshal([]byte(stored), &merged)
+	}
+	for k, v := range incoming {
+		merged[k] = v
+	}
+	if len(merged) == 0 {
+		return nil, ""
+	}
+	b, err := json.Marshal(merged)
+	if err != nil {
+		return nil, stored
+	}
+	return merged, string(b)
 }
 
 func seedCRMData() error {
@@ -268,7 +296,7 @@ func GetAllDisputes() ([]*models.Dispute, error) {
 // ── CRM Events Multi-Device Synchronization ──
 
 func GetAllCRMEvents() ([]*models.CRMEvent, error) {
-	rows, err := DB.Query("SELECT id, date, lead_num, title, status, type, role, time, phone, contractor, location, budget, description, notes, created_by, created_at, updated_at FROM crm_events ORDER BY date ASC, time ASC")
+	rows, err := DB.Query("SELECT id, date, lead_num, title, status, type, role, time, phone, contractor, location, budget, description, notes, created_by, created_at, updated_at, COALESCE(extra,'') FROM crm_events ORDER BY date ASC, time ASC")
 	if err != nil {
 		return nil, err
 	}
@@ -277,7 +305,11 @@ func GetAllCRMEvents() ([]*models.CRMEvent, error) {
 	items := []*models.CRMEvent{}
 	for rows.Next() {
 		evt := &models.CRMEvent{}
-		if err := rows.Scan(&evt.ID, &evt.Date, &evt.LeadNum, &evt.Title, &evt.Status, &evt.Type, &evt.Role, &evt.Time, &evt.Phone, &evt.Contractor, &evt.Location, &evt.Budget, &evt.Description, &evt.Notes, &evt.CreatedBy, &evt.CreatedAt, &evt.UpdatedAt); err == nil {
+		var extra string
+		if err := rows.Scan(&evt.ID, &evt.Date, &evt.LeadNum, &evt.Title, &evt.Status, &evt.Type, &evt.Role, &evt.Time, &evt.Phone, &evt.Contractor, &evt.Location, &evt.Budget, &evt.Description, &evt.Notes, &evt.CreatedBy, &evt.CreatedAt, &evt.UpdatedAt, &extra); err == nil {
+			if strings.TrimSpace(extra) != "" {
+				_ = json.Unmarshal([]byte(extra), &evt.Extra)
+			}
 			items = append(items, evt)
 		}
 	}
@@ -293,8 +325,13 @@ func SaveCRMEvent(evt *models.CRMEvent) error {
 	}
 	now := time.Now()
 
-	query := `INSERT INTO crm_events (id, date, lead_num, title, status, type, role, time, phone, contractor, location, budget, description, notes, created_by, created_at, updated_at)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
+	var storedExtra string
+	_ = DB.QueryRow(`SELECT COALESCE(extra,'') FROM crm_events WHERE id = $1`, string(evt.ID)).Scan(&storedExtra)
+	merged, extraJSON := mergeCRMExtra(storedExtra, evt.Extra)
+	evt.Extra = merged
+
+	query := `INSERT INTO crm_events (id, date, lead_num, title, status, type, role, time, phone, contractor, location, budget, description, notes, created_by, created_at, updated_at, extra)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
 		ON CONFLICT(id) DO UPDATE SET
 			date=EXCLUDED.date,
 			lead_num=EXCLUDED.lead_num,
@@ -309,11 +346,12 @@ func SaveCRMEvent(evt *models.CRMEvent) error {
 			budget=EXCLUDED.budget,
 			description=EXCLUDED.description,
 			notes=EXCLUDED.notes,
+			extra=EXCLUDED.extra,
 			updated_at=EXCLUDED.updated_at`
 
 	_, err := DB.Exec(query,
 		evt.ID, evt.Date, evt.LeadNum, evt.Title, evt.Status, evt.Type, evt.Role, evt.Time,
-		evt.Phone, evt.Contractor, evt.Location, evt.Budget, evt.Description, evt.Notes, evt.CreatedBy, now, now)
+		evt.Phone, evt.Contractor, evt.Location, evt.Budget, evt.Description, evt.Notes, evt.CreatedBy, now, now, extraJSON)
 	return err
 }
 

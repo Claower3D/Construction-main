@@ -1,0 +1,48 @@
+/* Панель администратора → «Пользователи»: фирмы и работники (AdminTeamPanel) */
+.atp { display: flex; flex-direction: column; gap: 16px; color: #f1eefc; }
+.atp-section { background: rgba(21, 18, 42, 0.7); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 16px; }
+.atp-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+.atp-head h3 { margin: 0; font-size: 1.05rem; font-weight: 800; }
+.atp-count { font-size: 0.8rem; font-weight: 700; color: #b9a4ff; background: rgba(185, 164, 255, 0.15); border-radius: 999px; padding: 1px 9px; margin-left: 6px; }
+.atp-tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.atp input, .atp select {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 10px;
+  color: #fff;
+  padding: 9px 11px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  min-height: 40px;
+  outline: none;
+}
+.atp input:focus, .atp select:focus { border-color: #f5b942; box-shadow: 0 0 0 3px rgba(245, 185, 66, 0.18); }
+.atp select option { background: #17132c; color: #fff; }
+.atp-search { min-width: 260px; }
+.atp-btn { border: 1px solid rgba(255, 255, 255, 0.2); background: rgba(255, 255, 255, 0.08); color: #fff; border-radius: 10px; padding: 0 14px; min-height: 40px; font-weight: 700; font-family: inherit; cursor: pointer; }
+.atp-btn:hover { background: rgba(255, 255, 255, 0.16); }
+.atp-btn--gold { background: linear-gradient(180deg, #f8c75a, #e7a322); border-color: #e7a322; color: #1b1405; }
+.atp-btn--gold:hover { background: linear-gradient(180deg, #ffd674, #efae30); }
+.atp-btn:disabled { opacity: 0.55; cursor: default; }
+.atp-link { background: none; border: 0; color: #f5b942; font-weight: 700; cursor: pointer; font-family: inherit; padding: 4px 0; }
+.atp-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; padding: 14px; margin-bottom: 14px; background: rgba(0, 0, 0, 0.25); border: 1px solid rgba(245, 185, 66, 0.35); border-radius: 14px; }
+.atp-field { display: flex; flex-direction: column; gap: 5px; font-size: 0.8rem; font-weight: 700; color: #cfc6ee; }
+.atp-form-hint { grid-column: 1 / -1; font-size: 0.8rem; color: #a39cc2; }
+.atp-form-actions { grid-column: 1 / -1; display: flex; justify-content: flex-end; gap: 8px; }
+.atp-companies { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; }
+.atp-company { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 12px; }
+.atp-company-name { font-weight: 800; }
+.atp-company-sub, .atp-sub { font-size: 0.78rem; color: #a39cc2; margin-top: 2px; }
+.atp-company-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; font-size: 0.84rem; }
+.atp-table-wrap { overflow-x: auto; }
+.atp-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+.atp-table th { text-align: left; font-size: 0.72rem; text-transform: none; color: #a39cc2; font-weight: 700; padding: 8px 10px; border-bottom: 1px solid rgba(255, 255, 255, 0.12); }
+.atp-table td { padding: 9px 10px; border-bottom: 1px solid rgba(255, 255, 255, 0.07); vertical-align: middle; }
+.atp-table select { min-height: 34px; padding: 5px 8px; font-size: 0.84rem; max-width: 220px; }
+.atp-pill { font-size: 0.74rem; font-weight: 700; color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.5); border-radius: 999px; padding: 2px 9px; white-space: nowrap; }
+.atp-pill--wait { color: #fcd34d; border-color: rgba(245, 158, 11, 0.55); }
+.atp-empty { color: #a39cc2; font-size: 0.88rem; padding: 10px 2px; }
+.atp-alert { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; border-radius: 12px; padding: 12px 14px; font-size: 0.9rem; }
+.atp-alert button { background: none; border: 0; color: inherit; cursor: pointer; font-size: 0.9rem; }
+.atp-alert--error { background: rgba(239, 68, 68, 0.14); border: 1px solid rgba(239, 68, 68, 0.5); color: #fecaca; }
+.atp-alert--ok { background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.5); color: #d1fae5; }

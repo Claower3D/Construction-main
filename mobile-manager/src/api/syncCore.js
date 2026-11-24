@@ -159,7 +159,11 @@ export function toServerPayload(deal, authorName = '') {
     budget: formatBudget(deal.budget),
     description: deal.description || '',
     notes: normalizeNotes(deal.notes).map((n) => (n.at ? n : { text: n.text, time: n.time, author: n.author })),
-    createdBy: deal.createdBy || authorName || ''
+    createdBy: deal.createdBy || authorName || '',
+    // Поля календаря и каталога работ: сервер хранит их вместе с карточкой (остальные поля,
+    // заданные на сайте, сервер сохраняет сам — приложение их не затирает).
+    ...Object.fromEntries(['dateEnd', 'workStart', 'workEnd', 'visitDate', 'handoverDate', 'category', 'service']
+      .filter((k) => deal[k] != null && deal[k] !== '').map((k) => [k, deal[k]]))
   };
 }
 

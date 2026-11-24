@@ -69,7 +69,14 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !middleware.CheckPassword(req.Password, user.PasswordHash) {
+	if user.PasswordHash == "" && database.IsInvitedWithoutPassword(user.ID) {
+		// Аккаунт завёл администратор: пароля ещё нет, его задаёт сам человек при первом входе
+		if msg := h.claimInvited(user, req.Password); msg != "" {
+			w.WriteHeader(http.StatusBadRequest)
+			_ = json.NewEncoder(w).Encode(map[string]string{"error": msg, "code": "first_sign_in"})
+			return
+		}
+	} else if !middleware.CheckPassword(req.Password, user.PasswordHash) {
 		loginFailures.Fail(email)
 		w.WriteHeader(http.StatusUnauthorized)
 		_ = json.NewEncoder(w).Encode(map[string]string{"error": "Неверный email или пароль"})
@@ -157,7 +164,25 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if _, err := database.GetUserByEmail(email); err == nil {
+	if existing, err := database.GetUserByEmail(email); err == nil {
+		if existing.PasswordHash == "" && database.IsInvitedWithoutPassword(existing.ID) {
+			// Работника завёл администратор — регистрация с этим логином просто задаёт ему пароль
+			if msg := h.claimInvited(existing, req.Password); msg != "" {
+				w.WriteHeader(http.StatusBadRequest)
+				_ = json.NewEncoder(w).Encode(map[string]string{"error": msg, "code": "first_sign_in"})
+				return
+			}
+			token, err := middleware.GenerateJWT(existing.ID, existing.Email, existing.Role, h.cfg.JwtSecret)
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				_ = json.NewEncoder(w).Encode(map[string]string{"error": "Ошибка генерации токена"})
+				return
+			}
+			existing.Token = token
+			w.WriteHeader(http.StatusOK)
+			_ = json.NewEncoder(w).Encode(map[string]interface{}{"message": "Пароль задан, вход выполнен", "token": token, "user": existing})
+			return
+		}
 		w.WriteHeader(http.StatusConflict)
 		_ = json.NewEncoder(w).Encode(map[string]string{"error": "Пользователь с таким email уже существует"})
 		return
@@ -311,6 +336,33 @@ var weakPasswords = map[string]bool{
 	"12345678": true, "123456789": true, "1234567890": true, "87654321": true, "11111111": true, "00000000": true,
 	"password": true, "password1": true, "password123": true, "qwerty123": true, "qwertyui": true, "qwerty12345": true,
 	"qazgost123": true, "qazgost2026": true, "пароль123": true,
+}
+
+// passwordProblem — почему пароль не годится ("" — годится)
+func passwordProblem(pass, email string) string {
+	switch {
+	case len([]rune(pass)) < 8:
+		return "пароль должен быть не короче 8 символов"
+	case len(pass) > 1024:
+		return "слишком длинный пароль"
+	case weakPasswords[strings.ToLower(pass)] || strings.EqualFold(pass, email) || strings.EqualFold(pass, strings.SplitN(email, "@", 2)[0]):
+		return "этот пароль слишком простой или общеизвестный"
+	}
+	return ""
+}
+
+// claimInvited задаёт пароль аккаунту, который завёл администратор. Возвращает текст ошибки или "".
+func (h *AuthHandler) claimInvited(user *models.User, password string) string {
+	if msg := passwordProblem(password, strings.ToLower(user.Email)); msg != "" {
+		return "Это ваш первый вход: придумайте свой пароль и введите его — " + msg + "."
+	}
+	hash := middleware.HashPassword(password)
+	if err := database.UpdateUserPassword(user.ID, hash, time.Now().Unix()-1); err != nil {
+		return "Не удалось сохранить пароль, попробуйте ещё раз."
+	}
+	user.PasswordHash = hash
+	database.AddAudit(user.ID, user.Email, "first_sign_in", user.ID, "пароль задан при первом входе")
+	return ""
 }
 
 type ChangePasswordRequest struct {

@@ -57,6 +57,8 @@ func InitDB(dbURL string) error {
 	if err := runCRMMigrations(); err != nil {
 		return fmt.Errorf("CRM migrations failed: %w", err)
 	}
+	ensureCRMExtraColumn()
+	ensureTeamColumns()
 
 	if err := runMarketplaceMigrations(); err != nil {
 		return fmt.Errorf("marketplace migrations failed: %w", err)

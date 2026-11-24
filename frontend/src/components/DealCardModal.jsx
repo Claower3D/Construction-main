@@ -1,4 +1,7 @@
 import React, { useState, useMemo } from 'react';
+import './DealCardModal.css';
+import TeamPicker, { entriesFromCard, teamFields } from './TeamPicker';
+import ProposalPanel, { requestProposal } from './ProposalPanel';
 import { PIPELINE_STATUS_LABELS, genId, localDateKey } from '../services/platformUtils';
 
 /* ═══════════════════════════════════════════════════════════════
@@ -68,7 +71,8 @@ export default function DealCardModal({ card, onClose, onSave, onDelete, current
         name: '1. Демонтаж и подготовка основания',
         status: normStatus === 'completed' ? 'completed' : (normStatus === 'in_progress' || normStatus === 'pending_executor' ? 'completed' : 'pending'),
         progress: normStatus === 'completed' || normStatus === 'in_progress' || normStatus === 'pending_executor' ? 100 : 0,
-        dateRange: '01.09 – 05.09.2026',
+        start: '',
+        end: '',
         budget: Math.round(baseSum * 0.25),
         machinery: [
           { name: 'Самосвал Shacman (25 т)', status: '🟢 GPS Online (1.2 км)', rate: '18 000 ₸/час' }
@@ -79,7 +83,8 @@ export default function DealCardModal({ card, onClose, onSave, onDelete, current
         name: '2. Основные строительно-монтажные работы',
         status: normStatus === 'completed' ? 'completed' : (normStatus === 'in_progress' ? 'in_progress' : 'pending'),
         progress: normStatus === 'completed' ? 100 : (normStatus === 'in_progress' ? 65 : 0),
-        dateRange: '06.09 – 20.09.2026',
+        start: '',
+        end: '',
         budget: Math.round(baseSum * 0.55),
         machinery: [
           { name: 'Автокран XCMG QY25K5 (25 т)', status: '🟢 GPS Online (2.1 км)', rate: '28 000 ₸/час' }
@@ -90,7 +95,8 @@ export default function DealCardModal({ card, onClose, onSave, onDelete, current
         name: '3. Финишная отделка, пусконаладка и сдача',
         status: normStatus === 'completed' ? 'completed' : 'pending',
         progress: normStatus === 'completed' ? 100 : 0,
-        dateRange: '21.09 – 30.09.2026',
+        start: '',
+        end: '',
         budget: Math.round(baseSum * 0.20),
         machinery: []
       }
@@ -116,12 +122,21 @@ export default function DealCardModal({ card, onClose, onSave, onDelete, current
       time: cleanTime,
       assignedEngineer: card.assignedEngineer || 'Асхат Нурланов',
       engineerPosition: 'Ведущий инженер ПТО',
-      engineerVisitDate: card.engineerVisitDate || '24.08.2026 10:30',
+      engineerVisitDate: card.engineerVisitDate || '',
+      // Настоящие даты для календаря: период заявки, выезд, работы, сдача (см. calendarMarks.js)
+      dateEnd: card.dateEnd || '',
+      visitDate: card.visitDate || '',
+      workStart: card.workStart || (card.dateEnd ? (card.date || card.day || '') : ''),
+      workEnd: card.workEnd || card.dateEnd || '',
+      handoverDate: card.handoverDate || '',
+      assignedWorkerIds: Array.isArray(card.assignedWorkerIds) ? card.assignedWorkerIds : [],
       engineerReport: card.engineerReport || 'Выезд на объект завершён. Произведены замеры несущих конструкций и лазерное 3D-сканирование. Отклонений по ГОСТ не выявлено, смета скорректирована с учётом фактических объёмов.',
       executorName: card.acceptedBy || card.executorName || 'ТОО «GostBuild Инжиниринг»',
       executorContract: 'Договор генподряда №КЗ-2026/88',
       managerName: card.managerName || 'Менеджер Саша',
-      assignedWorkers: card.assignedWorkers || 'Мастер Владимир, Мастер Данил, Радион (Манипулятор)',
+      assignedWorkers: card.assignedWorkers || '',
+      assignedTeam: entriesFromCard(card),
+      proposal: card.proposal || null,
       comments: card.comments || 'Клиент просит соблюдать тихий час с 13:00 до 15:00. Пропускная система на объекте оформлена.',
       stages: (card.stages && card.stages.length > 0) ? card.stages : defaultStages,
       estimateItems: card.estimateItems || [
@@ -134,6 +149,21 @@ export default function DealCardModal({ card, onClose, onSave, onDelete, current
     };
   });
 
+  // КП: прикреплённое к заявке или посчитанное заново по заметкам карточки
+  const [proposalView, setProposalView] = useState(null);
+  const [proposalBusy, setProposalBusy] = useState(false);
+  const openProposal = async () => {
+    if (formData.proposal) { setProposalView(formData.proposal); return; }
+    setProposalBusy(true);
+    try {
+      const text = [typeof card.notes === 'string' ? card.notes : '', formData.comments, formData.engineerReport].filter(Boolean).join('. ');
+      setProposalView(await requestProposal({ text, service: card.service || formData.title, city: String(formData.location || '').replace(/^г\.?\s*/i, '').split(',')[0].trim(), client: formData.clientName }));
+    } catch (err) {
+      window.alert(`КП не посчиталось: ${err.message}`);
+    } finally {
+      setProposalBusy(false);
+    }
+  };
   const [activeTab, setActiveTab] = useState('stages'); // 'stages' | 'estimate' | 'files' | 'notes'
   const [toastMessage, setToastMessage] = useState(null);
 
@@ -236,6 +266,15 @@ export default function DealCardModal({ card, onClose, onSave, onDelete, current
     showToast('🗑 Позиция удалена из сметы');
   };
 
+  // Даты этапа работ: начало и завершение (окончание не раньше начала)
+  const handleStageDateChange = (index, field, value) => {
+    const updated = [...formData.stages];
+    const stg = { ...updated[index], [field]: value };
+    if (stg.start && stg.end && stg.end < stg.start) stg[field === 'start' ? 'end' : 'start'] = value;
+    updated[index] = stg;
+    setFormData(prev => ({ ...prev, stages: updated }));
+  };
+
   const handleStageBudgetChange = (index, value) => {
     if (!isManagerOrAdmin) return;
     const updated = [...formData.stages];
@@ -257,6 +296,7 @@ export default function DealCardModal({ card, onClose, onSave, onDelete, current
       paidAmount: formData.paidAmount !== undefined ? formData.paidAmount : escrowPaid,
       managerName: formData.managerName,
       assignedWorkers: formData.assignedWorkers,
+      dateEnd: formData.dateEnd && formData.dateEnd > formData.date ? formData.dateEnd : '',
       phone: formData.clientPhone,
       time: formData.time
     };
@@ -612,15 +652,16 @@ export default function DealCardModal({ card, onClose, onSave, onDelete, current
                   <div>
                     <label style={{ fontSize: '0.68rem', color: '#a39cc2', display: 'block', marginBottom: '3px', fontWeight: 600 }}>ДАТА ВЫЕЗДА</label>
                     <input
-                      type="text"
-                      value={formData.engineerVisitDate}
+                      type="datetime-local"
+                      aria-label="Дата и время выезда"
+                      value={formData.visitDate}
                       disabled={isExecutor}
-                      onChange={e => setFormData({ ...formData, engineerVisitDate: e.target.value })}
+                      onChange={e => setFormData({ ...formData, visitDate: e.target.value })}
                       style={{
                         width: '100%', background: isExecutor ? 'rgba(0,0,0,0.5)' : 'rgba(0,0,0,0.35)',
                         border: `1px solid ${isExecutor ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.12)'}`,
-                        borderRadius: '8px', padding: '7px 10px', color: isExecutor ? '#a39cc2' : '#b9a4ff',
-                        fontSize: '0.82rem', outline: 'none', fontWeight: 700,
+                        borderRadius: '8px', padding: '6px 8px', color: isExecutor ? '#a39cc2' : '#b9a4ff',
+                        fontSize: '0.8rem', outline: 'none', fontWeight: 700, colorScheme: 'dark',
                         cursor: isExecutor ? 'not-allowed' : 'text'
                       }}
                     />
@@ -687,15 +728,9 @@ export default function DealCardModal({ card, onClose, onSave, onDelete, current
                 </div>
                 <div>
                   <label style={{ fontSize: '0.68rem', color: '#b9a4ff', display: 'block', marginBottom: '3px', fontWeight: 600 }}>👷 НАЗНАЧЕННЫЕ МАСТЕРА / РАБОЧИЕ</label>
-                  <input
-                    type="text"
-                    value={formData.assignedWorkers}
-                    onChange={e => setFormData({ ...formData, assignedWorkers: e.target.value })}
-                    placeholder="Мастер Владимир, Мастер Данил"
-                    style={{
-                      width: '100%', background: 'rgba(0,0,0,0.35)', border: '1px solid rgba(185, 164, 255, 0.3)',
-                      borderRadius: '8px', padding: '7px 10px', color: '#b9a4ff', fontSize: '0.82rem', outline: 'none', fontWeight: 700
-                    }}
+                  <TeamPicker
+                    entries={formData.assignedTeam}
+                    onChange={(entries) => setFormData({ ...formData, ...teamFields(entries) })}
                   />
                 </div>
               </div>
@@ -822,6 +857,30 @@ export default function DealCardModal({ card, onClose, onSave, onDelete, current
             {/* ТАБ 1: ЭТАПЫ СТРОЙКИ & СПЕЦТЕХНИКА */}
             {activeTab === 'stages' && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', flex: 1 }}>
+                <div className="deal-dates" aria-label="Сроки в календаре">
+                  <div className="deal-dates-title">📅 Сроки в календаре</div>
+                  <label className="deal-dates-field">
+                    <span>Заявка: с</span>
+                    <input type="date" className="deal-date-input" aria-label="Дата заявки" value={formData.date || ''} onChange={e => setFormData({ ...formData, date: e.target.value || formData.date })} />
+                  </label>
+                  <label className="deal-dates-field">
+                    <span>по</span>
+                    <input type="date" className="deal-date-input" aria-label="Заявка: дата окончания" value={formData.dateEnd} min={formData.date || undefined} onChange={e => setFormData({ ...formData, dateEnd: e.target.value })} />
+                  </label>
+                  <label className="deal-dates-field">
+                    <span>🏗️ Работы: с</span>
+                    <input type="date" className="deal-date-input" aria-label="Начало работ" value={formData.workStart} onChange={e => setFormData({ ...formData, workStart: e.target.value, workEnd: formData.workEnd && formData.workEnd < e.target.value ? e.target.value : formData.workEnd })} />
+                  </label>
+                  <label className="deal-dates-field">
+                    <span>по</span>
+                    <input type="date" className="deal-date-input" aria-label="Завершение работ" value={formData.workEnd} min={formData.workStart || undefined} onChange={e => setFormData({ ...formData, workEnd: e.target.value })} />
+                  </label>
+                  <label className="deal-dates-field">
+                    <span>✅ Сдача объекта</span>
+                    <input type="date" className="deal-date-input" aria-label="Дата сдачи объекта" value={formData.handoverDate} onChange={e => setFormData({ ...formData, handoverDate: e.target.value })} />
+                  </label>
+                  <div className="deal-dates-hint">Если у этапов ниже указаны свои даты, в календаре показываются они. Остальные стадии — задача на один день.</div>
+                </div>
                 {formData.stages.map((stg, i) => (
                   <div key={stg.id || i} style={{
                     background: 'rgba(21, 18, 42, 0.85)',
@@ -833,7 +892,12 @@ export default function DealCardModal({ card, onClose, onSave, onDelete, current
                       <div>
                         <div style={{ fontWeight: 800, fontSize: '0.9rem', color: '#f8fafc' }}>{stg.name}</div>
                         <div style={{ fontSize: '0.72rem', color: '#a39cc2', marginTop: '1px', display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-                          <span>⏱ Сроки: <strong style={{ color: '#b9a4ff' }}>{stg.dateRange}</strong></span>
+                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap' }}>
+                            ⏱ Сроки: с
+                            <input type="date" className="deal-date-input" aria-label={`Начало этапа ${i + 1}`} value={stg.start || ''} onChange={e => handleStageDateChange(i, 'start', e.target.value)} />
+                            по
+                            <input type="date" className="deal-date-input" aria-label={`Завершение этапа ${i + 1}`} value={stg.end || ''} min={stg.start || undefined} onChange={e => handleStageDateChange(i, 'end', e.target.value)} />
+                          </span>
                           <span>•</span>
                           <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
                             Бюджет этапа:
@@ -1285,6 +1349,27 @@ export default function DealCardModal({ card, onClose, onSave, onDelete, current
             >
               💬 Чат объекта
             </button>
+
+            <button
+              type="button"
+              onClick={openProposal}
+              disabled={proposalBusy}
+              style={{
+                background: 'rgba(0, 163, 255, 0.12)', color: '#cfeaff',
+                border: '1px solid rgba(0, 163, 255, 0.5)', padding: '8px 16px',
+                borderRadius: '8px', fontSize: '0.82rem', fontWeight: 700, cursor: 'pointer',
+                display: 'flex', alignItems: 'center', gap: '6px'
+              }}
+            >
+              {proposalBusy ? 'Считаю…' : (formData.proposal ? '📄 КП' : '📄 Сделать КП')}
+            </button>
+            {proposalView && (
+              <ProposalPanel
+                proposal={proposalView}
+                onClose={() => setProposalView(null)}
+                onInsert={formData.proposal ? undefined : (p) => { setFormData({ ...formData, proposal: p }); setProposalView(null); }}
+              />
+            )}
 
             {onDelete && (
               <button

@@ -1,0 +1,148 @@
+/* Окно выбора вида работ (WorkPicker). Цвета — как у окна «Создание лида». */
+.wp-trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+}
+.wp-trigger-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wp-trigger-caret { opacity: 0.7; flex: none; }
+.wp-placeholder { color: rgba(255, 255, 255, 0.35); font-weight: 500; }
+
+.wp-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  background: rgba(4, 6, 14, 0.72);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.wp-sheet {
+  width: 720px;
+  max-width: 100%;
+  max-height: min(86vh, 760px);
+  display: flex;
+  flex-direction: column;
+  background: #0f1322;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-top: 1px solid rgba(0, 163, 255, 0.55);
+  border-radius: 20px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+  color: #fff;
+  overflow: hidden;
+}
+.wp-head { display: flex; align-items: center; justify-content: space-between; padding: 16px 18px 8px; }
+.wp-title { font-size: 1.15rem; font-weight: 800; }
+.wp-close, .wp-clear {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #fff;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+.wp-close { width: 40px; height: 40px; }
+.wp-clear { width: 32px; height: 32px; flex: none; }
+.wp-close:hover, .wp-clear:hover { background: rgba(255, 255, 255, 0.16); }
+
+.wp-search {
+  margin: 4px 18px 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 12px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 12px;
+}
+.wp-search:focus-within { border-color: #00a3ff; box-shadow: 0 0 0 3px rgba(0, 163, 255, 0.18); }
+.wp-search input {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: 0;
+  outline: none;
+  color: #fff;
+  font-size: 1rem;
+  font-family: inherit;
+  padding: 13px 0;
+}
+/* общий стиль сайта рисует у полей свою рамку при фокусе — здесь рамка у всей строки поиска */
+.wp-search input, .wp-search input:focus, .wp-search input:hover { border: 0 !important; box-shadow: none !important; outline: none !important; background: transparent !important; }
+.wp-search input::placeholder { color: rgba(255, 255, 255, 0.35); }
+
+.wp-body { overflow-y: auto; padding: 4px 18px 18px; -webkit-overflow-scrolling: touch; }
+.wp-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; }
+.wp-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 14px;
+  min-height: 108px;
+  text-align: left;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  color: #fff;
+  cursor: pointer;
+  font-family: inherit;
+}
+.wp-tile:hover, .wp-tile:focus-visible { border-color: #00a3ff; background: rgba(0, 163, 255, 0.1); outline: none; }
+.wp-tile-icon { font-size: 1.9rem; line-height: 1; }
+.wp-tile-name { font-weight: 700; font-size: 0.95rem; line-height: 1.25; }
+.wp-tile-count { font-size: 0.76rem; color: rgba(255, 255, 255, 0.55); margin-top: auto; }
+
+.wp-back {
+  background: none;
+  border: 0;
+  color: #6cc6ff;
+  font-weight: 700;
+  font-size: 0.92rem;
+  cursor: pointer;
+  padding: 8px 0;
+  font-family: inherit;
+}
+.wp-group-title { font-weight: 800; font-size: 1.02rem; margin: 2px 0 8px; }
+.wp-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 12px;
+  margin-bottom: 6px;
+  min-height: 48px;
+  text-align: left;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  color: #fff;
+  cursor: pointer;
+  font-family: inherit;
+}
+.wp-row:hover, .wp-row:focus-visible { border-color: #00a3ff; background: rgba(0, 163, 255, 0.1); outline: none; }
+.wp-row.is-current { border-color: rgba(16, 185, 129, 0.7); background: rgba(16, 185, 129, 0.12); }
+.wp-row--custom { border-style: dashed; }
+.wp-row-icon { font-size: 1.25rem; flex: none; }
+.wp-row-text { display: flex; flex-direction: column; min-width: 0; }
+.wp-row-name { font-weight: 650; font-size: 0.95rem; }
+.wp-row-group { font-size: 0.76rem; color: rgba(255, 255, 255, 0.55); }
+.wp-empty { color: rgba(255, 255, 255, 0.6); padding: 14px 4px; font-size: 0.92rem; }
+
+@media (max-width: 640px) {
+  .wp-overlay { padding: 0; align-items: stretch; }
+  .wp-sheet { width: 100%; max-height: none; height: 100%; border-radius: 0; border-left: 0; border-right: 0; }
+  .wp-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .wp-tile { min-height: 96px; padding: 12px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .wp-sheet { animation: wp-in 0.16s ease-out; }
+  @keyframes wp-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+}

@@ -168,15 +168,18 @@ type AdminUser struct {
 	VerifiedAt      string `json:"verifiedAt"`
 	PasswordChanged bool   `json:"passwordChanged"`
 	Marketing       bool   `json:"marketingOptIn"`
+	CompanyID       string `json:"companyId"`
+	Invited         bool   `json:"invited"` // заведён администратором, пароль ещё не задан
 }
 
 const adminUserCols = `id, COALESCE(email,''), COALESCE(name,''), COALESCE(role,''), COALESCE(phone,''),
-	COALESCE(city,''), COALESCE(company,''), created_at, verified_at, password_changed_unix > 0, COALESCE(marketing_opt_in,false)`
+	COALESCE(city,''), COALESCE(company,''), created_at, verified_at, password_changed_unix > 0, COALESCE(marketing_opt_in,false),
+	COALESCE(company_id,''), (COALESCE(password_hash,'') = '' AND invited_at > 0)`
 
 func scanAdminUser(sc interface{ Scan(...interface{}) error }) (AdminUser, error) {
 	var u AdminUser
 	var created, verified sql.NullTime
-	if err := sc.Scan(&u.ID, &u.Email, &u.Name, &u.Role, &u.Phone, &u.City, &u.Company, &created, &verified, &u.PasswordChanged, &u.Marketing); err != nil {
+	if err := sc.Scan(&u.ID, &u.Email, &u.Name, &u.Role, &u.Phone, &u.City, &u.Company, &created, &verified, &u.PasswordChanged, &u.Marketing, &u.CompanyID, &u.Invited); err != nil {
 		return u, err
 	}
 	if created.Valid {

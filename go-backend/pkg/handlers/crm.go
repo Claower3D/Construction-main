@@ -180,6 +180,39 @@ var (
 )
 
 // normalizeCRMEvent trims fields, normalizes the date to YYYY-MM-DD and validates required fields.
+// trimCRMExtra не даёт карточке разрастись: слишком тяжёлые дополнительные поля (например, фото,
+// вложенные прямо в карточку) не сохраняются — как и раньше, когда сервер отбрасывал все такие поля.
+// Сама сделка при этом сохраняется.
+const (
+	crmExtraFieldMax = 200_000
+	crmExtraTotalMax = 400_000
+	crmExtraKeysMax  = 80
+)
+
+func trimCRMExtra(e *models.CRMEvent) {
+	total := 0
+	for k, v := range e.Extra {
+		if len(v) > crmExtraFieldMax {
+			delete(e.Extra, k)
+			continue
+		}
+		total += len(k) + len(v)
+	}
+	for total > crmExtraTotalMax || len(e.Extra) > crmExtraKeysMax {
+		biggest, size := "", -1
+		for k, v := range e.Extra {
+			if len(v) > size || (len(v) == size && k > biggest) {
+				biggest, size = k, len(v)
+			}
+		}
+		if biggest == "" {
+			break
+		}
+		total -= len(biggest) + size
+		delete(e.Extra, biggest)
+	}
+}
+
 func normalizeCRMEvent(e *models.CRMEvent, r *http.Request) error {
 	e.ID = models.FlexString(strings.TrimSpace(string(e.ID)))
 	e.Title = models.FlexString(strings.TrimSpace(string(e.Title)))
@@ -202,6 +235,7 @@ func normalizeCRMEvent(e *models.CRMEvent, r *http.Request) error {
 	if len([]rune(string(e.Title))) > 300 || len(e.Description) > 20000 || len(e.Notes) > 100000 {
 		return fmt.Errorf("слишком длинные поля заявки")
 	}
+	trimCRMExtra(e)
 	if e.Status == "" {
 		e.Status = "Новые"
 	}

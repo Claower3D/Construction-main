@@ -5,6 +5,7 @@ import '../engineer-modal.css';
 import OnboardingTour from './OnboardingTour';
 import SmartDealCreateModal from './SmartDealCreateModal';
 import TaskCalendar from './calendar/TaskCalendar';
+import CrmPage from './CrmPage';
 import { jsonAuthHeaders, getAuthToken, reportSyncError, responseError, parseMoney } from '../services/platformUtils';
 import { upsertCrmEvent } from '../services/orderSyncService';
 
@@ -15,6 +16,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
   const isExecutor = (currentUser?.role === 'executor') || (viewRole === 'executor');
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [activeTab, setActiveTab] = useState(initialTab || 'calendar'); // Dynamic tab state
+  const [showTeamCalendar, setShowTeamCalendar] = useState(false); // календарь «мои задачи / моя фирма»
 
   const defaultOrgObj = { id: 1, name: 'ТОО «QazGost»', city: 'Караганда', type: 'ТОО', bin: '990405351447', icon: '🏢', projectsCount: 4, estimatesCount: 18, workersCount: 12, isDefault: true, role: 'Главный инженер' };
   const [selectedOrg, setSelectedOrg] = useState(defaultOrgObj);
@@ -2012,6 +2014,12 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
           {/* ======================================================= */}
           {/* 12. OBJECTS TAB (🏗️ Объекты)                          */}
           {/* ======================================================= */}
+          {showTeamCalendar && (
+            <div className="crm-team-overlay" role="dialog" aria-modal="true" aria-label="Мой календарь">
+              <button type="button" className="crm-team-close" onClick={() => setShowTeamCalendar(false)}>✕ Закрыть календарь</button>
+              <CrmPage scope="team" currentUser={currentUser} onBackToHome={() => setShowTeamCalendar(false)} />
+            </div>
+          )}
           {activeTab === 'objects' && (
             <div className="tab-view-container">
               <div className="view-header-bar">
@@ -2027,6 +2035,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                       onChange={(e) => setObjectsSearch(e.target.value)}
                     />
                   </div>
+                  <button type="button" className="btn-primary-action btn-team-calendar" onClick={() => setShowTeamCalendar(true)}>📅 Мой календарь</button>
                   <button className="btn-primary-action" onClick={handleOpenCreateModal}>+ Новый объект</button>
                 </div>
               </div>

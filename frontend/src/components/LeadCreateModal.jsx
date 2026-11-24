@@ -1,19 +1,40 @@
 import React, { useState, useCallback } from 'react';
 import './LeadCreateModal.css';
 import VoiceLeadInput from './VoiceLeadInput';
+import WorkPicker from './WorkPicker';
+import ProposalPanel, { requestProposal } from './ProposalPanel';
+import { findWork, groupOfWork } from './workCatalog';
 
 export default function LeadCreateModal({ onClose, onSave, initialDate = '', initialTime = '' }) {
   const [leadData, setLeadData] = useState({
     clientName: '',
     phone: '',
     service: 'Установка септика',
+    category: '',
     budget: 1500000,
     address: '',
     date: initialDate || '',
+    dateEnd: '',
     time: initialTime || '',
     notes: '',
     files: []
   });
+
+  // КП из заметки: сервер находит в тексте вид работ и объёмы и считает работы, материалы, человеко-часы
+  const [proposal, setProposal] = useState(null);
+  const [proposalOpen, setProposalOpen] = useState(false);
+  const [kp, setKp] = useState({ busy: false, error: '' });
+  const buildProposal = async () => {
+    setKp({ busy: true, error: '' });
+    try {
+      const res = await requestProposal({ text: leadData.notes, service: leadData.service, city: (leadData.address || '').split(',')[0].replace(/^г\.?\s*/i, '').trim(), client: leadData.clientName });
+      setProposal(res);
+      setProposalOpen(true);
+      setKp({ busy: false, error: '' });
+    } catch (err) {
+      setKp({ busy: false, error: `КП не посчиталось: ${err.message}` });
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -49,8 +70,13 @@ export default function LeadCreateModal({ onClose, onSave, initialDate = '', ini
   }, []);
 
   const handleSubmit = () => {
-    // We send the lead data up
-    onSave(leadData);
+    // Период «с — по»: если даты перепутаны местами, ставим по порядку; одинаковые — это один день
+    let { date, dateEnd } = leadData;
+    if (date && dateEnd && dateEnd < date) [date, dateEnd] = [dateEnd, date];
+    if (dateEnd === date) dateEnd = '';
+    const known = findWork(leadData.service);
+    const category = known ? known.group : (leadData.category || groupOfWork(leadData.service));
+    onSave({ ...leadData, date, dateEnd, category, ...(leadData.proposal ? { proposal: leadData.proposal } : {}) });
   };
 
   // Listen for voice prefill events from CrmPage
@@ -119,23 +145,10 @@ export default function LeadCreateModal({ onClose, onSave, initialDate = '', ini
 
             <div className="lead-modal-field">
               <span className="lead-modal-label">🛠 Услуга</span>
-              <div className="select-wrapper">
-                <select 
-                  name="service" 
-                  value={leadData.service} 
-                  onChange={handleChange} 
-                  className="lead-modal-input" 
-                >
-                  <option value="Установка септика">Установка септика</option>
-                  <option value="Бурение скважины на воду">Бурение скважины на воду</option>
-                  <option value="Разработка ПСД">Разработка ПСД</option>
-                  <option value="Монтаж HVAC системы">Монтаж HVAC системы</option>
-                  <option value="Заливка монолитного фундамента">Заливка монолитного фундамента</option>
-                  <option value="Техническая экспертиза">Техническая экспертиза</option>
-                  <option value="Аренда спецтехники">Аренда спецтехники</option>
-                  <option value="Другое">Другое...</option>
-                </select>
-              </div>
+              <WorkPicker
+                value={leadData.service}
+                onChange={(name, group) => setLeadData(prev => ({ ...prev, service: name, category: group }))}
+              />
             </div>
 
             <div className="lead-modal-field">
@@ -151,14 +164,29 @@ export default function LeadCreateModal({ onClose, onSave, initialDate = '', ini
             </div>
 
             <div className="lead-modal-field">
-              <span className="lead-modal-label">📅 Дата</span>
+              <span className="lead-modal-label">📅 Дата начала</span>
               <input 
                 type="date" 
                 name="date" 
                 value={leadData.date} 
                 onChange={handleChange} 
                 className="lead-modal-input" 
+                aria-label="Дата начала"
               />
+            </div>
+
+            <div className="lead-modal-field">
+              <span className="lead-modal-label">🏁 Дата окончания</span>
+              <input 
+                type="date" 
+                name="dateEnd" 
+                value={leadData.dateEnd} 
+                min={leadData.date || undefined}
+                onChange={handleChange} 
+                className="lead-modal-input" 
+                aria-label="Дата окончания"
+              />
+              <span className="lead-modal-hint">Если работы на несколько дней. На один день — оставьте пустым.</span>
             </div>
 
             <div className="lead-modal-field full-width">
@@ -183,6 +211,19 @@ export default function LeadCreateModal({ onClose, onSave, initialDate = '', ini
                 className="lead-modal-input textarea" 
                 rows="3"
               />
+              <div className="lead-kp-row">
+                <button type="button" className="lead-kp-btn" onClick={buildProposal} disabled={kp.busy || (!leadData.notes.trim() && !leadData.service)}>
+                  {kp.busy ? 'Считаю…' : '📄 Сделать КП из заметки'}
+                </button>
+                {leadData.proposal && (
+                  <button type="button" className="lead-kp-btn" onClick={() => { setProposal(leadData.proposal); setProposalOpen(true); }}>
+                    ✓ КП прикреплено · {Math.round(leadData.proposal.totals?.totalWithVat || 0).toLocaleString('ru-RU')} ₸
+                  </button>
+                )}
+                <span className={`lead-kp-status${kp.error ? ' is-error' : ''}`} role={kp.error ? 'alert' : undefined}>
+                  {kp.error || 'Расчёт материалов, работ и человеко-часов по тексту заметки'}
+                </span>
+              </div>
             </div>
 
             <div className="lead-modal-field full-width">
@@ -212,6 +253,14 @@ export default function LeadCreateModal({ onClose, onSave, initialDate = '', ini
             </div>
           </div>
         </div>
+
+        {proposalOpen && proposal && (
+          <ProposalPanel
+            proposal={proposal}
+            onClose={() => setProposalOpen(false)}
+            onInsert={(p) => { setLeadData(prev => ({ ...prev, proposal: p, budget: Math.round(p.totals?.totalWithVat || prev.budget) })); setProposalOpen(false); }}
+          />
+        )}
 
         <div className="lead-modal-footer">
           <button className="lead-modal-submit-btn" onClick={handleSubmit}>

@@ -5,6 +5,7 @@ import { exportPricesToExcel, exportAll3SheetsExcel, parseExcelOrCsvFile, export
 import { getStatus } from '../services/api';
 import { authHeaders, getAuthToken } from '../services/platformUtils';
 import RoleHierarchyTreePage from './RoleHierarchyTreePage';
+import AdminTeamPanel from './AdminTeamPanel';
 import '../styles/admin-compact.css';
 
 // Documents & Invoices registry for Excel export
@@ -2132,96 +2133,8 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
 
           {/* TAB 5: USERS (👥 Пользователи)                                            */}
           {/* ========================================================================= */}
-          {activeTab === 'users' && (
-            <div className="admin-tab-content">
-              {/* Role Counters Filter Cards */}
-              <div className="role-stat-cards-grid">
-                <div className={`role-counter-card ${userRoleFilter === 'customer' ? 'active' : ''}`} onClick={() => setUserRoleFilter(userRoleFilter === 'customer' ? 'all' : 'customer')}>
-                  <span className="icon">📋</span>
-                  <div className="counter-val">{usersList.filter((u) => u.role === 'customer').length}</div>
-                  <div className="counter-label">Заказчики</div>
-                </div>
-
-                <div className={`role-counter-card ${userRoleFilter === 'executor' ? 'active' : ''}`} onClick={() => setUserRoleFilter(userRoleFilter === 'executor' ? 'all' : 'executor')}>
-                  <span className="icon">🔧</span>
-                  <div className="counter-val">{usersList.filter((u) => u.role === 'executor').length}</div>
-                  <div className="counter-label">Исполнители</div>
-                </div>
-
-                <div className={`role-counter-card ${userRoleFilter === 'engineer' ? 'active' : ''}`} onClick={() => setUserRoleFilter(userRoleFilter === 'engineer' ? 'all' : 'engineer')}>
-                  <span className="icon">⚙️</span>
-                  <div className="counter-val">{usersList.filter((u) => u.role === 'engineer').length}</div>
-                  <div className="counter-label">Инженеры</div>
-                </div>
-
-                <div className={`role-counter-card ${userRoleFilter === 'admin' ? 'active' : ''}`} onClick={() => setUserRoleFilter(userRoleFilter === 'admin' ? 'all' : 'admin')}>
-                  <span className="icon">👑</span>
-                  <div className="counter-val">{usersList.filter((u) => u.role === 'admin').length}</div>
-                  <div className="counter-label">Администраторы</div>
-                </div>
-              </div>
-
-              {/* Search Bar */}
-              <div className="admin-controls-row" style={{ marginTop: '1rem', display: 'flex', gap: '15px' }}>
-                <input
-                  type="text"
-                  className="admin-search-input"
-                  style={{ flex: 1 }}
-                  placeholder="🔍 Поиск по ФИО, Email или номеру телефона..."
-                  value={userSearch}
-                  onChange={(e) => setUserSearch(e.target.value)}
-                />
-                <button className="admin-primary-btn" onClick={handleOpenAddUser}>
-                  + Добавить пользователя
-                </button>
-              </div>
-
-              {/* Users Table */}
-              <div className="admin-section-box">
-                <table className="admin-table">
-                  <thead>
-                    <tr>
-                      <th>ID</th>
-                      <th>ФИО / Наименование</th>
-                      <th>Текущая роль</th>
-                      <th>Email / Телефон</th>
-                      <th>Город</th>
-                      <th>Источник</th>
-                      <th>Статус</th>
-                      <th>Действия</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredUsers.map((usr) => (
-                      <tr key={usr.id}>
-                        <td>{usr.id}</td>
-                        <td><strong>{usr.name}</strong></td>
-                        <td><span className={`role-pill role-${usr.role}`}>{usr.roleLabel}</span></td>
-                        <td>
-                          <div>{usr.email}</div>
-                          <small style={{ color: '#a39cc2' }}>{usr.phone}</small>
-                        </td>
-                        <td>{usr.city}</td>
-                        <td><span className="source-badge">{usr.source}</span></td>
-                        <td>
-                          <span className={usr.status === 'blocked' ? 'badge-blocked' : 'badge-ok'}>
-                            {usr.status === 'blocked' ? '🚫 Заблокирован' : '✅ Активен'}
-                          </span>
-                        </td>
-                        <td className="actions-cell">
-                          <button className="btn-table-action" onClick={() => setInspectUserModal(usr)} title="Профиль">👁️</button>
-                          <button className="btn-table-action" onClick={() => handleOpenEditUser(usr)} title="Редактировать">✏️</button>
-                          <button className="btn-table-action" onClick={() => handleToggleLockUser(usr.id)} title={usr.status === 'blocked' ? 'Разблокировать' : 'Заблокировать'}>
-                            {usr.status === 'blocked' ? '✅' : '🚫'}
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
+          {/* Настоящие данные сервера: фирмы и работники. Прежний макет с примерами убран. */}
+          {activeTab === 'users' && <AdminTeamPanel />}
 
           {/* ========================================================================= */}
           {/* TAB 6: SETTINGS & AUDIT LOG (⚙️ Управление)                             */}

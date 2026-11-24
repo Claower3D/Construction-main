@@ -1,0 +1,120 @@
+/* Выбор мастеров и бригад деревом (TeamPicker). Окно и поиск — общие с WorkPicker.css. */
+.tp-trigger {
+  width: 100%;
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 10px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(185, 164, 255, 0.3);
+  border-radius: 8px;
+  color: #b9a4ff;
+  font-size: 0.82rem;
+  font-weight: 700;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.tp-trigger:hover:not(:disabled), .tp-trigger:focus-visible { border-color: #00e5ff; outline: none; }
+.tp-trigger:disabled { cursor: not-allowed; opacity: 0.6; }
+.tp-trigger-list { display: flex; flex-wrap: wrap; gap: 4px; }
+.tp-none { color: rgba(255, 255, 255, 0.45); font-weight: 500; font-size: 0.82rem; }
+
+.tp-group { margin-bottom: 8px; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 14px; overflow: hidden; }
+.tp-group-head {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  min-height: 48px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 0;
+  color: #fff;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.tp-group-head:hover, .tp-group-head:focus-visible { background: rgba(0, 163, 255, 0.12); outline: none; }
+.tp-caret { width: 14px; color: #6cc6ff; flex: none; }
+.tp-group-name { font-weight: 800; font-size: 0.95rem; }
+.tp-group-sub { font-size: 0.76rem; color: rgba(255, 255, 255, 0.55); margin-left: auto; text-align: right; }
+.tp-count { background: #10b981; color: #04130d; font-weight: 800; font-size: 0.74rem; border-radius: 999px; padding: 1px 8px; flex: none; }
+/* «ветка»: линия слева связывает фирму с её бригадами и людьми */
+.tp-branch { margin: 6px 10px 10px 18px; padding-left: 12px; border-left: 2px solid rgba(108, 198, 255, 0.35); }
+.tp-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  margin-bottom: 4px;
+  min-height: 44px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  color: #fff;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.tp-item:hover, .tp-item:focus-visible { background: rgba(255, 255, 255, 0.06); outline: none; }
+.tp-item.is-on { background: rgba(16, 185, 129, 0.12); border-color: rgba(16, 185, 129, 0.5); }
+.tp-box {
+  width: 22px;
+  height: 22px;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 900;
+  color: #04130d;
+}
+.tp-item.is-on .tp-box { background: #10b981; border-color: #10b981; }
+.tp-item-text { display: flex; flex-direction: column; min-width: 0; }
+.tp-item-name { font-weight: 650; font-size: 0.93rem; }
+.tp-item-sub { font-size: 0.75rem; color: rgba(255, 255, 255, 0.55); }
+.tp-badge { margin-left: auto; font-size: 0.68rem; color: #fcd34d; border: 1px solid rgba(245, 158, 11, 0.5); border-radius: 999px; padding: 1px 8px; white-space: nowrap; }
+.tp-error { color: #fecaca; background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 10px; padding: 10px 12px; font-size: 0.86rem; margin-bottom: 10px; }
+
+.tp-custom { display: flex; gap: 8px; margin-top: 12px; }
+.tp-custom input {
+  flex: 1;
+  min-width: 0;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px dashed rgba(255, 255, 255, 0.25);
+  border-radius: 10px;
+  padding: 10px 12px;
+  color: #fff;
+  font-size: 0.9rem;
+  font-family: inherit;
+  outline: none;
+}
+.tp-custom input:focus { border-color: #00a3ff; }
+.tp-custom button, .tp-done {
+  border: 0;
+  border-radius: 10px;
+  padding: 0 16px;
+  min-height: 44px;
+  font-weight: 800;
+  font-family: inherit;
+  cursor: pointer;
+}
+.tp-custom button { background: rgba(255, 255, 255, 0.12); color: #fff; }
+.tp-custom button:disabled { opacity: 0.4; cursor: default; }
+
+.tp-foot { display: flex; align-items: center; gap: 12px; padding: 12px 18px; border-top: 1px solid rgba(255, 255, 255, 0.1); background: rgba(0, 0, 0, 0.25); }
+.tp-chips { flex: 1; display: flex; flex-wrap: wrap; gap: 6px; max-height: 76px; overflow-y: auto; }
+.tp-chip { display: inline-flex; align-items: center; gap: 6px; background: rgba(185, 164, 255, 0.18); border: 1px solid rgba(185, 164, 255, 0.4); color: #e7e0ff; border-radius: 999px; padding: 3px 10px; font-size: 0.8rem; font-weight: 650; }
+.tp-chip--small { padding: 1px 8px; font-size: 0.74rem; }
+.tp-chip button { background: none; border: 0; color: inherit; cursor: pointer; font-size: 0.75rem; padding: 2px; }
+.tp-done { background: linear-gradient(90deg, #0a84ff, #00b3ff); color: #fff; flex: none; }
+@media (max-width: 640px) {
+  .tp-group-sub { display: none; }
+  .tp-foot { flex-direction: column; align-items: stretch; }
+}

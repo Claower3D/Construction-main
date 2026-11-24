@@ -300,4 +300,57 @@ type CRMEvent struct {
 	CreatedBy   FlexString `json:"createdBy,omitempty"`
 	CreatedAt   time.Time  `json:"createdAt"`
 	UpdatedAt   time.Time  `json:"updatedAt"`
+	// Extra — все остальные поля карточки (этапы, даты работ и сдачи, назначенные мастера, смета, КП…).
+	// Раньше сервер их отбрасывал, и после обновления страницы карточка возвращалась к значениям по умолчанию.
+	Extra map[string]json.RawMessage `json:"-"`
+}
+
+type crmEventPlain CRMEvent
+
+// crmEventKnown — поля, у которых есть своя колонка; остальное уходит в Extra.
+var crmEventKnown = map[string]bool{
+	"id": true, "date": true, "leadNum": true, "title": true, "status": true, "type": true, "role": true, "time": true,
+	"phone": true, "contractor": true, "location": true, "budget": true, "description": true, "notes": true,
+	"createdBy": true, "createdAt": true, "updatedAt": true,
+	"day": true, // служебное поле календаря, дублирует date
+}
+
+func (e *CRMEvent) UnmarshalJSON(b []byte) error {
+	var p crmEventPlain
+	if err := json.Unmarshal(b, &p); err != nil {
+		return err
+	}
+	var raw map[string]json.RawMessage
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	*e = CRMEvent(p)
+	e.Extra = nil
+	for k, v := range raw {
+		if crmEventKnown[k] || k == "" || len(k) > 64 {
+			continue
+		}
+		if e.Extra == nil {
+			e.Extra = map[string]json.RawMessage{}
+		}
+		e.Extra[k] = v
+	}
+	return nil
+}
+
+func (e CRMEvent) MarshalJSON() ([]byte, error) {
+	base, err := json.Marshal(crmEventPlain(e))
+	if err != nil || len(e.Extra) == 0 {
+		return base, err
+	}
+	var m map[string]json.RawMessage
+	if err := json.Unmarshal(base, &m); err != nil {
+		return base, nil
+	}
+	for k, v := range e.Extra {
+		if _, taken := m[k]; !taken && len(v) > 0 {
+			m[k] = v
+		}
+	}
+	return json.Marshal(m)
 }

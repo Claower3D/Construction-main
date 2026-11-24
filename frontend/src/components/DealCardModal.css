@@ -1,0 +1,28 @@
+/* Сроки в карточке сделки */
+.deal-dates {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  padding: 10px 14px;
+  background: rgba(21, 18, 42, 0.85);
+  border: 1px solid rgba(185, 164, 255, 0.28);
+  border-radius: 12px;
+}
+.deal-dates-title { width: 100%; font-weight: 800; font-size: 0.82rem; color: #f8fafc; }
+.deal-dates-field { display: inline-flex; align-items: center; gap: 6px; font-size: 0.74rem; color: #a39cc2; font-weight: 600; }
+.deal-dates-hint { width: 100%; font-size: 0.68rem; color: #8f88ad; }
+.deal-date-input {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(185, 164, 255, 0.3);
+  border-radius: 8px;
+  padding: 4px 6px;
+  color: #d8ccff;
+  font-size: 0.76rem;
+  font-weight: 700;
+  font-family: inherit;
+  outline: none;
+  color-scheme: dark;
+  min-height: 28px;
+}
+.deal-date-input:focus { border-color: #00e5ff; box-shadow: 0 0 0 2px rgba(0, 229, 255, 0.2); }

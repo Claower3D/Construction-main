@@ -216,3 +216,9 @@
 .lead-modal-submit-btn:active {
   transform: translateY(1px);
 }
+
+.lead-modal-hint {
+  font-size: 0.74rem;
+  color: rgba(255, 255, 255, 0.5);
+  margin-top: 2px;
+}

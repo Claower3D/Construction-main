@@ -389,3 +389,9 @@
   border-radius: 8px;
   border: 1px solid rgba(0, 163, 255, 0.2);
 }
+
+.lead-modal-hint {
+  font-size: 0.74rem;
+  color: rgba(255, 255, 255, 0.5);
+  margin-top: 2px;
+}

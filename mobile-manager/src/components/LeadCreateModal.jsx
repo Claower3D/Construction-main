@@ -1,5 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import './LeadCreateModal.css';
+import WorkPicker from './WorkPicker';
+import { findWork, groupOfWork } from './workCatalog';
 import VoiceLeadInput from './VoiceLeadInput';
 import { genId, genLeadNum, localDateISO, makeNote, parseBudget } from '../api/syncCore';
 
@@ -12,7 +14,9 @@ export default function LeadCreateModal({ onClose, onCreateDeal, initialDate = '
     address: '',
     date: initialDate || '',
     time: initialTime || '',
-    notes: ''
+    notes: '',
+    category: '',
+    dateEnd: ''
   });
 
   const handleChange = (e) => {
@@ -43,6 +47,13 @@ export default function LeadCreateModal({ onClose, onCreateDeal, initialDate = '
 
     const numBudget = parseBudget(leadData.budget);
     const dateStr = leadData.date || localDateISO();
+    // Период «с — по»: одинаковые даты — это один день, перепутанные ставим по порядку
+    let dateEnd = leadData.dateEnd || '';
+    let dateFrom = dateStr;
+    if (dateEnd && dateEnd < dateFrom) [dateFrom, dateEnd] = [dateEnd, dateFrom];
+    if (dateEnd === dateFrom) dateEnd = '';
+    const known = findWork(leadData.service);
+    const category = known ? known.group : (leadData.category || groupOfWork(leadData.service));
 
     // Determine direction / role (only roles known to ROLE_CONFIG)
     let role = 'lead';
@@ -66,7 +77,10 @@ export default function LeadCreateModal({ onClose, onCreateDeal, initialDate = '
       budget: numBudget,
       status: 'Новые',
       role,
-      date: dateStr,
+      date: dateFrom,
+      ...(dateEnd ? { dateEnd, workStart: dateFrom, workEnd: dateEnd } : {}),
+      ...(category ? { category } : {}),
+      service: serviceTitle,
       time: leadData.time || '12:00',
       priority: numBudget >= 3000000 ? 'high' : 'normal',
       notes: [makeNote(leadData.notes || 'Создано через форму «Создание Лида»', 'Менеджер')]
@@ -125,26 +139,10 @@ export default function LeadCreateModal({ onClose, onCreateDeal, initialDate = '
 
             <div className="lead-modal-field">
               <span className="lead-modal-label">🛠 Услуга</span>
-              <div className="select-wrapper">
-                <select 
-                  name="service" 
-                  value={leadData.service} 
-                  onChange={handleChange} 
-                  className="lead-modal-input" 
-                >
-                  <option value="Установка септика">Установка септика</option>
-                  <option value="Бурение скважины на воду">Бурение скважины на воду</option>
-                  <option value="Разработка ПСД">Разработка ПСД</option>
-                  <option value="Монтаж HVAC системы">Монтаж HVAC системы</option>
-                  <option value="Заливка монолитного фундамента">Заливка монолитного фундамента</option>
-                  <option value="Техническая экспертиза">Техническая экспертиза</option>
-                  <option value="Аренда спецтехники">Аренда спецтехники</option>
-                  <option value="Кровельные работы">Кровельные работы</option>
-                  <option value="Ремонт квартиры">Ремонт квартиры</option>
-                  <option value="Электромонтаж">Электромонтаж</option>
-                  <option value="Другое...">Другое...</option>
-                </select>
-              </div>
+              <WorkPicker
+                value={leadData.service}
+                onChange={(name, group) => setLeadData(prev => ({ ...prev, service: name, category: group }))}
+              />
             </div>
 
             <div className="lead-modal-field">
@@ -160,14 +158,29 @@ export default function LeadCreateModal({ onClose, onCreateDeal, initialDate = '
             </div>
 
             <div className="lead-modal-field">
-              <span className="lead-modal-label">📅 Дата</span>
+              <span className="lead-modal-label">📅 Дата начала</span>
               <input 
                 type="date" 
                 name="date" 
                 value={leadData.date} 
                 onChange={handleChange} 
                 className="lead-modal-input" 
+                aria-label="Дата начала"
               />
+            </div>
+
+            <div className="lead-modal-field">
+              <span className="lead-modal-label">🏁 Дата окончания</span>
+              <input 
+                type="date" 
+                name="dateEnd" 
+                value={leadData.dateEnd} 
+                min={leadData.date || undefined}
+                onChange={handleChange} 
+                className="lead-modal-input" 
+                aria-label="Дата окончания"
+              />
+              <span className="lead-modal-hint">Если работы на несколько дней. На один день — оставьте пустым.</span>
             </div>
 
             <div className="lead-modal-field">

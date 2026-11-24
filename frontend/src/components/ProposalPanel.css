@@ -1,0 +1,35 @@
+/* Окно коммерческого предложения (ProposalPanel). Каркас окна — из WorkPicker.css. */
+.pp-sheet { width: 860px; }
+.pp-sub { font-size: 0.84rem; color: rgba(255, 255, 255, 0.6); margin-top: 2px; }
+.pp-source { font-size: 0.82rem; border-radius: 10px; padding: 9px 12px; margin-bottom: 12px; border: 1px solid rgba(245, 158, 11, 0.45); background: rgba(245, 158, 11, 0.1); color: #fde6b0; }
+.pp-source--ai { border-color: rgba(16, 185, 129, 0.5); background: rgba(16, 185, 129, 0.1); color: #c9f7e4; }
+.pp-block { margin-bottom: 14px; }
+.pp-block-title { font-weight: 800; font-size: 0.95rem; margin-bottom: 6px; }
+.pp-table-wrap { overflow-x: auto; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; }
+.pp-table { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
+.pp-table th { text-align: left; font-size: 0.72rem; color: rgba(255, 255, 255, 0.55); font-weight: 700; padding: 8px 10px; background: rgba(255, 255, 255, 0.05); }
+.pp-table td { padding: 8px 10px; border-top: 1px solid rgba(255, 255, 255, 0.07); vertical-align: top; }
+.pp-table .n { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.pp-labor { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.pp-labor > div { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 10px; display: flex; flex-direction: column; gap: 2px; }
+.pp-labor strong { font-size: 1.25rem; font-variant-numeric: tabular-nums; }
+.pp-labor span, .pp-note { font-size: 0.76rem; color: rgba(255, 255, 255, 0.6); }
+.pp-note { margin-top: 6px; }
+.pp-totals { background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 6px 12px; }
+.pp-totals > div { display: flex; justify-content: space-between; gap: 12px; padding: 6px 0; font-size: 0.9rem; border-bottom: 1px solid rgba(255, 255, 255, 0.06); font-variant-numeric: tabular-nums; }
+.pp-totals > div:last-child { border-bottom: 0; }
+.pp-totals span { color: rgba(255, 255, 255, 0.7); }
+.pp-grand { font-size: 1.05rem !important; }
+.pp-grand span, .pp-grand strong { color: #ffd76a !important; font-weight: 800; }
+.pp-assumptions { margin: 0; padding-left: 18px; font-size: 0.8rem; color: rgba(255, 255, 255, 0.65); line-height: 1.5; }
+.pp-foot { justify-content: flex-end; flex-wrap: wrap; }
+.pp-btn { border: 1px solid rgba(255, 255, 255, 0.2); background: rgba(255, 255, 255, 0.08); color: #fff; border-radius: 10px; padding: 0 14px; min-height: 44px; font-weight: 700; font-family: inherit; cursor: pointer; }
+.pp-btn:hover { background: rgba(255, 255, 255, 0.16); }
+.pp-btn--main { background: linear-gradient(90deg, #0a84ff, #00b3ff); border-color: transparent; }
+.lead-kp-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 8px; }
+.lead-kp-btn { border: 1px solid rgba(0, 163, 255, 0.6); background: rgba(0, 163, 255, 0.12); color: #cfeaff; border-radius: 10px; padding: 0 14px; min-height: 42px; font-weight: 700; font-family: inherit; cursor: pointer; }
+.lead-kp-btn:hover:not(:disabled) { background: rgba(0, 163, 255, 0.22); }
+.lead-kp-btn:disabled { opacity: 0.55; cursor: default; }
+.lead-kp-status { font-size: 0.8rem; color: rgba(255, 255, 255, 0.65); }
+.lead-kp-status.is-error { color: #fecaca; }
+@media (max-width: 640px) { .pp-labor { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
