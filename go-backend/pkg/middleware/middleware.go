@@ -122,10 +122,20 @@ func SecurityHeadersMiddleware(next http.Handler) http.Handler {
 
 // BodyLimitMiddleware caps every request body (JSON decoders read without limits otherwise)
 func BodyLimitMiddleware(maxBytes int64) func(http.Handler) http.Handler {
+	return BodyLimitMiddlewareWith(maxBytes, nil)
+}
+
+// BodyLimitMiddlewareWith — общий предел тела запроса и отдельные пределы для точных адресов
+// (например, загрузка видео). Адрес сравнивается целиком, без учёта завершающей косой черты.
+func BodyLimitMiddlewareWith(maxBytes int64, perPath map[string]int64) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if r.Body != nil {
-				r.Body = http.MaxBytesReader(w, r.Body, maxBytes)
+				limit := maxBytes
+				if v, ok := perPath[strings.TrimRight(r.URL.Path, "/")]; ok {
+					limit = v
+				}
+				r.Body = http.MaxBytesReader(w, r.Body, limit)
 			}
 			next.ServeHTTP(w, r)
 		})

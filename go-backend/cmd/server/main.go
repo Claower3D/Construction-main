@@ -254,6 +254,13 @@ func main() {
 	// File Upload — auth required
 	mux.HandleFunc("/api/v1/files/upload", auth(filesHnd.UploadFile))
 
+	// Модуль «Строительство зданий и сооружений»: рабочие проекты (график, штат, техника, фото и видео).
+	// Только администратор и менеджер: в проекте лежат ИИН работников и реквизиты сторон.
+	vipHnd := handlers.NewVipHandler(cfg)
+	mux.HandleFunc("/api/v1/vip/projects", roleAdmin(vipHnd.Projects))
+	mux.HandleFunc("/api/v1/vip/projects/", roleAdmin(vipHnd.Projects))
+	mux.HandleFunc("/api/v1/vip/media", roleAdmin(middleware.RateLimit(120, time.Minute, vipHnd.UploadMedia)))
+
 	// ── CRM MODULE — auth required ──
 	mux.HandleFunc("/api/v1/crm/dashboard", auth(crmHnd.GetDashboard))
 
@@ -332,7 +339,7 @@ func main() {
 	handler := middleware.RecoveryMiddleware(
 		middleware.LoggerMiddleware(
 			middleware.SecurityHeadersMiddleware(
-				middleware.BodyLimitMiddleware(55 << 20)(
+				middleware.BodyLimitMiddlewareWith(55<<20, map[string]int64{"/api/v1/vip/media": handlers.VipMediaBodyLimit})(
 					middleware.CorsMiddleware(cfg.CorsOrigins)(requireDB(mux)),
 				),
 			),

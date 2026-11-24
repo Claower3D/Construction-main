@@ -1,0 +1,220 @@
+/* Рабочие проекты модуля «Строительство зданий и сооружений»: график, штат, техника.
+   Цвета и формы — те же, что у остального модуля (BuildingConstructionPage.css). */
+
+.vwb { --vwb-line: rgba(255, 255, 255, 0.08); --vwb-soft: #a39cc2; --vwb-gold: #fbbf24; --vwb-violet: #a78bfa; }
+.vwb h2, .vwb h3, .vwb h4 { color: #fff; margin: 0; }
+.vwb-muted { color: #8a82a8; font-weight: 500; }
+.vwb-label { display: block; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.4px; text-transform: uppercase; color: #8a82a8; margin-bottom: 4px; }
+.vwb-hint { font-size: 0.78rem; color: #a39cc2; margin: 4px 0 0; }
+.vwb-err { font-size: 0.78rem; color: #fca5a5; margin-top: 4px; }
+.vwb-link { background: none; border: 0; padding: 2px 0; color: #c4b5fd; font: inherit; font-size: 0.8rem; text-decoration: underline; cursor: pointer; }
+.vwb-link:hover { color: #fff; }
+.vwb .vip-input, .vwb-modal .vip-input { width: 100%; box-sizing: border-box; min-height: 40px; color-scheme: dark; }
+.vwb :focus-visible, .vwb-modal :focus-visible { outline: 2px solid #fbbf24; outline-offset: 2px; }
+
+/* Проект и действия */
+.vwb-bar { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px; padding-bottom: 16px; margin-bottom: 18px; border-bottom: 1px solid var(--vwb-line); }
+.vwb-project { flex: 1 1 260px; max-width: 420px; }
+.vwb-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.vwb-save { margin-left: auto; font-size: 0.8rem; color: #8a82a8; align-self: center; }
+.vwb-save.saved, .vwb-save.idle { color: #86efac; }
+.vwb-save.saving, .vwb-save.pending { color: #fcd34d; }
+.vwb-save.error, .vwb-save.conflict { color: #fca5a5; font-weight: 700; }
+
+.vwb-title { margin-bottom: 16px; }
+.vwb-title h2 { font-size: 1.3rem; font-weight: 800; }
+.vwb-title p { margin: 4px 0 0; font-size: 0.85rem; color: var(--vwb-soft); }
+
+.vwb-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 18px; }
+.vwb-stat { background: rgba(255, 255, 255, 0.03); border: 1px solid var(--vwb-line); border-radius: 12px; padding: 12px 14px; text-align: left; color: inherit; font: inherit; }
+.vwb-stat.btn { cursor: pointer; }
+.vwb-stat.btn:hover, .vwb-stat.btn[aria-pressed="true"] { border-color: rgba(185, 164, 255, 0.55); background: rgba(124, 58, 237, 0.14); }
+.vwb-stat span { display: block; font-size: 0.75rem; color: #8a82a8; }
+.vwb-stat b { display: block; font-size: 1.45rem; font-weight: 800; color: #fff; line-height: 1.3; }
+.vwb-stat small { font-size: 0.72rem; color: var(--vwb-soft); }
+.vwb-stat.bad b { color: #fca5a5; }
+
+.vwb-toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 14px; }
+.vwb-toolbar select.vip-input { width: auto; min-width: 170px; flex: 0 1 220px; }
+.vwb-add { margin-left: auto; }
+.vwb-seg { display: inline-flex; background: rgba(255, 255, 255, 0.04); border: 1px solid var(--vwb-line); border-radius: 10px; padding: 3px; }
+.vwb-seg button { background: none; border: 0; color: #a39cc2; font: inherit; font-size: 0.85rem; font-weight: 700; padding: 7px 14px; border-radius: 8px; cursor: pointer; }
+.vwb-seg button.active { background: linear-gradient(135deg, #f6c453, #e9a23b); color: #1b1330; }
+
+/* Календарь с полосами работ */
+.vwb-gantt { display: flex; border: 1px solid var(--vwb-line); border-radius: 14px; overflow: hidden; background: rgba(11, 18, 32, 0.55); }
+.vwb-g-left { flex: 0 0 280px; max-width: 42%; border-right: 1px solid var(--vwb-line); background: rgba(21, 18, 42, 0.92); z-index: 2; }
+.vwb-g-corner { height: 64px; box-sizing: border-box; display: flex; align-items: flex-end; padding: 0 12px 8px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.4px; text-transform: uppercase; color: #8a82a8; border-bottom: 1px solid var(--vwb-line); }
+.vwb-g-name { display: flex; flex-direction: column; justify-content: center; width: 100%; height: 48px; box-sizing: border-box; padding: 0 12px; background: none; border: 0; border-bottom: 1px solid rgba(255, 255, 255, 0.04); text-align: left; color: #e9e5f7; font: inherit; cursor: pointer; }
+.vwb-g-name:hover { background: rgba(124, 58, 237, 0.16); }
+.vwb-g-name b { font-size: 0.84rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vwb-g-name small { font-size: 0.72rem; color: #8a82a8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vwb-g-scroll { flex: 1 1 auto; overflow-x: auto; overflow-y: hidden; }
+.vwb-g-inner { width: calc(var(--cell) * var(--days)); }
+.vwb-g-months { display: flex; height: 26px; border-bottom: 1px solid var(--vwb-line); }
+.vwb-g-months div { box-sizing: border-box; padding: 5px 8px 0; font-size: 0.74rem; font-weight: 700; color: #cbc5e3; text-transform: capitalize; border-left: 1px solid rgba(255, 255, 255, 0.14); white-space: nowrap; overflow: hidden; }
+.vwb-g-days { display: flex; height: 38px; box-sizing: border-box; border-bottom: 1px solid var(--vwb-line); }
+.vwb-g-days div { flex: 0 0 var(--cell); display: flex; flex-direction: column; align-items: center; justify-content: center; box-sizing: border-box; }
+.vwb-g-days b { font-size: 0.76rem; color: #cbc5e3; font-weight: 700; line-height: 1.1; }
+.vwb-g-days small { font-size: 0.6rem; color: #8a82a8; line-height: 1.2; }
+.vwb-g-days .we b, .vwb-g-days .we small { color: #f0abab; }
+.vwb-g-days .ms { border-left: 1px solid rgba(255, 255, 255, 0.14); }
+.vwb-g-days .today { background: rgba(251, 191, 36, 0.22); border-radius: 6px 6px 0 0; }
+.vwb-g-days .today b, .vwb-g-days .today small { color: #fde68a; }
+.vwb-g-rows { position: relative; }
+.vwb-g-bg { position: absolute; inset: 0; display: flex; pointer-events: none; }
+.vwb-g-bg i { flex: 0 0 var(--cell); box-sizing: border-box; border-left: 1px solid rgba(255, 255, 255, 0.035); }
+.vwb-g-bg i.we { background: rgba(255, 255, 255, 0.03); }
+.vwb-g-bg i.ms { border-left-color: rgba(255, 255, 255, 0.14); }
+.vwb-g-bg i.today { background: rgba(251, 191, 36, 0.12); box-shadow: inset 2px 0 0 #fbbf24; }
+.vwb-g-row { position: relative; height: 48px; box-sizing: border-box; border-bottom: 1px solid rgba(255, 255, 255, 0.04); }
+.vwb-bar-item { position: absolute; top: 9px; height: 30px; box-sizing: border-box; display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 0 8px; border-radius: 8px; border: 1px solid transparent; color: #fff; font: inherit; font-size: 0.72rem; font-weight: 700; white-space: nowrap; cursor: pointer; min-width: 22px; }
+/* подпись держится у левого края видимой части, когда начало полосы ушло за край */
+.vwb-bar-item span { position: sticky; left: 8px; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.vwb-bar-item em { font-style: normal; font-weight: 600; opacity: 0.95; }
+.vwb-bar-item:hover { filter: brightness(1.15); }
+.vwb-bar-item.s-plan { background: rgba(124, 58, 237, 0.55); border-color: rgba(185, 164, 255, 0.7); }
+.vwb-bar-item.s-progress { background: linear-gradient(135deg, #e9a23b, #c97f14); border-color: #fcd34d; color: #1b1330; }
+.vwb-bar-item.s-done { background: rgba(22, 163, 74, 0.6); border-color: #86efac; }
+.vwb-bar-item.s-hold { background: rgba(100, 116, 139, 0.5); border-color: #cbd5e1; }
+.vwb-bar-item.over { box-shadow: 0 0 0 2px #f87171; }
+.vwb-bar-item.clash { background-image: repeating-linear-gradient(135deg, transparent 0 7px, rgba(0, 0, 0, 0.28) 7px 12px); }
+
+.vwb-legend { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 12px; font-size: 0.76rem; color: var(--vwb-soft); }
+.vwb-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.vwb-legend i { width: 18px; height: 10px; border-radius: 3px; display: inline-block; }
+.vwb-legend i.s-plan { background: rgba(124, 58, 237, 0.75); }
+.vwb-legend i.s-progress { background: #e9a23b; }
+.vwb-legend i.s-done { background: rgba(22, 163, 74, 0.8); }
+.vwb-legend i.s-hold { background: rgba(100, 116, 139, 0.8); }
+.vwb-legend i.over { background: transparent; box-shadow: 0 0 0 2px #f87171; }
+.vwb-legend i.clash { background: repeating-linear-gradient(135deg, #7c3aed 0 4px, #2a1f55 4px 8px); }
+.vwb-legend i.today { background: #fbbf24; width: 3px; height: 14px; }
+
+/* Таблицы */
+.vwb-table-wrap { overflow-x: auto; border: 1px solid var(--vwb-line); border-radius: 14px; }
+.vwb-table { min-width: 760px; }
+.vwb-table tbody tr { cursor: pointer; }
+.vwb-table tbody tr:hover, .vwb-table tbody tr:focus-visible { background: rgba(124, 58, 237, 0.12); }
+.vwb-table tbody tr.none { cursor: default; }
+.vwb-table tbody tr.none td { text-align: center; color: #8a82a8; padding: 22px; }
+.vwb-table td b { color: #fff; font-weight: 700; }
+.vwb-flag { display: inline-block; margin-left: 8px; padding: 1px 7px; border-radius: 6px; background: rgba(248, 113, 113, 0.16); border: 1px solid rgba(248, 113, 113, 0.5); color: #fecaca; font-size: 0.72rem; font-weight: 600; }
+.vwb-pill { display: inline-block; padding: 3px 9px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; border: 1px solid transparent; }
+.vwb-pill.s-plan { background: rgba(124, 58, 237, 0.2); border-color: rgba(185, 164, 255, 0.5); color: #ddd6fe; }
+.vwb-pill.s-progress { background: rgba(251, 191, 36, 0.16); border-color: rgba(251, 191, 36, 0.55); color: #fde68a; }
+.vwb-pill.s-done { background: rgba(22, 163, 74, 0.18); border-color: rgba(134, 239, 172, 0.5); color: #bbf7d0; }
+.vwb-pill.s-hold { background: rgba(100, 116, 139, 0.2); border-color: rgba(203, 213, 225, 0.45); color: #e2e8f0; }
+.vwb-pill.over { background: rgba(248, 113, 113, 0.16); border-color: rgba(248, 113, 113, 0.55); color: #fecaca; }
+
+/* Штат и техника */
+.vwb-parties { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; margin-bottom: 22px; }
+.vwb-party { background: rgba(255, 255, 255, 0.03); border: 1px solid var(--vwb-line); border-radius: 14px; padding: 16px 18px; }
+.vwb-party h3 { font-size: 1.05rem; font-weight: 800; margin-bottom: 10px; }
+.vwb-party dl { display: grid; grid-template-columns: minmax(110px, max-content) 1fr; gap: 5px 14px; margin: 0; font-size: 0.82rem; }
+.vwb-party dt { color: #8a82a8; }
+.vwb-party dd { margin: 0; color: #e9e5f7; overflow-wrap: anywhere; }
+.vwb-subhead { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin: 26px 0 12px; }
+.vwb-subhead h3 { font-size: 1.1rem; font-weight: 800; }
+.vwb-brigades { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+.vwb-brigade { background: rgba(255, 255, 255, 0.03); border: 1px solid var(--vwb-line); border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+.vwb-brigade.bad { border-color: rgba(248, 113, 113, 0.45); }
+.vwb-brigade-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.vwb-brigade-head h4 { font-size: 0.98rem; font-weight: 800; }
+.vwb-brigade ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.vwb-brigade li { display: flex; flex-direction: column; padding-left: 12px; border-left: 2px solid var(--vwb-violet); }
+.vwb-brigade ul.m li { border-left-color: var(--vwb-gold); }
+.vwb-brigade li b { font-size: 0.84rem; color: #fff; font-weight: 600; }
+.vwb-brigade li small { font-size: 0.74rem; color: #8a82a8; }
+.vwb-brigade-works { border-top: 1px solid var(--vwb-line); padding-top: 10px; display: flex; flex-direction: column; gap: 4px; margin-top: auto; }
+.vwb-work-link { background: rgba(255, 255, 255, 0.04); border: 1px solid transparent; border-radius: 8px; padding: 6px 9px; text-align: left; color: #e9e5f7; font: inherit; font-size: 0.8rem; cursor: pointer; display: flex; justify-content: space-between; gap: 10px; }
+.vwb-work-link small { color: #8a82a8; white-space: nowrap; }
+.vwb-work-link:hover { border-color: rgba(185, 164, 255, 0.5); }
+.vwb-work-link.clash { border-color: rgba(248, 113, 113, 0.55); }
+
+.vwb-warn { background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.4); color: #fde68a; border-radius: 10px; padding: 9px 12px; font-size: 0.82rem; margin-bottom: 12px; }
+.vwb-warn.big { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; background: rgba(248, 113, 113, 0.12); border-color: rgba(248, 113, 113, 0.5); color: #fecaca; }
+.vwb-rule { border-radius: 10px; padding: 9px 12px; font-size: 0.82rem; margin: 12px 0; border: 1px solid; }
+.vwb-rule.ok { background: rgba(22, 163, 74, 0.12); border-color: rgba(134, 239, 172, 0.4); color: #bbf7d0; }
+.vwb-rule.bad { background: rgba(251, 191, 36, 0.1); border-color: rgba(251, 191, 36, 0.4); color: #fde68a; }
+
+.vwb-empty { text-align: center; padding: 46px 20px; color: var(--vwb-soft); }
+.vwb-empty.small { padding: 24px 16px; border: 1px dashed rgba(255, 255, 255, 0.14); border-radius: 12px; font-size: 0.85rem; }
+.vwb-empty h3 { font-size: 1.15rem; margin-bottom: 8px; color: #fff; }
+.vwb-empty p { max-width: 560px; margin: 0 auto 16px; font-size: 0.88rem; }
+.vwb-empty .vwb-actions { justify-content: center; }
+.vwb-spinner { width: 34px; height: 34px; margin: 0 auto 12px; border-radius: 50%; border: 3px solid rgba(255, 255, 255, 0.14); border-top-color: #fbbf24; animation: vwb-spin 0.9s linear infinite; }
+@keyframes vwb-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .vwb-spinner { animation: none; } }
+
+/* Окна */
+.vwb-overlay { position: fixed; inset: 0; z-index: 100500; background: rgba(6, 4, 18, 0.72); backdrop-filter: blur(4px); display: flex; align-items: flex-start; justify-content: center; padding: 4vh 14px; overflow-y: auto; font-family: var(--font-main, 'Plus Jakarta Sans', -apple-system, 'Segoe UI', Roboto, sans-serif); }
+.vwb-modal { width: 100%; max-width: 560px; background: linear-gradient(160deg, #1d1740, #120f2b); border: 1px solid rgba(185, 164, 255, 0.35); border-radius: 18px; box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6); color: #f8fafc; }
+.vwb-modal.wide { max-width: 900px; }
+.vwb-modal-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 16px 20px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
+.vwb-modal-head h3 { margin: 0; font-size: 1.1rem; font-weight: 800; color: #fff; overflow-wrap: anywhere; }
+.vwb-x { flex: 0 0 auto; width: 36px; height: 36px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.14); background: rgba(255, 255, 255, 0.05); color: #fff; font-size: 1.3rem; line-height: 1; cursor: pointer; }
+.vwb-x:hover { background: rgba(255, 255, 255, 0.12); }
+.vwb-modal-body { padding: 18px 20px; }
+.vwb-modal-foot { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; padding: 14px 20px; border-top: 1px solid rgba(255, 255, 255, 0.08); }
+.vwb-left { margin-right: auto; }
+.vwb-danger { background: linear-gradient(135deg, #dc2626, #b91c1c) !important; border-color: #fca5a5 !important; }
+.vwb-confirm-text { margin: 0; font-size: 0.92rem; color: #e9e5f7; line-height: 1.5; }
+.vwb-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 14px; }
+.vwb-form.one { grid-template-columns: 1fr; }
+.vwb-field { display: flex; flex-direction: column; min-width: 0; }
+.vwb-field.wide, .vwb-crew.wide { grid-column: 1 / -1; }
+.vwb-field.bad .vip-input { border-color: #f87171; }
+.vwb-area { resize: vertical; min-height: 60px; font-family: inherit; }
+.vwb-crew { display: flex; flex-direction: column; gap: 8px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 12px; }
+.vwb-chip { display: inline-block; margin: 0 6px 6px 0; padding: 3px 9px; border-radius: 999px; font-size: 0.78rem; background: rgba(124, 58, 237, 0.22); border: 1px solid rgba(185, 164, 255, 0.45); color: #ede9fe; }
+.vwb-chip.gold { background: rgba(251, 191, 36, 0.14); border-color: rgba(251, 191, 36, 0.5); color: #fde68a; }
+.vwb-pick-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin-top: 14px; }
+.vwb-pick { border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 10px 14px 12px; margin: 0; min-width: 0; max-height: 46vh; overflow-y: auto; }
+.vwb-pick legend { padding: 0 6px; font-size: 0.78rem; font-weight: 700; color: #cbc5e3; text-transform: uppercase; letter-spacing: 0.4px; }
+.vwb-check { display: flex; align-items: flex-start; gap: 9px; padding: 7px 0; font-size: 0.84rem; color: #e9e5f7; cursor: pointer; }
+.vwb-check.inline { padding: 0; }
+.vwb-check input { width: 18px; height: 18px; margin-top: 1px; accent-color: #a78bfa; flex: 0 0 auto; }
+.vwb-check b { font-weight: 600; color: #fff; }
+.vwb-check em { font-style: normal; color: #fcd34d; font-size: 0.76rem; }
+
+/* Фото и видео */
+.vwb-media-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; margin-top: 20px; padding-top: 16px; border-top: 1px solid rgba(255, 255, 255, 0.08); }
+.vwb-media-head h4 { margin: 0; font-size: 1rem; font-weight: 800; color: #fff; }
+.vwb-media-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin-top: 12px; }
+.vwb-media { margin: 0; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; overflow: hidden; }
+.vwb-thumb { display: block; width: 100%; padding: 0; border: 0; background: #0b0a1a; cursor: zoom-in; }
+.vwb-thumb img, .vwb-media video { display: block; width: 100%; height: 150px; object-fit: cover; background: #0b0a1a; }
+.vwb-media figcaption { display: flex; flex-direction: column; gap: 6px; padding: 8px; }
+.vwb-media-meta { display: flex; justify-content: space-between; align-items: center; font-size: 0.74rem; color: #8a82a8; }
+.vwb-viewer { display: block; max-width: 100%; max-height: 72vh; margin: 0 auto; border-radius: 10px; }
+.vwb-uploads { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.vwb-uploads li { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; font-size: 0.8rem; color: #e9e5f7; background: rgba(255, 255, 255, 0.04); border-radius: 8px; padding: 7px 10px; }
+.vwb-uploads li.bad { background: rgba(248, 113, 113, 0.12); color: #fecaca; }
+.vwb-uploads .n { flex: 1 1 160px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vwb-uploads .bar { flex: 1 1 120px; height: 6px; background: rgba(255, 255, 255, 0.12); border-radius: 3px; overflow: hidden; }
+.vwb-uploads .bar i { display: block; height: 100%; background: #fbbf24; }
+.vwb-uploads .p { width: 38px; text-align: right; }
+
+@media (max-width: 720px) {
+  .vwb-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .vwb-g-left { flex-basis: 150px; }
+  .vwb-g-name { padding: 0 8px; }
+  .vwb-form { grid-template-columns: 1fr; }
+  .vwb-add { margin-left: 0; width: 100%; justify-content: center; }
+  .vwb-toolbar select.vip-input { flex: 1 1 140px; min-width: 0; }
+  .vwb-save { margin-left: 0; width: 100%; }
+  .vwb-actions .vip-secondary-btn { flex: 1 1 auto; justify-content: center; }
+  .vwb-modal-foot .vip-primary-btn, .vwb-modal-foot .vip-secondary-btn { flex: 1 1 auto; justify-content: center; }
+  .vwb-left { margin-right: 0; }
+  .vwb-overlay { padding: 0; }
+  .vwb-modal, .vwb-modal.wide { border-radius: 0; min-height: 100vh; }
+}
+
+/* уведомление модуля видно и поверх открытого окна */
+.vip-construction-module .vip-toast { z-index: 100600; max-width: min(92vw, 520px); }
+.vwb-done { display: block; margin-top: 4px; }
+
+/* девять вкладок модуля помещаются в один ряд на обычном мониторе */
+.vip-construction-module .vip-flow-tabs-bar .vip-tab-btn { min-width: 132px; padding: 10px 12px; }
+.vwb-brigade > .vwb-pill { align-self: flex-start; }

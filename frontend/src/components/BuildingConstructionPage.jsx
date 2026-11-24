@@ -3,6 +3,17 @@ import React, { useState, useEffect, useRef } from 'react';
 import './BuildingConstructionPage.css';
 import Building3DViewer from './Building3DViewerLazy';
 import { createPlatformOrder } from '../services/orderSyncService';
+import VipWorksBoard from './VipWorksBoard';
+
+// Рабочие проекты (график, штат, техника) ведут администратор и менеджер; сервер проверяет роль сам
+function isOfficeStaff() {
+  try {
+    const role = JSON.parse(localStorage.getItem('app_currentUser') || '{}').role;
+    return role === 'admin' || role === 'manager';
+  } catch (e) {
+    return false;
+  }
+}
 
 // Initial preloaded VIP construction sites
 const INITIAL_VIP_OBJECTS = [
@@ -232,7 +243,10 @@ const ACCREDITED_CONTRACTORS = [
 export default function BuildingConstructionPage({ onBack, hideHeader = false }) {
   // Navigation tabs matching flowchart:
   // 'objects' (Мои объекты) | 'create' (Создать объект) | 'works_calc' (Выбор СМР & Оценка) | 'ai_audit' (Проверка инженером) | 'lots' (Лоты / Заказы) | 'docs' (Документы & PDF) | 'contractors' (Допуск подрядчиков)
-  const [activeTab, setActiveTab] = useState('objects');
+  const staff = isOfficeStaff();
+  const [activeTab, setActiveTab] = useState(staff ? 'schedule' : 'objects');
+  const [realProjects, setRealProjects] = useState([]);
+  const realTab = activeTab === 'schedule' || activeTab === 'team';
 
   // Objects State
   const [objects, setObjects] = useState(() => {
@@ -307,7 +321,7 @@ export default function BuildingConstructionPage({ onBack, hideHeader = false })
     };
 
     const created = {
-      id: `OBJ-${Math.floor(200 + Math.random() * 800)}`,
+      id: `OBJ-${Date.now().toString(36).toUpperCase()}`,
       title: newObj.title,
       type: newObj.type,
       typeIcon: typeIcons[newObj.type] || '🏗️',
@@ -318,11 +332,11 @@ export default function BuildingConstructionPage({ onBack, hideHeader = false })
       builtArea: Math.round((Number(newObj.area) || 5000) / (Number(newObj.floors) || 5)),
       budget: Number(newObj.budget) || 100000000,
       spent: 0,
-      progress: 5,
-      currentStage: 'Нулевой цикл / Инженерные изыскания',
-      engineer: 'Аттестованный ГИП назначен',
-      engineerPhone: '+7 701 500-20-26',
-      workers: 12,
+      progress: 0,
+      currentStage: 'Объект создан, работы не начаты',
+      engineer: 'Инженер не назначен',
+      engineerPhone: '',
+      workers: 0,
       deadline: newObj.deadline || '2027-12-31',
       licenseReq: newObj.licenseReq,
       status: 'active',
@@ -414,7 +428,7 @@ export default function BuildingConstructionPage({ onBack, hideHeader = false })
     }
 
     const newLot = {
-      id: `LOT-${Math.floor(100 + Math.random() * 900)}`,
+      id: `LOT-${Date.now().toString(36).toUpperCase()}`,
       title: lotTitle,
       budget: Number(lotBudget) || estimate.totalEstimate,
       status: 'published',
@@ -456,11 +470,14 @@ export default function BuildingConstructionPage({ onBack, hideHeader = false })
 
   return (
     <div className="vip-construction-module">
-      {toastMessage && <div className="vip-toast">{toastMessage}</div>}
-      <DemoNotice>
-        Объекты, бюджеты, подрядчики, лоты и документы в этом разделе — образец, чтобы было видно, как он устроен.
-        Это не ваши данные и не реальные компании. Объекты, которые вы добавите сами, хранятся только в этом браузере.
-      </DemoNotice>
+      {toastMessage && <div className="vip-toast" role="status">{toastMessage}</div>}
+      {!realTab && (
+        <DemoNotice>
+          Объекты, бюджеты, подрядчики, лоты и документы на этой вкладке — образец, чтобы было видно, как она устроена.
+          Это не ваши данные и не реальные компании. Объекты, которые вы добавите здесь сами, хранятся только в этом браузере.
+          {staff ? ' Рабочие проекты с графиком, штатом и техникой — на вкладках «График работ» и «Штат и техника»: они хранятся на сервере.' : ''}
+        </DemoNotice>
+      )}
 
       {/* ── 1. MODULE HEADER & FLOW STATUS BAR ── */}
       {!hideHeader && (
@@ -495,6 +512,30 @@ export default function BuildingConstructionPage({ onBack, hideHeader = false })
 
       {/* ── 2. ARCHITECTURAL FLOWCHART STEP SELECTOR ── */}
       <div className="vip-flow-tabs-bar">
+        {staff && (
+          <>
+            <button
+              className={`vip-tab-btn ${activeTab === 'schedule' ? 'active' : ''}`}
+              onClick={() => setActiveTab('schedule')}
+            >
+              <span className="icon">📅</span>
+              <div className="tab-info">
+                <span className="t-name">График работ</span>
+                <small className="t-sub">{realProjects.length ? `Проектов: ${realProjects.length} · сроки, фото, видео` : 'Календарь, сроки, фото и видео'}</small>
+              </div>
+            </button>
+            <button
+              className={`vip-tab-btn ${activeTab === 'team' ? 'active' : ''}`}
+              onClick={() => setActiveTab('team')}
+            >
+              <span className="icon">👷</span>
+              <div className="tab-info">
+                <span className="t-name">Штат и техника</span>
+                <small className="t-sub">Бригады, люди, машины</small>
+              </div>
+            </button>
+          </>
+        )}
         <button
           className={`vip-tab-btn ${activeTab === 'objects' ? 'active' : ''}`}
           onClick={() => setActiveTab('objects')}
@@ -573,6 +614,9 @@ export default function BuildingConstructionPage({ onBack, hideHeader = false })
         </button>
       </div>
 
+      {/* ── РАБОЧИЕ ПРОЕКТЫ: график работ, штат и техника (данные на сервере) ── */}
+      {staff && realTab && <VipWorksBoard section={activeTab} onToast={showToast} onProjects={setRealProjects} />}
+
       {/* ── 3. TAB 1: МОИ ОБЪЕКТЫ (OBJECTS DASHBOARD + 3D BIM PREVIEW) ── */}
       {activeTab === 'objects' && (
         <div className="vip-content-section">
@@ -626,7 +670,7 @@ export default function BuildingConstructionPage({ onBack, hideHeader = false })
                   <div className="v-metric-box">
                     <span className="lbl">Ответственный ГИП</span>
                     <strong className="val">{currentObject.engineer}</strong>
-                    <small>📞 {currentObject.engineerPhone}</small>
+                    {currentObject.engineerPhone ? <small>📞 {currentObject.engineerPhone}</small> : <small>телефон не указан</small>}
                   </div>
                   <div className="v-metric-box">
                     <span className="lbl">Рабочих / Лотов</span>

@@ -67,6 +67,9 @@ func InitDB(dbURL string) error {
 	if err := runPlanModelMigrations(); err != nil {
 		return fmt.Errorf("plan model migrations failed: %w", err)
 	}
+	if err := runVipMigrations(); err != nil {
+		return fmt.Errorf("vip migrations failed: %w", err)
+	}
 	if err := runUserDataMigrations(); err != nil {
 		return fmt.Errorf("user data migrations failed: %w", err)
 	}
