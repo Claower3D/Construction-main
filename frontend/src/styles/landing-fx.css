@@ -545,7 +545,9 @@ a.hx-app-chip:hover { border-color: var(--lux-gold); color: var(--lux-gold); }
 .hh-label i { flex: none; width: 7px; height: 7px; border-radius: 50%; background: #fff; box-shadow: 0 0 8px #fff; }
 @media (max-width: 1024px) {
   .hx-grid { grid-template-columns: minmax(0, 1fr) !important; }
-  .hx-art { margin-right: 0 !important; }
+  /* телефон и планшет: дом стоит первым, над заголовком, текстом и кнопками */
+  /* у рисунка сверху пустое поле — подтягиваем его к шапке, чтобы заголовок остался на первом экране */
+  .hx-art { margin-right: 0 !important; margin-left: 0 !important; order: -1; margin-top: calc(-1 * clamp(40px, 12vw, 72px)); }
 }
 @media (max-width: 560px) {
   .hh-label { width: auto; padding: 5px 8px; font-size: 0.625rem; gap: 5px; }
