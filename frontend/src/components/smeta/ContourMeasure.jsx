@@ -41,9 +41,13 @@ function selfIntersects(pts) {
   return false;
 }
 
-export default function ContourMeasure({ photos = [], geo, setGeo, showToast }) {
+export default function ContourMeasure({ photos = [], geo, setGeo, showToast, initialGeo = null }) {
   const canvasRef = useRef(null);
+  // Размеры из сохранённого черновика открываются на вкладке ручного ввода: контур не сохраняется,
+  // а площадь и периметр — да, их видно и можно поправить
+  const seeded = initialGeo?.area > 0 && initialGeo?.perimeter > 0;
   const [tab, setTab] = useState(() => {
+    if (seeded) return 'manual';
     try { return localStorage.getItem('qazgost_measure_tab') || 'grid'; } catch { return 'grid'; }
   });
   const [cellM, setCellM] = useState(0.5);
@@ -74,7 +78,9 @@ export default function ContourMeasure({ photos = [], geo, setGeo, showToast }) 
   const [refMeters, setRefMeters] = useState('0.9');
   const [rectA, setRectA] = useState('0.6');
   const [rectB, setRectB] = useState('0.6');
-  const [manual, setManual] = useState({ kind: 'rect', len: '', wid: '', area: '', per: '' });
+  const [manual, setManual] = useState(() => (seeded
+    ? { kind: 'free', len: '', wid: '', area: String(initialGeo.area), per: String(initialGeo.perimeter) }
+    : { kind: 'rect', len: '', wid: '', area: '', per: '' }));
   const [hover, setHover] = useState(null);
 
   const setRef = (pts) => { refPtsRef.current = pts; setRefPts(pts); };

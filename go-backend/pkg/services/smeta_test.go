@@ -3,6 +3,7 @@ package services
 import (
 	"math"
 	"os"
+	"strings"
 	"testing"
 )
 
@@ -282,5 +283,114 @@ func TestSmetaAuditWithPriceDB(t *testing.T) {
 	}
 	if matched == 0 {
 		t.Fatal("сверка с базой не нашла ни одной позиции")
+	}
+}
+
+// Ни один вид работ и ни один комплекс не должен давать пустую смету — даже если в обмере
+// не отмечено ни дверей, ни окон. Заодно сверяются суммы строк и итоги.
+func TestSmetaNeverEmptyAndTotalsAddUp(t *testing.T) {
+	geos := map[string]SmetaGeo{
+		"без проёмов": {Area: 30, Perimeter: 22, Height: 2.7},
+		"квартира":    {Area: 60, Perimeter: 34, Height: 2.7, Doors: 5, Windows: 4},
+	}
+	maps, complexes := SmetaTechMapList()
+	var reqs []SmetaRequest
+	for _, m := range maps {
+		reqs = append(reqs, SmetaRequest{Category: m.ID})
+	}
+	for _, c := range complexes {
+		reqs = append(reqs, SmetaRequest{Complex: c.ID})
+	}
+	for name, g := range geos {
+		for _, req := range reqs {
+			req.Geometry, req.City, req.Mode = g, "Алматы", "full"
+			res := calc(t, req)
+			for _, sc := range res.Scenarios {
+				id := req.Category + req.Complex + "/" + sc.ID + " (" + name + ")"
+				if len(sc.Items) == 0 || sc.Subtotal <= 0 {
+					t.Errorf("%s: пустая смета", id)
+					continue
+				}
+				var works, mats, eq float64
+				for _, it := range sc.Items {
+					if it.Qty <= 0 || it.Price <= 0 || it.Unit == "" || it.Name == "" || it.Source == "" || it.Why == "" {
+						t.Errorf("%s: неполная строка %+v", id, it)
+					}
+					if math.Abs(it.Total-it.Qty*it.Price) > math.Max(1.5, it.Total*0.002) {
+						t.Errorf("%s: «%s» %v × %v ≠ %v", id, it.Name, it.Qty, it.Price, it.Total)
+					}
+					switch it.Kind {
+					case "work":
+						works += it.Total
+					case "material":
+						mats += it.Total
+					case "equipment":
+						eq += it.Total
+					default:
+						t.Errorf("%s: неизвестный вид строки %q", id, it.Kind)
+					}
+				}
+				if math.Abs(works-sc.Works) > 3 || math.Abs(mats-sc.Materials) > 3 || math.Abs(eq-sc.Equipment) > 3 {
+					t.Errorf("%s: итоги по видам не сходятся со строками", id)
+				}
+				if math.Abs(sc.Subtotal-(sc.Works+sc.Materials+sc.Equipment)) > 3 || math.Abs(sc.Total-(sc.Subtotal+sc.Reserve)) > 3 {
+					t.Errorf("%s: итог не равен сумме частей", id)
+				}
+			}
+			if len(res.Scenarios) == 3 && !(res.Scenarios[0].Total <= res.Scenarios[1].Total+1 && res.Scenarios[1].Total <= res.Scenarios[2].Total+1) {
+				t.Errorf("%s%s (%s): сценарии идут не по возрастанию цены", req.Category, req.Complex, name)
+			}
+		}
+	}
+}
+
+// Двери не отмечены в обмере — в смете по дверям принимается одна дверь, и это видно в пояснении.
+func TestSmetaInteriorWithoutDoors(t *testing.T) {
+	res := calc(t, SmetaRequest{Category: "interior", Geometry: SmetaGeo{Area: 30, Perimeter: 22, Height: 2.7}, City: "Алматы", Mode: "fast"})
+	it := smetaItem(res.Scenarios[0], "w.door.interior")
+	if it == nil || it.Qty != 1 || it.Why == "" {
+		t.Fatalf("дверь по умолчанию: %+v", it)
+	}
+}
+
+// Кондиционер с установкой — работа, а не строительная техника: в итогах он не должен прятаться в «Технике».
+func TestSmetaSplitSystemIsWork(t *testing.T) {
+	res := calc(t, SmetaRequest{Category: "hvac", Geometry: room, City: "Алматы", Mode: "fast"})
+	sc := res.Scenarios[1]
+	it := smetaItem(sc, "e.split")
+	if it == nil || it.Kind != "work" || sc.Equipment != 0 || sc.Works < it.Total {
+		t.Fatalf("сплит-система: %+v, техника %v, работы %v", it, sc.Equipment, sc.Works)
+	}
+}
+
+// У ванны свой смеситель (с лейкой) и своя расценка на установку; у душевой кабины смеситель в комплекте.
+func TestSmetaPlumbingMixers(t *testing.T) {
+	both := calc(t, SmetaRequest{Category: "plumbing", Geometry: room, City: "Алматы", Mode: "fast"}).Scenarios[1]
+	for _, key := range []string{"w.pl.mixer", "m.mixer", "w.pl.mixer_bath", "m.mixer_bath"} {
+		if it := smetaItem(both, key); it == nil || it.Qty != 1 {
+			t.Fatalf("раковина и ванна: строка %s — %+v", key, it)
+		}
+	}
+	if it := smetaItem(both, "m.mixer_bath"); it.Verified || it.Note == "" {
+		t.Fatalf("цена смесителя для ванны — оценка, это должно быть видно: %+v", it)
+	}
+	res := calc(t, SmetaRequest{Category: "plumbing", Geometry: room, City: "Алматы", Mode: "fast",
+		Params: map[string]float64{"sink": 0, "bath": 0, "shower": 1}})
+	sc := res.Scenarios[1]
+	for _, key := range []string{"w.pl.mixer", "m.mixer", "w.pl.mixer_bath", "m.mixer_bath"} {
+		if it := smetaItem(sc, key); it != nil {
+			t.Fatalf("только душевая кабина: лишняя строка %s", key)
+		}
+	}
+	if smetaItem(sc, "m.shower") == nil {
+		t.Fatal("душевая кабина пропала из сметы")
+	}
+	joined := strings.Join(res.Assumptions, " | ")
+	if !strings.Contains(joined, "Канализация") || !strings.Contains(joined, "в комплект кабины") {
+		t.Fatalf("в допущениях нет слов про канализацию и комплект кабины: %s", joined)
+	}
+	heat := calc(t, SmetaRequest{Category: "heating", Geometry: room, City: "Алматы", Mode: "fast"})
+	if !strings.Contains(strings.Join(heat.Assumptions, " | "), "котёл") {
+		t.Fatalf("в допущениях отопления не сказано, что котёл не входит: %v", heat.Assumptions)
 	}
 }

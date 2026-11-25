@@ -222,3 +222,21 @@
   .sm-acc-head::after { transition: none; }
 }
 
+
+/* Действия со сметой */
+.sm-actions button:disabled { opacity: 0.6; cursor: progress; }
+.sm-actions .sm-act-quiet { background: none; border-style: dashed; font-weight: 600; color: var(--qg-text-2, #cbc5e3); }
+.sm-order-done {
+  grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;
+  padding: 14px 16px; border: 1px solid #10b981; border-radius: 12px; background: rgba(16, 185, 129, 0.14);
+}
+.sm-order-done strong { color: #6ee7b7; }
+/* ИИ-разбор фото */
+.sm-photo-mismatch {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 8px 0; padding: 10px 12px;
+  border: 1px solid rgba(236, 180, 76, 0.5); border-radius: 10px; background: rgba(236, 180, 76, 0.1);
+}
+.sm-photo-mismatch span { flex: 1 1 220px; }
+.sm-photo-defects { margin: 6px 0; padding-left: 18px; }
+.sm-photo-defects li { margin: 2px 0; }
+.sm-block-muted .sm-btn { margin-top: 8px; }

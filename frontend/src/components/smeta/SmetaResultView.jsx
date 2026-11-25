@@ -191,28 +191,49 @@ function Audit({ audit }) {
   );
 }
 
-function PhotoAnalysis({ pa }) {
+function PhotoAnalysis({ pa, onPickSuggested, onOpenKey }) {
   if (!pa) return null;
   if (pa.status !== 'ok') {
+    // свой ключ помогает только когда на сервере ИИ не подключён или сервер упёрся в лимит
+    const keyHelps = !pa.ownKey && (pa.status === 'no_key' || pa.status === 'quota' || pa.status === 'key_rejected');
     return (
-      <section className="sm-block sm-block-muted">
+      <section className="sm-block sm-block-muted" data-testid="smeta-photo">
         <h4>ИИ-разбор фото</h4>
         <p>{pa.message}</p>
+        {keyHelps && onOpenKey && <button type="button" className="sm-btn" onClick={onOpenKey}>Указать свой ключ OpenAI</button>}
       </section>
     );
   }
   return (
-    <section className="sm-block">
+    <section className="sm-block" data-testid="smeta-photo">
       <h4>ИИ-разбор фото · {pa.photos} фото</h4>
-      {pa.detected && <p>На фото: <b>{pa.detected}</b>{pa.mismatch ? ` — это не совпадает с выбранным видом работ, проверьте выбор.` : ''}</p>}
+      {pa.detected && <p>На фото: <b>{pa.detected}</b></p>}
+      {pa.mismatch && pa.suggested && (
+        <div className="sm-photo-mismatch" data-testid="smeta-photo-mismatch">
+          <span>По фото больше подходит вид работ «{pa.suggested.title}», а смета посчитана для другого. Проверьте выбор.</span>
+          {onPickSuggested && <button type="button" className="sm-btn" onClick={() => onPickSuggested(pa.suggested.id)}>Выбрать «{pa.suggested.title}»</button>}
+        </div>
+      )}
+      {pa.condition && <p>Состояние: {pa.condition}</p>}
+      {pa.defects?.length > 0 && (
+        <>
+          <p><b>Видимые дефекты</b></p>
+          <ul className="sm-photo-defects">{pa.defects.map((t, i) => <li key={i}>{t}</li>)}</ul>
+        </>
+      )}
       {pa.area > 0 && <p>Оценка площади по фото: ~{fmtQty(pa.area)} м² (в смете — площадь вашего обмера).</p>}
-      {pa.insights?.length > 0 && <ul className="sm-plain">{pa.insights.map((t, i) => <li key={i}>{t}</li>)}</ul>}
+      {pa.insights?.length > 0 && (
+        <>
+          <p><b>Что учесть</b></p>
+          <ul className="sm-plain">{pa.insights.map((t, i) => <li key={i}>{t}</li>)}</ul>
+        </>
+      )}
       <p className="sm-hint">ИИ помогает увидеть дефекты и проверить выбор работ; цены и объёмы в смете — только из обмера и справочника.</p>
     </section>
   );
 }
 
-export default function SmetaResultView({ result, scenarioId, setScenarioId, photoAnalysis, techmaps, actions }) {
+export default function SmetaResultView({ result, scenarioId, setScenarioId, photoAnalysis, techmaps, actions, onPickSuggested, onOpenKey }) {
   const sc = result.scenarios.find((s) => s.id === scenarioId) || result.scenarios[1];
   const multiPart = (result.parts || []).length > 1;
   const partTitles = useMemo(() => {
@@ -259,7 +280,7 @@ export default function SmetaResultView({ result, scenarioId, setScenarioId, pho
         <div><span>Материалы</span><b data-testid="tot-materials">{fmt(sc.materials)} ₸</b></div>
         {sc.equipment > 0 && <div><span>Техника</span><b>{fmt(sc.equipment)} ₸</b></div>}
         <div className="sm-tot-main"><span>Итого по смете</span><b data-testid="tot-subtotal">{fmt(sc.subtotal)} ₸</b></div>
-        <div><span>Резерв 10%</span><b>{fmt(sc.reserve)} ₸</b></div>
+        <div><span>Резерв {sc.subtotal > 0 ? Math.round((sc.reserve / sc.subtotal) * 100) : 0}%</span><b>{fmt(sc.reserve)} ₸</b></div>
         <div className="sm-tot-budget"><span>Бюджет с резервом</span><b data-testid="tot-total">{fmt(sc.total)} ₸</b></div>
       </div>
       <p className="sm-verified" data-testid="verified-share">
@@ -269,7 +290,7 @@ export default function SmetaResultView({ result, scenarioId, setScenarioId, pho
 
       <ItemsTable sc={sc} multiPart={multiPart} partTitles={partTitles} />
 
-      <PhotoAnalysis pa={photoAnalysis} />
+      <PhotoAnalysis pa={photoAnalysis} onPickSuggested={onPickSuggested} onOpenKey={onOpenKey} />
       <Audit audit={result.audit} />
       <Schedule sched={result.schedule?.[sc.id]} />
       <Purchases list={result.purchases?.[sc.id]} />

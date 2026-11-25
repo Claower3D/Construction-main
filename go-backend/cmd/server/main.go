@@ -196,6 +196,7 @@ func main() {
 	mux.HandleFunc("/api/v1/ai/estimate", aiLimit(aiHnd.EstimateCost))
 	mux.HandleFunc("/api/v1/ai/defect", aiLimit(aiHnd.InspectDefect))
 	mux.HandleFunc("/api/v1/ai/vision", aiLimit(aiHnd.VisionProxy))
+	mux.HandleFunc("/api/v1/estimate/photo-hint", aiLimit(aiHnd.SmetaPhotoHint))
 	mux.HandleFunc("/api/v1/ai/proposal", aiLimit(aiHnd.Proposal))
 	mux.HandleFunc("/api/v1/ai/defect-vision", aiLimit(aiHnd.DefectVisionProxy))
 	mux.HandleFunc("/api/v1/ai/validate-key", aiLimit(aiHnd.ValidateKey))

@@ -114,7 +114,7 @@ export function smetaToCSV(result, scenarioId) {
   lines.push(row('', '', '', 'Материалы', '', '', '', sc.materials));
   if (sc.equipment) lines.push(row('', '', '', 'Техника', '', '', '', sc.equipment));
   lines.push(row('', '', '', 'Итого по смете', '', '', '', sc.subtotal));
-  lines.push(row('', '', '', 'Резерв 10%', '', '', '', sc.reserve));
+  lines.push(row('', '', '', `Резерв ${sc.subtotal > 0 ? Math.round((sc.reserve / sc.subtotal) * 100) : 0}%`, '', '', '', sc.reserve));
   lines.push(row('', '', '', 'Бюджет с резервом', '', '', '', sc.total));
 
   const purchases = result.purchases?.[sc.id];
@@ -143,4 +143,32 @@ export function downloadText(text, filename, type = 'text/csv;charset=utf-8') {
   a.click();
   a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+/**
+ * Уменьшает фото перед отправкой на разбор: длинная сторона до maxSide, JPEG.
+ * Если браузер не смог прочитать картинку (например, HEIC), возвращает её как есть — решит сервер.
+ */
+export function shrinkPhoto(dataUrl, maxSide = 1600, quality = 0.82) {
+  return new Promise((resolve) => {
+    if (typeof document === 'undefined' || typeof Image === 'undefined') { resolve(dataUrl); return; }
+    const img = new Image();
+    img.onload = () => {
+      try {
+        const k = Math.min(1, maxSide / Math.max(img.naturalWidth, img.naturalHeight));
+        if (k === 1 && dataUrl.length < 900000) { resolve(dataUrl); return; }
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.max(1, Math.round(img.naturalWidth * k));
+        canvas.height = Math.max(1, Math.round(img.naturalHeight * k));
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#fff'; // у PNG с прозрачностью фон иначе станет чёрным
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        const out = canvas.toDataURL('image/jpeg', quality);
+        resolve(out.startsWith('data:image/jpeg') && out.length < dataUrl.length ? out : dataUrl);
+      } catch { resolve(dataUrl); }
+    };
+    img.onerror = () => resolve(dataUrl);
+    img.src = dataUrl;
+  });
 }

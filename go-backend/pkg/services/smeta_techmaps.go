@@ -448,16 +448,6 @@ func plPoints(c *smetaCtx) (float64, string) {
 	return n, "точки:" + parts
 }
 
-func mixers(c *smetaCtx) (float64, string) {
-	n := 0.0
-	for _, k := range []string{"sink", "bath", "shower"} {
-		if c.p(k) > 0 {
-			n++
-		}
-	}
-	return n, "по смесителю на раковину, ванну и душ"
-}
-
 var tmPlumbing = &TechMap{
 	ID: "plumbing", Title: "Сантехника и водопровод", Group: "Инженерные системы", BaseLabel: "Контур санузла / квартиры",
 	Params: []SmetaParam{
@@ -486,10 +476,12 @@ var tmPlumbing = &TechMap{
 		{Stage: "Установка сантехники", Rate: "m.install_set", Qty: when(pEq("toilet", 2), fixed(1, "инсталляция с унитазом"))},
 		{Stage: "Установка сантехники", Rate: "w.pl.sink", PerDay: 3, Qty: when(pOn("sink"), fixed(1, "раковина"))},
 		{Stage: "Установка сантехники", Rate: "m.sink", Qty: when(pOn("sink"), fixed(1, "раковина"))},
-		{Stage: "Установка сантехники", Rate: "w.pl.mixer", PerDay: 6, Qty: mixers},
-		{Stage: "Установка сантехники", Rate: "m.mixer", Qty: mixers},
+		{Stage: "Установка сантехники", Rate: "w.pl.mixer", PerDay: 6, Qty: when(pOn("sink"), fixed(1, "смеситель на раковину"))},
+		{Stage: "Установка сантехники", Rate: "m.mixer", Qty: when(pOn("sink"), fixed(1, "смеситель на раковину"))},
 		{Stage: "Установка сантехники", Rate: "w.pl.bath", PerDay: 2, Qty: when(pOn("bath"), fixed(1, "ванна"))},
 		{Stage: "Установка сантехники", Rate: "m.bath", Qty: when(pOn("bath"), fixed(1, "ванна"))},
+		{Stage: "Установка сантехники", Rate: "w.pl.mixer_bath", PerDay: 6, Qty: when(pOn("bath"), fixed(1, "смеситель на ванну с душевой лейкой"))},
+		{Stage: "Установка сантехники", Rate: "m.mixer_bath", Qty: when(pOn("bath"), fixed(1, "смеситель на ванну с душевой лейкой"))},
 		{Stage: "Установка сантехники", Rate: "w.pl.shower", PerDay: 1, Qty: when(pOn("shower"), fixed(1, "душевая кабина"))},
 		{Stage: "Установка сантехники", Rate: "m.shower", Qty: when(pOn("shower"), fixed(1, "душевая кабина"))},
 		{Stage: "Установка сантехники", Rate: "w.pl.washer", PerDay: 4, Qty: when(pOn("washer"), fixed(1, "стиральная машина (сама машина — заказчика)"))},
@@ -499,7 +491,14 @@ var tmPlumbing = &TechMap{
 		{Stage: "Установка сантехники", Rate: "m.towel", Qty: when(pOn("towel"), fixed(1, "полотенцесушитель"))},
 	},
 	Assume: func(c *smetaCtx) []string {
-		return []string{"Сантехника: работа «за точку» включает прокладку труб; ≈3 м трубы PPR на точку."}
+		out := []string{
+			"Сантехника: работа «за точку» включает прокладку труб; ≈3 м трубы PPR на точку.",
+			"Канализация: приборы подключаются к существующим выпускам; замена канализационных труб и стояка в смету не входит — считается после осмотра.",
+		}
+		if c.p("shower") > 0 {
+			out = append(out, "Душевая кабина: смеситель и лейка входят в комплект кабины.")
+		}
+		return out
 	},
 }
 
@@ -523,6 +522,9 @@ var tmHeating = &TechMap{
 		{Stage: "Трубы отопления", Rate: "w.ht.supply", PerDay: 2, Qty: radiators},
 		{Stage: "Радиаторы", Rate: "w.ht.radiator", PerDay: 4, Qty: radiators},
 		{Stage: "Радиаторы", Rate: "m.radiator", Qty: radiators},
+	},
+	Assume: func(c *smetaCtx) []string {
+		return []string{"Отопление: радиаторы и подводка к ним при действующей системе; котёл, насосная группа и магистральные трубы в смету не входят."}
 	},
 }
 
@@ -974,6 +976,10 @@ var tmWindows = &TechMap{
 func intDoors(c *smetaCtx) (float64, string) {
 	if v := c.p("doors"); v > 0 {
 		return v, "задано"
+	}
+	if c.G.Doors < 1 {
+		// двери в обмере не отмечены — смета по дверям не должна выходить пустой
+		return 1, "в обмере двери не отмечены — принята 1 дверь"
 	}
 	return float64(c.G.Doors), fmt.Sprintf("дверей в контуре: %d", c.G.Doors)
 }

@@ -4,16 +4,34 @@ import { jsonAuthHeaders } from '../services/platformUtils';
 import ContourMeasure from './smeta/ContourMeasure';
 import SmetaParams, { buildParams } from './smeta/SmetaParams';
 import SmetaResultView from './smeta/SmetaResultView';
-import { loadTechmaps, calcSmeta, detectCategory, smetaToCSV, downloadText, fmt } from './smeta/smetaApi';
+import { loadTechmaps, calcSmeta, detectCategory, smetaToCSV, downloadText, shrinkPhoto, fmt } from './smeta/smetaApi';
+import { saveSmetaXlsx, openSmetaPrint, reservePercent } from './smeta/smetaDocs';
+import { loadXlsx } from '../services/adminExcelIO';
+import { translate, getLang } from '../i18n';
 import './SmartPhotoEstimatePage.css';
 import './smeta/smeta.css';
 
 const isRealOpenAIKey = (k) => typeof k === 'string' && /^sk-[A-Za-z0-9_-]{10,}/.test(k.trim());
 
-const SYSTEM_OPENAI_PRESETS = {
-  KEY_1_VISION_DEFECT: 'system-key-1-vision',
-  KEY_2_DETAILED_ESTIMATE: 'system-key-2-detailed'
+// Черновик расчёта: выбор, размеры, параметры и последняя смета переживают обновление страницы.
+// Фото в черновик не кладём — они большие; после обновления их нужно добавить заново.
+const DRAFT_KEY = 'qazgost_estimate_draft';
+const DRAFT_TTL_MS = 3 * 24 * 3600 * 1000;
+const readDraft = () => {
+  try {
+    const d = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null');
+    if (!d || d.v !== 1 || !(Date.now() - d.at < DRAFT_TTL_MS)) return null;
+    const g = d.geo || {};
+    const okGeo = [g.area, g.perimeter, g.height, g.doors, g.windows].every((n) => typeof n === 'number' && Number.isFinite(n) && n >= 0);
+    const okResult = d.result && Array.isArray(d.result.scenarios) && d.result.scenarios.length > 0
+      && d.result.scenarios.every((sc) => Array.isArray(sc.items) && typeof sc.subtotal === 'number') && d.result.geometry;
+    return { ...d, geo: okGeo ? g : null, result: okResult ? d.result : null };
+  } catch { return null; }
 };
+const EMPTY_GEO = { area: 0, perimeter: 0, height: 2.7, doors: 1, windows: 1, source: '' };
+
+// Документы и сообщения пишутся на языке страницы: тем же словарём, что и экран
+const tr = (text) => (getLang() === 'ru' ? text : (translate(text) ?? text));
 
 // Старые идентификаторы регионов (сохранены у пользователей в localStorage) → название города
 const LEGACY_REGION_IDS = {
@@ -26,7 +44,7 @@ const LEGACY_REGION_IDS = {
 const MODES = [
   { id: 'fast', title: 'Быстрый', points: ['объёмы по обмеру и нормам расхода', 'цена и источник в каждой строке', 'три сценария с разным составом работ'] },
   { id: 'detailed', title: 'Детальный', points: ['всё из быстрого', 'проверка геометрии и рыночного ориентира', 'сверка цен с базой QazGost', 'ИИ-разбор фото, если подключён ключ OpenAI'] },
-  { id: 'full', title: 'Полный', points: ['всё из детального', 'график работ по этапам с перерывами', 'ведомость закупки материалов', 'CSV со всеми разделами'] },
+  { id: 'full', title: 'Полный', points: ['всё из детального', 'график работ по этапам с перерывами', 'ведомость закупки материалов', 'Excel и PDF со всеми разделами'] },
 ];
 
 const CATEGORY_CARDS = [
@@ -70,10 +88,11 @@ const plural = (n, one, few, many) => {
 };
 
 export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
+  const [draft] = useState(readDraft);
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeGroup, setActiveGroup] = useState('Комплекс');
-  const [selectedCategory, setSelectedCategory] = useState('apartment_renovation');
-  const [isCategorySkipped, setIsCategorySkipped] = useState(false);
+  const [activeGroup, setActiveGroup] = useState(draft?.activeGroup || 'Комплекс');
+  const [selectedCategory, setSelectedCategory] = useState(draft?.selectedCategory || 'apartment_renovation');
+  const [isCategorySkipped, setIsCategorySkipped] = useState(!!draft?.isCategorySkipped);
   const [city, setCity] = useState(() => {
     try {
       const saved = localStorage.getItem('qazgost_estimate_city');
@@ -94,12 +113,14 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
   const [catalogError, setCatalogError] = useState('');
 
   // Обмер и параметры
-  const [geo, setGeo] = useState({ area: 0, perimeter: 0, height: 2.7, doors: 1, windows: 1, source: '' });
-  const [paramValues, setParamValues] = useState({});
+  const [geo, setGeo] = useState(() => (draft?.geo ? { ...EMPTY_GEO, ...draft.geo } : EMPTY_GEO));
+  const [paramValues, setParamValues] = useState(() => (draft?.paramValues && typeof draft.paramValues === 'object' ? draft.paramValues : {}));
+  // размеры, с которыми открывается обмер (из черновика); меняется только при сбросе расчёта
+  const [measureSeed, setMeasureSeed] = useState(() => ({ n: 0, geo: draft?.geo?.area > 0 ? draft.geo : null }));
 
   // Photo & Uploads State
   const [photos, setPhotos] = useState([]);
-  const [description, setDescription] = useState('');
+  const [description, setDescription] = useState(() => (typeof draft?.description === 'string' ? draft.description : ''));
 
   // Режим анализа и результат
   const [smetaMode, setSmetaMode] = useState(() => {
@@ -107,9 +128,10 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
   });
   const [isScanning, setIsScanning] = useState(false);
   const [scanStep, setScanStep] = useState('');
-  const [result, setResult] = useState(null);
-  const [scenarioId, setScenarioId] = useState('std');
-  const [photoAnalysis, setPhotoAnalysis] = useState(null);
+  const [result, setResult] = useState(() => draft?.result || null);
+  const [scenarioId, setScenarioId] = useState(draft?.scenarioId || 'std');
+  const [photoAnalysis, setPhotoAnalysis] = useState(() => (draft?.result && draft.photoAnalysis) || null);
+  const [docBusy, setDocBusy] = useState('');
   const [calcError, setCalcError] = useState('');
   const [createdOrderInfo, setCreatedOrderInfo] = useState(null);
   const [toastMessage, setToastMessage] = useState(null);
@@ -128,26 +150,8 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
     return () => io.disconnect();
   }, []);
 
-  // User Custom ChatGPT / OpenAI Account State
+  // Свой ключ OpenAI для разбора фото (необязательно): хранится только в этом браузере
   const [showGptModal, setShowGptModal] = useState(false);
-  const [gptAuthTab, setGptAuthTab] = useState('apikey'); // only 'apikey' tab (login removed)
-
-  const [userGptAccount, setUserGptAccount] = useState(() => {
-    try {
-      const saved = localStorage.getItem('qazgost_user_openai_account');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (parsed && (parsed.email === 'user.chatgpt@gmail.com' || !parsed.email)) {
-          localStorage.removeItem('qazgost_user_openai_account');
-          return null;
-        }
-        return parsed;
-      }
-      return null;
-    } catch {
-      return null;
-    }
-  });
 
   // Только настоящий пользовательский ключ OpenAI (sk-…); заглушки system-key-* больше не подставляются и не отправляются
   const [userGptKey, setUserGptKey] = useState(() => {
@@ -156,11 +160,6 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
   });
 
   const [inputGptKey, setInputGptKey] = useState(userGptKey || '');
-  const [loginEmail, setLoginEmail] = useState('');
-  const [loginPassword, setLoginPassword] = useState('');
-  const [userPlan, setUserPlan] = useState('ChatGPT Plus (GPT-4o Vision)');
-  const [showPassword, setShowPassword] = useState(false);
-  const [isLoggingInGpt, setIsLoggingInGpt] = useState(false);
 
   const [gptModel, setGptModel] = useState(() => {
     return (typeof window !== 'undefined' && localStorage.getItem('qazgost_user_openai_model')) || 'gpt-4o';
@@ -181,6 +180,46 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
       .catch((err) => { if (alive) setCatalogError(err.message); });
     return () => { alive = false; };
   }, []);
+
+  // Черновик: сохраняем с небольшой задержкой, чтобы не писать на каждое нажатие клавиши
+  useEffect(() => {
+    const id = setTimeout(() => {
+      const base = { v: 1, at: Date.now(), activeGroup, selectedCategory, isCategorySkipped, geo, paramValues, description, scenarioId };
+      try {
+        localStorage.setItem(DRAFT_KEY, JSON.stringify({ ...base, result, photoAnalysis }));
+      } catch {
+        // места не хватило — сохраняем хотя бы введённое, без сметы
+        try { localStorage.setItem(DRAFT_KEY, JSON.stringify(base)); } catch { /* приватный режим */ }
+      }
+    }, 400);
+    return () => clearTimeout(id);
+  }, [activeGroup, selectedCategory, isCategorySkipped, geo, paramValues, description, scenarioId, result, photoAnalysis]);
+
+  // Справочник обновился после сохранения черновика: смета по старым ценам не показывается,
+  // а вид работ, которого больше нет, заменяется на первый из списка
+  useEffect(() => {
+    if (!catalog) return;
+    if (result && result.priceDate !== catalog.priceDate) { setResult(null); setPhotoAnalysis(null); }
+    const known = (catalog.techmaps || []).some((t) => t.id === selectedCategory) || (catalog.complexes || []).some((c) => c.id === selectedCategory);
+    if (!known) setSelectedCategory('apartment_renovation');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [catalog]);
+
+  const resetAll = () => {
+    try { localStorage.removeItem(DRAFT_KEY); } catch { /* приватный режим */ }
+    photos.forEach((p) => p.url && URL.revokeObjectURL(p.url));
+    setPhotos([]);
+    setDescription('');
+    setParamValues({});
+    setGeo(EMPTY_GEO);
+    setMeasureSeed((m) => ({ n: m.n + 1, geo: null }));
+    setResult(null);
+    setPhotoAnalysis(null);
+    setCreatedOrderInfo(null);
+    setCalcError('');
+    setScenarioId('std');
+    showToast('Расчёт очищен — можно начать заново');
+  };
 
   const techmaps = useMemo(() => {
     const m = {};
@@ -208,7 +247,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
   // Поиск идёт по всем видам работ, вкладка — только когда строка поиска пуста
   const query = searchQuery.trim().toLowerCase();
   const filteredCategories = categories.filter((cat) => (query
-    ? cat.title.toLowerCase().includes(query)
+    ? (cat.title.toLowerCase().includes(query) || tr(cat.title).toLowerCase().includes(query)) // на английской версии ищут по-английски
     : (activeGroup === 'Все' || cat.group === activeGroup)));
   const groupCounts = useMemo(() => {
     const c = { 'Все': categories.length };
@@ -262,81 +301,37 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
     });
   };
 
-  // Personal ChatGPT Account Login Handler
-  const handlePersonalGptLogin = (e) => {
-    if (e) e.preventDefault();
-    const email = loginEmail.trim();
-    if (!email || !email.includes('@')) {
-      showToast('⚠️ Введите корректный Email вашего личного аккаунта ChatGPT');
-      return;
-    }
-
-    if (!loginPassword.trim()) {
-      showToast('⚠️ Введите пароль от вашего аккаунта OpenAI / ChatGPT');
-      return;
-    }
-
-    setIsLoggingInGpt(true);
-    showToast('🔐 Проверка и подключение вашего аккаунта ChatGPT...');
-
-    setTimeout(() => {
-      const realAccount = {
-        email: email,
-        name: email.split('@')[0],
-        plan: userPlan,
-        connectedAt: new Date().toLocaleString('ru-RU'),
-        status: 'active'
-      };
-
-      localStorage.setItem('qazgost_user_openai_account', JSON.stringify(realAccount));
-      setUserGptAccount(realAccount);
-      setIsLoggingInGpt(false);
-      setShowGptModal(false);
-      showToast(`🎉 Аккаунт ChatGPT (${email}) успешно подключен!`);
-    }, 1000);
-  };
-
-  // Open Official OpenAI Web Auth in popup window
-  const handleOpenOpenAIOAuth = () => {
-    window.open('https://chatgpt.com/auth/login', '_blank', 'width=600,height=750');
-    showToast('🌐 Открыто официальное окно авторизации ChatGPT. Введите ваш email.');
-  };
-
   const handleSaveGptKey = (e) => {
     if (e) e.preventDefault();
     const cleanKey = inputGptKey.trim();
-    if (!cleanKey || !isRealOpenAIKey(cleanKey)) {
-      // Пресеты system-key-* — это выбор серверного ключа: в браузере ничего не храним и не отправляем
-      localStorage.removeItem('qazgost_user_openai_key');
-      setUserGptKey('');
-      showToast('🗑️ Пользовательский GPT ключ удален. Используется ключ системы.');
-      setShowGptModal(false);
+    if (!isRealOpenAIKey(cleanKey)) {
+      setGptTestResult({ success: false, message: 'Это не похоже на ключ OpenAI: он начинается с «sk-».' });
       return;
     }
-
-    localStorage.setItem('qazgost_user_openai_key', cleanKey);
-    localStorage.setItem('qazgost_user_openai_model', gptModel);
+    try {
+      localStorage.setItem('qazgost_user_openai_key', cleanKey);
+      localStorage.setItem('qazgost_user_openai_model', gptModel);
+    } catch { /* приватный режим: ключ действует до закрытия страницы */ }
     setUserGptKey(cleanKey);
-    showToast('🎉 Ваш персональный API-ключ ChatGPT успешно сохранен!');
+    showToast('Ключ OpenAI сохранён в этом браузере');
     setShowGptModal(false);
   };
 
-  const handleDisconnectGptAccount = () => {
-    localStorage.removeItem('qazgost_user_openai_account');
-    localStorage.removeItem('qazgost_user_openai_key');
-    setUserGptAccount(null);
+  const handleRemoveGptKey = () => {
+    try {
+      localStorage.removeItem('qazgost_user_openai_account');
+      localStorage.removeItem('qazgost_user_openai_key');
+    } catch { /* приватный режим */ }
     setUserGptKey('');
     setInputGptKey('');
-    setLoginEmail('');
-    setLoginPassword('');
     setGptTestResult(null);
-    showToast('🔌 Вы успешно вышли из аккаунта ChatGPT.');
+    showToast('Ключ OpenAI удалён из этого браузера');
   };
 
   const handleTestGptKey = async () => {
     const keyToTest = inputGptKey.trim() || userGptKey;
     if (!keyToTest) {
-      showToast('⚠️ Введите API ключ для проверки');
+      setGptTestResult({ success: false, message: 'Вставьте ключ, чтобы его проверить.' });
       return;
     }
 
@@ -351,16 +346,13 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
         body: JSON.stringify({ key: keyToTest })
       });
       if (res.ok) {
-        setGptTestResult({ success: true, message: '✅ Ключ валиден! Связь с AI API установлена успешно.' });
-        showToast('✅ Связь с AI проверена!');
+        setGptTestResult({ success: true, message: 'Ключ рабочий: сервис ИИ его принял.' });
       } else {
         const errData = await res.json().catch(() => ({}));
-        setGptTestResult({ success: false, message: `❌ Ошибка (${res.status}): ${errData.error || 'Неверный ключ'}` });
-        showToast('❌ Ошибка проверки ключа');
+        setGptTestResult({ success: false, message: `Ключ не прошёл проверку (${res.status}): ${errData.error || 'сервис ИИ его не принял'}` });
       }
     } catch (err) {
-      setGptTestResult({ success: false, message: '❌ Ошибка сети при проверке API' });
-      showToast('❌ Ошибка сети');
+      setGptTestResult({ success: false, message: 'Нет связи с сервером — ключ не проверен.' });
     } finally {
       setIsTestingGptKey(false);
     }
@@ -384,45 +376,50 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
     });
   }, []);
 
-  // ИИ-разбор фото: только подсказка (тип работ, дефекты), цены и объёмы — из обмера и справочника
+  // ИИ-разбор фото: только подсказка (что на снимке, подходит ли вид работ, дефекты);
+  // цены и объёмы — из обмера и справочника. Сервер прямо говорит, если разбор не выполнен, и почему.
   const runPhotoAnalysis = async () => {
-    const photosBase64 = photos.slice(0, 5).map(p => p.base64).filter(b => typeof b === 'string' && b.startsWith('data:'));
-    if (!photosBase64.length) return null;
+    const source = photos.slice(0, 5).map((p) => p.base64).filter((b) => typeof b === 'string' && b.startsWith('data:image/'));
+    if (!source.length) return null;
     const headers = jsonAuthHeaders();
-    const customGptKey = userGptKey || (typeof window !== 'undefined' && localStorage.getItem('qazgost_user_openai_key')) || '';
-    if (isRealOpenAIKey(customGptKey)) {
-      headers['X-OpenAI-Key'] = customGptKey.trim();
+    if (isRealOpenAIKey(userGptKey)) {
+      headers['X-OpenAI-Key'] = userGptKey.trim();
       headers['X-OpenAI-Model'] = gptModel || 'gpt-4o';
     }
     try {
-      const res = await fetch('/api/v1/ai/vision', {
+      // снимки с телефона весят по 5–10 МБ: уменьшаем до 1600 px — ИИ этого хватает, а запрос уходит быстро
+      const photosBase64 = await Promise.all(source.map((b) => shrinkPhoto(b)));
+      const res = await fetch('/api/v1/estimate/photo-hint', {
         method: 'POST',
         headers,
-        body: JSON.stringify({
-          photos: photosBase64,
-          description: description || selectionTitle,
-          category: selectionTitle,
-          city,
-          mode: 'detailed',
-        }),
+        body: JSON.stringify({ photos: photosBase64, description: description || selectionTitle, category: selection?.id || '', city, lang: getLang() }),
       });
       const parsed = await res.json().catch(() => null);
       if (!res.ok) {
         // сервер посмотрел фото и увидел на нём не объект (например, человека)
         if (parsed?.code === 'photo_not_object' && parsed.error) return { status: 'error', message: parsed.error };
+        if (res.status === 429) return { status: 'error', message: 'ИИ-разбор фото не выполнен: слишком много запросов подряд. Подождите минуту и пересчитайте смету.' };
+        if (res.status === 413) return { status: 'error', message: 'ИИ-разбор фото не выполнен: фото слишком большие. Оставьте 1–3 снимка.' };
         return { status: 'error', message: `ИИ-разбор фото не выполнен: сервер ответил ${res.status}${parsed?.error ? ` (${parsed.error})` : ''}.` };
       }
-      const isQto = parsed && parsed.recommended && Array.isArray(parsed.scenarios);
-      if (!parsed || isQto) {
-        return { status: 'nokey', message: 'ИИ-разбор фото не выполнен: к серверу не подключён ключ OpenAI. Подключите свой ключ кнопкой «Ключ OpenAI» — смета от этого не зависит.' };
+      if (!parsed || parsed.status !== 'ok') {
+        return {
+          status: parsed?.reason || 'error',
+          message: parsed?.message || 'ИИ-разбор фото не выполнен: сервер прислал непонятный ответ.',
+          ownKey: !!headers['X-OpenAI-Key'],
+        };
       }
-      const insights = (Array.isArray(parsed.insights) ? parsed.insights : []).map(String).slice(0, 8);
+      const list = (v, n) => (Array.isArray(v) ? v : []).map(String).filter(Boolean).slice(0, n);
       return {
         status: 'ok',
-        photos: photosBase64.length,
-        detected: parsed.detected_type || '',
-        area: Number(parsed.dimensions?.area_m2) || 0,
-        insights,
+        photos: Number(parsed.photos) || photosBase64.length,
+        detected: String(parsed.detected || ''),
+        suggested: parsed.suggested?.id ? { id: String(parsed.suggested.id), title: String(parsed.suggested.title || '') } : null,
+        mismatch: parsed.matches === false,
+        area: Number(parsed.area_m2) || 0,
+        condition: String(parsed.condition || ''),
+        defects: list(parsed.defects, 6),
+        insights: list(parsed.insights, 5),
       };
     } catch {
       return { status: 'error', message: 'ИИ-разбор фото не выполнен: нет связи с сервером.' };
@@ -479,12 +476,46 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
 
   const currentScenario = result ? (result.scenarios.find((s) => s.id === scenarioId) || result.scenarios[1]) : null;
 
+  // Краткий итог сметы для заказа и WhatsApp: все три части сметы и настоящий процент резерва
+  const summaryLines = (sc) => [
+    `${tr('Работы')}: ${fmt(sc.works)} ₸`,
+    `${tr('Материалы')}: ${fmt(sc.materials)} ₸`,
+    ...(sc.equipment > 0 ? [`${tr('Техника')}: ${fmt(sc.equipment)} ₸`] : []),
+    `${tr('Итого по смете')}: ${fmt(sc.subtotal)} ₸`,
+    `${tr(`Резерв ${reservePercent(sc)}%`)}: ${fmt(sc.reserve)} ₸`,
+    `${tr('Бюджет с резервом')}: ${fmt(sc.total)} ₸`,
+  ];
+  const partTitles = useMemo(() => {
+    const t = {};
+    (result?.parts || []).forEach((id) => { t[id] = techmaps[id]?.title || id; });
+    return t;
+  }, [result, techmaps]);
+  const docInfo = () => ({ partTitles, description: description.trim(), lang: getLang() === 'en' ? 'en' : 'ru' });
+
+  const downloadXlsx = async () => {
+    setDocBusy('xlsx');
+    try {
+      const XLSX = await loadXlsx();
+      saveSmetaXlsx(XLSX, result, currentScenario.id, docInfo(), tr);
+      showToast('Смета сохранена в Excel');
+    } catch {
+      showToast('Не удалось собрать файл Excel — проверьте связь и попробуйте ещё раз');
+    } finally {
+      setDocBusy('');
+    }
+  };
+  const printSmeta = () => {
+    if (!openSmetaPrint(result, currentScenario.id, docInfo(), tr)) {
+      showToast('Браузер не дал открыть окно печати — разрешите всплывающие окна для сайта');
+    }
+  };
+
   const resultActions = result && currentScenario ? (
     <div className="sm-actions">
       {createdOrderInfo ? (
-        <div style={{ gridColumn: '1 / -1', background: 'rgba(16,185,129,0.14)', border: '1px solid #10b981', borderRadius: '12px', padding: '14px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+        <div className="sm-order-done">
           <div>
-            <strong style={{ color: '#6ee7b7' }}>Заявка #{createdOrderInfo.id} отправлена менеджеру.</strong>
+            <strong>Заявка #{createdOrderInfo.id} отправлена менеджеру.</strong>
             <div className="sm-hint">Инженер свяжется, чтобы приехать на замер и уточнить смету.</div>
           </div>
           <button type="button" onClick={() => (onBack ? onBack() : showToast('Откройте раздел «Мои заказы»'))}>Открыть «Мои заказы»</button>
@@ -497,7 +528,9 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
             category: result.title,
             amount: sc.subtotal,
             budget: `${fmt(sc.subtotal)} ₸`,
-            description: `Смета QazGost [${sc.name}], ${result.city}, ${result.geometry.area} м². Работы ${fmt(sc.works)} ₸, материалы ${fmt(sc.materials)} ₸, резерв ${fmt(sc.reserve)} ₸.`,
+            description: `Смета QazGost [${sc.name}], ${result.city}, ${result.geometry.area} м². `
+              + `Работы ${fmt(sc.works)} ₸, материалы ${fmt(sc.materials)} ₸${sc.equipment > 0 ? `, техника ${fmt(sc.equipment)} ₸` : ''}, `
+              + `резерв ${reservePercent(sc)}% — ${fmt(sc.reserve)} ₸.${description.trim() ? ` Задача: ${description.trim()}` : ''}`,
             type: 'estimate',
             status: 'new',
             estimateData: { title: result.title, city: result.city, geometry: result.geometry, scenario: sc, priceDate: result.priceDate },
@@ -506,17 +539,21 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
           showToast(`Заявка ${newOrder.id} отправлена менеджеру`);
         }}>Оформить заказ по смете</button>
       )}
-      <button type="button" onClick={() => {
-        downloadText(smetaToCSV(result, currentScenario.id), `smeta_${result.parts.join('_')}_${currentScenario.id}_${Date.now()}.csv`);
-        showToast('Смета сохранена в CSV');
-      }} data-testid="smeta-csv">Скачать CSV</button>
+      <button type="button" onClick={downloadXlsx} disabled={docBusy === 'xlsx'} data-testid="smeta-xlsx">
+        {docBusy === 'xlsx' ? 'Собираем файл…' : 'Скачать Excel'}
+      </button>
+      <button type="button" onClick={printSmeta} data-testid="smeta-pdf">Печать / PDF</button>
       <button type="button" onClick={() => {
         const sc = currentScenario;
         window.open(`https://wa.me/?text=${encodeURIComponent(
-          `Смета QazGost: ${result.title} (${sc.name})\n${result.city}, ${result.geometry.area} м²\n` +
-          `Работы: ${fmt(sc.works)} ₸\nМатериалы: ${fmt(sc.materials)} ₸\nИтого: ${fmt(sc.subtotal)} ₸\nС резервом 10%: ${fmt(sc.total)} ₸\nЦены на ${result.priceDate}`,
+          `${tr('Смета')} QazGost: ${tr(result.title)} (${tr(sc.name)})\n${tr(result.city)}, ${result.geometry.area} ${tr('м²')}\n`
+          + `${summaryLines(sc).join('\n')}\n${tr('Цены на')} ${tr(result.priceDate)}`,
         )}`, '_blank', 'noopener');
-      }}>Отправить в WhatsApp</button>
+      }} data-testid="smeta-wa">Отправить в WhatsApp</button>
+      <button type="button" className="sm-act-quiet" onClick={() => {
+        downloadText(smetaToCSV(result, currentScenario.id), `smeta_${result.parts.join('_')}_${currentScenario.id}_${Date.now()}.csv`);
+        showToast('Смета сохранена в CSV');
+      }} data-testid="smeta-csv">CSV</button>
     </div>
   ) : null;
 
@@ -660,7 +697,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
                 <span className="spe-step-optional">контур: {techmaps[selection.id].baseLabel.toLowerCase()}</span>
               )}
             </div>
-            <ContourMeasure photos={photos} geo={geo} setGeo={setGeo} showToast={showToast} />
+            <ContourMeasure key={measureSeed.n} initialGeo={measureSeed.geo} photos={photos} geo={geo} setGeo={setGeo} showToast={showToast} />
           </section>
 
           {/* ШАГ 3: ПАРАМЕТРЫ */}
@@ -795,9 +832,9 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
               {smetaMode !== 'fast' && (
                 <div className="spe-slip-ai">
                   <span>
-                    {userGptKey || userGptAccount
-                      ? 'Ключ OpenAI подключён — фото разберёт ИИ.'
-                      : 'ИИ-разбор фото — по ключу OpenAI сервера или вашему.'}
+                    {userGptKey
+                      ? 'Ваш ключ OpenAI подключён — фото разберёт ИИ.'
+                      : 'Фото разбирает ИИ; если он не подключён на сервере, можно указать свой ключ.'}
                   </span>
                   <button type="button" onClick={() => setShowGptModal(true)}>Ключ OpenAI</button>
                 </div>
@@ -832,6 +869,9 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
             )}
 
             <p className="spe-cta-note">Расчёт идёт на сервере QazGost по технологическим картам; ничего не выдумывается и не подставляется «примерно».</p>
+            {(result || hasGeo || description || photos.length > 0) && (
+              <button type="button" className="spe-slip-link spe-slip-reset" onClick={resetAll} data-testid="smeta-reset">Начать заново</button>
+            )}
           </div>
 
           {estimateHistory.length > 0 && (
@@ -858,6 +898,14 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
             scenarioId={scenarioId}
             setScenarioId={setScenarioId}
             photoAnalysis={photoAnalysis}
+            onPickSuggested={(id) => {
+              setIsCategorySkipped(false);
+              setSelectedCategory(id);
+              setActiveGroup('Все');
+              setPhotoAnalysis((pa) => (pa ? { ...pa, mismatch: false } : pa));
+              showToast('Вид работ изменён — пересчитайте смету');
+            }}
+            onOpenKey={() => setShowGptModal(true)}
             techmaps={techmaps}
             actions={resultActions}
           />
@@ -879,172 +927,55 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
         </button>
       </div>
 
-      {/* ChatGPT / OpenAI Account Connection Modal */}
+      {/* Свой ключ OpenAI для разбора фото */}
       {showGptModal && (
         <div className="spe-gpt-modal-backdrop" onClick={() => setShowGptModal(false)}>
-          <div className="spe-gpt-modal-content" onClick={e => e.stopPropagation()}>
-            {/* Header */}
+          <div className="spe-gpt-modal-content" role="dialog" aria-modal="true" aria-labelledby="spe-key-title" onClick={(e) => e.stopPropagation()}>
             <div className="spe-gpt-modal-header">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <span style={{ fontSize: '1.8rem' }}>🤖</span>
-                <div>
-                  <h3 style={{ margin: 0, fontSize: '1.25rem', color: '#fff', fontWeight: 800 }}>Вход в личный аккаунт ChatGPT</h3>
-                  <p style={{ margin: '2px 0 0 0', fontSize: '0.82rem', color: '#a39cc2' }}>
-                    Войдите под своей учетной записью OpenAI для расчета смет через ваш тариф
-                  </p>
-                </div>
+              <div>
+                <h3 id="spe-key-title">Свой ключ OpenAI</h3>
+                <p>Нужен только для разбора фото. Смета считается и без него.</p>
               </div>
-              <button className="spe-gpt-modal-close" onClick={() => setShowGptModal(false)}>✕</button>
+              <button type="button" className="spe-gpt-modal-close" aria-label="Закрыть" onClick={() => setShowGptModal(false)}>✕</button>
             </div>
 
-            <div className="spe-gpt-modal-body">
-              {/* If user is already logged in */}
-              {(userGptAccount || userGptKey) ? (
-                <div className="spe-gpt-user-profile-box">
-                  <div className="spe-gpt-avatar-row">
-                    <div className="spe-gpt-avatar">👤</div>
-                    <div style={{ flex: 1 }}>
-                      <strong style={{ display: 'block', fontSize: '1.05rem', color: '#fff' }}>
-                        {userGptAccount ? userGptAccount.email : 'Персональный API ключ'}
-                      </strong>
-                      <span style={{ fontSize: '0.8rem', color: '#10b981', fontWeight: 700 }}>
-                        {userGptAccount ? `Тариф: ${userGptAccount.plan}` : `Ключ: ${userGptKey.substring(0, 10)}...`}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div style={{ background: 'rgba(0,0,0,0.25)', padding: '10px 14px', borderRadius: '10px', fontSize: '0.82rem', color: '#cbc5e3', lineHeight: 1.4 }}>
-                    ✅ <strong>Ваш аккаунт подключен:</strong> Нейросеть GPT-4o использует вашу персональную сессию для аудита смет и дефектов.
-                  </div>
-
-                  <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.25rem' }}>
-                    <button
-                      type="button"
-                      onClick={() => setShowGptModal(false)}
-                      className="spe-gpt-btn-save"
-                      style={{ flex: 1 }}
-                    >
-                      ✓ Продолжить работу
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={handleDisconnectGptAccount}
-                      style={{ background: 'rgba(239,68,68,0.18)', border: '1px solid #ef4444', color: '#fca5a5', padding: '10px 16px', borderRadius: '12px', fontSize: '0.85rem', cursor: 'pointer', fontWeight: 700 }}
-                    >
-                      Выйти
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <>
-                  {/* API Key Connection (only real method) */}
-                    <form onSubmit={handleSaveGptKey} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
-                      {/* Presets for Key #1 and Key #2 */}
-                      <div>
-                        <label style={{ display: 'block', fontSize: '0.82rem', color: '#cbc5e3', marginBottom: '0.4rem', fontWeight: 700 }}>
-                          ⚡ Быстрый выбор системного ключа:
-                        </label>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setInputGptKey(SYSTEM_OPENAI_PRESETS.KEY_1_VISION_DEFECT);
-                              showToast('🔹 Выбран Ключ №1: Дефектоскопия & Vision');
-                            }}
-                            style={{
-                              background: inputGptKey === SYSTEM_OPENAI_PRESETS.KEY_1_VISION_DEFECT ? 'rgba(185, 164, 255, 0.25)' : 'rgba(255, 255, 255, 0.05)',
-                              border: `1px solid ${inputGptKey === SYSTEM_OPENAI_PRESETS.KEY_1_VISION_DEFECT ? '#b9a4ff' : 'rgba(255, 255, 255, 0.15)'}`,
-                              borderRadius: '10px',
-                              padding: '8px 10px',
-                              color: '#fff',
-                              cursor: 'pointer',
-                              textAlign: 'left',
-                              fontSize: '0.78rem'
-                            }}
-                          >
-                            <div style={{ fontWeight: 800, color: '#b9a4ff' }}>🔵 Ключ №1 (Vision)</div>
-                            <div style={{ fontSize: '0.7rem', color: '#a39cc2' }}>Дефекты & Базовый</div>
-                          </button>
-
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setInputGptKey(SYSTEM_OPENAI_PRESETS.KEY_2_DETAILED_ESTIMATE);
-                              showToast('🟣 Выбран Ключ №2: Детальные сметы & Луна-Тера');
-                            }}
-                            style={{
-                              background: inputGptKey === SYSTEM_OPENAI_PRESETS.KEY_2_DETAILED_ESTIMATE ? 'rgba(168, 85, 247, 0.25)' : 'rgba(255, 255, 255, 0.05)',
-                              border: `1px solid ${inputGptKey === SYSTEM_OPENAI_PRESETS.KEY_2_DETAILED_ESTIMATE ? '#a855f7' : 'rgba(255, 255, 255, 0.15)'}`,
-                              borderRadius: '10px',
-                              padding: '8px 10px',
-                              color: '#fff',
-                              cursor: 'pointer',
-                              textAlign: 'left',
-                              fontSize: '0.78rem'
-                            }}
-                          >
-                            <div style={{ fontWeight: 800, color: '#c084fc' }}>🟣 Ключ №2 (Сметы)</div>
-                            <div style={{ fontSize: '0.7rem', color: '#a39cc2' }}>Детальный расчёт GPT-4o</div>
-                          </button>
-                        </div>
-                      </div>
-
-                      <div>
-                        <label style={{ display: 'block', fontSize: '0.82rem', color: '#cbc5e3', marginBottom: '0.4rem', fontWeight: 700 }}>
-                          Ваш персональный OpenAI Secret Key:
-                        </label>
-                        <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-                          <input
-                            type={showKeyText ? 'text' : 'password'}
-                            placeholder="sk-proj-..."
-                            value={inputGptKey}
-                            onChange={e => setInputGptKey(e.target.value)}
-                            className="spe-gpt-input"
-                            style={{ width: '100%', paddingRight: '45px' }}
-                          />
-                          <button
-                            type="button"
-                            onClick={() => setShowKeyText(!showKeyText)}
-                            style={{ position: 'absolute', right: '10px', background: 'transparent', border: 'none', color: '#a39cc2', cursor: 'pointer', fontSize: '1rem' }}
-                            title={showKeyText ? 'Скрыть' : 'Показать'}
-                          >
-                            {showKeyText ? '🙈' : '👁️'}
-                          </button>
-                        </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '6px', fontSize: '0.75rem' }}>
-                          <a
-                            href="https://platform.openai.com/api-keys"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            style={{ color: '#b9a4ff', textDecoration: 'none', fontWeight: 600 }}
-                          >
-                            🔗 platform.openai.com/api-keys
-                          </a>
-                        </div>
-                      </div>
-
-                      <div style={{ display: 'flex', gap: '0.75rem' }}>
-                        <button
-                          type="button"
-                          onClick={handleTestGptKey}
-                          disabled={isTestingGptKey}
-                          className="spe-gpt-btn-test"
-                        >
-                          {isTestingGptKey ? '⏳ Проверка...' : '🧪 Проверить связь'}
-                        </button>
-
-                        <button
-                          type="submit"
-                          className="spe-gpt-btn-save"
-                        >
-                          💾 Сохранить ключ
-                        </button>
-                      </div>
-                    </form>
-                </>
+            <form className="spe-gpt-modal-body" onSubmit={handleSaveGptKey}>
+              {userGptKey && (
+                <p className="spe-key-state" data-testid="key-state">
+                  Сейчас подключён ключ <b translate="no">{userGptKey.slice(0, 7)}…{userGptKey.slice(-4)}</b>
+                </p>
               )}
-            </div>
+              <label className="spe-key-field">
+                <span>Ключ OpenAI</span>
+                <div className="spe-key-input">
+                  <input
+                    type={showKeyText ? 'text' : 'password'}
+                    placeholder="sk-…"
+                    value={inputGptKey}
+                    onChange={(e) => { setInputGptKey(e.target.value); setGptTestResult(null); }}
+                    className="spe-gpt-input"
+                    autoComplete="off"
+                    spellCheck="false"
+                    data-testid="key-input"
+                  />
+                  <button type="button" onClick={() => setShowKeyText(!showKeyText)}>{showKeyText ? 'Скрыть' : 'Показать'}</button>
+                </div>
+              </label>
+              <p className="spe-key-note">
+                Ключ хранится только в этом браузере и уходит на сервер QazGost вместе с фото — для одного запроса к ИИ; на сервере он не сохраняется.
+                Получить ключ: <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer" translate="no">platform.openai.com/api-keys</a>
+              </p>
+              {gptTestResult && (
+                <p className={`spe-key-result ${gptTestResult.success ? 'is-ok' : 'is-bad'}`} role="status" data-testid="key-result">{gptTestResult.message}</p>
+              )}
+              <div className="spe-key-actions">
+                <button type="submit" className="spe-gpt-btn-save" data-testid="key-save">Сохранить ключ</button>
+                <button type="button" className="spe-gpt-btn-test" onClick={handleTestGptKey} disabled={isTestingGptKey}>
+                  {isTestingGptKey ? 'Проверяем…' : 'Проверить ключ'}
+                </button>
+                {userGptKey && <button type="button" className="spe-key-remove" onClick={handleRemoveGptKey}>Удалить ключ</button>}
+              </div>
+            </form>
           </div>
         </div>
       )}
