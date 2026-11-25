@@ -22,7 +22,7 @@ import './styles/landing-color.css';
 import './styles/landing-scene.css';
 import './styles/app-lux.css';
 import './utils/audioFX.js';
-import { initI18n } from './i18n';
+import { initI18n, langReady } from './i18n';
 import { startUserDataSync } from './services/userDataSync';
 // 3D-наклон карточек (utils/cardTilt.js) отключён: MutationObserver на весь документ
 // и «прыгающие» карточки мешали чтению и нагружали CPU.
@@ -41,13 +41,17 @@ window.addEventListener('vite:preloadError', (event) => {
   window.location.reload();
 });
 
-ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
-
-// Язык интерфейса (RU / KZ / EN): сохранённый выбор применяется сразу после монтирования
-initI18n();
+// Английская версия (домен qazgost.com или выбор посетителя): сначала догружается словарь, потом
+// рисуется сайт — иначе на мгновение мелькнул бы русский текст. Дольше 2,5 секунды словарь не ждём.
+const start = () => {
+  ReactDOM.createRoot(document.getElementById('root')).render(
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>
+  );
+  // Язык интерфейса (RU / KZ / EN): выбор посетителя или язык домена применяется сразу после монтирования
+  initI18n();
+};
+Promise.race([langReady(), new Promise((resolve) => setTimeout(resolve, 2500))]).then(start, start);
 // Личные данные (календарь, объекты, уведомления, история смет…) — на сервер и на все устройства
 startUserDataSync();

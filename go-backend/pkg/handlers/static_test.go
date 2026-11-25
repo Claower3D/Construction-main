@@ -34,7 +34,9 @@ func TestSPAHandler(t *testing.T) {
 		h(w, httptest.NewRequest("GET", url, nil))
 		return w
 	}
-	isIndex := func(w *httptest.ResponseRecorder) bool { return strings.Contains(w.Body.String(), "<title>QazGost</title>") }
+	isIndex := func(w *httptest.ResponseRecorder) bool {
+		return strings.Contains(w.Body.String(), "<title>QazGost</title>")
+	}
 
 	// страницы сайта → приложение, без кэша
 	for _, u := range []string{"/", "/index.html", "/login", "/customer/estimate", "/category/fundament", "/net-takoi-stranicy"} {
@@ -86,5 +88,101 @@ func TestSPAHandler(t *testing.T) {
 	// выход за пределы папки сайта
 	if w := get("/../../etc/passwd"); strings.Contains(w.Body.String(), "root:") {
 		t.Error("отдан файл вне папки сайта")
+	}
+}
+
+// Два адреса сайта: qazgost.com получает английскую «шапку» страницы, qazgost.kz — русскую;
+// обе версии ссылаются друг на друга, прочие адреса получают файл без изменений.
+func TestSPAHandlerLanguageByHost(t *testing.T) {
+	dist := t.TempDir()
+	page := "<!DOCTYPE html>\n<html lang=\"ru\">\n  <head>\n    <meta name=\"description\" content=\"QazGost AI — сметы по фото.\" />\n    <title>QazGost AI — сметы</title>\n  </head>\n  <body><div id=\"root\"></div></body>\n</html>\n"
+	if err := os.WriteFile(filepath.Join(dist, "index.html"), []byte(page), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	h := SPAHandler(dist)
+	get := func(host, url string, hdr ...string) *httptest.ResponseRecorder {
+		w := httptest.NewRecorder()
+		r := httptest.NewRequest("GET", url, nil)
+		r.Host = host
+		for i := 0; i+1 < len(hdr); i += 2 {
+			r.Header.Set(hdr[i], hdr[i+1])
+		}
+		h(w, r)
+		return w
+	}
+	has := func(body string, parts ...string) string {
+		for _, p := range parts {
+			if !strings.Contains(body, p) {
+				return p
+			}
+		}
+		return ""
+	}
+
+	// английский адрес, с www и портом тоже
+	for _, host := range []string{"qazgost.com", "www.qazgost.com", "QAZGOST.COM:443"} {
+		w := get(host, "/catalog")
+		body := w.Body.String()
+		if miss := has(body, `<html lang="en">`, "<title>"+indexTitleEn+"</title>", `content="`+indexDescEn+`"`,
+			`<link rel="canonical" href="https://qazgost.com/catalog" />`,
+			`hreflang="ru" href="https://qazgost.kz/catalog"`, `hreflang="en" href="https://qazgost.com/catalog"`,
+			`hreflang="x-default" href="https://qazgost.kz/catalog"`); miss != "" {
+			t.Errorf("%s: в странице нет %q", host, miss)
+		}
+		if strings.Contains(body, "сметы") {
+			t.Errorf("%s: в английской шапке остался русский текст", host)
+		}
+		if w.Header().Get("Content-Language") != "en" || w.Header().Get("Cache-Control") != "no-cache" {
+			t.Errorf("%s: заголовки %v", host, w.Header())
+		}
+	}
+
+	// русский адрес: текст не меняется, ссылки на обе версии есть
+	w := get("qazgost.kz", "/")
+	body := w.Body.String()
+	if miss := has(body, `<html lang="ru">`, "<title>QazGost AI — сметы</title>", `<link rel="canonical" href="https://qazgost.kz/" />`,
+		`hreflang="en" href="https://qazgost.com/"`); miss != "" {
+		t.Errorf("qazgost.kz: в странице нет %q", miss)
+	}
+	if w.Header().Get("Content-Language") != "" {
+		t.Errorf("qazgost.kz: лишний Content-Language")
+	}
+
+	// адрес за прокси, который передаёт исходный адрес отдельным заголовком
+	if b := get("internal:8080", "/", "X-Forwarded-Host", "qazgost.com").Body.String(); !strings.Contains(b, `<html lang="en">`) {
+		t.Errorf("X-Forwarded-Host: страница не английская")
+	}
+
+	// чужой адрес (технический адрес хостинга, похожее имя) — файл как есть
+	for _, host := range []string{"construction-main-production.up.railway.app", "notqazgost.com", "qazgost.com.evil.example", "localhost:8080"} {
+		if b := get(host, "/").Body.String(); b != page {
+			t.Errorf("%s: страница изменена", host)
+		}
+	}
+
+	// адрес страницы попадает в ссылки только экранированным
+	b := get("qazgost.com", `/a"><script>alert(1)</script>`).Body.String()
+	if strings.Contains(b, "<script>alert(1)") || strings.Contains(b, `/a">`) {
+		t.Errorf("адрес страницы вставлен без экранирования: %s", b)
+	}
+	if b := get("qazgost.com", "/index.html").Body.String(); !strings.Contains(b, `href="https://qazgost.com/" />`) {
+		t.Errorf("/index.html: ссылка должна вести на главную")
+	}
+}
+
+// Настоящий index.html сайта содержит всё, что сервер подменяет для английского адреса.
+func TestRealIndexHasLocalizableHead(t *testing.T) {
+	data, err := os.ReadFile(filepath.Join("..", "..", "..", "frontend", "index.html"))
+	if err != nil {
+		t.Skip("frontend/index.html рядом нет — проверка пропущена")
+	}
+	out := string(localizeIndex(data, siteHostEn, "/"))
+	for _, part := range []string{`<html lang="en">`, "<title>" + indexTitleEn + "</title>", indexDescEn, `hreflang="ru"`} {
+		if !strings.Contains(out, part) {
+			t.Errorf("в index.html не нашлось место для %q", part)
+		}
+	}
+	if strings.Contains(out, "сметы") {
+		t.Errorf("в английской шапке остался русский текст")
 	}
 }

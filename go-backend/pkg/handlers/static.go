@@ -1,12 +1,17 @@
 package handlers
 
 import (
+	"bytes"
+	"html"
+	"net"
 	"net/http"
 	"os"
 	"path"
 	"path/filepath"
 	"regexp"
 	"strings"
+	"sync"
+	"time"
 )
 
 // hashedAsset — файлы сборки Vite: в имени есть хеш содержимого (index-BOrSZAQL.js), поэтому
@@ -23,6 +28,70 @@ var staticExt = map[string]bool{
 	".mp4": true, ".webm": true, ".mp3": true, ".pdf": true, ".glb": true, ".usdz": true, ".apk": true, ".zip": true,
 }
 
+// У сайта два адреса: qazgost.kz — русская версия, qazgost.com — английская. Интерфейс переводит
+// сам сайт в браузере (frontend/src/i18n), а здесь под адрес подстраивается «шапка» страницы —
+// язык, заголовок вкладки и описание, — чтобы поисковики и предпросмотр ссылок видели нужный язык
+// ещё до запуска скриптов. Обе версии ссылаются друг на друга (hreflang).
+const (
+	siteHostRu = "qazgost.kz"
+	siteHostEn = "qazgost.com"
+
+	indexTitleEn = "QazGost AI — estimates and defect inspection under Kazakhstan standards"
+	indexDescEn  = "QazGost AI — estimates from photos, defect checks and a contractor catalog under Kazakhstan standards."
+)
+
+var (
+	indexLangRe  = regexp.MustCompile(`<html lang="ru">`)
+	indexTitleRe = regexp.MustCompile(`<title>[^<]*</title>`)
+	indexDescRe  = regexp.MustCompile(`<meta name="description" content="[^"]*"\s*/?>`)
+	indexHeadEnd = regexp.MustCompile(`</head>`)
+)
+
+// siteHost возвращает "qazgost.kz" или "qazgost.com", если запрос пришёл на один из адресов сайта
+// (с www или без), иначе пустую строку.
+func siteHost(r *http.Request) string {
+	for _, raw := range []string{r.Host, r.Header.Get("X-Forwarded-Host")} {
+		h := strings.ToLower(strings.TrimSpace(strings.Split(raw, ",")[0]))
+		if name, _, err := net.SplitHostPort(h); err == nil {
+			h = name
+		}
+		h = strings.TrimPrefix(strings.TrimSuffix(h, "."), "www.")
+		if h == siteHostRu || h == siteHostEn {
+			return h
+		}
+	}
+	return ""
+}
+
+// localizeIndex готовит index.html под адрес сайта: для qazgost.com — английские язык, заголовок
+// и описание; для обоих адресов — ссылки на вторую языковую версию той же страницы.
+func localizeIndex(page []byte, host, urlPath string) []byte {
+	if host == "" {
+		return page
+	}
+	if host == siteHostEn {
+		page = indexLangRe.ReplaceAllLiteral(page, []byte(`<html lang="en">`))
+		page = indexTitleRe.ReplaceAllLiteral(page, []byte("<title>"+indexTitleEn+"</title>"))
+		page = indexDescRe.ReplaceAllLiteral(page, []byte(`<meta name="description" content="`+indexDescEn+`" />`))
+	}
+	p := html.EscapeString(path.Clean("/" + urlPath))
+	if p == "/index.html" {
+		p = "/"
+	}
+	links := "  <link rel=\"canonical\" href=\"https://" + host + p + "\" />\n" +
+		"    <link rel=\"alternate\" hreflang=\"ru\" href=\"https://" + siteHostRu + p + "\" />\n" +
+		"    <link rel=\"alternate\" hreflang=\"en\" href=\"https://" + siteHostEn + p + "\" />\n" +
+		"    <link rel=\"alternate\" hreflang=\"x-default\" href=\"https://" + siteHostRu + p + "\" />\n  </head>"
+	if loc := indexHeadEnd.FindIndex(page); loc != nil {
+		out := make([]byte, 0, len(page)+len(links))
+		out = append(out, page[:loc[0]]...)
+		out = append(out, links...)
+		out = append(out, page[loc[1]:]...)
+		return out
+	}
+	return page
+}
+
 // SPAHandler отдаёт собранный сайт из папки dist.
 //
 //   - index.html (и любой адрес страницы сайта) — «Cache-Control: no-cache»: браузер каждый раз
@@ -35,22 +104,43 @@ func SPAHandler(dist string) http.HandlerFunc {
 	files := http.FileServer(http.Dir(dist))
 	index := filepath.Join(dist, "index.html")
 
+	// index.html читается с диска один раз и перечитывается, только если файл изменился
+	var (
+		mu      sync.Mutex
+		cached  []byte
+		modTime time.Time
+	)
+	loadIndex := func() ([]byte, time.Time, bool) {
+		info, err := os.Stat(index)
+		if err != nil || info.IsDir() {
+			return nil, time.Time{}, false
+		}
+		mu.Lock()
+		defer mu.Unlock()
+		if cached == nil || !info.ModTime().Equal(modTime) {
+			data, err := os.ReadFile(index)
+			if err != nil {
+				return nil, time.Time{}, false
+			}
+			cached, modTime = data, info.ModTime()
+		}
+		return cached, modTime, true
+	}
+
 	// ServeContent, а не ServeFile: тот отвечает редиректом на любой адрес, оканчивающийся на /index.html
 	serveIndex := func(w http.ResponseWriter, r *http.Request) {
-		f, err := os.Open(index)
-		if err != nil {
-			http.NotFound(w, r)
-			return
-		}
-		defer f.Close()
-		info, err := f.Stat()
-		if err != nil {
+		page, mod, ok := loadIndex()
+		if !ok {
 			http.NotFound(w, r)
 			return
 		}
 		w.Header().Set("Cache-Control", "no-cache")
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		http.ServeContent(w, r, "index.html", info.ModTime(), f)
+		host := siteHost(r)
+		if host == siteHostEn {
+			w.Header().Set("Content-Language", "en")
+		}
+		http.ServeContent(w, r, "index.html", mod, bytes.NewReader(localizeIndex(page, host, r.URL.Path)))
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {

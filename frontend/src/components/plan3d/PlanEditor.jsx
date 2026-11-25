@@ -432,9 +432,9 @@ const PlanEditor = forwardRef(function PlanEditor({
         onPointerCancel={onPointerCancel}
         onPointerLeave={() => { if (!gesture.current.mode) setCursor(null); }}
         onKeyDown={onKeyDown}
-        translate="no"
       >
-        <svg width={size.w} height={size.h} aria-hidden="true">
+        {/* сам чертёж (подписи размеров, названия помещений) не переводится; кнопки и подсказки вокруг — переводятся */}
+        <svg width={size.w} height={size.h} aria-hidden="true" translate="no">
           {hasUnderlay && underlay.visible && (
             <image
               href={underlay.src}
