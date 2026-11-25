@@ -13947,7 +13947,8 @@ body.dark .split-service-card {
 
   .voice-control-widget {
     bottom: 16px !important;
-    right: 16px !important;
+    left: 16px !important;
+    right: auto !important;
     padding: 0.4rem 0.85rem !important;
     border-radius: 20px !important;
   }

@@ -5,7 +5,7 @@
   --arm-gold: #f2b84b;
   --arm-violet: #8b5cf6;
   --arm-bg: #120e26;
-  --arm-bottom: 84px;
+  --arm-bottom: 16px; /* ассистент стоит в правом нижнем углу; кнопка WhatsApp — в левом */
   --arm-win: 392px;
   font-family: var(--qg-font, 'Manrope', system-ui, sans-serif);
 }
@@ -445,11 +445,11 @@
 }
 /* ── Телефон: окно на весь экран ── */
 @media (max-width: 640px) {
-  .arm-widget { --arm-bottom: 80px; }
+  .arm-widget { --arm-bottom: 12px; }
   .arm-stand { width: 138px; right: 0; }
   .arm-window { inset: 0; width: auto; height: 100dvh; border: 0; border-radius: 0; transform-origin: 50% 100%; }
   .arm-label { padding: 6px 11px 6px 9px; font-size: 0.75rem; }
-  .arm-teaser { right: 126px; bottom: 150px; max-width: 190px; }
+  .arm-teaser { right: 126px; bottom: 82px; max-width: 190px; }
 }
 /* ── Телефон, рабочие страницы (всё, кроме главной): фигура ассистента закрывала кнопку «В корзину»
    в карточках, фильтры заказов и поля анкеты. Оставляем только плашку «AI Ассистент»;
@@ -460,7 +460,7 @@
   .app-root:not([data-view='landing']) .arm-stand:not(.is-open) { width: auto; right: 12px; }
   .app-root:not([data-view='landing']) .arm-trigger { margin-top: 0; }
   /* страница с нижней панелью действий (анкета): плавающие кнопки встают над панелью, а не на неё */
-  body:has(.pq-footer) .arm-stand:not(.is-open) { bottom: 176px; }
+  body:has(.pq-footer) .arm-stand:not(.is-open) { bottom: 112px; }
   body:has(.pq-footer) .voice-control-widget { bottom: 112px !important; }
 }
 @media (prefers-reduced-motion: reduce) {

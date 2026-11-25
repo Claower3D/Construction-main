@@ -14,7 +14,7 @@ export default function VoiceControlWidget() {
       style={{
         position: 'fixed',
         bottom: '24px',
-        right: '24px',
+        left: '24px', // левый нижний угол: правый занят ассистентом
         zIndex: 999,
         display: 'flex',
         alignItems: 'center',
