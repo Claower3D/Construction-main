@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App.jsx';
+import AndroidAppPrompt from './components/AndroidAppPrompt.jsx';
 // Шрифты хостим сами (кириллица включена): Manrope — интерфейс, Unbounded — заголовки
 import '@fontsource/manrope/400.css';
 import '@fontsource/manrope/500.css';
@@ -47,6 +48,8 @@ const start = () => {
   ReactDOM.createRoot(document.getElementById('root')).render(
     <React.StrictMode>
       <App />
+      {/* на Android — окно «остаться на сайте или скачать приложение» */}
+      <AndroidAppPrompt />
     </React.StrictMode>
   );
   // Язык интерфейса (RU / KZ / EN): выбор посетителя или язык домена применяется сразу после монтирования

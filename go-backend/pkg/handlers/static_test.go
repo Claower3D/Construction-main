@@ -186,3 +186,54 @@ func TestRealIndexHasLocalizableHead(t *testing.T) {
 		t.Errorf("в английской шапке остался русский текст")
 	}
 }
+
+// Приложение для Android скачивается с сайта: файл отдаётся как пакет Android и как загрузка.
+func TestSPAHandlerServesAndroidApp(t *testing.T) {
+	dist := t.TempDir()
+	if err := os.MkdirAll(filepath.Join(dist, "downloads"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(dist, "index.html"), []byte("<!doctype html><title>QazGost</title>"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	apk := []byte("PK\x03\x04 apk body")
+	if err := os.WriteFile(filepath.Join(dist, "downloads", "QazGost-1.1.apk"), apk, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	h := SPAHandler(dist)
+	get := func(url string, hdr ...string) *httptest.ResponseRecorder {
+		w := httptest.NewRecorder()
+		r := httptest.NewRequest("GET", url, nil)
+		for i := 0; i+1 < len(hdr); i += 2 {
+			r.Header.Set(hdr[i], hdr[i+1])
+		}
+		h(w, r)
+		return w
+	}
+
+	w := get("/downloads/QazGost-1.1.apk")
+	if w.Code != http.StatusOK || w.Body.String() != string(apk) {
+		t.Fatalf("файл приложения: код %d, тело %d байт", w.Code, w.Body.Len())
+	}
+	if ct := w.Header().Get("Content-Type"); ct != "application/vnd.android.package-archive" {
+		t.Errorf("Content-Type = %q", ct)
+	}
+	if cd := w.Header().Get("Content-Disposition"); cd != "attachment; filename=QazGost-1.1.apk" {
+		t.Errorf("Content-Disposition = %q", cd)
+	}
+	if cc := w.Header().Get("Cache-Control"); cc != "public, max-age=86400" {
+		t.Errorf("Cache-Control = %q", cc)
+	}
+	// докачка после обрыва связи: сервер отдаёт запрошенный кусок файла
+	if part := get("/downloads/QazGost-1.1.apk", "Range", "bytes=0-1"); part.Code != http.StatusPartialContent || part.Body.String() != "PK" {
+		t.Errorf("докачка: код %d, тело %q", part.Code, part.Body.String())
+	}
+	// файла старой или несуществующей версии нет — честный 404, а не страница сайта
+	if miss := get("/downloads/QazGost-0.9.apk"); miss.Code != http.StatusNotFound {
+		t.Errorf("несуществующий файл: код %d", miss.Code)
+	}
+	// список файлов папки не показывается
+	if dir := get("/downloads/"); strings.Contains(dir.Body.String(), "QazGost-1.1.apk") {
+		t.Errorf("папка downloads показана списком")
+	}
+}

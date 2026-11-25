@@ -11,7 +11,8 @@
     "test:geom": "node --test src/components/smeta/measureGeom.test.js",
     "test:plan3d": "node --test src/plan3d/plan3d.test.js",
     "test:vip": "node --test src/components/vip/vipSchedule.test.js",
-    "test:i18n": "node --test src/i18n/i18n.test.js"
+    "test:i18n": "node --test src/i18n/i18n.test.js",
+    "test:android": "node --test src/utils/androidApp.test.js"
   },
   "dependencies": {
     "@fontsource/manrope": "^5.3.0",

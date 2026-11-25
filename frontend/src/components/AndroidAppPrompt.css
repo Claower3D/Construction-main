@@ -1,0 +1,106 @@
+/* Окно «Остаться на сайте / Скачать приложение» — показывается только на Android */
+.aap-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 12000; /* выше шапки, помощника и кнопки WhatsApp */
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 16px 12px calc(env(safe-area-inset-bottom, 0px) + 16px);
+  background: rgba(8, 6, 18, 0.72);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  animation: aap-fade 0.18s ease-out;
+}
+
+.aap-card {
+  width: 100%;
+  max-width: 440px;
+  padding: 24px 20px 18px;
+  border: 1px solid var(--qg-line-strong, rgba(189, 178, 230, 0.24));
+  border-radius: 22px;
+  background: linear-gradient(160deg, rgba(52, 37, 104, 0.96), rgba(21, 15, 47, 0.98));
+  box-shadow: 0 24px 60px -18px rgba(0, 0, 0, 0.8);
+  color: var(--qg-text, #f3f1f9);
+  text-align: left;
+  outline: none;
+  /* окно не выше экрана: на низком экране его содержимое прокручивается */
+  max-height: calc(100vh - 24px);
+  max-height: calc(100dvh - 24px);
+  overflow-y: auto;
+  animation: aap-rise 0.22s ease-out;
+}
+
+.aap-icon {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 14px;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #f8d27a, #e5a03a);
+  color: #1c1203;
+}
+
+.aap-card h2 {
+  margin: 0 0 8px;
+  font-size: 1.3rem;
+  line-height: 1.25;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.aap-card p {
+  margin: 0;
+  color: var(--qg-text-2, #bfb8d6);
+  font-size: 0.98rem;
+  line-height: 1.5;
+}
+
+.aap-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 18px 0 12px;
+}
+
+.aap-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 52px !important; /* удобно нажимать пальцем; общий стиль кнопок задаёт 44 */
+  font-size: 1.02rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.aap-card .aap-note {
+  color: var(--qg-text-3, #978fb3);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+/* планшет и телефон в альбомной ориентации: окно по центру */
+@media (min-width: 720px), (orientation: landscape) and (min-height: 420px) {
+  .aap-backdrop { align-items: center; }
+}
+
+/* телефон боком: мало высоты — значок убираем, кнопки ставим в ряд */
+@media (orientation: landscape) and (max-height: 480px) {
+  .aap-backdrop { align-items: center; padding: 8px 12px; }
+  .aap-card { max-width: 560px; padding: 16px 18px 12px; }
+  .aap-icon { display: none; }
+  .aap-card h2 { font-size: 1.12rem; margin-bottom: 4px; }
+  .aap-card p { font-size: 0.9rem; line-height: 1.4; }
+  .aap-actions { flex-direction: row; margin: 12px 0 8px; }
+  .aap-btn { min-height: 48px !important; }
+}
+
+@keyframes aap-fade { from { opacity: 0; } }
+@keyframes aap-rise { from { transform: translateY(18px); opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .aap-backdrop, .aap-card { animation: none; }
+}

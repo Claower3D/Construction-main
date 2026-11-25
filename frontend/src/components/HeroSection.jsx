@@ -2,6 +2,7 @@ import React from 'react';
 import { Apple, Smartphone, ShieldCheck, Clock3, ScanSearch, Package } from 'lucide-react';
 import { startFlow, scrollToSection } from '../utils/navigate';
 import HeroHouse from './HeroHouse';
+import { ANDROID_APK_FILE, ANDROID_APK_SIZE_MB, ANDROID_APK_URL } from '../utils/androidApp';
 
 /*
  * Первый экран: слева — обещание для своей роли и действия,
@@ -16,7 +17,6 @@ const STATS = [
   { icon: Package, label: 'Каталог', value: '9 706', title: 'позиций стройматериалов', sub: 'цены по регионам РК' },
 ];
 
-const WA = 'https://wa.me/77716983869?text=' + encodeURIComponent('Здравствуйте! Хочу установить приложение QazGost для Android.');
 
 export default function HeroSection({ role, currentUser }) {
   const effectiveRole = currentUser?.role || role;
@@ -52,7 +52,7 @@ export default function HeroSection({ role, currentUser }) {
             </div>
             <div className="hx-apps">
               <span>Скачать приложение</span>
-              <a className="hx-app-chip" href={WA} target="_blank" rel="noopener noreferrer"><Smartphone size={14} aria-hidden="true" /> Android</a>
+              <a className="hx-app-chip" href={ANDROID_APK_URL} download={ANDROID_APK_FILE} title={`Скачать приложение для Android, файл APK ${ANDROID_APK_SIZE_MB} МБ`}><Smartphone size={14} aria-hidden="true" /> Android</a>
               <span className="hx-app-chip hx-app-chip--soon" title="Приложение для iPhone готовится"><Apple size={14} aria-hidden="true" /> iOS скоро</span>
             </div>
           </div>

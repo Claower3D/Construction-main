@@ -3,6 +3,7 @@ package handlers
 import (
 	"bytes"
 	"html"
+	"mime"
 	"net"
 	"net/http"
 	"os"
@@ -98,6 +99,7 @@ func localizeIndex(page []byte, host, urlPath string) []byte {
 //     сверяется с сервером и после обновления сразу получает новую версию;
 //   - файлы сборки с хешем в имени — на год, «immutable»;
 //   - остальные картинки, шрифты и модели — на сутки;
+//   - файл приложения для Android (.apk) отдаётся как загрузка с типом пакета Android;
 //   - папки не показываются списком файлов;
 //   - несуществующий файл со статическим расширением — 404.
 func SPAHandler(dist string) http.HandlerFunc {
@@ -160,6 +162,12 @@ func SPAHandler(dist string) http.HandlerFunc {
 				w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
 			} else {
 				w.Header().Set("Cache-Control", "public, max-age=86400")
+			}
+			if strings.ToLower(path.Ext(clean)) == ".apk" {
+				// приложение для Android: телефон должен скачать файл и предложить установку,
+				// а не пытаться открыть его как архив
+				w.Header().Set("Content-Type", "application/vnd.android.package-archive")
+				w.Header().Set("Content-Disposition", mime.FormatMediaType("attachment", map[string]string{"filename": path.Base(clean)}))
 			}
 			files.ServeHTTP(w, r)
 		case staticExt[strings.ToLower(path.Ext(clean))] || strings.HasPrefix(clean, "/assets/"):
