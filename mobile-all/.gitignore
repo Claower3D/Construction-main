@@ -1,0 +1,11 @@
+node_modules/
+www/admin/
+www/customer/
+www/engineer/
+www/executor/
+www/manager/
+android/app/build/
+android/.gradle/
+android/build/
+android/local.properties
+android/app/src/main/assets/public/

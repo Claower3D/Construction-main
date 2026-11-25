@@ -1,0 +1,19 @@
+{
+  "name": "qazgost-mobile-all",
+  "private": true,
+  "version": "1.0.0",
+  "description": "QazGost — одно приложение: заказчик, исполнитель, инженер, менеджер (CRM) и администратор с выбором на старте",
+  "scripts": {
+    "build": "node scripts/assemble.mjs",
+    "sync": "node scripts/assemble.mjs && npx cap sync android"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.0.0",
+    "@capacitor/core": "^6.0.0",
+    "@capacitor/haptics": "^6.0.0",
+    "@capacitor/status-bar": "^6.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.0.0"
+  }
+}

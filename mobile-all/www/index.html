@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f0d1a" />
+  <title>QazGost</title>
+  <style>
+    @font-face { font-family: 'Golos Text'; font-weight: 400 900; font-display: swap;
+      src: url('fonts/golos-text-cyrillic-wght-normal.woff2') format('woff2-variations');
+      unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
+    @font-face { font-family: 'Golos Text'; font-weight: 400 900; font-display: swap;
+      src: url('fonts/golos-text-latin-wght-normal.woff2') format('woff2-variations');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2212, U+FEFF; }
+
+    :root {
+      --bg: #0f0d1a;
+      --text: #f3f1f9;
+      --text-2: #bfb8d6;
+      --text-3: #978fb3;
+      --gold: #f2b84b;
+      --glass: linear-gradient(160deg, rgba(52, 37, 104, 0.74), rgba(21, 15, 47, 0.84));
+      --edge: linear-gradient(150deg, rgba(220, 200, 255, 0.45), rgba(150, 100, 255, 0.1) 40%, rgba(150, 100, 255, 0.06) 62%, var(--tone-a) 88%, var(--tone));
+    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body { margin: 0; min-height: 100%; }
+    body {
+      min-height: 100vh;
+      padding: calc(env(safe-area-inset-top, 0px) + 28px) 18px calc(env(safe-area-inset-bottom, 0px) + 24px);
+      background:
+        radial-gradient(70% 40% at 85% 0%, rgba(140, 70, 240, 0.38), transparent 70%),
+        radial-gradient(60% 35% at 0% 35%, rgba(120, 60, 220, 0.2), transparent 70%),
+        radial-gradient(80% 30% at 50% 105%, rgba(242, 184, 75, 0.12), transparent 70%),
+        var(--bg);
+      color: var(--text);
+      font-family: 'Golos Text', Roboto, 'Segoe UI', system-ui, sans-serif;
+    }
+    body.is-redirecting main { visibility: hidden; }
+    main { max-width: 520px; margin: 0 auto; }
+
+    .brand { display: flex; align-items: center; gap: 12px; margin-bottom: 26px; }
+    .brand-mark {
+      width: 44px; height: 44px; border-radius: 13px;
+      display: grid; place-items: center;
+      background: linear-gradient(180deg, #f8d27a, #e5a03a);
+      color: #1c1203; font-weight: 900; font-size: 20px; letter-spacing: -0.04em;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 10px 26px -10px rgba(242, 184, 75, 0.8);
+    }
+    .brand-name { font-size: 20px; font-weight: 800; letter-spacing: -0.02em; }
+    .brand-name span { color: var(--gold); }
+    .bar { width: 56px; height: 4px; border-radius: 4px; margin-bottom: 14px;
+      background: linear-gradient(90deg, #ffc34d 0 25%, #4fc3ff 25% 50%, #ff5c8a 50% 75%, #2ee6c5 75%);
+      box-shadow: 0 0 14px rgba(79, 195, 255, 0.35); }
+    h1 { margin: 0 0 8px; font-size: 27px; line-height: 1.15; font-weight: 800; letter-spacing: -0.03em; }
+    .lead { margin: 0 0 22px; color: var(--text-2); font-size: 15px; line-height: 1.5; }
+
+    .apps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+    .app {
+      --tone-a: color-mix(in srgb, var(--tone) 55%, transparent);
+      --tone-b: color-mix(in srgb, var(--tone) 20%, transparent);
+      position: relative;
+      display: grid; grid-template-columns: 52px 1fr 20px; align-items: center; gap: 14px;
+      width: 100%; min-height: 84px; padding: 14px 16px;
+      border: 1px solid transparent; border-radius: 18px;
+      background: radial-gradient(90% 80% at 100% 0%, var(--tone-b), transparent 60%) padding-box, var(--glass) padding-box, var(--edge) border-box;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 24px 44px -28px rgba(0, 0, 0, 0.9), 0 0 44px -24px var(--tone-a);
+      color: inherit; font: inherit; text-align: left; cursor: pointer;
+      transition: transform 120ms ease, box-shadow 200ms ease;
+    }
+    .app:active { transform: scale(0.985); }
+    .app:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+    .app.is-last { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 24px 44px -28px rgba(0, 0, 0, 0.9), 0 0 0 1.5px rgba(242, 184, 75, 0.55), 0 0 40px -16px rgba(242, 184, 75, 0.6); }
+    .icon {
+      width: 52px; height: 52px; border-radius: 14px;
+      display: grid; place-items: center;
+      background: var(--tone-b); color: var(--tone);
+      border: 1px solid var(--tone-a);
+    }
+    .icon svg { width: 26px; height: 26px; }
+    .title { display: block; font-size: 17px; font-weight: 800; letter-spacing: -0.01em; }
+    .sub { display: block; margin-top: 3px; color: var(--text-2); font-size: 13.5px; line-height: 1.35; }
+    .last-tag { display: inline-block; margin-left: 6px; padding: 1px 7px; border-radius: 999px; background: rgba(242, 184, 75, 0.16); color: #ffd98a; font-size: 11px; font-weight: 700; vertical-align: 2px; }
+    .chev { color: var(--text-3); }
+
+    .remember {
+      display: flex; align-items: center; gap: 12px;
+      margin-top: 22px; padding: 14px 16px;
+      border: 1px solid rgba(189, 178, 230, 0.18); border-radius: 14px;
+      background: rgba(10, 8, 28, 0.5);
+      color: var(--text-2); font-size: 14px; line-height: 1.4; cursor: pointer;
+    }
+    .remember input { width: 22px; height: 22px; margin: 0; accent-color: var(--gold); flex: none; }
+    .hint { margin: 14px 2px 0; color: var(--text-3); font-size: 12.5px; line-height: 1.5; }
+    @media (prefers-reduced-motion: reduce) { .app { transition: none; } }
+  </style>
+</head>
+<body>
+  <script>
+    // Сразу открываем последнее приложение, если так настроено. Делаем это до отрисовки,
+    // чтобы экран выбора не мелькал. Флаг в sessionStorage: при возврате кнопкой «Назад»
+    // экран выбора остаётся на месте, а не отправляет обратно в то же приложение.
+    (function () {
+      try {
+        var p = new URLSearchParams(location.search);
+        var last = localStorage.getItem('qazgost_hub_last');
+        var remember = localStorage.getItem('qazgost_hub_remember') !== '0';
+        if (!p.has('choose') && remember && last && !sessionStorage.getItem('qazgost_hub_autoopened')) {
+          sessionStorage.setItem('qazgost_hub_autoopened', '1');
+          document.body.className = 'is-redirecting';
+          location.href = last + '/index.html';
+        }
+      } catch (e) { /* хранилище недоступно — просто показываем выбор */ }
+    })();
+  </script>
+  <main>
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">Q</div>
+      <div class="brand-name">QazGost <span>AI</span></div>
+    </div>
+    <div class="bar" aria-hidden="true"></div>
+    <h1>Кем вы работаете?</h1>
+    <p class="lead">Выберите приложение. Сменить его можно в любой момент: кнопка «Назад» на главном экране приложения или ярлык ⇄ у левого края.</p>
+
+    <ul class="apps">
+      <li><button class="app" data-app="customer" style="--tone:#f2b84b">
+        <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20h14V9.5"/><path d="M10 20v-6h4v6"/></svg></span>
+        <span><span class="title">Заказчик</span><span class="sub">Смета по фото, проверка дефектов, заказы и подрядчики</span></span>
+        <svg class="chev" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+      </button></li>
+      <li><button class="app" data-app="executor" style="--tone:#00e5ff">
+        <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m14 6 4 4"/><path d="M15.5 4.5 19.5 8.5 9 19H5v-4z"/></svg></span>
+        <span><span class="title">Исполнитель</span><span class="sub">Наряды, этапы работ, спецтехника и календарь</span></span>
+        <svg class="chev" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+      </button></li>
+      <li><button class="app" data-app="engineer" style="--tone:#f5a524">
+        <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="m9 13 2 2 4-4"/></svg></span>
+        <span><span class="title">Инженер</span><span class="sub">Технадзор, трещины с камеры, расчёты и акты по СНиП РК</span></span>
+        <svg class="chev" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+      </button></li>
+      <li><button class="app" data-app="manager" style="--tone:#2ee6c5">
+        <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/><path d="M3 13h18"/></svg></span>
+        <span><span class="title">Менеджер (CRM)</span><span class="sub">Сделки, клиенты, воронка и голосовые заявки</span></span>
+        <svg class="chev" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+      </button></li>
+      <li><button class="app" data-app="admin" style="--tone:#5fb8f2">
+        <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4 6v6c0 4.5 3.4 8.2 8 9 4.6-.8 8-4.5 8-9V6z"/><path d="m9 12 2 2 4-4"/></svg></span>
+        <span><span class="title">Администратор</span><span class="sub">Пользователи, роли, модерация и сводка по платформе</span></span>
+        <svg class="chev" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+      </button></li>
+    </ul>
+
+    <label class="remember">
+      <input type="checkbox" id="remember" checked />
+      <span>Сразу открывать последнее приложение при запуске</span>
+    </label>
+    <p class="hint">Вход в каждом приложении свой: данные и сохранённые логины не смешиваются.</p>
+  </main>
+
+  <script>
+    (function () {
+      var store = {
+        get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+        set: function (k, v) { try { localStorage.setItem(k, v); } catch (e) { /* без памяти */ } }
+      };
+      var last = store.get('qazgost_hub_last');
+      var box = document.getElementById('remember');
+      box.checked = store.get('qazgost_hub_remember') !== '0';
+      box.addEventListener('change', function () { store.set('qazgost_hub_remember', box.checked ? '1' : '0'); });
+
+      Array.prototype.forEach.call(document.querySelectorAll('.app'), function (btn) {
+        var id = btn.getAttribute('data-app');
+        if (id === last) {
+          btn.classList.add('is-last');
+          var tag = document.createElement('span');
+          tag.className = 'last-tag';
+          tag.textContent = 'последнее';
+          btn.querySelector('.title').appendChild(tag);
+        }
+        btn.addEventListener('click', function () {
+          store.set('qazgost_hub_last', id);
+          try { sessionStorage.setItem('qazgost_hub_autoopened', '1'); } catch (e) {}
+          location.href = id + '/index.html';
+        });
+      });
+      // вернулись кнопкой «Назад» из кеша страниц — снимаем скрытие
+      window.addEventListener('pageshow', function (e) { if (e.persisted) document.body.className = ''; });
+    })();
+  </script>
+</body>
+</html>
