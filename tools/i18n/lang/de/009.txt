@@ -1,0 +1,320 @@
+2660|Stufen
+2661|Stufenverkleidung
+2662|Feinsteinzeug {n}×{n}
+2663|Feinsteinzeug {n}×{n} in Marmoroptik
+2664|Feinsteinzeug {n}×{n} der Premiumserie
+2665|Anzahl der Stufen
+2666|Umriss des Objekts
+2667|Designprojekt ohne Visualisierung
+2668|Designprojekt und {n}D-Visualisierung
+2669|{n} — nach Fläche
+2670|Montage der Alarmanlage
+2671|eine Zentrale
+2672|Meldelinie + {n}% Reserve
+2673|Eine Brandmeldeanlage für Gewerbeobjekte erfordert ein Projekt nach kasachischen Normen; hier steht eine Schätzung der Montage
+2674|Kameras
+2675|Montage des Systems
+2676|Rekorder für bis zu {n} Kameras
+2677|Außenarbeiten
+2678|Trasse (Länge — nach Umfang oder per Parameter)
+2679|Länge der Trasse
+2680|{n} — nach dem Umfang des Umrisses
+2681|Grabentiefe
+2682|unterhalb der Frosttiefe
+2683|Graben
+2684|Rohrverlegung
+2685|Verfüllung
+2686|Bettung {n} cm und Überdeckung {n} cm auf {n} m Breite
+2687|Länge der Trasse
+2688|Länge + {n}%
+2689|Graben abzüglich der Sandschicht
+2690|Pflasterarbeiten
+2691|Umriss der Fläche
+2692|Bordstein entlang des Umfangs
+2693|Planum und Tragschicht
+2694|Verlegung
+2695|Bordstein
+2696|Boden aus dem Planum × {n}
+2697|Schotter {n} cm mit Verdichtung ×{n}
+2698|Sandbett {n} cm × {n}
+2699|entlang des Umfangs der Fläche
+2700|Bordstein {n} m, entlang des Umfangs
+2701|Umriss der Fläche / Straße
+2702|entlang des Umfangs
+2703|Bordstein {n} m
+2704|Arbeiter
+2705|Schichten
+2706|Tg.
+2707|nach Arbeitsumfang
+2708|Für diese Kategorie gibt es keine Standard-Arbeitskarte: Der Kostenvoranschlag wurde nach Arbeitsaufwand berechnet. Für eine genaue Berechnung beschreiben Sie die Arbeiten einem QazGost-Ingenieur
+2709|Schlüsselfertige Renovierung
+2710|Estrich {a} mm, Mörtel {n}:{n} (Zement {n} kg auf {n} m³). Fliesen {n}×{n}: Kleber {n} kg/m², Fugenmörtel {n} kg/m² (Ceresit CE {n})
+2711|Wärmeverluste ≈{n} W/m² × {a} m² = {b} kW; Heizkörper mit {n} Gliedern ≈{n} kW; nicht weniger als die Anzahl der Fenster ({n})
+2712|Putz nach Putzleisten in einer Dicke von {a} mm; Verbrauch von Rotband {n} kg/m² je {n} mm (Angaben von Knauf)
+2713|Lagerhölzer {n}×{n}, Abstand {n} m ({n} m³/m²) + Brett {n} mm ({n} m³/m²) × {a} m² + {n}%
+2714|≈{n} m Profil pro {n} m² + Randprofil entlang des Umfangs = {a} m, Profil {n} m
+2715|Ceresit CE {n}: ≈{n} kg/m² für Fliesen {n}×{n} mit Fuge {n}–{n} mm × {a} m²
+2716|Schutt ≈{a} m³ fest, {b} m³ aufgelockert (×{n}); {n} m³ pro Fahrt
+2717|{a} Bahnen zu je {n} m für {b} m Wand; eine Rolle ergibt {c} Bahnen von {d} m Höhe
+2718|{a} Steckdosen (nach Norm {n} pro {n} m Umfang {b} m, falls nicht vorgegeben)
+2719|{a} m³ ({b} m² × {c} m) ÷ {n} m³/h, Mindestauftrag {n} h
+2720|Kleben {n} kg/m² + Armierungsschicht {n} kg/m² × {a} m²
+2721|Bettung {n} cm auf {a} m Breite × {b} m, Verdichtung ×{n}
+2722|Sparren und Lattung ≈{n} m³ pro {n} m² × {a} m² + {n}%
+2723|Mörtel {a} m³ ({b} m² × {c} mm), Zement {n} kg/m³
+2724|{n} Seiten × {a} m × (oberirdischer Teil {b} m + {n})
+2725|{a} m × {b} m × {c} m (Umfang + Innenwände)
+2726|Schotterbett {n} cm × {a} m², Verdichtung ×{n}
+2727|{n} m Meldelinie je Melder × {a} + {n} m bis zur Zentrale
+2728|({a} m² + Überstände {b} m × {c} m) ÷ cos {d}° = {e} m²
+2729|{a} Steckdosen + {b} Schalter + {c} Leuchten
+2730|({a} m × {b} m × {c} Gesch. − Öffnungen {d} m²) × {e} m
+2731|mindestens {n} Melder, {n} pro {n} m² × {a} m²
+2732|{a} Leuchten ({n} pro {n} m², falls nicht vorgegeben)
+2733|Graben {a} m × {b} m × {c} m = {d} m³, {n} m³/h
+2734|Graben {a} m × {n} m × {b} m = {c} m³, {n} m³/h
+2735|{a} m³ ohne Verfüllung × {n} (Auflockerung)
+2736|≈{n} m² je Stufe mit Setzstufe × {a} + {n}%
+2737|Wände {a} m × {b} m − Öffnungen {c} m² = {d} m²
+2738|Knauf: {n} kg/m² je {n} mm × {a} mm × {b} m²
+2739|Boden {a} m² + Hochzug an den Wänden {n} m × {b} m
+2740|{n} BTU kühlen ≈{n} m², Fläche {a} m²
+2741|Mörtel {a} m³ × {n} m³ Sand pro {n} m³
+2742|{a} × {b} Durchgänge (vor jeder Lage)
+2743|≈{n} kg/m² pro Lage × {a} Lagen × {b} m²
+2744|vom Streifen verdrängter Boden {a} m³ × {n}
+2745|≈{n} kg Kleber pro {n} m³ Mauerwerk × {a} m³
+2746|{a} m × {b} m − Öffnungen {c} m² = {d} m²
+2747|{n} kg/m² für Fliesen {n}×{n} × {a} m²
+2748|{n} kg/m² (Zahnspachtel {n} mm) × {a} m²
+2749|{n} Dose pro {n} Punkte, Punkte: {a}
+2750|„Rillenputz“ {n} mm ≈{n} kg/m² × {a} m²
+2751|Umfang {a} m − Türen {n} × {n} m
+2752|{a} m³ × {b} kg/m³ + {n}% Überlappungen
+2753|Sohle {a} m² + Ränder {b} m × {c} m
+2754|{n} kg/m² bei einer Schicht von {n} mm × {a} m²
+2755|{n} Leuchte pro {n} m² × {a} m²
+2756|{a} → {b} kg(L) / {c} je Gebinde
+2757|{a} m² + {n}% Überlappung und Verschnitt
+2758|{n} L/m² × {a} m² × {b} Durchgänge
+2759|Planum {n} cm × {a} m² = {b} m³
+2760|≈{n} kg/m² × {a} Lagen × {b} m²
+2761|{a} Steckdosen + {b} Schalter
+2762|{n} Dübel pro {n} m² × {a} m²
+2763|{n} Lagen × {n} kg/m² × {a} m²
+2764|Packung für {n} m², Wände {a} m²
+2765|{n} Lagen ≈{n} kg/m² × {a} m²
+2766|{a} m² + {n}%, Platte {n} m²
+2767|Fläche nach Umriss {a} m²
+2768|{a} m² + {n}% Verschnitt
+2769|{a} m³ × {b} kg/m³ + {n}%
+2770|{a} m + {n}% Verschnitt
+2771|{a} m² + {n}% Überlappungen
+2772|{a} m² + {n}% Verschnitt
+2773|{a} m² + {n}% Überlappung
+2774|{a} Heizkörper vorgegeben
+2775|{a} m² × {n} Durchgänge
+2776|{a} m³ + {n}% Verlust
+2777|Ränder {a} m × {b} m
+2778|{n} kg/m² × {a} m²
+2779|{a} Pers. × {b} Schichten
+2780|{a} m² × {b} Lagen
+2781|{a} × {b} Durchgänge
+2782|{a} Schalter
+2783|{a} Punkte vorgegeben
+2784|{a} × {b} Lagen
+2785|{a}% des Aushubs
+2786|Die Anfrage ist zu groß (mehr als {n} KB)
+2787|Ungültige Anfrage: Feld
+2788|Ungültige Anfrage: leerer Inhalt
+2789|Ungültige Anfrage: Der Inhalt ist kein gültiges JSON
+2790|Außenanlagen und Pflaster
+2791|Inbetriebnahme / Spezialarbeiten
+2792|Lüftung und Klimatisierung (HVAC)
+2793|Wasserversorgung (Kalt-/Warmwasser)
+2794|Erdarbeiten und Aushub von Baugruben
+2795|Abwasser und Regenwasserdrainage
+2796|Tragwerk, Stützen und Ortbetonwände
+2797|Dach und Dachtragwerke
+2798|Außenwände und Fassadenverkleidung
+2799|Fensterelemente und Eingangstüren
+2800|Heizung und Wärmeübergabestation
+2801|Trennwände aus Gipskarton und Blöcken
+2802|Vorbereitungs- und Vermessungsarbeiten
+2803|Böden und Bodenbeläge
+2804|Deckensysteme
+2805|Sanitärausstattung
+2806|Schwachstromnetze und Brandmeldeanlage
+2807|Fundamente und Ortbeton-Gründungsarbeiten
+2808|Rohausbau (Putz, Estrich)
+2809|Feinausbau (Anstrich, Tapeten)
+2810|Elektroinstallationsarbeiten
+2811|ab {n} ₸
+2812|bis {n} ₸
+2813|Bewehrung
+2814|Baugruben
+2815|Montage der Ringe
+2816|Montage von Klärgruben
+2817|Rohrleitung
+2818|Klärgruben und Abwasser
+2819|{n} lfm
+2820|{n} Mio. ₸
+2821|{n} ₸ / Stunde
+2822|BIN {n}
+2823|L ≈ {n} mm
+2824|{n} von {n}
+2825|{n} × {n} m
+2826|{n} Tg.
+2827|Paar
+2828|Spule
+2829|Glied
+2830|Paket
+2831|Auftraggeber
+2832|{n} Auftrag über {n} ₸
+2833|{n} Aufträge über {n} ₸
+2834|{n} Aufträge über {n} ₸
+2835|Maschinen im Angebot: {n}
+2836|Menge berechnen
+2837|{n} Abschnitt
+2838|{n} Abschnitte
+2839|{n} Abschnitte
+2840|{n} Bauabschnitt
+2841|{n} Bauabschnitte
+2842|{n} Bauabschnitte
+2843|Planer
+2844|Berechnung des integrierten Kalkulators von QazGost: Art und Mengen der Arbeiten wurden in der Notiz anhand von Schlüsselwörtern gefunden (KI nicht verbunden)
+2845|Aufgaben: {n}
+2846|{n} KB
+2847|Gesamt
+2848|In der Notiz sind keine Mengen angegeben — es wurden Standardwerte verwendet. Ergänzen Sie in der Notiz Fläche (m²), Länge (m) oder Anzahl, dann wird die Berechnung genau
+2849|Dies ist eine vorläufige Berechnung: Der endgültige Kostenvoranschlag folgt nach dem Ortstermin des Ingenieurs und dem Aufmaß
+2850|Manager
+2851|Fachingenieur
+2852|CRM-Manager
+2853|Die Menge jeder Position wurde aus der Geometrie des Umrisses und den Verbrauchsnormen der Hersteller berechnet; die Preise sind Marktpreise mit Quelle in jeder Zeile; der regionale Koeffizient wurde auf Arbeiten und Materialien angewendet; die Szenarien unterscheiden sich im Arbeitsumfang und in der Materialmarke
+2854|≈{n} m Rohr je Zapfstelle + {n}%
+2855|≈{n} m Schlitz je Punkt
+2856|≈{n} m Kabel je Punkt
+2857|WC {n}
+2858|Waschbecken {n}
+2859|Badewanne {n}
+2860|Dusche {n}
+2861|Waschmaschine {n}
+2862|Warmwasserspeicher {n}
+2863|Handtuchheizkörper {n}
+2864|{n}% der Summe von „Standard“ — nach Preisen aus offenen Preislisten und Anzeigen mit Link. Der Rest ist eine rechnerische Schätzung von QazGost: Klären Sie diese Zeilen mit dem Lieferanten
+2865|Schangaösen
+2866|Rudny
+2867|Ekibastus
+2868|Excel und PDF mit allen Abschnitten
+2869|Datei wird erstellt…
+2870|Kostenvoranschlag in Excel gespeichert
+2871|Die Excel-Datei konnte nicht erstellt werden — prüfen Sie die Verbindung und versuchen Sie es erneut
+2872|Der Browser hat das Druckfenster blockiert — erlauben Sie Pop-ups für diese Website
+2873|Berechnung gelöscht — Sie können neu beginnen
+2874|Art der Arbeiten geändert — berechnen Sie den Kostenvoranschlag neu
+2875|Ihr OpenAI-Schlüssel ist hinterlegt — die KI analysiert das Foto.
+2876|Das Foto analysiert die KI; ist sie am Server nicht verbunden, können Sie Ihren eigenen Schlüssel angeben.
+2877|Eigener OpenAI-Schlüssel
+2878|Wird nur für die Fotoanalyse benötigt. Der Kostenvoranschlag wird auch ohne ihn berechnet.
+2879|Derzeit hinterlegter Schlüssel
+2880|Der Schlüssel wird nur in diesem Browser gespeichert und geht zusammen mit dem Foto an den QazGost-Server — für eine einzige Anfrage an die KI; auf dem Server wird er nicht gespeichert.
+2881|Schlüssel erhalten:
+2882|Wird geprüft…
+2883|Schlüssel prüfen
+2884|Schlüssel löschen
+2885|Das sieht nicht nach einem OpenAI-Schlüssel aus: Er beginnt mit „sk-“.
+2886|Fügen Sie den Schlüssel ein, um ihn zu prüfen.
+2887|Der Schlüssel funktioniert: Der KI-Dienst hat ihn akzeptiert.
+2888|Keine Verbindung zum Server — der Schlüssel wurde nicht geprüft.
+2889|der KI-Dienst hat ihn nicht akzeptiert
+2890|OpenAI-Schlüssel in diesem Browser gespeichert
+2891|OpenAI-Schlüssel aus diesem Browser gelöscht
+2892|Eigenen OpenAI-Schlüssel angeben
+2893|Zustand:
+2894|Sichtbare Mängel
+2895|Zu beachten
+2896|Die KI-Fotoanalyse ist nicht verbunden: Auf dem Server gibt es keinen OpenAI-Schlüssel. Der Kostenvoranschlag wurde ohne sie berechnet — nach Aufmaß und Verzeichnis.
+2897|KI-Fotoanalyse nicht ausgeführt: Der KI-Dienst hat den OpenAI-Schlüssel abgelehnt. Prüfen Sie den Schlüssel.
+2898|KI-Fotoanalyse nicht ausgeführt: Das Anfragelimit des KI-Dienstes ist erschöpft. Versuchen Sie es später.
+2899|KI-Fotoanalyse nicht ausgeführt: Der KI-Dienst hat nicht rechtzeitig geantwortet. Versuchen Sie es erneut.
+2900|KI-Fotoanalyse nicht ausgeführt: Der KI-Dienst hat einen Fehler gemeldet. Der Kostenvoranschlag wurde ohne sie berechnet.
+2901|KI-Fotoanalyse nicht ausgeführt: zu viele Anfragen hintereinander. Warten Sie eine Minute und berechnen Sie den Kostenvoranschlag neu.
+2902|KI-Fotoanalyse nicht ausgeführt: Die Fotos sind zu groß. Lassen Sie 1–3 Aufnahmen übrig.
+2903|KI-Fotoanalyse nicht ausgeführt: Der Server hat eine unverständliche Antwort gesendet.
+2904|Inhalt des Szenarios
+2905|Einkaufsliste der Materialien
+2906|Einkauf
+2907|Grund der Pause
+2908|Wie berechnet
+2909|Zeilen im Kostenvoranschlag
+2910|Drucken / als PDF speichern
+2911|Kostenvoranschläge nach kasachischen Normen
+2912|Die Preise sind Marktpreise, mit Quelle in jeder Zeile
+2913|Wände abzüglich Öffnungen
+2914|Koeffizient
+2915|Einbau einer Waschtischarmatur
+2916|Einbau einer Wannenarmatur
+2917|Wannenarmatur mit Handbrause, Mittelklasse
+2918|Waschtischarmatur
+2919|Wannenarmatur mit Handbrause
+2920|Satu: Wannenarmaturen von ≈7 000 ₸ (preiswert) bis ≈61 000 ₸ (Grohe); angesetzt wurde die Mittelklasse
+2921|Abwasser: Die Objekte werden an vorhandene Anschlüsse angeschlossen; der Austausch von Abwasserrohren und Fallstrang ist nicht im Kostenvoranschlag enthalten — er wird nach der Besichtigung berechnet.
+2922|Duschkabine: Armatur und Brause gehören zum Lieferumfang der Kabine.
+2923|Heizung: Heizkörper und ihre Anbindung bei bestehender Anlage; Kessel, Pumpengruppe und Hauptleitungen sind nicht im Kostenvoranschlag enthalten.
+2924|Die Preise sind Marktpreise für die Stadt {a} (Koeffizient ×{n}), Reserve für Unvorhergesehenes {n}%, MwSt. {n}% wird gesondert ausgewiesen
+2925|Laut Foto passt die Art der Arbeiten „{a}“ besser, der Kostenvoranschlag wurde aber für eine andere berechnet. Prüfen Sie die Auswahl.
+2926|Der Schlüssel hat die Prüfung nicht bestanden ({a}): {b}
+2927|{a}: Details
+2928|Anrufen: {a}
+2929|Zustand: {a}
+2930|„{a}“ wählen
+2931|{n}. Tragwerk und Ortbetonwände
+2932|{n}. Dach und Dachstuhlsysteme
+2933|{n}. Vorbereitungsarbeiten
+2934|Protokoll
+2935|Aktiv
+2936|Miete Autokran XCMG {n} Tonnen
+2937|Miete Baggerlader JCB {n}CX
+2938|Basis
+2939|Beton
+2940|BIN
+2941|Verifizierung
+2942|Hoch
+2943|Stadt / Standort
+2944|Aktionen
+2945|Beschwerde
+2946|Auftrag
+2947|von
+2948|Mauern der Außenwände aus Vollziegeln
+2949|Satz
+2950|Platte
+2951|Mon.
+2952|Metall
+2953|Sack
+2954|Ortbeton
+2955|Einstellungen
+2956|MwSt. {n}%
+2957|Niedrig
+2958|Normal
+2959|Ablehnen
+2960|lfm
+2961|Böden
+2962|Verlegung des Kabels VVGng-LS {n}x{n} im Wellrohr
+2963|Bewertung
+2964|Rolle
+2965|Rolle
+2966|Speichern
+2967|Mittel
+2968|Dringend
+2969|Tabelle
+2970|t
+2971|TOO „Beispiel Bauträger“
+2972|TOO „Beispiel Engineering“
+2973|TOO „Beispiel MonolitStroy“
+2974|Pck.
+2975|Einbau eines halbtrockenen Zementestrichs {n}mm
+2976|Datei
+2977|Portlandzement M-{n} (Sack {n}kg)
+2978|Spachteln der Wände mit Gipsmischungen in {n} Lagen
+2979|Verputzen der Wände mit Kalkzementmörtel

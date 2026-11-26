@@ -1,0 +1,260 @@
+0|Qozogʻiston meʼyorlari boʻyicha smetalar va nuqsonlarni aniqlash
+1|Bosh sahifa
+2|Platforma
+3|Imkoniyatlar
+4|Katalog
+5|Narxlar
+6|Kirish
+7|Kirish
+8|Chiqish
+9|Roʻyxatdan oʻtish
+10|Roʻyxatdan oʻtish
+11|Tizimga kirish
+12|Kabinet
+13|Kabinetga oʻtish
+14|Oʻtish
+15|Profil
+16|Boshqaruv paneli
+17|Ochish
+18|Menyuni ochish
+19|Menyuni yopish
+20|Orqaga
+21|Boshqaruv paneliga qaytish
+22|Yuqoriga
+23|Asosiy matnga oʻtish
+24|Koʻrsatish
+25|Hammasini koʻrsatish
+26|Yigʻish
+27|Yuborish
+28|Hammasi
+29|Jami:
+30|Qidiruv…
+31|Toifasiz
+32|Boʻlim yuklanmoqda…
+33|Ish kabineti ochilmoqda…
+34|Server bilan sinxronlashda xatolik
+35|Asboblar
+36|ASBOBLAR
+37|BOSHQARUV
+38|PROFIL
+39|BUYURTMALARIM
+40|PROFIL & XIZMATLAR
+41|Buyurtmachi menyusi
+42|Ijrochi menyusi
+43|Muhandis kabineti
+44|Admin paneli
+45|Asosiy panel
+46|Narxni baholash
+47|Nuqsonlarni tekshirish
+48|Hajmlarni hisoblash
+49|Muhandislik yechimlari
+50|Kommunikatsiyalar kalkulyatori
+51|LiDAR skaner
+52|Taqvim
+53|Ishlar taqvimi
+54|Buyurtmalarim
+55|Ishlarim
+56|Texnika / Marketpleys
+57|Mening anketam
+58|Anketa
+59|Ijrochi anketasi
+60|Anketani toʻldiring
+61|Binolar qurilishi
+62|Arizalar
+63|AI hisob-kitobi
+64|Xarajatlar
+65|Narxnomalar
+66|Moderatsiya
+67|Hududlar
+68|Amallar jurnali
+69|Tahlil
+70|Nizolar va arbitraj
+71|Shartnomalar
+72|CRM tizimi
+73|Texnika marketpleysi
+74|Smeta kalkulyatori
+75|Usta
+76|Buyurtmachi
+77|Ijrochi
+78|Muhandis
+79|Admin
+80|Menejer
+81|Kompaniya
+82|Men yetkazib beruvchiman
+83|Menejer Sasha
+84|Toʻlov
+85|Toʻlov va hamyon
+86|Hamyonni ochish
+87|Tarif
+88|Aloqa
+89|Savat
+90|Shahar
+91|Shaharni tanlang
+92|Shaharni tanlash
+93|Tanlangan shahar:
+94|Qozogʻiston shaharlari
+95|Shaharni qidirish...
+96|Shahar topilmadi
+97|Shaharni GPS orqali avtomatik aniqlash
+98|Avto GPS
+99|Barcha shaharlar
+100|Barcha hududlar
+101|Barcha hududlar (bazaviy narxlar)
+102|Narxlar hududi
+103|Hudud:
+104|Joylashuv
+105|Olmaota
+106|Ostona
+107|Chimkent
+108|Qaragʻanda
+109|Aqtoʻbe
+110|Taroz
+111|Pavlodar
+112|Ust-Kamenogorsk
+113|Semey
+114|Atirau
+115|Qoʻstanay
+116|Qiziloʻrda
+117|Uralsk
+118|Petropavlovsk
+119|Aqtau
+120|Temirtau
+121|Turkiston
+122|Koʻkchetov
+123|Taldiqoʻrgʻon
+124|Jezqazgʻan
+125|Bildirishnomalar
+126|Hammasini oʻqilgan deb belgilash
+127|Hammasini tozalash
+128|Bildirishnomalar yoʻq
+129|Bu yerda muhim xabarlar va arizalar holati koʻrinadi
+130|yangi
+131|Hozirgina
+132|Ijrochi javob berdi
+133|Buyurtmangizga narx va muddat koʻrsatilgan taklif keldi. Takliflarni solishtiring.
+134|Smeta tayyor (AI 2.0)
+135|Yuklangan fotosuratlar tahlil qilindi: 3 ta narx ssenariysi hisoblandi.
+136|AI skaner 2 ta mikroyoriqni aniqladi va SNiP boʻyicha hisobot tuzdi.
+137|Tekshiruv tayinlandi
+138|«Kabanbay» turar joy majmuasi obyekti boʻyicha texnik nazoratga yangi ariza.
+139|GOST boʻyicha AI tekshiruvi yakunlandi
+140|Loyiha-smeta hujjatlari boʻlimini tekshirish tugadi: 0 ta jiddiy nuqson.
+141|KS-2 dalolatnomasini imzolash
+142|Buyurtmachi yashirin ishlarning oraliq dalolatnomasini kelishdi.
+143|CRM da yangi lid
+144|«KazStroyInvest» MChJ dan yangi tijorat arizasi kelib tushdi.
+145|Bitim yakunlash bosqichiga oʻtkazildi
+146|№1085 buyurtmachi ikkinchi bosqich boʻyicha tijorat taklifini soʻradi.
+147|Obyekt muvaffaqiyatli topshirildi
+148|Pudratchi №3 smeta bosqichini eʼtirozlarsiz topshirdi.
+149|YaTT ni tasdiqlashga ariza
+150|«TemirStroy» YaTT IIN/BIN tekshiruvi uchun hujjatlarni yubordi.
+151|Yangi arbitraj nizosi
+152|Monolit quyish sifati boʻyicha daʼvo ochildi (DSP-882).
+153|ESN RK yangilanishi
+154|Qozogʻistonning 17 hududi boʻyicha qimmatlashish indekslari yangilandi.
+155|Yangi mavjud buyurtma
+156|Buyurtmalar tasmasida: Ostona shahrida 450 m² ofis xonasini taʼmirlash.
+157|Bosqich buyurtmachi tomonidan qabul qilindi
+158|Buyurtmachi №1 bosqichni tasdiqladi. Bosqich toʻlovini u bilan bevosita kelishing.
+159|Taklif qabul qilindi
+160|Tijorat taklifingiz tanlandi — siz asosiy ijrochisiz.
+161|Fotosurat boʻyicha soniyalarda AI baholash • SNiP va GOST RK • RU / KZ / EN
+162|Qurilish buyurtmalaridan daromad qiling —
+163|halol va shaffof
+164|Quring va taʼmirlang
+165|ortiqcha toʻlov va xatarlarsiz
+166|Butun Qozogʻiston boʻyicha jonli buyurtmalar tasmasini oching, narx va muddat boʻyicha takliflar yuboring, loyihalarni «Ishlarim» boʻlimida yuriting va natijani onlayn topshiring.
+167|Xona yoki fasad fotosuratini yuklang — xizmat Qozogʻiston meʼyorlari boʻyicha smetani hisoblaydi, yoriqlarni belgilaydi va shahringizdan brigada tanlaydi.
+168|Buyurtmalar tasmasini ochish
+169|Obyektni fotosurat boʻyicha baholash
+170|Bepul boshlash
+171|Namunani koʻrish
+172|Hozir sinab koʻrish
+173|Ijrochi topish yoki buyurtma olish
+174|ishlar va materiallar narxlari
+175|11 ta shaharga moslab
+176|fotosurat boʻyicha smeta
+177|1 daqiqagacha
+178|hajmlar, materiallar va yakuniy summa
+179|yoriq detektorining aniqligi
+180|tekshiruv tanlanmasida
+181|qurilish materiallari pozitsiyalari
+182|Qozogʻiston hududlari boʻyicha narxlar
+183|Uy: chap yarmi — fotorealistik render, oʻng yarmi — muhandislik tizimlari chizmasi: elektr, suv taʼminoti, isitish, kanalizatsiya, gaz va hisoblagichlar
+184|Elektr
+185|Elektr shchiti
+186|Elektr hisoblagich
+187|Sovuq suv
+188|Issiq suv
+189|Suv hisoblagich
+190|Isitish
+191|Qozon va kollektor
+192|Kanalizatsiya
+193|Gaz
+194|Gaz hisoblagich
+195|Qozogʻiston meʼyorlari boʻyicha smetalar va nuqsonlar
+196|Qozogʻiston Respublikasi meʼyorlari boʻyicha smetalar, nuqsonlarni tekshirish va pudratchilar.
+197|Xizmat nuqsonlarni topadi, hajmlarni hisoblaydi va ESN RK narxlari hamda meʼyorlarni tanlaydi.
+198|Tez va aniq smetalar
+199|Fotosurat boʻyicha soniyalarda smeta
+200|Surat boʻyicha bir daqiqada smeta
+201|Nuqsonlarni aniqlash
+202|Fotosuratdagi yoriqlar
+203|Yoriqlar, koʻchishlar, suv sizishi
+204|Fotosuratdagi yoriqlar ramka bilan belgilanadi, dalolatnomaga meʼyor, tavsif va taʼmirlash narxi qoʻshiladi.
+205|YOLO26 neyrotarmogʻi
+206|Neyrotarmoq ishlarni hisoblaydi va nuqsonlarni topadi
+207|Shaffof hisob-kitoblar
+208|2026-yilning shaffof narxlari
+209|Shaharga moslangan 2026-yil narxlari
+210|Qozogʻiston hududlari boʻyicha narxlar
+211|Tayyor hujjatlar
+212|Smetalar, dalolatnomalar, qaydnomalar va hisob-kitoblar — PDF va Excel formatlarida, kelishish va pudratchi uchun.
+213|PDF va Excelga eksport
+214|Excel va PDFga eksport
+215|PDF / Excelga eksport
+216|Meʼyorlarga havolalar
+217|Bu qanday ishlaydi
+218|Fotosuratdan tayyor smetagacha — uch qadamda, odatda bir daqiqadan kam.
+219|Fotosurat yuklang
+220|Devor, xona, fasad yoki yaqindan olingan yoriq. Telefon kamerasi yetarli.
+221|Tahlil va hisob-kitob
+222|Aniq smeta olish
+223|Narxlar va tavsiyalar bilan smeta va nuqsonlar dalolatnomasi — katalogdagi brigadaga yuboring.
+224|Fotosuratni tayyor smetaga aylantiring
+225|Obyekt fotosuratini yuklang — Qozogʻiston meʼyorlari boʻyicha hajmlar, narxlar va qiymat koʻrsatilgan tayyor smeta olasiz.
+226|Smetani hisoblash
+227|Oʻz obyektingizni hisoblash
+228|Smeta yaratish
+229|Excelni yuklab olish
+230|Smeta PDF
+231|Fayl tayyorlanmoqda…
+232|Smeta namunalari
+233|Smeta namunasi
+234|Smeta shunday koʻrinadi
+235|Shaffof va ishga tayyor — tajribali smetachi tuzgandek. Narxlar ESN RK bazasidan, shahringiz koeffitsiyenti bilan.
+236|Ishlar va materiallar hajmlari
+237|Ish turlari va materiallar boʻyicha taqsimot
+238|Yakuniy summa va ish muddati
+239|Ishlar nomi
+240|Hajm
+241|Birlik narxi
+242|Summa, ₸
+243|Smeta boʻyicha jami
+244|Materiallar zaxirasi 10%
+245|Materiallar zaxirasi
+246|Texnik nazorat +5%
+247|Texnik nazorat
+248|birl.
+249|kun
+250|Lentali poydevor
+251|Lentali poydevor, M300 beton
+252|Gruntni ekskavator bilan qazish
+253|Ogʻir beton M300 (W6, F150)
+254|A500C Ø12 mm qovurgʻali armatura
+255|Laminatlangan shchitli qolip
+256|Qorishmani yotqizish va vibratsiyalash
+257|Gazoblok terish
+258|D500 gazoblokdan tashqi devorlar
+259|240 m², qalinligi 300 mm

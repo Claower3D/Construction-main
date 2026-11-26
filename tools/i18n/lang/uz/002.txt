@@ -1,0 +1,256 @@
+530|Salom! Men LinkVeAI. Smeta hisoblaymi yoki narxlarni aytaymi?
+531|Narxlar, smeta, brigada haqida soʻrang…
+532|LinkVeAI uchun xabar
+533|LinkVeAI bilan chatni ochish
+534|LinkVeAI — QazGost AI yordamchisi bilan chat
+535|Chatni yopish
+536|LinkVeAI bilan chatni yigʻish
+537|Maslahatni yashirish
+538|Ovozni yoqish
+539|Ovozni oʻchirish
+540|Ovoz yoqilgan
+541|Javoblarni ovoz chiqarib oʻqish
+542|Ovoz bilan aytish
+543|Yozishni toʻxtatish
+544|Gapiring…
+545|Sizni tinglayapti…
+546|Oʻylayapti…
+547|Javob beryapti…
+548|Gapiryapti…
+549|LinkVeAI yozmoqda
+550|Qaytadan boshlash
+551|Aloqa uzildi, javob yetib kelmadi. Internetni tekshiring va savolni yana yuboring.
+552|Pol styajkasi qancha turadi?
+553|Devorda yoriq bor, nima qilish kerak?
+554|Fotosurat boʻyicha smeta — bu qanday ishlaydi?
+555|Kabel kesimi va isitishni qanday hisoblash mumkin?
+556|M500 sement qancha turadi?
+557|Ekskavator bir smenaga qancha turadi?
+558|60 m² devorni suvash qancha turadi?
+559|tenge
+560|Katalog yuklanmoqda
+561|Materiallarni qidirish
+562|Materiallarni qidirish: sement, armatura, gʻisht, gipsokarton...
+563|Qozogʻiston ishlab chiqaruvchi zavodlaridan toʻgʻridan-toʻgʻri yetkazib berish. Ulgurji va chakana narxlar, GOST/ST RK sifat pasportlari, hajm kalkulyatori va obyektga tez yetkazib berish.
+564|Materiallar toifasi
+565|Barcha toifalar
+566|Barcha materiallar
+567|Toifa
+568|Filtrlar
+569|Katalog filtrlari
+570|Filtrlarni tozalash
+571|Saralash
+572|Saralash:
+573|Natijalarni saralash
+574|Ommabopligi boʻyicha
+575|Reyting boʻyicha
+576|Avval arzonlari
+577|Avval qimmatlari
+578|Avval yangilari
+579|Eng yuqori narx, ₸
+580|Maks. narx (birlik uchun)
+581|Yetkazib berish variantlari
+582|Yetkazib berish bilan
+583|Obyektga yetkazib berish bilan
+584|Oʻzi olib ketish
+585|Ombordan oʻzi olib ketish
+586|Yetkazib berish
+587|Ulgurji tender (narx soʻrovi)
+588|AI ehtiyoj kalkulyatori (BOM)
+589|narxlar katalogidagi materiallar
+590|mahsulot
+591|Oldindan toʻlovsiz
+592|tasdiqlangandan keyin yetkazib beruvchiga toʻlov
+593|Narx soʻrov boʻyicha
+594|Narx koʻrsatilmagan — egasi bilan bogʻlaning
+595|Elektr va kabel
+596|Energetika
+597|Gipsokarton va pardozlash
+598|Lak-boʻyoq materiallari
+599|Temir-beton buyumlar, halqalar, lyuklar
+600|Temir-beton buyumlar, halqalar, lyuklar va tayanchlar (TABYS-ASM, Medina)
+601|Qum, shagʻal, beton
+602|Tom va fasad
+603|Issiqlik va gidroizolyatsiya
+604|Suv taʼminoti
+605|Armatura va metall
+606|Mahkamlagichlar va metizlar
+607|Santexnika va quvurlar
+608|Beton/qorishma
+609|Gʻisht va bloklar
+610|Sement va qorishmalar
+611|Pol qoplamalari
+612|Transport
+613|Ekskavatorlar, kranlar, samosvallar va beton nasoslari smena va soat boʻyicha. Oldindan toʻlovsiz bron: sanani egasi band qiladi, toʻlovni u bilan bevosita kelishasiz.
+614|Maxsus texnika, model yoki xususiyatlar boʻyicha qidirish (masalan: Hitachi, 25 t)...
+615|Maxsus texnika filtrlari
+616|Texnikani joylashtirish
+617|Mening parkim
+618|Ijaralarim
+619|Texnikaga arizalar
+620|Yer qazish
+621|Burgʻilash
+622|Koʻtarish
+623|Yoʻl qurilishi
+624|Yer qazish texnikasi
+625|Yuk koʻtarish texnikasi
+626|Ekskavatorlar va yuklagichlar
+627|Avtokranlar va samosvallar
+628|Kran
+629|Bugun boʻsh
+630|Faqat bugun boʻshlari
+631|Bugun band — boshqa sanalarni tanlang
+632|Mavjud
+633|Ijarada
+634|Brigadani kutmoqda
+635|Operator bilan
+636|Smena narxi
+637|Smenali
+638|Smenali ijara
+639|Soatbay
+640|Smena
+641|smena
+642|Reys
+643|Reys uchun
+644|Limitsiz
+645|Cheklovsiz
+646|Qidiruv radiusi
+647|Shahar boʻyicha qidiruv
+648|Bron qilish
+649|Sanalarni tanlash
+650|eʼlon
+651|toʻlov
+652|egasiga
+653|yetkazib berish
+654|obyektga
+655|Sharhlar yoʻq
+656|gacha
+657|uchun
+658|km
+659|m²
+660|XCMG avtokrani 25 tonna
+661|URB-2A2 burgʻilash qurilmasi
+662|CAT 320D zanjirli ekskavator (1.2 m³)
+663|JCB 3CX Super ekskavatori
+664|Ish yoki xizmat topish
+665|Siz nima olasiz
+666|Nima qoʻshish kerak
+667|Obyekt fotosurati yoki videosi
+668|Brigadir va tarkib
+669|Qurilish buyurtmalaridan daromad qiling
+670|Reja → 3D
+671|Qavat chizmasi 3D modelga aylanadi: devor va yopmalar hajmi, chizmalarni yuklab olish, telefon kamerasi orqali koʻrsatish
+672|Qavat rejasini yuklang — binoning 3D modeli, devor va yopmalar hajmi, chizma va telefon kamerasi uchun model olasiz.
+673|Chizmani yuklash
+674|Noldan chizish
+675|Namunada sinab koʻrish
+676|Modellarim
+677|Loyiha faylini ochish
+678|Reja
+679|Hajmlar
+680|Kamera
+681|Fayllar
+682|Tanlash
+683|Devor
+684|Eshik
+685|Deraza
+686|Masshtab
+687|Yangi
+688|Qavat nusxasi
+689|Boʻsh qavat
+690|Qavat
+691|Bino
+692|Yangi devor
+693|Model boʻyicha jami
+694|Hajmlar qaydnomasi
+695|Excelga yuklash
+696|Kamerani qaratish
+697|Maketni koʻrsatish
+698|Maydonchaga qoʻyish
+699|Nimani devor deb hisoblash
+700|Qavatga koʻchirish
+701|Qavat devorlarini almashtirish
+702|Bu qavatga chizma yuklash
+703|Devorni oʻchirish
+704|Oraliqni oʻchirish
+705|Qavatni oʻchirish
+706|Devorlar
+707|Yopmalar
+708|Oynalash
+709|A va B nuqtalari
+710|Chizmalar, model va qaydnoma
+711|Birinchi qavat pol plitasi
+712|Sessiya muddati tugadi. Qayta kiring — shu tariqa akkauntingizni himoya qilamiz.
+713|Server bilan aloqa yoʻq. Internetni tekshiring va yana urinib koʻring — akkaunt hali yaratilmagan.
+714|Server vaqtincha ishlamayapti. Bir daqiqadan soʻng urinib koʻring — akkaunt hali yaratilmagan.
+715|Kirishga juda koʻp urinish. Bir necha daqiqa kuting.
+716|Roʻyxatdan oʻtishga juda koʻp urinish. Bir daqiqa kuting.
+717|Namuna
+718|Bu yerda namunalar koʻrsatilgan
+719|Administrator paneli hozircha maket
+720|Bu sahifadagi arizalar, obyektlar va summalar — boʻlim qanday tuzilganini koʻrsatish uchun namuna. Bu sizning maʼlumotlaringiz emas; oʻz yozuvlaringiz faqat shu brauzerda saqlanadi.
+721|Bu boʻlimdagi arizalar, obyektlar, brigadalar va summalar — uning qanday tuzilganini koʻrsatish uchun namuna. Bu sizning maʼlumotlaringiz emas. Oʻzingiz qoʻshgan yozuvlar faqat shu brauzerda saqlanadi.
+722|Bu boʻlimdagi obyektlar, byudjetlar, pudratchilar, lotlar va hujjatlar — uning qanday tuzilganini koʻrsatish uchun namuna. Bu sizning maʼlumotlaringiz ham, haqiqiy kompaniyalar ham emas. Oʻzingiz qoʻshgan obyektlar faqat shu brauzerda saqlanadi.
+723|Bu varaqlardagi xulosa, moderatsiya navbati, foydalanuvchilar, hujjatlar va «jonli» hisoblagichlar — namunalar. Ular serverdan yuklanmaydi, narxlar, foydalanuvchilar va hujjatlardagi oʻzgarishlar serverga saqlanmaydi. Haqiqiy akkauntlar, buyurtmalar va narxlar bazasi server maʼlumotlar bazasida saqlanadi.
+724|● Narxlar bazasi ulangan
+725|⚠️ Narxlar bazasi ishlamayapti
+726|⏳ Aloqa tekshirilmoqda…
+727|Grunt hajmlari
+728|Yer ishlari hajmlari
+729|Oʻlchamlar boʻyicha kotlovan hajmi, samosval reyslari hamda gruntni qazish va olib chiqish narxi
+730|Oʻlchamlar boʻyicha kotlovan hajmi, samosval reyslari, ekskavator smenalari va ishlar narxi
+731|📐 Hajmni hisoblash
+732|Yer ishlari boʻyicha ariza menejerga yuborildi. Oldindan toʻlov yechilmaydi — toʻlovni pudratchi bilan kelishasiz.
+733|Ariza faqat shu qurilmada saqlandi. Uni menejerga yuborish uchun akkauntga kiring.
+734|Ariza yaratib boʻlmadi. Yana urinib koʻring.
+735|Xodimlarni kompaniya kodi boʻyicha biriktirish hozircha ishlamaydi: roʻyxatdan oʻtish shaklida bu kod uchun maydon hali yoʻq. Boʻlim shu funksiya bilan birga ishga tushadi.
+736|Yuridik manzil
+737|BIN/IIN
+738|Koʻrsatilmagan
+739|QazGost AI ga xush kelibsiz
+740|Fotosurat boʻyicha smeta yoki nuqsonlarni tekshirishdan boshlang. Ijrochilar takliflari va buyurtmalar holati shu yerda koʻrinadi.
+741|Anketani toʻldiring va buyurtmalar tasmasini oching. Takliflar va bosqichlarni qabul qilish shu yerda koʻrinadi.
+742|Texnik nazoratga arizalar va tekshiruv natijalari shu yerda koʻrinadi.
+743|Yangi arizalar va bitimlardagi oʻzgarishlar shu yerda koʻrinadi.
+744|Tekshiruvga arizalar va platforma voqealari shu yerda koʻrinadi.
+745|Kompaniya buyurtmalari va loyihalarga takliflar shu yerda koʻrinadi.
+746|hozir
+747|Sahifa topilmadi
+748|Bu manzilda hech narsa yoʻq: havolada xato boʻlishi yoki boʻlim koʻchgan boʻlishi mumkin.
+749|Bosh sahifaga
+750|Materiallar katalogini ochish
+751|Nizolar
+752|Nizolar roʻyxati yuklanmoqda…
+753|Nizolar roʻyxati serverda saqlanadi. Uni koʻrish uchun administrator yoki menejer akkaunti bilan kiring.
+754|Nizolar roʻyxatini yuklab boʻlmadi. Sahifani yangilang yoki qayta kiring.
+755|Nizolar yoʻq. Sayt orqali daʼvo berish hozircha mumkin emas — buyurtma boʻyicha daʼvo shakli paydo boʻlganda roʻyxat toʻladi.
+756|Nizo
+757|Kim bergan
+758|Sabab
+759|Parolni almashtirish
+760|Parolni almashtirish
+761|🔑 Parolni almashtirish
+762|Yangi parol
+763|Joriy parol
+764|Yangi parolni takrorlang
+765|Kamida 8 ta belgi
+766|Boshqa saytlarda ishlatilganidan farqli boʻlsin
+767|Almashtirilgach, boshqa qurilmalar akkauntdan chiqadi
+768|Saqlanmoqda…
+769|Kabinetga qaytish
+770|Parol oʻzgartirildi
+771|Bu qurilmada akkauntda qolasiz. Boshqa qurilmalar va ilovalarda yangi parol bilan qayta kirish kerak.
+772|Parolni almashtirish uchun avval akkauntga kiring.
+773|Bu akkaunt jamoaning umumiy roʻyxati orqali, serverda shaxsiy parolsiz kiradi. Parolni almashtirish uchun administratorga murojaat qiling.
+774|Yangi parol kamida 8 ta belgidan iborat boʻlishi kerak.
+775|Yangi parol kamida 8 ta belgidan iborat boʻlishi kerak
+776|Yangi parol va uning takrori mos kelmaydi.
+777|Yangi parol joriy parol bilan bir xil.
+778|Yangi parol joriy parol bilan bir xil
+779|Joriy parol notoʻgʻri kiritilgan
+780|Bu parol juda oddiy yoki hammaga maʼlum. Boshqasini oʻylab toping
+781|Server bilan aloqa yoʻq. Parol oʻzgartirilmadi — yana urinib koʻring.
+782|Server vaqtincha ishlamayapti. Parol oʻzgartirilmadi — bir daqiqadan soʻng urinib koʻring.
+783|Parolni oʻzgartirib boʻlmadi.
+784|Hozir kirishda ishlatayotgan parolingiz
+785|Xato qilmaslik uchun yana bir marta

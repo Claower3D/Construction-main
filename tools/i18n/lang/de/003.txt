@@ -1,0 +1,280 @@
+786|{n} m²
+787|{n} Positionen
+788|₸/m²
+789|Arman Kassymov
+790|Bauyrzhan Toktarov
+791|Lüftung
+792|Ausgewählt
+793|Datum
+794|Demo
+795|Maßeinheit
+796|Schließen
+797|kg
+798|Code
+799|m³
+800|Modul
+801|Beschreibung
+802|Abbrechen
+803|Pos. {n}-{n}-{n}
+804|Arbeiten
+805|Fahrt
+806|Kipper KAMAZ {n} Tonnen
+807|Sanitär
+808|Status
+809|Betrag
+810|t
+811|Maschinen
+812|Typ
+813|Löschen
+814|Stk.
+815|Werkzeug wird geladen
+816|Berechnen
+817|Lieferant
+818|Ausblenden
+819|Hallo! Ich bin der KI-Assistent von QazGost. Ich nenne Ihnen Preise für Arbeiten und Materialien, berechne einen Kostenvoranschlag per Foto und finde ein Team oder Baumaschinen. Womit beginnen wir
+820|Fragen: {a}
+821|Team Nr. {n}
+822|Prüfung
+823|Foto
+824|Entwurf
+825|Neue
+826|. Im Preis sind der grundlegende Arbeitsaufwand und der Maschineneinsatz enthalten. Materialien werden gesondert nach Projekt berechnet
+827|{n} ₸ (Medina) / {n} ₸ (TABYS)
+828|{n} ₸ (TABYS) / {n} ₸ (Medina)
+829|{n} ₸ / Stk.
+830|KI-Kostenvoranschlag für
+831|Stand: Jahr {n}
+832|Analyse läuft
+833|Grundpreis
+834|Grundpreisspanne
+835|Wandblöcke FBS {n}t ({n}×{n}×{n} mm)
+836|Preisarten
+837|Abfuhr von Bauschutt
+838|Höchste Qualitätsklasse
+839|Grundreinigung des Objekts
+840|Abdichtung der Fugen
+841|GOST {n}-{n}
+842|Dieser Preis umfasst den vollständigen Arbeitsumfang gemäß Norm
+843|Rückbau von Belägen
+844|Schachtboden PN-{n} (d={n}m)
+845|Zum Kostenvoranschlag hinzufügen
+846|Wird geladen
+847|Audit bestellen
+848|IP Medina (Manarbek)
+849|Arbeitskategorie
+850|Reinigung nach der Renovierung
+851|Auflagering KO {n} ({n}×{n}×{n} mm)
+852|Schachtring KS {n} ({n}×{n} mm)
+853|Schachtring KS {n} (d={n}m, h={n}m)
+854|Schachtabdeckplatte {n}PP-{n}-{n} (d={n}m mit Schachtdeckel)
+855|Schachtabdeckplatte {n}PP-{n}-{n} (verstärkt für Verkehrslast)
+856|Schachtdeckel aus Polymer, schwer ({n} t)
+857|Montage und Untergrundvorbereitung
+858|Zurück zum Katalog
+859|Zum Beispiel: Es soll ein Streifenfundament {n}x{n} Meter gebaut werden, Tiefe {n}m
+860|Unsere Ingenieure der Arbeitsvorbereitung helfen, einen genauen Kostenvoranschlag mit Ortstermin zu erstellen
+861|Norm
+862|Beschreiben Sie Ihre Aufgabe mit eigenen Worten — das neuronale Netz wählt die passenden Preise aus, berechnet die Mengen und liefert einen fertigen Kostenvoranschlag
+863|ab {n} ₸ / m²
+864|ab {n} ₸ / lfm
+865|ab {n} ₸ / Fahrt
+866|Kostenvoranschlag öffnen
+867|Bodenplatte PN-{n} (d={n}m)
+868|Abdeckplatte {n} PP {n}-{n} (d={n}m mit Schachtdeckel)
+869|Beliebte Arbeiten
+870|Kostenvoranschlag generieren
+871|Kostenvoranschlag erfolgreich generiert
+872|Weitere Preise ansehen ↓
+873|SNiP {n}-{n}
+874|SNiP {n}-{n}-{n}
+875|Stahlbetonmast SV {n}-{n} (Freileitungsmast {n}m)
+876|TABYS-ASM / Medina
+877|Wärmedämmarbeiten
+878|TOO TABYS-ASM
+879|TOO TABYS-ASM (Natalja)
+880|Transportkosten
+881|Einbau der Grundschicht
+882|Endbearbeitung
+883|Passwort ändern — QazGost AI
+884|Konto: {a}
+885|Alibek Nurlanov
+886|Profilbogen zur Moderation gesendet
+887|Ein Moderator prüft den Profilbogen, danach erscheint er im Katalog
+888|Geprüfter Schweißer: Stahlkonstruktionen, Überdachungen, Tore
+889|Beton und Betonfertigteile
+890|Beton, Schalung, Bewehrung
+891|Betonbauer
+892|Außenanlagen
+893|Meiste Bewertungen
+894|Teams und Handwerker
+895|Team
+896|Das Team ist derzeit ausgelastet — rufen Sie an, um Termine abzustimmen
+897|BrigadaAstana
+898|Vorarbeiter
+899|Teams und Unternehmen, die Aufträge über QazGost annehmen. Rufen Sie direkt an oder senden Sie eine Einladung zum Projekt
+900|Zurück
+901|Alle Fähigkeiten
+902|Generalunternehmer
+903|Demo-Profil
+904|Rückbau und Montage, {n} Jahre Erfahrung
+905|Abbrucharbeiter
+906|Innenarchitekt
+907|Profilbogen hinzufügen
+908|Yerzhan, Schweißarbeiten
+909|Schlüsselfertige Wohn- und Gewerbegebäude
+910|Zäune und Tore
+911|Betonfertigteilwerk
+912|Katalog wird geladen
+913|Name des Handwerkers oder der Firma
+914|IP „Medina“
+915|IP „Medina“ (Betonfertigteile und Schachtdeckel)
+916|Schachtringe KS, Platten {n}PP/{n}PP, Böden PN, Schachtdeckel aus Polymer und Gusseisen-Beton. Versand innerhalb von Karaganda
+917|Unternehmen
+918|Unternehmen (TOO / IP)
+919|Kontaktdaten des Unternehmens
+920|Keine Kontaktdaten angegeben
+921|Dachdecker
+922|Große Teams
+923|Beste Bewertung
+924|Maler
+925|Manarbek
+926|Allround-Handwerker
+927|Kleinreparaturen, Aufmaßtermin am Tag der Anfrage
+928|Fähigkeiten
+929|Name, Fähigkeit oder Vorarbeiter, z. B. „Beton“
+930|CRM-Manager zugewiesen
+931|Gefunden
+932|Schreiben
+933|unerwartete Serverantwort
+934|Niedrige Bewertung
+935|Niemand gefunden
+936|Über den Auftragnehmer
+937|Hauptfähigkeiten
+938|Schlüsselfertiger Ausbau
+939|Heizung und Lüftung
+940|Zur Moderation senden
+941|Suche löschen
+942|Nach Vereinbarung
+943|Wiederholen
+944|Anrufen
+945|Suche nach Auftragnehmern
+946|Kompletter Innenausbau, {n} Jahre Erfahrung
+947|Reihenfolge
+948|Lieferant von Betonfertigteilen
+949|Zum Projekt einladen
+950|Einladung ohne Vorauszahlung: Team und Manager erhalten die Anfrage, Preis und Bezahlung vereinbaren Sie direkt
+951|Nimmt Aufträge an
+952|Nehmen Aufträge an
+953|Installateur
+954|Sanitär und Heizung, {n} Jahre Erfahrung
+955|Schweißer
+956|Katalogübersicht
+957|Derzeit ausgelastet
+958|Der Katalogserver ist nicht erreichbar — es werden Demo-Profile angezeigt. Kontaktdaten und Bewertungen darin sind fiktiv
+959|Serik Karimov
+960|Sortierung der Auftragnehmer
+961|Besetzung
+962|Durchschnittliche Bewertung
+963|Bauarbeiten
+964|TechnoStroy
+965|Nur verfügbare
+966|TOO „QazStroyGroup“
+967|TOO „KazStroy“ oder Arman Kassymov
+968|Entfernen Sie einige Filter oder suchen Sie nach einer anderen Fähigkeit
+969|Fassadenbauer
+970|Fassaden, Außenanlagen und Elektroinstallation. {n} Jahre Garantie
+971|Selbstständiger Handwerker
+972|Elektriker
+973|Elektrik und Bodenbeläge, {n} Jahre Erfahrung
+974|YuzhStroy
+975|Anfrage {a} ohne Vorauszahlung gesendet: „{b}“ und der CRM-Manager wurden benachrichtigt
+976|Direktanfrage an Auftragnehmer: {a}{b}. Stadt: {c}. Telefon: {d}.{e} {f}
+977|In der Stadt {a} gibt es keine passenden Teams
+978|Direktanfrage an Auftragnehmer: {a}{b}
+979|Anfrage über QazGost AI — {a}
+980|E-Mail schreiben: {a}
+981|Anrufen: {a}, {b}
+982|Auftrag: {a} ({b})
+983|{a}{b}: Details
+984|, Bewertungen: {a}
+985|Vorarbeiter: {a}
+986|{a} Personen
+987|in der Stadt {a}
+988|{a} Personen
+989|Bewertung {a}
+990|Einbau einer Klärgrube
+991|Einh.
+992|SUMME LAUT KOSTENVORANSCHLAG
+993|Menge
+994|Position
+995|Kostenvoranschlag
+996|Fassade
+997|Preis
+998|{n} kg
+999|{n} L
+1000|{n} m
+1001|{n} Stk.
+1002|Name des Auftraggebers
+1003|Maximale Anzahl an Fotos: {n} Stück
+1004|optional
+1005|nein
+1006|„Meine Aufträge“ öffnen
+1007|Per WhatsApp senden
+1008|Leeren
+1009|Foto
+1010|{a} löschen
+1011|{n} mm
+1012|Vorrätig
+1013|Weiter
+1014|Material
+1015|Name der Firma / des Einzelunternehmers
+1016|CSV herunterladen
+1017|Abschnitt
+1018|Berechnung läuft
+1019|Wohnhaus
+1020|Brandschutz
+1021|Planung
+1022|Beton
+1023|Generator
+1024|Kran
+1025|In Reparatur
+1026|Kipper
+1027|Netzwerk nicht erreichbar
+1028|Transport
+1029|Zugmaschine
+1030|(Reservierung $
+1031|). Es werden Demo-Anzeigen gezeigt: Preise und Status sind fiktiv, eine Reservierung ist nicht möglich
+1032|{n} Schicht
+1033|{n} t, Löffel {n} m³
+1034|{n} Stunde
+1035|Kaspi oder Überweisung an den Eigentümer nach der Schicht
+1036|Autobetonpumpe Putzmeister {n}m, Förderleistung {n} m³/h
+1037|Fahrmischer KAMAZ {n} (Trommel {n} m³)
+1038|Teleskop-Hubarbeitsbühne Hyundai HD{n}, {n} m, {n} kg
+1039|Autokran XCMG QY{n}K{n}, {n} t, Ausleger {n} m + Spitzenausleger
+1040|Adresse der Baustelle (Anfahrt per GPS)
+1041|Baumaschinenvermietung mit Bediener
+1042|Straßenfertiger Vogele Super {n}-{n} (Breite {n} m)
+1043|Turmdrehkran Liebherr {n} EC-B, {n} t, Ausleger {n} m
+1044|Ohne Anmeldung geht die Anfrage an den Plattform-Manager, und die Termine werden beim Eigentümer nicht reserviert
+1045|Bargeldlose Zahlung auf Rechnung mit MwSt. (für Unternehmen)
+1046|Kostenlose Lieferung
+1047|Beton und Mörtel
+1048|Bohr- und Rammgerät Bauer BG {n} (Pfähle bis {n} m)
+1049|Eigentümer
+1050|Der Eigentümer hat keine Telefonnummer angegeben — reservieren Sie, er meldet sich bei Ihnen
+1051|Wählen Sie ein Bereitstellungsdatum, das nicht vor heute liegt
+1052|Dieselgenerator SDMO {n} kW, schallgedämmt
+1053|Baujahr, Zustand, Mindestauftrag, Bedingungen
+1054|Grader XCMG GR{n}, {n} m, Aufreißer
+1055|Tragfähigkeit / Volumen
+1056|Raupenbagger Hitachi ZX{n}, {n} t, {n} m³, {n} m
+1057|Bereitstellungsdatum der Maschine
+1058|Demo-Anzeige: Reservierung nicht möglich
+1059|Für die Veröffentlichung ist ein Serverkonto erforderlich. Ohne dieses wird die Anzeige nicht gespeichert
+1060|Straßenbaumaschinen
+1061|Wartet auf Bestätigung des Eigentümers
+1062|Baumaschinen werden geladen
+1063|Belegt
+1064|Anfrage liegt beim Manager
+1065|Gesamtmietpreis

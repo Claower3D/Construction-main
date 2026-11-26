@@ -26,6 +26,8 @@ export const LANGS = [
   { code: 'en', label: 'EN', name: 'English', locale: 'en-US' },
   { code: 'zh', label: '中文', name: '简体中文', locale: 'zh-CN' },
   { code: 'tr', label: 'TR', name: 'Türkçe', locale: 'tr-TR' },
+  { code: 'de', label: 'DE', name: 'Deutsch', locale: 'de-DE' },
+  { code: 'uz', label: 'UZ', name: 'Oʻzbekcha', locale: 'uz-UZ' },
 ];
 const CODES = LANGS.map((l) => l.code);
 const BY_CODE = Object.fromEntries(LANGS.map((l) => [l.code, l]));
@@ -37,6 +39,8 @@ const LOADERS = {
   en: () => import('./dict.en.js'),
   zh: () => import('./dict.zh.js'),
   tr: () => import('./dict.tr.js'),
+  de: () => import('./dict.de.js'),
+  uz: () => import('./dict.uz.js'),
 };
 // В каком порядке искать перевод: сначала на выбранном языке, потом по-английски
 const chain = (code) => (code === 'ru' ? [] : code === 'en' || code === 'kk' ? [code] : [code, 'en']);
@@ -279,7 +283,25 @@ function dateIntl(s) {
   } catch (e) { /* браузер не знает такого языка — дата останется как есть */ }
   return null;
 }
-const dateOut = (s) => (target === 'en' ? dateEn(s) : packs[target] ? dateIntl(s) : null);
+// Не каждый браузер знает названия месяцев на каждом языке: без них Intl пишет «2026 M11».
+// Для таких языков — свои названия; порядок слов как в английской дате: «24 noyabr 2026».
+const DATE_WORDS = {
+  uz: {
+    months: ['yanvar', 'fevral', 'mart', 'aprel', 'may', 'iyun', 'iyul', 'avgust', 'sentabr', 'oktabr', 'noyabr', 'dekabr'],
+    days: { Monday: 'dushanba', Tuesday: 'seshanba', Wednesday: 'chorshanba', Thursday: 'payshanba', Friday: 'juma', Saturday: 'shanba', Sunday: 'yakshanba', Mon: 'Du', Tue: 'Se', Wed: 'Cho', Thu: 'Pa', Fri: 'Ju', Sat: 'Sha', Sun: 'Ya' },
+  },
+};
+function dateOwn(s) {
+  const en = dateEn(s);
+  const own = DATE_WORDS[target];
+  if (en == null || !own) return en;
+  return en.replace(/[A-Z][a-z]+/g, (word) => {
+    if (own.days[word]) return own.days[word];
+    const i = MONTHS_EN.findIndex((m) => m === word || m.slice(0, 3) === word);
+    return i < 0 ? word : (word.length === 3 && MONTHS_EN[i].length > 3 ? own.months[i].slice(0, 3) : own.months[i]);
+  });
+}
+const dateOut = (s) => (target === 'en' ? dateEn(s) : !packs[target] ? null : DATE_WORDS[target] ? dateOwn(s) : dateIntl(s));
 
 function dateEn(s) {
   if (s.length > 40) return null;
@@ -306,6 +328,8 @@ const UNIT_RE = /(?<![А-Яа-яЁё])(м²|м³|мм|см|км|кг|кВт|Вт
 const UNIT_BY_LANG = {
   zh: { шт: '件', 'п.м': '延米', 'м.п': '延米', мес: '个月', мин: '分钟', чел: '人', дн: '天', ч: '小时', т: '吨', л: '升' },
   tr: { шт: 'adet', 'п.м': 'mt', 'м.п': 'mt', мес: 'ay', мин: 'dk', чел: 'kişi', дн: 'gün', ч: 'sa' },
+  de: { шт: 'Stk.', 'п.м': 'lfm', 'м.п': 'lfm', мес: 'Mon.', мин: 'Min.', чел: 'Pers.', дн: 'Tg.', ч: 'Std.' },
+  uz: { шт: 'dona', 'п.м': 'p.m', 'м.п': 'p.m', мес: 'oy', мин: 'daq', чел: 'kishi', дн: 'kun', ч: 'soat', см: 'sm', кВт: 'kVt', Вт: 'Vt' },
 };
 function unitsEn(s) {
   if (!packs[target] || !/\d/.test(s)) return null;
@@ -354,7 +378,12 @@ function twoHalves(s) {
 /** Запасные способы: шаблоны, правила, даты, единицы, ЗАГЛАВНЫЕ буквы, фраза из частей через «·». */
 function lookupLoose(s) {
   let t = lookupPack(s);
-  if (t != null) return t;
+  if (t != null) {
+    if (!CYR.test(t)) return t;
+    // шаблон совпал, но подставленный кусок остался русским («{a} м² + {n}% на подрезку», где {a} — целое
+    // выражение): если фраза целиком собирается из готовых кусков, это точнее, чем перевод наполовину
+    return (packs[target] ? composeEn(s) : null) ?? t;
+  }
   for (const p of PATTERNS) {
     const m = s.match(p.re);
     if (m) {

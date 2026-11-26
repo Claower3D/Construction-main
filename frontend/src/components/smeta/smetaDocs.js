@@ -9,6 +9,8 @@ const same = (s) => s;
 
 // Числа пишутся по правилам языка документа: «1 234,5» по-русски, «1,234.5» по-английски.
 let numLocale = 'ru-RU';
+// браузер без названий месяцев на этом языке напишет «2026 M11 26» — тогда дата цифрами
+const localeKnown = (loc) => { try { return Intl.DateTimeFormat.supportedLocalesOf([loc]).length > 0; } catch { return false; } };
 const money = (v) => Math.round(Number(v) || 0).toLocaleString(numLocale);
 const qty = (v) => (Number(v) || 0).toLocaleString(numLocale, { maximumFractionDigits: 2 });
 const useLocale = (info) => { numLocale = info?.locale || (info?.lang === 'en' ? 'en-US' : 'ru-RU'); };
@@ -56,7 +58,7 @@ export function docMeta(result, scenarioId, info = {}, tr = same, date = new Dat
   if (info.description) rows.push([tr('Описание задачи'), info.description]);
   return {
     title: `${tr('Смета')} № ${docNumber(date)}`,
-    date: date.toLocaleDateString(numLocale, numLocale === 'ru-RU' ? undefined : { year: 'numeric', month: 'long', day: 'numeric' }),
+    date: date.toLocaleDateString(numLocale, numLocale === 'ru-RU' || !localeKnown(numLocale) ? undefined : { year: 'numeric', month: 'long', day: 'numeric' }),
     rows,
   };
 }

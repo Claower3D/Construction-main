@@ -1,0 +1,290 @@
+1066|Maxsus texnika katalogi ishlamayapti (
+1067|XCMG XS{n}J yoʻl katogi, {n} t, {n} m
+1068|km sizdan
+1069|JCB JS{n}W gʻildirakli ekskavatori, {n} t, {n} m³
+1070|Smenalar soni
+1071|Atlas Copco XAS {n} dizel kompressori ({n} m³/daq)
+1072|KAMAZ {n} kran-manipulyatori (kran {n} t, bort {n} t)
+1073|Smena uchun eng yuqori narx, ₸
+1074|Bobcat S{n} mini-yuklagichi + gidromolot / choʻtka
+1075|Kubota U-{n} mini-ekskavatori, {n} t, choʻmich {n} m³
+1076|Masalan: CAT {n}D, zanjirli
+1077|Serverning notoʻgʻri javobi
+1078|Eʼlon marketpleysda chop etildi
+1079|Chop etish
+1080|Rasmiylashtirilmoqda
+1081|Pullik yetkazib berish
+1082|Soʻrovingiz boʻyicha texnika topilmadi
+1083|Yuklagich
+1084|Filtrlarni yumshatib koʻring yoki qidiruv toifasini oʻzgartiring
+1085|Eʼlon joylash
+1086|Qidiruv radiusi, km
+1087|Oʻz texnikangizni joylashtirish
+1088|Maxsus texnikani joylashtirish
+1089|Joylashtirish faqat server akkaunti bilan mumkin: server akkaunti bilan kiring va takrorlang. Eʼlon saqlanmadi
+1090|Masofa
+1091|Brigada bilan
+1092|Burgʻilovchi bilan
+1093|Haydovchi bilan
+1094|Haydovchi-operator bilan
+1095|Kranchi bilan
+1096|Operator (mashinist) bilan
+1097|Ekipaj bilan
+1098|Shacman F{n} samosvali, {n} t, hajmi {n} m³
+1099|Barcha filtrlarni tozalash
+1100|Sessiya yaroqsiz: server akkaunti bilan kiring va takrorlang
+1101|Toʻlov usuli
+1102|Manitou MT {n} teleskopik yuklagichi ({n} m, {n} t)
+1103|Egasining telefoni kirgandan keyin koʻrinadi
+1104|Dispetcher telefoni
+1105|Texnika taʼmirda
+1106|FAYMONVILLE past ramali trali ({n} t, apparellar)
+1107|CAT D{n}R ogʻir buldozeri, {n} t, otval {n} m
+1108|Eʼlonda narx koʻrsatilmagan — egasi bilan bogʻlaning
+1109|Ism, telefon va obyekt manzilini kiriting
+1110|Texnika markasi va modelini kiriting
+1111|Smena narxini {n} dan katta qilib kiriting
+1112|XCMG ZL{n}G frontal yuklagichi, {n} t, {n} m³
+1113|Smena narxi, ₸
+1114|Soatlik narx manfiy boʻlishi mumkin emas
+1115|Soatlik narx, ₸
+1116|soat
+1117|JCB {n}CX Super ekskavator-yuklagichi, teng gʻildirakli
+1118|Energetika va generatorlar
+1119|KAMAZ {n} bazasidagi chuqur burgʻilagich (burgʻilash {n} m gacha)
+1120|ha
+1121|Xususiy egasi
+1122|Bron rasmiylashtirildi: {a} smena, {b} dan. Egasi uni arizalar varagʻida tasdiqlaydi
+1123|{a} ijarasi, {b} smenaga, {c}{d} dan. Obyekt: {e}. Operator: {f}. Toʻlov: {g}
+1124|{a} arizasi platforma menejeriga topshirildi
+1125|Server eʼlonni qabul qilmadi: {a}
+1126|{a} ijarasi, {b} smenaga, {c}{d} dan
+1127|Maxsus texnika ijarasi: {a}
+1128|Topilgan eʼlonlar: {a}
+1129|Server ishlamayapti: {a}
+1130|{a} boʻyicha (bron {b})
+1131|Topildi: {a}
+1132|{a} ta sharh
+1133|{n} × {n} × {n} m
+1134|{n} m³
+1135|{n} qop
+1136|{n} t
+1137|{a}, koeffitsiyent ×{b}. {c}, taxminan {d} kun
+1138|Smeta_{a}.xlsx
+1139|{n} ₸ / m²
+1140|{n} ₸ / reys
+1141|{n} ₸ / smena
+1142|{n} t (A{n}C {n}mm)
+1143|{n}. Shartnoma № {n}/{n} — Ofisni kapital taʼmirlash («Almaty Business» MChJ) •
+1144|{n}. Shartnoma № {n}/{n} — Monolit poydevor («StroyMaster» YaTT) •
+1145|XCMG avtokrani {n} tonna (strela uzunligi {n}m)
+1146|Ish hajmlari va materiallar BOM ini avtomatik hisoblash
+1147|Amaldagi pudrat shartnomalari
+1148|Shisha mato bilan armaturalangan shpaklyovka + gruntovka
+1149|Balandlik / Qalinlik (m)
+1150|Uzunlik (m)
+1151|QazGost AI {n} interaktiv asbobi
+1152|Maxsus texnika ijarasi va qurilish materiallari xaridi marketpleysi
+1153|Yuk koʻtaruvchi suvoqdagi mikroyoriqlar
+1154|Tizim moduli
+1155|Kerakli armatura miqdori
+1156|Past (yuzaki)
+1157|Beton/gruntning umumiy hajmi
+1158|Qum-shagʻal yostigʻi
+1159|Yuza maydoni
+1160|ERI bilan imzolangan
+1161|Hisoblangan hajmlar va sarf
+1162|Pudrat shartnomalari reyestri va elektron arbitraj (E-Gov ERI)
+1163|Boʻsh
+1164|SNiP RK {n}-{n}-{n} ({n}-b.)
+1165|Kenglik (m)
+1166|JCB {n}CX ekskavator-yuklagichi
+1167|Balans {a} ₸ ga muvaffaqiyatli toʻldirildi
+1168|{n} soat oldin
+1169|+ Fayllarni tanlash
+1170|TensorFlow Vision orqali tasvir tahlili
+1171|Tom boʻyicha smeta auditi
+1172|Tavsifsiz
+1173|Kecha
+1174|Tanlangan fayllar
+1175|Modul yuklanmoqda
+1176|ESN RK meʼyorlari boʻyicha AI hisob-kitobi ketmoqda
+1177|Muhandislik yechimlari (muhandisga tekshiruvga yuborish)
+1178|kvartira
+1179|komfort
+1180|Menejerda moderatsiyada (yangi ariza)
+1181|Ariza / obyekt nomi
+1182|Masalan: {n}x{n} hammom qurish
+1183|Taqsimlanmagan
+1184|Tavsif (ixtiyoriy)
+1185|Buyurtmani tekshirish uchun muhandisga yuborildi
+1186|Menejerga topshirildi (ishda)
+1187|Menejerga topshirildi (siz tasdiqladingiz)
+1188|Fayllarni biriktirish (chizmalar, fotosuratlar, hujjatlar)
+1189|Smeta meʼyorlarini qoʻllash (ESN RK)
+1190|Poydevor loyiha hujjatlarini tekshirish
+1191|Yuk koʻtaruvchi konstruksiyalar va geometriyani aniqlash
+1192|Binoning issiqlik yoʻqotishlarini hisoblash
+1193|Qurilish («Obyektlarim»ga qoʻshish)
+1194|{n}m² kottej qurilishi
+1195|Shakllantirish
+1196|Ariza shakllantirish
+1197|Ariza turi
+1198|Tasdigʻingiz kerak (muhandis javobi olindi)
+1199|Buyurtma tafsilotlarini kiriting
+1200|Yakuniy hisobot shakllantirilmoqda
+1201|Vision AI xatosi: tasvir qurilish obyekti yoki chizma sifatida tanilmadi ("{a}" deb aniqlandi). Iltimos, xona, fasadning haqiqiy fotosuratini yoki rejani yuklang
+1202|Buyurtmachidan yangi ariza: {a}
+1203|Barbashin Maksim
+1204|Bildirishnomalar, yangi: {a}
+1205|Hamyon: {a} tenge
+1206|Balans: {a} ₸
+1207|Interfeys tili
+1208|Interfeys tili
+1209|Mijoz
+1210|Xizmat
+1211|Hujjatning rasmiy matni rus tilida berilgan
+1212|{a} dagi tahrir
+1213|Uzunlik
+1214|Maydon
+1215|{n} kun
+1216|{n} kun
+1217|{n} m² (ikki nishabli)
+1218|{n} m² (qalinligi {n}mm)
+1219|{n}m × {n}m × {n}m
+1220|QTO MATERIALLAR VA ISHLAR QAYDNOMASI
+1221|Olmaota (SNiP RK ×{n})
+1222|A{n}C Ø{n}mm qovurgʻali armatura
+1223|Bazalt armatura toʻri
+1224|A{n}C Ø{n}mm armatura karkasi (GOST {n})
+1225|Ostona (SNiP RK ×{n})
+1226|Ogʻir beton M{n} (W{n}, F{n})
+1227|BETON ISHLARI
+1228|Ignabargli brus {n}×{n}mm (stropila)
+1229|Namunalarga qaytish
+1230|Bitum-polimer membranali gidroizolyatsiya
+1231|Chizma namunalarida demo
+1232|Chizmangiz yuklandi
+1233|Oʻz chizmangizni yuklash
+1234|Interaktiv AI chizma skaneri & QTO kalkulyatori
+1235|GʻISHT-TOSH ISHLARI
+1236|Qaragʻanda (SNiP RK ×{n})
+1237|D{n} gazoblok terish
+1238|Tashqi devorlarni armaturalab terish
+1239|Gazobeton uchun yelim ({n}kg qoplar)
+1240|TOM ISHLARI
+1241|Metall cherepitsali tom {n}mm
+1242|M{n} lentali poydevor
+1243|Bugʻ/gidro superdiffuzion membrana
+1244|Monterrey metall cherepitsa {n}mm Ral {n}
+1245|Yuk koʻtaruvchi tugunlarni montaj qilish va betonlash
+1246|Resurs / ish nomi
+1247|Qolip tizimlari & laminatlangan shchit
+1248|PARDOZLASH ISHLARI
+1249|Issiq pol uchun plastifikator
+1250|Fibrali yarim quruq pol styajkasi
+1251|SN RK {n}-{n} meʼyorlari boʻyicha hisob-kitob
+1252|Yorugʻ bino (SNiP RK ×{n})
+1253|KS-{n} dalolatnomasini yuklab olish (Excel .xlsx)
+1254|Polipropilen fibra tolasi {n}mm
+1255|PS-{n} D{n} sement + yuvilgan qum
+1256|FOYDALANUVCHI CHIZMASI (DWG/PDF)
+1257|Chimkent (SNiP RK ×{n})
+1258|Monolit konstruksiyalar ({a})
+1259|Chizma: {a}
+1260|Kirish — QazGost AI
+1261|yuqori
+1262|qop
+1263|uchun
+1264|past
+1265|Ombor
+1266|Maʼlumot uchun narx
+1267|, ulgurji
+1268|, maʼlumot uchun narx
+1269|. Soʻrovni oʻzgartiring yoki filtrlarni tozalang
+1270|. Butun tanlovni saralash uchun qidiruv yoki toifani aniqlashtiring
+1271|). Demo-mahsulotlar koʻrsatilgan: narxlar va mavjudlik shartli
+1272|{n} km
+1273|Qurilish materiallariga ehtiyojning AI kalkulyatori (BOM)
+1274|Materiallarning AI spetsifikatsiyasi muvaffaqiyatli hisoblandi
+1275|AlinEX / «Alina Group» MChJ
+1276|Tasdiqlangandan keyin Kaspi yoki yetkazib beruvchiga oʻtkazma
+1277|AVTOYUKLAMA
+1278|Obyektga yetkazib berish manzili
+1279|AKSIYA
+1280|A{n}C Ø{n} mm armatura
+1281|A{n}C Ø{n} mm qovurgʻali poʻlat armatura (uzunligi {n} m)
+1282|Terish uchun armatura toʻri {n}×{n}
+1283|«StroyMonolit KZ» MChJ beton zavodi
+1284|TEZ YETKAZIB BERISH
+1285|Savatga
+1286|MAVJUD
+1287|Bu toifada pozitsiyalar yoʻq
+1288|Valday / MAN {n}t (oʻrta tonnali)
+1289|Savatingiz boʻsh
+1290|Obyektning asosiy oʻlchamlarini kiriting — neyrotarmoq SNiP RK sarf meʼyorlari boʻyicha materiallarning aniq spetsifikatsiyasini hisoblaydi
+1291|{n}–{n} kV liniyalar uchun vibratsiyalangan tayanch
+1292|NAMGA CHIDAMLI
+1293|Devorlarni tiklash (gazoblok + yelim)
+1294|Barcha hisoblangan pozitsiyalar savatga qoʻshildi
+1295|Butun Qozogʻiston
+1296|Katalogdan mahsulotlarni tanlang va savatga qoʻshing
+1297|Lyuk sathini tekislash
+1298|Yuk transporti uchun yuqori mustahkam kompozit lyuk
+1299|Bogʻlash simi {n} mm
+1300|Olmaota sh., Samal-{n} mavzesi, {n}-uy
+1301|Gazel {n}t (shahar ichida yetkazish)
+1302|Gazoblok {n}×{n}×{n} D{n}
+1303|«Ecoton» avtoklav gazobloki D{n} ({n}×{n}×{n} mm)
+1304|Knauf namga chidamli gipsokarton GKLV ({n}×{n}×{n} mm)
+1305|KS {n} quduq boʻgʻzi (d={n}m, h={n}m)
+1306|Yetkazib berish shahri
+1307|GOST
+1308|GOST RK
+1309|GOST RK {n}
+1310|Suv quvuri va kabel quduqlari uchun
+1311|PN-{n} quduq tubi (d={n} mm)
+1312|Butun spetsifikatsiyani buyurtmaga qoʻshish
+1313|Quduqning qoʻshimcha halqasi
+1314|Qoʻshimcha poydevor bloki
+1315|Yetkazib berish / oʻzi olib ketish
+1316|Manipulyator bilan yetkazib berish
+1317|Qaragʻanda va viloyat boʻyicha manipulyator bilan yetkazib berish
+1318|Manipulyator bilan yetkazib berish. Oʻrnatish joyi bilan toʻplamda
+1319|Manipulyator bilan yetkazib berish. Gidrotexnik beton
+1320|Manipulyator bilan yetkazib berish. {n} donadan ulgurji: {n} ₸
+1321|Yevrofura {n}-{n}t (shaharlararo / ulgurji)
+1322|birl.)
+1323|Ulgurji chegirmalar bor
+1324|yuklangan pozitsiyalar, jami
+1325|Monolit poydevor quyish
+1326|Qozogʻistonning barcha zavodlari va yetkazib beruvchilaridan ulgurji narx soʻrovi
+1327|Ivan Ivanov / «StroyGroup» MChJ
+1328|Qabul qiluvchi ismi / Kompaniya nomi
+1329|«Medina» YaTT (Manarbek)
+1330|MEDINA YaTT
+1331|Jami toʻlov
+1332|Yetkazib berish bilan jami toʻlov
+1333|Kamaz / Samosval {n}t
+1334|KARYER
+1335|Narxlar katalogi ishlamayapti (
+1336|kg / birl.
+1337|M-{n} toʻliq tanali keramik gʻisht ({n}×{n}×{n} mm)
+1338|Gazoblok uchun yelim ({n}kg qop)
+1339|AlinEX «Set {n}» kafel va keramogranit yelimi ({n} kg)
+1340|Miqdor
+1341|Miqdor {n} dan katta boʻlishi kerak
+1342|KS {n} halqasi ({n}×{n} mm)
+1343|KO-{n} tayanch halqasi
+1344|Aloqa telefoni
+1345|Buyurtma savati
+1346|Savat tozalandi
+1347|{n}PP-{n}-{n} quduq qopqogʻi (d={n} mm)
+1348|{n}PP-{n}-{n} kuchaytirilgan quduq qopqogʻi (d={n} mm)
+1349|{n}PP-{n}-{n} avtoyuklamaga kuchaytirilgan quduq qopqogʻi (d={n} mm)
+1350|{n}PP-{n}-{n}U kuchaytirilgan quduq qopqogʻi (d={n} mm)
+1351|Teshikli quduq qopqogʻi
+1352|list ({n} m²)
+1353|ELEKTR UZATISH TAYANCHI
+1354|TEMIR-BETON LYUK
+1355|Temir-beton lyuk ({n}×{n} mm)

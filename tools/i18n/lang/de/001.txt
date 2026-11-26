@@ -1,0 +1,270 @@
+260|Porenbetonstein autoklaviert D500 600×300×200
+261|Kleber für Porenbeton, 25 kg
+262|Basaltgitter zur Bewehrung
+263|Mauern der Wände mit Bewehrung
+264|Satteldach aus Metalldachziegeln 0,5 mm
+265|Metalldachziegel „Monterrey“ 0,5 mm
+266|Nadelholzbalken 50×150 mm für Sparren
+267|Diffusionsoffene Unterspannbahn
+268|Montage von Dachstuhl und Schalung
+269|Estrich
+270|Halbtrockener Estrich mit Fasern, 60 mm
+271|Zement PZ-500 D0 und gewaschener Sand
+272|Polypropylenfasern 12 mm
+273|Fließmittel für Fußbodenheizungen
+274|Maschineller Einbau mit Glätten
+275|Mauerwerk
+276|Dach
+277|Fundament
+278|Fassade
+279|Wohnung, Syganak 18
+280|Bad, Kenessary 4
+281|Budget in einer Minute überschlagen
+282|Geben Sie die Parameter an — Sie erhalten einen Richtwert nach Preisen von 2026. Den genauen Kostenvoranschlag erstellt der Service per Foto.
+283|Budgetrechner
+284|Objekttyp
+285|Wohnung
+286|Haus
+287|Büro
+288|Industrieobjekt
+289|Art der Arbeiten und Fläche
+290|Fläche, m²
+291|Fläche in Quadratmetern
+292|Richtbudget
+293|Ausführungsdauer
+294|Arbeitsumfang
+295|Spanne:
+296|Katalog der Arbeiten und Preise
+297|Suche nach Arbeitskategorien
+298|Gesamter Katalog
+299|Arbeitsgruppen
+300|Arbeiten
+301|Kategorien
+302|Alle Varianten
+303|Allgemeine Bauarbeiten
+304|Erdarbeiten
+305|Beton und Ortbeton
+306|Stahlkonstruktionen
+307|Fenster und Türen
+308|Ausbau
+309|Versorgungsnetze
+310|Haustechnik
+311|Planung und Spezialarbeiten
+312|Wasserversorgung und Abwasser
+313|Heizung und Fußbodenheizung
+314|Kabelquerschnitt
+315|Vermessung und topografische Aufnahme
+316|Ein Service für alle auf der Baustelle
+317|Praktische Werkzeuge für jeden Beteiligten am Bauprozess.
+318|Für Auftraggeber
+319|Für Bauunternehmen
+320|Für Planer
+321|Für die Bauüberwachung
+322|Kostenvoranschlag per Foto
+323|Kostenvoranschlag nach Foto und Maßen — mit Preisquelle in jeder Zeile
+324|Katalog der Bauunternehmen
+325|Qualitätskontrolle der Arbeiten
+326|Auftragsfeed
+327|Auftragsfeed für ganz Kasachstan
+328|Angebot mit Preis und Terminen direkt in der Auftragskarte
+329|Eigene Maschinen im Marktplatz — Mieter finden Sie von selbst
+330|Berechnungen nach SNiP und Planungsunterlagen
+331|Prüfung von Mengen und Kostenvoranschlägen
+332|Erfassung von Mängeln
+333|Mängelprotokoll
+334|Mängelprotokoll automatisch
+335|Mängelprotokolle per Foto
+336|Protokoll mit Empfehlungen
+337|Protokolle
+338|Mängelbericht
+339|Fotobericht mit Empfehlungen
+340|Mängelprüfung nach den Normen SNiP und GOST RK
+341|Mangel prüfen
+342|Mengenberechnung per Foto
+343|Berechnung nach SNiP
+344|Berechnungen per Foto
+345|Genaue BOM-Berechnung
+346|Drei Preisszenarien
+347|Reparaturpreis
+348|Angebotsvergleich
+349|Lieferantenvergleich
+350|Direkter Kontakt
+351|Reservierung für die gewünschten Termine
+352|Objektübergabe
+353|Abstimmungen
+354|Bauabschnitte
+355|Dokumentenpaket
+356|Dokumente
+357|Verlauf und Berichte
+358|Technische Bauüberwachung
+359|Entwurf und Ausführungsplanung
+360|Engineering und Planungsunterlagen
+361|Technik und Planung
+362|Technischer Rechner
+363|Rechner
+364|Synchronisierung mit CRM und Kostenvoranschlägen
+365|Aktuelle Preise
+366|Datenbank ESN RK
+367|Kostenvoranschläge
+368|Alle Services der Plattform
+369|Servicekategorien
+370|Alle Werkzeuge für eine schnelle und genaue Bewertung der Arbeiten.
+371|Bauunternehmen, Baustoffe und Baumaschinen in einem Bereich
+372|Bauunternehmen
+373|Baustoffe
+374|Baumaschinen
+375|Materialien
+376|Materialien und Maschinen mit Preisen nach Regionen Kasachstans
+377|Arbeiten und Materialien
+378|Teams
+379|Teams und Aufträge
+380|Teams nach Art der Arbeiten
+381|Aufträge für Teams
+382|Anfragen nach Stadt
+383|Marktplatz
+384|Marktplatz für Baumaschinen
+385|Marktplatz für Baustoffe
+386|Materialkatalog
+387|Baumaschinenvermietung
+388|Bestellung und Lieferung
+389|Lieferung auf die Baustelle
+390|Baugrunderkundung und Geotechnik
+391|Ingenieurgeologische Erkundung
+392|Feld- und Laborversuche mit offiziellem Gutachten nach SNiP RK und SP RK — für Planung, Prüfung und Bank.
+393|Erkundung bestellen
+394|Bodenlabor
+395|Pfahlprüfungen
+396|Plattendruckversuche
+397|Drucksondierung (CPT)
+398|Bohrausrüstung
+399|Bohrungen bis 35 m
+400|akkreditierte Prüfstände
+401|Verformungsmodul E
+402|Belastung bis 500 t
+403|Kraft 200 kN
+404|Maßstab 1:500
+405|Demo der mobilen QazGost-App
+406|Auf der Baustelle — mit dem Handy
+407|Erstellen Sie Kostenvoranschläge und Mängelprotokolle direkt auf der Baustelle. Schnell, bequem, ohne Laptop.
+408|Läuft im Browser jedes Handys
+409|App für Android
+410|Apps für Manager, Ingenieur und Team auf Android
+411|Die App für das iPhone ist in Vorbereitung
+412|iOS in Kürze
+413|App herunterladen
+414|Auf der Website bleiben
+415|QazGost — App für Android
+416|Alles in einer App: Auftraggeber, Auftragnehmer, Ingenieur, Manager und Administrator. Kostenvoranschläge per Foto, Aufträge und Mängelprüfung — mit dem Handy.
+417|APK-Datei, {n} MB, Version {n}. Android wird um die Erlaubnis zur Installation aus dem Browser bitten.
+418|App für Android herunterladen, APK-Datei {n} MB
+419|App für Android: alle Rollen in einer
+420|Mit dem Handy starten
+421|Foto aufnehmen
+422|Kostenvoranschlag fertig
+423|Fertig
+424|Meine Objekte
+425|Guten Tag
+426|Was machen wir heute?
+427|Tippen Sie — die Oberfläche ist interaktiv
+428|Bereiche der App
+429|Gespeicherte Kostenvoranschläge und Mängelprotokolle
+430|Team für Renovierung gesucht
+431|Geschwindigkeit
+432|Guten Tag! Ich möchte die QazGost-App für Android installieren.
+433|Häufige Fragen
+434|Wie funktioniert die Kostenschätzung per Foto?
+435|Sie laden ein Foto des Raums, der Wand oder der Fassade hoch und geben die Fläche an. Der Service erkennt die Art der Arbeiten, berechnet Mengen und Materialien und schätzt die Kosten anhand der Preisdatenbank ESN RK (23 864 Positionen) mit regionaler Anpassung. Sie erhalten drei Preisvarianten: Economy, Standard und Premium.
+436|Wie genau ist die Mängelprüfung?
+437|Das neuronale Netz wurde mit annotierten Rissfotos trainiert: Es rahmt Risse ein und zeigt für jeden Bereich die Sicherheit an. Korrosion, Abplatzungen, Ausblühungen und Feuchtigkeit bestätigt das Modell noch nicht — sie beurteilt der Ingenieur bei der Besichtigung. Das Ergebnis gilt als vorläufig, bis ein Fachmann es bestätigt.
+438|Wie finde ich einen Auftragnehmer?
+439|Öffnen Sie den Katalog der Bauunternehmen und rufen Sie ein Team direkt an oder veröffentlichen Sie einen Auftrag im Feed — Auftragnehmer aus Ihrer Stadt senden Angebote mit Preis und Terminen. Die Anfrage wird ohne Vorauszahlung gesendet: Preis und Bezahlung vereinbaren Sie direkt mit dem Auftragnehmer.
+440|Welche Zahlungsarten werden unterstützt?
+441|Die Online-Zahlung über die Plattform wird derzeit eingerichtet. Aktuell werden Aufträge, Maschinenreservierungen und Materialien direkt beim Auftragnehmer oder Lieferanten bezahlt — per Kaspi, Überweisung oder auf Rechnung für Unternehmen.
+442|Ist die Plattform kostenlos?
+443|Kostenschätzung, Mängelprüfung und Kataloge sind kostenlos. Kostenpflichtige Funktionen — Module für Bauträger und erweiterte Analytik — werden auf Anfrage freigeschaltet, schreiben Sie uns.
+444|Gibt es eine mobile App?
+445|Die Website funktioniert vollständig im mobilen Browser. Eigene Apps für den Ingenieur und den CRM-Manager gibt es für Android, die App für Auftraggeber ist in Vorbereitung.
+446|Keine Antwort gefunden? Schreiben Sie in den Assistenten-Chat unten rechts oder per WhatsApp.
+447|Schreiben Sie uns per WhatsApp
+448|Per WhatsApp schreiben
+449|Guten Tag! Ich schreibe von der Website QazGost AI. Ich habe eine Frage zur Plattform.
+450|© 2026 QazGost AI. Entwickelt in Kasachstan.
+451|Gründer
+452|Nutzungsvereinbarung
+453|Datenschutzerklärung
+454|Einwilligung in die Datenverarbeitung
+455|Einwilligung in die Erhebung und Verarbeitung personenbezogener Daten
+456|Nutzungsregeln des Service QazGost AI: wer ihn nutzen darf, was der Service leistet und wofür die Parteien haften.
+457|Welche personenbezogenen Daten QazGost AI erhebt, wozu, an wen sie weitergegeben werden und wie Sie sie verwalten können.
+458|Text der Einwilligung, die Sie erteilen, wenn Sie bei der Registrierung in QazGost AI den entsprechenden Punkt ankreuzen.
+459|Angaben zum Betreiber
+460|Bezeichnung
+461|BIN / IIN
+462|Adresse
+463|Fragen zum Dokument:
+464|Anmeldung bei QazGost AI
+465|Registrierung bei QazGost AI
+466|Kostenvoranschläge, Aufträge und Maschinen — dort, wo Sie aufgehört haben.
+467|Kostenvoranschläge per Foto, Mängelprüfung und Aufträge für Teams — in einem Bereich.
+468|Ein Konto für Auftraggeber, Team und Ingenieur.
+469|Die Registrierung dauert eine Minute, die erste Schätzung ist sofort möglich.
+470|Kostenlos, dauert eine Minute
+471|Neues Konto
+472|Konto erstellen
+473|Konto wird erstellt…
+474|Sie haben bereits ein Konto?
+475|Noch kein Konto?
+476|Sie sind bereits angemeldet
+477|Konto:
+478|Passwort
+479|Ihr Passwort
+480|Passwort anzeigen
+481|Passwort verbergen
+482|Passwort vergessen?
+483|Anmeldung läuft…
+484|Authentifizierungsfehler
+485|Mindestens 6 Zeichen
+486|E-Mail prüfen
+487|Prüfen Sie die markierten Felder
+488|10 Ziffern nach +7 erforderlich
+489|Geben Sie den Namen oder die Bezeichnung der Organisation an
+490|Die Vereinbarung muss akzeptiert werden
+491|Die Einwilligung in die Datenverarbeitung ist erforderlich
+492|Um ein Konto zu erstellen, akzeptieren Sie die Vereinbarung und willigen Sie in die Verarbeitung personenbezogener Daten ein
+493|Konto konnte nicht erstellt werden
+494|Wer sind Sie
+495|Ich kalkuliere Kosten und suche Handwerker
+496|Ich übernehme Aufträge und vermiete Maschinen
+497|Name oder Firmenname
+498|Name oder Bezeichnung des Teams / der Firma
+499|Team „Master“ oder Aidos Kim
+500|Telefon
+501|Telefon für Rückfragen
+502|Eigene Baumaschinen vorhanden — zum Marktplatz hinzufügen
+503|Maschinentyp
+504|Marke und Modell
+505|Kennzeichen
+506|Miete, ₸ pro Schicht
+507|Einwilligungen
+508|Neuigkeiten und Angebote per E-Mail, SMS und WhatsApp erhalten (optional)
+509|Aufträge, Angebote und Arbeitskalender
+510|Alle Tarife
+511|regionaler Koeffizient
+512|Profilbogen, Kataloge und Auftragsfeed
+513|Fertiger Kostenvoranschlag
+514|Bagger / Erdbaumaschine
+515|Autokran / Ladekran
+516|Kipper / Tieflader
+517|Lader / Bobcat
+518|Betonpumpe / Fahrmischer
+519|Bohrgerät
+520|Sonstige Maschinen
+521|Betonausrüstung
+522|Kipper und Zugmaschinen
+523|Lader
+524|CAT 320D, KamAZ 6520
+525|LinkVeAI
+526|Assistent
+527|KI-Ingenieur QazGost
+528|Online · antwortet in Sekunden
+529|Hallo! Ich bin LinkVeAI — der KI-Assistent von QazGost. Ich nenne Ihnen Preise für Arbeiten und Materialien, berechne einen Kostenvoranschlag per Foto und finde ein Team oder Baumaschinen. Womit beginnen wir?

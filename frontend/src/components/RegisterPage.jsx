@@ -43,6 +43,8 @@ function ConsentTerms({ lang }) {
   if (lang === 'kk') return <span translate="no">Маған 18 жас толды, {docLink('/terms', 'пайдаланушы келісімін')} қабылдаймын</span>;
   if (lang === 'zh') return <span translate="no">我已年满 18 岁，并接受{docLink('/terms', '用户协议')}</span>;
   if (lang === 'tr') return <span translate="no">18 yaşından büyüğüm ve {docLink('/terms', 'kullanıcı sözleşmesini')} kabul ediyorum</span>;
+  if (lang === 'de') return <span translate="no">Ich bin mindestens 18 Jahre alt und akzeptiere die {docLink('/terms', 'Nutzungsvereinbarung')}</span>;
+  if (lang === 'uz') return <span translate="no">Men 18 yoshga toʻlganman va {docLink('/terms', 'foydalanuvchi shartnomasini')} qabul qilaman</span>;
   // остальные языки, кроме русского, — по-английски: юридические тексты на них пока не переведены
   if (lang !== 'ru') return <span translate="no">I am 18 or older and accept the {docLink('/terms', 'Terms of Use')}</span>;
   return <span translate="no">Мне есть 18 лет, принимаю {docLink('/terms', 'пользовательское соглашение')}</span>;
@@ -67,6 +69,20 @@ function ConsentPrivacy({ lang }) {
     return (
       <span translate="no">
         {docLink('/privacy', 'Gizlilik politikası')} uyarınca {docLink('/consent', 'kişisel verilerimin işlenmesine')}, yurt dışına aktarılması dâhil, onay veriyorum
+      </span>
+    );
+  }
+  if (lang === 'de') {
+    return (
+      <span translate="no">
+        Ich willige gemäß der {docLink('/privacy', 'Datenschutzerklärung')} in die {docLink('/consent', 'Verarbeitung meiner personenbezogenen Daten')} ein, einschließlich der Übermittlung ins Ausland
+      </span>
+    );
+  }
+  if (lang === 'uz') {
+    return (
+      <span translate="no">
+        {docLink('/privacy', 'Maxfiylik siyosatiga')} muvofiq {docLink('/consent', 'shaxsiy maʼlumotlarimni qayta ishlashga')}, shu jumladan xorijga uzatishga rozilik beraman
       </span>
     );
   }

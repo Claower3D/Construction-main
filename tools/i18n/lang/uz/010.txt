@@ -1,0 +1,181 @@
+2980|Barcha boʻlimlar
+2981|Qurilish-montaj ishlarini tanlash & baholash
+2982|Rollar daraxti
+2983|Texnika topish
+2984|PDF yuklab olish
+2985|Obyekt yaratish
+4112|Chop etish / PDF
+6076|Tahlilchi
+6591|, bugun nima qilamiz
+6592|AI ekspertizasi
+6593|Temir-beton va arxitektura chizmalarini AI tekshiruvi, texnik nazorat eʼtirozlari va nuqsonlarni aniqlash
+6594|SNiP boʻyicha AI hisob-kitobi
+6595|Platforma KPI
+6596|PDF hisobotlar va eksport
+6597|QazGost AI — bosh sahifaga
+6598|VIP tenderlar
+6599|ESN RK toʻplamlari boʻyicha ishlar narxining WBS kalkulyatori
+6600|Loyiha-smeta hujjatlarining GOST va SNiP RK ga muvofiqligini avtomatik tahlil qilish
+6601|Tasdiqlangan smetadan chetlanishlarni tahlil qilish va ortiqcha xarajatlarni nazorat qilish
+6602|Usta anketasi
+6603|Butun Qozogʻiston boʻyicha ekskavator, kran va samosvallar ijarasi
+6604|Hujjatlar arxivi
+6605|Smetalar auditi
+6606|Qozogʻistonning {n2} ta viloyati boʻyicha {n1}+ pozitsiyali qurilish narxlari bazasi
+6607|Pudratchilar bazasi
+6608|Kabinetingiz
+6609|Barcha boʻlimlarga qaytish (Esc)
+6610|Platformadagi barcha qurilish tashkilotlari va kompaniyalari rollarining vizual daraxti
+6611|Lidlar voronkasi, mijozlar kartalari, kompaniyalar va brigadalarni boshqarish
+6612|Rol va asbobni tanlang. Obyekt fotosurati smetaga, nuqsonlar dalolatnomasiga yoki brigada uchun buyurtmaga aylanadi
+6613|Obyekt turi va qavatlar sonini tanlash hamda kompaniyalarning GASK ruxsatini tekshirish
+6614|Tanlash
+6615|BOSHQARUV PANELINI TANLASH
+6616|KS-{n}/KS-{n} dalolatnomalari, toʻlov hisoblari, elektron hisob-fakturalar va shartnomalar reyestrlarini Excelga (.xlsx) yuklash
+6617|Hisobotlar generatori
+6618|Jadval
+6619|Qurilish-montaj ishlari va tekshiruvlarni bajarish jadvali
+6620|Pudrat shartnomalari
+6621|Shartnomalar, KS-{n}/KS-{n} dalolatnomalari, texnik nazorat xulosalari va kafolat majburiyatlari
+6622|Hujjatlar & Excelga yuklash
+6623|Rollar va tuzilmalar daraxti
+6624|Butun Qozogʻistondan vositachilar va komissiyasiz jonli buyurtmalar oqimi
+6625|Loglar jurnali
+6626|Materiallar xaridi
+6627|Toʻldirish
+6628|Profilni toʻldirish
+6629|AI ni ishga tushirish
+6630|Quruvchi
+6631|Texnik nazoratga arizalar
+6632|Ijrochilar yopgan va yakuniy hisobot uchun tahlilchiga topshirilgan arizalar
+6633|Rollar iyerarxiyasi (daraxt)
+6634|Narx indekslari
+6635|Muhandislik foto-auditi
+6636|MChJ rollari, boʻlimlari, xodimlari va brigadalarining interaktiv daraxti
+6637|Buyurtma qidiraman, taklif yuboraman, ishlarni bajaraman
+6638|Ijrochi buyurtmalar boʻyicha toʻlovni qanday oladi
+6639|Hozir buyurtmalar qanday toʻlanadi va onlayn toʻlov qachon paydo boʻladi
+6640|Obyektga chiqishlar taqvimi
+6641|Tekshiruvlar taqvimi
+6642|Qurilish-montaj ishlari kalkulyatori
+6643|Kamera obyektdagi yoriqlarni topadi va taʼmirlash uchun materiallarni hisoblaydi
+6644|Binolarning kapital qurilishi, loyiha-smeta hujjatlari, SNiP smetalari va bosh pudrat
+6645|Mutaxassislar katalogi
+6646|Bitimlar konversiyasi, smetalarning oʻrtacha cheki va samaradorlik tahlili
+6647|Xarajatlarni nazorat qilish
+6648|Qozogʻiston hududlari boʻyicha qurilish materiallarining qimmatlashish koeffitsiyentlari
+6649|Buyurtmachining shaxsiy maʼlumotlari, obyekt parametrlari, byudjet va rekvizitlar
+6650|SNiP lokal smetalari, jarayon tahlili va KS-{n}/KS-{n} dalolatnomalari
+6651|Lotlar & Tenderlar
+6652|Lotlar va tenderlar
+6653|Materiallar marketpleysi
+6654|Menyu
+6655|Hisob-kitob tezligi, AI aniqligi va serverlar yuklamasi koʻrsatkichlari
+6656|Arizalar moderatsiyasi
+6657|Qurilish obyektlarim
+6658|Bosh sahifaga
+6659|Bosh ekranga
+6660|Saytga
+6661|Telefon kamerasini qarating — yoriqlar yoritiladi, materiallar va ish hisobi darhol chiqadi
+6662|Ustalarni topish
+6663|Baholashni boshlash
+6664|Fotosurat boʻyicha baholashni boshlash
+6665|Tekshiruvni boshlash
+6666|SNiP va GOST RK meʼyorlari
+6667|Xonani oʻlchang — texnologik kartalar va manbali narxlar boʻyicha smeta, uchta ssenariy
+6668|Qozogʻiston zavodlaridan ulgurji va chakana qurilish materiallari: sement, gʻisht, armatura, qorishmalar
+6669|Pudratchilar uchun {n}% gacha chegirma bilan qurilish materiallarini ulgurji xarid qilish
+6670|Kamera bilan koʻrik: kadrdagi yoriqlar, uzunlik va materiallar qaydnomasi
+6671|CRM ni ochish
+6672|KPI ni ochish
+6673|Arxivni ochish
+6674|Hujjatlarni ochish
+6675|Daraxtni ochish
+6676|Buyurtmalarni ochish
+6677|Marketpleysni ochish
+6678|Boʻlimlar menyusini ochish
+6679|Navbatni ochish
+6680|Panelni ochish
+6681|Muhandis panelini ochish
+6682|Narxnomalarni ochish
+6683|Skanerni ochish
+6684|Texnikani ochish
+6685|Sotuvlar boʻyicha hisobotlar
+6686|Pudratchilarni tasdiqlash navbati, hujjatlar va buyurtmalarni tekshirish
+6687|Tekshiruv oʻtkazish uchun muhandislarni obyektlarga chaqirish navbati
+6688|Yakunlangan arizalar navbati
+6689|Obyektga chiqib tekshirish rejasi va KS-{n} / KS-{n} dalolatnomalarini imzolash jadvali
+6690|Tekshiruvlar rejasi
+6691|Ijaraga maxsus texnika qidirish va qurilish materiallarini ulgurji xarid qilish
+6692|Foydalanuvchilar loglari, smetalardagi oʻzgarishlar va AI chaqiruvlarining toʻliq auditi
+6693|Portfolio, joriy obyektlar va bosqichlarni buyurtmachiga onlayn topshirish
+6694|ESN RK narxnomalari
+6695|Arizalarni qabul qilaman, loyiha hujjatlarini ishlab chiqaman
+6696|Nuqsonlarni tekshirish
+6697|GASK I/II toifa litsenziyalari, BIN va loyiha bosh muhandisi aloqa maʼlumotlarini tekshirish
+6698|Faol arizalar, ustalar takliflari va ishlar holatini koʻrish
+6699|Ijrochi profili, IIN/BIN tasdiqlash, koʻnikmalar va portfolio
+6700|Kompaniya profili
+6701|Loyiha-smeta hujjatlari, VVR hujjatlari, toʻliq siklli smetalar va VIP bosh pudrat
+6702|Qurilish lotlarini "Buyurtmalarim Qurilish"da eʼlon qilish
+6703|Yoʻl
+6704|BOʻLIMLAR
+6705|Nizoni hal qilish
+6706|Jadval
+6707|Oʻlchashga chiqishlar va montaj ishlari bosqichlari jadvali
+6708|Ish sifati boʻyicha daʼvolarni koʻrib chiqish va eskrouni ochish
+6709|Hududiy indekslar
+6710|Shartnomalar reyestri
+6711|Ustalar reyestri
+6712|Pudratchilar reyestri
+6713|IIN/BIN boʻyicha tekshirilgan mutaxassislar va qurilish kompaniyalari reyestri
+6714|Mualliflik va texnik nazorat ostidagi qurilayotgan obyektlar reyestri
+6715|Shtatdagi muhandislar, ish boshqaruvchilar va biriktirilgan ishchi brigadalar reyestri
+6716|Qozogʻistonning yagona reyestrida ustalarning reytingi, sharhlari va kartalari
+6717|MChJ rekvizitlari
+6718|Kabinetdagi rol
+6719|Sotuvlar xulosasi
+6720|Obyektlar, brigadalar, byudjetlar va bajarish muddatlari boʻyicha jamlanma tahlil
+6721|Jamlanma moliyaviy koʻrsatkichlar, obyektlarni topshirish dinamikasi va KPI
+6722|Texnik nazoratning jamlanma boshqaruv paneli, tekshiruvlar holati va jadvallar
+6723|Tizim faol va ishga tayyor
+6724|Yoriqlar skaneri
+6725|Texnologik kartalar va manbali bozor narxlari boʻyicha smeta
+6726|Smeta hisobi
+6727|Smetalar & PDF hujjatlar
+6728|Buyurtmalarni koʻrish
+6729|Hisobotlarni koʻrish
+6730|Statistikani koʻrish
+6731|Obyekt yaratish (SNiP)
+6732|Buyurtma yarataman, ijrochilarni tanlayman, ishni qabul qilaman
+6733|Xodimlar va brigadalar
+6734|Spetsifikatsiya
+6735|Arizalar roʻyxati
+6736|Kompaniya statistikasi
+6737|Bajarilgan ishlar statistikasi
+6738|Binolar qurilishi (VIP)
+6739|Ishlarning texnik spetsifikatsiyasi va tarmoqlarni tarqatish sxemalari
+6740|MChJ
+6741|Fotosuratdagi yoriqlar, SNiP va GOST meʼyorlari hamda taʼmirlash narxi koʻrsatilgan dalolatnoma
+6742|Kompaniya BIN i, GSL litsenziyalari va bank rekvizitlarini boshqarish
+6743|Tashkilotning BIN i, xodimlari va obyektlarini boshqarish
+6744|Lidlar, mijozlar, bitimlar va CRM tahlilini boshqarish
+6745|Platforma, narxnomalar, moderatsiya va arbitrajni boshqarish
+6746|{n}D BIM modellari bilan turar joy majmualari, biznes markazlar va kottej shaharchalari portfelini boshqarish
+6747|Shtatni boshqarish
+6748|Bosh pudrat va loyiha-smeta hujjatlari tenderlarida ishtirok etish, I/II toifa akkreditatsiyasi
+6749|Yakuniy hisobot, hujjatlarni tekshirish, PDF eksport
+6750|Fotosuratlar, fayllar va ishlar xronologiyasi bilan yakuniy hisobotlarni shakllantirish
+6751|E-Gov ERI qoʻllab-quvvatlanadigan qurilish pudrati shartnomalari shablonlari
+6752|Konstruksiyalar holatini ekspert tekshiruvi va defektoskopiya
+6753|Elektr, santexnika, HVAC, kuchsiz tok tizimlari va texnik nazorat
+6754|Men administratorman
+6755|Men tahlilchiman
+6756|Men buyurtmachiman
+6757|Men quruvchiman (VIP)
+6758|Men muhandisman
+6759|Men ijrochiman
+6760|Men kompaniyaman
+6761|Men CRM menejeriman
+6762|Kabinet{a} — QazGost AI
+6763|Kabinet{a}

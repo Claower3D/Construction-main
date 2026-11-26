@@ -1,0 +1,364 @@
+2296|Durchschnittspreis einer Metall-Dachentwässerung, umgerechnet auf den Meter Traufe
+2297|Fassadengewebe {n} g/m² (Rolle {n} m² — {n} ₸)
+2298|Tellerdübel {n}×{n} mit Metallnagel
+2299|Eingangstür aus Metall „Titan {n}“
+2300|PVC-Fenster {n}×{n} m mit Montage
+2301|PVC-Fenster {n}×{n} m, Premiumprofil, mit Montage
+2302|Fensterbank mit Einbau
+2303|Außenfensterbank mit Einbau
+2304|Laibungen aus Sandwichpaneel
+2305|Montage der Eingangstür
+2306|Montage einer Innentür mit Zarge und Bekleidung
+2307|Innentür NEAPOL, Ökofurnier, mit Zarge und Bekleidung
+2308|Betonstahl A{n}C Ø{n}
+2309|Porenbetonstein autoklaviert D{n}
+2310|Kleber für Porenbeton STRONG, {n} kg
+2311|Mauern der Wände aus Porenbeton mit Kleber
+2312|Mauern von Trennwänden aus Porenbeton bis {n} mm
+2313|Streifenfundament: Schalung, Bewehrung, Betonieren
+2314|Ortbetonplatte: Schalung, Bewehrung, Betonieren
+2315|Schnittholz für die Schalung ({n} Einsätze)
+2316|Brett und Sperrholz für {n} m² Schaltafel bei drei Einsätzen
+2317|Schotter {n}–{n} mit Lieferung in Almaty
+2318|Minibagger mit Bediener
+2319|Bodenaushub von Hand
+2320|Schicht eines Erdarbeiters {n}–{n} Tsd. ₸ bei einer Leistung von {n}–{n} m³ laut Anzeigen in Almaty
+2321|Bodenabfuhr mit Kipper
+2322|Eine KAMAZ-Fahrt ≈{n} ₸ für {n} m³ aufgelockerten Boden
+2323|Verfüllung mit Verdichtung
+2324|Minibagger und Rüttelplatte zum Maschinensatz
+2325|Dacherneuerung: Abbau der alten Deckung und Montage der neuen
+2326|Montage der Dachentwässerung
+2327|Dachstuhl und Lattung
+2328|Satz der Dachdeckerteams laut Anzeigen in Almaty {n}–{n} Tsd. ₸/m²
+2329|Metalldachziegel „Venezia“
+2330|Metalldachziegel „SuperMonterrey“, matt {n} mm
+2331|Metalldachziegel „SuperMonterrey“, matt, Russland
+2332|Mineralwollplatte MakWool P{n}, {n} mm ({n} ₸/m³)
+2333|Wind- und Feuchteschutzbahn Izospan A (Rolle {n} m² — {n} ₸)
+2334|Besäumtes Nadelholzbrett, Sortierung {n}–{n}
+2335|Miete und Aufbau eines Baugerüsts
+2336|Gerüstmiete für einen Monat mit Aufbau, umgerechnet auf m² Fassade
+2337|Fassadenputz auf Gewebe
+2338|Kaspi-Anzeigen „Fassadenputz“, Almaty: {n}–{n} ₸/m², am häufigsten {n}
+2339|Dekorputz für die Fassade „Rillenputz“
+2340|Kaspi-Anzeigen, Almaty: „Rillenputz“ ab {n} ₸/m², mit Grundierung und Laibungen {n}–{n} Tsd. ₸/m²
+2341|Fassade in {n} Lagen streichen
+2342|Wandanstrich laut Preisliste „Proff-Remont“ {n} ₸/m² plus Arbeit in der Höhe
+2343|Fassadendämmung: Kleber, Platte, Dübel, Armierungsschicht
+2344|Fassaden-Mineralwollplatte IZOTERM P{n}, {n} mm ({n} ₸/m³)
+2345|Kleber für Mineralwollplatten und Armierungsmörtel Ceresit CT {n}, {n} kg
+2346|Zement-Fassadenputz, {n} kg
+2347|Durchschnittspreis für Zementputz {n} kg in Almaty
+2348|Dekorputz „Rillenputz“ Ceresit CT {n}, {n} kg
+2349|Fassadenfarbe, {n} kg
+2350|Pflasterverlegung auf vorbereitetem Untergrund
+2351|Rüttelgepresster Pflasterstein {n} cm
+2352|Setzen eines Gehwegbordsteins in Beton
+2353|Gehwegbordstein {n}×{n}×{n}
+2354|Durchschnittspreis bei Herstellern im Gebiet Almaty
+2355|Asphaltierung (Material und Einbau)
+2356|Stahlüberdachung / Tragwerk: Fertigung und Montage
+2357|Holzdeck auf Lagerhölzern
+2358|Satz der Zimmerleute laut Anzeigen in Almaty {n}–{n} Tsd. ₸/m²
+2359|Verlegen eines HDPE-Druckrohrs im Graben
+2360|Satz der Teams laut Anzeigen, ohne Erdarbeiten
+2361|HDPE-Rohr {n} mm für Wasser
+2362|Einzelhandelspreis des Rohrs PE{n} SDR{n} Ø{n}
+2363|Einbau eines Alarmmelders
+2364|Durchschnittspreis eines Rauchmelders IP {n}
+2365|Brandmelderzentrale mit Akku
+2366|Durchschnittspreis einer Zentrale für {n}–{n} Meldelinien
+2367|Montage einer IP-Kamera mit Kabelverlegung
+2368|Kaspi-Anzeigen, Almaty: Kameramontage {n}–{n} ₸; mit Kabelverlegung — obere Hälfte der Spanne
+2369|IP-Kamera {n} MP
+2370|Durchschnittspreis einer IP-Kamera der Einstiegsklasse
+2371|Videorekorder mit Festplatte {n} TB
+2372|Satu: {n}-Kanal-Hikvision DS-{n}NI-Q{n}/M — {n}–{n} ₸ ohne Festplatte, DS-E{n}NI-Q{n} mit SSD {n} TB — {n} ₸
+2373|Innenraum-Designprojekt für eine Wohnung
+2374|Innenraum-Designprojekt für ein Haus
+2375|{n}D-Visualisierung des Innenraums
+2376|Ortstermin des Vermessers, Absteckung der Achsen
+2377|Hilfsarbeiter
+2378|Satz eines Hilfsarbeiters laut Anzeigen in Almaty {n}–{n} Tsd. ₸ pro Schicht
+2379|Verkleidung einer Stufe mit Feinsteinzeug
+2380|Verlegung {n} ₸/m² laut Preisliste „Proff-Remont“ mit Zuschnitt und Gehrung, ≈{n} m² je Stufe
+2381|Aufbau und Einbau von Korpusmöbeln
+2382|Satz der Möbelmonteure laut Anzeigen in Almaty
+2383|Einbauküche nach Maß (Spanplatte/MDF)
+2384|Durchschnittspreis je laufenden Meter bei Möbelwerkstätten in Almaty
+2385|Angebote auf Satu {n}–{n} ₸ pro Sack (November {n})
+2386|Angebote auf Satu {n}–{n} ₸/m (November {n})
+2387|Angebote auf Satu {n}–{n} ₸/m³, Median {n} (November {n})
+2388|OLX Talgar {n} ₸/t, Satu {n} ₸/t (Oktober–November {n})
+2389|Mittelwert zweier Angebote D{n}: Kaspi {n} und Satu {n} ₸/m³
+2390|Satu, Almaty: Stand-WCs {n}–{n} ₸ (November {n})
+2391|OLX-Anzeigen, Almaty: {n}–{n} ₸ pro Sack M{n}–M{n}
+2392|OLX-Anzeigen {n}–{n} ₸/m²
+2393|Kaspi-Anzeigen {n}–{n} ₸/m²
+2394|Kaspi-Anzeigen {n}–{n} ₸/m², mit Material
+2395|Bizmedia/OLX: {n}–{n} ₸ pro Ortstermin
+2396|OLX: Klimagerät mit Montage ab {n} ₸
+2397|Kaspi-Anzeigen „Mauern aus Porenbeton“, Almaty
+2398|Kaspi, Fliesenleger in Almaty: Boden ab {n} ₸/m²; Spanne der Anzeigen {n}–{n}
+2399|Kaspi, Fliesenleger in Almaty: Wände ab {n} ₸/m²
+2400|Satu: {n} mm, {n} Glieder — {n} und {n} ₸, angesetzt wurde der Mittelwert
+2401|Satu, Almaty: ab {n} ₸ (November {n})
+2402|Kaspi, Fliesenleger in Almaty: Fliesen entfernen ab {n} ₸/m²; bei „Proff-Remont“ Bodenrückbau insgesamt — {n} ₸/m²
+2403|Satu, Almaty: {n} Angebote {n}×{n} — {n}–{n} ₸/m², Median {n} (November {n})
+2404|Satu, Almaty: {n}×{n} in Marmoroptik und Weiß — {n}–{n} ₸/m²; Spanne der Seite {n}–{n}
+2405|Satu: Dübel {n}×{n} — {n}–{n} ₸; für Mineralwolle ist ein Metallnagel nötig (FIX PLAST — {n} ₸)
+2406|Kaspi, Almaty: Einbau einer Innentür {n}–{n} ₸, meist {n}
+2407|Preisliste „Proff-Remont“: Ausbau einer Holztür — {n} ₸, einer Metalltür — {n} ₸
+2408|Satu: Vliestapeten {n}×{n} m — {n}–{n} ₸ pro Rolle, Premiumkollektionen — bis {n}
+2409|Satu und Kaspi, Almaty: Einbau einer Duschkabine {n}–{n} ₸; bei „Proff-Remont“ — {n} ₸
+2410|Satu und Kaspi, Almaty: Wanddämmung mit Mineralwollplatte und Armierungsschicht {n}–{n} ₸/m², ab {n} bei Firmen
+2411|Satu, Almaty: Setzen eines Bordsteins {n}–{n} ₸/lfm, Median der Angebote {n}
+2412|Kaspi, Almaty: Schuttabfuhr {n}–{n} ₸ pro Fahrt; angesetzt wurde die Obergrenze — mit Verladen
+2413|Kaspi, Almaty: Arbeit des Teams {n} ₸/m³; Beton, Bewehrung und Schalung sind in eigenen Zeilen berechnet
+2414|Satu, Almaty: Laminat Klasse {n}, {n} mm — {n}–{n} ₸/m² (November {n})
+2415|Satu, Almaty: Laminat „Fischgrät“ Klasse {n} — {n}–{n} ₸/m²
+2416|Summe der Satu-Preise: Verteiler ShchRN-{n} — {n} ₸, {n} Leitungsschutzschalter VA{n}-{n}P {n} A zu je {n} ₸, FI-Schalter VD{n}-{n}P {n} A — {n} ₸
+2417|Satu, Almaty: {n}–{n} ₸/m³ ab Steinbruch; mit Lieferung in Almaty und im Gebiet — {n} ₸/m³
+2418|Satu: Izospan A, Rolle {n} m² — {n} ₸ ({n} ₸/m²)
+2419|Satu: Gewebe {n} g/m², Rolle {n} m² — {n} ₸ ({n} ₸/m²)
+2420|Satu: Trittschalldämmung Solid {n} mm, Packung {n} m² — {n} ₸ ({n} ₸/m²)
+2421|Preisliste „Proff-Remont“: Schlitz bis {n} mm — {n} ₸/lfm, {n}–{n} mm — {n}; für das Kabel VVG {n}×{n} genügen {n}–{n} mm
+2422|Kartusche
+2423|Kanister
+2424|Masch.-Std.
+2425|Nein
+2426|Ja
+2427|Umriss des Raums (Boden)
+2428|Tapete
+2429|Fliesen
+2430|Putzdicke
+2431|Mittlere Dicke nach Putzleisten; hängt von der Unebenheit der Wände ab
+2432|Grundierung
+2433|Trocknung des Gipsputzes
+2434|Trocknung der Spachtelmasse
+2435|ohne Putzleisten: Spachtelung in {n} Lage auf der vorhandenen Oberfläche, Farbe Gaudi „Belosnezhka“
+2436|Putz nach Putzleisten, Spachtel Fugen in {n} Lagen, Farbe Gaudi Standart
+2437|Putz nach Putzleisten, Feinspachtel AlinEX Glatt Plus in {n} Lagen, Farbe Remalux
+2438|ohne Putzleisten: Spachtelung in {n} Lage, Vliestapete
+2439|Putz nach Putzleisten, Spachtelung in {n} Lagen, Vliestapete
+2440|Putz nach Putzleisten, Feinspachtel Glatt Plus, Vinyltapete auf Vlies
+2441|ohne Putzleisten: Feinsteinzeug {n}×{n} auf der vorhandenen Oberfläche
+2442|Putz nach Putzleisten, Feinsteinzeug {n}×{n} in Marmoroptik
+2443|Putz nach Putzleisten, Feinsteinzeug {n}×{n} der Premiumserie
+2444|+ {n}% Verschnitt
+2445|Spachtel ≈{n} kg/m² pro Lage; Farbe in {n} Lagen zu je {n} kg/m²; Grundierung {n} L/m² vor jeder Lage
+2446|Umriss des Bodens
+2447|Laminat
+2448|Feinsteinzeug
+2449|Estrichdicke
+2450|Abdichtung (Bad, Küche)
+2451|Trocknung der Abdichtung
+2452|Festigkeitsentwicklung des halbtrockenen Estrichs vor dem Belag
+2453|Laminat Klasse {n}–{n} auf dem vorhandenen Untergrund
+2454|halbtrockener Estrich, Laminat Klasse {n}
+2455|halbtrockener Estrich, Laminat Klasse {n} im Fischgrätmuster
+2456|Feinsteinzeug {n}×{n} auf dem vorhandenen Untergrund
+2457|halbtrockener Estrich, Feinsteinzeug {n}×{n} in Marmoroptik
+2458|halbtrockener Estrich, Feinsteinzeug {n}×{n} der Premiumserie
+2459|Umriss der Decke (= Boden)
+2460|Deckentyp
+2461|Spanndecke
+2462|Gipskarton zum Streichen
+2463|Anstrich auf der Deckenplatte
+2464|Einbaustrahler
+2465|Ohne
+2466|{n} pro {n} m²
+2467|Unterkonstruktion und Beplankung
+2468|Spanndecke
+2469|Leuchten
+2470|Spanndecke matt
+2471|Spanndecke Satin
+2472|Spanndecke glänzend
+2473|Gipskarton, Spachtelung in {n} Lage, Gaudi „Belosnezhka“
+2474|Gipskarton, Spachtelung in {n} Lagen, Gaudi Standart
+2475|Gipskarton, Feinspachtel Glatt Plus, Farbe Remalux
+2476|auf der Deckenplatte: Spachtelung in {n} Lage, Gaudi „Belosnezhka“
+2477|auf der Deckenplatte: Spachtelung in {n} Lagen, Gaudi Standart
+2478|auf der Deckenplatte: Feinspachtel Glatt Plus, Farbe Remalux
+2479|Umriss des Raums / der Wohnung
+2480|{n} — nach Norm: {n} Steckdose pro {n} m Umfang
+2481|{n} — nach Anzahl der Türen
+2482|Deckenleuchten
+2483|{n} — {n} pro {n} m²
+2484|Neuer Elektroverteiler
+2485|Schlitzen
+2486|Kabelverlegung
+2487|Elektroinstallation
+2488|vollständiger Austausch der Leitungen mit Kabel VVGng-LS {n}×{n}
+2489|Austausch der Leitungen + FI-LS-Schalter für Nassbereiche
+2490|× ≈{n} m Schlitz je Punkt
+2491|× {n} m
+2492|× ≈{n} m Kabel je Punkt
+2493|× {n} m + {n}% Reserve
+2494|ein Verteiler
+2495|Verteiler mit {n} Leitungsschutzschaltern und FI-Schalter
+2496|{n} Gruppen: Licht, Steckdosen nach Räumen, Küche, Bad, Herd, Waschmaschine
+2497|Haupt-FI-Schalter
+2498|FI-LS-Schalter für Bad und Küche
+2499|Elektrik: ≈{n} m Kabel und ≈{n} m Schlitz je Punkt; Leuchten und Kronleuchter stellt der Auftraggeber (im Kostenvoranschlag nur die Montage)
+2500|Dusche
+2501|Waschmaschine
+2502|Warmwasserspeicher
+2503|Handtuchheizkörper
+2504|Zapfstellen
+2505|je eine Armatur für Waschbecken, Wanne und Dusche
+2506|Sanitär und Wasserleitung
+2507|Umriss des Bads / der Wohnung
+2508|WC
+2509|Stand-WC
+2510|Vorwandelement
+2511|Waschbecken mit Unterschrank
+2512|Badewanne
+2513|Duschkabine
+2514|Waschmaschine
+2515|Warmwasserspeicher
+2516|Handtuchheizkörper
+2517|Anschluss an den Steigstrang
+2518|Wasserzapfstellen
+2519|{n} — nach den gewählten Objekten
+2520|Rohrverlegung
+2521|Druckprüfung der Anlage
+2522|preiswertes Stand-WC
+2523|Stand-WC der Mittelklasse
+2524|WC der Oberklasse
+2525|Anschluss an den Kalt-/Warmwasser-Steigstrang
+2526|; ≈{n} m Rohr je Zapfstelle + {n}%
+2527|Stand-WC
+2528|Vorwandelement
+2529|Vorwandelement mit WC
+2530|Duschkabine
+2531|Waschmaschine (das Gerät stellt der Auftraggeber)
+2532|Warmwasserspeicher {n} L
+2533|Sanitär: Die Arbeit „je Zapfstelle“ schließt die Rohrverlegung ein; ≈{n} m PPR-Rohr je Zapfstelle
+2534|Beheizte Fläche
+2535|{n} — nach Wärmeverlusten und Anzahl der Fenster
+2536|Heizungsrohre
+2537|Druckprüfung
+2538|Bimetall-Heizkörper mit {n} Gliedern
+2539|Klimatisierung und Lüftung
+2540|Umriss der Räume
+2541|Split-Klimageräte
+2542|{n} — ein Gerät mit {n} BTU pro {n} m²
+2543|Abluftventilatoren
+2544|Klimageräte
+2545|vorgegeben
+2546|Bäder und Küche
+2547|Umriss des Hauses
+2548|Länge der Gasleitung im Haus
+2549|Gasgeräte
+2550|Projekt erforderlich
+2551|Abstimmung des Projekts mit dem Gasversorger
+2552|Montage der Gasleitung
+2553|Anschluss der Geräte
+2554|Projekt und Abstimmung
+2555|Länge laut Projekt
+2556|Herd und Kessel
+2557|Gas: Die Arbeiten führt nur eine lizenzierte Organisation aus; der Preis steht nach den technischen Bedingungen fest
+2558|Umriss des Raums
+2559|Tapeten entfernen
+2560|Putz abschlagen
+2561|Wandfliesen entfernen
+2562|Bodenbelag entfernen
+2563|Laminat, Linoleum
+2564|Rückbau des Estrichs
+2565|Abbruch von Trennwänden aus ½ Ziegel
+2566|Ausbau der Türen mit Zargen
+2567|Abbruch eines Gebäudes (umbauter Raum)
+2568|der Umfang des Rückbaus ist in allen Szenarien gleich
+2569|Fläche der Trennwände
+2570|Türen mit Zargen
+2571|umbauter Raum des Gebäudes
+2572|Umriss der Baugrube / des Grundstücks
+2573|Aushubtiefe
+2574|Verfahren
+2575|Minibagger
+2576|Von Hand
+2577|Abfuhr des überschüssigen Bodens
+2578|Bodenaushub
+2579|der Arbeitsumfang ist in allen Szenarien gleich
+2580|Umriss entlang der Achse der Außenwände
+2581|Breite des Streifens
+2582|Höhe des Streifens
+2583|Über dem Boden
+2584|Tragende Innenwände
+2585|kg/m³
+2586|Typisch sind {n}–{n} kg pro {n} m³ Streifen
+2587|Absteckung der Achsen
+2588|Schalung und Bewehrung
+2589|Erreichen von {n}% der Betonfestigkeit
+2590|Beton M{n}, Betonstahl A{n}C
+2591|Übertragung der Achsen ins Gelände
+2592|Arbeitsräume des Grabens
+2593|Fundament: Der Beton kommt direkt aus dem Fahrmischer (ohne Autobetonpumpe); Abdichtung und Dämmung des Streifens sind nicht enthalten
+2594|Ortbetonplatte
+2595|Umriss der Platte
+2596|Platte auf dem Erdreich
+2597|Decke
+2598|Mauern der Wände aus Porenbeton
+2599|Umriss der Außenwände
+2600|Wanddicke
+2601|Trennwände {n} mm
+2602|Mauern der Wände
+2603|Porenbeton D{n} mit Kleber
+2604|+ {n}% Bruch und Verschnitt
+2605|Mauerwerk: Ringanker und Stürze werden im Abschnitt „Ortbetonplatte“ berechnet
+2606|Stahlkonstruktionen, Überdachung
+2607|Umriss der Überdachung / des Tragwerks
+2608|Fertigung und Montage
+2609|Überdachung: Der Preis aus den Anzeigen umfasst Metall, Anstrich und Montage; Fundamente für die Stützen sind nicht enthalten
+2610|Umriss des Decks
+2611|Lagerhölzer und Belag
+2612|Umriss des Hauses im Grundriss
+2613|Dachneigung
+2614|Dachüberstand
+2615|Form
+2616|Satteldach
+2617|Walmdach
+2618|Neuer Dachstuhl
+2619|Gedämmt (Dachgeschoss)
+2620|Abbau des alten Dachs
+2621|Dachstuhl
+2622|Unterspannbahn und Dämmung
+2623|Dachdeckung
+2624|Dachentwässerung
+2625|Metalldachziegel „Venezia“
+2626|Metalldachziegel „SuperMonterrey“ {n} mm
+2627|Metalldachziegel „SuperMonterrey“ (Russland)
+2628|Walmdach: Traufe am gesamten Umfang
+2629|Satteldach: Traufe an den zwei langen Seiten ≈ halber Umfang
+2630|Fassadenhöhe
+2631|Gerüst
+2632|Trocknung des Zementputzes
+2633|Oberflächenfinish
+2634|Anstrich der vorhandenen Fassade ohne neuen Putz
+2635|Putz auf Gewebe und Fassadenfarbe in {n} Lagen
+2636|Putz auf Gewebe und Dekorputz „Rillenputz“
+2637|Trocknung der Armierungsschicht
+2638|Mineralwollplatte {n} mm, Wärmedämmverbundsystem
+2639|Dämmung: Das Gerüst wird im Abschnitt „Fassadenarbeiten“ berücksichtigt
+2640|Fenster im Umriss: {n}
+2641|{n} — nach Anzahl der Fenster im Umriss
+2642|Laibungen aus Sandwichpaneel
+2643|Laibungen und Fensterbänke
+2644|PVC-Fenster mit Montage
+2645|PVC-Fenster mit Premiumprofil
+2646|Fenster: Der Listenpreis gilt für ein Fenster {n}×{n} m; größere Fenster sind proportional zur Fläche teurer
+2647|Türen im Umriss: {n}
+2648|Umriss der Wohnung
+2649|Innentüren
+2650|{n} — nach Anzahl der Türen im Umriss
+2651|Eingangstür
+2652|Einbauküche
+2653|Möbelaufbau
+2654|Einh.
+2655|Eingangstür
+2656|Länge der Küchenzeile
+2657|Möbelstücke
+2658|Treppenverkleidung
+2659|Umriss des Treppenhauses

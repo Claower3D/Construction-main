@@ -1,0 +1,260 @@
+0|Kostenvoranschläge und Mängelprüfung nach kasachischen Normen
+1|Startseite
+2|Plattform
+3|Funktionen
+4|Katalog
+5|Preise
+6|Anmelden
+7|Anmeldung
+8|Abmelden
+9|Registrieren
+10|Registrierung
+11|Im System anmelden
+12|Mein Bereich
+13|Zum eigenen Bereich
+14|Weiter
+15|Profil
+16|Dashboard
+17|Öffnen
+18|Menü öffnen
+19|Menü schließen
+20|Zurück
+21|Zurück zum Dashboard
+22|Nach oben
+23|Zum Inhalt springen
+24|Anzeigen
+25|Alle anzeigen
+26|Einklappen
+27|Senden
+28|Alle
+29|Gesamt:
+30|Suche…
+31|Ohne Kategorie
+32|Bereich wird geladen…
+33|Arbeitsbereich wird geöffnet…
+34|Fehler bei der Synchronisierung mit dem Server
+35|Werkzeuge
+36|WERKZEUGE
+37|VERWALTUNG
+38|PROFIL
+39|MEINE AUFTRÄGE
+40|PROFIL & SERVICES
+41|Menü Auftraggeber
+42|Menü Auftragnehmer
+43|Ingenieurbereich
+44|Admin-Panel
+45|Hauptübersicht
+46|Kostenschätzung
+47|Mängelprüfung
+48|Mengenberechnung
+49|Technische Lösungen
+50|Rechner für Hausanschlüsse
+51|LiDAR-Scanner
+52|Kalender
+53|Arbeitskalender
+54|Meine Aufträge
+55|Meine Arbeiten
+56|Maschinen / Marktplatz
+57|Mein Profilbogen
+58|Profilbogen
+59|Profilbogen des Auftragnehmers
+60|Profilbogen ausfüllen
+61|Hochbau
+62|Anfragen
+63|KI-Kalkulation
+64|Ausgaben
+65|Preislisten
+66|Moderation
+67|Regionen
+68|Aktivitätsprotokoll
+69|Analytik
+70|Streitfälle und Schlichtung
+71|Verträge
+72|CRM-System
+73|Marktplatz für Baumaschinen
+74|Kostenrechner
+75|Handwerker
+76|Auftraggeber
+77|Auftragnehmer
+78|Ingenieur
+79|Admin
+80|Manager
+81|Unternehmen
+82|Ich bin Lieferant
+83|Manager Sascha
+84|Zahlung
+85|Zahlung und Wallet
+86|Wallet öffnen
+87|Tarif
+88|Kontakt
+89|Warenkorb
+90|Stadt
+91|Stadt auswählen
+92|Stadt wählen
+93|Ausgewählte Stadt:
+94|Städte Kasachstans
+95|Stadt suchen...
+96|Stadt nicht gefunden
+97|Automatische Stadterkennung per GPS
+98|Auto-GPS
+99|Alle Städte
+100|Alle Regionen
+101|Alle Regionen (Basispreise)
+102|Preisregion
+103|Region:
+104|Standort
+105|Almaty
+106|Astana
+107|Schymkent
+108|Karaganda
+109|Aktobe
+110|Taras
+111|Pawlodar
+112|Ust-Kamenogorsk
+113|Semei
+114|Atyrau
+115|Kostanai
+116|Kysylorda
+117|Uralsk
+118|Petropawlowsk
+119|Aktau
+120|Temirtau
+121|Turkestan
+122|Kokschetau
+123|Taldykorgan
+124|Scheskasgan
+125|Benachrichtigungen
+126|Alle als gelesen markieren
+127|Alle löschen
+128|Keine Benachrichtigungen
+129|Hier erscheinen wichtige Nachrichten und der Status Ihrer Anfragen
+130|neu
+131|Gerade eben
+132|Ein Auftragnehmer hat geantwortet
+133|Zu Ihrem Auftrag ist ein Angebot mit Preis und Terminen eingegangen. Vergleichen Sie die Angebote.
+134|Kostenvoranschlag fertig (AI 2.0)
+135|Die hochgeladenen Fotos wurden analysiert: 3 Preisszenarien berechnet.
+136|Der KI-Scanner hat 2 Haarrisse erkannt und einen Bericht nach SNiP erstellt.
+137|Inspektion angesetzt
+138|Neue Anfrage zur Bauüberwachung für das Objekt Wohnanlage „Kabanbai“.
+139|KI-Prüfung nach GOST abgeschlossen
+140|Die Prüfung des Planungsabschnitts ist abgeschlossen: 0 kritische Mängel.
+141|Unterzeichnung des Protokolls KS-2
+142|Der Auftraggeber hat das Zwischenprotokoll über verdeckte Arbeiten freigegeben.
+143|Neuer Lead im CRM
+144|Neue gewerbliche Anfrage von der TOO „KazStroyInvest“ eingegangen.
+145|Deal in die Abschlussphase verschoben
+146|Auftraggeber Nr. 1085 hat ein Angebot für die zweite Bauphase angefordert.
+147|Objekt erfolgreich übergeben
+148|Der Auftragnehmer hat Bauabschnitt Nr. 3 ohne Beanstandungen übergeben.
+149|Antrag auf Verifizierung eines Einzelunternehmers
+150|Der Einzelunternehmer „TemirStroy“ hat Unterlagen zur Prüfung von IIN/BIN eingereicht.
+151|Neuer Streitfall
+152|Reklamation zur Qualität des Betonierens eröffnet (DSP-882).
+153|Aktualisierung der ESN RK
+154|Die Preisindizes für 17 Regionen Kasachstans wurden aktualisiert.
+155|Neuer verfügbarer Auftrag
+156|Im Auftragsfeed: Renovierung einer Bürofläche von 450 m² in Astana.
+157|Bauabschnitt vom Auftraggeber abgenommen
+158|Der Auftraggeber hat Bauabschnitt Nr. 1 bestätigt. Die Bezahlung des Abschnitts vereinbaren Sie direkt mit ihm.
+159|Angebot angenommen
+160|Ihr Angebot wurde ausgewählt – Sie sind der Hauptauftragnehmer.
+161|KI-Schätzung per Foto in Sekunden • SNiP und GOST RK • RU / KZ / EN
+162|Verdienen Sie an Bauaufträgen —
+163|fair und transparent
+164|Bauen und renovieren Sie
+165|ohne Mehrkosten und Risiken
+166|Öffnen Sie den Live-Auftragsfeed aus ganz Kasachstan, senden Sie Angebote mit Preis und Terminen, führen Sie Projekte unter „Meine Arbeiten“ und übergeben Sie das Ergebnis online.
+167|Laden Sie ein Foto des Raums oder der Fassade hoch — der Service berechnet den Kostenvoranschlag nach kasachischen Normen, markiert Risse und findet ein Team in Ihrer Stadt.
+168|Auftragsfeed öffnen
+169|Objekt per Foto schätzen
+170|Kostenlos starten
+171|Beispiel ansehen
+172|Jetzt ausprobieren
+173|Auftragnehmer finden oder Auftrag übernehmen
+174|Preise für Arbeiten und Materialien
+175|angepasst an 11 Städte
+176|Kostenvoranschlag per Foto
+177|bis 1 Min.
+178|Mengen, Materialien und Gesamtsumme
+179|Genauigkeit des Risserkenners
+180|auf dem Testdatensatz
+181|Baustoffpositionen
+182|Preise nach Regionen Kasachstans
+183|Haus: links ein fotorealistisches Rendering, rechts eine Zeichnung mit der Haustechnik: Elektrik, Wasserversorgung, Heizung, Abwasser, Gas und Zähler
+184|Elektrik
+185|Sicherungskasten
+186|Stromzähler
+187|Kaltwasser
+188|Warmwasser
+189|Wasserzähler
+190|Heizung
+191|Kessel und Verteiler
+192|Abwasser
+193|Gas
+194|Gaszähler
+195|Kostenvoranschläge und Mängel nach kasachischen Normen
+196|Kostenvoranschläge, Mängelprüfung und Auftragnehmer nach den Normen der Republik Kasachstan.
+197|Der Service findet Mängel, berechnet Mengen und wählt Preise nach ESN RK sowie die passenden Normen aus.
+198|Schnelle und genaue Kostenvoranschläge
+199|Kostenvoranschlag per Foto in Sekunden
+200|Kostenvoranschlag per Foto in einer Minute
+201|Mängelerkennung
+202|Risse per Foto
+203|Risse, Abplatzungen, Leckagen
+204|Risse werden auf dem Foto eingerahmt; das Protokoll enthält Norm, Beschreibung und Reparaturpreis.
+205|Neuronales Netz YOLO26
+206|Das neuronale Netz berechnet Arbeiten und findet Mängel
+207|Transparente Berechnungen
+208|Transparente Preise 2026
+209|Preise 2026, an die Stadt angepasst
+210|Preise nach Regionen Kasachstans
+211|Fertige Dokumente
+212|Kostenvoranschläge, Protokolle, Listen und Berechnungen — als PDF und Excel, für die Abstimmung und den Auftragnehmer.
+213|Export in PDF und Excel
+214|Export in Excel und PDF
+215|Export in PDF / Excel
+216|Verweise auf Normen
+217|So funktioniert es
+218|Vom Foto zum fertigen Kostenvoranschlag — in drei Schritten, meist in weniger als einer Minute.
+219|Foto hochladen
+220|Wand, Raum, Fassade oder ein Riss in Nahaufnahme. Die Handykamera genügt.
+221|Analyse und Berechnung
+222|Genauen Kostenvoranschlag erhalten
+223|Kostenvoranschlag und Mängelprotokoll mit Preisen und Empfehlungen — senden Sie sie an ein Team aus dem Katalog.
+224|Machen Sie aus einem Foto einen fertigen Kostenvoranschlag
+225|Laden Sie ein Foto des Objekts hoch — Sie erhalten einen fertigen Kostenvoranschlag mit Mengen, Preisen und Kosten nach kasachischen Normen.
+226|Kostenvoranschlag berechnen
+227|Eigenes Objekt berechnen
+228|Kostenvoranschlag erstellen
+229|Excel herunterladen
+230|Kostenvoranschlag PDF
+231|Datei wird erstellt…
+232|Beispiele für Kostenvoranschläge
+233|Beispiel-Kostenvoranschlag
+234|So sieht ein Kostenvoranschlag aus
+235|Transparent und einsatzbereit — wie von einem erfahrenen Kalkulator. Preise aus der Datenbank ESN RK mit dem Koeffizienten Ihrer Stadt.
+236|Mengen der Arbeiten und Materialien
+237|Aufschlüsselung nach Arbeiten und Materialien
+238|Gesamtsumme und Bauzeit
+239|Bezeichnung der Arbeiten
+240|Menge
+241|Einzelpreis
+242|Betrag, ₸
+243|Summe laut Kostenvoranschlag
+244|Materialreserve 10%
+245|Materialreserve
+246|Bauüberwachung +5%
+247|Bauüberwachung
+248|Einh.
+249|Tg.
+250|Streifenfundament
+251|Streifenfundament, Beton M300
+252|Bodenaushub mit Bagger
+253|Schwerbeton M300 (W6, F150)
+254|Betonstahl gerippt A500C Ø12 mm
+255|Laminierte Rahmenschalung
+256|Einbau und Verdichtung des Betons
+257|Mauern aus Porenbetonsteinen
+258|Außenwände aus Porenbeton D500
+259|240 m², Dicke 300 mm

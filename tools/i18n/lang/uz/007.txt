@@ -1,0 +1,340 @@
+1956|Hajm qanday hisoblangan
+1957|material
+1958|Boshlanishi, kun
+1959|Hisob-kitob serveri bilan aloqa yoʻq. Internetni tekshiring va takrorlang
+1960|Tanaffus, kun
+1961|ish
+1962|Boʻlim
+1963|Havola
+1964|Oraliqlar chegirilgan devorlar, m²
+1965|texnika
+1966|Narxlar sanasi
+1967|Texnologik kartalar maʼlumotnomasi ishlamayapti ({a})
+1968|Hisob-kitob serveri {a} xatosi bilan javob berdi
+1969|QazGost SMETASI — {a} ({b})
+1970|{a} (koeffitsiyent {b})
+1971|{n}D skanerlash va oʻlchashlar
+1972|Avariya ishlari
+1973|Avtokran
+1974|Korroziyadan himoya
+1975|Armaturalash
+1976|Beton nasosi
+1977|Obodonlashtirish va yoʻllar
+1978|Bordyurlar va porebriklar
+1979|Svaylar uchun burgʻilash
+1980|Suv uchun quduq burgʻilash
+1981|Ventilyatsiyalanadigan fasad
+1982|Ichki suv quvuri
+1983|Ichki kanalizatsiya
+1984|Suv tayyorlash va filtrlar
+1985|Suv oqizish tizimi
+1986|Darvozalar va toʻsiqlar
+1987|Gruntni olib chiqish
+1988|Gidroizolyatsiya
+1989|Poydevor gidroizolyatsiyasi
+1990|Gipsokarton ishlari
+1991|Bino va konstruksiyalarni buzish
+1992|Yoʻl asosi
+1993|Materiallarni yetkazib berish
+1994|Uchastka drenaji
+1995|Devorlar
+1996|Yerga ulash va yashindan himoya
+1997|Yer ishlari va buzish
+1998|Qidiruv ishlari va loyihalash
+1999|Yoriqlarni inyeksiyalash
+2000|Kapital taʼmirlash
+2001|Karkasli qurilish
+2002|Gʻisht terish
+2003|Gazoblokdan terish
+2004|Kosmetik taʼmirlash
+2005|Qozonxona
+2006|Tom va fasadlar
+2007|Metall cherepitsa va profnastildan tom
+2008|Zinapoyalar va panjaralar
+2009|Yomgʻir suvi kanalizatsiyasi
+2010|Kichik meʼmoriy shakllar
+2011|Manipulyator
+2012|Hoʻl fasad
+2013|Monolit yopmalar
+2014|Monolit karkas
+2015|HVAC tizimini montaj qilish
+2016|Temir-beton buyumlarni montaj qilish
+2017|Metall konstruksiyalarni montaj qilish
+2018|Uskunalarni montaj qilish
+2019|Yumshoq tom
+2020|Ayvonlar va soyabonlar
+2021|Tashqi kanalizatsiya
+2022|Nasos stansiyasi
+2023|Fasadni qoplash
+2024|Gulqogʻoz va dekorativ qoplamalar
+2025|Qayta koʻmish va zichlash
+2026|Binoni tekshirish
+2027|Konstruksiyalarni olovdan himoyalash
+2028|Koʻkalamzorlashtirish
+2029|Derazalar, eshiklar, konstruksiyalar
+2030|Qolip ishlari
+2031|Yoritish
+2032|Fasad va balkonlarni oynalash
+2033|Isitish, ventilyatsiya, gaz
+2034|Pardevorlar
+2035|Uchastkani tekislash
+2036|Plitali poydevor
+2037|Tekis tom
+2038|Elektr tarmogʻiga ulash
+2039|Sanoat beton pollari
+2040|Sanoat ishlari
+2041|Ishga tushirish-sozlash ishlari
+2042|Ishchi loyiha
+2043|Kotlovan qazish
+2044|Rezervuarlar va idishlar
+2045|Rels va kran osti yoʻllari
+2046|Taʼmirlash va kuchaytirish
+2047|Tomni taʼmirlash
+2048|Fasadni taʼmirlash
+2049|Samosval
+2050|Svayli poydevor
+2051|Payvandlash ishlari
+2052|Strukturalangan kabel tizimi va internet
+2053|Smeta hujjatlari
+2054|Kelishuvlar va ruxsatnomalar
+2055|Quyosh elektr stansiyasi
+2056|Maxsus texnika va yetkazib berish
+2057|Devorlar, karkas, metall
+2058|Sendvich-panellar
+2059|Issiqlik punkti
+2060|Issiq pol
+2061|Texnik va mualliflik nazorati
+2062|Texnologik quvurlar
+2063|Topografik syomka
+2064|Kommunikatsiyalar uchun transheyalar
+2065|Bruschatka yotqizish
+2066|Aqlli uy va avtomatika
+2067|Konstruksiyalarni kuchaytirish
+2068|Eshik oʻrnatish
+2069|Deraza oʻrnatish
+2070|Santexnika oʻrnatish
+2071|Tomni issiqlik izolyatsiyalash
+2072|Poydevorlar va beton
+2073|Shpaklyovka va boʻyash
+2074|Shchit uskunalari
+2075|Ekskavator
+2076|Elektr va kuchsiz tok tizimlari
+2077|Eskiz loyiha
+2078|Avtomatlashtirish va kuchsiz tok
+2079|Ventilyatsiya va konditsionerlash
+2080|Yogʻoch konstruksiyalar
+2081|Yoʻllar va koʻpriklar
+2082|Zinapoyalar va balkonlar
+2083|Mebel va jihozlar
+2084|Tashqi tarmoqlar
+2085|{n} ₸/ulanish dan
+2086|{n} ₸/datchik dan
+2087|{n} ₸/birl. dan
+2088|{n} ₸/toʻplam dan
+2089|{n} ₸/m dan
+2090|{n} ₸/m² dan
+2091|{n} ₸/m³ dan
+2092|{n} ₸/p.m dan
+2093|{n} ₸/asbob dan
+2094|{n} ₸/smena dan
+2095|{n} ₸/t dan
+2096|{n} ₸/nuqta dan
+2097|{n} ₸/xizmat dan
+2098|{n} ₸/dona dan
+2099|Santexnika va suv taʼminoti
+2100|Issiqlik va boshqa izolyatsiya
+2101|Usul qoʻllab-quvvatlanmaydi
+2102|Foydalanuvchi topilmadi
+2103|Arzimaydi! Qurilish yoki narxlar boʻyicha savollar tugʻilsa — men shu yerdaman
+2104|Salom! Men LinkVeAI — QazGost AI yordamchisiman. Ishlar va materiallar narxini aytaman, fotosurat boʻyicha smeta qanday olinishini tushuntiraman, brigada yoki texnika topaman. Nima quramiz yoki taʼmirlaymiz
+2105|smena
+2106|tonna
+2107|Bazadan bu soʻrovga aniq mos pozitsiya topmadim. Aniqroq yozing — ish turi yoki material va hajm, masalan «devor suvogʻi {n} m²» yoki «beton M{n} m³». Ishlar va materiallar bilan toʻliq smetani esa [Fotosurat boʻyicha smeta](auth:register) tuzadi
+2108|dona
+2109|Men qurilish va taʼmirlashda yordam beraman: ishlar va materiallar narxi, fotosurat boʻyicha smeta, yoriqlarni tekshirish, brigada va maxsus texnika qidirish. Nima qilish kerakligini yozing — masalan, «pol styajkasi {n} m² qancha turadi» yoki «bir smenaga ekskavator kerak»
+2110|Email yoki parol notoʻgʻri
+2111|Parolni saqlab boʻlmadi
+2112|Parolni saqlab boʻlmadi, yana urinib koʻring
+2113|Roʻyxatdan oʻtish maʼlumotlari notoʻgʻri
+2114|Telefon raqami notoʻgʻri: +{n} formati va {n} ta raqam kerak
+2115|Soʻrov formati notoʻgʻri
+2116|Avtorizatsiya zarur
+2117|Token yaratishda xatolik
+2118|Foydalanuvchi yaratishda xatolik
+2119|parol kamida {n} ta belgidan iborat boʻlishi kerak
+2120|Parol kamida {n} ta belgidan iborat boʻlishi kerak
+2121|Parol oʻrnatildi, kirish bajarildi
+2122|Parol oʻzgartirildi, lekin yangi sessiya berib boʻlmadi — yangi parol bilan kiring
+2123|Parol majburiy
+2124|Bunday emailli foydalanuvchi allaqachon mavjud
+2125|Roʻyxatdan oʻtish yakunlandi
+2126|Sessiya muddati tugadi
+2127|Roʻyxatdan oʻtish maydonlari juda uzun
+2128|parol juda uzun
+2129|Parol juda uzun
+2130|Kirishga notoʻgʻri urinishlar juda koʻp. {n} daqiqadan soʻng urinib koʻring
+2131|Notoʻgʻri urinishlar juda koʻp. {n} daqiqadan soʻng urinib koʻring
+2132|Emailni name@example.kz formatida kiriting
+2133|Telefon raqamini kiriting
+2134|Muvaffaqiyatli kirish
+2135|Roʻyxatdan oʻtish uchun foydalanuvchi shartnomasini qabul qiling va shaxsiy maʼlumotlarni qayta ishlashga rozilik bering
+2136|Bu sizning birinchi kirishingiz: oʻz parolingizni oʻylab toping va kiriting —
+2137|bu parol juda oddiy yoki hammaga maʼlum
+2138|Notoʻgʻri soʻrov
+2139|Geometriya yoʻq: konturni yoping yoki maydon va perimetrni kiriting
+2140|Maydon {n} m² dan katta — kontur masshtabini tekshiring
+2141|Balandlik {n} m dan katta — kiritilganini tekshiring (butun uy emas, devor balandligi koʻrsatiladi)
+2142|Oraliqlar soni notoʻgʻri
+2143|Nomaʼlum ishlar kompleksi
+2144|Quyidagi toifa uchun texnologik karta yoʻq: «
+2145|Har bir pozitsiya hajmi kontur geometriyasi va ishlab chiqaruvchilarning sarf meʼyorlari boʻyicha hisoblangan
+2146|narxlar — bozor narxlari, har bir qatorda manbasi bilan; hududiy koeffitsiyent ishlar va materiallarga qoʻllangan
+2147|ssenariylar ishlar tarkibi va materiallar markasi bilan farqlanadi
+2148|Bitta brigada, bosqichlar ketma-ket boradi; muddatlarga texnologik tanaffuslar kiritilgan (qurish, mustahkamlik olish). Unumdorlik — ENiR meʼyorlari va brigadalar amaliyoti boʻyicha
+2149|Oraliqlar: eshiklar {n} × {n}×{n} m, derazalar {n} × {n}×{n} m — devor maydonidan chegirilgan
+2150|Kutilmagan ishlar uchun {n}% zaxira alohida koʻrsatilgan va pozitsiyalar narxiga kirmaydi
+2151|Qolgani — QazGost hisob-kitob bahosi: bu qatorlarni yetkazib beruvchidan aniqlashtiring
+2152|Chetlanish sezilarli — ishlar tarkibini tekshiring
+2153|«Ekonom»da laminat yangi styajkasiz yotqiziladi: bu faqat asos notekisligi {n} mm dan oshmasa ({n} m ga) joiz
+2154|«Ekonom»da kafel yangi styajkasiz yotqiziladi: asosning {n} mm gacha notekisligi yelim bilan toʻgʻrilanadi, koʻprogʻiga styajka kerak
+2155|«Ekonom»da devorlar mayaklar boʻyicha tekislanmaydi — faqat mavjud yuzaga shpaklyovka. Devorlar ogʻishi {n} mm gacha boʻlsa mos keladi
+2156|QazGost maʼlumot bazasi bilan solishtirish: {n} ta pozitsiyada kamida {n} ta oʻxshashi bor, ulardan {n} tasida narx baza koridorida (quyi kvartilning ½ qismidan yuqori kvartilning {n} baravarigacha, chetlanishlarsiz)
+2157|{n} ta pozitsiya boʻyicha baza narxi sezilarli farq qiladi — smetada manbasi bilan maʼlumotnoma narxi qoldirilgan, tahlili solishtirish jadvalida
+2158|banka
+2159|«Standart» ishlari: pol uchun {a} ₸/m². Qozogʻistonda asosiy qora va pardozlash ishlarining oʻrtacha narxi — {n}–{n} ming ₸/m² (Bizmedia/OLX, iyun {n})
+2160|Kontur juda choʻziq: perimetr {a} m boʻlganda maydon atigi {b} m². Agar bu yoʻlak boʻlmasa — nuqtalarni tekshiring
+2161|{a} m² maydon {b} m perimetr uchun mumkin boʻlgan eng kattasidan ({c} m²) katta — konturni tekshiring
+2162|{a} m² maydon {b} m perimetrda mumkin emas (maksimum {c} m²) — oʻlchamlarni tekshiring
+2163|«Standart» summasining {a}% i — ochiq narxnomalar va eʼlonlardagi narxlar boʻyicha, havolasi bilan
+2164|Oraliqlar devorlarning {a}% ini egallaydi — deraza va eshiklar sonini tekshiring
+2165|«{a}» shahri maʼlumotnomada yoʻq — hisob-kitob Olmaota narxlari boʻyicha
+2166|{a} m balandlik xona uchun odatiy emas (odatda {n}–{n} m)
+2167|Olmaota narxlari {a} shahri uchun {b} koeffitsiyenti bilan qayta hisoblandi
+2168|Geometriya mos: {b} m perimetrda {a} m²
+2169|noyabr {n}
+2170|«Proff-Remont» narxnomasi, Olmaota, {n}
+2171|«Rekrovli» narxnomasi, Olmaota, {n}
+2172|Satu.kz, sotuvchilar takliflari, {n}
+2173|OLX.kz, eʼlonlar, {n}
+2174|Kaspi eʼlonlari, Olmaota, {n}
+2175|Bizmedia.kz, OLX maʼlumotlari boʻyicha, iyun {n}
+2176|«Silver-Remont» narxnomasi, Olmaota
+2177|QazGost bahosi
+2178|Devorlardan suvoqni koʻchirish
+2179|Devorlardan kafelni koʻchirish
+2180|Pol qoplamasini demontaj qilish (laminat, linoleum, PVX plitka)
+2181|Poldan kafelni koʻchirish
+2182|Devorlarni gulqogʻozdan tozalash
+2183|½ gʻishtli pardevorni buzish
+2184|Yogʻoch eshik blokini demontaj qilish
+2185|Imoratni mexanizatsiyalashgan usulda buzish (qurilish hajmi boʻyicha)
+2186|Qurilish chiqindilarini yuklash va olib chiqish ({n} m³ gacha samosval)
+2187|Devorlarga chuqur singuvchi gruntovka
+2188|Devorlarni mayaklar boʻyicha suvash
+2189|Devorlarni shpaklyovkalash va silliqlash (bir qatlam)
+2190|Devorlarni {n} qatlam boʻyash
+2191|Flizelin gulqogʻoz yopishtirish
+2192|Flizelin asosli vinil gulqogʻoz yopishtirish
+2193|Devorlarni kafel bilan qoplash
+2194|Gipsokarton pardevor montaji
+2195|Gipsokarton pardevorga tovush izolyatsiyasini yotqizish
+2196|Knauf Rotband gips suvogʻi, {n} kg
+2197|Remalux akril gruntovkasi, {n} L
+2198|Knauf Fugen gips shpaklyovkasi, {n} kg
+2199|AlinEX Glatt Plus pardoz shpaklyovkasi, {n} kg
+2200|Gaudi «Belosnejka» interyer boʻyogʻi, {n} kg
+2201|Gaudi Standart interyer boʻyogʻi, {n} kg
+2202|Remalux interyer boʻyogʻi, {n} kg
+2203|Pure Rose flizelin gulqogʻozi, rulon {n}×{n} m
+2204|Flizelin gulqogʻoz uchun yelim ({n} m² ga moʻljallangan quti)
+2205|Olmaotada Quelyd/Metylan yelim qutisining chakana narxi
+2206|Knauf namga chidamli gipsokarton listi {n} mm, {n}×{n} m
+2207|PS {n}×{n} ustun profili, {n} m ({n} ₸/m)
+2208|Knauf PP {n}×{n} shift profili, {n} m
+2209|Ceresit CM {n} Plus kafel yelimi, {n} kg
+2210|Ceresit CE {n} chok toʻldirgichi, {n} kg
+2211|Makroflex Standard montaj koʻpigi, {n} ml
+2212|Yarim quruq pol styajkasi
+2213|Quyma pol qilish
+2214|Laminat yotqizish (toʻgʻri)
+2215|Laminatni «archa» usulida yotqizish
+2216|Polga kafel / keramogranit yotqizish
+2217|Plastik plintus montaji
+2218|Polni {n} qatlam surtma gidroizolyatsiya qilish
+2219|Olmaota eʼlonlari boʻyicha kafelchilar stavkasi {n}–{n} ming ₸/m²
+2220|M{n} sement, {n} kg
+2221|Yetkazib berish bilan yuvilgan qum
+2222|Satu: mayda yuvilgan qum {n} ₸/m³, KamAZ bilan {n} m³ dan yetkazib berish alohida kelishiladi; Olmaota boʻyicha yetkazib berish bilan ≈{n} ₸/m³
+2223|Super Natural Narrow laminati, {n}-sinf, {n} mm
+2224|Kastamonu Floorpan Black laminati, {n}-sinf, {n} mm
+2225|«Fransuz archasi» laminati, {n}-sinf, {n} mm
+2226|Listli tagqatlam {n} mm (oʻram {n} m² — {n} ₸)
+2227|Tiqin va burchaklari bilan PVX plintus
+2228|Satu: VOX PVX plintusi {n} mm, {n} m — {n} ₸ (≈{n} ₸/m); burchaklar, tiqinlar va ulagichlar ≈{n} ₸ har metrga
+2229|Keramogranit {n}×{n} «Tyan-Shan Keramik»
+2230|Marmar koʻrinishidagi keramogranit {n}×{n}
+2231|Keramogranit {n}×{n} «Piastrella» MS {n}
+2232|Surtma gidroizolyatsiya, {n} kg
+2233|Satu: Ceresit CL {n} kg — {n} ₸, CR {n} kg — {n} ₸, CR {n} toʻplam — {n} ₸; elastik tarkibning {n} kg uchun oʻrtacha narxi olindi
+2234|Mat tortma shift (mato va montaj)
+2235|Satin tortma shift (mato va montaj)
+2236|Yaltiroq tortma shift (mato va montaj)
+2237|Bir sathli gipsokarton shift
+2238|Gauss Frameless nuqtali LED chirogʻi, {n} Vt
+2239|Kabel uchun beton/gʻishtni shtroblash ({n} mm gacha shtroba)
+2240|Shtrobalarni berkitish
+2241|Rozetka oʻrnatish
+2242|Oʻchirgich oʻrnatish
+2243|Tarqatish qutisini montaj qilish
+2244|Elektr shchiti korpusini montaj qilish
+2245|Shchitga avtomat oʻrnatish
+2246|UZO / difavtomat oʻrnatish
+2247|Qandil / shift chirogʻini montaj qilish
+2248|VVGng-LS kabeli {n}×{n}
+2249|Ramka va rozetka qutisi bilan rozetka / oʻchirgich
+2250|Satu: Schneider AtlasDesign mexanizmi {n} A — {n} ₸; ramka va rozetka qutisi ≈{n} ₸
+2251|IEK ShchRN-{n} shchiti, {n} ta VA{n}-{n} A avtomat va VD{n}-{n} UZO
+2252|IEK AD{n}P difavtomati {n} A {n} mA
+2253|Suv quvurlarini tarqatish (polipropilen)
+2254|Suv quvurini nuqta boʻyicha tarqatish (quvurlarni almashtirish)
+2255|«Kompakt» unitaz oʻrnatish
+2256|Installyatsiya va osma unitazni montaj qilish
+2257|Tumbali rakovina oʻrnatish
+2258|Akril vanna oʻrnatish
+2259|Taglikli dush kabinasini yigʻish va oʻrnatish
+2260|Suv isitgichni montaj qilish
+2261|Sochiq quritgich oʻrnatish
+2262|Kir yuvish mashinasini ulash
+2263|Radiatorni montaj qilish va ulash
+2264|Radiatorga quvur tortish
+2265|«Standart» kompakt-unitazi
+2266|Santeri «Gratsiya» kompakt-unitazi
+2267|Santek «Animo» kompakt-unitazi, duroplast oʻrindiq
+2268|Bimetall radiator {n} mm, {n} seksiya
+2269|Fitinglar va mahkamlagichlari bilan PPR quvur {n} mm
+2270|Satu: PPR quvur PN{n} Ø{n} — {n} ₸/m; fitinglar va mahkamlagichlar ≈{n} ₸ trassaning har metriga
+2271|Osma unitaz va tugmali Creavit installyatsiyasi
+2272|«Yenisey Klassik» rakovinali tumba {n} sm
+2273|Aquadeus {n} bir richagli rakovina aralashtirgichi
+2274|VentoSPa AQUA LA akril vannasi {n}×{n}
+2275|Erlit dush kabinasi {n}×{n}, taglik bilan
+2276|Ariston PRO{n} R ABS suv isitgichi {n} L
+2277|«Lira» suvli sochiq quritgichi {n}×{n}, zanglamaydigan poʻlat
+2278|Split-tizim {n} BTU, oʻrnatish bilan
+2279|Tortuvchi ventilyator / panjara oʻrnatish
+2280|Olmaota eʼlonlari boʻyicha elektrik va santexniklar stavkasi
+2281|Ichki gaz quvurini montaj qilish
+2282|Litsenziyali gaz xizmatlari eʼlonlari boʻyicha moʻljal; aniq narx — texnik shartlar va loyihadan keyin
+2283|Gaz asbobini ulash (plita, qozon)
+2284|Litsenziyali gaz xizmatlari eʼlonlari boʻyicha moʻljal
+2285|Xususiy uyning gaz taʼminoti loyihasi
+2286|Olmaota loyiha tashkilotlari takliflari boʻyicha moʻljal
+2287|Shiftni {n} qatlam boʻyash
+2288|Devorlarni boʻyash {n} ₸/m² «Proff-Remont» narxnomasi boʻyicha, bosh ustida ishlash uchun ustama bilan
+2289|Kabelni shtroba / gofrada yotqizish
+2290|Olmaota eʼlonlari boʻyicha elektriklar stavkasi {n}–{n} ₸/m
+2291|KPSng(A)-FRLS kabeli {n}×{n}×{n}
+2292|Yongʻin signalizatsiyasi uchun olovga chidamli kabelning chakana narxi
+2293|Tomni mineral paxta va bugʻ izolyatsiyasi bilan issiqlik izolyatsiyalash
+2294|Olmaota eʼlonlari boʻyicha tom yopuvchilar stavkasi {n}–{n} ming ₸/m²
+2295|Suv oqizish tizimi: nov, quvurlar, mahkamlagichlar

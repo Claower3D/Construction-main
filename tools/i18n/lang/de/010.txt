@@ -1,0 +1,181 @@
+2980|Alle Bereiche
+2981|Auswahl der Bauleistungen & Schätzung
+2982|Rollenbaum
+2983|Maschinen finden
+2984|PDF herunterladen
+2985|Objekt anlegen
+4112|Drucken / PDF
+6076|Analyst
+6591|, was machen wir heute
+6592|KI-Gutachten
+6593|KI-Prüfung der Stahlbeton- und Architekturzeichnungen, Anmerkungen der Bauüberwachung und Mängelaufnahme
+6594|KI-Kalkulation nach SNiP
+6595|KPI der Plattform
+6596|PDF-Berichte und Export
+6597|QazGost AI — zur Startseite
+6598|VIP-Ausschreibungen
+6599|WBS-Rechner für die Kosten der Arbeiten nach den Sammlungen ESN RK
+6600|Automatische Analyse der Planungsunterlagen auf Übereinstimmung mit GOST und SNiP RK
+6601|Analyse der Abweichungen vom genehmigten Kostenvoranschlag und Kontrolle von Mehrausgaben
+6602|Profilbogen des Handwerkers
+6603|Vermietung von Baggern, Kranen und Kippern in ganz Kasachstan
+6604|Dokumentenarchiv
+6605|Prüfung von Kostenvoranschlägen
+6606|Datenbank mit {n}+ Baupreispositionen für {n} Gebiete Kasachstans
+6607|Datenbank der Bauunternehmen
+6608|Ihr Bereich
+6609|Zurück zu allen Bereichen (Esc)
+6610|Visueller Rollenbaum aller Bauorganisationen und Unternehmen der Plattform
+6611|Lead-Funnel, Kundenkarten, Verwaltung von Unternehmen und Teams
+6612|Wählen Sie Rolle und Werkzeug. Aus einem Foto des Objekts wird ein Kostenvoranschlag, ein Mängelprotokoll oder ein Auftrag für ein Team
+6613|Auswahl von Objekttyp und Geschosszahl sowie Prüfung der GASK-Zulassung der Unternehmen
+6614|Auswählen
+6615|DASHBOARD WÄHLEN
+6616|Export der Protokolle KS-{n}/KS-{n}, Rechnungen, E-Rechnungen und Vertragsregister nach Excel (.xlsx)
+6617|Berichtsgenerator
+6618|Bauzeitenplan
+6619|Zeitplan der Bau- und Montagearbeiten sowie der Inspektionen
+6620|Bauverträge
+6621|Verträge, Protokolle KS-{n}/KS-{n}, Gutachten der Bauüberwachung und Gewährleistungspflichten
+6622|Dokumente & Excel-Export
+6623|Baum der Rollen und Strukturen
+6624|Live-Auftragsfeed aus ganz Kasachstan ohne Vermittler und Provisionen
+6625|Protokolljournal
+6626|Materialeinkauf
+6627|Ausfüllen
+6628|Profil ausfüllen
+6629|KI starten
+6630|Bauträger
+6631|Anfragen zur Bauüberwachung
+6632|Anfragen, die von den Auftragnehmern abgeschlossen und dem Analysten für den Abschlussbericht übergeben wurden
+6633|Rollenhierarchie (Baum)
+6634|Preisindizes
+6635|Technisches Foto-Audit
+6636|Interaktiver Baum der Rollen, Abteilungen, Mitarbeiter und Teams des Unternehmens
+6637|Ich suche Aufträge, sende Angebote und führe Arbeiten aus
+6638|Wie der Auftragnehmer die Bezahlung für Aufträge erhält
+6639|Wie Aufträge derzeit bezahlt werden und wann die Online-Zahlung kommt
+6640|Kalender der Ortstermine
+6641|Inspektionskalender
+6642|Rechner für Bauleistungen
+6643|Die Kamera findet Risse am Objekt und berechnet das Material für die Reparatur
+6644|Hochbau, Planungsunterlagen, Kostenvoranschläge nach SNiP und Generalunternehmerleistungen
+6645|Fachkräftekatalog
+6646|Abschlussquote der Deals, durchschnittlicher Auftragswert und Effizienzanalytik
+6647|Ausgabenkontrolle
+6648|Teuerungskoeffizienten für Baustoffe nach Regionen Kasachstans
+6649|Persönliche Daten des Auftraggebers, Objektparameter, Budget und Bankverbindung
+6650|Lokale Kostenvoranschläge nach SNiP, Fortschrittsanalytik und Protokolle KS-{n}/KS-{n}
+6651|Lose & Ausschreibungen
+6652|Lose und Ausschreibungen
+6653|Marktplatz für Materialien
+6654|Menü
+6655|Kennzahlen zu Berechnungsgeschwindigkeit, KI-Genauigkeit und Serverauslastung
+6656|Moderation der Anfragen
+6657|Meine Bauobjekte
+6658|Zur Startseite
+6659|Zum Startbildschirm
+6660|Zur Website
+6661|Richten Sie die Handykamera aus — Risse werden hervorgehoben, Material und Arbeit werden sofort berechnet
+6662|Handwerker finden
+6663|Schätzung starten
+6664|Schätzung per Foto starten
+6665|Prüfung starten
+6666|Normen SNiP und GOST RK
+6667|Messen Sie den Raum auf — Kostenvoranschlag nach Arbeitskarten und Preisen mit Quellen, drei Szenarien
+6668|Baustoffe im Groß- und Einzelhandel von Werken in Kasachstan: Zement, Ziegel, Betonstahl, Mischungen
+6669|Großeinkauf von Baustoffen mit bis zu {n}% Rabatt für Bauunternehmen
+6670|Besichtigung mit der Kamera: Risse im Bild, Länge und Materialliste
+6671|CRM öffnen
+6672|KPI öffnen
+6673|Archiv öffnen
+6674|Dokumente öffnen
+6675|Baum öffnen
+6676|Aufträge öffnen
+6677|Marktplatz öffnen
+6678|Menü der Bereiche öffnen
+6679|Warteschlange öffnen
+6680|Panel öffnen
+6681|Ingenieur-Panel öffnen
+6682|Preislisten öffnen
+6683|Scanner öffnen
+6684|Maschinen öffnen
+6685|Vertriebsberichte
+6686|Warteschlange zur Verifizierung von Bauunternehmen, Prüfung von Dokumenten und Aufträgen
+6687|Warteschlange der Ingenieureinsätze auf Objekten für Inspektionen
+6688|Warteschlange abgeschlossener Anfragen
+6689|Plan der Vor-Ort-Inspektionen und Zeitplan zur Unterzeichnung der Protokolle KS-{n} / KS-{n}
+6690|Inspektionsplan
+6691|Suche nach Mietmaschinen und Großeinkauf von Baustoffen
+6692|Vollständiges Audit der Nutzerprotokolle, der Änderungen an Kostenvoranschlägen und der KI-Aufrufe
+6693|Portfolio, laufende Objekte und Online-Übergabe der Bauabschnitte an den Auftraggeber
+6694|Preislisten ESN RK
+6695|Ich nehme Anfragen an und erstelle Planungsunterlagen
+6696|Mängel prüfen
+6697|Prüfung der GASK-Lizenzen der Kategorie I/II, der BIN und der Kontaktdaten des leitenden Projektingenieurs
+6698|Ansicht aktiver Anfragen, der Angebote der Handwerker und des Status der Arbeiten
+6699|Profil des Auftragnehmers, Verifizierung von IIN/BIN, Fähigkeiten und Portfolio
+6700|Unternehmensprofil
+6701|Planungsunterlagen, VVR-Dokumentation, Kostenvoranschläge des Gesamtzyklus und VIP-Generalunternehmerleistungen
+6702|Veröffentlichung von Baulosen unter "Meine Aufträge Bau"
+6703|Pfad
+6704|BEREICHE
+6705|Streitfall beilegen
+6706|Zeitplan
+6707|Zeitplan der Aufmaßtermine und der Montageabschnitte
+6708|Prüfung von Reklamationen zur Arbeitsqualität und Freigabe des Treuhandkontos
+6709|Regionale Indizes
+6710|Vertragsregister
+6711|Handwerkerregister
+6712|Register der Bauunternehmen
+6713|Register geprüfter Fachkräfte und Bauunternehmen nach IIN/BIN
+6714|Register der im Bau befindlichen Objekte unter Urheber- und technischer Aufsicht
+6715|Register der fest angestellten Ingenieure, Bauleiter und der zugeordneten Arbeitsteams
+6716|Bewertung, Rezensionen und Karten der Handwerker im einheitlichen Register Kasachstans
+6717|Bankverbindung des Unternehmens
+6718|Rolle im Bereich
+6719|Vertriebsübersicht
+6720|Zusammenfassende Analytik zu Objekten, Teams, Budgets und Ausführungsfristen
+6721|Zusammengefasste Finanzkennzahlen, Dynamik der Objektübergaben und KPI
+6722|Übersichts-Dashboard der Bauüberwachung, Prüfstatus und Zeitpläne
+6723|Das System ist aktiv und einsatzbereit
+6724|Riss-Scanner
+6725|Kostenvoranschlag nach Arbeitskarten und Marktpreisen mit Quellen
+6726|Kalkulation
+6727|Kostenvoranschläge & PDF-Dokumente
+6728|Aufträge ansehen
+6729|Berichte ansehen
+6730|Statistik ansehen
+6731|Objekt anlegen (SNiP)
+6732|Ich erstelle Aufträge, wähle Auftragnehmer aus und nehme die Arbeit ab
+6733|Mitarbeiter und Teams
+6734|Spezifikation
+6735|Liste der Anfragen
+6736|Unternehmensstatistik
+6737|Statistik der ausgeführten Arbeiten
+6738|Hochbau (VIP)
+6739|Technische Spezifikation der Arbeiten und Schemata der Leitungsführung
+6740|TOO
+6741|Risse auf dem Foto, Protokoll mit den Normen SNiP und GOST und dem Reparaturpreis
+6742|Verwaltung der BIN des Unternehmens, der GSL-Lizenzen und der Bankverbindung
+6743|Verwaltung der BIN, der Mitarbeiter und der Objekte der Organisation
+6744|Verwaltung von Leads, Kunden, Deals und CRM-Analytik
+6745|Verwaltung der Plattform, der Preislisten, der Moderation und der Schlichtung
+6746|Verwaltung des Portfolios aus Wohnanlagen, Bürozentren und Wohnparks mit {n}D-BIM-Modellen
+6747|Personalverwaltung
+6748|Teilnahme an Ausschreibungen für Generalunternehmer- und Planungsleistungen, Akkreditierung der Kategorie I/II
+6749|Abschlussberichte, Prüfung der Dokumentation, PDF-Export
+6750|Erstellung von Abschlussberichten mit Fotos, Dateien und Chronologie der Arbeiten
+6751|Vorlagen für Bauverträge mit Unterstützung der E-Signatur von E-Gov
+6752|Fachliche Prüfung des Zustands der Bauteile und Schadensdiagnostik
+6753|Elektrik, Sanitär, HVAC, Schwachstromanlagen und Bauüberwachung
+6754|Ich bin Administrator
+6755|Ich bin Analyst
+6756|Ich bin Auftraggeber
+6757|Ich bin Bauträger (VIP)
+6758|Ich bin Ingenieur
+6759|Ich bin Auftragnehmer
+6760|Ich bin ein Unternehmen
+6761|Ich bin CRM-Manager
+6762|Bereich{a} — QazGost AI
+6763|Bereich{a}

@@ -1,0 +1,151 @@
+2989|Pers.
+2991|In Arbeit
+3143|Objekt
+3360|Einsatz
+3535|mm
+3820|Projekt
+3825|auto
+3827|Schalter, Stk.
+3828|Tiefe, m
+3829|Ja, Kalt- und Warmwasser
+3830|Länge der Trasse, m
+3832|Schächte, Stk.
+3836|Kosten berechnen
+3837|Steckdosen, Stk.
+3839|Systeme
+3841|Kosten für Abwasser, Wasserversorgung und Elektrik nach kasachischen Normen, an die Stadt angepasst. Leere Felder werden automatisch nach der Fläche berechnet
+3842|Wasserzapfstellen
+3847|+ Hinzufügen
+3849|BIM-Modell (Revit {n}D)
+3850|Urheber-Bauüberwachung
+3852|Architekturteil (AR)
+3853|Sicherheit
+3856|Ihr Paket
+3858|Zurück
+3859|Wasserversorgung und Abwasser (VK)
+3861|Wählen Sie Lösungen aus dem Katalog
+3864|Vermessung und Aufmaß
+3866|Mängelliste mit genauer Mengenberechnung
+3867|Mängelaufnahme
+3868|Tage
+3869|Dokumentation
+3870|Zeichnungen/Pläne vorhanden
+3872|Instrumentelle Untersuchung der Bauteile mit Gutachten des Fachverbands
+3874|{n}D-Informationsmodell des Gebäudes mit Kollisionsprüfung
+3875|Angaben zum Objekt
+3876|Bestandsdokumentation
+3879|Tragwerksteil (KR)
+3880|Kontrolle der Übereinstimmung der Bau- und Montagearbeiten mit dem Projekt
+3881|{n}D-Laserscan und Aufmaßzeichnungen
+3883|Meine Anfragen
+3885|Überwachung
+3886|Bezeichnung des Objekts
+3888|Unabhängige Kontrolle der Qualität und der verdeckten Arbeiten {n}/{n}
+3891|Kostenermittlung des Objekts nach Normen und Marktpreisen
+3892|Untersuchung
+3893|Heizung, Lüftung, Klima (OViK)
+3904|Details
+3905|Brandschutz (APS / SOUE)
+3906|Vollständiger Satz Architekturzeichnungen und {n}D-Fassadenlösungen
+3907|Vollständiger Dokumentensatz für die Übergabe des Objekts an die GASK
+3908|PPR / POS
+3909|Projekt für Wasserleitung, Pumpstationen und Abwasser
+3910|Projekt für Raumklima, Heizung und Zuluftanlage
+3912|Arbeitsablaufplan und Baustelleneinrichtungsplan
+3913|Projekt für strukturierte Verkabelung, Videoüberwachung und Zutrittskontrolle
+3914|Projekt für Stromversorgung, Blitzschutz und Beleuchtung
+3915|Planung (Planungsunterlagen & BIM)
+3917|Teil Brandschutz, Brandmeldung und Löschanlagen
+3920|Berechnung und Zeichnungen der Stahlbeton- und Stahlkonstruktionen
+3926|Schwachstromanlagen (SS/SKS)
+3927|Kostenvoranschlag / BoQ (GESN/SNIP)
+3928|Kalkulations- und Genehmigungsunterlagen
+3932|Dringend (+{n}%)
+3933|Dringlichkeit
+3934|Bauüberwachung
+3935|Aufnahme mit einer professionellen Fluke-Wärmebildkamera
+3937|Thermografische Untersuchung
+3939|Technische Untersuchung
+3942|Gutachten und Untersuchung
+3944|Express (+{n}%)
+3945|Elektrik (EOM)
+3946|Energetische Untersuchung und Ermittlung von Wärmeverlusten
+3947|Energieaudit des Gebäudes
+3948|Energieeffizienz
+3949|Geschosszahl
+4016|LiDAR-Scanner
+4017|QazGost AI — Analyse der Punktwolke, Raumaufmaß, Prüfung von Abweichungen
+4019|Scan analysieren
+4023|Länge, Breite, Höhe, Fläche
+4024|LiDAR-Scan hochladen
+4027|oder Datei hierher ziehen
+4028|Quellen: iPhone Pro, iPad Pro, Leica BLK{n}, Matterport
+4033|Zum Hochladen klicken
+4035|Aufmaß
+4036|Abweichungen
+4037|Unterstützte Formate: .las, .laz, .ply, .pcd, .xyz
+4041|Prüfung nach SNiP {n}-{n}
+4042|Bereiche des Scanners
+4045|Ergebnisse
+4050|Export zur Visualisierung
+4067|Fassadenarbeiten
+4079|lfm
+4092|Rolle
+4150|AUFTRÄGE GESAMT
+4155|AKTIONEN
+4157|Wartet auf Auftragnehmer
+4159|Abgeschlossene
+4162|AUFTRAG
+4165|Aufträge
+4166|Keine Aufträge gefunden
+4173|KUNDE
+4187|GESAMTSUMME
+4197|Suche nach Auftragsnummer, Objektbezeichnung oder Kunde
+4199|Systemnutzer
+4206|Erstellen Sie einen Auftrag oder antworten Sie auf eine Anfrage aus dem Feed
+4207|Auftrag erstellen
+4210|Auftragsliste
+4213|BETRAG
+4216|Auftragstabelle
+4217|Aktuelle Rolle
+4485|Wohnungsrenovierung
+4489|Hausbau
+4626|Geschosse
+4719|Dicke
+4962|Belag
+4977|Asphalt
+4982|Transportbeton M{n} (B{n})
+4983|Betonieren
+5002|Schalter
+5004|Ausgleich
+5019|Türen
+5044|Melder
+5045|Rauchmelder
+5096|Montage der Metalldachziegel
+5115|Verfüllung
+5123|Schalung
+5139|Planierung
+5144|Sockelleiste
+5151|Vorbereitung
+5158|Anstrich
+5184|Heizkörper
+5198|Badrenovierung
+5200|Steckdosen
+5219|Estrich
+5260|Einbau eines Einbaustrahlers
+5276|Dämmung
+5285|Spachtelung
+5304|Waschbecken
+5305|Badewanne
+5306|WC
+5361|Eimer
+5598|Das Foto ist zu groß
+5605|Es wird ein Foto im Bildformat benötigt
+5800|Möbel
+6535|Feinausbau
+6787|Subunternehmer
+7056|AUFTRAGGEBER
+7279|IP „Master Service“
+7420|TOO „QazGost“
+7703|Punkt
+3680|Fundament

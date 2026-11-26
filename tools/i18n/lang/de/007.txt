@@ -1,0 +1,340 @@
+1956|Wie die Menge berechnet wurde
+1957|Material
+1958|Beginn, Tag
+1959|Keine Verbindung zum Berechnungsserver. Prüfen Sie das Internet und versuchen Sie es erneut
+1960|Pause, Tg.
+1961|Arbeit
+1962|Abschnitt
+1963|Link
+1964|Wände abzüglich Öffnungen, m²
+1965|Maschinen
+1966|Preisstand
+1967|Das Verzeichnis der Arbeitskarten ist nicht erreichbar ({a})
+1968|Der Berechnungsserver antwortete mit dem Fehler {a}
+1969|KOSTENVORANSCHLAG QazGost — {a} ({b})
+1970|{a} (Koeffizient {b})
+1971|{n}D-Scan und Aufmaß
+1972|Notfallarbeiten
+1973|Autokran
+1974|Korrosionsschutz
+1975|Bewehrung
+1976|Betonpumpe
+1977|Außenanlagen und Straßen
+1978|Bordsteine und Randsteine
+1979|Bohrungen für Pfähle
+1980|Brunnenbohrung
+1981|Hinterlüftete Fassade
+1982|Innenwasserleitung
+1983|Innenabwasser
+1984|Wasseraufbereitung und Filter
+1985|Dachentwässerung
+1986|Tore und Einfriedungen
+1987|Bodenabfuhr
+1988|Abdichtung
+1989|Fundamentabdichtung
+1990|Trockenbauarbeiten
+1991|Abbruch von Gebäuden und Bauteilen
+1992|Straßenunterbau
+1993|Materiallieferung
+1994|Grundstücksdrainage
+1995|Zäune
+1996|Erdung und Blitzschutz
+1997|Erdarbeiten und Abbruch
+1998|Erkundung und Planung
+1999|Rissinjektion
+2000|Generalsanierung
+2001|Rahmenbauweise
+2002|Ziegelmauerwerk
+2003|Mauerwerk aus Porenbeton
+2004|Schönheitsreparaturen
+2005|Heizraum
+2006|Dach und Fassaden
+2007|Dach aus Metalldachziegeln und Trapezblech
+2008|Treppen und Geländer
+2009|Regenwasserkanalisation
+2010|Kleinarchitektur
+2011|Ladekran
+2012|Wärmedämmverbundsystem
+2013|Ortbetondecken
+2014|Ortbetonskelett
+2015|Montage der HVAC-Anlage
+2016|Montage von Betonfertigteilen
+2017|Montage von Stahlkonstruktionen
+2018|Montage der Ausrüstung
+2019|Weichdach
+2020|Überdachungen und Vordächer
+2021|Außenabwasser
+2022|Pumpstation
+2023|Fassadenverkleidung
+2024|Tapeten und dekorative Beschichtungen
+2025|Verfüllung und Verdichtung
+2026|Gebäudeuntersuchung
+2027|Brandschutz von Bauteilen
+2028|Begrünung
+2029|Fenster, Türen, Konstruktionen
+2030|Schalungsarbeiten
+2031|Beleuchtung
+2032|Verglasung von Fassaden und Balkonen
+2033|Heizung, Lüftung, Gas
+2034|Trennwände
+2035|Geländeplanierung
+2036|Plattenfundament
+2037|Flachdach
+2038|Anschluss an das Stromnetz
+2039|Industriebetonböden
+2040|Industriearbeiten
+2041|Inbetriebnahme
+2042|Ausführungsplanung
+2043|Aushub der Baugrube
+2044|Behälter und Tanks
+2045|Schienen- und Kranbahnen
+2046|Instandsetzung und Verstärkung
+2047|Dachreparatur
+2048|Fassadenreparatur
+2049|Kipper
+2050|Pfahlfundament
+2051|Schweißarbeiten
+2052|Strukturierte Verkabelung und Internet
+2053|Kalkulationsunterlagen
+2054|Abstimmungen und Genehmigungen
+2055|Solarkraftwerk (PV-Anlage)
+2056|Baumaschinen und Lieferung
+2057|Wände, Tragwerk, Metall
+2058|Sandwichpaneele
+2059|Wärmeübergabestation
+2060|Fußbodenheizung
+2061|Technische und Urheber-Bauüberwachung
+2062|Prozessrohrleitungen
+2063|Topografische Aufnahme
+2064|Gräben für Versorgungsleitungen
+2065|Pflasterverlegung
+2066|Smart Home und Automatisierung
+2067|Verstärkung von Bauteilen
+2068|Türeinbau
+2069|Fenstereinbau
+2070|Sanitärinstallation
+2071|Dachdämmung
+2072|Fundamente und Beton
+2073|Spachteln und Streichen
+2074|Schaltanlagen
+2075|Bagger
+2076|Elektrik und Schwachstromanlagen
+2077|Vorentwurf
+2078|Automatisierung und Schwachstrom
+2079|Lüftung und Klima
+2080|Holzkonstruktionen
+2081|Straßen und Brücken
+2082|Treppen und Balkone
+2083|Möbel und Ausstattung
+2084|Außennetze
+2085|ab {n} ₸/Anschluss
+2086|ab {n} ₸/Sensor
+2087|ab {n} ₸/Einh.
+2088|ab {n} ₸/Satz
+2089|ab {n} ₸/m
+2090|ab {n} ₸/m²
+2091|ab {n} ₸/m³
+2092|ab {n} ₸/lfm
+2093|ab {n} ₸/Gerät
+2094|ab {n} ₸/Schicht
+2095|ab {n} ₸/t
+2096|ab {n} ₸/Punkt
+2097|ab {n} ₸/Leistung
+2098|ab {n} ₸/Stk.
+2099|Sanitär und Wasserversorgung
+2100|Dämmung und Isolierung
+2101|Methode wird nicht unterstützt
+2102|Nutzer nicht gefunden
+2103|Gern geschehen! Wenn Fragen zum Bau oder zu Preisen auftauchen — ich bin da
+2104|Hallo! Ich bin LinkVeAI — der KI-Assistent von QazGost. Ich nenne Ihnen Preise für Arbeiten und Materialien, erkläre, wie Sie einen Kostenvoranschlag per Foto erhalten, und finde ein Team oder Maschinen. Was bauen oder renovieren wir
+2105|Schicht
+2106|Tonne
+2107|Eine genau passende Position zu dieser Anfrage habe ich in der Datenbank nicht gefunden. Schreiben Sie konkreter — Art der Arbeiten oder Material und Menge, zum Beispiel „Wandputz {n} m²“ oder „Beton M{n} m³“. Den vollständigen Kostenvoranschlag mit Arbeiten und Materialien erstellt [Kostenvoranschlag per Foto](auth:register)
+2108|Stück
+2109|Ich helfe bei Bau und Renovierung: Preise für Arbeiten und Materialien, Kostenvoranschlag per Foto, Rissprüfung, Suche nach Team und Baumaschinen. Schreiben Sie, was zu tun ist — zum Beispiel „was kostet ein Estrich {n} m²“ oder „ich brauche einen Bagger für eine Schicht“
+2110|E-Mail oder Passwort falsch
+2111|Das Passwort konnte nicht gespeichert werden
+2112|Das Passwort konnte nicht gespeichert werden, versuchen Sie es erneut
+2113|Ungültige Registrierungsdaten
+2114|Ungültige Telefonnummer: erforderlich ist das Format +{n} und {n} Ziffern
+2115|Ungültiges Anfrageformat
+2116|Anmeldung erforderlich
+2117|Fehler bei der Token-Erstellung
+2118|Fehler beim Anlegen des Nutzers
+2119|das Passwort muss mindestens {n} Zeichen lang sein
+2120|Das Passwort muss mindestens {n} Zeichen lang sein
+2121|Passwort festgelegt, Anmeldung erfolgt
+2122|Das Passwort wurde geändert, aber es konnte keine neue Sitzung erstellt werden — melden Sie sich mit dem neuen Passwort an
+2123|Passwort erforderlich
+2124|Ein Nutzer mit dieser E-Mail existiert bereits
+2125|Registrierung abgeschlossen
+2126|Sitzung abgelaufen
+2127|Zu lange Registrierungsfelder
+2128|zu langes Passwort
+2129|Zu langes Passwort
+2130|Zu viele falsche Anmeldeversuche. Versuchen Sie es in {n} Min. erneut
+2131|Zu viele falsche Versuche. Versuchen Sie es in {n} Min. erneut
+2132|Geben Sie die E-Mail im Format name@example.kz an
+2133|Geben Sie die Telefonnummer an
+2134|Anmeldung erfolgreich
+2135|Um sich zu registrieren, akzeptieren Sie die Nutzungsvereinbarung und willigen Sie in die Verarbeitung personenbezogener Daten ein
+2136|Dies ist Ihre erste Anmeldung: Legen Sie ein eigenes Passwort fest und geben Sie es ein —
+2137|dieses Passwort ist zu einfach oder allgemein bekannt
+2138|Ungültige Anfrage
+2139|Keine Geometrie: Schließen Sie den Umriss oder geben Sie Fläche und Umfang ein
+2140|Die Fläche ist größer als {n} m² — prüfen Sie den Maßstab des Umrisses
+2141|Die Höhe ist größer als {n} m — prüfen Sie die Eingabe (anzugeben ist die Wandhöhe, nicht die des ganzen Hauses)
+2142|Ungültige Anzahl an Öffnungen
+2143|Unbekanntes Arbeitspaket
+2144|Keine Arbeitskarte für die Kategorie „
+2145|Die Menge jeder Position wurde aus der Geometrie des Umrisses und den Verbrauchsnormen der Hersteller berechnet
+2146|die Preise sind Marktpreise mit Quelle in jeder Zeile; der regionale Koeffizient wurde auf Arbeiten und Materialien angewendet
+2147|die Szenarien unterscheiden sich im Arbeitsumfang und in der Materialmarke
+2148|Ein Team, die Abschnitte laufen nacheinander; in den Fristen sind technologische Pausen enthalten (Trocknung, Festigkeitsentwicklung). Leistung nach den Normen ENiR und der Praxis der Teams
+2149|Öffnungen: Türen {n} × {n}×{n} m, Fenster {n} × {n}×{n} m — von der Wandfläche abgezogen
+2150|Die Reserve von {n}% für unvorhergesehene Arbeiten wird gesondert ausgewiesen und ist nicht in den Positionspreisen enthalten
+2151|Der Rest ist eine rechnerische Schätzung von QazGost: Klären Sie diese Zeilen mit dem Lieferanten
+2152|Die Abweichung ist deutlich — prüfen Sie den Arbeitsumfang
+2153|Bei „Economy“ wird das Laminat ohne neuen Estrich verlegt: Das ist nur zulässig, wenn der Untergrund höchstens {n} mm auf {n} m abweicht
+2154|Bei „Economy“ werden die Fliesen ohne neuen Estrich verlegt: Unebenheiten des Untergrunds bis {n} mm gleicht der Kleber aus, darüber ist ein Estrich nötig
+2155|Bei „Economy“ werden die Wände nicht nach Putzleisten ausgerichtet — nur Spachtelung auf der vorhandenen Oberfläche. Geeignet, wenn die Wände bis {n} mm abweichen
+2156|Abgleich mit der Referenzdatenbank von QazGost: Für {n} Positionen gibt es mindestens {n} Vergleichswerte, bei {n} davon liegt der Preis im Korridor der Datenbank (von ½ des unteren Quartils bis {n} × oberes Quartil, ohne Ausreißer)
+2157|Bei {n} Positionen weicht der Datenbankpreis deutlich ab — im Kostenvoranschlag steht der Verzeichnispreis mit Quelle, die Details stehen in der Abgleichstabelle
+2158|Dose
+2159|Arbeiten bei „Standard“: {a} ₸/m² Boden. Durchschnittspreis der grundlegenden Rohbau- und Ausbauarbeiten in Kasachstan — {n}–{n} Tsd. ₸/m² (Bizmedia/OLX, Juni {n})
+2160|Der Umriss ist sehr langgestreckt: Bei einem Umfang von {a} m beträgt die Fläche nur {b} m². Wenn es kein Flur ist — prüfen Sie die Punkte
+2161|Die Fläche {a} m² ist größer als die für den Umfang {b} m maximal mögliche ({c} m²) — prüfen Sie den Umriss
+2162|Die Fläche {a} m² ist bei einem Umfang von {b} m unmöglich (maximal {c} m²) — prüfen Sie die Maße
+2163|{a}% der Summe von „Standard“ — nach Preisen aus offenen Preislisten und Anzeigen mit Link
+2164|Öffnungen nehmen {a}% der Wände ein — prüfen Sie die Anzahl der Fenster und Türen
+2165|Die Stadt „{a}“ fehlt im Verzeichnis — Berechnung nach den Preisen von Almaty
+2166|Die Höhe {a} m ist für einen Raum untypisch (üblich sind {n}–{n} m)
+2167|Die Preise von Almaty wurden für die Stadt {a} mit dem Koeffizienten {b} umgerechnet
+2168|Geometrie stimmig: {a} m² bei einem Umfang von {b} m
+2169|November {n}
+2170|Preisliste „Proff-Remont“, Almaty, {n}
+2171|Preisliste „Rekrowli“, Almaty, {n}
+2172|Satu.kz, Angebote der Verkäufer, {n}
+2173|OLX.kz, Anzeigen, {n}
+2174|Kaspi-Anzeigen, Almaty, {n}
+2175|Bizmedia.kz nach Daten von OLX, Juni {n}
+2176|Preisliste „Silver-Remont“, Almaty
+2177|Schätzung von QazGost
+2178|Abschlagen des Putzes von den Wänden
+2179|Entfernen der Wandfliesen
+2180|Entfernen des Bodenbelags (Laminat, Linoleum, PVC-Fliesen)
+2181|Entfernen der Bodenfliesen
+2182|Entfernen der Tapeten von den Wänden
+2183|Abbruch einer Trennwand aus ½ Ziegel
+2184|Ausbau einer Holztür mit Zarge
+2185|Maschineller Abbruch eines Gebäudes (nach umbautem Raum)
+2186|Verladen und Abfuhr von Bauschutt (Kipper bis {n} m³)
+2187|Tiefengrund für Wände
+2188|Wandputz nach Putzleisten
+2189|Spachteln und Schleifen der Wände (eine Lage)
+2190|Wände in {n} Lagen streichen
+2191|Tapezieren mit Vliestapete
+2192|Tapezieren mit Vinyltapete auf Vlies
+2193|Wandverkleidung mit Fliesen
+2194|Montage einer Gipskarton-Trennwand
+2195|Einbau der Schalldämmung in die Gipskarton-Trennwand
+2196|Gipsputz Knauf Rotband, {n} kg
+2197|Acrylgrundierung Remalux, {n} L
+2198|Gipsspachtel Knauf Fugen, {n} kg
+2199|Feinspachtel AlinEX Glatt Plus, {n} kg
+2200|Innenfarbe Gaudi „Belosnezhka“, {n} kg
+2201|Innenfarbe Gaudi Standart, {n} kg
+2202|Innenfarbe Remalux, {n} kg
+2203|Vliestapete Pure Rose, Rolle {n}×{n} m
+2204|Kleber für Vliestapeten (Packung für {n} m²)
+2205|Einzelhandelspreis einer Packung Kleber Quelyd/Metylan in Almaty
+2206|Gipskartonplatte feuchtebeständig Knauf {n} mm, {n}×{n} m
+2207|Ständerprofil PS {n}×{n}, {n} m ({n} ₸/m)
+2208|Deckenprofil Knauf PP {n}×{n}, {n} m
+2209|Fliesenkleber Ceresit CM {n} Plus, {n} kg
+2210|Fugenmörtel Ceresit CE {n}, {n} kg
+2211|Montageschaum Makroflex Standard, {n} ml
+2212|Halbtrockener Estrich
+2213|Einbau eines Fließestrichs
+2214|Laminat verlegen (gerade)
+2215|Laminat im Fischgrätmuster verlegen
+2216|Fliesen / Feinsteinzeug auf dem Boden verlegen
+2217|Montage der Kunststoff-Sockelleiste
+2218|Streichabdichtung des Bodens in {n} Lagen
+2219|Satz der Fliesenleger laut Anzeigen in Almaty {n}–{n} Tsd. ₸/m²
+2220|Zement M{n}, {n} kg
+2221|Gewaschener Sand mit Lieferung
+2222|Satu: feiner gewaschener Sand {n} ₸/m³, die Lieferung per KamAZ zu je {n} m³ wird gesondert vereinbart; mit Lieferung in Almaty ≈{n} ₸/m³
+2223|Laminat Super Natural Narrow, Klasse {n}, {n} mm
+2224|Laminat Kastamonu Floorpan Black, Klasse {n}, {n} mm
+2225|Laminat „französisches Fischgrät“, Klasse {n}, {n} mm
+2226|Trittschalldämmung in Platten {n} mm (Packung {n} m² — {n} ₸)
+2227|PVC-Sockelleiste mit Endkappen und Ecken
+2228|Satu: PVC-Sockelleiste VOX {n} mm, {n} m — {n} ₸ (≈{n} ₸/m); Ecken, Endkappen und Verbinder ≈{n} ₸ pro Meter
+2229|Feinsteinzeug {n}×{n} „Tian-Shan Ceramic“
+2230|Feinsteinzeug {n}×{n} in Marmoroptik
+2231|Feinsteinzeug {n}×{n} „Piastrella“ MS {n}
+2232|Streichabdichtung, {n} kg
+2233|Satu: Ceresit CL {n} kg — {n} ₸, CR {n} kg — {n} ₸, CR {n} Set — {n} ₸; angesetzt wurde der Durchschnittspreis der elastischen Masse für {n} kg
+2234|Spanndecke matt (Bahn und Montage)
+2235|Spanndecke Satin (Bahn und Montage)
+2236|Spanndecke glänzend (Bahn und Montage)
+2237|Gipskartondecke in einer Ebene
+2238|LED-Einbaustrahler Gauss Frameless, {n} W
+2239|Schlitzen von Beton/Ziegel für Kabel (Schlitz bis {n} mm)
+2240|Verschließen der Schlitze
+2241|Einbau einer Steckdose
+2242|Einbau eines Schalters
+2243|Montage einer Abzweigdose
+2244|Montage des Verteilergehäuses
+2245|Einbau eines Leitungsschutzschalters in den Verteiler
+2246|Einbau eines FI-Schalters / FI-LS-Schalters
+2247|Montage eines Kronleuchters / einer Deckenleuchte
+2248|Kabel VVGng-LS {n}×{n}
+2249|Steckdose / Schalter mit Rahmen und Unterputzdose
+2250|Satu: Einsatz Schneider AtlasDesign {n} A — {n} ₸; Rahmen und Unterputzdose ≈{n} ₸
+2251|Verteiler ShchRN-{n} IEK, {n} Leitungsschutzschalter VA{n}-{n} A und FI-Schalter VD{n}-{n}
+2252|FI-LS-Schalter IEK AD{n}P {n} A {n} mA
+2253|Verlegung der Wasserleitungen (Polypropylen)
+2254|Verlegung der Wasserleitung je Zapfstelle (Rohrtausch)
+2255|Einbau eines Stand-WCs mit Spülkasten
+2256|Montage des Vorwandelements und des Hänge-WCs
+2257|Einbau eines Waschbeckens mit Unterschrank
+2258|Einbau einer Acrylwanne
+2259|Aufbau und Einbau einer Duschkabine mit Duschwanne
+2260|Montage des Warmwasserspeichers
+2261|Einbau eines Handtuchheizkörpers
+2262|Anschluss der Waschmaschine
+2263|Montage und Anschluss eines Heizkörpers
+2264|Rohranbindung des Heizkörpers
+2265|Stand-WC „Standard“
+2266|Stand-WC Santeri „Grazia“
+2267|Stand-WC Santek „Animo“, Sitz aus Duroplast
+2268|Bimetall-Heizkörper {n} mm, {n} Glieder
+2269|PPR-Rohr {n} mm mit Fittings und Befestigung
+2270|Satu: PPR-Rohr PN{n} Ø{n} — {n} ₸/m; Fittings und Befestigung ≈{n} ₸ pro Meter Leitung
+2271|Vorwandelement Creavit mit Hänge-WC und Betätigungsplatte
+2272|Unterschrank mit Waschbecken „Jenissei Classic“ {n} cm
+2273|Einhebel-Waschtischarmatur Aquadeus {n}
+2274|Acrylwanne VentoSPa AQUA LA {n}×{n}
+2275|Duschkabine Erlit {n}×{n} mit Duschwanne
+2276|Warmwasserspeicher Ariston PRO{n} R ABS {n} L
+2277|Handtuchheizkörper (Wasser) „Lira“ {n}×{n}, Edelstahl
+2278|Split-Klimagerät {n} BTU mit Montage
+2279|Einbau eines Abluftventilators / Gitters
+2280|Satz der Elektriker und Installateure laut Anzeigen in Almaty
+2281|Montage der Gasinnenleitung
+2282|Richtwert nach Anzeigen lizenzierter Gasdienste; der genaue Preis steht nach den technischen Bedingungen und dem Projekt fest
+2283|Anschluss eines Gasgeräts (Herd, Kessel)
+2284|Richtwert nach Anzeigen lizenzierter Gasdienste
+2285|Gasversorgungsprojekt für ein Einfamilienhaus
+2286|Richtwert nach Angeboten von Planungsbüros in Almaty
+2287|Decke in {n} Lagen streichen
+2288|Wandanstrich {n} ₸/m² laut Preisliste „Proff-Remont“ plus Zuschlag für Überkopfarbeit
+2289|Kabelverlegung im Schlitz / Wellrohr
+2290|Satz der Elektriker laut Anzeigen in Almaty {n}–{n} ₸/m
+2291|Kabel KPSng(A)-FRLS {n}×{n}×{n}
+2292|Einzelhandelspreis des feuerbeständigen Kabels für Brandmeldeanlagen
+2293|Dachdämmung mit Mineralwolle und Dampfsperre
+2294|Satz der Dachdecker laut Anzeigen in Almaty {n}–{n} Tsd. ₸/m²
+2295|Dachentwässerung: Rinne, Rohre, Halterungen

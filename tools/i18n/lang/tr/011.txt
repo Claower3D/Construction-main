@@ -1,0 +1,151 @@
+2989|kişi
+2991|Devam ediyor
+3143|Proje
+3360|geliş
+3535|mm
+3820|Proje
+3825|otomatik
+3827|Anahtarlar, adet
+3828|Derinlik, m
+3829|Evet, soğuk ve sıcak su
+3830|Güzergâh uzunluğu, m
+3832|Rögarlar, adet
+3836|Maliyeti hesapla
+3837|Prizler, adet
+3839|Sistemler
+3841|Kanalizasyon, su temini ve elektrik maliyeti — Kazakistan normlarına göre, şehre göre düzeltilmiş. Boş alanlar alana göre otomatik hesaplanır
+3842|Su alma noktaları
+3847|+ Ekle
+3849|BIM modeli (Revit {n}D)
+3850|Müellif denetimi
+3852|Mimari bölüm (AR)
+3853|Güvenlik
+3856|Paketiniz
+3858|Geri dön
+3859|Su temini ve kanalizasyon (VK)
+3861|Katalogdan çözüm seçin
+3864|Haritacılık ve ölçümler
+3866|Miktarların kesin hesabıyla kusur listesi
+3867|Kusur tespiti
+3868|gün
+3869|Dokümantasyon
+3870|Çizim/plan var
+3872|Meslek birliği raporuyla yapıların aletli incelemesi
+3874|Çakışma kontrollü binanın {n}D bilgi modeli
+3875|Yapı bilgileri
+3876|Uygulama dokümantasyonu
+3879|Statik bölüm (KR)
+3880|Yapım-montaj işlerinin projeye uygunluğunun kontrolü
+3881|Lazerli {n}D tarama ve rölöve çizimleri
+3883|Taleplerim
+3885|Denetim
+3886|Yapının adı
+3888|Kalitenin ve gizli işlerin bağımsız kontrolü {n}/{n}
+3891|Yapı maliyetinin norm ve piyasa esaslı keşif hesabı
+3892|İnceleme
+3893|Isıtma ve havalandırma (OViK)
+3904|Ayrıntılar
+3905|Yangın güvenliği (APS / SOUE)
+3906|Mimari çizimlerin ve {n}D cephe çözümlerinin eksiksiz seti
+3907|Yapının GASK'a teslimi için eksiksiz belge seti
+3908|PPR / POS
+3909|Su tesisatı, pompa istasyonları ve kanalizasyon projesi
+3910|İklimlendirme, ısıtma ve taze hava havalandırması projesi
+3912|İş yürütme projesi ve şantiye genel yerleşim planı
+3913|Yapısal kablolama, video gözetim ve geçiş kontrol sistemi projesi
+3914|Elektrik beslemesi, yıldırımdan korunma ve aydınlatma projesi
+3915|Projelendirme (proje-keşif & BIM)
+3917|Yangından korunma, alarm ve söndürme bölümü
+3920|Betonarme ve çelik yapıların hesabı ve çizimleri
+3926|Zayıf akım sistemleri (SS/SKS)
+3927|Keşif / BoQ (GESN/SNIP)
+3928|Keşif ve izin dokümantasyonu
+3932|Acil (+{n}%)
+3933|Aciliyet
+3934|Yapı denetimi
+3935|Profesyonel Fluke termal kamerasıyla çekim
+3937|Termal kamerayla inceleme
+3939|Teknik inceleme
+3942|Ekspertiz ve inceleme
+3944|Ekspres (+{n}%)
+3945|Elektrik (EOM)
+3946|Enerji etüdü ve ısı kayıplarının tespiti
+3947|Bina enerji denetimi
+3948|Enerji verimliliği
+3949|Kat sayısı
+4016|LiDAR tarayıcı
+4017|QazGost AI — nokta bulutu analizi, mekân ölçümleri, sapma kontrolü
+4019|Taramayı analiz et
+4023|Uzunluk, genişlik, yükseklik, alan
+4024|LiDAR taraması yükleyin
+4027|veya dosyayı buraya sürükleyin
+4028|Kaynaklar: iPhone Pro, iPad Pro, Leica BLK{n}, Matterport
+4033|Yüklemek için tıklayın
+4035|Ölçümler
+4036|Sapmalar
+4037|Desteklenen biçimler: .las, .laz, .ply, .pcd, .xyz
+4041|SNiP {n}-{n}'e göre kontrol
+4042|Tarayıcı bölümleri
+4045|Sonuçlar
+4050|Görselleştirme için dışa aktarma
+4067|Cephe işleri
+4079|mt
+4092|rulo
+4150|TOPLAM SİPARİŞ
+4155|İŞLEMLER
+4157|Uygulayıcı bekliyor
+4159|Tamamlananlar
+4162|SİPARİŞ
+4165|Siparişler
+4166|Sipariş bulunamadı
+4173|MÜŞTERİ
+4187|TOPLAM TUTAR
+4197|Sipariş numarası, yapı adı veya müşteriye göre arama
+4199|Sistem kullanıcısı
+4206|Sipariş oluşturun veya akıştaki bir talebe teklif verin
+4207|Sipariş oluştur
+4210|Sipariş listesi
+4213|TUTAR
+4216|Sipariş tablosu
+4217|Geçerli rol
+4485|Daire tadilatı
+4489|Ev inşaatı
+4626|Kat sayısı
+4719|Kalınlık
+4962|Kaplama
+4977|Asfalt
+4982|Hazır beton M{n} (B{n})
+4983|Betonlama
+5002|Anahtarlar
+5004|Tesviye
+5019|Kapılar
+5044|Dedektörler
+5045|Duman yangın dedektörü
+5096|Metal kiremit montajı
+5115|Geri dolgu
+5123|Kalıp
+5139|Tesviye
+5144|Süpürgelik
+5151|Hazırlık
+5158|Boya
+5184|Radyatörler
+5198|Banyo tadilatı
+5200|Prizler
+5219|Şap
+5260|Spot armatür montajı
+5276|Isı yalıtımı
+5285|Macun
+5304|lavabo
+5305|küvet
+5306|klozet
+5361|kova
+5598|Fotoğraf çok büyük
+5605|Görüntü biçiminde bir fotoğraf gerekli
+5800|Mobilya
+6535|İnce işler
+6787|Alt yüklenici
+7056|MÜŞTERİ
+7279|«Master Servis» şahıs şirketi
+7420|«QazGost» LLP
+7703|nokta
+3680|temel
