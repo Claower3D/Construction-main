@@ -94,7 +94,7 @@ function Field({ label, children, hint, error, wide }) {
 // ── Карточка работы ──
 function WorkCard({ work, isNew, project, onSave, onDelete, onClose, userName }) {
   const today = todayIso();
-  const [d, setD] = useState(() => ({ place: '', volume: '', note: '', check: '', brigadeId: '', media: [], factStart: '', factEnd: '', kind: '', zone: '', cost: 0, paid: 0, shape: '', floor: 0, pos: null, ...work }));
+  const [d, setD] = useState(() => ({ place: '', volume: '', note: '', check: '', brigadeId: '', media: [], factStart: '', factEnd: '', kind: '', zone: '', cost: 0, paid: 0, shape: '', floor: 0, pos: null, pos2: null, ...work }));
   const [errors, setErrors] = useState({});
   const [uploads, setUploads] = useState([]); // [{ key, name, pct, error }]
   const [askDelete, setAskDelete] = useState(false);
@@ -236,7 +236,15 @@ function WorkCard({ work, isNew, project, onSave, onDelete, onClose, userName })
         {/* не <label>: нажатие внутри подписи браузер передаёт первой кнопке в ней, и выбор места тут же сбрасывался бы */}
         <div className="vwb-field wide">
           <span className="vwb-label">Место на плане здания</span>
-          <PlanPicker value={d.pos || null} shown={{ x: place.x, z: place.z }} floor2From={HANGAR_INNER.mezzFrom} length={HANGAR.length} width={HANGAR.width} onChange={(pos) => set('pos', pos)} />
+          <PlanPicker
+            value={d.pos || null}
+            shown={{ x: place.x, z: place.z }}
+            second={place.shape === 'stairs' && place.count >= 2 ? { value: d.pos2 || null, shown: { x: place.x2, z: place.z2 }, onChange: (pos) => set('pos2', pos), names: ['лестница на один этаж', 'лестница двухэтажная, у входа'] } : null}
+            floor2From={HANGAR_INNER.mezzFrom}
+            length={HANGAR.length}
+            width={HANGAR.width}
+            onChange={(pos) => set('pos', pos)}
+          />
         </div>
         <Field label="Стоимость работы, ₸">
           <input className="vip-input" type="number" min="0" step="1000" inputMode="numeric" value={d.cost || ''} onChange={(e) => set('cost', e.target.value)} placeholder="0" />

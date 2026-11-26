@@ -290,7 +290,7 @@ func TestVipProjectExtraFields(t *testing.T) {
 		Works: []vipWork{
 			{ID: "w1", Title: "Кровля", Start: "2026-11-01", End: "2026-11-05", FactStart: "2026-11-02", FactEnd: "2026-11-07", Kind: "roof", Zone: "roof-n", Cost: 100, Paid: 40},
 			{ID: "w2", Title: "Пол", Start: "2026-11-01", End: "2026-11-05", FactEnd: "2026-11-07", Kind: "<b>", Zone: "Зона", Cost: -5, Shape: "<x>", Floor: 9, Pos: &vipPos{X: 5000, Z: 1}},
-			{ID: "w3", Title: "Лестница", Start: "2026-11-01", End: "2026-11-05", Shape: "stairs", Floor: 2, Pos: &vipPos{X: 50.5, Z: 20}},
+			{ID: "w3", Title: "Лестница", Start: "2026-11-01", End: "2026-11-05", Shape: "stairs", Floor: 2, Pos: &vipPos{X: 50.5, Z: 20}, Pos2: &vipPos{X: 40, Z: 3}},
 		},
 		Docs: []vipFile{{ID: "d1", URL: "/uploads/vip/0123456789abcdef01234567.pdf", Name: "smeta.pdf"}},
 	}
@@ -315,7 +315,7 @@ func TestVipProjectExtraFields(t *testing.T) {
 	if w := p.Works[1]; w.Shape != "" || w.Floor != 0 || w.Pos != nil {
 		t.Errorf("место работы 2 должно очиститься: %+v", w)
 	}
-	if w := p.Works[2]; w.Shape != "stairs" || w.Floor != 2 || w.Pos == nil || w.Pos.X != 50.5 || w.Pos.Z != 20 {
+	if w := p.Works[2]; w.Shape != "stairs" || w.Floor != 2 || w.Pos == nil || w.Pos.X != 50.5 || w.Pos.Z != 20 || w.Pos2 == nil || w.Pos2.X != 40 {
 		t.Errorf("место работы 3: %+v", w)
 	}
 	if p.Docs[0].Title != "smeta.pdf" {

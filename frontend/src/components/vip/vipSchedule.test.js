@@ -298,5 +298,9 @@ test('место и фигура работы на модели', () => {
   assert.ok(p.get('c').x > HANGAR_INNER.mezzFrom); // второй этаж — на площадке
   assert.deepEqual([p.get('d').x, p.get('d').z, p.get('d').auto], [50, 20, false]); // место, указанное человеком
   assert.equal(p.get('e').label, 'снаружи здания');
+  // две лестницы — две точки: первая в середине здания, вторая (двухэтажная) в начале, у входа
+  const st = projectPlaces([{ id: 's', title: 'Сборка 2 лестничных маршей' }, { id: 't', title: 'Лестница', pos2: { x: 10, z: 20 } }]);
+  assert.deepEqual([st.get('s').x, st.get('s').z, st.get('s').x2, st.get('s').z2, st.get('s').auto2], [30, 12, 3, 4, true]);
+  assert.deepEqual([st.get('t').x2, st.get('t').z2, st.get('t').auto2], [10, 20, false]);
   assert.equal(p.get('a').label, '1 этаж');
 });

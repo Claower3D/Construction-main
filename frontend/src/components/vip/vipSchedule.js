@@ -491,7 +491,7 @@ export function workCount(work, fallback = 1) {
 }
 // точка по умолчанию [вдоль здания от западного торца, поперёк от северной стены], м
 const SHAPE_SPOT = {
-  stairs: [40, 3], storm: [74, 29], sewer: [-9, 8], sheet_roof: [35, 12.5], sheet_wall: [28, 25], opening: [6, 21],
+  stairs: [30, 12], storm: [74, 29], sewer: [-9, 8], sheet_roof: [35, 12.5], sheet_wall: [28, 25], opening: [6, 21],
   box: [41, 8], rails: [24, 16], embeds: [14, 5], heating: [35, 0.6], frame: [35, 12.5], pin: [35, 12.5],
 };
 const SHAPE_SPOT_F2 = { opening: [60, 18], embeds: [58, 9], box: [60, 12.5], pin: [60, 12.5], rails: [60, 12.5] };
@@ -519,8 +519,12 @@ export function projectPlaces(works) {
       if (n && !['storm', 'sewer', 'heating', 'sheet_roof', 'frame'].includes(shape)) x += (floor === 2 ? 5 : 13) * n;
     }
     if (floor === 2 && x < HANGAR_INNER.mezzFrom + 1) x = manual ? x : HANGAR_INNER.mezzFrom + 3;
-    const where = shape === 'stairs' ? 'с 1 на 2 этаж' : floor ? `${floor} этаж` : OUTSIDE.has(shape) ? 'снаружи здания' : shape === 'sheet_roof' ? 'кровля' : shape === 'sheet_wall' ? 'стена' : shape === 'heating' ? 'вдоль стен' : 'здание';
-    out.set(w.id, { shape, floor, x, z, count: workCount(w, shape === 'stairs' ? 2 : shape === 'rails' ? 6 : shape === 'embeds' ? 6 : 1), auto: !manual, label: where });
+    const where = shape === 'stairs' ? 'внутри здания' : floor ? `${floor} этаж` : OUTSIDE.has(shape) ? 'снаружи здания' : shape === 'sheet_roof' ? 'кровля' : shape === 'sheet_wall' ? 'стена' : shape === 'heating' ? 'вдоль стен' : 'здание';
+    // лестниц обычно две и стоят они в разных местах: первая — в середине здания (один этаж),
+    // вторая — двухэтажная, в начале здания у входа (ворота в западном торце); у каждой своя точка на плане
+    const manual2 = w.pos2 && Number.isFinite(Number(w.pos2.x)) && Number.isFinite(Number(w.pos2.z));
+    const second = shape === 'stairs' ? { x2: manual2 ? Number(w.pos2.x) : 3, z2: manual2 ? Number(w.pos2.z) : 4, auto2: !manual2 } : {};
+    out.set(w.id, { ...second, shape, floor, x, z, count: workCount(w, shape === 'stairs' ? 2 : shape === 'rails' ? 6 : shape === 'embeds' ? 6 : 1), auto: !manual, label: where });
   }
   return out;
 }

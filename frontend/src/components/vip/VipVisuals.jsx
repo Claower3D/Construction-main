@@ -149,19 +149,28 @@ export function WorkArt({ kind = 'other', className = '' }) {
 /**
  * План здания 25 × 70 м сверху: нажатие ставит место работы. value — { x, z } в метрах
  * (x от западного торца, z от северной стены) или null; shown — точка, которую сейчас показывает модель.
+ * second — вторая точка той же работы (вторая лестница): { value, shown, onChange, names: [первая, вторая] }.
  */
-export function PlanPicker({ value, shown, floor2From, length = 70, width = 25, onChange }) {
+export function PlanPicker({ value, shown, second, floor2From, length = 70, width = 25, onChange }) {
   const ref = useRef(null);
+  const [which, setWhich] = useState(1);
+  const two = !!second;
   const pick = (e) => {
     const svg = ref.current;
     if (!svg) return;
     const r = svg.getBoundingClientRect();
     const vx = -16 + ((e.clientX - r.left) / r.width) * 102, vz = -11 + ((e.clientY - r.top) / r.height) * 47;
-    onChange({ x: Math.round(Math.max(-14, Math.min(length + 14, vx)) * 2) / 2, z: Math.round(Math.max(-9, Math.min(width + 9, vz)) * 2) / 2 });
+    const pos = { x: Math.round(Math.max(-14, Math.min(length + 14, vx)) * 2) / 2, z: Math.round(Math.max(-9, Math.min(width + 9, vz)) * 2) / 2 };
+    if (two && which === 2) second.onChange(pos); else onChange(pos);
   };
-  const p = value || shown;
+  const dots = [{ n: 1, value, p: value || shown }, ...(two ? [{ n: 2, value: second.value, p: second.value || second.shown }] : [])];
   return (
     <div className="vv-plan">
+      {two && (
+        <div className="vwb-seg vv-plan-which" role="group" aria-label="Какую часть работы ставим на план">
+          {[1, 2].map((n) => <button type="button" key={n} className={which === n ? 'active' : ''} aria-pressed={which === n} onClick={() => setWhich(n)}><i>{n}</i><span>{second.names[n - 1]}</span></button>)}
+        </div>
+      )}
       <svg ref={ref} viewBox="-16 -11 102 47" role="img" aria-label="План здания сверху: нажмите, чтобы указать место работы" onClick={pick}>
         <rect x="-16" y="-11" width="102" height="47" className="vv-plan-site" />
         <rect x="0" y="0" width={length} height={width} className="vv-plan-house" />
@@ -172,11 +181,23 @@ export function PlanPicker({ value, shown, floor2From, length = 70, width = 25, 
         <text x="-8" y={width / 2 + 1.2} textAnchor="middle">Запад</text>
         <text x={length + 8} y={width / 2 + 1.2} textAnchor="middle">Восток</text>
         {floor2From < length && <text x={(floor2From + length) / 2} y="4.5" textAnchor="middle" className="f2">2 этаж</text>}
-        {p && <g className={value ? 'vv-plan-dot' : 'vv-plan-dot auto'}><circle cx={p.x} cy={p.z} r="2.6" /><circle cx={p.x} cy={p.z} r="0.9" /></g>}
+        <rect x="-0.9" y={width / 2 - 3} width="1.8" height="6" className="vv-plan-gate" />
+        <text x="2.2" y={width / 2 + 1.2} className="gate">вход</text>
+        {dots.filter((d) => d.p).map((d) => (
+          <g key={d.n} className={`vv-plan-dot${d.value ? '' : ' auto'}${two && which === d.n ? ' on' : ''}`}>
+            <circle cx={d.p.x} cy={d.p.z} r="2.6" /><circle cx={d.p.x} cy={d.p.z} r="0.9" />
+            {two && <text x={d.p.x} y={d.p.z - 3.4} textAnchor="middle" className="num" translate="no">{d.n}</text>}
+          </g>
+        ))}
       </svg>
       <div className="vv-plan-foot">
-        <span>{value ? `Место указано: ${value.x} м от западного торца, ${value.z} м от северной стены` : 'Место подобрано по названию работы. Нажмите на план, чтобы указать точнее.'}</span>
-        {value && <button type="button" className="vwb-link" onClick={() => onChange(null)}>подобрать автоматически</button>}
+        {dots.map((d) => (
+          <span key={d.n}>
+            {two && <b translate="no">{d.n}. </b>}
+            <span>{d.value ? `Место указано: ${d.value.x} м от западного торца, ${d.value.z} м от северной стены` : 'Место подобрано по названию работы. Нажмите на план, чтобы указать точнее.'}</span>
+            {d.value && <> <button type="button" className="vwb-link" onClick={() => (d.n === 2 ? second.onChange(null) : onChange(null))}>подобрать автоматически</button></>}
+          </span>
+        ))}
       </div>
     </div>
   );

@@ -63,22 +63,39 @@ function buildShape(item, mat) {
   const n = item.count || 1;
   switch (item.shape) {
     case 'stairs': {
-      // марши поднимаются с пола на площадку второго этажа; идут рядом друг с другом
-      const rise = HANGAR_INNER.floor2, run = 9, width = 1.8, steps = 14, k = Math.min(n, 4);
+      // Лестницы стоят в разных местах: первая — один этаж, в середине здания, со своей площадкой;
+      // вторая — двухэтажная, у входа: марш на второй этаж, площадка, второй марш выше (у остальных, если их больше, вид первой).
+      const rise = HANGAR_INNER.floor2, run = 9, width = 1.8, steps = 14;
       const ang = Math.atan2(rise, run), len = Math.hypot(rise, run);
-      for (let i = 0; i < k; i++) {
-        const zz = z + i * (width + 0.7);
-        for (const side of [-1, 1]) { // косоуры — стальные полосы
-          const plate = new THREE.Mesh(new THREE.BoxGeometry(len, 0.55, 0.12), mat);
-          plate.position.set(x + run / 2, 0.5 + rise / 2, zz + side * width / 2);
-          plate.rotation.z = ang;
+      const flight = (fx, fy, fz, dir) => { // марш от (fx, fy) вверх по ходу dir = ±1 вдоль здания
+        for (const side of [-1, 1]) {
+          const plate = new THREE.Mesh(new THREE.BoxGeometry(len, 0.55, 0.12), mat); // косоур — стальная полоса
+          plate.position.set(fx + dir * run / 2, fy + 0.1 + rise / 2, fz + side * width / 2);
+          plate.rotation.z = dir * ang;
           g.add(plate);
-          g.add(beam(V(x, 1.7, zz + side * width / 2), V(x + run, rise + 1.5, zz + side * width / 2), 0.1, mat)); // поручень
-          for (const t of [0, 0.25, 0.5, 0.75, 1]) g.add(beam(V(x + run * t, 0.5 + rise * t, zz + side * width / 2), V(x + run * t, 1.7 + rise * t, zz + side * width / 2), 0.08, mat));
+          g.add(beam(V(fx, fy + 1.3, fz + side * width / 2), V(fx + dir * run, fy + rise + 1.3, fz + side * width / 2), 0.1, mat)); // поручень
+          for (const t of [0, 0.25, 0.5, 0.75, 1]) g.add(beam(V(fx + dir * run * t, fy + rise * t, fz + side * width / 2), V(fx + dir * run * t, fy + 1.3 + rise * t, fz + side * width / 2), 0.08, mat));
         }
-        for (let st = 0; st < steps; st++) g.add(box(run / steps * 0.92, 0.12, width, mat, x + (st + 0.5) * run / steps, 0.55 + (st + 0.8) * rise / steps, zz));
-        g.add(box(1.6, 0.14, width, mat, x + run + 0.8, rise + 0.4, zz)); // верхняя площадка
+        for (let st = 0; st < steps; st++) g.add(box(run / steps * 0.92, 0.12, width, mat, fx + dir * (st + 0.5) * run / steps, fy + 0.15 + (st + 0.8) * rise / steps, fz));
+      };
+      const deck = (cx, cy, cz, lx, lz, posts) => { // площадка с ограждением, при необходимости на стойках
+        g.add(box(lx, 0.16, lz, mat, cx, cy, cz));
+        for (const sx of [-1, 1]) for (const sz of [-1, 1]) {
+          g.add(beam(V(cx + sx * lx / 2, cy, cz + sz * lz / 2), V(cx + sx * lx / 2, cy + 1.2, cz + sz * lz / 2), 0.08, mat));
+          if (posts) g.add(beam(V(cx + sx * (lx / 2 - 0.2), 0.4, cz + sz * (lz / 2 - 0.2)), V(cx + sx * (lx / 2 - 0.2), cy, cz + sz * (lz / 2 - 0.2)), 0.2, mat));
+        }
+        g.add(beam(V(cx - lx / 2, cy + 1.2, cz - lz / 2), V(cx + lx / 2, cy + 1.2, cz - lz / 2), 0.08, mat), beam(V(cx - lx / 2, cy + 1.2, cz + lz / 2), V(cx + lx / 2, cy + 1.2, cz + lz / 2), 0.08, mat));
+      };
+      const single = (sx, sz) => { flight(sx, 0.4, sz, 1); deck(sx + run + 1.6, 0.4 + rise, sz, 3.2, width + 1.4, true); };
+      single(x, z);
+      if (n >= 2) { // двухэтажная
+        const bx = item.x2 - hl, bz = item.z2 - hw, lane = width + 0.4;
+        flight(bx, 0.4, bz, 1);
+        deck(bx + run + 1, 0.4 + rise, bz + lane / 2, 2, width * 2 + 0.6, false); // промежуточная площадка на уровне второго этажа
+        flight(bx + run, 0.4 + rise, bz + lane, -1);
+        deck(bx - 1.3, 0.4 + rise * 2, bz + lane, 2.6, width + 1.2, true); // верхняя площадка
       }
+      for (let i = 2; i < Math.min(n, 4); i++) single(x - (i - 1) * 4, z + (i - 1) * (width + 1.4));
       break;
     }
     case 'storm': {
@@ -332,6 +349,8 @@ export default function Hangar3D({ items = [], selected = '', skin = true, heigh
       const interior = picked && shapes.has(picked) && !['storm', 'sewer', 'sheet_roof', 'sheet_wall'].includes(shapes.get(picked).shape);
       wallMat.opacity = interior ? 0.1 : 0.26;
       roofMat.opacity = interior ? 0.12 : 0.5;
+      // работу внутри здания не должен заслонять каркас: на время показа он становится полупрозрачным
+      steel.transparent = true; steel.opacity = interior ? 0.3 : 1; steel.depthWrite = !interior;
       skins.forEach((m) => { m.visible = skinOn; });
       for (const [id, s] of shapes) {
         const on = id === picked;
@@ -370,8 +389,10 @@ export default function Hangar3D({ items = [], selected = '', skin = true, heigh
         if (flat.lengthSq() < 1) flat.set(1, 0, 1);
         flat.normalize();
         // работу у края здания или снаружи смотрим с её стороны, а не сквозь всё здание
-        if (s) { const out = V(s.center.x, 0, s.center.z); if (out.length() > 8) flat.multiplyScalar(0.35).add(out.normalize()).normalize(); }
-        const dir = V(flat.x, 0.62, flat.z).normalize();
+        const inside = s && !['storm', 'sewer', 'sheet_roof', 'sheet_wall', 'frame', 'heating'].includes(s.shape);
+        if (inside) flat.set(-0.45, 0, s.center.z > 0 ? 1 : -1).normalize(); // то, что внутри, смотрим сбоку, через длинную стену: лестницы и рельсы идут вдоль здания
+        else if (s) { const out = V(s.center.x, 0, s.center.z); if (out.length() > 8) flat.multiplyScalar(0.35).add(out.normalize()).normalize(); }
+        const dir = V(flat.x, inside ? 0.4 : 0.62, flat.z).normalize();
         focus = { target, pos: target.clone().addScaledVector(dir, dist), frames: 46 };
         if (tagRef.current) { tagRef.current.textContent = s ? s.title : ''; tagRef.current.style.display = s ? 'block' : 'none'; }
         paint();

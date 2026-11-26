@@ -616,3 +616,13 @@
   .vob-works { max-height: 420px; }
 }
 @media (max-width: 720px) { .vwb-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+/* две точки одной работы на плане (две лестницы) */
+.vv-plan-which { margin-bottom: 8px; display: inline-flex; flex-wrap: wrap; }
+.vv-plan-which button { display: inline-flex; align-items: center; gap: 8px; padding: 7px 12px; font-size: 0.9rem; }
+.vv-plan-which i { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: rgba(255, 255, 255, 0.16); font-style: normal; font-weight: 800; }
+.vv-plan-which button.active i { background: #1b1330; color: #fde68a; }
+.vv-plan text.num { fill: #fff; font-size: 3.6px; font-weight: 800; }
+.vv-plan-dot.on circle:first-child { stroke-width: 0.9; }
+.vv-plan-foot { flex-direction: column; }
+.vv-plan-gate { fill: #fbbf24; }
+.vv-plan text.gate { fill: #fde68a; font-size: 3px; }

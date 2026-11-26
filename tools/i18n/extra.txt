@@ -355,3 +355,9 @@ Satu: смесители для ванны от ≈7 000 ₸ (бюджетные
 Бетонная техника|Concrete machines
 Буровая техника|Drilling machines
 Генераторы и энергетика|Generators and power
+лестница на один этаж|one-storey stair
+лестница двухэтажная|two-storey stair
+Какую часть работы ставим на план|Which part of the work to place on the plan
+внутри здания|inside the building
+лестница двухэтажная, у входа|two-storey stair, at the entrance
+вход|entrance

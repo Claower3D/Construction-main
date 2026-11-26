@@ -107,15 +107,16 @@ type vipWork struct {
 	Note      string     `json:"note"`
 	Check     string     `json:"check"` // что уточнить (пусто — всё ясно)
 	Media     []vipMedia `json:"media"`
-	FactStart string     `json:"factStart"`     // когда работу начали на самом деле
-	FactEnd   string     `json:"factEnd"`       // когда закончили на самом деле
-	Kind      string     `json:"kind"`          // вид работ — для картинки на графике
-	Zone      string     `json:"zone"`          // место на модели здания
-	Cost      float64    `json:"cost"`          // стоимость работы по плану, ₸
-	Paid      float64    `json:"paid"`          // оплачено, ₸
-	Shape     string     `json:"shape"`         // что нарисовать на модели: stairs, storm, rails…
-	Floor     int        `json:"floor"`         // этаж: 1, 2 или 0 — подобрать по названию
-	Pos       *vipPos    `json:"pos,omitempty"` // место на плане здания, м; пусто — подобрать автоматически
+	FactStart string     `json:"factStart"`      // когда работу начали на самом деле
+	FactEnd   string     `json:"factEnd"`        // когда закончили на самом деле
+	Kind      string     `json:"kind"`           // вид работ — для картинки на графике
+	Zone      string     `json:"zone"`           // место на модели здания
+	Cost      float64    `json:"cost"`           // стоимость работы по плану, ₸
+	Paid      float64    `json:"paid"`           // оплачено, ₸
+	Shape     string     `json:"shape"`          // что нарисовать на модели: stairs, storm, rails…
+	Floor     int        `json:"floor"`          // этаж: 1, 2 или 0 — подобрать по названию
+	Pos       *vipPos    `json:"pos,omitempty"`  // место на плане здания, м; пусто — подобрать автоматически
+	Pos2      *vipPos    `json:"pos2,omitempty"` // место второй части работы (вторая лестница)
 }
 
 // vipPos — точка на плане: x от западного торца, z от северной стены (снаружи здания — за пределами 0…70 и 0…25)
@@ -377,6 +378,9 @@ func (p *vipProject) validate() string {
 		}
 		if w.Pos != nil && !(w.Pos.X >= -30 && w.Pos.X <= 100 && w.Pos.Z >= -30 && w.Pos.Z <= 55) {
 			w.Pos = nil // NaN и точки далеко за площадкой
+		}
+		if w.Pos2 != nil && !(w.Pos2.X >= -30 && w.Pos2.X <= 100 && w.Pos2.Z >= -30 && w.Pos2.Z <= 55) {
+			w.Pos2 = nil
 		}
 		if w.BrigadeID != "" && !brigades[w.BrigadeID] {
 			w.BrigadeID = "" // бригаду удалили
