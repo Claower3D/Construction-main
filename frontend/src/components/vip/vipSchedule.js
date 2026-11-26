@@ -326,6 +326,8 @@ export const machineGroup = (m) => (m && MACHINE_GROUPS.some((g) => g.id === m.g
 // ── Виды работ (для картинки на графике) ──
 export const WORK_KINDS = [
   { id: 'steel', label: 'Металлоконструкции' },
+  { id: 'stairs', label: 'Лестницы и площадки' },
+  { id: 'rails', label: 'Рельсы и пути' },
   { id: 'roof', label: 'Кровля' },
   { id: 'walls', label: 'Стены и панели' },
   { id: 'concrete', label: 'Бетон и фундамент' },
@@ -333,7 +335,8 @@ export const WORK_KINDS = [
   { id: 'earth', label: 'Земляные работы' },
   { id: 'drain', label: 'Вода, ливнёвка, канализация' },
   { id: 'electric', label: 'Электрика' },
-  { id: 'vent', label: 'Вентиляция и отопление' },
+  { id: 'heat', label: 'Отопление' },
+  { id: 'vent', label: 'Вентиляция' },
   { id: 'cut', label: 'Резка и отверстия' },
   { id: 'weld', label: 'Сварка' },
   { id: 'paint', label: 'Покраска и отделка' },
@@ -347,7 +350,10 @@ const WORK_RULES = [
   ['roof', /кровл|крыш|конёк|конек|мембран/],
   ['weld', /свар/],
   ['electric', /электр|кабел|освещ|щит|провод|заземл|молниезащ/],
-  ['vent', /вентил|отоплен|воздуховод|кондицион|дымоуд/],
+  ['heat', /отоплен|радиатор|кот[её]л|теплов|теплотрасс/],
+  ['vent', /вентил|воздуховод|кондицион|дымоуд/],
+  ['stairs', /лестни|марш|перил|огражден/],
+  ['rails', /рельс|подкранов/],
   ['doors', /ворот|двер|окн|витраж|остеклен/],
   ['walls', /сэндвич|сендвич|панел|профлист|стен|кладк|обшивк|фасад|перегород/],
   ['floor', /пол\b|полы|полов|стяжк|топпинг|покрыти/],
@@ -398,7 +404,7 @@ export const HANGAR_ZONES = [
   { id: 'floor', label: 'Пол' },
   { id: 'outside', label: 'Площадка вокруг' },
 ];
-const KIND_ZONE = { roof: 'roof', steel: 'frame', weld: 'frame', floor: 'floor', concrete: 'floor', earth: 'outside', drain: 'outside', walls: 'wall-s', doors: 'wall-w', lift: 'frame' };
+const KIND_ZONE = { roof: 'roof', steel: 'frame', stairs: 'frame', rails: 'floor', weld: 'frame', floor: 'floor', concrete: 'floor', earth: 'outside', drain: 'outside', walls: 'wall-s', doors: 'wall-w', lift: 'frame' };
 
 /** Место работы на модели: выбранное вручную или подсказанное видом работ и текстом «места» */
 export function workZone(work) {
@@ -429,5 +435,92 @@ export function buildFactDays(project, today) {
     }
   }
   for (const list of Object.values(out)) list.sort((x, y) => Number(y.late) - Number(x.late) || String(x.work.start).localeCompare(String(y.work.start)));
+  return out;
+}
+
+// ── Что и где показать на модели здания для каждой работы ──
+// Внутренний второй этаж (площадка) показан схемой: последние три пролёта у восточного торца, отметка +7 м.
+export const HANGAR_INNER = { floor2: 7, mezzFrom: 49 };
+
+export const WORK_SHAPES = [
+  { id: 'stairs', label: 'Лестничные марши' },
+  { id: 'storm', label: 'Ливнёвка и колодец' },
+  { id: 'sewer', label: 'Канализация и септик' },
+  { id: 'sheet_roof', label: 'Кровля' },
+  { id: 'sheet_wall', label: 'Обшивка стены' },
+  { id: 'opening', label: 'Отверстие, проём' },
+  { id: 'box', label: 'Короб, оборудование' },
+  { id: 'rails', label: 'Рельсы' },
+  { id: 'embeds', label: 'Закладные детали' },
+  { id: 'heating', label: 'Отопление' },
+  { id: 'frame', label: 'Каркас здания' },
+  { id: 'pin', label: 'Отметка места' },
+];
+const SHAPE_RULES = [
+  ['stairs', /лестни|марш/],
+  ['storm', /ливн|водосток|водоотв/],
+  ['sewer', /канализ|септик/],
+  ['heating', /отоплен|радиатор|котельн|теплотрасс/],
+  ['rails', /рельс/],
+  ['embeds', /закладн|анкер/],
+  ['opening', /отверст|про[её]м|сверл/],
+  ['box', /короб|дробилк|бункер|оборудован|станок|будк/],
+  ['sheet_roof', /кровл|крыш|конёк|конек/],
+  ['sheet_wall', /профлист|сэндвич|сендвич|панел|обшивк|фасад/],
+  ['frame', /каркас|колонн|ферм|балк|прогон|связ/],
+];
+/** Что нарисовать на модели, если это не выбрано вручную */
+export function guessShape(work) {
+  const s = `${(work && work.title) || ''}`.toLowerCase();
+  for (const [id, re] of SHAPE_RULES) if (re.test(s)) return id;
+  return /крыш|кровл/.test(String((work && work.place) || '').toLowerCase()) ? 'sheet_roof' : 'pin';
+}
+/** Этаж работы: выбранный вручную, либо из текста «2 этаж», либо 0 — не внутри по этажам */
+export function workFloor(work) {
+  const f = Number(work && work.floor);
+  if (f === 1 || f === 2) return f;
+  const m = `${(work && work.place) || ''} ${(work && work.title) || ''}`.match(/(\d)\s*-?\s*(?:й|ой)?\s*этаж/i);
+  return m && (m[1] === '1' || m[1] === '2') ? Number(m[1]) : 0;
+}
+/** Сколько штук нарисовать: «2 лестничных маршей», «11 штук», «6 полос» */
+export function workCount(work, fallback = 1) {
+  const s = `${(work && work.title) || ''} ${(work && work.volume) || ''}`.toLowerCase();
+  const m = s.match(/(\d{1,2})\s*(?:штук|шт\b|полос|лестни|марш|отверст|короб)/);
+  const n = m ? Number(m[1]) : fallback;
+  return Math.max(1, Math.min(24, n || fallback));
+}
+// точка по умолчанию [вдоль здания от западного торца, поперёк от северной стены], м
+const SHAPE_SPOT = {
+  stairs: [40, 3], storm: [74, 29], sewer: [-9, 8], sheet_roof: [35, 12.5], sheet_wall: [28, 25], opening: [6, 21],
+  box: [41, 8], rails: [24, 16], embeds: [14, 5], heating: [35, 0.6], frame: [35, 12.5], pin: [35, 12.5],
+};
+const SHAPE_SPOT_F2 = { opening: [60, 18], embeds: [58, 9], box: [60, 12.5], pin: [60, 12.5], rails: [60, 12.5] };
+const OUTSIDE = new Set(['storm', 'sewer']);
+
+/**
+ * Места всех работ проекта на модели: Map(id работы → { shape, floor, x, z, count, auto, label }).
+ * x — метры от западного торца (0…70), z — от северной стены (0…25); снаружи здания значения выходят за эти пределы.
+ * Работы с одинаковой фигурой на одном этаже, поставленные автоматически, раздвигаются, чтобы не слиться.
+ */
+export function projectPlaces(works) {
+  const out = new Map();
+  const taken = new Map();
+  for (const w of works || []) {
+    const shape = WORK_SHAPES.some((x) => x.id === w.shape) ? w.shape : guessShape(w);
+    let floor = workFloor(w);
+    if (!floor && ['opening', 'embeds', 'box', 'rails', 'pin', 'stairs'].includes(shape)) floor = 1;
+    if (OUTSIDE.has(shape) || shape === 'sheet_roof' || shape === 'sheet_wall' || shape === 'heating' || shape === 'frame') floor = 0;
+    const manual = w.pos && Number.isFinite(Number(w.pos.x)) && Number.isFinite(Number(w.pos.z));
+    let [x, z] = (floor === 2 && SHAPE_SPOT_F2[shape]) || SHAPE_SPOT[shape];
+    if (manual) { x = Number(w.pos.x); z = Number(w.pos.z); } else {
+      const key = `${shape}:${floor}`;
+      const n = taken.get(key) || 0;
+      taken.set(key, n + 1);
+      if (n && !['storm', 'sewer', 'heating', 'sheet_roof', 'frame'].includes(shape)) x += (floor === 2 ? 5 : 13) * n;
+    }
+    if (floor === 2 && x < HANGAR_INNER.mezzFrom + 1) x = manual ? x : HANGAR_INNER.mezzFrom + 3;
+    const where = shape === 'stairs' ? 'с 1 на 2 этаж' : floor ? `${floor} этаж` : OUTSIDE.has(shape) ? 'снаружи здания' : shape === 'sheet_roof' ? 'кровля' : shape === 'sheet_wall' ? 'стена' : shape === 'heating' ? 'вдоль стен' : 'здание';
+    out.set(w.id, { shape, floor, x, z, count: workCount(w, shape === 'stairs' ? 2 : shape === 'rails' ? 6 : shape === 'embeds' ? 6 : 1), auto: !manual, label: where });
+  }
   return out;
 }

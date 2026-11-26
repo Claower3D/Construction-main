@@ -107,12 +107,21 @@ type vipWork struct {
 	Note      string     `json:"note"`
 	Check     string     `json:"check"` // что уточнить (пусто — всё ясно)
 	Media     []vipMedia `json:"media"`
-	FactStart string     `json:"factStart"` // когда работу начали на самом деле
-	FactEnd   string     `json:"factEnd"`   // когда закончили на самом деле
-	Kind      string     `json:"kind"`      // вид работ — для картинки на графике
-	Zone      string     `json:"zone"`      // место на модели здания
-	Cost      float64    `json:"cost"`      // стоимость работы по плану, ₸
-	Paid      float64    `json:"paid"`      // оплачено, ₸
+	FactStart string     `json:"factStart"`     // когда работу начали на самом деле
+	FactEnd   string     `json:"factEnd"`       // когда закончили на самом деле
+	Kind      string     `json:"kind"`          // вид работ — для картинки на графике
+	Zone      string     `json:"zone"`          // место на модели здания
+	Cost      float64    `json:"cost"`          // стоимость работы по плану, ₸
+	Paid      float64    `json:"paid"`          // оплачено, ₸
+	Shape     string     `json:"shape"`         // что нарисовать на модели: stairs, storm, rails…
+	Floor     int        `json:"floor"`         // этаж: 1, 2 или 0 — подобрать по названию
+	Pos       *vipPos    `json:"pos,omitempty"` // место на плане здания, м; пусто — подобрать автоматически
+}
+
+// vipPos — точка на плане: x от западного торца, z от северной стены (снаружи здания — за пределами 0…70 и 0…25)
+type vipPos struct {
+	X float64 `json:"x"`
+	Z float64 `json:"z"`
 }
 
 type vipFile struct {
@@ -149,7 +158,7 @@ type vipProject struct {
 	Works      []vipWork    `json:"works"`
 	RestDay    int          `json:"restDay"` // выходной день недели: 0 — воскресенье … 6 — суббота
 	Budget     float64      `json:"budget"`  // бюджет на строительство, ₸
-	Docs       []vipFile     `json:"docs"`
+	Docs       []vipFile    `json:"docs"`
 }
 
 var (
@@ -359,6 +368,15 @@ func (p *vipProject) validate() string {
 		}
 		if w.Paid < 0 || w.Paid > 1e13 {
 			w.Paid = 0
+		}
+		if !vipSlugRe.MatchString(w.Shape) {
+			w.Shape = ""
+		}
+		if w.Floor < 0 || w.Floor > 2 {
+			w.Floor = 0
+		}
+		if w.Pos != nil && !(w.Pos.X >= -30 && w.Pos.X <= 100 && w.Pos.Z >= -30 && w.Pos.Z <= 55) {
+			w.Pos = nil // NaN и точки далеко за площадкой
 		}
 		if w.BrigadeID != "" && !brigades[w.BrigadeID] {
 			w.BrigadeID = "" // бригаду удалили

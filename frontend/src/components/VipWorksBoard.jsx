@@ -6,9 +6,9 @@ import {
   todayIso, isIso, durationDays, formatDay, formatRange, isOverdue, buildTimeline, barPosition,
   brigadeConflicts, brigadeIssues, assignmentReport, projectSummary, shortName, nextId, emptyProject, importProblem,
   WEEKDAY_NAMES, restDayOf, factRange, budgetSummary, money, MACHINE_GROUPS, machineGroup, guessMachineGroup,
-  WORK_KINDS, workKind, guessWorkKind, workPicture, HANGAR_ZONES, workZone,
+  WORK_KINDS, workKind, guessWorkKind, workPicture, WORK_SHAPES, projectPlaces, HANGAR, HANGAR_INNER,
 } from './vip/vipSchedule';
-import { Avatar, MachinePic, MachineArt, WorkArt, PhotoPicker } from './vip/VipVisuals';
+import { Avatar, MachinePic, MachineArt, WorkArt, PhotoPicker, PlanPicker } from './vip/VipVisuals';
 import {
   listProjects, getProject, createProject, saveProject, deleteProject,
   uploadMedia, mediaProblem, MEDIA_ACCEPT, MEDIA_LIMITS,
@@ -94,7 +94,7 @@ function Field({ label, children, hint, error, wide }) {
 // ── Карточка работы ──
 function WorkCard({ work, isNew, project, onSave, onDelete, onClose, userName }) {
   const today = todayIso();
-  const [d, setD] = useState(() => ({ place: '', volume: '', note: '', check: '', brigadeId: '', media: [], factStart: '', factEnd: '', kind: '', zone: '', cost: 0, paid: 0, ...work }));
+  const [d, setD] = useState(() => ({ place: '', volume: '', note: '', check: '', brigadeId: '', media: [], factStart: '', factEnd: '', kind: '', zone: '', cost: 0, paid: 0, shape: '', floor: 0, pos: null, ...work }));
   const [errors, setErrors] = useState({});
   const [uploads, setUploads] = useState([]); // [{ key, name, pct, error }]
   const [askDelete, setAskDelete] = useState(false);
@@ -118,6 +118,8 @@ function WorkCard({ work, isNew, project, onSave, onDelete, onClose, userName })
   const people = brigade ? (brigade.members || []).map((id) => (project.staff || []).find((p) => p.id === id)).filter(Boolean) : [];
   const machines = brigade ? (brigade.equipment || []).map((id) => (project.equipment || []).find((m) => m.id === id)).filter(Boolean) : [];
   const busy = uploads.some((u) => !u.error && u.pct < 1);
+  // место черновика на модели — с учётом остальных работ проекта
+  const place = useMemo(() => projectPlaces([...(project.works || []).filter((w) => w.id !== d.id), d]).get(d.id), [project.works, d]);
 
   // пересечение с другими работами той же бригады — считаем по черновику
   const clash = useMemo(() => {
@@ -218,12 +220,24 @@ function WorkCard({ work, isNew, project, onSave, onDelete, onClose, userName })
             </select>
           </span>
         </Field>
-        <Field label="Место на модели здания">
-          <select className="vip-input" value={d.zone || ''} onChange={(e) => set('zone', e.target.value)}>
+        <Field label="Что показать на модели" hint={d.shape ? '' : `По названию: ${WORK_SHAPES.find((x) => x.id === place.shape).label}`}>
+          <select className="vip-input" value={d.shape || ''} onChange={(e) => set('shape', e.target.value)}>
             <option value="">Подобрать по названию</option>
-            {HANGAR_ZONES.map((z) => <option key={z.id} value={z.id}>{z.label}</option>)}
+            {WORK_SHAPES.map((x) => <option key={x.id} value={x.id}>{x.label}</option>)}
           </select>
         </Field>
+        <Field label="Этаж">
+          <select className="vip-input" value={d.floor || 0} onChange={(e) => set('floor', Number(e.target.value))}>
+            <option value={0}>Подобрать по названию</option>
+            <option value={1}>1 этаж</option>
+            <option value={2}>2 этаж</option>
+          </select>
+        </Field>
+        {/* не <label>: нажатие внутри подписи браузер передаёт первой кнопке в ней, и выбор места тут же сбрасывался бы */}
+        <div className="vwb-field wide">
+          <span className="vwb-label">Место на плане здания</span>
+          <PlanPicker value={d.pos || null} shown={{ x: place.x, z: place.z }} floor2From={HANGAR_INNER.mezzFrom} length={HANGAR.length} width={HANGAR.width} onChange={(pos) => set('pos', pos)} />
+        </div>
         <Field label="Стоимость работы, ₸">
           <input className="vip-input" type="number" min="0" step="1000" inputMode="numeric" value={d.cost || ''} onChange={(e) => set('cost', e.target.value)} placeholder="0" />
         </Field>

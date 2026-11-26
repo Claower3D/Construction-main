@@ -227,7 +227,10 @@ test('виды работ и место на модели', () => {
   assert.equal(guessWorkKind('Резка отверстия под трубу'), 'cut');
   assert.equal(guessWorkKind('Демонтаж и монтаж профлиста'), 'walls');
   assert.equal(guessWorkKind('Профлист на крышу'), 'roof');
-  assert.equal(guessWorkKind('Сборка 2 лестничных маршей'), 'steel');
+  assert.equal(guessWorkKind('Сборка 2 лестничных маршей'), 'stairs');
+  assert.equal(guessWorkKind('Рельсовый монтаж'), 'rails');
+  assert.equal(guessWorkKind('Отопление: монтаж'), 'heat');
+  assert.equal(guessWorkKind('Монтаж вентиляции'), 'vent');
   assert.equal(guessWorkKind('Монтаж сэндвич-панелей'), 'walls');
   assert.equal(guessWorkKind('Сборка каркаса'), 'steel');
   assert.equal(guessWorkKind('Что-то ещё'), 'other');
@@ -258,4 +261,42 @@ test('календарь по факту по дням', () => {
   assert.deepEqual(days['2026-11-11'].map((x) => x.work.id), ['a', 'b']); // запланированная в факт не попадает
   assert.equal(days['2026-11-12'][0].late, false);
   assert.equal(days['2026-11-13'][0].late, true); // идёт позже срока
+});
+
+import { guessShape, workFloor, workCount, projectPlaces, HANGAR_INNER } from './vipSchedule.js';
+test('место и фигура работы на модели', () => {
+  assert.equal(guessShape({ title: 'Сборка 2 лестничных маршей' }), 'stairs');
+  assert.equal(guessShape({ title: 'Ливневая система' }), 'storm');
+  assert.equal(guessShape({ title: 'Канализация и септик' }), 'sewer');
+  assert.equal(guessShape({ title: 'Демонтаж и монтаж профлиста' }), 'sheet_wall');
+  assert.equal(guessShape({ title: 'Профлист на крышу, привозка связей' }), 'sheet_roof');
+  assert.equal(guessShape({ title: 'Резка отверстий под будку' }), 'opening');
+  assert.equal(guessShape({ title: 'Сварка короба под дробилку' }), 'box');
+  assert.equal(guessShape({ title: 'Рельсовый монтаж' }), 'rails');
+  assert.equal(guessShape({ title: 'Заливка закладных, 2 этаж' }), 'embeds');
+  assert.equal(guessShape({ title: 'Отопление: монтаж' }), 'heating');
+  assert.equal(guessShape({ title: 'Уборка' }), 'pin');
+  assert.equal(workFloor({ title: 'Заливка закладных, 2 этаж' }), 2);
+  assert.equal(workFloor({ title: 'Резка', place: '1 этаж' }), 1);
+  assert.equal(workFloor({ title: 'Резка', floor: 2, place: '1 этаж' }), 2);
+  assert.equal(workFloor({ title: 'Ливневая система' }), 0);
+  assert.equal(workCount({ title: 'Сборка 2 лестничных маршей' }), 2);
+  assert.equal(workCount({ title: 'Закладные', volume: '11 штук' }), 11);
+  assert.equal(workCount({ title: 'Рельсовый монтаж', volume: '6 полос: обнаружение' }), 6);
+  assert.equal(workCount({ title: 'Что-то' }, 3), 3);
+  const p = projectPlaces([
+    { id: 'a', title: 'Заливка закладных, 1 этаж', volume: '11 штук' },
+    { id: 'b', title: 'Обнаружение закладных в бетоне', volume: '10 штук' },
+    { id: 'c', title: 'Заливка закладных, 2 этаж' },
+    { id: 'd', title: 'Сборка 2 лестничных маршей', pos: { x: 50, z: 20 } },
+    { id: 'e', title: 'Ливневая система' },
+  ]);
+  assert.equal(p.get('a').shape, 'embeds');
+  assert.equal(p.get('a').count, 11);
+  assert.notDeepEqual([p.get('a').x, p.get('a').z], [p.get('b').x, p.get('b').z]); // одинаковые работы не сливаются
+  assert.equal(p.get('c').floor, 2);
+  assert.ok(p.get('c').x > HANGAR_INNER.mezzFrom); // второй этаж — на площадке
+  assert.deepEqual([p.get('d').x, p.get('d').z, p.get('d').auto], [50, 20, false]); // место, указанное человеком
+  assert.equal(p.get('e').label, 'снаружи здания');
+  assert.equal(p.get('a').label, '1 этаж');
 });

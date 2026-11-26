@@ -583,3 +583,36 @@
   .vip-real-table tbody td:first-child { flex: 1 1 100%; }
   .vip-real-works-head .vip-secondary-btn { margin-left: 0; }
 }
+
+/* ══ Модель: подпись выбранной работы, пояснения, план в карточке работы ══ */
+.vob-3d-wrap { position: relative; width: 100%; border-radius: 14px; overflow: hidden; }
+.vob-3d-tag { position: absolute; left: 0; top: 0; max-width: 220px; padding: 5px 10px; border-radius: 8px; background: #fbbf24; color: #1b1330; font-size: 0.86rem; font-weight: 800; line-height: 1.2; pointer-events: none; box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vob-3d-tag::after { content: ''; position: absolute; left: 50%; bottom: -6px; width: 12px; height: 12px; background: #fbbf24; transform: translateX(-50%) rotate(45deg); z-index: -1; }
+.vob-legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 10px; font-size: 0.88rem; color: #cbc5e3; }
+.vob-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.vob-legend i { width: 14px; height: 14px; border-radius: 4px; }
+.vob-legend i.s-progress { background: #e9a23b; } .vob-legend i.s-done { background: #22c55e; } .vob-legend i.s-plan { background: #8b7cf6; } .vob-legend i.pick { background: #fbbf24; box-shadow: 0 0 0 2px rgba(251, 191, 36, 0.35); }
+.vob-model-note { margin: 8px 0 0; font-size: 0.86rem; color: #8a82a8; }
+.vob-works { max-height: 590px; }
+.vv-plan svg { display: block; width: 100%; max-width: 620px; border-radius: 12px; cursor: crosshair; touch-action: manipulation; }
+.vv-plan-site { fill: #141b2b; }
+.vv-plan-house { fill: rgba(169, 187, 220, 0.16); stroke: #a9bbdc; stroke-width: 0.5; }
+.vv-plan-f2 { fill: rgba(124, 138, 165, 0.35); stroke: #cbd5e1; stroke-width: 0.3; stroke-dasharray: 1.2 0.8; }
+.vv-plan-axis { stroke: rgba(169, 187, 220, 0.25); stroke-width: 0.2; }
+.vv-plan text { fill: #a39cc2; font-size: 3.4px; font-weight: 600; pointer-events: none; }
+.vv-plan text.f2 { fill: #e2e8f0; }
+.vv-plan-dot circle:first-child { fill: rgba(251, 191, 36, 0.3); stroke: #fbbf24; stroke-width: 0.5; }
+.vv-plan-dot circle:last-child { fill: #fbbf24; }
+.vv-plan-dot.auto circle:first-child { fill: rgba(185, 164, 255, 0.2); stroke: #b9a4ff; stroke-dasharray: 1 0.7; }
+.vv-plan-dot.auto circle:last-child { fill: #b9a4ff; }
+.vv-plan-foot { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-top: 6px; font-size: 0.86rem; color: #a39cc2; }
+/* значки стали двухцветными — чуть крупнее в строках */
+.vwb-g-pic.art svg { width: 34px; height: 34px; }
+.vob-works .art svg { width: 30px; height: 30px; }
+.vwb-g-pic.art { color: #c9b8ff; }
+@media (max-width: 720px) {
+  .vob-3d-wrap { height: 330px !important; }
+  .vob-3d { height: 100% !important; }
+  .vob-works { max-height: 420px; }
+}
+@media (max-width: 720px) { .vwb-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
