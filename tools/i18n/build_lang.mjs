@@ -2,7 +2,7 @@
 // Проверяет подстановки ({a}, {b}, {n}) и что в переводе не осталось кириллицы.
 import fs from 'node:fs';
 const lang = process.argv[2];
-const NAMES = { zh: 'Китайский', tr: 'Турецкий', uz: 'Узбекский', ar: 'Арабский', de: 'Немецкий', ja: 'Японский' };
+const NAMES = { zh: 'Китайский', tr: 'Турецкий', fr: 'Французский', it: 'Итальянский', es: 'Испанский (Мексика)', uz: 'Узбекский', ar: 'Арабский', de: 'Немецкий', ja: 'Японский' };
 if (!NAMES[lang]) { console.log('язык?'); process.exit(2); }
 const keys = JSON.parse(fs.readFileSync('keys.json', 'utf8'));
 const T = {}; const TPL = []; const bad = []; const seen = new Set();

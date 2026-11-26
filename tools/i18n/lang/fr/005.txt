@@ -1,0 +1,240 @@
+1250|Chape semi-sèche fibrée
+1251|Calcul selon les normes SN RK {n}-{n}
+1252|Bâtiment clair (SNiP RK ×{n})
+1253|Télécharger le procès-verbal KS-{n} (Excel .xlsx)
+1254|Fibres de polypropylène {n} mm
+1255|Ciment PC-{n} D{n} + sable lavé
+1256|PLAN DE L'UTILISATEUR (DWG/PDF)
+1257|Chymkent (SNiP RK ×{n})
+1258|Structures monolithiques ({a})
+1259|Plan : {a}
+1260|Connexion — QazGost AI
+1261|au-dessus
+1262|sac
+1263|sur
+1264|en dessous
+1265|Entrepôt
+1266|Prix indicatif
+1267|, en gros
+1268|, prix indicatif
+1269|. Modifiez la recherche ou réinitialisez les filtres
+1270|. Précisez la recherche ou la catégorie pour trier toute la sélection
+1271|). Des produits de démonstration sont affichés : prix et disponibilité fictifs
+1272|{n} km
+1273|Calculateur IA des besoins en matériaux (BOM)
+1274|Spécification IA des matériaux calculée avec succès
+1275|AlinEX / TOO « Alina Group »
+1276|Kaspi ou virement au fournisseur après confirmation
+1277|CHARGE ROUTIÈRE
+1278|Adresse de livraison du chantier
+1279|PROMO
+1280|Armature A{n}S Ø{n} mm
+1281|Armature en acier crénelée A{n}S Ø{n} mm (longueur {n} m)
+1282|Treillis de maçonnerie {n}×{n}
+1283|Centrale à béton TOO « StroyMonolit KZ »
+1284|LIVRAISON RAPIDE
+1285|Ajouter au panier
+1286|EN STOCK
+1287|Aucun article dans cette catégorie
+1288|Valdaï / MAN {n} t (porteur moyen)
+1289|Votre panier est vide
+1290|Saisissez les dimensions de base du bien : le réseau neuronal calculera la spécification précise des matériaux selon les normes de consommation SNiP RK
+1291|Poteau vibré pour lignes {n}–{n} kV
+1292|HYDROFUGE
+1293|Élévation des murs (béton cellulaire + colle)
+1294|Tous les postes calculés ont été ajoutés au panier
+1295|Tout le Kazakhstan
+1296|Choisissez des produits dans le catalogue et ajoutez-les au panier
+1297|Mise à niveau du tampon
+1298|Tampon composite haute résistance pour poids lourds
+1299|Fil à ligaturer {n} mm
+1300|Almaty, quartier Samal-{n}, bât. {n}
+1301|Gazelle {n} t (livraison urbaine)
+1302|Bloc de béton cellulaire {n}×{n}×{n} D{n}
+1303|Bloc de béton cellulaire autoclavé « Ekoton » D{n} ({n}×{n}×{n} mm)
+1304|Plaque de plâtre Knauf hydrofuge GKLV ({n}×{n}×{n} mm)
+1305|Rehausse de regard KS {n} (d={n} m, h={n} m)
+1306|Ville de livraison
+1307|GOST
+1308|GOST RK
+1309|GOST RK {n}
+1310|Pour regards d'eau et de câbles
+1311|Fond de regard PN-{n} (d={n} mm)
+1312|Ajouter toute la spécification à la commande
+1313|Anneau de rehausse de regard
+1314|Bloc de fondation complémentaire
+1315|Livraison / retrait
+1316|Livraison par camion-grue
+1317|Livraison par camion-grue à Karaganda et dans la région
+1318|Livraison par camion-grue. Fourni avec le cadre
+1319|Livraison par camion-grue. Béton hydraulique
+1320|Livraison par camion-grue. En gros à partir de {n} u. : {n} ₸
+1321|Semi-remorque {n}-{n} t (interurbain / gros)
+1322|u.)
+1323|Remises sur volume disponibles
+1324|postes chargés sur
+1325|Coulage d'une fondation monolithique
+1326|Demande de prix de gros à toutes les usines et fournisseurs du Kazakhstan
+1327|Ivan Ivanov / TOO « StroyGroup »
+1328|Nom du destinataire / de l'entreprise
+1329|EI « Medina » (Manarbek)
+1330|EI MEDINA
+1331|Total à payer
+1332|Total à payer avec livraison
+1333|KamAZ / benne {n} t
+1334|CARRIÈRE
+1335|Le catalogue des prix est indisponible (
+1336|kg / u.
+1337|Brique pleine en terre cuite M-{n} ({n}×{n}×{n} mm)
+1338|Colle pour béton cellulaire (sac de {n} kg)
+1339|Colle pour carrelage et grès cérame AlinEX « Set {n} » ({n} kg)
+1340|Quantité
+1341|La quantité doit être supérieure à {n}
+1342|Anneau KS {n} ({n}×{n} mm)
+1343|Anneau d'appui KO-{n}
+1344|Téléphone de contact
+1345|Panier de commande
+1346|Panier vidé
+1347|Dalle de couverture de regard {n}PP-{n}-{n} (d={n} mm)
+1348|Dalle de couverture de regard {n}PP-{n}-{n} renforcée (d={n} mm)
+1349|Dalle de couverture de regard {n}PP-{n}-{n} renforcée pour charge routière (d={n} mm)
+1350|Dalle de couverture de regard {n}PP-{n}-{n}U renforcée (d={n} mm)
+1351|Dalle de regard avec ouverture
+1352|plaque ({n} m²)
+1353|POTEAU DE LIGNE
+1354|TAMPON BÉTON
+1355|Tampon en béton armé ({n}×{n} mm)
+1356|TAMPON KPR-{n}
+1357|Tampon polymère lourd (charge {n} t)
+1358|Tampon fonte-béton KPR-{n} ({n}×{n} mm)
+1359|camion de {n} t
+1360|sacs
+1361|Par exemple : Armature A{n}S Ø{n} mm — {n} tonnes, Béton M{n} — {n} m³, Brique en terre cuite — {n} u.
+1362|Réponse du catalogue incorrecte
+1363|Aucun résultat
+1364|Masse totale de la charge
+1365|Gros
+1366|En gros à partir de {n} plaques : {n} ₸
+1367|En gros à partir de {n} m³ : {n} ₸
+1368|En gros à partir de {n} sacs : {n} ₸
+1369|En gros à partir de {n} palettes ({n} u.) : {n} ₸
+1370|En gros à partir de {n} tonnes : {n} ₸
+1371|En gros à partir de {n} paquets : {n} ₸
+1372|En gros à partir de {n} barres : {n} ₸
+1373|En gros à partir de {n} u. : {n} ₸
+1374|L'appel d'offres en gros a été envoyé aux fournisseurs du Kazakhstan
+1375|Repère de marché tiré de la base de prix QazGost ; l'achat est effectué par le gestionnaire de la plateforme
+1376|À partir de {n} camions : {n} ₸
+1377|Passer la commande et la livraison
+1378|Commande de matériaux de construction
+1379|Sable de construction lavé
+1380|Sable de rivière lavé {n}-{n} mm (benne de {n} t)
+1381|Dalle de couverture {n} PP {n}-{n} (d={n} m avec ouverture)
+1382|Dalle de couverture PP {n}-{n} (d={n} m)
+1383|Surface / volume de l'ouvrage (m²)
+1384|Pour tampon de regard de visite
+1385|Confirmer et envoyer la demande
+1386|postes)
+1387|POLYMÈRE {n} T
+1388|Ciment Portland M{n} D{n} « Kazcement » (sac de {n} kg)
+1389|PREMIUM
+1390|Rayon de livraison
+1391|Rayon de livraison, km
+1392|Envoyer l'appel d'offres aux fournisseurs
+1393|Calculer la spécification des matériaux
+1394|Réserve pour coupes et pertes techniques : +{n} %
+1395|Bordereau de matériaux recommandé pour
+1396|Détail : {n} ₸ / avec documents : {n} ₸
+1397|rouleaux
+1398|du marché sur
+1399|Avec ouverture pour tampon standard
+1400|Certificat GOST / ST RK
+1401|Certification et disponibilité
+1402|CERTIFIÉ
+1403|Quantité trop importante pour un seul article
+1404|Le tri par prix est appliqué à
+1405|Liste ou description des matériaux
+1406|Prix indicatif QazGost (marché du Kazakhstan, {n})
+1407|À titre indicatif
+1408|ST RK GOST {n}
+1409|ST RK GOST {n}-{n}
+1410|Coût des produits (
+1411|Chape et ragréage
+1412|TABYS-ASM
+1413|Type d'ouvrage
+1414|Béton prêt à l'emploi M-{n} (B{n})
+1415|Béton prêt à l'emploi M-{n} (B{n}) livré en toupie
+1416|Uniquement en stock
+1417|tonnes
+1418|tonne
+1419|TOO « Usine de briques d'Almaty n° {n} »
+1420|TOO « ArcelorMittal Temirtau Sbyt »
+1421|TOO « KazMetService »
+1422|TOO « KazCement Industry »
+1423|TOO « Karier NerudTrans »
+1424|TOO « Knauf Gips Kazakhstan »
+1425|TOO « Knauf Gips »
+1426|TOO « Penoplex RK »
+1427|TOO « TABYS-ASM » (Natalia)
+1428|TOO « TechnoNICOL Kazakhstan »
+1429|TOO « Ekoton-Batys »
+1430|MEILLEUR CHOIX
+1431|Tube profilé {n}×{n}×{n} mm (barre de {n} m)
+1432|Béton lourd pour fondations et sous-sols
+1433|L'article n'a pas de prix — demandez le prix au fournisseur
+1434|Augmenter la quantité
+1435|Indiquez le nom, le téléphone et l'adresse de livraison
+1436|Indiquez la liste des matériaux nécessaires. Le système avertira automatiquement les dépôts et usines accrédités, et vous recevrez des offres commerciales avec jusqu'à {n} % de remise
+1437|Diminuer la quantité
+1438|paquet ({n} m²)
+1439|RENFORCÉ
+1440|Poteau de ligne électrique renforcé en béton armé {n} m
+1441|Isolant en laine minérale TechnoNICOL Rocklight ({n}×{n}×{n} mm)
+1442|Fibres de renfort
+1443|Filtres réinitialisés
+1444|Pas de photo ·
+1445|FONDATION FBS
+1446|MEILLEURE VENTE
+1447|Meilleure vente pour fosses septiques et regards
+1448|BEST-SELLER SEPTIQUE
+1449|barre ({n} m)
+1450|Ciment M{n} D{n} ({n} kg)
+1451|Enduit plâtre Knauf Rotband ({n} kg)
+1452|Polystyrène extrudé PENOPLEX Confort {n} mm
+1453|EFFICACITÉ ÉNERGÉTIQUE
+1454|Valdaï {n} t
+1455|KamAZ {n} t
+1456|Commande de matériaux pour le chantier : {a}. Contenu : {b}. Transport : {c}. Paiement : {d}
+1457|La commande {a} a été passée et envoyée au gestionnaire pour préparation ! 🧱
+1458|Calcul effectué selon les normes SNiP RK pour un bien de {a} m²
+1459|Transport recommandé pour livrer tout le lot : {a}
+1460|Commande de matériaux pour le chantier : {a}. Contenu : {b}
+1461|Impossible de charger la page suivante : {a}
+1462|Livraison de matériaux ({a} réf., {b} t)
+1463|Pour l'unité « {a} », indiquez une quantité entière
+1464|Le fournisseur n'a que {a} {b} en stock
+1465|Ajouté au panier : {a} ({b} {c})
+1466|Afficher plus ({a} sur {b} affichés)
+1467|Vérifiez la quantité et le prix : « {a} »
+1468|Aucun matériau pour « {a} »
+1469|Illustration de la catégorie : {a}
+1470|— coefficient ×{a}
+1471|coefficient : {a}
+1472|, fournisseur {a}
+1473|pour la région {a}
+1474|Quantité, {a}
+1475|Page introuvable — QazGost AI
+1476|Terminé ✓
+1477|Passer
+1478|Type de travaux
+1479|Fermer la caméra
+1480|Total
+1481|Premium
+1482|Travail
+1483|Rénovation
+1484|Standard
+1485|Économique
+1486|₸/m² · matériaux
+1487|Procès-verbal PDF prêt et enregistré
+1488|Rapports de défauts
+1489|Plus

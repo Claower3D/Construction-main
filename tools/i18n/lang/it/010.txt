@@ -1,0 +1,240 @@
+2460|Tipo di soffitto
+2461|Teso
+2462|Cartongesso da tinteggiare
+2463|Tinteggiatura sul solaio
+2464|Faretti
+2465|Senza
+2466|{n} ogni {n} m²
+2467|Struttura e rivestimento
+2468|Controsoffitto teso
+2469|Corpi illuminanti
+2470|teso opaco
+2471|teso satinato
+2472|teso lucido
+2473|cartongesso, rasatura in {n} mano, Gaudi «Biancaneve»
+2474|cartongesso, rasatura in {n} mani, Gaudi Standart
+2475|cartongesso, finitura Glatt Plus, pittura Remalux
+2476|sul solaio: rasatura in {n} mano, Gaudi «Biancaneve»
+2477|sul solaio: rasatura in {n} mani, Gaudi Standart
+2478|sul solaio: finitura Glatt Plus, pittura Remalux
+2479|Contorno dell'ambiente / dell'appartamento
+2480|{n} — secondo norma: {n} presa ogni {n} m di perimetro
+2481|{n} — in base al numero di porte
+2482|Plafoniere
+2483|{n} — {n} ogni {n} m²
+2484|Nuovo quadro elettrico
+2485|Tracce
+2486|Posa dei cavi
+2487|Apparecchi elettrici
+2488|rifacimento completo dell'impianto con cavo VVGng-LS {n}×{n}
+2489|rifacimento dell'impianto + magnetotermici differenziali per le zone umide
+2490|× ≈{n} m di traccia per punto
+2491|× {n} m
+2492|× ≈{n} m di cavo per punto
+2493|× {n} m + {n}% di scorta
+2494|un quadro
+2495|quadro con {n} interruttori e differenziale
+2496|{n} circuiti: luce, prese per stanza, cucina, bagno, piano cottura, lavatrice
+2497|differenziale generale
+2498|magnetotermici differenziali per bagno e cucina
+2499|Impianto elettrico: ≈{n} m di cavo e ≈{n} m di traccia per punto; lampade e lampadari a carico del cliente (nel preventivo solo il montaggio)
+2500|doccia
+2501|lavatrice
+2502|scaldabagno
+2503|scaldasalviette
+2504|punti
+2505|un miscelatore per lavabo, vasca e doccia
+2506|Impianti idraulici e idrici
+2507|Contorno del bagno / dell'appartamento
+2508|WC
+2509|Monoblocco
+2510|Telaio da incasso
+2511|Lavabo con mobile
+2512|Vasca
+2513|Box doccia
+2514|Lavatrice
+2515|Scaldabagno
+2516|Scaldasalviette
+2517|Allaccio alla colonna montante
+2518|Punti acqua
+2519|{n} — in base agli apparecchi scelti
+2520|Distribuzione delle tubazioni
+2521|prova di pressione dell'impianto
+2522|WC monoblocco economico
+2523|WC monoblocco di fascia media
+2524|WC di fascia alta
+2525|allaccio alla colonna acqua fredda/calda
+2526|; ≈{n} m di tubo per punto + {n}%
+2527|WC monoblocco
+2528|telaio da incasso
+2529|telaio da incasso con WC
+2530|box doccia
+2531|lavatrice (la macchina è del cliente)
+2532|scaldabagno {n} L
+2533|Impianto idraulico: il lavoro «a punto» comprende la posa dei tubi; ≈{n} m di tubo PPR per punto
+2534|Superficie riscaldata
+2535|{n} — in base alle dispersioni e al numero di finestre
+2536|Tubazioni di riscaldamento
+2537|prova di pressione
+2538|radiatori bimetallici da {n} elementi
+2539|Climatizzazione e ventilazione
+2540|Contorno degli ambienti
+2541|Climatizzatori split
+2542|{n} — uno da {n} BTU ogni {n} m²
+2543|Aspiratori
+2544|Climatizzatori
+2545|impostato
+2546|bagni e cucina
+2547|Contorno della casa
+2548|Lunghezza della tubazione del gas in casa
+2549|Apparecchi a gas
+2550|Serve un progetto
+2551|approvazione del progetto presso il servizio gas
+2552|Montaggio della tubazione del gas
+2553|Allacciamento degli apparecchi
+2554|progetto e approvazione
+2555|lunghezza da progetto
+2556|piano cottura e caldaia
+2557|Gas: i lavori sono eseguiti solo da un'impresa autorizzata; il prezzo si precisa dopo le condizioni tecniche
+2558|Contorno dell'ambiente
+2559|Rimuovere la carta da parati
+2560|Scrostare l'intonaco
+2561|Rimuovere le piastrelle dalle pareti
+2562|Rimuovere il pavimento
+2563|Laminato, linoleum
+2564|Demolizione del massetto
+2565|Demolizione di tramezzi in mezzo mattone
+2566|Rimozione dei blocchi porta
+2567|Demolizione di un edificio (volume edificato)
+2568|il volume di demolizione è uguale in tutti gli scenari
+2569|superficie dei tramezzi
+2570|blocchi porta
+2571|volume edificato dell'edificio
+2572|Contorno dello scavo / del lotto
+2573|Profondità di scavo
+2574|Metodo
+2575|Miniescavatore
+2576|A mano
+2577|Trasporto del terreno in eccesso
+2578|Scavo
+2579|il volume dei lavori è uguale in tutti gli scenari
+2580|Contorno sull'asse delle pareti esterne
+2581|Larghezza della trave di fondazione
+2582|Altezza della trave di fondazione
+2583|Fuori terra
+2584|Pareti portanti interne
+2585|kg/m³
+2586|Di solito {n}–{n} kg per {n} m³ di trave
+2587|Tracciamento degli assi
+2588|Casseratura e armatura
+2589|maturazione al {n}% della resistenza del calcestruzzo
+2590|calcestruzzo M{n}, armatura A{n}S
+2591|picchettamento degli assi sul terreno
+2592|vuoti della trincea
+2593|Fondazione: il calcestruzzo arriva direttamente dall'autobetoniera (senza autopompa); impermeabilizzazione e isolamento della trave non inclusi
+2594|Platea monolitica
+2595|Contorno della platea
+2596|Platea su terreno
+2597|Solaio
+2598|Muratura delle pareti in calcestruzzo cellulare
+2599|Contorno delle pareti esterne
+2600|Spessore della parete
+2601|Tramezzi {n} mm
+2602|Muratura delle pareti
+2603|calcestruzzo cellulare D{n} con collante
+2604|+ {n}% per rotture e tagli
+2605|Muratura: cordolo e architravi sono calcolati nella sezione «Platea monolitica»
+2606|Carpenteria metallica, tettoia
+2607|Contorno della tettoia / del telaio
+2608|Fabbricazione e montaggio
+2609|Tettoia: il prezzo degli annunci comprende metallo, verniciatura e montaggio; le fondazioni dei pilastri non sono incluse
+2610|Contorno della pavimentazione
+2611|Magatelli e pavimentazione
+2612|Contorno della casa in pianta
+2613|Pendenza delle falde
+2614|Sporto del tetto
+2615|Forma
+2616|A due falde
+2617|A padiglione
+2618|Nuova orditura
+2619|Isolato (mansarda)
+2620|Rimozione della vecchia copertura
+2621|Orditura del tetto
+2622|Membrana e isolamento
+2623|Manto di copertura
+2624|Grondaie
+2625|lamiera a coppo «Venezia»
+2626|lamiera a coppo «SuperMonterrey» {n} mm
+2627|lamiera a coppo «SuperMonterrey» (Russia)
+2628|a padiglione: gronda su tutto il perimetro
+2629|a due falde: gronda sui due lati lunghi ≈ metà del perimetro
+2630|Altezza della facciata
+2631|Ponteggi
+2632|asciugatura dell'intonaco cementizio
+2633|Finitura
+2634|tinteggiatura della facciata esistente senza nuovo intonaco
+2635|intonaco su rete e pittura per facciate in {n} mani
+2636|intonaco su rete e intonaco decorativo «graffiato»
+2637|asciugatura dello strato di armatura
+2638|lana minerale {n} mm, «cappotto»
+2639|Isolamento: i ponteggi sono calcolati nella sezione «Lavori di facciata»
+2640|finestre nel contorno: {n}
+2641|{n} — in base al numero di finestre nel contorno
+2642|Spallette in pannello sandwich
+2643|Spallette e davanzali
+2644|Finestra in PVC con posa
+2645|Finestra in PVC profilo premium
+2646|Finestre: il prezzo del listino è per una finestra di {n}×{n} m; le finestre più grandi costano di più in proporzione alla superficie
+2647|porte nel contorno: {n}
+2648|Contorno dell'appartamento
+2649|Porte interne
+2650|{n} — in base al numero di porte nel contorno
+2651|Porta d'ingresso
+2652|Cucina componibile
+2653|Montaggio dei mobili
+2654|u.
+2655|porta d'ingresso
+2656|lunghezza della cucina
+2657|mobili
+2658|Rivestimento della scala
+2659|Contorno del vano scala
+2660|Gradini
+2661|Rivestimento dei gradini
+2662|gres porcellanato {n}×{n}
+2663|gres porcellanato {n}×{n} effetto marmo
+2664|gres porcellanato {n}×{n} serie premium
+2665|numero di gradini
+2666|Contorno dell'immobile
+2667|progetto di interior design senza visualizzazione
+2668|progetto di interior design e visualizzazione {n}D
+2669|{n} — in base alla superficie
+2670|Installazione dell'allarme
+2671|una centrale
+2672|linea + {n}% di scorta
+2673|L'allarme antincendio negli edifici commerciali richiede un progetto secondo le norme del Kazakistan; qui è una stima dell'installazione
+2674|Telecamere
+2675|Installazione del sistema
+2676|videoregistratore fino a {n} telecamere
+2677|Lavori esterni
+2678|Tracciato (lunghezza dal perimetro o come parametro)
+2679|Lunghezza del tracciato
+2680|{n} — in base al perimetro del contorno
+2681|Profondità della trincea
+2682|sotto la profondità di gelo
+2683|Trincea
+2684|Posa del tubo
+2685|Rinterro
+2686|letto di posa {n} cm e ricoprimento {n} cm su una larghezza di {n} m
+2687|lunghezza del tracciato
+2688|lunghezza + {n}%
+2689|trincea al netto dello strato di sabbia
+2690|Pavimentazione in cubetti
+2691|Contorno dell'area
+2692|Cordolo perimetrale
+2693|Cassonetto e sottofondo
+2694|Posa
+2695|Cordolo
+2696|terreno dal cassonetto × {n}
+2697|ghiaia {n} cm compattata ×{n}
+2698|letto di sabbia {n} cm × {n}
+2699|lungo il perimetro dell'area

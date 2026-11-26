@@ -1,0 +1,240 @@
+1970|{a} (coefficiente {b})
+1971|Scansione {n}D e rilievi
+1972|Interventi di emergenza
+1973|Autogrù
+1974|Protezione anticorrosione
+1975|Armatura
+1976|Pompa per calcestruzzo
+1977|Sistemazioni esterne e strade
+1978|Cordoli e bordure
+1979|Perforazione per pali
+1980|Perforazione di pozzi d'acqua
+1981|Facciata ventilata
+1982|Impianto idrico interno
+1983|Scarichi interni
+1984|Trattamento dell'acqua e filtri
+1985|Sistema di grondaie
+1986|Cancelli e recinzioni
+1987|Trasporto del terreno
+1988|Impermeabilizzazione
+1989|Impermeabilizzazione delle fondazioni
+1990|Lavori in cartongesso
+1991|Demolizione di edifici e strutture
+1992|Sottofondo stradale
+1993|Consegna dei materiali
+1994|Drenaggio del terreno
+1995|Recinzioni
+1996|Messa a terra e parafulmine
+1997|Movimento terra e demolizioni
+1998|Indagini e progettazione
+1999|Iniezione delle fessure
+2000|Ristrutturazione completa
+2001|Costruzione a telaio
+2002|Muratura in mattoni
+2003|Muratura in calcestruzzo cellulare
+2004|Ristrutturazione leggera
+2005|Centrale termica
+2006|Coperture e facciate
+2007|Copertura in lamiera a coppo e lamiera grecata
+2008|Scale e ringhiere
+2009|Fognatura per acque meteoriche
+2010|Piccole opere di arredo esterno
+2011|Autocarro con gru
+2012|Facciata a cappotto intonacata
+2013|Solai monolitici
+2014|Telaio monolitico
+2015|Installazione dell'impianto HVAC
+2016|Montaggio di prefabbricati in c.a.
+2017|Montaggio di carpenteria metallica
+2018|Installazione di apparecchiature
+2019|Copertura in guaina
+2020|Pensiline e tettoie
+2021|Fognatura esterna
+2022|Stazione di pompaggio
+2023|Rivestimento di facciata
+2024|Carta da parati e rivestimenti decorativi
+2025|Rinterro e compattazione
+2026|Ispezione dell'edificio
+2027|Protezione antincendio delle strutture
+2028|Verde
+2029|Finestre, porte, strutture
+2030|Lavori di casseratura
+2031|Illuminazione
+2032|Vetrate di facciate e balconi
+2033|Riscaldamento, ventilazione, gas
+2034|Tramezzi
+2035|Livellamento del terreno
+2036|Fondazione a platea
+2037|Tetto piano
+2038|Allacciamento alla rete elettrica
+2039|Pavimenti industriali in calcestruzzo
+2040|Lavori industriali
+2041|Messa in servizio
+2042|Progetto esecutivo
+2043|Scavo di sbancamento
+2044|Serbatoi e vasche
+2045|Binari e vie di corsa per gru
+2046|Riparazione e consolidamento
+2047|Riparazione della copertura
+2048|Riparazione della facciata
+2049|Autocarro ribaltabile
+2050|Fondazione su pali
+2051|Lavori di saldatura
+2052|Cablaggio strutturato e Internet
+2053|Documentazione di stima
+2054|Approvazioni e permessi
+2055|Impianto fotovoltaico
+2056|Mezzi speciali e consegna
+2057|Pareti, telaio, metallo
+2058|Pannelli sandwich
+2059|Sottostazione termica
+2060|Pavimento radiante
+2061|Supervisione tecnica e d'autore
+2062|Tubazioni di processo
+2063|Rilievo topografico
+2064|Trincee per sottoservizi
+2065|Posa di cubetti
+2066|Casa intelligente e automazione
+2067|Consolidamento delle strutture
+2068|Installazione di porte
+2069|Installazione di finestre
+2070|Installazione di sanitari
+2071|Isolamento della copertura
+2072|Fondazioni e calcestruzzo
+2073|Rasatura e tinteggiatura
+2074|Quadri elettrici
+2075|Escavatore
+2076|Impianti elettrici e a bassa tensione
+2077|Progetto preliminare
+2078|Automazione e bassa tensione
+2079|Ventilazione e climatizzazione
+2080|Strutture in legno
+2081|Strade e ponti
+2082|Scale e balconi
+2083|Arredi e attrezzature
+2084|Reti esterne
+2085|da {n} ₸/allaccio
+2086|da {n} ₸/sensore
+2087|da {n} ₸/u.
+2088|da {n} ₸/kit
+2089|da {n} ₸/m
+2090|da {n} ₸/m²
+2091|da {n} ₸/m³
+2092|da {n} ₸/ml
+2093|da {n} ₸/apparecchio
+2094|da {n} ₸/turno
+2095|da {n} ₸/t
+2096|da {n} ₸/punto
+2097|da {n} ₸/servizio
+2098|da {n} ₸/pz
+2099|Impianti idraulici e idrici
+2100|Isolamento termico e impermeabilizzazione
+2101|Metodo non supportato
+2102|Utente non trovato
+2103|Prego! Se avrai domande sul cantiere o sui prezzi, sono qui
+2104|Sälem! Sono LinkVeAI, l'assistente IA di QazGost. Ti indico i prezzi di lavori e materiali, ti spiego come ottenere un preventivo da foto, trovo una squadra o dei mezzi. Cosa costruiamo o ristrutturiamo
+2105|turno
+2106|tonnellata
+2107|Nella banca dati non ho trovato una voce precisa per questa richiesta. Sii più specifico — tipo di lavoro o materiale e quantità, ad esempio «intonacatura pareti {n} m²» o «calcestruzzo M{n} m³». Il preventivo completo con lavori e materiali lo prepara [Preventivo da foto](auth:register)
+2108|pezzo
+2109|Ti aiuto con costruzione e ristrutturazione: prezzi di lavori e materiali, preventivo da foto, controllo delle fessure, ricerca di squadre e mezzi. Scrivi cosa c'è da fare, ad esempio «quanto costa un massetto di {n} m²» o «serve un escavatore per un turno»
+2110|Email o password errate
+2111|Impossibile salvare la password
+2112|Impossibile salvare la password, riprova
+2113|Dati di registrazione non validi
+2114|Numero di telefono non valido: serve il formato +{n} e {n} cifre
+2115|Formato della richiesta non valido
+2116|Autenticazione richiesta
+2117|Errore nella generazione del token
+2118|Errore nella creazione dell'utente
+2119|la password deve avere almeno {n} caratteri
+2120|La password deve avere almeno {n} caratteri
+2121|Password impostata, accesso effettuato
+2122|Password modificata, ma non è stato possibile aprire una nuova sessione: accedi con la nuova password
+2123|La password è obbligatoria
+2124|Esiste già un utente con questa email
+2125|Registrazione completata
+2126|Sessione scaduta
+2127|Campi di registrazione troppo lunghi
+2128|password troppo lunga
+2129|Password troppo lunga
+2130|Troppi tentativi di accesso non riusciti. Riprova tra {n} min
+2131|Troppi tentativi non riusciti. Riprova tra {n} min
+2132|Indica l'email nel formato name@example.kz
+2133|Indica il numero di telefono
+2134|Accesso riuscito
+2135|Per registrarti, accetta i termini d'uso e dai il consenso al trattamento dei dati personali
+2136|È il tuo primo accesso: crea la tua password e inseriscila —
+2137|questa password è troppo semplice o troppo comune
+2138|Richiesta non valida
+2139|Nessuna geometria: chiudi il contorno o inserisci superficie e perimetro
+2140|Superficie superiore a {n} m²: controlla la scala del contorno
+2141|Altezza superiore a {n} m: controlla l'inserimento (si indica l'altezza delle pareti, non di tutta la casa)
+2142|Numero di aperture non valido
+2143|Pacchetto di lavori sconosciuto
+2144|Nessuna scheda tecnologica per la categoria «
+2145|La quantità di ogni voce è calcolata dalla geometria del contorno e dai consumi dei produttori
+2146|prezzi di mercato, con la fonte in ogni riga; il coefficiente regionale è applicato a lavori e materiali
+2147|gli scenari differiscono per composizione dei lavori e marca dei materiali
+2148|Una sola squadra, le fasi sono in sequenza; i tempi includono le pause tecnologiche (asciugatura, maturazione). Produttività secondo le norme ENiR/la pratica delle squadre
+2149|Aperture: porte {n} × {n}×{n} m, finestre {n} × {n}×{n} m — sottratte dalla superficie delle pareti
+2150|La riserva del {n}% per imprevisti è mostrata a parte e non è inclusa nel costo delle voci
+2151|Il resto è una stima calcolata da QazGost: verifica queste righe con il fornitore
+2152|Scostamento rilevante: controlla la composizione dei lavori
+2153|In «Economico» il laminato si posa senza nuovo massetto: è ammesso solo se il dislivello del sottofondo non supera {n} mm su {n} m
+2154|In «Economico» le piastrelle si posano senza nuovo massetto: dislivelli del sottofondo fino a {n} mm si compensano con il collante, oltre serve il massetto
+2155|In «Economico» le pareti non vengono livellate con guide, solo rasate sulla superficie esistente. Va bene se lo scostamento delle pareti è fino a {n} mm
+2156|Confronto con la banca dati di riferimento QazGost: {n} voci hanno almeno {n} equivalenti, di cui {n} con un prezzo nell'intervallo della banca dati (da ½ del quartile inferiore a {n} × il superiore, esclusi valori anomali)
+2157|Per {n} voci il prezzo della banca dati differisce sensibilmente: nel preventivo resta il prezzo del prontuario con la fonte, l'analisi è nella tabella di confronto
+2158|barattolo
+2159|Lavori «Standard»: {a} ₸/m² di pavimento. Prezzo medio dei lavori base al grezzo e di finitura in Kazakistan: {n}–{n} mila ₸/m² (Bizmedia/OLX, giugno {n})
+2160|Contorno molto allungato: con un perimetro di {a} m la superficie è di soli {b} m². Se non è un corridoio, controlla i punti
+2161|La superficie di {a} m² supera il massimo possibile per un perimetro di {b} m ({c} m²): controlla il contorno
+2162|Una superficie di {a} m² è impossibile con un perimetro di {b} m (massimo {c} m²): controlla le misure
+2163|{a}% dell'importo «Standard» — ai prezzi di listini e annunci pubblici con link
+2164|Le aperture occupano il {a}% delle pareti: controlla il numero di finestre e porte
+2165|La città «{a}» non è nel prontuario: calcolo ai prezzi di Almaty
+2166|Un'altezza di {a} m è atipica per un ambiente (di solito {n}–{n} m)
+2167|Prezzi di Almaty ricalcolati per {a} con il coefficiente {b}
+2168|Geometria coerente: {a} m² con un perimetro di {b} m
+2169|novembre {n}
+2170|Listino «Proff-Remont», Almaty, {n}
+2171|Listino «Rekrovli», Almaty, {n}
+2172|Satu.kz, offerte dei venditori, {n}
+2173|OLX.kz, annunci, {n}
+2174|Kaspi Annunci, Almaty, {n}
+2175|Bizmedia.kz su dati OLX, giugno {n}
+2176|Listino «Silver-Remont», Almaty
+2177|Stima QazGost
+2178|Rimozione dell'intonaco dalle pareti
+2179|Rimozione delle piastrelle dalle pareti
+2180|Rimozione del pavimento (laminato, linoleum, piastrelle in PVC)
+2181|Rimozione delle piastrelle dal pavimento
+2182|Rimozione della carta da parati
+2183|Demolizione di un tramezzo in mezzo mattone
+2184|Rimozione di un blocco porta in legno
+2185|Demolizione meccanizzata di un edificio (per volume edificato)
+2186|Carico e trasporto delle macerie (autocarro fino a {n} m³)
+2187|Primer a penetrazione profonda per pareti
+2188|Intonacatura delle pareti con guide
+2189|Rasatura e carteggiatura delle pareti (una mano)
+2190|Tinteggiatura delle pareti in {n} mani
+2191|Posa di carta da parati in TNT
+2192|Posa di carta da parati vinilica su TNT
+2193|Rivestimento delle pareti in piastrelle
+2194|Montaggio di un tramezzo in cartongesso
+2195|Posa dell'isolante acustico nel tramezzo in cartongesso
+2196|Intonaco a base gesso Knauf Rotband, {n} kg
+2197|Primer acrilico Remalux, {n} L
+2198|Stucco a base gesso Knauf Fugen, {n} kg
+2199|Rasante di finitura AlinEX Glatt Plus, {n} kg
+2200|Pittura per interni Gaudi «Biancaneve», {n} kg
+2201|Pittura per interni Gaudi Standart, {n} kg
+2202|Pittura per interni Remalux, {n} kg
+2203|Carta da parati in TNT Pure Rose, rotolo {n}×{n} m
+2204|Colla per carta da parati in TNT (confezione per {n} m²)
+2205|Prezzo al dettaglio di una confezione di colla Quelyd/Metylan ad Almaty
+2206|Lastra di cartongesso idrorepellente Knauf {n} mm, {n}×{n} m
+2207|Montante PS {n}×{n}, {n} m ({n} ₸/m)
+2208|Profilo per controsoffitto Knauf PP {n}×{n}, {n} m
+2209|Collante per piastrelle Ceresit CM {n} Plus, {n} kg

@@ -43,6 +43,9 @@ function ConsentTerms({ lang }) {
   if (lang === 'kk') return <span translate="no">Маған 18 жас толды, {docLink('/terms', 'пайдаланушы келісімін')} қабылдаймын</span>;
   if (lang === 'zh') return <span translate="no">我已年满 18 岁，并接受{docLink('/terms', '用户协议')}</span>;
   if (lang === 'tr') return <span translate="no">18 yaşından büyüğüm ve {docLink('/terms', 'kullanıcı sözleşmesini')} kabul ediyorum</span>;
+  if (lang === 'fr') return <span translate="no">J'ai 18 ans ou plus et j'accepte les {docLink('/terms', "conditions d'utilisation")}</span>;
+  if (lang === 'it') return <span translate="no">Ho almeno 18 anni e accetto i {docLink('/terms', "termini d'uso")}</span>;
+  if (lang === 'es') return <span translate="no">Tengo 18 años o más y acepto los {docLink('/terms', 'términos de uso')}</span>;
   // остальные языки, кроме русского, — по-английски: юридические тексты на них пока не переведены
   if (lang !== 'ru') return <span translate="no">I am 18 or older and accept the {docLink('/terms', 'Terms of Use')}</span>;
   return <span translate="no">Мне есть 18 лет, принимаю {docLink('/terms', 'пользовательское соглашение')}</span>;
@@ -67,6 +70,27 @@ function ConsentPrivacy({ lang }) {
     return (
       <span translate="no">
         {docLink('/privacy', 'Gizlilik politikası')} uyarınca {docLink('/consent', 'kişisel verilerimin işlenmesine')}, yurt dışına aktarılması dâhil, onay veriyorum
+      </span>
+    );
+  }
+  if (lang === 'fr') {
+    return (
+      <span translate="no">
+        J'accepte le {docLink('/consent', 'traitement de mes données personnelles')}, y compris leur transfert à l'étranger, conformément à la {docLink('/privacy', 'politique de confidentialité')}
+      </span>
+    );
+  }
+  if (lang === 'it') {
+    return (
+      <span translate="no">
+        Acconsento al {docLink('/consent', 'trattamento dei miei dati personali')}, compreso il trasferimento all'estero, secondo l'{docLink('/privacy', 'informativa sulla privacy')}
+      </span>
+    );
+  }
+  if (lang === 'es') {
+    return (
+      <span translate="no">
+        Doy mi consentimiento para el {docLink('/consent', 'tratamiento de mis datos personales')}, incluida su transferencia al extranjero, conforme al {docLink('/privacy', 'aviso de privacidad')}
       </span>
     );
   }

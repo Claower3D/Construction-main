@@ -1,0 +1,250 @@
+2210|Joint Ceresit CE {n}, {n} kg
+2211|Mousse expansive Makroflex Standard, {n} ml
+2212|Chape semi-sèche
+2213|Ragréage autolissant
+2214|Pose de stratifié (droite)
+2215|Pose de stratifié « en chevrons »
+2216|Pose de carrelage / grès cérame au sol
+2217|Pose de plinthes en plastique
+2218|Étanchéité liquide du sol en {n} couches
+2219|Tarif des carreleurs d'après les annonces à Almaty {n}–{n} milliers de ₸/m²
+2220|Ciment M{n}, {n} kg
+2221|Sable lavé livré
+2222|Satu : sable fin lavé {n} ₸/m³, livraison par KamAZ de {n} m³ à négocier séparément ; livré à Almaty ≈{n} ₸/m³
+2223|Stratifié Super Natural Narrow, classe {n}, {n} mm
+2224|Stratifié Kastamonu Floorpan Black, classe {n}, {n} mm
+2225|Stratifié « point de Hongrie », classe {n}, {n} mm
+2226|Sous-couche en plaques {n} mm (paquet de {n} m² — {n} ₸)
+2227|Plinthe PVC avec embouts et angles
+2228|Satu : plinthe PVC VOX {n} mm, {n} m — {n} ₸ (≈{n} ₸/m) ; angles, embouts et raccords ≈{n} ₸ par mètre
+2229|Grès cérame {n}×{n} « Tian-Shan Keramik »
+2230|Grès cérame {n}×{n} imitation marbre
+2231|Grès cérame {n}×{n} « Piastrella » MS {n}
+2232|Étanchéité liquide, {n} kg
+2233|Satu : Ceresit CL {n} kg — {n} ₸, CR {n} kg — {n} ₸, CR {n} kit — {n} ₸ ; prix moyen d'un produit élastique pour {n} kg
+2234|Plafond tendu mat (toile et pose)
+2235|Plafond tendu satiné (toile et pose)
+2236|Plafond tendu brillant (toile et pose)
+2237|Plafond en plaques de plâtre à un niveau
+2238|Spot LED Gauss Frameless, {n} W
+2239|Saignée dans le béton/la brique pour câble (saignée jusqu'à {n} mm)
+2240|Rebouchage des saignées
+2241|Pose d'une prise
+2242|Pose d'un interrupteur
+2243|Pose d'une boîte de dérivation
+2244|Pose du coffret du tableau électrique
+2245|Pose d'un disjoncteur dans le tableau
+2246|Pose d'un interrupteur différentiel / disjoncteur différentiel
+2247|Pose d'un lustre / plafonnier
+2248|Câble VVGng-LS {n}×{n}
+2249|Prise / interrupteur avec cadre et boîte d'encastrement
+2250|Satu : mécanisme Schneider AtlasDesign {n} A — {n} ₸ ; cadre et boîte d'encastrement ≈{n} ₸
+2251|Tableau ShchRN-{n} IEK, {n} disjoncteurs VA{n}-{n} A et différentiel VD{n}-{n}
+2252|Disjoncteur différentiel IEK AD{n}P {n} A {n} mA
+2253|Distribution d'eau (polypropylène)
+2254|Distribution d'eau par point (remplacement des tuyaux)
+2255|Pose d'un WC monobloc
+2256|Pose d'un bâti-support et d'un WC suspendu
+2257|Pose d'un lavabo avec meuble
+2258|Pose d'une baignoire en acrylique
+2259|Montage et pose d'une cabine de douche avec receveur
+2260|Pose d'un chauffe-eau
+2261|Pose d'un sèche-serviettes
+2262|Raccordement d'un lave-linge
+2263|Pose et raccordement d'un radiateur
+2264|Raccordement des tuyaux au radiateur
+2265|WC monobloc « Standard »
+2266|WC monobloc Santeri « Gratsia »
+2267|WC monobloc Santek « Animo », abattant duroplast
+2268|Radiateur bimétallique {n} mm, {n} éléments
+2269|Tube PPR {n} mm avec raccords et fixations
+2270|Satu : tube PPR PN{n} Ø{n} — {n} ₸/m ; raccords et fixations ≈{n} ₸ par mètre de réseau
+2271|Bâti-support Creavit avec WC suspendu et plaque de commande
+2272|Meuble avec lavabo « Ienisseï Classic » {n} cm
+2273|Mitigeur de lavabo Aquadeus {n}
+2274|Baignoire acrylique VentoSPa AQUA LA {n}×{n}
+2275|Cabine de douche Erlit {n}×{n} avec receveur
+2276|Chauffe-eau Ariston PRO{n} R ABS {n} L
+2277|Sèche-serviettes à eau « Lira » {n}×{n}, acier inoxydable
+2278|Climatiseur split {n} BTU avec installation
+2279|Pose d'un extracteur / d'une grille de ventilation
+2280|Tarif des électriciens et plombiers d'après les annonces à Almaty
+2281|Installation de la conduite de gaz intérieure
+2282|Repère d'après les annonces des services gaz agréés ; le prix exact est connu après les conditions techniques et le projet
+2283|Raccordement d'un appareil à gaz (cuisinière, chaudière)
+2284|Repère d'après les annonces des services gaz agréés
+2285|Projet d'alimentation en gaz d'une maison individuelle
+2286|Repère d'après les offres des bureaux d'études d'Almaty
+2287|Peinture du plafond en {n} couches
+2288|Peinture des murs {n} ₸/m² selon les tarifs « Proff-Remont », plus une majoration pour le travail au-dessus de la tête
+2289|Pose de câble en saignée / gaine annelée
+2290|Tarif des électriciens d'après les annonces à Almaty {n}–{n} ₸/m
+2291|Câble KPSng(A)-FRLS {n}×{n}×{n}
+2292|Prix de détail du câble résistant au feu pour alarme incendie
+2293|Isolation de toiture en laine minérale avec pare-vapeur
+2294|Tarif des couvreurs d'après les annonces à Almaty {n}–{n} milliers de ₸/m²
+2295|Système de gouttières : chéneau, descentes, fixations
+2296|Prix moyen d'un système de gouttières métallique ramené au mètre d'avant-toit
+2297|Treillis de façade {n} g/m² (rouleau de {n} m² — {n} ₸)
+2298|Cheville à rosace {n}×{n} avec clou métallique
+2299|Porte d'entrée métallique « Titan {n} »
+2300|Fenêtre PVC {n}×{n} m avec pose
+2301|Fenêtre PVC {n}×{n} m, profilé premium, avec pose
+2302|Appui de fenêtre avec pose
+2303|Bavette avec pose
+2304|Tableaux de fenêtre en panneau sandwich
+2305|Pose d'une porte d'entrée
+2306|Pose d'une porte intérieure avec huisserie et chambranles
+2307|Porte intérieure NEAPOL, éco-placage, avec huisserie et chambranles
+2308|Armature A{n}S Ø{n}
+2309|Bloc de béton cellulaire autoclavé D{n}
+2310|Colle pour béton cellulaire STRONG, {n} kg
+2311|Maçonnerie des murs en béton cellulaire collé
+2312|Cloisons en béton cellulaire jusqu'à {n} mm
+2313|Semelle filante : coffrage, ferraillage, bétonnage
+2314|Radier monolithique : coffrage, ferraillage, bétonnage
+2315|Bois pour coffrage ({n} réemplois)
+2316|Planches et contreplaqué pour {n} m² de panneau de coffrage, trois réemplois compris
+2317|Gravier {n}–{n} livré à Almaty
+2318|Mini-pelle avec opérateur
+2319|Terrassement manuel
+2320|Journée de terrassier {n}–{n} milliers de ₸ pour un rendement de {n}–{n} m³ d'après les annonces à Almaty
+2321|Évacuation des terres par benne
+2322|Trajet de KamAZ ≈{n} ₸ pour {n} m³ de terre foisonnée
+2323|Remblayage avec compactage
+2324|Mini-pelle et plaque vibrante au tarif des engins
+2325|Réfection de toiture : dépose de l'ancienne couverture et pose de la nouvelle
+2326|Pose du système de gouttières
+2327|Charpente et liteaunage
+2328|Tarif des équipes de couvreurs d'après les annonces à Almaty {n}–{n} milliers de ₸/m²
+2329|Tuile métallique « Venise »
+2330|Tuile métallique « SuperMonterrey », mate {n} mm
+2331|Tuile métallique « SuperMonterrey », mate, Russie
+2332|Panneau de laine minérale MakWool P{n}, {n} mm ({n} ₸/m³)
+2333|Membrane pare-pluie Izospan A (rouleau de {n} m² — {n} ₸)
+2334|Planche délignée résineux, {n}e–{n}e choix
+2335|Location et montage d'échafaudages
+2336|Location d'échafaudage pour un mois avec montage, ramenée au m² de façade
+2337|Enduit de façade sur treillis
+2338|Annonces Kaspi « enduit de façade », Almaty : {n}–{n} ₸/m², le plus souvent {n}
+2339|Enduit décoratif de façade « grain de riz »
+2340|Annonces Kaspi, Almaty : « grain de riz » à partir de {n} ₸/m², avec primaire et tableaux {n}–{n} milliers de ₸/m²
+2341|Peinture de façade en {n} couches
+2342|Peinture des murs selon les tarifs « Proff-Remont » {n} ₸/m², plus le travail en hauteur
+2343|Isolation de façade : colle, panneau, chevilles, couche d'armature
+2344|Panneau de laine minérale de façade IZOTERM P{n}, {n} mm ({n} ₸/m³)
+2345|Colle pour laine minérale et mortier d'armature Ceresit CT {n}, {n} kg
+2346|Enduit de façade au ciment, {n} kg
+2347|Prix moyen de l'enduit ciment {n} kg à Almaty
+2348|Enduit décoratif « grain de riz » Ceresit CT {n}, {n} kg
+2349|Peinture de façade, {n} kg
+2350|Pose de pavés sur support préparé
+2351|Pavé vibrocompressé {n} cm
+2352|Pose de bordures de trottoir sur béton
+2353|Bordure de trottoir {n}×{n}×{n}
+2354|Prix moyen chez les fabricants de la région d'Almaty
+2355|Asphaltage (matériau et mise en œuvre)
+2356|Auvent / ossature métallique : fabrication et pose
+2357|Platelage en bois sur lambourdes
+2358|Tarif des charpentiers d'après les annonces à Almaty {n}–{n} milliers de ₸/m²
+2359|Pose de tuyau PEHD sous pression en tranchée
+2360|Tarif des équipes d'après les annonces, sans terrassement
+2361|Tuyau PEHD {n} mm pour l'eau
+2362|Prix de détail du tuyau PE{n} SDR{n} Ø{n}
+2363|Pose d'un détecteur d'alarme
+2364|Prix moyen d'un détecteur de fumée IP {n}
+2365|Centrale d'alarme avec batterie
+2366|Prix moyen d'une centrale pour {n}–{n} boucles
+2367|Pose d'une caméra IP avec passage de câble
+2368|Annonces Kaspi, Almaty : pose de caméra {n}–{n} ₸ ; avec passage de câble — moitié haute de la fourchette
+2369|Caméra IP {n} Mpx
+2370|Prix moyen d'une caméra IP d'entrée de gamme
+2371|Enregistreur vidéo avec disque de {n} To
+2372|Satu : Hikvision DS-{n}NI-Q{n}/M {n} canaux — {n}–{n} ₸ sans disque, DS-E{n}NI-Q{n} avec SSD {n} To — {n} ₸
+2373|Projet de décoration intérieure d'un appartement
+2374|Projet de décoration intérieure d'une maison
+2375|Visualisation {n}D de l'intérieur
+2376|Déplacement d'un géomètre, implantation des axes
+2377|Manœuvre
+2378|Tarif d'un manœuvre d'après les annonces à Almaty {n}–{n} milliers de ₸ par poste
+2379|Revêtement d'une marche en grès cérame
+2380|Pose {n} ₸/m² selon les tarifs « Proff-Remont », avec découpe et coupe d'onglet ≈{n} m² par marche
+2381|Montage et installation de meubles
+2382|Tarif des monteurs de meubles d'après les annonces à Almaty
+2383|Cuisine sur mesure (panneau mélaminé/MDF)
+2384|Prix moyen du mètre linéaire chez les ateliers de meubles d'Almaty
+2385|Offres Satu {n}–{n} ₸ le sac (novembre {n})
+2386|Offres Satu {n}–{n} ₸/m (novembre {n})
+2387|Offres Satu {n}–{n} ₸/m³, médiane {n} (novembre {n})
+2388|OLX Talgar {n} ₸/t, Satu {n} ₸/t (octobre–novembre {n})
+2389|Moyenne de deux offres D{n} : Kaspi {n} et Satu {n} ₸/m³
+2390|Satu, Almaty : WC monoblocs {n}–{n} ₸ (novembre {n})
+2391|Annonces OLX, Almaty : {n}–{n} ₸ le sac M{n}–M{n}
+2392|Annonces OLX {n}–{n} ₸/m²
+2393|Annonces Kaspi {n}–{n} ₸/m²
+2394|Annonces Kaspi {n}–{n} ₸/m², matériau compris
+2395|Bizmedia/OLX : {n}–{n} ₸ le déplacement
+2396|OLX : climatiseur avec installation à partir de {n} ₸
+2397|Annonces Kaspi « maçonnerie en béton cellulaire », Almaty
+2398|Kaspi, carreleur à Almaty : sol à partir de {n} ₸/m² ; fourchette des annonces {n}–{n}
+2399|Kaspi, carreleur à Almaty : murs à partir de {n} ₸/m²
+2400|Satu : {n} mm, {n} éléments — {n} et {n} ₸, moyenne retenue
+2401|Satu, Almaty : à partir de {n} ₸ (novembre {n})
+2402|Kaspi, carreleur à Almaty : dépose du carrelage à partir de {n} ₸/m² ; chez « Proff-Remont », dépose des sols en général — {n} ₸/m²
+2403|Satu, Almaty : {n} offres {n}×{n} — {n}–{n} ₸/m², médiane {n} (novembre {n})
+2404|Satu, Almaty : {n}×{n} imitation marbre et blanc — {n}–{n} ₸/m² ; fourchette de la page {n}–{n}
+2405|Satu : chevilles {n}×{n} — {n}–{n} ₸ ; pour la laine minérale il faut un clou métallique (FIX PLAST — {n} ₸)
+2406|Kaspi, Almaty : pose d'une porte intérieure {n}–{n} ₸, le plus souvent {n}
+2407|Tarifs « Proff-Remont » : dépose d'une porte en bois — {n} ₸, métallique — {n} ₸
+2408|Satu : papier peint intissé {n}×{n} m — {n}–{n} ₸ le rouleau, collections premium — jusqu'à {n}
+2409|Satu et Kaspi, Almaty : pose d'une cabine de douche {n}–{n} ₸ ; chez « Proff-Remont » — {n} ₸
+2410|Satu et Kaspi, Almaty : isolation des murs en laine minérale avec couche d'armature {n}–{n} ₸/m², à partir de {n} chez les entreprises
+2411|Satu, Almaty : pose de bordure {n}–{n} ₸/ml, médiane des offres {n}
+2412|Kaspi, Almaty : évacuation des déchets {n}–{n} ₸ le trajet ; borne haute retenue — chargement compris
+2413|Kaspi, Almaty : travail de l'équipe {n} ₸/m³ ; béton, armatures et coffrage comptés sur des lignes séparées
+2414|Satu, Almaty : stratifié classe {n} {n} mm — {n}–{n} ₸/m² (novembre {n})
+2415|Satu, Almaty : stratifié « point de Hongrie » classe {n} — {n}–{n} ₸/m²
+2416|Somme des prix Satu : tableau ShchRN-{n} — {n} ₸, {n} disjoncteurs VA{n}-{n}P {n} A à {n} ₸, différentiel VD{n}-{n}P {n} A — {n} ₸
+2417|Satu, Almaty : {n}–{n} ₸/m³ en carrière ; livré à Almaty et dans la région — {n} ₸/m³
+2418|Satu : Izospan A, rouleau de {n} m² — {n} ₸ ({n} ₸/m²)
+2419|Satu : treillis {n} g/m², rouleau de {n} m² — {n} ₸ ({n} ₸/m²)
+2420|Satu : sous-couche Solid {n} mm, paquet de {n} m² — {n} ₸ ({n} ₸/m²)
+2421|Tarifs « Proff-Remont » : saignée jusqu'à {n} mm — {n} ₸/ml, {n}–{n} mm — {n} ; pour un câble VVG {n}×{n}, {n}–{n} mm suffisent
+2422|bombe
+2423|bidon
+2424|h-machine
+2425|Non
+2426|Oui
+2427|Contour de la pièce (sol)
+2428|Papier peint
+2429|Carrelage
+2430|Épaisseur d'enduit
+2431|Épaisseur moyenne sur repères ; dépend de la planéité des murs
+2432|Primaire
+2433|séchage de l'enduit plâtre
+2434|séchage de l'enduit de lissage
+2435|sans repères : enduit de lissage en {n} couche sur la surface existante, peinture Gaudi « Blanche-Neige »
+2436|enduit sur repères, enduit Fugen en {n} couches, peinture Gaudi Standart
+2437|enduit sur repères, finition AlinEX Glatt Plus en {n} couches, peinture Remalux
+2438|sans repères : enduit de lissage en {n} couche, papier peint intissé
+2439|enduit sur repères, enduit de lissage en {n} couches, papier peint intissé
+2440|enduit sur repères, finition Glatt Plus, papier peint vinyle sur intissé
+2441|sans repères : grès cérame {n}×{n} sur la surface existante
+2442|enduit sur repères, grès cérame {n}×{n} imitation marbre
+2443|enduit sur repères, grès cérame {n}×{n} série premium
+2444|+ {n} % pour les coupes
+2445|Enduit de lissage ≈{n} kg/m² par couche ; peinture en {n} couches à {n} kg/m² ; primaire {n} L/m² avant chaque couche
+2446|Contour du sol
+2447|Stratifié
+2448|Grès cérame
+2449|Épaisseur de chape
+2450|Étanchéité (salle de bain, cuisine)
+2451|séchage de l'étanchéité
+2452|prise de la chape semi-sèche avant revêtement
+2453|stratifié classe {n}–{n} sur le support existant
+2454|chape semi-sèche, stratifié classe {n}
+2455|chape semi-sèche, stratifié classe {n} « en chevrons »
+2456|grès cérame {n}×{n} sur le support existant
+2457|chape semi-sèche, grès cérame {n}×{n} imitation marbre
+2458|chape semi-sèche, grès cérame {n}×{n} série premium
+2459|Contour du plafond (= sol)

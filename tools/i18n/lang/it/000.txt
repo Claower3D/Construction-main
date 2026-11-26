@@ -1,0 +1,260 @@
+0|preventivi e rilevamento difetti secondo le norme del Kazakistan
+1|Home
+2|Piattaforma
+3|Funzionalità
+4|Catalogo
+5|Prezzi
+6|Accedi
+7|Accesso
+8|Esci
+9|Registrati
+10|Registrazione
+11|Accedi al sistema
+12|Area personale
+13|Vai all'area personale
+14|Vai
+15|Profilo
+16|Dashboard
+17|Apri
+18|Apri menu
+19|Chiudi menu
+20|Indietro
+21|Torna alla dashboard
+22|Torna su
+23|Vai al contenuto
+24|Mostra
+25|Mostra tutto
+26|Comprimi
+27|Invia
+28|Tutti
+29|Totale:
+30|Cerca…
+31|Senza categoria
+32|Caricamento della sezione…
+33|Apertura dell'area di lavoro…
+34|Errore di sincronizzazione con il server
+35|Strumenti
+36|STRUMENTI
+37|GESTIONE
+38|PROFILO
+39|I MIEI ORDINI
+40|PROFILO & SERVIZI
+41|Menu cliente
+42|Menu esecutore
+43|Area ingegnere
+44|Pannello amministratore
+45|Pannello principale
+46|Stima dei costi
+47|Controllo difetti
+48|Calcolo delle quantità
+49|Soluzioni ingegneristiche
+50|Calcolatore impianti
+51|Scanner LiDAR
+52|Calendario
+53|Calendario lavori
+54|I miei ordini
+55|I miei lavori
+56|Mezzi / Marketplace
+57|Il mio profilo professionale
+58|Profilo professionale
+59|Profilo dell'esecutore
+60|Compila il profilo professionale
+61|Costruzione di edifici
+62|Richieste
+63|Calcolo IA
+64|Spese
+65|Listini prezzi
+66|Moderazione
+67|Regioni
+68|Registro attività
+69|Analisi
+70|Controversie e arbitrato
+71|Contratti
+72|Sistema CRM
+73|Marketplace mezzi
+74|Calcolatore preventivi
+75|Artigiano
+76|Cliente
+77|Esecutore
+78|Ingegnere
+79|Amministratore
+80|Manager
+81|Azienda
+82|Sono un fornitore
+83|Manager Sasha
+84|Pagamento
+85|Pagamento e portafoglio
+86|Apri portafoglio
+87|Piano
+88|Contatti
+89|Carrello
+90|Città
+91|Scegli una città
+92|Scegli città
+93|Città selezionata:
+94|Città del Kazakistan
+95|Cerca città...
+96|Città non trovata
+97|Rilevamento automatico della città tramite GPS
+98|GPS automatico
+99|Tutte le città
+100|Tutte le regioni
+101|Tutte le regioni (prezzi base)
+102|Regione dei prezzi
+103|Regione:
+104|Località
+105|Almaty
+106|Astana
+107|Shymkent
+108|Karaganda
+109|Aktobe
+110|Taraz
+111|Pavlodar
+112|Ust'-Kamenogorsk
+113|Semey
+114|Atyrau
+115|Kostanay
+116|Kyzylorda
+117|Oral
+118|Petropavl
+119|Aktau
+120|Temirtau
+121|Turkestan
+122|Kokshetau
+123|Taldykorgan
+124|Zhezkazgan
+125|Notifiche
+126|Segna tutto come letto
+127|Cancella tutto
+128|Nessuna notifica
+129|Qui compariranno i messaggi importanti e lo stato delle richieste
+130|nuove
+131|Proprio ora
+132|Un esecutore ha risposto
+133|Il tuo ordine ha ricevuto un'offerta con prezzo e tempi. Confronta le proposte.
+134|Preventivo pronto (IA 2.0)
+135|Le foto caricate sono state analizzate: calcolati 3 scenari di prezzo.
+136|Lo scanner IA ha rilevato 2 microfessure e ha redatto un rapporto secondo gli SNiP.
+137|Ispezione programmata
+138|Nuova richiesta di supervisione tecnica per il complesso residenziale «Kabanbay».
+139|Verifica IA GOST completata
+140|Verifica della sezione del progetto completata: 0 difetti critici.
+141|Firma del verbale KS-2
+142|Il cliente ha approvato il verbale intermedio delle opere nascoste.
+143|Nuovo lead nel CRM
+144|È arrivata una nuova richiesta commerciale dalla società «KazStroyInvest».
+145|Trattativa passata alla fase di chiusura
+146|Il cliente n. 1085 ha richiesto un'offerta commerciale per la seconda fase.
+147|Consegna dell'opera riuscita
+148|L'impresa ha consegnato la fase n. 3 del preventivo senza osservazioni.
+149|Richiesta di verifica di ditta individuale
+150|La ditta individuale «TemirStroy» ha inviato i documenti per la verifica IIN/BIN.
+151|Nuova controversia in arbitrato
+152|Aperto un reclamo sulla qualità del getto del calcestruzzo monolitico (DSP-882).
+153|Aggiornamento ESN RK
+154|Aggiornati gli indici di rincaro per 17 regioni del Kazakistan.
+155|Nuovo ordine disponibile
+156|Nel feed ordini: ristrutturazione di un ufficio di 450 m² ad Astana.
+157|Fase accettata dal cliente
+158|Il cliente ha confermato la fase n. 1. Concorda il pagamento della fase direttamente con lui.
+159|Offerta accettata
+160|La tua offerta commerciale è stata scelta come esecutore principale.
+161|Stima IA da foto in pochi secondi • SNiP e GOST RK • RU / KZ / EN
+162|Guadagna con gli ordini edili —
+163|in modo onesto e trasparente
+164|Costruisci e ristruttura
+165|senza sovrapprezzi né rischi
+166|Accedi al feed ordini in tempo reale in tutto il Kazakistan, invia offerte di prezzo e tempi, gestisci i progetti in «I miei lavori» e consegna il risultato online.
+167|Carica una foto di una stanza o di una facciata: il servizio calcola il preventivo secondo le norme del Kazakistan, segnala le fessure e trova una squadra nella tua città.
+168|Apri il feed ordini
+169|Valuta un immobile da foto
+170|Inizia gratis
+171|Guarda un esempio
+172|Prova ora
+173|Trova un esecutore o prendi un ordine
+174|prezzi di lavori e materiali
+175|adeguati a 11 città
+176|preventivo da foto
+177|fino a 1 min
+178|quantità, materiali e totale
+179|precisione del rilevatore di fessure
+180|sul campione di verifica
+181|voci di materiali edili
+182|prezzi per regione del Kazakistan
+183|Casa: la metà sinistra è un rendering fotorealistico, la destra un disegno con gli impianti: elettrico, idrico, riscaldamento, fognatura, gas e contatori
+184|Impianto elettrico
+185|Quadro elettrico
+186|Contatore elettrico
+187|Acqua fredda
+188|Acqua calda
+189|Contatore dell'acqua
+190|Riscaldamento
+191|Caldaia e collettore
+192|Fognatura
+193|Gas
+194|Contatore del gas
+195|Preventivi e difetti secondo le norme del Kazakistan
+196|Preventivi, controllo dei difetti e imprese secondo le norme della Repubblica del Kazakistan.
+197|Il servizio individua i difetti, calcola le quantità e seleziona i prezzi ESN RK e le normative.
+198|Preventivi rapidi e precisi
+199|Preventivo da foto in pochi secondi
+200|Preventivo da foto in un minuto
+201|Rilevamento dei difetti
+202|Fessure da foto
+203|Fessure, scheggiature, infiltrazioni
+204|Le fessure vengono evidenziate con un riquadro sulla foto; al verbale si aggiungono norma, descrizione e costo della riparazione.
+205|Rete neurale YOLO26
+206|La rete neurale calcola i lavori e trova i difetti
+207|Calcoli trasparenti
+208|Prezzi trasparenti 2026
+209|Prezzi 2026 adeguati alla città
+210|Prezzi per regione del Kazakistan
+211|Documenti pronti
+212|Preventivi, verbali, distinte e calcoli — in PDF ed Excel, per l'approvazione e per l'impresa.
+213|Esporta in PDF ed Excel
+214|Esporta in Excel e PDF
+215|Esporta in PDF / Excel
+216|Riferimenti normativi
+217|Come funziona
+218|Dalla foto al preventivo pronto in tre passaggi, di solito in meno di un minuto.
+219|Carica una foto
+220|Una parete, una stanza, una facciata o una fessura in primo piano. Basta la fotocamera del telefono.
+221|Analisi e calcolo
+222|Ottieni un preventivo preciso
+223|Preventivo e verbale dei difetti con prezzi e raccomandazioni — inviali a una squadra del catalogo.
+224|Trasforma una foto in un preventivo pronto
+225|Carica una foto dell'immobile e ottieni un preventivo completo con quantità, prezzi e costi secondo le norme del Kazakistan.
+226|Calcola il preventivo
+227|Calcola il tuo immobile
+228|Crea preventivo
+229|Scarica Excel
+230|Preventivo PDF
+231|Preparazione del file…
+232|Esempi di preventivi
+233|Esempio di preventivo
+234|Ecco come appare un preventivo
+235|Trasparente e pronto all'uso, come quello di un computista esperto. Prezzi dalla banca dati ESN RK con il coefficiente della tua città.
+236|Quantità di lavori e materiali
+237|Suddivisione per tipo di lavoro e materiali
+238|Totale e durata dei lavori
+239|Descrizione dei lavori
+240|Quantità
+241|Prezzo unitario
+242|Importo, ₸
+243|Totale preventivo
+244|Scorta materiali 10%
+245|Scorta materiali
+246|Supervisione tecnica +5%
+247|Supervisione tecnica
+248|u.
+249|gg
+250|Fondazione continua
+251|Fondazione continua, calcestruzzo M300
+252|Scavo con escavatore
+253|Calcestruzzo pesante M300 (W6, F150)
+254|Armatura nervata A500S Ø12 mm
+255|Casseforme a pannelli in compensato filmato
+256|Getto e vibrazione del calcestruzzo
+257|Muratura in calcestruzzo cellulare
+258|Pareti esterne in calcestruzzo cellulare D500
+259|240 m², spessore 300 mm

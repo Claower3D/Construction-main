@@ -1,0 +1,240 @@
+1730|Devis prêt : {a} postes, {b} ₸
+1731|La demande {a} a été envoyée au gestionnaire
+1732|D'après la description : {a} (mot « {b} »)
+1733|Travaux du devis ({a}) : {b}
+1734|Photo téléversée : {a}
+1735|Erreur ({a}) : {b}
+1736|Prix au {a}
+1737|Formule : {a}
+1738|Clé : {a}
+1739|< {n} s
+1740|pour l'analyse d'une photo par le serveur de détection des défauts
+1741|La plateforme en chiffres
+1742|références de matériaux avec prix par région
+1743|prix ESN RK dans la base : travaux, matériaux, engins
+1744|Aïgerim Nourlanova
+1745|Architecte d'intérieur, Astana
+1746|Je téléverse une photo, j'obtiens le devis et je le montre tout de suite au client. Le contrôle des défauts aide à voir les problèmes avant le début des travaux
+1747|Client, Almaty
+1748|Clients, architectes d'intérieur et chefs de chantier de différentes villes du Kazakhstan
+1749|Les demandes de ma ville arrivent chaque jour. Des prix transparents aident à s'entendre avec le client sans marchander à l'aveugle
+1750|Chef de chantier, TOO « StroyMark »
+1751|J'ai fait un devis à partir d'une photo de la salle de bain. Avant, l'artisan estimait à vue de nez et annonçait un prix deux fois plus élevé. Maintenant je sais combien cela coûte vraiment
+1752|Ce que disent les utilisateurs
+1753|Déplacement d'un ingénieur
+1754|Terminer la commande
+1755|STATUT
+1756|Type
+1757|Écrire sur WhatsApp : +{n}
+1758|Travaux de toiture
+1759|Installation du chauffage
+1760|Élaboration du dossier de conception
+1761|Expertise technique
+1762|Enduit
+1763|Installation électrique
+1764|Ce n'est pas dans le catalogue. Vous pouvez saisir votre propre option
+1765|types de travaux
+1766|Tous les groupes
+1767|Choix du type de travaux
+1768|Enregistrer tel que saisi
+1769|Recherche : fosse septique, toiture, électricité
+1770|Votre option : «
+1771|{n} août
+1772|● EN COURS
+1773|● TERMINÉ
+1774|Sélection automatique des engins et des équipes
+1775|EN COURS
+1776|Visite et calcul du devis
+1777|Exécution
+1778|Établir le planning des travaux
+1779|Planning établi
+1780|Données enregistrées. Le gestionnaire est libre
+1781|Détails de la tâche
+1782|TERMINÉ
+1783|TÂCHES ASSIGNÉES
+1784|COMMANDE CONFIRMÉE
+1785|COMMANDE CHEZ LE PRESTATAIRE
+1786|Notes (pour l'ingénieur)
+1787|Ivan Petrov
+1788|Ingénieur / métreur
+1789|Démonstration interactive du travail en temps réel
+1790|Le client a approuvé le devis
+1791|PROSPECT CRÉÉ
+1792|Affectation des engins
+1793|Commencer le travail (arrivés)
+1794|Nouvelle demande (prospect)
+1795|TRAITÉ
+1796|EN ATTENTE
+1797|En attente de réception
+1798|En attente de calcul
+1799|Décrivez le problème et les conditions d'accès
+1800|Pointage dans l'application
+1801|Sélection de l'équipe
+1802|SÉLECTION DES RESSOURCES
+1803|Ressources sélectionnées
+1804|Réception de la demande
+1805|Réception de l'appel et de la demande
+1806|ACCEPTÉ
+1807|Travail terminé
+1808|EXAMEN
+1809|Calcul du devis
+1810|Télécharger le devis (PDF)
+1811|Devis n° {n} généré
+1812|Le devis est téléchargé au format PDF
+1813|Enregistrer et transmettre
+1814|Coût (₸)
+1815|Type de travaux
+1816|rue Tsentralnaïa, {n}
+1817|Fichiers et photos du chantier
+1818|Enregistrement des données
+1819|Tractopelle JCB
+1820|m
+1821|Longueur, m
+1822|Périmètre, m
+1823|fissures
+1824|Saisissez encore un côté dans l'autre direction : les plans sont souvent étirés selon un axe, et un seul côté ne suffit pas
+1825|Hauteur des murs, m
+1826|Portes {n}×{n} m
+1827|porte {n} m · feuille A{n} m · cote sur le plan
+1828|longueur × largeur ou surface
+1829|longueur de référence
+1830|Longueur de référence en mètres
+1831|Les longueurs se contredisent tellement qu'il est impossible d'ajuster l'échelle par axe — un facteur commun a été utilisé
+1832|déduction faite des ouvertures
+1833|Téléversez une photo du plan, un dessin ou une vue de dessus à l'étape {n} — puis tracez la pièce ici
+1834|Cliquez sur les angles de la pièce dans le sens horaire ; un clic sur le premier point ferme le contour
+1835|Cliquez au début et à la fin d'un objet de longueur connue
+1836|Contour fermé
+1837|Contour fermé. Pour recommencer, cliquez sur « Effacer »
+1838|Contour sur le plan
+1839|Contour sur la grille
+1840|Ligne
+1841|La ligne de référence est précise pour un plan ou une photo prise exactement d'en haut. Pour une photo prise en biais, choisissez la référence « Rectangle »
+1842|vous définissez l'échelle de la case
+1843|Au moins {n} points sont nécessaires pour fermer le contour
+1844|Tracez la pièce ou saisissez les dimensions — sans elles, le devis ne peut pas être calculé
+1845|Fenêtres {n}×{n} m
+1846|Annuler le point
+1847|Marquer {n} angles
+1848|Marquer la référence
+1849|Remesurer les angles
+1850|Remesurer la référence
+1851|périmètre
+1852|Périmètre des murs, m
+1853|Les plans sont souvent dessinés hors échelle. Saisissez la longueur réelle d'un ou deux côtés — par exemple les dimensions de la pièce indiquées sur le plan. Deux côtés de directions différentes corrigent aussi l'étirement du plan en largeur et en hauteur
+1854|carreau {n}×{n} · feuille A{n}×{n} · tapis ou pièce de dimensions connues — sur le même sol
+1855|surface ·
+1856|Surface au sol, m²
+1857|par référence
+1858|champ
+1859|accrochage à la grille
+1860|Rectangle
+1861|Rectangle (photo en biais)
+1862|Rectangle marqué — vérifiez ses dimensions : le premier nombre est le côté du {n}e au {n}e angle
+1863|Le rectangle de référence corrige la perspective : ne tracez que le sol dans le même plan que la référence
+1864|dimension
+1865|Taille de la case de la grille
+1866|Dimensions manuelles
+1867|réelle, m
+1868|Réinitialiser l'ajustement
+1869|Forme complexe
+1870|Définissez d'abord l'échelle : cliquez sur « Marquer {n} angles » puis sur les angles d'un rectangle de taille connue
+1871|Définissez d'abord l'échelle : cliquez sur « Marquer la référence » et tracez une ligne le long d'un objet de longueur connue
+1872|Méthode de mesure
+1873|murs
+1874|Côté
+1875|Côté du rectangle du {n}e au {n}e angle, m
+1876|Côté du rectangle du {n}e au {n}e angle, m
+1877|Les côtés du contour se croisent — supprimez le point en trop avec « Annuler le point »
+1878|Les angles ne sont pas marqués dans l'ordre ou trois angles sont alignés — marquez à nouveau les {n} angles en faisant le tour du rectangle
+1879|Les côtés indiqués sont parallèles — l'étirement sur le second axe ne peut pas être déterminé, il faut un côté dans l'autre direction
+1880|Ajuster l'échelle de cette pièce
+1881|Forme de la pièce
+1882|Photo pour le relevé
+1883|photo du plan + longueur de référence
+1884|Largeur, m
+1885|Ce point est au-delà de la ligne d'horizon du rectangle de référence — il ne peut pas être converti en mètres. Ne marquez que le sol du même plan
+1886|Référence d'échelle
+1887|Référence marquée — indiquez sa longueur réelle en mètres
+1888|{n} case =
+1889|un côté
+1890|Les longueurs saisies diffèrent de la forme du contour de {a} % — vérifiez qu'il s'agit des bons côtés et qu'il n'y a pas de niches ou de placards dans la cote
+1891|Échelle ajustée sur {a} côtés, séparément en largeur et en hauteur : ×{b} et ×{c}
+1892|Cliquez sur les {n} angles du rectangle dans l'ordre — {a} sur {n} marqués
+1893|Longueur réelle du côté {a}, m
+1894|Échelle ajustée sur {a} : ×{b}
+1895|Fermer le contour ({a} pts)
+1896|Échelle ajustée sur {a}
+1897|référence {a} m
+1898|{a} côtés
+1899|Pas de paramètres — le volume est calculé d'après le contour
+1900|d'après le contour
+1901|sections — ouvrez-les pour préciser
+1902|{a} paires
+1903|— cela ne correspond pas au type de travaux choisi, vérifiez votre choix
+1904|, fenêtres
+1905|Équivalents dans la base
+1906|Calcul rapide
+1907|Budget avec réserve
+1908|dans la fourchette de la base
+1909|Dans le devis
+1910|Bordereau d'achat des matériaux ·
+1911|au-dessus de la fourchette
+1912|Où vérifier
+1913|Planning des travaux ·
+1914|Détaillé : avec vérification
+1915|Hypothèses de calcul
+1916|Analyse IA des photos
+1917|Analyse IA des photos ·
+1918|Source du prix
+1919|Sources des prix
+1920|Total
+1921|m · hauteur
+1922|m · murs
+1923|m² · portes
+1924|m² · périmètre
+1925|m² (dans le devis — la surface de votre relevé)
+1926|Médiane de la base
+1927|Sur la photo
+1928|en dessous de la fourchette
+1929|estimation
+1930|Surface estimée d'après la photo : ~
+1931|postes
+1932|Poste et méthode de calcul de la quantité
+1933|Complet : avec planning et achats
+1934|Vérification du devis
+1935|Estimation calculée QazGost
+1936|Réserve {n} %
+1937|Masquer la comparaison avec la base
+1938|Scénario
+1939|Prix, ₸
+1940|prix
+1941|Hachures — pause technologique : séchage, prise, essai de pression
+1942|% du montant — prix issus de grilles et d'annonces publiques ; le reste est marqué « estimation » avec la méthode
+1943|L'IA aide à voir les défauts et à vérifier le choix des travaux ; les prix et quantités du devis proviennent uniquement du relevé et du référentiel
+1944|Afficher la comparaison avec la base QazGost ({a} postes)
+1945|à partir du jour {a}, {b} j
+1946|milieu {a}–{b}
+1947|, sans {a} choisis
+1948|BORDEREAU D'ACHAT
+1949|Hauteur, m
+1950|Où le prix a été relevé
+1951|PLANNING DES TRAVAUX
+1952|Date du calcul
+1953|Durée, j
+1954|Hypothèses
+1955|Total, jours
+1956|Méthode de calcul de la quantité
+1957|matériau
+1958|Début, jour
+1959|Pas de connexion au serveur de calcul. Vérifiez Internet et réessayez
+1960|Pause, j
+1961|main-d'œuvre
+1962|Section
+1963|Lien
+1964|Murs déduction faite des ouvertures, m²
+1965|engins
+1966|Prix au
+1967|Référentiel des fiches technologiques indisponible ({a})
+1968|Le serveur de calcul a renvoyé l'erreur {a}
+1969|DEVIS QazGost — {a} ({b})

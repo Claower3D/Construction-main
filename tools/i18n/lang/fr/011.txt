@@ -1,0 +1,231 @@
+2700|bordure {n} m, en périphérie
+2701|Contour de la zone / de la route
+2702|en périphérie
+2703|bordure {n} m
+2704|Ouvriers
+2705|Postes
+2706|j
+2707|selon le volume de travaux
+2708|Il n'existe pas de fiche technologique type pour cette catégorie : le devis est calculé d'après la main-d'œuvre. Pour un calcul précis, décrivez les travaux à un ingénieur QazGost
+2709|Rénovation clés en main
+2710|Chape {a} mm, mortier {n}:{n} ({n} kg de ciment par {n} m³). Carrelage {n}×{n} : colle {n} kg/m², joint {n} kg/m² (Ceresit CE {n})
+2711|déperditions ≈{n} W/m² × {a} m² = {b} kW ; radiateur {n} éléments ≈{n} kW ; pas moins que le nombre de fenêtres ({n})
+2712|Enduit sur repères en couche de {a} mm ; consommation de Rotband {n} kg/m² pour {n} mm (données Knauf)
+2713|lambourdes {n}×{n} entraxe {n} m ({n} m³/m²) + planches {n} mm ({n} m³/m²) × {a} m² + {n} %
+2714|≈{n} m de profilé pour {n} m² + rail en périphérie = {a} m, profilé de {n} m
+2715|Ceresit CE {n} : ≈{n} kg/m² pour un carrelage {n}×{n} avec joint de {n}–{n} mm × {a} m²
+2716|gravats ≈{a} m³ en place, {b} m³ foisonnés (×{n}) ; {n} m³ par trajet
+2717|{a} lés de {n} m pour {b} m de murs ; {c} lés de {d} m de haut par rouleau
+2718|{a} prises (selon la norme {n} pour {n} m de périmètre de {b} m, si non indiqué)
+2719|{a} m³ ({b} m² × {c} m) ÷ {n} m³/h, commande minimale {n} h
+2720|collage {n} kg/m² + couche d'armature {n} kg/m² × {a} m²
+2721|couche de forme {n} cm sur une largeur de {a} m × {b} m, compactage ×{n}
+2722|chevrons et liteaux ≈{n} m³ pour {n} m² × {a} m² + {n} %
+2723|mortier {a} m³ ({b} m² × {c} mm), ciment {n} kg/m³
+2724|{n} faces × {a} m × (partie hors sol {b} m + {n})
+2725|{a} m × {b} m × {c} m (périmètre + murs intérieurs)
+2726|couche de gravier {n} cm × {a} m², compactage ×{n}
+2727|{n} m de boucle par détecteur × {a} + {n} m jusqu'à la centrale
+2728|({a} m² + débords {b} m × {c} m) ÷ cos {d}° = {e} m²
+2729|{a} prises + {b} interrupteurs + {c} luminaires
+2730|({a} m × {b} m × {c} niv. − ouvertures {d} m²) × {e} m
+2731|au moins {n} détecteurs, {n} pour {n} m² × {a} m²
+2732|{a} luminaires ({n} pour {n} m², si non indiqué)
+2733|tranchée {a} m × {b} m × {c} m = {d} m³, {n} m³/h
+2734|tranchée {a} m × {n} m × {b} m = {c} m³, {n} m³/h
+2735|{a} m³ hors remblai × {n} (foisonnement)
+2736|≈{n} m² par marche avec contremarche × {a} + {n} %
+2737|murs {a} m × {b} m − ouvertures {c} m² = {d} m²
+2738|Knauf : {n} kg/m² pour {n} mm × {a} mm × {b} m²
+2739|sol {a} m² + remontée sur les murs {n} m × {b} m
+2740|{n} BTU refroidissent ≈{n} m², surface {a} m²
+2741|mortier {a} m³ × {n} m³ de sable pour {n} m³
+2742|{a} × {b} passes (avant chaque couche)
+2743|≈{n} kg/m² par couche × {a} couches × {b} m²
+2744|terre déplacée par la semelle {a} m³ × {n}
+2745|≈{n} kg de colle pour {n} m³ de maçonnerie × {a} m³
+2746|{a} m × {b} m − ouvertures {c} m² = {d} m²
+2747|{n} kg/m² pour un carrelage {n}×{n} × {a} m²
+2748|{n} kg/m² (peigne {n} mm) × {a} m²
+2749|{n} boîte pour {n} points, points : {a}
+2750|« grain de riz » {n} mm ≈{n} kg/m² × {a} m²
+2751|périmètre {a} m − portes {n} × {n} m
+2752|{a} m³ × {b} kg/m³ + {n} % de recouvrements
+2753|fond {a} m² + relevés {b} m × {c} m
+2754|{n} kg/m² pour une couche de {n} mm × {a} m²
+2755|{n} luminaire pour {n} m² × {a} m²
+2756|{a} → {b} kg(L) / {c} par conditionnement
+2757|{a} m² + {n} % de recouvrement et de coupes
+2758|{n} L/m² × {a} m² × {b} passes
+2759|décaissement {n} cm × {a} m² = {b} m³
+2760|≈{n} kg/m² × {a} couches × {b} m²
+2761|{a} prises + {b} interrupteurs
+2762|{n} chevilles pour {n} m² × {a} m²
+2763|{n} couches × {n} kg/m² × {a} m²
+2764|paquet pour {n} m², murs {a} m²
+2765|{n} couches ≈{n} kg/m² × {a} m²
+2766|{a} m² + {n} %, plaque de {n} m²
+2767|surface selon le contour {a} m²
+2768|{a} m² + {n} % pour les coupes
+2769|{a} m³ × {b} kg/m³ + {n} %
+2770|{a} m + {n} % pour les coupes
+2771|{a} m² + {n} % de recouvrements
+2772|{a} m² + {n} % de coupes
+2773|{a} m² + {n} % de recouvrement
+2774|{a} radiateurs indiqués
+2775|{a} m² × {n} passes
+2776|{a} m³ + {n} % de pertes
+2777|relevés {a} m × {b} m
+2778|{n} kg/m² × {a} m²
+2779|{a} pers. × {b} postes
+2780|{a} m² × {b} couches
+2781|{a} × {b} passes
+2782|{a} interrupteurs
+2783|{a} points indiqués
+2784|{a} × {b} couches
+2785|{a} % de l'excavation
+2786|Requête trop volumineuse (plus de {n} Ko)
+2787|Requête incorrecte : champ
+2788|Requête incorrecte : corps vide
+2789|Requête incorrecte : le corps n'est pas un JSON valide
+2790|Aménagements extérieurs et pavage
+2791|Mise en service / travaux spéciaux
+2792|Ventilation et climatisation (CVC)
+2793|Alimentation en eau (froide/chaude)
+2794|Terrassement et creusement de fouilles
+2795|Assainissement et drainage pluvial
+2796|Ossature, poteaux et voiles monolithiques
+2797|Toiture et charpente
+2798|Murs extérieurs et finition de façade
+2799|Blocs-fenêtres et portes d'entrée
+2800|Chauffage et sous-station
+2801|Cloisons en plaques de plâtre et en blocs
+2802|Travaux préparatoires et géodésiques
+2803|Sols et revêtements de sol
+2804|Systèmes de plafonds
+2805|Équipements sanitaires
+2806|Courants faibles et alarme incendie
+2807|Fondations et infrastructure monolithique
+2808|Finitions brutes (enduit, chape)
+2809|Finitions (peinture, papier peint)
+2810|Travaux d'électricité
+2811|à partir de {n} ₸
+2812|jusqu'à {n} ₸
+2813|Armatures
+2814|Fouilles
+2815|Pose d'anneaux
+2816|Pose de fosses septiques
+2817|Canalisation
+2818|Fosses septiques et assainissement
+2819|{n} ml
+2820|{n} M ₸
+2821|{n} ₸ / heure
+2822|BIN {n}
+2823|L ≈ {n} mm
+2824|{n} sur {n}
+2825|{n} × {n} m
+2826|{n} j
+2827|paire
+2828|bobine
+2829|élément
+2830|paquet
+2831|client
+2832|{n} commande pour {n} ₸
+2833|{n} commandes pour {n} ₸
+2834|{n} commandes pour {n} ₸
+2835|engins dans l'offre : {n}
+2836|Calculer le volume
+2837|{n} section
+2838|{n} sections
+2839|{n} sections
+2840|{n} étape
+2841|{n} étapes
+2842|{n} étapes
+2843|Concepteur
+2844|Calcul du métreur intégré QazGost : type de travaux et quantités trouvés dans la note par mots-clés (IA non connectée)
+2845|tâches : {n}
+2846|{n} Ko
+2847|Total
+2848|La note n'indique pas de quantités — des valeurs types ont été utilisées. Ajoutez à la note la surface (m²), la longueur (m) ou le nombre, et le calcul sera précis
+2849|Il s'agit d'un calcul préliminaire : le devis final est établi après la visite et les mesures d'un ingénieur
+2850|gestionnaire
+2851|Ingénieur expert
+2852|Gestionnaire CRM
+2853|La quantité de chaque poste est calculée d'après la géométrie du contour et les consommations des fabricants ; prix du marché avec la source sur chaque ligne ; le coefficient régional est appliqué aux travaux et aux matériaux ; les scénarios diffèrent par la composition des travaux et la marque des matériaux
+2854|≈{n} m de tuyau par point + {n} %
+2855|≈{n} m de saignée par point
+2856|≈{n} m de câble par point
+2857|WC {n}
+2858|lavabo {n}
+2859|baignoire {n}
+2860|douche {n}
+2861|lave-linge {n}
+2862|chauffe-eau {n}
+2863|sèche-serviettes {n}
+2864|{n} % du montant « Standard » — aux prix de grilles et d'annonces publiques avec lien. Le reste est une estimation calculée par QazGost : vérifiez ces lignes auprès du fournisseur
+2865|Janaozen
+2866|Roudny
+2867|Ekibastouz
+2868|Excel et PDF avec toutes les sections
+2869|Préparation du fichier…
+2870|Devis enregistré dans Excel
+2871|Impossible de générer le fichier Excel — vérifiez la connexion et réessayez
+2872|Le navigateur a bloqué la fenêtre d'impression — autorisez les fenêtres pop-up pour ce site
+2873|Calcul effacé — vous pouvez recommencer
+2874|Type de travaux modifié — recalculez le devis
+2875|Votre clé OpenAI est connectée — l'IA analysera les photos.
+2876|Les photos sont analysées par l'IA ; si elle n'est pas connectée sur le serveur, vous pouvez indiquer votre propre clé.
+2877|Votre propre clé OpenAI
+2878|Elle ne sert qu'à l'analyse des photos. Le devis est calculé même sans elle.
+2879|Clé actuellement connectée
+2880|La clé est conservée uniquement dans ce navigateur et envoyée au serveur QazGost avec les photos, pour une seule requête à l'IA ; elle n'est pas enregistrée sur le serveur.
+2881|Obtenir une clé :
+2882|Vérification…
+2883|Vérifier la clé
+2884|Supprimer la clé
+2885|Cela ne ressemble pas à une clé OpenAI : elle commence par « sk- ».
+2886|Collez la clé pour la vérifier.
+2887|Clé valide : le service d'IA l'a acceptée.
+2888|Pas de connexion au serveur — la clé n'a pas été vérifiée.
+2889|le service d'IA l'a refusée
+2890|Clé OpenAI enregistrée dans ce navigateur
+2891|Clé OpenAI supprimée de ce navigateur
+2892|Indiquer votre propre clé OpenAI
+2893|État :
+2894|Défauts visibles
+2895|À prendre en compte
+2896|L'analyse IA des photos n'est pas connectée : il n'y a pas de clé OpenAI sur le serveur. Le devis a été calculé sans elle, d'après le relevé et le référentiel.
+2897|L'analyse IA des photos n'a pas été effectuée : le service d'IA a refusé la clé OpenAI. Vérifiez la clé.
+2898|L'analyse IA des photos n'a pas été effectuée : la limite de requêtes au service d'IA est atteinte. Réessayez plus tard.
+2899|L'analyse IA des photos n'a pas été effectuée : le service d'IA n'a pas répondu à temps. Réessayez.
+2900|L'analyse IA des photos n'a pas été effectuée : le service d'IA a renvoyé une erreur. Le devis a été calculé sans elle.
+2901|L'analyse IA des photos n'a pas été effectuée : trop de requêtes d'affilée. Patientez une minute et recalculez le devis.
+2902|L'analyse IA des photos n'a pas été effectuée : les photos sont trop lourdes. Gardez 1 à 3 photos.
+2903|L'analyse IA des photos n'a pas été effectuée : le serveur a renvoyé une réponse incompréhensible.
+2904|Composition du scénario
+2905|Bordereau d'achat des matériaux
+2906|Achat
+2907|Raison de la pause
+2908|Méthode de calcul
+2909|Lignes dans le devis
+2910|Imprimer / enregistrer en PDF
+2911|devis selon les normes du Kazakhstan
+2912|Prix du marché, avec la source sur chaque ligne
+2913|murs déduction faite des ouvertures
+2914|coefficient
+2915|Pose d'un mitigeur de lavabo
+2916|Pose d'un mitigeur de baignoire
+2917|Mitigeur de baignoire avec douchette, milieu de gamme
+2918|mitigeur de lavabo
+2919|mitigeur de baignoire avec douchette
+2920|Satu : mitigeurs de baignoire de ≈7 000 ₸ (entrée de gamme) à ≈61 000 ₸ (Grohe) ; milieu de gamme retenu
+2921|Évacuation : les appareils sont raccordés aux évacuations existantes ; le remplacement des tuyaux d'évacuation et de la colonne n'est pas inclus — il est chiffré après inspection.
+2922|Cabine de douche : le mitigeur et la douchette sont fournis avec la cabine.
+2923|Chauffage : radiateurs et leurs raccordements sur une installation existante ; la chaudière, le groupe de pompage et les conduites principales ne sont pas inclus.
+2924|Prix du marché pour {a} (coefficient ×{n}), réserve pour imprévus {n} %, TVA {n} % indiquée séparément
+2925|D'après la photo, le type de travaux « {a} » convient mieux, mais le devis a été calculé pour un autre. Vérifiez votre choix.
+2926|La clé n'a pas passé la vérification ({a}) : {b}
+2927|{a} : en savoir plus
+2928|Appeler : {a}
+2929|État : {a}
+2930|Choisir « {a} »

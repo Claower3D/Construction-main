@@ -1,0 +1,240 @@
+1730|Presupuesto listo: {a} conceptos, {b} ₸
+1731|La solicitud {a} se envió al gerente
+1732|Por la descripción: {a} (palabra «{b}»)
+1733|Trabajos del presupuesto ({a}): {b}
+1734|Foto subida: {a}
+1735|Error ({a}): {b}
+1736|Precios al {a}
+1737|Plan: {a}
+1738|Clave: {a}
+1739|< {n} s
+1740|para analizar una foto en el servidor de detección de defectos
+1741|La plataforma en cifras
+1742|artículos de materiales con precios por región
+1743|precios ESN RK en la base: mano de obra, materiales, maquinaria
+1744|Aigerim Nurlanova
+1745|Diseñadora de interiores, Astaná
+1746|Subo una foto, obtengo el presupuesto y se lo enseño de inmediato al cliente. La revisión de defectos ayuda a ver los problemas antes de empezar la obra
+1747|Cliente, Almatý
+1748|Clientes, diseñadores y residentes de obra de distintas ciudades de Kazajistán
+1749|Las solicitudes de mi ciudad llegan todos los días. Los precios transparentes ayudan a ponerse de acuerdo con el cliente sin regatear a ciegas
+1750|Residente de obra, TOO «StroyMark»
+1751|Hice un presupuesto con la foto del baño. Antes el maestro calculaba al tanteo y me cobraba el doble. Ahora sé cuánto cuesta de verdad
+1752|Lo que dicen los usuarios
+1753|Visita del ingeniero
+1754|Terminar pedido
+1755|ESTADO
+1756|Tipo
+1757|Escribir por WhatsApp: +{n}
+1758|Trabajos de techumbre
+1759|Instalación de calefacción
+1760|Elaboración del proyecto ejecutivo
+1761|Peritaje técnico
+1762|Aplanado
+1763|Instalación eléctrica
+1764|No está en el catálogo. Puedes dejar tu propia opción
+1765|tipos de trabajo
+1766|Todos los grupos
+1767|Selección del tipo de trabajo
+1768|Guardar tal como se escribió
+1769|Buscar: fosa séptica, techumbre, electricidad
+1770|Tu opción: «
+1771|{n} de agosto
+1772|● EN PROCESO
+1773|● TERMINADO
+1774|Selección automática de maquinaria y cuadrillas
+1775|EN PROCESO
+1776|Visita y cálculo del presupuesto
+1777|Ejecución
+1778|Programar la obra
+1779|Programa definido
+1780|Datos registrados. El gerente está libre
+1781|Detalles de la tarea
+1782|TERMINADO
+1783|TAREAS ASIGNADAS
+1784|PEDIDO CONFIRMADO
+1785|PEDIDO CON EL CONTRATISTA
+1786|Notas (para el ingeniero)
+1787|Ivan Petrov
+1788|Ingeniero / presupuestista
+1789|Demostración interactiva del trabajo en tiempo real
+1790|El cliente aprobó el presupuesto
+1791|PROSPECTO CREADO
+1792|Asignación de maquinaria
+1793|Empezar el trabajo (llegamos)
+1794|Nueva solicitud (prospecto)
+1795|ATENDIDO
+1796|EN ESPERA
+1797|Esperando recepción
+1798|Esperando cálculo
+1799|Describe el problema y cómo se accede
+1800|Registro en la app
+1801|Selección de cuadrilla
+1802|SELECCIÓN DE RECURSOS
+1803|Recursos seleccionados
+1804|Recepción de la solicitud
+1805|Recepción de la llamada y la solicitud
+1806|ACEPTADO
+1807|Trabajo terminado
+1808|EN REVISIÓN
+1809|Cálculo del presupuesto
+1810|Descargar presupuesto (PDF)
+1811|Presupuesto n.º {n} generado
+1812|El presupuesto se descarga en formato PDF
+1813|Guardar y turnar
+1814|Costo (₸)
+1815|Tipo de trabajo
+1816|calle Tsentralnaya, {n}
+1817|Archivos y fotos de la obra
+1818|Registro de datos
+1819|Retroexcavadora JCB
+1820|m
+1821|Largo, m
+1822|Perímetro, m
+1823|grietas
+1824|Escribe otro lado en la otra dirección: los planos suelen estar estirados en un eje y un solo lado no basta
+1825|Altura de muros, m
+1826|Puertas {n}×{n} m
+1827|puerta {n} m · hoja A{n} m · cota en el plano
+1828|largo × ancho o superficie
+1829|longitud de referencia
+1830|Longitud de referencia en metros
+1831|Las longitudes se contradicen tanto que no se puede ajustar la escala por eje — se usó un factor común
+1832|descontando vanos
+1833|Sube una foto del plano, un dibujo o una toma desde arriba en el paso {n} — y traza el espacio aquí
+1834|Haz clic en las esquinas del espacio en el sentido de las manecillas del reloj; un clic en el primer punto cierra el contorno
+1835|Haz clic al inicio y al final de un objeto de longitud conocida
+1836|Contorno cerrado
+1837|Contorno cerrado. Para empezar de nuevo, presiona «Limpiar»
+1838|Contorno en el plano
+1839|Contorno en la cuadrícula
+1840|Línea
+1841|La línea de referencia es precisa para un plano o una foto tomada justo desde arriba. Para una foto en ángulo, elige la referencia «Rectángulo»
+1842|tú defines la escala de la celda
+1843|Se necesitan al menos {n} puntos para cerrar el contorno
+1844|Traza el espacio o ingresa las medidas — sin ellas no se puede calcular el presupuesto
+1845|Ventanas {n}×{n} m
+1846|Deshacer punto
+1847|Marcar {n} esquinas
+1848|Marcar referencia
+1849|Volver a medir esquinas
+1850|Volver a medir referencia
+1851|perímetro
+1852|Perímetro de muros, m
+1853|Los planos muchas veces no están a escala. Escribe la longitud real de uno o dos lados — por ejemplo, las medidas del cuarto anotadas en el plano. Dos lados en direcciones distintas también corrigen el estiramiento del plano a lo ancho y a lo alto
+1854|azulejo {n}×{n} · hoja A{n}×{n} · tapete o cuarto de medidas conocidas — sobre el mismo piso
+1855|superficie ·
+1856|Superficie de piso, m²
+1857|por referencia
+1858|campo
+1859|ajuste a la cuadrícula
+1860|Rectángulo
+1861|Rectángulo (foto en ángulo)
+1862|Rectángulo marcado — revisa sus medidas: el primer número es el lado de la esquina {n} a la {n}
+1863|El rectángulo de referencia corrige la perspectiva: traza solo el piso en el mismo plano que la referencia
+1864|medida
+1865|Tamaño de la celda de la cuadrícula
+1866|Medidas manuales
+1867|real, m
+1868|Restablecer ajuste
+1869|Forma compleja
+1870|Primero define la escala: presiona «Marcar {n} esquinas» y haz clic en las esquinas de un rectángulo de tamaño conocido
+1871|Primero define la escala: presiona «Marcar referencia» y traza una línea sobre un objeto de longitud conocida
+1872|Método de medición
+1873|muros
+1874|Lado
+1875|Lado del rectángulo de la esquina {n} a la {n}, m
+1876|Lado del rectángulo de la esquina {n} a la {n}, m
+1877|Los lados del contorno se cruzan — quita el punto sobrante con «Deshacer punto»
+1878|Las esquinas no se marcaron en orden o tres esquinas están alineadas — vuelve a marcar las {n} esquinas recorriendo el borde del rectángulo
+1879|Los lados indicados son paralelos — no se puede determinar el estiramiento en el segundo eje, se necesita un lado en la otra dirección
+1880|Ajustar la escala de este cuarto
+1881|Forma del espacio
+1882|Foto para medición
+1883|foto del plano + longitud de referencia
+1884|Ancho, m
+1885|Este punto está más allá de la línea de horizonte del rectángulo de referencia — no se puede convertir a metros. Marca solo el piso del mismo plano
+1886|Referencia de escala
+1887|Referencia marcada — indica su longitud real en metros
+1888|{n} celda =
+1889|un lado
+1890|Las longitudes ingresadas difieren de la forma del contorno en un {a} % — revisa que sean los lados correctos y que no haya nichos o clósets dentro de la medida
+1891|Escala ajustada con {a} lados, por separado a lo ancho y a lo alto: ×{b} y ×{c}
+1892|Haz clic en las {n} esquinas del rectángulo en orden — marcadas {a} de {n}
+1893|Longitud real del lado {a}, m
+1894|Escala ajustada con {a}: ×{b}
+1895|Cerrar contorno ({a} pts)
+1896|Escala ajustada con {a}
+1897|referencia {a} m
+1898|{a} lados
+1899|Sin parámetros — el volumen se calcula por el contorno
+1900|por el contorno
+1901|secciones — ábrelas para precisar
+1902|{a} pares
+1903|— no coincide con el tipo de trabajo elegido, revisa tu selección
+1904|, ventanas
+1905|Equivalentes en la base
+1906|Cálculo rápido
+1907|Presupuesto con reserva
+1908|dentro del rango de la base
+1909|En el presupuesto
+1910|Lista de compra de materiales ·
+1911|arriba del rango
+1912|Dónde revisar
+1913|Programa de obra ·
+1914|Detallado: con revisión
+1915|Supuestos del cálculo
+1916|Análisis de fotos con IA
+1917|Análisis de fotos con IA ·
+1918|Fuente del precio
+1919|Fuentes de precios
+1920|Total
+1921|m · altura
+1922|m · muros
+1923|m² · puertas
+1924|m² · perímetro
+1925|m² (en el presupuesto — la superficie de tu medición)
+1926|Mediana de la base
+1927|En la foto
+1928|abajo del rango
+1929|estimación
+1930|Superficie estimada por la foto: ~
+1931|conc.
+1932|Concepto y cómo se calculó la cantidad
+1933|Completo: con programa y compras
+1934|Revisión del presupuesto
+1935|Estimación calculada de QazGost
+1936|Reserva {n}%
+1937|Ocultar el cotejo con la base
+1938|Escenario
+1939|Precio, ₸
+1940|precios
+1941|Rayado — pausa técnica: secado, fraguado, prueba de presión
+1942|% del monto — precios de listas y anuncios públicos; el resto está marcado como «estimación» con su método
+1943|La IA ayuda a ver defectos y a revisar la selección de trabajos; los precios y volúmenes del presupuesto salen solo de la medición y del catálogo de referencia
+1944|Mostrar el cotejo con la base QazGost ({a} conceptos)
+1945|desde el día {a}, {b} días
+1946|punto medio {a}–{b}
+1947|, sin {a} elegidos
+1948|LISTA DE COMPRA
+1949|Altura, m
+1950|Dónde se consultó el precio
+1951|PROGRAMA DE OBRA
+1952|Fecha del cálculo
+1953|Duración, días
+1954|Supuestos
+1955|Total, días
+1956|Cómo se calculó la cantidad
+1957|material
+1958|Inicio, día
+1959|Sin conexión con el servidor de cálculo. Revisa tu internet e inténtalo de nuevo
+1960|Pausa, días
+1961|mano de obra
+1962|Sección
+1963|Enlace
+1964|Muros descontando vanos, m²
+1965|maquinaria
+1966|Precios al
+1967|Catálogo de fichas técnicas no disponible ({a})
+1968|El servidor de cálculo respondió con el error {a}
+1969|PRESUPUESTO QazGost — {a} ({b})

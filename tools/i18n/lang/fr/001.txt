@@ -1,0 +1,270 @@
+260|Bloc de béton cellulaire autoclavé D500 600×300×200
+261|Colle pour béton cellulaire, 25 kg
+262|Treillis en basalte pour armature
+263|Maçonnerie des murs avec armature
+264|Toiture à deux pans en tuiles métalliques 0,5 mm
+265|Tuile métallique « Monterrey » 0,5 mm
+266|Bois résineux 50×150 mm pour chevrons
+267|Membrane hautement perméable à la vapeur
+268|Pose de la charpente et du voligeage
+269|Chape
+270|Chape semi-sèche fibrée, 60 mm
+271|Ciment PC-500 D0 et sable lavé
+272|Fibres de polypropylène 12 mm
+273|Plastifiant pour planchers chauffants
+274|Mise en œuvre mécanisée avec talochage
+275|Maçonnerie
+276|Toiture
+277|Fondation
+278|Façade
+279|Appartement, Syganak 18
+280|Salle de bain, Kenessary 4
+281|Estimez votre budget en une minute
+282|Indiquez les paramètres et obtenez une fourchette aux prix de 2026. Le service établira un devis précis à partir de photos.
+283|Calculateur de budget
+284|Type de bien
+285|Appartement
+286|Maison
+287|Bureau
+288|Site industriel
+289|Type de travaux et surface
+290|Surface, m²
+291|Surface, mètres carrés
+292|Budget estimatif
+293|Délai d'exécution
+294|Volume de travaux
+295|Fourchette :
+296|Catalogue des travaux et des prix
+297|Recherche par catégorie de travaux
+298|Tout le catalogue
+299|Groupes de travaux
+300|travaux
+301|catégories
+302|Toutes les options
+303|Gros œuvre
+304|Terrassement
+305|Béton et monolithe
+306|Charpente métallique
+307|Fenêtres et portes
+308|Finitions
+309|Réseaux techniques
+310|Systèmes techniques
+311|Conception et travaux spéciaux
+312|Eau et assainissement
+313|Chauffage et plancher chauffant
+314|Section de câble
+315|Géodésie et levé topographique
+316|Un seul service pour tous sur le chantier
+317|Des outils pratiques pour chaque acteur de la construction.
+318|Pour les clients
+319|Pour les entrepreneurs
+320|Pour les concepteurs
+321|Pour le contrôle technique
+322|Devis sur photo
+323|Devis à partir de photos et de dimensions, avec la source du prix sur chaque ligne
+324|Catalogue des entrepreneurs
+325|Contrôle de la qualité des travaux
+326|Fil des commandes
+327|Fil des commandes dans tout le Kazakhstan
+328|Répondez avec un prix et un délai directement dans la fiche de commande
+329|Vos engins sur la marketplace : les locataires vous trouvent eux-mêmes
+330|Calculs selon les SNiP et dossier de conception
+331|Vérification des quantités et des devis
+332|Constat des défauts
+333|Rapport de défauts
+334|Rapport de défauts automatique
+335|Rapports de défauts sur photo
+336|Rapport avec recommandations
+337|Procès-verbaux
+338|Rapport d'expertise des défauts
+339|Rapport photo avec recommandations
+340|Contrôle des défauts selon les normes SNiP et GOST RK
+341|Vérifier un défaut
+342|Calcul des quantités sur photo
+343|Calcul selon les SNiP
+344|Calculs sur photo
+345|Calcul de nomenclature (BOM) précis
+346|Trois scénarios de prix
+347|Coût de la réparation
+348|Comparaison des offres
+349|Comparaison des fournisseurs
+350|Contact direct
+351|Réservation aux dates voulues
+352|Réception de l'ouvrage
+353|Validations
+354|Étapes des travaux
+355|Dossier de documents
+356|Documents
+357|Historique et rapports
+358|Contrôle technique
+359|Esquisse et projet d'exécution
+360|Ingénierie et dossier de conception
+361|Ingénierie et projet
+362|Calculateur d'ingénierie
+363|Calculateur
+364|Synchronisation avec le CRM et les devis
+365|Prix à jour
+366|Base ESN RK
+367|Devis
+368|Tous les services de la plateforme
+369|Catégories de services
+370|Une gamme complète d'outils pour estimer les travaux vite et précisément.
+371|Entrepreneurs, matériaux et engins dans un seul espace
+372|Entrepreneurs
+373|Matériaux de construction
+374|Engins de chantier
+375|Matériaux
+376|Matériaux et engins avec prix par région du Kazakhstan
+377|Travaux et matériaux
+378|Équipes
+379|Équipes et commandes
+380|Équipes par type de travaux
+381|Commandes pour les équipes
+382|Demandes dans la ville
+383|Marketplace
+384|Marketplace d'engins de chantier
+385|Marketplace de matériaux de construction
+386|Catalogue des matériaux
+387|Location d'engins
+388|Commande et livraison
+389|Livraison sur chantier
+390|Études et géotechnique
+391|Études géotechniques
+392|Essais sur site et en laboratoire avec rapport officiel selon les SNiP RK et SP RK — pour le projet, l'expertise et la banque.
+393|Commander des études
+394|Laboratoire des sols
+395|Essais de pieux
+396|Essais à la plaque
+397|Pénétration statique (CPT)
+398|Matériel de forage
+399|forage jusqu'à 35 m
+400|bancs d'essai accrédités
+401|module de déformation E
+402|charge jusqu'à 500 t
+403|effort de 200 kN
+404|échelle 1:500
+405|Démo de l'application mobile QazGost
+406|Sur le chantier, depuis votre téléphone
+407|Créez des devis et des rapports de défauts directement sur le chantier. Rapide, pratique, sans ordinateur portable.
+408|Fonctionne dans le navigateur de n'importe quel téléphone
+409|Application Android
+410|Applications Android pour le gestionnaire, l'ingénieur et l'équipe
+411|L'application iPhone est en préparation
+412|iOS bientôt
+413|Télécharger l'application
+414|Rester sur le site
+415|QazGost — application Android
+416|Tout dans une seule application : client, prestataire, ingénieur, gestionnaire et administrateur. Devis sur photo, commandes et contrôle des défauts depuis votre téléphone.
+417|Fichier APK, {n} Mo, version {n}. Android vous demandera d'autoriser l'installation depuis le navigateur.
+418|Télécharger l'application Android, fichier APK de {n} Mo
+419|Application Android : tous les rôles en une
+420|Commencer sur le téléphone
+421|Prendre une photo
+422|Devis prêt
+423|Prêt
+424|Mes biens
+425|Bonjour
+426|Que faisons-nous aujourd'hui ?
+427|Touchez : l'interface est interactive
+428|Sections de l'application
+429|Devis et rapports de défauts enregistrés
+430|Besoin d'une équipe pour une rénovation
+431|Vitesse
+432|Bonjour ! Je souhaite installer l'application QazGost pour Android.
+433|Questions fréquentes
+434|Comment fonctionne l'estimation des coûts sur photo ?
+435|Vous téléversez une photo d'une pièce, d'un mur ou d'une façade et indiquez la surface. Le service identifie le type de travaux, calcule les quantités et les matériaux et estime le coût d'après la base de prix ESN RK (23 864 postes) ajustée à la région. Vous obtenez trois niveaux de prix : économique, standard et premium.
+436|Quelle est la précision du contrôle des défauts ?
+437|Le réseau neuronal a été entraîné sur des photos de fissures annotées : il encadre les fissures et indique le degré de confiance pour chaque zone. La corrosion, les éclats, les efflorescences et l'humidité ne sont pas encore confirmés par le modèle : un ingénieur les évalue lors de la visite. La conclusion reste marquée comme préliminaire jusqu'à sa validation par un spécialiste.
+438|Comment trouver un prestataire ?
+439|Ouvrez le catalogue des entrepreneurs et appelez directement une équipe, ou publiez une commande dans le fil : les prestataires de votre ville vous enverront des offres de prix et de délai. La demande est envoyée sans acompte : vous convenez du prix et du paiement directement avec le prestataire.
+440|Quels moyens de paiement sont acceptés ?
+441|Le paiement en ligne via la plateforme est en cours de mise en place. Pour l'instant, les commandes, les réservations d'engins et les matériaux se paient directement au prestataire ou au fournisseur — Kaspi, virement ou facture pour les entreprises.
+442|La plateforme est-elle gratuite ?
+443|L'estimation des coûts, le contrôle des défauts et les catalogues sont gratuits. Les fonctions payantes — modules pour promoteurs et analytique avancée — sont activées sur demande : écrivez-nous.
+444|Existe-t-il une application mobile ?
+445|Le site fonctionne entièrement dans le navigateur mobile. Des applications dédiées pour l'ingénieur et le gestionnaire CRM sont disponibles sur Android ; l'application client est en préparation.
+446|Vous n'avez pas trouvé de réponse ? Écrivez à l'assistant dans le chat en bas à droite ou sur WhatsApp.
+447|Écrivez-nous sur WhatsApp
+448|Écrire sur WhatsApp
+449|Bonjour ! Je vous écris depuis le site QazGost AI. J'ai une question sur la plateforme.
+450|© 2026 QazGost AI. Conçu au Kazakhstan.
+451|Créateur
+452|Conditions d'utilisation
+453|Politique de confidentialité
+454|Consentement au traitement des données
+455|Consentement à la collecte et au traitement des données personnelles
+456|Règles d'utilisation du service QazGost AI : qui peut l'utiliser, ce que fait le service et les responsabilités de chaque partie.
+457|Quelles données personnelles QazGost AI collecte, pourquoi, à qui elles sont transmises et comment vous pouvez les gérer.
+458|Texte du consentement que vous donnez en cochant la case correspondante lors de l'inscription à QazGost AI.
+459|Coordonnées de l'Opérateur
+460|Dénomination
+461|BIN / IIN
+462|Adresse
+463|Questions sur le document :
+464|Connexion à QazGost AI
+465|Inscription à QazGost AI
+466|Devis, commandes et engins — là où vous vous êtes arrêté.
+467|Devis sur photo, contrôle des défauts et commandes pour les équipes — dans un seul espace.
+468|Un seul compte pour le client, l'équipe et l'ingénieur.
+469|L'inscription prend une minute, la première estimation peut être faite tout de suite.
+470|Gratuit, en une minute
+471|Nouveau compte
+472|Créer un compte
+473|Création du compte…
+474|Vous avez déjà un compte ?
+475|Pas encore de compte ?
+476|Vous êtes déjà connecté
+477|Compte :
+478|Mot de passe
+479|Votre mot de passe
+480|Afficher le mot de passe
+481|Masquer le mot de passe
+482|Mot de passe oublié ?
+483|Connexion…
+484|Erreur d'authentification
+485|Au moins 6 caractères
+486|Vérifiez l'e-mail
+487|Vérifiez les champs signalés
+488|10 chiffres requis après +7
+489|Indiquez un nom ou le nom de l'organisation
+490|Vous devez accepter les conditions
+491|Le consentement au traitement des données est requis
+492|Pour créer un compte, acceptez les conditions et donnez votre consentement au traitement des données personnelles
+493|Impossible de créer le compte
+494|Qui êtes-vous
+495|Je calcule des devis, je cherche des artisans
+496|Je prends des commandes, je loue des engins
+497|Nom ou nom de l'entreprise
+498|Nom de l'équipe ou de l'entreprise
+499|Équipe « Master » ou Aïdos Kim
+500|Téléphone
+501|Téléphone de contact
+502|J'ai mes propres engins — les ajouter à la marketplace
+503|Type d'engin
+504|Marque et modèle
+505|Immatriculation
+506|Location, ₸ par poste
+507|Consentements
+508|Recevoir les actualités et offres par e-mail, SMS et WhatsApp (facultatif)
+509|Commandes, offres et calendrier des travaux
+510|Toutes les formules
+511|coefficient régional
+512|Dossier, catalogues et fil des commandes
+513|Devis prêt
+514|Pelleteuse / terrassement
+515|Grue mobile / grue auxiliaire
+516|Benne / porte-engins
+517|Chargeuse / Bobcat
+518|Pompe à béton / toupie
+519|Foreuse
+520|Autres engins
+521|Matériel à béton
+522|Bennes et tracteurs
+523|Chargeuses
+524|CAT 320D, KamAZ 6520
+525|LinkVeAI
+526|Assistant
+527|Ingénieur IA QazGost
+528|En ligne · répond en quelques secondes
+529|Sälem ! Je suis LinkVeAI, l'assistant IA de QazGost. Je peux vous donner les prix des travaux et des matériaux, calculer un devis à partir d'une photo, trouver une équipe ou des engins. Par quoi commençons-nous ?

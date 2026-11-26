@@ -1,0 +1,231 @@
+2700|cordolo {n} m, lungo il perimetro
+2701|Contorno dell'area / della strada
+2702|lungo il perimetro
+2703|cordolo {n} m
+2704|Operai
+2705|Turni
+2706|gg
+2707|in base al volume dei lavori
+2708|Per questa categoria non esiste una scheda tecnologica tipo: il preventivo è calcolato in base alla manodopera. Per un calcolo preciso, descrivi i lavori a un ingegnere QazGost
+2709|Ristrutturazione chiavi in mano
+2710|Massetto {a} mm, malta {n}:{n} ({n} kg di cemento per {n} m³). Piastrelle {n}×{n}: collante {n} kg/m², stucco per fughe {n} kg/m² (Ceresit CE {n})
+2711|dispersioni ≈{n} W/m² × {a} m² = {b} kW; radiatore da {n} elementi ≈{n} kW; non meno del numero di finestre ({n})
+2712|Intonaco con guide in strato da {a} mm; consumo di Rotband {n} kg/m² per {n} mm (dati Knauf)
+2713|magatelli {n}×{n} passo {n} m ({n} m³/m²) + tavole {n} mm ({n} m³/m²) × {a} m² + {n}%
+2714|≈{n} m di profilo per {n} m² + guida perimetrale = {a} m, profilo da {n} m
+2715|Ceresit CE {n}: ≈{n} kg/m² per piastrelle {n}×{n} con fuga {n}–{n} mm × {a} m²
+2716|macerie ≈{a} m³ in banco, {b} m³ sciolte (×{n}); {n} m³ a viaggio
+2717|{a} teli da {n} m per {b} m di pareti; {c} teli alti {d} m per rotolo
+2718|{a} prese (secondo norma {n} ogni {n} m di perimetro di {b} m, se non indicato)
+2719|{a} m³ ({b} m² × {c} m) ÷ {n} m³/h, ordine minimo {n} h
+2720|incollaggio {n} kg/m² + strato di armatura {n} kg/m² × {a} m²
+2721|sottofondo {n} cm su una larghezza di {a} m × {b} m, compattazione ×{n}
+2722|puntoni e listelli ≈{n} m³ per {n} m² × {a} m² + {n}%
+2723|malta {a} m³ ({b} m² × {c} mm), cemento {n} kg/m³
+2724|{n} lati × {a} m × (parte fuori terra {b} m + {n})
+2725|{a} m × {b} m × {c} m (perimetro + pareti interne)
+2726|sottofondo in ghiaia {n} cm × {a} m², compattazione ×{n}
+2727|{n} m di linea per rilevatore × {a} + {n} m fino alla centrale
+2728|({a} m² + sporti {b} m × {c} m) ÷ cos {d}° = {e} m²
+2729|{a} prese + {b} interruttori + {c} corpi illuminanti
+2730|({a} m × {b} m × {c} piani − aperture {d} m²) × {e} m
+2731|almeno {n} rilevatori, {n} ogni {n} m² × {a} m²
+2732|{a} corpi illuminanti ({n} ogni {n} m², se non indicato)
+2733|trincea {a} m × {b} m × {c} m = {d} m³, {n} m³/h
+2734|trincea {a} m × {n} m × {b} m = {c} m³, {n} m³/h
+2735|{a} m³ senza rinterro × {n} (rigonfiamento)
+2736|≈{n} m² per gradino con alzata × {a} + {n}%
+2737|pareti {a} m × {b} m − aperture {c} m² = {d} m²
+2738|Knauf: {n} kg/m² per {n} mm × {a} mm × {b} m²
+2739|pavimento {a} m² + risvolto sulle pareti {n} m × {b} m
+2740|{n} BTU raffreddano ≈{n} m², superficie {a} m²
+2741|malta {a} m³ × {n} m³ di sabbia per {n} m³
+2742|{a} × {b} passate (prima di ogni mano)
+2743|≈{n} kg/m² per mano × {a} mani × {b} m²
+2744|terreno spostato dalla trave {a} m³ × {n}
+2745|≈{n} kg di collante per {n} m³ di muratura × {a} m³
+2746|{a} m × {b} m − aperture {c} m² = {d} m²
+2747|{n} kg/m² per piastrelle {n}×{n} × {a} m²
+2748|{n} kg/m² (spatola dentata {n} mm) × {a} m²
+2749|{n} scatola ogni {n} punti, punti: {a}
+2750|«graffiato» {n} mm ≈{n} kg/m² × {a} m²
+2751|perimetro {a} m − porte {n} × {n} m
+2752|{a} m³ × {b} kg/m³ + {n}% sovrapposizioni
+2753|fondo {a} m² + risvolti {b} m × {c} m
+2754|{n} kg/m² con strato di {n} mm × {a} m²
+2755|{n} corpo illuminante ogni {n} m² × {a} m²
+2756|{a} → {b} kg(L) / {c} per confezione
+2757|{a} m² + {n}% di sovrapposizione e tagli
+2758|{n} L/m² × {a} m² × {b} passate
+2759|cassonetto {n} cm × {a} m² = {b} m³
+2760|≈{n} kg/m² × {a} mani × {b} m²
+2761|{a} prese + {b} interruttori
+2762|{n} tasselli per {n} m² × {a} m²
+2763|{n} mani × {n} kg/m² × {a} m²
+2764|confezione per {n} m², pareti {a} m²
+2765|{n} mani ≈{n} kg/m² × {a} m²
+2766|{a} m² + {n}%, lastra da {n} m²
+2767|superficie dal contorno {a} m²
+2768|{a} m² + {n}% per i tagli
+2769|{a} m³ × {b} kg/m³ + {n}%
+2770|{a} m + {n}% per i tagli
+2771|{a} m² + {n}% sovrapposizioni
+2772|{a} m² + {n}% tagli
+2773|{a} m² + {n}% sovrapposizione
+2774|{a} radiatori indicati
+2775|{a} m² × {n} passate
+2776|{a} m³ + {n}% perdite
+2777|risvolti {a} m × {b} m
+2778|{n} kg/m² × {a} m²
+2779|{a} pers. × {b} turni
+2780|{a} m² × {b} mani
+2781|{a} × {b} passate
+2782|{a} interruttori
+2783|{a} punti indicati
+2784|{a} × {b} mani
+2785|{a}% dello scavo
+2786|Richiesta troppo grande (oltre {n} KB)
+2787|Richiesta non valida: campo
+2788|Richiesta non valida: corpo vuoto
+2789|Richiesta non valida: il corpo non è un JSON valido
+2790|Sistemazioni esterne e pavimentazioni
+2791|Collaudo / lavori speciali
+2792|Ventilazione e climatizzazione (HVAC)
+2793|Impianto idrico (acqua fredda/calda)
+2794|Movimento terra e scavi
+2795|Fognatura e drenaggio delle acque meteoriche
+2796|Telaio, pilastri e setti monolitici
+2797|Copertura e orditura del tetto
+2798|Pareti esterne e finitura di facciata
+2799|Serramenti e porte d'ingresso
+2800|Riscaldamento e sottostazione
+2801|Tramezzi in cartongesso e blocchi
+2802|Lavori preparatori e topografici
+2803|Pavimenti e rivestimenti per pavimenti
+2804|Sistemi di controsoffitto
+2805|Apparecchi sanitari
+2806|Reti a bassa tensione e allarme antincendio
+2807|Fondazioni e strutture interrate monolitiche
+2808|Finiture grezze (intonaco, massetto)
+2809|Finiture (tinteggiatura, carta da parati)
+2810|Impianti elettrici
+2811|da {n} ₸
+2812|fino a {n} ₸
+2813|Armature
+2814|Scavi
+2815|Montaggio di anelli
+2816|Montaggio di fosse settiche
+2817|Tubazione
+2818|Fosse settiche e fognatura
+2819|{n} ml
+2820|{n} mln ₸
+2821|{n} ₸ / ora
+2822|BIN {n}
+2823|L ≈ {n} mm
+2824|{n} di {n}
+2825|{n} × {n} m
+2826|{n} gg
+2827|paio
+2828|bobina
+2829|elemento
+2830|confezione
+2831|cliente
+2832|{n} ordine per {n} ₸
+2833|{n} ordini per {n} ₸
+2834|{n} ordini per {n} ₸
+2835|mezzi nell'offerta: {n}
+2836|Calcola il volume
+2837|{n} sezione
+2838|{n} sezioni
+2839|{n} sezioni
+2840|{n} fase
+2841|{n} fasi
+2842|{n} fasi
+2843|Progettista
+2844|Calcolo del computista integrato QazGost: tipo di lavoro e quantità trovati nella nota tramite parole chiave (IA non collegata)
+2845|attività: {n}
+2846|{n} KB
+2847|Totale
+2848|Nella nota non ci sono quantità: sono stati presi valori tipici. Aggiungi alla nota superficie (m²), lunghezza (m) o numero, e il calcolo sarà preciso
+2849|Questo è un calcolo preliminare: il preventivo finale arriva dopo il sopralluogo e le misure dell'ingegnere
+2850|manager
+2851|Ingegnere esperto
+2852|Manager CRM
+2853|La quantità di ogni voce è calcolata dalla geometria del contorno e dai consumi dei produttori; prezzi di mercato con la fonte in ogni riga; il coefficiente regionale è applicato a lavori e materiali; gli scenari differiscono per composizione dei lavori e marca dei materiali
+2854|≈{n} m di tubo per punto + {n}%
+2855|≈{n} m di traccia per punto
+2856|≈{n} m di cavo per punto
+2857|WC {n}
+2858|lavabo {n}
+2859|vasca {n}
+2860|doccia {n}
+2861|lavatrice {n}
+2862|scaldabagno {n}
+2863|scaldasalviette {n}
+2864|{n}% dell'importo «Standard» — ai prezzi di listini e annunci pubblici con link. Il resto è una stima calcolata da QazGost: verifica queste righe con il fornitore
+2865|Zhanaozen
+2866|Rudny
+2867|Ekibastuz
+2868|Excel e PDF con tutte le sezioni
+2869|Preparazione del file…
+2870|Preventivo salvato in Excel
+2871|Impossibile creare il file Excel: controlla la connessione e riprova
+2872|Il browser ha bloccato la finestra di stampa: consenti i pop-up per il sito
+2873|Calcolo cancellato: puoi ricominciare
+2874|Tipo di lavoro modificato: ricalcola il preventivo
+2875|La tua chiave OpenAI è collegata: l'IA analizzerà le foto.
+2876|Le foto le analizza l'IA; se sul server non è collegata, puoi indicare la tua chiave.
+2877|La tua chiave OpenAI
+2878|Serve solo per analizzare le foto. Il preventivo si calcola anche senza.
+2879|Chiave attualmente collegata
+2880|La chiave è conservata solo in questo browser e viene inviata al server QazGost insieme alle foto, per una sola richiesta all'IA; sul server non viene salvata.
+2881|Ottieni una chiave:
+2882|Verifica in corso…
+2883|Verifica la chiave
+2884|Elimina la chiave
+2885|Non sembra una chiave OpenAI: inizia con «sk-».
+2886|Incolla la chiave per verificarla.
+2887|Chiave funzionante: il servizio IA l'ha accettata.
+2888|Nessuna connessione al server: la chiave non è stata verificata.
+2889|il servizio IA non l'ha accettata
+2890|Chiave OpenAI salvata in questo browser
+2891|Chiave OpenAI rimossa da questo browser
+2892|Indica la tua chiave OpenAI
+2893|Stato:
+2894|Difetti visibili
+2895|Da considerare
+2896|L'analisi IA delle foto non è collegata: sul server non c'è una chiave OpenAI. Il preventivo è stato calcolato senza, in base al rilievo e al prontuario.
+2897|L'analisi IA delle foto non è stata eseguita: il servizio IA ha rifiutato la chiave OpenAI. Controlla la chiave.
+2898|L'analisi IA delle foto non è stata eseguita: è stato raggiunto il limite di richieste al servizio IA. Riprova più tardi.
+2899|L'analisi IA delle foto non è stata eseguita: il servizio IA non ha risposto in tempo. Riprova.
+2900|L'analisi IA delle foto non è stata eseguita: il servizio IA ha restituito un errore. Il preventivo è stato calcolato senza.
+2901|L'analisi IA delle foto non è stata eseguita: troppe richieste di seguito. Attendi un minuto e ricalcola il preventivo.
+2902|L'analisi IA delle foto non è stata eseguita: le foto sono troppo grandi. Tieni 1–3 scatti.
+2903|L'analisi IA delle foto non è stata eseguita: il server ha inviato una risposta incomprensibile.
+2904|Composizione dello scenario
+2905|Distinta di acquisto dei materiali
+2906|Acquisto
+2907|Motivo della pausa
+2908|Come è calcolato
+2909|Righe nel preventivo
+2910|Stampa / salva in PDF
+2911|preventivi secondo le norme del Kazakistan
+2912|Prezzi di mercato, con la fonte in ogni riga
+2913|pareti al netto delle aperture
+2914|coefficiente
+2915|Installazione del miscelatore per lavabo
+2916|Installazione del miscelatore per vasca
+2917|Miscelatore per vasca con doccetta, fascia media
+2918|miscelatore per lavabo
+2919|miscelatore per vasca con doccetta
+2920|Satu: miscelatori per vasca da ≈7 000 ₸ (economici) a ≈61 000 ₸ (Grohe); presa la fascia media
+2921|Scarichi: gli apparecchi si collegano agli scarichi esistenti; la sostituzione dei tubi di scarico e della colonna non è inclusa nel preventivo e si valuta dopo l'ispezione.
+2922|Box doccia: miscelatore e doccetta sono inclusi nel box.
+2923|Riscaldamento: radiatori e relativi allacci su impianto esistente; caldaia, gruppo di pompaggio e tubazioni principali non sono inclusi.
+2924|Prezzi di mercato per {a} (coefficiente ×{n}), riserva per imprevisti {n}%, IVA {n}% indicata a parte
+2925|Dalla foto è più adatto il tipo di lavoro «{a}», ma il preventivo è stato calcolato per un altro. Controlla la scelta.
+2926|La chiave non ha superato la verifica ({a}): {b}
+2927|{a}: dettagli
+2928|Chiama: {a}
+2929|Stato: {a}
+2930|Scegli «{a}»

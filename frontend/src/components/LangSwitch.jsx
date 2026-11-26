@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { LANGS, setLang, useLang } from '../i18n';
 
-const GROUP_LABEL = { ru: 'Язык интерфейса', kk: 'Интерфейс тілі', en: 'Interface language', zh: '界面语言', tr: 'Arayüz dili' };
+const GROUP_LABEL = { ru: 'Язык интерфейса', kk: 'Интерфейс тілі', en: 'Interface language', zh: '界面语言', tr: 'Arayüz dili', fr: "Langue de l'interface", it: "Lingua dell'interfaccia", es: 'Idioma de la interfaz' };
 
 // Переключатель языка. Языков больше трёх, поэтому в шапке это кнопка с выпадающим списком,
 // а в мобильном меню (variant="list") — все языки сразу, плитками. Названия языков написаны на них самих

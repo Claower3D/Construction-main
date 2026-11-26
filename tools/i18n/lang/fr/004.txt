@@ -1,0 +1,230 @@
+1020|Sécurité incendie
+1021|Conception
+1022|béton
+1023|groupe électrogène
+1024|grue
+1025|En réparation
+1026|benne
+1027|Réseau indisponible
+1028|transport
+1029|tracteur routier
+1030|(réservation $
+1031|). Des annonces de démonstration sont affichées : prix et statuts fictifs, réservation indisponible
+1032|{n} poste
+1033|{n} t, godet {n} m³
+1034|{n} heure
+1035|Kaspi ou virement au propriétaire après le poste
+1036|Pompe à béton automotrice Putzmeister {n} m, débit {n} m³/h
+1037|Camion toupie KAMAZ {n} (malaxeur {n} m³)
+1038|Nacelle télescopique Hyundai HD{n}, {n} m, {n} kg
+1039|Grue mobile XCMG QY{n}K{n}, {n} t, flèche {n} m + fléchette
+1040|Adresse du chantier (livraison par GPS)
+1041|Location d'engins avec opérateur
+1042|Finisseur Vögele Super {n}-{n} (largeur {n} m)
+1043|Grue à tour Liebherr {n} EC-B, {n} t, flèche {n} m
+1044|Sans connexion, la demande sera envoyée au gestionnaire de la plateforme et les dates ne seront pas réservées chez le propriétaire
+1045|Paiement par virement sur facture avec TVA (entreprises)
+1046|Livraison gratuite
+1047|Béton et mortier
+1048|Foreuse de pieux Bauer BG {n} (pieux jusqu'à {n} m)
+1049|Propriétaire
+1050|Le propriétaire n'a pas indiqué de téléphone — réservez, il vous contactera
+1051|Choisissez une date de livraison à partir d'aujourd'hui
+1052|Groupe électrogène diesel SDMO {n} kW, insonorisé
+1053|Année, état, commande minimale, conditions
+1054|Niveleuse XCMG GR{n}, {n} m, ripper
+1055|Capacité de charge / volume
+1056|Pelleteuse sur chenilles Hitachi ZX{n}, {n} t, {n} m³, {n} m
+1057|Date de livraison de l'engin
+1058|Annonce de démonstration : réservation indisponible
+1059|La publication nécessite un compte serveur. Sans lui, l'annonce ne sera pas enregistrée
+1060|Engins routiers
+1061|En attente de confirmation du propriétaire
+1062|Chargement des engins
+1063|Occupé
+1064|Demande chez le gestionnaire
+1065|Coût total de la location
+1066|Le catalogue des engins est indisponible (
+1067|Compacteur XCMG XS{n}J, {n} t, {n} m
+1068|km de vous
+1069|Pelleteuse sur pneus JCB JS{n}W, {n} t, {n} m³
+1070|Nombre de postes
+1071|Compresseur diesel Atlas Copco XAS {n} ({n} m³/min)
+1072|Camion-grue KAMAZ {n} (grue {n} t, plateau {n} t)
+1073|Prix maximum par poste, ₸
+1074|Mini-chargeuse Bobcat S{n} + brise-roche / balayeuse
+1075|Mini-pelle Kubota U-{n}, {n} t, godet {n} m³
+1076|Par exemple : CAT {n}D, sur chenilles
+1077|Réponse du serveur incorrecte
+1078|Annonce publiée sur la marketplace
+1079|Publier
+1080|Enregistrement…
+1081|Livraison payante
+1082|Aucun engin ne correspond à votre recherche
+1083|Chargeuse
+1084|Essayez d'assouplir les filtres ou de changer de catégorie
+1085|Publication
+1086|Rayon de recherche, km
+1087|Publier vos engins
+1088|Publier un engin de chantier
+1089|La publication n'est possible qu'avec un compte serveur : connectez-vous avec un compte serveur et réessayez. L'annonce n'a pas été enregistrée
+1090|Distance
+1091|Avec équipe
+1092|Avec foreur
+1093|Avec chauffeur
+1094|Avec chauffeur-opérateur
+1095|Avec grutier
+1096|Avec opérateur (conducteur)
+1097|Avec équipage
+1098|Benne Shacman F{n}, {n} t, volume {n} m³
+1099|Réinitialiser tous les filtres
+1100|Session non valide : connectez-vous avec un compte serveur et réessayez
+1101|Mode de paiement
+1102|Chariot télescopique Manitou MT {n} ({n} m, {n} t)
+1103|Le téléphone du propriétaire est visible après connexion
+1104|Téléphone du répartiteur
+1105|Engin en réparation
+1106|Porte-engins surbaissé FAYMONVILLE ({n} t, rampes)
+1107|Bouteur lourd CAT D{n}R, {n} t, lame {n} m
+1108|L'annonce n'indique pas de prix — contactez le propriétaire
+1109|Indiquez le nom, le téléphone et l'adresse du chantier
+1110|Indiquez la marque et le modèle de l'engin
+1111|Indiquez un prix par poste supérieur à {n}
+1112|Chargeuse frontale XCMG ZL{n}G, {n} t, {n} m³
+1113|Prix par poste, ₸
+1114|Le prix horaire ne peut pas être négatif
+1115|Prix horaire, ₸
+1116|heure
+1117|Tractopelle JCB {n}CX Super, roues égales
+1118|Énergie et groupes électrogènes
+1119|Tarière / foreuse sur KAMAZ {n} (forage jusqu'à {n} m)
+1120|oui
+1121|Propriétaire particulier
+1122|Réservation effectuée : {a} postes à partir du {b}. Le propriétaire la confirmera dans l'onglet des demandes
+1123|Location de {a} pour {b} postes à partir du {c}{d}. Chantier : {e}. Opérateur : {f}. Paiement : {g}
+1124|La demande {a} a été transmise au gestionnaire de la plateforme
+1125|Le serveur n'a pas accepté l'annonce : {a}
+1126|Location de {a} pour {b} postes à partir du {c}{d}
+1127|Location d'engins : {a}
+1128|Annonces trouvées : {a}
+1129|Serveur indisponible : {a}
+1130|jusqu'au {a} (réservation {b})
+1131|Trouvé : {a}
+1132|{a} avis
+1133|{n} × {n} × {n} m
+1134|{n} m³
+1135|{n} sacs
+1136|{n} t
+1137|{a}, coefficient ×{b}. {c}, environ {d} j
+1138|Devis_{a}.xlsx
+1139|{n} ₸ / m²
+1140|{n} ₸ / trajet
+1141|{n} ₸ / poste
+1142|{n} t (A{n}C {n} mm)
+1143|{n}. Contrat n° {n}/{n} — Rénovation lourde de bureaux (TOO « Almaty Business ») •
+1144|{n}. Contrat n° {n}/{n} — Fondation monolithique (EI « StroyMaster ») •
+1145|Grue mobile XCMG {n} tonnes (portée {n} m)
+1146|Calcul automatique des quantités de travaux et de la nomenclature des matériaux
+1147|Contrats de sous-traitance actifs
+1148|Enduit armé de voile de verre + primaire
+1149|Hauteur / Épaisseur (m)
+1150|Longueur (m)
+1151|Outil interactif QazGost AI {n}
+1152|Marketplace de location d'engins et d'achat de matériaux
+1153|Microfissures de l'enduit porteur
+1154|Module du système
+1155|Quantité d'armatures nécessaire
+1156|Faible (superficielle)
+1157|Volume total de béton/terre
+1158|Couche de forme sable-gravier
+1159|Surface
+1160|Signé par signature électronique
+1161|Quantités et consommations calculées
+1162|Registre des contrats de sous-traitance et arbitrage électronique (signature E-Gov)
+1163|Disponible
+1164|SNiP RK {n}-{n}-{n} (art. {n})
+1165|Largeur (m)
+1166|Tractopelle JCB {n}CX
+1167|Solde rechargé de {a} ₸
+1168|il y a {n} heures
+1169|+ Choisir des fichiers
+1170|Analyse d'image via TensorFlow Vision
+1171|Audit du devis de toiture
+1172|Sans description
+1173|Hier
+1174|Fichiers sélectionnés
+1175|Chargement du module
+1176|Chiffrage IA selon les normes ESN RK en cours
+1177|Solutions d'ingénierie (envoyer à un ingénieur pour vérification)
+1178|appartement
+1179|confort
+1180|En modération chez le gestionnaire (nouvelle demande)
+1181|Nom de la demande / du bien
+1182|Par exemple : construction d'un sauna {n}x{n}
+1183|Non attribué
+1184|Description (facultatif)
+1185|Envoyé à l'ingénieur pour vérification de la commande
+1186|Transmis au gestionnaire (en cours)
+1187|Transmis au gestionnaire (vous avez confirmé)
+1188|Joindre des fichiers (plans, photos, documents)
+1189|Application des normes d'estimation (ESN RK)
+1190|Vérification du dossier de conception des fondations
+1191|Reconnaissance des structures porteuses et de la géométrie
+1192|Calcul des déperditions thermiques du bâtiment
+1193|Construction (ajouter à Mes biens)
+1194|Construction d'une maison de {n} m²
+1195|Générer
+1196|Créer la demande
+1197|Type de demande
+1198|Votre confirmation est requise (réponse de l'ingénieur reçue)
+1199|Indiquez les détails de la commande
+1200|Établissement du rapport final
+1201|Erreur Vision AI : l'image n'a pas été reconnue comme un ouvrage ou un plan (identifiée comme "{a}"). Veuillez téléverser une vraie photo de pièce, de façade ou un plan
+1202|Nouvelle demande du client : {a}
+1203|Maxime Barbachine
+1204|Notifications, nouvelles : {a}
+1205|Portefeuille : {a} tenge
+1206|Solde : {a} ₸
+1207|Langue de l'interface
+1208|Langue de l'interface
+1209|Client
+1210|Service
+1211|Le texte officiel du document est en russe
+1212|Version du {a}
+1213|Longueur
+1214|Surface
+1215|{n} jours
+1216|{n} jours
+1217|{n} m² (deux pans)
+1218|{n} m² (épaisseur {n} mm)
+1219|{n} m × {n} m × {n} m
+1220|MÉTRÉ QTO DES MATÉRIAUX ET DES TRAVAUX
+1221|Almaty (SNiP RK ×{n})
+1222|Armature crénelée A{n}S Ø{n} mm
+1223|Treillis d'armature en basalte
+1224|Cage d'armature A{n}C Ø{n} mm (GOST {n})
+1225|Astana (SNiP RK ×{n})
+1226|Béton lourd M{n} (W{n}, F{n})
+1227|TRAVAUX DE BÉTON
+1228|Bois résineux {n}×{n} mm (chevrons)
+1229|Retour aux exemples
+1230|Membrane d'étanchéité bitume-polymère
+1231|Démo sur des plans d'exemple
+1232|Votre plan est téléversé
+1233|Téléverser votre plan
+1234|Scanner IA interactif de plans & calculateur QTO
+1235|MAÇONNERIE
+1236|Karaganda (SNiP RK ×{n})
+1237|Maçonnerie en béton cellulaire D{n}
+1238|Maçonnerie des murs extérieurs avec armature
+1239|Colle pour béton cellulaire (sacs de {n} kg)
+1240|TRAVAUX DE TOITURE
+1241|Toiture en tuiles métalliques {n} mm
+1242|Semelle filante M{n}
+1243|Membrane hautement perméable vapeur/eau
+1244|Tuile métallique Monterrey {n} mm RAL {n}
+1245|Mise en place et bétonnage des nœuds porteurs
+1246|Désignation de la ressource / des travaux
+1247|Systèmes de coffrage & panneaux en contreplaqué filmé
+1248|TRAVAUX DE FINITION
+1249|Plastifiant pour planchers chauffants

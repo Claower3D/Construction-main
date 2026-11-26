@@ -1,0 +1,250 @@
+2210|Stucco per fughe Ceresit CE {n}, {n} kg
+2211|Schiuma poliuretanica Makroflex Standard, {n} ml
+2212|Massetto semi-asciutto
+2213|Massetto autolivellante
+2214|Posa di laminato (dritta)
+2215|Posa di laminato «a spina di pesce»
+2216|Posa di piastrelle / gres porcellanato a pavimento
+2217|Montaggio di battiscopa in plastica
+2218|Impermeabilizzazione a spalmare del pavimento in {n} mani
+2219|Tariffa dei piastrellisti dagli annunci di Almaty {n}–{n} mila ₸/m²
+2220|Cemento M{n}, {n} kg
+2221|Sabbia lavata con consegna
+2222|Satu: sabbia fine lavata {n} ₸/m³, consegna con KamAZ da {n} m³ da concordare a parte; con consegna ad Almaty ≈{n} ₸/m³
+2223|Laminato Super Natural Narrow, classe {n}, {n} mm
+2224|Laminato Kastamonu Floorpan Black, classe {n}, {n} mm
+2225|Laminato «spina ungherese», classe {n}, {n} mm
+2226|Sottofondo in pannelli {n} mm (confezione da {n} m² — {n} ₸)
+2227|Battiscopa in PVC con tappi e angoli
+2228|Satu: battiscopa in PVC VOX {n} mm, {n} m — {n} ₸ (≈{n} ₸/m); angoli, tappi e giunti ≈{n} ₸ al metro
+2229|Gres porcellanato {n}×{n} «Tian-Shan Keramik»
+2230|Gres porcellanato {n}×{n} effetto marmo
+2231|Gres porcellanato {n}×{n} «Piastrella» MS {n}
+2232|Impermeabilizzante a spalmare, {n} kg
+2233|Satu: Ceresit CL {n} kg — {n} ₸, CR {n} kg — {n} ₸, CR {n} kit — {n} ₸; preso il prezzo medio di un prodotto elastico per {n} kg
+2234|Controsoffitto teso opaco (telo e posa)
+2235|Controsoffitto teso satinato (telo e posa)
+2236|Controsoffitto teso lucido (telo e posa)
+2237|Controsoffitto in cartongesso a un livello
+2238|Faretto LED Gauss Frameless, {n} W
+2239|Tracce in calcestruzzo/mattoni per cavi (traccia fino a {n} mm)
+2240|Chiusura delle tracce
+2241|Installazione di una presa
+2242|Installazione di un interruttore
+2243|Montaggio di una scatola di derivazione
+2244|Montaggio del contenitore del quadro elettrico
+2245|Installazione di un interruttore automatico nel quadro
+2246|Installazione di un differenziale / magnetotermico differenziale
+2247|Montaggio di un lampadario / plafoniera
+2248|Cavo VVGng-LS {n}×{n}
+2249|Presa / interruttore con placca e scatola da incasso
+2250|Satu: meccanismo Schneider AtlasDesign {n} A — {n} ₸; placca e scatola da incasso ≈{n} ₸
+2251|Quadro ShchRN-{n} IEK, {n} interruttori VA{n}-{n} A e differenziale VD{n}-{n}
+2252|Magnetotermico differenziale IEK AD{n}P {n} A {n} mA
+2253|Distribuzione idrica (polipropilene)
+2254|Distribuzione idrica per punto (sostituzione tubi)
+2255|Installazione di un WC monoblocco
+2256|Montaggio di telaio da incasso e WC sospeso
+2257|Installazione di un lavabo con mobile
+2258|Installazione di una vasca in acrilico
+2259|Montaggio e installazione di un box doccia con piatto
+2260|Montaggio di uno scaldabagno
+2261|Installazione di uno scaldasalviette
+2262|Allacciamento della lavatrice
+2263|Montaggio e allacciamento di un radiatore
+2264|Collegamento dei tubi al radiatore
+2265|WC monoblocco «Standard»
+2266|WC monoblocco Santeri «Gratsiya»
+2267|WC monoblocco Santek «Animo», sedile in duroplast
+2268|Radiatore bimetallico {n} mm, {n} elementi
+2269|Tubo PPR {n} mm con raccordi e fissaggi
+2270|Satu: tubo PPR PN{n} Ø{n} — {n} ₸/m; raccordi e fissaggi ≈{n} ₸ per metro di linea
+2271|Telaio Creavit con WC sospeso e placca
+2272|Mobile con lavabo «Yenisei Classic» {n} cm
+2273|Miscelatore monocomando per lavabo Aquadeus {n}
+2274|Vasca in acrilico VentoSPa AQUA LA {n}×{n}
+2275|Box doccia Erlit {n}×{n} con piatto
+2276|Scaldabagno Ariston PRO{n} R ABS {n} L
+2277|Scaldasalviette ad acqua «Lira» {n}×{n}, acciaio inox
+2278|Climatizzatore split {n} BTU con installazione
+2279|Installazione di un aspiratore / griglia di ventilazione
+2280|Tariffa di elettricisti e idraulici dagli annunci di Almaty
+2281|Montaggio della tubazione del gas interna
+2282|Riferimento dagli annunci dei servizi gas autorizzati; il prezzo esatto dopo le condizioni tecniche e il progetto
+2283|Allacciamento di un apparecchio a gas (piano cottura, caldaia)
+2284|Riferimento dagli annunci dei servizi gas autorizzati
+2285|Progetto dell'impianto gas di una casa privata
+2286|Riferimento dalle offerte degli studi di progettazione di Almaty
+2287|Tinteggiatura del soffitto in {n} mani
+2288|Tinteggiatura delle pareti {n} ₸/m² secondo il listino «Proff-Remont», più un sovrapprezzo per il lavoro sopra la testa
+2289|Posa del cavo in traccia / corrugato
+2290|Tariffa degli elettricisti dagli annunci di Almaty {n}–{n} ₸/m
+2291|Cavo KPSng(A)-FRLS {n}×{n}×{n}
+2292|Prezzo al dettaglio del cavo resistente al fuoco per l'allarme antincendio
+2293|Isolamento della copertura in lana minerale con barriera al vapore
+2294|Tariffa dei copritetto dagli annunci di Almaty {n}–{n} mila ₸/m²
+2295|Sistema di grondaie: canale, pluviali, fissaggi
+2296|Prezzo medio di un sistema di grondaie metallico per metro di gronda
+2297|Rete per facciata {n} g/m² (rotolo da {n} m² — {n} ₸)
+2298|Tassello a fungo {n}×{n} con chiodo metallico
+2299|Porta d'ingresso metallica «Titan {n}»
+2300|Finestra in PVC {n}×{n} m con posa
+2301|Finestra in PVC {n}×{n} m, profilo premium, con posa
+2302|Davanzale con posa
+2303|Scossalina con posa
+2304|Spallette in pannello sandwich
+2305|Montaggio della porta d'ingresso
+2306|Montaggio di una porta interna con telaio e coprifili
+2307|Porta interna NEAPOL, ecoimpiallacciata, con telaio e coprifili
+2308|Armatura A{n}S Ø{n}
+2309|Blocco in calcestruzzo cellulare autoclavato D{n}
+2310|Collante per calcestruzzo cellulare STRONG, {n} kg
+2311|Muratura delle pareti in calcestruzzo cellulare con collante
+2312|Tramezzi in calcestruzzo cellulare fino a {n} mm
+2313|Fondazione continua: casseratura, armatura, getto
+2314|Platea monolitica: casseratura, armatura, getto
+2315|Legname per casseforme ({n} riutilizzi)
+2316|Tavole e compensato per {n} m² di pannello di cassaforma, considerando tre riutilizzi
+2317|Ghiaia {n}–{n} con consegna ad Almaty
+2318|Miniescavatore con operatore
+2319|Scavo manuale
+2320|Turno di uno sterratore {n}–{n} mila ₸ con una resa di {n}–{n} m³ dagli annunci di Almaty
+2321|Trasporto del terreno con autocarro ribaltabile
+2322|Viaggio di un KamAZ ≈{n} ₸ per {n} m³ di terreno smosso
+2323|Rinterro con compattazione
+2324|Miniescavatore e piastra vibrante alla tariffa dei mezzi
+2325|Rifacimento della copertura: rimozione del vecchio manto e posa del nuovo
+2326|Montaggio del sistema di grondaie
+2327|Orditura e listellatura del tetto
+2328|Tariffa delle squadre di copritetto dagli annunci di Almaty {n}–{n} mila ₸/m²
+2329|Lamiera a coppo «Venezia»
+2330|Lamiera a coppo «SuperMonterrey», opaca {n} mm
+2331|Lamiera a coppo «SuperMonterrey», opaca, Russia
+2332|Pannello in lana minerale MakWool P{n}, {n} mm ({n} ₸/m³)
+2333|Membrana antivento e impermeabile Izospan A (rotolo da {n} m² — {n} ₸)
+2334|Tavola refilata di conifera, scelta {n}–{n}
+2335|Noleggio e montaggio di ponteggi
+2336|Noleggio del ponteggio per un mese con montaggio, riferito al m² di facciata
+2337|Intonaco di facciata su rete
+2338|Annunci Kaspi «intonaco di facciata», Almaty: {n}–{n} ₸/m², più spesso {n}
+2339|Intonaco decorativo di facciata «graffiato»
+2340|Annunci Kaspi, Almaty: «graffiato» da {n} ₸/m², con primer e spallette {n}–{n} mila ₸/m²
+2341|Tinteggiatura della facciata in {n} mani
+2342|Tinteggiatura delle pareti secondo il listino «Proff-Remont» {n} ₸/m², più il lavoro in quota
+2343|Isolamento della facciata: collante, pannello, tasselli, strato di armatura
+2344|Pannello in lana minerale per facciate IZOTERM P{n}, {n} mm ({n} ₸/m³)
+2345|Collante per lana minerale e rasante armato Ceresit CT {n}, {n} kg
+2346|Intonaco cementizio per facciate, {n} kg
+2347|Prezzo medio dell'intonaco cementizio da {n} kg ad Almaty
+2348|Intonaco decorativo «graffiato» Ceresit CT {n}, {n} kg
+2349|Pittura per facciate, {n} kg
+2350|Posa di cubetti su sottofondo preparato
+2351|Masselli vibrocompressi {n} cm
+2352|Posa di cordoli per marciapiede su calcestruzzo
+2353|Cordolo per marciapiede {n}×{n}×{n}
+2354|Prezzo medio dai produttori della regione di Almaty
+2355|Asfaltatura (materiale e posa)
+2356|Tettoia / telaio metallico: fabbricazione e montaggio
+2357|Pavimentazione in legno su magatelli
+2358|Tariffa dei carpentieri dagli annunci di Almaty {n}–{n} mila ₸/m²
+2359|Posa di un tubo in PEAD in pressione in trincea
+2360|Tariffa delle squadre dagli annunci, senza scavi
+2361|Tubo in PEAD {n} mm per acqua
+2362|Prezzo al dettaglio del tubo PE{n} SDR{n} Ø{n}
+2363|Installazione di un sensore d'allarme
+2364|Prezzo medio di un rilevatore di fumo IP {n}
+2365|Centrale d'allarme con batteria
+2366|Prezzo medio di una centrale per {n}–{n} linee
+2367|Montaggio di una telecamera IP con posa del cavo
+2368|Annunci Kaspi, Almaty: installazione di una telecamera {n}–{n} ₸; con posa del cavo, metà superiore dell'intervallo
+2369|Telecamera IP {n} Mpx
+2370|Prezzo medio di una telecamera IP entry level
+2371|Videoregistratore con disco da {n} TB
+2372|Satu: Hikvision DS-{n}NI-Q{n}/M a {n} canali — {n}–{n} ₸ senza disco, DS-E{n}NI-Q{n} con SSD {n} TB — {n} ₸
+2373|Progetto di interior design per un appartamento
+2374|Progetto di interior design per una casa
+2375|Visualizzazione {n}D degli interni
+2376|Uscita del topografo, tracciamento degli assi
+2377|Manovale
+2378|Tariffa di un manovale dagli annunci di Almaty {n}–{n} mila ₸ a turno
+2379|Rivestimento di un gradino in gres porcellanato
+2380|Posa {n} ₸/m² secondo il listino «Proff-Remont», con tagli e bisellatura ≈{n} m² per gradino
+2381|Montaggio e installazione di mobili
+2382|Tariffa dei montatori di mobili dagli annunci di Almaty
+2383|Cucina su misura (truciolare nobilitato/MDF)
+2384|Prezzo medio al metro lineare presso i laboratori di mobili di Almaty
+2385|Offerte Satu {n}–{n} ₸ al sacco (novembre {n})
+2386|Offerte Satu {n}–{n} ₸/m (novembre {n})
+2387|Offerte Satu {n}–{n} ₸/m³, mediana {n} (novembre {n})
+2388|OLX Talgar {n} ₸/t, Satu {n} ₸/t (ottobre–novembre {n})
+2389|Media di due offerte D{n}: Kaspi {n} e Satu {n} ₸/m³
+2390|Satu, Almaty: WC monoblocco {n}–{n} ₸ (novembre {n})
+2391|Annunci OLX, Almaty: {n}–{n} ₸ al sacco M{n}–M{n}
+2392|Annunci OLX {n}–{n} ₸/m²
+2393|Annunci Kaspi {n}–{n} ₸/m²
+2394|Annunci Kaspi {n}–{n} ₸/m², materiale incluso
+2395|Bizmedia/OLX: {n}–{n} ₸ per uscita
+2396|OLX: climatizzatore con installazione da {n} ₸
+2397|Annunci Kaspi «muratura in calcestruzzo cellulare», Almaty
+2398|Kaspi, piastrellista ad Almaty: pavimento da {n} ₸/m²; intervallo degli annunci {n}–{n}
+2399|Kaspi, piastrellista ad Almaty: pareti da {n} ₸/m²
+2400|Satu: {n} mm, {n} elementi — {n} e {n} ₸, presa la media
+2401|Satu, Almaty: da {n} ₸ (novembre {n})
+2402|Kaspi, piastrellista ad Almaty: rimozione piastrelle da {n} ₸/m²; da «Proff-Remont» rimozione dei pavimenti in generale — {n} ₸/m²
+2403|Satu, Almaty: {n} offerte {n}×{n} — {n}–{n} ₸/m², mediana {n} (novembre {n})
+2404|Satu, Almaty: {n}×{n} effetto marmo e bianco — {n}–{n} ₸/m²; intervallo della pagina {n}–{n}
+2405|Satu: tasselli {n}×{n} — {n}–{n} ₸; per la lana minerale serve il chiodo metallico (FIX PLAST — {n} ₸)
+2406|Kaspi, Almaty: installazione di una porta interna {n}–{n} ₸, più spesso {n}
+2407|Listino «Proff-Remont»: rimozione di una porta in legno — {n} ₸, metallica — {n} ₸
+2408|Satu: carta da parati in TNT {n}×{n} m — {n}–{n} ₸ al rotolo, collezioni premium fino a {n}
+2409|Satu e Kaspi, Almaty: installazione di un box doccia {n}–{n} ₸; da «Proff-Remont» — {n} ₸
+2410|Satu e Kaspi, Almaty: isolamento delle pareti in lana minerale con strato di armatura {n}–{n} ₸/m², da {n} presso le aziende
+2411|Satu, Almaty: posa di cordoli {n}–{n} ₸/ml, mediana delle offerte {n}
+2412|Kaspi, Almaty: smaltimento rifiuti {n}–{n} ₸ a viaggio; preso il limite superiore, carico incluso
+2413|Kaspi, Almaty: lavoro della squadra {n} ₸/m³; calcestruzzo, armatura e casseforme calcolati in righe separate
+2414|Satu, Almaty: laminato classe {n} {n} mm — {n}–{n} ₸/m² (novembre {n})
+2415|Satu, Almaty: laminato «a spina di pesce» classe {n} — {n}–{n} ₸/m²
+2416|Somma dei prezzi Satu: quadro ShchRN-{n} — {n} ₸, {n} interruttori VA{n}-{n}P {n} A da {n} ₸, differenziale VD{n}-{n}P {n} A — {n} ₸
+2417|Satu, Almaty: {n}–{n} ₸/m³ in cava; con consegna ad Almaty e provincia — {n} ₸/m³
+2418|Satu: Izospan A, rotolo da {n} m² — {n} ₸ ({n} ₸/m²)
+2419|Satu: rete {n} g/m², rotolo da {n} m² — {n} ₸ ({n} ₸/m²)
+2420|Satu: sottofondo Solid {n} mm, confezione da {n} m² — {n} ₸ ({n} ₸/m²)
+2421|Listino «Proff-Remont»: traccia fino a {n} mm — {n} ₸/ml, {n}–{n} mm — {n}; per un cavo VVG {n}×{n} bastano {n}–{n} mm
+2422|bomboletta
+2423|tanica
+2424|ora-macchina
+2425|No
+2426|Sì
+2427|Contorno dell'ambiente (pavimento)
+2428|Carta da parati
+2429|Piastrelle
+2430|Spessore dell'intonaco
+2431|Spessore medio con guide; dipende dalla planarità delle pareti
+2432|Primer
+2433|asciugatura dell'intonaco a base gesso
+2434|asciugatura della rasatura
+2435|senza guide: rasatura in {n} mano sulla superficie esistente, pittura Gaudi «Biancaneve»
+2436|intonaco con guide, stucco Fugen in {n} mani, pittura Gaudi Standart
+2437|intonaco con guide, finitura AlinEX Glatt Plus in {n} mani, pittura Remalux
+2438|senza guide: rasatura in {n} mano, carta da parati in TNT
+2439|intonaco con guide, rasatura in {n} mani, carta da parati in TNT
+2440|intonaco con guide, finitura Glatt Plus, carta da parati vinilica su TNT
+2441|senza guide: gres porcellanato {n}×{n} sulla superficie esistente
+2442|intonaco con guide, gres porcellanato {n}×{n} effetto marmo
+2443|intonaco con guide, gres porcellanato {n}×{n} serie premium
+2444|+ {n}% per i tagli
+2445|Rasatura ≈{n} kg/m² per mano; pittura in {n} mani da {n} kg/m²; primer {n} L/m² prima di ogni mano
+2446|Contorno del pavimento
+2447|Laminato
+2448|Gres porcellanato
+2449|Spessore del massetto
+2450|Impermeabilizzazione (bagno, cucina)
+2451|asciugatura dell'impermeabilizzazione
+2452|maturazione del massetto semi-asciutto prima della posa
+2453|laminato classe {n}–{n} sul sottofondo esistente
+2454|massetto semi-asciutto, laminato classe {n}
+2455|massetto semi-asciutto, laminato classe {n} «a spina di pesce»
+2456|gres porcellanato {n}×{n} sul sottofondo esistente
+2457|massetto semi-asciutto, gres porcellanato {n}×{n} effetto marmo
+2458|massetto semi-asciutto, gres porcellanato {n}×{n} serie premium
+2459|Contorno del soffitto (= pavimento)

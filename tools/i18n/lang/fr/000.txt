@@ -1,0 +1,260 @@
+0|devis et détection de défauts selon les normes du Kazakhstan
+1|Accueil
+2|Plateforme
+3|Fonctionnalités
+4|Catalogue
+5|Tarifs
+6|Se connecter
+7|Connexion
+8|Se déconnecter
+9|S'inscrire
+10|Inscription
+11|Se connecter
+12|Espace personnel
+13|Aller à l'espace personnel
+14|Aller
+15|Profil
+16|Tableau de bord
+17|Ouvrir
+18|Ouvrir le menu
+19|Fermer le menu
+20|Retour
+21|Retour au tableau de bord
+22|Haut de page
+23|Aller au contenu
+24|Afficher
+25|Tout afficher
+26|Réduire
+27|Envoyer
+28|Tous
+29|Total :
+30|Rechercher…
+31|Sans catégorie
+32|Chargement de la section…
+33|Ouverture de l'espace de travail…
+34|Erreur de synchronisation avec le serveur
+35|Outils
+36|OUTILS
+37|GESTION
+38|PROFIL
+39|MES COMMANDES
+40|PROFIL & SERVICES
+41|Menu client
+42|Menu prestataire
+43|Espace ingénieur
+44|Panneau d'administration
+45|Panneau principal
+46|Estimation des coûts
+47|Contrôle des défauts
+48|Calcul des quantités
+49|Solutions d'ingénierie
+50|Calculateur de réseaux
+51|Scanner LiDAR
+52|Calendrier
+53|Calendrier des travaux
+54|Mes commandes
+55|Mes travaux
+56|Engins / Marketplace
+57|Mon dossier
+58|Dossier
+59|Dossier du prestataire
+60|Remplissez votre dossier
+61|Construction de bâtiments
+62|Demandes
+63|Chiffrage IA
+64|Dépenses
+65|Grilles tarifaires
+66|Modération
+67|Régions
+68|Journal des actions
+69|Analytique
+70|Litiges et arbitrage
+71|Contrats
+72|Système CRM
+73|Marketplace d'engins
+74|Calculateur de devis
+75|Artisan
+76|Client
+77|Prestataire
+78|Ingénieur
+79|Administrateur
+80|Gestionnaire
+81|Entreprise
+82|Je suis fournisseur
+83|Gestionnaire Sacha
+84|Paiement
+85|Paiement et portefeuille
+86|Ouvrir le portefeuille
+87|Formule
+88|Contacts
+89|Panier
+90|Ville
+91|Choisissez une ville
+92|Choisir une ville
+93|Ville sélectionnée :
+94|Villes du Kazakhstan
+95|Rechercher une ville...
+96|Ville introuvable
+97|Détection automatique de la ville par GPS
+98|GPS auto
+99|Toutes les villes
+100|Toutes les régions
+101|Toutes les régions (prix de base)
+102|Région des prix
+103|Région :
+104|Lieu
+105|Almaty
+106|Astana
+107|Chymkent
+108|Karaganda
+109|Aktobe
+110|Taraz
+111|Pavlodar
+112|Oust-Kamenogorsk
+113|Semeï
+114|Atyraou
+115|Kostanaï
+116|Kyzylorda
+117|Ouralsk
+118|Petropavlovsk
+119|Aktaou
+120|Temirtaou
+121|Turkestan
+122|Kokchetaou
+123|Taldykourgan
+124|Jezkazgan
+125|Notifications
+126|Tout marquer comme lu
+127|Tout effacer
+128|Aucune notification
+129|Les messages importants et les statuts de vos demandes apparaîtront ici
+130|nouvelles
+131|À l'instant
+132|Un prestataire a répondu
+133|Votre commande a reçu une offre avec un prix et un délai. Comparez les propositions.
+134|Devis prêt (IA 2.0)
+135|Les photos téléversées ont été analysées : 3 scénarios de prix calculés.
+136|Le scanner IA a détecté 2 microfissures et établi un rapport selon les SNiP.
+137|Inspection programmée
+138|Nouvelle demande de contrôle technique pour la résidence « Kabanbaï ».
+139|Vérification IA GOST terminée
+140|Vérification de la section du dossier de conception terminée : 0 défaut critique.
+141|Signature du procès-verbal KS-2
+142|Le client a approuvé le procès-verbal intermédiaire des travaux cachés.
+143|Nouveau prospect dans le CRM
+144|Nouvelle demande commerciale reçue de la société « KazStroyInvest ».
+145|Affaire passée en phase de conclusion
+146|Le client n° 1085 a demandé une offre commerciale pour la deuxième étape.
+147|Réception réussie de l'ouvrage
+148|L'entrepreneur a livré l'étape n° 3 du devis sans réserve.
+149|Demande de vérification d'entrepreneur individuel
+150|L'entrepreneur individuel « TemirStroy » a envoyé ses documents pour vérification de l'IIN/BIN.
+151|Nouveau litige en arbitrage
+152|Réclamation ouverte sur la qualité du coulage du béton monolithique (DSP-882).
+153|Mise à jour des ESN RK
+154|Les indices de hausse des coûts de 17 régions du Kazakhstan ont été mis à jour.
+155|Nouvelle commande disponible
+156|Dans le fil des commandes : rénovation de bureaux de 450 m² à Astana.
+157|Étape acceptée par le client
+158|Le client a validé l'étape n° 1. Convenez directement avec lui du paiement de l'étape.
+159|Offre acceptée
+160|Votre offre commerciale a été retenue comme prestataire principal.
+161|Estimation IA sur photo en quelques secondes • SNiP et GOST RK • RU / KZ / EN
+162|Gagnez de l'argent avec des chantiers —
+163|en toute honnêteté et transparence
+164|Construisez et rénovez
+165|sans surcoût ni risque
+166|Accédez au fil des commandes en direct dans tout le Kazakhstan, envoyez vos offres de prix et de délais, gérez vos projets dans « Mes travaux » et livrez le résultat en ligne.
+167|Téléversez une photo d'une pièce ou d'une façade : le service calcule le devis selon les normes du Kazakhstan, repère les fissures et trouve une équipe dans votre ville.
+168|Ouvrir le fil des commandes
+169|Estimer un bien sur photo
+170|Commencer gratuitement
+171|Voir un exemple
+172|Essayer maintenant
+173|Trouver un prestataire ou prendre une commande
+174|prix des travaux et des matériaux
+175|ajustés pour 11 villes
+176|devis sur photo
+177|moins d'1 min
+178|quantités, matériaux et total
+179|précision du détecteur de fissures
+180|sur l'échantillon de test
+181|références de matériaux de construction
+182|prix par région du Kazakhstan
+183|Maison : la moitié gauche est un rendu photoréaliste, la droite un plan avec les réseaux techniques : électricité, eau, chauffage, assainissement, gaz et compteurs
+184|Électricité
+185|Tableau électrique
+186|Compteur électrique
+187|Eau froide
+188|Eau chaude
+189|Compteur d'eau
+190|Chauffage
+191|Chaudière et collecteur
+192|Assainissement
+193|Gaz
+194|Compteur de gaz
+195|Devis et défauts selon les normes du Kazakhstan
+196|Devis, contrôle des défauts et entrepreneurs selon les normes de la République du Kazakhstan.
+197|Le service détecte les défauts, calcule les quantités et sélectionne les prix ESN RK et les normes.
+198|Devis rapides et précis
+199|Devis sur photo en quelques secondes
+200|Devis sur photo en une minute
+201|Détection des défauts
+202|Fissures sur photo
+203|Fissures, éclats, fuites
+204|Les fissures sont encadrées sur la photo ; la norme, la description et le coût de réparation sont ajoutés au rapport.
+205|Réseau neuronal YOLO26
+206|Le réseau neuronal calcule les travaux et détecte les défauts
+207|Calculs transparents
+208|Prix transparents 2026
+209|Prix 2026 ajustés selon la ville
+210|Prix par région du Kazakhstan
+211|Documents prêts à l'emploi
+212|Devis, procès-verbaux, bordereaux et calculs — en PDF et Excel, pour validation et pour l'entrepreneur.
+213|Export PDF et Excel
+214|Export Excel et PDF
+215|Export PDF / Excel
+216|Références aux normes
+217|Comment ça marche
+218|De la photo au devis prêt en trois étapes, généralement en moins d'une minute.
+219|Téléversez une photo
+220|Un mur, une pièce, une façade ou une fissure en gros plan. L'appareil photo du téléphone suffit.
+221|Analyse et calcul
+222|Obtenir un devis précis
+223|Devis et rapport de défauts avec prix et recommandations — envoyez-les à une équipe du catalogue.
+224|Transformez une photo en devis prêt
+225|Téléversez une photo du bien et obtenez un devis complet avec quantités, prix et coût selon les normes du Kazakhstan.
+226|Calculer le devis
+227|Calculer mon bien
+228|Créer un devis
+229|Télécharger Excel
+230|Devis PDF
+231|Préparation du fichier…
+232|Exemples de devis
+233|Exemple de devis
+234|Voici à quoi ressemble un devis
+235|Transparent et prêt à l'emploi, comme celui d'un métreur expérimenté. Prix issus de la base ESN RK avec le coefficient de votre ville.
+236|Quantités de travaux et de matériaux
+237|Détail par type de travaux et matériaux
+238|Total et durée des travaux
+239|Désignation des travaux
+240|Quantité
+241|Prix unitaire
+242|Montant, ₸
+243|Total du devis
+244|Réserve de matériaux 10 %
+245|Réserve de matériaux
+246|Contrôle technique +5 %
+247|Contrôle technique
+248|u.
+249|j
+250|Fondation en semelle filante
+251|Semelle filante, béton M300
+252|Terrassement à la pelleteuse
+253|Béton lourd M300 (W6, F150)
+254|Armature crénelée A500S Ø12 mm
+255|Coffrage modulaire en contreplaqué filmé
+256|Mise en place et vibrage du béton
+257|Maçonnerie en béton cellulaire
+258|Murs extérieurs en béton cellulaire D500
+259|240 m², épaisseur 300 mm

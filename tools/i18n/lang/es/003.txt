@@ -1,0 +1,230 @@
+790|Bauyrzhan Toktarov
+791|Ventilación
+792|Seleccionado
+793|Fecha
+794|Demo
+795|Unidad de medida
+796|Cerrar
+797|kg
+798|Código
+799|m³
+800|Módulo
+801|Descripción
+802|Cancelar
+803|Concepto {n}-{n}-{n}
+804|Trabajos
+805|viaje
+806|Volteo KAMAZ de {n} toneladas
+807|Plomería
+808|Estado
+809|Importe
+810|t
+811|Maquinaria
+812|Tipo
+813|Eliminar
+814|pza
+815|Cargando la herramienta
+816|Calcular
+817|Proveedor
+818|Ocultar
+819|¡Sälem! Soy el asistente de IA de QazGost. Te digo precios de trabajos y materiales, calculo un presupuesto por foto y encuentro una cuadrilla o maquinaria. ¿Por dónde empezamos
+820|Preguntar: {a}
+821|Cuadrilla n.º {n}
+822|Revisión
+823|foto
+824|Borrador
+825|Nuevas
+826|. El precio incluye la mano de obra básica y la operación de maquinaria. Los materiales se calculan aparte según el proyecto
+827|{n} ₸ (Medina) / {n} ₸ (TABYS)
+828|{n} ₸ (TABYS) / {n} ₸ (Medina)
+829|{n} ₸ / pza
+830|Presupuesto con IA para
+831|Vigente para {n}
+832|Analizando
+833|Costo base
+834|Rango de precios base
+835|Bloques de cimentación FBS {n} t ({n}×{n}×{n} mm)
+836|tipos de precios unitarios
+837|Retiro de escombro
+838|Calidad superior
+839|Limpieza general de la obra
+840|Impermeabilización de juntas
+841|GOST {n}-{n}
+842|Este precio unitario incluye todo el conjunto de trabajos conforme a la norma
+843|Desmontaje de recubrimientos
+844|Fondo de registro PN-{n} (d={n} m)
+845|Agregar al presupuesto
+846|Cargando
+847|Solicitar auditoría
+848|PF Medina (Manarbek)
+849|Categoría de trabajos
+850|Limpieza después de la obra
+851|Anillo de apoyo KO {n} ({n}×{n}×{n} mm)
+852|Anillo de registro KS {n} ({n}×{n} mm)
+853|Anillo de registro KS {n} (d={n} m, h={n} m)
+854|Tapa de registro {n}PP-{n}-{n} (d={n} m con brocal)
+855|Tapa de registro {n}PP-{n}-{n} (reforzada para tráfico vehicular)
+856|Tapa de polímero para tráfico pesado ({n} t)
+857|Colocación y preparación de la superficie
+858|Volver al catálogo
+859|Por ejemplo: necesito una cimentación corrida de {n}x{n} metros, con {n} m de profundidad
+860|Nuestros ingenieros técnicos te ayudan a armar un presupuesto preciso con visita a la obra
+861|Norma
+862|Describe tu proyecto con tus propias palabras: la red neuronal elegirá los precios unitarios, calculará los volúmenes y te dará un presupuesto listo
+863|desde {n} ₸ / m²
+864|desde {n} ₸ / ml
+865|desde {n} ₸ / viaje
+866|Abrir presupuesto
+867|Losa de fondo PN-{n} (d={n} m)
+868|Losa de tapa {n} PP {n}-{n} (d={n} m con brocal)
+869|Trabajos más solicitados
+870|Generar presupuesto
+871|Presupuesto generado con éxito
+872|Ver más precios ↓
+873|SNiP {n}-{n}
+874|SNiP {n}-{n}-{n}
+875|Poste de concreto armado SV {n}-{n} (poste de línea eléctrica de {n} m)
+876|TABYS-ASM / Medina
+877|Trabajos de aislamiento térmico
+878|TOO TABYS-ASM
+879|TOO TABYS-ASM (Natalia)
+880|Gastos de transporte
+881|Colocación de la capa base
+882|Acabado final
+883|Cambio de contraseña — QazGost AI
+884|Cuenta: {a}
+885|Alibek Nurlanov
+886|Ficha enviada a moderación
+887|Un moderador revisará la ficha y después aparecerá en el catálogo
+888|Soldador certificado: estructuras metálicas, cobertizos, portones
+889|Concreto y prefabricados
+890|Concreto, cimbra, varilla
+891|Colador de concreto
+892|Urbanización y exteriores
+893|Más reseñas
+894|Cuadrillas y maestros
+895|Cuadrilla
+896|La cuadrilla está ocupada ahora — llama para acordar los plazos
+897|BrigadaAstana
+898|Jefe de cuadrilla
+899|Cuadrillas y empresas que aceptan pedidos por QazGost. Llama directamente o envía una invitación al proyecto
+900|Regresar
+901|Todas las habilidades
+902|Contratista general
+903|Ficha de demostración
+904|Demolición y montaje, {n} años de experiencia
+905|Demoledor
+906|Diseñador de interiores
+907|Agregar ficha
+908|Yerzhan, trabajos de soldadura
+909|Edificios residenciales y comerciales llave en mano
+910|Bardas y portones
+911|Planta de prefabricados de concreto
+912|Cargando el catálogo
+913|Nombre del maestro o de la empresa
+914|PF «Medina»
+915|PF «Medina» (prefabricados y tapas)
+916|Anillos de registro KS, losas {n}PP/{n}PP, fondos PN, tapas de polímero y de hierro-concreto. Envío en Karagandá
+917|Empresas
+918|Empresa (TOO / PF)
+919|Contacto de la empresa
+920|Sin datos de contacto
+921|Techador
+922|Cuadrillas grandes
+923|Mejor calificación
+924|Pintor
+925|Manarbek
+926|Maestro todero
+927|Reparaciones menores, visita para medir el mismo día
+928|Habilidades
+929|Nombre, habilidad o jefe de cuadrilla, por ejemplo «concreto»
+930|Gerente de CRM asignado
+931|Encontrados
+932|Escribir
+933|respuesta inesperada del servidor
+934|Calificación baja
+935|No se encontró a nadie
+936|Sobre el contratista
+937|Habilidades principales
+938|Acabados llave en mano
+939|Calefacción y ventilación
+940|Enviar a moderación
+941|Limpiar búsqueda
+942|A convenir
+943|Reintentar
+944|Llamar
+945|Búsqueda de contratistas
+946|Ciclo completo de acabados, {n} años de experiencia
+947|Orden
+948|Proveedor de prefabricados de concreto
+949|Invitar al proyecto
+950|Invitación sin anticipo: la cuadrilla y el gerente recibirán la solicitud; el precio y el pago los acuerdas directamente
+951|Acepta pedidos
+952|Aceptan pedidos
+953|Plomero
+954|Plomería y calefacción, {n} años de experiencia
+955|Soldador
+956|Resumen del catálogo
+957|Ocupada ahora
+958|El servidor del catálogo no está disponible — se muestran fichas de demostración. Sus contactos y calificaciones son ficticios
+959|Serik Karimov
+960|Orden de contratistas
+961|Integrantes
+962|Calificación promedio
+963|Trabajos de construcción
+964|TekhnoStroy
+965|Solo disponibles
+966|TOO «QazStroyGroup»
+967|TOO «KazStroy» o Arman Kasymov
+968|Quita algunos filtros o busca otra habilidad
+969|Fachadista
+970|Fachadas, exteriores e instalación eléctrica. Garantía de {n} años
+971|Maestro independiente
+972|Electricista
+973|Electricidad y pisos, {n} años de experiencia
+974|YuzhStroy
+975|La solicitud {a} se envió sin anticipo: «{b}» y el gerente de CRM recibieron la notificación
+976|Llamada directa al contratista: {a}{b}. Ciudad: {c}. Teléfono: {d}.{e} {f}
+977|No hay cuadrillas adecuadas en {a}
+978|Llamada directa al contratista: {a}{b}
+979|Solicitud por QazGost AI — {a}
+980|Escribir por correo: {a}
+981|Llamar: {a}, {b}
+982|Contrato: {a} ({b})
+983|{a}{b}: más detalles
+984|, reseñas: {a}
+985|Jefe de cuadrilla: {a}
+986|{a} personas
+987|en {a}
+988|{a} personas
+989|Calificación {a}
+990|Instalación de fosa séptica
+991|Unidad
+992|TOTAL DEL PRESUPUESTO
+993|Cant.
+994|Concepto
+995|Presupuesto
+996|fachada
+997|Precio
+998|{n} kg
+999|{n} L
+1000|{n} m
+1001|{n} pza
+1002|Nombre del cliente
+1003|Número máximo de fotos: {n}
+1004|opcional
+1005|no
+1006|Abrir «Mis pedidos»
+1007|Enviar por WhatsApp
+1008|Limpiar
+1009|Foto
+1010|Eliminar {a}
+1011|{n} mm
+1012|Disponible
+1013|Siguiente
+1014|Material
+1015|Nombre de la empresa / PF
+1016|Descargar CSV
+1017|Etapa
+1018|Calculando
+1019|Casa habitación

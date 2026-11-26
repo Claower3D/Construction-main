@@ -1,0 +1,260 @@
+0|presupuestos y detección de defectos según las normas de Kazajistán
+1|Inicio
+2|Plataforma
+3|Funciones
+4|Catálogo
+5|Precios
+6|Iniciar sesión
+7|Inicio de sesión
+8|Cerrar sesión
+9|Registrarse
+10|Registro
+11|Iniciar sesión
+12|Mi cuenta
+13|Ir a mi cuenta
+14|Ir
+15|Perfil
+16|Panel
+17|Abrir
+18|Abrir menú
+19|Cerrar menú
+20|Atrás
+21|Volver al panel
+22|Arriba
+23|Ir al contenido
+24|Mostrar
+25|Mostrar todo
+26|Contraer
+27|Enviar
+28|Todos
+29|Total:
+30|Buscar…
+31|Sin categoría
+32|Cargando la sección…
+33|Abriendo tu espacio de trabajo…
+34|Error de sincronización con el servidor
+35|Herramientas
+36|HERRAMIENTAS
+37|ADMINISTRACIÓN
+38|PERFIL
+39|MIS PEDIDOS
+40|PERFIL Y SERVICIOS
+41|Menú del cliente
+42|Menú del contratista
+43|Panel del ingeniero
+44|Panel de administración
+45|Panel principal
+46|Estimación de costos
+47|Revisión de defectos
+48|Cálculo de volúmenes
+49|Soluciones de ingeniería
+50|Calculadora de instalaciones
+51|Escáner LiDAR
+52|Calendario
+53|Calendario de obra
+54|Mis pedidos
+55|Mis trabajos
+56|Maquinaria / Marketplace
+57|Mi ficha
+58|Ficha
+59|Ficha del contratista
+60|Llena tu ficha
+61|Construcción de edificios
+62|Solicitudes
+63|Cálculo con IA
+64|Gastos
+65|Listas de precios
+66|Moderación
+67|Regiones
+68|Registro de actividad
+69|Analítica
+70|Disputas y arbitraje
+71|Contratos
+72|Sistema CRM
+73|Marketplace de maquinaria
+74|Calculadora de presupuestos
+75|Maestro de obra
+76|Cliente
+77|Contratista
+78|Ingeniero
+79|Administrador
+80|Gerente
+81|Empresa
+82|Soy proveedor
+83|Gerente Sasha
+84|Pago
+85|Pago y billetera
+86|Abrir billetera
+87|Plan
+88|Contacto
+89|Carrito
+90|Ciudad
+91|Elige una ciudad
+92|Elegir ciudad
+93|Ciudad seleccionada:
+94|Ciudades de Kazajistán
+95|Buscar ciudad...
+96|Ciudad no encontrada
+97|Detección automática de la ciudad por GPS
+98|GPS automático
+99|Todas las ciudades
+100|Todas las regiones
+101|Todas las regiones (precios base)
+102|Región de precios
+103|Región:
+104|Ubicación
+105|Almatý
+106|Astaná
+107|Shymkent
+108|Karagandá
+109|Aktobe
+110|Taraz
+111|Pavlodar
+112|Ust-Kamenogorsk
+113|Semey
+114|Atyrau
+115|Kostanay
+116|Kyzylorda
+117|Oral
+118|Petropavl
+119|Aktau
+120|Temirtau
+121|Turkestán
+122|Kokshetau
+123|Taldykorgan
+124|Zhezkazgan
+125|Notificaciones
+126|Marcar todo como leído
+127|Borrar todo
+128|No hay notificaciones
+129|Aquí aparecerán los mensajes importantes y el estado de tus solicitudes
+130|nuevas
+131|Justo ahora
+132|Un contratista respondió
+133|Tu pedido recibió una oferta con precio y plazos. Compara las propuestas.
+134|Presupuesto listo (IA 2.0)
+135|Se analizaron las fotos subidas: se calcularon 3 escenarios de precio.
+136|El escáner de IA detectó 2 microfisuras y generó un reporte según SNiP.
+137|Inspección programada
+138|Nueva solicitud de supervisión técnica para el conjunto residencial «Kabanbay».
+139|Revisión de IA GOST terminada
+140|Se terminó la revisión de la sección del proyecto ejecutivo: 0 defectos críticos.
+141|Firma del acta KS-2
+142|El cliente aprobó el acta intermedia de trabajos ocultos.
+143|Nuevo prospecto en el CRM
+144|Llegó una nueva solicitud comercial de la empresa «KazStroyInvest».
+145|Negociación pasada a fase de cierre
+146|El cliente n.º 1085 solicitó una cotización para la segunda etapa.
+147|Entrega de obra exitosa
+148|El contratista entregó la etapa n.º 3 del presupuesto sin observaciones.
+149|Solicitud de verificación de persona física con actividad empresarial
+150|La empresa individual «TemirStroy» envió sus documentos para verificar el IIN/BIN.
+151|Nueva disputa en arbitraje
+152|Se abrió una reclamación por la calidad del colado del concreto monolítico (DSP-882).
+153|Actualización de ESN RK
+154|Se actualizaron los índices de encarecimiento de 17 regiones de Kazajistán.
+155|Nuevo pedido disponible
+156|En el feed de pedidos: remodelación de una oficina de 450 m² en Astaná.
+157|Etapa aceptada por el cliente
+158|El cliente confirmó la etapa n.º 1. Acuerda el pago de la etapa directamente con él.
+159|Oferta aceptada
+160|Tu propuesta comercial fue elegida como contratista principal.
+161|Estimación con IA por foto en segundos • SNiP y GOST RK • RU / KZ / EN
+162|Gana dinero con pedidos de obra —
+163|de forma honesta y transparente
+164|Construye y remodela
+165|sin sobrecostos ni riesgos
+166|Accede al feed de pedidos en vivo de todo Kazajistán, envía ofertas de precio y plazo, gestiona tus proyectos en «Mis trabajos» y entrega el resultado en línea.
+167|Sube una foto de un cuarto o de una fachada: el servicio calcula el presupuesto según las normas de Kazajistán, marca las grietas y encuentra una cuadrilla en tu ciudad.
+168|Abrir el feed de pedidos
+169|Evaluar un inmueble por foto
+170|Empieza gratis
+171|Ver un ejemplo
+172|Pruébalo ahora
+173|Encuentra un contratista o toma un pedido
+174|precios de mano de obra y materiales
+175|ajustados a 11 ciudades
+176|presupuesto por foto
+177|hasta 1 min
+178|volúmenes, materiales y total
+179|precisión del detector de grietas
+180|en la muestra de validación
+181|artículos de materiales de construcción
+182|precios por región de Kazajistán
+183|Casa: la mitad izquierda es un render fotorrealista y la derecha un plano con las instalaciones: electricidad, agua, calefacción, drenaje, gas y medidores
+184|Electricidad
+185|Tablero eléctrico
+186|Medidor de luz
+187|Agua fría
+188|Agua caliente
+189|Medidor de agua
+190|Calefacción
+191|Caldera y colector
+192|Drenaje
+193|Gas
+194|Medidor de gas
+195|Presupuestos y defectos según las normas de Kazajistán
+196|Presupuestos, revisión de defectos y contratistas según las normas de la República de Kazajistán.
+197|El servicio detecta defectos, calcula volúmenes y selecciona los precios ESN RK y las normas.
+198|Presupuestos rápidos y precisos
+199|Presupuesto por foto en segundos
+200|Presupuesto por foto en un minuto
+201|Detección de defectos
+202|Grietas por foto
+203|Grietas, desportilladuras, filtraciones
+204|Las grietas se marcan con un recuadro en la foto; al acta se agregan la norma, la descripción y el costo de reparación.
+205|Red neuronal YOLO26
+206|La red neuronal calcula los trabajos y detecta defectos
+207|Cálculos transparentes
+208|Precios transparentes 2026
+209|Precios 2026 ajustados por ciudad
+210|Precios por región de Kazajistán
+211|Documentos listos
+212|Presupuestos, actas, relaciones y cálculos — en PDF y Excel, para aprobación y para el contratista.
+213|Exportar a PDF y Excel
+214|Exportar a Excel y PDF
+215|Exportar a PDF / Excel
+216|Referencias normativas
+217|Cómo funciona
+218|De la foto al presupuesto listo en tres pasos, normalmente en menos de un minuto.
+219|Sube una foto
+220|Una pared, un cuarto, una fachada o una grieta de cerca. Basta con la cámara del celular.
+221|Análisis y cálculo
+222|Obtener un presupuesto preciso
+223|Presupuesto y acta de defectos con precios y recomendaciones — envíalos a una cuadrilla del catálogo.
+224|Convierte una foto en un presupuesto listo
+225|Sube una foto del inmueble y obtén un presupuesto completo con volúmenes, precios y costos según las normas de Kazajistán.
+226|Calcular presupuesto
+227|Calcular mi inmueble
+228|Crear presupuesto
+229|Descargar Excel
+230|Presupuesto PDF
+231|Preparando el archivo…
+232|Ejemplos de presupuestos
+233|Ejemplo de presupuesto
+234|Así se ve un presupuesto
+235|Transparente y listo para usarse, como el de un presupuestista con experiencia. Precios de la base ESN RK con el coeficiente de tu ciudad.
+236|Volúmenes de trabajo y materiales
+237|Desglose por tipo de trabajo y materiales
+238|Total y duración de la obra
+239|Concepto
+240|Cantidad
+241|Precio unitario
+242|Importe, ₸
+243|Total del presupuesto
+244|Reserva de materiales 10%
+245|Reserva de materiales
+246|Supervisión técnica +5%
+247|Supervisión técnica
+248|u.
+249|días
+250|Cimentación corrida
+251|Cimentación corrida, concreto M300
+252|Excavación con retroexcavadora
+253|Concreto pesado M300 (W6, F150)
+254|Varilla corrugada A500S Ø12 mm
+255|Cimbra de paneles de triplay fenólico
+256|Colado y vibrado del concreto
+257|Muro de block de concreto celular
+258|Muros exteriores de concreto celular D500
+259|240 m², espesor 300 mm

@@ -19,8 +19,9 @@ test('язык выбран и известен браузеру', () => {
 test('язык по адресу и браузеру', () => {
   assert.equal(defaultLangForHost('qazgost.com', ['zh-CN', 'en-US']), 'zh');
   assert.equal(defaultLangForHost('qazgost.com', ['zh-TW']), 'zh');
-  assert.equal(defaultLangForHost('qazgost.com', ['en-GB', 'zh-CN']), 'en');
-  assert.equal(defaultLangForHost('qazgost.com', ['fr-FR']), 'en');       // языка нет на сайте
+  assert.equal(defaultLangForHost('qazgost.com', ['en-GB', 'zh-CN']), 'en-GB'); // британский английский — свой вариант
+  assert.equal(defaultLangForHost('qazgost.com', ['en-AU', 'zh-CN']), 'en');
+  assert.equal(defaultLangForHost('qazgost.com', ['pt-BR']), 'en');       // языка нет на сайте
   assert.equal(defaultLangForHost('qazgost.com', ['ru-RU', 'zh-CN']), 'zh'); // русский на .com не выбирается сам
   assert.equal(defaultLangForHost('qazgost.com', ['ru-RU']), 'en');
   assert.equal(defaultLangForHost('qazgost.com', ['kk-KZ']), 'en');

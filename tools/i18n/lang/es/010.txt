@@ -1,0 +1,240 @@
+2460|Tipo de plafón
+2461|Tensado
+2462|Tablaroca para pintar
+2463|Pintura sobre losa
+2464|Spots
+2465|Sin ellos
+2466|{n} por cada {n} m²
+2467|Estructura y forro
+2468|Plafón tensado
+2469|Luminarias
+2470|tensado mate
+2471|tensado satinado
+2472|tensado brillante
+2473|tablaroca, pasta en {n} capa, Gaudi «Blancanieves»
+2474|tablaroca, pasta en {n} capas, Gaudi Standart
+2475|tablaroca, acabado Glatt Plus, pintura Remalux
+2476|sobre losa: pasta en {n} capa, Gaudi «Blancanieves»
+2477|sobre losa: pasta en {n} capas, Gaudi Standart
+2478|sobre losa: acabado Glatt Plus, pintura Remalux
+2479|Contorno del espacio / departamento
+2480|{n} — según la norma: {n} contacto por cada {n} m de perímetro
+2481|{n} — según el número de puertas
+2482|Lámparas de techo
+2483|{n} — {n} por cada {n} m²
+2484|Tablero eléctrico nuevo
+2485|Ranurado
+2486|Tendido de cable
+2487|Accesorios eléctricos
+2488|cambio total del cableado con cable VVGng-LS {n}×{n}
+2489|cambio del cableado + diferenciales en zonas húmedas
+2490|× ≈{n} m de ranura por salida
+2491|× {n} m
+2492|× ≈{n} m de cable por salida
+2493|× {n} m + {n}% de reserva
+2494|un tablero
+2495|tablero con {n} pastillas y diferencial
+2496|{n} circuitos: luz, contactos por cuarto, cocina, baño, estufa, lavadora
+2497|diferencial general
+2498|diferenciales para baño y cocina
+2499|Electricidad: ≈{n} m de cable y ≈{n} m de ranura por salida; luminarias y candiles los pone el cliente (el presupuesto solo incluye la instalación)
+2500|regadera
+2501|lavadora
+2502|calentador de agua
+2503|toallero térmico
+2504|salidas
+2505|una mezcladora para lavabo, tina y regadera
+2506|Plomería y agua potable
+2507|Contorno del baño / departamento
+2508|Inodoro
+2509|Una pieza
+2510|Bastidor
+2511|Lavabo con mueble
+2512|Tina
+2513|Cabina de ducha
+2514|Lavadora
+2515|Calentador de agua
+2516|Toallero térmico
+2517|Conexión a la bajante
+2518|Salidas hidráulicas
+2519|{n} — según los aparatos elegidos
+2520|Distribución de tubería
+2521|prueba de presión del sistema
+2522|inodoro de una pieza económico
+2523|inodoro de una pieza de gama media
+2524|inodoro de gama alta
+2525|conexión a la columna de agua fría/caliente
+2526|; ≈{n} m de tubo por salida + {n}%
+2527|inodoro de una pieza
+2528|bastidor
+2529|bastidor con inodoro
+2530|cabina de ducha
+2531|lavadora (la máquina la pone el cliente)
+2532|calentador de agua {n} L
+2533|Plomería: el trabajo «por salida» incluye el tendido de tubería; ≈{n} m de tubo PPR por salida
+2534|Superficie con calefacción
+2535|{n} — según pérdidas de calor y número de ventanas
+2536|Tubería de calefacción
+2537|prueba de presión
+2538|radiadores bimetálicos de {n} secciones
+2539|Aire acondicionado y ventilación
+2540|Contorno de los espacios
+2541|Minisplits
+2542|{n} — uno de {n} BTU por cada {n} m²
+2543|Extractores
+2544|Aires acondicionados
+2545|definido
+2546|baños y cocina
+2547|Contorno de la casa
+2548|Longitud de la tubería de gas en la casa
+2549|Aparatos de gas
+2550|Se necesita proyecto
+2551|aprobación del proyecto por la compañía de gas
+2552|Instalación de tubería de gas
+2553|Conexión de aparatos
+2554|proyecto y aprobación
+2555|longitud según proyecto
+2556|estufa y caldera
+2557|Gas: los trabajos solo los hace una empresa autorizada; el precio se precisa tras las condiciones técnicas
+2558|Contorno del espacio
+2559|Quitar papel tapiz
+2560|Picar aplanado
+2561|Quitar azulejo de muros
+2562|Quitar piso
+2563|Laminado, linóleo
+2564|Demolición de firme
+2565|Demolición de muros divisorios de medio ladrillo
+2566|Retiro de puertas con marco
+2567|Demolición de construcción (volumen construido)
+2568|el volumen de demolición es igual en todos los escenarios
+2569|superficie de muros divisorios
+2570|puertas con marco
+2571|volumen construido del edificio
+2572|Contorno de la excavación / terreno
+2573|Profundidad de excavación
+2574|Método
+2575|Miniexcavadora
+2576|A mano
+2577|Acarreo de tierra sobrante
+2578|Excavación
+2579|el volumen de trabajo es igual en todos los escenarios
+2580|Contorno al eje de los muros exteriores
+2581|Ancho de la zapata corrida
+2582|Altura de la zapata corrida
+2583|Sobre el terreno
+2584|Muros de carga interiores
+2585|kg/m³
+2586|Normalmente {n}–{n} kg por cada {n} m³ de zapata
+2587|Trazo de ejes
+2588|Cimbra y armado
+2589|fraguado al {n}% de la resistencia del concreto
+2590|concreto M{n}, varilla A{n}S
+2591|trazo de ejes en el terreno
+2592|huecos de la zanja
+2593|Cimentación: el concreto se vacía directo de la olla (sin bomba); la impermeabilización y el aislamiento de la zapata no están incluidos
+2594|Losa de cimentación
+2595|Contorno de la losa
+2596|Losa sobre terreno
+2597|Entrepiso
+2598|Muros de block de concreto celular
+2599|Contorno de muros exteriores
+2600|Espesor del muro
+2601|Muros divisorios {n} mm
+2602|Levantamiento de muros
+2603|block celular D{n} pegado
+2604|+ {n}% por mermas y cortes
+2605|Mampostería: la dala y los cerramientos se calculan en la sección «Losa de cimentación»
+2606|Estructuras metálicas, cobertizo
+2607|Contorno del cobertizo / estructura
+2608|Fabricación y montaje
+2609|Cobertizo: el precio de los anuncios incluye acero, pintura y montaje; las bases de las columnas no están incluidas
+2610|Contorno del deck
+2611|Polines y deck
+2612|Contorno de la casa en planta
+2613|Pendiente de las aguas
+2614|Volado del techo
+2615|Forma
+2616|A dos aguas
+2617|A cuatro aguas
+2618|Estructura de techo nueva
+2619|Aislado (ático habitable)
+2620|Retiro del techo viejo
+2621|Estructura del techo
+2622|Membrana y aislamiento
+2623|Cubierta
+2624|Sistema pluvial
+2625|lámina tipo teja «Venecia»
+2626|lámina tipo teja «SuperMonterrey» {n} mm
+2627|lámina tipo teja «SuperMonterrey» (Rusia)
+2628|cuatro aguas: alero en todo el perímetro
+2629|dos aguas: alero en los dos lados largos ≈ la mitad del perímetro
+2630|Altura de la fachada
+2631|Andamios
+2632|secado del aplanado de cemento
+2633|Acabado final
+2634|pintura de la fachada existente sin aplanado nuevo
+2635|aplanado sobre malla y pintura para fachada a {n} manos
+2636|aplanado sobre malla y aplanado decorativo «rayado»
+2637|secado de la capa de refuerzo
+2638|lana mineral {n} mm, «fachada húmeda»
+2639|Aislamiento: los andamios se cuentan en la sección «Trabajos de fachada»
+2640|ventanas en el contorno: {n}
+2641|{n} — según el número de ventanas en el contorno
+2642|Derrames de panel sándwich
+2643|Derrames y repisas
+2644|Ventana de PVC con instalación
+2645|Ventana de PVC perfil premium
+2646|Ventanas: el precio de lista es por ventana de {n}×{n} m; las ventanas más grandes cuestan más en proporción a la superficie
+2647|puertas en el contorno: {n}
+2648|Contorno del departamento
+2649|Puertas interiores
+2650|{n} — según el número de puertas en el contorno
+2651|Puerta de entrada
+2652|Cocina integral
+2653|Armado de muebles
+2654|u.
+2655|puerta de entrada
+2656|largo de la cocina
+2657|muebles
+2658|Recubrimiento de escalera
+2659|Contorno del cubo de escalera
+2660|Escalones
+2661|Recubrimiento de escalones
+2662|porcelanato {n}×{n}
+2663|porcelanato {n}×{n} tipo mármol
+2664|porcelanato {n}×{n} serie premium
+2665|número de escalones
+2666|Contorno del inmueble
+2667|proyecto de diseño sin visualización
+2668|proyecto de diseño y visualización {n}D
+2669|{n} — según la superficie
+2670|Instalación de alarma
+2671|un panel
+2672|zona + {n}% de reserva
+2673|La alarma contra incendios en inmuebles comerciales requiere un proyecto según las normas de Kazajistán; aquí es una estimación de la instalación
+2674|Cámaras
+2675|Instalación del sistema
+2676|grabador para hasta {n} cámaras
+2677|Trabajos exteriores
+2678|Trazo (longitud por el perímetro o como parámetro)
+2679|Longitud del trazo
+2680|{n} — según el perímetro del contorno
+2681|Profundidad de la zanja
+2682|debajo de la profundidad de congelamiento
+2683|Zanja
+2684|Tendido del tubo
+2685|Relleno
+2686|cama de {n} cm y acostillado de {n} cm en un ancho de {n} m
+2687|longitud del trazo
+2688|longitud + {n}%
+2689|zanja descontando la capa de arena
+2690|Adoquinado
+2691|Contorno del área
+2692|Guarnición perimetral
+2693|Caja y base
+2694|Colocación
+2695|Guarnición
+2696|tierra de la caja × {n}
+2697|grava {n} cm compactada ×{n}
+2698|cama de arena {n} cm × {n}
+2699|en el perímetro del área

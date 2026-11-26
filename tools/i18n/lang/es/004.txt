@@ -1,0 +1,230 @@
+1020|Seguridad contra incendios
+1021|Diseño de proyecto
+1022|concreto
+1023|generador
+1024|grúa
+1025|En reparación
+1026|volteo
+1027|Red no disponible
+1028|transporte
+1029|tractocamión
+1030|(reserva $
+1031|). Se muestran anuncios de demostración: precios y estados ficticios, reserva no disponible
+1032|{n} turno
+1033|{n} t, cucharón {n} m³
+1034|{n} hora
+1035|Kaspi o transferencia al propietario después del turno
+1036|Bomba de concreto Putzmeister {n} m, caudal {n} m³/h
+1037|Olla revolvedora KAMAZ {n} (tambor de {n} m³)
+1038|Plataforma telescópica Hyundai HD{n}, {n} m, {n} kg
+1039|Grúa XCMG QY{n}K{n}, {n} t, pluma de {n} m + plumín
+1040|Dirección de la obra (entrega por GPS)
+1041|Renta de maquinaria con operador
+1042|Pavimentadora Vögele Super {n}-{n} (ancho {n} m)
+1043|Grúa torre Liebherr {n} EC-B, {n} t, pluma de {n} m
+1044|Sin iniciar sesión, la solicitud irá al gerente de la plataforma y las fechas no quedarán apartadas con el propietario
+1045|Pago con transferencia contra factura con IVA (para empresas)
+1046|Entrega gratis
+1047|Concreto y mortero
+1048|Piloteadora Bauer BG {n} (pilotes de hasta {n} m)
+1049|Propietario
+1050|El propietario no indicó teléfono — reserva y él se pondrá en contacto contigo
+1051|Elige una fecha de entrega a partir de hoy
+1052|Generador diésel SDMO {n} kW, insonorizado
+1053|Año, estado, pedido mínimo, condiciones
+1054|Motoniveladora XCMG GR{n}, {n} m, escarificador
+1055|Capacidad de carga / volumen
+1056|Excavadora de orugas Hitachi ZX{n}, {n} t, {n} m³, {n} m
+1057|Fecha de entrega de la maquinaria
+1058|Anuncio de demostración: reserva no disponible
+1059|Para publicar necesitas una cuenta en el servidor. Sin ella el anuncio no se guardará
+1060|Maquinaria para vialidades
+1061|Esperando confirmación del propietario
+1062|Cargando maquinaria
+1063|Ocupado
+1064|Solicitud con el gerente
+1065|Costo total de la renta
+1066|El catálogo de maquinaria no está disponible (
+1067|Compactadora XCMG XS{n}J, {n} t, {n} m
+1068|km de ti
+1069|Excavadora de llantas JCB JS{n}W, {n} t, {n} m³
+1070|Número de turnos
+1071|Compresor diésel Atlas Copco XAS {n} ({n} m³/min)
+1072|Camión grúa KAMAZ {n} (grúa de {n} t, plataforma de {n} t)
+1073|Precio máximo por turno, ₸
+1074|Minicargador Bobcat S{n} + martillo hidráulico / barredora
+1075|Miniexcavadora Kubota U-{n}, {n} t, cucharón {n} m³
+1076|Por ejemplo: CAT {n}D, de orugas
+1077|Respuesta del servidor incorrecta
+1078|Anuncio publicado en el marketplace
+1079|Publicar
+1080|Procesando…
+1081|Entrega con costo
+1082|No se encontró maquinaria para tu búsqueda
+1083|Cargador
+1084|Intenta relajar los filtros o cambiar la categoría
+1085|Publicación
+1086|Radio de búsqueda, km
+1087|Publicar tu maquinaria
+1088|Publicar maquinaria pesada
+1089|Solo puedes publicar con una cuenta en el servidor: inicia sesión con ella e inténtalo de nuevo. El anuncio no se guardó
+1090|Distancia
+1091|Con cuadrilla
+1092|Con perforista
+1093|Con chofer
+1094|Con chofer-operador
+1095|Con operador de grúa
+1096|Con operador
+1097|Con tripulación
+1098|Volteo Shacman F{n}, {n} t, volumen {n} m³
+1099|Restablecer todos los filtros
+1100|Sesión no válida: inicia sesión con una cuenta en el servidor e inténtalo de nuevo
+1101|Forma de pago
+1102|Manipulador telescópico Manitou MT {n} ({n} m, {n} t)
+1103|El teléfono del propietario se ve después de iniciar sesión
+1104|Teléfono del despachador
+1105|Maquinaria en reparación
+1106|Cama baja FAYMONVILLE ({n} t, rampas)
+1107|Tractor topador pesado CAT D{n}R, {n} t, cuchilla de {n} m
+1108|El anuncio no tiene precio — contacta al propietario
+1109|Indica nombre, teléfono y dirección de la obra
+1110|Indica la marca y el modelo de la maquinaria
+1111|Indica un precio por turno mayor a {n}
+1112|Cargador frontal XCMG ZL{n}G, {n} t, {n} m³
+1113|Precio por turno, ₸
+1114|El precio por hora no puede ser negativo
+1115|Precio por hora, ₸
+1116|hora
+1117|Retroexcavadora JCB {n}CX Super, llantas iguales
+1118|Energía y generadores
+1119|Perforadora de postes sobre KAMAZ {n} (perforación de hasta {n} m)
+1120|sí
+1121|Propietario particular
+1122|Reserva hecha: {a} turnos desde el {b}. El propietario la confirmará en la pestaña de solicitudes
+1123|Renta de {a} por {b} turnos desde el {c}{d}. Obra: {e}. Operador: {f}. Pago: {g}
+1124|La solicitud {a} se turnó al gerente de la plataforma
+1125|El servidor no aceptó el anuncio: {a}
+1126|Renta de {a} por {b} turnos desde el {c}{d}
+1127|Renta de maquinaria: {a}
+1128|Anuncios encontrados: {a}
+1129|Servidor no disponible: {a}
+1130|hasta el {a} (reserva {b})
+1131|Encontrados: {a}
+1132|{a} reseñas
+1133|{n} × {n} × {n} m
+1134|{n} m³
+1135|{n} bultos
+1136|{n} t
+1137|{a}, coeficiente ×{b}. {c}, unos {d} días
+1138|Presupuesto_{a}.xlsx
+1139|{n} ₸ / m²
+1140|{n} ₸ / viaje
+1141|{n} ₸ / turno
+1142|{n} t (A{n}C {n} mm)
+1143|{n}. Contrato n.º {n}/{n} — Remodelación mayor de oficina (TOO «Almaty Business») •
+1144|{n}. Contrato n.º {n}/{n} — Cimentación monolítica (PF «StroyMaster») •
+1145|Grúa XCMG de {n} toneladas (alcance {n} m)
+1146|Cálculo automático de volúmenes de obra y lista de materiales
+1147|Contratos de obra activos
+1148|Resanador reforzado con velo de fibra de vidrio + sellador
+1149|Altura / Espesor (m)
+1150|Largo (m)
+1151|Herramienta interactiva QazGost AI {n}
+1152|Marketplace para rentar maquinaria y comprar materiales de construcción
+1153|Microfisuras del aplanado
+1154|Módulo del sistema
+1155|Cantidad de varilla necesaria
+1156|Baja (superficial)
+1157|Volumen total de concreto/tierra
+1158|Base de arena y grava
+1159|Superficie
+1160|Firmado con firma electrónica
+1161|Volúmenes y consumos calculados
+1162|Registro de contratos de obra y arbitraje electrónico (firma E-Gov)
+1163|Disponible
+1164|SNiP RK {n}-{n}-{n} (inciso {n})
+1165|Ancho (m)
+1166|Retroexcavadora JCB {n}CX
+1167|Saldo recargado con {a} ₸
+1168|hace {n} horas
+1169|+ Elegir archivos
+1170|Análisis de imagen con TensorFlow Vision
+1171|Auditoría del presupuesto de techumbre
+1172|Sin descripción
+1173|Ayer
+1174|Archivos seleccionados
+1175|Cargando el módulo
+1176|Cálculo con IA según las normas ESN RK en curso
+1177|Soluciones de ingeniería (enviar a un ingeniero para revisión)
+1178|departamento
+1179|confort
+1180|En moderación con el gerente (nueva solicitud)
+1181|Nombre de la solicitud / del inmueble
+1182|Por ejemplo: construcción de un baño sauna de {n}x{n}
+1183|Sin asignar
+1184|Descripción (opcional)
+1185|Enviado al ingeniero para revisar el pedido
+1186|Turnado al gerente (en proceso)
+1187|Turnado al gerente (confirmaste)
+1188|Adjuntar archivos (planos, fotos, documentos)
+1189|Aplicación de normas de presupuestación (ESN RK)
+1190|Revisión del proyecto de cimentación
+1191|Reconocimiento de estructuras de carga y geometría
+1192|Cálculo de pérdidas de calor del edificio
+1193|Construcción (agregar a Mis inmuebles)
+1194|Construcción de una casa de {n} m²
+1195|Generar
+1196|Crear solicitud
+1197|Tipo de solicitud
+1198|Requiere tu confirmación (respuesta del ingeniero recibida)
+1199|Indica los detalles del pedido
+1200|Elaboración del reporte final
+1201|Error de Vision AI: la imagen no se reconoció como obra o plano (identificada como "{a}"). Sube una foto real de un espacio, de una fachada o un plano
+1202|Nueva solicitud del cliente: {a}
+1203|Maxim Barbashin
+1204|Notificaciones, nuevas: {a}
+1205|Billetera: {a} tenge
+1206|Saldo: {a} ₸
+1207|Idioma de la interfaz
+1208|Idioma de la interfaz
+1209|Cliente
+1210|Servicio
+1211|El texto oficial del documento está en ruso
+1212|Versión del {a}
+1213|Largo
+1214|Superficie
+1215|{n} días
+1216|{n} días
+1217|{n} m² (a dos aguas)
+1218|{n} m² (espesor {n} mm)
+1219|{n} m × {n} m × {n} m
+1220|CUANTIFICACIÓN QTO DE MATERIALES Y TRABAJOS
+1221|Almatý (SNiP RK ×{n})
+1222|Varilla corrugada A{n}S Ø{n} mm
+1223|Malla de refuerzo de basalto
+1224|Armado de varilla A{n}C Ø{n} mm (GOST {n})
+1225|Astaná (SNiP RK ×{n})
+1226|Concreto pesado M{n} (W{n}, F{n})
+1227|TRABAJOS DE CONCRETO
+1228|Madera de pino {n}×{n} mm (vigas de techo)
+1229|Volver a los ejemplos
+1230|Membrana impermeabilizante asfáltica-polimérica
+1231|Demo con planos de ejemplo
+1232|Tu plano se subió
+1233|Subir tu plano
+1234|Escáner de planos con IA interactivo & calculadora QTO
+1235|MAMPOSTERÍA
+1236|Karagandá (SNiP RK ×{n})
+1237|Muro de block de concreto celular D{n}
+1238|Muros exteriores con refuerzo
+1239|Adhesivo para concreto celular (bultos de {n} kg)
+1240|TRABAJOS DE TECHUMBRE
+1241|Techo de lámina tipo teja {n} mm
+1242|Cimentación corrida M{n}
+1243|Membrana de alta transpirabilidad vapor/agua
+1244|Lámina tipo teja Monterrey {n} mm RAL {n}
+1245|Montaje y colado de nodos estructurales
+1246|Concepto del recurso / trabajo
+1247|Sistemas de cimbra & paneles de triplay fenólico
+1248|TRABAJOS DE ACABADO
+1249|Plastificante para pisos radiantes

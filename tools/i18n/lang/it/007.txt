@@ -1,0 +1,240 @@
+1730|Preventivo pronto: {a} voci, {b} ₸
+1731|La richiesta {a} è stata inviata al manager
+1732|Dalla descrizione: {a} (parola «{b}»)
+1733|Lavori del preventivo ({a}): {b}
+1734|Foto caricata: {a}
+1735|Errore ({a}): {b}
+1736|Prezzi al {a}
+1737|Piano: {a}
+1738|Chiave: {a}
+1739|< {n} s
+1740|per l'analisi di una foto da parte del server di rilevamento difetti
+1741|La piattaforma in cifre
+1742|voci di materiali edili con prezzi per regione
+1743|prezzi ESN RK in banca dati: lavori, materiali, mezzi
+1744|Aigerim Nurlanova
+1745|Interior designer, Astana
+1746|Carico una foto, ottengo il preventivo e lo mostro subito al cliente. Il controllo dei difetti aiuta a vedere i problemi prima dell'inizio dei lavori
+1747|Cliente, Almaty
+1748|Clienti, designer e capicantiere da diverse città del Kazakistan
+1749|Le richieste della mia città arrivano ogni giorno. I prezzi trasparenti aiutano ad accordarsi con il cliente senza trattative alla cieca
+1750|Capocantiere, TOO «StroyMark»
+1751|Ho fatto un preventivo dalla foto del bagno. Prima l'artigiano calcolava a occhio e chiedeva il doppio. Ora so quanto costa davvero
+1752|Cosa dicono gli utenti
+1753|Sopralluogo dell'ingegnere
+1754|Completa l'ordine
+1755|STATO
+1756|Tipo
+1757|Scrivi su WhatsApp: +{n}
+1758|Lavori di copertura
+1759|Installazione del riscaldamento
+1760|Redazione della documentazione di progetto
+1761|Perizia tecnica
+1762|Intonaco
+1763|Impianti elettrici
+1764|Nel catalogo non c'è. Puoi inserire una tua opzione
+1765|tipi di lavori
+1766|Tutti i gruppi
+1767|Scelta del tipo di lavoro
+1768|Salva come inserito
+1769|Cerca: fossa settica, copertura, impianto elettrico
+1770|La tua opzione: «
+1771|{n} agosto
+1772|● IN CORSO
+1773|● COMPLETATO
+1774|Selezione automatica di mezzi e squadre
+1775|IN CORSO
+1776|Sopralluogo e calcolo del preventivo
+1777|Esecuzione
+1778|Imposta il programma lavori
+1779|Programma impostato
+1780|Dati registrati. Il manager è libero
+1781|Dettagli dell'attività
+1782|COMPLETATO
+1783|ATTIVITÀ ASSEGNATE
+1784|ORDINE CONFERMATO
+1785|ORDINE PRESSO L'ESECUTORE
+1786|Note (per l'ingegnere)
+1787|Ivan Petrov
+1788|Ingegnere / computista
+1789|Dimostrazione interattiva del lavoro in tempo reale
+1790|Il cliente ha approvato il preventivo
+1791|LEAD CREATO
+1792|Assegnazione dei mezzi
+1793|Inizia il lavoro (arrivati)
+1794|Nuova richiesta (lead)
+1795|ELABORATO
+1796|IN ATTESA
+1797|In attesa di arrivo
+1798|In attesa di calcolo
+1799|Descrivi il problema e le modalità di accesso
+1800|Registrazione nell'app
+1801|Selezione della squadra
+1802|SELEZIONE DELLE RISORSE
+1803|Risorse selezionate
+1804|Ricezione della richiesta
+1805|Ricezione della chiamata e della richiesta
+1806|ACCETTATO
+1807|Lavoro completato
+1808|ESAME
+1809|Calcolo del preventivo
+1810|Scarica il preventivo (PDF)
+1811|Preventivo n. {n} generato
+1812|Il preventivo viene scaricato in formato PDF
+1813|Salva e inoltra
+1814|Costo (₸)
+1815|Tipo di lavori
+1816|via Tsentralnaya, {n}
+1817|File e foto dal cantiere
+1818|Registrazione dei dati
+1819|Terna JCB
+1820|m
+1821|Lunghezza, m
+1822|Perimetro, m
+1823|fessure
+1824|Inserisci un altro lato nell'altra direzione: le piante sono spesso allungate su un asse e un solo lato non basta
+1825|Altezza delle pareti, m
+1826|Porte {n}×{n} m
+1827|porta {n} m · foglio A{n} m · quota sulla pianta
+1828|lunghezza × larghezza o superficie
+1829|lunghezza di riferimento
+1830|Lunghezza di riferimento in metri
+1831|Le lunghezze si contraddicono così tanto che non si può calibrare la scala per asse: è stato usato un fattore comune
+1832|al netto delle aperture
+1833|Carica una foto della pianta, un disegno o una ripresa dall'alto al passaggio {n}, poi traccia qui l'ambiente
+1834|Clicca sugli angoli dell'ambiente in senso orario; un clic sul primo punto chiude il contorno
+1835|Clicca all'inizio e alla fine di un oggetto di lunghezza nota
+1836|Contorno chiuso
+1837|Contorno chiuso. Per ricominciare, premi «Cancella»
+1838|Contorno sulla pianta
+1839|Contorno sulla griglia
+1840|Linea
+1841|La linea di riferimento è precisa per una pianta o una foto scattata esattamente dall'alto. Per una foto in prospettiva, scegli il riferimento «Rettangolo»
+1842|la scala della cella la imposti tu
+1843|Servono almeno {n} punti per chiudere il contorno
+1844|Traccia l'ambiente o inserisci le misure: senza di esse il preventivo non si può calcolare
+1845|Finestre {n}×{n} m
+1846|Annulla punto
+1847|Segna {n} angoli
+1848|Segna il riferimento
+1849|Rimisura gli angoli
+1850|Rimisura il riferimento
+1851|perimetro
+1852|Perimetro delle pareti, m
+1853|Le planimetrie spesso non sono in scala. Inserisci la lunghezza reale di uno o due lati, ad esempio le misure della stanza indicate sulla pianta. Due lati di direzioni diverse correggono anche l'allungamento della pianta in larghezza e altezza
+1854|piastrella {n}×{n} · foglio A{n}×{n} · tappeto o stanza di misure note, sullo stesso pavimento
+1855|superficie ·
+1856|Superficie del pavimento, m²
+1857|in base al riferimento
+1858|campo
+1859|aggancio alla griglia
+1860|Rettangolo
+1861|Rettangolo (foto in prospettiva)
+1862|Rettangolo segnato: controlla le misure; il primo numero è il lato dal {n}° al {n}° angolo
+1863|Il rettangolo di riferimento corregge la prospettiva: traccia solo il pavimento nello stesso piano del riferimento
+1864|misura
+1865|Dimensione della cella della griglia
+1866|Misure manuali
+1867|reale, m
+1868|Azzera la calibrazione
+1869|Forma complessa
+1870|Imposta prima la scala: premi «Segna {n} angoli» e clicca sugli angoli di un rettangolo di misura nota
+1871|Imposta prima la scala: premi «Segna il riferimento» e traccia una linea lungo un oggetto di lunghezza nota
+1872|Metodo di misura
+1873|pareti
+1874|Lato
+1875|Lato del rettangolo dal {n}° al {n}° angolo, m
+1876|Lato del rettangolo dal {n}° al {n}° angolo, m
+1877|I lati del contorno si intersecano: rimuovi il punto in più con «Annulla punto»
+1878|Gli angoli non sono segnati in ordine o tre angoli sono allineati: segna di nuovo i {n} angoli percorrendo il bordo del rettangolo
+1879|I lati indicati sono paralleli: non si può determinare l'allungamento sul secondo asse, serve un lato nell'altra direzione
+1880|Calibra la scala di questa stanza
+1881|Forma dell'ambiente
+1882|Foto per il rilievo
+1883|foto della pianta + lunghezza di riferimento
+1884|Larghezza, m
+1885|Questo punto è oltre la linea d'orizzonte del rettangolo di riferimento: non può essere convertito in metri. Segna solo il pavimento dello stesso piano
+1886|Riferimento di scala
+1887|Riferimento segnato: indica la sua lunghezza reale in metri
+1888|{n} cella =
+1889|un lato
+1890|Le lunghezze inserite differiscono dalla forma del contorno del {a}%: controlla che i lati siano quelli giusti e che non ci siano nicchie o armadi nella misura
+1891|Scala calibrata su {a} lati, separatamente in larghezza e altezza: ×{b} e ×{c}
+1892|Clicca sui {n} angoli del rettangolo in ordine: segnati {a} di {n}
+1893|Lunghezza reale del lato {a}, m
+1894|Scala calibrata su {a}: ×{b}
+1895|Chiudi il contorno ({a} punti)
+1896|Scala calibrata su {a}
+1897|riferimento {a} m
+1898|{a} lati
+1899|Nessun parametro: il volume si calcola dal contorno
+1900|dal contorno
+1901|sezioni: aprile per precisare
+1902|{a} coppie
+1903|— non corrisponde al tipo di lavoro scelto, controlla la scelta
+1904|, finestre
+1905|Equivalenti nella banca dati
+1906|Calcolo rapido
+1907|Budget con riserva
+1908|nell'intervallo della banca dati
+1909|Nel preventivo
+1910|Distinta di acquisto dei materiali ·
+1911|sopra l'intervallo
+1912|Dove verificare
+1913|Programma lavori ·
+1914|Dettagliato: con verifica
+1915|Ipotesi di calcolo
+1916|Analisi IA delle foto
+1917|Analisi IA delle foto ·
+1918|Fonte del prezzo
+1919|Fonti dei prezzi
+1920|Totale
+1921|m · altezza
+1922|m · pareti
+1923|m² · porte
+1924|m² · perimetro
+1925|m² (nel preventivo: la superficie del tuo rilievo)
+1926|Mediana della banca dati
+1927|Nella foto
+1928|sotto l'intervallo
+1929|stima
+1930|Superficie stimata dalla foto: ~
+1931|voci
+1932|Voce e come è stata calcolata la quantità
+1933|Completo: con programma e acquisti
+1934|Verifica del preventivo
+1935|Stima calcolata QazGost
+1936|Riserva {n}%
+1937|Nascondi il confronto con la banca dati
+1938|Scenario
+1939|Prezzo, ₸
+1940|prezzi
+1941|Tratteggio: pausa tecnologica (asciugatura, maturazione, prova di pressione)
+1942|% dell'importo: prezzi da listini e annunci pubblici; il resto è indicato come «stima» con la metodologia
+1943|L'IA aiuta a vedere i difetti e a verificare la scelta dei lavori; prezzi e quantità del preventivo provengono solo dal rilievo e dal prontuario
+1944|Mostra il confronto con la banca dati QazGost ({a} voci)
+1945|dal giorno {a}, {b} gg
+1946|media {a}–{b}
+1947|, senza {a} scelti
+1948|DISTINTA DI ACQUISTO
+1949|Altezza, m
+1950|Dove è stato rilevato il prezzo
+1951|PROGRAMMA LAVORI
+1952|Data del calcolo
+1953|Durata, gg
+1954|Ipotesi
+1955|Totale, giorni
+1956|Come è stata calcolata la quantità
+1957|materiale
+1958|Inizio, giorno
+1959|Nessuna connessione al server di calcolo. Controlla Internet e riprova
+1960|Pausa, gg
+1961|manodopera
+1962|Sezione
+1963|Link
+1964|Pareti al netto delle aperture, m²
+1965|mezzi
+1966|Prezzi al
+1967|Prontuario delle schede tecnologiche non disponibile ({a})
+1968|Il server di calcolo ha risposto con l'errore {a}
+1969|PREVENTIVO QazGost — {a} ({b})

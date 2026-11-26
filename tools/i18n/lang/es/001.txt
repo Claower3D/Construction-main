@@ -1,0 +1,270 @@
+260|Block de concreto celular curado en autoclave D500 600×300×200
+261|Adhesivo para concreto celular, 25 kg
+262|Malla de basalto para refuerzo
+263|Muros de block con refuerzo
+264|Techo a dos aguas de lámina tipo teja 0.5 mm
+265|Lámina tipo teja «Monterrey» 0.5 mm
+266|Madera de pino 50×150 mm para vigas de techo
+267|Membrana de alta transpirabilidad
+268|Montaje de la estructura del techo y entablado
+269|Firme
+270|Firme semiseco con fibra, 60 mm
+271|Cemento PC-500 D0 y arena lavada
+272|Fibra de polipropileno 12 mm
+273|Plastificante para pisos radiantes
+274|Colocación mecanizada con allanado
+275|Mampostería
+276|Techumbre
+277|Cimentación
+278|Fachada
+279|Departamento, Syganak 18
+280|Baño, Kenesary 4
+281|Calcula tu presupuesto en un minuto
+282|Indica los parámetros y obtén una referencia con precios de 2026. El servicio arma el presupuesto exacto a partir de fotos.
+283|Calculadora de presupuesto
+284|Tipo de inmueble
+285|Departamento
+286|Casa
+287|Oficina
+288|Instalación industrial
+289|Tipo de trabajo y superficie
+290|Superficie, m²
+291|Superficie, metros cuadrados
+292|Presupuesto aproximado
+293|Plazo de ejecución
+294|Volumen de obra
+295|Rango:
+296|Catálogo de trabajos y precios
+297|Buscar por categoría de trabajos
+298|Todo el catálogo
+299|Grupos de trabajos
+300|trabajos
+301|categorías
+302|Todas las opciones
+303|Obra general
+304|Movimiento de tierras
+305|Concreto y estructuras monolíticas
+306|Estructuras metálicas
+307|Ventanas y puertas
+308|Acabados
+309|Redes de instalaciones
+310|Instalaciones
+311|Proyecto y trabajos especiales
+312|Agua potable y drenaje
+313|Calefacción y piso radiante
+314|Calibre del cable
+315|Geodesia y levantamiento topográfico
+316|Un solo servicio para todos en la obra
+317|Herramientas prácticas para cada participante del proceso de construcción.
+318|Para clientes
+319|Para contratistas
+320|Para proyectistas
+321|Para supervisión técnica
+322|Presupuesto por foto
+323|Presupuesto por foto y medidas, con la fuente del precio en cada renglón
+324|Catálogo de contratistas
+325|Control de calidad de la obra
+326|Feed de pedidos
+327|Feed de pedidos en todo Kazajistán
+328|Responde con precio y plazo directamente en la ficha del pedido
+329|Tu maquinaria en el marketplace: quienes rentan te encuentran solos
+330|Cálculos según SNiP y documentación de proyecto
+331|Revisión de volúmenes y presupuestos
+332|Registro de defectos
+333|Acta de defectos
+334|Acta de defectos automática
+335|Actas de defectos por foto
+336|Acta con recomendaciones
+337|Actas
+338|Reporte de inspección de defectos
+339|Reporte fotográfico con recomendaciones
+340|Revisión de defectos según las normas SNiP y GOST RK
+341|Revisar un defecto
+342|Cálculo de volúmenes por foto
+343|Cálculo según SNiP
+344|Cálculos por foto
+345|Cálculo preciso de lista de materiales (BOM)
+346|Tres escenarios de precio
+347|Costo de la reparación
+348|Comparación de ofertas
+349|Comparación de proveedores
+350|Contacto directo
+351|Reserva para las fechas que necesites
+352|Entrega de la obra
+353|Aprobaciones
+354|Etapas de la obra
+355|Paquete de documentos
+356|Documentos
+357|Historial y reportes
+358|Supervisión técnica
+359|Anteproyecto y proyecto ejecutivo
+360|Ingeniería y documentación de proyecto
+361|Ingeniería y proyecto
+362|Calculadora de ingeniería
+363|Calculadora
+364|Sincronización con el CRM y los presupuestos
+365|Precios actualizados
+366|Base ESN RK
+367|Presupuestos
+368|Todos los servicios de la plataforma
+369|Categorías de servicios
+370|Un conjunto completo de herramientas para estimar los trabajos rápido y con precisión.
+371|Contratistas, materiales de construcción y maquinaria en un solo lugar
+372|Contratistas
+373|Materiales de construcción
+374|Maquinaria pesada
+375|Materiales
+376|Materiales y maquinaria con precios por región de Kazajistán
+377|Trabajos y materiales
+378|Cuadrillas
+379|Cuadrillas y pedidos
+380|Cuadrillas por tipo de trabajo
+381|Pedidos para cuadrillas
+382|Solicitudes en la ciudad
+383|Marketplace
+384|Marketplace de maquinaria pesada
+385|Marketplace de materiales de construcción
+386|Catálogo de materiales
+387|Renta de maquinaria pesada
+388|Pedido y entrega
+389|Entrega en obra
+390|Estudios y geotecnia
+391|Estudios geotécnicos
+392|Pruebas de campo y de laboratorio con dictamen oficial según SNiP RK y SP RK — para el proyecto, la revisión y el banco.
+393|Solicitar estudios
+394|Laboratorio de suelos
+395|Pruebas de pilotes
+396|Pruebas de placa de carga
+397|Sondeo estático (CPT)
+398|Equipo de perforación
+399|perforación hasta 35 m
+400|bancos de prueba acreditados
+401|módulo de deformación E
+402|carga de hasta 500 t
+403|fuerza de 200 kN
+404|escala 1:500
+405|Demo de la app móvil QazGost
+406|En la obra, desde tu celular
+407|Crea presupuestos y actas de defectos directamente en la obra. Rápido, cómodo y sin laptop.
+408|Funciona en el navegador de cualquier celular
+409|App para Android
+410|Apps para Android para el gerente, el ingeniero y la cuadrilla
+411|La app para iPhone está en preparación
+412|iOS próximamente
+413|Descargar la app
+414|Quedarme en el sitio
+415|QazGost — app para Android
+416|Todo en una sola app: cliente, contratista, ingeniero, gerente y administrador. Presupuestos por foto, pedidos y revisión de defectos desde tu celular.
+417|Archivo APK, {n} MB, versión {n}. Android te pedirá permitir la instalación desde el navegador.
+418|Descargar la app para Android, archivo APK de {n} MB
+419|App para Android: todos los roles en una
+420|Empieza desde el celular
+421|Tomar una foto
+422|Presupuesto listo
+423|Listo
+424|Mis inmuebles
+425|Buen día
+426|¿Qué hacemos hoy?
+427|Toca: la interfaz es interactiva
+428|Secciones de la app
+429|Presupuestos y actas de defectos guardados
+430|Necesito una cuadrilla para una remodelación
+431|Velocidad
+432|¡Hola! Quiero instalar la app QazGost para Android.
+433|Preguntas frecuentes
+434|¿Cómo funciona la estimación de costos por foto?
+435|Subes una foto de un cuarto, una pared o una fachada e indicas la superficie. El servicio identifica el tipo de trabajo, calcula volúmenes y materiales y estima el costo con la base de precios ESN RK (23 864 conceptos) ajustada a la región. Recibes tres niveles de precio: económico, estándar y premium.
+436|¿Qué tan precisa es la revisión de defectos?
+437|La red neuronal se entrenó con fotos de grietas etiquetadas: marca las grietas con un recuadro y muestra la confianza de cada zona. La corrosión, las desportilladuras, el salitre y la humedad todavía no los confirma el modelo: los evalúa un ingeniero en la visita. El dictamen se marca como preliminar hasta que lo confirme un especialista.
+438|¿Cómo encuentro un contratista?
+439|Abre el catálogo de contratistas y llama directamente a una cuadrilla, o publica un pedido en el feed: los contratistas de tu ciudad te enviarán ofertas de precio y plazo. La solicitud se envía sin anticipo: el precio y el pago los acuerdas directamente con el contratista.
+440|¿Qué formas de pago se aceptan?
+441|El pago en línea a través de la plataforma se está habilitando. Por ahora, los pedidos, la reserva de maquinaria y los materiales se pagan directamente al contratista o al proveedor — Kaspi, transferencia o factura para empresas.
+442|¿La plataforma es gratuita?
+443|La estimación de costos, la revisión de defectos y los catálogos son gratuitos. Las funciones de pago — módulos para desarrolladores y analítica avanzada — se activan bajo solicitud: escríbenos.
+444|¿Hay una app móvil?
+445|El sitio funciona por completo en el navegador del celular. Hay apps dedicadas para el ingeniero y el gerente de CRM en Android; la app para clientes está en preparación.
+446|¿No encontraste la respuesta? Escríbele al asistente en el chat de la esquina inferior derecha o por WhatsApp.
+447|Escríbenos por WhatsApp
+448|Escribir por WhatsApp
+449|¡Hola! Les escribo desde el sitio de QazGost AI. Tengo una pregunta sobre la plataforma.
+450|© 2026 QazGost AI. Hecho en Kazajistán.
+451|Creador
+452|Términos de uso
+453|Aviso de privacidad
+454|Consentimiento para el tratamiento de datos
+455|Consentimiento para la recopilación y el tratamiento de datos personales
+456|Reglas de uso del servicio QazGost AI: quién puede usarlo, qué hace el servicio y de qué responde cada parte.
+457|Qué datos personales recopila QazGost AI, para qué, a quién los transfiere y cómo puedes administrarlos.
+458|Texto del consentimiento que otorgas al marcar la casilla correspondiente al registrarte en QazGost AI.
+459|Datos del Operador
+460|Razón social
+461|BIN / IIN
+462|Dirección
+463|Preguntas sobre el documento:
+464|Iniciar sesión en QazGost AI
+465|Registro en QazGost AI
+466|Presupuestos, pedidos y maquinaria — donde te quedaste.
+467|Presupuestos por foto, revisión de defectos y pedidos para cuadrillas — en un solo lugar.
+468|Una sola cuenta para el cliente, la cuadrilla y el ingeniero.
+469|El registro toma un minuto y puedes hacer tu primera estimación de inmediato.
+470|Gratis, toma un minuto
+471|Cuenta nueva
+472|Crear cuenta
+473|Creando la cuenta…
+474|¿Ya tienes cuenta?
+475|¿No tienes cuenta?
+476|Ya iniciaste sesión
+477|Cuenta:
+478|Contraseña
+479|Tu contraseña
+480|Mostrar contraseña
+481|Ocultar contraseña
+482|¿Olvidaste tu contraseña?
+483|Iniciando sesión…
+484|Error de autenticación
+485|Mínimo 6 caracteres
+486|Revisa el correo
+487|Revisa los campos marcados
+488|Se necesitan 10 dígitos después de +7
+489|Indica un nombre o la razón social
+490|Debes aceptar los términos
+491|Se requiere el consentimiento para el tratamiento de datos
+492|Para crear una cuenta, acepta los términos y da tu consentimiento para el tratamiento de datos personales
+493|No se pudo crear la cuenta
+494|¿Quién eres?
+495|Calculo presupuestos, busco maestros de obra
+496|Tomo pedidos, rento maquinaria
+497|Nombre o razón social
+498|Nombre de la cuadrilla / empresa
+499|Cuadrilla «Master» o Aidos Kim
+500|Teléfono
+501|Teléfono de contacto
+502|Tengo maquinaria propia: agregarla al marketplace
+503|Tipo de maquinaria
+504|Marca y modelo
+505|Placas
+506|Renta, ₸ por turno
+507|Consentimientos
+508|Recibir noticias y ofertas por correo, SMS y WhatsApp (opcional)
+509|Pedidos, ofertas y calendario de obra
+510|Todos los planes
+511|coeficiente regional
+512|Ficha, catálogos y feed de pedidos
+513|Presupuesto listo
+514|Excavadora / movimiento de tierras
+515|Grúa / grúa articulada
+516|Volteo / cama baja
+517|Cargador / Bobcat
+518|Bomba de concreto / olla revolvedora
+519|Perforadora
+520|Otra maquinaria
+521|Equipo para concreto
+522|Volteos y tractocamiones
+523|Cargadores
+524|CAT 320D, KamAZ 6520
+525|LinkVeAI
+526|Asistente
+527|Ingeniero de IA QazGost
+528|En línea · responde en segundos
+529|¡Sälem! Soy LinkVeAI, el asistente de IA de QazGost. Te digo precios de trabajos y materiales, calculo un presupuesto por foto y encuentro una cuadrilla o maquinaria. ¿Por dónde empezamos?

@@ -1,0 +1,260 @@
+530|Sälem! Sono LinkVeAI. Calcolo un preventivo o ti indico i prezzi?
+531|Chiedi di prezzi, preventivi, squadre…
+532|Messaggio per LinkVeAI
+533|Apri la chat con LinkVeAI
+534|Chat con LinkVeAI, l'assistente IA di QazGost
+535|Chiudi la chat
+536|Riduci la chat con LinkVeAI
+537|Nascondi il suggerimento
+538|Attiva la voce
+539|Disattiva la voce
+540|Voce attivata
+541|Leggi le risposte ad alta voce
+542|Parla
+543|Interrompi la registrazione
+544|Parla…
+545|In ascolto…
+546|Sta pensando…
+547|Sta rispondendo…
+548|Sta parlando…
+549|LinkVeAI sta scrivendo
+550|Ricomincia
+551|La connessione si è interrotta e la risposta non è arrivata. Controlla Internet e invia di nuovo la domanda.
+552|Quanto costa un massetto?
+553|C'è una fessura nel muro, cosa faccio?
+554|Preventivo da foto: come funziona?
+555|Come si calcolano la sezione del cavo e il riscaldamento?
+556|Quanto costa il cemento M500?
+557|Quanto costa un escavatore a turno?
+558|Quanto costa intonacare 60 m² di pareti?
+559|tenge
+560|Caricamento del catalogo
+561|Ricerca materiali
+562|Ricerca materiali: cemento, armature, mattoni, cartongesso...
+563|Forniture dirette dai produttori del Kazakistan. Prezzi all'ingrosso e al dettaglio, certificati di qualità GOST/ST RK, calcolatore delle quantità e consegna rapida in cantiere.
+564|Categoria di materiali
+565|Tutte le categorie
+566|Tutti i materiali
+567|Categoria
+568|Filtri
+569|Filtri del catalogo
+570|Azzera filtri
+571|Ordinamento
+572|Ordina per:
+573|Ordinamento dei risultati
+574|Per popolarità
+575|Per valutazione
+576|Prezzo crescente
+577|Prezzo decrescente
+578|Più recenti
+579|Prezzo massimo, ₸
+580|Prezzo max (unitario)
+581|Opzioni di consegna
+582|Con consegna
+583|Con consegna in cantiere
+584|Ritiro
+585|Ritiro in magazzino
+586|Consegna
+587|Gara all'ingrosso (richiesta prezzi)
+588|Calcolatore IA del fabbisogno (BOM)
+589|materiali nel catalogo prezzi
+590|articoli
+591|Senza anticipo
+592|pagamento al fornitore dopo la conferma
+593|Prezzo su richiesta
+594|Prezzo non indicato — contatta il proprietario
+595|Elettrico e cavi
+596|Energia
+597|Cartongesso e finiture
+598|Vernici e pitture
+599|Elementi prefabbricati in c.a., anelli, chiusini
+600|Elementi prefabbricati in c.a., anelli, chiusini e supporti (TABYS-ASM, Medina)
+601|Sabbia, ghiaia, calcestruzzo
+602|Copertura e facciata
+603|Isolamento termico e impermeabilizzazione
+604|Impianto idrico
+605|Armature e metallo
+606|Fissaggi e minuteria
+607|Sanitari e tubazioni
+608|Calcestruzzo/malta
+609|Mattoni e blocchi
+610|Cemento e miscele
+611|Pavimentazioni
+612|Trasporto
+613|Escavatori, gru, autocarri ribaltabili e pompe per calcestruzzo a turno e a ore. Prenotazione senza anticipo: la data la blocca il proprietario, il pagamento lo concordi direttamente con lui.
+614|Cerca per mezzo, modello o caratteristiche (ad es.: Hitachi, 25 t)...
+615|Filtri mezzi speciali
+616|Pubblica un mezzo
+617|Il mio parco mezzi
+618|I miei noleggi
+619|Richieste di mezzi
+620|Movimento terra
+621|Perforazione
+622|Sollevamento
+623|Stradali
+624|Mezzi per movimento terra
+625|Mezzi di sollevamento
+626|Escavatori e pale caricatrici
+627|Autogrù e autocarri ribaltabili
+628|Gru
+629|Liberi oggi
+630|Solo liberi oggi
+631|Occupato oggi — scegli altre date
+632|Disponibile
+633|A noleggio
+634|In attesa della squadra
+635|Con operatore
+636|Prezzo a turno
+637|A turno
+638|Noleggio a turno
+639|A ore
+640|Turno
+641|turno
+642|Viaggio
+643|A viaggio
+644|Senza limite
+645|Senza restrizioni
+646|Raggio di ricerca
+647|Ricerca per città
+648|Prenota
+649|Scegli le date
+650|annunci
+651|pagamento
+652|al proprietario
+653|consegna
+654|in cantiere
+655|Nessuna recensione
+656|fino a
+657|per
+658|km
+659|m²
+660|Autogrù XCMG 25 tonnellate
+661|Perforatrice URB-2A2
+662|Escavatore cingolato CAT 320D (1.2 m³)
+663|Terna JCB 3CX Super
+664|Trova un lavoro o un servizio
+665|Cosa ottieni
+666|Cosa aggiungere
+667|Foto o video dell'immobile
+668|Caposquadra e composizione
+669|Guadagna con gli ordini edili
+670|Pianta → 3D
+671|La pianta del piano diventa un modello 3D: volumi di pareti e solai, esportazione dei disegni, visualizzazione con la fotocamera del telefono
+672|Carica la pianta di un piano e ottieni il modello 3D dell'edificio, i volumi di pareti e solai, il disegno e il modello per la fotocamera del telefono.
+673|Carica un disegno
+674|Disegna da zero
+675|Prova con un esempio
+676|I miei modelli
+677|Apri file di progetto
+678|Pianta
+679|Volumi
+680|Fotocamera
+681|File
+682|Selezione
+683|Parete
+684|Porta
+685|Finestra
+686|Scala
+687|Nuovo
+688|Copia del piano
+689|Piano vuoto
+690|Piano
+691|Edificio
+692|Nuova parete
+693|Totale del modello
+694|Computo dei volumi
+695|Esporta in Excel
+696|Inquadra con la fotocamera
+697|Mostra il modellino
+698|Posiziona sul terreno
+699|Cosa considerare pareti
+700|Sposta al piano
+701|Sostituisci le pareti del piano
+702|Carica un disegno per questo piano
+703|Elimina parete
+704|Elimina apertura
+705|Elimina piano
+706|Pareti
+707|Solai
+708|Vetrate
+709|Punti A e B
+710|Disegni, modello e computo
+711|Solaio del piano terra
+712|Sessione scaduta. Accedi di nuovo: così proteggiamo il tuo account.
+713|Nessuna connessione al server. Controlla Internet e riprova — l'account non è ancora stato creato.
+714|Il server è temporaneamente non disponibile. Riprova tra un minuto — l'account non è ancora stato creato.
+715|Troppi tentativi di accesso. Attendi qualche minuto.
+716|Troppi tentativi di registrazione. Attendi un minuto.
+717|Esempio
+718|Qui sono mostrati degli esempi
+719|Il pannello di amministrazione è ancora un prototipo
+720|Richieste, immobili e importi in questa pagina sono un esempio per mostrare come funziona la sezione. Non sono i tuoi dati; i tuoi inserimenti sono salvati solo in questo browser.
+721|Richieste, immobili, squadre e importi in questa sezione sono un esempio per mostrare come funziona. Non sono i tuoi dati. I record che aggiungi tu sono salvati solo in questo browser.
+722|Immobili, budget, imprese, lotti e documenti in questa sezione sono un esempio per mostrare come funziona. Non sono i tuoi dati né aziende reali. Gli immobili che aggiungi tu sono salvati solo in questo browser.
+723|Riepilogo, coda di moderazione, utenti, documenti e contatori «in tempo reale» in queste schede sono esempi. Non vengono caricati dal server e le modifiche a prezzi, utenti e documenti non vengono salvate sul server. Gli account, gli ordini e la banca dati dei prezzi reali sono conservati nel database del server.
+724|● Banca dati prezzi collegata
+725|⚠️ Banca dati prezzi non disponibile
+726|⏳ Verifica della connessione…
+727|Volumi di terreno
+728|Volumi di movimento terra
+729|Volume dello scavo in base alle dimensioni, viaggi degli autocarri e costo di scavo e trasporto del terreno
+730|Volume dello scavo in base alle dimensioni, viaggi degli autocarri, turni dell'escavatore e costo dei lavori
+731|📐 Calcola il volume
+732|La richiesta di movimento terra è stata inviata al manager. Nessun anticipo viene addebitato: il pagamento lo concordi con l'impresa.
+733|La richiesta è salvata solo su questo dispositivo. Accedi per inviarla al manager.
+734|Impossibile creare la richiesta. Riprova.
+735|Il collegamento dei dipendenti tramite codice aziendale non funziona ancora: nel modulo di registrazione non c'è ancora un campo per questo codice. La sezione funzionerà insieme a questa funzione.
+736|Sede legale
+737|BIN/IIN
+738|Non indicato
+739|Benvenuto in QazGost AI
+740|Inizia con un preventivo da foto o un controllo dei difetti. Le offerte degli esecutori e lo stato degli ordini compariranno qui.
+741|Compila il profilo e apri il feed ordini. Offerte e accettazione delle fasi compariranno qui.
+742|Le richieste di supervisione tecnica e i risultati delle verifiche compariranno qui.
+743|Le nuove richieste e le modifiche alle trattative compariranno qui.
+744|Le richieste di verifica e gli eventi della piattaforma compariranno qui.
+745|Gli ordini dell'azienda e gli inviti ai progetti compariranno qui.
+746|ora
+747|Pagina non trovata
+748|A questo indirizzo non c'è nulla: forse il link contiene un errore o la sezione è stata spostata.
+749|Torna alla home
+750|Apri il catalogo materiali
+751|Controversie
+752|Caricamento dell'elenco delle controversie…
+753|L'elenco delle controversie è conservato sul server. Accedi con un account amministratore o manager per vederlo.
+754|Impossibile caricare l'elenco delle controversie. Aggiorna la pagina o accedi di nuovo.
+755|Nessuna controversia. Non è ancora possibile presentare un reclamo dal sito: l'elenco si riempirà quando sarà disponibile il modulo di reclamo sull'ordine.
+756|Controversia
+757|Presentata da
+758|Motivo
+759|Cambio password
+760|Cambia password
+761|🔑 Cambia password
+762|Nuova password
+763|Password attuale
+764|Ripeti la nuova password
+765|Almeno 8 caratteri
+766|Diversa da quella usata su altri siti
+767|Dopo il cambio, gli altri dispositivi verranno disconnessi
+768|Salvataggio…
+769|Torna all'area personale
+770|Password modificata
+771|Su questo dispositivo resti connesso. Sugli altri dispositivi e nelle app devi accedere di nuovo con la nuova password.
+772|Per cambiare la password, accedi prima all'account.
+773|Questo account accede tramite l'elenco comune del team, senza password personale sul server. Per cambiare la password, rivolgiti all'amministratore.
+774|La nuova password deve avere almeno 8 caratteri.
+775|La nuova password deve avere almeno 8 caratteri
+776|La nuova password e la conferma non coincidono.
+777|La nuova password coincide con quella attuale.
+778|La nuova password coincide con quella attuale
+779|Password attuale errata
+780|Questa password è troppo semplice o troppo comune. Scegline un'altra
+781|Nessuna connessione al server. La password non è stata modificata — riprova.
+782|Il server è temporaneamente non disponibile. La password non è stata modificata — riprova tra un minuto.
+783|Impossibile modificare la password.
+784|La password con cui accedi ora
+785|Ancora una volta, per non sbagliare
+786|{n} m²
+787|{n} voci
+788|₸/m²
+789|Arman Kasymov

@@ -1,0 +1,230 @@
+1020|Sicurezza antincendio
+1021|Progettazione
+1022|calcestruzzo
+1023|generatore
+1024|gru
+1025|In riparazione
+1026|autocarro ribaltabile
+1027|Rete non disponibile
+1028|trasporto
+1029|trattore stradale
+1030|(prenotazione $
+1031|). Sono mostrati annunci dimostrativi: prezzi e stati fittizi, prenotazione non disponibile
+1032|{n} turno
+1033|{n} t, benna {n} m³
+1034|{n} ora
+1035|Kaspi o bonifico al proprietario dopo il turno
+1036|Autopompa per calcestruzzo Putzmeister {n} m, portata {n} m³/h
+1037|Autobetoniera KAMAZ {n} (betoniera {n} m³)
+1038|Piattaforma aerea telescopica Hyundai HD{n}, {n} m, {n} kg
+1039|Autogrù XCMG QY{n}K{n}, {n} t, braccio {n} m + falcone
+1040|Indirizzo del cantiere (consegna tramite GPS)
+1041|Noleggio di mezzi speciali con operatore
+1042|Vibrofinitrice Vögele Super {n}-{n} (larghezza {n} m)
+1043|Gru a torre Liebherr {n} EC-B, {n} t, braccio {n} m
+1044|Senza accesso, la richiesta andrà al manager della piattaforma e le date non saranno bloccate presso il proprietario
+1045|Pagamento con bonifico su fattura con IVA (per le aziende)
+1046|Consegna gratuita
+1047|Calcestruzzo e malta
+1048|Perforatrice per pali Bauer BG {n} (pali fino a {n} m)
+1049|Proprietario
+1050|Il proprietario non ha indicato il telefono: prenota e ti contatterà
+1051|Scegli una data di consegna non precedente a oggi
+1052|Generatore diesel SDMO {n} kW, insonorizzato
+1053|Anno, condizioni, ordine minimo, termini
+1054|Livellatrice XCMG GR{n}, {n} m, ripper
+1055|Portata / volume
+1056|Escavatore cingolato Hitachi ZX{n}, {n} t, {n} m³, {n} m
+1057|Data di consegna del mezzo
+1058|Annuncio dimostrativo: prenotazione non disponibile
+1059|Per pubblicare serve un account sul server. Senza di esso l'annuncio non verrà salvato
+1060|Mezzi stradali
+1061|In attesa di conferma del proprietario
+1062|Caricamento dei mezzi speciali
+1063|Occupato
+1064|Richiesta presso il manager
+1065|Costo totale del noleggio
+1066|Il catalogo dei mezzi speciali non è disponibile (
+1067|Rullo compattatore XCMG XS{n}J, {n} t, {n} m
+1068|km da te
+1069|Escavatore gommato JCB JS{n}W, {n} t, {n} m³
+1070|Numero di turni
+1071|Compressore diesel Atlas Copco XAS {n} ({n} m³/min)
+1072|Autocarro con gru KAMAZ {n} (gru {n} t, cassone {n} t)
+1073|Prezzo massimo a turno, ₸
+1074|Minipala Bobcat S{n} + martello demolitore / spazzatrice
+1075|Miniescavatore Kubota U-{n}, {n} t, benna {n} m³
+1076|Ad esempio: CAT {n}D, cingolato
+1077|Risposta del server non valida
+1078|Annuncio pubblicato nel marketplace
+1079|Pubblica
+1080|Elaborazione…
+1081|Consegna a pagamento
+1082|Nessun mezzo corrisponde alla tua ricerca
+1083|Pala caricatrice
+1084|Prova ad allentare i filtri o a cambiare categoria
+1085|Pubblicazione
+1086|Raggio di ricerca, km
+1087|Pubblica i tuoi mezzi
+1088|Pubblica un mezzo speciale
+1089|La pubblicazione è possibile solo con un account sul server: accedi con un account sul server e riprova. L'annuncio non è stato salvato
+1090|Distanza
+1091|Con squadra
+1092|Con perforatore
+1093|Con autista
+1094|Con autista-operatore
+1095|Con gruista
+1096|Con operatore (macchinista)
+1097|Con equipaggio
+1098|Autocarro ribaltabile Shacman F{n}, {n} t, volume {n} m³
+1099|Azzera tutti i filtri
+1100|Sessione non valida: accedi con un account sul server e riprova
+1101|Metodo di pagamento
+1102|Sollevatore telescopico Manitou MT {n} ({n} m, {n} t)
+1103|Il telefono del proprietario è visibile dopo l'accesso
+1104|Telefono del dispatcher
+1105|Mezzo in riparazione
+1106|Carrellone ribassato FAYMONVILLE ({n} t, rampe)
+1107|Apripista pesante CAT D{n}R, {n} t, lama {n} m
+1108|L'annuncio non indica il prezzo: contatta il proprietario
+1109|Indica nome, telefono e indirizzo del cantiere
+1110|Indica marca e modello del mezzo
+1111|Indica un prezzo a turno superiore a {n}
+1112|Pala gommata XCMG ZL{n}G, {n} t, {n} m³
+1113|Prezzo a turno, ₸
+1114|Il prezzo orario non può essere negativo
+1115|Prezzo orario, ₸
+1116|ora
+1117|Terna JCB {n}CX Super, ruote uguali
+1118|Energia e generatori
+1119|Trivella su KAMAZ {n} (perforazione fino a {n} m)
+1120|sì
+1121|Proprietario privato
+1122|Prenotazione effettuata: {a} turni dal {b}. Il proprietario la confermerà nella scheda richieste
+1123|Noleggio di {a} per {b} turni dal {c}{d}. Cantiere: {e}. Operatore: {f}. Pagamento: {g}
+1124|La richiesta {a} è stata inoltrata al manager della piattaforma
+1125|Il server non ha accettato l'annuncio: {a}
+1126|Noleggio di {a} per {b} turni dal {c}{d}
+1127|Noleggio mezzi speciali: {a}
+1128|Annunci trovati: {a}
+1129|Server non disponibile: {a}
+1130|fino al {a} (prenotazione {b})
+1131|Trovati: {a}
+1132|{a} recensioni
+1133|{n} × {n} × {n} m
+1134|{n} m³
+1135|{n} sacchi
+1136|{n} t
+1137|{a}, coefficiente ×{b}. {c}, circa {d} gg
+1138|Preventivo_{a}.xlsx
+1139|{n} ₸ / m²
+1140|{n} ₸ / viaggio
+1141|{n} ₸ / turno
+1142|{n} t (A{n}C {n} mm)
+1143|{n}. Contratto n. {n}/{n} — Ristrutturazione completa di un ufficio (TOO «Almaty Business») •
+1144|{n}. Contratto n. {n}/{n} — Fondazione monolitica (DI «StroyMaster») •
+1145|Autogrù XCMG {n} tonnellate (sbraccio {n} m)
+1146|Calcolo automatico delle quantità dei lavori e della distinta materiali
+1147|Contratti d'appalto attivi
+1148|Rasatura armata con velo di vetro + primer
+1149|Altezza / Spessore (m)
+1150|Lunghezza (m)
+1151|Strumento interattivo QazGost AI {n}
+1152|Marketplace per il noleggio di mezzi speciali e l'acquisto di materiali edili
+1153|Microfessure dell'intonaco portante
+1154|Modulo del sistema
+1155|Quantità di armatura necessaria
+1156|Bassa (superficiale)
+1157|Volume totale di calcestruzzo/terreno
+1158|Sottofondo in sabbia e ghiaia
+1159|Superficie
+1160|Firmato con firma digitale
+1161|Quantità e consumi calcolati
+1162|Registro dei contratti d'appalto e arbitrato elettronico (firma digitale E-Gov)
+1163|Libero
+1164|SNiP RK {n}-{n}-{n} (punto {n})
+1165|Larghezza (m)
+1166|Terna JCB {n}CX
+1167|Saldo ricaricato di {a} ₸
+1168|{n} ore fa
+1169|+ Scegli file
+1170|Analisi dell'immagine con TensorFlow Vision
+1171|Audit del preventivo della copertura
+1172|Senza descrizione
+1173|Ieri
+1174|File selezionati
+1175|Caricamento del modulo
+1176|Calcolo IA secondo le norme ESN RK in corso
+1177|Soluzioni ingegneristiche (invia a un ingegnere per la verifica)
+1178|appartamento
+1179|comfort
+1180|In moderazione presso il manager (nuova richiesta)
+1181|Nome della richiesta / dell'immobile
+1182|Ad esempio: costruzione di una sauna {n}x{n}
+1183|Non assegnato
+1184|Descrizione (facoltativa)
+1185|Inviato all'ingegnere per la verifica dell'ordine
+1186|Inoltrato al manager (in lavorazione)
+1187|Inoltrato al manager (hai confermato)
+1188|Allega file (disegni, foto, documenti)
+1189|Applicazione delle norme di stima (ESN RK)
+1190|Verifica della documentazione di progetto delle fondazioni
+1191|Riconoscimento delle strutture portanti e della geometria
+1192|Calcolo delle dispersioni termiche dell'edificio
+1193|Costruzione (aggiungi a I miei immobili)
+1194|Costruzione di una villetta di {n} m²
+1195|Genera
+1196|Crea la richiesta
+1197|Tipo di richiesta
+1198|Serve la tua conferma (risposta dell'ingegnere ricevuta)
+1199|Indica i dettagli dell'ordine
+1200|Preparazione del rapporto finale
+1201|Errore Vision AI: l'immagine non è stata riconosciuta come opera edile o disegno (identificata come "{a}"). Carica una foto reale di un ambiente, di una facciata o una pianta
+1202|Nuova richiesta dal cliente: {a}
+1203|Maksim Barbashin
+1204|Notifiche, nuove: {a}
+1205|Portafoglio: {a} tenge
+1206|Saldo: {a} ₸
+1207|Lingua dell'interfaccia
+1208|Lingua dell'interfaccia
+1209|Cliente
+1210|Servizio
+1211|Il testo ufficiale del documento è in russo
+1212|Versione del {a}
+1213|Lunghezza
+1214|Superficie
+1215|{n} giorni
+1216|{n} giorni
+1217|{n} m² (a due falde)
+1218|{n} m² (spessore {n} mm)
+1219|{n} m × {n} m × {n} m
+1220|COMPUTO QTO DI MATERIALI E LAVORI
+1221|Almaty (SNiP RK ×{n})
+1222|Armatura nervata A{n}S Ø{n} mm
+1223|Rete di armatura in basalto
+1224|Gabbia di armatura A{n}C Ø{n} mm (GOST {n})
+1225|Astana (SNiP RK ×{n})
+1226|Calcestruzzo pesante M{n} (W{n}, F{n})
+1227|OPERE IN CALCESTRUZZO
+1228|Travi in conifera {n}×{n} mm (puntoni)
+1229|Torna agli esempi
+1230|Membrana impermeabilizzante bitume-polimero
+1231|Demo su disegni di esempio
+1232|Il tuo disegno è stato caricato
+1233|Carica il tuo disegno
+1234|Scanner IA interattivo di disegni & calcolatore QTO
+1235|OPERE MURARIE
+1236|Karaganda (SNiP RK ×{n})
+1237|Muratura in calcestruzzo cellulare D{n}
+1238|Muratura delle pareti esterne con armatura
+1239|Collante per calcestruzzo cellulare (sacchi da {n} kg)
+1240|OPERE DI COPERTURA
+1241|Copertura in lamiera a coppo {n} mm
+1242|Fondazione continua M{n}
+1243|Membrana altamente traspirante vapore/acqua
+1244|Lamiera a coppo Monterrey {n} mm RAL {n}
+1245|Montaggio e getto dei nodi portanti
+1246|Descrizione della risorsa / del lavoro
+1247|Sistemi di casseforme & pannelli in compensato filmato
+1248|OPERE DI FINITURA
+1249|Plastificante per pavimenti radianti

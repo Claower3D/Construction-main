@@ -280,8 +280,18 @@ func smetaPhotoLangRule(lang string) string {
 // Список совпадает с языками сайта (frontend/src/i18n/index.js).
 func uiLangName(lang string) string {
 	switch strings.ToLower(strings.TrimSpace(lang)) {
-	case "en":
+	case "en", "en-us":
 		return "английский"
+	case "en-gb":
+		return "английский (британское написание: colour, centre, organise)"
+	case "en-ca":
+		return "английский (канадское написание: colour, centre, organize)"
+	case "fr":
+		return "французский"
+	case "it":
+		return "итальянский"
+	case "es":
+		return "испанский (Мексика)"
 	case "kk":
 		return "казахский"
 	case "zh":

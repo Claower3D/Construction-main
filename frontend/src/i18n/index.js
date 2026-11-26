@@ -1,4 +1,5 @@
-// Переключение языка: русский, казахский, английский, китайский и любые следующие.
+// Переключение языка: русский, казахский, английский (США, Великобритания, Канада), французский, итальянский,
+// испанский (Мексика), турецкий, китайский и любые следующие.
 //
 // Тексты приложения написаны по-русски прямо в компонентах (сотни файлов), поэтому перевод
 // сделан слоем поверх DOM: текстовые узлы и атрибуты (placeholder, title, aria-label, alt)
@@ -17,16 +18,24 @@
 
 import { useSyncExternalStore } from 'react';
 import { DICT, PATTERNS } from './dict.js';
+import { RESPELL } from './enVariants.js';
 
 // label — короткая подпись на кнопке, name — название языка на нём самом, locale — для дат, чисел и голоса,
 // dir: 'rtl' — письмо справа налево.
 export const LANGS = [
   { code: 'ru', label: 'RU', name: 'Русский', locale: 'ru-RU' },
   { code: 'kk', label: 'KZ', name: 'Қазақша', locale: 'kk-KZ' },
-  { code: 'en', label: 'EN', name: 'English', locale: 'en-US' },
-  { code: 'zh', label: '中文', name: '简体中文', locale: 'zh-CN' },
+  { code: 'en', label: 'EN', name: 'English (US)', locale: 'en-US' },
+  { code: 'en-GB', label: 'EN-GB', name: 'English (UK)', locale: 'en-GB' },
+  { code: 'en-CA', label: 'EN-CA', name: 'English (Canada)', locale: 'en-CA' },
+  { code: 'fr', label: 'FR', name: 'Français', locale: 'fr-FR' },
+  { code: 'it', label: 'IT', name: 'Italiano', locale: 'it-IT' },
+  { code: 'es', label: 'ES', name: 'Español (México)', locale: 'es-MX' },
   { code: 'tr', label: 'TR', name: 'Türkçe', locale: 'tr-TR' },
+  { code: 'zh', label: '中文', name: '简体中文', locale: 'zh-CN' },
 ];
+// Английский для Великобритании и Канады — тот же английский словарь, другое написание (enVariants.js)
+const isEnVariant = (code) => RESPELL[code] != null;
 const CODES = LANGS.map((l) => l.code);
 const BY_CODE = Object.fromEntries(LANGS.map((l) => [l.code, l]));
 /** Обозначение языка для браузера: даты, числа, распознавание и синтез речи. */
@@ -37,9 +46,12 @@ const LOADERS = {
   en: () => import('./dict.en.js'),
   zh: () => import('./dict.zh.js'),
   tr: () => import('./dict.tr.js'),
+  fr: () => import('./dict.fr.js'),
+  it: () => import('./dict.it.js'),
+  es: () => import('./dict.es.js'),
 };
 // В каком порядке искать перевод: сначала на выбранном языке, потом по-английски
-const chain = (code) => (code === 'ru' ? [] : code === 'en' || code === 'kk' ? [code] : [code, 'en']);
+const chain = (code) => (code === 'ru' ? [] : code === 'en' || code === 'kk' ? [code] : isEnVariant(code) ? ['en'] : [code, 'en']);
 const packsFor = (code) => chain(code).filter((c) => LOADERS[c]);
 const STORAGE_KEY = 'qazgost_lang';
 const ATTRS = ['placeholder', 'title', 'aria-label', 'alt'];
@@ -51,7 +63,11 @@ const ATTRS = ['placeholder', 'title', 'aria-label', 'alt'];
 export function defaultLangForHost(host, browserLangs = []) {
   if (!/(^|\.)qazgost\.com$/i.test(String(host || ''))) return 'ru';
   for (const b of browserLangs || []) {
-    const code = String(b || '').toLowerCase().split('-')[0];
+    const tag = String(b || '').toLowerCase();
+    // точный вариант языка, если сайт его знает: en-GB, en-CA
+    const exact = CODES.find((c) => c.toLowerCase() === tag);
+    if (exact && exact !== 'ru' && exact !== 'kk') return exact;
+    const code = tag.split('-')[0];
     if (code === 'en') return 'en';
     if (code !== 'ru' && code !== 'kk' && CODES.includes(code)) return code;
   }
@@ -306,6 +322,9 @@ const UNIT_RE = /(?<![А-Яа-яЁё])(м²|м³|мм|см|км|кг|кВт|Вт
 const UNIT_BY_LANG = {
   zh: { шт: '件', 'п.м': '延米', 'м.п': '延米', мес: '个月', мин: '分钟', чел: '人', дн: '天', ч: '小时', т: '吨', л: '升' },
   tr: { шт: 'adet', 'п.м': 'mt', 'м.п': 'mt', мес: 'ay', мин: 'dk', чел: 'kişi', дн: 'gün', ч: 'sa' },
+  fr: { шт: 'u.', 'п.м': 'ml', 'м.п': 'ml', мес: 'mois', мин: 'min', чел: 'pers', дн: 'j', ч: 'h' },
+  it: { шт: 'pz', 'п.м': 'ml', 'м.п': 'ml', мес: 'mesi', мин: 'min', чел: 'pers', дн: 'gg', ч: 'h' },
+  es: { шт: 'pza', 'п.м': 'ml', 'м.п': 'ml', мес: 'meses', мин: 'min', чел: 'pers', дн: 'días', ч: 'h' },
 };
 function unitsEn(s) {
   if (!packs[target] || !/\d/.test(s)) return null;
@@ -421,7 +440,8 @@ const sub = (x) => lookup(String(x).trim()) ?? x;
 export function translate(raw) {
   if (lang === 'ru' || !raw || !CYR.test(raw)) return null;
   if (cache.has(raw)) return cache.get(raw);
-  const out = translateCore(raw);
+  let out = translateCore(raw);
+  if (out != null && isEnVariant(lang)) out = RESPELL[lang](out);
   if (cache.size > 20000) cache.clear();
   cache.set(raw, out);
   return out;

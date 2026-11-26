@@ -1,0 +1,240 @@
+1250|Firme semiseco con fibra
+1251|Cálculo según las normas SN RK {n}-{n}
+1252|Edificio claro (SNiP RK ×{n})
+1253|Descargar el acta KS-{n} (Excel .xlsx)
+1254|Fibra de polipropileno {n} mm
+1255|Cemento PC-{n} D{n} + arena lavada
+1256|PLANO DEL USUARIO (DWG/PDF)
+1257|Shymkent (SNiP RK ×{n})
+1258|Estructuras monolíticas ({a})
+1259|Plano: {a}
+1260|Iniciar sesión — QazGost AI
+1261|arriba
+1262|bulto
+1263|en
+1264|abajo
+1265|Almacén
+1266|Precio de referencia
+1267|, mayoreo
+1268|, precio de referencia
+1269|. Cambia la búsqueda o restablece los filtros
+1270|. Precisa la búsqueda o la categoría para ordenar toda la selección
+1271|). Se muestran productos de demostración: precios y existencias ficticios
+1272|{n} km
+1273|Calculadora de necesidades de materiales con IA (BOM)
+1274|Especificación de materiales con IA calculada con éxito
+1275|AlinEX / TOO «Alina Group»
+1276|Kaspi o transferencia al proveedor tras la confirmación
+1277|TRÁFICO VEHICULAR
+1278|Dirección de entrega en obra
+1279|PROMOCIÓN
+1280|Varilla A{n}S Ø{n} mm
+1281|Varilla de acero corrugada A{n}S Ø{n} mm (largo {n} m)
+1282|Malla de refuerzo para muro {n}×{n}
+1283|Planta de concreto TOO «StroyMonolit KZ»
+1284|ENTREGA RÁPIDA
+1285|Agregar al carrito
+1286|EN EXISTENCIA
+1287|No hay productos en esta categoría
+1288|Valdai / MAN {n} t (tonelaje medio)
+1289|Tu carrito está vacío
+1290|Ingresa las medidas básicas del inmueble: la red neuronal calculará la especificación exacta de materiales según los consumos de SNiP RK
+1291|Poste vibrado para líneas de {n}–{n} kV
+1292|RESISTENTE A LA HUMEDAD
+1293|Levantamiento de muros (block celular + adhesivo)
+1294|Todos los conceptos calculados se agregaron al carrito
+1295|Todo Kazajistán
+1296|Elige productos del catálogo y agrégalos al carrito
+1297|Nivelación de la tapa de registro
+1298|Tapa compuesta de alta resistencia para tráfico pesado
+1299|Alambre recocido {n} mm
+1300|Almatý, col. Samal-{n}, edif. {n}
+1301|Gazelle {n} t (entrega en la ciudad)
+1302|Block de concreto celular {n}×{n}×{n} D{n}
+1303|Block de concreto celular curado en autoclave «Ekoton» D{n} ({n}×{n}×{n} mm)
+1304|Tablaroca Knauf resistente a la humedad GKLV ({n}×{n}×{n} mm)
+1305|Cuello de registro KS {n} (d={n} m, h={n} m)
+1306|Ciudad de entrega
+1307|GOST
+1308|GOST RK
+1309|GOST RK {n}
+1310|Para registros de agua y de cables
+1311|Fondo de registro PN-{n} (d={n} mm)
+1312|Agregar toda la especificación al pedido
+1313|Anillo de extensión de registro
+1314|Bloque de cimentación complementario
+1315|Entrega / recoger
+1316|Entrega con camión grúa
+1317|Entrega con camión grúa en Karagandá y la región
+1318|Entrega con camión grúa. Incluye marco de asiento
+1319|Entrega con camión grúa. Concreto hidráulico
+1320|Entrega con camión grúa. Mayoreo desde {n} pzas: {n} ₸
+1321|Tráiler {n}-{n} t (foráneo / mayoreo)
+1322|u.)
+1323|Hay descuentos por mayoreo
+1324|conceptos cargados de
+1325|Colado de cimentación monolítica
+1326|Solicitud de precio de mayoreo a todas las fábricas y proveedores de Kazajistán
+1327|Ivan Ivanov / TOO «StroyGroup»
+1328|Nombre del destinatario / de la empresa
+1329|PF «Medina» (Manarbek)
+1330|PF MEDINA
+1331|Total a pagar
+1332|Total a pagar con entrega
+1333|KamAZ / volteo {n} t
+1334|BANCO DE MATERIAL
+1335|El catálogo de precios no está disponible (
+1336|kg / u.
+1337|Ladrillo macizo de barro recocido M-{n} ({n}×{n}×{n} mm)
+1338|Adhesivo para block celular (bulto de {n} kg)
+1339|Adhesivo para azulejo y porcelanato AlinEX «Set {n}» ({n} kg)
+1340|Cantidad
+1341|La cantidad debe ser mayor a {n}
+1342|Anillo KS {n} ({n}×{n} mm)
+1343|Anillo de apoyo KO-{n}
+1344|Teléfono de contacto
+1345|Carrito del pedido
+1346|Carrito vaciado
+1347|Tapa de registro {n}PP-{n}-{n} (d={n} mm)
+1348|Tapa de registro {n}PP-{n}-{n} reforzada (d={n} mm)
+1349|Tapa de registro {n}PP-{n}-{n} reforzada para tráfico vehicular (d={n} mm)
+1350|Tapa de registro {n}PP-{n}-{n}U reforzada (d={n} mm)
+1351|Tapa de registro con abertura
+1352|hoja ({n} m²)
+1353|POSTE DE LÍNEA
+1354|TAPA DE CONCRETO
+1355|Tapa de concreto armado ({n}×{n} mm)
+1356|TAPA KPR-{n}
+1357|Tapa de polímero para tráfico pesado (carga {n} t)
+1358|Tapa de hierro-concreto KPR-{n} ({n}×{n} mm)
+1359|camión de {n} t
+1360|bultos
+1361|Por ejemplo: Varilla A{n}S Ø{n} mm — {n} toneladas, Concreto M{n} — {n} m³, Ladrillo de barro — {n} pzas
+1362|Respuesta del catálogo incorrecta
+1363|No se encontró nada
+1364|Peso total de la carga
+1365|Mayoreo
+1366|Mayoreo desde {n} hojas: {n} ₸
+1367|Mayoreo desde {n} m³: {n} ₸
+1368|Mayoreo desde {n} bultos: {n} ₸
+1369|Mayoreo desde {n} tarimas ({n} pzas): {n} ₸
+1370|Mayoreo desde {n} toneladas: {n} ₸
+1371|Mayoreo desde {n} paquetes: {n} ₸
+1372|Mayoreo desde {n} tramos: {n} ₸
+1373|Mayoreo desde {n} pzas: {n} ₸
+1374|La licitación de mayoreo se envió a los proveedores de Kazajistán
+1375|Referencia de mercado de la base de precios QazGost; la compra la realiza el gerente de la plataforma
+1376|Desde {n} camiones: {n} ₸
+1377|Hacer pedido y entrega
+1378|Pedido de materiales de construcción
+1379|Arena lavada para construcción
+1380|Arena de río lavada {n}-{n} mm (volteo de {n} t)
+1381|Losa de tapa {n} PP {n}-{n} (d={n} m con abertura)
+1382|Losa de tapa PP {n}-{n} (d={n} m)
+1383|Superficie / volumen de la estructura (m²)
+1384|Para tapa de registro de inspección
+1385|Confirmar y enviar la solicitud
+1386|conceptos)
+1387|POLÍMERO {n} T
+1388|Cemento Portland M{n} D{n} «Kazcement» (bulto de {n} kg)
+1389|PREMIUM
+1390|Radio de suministro
+1391|Radio de suministro, km
+1392|Enviar la licitación a proveedores
+1393|Calcular la especificación de materiales
+1394|Reserva para cortes y mermas: +{n}%
+1395|Lista de materiales recomendada para
+1396|Menudeo: {n} ₸ / con factura: {n} ₸
+1397|rollos
+1398|del mercado en
+1399|Con abertura para tapa estándar
+1400|Certificado GOST / ST RK
+1401|Certificación y existencias
+1402|CERTIFICADO
+1403|Cantidad demasiado grande para un solo concepto
+1404|El orden por precio se aplicó a
+1405|Lista o descripción de materiales
+1406|Precio de referencia QazGost (mercado de Kazajistán, {n})
+1407|Como referencia
+1408|ST RK GOST {n}
+1409|ST RK GOST {n}-{n}
+1410|Costo de los productos (
+1411|Firme y nivelación de piso
+1412|TABYS-ASM
+1413|Tipo de estructura
+1414|Concreto premezclado M-{n} (B{n})
+1415|Concreto premezclado M-{n} (B{n}) entregado en olla revolvedora
+1416|Solo en existencia
+1417|toneladas
+1418|tonelada
+1419|TOO «Ladrillera de Almatý n.º {n}»
+1420|TOO «ArcelorMittal Temirtau Sbyt»
+1421|TOO «KazMetService»
+1422|TOO «KazCement Industry»
+1423|TOO «Karier NerudTrans»
+1424|TOO «Knauf Gips Kazakhstan»
+1425|TOO «Knauf Gips»
+1426|TOO «Penoplex RK»
+1427|TOO «TABYS-ASM» (Natalia)
+1428|TOO «TechnoNICOL Kazakhstan»
+1429|TOO «Ekoton-Batys»
+1430|MEJOR OPCIÓN
+1431|Perfil tubular {n}×{n}×{n} mm (tramo de {n} m)
+1432|Concreto pesado para cimentaciones y sótanos
+1433|El concepto no tiene precio — pide el precio al proveedor
+1434|Aumentar cantidad
+1435|Indica nombre, teléfono y dirección de entrega
+1436|Indica la lista de materiales que necesitas. El sistema avisará automáticamente a los almacenes y fábricas acreditados y recibirás cotizaciones con hasta {n}% de descuento
+1437|Disminuir cantidad
+1438|paquete ({n} m²)
+1439|REFORZADO
+1440|Poste de concreto armado reforzado para línea eléctrica de {n} m
+1441|Aislante de lana mineral TechnoNICOL Rocklight ({n}×{n}×{n} mm)
+1442|Fibra de refuerzo
+1443|Filtros restablecidos
+1444|Sin foto ·
+1445|CIMENTACIÓN FBS
+1446|MÁS VENDIDO
+1447|El más vendido para fosas sépticas y registros
+1448|TOP FOSA SÉPTICA
+1449|tramo ({n} m)
+1450|Cemento M{n} D{n} ({n} kg)
+1451|Yeso Knauf Rotband ({n} kg)
+1452|Poliestireno extruido PENOPLEX Confort {n} mm
+1453|EFICIENCIA ENERGÉTICA
+1454|Valdai {n} t
+1455|KamAZ {n} t
+1456|Pedido de materiales para la obra: {a}. Contenido: {b}. Transporte: {c}. Pago: {d}
+1457|¡El pedido {a} se registró y se envió al gerente para surtirlo! 🧱
+1458|Cálculo hecho según las normas SNiP RK para un inmueble de {a} m²
+1459|Transporte recomendado para entregar todo el lote: {a}
+1460|Pedido de materiales para la obra: {a}. Contenido: {b}
+1461|No se pudo cargar la página siguiente: {a}
+1462|Suministro de materiales ({a} artículos, {b} t)
+1463|Para la unidad «{a}» indica una cantidad entera
+1464|El proveedor solo tiene {a} {b} en existencia
+1465|Agregado al carrito: {a} ({b} {c})
+1466|Mostrar más (se muestran {a} de {b})
+1467|Revisa la cantidad y el precio: «{a}»
+1468|No hay materiales para «{a}»
+1469|Ilustración de la categoría: {a}
+1470|— coeficiente ×{a}
+1471|coeficiente: {a}
+1472|, proveedor {a}
+1473|para la región {a}
+1474|Cantidad, {a}
+1475|Página no encontrada — QazGost AI
+1476|Listo ✓
+1477|Omitir
+1478|Tipo de trabajo
+1479|Cerrar cámara
+1480|Total
+1481|Premium
+1482|Mano de obra
+1483|Remodelación
+1484|Estándar
+1485|Económico
+1486|₸/m² · materiales
+1487|Acta PDF lista y guardada
+1488|Actas de defectos
+1489|Más

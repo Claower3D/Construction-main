@@ -1,0 +1,240 @@
+2460|Type de plafond
+2461|Tendu
+2462|Plaques de plâtre à peindre
+2463|Peinture sur dalle
+2464|Spots
+2465|Sans
+2466|{n} pour {n} m²
+2467|Ossature et parement
+2468|Plafond tendu
+2469|Luminaires
+2470|tendu mat
+2471|tendu satiné
+2472|tendu brillant
+2473|plaques de plâtre, enduit de lissage en {n} couche, Gaudi « Blanche-Neige »
+2474|plaques de plâtre, enduit de lissage en {n} couches, Gaudi Standart
+2475|plaques de plâtre, finition Glatt Plus, peinture Remalux
+2476|sur dalle : enduit de lissage en {n} couche, Gaudi « Blanche-Neige »
+2477|sur dalle : enduit de lissage en {n} couches, Gaudi Standart
+2478|sur dalle : finition Glatt Plus, peinture Remalux
+2479|Contour de la pièce / de l'appartement
+2480|{n} — selon la norme : {n} prise pour {n} m de périmètre
+2481|{n} — selon le nombre de portes
+2482|Plafonniers
+2483|{n} — {n} pour {n} m²
+2484|Nouveau tableau électrique
+2485|Saignées
+2486|Pose de câble
+2487|Appareillage électrique
+2488|remplacement complet du câblage par du câble VVGng-LS {n}×{n}
+2489|remplacement du câblage + disjoncteurs différentiels pour les zones humides
+2490|× ≈{n} m de saignée par point
+2491|× {n} m
+2492|× ≈{n} m de câble par point
+2493|× {n} m + {n} % de réserve
+2494|un tableau
+2495|tableau avec {n} disjoncteurs et différentiel
+2496|{n} circuits : éclairage, prises par pièce, cuisine, salle de bain, cuisinière, lave-linge
+2497|différentiel général
+2498|disjoncteurs différentiels pour la salle de bain et la cuisine
+2499|Électricité : ≈{n} m de câble et ≈{n} m de saignée par point ; luminaires et lustres fournis par le client (le devis ne comprend que la pose)
+2500|douche
+2501|lave-linge
+2502|chauffe-eau
+2503|sèche-serviettes
+2504|points
+2505|un mitigeur pour le lavabo, la baignoire et la douche
+2506|Plomberie et alimentation en eau
+2507|Contour de la salle de bain / de l'appartement
+2508|WC
+2509|Monobloc
+2510|Bâti-support
+2511|Lavabo avec meuble
+2512|Baignoire
+2513|Cabine de douche
+2514|Lave-linge
+2515|Chauffe-eau
+2516|Sèche-serviettes
+2517|Piquage sur la colonne
+2518|Points d'eau
+2519|{n} — selon les appareils choisis
+2520|Distribution des tuyaux
+2521|essai de pression du réseau
+2522|WC monobloc économique
+2523|WC monobloc milieu de gamme
+2524|WC haut de gamme
+2525|piquage sur la colonne eau froide/eau chaude
+2526|; ≈{n} m de tuyau par point + {n} %
+2527|WC monobloc
+2528|bâti-support
+2529|bâti-support avec WC
+2530|cabine de douche
+2531|lave-linge (la machine est fournie par le client)
+2532|chauffe-eau {n} L
+2533|Plomberie : le travail « au point » comprend la pose des tuyaux ; ≈{n} m de tube PPR par point
+2534|Surface chauffée
+2535|{n} — selon les déperditions et le nombre de fenêtres
+2536|Tuyaux de chauffage
+2537|essai de pression
+2538|radiateurs bimétalliques {n} éléments
+2539|Climatisation et ventilation
+2540|Contour des pièces
+2541|Climatiseurs split
+2542|{n} — un de {n} BTU pour {n} m²
+2543|Extracteurs
+2544|Climatiseurs
+2545|défini
+2546|salles de bain et cuisine
+2547|Contour de la maison
+2548|Longueur de la conduite de gaz dans la maison
+2549|Appareils à gaz
+2550|Projet nécessaire
+2551|validation du projet par le service du gaz
+2552|Pose de la conduite de gaz
+2553|Raccordement des appareils
+2554|projet et validation
+2555|longueur selon le projet
+2556|cuisinière et chaudière
+2557|Gaz : les travaux sont réalisés uniquement par un organisme agréé ; le prix est précisé après les conditions techniques
+2558|Contour de la pièce
+2559|Retirer le papier peint
+2560|Piquer l'enduit
+2561|Déposer le carrelage mural
+2562|Déposer le revêtement de sol
+2563|Stratifié, linoléum
+2564|Démolition de la chape
+2565|Démolition de cloisons en demi-brique
+2566|Dépose des blocs-portes
+2567|Démolition d'un bâtiment (volume bâti)
+2568|le volume de démolition est identique dans tous les scénarios
+2569|surface des cloisons
+2570|blocs-portes
+2571|volume bâti du bâtiment
+2572|Contour de la fouille / du terrain
+2573|Profondeur d'excavation
+2574|Méthode
+2575|Mini-pelle
+2576|Manuellement
+2577|Évacuation des terres excédentaires
+2578|Terrassement
+2579|le volume de travaux est identique dans tous les scénarios
+2580|Contour à l'axe des murs extérieurs
+2581|Largeur de la semelle
+2582|Hauteur de la semelle
+2583|Hors sol
+2584|Murs porteurs intérieurs
+2585|kg/m³
+2586|Habituellement {n}–{n} kg pour {n} m³ de semelle
+2587|Implantation des axes
+2588|Coffrage et ferraillage
+2589|prise à {n} % de la résistance du béton
+2590|béton M{n}, armature A{n}S
+2591|report des axes sur le terrain
+2592|vides de la tranchée
+2593|Fondation : béton livré directement par toupie (sans pompe) ; l'étanchéité et l'isolation de la semelle ne sont pas incluses
+2594|Radier monolithique
+2595|Contour du radier
+2596|Dalle sur terre-plein
+2597|Plancher
+2598|Maçonnerie des murs en béton cellulaire
+2599|Contour des murs extérieurs
+2600|Épaisseur du mur
+2601|Cloisons {n} mm
+2602|Maçonnerie des murs
+2603|béton cellulaire D{n} collé
+2604|+ {n} % de casse et de coupes
+2605|Maçonnerie : le chaînage et les linteaux sont comptés dans la section « Radier monolithique »
+2606|Charpente métallique, auvent
+2607|Contour de l'auvent / de l'ossature
+2608|Fabrication et pose
+2609|Auvent : le prix des annonces comprend le métal, la peinture et la pose ; les fondations des poteaux ne sont pas incluses
+2610|Contour du platelage
+2611|Lambourdes et platelage
+2612|Contour de la maison en plan
+2613|Pente des versants
+2614|Débord de toit
+2615|Forme
+2616|Deux pans
+2617|Quatre pans
+2618|Nouvelle charpente
+2619|Isolée (combles aménagés)
+2620|Dépose de l'ancienne toiture
+2621|Charpente
+2622|Membrane et isolation
+2623|Couverture
+2624|Gouttières
+2625|tuile métallique « Venise »
+2626|tuile métallique « SuperMonterrey » {n} mm
+2627|tuile métallique « SuperMonterrey » (Russie)
+2628|quatre pans : avant-toit sur tout le périmètre
+2629|deux pans : avant-toit sur les deux longs côtés ≈ la moitié du périmètre
+2630|Hauteur de la façade
+2631|Échafaudages
+2632|séchage de l'enduit ciment
+2633|Finition
+2634|peinture de la façade existante sans nouvel enduit
+2635|enduit sur treillis et peinture de façade en {n} couches
+2636|enduit sur treillis et enduit décoratif « grain de riz »
+2637|séchage de la couche d'armature
+2638|laine minérale {n} mm, « façade enduite sur isolant »
+2639|Isolation : les échafaudages sont comptés dans la section « Travaux de façade »
+2640|fenêtres dans le contour : {n}
+2641|{n} — selon le nombre de fenêtres dans le contour
+2642|Tableaux en panneau sandwich
+2643|Tableaux et appuis de fenêtre
+2644|Fenêtre PVC avec pose
+2645|Fenêtre PVC profilé premium
+2646|Fenêtres : le prix du tarif s'entend pour une fenêtre de {n}×{n} m ; les fenêtres plus grandes coûtent plus cher, proportionnellement à la surface
+2647|portes dans le contour : {n}
+2648|Contour de l'appartement
+2649|Portes intérieures
+2650|{n} — selon le nombre de portes dans le contour
+2651|Porte d'entrée
+2652|Cuisine équipée
+2653|Montage de meubles
+2654|u.
+2655|porte d'entrée
+2656|longueur de la cuisine
+2657|meubles
+2658|Revêtement d'escalier
+2659|Contour de la cage d'escalier
+2660|Marches
+2661|Revêtement des marches
+2662|grès cérame {n}×{n}
+2663|grès cérame {n}×{n} imitation marbre
+2664|grès cérame {n}×{n} série premium
+2665|nombre de marches
+2666|Contour du bien
+2667|projet de décoration sans visualisation
+2668|projet de décoration et visualisation {n}D
+2669|{n} — selon la surface
+2670|Installation de l'alarme
+2671|une centrale
+2672|boucle + {n} % de réserve
+2673|L'alarme incendie des locaux commerciaux nécessite un projet selon les normes du Kazakhstan ; ici, c'est une estimation de l'installation
+2674|Caméras
+2675|Installation du système
+2676|enregistreur jusqu'à {n} caméras
+2677|Travaux extérieurs
+2678|Tracé (longueur selon le périmètre ou en paramètre)
+2679|Longueur du tracé
+2680|{n} — selon le périmètre du contour
+2681|Profondeur de tranchée
+2682|sous la profondeur de gel
+2683|Tranchée
+2684|Pose du tuyau
+2685|Remblai
+2686|lit de pose {n} cm et recouvrement {n} cm sur une largeur de {n} m
+2687|longueur du tracé
+2688|longueur + {n} %
+2689|tranchée hors couche de sable
+2690|Pavage
+2691|Contour de la zone
+2692|Bordure en périphérie
+2693|Décaissement et assise
+2694|Pose
+2695|Bordure
+2696|terre du décaissement × {n}
+2697|gravier {n} cm compacté ×{n}
+2698|lit de sable {n} cm × {n}
+2699|sur le périmètre de la zone

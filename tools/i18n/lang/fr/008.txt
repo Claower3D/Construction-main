@@ -1,0 +1,240 @@
+1970|{a} (coefficient {b})
+1971|Numérisation {n}D et relevés
+1972|Travaux d'urgence
+1973|Grue mobile
+1974|Protection anticorrosion
+1975|Ferraillage
+1976|Pompe à béton
+1977|Aménagements extérieurs et voirie
+1978|Bordures et caniveaux
+1979|Forage pour pieux
+1980|Forage de puits d'eau
+1981|Façade ventilée
+1982|Plomberie intérieure
+1983|Évacuation intérieure
+1984|Traitement de l'eau et filtres
+1985|Système de gouttières
+1986|Portails et clôtures
+1987|Évacuation des terres
+1988|Étanchéité
+1989|Étanchéité des fondations
+1990|Travaux de plaques de plâtre
+1991|Démolition de bâtiments et d'ouvrages
+1992|Couche de fondation routière
+1993|Livraison de matériaux
+1994|Drainage du terrain
+1995|Clôtures
+1996|Mise à la terre et paratonnerre
+1997|Terrassement et démolition
+1998|Études et conception
+1999|Injection des fissures
+2000|Rénovation lourde
+2001|Construction à ossature
+2002|Maçonnerie en briques
+2003|Maçonnerie en béton cellulaire
+2004|Rénovation légère
+2005|Chaufferie
+2006|Toiture et façades
+2007|Toiture en tuiles métalliques et bac acier
+2008|Escaliers et garde-corps
+2009|Évacuation des eaux pluviales
+2010|Petites constructions paysagères
+2011|Camion-grue
+2012|Façade enduite sur isolant
+2013|Planchers monolithiques
+2014|Ossature monolithique
+2015|Installation du système CVC
+2016|Pose d'éléments en béton armé
+2017|Montage de charpentes métalliques
+2018|Installation d'équipements
+2019|Toiture souple
+2020|Auvents et marquises
+2021|Assainissement extérieur
+2022|Station de pompage
+2023|Revêtement de façade
+2024|Papier peint et revêtements décoratifs
+2025|Remblayage et compactage
+2026|Diagnostic du bâtiment
+2027|Protection incendie des structures
+2028|Espaces verts
+2029|Fenêtres, portes, ouvrages
+2030|Travaux de coffrage
+2031|Éclairage
+2032|Vitrage des façades et balcons
+2033|Chauffage, ventilation, gaz
+2034|Cloisons
+2035|Nivellement du terrain
+2036|Radier
+2037|Toiture-terrasse
+2038|Raccordement au réseau électrique
+2039|Sols industriels en béton
+2040|Travaux industriels
+2041|Mise en service
+2042|Projet d'exécution
+2043|Creusement de la fouille
+2044|Réservoirs et cuves
+2045|Voies ferrées et chemins de roulement
+2046|Réparation et renforcement
+2047|Réparation de toiture
+2048|Réparation de façade
+2049|Benne
+2050|Fondation sur pieux
+2051|Travaux de soudure
+2052|Câblage structuré et Internet
+2053|Documentation d'estimation
+2054|Accords et autorisations
+2055|Centrale solaire
+2056|Engins et livraison
+2057|Murs, ossature, métal
+2058|Panneaux sandwich
+2059|Sous-station de chauffage
+2060|Plancher chauffant
+2061|Contrôle technique et suivi d'auteur
+2062|Tuyauteries industrielles
+2063|Levé topographique
+2064|Tranchées pour réseaux
+2065|Pose de pavés
+2066|Maison connectée et automatisation
+2067|Renforcement des structures
+2068|Pose de portes
+2069|Pose de fenêtres
+2070|Installation sanitaire
+2071|Isolation de toiture
+2072|Fondations et béton
+2073|Enduit de finition et peinture
+2074|Tableaux électriques
+2075|Pelleteuse
+2076|Électricité et courants faibles
+2077|Avant-projet
+2078|Automatisation et courants faibles
+2079|Ventilation et climatisation
+2080|Structures en bois
+2081|Routes et ponts
+2082|Escaliers et balcons
+2083|Mobilier et équipements
+2084|Réseaux extérieurs
+2085|à partir de {n} ₸/piquage
+2086|à partir de {n} ₸/capteur
+2087|à partir de {n} ₸/u.
+2088|à partir de {n} ₸/kit
+2089|à partir de {n} ₸/m
+2090|à partir de {n} ₸/m²
+2091|à partir de {n} ₸/m³
+2092|à partir de {n} ₸/ml
+2093|à partir de {n} ₸/appareil
+2094|à partir de {n} ₸/poste
+2095|à partir de {n} ₸/t
+2096|à partir de {n} ₸/point
+2097|à partir de {n} ₸/prestation
+2098|à partir de {n} ₸/u.
+2099|Plomberie et alimentation en eau
+2100|Isolation thermique et étanchéité
+2101|Méthode non prise en charge
+2102|Utilisateur introuvable
+2103|Avec plaisir ! Si vous avez des questions sur le chantier ou les prix, je suis là
+2104|Sälem ! Je suis LinkVeAI, l'assistant IA de QazGost. Je vous indique les prix des travaux et des matériaux, je vous explique comment obtenir un devis sur photo, je trouve une équipe ou des engins. Que construisons-nous ou rénovons-nous
+2105|poste
+2106|tonne
+2107|Je n'ai pas trouvé de poste exact pour cette demande dans la base. Soyez plus précis — type de travaux ou matériau et quantité, par exemple « enduit des murs {n} m² » ou « béton M{n} m³ ». Le devis complet avec travaux et matériaux sera établi par [Devis sur photo](auth:register)
+2108|unité
+2109|J'aide pour la construction et la rénovation : prix des travaux et des matériaux, devis sur photo, contrôle des fissures, recherche d'équipes et d'engins. Écrivez ce qu'il faut faire, par exemple « combien coûte une chape de {n} m² » ou « il me faut une pelleteuse pour un poste »
+2110|E-mail ou mot de passe incorrect
+2111|Impossible d'enregistrer le mot de passe
+2112|Impossible d'enregistrer le mot de passe, réessayez
+2113|Données d'inscription incorrectes
+2114|Numéro de téléphone incorrect : format +{n} et {n} chiffres requis
+2115|Format de requête incorrect
+2116|Authentification requise
+2117|Erreur de génération du jeton
+2118|Erreur de création de l'utilisateur
+2119|le mot de passe doit comporter au moins {n} caractères
+2120|Le mot de passe doit comporter au moins {n} caractères
+2121|Mot de passe défini, connexion effectuée
+2122|Mot de passe modifié, mais impossible d'ouvrir une nouvelle session — connectez-vous avec le nouveau mot de passe
+2123|Mot de passe obligatoire
+2124|Un utilisateur avec cet e-mail existe déjà
+2125|Inscription terminée
+2126|Session expirée
+2127|Champs d'inscription trop longs
+2128|mot de passe trop long
+2129|Mot de passe trop long
+2130|Trop de tentatives de connexion échouées. Réessayez dans {n} min
+2131|Trop de tentatives échouées. Réessayez dans {n} min
+2132|Indiquez l'e-mail au format name@example.kz
+2133|Indiquez le numéro de téléphone
+2134|Connexion réussie
+2135|Pour vous inscrire, acceptez les conditions d'utilisation et donnez votre consentement au traitement des données personnelles
+2136|C'est votre première connexion : créez votre mot de passe et saisissez-le —
+2137|ce mot de passe est trop simple ou trop connu
+2138|Requête incorrecte
+2139|Pas de géométrie : fermez le contour ou saisissez la surface et le périmètre
+2140|Surface supérieure à {n} m² — vérifiez l'échelle du contour
+2141|Hauteur supérieure à {n} m — vérifiez la saisie (il s'agit de la hauteur des murs, pas de toute la maison)
+2142|Nombre d'ouvertures incorrect
+2143|Ensemble de travaux inconnu
+2144|Pas de fiche technologique pour la catégorie «
+2145|La quantité de chaque poste est calculée d'après la géométrie du contour et les consommations des fabricants
+2146|prix du marché, avec la source sur chaque ligne ; le coefficient régional est appliqué aux travaux et aux matériaux
+2147|les scénarios diffèrent par la composition des travaux et la marque des matériaux
+2148|Une seule équipe, les étapes se suivent ; les délais incluent les pauses technologiques (séchage, prise). Rendement selon les normes ENiR/la pratique des équipes
+2149|Ouvertures : portes {n} × {n}×{n} m, fenêtres {n} × {n}×{n} m — déduites de la surface des murs
+2150|La réserve de {n} % pour imprévus est indiquée séparément et n'entre pas dans le coût des postes
+2151|Le reste est une estimation calculée par QazGost : vérifiez ces lignes auprès du fournisseur
+2152|Écart notable — vérifiez la composition des travaux
+2153|En « Économique », le stratifié est posé sans nouvelle chape : c'est acceptable seulement si le défaut de planéité du support ne dépasse pas {n} mm sur {n} m
+2154|En « Économique », le carrelage est posé sans nouvelle chape : les écarts du support jusqu'à {n} mm sont rattrapés par la colle, au-delà il faut une chape
+2155|En « Économique », les murs ne sont pas dressés sur repères — seulement un enduit sur la surface existante. Convient si l'écart des murs ne dépasse pas {n} mm
+2156|Comparaison avec la base de référence QazGost : {n} postes ont au moins {n} équivalents, dont {n} avec un prix dans la fourchette de la base (de ½ du quartile inférieur à {n} × le supérieur, hors valeurs aberrantes)
+2157|Pour {n} postes, le prix de la base diffère nettement — le devis conserve le prix du référentiel avec sa source, l'analyse est dans le tableau de comparaison
+2158|pot
+2159|Travaux « Standard » : {a} ₸/m² de sol. Prix moyen des travaux de base gros œuvre et finitions au Kazakhstan — {n}–{n} milliers de ₸/m² (Bizmedia/OLX, juin {n})
+2160|Contour très allongé : pour un périmètre de {a} m, la surface n'est que de {b} m². Si ce n'est pas un couloir, vérifiez les points
+2161|La surface de {a} m² dépasse le maximum possible pour un périmètre de {b} m ({c} m²) — vérifiez le contour
+2162|Une surface de {a} m² est impossible avec un périmètre de {b} m (maximum {c} m²) — vérifiez les dimensions
+2163|{a} % du montant « Standard » — aux prix de grilles et d'annonces publiques avec lien
+2164|Les ouvertures occupent {a} % des murs — vérifiez le nombre de fenêtres et de portes
+2165|La ville « {a} » n'est pas dans le référentiel — calcul aux prix d'Almaty
+2166|Une hauteur de {a} m est atypique pour une pièce (habituellement {n}–{n} m)
+2167|Prix d'Almaty recalculés pour {a} avec le coefficient {b}
+2168|Géométrie cohérente : {a} m² pour un périmètre de {b} m
+2169|novembre {n}
+2170|Tarifs « Proff-Remont », Almaty, {n}
+2171|Tarifs « Rekrovli », Almaty, {n}
+2172|Satu.kz, offres des vendeurs, {n}
+2173|OLX.kz, annonces, {n}
+2174|Kaspi Annonces, Almaty, {n}
+2175|Bizmedia.kz d'après OLX, juin {n}
+2176|Tarifs « Silver-Remont », Almaty
+2177|Estimation QazGost
+2178|Dépose de l'enduit des murs
+2179|Dépose du carrelage mural
+2180|Dépose du revêtement de sol (stratifié, linoléum, dalles PVC)
+2181|Dépose du carrelage de sol
+2182|Décollage du papier peint
+2183|Démolition d'une cloison en demi-brique
+2184|Dépose d'un bloc-porte en bois
+2185|Démolition mécanisée d'un bâtiment (au volume bâti)
+2186|Chargement et évacuation des gravats (benne jusqu'à {n} m³)
+2187|Primaire d'accrochage à pénétration profonde pour murs
+2188|Enduit des murs sur repères
+2189|Enduit de lissage et ponçage des murs (une couche)
+2190|Peinture des murs en {n} couches
+2191|Pose de papier peint intissé
+2192|Pose de papier peint vinyle sur intissé
+2193|Carrelage mural
+2194|Montage d'une cloison en plaques de plâtre
+2195|Pose d'isolant acoustique dans la cloison en plaques de plâtre
+2196|Enduit plâtre Knauf Rotband, {n} kg
+2197|Primaire acrylique Remalux, {n} L
+2198|Enduit de jointoiement plâtre Knauf Fugen, {n} kg
+2199|Enduit de finition AlinEX Glatt Plus, {n} kg
+2200|Peinture intérieure Gaudi « Blanche-Neige », {n} kg
+2201|Peinture intérieure Gaudi Standart, {n} kg
+2202|Peinture intérieure Remalux, {n} kg
+2203|Papier peint intissé Pure Rose, rouleau {n}×{n} m
+2204|Colle pour papier peint intissé (paquet pour {n} m²)
+2205|Prix de détail d'un paquet de colle Quelyd/Metylan à Almaty
+2206|Plaque de plâtre hydrofuge Knauf {n} mm, {n}×{n} m
+2207|Montant PS {n}×{n}, {n} m ({n} ₸/m)
+2208|Fourrure de plafond Knauf PP {n}×{n}, {n} m
+2209|Colle à carrelage Ceresit CM {n} Plus, {n} kg

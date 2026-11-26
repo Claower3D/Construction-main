@@ -1,0 +1,240 @@
+1490|Attivo
+1491|Accedi per salvare i preventivi
+1492|Smaltimento rifiuti
+1493|Cartongesso
+1494|Ospite
+1495|Demo dell'app
+1496|Calcolo dimostrativo di esempio
+1497|Kenesary {n} · in ispezione
+1498|m² ·
+1499|m² · Astana · prezzi {n}
+1500|Meno
+1501|Trova una squadra
+1502|Nuovo preventivo
+1503|Individuo il tipo di lavoro
+1504|Inviato a {n} squadre ad Astana
+1505|Ufficio, Turan {n}
+1506|Seleziono i prezzi per Astana
+1507|Tinteggiatura delle pareti
+1508|Verifica la foto
+1509|Perdita vicino alla colonna montante
+1510|Riconoscimento
+1511|Scatta una foto
+1512|Preventivo PDF salvato
+1513|Fotografa la parete per intero
+1514|Parete · {n} m²
+1515|Genera il verbale
+1516|Calcolo superficie e volumi
+1517|Syganak {n} · {n} mm
+1518|Fessura · {n}%
+1519|Fessura nell'intonaco
+1520|Posa di piastrelle
+1521|Ampiezza dell'apertura
+1522|Intonacatura delle pareti
+1523|Lingua
+1524|Apri: {a}
+1525|Nessuna categoria per «{a}». Prova con un'altra parola
+1526|{n} prezzi unitari in {a} categorie ai prezzi del {n}
+1527|Intervallo: {a} – {b} ₸
+1528|{n} caratteri (ad esempio, {n})
+1529|{n}. Fatto
+1530|{n}. Contatti
+1531|{n}. Progetto
+1532|{n}. Tipo di cliente
+1533|Attiva il VIP per {n} ₸ / mese
+1534|Profilo cancellato
+1535|Piscina / sauna
+1536|BIN / IIN dell'azienda
+1537|Modelli rapidi
+1538|Vuoi davvero cancellare tutto il profilo
+1539|Aggiungi i tuoi mezzi speciali, collegali ai cantieri e noleggiali direttamente
+1540|Strada / piazzale
+1541|Disponibile con lo stato VIP
+1542|Altro
+1543|Recinzione / cancello
+1544|Carica una foto
+1545|Compilazione del profilo
+1546|Quale progetto ti interessa
+1547|Ristrutturazione completa di un appartamento di {n} m² 'chiavi in mano'
+1548|Dati di contatto
+1549|Manager personale {n}/{n}
+1550|Le mie squadre
+1551|I miei mezzi
+1552|Descrivi il tuo progetto
+1553|Ufficio / negozio
+1554|Attivazione dell'accesso VIP
+1555|Attiva il VIP
+1556|Abbonamento VIP attivato con successo
+1557|Pubblica senza limiti il tuo parco mezzi, seguilo via GPS e ricevi ordini senza commissioni
+1558|Priorità nei risultati per i clienti
+1559|Magazzino / officina
+1560|Salva il profilo
+1561|Tipo di cliente
+1562|TOO 'QazStroyGroup'
+1563|TOO, DI, SpA — pagamento con bonifico, documenti contabili
+1564|Posa di autobloccanti e installazione di una recinzione di {n} m
+1565|Gestione del profilo personale e dei requisiti
+1566|Gestisci fino a {n} squadre contemporaneamente, genera permessi di lavoro automatici e tieni un rendiconto finanziario
+1567|Gestisci le tue squadre verificate, nomina capicantiere e distribuisci le fasi
+1568|Persona fisica
+1569|Foto del profilo caricata con successo
+1570|Vogliamo costruire una casa di {n} piani di {n} m² con tetto piano
+1571|Vogliamo costruire una casa a due piani di {n} m² con garage. Terreno nella zona di Besagash
+1572|Cliente privato, costruzione o ristrutturazione per sé
+1573|Più la descrizione è dettagliata, più saranno precisi il calcolo automatico del preventivo e la scelta degli esecutori
+1574|Esportazione dei preventivi in Excel e {n}C
+1575|Persona giuridica
+1576|Indirizzo di residenza / dell'immobile
+1577|Ivanov Ivan Ivanovich
+1578|via Abay, n. {n}, int. {n}
+1579|Foto del profilo • JPG, PNG (clicca per scegliere)
+1580|Profilo salvato! Completato al {a}%
+1581|, compreso il trasferimento all'estero, secondo l'
+1582|Aigerim Saparova
+1583|Do il mio
+1584|Ho almeno {n} anni e accetto i
+1585|informativa sulla privacy
+1586|termini d'uso
+1587|Registrazione — QazGost AI
+1588|consenso al trattamento dei dati personali
+1589|Account: {a}. Per crearne un altro, esci prima da questo
+1590|Mezzi speciali ({a})
+1591|» non c'è nulla. Prova un'altra parola o descrivi il lavoro: il tipo verrà individuato dalla descrizione
+1592|(prezzi base)
+1593|CSV con tutte le sezioni
+1594|Asfaltatura
+1595|Pavimentazione in cubetti
+1596|Rapido
+1597|Scelta rapida della chiave di sistema
+1598|Il tuo account è collegato
+1599|La tua chiave API ChatGPT personale è stata salvata
+1600|La tua chiave segreta OpenAI personale
+1601|Inserisci la chiave API da verificare
+1602|Inserisci un'email valida del tuo account ChatGPT personale
+1603|Inserisci la password del tuo account OpenAI / ChatGPT
+1604|distinta di acquisto dei materiali
+1605|Tipo di lavoro non scelto
+1606|Videosorveglianza
+1607|tipi di lavori e
+1608|Accedi con il tuo account OpenAI per calcolare i preventivi con il tuo piano
+1609|tutto ciò che include il rapido
+1610|tutto ciò che include il dettagliato
+1611|Accesso all'account ChatGPT personale
+1612|Sei uscito dall'account ChatGPT
+1613|scegli il tipo di lavoro
+1614|Scegli il tipo di lavoro
+1615|Selezionata la chiave n. {n}: preventivi dettagliati & Luna-Tera
+1616|Selezionata la chiave n. {n}: rilevamento difetti & Vision
+1617|Scegli manualmente
+1618|Impianto gas
+1619|città
+1620|città
+1621|città
+1622|programma dei lavori per fasi con pause
+1623|Porte e arredi
+1624|Demolizione
+1625|Pavimentazione in legno
+1626|Dettagliato
+1627|Calcolo dettagliato GPT-{n}o
+1628|Difetti & base
+1629|Progetto di interior design
+1630|Caricamento del prontuario
+1631|Richiesta n.
+1632|Analisi IA delle foto — con la chiave OpenAI del server o la tua
+1633|L'analisi IA delle foto non è stata eseguita: al server non è collegata una chiave OpenAI. Collega la tua chiave con il pulsante «Chiave OpenAI» — il preventivo non ne dipende
+1634|L'analisi IA delle foto non è stata eseguita: nessuna connessione al server
+1635|Analisi IA delle foto, se è collegata una chiave OpenAI
+1636|Un ingegnere ti contatterà per venire a misurare e precisare il preventivo
+1637|Ingegneria
+1638|Totale ·
+1639|Come procediamo
+1640|Chiave n. {n} (Vision)
+1641|Chiave n. {n} (Preventivi)
+1642|Chiave OpenAI
+1643|Chiave OpenAI collegata: l'IA analizzerà le foto
+1644|Chiave valida! Connessione all'API IA stabilita
+1645|Pacchetto
+1646|pacchetti
+1647|Pacchetti
+1648|Climatizzazione
+1649|contorno
+1650|Scale
+1651|m ·
+1652|Rete idrica esterna
+1653|non scelto
+1654|Non so cosa scegliere: individualo dalla descrizione
+1655|Impossibile calcolare il preventivo
+1656|Calcoli recenti
+1657|La rete neurale GPT-{n}o usa la tua sessione personale per verificare preventivi e difetti
+1658|nessuna misura
+1659|Nessuna misura: traccia l'ambiente sulla griglia, sulla pianta o inserisci lunghezza e larghezza
+1660|Rilievo
+1661|rilevare le misure
+1662|misura l'ambiente
+1663|Opere edili generali
+1664|quantità dal rilievo e dai consumi normativi
+1665|Finestre
+1666|descrivi il lavoro al passaggio {n}
+1667|Descrivi il lavoro al passaggio {n}: il tipo verrà individuato dalle parole
+1668|Rimanente
+1669|Finitura delle pareti
+1670|Apri la sezione «I miei ordini»
+1671|È aperta la finestra ufficiale di autorizzazione ChatGPT. Inserisci la tua email
+1672|inviata al manager
+1673|Ordina in base al preventivo
+1674|Errore di verifica della chiave
+1675|Errore di rete
+1676|Errore di rete durante la verifica dell'API
+1677|Ricalcola
+1678|Ricalcola il preventivo
+1679|Perimetro · pareti
+1680|Chiave API personale
+1681|Per la ricerca «
+1682|dalla descrizione
+1683|Impossibile individuare il tipo di lavoro dalla descrizione. Descrivi il lavoro più in dettaglio o scegli una categoria manualmente
+1684|Allarme antincendio
+1685|Ricerca del tipo di lavoro
+1686|Completo
+1687|Pavimenti e piastrelle
+1688|La chiave GPT personale è stata rimossa. Si usa la chiave di sistema
+1689|Soffitti
+1690|Verifica la connessione
+1691|verifica della geometria e del riferimento di mercato
+1692|Verifica e collegamento del tuo account ChatGPT
+1693|Continua
+1694|Altro
+1695|Altri lavori
+1696|Modalità di analisi
+1697|confronto dei prezzi con la banca dati QazGost
+1698|Connessione all'IA verificata
+1699|Preventivo secondo la scheda tecnologica: la quantità di ogni voce viene dalle tue misure, il prezzo da listini e annunci, con la fonte in ogni riga
+1700|Preventivo salvato in CSV
+1701|Salva la chiave
+1702|Lavori speciali
+1703|Il prontuario si sta ancora caricando: attendi qualche secondo
+1704|caricamento del prontuario
+1705|Prontuario non disponibile
+1706|Calcolo del preventivo e analisi delle foto
+1707|Calcolo del preventivo secondo la scheda tecnologica
+1708|tre scenari con diverse composizioni dei lavori
+1709|Isolamento della facciata
+1710|Foto e descrizione
+1711|prezzo e fonte in ogni riga
+1712|prezzi di Almaty ×
+1713|Cosa facciamo
+1714|Scegli una foto dell'immobile
+1715|fino a {n} foto · la pianta si può tracciare al passaggio {n}; nelle modalità «Dettagliato» e «Completo» l'IA analizzerà le foto
+1716|Aggiungi una foto dell'immobile o della pianta
+1717|Ad esempio: bagno {n}×{n} m, rimuovere le vecchie piastrelle, posare gres porcellanato, installare un box doccia
+1718|Chiave errata
+1719|Descrizione del lavoro
+1720|Rilascia i file
+1721|sezione
+1722|sezioni
+1723|sezioni
+1724|Il calcolo avviene sul server QazGost secondo schede tecnologiche; nulla viene inventato o inserito «a occhio»
+1725|Lavori: {a} ₸ Materiali: {b} ₸ Totale: {c} ₸ Con riserva del {n}%: {d} ₸ Prezzi al {e}
+1726|Preventivo QazGost [{a}], {b}, {c} m². Lavori {d} ₸, materiali {e} ₸, riserva {f} ₸
+1727|L'analisi IA delle foto non è stata eseguita: il server ha risposto {a}{b}
+1728|Account ChatGPT ({a}) collegato con successo
+1729|Preventivo QazGost: {a} ({b}) {c}, {d} m²

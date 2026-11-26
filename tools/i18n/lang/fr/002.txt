@@ -1,0 +1,260 @@
+530|Sälem ! Je suis LinkVeAI. Je calcule un devis ou je vous indique des prix ?
+531|Demandez des prix, un devis, une équipe…
+532|Message pour LinkVeAI
+533|Ouvrir le chat avec LinkVeAI
+534|Chat avec LinkVeAI, l'assistant IA de QazGost
+535|Fermer le chat
+536|Réduire le chat avec LinkVeAI
+537|Masquer l'astuce
+538|Activer la voix
+539|Désactiver la voix
+540|Voix activée
+541|Lire les réponses à voix haute
+542|Dicter
+543|Arrêter l'enregistrement
+544|Parlez…
+545|À l'écoute…
+546|Réflexion…
+547|Rédaction de la réponse…
+548|Parle…
+549|LinkVeAI écrit
+550|Recommencer
+551|La connexion a été perdue, la réponse n'est pas arrivée. Vérifiez Internet et renvoyez votre question.
+552|Combien coûte une chape ?
+553|Il y a une fissure dans le mur, que faire ?
+554|Devis sur photo : comment ça marche ?
+555|Comment calculer la section de câble et le chauffage ?
+556|Combien coûte le ciment M500 ?
+557|Combien coûte une pelleteuse par poste ?
+558|Combien coûte l'enduit de 60 m² de murs ?
+559|tenges
+560|Chargement du catalogue
+561|Recherche de matériaux
+562|Recherche de matériaux : ciment, armatures, briques, plaques de plâtre...
+563|Livraisons directes des usines du Kazakhstan. Prix de gros et de détail, certificats qualité GOST/ST RK, calculateur de quantités et livraison rapide sur chantier.
+564|Catégorie de matériaux
+565|Toutes les catégories
+566|Tous les matériaux
+567|Catégorie
+568|Filtres
+569|Filtres du catalogue
+570|Réinitialiser les filtres
+571|Tri
+572|Trier :
+573|Tri des résultats
+574|Par popularité
+575|Par note
+576|Prix croissant
+577|Prix décroissant
+578|Plus récents
+579|Prix maximum, ₸
+580|Prix max. (unitaire)
+581|Options de livraison
+582|Avec livraison
+583|Livraison sur chantier
+584|Retrait
+585|Retrait en entrepôt
+586|Livraison
+587|Appel d'offres en gros (demande de prix)
+588|Calculateur IA des besoins (BOM)
+589|matériaux dans le catalogue de prix
+590|articles
+591|Sans acompte
+592|paiement au fournisseur après confirmation
+593|Prix sur demande
+594|Prix non indiqué — contactez le propriétaire
+595|Électricité et câbles
+596|Énergie
+597|Plaques de plâtre et finitions
+598|Peintures et vernis
+599|Éléments en béton armé, anneaux, regards
+600|Éléments en béton armé, anneaux, regards et supports (TABYS-ASM, Medina)
+601|Sable, gravier, béton
+602|Toiture et façade
+603|Isolation thermique et étanchéité
+604|Alimentation en eau
+605|Armatures et métal
+606|Fixations et quincaillerie
+607|Plomberie et tuyaux
+608|Béton/mortier
+609|Briques et blocs
+610|Ciment et mélanges
+611|Revêtements de sol
+612|Transport
+613|Pelleteuses, grues, bennes et pompes à béton au poste ou à l'heure. Réservation sans acompte : le propriétaire bloque la date, vous convenez du paiement directement avec lui.
+614|Rechercher un engin, un modèle ou une caractéristique (par ex. : Hitachi, 25 t)...
+615|Filtres des engins
+616|Publier un engin
+617|Mon parc
+618|Mes locations
+619|Demandes d'engins
+620|Terrassement
+621|Forage
+622|Levage
+623|Routier
+624|Engins de terrassement
+625|Engins de levage
+626|Pelleteuses et chargeuses
+627|Grues mobiles et bennes
+628|Grue
+629|Disponibles aujourd'hui
+630|Uniquement disponibles aujourd'hui
+631|Occupé aujourd'hui — choisissez d'autres dates
+632|Disponible
+633|En location
+634|En attente d'une équipe
+635|Avec opérateur
+636|Prix par poste
+637|Au poste
+638|Location au poste
+639|À l'heure
+640|Poste
+641|poste
+642|Trajet
+643|Par trajet
+644|Sans limite
+645|Sans restriction
+646|Rayon de recherche
+647|Recherche par ville
+648|Réserver
+649|Choisir les dates
+650|annonces
+651|paiement
+652|au propriétaire
+653|livraison
+654|sur chantier
+655|Aucun avis
+656|jusqu'à
+657|pour
+658|km
+659|m²
+660|Grue mobile XCMG 25 tonnes
+661|Foreuse URB-2A2
+662|Pelleteuse sur chenilles CAT 320D (1.2 m³)
+663|Tractopelle JCB 3CX Super
+664|Trouver un travail ou un service
+665|Ce que vous obtenez
+666|Quoi ajouter
+667|Photo ou vidéo du bien
+668|Chef d'équipe et composition
+669|Gagnez de l'argent avec des chantiers
+670|Plan → 3D
+671|Le plan d'étage devient un modèle 3D : volumes des murs et des planchers, export des plans, affichage via l'appareil photo du téléphone
+672|Téléversez un plan d'étage et obtenez un modèle 3D du bâtiment, les volumes des murs et des planchers, un plan et un modèle pour l'appareil photo du téléphone.
+673|Téléverser un plan
+674|Dessiner de zéro
+675|Essayer sur un exemple
+676|Mes modèles
+677|Ouvrir un fichier de projet
+678|Plan
+679|Volumes
+680|Caméra
+681|Fichiers
+682|Sélection
+683|Mur
+684|Porte
+685|Fenêtre
+686|Échelle
+687|Nouveau
+688|Copie d'étage
+689|Étage vide
+690|Étage
+691|Bâtiment
+692|Nouveau mur
+693|Total du modèle
+694|Métré
+695|Exporter vers Excel
+696|Viser avec la caméra
+697|Afficher la maquette
+698|Placer sur le terrain
+699|Ce qui compte comme mur
+700|Déplacer vers l'étage
+701|Remplacer les murs de l'étage
+702|Téléverser un plan pour cet étage
+703|Supprimer le mur
+704|Supprimer l'ouverture
+705|Supprimer l'étage
+706|Murs
+707|Planchers
+708|Vitrage
+709|Points A et B
+710|Plans, modèle et métré
+711|Dalle du rez-de-chaussée
+712|Session expirée. Reconnectez-vous : c'est ainsi que nous protégeons votre compte.
+713|Pas de connexion au serveur. Vérifiez Internet et réessayez — le compte n'a pas encore été créé.
+714|Le serveur est temporairement indisponible. Réessayez dans une minute — le compte n'a pas encore été créé.
+715|Trop de tentatives de connexion. Patientez quelques minutes.
+716|Trop de tentatives d'inscription. Patientez une minute.
+717|Exemple
+718|Des exemples sont affichés ici
+719|Le panneau d'administration n'est encore qu'une maquette
+720|Les demandes, biens et montants de cette page sont un exemple pour montrer le fonctionnement de la section. Ce ne sont pas vos données ; vos propres saisies sont conservées uniquement dans ce navigateur.
+721|Les demandes, biens, équipes et montants de cette section sont un exemple pour montrer son fonctionnement. Ce ne sont pas vos données. Les entrées que vous ajoutez vous-même sont conservées uniquement dans ce navigateur.
+722|Les biens, budgets, entrepreneurs, lots et documents de cette section sont un exemple pour montrer son fonctionnement. Ce ne sont ni vos données ni de vraies entreprises. Les biens que vous ajoutez vous-même sont conservés uniquement dans ce navigateur.
+723|Le résumé, la file de modération, les utilisateurs, les documents et les compteurs « en direct » de ces onglets sont des exemples. Ils ne sont pas chargés depuis le serveur, et les modifications de prix, d'utilisateurs et de documents n'y sont pas enregistrées. Les vrais comptes, commandes et la base de prix sont stockés dans la base de données du serveur.
+724|● Base de prix connectée
+725|⚠️ Base de prix indisponible
+726|⏳ Vérification de la connexion…
+727|Volumes de terre
+728|Volumes de terrassement
+729|Volume de fouille selon les dimensions, trajets de bennes et coût d'excavation et d'évacuation des terres
+730|Volume de fouille selon les dimensions, trajets de bennes, postes de pelleteuse et coût des travaux
+731|📐 Calculer le volume
+732|La demande de terrassement a été envoyée au gestionnaire. Aucun acompte n'est prélevé : vous convenez du paiement avec l'entrepreneur.
+733|La demande est enregistrée uniquement sur cet appareil. Connectez-vous pour l'envoyer au gestionnaire.
+734|Impossible de créer la demande. Réessayez.
+735|Le rattachement des employés par code d'entreprise ne fonctionne pas encore : le formulaire d'inscription n'a pas encore de champ pour ce code. La section fonctionnera avec cette fonction.
+736|Adresse légale
+737|BIN/IIN
+738|Non indiqué
+739|Bienvenue sur QazGost AI
+740|Commencez par un devis sur photo ou un contrôle des défauts. Les offres des prestataires et les statuts des commandes apparaîtront ici.
+741|Remplissez votre dossier et ouvrez le fil des commandes. Les offres et la réception des étapes apparaîtront ici.
+742|Les demandes de contrôle technique et les résultats des vérifications apparaîtront ici.
+743|Les nouvelles demandes et les changements des affaires apparaîtront ici.
+744|Les demandes de vérification et les événements de la plateforme apparaîtront ici.
+745|Les commandes de l'entreprise et les invitations aux projets apparaîtront ici.
+746|maintenant
+747|Page introuvable
+748|Il n'y a rien à cette adresse : le lien contient peut-être une faute ou la section a été déplacée.
+749|Retour à l'accueil
+750|Ouvrir le catalogue des matériaux
+751|Litiges
+752|Chargement de la liste des litiges…
+753|La liste des litiges est stockée sur le serveur. Connectez-vous avec un compte administrateur ou gestionnaire pour la voir.
+754|Impossible de charger la liste des litiges. Actualisez la page ou reconnectez-vous.
+755|Aucun litige. Il n'est pas encore possible de déposer une réclamation via le site — la liste se remplira lorsque le formulaire de réclamation sur commande sera disponible.
+756|Litige
+757|Déposé par
+758|Motif
+759|Changement de mot de passe
+760|Changer le mot de passe
+761|🔑 Changer le mot de passe
+762|Nouveau mot de passe
+763|Mot de passe actuel
+764|Répétez le nouveau mot de passe
+765|Au moins 8 caractères
+766|Différent de celui utilisé sur d'autres sites
+767|Après le changement, les autres appareils seront déconnectés
+768|Enregistrement…
+769|Retour à l'espace personnel
+770|Mot de passe modifié
+771|Vous restez connecté sur cet appareil. Sur les autres appareils et applications, reconnectez-vous avec le nouveau mot de passe.
+772|Pour changer le mot de passe, connectez-vous d'abord.
+773|Ce compte se connecte via la liste commune de l'équipe, sans mot de passe personnel sur le serveur. Pour changer le mot de passe, contactez l'administrateur.
+774|Le nouveau mot de passe doit comporter au moins 8 caractères.
+775|Le nouveau mot de passe doit comporter au moins 8 caractères
+776|Le nouveau mot de passe et sa confirmation ne correspondent pas.
+777|Le nouveau mot de passe est identique à l'actuel.
+778|Le nouveau mot de passe est identique à l'actuel
+779|Mot de passe actuel incorrect
+780|Ce mot de passe est trop simple ou trop connu. Choisissez-en un autre
+781|Pas de connexion au serveur. Le mot de passe n'a pas été modifié — réessayez.
+782|Le serveur est temporairement indisponible. Le mot de passe n'a pas été modifié — réessayez dans une minute.
+783|Impossible de modifier le mot de passe.
+784|Le mot de passe avec lequel vous êtes connecté
+785|Encore une fois, pour éviter les erreurs
+786|{n} m²
+787|{n} postes
+788|₸/m²
+789|Arman Kassymov
