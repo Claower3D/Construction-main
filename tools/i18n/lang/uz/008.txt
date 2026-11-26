@@ -1,0 +1,364 @@
+2296|Metall suv oqizish tizimining karniz metriga hisoblangan oʻrtacha narxi
+2297|Fasad toʻri {n} g/m² (rulon {n} m² — {n} ₸)
+2298|Metall mixli tarelkasimon dyubel {n}×{n}
+2299|«Titan {n}» metall kirish eshigi
+2300|PVX deraza {n}×{n} m, montaj bilan
+2301|PVX deraza {n}×{n} m, premium profil, montaj bilan
+2302|Deraza tokchasi, oʻrnatish bilan
+2303|Tashqi suv qaytargich, oʻrnatish bilan
+2304|Sendvich-paneldan deraza yonliklari
+2305|Kirish eshigini montaj qilish
+2306|Quti va nalichniklari bilan xonalararo eshikni montaj qilish
+2307|NEAPOL xonalararo eshigi, ekoshpon, quti va nalichniklari bilan
+2308|A{n}C armatura Ø{n}
+2309|D{n} avtoklav gazoblok
+2310|STRONG gazoblok yelimi, {n} kg
+2311|Gazoblokdan devorlarni yelimga terish
+2312|{n} mm gacha gazobetondan pardevorlar terish
+2313|Lentali poydevor: qolip, armaturalash, betonlash
+2314|Monolit plita: qolip, armaturalash, betonlash
+2315|Qolip uchun yogʻoch material ({n} marta ishlatish)
+2316|Uch marta ishlatishni hisobga olib, {n} m² qolip shchiti uchun taxta va fanera
+2317|Shagʻal {n}–{n}, Olmaota boʻyicha yetkazib berish bilan
+2318|Operatorli mini-ekskavator
+2319|Gruntni qoʻlda qazish
+2320|Olmaota eʼlonlari boʻyicha yer qazuvchining smenasi {n}–{n} ming ₸, unumdorligi {n}–{n} m³
+2321|Gruntni samosval bilan olib chiqish
+2322|KAMAZ reysi ≈{n} ₸, {n} m³ yumshatilgan grunt uchun
+2323|Zichlash bilan qayta koʻmish
+2324|Mini-ekskavator va vibroplita texnika stavkasi boʻyicha
+2325|Tomni almashtirish: eski qoplamani demontaj qilish va yangisini montaj qilish
+2326|Suv oqizish tizimini montaj qilish
+2327|Stropila tizimi va obreshyotka
+2328|Olmaota eʼlonlari boʻyicha tom brigadalari stavkasi {n}–{n} ming ₸/m²
+2329|«Venetsiya» metall cherepitsasi
+2330|«SuperMonterrey» metall cherepitsasi, mat {n} mm
+2331|«SuperMonterrey» metall cherepitsasi, mat, Rossiya
+2332|MakWool P{n} mineral plitasi, {n} mm ({n} ₸/m³)
+2333|Izospan A shamol va namdan himoya membranasi (rulon {n} m² — {n} ₸)
+2334|{n}–{n}-nav ignabargli qirqilgan taxta
+2335|Qurilish havozalarini ijaraga olish va montaj qilish
+2336|Fasadning m² iga hisoblangan, montaj bilan bir oylik havoza ijarasi
+2337|Fasadni toʻr ustidan suvash
+2338|Kaspi eʼlonlari «fasad suvogʻi», Olmaota: {n}–{n} ₸/m², koʻpincha {n}
+2339|Fasadning «koroyed» dekorativ suvogʻi
+2340|Kaspi eʼlonlari, Olmaota: «koroyed» {n} ₸/m² dan, gruntovka va yonliklar bilan {n}–{n} ming ₸/m²
+2341|Fasadni {n} qatlam boʻyash
+2342|«Proff-Remont» narxnomasi boʻyicha devorlarni boʻyash {n} ₸/m², balandlikda ishlash ustamasi bilan
+2343|Fasadni issiqlik izolyatsiyalash: yelim, plita, dyubellar, armaturalovchi qatlam
+2344|IZOTERM P{n} fasad mineral plitasi, {n} mm ({n} ₸/m³)
+2345|Ceresit CT {n} mineral plita yelimi va armaturalovchi tarkib, {n} kg
+2346|Fasad sement suvogʻi, {n} kg
+2347|Olmaotada {n} kg sement suvogʻining oʻrtacha narxi
+2348|Ceresit CT {n} «koroyed» dekorativ suvogʻi, {n} kg
+2349|Fasad boʻyogʻi, {n} kg
+2350|Tayyorlangan asosga bruschatka yotqizish
+2351|Vibropresslangan bruschatka {n} sm
+2352|Trotuar bordyurini betonga oʻrnatish
+2353|Trotuar bordyuri {n}×{n}×{n}
+2354|Olmaota viloyati ishlab chiqaruvchilaridagi oʻrtacha narx
+2355|Asfaltlash (material va yotqizish)
+2356|Metall ayvon / karkas: tayyorlash va montaj
+2357|Lagalar ustiga yogʻoch toʻshama
+2358|Olmaota eʼlonlari boʻyicha duradgorlar stavkasi {n}–{n} ming ₸/m²
+2359|PND bosimli quvurni transheyaga yotqizish
+2360|Eʼlonlar boʻyicha brigadalar stavkasi, yer ishlarisiz
+2361|Suv uchun PND quvur {n} mm
+2362|PE{n} SDR{n} Ø{n} quvurning chakana narxi
+2363|Signalizatsiya datchigini oʻrnatish
+2364|IP {n} tutun xabarlagichining oʻrtacha narxi
+2365|Akkumulyatorli qabul-nazorat asbobi
+2366|{n}–{n} shleyfli asbobning oʻrtacha narxi
+2367|Kabel tortish bilan IP-kamerani montaj qilish
+2368|Kaspi eʼlonlari, Olmaota: kamera oʻrnatish {n}–{n} ₸; kabel tortish bilan — oraliqning yuqori yarmi
+2369|IP-kamera {n} MP
+2370|Boshlangʻich darajadagi IP-kameraning oʻrtacha narxi
+2371|{n} TB diskli videoregistrator
+2372|Satu: {n} kanalli Hikvision DS-{n}NI-Q{n}/M — disksiz {n}–{n} ₸, DS-E{n}NI-Q{n} {n} TB SSD bilan — {n} ₸
+2373|Kvartira interyeri dizayn-loyihasi
+2374|Uy interyeri dizayn-loyihasi
+2375|Interyerning {n}D vizualizatsiyasi
+2376|Geodezistning chiqishi, oʻqlarni belgilash
+2377|Yordamchi ishchi
+2378|Olmaota eʼlonlari boʻyicha yordamchi ishchi stavkasi smenaga {n}–{n} ming ₸
+2379|Zinapoya pogʻonasini keramogranit bilan qoplash
+2380|Yotqizish {n} ₸/m² «Proff-Remont» narxnomasi boʻyicha, kesish va burchak ochish bilan, pogʻonaga ≈{n} m²
+2381|Korpus mebelini yigʻish va oʻrnatish
+2382|Olmaota eʼlonlari boʻyicha mebel yigʻuvchilar stavkasi
+2383|Buyurtma asosida oshxona garnituri (LDSP/MDF)
+2384|Olmaota mebel sexlarida pogon metrning oʻrtacha narxi
+2385|Satu takliflari bir qopga {n}–{n} ₸ (noyabr {n})
+2386|Satu takliflari {n}–{n} ₸/m (noyabr {n})
+2387|Satu takliflari {n}–{n} ₸/m³, mediana {n} (noyabr {n})
+2388|OLX Talgʻar {n} ₸/t, Satu {n} ₸/t (oktabr–noyabr {n})
+2389|Ikki D{n} taklifining oʻrtachasi: Kaspi {n} va Satu {n} ₸/m³
+2390|Satu, Olmaota: kompakt-unitazlar {n}–{n} ₸ (noyabr {n})
+2391|OLX eʼlonlari, Olmaota: {n}–{n} ₸, M{n}–M{n} qopi uchun
+2392|OLX eʼlonlari {n}–{n} ₸/m²
+2393|Kaspi eʼlonlari {n}–{n} ₸/m²
+2394|Kaspi eʼlonlari {n}–{n} ₸/m², material bilan
+2395|Bizmedia/OLX: bir chiqish uchun {n}–{n} ₸
+2396|OLX: oʻrnatish bilan konditsioner {n} ₸ dan
+2397|Kaspi eʼlonlari «gazoblok terish», Olmaota
+2398|Kaspi, Olmaotada kafelchi: pol {n} ₸/m² dan; eʼlonlar oraligʻi {n}–{n}
+2399|Kaspi, Olmaotada kafelchi: devorlar {n} ₸/m² dan
+2400|Satu: {n} mm, {n} seksiya — {n} va {n} ₸, oʻrtachasi olindi
+2401|Satu, Olmaota: {n} ₸ dan (noyabr {n})
+2402|Kaspi, Olmaotada kafelchi: kafelni koʻchirish {n} ₸/m² dan; «Proff-Remont»da pollarni umumiy demontaj qilish — {n} ₸/m²
+2403|Satu, Olmaota: {n} ta {n}×{n} taklifi — {n}–{n} ₸/m², mediana {n} (noyabr {n})
+2404|Satu, Olmaota: {n}×{n} marmar koʻrinishli va oq — {n}–{n} ₸/m²; sahifa oraligʻi {n}–{n}
+2405|Satu: dyubellar {n}×{n} — {n}–{n} ₸; mineral paxta uchun metall mix kerak (FIX PLAST — {n} ₸)
+2406|Kaspi, Olmaota: xonalararo eshik oʻrnatish {n}–{n} ₸, koʻpincha {n}
+2407|«Proff-Remont» narxnomasi: yogʻoch eshikni olib tashlash — {n} ₸, metall eshikni — {n} ₸
+2408|Satu: flizelin gulqogʻozlar {n}×{n} m — rulonga {n}–{n} ₸, premium kolleksiyalar — {n} gacha
+2409|Satu va Kaspi, Olmaota: dush kabinasi oʻrnatish {n}–{n} ₸; «Proff-Remont»da — {n} ₸
+2410|Satu va Kaspi, Olmaota: armaturalovchi qatlamli mineral plita bilan devorlarni issiqlik izolyatsiyalash {n}–{n} ₸/m², kompaniyalarda {n} dan
+2411|Satu, Olmaota: bordyur oʻrnatish {n}–{n} ₸/p.m, takliflar medianasi {n}
+2412|Kaspi, Olmaota: chiqindini olib chiqish reysiga {n}–{n} ₸; yuqori chegara olindi — yuklash bilan
+2413|Kaspi, Olmaota: brigada ishi {n} ₸/m³; beton, armatura va qolip alohida qatorlarda hisoblangan
+2414|Satu, Olmaota: {n}-sinf {n} mm laminat — {n}–{n} ₸/m² (noyabr {n})
+2415|Satu, Olmaota: {n}-sinf «archa» laminati — {n}–{n} ₸/m²
+2416|Satu narxlari yigʻindisi: ShchRN-{n} shchiti — {n} ₸, {n} ta VA{n}-{n}P {n} A avtomat, har biri {n} ₸, VD{n}-{n}P {n} A UZO — {n} ₸
+2417|Satu, Olmaota: karyerda {n}–{n} ₸/m³; Olmaota va viloyat boʻyicha yetkazib berish bilan — {n} ₸/m³
+2418|Satu: Izospan A, rulon {n} m² — {n} ₸ ({n} ₸/m²)
+2419|Satu: toʻr {n} g/m², rulon {n} m² — {n} ₸ ({n} ₸/m²)
+2420|Satu: Solid tagqatlami {n} mm, oʻram {n} m² — {n} ₸ ({n} ₸/m²)
+2421|«Proff-Remont» narxnomasi: {n} mm gacha shtroba — {n} ₸/p.m, {n}–{n} mm — {n}; VVG {n}×{n} kabeli uchun {n}–{n} mm yetarli
+2422|ballon
+2423|kanistra
+2424|mash.-soat
+2425|Yoʻq
+2426|Ha
+2427|Xona konturi (pol)
+2428|Gulqogʻoz
+2429|Kafel
+2430|Suvoq qatlami
+2431|Mayaklar boʻyicha oʻrtacha qalinlik; devorlarning qiyshiqligiga bogʻliq
+2432|Gruntovka
+2433|gips suvogʻining qurishi
+2434|shpaklyovkaning qurishi
+2435|mayaklarsiz: mavjud yuzaga {n} qatlam shpaklyovka, Gaudi «Belosnejka» boʻyogʻi
+2436|mayaklar boʻyicha suvoq, {n} qatlam Fugen shpaklyovkasi, Gaudi Standart boʻyogʻi
+2437|mayaklar boʻyicha suvoq, {n} qatlam AlinEX Glatt Plus pardozi, Remalux boʻyogʻi
+2438|mayaklarsiz: {n} qatlam shpaklyovka, flizelin gulqogʻoz
+2439|mayaklar boʻyicha suvoq, {n} qatlam shpaklyovka, flizelin gulqogʻoz
+2440|mayaklar boʻyicha suvoq, Glatt Plus pardozi, flizelin asosli vinil gulqogʻoz
+2441|mayaklarsiz: mavjud yuzaga {n}×{n} keramogranit
+2442|mayaklar boʻyicha suvoq, marmar koʻrinishli {n}×{n} keramogranit
+2443|mayaklar boʻyicha suvoq, premium seriyali {n}×{n} keramogranit
+2444|+ {n}% kesishga
+2445|Shpaklyovka qatlamga ≈{n} kg/m²; boʻyoq {n} qatlam, har biri {n} kg/m²; har qatlamdan oldin gruntovka {n} L/m²
+2446|Pol konturi
+2447|Laminat
+2448|Keramogranit
+2449|Styajka qalinligi
+2450|Gidroizolyatsiya (sanuzel, oshxona)
+2451|gidroizolyatsiyaning qurishi
+2452|qoplamadan oldin yarim quruq styajkaning mustahkamlik olishi
+2453|mavjud asosga {n}–{n}-sinf laminat
+2454|yarim quruq styajka, {n}-sinf laminat
+2455|yarim quruq styajka, {n}-sinf laminat «archa» usulida
+2456|mavjud asosga {n}×{n} keramogranit
+2457|yarim quruq styajka, marmar koʻrinishli {n}×{n} keramogranit
+2458|yarim quruq styajka, premium seriyali {n}×{n} keramogranit
+2459|Shift konturi (= pol)
+2460|Shift turi
+2461|Tortma
+2462|Boʻyash uchun gipsokarton
+2463|Plita ustidan boʻyash
+2464|Nuqtali chiroqlar
+2465|Ularsiz
+2466|{n} ta / {n} m²
+2467|Karkas va qoplama
+2468|Tortma shift
+2469|Chiroqlar
+2470|mat tortma
+2471|satin tortma
+2472|yaltiroq tortma
+2473|gipsokarton, {n} qatlam shpaklyovka, Gaudi «Belosnejka»
+2474|gipsokarton, {n} qatlam shpaklyovka, Gaudi Standart
+2475|gipsokarton, Glatt Plus pardozi, Remalux boʻyogʻi
+2476|plita ustidan: {n} qatlam shpaklyovka, Gaudi «Belosnejka»
+2477|plita ustidan: {n} qatlam shpaklyovka, Gaudi Standart
+2478|plita ustidan: Glatt Plus pardozi, Remalux boʻyogʻi
+2479|Xona / kvartira konturi
+2480|{n} — meʼyor boʻyicha: {n} ta rozetka / {n} m perimetr
+2481|{n} — eshiklar soni boʻyicha
+2482|Shift chiroqlari
+2483|{n} — {n} ta / {n} m²
+2484|Yangi elektr shchiti
+2485|Shtroblash
+2486|Kabel yotqizish
+2487|Elektr oʻrnatish ishlari
+2488|simlarni VVGng-LS {n}×{n} kabeli bilan toʻliq almashtirish
+2489|simlarni almashtirish + nam zonalarga difavtomatlar
+2490|× nuqtaga ≈{n} m shtroba
+2491|× {n} m
+2492|× nuqtaga ≈{n} m kabel
+2493|× {n} m + {n}% zaxira
+2494|bitta shchit
+2495|{n} ta avtomat va UZO li shchit
+2496|{n} ta guruh: yoritish, xonalar boʻyicha rozetkalar, oshxona, hammom, plita, kir yuvish mashinasi
+2497|kirish UZO si
+2498|hammom va oshxonaga difavtomatlar
+2499|Elektr: nuqtaga ≈{n} m kabel va ≈{n} m shtroba; chiroq va qandillar — buyurtmachidan (smetada faqat montaj)
+2500|dush
+2501|kir yuvish mashinasi
+2502|suv isitgich
+2503|sochiq quritgich
+2504|nuqtalar
+2505|rakovina, vanna va dushga bittadan aralashtirgich
+2506|Santexnika va suv quvuri
+2507|Sanuzel / kvartira konturi
+2508|Unitaz
+2509|Kompakt
+2510|Installyatsiya
+2511|Tumbali rakovina
+2512|Vanna
+2513|Dush kabinasi
+2514|Kir yuvish mashinasi
+2515|Suv isitgich
+2516|Sochiq quritgich
+2517|Stoyakka ulanish
+2518|Suv taʼminoti nuqtalari
+2519|{n} — tanlangan asboblar boʻyicha
+2520|Quvurlarni tarqatish
+2521|tizimni bosim ostida sinash
+2522|arzon kompakt-unitaz
+2523|oʻrta segment kompakt-unitazi
+2524|yuqori segment unitazi
+2525|sovuq/issiq suv stoyagiga ulanish
+2526|; nuqtaga ≈{n} m quvur + {n}%
+2527|kompakt-unitaz
+2528|installyatsiya
+2529|unitazli installyatsiya
+2530|dush kabinasi
+2531|kir yuvish mashinasi (mashinaning oʻzi — buyurtmachidan)
+2532|suv isitgich {n} L
+2533|Santexnika: «nuqta uchun» ish quvur yotqizishni oʻz ichiga oladi; nuqtaga ≈{n} m PPR quvur
+2534|Isitiladigan maydon
+2535|{n} — issiqlik yoʻqotishlari va derazalar soni boʻyicha
+2536|Isitish quvurlari
+2537|bosim ostida sinash
+2538|{n} seksiyali bimetall radiatorlar
+2539|Konditsionerlash va ventilyatsiya
+2540|Xonalar konturi
+2541|Split-tizimlar
+2542|{n} — bitta {n} BTU / {n} m²
+2543|Tortuvchi ventilyatorlar
+2544|Konditsionerlar
+2545|belgilangan
+2546|sanuzellar va oshxona
+2547|Uy konturi
+2548|Uydagi gaz quvuri uzunligi
+2549|Gaz asboblari
+2550|Loyiha kerak
+2551|loyihani gaz xizmatida kelishish
+2552|Gaz quvurini montaj qilish
+2553|Asboblarni ulash
+2554|loyiha va kelishish
+2555|loyiha boʻyicha uzunlik
+2556|plita va qozon
+2557|Gaz: ishlarni faqat litsenziyali tashkilot bajaradi; narx texnik shartlardan keyin aniqlanadi
+2558|Xona konturi
+2559|Gulqogʻozni koʻchirish
+2560|Suvoqni koʻchirish
+2561|Devorlardan kafelni koʻchirish
+2562|Pol qoplamasini olib tashlash
+2563|Laminat, linoleum
+2564|Styajkani demontaj qilish
+2565|½ gʻishtli pardevorlarni buzish
+2566|Eshik bloklarini demontaj qilish
+2567|Imoratni buzish (qurilish hajmi)
+2568|demontaj hajmi barcha ssenariylarda bir xil
+2569|pardevorlar maydoni
+2570|eshik bloklari
+2571|binoning qurilish hajmi
+2572|Kotlovan / uchastka konturi
+2573|Qazish chuqurligi
+2574|Usul
+2575|Mini-ekskavator
+2576|Qoʻlda
+2577|Ortiqcha gruntni olib chiqish
+2578|Gruntni qazish
+2579|ishlar hajmi barcha ssenariylarda bir xil
+2580|Tashqi devorlar oʻqi boʻyicha kontur
+2581|Lenta kengligi
+2582|Lenta balandligi
+2583|Yer ustida
+2584|Ichki yuk koʻtaruvchi devorlar
+2585|kg/m³
+2586|Odatda {n}–{n} kg / {n} m³ lenta
+2587|Oʻqlarni belgilash
+2588|Qolip va armaturalash
+2589|beton mustahkamligining {n}% ini olish
+2590|M{n} beton, A{n}C armatura
+2591|oʻqlarni joyga chiqarish
+2592|transheya yon boʻshliqlari
+2593|Poydevor: beton mikserdan bevosita uzatiladi (avtobeton nasosisiz); lentaning gidroizolyatsiyasi va issiqlik izolyatsiyasi kiritilmagan
+2594|Monolit plita
+2595|Plita konturi
+2596|Grunt ustidagi plita
+2597|Yopma
+2598|Gazoblokdan devorlar terish
+2599|Tashqi devorlar konturi
+2600|Devor qalinligi
+2601|Pardevorlar {n} mm
+2602|Devorlarni terish
+2603|yelimga D{n} gazoblok
+2604|+ {n}% sinish va kesish
+2605|Terish: armobelbogʻ va peremichkalar «Monolit plita» boʻlimida hisoblanadi
+2606|Metall konstruksiyalar, ayvon
+2607|Ayvon / karkas konturi
+2608|Tayyorlash va montaj
+2609|Ayvon: eʼlonlardagi narx metall, boʻyash va montajni oʻz ichiga oladi; ustunlar ostidagi poydevorlar kiritilmagan
+2610|Toʻshama konturi
+2611|Lagalar va toʻshama
+2612|Rejadagi uy konturi
+2613|Nishablar qiyaligi
+2614|Tom chiqigʻi
+2615|Shakl
+2616|Ikki nishabli
+2617|Valmali
+2618|Yangi stropila tizimi
+2619|Issiqlik izolyatsiyali (mansarda)
+2620|Eski tomni demontaj qilish
+2621|Stropila tizimi
+2622|Membrana va issiqlik izolyatsiyasi
+2623|Tom qoplamasi
+2624|Suv oqizgich
+2625|«Venetsiya» metall cherepitsasi
+2626|«SuperMonterrey» metall cherepitsasi {n} mm
+2627|«SuperMonterrey» metall cherepitsasi (Rossiya)
+2628|valmali: karniz butun perimetr boʻylab
+2629|ikki nishabli: karniz ikki uzun tomon boʻylab ≈ perimetrning yarmi
+2630|Fasad balandligi
+2631|Havozalar
+2632|sement suvogʻining qurishi
+2633|Yakuniy pardoz
+2634|mavjud fasadni yangi suvoqsiz boʻyash
+2635|toʻr ustidan suvoq va {n} qatlam fasad boʻyogʻi
+2636|toʻr ustidan suvoq va «koroyed» dekorativ suvogʻi
+2637|armaturalovchi qatlamning qurishi
+2638|mineral plita {n} mm, «hoʻl fasad»
+2639|Issiqlik izolyatsiyasi: havozalar «Fasad ishlari» boʻlimida hisobga olinadi
+2640|konturdagi derazalar: {n}
+2641|{n} — konturdagi derazalar soni boʻyicha
+2642|Sendvichdan yonliklar
+2643|Yonliklar va deraza tokchalari
+2644|Montaj bilan PVX deraza
+2645|Premium profilli PVX deraza
+2646|Derazalar: narxnoma narxi — {n}×{n} m deraza uchun; kattaroq derazalar maydonga mutanosib ravishda qimmatroq
+2647|konturdagi eshiklar: {n}
+2648|Kvartira konturi
+2649|Xonalararo eshiklar
+2650|{n} — konturdagi eshiklar soni boʻyicha
+2651|Kirish eshigi
+2652|Oshxona garnituri
+2653|Mebel yigʻish
+2654|birl.
+2655|kirish eshigi
+2656|garnitur uzunligi
+2657|mebel buyumlari
+2658|Zinapoyani qoplash
+2659|Zina katagi konturi

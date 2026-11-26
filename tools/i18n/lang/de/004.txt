@@ -1,0 +1,290 @@
+1066|Der Baumaschinenkatalog ist nicht erreichbar (
+1067|Straßenwalze XCMG XS{n}J, {n} t, {n} m
+1068|km von Ihnen
+1069|Mobilbagger JCB JS{n}W, {n} t, {n} m³
+1070|Anzahl der Schichten
+1071|Dieselkompressor Atlas Copco XAS {n} ({n} m³/min)
+1072|Ladekran KAMAZ {n} (Kran {n} t, Pritsche {n} t)
+1073|Höchstpreis pro Schicht, ₸
+1074|Kompaktlader Bobcat S{n} + Hydraulikhammer / Kehrbesen
+1075|Minibagger Kubota U-{n}, {n} t, Löffel {n} m³
+1076|Zum Beispiel: CAT {n}D, Raupenbagger
+1077|Ungültige Serverantwort
+1078|Anzeige im Marktplatz veröffentlicht
+1079|Veröffentlichen
+1080|Wird bearbeitet
+1081|Kostenpflichtige Lieferung
+1082|Zu Ihrer Anfrage wurden keine Maschinen gefunden
+1083|Lader
+1084|Lockern Sie die Filter oder ändern Sie die Suchkategorie
+1085|Veröffentlichung
+1086|Suchradius, km
+1087|Eigene Maschine einstellen
+1088|Baumaschine einstellen
+1089|Das Einstellen ist nur mit einem Serverkonto möglich: Melden Sie sich mit dem Serverkonto an und versuchen Sie es erneut. Die Anzeige wurde nicht gespeichert
+1090|Entfernung
+1091|Mit Team
+1092|Mit Bohrgeräteführer
+1093|Mit Fahrer
+1094|Mit Fahrer und Bediener
+1095|Mit Kranführer
+1096|Mit Bediener (Maschinist)
+1097|Mit Besatzung
+1098|Kipper Shacman F{n}, {n} t, Volumen {n} m³
+1099|Alle Filter zurücksetzen
+1100|Sitzung ungültig: Melden Sie sich mit dem Serverkonto an und versuchen Sie es erneut
+1101|Zahlungsart
+1102|Teleskoplader Manitou MT {n} ({n} m, {n} t)
+1103|Die Telefonnummer des Eigentümers ist nach der Anmeldung sichtbar
+1104|Telefon des Disponenten
+1105|Maschine in Reparatur
+1106|Tieflader FAYMONVILLE ({n} t, Rampen)
+1107|Schwere Planierraupe CAT D{n}R, {n} t, Schild {n} m
+1108|In der Anzeige ist kein Preis angegeben — wenden Sie sich an den Eigentümer
+1109|Geben Sie Name, Telefon und Adresse des Objekts an
+1110|Geben Sie Marke und Modell der Maschine an
+1111|Geben Sie einen Preis pro Schicht über {n} an
+1112|Radlader XCMG ZL{n}G, {n} t, {n} m³
+1113|Preis pro Schicht, ₸
+1114|Der Preis pro Stunde darf nicht negativ sein
+1115|Preis pro Stunde, ₸
+1116|Stunde
+1117|Baggerlader JCB {n}CX Super, gleich große Räder
+1118|Energietechnik und Generatoren
+1119|Erdbohrgerät auf KAMAZ {n} (Bohren bis {n} m)
+1120|ja
+1121|Privater Eigentümer
+1122|Reservierung angelegt: {a} Schichten ab {b}. Der Eigentümer bestätigt sie im Tab der Anfragen
+1123|Miete {a} für {b} Schichten ab {c}{d}. Objekt: {e}. Bediener: {f}. Zahlung: {g}
+1124|Anfrage {a} an den Plattform-Manager übergeben
+1125|Der Server hat die Anzeige nicht angenommen: {a}
+1126|Miete {a} für {b} Schichten ab {c}{d}
+1127|Baumaschinenvermietung: {a}
+1128|Gefundene Anzeigen: {a}
+1129|Server nicht erreichbar: {a}
+1130|zu {a} (Reservierung {b})
+1131|Gefunden: {a}
+1132|{a} Bewertungen
+1133|{n} × {n} × {n} m
+1134|{n} m³
+1135|{n} Sack
+1136|{n} t
+1137|{a}, Koeffizient ×{b}. {c}, etwa {d} Tg.
+1138|Kostenvoranschlag_{a}.xlsx
+1139|{n} ₸ / m²
+1140|{n} ₸ / Fahrt
+1141|{n} ₸ / Schicht
+1142|{n} t (A{n}C {n}mm)
+1143|{n}. Vertrag Nr. {n}/{n} — Generalsanierung eines Büros (TOO „Almaty Business“) •
+1144|{n}. Vertrag Nr. {n}/{n} — Ortbetonfundament (IP „StroyMaster“) •
+1145|Autokran XCMG {n} Tonnen (Ausladung {n}m)
+1146|Automatische Berechnung der Arbeitsmengen und der Materialstückliste
+1147|Aktive Bauverträge
+1148|Bewehrte Spachtelung mit Glasvlies + Grundierung
+1149|Höhe / Dicke (m)
+1150|Länge (m)
+1151|Interaktives Werkzeug QazGost AI {n}
+1152|Marktplatz für Baumaschinenmiete und Baustoffeinkauf
+1153|Haarrisse im tragenden Putz
+1154|Systemmodul
+1155|Benötigte Menge an Betonstahl
+1156|Gering (oberflächlich)
+1157|Gesamtvolumen Beton/Boden
+1158|Sand-Schotter-Tragschicht
+1159|Oberfläche
+1160|Mit elektronischer Signatur unterzeichnet
+1161|Berechnete Mengen und Verbrauch
+1162|Register der Bauverträge und elektronische Schlichtung (E-Signatur E-Gov)
+1163|Frei
+1164|SNiP RK {n}-{n}-{n} (Pkt. {n})
+1165|Breite (m)
+1166|Baggerlader JCB {n}CX
+1167|Guthaben erfolgreich um {a} ₸ aufgeladen
+1168|vor {n} Stunden
+1169|+ Dateien auswählen
+1170|Bildanalyse mit TensorFlow Vision
+1171|Prüfung des Kostenvoranschlags für das Dach
+1172|Ohne Beschreibung
+1173|Gestern
+1174|Ausgewählte Dateien
+1175|Modul wird geladen
+1176|KI-Kalkulation nach den Normen ESN RK läuft
+1177|Technische Lösungen (zur Prüfung an den Ingenieur senden)
+1178|Wohnung
+1179|Komfort
+1180|In Moderation beim Manager (neue Anfrage)
+1181|Bezeichnung der Anfrage / des Objekts
+1182|Zum Beispiel: Bau einer Sauna {n}x{n}
+1183|Nicht zugewiesen
+1184|Beschreibung (optional)
+1185|Zur Prüfung des Auftrags an den Ingenieur gesendet
+1186|An den Manager übergeben (in Arbeit)
+1187|An den Manager übergeben (von Ihnen bestätigt)
+1188|Dateien anhängen (Zeichnungen, Fotos, Dokumente)
+1189|Anwendung der Kalkulationsnormen (ESN RK)
+1190|Prüfung der Planungsunterlagen des Fundaments
+1191|Erkennung tragender Bauteile und der Geometrie
+1192|Berechnung der Wärmeverluste des Gebäudes
+1193|Bau (zu „Meine Objekte“ hinzufügen)
+1194|Bau eines Einfamilienhauses {n}m²
+1195|Erstellen
+1196|Anfrage erstellen
+1197|Art der Anfrage
+1198|Erfordert Ihre Bestätigung (Antwort des Ingenieurs liegt vor)
+1199|Geben Sie die Auftragsdetails an
+1200|Abschlussbericht wird erstellt
+1201|Fehler von Vision AI: Das Bild wurde nicht als Bauobjekt oder Zeichnung erkannt (erkannt als "{a}"). Bitte laden Sie ein echtes Foto eines Raums, einer Fassade oder einen Plan hoch
+1202|Neue Anfrage vom Auftraggeber: {a}
+1203|Barbashin Maxim
+1204|Benachrichtigungen, neu: {a}
+1205|Wallet: {a} Tenge
+1206|Guthaben: {a} ₸
+1207|Sprache der Oberfläche
+1208|Sprache der Oberfläche
+1209|Kunde
+1210|Dienstleistung
+1211|Der offizielle Text des Dokuments ist auf Russisch verfasst
+1212|Fassung vom {a}
+1213|Länge
+1214|Fläche
+1215|{n} Tage
+1216|{n} Tage
+1217|{n} m² (Satteldach)
+1218|{n} m² (Dicke {n}mm)
+1219|{n}m × {n}m × {n}m
+1220|QTO-LISTE DER MATERIALIEN UND ARBEITEN
+1221|Almaty (SNiP RK ×{n})
+1222|Betonstahl gerippt A{n}C Ø{n}mm
+1223|Bewehrungsgitter aus Basalt
+1224|Bewehrungskorb A{n}C Ø{n}mm (GOST {n})
+1225|Astana (SNiP RK ×{n})
+1226|Schwerbeton M{n} (W{n}, F{n})
+1227|BETONARBEITEN
+1228|Nadelholzbalken {n}×{n}mm (Sparren)
+1229|Zurück zu den Mustern
+1230|Abdichtung mit Bitumen-Polymer-Bahn
+1231|Demo mit Musterzeichnungen
+1232|Ihre Zeichnung wurde geladen
+1233|Eigene Zeichnung hochladen
+1234|Interaktiver KI-Zeichnungsscanner & QTO-Rechner
+1235|MAUERARBEITEN
+1236|Karaganda (SNiP RK ×{n})
+1237|Mauern aus Porenbeton D{n}
+1238|Mauern der Außenwände mit Bewehrung
+1239|Kleber für Porenbeton (Säcke {n}kg)
+1240|DACHARBEITEN
+1241|Dach aus Metalldachziegeln {n}mm
+1242|Streifenfundament M{n}
+1243|Diffusionsoffene Dampf-/Feuchtigkeitsbahn
+1244|Metalldachziegel Monterrey {n}mm Ral {n}
+1245|Montage und Betonieren der tragenden Knoten
+1246|Bezeichnung der Ressource / Arbeit
+1247|Schalungssysteme & laminierte Schalplatte
+1248|AUSBAUARBEITEN
+1249|Fließmittel für Fußbodenheizungen
+1250|Halbtrockener Estrich mit Fasern
+1251|Berechnung nach den Normen SN RK {n}-{n}
+1252|Helles Gebäude (SNiP RK ×{n})
+1253|Protokoll KS-{n} herunterladen (Excel .xlsx)
+1254|Polypropylenfasern {n}mm
+1255|Zement PZ-{n} D{n} + gewaschener Sand
+1256|ZEICHNUNG DES NUTZERS (DWG/PDF)
+1257|Schymkent (SNiP RK ×{n})
+1258|Ortbetonkonstruktionen ({a})
+1259|Zeichnung: {a}
+1260|Anmeldung — QazGost AI
+1261|höher
+1262|Sack
+1263|auf
+1264|niedriger
+1265|Lager
+1266|Richtpreis
+1267|, Großhandel
+1268|, Richtpreis
+1269|. Ändern Sie die Anfrage oder setzen Sie die Filter zurück
+1270|. Präzisieren Sie Suche oder Kategorie, um die gesamte Auswahl zu sortieren
+1271|). Es werden Demo-Artikel gezeigt: Preise und Verfügbarkeit sind fiktiv
+1272|{n} km
+1273|KI-Bedarfsrechner für Baustoffe (BOM)
+1274|KI-Materialspezifikation erfolgreich berechnet
+1275|AlinEX / TOO „Alina Group“
+1276|Kaspi oder Überweisung an den Lieferanten nach Bestätigung
+1277|VERKEHRSLAST
+1278|Lieferadresse des Objekts
+1279|AKTION
+1280|Betonstahl A{n}C Ø{n} mm
+1281|Betonstahl gerippt A{n}C Ø{n} mm (Länge {n} m)
+1282|Mauerwerksbewehrungsgitter {n}×{n}
+1283|Betonwerk TOO „StroyMonolit KZ“
+1284|SCHNELLE LIEFERUNG
+1285|In den Warenkorb
+1286|VORRÄTIG
+1287|In dieser Kategorie gibt es keine Positionen
+1288|Valdai / MAN {n}t (mittlere Tonnage)
+1289|Ihr Warenkorb ist leer
+1290|Geben Sie die Grundmaße des Objekts ein — das neuronale Netz berechnet die genaue Materialspezifikation nach den Verbrauchsnormen SNiP RK
+1291|Rüttelbetonmast für Leitungen {n}–{n} kV
+1292|FEUCHTEBESTÄNDIG
+1293|Errichtung der Wände (Porenbeton + Kleber)
+1294|Alle berechneten Positionen wurden in den Warenkorb gelegt
+1295|Ganz Kasachstan
+1296|Wählen Sie Artikel aus dem Katalog und legen Sie sie in den Warenkorb
+1297|Höhenausgleich des Schachtdeckels
+1298|Hochfester Verbundschachtdeckel für Lkw-Verkehr
+1299|Bindedraht {n} mm
+1300|Almaty, Mikrobezirk Samal-{n}, Haus {n}
+1301|Gazelle {n}t (Lieferung in der Stadt)
+1302|Porenbetonstein {n}×{n}×{n} D{n}
+1303|Porenbetonstein autoklaviert „Ecoton“ D{n} ({n}×{n}×{n} mm)
+1304|Gipskarton Knauf feuchtebeständig GKLV ({n}×{n}×{n} mm)
+1305|Schachthals KS {n} (d={n}m, h={n}m)
+1306|Lieferstadt
+1307|GOST
+1308|GOST RK
+1309|GOST RK {n}
+1310|Für Wasser- und Kabelschächte
+1311|Schachtboden PN-{n} (d={n} mm)
+1312|Gesamte Spezifikation zur Bestellung hinzufügen
+1313|Ausgleichsring für Schächte
+1314|Ergänzungs-Fundamentblock
+1315|Lieferung / Selbstabholung
+1316|Lieferung mit Ladekran
+1317|Lieferung mit Ladekran in Karaganda und im Gebiet
+1318|Lieferung mit Ladekran. Im Set mit Auflager
+1319|Lieferung mit Ladekran. Wasserbaubeton
+1320|Lieferung mit Ladekran. Großhandel ab {n} Stk.: {n} ₸
+1321|Sattelzug {n}-{n}t (Fernverkehr / Großhandel)
+1322|Einh.)
+1323|Mengenrabatte verfügbar
+1324|geladenen Positionen von
+1325|Betonieren eines Ortbetonfundaments
+1326|Anfrage des Großhandelspreises bei allen Werken und Lieferanten in Kasachstan
+1327|Iwan Iwanow / TOO „StroyGroup“
+1328|Name des Empfängers / Firmenname
+1329|IP „Medina“ (Manarbek)
+1330|IP MEDINA
+1331|Zu zahlen insgesamt
+1332|Zu zahlen insgesamt inkl. Lieferung
+1333|Kamaz / Kipper {n}t
+1334|STEINBRUCH
+1335|Der Preiskatalog ist nicht erreichbar (
+1336|kg / Einh.
+1337|Vollziegel M-{n} ({n}×{n}×{n} mm)
+1338|Kleber für Porenbeton (Sack {n}kg)
+1339|Kleber für Fliesen und Feinsteinzeug AlinEX „Set {n}“ ({n} kg)
+1340|Menge
+1341|Die Menge muss größer als {n} sein
+1342|Ring KS {n} ({n}×{n} mm)
+1343|Auflagering KO-{n}
+1344|Kontakttelefon
+1345|Warenkorb
+1346|Warenkorb geleert
+1347|Schachtabdeckplatte {n}PP-{n}-{n} (d={n} mm)
+1348|Schachtabdeckplatte {n}PP-{n}-{n} verstärkt (d={n} mm)
+1349|Schachtabdeckplatte {n}PP-{n}-{n} verstärkt für Verkehrslast (d={n} mm)
+1350|Schachtabdeckplatte {n}PP-{n}-{n}U verstärkt (d={n} mm)
+1351|Schachtabdeckplatte mit Öffnung
+1352|Platte ({n} m²)
+1353|FREILEITUNGSMAST
+1354|SCHACHTDECKEL STAHLBETON
+1355|Stahlbeton-Schachtdeckel ({n}×{n} mm)

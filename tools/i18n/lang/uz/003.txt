@@ -1,0 +1,280 @@
+786|{n} m²
+787|{n} ta pozitsiya
+788|₸/m²
+789|Arman Kasimov
+790|Bauirjan Toktarov
+791|Ventilyatsiya
+792|Tanlangan
+793|Sana
+794|Demo
+795|Oʻlchov birligi
+796|Yopish
+797|kg
+798|Kod
+799|m³
+800|Modul
+801|Tavsif
+802|Bekor qilish
+803|Poz. {n}-{n}-{n}
+804|Ishlar
+805|reys
+806|KAMAZ samosvali {n} tonna
+807|Santexnika
+808|Holat
+809|Summa
+810|t
+811|Texnika
+812|Tur
+813|Oʻchirish
+814|dona
+815|Asbob yuklanmoqda
+816|Hisoblash
+817|Yetkazib beruvchi
+818|Yashirish
+819|Salom! Men QazGost AI yordamchisiman. Ishlar va materiallar narxini aytaman, fotosurat boʻyicha smeta hisoblayman, brigada yoki maxsus texnika topaman. Nimadan boshlaymiz
+820|Soʻrash: {a}
+821|№{n} brigada
+822|Tekshiruv
+823|fotosurat
+824|Qoralama
+825|Yangilari
+826|. Narxga asosiy mehnat sarfi va mashinalar ekspluatatsiyasi kiritilgan. Materiallar loyiha boʻyicha alohida hisoblanadi
+827|{n} ₸ (Medina) / {n} ₸ (TABYS)
+828|{n} ₸ (TABYS) / {n} ₸ (Medina)
+829|{n} ₸ / dona
+830|AI smeta:
+831|{n}-yil holatiga
+832|Tahlil qilinmoqda
+833|Bazaviy narx
+834|Bazaviy narxlar oraligʻi
+835|FBS devor bloklari {n}t ({n}×{n}×{n} mm)
+836|narx turlari
+837|Qurilish chiqindilarini olib chiqish
+838|Oliy sifat darajasi
+839|Obyektni toʻliq tozalash
+840|Choklarni gidroizolyatsiya qilish
+841|GOST {n}-{n}
+842|Ushbu narx meʼyorga muvofiq toʻliq ishlar majmuasini oʻz ichiga oladi
+843|Qoplamalarni demontaj qilish
+844|PN-{n} quduq tubi (d={n}m)
+845|Smetaga qoʻshish
+846|Yuklanmoqda
+847|Auditga buyurtma berish
+848|Medina YaTT (Manarbek)
+849|Ishlar toifasi
+850|Taʼmirdan keyingi tozalash
+851|KO {n} tayanch halqasi ({n}×{n}×{n} mm)
+852|KS {n} devor halqasi ({n}×{n} mm)
+853|KS {n} devor halqasi (d={n}m, h={n}m)
+854|{n}PP-{n}-{n} quduq qopqogʻi (d={n}m, lyuk bilan)
+855|{n}PP-{n}-{n} quduq qopqogʻi (avtoyuklamaga kuchaytirilgan)
+856|Ogʻir polimer lyuk ({n} t)
+857|Montaj va yuzani tayyorlash
+858|Katalogga qaytish
+859|Masalan: {n}x{n} metr lentali poydevor qilish kerak, chuqurligi {n}m
+860|Bizning ishlab chiqarish-texnik boʻlim muhandislarimiz obyektga chiqib, aniq smeta tuzishga yordam beradi
+861|Meʼyor
+862|Vazifangizni oʻz soʻzlaringiz bilan tasvirlang — neyrotarmoq kerakli narxlarni tanlaydi, hajmlarni hisoblaydi va tayyor smeta beradi
+863|{n} ₸ / m² dan
+864|{n} ₸ / p.m dan
+865|{n} ₸ / reys dan
+866|Smetani ochish
+867|PN-{n} tub plitasi (d={n}m)
+868|{n} PP {n}-{n} yopma plitasi (d={n}m, lyuk bilan)
+869|Ommabop ish turlari
+870|Smeta yaratish
+871|Smeta muvaffaqiyatli yaratildi
+872|Yana narxlarni koʻrish ↓
+873|SNiP {n}-{n}
+874|SNiP {n}-{n}-{n}
+875|SV {n}-{n} temir-beton ustuni (elektr uzatish liniyasi tayanchi {n}m)
+876|TABYS-ASM / Medina
+877|Issiqlik izolyatsiyasi ishlari
+878|TABYS-ASM MChJ
+879|TABYS-ASM MChJ (Natalya)
+880|Transport xarajatlari
+881|Asosiy qatlamni yotqizish
+882|Yakuniy ishlov
+883|Parolni almashtirish — QazGost AI
+884|Akkaunt: {a}
+885|Alibek Nurlanov
+886|Anketa moderatsiyaga yuborildi
+887|Anketani moderator tekshiradi, shundan soʻng u katalogda paydo boʻladi
+888|Attestatsiyadan oʻtgan payvandchi: metall konstruksiyalar, ayvonlar, darvozalar
+889|Beton va temir-beton buyumlar
+890|Beton, qolip, armatura
+891|Betonchi
+892|Obodonlashtirish
+893|Sharhlari koʻproq
+894|Brigadalar va ustalar
+895|Brigada
+896|Brigada hozir band — muddatni kelishish uchun qoʻngʻiroq qiling
+897|BrigadaAstana
+898|Brigadir
+899|QazGost orqali buyurtma qabul qiladigan brigadalar va kompaniyalar. Bevosita qoʻngʻiroq qiling yoki loyihaga taklif yuboring
+900|Orqaga qaytish
+901|Barcha koʻnikmalar
+902|Bosh pudratchi
+903|Demo-anketa
+904|Demontaj va montaj, {n} yil tajriba
+905|Demontajchi
+906|Interyer dizayneri
+907|Anketa qoʻshish
+908|Yerjan, payvandlash ishlari
+909|Kalit topshirish sharti bilan turar joy va tijorat binolari
+910|Devorlar va darvozalar
+911|Temir-beton buyumlar zavodi
+912|Katalog yuklanmoqda
+913|Usta ismi yoki kompaniya nomi
+914|«Medina» YaTT
+915|«Medina» YaTT (temir-beton buyumlar va lyuklar)
+916|KS quduq halqalari, {n}PP/{n}PP plitalari, PN tublari, polimer va choʻyan-beton lyuklar. Qaragʻanda boʻyicha yetkazib berish
+917|Kompaniyalar
+918|Kompaniya (MChJ / YaTT)
+919|Kompaniya aloqa maʼlumotlari
+920|Aloqa maʼlumotlari koʻrsatilmagan
+921|Tom yopuvchi
+922|Yirik brigadalar
+923|Eng yaxshi reyting
+924|Boʻyoqchi
+925|Manarbek
+926|Qoʻli gul usta
+927|Mayda taʼmir, murojaat kuni oʻlchashga chiqish
+928|Koʻnikmalar
+929|Nom, koʻnikma yoki brigadir, masalan «beton»
+930|CRM menejeri tayinlandi
+931|Topildi
+932|Yozish
+933|serverning kutilmagan javobi
+934|Past reyting
+935|Hech kim topilmadi
+936|Pudratchi haqida
+937|Asosiy koʻnikmalar
+938|Kalit topshirish sharti bilan pardozlash
+939|Isitish va ventilyatsiya
+940|Moderatsiyaga yuborish
+941|Qidiruvni tozalash
+942|Kelishuv boʻyicha
+943|Takrorlash
+944|Qoʻngʻiroq qilish
+945|Pudratchilarni qidirish
+946|Pardozlash ishlarining toʻliq sikli, {n} yil tajriba
+947|Tartib
+948|Temir-beton buyumlar yetkazib beruvchisi
+949|Loyihaga taklif qilish
+950|Oldindan toʻlovsiz taklif: brigada va menejer arizani oladi, narx va toʻlovni bevosita kelishasiz
+951|Buyurtma qabul qiladi
+952|Buyurtma qabul qiladi
+953|Santexnik
+954|Santexnika va isitish, {n} yil tajriba
+955|Payvandchi
+956|Katalog xulosasi
+957|Hozir band
+958|Katalog serveri ishlamayapti — demo-anketalar koʻrsatilgan. Ulardagi aloqa maʼlumotlari va reytinglar shartli
+959|Serik Karimov
+960|Pudratchilarni saralash
+961|Tarkib
+962|Oʻrtacha reyting
+963|Qurilish ishlari
+964|TexnoStroy
+965|Faqat boʻshlari
+966|«QazStroyGroup» MChJ
+967|«KazStroy» MChJ yoki Arman Kasimov
+968|Filtrlarning bir qismini olib tashlang yoki boshqa koʻnikma boʻyicha qidiring
+969|Fasadchi
+970|Fasadlar, obodonlashtirish va elektr montaji. {n} yil kafolat
+971|Xususiy usta
+972|Elektrik
+973|Elektr va pol qoplamalari, {n} yil tajriba
+974|YujStroy
+975|{a} arizasi oldindan toʻlovsiz yuborildi: «{b}» va CRM menejeri bildirishnoma oldi
+976|Pudratchini bevosita chaqirish: {a}{b}. Shahar: {c}. Telefon: {d}.{e} {f}
+977|{a} shahrida mos brigadalar yoʻq
+978|Pudratchini bevosita chaqirish: {a}{b}
+979|QazGost AI orqali ariza — {a}
+980|Pochtaga yozish: {a}
+981|Qoʻngʻiroq qilish: {a}, {b}
+982|Pudrat: {a} ({b})
+983|{a}{b}: batafsil
+984|, sharhlar: {a}
+985|Brigadir: {a}
+986|{a} kishi
+987|{a} shahrida
+988|{a} kishi
+989|Reyting {a}
+990|Septik oʻrnatish
+991|Birl.
+992|SMETA BOʻYICHA JAMI
+993|Miqdor
+994|Pozitsiya
+995|Smeta
+996|fasad
+997|Narx
+998|{n} kg
+999|{n} L
+1000|{n} m
+1001|{n} dona
+1002|Buyurtmachi ismi
+1003|Fotosuratlarning eng koʻp soni: {n} ta
+1004|ixtiyoriy
+1005|yoʻq
+1006|«Buyurtmalarim»ni ochish
+1007|WhatsAppga yuborish
+1008|Tozalash
+1009|Fotosurat
+1010|{a}ni oʻchirish
+1011|{n} mm
+1012|Mavjud
+1013|Keyingi
+1014|Material
+1015|Kompaniya / YaTT nomi
+1016|CSV yuklab olish
+1017|Bosqich
+1018|Hisoblanmoqda
+1019|Turar joy uyi
+1020|Yongʻin xavfsizligi
+1021|Loyihalash
+1022|beton
+1023|generator
+1024|kran
+1025|Taʼmirda
+1026|samosval
+1027|Tarmoq ishlamayapti
+1028|transport
+1029|tyagach
+1030|(bron $
+1031|). Demo-eʼlonlar koʻrsatilgan: narxlar va holatlar shartli, bron qilish mumkin emas
+1032|{n} smena
+1033|{n} t, choʻmich {n} m³
+1034|{n} soat
+1035|Smenadan keyin Kaspi yoki egasiga oʻtkazma
+1036|Putzmeister avtobeton nasosi {n}m, uzatish {n} m³/soat
+1037|KAMAZ {n} avtobeton aralashtirgich (mikser {n} m³)
+1038|Hyundai HD{n} teleskopik avtominora, {n} m, {n} kg
+1039|XCMG QY{n}K{n} avtokrani, {n} t, strela {n} m + gusek
+1040|Qurilish obyekti manzili (GPS boʻyicha yetkazish)
+1041|Operator bilan maxsus texnika ijarasi
+1042|Vogele Super {n}-{n} asfalt yotqizgich (kengligi {n} m)
+1043|Liebherr {n} EC-B minorali krani, {n} t, strela {n} m
+1044|Kirmasdan yuborilgan ariza platforma menejeriga boradi, egasida esa sanalar band qilinmaydi
+1045|Hisob-faktura boʻyicha QQS bilan naqdsiz toʻlov (yuridik shaxslar uchun)
+1046|Bepul yetkazib berish
+1047|Beton va qorishma
+1048|Bauer BG {n} burgʻilash-svay qoqish qurilmasi ({n} m gacha svaylar)
+1049|Egasi
+1050|Egasi telefon koʻrsatmagan — bron qiling, u siz bilan bogʻlanadi
+1051|Yetkazish sanasini bugundan oldin boʻlmagan qilib tanlang
+1052|SDMO dizel generatori {n} kVt, shovqindan himoyalangan
+1053|Ishlab chiqarilgan yili, holati, minimal buyurtma, shartlar
+1054|XCMG GR{n} greyderi, {n} m, yumshatgich
+1055|Yuk koʻtarish quvvati / hajm
+1056|Hitachi ZX{n} zanjirli ekskavatori, {n} t, {n} m³, {n} m
+1057|Texnikani yetkazish sanasi
+1058|Demo-eʼlon: bron qilish mumkin emas
+1059|Eʼlon joylash uchun server akkaunti kerak. Usiz eʼlon saqlanmaydi
+1060|Yoʻl texnikasi
+1061|Egasining tasdigʻini kutmoqda
+1062|Maxsus texnika yuklanmoqda
+1063|Band
+1064|Ariza menejerda
+1065|Ijaraning yakuniy narxi

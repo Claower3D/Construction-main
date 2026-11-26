@@ -37,7 +37,7 @@ export default function LegalPage({ docKey = 'privacy', onBack }) {
           <p className="lg-version">{`Редакция от ${LEGAL_VERSION_LABEL}`}</p>
           {lang !== 'ru' && (
             <p className="lg-lang-note" role="note" translate="no">
-              {{ kk: 'Құжаттың ресми мәтіні орыс тілінде берілген.', zh: '本文件的正式文本为俄语。', tr: 'Bu belgenin resmî metni Rusçadır.', fr: 'Le texte officiel de ce document est en russe.', it: 'Il testo ufficiale di questo documento è in russo.', es: 'El texto oficial de este documento está en ruso.' }[lang]
+              {{ kk: 'Құжаттың ресми мәтіні орыс тілінде берілген.', zh: '本文件的正式文本为俄语。', tr: 'Bu belgenin resmî metni Rusçadır.', fr: 'Le texte officiel de ce document est en russe.', it: 'Il testo ufficiale di questo documento è in russo.', es: 'El texto oficial de este documento está en ruso.', de: 'Der offizielle Text dieses Dokuments ist auf Russisch verfasst.', uz: 'Ushbu hujjatning rasmiy matni rus tilida berilgan.' }[lang]
                 || 'The official text of this document is provided in Russian.'}
             </p>
           )}

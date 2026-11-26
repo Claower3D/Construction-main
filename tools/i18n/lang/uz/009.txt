@@ -1,0 +1,320 @@
+2660|Pogʻonalar
+2661|Pogʻonalarni qoplash
+2662|keramogranit {n}×{n}
+2663|marmar koʻrinishli keramogranit {n}×{n}
+2664|premium seriyali keramogranit {n}×{n}
+2665|pogʻonalar soni
+2666|Obyekt konturi
+2667|vizualizatsiyasiz dizayn-loyiha
+2668|dizayn-loyiha va {n}D vizualizatsiya
+2669|{n} — maydon boʻyicha
+2670|Signalizatsiyani montaj qilish
+2671|bitta asbob
+2672|shleyf + {n}% zaxira
+2673|Tijorat obyektlari uchun yongʻin signalizatsiyasi Qozogʻiston meʼyorlari boʻyicha loyihani talab qiladi; bu yerda — montaj bahosi
+2674|Kameralar
+2675|Tizimni montaj qilish
+2676|{n} tagacha kamera uchun registrator
+2677|Tashqi ishlar
+2678|Trassa (uzunlik — perimetr boʻyicha yoki parametr bilan)
+2679|Trassa uzunligi
+2680|{n} — kontur perimetri boʻyicha
+2681|Transheya chuqurligi
+2682|muzlash chuqurligidan pastda
+2683|Transheya
+2684|Quvur yotqizish
+2685|Koʻmish
+2686|{n} sm tagqatlam va {n} sm ustqatlam, {n} m kenglik boʻyicha
+2687|trassa uzunligi
+2688|uzunlik + {n}%
+2689|qum qatlami chegirilgan transheya
+2690|Bruschatka yotqizish
+2691|Maydoncha konturi
+2692|Perimetr boʻylab bordyur
+2693|Oʻyiq va asos
+2694|Yotqizish
+2695|Bordyur
+2696|oʻyiqdan chiqqan grunt × {n}
+2697|shagʻal {n} sm, zichlash ×{n}
+2698|qum toʻshamasi {n} sm × {n}
+2699|maydoncha perimetri boʻylab
+2700|bordyur {n} m, perimetr boʻylab
+2701|Maydoncha / yoʻl konturi
+2702|perimetr boʻylab
+2703|bordyur {n} m
+2704|Ishchilar
+2705|Smenalar
+2706|kun
+2707|ishlar hajmi boʻyicha
+2708|Bu toifa uchun namunaviy texnologik karta yoʻq: smeta mehnat sarfi boʻyicha hisoblangan. Aniq hisob-kitob uchun ishlarni QazGost muhandisiga tasvirlab bering
+2709|Kalit topshirish sharti bilan taʼmirlash
+2710|Styajka {a} mm, qorishma {n}:{n} (sement {n} kg / {n} m³). Kafel {n}×{n}: yelim {n} kg/m², chok toʻldirgich {n} kg/m² (Ceresit CE {n})
+2711|issiqlik yoʻqotishi ≈{n} Vt/m² × {a} m² = {b} kVt; {n} seksiyali radiator ≈{n} kVt; derazalar sonidan ({n}) kam emas
+2712|Mayaklar boʻyicha {a} mm qatlamli suvoq; Rotband sarfi {n} kg/m², {n} mm uchun (Knauf maʼlumoti)
+2713|lagalar {n}×{n}, qadam {n} m ({n} m³/m²) + taxta {n} mm ({n} m³/m²) × {a} m² + {n}%
+2714|≈{n} m profil / {n} m² + perimetr boʻylab yoʻnaltiruvchi = {a} m, profil {n} m
+2715|Ceresit CE {n}: ≈{n} kg/m² ({n}×{n} kafel, {n}–{n} mm chok) × {a} m²
+2716|chiqindi ≈{a} m³ zich holda, {b} m³ yumshatilgan holda (×{n}); reysga {n} m³
+2717|{a} ta polosa, har biri {n} m, {b} m devorga; rulonda {c} ta polosa, balandligi {d} m
+2718|{a} ta rozetka (belgilanmagan boʻlsa, meʼyor boʻyicha {n} ta / {n} m, perimetr {b} m)
+2719|{a} m³ ({b} m² × {c} m) ÷ {n} m³/soat, minimal buyurtma {n} soat
+2720|yopishtirish {n} kg/m² + armaturalovchi qatlam {n} kg/m² × {a} m²
+2721|{n} sm yostiq, kengligi {a} m × {b} m, zichlash ×{n}
+2722|stropila va obreshyotka ≈{n} m³ / {n} m² × {a} m² + {n}%
+2723|qorishma {a} m³ ({b} m² × {c} mm), sement {n} kg/m³
+2724|{n} tomon × {a} m × (yer usti qismi {b} m + {n})
+2725|{a} m × {b} m × {c} m (perimetr + ichki devorlar)
+2726|shagʻal yostigʻi {n} sm × {a} m², zichlash ×{n}
+2727|har bir xabarlagichga {n} m shleyf × {a} + asbobgacha {n} m
+2728|({a} m² + chiqiqlar {b} m × {c} m) ÷ cos {d}° = {e} m²
+2729|{a} ta rozetka + {b} ta oʻchirgich + {c} ta chiroq
+2730|({a} m × {b} m × {c} qavat − oraliqlar {d} m²) × {e} m
+2731|kamida {n} ta xabarlagich, {n} ta / {n} m² × {a} m²
+2732|{a} ta chiroq (belgilanmagan boʻlsa, {n} ta / {n} m²)
+2733|transheya {a} m × {b} m × {c} m = {d} m³, {n} m³/soat
+2734|transheya {a} m × {n} m × {b} m = {c} m³, {n} m³/soat
+2735|qayta koʻmishsiz {a} m³ × {n} (yumshash)
+2736|podstupenokli bir pogʻonaga ≈{n} m² × {a} + {n}%
+2737|devorlar {a} m × {b} m − oraliqlar {c} m² = {d} m²
+2738|Knauf: {n} kg/m², {n} mm uchun × {a} mm × {b} m²
+2739|pol {a} m² + devorlarga {n} m chiqish × {b} m
+2740|{n} BTU ≈{n} m² ni sovitadi, maydon {a} m²
+2741|qorishma {a} m³ × {n} m³ qum / {n} m³
+2742|{a} × {b} marta (har qatlamdan oldin)
+2743|qatlamga ≈{n} kg/m² × {a} qatlam × {b} m²
+2744|lenta siqib chiqargan grunt {a} m³ × {n}
+2745|≈{n} kg yelim / {n} m³ devor × {a} m³
+2746|{a} m × {b} m − oraliqlar {c} m² = {d} m²
+2747|{n} kg/m² ({n}×{n} kafel uchun) × {a} m²
+2748|{n} kg/m² (taroq {n} mm) × {a} m²
+2749|{n} ta quti / {n} ta nuqta, nuqtalar {a}
+2750|«koroyed» {n} mm ≈{n} kg/m² × {a} m²
+2751|perimetr {a} m − eshiklar {n} × {n} m
+2752|{a} m³ × {b} kg/m³ + {n}% ustma-ust tushish
+2753|tub {a} m² + chetlar {b} m × {c} m
+2754|{n} kg/m² ({n} mm qatlamda) × {a} m²
+2755|{n} ta chiroq / {n} m² × {a} m²
+2756|{a} → {b} kg(L) / oʻramda {c}
+2757|{a} m² + {n}% ustma-ust tushish va kesish
+2758|{n} L/m² × {a} m² × {b} marta
+2759|oʻyiq {n} sm × {a} m² = {b} m³
+2760|≈{n} kg/m² × {a} qatlam × {b} m²
+2761|{a} ta rozetka + {b} ta oʻchirgich
+2762|{n} ta dyubel / {n} m² × {a} m²
+2763|{n} qatlam × {n} kg/m² × {a} m²
+2764|quti {n} m² ga, devorlar {a} m²
+2765|{n} qatlam ≈{n} kg/m² × {a} m²
+2766|{a} m² + {n}%, list {n} m²
+2767|kontur boʻyicha maydon {a} m²
+2768|{a} m² + {n}% kesishga
+2769|{a} m³ × {b} kg/m³ + {n}%
+2770|{a} m + {n}% kesishga
+2771|{a} m² + {n}% ustma-ust tushish
+2772|{a} m² + {n}% kesish
+2773|{a} m² + {n}% ustma-ust tushish
+2774|{a} ta radiator belgilangan
+2775|{a} m² × {n} marta
+2776|{a} m³ + {n}% yoʻqotish
+2777|chetlar {a} m × {b} m
+2778|{n} kg/m² × {a} m²
+2779|{a} kishi × {b} smena
+2780|{a} m² × {b} qatlam
+2781|{a} × {b} marta
+2782|{a} ta oʻchirgich
+2783|{a} ta nuqta belgilangan
+2784|{a} × {b} qatlam
+2785|qazilgan hajmning {a}% i
+2786|Soʻrov juda katta ({n} KB dan ortiq)
+2787|Notoʻgʻri soʻrov: maydon
+2788|Notoʻgʻri soʻrov: tana boʻsh
+2789|Notoʻgʻri soʻrov: tana toʻgʻri JSON emas
+2790|Obodonlashtirish va bruschatka
+2791|Foydalanishga topshirish / Maxsus ishlar
+2792|Ventilyatsiya va konditsionerlash (HVAC)
+2793|Suv taʼminoti (sovuq/issiq suv)
+2794|Yer ishlari va kotlovan qazish
+2795|Kanalizatsiya va yomgʻir suvi drenaji
+2796|Karkas, ustunlar va monolit devorlar
+2797|Tom va stropila konstruksiyalari
+2798|Tashqi devorlar va fasad pardozi
+2799|Deraza bloklari va kirish eshiklari
+2800|Isitish va issiqlik punkti
+2801|Gipsokarton va bloklardan pardevorlar
+2802|Tayyorgarlik va geodeziya ishlari
+2803|Pollar va pol qoplamalari
+2804|Shift tizimlari
+2805|Santexnika jihozlari
+2806|Kuchsiz tok tarmoqlari va yongʻin signalizatsiyasi
+2807|Poydevorlar va monolit nol sikli
+2808|Qora pardoz (suvoq, styajka)
+2809|Toza pardoz (boʻyash, gulqogʻoz)
+2810|Elektr montaj ishlari
+2811|{n} ₸ dan
+2812|{n} ₸ gacha
+2813|Armatura
+2814|Kotlovanlar
+2815|Halqalarni montaj qilish
+2816|Septiklarni montaj qilish
+2817|Quvur liniyasi
+2818|Septiklar va kanalizatsiya
+2819|{n} p.m
+2820|{n} mln ₸
+2821|{n} ₸ / soat
+2822|BIN {n}
+2823|L ≈ {n} mm
+2824|{n} / {n}
+2825|{n} × {n} m
+2826|{n} kun
+2827|juft
+2828|gʻaltak
+2829|seksiya
+2830|paket
+2831|buyurtmachi
+2832|{n} ta buyurtma, {n} ₸
+2833|{n} ta buyurtma, {n} ₸
+2834|{n} ta buyurtma, {n} ₸
+2835|taklifdagi texnika: {n}
+2836|Hajmni hisoblash
+2837|{n} ta boʻlim
+2838|{n} ta boʻlim
+2839|{n} ta boʻlim
+2840|{n} ta bosqich
+2841|{n} ta bosqich
+2842|{n} ta bosqich
+2843|Loyihachi
+2844|QazGost ichki smetachisining hisobi: ish turi va hajmlar eslatmadan kalit soʻzlar boʻyicha topilgan (AI ulanmagan)
+2845|vazifalar: {n}
+2846|{n} KB
+2847|Jami
+2848|Eslatmada hajmlar koʻrsatilmagan — namunaviylari olindi. Eslatmaga maydon (m²), uzunlik (m) yoki sonini qoʻshing, hisob-kitob aniq boʻladi
+2849|Bu dastlabki hisob-kitob: yakuniy smeta — muhandis obyektga chiqib, oʻlchagandan keyin
+2850|menejer
+2851|Ekspert-muhandis
+2852|CRM menejeri
+2853|Har bir pozitsiya hajmi kontur geometriyasi va ishlab chiqaruvchilarning sarf meʼyorlari boʻyicha hisoblangan; narxlar — bozor narxlari, har bir qatorda manbasi bilan; hududiy koeffitsiyent ishlar va materiallarga qoʻllangan; ssenariylar ishlar tarkibi va materiallar markasi bilan farqlanadi
+2854|nuqtaga ≈{n} m quvur + {n}%
+2855|nuqtaga ≈{n} m shtroba
+2856|nuqtaga ≈{n} m kabel
+2857|unitaz {n}
+2858|rakovina {n}
+2859|vanna {n}
+2860|dush {n}
+2861|kir yuvish mashinasi {n}
+2862|suv isitgich {n}
+2863|sochiq quritgich {n}
+2864|«Standart» summasining {n}% i — ochiq narxnomalar va eʼlonlardagi narxlar boʻyicha, havolasi bilan. Qolgani — QazGost hisob-kitob bahosi: bu qatorlarni yetkazib beruvchidan aniqlashtiring
+2865|Janaoʻzen
+2866|Rudniy
+2867|Ekibastuz
+2868|Barcha boʻlimlari bilan Excel va PDF
+2869|Fayl tayyorlanmoqda…
+2870|Smeta Excelga saqlandi
+2871|Excel faylini tayyorlab boʻlmadi — aloqani tekshiring va yana urinib koʻring
+2872|Brauzer chop etish oynasini ochishga yoʻl qoʻymadi — sayt uchun qalqib chiquvchi oynalarga ruxsat bering
+2873|Hisob-kitob tozalandi — qaytadan boshlash mumkin
+2874|Ish turi oʻzgardi — smetani qayta hisoblang
+2875|OpenAI kalitingiz ulangan — fotosuratni AI tahlil qiladi.
+2876|Fotosuratni AI tahlil qiladi; agar u serverda ulanmagan boʻlsa, oʻz kalitingizni kiritishingiz mumkin.
+2877|Oʻz OpenAI kalitingiz
+2878|Faqat fotosurat tahlili uchun kerak. Smeta usiz ham hisoblanadi.
+2879|Hozir ulangan kalit
+2880|Kalit faqat shu brauzerda saqlanadi va fotosurat bilan birga QazGost serveriga ketadi — AI ga bitta soʻrov uchun; serverda saqlanmaydi.
+2881|Kalit olish:
+2882|Tekshirilmoqda…
+2883|Kalitni tekshirish
+2884|Kalitni oʻchirish
+2885|Bu OpenAI kalitiga oʻxshamaydi: u «sk-» bilan boshlanadi.
+2886|Tekshirish uchun kalitni joylang.
+2887|Kalit ishlaydi: AI xizmati uni qabul qildi.
+2888|Server bilan aloqa yoʻq — kalit tekshirilmadi.
+2889|AI xizmati uni qabul qilmadi
+2890|OpenAI kaliti shu brauzerda saqlandi
+2891|OpenAI kaliti shu brauzerdan oʻchirildi
+2892|Oʻz OpenAI kalitingizni kiritish
+2893|Holati:
+2894|Koʻrinadigan nuqsonlar
+2895|Nimani hisobga olish kerak
+2896|Fotosuratning AI tahlili ulanmagan: serverda OpenAI kaliti yoʻq. Smeta usiz hisoblandi — oʻlchash va maʼlumotnoma boʻyicha.
+2897|Fotosuratning AI tahlili bajarilmadi: AI xizmati OpenAI kalitini rad etdi. Kalitni tekshiring.
+2898|Fotosuratning AI tahlili bajarilmadi: AI xizmatiga soʻrovlar limiti tugadi. Keyinroq urinib koʻring.
+2899|Fotosuratning AI tahlili bajarilmadi: AI xizmati vaqtida javob bermadi. Yana urinib koʻring.
+2900|Fotosuratning AI tahlili bajarilmadi: AI xizmati xato qaytardi. Smeta usiz hisoblandi.
+2901|Fotosuratning AI tahlili bajarilmadi: ketma-ket juda koʻp soʻrov. Bir daqiqa kuting va smetani qayta hisoblang.
+2902|Fotosuratning AI tahlili bajarilmadi: fotosuratlar juda katta. 1–3 ta surat qoldiring.
+2903|Fotosuratning AI tahlili bajarilmadi: server tushunarsiz javob yubordi.
+2904|Ssenariy tarkibi
+2905|Materiallar xaridi qaydnomasi
+2906|Xarid
+2907|Tanaffus sababi
+2908|Qanday hisoblangan
+2909|Smetadagi qatorlar
+2910|Chop etish / PDF ga saqlash
+2911|Qozogʻiston meʼyorlari boʻyicha smetalar
+2912|Narxlar — bozor narxlari, har bir qatorda manbasi bilan
+2913|oraliqlar chegirilgan devorlar
+2914|koeffitsiyent
+2915|Rakovinaga aralashtirgich oʻrnatish
+2916|Vannaga aralashtirgich oʻrnatish
+2917|Dush leykali vanna aralashtirgichi, oʻrta segment
+2918|rakovina aralashtirgichi
+2919|dush leykali vanna aralashtirgichi
+2920|Satu: vanna aralashtirgichlari ≈7 000 ₸ dan (arzon) ≈61 000 ₸ gacha (Grohe); oʻrta segment olindi
+2921|Kanalizatsiya: asboblar mavjud chiqishlarga ulanadi; kanalizatsiya quvurlari va stoyakni almashtirish smetaga kirmaydi — koʻrikdan keyin hisoblanadi.
+2922|Dush kabinasi: aralashtirgich va leyka kabina toʻplamiga kiradi.
+2923|Isitish: amaldagi tizimda radiatorlar va ularga ulanish; qozon, nasos guruhi va magistral quvurlar smetaga kirmaydi.
+2924|Narxlar — {a} shahri boʻyicha bozor narxlari (koeffitsiyent ×{n}), kutilmagan xarajatlar zaxirasi {n}%, QQS {n}% alohida koʻrsatilgan
+2925|Fotosurat boʻyicha «{a}» ish turi koʻproq mos keladi, smeta esa boshqasi uchun hisoblangan. Tanlovni tekshiring.
+2926|Kalit tekshiruvdan oʻtmadi ({a}): {b}
+2927|{a}: batafsil
+2928|Qoʻngʻiroq qilish: {a}
+2929|Holati: {a}
+2930|«{a}»ni tanlash
+2931|{n}. Karkas va monolit devorlar
+2932|{n}. Tom va stropila tizimlari
+2933|{n}. Tayyorgarlik ishlari
+2934|Dalolatnoma
+2935|Faol
+2936|XCMG avtokrani ijarasi, {n} tonna
+2937|JCB {n}CX ekskavator-yuklagichi ijarasi
+2938|Bazaviy
+2939|Beton
+2940|BIN
+2941|Tasdiqlash
+2942|Yuqori
+2943|Shahar / Joylashuv
+2944|Amallar
+2945|Shikoyat
+2946|Buyurtma
+2947|/
+2948|Toʻliq tanali gʻishtdan tashqi devorlar terish
+2949|toʻplam
+2950|list
+2951|oy
+2952|Metall
+2953|qop
+2954|Monolit
+2955|Sozlamalar
+2956|QQS {n}%
+2957|Past
+2958|Oddiy
+2959|Rad etish
+2960|p.m
+2961|Pollar
+2962|VVGng-LS {n}x{n} kabelini gofrada yotqizish
+2963|Reyting
+2964|Rol
+2965|rulon
+2966|Saqlash
+2967|Oʻrta
+2968|Shoshilinch
+2969|Jadval
+2970|t
+2971|«Namuna Quruvchi» MChJ
+2972|«Namuna Injiniring» MChJ
+2973|«Namuna MonolitStroy» MChJ
+2974|oʻram
+2975|{n}mm yarim quruq qum-sement styajkasi qilish
+2976|Fayl
+2977|M-{n} portlandsement ({n}kg qop)
+2978|Devorlarni gips qorishmalari bilan {n} qatlam shpaklyovkalash
+2979|Devorlarni sement-ohak qorishmasi bilan suvash

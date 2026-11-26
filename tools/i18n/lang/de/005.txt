@@ -1,0 +1,300 @@
+1356|SCHACHTDECKEL KPR-{n}
+1357|Schachtdeckel aus Polymer, schwer (Belastung {n} t)
+1358|Schachtdeckel Gusseisen-Beton KPR-{n} ({n}×{n} mm)
+1359|Fahrzeug {n}t
+1360|Säcke
+1361|Zum Beispiel: Betonstahl A{n}C Ø{n}mm — {n} Tonnen, Beton M{n} — {n} m³, Keramikziegel — {n} Stk.
+1362|Ungültige Antwort des Katalogs
+1363|Nichts gefunden
+1364|Gesamtgewicht der Ladung
+1365|Großhandel
+1366|Großhandel ab {n} Platten: {n} ₸
+1367|Großhandel ab {n} m³: {n} ₸
+1368|Großhandel ab {n} Säcken: {n} ₸
+1369|Großhandel ab {n} Paletten ({n} Stk.): {n} ₸
+1370|Großhandel ab {n} Tonnen: {n} ₸
+1371|Großhandel ab {n} Packungen: {n} ₸
+1372|Großhandel ab {n} Stangen: {n} ₸
+1373|Großhandel ab {n} Stk.: {n} ₸
+1374|Die Großhandelsausschreibung wurde an Lieferanten in Kasachstan versendet
+1375|Marktrichtwert aus der Preisdatenbank von QazGost; den Einkauf übernimmt der Plattform-Manager
+1376|Ab {n} Fahrzeugen: {n} ₸
+1377|Bestellung und Lieferung aufgeben
+1378|Bestellung von Baustoffen
+1379|Gewaschener Bausand
+1380|Gewaschener Flusssand Körnung {n}-{n} mm (Kipper {n} t)
+1381|Abdeckplatte {n} PP {n}-{n} (d={n}m mit Öffnung)
+1382|Abdeckplatte PP {n}-{n} (d={n}m)
+1383|Fläche / Volumen des Bauteils (m²)
+1384|Für den Deckel eines Kontrollschachts
+1385|Bestätigen und Anfrage senden
+1386|Pos.)
+1387|POLYMER {n}T
+1388|Portlandzement M{n} D{n} „Kazcement“ (Sack {n} kg)
+1389|PREMIUM
+1390|Lieferradius
+1391|Lieferradius, km
+1392|Ausschreibungsanfrage an Lieferanten senden
+1393|Materialspezifikation berechnen
+1394|Reserve für Verschnitt und technologische Verluste: +{n}%
+1395|Empfohlene Materialliste für
+1396|Einzelhandel: {n} ₸ / mit Belegen: {n} ₸
+1397|Rollen
+1398|des Marktes für
+1399|Mit Öffnung für einen Standard-Schachtdeckel
+1400|Zertifikat GOST / ST RK
+1401|Zertifizierung und Verfügbarkeit
+1402|ZERTIFIZIERT
+1403|Zu große Menge für eine Position
+1404|Die Preissortierung wurde angewendet auf
+1405|Liste oder Beschreibung der Materialien
+1406|Richtpreis von QazGost (Markt Kasachstan, {n})
+1407|Zur Information
+1408|ST RK GOST {n}
+1409|ST RK GOST {n}-{n}
+1410|Warenwert (
+1411|Estrich und Nivellierung
+1412|TABYS-ASM
+1413|Bauteiltyp
+1414|Transportbeton M-{n} (B{n})
+1415|Transportbeton der Güte M-{n} (B{n}) mit Lieferung per Fahrmischer
+1416|Nur vorrätige
+1417|Tonnen
+1418|Tonne
+1419|TOO „Almatinski Kirpitschny Sawod Nr. {n}“
+1420|TOO „ArcelorMittal Temirtau Sbyt“
+1421|TOO „KazMetService“
+1422|TOO „KazCement Industry“
+1423|TOO „Karjer NerudTrans“
+1424|TOO „Knauf Gips Kazakhstan“
+1425|TOO „Knauf Gips“
+1426|TOO „Penoplex RK“
+1427|TOO „TABYS - ASM“ (Natalja)
+1428|TOO „TechnoNICOL Kazakhstan“
+1429|TOO „Ecoton-Batys“
+1430|TOP-AUSWAHL
+1431|Profilrohr {n}×{n}×{n} mm (Stange {n} m)
+1432|Schwerbeton für Fundamente und Keller
+1433|Die Position hat keinen Preis — fragen Sie den Preis beim Lieferanten an
+1434|Menge erhöhen
+1435|Geben Sie Name, Telefon und Lieferadresse an
+1436|Geben Sie die benötigte Baustoffliste an. Das System benachrichtigt automatisch akkreditierte Händler und Werke, und Sie erhalten Angebote mit bis zu {n}% Rabatt
+1437|Menge verringern
+1438|Packung ({n} m²)
+1439|VERSTÄRKT
+1440|Verstärkter Stahlbeton-Freileitungsmast {n}m
+1441|Mineralwolldämmung TechnoNICOL Rocklight ({n}×{n}×{n} mm)
+1442|Bewehrungsfasern
+1443|Filter zurückgesetzt
+1444|Kein Foto ·
+1445|FUNDAMENT FBS
+1446|BESTSELLER
+1447|Bestseller für Klärgruben und Schächte
+1448|BESTSELLER KLÄRGRUBE
+1449|Stange ({n}m)
+1450|Zement M{n} D{n} ({n} kg)
+1451|Gipsputz Knauf Rotband ({n} kg)
+1452|Extrudiertes Polystyrol PENOPLEX Komfort {n} mm
+1453|ENERGIEEFFIZIENZ
+1454|Valdai {n}t
+1455|Kamaz {n}t
+1456|Baustoffbestellung für das Objekt: {a}. Inhalt: {b}. Transport: {c}. Zahlung: {d}
+1457|Bestellung {a} aufgegeben und zur Zusammenstellung an den Manager gesendet! 🧱
+1458|Die Berechnung erfolgte nach den Normen SNiP RK für ein Objekt mit {a} m²
+1459|Empfohlener Transport für die Lieferung der gesamten Partie: {a}
+1460|Baustoffbestellung für das Objekt: {a}. Inhalt: {b}
+1461|Die nächste Seite konnte nicht geladen werden: {a}
+1462|Lieferung von Baustoffen ({a} Pos., {b} t)
+1463|Geben Sie für die Einheit „{a}“ eine ganze Zahl an
+1464|Im Lager des Lieferanten sind nur {a} {b}
+1465|In den Warenkorb gelegt: {a} ({b} {c})
+1466|Mehr anzeigen ({a} von {b} angezeigt)
+1467|Prüfen Sie Menge und Preis: „{a}“
+1468|Zur Anfrage „{a}“ gibt es keine Materialien
+1469|Abbildung der Kategorie: {a}
+1470|— Koeffizient ×{a}
+1471|Koeffizient: {a}
+1472|, Lieferant {a}
+1473|für die Region {a}
+1474|Menge, {a}
+1475|Seite nicht gefunden — QazGost AI
+1476|Fertig ✓
+1477|Überspringen
+1478|Art der Arbeiten
+1479|Kamera schließen
+1480|Summe
+1481|Premium
+1482|Arbeit
+1483|Renovierung
+1484|Standard
+1485|Economy
+1486|₸/m² · Materialien
+1487|Das PDF-Protokoll ist fertig und gespeichert
+1488|Mängelprotokolle
+1489|Mehr
+1490|Ein
+1491|Melden Sie sich an, um Kostenvoranschläge zu speichern
+1492|Schuttabfuhr
+1493|Gipskarton
+1494|Gast
+1495|Demo der App
+1496|Demo-Berechnung als Beispiel
+1497|Kenessary {n} · in Besichtigung
+1498|m² ·
+1499|m² · Astana · Preise {n}
+1500|Weniger
+1501|Team finden
+1502|Neuer Kostenvoranschlag
+1503|Art der Arbeiten wird bestimmt
+1504|An {n} Teams in Astana gesendet
+1505|Büro, Turan {n}
+1506|Preise für Astana werden ermittelt
+1507|Wände streichen
+1508|Foto prüfen
+1509|Leck am Steigrohr
+1510|Erkennung
+1511|Foto aufnehmen
+1512|Kostenvoranschlag als PDF gespeichert
+1513|Nehmen Sie die ganze Wand auf
+1514|Wand · {n} m²
+1515|Protokoll erstellen
+1516|Fläche und Mengen werden berechnet
+1517|Syganak {n} · {n} mm
+1518|Riss · {n}%
+1519|Riss im Putz
+1520|Fliesen verlegen
+1521|Rissbreite
+1522|Wände verputzen
+1523|Sprache
+1524|Öffnen: {a}
+1525|Zur Anfrage „{a}“ gibt es keine Kategorien. Versuchen Sie ein anderes Wort
+1526|{n} Preise in {a} Kategorien nach Preisen des Jahres {n}
+1527|Spanne: {a} – {b} ₸
+1528|{n} Zeichen (zum Beispiel {n})
+1529|{n}. Fertig
+1530|{n}. Kontakt
+1531|{n}. Projekt
+1532|{n}. Kundentyp
+1533|VIP für {n} ₸ / Monat aktivieren
+1534|Profilbogen geleert
+1535|Pool / Sauna
+1536|BIN / IIN des Unternehmens
+1537|Schnellvorlagen
+1538|Möchten Sie den gesamten Profilbogen wirklich leeren
+1539|Fügen Sie eigene Baumaschinen hinzu, ordnen Sie sie Objekten zu und vermieten Sie sie direkt
+1540|Straße / Fläche
+1541|Mit VIP-Status verfügbar
+1542|Sonstiges
+1543|Zaun / Tor
+1544|Foto hochladen
+1545|Profilbogen ausfüllen
+1546|Welches Projekt interessiert Sie
+1547|Schlüsselfertige Generalsanierung einer Wohnung mit {n} m²
+1548|Kontaktdaten
+1549|Persönlicher Manager {n}/{n}
+1550|Meine Teams
+1551|Meine Maschinen
+1552|Beschreiben Sie Ihr Projekt
+1553|Büro / Geschäft
+1554|VIP-Zugang freischalten
+1555|VIP freischalten
+1556|VIP-Abonnement erfolgreich aktiviert
+1557|Stellen Sie Ihren eigenen Maschinenpark unbegrenzt ein, verfolgen Sie GPS und nehmen Sie Aufträge ohne Provision an
+1558|Vorrang in der Anzeige für Auftraggeber
+1559|Lager / Werkhalle
+1560|Profilbogen speichern
+1561|Kundentyp
+1562|TOO 'QazStroyGroup'
+1563|TOO, IP, AG — bargeldlose Zahlung, Abschlussdokumente
+1564|Verlegen von Pflastersteinen und Errichten eines Zauns {n}m
+1565|Verwaltung des persönlichen Profils und der Anforderungen
+1566|Verwalten Sie bis zu {n} Teams gleichzeitig, erstellen Sie automatisch Arbeitsfreigaben und führen Sie den Finanzbericht
+1567|Verwalten Sie Ihre geprüften Teams, benennen Sie Bauleiter und verteilen Sie Bauabschnitte
+1568|Privatperson
+1569|Profilfoto erfolgreich hochgeladen
+1570|Wir möchten ein {n}-geschossiges Haus mit {n} m² und Flachdach bauen
+1571|Wir möchten ein zweigeschossiges Haus mit {n} m² und Garage bauen. Das Grundstück liegt im Bezirk Besagasch
+1572|Privatkunde, Bau oder Renovierung für den Eigenbedarf
+1573|Je ausführlicher die Beschreibung, desto genauer werden die automatische Kalkulation und die Auswahl der Auftragnehmer
+1574|Export der Kostenvoranschläge nach Excel und {n}C
+1575|Juristische Person
+1576|Wohnadresse / Adresse des Objekts
+1577|Iwanow Iwan Iwanowitsch
+1578|Abai-Str. {n}, Whg. {n}
+1579|Profilfoto • JPG, PNG (zum Auswählen tippen)
+1580|Profilbogen gespeichert! Das Profil ist zu {a}% ausgefüllt
+1581|, einschließlich der Übermittlung ins Ausland, gemäß der
+1582|Aigerim Saparova
+1583|Ich erteile
+1584|Ich bin {n} Jahre alt und akzeptiere
+1585|Datenschutzerklärung
+1586|die Nutzungsvereinbarung
+1587|Registrierung — QazGost AI
+1588|die Einwilligung in die Verarbeitung personenbezogener Daten
+1589|Konto: {a}. Um ein anderes zu erstellen, melden Sie sich zuerst von diesem ab
+1590|Baumaschinen ({a})
+1591|“ gibt es nichts. Versuchen Sie ein anderes Wort oder beschreiben Sie die Aufgabe — die Art der Arbeiten wird aus der Beschreibung bestimmt
+1592|(Basispreise)
+1593|CSV mit allen Abschnitten
+1594|Asphaltierung
+1595|Pflaster
+1596|Schnell
+1597|
+1598|
+1599|
+1600|
+1601|
+1602|
+1603|
+1604|Einkaufsliste der Materialien
+1605|Art der Arbeiten nicht gewählt
+1606|Videoüberwachung
+1607|Arten von Arbeiten und
+1608|
+1609|alles aus „Schnell“
+1610|alles aus „Detailliert“
+1611|
+1612|
+1613|Art der Arbeiten wählen
+1614|Art der Arbeiten wählen
+1615|
+1616|
+1617|Manuell wählen
+1618|Gasversorgung
+1619|Stadt
+1620|Städte
+1621|Städte
+1622|Bauzeitenplan nach Abschnitten mit Pausen
+1623|Türen und Möbel
+1624|Rückbau
+1625|Holzdeck
+1626|Detailliert
+1627|
+1628|Mängel & Basis
+1629|Designprojekt
+1630|Verzeichnis wird geladen
+1631|Anfrage #
+1632|KI-Fotoanalyse — mit dem OpenAI-Schlüssel des Servers oder Ihrem eigenen
+1633|KI-Fotoanalyse nicht ausgeführt: Am Server ist kein OpenAI-Schlüssel hinterlegt. Hinterlegen Sie Ihren Schlüssel über die Schaltfläche „OpenAI-Schlüssel“ — der Kostenvoranschlag hängt nicht davon ab
+1634|KI-Fotoanalyse nicht ausgeführt: keine Verbindung zum Server
+1635|KI-Fotoanalyse, wenn ein OpenAI-Schlüssel hinterlegt ist
+1636|Ein Ingenieur meldet sich, um zum Aufmaß zu kommen und den Kostenvoranschlag zu präzisieren
+1637|Haustechnik
+1638|Summe ·
+1639|So gehen wir vor
+1640|
+1641|
+1642|OpenAI-Schlüssel
+1643|OpenAI-Schlüssel hinterlegt — die KI analysiert das Foto
+1644|Der Schlüssel ist gültig! Die Verbindung zur AI API wurde hergestellt
+1645|Paket
+1646|Pakete
+1647|Pakete
+1648|Klimatisierung
+1649|Umriss
+1650|Treppen
+1651|m ·
+1652|Außenwasserleitung
+1653|nicht gewählt
+1654|Ich weiß nicht, was ich wählen soll — anhand der Beschreibung bestimmen
+1655|Der Kostenvoranschlag konnte nicht berechnet werden

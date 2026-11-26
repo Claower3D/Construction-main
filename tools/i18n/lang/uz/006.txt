@@ -1,0 +1,300 @@
+1656|Soʻnggi hisob-kitoblar
+1657|
+1658|oʻlchamlar yoʻq
+1659|Oʻlchamlar yoʻq: xonani toʻrda yoki rejada chizib chiqing yoki uzunlik va kenglikni kiriting
+1660|Oʻlchash
+1661|oʻlchash
+1662|xonani oʻlchang
+1663|Umumqurilish
+1664|oʻlchash va sarf meʼyorlari boʻyicha hajmlar
+1665|Derazalar
+1666|vazifani {n}-qadamda tasvirlang
+1667|Vazifani {n}-qadamda tasvirlang — ish turi soʻzlar boʻyicha aniqlanadi
+1668|Qoldi
+1669|Devorlarni pardozlash
+1670|«Buyurtmalarim» boʻlimini oching
+1671|
+1672|menejerga yuborildi
+1673|Smeta boʻyicha buyurtma berish
+1674|Kalitni tekshirishda xatolik
+1675|Tarmoq xatosi
+1676|API ni tekshirishda tarmoq xatosi
+1677|Qayta hisoblash
+1678|Smetani qayta hisoblash
+1679|Perimetr · devorlar
+1680|Shaxsiy API kalit
+1681|Soʻrov boʻyicha «
+1682|tavsif boʻyicha
+1683|Tavsif boʻyicha ish turini aniqlab boʻlmadi. Vazifani batafsilroq tasvirlang yoki toifani qoʻlda tanlang
+1684|Yongʻin signalizatsiyasi
+1685|Ish turini qidirish
+1686|Toʻliq
+1687|Pollar va kafel
+1688|
+1689|Shiftlar
+1690|Aloqani tekshirish
+1691|geometriya va bozor moʻljalini tekshirish
+1692|
+1693|Ishni davom ettirish
+1694|Boshqa
+1695|Boshqa ishlar
+1696|Tahlil rejimi
+1697|narxlarni QazGost bazasi bilan solishtirish
+1698|AI bilan aloqa tekshirildi
+1699|Texnologik karta boʻyicha smeta: har bir pozitsiya hajmi — sizning oʻlchamlaringizdan, narx — narxnomalar va eʼlonlardan, har bir qatorda manbasi bilan
+1700|Smeta CSV ga saqlandi
+1701|Kalitni saqlash
+1702|Maxsus ishlar
+1703|Maʼlumotnoma hali yuklanmoqda — bir necha soniya kuting
+1704|maʼlumotnoma yuklanmoqda
+1705|Maʼlumotnoma ishlamayapti
+1706|Smeta hisoblanmoqda va fotosurat tahlil qilinmoqda
+1707|Smeta texnologik karta boʻyicha hisoblanmoqda
+1708|ishlar tarkibi turlicha boʻlgan uchta ssenariy
+1709|Fasadni issiqlik izolyatsiyalash
+1710|Fotosurat va tavsif
+1711|har bir qatorda narx va manba
+1712|Olmaota narxlari ×
+1713|Nima qilamiz
+1714|Obyekt fotosuratini tanlash
+1715|{n} tagacha fotosurat · rejani {n}-qadamda chizib chiqish mumkin; «Batafsil» va «Toʻliq» rejimlarida fotosuratni AI tahlil qiladi
+1716|Obyekt yoki reja fotosuratini qoʻshish
+1717|Masalan: hammom {n}×{n} m, eski kafelni olib tashlash, keramogranit yotqizish, dush kabinasi oʻrnatish
+1718|Notoʻgʻri kalit
+1719|Vazifa tavsifi
+1720|Fayllarni qoʻyib yuboring
+1721|boʻlim
+1722|boʻlim
+1723|boʻlim
+1724|Hisob-kitob QazGost serverida texnologik kartalar boʻyicha bajariladi; hech narsa oʻylab topilmaydi va «taxminan» qoʻyilmaydi
+1725|Ishlar: {a} ₸ Materiallar: {b} ₸ Jami: {c} ₸ {n}% zaxira bilan: {d} ₸ Narxlar sanasi: {e}
+1726|QazGost smetasi [{a}], {b}, {c} m². Ishlar {d} ₸, materiallar {e} ₸, zaxira {f} ₸
+1727|Fotosuratning AI tahlili bajarilmadi: server javobi {a}{b}
+1728|
+1729|QazGost smetasi: {a} ({b}) {c}, {d} m²
+1730|Smeta tayyor: {a} ta pozitsiya, {b} ₸
+1731|{a} arizasi menejerga yuborildi
+1732|Tavsif boʻyicha: {a} («{b}» soʻzi)
+1733|Smeta boʻyicha ishlar ({a}): {b}
+1734|Fotosurat yuklandi: {a}
+1735|Xatolik ({a}): {b}
+1736|Narxlar sanasi: {a}
+1737|Tarif: {a}
+1738|Kalit: {a}
+1739|< {n} s
+1740|nuqsonlarni aniqlash serverida bitta fotosurat tahliliga
+1741|Platforma raqamlarda
+1742|hududlar boʻyicha narxlari bilan qurilish materiallari pozitsiyalari
+1743|bazadagi ESN RK narxlari: ishlar, materiallar, texnika
+1744|Aygerim Nurlanova
+1745|Interyer dizayneri, Ostona
+1746|Fotosurat yuklayman, smeta olaman va darhol mijozga koʻrsataman. Nuqsonlarni tekshirish muammolarni ish boshlanishidan oldin koʻrishga yordam beradi
+1747|Buyurtmachi, Olmaota
+1748|Qozogʻistonning turli shaharlaridan buyurtmachilar, dizaynerlar va ish boshqaruvchilar
+1749|Oʻz shahrimdan arizalar har kuni keladi. Shaffof narxlar buyurtmachi bilan koʻr-koʻrona savdolashmasdan kelishishga yordam beradi
+1750|Ish boshqaruvchi, «StroyMark» MChJ
+1751|Hammom fotosurati boʻyicha smeta qildim. Ilgari usta koʻz bilan chamalab, ikki baravar qimmat narx aytardi. Endi buning aslida qancha turishini bilaman
+1752|Foydalanuvchilar nima deydi
+1753|Muhandisning obyektga chiqishi
+1754|Buyurtmani yakunlash
+1755|HOLAT
+1756|Tur
+1757|WhatsAppda yozish: +{n}
+1758|Tom ishlari
+1759|Isitish tizimini montaj qilish
+1760|Loyiha-smeta hujjatlarini ishlab chiqish
+1761|Texnik ekspertiza
+1762|Suvoq
+1763|Elektr montaji
+1764|Katalogda bunday yoʻq. Oʻz variantingizni qoldirishingiz mumkin
+1765|ish turi
+1766|Barcha guruhlar
+1767|Ish turini tanlash
+1768|Kiritilganidek yozish
+1769|Qidiruv: septik, tom, elektr
+1770|Oʻz variantingiz: «
+1771|{n}-avgust
+1772|● JARAYONDA
+1773|● YAKUNLANDI
+1774|Texnika va brigadalarni avtomatik tanlash
+1775|JARAYONDA
+1776|Obyektga chiqish va smeta hisobi
+1777|Bajarish
+1778|Ishlar jadvalini belgilash
+1779|Jadval belgilandi
+1780|Maʼlumotlar qayd etildi. Menejer boʻsh
+1781|Vazifa tafsilotlari
+1782|YAKUNLANDI
+1783|VAZIFALAR TAYINLANDI
+1784|BUYURTMA TASDIQLANDI
+1785|BUYURTMA IJROCHIDA
+1786|Eslatmalar (muhandis uchun)
+1787|Ivan Petrov
+1788|Muhandis / Smetachi
+1789|Real vaqtda ishlashning interaktiv namoyishi
+1790|Mijoz smetani maʼqulladi
+1791|LID YARATILDI
+1792|Texnikani tayinlash
+1793|Ishni boshlash (yetib keldik)
+1794|Yangi ariza (lid)
+1795|QAYTA ISHLANDI
+1796|KUTMOQDA
+1797|Kelib tushishini kutmoqda
+1798|Hisob-kitobni kutmoqda
+1799|Muammoni va kirish tafsilotlarini tasvirlang
+1800|Ilovada belgi
+1801|Brigada tanlash
+1802|RESURSLARNI TANLASH
+1803|Tanlangan resurslar
+1804|Arizani qabul qilish
+1805|Qoʻngʻiroq va arizani qabul qilish
+1806|QABUL QILINDI
+1807|Ish bajarildi
+1808|KOʻRIB CHIQILMOQDA
+1809|Smeta hisobi
+1810|Smetani yuklab olish (PDF)
+1811|#{n} smeta shakllantirildi
+1812|Smeta PDF formatida yuklanmoqda
+1813|Saqlash va topshirish
+1814|Narxi (₸)
+1815|Ish turi
+1816|Sentralnaya koʻch., {n}
+1817|Obyektdan fayllar va fotosuratlar
+1818|Maʼlumotlarni qayd etish
+1819|JCB ekskavatori
+1820|m
+1821|Uzunlik, m
+1822|Perimetr, m
+1823|yoriqlar
+1824|Boshqa yoʻnalishdagi yana bir tomonni kiriting: rejalar koʻpincha bir oʻq boʻyicha choʻzilgan boʻladi, bitta tomon yetarli emas
+1825|Devor balandligi, m
+1826|Eshiklar {n}×{n} m
+1827|eshik {n} m · A{n} varaq m · rejadagi oʻlcham chizigʻi
+1828|uzunlik × kenglik yoki maydon
+1829|etalon uzunligi
+1830|Etalon uzunligi metrda
+1831|Uzunliklar bir-biriga shu qadar zidki, oʻqlar boʻyicha masshtabni tanlab boʻlmaydi — umumiy koʻpaytuvchi olindi
+1832|oraliqlarni chegirgan holda
+1833|{n}-qadamda reja, chizma fotosuratini yoki yuqoridan olingan suratni yuklang — va xonani shu yerda chizib chiqing
+1834|Xona burchaklarini soat mili boʻyicha bosing; birinchi nuqtani bosish konturni yopadi
+1835|Uzunligi maʼlum buyumning boshi va oxirini bosing
+1836|Kontur yopildi
+1837|Kontur yopildi. Qaytadan boshlash uchun «Tozalash»ni bosing
+1838|Rejadagi kontur
+1839|Toʻrdagi kontur
+1840|Chiziq
+1841|Etalon chiziq reja yoki aynan yuqoridan olingan surat uchun aniq. Burchak ostida olingan surat boʻlsa — «Toʻgʻri toʻrtburchak» etalonini tanlang
+1842|katak masshtabini siz belgilaysiz
+1843|Konturni yopish uchun kamida {n} ta nuqta kerak
+1844|Xonani chizib chiqing yoki oʻlchamlarni kiriting — ularsiz smetani hisoblab boʻlmaydi
+1845|Derazalar {n}×{n} m
+1846|Nuqtani bekor qilish
+1847|{n} ta burchakni belgilash
+1848|Etalonni belgilash
+1849|Burchaklarni qayta oʻlchash
+1850|Etalonni qayta oʻlchash
+1851|perimetr
+1852|Devorlar perimetri, m
+1853|Rejalar koʻpincha masshtabsiz chizilgan boʻladi. Bir-ikki tomonning haqiqiy uzunligini kiriting — masalan, rejada yozilgan xona oʻlchamlarini. Turli yoʻnalishdagi ikki tomon rejaning kenglik va balandlik boʻyicha choʻzilishini ham tuzatadi
+1854|kafel {n}×{n} · A{n}×{n} varaq · gilam yoki oʻlchamlari maʼlum xona — xuddi shu polda
+1855|maydon ·
+1856|Pol maydoni, m²
+1857|etalon boʻyicha
+1858|maydon
+1859|toʻrga bogʻlash
+1860|Toʻgʻri toʻrtburchak
+1861|Toʻgʻri toʻrtburchak (burchak ostidagi surat)
+1862|Toʻgʻri toʻrtburchak belgilandi — oʻlchamlarini tekshiring: birinchi son — {n}-burchakdan {n}-burchakkacha boʻlgan tomon
+1863|Etalon toʻgʻri toʻrtburchak perspektivani tuzatadi: faqat etalon bilan bir tekislikdagi polni chizib chiqing
+1864|oʻlcham
+1865|Toʻr katagi oʻlchami
+1866|Oʻlchamlarni qoʻlda kiritish
+1867|haqiqiy, m
+1868|Aniqlashtirishni bekor qilish
+1869|Murakkab shakl
+1870|Avval masshtabni belgilang: «{n} ta burchakni belgilash»ni bosing va oʻlchami maʼlum toʻgʻri toʻrtburchak burchaklarini bosing
+1871|Avval masshtabni belgilang: «Etalonni belgilash»ni bosing va uzunligi maʼlum buyum boʻylab chiziq torting
+1872|Oʻlchash usuli
+1873|devorlar
+1874|Tomon
+1875|Toʻgʻri toʻrtburchakning {n}-burchakdan {n}-burchakkacha tomoni, m
+1876|Toʻgʻri toʻrtburchakning {n}-burchakdan {n}-burchakkacha tomoni, m
+1877|Kontur tomonlari kesishmoqda — ortiqcha nuqtani «Nuqtani bekor qilish» tugmasi bilan olib tashlang
+1878|Burchaklar aylana boʻyicha belgilanmagan yoki uchta burchak bir chiziqda — {n} ta burchakni toʻgʻri toʻrtburchak cheti boʻylab aylanib, qaytadan belgilang
+1879|Koʻrsatilgan tomonlar parallel — ular boʻyicha ikkinchi oʻqdagi choʻzilishni aniqlab boʻlmaydi, boshqa yoʻnalishdagi tomon kerak
+1880|Bu xona masshtabini aniqlashtirish
+1881|Xona shakli
+1882|Oʻlchash uchun fotosurat
+1883|reja fotosurati + uzunlik etaloni
+1884|Kenglik, m
+1885|Bu nuqta etalon toʻgʻri toʻrtburchakning ufq chizigʻidan narida — uni metrga oʻgirib boʻlmaydi. Faqat shu tekislikdagi polni belgilang
+1886|Masshtab etaloni
+1887|Etalon belgilandi — uning haqiqiy uzunligini metrda kiriting
+1888|{n} katak =
+1889|bitta tomon
+1890|Kiritilgan uzunliklar kontur shaklidan {a} % ga farq qiladi — toʻgʻri tomonlar koʻrsatilganini va oʻlcham ichida tokcha yoki shkaf yoʻqligini tekshiring
+1891|Masshtab {a} boʻyicha kenglik va balandlik uchun alohida aniqlashtirildi: ×{b} va ×{c}
+1892|Toʻgʻri toʻrtburchakning {n} ta burchagini aylana boʻyicha bosing — {n} tadan {a} tasi belgilandi
+1893|{a} tomonining haqiqiy uzunligi, m
+1894|Masshtab {a} boʻyicha aniqlashtirildi: ×{b}
+1895|Konturni yopish ({a} nuqta)
+1896|Masshtab {a} boʻyicha aniqlashtirildi
+1897|etalon {a} m
+1898|{a} ta tomon
+1899|Parametrlar yoʻq — hajm kontur boʻyicha hisoblanadi
+1900|kontur boʻyicha
+1901|boʻlim — aniqlashtirish uchun oching
+1902|{a} param.
+1903|— bu tanlangan ish turiga mos kelmaydi, tanlovni tekshiring
+1904|, derazalar
+1905|Bazadagi oʻxshashlari
+1906|Tezkor hisob-kitob
+1907|Zaxira bilan byudjet
+1908|baza koridorida
+1909|Smetada
+1910|Materiallar xaridi qaydnomasi ·
+1911|koridordan yuqori
+1912|Qayerdan koʻrish mumkin
+1913|Ishlar jadvali ·
+1914|Batafsil: tekshiruv bilan
+1915|Hisob-kitob farazlari
+1916|Fotosuratning AI tahlili
+1917|Fotosuratning AI tahlili ·
+1918|Narx manbasi
+1919|Narx manbalari
+1920|Yakun
+1921|m · balandlik
+1922|m · devorlar
+1923|m² · eshiklar
+1924|m² · perimetr
+1925|m² (smetada — oʻlchagan maydoningiz)
+1926|Baza medianasi
+1927|Fotosuratda
+1928|koridordan past
+1929|baholash
+1930|Fotosurat boʻyicha maydon bahosi: ~
+1931|poz.
+1932|Pozitsiya va hajm qanday hisoblangani
+1933|Toʻliq: jadval va xarid bilan
+1934|Smetani tekshirish
+1935|QazGost hisob-kitob bahosi
+1936|Zaxira {n}%
+1937|Baza bilan solishtirishni yashirish
+1938|Ssenariy
+1939|Narx, ₸
+1940|narxlar
+1941|Shtrixovka — texnologik tanaffus: qurish, mustahkamlik olish, bosim ostida sinash
+1942|% summa — ochiq narxnomalar va eʼlonlardagi narxlar; qolgani metodikasi bilan «baholash» deb belgilangan
+1943|AI nuqsonlarni koʻrish va ishlar tanlovini tekshirishga yordam beradi; smetadagi narxlar va hajmlar — faqat oʻlchash va maʼlumotnomadan
+1944|QazGost bazasi bilan solishtirishni koʻrsatish ({a} poz.)
+1945|{a}-kundan, {b} kun
+1946|oʻrtasi {a}–{b}
+1947|, {a} ta chetlanishsiz
+1948|XARID QAYDNOMASI
+1949|Balandlik, m
+1950|Narx qayerdan olingan
+1951|ISHLAR JADVALI
+1952|Hisob-kitob sanasi
+1953|Davomiyligi, kun
+1954|Farazlar
+1955|Jami, kun

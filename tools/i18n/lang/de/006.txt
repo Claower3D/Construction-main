@@ -1,0 +1,300 @@
+1656|Letzte Berechnungen
+1657|
+1658|keine Maße
+1659|Keine Maße: Umranden Sie den Raum im Raster oder auf dem Plan oder geben Sie Länge und Breite ein
+1660|Aufmaß
+1661|aufmessen
+1662|messen Sie den Raum auf
+1663|Rohbau
+1664|Mengen nach Aufmaß und Verbrauchsnormen
+1665|Fenster
+1666|beschreiben Sie die Aufgabe in Schritt {n}
+1667|Beschreiben Sie die Aufgabe in Schritt {n} — die Art der Arbeiten wird anhand der Wörter bestimmt
+1668|Verbleibend
+1669|Wandgestaltung
+1670|Öffnen Sie den Bereich „Meine Aufträge“
+1671|
+1672|an den Manager gesendet
+1673|Auftrag nach Kostenvoranschlag aufgeben
+1674|Fehler bei der Prüfung des Schlüssels
+1675|Netzwerkfehler
+1676|Netzwerkfehler bei der Prüfung der API
+1677|Neu berechnen
+1678|Kostenvoranschlag neu berechnen
+1679|Umfang · Wände
+1680|Persönlicher API-Schlüssel
+1681|Zur Anfrage „
+1682|nach Beschreibung
+1683|Die Art der Arbeiten ließ sich aus der Beschreibung nicht bestimmen. Beschreiben Sie die Aufgabe genauer oder wählen Sie die Kategorie manuell
+1684|Brandmeldeanlage
+1685|Suche nach Art der Arbeiten
+1686|Vollständig
+1687|Böden und Fliesen
+1688|
+1689|Decken
+1690|Verbindung prüfen
+1691|Prüfung der Geometrie und des Marktrichtwerts
+1692|
+1693|Weiterarbeiten
+1694|Sonstiges
+1695|Sonstige Arbeiten
+1696|Analysemodus
+1697|Preisabgleich mit der QazGost-Datenbank
+1698|Verbindung zur KI geprüft
+1699|Kostenvoranschlag nach Arbeitskarte: Die Menge jeder Position ergibt sich aus Ihren Maßen, der Preis aus Preislisten und Anzeigen mit Quelle in jeder Zeile
+1700|Kostenvoranschlag als CSV gespeichert
+1701|Schlüssel speichern
+1702|Spezialarbeiten
+1703|Das Verzeichnis wird noch geladen — warten Sie ein paar Sekunden
+1704|Verzeichnis wird geladen
+1705|Verzeichnis nicht erreichbar
+1706|Kostenvoranschlag wird berechnet, Fotos werden analysiert
+1707|Kostenvoranschlag wird nach Arbeitskarte berechnet
+1708|drei Szenarien mit unterschiedlichem Arbeitsumfang
+1709|Fassadendämmung
+1710|Foto und Beschreibung
+1711|Preis und Quelle in jeder Zeile
+1712|Preise Almaty ×
+1713|Was wir tun
+1714|Foto des Objekts auswählen
+1715|bis zu {n} Fotos · den Plan können Sie in Schritt {n} umranden; in den Modi „Detailliert“ und „Vollständig“ analysiert die KI das Foto
+1716|Foto des Objekts oder des Plans hinzufügen
+1717|Zum Beispiel: Bad {n}×{n} m, alte Fliesen entfernen, Feinsteinzeug verlegen, Duschkabine einbauen
+1718|Ungültiger Schlüssel
+1719|Aufgabenbeschreibung
+1720|Dateien loslassen
+1721|Abschnitt
+1722|Abschnitte
+1723|Abschnitte
+1724|Die Berechnung läuft auf dem QazGost-Server nach Arbeitskarten; nichts wird erfunden oder „ungefähr“ eingesetzt
+1725|Arbeiten: {a} ₸ Materialien: {b} ₸ Summe: {c} ₸ Mit Reserve {n}%: {d} ₸ Preisstand {e}
+1726|Kostenvoranschlag QazGost [{a}], {b}, {c} m². Arbeiten {d} ₸, Materialien {e} ₸, Reserve {f} ₸
+1727|KI-Fotoanalyse nicht ausgeführt: Der Server antwortete {a}{b}
+1728|
+1729|Kostenvoranschlag QazGost: {a} ({b}) {c}, {d} m²
+1730|Kostenvoranschlag fertig: {a} Positionen, {b} ₸
+1731|Anfrage {a} an den Manager gesendet
+1732|Nach Beschreibung: {a} (Wort „{b}“)
+1733|Arbeiten laut Kostenvoranschlag ({a}): {b}
+1734|Foto hochgeladen: {a}
+1735|Fehler ({a}): {b}
+1736|Preisstand {a}
+1737|Tarif: {a}
+1738|Schlüssel: {a}
+1739|< {n} s
+1740|für die Analyse eines Fotos durch den Server der Mängelerkennung
+1741|Die Plattform in Zahlen
+1742|Baustoffpositionen mit Preisen nach Regionen
+1743|Preise der ESN RK in der Datenbank: Arbeiten, Materialien, Maschinen
+1744|Aigerim Nurlanova
+1745|Innenarchitektin, Astana
+1746|Ich lade ein Foto hoch, erhalte den Kostenvoranschlag und zeige ihn sofort dem Kunden. Die Mängelprüfung hilft, Probleme vor Beginn der Arbeiten zu erkennen
+1747|Auftraggeber, Almaty
+1748|Auftraggeber, Designer und Bauleiter aus verschiedenen Städten Kasachstans
+1749|Anfragen aus meiner Stadt kommen jeden Tag. Transparente Preise helfen, sich mit dem Auftraggeber zu einigen, ohne blind zu feilschen
+1750|Bauleiter, TOO „StroyMark“
+1751|Ich habe einen Kostenvoranschlag per Foto vom Bad erstellt. Früher schätzte der Handwerker nach Augenmaß und nannte den doppelten Preis. Jetzt weiß ich, was es wirklich kostet
+1752|Das sagen die Nutzer
+1753|Ortstermin des Ingenieurs
+1754|Auftrag abschließen
+1755|STATUS
+1756|Art
+1757|Per WhatsApp schreiben: +{n}
+1758|Dacharbeiten
+1759|Heizungsmontage
+1760|Erstellung der Planungsunterlagen
+1761|Technisches Gutachten
+1762|Putz
+1763|Elektroinstallation
+1764|Das gibt es im Katalog nicht. Sie können eine eigene Variante eintragen
+1765|Arten von Arbeiten
+1766|Alle Gruppen
+1767|Auswahl der Art der Arbeiten
+1768|So übernehmen, wie eingegeben
+1769|Suche: Klärgrube, Dach, Elektrik
+1770|Eigene Variante: „
+1771|{n}. August
+1772|● IN ARBEIT
+1773|● ABGESCHLOSSEN
+1774|Automatische Auswahl von Maschinen und Teams
+1775|IN ARBEIT
+1776|Ortstermin und Kalkulation
+1777|Ausführung
+1778|Bauzeitenplan festlegen
+1779|Bauzeitenplan festgelegt
+1780|Daten erfasst. Der Manager ist frei
+1781|Details der Aufgabe
+1782|ABGESCHLOSSEN
+1783|AUFGABEN ZUGEWIESEN
+1784|AUFTRAG BESTÄTIGT
+1785|AUFTRAG BEIM AUFTRAGNEHMER
+1786|Notizen (für den Ingenieur)
+1787|Iwan Petrow
+1788|Ingenieur / Kalkulator
+1789|Interaktive Vorführung der Arbeit in Echtzeit
+1790|Der Kunde hat den Kostenvoranschlag freigegeben
+1791|LEAD ERSTELLT
+1792|Zuweisung der Maschinen
+1793|Arbeit beginnen (angekommen)
+1794|Neue Anfrage (Lead)
+1795|BEARBEITET
+1796|WARTET
+1797|Wartet auf Eingang
+1798|Wartet auf Kalkulation
+1799|Beschreiben Sie das Problem und die Zugangsdetails
+1800|Vermerk in der App
+1801|Teamauswahl
+1802|RESSOURCENAUSWAHL
+1803|Ausgewählte Ressourcen
+1804|Annahme der Anfrage
+1805|Annahme des Anrufs und der Anfrage
+1806|ANGENOMMEN
+1807|Arbeit ausgeführt
+1808|IN PRÜFUNG
+1809|Kalkulation
+1810|Kostenvoranschlag herunterladen (PDF)
+1811|Kostenvoranschlag #{n} erstellt
+1812|Der Kostenvoranschlag wird als PDF heruntergeladen
+1813|Speichern und übergeben
+1814|Kosten (₸)
+1815|Art der Arbeiten
+1816|Zentralnaja-Str. {n}
+1817|Dateien und Fotos vom Objekt
+1818|Datenerfassung
+1819|Bagger JCB
+1820|m
+1821|Länge, m
+1822|Umfang, m
+1823|Risse
+1824|Tragen Sie noch eine Seite in der anderen Richtung ein: Pläne sind oft entlang einer Achse verzerrt, und eine Seite reicht nicht
+1825|Wandhöhe, m
+1826|Türen {n}×{n} m
+1827|Tür {n} m · Blatt A{n} m · Maßlinie auf dem Plan
+1828|Länge × Breite oder Fläche
+1829|Länge des Referenzmaßes
+1830|Länge des Referenzmaßes in Metern
+1831|Die Längen widersprechen sich so stark, dass sich kein Maßstab je Achse bestimmen lässt — es wurde ein gemeinsamer Faktor verwendet
+1832|abzüglich Öffnungen
+1833|Laden Sie in Schritt {n} ein Foto des Plans, der Zeichnung oder eine Aufnahme von oben hoch — und umranden Sie den Raum hier
+1834|Klicken Sie die Ecken des Raums im Uhrzeigersinn an; ein Klick auf den ersten Punkt schließt den Umriss
+1835|Klicken Sie auf Anfang und Ende eines Gegenstands bekannter Länge
+1836|Umriss geschlossen
+1837|Umriss geschlossen. Um neu zu beginnen, klicken Sie auf „Leeren“
+1838|Umriss auf dem Plan
+1839|Umriss im Raster
+1840|Linie
+1841|Die Referenzlinie ist für einen Plan oder eine Aufnahme genau von oben exakt. Bei einer Schrägaufnahme wählen Sie die Referenz „Rechteck“
+1842|den Maßstab der Rasterzelle legen Sie fest
+1843|Es sind mindestens {n} Punkte nötig, um den Umriss zu schließen
+1844|Umranden Sie den Raum oder geben Sie die Maße ein — ohne sie lässt sich kein Kostenvoranschlag berechnen
+1845|Fenster {n}×{n} m
+1846|Punkt rückgängig
+1847|{n} Ecken markieren
+1848|Referenz markieren
+1849|Ecken neu messen
+1850|Referenz neu messen
+1851|Umfang
+1852|Wandumfang, m
+1853|Grundrisse sind oft nicht maßstäblich gezeichnet. Tragen Sie die echte Länge von ein bis zwei Seiten ein — zum Beispiel die auf dem Plan angegebenen Raummaße. Zwei Seiten unterschiedlicher Richtung korrigieren auch die Verzerrung des Plans in Breite und Höhe
+1854|Fliese {n}×{n} · Blatt A{n}×{n} · Teppich oder Raum mit bekannten Maßen — auf demselben Boden
+1855|Fläche ·
+1856|Bodenfläche, m²
+1857|nach Referenz
+1858|Feld
+1859|Rasterfang
+1860|Rechteck
+1861|Rechteck (Schrägaufnahme)
+1862|Rechteck markiert — prüfen Sie seine Maße: Die erste Zahl ist die Seite von Ecke {n} zu Ecke {n}
+1863|Das Referenzrechteck korrigiert die Perspektive: Umranden Sie nur den Boden in derselben Ebene wie die Referenz
+1864|Größe
+1865|Größe der Rasterzelle
+1866|Maße manuell
+1867|real, m
+1868|Korrektur zurücksetzen
+1869|Komplexe Form
+1870|Legen Sie zuerst den Maßstab fest: Klicken Sie auf „{n} Ecken markieren“ und klicken Sie die Ecken eines Rechtecks bekannter Größe an
+1871|Legen Sie zuerst den Maßstab fest: Klicken Sie auf „Referenz markieren“ und ziehen Sie eine Linie entlang eines Gegenstands bekannter Länge
+1872|Aufmaßmethode
+1873|Wände
+1874|Seite
+1875|Seite des Rechtecks von Ecke {n} zu Ecke {n}, m
+1876|Seite des Rechtecks von Ecke {n} zu Ecke {n}, m
+1877|Die Seiten des Umrisses schneiden sich — entfernen Sie den überflüssigen Punkt mit „Punkt rückgängig“
+1878|Die Ecken wurden nicht reihum markiert oder drei Ecken liegen auf einer Linie — markieren Sie die {n} Ecken neu, indem Sie das Rechteck am Rand umlaufen
+1879|Die angegebenen Seiten sind parallel — die Verzerrung entlang der zweiten Achse lässt sich daraus nicht bestimmen, es wird eine Seite in anderer Richtung benötigt
+1880|Maßstab dieses Raums präzisieren
+1881|Raumform
+1882|Foto für das Aufmaß
+1883|Foto des Plans + Referenzlänge
+1884|Breite, m
+1885|Dieser Punkt liegt hinter der Horizontlinie des Referenzrechtecks — er lässt sich nicht in Meter umrechnen. Markieren Sie nur den Boden derselben Ebene
+1886|Maßstabsreferenz
+1887|Referenz markiert — geben Sie ihre echte Länge in Metern an
+1888|{n} Zelle =
+1889|einer Seite
+1890|Die eingegebenen Längen weichen um {a} % von der Form des Umrisses ab — prüfen Sie, ob die richtigen Seiten angegeben sind und ob Nischen oder Schränke im Maß enthalten sind
+1891|Maßstab anhand von {a} Seiten getrennt nach Breite und Höhe präzisiert: ×{b} und ×{c}
+1892|Klicken Sie die {n} Ecken des Rechtecks reihum an — {a} von {n} markiert
+1893|Echte Länge der Seite {a}, m
+1894|Maßstab präzisiert anhand von {a}: ×{b}
+1895|Umriss schließen ({a} Pkt.)
+1896|Maßstab präzisiert anhand von {a}
+1897|Referenz {a} m
+1898|{a} Seiten
+1899|Keine Parameter — die Menge wird nach dem Umriss berechnet
+1900|nach Umriss
+1901|Abschnitte — zum Präzisieren öffnen
+1902|{a} Param.
+1903|— das stimmt nicht mit der gewählten Art der Arbeiten überein, prüfen Sie die Auswahl
+1904|, Fenster
+1905|Vergleichswerte in der Datenbank
+1906|Schnelle Berechnung
+1907|Budget mit Reserve
+1908|im Korridor der Datenbank
+1909|Im Kostenvoranschlag
+1910|Einkaufsliste der Materialien ·
+1911|über dem Korridor
+1912|Wo nachsehen
+1913|Bauzeitenplan ·
+1914|Detailliert: mit Prüfung
+1915|Annahmen der Berechnung
+1916|KI-Fotoanalyse
+1917|KI-Fotoanalyse ·
+1918|Preisquelle
+1919|Preisquellen
+1920|Ergebnis
+1921|m · Höhe
+1922|m · Wände
+1923|m² · Türen
+1924|m² · Umfang
+1925|m² (im Kostenvoranschlag — die Fläche Ihres Aufmaßes)
+1926|Median der Datenbank
+1927|Auf dem Foto
+1928|unter dem Korridor
+1929|Schätzung
+1930|Flächenschätzung nach Foto: ~
+1931|Pos.
+1932|Position und wie die Menge berechnet wurde
+1933|Vollständig: mit Bauzeitenplan und Einkauf
+1934|Prüfung des Kostenvoranschlags
+1935|Rechnerische Schätzung von QazGost
+1936|Reserve {n}%
+1937|Abgleich mit der Datenbank ausblenden
+1938|Szenario
+1939|Preis, ₸
+1940|Preise
+1941|Schraffur — technologische Pause: Trocknung, Festigkeitsentwicklung, Druckprüfung
+1942|% der Summe — Preise aus offenen Preislisten und Anzeigen; der Rest ist als „Schätzung“ mit Methodik gekennzeichnet
+1943|Die KI hilft, Mängel zu erkennen und die Auswahl der Arbeiten zu prüfen; Preise und Mengen im Kostenvoranschlag stammen nur aus dem Aufmaß und dem Verzeichnis
+1944|Abgleich mit der QazGost-Datenbank anzeigen ({a} Pos.)
+1945|ab Tag {a}, {b} Tg.
+1946|Mitte {a}–{b}
+1947|, ohne {a} Ausreißer
+1948|EINKAUFSLISTE
+1949|Höhe, m
+1950|Wo der Preis ermittelt wurde
+1951|BAUZEITENPLAN
+1952|Datum der Berechnung
+1953|Dauer, Tg.
+1954|Annahmen
+1955|Summe, Tage

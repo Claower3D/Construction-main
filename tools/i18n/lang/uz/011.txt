@@ -1,0 +1,151 @@
+2989|kishi
+2991|Ishda
+3143|Obyekt
+3360|chiqish
+3535|mm
+3820|Loyiha
+3825|avto
+3827|Oʻchirgichlar, dona
+3828|Chuqurlik, m
+3829|Ha, sovuq va issiq suv
+3830|Trassa uzunligi, m
+3832|Quduqlar, dona
+3836|Narxni hisoblash
+3837|Rozetkalar, dona
+3839|Tizimlar
+3841|Kanalizatsiya, suv taʼminoti va elektr narxi — Qozogʻiston meʼyorlari boʻyicha, shaharga moslab. Boʻsh maydonlar maydon boʻyicha avtomatik hisoblanadi
+3842|Suv olish nuqtalari
+3847|+ Qoʻshish
+3849|BIM model (Revit {n}D)
+3850|Mualliflik nazorati
+3852|Arxitektura boʻlimi (AR)
+3853|Xavfsizlik
+3856|Paketingiz
+3858|Qaytish
+3859|Suv taʼminoti va kanalizatsiya (VK)
+3861|Katalogdan yechimlarni tanlang
+3864|Geodeziya va oʻlchashlar
+3866|Hajmlari aniq hisoblangan nuqsonlar qaydnomasi
+3867|Nuqsonlarni aniqlash
+3868|kun
+3869|Hujjatlar
+3870|Chizmalar/rejalar bor
+3872|Konstruksiyalarni asboblar bilan tekshirish, oʻzini oʻzi boshqaruvchi tashkilot xulosasi bilan
+3874|Kolliziyalar tekshirilgan binoning {n}D axborot modeli
+3875|Obyekt haqida maʼlumot
+3876|Ijro hujjatlari
+3879|Konstruktiv boʻlim (KR)
+3880|Qurilish-montaj ishlarining loyihaga muvofiqligini nazorat qilish
+3881|Lazerli {n}D skanerlash va oʻlchov chizmalari
+3883|Arizalarim
+3885|Nazorat
+3886|Obyekt nomi
+3888|Sifat va yashirin ishlarning mustaqil nazorati {n}/{n}
+3891|Obyekt qiymatining meʼyoriy va bozor smeta hisobi
+3892|Tekshiruv
+3893|Isitish, ventilyatsiya va konditsionerlash (OViK)
+3904|Batafsil
+3905|Yongʻin xavfsizligi (APS / SOUE)
+3906|Arxitektura chizmalari va {n}D fasad yechimlarining toʻliq toʻplami
+3907|Obyektni GASK ga topshirish uchun hujjatlarning toʻliq toʻplami
+3908|PPR / POS
+3909|Suv quvuri, nasos stansiyalari va kanalizatsiya loyihasi
+3910|Mikroiqlim, isitish va havo kiritish ventilyatsiyasi loyihasi
+3912|Ishlarni bajarish loyihasi va maydonchaning qurilish bosh rejasi
+3913|Strukturalangan kabel tizimi, videokuzatuv va kirishni nazorat qilish tizimi loyihasi
+3914|Elektr taʼminoti, yashindan himoya va yoritish loyihasi
+3915|Loyihalash (loyiha-smeta hujjatlari & BIM)
+3917|Yongʻindan himoya, signalizatsiya va yongʻinni oʻchirish boʻlimi
+3920|Temir-beton va poʻlat konstruksiyalar hisobi va chizmalari
+3926|Kuchsiz tok tizimlari (SS/SKS)
+3927|Smeta / BoQ (GESN/SNIP)
+3928|Smeta va ruxsat beruvchi hujjatlar
+3932|Shoshilinch (+{n}%)
+3933|Shoshilinchlik
+3934|Qurilish nazorati
+3935|Professional Fluke teplovizori bilan suratga olish
+3937|Teplovizion tekshiruv
+3939|Texnik tekshiruv
+3942|Ekspertiza va tekshiruv
+3944|Ekspress (+{n}%)
+3945|Elektr (EOM)
+3946|Energetik tekshiruv va issiqlik yoʻqotishlarini aniqlash
+3947|Bino energoauditi
+3948|Energiya samaradorligi
+3949|Qavatlar soni
+4016|LiDAR skaner
+4017|QazGost AI — nuqtalar bulutini tahlil qilish, xonalarni oʻlchash, chetlanishlarni tekshirish
+4019|Skanni tahlil qilish
+4023|Uzunlik, kenglik, balandlik, maydon
+4024|LiDAR skanini yuklang
+4027|yoki faylni shu yerga torting
+4028|Manbalar: iPhone Pro, iPad Pro, Leica BLK{n}, Matterport
+4033|Yuklash uchun bosing
+4035|Oʻlchashlar
+4036|Chetlanishlar
+4037|Qoʻllab-quvvatlanadigan formatlar: .las, .laz, .ply, .pcd, .xyz
+4041|SNiP {n}-{n} boʻyicha tekshirish
+4042|Skaner boʻlimlari
+4045|Natijalar
+4050|Vizualizatsiya uchun eksport
+4067|Fasad ishlari
+4079|p.m
+4092|rulon
+4150|JAMI BUYURTMALAR
+4155|AMALLAR
+4157|Ijrochini kutmoqda
+4159|Yakunlanganlar
+4162|BUYURTMA
+4165|Buyurtmalar
+4166|Buyurtmalar topilmadi
+4173|MIJOZ
+4187|UMUMIY SUMMA
+4197|Buyurtma raqami, obyekt nomi yoki mijoz boʻyicha qidirish
+4199|Tizim foydalanuvchisi
+4206|Buyurtma yarating yoki tasmadagi arizaga taklif yuboring
+4207|Buyurtma yaratish
+4210|Buyurtmalar roʻyxati
+4213|SUMMA
+4216|Buyurtmalar jadvali
+4217|Joriy rol
+4485|Kvartirani taʼmirlash
+4489|Uy qurilishi
+4626|Qavatlar
+4719|Qalinlik
+4962|Qoplama
+4977|Asfalt
+4982|Tovar beton M{n} (B{n})
+4983|Betonlash
+5002|Oʻchirgichlar
+5004|Tekislash
+5019|Eshiklar
+5044|Xabarlagichlar
+5045|Tutunli yongʻin xabarlagichi
+5096|Metall cherepitsani montaj qilish
+5115|Qayta koʻmish
+5123|Qolip
+5139|Tekislash
+5144|Plintus
+5151|Tayyorgarlik
+5158|Boʻyash
+5184|Radiatorlar
+5198|Sanuzelni taʼmirlash
+5200|Rozetkalar
+5219|Styajka
+5260|Nuqtali chiroq oʻrnatish
+5276|Issiqlik izolyatsiyasi
+5285|Shpaklyovka
+5304|rakovina
+5305|vanna
+5306|unitaz
+5361|chelak
+5598|Fotosurat juda katta
+5605|Tasvir formatidagi fotosurat kerak
+5800|Mebel
+6535|Toza pardoz
+6787|Subpudratchi
+7056|BUYURTMACHI
+7279|«Master Servis» YaTT
+7420|«QazGost» MChJ
+7703|nuqta
+3680|poydevor

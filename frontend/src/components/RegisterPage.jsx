@@ -46,6 +46,8 @@ function ConsentTerms({ lang }) {
   if (lang === 'fr') return <span translate="no">J'ai 18 ans ou plus et j'accepte les {docLink('/terms', "conditions d'utilisation")}</span>;
   if (lang === 'it') return <span translate="no">Ho almeno 18 anni e accetto i {docLink('/terms', "termini d'uso")}</span>;
   if (lang === 'es') return <span translate="no">Tengo 18 años o más y acepto los {docLink('/terms', 'términos de uso')}</span>;
+  if (lang === 'de') return <span translate="no">Ich bin mindestens 18 Jahre alt und akzeptiere die {docLink('/terms', 'Nutzungsvereinbarung')}</span>;
+  if (lang === 'uz') return <span translate="no">Men 18 yoshga toʻlganman va {docLink('/terms', 'foydalanuvchi shartnomasini')} qabul qilaman</span>;
   // остальные языки, кроме русского, — по-английски: юридические тексты на них пока не переведены
   if (lang !== 'ru') return <span translate="no">I am 18 or older and accept the {docLink('/terms', 'Terms of Use')}</span>;
   return <span translate="no">Мне есть 18 лет, принимаю {docLink('/terms', 'пользовательское соглашение')}</span>;
@@ -91,6 +93,17 @@ function ConsentPrivacy({ lang }) {
     return (
       <span translate="no">
         Doy mi consentimiento para el {docLink('/consent', 'tratamiento de mis datos personales')}, incluida su transferencia al extranjero, conforme al {docLink('/privacy', 'aviso de privacidad')}
+  if (lang === 'de') {
+    return (
+      <span translate="no">
+        Ich willige gemäß der {docLink('/privacy', 'Datenschutzerklärung')} in die {docLink('/consent', 'Verarbeitung meiner personenbezogenen Daten')} ein, einschließlich der Übermittlung ins Ausland
+      </span>
+    );
+  }
+  if (lang === 'uz') {
+    return (
+      <span translate="no">
+        {docLink('/privacy', 'Maxfiylik siyosatiga')} muvofiq {docLink('/consent', 'shaxsiy maʼlumotlarimni qayta ishlashga')}, shu jumladan xorijga uzatishga rozilik beraman
       </span>
     );
   }

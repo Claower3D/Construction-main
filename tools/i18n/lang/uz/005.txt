@@ -1,0 +1,300 @@
+1356|KPR-{n} LYUK
+1357|Ogʻir polimer lyuk (yuklama {n} t)
+1358|KPR-{n} choʻyan-beton lyuk ({n}×{n} mm)
+1359|mashina {n}t
+1360|qop
+1361|Masalan: A{n}C armatura Ø{n}mm — {n} tonna, M{n} beton — {n} m³, keramik gʻisht — {n} dona
+1362|Katalogning notoʻgʻri javobi
+1363|Hech narsa topilmadi
+1364|Yukning umumiy massasi
+1365|Ulgurji
+1366|{n} listdan ulgurji: {n} ₸
+1367|{n} m³ dan ulgurji: {n} ₸
+1368|{n} qopdan ulgurji: {n} ₸
+1369|{n} taglikdan ({n} dona) ulgurji: {n} ₸
+1370|{n} tonnadan ulgurji: {n} ₸
+1371|{n} oʻramdan ulgurji: {n} ₸
+1372|{n} xlistdan ulgurji: {n} ₸
+1373|{n} donadan ulgurji: {n} ₸
+1374|Ulgurji tender arizasi Qozogʻiston yetkazib beruvchilariga joʻnatildi
+1375|QazGost narxlar bazasidan bozor moʻljali; xaridni platforma menejeri bajaradi
+1376|{n} mashinadan: {n} ₸
+1377|Buyurtma va yetkazib berishni rasmiylashtirish
+1378|Qurilish materiallari buyurtmasini rasmiylashtirish
+1379|Yuvilgan qurilish qumi
+1380|Yuvilgan daryo qumi, fraksiya {n}-{n} mm (samosval {n} t)
+1381|{n} PP {n}-{n} yopma plitasi (d={n}m, teshikli)
+1382|PP {n}-{n} yopma plitasi (d={n}m)
+1383|Konstruksiya maydoni / hajmi (m²)
+1384|Kuzatuv qudugʻi lyuki ostiga
+1385|Tasdiqlash va arizani yuborish
+1386|poz.)
+1387|POLIMER {n}T
+1388|«Kazcement» portlandsementi M{n} D{n} ({n} kg qop)
+1389|PREMIUM
+1390|Yetkazib berish radiusi
+1391|Yetkazib berish radiusi, km
+1392|Yetkazib beruvchilarga tender soʻrovini joʻnatish
+1393|Materiallar spetsifikatsiyasini hisoblash
+1394|Kesish va texnologik yoʻqotishlar uchun zaxira: +{n}%
+1395|Tavsiya etilgan materiallar qaydnomasi:
+1396|Chakana: {n} ₸ / hujjatlar bilan: {n} ₸
+1397|rulon
+1398|bozori,
+1399|Standart lyuk uchun teshikli
+1400|GOST / ST RK sertifikati
+1401|Sertifikatlash va mavjudlik
+1402|SERTIFIKATLANGAN
+1403|Bitta pozitsiya uchun miqdor juda katta
+1404|Narx boʻyicha saralash qoʻllandi:
+1405|Materiallar roʻyxati yoki tavsifi
+1406|QazGost maʼlumot narxi (Qozogʻiston bozori, {n})
+1407|Maʼlumot uchun
+1408|ST RK GOST {n}
+1409|ST RK GOST {n}-{n}
+1410|Mahsulotlar qiymati (
+1411|Pol styajkasi va tekislash
+1412|TABYS-ASM
+1413|Konstruksiya turi
+1414|Tovar beton M-{n} (B{n})
+1415|M-{n} (B{n}) markali tovar beton, mikser bilan yetkazib berish
+1416|Faqat mavjudlari
+1417|tonna
+1418|tonna
+1419|«Almatinskiy Kirpichniy Zavod №{n}» MChJ
+1420|«ArcelorMittal Temirtau Sbyt» MChJ
+1421|«KazMetService» MChJ
+1422|«KazCement Industry» MChJ
+1423|«Karyer NerudTrans» MChJ
+1424|«Knauf Gips Kazakhstan» MChJ
+1425|«Knauf Gips» MChJ
+1426|«Penoplex RK» MChJ
+1427|«TABYS - ASM» MChJ (Natalya)
+1428|«TechnoNICOL Kazakhstan» MChJ
+1429|«Ecoton-Batys» MChJ
+1430|ENG YAXSHI TANLOV
+1431|Profil quvur {n}×{n}×{n} mm (xlist {n} m)
+1432|Poydevor va yertoʻlalar uchun ogʻir beton
+1433|Pozitsiyada narx yoʻq — narxni yetkazib beruvchidan soʻrang
+1434|Miqdorni oshirish
+1435|Ism, telefon va yetkazib berish manzilini kiriting
+1436|Kerakli qurilish materiallari roʻyxatini kiriting. Tizim akkreditatsiyalangan bazalar va zavodlarni avtomatik xabardor qiladi, siz esa {n}% gacha chegirmali tijorat takliflarini olasiz
+1437|Miqdorni kamaytirish
+1438|oʻram ({n} m²)
+1439|KUCHAYTIRILGAN
+1440|Kuchaytirilgan temir-beton elektr uzatish tayanchi {n}m
+1441|TechnoNICOL Rocklight mineral paxta izolyatsiyasi ({n}×{n}×{n} mm)
+1442|Armaturalovchi fibra tolasi
+1443|Filtrlar tozalandi
+1444|Fotosurat yoʻq ·
+1445|FBS POYDEVOR
+1446|XARIDORGIR
+1447|Septik va quduqlar uchun xaridorgir mahsulot
+1448|XARIDORGIR SEPTIK
+1449|xlist ({n}m)
+1450|M{n} D{n} sement ({n} kg)
+1451|Knauf Rotband gips suvogʻi ({n} kg)
+1452|PENOPLEX Komfort ekstruziyalangan penopolistirol {n} mm
+1453|ENERGIYA SAMARADORLIGI
+1454|Valday {n}t
+1455|Kamaz {n}t
+1456|Obyektga qurilish materiallari buyurtmasi: {a}. Tarkib: {b}. Transport: {c}. Toʻlov: {d}
+1457|{a} buyurtmasi rasmiylashtirildi va toʻplash uchun menejerga yuborildi! 🧱
+1458|Hisob-kitob SNiP RK meʼyorlari boʻyicha {a} m² obyekt uchun bajarildi
+1459|Butun partiyani yetkazish uchun tavsiya etilgan transport: {a}
+1460|Obyektga qurilish materiallari buyurtmasi: {a}. Tarkib: {b}
+1461|Keyingi sahifani yuklab boʻlmadi: {a}
+1462|Qurilish materiallarini yetkazib berish ({a} nom, {b} t)
+1463|«{a}» birligi uchun butun son kiriting
+1464|Yetkazib beruvchi omborida faqat {a} {b} bor
+1465|Savatga qoʻshildi: {a} ({b} {c})
+1466|Yana koʻrsatish ({b} tadan {a} tasi koʻrsatilgan)
+1467|Miqdor va narxni tekshiring: «{a}»
+1468|«{a}» soʻrovi boʻyicha materiallar yoʻq
+1469|Toifa tasviri: {a}
+1470|— koeffitsiyent ×{a}
+1471|koeffitsiyent: {a}
+1472|, yetkazib beruvchi {a}
+1473|{a} hududi uchun
+1474|Miqdor, {a}
+1475|Sahifa topilmadi — QazGost AI
+1476|Tayyor ✓
+1477|Oʻtkazib yuborish
+1478|Ish turi
+1479|Kamerani yopish
+1480|Jami
+1481|Premium
+1482|Ish
+1483|Taʼmirlash
+1484|Standart
+1485|Ekonom
+1486|₸/m² · materiallar
+1487|PDF dalolatnoma tayyor va saqlandi
+1488|Nuqsonlar dalolatnomalari
+1489|Koʻproq
+1490|Yoq.
+1491|Smetalarni saqlash uchun kiring
+1492|Chiqindilarni olib chiqish
+1493|Gipsokarton
+1494|Mehmon
+1495|Ilova demosi
+1496|Namuna uchun demo-hisob
+1497|Kenesari {n} · koʻrikda
+1498|m² ·
+1499|m² · Ostona · {n} narxlari
+1500|Kamroq
+1501|Brigada topish
+1502|Yangi smeta
+1503|Ish turi aniqlanmoqda
+1504|Ostonadagi {n} ta brigadaga yuborildi
+1505|Ofis, Turon {n}
+1506|Ostona boʻyicha narxlar tanlanmoqda
+1507|Devorlarni boʻyash
+1508|Fotosuratni tekshirish
+1509|Stoyak yonida suv sizishi
+1510|Aniqlash
+1511|Suratga olish
+1512|Smeta PDF saqlandi
+1513|Devorni toʻliq suratga oling
+1514|Devor · {n} m²
+1515|Dalolatnoma tuzish
+1516|Maydon va hajmlar hisoblanmoqda
+1517|Sigʻanoq {n} · {n} mm
+1518|Yoriq · {n}%
+1519|Suvoqdagi yoriq
+1520|Kafel yotqizish
+1521|Yoriq kengligi
+1522|Devorlarni suvash
+1523|Til
+1524|Ochish: {a}
+1525|«{a}» soʻrovi boʻyicha toifalar yoʻq. Boshqa soʻzni sinab koʻring
+1526|{a} ta toifada {n} ta narx, {n}-yil narxlari boʻyicha
+1527|Oraliq: {a} – {b} ₸
+1528|{n} ta belgi (masalan, {n})
+1529|{n}. Tayyor
+1530|{n}. Aloqa
+1531|{n}. Loyiha
+1532|{n}. Mijoz turi
+1533|VIPni oyiga {n} ₸ ga faollashtirish
+1534|Anketa tozalandi
+1535|Basseyn / Hammom
+1536|Kompaniya BIN / IIN
+1537|Tezkor shablonlar
+1538|Butun anketani tozalashga ishonchingiz komilmi
+1539|Oʻz maxsus texnikangizni qoʻshing, obyektlarga biriktiring va bevosita ijaraga bering
+1540|Yoʻl / Maydoncha
+1541|VIP maqomi bilan mavjud
+1542|Boshqa
+1543|Devor / Darvoza
+1544|Fotosurat yuklash
+1545|Anketani toʻldirish
+1546|Sizni qanday loyiha qiziqtiradi
+1547|{n} m² kvartirani 'kalit topshirish' sharti bilan kapital taʼmirlash
+1548|Aloqa maʼlumotlari
+1549|Shaxsiy menejer {n}/{n}
+1550|Brigadalarim
+1551|Texnikam
+1552|Loyihangizni tasvirlang
+1553|Ofis / Doʻkon
+1554|VIP kirishni ulash
+1555|VIPni ulash
+1556|VIP obunasi muvaffaqiyatli faollashtirildi
+1557|Shaxsiy texnika parkini cheklovsiz joylashtirish, GPSni kuzatish va buyurtmalarni komissiyasiz qabul qilish imkoniyatiga ega boʻling
+1558|Buyurtmachilarga koʻrsatishda ustuvorlik
+1559|Ombor / Sex
+1560|Anketani saqlash
+1561|Mijoz turi
+1562|'QazStroyGroup' MChJ
+1563|MChJ, YaTT, AJ — naqdsiz hisob-kitob, yopuvchi hujjatlar
+1564|Trotuar plitkasini yotqizish va {n}m devor oʻrnatish
+1565|Shaxsiy profil va talablarni boshqarish
+1566|Bir vaqtda {n} tagacha brigadani boshqaring, avtomatik naryad-ruxsatnomalar tuzing va moliyaviy hisobot yuriting
+1567|Tekshirilgan brigadalaringizni boshqaring, ish boshqaruvchilarni tayinlang va bosqichlarni taqsimlang
+1568|Jismoniy shaxs
+1569|Profil fotosurati muvaffaqiyatli yuklandi
+1570|{n} qavatli, {n} m² tekis tomli uy qurmoqchimiz
+1571|Garajli {n} m² ikki qavatli uy qurmoqchimiz. Yer uchastkasi Besagʻash tumanida
+1572|Xususiy mijoz, oʻzi uchun qurilish yoki taʼmirlash
+1573|Tavsif qanchalik batafsil boʻlsa, smetani avtomatik hisoblash va ijrochilarni tanlash shunchalik aniq boʻladi
+1574|Smetalarni Excel va {n}C ga eksport qilish
+1575|Yuridik shaxs
+1576|Yashash / obyekt manzili
+1577|Ivanov Ivan Ivanovich
+1578|Abay koʻch., {n}-uy, {n}-xonadon
+1579|Profil fotosurati • JPG, PNG (tanlash uchun bosing)
+1580|Anketa saqlandi! Profil {a}% toʻldirildi
+1581|, shu jumladan xorijga uzatishga, quyidagiga muvofiq:
+1582|Aygerim Saparova
+1583|Beraman:
+1584|Men {n} yoshga toʻlganman, qabul qilaman:
+1585|maxfiylik siyosati
+1586|foydalanuvchi shartnomasi
+1587|Roʻyxatdan oʻtish — QazGost AI
+1588|shaxsiy maʼlumotlarni qayta ishlashga rozilik
+1589|Akkaunt: {a}. Boshqasini yaratish uchun avval bundan chiqing
+1590|Maxsus texnika ({a})
+1591|» boʻyicha hech narsa yoʻq. Boshqa soʻzni sinab koʻring yoki vazifani tasvirlang — ish turi tavsif boʻyicha aniqlanadi
+1592|(bazaviy narxlar)
+1593|Barcha boʻlimlari bilan CSV
+1594|Asfaltlash
+1595|Bruschatka
+1596|Tezkor
+1597|
+1598|
+1599|
+1600|
+1601|
+1602|
+1603|
+1604|materiallar xaridi qaydnomasi
+1605|Ish turi tanlanmagan
+1606|Videokuzatuv
+1607|ish turi va
+1608|
+1609|tezkordagi hammasi
+1610|batafsildagi hammasi
+1611|
+1612|
+1613|ish turini tanlang
+1614|Ish turini tanlang
+1615|
+1616|
+1617|Qoʻlda tanlash
+1618|Gaz taʼminoti
+1619|shahar
+1620|shahar
+1621|shahar
+1622|tanaffuslari bilan bosqichlar boʻyicha ishlar jadvali
+1623|Eshiklar va mebel
+1624|Demontaj
+1625|Yogʻoch toʻshama
+1626|Batafsil
+1627|
+1628|Nuqsonlar & Bazaviy
+1629|Dizayn-loyiha
+1630|Maʼlumotnoma yuklanmoqda
+1631|Ariza #
+1632|Fotosuratning AI tahlili — serverning yoki sizning OpenAI kalitingiz boʻyicha
+1633|Fotosuratning AI tahlili bajarilmadi: serverga OpenAI kaliti ulanmagan. Oʻz kalitingizni «OpenAI kaliti» tugmasi orqali ulang — smeta bunga bogʻliq emas
+1634|Fotosuratning AI tahlili bajarilmadi: server bilan aloqa yoʻq
+1635|Fotosuratning AI tahlili, agar OpenAI kaliti ulangan boʻlsa
+1636|Muhandis oʻlchashga kelish va smetani aniqlashtirish uchun bogʻlanadi
+1637|Muhandislik
+1638|Jami ·
+1639|Qanday bajaramiz
+1640|
+1641|
+1642|OpenAI kaliti
+1643|OpenAI kaliti ulangan — fotosuratni AI tahlil qiladi
+1644|Kalit yaroqli! AI API bilan aloqa muvaffaqiyatli oʻrnatildi
+1645|Kompleks
+1646|kompleks
+1647|Komplekslar
+1648|Konditsionerlash
+1649|kontur
+1650|Zinapoyalar
+1651|m ·
+1652|Tashqi suv quvuri
+1653|tanlanmagan
+1654|Nimani tanlashni bilmayman — tavsif boʻyicha aniqlash
+1655|Smetani hisoblab boʻlmadi

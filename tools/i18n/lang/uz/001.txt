@@ -1,0 +1,270 @@
+260|D500 avtoklav gazoblok 600×300×200
+261|Gazobeton uchun yelim, 25 kg
+262|Armaturalash uchun bazalt toʻr
+263|Devorlarni armaturalab terish
+264|0,5 mm metall cherepitsadan ikki nishabli tom
+265|«Monterrey» metall cherepitsa 0,5 mm
+266|Stropila uchun ignabargli brus 50×150 mm
+267|Superdiffuzion membrana
+268|Stropila tizimi va toʻshamani montaj qilish
+269|Pol styajkasi
+270|Fibrali yarim quruq pol styajkasi, 60 mm
+271|PS-500 D0 sement va yuvilgan qum
+272|Polipropilen fibra tolasi 12 mm
+273|Issiq pol uchun plastifikator
+274|Mexanizatsiyalashgan yotqizish va tekislash
+275|Gʻisht terish
+276|Tom
+277|Poydevor
+278|Fasad
+279|Kvartira, Sigʻanoq 18
+280|Sanuzel, Kenesari 4
+281|Byudjetni bir daqiqada chamalang
+282|Parametrlarni kiriting — 2026-yil narxlari boʻyicha taxminiy summa olasiz. Aniq smetani xizmat fotosurat boʻyicha tuzadi.
+283|Byudjet kalkulyatori
+284|Obyekt turi
+285|Kvartira
+286|Uy
+287|Ofis
+288|Sanoat obyekti
+289|Ish turi va maydon
+290|Maydon, m²
+291|Maydon, kvadrat metr
+292|Taxminiy byudjet
+293|Bajarish muddati
+294|Ish hajmi
+295|Oraliq:
+296|Ishlar va narxlar katalogi
+297|Ish toifalari boʻyicha qidiruv
+298|Butun katalog
+299|Ish guruhlari
+300|ish
+301|toifa
+302|Barcha variantlar
+303|Umumqurilish ishlari
+304|Yer ishlari
+305|Beton va monolit
+306|Metall konstruksiyalar
+307|Deraza va eshiklar
+308|Pardozlash
+309|Muhandislik tarmoqlari
+310|Muhandislik tizimlari
+311|Loyiha va maxsus ishlar
+312|Suv taʼminoti va kanalizatsiya
+313|Isitish va issiq pol
+314|Kabel kesimi
+315|Geodeziya va toposyomka
+316|Obyektdagi hamma uchun bitta xizmat
+317|Qurilish jarayonining har bir ishtirokchisi uchun qulay asboblar.
+318|Buyurtmachilarga
+319|Pudratchilarga
+320|Loyihachilarga
+321|Texnik nazoratga
+322|Fotosurat boʻyicha smeta
+323|Fotosurat va oʻlchamlar boʻyicha smeta — har bir qatorda narx manbasi bilan
+324|Pudratchilar katalogi
+325|Ishlar sifatini nazorat qilish
+326|Buyurtmalar tasmasi
+327|Butun Qozogʻiston boʻyicha buyurtmalar tasmasi
+328|Narx va muddat koʻrsatilgan taklif — bevosita buyurtma kartasida
+329|Oʻz texnikangiz marketpleysda — ijarachilar sizni oʻzlari topadi
+330|SNiP boʻyicha hisob-kitoblar va loyiha hujjatlari
+331|Hajmlar va smetalarni tekshirish
+332|Nuqsonlarni qayd etish
+333|Nuqsonlar dalolatnomasi
+334|Nuqsonlar dalolatnomasi avtomatik
+335|Fotosurat boʻyicha nuqsonlar dalolatnomalari
+336|Tavsiyalar bilan dalolatnoma
+337|Dalolatnomalar
+338|Nuqsonlar hisoboti
+339|Tavsiyalar bilan fotohisobot
+340|SNiP va GOST RK meʼyorlari boʻyicha nuqsonlarni tekshirish
+341|Nuqsonni tekshirish
+342|Fotosurat boʻyicha hajmlarni hisoblash
+343|SNiP boʻyicha hisob-kitob
+344|Fotosurat boʻyicha hisob-kitoblar
+345|Aniq BOM hisob-kitobi
+346|Uchta narx ssenariysi
+347|Taʼmirlash narxi
+348|Takliflarni solishtirish
+349|Yetkazib beruvchilarni solishtirish
+350|Bevosita aloqa
+351|Kerakli sanalarga bron
+352|Obyektni topshirish
+353|Kelishuvlar
+354|Ish bosqichlari
+355|Hujjatlar toʻplami
+356|Hujjatlar
+357|Tarix va hisobotlar
+358|Texnik nazorat
+359|Eskiz va ishchi loyiha
+360|Injiniring va loyiha-smeta hujjatlari
+361|Muhandislik va loyiha
+362|Muhandislik kalkulyatori
+363|Kalkulyator
+364|CRM va smetalar bilan sinxronlash
+365|Dolzarb narxlar
+366|ESN RK bazasi
+367|Smetalar
+368|Platformaning barcha xizmatlari
+369|Xizmat toifalari
+370|Ishlarni tez va aniq baholash uchun toʻliq asboblar toʻplami.
+371|Pudratchilar, qurilish materiallari va maxsus texnika bitta kabinetda
+372|Pudratchilar
+373|Qurilish materiallari
+374|Maxsus texnika
+375|Materiallar
+376|Qozogʻiston hududlari boʻyicha narxlari bilan materiallar va texnika
+377|Ishlar va materiallar
+378|Brigadalar
+379|Brigadalar va buyurtmalar
+380|Ish turlari boʻyicha brigadalar
+381|Brigadalar uchun buyurtmalar
+382|Shahar boʻyicha arizalar
+383|Marketpleys
+384|Maxsus texnika marketpleysi
+385|Qurilish materiallari marketpleysi
+386|Materiallar katalogi
+387|Maxsus texnika ijarasi
+388|Buyurtma va yetkazib berish
+389|Obyektga yetkazib berish
+390|Qidiruv ishlari va geotexnika
+391|Muhandislik-geologik qidiruv ishlari
+392|SNiP RK va SP RK boʻyicha rasmiy xulosa bilan dala va laboratoriya sinovlari — loyiha, ekspertiza va bank uchun.
+393|Qidiruv ishlariga buyurtma berish
+394|Grunt laboratoriyasi
+395|Svaylarni sinash
+396|Shtamp sinovlari
+397|Statik zondlash (CPT)
+398|Burgʻilash uskunalari
+399|35 m gacha burgʻilash
+400|akkreditatsiyalangan stendlar
+401|deformatsiya moduli E
+402|500 t gacha yuklama
+403|kuch 200 kN
+404|masshtab 1:500
+405|QazGost mobil ilovasi demosi
+406|Obyektda — telefondan
+407|Smetalar va nuqsonlar dalolatnomalarini bevosita obyektda tuzing. Tez, qulay, noutbuksiz.
+408|Har qanday telefon brauzerida ishlaydi
+409|Android uchun ilova
+410|Menejer, muhandis va brigada uchun Android ilovalari
+411|iPhone uchun ilova tayyorlanmoqda
+412|iOS tez orada
+413|Ilovani yuklab olish
+414|Saytda qolish
+415|QazGost — Android uchun ilova
+416|Bitta ilovada hammasi: buyurtmachi, ijrochi, muhandis, menejer va administrator. Fotosurat boʻyicha smetalar, buyurtmalar va nuqsonlarni tekshirish — telefondan.
+417|APK fayl, {n} MB, {n} versiya. Android brauzerdan oʻrnatishga ruxsat soʻraydi.
+418|Android uchun ilovani yuklab olish, APK fayl {n} MB
+419|Android uchun ilova: barcha rollar bittada
+420|Telefondan boshlash
+421|Suratga olish
+422|Smeta tayyor
+423|Tayyor
+424|Obyektlarim
+425|Xayrli kun
+426|Bugun nima qilamiz?
+427|Bosing — interfeys jonli
+428|Ilova boʻlimlari
+429|Saqlangan smetalar va nuqsonlar dalolatnomalari
+430|Taʼmirlash uchun brigada kerak
+431|Tezlik
+432|Assalomu alaykum! Android uchun QazGost ilovasini oʻrnatmoqchiman.
+433|Koʻp beriladigan savollar
+434|Fotosurat boʻyicha narxni baholash qanday ishlaydi?
+435|Siz xona, devor yoki fasad fotosuratini yuklaysiz va maydonni koʻrsatasiz. Xizmat ish turini aniqlaydi, hajmlar va materiallarni hisoblaydi hamda ESN RK narxlar bazasi (23 864 pozitsiya) boʻyicha hududga moslab qiymatni baholaydi. Siz uchta narx variantini olasiz: ekonom, standart va premium.
+436|Nuqsonlarni tekshirish qanchalik aniq?
+437|Neyrotarmoq belgilangan yoriq fotosuratlarida oʻqitilgan: u yoriqlarni ramka bilan belgilaydi va har bir zona uchun ishonch darajasini koʻrsatadi. Korroziya, koʻchishlar, tuz chiqishi va namlikni model hozircha tasdiqlamaydi — ularni muhandis koʻrikda baholaydi. Xulosa mutaxassis tasdiqlamaguncha dastlabki deb belgilanadi.
+438|Ijrochini qanday topish mumkin?
+439|Pudratchilar katalogini oching va brigadaga bevosita qoʻngʻiroq qiling yoki tasmada buyurtma eʼlon qiling — shahringizdagi ijrochilar narx va muddat boʻyicha takliflar yuboradi. Ariza oldindan toʻlovsiz yuboriladi: narx va toʻlovni ijrochi bilan bevosita kelishasiz.
+440|Qanday toʻlov usullari qoʻllab-quvvatlanadi?
+441|Platforma orqali onlayn toʻlov hozircha ulanmoqda. Hozir buyurtmalar, texnika broni va materiallar bevosita ijrochi yoki yetkazib beruvchiga toʻlanadi — Kaspi, oʻtkazma yoki yuridik shaxslar uchun hisob-faktura orqali.
+442|Platforma bepulmi?
+443|Narxni baholash, nuqsonlarni tekshirish va kataloglar bepul. Pullik funksiyalar — quruvchilar uchun modullar va kengaytirilgan tahlil — ariza boʻyicha ulanadi, bizga yozing.
+444|Mobil ilova bormi?
+445|Sayt mobil brauzerda toʻliq ishlaydi. Muhandis va CRM menejeri uchun alohida ilovalar Android uchun mavjud, buyurtmachi uchun ilova tayyorlanmoqda.
+446|Javob topmadingizmi? Pastki oʻng burchakdagi yordamchi chatiga yoki WhatsAppga yozing.
+447|Bizga WhatsAppda yozing
+448|WhatsAppda yozish
+449|Assalomu alaykum! Men QazGost AI saytidan yozyapman. Platforma boʻyicha savolim bor.
+450|© 2026 QazGost AI. Qozogʻistonda yaratilgan.
+451|Asoschi
+452|Foydalanuvchi shartnomasi
+453|Maxfiylik siyosati
+454|Maʼlumotlarni qayta ishlashga rozilik
+455|Shaxsiy maʼlumotlarni yigʻish va qayta ishlashga rozilik
+456|QazGost AI xizmatidan foydalanish qoidalari: undan kim foydalanishi mumkin, xizmat nima qiladi va tomonlar nima uchun javob beradi.
+457|QazGost AI qanday shaxsiy maʼlumotlarni yigʻadi, nima uchun, kimga uzatadi va siz ularni qanday boshqarishingiz mumkin.
+458|QazGost AI da roʻyxatdan oʻtishda tegishli bandni belgilab beradigan roziligingiz matni.
+459|Operator rekvizitlari
+460|Nomi
+461|BIN / IIN
+462|Manzil
+463|Hujjat boʻyicha savollar:
+464|QazGost AI ga kirish
+465|QazGost AI da roʻyxatdan oʻtish
+466|Smetalar, buyurtmalar va texnika — toʻxtagan joyingizda.
+467|Fotosurat boʻyicha smetalar, nuqsonlarni tekshirish va brigadalar uchun buyurtmalar — bitta kabinetda.
+468|Buyurtmachi, brigada va muhandis uchun bitta akkaunt.
+469|Roʻyxatdan oʻtish bir daqiqa oladi, birinchi baholashni darhol qilish mumkin.
+470|Bepul, bir daqiqa oladi
+471|Yangi akkaunt
+472|Akkaunt yaratish
+473|Akkaunt yaratilmoqda…
+474|Akkauntingiz bormi?
+475|Akkauntingiz yoʻqmi?
+476|Siz allaqachon kirgansiz
+477|Akkaunt:
+478|Parol
+479|Parolingiz
+480|Parolni koʻrsatish
+481|Parolni yashirish
+482|Parolni unutdingizmi?
+483|Kirilmoqda…
+484|Autentifikatsiya xatosi
+485|Kamida 6 ta belgi
+486|Emailni tekshiring
+487|Belgilangan maydonlarni tekshiring
+488|+7 dan keyin 10 ta raqam kerak
+489|Ism yoki tashkilot nomini kiriting
+490|Shartnomani qabul qilish kerak
+491|Maʼlumotlarni qayta ishlashga rozilik kerak
+492|Akkaunt yaratish uchun shartnomani qabul qiling va shaxsiy maʼlumotlarni qayta ishlashga rozilik bering
+493|Akkaunt yaratib boʻlmadi
+494|Siz kimsiz
+495|Smeta hisoblayman, usta qidiraman
+496|Buyurtma olaman, texnikani ijaraga beraman
+497|Ism yoki kompaniya nomi
+498|Ism yoki brigada / kompaniya nomi
+499|«Master» brigadasi yoki Aydos Kim
+500|Telefon
+501|Aloqa uchun telefon
+502|Oʻz maxsus texnikam bor — marketpleysga qoʻshish
+503|Texnika turi
+504|Marka va model
+505|Davlat raqami
+506|Ijara, smena uchun ₸
+507|Roziliklar
+508|Yangiliklar va takliflarni email, SMS va WhatsApp orqali yuborish (ixtiyoriy)
+509|Buyurtmalar, takliflar va ishlar taqvimi
+510|Barcha tariflar
+511|hududiy koeffitsiyent
+512|Anketa, kataloglar va buyurtmalar tasmasi
+513|Tayyor smeta
+514|Ekskavator / yer qazish texnikasi
+515|Avtokran / manipulyator
+516|Samosval / tral
+517|Yuklagich / Bobcat
+518|Beton nasosi / mikser
+519|Burgʻilash qurilmasi
+520|Boshqa texnika
+521|Beton uskunalari
+522|Samosvallar va tyagachlar
+523|Yuklagichlar
+524|CAT 320D, KamAZ 6520
+525|LinkVeAI
+526|Yordamchi
+527|QazGost AI muhandisi
+528|Onlayn · soniyalarda javob beradi
+529|Salom! Men LinkVeAI — QazGost AI yordamchisiman. Ishlar va materiallar narxini aytaman, fotosurat boʻyicha smeta hisoblayman, brigada yoki maxsus texnika topaman. Nimadan boshlaymiz?

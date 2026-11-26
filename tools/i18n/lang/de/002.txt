@@ -1,0 +1,256 @@
+530|Hallo! Ich bin LinkVeAI. Soll ich einen Kostenvoranschlag berechnen oder Preise nennen?
+531|Fragen Sie nach Preisen, Kostenvoranschlag, Team…
+532|Nachricht an LinkVeAI
+533|Chat mit LinkVeAI öffnen
+534|Chat mit LinkVeAI — dem KI-Assistenten von QazGost
+535|Chat schließen
+536|Chat mit LinkVeAI minimieren
+537|Hinweis ausblenden
+538|Stimme einschalten
+539|Stimme ausschalten
+540|Stimme eingeschaltet
+541|Antworten vorlesen
+542|Per Sprache eingeben
+543|Aufnahme stoppen
+544|Sprechen Sie…
+545|Hört Ihnen zu…
+546|Denkt nach…
+547|Antwortet…
+548|Spricht…
+549|LinkVeAI schreibt
+550|Neu beginnen
+551|Die Verbindung ist abgebrochen, die Antwort ist nicht angekommen. Prüfen Sie das Internet und senden Sie die Frage erneut.
+552|Was kostet ein Estrich?
+553|In der Wand ist ein Riss, was tun?
+554|Kostenvoranschlag per Foto — wie funktioniert das?
+555|Wie berechnet man Kabelquerschnitt und Heizung?
+556|Was kostet Zement M500?
+557|Was kostet ein Bagger pro Schicht?
+558|Was kostet das Verputzen von 60 m² Wand?
+559|Tenge
+560|Katalog wird geladen
+561|Materialsuche
+562|Materialsuche: Zement, Betonstahl, Ziegel, Gipskarton...
+563|Direktlieferungen von Herstellerwerken in Kasachstan. Groß- und Einzelhandelspreise, Qualitätszertifikate nach GOST/ST RK, Mengenrechner und schnelle Lieferung auf die Baustelle.
+564|Materialkategorie
+565|Alle Kategorien
+566|Alle Materialien
+567|Kategorie
+568|Filter
+569|Katalogfilter
+570|Filter zurücksetzen
+571|Sortierung
+572|Sortierung:
+573|Sortierung der Ergebnisse
+574|Nach Beliebtheit
+575|Nach Bewertung
+576|Günstigste zuerst
+577|Teuerste zuerst
+578|Neueste zuerst
+579|Höchstpreis, ₸
+580|Max. Preis (pro Einheit)
+581|Lieferoptionen
+582|Mit Lieferung
+583|Mit Lieferung auf die Baustelle
+584|Selbstabholung
+585|Selbstabholung ab Lager
+586|Lieferung
+587|Großhandelsausschreibung (Preisanfrage)
+588|KI-Bedarfsrechner (BOM)
+589|Materialien im Preiskatalog
+590|Artikel
+591|Ohne Vorauszahlung
+592|Zahlung an den Lieferanten nach Bestätigung
+593|Preis auf Anfrage
+594|Kein Preis angegeben — wenden Sie sich an den Eigentümer
+595|Elektrik und Kabel
+596|Energietechnik
+597|Gipskarton und Ausbau
+598|Lacke und Farben
+599|Betonfertigteile, Ringe, Schachtabdeckungen
+600|Betonfertigteile, Ringe, Schachtabdeckungen und Masten (TABYS-ASM, Medina)
+601|Sand, Schotter, Beton
+602|Dach und Fassade
+603|Wärmedämmung und Abdichtung
+604|Wasserversorgung
+605|Betonstahl und Metall
+606|Befestigungsmittel
+607|Sanitär und Rohre
+608|Beton/Mörtel
+609|Ziegel und Blöcke
+610|Zement und Mischungen
+611|Bodenbeläge
+612|Transport
+613|Bagger, Krane, Kipper und Betonpumpen pro Schicht oder Stunde. Reservierung ohne Vorauszahlung: Der Eigentümer reserviert den Termin, die Bezahlung vereinbaren Sie direkt mit ihm.
+614|Suche nach Baumaschine, Modell oder Merkmalen (z. B.: Hitachi, 25 t)...
+615|Filter für Baumaschinen
+616|Maschine einstellen
+617|Mein Fuhrpark
+618|Meine Mieten
+619|Maschinenanfragen
+620|Erdbau
+621|Bohrtechnik
+622|Hebetechnik
+623|Straßenbau
+624|Erdbaumaschinen
+625|Hebezeuge
+626|Bagger und Lader
+627|Autokrane und Kipper
+628|Kran
+629|Heute verfügbar
+630|Nur heute verfügbare
+631|Heute belegt — wählen Sie andere Termine
+632|Verfügbar
+633|Vermietet
+634|Wartet auf ein Team
+635|Mit Bediener
+636|Preis pro Schicht
+637|Schichtweise
+638|Miete pro Schicht
+639|Stundenweise
+640|Schicht
+641|Schicht
+642|Fahrt
+643|Pro Fahrt
+644|Ohne Limit
+645|Ohne Begrenzung
+646|Suchradius
+647|Suche nach Stadt
+648|Reservieren
+649|Termine wählen
+650|Anzeigen
+651|Zahlung
+652|an den Eigentümer
+653|Lieferung
+654|auf die Baustelle
+655|Keine Bewertungen
+656|bis
+657|pro
+658|km
+659|m²
+660|Autokran XCMG 25 Tonnen
+661|Bohrgerät URB-2A2
+662|Raupenbagger CAT 320D (1.2 m³)
+663|Bagger JCB 3CX Super
+664|Arbeit oder Dienstleistung finden
+665|Was Sie erhalten
+666|Was hinzufügen
+667|Foto oder Video des Objekts
+668|Vorarbeiter und Besetzung
+669|Verdienen Sie an Bauaufträgen
+670|Plan → 3D
+671|Die Geschosszeichnung wird zum 3D-Modell: Mengen von Wänden und Decken, Export der Zeichnungen, Ansicht über die Handykamera
+672|Laden Sie einen Geschossplan hoch — Sie erhalten ein 3D-Modell des Gebäudes, die Mengen von Wänden und Decken, eine Zeichnung und ein Modell für die Handykamera.
+673|Zeichnung hochladen
+674|Von Grund auf zeichnen
+675|Am Beispiel ausprobieren
+676|Meine Modelle
+677|Projektdatei öffnen
+678|Plan
+679|Mengen
+680|Kamera
+681|Dateien
+682|Auswahl
+683|Wand
+684|Tür
+685|Fenster
+686|Maßstab
+687|Neu
+688|Geschoss kopieren
+689|Leeres Geschoss
+690|Geschoss
+691|Gebäude
+692|Neue Wand
+693|Summe für das Modell
+694|Mengenliste
+695|Nach Excel exportieren
+696|Kamera ausrichten
+697|Modell anzeigen
+698|Auf der Fläche platzieren
+699|Was als Wand gilt
+700|Auf das Geschoss übertragen
+701|Wände des Geschosses ersetzen
+702|Zeichnung auf dieses Geschoss laden
+703|Wand löschen
+704|Öffnung löschen
+705|Geschoss löschen
+706|Wände
+707|Decken
+708|Verglasung
+709|Punkte A und B
+710|Zeichnungen, Modell und Mengenliste
+711|Bodenplatte des Erdgeschosses
+712|Die Sitzung ist abgelaufen. Melden Sie sich erneut an — so schützen wir Ihr Konto.
+713|Keine Verbindung zum Server. Prüfen Sie das Internet und versuchen Sie es erneut — das Konto wurde noch nicht erstellt.
+714|Der Server ist vorübergehend nicht erreichbar. Versuchen Sie es in einer Minute erneut — das Konto wurde noch nicht erstellt.
+715|Zu viele Anmeldeversuche. Warten Sie einige Minuten.
+716|Zu viele Registrierungsversuche. Warten Sie eine Minute.
+717|Beispiel
+718|Hier werden Beispiele gezeigt
+719|Das Administrator-Panel ist noch ein Entwurf
+720|Anfragen, Objekte und Beträge auf dieser Seite sind ein Muster, das den Aufbau des Bereichs zeigt. Es sind nicht Ihre Daten; eigene Einträge werden nur in diesem Browser gespeichert.
+721|Anfragen, Objekte, Teams und Beträge in diesem Bereich sind ein Muster, das seinen Aufbau zeigt. Es sind nicht Ihre Daten. Einträge, die Sie selbst hinzufügen, werden nur in diesem Browser gespeichert.
+722|Objekte, Budgets, Auftragnehmer, Lose und Dokumente in diesem Bereich sind ein Muster, das seinen Aufbau zeigt. Es sind weder Ihre Daten noch echte Unternehmen. Objekte, die Sie selbst hinzufügen, werden nur in diesem Browser gespeichert.
+723|Übersicht, Moderationswarteschlange, Nutzer, Dokumente und „Live“-Zähler auf diesen Tabs sind Muster. Sie werden nicht vom Server geladen, und Änderungen an Preisen, Nutzern und Dokumenten werden nicht auf dem Server gespeichert. Echte Konten, Aufträge und die Preisdatenbank liegen in der Datenbank des Servers.
+724|● Preisdatenbank verbunden
+725|⚠️ Preisdatenbank nicht erreichbar
+726|⏳ Verbindung wird geprüft…
+727|Bodenmengen
+728|Mengen der Erdarbeiten
+729|Volumen der Baugrube nach Maßen, Kipperfahrten sowie Kosten für Aushub und Abfuhr des Bodens
+730|Volumen der Baugrube nach Maßen, Kipperfahrten, Baggerschichten und Kosten der Arbeiten
+731|📐 Volumen berechnen
+732|Die Anfrage für Erdarbeiten wurde an den Manager gesendet. Es wird keine Vorauszahlung abgebucht — die Bezahlung vereinbaren Sie mit dem Auftragnehmer.
+733|Die Anfrage wurde nur auf diesem Gerät gespeichert. Melden Sie sich an, um sie an den Manager zu senden.
+734|Die Anfrage konnte nicht erstellt werden. Versuchen Sie es erneut.
+735|Die Zuordnung von Mitarbeitern per Firmencode funktioniert noch nicht: Im Registrierungsformular gibt es noch kein Feld für diesen Code. Der Bereich wird zusammen mit dieser Funktion freigeschaltet.
+736|Juristische Adresse
+737|BIN/IIN
+738|Nicht angegeben
+739|Willkommen bei QazGost AI
+740|Beginnen Sie mit einem Kostenvoranschlag per Foto oder einer Mängelprüfung. Angebote der Auftragnehmer und Auftragsstatus erscheinen hier.
+741|Füllen Sie den Profilbogen aus und öffnen Sie den Auftragsfeed. Angebote und die Abnahme von Bauabschnitten erscheinen hier.
+742|Anfragen zur Bauüberwachung und Prüfergebnisse erscheinen hier.
+743|Neue Anfragen und Änderungen bei Deals erscheinen hier.
+744|Prüfanfragen und Ereignisse der Plattform erscheinen hier.
+745|Aufträge des Unternehmens und Projekteinladungen erscheinen hier.
+746|jetzt
+747|Seite nicht gefunden
+748|Unter dieser Adresse gibt es nichts: Vielleicht enthält der Link einen Tippfehler oder der Bereich ist umgezogen.
+749|Zur Startseite
+750|Materialkatalog öffnen
+751|Streitfälle
+752|Liste der Streitfälle wird geladen…
+753|Die Liste der Streitfälle liegt auf dem Server. Melden Sie sich als Administrator oder Manager an, um sie zu sehen.
+754|Die Liste der Streitfälle konnte nicht geladen werden. Aktualisieren Sie die Seite oder melden Sie sich erneut an.
+755|Keine Streitfälle. Eine Reklamation über die Website ist noch nicht möglich — die Liste füllt sich, sobald es ein Reklamationsformular zum Auftrag gibt.
+756|Streitfall
+757|Eingereicht von
+758|Grund
+759|Passwort ändern
+760|Passwort ändern
+761|🔑 Passwort ändern
+762|Neues Passwort
+763|Aktuelles Passwort
+764|Neues Passwort wiederholen
+765|Mindestens 8 Zeichen
+766|Nicht dasselbe wie auf anderen Websites
+767|Nach der Änderung werden andere Geräte abgemeldet
+768|Wird gespeichert…
+769|Zurück zum eigenen Bereich
+770|Passwort geändert
+771|Auf diesem Gerät bleiben Sie angemeldet. Auf anderen Geräten und in den Apps müssen Sie sich mit dem neuen Passwort erneut anmelden.
+772|Um das Passwort zu ändern, melden Sie sich zuerst an.
+773|Dieses Konto meldet sich über die gemeinsame Teamliste an, ohne persönliches Passwort auf dem Server. Um das Passwort zu ändern, wenden Sie sich an den Administrator.
+774|Das neue Passwort muss mindestens 8 Zeichen lang sein.
+775|Das neue Passwort muss mindestens 8 Zeichen lang sein
+776|Das neue Passwort und die Wiederholung stimmen nicht überein.
+777|Das neue Passwort stimmt mit dem aktuellen überein.
+778|Das neue Passwort stimmt mit dem aktuellen überein
+779|Das aktuelle Passwort ist falsch
+780|Dieses Passwort ist zu einfach oder allgemein bekannt. Wählen Sie ein anderes
+781|Keine Verbindung zum Server. Das Passwort wurde nicht geändert — versuchen Sie es erneut.
+782|Der Server ist vorübergehend nicht erreichbar. Das Passwort wurde nicht geändert — versuchen Sie es in einer Minute erneut.
+783|Das Passwort konnte nicht geändert werden.
+784|Das Passwort, mit dem Sie sich jetzt anmelden
+785|Noch einmal, um Tippfehler zu vermeiden
