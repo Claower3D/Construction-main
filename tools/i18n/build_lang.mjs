@@ -6,7 +6,9 @@ const NAMES = { zh: 'Китайский', tr: 'Турецкий', uz: 'Узбе�
 if (!NAMES[lang]) { console.log('язык?'); process.exit(2); }
 const keys = JSON.parse(fs.readFileSync('keys.json', 'utf8'));
 const T = {}; const TPL = []; const bad = []; const seen = new Set();
-const ph = (s) => [...s.matchAll(/\{([a-j]|n)\}/g)].map((q) => q[1]);
+const ph = (s) => [...s.matchAll(/\{([a-j]|n)\d?\}/g)].map((q) => q[1]);
+// номера чисел в переводе: {n2} … {n1} — когда в языке порядок слов другой
+const idx = (s) => [...s.matchAll(/\{n(\d)?\}/g)].map((q) => (q[1] ? +q[1] : 0));
 const letters = (q) => q.filter((c) => c !== 'n').sort().join('');
 const EDGE = /^([\s\p{Extended_Pictographic}️‍←→➔↗•·✓✕✅⚠]*)([\s\S]*?)([\s→➔↗.,:;!?…*。，：；！？]*)$/u;
 const strip = (x) => { const m = String(x).replace(/\s+/g, ' ').trim().match(EDGE); return (m ? m[2] : String(x)).trim(); };
@@ -25,6 +27,8 @@ for (const f of fs.existsSync(dir) ? fs.readdirSync(dir).filter((n) => n.endsWit
     if (letters(a) !== letters(b) || a.filter((c) => c === 'n').length < b.filter((c) => c === 'n').length) { bad.push(`${f}: №${i} подстановки не сходятся: «${k.s}» → «${tr}»`); continue; }
     // числа-подстановки возвращаются на место по порядку — порядок {n} и букв-чисел менять нельзя
     if (a.filter((c) => c === 'n').length > 1 && a.filter((c) => c === 'n').length !== b.filter((c) => c === 'n').length) { bad.push(`${f}: №${i} разное число {n}: «${k.s}» → «${tr}»`); continue; }
+    { const ix = idx(tr); const some = ix.some(Boolean);
+      if (some && (ix.some((x) => !x) || ix.slice().sort().join() !== ix.map((_, q) => q + 1).join() || ix.length !== a.filter((c) => c === 'n').length)) { bad.push(`${f}: №${i} номера чисел {n1}, {n2}… должны встречаться все по одному разу: «${tr}»`); continue; } }
     if (/[А-Яа-яЁё]/.test(tr)) { bad.push(`${f}: №${i} в переводе осталась кириллица: «${tr}»`); continue; }
     if (/\{[a-j]\}/.test(k.s)) { TPL.push([k.s, tr]); continue; }
     T[k.s] = tr;

@@ -1,0 +1,330 @@
+1320|Vinçli kamyonla teslimat. {n} adetten itibaren toptan: {n} ₸
+1321|Tır {n}-{n}t (şehirler arası / toptan)
+1322|birim)
+1323|Toptan indirimler var
+1324|yüklenen kalem; kaynak:
+1325|Monolit temel dökümü
+1326|Kazakistan'daki tüm fabrikalardan ve tedarikçilerden toptan fiyat talebi
+1327|Ivan Ivanov / «StroyGroup» LLP
+1328|Alıcının adı / şirket adı
+1329|«Medina» şahıs şirketi (Manarbek)
+1330|MEDINA şahıs şirketi
+1331|Ödenecek toplam
+1332|Teslimat dâhil ödenecek toplam
+1333|KamAZ / damperli kamyon {n}t
+1334|OCAK
+1335|Fiyat kataloğu kullanılamıyor (
+1336|kg / birim
+1337|M-{n} dolu seramik tuğla ({n}×{n}×{n} mm)
+1338|Gazbeton yapıştırıcısı ({n}kg torba)
+1339|AlinEX «Set {n}» fayans ve porselen karo yapıştırıcısı ({n} kg)
+1340|Miktar
+1341|Miktar {n} değerinden büyük olmalıdır
+1342|KS {n} bilezik ({n}×{n} mm)
+1343|KO-{n} destek bileziği
+1344|İletişim telefonu
+1345|Sipariş sepeti
+1346|Sepet temizlendi
+1347|{n}PP-{n}-{n} kuyu kapağı (d={n} mm)
+1348|{n}PP-{n}-{n} güçlendirilmiş kuyu kapağı (d={n} mm)
+1349|{n}PP-{n}-{n} araç yüküne dayanıklı güçlendirilmiş kuyu kapağı (d={n} mm)
+1350|{n}PP-{n}-{n}U güçlendirilmiş kuyu kapağı (d={n} mm)
+1351|Delikli kuyu kapağı
+1352|levha ({n} m²)
+1353|ENERJİ HATTI DİREĞİ
+1354|BETONARME RÖGAR KAPAĞI
+1355|Betonarme rögar kapağı ({n}×{n} mm)
+1356|KPR-{n} RÖGAR KAPAĞI
+1357|Ağır tip polimer rögar kapağı (yük {n} ton)
+1358|KPR-{n} dökme demir-beton rögar kapağı ({n}×{n} mm)
+1359|{n}t araç
+1360|torba
+1361|Örneğin: A{n}C donatı Ø{n}mm — {n} ton, M{n} beton — {n} m³, seramik tuğla — {n} adet
+1362|Geçersiz katalog yanıtı
+1363|Hiçbir şey bulunamadı
+1364|Yükün toplam ağırlığı
+1365|Toptan
+1366|{n} levhadan itibaren toptan: {n} ₸
+1367|{n} m³'ten itibaren toptan: {n} ₸
+1368|{n} torbadan itibaren toptan: {n} ₸
+1369|{n} paletten ({n} adet) itibaren toptan: {n} ₸
+1370|{n} tondan itibaren toptan: {n} ₸
+1371|{n} paketten itibaren toptan: {n} ₸
+1372|{n} boydan itibaren toptan: {n} ₸
+1373|{n} adetten itibaren toptan: {n} ₸
+1374|Toptan ihale talebi Kazakistan'daki tedarikçilere gönderildi
+1375|QazGost fiyat veritabanından piyasa referansı; satın almayı platform müdürü yapar
+1376|{n} araçtan itibaren: {n} ₸
+1377|Siparişi ve teslimatı tamamla
+1378|Yapı malzemesi siparişinin oluşturulması
+1379|Yıkanmış inşaat kumu
+1380|Yıkanmış dere kumu, {n}-{n} mm (damperli kamyon {n} t)
+1381|{n} PP {n}-{n} döşeme plağı (d={n}m, delikli)
+1382|PP {n}-{n} döşeme plağı (d={n}m)
+1383|Yapı elemanının alanı / hacmi (m²)
+1384|Muayene kuyusu rögar kapağı için
+1385|Onayla ve talebi gönder
+1386|kalem)
+1387|POLİMER {n}T
+1388|«Kazcement» M{n} D{n} portland çimentosu ({n} kg torba)
+1389|PREMİUM
+1390|Tedarik yarıçapı
+1391|Tedarik yarıçapı, km
+1392|Tedarikçilere ihale talebi gönder
+1393|Malzeme listesini hesapla
+1394|Kesim ve teknolojik fire payı: +{n}%
+1395|Önerilen malzeme cetveli:
+1396|Perakende: {n} ₸ / belgeli: {n} ₸
+1397|rulo
+1398|piyasası, tarih:
+1399|Standart rögar kapağı için delikli
+1400|GOST / ST RK sertifikası
+1401|Sertifikasyon ve stok durumu
+1402|SERTİFİKALI
+1403|Tek kalem için miktar çok fazla
+1404|Fiyata göre sıralama şuna uygulandı:
+1405|Malzeme listesi veya açıklaması
+1406|QazGost referans fiyatı (Kazakistan piyasası, {n})
+1407|Referans amaçlı
+1408|ST RK GOST {n}
+1409|ST RK GOST {n}-{n}
+1410|Ürün bedeli (
+1411|Zemin şapı ve tesviye
+1412|TABYS-ASM
+1413|Yapı elemanı türü
+1414|M-{n} hazır beton (B{n})
+1415|M-{n} (B{n}) hazır beton, mikserle teslimat
+1416|Yalnızca stokta olanlar
+1417|ton
+1418|ton
+1419|«Almatı {n} No'lu Tuğla Fabrikası» LLP
+1420|«ArcelorMittal Temirtau Sbyt» LLP
+1421|«KazMetService» LLP
+1422|«KazCement Industry» LLP
+1423|«Karyer NerudTrans» LLP
+1424|«Knauf Gips Kazakhstan» LLP
+1425|«Knauf Gips» LLP
+1426|«Penoplex RK» LLP
+1427|«TABYS - ASM» LLP (Natalya)
+1428|«TechnoNICOL Kazakhstan» LLP
+1429|«Ecoton-Batys» LLP
+1430|EN İYİ SEÇİM
+1431|Profil boru {n}×{n}×{n} mm (boy {n} m)
+1432|Temeller ve bodrumlar için ağır beton
+1433|Kalemin fiyatı yok — tedarikçiden fiyat isteyin
+1434|Miktarı artır
+1435|Ad, telefon ve teslimat adresini girin
+1436|Gerekli yapı malzemesi listesini girin. Sistem akredite depoları ve fabrikaları otomatik olarak bilgilendirir ve {n}%'ye varan indirimli ticari teklifler alırsınız
+1437|Miktarı azalt
+1438|paket ({n} m²)
+1439|GÜÇLENDİRİLMİŞ
+1440|Güçlendirilmiş betonarme enerji hattı direği {n}m
+1441|TechnoNICOL Rocklight mineral yün yalıtım ({n}×{n}×{n} mm)
+1442|Donatı elyafı
+1443|Filtreler sıfırlandı
+1444|Fotoğraf yok ·
+1445|FBS TEMEL
+1446|ÇOK SATAN
+1447|Septik tanklar ve kuyular için çok satan ürün
+1448|ÇOK SATAN SEPTİK
+1449|boy ({n}m)
+1450|M{n} D{n} çimento ({n} kg)
+1451|Knauf Rotband alçı sıva ({n} kg)
+1452|PENOPLEX Comfort ekstrüde polistiren {n} mm
+1453|ENERJİ VERİMLİLİĞİ
+1454|Valdai {n}t
+1455|KamAZ {n}t
+1456|Şantiyeye yapı malzemesi siparişi: {a}. İçerik: {b}. Nakliye: {c}. Ödeme: {d}
+1457|{a} numaralı sipariş oluşturuldu ve hazırlanması için müdüre gönderildi! 🧱
+1458|Hesap, {a} m²'lik proje için Kazakistan SNiP standartlarına göre yapıldı
+1459|Tüm partinin teslimatı için önerilen araç: {a}
+1460|Şantiyeye yapı malzemesi siparişi: {a}. İçerik: {b}
+1461|Sonraki sayfa yüklenemedi: {a}
+1462|Yapı malzemesi tedariki ({a} kalem, {b} t)
+1463|«{a}» birimi için tam sayı girin
+1464|Tedarikçinin deposunda yalnızca {a} {b} var
+1465|Sepete eklendi: {a} ({b} {c})
+1466|Daha fazla göster ({a} / {b} gösteriliyor)
+1467|Miktarı ve fiyatı kontrol edin: «{a}»
+1468|«{a}» aramasına uygun malzeme yok
+1469|Kategori görseli: {a}
+1470|— katsayı ×{a}
+1471|katsayı: {a}
+1472|, tedarikçi {a}
+1473|{a} bölgesi için
+1474|Miktar, {a}
+1475|Sayfa bulunamadı — QazGost AI
+1476|Tamam ✓
+1477|Atla
+1478|İş türü
+1479|Kamerayı kapat
+1480|Toplam
+1481|Premium
+1482|İşçilik
+1483|Tadilat
+1484|Standart
+1485|Ekonomik
+1486|₸/m² · malzemeler
+1487|PDF raporu hazır ve kaydedildi
+1488|Kusur raporları
+1489|Daha fazla
+1490|Açık
+1491|Keşifleri kaydetmek için giriş yapın
+1492|Moloz taşıma
+1493|Alçıpan
+1494|Misafir
+1495|Uygulama demosu
+1496|Örnek amaçlı demo hesap
+1497|Kenesarı {n} · incelemede
+1498|m² ·
+1499|m² · Astana · {n} fiyatları
+1500|Daha az
+1501|Ekip bul
+1502|Yeni keşif
+1503|İş türü belirleniyor
+1504|Astana'da {n} ekibe gönderildi
+1505|Ofis, Turan {n}
+1506|Astana fiyatları seçiliyor
+1507|Duvar boyama
+1508|Fotoğrafı kontrol et
+1509|Kolon hattında sızıntı
+1510|Tanıma
+1511|Fotoğraf çek
+1512|Keşif PDF'i kaydedildi
+1513|Duvarın tamamını çekin
+1514|Duvar · {n} m²
+1515|Rapor oluştur
+1516|Alan ve metrajlar hesaplanıyor
+1517|Sığanak {n} · {n} mm
+1518|Çatlak · {n}%
+1519|Sıvada çatlak
+1520|Fayans döşeme
+1521|Çatlak genişliği
+1522|Duvar sıvası
+1523|Dil
+1524|Aç: {a}
+1525|«{a}» aramasına uygun kategori yok. Başka bir kelime deneyin
+1526|{a} kategoride {n} birim fiyat, {n} yılı fiyatlarıyla
+1527|Aralık: {a} – {b} ₸
+1528|{n} karakter (örneğin {n})
+1529|{n}. Tamam
+1530|{n}. İletişim
+1531|{n}. Proje
+1532|{n}. Müşteri türü
+1533|Aylık {n} ₸ karşılığında VIP'i etkinleştir
+1534|Profil formu temizlendi
+1535|Havuz / Hamam
+1536|Şirketin BIN / IIN numarası
+1537|Hızlı şablonlar
+1538|Tüm profil formunu temizlemek istediğinizden emin misiniz
+1539|Kendi iş makinelerinizi ekleyin, projelere bağlayın ve doğrudan kiraya verin
+1540|Yol / Saha
+1541|VIP statüsüyle kullanılabilir
+1542|Diğer
+1543|Çit / Kapı
+1544|Fotoğraf yükle
+1545|Profil formunun doldurulması
+1546|Hangi projeyle ilgileniyorsunuz
+1547|{n} m² dairenin 'anahtar teslim' esaslı tadilatı
+1548|İletişim bilgileri
+1549|Kişisel müdür {n}/{n}
+1550|Ekiplerim
+1551|İş makinelerim
+1552|Projenizi anlatın
+1553|Ofis / Mağaza
+1554|VIP erişiminin açılması
+1555|VIP'i aç
+1556|VIP aboneliği başarıyla etkinleştirildi
+1557|Kendi makine parkınızı sınırsız ilan etme, GPS ile takip etme ve komisyonsuz sipariş alma imkânı edinin
+1558|Müşteri aramalarında öncelik
+1559|Depo / Atölye
+1560|Profil formunu kaydet
+1561|Müşteri türü
+1562|'QazStroyGroup' LLP
+1563|LLP, şahıs şirketi, anonim şirket — havaleyle ödeme, kapanış belgeleri
+1564|Kaldırım taşı döşeme ve {n}m çit kurulumu
+1565|Kişisel profilin ve gereksinimlerin yönetimi
+1566|Aynı anda {n} ekibe kadar yönetin, otomatik iş izinleri oluşturun ve mali rapor tutun
+1567|Güvendiğiniz ekipleri yönetin, şantiye şefi atayın ve aşamaları dağıtın
+1568|Gerçek kişi
+1569|Profil fotoğrafı başarıyla yüklendi
+1570|{n} katlı, {n} m² düz çatılı bir ev yapmak istiyoruz
+1571|Garajlı, iki katlı {n} m² bir ev yapmak istiyoruz. Arsa Besagaş bölgesinde
+1572|Bireysel müşteri, kendisi için inşaat veya tadilat
+1573|Açıklama ne kadar ayrıntılı olursa, otomatik keşif hesabı ve uygulayıcı seçimi o kadar doğru olur
+1574|Keşiflerin Excel'e ve {n}C'ye aktarılması
+1575|Tüzel kişi
+1576|İkamet / proje adresi
+1577|Ivanov Ivan Ivanovich
+1578|Abay cad. no {n}, daire {n}
+1579|Profil fotoğrafı • JPG, PNG (seçmek için tıklayın)
+1580|Profil formu kaydedildi! Profil {a}% dolu
+1581|, yurt dışına aktarım dâhil, şu belgeye göre:
+1582|Aigerim Saparova
+1583|Veriyorum:
+1584|{n} yaşını doldurdum, kabul ediyorum:
+1585|gizlilik politikası
+1586|kullanıcı sözleşmesi
+1587|Kayıt — QazGost AI
+1588|kişisel verilerin işlenmesine onay
+1589|Hesap: {a}. Başka bir hesap oluşturmak için önce bu hesaptan çıkın
+1590|İş makineleri ({a})
+1591|» için sonuç yok. Başka bir kelime deneyin veya görevi anlatın — iş türü açıklamaya göre belirlenir
+1592|(temel fiyatlar)
+1593|Tüm bölümleri içeren CSV
+1594|Asfaltlama
+1595|Parke taşı
+1596|Hızlı
+1597|
+1598|
+1599|
+1600|
+1601|
+1602|
+1603|
+1604|malzeme satın alma cetveli
+1605|İş türü seçilmedi
+1606|Video gözetim
+1607|iş türü ve
+1608|
+1609|hızlı moddaki her şey
+1610|ayrıntılı moddaki her şey
+1611|
+1612|
+1613|iş türü seçin
+1614|İş türü seçin
+1615|
+1616|
+1617|Elle seç
+1618|Gaz temini
+1619|şehir
+1620|şehir
+1621|şehir
+1622|aralıklarıyla birlikte aşamalara göre iş programı
+1623|Kapılar ve mobilya
+1624|Söküm
+1625|Ahşap döşeme
+1626|Ayrıntılı
+1627|
+1628|Kusurlar & Temel
+1629|Tasarım projesi
+1630|Rehber yükleniyor
+1631|Talep #
+1632|AI fotoğraf analizi — sunucunun veya sizin OpenAI anahtarınızla
+1633|AI fotoğraf analizi yapılmadı: sunucuya OpenAI anahtarı bağlı değil. «OpenAI anahtarı» düğmesiyle kendi anahtarınızı bağlayın — keşif bundan etkilenmez
+1634|AI fotoğraf analizi yapılmadı: sunucuyla bağlantı yok
+1635|AI fotoğraf analizi (OpenAI anahtarı bağlıysa)
+1636|Mühendis, ölçüm için gelip keşfi netleştirmek üzere sizinle iletişime geçecek
+1637|Mühendislik
+1638|Toplam ·
+1639|Nasıl yapıyoruz
+1640|
+1641|
+1642|OpenAI anahtarı
+1643|OpenAI anahtarı bağlı — fotoğrafı AI analiz edecek
+1644|Anahtar geçerli! AI API bağlantısı başarıyla kuruldu
+1645|Kompleks
+1646|kompleks
+1647|Kompleksler
+1648|Klima
+1649|kontur

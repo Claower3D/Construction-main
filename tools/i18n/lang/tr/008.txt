@@ -1,0 +1,320 @@
+2660|Basamaklar
+2661|Basamak kaplaması
+2662|porselen karo {n}×{n}
+2663|{n}×{n} mermer görünümlü porselen karo
+2664|{n}×{n} premium seri porselen karo
+2665|basamak sayısı
+2666|Yapı konturu
+2667|görselleştirmesiz tasarım projesi
+2668|tasarım projesi ve {n}D görselleştirme
+2669|{n} — alana göre
+2670|Alarm sistemi montajı
+2671|bir panel
+2672|hat + {n}% pay
+2673|Ticari yapılarda yangın alarmı Kazakistan normlarına göre proje gerektirir; burada yalnızca montaj tahmini verilmiştir
+2674|Kameralar
+2675|Sistem montajı
+2676|{n} kameraya kadar kayıt cihazı
+2677|Dış saha işleri
+2678|Güzergâh (uzunluk — çevreye göre veya parametreyle)
+2679|Güzergâh uzunluğu
+2680|{n} — kontur çevresine göre
+2681|Hendek derinliği
+2682|don derinliğinin altında
+2683|Hendek
+2684|Boru döşeme
+2685|Dolgu
+2686|{n} cm yataklama ve {n} cm örtü, {n} m genişlikte
+2687|güzergâh uzunluğu
+2688|uzunluk + {n}%
+2689|kum tabakası düşülmüş hendek
+2690|Parke taşı döşeme
+2691|Saha konturu
+2692|Çevre boyunca bordür
+2693|Kazı yatağı ve alt temel
+2694|Döşeme
+2695|Bordür
+2696|kazı yatağından çıkan zemin × {n}
+2697|{n} cm kırmataş, sıkıştırma ×{n}
+2698|{n} cm kum yatağı × {n}
+2699|saha çevresi boyunca
+2700|bordür {n} m, çevre boyunca
+2701|Saha / yol konturu
+2702|çevre boyunca
+2703|bordür {n} m
+2704|İşçi
+2705|Vardiya
+2706|gün
+2707|iş hacmine göre
+2708|Bu kategori için standart teknolojik kart yok: keşif işçilik süresine göre hesaplandı. Kesin hesap için işleri QazGost mühendisine anlatın
+2709|Anahtar teslim tadilat
+2710|Şap {a} mm, harç {n}:{n} (çimento {n} kg / {n} m³). Fayans {n}×{n}: yapıştırıcı {n} kg/m², derz dolgusu {n} kg/m² (Ceresit CE {n})
+2711|ısı kaybı ≈{n} W/m² × {a} m² = {b} kW; {n} dilimli radyatör ≈{n} kW; pencere sayısından ({n}) az olamaz
+2712|Anolarla {a} mm sıva; Rotband tüketimi {n} kg/m² ({n} mm için, Knauf verisi)
+2713|kirişler {n}×{n}, aralık {n} m ({n} m³/m²) + {n} mm tahta ({n} m³/m²) × {a} m² + {n}%
+2714|≈{n} m profil / {n} m² + çevre boyunca kılavuz profil = {a} m, profil {n} m
+2715|Ceresit CE {n}: ≈{n} kg/m² ({n}×{n} fayans, {n}–{n} mm derz) × {a} m²
+2716|moloz ≈{a} m³ sıkı hacim, {b} m³ gevşek hacim (×{n}); sefer başına {n} m³
+2717|{a} şerit × {n} m, {b} m duvar için; bir ruloda {c} şerit, yükseklik {d} m
+2718|{a} priz (belirtilmemişse norma göre: {n} adet / {n} m, çevre {b} m)
+2719|{a} m³ ({b} m² × {c} m) ÷ {n} m³/sa, asgari sipariş {n} sa
+2720|yapıştırma {n} kg/m² + donatılı sıva katı {n} kg/m² × {a} m²
+2721|{n} cm yastık, genişlik {a} m × {b} m, sıkıştırma ×{n}
+2722|mertek ve çıtalar ≈{n} m³ / {n} m² × {a} m² + {n}%
+2723|harç {a} m³ ({b} m² × {c} mm), çimento {n} kg/m³
+2724|{n} yüz × {a} m × (zemin üstü kısım {b} m + {n})
+2725|{a} m × {b} m × {c} m (çevre + iç duvarlar)
+2726|{n} cm kırmataş yastık × {a} m², sıkıştırma ×{n}
+2727|dedektör başına {n} m hat × {a} + panele kadar {n} m
+2728|({a} m² + saçak {b} m × {c} m) ÷ cos {d}° = {e} m²
+2729|{a} priz + {b} anahtar + {c} armatür
+2730|({a} m × {b} m × {c} kat − boşluklar {d} m²) × {e} m
+2731|en az {n} dedektör, {n} adet / {n} m² × {a} m²
+2732|{a} armatür (belirtilmemişse {n} adet / {n} m²)
+2733|hendek {a} m × {b} m × {c} m = {d} m³, {n} m³/sa
+2734|hendek {a} m × {n} m × {b} m = {c} m³, {n} m³/sa
+2735|geri dolgu hariç {a} m³ × {n} (gevşeme)
+2736|rıhtlı basamak başına ≈{n} m² × {a} + {n}%
+2737|duvarlar {a} m × {b} m − boşluklar {c} m² = {d} m²
+2738|Knauf: {n} kg/m² / {n} mm × {a} mm × {b} m²
+2739|zemin {a} m² + duvarlara {n} m dönüş × {b} m
+2740|{n} BTU ≈{n} m² soğutur, alan {a} m²
+2741|harç {a} m³ × {n} m³ kum / {n} m³
+2742|{a} × {b} kat (her kattan önce)
+2743|kat başına ≈{n} kg/m² × {a} kat × {b} m²
+2744|şeridin yer değiştirdiği zemin {a} m³ × {n}
+2745|≈{n} kg yapıştırıcı / {n} m³ duvar × {a} m³
+2746|{a} m × {b} m − boşluklar {c} m² = {d} m²
+2747|{n} kg/m² ({n}×{n} fayans) × {a} m²
+2748|{n} kg/m² ({n} mm taraklı mala) × {a} m²
+2749|{n} buat / {n} nokta, nokta sayısı {a}
+2750|«tırtıllı» {n} mm ≈{n} kg/m² × {a} m²
+2751|çevre {a} m − kapılar {n} × {n} m
+2752|{a} m³ × {b} kg/m³ + {n}% bindirme
+2753|taban {a} m² + kenarlar {b} m × {c} m
+2754|{n} kg/m² ({n} mm kalınlıkta) × {a} m²
+2755|{n} armatür / {n} m² × {a} m²
+2756|{a} → {b} kg(L) / pakette {c}
+2757|{a} m² + {n}% bindirme ve kesim
+2758|{n} L/m² × {a} m² × {b} kat
+2759|kazı yatağı {n} cm × {a} m² = {b} m³
+2760|≈{n} kg/m² × {a} kat × {b} m²
+2761|{a} priz + {b} anahtar
+2762|{n} dübel / {n} m² × {a} m²
+2763|{n} kat × {n} kg/m² × {a} m²
+2764|paket {n} m² için, duvarlar {a} m²
+2765|{n} kat ≈{n} kg/m² × {a} m²
+2766|{a} m² + {n}%, levha {n} m²
+2767|kontur alanı {a} m²
+2768|{a} m² + {n}% kesim payı
+2769|{a} m³ × {b} kg/m³ + {n}%
+2770|{a} m + {n}% kesim payı
+2771|{a} m² + {n}% bindirme
+2772|{a} m² + {n}% kesim
+2773|{a} m² + {n}% bindirme
+2774|{a} radyatör girildi
+2775|{a} m² × {n} kat
+2776|{a} m³ + {n}% fire
+2777|kenarlar {a} m × {b} m
+2778|{n} kg/m² × {a} m²
+2779|{a} kişi × {b} vardiya
+2780|{a} m² × {b} kat
+2781|{a} × {b} kat
+2782|{a} anahtar
+2783|{a} nokta girildi
+2784|{a} × {b} kat
+2785|kazı hacminin {a}%'i
+2786|İstek çok büyük ({n} KB'tan fazla)
+2787|Geçersiz istek: alan
+2788|Geçersiz istek: gövde boş
+2789|Geçersiz istek: gövde geçerli bir JSON değil
+2790|Çevre düzenleme ve parke taşı
+2791|İşletmeye alma / Özel işler
+2792|Havalandırma ve iklimlendirme (HVAC)
+2793|Su temini (soğuk/sıcak su)
+2794|Hafriyat ve temel çukuru kazısı
+2795|Kanalizasyon ve yağmur suyu drenajı
+2796|Karkas, kolonlar ve monolit duvarlar
+2797|Çatı ve mertek yapıları
+2798|Dış duvarlar ve cephe kaplaması
+2799|Pencere blokları ve giriş kapıları
+2800|Isıtma ve ısı merkezi
+2801|Alçıpan ve blok bölme duvarlar
+2802|Hazırlık ve haritacılık işleri
+2803|Zeminler ve zemin kaplamaları
+2804|Tavan sistemleri
+2805|Sıhhi tesisat ekipmanı
+2806|Zayıf akım tesisatı ve yangın alarmı
+2807|Temeller ve monolit sıfır kotu işleri
+2808|Kaba işler (sıva, şap)
+2809|İnce işler (boya, duvar kâğıdı)
+2810|Elektrik tesisatı işleri
+2811|{n} ₸'den
+2812|{n} ₸'ye kadar
+2813|Donatı
+2814|Temel çukurları
+2815|Bilezik montajı
+2816|Septik tank montajı
+2817|Boru hattı
+2818|Septik tanklar ve kanalizasyon
+2819|{n} metretül
+2820|{n} milyon ₸
+2821|{n} ₸ / saat
+2822|BIN {n}
+2823|L ≈ {n} mm
+2824|{n} / {n}
+2825|{n} × {n} m
+2826|{n} gün
+2827|çift
+2828|makara
+2829|dilim
+2830|paket
+2831|müşteri
+2832|{n} sipariş, {n} ₸
+2833|{n} sipariş, {n} ₸
+2834|{n} sipariş, {n} ₸
+2835|teklifteki makine: {n}
+2836|Hacmi hesapla
+2837|{n} bölüm
+2838|{n} bölüm
+2839|{n} bölüm
+2840|{n} aşama
+2841|{n} aşama
+2842|{n} aşama
+2843|Projeci
+2844|QazGost'un yerleşik keşif modülünün hesabı: iş türü ve miktarlar notta anahtar kelimelere göre bulundu (yapay zekâ bağlı değil)
+2845|görev: {n}
+2846|{n} KB
+2847|Toplam
+2848|Notta miktarlar belirtilmemiş — standart değerler alındı. Nota alanı (m²), uzunluğu (m) veya adedi ekleyin, hesap kesinleşir
+2849|Bu bir ön hesaptır: nihai keşif, mühendisin yerinde incelemesi ve ölçümlerden sonra çıkarılır
+2850|müdür
+2851|Uzman mühendis
+2852|CRM müdürü
+2853|Her kalemin miktarı kontur geometrisine ve üreticilerin tüketim normlarına göre hesaplandı; fiyatlar piyasa fiyatıdır ve her satırda kaynağı belirtilir; bölgesel katsayı işçiliğe ve malzemelere uygulandı; senaryolar iş kapsamı ve malzeme markasıyla ayrışır
+2854|nokta başına ≈{n} m boru + {n}%
+2855|nokta başına ≈{n} m kanal
+2856|nokta başına ≈{n} m kablo
+2857|klozet {n}
+2858|lavabo {n}
+2859|küvet {n}
+2860|duş {n}
+2861|çamaşır makinesi {n}
+2862|su ısıtıcısı {n}
+2863|havlupan {n}
+2864|«Standart» tutarının {n}%'i açık fiyat listelerindeki ve ilanlardaki fiyatlara dayanır, bağlantısıyla. Kalanı QazGost'un hesaplanmış tahminidir: bu satırları tedarikçiyle netleştirin
+2865|Janaözen
+2866|Rudnıy
+2867|Ekibastuz
+2868|Tüm bölümleriyle Excel ve PDF
+2869|Dosya hazırlanıyor…
+2870|Keşif Excel'e kaydedildi
+2871|Excel dosyası oluşturulamadı — bağlantıyı kontrol edip tekrar deneyin
+2872|Tarayıcı yazdırma penceresinin açılmasına izin vermedi — bu site için açılır pencerelere izin verin
+2873|Hesap temizlendi — baştan başlayabilirsiniz
+2874|İş türü değişti — keşfi yeniden hesaplayın
+2875|OpenAI anahtarınız bağlı — fotoğrafı yapay zekâ inceleyecek.
+2876|Fotoğrafı yapay zekâ inceler; sunucuda bağlı değilse kendi anahtarınızı girebilirsiniz.
+2877|Kendi OpenAI anahtarınız
+2878|Yalnızca fotoğraf incelemesi için gerekir. Keşif onsuz da hesaplanır.
+2879|Şu anda bağlı anahtar
+2880|Anahtar yalnızca bu tarayıcıda saklanır ve fotoğrafla birlikte QazGost sunucusuna gider — yapay zekâya tek bir istek için; sunucuda saklanmaz.
+2881|Anahtar alın:
+2882|Kontrol ediliyor…
+2883|Anahtarı kontrol et
+2884|Anahtarı sil
+2885|Bu bir OpenAI anahtarına benzemiyor: anahtar «sk-» ile başlar.
+2886|Kontrol etmek için anahtarı yapıştırın.
+2887|Anahtar çalışıyor: yapay zekâ servisi onu kabul etti.
+2888|Sunucuyla bağlantı yok — anahtar kontrol edilemedi.
+2889|yapay zekâ servisi onu kabul etmedi
+2890|OpenAI anahtarı bu tarayıcıya kaydedildi
+2891|OpenAI anahtarı bu tarayıcıdan silindi
+2892|Kendi OpenAI anahtarını gir
+2893|Durum:
+2894|Görünen kusurlar
+2895|Dikkate alınacaklar
+2896|Yapay zekâ fotoğraf incelemesi bağlı değil: sunucuda OpenAI anahtarı yok. Keşif onsuz hesaplandı — ölçüme ve rehbere göre.
+2897|Yapay zekâ fotoğraf incelemesi yapılamadı: yapay zekâ servisi OpenAI anahtarını reddetti. Anahtarı kontrol edin.
+2898|Yapay zekâ fotoğraf incelemesi yapılamadı: yapay zekâ servisine istek limiti doldu. Daha sonra deneyin.
+2899|Yapay zekâ fotoğraf incelemesi yapılamadı: yapay zekâ servisi zamanında yanıt vermedi. Tekrar deneyin.
+2900|Yapay zekâ fotoğraf incelemesi yapılamadı: yapay zekâ servisi hata döndürdü. Keşif onsuz hesaplandı.
+2901|Yapay zekâ fotoğraf incelemesi yapılamadı: art arda çok fazla istek. Bir dakika bekleyip keşfi yeniden hesaplayın.
+2902|Yapay zekâ fotoğraf incelemesi yapılamadı: fotoğraflar çok büyük. 1–3 fotoğraf bırakın.
+2903|Yapay zekâ fotoğraf incelemesi yapılamadı: sunucu anlaşılmayan bir yanıt gönderdi.
+2904|Senaryo kapsamı
+2905|Malzeme satın alma listesi
+2906|Satın alma
+2907|Bekleme nedeni
+2908|Nasıl hesaplandı
+2909|Keşifteki satır sayısı
+2910|Yazdır / PDF olarak kaydet
+2911|Kazakistan normlarına göre keşifler
+2912|Fiyatlar piyasa fiyatıdır, her satırda kaynağıyla
+2913|boşluklar düşülmüş duvarlar
+2914|katsayı
+2915|Lavabo bataryası montajı
+2916|Küvet bataryası montajı
+2917|Duş başlıklı küvet bataryası, orta segment
+2918|lavabo bataryası
+2919|duş başlıklı küvet bataryası
+2920|Satu: küvet bataryaları ≈7 000 ₸'den (ekonomik) ≈61 000 ₸'ye (Grohe) kadar; orta segment alındı
+2921|Kanalizasyon: armatürler mevcut çıkışlara bağlanır; kanalizasyon borularının ve kolonun değişimi keşfe dâhil değildir — incelemeden sonra hesaplanır.
+2922|Duş kabini: batarya ve duş başlığı kabin setine dâhildir.
+2923|Isıtma: mevcut sistemde radyatörler ve bağlantıları; kazan, pompa grubu ve ana borular keşfe dâhil değildir.
+2924|Fiyatlar {a} şehri için piyasa fiyatıdır (katsayı ×{n}), beklenmeyen giderler yedeği {n}%, KDV {n}% ayrı gösterilir
+2925|Fotoğrafa göre «{a}» iş türü daha uygun, ancak keşif başka bir tür için hesaplandı. Seçimi kontrol edin.
+2926|Anahtar kontrolü geçemedi ({a}): {b}
+2927|{a}: ayrıntılar
+2928|Ara: {a}
+2929|Durum: {a}
+2930|«{a}» seç
+2931|{n}. Karkas ve monolit duvarlar
+2932|{n}. Çatı ve mertek sistemleri
+2933|{n}. Hazırlık işleri
+2934|Tutanak
+2935|Aktif
+2936|XCMG {n} tonluk mobil vinç kiralama
+2937|JCB {n}CX kazıcı-yükleyici kiralama
+2938|Temel
+2939|Beton
+2940|BIN
+2941|Doğrulama
+2942|Yüksek
+2943|Şehir / Konum
+2944|İşlemler
+2945|Şikâyet
+2946|Sipariş
+2947|/
+2948|Dolu tuğladan dış duvar örme
+2949|takım
+2950|levha
+2951|ay
+2952|Metal
+2953|torba
+2954|Monolit
+2955|Ayarlar
+2956|KDV {n}%
+2957|Düşük
+2958|Normal
+2959|Reddet
+2960|metretül
+2961|Zeminler
+2962|Spiral boru içinde VVGng-LS {n}x{n} kablo çekimi
+2963|Puan
+2964|Rol
+2965|rulo
+2966|Kaydet
+2967|Orta
+2968|Acil
+2969|Tablo
+2970|ton
+2971|«Örnek Yatırımcı» LLP
+2972|«Örnek Mühendislik» LLP
+2973|«Örnek MonolitStroy» LLP
+2974|pk
+2975|{n} mm yarı kuru kum-çimento şapı yapımı
+2976|Dosya
+2977|Portland çimentosu M-{n} ({n} kg torba)
+2978|Duvarların alçı karışımlarla {n} kat macunlanması
+2979|Duvarların çimento-kireç harcıyla sıvanması

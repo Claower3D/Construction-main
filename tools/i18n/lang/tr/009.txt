@@ -1,0 +1,180 @@
+2980|Tüm bölümler
+2981|Yapım işi seçimi ve maliyet tahmini
+2982|Rol ağacı
+2983|Makine bul
+2984|PDF indir
+2985|Proje oluştur
+6076|Analist
+6591|, bugün ne yapıyoruz
+6592|AI ekspertizi
+6593|Betonarme ve mimari çizimlerin AI ile kontrolü, teknik denetim notları ve kusur tespiti
+6594|SNiP'e göre AI hesabı
+6595|Platform KPI'ları
+6596|PDF raporlar ve dışa aktarma
+6597|QazGost AI — ana sayfaya
+6598|VIP ihaleler
+6599|Kazakistan ESN birim fiyat kitaplarına göre WBS iş maliyeti hesaplayıcısı
+6600|Proje-keşif dokümantasyonunun GOST ve Kazakistan SNiP'ine uygunluğunun otomatik analizi
+6601|Onaylı keşiften sapmaların analizi ve bütçe aşımlarının kontrolü
+6602|Usta formu
+6603|Kazakistan genelinde ekskavatör, vinç ve damperli kamyon kiralama
+6604|Dokümantasyon arşivi
+6605|Keşif denetimi
+6606|Kazakistan'ın {n2} bölgesi için {n1}+ kalemlik inşaat birim fiyat veritabanı
+6607|Yüklenici veritabanı
+6608|Paneliniz
+6609|Tüm bölümlere dön (Esc)
+6610|Platformdaki tüm inşaat kuruluşlarının ve şirketlerin görsel rol ağacı
+6611|Potansiyel müşteri hunisi, müşteri kartları, şirket ve ekip yönetimi
+6612|Rolü ve aracı seçin. Şantiye fotoğrafı keşfe, kusur tutanağına veya ekip için siparişe dönüşür
+6613|Yapı türü ve kat sayısı seçimi, şirketlerin GASK yetkisinin kontrolü
+6614|Seç
+6615|PANO SEÇ
+6616|KS-{n}/KS-{n} tutanaklarının, ödeme faturalarının, e-faturaların ve sözleşme kayıtlarının Excel'e (.xlsx) aktarılması
+6617|Rapor oluşturucu
+6618|İş programı
+6619|Yapım-montaj işleri ve denetimlerin iş programı
+6620|Yüklenici sözleşmeleri
+6621|Sözleşmeler, KS-{n}/KS-{n} tutanakları, teknik denetim raporları ve garanti yükümlülükleri
+6622|Belgeler ve Excel'e aktarma
+6623|Rol ve yapı ağacı
+6624|Kazakistan'ın her yerinden aracısız ve komisyonsuz canlı sipariş akışı
+6625|Log kayıtları
+6626|Malzeme satın alma
+6627|Doldur
+6628|Profili doldur
+6629|AI'yi başlat
+6630|Yatırımcı
+6631|Teknik denetim talepleri
+6632|Uygulayıcıların kapattığı ve nihai raporlama için analiste iletilen talepler
+6633|Rol hiyerarşisi (ağaç)
+6634|Fiyat endeksleri
+6635|Mühendislik fotoğraf denetimi
+6636|Şirketin rollerini, departmanlarını, çalışanlarını ve ekiplerini gösteren etkileşimli ağaç
+6637|Sipariş arıyorum, teklif gönderiyorum, işleri yapıyorum
+6638|Uygulayıcı siparişlerin ödemesini nasıl alır
+6639|Siparişler şu anda nasıl ödeniyor ve çevrimiçi ödeme ne zaman gelecek
+6640|Keşif ziyareti takvimi
+6641|Denetim takvimi
+6642|Yapım işleri hesaplayıcısı
+6643|Kamera şantiyedeki çatlakları bulur ve onarım malzemelerini hesaplar
+6644|Binaların ana inşaatı, proje-keşif dokümantasyonu, SNiP keşifleri ve ana yüklenicilik
+6645|Uzman kataloğu
+6646|Anlaşma dönüşüm oranı, ortalama keşif tutarı ve verimlilik analitiği
+6647|Gider kontrolü
+6648|Kazakistan bölgelerine göre yapı malzemesi fiyat artış katsayıları
+6649|Müşterinin kişisel bilgileri, yapı parametreleri, bütçe ve banka bilgileri
+6650|SNiP yerel keşifleri, ilerleme analitiği ve KS-{n}/KS-{n} tutanakları
+6651|Lotlar ve ihaleler
+6652|Lotlar ve ihaleler
+6653|Malzeme pazaryeri
+6654|Menü
+6655|Hesaplama hızı, AI doğruluğu ve sunucu yükü metrikleri
+6656|Talep moderasyonu
+6657|İnşaat projelerim
+6658|Ana sayfaya
+6659|Ana ekrana
+6660|Siteye
+6661|Telefonun kamerasını tutun — çatlaklar vurgulanır, malzeme ve işçilik hesabı hemen çıkar
+6662|Usta bul
+6663|Tahmini başlat
+6664|Fotoğraftan tahmini başlat
+6665|Kontrolü başlat
+6666|Kazakistan SNiP ve GOST normları
+6667|Mekânı ölçün — teknolojik kartlara ve kaynaklı fiyatlara göre keşif, üç senaryo
+6668|Kazakistan fabrikalarından toptan ve perakende yapı malzemeleri: çimento, tuğla, donatı, kuru karışımlar
+6669|Yükleniciler için {n}%'e varan indirimle toptan yapı malzemesi alımı
+6670|Kamerayla inceleme: kadrajdaki çatlaklar, uzunluk ve malzeme listesi
+6671|CRM'i aç
+6672|KPI'ları aç
+6673|Arşivi aç
+6674|Belgeleri aç
+6675|Ağacı aç
+6676|Siparişleri aç
+6677|Pazaryerini aç
+6678|Bölüm menüsünü aç
+6679|Kuyruğu aç
+6680|Paneli aç
+6681|Mühendis panelini aç
+6682|Fiyat listelerini aç
+6683|Tarayıcıyı aç
+6684|Makineleri aç
+6685|Satış raporları
+6686|Yüklenici doğrulama kuyruğu, belge ve sipariş kontrolü
+6687|Denetim için mühendislerin şantiyeye çağrı kuyruğu
+6688|Tamamlanan talepler kuyruğu
+6689|Yerinde denetim planı ve KS-{n} / KS-{n} tutanaklarının imza takvimi
+6690|Denetim planı
+6691|Kiralık iş makinesi arama ve toptan yapı malzemesi alımı
+6692|Kullanıcı loglarının, keşif değişikliklerinin ve AI çağrılarının tam denetimi
+6693|Portföy, devam eden projeler ve aşamaların müşteriye çevrimiçi teslimi
+6694|Kazakistan ESN fiyat listeleri
+6695|Talepleri alıyorum, proje dokümantasyonu hazırlıyorum
+6696|Kusurları kontrol et
+6697|GASK I/II kategori lisanslarının, BIN'in ve proje baş mühendisi iletişim bilgilerinin kontrolü
+6698|Aktif taleplerin, usta tekliflerinin ve iş durumlarının görüntülenmesi
+6699|Uygulayıcı profili, IIN/BIN doğrulaması, beceriler ve portföy
+6700|Şirket profili
+6701|Proje-keşif dokümantasyonu, VVR belgeleri, tam kapsamlı keşifler ve VIP ana yüklenicilik
+6702|İnşaat lotlarının "Siparişlerim İnşaat" bölümünde yayımlanması
+6703|Yol
+6704|BÖLÜMLER
+6705|Anlaşmazlığı çöz
+6706|Takvim
+6707|Ölçüm ziyaretleri ve montaj aşamaları takvimi
+6708|İş kalitesi şikâyetlerinin incelenmesi ve emanet hesabın serbest bırakılması
+6709|Bölgesel endeksler
+6710|Sözleşme kaydı
+6711|Usta kaydı
+6712|Yüklenici kaydı
+6713|IIN/BIN ile doğrulanmış uzmanların ve inşaat şirketlerinin kaydı
+6714|Müellif ve teknik kontrol altındaki yapım aşamasındaki projelerin kaydı
+6715|Kadrolu mühendislerin, şantiye şeflerinin ve bağlı işçi ekiplerinin kaydı
+6716|Kazakistan tek kayıt sisteminde ustaların puanı, yorumları ve kartları
+6717|Şirket banka bilgileri
+6718|Paneldeki rol
+6719|Satış özeti
+6720|Projeler, ekipler, bütçeler ve tamamlanma süreleri için özet analitik
+6721|Özet finansal göstergeler, proje teslim dinamiği ve KPI'lar
+6722|Teknik denetim özet panosu, kontrol durumları ve grafikler
+6723|Sistem aktif ve çalışmaya hazır
+6724|Çatlak tarayıcı
+6725|Teknolojik kartlara ve kaynaklı piyasa fiyatlarına göre keşif
+6726|Keşif hesabı
+6727|Keşifler ve PDF belgeler
+6728|Siparişleri gör
+6729|Raporları gör
+6730|İstatistikleri gör
+6731|Proje oluştur (SNiP)
+6732|Sipariş oluşturuyorum, uygulayıcı seçiyorum, işi teslim alıyorum
+6733|Çalışanlar ve ekipler
+6734|Şartname
+6735|Talep listesi
+6736|Şirket istatistikleri
+6737|Yapılan işlerin istatistikleri
+6738|Bina inşaatı (VIP)
+6739|İşlerin teknik şartnamesi ve tesisat dağıtım şemaları
+6740|LLP
+6741|Fotoğraftaki çatlaklar, SNiP ve GOST normlarını ve onarım fiyatını içeren tutanak
+6742|Şirketin BIN'i, GSL lisansları ve banka bilgilerinin yönetimi
+6743|Kuruluşun BIN'i, çalışanları ve projelerinin yönetimi
+6744|Potansiyel müşterilerin, müşterilerin, anlaşmaların ve CRM analitiğinin yönetimi
+6745|Platformun, fiyat listelerinin, moderasyonun ve hakemliğin yönetimi
+6746|{n}D BIM modelleriyle konut sitesi, iş merkezi ve villa sitesi portföyünün yönetimi
+6747|Kadro yönetimi
+6748|Ana yüklenicilik ve proje-keşif ihalelerine katılım, I/II kategori akreditasyonu
+6749|Nihai raporlama, dokümantasyon kontrolü, PDF dışa aktarma
+6750|Fotoğraflar, dosyalar ve iş kronolojisiyle nihai raporların hazırlanması
+6751|E-Gov e-imza destekli inşaat yüklenici sözleşmesi şablonları
+6752|Yapıların durumunun uzman kontrolü ve hasar tespiti
+6753|Elektrik, sıhhi tesisat, HVAC, zayıf akım sistemleri ve teknik denetim
+6754|Yöneticiyim
+6755|Analistim
+6756|Müşteriyim
+6757|Yatırımcıyım (VIP)
+6758|Mühendisim
+6759|Uygulayıcıyım
+6760|Şirketim
+6761|CRM müdürüyüm
+6762|Panel{a} — QazGost AI
+6763|Panel{a}

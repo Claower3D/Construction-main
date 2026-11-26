@@ -25,6 +25,7 @@ export const LANGS = [
   { code: 'kk', label: 'KZ', name: 'Қазақша', locale: 'kk-KZ' },
   { code: 'en', label: 'EN', name: 'English', locale: 'en-US' },
   { code: 'zh', label: '中文', name: '简体中文', locale: 'zh-CN' },
+  { code: 'tr', label: 'TR', name: 'Türkçe', locale: 'tr-TR' },
 ];
 const CODES = LANGS.map((l) => l.code);
 const BY_CODE = Object.fromEntries(LANGS.map((l) => [l.code, l]));
@@ -35,6 +36,7 @@ export function langLocale(code = lang) { return BY_CODE[code]?.locale || 'ru-RU
 const LOADERS = {
   en: () => import('./dict.en.js'),
   zh: () => import('./dict.zh.js'),
+  tr: () => import('./dict.tr.js'),
 };
 // В каком порядке искать перевод: сначала на выбранном языке, потом по-английски
 const chain = (code) => (code === 'ru' ? [] : code === 'en' || code === 'kk' ? [code] : [code, 'en']);
@@ -70,6 +72,13 @@ const packPromises = {};
 let target = 'ru';       // на какой язык переводим прямо сейчас (выбранный или запасной английский)
 const NUM = /\d+(?:[ \u00a0\u202f.,]\d+)*/g;
 const escapeRe = (x) => x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+// Числа возвращаются в перевод по порядку: первое {n} — первое число фразы. Если в языке порядок слов
+// другой («每 {n2} m² {n1} 个»), перевод называет номер числа явно: {n1}, {n2}…
+function fillNums(text, nums) {
+  let i = 0;
+  return text.replace(/\{n(\d)?\}/g, (all, k) => (k ? nums[k - 1] : nums[i++]) ?? '');
+}
 
 function buildPack(mod) {
   const buckets = new Map();
@@ -158,7 +167,7 @@ function lookupExact(s) {
     const nums = [];
     const key = s.replace(NUM, (m) => { nums.push(m); return '{n}'; });
     t = (pack ? pack.T[key] : null) ?? pick(DICT[key]) ?? pick(coreDict.get(key));
-    if (t != null) { let i = 0; return t.replace(/\{n\}/g, () => nums[i++] ?? ''); }
+    if (t != null) return fillNums(t, nums);
   }
   return null;
 }
@@ -190,8 +199,7 @@ function lookupPack(s) {
         done[name] = tv ?? v;
       }
       if (stray) continue;
-      let ni = 0;
-      const out = p.out.replace(/\{n\}/g, () => nums[ni++] ?? '').replace(/\{([a-z])\}/g, (all, name) => done[name] ?? '') + (p.tail ? m[m.length - 1] : '');
+      const out = fillNums(p.out, nums).replace(/\{([a-z])\}/g, (all, name) => done[name] ?? '') + (p.tail ? m[m.length - 1] : '');
       // шаблон, в котором перевелись все куски, лучше того, где кусок остался русским (имя, название);
       // такой берём, только если не нашлось ничего чище
       if (clean) return out;
@@ -297,6 +305,7 @@ const UNIT_RE = /(?<![А-Яа-яЁё])(м²|м³|мм|см|км|кг|кВт|Вт
 // Метры и килограммы везде пишутся латиницей; свои слова у языка — только для штук, дней, людей и т. п.
 const UNIT_BY_LANG = {
   zh: { шт: '件', 'п.м': '延米', 'м.п': '延米', мес: '个月', мин: '分钟', чел: '人', дн: '天', ч: '小时', т: '吨', л: '升' },
+  tr: { шт: 'adet', 'п.м': 'mt', 'м.п': 'mt', мес: 'ay', мин: 'dk', чел: 'kişi', дн: 'gün', ч: 'sa' },
 };
 function unitsEn(s) {
   if (!packs[target] || !/\d/.test(s)) return null;

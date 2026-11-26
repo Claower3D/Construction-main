@@ -1,0 +1,340 @@
+1980|Su kuyusu sondajı
+1981|Havalandırmalı cephe
+1982|İç su tesisatı
+1983|İç kanalizasyon
+1984|Su arıtma ve filtreler
+1985|Yağmur oluğu sistemi
+1986|Kapılar ve korkuluklar
+1987|Hafriyat nakli
+1988|Su yalıtımı
+1989|Temel su yalıtımı
+1990|Alçıpan işleri
+1991|Bina ve yapıların sökümü
+1992|Yol temeli
+1993|Malzeme teslimatı
+1994|Arazi drenajı
+1995|Çitler
+1996|Topraklama ve yıldırımdan korunma
+1997|Hafriyat işleri ve yıkım
+1998|Etütler ve projelendirme
+1999|Çatlak enjeksiyonu
+2000|Esaslı tadilat
+2001|Karkas yapı
+2002|Tuğla duvar
+2003|Gazbeton duvar örme
+2004|Kozmetik tadilat
+2005|Kazan dairesi
+2006|Çatı ve cepheler
+2007|Metal kiremit ve trapez sac çatı
+2008|Merdivenler ve korkuluklar
+2009|Yağmur suyu kanalizasyonu
+2010|Peyzaj donatıları
+2011|Vinçli kamyon
+2012|Mantolama cephe
+2013|Monolit döşemeler
+2014|Monolit karkas
+2015|HVAC sistemi montajı
+2016|Prefabrik beton montajı
+2017|Çelik yapı montajı
+2018|Ekipman montajı
+2019|Yumuşak çatı kaplaması
+2020|Sundurmalar ve saçaklar
+2021|Dış kanalizasyon
+2022|Pompa istasyonu
+2023|Cephe kaplaması
+2024|Duvar kâğıdı ve dekoratif kaplamalar
+2025|Geri dolgu ve sıkıştırma
+2026|Bina incelemesi
+2027|Yapıların yangından korunması
+2028|Yeşillendirme
+2029|Pencereler, kapılar, yapı elemanları
+2030|Kalıp işleri
+2031|Aydınlatma
+2032|Cephe ve balkon camlama
+2033|Isıtma, havalandırma, gaz
+2034|Bölme duvarlar
+2035|Arazi tesviyesi
+2036|Radye temel
+2037|Düz çatı
+2038|Elektrik şebekesine bağlantı
+2039|Endüstriyel beton zeminler
+2040|Endüstriyel işler
+2041|Devreye alma işleri
+2042|Uygulama projesi
+2043|Temel çukuru kazısı
+2044|Tanklar ve depolar
+2045|Ray ve vinç yolları
+2046|Onarım ve güçlendirme
+2047|Çatı onarımı
+2048|Cephe onarımı
+2049|Damperli kamyon
+2050|Kazıklı temel
+2051|Kaynak işleri
+2052|Yapısal kablolama ve internet
+2053|Keşif dokümantasyonu
+2054|Onaylar ve izinler
+2055|Güneş enerjisi santrali (GES)
+2056|İş makineleri ve teslimat
+2057|Duvarlar, karkas, metal
+2058|Sandviç paneller
+2059|Isı merkezi
+2060|Yerden ısıtma
+2061|Teknik ve müellif kontrolü
+2062|Proses boru hatları
+2063|Topoğrafik ölçüm
+2064|Tesisat hendekleri
+2065|Parke taşı döşeme
+2066|Akıllı ev ve otomasyon
+2067|Yapıların güçlendirilmesi
+2068|Kapı montajı
+2069|Pencere montajı
+2070|Sıhhi tesisat montajı
+2071|Çatı ısı yalıtımı
+2072|Temeller ve beton
+2073|Macun ve boya
+2074|Pano ekipmanı
+2075|Ekskavatör
+2076|Elektrik ve zayıf akım sistemleri
+2077|Avan proje
+2078|Otomasyon ve zayıf akım
+2079|Havalandırma ve klima
+2080|Ahşap yapılar
+2081|Yollar ve köprüler
+2082|Merdivenler ve balkonlar
+2083|Mobilya ve ekipman
+2084|Dış şebekeler
+2085|{n} ₸/bağlantıdan başlayan
+2086|{n} ₸/sensörden başlayan
+2087|{n} ₸/birimden başlayan
+2088|{n} ₸/takımdan başlayan
+2089|{n} ₸/m'den başlayan
+2090|{n} ₸/m²'den başlayan
+2091|{n} ₸/m³'ten başlayan
+2092|{n} ₸/metretülden başlayan
+2093|{n} ₸/cihazdan başlayan
+2094|{n} ₸/vardiyadan başlayan
+2095|{n} ₸/t'den başlayan
+2096|{n} ₸/noktadan başlayan
+2097|{n} ₸/hizmetten başlayan
+2098|{n} ₸/adetten başlayan
+2099|Sıhhi tesisat ve su temini
+2100|Isı yalıtımı ve izolasyon
+2101|Yöntem desteklenmiyor
+2102|Kullanıcı bulunamadı
+2103|Rica ederim! İnşaat veya fiyatlarla ilgili sorularınız olursa buradayım
+2104|Merhaba! Ben LinkVeAI — QazGost'un AI asistanıyım. İş ve malzeme fiyatlarını söyler, fotoğraftan keşfin nasıl alınacağını anlatır, ekip veya iş makinesi bulurum. Ne inşa ediyor veya onarıyoruz
+2105|vardiya
+2106|ton
+2107|Veritabanında bu soruya tam uyan bir kalem bulamadım. Daha açık yazın — iş türü veya malzeme ve miktar, örneğin «duvar sıvası {n} m²» veya «beton M{n} m³». İşçilik ve malzemelerle tam keşfi ise [Fotoğraftan keşif](auth:register) hazırlar
+2108|adet
+2109|İnşaat ve tadilatta yardımcı olurum: iş ve malzeme fiyatları, fotoğraftan keşif, çatlak kontrolü, ekip ve iş makinesi arama. Ne yapılması gerektiğini yazın — örneğin «{n} m² zemin şapı ne kadar» veya «bir vardiyalık ekskavatör lazım»
+2110|E-posta veya parola yanlış
+2111|Parola kaydedilemedi
+2112|Parola kaydedilemedi, yeniden deneyin
+2113|Kayıt bilgileri hatalı
+2114|Telefon numarası hatalı: +{n} ve {n} rakam biçimi gerekli
+2115|İstek biçimi hatalı
+2116|Giriş yapmanız gerekiyor
+2117|Belirteç oluşturma hatası
+2118|Kullanıcı oluşturma hatası
+2119|parola en az {n} karakter olmalıdır
+2120|Parola en az {n} karakter olmalıdır
+2121|Parola belirlendi, giriş yapıldı
+2122|Parola değiştirildi, ancak yeni oturum açılamadı — yeni parolayla giriş yapın
+2123|Parola zorunludur
+2124|Bu e-postayla bir kullanıcı zaten var
+2125|Kayıt tamamlandı
+2126|Oturum süresi doldu
+2127|Kayıt alanları çok uzun
+2128|parola çok uzun
+2129|Parola çok uzun
+2130|Çok fazla hatalı giriş denemesi. {n} dakika sonra deneyin
+2131|Çok fazla hatalı deneme. {n} dakika sonra deneyin
+2132|E-postayı name@example.kz biçiminde girin
+2133|Telefon numarasını girin
+2134|Giriş başarılı
+2135|Kaydolmak için kullanıcı sözleşmesini kabul edin ve kişisel verilerin işlenmesine onay verin
+2136|Bu ilk girişiniz: kendi parolanızı belirleyin ve girin —
+2137|bu parola çok basit veya yaygın
+2138|Geçersiz istek
+2139|Geometri yok: konturu kapatın veya alan ve çevreyi girin
+2140|Alan {n} m²'den büyük — konturun ölçeğini kontrol edin
+2141|Yükseklik {n} m'den büyük — girişi kontrol edin (tüm evin değil, duvarların yüksekliği girilir)
+2142|Boşluk sayısı geçersiz
+2143|Bilinmeyen iş kompleksi
+2144|Şu kategori için teknolojik kart yok: «
+2145|Her kalemin miktarı, kontur geometrisine ve üreticilerin sarfiyat normlarına göre hesaplandı
+2146|fiyatlar piyasa fiyatıdır, her satırda kaynağı belirtilmiştir; bölge katsayısı işçiliğe ve malzemelere uygulanmıştır
+2147|senaryolar iş kapsamı ve malzeme markasıyla farklılaşır
+2148|Tek ekip, aşamalar sırayla ilerler; sürelere teknolojik aralar (kuruma, dayanım kazanma) dâhildir. Verim, ENiR normlarına/ekip pratiğine göredir
+2149|Boşluklar: kapılar {n} × {n}×{n} m, pencereler {n} × {n}×{n} m — duvar alanından düşüldü
+2150|Öngörülmeyen işler için {n}% yedek ayrı gösterilir ve kalem maliyetlerine dâhil değildir
+2151|Geri kalanı QazGost'un hesaplanmış tahminidir: bu satırları tedarikçiyle netleştirin
+2152|Sapma belirgin — iş kapsamını kontrol edin
+2153|«Ekonomik»te laminat yeni şap olmadan döşenir: bu yalnızca zemin kot farkı en fazla {n} mm / {n} m ise kabul edilebilir
+2154|«Ekonomik»te fayans yeni şap olmadan döşenir: {n} mm'ye kadar kot farkları yapıştırıcıyla giderilir, daha fazlası için şap gerekir
+2155|«Ekonomik»te duvarlar anolarla düzeltilmez — yalnızca mevcut yüzeye macun çekilir. Duvar sapması {n} mm'ye kadarsa uygundur
+2156|QazGost referans veritabanıyla karşılaştırma: {n} kalemin en az {n} benzeri var; bunların {n} tanesinde fiyat veritabanı aralığında (alt çeyreğin ½'sinden üst çeyreğin {n} katına kadar, aykırı değerler hariç)
+2157|{n} kalemde veritabanı fiyatı belirgin biçimde farklı — keşifte kaynağıyla birlikte rehber fiyatı bırakıldı, ayrıntılar karşılaştırma tablosunda
+2158|kutu
+2159|«Standart» işçiliği: {a} ₸/m² zemin. Kazakistan'da temel kaba ve ince işlerin ortalama fiyatı {n}–{n} bin ₸/m² (Bizmedia/OLX, Haziran {n})
+2160|Kontur çok uzun ve dar: {a} m çevrede alan yalnızca {b} m². Bu bir koridor değilse noktaları kontrol edin
+2161|{a} m² alan, {b} m çevre için mümkün olan en büyük değerden ({c} m²) fazla — konturu kontrol edin
+2162|{b} m çevreyle {a} m² alan mümkün değil (en fazla {c} m²) — ölçüleri kontrol edin
+2163|«Standart» tutarının {a}%'i — bağlantılı açık fiyat listelerindeki ve ilanlardaki fiyatlarla
+2164|Boşluklar duvarların {a}%'ini kaplıyor — pencere ve kapı sayısını kontrol edin
+2165|«{a}» şehri rehberde yok — hesap Almatı fiyatlarıyla yapıldı
+2166|{a} m yükseklik bir oda için alışılmadık (genellikle {n}–{n} m)
+2167|Almatı fiyatları {a} şehri için {b} katsayısıyla yeniden hesaplandı
+2168|Geometri tutarlı: {b} m çevrede {a} m²
+2169|Kasım {n}
+2170|«Proff-Remont» fiyat listesi, Almatı, {n}
+2171|«Rekrovli» fiyat listesi, Almatı, {n}
+2172|Satu.kz, satıcı teklifleri, {n}
+2173|OLX.kz, ilanlar, {n}
+2174|Kaspi İlanlar, Almatı, {n}
+2175|Bizmedia.kz (OLX verilerine göre), Haziran {n}
+2176|«Silver-Remont» fiyat listesi, Almatı
+2177|QazGost tahmini
+2178|Duvarlardan sıva sökümü
+2179|Duvarlardan fayans sökümü
+2180|Zemin kaplaması sökümü (laminat, linolyum, PVC karo)
+2181|Zeminden fayans sökümü
+2182|Duvarlardan duvar kâğıdı temizliği
+2183|½ tuğla bölme duvar sökümü
+2184|Ahşap kapı kasası sökümü
+2185|Yapının mekanize yıkımı (yapı hacmine göre)
+2186|İnşaat molozunun yüklenmesi ve taşınması ({n} m³'e kadar damperli kamyon)
+2187|Derin nüfuzlu duvar astarı
+2188|Anolarla duvar sıvası
+2189|Duvarların macunlanması ve zımparalanması (tek kat)
+2190|Duvarların {n} kat boyanması
+2191|Flizelin duvar kâğıdı yapıştırma
+2192|Flizelin tabanlı vinil duvar kâğıdı yapıştırma
+2193|Duvarların fayansla kaplanması
+2194|Alçıpan bölme duvar montajı
+2195|Alçıpan bölme duvara ses yalıtımı yerleştirme
+2196|Knauf Rotband alçı sıva, {n} kg
+2197|Remalux akrilik astar, {n} L
+2198|Knauf Fugen alçı macun, {n} kg
+2199|AlinEX Glatt Plus saten macun, {n} kg
+2200|Gaudi «Belosnezhka» iç cephe boyası, {n} kg
+2201|Gaudi Standart iç cephe boyası, {n} kg
+2202|Remalux iç cephe boyası, {n} kg
+2203|Pure Rose flizelin duvar kâğıdı, rulo {n}×{n} m
+2204|Flizelin duvar kâğıdı yapıştırıcısı ({n} m²'lik paket)
+2205|Almatı'da Quelyd/Metylan yapıştırıcı paketinin perakende fiyatı
+2206|Knauf neme dayanıklı alçıpan levha {n} mm, {n}×{n} m
+2207|PS {n}×{n} dikme profili, {n} m ({n} ₸/m)
+2208|Knauf PP {n}×{n} tavan profili, {n} m
+2209|Ceresit CM {n} Plus fayans yapıştırıcısı, {n} kg
+2210|Ceresit CE {n} derz dolgusu, {n} kg
+2211|Makroflex Standard montaj köpüğü, {n} ml
+2212|Yarı kuru zemin şapı
+2213|Kendiliğinden yayılan şap uygulaması
+2214|Laminat döşeme (düz)
+2215|«Balıksırtı» laminat döşeme
+2216|Zemine fayans / porselen karo döşeme
+2217|Plastik süpürgelik montajı
+2218|Zemine {n} kat sürme su yalıtımı
+2219|Almatı ilanlarına göre fayansçı ücreti {n}–{n} bin ₸/m²
+2220|M{n} çimento, {n} kg
+2221|Teslimatlı yıkanmış kum
+2222|Satu: yıkanmış ince kum {n} ₸/m³, KamAZ ile {n} m³'lük teslimat ayrıca kararlaştırılır; Almatı içi teslimatla ≈{n} ₸/m³
+2223|Super Natural Narrow laminat, {n}. sınıf, {n} mm
+2224|Kastamonu Floorpan Black laminat, {n}. sınıf, {n} mm
+2225|«Fransız balıksırtı» laminat, {n}. sınıf, {n} mm
+2226|Levha şilte {n} mm ({n} m²'lik paket — {n} ₸)
+2227|Tapalı ve köşeli PVC süpürgelik
+2228|Satu: VOX PVC süpürgelik {n} mm, {n} m — {n} ₸ (≈{n} ₸/m); köşeler, tapalar ve bağlantı parçaları metre başına ≈{n} ₸
+2229|«Tian-Shan Ceramic» porselen karo {n}×{n}
+2230|Mermer görünümlü porselen karo {n}×{n}
+2231|Porselen karo {n}×{n} «Piastrella» MS {n}
+2232|Sürme su yalıtımı, {n} kg
+2233|Satu: Ceresit CL {n} kg — {n} ₸, CR {n} kg — {n} ₸, CR {n} takım — {n} ₸; elastik karışımın {n} kg'lık ortalama fiyatı alındı
+2234|Mat gergi tavan (kumaş ve montaj)
+2235|Saten gergi tavan (kumaş ve montaj)
+2236|Parlak gergi tavan (kumaş ve montaj)
+2237|Tek seviyeli alçıpan tavan
+2238|Gauss Frameless LED spot armatür, {n} W
+2239|Kablo için beton/tuğlada kanal açma ({n} mm'ye kadar kanal)
+2240|Kanalların kapatılması
+2241|Priz montajı
+2242|Anahtar montajı
+2243|Buat montajı
+2244|Elektrik panosu gövdesinin montajı
+2245|Panoya sigorta montajı
+2246|Kaçak akım rölesi / kaçak akım sigortası montajı
+2247|Avize / tavan armatürü montajı
+2248|VVGng-LS kablo {n}×{n}
+2249|Çerçeveli ve kasalı priz / anahtar
+2250|Satu: Schneider AtlasDesign {n} A mekanizma — {n} ₸; çerçeve ve kasa ≈{n} ₸
+2251|IEK ShchRN-{n} pano, {n} adet VA{n}-{n} A sigorta ve VD{n}-{n} kaçak akım rölesi
+2252|IEK AD{n}P kaçak akım sigortası {n} A {n} mA
+2253|Su tesisatı döşeme (polipropilen)
+2254|Nokta başına su tesisatı döşeme (boru değişimi)
+2255|Rezervuarlı klozet montajı
+2256|Gömme rezervuar ve asma klozet montajı
+2257|Dolaplı lavabo montajı
+2258|Akrilik küvet montajı
+2259|Tekneli duş kabini montajı ve kurulumu
+2260|Su ısıtıcısı montajı
+2261|Havlupan montajı
+2262|Çamaşır makinesi bağlantısı
+2263|Radyatör montajı ve bağlantısı
+2264|Radyatöre boru bağlantısı
+2265|«Standart» rezervuarlı klozet
+2266|Santeri «Gratsiya» rezervuarlı klozet
+2267|Santek «Animo» rezervuarlı klozet, duroplast kapak
+2268|Bimetal radyatör {n} mm, {n} dilim
+2269|Fitingli ve kelepçeli PPR boru {n} mm
+2270|Satu: PPR PN{n} Ø{n} boru — {n} ₸/m; fitingler ve bağlantı elemanları hat metresi başına ≈{n} ₸
+2271|Asma klozetli ve düğmeli Creavit gömme rezervuar
+2272|«Yenisei Classic» lavabolu dolap {n} cm
+2273|Aquadeus {n} tek kollu lavabo bataryası
+2274|VentoSPa AQUA LA akrilik küvet {n}×{n}
+2275|Tekneli Erlit duş kabini {n}×{n}
+2276|Ariston PRO{n} R ABS su ısıtıcısı {n} L
+2277|«Lira» sulu havlupan {n}×{n}, paslanmaz çelik
+2278|{n} BTU split klima, montaj dâhil
+2279|Aspiratör / menfez montajı
+2280|Almatı ilanlarına göre elektrikçi ve tesisatçı ücreti
+2281|İç gaz tesisatı montajı
+2282|Lisanslı gaz servislerinin ilanlarına göre referans; kesin fiyat teknik şartlar ve projeden sonra belirlenir
+2283|Gazlı cihaz bağlantısı (ocak, kazan)
+2284|Lisanslı gaz servislerinin ilanlarına göre referans
+2285|Müstakil ev için gaz tesisatı projesi
+2286|Almatı'daki proje firmalarının tekliflerine göre referans
+2287|Tavanın {n} kat boyanması
+2288|«Proff-Remont» fiyat listesine göre duvar boyama {n} ₸/m², artı baş üstü çalışma farkı
+2289|Kanal / spiral boru içinde kablo çekimi
+2290|Almatı ilanlarına göre elektrikçi ücreti {n}–{n} ₸/m
+2291|KPSng(A)-FRLS kablo {n}×{n}×{n}
+2292|Yangın alarmı için yangına dayanıklı kablonun perakende fiyatı
+2293|Buhar kesicili mineral yünle çatı ısı yalıtımı
+2294|Almatı ilanlarına göre çatı ustası ücreti {n}–{n} bin ₸/m²
+2295|Yağmur oluğu sistemi: oluk, borular, bağlantı elemanları
+2296|Metal yağmur oluğu sisteminin saçak metresi başına ortalama fiyatı
+2297|Cephe filesi {n} g/m² ({n} m²'lik rulo — {n} ₸)
+2298|Metal çivili tabaklı dübel {n}×{n}
+2299|«Titan {n}» çelik giriş kapısı
+2300|PVC pencere {n}×{n} m, montaj dâhil
+2301|PVC pencere {n}×{n} m, premium profil, montaj dâhil
+2302|Montajlı pencere denizliği (iç)
+2303|Montajlı dış denizlik
+2304|Sandviç panel pencere pervazı
+2305|Giriş kapısı montajı
+2306|Kasalı ve pervazlı iç kapı montajı
+2307|NEAPOL iç kapı, eko kaplama, kasalı ve pervazlı
+2308|A{n}C donatı Ø{n}
+2309|D{n} otoklavlı gazbeton
+2310|STRONG gazbeton yapıştırıcısı, {n} kg
+2311|Yapıştırıcıyla gazbeton duvar örme
+2312|{n} mm'ye kadar gazbeton bölme duvar örme
+2313|Şerit temel: kalıp, donatı, beton dökümü
+2314|Monolit plak: kalıp, donatı, beton dökümü
+2315|Kalıp kerestesi ({n} kullanım)
+2316|Üç kullanım hesabıyla {n} m² kalıp paneli için tahta ve kontrplak
+2317|Almatı içi teslimatlı kırmataş {n}–{n}
+2318|Operatörlü mini ekskavatör
+2319|Elle kazı

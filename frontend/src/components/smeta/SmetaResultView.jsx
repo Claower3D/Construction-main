@@ -210,11 +210,12 @@ function PhotoAnalysis({ pa, onPickSuggested, onOpenKey }) {
       {pa.detected && <p>На фото: <b>{pa.detected}</b></p>}
       {pa.mismatch && pa.suggested && (
         <div className="sm-photo-mismatch" data-testid="smeta-photo-mismatch">
-          <span>По фото больше подходит вид работ «{pa.suggested.title}», а смета посчитана для другого. Проверьте выбор.</span>
-          {onPickSuggested && <button type="button" className="sm-btn" onClick={() => onPickSuggested(pa.suggested.id)}>Выбрать «{pa.suggested.title}»</button>}
+          {/* одной строкой: перевод подставляет название в нужное место фразы */}
+          <span>{`По фото больше подходит вид работ «${pa.suggested.title}», а смета посчитана для другого. Проверьте выбор.`}</span>
+          {onPickSuggested && <button type="button" className="sm-btn" onClick={() => onPickSuggested(pa.suggested.id)}>{`Выбрать «${pa.suggested.title}»`}</button>}
         </div>
       )}
-      {pa.condition && <p>Состояние: {pa.condition}</p>}
+      {pa.condition && <p>{`Состояние: ${pa.condition}`}</p>}
       {pa.defects?.length > 0 && (
         <>
           <p><b>Видимые дефекты</b></p>

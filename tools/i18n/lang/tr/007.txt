@@ -1,0 +1,340 @@
+2320|Almatı ilanlarına göre kazı işçisinin vardiyası {n}–{n} bin ₸, verim {n}–{n} m³
+2321|Damperli kamyonla hafriyat nakli
+2322|KamAZ seferi ≈{n} ₸, {n} m³ gevşetilmiş zemin için
+2323|Sıkıştırmalı geri dolgu
+2324|Mini ekskavatör ve vibrasyonlu kompaktör, iş makinesi tarifesine göre
+2325|Çatı değişimi: eski kaplamanın sökümü ve yenisinin montajı
+2326|Yağmur oluğu sistemi montajı
+2327|Mertek sistemi ve çıtalama
+2328|Almatı ilanlarına göre çatı ekiplerinin ücreti {n}–{n} bin ₸/m²
+2329|«Venezia» metal kiremit
+2330|«SuperMonterrey» metal kiremit, mat {n} mm
+2331|«SuperMonterrey» metal kiremit, mat, Rusya
+2332|MakWool P{n} mineral yün levha, {n} mm ({n} ₸/m³)
+2333|Izospan A rüzgâr ve nem bariyeri membranı ({n} m²'lik rulo — {n} ₸)
+2334|{n}–{n}. sınıf iğne yapraklı biçilmiş tahta
+2335|İskele kiralama ve kurulumu
+2336|Kurulum dâhil aylık iskele kirası, cephe m²'sine çevrilmiş
+2337|File üzerine cephe sıvası
+2338|Kaspi ilanları «cephe sıvası», Almatı: {n}–{n} ₸/m², en sık {n}
+2339|«Tırtıllı» dekoratif cephe sıvası
+2340|Kaspi ilanları, Almatı: «tırtıllı» sıva {n} ₸/m²'den, astar ve pervazlarla {n}–{n} bin ₸/m²
+2341|Cephenin {n} kat boyanması
+2342|«Proff-Remont» fiyat listesine göre duvar boyama {n} ₸/m², artı yüksekte çalışma
+2343|Cephe ısı yalıtımı: yapıştırıcı, levha, dübeller, donatılı sıva katı
+2344|IZOTERM P{n} cephe mineral yün levhası, {n} mm ({n} ₸/m³)
+2345|Ceresit CT {n} mineral yün yapıştırıcısı ve donatılı sıva harcı, {n} kg
+2346|Çimento esaslı cephe sıvası, {n} kg
+2347|Almatı'da {n} kg çimento esaslı sıvanın ortalama fiyatı
+2348|Ceresit CT {n} «tırtıllı» dekoratif sıva, {n} kg
+2349|Cephe boyası, {n} kg
+2350|Hazırlanmış zemine parke taşı döşeme
+2351|Vibropres parke taşı {n} cm
+2352|Beton üzerine kaldırım bordürü montajı
+2353|Kaldırım bordürü {n}×{n}×{n}
+2354|Almatı bölgesi üreticilerindeki ortalama fiyat
+2355|Asfaltlama (malzeme ve serim)
+2356|Çelik sundurma / karkas: imalat ve montaj
+2357|Kirişler üzerine ahşap döşeme
+2358|Almatı ilanlarına göre marangoz ücreti {n}–{n} bin ₸/m²
+2359|Hendeğe HDPE basınçlı boru döşeme
+2360|İlanlara göre ekip ücreti, hafriyat işleri hariç
+2361|Su için HDPE boru {n} mm
+2362|PE{n} SDR{n} Ø{n} borunun perakende fiyatı
+2363|Alarm dedektörü montajı
+2364|IP {n} duman dedektörünün ortalama fiyatı
+2365|Akülü alarm kontrol paneli
+2366|{n}–{n} hatlı panelin ortalama fiyatı
+2367|Kablo çekimiyle IP kamera montajı
+2368|Kaspi ilanları, Almatı: kamera montajı {n}–{n} ₸; kablo çekimiyle aralığın üst yarısı
+2369|{n} MP IP kamera
+2370|Giriş seviyesi IP kameranın ortalama fiyatı
+2371|{n} TB diskli kayıt cihazı
+2372|Satu: {n} kanallı Hikvision DS-{n}NI-Q{n}/M — disksiz {n}–{n} ₸, DS-E{n}NI-Q{n} {n} TB SSD ile — {n} ₸
+2373|Daire iç mekân tasarım projesi
+2374|Ev iç mekân tasarım projesi
+2375|İç mekân {n}D görselleştirme
+2376|Haritacının gelişi, aks aplikasyonu
+2377|Düz işçi
+2378|Almatı ilanlarına göre düz işçi ücreti vardiya başına {n}–{n} bin ₸
+2379|Basamağın porselen karoyla kaplanması
+2380|«Proff-Remont» fiyat listesine göre döşeme {n} ₸/m², kesim ve pah dâhil, basamak başına ≈{n} m²
+2381|Modüler mobilya montajı ve kurulumu
+2382|Almatı ilanlarına göre mobilya montajcısı ücreti
+2383|Ismarlama mutfak dolabı (sunta lam/MDF)
+2384|Almatı mobilya atölyelerinde metretül başına ortalama fiyat
+2385|Satu teklifleri torba başına {n}–{n} ₸ (Kasım {n})
+2386|Satu teklifleri {n}–{n} ₸/m (Kasım {n})
+2387|Satu teklifleri {n}–{n} ₸/m³, medyan {n} (Kasım {n})
+2388|OLX Talgar {n} ₸/t, Satu {n} ₸/t (Ekim–Kasım {n})
+2389|İki D{n} teklifinin ortalaması: Kaspi {n} ve Satu {n} ₸/m³
+2390|Satu, Almatı: rezervuarlı klozetler {n}–{n} ₸ (Kasım {n})
+2391|OLX ilanları, Almatı: {n}–{n} ₸, M{n}–M{n} torbası
+2392|OLX ilanları {n}–{n} ₸/m²
+2393|Kaspi ilanları {n}–{n} ₸/m²
+2394|Kaspi ilanları {n}–{n} ₸/m², malzeme dâhil
+2395|Bizmedia/OLX: geliş başına {n}–{n} ₸
+2396|OLX: montaj dâhil klima {n} ₸'den
+2397|Kaspi ilanları «gazbeton duvar örme», Almatı
+2398|Kaspi, Almatı'da fayansçı: zemin {n} ₸/m²'den; ilan aralığı {n}–{n}
+2399|Kaspi, Almatı'da fayansçı: duvar {n} ₸/m²'den
+2400|Satu: {n} mm, {n} dilim — {n} ve {n} ₸, ortalaması alındı
+2401|Satu, Almatı: {n} ₸'den (Kasım {n})
+2402|Kaspi, Almatı'da fayansçı: fayans sökümü {n} ₸/m²'den; «Proff-Remont»ta zeminlerin genel sökümü {n} ₸/m²
+2403|Satu, Almatı: {n} adet {n}×{n} teklifi — {n}–{n} ₸/m², medyan {n} (Kasım {n})
+2404|Satu, Almatı: {n}×{n} mermer görünümlü ve beyaz — {n}–{n} ₸/m²; sayfa aralığı {n}–{n}
+2405|Satu: dübeller {n}×{n} — {n}–{n} ₸; mineral yün için metal çivi gerekir (FIX PLAST — {n} ₸)
+2406|Kaspi, Almatı: iç kapı montajı {n}–{n} ₸, çoğunlukla {n}
+2407|«Proff-Remont» fiyat listesi: ahşap kapı sökümü — {n} ₸, metal — {n} ₸
+2408|Satu: flizelin duvar kâğıdı {n}×{n} m — rulo başına {n}–{n} ₸, premium koleksiyonlar {n}'e kadar
+2409|Satu ve Kaspi, Almatı: duş kabini montajı {n}–{n} ₸; «Proff-Remont»ta {n} ₸
+2410|Satu ve Kaspi, Almatı: donatılı sıva katlı mineral yünle duvar yalıtımı {n}–{n} ₸/m², şirketlerde {n}'den
+2411|Satu, Almatı: bordür montajı {n}–{n} ₸/metretül, tekliflerin medyanı {n}
+2412|Kaspi, Almatı: moloz taşıma sefer başına {n}–{n} ₸; üst sınır alındı — yükleme dâhil
+2413|Kaspi, Almatı: ekip işçiliği {n} ₸/m³; beton, donatı ve kalıp ayrı satırlarda hesaplandı
+2414|Satu, Almatı: {n}. sınıf {n} mm laminat — {n}–{n} ₸/m² (Kasım {n})
+2415|Satu, Almatı: {n}. sınıf «balıksırtı» laminat — {n}–{n} ₸/m²
+2416|Satu fiyatları toplamı: ShchRN-{n} pano — {n} ₸, {n} adet VA{n}-{n}P {n} A sigorta tanesi {n} ₸, VD{n}-{n}P {n} A kaçak akım rölesi — {n} ₸
+2417|Satu, Almatı: ocakta {n}–{n} ₸/m³; Almatı ve bölgesine teslimatla {n} ₸/m³
+2418|Satu: Izospan A, {n} m²'lik rulo — {n} ₸ ({n} ₸/m²)
+2419|Satu: file {n} g/m², {n} m²'lik rulo — {n} ₸ ({n} ₸/m²)
+2420|Satu: Solid şilte {n} mm, {n} m²'lik paket — {n} ₸ ({n} ₸/m²)
+2421|«Proff-Remont» fiyat listesi: {n} mm'ye kadar kanal — {n} ₸/metretül, {n}–{n} mm — {n}; VVG {n}×{n} kablo için {n}–{n} mm yeterli
+2422|tüp
+2423|bidon
+2424|makine-saat
+2425|Hayır
+2426|Evet
+2427|Oda konturu (zemin)
+2428|Duvar kâğıdı
+2429|Fayans
+2430|Sıva kalınlığı
+2431|Anolara göre ortalama kalınlık; duvarların eğriliğine bağlıdır
+2432|Astar
+2433|alçı sıvanın kuruması
+2434|macunun kuruması
+2435|anosuz: mevcut yüzeye {n} kat macun, Gaudi «Belosnezhka» boya
+2436|anolarla sıva, {n} kat Fugen macun, Gaudi Standart boya
+2437|anolarla sıva, {n} kat AlinEX Glatt Plus saten macun, Remalux boya
+2438|anosuz: {n} kat macun, flizelin duvar kâğıdı
+2439|anolarla sıva, {n} kat macun, flizelin duvar kâğıdı
+2440|anolarla sıva, Glatt Plus saten macun, flizelin tabanlı vinil duvar kâğıdı
+2441|anosuz: mevcut yüzeye {n}×{n} porselen karo
+2442|anolarla sıva, {n}×{n} mermer görünümlü porselen karo
+2443|anolarla sıva, {n}×{n} premium seri porselen karo
+2444|+ {n}% kesim payı
+2445|Macun kat başına ≈{n} kg/m²; boya {n} kat, kat başına {n} kg/m²; her kattan önce astar {n} L/m²
+2446|Zemin konturu
+2447|Laminat
+2448|Porselen karo
+2449|Şap kalınlığı
+2450|Su yalıtımı (banyo, mutfak)
+2451|su yalıtımının kuruması
+2452|kaplamadan önce yarı kuru şapın dayanım kazanması
+2453|mevcut zemine {n}–{n}. sınıf laminat
+2454|yarı kuru şap, {n}. sınıf laminat
+2455|yarı kuru şap, {n}. sınıf «balıksırtı» laminat
+2456|mevcut zemine {n}×{n} porselen karo
+2457|yarı kuru şap, {n}×{n} mermer görünümlü porselen karo
+2458|yarı kuru şap, {n}×{n} premium seri porselen karo
+2459|Tavan konturu (= zemin)
+2460|Tavan türü
+2461|Gergi tavan
+2462|Boyaya hazır alçıpan
+2463|Döşeme üzerine boya
+2464|Spot armatürler
+2465|Olmadan
+2466|{n} adet / {n} m²
+2467|Karkas ve kaplama
+2468|Gergi tavan
+2469|Armatürler
+2470|mat gergi tavan
+2471|saten gergi tavan
+2472|parlak gergi tavan
+2473|alçıpan, {n} kat macun, Gaudi «Belosnezhka»
+2474|alçıpan, {n} kat macun, Gaudi Standart
+2475|alçıpan, Glatt Plus saten macun, Remalux boya
+2476|döşeme üzerine: {n} kat macun, Gaudi «Belosnezhka»
+2477|döşeme üzerine: {n} kat macun, Gaudi Standart
+2478|döşeme üzerine: Glatt Plus saten macun, Remalux boya
+2479|Oda / daire konturu
+2480|{n} — norma göre: {n} priz / {n} m çevre
+2481|{n} — kapı sayısına göre
+2482|Tavan armatürleri
+2483|{n} — {n} adet / {n} m²
+2484|Yeni elektrik panosu
+2485|Kanal açma
+2486|Kablo çekimi
+2487|Elektrik armatür montajı
+2488|VVGng-LS {n}×{n} kabloyla tesisatın tamamen yenilenmesi
+2489|tesisatın yenilenmesi + ıslak hacimlere kaçak akım sigortaları
+2490|× nokta başına ≈{n} m kanal
+2491|× {n} m
+2492|× nokta başına ≈{n} m kablo
+2493|× {n} m + {n}% pay
+2494|bir pano
+2495|{n} sigortalı ve kaçak akım röleli pano
+2496|{n} grup: aydınlatma, odalara göre prizler, mutfak, banyo, ocak, çamaşır makinesi
+2497|giriş kaçak akım rölesi
+2498|banyo ve mutfak için kaçak akım sigortaları
+2499|Elektrik: nokta başına ≈{n} m kablo ve ≈{n} m kanal; armatürler ve avizeler müşteriye aittir (keşifte yalnızca montaj)
+2500|duş
+2501|çamaşır makinesi
+2502|su ısıtıcısı
+2503|havlupan
+2504|noktalar
+2505|lavabo, küvet ve duş için birer batarya
+2506|Sıhhi tesisat ve su tesisatı
+2507|Banyo / daire konturu
+2508|Klozet
+2509|Rezervuarlı
+2510|Gömme rezervuar
+2511|Dolaplı lavabo
+2512|Küvet
+2513|Duş kabini
+2514|Çamaşır makinesi
+2515|Su ısıtıcısı
+2516|Havlupan
+2517|Kolona bağlantı
+2518|Su noktası sayısı
+2519|{n} — seçilen armatürlere göre
+2520|Boru döşeme
+2521|sistemin basınç testi
+2522|ekonomik rezervuarlı klozet
+2523|orta segment rezervuarlı klozet
+2524|üst segment klozet
+2525|soğuk/sıcak su kolonuna bağlantı
+2526|; nokta başına ≈{n} m boru + {n}%
+2527|rezervuarlı klozet
+2528|gömme rezervuar
+2529|klozetli gömme rezervuar
+2530|duş kabini
+2531|çamaşır makinesi (makine müşteriye aittir)
+2532|{n} L su ısıtıcısı
+2533|Sıhhi tesisat: «nokta başına» işçilik boru döşemeyi içerir; nokta başına ≈{n} m PPR boru
+2534|Isıtılan alan
+2535|{n} — ısı kaybına ve pencere sayısına göre
+2536|Isıtma boruları
+2537|basınç testi
+2538|{n} dilimli bimetal radyatörler
+2539|Klima ve havalandırma
+2540|Odaların konturu
+2541|Split klimalar
+2542|{n} — bir adet {n} BTU / {n} m²
+2543|Aspiratörler
+2544|Klimalar
+2545|girildi
+2546|banyolar ve mutfak
+2547|Ev konturu
+2548|Evdeki gaz hattının uzunluğu
+2549|Gazlı cihazlar
+2550|Proje gerekli
+2551|projenin gaz idaresinde onaylanması
+2552|Gaz hattı montajı
+2553|Cihazların bağlanması
+2554|proje ve onay
+2555|projeye göre uzunluk
+2556|ocak ve kazan
+2557|Gaz: işleri yalnızca lisanslı kuruluş yapar; fiyat teknik şartlardan sonra netleşir
+2558|Oda konturu
+2559|Duvar kâğıdını sök
+2560|Sıvayı dök
+2561|Duvarlardan fayansı sök
+2562|Zemin kaplamasını sök
+2563|Laminat, linolyum
+2564|Şap sökümü
+2565|½ tuğla bölme duvarların yıkımı
+2566|Kapı kasalarının sökümü
+2567|Yapının yıkımı (yapı hacmi)
+2568|söküm hacmi tüm senaryolarda aynıdır
+2569|bölme duvar alanı
+2570|kapı kasaları
+2571|binanın yapı hacmi
+2572|Temel çukuru / arazi konturu
+2573|Kazı derinliği
+2574|Yöntem
+2575|Mini ekskavatör
+2576|Elle
+2577|Fazla zeminin nakli
+2578|Kazı
+2579|iş hacmi tüm senaryolarda aynıdır
+2580|Dış duvar aksına göre kontur
+2581|Şerit genişliği
+2582|Şerit yüksekliği
+2583|Zemin üstü
+2584|İç taşıyıcı duvarlar
+2585|kg/m³
+2586|Genellikle {n}–{n} kg / {n} m³ şerit
+2587|Aks aplikasyonu
+2588|Kalıp ve donatı
+2589|betonun {n}% dayanım kazanması
+2590|M{n} beton, A{n}C donatı
+2591|aksların araziye aplikasyonu
+2592|hendek boşlukları
+2593|Temel: beton doğrudan mikserle dökülür (beton pompasız); şeridin su yalıtımı ve ısı yalıtımı dâhil değildir
+2594|Monolit plak
+2595|Plak konturu
+2596|Zemine oturan plak
+2597|Döşeme
+2598|Gazbeton duvar örme
+2599|Dış duvar konturu
+2600|Duvar kalınlığı
+2601|Bölme duvarlar {n} mm
+2602|Duvar örme
+2603|yapıştırıcıyla D{n} gazbeton
+2604|+ {n}% kırık ve kesim payı
+2605|Duvar: hatıl ve lentolar «Monolit plak» bölümünde hesaplanır
+2606|Çelik yapılar, sundurma
+2607|Sundurma / karkas konturu
+2608|İmalat ve montaj
+2609|Sundurma: ilanlardaki fiyat metali, boyayı ve montajı içerir; dikme temelleri dâhil değildir
+2610|Döşeme konturu
+2611|Kirişler ve döşeme
+2612|Evin plandaki konturu
+2613|Çatı eğimi
+2614|Çatı saçağı
+2615|Şekil
+2616|Beşik çatı
+2617|Kırma çatı
+2618|Yeni mertek sistemi
+2619|Yalıtımlı (çatı katı)
+2620|Eski çatının sökümü
+2621|Mertek sistemi
+2622|Membran ve ısı yalıtımı
+2623|Çatı kaplaması
+2624|Yağmur oluğu
+2625|«Venezia» metal kiremit
+2626|«SuperMonterrey» metal kiremit {n} mm
+2627|«SuperMonterrey» metal kiremit (Rusya)
+2628|kırma çatı: saçak tüm çevre boyunca
+2629|beşik çatı: saçak iki uzun kenar boyunca ≈ çevrenin yarısı
+2630|Cephe yüksekliği
+2631|İskele
+2632|çimento sıvanın kuruması
+2633|Son kat kaplama
+2634|mevcut cephenin yeni sıva olmadan boyanması
+2635|file üzerine sıva ve {n} kat cephe boyası
+2636|file üzerine sıva ve «tırtıllı» dekoratif sıva
+2637|donatılı sıva katının kuruması
+2638|{n} mm mineral yün levha, «mantolama»
+2639|Isı yalıtımı: iskele «Cephe işleri» bölümünde hesaplanır
+2640|konturdaki pencere: {n}
+2641|{n} — konturdaki pencere sayısına göre
+2642|Sandviç panel pervazlar
+2643|Pervazlar ve denizlikler
+2644|Montajlı PVC pencere
+2645|Premium profil PVC pencere
+2646|Pencereler: liste fiyatı {n}×{n} m pencere içindir; daha büyük pencereler alanla orantılı olarak daha pahalıdır
+2647|konturdaki kapı: {n}
+2648|Daire konturu
+2649|İç kapılar
+2650|{n} — konturdaki kapı sayısına göre
+2651|Giriş kapısı
+2652|Mutfak dolabı
+2653|Mobilya montajı
+2654|birim
+2655|giriş kapısı
+2656|mutfak dolabı uzunluğu
+2657|mobilya parçaları
+2658|Merdiven kaplaması
+2659|Merdiven boşluğu konturu

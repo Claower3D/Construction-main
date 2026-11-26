@@ -1,0 +1,330 @@
+1650|Merdivenler
+1651|m ·
+1652|Dış su hattı
+1653|seçilmedi
+1654|Ne seçeceğimi bilmiyorum — açıklamaya göre belirle
+1655|Keşif hesaplanamadı
+1656|Son hesaplar
+1657|
+1658|ölçü yok
+1659|Ölçü yok: odayı ızgarada veya planda çizin ya da uzunluk ve genişliği girin
+1660|Ölçüm
+1661|ölç
+1662|odayı ölçün
+1663|Genel inşaat
+1664|ölçüme ve sarfiyat normlarına göre metrajlar
+1665|Pencereler
+1666|{n}. adımda görevi anlatın
+1667|{n}. adımda görevi anlatın — iş türü kelimelere göre belirlenir
+1668|Kalan
+1669|Duvar kaplama işleri
+1670|«Siparişlerim» bölümünü açın
+1671|
+1672|müdüre gönderildi
+1673|Keşfe göre sipariş ver
+1674|Anahtar kontrol hatası
+1675|Ağ hatası
+1676|API kontrolünde ağ hatası
+1677|Yeniden hesapla
+1678|Keşfi yeniden hesapla
+1679|Çevre · duvarlar
+1680|Kişisel API anahtarı
+1681|Şu arama için: «
+1682|açıklamaya göre
+1683|Açıklamaya göre iş türü belirlenemedi. Görevi daha ayrıntılı anlatın veya kategoriyi elle seçin
+1684|Yangın alarmı
+1685|İş türü ara
+1686|Tam
+1687|Zeminler ve fayans
+1688|
+1689|Tavanlar
+1690|Bağlantıyı kontrol et
+1691|geometri ve piyasa referansı kontrolü
+1692|
+1693|Çalışmaya devam et
+1694|Diğer
+1695|Diğer işler
+1696|Analiz modu
+1697|fiyatların QazGost veritabanıyla karşılaştırılması
+1698|AI bağlantısı kontrol edildi
+1699|Teknolojik karta göre keşif: her kalemin miktarı sizin ölçülerinizden, fiyatı ise her satırda kaynağı belirtilen fiyat listelerinden ve ilanlardan alınır
+1700|Keşif CSV olarak kaydedildi
+1701|Anahtarı kaydet
+1702|Özel işler
+1703|Rehber hâlâ yükleniyor — birkaç saniye bekleyin
+1704|rehber yükleniyor
+1705|Rehber kullanılamıyor
+1706|Keşif hesaplanıyor ve fotoğraflar analiz ediliyor
+1707|Keşif teknolojik karta göre hesaplanıyor
+1708|farklı iş kapsamlı üç senaryo
+1709|Cephe ısı yalıtımı
+1710|Fotoğraf ve açıklama
+1711|her satırda fiyat ve kaynak
+1712|Almatı fiyatları ×
+1713|Ne yapıyoruz
+1714|Proje fotoğrafı seç
+1715|en fazla {n} fotoğraf · planı {n}. adımda çizebilirsiniz; «Ayrıntılı» ve «Tam» modlarda fotoğrafı AI analiz eder
+1716|Proje veya plan fotoğrafı ekle
+1717|Örneğin: banyo {n}×{n} m, eski fayansı sök, porselen karo döşe, duş kabini kur
+1718|Geçersiz anahtar
+1719|Görev açıklaması
+1720|Dosyaları bırakın
+1721|bölüm
+1722|bölüm
+1723|bölüm
+1724|Hesap, QazGost sunucusunda teknolojik kartlara göre yapılır; hiçbir şey uydurulmaz ve «yaklaşık» değer konulmaz
+1725|İşçilik: {a} ₸ Malzemeler: {b} ₸ Toplam: {c} ₸ {n}% yedekle: {d} ₸ Fiyat tarihi: {e}
+1726|QazGost keşfi [{a}], {b}, {c} m². İşçilik {d} ₸, malzemeler {e} ₸, yedek {f} ₸
+1727|AI fotoğraf analizi yapılmadı: sunucu {a}{b} yanıtını verdi
+1728|
+1729|QazGost keşfi: {a} ({b}) {c}, {d} m²
+1730|Keşif hazır: {a} kalem, {b} ₸
+1731|{a} numaralı talep müdüre gönderildi
+1732|Açıklamaya göre: {a} («{b}» kelimesi)
+1733|Keşfe göre işler ({a}): {b}
+1734|Yüklenen fotoğraf: {a}
+1735|Hata ({a}): {b}
+1736|Fiyat tarihi: {a}
+1737|Tarife: {a}
+1738|Anahtar: {a}
+1739|< {n} sn
+1740|kusur tespit sunucusunun bir fotoğrafı analiz etme süresi
+1741|Rakamlarla platform
+1742|bölgelere göre fiyatlı yapı malzemesi kalemi
+1743|veritabanındaki Kazakistan ESN birim fiyatı: işler, malzemeler, iş makineleri
+1744|Aigerim Nurlanova
+1745|İç mimar, Astana
+1746|Fotoğraf yüklüyorum, keşfi alıyorum ve hemen müşteriye gösteriyorum. Kusur kontrolü, işler başlamadan sorunları görmeye yardımcı oluyor
+1747|Müşteri, Almatı
+1748|Kazakistan'ın farklı şehirlerinden müşteriler, tasarımcılar ve şantiye şefleri
+1749|Kendi şehrimden her gün talep geliyor. Şeffaf fiyatlar, müşteriyle körü körüne pazarlık etmeden anlaşmaya yardımcı oluyor
+1750|Şantiye şefi, «StroyMark» LLP
+1751|Banyo fotoğrafından keşif yaptım. Eskiden usta göz kararı hesaplayıp iki katı fiyat söylüyordu. Artık bunun gerçekte ne kadar tuttuğunu biliyorum
+1752|Kullanıcılar ne diyor
+1753|Mühendisin gelişi
+1754|Siparişi tamamla
+1755|DURUM
+1756|Tür
+1757|WhatsApp'tan yaz: +{n}
+1758|Çatı işleri
+1759|Isıtma montajı
+1760|Proje dokümanlarının hazırlanması
+1761|Teknik ekspertiz
+1762|Sıva
+1763|Elektrik montajı
+1764|Katalogda böyle bir şey yok. Kendi seçeneğinizi bırakabilirsiniz
+1765|iş türü
+1766|Tüm gruplar
+1767|İş türü seçimi
+1768|Girildiği gibi kaydet
+1769|Ara: septik, çatı, elektrik
+1770|Kendi seçeneğiniz: «
+1771|{n} Ağustos
+1772|● DEVAM EDİYOR
+1773|● TAMAMLANDI
+1774|İş makinesi ve ekiplerin otomatik seçimi
+1775|DEVAM EDİYOR
+1776|Yerinde inceleme ve keşif hesabı
+1777|Uygulama
+1778|İş programını belirle
+1779|Program belirlendi
+1780|Veriler kaydedildi. Müdür müsait
+1781|Görev ayrıntıları
+1782|TAMAMLANDI
+1783|GÖREVLER ATANDI
+1784|SİPARİŞ ONAYLANDI
+1785|SİPARİŞ UYGULAYICIDA
+1786|Notlar (mühendis için)
+1787|Ivan Petrov
+1788|Mühendis / Keşif uzmanı
+1789|Gerçek zamanlı çalışmanın etkileşimli gösterimi
+1790|Müşteri keşfi onayladı
+1791|POTANSİYEL MÜŞTERİ OLUŞTURULDU
+1792|İş makinesi atama
+1793|İşe başla (geldik)
+1794|Yeni talep (potansiyel müşteri)
+1795|İŞLENDİ
+1796|BEKLİYOR
+1797|Geliş bekleniyor
+1798|Hesap bekleniyor
+1799|Sorunu ve erişim ayrıntılarını anlatın
+1800|Uygulamada işaretleme
+1801|Ekip seçimi
+1802|KAYNAK SEÇİMİ
+1803|Seçilen kaynaklar
+1804|Talebin alınması
+1805|Aramanın ve talebin alınması
+1806|ALINDI
+1807|İş tamamlandı
+1808|İNCELEMEDE
+1809|Keşif hesabı
+1810|Keşfi indir (PDF)
+1811|#{n} numaralı keşif oluşturuldu
+1812|Keşif PDF biçiminde indiriliyor
+1813|Kaydet ve ilet
+1814|Maliyet (₸)
+1815|İş türü
+1816|Tsentralnaya cad. {n}
+1817|Şantiyeden dosyalar ve fotoğraflar
+1818|Verilerin kaydı
+1819|JCB ekskavatör
+1820|m
+1821|Uzunluk, m
+1822|Çevre, m
+1823|çatlaklar
+1824|Farklı yönde bir kenar daha girin: planlar çoğu zaman tek eksende uzatılmıştır, tek kenar yetmez
+1825|Duvar yüksekliği, m
+1826|Kapılar {n}×{n} m
+1827|kapı {n} m · kâğıt A{n} m · plandaki ölçü çizgisi
+1828|uzunluk × genişlik veya alan
+1829|referans uzunluğu
+1830|Referans uzunluğu (metre)
+1831|Uzunluklar birbiriyle o kadar çelişiyor ki eksenlere göre ölçek belirlenemiyor — ortak çarpan alındı
+1832|boşluklar düşülmüş
+1833|{n}. adımda planın, çizimin fotoğrafını veya üstten çekilmiş bir fotoğrafı yükleyin — ve odayı burada çizin
+1834|Odanın köşelerine saat yönünde tıklayın; ilk noktaya tıklamak konturu kapatır
+1835|Uzunluğu bilinen bir nesnenin başına ve sonuna tıklayın
+1836|Kontur kapatıldı
+1837|Kontur kapatıldı. Baştan başlamak için «Temizle»ye basın
+1838|Plan üzerinde kontur
+1839|Izgara üzerinde kontur
+1840|Çizgi
+1841|Referans çizgisi, plan veya tam üstten çekilmiş fotoğraf için doğrudur. Açılı fotoğrafta «Dikdörtgen» referansını seçin
+1842|hücre ölçeğini siz belirlersiniz
+1843|Konturu kapatmak için en az {n} nokta gerekir
+1844|Odayı çizin veya ölçüleri girin — bunlar olmadan keşif hesaplanamaz
+1845|Pencereler {n}×{n} m
+1846|Noktayı geri al
+1847|{n} köşeyi işaretle
+1848|Referansı işaretle
+1849|Köşeleri yeniden ölç
+1850|Referansı yeniden ölç
+1851|çevre
+1852|Duvar çevresi, m
+1853|Yerleşim planları çoğu zaman ölçekli çizilmez. Bir-iki kenarın gerçek uzunluğunu girin — örneğin planda yazılı oda ölçüleri. Farklı yönlerdeki iki kenar, planın genişlik ve yükseklikteki uzamasını da düzeltir
+1854|fayans {n}×{n} · A{n}×{n} kâğıt · halı veya ölçüleri bilinen oda — aynı zeminde
+1855|alan ·
+1856|Zemin alanı, m²
+1857|referansa göre
+1858|alan
+1859|ızgaraya yapış
+1860|Dikdörtgen
+1861|Dikdörtgen (açılı fotoğraf)
+1862|Dikdörtgen işaretlendi — ölçülerini kontrol edin: ilk sayı {n}. köşeden {n}. köşeye olan kenardır
+1863|Referans dikdörtgen perspektifi düzeltir: yalnızca referansla aynı düzlemdeki zemini çizin
+1864|ölçü
+1865|Izgara hücre boyutu
+1866|Ölçüleri elle gir
+1867|gerçek, m
+1868|Düzeltmeyi sıfırla
+1869|Karmaşık şekil
+1870|Önce ölçeği belirleyin: «{n} köşeyi işaretle»ye basın ve ölçüsü bilinen dikdörtgenin köşelerine tıklayın
+1871|Önce ölçeği belirleyin: «Referansı işaretle»ye basın ve uzunluğu bilinen nesne boyunca bir çizgi çekin
+1872|Ölçüm yöntemi
+1873|duvarlar
+1874|Kenar
+1875|Dikdörtgenin {n}. köşeden {n}. köşeye kenarı, m
+1876|Dikdörtgenin {n}. köşeden {n}. köşeye kenarı, m
+1877|Konturun kenarları kesişiyor — fazla noktayı «Noktayı geri al» düğmesiyle kaldırın
+1878|Köşeler sırayla işaretlenmemiş veya üç köşe aynı doğru üzerinde — dikdörtgenin kenarını dolaşarak {n} köşeyi yeniden işaretleyin
+1879|Girilen kenarlar paralel — ikinci eksendeki uzama bunlardan belirlenemez, başka yönde bir kenar gerekir
+1880|Bu odanın ölçeğini düzelt
+1881|Oda şekli
+1882|Ölçüm için fotoğraf
+1883|plan fotoğrafı + uzunluk referansı
+1884|Genişlik, m
+1885|Bu nokta referans dikdörtgenin ufuk çizgisinin ötesinde — metreye çevrilemez. Yalnızca aynı düzlemdeki zemini işaretleyin
+1886|Ölçek referansı
+1887|Referans işaretlendi — gerçek uzunluğunu metre olarak girin
+1888|{n} hücre =
+1889|bir kenara
+1890|Girilen uzunluklar kontur şekliyle {a} % farklı — doğru kenarların girilip girilmediğini ve ölçünün içinde niş veya dolap olup olmadığını kontrol edin
+1891|Ölçek {a} kenara göre genişlik ve yükseklikte ayrı ayrı düzeltildi: ×{b} ve ×{c}
+1892|Dikdörtgenin {n} köşesine sırayla tıklayın — {a} / {n} işaretlendi
+1893|{a} kenarının gerçek uzunluğu, m
+1894|Ölçek {a} göre düzeltildi: ×{b}
+1895|Konturu kapat ({a} nokta)
+1896|Ölçek {a} göre düzeltildi
+1897|referans {a} m
+1898|{a} kenara
+1899|Parametre yok — metraj kontura göre hesaplanır
+1900|kontura göre
+1901|bölüm — netleştirmek için açın
+1902|{a} parametre
+1903|— bu, seçilen iş türüyle uyuşmuyor; seçimi kontrol edin
+1904|, pencereler
+1905|Veritabanındaki benzerleri
+1906|Hızlı hesap
+1907|Yedekli bütçe
+1908|veritabanı aralığında
+1909|Keşifte
+1910|Malzeme satın alma cetveli ·
+1911|aralığın üstünde
+1912|Nereye bakılır
+1913|İş programı ·
+1914|Ayrıntılı: kontrollü
+1915|Hesap varsayımları
+1916|AI fotoğraf analizi
+1917|AI fotoğraf analizi ·
+1918|Fiyat kaynağı
+1919|Fiyat kaynakları
+1920|Toplam
+1921|m · yükseklik
+1922|m · duvarlar
+1923|m² · kapılar
+1924|m² · çevre
+1925|m² (keşifte sizin ölçtüğünüz alan kullanılır)
+1926|Veritabanı medyanı
+1927|Fotoğrafta
+1928|aralığın altında
+1929|tahmin
+1930|Fotoğrafa göre alan tahmini: ~
+1931|kalem
+1932|Kalem ve miktarın hesaplanma şekli
+1933|Tam: iş programı ve satın almayla
+1934|Keşif kontrolü
+1935|QazGost hesaplanmış tahmini
+1936|Yedek {n}%
+1937|Veritabanı karşılaştırmasını gizle
+1938|Senaryo
+1939|Fiyat, ₸
+1940|fiyatlar
+1941|Tarama — teknolojik ara: kuruma, dayanım kazanma, basınç testi
+1942|tutarın %'si — fiyatlar açık fiyat listelerinden ve ilanlardan; geri kalanı yöntemiyle birlikte «tahmin» olarak işaretlendi
+1943|AI, kusurları görmeye ve iş seçimini kontrol etmeye yardımcı olur; keşifteki fiyatlar ve miktarlar yalnızca ölçümden ve rehberden alınır
+1944|QazGost veritabanıyla karşılaştırmayı göster ({a} kalem)
+1945|{a}. günden itibaren, {b} gün
+1946|{a}–{b} ortası
+1947|, {a} seçilmeden
+1948|SATIN ALMA CETVELİ
+1949|Yükseklik, m
+1950|Fiyata bakılan yer
+1951|İŞ PROGRAMI
+1952|Hesap tarihi
+1953|Süre, gün
+1954|Varsayımlar
+1955|Toplam, gün
+1956|Miktarın hesaplanma şekli
+1957|malzeme
+1958|Başlangıç, gün
+1959|Hesap sunucusuyla bağlantı yok. İnterneti kontrol edip yeniden deneyin
+1960|Ara, gün
+1961|işçilik
+1962|Bölüm
+1963|Bağlantı
+1964|Boşluklar düşülmüş duvarlar, m²
+1965|iş makinesi
+1966|Fiyat tarihi
+1967|Teknolojik kart rehberi kullanılamıyor ({a})
+1968|Hesap sunucusu {a} hatasını döndürdü
+1969|QazGost KEŞFİ — {a} ({b})
+1970|{a} (katsayı {b})
+1971|{n}D tarama ve ölçümler
+1972|Acil işler
+1973|Mobil vinç
+1974|Korozyon koruması
+1975|Donatı
+1976|Beton pompası
+1977|Çevre düzenlemesi ve yollar
+1978|Bordürler
+1979|Kazık için sondaj
