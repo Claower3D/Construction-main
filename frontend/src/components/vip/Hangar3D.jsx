@@ -17,19 +17,22 @@ const COLORS = { frame: 0xa9bbdc, roof: 0x64748b, wall: 0xb6c2d6, floor: 0x59627
 
 function label(source, color = '#e9e5f7') {
   const text = translate(source) || source; // подписи рисуются на картинке — переводим их сами
+  const FONT = '700 50px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif';
   const c = document.createElement('canvas');
-  c.width = 256; c.height = 96;
+  const probe = c.getContext('2d');
+  probe.font = FONT;
+  c.width = Math.max(256, Math.ceil(probe.measureText(text).width) + 40); c.height = 96; // смена размера сбрасывает настройки холста
   const g = c.getContext('2d');
-  g.font = '700 50px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif';
+  g.font = FONT;
   g.textAlign = 'center'; g.textBaseline = 'middle';
   g.lineWidth = 8; g.strokeStyle = 'rgba(11,18,32,0.9)';
-  g.strokeText(text, 128, 48);
+  g.strokeText(text, c.width / 2, 48);
   g.fillStyle = color;
-  g.fillText(text, 128, 48);
+  g.fillText(text, c.width / 2, 48);
   const tex = new THREE.CanvasTexture(c);
   // sizeAttenuation: false — подпись одного размера на экране, где бы ни стояла камера
   const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, depthTest: false, transparent: true, sizeAttenuation: false }));
-  s.scale.set(0.115, 0.043, 1);
+  s.scale.set(0.115 * (c.width / 256), 0.043, 1);
   s.renderOrder = 10;
   return s;
 }
@@ -204,6 +207,12 @@ function buildShape(item, mat) {
         r.rotation.x = -Math.PI / 2 + side * Math.atan2(ridge - eave, hw);
         g.add(r);
       }
+      const B = HANGAR.bump;
+      if (B && B.height > 0) {
+        const lid = new THREE.Mesh(new THREE.PlaneGeometry(Math.min(L - B.from, B.length) + 0.6, B.width + 0.6), pm);
+        lid.rotation.x = -Math.PI / 2; lid.position.set(B.from - hl + Math.min(L - B.from, B.length) / 2, ridge + B.height + 0.35, 0);
+        g.add(lid);
+      }
       g.userData.ownMat = pm;
       center = V(0, ridge, 0);
       break;
@@ -314,6 +323,30 @@ export default function Hangar3D({ items = [], selected = '', skin = true, heigh
       r.position.set(0, (eave + ridge) / 2 + 0.45, side * hw / 2);
       r.rotation.x = -Math.PI / 2 + side * Math.atan2(ridge - eave, hw);
       scene.add(r); skins.push(r);
+    }
+
+    // выступ кровли вверх (надстройка) у восточного торца: каркас, стенки и крышка
+    const B = HANGAR.bump;
+    if (B && B.height > 0) {
+      const bx0 = B.from - hl, bx1 = Math.min(hl, bx0 + B.length), bw = B.width / 2, top = ridge + B.height, low = slopeY(bw) + 0.45;
+      for (const bx of [bx0, bx1]) for (const side of [-1, 1]) frame.add(beam(V(bx, low, side * bw), V(bx, top, side * bw), 0.3, steel));
+      for (const side of [-1, 1]) frame.add(beam(V(bx0, top, side * bw), V(bx1, top, side * bw), 0.26, steel));
+      for (const bx of [bx0, (bx0 + bx1) / 2, bx1]) frame.add(beam(V(bx, top, -bw), V(bx, top, bw), 0.26, steel));
+      const bumpMat = cover(0x93a4c4, 0.5);
+      const lid = new THREE.Mesh(new THREE.PlaneGeometry(bx1 - bx0, B.width), bumpMat);
+      lid.rotation.x = -Math.PI / 2; lid.position.set((bx0 + bx1) / 2, top + 0.05, 0);
+      const sideGeo = new THREE.PlaneGeometry(bx1 - bx0, top - low);
+      const sides = [-1, 1].map((side) => { const m = new THREE.Mesh(sideGeo, bumpMat); m.position.set((bx0 + bx1) / 2, (top + low) / 2, side * bw); return m; });
+      const end = new THREE.Shape();
+      end.moveTo(-bw, low); end.lineTo(0, ridge + 0.45); end.lineTo(bw, low); end.lineTo(bw, top); end.lineTo(-bw, top); end.closePath();
+      const endGeo = new THREE.ShapeGeometry(end);
+      const ends = [bx0, bx1 + 0.3].map((bx) => { const m = new THREE.Mesh(endGeo, bumpMat); m.rotation.y = Math.PI / 2; m.position.x = bx; return m; });
+      scene.add(lid, ...sides, ...ends); skins.push(lid, ...sides, ...ends);
+      // светлый контур: выступ читается и на подсвеченной кровле
+      const edge = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(bx1 - bx0, top - low, B.width)), new THREE.LineBasicMaterial({ color: 0xf1f5f9 }));
+      edge.position.set((bx0 + bx1) / 2, (top + low) / 2 + 0.06, 0); edge.renderOrder = 5; edge.material.depthTest = false;
+      scene.add(edge);
+      put(label(`выступ +${B.height} м`, '#fcd34d'), (bx0 + bx1) / 2, top + 2.2, 0);
     }
 
     // размеры и стороны света

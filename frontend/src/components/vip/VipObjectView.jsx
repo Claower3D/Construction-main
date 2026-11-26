@@ -78,7 +78,7 @@ export default function VipObjectView({ project, onOpen }) {
               <button type="button" className={!skin ? 'active' : ''} aria-pressed={!skin} onClick={() => setSkin(false)}>Каркас</button>
             </div>
             <b>{`Ангар ${HANGAR.width} × ${HANGAR.length} м`}</b>
-            <span>{`стены ${HANGAR.eave} м · конёк ${HANGAR.ridge} м · стальной каркас`}</span>
+            <span>{`стены ${HANGAR.eave} м · конёк ${HANGAR.ridge} м · выступ кровли +${HANGAR.bump.height} м · стальной каркас`}</span>
           </div>
           <Suspense fallback={<div className="vob-3d vob-3d-wait" style={{ height: 440 }} role="status">Загружаем модель ангара…</div>}>
             <Hangar3D items={items} selected={current ? current.id : ''} skin={skin} height={440} />

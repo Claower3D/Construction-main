@@ -361,3 +361,6 @@ Satu: смесители для ванны от ≈7 000 ₸ (бюджетные
 внутри здания|inside the building
 лестница двухэтажная, у входа|two-storey stair, at the entrance
 вход|entrance
+стены {n} м · конёк {n} м · выступ кровли +{n} м · стальной каркас|walls {n} m · ridge {n} m · roof projection +{n} m · steel frame
+выступ +{n} м|projection +{n} m
+верх здания|top of the building

@@ -392,7 +392,11 @@ export function nameHue(full) {
 }
 
 // ── Места на модели ангара 25 × 70 м ──
-export const HANGAR = { width: 25, length: 70, eave: 20, ridge: 23, bays: 10 };
+export const HANGAR = {
+  width: 25, length: 70, eave: 20, ridge: 23, bays: 10,
+  // выступ кровли вверх у восточного торца: от какого метра по длине, длина и ширина, на сколько выше конька
+  bump: { from: 56, length: 14, width: 10, height: 2 },
+};
 export const HANGAR_ZONES = [
   { id: 'all', label: 'Всё здание' },
   { id: 'frame', label: 'Каркас' },
@@ -519,7 +523,7 @@ export function projectPlaces(works) {
       if (n && !['storm', 'sewer', 'heating', 'sheet_roof', 'frame'].includes(shape)) x += (floor === 2 ? 5 : 13) * n;
     }
     if (floor === 2 && x < HANGAR_INNER.mezzFrom + 1) x = manual ? x : HANGAR_INNER.mezzFrom + 3;
-    const where = shape === 'stairs' ? 'внутри здания' : floor ? `${floor} этаж` : OUTSIDE.has(shape) ? 'снаружи здания' : shape === 'sheet_roof' ? 'кровля' : shape === 'sheet_wall' ? 'стена' : shape === 'heating' ? 'вдоль стен' : 'здание';
+    const where = shape === 'stairs' ? 'внутри здания' : floor ? `${floor} этаж` : OUTSIDE.has(shape) ? 'снаружи здания' : shape === 'sheet_roof' ? 'верх здания' : shape === 'sheet_wall' ? 'снаружи здания' : shape === 'heating' ? 'вдоль стен' : 'здание';
     // лестниц обычно две и стоят они в разных местах: первая — в середине здания (один этаж),
     // вторая — двухэтажная, в начале здания у входа (ворота в западном торце); у каждой своя точка на плане
     const manual2 = w.pos2 && Number.isFinite(Number(w.pos2.x)) && Number.isFinite(Number(w.pos2.z));
