@@ -394,9 +394,17 @@ export function nameHue(full) {
 // ── Места на модели ангара 25 × 70 м ──
 export const HANGAR = {
   width: 25, length: 70, eave: 20, ridge: 23, bays: 10,
-  // выступ кровли вверх у восточного торца: от какого метра по длине, длина и ширина, на сколько выше конька
-  bump: { from: 56, length: 14, width: 10, height: 2 },
+  // выступ пола вверх у восточного торца (кровля ровная): от какого метра по длине, длина, ширина по центру и высота над полом
+  step: { from: 56, length: 14, width: 10, height: 2 },
 };
+/** На сколько метров пол в точке выше основного уровня: x — от западного торца, z — от северной стены */
+export function floorRise(x, z) {
+  const s = HANGAR.step;
+  if (!s || !(s.height > 0)) return 0;
+  const z0 = (HANGAR.width - s.width) / 2;
+  const inside = x >= s.from && x <= Math.min(HANGAR.length, s.from + s.length) && z >= z0 && z <= z0 + s.width;
+  return inside ? s.height : 0;
+}
 export const HANGAR_ZONES = [
   { id: 'all', label: 'Всё здание' },
   { id: 'frame', label: 'Каркас' },

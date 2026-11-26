@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { HANGAR, HANGAR_INNER } from './vipSchedule';
+import { HANGAR, HANGAR_INNER, floorRise } from './vipSchedule';
 import { translate } from '../../i18n';
 
 // Модель ангара завода: 25 × 70 м, двускатная кровля (стены 20 м, конёк 23 м), внутри стальной каркас
@@ -61,7 +61,7 @@ function buildShape(item, mat) {
   const hw = Wd / 2, hl = L / 2;
   const g = new THREE.Group();
   const x = item.x - hl, z = item.z - hw;
-  const y0 = item.floor === 2 ? HANGAR_INNER.floor2 + 0.3 : 0.4;
+  const y0 = item.floor === 2 ? HANGAR_INNER.floor2 + 0.3 : 0.4 + floorRise(item.x, item.z);
   let center = V(x, y0 + 1.5, z);
   const n = item.count || 1;
   switch (item.shape) {
@@ -207,12 +207,6 @@ function buildShape(item, mat) {
         r.rotation.x = -Math.PI / 2 + side * Math.atan2(ridge - eave, hw);
         g.add(r);
       }
-      const B = HANGAR.bump;
-      if (B && B.height > 0) {
-        const lid = new THREE.Mesh(new THREE.PlaneGeometry(Math.min(L - B.from, B.length) + 0.6, B.width + 0.6), pm);
-        lid.rotation.x = -Math.PI / 2; lid.position.set(B.from - hl + Math.min(L - B.from, B.length) / 2, ridge + B.height + 0.35, 0);
-        g.add(lid);
-      }
       g.userData.ownMat = pm;
       center = V(0, ridge, 0);
       break;
@@ -325,28 +319,15 @@ export default function Hangar3D({ items = [], selected = '', skin = true, heigh
       scene.add(r); skins.push(r);
     }
 
-    // выступ кровли вверх (надстройка) у восточного торца: каркас, стенки и крышка
-    const B = HANGAR.bump;
-    if (B && B.height > 0) {
-      const bx0 = B.from - hl, bx1 = Math.min(hl, bx0 + B.length), bw = B.width / 2, top = ridge + B.height, low = slopeY(bw) + 0.45;
-      for (const bx of [bx0, bx1]) for (const side of [-1, 1]) frame.add(beam(V(bx, low, side * bw), V(bx, top, side * bw), 0.3, steel));
-      for (const side of [-1, 1]) frame.add(beam(V(bx0, top, side * bw), V(bx1, top, side * bw), 0.26, steel));
-      for (const bx of [bx0, (bx0 + bx1) / 2, bx1]) frame.add(beam(V(bx, top, -bw), V(bx, top, bw), 0.26, steel));
-      const bumpMat = cover(0x93a4c4, 0.5);
-      const lid = new THREE.Mesh(new THREE.PlaneGeometry(bx1 - bx0, B.width), bumpMat);
-      lid.rotation.x = -Math.PI / 2; lid.position.set((bx0 + bx1) / 2, top + 0.05, 0);
-      const sideGeo = new THREE.PlaneGeometry(bx1 - bx0, top - low);
-      const sides = [-1, 1].map((side) => { const m = new THREE.Mesh(sideGeo, bumpMat); m.position.set((bx0 + bx1) / 2, (top + low) / 2, side * bw); return m; });
-      const end = new THREE.Shape();
-      end.moveTo(-bw, low); end.lineTo(0, ridge + 0.45); end.lineTo(bw, low); end.lineTo(bw, top); end.lineTo(-bw, top); end.closePath();
-      const endGeo = new THREE.ShapeGeometry(end);
-      const ends = [bx0, bx1 + 0.3].map((bx) => { const m = new THREE.Mesh(endGeo, bumpMat); m.rotation.y = Math.PI / 2; m.position.x = bx; return m; });
-      scene.add(lid, ...sides, ...ends); skins.push(lid, ...sides, ...ends);
-      // светлый контур: выступ читается и на подсвеченной кровле
-      const edge = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(bx1 - bx0, top - low, B.width)), new THREE.LineBasicMaterial({ color: 0xf1f5f9 }));
-      edge.position.set((bx0 + bx1) / 2, (top + low) / 2 + 0.06, 0); edge.renderOrder = 5; edge.material.depthTest = false;
+    // выступ пола вверх у восточного торца: плита на высоту выступа, светлый контур и подпись
+    const S = HANGAR.step;
+    if (S && S.height > 0) {
+      const sx0 = S.from - hl, sx1 = Math.min(hl, sx0 + S.length), sl = sx1 - sx0, cx = (sx0 + sx1) / 2, cy = 0.4 + S.height / 2;
+      scene.add(box(sl, S.height, S.width, new THREE.MeshStandardMaterial({ color: 0x8793ad, roughness: 0.85 }), cx, cy, 0));
+      const edge = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(sl, S.height, S.width)), new THREE.LineBasicMaterial({ color: 0xfcd34d }));
+      edge.position.set(cx, cy + 0.03, 0); edge.renderOrder = 5; edge.material.depthTest = false;
       scene.add(edge);
-      put(label(`выступ +${B.height} м`, '#fcd34d'), (bx0 + bx1) / 2, top + 2.2, 0);
+      put(label(`выступ +${S.height} м`, '#fcd34d'), cx, 0.4 + S.height + 1.7, 0);
     }
 
     // размеры и стороны света

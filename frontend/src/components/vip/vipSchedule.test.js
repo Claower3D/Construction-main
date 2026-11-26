@@ -263,7 +263,8 @@ test('календарь по факту по дням', () => {
   assert.equal(days['2026-11-13'][0].late, true); // идёт позже срока
 });
 
-import { guessShape, workFloor, workCount, projectPlaces, HANGAR_INNER } from './vipSchedule.js';
+import { guessShape, workFloor, workCount, projectPlaces, HANGAR, HANGAR_INNER, floorRise,
+} from './vipSchedule.js';
 test('место и фигура работы на модели', () => {
   assert.equal(guessShape({ title: 'Сборка 2 лестничных маршей' }), 'stairs');
   assert.equal(guessShape({ title: 'Ливневая система' }), 'storm');
@@ -303,4 +304,14 @@ test('место и фигура работы на модели', () => {
   assert.deepEqual([st.get('s').x, st.get('s').z, st.get('s').x2, st.get('s').z2, st.get('s').auto2], [30, 12, 3, 4, true]);
   assert.deepEqual([st.get('t').x2, st.get('t').z2, st.get('t').auto2], [10, 20, false]);
   assert.equal(p.get('a').label, '1 этаж');
+});
+
+test('выступ пола у восточного торца: кровля ровная, пол поднят только внутри выступа', () => {
+  assert.equal(HANGAR.bump, undefined);
+  const s = HANGAR.step, z0 = (HANGAR.width - s.width) / 2;
+  assert.equal(floorRise(s.from + 1, z0 + 1), s.height); // внутри выступа
+  assert.equal(floorRise(HANGAR.length, HANGAR.width / 2), s.height); // у самого торца
+  assert.equal(floorRise(s.from - 1, HANGAR.width / 2), 0); // до выступа по длине
+  assert.equal(floorRise(s.from + 1, z0 - 1), 0); // сбоку от выступа
+  assert.equal(floorRise(30, 12), 0); // середина здания
 });

@@ -364,3 +364,6 @@ Satu: смесители для ванны от ≈7 000 ₸ (бюджетные
 стены {n} м · конёк {n} м · выступ кровли +{n} м · стальной каркас|walls {n} m · ridge {n} m · roof projection +{n} m · steel frame
 выступ +{n} м|projection +{n} m
 верх здания|top of the building
+стены {n} м · конёк {n} м · выступ пола +{n} м · стальной каркас|walls {n} m · ridge {n} m · raised floor +{n} m · steel frame
+выступ|raised part
++{n} м|+{n} m

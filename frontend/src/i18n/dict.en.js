@@ -6939,7 +6939,10 @@ export const EN = {"Администратор QAZGOST AI":"QAZGOST AI Administr
 "вход":"entrance",
 "стены {n} м · конёк {n} м · выступ кровли +{n} м · стальной каркас":"walls {n} m · ridge {n} m · roof projection +{n} m · steel frame",
 "выступ +{n} м":"projection +{n} m",
-"верх здания":"top of the building"};
+"верх здания":"top of the building",
+"стены {n} м · конёк {n} м · выступ пола +{n} м · стальной каркас":"walls {n} m · ridge {n} m · raised floor +{n} m · steel frame",
+"выступ":"raised part",
+"+{n} м":"+{n} m"};
 
 export const EN_TEMPLATES = [["Регистрируясь в сервисе QazGost AI, я свободно, своей волей и в своём интересе даю согласие {a} (далее — Оператор) на сбор и обработку моих персональных данных на условиях, указанных ниже, в соответствии с Законом Республики Казахстан от {n} мая {n} года № {n}-V «О персональных данных и их защите»","By registering with the QazGost AI service, I freely, of my own will and in my own interest give consent to {a} (hereinafter — the Operator) to collect and process my personal data on the terms set out below, in accordance with the Law of the Republic of Kazakhstan of {n} May {n} No. {n}-V \"On Personal Data and Their Protection\""],
 ["Политика описывает, как {a} (далее — Оператор) собирает, обрабатывает и защищает персональные данные пользователей сервиса QazGost AI в соответствии с Законом Республики Казахстан от {n} мая {n} года № {n}-V «О персональных данных и их защите»","This policy describes how {a} (hereinafter — the Operator) collects, processes and protects the personal data of users of the QazGost AI service in accordance with the Law of the Republic of Kazakhstan of {n} May {n} No. {n}-V \"On Personal Data and Their Protection\""],

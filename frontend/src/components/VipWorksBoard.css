@@ -601,6 +601,8 @@
 .vv-plan-axis { stroke: rgba(169, 187, 220, 0.25); stroke-width: 0.2; }
 .vv-plan text { fill: #a39cc2; font-size: 3.4px; font-weight: 600; pointer-events: none; }
 .vv-plan text.f2 { fill: #e2e8f0; }
+.vv-plan-step { fill: rgba(252, 211, 77, 0.14); stroke: #fcd34d; stroke-width: 0.3; }
+.vv-plan text.step { fill: #fde68a; font-size: 2.8px; }
 .vv-plan-dot circle:first-child { fill: rgba(251, 191, 36, 0.3); stroke: #fbbf24; stroke-width: 0.5; }
 .vv-plan-dot circle:last-child { fill: #fbbf24; }
 .vv-plan-dot.auto circle:first-child { fill: rgba(185, 164, 255, 0.2); stroke: #b9a4ff; stroke-dasharray: 1 0.7; }

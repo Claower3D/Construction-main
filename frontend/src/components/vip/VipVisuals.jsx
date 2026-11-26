@@ -151,7 +151,7 @@ export function WorkArt({ kind = 'other', className = '' }) {
  * (x от западного торца, z от северной стены) или null; shown — точка, которую сейчас показывает модель.
  * second — вторая точка той же работы (вторая лестница): { value, shown, onChange, names: [первая, вторая] }.
  */
-export function PlanPicker({ value, shown, second, floor2From, length = 70, width = 25, onChange }) {
+export function PlanPicker({ value, shown, second, floor2From, step, length = 70, width = 25, onChange }) {
   const ref = useRef(null);
   const [which, setWhich] = useState(1);
   const two = !!second;
@@ -163,6 +163,7 @@ export function PlanPicker({ value, shown, second, floor2From, length = 70, widt
     const pos = { x: Math.round(Math.max(-14, Math.min(length + 14, vx)) * 2) / 2, z: Math.round(Math.max(-9, Math.min(width + 9, vz)) * 2) / 2 };
     if (two && which === 2) second.onChange(pos); else onChange(pos);
   };
+  const rise = step && step.height > 0 ? { x: step.from, z: (width - step.width) / 2, l: Math.min(length - step.from, step.length), w: step.width, h: step.height } : null;
   const dots = [{ n: 1, value, p: value || shown }, ...(two ? [{ n: 2, value: second.value, p: second.value || second.shown }] : [])];
   return (
     <div className="vv-plan">
@@ -176,11 +177,14 @@ export function PlanPicker({ value, shown, second, floor2From, length = 70, widt
         <rect x="0" y="0" width={length} height={width} className="vv-plan-house" />
         {floor2From < length && <rect x={floor2From} y="0" width={length - floor2From} height={width} className="vv-plan-f2" />}
         {Array.from({ length: 9 }, (_, i) => <line key={i} x1={(i + 1) * 7} y1="0" x2={(i + 1) * 7} y2={width} className="vv-plan-axis" />)}
+        {rise && <rect x={rise.x} y={rise.z} width={rise.l} height={rise.w} className="vv-plan-step" />}
         <text x={length / 2} y="-4" textAnchor="middle">Север</text>
         <text x={length / 2} y={width + 7.5} textAnchor="middle">Юг</text>
         <text x="-8" y={width / 2 + 1.2} textAnchor="middle">Запад</text>
         <text x={length + 8} y={width / 2 + 1.2} textAnchor="middle">Восток</text>
         {floor2From < length && <text x={(floor2From + length) / 2} y="4.5" textAnchor="middle" className="f2">2 этаж</text>}
+        {rise && <text x={rise.x + rise.l / 2} y={width / 2 - 0.4} textAnchor="middle" className="step">выступ</text>}
+        {rise && <text x={rise.x + rise.l / 2} y={width / 2 + 3} textAnchor="middle" className="step">{`+${rise.h} м`}</text>}
         <rect x="-0.9" y={width / 2 - 3} width="1.8" height="6" className="vv-plan-gate" />
         <text x="2.2" y={width / 2 + 1.2} className="gate">вход</text>
         {dots.filter((d) => d.p).map((d) => (

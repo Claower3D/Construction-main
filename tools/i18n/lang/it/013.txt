@@ -1,0 +1,3 @@
+8236|pareti {n} m · colmo {n} m · pavimento rialzato +{n} m · struttura in acciaio
+8237|rialzo
+8238|+{n} m

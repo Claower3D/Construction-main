@@ -243,6 +243,7 @@ function WorkCard({ work, isNew, project, onSave, onDelete, onClose, userName })
             shown={{ x: place.x, z: place.z }}
             second={place.shape === 'stairs' && place.count >= 2 ? { value: d.pos2 || null, shown: { x: place.x2, z: place.z2 }, onChange: (pos) => set('pos2', pos), names: ['лестница на один этаж', 'лестница двухэтажная, у входа'] } : null}
             floor2From={HANGAR_INNER.mezzFrom}
+            step={HANGAR.step}
             length={HANGAR.length}
             width={HANGAR.width}
             onChange={(pos) => set('pos', pos)}
