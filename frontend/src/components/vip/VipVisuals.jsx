@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { initials, nameHue } from './vipSchedule';
-import { uploadMedia, mediaProblem } from '../../services/vipApi';
+import { uploadMedia, mediaProblem, fileUrl } from '../../services/vipApi';
 
 // Картинки модуля «Строительство зданий»: фото и кружок с инициалами у людей, рисунки техники
 // по подгруппам, значки видов работ. Рисунки одноцветные и приглушённые: с телефона сразу видно,
@@ -207,13 +207,13 @@ export function PlanPicker({ value, shown, second, floor2From, length = 70, widt
 export function Avatar({ person, size = 36 }) {
   const name = (person && person.name) || '';
   const style = { width: size, height: size, fontSize: Math.round(size * 0.38) };
-  if (person && person.photo) return <img className="vv-avatar" style={style} src={person.photo} alt={name} loading="lazy" />;
+  if (person && person.photo) return <img className="vv-avatar" style={style} src={fileUrl(person.photo)} alt={name} loading="lazy" />;
   return <span className="vv-avatar vv-initials" translate="no" style={{ ...style, background: `hsl(${nameHue(name)} 42% 38%)` }} aria-hidden="true">{initials(name)}</span>;
 }
 
 /** Картинка техники: её фото или рисунок подгруппы */
 export function MachinePic({ machine, group, className = '' }) {
-  if (machine && machine.photo) return <img className={`vv-machine ${className}`} src={machine.photo} alt={machine.name || 'Техника'} loading="lazy" />;
+  if (machine && machine.photo) return <img className={`vv-machine ${className}`} src={fileUrl(machine.photo)} alt={machine.name || 'Техника'} loading="lazy" />;
   return <span className={`vv-machine vv-machine-art ${className}`}><MachineArt group={group} /></span>;
 }
 

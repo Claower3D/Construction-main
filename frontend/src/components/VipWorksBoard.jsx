@@ -11,8 +11,10 @@ import {
 import { Avatar, MachinePic, MachineArt, WorkArt, PhotoPicker, PlanPicker } from './vip/VipVisuals';
 import {
   listProjects, getProject, createProject, saveProject, deleteProject,
-  uploadMedia, mediaProblem, MEDIA_ACCEPT, MEDIA_LIMITS,
+  uploadMedia, mediaProblem, MEDIA_ACCEPT, MEDIA_LIMITS, fileUrl,
 } from '../services/vipApi';
+
+const pic = (w) => fileUrl(workPicture(w)); // картинка работы с адресом сервера (нужно в приложении)
 
 // Рабочие проекты модуля «Строительство зданий и сооружений»: график работ (календарь с полосами),
 // таблица работ, карточка работы с фото и видео, штат, техника и бригады подрядчика.
@@ -285,8 +287,8 @@ function WorkCard({ work, isNew, project, onSave, onDelete, onClose, userName })
             {(d.media || []).map((m) => (
               <figure key={m.id} className="vwb-media">
                 {m.kind === 'video'
-                  ? <video src={m.url} controls preload="metadata" />
-                  : <button type="button" className="vwb-thumb" onClick={() => setViewer(m)} aria-label={`Открыть фото ${m.caption || m.name || ''}`}><img src={m.url} alt={m.caption || m.name || 'Фото работы'} loading="lazy" /></button>}
+                  ? <video src={fileUrl(m.url)} controls preload="metadata" />
+                  : <button type="button" className="vwb-thumb" onClick={() => setViewer(m)} aria-label={`Открыть фото ${m.caption || m.name || ''}`}><img src={fileUrl(m.url)} alt={m.caption || m.name || 'Фото работы'} loading="lazy" /></button>}
                 <figcaption>
                   <input className="vip-input" type="date" value={m.date || ''} onChange={(e) => setMedia(m.id, { date: e.target.value })} aria-label="Дата съёмки" />
                   <input className="vip-input" value={m.caption || ''} onChange={(e) => setMedia(m.id, { caption: e.target.value })} placeholder="Подпись" maxLength={300} aria-label="Подпись" />
@@ -298,7 +300,7 @@ function WorkCard({ work, isNew, project, onSave, onDelete, onClose, userName })
         )}
       {viewer && (
         <Modal title={viewer.caption || viewer.name || 'Фото'} onClose={() => setViewer(null)} wide>
-          <img className="vwb-viewer" src={viewer.url} alt={viewer.caption || viewer.name || 'Фото работы'} />
+          <img className="vwb-viewer" src={fileUrl(viewer.url)} alt={viewer.caption || viewer.name || 'Фото работы'} />
           <p className="vwb-hint">{viewer.date ? formatDay(viewer.date) : ''}</p>
         </Modal>
       )}
@@ -640,7 +642,7 @@ export default function VipWorksBoard({ section = 'schedule', onToast, onProject
   const downloadAllDocs = () => {
     (project.docs || []).forEach((doc, i) => setTimeout(() => {
       const a = document.createElement('a');
-      a.href = doc.url; a.download = doc.name || doc.title || 'document';
+      a.href = fileUrl(doc.url); a.download = doc.name || doc.title || 'document';
       document.body.appendChild(a); a.click(); a.remove();
     }, i * 350));
   };
@@ -792,8 +794,8 @@ export default function VipWorksBoard({ section = 'schedule', onToast, onProject
                 <div className="vwb-g-corner">Работа</div>
                 {works.map((w) => (
                   <button type="button" key={w.id} className="vwb-g-name" onClick={() => setModal({ type: 'work', isNew: false, item: w })} title="Открыть работу">
-                    {workPicture(w)
-                      ? <img className="vwb-g-pic" src={workPicture(w)} alt="" loading="lazy" />
+                    {pic(w)
+                      ? <img className="vwb-g-pic" src={pic(w)} alt="" loading="lazy" />
                       : <span className={cls('vwb-g-pic', 'art', `s-${w.status}`)}><WorkArt kind={workKind(w)} /></span>}
                     <span className="vwb-g-text">
                       <b translate="no">{w.check ? <i className="vwb-g-flag" title={w.check}>!</i> : null}{w.title}</b>
@@ -1081,7 +1083,7 @@ export default function VipWorksBoard({ section = 'schedule', onToast, onProject
                       <td>{doc.size ? fmtSize(doc.size) : '—'}</td>
                       <td>{doc.addedBy || '—'}</td>
                       <td className="acts">
-                        <a className="vip-secondary-btn" href={doc.url} download={doc.name || doc.title}>⬇ Скачать</a>
+                        <a className="vip-secondary-btn" href={fileUrl(doc.url)} download={doc.name || doc.title} target="_blank" rel="noreferrer">⬇ Скачать</a>
                         <button type="button" className="vwb-link" onClick={() => setConfirm({ title: 'Убрать документ?', text: `Документ «${doc.title || doc.name}» исчезнет из проекта.`, yes: 'Убрать', onYes: () => { change((d) => { d.docs = (d.docs || []).filter((x) => x.id !== doc.id); return d; }); setConfirm(null); } })}>убрать</button>
                       </td>
                     </tr>

@@ -4,6 +4,9 @@ import {
   workKind, workPicture, HANGAR, WORK_SHAPES, projectPlaces,
 } from './vipSchedule';
 import { WorkArt, Avatar } from './VipVisuals';
+import { fileUrl } from '../../services/vipApi';
+
+const pic = (w) => fileUrl(workPicture(w));
 
 // Карточка рабочего объекта на вкладке «Мои объекты»: сводка, модель ангара и список работ.
 // Нажатие на работу подсвечивает на модели место, где она выполняется.
@@ -62,7 +65,7 @@ export default function VipObjectView({ project, onOpen }) {
           <div className="vob-now-list">
             {running.map((w) => (
               <button type="button" key={w.id} className={picked === w.id ? 'active' : ''} onClick={() => setPicked(w.id)}>
-                {workPicture(w) ? <img src={workPicture(w)} alt="" loading="lazy" /> : <span className="art"><WorkArt kind={workKind(w)} /></span>}
+                {pic(w) ? <img src={pic(w)} alt="" loading="lazy" /> : <span className="art"><WorkArt kind={workKind(w)} /></span>}
                 <b translate="no">{w.title}</b>
               </button>
             ))}
@@ -100,7 +103,7 @@ export default function VipObjectView({ project, onOpen }) {
               return (
                 <li key={w.id}>
                   <button type="button" className={picked === w.id ? 'active' : ''} aria-pressed={picked === w.id} onClick={() => setPicked(picked === w.id ? null : w.id)}>
-                    {workPicture(w) ? <img src={workPicture(w)} alt="" loading="lazy" /> : <span className={`art s-${w.status}`}><WorkArt kind={workKind(w)} /></span>}
+                    {pic(w) ? <img src={pic(w)} alt="" loading="lazy" /> : <span className={`art s-${w.status}`}><WorkArt kind={workKind(w)} /></span>}
                     <span className="t">
                       <b translate="no">{w.title}</b>
                       <small>{formatRange(w.start, w.end)} · <span>{places.get(w.id).label}</span></small>

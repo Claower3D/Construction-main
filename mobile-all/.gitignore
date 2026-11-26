@@ -1,5 +1,6 @@
 node_modules/
 www/admin/
+www/builder/
 www/customer/
 www/engineer/
 www/executor/
