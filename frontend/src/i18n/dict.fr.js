@@ -2924,7 +2924,15 @@ export const T = {"сметы и дефектоскопия по нормам Р
 "Satu: смесители для ванны от ≈7 000 ₸ (бюджетные) до ≈61 000 ₸ (Grohe); взят средний сегмент":"Satu : mitigeurs de baignoire de ≈7 000 ₸ (entrée de gamme) à ≈61 000 ₸ (Grohe) ; milieu de gamme retenu",
 "Канализация: приборы подключаются к существующим выпускам; замена канализационных труб и стояка в смету не входит — считается после осмотра.":"Évacuation : les appareils sont raccordés aux évacuations existantes ; le remplacement des tuyaux d'évacuation et de la colonne n'est pas inclus — il est chiffré après inspection.",
 "Душевая кабина: смеситель и лейка входят в комплект кабины.":"Cabine de douche : le mitigeur et la douchette sont fournis avec la cabine.",
-"Отопление: радиаторы и подводка к ним при действующей системе; котёл, насосная группа и магистральные трубы в смету не входят.":"Chauffage : radiateurs et leurs raccordements sur une installation existante ; la chaudière, le groupe de pompage et les conduites principales ne sont pas inclus."};
+"Отопление: радиаторы и подводка к ним при действующей системе; котёл, насосная группа и магистральные трубы в смету не входят.":"Chauffage : radiateurs et leurs raccordements sur une installation existante ; la chaudière, le groupe de pompage et les conduites principales ne sont pas inclus.",
+"Краны":"Grues",
+"Манипуляторы":"Camions-grues",
+"Автовышки и подъёмники":"Nacelles élévatrices",
+"Автомобили":"Véhicules",
+"Бетонная техника":"Engins à béton",
+"Буровая техника":"Engins de forage",
+"Генераторы и энергетика":"Groupes électrogènes et énergie",
+"Вся техника":"Tous les engins"};
 
 export const TEMPLATES = [["Ошибка Vision AI: Изображение не распознано как строительный объект или чертеж (определено как \"{a}\"). Пожалуйста, загрузите реальное фото помещения, фасада или план","Erreur Vision AI : l'image n'a pas été reconnue comme un ouvrage ou un plan (identifiée comme \"{a}\"). Veuillez téléverser une vraie photo de pièce, de façade ou un plan"],
 ["Работы «Стандарта»: {a} ₸/м² пола. Средняя цена базовых черновых и чистовых работ в РК — {n}–{n} тыс. ₸/м² (Bizmedia/OLX, июнь {n})","Travaux « Standard » : {a} ₸/m² de sol. Prix moyen des travaux de base gros œuvre et finitions au Kazakhstan — {n}–{n} milliers de ₸/m² (Bizmedia/OLX, juin {n})"],

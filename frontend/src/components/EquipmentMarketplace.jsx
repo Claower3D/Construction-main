@@ -7,6 +7,31 @@ import './marketplace-refresh.css';
 import MarketBackdrop from './MarketBackdrop';
 import { FleetPanel, BookingsPanel, equipmentPlaceholder } from './EquipmentAccountPanels';
 import './marketplace-lux.css';
+import { MACHINE_GROUPS, guessMachineGroup } from './vip/vipSchedule';
+import { MachineArt } from './vip/VipVisuals';
+
+// Подгруппы техники — те же, что в модуле «Строительство зданий» (краны, манипуляторы, автовышки…),
+// и ещё несколько для видов техники, которых там нет.
+const MARKET_GROUPS = [
+  ...MACHINE_GROUPS.filter((g) => g.id !== 'other').map((g) => ({ ...g, art: g.id })),
+  { id: 'loader', label: 'Погрузчики', art: 'earth' },
+  { id: 'road', label: 'Дорожная техника', art: 'earth' },
+  { id: 'concrete', label: 'Бетонная техника', art: 'truck' },
+  { id: 'drill', label: 'Буровая техника', art: 'other' },
+  { id: 'power', label: 'Генераторы и энергетика', art: 'other' },
+  { id: 'other', label: 'Прочая техника', art: 'other' },
+];
+function marketGroup(item) {
+  const name = String(item.title || item.name || '').toLowerCase();
+  if (/погрузчик/.test(name) && !/экскаватор-погрузчик/.test(name)) return 'loader';
+  if (/бетон|миксер|раствор/.test(name)) return 'concrete';
+  if (/бур|ямобур/.test(name)) return 'drill';
+  if (/каток|грейдер|асфальт|фрез/.test(name)) return 'road';
+  if (/генератор|компрессор|электростанц|дгу/.test(name)) return 'power';
+  const g = guessMachineGroup(name);
+  if (g !== 'other') return g;
+  return ['loader', 'road', 'concrete', 'drill', 'power'].includes(item.category) ? item.category : item.category === 'lift' ? 'crane' : item.category === 'transport' ? 'truck' : item.category === 'earth' ? 'earth' : 'other';
+}
 
 // ── Спецтехника с сервера: GET /api/v1/equipment?category=&city=&q= ──
 const EQ_CATEGORY_API = { earth: 'землерой', lift: 'грузоподъ', loader: 'погруз', road: 'дорож', concrete: 'бетон', transport: 'самосвал', drill: 'буров', power: 'энерг' };
@@ -773,6 +798,16 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
     });
   }, [combinedEquipment, searchQuery, category, tariff, location, freeToday, withOperator, delivery, priceMax, sortBy]);
 
+  // Подгруппы: вся найденная техника разложена по разделам; нажатие на подгруппу оставляет только её
+  const [eqGroup, setEqGroup] = useState('all');
+  const eqGroups = useMemo(() => {
+    const by = {};
+    filteredEquipment.forEach((it) => { const g = marketGroup(it); (by[g] = by[g] || []).push(it); });
+    return MARKET_GROUPS.filter((g) => by[g.id]).map((g) => ({ ...g, items: by[g.id] }));
+  }, [filteredEquipment]);
+  const activeGroup = eqGroups.some((g) => g.id === eqGroup) ? eqGroup : 'all';
+  const eqSections = activeGroup === 'all' ? eqGroups : eqGroups.filter((g) => g.id === activeGroup);
+
   const handlePlaceSubmit = async (e) => {
     e.preventDefault();
     setPlaceError(null);
@@ -1079,14 +1114,12 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
             {/* Results Grid & Chips */}
             <div className="em-results">
               <div className="em-chips">
-                {categoryChips.map(chip => (
-                  <button 
-                    key={chip.id} 
-                    className={`em-chip ${category === chip.id ? 'active' : ''}`}
-                    aria-pressed={category === chip.id}
-                    onClick={() => setCategory(chip.id)}
-                  >
-                    {chip.label}
+                <button className={`em-chip em-chip--group ${activeGroup === 'all' ? 'active' : ''}`} aria-pressed={activeGroup === 'all'} onClick={() => setEqGroup('all')}>
+                  Вся техника <b>{filteredEquipment.length}</b>
+                </button>
+                {eqGroups.map((g) => (
+                  <button key={g.id} className={`em-chip em-chip--group ${activeGroup === g.id ? 'active' : ''}`} aria-pressed={activeGroup === g.id} onClick={() => setEqGroup(activeGroup === g.id ? 'all' : g.id)}>
+                    <MachineArt group={g.art} />{g.label} <b>{g.items.length}</b>
                   </button>
                 ))}
               </div>
@@ -1128,8 +1161,12 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
                   </button>
                 </div>
               ) : (
-                <div className="em-grid">
-                  {filteredEquipment.map((item) => (
+                <div className="em-groups">
+                  {eqSections.map((sec) => (
+                  <section key={sec.id} className="em-group-sec" aria-label={sec.label}>
+                    {activeGroup === 'all' && <h3 className="em-group-head"><MachineArt group={sec.art} />{sec.label} <span>({sec.items.length})</span></h3>}
+                    <div className="em-grid">
+                  {sec.items.map((item) => (
                     <article className={`em-card luxury-em-card ${item.isDemo ? 'is-demo' : ''}`} key={item.id}>
                       <div className="em-card-image luxury-image-container">
                         <div className="em-card-blueprint-grid"></div>
@@ -1244,6 +1281,9 @@ export default function EquipmentMarketplace({ onBack, hideHeader = false }) {
                         </div>
                       </div>
                     </article>
+                  ))}
+                    </div>
+                  </section>
                   ))}
                 </div>
               )}

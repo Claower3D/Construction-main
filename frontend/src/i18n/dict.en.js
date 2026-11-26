@@ -6926,7 +6926,11 @@ export const EN = {"Администратор QAZGOST AI":"QAZGOST AI Administr
 "запланирована":"planned",
 "выбранная работа":"selected work",
 "Расположение внутри здания (второй этаж, лестницы, оборудование) показано схемой. Точное место работы задаётся в её карточке, на плане":"The layout inside the building (second floor, stairs, equipment) is schematic. The exact place of a work is set in its card, on the plan",
-"На модели показаны все работы объекта. Выберите работу в списке — она подсветится, и камера повернётся к ней. Модель вращается пальцем или мышью":"The model shows all works of the site. Pick a work in the list — it is highlighted and the camera turns to it. Rotate the model with a finger or the mouse"};
+"На модели показаны все работы объекта. Выберите работу в списке — она подсветится, и камера повернётся к ней. Модель вращается пальцем или мышью":"The model shows all works of the site. Pick a work in the list — it is highlighted and the camera turns to it. Rotate the model with a finger or the mouse",
+"Погрузчики":"Loaders",
+"Бетонная техника":"Concrete machines",
+"Буровая техника":"Drilling machines",
+"Генераторы и энергетика":"Generators and power"};
 
 export const EN_TEMPLATES = [["Регистрируясь в сервисе QazGost AI, я свободно, своей волей и в своём интересе даю согласие {a} (далее — Оператор) на сбор и обработку моих персональных данных на условиях, указанных ниже, в соответствии с Законом Республики Казахстан от {n} мая {n} года № {n}-V «О персональных данных и их защите»","By registering with the QazGost AI service, I freely, of my own will and in my own interest give consent to {a} (hereinafter — the Operator) to collect and process my personal data on the terms set out below, in accordance with the Law of the Republic of Kazakhstan of {n} May {n} No. {n}-V \"On Personal Data and Their Protection\""],
 ["Политика описывает, как {a} (далее — Оператор) собирает, обрабатывает и защищает персональные данные пользователей сервиса QazGost AI в соответствии с Законом Республики Казахстан от {n} мая {n} года № {n}-V «О персональных данных и их защите»","This policy describes how {a} (hereinafter — the Operator) collects, processes and protects the personal data of users of the QazGost AI service in accordance with the Law of the Republic of Kazakhstan of {n} May {n} No. {n}-V \"On Personal Data and Their Protection\""],

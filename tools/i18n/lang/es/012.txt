@@ -1,0 +1,8 @@
+8074|Grúas
+8075|Grúas articuladas
+8072|Plataformas elevadoras
+8073|Vehículos
+8224|Maquinaria para concreto
+8225|Maquinaria de perforación
+8226|Generadores y energía
+8119|Toda la maquinaria

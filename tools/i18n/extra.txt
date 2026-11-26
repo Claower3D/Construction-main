@@ -351,3 +351,7 @@ Satu: смесители для ванны от ≈7 000 ₸ (бюджетные
 выбранная работа|selected work
 Расположение внутри здания (второй этаж, лестницы, оборудование) показано схемой. Точное место работы задаётся в её карточке, на плане|The layout inside the building (second floor, stairs, equipment) is schematic. The exact place of a work is set in its card, on the plan
 На модели показаны все работы объекта. Выберите работу в списке — она подсветится, и камера повернётся к ней. Модель вращается пальцем или мышью|The model shows all works of the site. Pick a work in the list — it is highlighted and the camera turns to it. Rotate the model with a finger or the mouse
+Погрузчики|Loaders
+Бетонная техника|Concrete machines
+Буровая техника|Drilling machines
+Генераторы и энергетика|Generators and power

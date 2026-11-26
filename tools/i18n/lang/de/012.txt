@@ -1,0 +1,8 @@
+8074|Krane
+8075|Ladekrane
+8072|Hubarbeitsbühnen
+8073|Fahrzeuge
+8224|Betonmaschinen
+8225|Bohrgeräte
+8226|Generatoren und Energie
+8119|Alle Maschinen

@@ -2924,7 +2924,15 @@ export const T = {"сметы и дефектоскопия по нормам Р
 "Satu: смесители для ванны от ≈7 000 ₸ (бюджетные) до ≈61 000 ₸ (Grohe); взят средний сегмент":"Satu: miscelatori per vasca da ≈7 000 ₸ (economici) a ≈61 000 ₸ (Grohe); presa la fascia media",
 "Канализация: приборы подключаются к существующим выпускам; замена канализационных труб и стояка в смету не входит — считается после осмотра.":"Scarichi: gli apparecchi si collegano agli scarichi esistenti; la sostituzione dei tubi di scarico e della colonna non è inclusa nel preventivo e si valuta dopo l'ispezione.",
 "Душевая кабина: смеситель и лейка входят в комплект кабины.":"Box doccia: miscelatore e doccetta sono inclusi nel box.",
-"Отопление: радиаторы и подводка к ним при действующей системе; котёл, насосная группа и магистральные трубы в смету не входят.":"Riscaldamento: radiatori e relativi allacci su impianto esistente; caldaia, gruppo di pompaggio e tubazioni principali non sono inclusi."};
+"Отопление: радиаторы и подводка к ним при действующей системе; котёл, насосная группа и магистральные трубы в смету не входят.":"Riscaldamento: radiatori e relativi allacci su impianto esistente; caldaia, gruppo di pompaggio e tubazioni principali non sono inclusi.",
+"Краны":"Gru",
+"Манипуляторы":"Autogru con braccio",
+"Автовышки и подъёмники":"Piattaforme aeree",
+"Автомобили":"Veicoli",
+"Бетонная техника":"Macchine per calcestruzzo",
+"Буровая техника":"Macchine di perforazione",
+"Генераторы и энергетика":"Generatori ed energia",
+"Вся техника":"Tutte le macchine"};
 
 export const TEMPLATES = [["Ошибка Vision AI: Изображение не распознано как строительный объект или чертеж (определено как \"{a}\"). Пожалуйста, загрузите реальное фото помещения, фасада или план","Errore Vision AI: l'immagine non è stata riconosciuta come opera edile o disegno (identificata come \"{a}\"). Carica una foto reale di un ambiente, di una facciata o una pianta"],
 ["Работы «Стандарта»: {a} ₸/м² пола. Средняя цена базовых черновых и чистовых работ в РК — {n}–{n} тыс. ₸/м² (Bizmedia/OLX, июнь {n})","Lavori «Standard»: {a} ₸/m² di pavimento. Prezzo medio dei lavori base al grezzo e di finitura in Kazakistan: {n}–{n} mila ₸/m² (Bizmedia/OLX, giugno {n})"],

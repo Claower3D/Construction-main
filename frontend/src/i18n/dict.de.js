@@ -3284,7 +3284,15 @@ export const T = {"сметы и дефектоскопия по нормам Р
 "ИП «Мастер Сервис»":"IP „Master Service“",
 "ТОО «QazGost»":"TOO „QazGost“",
 "точка":"Punkt",
-"фундамент":"Fundament"};
+"фундамент":"Fundament",
+"Краны":"Krane",
+"Манипуляторы":"Ladekrane",
+"Автовышки и подъёмники":"Hubarbeitsbühnen",
+"Автомобили":"Fahrzeuge",
+"Бетонная техника":"Betonmaschinen",
+"Буровая техника":"Bohrgeräte",
+"Генераторы и энергетика":"Generatoren und Energie",
+"Вся техника":"Alle Maschinen"};
 
 export const TEMPLATES = [["Ошибка Vision AI: Изображение не распознано как строительный объект или чертеж (определено как \"{a}\"). Пожалуйста, загрузите реальное фото помещения, фасада или план","Fehler von Vision AI: Das Bild wurde nicht als Bauobjekt oder Zeichnung erkannt (erkannt als \"{a}\"). Bitte laden Sie ein echtes Foto eines Raums, einer Fassade oder einen Plan hoch"],
 ["Работы «Стандарта»: {a} ₸/м² пола. Средняя цена базовых черновых и чистовых работ в РК — {n}–{n} тыс. ₸/м² (Bizmedia/OLX, июнь {n})","Arbeiten bei „Standard“: {a} ₸/m² Boden. Durchschnittspreis der grundlegenden Rohbau- und Ausbauarbeiten in Kasachstan — {n}–{n} Tsd. ₸/m² (Bizmedia/OLX, Juni {n})"],

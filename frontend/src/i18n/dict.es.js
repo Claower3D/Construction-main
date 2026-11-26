@@ -2924,7 +2924,15 @@ export const T = {"сметы и дефектоскопия по нормам Р
 "Satu: смесители для ванны от ≈7 000 ₸ (бюджетные) до ≈61 000 ₸ (Grohe); взят средний сегмент":"Satu: mezcladoras para tina desde ≈7 000 ₸ (económicas) hasta ≈61 000 ₸ (Grohe); se tomó la gama media",
 "Канализация: приборы подключаются к существующим выпускам; замена канализационных труб и стояка в смету не входит — считается после осмотра.":"Drenaje: los aparatos se conectan a las descargas existentes; el cambio de tubería de drenaje y de la bajante no entra en el presupuesto — se calcula después de la inspección.",
 "Душевая кабина: смеситель и лейка входят в комплект кабины.":"Cabina de ducha: la mezcladora y la regadera vienen incluidas con la cabina.",
-"Отопление: радиаторы и подводка к ним при действующей системе; котёл, насосная группа и магистральные трубы в смету не входят.":"Calefacción: radiadores y sus conexiones en un sistema existente; la caldera, el grupo de bombeo y las tuberías principales no entran en el presupuesto."};
+"Отопление: радиаторы и подводка к ним при действующей системе; котёл, насосная группа и магистральные трубы в смету не входят.":"Calefacción: radiadores y sus conexiones en un sistema existente; la caldera, el grupo de bombeo y las tuberías principales no entran en el presupuesto.",
+"Краны":"Grúas",
+"Манипуляторы":"Grúas articuladas",
+"Автовышки и подъёмники":"Plataformas elevadoras",
+"Автомобили":"Vehículos",
+"Бетонная техника":"Maquinaria para concreto",
+"Буровая техника":"Maquinaria de perforación",
+"Генераторы и энергетика":"Generadores y energía",
+"Вся техника":"Toda la maquinaria"};
 
 export const TEMPLATES = [["Ошибка Vision AI: Изображение не распознано как строительный объект или чертеж (определено как \"{a}\"). Пожалуйста, загрузите реальное фото помещения, фасада или план","Error de Vision AI: la imagen no se reconoció como obra o plano (identificada como \"{a}\"). Sube una foto real de un espacio, de una fachada o un plano"],
 ["Работы «Стандарта»: {a} ₸/м² пола. Средняя цена базовых черновых и чистовых работ в РК — {n}–{n} тыс. ₸/м² (Bizmedia/OLX, июнь {n})","Trabajos «Estándar»: {a} ₸/m² de piso. Precio promedio de obra negra y acabados básicos en Kazajistán — {n}–{n} mil ₸/m² (Bizmedia/OLX, junio de {n})"],

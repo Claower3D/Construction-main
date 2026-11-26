@@ -1,0 +1,8 @@
+8074|Gru
+8075|Autogru con braccio
+8072|Piattaforme aeree
+8073|Veicoli
+8224|Macchine per calcestruzzo
+8225|Macchine di perforazione
+8226|Generatori ed energia
+8119|Tutte le macchine
