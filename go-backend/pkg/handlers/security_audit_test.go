@@ -345,3 +345,52 @@ func TestChangePassword(t *testing.T) {
 		t.Errorf("время смены пароля не сохранено: %v %v", times[reg.User.ID], err)
 	}
 }
+
+// Администратор работает с одного устройства: второй вход закрывает первую сессию,
+// а у обычного пользователя обе сессии остаются.
+func TestLogin_AdminSingleSession(t *testing.T) {
+	h := NewAuthHandler(&config.Config{JwtSecret: "test-secret-123"})
+	admin := fmt.Sprintf("one_admin_%d@test.kz", time.Now().UnixNano())
+	plain := fmt.Sprintf("one_user_%d@test.kz", time.Now().UnixNano())
+	for _, e := range []string{admin, plain} {
+		if w := postRegister(t, h, map[string]interface{}{"email": e, "password": "Right-pass-1", "name": "Проверка"}); w.Code != http.StatusCreated {
+			t.Fatalf("регистрация %s: %d %s", e, w.Code, w.Body.String())
+		}
+	}
+	t.Cleanup(func() { _, _ = database.DB.Exec(`DELETE FROM users WHERE email IN ($1,$2)`, admin, plain) })
+	if _, err := database.DB.Exec(`UPDATE users SET role='admin' WHERE email=$1`, admin); err != nil {
+		t.Fatal(err)
+	}
+	tokenOf := func(email string) string {
+		w := postLogin(h, email, "Right-pass-1")
+		if w.Code != http.StatusOK {
+			t.Fatalf("вход %s: %d %s", email, w.Code, w.Body.String())
+		}
+		var out struct {
+			Token string `json:"token"`
+		}
+		_ = json.Unmarshal(w.Body.Bytes(), &out)
+		return out.Token
+	}
+	me := func(token string) *httptest.ResponseRecorder {
+		w := httptest.NewRecorder()
+		r := httptest.NewRequest("GET", "/api/v1/auth/me", nil)
+		r.Header.Set("Authorization", "Bearer "+token)
+		h.GetMe(w, r)
+		return w
+	}
+	a1 := tokenOf(admin)
+	u1 := tokenOf(plain)
+	time.Sleep(1100 * time.Millisecond) // токены различаются с точностью до секунды
+	a2 := tokenOf(admin)
+	u2 := tokenOf(plain)
+	if w := me(a1); w.Code != http.StatusUnauthorized || !strings.Contains(w.Body.String(), "session_revoked") {
+		t.Errorf("первая сессия администратора должна закрыться: %d %s", w.Code, w.Body.String())
+	}
+	if w := me(a2); w.Code != http.StatusOK {
+		t.Errorf("новая сессия администратора не работает: %d", w.Code)
+	}
+	if me(u1).Code != http.StatusOK || me(u2).Code != http.StatusOK {
+		t.Error("у обычного пользователя обе сессии должны работать")
+	}
+}

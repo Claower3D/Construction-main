@@ -172,13 +172,13 @@ export default function App() {
   useEffect(() => {
     if (!sessionUserKey) return undefined;
     let stopped = false;
-    const expire = () => {
+    const expire = (why = '1') => {
       if (stopped) return;
       stopped = true;
       try {
         localStorage.removeItem('auth_token');
         localStorage.removeItem('qazgost_current_user');
-        sessionStorage.setItem('qazgost_session_expired', '1');
+        sessionStorage.setItem('qazgost_session_expired', why);
       } catch (e) { /* хранилище недоступно */ }
       setCurrentUser(null);
       setRole('executor');
@@ -194,12 +194,19 @@ export default function App() {
       try {
         const res = await fetch('/api/v1/auth/me', { headers: { Authorization: `Bearer ${token}` } });
         // 401 — токен не принят сервером (истёк, отозван, аккаунт удалён). Сбои сети и сервера не выкидывают из кабинета.
-        if (res.status === 401 && getAuthToken() === token) expire();
+        if (res.status === 401 && getAuthToken() === token) {
+          let code = '';
+          try { code = (await res.json()).code || ''; } catch (e) { /* ответ без тела */ }
+          // session_revoked — в аккаунт вошли с другого устройства (у администратора сессия одна) или сменили пароль
+          expire(code === 'session_revoked' ? 'replaced' : '1');
+        }
       } catch (e) { /* нет связи — оставляем как есть */ }
     };
     check(true);
-    const timer = setInterval(() => check(false), 60000);
-    const onVisible = () => { if (document.visibilityState === 'visible') check(false); };
+    // Раз в минуту и при возврате на вкладку спрашиваем сервер: так закрытая с другого устройства
+    // сессия гаснет здесь сама, а не продолжает выглядеть рабочей.
+    const timer = setInterval(() => check(document.visibilityState === 'visible'), 60000);
+    const onVisible = () => { if (document.visibilityState === 'visible') check(true); };
     document.addEventListener('visibilitychange', onVisible);
     return () => {
       stopped = true;

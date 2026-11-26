@@ -368,6 +368,12 @@ func UpdateUserPassword(id, passwordHash string, changedUnix int64) error {
 	return nil
 }
 
+// RevokeUserSessions запоминает момент, раньше которого выданные сессии пользователя не принимаются
+func RevokeUserSessions(id string, unix int64) error {
+	_, err := DB.Exec(`UPDATE users SET sessions_revoked_unix=GREATEST(sessions_revoked_unix,$1) WHERE id=$2`, unix, id)
+	return err
+}
+
 // PasswordChangeTimes возвращает id пользователей, менявших пароль, и время смены (unix)
 func PasswordChangeTimes() (map[string]int64, error) {
 	// после смены пароля или смены роли администратором старые токены не принимаются

@@ -17,9 +17,9 @@ export default function LoginPage({ currentUser, onLogin, onOpenRegister, onOpen
   // а снимаем её отдельным эффектом — чтобы после обновления страницы объяснение не повторялось.
   const [notice] = useState(() => {
     try {
-      return sessionStorage.getItem('qazgost_session_expired')
-        ? 'Сессия истекла. Войдите снова — так мы защищаем ваш аккаунт.'
-        : null;
+      const why = sessionStorage.getItem('qazgost_session_expired');
+      if (why === 'replaced') return 'В этот аккаунт вошли с другого устройства или сменили пароль, поэтому здесь сессия закрыта. Войдите снова.';
+      return why ? 'Сессия истекла. Войдите снова — так мы защищаем ваш аккаунт.' : null;
     } catch { return null; }
   });
   useEffect(() => {

@@ -92,6 +92,7 @@ export function buildTimeline(project, today, pad_ = 3) {
   const works = (project.works || []).filter((w) => isIso(w.start) && isIso(w.end));
   const starts = works.map((w) => w.start);
   const ends = works.map((w) => w.end);
+  for (const w of project.works || []) { if (isIso(w.factStart)) starts.push(w.factStart); if (isIso(w.factEnd)) ends.push(w.factEnd); }
   if (isIso(project.startDate)) starts.push(project.startDate);
   if (isIso(project.endDate)) ends.push(project.endDate);
   if (!starts.length) starts.push(today);
@@ -102,6 +103,7 @@ export function buildTimeline(project, today, pad_ = 3) {
   end = addDays(end, pad_);
   // не длиннее двух лет: график из тысяч столбцов бесполезен и тормозит
   if (dayNumber(end) - dayNumber(start) > 730) end = addDays(start, 730);
+  const restDay = restDayOf(project);
   const days = [];
   const months = [];
   for (let n = dayNumber(start); n <= dayNumber(end); n++) {
@@ -112,7 +114,7 @@ export function buildTimeline(project, today, pad_ = 3) {
     const last = months[months.length - 1];
     if (!last || last.key !== key) months.push({ key, label: `${MONTHS[t.getUTCMonth()]} ${t.getUTCFullYear()}`, span: 1 });
     else last.span += 1;
-    days.push({ iso, day: t.getUTCDate(), weekday: WEEKDAYS[wd], weekend: wd === 0 || wd === 6, monthStart: t.getUTCDate() === 1 });
+    days.push({ iso, day: t.getUTCDate(), weekday: WEEKDAYS[wd], weekend: wd === 0 || wd === 6, rest: wd === restDay, monthStart: t.getUTCDate() === 1 });
   }
   return { start, end, days, months };
 }
@@ -242,4 +244,171 @@ export function importProblem(doc) {
     if (w.end < w.start) return `У работы «${w.title}» дата окончания раньше начала`;
   }
   return '';
+}
+
+// ── Выходной день ──
+export const WEEKDAY_NAMES = ['воскресенье', 'понедельник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота'];
+
+/** Выходной день недели в проекте: 0 — воскресенье (по умолчанию) … 6 — суббота */
+export function restDayOf(project) {
+  const n = Number(project && project.restDay);
+  return Number.isInteger(n) && n >= 0 && n <= 6 ? n : 0;
+}
+
+// ── Календарь по факту ──
+/**
+ * Фактические сроки работы: { start, end, running, shift }.
+ * Начало — отметка «начали» или плановая дата; окончание — отметка «закончили», у идущей работы — сегодня,
+ * у выполненной без отметки — плановая дата. Запланированные и приостановленные без отметок — null.
+ * shift — на сколько дней окончание позже (+) или раньше (−) плана; у идущей считается только опоздание.
+ */
+export function factRange(work, today) {
+  const started = isIso(work.factStart);
+  if (!started && work.status !== 'progress' && work.status !== 'done') return null;
+  let start = started ? work.factStart : work.start;
+  if (!isIso(start)) return null;
+  if (!started && start > today) start = today; // «в работе» раньше плановой даты
+  const running = work.status !== 'done' && !isIso(work.factEnd);
+  let end = isIso(work.factEnd) ? work.factEnd : running ? today : work.end;
+  if (!isIso(end) || end < start) end = start;
+  const diff = isIso(work.end) ? dayNumber(end) - dayNumber(work.end) : 0;
+  return { start, end, running, shift: running ? Math.max(0, diff) : diff };
+}
+
+// ── Бюджет на строительство ──
+/** { budget, planned, paid, doneCost, left, paidPct, unpriced } — суммы в тенге */
+export function budgetSummary(project) {
+  const works = project.works || [];
+  const num = (v) => (Number.isFinite(Number(v)) && Number(v) > 0 ? Number(v) : 0);
+  const planned = works.reduce((s, w) => s + num(w.cost), 0);
+  const paid = works.reduce((s, w) => s + num(w.paid), 0);
+  const doneCost = works.filter((w) => w.status === 'done').reduce((s, w) => s + num(w.cost), 0);
+  const budget = num(project.budget) || num(project.invoice && project.invoice.amount) || planned;
+  return {
+    budget, planned, paid, doneCost,
+    left: budget - paid,
+    paidPct: budget ? Math.min(100, Math.round((paid / budget) * 100)) : 0,
+    donePct: budget ? Math.min(100, Math.round((doneCost / budget) * 100)) : 0,
+    unpriced: works.filter((w) => !num(w.cost)).length,
+  };
+}
+
+/** «12 500 000 ₸» */
+export function money(n) {
+  return `${Math.round(Number(n) || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} ₸`;
+}
+
+// ── Подгруппы техники ──
+export const MACHINE_GROUPS = [
+  { id: 'crane', label: 'Краны' },
+  { id: 'manipulator', label: 'Манипуляторы' },
+  { id: 'lift', label: 'Автовышки и подъёмники' },
+  { id: 'truck', label: 'Автомобили' },
+  { id: 'earth', label: 'Землеройная техника' },
+  { id: 'other', label: 'Прочая техника' },
+];
+const MACHINE_RULES = [
+  ['manipulator', /манипулятор|кму|борт.*кран|самопогруз/],
+  ['lift', /вышк|подъ[её]мник|агп|люльк|ножнич|телескоп|jgk/],
+  ['crane', /кран|\bqy\s?\d|xzj\d/],
+  ['earth', /экскаватор|бульдозер|погрузчик|грейдер|каток|трактор|бобкэт|bobcat|jcb|мини-?погруз|ямобур|бур/],
+  ['truck', /камаз|самосвал|газел|грузов|автомоб|машин|фургон|тягач|бортов|пикап|легков|микроавтобус|toyota|hyundai|isuzu|howo|shacman|зил|газ\b|уаз|лада|нива|subaru|mitsubishi|nissan|kia\b|lexus|ford|chevrolet|volkswagen|mercedes|bmw|audi|honda|mazda|renault|daewoo|dongfeng|faw\b|foton|jac\b/],
+];
+
+/** Подгруппа техники по названию (когда она не выбрана вручную) */
+export function guessMachineGroup(name) {
+  const s = String(name || '').toLowerCase();
+  for (const [id, re] of MACHINE_RULES) if (re.test(s)) return id;
+  return 'other';
+}
+export const machineGroup = (m) => (m && MACHINE_GROUPS.some((g) => g.id === m.group) ? m.group : guessMachineGroup(m && m.name));
+
+// ── Виды работ (для картинки на графике) ──
+export const WORK_KINDS = [
+  { id: 'steel', label: 'Металлоконструкции' },
+  { id: 'roof', label: 'Кровля' },
+  { id: 'walls', label: 'Стены и панели' },
+  { id: 'concrete', label: 'Бетон и фундамент' },
+  { id: 'floor', label: 'Полы' },
+  { id: 'earth', label: 'Земляные работы' },
+  { id: 'drain', label: 'Вода, ливнёвка, канализация' },
+  { id: 'electric', label: 'Электрика' },
+  { id: 'vent', label: 'Вентиляция и отопление' },
+  { id: 'cut', label: 'Резка и отверстия' },
+  { id: 'weld', label: 'Сварка' },
+  { id: 'paint', label: 'Покраска и отделка' },
+  { id: 'doors', label: 'Ворота, двери, окна' },
+  { id: 'lift', label: 'Подъём и монтаж краном' },
+  { id: 'other', label: 'Другие работы' },
+];
+const WORK_RULES = [
+  ['cut', /резк|отверст|алмазн|сверл|штроб/],
+  ['drain', /ливн|канализ|септик|водопровод|водосток|водоотв|колод|дренаж|труб|сантех/],
+  ['roof', /кровл|крыш|конёк|конек|мембран/],
+  ['weld', /свар/],
+  ['electric', /электр|кабел|освещ|щит|провод|заземл|молниезащ/],
+  ['vent', /вентил|отоплен|воздуховод|кондицион|дымоуд/],
+  ['doors', /ворот|двер|окн|витраж|остеклен/],
+  ['walls', /сэндвич|сендвич|панел|профлист|стен|кладк|обшивк|фасад|перегород/],
+  ['floor', /пол\b|полы|полов|стяжк|топпинг|покрыти/],
+  ['concrete', /бетон|фундамент|опалуб|армир|залив|плит|ростверк|анкер/],
+  ['earth', /грунт|котлован|землян|планировк|отсыпк|траншe|транше|засыпк/],
+  ['steel', /металлоконстр|каркас|колонн|ферм|балк|прогон|связ|монтаж мк|\bмк\b|стальн|лестни|рельс/],
+  ['paint', /покрас|окрас|грунтов|огнезащ|отделк|штукат|шпакл/],
+  ['lift', /кран|подъ[её]м|разгруз|погруз|монтаж/],
+];
+
+/** Вид работ по названию (когда он не выбран вручную) */
+export function guessWorkKind(title) {
+  const s = String(title || '').toLowerCase();
+  for (const [id, re] of WORK_RULES) if (re.test(s)) return id;
+  return 'other';
+}
+export const workKind = (w) => (w && WORK_KINDS.some((k) => k.id === w.kind) ? w.kind : guessWorkKind(w && w.title));
+
+/** Картинка работы на графике: последнее фото или null (тогда рисуется значок вида работ) */
+export function workPicture(work) {
+  const photos = (work.media || []).filter((m) => m.kind !== 'video' && m.url);
+  return photos.length ? photos[photos.length - 1].url : null;
+}
+
+// ── Люди ──
+/** Инициалы для кружка вместо фото: «Барбашин Максим Владимирович» → «БМ» */
+export function initials(full) {
+  const parts = String(full || '').trim().split(/\s+/).filter(Boolean);
+  return parts.slice(0, 2).map((p) => p[0].toUpperCase()).join('') || '?';
+}
+/** Постоянный оттенок кружка по имени (0…359) */
+export function nameHue(full) {
+  let h = 0;
+  for (const ch of String(full || '')) h = (h * 31 + ch.codePointAt(0)) % 360;
+  return h;
+}
+
+// ── Места на модели ангара 25 × 70 м ──
+export const HANGAR = { width: 25, length: 70, eave: 20, ridge: 23, bays: 10 };
+export const HANGAR_ZONES = [
+  { id: 'all', label: 'Всё здание' },
+  { id: 'frame', label: 'Каркас' },
+  { id: 'roof', label: 'Кровля' },
+  { id: 'wall-n', label: 'Стена длинная, северная' },
+  { id: 'wall-s', label: 'Стена длинная, южная' },
+  { id: 'wall-w', label: 'Торец западный' },
+  { id: 'wall-e', label: 'Торец восточный' },
+  { id: 'floor', label: 'Пол' },
+  { id: 'outside', label: 'Площадка вокруг' },
+];
+const KIND_ZONE = { roof: 'roof', steel: 'frame', weld: 'frame', floor: 'floor', concrete: 'floor', earth: 'outside', drain: 'outside', walls: 'wall-s', doors: 'wall-w', lift: 'frame' };
+
+/** Место работы на модели: выбранное вручную или подсказанное видом работ и текстом «места» */
+export function workZone(work) {
+  if (work && HANGAR_ZONES.some((z) => z.id === work.zone)) return work.zone;
+  const s = `${(work && work.place) || ''} ${(work && work.title) || ''}`.toLowerCase();
+  if (/кровл|крыш|конёк|конек/.test(s)) return 'roof';
+  if (/торец/.test(s)) return /вост/.test(s) ? 'wall-e' : 'wall-w';
+  if (/север/.test(s)) return 'wall-n';
+  if (/юж/.test(s)) return 'wall-s';
+  if (/\bпол\b|полы|стяжк/.test(s)) return 'floor';
+  if (/снаружи|улиц|площадк|территор|ливн|колод|траншe|транше/.test(s)) return 'outside';
+  return KIND_ZONE[workKind(work)] || 'all';
 }

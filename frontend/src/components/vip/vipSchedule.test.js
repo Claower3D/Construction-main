@@ -162,3 +162,87 @@ test('проверка файла проекта перед загрузкой',
   assert.match(importProblem({ name: 'x', works: [{ title: 'А', start: '29.10', end: '2026-11-01' }] }), /нет дат/);
   assert.match(importProblem({ name: 'x', works: [{ title: 'А', start: '2026-11-05', end: '2026-11-01' }] }), /раньше начала/);
 });
+
+// ── выходной, факт, бюджет, подгруппы, виды работ ──
+import {
+  restDayOf, factRange, budgetSummary, money, guessMachineGroup, machineGroup, guessWorkKind, workKind,
+  workPicture, initials, nameHue, workZone,
+} from './vipSchedule.js';
+
+test('выходной день: по умолчанию воскресенье, можно любой день недели', () => {
+  assert.equal(restDayOf({}), 0);
+  assert.equal(restDayOf({ restDay: 3 }), 3);
+  assert.equal(restDayOf({ restDay: 9 }), 0);
+  const sun = buildTimeline({ startDate: '2026-11-01', works: [] }, '2026-11-08');
+  assert.deepEqual(sun.days.filter((d) => d.rest).map((d) => d.iso).slice(0, 2), ['2026-11-01', '2026-11-08']);
+  const wed = buildTimeline({ startDate: '2026-11-01', restDay: 3, works: [] }, '2026-11-08');
+  assert.equal(wed.days.find((d) => d.rest).iso, '2026-11-04');
+});
+
+test('календарь по факту', () => {
+  const today = '2026-11-20';
+  assert.equal(factRange({ status: 'plan', start: '2026-11-25', end: '2026-11-28' }, today), null);
+  // идёт и уже опаздывает на 2 дня
+  assert.deepEqual(factRange({ status: 'progress', start: '2026-11-10', end: '2026-11-18' }, today), { start: '2026-11-10', end: today, running: true, shift: 2 });
+  // идёт, срок ещё не вышел — опоздания нет
+  assert.equal(factRange({ status: 'progress', start: '2026-11-10', end: '2026-11-25' }, today).shift, 0);
+  // выполнена с отметками: начали позже, закончили на 3 дня позже
+  assert.deepEqual(factRange({ status: 'done', start: '2026-11-01', end: '2026-11-05', factStart: '2026-11-02', factEnd: '2026-11-08' }, today), { start: '2026-11-02', end: '2026-11-08', running: false, shift: 3 });
+  // выполнена без отметок — по плану
+  assert.deepEqual(factRange({ status: 'done', start: '2026-11-01', end: '2026-11-05' }, today), { start: '2026-11-01', end: '2026-11-05', running: false, shift: 0 });
+  // «в работе» раньше плановой даты
+  assert.equal(factRange({ status: 'progress', start: '2026-11-25', end: '2026-11-28' }, today).start, today);
+  // фактические даты расширяют сетку
+  const t = buildTimeline({ works: [{ start: '2026-11-10', end: '2026-11-12', factStart: '2026-11-05', factEnd: '2026-11-20' }] }, '2026-11-11');
+  assert.equal(t.start, '2026-11-05');
+  assert.ok(t.end >= '2026-11-20');
+});
+
+test('бюджет на строительство', () => {
+  const b = budgetSummary({ budget: 1000, works: [{ cost: 400, paid: 100, status: 'done' }, { cost: 300, paid: 50, status: 'progress' }, { status: 'plan' }] });
+  assert.deepEqual(b, { budget: 1000, planned: 700, paid: 150, doneCost: 400, left: 850, paidPct: 15, donePct: 40, unpriced: 1 });
+  assert.equal(budgetSummary({ invoice: { amount: 500 }, works: [] }).budget, 500);
+  assert.equal(budgetSummary({ works: [{ cost: 70 }] }).budget, 70);
+  assert.equal(money(12500000), '12 500 000 ₸');
+});
+
+test('подгруппы техники', () => {
+  assert.equal(guessMachineGroup('Кран КАМАЗ 25 т'), 'crane');
+  assert.equal(guessMachineGroup('Манипулятор Hyundai'), 'manipulator');
+  assert.equal(guessMachineGroup('Автовышка 33 м'), 'lift');
+  assert.equal(guessMachineGroup('КАМАЗ самосвал'), 'truck');
+  assert.equal(guessMachineGroup('Экскаватор JCB'), 'earth');
+  assert.equal(guessMachineGroup('Генератор'), 'other');
+  assert.equal(guessMachineGroup('XCMG QY25K5S'), 'crane');
+  assert.equal(guessMachineGroup('Nissan X-Trail'), 'truck');
+  assert.equal(guessMachineGroup('DONGFENG RRR5040JGKE'), 'lift');
+  assert.equal(machineGroup({ name: 'Кран', group: 'truck' }), 'truck'); // выбор человека важнее подсказки
+  assert.equal(machineGroup({ name: 'Кран', group: 'ракета' }), 'crane');
+});
+
+test('виды работ и место на модели', () => {
+  assert.equal(guessWorkKind('Ливневая система'), 'drain');
+  assert.equal(guessWorkKind('Монтаж кровли'), 'roof');
+  assert.equal(guessWorkKind('Резка отверстий'), 'cut');
+  assert.equal(guessWorkKind('Резка отверстия под трубу'), 'cut');
+  assert.equal(guessWorkKind('Демонтаж и монтаж профлиста'), 'walls');
+  assert.equal(guessWorkKind('Профлист на крышу'), 'roof');
+  assert.equal(guessWorkKind('Сборка 2 лестничных маршей'), 'steel');
+  assert.equal(guessWorkKind('Монтаж сэндвич-панелей'), 'walls');
+  assert.equal(guessWorkKind('Сборка каркаса'), 'steel');
+  assert.equal(guessWorkKind('Что-то ещё'), 'other');
+  assert.equal(workKind({ title: 'Кровля', kind: 'weld' }), 'weld');
+  assert.equal(workZone({ title: 'Монтаж кровли' }), 'roof');
+  assert.equal(workZone({ title: 'Панели', place: 'восточный торец' }), 'wall-e');
+  assert.equal(workZone({ title: 'Кровля', zone: 'floor' }), 'floor');
+  assert.equal(workZone({ title: 'Что-то' }), 'all');
+});
+
+test('картинка работы и инициалы', () => {
+  assert.equal(workPicture({ media: [] }), null);
+  assert.equal(workPicture({ media: [{ kind: 'photo', url: '/a.jpg' }, { kind: 'video', url: '/v.mp4' }, { kind: 'photo', url: '/b.jpg' }] }), '/b.jpg');
+  assert.equal(initials('Иванов Иван Иванович'), 'ИИ');
+  assert.equal(initials(''), '?');
+  assert.equal(nameHue('Иванов'), nameHue('Иванов'));
+  assert.ok(nameHue('Иванов') >= 0 && nameHue('Иванов') < 360);
+});

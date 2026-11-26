@@ -4,6 +4,46 @@ import './BuildingConstructionPage.css';
 import Building3DViewer from './Building3DViewerLazy';
 import { createPlatformOrder } from '../services/orderSyncService';
 import VipWorksBoard from './VipWorksBoard';
+import VipObjectView from './vip/VipObjectView';
+import { Avatar } from './vip/VipVisuals';
+import { listProjects, getProject } from '../services/vipApi';
+import { HANGAR, projectSummary, budgetSummary, todayIso } from './vip/vipSchedule';
+
+// Рабочий проект с сервера в виде карточки объекта: он стоит в списке первым, раньше примеров
+const REAL_PREFIX = 'REAL-';
+function realAsObject(item, data) {
+  const sum = data ? projectSummary(data, todayIso()) : null;
+  const money = data ? budgetSummary(data) : null;
+  const running = data ? (data.works || []).filter((w) => w.status === 'progress').map((w) => w.title) : [];
+  return {
+    id: REAL_PREFIX + item.id,
+    real: true,
+    projectId: item.id,
+    title: item.name,
+    type: 'Ваш объект',
+    typeIcon: '🏭',
+    city: (data && data.address) || 'адрес не указан',
+    address: (data && data.object) || '',
+    floors: 1,
+    area: HANGAR.width * HANGAR.length,
+    builtArea: HANGAR.width * HANGAR.length,
+    budget: money ? money.budget : 0,
+    spent: money ? money.paid : 0,
+    progress: sum ? sum.donePct : 0,
+    currentStage: running.length ? running.slice(0, 2).join('; ') : 'нет работ в состоянии «в работе»',
+    engineer: 'не назначен',
+    engineerPhone: '',
+    workers: item.staff || 0,
+    worksCount: item.works || 0,
+    equipmentCount: item.equipment || 0,
+    deadline: (data && data.endDate) || '',
+    licenseReq: '',
+    status: 'active',
+    selectedWorks: [],
+    lotsCount: 0,
+    activeLots: [],
+  };
+}
 
 // Рабочие проекты (график, штат, техника) ведут администратор и менеджер; сервер проверяет роль сам
 function isOfficeStaff() {
@@ -247,6 +287,7 @@ export default function BuildingConstructionPage({ onBack, hideHeader = false })
   const [activeTab, setActiveTab] = useState(staff ? 'schedule' : 'objects');
   const [realProjects, setRealProjects] = useState([]);
   const realTab = activeTab === 'schedule' || activeTab === 'team';
+  const staffDocs = staff && activeTab === 'docs';
 
   // Objects State
   const [objects, setObjects] = useState(() => {
@@ -257,7 +298,12 @@ export default function BuildingConstructionPage({ onBack, hideHeader = false })
     return INITIAL_VIP_OBJECTS;
   });
 
-  const [selectedObjectId, setSelectedObjectId] = useState('OBJ-101');
+  // Выбранный объект. Пока человек сам ничего не выбирал — открывается первый в списке:
+  // это его рабочий объект с сервера, а не пример.
+  const [selectedObjectId, setSelectedObjectId] = useState(() => {
+    try { return localStorage.getItem('qazgost_vip_selected_object') || ''; } catch (e) { return ''; }
+  });
+  const [realData, setRealData] = useState({}); // id проекта → его данные с сервера
   const [toastMessage, setToastMessage] = useState(null);
 
   // Flow Step 1: Create Object Form State
@@ -293,11 +339,53 @@ export default function BuildingConstructionPage({ onBack, hideHeader = false })
   const [editingLot, setEditingLot] = useState(null);
 
   // Currently active object
-  const currentObject = objects.find(o => o.id === selectedObjectId) || objects[0] || INITIAL_VIP_OBJECTS[0];
+  const realObjects = staff ? realProjects.map((p) => realAsObject(p, realData[p.id])) : [];
+  const allObjects = [...realObjects, ...objects];
+  const currentObject = allObjects.find(o => o.id === selectedObjectId) || allObjects[0] || INITIAL_VIP_OBJECTS[0];
+  const currentReal = currentObject.real ? realData[currentObject.projectId] : null;
+
+  const selectObject = (id) => {
+    setSelectedObjectId(id);
+    try {
+      localStorage.setItem('qazgost_vip_selected_object', id);
+      // график, штат и документы откроют тот же проект
+      if (String(id).startsWith(REAL_PREFIX)) localStorage.setItem('qazgost_vip_project', String(id).slice(REAL_PREFIX.length));
+    } catch (e) { /* хранилище недоступно */ }
+  };
 
   useEffect(() => {
+    // образцы в хранилище не записываем, пока человек их не менял: иначе новое устройство
+    // отправляло бы на сервер примеры поверх настоящих данных
+    if (objects === INITIAL_VIP_OBJECTS) return;
     localStorage.setItem('qazgost_vip_objects_v2', JSON.stringify(objects));
   }, [objects]);
+
+  // Данные пришли с сервера после входа (с другого устройства) — показываем их сразу, без перезагрузки страницы
+  useEffect(() => {
+    const onSynced = (e) => {
+      const keys = (e.detail && e.detail.keys) || [];
+      if (!keys.includes('qazgost_vip_objects_v2')) return;
+      try {
+        const saved = JSON.parse(localStorage.getItem('qazgost_vip_objects_v2') || 'null');
+        if (Array.isArray(saved)) setObjects(saved);
+      } catch (err) { /* повреждённая запись — оставляем как есть */ }
+    };
+    window.addEventListener('qazgost:userdata-updated', onSynced);
+    return () => window.removeEventListener('qazgost:userdata-updated', onSynced);
+  }, []);
+
+  // Рабочие проекты с сервера (администратор и менеджер)
+  useEffect(() => {
+    if (!staff) return;
+    listProjects().then(setRealProjects).catch(() => { /* нет связи или нет доступа — остаются примеры */ });
+  }, [staff]);
+  const realId = currentObject.real ? currentObject.projectId : '';
+  useEffect(() => {
+    if (!realId) return undefined;
+    let alive = true;
+    getProject(realId).then((p) => { if (alive) setRealData((d) => ({ ...d, [realId]: p.data })); }).catch(() => {});
+    return () => { alive = false; };
+  }, [realId, activeTab]);
 
   const showToast = (msg) => {
     setToastMessage(msg);
@@ -346,7 +434,7 @@ export default function BuildingConstructionPage({ onBack, hideHeader = false })
     };
 
     setObjects([created, ...objects]);
-    setSelectedObjectId(created.id);
+    selectObject(created.id);
     setActiveTab('works_calc');
     showToast(`🎉 Объект «${created.title}» успешно создан! Переход к расчету СМР...`);
   };
@@ -355,7 +443,7 @@ export default function BuildingConstructionPage({ onBack, hideHeader = false })
     if (window.confirm('Вы уверены, что хотите удалить этот строительный объект?')) {
       const remaining = objects.filter(o => o.id !== id);
       setObjects(remaining);
-      if (remaining.length > 0) setSelectedObjectId(remaining[0].id);
+      if (id === currentObject.id) selectObject((realObjects[0] || remaining[0] || {}).id || '');
       showToast('🗑️ Объект удален');
     }
   };
@@ -426,6 +514,10 @@ export default function BuildingConstructionPage({ onBack, hideHeader = false })
       showToast('⚠️ Введите наименование строительного лота');
       return;
     }
+    if (currentObject.real) {
+      showToast('⚠️ Лоты для рабочего объекта пока не ведутся — выберите объект-пример');
+      return;
+    }
 
     const newLot = {
       id: `LOT-${Date.now().toString(36).toUpperCase()}`,
@@ -471,11 +563,12 @@ export default function BuildingConstructionPage({ onBack, hideHeader = false })
   return (
     <div className="vip-construction-module">
       {toastMessage && <div className="vip-toast" role="status">{toastMessage}</div>}
-      {!realTab && (
+      {!realTab && !staffDocs && (
         <DemoNotice>
-          Объекты, бюджеты, подрядчики, лоты и документы на этой вкладке — образец, чтобы было видно, как она устроена.
-          Это не ваши данные и не реальные компании. Объекты, которые вы добавите здесь сами, хранятся только в этом браузере.
-          {staff ? ' Рабочие проекты с графиком, штатом и техникой — на вкладках «График работ» и «Штат и техника»: они хранятся на сервере.' : ''}
+          {staff && realProjects.length > 0
+            ? 'Ваш рабочий объект отмечен «Ваш объект»: его график, люди, техника и документы хранятся на сервере. Карточки с пометкой «Пример», их бюджеты, подрядчики и лоты — образцы, это не ваши данные и не реальные компании; примеры можно удалить.'
+            : 'Объекты, бюджеты, подрядчики, лоты и документы на этой вкладке — образец, чтобы было видно, как она устроена. Это не ваши данные и не реальные компании. Объекты, которые вы добавите здесь сами, хранятся только в этом браузере.'}
+          {staff && realProjects.length === 0 ? ' Рабочие проекты с графиком, штатом и техникой — на вкладках «График работ» и «Штат и техника»: они хранятся на сервере.' : ''}
         </DemoNotice>
       )}
 
@@ -543,7 +636,7 @@ export default function BuildingConstructionPage({ onBack, hideHeader = false })
           <span className="icon">🏢</span>
           <div className="tab-info">
             <span className="t-name">Мои объекты</span>
-            <small className="t-sub">{objects.length} активных площадок</small>
+            <small className="t-sub">{realObjects.length ? `Ваших: ${realObjects.length} · примеров: ${objects.length}` : `${objects.length} активных площадок`}</small>
           </div>
         </button>
 
@@ -615,7 +708,7 @@ export default function BuildingConstructionPage({ onBack, hideHeader = false })
       </div>
 
       {/* ── РАБОЧИЕ ПРОЕКТЫ: график работ, штат и техника (данные на сервере) ── */}
-      {staff && realTab && <VipWorksBoard section={activeTab} onToast={showToast} onProjects={setRealProjects} />}
+      {staff && (realTab || staffDocs) && <VipWorksBoard section={activeTab} onToast={showToast} onProjects={setRealProjects} />}
 
       {/* ── 3. TAB 1: МОИ ОБЪЕКТЫ (OBJECTS DASHBOARD + 3D BIM PREVIEW) ── */}
       {activeTab === 'objects' && (
@@ -631,7 +724,10 @@ export default function BuildingConstructionPage({ onBack, hideHeader = false })
           </div>
 
           {/* Active Object Highlight Banner with 3D Preview */}
-          {currentObject && (
+          {currentObject.real && (currentReal
+            ? <VipObjectView project={currentReal} onOpen={setActiveTab} />
+            : <div className="vwb-empty" role="status"><div className="vwb-spinner" aria-hidden="true" /><p><span>Загружаем объект:</span> {currentObject.title}</p></div>)}
+          {currentObject && !currentObject.real && (
             <div className="vip-current-object-bento">
               <div className="v-bento-left">
                 <div className="v-tag-row">
@@ -669,7 +765,7 @@ export default function BuildingConstructionPage({ onBack, hideHeader = false })
                   </div>
                   <div className="v-metric-box">
                     <span className="lbl">Ответственный ГИП</span>
-                    <strong className="val">{currentObject.engineer}</strong>
+                    <strong className="val vip-eng-emblem"><Avatar person={{ name: currentObject.engineer }} size={36} />{currentObject.engineer}</strong>
                     {currentObject.engineerPhone ? <small>📞 {currentObject.engineerPhone}</small> : <small>телефон не указан</small>}
                   </div>
                   <div className="v-metric-box">
@@ -684,7 +780,7 @@ export default function BuildingConstructionPage({ onBack, hideHeader = false })
                   <button
                     className="vip-btn-wbs"
                     onClick={() => {
-                      setSelectedObjectId(currentObject.id);
+                      selectObject(currentObject.id);
                       setActiveTab('works_calc');
                     }}
                   >
@@ -693,7 +789,7 @@ export default function BuildingConstructionPage({ onBack, hideHeader = false })
                   <button
                     className="vip-btn-lots"
                     onClick={() => {
-                      setSelectedObjectId(currentObject.id);
+                      selectObject(currentObject.id);
                       setActiveTab('lots');
                     }}
                   >
@@ -702,7 +798,7 @@ export default function BuildingConstructionPage({ onBack, hideHeader = false })
                   <button
                     className="vip-btn-docs"
                     onClick={() => {
-                      setSelectedObjectId(currentObject.id);
+                      selectObject(currentObject.id);
                       setActiveTab('docs');
                     }}
                   >
@@ -728,17 +824,17 @@ export default function BuildingConstructionPage({ onBack, hideHeader = false })
           )}
 
           {/* Grid of All Objects */}
-          <h3 className="vip-sec-subheading">Все объекты в работе ({objects.length})</h3>
+          <h3 className="vip-sec-subheading">Все объекты в работе ({allObjects.length})</h3>
           <div className="vip-objects-cards-grid">
-            {objects.map((obj) => (
+            {allObjects.map((obj) => (
               <div
                 key={obj.id}
-                className={`vip-obj-card ${obj.id === selectedObjectId ? 'selected' : ''}`}
-                onClick={() => setSelectedObjectId(obj.id)}
+                className={`vip-obj-card ${obj.id === currentObject.id ? 'selected' : ''} ${obj.real ? 'real' : ''}`}
+                onClick={() => selectObject(obj.id)}
               >
                 <div className="v-card-top">
-                  <span className="v-card-type">{obj.typeIcon} {obj.type}</span>
-                  <button
+                  <span className="v-card-type">{obj.typeIcon} {obj.type}{!obj.real && <span className="v-card-kind">Пример</span>}</span>
+                  {!obj.real && <button
                     className="v-card-del"
                     onClick={(e) => {
                       e.stopPropagation();
@@ -747,11 +843,11 @@ export default function BuildingConstructionPage({ onBack, hideHeader = false })
                     title="Удалить объект"
                   >
                     ✕
-                  </button>
+                  </button>}
                 </div>
 
                 <h4 className="v-card-title">{obj.title}</h4>
-                <div className="v-card-loc">📍 {obj.city} • {obj.area.toLocaleString()} м²</div>
+                <div className="v-card-loc">{obj.real ? `Работ: ${obj.worksCount} • людей: ${obj.workers} • техники: ${obj.equipmentCount}` : `📍 ${obj.city} • ${obj.area.toLocaleString()} м²`}</div>
 
                 <div className="v-card-prog-row">
                   <span>Готовность: <strong>{obj.progress}%</strong></span>
@@ -762,7 +858,7 @@ export default function BuildingConstructionPage({ onBack, hideHeader = false })
 
                 <div className="v-card-budget">
                   <span>Бюджет:</span>
-                  <strong>{obj.budget.toLocaleString()} ₸</strong>
+                  <strong>{obj.budget ? `${obj.budget.toLocaleString()} ₸` : 'не указан'}</strong>
                 </div>
 
                 <div className="v-card-footer-btns">
@@ -770,11 +866,12 @@ export default function BuildingConstructionPage({ onBack, hideHeader = false })
                     className="v-btn-select"
                     onClick={(e) => {
                       e.stopPropagation();
-                      setSelectedObjectId(obj.id);
+                      selectObject(obj.id);
+                      if (obj.real) { window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
                       setActiveTab('works_calc');
                     }}
                   >
-                    Выбрать объект ➔
+                    {obj.real ? 'Открыть объект ➔' : 'Выбрать объект ➔'}
                   </button>
                 </div>
               </div>
@@ -955,11 +1052,11 @@ export default function BuildingConstructionPage({ onBack, hideHeader = false })
             <div className="vip-obj-quick-switch">
               <label>Выбрать другой объект:</label>
               <select
-                value={selectedObjectId}
-                onChange={(e) => setSelectedObjectId(e.target.value)}
+                value={currentObject.id}
+                onChange={(e) => selectObject(e.target.value)}
                 className="vip-select-mini"
               >
-                {objects.map(o => <option key={o.id} value={o.id}>{o.title}</option>)}
+                {allObjects.map(o => <option key={o.id} value={o.id}>{o.title}</option>)}
               </select>
             </div>
           </div>
@@ -1171,7 +1268,7 @@ export default function BuildingConstructionPage({ onBack, hideHeader = false })
                   </div>
 
                   <div className="engineer-sign-box">
-                    <span>Ответственный ГИП: <strong>{currentObject.engineer}</strong></span>
+                    <span className="vip-eng-emblem"><Avatar person={{ name: currentObject.engineer }} size={44} />Ответственный ГИП: <strong>{currentObject.engineer}</strong></span>
                     <span className="ecp-badge">🔐 Подписано ЭЦП НУЦ РК</span>
                   </div>
                 </div>
@@ -1361,6 +1458,7 @@ export default function BuildingConstructionPage({ onBack, hideHeader = false })
       {/* ── 8. TAB 6: ДОКУМЕНТЫ (СМЕТА PDF & ПРОГРЕСС АНАЛИТИКА) ── */}
       {activeTab === 'docs' && (
         <div className="vip-content-section">
+          {staffDocs && <DemoNotice>Ниже — образцы форм (смета, КС-2, КС-3) на примере. Настоящие документы объекта — в списке выше.</DemoNotice>}
           <div className="vip-sec-head">
             <div>
               <span className="vip-badge-pill">Объект: {currentObject.title}</span>
@@ -1445,7 +1543,7 @@ export default function BuildingConstructionPage({ onBack, hideHeader = false })
             {ACCREDITED_CONTRACTORS.map((c) => (
               <div key={c.bin} className="contractor-card">
                 <div className="c-head">
-                  <span className="c-name">{c.name}</span>
+                  <span className="c-name vip-eng-emblem"><Avatar person={{ name: c.name.replace(/^ТОО\s*«?(Пример\s*)?/, '') }} size={44} />{c.name}</span>
                   <span className="c-verified">✅ eGov / ГАСК Проверено</span>
                 </div>
 

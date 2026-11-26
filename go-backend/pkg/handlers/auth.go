@@ -84,6 +84,19 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	}
 	loginFailures.Reset(email)
 
+	// Администратор работает только с одного устройства: новый вход закрывает все прежние сессии.
+	// Отзываются токены, выданные строго раньше этой секунды; новый выдаётся в неё же или позже.
+	if user.Role == "admin" {
+		cut := time.Now().Unix()
+		if err := database.RevokeUserSessions(user.ID, cut); err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			_ = json.NewEncoder(w).Encode(map[string]string{"error": "Не удалось открыть сессию, попробуйте ещё раз"})
+			return
+		}
+		middleware.RevokeTokensIssuedBefore(user.ID, cut)
+		database.AddAudit(user.ID, user.Email, "admin_sign_in", user.ID, "вход администратора; прежние сессии закрыты")
+	}
+
 	token, err := middleware.GenerateJWT(user.ID, user.Email, user.Role, h.cfg.JwtSecret)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -448,7 +461,11 @@ func (h *AuthHandler) GetMe(w http.ResponseWriter, r *http.Request) {
 	claims, err := middleware.ValidateJWT(tokenStr, h.cfg.JwtSecret)
 	if err != nil {
 		w.WriteHeader(http.StatusUnauthorized)
-		_ = json.NewEncoder(w).Encode(map[string]string{"error": "Сессия истекла"})
+		body := map[string]string{"error": "Сессия истекла"}
+		if strings.Contains(err.Error(), "revoked") {
+			body = map[string]string{"error": "Сессия закрыта: в аккаунт вошли с другого устройства или сменили пароль", "code": "session_revoked"}
+		}
+		_ = json.NewEncoder(w).Encode(body)
 		return
 	}
 
