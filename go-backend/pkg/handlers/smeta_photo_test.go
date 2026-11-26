@@ -134,7 +134,7 @@ func TestSmetaPhotoHint(t *testing.T) {
 
 // На английской версии сайта ИИ просят отвечать по-английски; по умолчанию — по-русски.
 func TestSmetaPhotoLangRule(t *testing.T) {
-	if !strings.Contains(smetaPhotoLangRule("en"), "английском") || !strings.Contains(smetaPhotoLangRule(" KK "), "казахском") {
+	if !strings.Contains(smetaPhotoLangRule("en"), "английский") || !strings.Contains(smetaPhotoLangRule(" KK "), "казахский") || !strings.Contains(smetaPhotoLangRule("zh"), "китайский") {
 		t.Fatal("язык ответа ИИ не учитывается")
 	}
 	for _, l := range []string{"", "ru", "xx"} {

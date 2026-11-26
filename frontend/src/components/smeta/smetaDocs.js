@@ -11,7 +11,7 @@ const same = (s) => s;
 let numLocale = 'ru-RU';
 const money = (v) => Math.round(Number(v) || 0).toLocaleString(numLocale);
 const qty = (v) => (Number(v) || 0).toLocaleString(numLocale, { maximumFractionDigits: 2 });
-const useLocale = (info) => { numLocale = info?.lang === 'en' ? 'en-US' : 'ru-RU'; };
+const useLocale = (info) => { numLocale = info?.locale || (info?.lang === 'en' ? 'en-US' : 'ru-RU'); };
 // Раздел в строке сметы приходит кодом («demolition») — показываем его название.
 const partName = (info, id) => info?.partTitles?.[id] || id;
 
@@ -56,7 +56,7 @@ export function docMeta(result, scenarioId, info = {}, tr = same, date = new Dat
   if (info.description) rows.push([tr('Описание задачи'), info.description]);
   return {
     title: `${tr('Смета')} № ${docNumber(date)}`,
-    date: date.toLocaleDateString(numLocale, numLocale === 'en-US' ? { year: 'numeric', month: 'long', day: 'numeric' } : undefined),
+    date: date.toLocaleDateString(numLocale, numLocale === 'ru-RU' ? undefined : { year: 'numeric', month: 'long', day: 'numeric' }),
     rows,
   };
 }

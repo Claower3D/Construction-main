@@ -1185,7 +1185,7 @@ export default function Header({ role, setRole, theme, toggleTheme, onOpenAuth, 
               )}
 
               {/* Language Switcher */}
-              <LangSwitch style={{ width: '100%', justifyContent: 'space-around', padding: '4px' }} buttonStyle={{ flex: 1, padding: '0.4rem' }} />
+              <LangSwitch variant="list" />
 
               {/* Auth Action Buttons */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem', marginTop: '1rem', paddingTop: '1rem' }}>

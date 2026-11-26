@@ -1,4 +1,4 @@
-// Переключение языка RU / KZ / EN.
+// Переключение языка: русский, казахский, английский, китайский и любые следующие.
 //
 // Тексты приложения написаны по-русски прямо в компонентах (сотни файлов), поэтому перевод
 // сделан слоем поверх DOM: текстовые узлы и атрибуты (placeholder, title, aria-label, alt)
@@ -7,8 +7,10 @@
 // Структура DOM не меняется — только nodeValue и значения атрибутов, это безопасно для React.
 // Фразы, которых нет в словаре, остаются по-русски: словарь расширяется по мере перевода разделов.
 //
-// Словарей два. dict.js — небольшой, с казахским и английским переводом, грузится всем.
-// dict.en.js — полный английский, грузится отдельным файлом и только тем, кто смотрит сайт по-английски.
+// Словари. dict.js — небольшой, с казахским и английским переводом, грузится всем.
+// dict.<язык>.js — полный словарь языка (en, zh, …), грузится отдельным файлом и только тем, кто выбрал этот язык.
+// Новый язык = строка в LANGS + файл dict.<код>.js + строка в LOADERS. Пока фраза на новый язык не переведена,
+// она показывается по-английски, а не по-русски: иностранцу английский понятнее (см. chain).
 // Английская версия открывается сама по адресу qazgost.com (см. defaultLangForHost); «шапку» страницы
 // (язык, заголовок вкладки, описание для поисковиков) под этот адрес подставляет сервер:
 // go-backend/pkg/handlers/static.go. Проверка: npm run test:i18n.
@@ -16,39 +18,63 @@
 import { useSyncExternalStore } from 'react';
 import { DICT, PATTERNS } from './dict.js';
 
+// label — короткая подпись на кнопке, name — название языка на нём самом, locale — для дат, чисел и голоса,
+// dir: 'rtl' — письмо справа налево.
 export const LANGS = [
-  { code: 'ru', label: 'RU', name: 'Русский' },
-  { code: 'kk', label: 'KZ', name: 'Қазақша' },
-  { code: 'en', label: 'EN', name: 'English' },
+  { code: 'ru', label: 'RU', name: 'Русский', locale: 'ru-RU' },
+  { code: 'kk', label: 'KZ', name: 'Қазақша', locale: 'kk-KZ' },
+  { code: 'en', label: 'EN', name: 'English', locale: 'en-US' },
+  { code: 'zh', label: '中文', name: '简体中文', locale: 'zh-CN' },
 ];
 const CODES = LANGS.map((l) => l.code);
+const BY_CODE = Object.fromEntries(LANGS.map((l) => [l.code, l]));
+/** Обозначение языка для браузера: даты, числа, распознавание и синтез речи. */
+export function langLocale(code = lang) { return BY_CODE[code]?.locale || 'ru-RU'; }
+
+// Полные словари языков — отдельные файлы, грузятся по требованию
+const LOADERS = {
+  en: () => import('./dict.en.js'),
+  zh: () => import('./dict.zh.js'),
+};
+// В каком порядке искать перевод: сначала на выбранном языке, потом по-английски
+const chain = (code) => (code === 'ru' ? [] : code === 'en' || code === 'kk' ? [code] : [code, 'en']);
+const packsFor = (code) => chain(code).filter((c) => LOADERS[c]);
 const STORAGE_KEY = 'qazgost_lang';
 const ATTRS = ['placeholder', 'title', 'aria-label', 'alt'];
 
-// Язык по умолчанию задаёт домен: qazgost.com открывается на английском, остальные — на русском.
+// Язык по умолчанию задаёт домен: qazgost.com — международный, остальные открываются на русском.
+// На qazgost.com берётся язык браузера, если сайт на него переведён (китайский и т. д.), иначе английский;
+// русский и казахский браузер там тоже получают английский — для них есть qazgost.kz.
 // Выбор, который человек сделал переключателем, запоминается и важнее домена.
-export function defaultLangForHost(host) {
-  return /(^|\.)qazgost\.com$/i.test(String(host || '')) ? 'en' : 'ru';
+export function defaultLangForHost(host, browserLangs = []) {
+  if (!/(^|\.)qazgost\.com$/i.test(String(host || ''))) return 'ru';
+  for (const b of browserLangs || []) {
+    const code = String(b || '').toLowerCase().split('-')[0];
+    if (code === 'en') return 'en';
+    if (code !== 'ru' && code !== 'kk' && CODES.includes(code)) return code;
+  }
+  return 'en';
 }
 
 let lang = 'ru';
-try { lang = defaultLangForHost(window.location.hostname); } catch (e) { /* нет окна (тесты) — русский */ }
+try { lang = defaultLangForHost(window.location.hostname, navigator.languages || [navigator.language]); } catch (e) { /* нет окна (тесты) — русский */ }
 try {
   const saved = localStorage.getItem(STORAGE_KEY);
   if (CODES.includes(saved)) lang = saved;
 } catch (e) { /* хранилище недоступно — язык домена */ }
 
-// Большой английский словарь (dict.en.js) грузится отдельным файлом и только тем, кто смотрит сайт
-// на английском: русскоязычным посетителям он не нужен.
-let pack = null;        // { EN: { фраза: перевод }, buckets: Map, misc: [] }
-let packPromise = null;
+// Полный словарь языка грузится отдельным файлом и только тем, кто смотрит сайт на этом языке:
+// русскоязычным посетителям он не нужен.
+const packs = {};        // код языка → { T: { фраза: перевод }, buckets: Map, misc: [] }
+const packPromises = {};
+let target = 'ru';       // на какой язык переводим прямо сейчас (выбранный или запасной английский)
 const NUM = /\d+(?:[ \u00a0\u202f.,]\d+)*/g;
 const escapeRe = (x) => x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 function buildPack(mod) {
   const buckets = new Map();
   const misc = [];
-  for (const [src, en] of mod.EN_TEMPLATES || []) {
+  for (const [src, out] of mod.TEMPLATES || mod.EN_TEMPLATES || []) {
     // «Всего {a} работ на {n} ₸» → /^Всего (.+?) работ на (\d+…) ₸$/
     const order = [];
     const parts = src.split(/(\{[a-z]\}|\{n\})/);
@@ -65,7 +91,7 @@ function buildPack(mod) {
     // шаблон, который кончается словом, совпадает и с точкой в конце: «…целыми упаковками.»
     // «слабый» шаблон — в нём мало своих слов («Заказ {a}»): он может совпасть с чужой фразой случайно
     const own = src.replace(/\{[a-z]\}|\{n\}/g, '').replace(/[^A-Za-zА-Яа-яЁё]/g, '').length;
-    const item = { re, en, order, tail: !/\}$/.test(src), len: src.length, weak: own < 12 };
+    const item = { re, out, order, tail: !/\}$/.test(src), len: src.length, weak: own < 12 };
     // второй вариант разбора: первая подстановка забирает как можно больше — для фраз вида
     // «{a} × {b} прохода», где в {a} уже есть свой знак «×»
     const first = re.source.indexOf('(.+?)');
@@ -77,18 +103,22 @@ function buildPack(mod) {
   const byLength = (x, y) => y.len - x.len;
   buckets.forEach((items) => items.sort(byLength));
   misc.sort(byLength);
-  return { EN: mod.EN || {}, buckets, misc };
+  return { T: mod.T || mod.EN || {}, P: mod.PATTERNS || {}, buckets, misc };
 }
 
-/** Догружает словарь выбранного языка. Для русского и казахского ничего не грузит. */
-export function langReady() {
-  if (lang !== 'en') return Promise.resolve();
-  if (!packPromise) {
-    packPromise = import('./dict.en.js')
-      .then((mod) => { pack = buildPack(mod); cache.clear(); })
-      .catch(() => { packPromise = null; }); // нет связи — останется базовый словарь, попробуем при следующем переключении
+function loadPack(code) {
+  if (!packPromises[code]) {
+    packPromises[code] = LOADERS[code]()
+      .then((mod) => { packs[code] = buildPack(mod); cache.clear(); })
+      .catch(() => { packPromises[code] = null; }); // нет связи — останется то, что есть; попробуем при следующем переключении
   }
-  return packPromise;
+  return packPromises[code];
+}
+const packsLoaded = (code) => packsFor(code).every((c) => packs[c]);
+
+/** Догружает словари выбранного языка (и запасной английский). Для русского и казахского ничего не грузит. */
+export function langReady() {
+  return Promise.all(packsFor(lang).map(loadPack)).then(() => {});
 }
 
 const cache = new Map(); // строка → перевод или null (сбрасывается при смене языка)
@@ -117,23 +147,26 @@ function buildCoreDict() {
 /** Точное совпадение: фраза целиком есть в словаре (числа подставляются на свои места). */
 function lookupExact(s) {
   if (!coreDict) buildCoreDict();
-  const pick = (hit) => (hit ? (lang === 'kk' ? hit[0] : hit[1]) : null);
+  const pack = packs[target];
+  // базовый словарь — только казахский и английский; у остальных языков всё лежит в их полном словаре
+  const pick = (hit) => (hit ? (target === 'kk' ? hit[0] : target === 'en' ? hit[1] : null) : null);
   let t = pick(DICT[s]) ?? pick(coreDict.get(s));
   if (t != null) return t;
-  if (lang === 'en' && pack) { t = pack.EN[s]; if (t != null) return t; }
+  if (pack) { t = pack.T[s]; if (t != null) return t; }
   if (/\d/.test(s)) {
     // «Найдено: 9 708» ищется как «Найдено: {n}», числа возвращаются на место по порядку
     const nums = [];
     const key = s.replace(NUM, (m) => { nums.push(m); return '{n}'; });
-    t = (lang === 'en' && pack ? pack.EN[key] : null) ?? pick(DICT[key]) ?? pick(coreDict.get(key));
+    t = (pack ? pack.T[key] : null) ?? pick(DICT[key]) ?? pick(coreDict.get(key));
     if (t != null) { let i = 0; return t.replace(/\{n\}/g, () => nums[i++] ?? ''); }
   }
   return null;
 }
 
-/** Шаблоны английского словаря: «Заказ {a} завершён». */
+/** Шаблоны полного словаря: «Заказ {a} завершён». */
 function lookupPack(s) {
-  if (lang !== 'en' || !pack) return null;
+  const pack = packs[target];
+  if (!pack) return null;
   let fallback = null;
   const list = pack.buckets.get(s.slice(0, 3));
   for (const group of [list, pack.misc]) {
@@ -158,7 +191,7 @@ function lookupPack(s) {
       }
       if (stray) continue;
       let ni = 0;
-      const out = p.en.replace(/\{n\}/g, () => nums[ni++] ?? '').replace(/\{([a-z])\}/g, (all, name) => done[name] ?? '') + (p.tail ? m[m.length - 1] : '');
+      const out = p.out.replace(/\{n\}/g, () => nums[ni++] ?? '').replace(/\{([a-z])\}/g, (all, name) => done[name] ?? '') + (p.tail ? m[m.length - 1] : '');
       // шаблон, в котором перевелись все куски, лучше того, где кусок остался русским (имя, название);
       // такой берём, только если не нашлось ничего чище
       if (clean) return out;
@@ -200,6 +233,46 @@ const WEEKDAY_LONG = 'понедельник|вторник|среда|четв�
 const DATE_WD_RE = new RegExp(`^(\\d{1,2})\\s+${MONTH_RE}(?:\\s+(\\d{4}))?(?:\\s*г(?:ода|\\.)?)?,\\s+(${WEEKDAY_LONG})$`, 'i');
 const DATE_RANGE_RE = new RegExp(`^(\\d{1,2})\\s*[–—-]\\s*(\\d{1,2})\\s+${MONTH_RE}(?:\\s+(\\d{4}))?(?:\\s*г(?:ода|\\.)?)?$`, 'i');
 
+// Та же дата на любом другом языке — средствами браузера (Intl), по правилам этого языка
+function dateIntl(s) {
+  if (s.length > 40) return null;
+  const locale = langLocale(target);
+  const fmt = (opts, d) => new Intl.DateTimeFormat(locale, { timeZone: 'UTC', ...opts }).format(d);
+  const now = new Date().getUTCFullYear();
+  const at = (year, mon, day) => new Date(Date.UTC(+year || now, monthIndex(mon), +day));
+  try {
+    let w = s.match(DATE_WD_RE);
+    if (w) {
+      // год не указан — берём тот из ближайших, в котором это число приходится на названный день недели
+      const want = WEEKDAY_LONG.split('|').indexOf(w[4].toLowerCase()); // 0 — понедельник
+      const year = w[3] || [now, now + 1, now - 1].find((y) => (at(y, w[2], w[1]).getUTCDay() + 6) % 7 === want);
+      if (!year) return fmt({ day: 'numeric', month: 'long' }, at(now, w[2], w[1]));
+      return fmt({ weekday: 'long', day: 'numeric', month: 'long', ...(w[3] ? { year: 'numeric' } : {}) }, at(year, w[2], w[1]));
+    }
+    w = s.match(DATE_RANGE_RE);
+    if (w) return `${fmt({ day: 'numeric', month: 'long' }, at(w[4], w[3], w[1]))} – ${fmt({ day: 'numeric', month: 'long', ...(w[4] ? { year: 'numeric' } : {}) }, at(w[4], w[3], w[2]))}`;
+    let m = s.match(DATE_RE);
+    if (m) {
+      const [, wd, day, mon, year, time] = m;
+      const tok = s.match(new RegExp(MONTH_RE, 'i'))[0];
+      const short = /\.$/.test(tok) || /^(янв|фев|мар|апр|июн|июл|авг|сен|сент|окт|ноя|нояб|дек)$/i.test(tok);
+      let y = year;
+      const opts = { day: 'numeric', month: short ? 'short' : 'long', ...(year ? { year: 'numeric' } : {}) };
+      if (wd) {
+        const key = wd.toLowerCase();
+        const idx = key.length > 2 ? WEEKDAY_LONG.split('|').indexOf(key) : ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс'].indexOf(key);
+        y = year || [now, now + 1, now - 1].find((yy) => (at(yy, mon, day).getUTCDay() + 6) % 7 === idx);
+        if (y) opts.weekday = key.length > 2 ? 'long' : 'short';
+      }
+      return fmt(opts, at(y, mon, day)) + (time ? `, ${time}` : '');
+    }
+    m = s.match(MONTH_YEAR_RE);
+    if (m) return fmt({ month: 'long', year: 'numeric' }, at(m[2], m[1], 1));
+  } catch (e) { /* браузер не знает такого языка — дата останется как есть */ }
+  return null;
+}
+const dateOut = (s) => (target === 'en' ? dateEn(s) : packs[target] ? dateIntl(s) : null);
+
 function dateEn(s) {
   if (s.length > 40) return null;
   let w = s.match(DATE_WD_RE);
@@ -221,9 +294,14 @@ function dateEn(s) {
 // Выражения из чисел и единиц измерения: «12,5 м × 3 м = 37,5 м²»
 const UNIT_EN = { 'м²': 'm²', 'м³': 'm³', мм: 'mm', см: 'cm', км: 'km', кг: 'kg', кВт: 'kW', Вт: 'W', шт: 'pcs', 'п.м': 'lin. m', 'м.п': 'lin. m', мес: 'mo', мин: 'min', чел: 'ppl', дн: 'd', тг: '₸', м: 'm', т: 't', л: 'L', ч: 'h' };
 const UNIT_RE = /(?<![А-Яа-яЁё])(м²|м³|мм|см|км|кг|кВт|Вт|шт|п\.м|м\.п|мес|мин|чел|дн|тг|м|т|л|ч)(?![А-Яа-яЁё])/g;
+// Метры и килограммы везде пишутся латиницей; свои слова у языка — только для штук, дней, людей и т. п.
+const UNIT_BY_LANG = {
+  zh: { шт: '件', 'п.м': '延米', 'м.п': '延米', мес: '个月', мин: '分钟', чел: '人', дн: '天', ч: '小时', т: '吨', л: '升' },
+};
 function unitsEn(s) {
-  if (lang !== 'en' || !/\d/.test(s)) return null;
-  const out = s.replace(UNIT_RE, (u) => UNIT_EN[u]);
+  if (!packs[target] || !/\d/.test(s)) return null;
+  const own = UNIT_BY_LANG[target];
+  const out = s.replace(UNIT_RE, (u) => own?.[u] ?? UNIT_EN[u]);
   return CYR.test(out) ? null : out;
 }
 
@@ -271,16 +349,17 @@ function lookupLoose(s) {
   for (const p of PATTERNS) {
     const m = s.match(p.re);
     if (m) {
-      const tpl = lang === 'kk' ? p.kk : p.en;
+      const tpl = p[target] ?? packs[target]?.P[p.id];
+      if (tpl == null) break; // на этот язык правило не переведено — сработает запасной английский
       return typeof tpl === 'function' ? tpl(m, sub) : s.replace(p.re, tpl);
     }
   }
-  if (lang !== 'en') return null;
-  t = dateEn(s) ?? unitsEn(s);
+  if (!packs[target]) return null;
+  t = dateOut(s) ?? unitsEn(s);
   if (t != null) return t;
   // «31 августа, понедельник: задач нет»
   const dated = s.match(/^(.{4,40}?): (.+)$/);
-  if (dated) { const d = dateEn(dated[1]); if (d != null) return `${d}: ${translateCore(dated[2]) ?? dated[2]}`; }
+  if (dated) { const d = dateOut(dated[1]); if (d != null) return `${d}: ${translateCore(dated[2]) ?? dated[2]}`; }
   // «г. Караганда»
   const city = s.match(/^г\. ?(\S.{1,40})$/);
   if (city) return translateCore(city[1]) ?? city[1];
@@ -339,14 +418,28 @@ export function translate(raw) {
   return out;
 }
 
+// Перевод на выбранный язык, а если на нём фразы нет — на запасной английский.
+// Вложенные куски (подстановки в шаблонах) снова начинают с выбранного языка.
 function translateCore(raw) {
   if (!raw || !CYR.test(raw)) return null;
+  const prev = target;
+  try {
+    for (const code of chain(lang)) {
+      target = code;
+      const t = coreFor(raw);
+      if (t != null) return t;
+    }
+    return null;
+  } finally { target = prev; }
+}
+
+function coreFor(raw) {
   const norm = raw.replace(/\s+/g, ' ');
   const trimmed = norm.trim();
   const m = trimmed.match(EDGE);
   const [, pre, core, post] = m || [null, '', trimmed, ''];
   // дата целиком («24 ноября 2026 г.») — раньше словаря, иначе точка от «г.» останется в конце
-  if (lang === 'en') { const d = dateEn(trimmed); if (d != null) return norm.replace(trimmed, () => d); }
+  { const d = dateOut(trimmed); if (d != null) return norm.replace(trimmed, () => d); }
   // три вида одной фразы: как есть; без значков в начале («Всего:», «Нет аккаунта?»); без знаков по краям
   const forms = [[trimmed, '', '']];
   const withPunct = (core + post).trim();
@@ -454,7 +547,8 @@ function startObserver() {
 }
 
 function applyAll() {
-  document.documentElement.lang = lang;
+  document.documentElement.lang = lang === 'zh' ? 'zh-CN' : lang;
+  document.documentElement.dir = BY_CODE[lang]?.dir || 'ltr';
   if (lang !== 'ru') startObserver();
   walk(document.body);
   translateTitle();
@@ -469,8 +563,8 @@ export function setLang(next) {
   try { localStorage.setItem(STORAGE_KEY, next); } catch (e) { /* без сохранения */ }
   applyAll();
   listeners.forEach((f) => f(next));
-  // английский: сначала применяется базовый словарь, полный — как только догрузится
-  if (next === 'en' && !pack) langReady().then(() => { if (lang === 'en') applyAll(); });
+  // сначала применяется то, что уже загружено, полный словарь языка — как только догрузится
+  if (!packsLoaded(next)) langReady().then(() => { if (lang === next) applyAll(); });
 }
 
 function subscribe(f) { listeners.add(f); return () => listeners.delete(f); }
@@ -483,9 +577,10 @@ export function useLang() {
 /** Запуск: применяет сохранённый язык после первой отрисовки. */
 export function initI18n() {
   if (typeof document === 'undefined') return;
-  document.documentElement.lang = lang;
+  document.documentElement.lang = lang === 'zh' ? 'zh-CN' : lang;
   if (lang === 'ru') return;
-  const run = () => { applyAll(); if (lang === 'en' && !pack) langReady().then(() => { if (lang === 'en') applyAll(); }); };
+  const start = lang;
+  const run = () => { applyAll(); if (!packsLoaded(start)) langReady().then(() => { if (lang === start) applyAll(); }); };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run, { once: true });
   else run();
 }

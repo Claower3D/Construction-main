@@ -59,7 +59,7 @@ type assistantMsg struct {
 type assistantReq struct {
 	Messages []assistantMsg `json:"messages"`
 	City     string         `json:"city"`
-	Lang     string         `json:"lang"` // язык интерфейса: ru, kk, en
+	Lang     string         `json:"lang"` // язык интерфейса: ru, kk, en, zh…
 }
 
 // assistantLangHint — какой язык ответа просить у модели. Интерфейс на казахском или
@@ -70,6 +70,9 @@ func assistantLangHint(lang string) string {
 		return "\nИнтерфейс пользователя на казахском: отвечай на казахском языке, если пользователь явно не пишет на другом."
 	case "en":
 		return "\nThe user's interface is in English: answer in English unless the user clearly writes in another language."
+	}
+	if name := uiLangName(lang); name != "" {
+		return "\nИнтерфейс пользователя на другом языке (" + name + "): отвечай на этом языке, если пользователь явно не пишет на другом."
 	}
 	return ""
 }

@@ -41,7 +41,9 @@ const docLink = (href, text) => <a href={href} target="_blank" rel="noopener nor
 
 function ConsentTerms({ lang }) {
   if (lang === 'kk') return <span translate="no">Маған 18 жас толды, {docLink('/terms', 'пайдаланушы келісімін')} қабылдаймын</span>;
-  if (lang === 'en') return <span translate="no">I am 18 or older and accept the {docLink('/terms', 'Terms of Use')}</span>;
+  if (lang === 'zh') return <span translate="no">我已年满 18 岁，并接受{docLink('/terms', '用户协议')}</span>;
+  // остальные языки, кроме русского, — по-английски: юридические тексты на них пока не переведены
+  if (lang !== 'ru') return <span translate="no">I am 18 or older and accept the {docLink('/terms', 'Terms of Use')}</span>;
   return <span translate="no">Мне есть 18 лет, принимаю {docLink('/terms', 'пользовательское соглашение')}</span>;
 }
 
@@ -53,7 +55,14 @@ function ConsentPrivacy({ lang }) {
       </span>
     );
   }
-  if (lang === 'en') {
+  if (lang === 'zh') {
+    return (
+      <span translate="no">
+        我同意按照{docLink('/privacy', '隐私政策')}{docLink('/consent', '处理我的个人数据')}，包括向境外传输
+      </span>
+    );
+  }
+  if (lang !== 'ru') {
     return (
       <span translate="no">
         I consent to the {docLink('/consent', 'processing of my personal data')}, including transfer abroad, under the {docLink('/privacy', 'Privacy Policy')}

@@ -270,13 +270,34 @@ func callSmetaPhotoAI(ctx context.Context, apiKey string, body []byte) (string, 
 
 // smetaPhotoLangRule — на каком языке ИИ пишет текст ответа (id вида работ язык не меняет).
 func smetaPhotoLangRule(lang string) string {
-	switch strings.ToLower(strings.TrimSpace(lang)) {
-	case "en":
-		return "Все текстовые поля пиши на английском языке, коротко и по делу."
-	case "kk":
-		return "Все текстовые поля пиши на казахском языке, коротко и по делу."
+	if name := uiLangName(lang); name != "" {
+		return "Все текстовые поля пиши на языке: " + name + ". Коротко и по делу."
 	}
 	return "Пиши по-русски, без воды."
+}
+
+// uiLangName — название языка интерфейса для подсказки ИИ; пусто — русский или неизвестный язык.
+// Список совпадает с языками сайта (frontend/src/i18n/index.js).
+func uiLangName(lang string) string {
+	switch strings.ToLower(strings.TrimSpace(lang)) {
+	case "en":
+		return "английский"
+	case "kk":
+		return "казахский"
+	case "zh":
+		return "китайский (упрощённые иероглифы)"
+	case "tr":
+		return "турецкий"
+	case "uz":
+		return "узбекский (латиница)"
+	case "ar":
+		return "арабский"
+	case "de":
+		return "немецкий"
+	case "ja":
+		return "японский"
+	}
+	return ""
 }
 
 func orDash(s string) string {

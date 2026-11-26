@@ -79,9 +79,6 @@ html body::after { content: none !important; display: none !important; }
   cursor: pointer;
   box-shadow: none !important;
 }
-.header-wrapper .lang-switch { background: transparent !important; border: 1px solid var(--qg-line) !important; border-radius: var(--qg-r-ctrl) !important; padding: 2px !important; }
-.header-wrapper .lang-btn { color: var(--qg-text-3) !important; font-size: 0.75rem !important; border-radius: 7px !important; box-shadow: none !important; }
-.header-wrapper .lang-btn.active { background: var(--qg-surface-2) !important; color: var(--qg-text) !important; border-color: transparent !important; }
 
 .header-wrapper .btn-gold-login,
 .mobile-nav-drawer .btn-gold-login {
@@ -147,14 +144,11 @@ html body::after { content: none !important; display: none !important; }
 }
 @media (max-width: 1440px) {
   .header-wrapper .hdr-profile-btn { display: none !important; }
-  .header-wrapper .lang-btn { padding: 0.2rem 0.32rem !important; }
 }
-.header-wrapper .lang-btn:hover:not(.active) { color: var(--qg-text) !important; }
 /* На казахском и английском пункты шапки длиннее: у вошедшего пользователя убираем подпись
    логотипа и кнопку «Анкета» (она есть в меню роли), чтобы шапка не вылезала за край */
 html:not([lang="ru"]) .header-wrapper:has(.hdr-profile-btn) .logo-subtitle,
 html:not([lang="ru"]) .header-wrapper .hdr-profile-btn { display: none !important; }
-.lang-btn:focus-visible { outline: 2px solid #f8d27a; outline-offset: 1px; }
 .header-wrapper .balance-chip { white-space: nowrap; }
 .header-wrapper .header-right-actions { gap: 8px !important; flex-wrap: nowrap; }
 

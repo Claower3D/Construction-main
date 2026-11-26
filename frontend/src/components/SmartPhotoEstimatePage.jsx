@@ -7,7 +7,7 @@ import SmetaResultView from './smeta/SmetaResultView';
 import { loadTechmaps, calcSmeta, detectCategory, smetaToCSV, downloadText, shrinkPhoto, fmt } from './smeta/smetaApi';
 import { saveSmetaXlsx, openSmetaPrint, reservePercent } from './smeta/smetaDocs';
 import { loadXlsx } from '../services/adminExcelIO';
-import { translate, getLang } from '../i18n';
+import { translate, getLang, langLocale } from '../i18n';
 import './SmartPhotoEstimatePage.css';
 import './smeta/smeta.css';
 
@@ -490,7 +490,7 @@ export default function SmartPhotoEstimatePage({ onBack, hideHeader = false }) {
     (result?.parts || []).forEach((id) => { t[id] = techmaps[id]?.title || id; });
     return t;
   }, [result, techmaps]);
-  const docInfo = () => ({ partTitles, description: description.trim(), lang: getLang() === 'en' ? 'en' : 'ru' });
+  const docInfo = () => ({ partTitles, description: description.trim(), lang: getLang(), locale: langLocale() });
 
   const downloadXlsx = async () => {
     setDocBusy('xlsx');

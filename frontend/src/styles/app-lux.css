@@ -393,4 +393,3 @@ body:has(.qg-scene) .qg-backdrop { display: none; }
 }
 
 /* Переключатель языка в мобильном меню — золотая активная кнопка, как вкладки лендинга */
-.lang-switch .lang-btn.active { background: linear-gradient(135deg, #f8d27a, #e5a03a); color: #1c1203; box-shadow: none; }

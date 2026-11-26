@@ -36,10 +36,9 @@ export default function LegalPage({ docKey = 'privacy', onBack }) {
           <p>{doc.lead}</p>
           <p className="lg-version">{`Редакция от ${LEGAL_VERSION_LABEL}`}</p>
           {lang !== 'ru' && (
-            <p className="lg-lang-note" role="note">
-              {lang === 'kk'
-                ? 'Құжаттың ресми мәтіні орыс тілінде берілген.'
-                : 'The official text of this document is provided in Russian.'}
+            <p className="lg-lang-note" role="note" translate="no">
+              {{ kk: 'Құжаттың ресми мәтіні орыс тілінде берілген.', zh: '本文件的正式文本为俄语。' }[lang]
+                || 'The official text of this document is provided in Russian.'}
             </p>
           )}
         </header>

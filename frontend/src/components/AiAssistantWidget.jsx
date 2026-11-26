@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { X, Send, Mic, Volume2, VolumeX, RotateCcw, Calculator, HardHat, Layers, ClipboardList, TrendingUp } from 'lucide-react';
 import { navigateTo, openAuth } from '../utils/navigate';
 import './AiAssistantWidget.css';
-import { getLang } from '../i18n';
+import { getLang, langLocale } from '../i18n';
 
 /*
  * Ассистент — ИИ-инженер QazGost.
@@ -303,8 +303,8 @@ export default function AiAssistantWidget() {
     const u = new SpeechSynthesisUtterance(plain(text).slice(0, 600));
     // голос — на языке интерфейса; казахского голоса в браузере может не быть, тогда русский
     const ui = getLang();
-    const want = ui === 'en' ? /^en/i : ui === 'kk' ? /^kk/i : /^ru/i;
-    u.lang = ui === 'en' ? 'en-US' : ui === 'kk' ? 'kk-KZ' : 'ru-RU';
+    const want = new RegExp(`^${ui}`, 'i');
+    u.lang = langLocale();
     const voices = synth.getVoices();
     const male = voices.find((v) => want.test(v.lang) && /(dmitry|pavel|maxim|male|муж)/i.test(v.name));
     const voice = male || voices.find((v) => want.test(v.lang)) || (ui === 'kk' ? voices.find((v) => /^ru/i.test(v.lang)) : null);
@@ -398,7 +398,7 @@ export default function AiAssistantWidget() {
     if (!SR) return;
     if (listening) { recRef.current?.stop(); return; }
     const rec = new SR();
-    rec.lang = { en: 'en-US', kk: 'kk-KZ' }[getLang()] || 'ru-RU'; rec.interimResults = true; rec.maxAlternatives = 1;
+    rec.lang = langLocale(); rec.interimResults = true; rec.maxAlternatives = 1;
     let final = '';
     rec.onresult = (e) => {
       let txt = '';
