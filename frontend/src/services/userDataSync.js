@@ -34,6 +34,7 @@ const SYNC_KEYS = new Set([
   'qazgost_estimate_region',
   'qazgost_smeta_mode',
   'qazgost_measure_calib',
+  'qazgost_crm_rest_day',
 ]);
 // Ключи с приставкой (например, настройки компании конкретного аккаунта)
 const SYNC_PREFIXES = ['company_settings_', 'tour_completed_'];

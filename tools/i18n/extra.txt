@@ -294,3 +294,31 @@ Satu: смесители для ванны от ≈7 000 ₸ (бюджетные
 Файл больше допустимого: фото до {n} МБ, видео до {n} МБ, документ до {n} МБ|The file is too large: photos up to {n} MB, videos up to {n} MB, documents up to {n} MB
 Файл не является документом PDF, Word или Excel|The file is not a PDF, Word or Excel document
 Пример|Sample
+выходной|day off
+Показать, в какие дни работы объекта шли на самом деле|Show on which days the site works were actually carried out
+Загружаем ход работ|Loading work progress
+Ход работ не загрузился|Work progress failed to load
+Рабочих объектов пока нет. Они заводятся в модуле «Строительство зданий»|No working sites yet. They are created in the “Building construction” module
+выполнена|completed
+позже плана|later than plan
+позже плана на {n} дн|{n} d later than plan
+Работ по факту: {n}|Works in fact: {n}
+В этот день работ не было|No works on this day
+По плану|Planned
+По факту|Actual
+Бюджет по состояниям|Budget by status
+Бюджет объекта не указан — он вписывается в модуле «Строительство зданий», вкладка «График работ»|The site budget is not set — enter it in the “Building construction” module, “Work schedule” tab
+Реквизиты подрядчика и заказчика|Contractor and client details
+не заполнены|not filled in
+Сейчас в работе: {n}|In progress now: {n}
+С обшивкой|With cladding
+Вид модели|Model view
+Работы вашего объекта|Works of your site
+Людей: {n} · техники: {n} · бригад: {n}|People: {n} · machines: {n} · crews: {n}
+Открыть график работ|Open work schedule
+Итого по работам|Total for works
+не указана|not set
+Укрупнённая оценка по видам работ|Rough estimate by type of work
+Ниже — расчёт по средним ценам за м² для площади ангара {n} × {n} м. Это ориентир, а не смета ваших работ|Below is a calculation at average prices per m² for the hangar area of {n} × {n} m. It is a guide, not an estimate of your works
+Карточки с пометкой «Пример» — образцы, их можно удалить крестиком. Ваш объект хранится на сервере|Cards marked “Sample” are samples and can be deleted with the cross. Your site is stored on the server
+Эта вкладка пока работает на образцах: расчёты, подрядчики и лоты здесь — пример, а не ваши данные. Ваш объект с графиком, людьми, техникой и документами хранится на сервере|This tab still works on samples: the calculations, contractors and lots here are examples, not your data. Your site with its schedule, people, machines and documents is stored on the server

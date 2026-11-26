@@ -9,7 +9,7 @@ import { translate } from '../../i18n';
 // (см. HANGAR_ZONES): кровля, стена, торец, пол, каркас, площадка вокруг или всё здание.
 
 const GOLD = 0xfbbf24;
-const COLORS = { frame: 0x9fb4d8, roof: 0x7c6bd6, wall: 0x8f86c9, floor: 0x4b5563, outside: 0x1f2a3d };
+const COLORS = { frame: 0xa9bbdc, roof: 0x64748b, wall: 0xb6c2d6, floor: 0x596274, outside: 0x1b2333 };
 
 function label(source, color = '#e9e5f7') {
   const text = translate(source) || source; // подписи рисуются на картинке — переводим их сами
@@ -24,7 +24,7 @@ function label(source, color = '#e9e5f7') {
   g.fillText(text, 128, 48);
   const tex = new THREE.CanvasTexture(c);
   const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, depthTest: false, transparent: true }));
-  s.scale.set(17, 6.4, 1);
+  s.scale.set(13, 4.9, 1);
   s.renderOrder = 10;
   return s;
 }
@@ -41,7 +41,7 @@ function dimLine(a, b, mat) {
   return new THREE.Line(new THREE.BufferGeometry().setFromPoints([a, b]), mat);
 }
 
-export default function Hangar3D({ zone = '', height = 380 }) {
+export default function Hangar3D({ zone = '', skin = true, height = 380 }) {
   const mountRef = useRef(null);
   const apiRef = useRef(null);
 
@@ -71,8 +71,9 @@ export default function Hangar3D({ zone = '', height = 380 }) {
     scene.add(sun);
 
     const zones = {}; // id → [{ mat, base, opacity }]
+    const skins = []; // обшивка: стены и кровля
     const reg = (id, mat) => { (zones[id] = zones[id] || []).push({ mat, base: mat.color.getHex(), opacity: mat.opacity }); return mat; };
-    const skin = (id, color, opacity) => reg(id, new THREE.MeshStandardMaterial({ color, transparent: true, opacity, side: THREE.DoubleSide, roughness: 0.7, metalness: 0.1, depthWrite: false }));
+    const cover = (id, color, opacity) => reg(id, new THREE.MeshStandardMaterial({ color, transparent: true, opacity, side: THREE.DoubleSide, roughness: 0.7, metalness: 0.1, depthWrite: false }));
 
     // площадка и пол
     const ground = new THREE.Mesh(new THREE.PlaneGeometry(L + 70, Wd + 70), reg('outside', new THREE.MeshStandardMaterial({ color: COLORS.outside, roughness: 1 })));
@@ -116,26 +117,32 @@ export default function Hangar3D({ zone = '', height = 380 }) {
 
     // обшивка: две длинные стены, два торца, два ската кровли
     const wallGeo = new THREE.PlaneGeometry(L, eave);
-    const north = new THREE.Mesh(wallGeo, skin('wall-n', COLORS.wall, 0.2));
+    const north = new THREE.Mesh(wallGeo, cover('wall-n', COLORS.wall, 0.3));
     north.position.set(0, eave / 2, -hw - 0.3);
-    const south = new THREE.Mesh(wallGeo, skin('wall-s', COLORS.wall, 0.2));
+    const south = new THREE.Mesh(wallGeo, cover('wall-s', COLORS.wall, 0.3));
     south.position.set(0, eave / 2, hw + 0.3);
     scene.add(north, south);
+    skins.push(north, south);
     const gable = new THREE.Shape();
     gable.moveTo(-hw, 0); gable.lineTo(hw, 0); gable.lineTo(hw, eave); gable.lineTo(0, ridge); gable.lineTo(-hw, eave); gable.closePath();
     const gableGeo = new THREE.ShapeGeometry(gable);
-    const west = new THREE.Mesh(gableGeo, skin('wall-w', COLORS.wall, 0.2));
+    const west = new THREE.Mesh(gableGeo, cover('wall-w', COLORS.wall, 0.3));
     west.rotation.y = Math.PI / 2; west.position.x = -hl - 0.3;
-    const east = new THREE.Mesh(gableGeo, skin('wall-e', COLORS.wall, 0.2));
+    const east = new THREE.Mesh(gableGeo, cover('wall-e', COLORS.wall, 0.3));
     east.rotation.y = Math.PI / 2; east.position.x = hl + 0.3;
     scene.add(west, east);
+    skins.push(west, east);
+    // ворота в западном торце
+    const gate = new THREE.Mesh(new THREE.PlaneGeometry(6, 7), new THREE.MeshStandardMaterial({ color: 0x334155, side: THREE.DoubleSide, roughness: 0.8 }));
+    gate.rotation.y = Math.PI / 2; gate.position.set(-hl - 0.45, 3.5, 0);
+    scene.add(gate); skins.push(gate);
     const slopeLen = Math.hypot(hw, ridge - eave);
-    const roofMat = skin('roof', COLORS.roof, 0.3);
+    const roofMat = cover('roof', COLORS.roof, 0.55);
     for (const side of [-1, 1]) {
       const r = new THREE.Mesh(new THREE.PlaneGeometry(L + 1.2, slopeLen + 0.6), roofMat);
       r.position.set(0, (eave + ridge) / 2 + 0.45, side * hw / 2);
       r.rotation.x = -Math.PI / 2 + side * Math.atan2(ridge - eave, hw);
-      scene.add(r);
+      scene.add(r); skins.push(r);
     }
 
     // размеры и стороны света
@@ -145,14 +152,14 @@ export default function Hangar3D({ zone = '', height = 380 }) {
     scene.add(dimLine(V(hl + 6, 0, hw), V(hl + 6, eave, hw), dm));
     scene.add(dimLine(V(hl + 6, 0, 0), V(hl + 6, ridge, 0), dm));
     const put = (s, x, y, z) => { s.position.set(x, y, z); scene.add(s); };
-    put(label(`${L} м`, '#fcd34d'), 0, 2.2, hw + 9);
-    put(label(`${Wd} м`, '#fcd34d'), hl + 10, 2.2, 0);
-    put(label(`${eave} м`, '#fcd34d'), hl + 10, eave * 0.55, hw);
-    put(label(`конёк ${ridge} м`, '#fcd34d'), hl + 12, ridge + 2.5, 0);
-    put(label('Север'), 0, 3, -hw - 16);
-    put(label('Юг'), 0, 3, hw + 17);
-    put(label('Запад'), -hl - 15, 3, 0);
-    put(label('Восток'), hl + 20, 3, 0);
+    put(label(`${L} м`, '#fcd34d'), 0, 2.4, hw + 9.5);
+    put(label(`${Wd} м`, '#fcd34d'), hl + 9, 2.4, 0);
+    put(label(`${eave} м`, '#fcd34d'), hl + 9, eave * 0.5, hw + 1);
+    put(label(`${ridge} м`, '#fcd34d'), hl + 9, ridge + 2.6, 0);
+    put(label('Север'), -hl * 0.45, 2.4, -hw - 9);
+    put(label('Юг'), -hl * 0.6, 2.4, hw + 9.5);
+    put(label('Запад'), -hl - 9, 2.4, 0);
+    put(label('Восток'), hl + 9, 2.4, -hw - 4);
 
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.target.set(0, 9, 0);
@@ -163,7 +170,8 @@ export default function Hangar3D({ zone = '', height = 380 }) {
     controls.update();
 
     // подсветка места работы
-    apiRef.current = (id) => {
+    const api = { skin: (on) => { skins.forEach((m) => { m.visible = on; }); } };
+    api.zone = (id) => {
       for (const [zid, list] of Object.entries(zones)) {
         const on = !!id && (id === zid || (id === 'all' && zid !== 'outside'));
         const soft = id === 'all';
@@ -174,6 +182,7 @@ export default function Hangar3D({ zone = '', height = 380 }) {
         }
       }
     };
+    apiRef.current = api;
 
     const resize = () => {
       const w = el.clientWidth || 600, h = el.clientHeight || 380;
@@ -182,7 +191,7 @@ export default function Hangar3D({ zone = '', height = 380 }) {
       renderer.domElement.style.height = '100%';
       camera.aspect = w / h;
       // узкий экран телефона: отодвигаем камеру, чтобы ангар помещался целиком
-      const dist = 96 * Math.min(2.4, Math.max(1, 1.25 / camera.aspect));
+      const dist = 104 * Math.min(2.4, Math.max(1, 1.15 / camera.aspect));
       const dir = camera.position.clone().sub(controls.target).normalize();
       camera.position.copy(controls.target).addScaledVector(dir, dist);
       camera.updateProjectionMatrix();
@@ -209,9 +218,10 @@ export default function Hangar3D({ zone = '', height = 380 }) {
     };
   }, []);
 
-  useEffect(() => { if (apiRef.current) apiRef.current(zone); }, [zone]);
+  useEffect(() => { if (apiRef.current) apiRef.current.zone(zone); }, [zone]);
+  useEffect(() => { if (apiRef.current) apiRef.current.skin(skin); }, [skin]);
   // первая подсветка — после постройки сцены
-  useEffect(() => { const t = setTimeout(() => { if (apiRef.current) apiRef.current(zone); }, 0); return () => clearTimeout(t); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { const t = setTimeout(() => { if (apiRef.current) { apiRef.current.zone(zone); apiRef.current.skin(skin); } }, 0); return () => clearTimeout(t); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return <div ref={mountRef} className="vob-3d" style={{ height }} role="img" aria-label={`Модель ангара ${HANGAR.width} на ${HANGAR.length} метров, высота в коньке ${HANGAR.ridge} метра`} />;
 }

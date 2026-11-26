@@ -412,3 +412,22 @@ export function workZone(work) {
   if (/снаружи|улиц|площадк|территор|ливн|колод|траншe|транше/.test(s)) return 'outside';
   return KIND_ZONE[workKind(work)] || 'all';
 }
+
+/**
+ * Календарь по факту по дням: { 'ГГГГ-ММ-ДД': [{ work, fact, running, late }] }.
+ * late — этот день позже планового окончания работы. Не длиннее двух лет на работу.
+ */
+export function buildFactDays(project, today) {
+  const out = {};
+  for (const work of (project && project.works) || []) {
+    const fact = factRange(work, today);
+    if (!fact) continue;
+    const a = dayNumber(fact.start), b = Math.min(dayNumber(fact.end), a + 730);
+    for (let n = a; n <= b; n++) {
+      const iso = isoFromDayNumber(n);
+      (out[iso] = out[iso] || []).push({ work, fact, running: fact.running, late: isIso(work.end) && iso > work.end });
+    }
+  }
+  for (const list of Object.values(out)) list.sort((x, y) => Number(y.late) - Number(x.late) || String(x.work.start).localeCompare(String(y.work.start)));
+  return out;
+}

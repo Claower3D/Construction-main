@@ -20,6 +20,7 @@ export default function VipObjectView({ project, onOpen }) {
     return [...(project.works || [])].sort((a, b) => (rank[a.status] - rank[b.status]) || String(a.start).localeCompare(String(b.start)));
   }, [project]);
   const [picked, setPicked] = useState(null);
+  const [skin, setSkin] = useState(true); // обшивка стен и кровли; без неё виден один каркас
   const current = works.find((w) => w.id === picked) || null;
   const running = works.filter((w) => w.status === 'progress');
 
@@ -54,13 +55,12 @@ export default function VipObjectView({ project, onOpen }) {
 
       {running.length > 0 && (
         <div className="vob-now">
-          <span className="vwb-label">Сейчас в работе</span>
+          <span className="vwb-label">{`Сейчас в работе: ${running.length}`}</span>
           <div className="vob-now-list">
             {running.map((w) => (
               <button type="button" key={w.id} className={picked === w.id ? 'active' : ''} onClick={() => setPicked(w.id)}>
                 {workPicture(w) ? <img src={workPicture(w)} alt="" loading="lazy" /> : <span className="art"><WorkArt kind={workKind(w)} /></span>}
                 <b translate="no">{w.title}</b>
-                <small>{formatRange(w.start, w.end)}</small>
               </button>
             ))}
           </div>
@@ -70,11 +70,15 @@ export default function VipObjectView({ project, onOpen }) {
       <div className="vob-model">
         <div className="vob-model-3d">
           <div className="vob-model-cap">
+            <div className="vwb-seg vob-skin" role="group" aria-label="Вид модели">
+              <button type="button" className={skin ? 'active' : ''} aria-pressed={skin} onClick={() => setSkin(true)}>С обшивкой</button>
+              <button type="button" className={!skin ? 'active' : ''} aria-pressed={!skin} onClick={() => setSkin(false)}>Каркас</button>
+            </div>
             <b>{`Ангар ${HANGAR.width} × ${HANGAR.length} м`}</b>
             <span>{`стены ${HANGAR.eave} м · конёк ${HANGAR.ridge} м · стальной каркас`}</span>
           </div>
           <Suspense fallback={<div className="vob-3d vob-3d-wait" style={{ height: 400 }} role="status">Загружаем модель ангара…</div>}>
-            <Hangar3D zone={current ? workZone(current) : ''} height={400} />
+            <Hangar3D zone={current ? workZone(current) : ''} skin={skin} height={400} />
           </Suspense>
           <p className="vob-model-hint" role="status">
             {current ? <><span>Подсвечено:</span> <b>{zoneLabel(workZone(current))}</b> — <span translate="no">«{current.title}»</span></> : 'Выберите работу в списке — на модели подсветится место, где она идёт. Модель вращается пальцем или мышью.'}

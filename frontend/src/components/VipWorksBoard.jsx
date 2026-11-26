@@ -101,6 +101,19 @@ function WorkCard({ work, isNew, project, onSave, onDelete, onClose, userName })
   const [viewer, setViewer] = useState(null);
   const fileRef = useRef(null);
   const set = (k, v) => setD((p) => ({ ...p, [k]: v }));
+  // Смена состояния сразу ставит отметки факта сегодняшним днём (их можно поправить): так «Календарь по факту»
+  // строится сам, без отдельного ввода дат
+  const setStatus = (status) => setD((p) => {
+    const next = { ...p, status };
+    if (status === 'progress' && !p.factStart) next.factStart = isIso(p.start) && p.start < today ? p.start : today;
+    if (status === 'done') {
+      if (!p.factStart) next.factStart = isIso(p.start) && p.start <= today ? p.start : today;
+      if (!p.factEnd) next.factEnd = today < next.factStart ? next.factStart : today;
+    }
+    if (status === 'plan') { next.factStart = ''; next.factEnd = ''; }
+    if (status === 'progress') next.factEnd = '';
+    return next;
+  });
   const brigade = (project.brigades || []).find((b) => b.id === d.brigadeId);
   const people = brigade ? (brigade.members || []).map((id) => (project.staff || []).find((p) => p.id === id)).filter(Boolean) : [];
   const machines = brigade ? (brigade.equipment || []).map((id) => (project.equipment || []).find((m) => m.id === id)).filter(Boolean) : [];
@@ -173,7 +186,7 @@ function WorkCard({ work, isNew, project, onSave, onDelete, onClose, userName })
           <input className="vip-input" type="date" value={d.end || ''} min={d.start || undefined} onChange={(e) => set('end', e.target.value)} />
         </Field>
         <Field label="Состояние">
-          <select className="vip-input" value={d.status || 'plan'} onChange={(e) => set('status', e.target.value)}>
+          <select className="vip-input" value={d.status || 'plan'} onChange={(e) => setStatus(e.target.value)}>
             {STATUS_ORDER.map((s) => <option key={s} value={s}>{STATUS[s].label}</option>)}
           </select>
         </Field>
@@ -578,7 +591,7 @@ export default function VipWorksBoard({ section = 'schedule', onToast, onProject
     setModal(null);
     toast(`✅ Работа «${w.title}» сохранена`);
   };
-  const markDone = (w) => { change((d) => { const x = d.works.find((y) => y.id === w.id); if (x) x.status = 'done'; return d; }); toast(`✅ «${w.title}» отмечена выполненной`); };
+  const markDone = (w) => { change((d) => { const x = d.works.find((y) => y.id === w.id); if (x) { x.status = 'done'; if (!x.factStart) x.factStart = x.start; if (!x.factEnd) x.factEnd = today < x.factStart ? x.factStart : today; } return d; }); toast(`✅ «${w.title}» отмечена выполненной`); };
   const removeWork = (id) => { change((d) => { d.works = d.works.filter((x) => x.id !== id); return d; }); setModal(null); toast('🗑️ Работа удалена из графика'); };
   const upsert = (key, item) => { change((d) => { const i = d[key].findIndex((x) => x.id === item.id); if (i >= 0) d[key][i] = item; else d[key].push(item); return d; }); setModal(null); };
   const removePerson = (id) => { change((d) => { d.staff = d.staff.filter((x) => x.id !== id); d.brigades.forEach((b) => { b.members = b.members.filter((x) => x !== id); }); d.equipment.forEach((m) => { if (m.driverId === id) m.driverId = ''; }); return d; }); setModal(null); };
@@ -716,14 +729,14 @@ export default function VipWorksBoard({ section = 'schedule', onToast, onProject
         </div>
       </div>
 
-      <div className="vwb-stats">
+      {section === 'schedule' && <div className="vwb-stats">
         <div className="vwb-stat"><span>Работ</span><b>{summary.total}</b><small>{summary.first ? `${formatDay(summary.first, true)} — ${formatDay(summary.last, true)}` : 'нет дат'}</small></div>
         <div className="vwb-stat"><span>В работе</span><b>{summary.progress}</b><small>запланировано {summary.plan}</small></div>
         <div className="vwb-stat"><span>Выполнено</span><b>{summary.done}</b><small>{summary.donePct}% работ</small></div>
         <button type="button" className={cls('vwb-stat', 'btn', summary.overdue && 'bad')} onClick={() => { setFStatus(fStatus === 'overdue' ? '' : 'overdue'); }} aria-pressed={fStatus === 'overdue'}><span>Срок вышел</span><b>{summary.overdue}</b><small>нет отметки «выполнена»</small></button>
         <div className="vwb-stat"><span>Люди и техника</span><b>{(project.staff || []).length} / {(project.equipment || []).length}</b><small>бригад {(project.brigades || []).length}</small></div>
         <div className="vwb-stat"><span>Фото и видео</span><b>{summary.media}</b><small>{summary.check ? `уточнить: ${summary.check}` : 'вопросов нет'}</small></div>
-      </div>
+      </div>}
 
       {section === 'schedule' && (
         <>
@@ -761,7 +774,7 @@ export default function VipWorksBoard({ section = 'schedule', onToast, onProject
                       ? <img className="vwb-g-pic" src={workPicture(w)} alt="" loading="lazy" />
                       : <span className={cls('vwb-g-pic', 'art', `s-${w.status}`)}><WorkArt kind={workKind(w)} /></span>}
                     <span className="vwb-g-text">
-                      <b translate="no">{w.check ? '⚠ ' : ''}{w.title}</b>
+                      <b translate="no">{w.check ? <i className="vwb-g-flag" title={w.check}>!</i> : null}{w.title}</b>
                       <small>{formatRange(w.start, w.end)}{brigadeName(w.brigadeId) ? ` · ${brigadeName(w.brigadeId)}` : ' · без бригады'}</small>
                     </span>
                   </button>
@@ -878,6 +891,8 @@ export default function VipWorksBoard({ section = 'schedule', onToast, onProject
 
       {section === 'team' && (
         <>
+          <details className="vwb-fold">
+            <summary><span>Реквизиты подрядчика и заказчика</span><small>{[project.contractor && project.contractor.name, project.client && project.client.name].filter(Boolean).join(' · ') || 'не заполнены'}</small></summary>
           <div className="vwb-parties">
             {[['contractor', 'Подрядчик'], ['client', 'Заказчик']].map(([key, title]) => {
               const p = project[key] || {};
@@ -892,6 +907,7 @@ export default function VipWorksBoard({ section = 'schedule', onToast, onProject
               );
             })}
           </div>
+          </details>
 
           <div className="vwb-subhead">
             <h3>Бригады <span className="vwb-muted">({(project.brigades || []).length})</span></h3>
@@ -938,16 +954,16 @@ export default function VipWorksBoard({ section = 'schedule', onToast, onProject
             <button type="button" className="vip-primary-btn vwb-add" onClick={() => setModal({ type: 'person', isNew: true, item: { id: nextId('p', project.staff), name: '' } })}>＋ Добавить работника</button>
           </div>
           <div className="vwb-table-wrap">
-            <table className="vip-table vwb-table">
+            <table className="vip-table vwb-table vwb-staff">
               <thead><tr><th>№</th><th>Фото</th><th>Фамилия, имя, отчество</th><th>Должность</th><th>ИИН</th><th>Бригада</th><th>Техника</th></tr></thead>
               <tbody>
                 {(project.staff || []).length === 0 && <tr className="none"><td colSpan={7}>В штате пока никого нет.</td></tr>}
                 {(project.staff || []).map((p, i) => (
                   <tr key={p.id} onClick={() => setModal({ type: 'person', isNew: false, item: p })} tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter') setModal({ type: 'person', isNew: false, item: p }); }}>
-                    <td>{i + 1}</td><td className="ava"><Avatar person={p} size={44} /></td><td><b>{p.name}</b></td><td>{p.role || '—'}</td>
-                    <td>{p.iin ? (showIin ? p.iin : '•••• скрыт') : '—'}</td>
-                    <td>{report.brigadeOf.get(p.id)?.name || <span className="vwb-muted">без бригады</span>}</td>
-                    <td>{(project.equipment || []).filter((m) => m.driverId === p.id).map((m) => m.name).join(', ') || '—'}</td>
+                    <td className="num">{i + 1}</td><td className="ava"><Avatar person={p} size={44} /></td><td className="name"><b translate="no">{p.name}</b></td><td className={p.role ? 'role' : 'role empty'}>{p.role || '—'}</td>
+                    <td className={p.iin ? 'iin' : 'iin empty'}>{p.iin ? (showIin ? p.iin : '•••• скрыт') : '—'}</td>
+                    <td className="brig">{report.brigadeOf.get(p.id)?.name || <span className="vwb-muted">без бригады</span>}</td>
+                    <td className={(project.equipment || []).some((m) => m.driverId === p.id) ? 'tech' : 'tech empty'}>{(project.equipment || []).filter((m) => m.driverId === p.id).map((m) => m.name).join(', ') || '—'}</td>
                   </tr>
                 ))}
               </tbody>

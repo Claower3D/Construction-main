@@ -246,3 +246,16 @@ test('картинка работы и инициалы', () => {
   assert.equal(nameHue('Иванов'), nameHue('Иванов'));
   assert.ok(nameHue('Иванов') >= 0 && nameHue('Иванов') < 360);
 });
+
+import { buildFactDays } from './vipSchedule.js';
+test('календарь по факту по дням', () => {
+  const days = buildFactDays({ works: [
+    { id: 'a', title: 'А', status: 'progress', start: '2026-11-10', end: '2026-11-12' },
+    { id: 'b', title: 'Б', status: 'done', start: '2026-11-11', end: '2026-11-11' },
+    { id: 'c', title: 'В', status: 'plan', start: '2026-11-11', end: '2026-11-11' },
+  ] }, '2026-11-14');
+  assert.deepEqual(Object.keys(days).sort(), ['2026-11-10', '2026-11-11', '2026-11-12', '2026-11-13', '2026-11-14']);
+  assert.deepEqual(days['2026-11-11'].map((x) => x.work.id), ['a', 'b']); // запланированная в факт не попадает
+  assert.equal(days['2026-11-12'][0].late, false);
+  assert.equal(days['2026-11-13'][0].late, true); // идёт позже срока
+});

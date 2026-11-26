@@ -6,6 +6,9 @@ import './crm-refresh.css';
 import { jsonAuthHeaders, authHeaders, genId, shortNum, parseMoney, crmStatusBucket, userKeyOf, responseError } from '../services/platformUtils';
 import { upsertCrmEvent } from '../services/orderSyncService';
 import { buildCalendarMarks, MARK_KINDS, formatPeriod } from './calendarMarks';
+import { listProjects, getProject } from '../services/vipApi';
+import { buildFactDays, budgetSummary, money, WEEKDAY_NAMES, workKind, formatRange, todayIso } from './vip/vipSchedule';
+import { WorkArt } from './vip/VipVisuals';
 import { loadTeam } from './TeamPicker';
 
 /* ═══════════════════════════════════════════════════════════════
@@ -252,6 +255,38 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode, 
   }, [statusFilter, roleFilter, searchQuery, getCardTypeKey, teamMode, isTeamCard]);
 
   // Дни, на которые заявка «тянется»: период «с — по», выезд, работы по этапам, сдача
+  // Выходной день недели (0 — воскресенье): один в неделю, выделен во всех видах календаря
+  const [restDay, setRestDayState] = useState(() => {
+    try { const v = localStorage.getItem('qazgost_crm_rest_day'); const n = Number(v); return v !== null && Number.isInteger(n) && n >= 0 && n <= 6 ? n : 0; } catch { return 0; }
+  });
+  const setRestDay = (n) => { setRestDayState(n); try { localStorage.setItem('qazgost_crm_rest_day', String(n)); } catch { /* хранилище недоступно */ } };
+  const isRest = (d) => d.getDay() === restDay;
+  // Календарь по факту: дни, когда работы рабочего объекта шли на самом деле (данные модуля «Строительство зданий»)
+  const [factMode, setFactMode] = useState(false);
+  const [fact, setFact] = useState({ state: 'idle', error: '', projects: [] }); // projects: [{ id, name, data }]
+  const [factPick, setFactPick] = useState('');
+  const loadFact = useCallback(async () => {
+    setFact((f) => ({ ...f, state: 'loading', error: '' }));
+    try {
+      const items = (await listProjects()).slice(0, 6);
+      const full = await Promise.all(items.map((it) => getProject(it.id).then((p) => ({ id: p.id, name: p.name, data: p.data }))));
+      setFact({ state: 'ready', error: '', projects: full });
+      setFactPick((cur) => (full.some((p) => p.id === cur) ? cur : (full[0] ? full[0].id : '')));
+    } catch (e) {
+      setFact({ state: 'error', error: e.message || 'не удалось загрузить', projects: [] });
+    }
+  }, []);
+  const toggleFact = () => { const next = !factMode; setFactMode(next); if (next) loadFact(); };
+  const factProject = fact.projects.find((p) => p.id === factPick) || null;
+  const factDays = useMemo(() => (factProject ? buildFactDays(factProject.data, todayIso()) : {}), [factProject]);
+  const factBudget = useMemo(() => (factProject ? budgetSummary(factProject.data) : null), [factProject]);
+  const renderFactChip = (x, compact) => (
+    <div key={`fact-${x.work.id}`} className={`crm-fact-chip${x.late ? ' is-late' : ''}${x.running ? ' is-running' : ''}`} title={`${x.work.title} · по плану ${formatRange(x.work.start, x.work.end)} · по факту ${formatRange(x.fact.start, x.fact.end)}`}>
+      <WorkArt kind={workKind(x.work)} />
+      <span translate="no">{x.work.title}</span>
+      {!compact && <em>{x.late ? 'позже плана' : x.running ? 'идёт' : 'выполнена'}</em>}
+    </div>
+  );
   const calendarMarks = useMemo(() => buildCalendarMarks(events), [events]);
   const dayMarks = useCallback((dateStr) => (calendarMarks[dateStr] || []).filter((m) => isEventVisible(m.card)), [calendarMarks, isEventVisible]);
   const renderMark = (m) => {
@@ -285,7 +320,8 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode, 
       total: allCards.length,
       totalBudget: 0,
       byRole: { engineer: 0, executor: 0, lead: 0, machinery: 0 },
-      byStatus: { 'Новые': 0, 'В работе': 0, 'Дожим': 0, 'Успешно': 0, 'Отказ': 0 }
+      byStatus: { 'Новые': 0, 'В работе': 0, 'Дожим': 0, 'Успешно': 0, 'Отказ': 0 },
+      budgetBy: { 'Новые': 0, 'В работе': 0, 'Дожим': 0, 'Успешно': 0, 'Отказ': 0 }
     };
     allCards.forEach(c => {
       s.totalBudget += parseBudget(c.budget);
@@ -293,6 +329,7 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode, 
       s.byRole[t] = (s.byRole[t] || 0) + 1;
       const bucket = crmStatusBucket(c.status);
       s.byStatus[bucket] = (s.byStatus[bucket] || 0) + 1;
+      s.budgetBy[bucket] = (s.budgetBy[bucket] || 0) + parseBudget(c.budget);
     });
     return s;
   }, [allCards, getCardTypeKey]);
@@ -605,9 +642,9 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode, 
     return (
       <div className="crm-month-scroll-wrapper">
         <div className="crm-month-grid">
-          {DAYS_RU.map(d => (
-            <div key={d} className="crm-dow">
-              {d}
+          {DAYS_RU.map((d, i) => (
+            <div key={d} className={`crm-dow${(i + 1) % 7 === restDay ? ' is-rest' : ''}`}>
+              {d}{(i + 1) % 7 === restDay && <span className="crm-rest-tag">выходной</span>}
             </div>
           ))}
 
@@ -618,6 +655,27 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode, 
             const marks = dayMarks(dateStr);
             const today = isToday(dateStr);
             const isOver = dragOverDate === dateStr;
+            const rest = isRest(new Date(year, month, day));
+
+            if (factMode) {
+              const list = factDays[dateStr] || [];
+              return (
+                <div
+                  key={dateStr}
+                  onClick={() => { setCurrentDate(new Date(year, month, day)); setView('day'); }}
+                  className={`crm-day is-fact${today ? ' is-today' : ''}${rest ? ' is-rest' : ''}`}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                    <span className="crm-day-num">{day}</span>
+                    {list.length > 0 && <span className={`crm-day-count${list.some((x) => x.late) ? ' is-late' : ''}`}>{list.length}</span>}
+                  </div>
+                  <div className="crm-fact-list">
+                    {list.slice(0, 3).map((x) => renderFactChip(x, true))}
+                    {list.length > 3 && <div className="crm-fact-more">{`ещё ${list.length - 3}`}</div>}
+                  </div>
+                </div>
+              );
+            }
 
             return (
               <div
@@ -626,7 +684,7 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode, 
                 onDragLeave={() => setDragOverDate(null)}
                 onDrop={e => handleDrop(e, dateStr)}
                 onClick={() => { setCurrentDate(new Date(year, month, day)); setView('day'); }}
-                className={`crm-day${today ? ' is-today' : ''}${isOver ? ' is-over' : ''}`}
+                className={`crm-day${today ? ' is-today' : ''}${isOver ? ' is-over' : ''}${rest ? ' is-rest' : ''}`}
               >
                 {/* Шапка дня */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
@@ -686,14 +744,15 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode, 
         {days.map(d => {
           const dateStr = fmtDate(d);
           const today = isToday(dateStr);
+          const rest = isRest(d);
           return (
             <div key={dateStr} style={{
               textAlign: 'center', padding: '6px 2px', borderRadius: '6px',
-              background: today ? 'rgba(0,229,255,0.2)' : 'rgba(18, 27, 48, 0.95)',
-              border: today ? '2px solid #00e5ff' : '1px solid rgba(255,255,255,0.12)',
+              background: today ? 'rgba(0,229,255,0.2)' : rest ? 'rgba(248,113,113,0.16)' : 'rgba(18, 27, 48, 0.95)',
+              border: today ? '2px solid #00e5ff' : rest ? '1px solid rgba(248,113,113,0.55)' : '1px solid rgba(255,255,255,0.12)',
             }}>
-              <div style={{ fontSize: '0.65rem', color: '#a39cc2', fontWeight: 800 }}>
-                {DAYS_RU[d.getDay() === 0 ? 6 : d.getDay() - 1]}
+              <div style={{ fontSize: '0.75rem', color: rest ? '#fca5a5' : '#a39cc2', fontWeight: 800 }}>
+                {DAYS_RU[d.getDay() === 0 ? 6 : d.getDay() - 1]}{rest && <span className="crm-rest-tag">выходной</span>}
               </div>
               <div style={{ fontSize: '0.95rem', fontWeight: 900, color: today ? '#00e5ff' : '#ffffff' }}>
                 {d.getDate()}
@@ -721,16 +780,17 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode, 
                   onDragOver={e => { e.preventDefault(); setDragOverDate(`${dateStr}-${h}`); }}
                   onDragLeave={() => setDragOverDate(null)}
                   onDrop={e => handleDrop(e, dateStr, `${String(h).padStart(2,'0')}:00`)}
-                  onClick={() => openCreateModalForSlot(dateStr, `${String(h).padStart(2,'0')}:00`)}
+                  onClick={() => { if (!factMode) openCreateModalForSlot(dateStr, `${String(h).padStart(2,'0')}:00`); }}
                   style={{
                     minHeight: '38px', padding: '2px 4px',
                     borderBottom: '1px solid rgba(255,255,255,0.06)',
-                    background: isOver ? 'rgba(245,158,11,0.2)' : 'transparent',
-                    cursor: 'pointer'
+                    background: isOver ? 'rgba(245,158,11,0.2)' : isRest(d) ? 'rgba(248,113,113,0.07)' : 'transparent',
+                    cursor: factMode ? 'default' : 'pointer'
                   }}
                 >
-                  {h === hours[0] && dayMarks(dateStr).map(renderMark)}
-                  {dayEvents.map(evt => renderEventChip(evt, dateStr, false))}
+                  {factMode && h === hours[0] && (factDays[dateStr] || []).map((x) => renderFactChip(x, true))}
+                  {!factMode && h === hours[0] && dayMarks(dateStr).map(renderMark)}
+                  {!factMode && dayEvents.map(evt => renderEventChip(evt, dateStr, false))}
                 </div>
               );
             })}
@@ -749,12 +809,43 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode, 
     const dayEvents = (events[dateStr] || []).filter(isEventVisible);
     const hours = Array.from({ length: 16 }, (_, i) => i + 6);
     const dow = currentDate.getDay();
+    const rest = isRest(currentDate);
+
+    if (factMode) {
+      const list = factDays[dateStr] || [];
+      return (
+        <div>
+          <div className={`crm-dayhead${rest ? ' is-rest' : ''}`}>
+            <div className="crm-dayhead-title">{DAYS_FULL[dow === 0 ? 6 : dow - 1]}, {currentDate.getDate()} {MONTHS_RU[currentDate.getMonth()]} {currentDate.getFullYear()}{rest && <span className="crm-rest-tag big">выходной</span>}</div>
+            <div className="crm-dayhead-sub">{`Работ по факту: ${list.length}`}</div>
+          </div>
+          {list.length === 0
+            ? <div className="crm-fact-empty">В этот день работ не было.</div>
+            : (
+              <div className="crm-fact-day">
+                {list.map((x) => (
+                  <div key={x.work.id} className={`crm-fact-row${x.late ? ' is-late' : ''}`}>
+                    <span className="art"><WorkArt kind={workKind(x.work)} /></span>
+                    <div>
+                      <b translate="no">{x.work.title}</b>
+                      <small><span>По плану:</span> {formatRange(x.work.start, x.work.end)}</small>
+                      <small><span>По факту:</span> {formatRange(x.fact.start, x.fact.end)}</small>
+                    </div>
+                    <em>{x.late ? `позже плана на ${x.fact.shift} дн.` : x.running ? 'идёт' : 'выполнена'}</em>
+                  </div>
+                ))}
+              </div>
+            )}
+        </div>
+      );
+    }
 
     return (
       <div>
         <div style={{ textAlign: 'center', marginBottom: '8px', padding: '6px', background: 'rgba(18,27,48,0.95)', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.1)' }}>
           <div style={{ fontSize: '1.1rem', fontWeight: 900, color: '#ffffff' }}>
             {DAYS_FULL[dow === 0 ? 6 : dow - 1]}, {currentDate.getDate()} {MONTHS_RU[currentDate.getMonth()]} {currentDate.getFullYear()}
+            {rest && <span className="crm-rest-tag big">выходной</span>}
           </div>
           <div style={{ fontSize: '0.75rem', color: '#a39cc2', marginTop: '1px' }}>
             {dayEvents.length} заявок • Бюджет: <strong style={{ color: '#ffd700' }}>{dayEvents.reduce((a, c) => a + parseBudget(c.budget), 0).toLocaleString('ru-RU')} ₸</strong>
@@ -875,6 +966,11 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode, 
               </button>
             ))}
           </div>
+          {!teamMode && (
+            <button type="button" className={`crm-fact-btn${factMode ? ' is-active' : ''}`} aria-pressed={factMode} onClick={toggleFact} title="Показать, в какие дни работы объекта шли на самом деле">
+              {factMode ? '✓ Календарь по факту' : 'Календарь по факту'}
+            </button>
+          )}
         </div>
       </div>
 
@@ -987,11 +1083,43 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode, 
               textAlign: 'center'
             }}>
               <div className="crm-kpi-label">Бюджет</div>
-              <div style={{ fontSize: '0.78rem', fontWeight: 900, color: '#ffd700', marginTop: '4px', lineHeight: 1.1 }}>
-                {(stats.totalBudget / 1000000).toFixed(1)}M ₸
+              <div style={{ fontSize: '0.95rem', fontWeight: 900, color: '#ffd700', marginTop: '4px', lineHeight: 1.1 }}>
+                {`${(stats.totalBudget / 1000000).toFixed(1)} млн ₸`}
               </div>
             </div>
           </div>
+
+          {/* Бюджет: по заявкам — сколько в работе и сколько закрыто; по факту — бюджет объекта */}
+          <div className="crm-budget">
+            <span className="crm-side-label">{factMode && factBudget ? 'Бюджет на строительство' : 'Бюджет по состояниям'}</span>
+            {factMode && factBudget ? (
+              factBudget.budget > 0 ? (
+                <>
+                  <div className="crm-budget-row"><span>Бюджет</span><b>{money(factBudget.budget)}</b></div>
+                  <div className="crm-budget-row"><span>Выполнено</span><b>{money(factBudget.doneCost)}</b></div>
+                  <div className="crm-budget-row"><span>Оплачено</span><b>{money(factBudget.paid)}</b></div>
+                  <div className="crm-budget-row"><span>{factBudget.left < 0 ? 'Перерасход' : 'Остаток'}</span><b className={factBudget.left < 0 ? 'bad' : ''}>{money(Math.abs(factBudget.left))}</b></div>
+                  <div className="crm-budget-track"><i style={{ width: `${factBudget.paidPct}%` }} /></div>
+                </>
+              ) : <p className="crm-budget-note">Бюджет объекта не указан — он вписывается в модуле «Строительство зданий», вкладка «График работ».</p>
+            ) : (
+              <>
+                {[['В работе', '#c4b5fd'], ['Дожим', '#fbbf24'], ['Успешно', '#4ade80']].map(([key, color]) => (
+                  <div key={key}>
+                    <div className="crm-budget-row"><span>{key}</span><b>{`${(stats.budgetBy[key] / 1000000).toFixed(1)} млн ₸`}</b></div>
+                    <div className="crm-budget-track"><i style={{ width: `${stats.totalBudget ? Math.round((stats.budgetBy[key] / stats.totalBudget) * 100) : 0}%`, background: color }} /></div>
+                  </div>
+                ))}
+              </>
+            )}
+          </div>
+
+          <label className="crm-restday">
+            <span className="crm-side-label">Выходной день</span>
+            <select value={restDay} onChange={(e) => setRestDay(Number(e.target.value))}>
+              {[1, 2, 3, 4, 5, 6, 0].map((n) => <option key={n} value={n}>{WEEKDAY_NAMES[n][0].toUpperCase() + WEEKDAY_NAMES[n].slice(1)}</option>)}
+            </select>
+          </label>
 
           {/* Фильтр по статусам */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
@@ -1047,6 +1175,22 @@ export default function CrmPage({ onBackToHome, currentUser, sidebarToggleNode, 
 
         {/* ═══ ПРАВАЯ ПАНЕЛЬ С КАЛЕНДАРЁМ ═══ */}
         <div className="crm-calendar-container">
+          {factMode && (
+            <div className="crm-fact-bar" role="status">
+              {fact.state === 'loading' && <span>Загружаем ход работ…</span>}
+              {fact.state === 'error' && <><span>Ход работ не загрузился: {fact.error}</span><button type="button" className="crm-nav-btn" onClick={loadFact}>Повторить</button></>}
+              {fact.state === 'ready' && fact.projects.length === 0 && <span>Рабочих объектов пока нет. Они заводятся в модуле «Строительство зданий».</span>}
+              {fact.state === 'ready' && factProject && (
+                <>
+                  <b>Календарь по факту</b>
+                  {fact.projects.length > 1
+                    ? <select value={factPick} onChange={(e) => setFactPick(e.target.value)} aria-label="Объект">{fact.projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}</select>
+                    : <span translate="no">{factProject.name}</span>}
+                  <span className="crm-fact-legend"><i className="run" /><span>идёт</span><i className="done" /><span>выполнена</span><i className="late" /><span>позже плана</span></span>
+                </>
+              )}
+            </div>
+          )}
           {view === 'month' && renderMonthView()}
           {view === 'week' && renderWeekView()}
           {view === 'day' && renderDayView()}

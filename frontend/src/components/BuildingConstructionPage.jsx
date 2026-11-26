@@ -7,7 +7,8 @@ import VipWorksBoard from './VipWorksBoard';
 import VipObjectView from './vip/VipObjectView';
 import { Avatar } from './vip/VipVisuals';
 import { listProjects, getProject } from '../services/vipApi';
-import { HANGAR, projectSummary, budgetSummary, todayIso } from './vip/vipSchedule';
+import { HANGAR, projectSummary, budgetSummary, todayIso, STATUS, formatRange, money as fmtMoney, workKind } from './vip/vipSchedule';
+import { WorkArt } from './vip/VipVisuals';
 
 // Рабочий проект с сервера в виде карточки объекта: он стоит в списке первым, раньше примеров
 const REAL_PREFIX = 'REAL-';
@@ -563,12 +564,11 @@ export default function BuildingConstructionPage({ onBack, hideHeader = false })
   return (
     <div className="vip-construction-module">
       {toastMessage && <div className="vip-toast" role="status">{toastMessage}</div>}
-      {!realTab && !staffDocs && (
+      {!realTab && !staffDocs && !(staff && realProjects.length > 0 && (activeTab === 'objects' || (activeTab === 'works_calc' && currentObject.real))) && (
         <DemoNotice>
           {staff && realProjects.length > 0
-            ? 'Ваш рабочий объект отмечен «Ваш объект»: его график, люди, техника и документы хранятся на сервере. Карточки с пометкой «Пример», их бюджеты, подрядчики и лоты — образцы, это не ваши данные и не реальные компании; примеры можно удалить.'
+            ? 'Эта вкладка пока работает на образцах: расчёты, подрядчики и лоты здесь — пример, а не ваши данные. Ваш объект с графиком, людьми, техникой и документами хранится на сервере.'
             : 'Объекты, бюджеты, подрядчики, лоты и документы на этой вкладке — образец, чтобы было видно, как она устроена. Это не ваши данные и не реальные компании. Объекты, которые вы добавите здесь сами, хранятся только в этом браузере.'}
-          {staff && realProjects.length === 0 ? ' Рабочие проекты с графиком, штатом и техникой — на вкладках «График работ» и «Штат и техника»: они хранятся на сервере.' : ''}
         </DemoNotice>
       )}
 
@@ -590,7 +590,7 @@ export default function BuildingConstructionPage({ onBack, hideHeader = false })
             </div>
           </div>
 
-          <div className="vip-header-stats">
+          {!(staff && realProjects.length > 0) && <div className="vip-header-stats">
             <div className="v-stat-pill">
               <span className="label">Объектов в портфеле:</span>
               <strong className="val">{objects.length}</strong>
@@ -599,7 +599,7 @@ export default function BuildingConstructionPage({ onBack, hideHeader = false })
               <span className="label">Суммарный бюджет:</span>
               <strong className="val gold">{objects.reduce((s, o) => s + o.budget, 0).toLocaleString()} ₸</strong>
             </div>
-          </div>
+          </div>}
         </div>
       )}
 
@@ -825,6 +825,7 @@ export default function BuildingConstructionPage({ onBack, hideHeader = false })
 
           {/* Grid of All Objects */}
           <h3 className="vip-sec-subheading">Все объекты в работе ({allObjects.length})</h3>
+          {staff && realProjects.length > 0 && objects.length > 0 && <p className="vip-samples-note">Карточки с пометкой «Пример» — образцы, их можно удалить крестиком. Ваш объект хранится на сервере.</p>}
           <div className="vip-objects-cards-grid">
             {allObjects.map((obj) => (
               <div
@@ -1060,6 +1061,41 @@ export default function BuildingConstructionPage({ onBack, hideHeader = false })
               </select>
             </div>
           </div>
+
+          {currentObject.real && currentReal && (() => {
+            const b = budgetSummary(currentReal);
+            const list = [...(currentReal.works || [])].sort((x, y) => String(x.start).localeCompare(String(y.start)));
+            return (
+              <div className="vip-real-works">
+                <div className="vip-real-works-head">
+                  <h3>Работы вашего объекта <span>({list.length})</span></h3>
+                  <p>{`Людей: ${(currentReal.staff || []).length} · техники: ${(currentReal.equipment || []).length} · бригад: ${(currentReal.brigades || []).length}`}</p>
+                  <button type="button" className="vip-secondary-btn" onClick={() => setActiveTab('schedule')}>Открыть график работ</button>
+                </div>
+                <div className="vwb-table-wrap">
+                  <table className="vip-table vwb-table vip-real-table">
+                    <thead><tr><th>Работа</th><th>Сроки</th><th>Состояние</th><th>Стоимость</th><th>Оплачено</th></tr></thead>
+                    <tbody>
+                      {list.length === 0 && <tr className="none"><td colSpan={5}>Работ пока нет — добавьте их в графике.</td></tr>}
+                      {list.map((w) => (
+                        <tr key={w.id} className="plain">
+                          <td><span className="vip-real-work"><WorkArt kind={workKind(w)} /><b translate="no">{w.title}</b></span></td>
+                          <td>{formatRange(w.start, w.end)}</td>
+                          <td><span className={`vwb-pill s-${w.status}`}>{(STATUS[w.status] || STATUS.plan).label}</span></td>
+                          <td>{w.cost ? fmtMoney(w.cost) : <span className="vwb-muted">не указана</span>}</td>
+                          <td>{w.paid ? fmtMoney(w.paid) : '—'}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                    {list.length > 0 && <tfoot><tr><td colSpan={3}>Итого по работам</td><td>{fmtMoney(b.planned)}</td><td>{fmtMoney(b.paid)}</td></tr></tfoot>}
+                  </table>
+                </div>
+                {b.unpriced > 0 && <p className="vwb-hint">{`Без стоимости работ: ${b.unpriced} — укажите её в карточке работы.`}</p>}
+                <h3 className="vip-real-sub">Укрупнённая оценка по видам работ</h3>
+                <p className="vwb-hint">Ниже — расчёт по средним ценам за м² для площади ангара 25 × 70 м. Это ориентир, а не смета ваших работ.</p>
+              </div>
+            );
+          })()}
 
           <div className="vip-wbs-calc-layout">
             {/* Left: WBS Works Selector */}
