@@ -1,0 +1,377 @@
+1179|m²)
+1180|Inter-apartment partitions {n} mm
+1181|Technonicol membrane waterproofing
+1182|PVC membrane roofing, PIR/XPS insulation, metal tile, gutters
+1183|Machine-applied wall plastering
+1184|Remizovka district, Gornaya St.
+1185|Multi-storey residential complexes, infrastructure, cast-in-place concrete
+1186|Multi-storey residential complex
+1187|Installation of NordFox porcelain facade ({n} m²)
+1188|Installation of sewerage and water risers
+1189|Installation of main switchboards and automation
+1190|Back to panel
+1191|Lot name (tender item)
+1192|Construction site name
+1193|Construction lot name
+1194|Overheads ({n}%)
+1195|E.g.: Residential complex "Example Towers" (Block C) or a business centre
+1196|E.g.: Erection of the cast-in-place frame, floors {n}-{n}
+1197|New construction lot
+1198|Cladding of stair flights and halls
+1199|Facing brick
+1200|Total area
+1201|Total area (m²)
+1202|General work log (official form)
+1203|Site
+1204|Site created, works not started
+1205|Site deleted
+1206|Sites in portfolio
+1207|The sites, budgets, contractors, lots and documents on this tab are a sample that shows how it is organized. They are not your data and not real companies. Sites you add here yourself are stored only in this browser
+1208|Planting and automatic irrigation
+1209|DOKA/PERI formwork
+1210|Published
+1211|Publish to Orders
+1212|Spent
+1213|Laminated glass glazing
+1214|Responsible
+1215|Responsible chief engineer
+1216|Proposals received
+1217|Open work log
+1218|Official reporting forms for the client, the bank and the state construction supervision
+1219|Works cost estimate
+1220|Planned budget
+1221|Planned budget (₸)
+1222|Planned commissioning date
+1223|Supported formats: .dwg, .pdf, .png, .jpg for automatic SNiP analysis
+1224|Signed with the national digital signature of Kazakhstan
+1225|NordFox galvanized subframe
+1226|Semi-dry screed, Knauf machine plaster, porcelain tile, designer lobby
+1227|Portfolio of construction sites
+1228|Supply and installation of {n}-chamber PVC window units
+1229|Al-Farabi Ave., {n}/{n}
+1230|Mangilik El Ave., {n}
+1231|Preliminary massing view (
+1232|Preliminary estimate (PDF / Excel)
+1233|proposals
+1234|Expert orders and remarks
+1235|Premium (+{n}%)
+1236|When a site is created, the system instantly checks the Kazakhstan construction licence register, selects contractors with proven experience and assigns an accredited chief engineer
+1237|Invite to site
+1238|Check contractor approval for the site
+1239|Company approval check, BIN validation against eGov/tax databases and direct contractor contacts
+1240|Engineer review
+1241|Engineer review / Photo audit
+1242|Engineer review, photo control and defect list
+1243|Progress PDF analytics & Gantt chart
+1244|The design is approved by the chief engineer! Proceeding to lot creation
+1245|Laying VVGng-LS cables in trays
+1246|Protocol
+1247|Publishing tenders, collecting commercial proposals and selecting accredited contractors
+1248|Working projects with the schedule, staff and equipment are on the "Work schedule" and "Staff and equipment" tabs: they are stored on the server
+1249|Workers / Lots
+1250|Rehau/PPR pipe routing
+1251|Excavation, soil removal, sheet piling, dewatering
+1252|Recognized structural elements
+1253|Calculate works for the site
+1254|Registration of a new construction site
+1255|Verified BIN register
+1256|Register of verified contractors & Kazakhstan construction licences
+1257|Recommendation: reinforce the cover spacers along the formwork edge
+1258|Sites handed over
+1259|Download progress analytics (PDF)
+1260|Download estimate (PDF / .xlsx)
+1261|End-to-end site management: design documents, WBS breakdown of works, AI audit, tender lots and technical supervision
+1262|Warehouse / Industrial base
+1263|Warehouse / Industrial complex
+1264|ESTIMATED COST EXCL. VAT
+1265|Estimates & Documents
+1266|Approve and create lot
+1267|Create / Edit a lot for the site
+1268|Create site and proceed to works calculation
+1269|Social facility
+1270|Social facility (school, hospital)
+1271|Specialization
+1272|Heavy equipment and machinery ({n}%)
+1273|Proposal deadline
+1274|Submission deadline
+1275|Standard (SNiP)
+1276|Builders
+1277|Building materials ({n}%)
+1278|Construction of Buildings and Structures
+1279|Fibre-reinforced screed
+1280|Amount incl. VAT
+1281|Total budget
+1282|Create tender lot
+1283|Current readiness
+1284|Current lots of the site "
+1285|Ongoing construction monitoring, escrow budget use and stage control
+1286|Current stage
+1287|phone not specified
+1288|Tenders & Publishing
+1289|Construction site type
+1290|LLP "Example Development"
+1291|Exact construction address / Plot
+1292|Required contractor licence category
+1293|This site has no construction lots yet. Create a lot above
+1294|Delete site
+1295|Remove from drafts
+1296|Enter the construction site name
+1297|Specify special requirements for the concrete grade, heating temperature regime or formwork type
+1298|Laying paving stones {n} mm
+1299|Aggregated estimate (reference: ESN RK {n}-{n}-{n}, Kazakhstan market prices): material volumes, labour, heavy equipment, overheads and VAT {n}%
+1300|Smart homes, high-rise construction, engineering
+1301|Lot management (
+1302|Lot management & My construction orders
+1303|Installation of LED lighting poles
+1304|Installation of chillers and fan coils
+1305|Cast-in-place floor slabs, floors {n}-{n} ({n} m³)
+1306|Parapets and roof drains
+1307|Sand and gravel bedding
+1308|Pile field construction
+1309|Mineral wool insulation {n} mm
+1310|Rockwool facade insulation {n} mm
+1311|Payroll / Installation ({n}%)
+1312|man-hours/m²
+1313|Draft
+1314|Bar spacing {n}x{n} mm
+1315|Larsen IV sheet piling
+1316|Staff and equipment
+1317|Shymkent (Southern metropolis)
+1318|Shymkent / Almaty
+1319|Economy (-{n}%)
+1320|Export estimate to PDF / Excel
+1321|Electronic log of completed works recording weather conditions, concrete strength on day {n}/{n} and supervision signatures
+1322|Power supply, heating, supply and exhaust ventilation, sewerage
+1323|floors
+1324|Number of storeys (floors)
+1325|
+1326|Return to work: {a}
+1327|Add a task for {a} {b}
+1328|Tasks: {a}
+1329|Tasks for {a} {b}
+1330|Edit: {a}
+1331|Responsible: {a}
+1332|Mark as done: {a}
+1333|Delete: {a}
+1334|August
+1335|April
+1336|Next {n} days
+1337|in progress
+1338|Sunday
+1339|All works on the platform
+1340|Tuesday
+1341|done
+1342|deadline
+1343|December
+1344|Add a task for today
+1345|Add a task for this day
+1346|Tomorrow
+1347|No tasks
+1348|No tasks of this type for the day
+1349|Task
+1350|Tasks and deadlines by site
+1351|Inspections, acceptances and deadlines
+1352|July
+1353|June
+1354|March
+1355|May
+1356|under review
+1357|No tasks for this day
+1358|Work orders, stages and crew visits
+1359|November
+1360|awaiting acceptance
+1361|October
+1362|Later
+1363|Monday
+1364|Previous week
+1365|Previous month
+1366|overdue
+1367|Friday
+1368|Works and deadlines for the company's sites
+1369|handed over
+1370|September
+1371|Next week
+1372|Next month
+1373|List
+1374|Wednesday
+1375|Saturday
+1376|February
+1377|Filter by task type
+1378|Thursday
+1379|Work stage
+1380|Stages, visits and acceptances for your sites
+1381|January
+1382|Continued
+1383|Dispatcher call for site "{a}"
+1384|The event was saved only on this device: the server responded "{a}"
+1385|QazGost automatic visit rules
+1386|Site address
+1387|The concealed works certificate is signed on the day of concrete pouring or chase closing
+1388|Alexey Melnikov (Technical supervision)
+1389|Concrete works
+1390|Upcoming visits and events
+1391|Crew No. {n} — Foundations (Yerlan Kusainov)
+1392|On the way
+1393|On the way (GPS)
+1394|Select an event from the list on the left to view details or plan a route
+1395|Engineer visit for laser measurements
+1396|Almaty
+1397|Almaty, Remizovka cottage community
+1398|Almaty, site Samal-{n}
+1399|Almaty, construction site
+1400|Astana, "Example Park" residential complex, block C
+1401|Astana, site Batys-{n}
+1402|Karaganda, Lenin St. {n}
+1403|Date and time
+1404|Date
+1405|Details of the planned visit
+1406|Client & Chief engineer
+1407|Pouring the cast-in-place slab (concrete M{n}, {n} m³)
+1408|Planned
+1409|Plan a visit
+1410|Plan a visit / stage
+1411|The engineer leaves within {n} hours after the request is confirmed
+1412|Inspection / Measurements
+1413|Visit calendar and work schedule
+1414|Kasymbek Zholdasov (Operator, grade {n})
+1415|Kuanysh Zhumagulov (Chief engineer)
+1416|Kuanysh Zhumagulov (Licence No. {n})
+1417|Route
+1418|The route to the site has been sent to the navigator
+1419|Event / work name
+1420|e.g. Supervision visit to measure the foundation
+1421|New
+1422|Awaiting acceptance
+1423|Inspection of concealed works (reinforcement certificate)
+1424|Responsible engineer / crew
+1425|Responsible specialist
+1426|Delivery of a Hitachi ZX{n} excavator and {n} dump trucks
+1427|Formwork preparation
+1428|Confirmed
+1429|Contact the engineer
+1430|Stage handover (KS-{n})
+1431|Synchronized timetable of supervision inspections, equipment delivery and stage handovers
+1432|Event
+1433|events
+1434|Save to schedule
+1435|Specialist
+1436|Heavy equipment arrives on site strictly within the selected time slot with a GPS tracker
+1437|Current status
+1438|Event type
+1439|Final stage handover and signing of the KS-{n} certificate
+1440|. The price includes basic labour and machine operation. Materials are calculated separately per project
+1441|{n} ₸ (Medina) / {n} ₸ (TABYS)
+1442|{n} ₸ (TABYS) / {n} ₸ (Medina)
+1443|{n} ₸ / pc
+1444|AI estimate for
+1445|Valid for {n}
+1446|Analysing
+1447|Base cost
+1448|Base price range
+1449|Wall blocks FBS {n} t ({n}×{n}×{n} mm)
+1450|rate types
+1451|Construction waste removal
+1452|Top quality class
+1453|General site cleaning
+1454|Joint waterproofing
+1455|GOST {n}-{n}
+1456|This rate includes the full scope of works according to the norm
+1457|Removal of coverings
+1458|Manhole base PN-{n} (d={n} m)
+1459|Add to estimate
+1460|Loading
+1461|Order an audit
+1462|IE Medina (Manarbek)
+1463|Work category
+1464|Post-renovation cleaning
+1465|Support ring KO {n} ({n}×{n}×{n} mm)
+1466|Wall ring KS {n} ({n}×{n} mm)
+1467|Wall ring KS {n} (d={n} m, h={n} m)
+1468|Manhole cover {n}PP-{n}-{n} (d={n} m with hatch)
+1469|Manhole cover {n}PP-{n}-{n} (reinforced for vehicle load)
+1470|Heavy-duty polymer hatch ({n} t)
+1471|Installation and surface preparation
+1472|Back to catalog
+1473|E.g.: I need a strip foundation {n}x{n} metres, {n} m deep
+1474|Our engineers will help prepare an accurate estimate with a site visit
+1475|Norm
+1476|Describe your task in your own words, and the neural network will pick the rates, calculate the volumes and produce a ready estimate
+1477|from {n} ₸ / m²
+1478|from {n} ₸ / lin. m
+1479|from {n} ₸ / trip
+1480|Open estimate
+1481|Base slab PN-{n} (d={n} m)
+1482|Cover slab {n} PP {n}-{n} (d={n} m with hatch)
+1483|Popular work types
+1484|Generate estimate
+1485|Estimate generated
+1486|View more rates ↓
+1487|SNiP {n}-{n}
+1488|SNiP {n}-{n}-{n}
+1489|Reinforced concrete pole SV {n}-{n} (power line support {n} m)
+1490|TABYS-ASM / Medina
+1491|Thermal insulation works
+1492|LLP TABYS-ASM
+1493|LLP TABYS-ASM (Natalya)
+1494|Transport costs
+1495|Laying the base layer
+1496|Final treatment
+1497|Account: {a}
+1498|Change password — QazGost AI
+1499|Administrator email
+1500|{a} (address not specified)
+1501|Active modules
+1502|Active sites
+1503|Analytics on the number of sites and work status
+1504|
+1505|Total employees
+1506|Company dashboard
+1507|Projects completed
+1508|Requests in progress
+1509|No employees are linked to your company yet
+1510|Company name (LLP/IE)
+1511|Not specified
+1512|Unknown
+1513|Primary colour (Branding)
+1514|Company dashboard personalization
+1515|Show the list of engineers and craftsmen linked to the company
+1516|Linked employees (
+1517|Company requisites
+1518|Employees
+1519|Management of employees and requisites
+1520|This colour will be applied to all buttons, accents and icons in your dashboard
+1521|
+1522|
+1523|, reviews: {a}
+1524|
+1525|{a} people
+1526|{a} people
+1527|in {a}
+1528|No suitable crews in {a}
+1529|Request {a} sent without prepayment: "{b}" and the CRM manager have been notified
+1530|Request via QazGost AI — {a}
+1531|Email: {a}
+1532|Contract: {a} ({b})
+1533|Call: {a}, {b}
+1534|Direct contractor call: {a}{b}
+1535|Rating {a}
+1536|Alibek Nurlanov
+1537|Profile sent for moderation
+1538|A moderator will review the profile, after which it will appear in the catalog
+1539|Certified welder: steel structures, canopies, gates
+1540|Concrete and precast
+1541|Concrete, formwork, rebar
+1542|Concrete worker
+1543|Landscaping
+1544|Most reviews
+1545|Crews and craftsmen
+1546|Crew
+1547|The crew is busy now — call to agree on dates
+1548|CrewAstana
+1549|Crew leader
+1550|Crews and companies that accept orders via QazGost. Call directly or send an invitation to a project
+1551|Go back
+1552|All skills
+1553|General contractor
+1554|Demo profile
+1555|Demolition and installation, {n} years of experience

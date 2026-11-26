@@ -1,0 +1,330 @@
+990|Septik tank kurulumu
+991|Birim
+992|KEŞİF TOPLAMI
+993|Miktar
+994|Kalem
+995|Keşif
+996|cephe
+997|Fiyat
+998|{n} kg
+999|{n} L
+1000|{n} m
+1001|{n} adet
+1002|Müşteri adı
+1003|En fazla fotoğraf sayısı: {n} adet
+1004|isteğe bağlı
+1005|yok
+1006|«Siparişlerim»i aç
+1007|WhatsApp'a gönder
+1008|Temizle
+1009|Fotoğraf
+1010|{a} sil
+1011|{n} mm
+1012|Stokta
+1013|İleri
+1014|Malzeme
+1015|Şirket / şahıs şirketi adı
+1016|CSV indir
+1017|Aşama
+1018|Hesaplanıyor
+1019|Konut
+1020|Yangın güvenliği
+1021|Projelendirme
+1022|beton
+1023|jeneratör
+1024|vinç
+1025|Tamirde
+1026|damperli kamyon
+1027|Ağ kullanılamıyor
+1028|nakliye
+1029|çekici
+1030|(rezervasyon $
+1031|). Demo ilanlar gösteriliyor: fiyatlar ve durumlar temsilîdir, rezervasyon yapılamaz
+1032|{n} vardiya
+1033|{n} t, kova {n} m³
+1034|{n} saat
+1035|Vardiyadan sonra sahibine Kaspi veya havale
+1036|Putzmeister {n}m beton pompası, kapasite {n} m³/sa
+1037|KAMAZ {n} transmikser (mikser {n} m³)
+1038|Hyundai HD{n} teleskopik sepetli platform, {n} m, {n} kg
+1039|XCMG QY{n}K{n} mobil vinç, {n} t, bom {n} m + uzatma
+1040|Şantiye adresi (GPS ile sevk)
+1041|Operatörlü iş makinesi kiralama
+1042|Vogele Super {n}-{n} asfalt serici (genişlik {n} m)
+1043|Liebherr {n} EC-B kule vinç, {n} t, bom {n} m
+1044|Giriş yapılmadan talep platform müdürüne gider, sahibinde tarihler ayrılmaz
+1045|KDV'li faturayla havale (tüzel kişiler için)
+1046|Ücretsiz teslimat
+1047|Beton ve harç
+1048|Bauer BG {n} fore kazık makinesi ({n} m'ye kadar kazık)
+1049|Sahibi
+1050|Sahibi telefon belirtmemiş — rezervasyon yapın, sizinle iletişime geçecek
+1051|Sevk tarihini bugünden önce olmayacak şekilde seçin
+1052|SDMO {n} kW dizel jeneratör, ses yalıtımlı
+1053|Üretim yılı, durum, minimum sipariş, koşullar
+1054|XCMG GR{n} greyder, {n} m, riperli
+1055|Taşıma kapasitesi / hacim
+1056|Hitachi ZX{n} paletli ekskavatör, {n} t, {n} m³, {n} m
+1057|İş makinesinin sevk tarihi
+1058|Demo ilan: rezervasyon yapılamaz
+1059|Yayımlamak için sunucu hesabı gerekir. Hesap olmadan ilan kaydedilmez
+1060|Yol makineleri
+1061|Sahibinin onayı bekleniyor
+1062|İş makineleri yükleniyor
+1063|Dolu
+1064|Talep müdürde
+1065|Toplam kira bedeli
+1066|İş makinesi kataloğu kullanılamıyor (
+1067|XCMG XS{n}J yol silindiri, {n} t, {n} m
+1068|km uzağınızda
+1069|JCB JS{n}W lastikli ekskavatör, {n} t, {n} m³
+1070|Vardiya sayısı
+1071|Atlas Copco XAS {n} dizel kompresör ({n} m³/dk)
+1072|KAMAZ {n} vinçli kamyon (vinç {n} t, kasa {n} t)
+1073|Vardiya başına en yüksek fiyat, ₸
+1074|Bobcat S{n} mini yükleyici + hidrolik kırıcı / fırça
+1075|Kubota U-{n} mini ekskavatör, {n} t, kova {n} m³
+1076|Örneğin: CAT {n}D, paletli
+1077|Geçersiz sunucu yanıtı
+1078|İlan pazar yerinde yayımlandı
+1079|Yayımla
+1080|İşleniyor
+1081|Ücretli teslimat
+1082|Aramanıza uygun iş makinesi bulunamadı
+1083|Yükleyici
+1084|Filtreleri gevşetmeyi veya arama kategorisini değiştirmeyi deneyin
+1085|Yayımlama
+1086|Arama yarıçapı, km
+1087|Kendi iş makineni ilan ver
+1088|İş makinesi ilanı ver
+1089|İlan yalnızca sunucu hesabıyla verilebilir: sunucu hesabıyla giriş yapıp yeniden deneyin. İlan kaydedilmedi
+1090|Mesafe
+1091|Ekipli
+1092|Sondörlü
+1093|Şoförlü
+1094|Şoför-operatörlü
+1095|Vinç operatörlü
+1096|Operatörlü (makinist)
+1097|Mürettebatlı
+1098|Shacman F{n} damperli kamyon, {n} t, hacim {n} m³
+1099|Tüm filtreleri sıfırla
+1100|Oturum geçersiz: sunucu hesabıyla giriş yapıp yeniden deneyin
+1101|Ödeme yöntemi
+1102|Manitou MT {n} teleskopik yükleyici ({n} m, {n} t)
+1103|Sahibinin telefonu giriş yaptıktan sonra görünür
+1104|Dispeçer telefonu
+1105|İş makinesi tamirde
+1106|FAYMONVILLE lowbed ({n} t, rampalı)
+1107|CAT D{n}R ağır dozer, {n} t, bıçak {n} m
+1108|İlanda fiyat belirtilmemiş — sahibiyle iletişime geçin
+1109|Ad, telefon ve şantiye adresini girin
+1110|İş makinesinin marka ve modelini girin
+1111|{n} değerinden büyük bir vardiya fiyatı girin
+1112|XCMG ZL{n}G lastikli yükleyici, {n} t, {n} m³
+1113|Vardiya fiyatı, ₸
+1114|Saatlik fiyat negatif olamaz
+1115|Saatlik fiyat, ₸
+1116|saat
+1117|JCB {n}CX Super kazıcı-yükleyici, eşit tekerlekli
+1118|Enerji ve jeneratörler
+1119|KAMAZ {n} üzerinde burgulu delgi makinesi ({n} m'ye kadar delgi)
+1120|evet
+1121|Bireysel sahip
+1122|Rezervasyon oluşturuldu: {a} vardiya, {b} tarihinden itibaren. Sahibi bunu talepler sekmesinde onaylayacak
+1123|{a} kiralama, {b} vardiya, {c}{d} tarihinden itibaren. Şantiye: {e}. Operatör: {f}. Ödeme: {g}
+1124|{a} numaralı talep platform müdürüne iletildi
+1125|Sunucu ilanı kabul etmedi: {a}
+1126|{a} kiralama, {b} vardiya, {c}{d} tarihinden itibaren
+1127|İş makinesi kiralama: {a}
+1128|Bulunan ilan: {a}
+1129|Sunucu kullanılamıyor: {a}
+1130|{a} tarihine kadar (rezervasyon {b})
+1131|Bulundu: {a}
+1132|{a} değerlendirme
+1133|{n} × {n} × {n} m
+1134|{n} m³
+1135|{n} torba
+1136|{n} t
+1137|{a}, katsayı ×{b}. {c}, yaklaşık {d} gün
+1138|Kesif_{a}.xlsx
+1139|{n} ₸ / m²
+1140|{n} ₸ / sefer
+1141|{n} ₸ / vardiya
+1142|{n} ton (A{n}C {n}mm)
+1143|{n}. Sözleşme № {n}/{n} — Ofisin esaslı tadilatı («Almaty Business» LLP) •
+1144|{n}. Sözleşme № {n}/{n} — Monolit temel («StroyMaster» şahıs şirketi) •
+1145|XCMG {n} ton mobil vinç (erişim {n}m)
+1146|İş metrajlarının ve malzeme BOM'unun otomatik hesabı
+1147|Yürürlükteki taşeronluk sözleşmeleri
+1148|Cam tülü ile donatılı macun + astar
+1149|Yükseklik / Kalınlık (m)
+1150|Uzunluk (m)
+1151|QazGost AI {n} etkileşimli aracı
+1152|İş makinesi kiralama ve yapı malzemesi satın alma pazar yeri
+1153|Taşıyıcı sıvada mikro çatlaklar
+1154|Sistem modülü
+1155|Gerekli donatı miktarı
+1156|Düşük (yüzeysel)
+1157|Toplam beton/zemin hacmi
+1158|Kum-kırmataş yastık
+1159|Yüzey alanı
+1160|E-imza ile imzalandı
+1161|Hesaplanan metrajlar ve sarfiyat
+1162|Taşeronluk sözleşmeleri sicili ve elektronik tahkim (E-Gov e-imza)
+1163|Müsait
+1164|Kazakistan SNiP {n}-{n}-{n} (md. {n})
+1165|Genişlik (m)
+1166|JCB {n}CX kazıcı-yükleyici
+1167|Bakiye başarıyla {a} ₸ artırıldı
+1168|{n} saat önce
+1169|+ Dosya seç
+1170|TensorFlow Vision ile görüntü analizi
+1171|Çatı keşfinin denetimi
+1172|Açıklama yok
+1173|Dün
+1174|Seçilen dosya
+1175|Modül yükleniyor
+1176|Kazakistan ESN standartlarına göre AI hesaplaması yapılıyor
+1177|Mühendislik çözümleri (kontrol için mühendise gönder)
+1178|daire
+1179|konfor
+1180|Müdür moderasyonunda (yeni talep)
+1181|Talep / proje adı
+1182|Örneğin: {n}×{n} hamam inşaatı
+1183|Dağıtılmadı
+1184|Açıklama (isteğe bağlı)
+1185|Siparişin kontrolü için mühendise gönderildi
+1186|Müdüre iletildi (işlemde)
+1187|Müdüre iletildi (onayladınız)
+1188|Dosya ekle (çizimler, fotoğraflar, belgeler)
+1189|Keşif normlarının uygulanması (Kazakistan ESN)
+1190|Temel proje dokümanlarının kontrolü
+1191|Taşıyıcı elemanların ve geometrinin tanınması
+1192|Binanın ısı kaybı hesabı
+1193|İnşaat (Projelerim'e ekle)
+1194|{n}m² villa inşaatı
+1195|Oluştur
+1196|Talep oluştur
+1197|Talep türü
+1198|Onayınız gerekiyor (mühendisin yanıtı alındı)
+1199|Sipariş ayrıntılarını girin
+1200|Nihai rapor oluşturuluyor
+1201|Vision AI hatası: Görüntü bir inşaat projesi veya çizim olarak tanınmadı ("{a}" olarak belirlendi). Lütfen odanın, cephenin gerçek fotoğrafını veya planı yükleyin
+1202|Müşteriden yeni talep: {a}
+1203|Barbashin Maxim
+1204|Bildirimler, yeni: {a}
+1205|Cüzdan: {a} tenge
+1206|Bakiye: {a} ₸
+1207|Arayüz dili
+1208|Arayüz dili
+1209|Müşteri
+1210|Hizmet
+1211|Belgenin resmî metni Rusçadır
+1212|{a} tarihli sürüm
+1213|Uzunluk
+1214|Alan
+1215|{n} gün
+1216|{n} gün
+1217|{n} m² (beşik çatı)
+1218|{n} m² (kalınlık {n}mm)
+1219|{n}m × {n}m × {n}m
+1220|QTO MALZEME VE İŞ CETVELİ
+1221|Almatı (Kazakistan SNiP ×{n})
+1222|A{n}C nervürlü donatı Ø{n}mm
+1223|Bazalt donatı filesi
+1224|A{n}C Ø{n}mm donatı iskeleti (GOST {n})
+1225|Astana (Kazakistan SNiP ×{n})
+1226|M{n} ağır beton (W{n}, F{n})
+1227|BETON İŞLERİ
+1228|İğne yapraklı kereste {n}×{n}mm (mertek)
+1229|Örneklere dön
+1230|Bitümlü polimer membran su yalıtımı
+1231|Çizim örnekleri üzerinde demo
+1232|Çiziminiz yüklendi
+1233|Kendi çizimini yükle
+1234|Etkileşimli AI çizim tarayıcı & QTO hesaplayıcı
+1235|KÂGİR İŞLERİ
+1236|Karaganda (Kazakistan SNiP ×{n})
+1237|D{n} gazbeton duvar örme
+1238|Donatılı dış duvar örme
+1239|Gözenekli beton yapıştırıcısı ({n}kg torba)
+1240|ÇATI İŞLERİ
+1241|{n}mm metal kiremit çatı
+1242|M{n} şerit temel
+1243|Süper difüzyon buhar/su membranı
+1244|Monterrey metal kiremit {n}mm Ral {n}
+1245|Taşıyıcı düğümlerin montajı ve betonlanması
+1246|Kaynak / iş adı
+1247|Kalıp sistemleri & lamine panel
+1248|İNCE İŞLER
+1249|Yerden ısıtma için akışkanlaştırıcı
+1250|Elyaflı yarı kuru zemin şapı
+1251|Kazakistan SN {n}-{n} standartlarına göre hesap
+1252|Açık renkli bina (Kazakistan SNiP ×{n})
+1253|KS-{n} tutanağını indir (Excel .xlsx)
+1254|Polipropilen elyaf {n}mm
+1255|PÇ-{n} D{n} çimento + yıkanmış kum
+1256|KULLANICI ÇİZİMİ (DWG/PDF)
+1257|Çimkent (Kazakistan SNiP ×{n})
+1258|Monolit yapılar ({a})
+1259|Çizim: {a}
+1260|Giriş — QazGost AI
+1261|üstünde
+1262|torba
+1263|üzerinde
+1264|altında
+1265|Depo
+1266|Referans fiyat
+1267|, toptan
+1268|, referans fiyat
+1269|. Aramayı değiştirin veya filtreleri sıfırlayın
+1270|. Tüm sonuçları sıralamak için aramayı veya kategoriyi daraltın
+1271|). Demo ürünler gösteriliyor: fiyatlar ve stok durumu temsilîdir
+1272|{n} km
+1273|AI yapı malzemesi ihtiyaç hesaplayıcı (BOM)
+1274|AI malzeme listesi başarıyla hesaplandı
+1275|AlinEX / «Alina Group» LLP
+1276|Onaydan sonra tedarikçiye Kaspi veya havale
+1277|ARAÇ YÜKÜ
+1278|Şantiye teslimat adresi
+1279|KAMPANYA
+1280|A{n}C donatı Ø{n} mm
+1281|A{n}C nervürlü çelik donatı Ø{n} mm (uzunluk {n} m)
+1282|Duvar donatı filesi {n}×{n}
+1283|«StroyMonolit KZ» LLP beton santrali
+1284|HIZLI TESLİMAT
+1285|Sepete ekle
+1286|STOKTA
+1287|Bu kategoride kalem yok
+1288|Valdai / Man {n}t (orta tonajlı)
+1289|Sepetiniz boş
+1290|Projenin temel ölçülerini girin — yapay sinir ağı Kazakistan SNiP sarfiyat normlarına göre kesin malzeme listesini hesaplar
+1291|{n}–{n} kV hatlar için vibre direk
+1292|NEME DAYANIKLI
+1293|Duvar yapımı (gazbeton + yapıştırıcı)
+1294|Hesaplanan tüm kalemler sepete eklendi
+1295|Tüm Kazakistan
+1296|Katalogdan ürün seçip sepete ekleyin
+1297|Rögar kapağı seviyesinin ayarlanması
+1298|Yük taşıtları için yüksek dayanımlı kompozit rögar kapağı
+1299|Bağ teli {n} mm
+1300|Almatı, Samal-{n} mikrobölgesi, no {n}
+1301|Gazel {n}t (şehir içi teslimat)
+1302|Gazbeton {n}×{n}×{n} D{n}
+1303|«Ecoton» otoklavlı gazbeton D{n} ({n}×{n}×{n} mm)
+1304|Knauf neme dayanıklı alçıpan GKLV ({n}×{n}×{n} mm)
+1305|KS {n} kuyu boğazı (d={n}m, h={n}m)
+1306|Teslimat şehri
+1307|GOST
+1308|Kazakistan GOST
+1309|Kazakistan GOST {n}
+1310|Su ve kablo kuyuları için
+1311|PN-{n} kuyu tabanı (d={n} mm)
+1312|Tüm listeyi siparişe ekle
+1313|Kuyu ayar bileziği
+1314|Ek temel bloğu
+1315|Teslimat / yerinden teslim
+1316|Vinçli kamyonla teslimat
+1317|Karaganda ve bölgesinde vinçli kamyonla teslimat
+1318|Vinçli kamyonla teslimat. Oturma yuvasıyla birlikte
+1319|Vinçli kamyonla teslimat. Hidroteknik beton

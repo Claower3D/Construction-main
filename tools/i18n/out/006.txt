@@ -1,0 +1,385 @@
+1991|No detailed specification has been prepared for this defect
+1992|
+1993|Defect
+1994|Roof covering defect (roof leak)
+1995|Window defect (draught / seal failure)
+1996|Structural defect
+1997|No defects found in the photo
+1998|No defects marked in the photo
+1999|No defects detected
+2000|No defects marked in the photo
+2001|No defects found
+2002|Defects were recognized by the AI vision model; crack dimensions were measured from the photo. The final conclusion is made by an engineer on site
+2003|length ≈
+2004|For the report
+2005|For this type of defect (
+2006|for dimensions in mm
+2007|Add to description
+2008|Other (describe manually)
+2009|Insulation anchor
+2010|Upload a photo of the defect — the neural network will mark cracks in the image, and the conclusion will tell you what to do, how much the repair costs and which norm applies
+2011|Conclusion
+2012|Pouring a self-levelling compound
+2013|Roof covering replacement
+2014|Seal replacement
+2015|
+2016|Caulking and restoration
+2017|Engineer visit request
+2018|The zone was added, but no crack line was detected in it — outline it more precisely
+2019|Zone removed — conclusion recalculated
+2020|Model zones
+2021|Zones removed. If there is a defect, mark it on the photo manually or call an engineer for an inspection
+2022|measured from the mark
+2023|The AI vision model found no defects
+2024|Client name
+2025|Corrosion inhibitor MCI-{n}
+2026|The engineer has received the conclusion and will contact you to agree on the inspection time
+2027|Engineering defect inspection
+2028|Polyurethane injection resin
+2029|Injection strengthening of the foundation, jacketing, drainage, monitoring of tell-tales
+2030|Defect inspection history (
+2031|History cleared
+2032|Original photo
+2033|Original photo without markup
+2034|Total estimated cost
+2035|TOTAL ESTIMATED COST
+2036|Looking for defects and preparing the conclusion
+2037|Frame
+2038|Category II — Serviceable
+2039|Category III — Limited serviceability
+2040|Category IV — Emergency condition
+2041|Condition category (GOST {n})
+2042|
+2043|Rebar corrosion risk
+2044|Corrosion / rust
+2045|Rebar corrosion
+2046|Rebar corrosion and exposed steel structures
+2047|Rebar corrosion, rust, exposed metal
+2048|
+2049|
+2050|
+2051|Critical
+2052|CRITICAL
+2053|Critical
+2054|Roofing material (roll/sheet)
+2055|
+2056|Roof
+2057|Roof, roof leak, tiles
+2058|
+2059|Laser levelling and deviation measurement
+2060|Laser levelling, grinding of irregularities, pouring a self-levelling compound up to {n} mm thick
+2061|Locating the leak source, drying with a heat gun, fungicide treatment, applying two-component polymer waterproofing
+2062|Locating the leak, replacing the damaged roof section, sealing joints, checking drainage
+2063|Local analysis — approximate
+2064|Local in-browser analysis — approximate, requires confirmation by an engineer
+2065|Local photo analysis
+2066|Local photo analysis in the browser
+2067|Max
+2068|Maximum number of photos: {n}
+2069|Gypsum tell-tales
+2070|Mechanical mould removal, treatment with a chlorine-based agent, fungicidal primer, elimination of the moisture source
+2071|mm
+2072|model
+2073|Model
+2074|The recognition model did not load — check the internet connection and repeat the analysis
+2075|
+2076|No defects are marked in the photo — the estimate is based on the description only
+2077|The photo does not show a construction site
+2078|Point the phone at the wall — cracks are highlighted in the frame and repair materials are calculated at once
+2079|Injecting the compound
+2080|Click the photo to enlarge
+2081|Defects found
+2082|Self-levelling floor compound ({n} kg)
+2083|Applying waterproofing in {n} coats
+2084|Applying the inhibitor and bond coat
+2085|E.g.: {n} — if {n} m of wall is in the frame
+2086|E.g.: a crack in the corner of the room, appeared after winter, is widening
+2087|Damaged waterproofing layer (leak / damp)
+2088|Not determined — AI analysis or an engineer inspection is needed
+2089|Could not measure the marked zone
+2090|The neural network marked the zones it found directly on the photo. The final conclusion is made by an engineer
+2091|optional
+2092|
+2093|no
+2094|LOW
+2095|Low risk — the reinforcement cage is not affected
+2096|Low
+2097|New check
+2098|Outline the crack with a frame
+2099|Outline the crack with a frame: press and drag over the photo
+2100|
+2101|Antiseptic treatment in {n} passes
+2102|Fungicide treatment and priming
+2103|Survey and installation of tell-tales
+2104|The scope and method of repair are determined by the engineer during inspection
+2105|
+2106|Exposed rebar
+2107|
+2108|Windows / draught
+2109|Window, glazing unit, draught, reveal, window sill
+2110|Approximate cost
+2111|Approximate cost: $
+2112|Approximate, without inspection
+2113|
+2114|
+2115|The main model is unavailable; a backup detector was used
+2116|
+2117|
+2118|Plane deviation from horizontal / vertical
+2119|
+2120|Open "My orders"
+2121|Open crack scanner
+2122|Open photo full size
+2123|Undo mark
+2124|marked manually
+2125|Send to WhatsApp
+2126|
+2127|PEELING
+2128|Finish peeling
+2129|Estimate based on ESN RK prices
+2130|estimate, needs checking
+2131|Clear
+2132|Injection packers d={n} mm
+2133|Professional mounting foam
+2134|An engineer inspection is needed before repair
+2135|Re-sealing the installation joint
+2136|Go to "My orders"
+2137|
+2138|Floor level difference
+2139|Floor / ceiling level difference
+2140|Level difference, unevenness, uneven floor, horizontal, level
+2141|Sandblasting the rebar
+2142|Print report (PDF)
+2143|
+2144|Mould
+2145|MOULD
+2146|Mould / fungus
+2147|Mould, fungus, biological damage, black spots
+2148|from the description, not from the photo
+2149|upon inspection
+2150|
+2151|Base preparation and priming
+2152|
+2153|Please upload at least {n} photo of the defect
+2154|Threshold
+2155|Sample saved
+2156|Check and generate report
+2157|Check the zones (remove extra ones, mark missed ones) and save. Photos and zones will be stored on the QazGost server and used to train the recognition model
+2158|
+2159|
+2160|
+2161|
+2162|Leak / damp
+2163|Leak, damp
+2164|Leak, damp, water, flooding
+2165|Opening profile not applicable
+2166|Crack profile
+2167|STAIN
+2168|Stain / leak
+2169|Conclusion sections
+2170|Markup
+2171|Allow pop-ups to print the report
+2172|opening up to ≈
+2173|recognized by the AI vision model
+2174|Advanced recognition is unavailable — a simplified on-device analysis is shown
+2175|Window hardware adjustment
+2176|Hardware adjustment, seal replacement, sealing the installation joint, reveal insulation
+2177|Photo view mode
+2178|Check result
+2179|No repair needed
+2180|Repair and restoration works
+2181|Non-shrink repair compound M{n}
+2182|Repair compound M{n}
+2183|
+2184|
+2185|RUST
+2186|risk
+2187|Roofing screws with EPDM
+2188|SanPiN RK {n}-{n} "Hygiene of residential premises"
+2189|Severity summary
+2190|The service responded in demo mode: the zones are illustrative
+2191|Certified materials
+2192|Download set (ZIP)
+2193|Crack skeleton
+2194|CHIP
+2195|Chip / damage
+2196|Estimate for repair and restoration works (T)
+2197|Repair estimate
+2198|SNiP RK {n}-{n}-{n} "Waterproofing of buildings"
+2199|SNiP RK {n}-{n}-{n} "Roofs"
+2200|SNiP RK {n}-{n}-{n} "Plastering and cladding works"
+2201|SNiP RK costing
+2202|Shot from a distance
+2203|created
+2204|Save as a training sample
+2205|Saving
+2206|SP RK {n}-{n}-{n} "Floors and slabs"
+2207|Specification of repair materials and works
+2208|MEDIUM
+2209|Medium
+2210|Chlorine-based mould remover
+2211|
+2212|Reinforcing fibreglass mesh {n} g/m²
+2213|Cost
+2214|Repair cost
+2215|KNOT
+2216|Knot (wood)
+2217|
+2218|Stress heat map
+2219|
+2220|Defect type
+2221|Requires sealing: {n}–{n} mm
+2222|An engineer inspection is required: the AI defect service is unavailable
+2223|Crack
+2224|Crack in the wall
+2225|Crack in the wall / ceiling
+2226|Crack in the wall, ceiling
+2227|Crack marked and measured — conclusion recalculated
+2228|Foundation crack / settlement
+2229|Enlarged photo
+2230|Removal of hazardous sections, priming, fibreglass mesh reinforcement, plastering with final finish
+2231|Removing the affected layer with a spatula/scraper
+2232|Moderate corrosion risk if exposure continues
+2233|EPDM window seal
+2234|level
+2235|Training samples
+2236|Facade / cladding
+2237|Facade, cladding, plaster falling off, peeling
+2238|Form cleared — upload new photos
+2239|Preparing a technical conclusion under SNiP RK
+2240|Photo
+2241|Defect photo
+2242|The photo is blurry
+2243|Site photo
+2244|The photo is dark
+2245|Anti-mould fungicidal primer
+2246|foundation
+2247|Foundation / settlement
+2248|Foundation, settlement, subsidence, basement, base
+2249|Scratch
+2250|SCRATCH
+2251|
+2252|
+2253|
+2254|What is the concern
+2255|What to do
+2256|What I am marking
+2257|Width of the area in the photo, m
+2258|Plaster and final finish
+2259|Renovation plaster
+2260|Cement facade plaster
+2261|This is not a defect — remove the zone
+2262|Arbitration and dispute resolution
+2263|The arbitration claim has been filed and passed to the QazGost AI lawyer
+2264|Arman K
+2265|IE "StroyMaster"
+2266|Contractor under the contract
+2267|Under review by an independent expert
+2268|Concrete grade mismatch in the foundation
+2269|Describe the non-conformity or the reason for the dispute
+2270|File a new arbitration claim
+2271|File a claim
+2272|Claim regarding completion dates of cast-in-place works
+2273|A decision has been issued on the dispute (Settled)
+2274|Current client
+2275|LLP "SpetsBeton"
+2276|Electronic filing of claims, independent SNiP RK expert review and escrow settlement
+2277|{n}. Excavation geometry
+2278|{n}. Soil characteristics and logistics
+2279|Shacman / Howo ({n} t / {n} m³)
+2280|[🚜 EARTHWORKS] Excavation {a} m³ ({b})
+2281|Excavation: {a} m³, removal by {b} dump truck trips ({c} t), haul distance {d} km. Soil: {e}. Pit {f} × {g} × {h} m
+2282|CAT D{n}R bulldozer (spoil levelling)
+2283|Vertical (with shoring {n}°)
+2284|Soil weight
+2285|Removal by dump trucks (
+2286|Excavation with an excavator
+2287|Geodetic {n}D calculation of cut and fill (ESN RK)
+2288|Geometric volume
+2289|Heavy clay
+2290|Pit depth (m)
+2291|Pit depth, m
+2292|Dump truck capacity
+2293|Dump truck capacity
+2294|Bottom length (m)
+2295|Bottom length, m
+2296|KamAZ {n} ({n} t / {n} m³)
+2297|Soil category and type
+2298|km)
+2299|Slope steepness
+2300|Slope steepness (SNiP)
+2301|Slope {n}:{n} (Clay / wet)
+2302|Slope {n}:{n} (Sandy soil)
+2303|Slope {n}:{n} (Dry loam)
+2304|Send an earthworks request
+2305|Sand / Sandy loam
+2306|Haul distance (km)
+2307|Haul distance, km
+2308|Dump truck trips
+2309|Recommended equipment fleet on site
+2310|Shacman F{n} dump truck ({n} t)
+2311|Volume summary (WBS SNiP RK)
+2312|Rock / frozen soil
+2313|Excavator shifts
+2314|Ordinary loam
+2315|t/m³
+2316|Precise engineering calculation of pit volumes, swell factors, excavator shifts and dump truck trips
+2317|Transport volume (swell)
+2318|Disposal at a landfill
+2319|Bottom width (m)
+2320|Bottom width, m
+2321|Hitachi ZX{n} excavator (bucket {n} m³)
+2322|ESN RK
+2323|Stage {n}: Mechanized excavation
+2324|Stage {n}: Loading, removal by dump trucks and landfill disposal
+2325|Stage {n}: Topsoil stripping and levelling
+2326|-{n} m²
+2327|
+2328|{n} ₸/day
+2329|{n} Aug {n}
+2330|{n} August, {n}:{n}
+2331|{n} mm
+2332|{n}-digit BIN
+2333|{n}. Erection of load-bearing walls and cast-in-place structures
+2334|{n}. Utilities and signing of KS-{n}
+2335|{n}. Substructure and materials procurement
+2336|{n}. Main installation works
+2337|{n}. Report
+2338|{n}. Preparatory works and substructure
+2339|{n}. Commissioning and handover to technical supervision
+2340|{n}. Estimate
+2341|{n}. Stages (
+2342|+ Add crew to stage
+2343|+ Add measurement
+2344|+ Add material
+2345|+ Add expense
+2346|+ Add heavy equipment
+2347|+ Add estimate line
+2348|+ New crew
+2349|+ New site
+2350|+ Create new organization
+2351|+ Generate estimate
+2352|+{n} mm
+2353|+{n} cm
+2354|AI site calculation
+2355|(Added: {a})
+2356|[Stage {a}/{b}: {c}] {d}
+2357|+ New site for {a} {b}
+2358|Until {n}:{n} ({a} {b} {c})
+2359|Until {n}:{n} ({a} {b})
+2360|Order "{a}" was not sent to the server: {b}
+2361|Order "{a}" was not saved on the server: {b}
+2362|The engineer returned the request "{a}" to the manager. Terms must be agreed with the client
+2363|Site "{a}" has been handed to the contractors (Craftsman Vladimir, Craftsman Danil, Radion Manipulator)! Deadline: {b}
+2364|Site: "{a}" ({b}). Assigned: Vladimir, Danil, Radion. Schedule: {c} days. Due: {d}
+2365|Preparatory works ({a})
+2366|Downloading file: {a}
+2367|Due: {a} {b}
+2368|Status "{a}" was not sent to the server: {b}
+2369|Status "{a}" was not saved on the server: {b}
+2370|The deal status was not saved on the server: {a}
+2371|Stage {a}
+2372|Advance to Alexander's crew
+2373|Putzmeister concrete pump truck {n}m ({n} units)
+2374|Concrete pump truck, KamAZ crane-manipulator (Radion)
+2375|Aerial work platform (Radion)

@@ -1,0 +1,410 @@
+4721|Note
+4722|Record again
+4723|
+4724|
+4725|Request filled in
+4726|
+4727|
+4728|Or enter as text
+4729|
+4730|
+4731|
+4732|
+4733|
+4734|Client Ivanov, {n} September, septic tank, {n}
+4735|Client Ivanov, the fifteenth of September, septic tank installation
+4736|
+4737|Roofing works
+4738|
+4739|
+4740|March
+4741|Water supply installation
+4742|Heating installation
+4743|Press and speak
+4744|Press to send
+4745|No microphone access. Allow it in the browser settings
+4746|
+4747|
+4748|
+4749|
+4750|
+4751|
+4752|
+4753|
+4754|Example: ""
+4755|
+4756|Design documentation development
+4757|Recognized
+4758|Recognizing speech
+4759|
+4760|Apartment renovation
+4761|Speech not recognized. Try again
+4762|
+4763|
+4764|
+4765|
+4766|
+4767|
+4768|The recognition server is unavailable. Try text input
+4769|Message too short
+4770|
+4771|
+4772|
+4773|
+4774|
+4775|House construction
+4776|
+4777|
+4778|Text input of the request
+4779|
+4780|
+4781|Technical expert review
+4782|
+4783|
+4784|
+4785|
+4786|
+4787|
+4788|
+4789|Plastering
+4790|
+4791|Electrical installation
+4792|
+4793|{n} August
+4794|● IN PROGRESS
+4795|● COMPLETED
+4796|Auto-selection of equipment and crews
+4797|IN PROGRESS
+4798|Site visit and estimate calculation
+4799|Execution
+4800|Publish work schedule
+4801|Schedule published
+4802|Data recorded. The manager is free
+4803|Task details
+4804|COMPLETED
+4805|TASKS ASSIGNED
+4806|ORDER CONFIRMED
+4807|ORDER WITH THE CONTRACTOR
+4808|Notes (for the engineer)
+4809|Ivan Petrov
+4810|Engineer / Estimator
+4811|Interactive real-time demonstration
+4812|The client approved the estimate
+4813|LEAD CREATED
+4814|Equipment assignment
+4815|Start work (Arrived)
+4816|New request (Lead)
+4817|PROCESSED
+4818|PENDING
+4819|Awaiting arrival
+4820|Awaiting calculation
+4821|Describe the problem and access details
+4822|Check-in in the app
+4823|Crew selection
+4824|RESOURCE SELECTION
+4825|Selected resources
+4826|Request intake
+4827|Call and request intake
+4828|ACCEPTED
+4829|Work completed
+4830|UNDER REVIEW
+4831|Estimate calculation
+4832|Download estimate (PDF)
+4833|Estimate #{n} generated
+4834|The estimate is downloading as a PDF
+4835|Save and pass on
+4836|Cost (₸)
+4837|Work type
+4838|Tsentralnaya St., {n}
+4839|Files and photos from the site
+4840|Data recording
+4841|JCB excavator
+4842|The catalog has no such item. You can keep your own option
+4843|work types
+4844|All groups
+4845|Work type selection
+4846|Save as entered
+4847|Search: septic tank, roofing, electrical
+4848|Your option: "
+4849|Covering
+4850|Invalid email or password
+4851|Invalid amount
+4852|Construction projects are run by the administrator and the manager
+4853|The file has no ENTITIES section — it is not a DXF or the file is damaged
+4854|
+4855|
+4856|
+4857|
+4858|
+4859|
+4860|Clear wall height, m
+4861|Floor height, m
+4862|Door openings
+4863|Wall length along axes
+4864|Value
+4865|Slab volume
+4866|Wall volume
+4867|Window openings
+4868|Perimeter along axes, m
+4869|Gross area, m²
+4870|Clear area, m²
+4871|Net area, m²
+4872|Slab area
+4873|Area by axes, m²
+4874|Clear area of rooms
+4875|Wall area minus openings
+4876|Indicator
+4877|Rooms
+4878|Summary
+4879|Slab thickness, m
+4880|Thickness, m
+4881|Floor {n}
+4882|New site
+4883|The PDF is password-protected — remove the protection and upload again
+4884|Could not open the image. JPG and PNG are supported
+4885|Could not read the PDF: the file is damaged or is not a PDF
+4886|Lines {a} mm
+4887|Hairlines
+4888|Slab above floor {a}
+4889|Floor slab of floor {n}
+4890|The browser holds {a} models — delete the ones you do not need or sign in to store them on the server
+4891|The server responded with error {a}
+4892|The browser could not save the model: storage is full or disabled
+4893|Model not found in this browser
+4894|No connection to the server. Check your internet and try again
+4895|The session has expired — sign in again to save models on the server
+4896|Furniture
+4897|Sample: house {n} × {n} m
+4898|QAZGOST AI {n} - ADMINISTRATION ACTION AUDIT LOG
+4899|[{a}] ID: {b} | Time: {c} | Module: {d}
+4900|Export date: {a}
+4901|Details: {a}
+4902|Type: {a} | Performed by: {b}
+4903|Administrator (System)
+4904|New rate item added: E{n}-{n}-{n} "Wall levelling with concrete contact primer"
+4905|Role of user Bauyrzhan Toktarov changed (executor ➔ engineer)
+4906|Moderator Ainur
+4907|Unknown user
+4908|Regional coefficient for Atyrau updated (×{n})
+4909|Verification request of IE "StroyMaster" approved (IIN {n})
+4910|{n}. KS-{n} and KS-{n} certificates
+4911|{n}. Contracts
+4912|{n}. Invoices and Escrow
+4913|Certificate No.
+4914|Contract No.
+4915|No.
+4916|Invoice No.
+4917|Stage execution: {a}
+4918|Construction works package: {a} (Stage)
+4919|Advance (₸)
+4920|
+4921|CERTIFICATE
+4922|Bank / Account (IIK)
+4923|Recipient BIN
+4924|Client BIN/IIN
+4925|Payer BIN/IIN
+4926|Within {n} banking days
+4927|Total invoices issued (pcs)
+4928|TOTAL TO PAY INCL. VAT
+4929|Total certificates issued (pcs)
+4930|Total items in the export
+4931|Warranty period
+4932|Issue date
+4933|Export generation date
+4934|Document date
+4935|Date of signing
+4936|Export date and time
+4937|Date of preparation
+4938|Breakdown of KS-{n} items
+4939|Residential complex Sample Palace
+4940|Client (LLP/individual)
+4941|TOTAL completed under certificates incl. VAT (₸)
+4942|Total to pay (₸)
+4943|Total incl. VAT (₸)
+4944|Rates catalog
+4945|Material code
+4946|Work code
+4947|KS-{n}
+4948|Maximum price (₸)
+4949|Minimum price (₸)
+4950|Purpose
+4951|Payment purpose
+4952|Document name
+4953|Material name
+4954|Description of works / costs
+4955|Description of works / services / materials
+4956|Work name
+4957|VAT {n}% (₸)
+4958|Could not load the Excel module. Check the connection and try again
+4959|No certificates to export
+4960|No data to export
+4961|No contracts to export
+4962|No invoices to export
+4963|Basis (ESN RK/SNiP)
+4964|Total amount of issued invoices incl. VAT (₸)
+4965|General
+4966|General catalog
+4967|Client's site
+4968|Construction site
+4969|Volume
+4970|Awaiting payment / Processing (₸)
+4971|Payment for construction and installation works
+4972|
+4973|Paid (Escrow)
+4974|Paid and held in Escrow (₸)
+4975|Document passport
+4976|Payer
+4977|Payer (Client)
+4978|Issuing platform
+4979|Signed with digital signature / Paid
+4980|Signatory
+4981|Recipient
+4982|Recipient (Supplier)
+4983|Subject
+4984|Subject of the contract
+4985|Calculated VAT {n}% (₸)
+4986|Register of KS-{n} and KS-{n} certificates
+4987|Register of invoices
+4988|Detail
+4989|Summary statistics
+4990|Summary total for certificates
+4991|SNiP-RK-{n}
+4992|Item specification
+4993|Average base price (₸)
+4994|Payment due date (Deadline)
+4995|Handover date
+4996|Execution status
+4997|Payment status
+4998|Digital signature status
+4999|Building materials
+5000|Construction contract
+5001|Amount excl. VAT
+5002|Amount excl. VAT (₸)
+5003|Amount before discount (₸)
+5004|Amount of completed works excl. VAT (₸)
+5005|Contract amount (₸)
+5006|Amount of value added tax, VAT {n}% (₸)
+5007|Generated in the system
+5008|Current month
+5009|Certificate type
+5010|Labour input (man-hours)
+5011|Financial indicator
+5012|Financial summary
+5013|Price per unit (₸)
+5014|
+5015|QazGost Escrow / Kaspi Pay
+5016|Escrow deposit (₸)
+5017|
+5018|
+5019|Under ESN RK norms the average cost of finishing works is {n} – {n} ₸/m². It is recommended to apply the regional adjustment coefficient
+5020|
+5021|According to SNiP RK {n}-{n}-{n} (cl. {n}), surface microcracks up to {n} mm are repaired by levelling with a reinforcing mesh
+5022|I am the engineering AI assistant of QazGost AI {n}. Ready to help with estimates, SNiP RK checks and drawing analysis
+5023|Enter your email and password
+5024|No connection to the server. Check your internet and try again
+5025|Sign-up error
+5026|The server returned an incomplete response, try again
+5027|The server is temporarily unavailable, try again in a minute
+5028|Stage {n}
+5029|Landscaping and paving stones
+5030|Commissioning / Special works
+5031|Ventilation and air conditioning (HVAC)
+5032|Water supply (cold/hot)
+5033|Earthworks and pit excavation
+5034|Sewerage and storm drainage
+5035|Frame, columns and cast-in-place walls
+5036|Roof and rafter structures
+5037|External walls and facade finishing
+5038|Window units and entrance doors
+5039|Heating and heat substation
+5040|Plasterboard and block partitions
+5041|Preparatory and geodetic works
+5042|Floors and floor coverings
+5043|Ceiling systems
+5044|Plumbing fixtures
+5045|Low-voltage networks and fire alarm
+5046|Foundations and cast-in-place substructure
+5047|Rough finishing (plaster, screed)
+5048|Final finishing (painting, wallpaper)
+5049|Electrical installation works
+5050|Geodesy, demolition and preparatory works
+5051|Installation of utilities (electrical, cold/hot water, HVAC)
+5052|Rough finishing (wall plaster, floor screed)
+5053|Final finishing and installation of fixtures
+5054|DG-{a}/{n}
+5055|CONSTRUCTION CONTRACT No. {a}
+5056|KS{n}-{a}
+5057|Certificate of acceptance of completed works (Form KS-{n})
+5058|Crew leader Yerlan B
+5059|IE "StroyMaster Kazakhstan"
+5060|LLP "Almaty SpetsStroy"
+5061|LLP "KazEngineering-{n}"
+5062|Deep-penetration primer ({n} L)
+5063|canister {n} L
+5064|bag {n} kg
+5065|pack {n} kg
+5066|Clean out the joint to a depth of {n}–{n} cm, prime and fill with a fast-setting repair mix
+5067|Routing and sealing of cracks in masonry
+5068|Rout and dust off the crack, prime, fill with a structural repair mix. Through and growing cracks — only after inspection by an engineer
+5069|Rout the crack, prime, fill with filler, tape with mesh tape and apply a finishing coat
+5070|Crack repair in concrete
+5071|Crack repair in concrete (injection)
+5072|Crack repair in plaster
+5073|Fast-setting repair mix ({n} kg)
+5074|Fast-setting repair mix
+5075|Structural repair mix
+5076|Structural repair mix ({n} kg)
+5077|roll {n} m
+5078|Self-adhesive mesh tape {n} mm ({n} m)
+5079|Self-adhesive mesh tape {n} mm
+5080|Base gypsum filler
+5081|Base gypsum filler ({n} kg)
+5082|Finishing gypsum filler
+5083|Finishing gypsum filler ({n} kg)
+5084|Could not start recognition
+5085|{n} minutes ago
+5086|{n} hour ago
+5087|Complaint about poor-quality concrete pouring
+5088|Order: Major renovation of an office, {n} m²
+5089|Client: Kasymov A. • Karaganda
+5090|Verification request of IE "StroyMaster"
+5091|IIN: {n} • Astana
+5092|LLP "Almaty Business" (BIN {n})
+5093|Cracks in a cast-in-place slab
+5094|Certificate of inspection of concealed works (Waterproofing)
+5095|Arman Serikov (Engineer)
+5096|Yerlan Satov (Chief supervision engineer)
+5097|Residential complex "Grand Almaty" (Block B)
+5098|Acceptance of concreting of the floor {n} slab
+5099|Inspection of reinforcement of cast-in-place columns
+5100|School for {n} students (Astana)
+5101|[⚙️ ENGINEERING]
+5102|[🏗️ CONSTRUCTION]
+5103|[👷 ENGINEER]
+5104|[📝 LEAD]
+5105|[🔨 CONTRACTING COMPANY]
+5106|[🧱 MATERIALS]
+5107|[🚜 EQUIPMENT]
+5108|Equipment rental: {a}
+5109|Stage budget: {a} ₸
+5110|{a}
+5111|Order {a}
+5112|Order {a} was not sent to the server: {b}
+5113|Order {a} was not saved on the server: {b}
+5114|Order {a} is saved only on this device: there is no valid server session (sign in to your account)
+5115|Order from {a} ({b}) in {c}. Budget: {d}
+5116|Request {a} was not passed to CRM on the server: {b}
+5117|New construction request
+5118|
+5119|QazGost Escrow
+5120|Stage {n}: Main package of construction works
+5121|Stage {n}: Preparatory works and delivery of resources
+5122|Wall surface unevenness > {n} mm
+5123|{n} – {n} ₸ / m²
+5124|Computer vision recognized a technical plan: {a}
+5125|{n} door openings and {n} load-bearing structures were taken into account automatically
+5126|office
+5127|Preparatory and demolition works
+5128|Premium / Designer
+5129|Building material consumption (BOM) adjusted by {n}% under consumption norms (ESN RK {n}-{n}-{n}) for this room type
+5130|Routing the joint and applying deep-penetration primer

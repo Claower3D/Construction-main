@@ -1,0 +1,430 @@
+0|QAZGOST AI Administrator
+1|({n} per page)
+2|{n} (Critical)
+3|{n} document
+4|{n} documents
+5|{n} requests
+6|{n} m²
+7|{n} months
+8|{n} months
+9|{n} min ago
+10|{n} Regions
+11|{n} Sites
+12|{n} items
+13|{n} source files • Click to open
+14|{n} source files • Click to open
+15|{n} h ago
+16|{n} drawings + Estimate
+17|{n} staff builders
+18|{n}. Landscaping
+19|{n}. Commissioning / Special works
+20|{n}. Ventilation and air conditioning (HVAC)
+21|{n}. Earthworks and excavation
+22|{n}. Sewerage and storm drainage
+23|{n}. Frame and cast-in-place walls
+24|{n}. Roofing and rafter systems
+25|{n}. External walls and facade finishing
+26|{n}. Windows, glazing and external doors
+27|{n}. Heating and heat substations
+28|{n}. Drywall and aerated-block partitions
+29|{n}. Preparatory works
+30|{n}. Floors and floor coverings
+31|{n}. Ceilings (stretch, drywall, Armstrong)
+32|{n}. Plumbing fixtures
+33|{n}. Low-voltage systems and fire suppression
+34|{n}. Foundations and substructure
+35|{n}. Cold and hot water supply
+36|{n}. Rough finishing (plaster, screed)
+37|{n}. Final finishing (painting, wallpaper)
+38|{n}. Power supply and lighting
+39|{n}% Automatic
+40|/ {n} items ({n}%)
+41|% WBS Coverage
+42|+ Add item
+43|+ Add region of Kazakhstan
+44|×{n} Atyrau
+45|₸/m²
+46|AI Scoring
+47|AIService API status
+48|Region bento cards
+49|eGov / e-invoice system verified
+50|Q3 {n}
+51|LIVE ACTIVITY
+52|Document No.
+53|ONLINE (Connected)
+54|OSB-{n} board {n} mm ({n}x{n})
+55|{a} user {b}
+56|+{a} ₸ in favour of {b}
+57|Enter a new coefficient for region {a}
+58|Are you sure you want to approve all {a} moderation requests in {n} click
+59|Select request {a}
+60|Document added manually: {a} ({b})
+61|New region {a} ({b}) added with coefficient ×{c}
+62|UPLOAD-{a}-{b}
+63|{a} documents loaded from file {b}
+64|Coefficient for region {a} changed from {b} to {c}
+65|{a} rate items imported from file {b}
+66|Bulk approval of the entire moderation queue ({a} items)
+67|Request {a} approved: {b} ({c})
+68|Approve selected requests ({a})
+69|Request {a} rejected: {b}. Reason: {c}
+70|User {a} edited: {b}
+71|Role {a} edited
+72|Batch approval of {a} moderation requests
+73|Batch rejection of {a} moderation requests. Reason: {b}
+74|Reason for rejecting {a} selected requests
+75|Editing rate {a}: {b} ({c} ₸)
+76|Role of user {a} changed to "{b}"
+77|New user created: {a}
+78|New role {a} created
+79|New item {a} created: {b} ({c} ₸)
+80|Document deleted: {a}
+81|Role {a} deleted
+82|Deleting rate {a}: {b}
+83|Delete document {a}
+84|{a} items successfully imported from file {b}
+85|Export of {a} certificates
+86|Export of {a} contracts
+87|Export of {a} invoices
+88|XPS Technonicol extruded {n} mm
+89|Advance payment for roofing works and metal tiles
+90|August {n}
+91|August {n} (Stage {n})
+92|Concrete mixer truck {n} m³
+93|Aerial work platform {n} m
+94|ABB circuit breaker {n}P {n}A
+95|Administrator
+96|Ainur Rakhimova
+97|Account Manager
+98|Certificate
+99|KS-{n} certificate
+100|ACT-KS{n}-{n}/{n}
+101|Aktau (Mangystau)
+102|Active
+103|Estimates being calculated right now
+104|Active projects
+105|Certificates (
+106|KS-{n} / KS-{n} certificates
+107|Almaty (Southern capital)
+108|Analyst
+109|Anchor bolt M{n}x{n} mm
+110|Wood preservative Pinotex ({n} L)
+111|Anti-fraud
+112|Anti-fraud (
+113|JSC "Example Construction"
+114|Architecture + steel detailing + layout
+115|Aral–Syr Darya arid
+116|XCMG truck crane rental, {n} t
+117|JCB {n}CX backhoe loader rental
+118|Arman Kasymov
+119|Rebar A{n}C Ø{n} mm
+120|Askarov B. K. (CEO)
+121|Astana (Capital)
+122|Atyrau (Oil region)
+123|Akhmetov Marat Sabitovich (individual)
+124|Database
+125|Calculation basis: Site {n} m² (SNiP {n})
+126|Base price (₸)
+127|Basic
+128|
+129|PVC balcony unit (door + window)
+130|
+131|Bauyrzhan Toktarov
+132|Liebherr tower crane (month)
+133|Bank transfer incl. VAT
+134|QazGost Escrow safe deal
+135|Safe
+136|Concrete
+137|Ready-mix concrete M-{n} (B{n}) with delivery
+138|Stationary concrete pump
+139|Business centre "QazTech Hub"
+140|BIN
+141|Client BIN / IIN
+142|Contractor BIN
+143|Road kerb stone BR{n}
+144|Construction timber {n}x{n} mm ({n} m)
+145|
+146|Softwood wall panelling (grade A)
+147|Acrylic bathtub {n} mm
+148|
+149|Duct fan {n} mm
+150|Ventilation
+151|Verification
+152|Verification (
+153|Verification of general contractor LLP "Astana Build"
+154|Verification of contractor IE "StroyMaster"
+155|Wind load / Winter -{n}°C
+156|Wind barrier Izospan A ({n} m²)
+157|Vibratory roller {n} t
+158|Norm types
+159|Water heater {n} L Ariston
+160|Gutter system (gutter {n} m + funnel)
+161|Galvanized air duct Ø{n} mm ({n} m)
+162|Next
+163|Time
+164|All (
+165|All documents in one file
+166|All rates
+167|Total items
+168|Do you really want to delete the item
+169|Selected
+170|Select all
+171|Select all requests
+172|Choose file
+173|Export .xlsx
+174|Export to Excel (.xlsx)
+175|Export all ({n} sheets)
+176|{n}-gang switch Schneider
+177|Penalty of {n}% per day
+178|Construction and installation works
+179|High
+180|Atyrau (IP)
+181|Aerated concrete block D{n}x{n}x{n} mm
+182|KNAUF gypsum fibre board {n} mm
+183|Construction nails {n} mm ({n} kg)
+184|General construction contract and technical supervision
+185|Geology + reinforced concrete drawings
+186|Sanitary silicone sealant {n} ml
+187|Shinglas flexible shingles (Technonicol)
+188|Waterproofing Izospan D ({n} m²)
+189|KNAUF moisture-resistant drywall {n} mm
+190|KNAUF fire-resistant drywall {n} mm
+191|KNAUF standard drywall {n} mm
+192|Mountain / Sharply continental
+193|City / Location
+194|PVC corrugated conduit {n} mm ({n} m)
+195|Freight
+196|Lifting
+197|Deep-penetration primer Ceresit CT{n} ({n} L)
+198|Date
+199|Insulated metal entrance door
+200|Laminated interior door {n} mm
+201|Veneered solid-wood interior door
+202|I-beam {n}B{n} ({n} m)
+203|Action
+204|Actions
+205|Valid
+206|Valid ({n}% completed)
+207|Bark-beetle decorative plaster ({n} kg)
+208|
+209|Demo
+210|Add document
+211|Add role
+212|Adding a new document
+213|Adding a new rate
+214|Adding a user
+215|Adding a role
+216|CTR-QG-{n}/{n}
+217|Contract
+218|Contract + Delivery notes
+219|General contract
+220|Works contract
+221|Contracts (
+222|documents
+223|Document flow
+224|Document flow — Import and Export
+225|Softwood edged board {n}x{n} mm ({n} m)
+226|Laminated chipboard {n} mm
+227|Nail plug {n}x{n} mm ({n} pcs)
+228|Unit
+229|Unit (unit)
+230|Unit of measure
+231|Yerlan Satov
+232|Complaint
+233|Residential complex "Astana Hub" (construction works)
+234|Residential complex "Example Palace"
+235|Residential complex "Example Palace" (Block A)
+236|Residential complex "Example City"
+237|Residential complex "Example City" (Building {n})
+238|Administration action audit log
+239|Action log / Audit (
+240|per quarter
+241|Blocked
+242|Uploaded
+243|Uploaded from Excel
+244|Uploaded site
+245|Uploaded
+246|Upload Excel
+247|Import documents from Excel / CSV
+248|No debt
+249|Order
+250|Client / Payer
+251|Client: Kasymov A.B
+252|Orders (
+253|Close
+254|Western steppe
+255|Fill in the required fields: Document No. and Site / Purpose
+256|Database queries in {n} h
+257|Reserved {n}%
+258|Reserved in Escrow
+259|Grout Ceresit CE{n} ({n} kg)
+260|Applicant / Counterparty
+261|requests
+262|WBS hierarchy ({n} group of Kazakhstan building norms)
+263|of
+264|Edit
+265|Icon (Emoji)
+266|Import from Excel / CSV, manual entry and export of KS-{n}/KS-{n} certificates, invoices, e-invoices and contracts to .xlsx
+267|Aggregates
+268|Interactive estimate comparator for regions of Kazakhstan
+269|IE "Nazarbekov & Co"
+270|IE "Sadykov Stroy"
+271|IE "StroyMaster" (Bekzhanov K.M.)
+272|IE "TemirStroy"
+273|Source
+274|Cable VVGng-LS {n}x{n} mm² ({n} m)
+275|Kazakhstan
+276|
+277|Office major renovation {n} m²
+278|Frame and walls
+279|
+280|Case card
+281|Cards
+282|Category (category)
+283|Category / Section
+284|kg
+285|Expanded clay {n}-{n} mm fraction ({n} L)
+286|Expanded-clay concrete block {n}x{n}x{n} mm
+287|Porcelain tile {n}x{n} mm matte (Kazakhstan)
+288|Porcelain tile {n}x{n} mm polished
+289|Solid ceramic common brick M-{n}
+290|Hollow ceramic common brick M-{n}
+291|Ceramic facing brick
+292|Fireclay refractory brick ShB-{n}
+293|White sand-lime brick M-{n}
+294|External wall masonry, aerated block D{n}
+295|External wall masonry, solid brick
+296|Wall masonry, aerated concrete blocks D{n}
+297|Winter adhesive for aerated blocks ({n} kg)
+298|QUELYD wallpaper adhesive for non-woven
+299|Tile adhesive Ceresit CM{n} ({n} kg)
+300|Reinforced tile adhesive Ceresit CM{n} ({n} kg)
+301|Climate specifics
+302|Code
+303|Code (id)
+304|Code / Priority
+305|Item code
+306|Rate code
+307|ESN RK code / Identifier
+308|set
+309|Turnkey major renovation of commercial premises: demolition, electrical works, final finishing, ventilation
+310|Split air conditioner {n} BTU Gree
+311|Split air conditioner {n} BTU Samsung
+312|Counterparty
+313|Wall-mounted gas boiler {n} kW Bosch
+314|Cottage community "Garden Hills"
+315|Coefficient
+316|Astana and Almaty coefficients including logistics
+317|White acrylic ceiling paint ({n} L)
+318|Dulux interior paint ({n} L)
+319|Tikkurila acrylic facade paint ({n} L)
+320|KS-{n}-SUMMARY
+321|Polyurethane parquet varnish ({n} L)
+322|Paints and varnishes
+323|Laminate class {n}, {n} mm ({n} m²)
+324|Tarkett household linoleum {n} m
+325|Semi-commercial linoleum {n} m
+326|sheet
+327|Galvanized sheet {n} mm
+328|Hot-rolled steel sheet {n} mm
+329|Sheet materials
+330|Category II licence (construction works)
+331|Logistics
+332|Logistics surcharge
+333|Location / Time
+334|m³
+335|MAX. SURCHARGE
+336|Bituminous waterproofing mastic ({n} L)
+337|mo
+338|Metal
+339|Monterrey metal tile {n} mm
+340|Fasteners
+341|bag
+342|Rockwool mineral wool {n} mm ({n} slabs/pack)
+343|Rockwool mineral wool {n} mm ({n} slabs/pack)
+344|Module
+345|Backend PriceDB microservice monitoring
+346|Cast-in-place concrete
+347|Installation of rebar cages A{n}C
+348|Installation of rebar cages A{n}C Ø{n}
+349|Installation of internal utilities (HVAC, plumbing, electrical)
+350|Installation of PVC sewerage {n} mm
+351|Installation of porcelain facade {n} m²
+352|Metal tile roofing installation
+353|Supply and exhaust ventilation installation
+354|Installation of bimetallic heating radiators
+355|Installation of PP water pipes {n} mm
+356|Installation of a distribution board
+357|Marine climate / Corrosion
+358|ms
+359|Under approval
+360|Name (UI)
+361|Name (name)
+362|Item name
+363|Name of work / material
+364|Name of work or material
+365|Self-levelling floor compound ({n} kg)
+366|Delayed delivery of cable products
+367|Configure
+368|Settings
+369|Glossy PVC stretch ceiling (with installation)
+370|Matte PVC stretch ceiling (with installation)
+371|VAT {n}%
+372|Not applicable
+373|Could not parse the file. Make sure it is a CSV file or an Excel sheet
+374|The base system role cannot be deleted
+375|No documents match the filters
+376|No requests awaiting review for the selected filters
+377|Low
+378|A new unverified account placed an order for {n} million ₸ with a foreign card
+379|Labour norm (man-hours)
+380|norms
+381|Nurkenov Askhat
+382|Overview
+383|Vinyl wallpaper on non-woven base ({n}x{n} m)
+384|Paintable non-woven wallpaper ({n}x{n} m)
+385|Total amount
+386|Site / Purpose
+387|Construction site / Purpose
+388|Regular
+389|Approve
+390|Approve (
+391|Approve all (
+392|Approve request
+393|Approve and activate
+394|Awaiting technical supervision signature
+395|REHAU double-glazed PVC window {n}x{n} mm
+396|REHAU triple-glazed PVC window {n}x{n} mm
+397|Onduline sheet ({n}x{n} mm)
+398|DOKA/PERI panel formwork
+399|Description
+400|Escrow tranche No. {n} payment for the cast-in-place frame
+401|Paid
+402|Paid via Kaspi Pay
+403|Reject
+404|Reject (
+405|Cancel
+406|Security risk assessment
+407|Galvanized subframe with polymer coating
+408|Audit queue
+409|Moderation queue is clear
+410|File import error
+411|lin. m
+412|Administrator Panel
+413|Natural oak engineered flooring
+414|Vapour barrier Izospan B ({n} m²)
+415|pack
+416|Sand and gravel mix
+417|Professional mounting foam {n} ml
+418|Foam concrete block D{n}x{n}x{n} mm
+419|Expanded polystyrene PSB-S-{n} mm
+420|Foil-faced Penofol {n} mm ({n} m²)
+421|Drag files here or click "Choose file". Supported formats
+422|Period
+423|Completion period
+424|Sand concrete M-{n} ({n} kg bag)
+425|Quarry sand (with delivery)
+426|Washed river sand (with delivery)
+427|Timber
+428|PVC skirting with cable channel {n} mm
+429|Floor slab PK {n}-{n}-{n}

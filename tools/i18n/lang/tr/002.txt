@@ -1,0 +1,330 @@
+660|XCMG 25 ton mobil vinç
+661|URB-2A2 sondaj makinesi
+662|CAT 320D paletli ekskavatör (1.2 m³)
+663|JCB 3CX Super ekskavatör
+664|İş veya hizmet bul
+665|Neler elde edersiniz
+666|Ne eklenmeli
+667|Projenin fotoğrafı veya videosu
+668|Ekip başı ve kadro
+669|İnşaat siparişlerinden kazanın
+670|Plan → 3D
+671|Kat çizimi 3D modele dönüşür: duvar ve döşeme hacimleri, çizim dışa aktarma, telefon kamerasıyla gösterim
+672|Kat planını yükleyin — binanın 3D modelini, duvar ve döşeme hacimlerini, çizimi ve telefon kamerası için modeli alın.
+673|Çizim yükle
+674|Sıfırdan çiz
+675|Örnek üzerinde dene
+676|Modellerim
+677|Proje dosyasını aç
+678|Plan
+679|Hacimler
+680|Kamera
+681|Dosyalar
+682|Seçim
+683|Duvar
+684|Kapı
+685|Pencere
+686|Ölçek
+687|Yeni
+688|Kat kopyası
+689|Boş kat
+690|Kat
+691|Bina
+692|Yeni duvar
+693|Model toplamı
+694|Metraj cetveli
+695|Excel'e aktar
+696|Kamerayı doğrult
+697|Maketi göster
+698|Şantiyeye yerleştir
+699|Neler duvar sayılsın
+700|Kata aktar
+701|Katın duvarlarını değiştir
+702|Bu kata çizim yükle
+703|Duvarı sil
+704|Boşluğu sil
+705|Katı sil
+706|Duvarlar
+707|Döşemeler
+708|Camlama
+709|A ve B noktaları
+710|Çizimler, model ve cetvel
+711|Zemin kat döşeme plağı
+712|Oturum süresi doldu. Yeniden giriş yapın — hesabınızı böyle koruyoruz.
+713|Sunucuyla bağlantı yok. İnterneti kontrol edip yeniden deneyin — hesap henüz oluşturulmadı.
+714|Sunucu geçici olarak kullanılamıyor. Bir dakika sonra deneyin — hesap henüz oluşturulmadı.
+715|Çok fazla giriş denemesi. Birkaç dakika bekleyin.
+716|Çok fazla kayıt denemesi. Bir dakika bekleyin.
+717|Örnek
+718|Burada örnekler gösteriliyor
+719|Yönetici paneli şimdilik maket
+720|Bu sayfadaki talepler, projeler ve tutarlar, bölümün nasıl düzenlendiğini göstermek için bir örnektir. Bunlar sizin verileriniz değil; kendi kayıtlarınız yalnızca bu tarayıcıda saklanır.
+721|Bu bölümdeki talepler, projeler, ekipler ve tutarlar, bölümün nasıl düzenlendiğini göstermek için bir örnektir. Bunlar sizin verileriniz değil. Kendi eklediğiniz kayıtlar yalnızca bu tarayıcıda saklanır.
+722|Bu bölümdeki projeler, bütçeler, yükleniciler, lotlar ve belgeler, bölümün nasıl düzenlendiğini göstermek için bir örnektir. Bunlar sizin verileriniz ve gerçek şirketler değil. Kendi eklediğiniz projeler yalnızca bu tarayıcıda saklanır.
+723|Bu sekmelerdeki özet, moderasyon kuyruğu, kullanıcılar, belgeler ve «canlı» sayaçlar örnektir. Sunucudan yüklenmezler; fiyat, kullanıcı ve belge düzenlemeleri de sunucuya kaydedilmez. Gerçek hesaplar, siparişler ve birim fiyat veritabanı sunucunun veritabanında saklanır.
+724|● Fiyat veritabanı bağlı
+725|⚠️ Fiyat veritabanı kullanılamıyor
+726|⏳ Bağlantı kontrol ediliyor…
+727|Zemin hacimleri
+728|Hafriyat hacimleri
+729|Ölçülere göre kazı çukuru hacmi, damperli kamyon seferleri ve kazı ile nakliye maliyeti
+730|Ölçülere göre kazı çukuru hacmi, damperli kamyon seferleri, ekskavatör vardiyaları ve iş maliyeti
+731|📐 Hacmi hesapla
+732|Hafriyat talebi müdüre gönderildi. Ön ödeme alınmaz — ödemeyi yükleniciyle kararlaştırırsınız.
+733|Talep yalnızca bu cihazda kaydedildi. Müdüre göndermek için hesabınıza giriş yapın.
+734|Talep oluşturulamadı. Yeniden deneyin.
+735|Çalışanların şirket koduyla bağlanması henüz çalışmıyor: kayıt formunda bu kod için alan yok. Bölüm bu özellikle birlikte çalışmaya başlayacak.
+736|Yasal adres
+737|BIN/IIN
+738|Belirtilmemiş
+739|QazGost AI'ye hoş geldiniz
+740|Fotoğraftan keşifle veya kusur kontrolüyle başlayın. Uygulayıcı teklifleri ve sipariş durumları burada görünecek.
+741|Profil formunu doldurun ve sipariş akışını açın. Teklifler ve aşama kabulleri burada görünecek.
+742|Teknik kontrol talepleri ve denetim sonuçları burada görünecek.
+743|Yeni talepler ve anlaşmalardaki değişiklikler burada görünecek.
+744|İnceleme talepleri ve platform olayları burada görünecek.
+745|Şirket siparişleri ve proje davetleri burada görünecek.
+746|şimdi
+747|Sayfa bulunamadı
+748|Bu adreste bir şey yok: bağlantıda yazım hatası olabilir veya bölüm taşınmış olabilir.
+749|Ana sayfaya
+750|Malzeme kataloğunu aç
+751|Anlaşmazlıklar
+752|Anlaşmazlık listesi yükleniyor…
+753|Anlaşmazlık listesi sunucuda saklanır. Görmek için yönetici veya müdür hesabıyla giriş yapın.
+754|Anlaşmazlık listesi yüklenemedi. Sayfayı yenileyin veya yeniden giriş yapın.
+755|Anlaşmazlık yok. Site üzerinden şikâyet göndermek henüz mümkün değil — sipariş şikâyet formu eklendiğinde liste dolacak.
+756|Anlaşmazlık
+757|Başvuran
+758|Neden
+759|Parola değiştirme
+760|Parolayı değiştir
+761|🔑 Parolayı değiştir
+762|Yeni parola
+763|Mevcut parola
+764|Yeni parolayı tekrarlayın
+765|En az 8 karakter
+766|Başka sitelerde kullandığınızdan farklı
+767|Değişiklikten sonra diğer cihazlar hesaptan çıkar
+768|Kaydediliyor…
+769|Panele dön
+770|Parola değiştirildi
+771|Bu cihazda hesabınız açık kalır. Diğer cihazlarda ve uygulamalarda yeni parolayla yeniden giriş yapmanız gerekir.
+772|Parolayı değiştirmek için önce hesabınıza giriş yapın.
+773|Bu hesap, sunucuda kişisel parola olmadan ortak ekip listesiyle giriş yapıyor. Parolayı değiştirmek için yöneticiye başvurun.
+774|Yeni parola en az 8 karakter olmalıdır.
+775|Yeni parola en az 8 karakter olmalıdır
+776|Yeni parola ile tekrarı eşleşmiyor.
+777|Yeni parola mevcut parolayla aynı.
+778|Yeni parola mevcut parolayla aynı
+779|Mevcut parola yanlış girildi
+780|Bu parola çok basit veya yaygın. Başka bir parola belirleyin
+781|Sunucuyla bağlantı yok. Parola değiştirilmedi — yeniden deneyin.
+782|Sunucu geçici olarak kullanılamıyor. Parola değiştirilmedi — bir dakika sonra deneyin.
+783|Parola değiştirilemedi.
+784|Şu anda giriş yaptığınız parola
+785|Hata olmaması için bir kez daha
+786|{n} m²
+787|{n} kalem
+788|₸/m²
+789|Arman Kasymov
+790|Bauyrzhan Toktarov
+791|Havalandırma
+792|Seçildi
+793|Tarih
+794|Demo
+795|Ölçü birimi
+796|Kapat
+797|kg
+798|Kod
+799|m³
+800|Modül
+801|Açıklama
+802|İptal
+803|Poz. {n}-{n}-{n}
+804|İşler
+805|sefer
+806|KAMAZ {n} ton damperli kamyon
+807|Sıhhi tesisat
+808|Durum
+809|Tutar
+810|t
+811|İş makineleri
+812|Tür
+813|Sil
+814|adet
+815|Araç yükleniyor
+816|Hesapla
+817|Tedarikçi
+818|Gizle
+819|Merhaba! Ben QazGost'un AI asistanıyım. İş ve malzeme fiyatlarını söyler, fotoğraftan keşif hesaplar, ekip veya iş makinesi bulurum. Nereden başlayalım
+820|Sor: {a}
+821|Ekip №{n}
+822|Kontrol
+823|fotoğraf
+824|Taslak
+825|Yeni
+826|. Fiyata temel işçilik ve makine işletimi dâhildir. Malzemeler projeye göre ayrıca hesaplanır
+827|{n} ₸ (Medina) / {n} ₸ (TABYS)
+828|{n} ₸ (TABYS) / {n} ₸ (Medina)
+829|{n} ₸ / adet
+830|AI keşfi:
+831|{n} yılı için geçerli
+832|Analiz ediliyor
+833|Temel maliyet
+834|Temel fiyat aralığı
+835|FBS duvar blokları {n}t ({n}×{n}×{n} mm)
+836|birim fiyat türü
+837|İnşaat molozunun taşınması
+838|En yüksek kalite sınıfı
+839|Projenin genel temizliği
+840|Derzlerin su yalıtımı
+841|GOST {n}-{n}
+842|Bu birim fiyat, standarda göre işlerin tamamını kapsar
+843|Kaplamaların sökümü
+844|PN-{n} kuyu tabanı (d={n}m)
+845|Keşfe ekle
+846|Yükleniyor
+847|Denetim sipariş et
+848|Medina şahıs şirketi (Manarbek)
+849|İş kategorisi
+850|Tadilat sonrası temizlik
+851|KO {n} destek bileziği ({n}×{n}×{n} mm)
+852|KS {n} duvar bileziği ({n}×{n} mm)
+853|KS {n} duvar bileziği (d={n}m, h={n}m)
+854|{n}PP-{n}-{n} kuyu kapağı (d={n}m, rögar kapaklı)
+855|{n}PP-{n}-{n} kuyu kapağı (araç yüküne dayanıklı, güçlendirilmiş)
+856|Ağır tip polimer rögar kapağı ({n} ton)
+857|Montaj ve yüzey hazırlığı
+858|Kataloğa dön
+859|Örneğin: {n}×{n} metre şerit temel yapılacak, derinlik {n}m
+860|Teknik ofis mühendislerimiz şantiyeye gelerek kesin keşif hazırlamanıza yardımcı olur
+861|Standart
+862|Görevinizi kendi sözlerinizle anlatın; yapay sinir ağı gerekli birim fiyatları seçer, metrajları hesaplar ve hazır keşif verir
+863|{n} ₸ / m²'den başlayan
+864|{n} ₸ / metretülden başlayan
+865|{n} ₸ / seferden başlayan
+866|Keşfi aç
+867|PN-{n} taban plağı (d={n}m)
+868|{n} PP {n}-{n} döşeme plağı (d={n}m, rögar kapaklı)
+869|Popüler iş türleri
+870|Keşif oluştur
+871|Keşif başarıyla oluşturuldu
+872|Daha fazla birim fiyat gör ↓
+873|SNiP {n}-{n}
+874|SNiP {n}-{n}-{n}
+875|SV {n}-{n} betonarme direk ({n}m enerji hattı direği)
+876|TABYS-ASM / Medina
+877|Isı yalıtım işleri
+878|TABYS-ASM LLP
+879|TABYS-ASM LLP (Natalya)
+880|Nakliye giderleri
+881|Temel katmanın serilmesi
+882|Son kat işlemi
+883|Parola değiştirme — QazGost AI
+884|Hesap: {a}
+885|Alibek Nurlanov
+886|Profil formu moderasyona gönderildi
+887|Profil formunu moderatör inceleyecek, ardından katalogda görünecek
+888|Sertifikalı kaynakçı: çelik yapılar, sundurmalar, kapılar
+889|Beton ve prefabrik
+890|Beton, kalıp, donatı
+891|Betoncu
+892|Çevre düzenlemesi
+893|En çok değerlendirilen
+894|ekip ve usta
+895|Ekip
+896|Ekip şu anda meşgul — süreyi kararlaştırmak için arayın
+897|BrigadaAstana
+898|Ekip başı
+899|QazGost üzerinden sipariş alan ekipler ve şirketler. Doğrudan arayın veya projeye davet gönderin
+900|Geri dön
+901|Tüm beceriler
+902|Ana yüklenici
+903|Demo profil
+904|Söküm ve montaj, {n} yıl deneyim
+905|Söküm ustası
+906|İç mimar
+907|Profil ekle
+908|Yerzhan, kaynak işleri
+909|Anahtar teslim konut ve ticari binalar
+910|Çitler ve kapılar
+911|Prefabrik beton fabrikası
+912|Katalog yükleniyor
+913|Usta adı veya şirket adı
+914|«Medina» şahıs şirketi
+915|«Medina» şahıs şirketi (prefabrik ve rögar kapakları)
+916|KS kuyu bilezikleri, {n}PP/{n}PP plakları, PN tabanları, polimer ve dökme demir-beton rögar kapakları. Karaganda içi sevkiyat
+917|şirket
+918|Şirket (LLP / şahıs şirketi)
+919|Şirket iletişim bilgileri
+920|İletişim bilgisi belirtilmemiş
+921|Çatı ustası
+922|Büyük ekipler
+923|En yüksek puan
+924|Boyacı
+925|Manarbek
+926|Her işin ustası
+927|Küçük tamiratlar, başvuru günü ölçüm için gelinir
+928|Beceriler
+929|Ad, beceri veya ekip başı, örneğin «beton»
+930|CRM müdürü atandı
+931|Bulundu
+932|Yaz
+933|sunucudan beklenmeyen yanıt
+934|Düşük puan
+935|Kimse bulunamadı
+936|Yüklenici hakkında
+937|Temel beceriler
+938|Anahtar teslim ince işler
+939|Isıtma ve havalandırma
+940|Moderasyona gönder
+941|Aramayı temizle
+942|Anlaşmaya göre
+943|Yeniden dene
+944|Ara
+945|Yüklenici ara
+946|İnce işlerin tamamı, {n} yıl deneyim
+947|Sıra
+948|Prefabrik beton tedarikçisi
+949|Projeye davet et
+950|Ön ödemesiz davet: ekip ve müdür talebi alır, fiyatı ve ödemeyi doğrudan kararlaştırırsınız
+951|Sipariş alıyor
+952|Sipariş alıyor
+953|Tesisatçı
+954|Sıhhi tesisat ve ısıtma, {n} yıl deneyim
+955|Kaynakçı
+956|Katalog özeti
+957|Şu anda meşgul
+958|Katalog sunucusu kullanılamıyor — demo profiller gösteriliyor. İçlerindeki iletişim bilgileri ve puanlar temsilîdir
+959|Serik Karimov
+960|Yüklenicilerin sıralanması
+961|Kadro
+962|Ortalama puan
+963|İnşaat işleri
+964|TechnoStroy
+965|Yalnızca müsait olanlar
+966|«QazStroyGroup» LLP
+967|«KazStroy» LLP veya Arman Kasymov
+968|Filtrelerin bir kısmını kaldırın veya başka bir beceriyle arayın
+969|Cephe ustası
+970|Cepheler, çevre düzenlemesi ve elektrik montajı. Garanti {n} yıl
+971|Bireysel usta
+972|Elektrikçi
+973|Elektrik ve zemin kaplamaları, {n} yıl deneyim
+974|YuzhStroy
+975|{a} numaralı talep ön ödemesiz gönderildi: «{b}» ve CRM müdürü bildirim aldı
+976|Yüklenicinin doğrudan çağrılması: {a}{b}. Şehir: {c}. Telefon: {d}.{e} {f}
+977|{a} şehrinde uygun ekip yok
+978|Yüklenicinin doğrudan çağrılması: {a}{b}
+979|QazGost AI üzerinden talep — {a}
+980|E-posta gönder: {a}
+981|Ara: {a}, {b}
+982|Taşeronluk: {a} ({b})
+983|{a}{b}: ayrıntılar
+984|, değerlendirme: {a}
+985|Ekip başı: {a}
+986|{a} kişi
+987|{a} şehrinde
+988|{a} kişi
+989|Puan {a}

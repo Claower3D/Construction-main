@@ -1,0 +1,159 @@
+# Дополнения к словарю: русская фраза|English
+от {n} ₸|from {n} ₸
+до {n} ₸|up to {n} ₸
+Цены из каталога QazGost{a}. Материалы посчитаны целыми упаковками|Prices from the QazGost catalog{a}. Materials are counted in whole packs
+Фундаменты|Foundations
+Арматура|Rebar
+Котлованы|Excavation pits
+Монтаж колец|Ring installation
+Монтаж септиков|Septic tank installation
+Трубопровод|Pipeline
+Земляные работы|Earthworks
+Септики и канализация|Septic tanks and sewerage
+{n} м|{n} m
+{n} м²|{n} m²
+{n} м³|{n} m³
+{n} кг|{n} kg
+{n} шт|{n} pcs
+{n} п.м|{n} lin. m
+{n} чел|{n} ppl
+{n} млн ₸|{n} million ₸
+{n} ₸ / час|{n} ₸ / hour
+БИН {n}|BIN {n}
+L ≈ {n} мм|L ≈ {n} mm
+{n} из {n}|{n} of {n}
+{n} × {n} м|{n} × {n} m
+{n} км|{n} km
+{n} дн|{n} d
+пара|pair
+катушка|reel
+секция|section
+баллон|can
+канистра|canister
+пакет|pack
+заказчик|client
+{n} заказ на {n} ₸|{n} order for {n} ₸
+{n} заказа на {n} ₸|{n} orders for {n} ₸
+{n} заказов на {n} ₸|{n} orders for {n} ₸
+техники в отклике: {n}|equipment in the response: {n}
+Рассчитать объём|Calculate volume
+{a}: подробнее|{a}: details
+Позвонить: {a}|Call: {a}
+{n} раздел|{n} section
+{n} раздела|{n} sections
+{n} разделов|{n} sections
+{n} этап|{n} stage
+{n} этапа|{n} stages
+{n} этапов|{n} stages
+Итого ориентировочно|Estimated total
+Проектировщик|Designer
+Субподрядчик|Subcontractor
+{n}. Основные строительно-монтажные работы|{n}. Main construction and installation works
+{n}. Пусконаладка и сдача технадзору|{n}. Commissioning and handover to technical supervision
+{n}. Демонтаж и подготовка основания|{n}. Demolition and base preparation
+Расчёт встроенного сметчика QazGost: вид работ и объёмы найдены в заметке по ключевым словам (ИИ не подключён)|Calculation by the built-in QazGost estimator: the work type and quantities were found in the note by keywords (AI is not connected)
+задач {n}|tasks: {n}
+{n} КБ|{n} KB
+{n} МБ|{n} MB
+Всего|Total
+Итого сметная стоимость|Total estimated cost
+Объёмы в заметке не указаны — взяты типовые. Добавьте в заметку площадь (м²), длину (м) или количество, и расчёт станет точным|Quantities are not given in the note — typical ones are used. Add the area (m²), length (m) or quantity to the note and the calculation will become exact
+Цены — рыночные по г. {a} (коэффициент ×{n}), резерв на непредвиденное {n}%, НДС {n}% показан отдельно|Prices are market prices for {a} (coefficient ×{n}), contingency reserve {n}%, VAT {n}% is shown separately
+Это предварительный расчёт: итоговая смета — после выезда инженера и замеров|This is a preliminary calculation: the final estimate is prepared after the engineer's visit and measurements
+менеджер|manager
+инженер|engineer
+Инженер-эксперт|Expert engineer
+Менеджер CRM|CRM manager
+По договорённости|By agreement
+Объём каждой позиции рассчитан по геометрии контура и нормам расхода производителей; цены — рыночные, с источником у каждой строки; региональный коэффициент применён к работам и материалам; сценарии различаются составом работ и маркой материалов|The quantity of each item is calculated from the outline geometry and manufacturers' consumption norms; prices are market prices, with a source for every row; the regional coefficient is applied to works and materials; scenarios differ in the scope of work and the grade of materials
+≈{n} м трубы на точку + {n}%|≈{n} m of pipe per point + {n}%
+≈{n} м штробы на точку|≈{n} m of chase per point
+≈{n} м кабеля на точку|≈{n} m of cable per point
+унитаз {n}|toilet {n}
+раковина {n}|washbasin {n}
+ванна {n}|bathtub {n}
+душ {n}|shower {n}
+стиральная машина {n}|washing machine {n}
+водонагреватель {n}|water heater {n}
+полотенцесушитель {n}|heated towel rail {n}
+раковина|washbasin
+ванна|bathtub
+унитаз|toilet
+маш.-ч|machine-hours
+{n}% суммы «Стандарта» — по ценам из открытых прайсов и объявлений со ссылкой. Остальное — расчётная оценка QazGost: уточните эти строки у поставщика|{n}% of the "Standard" amount is based on prices from public price lists and listings with a link. The rest is a QazGost calculated estimate: check these rows with the supplier
+Жанаозен|Zhanaozen
+Рудный|Rudny
+Экибастуз|Ekibastuz
+Excel и PDF со всеми разделами|Excel and PDF with all sections
+Собираем файл…|Building the file…
+Смета сохранена в Excel|Estimate saved to Excel
+Не удалось собрать файл Excel — проверьте связь и попробуйте ещё раз|Could not build the Excel file — check your connection and try again
+Браузер не дал открыть окно печати — разрешите всплывающие окна для сайта|The browser blocked the print window — allow pop-ups for this site
+Расчёт очищен — можно начать заново|The calculation has been cleared — you can start over
+Вид работ изменён — пересчитайте смету|The work type has been changed — recalculate the estimate
+Ваш ключ OpenAI подключён — фото разберёт ИИ.|Your OpenAI key is connected — AI will analyse the photos.
+Фото разбирает ИИ; если он не подключён на сервере, можно указать свой ключ.|Photos are analysed by AI; if it is not connected on the server, you can enter your own key.
+Свой ключ OpenAI|Your own OpenAI key
+Нужен только для разбора фото. Смета считается и без него.|Only needed for photo analysis. The estimate is calculated without it too.
+Сейчас подключён ключ|Key currently connected:
+Ключ OpenAI|OpenAI key
+Ключ хранится только в этом браузере и уходит на сервер QazGost вместе с фото — для одного запроса к ИИ; на сервере он не сохраняется.|The key is stored only in this browser and is sent to the QazGost server together with the photos — for a single AI request; it is not saved on the server.
+Получить ключ:|Get a key:
+Сохранить ключ|Save key
+Проверяем…|Checking…
+Проверить ключ|Check key
+Удалить ключ|Remove key
+Это не похоже на ключ OpenAI: он начинается с «sk-».|This does not look like an OpenAI key: it starts with "sk-".
+Вставьте ключ, чтобы его проверить.|Paste a key to check it.
+Ключ рабочий: сервис ИИ его принял.|The key works: the AI service accepted it.
+Нет связи с сервером — ключ не проверен.|No connection to the server — the key was not checked.
+Ключ не прошёл проверку ({a}): {b}|The key did not pass the check ({a}): {b}
+сервис ИИ его не принял|the AI service did not accept it
+Ключ OpenAI сохранён в этом браузере|OpenAI key saved in this browser
+Ключ OpenAI удалён из этого браузера|OpenAI key removed from this browser
+Указать свой ключ OpenAI|Enter your own OpenAI key
+Состояние: {a}|Condition: {a}
+Состояние:|Condition:
+Видимые дефекты|Visible defects
+Что учесть|What to take into account
+По фото больше подходит вид работ «{a}», а смета посчитана для другого. Проверьте выбор.|Judging by the photo, the work type "{a}" fits better, but the estimate was calculated for a different one. Check your choice.
+Выбрать «{a}»|Choose "{a}"
+ИИ-разбор фото не подключён: на сервере нет ключа OpenAI. Смета посчитана без него — по обмеру и справочнику.|AI photo analysis is not connected: there is no OpenAI key on the server. The estimate was calculated without it — from the measurements and the reference book.
+ИИ-разбор фото не выполнен: сервис ИИ отклонил ключ OpenAI. Проверьте ключ.|AI photo analysis was not performed: the AI service rejected the OpenAI key. Check the key.
+ИИ-разбор фото не выполнен: исчерпан лимит запросов к сервису ИИ. Попробуйте позже.|AI photo analysis was not performed: the AI service request limit has been reached. Try again later.
+ИИ-разбор фото не выполнен: сервис ИИ не ответил вовремя. Попробуйте ещё раз.|AI photo analysis was not performed: the AI service did not respond in time. Try again.
+ИИ-разбор фото не выполнен: сервис ИИ вернул ошибку. Смета посчитана без него.|AI photo analysis was not performed: the AI service returned an error. The estimate was calculated without it.
+ИИ-разбор фото не выполнен: слишком много запросов подряд. Подождите минуту и пересчитайте смету.|AI photo analysis was not performed: too many requests in a row. Wait a minute and recalculate the estimate.
+ИИ-разбор фото не выполнен: фото слишком большие. Оставьте 1–3 снимка.|AI photo analysis was not performed: the photos are too large. Keep 1–3 pictures.
+ИИ-разбор фото не выполнен: сервер прислал непонятный ответ.|AI photo analysis was not performed: the server sent an unreadable response.
+Состав сценария|Scenario scope
+Ведомость закупки материалов|Materials purchase list
+Закупка|Purchases
+Причина перерыва|Reason for the break
+Как посчитано|How it was calculated
+Строк в смете|Rows in the estimate
+Печать / сохранить в PDF|Print / save as PDF
+сметы по нормам РК|estimates to Kazakhstan standards
+Цены — рыночные, с источником у каждой строки|Prices are market prices, with a source for every row
+Позиция и как посчитан объём|Item and how the quantity was calculated
+Начало, день|Start, day
+Длительность, дн|Duration, days
+Перерыв, дн|Break, days
+Итого, дней|Total, days
+Где смотрели цену|Where the price was checked
+Как посчитан объём|How the quantity was calculated
+Источник цены|Price source
+Описание задачи|Task description
+Дата расчёта|Calculation date
+стены за вычетом проёмов|walls minus openings
+коэффициент|coefficient
+Заказчик|Customer
+Установка смесителя на раковину|Basin mixer installation
+Установка смесителя на ванну|Bath mixer installation
+Смеситель для ванны с душевой лейкой, средний сегмент|Bath mixer with hand shower, mid-range
+смеситель на раковину|basin mixer
+смеситель на ванну с душевой лейкой|bath mixer with hand shower
+Satu: смесители для ванны от ≈7 000 ₸ (бюджетные) до ≈61 000 ₸ (Grohe); взят средний сегмент|Satu: bath mixers from ≈7,000 ₸ (budget) to ≈61,000 ₸ (Grohe); the mid-range is used
+Канализация: приборы подключаются к существующим выпускам; замена канализационных труб и стояка в смету не входит — считается после осмотра.|Sewerage: fixtures are connected to the existing outlets; replacing sewer pipes and the riser is not included in the estimate — it is priced after an inspection.
+Душевая кабина: смеситель и лейка входят в комплект кабины.|Shower cabin: the mixer and shower head come with the cabin.
+Отопление: радиаторы и подводка к ним при действующей системе; котёл, насосная группа и магистральные трубы в смету не входят.|Heating: radiators and their connections on an existing system; the boiler, pump group and main pipes are not included in the estimate.

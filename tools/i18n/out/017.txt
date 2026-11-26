@@ -1,0 +1,357 @@
+6262|Steel gas pipe d{n}-{n}
+6264|Pipes
+6266|Cleaning
+6267|Concrete placement by truck-mounted pump
+6268|Concrete placement with vibration
+6269|Laying a water and wind barrier membrane
+6270|Laying hot asphalt concrete (h={n} mm)
+6271|Laying porcelain stoneware
+6272|Laying laminate
+6273|Laying paving tiles on a dry sand-cement mix
+6275|Smart Zigbee relay {n}A
+6277|Close-coupled toilet
+6278|Bathtub/shower installation
+6279|Entrance door installation
+6280|Switch installation
+6281|Exhaust fan installation
+6282|Road kerb installation
+6283|Installation and connection of a gas boiler
+6284|Interior door installation
+6285|PVC window installation ({n}-chamber)
+6286|Lintel installation
+6287|Skirting board installation
+6288|Window sill installation
+6289|Fire detector installation
+6290|Radiator installation
+6291|Washbasin installation
+6292|Socket installation
+6293|Installation of garden and road kerbs
+6294|Tap installation
+6295|Spotlight installation
+6296|Toilet installation
+6297|Reinforced belt construction
+6298|Drainage channels and water drainage
+6299|Counter-battens and roof lathing
+6300|Cast-in-place concrete staircase
+6301|Roof lathing
+6302|Foundation formwork
+6303|Window and door reveals
+6304|Inspection manhole with cover
+6305|Rafter system construction
+6306|Floor screed ({n} mm)
+6307|Water underfloor heating
+6308|Topping concrete floor
+6309|Crushed stone base (h={n} mm)
+6310|Panel formwork for walls
+6311|Insulation
+6312|Insulation + plaster + facade painting
+6313|Roof insulation with mineral wool {n} mm
+6314|Foundation insulation with XPS {n} mm
+6315|Curing
+6316|Concrete curing (covering, watering)
+6317|Finish
+6318|Photorealistic {n}D visualization
+6319|Drawings
+6321|Filling
+6322|Ceiling filling for painting
+6323|Wall filling for painting ({n} coats)
+6324|Finishing filler
+6325|Chasing walls for cable
+6327|Decorative plaster ({n} kg)
+6328|Ceiling plastering on screed guides
+6329|Wall plastering on screed guides (up to {n} mm)
+6330|Crushed stone bedding (h={n} mm)
+6332|Crushed stone fraction {n}-{n} (bedding)
+6333|Crushed stone fraction {n}-{n} for bedding (h={n} mm, compaction factor {n})
+6334|Crushed stone, fraction {n}-{n} mm
+6337|Distribution board, {n} modules
+6338|Distribution board
+6339|Evacuation
+6340|Expert review
+6341|Electrical + plumbing + heating + ventilation + gas
+6342|Electrical cables
+6343|Epoxy compound for self-levelling floors
+6344|{n} ₸/trip
+6345|Putzmeister truck-mounted concrete pump {n} m
+6346|KAMAZ {n} concrete mixer truck
+6347|Hyundai HD{n} aerial platform ({n} m)
+6348|XCMG GR{n} motor grader
+6349|XCMG QY{n}K{n} truck crane, {n} t
+6350|Asphalt paving and landscaping of a residential complex
+6351|Vogele Super {n}-{n} asphalt paver
+6352|CAT D{n}R bulldozer
+6353|Hitachi ZX{n} crawler excavator
+6354|Demolition and removal of construction waste
+6355|SDMO diesel generator {n} kW
+6356|Road works
+6357|Delivery and lifting of ventilation units
+6358|Pouring a cast-in-place foundation and slab
+6359|Earthworks and pit excavation
+6360|Major renovation of a business centre, {n} m²
+6361|Bomag road roller {n} t
+6362|Commercial fit-out
+6363|KAMAZ {n} crane truck (crane {n} t)
+6364|Bobcat S{n} skid-steer loader
+6365|Installation of supply and exhaust ventilation (HVAC)
+6366|Installation of facade panels and glazing
+6367|Base grading and asphalt laying
+6368|Shacman F{n} dump truck ({n} t)
+6369|Shacman F{n} dump truck, {n} t
+6370|Construction of a cast-in-place frame of a {n} m² cottage
+6371|Manitou MT {n} telescopic handler
+6372|LLP "VentStroy KZ"
+6373|JCB {n}CX Super backhoe loader
+6481|{n} batteries in a case
+6482|Circuit breaker ABB SH{n}L C{n}P
+6483|Circuit breaker IEK VA{n}-{n}P C{n}
+6484|Circuit breaker Schneider Electric Easy{n}P C{n}
+6485|Battery + charger included
+6486|Galvanized wedge anchor {n}×{n} mm ({n} pcs)
+6487|Membrane expansion tank for heating Wester WRV {n} L
+6488|Gravity concrete mixer Sibrtech BSM-{n} ({n} L, {n} W)
+6489|Galvanized hex head bolt M{n}×{n} ({n} pcs)
+6490|Wall chaser Fiolent B{n}-{n} ({n} W, depth {n} mm)
+6491|In a case with a set of drill bits. From {n} pcs — {n} ₸
+6492|Acrylic bathtub Cersanit Lorena {n}×{n} cm
+6493|Enamelled steel bathtub VIZ Antika {n}×{n} cm
+6494|bucket
+6495|Storage water heater Ariston Pro{n} R {n} V {n}K
+6496|Plastic gutter Docke Premium d{n} L={n} m, cream
+6497|Corrugated roofing sheet Onduline Classic, brown, {n}×{n} m
+6498|{n}-gang switch Schneider Asfora (white)
+6499|Nuts with gaskets included
+6500|Round construction nails {n}×{n} mm ({n} kg pack)
+6501|Branded nails included. From {n} pcs — {n} ₸
+6502|Universal sanitary silicone sealant Ceresit CS {n}, white ({n} ml)
+6503|Flexible water hose {n}/{n}" F/M {n} cm (stainless braid)
+6504|Flexible shingles Shinglas Classic Modern (pack {n} m²)
+6505|Vertical membrane pressure tank {n} L, Jileks
+6506|GOST {n}
+6507|GOST IEC {n}-{n}
+6508|GOST IEC {n}-{n}-{n}
+6509|GOST R {n}
+6510|GOST R {n}-{n}
+6511|GOST R IEC {n}
+6512|GOST R IEC {n}-{n}
+6513|Deep-penetration primer Ceresit CT {n} ({n} L)
+6514|Saw blade included
+6515|Residual current breaker with overcurrent protection Schneider Electric Easy{n}P+N C{n}mA
+6516|Drill driver DeWalt DCD{n}C{n}V XR {n}×{n}Ah
+6517|Cordless drill driver Makita DDF{n}SYX{n} Li-Ion {n}V
+6518|Shower column with mixer and rain shower Lemark Tropic
+6519|Coaxial flue included
+6520|Countersunk polypropylene nail dowel {n}×{n} ({n} pcs)
+6521|Flexible joint grout Ceresit CE {n}, white ({n} kg)
+6522|Installation frame for a wall-hung toilet Geberit Duofix Delta {n} in {n}
+6523|Toilet installation frame Grohe Solido Rapid SL {n} in {n}
+6524|IE "Smirnov S.A."
+6525|Cables with clamps included
+6526|Cable VVGng {n}×{n} ({n} m)
+6527|Cable VVGng(A) {n}×{n} ({n} m)
+6528|Cable VVGng(A)-LS {n}×{n} ({n} m)
+6529|Power cable NYM-J {n}×{n} ({n} m)
+6530|Cable duct {n}×{n} with double lock ({n} m)
+6531|KAZAKHSTAN
+6532|Matt grey porcelain stoneware {n}×{n} cm Concrete Grey ({n} m²)
+6533|Polished marble-look porcelain stoneware {n}×{n} cm Carrara White ({n} m²)
+6534|Chrome flush plate and fixings included
+6535|Brass spring check valve {n}/{n}"
+6536|Strength class {n}. From {n} packs — {n} ₸
+6537|Reinforced tile adhesive Ceresit CM {n} Plus ({n} kg)
+6538|Connection terminal WAGO {n}-{n}-wire (pack of {n} pcs)
+6539|Domestic loop-pile carpet ITC Merlin {n} m (roll)
+6540|Free tinting for orders from {n} buckets
+6541|Brass manifold with control valves, {n} outlets {n}/{n}"×{n}/{n}"
+6542|Plastic sewer manhole with channel d{n} H={n} m
+6543|set
+6544|Set with a Soft Close seat at a {n}% discount
+6545|Thermostatic set for a radiator Danfoss RA-N {n}/{n}", angled
+6546|Box of {n} cans — {n} ₸/pc
+6547|Box of {n} packs — {n} ₸/pack
+6548|Box of {n} pcs — {n} ₸/pc
+6549|Box of {n} pcs at {n} ₸/pc
+6550|Floor-standing non-electric gas boiler AOGV-{n} Comfort
+6551|Wall-mounted gas boiler Baxi ECO Four {n} F (turbo)
+6552|Wall-mounted dual-circuit gas boiler Navien Deluxe S Coaxial {n}k
+6553|Full-bore brass ball valve {n}/{n}" F/F Valtec BASE
+6554|Washable matt interior paint Caparol Samtex {n} ({n} L)
+6555|Acrylic facade paint Tikkurila Novasil base A ({n} L)
+6556|Laminate class {n}, {n} mm, Kronostar Eco-Tec Canyon Oak ({n} m²)
+6557|Laminate class {n}, {n} mm, Tarkett Cinema Brigitte ({n} m²)
+6558|Semi-commercial linoleum Tarkett Sprint Pro Toronto {n} (width {n} m)
+6559|Polymer-sand sewer manhole cover, type L ({n} t)
+6560|Diffusion water and wind barrier membrane Izospan AM ({n} m²)
+6561|Monterrey metal tile {n} mm RAL {n}, wine red
+6562|Monterrey metal tile {n} mm RAL {n}, chocolate
+6563|Slip repair coupling for sewer pipe d{n}
+6564|Fast-setting self-levelling floor Bergauf Boden Zement Gross ({n} kg)
+6565|Free cutting to size for orders from {n} m²
+6566|Pumping station Pedrollo JSWm {n}AX-{n}CL
+6567|Automatic pumping station Grundfos Scala{n}-{n}
+6568|Self-levelling laser level Bosch GLL {n}-{n} Professional
+6569|NEW
+6570|Legs and trap included at a {n}% discount
+6571|Free edge overlocking for orders from {n} m²
+6572|Wholesale discount {n}% from {n} pcs
+6573|Wholesale price from {n} coils — {n} ₸
+6574|Wholesale price from {n} pcs — {n} ₸
+6575|CHEAPER WHOLESALE
+6576|Original, {n}-month warranty
+6577|From {n} coils — {n} ₸
+6578|From {n} coils — {n} ₸/coil
+6579|From {n} coils at {n} ₸
+6580|From {n} buckets — {n} ₸
+6581|From {n} canisters at {n} ₸
+6582|From {n} sets — {n} ₸
+6583|Free delivery from {n} sets
+6584|From {n} m² — {n} ₸/m²
+6585|From {n} bags — {n} ₸/bag
+6586|From {n} devices — {n} ₸
+6587|From {n} rolls — {n} ₸
+6588|From {n} packs — {n} ₸
+6589|From {n} packs — {n} ₸/pack
+6590|From {n} pcs — {n} ₸
+6591|From {n} pcs — {n} ₸/pc
+6592|From {n} pcs at {n} ₸
+6593|From {n} pcs — {n}% discount
+6594|Sewer bend d{n}° (outdoor)
+6595|Official {n}-year warranty
+6596|LED panel {n}×{n}W {n}K (recessed)
+6597|Professional all-season mounting foam Soudal Maxi {n} ({n} ml)
+6598|Straight galvanized perforated mounting tape {n}×{n} mm ({n} m)
+6599|Rotary hammer Bosch GBH {n}-{n} DRE SDS-plus ({n} W, {n} J)
+6600|Three-mode rotary hammer Makita HR{n} SDS-plus ({n} W)
+6601|Hand-held circular saw Makita HS{n} ({n} W, blade {n} mm)
+6602|PVC skirting board with cable duct Arbiton Indo {n} m, Grey Oak
+6603|White glossy ceramic wall tile {n}×{n} cm ({n} m²)
+6604|Verification interval {n} years. From {n} pcs — {n} ₸
+6605|Pallet {n} m² — {n} ₸/m²
+6606|Pallet of {n} bags — {n} ₸/bag
+6607|Pallet of {n} bags — {n} ₸/bag
+6608|Laminate underlay, extruded polystyrene {n} mm ({n} m²)
+6609|Full set of gutter elements at a {n}% discount
+6610|Aluminium joint-cover threshold strip {n} m, silver
+6611|For orders from {n} coils — {n} ₸
+6612|{n}% discount when buying from {n} coils
+6613|When buying from {n} pcs — {n} ₸/pc
+6614|Self-supporting insulated wire SIP-{n}×{n} ({n} m)
+6615|Connecting wire PVS {n}×{n} ({n} m)
+6616|LED SMD floodlight {n}W IP{n} (outdoor)
+6617|Painted roofing profiled sheet NS{n} mm RAL {n}
+6618|Galvanized profiled sheet C{n} mm (wall/fence)
+6619|Aluminium radiator Royal Thermo Revolution {n}/{n} ({n} sections)
+6620|Bimetallic radiator Global Style Plus {n} ({n} sections)
+6621|Countertop washbasin Cersanit Melisa {n} cm
+6622|Sewer inspection fitting with cap d{n}
+6623|Earthed socket Legrand Valena Life (white)
+6624|Roll from {n} m² at a {n}% discount
+6625|Vinyl siding Shiplap Grand Line {n} m (cream)
+6626|Roofing screws with EPDM washer {n}×{n} RAL {n} ({n} pcs)
+6627|Black phosphated wood screws {n}×{n} ({n} pcs)
+6628|Inverter welding machine Resanta SAI-{n} ({n}A)
+6629|Bundle of {n} pcs ({n} m) — {n} ₸/pc
+6630|Autonomous septic tank Topas-{n} (gravity-flow)
+6631|Semi-automatic bath waste with overflow Alcaplast A{n}K
+6632|DISCOUNT -{n}%
+6633|{n}% discount for orders from {n} coils
+6634|{n}% discount for payment by bank transfer with VAT
+6635|Bath and shower mixer Grohe Eurosmart Cosmopolitan
+6636|Kitchen mixer with high spout Hansgrohe Focus M{n}
+6637|Single-lever basin mixer Lemark Comfort
+6638|Tubular snow guard for metal tile {n} m RAL {n}
+6639|ST RK {n}-{n}
+6640|Aluminium stepladder, {n} steps, Alumet (working height {n} m)
+6641|Universal cold water meter SVK-{n}G with mounting kit
+6642|Reinforced two-wheel construction wheelbarrow {n} L/{n} kg
+6643|Heat transfer fluid for heating systems Tyoply Dom Eco -{n}°C ({n} kg)
+6644|LLP "Alina Group"
+6645|LLP "KazTherm Aktobe"
+6646|LLP "Tarkett Kazakhstan"
+6647|LLP "Alatau Electric"
+6648|LLP "Almaty Santekhnik"
+6649|LLP "Astana Krovlya"
+6650|LLP "Astana StroyMarket"
+6651|LLP "Barys Vodosnabzheniye"
+6652|LLP "Kazakhstan TrubInvest"
+6653|LLP "KazKrepyozh"
+6654|LLP "KazLak-Color"
+6655|LLP "KazCentrElectro"
+6656|LLP "KazElectroCable"
+6657|LLP "Keramo Centre Almaty"
+6658|LLP "Makita Centre KZ"
+6659|LLP "Metal Profile Kazakhstan"
+6660|LLP "Metiz Prom Atyrau"
+6661|LLP "Pavlodar Kraski"
+6662|LLP "SantekhKomplekt Astana"
+6663|LLP "TeploService Karaganda"
+6664|LLP "Shymkent Instrument"
+6665|Sewer tee d{n}/{n}° (outdoor)
+6666|Basalt-reinforced PPR pipe PN{n} d{n}×{n} ({n} m)
+6667|Fibreglass-reinforced PPR pipe PN{n} d{n}×{n} ({n} m)
+6668|Double-wall corrugated pipe Korsis SN{n} d{n}/{n} ({n} m)
+6669|Corrugated HDPE conduit d{n} with pull wire ({n} m)
+6670|Cross-linked polyethylene pipe PEX-A EVOH d{n}×{n} ({n} m)
+6671|PVC sewer pipe d{n}×{n} L={n} mm (outdoor, orange)
+6672|PP sewer pipe d{n}×{n} L={n} mm (indoor, grey)
+6673|Multilayer pipe Valtec PEX-AL-PEX d{n}×{n} ({n} m)
+6674|Polypropylene pipe PPR PN{n} d{n}×{n} ({n} m)
+6675|TU {n}-{n}-{n}-{n}
+6676|Angle grinder Bosch GWS {n}-{n} ({n} W, {n} mm)
+6677|Angle grinder Makita GA{n} ({n} W, {n} mm)
+6678|Reinforced equal-leg fixing bracket {n}×{n}×{n}×{n} mm
+6679|Press elbow for multilayer pipe {n}×{n}/{n}" M
+6680|Wall-hung rimless toilet Roca Gap Clean Rim
+6681|Close-coupled toilet Cersanit Merida with angled outlet and cistern
+6682|pack
+6683|Pack of {n} pcs — {n} ₸/pc
+6684|Residual current device (RCD) ABB FH{n} AC {n}A {n}mA
+6685|Facade panel Alta-Profil Balkan Granite {n}×{n} mm
+6686|Brass Y-strainer {n}/{n}" F/F
+6687|Circulation pump Grundfos UPS {n}-{n} mm
+6688|Case and batteries included. From {n} pcs — {n} ₸
+6689|Cast iron ring gear. Free delivery within the city
+6690|Installation supervision as a gift with purchase
+6691|Polymer finishing filler Weber Vetonit LR+ ({n} kg)
+6692|Gypsum plaster Volma Sloy ({n} kg)
+6693|Universal gypsum plaster Knauf Rotband ({n} kg)
+6694|Plumbing coach screw DIN {n}×{n} mm ({n} pcs)
+6695|Wall-mounted distribution board ShchRn-{n} modules IP{n} IEK
+6696|Eco-friendly propylene glycol. From {n} pcs — {n} ₸
+6697|Box {n} kg — {n} ₸
+6698|{n}. Earthworks
+6699|{n}. Foundations and cast-in-place substructure
+6700|Reinforcement and concreting of cast-in-place columns
+6701|Concreting of a cast-in-place foundation slab M-{n}
+6702|Geodetic survey of the site and setting out of axes
+6703|Coating and roll waterproofing of the foundation
+6704|Demolition of old structures
+6705|Manual soil finishing in corners and cavities
+6706|Masonry of internal load-bearing walls of brick M-{n}
+6707|Masonry of external walls of autoclaved aerated block {n} mm
+6708|Installation of a timber rafter system with fire protection
+6709|Installation of metal tile / soft roofing
+6710|Formwork and concreting of shear walls
+6711|Formwork for the foundation and pile cap
+6712|Backfilling of foundation cavities with compaction
+6713|Clearing the site of vegetation and stumps
+6714|Pit excavation by excavator with loading
+6715|Stripping of topsoil by bulldozer
+6716|Laying a water and wind barrier membrane
+6717|Laying and tying of rebar cage A{n}C
+6718|Installation of the gutter system and flashing elements
+6719|Installation of temporary fencing and safety signs
+6720|Temporary access roads
+6721|Cast-in-place floor slab between storeys
+6722|Sand and crushed stone cushion with compaction
+6723|Concrete blinding M-{n}
+6724|Roof insulation with mineral wool boards {n} mm
+6261|
+6263|
+6265|
+6274|
+6276|
+6320|
+6326|
+6331|
+6335|
+6336|

@@ -1,0 +1,330 @@
+0|Kazakistan standartlarına göre keşif ve kusur tespiti
+1|Ana sayfa
+2|Platform
+3|Özellikler
+4|Katalog
+5|Fiyatlar
+6|Giriş yap
+7|Giriş
+8|Çıkış yap
+9|Kayıt ol
+10|Kayıt
+11|Sisteme giriş yap
+12|Panel
+13|Panele git
+14|Git
+15|Profil
+16|Gösterge paneli
+17|Aç
+18|Menüyü aç
+19|Menüyü kapat
+20|Geri
+21|Gösterge paneline dön
+22|Yukarı
+23|İçeriğe geç
+24|Göster
+25|Tümünü göster
+26|Daralt
+27|Gönder
+28|Tümü
+29|Toplam:
+30|Ara…
+31|Kategorisiz
+32|Bölüm yükleniyor…
+33|Çalışma paneli açılıyor…
+34|Sunucuyla eşitleme hatası
+35|Araçlar
+36|ARAÇLAR
+37|YÖNETİM
+38|PROFİL
+39|SİPARİŞLERİM
+40|PROFİL & HİZMETLER
+41|Müşteri menüsü
+42|Uygulayıcı menüsü
+43|Mühendis paneli
+44|Yönetici paneli
+45|Ana panel
+46|Maliyet tahmini
+47|Kusur kontrolü
+48|Metraj hesabı
+49|Mühendislik çözümleri
+50|Tesisat hesaplayıcı
+51|LiDAR tarayıcı
+52|Takvim
+53|İş takvimi
+54|Siparişlerim
+55|İşlerim
+56|İş makineleri / Pazar yeri
+57|Profil formum
+58|Profil formu
+59|Uygulayıcı profil formu
+60|Profil formunu doldurun
+61|Bina inşaatı
+62|Talepler
+63|AI hesaplama
+64|Giderler
+65|Fiyat listeleri
+66|Moderasyon
+67|Bölgeler
+68|İşlem günlüğü
+69|Analitik
+70|Anlaşmazlıklar ve tahkim
+71|Sözleşmeler
+72|CRM sistemi
+73|İş makineleri pazar yeri
+74|Keşif hesaplayıcı
+75|Usta
+76|Müşteri
+77|Uygulayıcı
+78|Mühendis
+79|Yönetici
+80|Müdür
+81|Şirket
+82|Tedarikçiyim
+83|Müdür Sasha
+84|Ödeme
+85|Ödeme ve cüzdan
+86|Cüzdanı aç
+87|Tarife
+88|İletişim
+89|Sepet
+90|Şehir
+91|Şehir seçin
+92|Şehir seç
+93|Seçilen şehir:
+94|Kazakistan şehirleri
+95|Şehir ara...
+96|Şehir bulunamadı
+97|Şehri GPS ile otomatik belirle
+98|Otomatik GPS
+99|Tüm şehirler
+100|Tüm bölgeler
+101|Tüm bölgeler (temel fiyatlar)
+102|Fiyat bölgesi
+103|Bölge:
+104|Konum
+105|Almatı
+106|Astana
+107|Çimkent
+108|Karaganda
+109|Aktöbe
+110|Taraz
+111|Pavlodar
+112|Öskemen
+113|Semey
+114|Atırav
+115|Kostanay
+116|Kızılorda
+117|Oral
+118|Petropavl
+119|Aktav
+120|Temirtav
+121|Türkistan
+122|Kökşetav
+123|Taldıkorgan
+124|Jezkazgan
+125|Bildirimler
+126|Tümünü okundu say
+127|Tümünü temizle
+128|Bildirim yok
+129|Önemli mesajlar ve talep durumları burada görünecek
+130|yeni
+131|Az önce
+132|Uygulayıcı teklif verdi
+133|Siparişinize fiyat ve süre içeren bir teklif geldi. Teklifleri karşılaştırın.
+134|Keşif hazır (AI 2.0)
+135|Yüklenen fotoğraflar analiz edildi: 3 fiyat senaryosu hesaplandı.
+136|AI tarayıcı 2 mikro çatlak tespit etti ve SNiP'e göre rapor oluşturdu.
+137|Denetim planlandı
+138|«Kabanbay» konut sitesi için yeni teknik kontrol talebi.
+139|AI GOST kontrolü tamamlandı
+140|Proje dokümanı bölümünün kontrolü bitti: 0 kritik kusur.
+141|KS-2 tutanağının imzalanması
+142|Müşteri, gizli işlere ait ara tutanağı onayladı.
+143|CRM'de yeni potansiyel müşteri
+144|«KazStroyInvest» LLP'den yeni ticari talep geldi.
+145|Anlaşma «Kapanış» aşamasına alındı
+146|№1085 numaralı müşteri ikinci aşama için ticari teklif istedi.
+147|Proje başarıyla teslim edildi
+148|Yüklenici 3 numaralı keşif aşamasını eksiksiz teslim etti.
+149|Şahıs şirketi doğrulama talebi
+150|«TemirStroy» şahıs şirketi IIN/BIN kontrolü için belgelerini gönderdi.
+151|Yeni tahkim anlaşmazlığı
+152|Monolit döküm kalitesiyle ilgili şikâyet açıldı (DSP-882).
+153|Kazakistan ESN güncellemesi
+154|Kazakistan'ın 17 bölgesi için fiyat artış endeksleri güncellendi.
+155|Yeni uygun sipariş
+156|Sipariş akışında: Astana'da 450 m² ofis tadilatı.
+157|Aşama müşteri tarafından kabul edildi
+158|Müşteri 1 numaralı aşamayı onayladı. Aşama ödemesini doğrudan onunla kararlaştırın.
+159|Teklif kabul edildi
+160|Ticari teklifiniz ana uygulayıcı olarak seçildi.
+161|Fotoğraftan saniyeler içinde AI tahmini • Kazakistan SNiP ve GOST • RU / KZ / EN
+162|İnşaat siparişlerinden kazanın —
+163|dürüst ve şeffaf
+164|İnşa edin ve tadilat yapın
+165|fazla ödemeden ve risksiz
+166|Tüm Kazakistan'daki canlı sipariş akışını açın, fiyat ve süre teklifleri gönderin, projeleri «İşlerim» bölümünde yürütün ve sonucu çevrimiçi teslim edin.
+167|Odanın veya cephenin fotoğrafını yükleyin — hizmet Kazakistan standartlarına göre keşif hazırlar, çatlakları işaretler ve şehrinizde ekip bulur.
+168|Sipariş akışını aç
+169|Projeyi fotoğraftan değerlendir
+170|Ücretsiz başla
+171|Örneğe bak
+172|Şimdi dene
+173|Uygulayıcı bul veya sipariş al
+174|iş ve malzeme birim fiyatı
+175|11 şehre göre düzeltmeli
+176|fotoğraftan keşif
+177|1 dakikaya kadar
+178|metrajlar, malzemeler ve toplam
+179|çatlak dedektörü doğruluğu
+180|doğrulama örnekleminde
+181|yapı malzemesi kalemi
+182|Kazakistan bölgelerine göre fiyatlar
+183|Ev: sol yarı fotogerçekçi görsel, sağ yarı mühendislik sistemleriyle çizim: elektrik, su temini, ısıtma, kanalizasyon, gaz ve sayaç üniteleri
+184|Elektrik
+185|Elektrik panosu
+186|Elektrik sayacı
+187|Soğuk su
+188|Sıcak su
+189|Su sayacı
+190|Isıtma
+191|Kazan ve kolektör
+192|Kanalizasyon
+193|Gaz
+194|Gaz sayacı
+195|Kazakistan standartlarına göre keşif ve kusurlar
+196|Kazakistan Cumhuriyeti standartlarına göre keşifler, kusur kontrolü ve yükleniciler.
+197|Hizmet kusurları bulur, metrajları hesaplar ve Kazakistan ESN birim fiyatlarını ve standartlarını seçer.
+198|Hızlı ve doğru keşifler
+199|Fotoğraftan saniyeler içinde keşif
+200|Fotoğraftan bir dakikada keşif
+201|Kusur tespiti
+202|Fotoğraftan çatlaklar
+203|Çatlaklar, kopmalar, sızıntılar
+204|Fotoğraftaki çatlaklar çerçeveyle işaretlenir; rapora standart, açıklama ve onarım fiyatı eklenir.
+205|YOLO26 yapay sinir ağı
+206|Yapay sinir ağı işleri hesaplar ve kusurları bulur
+207|Şeffaf hesaplar
+208|2026 şeffaf fiyatları
+209|Şehre göre düzeltilmiş 2026 fiyatları
+210|Kazakistan bölgelerine göre fiyatlar
+211|Hazır belgeler
+212|Keşifler, tutanaklar, listeler ve hesaplar — onay ve yüklenici için PDF ve Excel biçiminde.
+213|PDF ve Excel'e aktarma
+214|Excel ve PDF'e aktarma
+215|PDF / Excel'e aktarma
+216|Standart referansları
+217|Nasıl çalışır
+218|Fotoğraftan hazır keşfe — üç adımda, genellikle bir dakikadan kısa sürede.
+219|Fotoğraf yükleyin
+220|Duvar, oda, cephe veya yakın plan çatlak. Telefon kamerası yeterlidir.
+221|Analiz ve hesap
+222|Kesin keşif al
+223|Fiyat ve önerilerle keşif ve kusur raporu — katalogdaki ekibe gönderin.
+224|Fotoğrafı hazır keşfe dönüştürün
+225|Projenin fotoğrafını yükleyin — Kazakistan standartlarına göre metraj, fiyat ve maliyet içeren hazır keşif alın.
+226|Keşif hesapla
+227|Kendi projeni hesapla
+228|Keşif oluştur
+229|Excel indir
+230|Keşif PDF
+231|Dosya hazırlanıyor…
+232|Keşif örnekleri
+233|Keşif örneği
+234|Keşif böyle görünür
+235|Şeffaf ve işe hazır — deneyimli bir keşif uzmanınınki gibi. Fiyatlar, şehrinizin katsayısıyla Kazakistan ESN veritabanından alınır.
+236|İş ve malzeme metrajları
+237|İş türlerine ve malzemelere göre döküm
+238|Toplam ve iş süresi
+239|İşin adı
+240|Miktar
+241|Birim fiyat
+242|Tutar, ₸
+243|Keşif toplamı
+244|Malzeme payı %10
+245|Malzeme payı
+246|Teknik kontrol +%5
+247|Teknik kontrol
+248|birim
+249|gün
+250|Şerit temel
+251|Şerit temel, M300 beton
+252|Ekskavatörle kazı
+253|M300 ağır beton (W6, F150)
+254|A500C nervürlü donatı Ø12 mm
+255|Lamine panel kalıp
+256|Karışımın yerleştirilmesi ve vibrasyonu
+257|Gazbeton duvar örme
+258|D500 gazbetondan dış duvarlar
+259|240 m², kalınlık 300 mm
+260|D500 otoklavlı gazbeton 600×300×200
+261|Gözenekli beton yapıştırıcısı, 25 kg
+262|Donatı için bazalt file
+263|Donatılı duvar örme
+264|0,5 mm metal kiremitten beşik çatı
+265|«Monterrey» metal kiremit 0,5 mm
+266|Mertekler için iğne yapraklı kereste 50×150 mm
+267|Süper difüzyon membranı
+268|Mertek sistemi ve kaplama tahtası montajı
+269|Zemin şapı
+270|Elyaflı yarı kuru zemin şapı, 60 mm
+271|PÇ-500 D0 çimento ve yıkanmış kum
+272|Polipropilen elyaf 12 mm
+273|Yerden ısıtma için akışkanlaştırıcı
+274|Perdahlı mekanize uygulama
+275|Duvar örme
+276|Çatı
+277|Temel
+278|Cephe
+279|Daire, Sığanak 18
+280|Banyo, Kenesarı 4
+281|Bütçeyi bir dakikada kestirin
+282|Parametreleri girin — 2026 fiyatlarıyla bir fikir edinin. Kesin keşfi hizmet fotoğraftan hazırlar.
+283|Bütçe hesaplayıcı
+284|Proje türü
+285|Daire
+286|Ev
+287|Ofis
+288|Sanayi tesisi
+289|İş türü ve alan
+290|Alan, m²
+291|Alan, metrekare
+292|Tahmini bütçe
+293|Tamamlanma süresi
+294|İş hacmi
+295|Aralık:
+296|İş ve fiyat kataloğu
+297|İş kategorilerinde ara
+298|Tüm katalog
+299|İş grupları
+300|iş
+301|kategori
+302|Tüm seçenekler
+303|Genel inşaat
+304|Hafriyat işleri
+305|Beton ve monolit
+306|Çelik yapılar
+307|Pencereler ve kapılar
+308|İnce işler
+309|Mühendislik şebekeleri
+310|Mühendislik sistemleri
+311|Proje ve özel işler
+312|Su temini ve kanalizasyon
+313|Isıtma ve yerden ısıtma
+314|Kablo kesiti
+315|Jeodezi ve topoğrafik ölçüm
+316|Şantiyedeki herkes için tek hizmet
+317|İnşaat sürecinin her katılımcısı için kullanışlı araçlar.
+318|Müşterilere
+319|Yüklenicilere
+320|Proje tasarımcılarına
+321|Teknik kontrole
+322|Fotoğraftan keşif
+323|Fotoğrafa ve ölçülere göre keşif — her satırda fiyat kaynağıyla
+324|Yüklenici kataloğu
+325|İş kalitesi kontrolü
+326|Sipariş akışı
+327|Tüm Kazakistan'da sipariş akışı
+328|Fiyat ve süre içeren teklif doğrudan sipariş kartında
+329|Kendi iş makineniz pazar yerinde — kiracılar sizi kendileri bulur

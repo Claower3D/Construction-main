@@ -1,0 +1,435 @@
+1556|Demolition worker
+1557|Interior designer
+1558|Add profile
+1559|Yerzhan, welding works
+1560|Turnkey residential and commercial buildings
+1561|Fences and gates
+1562|Precast concrete plant
+1563|Loading catalog
+1564|Craftsman name or company name
+1565|IE "Medina"
+1566|IE "Medina" (precast and hatches)
+1567|Manhole rings KS, slabs {n}PP/{n}PP, bases PN, polymer and cast-iron-concrete hatches. Shipping within Karaganda
+1568|Companies
+1569|Company (LLP / IE)
+1570|Company contacts
+1571|No contacts specified
+1572|Roofer
+1573|Large crews
+1574|Highest rating
+1575|Painter
+1576|Manarbek
+1577|Handyman
+1578|Minor repairs, measurement visit on the day of request
+1579|Skills
+1580|Name, skill or crew leader, e.g. "concrete"
+1581|CRM manager assigned
+1582|Found
+1583|Message
+1584|unexpected server response
+1585|Lowest rating
+1586|No one found
+1587|About the contractor
+1588|Main skills
+1589|Turnkey finishing
+1590|Heating and ventilation
+1591|Send for moderation
+1592|Clear search
+1593|By agreement
+1594|Retry
+1595|Call
+1596|Contractor search
+1597|Full cycle of finishing works, {n} years of experience
+1598|Order
+1599|Precast supplier
+1600|Invite to project
+1601|Invitation without prepayment: the crew and the manager will receive the request; you agree on price and payment directly
+1602|Accepting orders
+1603|Accepting orders
+1604|Plumber
+1605|Plumbing and heating, {n} years of experience
+1606|Welder
+1607|Catalog summary
+1608|Busy now
+1609|The catalog server is unavailable — demo profiles are shown. Their contacts and ratings are illustrative
+1610|Serik Karimov
+1611|Contractor sorting
+1612|Team
+1613|Average rating
+1614|Construction works
+1615|TechnoStroy
+1616|Available only
+1617|LLP "QazStroyGroup"
+1618|LLP "KazStroy" or Arman Kasymov
+1619|Remove some filters or search by another skill
+1620|Facade worker
+1621|Facades, landscaping and electrical works. {n}-year warranty
+1622|Private craftsman
+1623|Electrician
+1624|Electrical and floor coverings, {n} years of experience
+1625|YuzhStroy
+1626|
+1627|[Voice]: {a}
+1628|Total requests in CRM: {a}
+1629|Are you sure you want to completely delete request #{a} from the CRM and for all contractors
+1630|Request #{a} moved to {b}
+1631|Request #{a} created and automatically passed to the engineer ({b})
+1632|Request #{a} deleted from the CRM and all calendars
+1633|Not saved on the server: {a}
+1634|New request from {a}
+1635|Site: {a} ({b}). Visit scheduled for {c} {d}
+1636|The server did not delete the request: {a}
+1637|The server is unavailable, the request was deleted only locally: {a}
+1638|Create a request for day {a}
+1639|Filter: {a}
+1640|August
+1641|April
+1642|Askhat Nurlanov
+1643|Lead engineer
+1644|Calendar view
+1645|Sunday
+1646|Sun
+1647|All requests
+1648|Tue
+1649|Tuesday
+1650|You work without a company — only your tasks are shown
+1651|visit
+1652|Visit / Engineering
+1653|Site visit and measurements
+1654|Engineer visits
+1655|Astana
+1656|Ready to create. Dictate the client details
+1657|Deadline
+1658|December
+1659|Closing
+1660|more
+1661|Closed
+1662|Request
+1663|The request has been passed to the engineer for measurements and an estimate
+1664|requests • Budget
+1665|engineer
+1666|ENGINEER
+1667|CONTRACTOR
+1668|July
+1669|June
+1670|Request calendar
+1671|Card saved
+1672|Client, site, phone
+1673|LEAD
+1674|May
+1675|March
+1676|Month
+1677|My tasks
+1678|My calendar
+1679|installation
+1680|My company
+1681|Dictate a request
+1682|START
+1683|Week
+1684|New
+1685|New leads
+1686|November
+1687|October
+1688|Declined
+1689|Mon
+1690|Per estimate
+1691|Request search
+1692|Showing all requests
+1693|Showing today's requests
+1694|Monday
+1695|Previous period
+1696|Fri
+1697|Friday
+1698|Contractor works
+1699|Sat
+1700|HANDOVER
+1701|Today until {n}:{n}
+1702|September
+1703|Hide voice input
+1704|Next period
+1705|estimates
+1706|Create request
+1707|Create a request for this day
+1708|Wed
+1709|Wednesday
+1710|builder
+1711|Construction
+1712|Saturday
+1713|EQUIPMENT
+1714|Success
+1715|Septic tank installation
+1716|February
+1717|The form was filled by voice — check it and press "Create"
+1718|Thursday
+1719|Thu
+1720|Whose tasks to show
+1721|expert reviews
+1722|January
+1723|{n} ₸/hour
+1724|{n} MB
+1725|{n} Rating
+1726|{n}. Visit and survey
+1727|{n}. Demolition and base preparation
+1728|{n}. Engineer assigned
+1729|{n}. New request
+1730|{n}. Site handed over and accepted
+1731|{n}. Main construction and installation works
+1732|{n}. Contractor search
+1733|{n}. Estimate and design ready
+1734|{n}. Construction works
+1735|{n}. Final finishing, commissioning and handover
+1736|+ Heavy equipment (GPS)
+1737|+ Building materials
+1738|GPS Online ({n} km)
+1739|End of stage {a}
+1740|The proposal could not be calculated: {a}
+1741|Start of stage {a}
+1742|Switch to stage: {a}
+1743|Status changed: {a} {b}
+1744|Chat for site No. {a} opened
+1745|Stage "{a}": {b}
+1746|Truck crane XCMG QY{n}K{n} ({n} t)
+1747|Automatic calculation of building materials and hourly equipment rental
+1748|SITE ADDRESS
+1749|Site survey report.pdf
+1750|Certificate approved
+1751|Rental: Truck crane XCMG QY{n}K{n} ({n} t)
+1752|Rental: Shacman dump truck {n} t (GPS)
+1753|Rental: Hitachi ZX{n} excavator (GPS Online)
+1754|Steel rebar A{n}C d{n} (GOST {n})
+1755|Ready-mix concrete M{n} B{n} (GOST {n})
+1756|Bonus {n}%
+1757|Site budget
+1758|SITE BUDGET (₸)
+1759|Stage budget
+1760|Start work
+1761|In Escrow
+1762|Visit
+1763|ENGINEER VISIT
+1764|Engineer visit
+1765|The site visit is complete. Load-bearing structures were measured and laser {n}D scanning was performed. No GOST deviations were found; the estimate was adjusted to actual volumes
+1766|Paid out
+1767|Done
+1768|Geodetic layout.dwg
+1769|Stage schedule and GPS equipment
+1770|VISIT DATE
+1771|Request date
+1772|Visit date and time
+1773|Site handover date
+1774|New item added to the estimate
+1775|General contract No. KZ-{n}/{n}
+1776|WORKS CONTRACT
+1777|closing
+1778|Documents and photo record
+1779|Unit
+1780|If the stages below have their own dates, the calendar shows them. Other stages are a one-day task
+1781|waiting
+1782|
+1783|Completion of works
+1784|CLIENT
+1785|CONCLUSION / SURVEY REPORT
+1786|frozen in progress
+1787|Planned
+1788|Request: end date
+1789|Request: from
+1790|meas.
+1791|engineer assigned
+1792|ENGINEER
+1793|Engineer
+1794|Utilities and engineering
+1795|A contractor cannot change engineering statuses
+1796|ESTIMATE TOTAL
+1797|Ceramic common brick M{n}
+1798|Brick M{n} pulled from the Building materials marketplace
+1799|The client asks to observe quiet hours from {n}:{n} to {n}:{n}. Site access passes are arranged
+1800|Qty
+1801|Proposal
+1802|DEAL MANAGER
+1803|to the deal manager
+1804|To visit
+1805|ASSIGNED CRAFTSMEN / WORKERS
+1806|SITE NAME
+1807|Start of works
+1808|
+1809|New work / material
+1810|NEW LEAD
+1811|General construction works
+1812|Total budget
+1813|Site and Client
+1814|ORGANIZATION
+1815|Special notes
+1816|Special comments and instructions
+1817|declined
+1818|to
+1819|To the contractor
+1820|Item
+1821|Item removed from the estimate
+1822|search
+1823|Attached certificates and site photos
+1824|review
+1825|process
+1826|CONTRACTOR WORKS
+1827|Works: from
+1828|Contractor mode (engineer data is protected)
+1829|Shacman dump truck ({n} t)
+1830|Shacman dump truck pulled from the Heavy equipment marketplace
+1831|Custom item
+1832|handed over
+1833|Handed over
+1834|Hand over site
+1835|Make proposal
+1836|Estimate
+1837|Estimate of materials and works (GOST)
+1838|Estimate with marketplace integration (GOST KZ)
+1839|Estimate exported to PDF (GOST KZ)
+1840|Save changes
+1841|Dates in the calendar
+1842|Dates: from
+1843|Construction and installation works of the crew
+1844|Construction site
+1845|construction
+1846|Calculating
+1847|PHONE
+1848|Read only
+1849|LLP "GostBuild Engineering"
+1850|LLP "Client"
+1851|thousand pcs
+1852|Delete request
+1853|Delete the request for all users (CRM, Engineer, Contractor)
+1854|Delete item
+1855|
+1856|facade
+1857|Photo of load-bearing wall defect.jpg
+1858|Price
+1859|Site chat
+1860|(approximate)
+1861|(estimate)
+1862|) no crack opening chart is produced. Use the "SNiP and Risks" tab to assess the condition
+1863|{n} kg
+1864|Class {n} — High risk
+1865|Class {n} — High risk of biological damage
+1866|Class {n} — High health risk
+1867|Class {n} — Acceptable deviation
+1868|Class {n} — CRITICAL (emergency)
+1869|Class {n} — Minor
+1870|Class {n} — Requires repair
+1871|{n} set
+1872|{n} L
+1873|{n} m
+1874|{n} bags
+1875|{n} pcs
+1876|
+1877|*Materials
+1878|*Works
+1879|% of frame
+1880|+ Mark manually
+1881|AI analysis complete: no defects found
+1882|The AI defect service is unavailable. A local in-browser analysis was performed — the result is approximate and must be confirmed by an engineer
+1883|QazGost AI is analysing the photo for defects
+1884|QazGost YOLO{n}n on device
+1885|
+1886|{a} — estimate from the description
+1887|{a} — the result may be incomplete; retake the photo closer and in good light
+1888|{a} (approximate, from the description)
+1889|{a} (from the description)
+1890|{a} + measurement from the photo
+1891|{a} in the photo
+1892|{a} file(s) are not images and were not added
+1893|*Defect inspection report No. {a}
+1894|*Defect:* {a}
+1895|*TOTAL: {a} T
+1896|*Risk class:* {a}
+1897|*Method:* {a}
+1898|*SNiP:* {a}
+1899|*Cost: {a}
+1900|
+1901|
+1902|AI analysis complete: defects found — {a}
+1903|AI defect service{a}
+1904|The AI service is scanning photo {a} of {b}
+1905|AI: defects detected — {a}. Preparing the report
+1906|d up to {a} mm
+1907|L ≈ {a} mm
+1908|L ≈ {a}% of frame
+1909|The description also mentions: "{a}". The conclusion is based on {b} found in the photo; the model does not detect the rest in the image — an inspection is needed
+1910|Defect detected: {a}. Hazard class: {b}. Norm: {c}. Method: {d}
+1911|Date: {a}
+1912|Photo added: {a}
+1913|Client: {a} Address: {b}
+1914|Request {a} passed to the engineer and the CRM manager
+1915|Zone {a}
+1916|Zone: {a} — marked manually; the hazard class is determined by the engineer
+1917|AI vision model · {a}
+1918|The AI vision model found defects: {a}
+1919|{a} defect found
+1920|{a} defects found
+1921|{a} defects found
+1922|Could not download the set: {a}
+1923|Could not save the sample: {a}
+1924|Marked: {a}
+1925|Estimate from the description (not from the photo) — {a}
+1926|Analysis error: {a}
+1927|Sample saved for training (zones: {a})
+1928|Dimensions were calculated assuming the frame width is ≈ {a} m. Enter the real width of the area in the photo — length, opening and hazard class will be refined
+1929|The service could not process the photo: {a}
+1930|Thank you! Your samples: {a}. If you correct the zones, save again
+1931|Work duration: about {a} {b}
+1932|confidence {a}%
+1933|Defect repair: {a}
+1934|Photo {a}
+1935|photo {a}: {b}
+1936|photo {a}: could not read the file
+1937|Photos with marked defects: {a}
+1938|Some photos were not processed{a}{b}
+1939|Vision AI: Defect and crack detection
+1940|Bonding bridge (bond coat)
+1941|Analysis not performed — see the error message
+1942|Analysis not performed because of an error
+1943|Analysing photo
+1944|Anti-corrosion primer
+1945|
+1946|REBAR
+1947|Reinforcing tape for joints
+1948|Askhat Nurlanov (Engineer)
+1949|
+1950|Biological damage of structures (mould / fungus)
+1951|Bituminous roofing mastic
+1952|Plaster defect
+1953|Drilling holes and installing packers
+1954|Quick camera check
+1955|
+1956|Dent
+1957|DENT
+1958|
+1959|Sign in to save samples for model training
+1960|Restoration plaster
+1961|Finish restoration
+1962|Restoration with a repair compound
+1963|Opening the concrete cover
+1964|Opening the concrete cover, sandblasting the rebar, corrosion inhibitor treatment, restoration with a repair compound
+1965|Pothole
+1966|POTHOLE
+1967|Call an engineer
+1968|HIGH
+1969|High risk of corrosion of the main reinforcement cage — urgent survey
+1970|High
+1971|Efflorescence
+1972|EFFLORESCENCE
+1973|Sealing of junctions and joints
+1974|Polyurethane sealant
+1975|Silicone sealant
+1976|Polymer coating waterproofing
+1977|
+1978|GOST {n}-{n} "PVC profile window units"
+1979|GOST {n}-{n} "Rules for inspection of load-bearing structures"
+1980|GOST {n}-{n}, SP RK {n}-{n}-{n} "Soil bases and foundations"
+1981|Crack opening along its length: w(L)
+1982|fungus
+1983|Priming and mesh reinforcement
+1984|Deep-penetration primer
+1985|Facade primer
+1986|Removal of hazardous facade sections
+1987|Removal of the damaged roof section
+1988|Removal of the affected section and drying
+1989|Edge strip
+1990|Deterioration of facade finish (peeling / crumbling)

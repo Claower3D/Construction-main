@@ -1,0 +1,366 @@
+813|Create site (SNiP)
+814|I create orders, choose contractors and accept the work
+815|Employees and crews
+816|Specification
+817|Request list
+818|Company statistics
+819|Statistics of completed works
+820|Building construction (VIP)
+821|Technical specification of works and utility routing diagrams
+822|LLP
+823|Cracks in the photo, a report with SNiP and GOST norms and the repair price
+824|Management of the company BIN, construction licences and bank details
+825|Management of the BIN, employees and sites of the organization
+826|Management of leads, clients, deals and CRM analytics
+827|Management of the platform, price lists, moderation and arbitration
+828|Portfolio management of residential complexes, business centres and cottage communities with {n}D BIM models
+829|Staff management
+830|Participation in general contract tenders, design documents and category I/II accreditation
+831|Final reporting, documentation check, PDF export
+832|Final reports with photos, files and work timeline
+833|Construction contract templates with E-Gov digital signature support
+834|Expert check of structural condition and defect inspection
+835|Electrical, plumbing, HVAC, low-voltage systems and technical supervision
+836|I am an Administrator
+837|I am an Analyst
+838|I am a Client
+839|I am a Developer (VIP)
+840|I am an Engineer
+841|I am a Contractor
+842|I am a Company
+843|I am a CRM Manager
+844|— refine your search
+845|+ Add employee
+846|+ Add company
+847|+ employee
+848|ivan.master or ivan@mail.kz
+849|{a} added
+850|BIN {a}
+851|Login: {a}. No password needs to be assigned — at the first sign-in on the website or in the app the person will create their own password (at least {n} characters) and enter it with this login
+852|Could not load data: {a}
+853|server responded {a}
+854|Company "{a}" added
+855|Company: {a}
+856|active
+857|No company
+858|No company (independent)
+859|BIN ({n} digits)
+860|All roles
+861|Add employee
+862|has not signed in yet
+863|Contractor (craftsman)
+864|The server will extend a short login without "@" to an @qazgost.kz address. The person creates their own password at the first sign-in
+865|Login
+866|Login or email
+867|Company name
+868|No one found
+869|Contracting company
+870|Contracting company (firm)
+871|User search
+872|Search: name, login, phone, company
+873|Showing the first
+874|Supplier
+875|Design organization
+876|Manager
+877|Hide
+878|Save company
+879|Subcontractor
+880|Now you can add employees to it — the "Add employee" button
+881|LLP "…"
+882|Full name
+883|No companies yet. Add the first one — then you can add employees to it
+884|Company
+885|Companies
+886|ppl
+887|Ask: {a}
+888|Hello! I am the QazGost AI assistant. I can tell you prices for works and materials, calculate an estimate from a photo, find a crew or heavy equipment. Where shall we start
+889|═══ WORK TIMELINE ═══
+890|PDF report generated and sent to the client
+891|QAZGOST AI — FINAL REPORT ON THE REQUEST
+892|[{a}] {b} — {c} Contractor: {d} {e}
+893|═══ ATTACHED FILES ({a}) ═══
+894|═══ PHOTOS ({a}) ═══
+895|PDF report for {a} is downloading
+896|Budget: {a}
+897|City: {a}
+898|Closing date: {a}
+899|Start date: {a}
+900|End date: {a}
+901|Client: {a}
+902|Request {a} — report generated and closed
+903|Supervision engineer: {a}
+904|Contractor: {a}
+905|Manager: {a}
+906|Name: {a}
+907|Request number: {a}
+908|Report {a} downloaded
+909|Area: {a}
+910|Generated: {a}
+911|Downloading: {a}
+912|Certificate_shell.pdf
+913|KS-{n}_certificate_final.pdf
+914|KS-{n}_certificate_stage{n}.pdf
+915|Acceptance_certificate_final.pdf
+916|Certificate_foundation.pdf
+917|Alieva Dinara
+918|Alieva Dinara (CRM)
+919|Almaty (Bostandyk district)
+920|QazGost Analyst
+921|Rebar_slab.jpg
+922|Askarov Baurzhan (CEO)
+923|Akhmetov M.S. — construction of a {n}-storey cottage, {n} m², with a basement floor
+924|Akhmetov Marat Serikovich (IIN)
+925|Crew No. {n}
+926|Crew No. {n} ({n} people) mobilized. Materials delivered: cement M{n} — {n} t, rebar — {n} t
+927|Crew No. {n} (Kim Alexander)
+928|Finishing crew No. {n}
+929|Crew leader Kim
+930|Crew leader Sadykov
+931|In progress
+932|All works completed. The site has been handed over to the client. {n}-month warranty from QazGost
+933|Total projects
+934|Warranty_letter.pdf
+935|Ready
+936|Ready
+937|Removal of old finishes, waste disposal ({n} KAMAZ trucks). KS-{n} certificate No. {n} signed
+938|Demolition_photo_{n}.jpg
+939|Before_renovation.jpg
+940|Contract signed
+941|Works contract No. DP-{n}. Escrow opened for {n} million ₸ ({n} tranches)
+942|Contract_DP-{n}.pdf
+943|Works_contract.pdf
+944|Contract.pdf
+945|Contracts, certificates, reports, photos — drag here or click
+946|Documents
+947|Documents and files
+948|Zhumabekov Arman
+949|Zhumabekov Arman (Crew No. {n})
+950|Zhumabekov Arman (Foreman)
+951|Completion
+952|Completed sites
+953|The client contacted us via the website. The proposal was sent within {n} hours
+954|Supervision_report.pdf
+955|Concrete_pouring.jpg
+956|The request was automatically passed to the analyst for final reporting and archiving
+957|Request from a private client
+958|Request accepted
+959|Request created by the manager
+960|Request information
+961|Iskakov Murat
+962|Iskakov Murat (Technical supervision)
+963|The contractor closed the request
+964|Final_report.pdf
+965|Major renovation of the "Prime Tower" office — {n} m²
+966|Kasymov Yerbol (Chief project engineer)
+967|Porcelain_tile_laying.jpg
+968|Kim Alexander
+969|Company: LLP "QAZGOST AI" (BIN: {n})
+970|Shell completed
+971|Excavation.jpg
+972|Cottage handed over. Acceptance certificate signed
+973|Roof_installation.jpg
+974|million
+975|Crew mobilization
+976|Cast-in-place slab {n} mm + grillage. Concrete B{n} — {n} m³
+977|Under review
+978|Under review by the analyst
+979|Start
+980|No requests with the selected status
+981|Total budget (₸)
+982|Total turnover (₸)
+983|Site_handed_over.jpg
+984|Volumes by client
+985|Pending
+986|Pending
+987|Awaiting review
+988|Finishing and utilities
+989|Interior_finishing.jpg
+990|Report generated ✓
+991|Reports completed
+992|Request queue
+993|Passed to the Analyst
+994|Tikkurila wall painting — {n} m², porcelain tile {n}x{n} — {n} m², stretch ceilings — {n} m²
+995|Painting_final.jpg
+996|Full renovation handed over to the client
+997|After_renovation.jpg
+998|Attach additional files
+999|Attached documents (
+1000|Review
+1001|Checking documentation completeness and preparing the final report
+1002|Design of {n} floors + basement. Cast-in-place frame. Footprint {n} m²
+1003|Design approved
+1004|Design_documents_cottage.pdf
+1005|Works completed
+1006|Analyst workspace
+1007|Turnkey renovation of a {n}-room apartment
+1008|Apartment renovation {n} m² — "Astana Towers" residential complex
+1009|Company summary analytics
+1010|System
+1011|QazGost AI system
+1012|System: QAZGOST AI Platform
+1013|Download full PDF report
+1014|Estimate for {n} million ₸ approved. Scope: plaster {n} m², screed {n} m², electrical {n} lin. m
+1015|Estimate approved
+1016|Estimate_{n}mln.xlsx
+1017|Estimate_approved_{n}mln.xlsx
+1018|Statistics
+1019|Walls_aerated_block.jpg
+1020|Walls: aerated block D{n} mm. Slabs: cast-in-place B{n} mm. Roof: metal tile
+1021|Construction of the "Nomad Villa" cottage — {n} m²
+1022|Screed_measurement.jpg
+1023|Suleimenov Rinat
+1024|Generate report and close
+1025|Technical supervision: Quality check
+1026|Toktarov B.K
+1027|LLP "Almaty Business Centre"
+1028|Ultrasonic screed test — OK. Wall geometry — deviation ≤{n} mm/m. Conclusion: COMPLIANT
+1029|files • 📷
+1030|Final reporting on completed sites. Documentation check, file attachment, PDF reports and statistics of completed works
+1031|photo
+1032|Site photos
+1033|Photos (
+1034|Photo reports
+1035|Foundation completed
+1036|File upload is active
+1037|Work timeline (step by step)
+1038|Wall plastering — {n} m², floor screed — {n} m², wiring — {n} lin. m. All per SNiP RK
+1039|Plastering_process.jpg
+1040|Concealed_wiring.jpg
+1041|Electrical, plumbing, heating, final finishing {n}%
+1042|Stage {n}: Demolition (completed)
+1043|Stage {n}: Rough finishing (completed)
+1044|Stage {n}: Final finishing (completed)
+1045|AI Scan
+1046|Avangard business centre
+1047|Villa Modern
+1048|Drag to rotate • Wheel: Zoom • Liebherr tower crane
+1049|Day
+1050|Skyscraper residential complex
+1051|Sunset
+1052|Night
+1053|Switch light: Sunset / Night / Day
+1054|Loading {n}D model
+1055|{n} shifts
+1056|{n}. Landscaping and external utilities
+1057|{n}. Ventilated facades and glazing
+1058|{n}. Earthworks and substructure
+1059|{n}. Utilities (electrical, HVAC, plumbing, heat substation)
+1060|{n}. Masonry of external and internal walls
+1061|{n}. Roofing systems and waterproofing
+1062|{n}. Foundations and cast-in-place frame
+1063|{n}. Rough and final finishing of common areas
+1064|{n}% SNiP RK compliance
+1065|{n}D Architectural model
+1066|₸ / m²
+1067|AI engineering audit completed! Remarks are recorded in the protocol
+1068|AI photo audit & Corrections
+1069|AI verification of design drawings, photo record of reinforcement and the chief engineer's conclusion
+1070|eGov / Construction authority verified
+1071|Category I (Licence No. {n})
+1072|Category I (Especially hazardous and technically complex facilities)
+1073|Category I (Especially hazardous and technically complex)
+1074|Category I (construction works)
+1075|Category II (Licence No. {n})
+1076|Category II (construction works of standard complexity)
+1077|Category II (construction works)
+1078|Category III (Low-rise construction)
+1079|ISO {n} / SNiP {n}
+1080|Lot No.
+1081|PDF KS-{n}/KS-{n} & Analytics
+1082|{a}, new development area
+1083|Bid opening for lot {a} is open
+1084|Contact request for the company "{a}" sent
+1085|Construction works package for "{a}" ({b} sections)
+1086|Lot "{a}" has been created and published in "My Orders: Construction"
+1087|Lot: construction works for "{a}"
+1088|Site "{a}" created! Proceeding to the works calculation
+1089|Progress report for "{a}" exported
+1090|Projects: {a} · deadlines, photos, video
+1091|Estimate for "{a}" generated and downloaded
+1092|Construction and installation works "{a}" (design approved)
+1093|VIP GENERAL CONTRACT
+1094|WBS breakdown of construction works by aggregated indicators (reference: ESN RK {n}-{n}-{n})
+1095|WBS norm & SNiP
+1096|Automatic contractor licence check and contractor contacts
+1097|Automatic calculation using SNiP RK estimates
+1098|Aktau (Mangystau / Marine)
+1099|active lots
+1100|active sites
+1101|Almaty (Southern capital / Seismic intensity {n})
+1102|Almaty / Astana
+1103|Reinforcement of frames A{n}C
+1104|Reinforcement of the cast-in-place slab
+1105|Beam reinforcement matches the structural design KZh-{n}
+1106|Astana (Capital / Wind zone)
+1107|Astana / Almaty
+1108|Asphalt paving, paving slabs, lighting, playgrounds, barriers
+1109|Atyrau (Western industrial)
+1110|Akhmetov S.K. (Lead chief engineer)
+1111|Business centre
+1112|Business centre "Silk Way Towers"
+1113|Business centre / Shopping complex
+1114|Class A business centres, premium residential complexes, facades
+1115|Landscaping and parking asphalt paving
+1116|Crews, people, machines
+1117|Bored piles Ø{n}-{n}, grillage, slab, pylons, floor slabs B{n}/B{n}
+1118|Budget
+1119|Lot budget (₸)
+1120|Converted
+1121|Enter the name of the construction lot
+1122|Kept daily
+1123|Ventilated facade and final finishing of the lobby
+1124|Back to editing works
+1125|Adjust the scope of works before publishing the tender lot
+1126|Enter the design parameters for an automatic licence check and estimate calculation
+1127|Erection of the cast-in-place frame (floor {n})
+1128|Rotation {n}° • Check of cast-in-place axes • SNiP RK
+1129|All sites in progress (
+1130|Are you sure you want to delete this construction site
+1131|Select the types of work to include in the estimate (
+1132|Selection from the full list of work types & Cost estimate
+1133|Type selection & Licence check
+1134|Choose another site
+1135|Choose site
+1136|Almaty, Bostandyk district, Rozybakiev St. {n}
+1137|Aerated concrete D{n}/D{n}, solid ceramic brick, gypsum block partitions
+1138|Readiness
+1139|Site readiness
+1140|Work schedule
+1141|Daniyarov M.T. (Supervision engineer)
+1142|Add new site
+1143|Document flow: Estimates, KS-{n}/KS-{n} and PDF analytics
+1144|Documents & PDF estimate
+1145|Company approval
+1146|Residential complex
+1147|Residential complex
+1148|Residential complex "Example Palace" - Blocks A and B
+1149|The construction log is open for inspection
+1150|Upload structural/architectural drawings or site photos
+1151|Technical supervision conclusion of the chief engineer
+1152|Pouring concrete B{n}/B{n} with a concrete pump
+1153|Log entries
+1154|Run engineering AI audit
+1155|Concrete cover {n} mm
+1156|AI scanning of the cast-in-place structure in progress
+1157|No engineer assigned
+1158|Engineering corrections & Approval
+1159|Interactive {n}D BIM view
+1160|As-built documentation: concrete pouring rates, use of escrow tranches, KS-{n}/KS-{n} certificates and plan-versus-actual analysis of handover dates
+1161|Total incl. VAT
+1162|Calendar, deadlines, photos and video
+1163|Karaganda (Central region)
+1164|Kasymov B.A. (Chief project engineer)
+1165|Weld quality of embedded parts complies with GOST {n}-{n}
+1166|Porcelain tile, aluminium composite panels, Alutech glazing
+1167|External wall masonry, aerated block
+1168|External brick wall masonry and roof installation
+1169|Chief engineer / Client comment on the project
+1170|Cottage communities, warehouses, hangars
+1171|Cottage community
+1172|Cottage community "Tau-Samal" ({n} villas)
+1173|Cottage settlement / Villa
+1174|Roofing: Shinglas flexible shingles ({n} m²)
+1175|Licence
+1176|Category I construction licence of Kazakhstan
+1177|Lot removed from the queue
+1178|Lots / Orders

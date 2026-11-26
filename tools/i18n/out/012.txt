@@ -1,0 +1,420 @@
+4301|The specified sides are parallel — stretching along the second axis cannot be determined from them; a side in the other direction is needed
+4302|Refine the scale of this room
+4303|Room shape
+4304|Photo for measurement
+4305|photo of the plan + length reference
+4306|Width, m
+4307|This point is beyond the horizon line of the reference rectangle — it cannot be converted to metres. Mark only the floor in the same plane
+4308|Scale reference
+4309|Reference marked — enter its real length in metres
+4310|{a} (coefficient {b})
+4311|The calculation server responded with error {a}
+4312|QazGost ESTIMATE — {a} ({b})
+4313|The process chart catalog is unavailable ({a})
+4314|PROCUREMENT LIST
+4315|Height, m
+4316|Where the price was checked
+4317|WORK SCHEDULE
+4318|Calculation date
+4319|Duration, days
+4320|Assumptions
+4321|Total, days
+4322|How the quantity was calculated
+4323|material
+4324|Start, day
+4325|No connection to the calculation server. Check your internet and try again
+4326|Break, days
+4327|labour
+4328|Section
+4329|Link
+4330|Walls minus openings, m²
+4331|equipment
+4332|Prices as of
+4333|{a} params
+4334|No parameters — the quantity is calculated from the outline
+4335|from the outline
+4336|sections — open to refine
+4337|— this does not match the selected work type, check the selection
+4338|, windows
+4339|, excluding {a} sel.
+4340|{a}: {b} d
+4341|Show comparison with the QazGost database ({a} items)
+4342|from day {a}, {b} d
+4343|midpoint {a}–{b}
+4344|Similar items in the database
+4345|Quick calculation
+4346|Budget with reserve
+4347|within the database range
+4348|In the estimate
+4349|Material procurement list ·
+4350|above the range
+4351|Where to look
+4352|Work schedule ·
+4353|Detailed: with verification
+4354|Calculation assumptions
+4355|AI photo analysis
+4356|AI photo analysis ·
+4357|Price source
+4358|Price sources
+4359|Total
+4360|m · height
+4361|m · walls
+4362|m² · doors
+4363|m² · perimeter
+4364|m² (the estimate uses the area from your measurement)
+4365|Database median
+4366|In the photo
+4367|below the range
+4368|estimate
+4369|Area estimate from photo: ~
+4370|items
+4371|Item and how the quantity was calculated
+4372|Full: with schedule and procurement
+4373|Estimate check
+4374|QazGost calculated estimate
+4375|Reserve {n}%
+4376|Hide comparison with the database
+4377|Scenario
+4378|Price, ₸
+4379|prices
+4380|Hatching is a process break: drying, strength gain, pressure testing
+4381|< {n} s
+4382|to analyse one photo on the defect detection server
+4383|The platform in numbers
+4384|building material items with prices by region
+4385|ESN RK rates in the database: works, materials, equipment
+4386|. You can add a craftsman manually below
+4387|{a} crews
+4388|{a} ppl
+4389|Crew "{a}"
+4390|crew leader {a}
+4391|Remove: {a}
+4392|No name
+4393|There is no one in this firm yet
+4394|Select craftsmen and crews
+4395|Done
+4396|Add
+4397|Add manually: the name of a craftsman who is not in the list
+4398|Add craftsman manually
+4399|
+4400|Loading the team list
+4401|contractor
+4402|Craftsmen and crews
+4403|No one found. You can add manually below
+4404|No one selected
+4405|contracting company
+4406|Search for a craftsman or crew
+4407|Search by name, crew, firm
+4408|work independently
+4409|The team list did not load
+4410|There are no firms or workers yet — the administrator adds them in the "Users" section
+4411|Aigerim Nurlanova
+4412|Interior designer, Astana
+4413|I upload photos, get an estimate and show it to the client right away. The defect check helps spot problems before work begins
+4414|Client, Almaty
+4415|Clients, designers and foremen from different cities of Kazakhstan
+4416|Requests from my city come in every day. Transparent prices help me agree with the client without blind haggling
+4417|Foreman, LLP "StroyMark"
+4418|I made an estimate from a bathroom photo. Before, the craftsman would guess and name a price twice as high. Now I know what it really costs
+4419|What users say
+4420|{a} {b} for {c}
+4421|{a} • Order {b}
+4422|{a} booked for the stage successfully! (GPS Online)
+4423|In progress ({a}%)
+4424|Order {a} schedule: {b} of {c} events were not saved on the server ({d})
+4425|Order {a} completed
+4426|Order {a} accepted! The work schedule was created automatically in the CRM calendar 📅
+4427|Engineer "{a}" assigned! Awaiting the site visit
+4428|START: {a}
+4429|Switched to role: {a}
+4430|Progress: {a}%
+4431|HANDOVER: {a}
+4432|Stage amount: {a}
+4433|Equipment {a} removed from the stage
+4434|Equipment: {a}
+4435|Chat for order {a} opened
+4436|Stage accepted. Stage amount {a} — pay the contractor directly
+4437|Stage: {a}
+4438|Auto-selection of the nearest machines
+4439|To stage
+4440|Enter the parameters of the new construction site
+4441|Take order
+4442|All stages are done. Confirm completion of the order — the client will be notified
+4443|TOTAL ORDERS
+4444|Engineer visit
+4445|Site visit started! The engineer is on the way
+4446|{n}% complete
+4447|Work stage schedule and heavy equipment selection (GPS)
+4448|Visit date
+4449|ACTIONS
+4450|Available requests
+4451|Awaiting contractor
+4452|Completed
+4453|Completed
+4454|Complete order
+4455|Finish inspection and generate estimate
+4456|order
+4457|ORDER
+4458|orders
+4459|orders
+4460|Orders
+4461|No orders found
+4462|Assigned to the stage
+4463|Request returned to the manager for re-approval
+4464|Request published for contractors. Awaiting acceptance
+4465|Request passed from CRM
+4466|Change the search or the tab
+4467|Engineer assigned
+4468|CLIENT
+4469|Client
+4470|Order / site name
+4471|Assign engineer
+4472|Write in chat
+4473|e.g., {n}
+4474|e.g., Apartment renovation {n} m²
+4475|e.g., LLP 'Astana Stroy' or a name
+4476|Start site visit
+4477|Start stage
+4478|Heavy equipment required for this stage (selected from the marketplace)
+4479|New request
+4480|New order created successfully
+4481|Newly created order
+4482|TOTAL AMOUNT
+4483|General construction
+4484|Site description
+4485|Inspection completed! The estimate is ready. The request is passed on to find a contractor
+4486|Inspection done. Remarks taken into account. Estimate generated
+4487|Inspection done. Estimate generated based on the survey
+4488|Unlink
+4489|Send to find a contractor
+4490|Engineer's report
+4491|Confirm that the stage is done. Online payment is not connected yet — pay the contractor for the stage directly as agreed
+4492|Search by order number, site name or client
+4493|No orders yet
+4494|System user
+4495|Edits approved by the manager! The request is returned to the engineer to be passed on again
+4496|Accepted by the contractor
+4497|Available (GPS Online)
+4498|Server unavailable — only orders from this device are shown
+4499|View as
+4500|Approve and return to the engineer
+4501|Create an order or respond to a request from the feed
+4502|Create order
+4503|Create a new order
+4504|Save and publish order
+4505|Order list
+4506|Deadlines
+4507|STATUS
+4508|Construction request
+4509|AMOUNT
+4510|Order amount
+4511|Order amount (₸)
+4512|Orders table
+4513|Current role
+4514|The estimate/terms need re-approval
+4515|Enter a valid order amount
+4516|Stage started
+4517|Stage accepted
+4518|API integration
+4519|Hello! I would like to subscribe to the "{a}" plan in QazGost AI
+4520|VIP AI analysis module
+4521|You agree the advance and stage payments directly: contract, Kaspi, transfer or an invoice for legal entities
+4522|Analytics and statistics
+4523|Basic AI reports
+4524|There is no balance or top-up — nothing is credited or frozen on the platform
+4525|Booking equipment, ordering materials or inviting a crew — with no prepayment through the platform
+4526|Payment question on WhatsApp
+4527|Everything in the Basic plan
+4528|Everything in the "Professional" plan
+4529|Dedicated manager
+4530|You do not need to enter card details here. When payment goes live, you will enter your card only on a secure page of the bank or payment system
+4531|No money is held on the platform
+4532|You agree terms with the client
+4533|one-time
+4534|Upload up to {n} photos
+4535|The client accepts the stage on the platform and pays you for it directly
+4536|Hello! I have a payment question about QazGost AI
+4537|Custom setup
+4538|How to pay for an order now
+4539|How to get paid now
+4540|How orders on QazGost are paid for now and when online payment will arrive
+4541|Team accounts
+4542|Corporate
+4543|We are connecting payment acceptance through a payment system. Until then QazGost does not hold or charge your money: bookings, equipment rental and orders are placed as requests with no prepayment, and you pay the contractor or supplier directly
+4544|Directly with the contractor or supplier: Kaspi, transfer or an invoice with VAT for legal entities
+4545|Unlimited photos
+4546|Online payment is being connected
+4547|You respond to an order
+4548|You mark completed stages and pay the contractor for them directly
+4549|You send a request
+4550|On request
+4551|Email support
+4552|Subscribe to "
+4553|Until online payment is connected, a plan is activated on request — the manager will send an invoice
+4554|POPULAR
+4555|You accept stages in "My orders"
+4556|Priority support
+4557|Browsing the contractor catalog
+4558|Professional
+4559|Extended PDF reports
+4560|You hand over stages in "My orders"
+4561|You agree the price and payment
+4562|Creating orders for assessment
+4563|Order and stage statuses are still tracked in "My orders"
+4564|Construction of buildings and structures
+4565|Plans
+4566|You state the price and timing in your response — the client sees them right away
+4567|too few people: {a} of {b}–{c}
+4568|too many people: {a} with a norm of {b}–{c}
+4569|too much equipment: {a} with a norm of {b}–{c}
+4570|The {a} field in the file must be a list
+4571|Work "{a}" has an end date earlier than its start
+4572|Work "{a}" has no start and end dates
+4573|April
+4574|The file contains a work without a name
+4575|The file has no project name (the name field)
+4576|Sun
+4577|Tue
+4578|Done
+4579|December
+4580|Planned
+4581|July
+4582|June
+4583|May
+4584|no equipment
+4585|November
+4586|October
+4587|Pause
+4588|Mon
+4589|On hold
+4590|Fri
+4591|Sat
+4592|September
+4593|Wed
+4594|The file does not look like a project: an object with the fields name, works, staff is expected
+4595|February
+4596|Thu
+4597|January
+4598|% of works
+4599|＋ Add worker
+4600|＋ Add work
+4601|＋ Add equipment
+4602|＋ New crew
+4603|＋ New project
+4604|＋ Create an empty project
+4605|✎ Project and company details
+4606|"{a}" marked as done
+4607|{a}: {b}, {c} d. {d}{e}{f}
+4608|Crew {a}
+4609|client {a}
+4610|dated {a} {b}
+4611|Overlaps: {a}
+4612|contracting company {a}
+4613|Project "{a}" loaded: works {b}, people {c}, equipment {d}
+4614|Project "{a}" with all works, staff and equipment will be deleted from the server. This cannot be undone — save it to a file first if needed
+4615|Project "{a}" created
+4616|Project "{a}" deleted
+4617|Project not loaded: {a}
+4618|Project not created: {a}
+4619|Project not deleted: {a}
+4620|Work "{a}" saved
+4621|Saved at {a}
+4622|to clarify: {a}
+4623|no crew
+4624|No crew
+4625|no plate number
+4626|crews
+4627|No crews yet. Add people and equipment below, then form crews
+4628|crew is busy
+4629|The crew is busy on another work
+4630|In the crew
+4631|In two crews at once
+4632|The project has no works yet. Press "Add work"
+4633|To file
+4634|No one on the staff yet
+4635|View
+4636|Driver
+4637|no questions
+4638|All crews
+4639|All statuses
+4640|Done
+4641|The work schedule, staff and equipment of working projects are available to office employees. Sign in with your work account
+4642|Days
+4643|Position
+4644|position not specified
+4645|equipment units
+4646|equipment units
+4647|There are unsaved edits
+4648|Loading projects
+4649|Upload a ready project from a file — with works, staff and equipment — or create an empty one and fill it in here
+4650|Load project from file
+4651|planned
+4652|From file
+4653|change members
+4654|IIN
+4655|Work calendar, scrolls sideways
+4656|People and equipment
+4657|Location and scope
+4658|not assigned
+4659|Not saved
+4660|Could not open projects
+4661|no dates
+4662|not marked as done
+4663|Needs clarification
+4664|Site not specified
+4665|End
+4666|Open work
+4667|Open the latest version
+4668|mark as done
+4669|Retry saving
+4670|No works match the selected conditions. Reset the crew and status filters
+4671|Show IIN
+4672|Project saved
+4673|Works
+4674|no works assigned
+4675|Work removed from the schedule
+4676|Works (
+4677|No working projects yet
+4678|This section is run by the administrator and the manager
+4679|reserve
+4680|Company details not filled in
+4681|Today
+4682|hidden
+4683|Status
+4684|Saved on the server
+4685|Saving
+4686|overdue
+4687|Overdue
+4688|Overdue, not marked
+4689|Invoice No.
+4690|Equipment in two crews
+4691|Equipment in reserve
+4692|No equipment added yet
+4693|Equipment, vehicle
+4694|Delete project
+4695|The file cannot be read: a .json project file is needed
+4696|Last name, first name, patronymic
+4697|Photos and videos
+4698|Photo, video
+4699|ppl ·
+4700|people and
+4701|Staff
+4702|Message on WhatsApp: +{n}
+4703|Could not start recording: {a}
+4704|August
+4705|
+4706|
+4707|
+4708|
+4709|Borehole drilling
+4710|
+4711|
+4712|Back to voice input
+4713|
+4714|Site visit
+4715|
+4716|
+4717|
+4718|
+4719|
+4720|Pouring the foundation

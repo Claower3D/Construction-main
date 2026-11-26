@@ -1,0 +1,355 @@
+5131|Standard / Comfort
+5132|Laying glass-fibre tissue with a density of {n} g/m²
+5133|Finish filling with a gypsum compound in {n} coats
+5134|Final finishing (painting, wallpaper, tiles)
+5135|Plaster microcracks and joint deformation
+5136|Economy / Basic
+5137|Electrical and plumbing works
+5138|{a}: over {n} MB — stays only on this device
+5139|not signed in
+5140|sign-in required
+5141|network failure
+5142|{a} is larger than {b} MB
+5143|Upload interrupted: no connection to the server
+5144|photos (JPG, PNG, WEBP, HEIC) and videos (MP{n}, MOV, WEBM) are supported
+5145|The session has ended — sign in again
+5146|the file is empty
+5147|The file is too large for the server
+5148|Bank transfer by invoice — no prepayment through the platform
+5149|Payment directly to the contractor — no prepayment through the platform
+5150|, opening not measured — the crack line could not be isolated
+5151|, opening not determined: the line is thinner than {n} pixels of the photo — specify the width of the area or shoot closer; the class may turn out higher
+5152|
+5153|
+5154|
+5155|
+5156|, opening up to ≈ {a} mm ({b} mm on average){c}
+5157|(model: {a})
+5158|Probable cause: {a}
+5159|length ≈ {a} mm
+5160|Zone {a}: {b} — covers ≈ {c}% of the frame (model confidence {d}%). {e} It cannot be measured in millimetres from a photo — size and depth are determined by inspection
+5161|Zone {a}: {b} ({c}{d}; {e})
+5162|Zone {a}: {b}. {c}
+5163|Zone {a}: {b}. {c} Measured from the photo: {d}.{e}
+5164|Class — as assessed by the AI model{a}
+5165|model confidence {a}%{b}
+5166|White deposit — salts carried out by water passing through the structure: a sign of a leak or wetting
+5167|Concrete spalls from impact, freezing while wet, or the pressure of rusting reinforcement
+5168|Open up the area, clean the metal to a bright surface, treat with a rust converter and restore the cover with a repair compound
+5169|Cut out the damaged area along a straight outline, clean it, treat with bitumen emulsion and patch with an asphalt mix with compaction
+5170|Deep fracture / structural crack in concrete
+5171|For load-bearing elements, check the size and number of knots against the timber grade in the design; fill loose knots, strengthen or replace a weakened element
+5172|Clean the reinforcement, assess the loss of cross-section (if noticeable, calculation and strengthening are needed), treat with an anti-corrosion compound and restore the cover
+5173|Clean and paint over or sand; on metal — prime with an anti-corrosion compound
+5174|The concrete cover is destroyed; the reinforcement is exposed to moisture and air and is losing cross-section
+5175|Structural crack with an opening
+5176|Corrosion / rust streaks
+5177|Paint, plaster or tiles are coming away from the base — usually because of moisture or poor adhesion
+5178|Mechanical damage to the surface; on metal, corrosion starts through a scratch
+5179|Find and eliminate the source of moisture, clean the surface and, after drying, treat with a water repellent
+5180|Find and eliminate the source of water, dry the structure, then restore the finish
+5181|Assess whether the element is load-bearing: if so — show it to an engineer; otherwise — straighten or replace it and restore the coating
+5182|Mould grows where the structure is constantly damp and poorly ventilated
+5183|The surfacing is destroyed down to the base: water, frost and wheel loads knock out the weakened area
+5184|Rust comes to the surface when reinforcement or embedded parts corrode under the cover
+5185|Spalling / concrete failure
+5186|A mark of impact or overload: on metal and plastic a dent weakens the element and damages the coating
+5187|Remove the delaminated layer down to a sound one, find and eliminate the cause of dampness, prime and restore the finish
+5188|Knot (timber defect)
+5189|A knot weakens the cross-section of a timber element; loose knots and knots with a crack are worse than sound ones
+5190|A dark or yellow stain is a trace of water: the roof, a pipe or a joint is leaking
+5191|Remove weak concrete down to sound material, dust off, prime and restore the cross-section with a repair mix; if it reaches the reinforcement — protect the reinforcement first
+5192|Shrinkage crack in the plaster layer / chip
+5193|Eliminate the source of moisture and set up ventilation, remove the affected finish, treat with an antiseptic and restore
+5194|Hairline crack (up to {n} mm)
+5195|Short crack (opening not measured — no scale)
+5196|Long crack (opening not measured — no scale)
+5197|Open (probably through) crack — opening over {n} mm
+5198|Crack with an opening of {n}–{n} mm
+5199|Medium-length crack (opening not measured — no scale)
+5200|; other defects — by inspection
+5201|(estimate without measurement)
+5202|Class {n} — High
+5203|Class {n} — High: opening {n}–{n} mm
+5204|Class {n} — CRITICAL
+5205|Class {n} — CRITICAL: open crack over {n} mm
+5206|Class {n} — Low
+5207|Class {n} — Low: opening up to {n} mm
+5208|Class {n} — Medium
+5209|Class {n} — Medium: opening {n}–{n} mm
+5210|{n} item
+5211|(with a frame width of ≈ {a} m — enter the real one to refine)
+5212|{a} — {b} pcs
+5213|{a} · condition: {b}
+5214|{a} kg
+5215|{a} lin. m
+5216|{a} pcs
+5217|{a} pcs, scope — by inspection
+5218|{a}: repair
+5219|≈ {a} ₸ for injection{b}{c}
+5220|No defects found in the photo{a}
+5221|Category: {a}
+5222|Cracks: {a} pcs, total length ≈ {b} m, largest opening ≈ {c} mm{d}
+5223|Cracks. {a}
+5224|emergency
+5225|Emergency — risk of collapse or failure of the element; restrict use until surveyed
+5226|Hairline cracks within tolerance: rout and fill with a repair compound at the next finishing; if new cracks appear — install tell-tales
+5227|High: the reinforcement is exposed or corroding — cross-section is being lost, inspection and protection are needed
+5228|High: through an open crack water and salts reach the reinforcement directly — corrosion is fast
+5229|GOST {n} "Rules for inspection and monitoring of technical condition"; SP RK EN {n}-{n}-{n}:{n}/{n}, cl. {n} — crack width limitation (usually up to {n} mm)
+5230|Replacement or strengthening of the damaged element — by design
+5231|The AI model saw no defects in the picture. If there is a defect — shoot closer and in good light, or mark it on the photo manually
+5232|Low: opening within the permissible range
+5233|Normative or serviceable — opening within permissible limits
+5234|Inspection by an engineer is needed
+5235|Survey by a specialized organization (GOST {n})
+5236|limited serviceability
+5237|Limited serviceability — repair and monitoring of the opening are needed
+5238|Injection packers d={n} mm
+5239|by survey
+5240|By inspection — depends on the scope of work
+5241|By inspection — the database has no rates for these works
+5242|Cannot be determined from a photo
+5243|Elevated: opening over {n} mm — moisture reaches the reinforcement
+5244|serviceable
+5245|Serviceable — repair is needed so that moisture does not reach the reinforcement
+5246|Routing and filling of hairline cracks with a repair compound
+5247|Routing and pressure injection of cracks
+5248|Rout the crack and fill it with a low-viscosity epoxy compound (injection), then restore the cover with a repair mix so that moisture does not reach the reinforcement
+5249|Urgently call a specialized organization for a survey under GOST {n} and find the cause (settlement, overload, freezing, impact). Until a decision is made — fence off the area and limit the load. A precast element (manhole ring, slab, lintel) with an open crack is usually replaced or strengthened with a jacket; injection is only a temporary measure
+5250|Moderate: opening over the permissible {n} mm — corrosion is possible over time
+5251|Install tell-tales and watch for {n}–{n} weeks whether the opening grows. If the crack does not grow — rout it, inject an epoxy compound under pressure through packers and restore the cover. If it grows — a survey and strengthening of the structure are needed
+5252|Installing tell-tales and monitoring the opening ({n}–{n} weeks)
+5253|Epoxy injection compound
+5254|Deformation
+5255|Corrosion
+5256|Leak / efflorescence
+5257|
+5258|The model did not load (code {a})
+5259|The model is not loaded yet
+5260|Method not supported
+5261|Could not load the log
+5262|Could not load users
+5263|Could not load the user
+5264|Could not change the role
+5265|Could not save the confirmation
+5266|Could not save the firm
+5267|Unknown role
+5268|User not found
+5269|This section is available only to the administrator
+5270|You cannot change your own role — ask another administrator
+5271|Specify a new role, firm or confirmation mark
+5272|Firm not found
+5273|This is the last administrator — assign another one first
+5274|The AI service is temporarily unavailable
+5275|The file is too large (maximum {n} MB)
+5276|
+5277|You're welcome! If you have questions about construction or prices — I'm here
+5278|Hello! I'm LinkVeAI, the QazGost AI assistant. I can tell you prices for works and materials, explain how to get an estimate from a photo, and find a crew or equipment. What are we building or renovating
+5279|shift
+5280|tonne
+5281|I could not find an exact item for this query in the database. Be more specific — the work type or material and the quantity, for example "wall plastering {n} m²" or "concrete M{n} m³". A full estimate with works and materials is put together by [Estimate from photo](auth:register)
+5282|piece
+5283|I help with construction and renovation: prices for works and materials, estimates from photos, crack checks, finding a crew and heavy equipment. Write what needs to be done — for example, "how much does a floor screed of {n} m² cost" or "need an excavator for a shift"
+5284|Could not save the password
+5285|Could not save the password, try again
+5286|Invalid sign-up data
+5287|Invalid phone number: the format +{n} and {n} digits is required
+5288|Invalid request format
+5289|Authorization required
+5290|Token generation error
+5291|User creation error
+5292|the password must be at least {n} characters long
+5293|The password must be at least {n} characters long
+5294|Password set, signed in
+5295|The password was changed, but a new session could not be issued — sign in with the new password
+5296|Password is required
+5297|A user with this email already exists
+5298|Sign-up completed
+5299|The session has expired
+5300|Sign-up fields are too long
+5301|the password is too long
+5302|The password is too long
+5303|Too many failed sign-in attempts. Try again in {n} min
+5304|Too many failed attempts. Try again in {n} min
+5305|Enter the email in the format name@example.kz
+5306|Enter a phone number
+5307|Signed in successfully
+5308|To sign up, accept the user agreement and give consent to the processing of personal data
+5309|This is your first sign-in: create your own password and enter it —
+5310|this password is too simple or commonly known
+5311|Could not save the message
+5312|No access to the conversation for this order
+5313|The message is longer than {n} characters
+5314|The message cannot be empty
+5315|Sign in to see requests
+5316|Sign in to sync requests
+5317|Sign in to delete the request
+5318|the date must be in YYYY-MM-DD format
+5319|Request not found
+5320|No more than {n} requests per query
+5321|Invalid data format
+5322|Invalid request format
+5323|Error
+5324|Error loading contracting companies
+5325|Sync error
+5326|Crew creation error
+5327|Client creation error
+5328|Company creation error
+5329|Error saving the request to the database
+5330|Request deletion error
+5331|the request fields are too long
+5332|Only the author or a manager can delete the request
+5333|Specify the request ID
+5334|Enter the client's name
+5335|Enter the crew name
+5336|enter the request name
+5337|Enter the company name
+5338|Sign in to your account to save examples
+5339|Could not load examples
+5340|Could not build the archive
+5341|Could not save the example
+5342|Could not delete the example
+5343|Invalid request
+5344|Invalid photo size
+5345|An example id is required
+5346|Consent to use the photo for training is required
+5347|A photo in JPEG format is required
+5348|Example not found
+5349|Too many zones
+5350|The file is not a JPEG image
+5351|The photo is too large
+5352|The AI model did not respond
+5353|The AI model responded in the wrong format
+5354|The AI model rejected the request
+5355|The AI model key is not set on the server
+5356|Could not prepare the request
+5357|Invalid grid
+5358|A photo in an image format is required
+5359|Empty AI model response
+5360|Total {a}
+5361|VAT ({a}%%)
+5362|
+5363|The technical supervision engineer was assigned to the site successfully
+5364|Specify orderId and engineerId
+5365|The database is unavailable
+5366|You can book no more than a year ahead
+5367|Booking not found
+5368|Sign in to book equipment
+5369|Sign in to see your equipment fleet
+5370|The rental start date has already passed
+5371|Only the owner can edit the listing
+5372|The heavy equipment catalog is temporarily unavailable
+5373|Number of shifts — from {n} to {n}
+5374|Could not change the status
+5375|Could not place the booking
+5376|Could not save the changes
+5377|Could not delete the listing
+5378|Invalid equipment status
+5379|Unknown address
+5380|Invalid data
+5381|Invalid booking data
+5382|Invalid listing data
+5383|You cannot book your own equipment
+5384|No access to this booking
+5385|Listing not found
+5386|Error saving heavy equipment
+5387|Check the price: the value is too large
+5388|Heavy equipment listed in the marketplace
+5389|The booking status has already changed — refresh the list
+5390|This status transition is not possible
+5391|The equipment is currently unavailable for booking
+5392|The equipment is already booked for these dates — choose others
+5393|Sign-in required
+5394|Only the owner can delete the listing
+5395|Enter the city
+5396|Enter the start date in YYYY-MM-DD format
+5397|Enter the phone and site address
+5398|Only the equipment owner can set this status
+5399|VAT {n}%%
+5400|Invalid file type: photos, PDF, Office, CSV/TXT and point clouds are allowed
+5401|File write error
+5402|Error creating the upload directory
+5403|Error saving the file on the server
+5404|Maximum file size exceeded ({n} MB)
+5405|No file was sent in the request
+5406|The file is not an image
+5407|File uploaded successfully
+5408|Escrow: Order #{n} ({a})
+5409|Balance topped up successfully
+5410|You can only hold your own funds
+5411|Payout to the contractor for order #{n}
+5412|Payout to the contractor completed successfully
+5413|Only the payer or an administrator can pay out from escrow
+5414|Could not top up the balance
+5415|Not enough available funds to hold in escrow
+5416|Invalid amount for escrow
+5417|Invalid payout parameters
+5418|No access to someone else's balance
+5419|Payment for order #{n}
+5420|Escrow hold error
+5421|Payout error
+5422|You can only top up your own balance
+5423|Funds reserved in escrow successfully
+5424|The payout amount exceeds the amount held in escrow
+5425|Enter a valid top-up amount (from {n} to {n} ₸)
+5426|Specify an existing payout recipient (toUserId)
+5427|Unsupported file format: {a}. Supported: .las, .ply, .pcd, .xyz
+5428|Sign in to post an offer
+5429|Sign in to see your offers
+5430|Values cannot be negative
+5431|Only the supplier can edit the offer
+5432|The offers catalog is temporarily unavailable
+5433|Could not save the offer
+5434|Could not delete the offer
+5435|Invalid status
+5436|Invalid offer data
+5437|Tick delivery or pickup
+5438|Offer not found
+5439|Materials can be listed by suppliers, companies and contractors
+5440|Only the supplier can delete the offer
+5441|Enter the warehouse city
+5442|Enter the unit of measurement
+5443|Enter the material name
+5444|Enter a price greater than {n}
+5445|Specify the quantity from which the wholesale price applies
+5446|Order not found
+5447|Order updated
+5448|Order deleted successfully
+5449|The order name cannot be empty
+5450|Invalid order format
+5451|Insufficient rights to change this order
+5452|Invalid estimate items
+5453|Invalid stages
+5454|Invalid ID
+5455|Invalid order ID
+5456|Order update error
+5457|Order creation error
+5458|Field
+5459|The order fields are too long: shorten the name, address or number of estimate items
+5460|Too many estimate items
+5461|Too many stages
+5462|The order amount cannot be negative
+5463|Only its author or an administrator can delete the order
+5464|Enter the order name
+5465|The model must have from {n} to {n} floors
+5466|Sign in to store models
+5467|Only its author can edit the model
+5468|The model is temporarily unavailable
+5469|Model not found
+5470|The model is too large to save
+5471|The name is too long
+5472|Could not read the model
+5473|Could not save the model, try later
+5474|Could not delete the model
+5475|Opening data is corrupted
+5476|Wall data is corrupted
+5477|Check the floor height and slab thickness
+5478|Too many walls or openings on a floor
+5479|{n} models are already saved — delete the ones you do not need
+5480|The model list is temporarily unavailable
+5481|Enter the model name
+5482|Heating is calculated for an area of {a} m²: {n} radiator per {n} m², piping {n} m of pipe per m², a gas boiler of {n} kW for every {n} m². The scope is refined by the design
+5483|From the note: {n} ppl × {n} days = {n} person-days; the norm requires {a} person-days
+5484|Underfloor heating is calculated for an area of {a} m²: laying pitch {n} mm, about {n} m of pipe per m². Insulation and screed are calculated separately
+5485|Prices are market prices for {a} (coefficient ×{n}), contingency reserve {n}%

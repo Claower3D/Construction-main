@@ -1,0 +1,49 @@
+7723|Aktau
+7724|Petropavlovsk
+7725|Uralsk
+7726|Taldykorgan
+7727|Turkestan
+7728|Kyzylorda
+7729|Almaty
+7730|No geometry: close the outline or enter the area and perimeter
+7731|The area is over {n} m² — check the outline scale
+7732|The height is over {n} m — check the input (the wall height is entered, not the height of the whole house)
+7733|An area of {a} m² is impossible with a perimeter of {b} m (maximum {c} m²) — check the dimensions
+7734|Invalid number of openings
+7735|Unknown work package
+7736|No process chart for the category "
+7737|The quantity of each item is calculated from the outline geometry and manufacturers' consumption norms
+7738|prices are market prices, with a source for every row; the regional coefficient is applied to works and materials
+7739|scenarios differ in the scope of work and the grade of materials
+7741|One crew, stages run in sequence; the durations include process breaks (drying, strength gain). Output — by ENiR norms and crew practice
+7742|The city "{a}" is not in the reference list — calculated at Almaty prices
+7743|Openings: doors {a} × {n}×{n} m, windows {b} × {n}×{n} m — deducted from the wall area
+7744|Almaty prices are recalculated for {a} with a coefficient of {b}
+7745|A {n}% reserve for contingencies is shown separately and is not included in the cost of the items
+7753|An area of {a} m² is larger than the maximum possible for a perimeter of {b} m ({c} m²) — check the outline
+7754|The outline is very elongated: with a perimeter of {a} m the area is only {b} m². If it is not a corridor — check the points
+7755|The geometry is consistent: {a} m² with a perimeter of {b} m
+7756|A height of {a} m is unusual for a room (usually {n}–{n} m)
+7757|Openings take up {a}% of the walls — check the number of windows and doors
+7758|{a}% of the "Standard" amount is based on prices from public price lists and listings with a link
+7759|The rest is a QazGost calculated estimate: check these rows with the supplier
+7760|"Standard" works: {a} ₸/m² of floor. The average price of basic rough and final works in Kazakhstan is {n}–{n} thousand ₸/m² (Bizmedia/OLX, June {n})
+7761|The deviation is noticeable — check the scope of work
+7762|In "Economy" laminate is laid without a new screed: this is acceptable only if the base varies by no more than {n} mm per {n} m
+7763|In "Economy" tiles are laid without a new screed: base variations of up to {n} mm are taken up by the adhesive; larger ones need a screed
+7764|In "Economy" walls are not levelled on beacons — only filler over the existing surface. Suitable if the wall deviation is up to {n} mm
+7765|Check against the QazGost reference database: {a} items have at least {b} similar entries, and for {c} of them the price is within the database range (from ½ of the lower quartile to {n} × the upper one, excluding outliers)
+7766|For {a} items the database price differs noticeably — the estimate keeps the reference price with its source; details are in the comparison table
+7770|can
+7771|(≈{a} ₸ per {b} {c})
+7740|
+7746|
+7747|
+7748|
+7749|
+7750|
+7751|
+7752|
+7767|
+7768|
+7769|

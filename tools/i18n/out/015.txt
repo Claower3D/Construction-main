@@ -1,0 +1,345 @@
+5486|Man-hours are based on an output of {a} of work per person per day, shift {n} h
+5487|Crew of {n} ppl — duration by norm {n} days
+5488|Crew from the note: {n} ppl — duration by norm {n} days
+5489|Write in the note what needs to be done — at least the work type and quantity
+5490|general construction works
+5491|Duration from the note: {n} days — a crew of {n} ppl is needed
+5492|The request is too large (over {n} KB)
+5493|Invalid request: field
+5494|Invalid request: empty body
+5495|Invalid request: the body is not valid JSON
+5496|{a} ({b}), role {c}, firm: {d}
+5497|A BIN is {n} digits
+5498|Choose a role: contractor, engineer, contracting company, manager or client
+5499|Could not load workers
+5500|Could not load firms
+5501|Could not create the worker
+5502|Could not create the firm
+5503|A user with this login already exists
+5504|The team list is available to employees
+5505|Enter a login or email without spaces
+5506|Enter the firm name
+5507|Enter the worker's full name
+5508|A firm with this name already exists
+5509|Sign in to your account
+5510|The record is larger than {n} MB — it will stay only on this device
+5511|Record not found
+5512|The space for your data on the server has run out ({n} MB)
+5513|Could not load the data
+5514|Could not save the data
+5515|Could not delete the data
+5516|Invalid record name
+5517|The value field (a string) is required
+5518|Sign in to open projects
+5519|The project start date must be in YYYY-MM-DD format
+5520|The project end date must be in YYYY-MM-DD format
+5521|The project end date is earlier than the start date
+5522|The invoice date must be in YYYY-MM-DD format
+5523|IIN of worker "
+5524|Could not read the project
+5525|Could not read the project: check the file
+5526|Could not save the project, try later
+5527|Could not save the file on the server
+5528|Could not save the file: the upload was interrupted
+5529|Could not delete the project
+5530|Invalid invoice amount
+5531|Photos (JPG, PNG, WEBP, HEIC) and videos (MP{n}, MOV, WEBM) are supported
+5532|The project is temporarily unavailable
+5533|The project was changed from another device. Refresh the page to see the latest version and repeat your edit
+5534|Project not found
+5535|Project not found: it may have been deleted
+5536|The project is too large (over {n} MB)
+5537|The project is too large: up to {n} people, {n} equipment units, {n} crews and {n} works
+5538|{n} projects are already saved — delete the ones you do not need
+5539|The project list is temporarily unavailable
+5540|Crews must have different record numbers
+5541|A crew has no name
+5542|Works must have different record numbers
+5543|A worker has no name
+5544|Workers must have different record numbers
+5545|Work "
+5546|A work has no name
+5547|Equipment units must have different record numbers
+5548|An equipment unit has no name
+5549|Photos and videos must have different record numbers
+5550|Enter the project name
+5551|The file exceeds the limit: photos up to {n} MB, videos up to {n} MB
+5552|The file is not an MP{n}, MOV or WEBM video
+5553|The file is not a photo
+5554|Photos and videos are added only by uploading through the module
+5555|{n} days
+5556|{n} days
+5557|{n} m² (gable)
+5558|{n} m² (thickness {n} mm)
+5559|{n} m × {n} m × {n} m
+5560|QTO BILL OF MATERIALS AND WORKS
+5561|Cast-in-place structures ({a})
+5562|Drawing: {a}
+5563|Almaty (SNiP RK ×{n})
+5564|Ribbed rebar A{n}C Ø{n} mm
+5565|Basalt reinforcing mesh
+5566|Rebar cage A{n}C Ø{n} mm (GOST {n})
+5567|Astana (SNiP RK ×{n})
+5568|Heavy concrete M{n} (W{n}, F{n})
+5569|CONCRETE WORKS
+5570|Softwood timber {n}×{n} mm (rafters)
+5571|Back to samples
+5572|Bitumen-polymer membrane waterproofing
+5573|Demo on sample drawings
+5574|Your drawing is uploaded
+5575|Upload your drawing
+5576|Interactive AI drawing scanner & QTO calculator
+5577|MASONRY WORKS
+5578|Karaganda (SNiP RK ×{n})
+5579|Aerated block masonry D{n}
+5580|Masonry of external walls with reinforcement
+5581|Adhesive for cellular concrete (bags {n} kg)
+5582|ROOFING WORKS
+5583|Metal tile roofing {n} mm
+5584|Strip foundation M{n}
+5585|Superdiffusion vapour/water barrier membrane
+5586|Monterrey metal tile {n} mm RAL {n}
+5587|Installation and concreting of load-bearing joints
+5588|Resource / work name
+5589|Formwork systems & laminated panel
+5590|FINISHING WORKS
+5591|Plasticizer for underfloor heating
+5592|Semi-dry floor screed with fibre
+5593|Calculation under SN RK {n}-{n} norms
+5594|Light building (SNiP RK ×{n})
+5595|Download KS-{n} certificate (Excel .xlsx)
+5596|Polypropylene fibre {n} mm
+5597|Cement PC-{n} D{n} + washed sand
+5598|USER DRAWING (DWG/PDF)
+5599|Shymkent (SNiP RK ×{n})
+5600|₸/m² · materials
+5601|The PDF report is ready and saved
+5602|Defect reports
+5603|More
+5604|On
+5605|Sign in to save estimates
+5606|Waste removal
+5608|Plasterboard
+5609|Guest
+5610|App demo
+5611|Demo calculation as an example
+5612|Kenesary {n} · under inspection
+5613|m² ·
+5614|m² · Astana · {n} prices
+5615|Less
+5616|Find a crew
+5617|New estimate
+5618|Determining the work type
+5619|Sent to {n} crews in Astana
+5620|Office, Turan {n}
+5621|Selecting prices for Astana
+5622|Wall painting
+5623|Check photo
+5624|Leak at the riser
+5625|Recognition
+5627|Take a picture
+5628|Estimate PDF saved
+5629|Capture the whole wall
+5630|Wall · {n} m²
+5631|Generate report
+5632|Calculating area and quantities
+5633|Syganak {n} · {n} mm
+5634|Crack · {n}%
+5635|Crack in plaster
+5636|Tile laying
+5637|Opening width
+5638|Wall plastering
+5639|Language
+5640|{n}D scanning and measurements
+5641|Emergency works
+5642|Truck crane
+5645|Anti-corrosion protection
+5648|Reinforcement
+5652|Concrete pump
+5654|Landscaping and roads
+5656|Kerbs and edging
+5657|Drilling for piles
+5658|Water well drilling
+5659|Ventilated facade
+5662|Indoor water supply
+5663|Indoor sewerage
+5666|Water treatment and filters
+5668|Gutter system
+5669|Gates and fencing
+5672|Soil removal
+5678|Waterproofing
+5679|Foundation waterproofing
+5680|Plasterboard works
+5684|Demolition of buildings and structures
+5686|Road base
+5687|Delivery of materials
+5688|Site drainage
+5690|Fences
+5691|Earthing and lightning protection
+5692|Earthworks and demolition
+5693|Surveys and design
+5694|Crack injection
+5698|Major renovation
+5699|Frame construction
+5703|Brickwork
+5704|Aerated block masonry
+5711|Cosmetic renovation
+5713|Boiler room
+5714|Roofing and facades
+5715|Metal tile and profiled sheet roofing
+5721|Stairs and railings
+5722|Storm sewerage
+5726|Small architectural forms
+5728|Crane truck
+5730|Wet facade
+5731|Cast-in-place slabs
+5732|Cast-in-place frame
+5733|HVAC system installation
+5734|Installation of precast concrete
+5735|Installation of steel structures
+5736|Equipment installation
+5738|Soft roofing
+5740|Canopies and awnings
+5742|Outdoor sewerage
+5744|Pumping station
+5746|Facade cladding
+5748|Wallpaper and decorative coatings
+5749|Backfilling and compaction
+5751|Building survey
+5754|Fire protection of structures
+5756|Greening
+5757|Windows, doors, structures
+5759|Formwork
+5761|Lighting
+5762|Glazing of facades and balconies
+5763|Heating, ventilation, gas
+5766|Partitions
+5767|Site grading
+5771|Slab foundation
+5773|Flat roofing
+5775|Connection to the power grid
+5780|Industrial concrete floors
+5781|Industrial works
+5784|Commissioning works
+5785|Detailed design
+5788|Pit excavation
+5790|Tanks and vessels
+5791|Rail and crane tracks
+5793|Repair and strengthening
+5794|Roof repair
+5795|Facade repair
+5796|Dump truck
+5799|Pile foundation
+5801|Welding works
+5805|Structured cabling and internet
+5807|Estimate documentation
+5809|Approvals and permits
+5810|Solar power plant
+5812|Heavy equipment and delivery
+5815|Walls, frame, metal
+5817|Sandwich panels
+5818|Heat substation
+5820|Underfloor heating
+5823|Technical and design supervision
+5824|Process pipelines
+5825|Topographic survey
+5607|
+5626|
+5643|
+5644|
+5646|
+5647|
+5649|
+5650|
+5651|
+5653|
+5655|
+5660|
+5661|
+5664|
+5665|
+5667|
+5670|
+5671|
+5673|
+5674|
+5675|
+5676|
+5677|
+5681|
+5682|
+5683|
+5685|
+5689|
+5695|
+5696|
+5697|
+5700|
+5701|
+5702|
+5705|
+5706|
+5707|
+5708|
+5709|
+5710|
+5712|
+5716|
+5717|
+5718|
+5719|
+5720|
+5723|
+5724|
+5725|
+5727|
+5729|
+5737|
+5739|
+5741|
+5743|
+5745|
+5747|
+5750|
+5752|
+5753|
+5755|
+5758|
+5760|
+5764|
+5765|
+5768|
+5769|
+5770|
+5772|
+5774|
+5776|
+5777|
+5778|
+5779|
+5782|
+5783|
+5786|
+5787|
+5789|
+5792|
+5797|
+5798|
+5800|
+5802|
+5803|
+5804|
+5806|
+5808|
+5811|
+5813|
+5814|
+5816|
+5819|
+5821|
+5822|
+5826|
+5827|
+5828|
+5829|
+5830|

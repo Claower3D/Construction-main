@@ -1,0 +1,338 @@
+3554|Open "{a}"
+3555|Walls transferred: {a}, openings: {b}. Check the plan: delete what is extra, draw what is missing
+3556|Point A is the gold marker, point B is the light blue one, {a} m between them
+3557|The current model has unsaved changes — they will be lost
+3558|In the file
+3559|No lines found in the file. Walls must be drawn as line segments or polylines
+3560|This PDF has no lines — it is a scan. It became an underlay: set the scale by two points and trace the walls with the "Wall" tool
+3561|Select a wall or opening on the plan to change its dimensions
+3562|Building height
+3563|Floor height, floor to floor
+3564|Preparing the model for iPhone
+3565|Doors and windows
+3566|House {n} × {n} m with partitions, doors and windows
+3567|There are unsaved changes
+3568|Loading {n}D
+3569|Close the model list
+3570|and
+3571|The image became an underlay. First set the scale: mark two points with a known distance. Then trace the walls with the "Wall" tool
+3572|m. Turn off "Slabs" or reduce the number of floors to look inside
+3573|The model will appear once the plan has walls
+3574|The model is saved in this browser. To open it on a phone, sign in to your account and save again
+3575|The model is saved on the server. Open "My models" on a phone under the same account — it will be there
+3576|Name
+3577|Start a new project
+3578|Don't save and continue
+3579|Failed
+3580|Could not turn on the camera in augmented reality mode. Check that "Google Play Services for AR" is installed on the phone
+3581|Could not open the page
+3582|Could not open the project file: it is not a "Plan → {n}D" file or it is damaged
+3583|Could not prepare the model for "Quick Look"
+3584|Could not prepare the file. Try again
+3585|Could not read the file. DXF, PDF, JPG and PNG are supported
+3586|No camera access. Allow the camera for this site in the browser settings and try again
+3587|Opening sill height from the floor
+3588|New project
+3589|New floor with the same walls
+3590|Untitled site
+3591|Stay
+3592|Opening the model
+3593|Opening the page
+3594|An unsaved draft from last time is open
+3595|Parameters
+3596|Clear floor area
+3597|The underlay is visible only now: it is not saved with the model
+3598|Floors to show
+3599|Project opened from a file
+3600|Sections
+3601|Hide message
+3602|Saved in the browser
+3603|Nothing to save yet: the plan has no walls
+3604|Walls on a {n} cm grid with snapping to corners
+3605|Opening type
+3606|Thickness
+3607|Slab thickness
+3608|The file is larger than {n} MB. Save only the sheet or floor plan you need from the drawing
+3609|Centre from the start of the wall
+3610|Common thicknesses
+3611|drawing
+3612|Reading the file
+3613|What to show
+3614|Floors
+3615|This is DWG — a proprietary AutoCAD format that cannot be read directly. Open the drawing in AutoCAD or nanoCAD and save it as DXF ("Save as" → DXF), then upload it here
+3616|This is a sample: a {n} × {n} m house. Adjust the walls on the plan and look at the "{n}D" and "Volumes" tabs
+3617|"Simple overlay" is a mode with layers, transparency and snapshots but no walking: the model holds only when the phone turns
+3618|{n}D model (GLB)
+3619|— it is {a} m from A
+3620|Allowed from {a} to {b}
+3621|The building stays in place · {a} × {b} m
+3622|Scale model {n}:{a}
+3623|Go to the second corner — it is {a} m from A — and point the ring at it
+3624|Plan in DXF: {a}
+3625|The A–B distance on site differs from the design by {a}{b} cm
+3626|Model shift, step {a} cm
+3627|Delete model {a}
+3628|Plan drawing: {a}
+3629|Without signing in, models are stored only in this browser
+3630|Without point B
+3631|Clear area, m²
+3632|in this browser
+3633|Bill of quantities (Excel)
+3634|Where the building will be
+3635|Doors
+3636|Length, m
+3637|For AutoCAD, nanoCAD and Kompas. Layers: walls, windows, doors, axes, rooms. Units — millimetres
+3638|If the corners are staked out on site: stand at corner A, mark it, then mark corner B
+3639|Loading the model list
+3640|Walk to the building. Use the buttons to rotate it, move it, make it transparent or shrink it to a scale model
+3641|Looking for a surface
+3642|The wall outline is not closed on every floor: rooms and the slab are not calculated there. Extend the walls to the corners on the plan
+3643|A{n} sheet with dimensions, room areas and a title block. SVG format: open it in a browser and print or save as PDF
+3644|Scale model
+3645|Slowly move the phone around so the camera sees the floor or the ground
+3646|Full-size model
+3647|On iPhone and iPad the building opens in "Quick Look": the screen shows what the camera sees and the model at actual size. It stays in place: you can walk up to it and around it. Use your fingers to move, rotate and shrink it
+3648|on the server
+3649|The screen shows what the camera sees with the building at actual size on top. It stays in place: you can walk up to it, around it and inside through the door openings
+3650|The screen will show what the camera sees with the model on top. You can move and rotate it with your fingers, turn off layers and take a snapshot
+3651|No walls on this floor
+3652|Point the gold ring at the ground where the near edge of the building should be and press "Place"
+3653|Point the ring at the building corner marked A on the plan
+3654|Point the ring where the near edge of the building should be and press "Place"
+3655|Walk around the scale model. The "{n}:{n}" button restores actual size
+3656|Volume, m³
+3657|Volumes are calculated along wall axes. The clear area is exact for rooms with right angles and approximate for the rest. Lintels, reinforcement, foundation and roof are not part of the model
+3658|windows
+3659|Lower
+3660|Keep
+3661|Opens in Blender, the Windows viewer and any glTF viewer
+3662|Mark A
+3663|Mark B
+3664|Slabs, volume
+3665|Reposition
+3666|Perimeter, m
+3667|Slab
+3668|Floor slabs
+3669|By axes, m²
+3670|Rotate {n} degrees left
+3671|Rotate {n} degrees right
+3672|Rotate half a degree left
+3673|Rotate half a degree right
+3674|Move the phone around until a gold ring appears on the ground
+3675|Model rotation
+3676|Raise
+3677|Come closer, walk around, go inside. Use the buttons below to rotate and move it
+3678|rooms
+3679|Rooms, clear area
+3680|Rooms on the floor
+3681|Place
+3682|Place by corners A and B
+3683|Placed by point A. Rotate it with the buttons so the walls match the layout marks
+3684|Checking what this device can do
+3685|Openings, m²
+3686|Transparent
+3687|Simple overlay on the camera
+3688|Move towards you
+3689|Move away from you
+3690|Download
+3691|How many floors to show
+3692|Saved models open on any device after signing in
+3693|No saved models yet
+3694|walls
+3695|Walls by thickness, rooms, slabs — by floor and in total
+3696|Floor walls by thickness
+3697|Walls, volume
+3698|Walls, area without openings
+3699|Point A
+3700|Point B
+3701|Exactly on the layout marks
+3702|Delete permanently
+3703|Project file
+3704|To pass the model to a colleague or open it later: use the "Open" button on the start screen
+3705|That is a lot: check that corners A and B are the ones marked
+3706|This device cannot track steps, so you cannot walk up to the model: it holds in place only when the phone turns. To walk up, around and inside, open the page in Chrome on an Android phone with "Google Play Services for AR" or in Safari on an iPhone
+3707|Wall {a}, thickness {b} mm. Drag an end to change it
+3708|Enter the real distance between the marked points
+3709|Redo
+3710|Redo (Ctrl+Y)
+3711|Plan tools
+3712|Zoom in
+3713|Zoom out
+3714|
+3715|This floor has no walls yet. Choose "Wall" and draw them or upload a drawing
+3716|Click at the end of the wall. To finish — click the same point again or press Esc
+3717|Click at the start of the wall, then at the end. The next wall continues the chain; double-click to finish
+3718|Click the wall where the door is
+3719|Click the wall where the window is
+3720|Click a wall or opening to select it. The ends of the selected wall can be dragged
+3721|e.g. {n}
+3722|Undo (Ctrl+Z)
+3723|Mark two points on the underlay with a known distance between them, for example the ends of a dimension line
+3724|Floor plan. Arrow keys move the plan, plus and minus change the zoom
+3725|Underlay
+3726|Underlay: show or hide
+3727|Show the whole plan
+3728|Show underlay
+3729|Apply scale
+3730|An opening can be moved along the wall. Dimensions are in the properties panel
+3731|Distance between points, m
+3732|Now mark the second point
+3733|Delete selected
+3734|Delete selected (Delete)
+3735|
+3736|
+3737|Underlay brightness
+3738|Open: {a}
+3739|{n} rates in {a} categories at {n} prices
+3740|Range: {a} – {b} ₸
+3741|No categories found for "{a}". Try another word
+3742|{n} digits (e.g., {n})
+3743|{n}. Done
+3744|{n}. Contacts
+3745|{n}. Project
+3746|{n}. Client type
+3747|Questionnaire saved! Profile is {a}% complete
+3748|Activate VIP for {n} ₸ / month
+3749|Questionnaire cleared
+3750|Pool / Bathhouse
+3751|Company BIN / IIN
+3752|Quick templates
+3753|Are you sure you want to clear the whole questionnaire
+3754|Add your heavy equipment, link it to sites and rent it out directly
+3755|Road / Yard
+3756|Available with VIP status
+3757|Other
+3758|Fence / Gate
+3759|Upload photo
+3760|Filling in the questionnaire
+3761|What project are you interested in
+3762|Turnkey major renovation of a {n} m² apartment
+3763|Contact details
+3764|Personal manager {n}/{n}
+3765|My crews
+3766|My equipment
+3767|Describe your project
+3768|Office / Shop
+3769|Enabling VIP access
+3770|Get VIP
+3771|VIP subscription activated successfully
+3772|Get an unlimited ability to list your own equipment fleet, track GPS and accept orders with no commission
+3773|Priority in results shown to clients
+3774|Warehouse / Workshop
+3775|Save questionnaire
+3776|Client type
+3777|LLP 'QazStroyGroup'
+3778|LLP, IE, JSC — bank transfer, closing documents
+3779|Laying paving tiles and installing a {n} m fence
+3780|Managing your personal profile and requirements
+3781|Manage up to {n} crews at once, generate automatic work permits and keep financial reports
+3782|Manage your trusted crews, assign foremen and distribute stages
+3783|Individual
+3784|Profile photo uploaded successfully
+3785|We want to build a {n}-storey house of {n} m² with a flat roof
+3786|We want to build a two-storey house of {n} m² with a garage. The land plot is in the Besagash area
+3787|Private client, building or renovating for yourself
+3788|The more detailed the description, the more accurate the automatic estimate and contractor matching
+3789|Export of estimates to Excel and {n}C
+3790|Legal entity
+3791|
+3792|
+3793|days of work
+3794|Total excl. VAT
+3795|Commercial proposal
+3796|VAT
+3797|Print / PDF
+3798|Attach to request
+3799|Contingency reserve ({n}%)
+3800|Copied
+3801|Copy text
+3802|Labour
+3803|people in the crew
+3804|person-days
+3805|man-hours
+3806|, including transfer abroad, under the
+3807|
+3808|Account: {a}. To create another one, sign out of this one first
+3809|Heavy equipment ({a})
+3810|Aigerim Saparova
+3811|I give
+3812|
+3813|
+3814|
+3815|
+3816|I am {n} or older and accept the
+3817|
+3818|privacy policy
+3819|user agreement
+3820|Sign up — QazGost AI
+3821|
+3822|consent to the processing of personal data
+3823|{n} major developers
+3824|{n} sites
+3825|{n} ppl
+3826|{n} storeys
+3827|{n} storeys
+3828|CEO / General Director
+3829|CRM manager
+3830|Company: {a}
+3831|Adilov Nurlan
+3832|QA analyst
+3833|Askarov Baurzhan
+3834|Akhmetov Marat +{n}
+3835|Bekmuratov K
+3836|Concrete crew
+3837|Finishing crew
+3838|Utilities crew
+3839|Crew leader Altynbek
+3840|Crew leader Kenzhe
+3841|Crew leader Sagat
+3842|All branches expanded
+3843|All branches collapsed
+3844|Select one or more companies to view side by side
+3845|Chief project engineer
+3846|Chief engineer
+3847|Chief foreman
+3848|Developer
+3849|Development
+3850|Director
+3851|Construction director
+3852|Management
+3853|Roads / bridges
+3854|Zhaksylykov B
+3855|Zhansugurov T
+3856|Residential complex "Astana Hub"
+3857|Residential complex "Sample Hills"
+3858|Clients
+3859|Deputy director
+3860|Investments
+3861|Investors
+3862|Technical supervision engineer
+3863|Concrete inspector
+3864|Utilities inspector
+3865|Information
+3866|Infrastructure
+3867|Testing
+3868|Kasymbekov Yerbolat
+3869|Kasymov Yerbol
+3870|Kenesov Bekzat
+3871|Customers
+3872|Quality control
+3873|Corporate clients
+3874|Kussainov T
+3875|Laboratory
+3876|Manager Aliya
+3877|Manager Asset
+3878|Mustafin Kanat
+3879|Myrzabek A
+3880|Division
+3881|Nurgaliyev Talgat
+3882|sites
+3883|HVAC / Plumbing / Electrical
+3884|Organization tree
+3885|Reporting
+3886|units
+3887|units
+3888|Units (
+3889|Sample Developer
+3890|Sample Engineering
+3891|Sample MonolitStroy

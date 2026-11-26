@@ -1,0 +1,409 @@
+3892|Project office
+3893|Production
+3894|Foreman Zhunusov
+3895|Foreman Satov
+3896|Expand
+3897|Rakhimova A
+3898|Company details
+3899|Sabitov Rustam
+3900|Sadykov Nurlan
+3901|Serikbayev Yerlan
+3902|Smagulov Daniyar
+3903|Construction works
+3904|staff
+3905|Employees
+3906|Construction
+3907|Structure
+3908|Toktarov B
+3909|LLP/JSC
+3910|Tuleubayev Arman
+3911|Tursunov Maksat
+3912|Managing director
+3913|Utemisov D
+3914|Individuals
+3915|Financing
+3916|Finance
+3917|Khamitov Aidyn
+3918|Private
+3919|ppl •
+3920|ppl)
+3921|Headcount
+3922|Escrow control
+3923|, from
+3924|
+3925|: precision
+3926|% on validation photos). Length is estimated from the distance with an error of about ±{n}%; measure the crack width with a ruler or feeler gauge. Frames are processed on the device and are not sent anywhere
+3927|%, recall
+3928|QazGost AI — crack repair calculation
+3929|{a} {b} in frame
+3930|{a}: {b} m × {c} = {d}
+3931|Loading recognition: {a}% of {n} MB
+3932|Loading recognition… {a}%
+3933|Total ≈ {a}{b}
+3934|Recognition did not load: {a}
+3935|Crack {a}% · ≈ {b} m
+3936|Remove section {a}
+3937|Sections: {a}, cracks: {b}, length ≈ {c} m
+3938|Section added: {a} {b}, ≈ {c} m
+3939|Prices from the QazGost catalog{a}
+3940|Closer
+3941|Turn on camera
+3942|Choose photo
+3943|Turn off camera
+3944|Farther
+3945|Hold the phone straight in front of the surface, without tilting. The more accurate the distance, the more accurate the length
+3946|Add section to the calculation
+3947|Add sections with cracks — materials by pack and labour cost will be totalled here
+3948|Camera access denied. Allow the camera for this site in the browser settings or choose a photo
+3949|Another photo
+3950|per m
+3951|Close photo
+3952|Starting recognition
+3953|Looking for cracks
+3954|The camera is available only at a secure address (https) and in a modern browser. Choose a photo of the crack
+3955|The camera is in use by another app. Close it or choose a photo
+3956|Camera not found. Choose a photo of the crack
+3957|The price catalog is unavailable right now — November {n} prices are used without city adjustment
+3958|Buy
+3959|materials and labour
+3960|Point the camera at the crack
+3961|Could not send. Try again
+3962|Could not turn on the camera. Choose a photo of the crack
+3963|Could not load recognition
+3964|Could not recognize the photo
+3965|A photo file is required
+3966|Needed
+3967|Send calculation
+3968|Surface
+3969|Continue
+3970|Recognition is ready and runs on the device
+3971|Recognition unavailable
+3972|Recognition stopped
+3973|Only cracks are recognized (
+3974|Distance to the surface
+3975|The calculation is preliminary: length is estimated by the camera (±{n}%), inspection by a specialist is required
+3976|Repair calculation
+3977|Crack repair calculation
+3978|Calculation copied — paste it into a message
+3979|Reset
+3980|Freeze frame
+3981|cracks
+3982|cracks in frame
+3983|No cracks visible
+3984|crack
+3985|cracks
+3986|Cracks will be highlighted with a frame right in the picture, and the calculation of materials and labour will appear below. Walls, slabs and screeds are suitable
+3987|sections
+3988|sections
+3989|section
+3990|Section
+3991|Flashlight
+3992|The flashlight does not turn on on this device
+3993|Photo to check for cracks
+3994|(Accuracy {n}%)
+3995|{n} Aug
+3996|{n}. Preparatory and survey works
+3997|{n}. Technical supervision acceptance and KS-{n} certificate
+3998|AI analysis of the photo completed
+3999|CPT sounding
+4000|YOLOv{n} Vision: scanning the site photo and detecting geometry
+4001|Landscaping and site grading
+4002|Drilling of survey boreholes (up to {n} m)
+4003|Enter the address of the works
+4004|Enter the client's name or full name
+4005|Hot tapping into an operating network
+4006|Hot tapping into a main network
+4007|Time of the works
+4008|Setting out the main building axes on site
+4009|ha
+4010|Geodesy and topographic survey
+4011|Hydraulic and pressure testing
+4012|Graphic processing and geotechnical report
+4013|Next → Site details and AI analysis 🤖
+4014|Next → Estimate calculation 📊
+4015|doc
+4016|Drainage pipe Ø{n} in a geotextile filter
+4017|Drainage filtration field in gravel
+4018|Drainage turning manhole Ø{n}
+4019|Shut-off valve (cast iron gate valve Ø{n})
+4020|INTERACTIVE AI ANALYSIS OF PHOTOS IN PROGRESS
+4021|Measuring cone and sleeve resistance
+4022|Client name / Client
+4023|Initializing the YOLOv{n} neural network
+4024|test
+4025|Soil plate load test {n} cm²
+4026|Static pile load test up to {n} t
+4027|Testing and pressure testing of the tapping unit
+4028|Shear and compression strength tests
+4029|Final calculated estimate
+4030|Office processing and approval against the architectural planning assignment
+4031|Precast reinforced concrete water manhole Ø{n}
+4032|Comment / Terms of reference
+4033|Trench excavation for the sewer network
+4034|Laboratory soil tests under SP RK
+4035|Installation of concrete drainage channels
+4036|Installation of a wall-mounted dual-circuit boiler
+4037|Installation, anchoring and connection
+4038|Back to details
+4039|Back to photos
+4040|E.g.: Ivan Petrov
+4041|sample
+4042|Backfilling and soil compaction
+4043|Trench backfilling with compaction
+4044|Volume: Calculated
+4045|Determination of grain size and moisture content
+4046|Determination of structures, pipe diameters and routing under SNiP RK
+4047|Special requests or approvals with the technical service
+4048|Sampling of undisturbed soil and water
+4049|Responsible contractor / Expert
+4050|Filling with washed crushed stone, fraction {n}-{n} mm
+4051|report
+4052|Preparation of the test report under SNiP
+4053|Laboratory soil test certificate
+4054|Sand and gravel base cushion
+4055|lin. m
+4056|Preparation of the test rig
+4057|Connection to the central storm manhole
+4058|Please upload or drag at least {n} photo or site diagram to run the AI analysis
+4059|Work and material items under Kazakhstan norms
+4060|Items
+4061|Attached files (
+4062|sample
+4063|Laying of storm pipes Ø{n} mm
+4064|Laying of PEX / multilayer pipes Ø{n}
+4065|Mechanized soil excavation (trench)
+4066|Excavation of drainage trenches along the perimeter
+4067|Excavation of a pit for the septic tank
+4068|Calculation of the deformation modulus E (MPa)
+4069|pile
+4070|{n}-chamber non-powered septic tank ({n} m³)
+4071|Inspection manhole KKS-{n}, assembled
+4072|Preparation of the initial ESN RK estimate sheet
+4073|Preparation of the GESN technical report
+4074|Save request with estimate 👷
+4075|Cone penetration testing of soils (CPT)
+4076|The amount includes ESN RK and materials
+4077|Generated estimate profile
+4078|Work type (ESN RK auto-estimate)
+4079|Topographic survey at {n}:{n} scale with underground utilities
+4080|point
+4081|PVC outdoor pipe Ø{n} mm (orange)
+4082|HDPE pipe Ø{n} mm (drinking water supply)
+4083|Delete file
+4084|Enter a contact phone number
+4085|service
+4086|Installation of bimetallic radiators
+4087|Installation of an assembled manifold unit
+4088|Installation of point storm drains
+4089|Sand base
+4090|Sand cushion under the pipe
+4091|Test pit for a flat plate
+4092|Step {n}: Request and client details
+4093|Step {n}: Attaching photos & site diagrams
+4094|Step {n}: Calculating the real site estimate
+4095|pcs)
+4096|copy
+4097|" found nothing. Try another word or describe the task — the work type will be determined from the description
+4098|(base prices)
+4099|
+4100|
+4101|
+4102|
+4103|CSV with all sections
+4104|{a} of {n}
+4105|{a} m² · {b}
+4106|ChatGPT account ({a}) connected successfully
+4107|Photo uploaded: {a}
+4108|Request {a} sent to the manager
+4109|AI photo analysis was not performed: the server responded {a}{b}
+4110|Key: {a}
+4111|Error ({a}): {b}
+4112|From the description: {a} (word "{b}")
+4113|Works under the estimate ({a}): {b}
+4114|QazGost estimate [{a}], {b}, {c} m². Works {d} ₸, materials {e} ₸, reserve {f} ₸
+4115|Estimate ready: {a} items, {b} ₸
+4116|Plan: {a}
+4117|Prices as of {a}
+4118|Asphalt paving
+4119|Paving stones
+4120|Quick
+4121|Quick selection of a system key
+4122|Your account is connected
+4123|Your personal ChatGPT API key was saved successfully
+4124|Your personal OpenAI Secret Key
+4125|Enter an API key to check
+4126|Enter a valid email of your personal ChatGPT account
+4127|Enter the password for your OpenAI / ChatGPT account
+4128|material procurement list
+4129|Work type not selected
+4130|Video surveillance
+4131|work types and
+4132|Sign in with your OpenAI account to calculate estimates on your plan
+4133|everything in Quick
+4134|everything in Detailed
+4135|Sign in to a personal ChatGPT account
+4136|You have signed out of the ChatGPT account
+4137|select a work type
+4138|Select a work type
+4139|Key No. {n} selected: Detailed estimates & Luna-Tera
+4140|Key No. {n} selected: Defect detection & Vision
+4141|Select manually
+4142|Gas supply
+4143|city
+4144|cities
+4145|cities
+4146|work schedule by stage with breaks
+4147|Doors and furniture
+4148|Demolition
+4149|Timber decking
+4150|Detailed
+4151|Detailed calculation with GPT-{n}o
+4152|Defects & Basic
+4153|Design project
+4154|Loading the reference catalog
+4155|Request #
+4156|AI photo analysis — with the server's OpenAI key or yours
+4157|AI photo analysis was not performed: no OpenAI key is connected to the server. Connect your own key with the "OpenAI key" button — the estimate does not depend on it
+4158|AI photo analysis was not performed: no connection to the server
+4159|AI photo analysis, if an OpenAI key is connected
+4160|An engineer will contact you to come for measurements and refine the estimate
+4161|Engineering
+4162|Total ·
+4163|How we do it
+4164|Key No. {n} (Vision)
+4165|Key No. {n} (Estimates)
+4166|OpenAI key
+4167|OpenAI key connected — AI will analyse the photos
+4168|The key is valid! Connection to the AI API established successfully
+4169|Package
+4170|packages
+4171|Packages
+4172|Air conditioning
+4173|outline
+4174|Stairs
+4175|m ·
+4176|Outdoor water supply
+4177|not selected
+4178|Not sure what to choose — determine from the description
+4179|Could not calculate the estimate
+4180|Recent calculations
+4181|The GPT-{n}o neural network uses your personal session to audit estimates and defects
+4182|no dimensions
+4183|No dimensions: trace the room on the grid or on the plan, or enter the length and width
+4184|Measurement
+4185|measure
+4186|measure the room
+4187|General construction
+4188|quantities from measurements and consumption norms
+4189|Windows
+4190|describe the task in step {n}
+4191|Describe the task in step {n} — the work type will be determined from the words
+4192|Remaining
+4193|Wall finishing
+4194|Open the "My orders" section
+4195|The official ChatGPT sign-in window is open. Enter your email
+4196|sent to the manager
+4197|Place an order from the estimate
+4198|Key check error
+4199|Network error
+4200|Network error while checking the API
+4201|Recalculate
+4202|Recalculate estimate
+4203|Perimeter · walls
+4204|Personal API key
+4205|The search "
+4206|from the description
+4207|Could not determine the work type from the description. Describe the task in more detail or select a category manually
+4208|Fire alarm
+4209|Work type search
+4210|Full
+4211|Floors and tiling
+4212|The custom GPT key was removed. The system key is used
+4213|Ceilings
+4214|Check connection
+4215|geometry and market benchmark check
+4216|Checking and connecting your ChatGPT account
+4217|Continue working
+4218|Other
+4219|Other works
+4220|Analysis mode
+4221|price check against the QazGost database
+4222|AI connection verified
+4223|Estimate by process chart: the quantity of each item comes from your dimensions, the price from price lists and listings with the source in every row
+4224|Estimate saved as CSV
+4225|Save key
+4226|Special works
+4227|The reference catalog is still loading — wait a couple of seconds
+4228|reference catalog is loading
+4229|Reference catalog unavailable
+4230|Calculating the estimate and analysing photos
+4231|Calculating the estimate by process chart
+4232|three scenarios with different scopes of work
+4233|Facade insulation
+4234|Photos and description
+4235|price and source in every row
+4236|Almaty prices ×
+4237|What we do
+4238|
+4239|The entered lengths differ from the outline shape by {a} % — check that the right sides are specified and that there are no niches or cabinets inside the dimension
+4240|Close outline ({a} pts)
+4241|Click the {n} corners of the rectangle in order — {a} of {n} marked
+4242|Scale refined by {a}
+4243|Scale refined by {a} sides separately for width and height: ×{b} and ×{c}
+4244|Real length of side {a}, m
+4245|reference {a} m
+4246|Enter one more side in the other direction: plans are often stretched along one axis, and one side is not enough
+4247|Wall height, m
+4248|Doors {n}×{n} m
+4249|door {n} m · sheet A{n} m · dimension line on the plan
+4250|length × width or area
+4251|reference length
+4252|Reference length in metres
+4253|The lengths contradict each other so much that a per-axis scale cannot be fitted — a common multiplier is used
+4254|minus openings
+4255|Upload a photo of the plan, a drawing or a top-down picture in step {n} — and trace the room here
+4256|Click the room corners clockwise; clicking the first point closes the outline
+4257|Click the start and the end of an object of known length
+4258|Outline closed
+4259|Outline closed. To start over, press "Clear"
+4260|Outline on the plan
+4261|Outline on the grid
+4262|Line
+4263|A reference line is accurate for a plan or a strictly top-down picture. For a picture at an angle, choose the "Rectangle" reference
+4264|you set the grid cell scale
+4265|At least {n} points are needed to close the outline
+4266|Trace the room or enter the dimensions — the estimate cannot be calculated without them
+4267|Windows {n}×{n} m
+4268|Undo point
+4269|Mark {n} corners
+4270|Mark reference
+4271|Re-measure corners
+4272|Re-measure reference
+4273|perimeter
+4274|Wall perimeter, m
+4275|Floor plans are often not drawn to scale. Enter the real length of one or two sides — for example, the room dimensions written on the plan. Two sides in different directions also correct stretching of the plan in width and height
+4276|tile {n}×{n} · sheet A{n}×{n} · a rug or room of known size — on the same floor
+4277|area ·
+4278|Floor area, m²
+4279|by reference
+4280|field
+4281|snap to grid
+4282|Rectangle
+4283|Rectangle (photo at an angle)
+4284|Rectangle marked — check its dimensions: the first number is the side from corner {n} to corner {n}
+4285|A reference rectangle corrects perspective: trace only the floor in the same plane as the reference
+4286|size
+4287|Grid cell size
+4288|Dimensions manually
+4289|real, m
+4290|Reset refinement
+4291|Complex shape
+4292|First set the scale: press "Mark {n} corners" and click the corners of a rectangle of known size
+4293|First set the scale: press "Mark reference" and draw a line along an object of known length
+4294|Measurement method
+4295|walls
+4296|Side
+4297|Side of the rectangle from corner {n} to corner {n}, m
+4298|Side of the rectangle from corner {n} to corner {n}, m
+4299|The outline sides intersect — remove the extra point with the "Undo point" button
+4300|The corners are not marked in order or three corners are on one line — mark the {n} corners again, going around the rectangle along its edge

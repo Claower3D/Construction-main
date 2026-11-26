@@ -1,0 +1,397 @@
+3157|Upload and analyse a scan to see the results
+3158|Upload a point cloud file
+3159|or drag the file here
+3160|Sources: iPhone Pro, iPad Pro, Leica BLK{n}, Matterport
+3161|Excavation pit
+3162|Max depth
+3163|MB
+3164|mm/m)
+3165|Click to upload
+3166|Inclined
+3167|Measurements
+3168|Deviations
+3169|Area
+3170|Supported formats: .las, .laz, .ply, .pcd, .xyz
+3171|Floor
+3172|Room
+3173|Ceiling
+3174|Check against SNiP {n}-{n}
+3175|Scanner sections
+3176|Dimensions
+3177|Analysis result
+3178|Results
+3179|Avg
+3180|Avg. depth
+3181|Points
+3182|Width
+3183|Export for visualization
+3184|Sign in — QazGost AI
+3185|active sites under technical control
+3186|Business centre "Esentai Tower {n}"
+3187|all
+3188|Geolocation of construction sites, current work progress and technical supervision across the regions of Kazakhstan
+3189|Residential complex "Grand Almaty" (Block A/B)
+3190|Interactive map of sites under construction in Kazakhstan
+3191|QazGost Map {n} interactive mapping module
+3192|Cottage community "Astana Hills"
+3193|Cast-in-place concrete works
+3194|Finishing works
+3195|Shown
+3196|Al-Farabi Ave. {n}
+3197|Yesil district
+3198|Shopping centre "Shymkent Plaza {n}"
+3199|Tauke Khan St.
+3200|Facade works
+3201|Foundation stage
+3202|— your price is
+3203|from {a} {b} — {c}
+3204|Delete "{a}"
+3205|coil
+3206|Listed
+3207|Your materials in the storefront: price, stock, wholesale and delivery terms. Buyers see them above the reference catalog
+3208|above
+3209|Warehouse city
+3210|GOST / ST RK
+3211|Add your first material — it will appear in the catalog right away
+3212|Unit
+3213|Edit offer
+3214|L
+3215|lin. m
+3216|bag
+3217|My offers
+3218|by
+3219|below
+3220|New offer
+3221|Wholesale from (qty)
+3222|The wholesale price must be lower than the retail price
+3223|Wholesale price, ₸
+3224|Stock on hand
+3225|pallet
+3226|Offer updated
+3227|Offer published
+3228|Offer deleted
+3229|No offers yet
+3230|Materials can be listed by suppliers, companies and contractors with a server account
+3231|roll
+3232|Warehouse
+3233|Hidden
+3234|Hidden from the storefront
+3235|Back in the storefront
+3236|Saving
+3237|Reference price
+3238|QazGost reference price — link the item so the buyer sees the comparison
+3239|reference
+3240|Sales department phone
+3241|Enter the name
+3242|Specify the quantity from which the wholesale price applies
+3243|Cement PC-{n} D{n}, bag {n} kg
+3244|The price must be greater than {n}
+3245|Price per unit, ₸
+3246|, wholesale
+3247|, reference price
+3248|. Change the query or reset the filters
+3249|. Refine the search or category to sort the whole selection
+3250|). Demo products are shown: prices and availability are illustrative
+3251|{n} km
+3252|AI calculator of building material requirements (BOM)
+3253|AI material specification calculated successfully
+3254|AlinEX / LLP "Alina Group"
+3255|Kaspi or transfer to the supplier after confirmation
+3256|— coefficient ×{a}
+3257|, supplier {a}
+3258|
+3259|For the unit "{a}", enter a whole quantity
+3260|for the {a} region
+3261|up to {a} ₸
+3262|Added to cart: {a} ({b} {c})
+3263|Order {a} placed and sent to the Manager for picking! 🧱
+3264|Building materials order for the site: {a}. Contents: {b}
+3265|Category illustration: {a}
+3266|Quantity, {a}
+3267|coefficient: {a}
+3268|The supplier has only {a} {b} in stock
+3269|Could not load the next page: {a}
+3270|No materials found for "{a}"
+3271|Show more (showing {a} of {b})
+3272|Supply of building materials ({a} items, {b} t)
+3273|Check the quantity and price: "{a}"
+3274|Calculated under SNiP RK norms for a site of {a} m²
+3275|Recommended transport to deliver the whole batch: {a}
+3276|VEHICLE LOAD-RATED
+3277|Site delivery address
+3278|SALE
+3279|Rebar A{n}C Ø{n} mm
+3280|Ribbed steel rebar A{n}C Ø{n} mm (length {n} m)
+3281|Masonry reinforcing mesh {n}×{n}
+3282|Concrete plant LLP "StroyMonolit KZ"
+3283|FAST DELIVERY
+3284|Add to cart
+3285|IN STOCK
+3286|No items in this category
+3287|Valdai / MAN {n} t (medium-duty)
+3288|Your cart is empty
+3289|Enter the basic dimensions of the site — the neural network will calculate an exact material specification under SNiP RK consumption norms
+3290|Vibrated pole for {n}–{n} kV lines
+3291|MOISTURE-RESISTANT
+3292|Wall construction (aerated block + adhesive)
+3293|All calculated items added to the cart
+3294|All of Kazakhstan
+3295|Choose products from the catalog and add them to the cart
+3296|Levelling the manhole cover height
+3297|High-strength composite manhole cover for truck traffic
+3298|Tie wire {n} mm
+3299|Almaty, Samal-{n} microdistrict, bldg. {n}
+3300|Gazelle {n} t (city delivery)
+3301|Aerated block {n}×{n}×{n} D{n}
+3302|Autoclaved aerated block "Ecoton" D{n} ({n}×{n}×{n} mm)
+3303|Knauf moisture-resistant plasterboard GKLV ({n}×{n}×{n} mm)
+3304|Manhole neck KS {n} (d={n} m, h={n} m)
+3305|Delivery city
+3306|GOST
+3307|GOST RK
+3308|GOST RK {n}
+3309|For water supply and cable manholes
+3310|Manhole base PN-{n} (d={n} mm)
+3311|Add the whole specification to the order
+3312|Manhole extension ring
+3313|Supplementary foundation block
+3314|Delivery / pickup
+3315|Delivery by crane truck
+3316|Delivery by crane truck across Karaganda and the region
+3317|Delivery by crane truck. Comes with a seating frame
+3318|Delivery by crane truck. Hydraulic-grade concrete
+3319|Delivery by crane truck. Wholesale from {n} pcs: {n} ₸
+3320|Euro truck {n}-{n} t (intercity / wholesale)
+3321|units)
+3322|Wholesale discounts available
+3323|loaded items out of
+3324|Pouring a cast-in-place foundation
+3325|Wholesale price request to all plants and suppliers in Kazakhstan
+3326|Ivan Ivanov / LLP "StroyGroup"
+3327|Recipient name / Company name
+3328|IE "Medina" (Manarbek)
+3329|IE MEDINA
+3330|Total to pay
+3331|Total to pay with delivery
+3332|KAMAZ / Dump truck {n} t
+3333|QUARRY
+3334|The price catalog is unavailable (
+3335|kg / unit
+3336|Solid ceramic brick M-{n} ({n}×{n}×{n} mm)
+3337|Aerated block adhesive (bag {n} kg)
+3338|Tile and porcelain stoneware adhesive AlinEX "Set {n}" ({n} kg)
+3339|Quantity
+3340|The quantity must be greater than {n}
+3341|Ring KS {n} ({n}×{n} mm)
+3342|Support ring KO-{n}
+3343|Contact phone
+3344|Order cart
+3345|Cart cleared
+3346|Manhole slab {n}PP-{n}-{n} (d={n} mm)
+3347|Manhole slab {n}PP-{n}-{n} reinforced (d={n} mm)
+3348|Manhole slab {n}PP-{n}-{n} reinforced for vehicle loads (d={n} mm)
+3349|Manhole slab {n}PP-{n}-{n}U reinforced (d={n} mm)
+3350|Manhole slab with opening
+3351|sheet ({n} m²)
+3352|POWER LINE POLE
+3353|RC MANHOLE COVER
+3354|Reinforced concrete manhole cover ({n}×{n} mm)
+3355|COVER KPR-{n}
+3356|Heavy-duty polymer manhole cover (load {n} t)
+3357|Cast iron-concrete manhole cover KPR-{n} ({n}×{n} mm)
+3358|truck {n} t
+3359|bags
+3360|E.g.: Rebar A{n}C Ø{n} mm — {n} tonnes, Concrete M{n} — {n} m³, Ceramic brick — {n} pcs
+3361|Invalid catalog response
+3362|Nothing found
+3363|Total cargo weight
+3364|Wholesale
+3365|Wholesale from {n} sheets: {n} ₸
+3366|Wholesale from {n} m³: {n} ₸
+3367|Wholesale from {n} bags: {n} ₸
+3368|Wholesale from {n} pallets ({n} pcs): {n} ₸
+3369|Wholesale from {n} tonnes: {n} ₸
+3370|Wholesale from {n} packs: {n} ₸
+3371|Wholesale from {n} lengths: {n} ₸
+3372|Wholesale from {n} pcs: {n} ₸
+3373|Wholesale tender request sent to suppliers in Kazakhstan
+3374|Market benchmark from the QazGost price database; purchasing is handled by the platform manager
+3375|From {n} trucks: {n} ₸
+3376|Place order and delivery
+3377|Building materials checkout
+3378|Washed construction sand
+3379|Washed river sand, fraction {n}-{n} mm (dump truck {n} t)
+3380|Floor slab {n} PP {n}-{n} (d={n} m with opening)
+3381|Floor slab PP {n}-{n} (d={n} m)
+3382|Area / Volume of the structure (m²)
+3383|For an inspection manhole cover
+3384|Confirm and send request
+3385|items)
+3386|POLYMER {n}T
+3387|Portland cement M{n} D{n} "Kazcement" (bag {n} kg)
+3388|PREMIUM
+3389|Delivery radius
+3390|Delivery radius, km
+3391|Send a tender request to suppliers
+3392|Calculate material specification
+3393|Allowance for cutting and process losses: +{n}%
+3394|Recommended bill of materials for
+3395|Retail: {n} ₸ / with documents: {n} ₸
+3396|rolls
+3397|the market by
+3398|With an opening for a standard manhole cover
+3399|GOST / ST RK certificate
+3400|Certification and availability
+3401|CERTIFIED
+3402|Quantity too large for a single item
+3403|Price sorting applied to
+3404|List or description of materials
+3405|QazGost reference price (Kazakhstan market, {n})
+3406|Reference
+3407|ST RK GOST {n}
+3408|ST RK GOST {n}-{n}
+3409|Cost of goods (
+3410|Floor screed and levelling
+3411|TABYS-ASM
+3412|Structure type
+3413|Ready-mix concrete M-{n} (B{n})
+3414|Ready-mix concrete grade M-{n} (B{n}) with mixer delivery
+3415|In stock only
+3416|tonnes
+3417|tonne
+3418|LLP "Almaty Brick Plant No. {n}"
+3419|LLP "ArcelorMittal Temirtau Sales"
+3420|LLP "KazMetService"
+3421|LLP "KazCement Industry"
+3422|LLP "Quarry NerudTrans"
+3423|LLP "Knauf Gips Kazakhstan"
+3424|LLP "Knauf Gips"
+3425|LLP "Penoplex RK"
+3426|LLP "TABYS - ASM" (Natalya)
+3427|LLP "TechnoNICOL Kazakhstan"
+3428|LLP "Ecoton-Batys"
+3429|TOP CHOICE
+3430|Profile tube {n}×{n}×{n} mm (length {n} m)
+3431|Heavy concrete for foundations and basements
+3432|The item has no price — request a price from the supplier
+3433|Increase quantity
+3434|Enter the name, phone and delivery address
+3435|Specify the list of building materials you need. The system will automatically notify accredited depots and plants, and you will receive quotes with a discount of up to {n}%
+3436|Decrease quantity
+3437|pack ({n} m²)
+3438|REINFORCED
+3439|Reinforced concrete power line pole, {n} m
+3440|TechnoNICOL Rocklight mineral wool insulation ({n}×{n}×{n} mm)
+3441|Reinforcing fibre
+3442|Filters reset
+3443|No photo ·
+3444|FBS FOUNDATION
+3445|BESTSELLER
+3446|Bestseller for septic tanks and manholes
+3447|SEPTIC BESTSELLER
+3448|length ({n} m)
+3449|Cement M{n} D{n} ({n} kg)
+3450|Knauf Rotband gypsum plaster ({n} kg)
+3451|PENOPLEX Comfort extruded polystyrene {n} mm
+3452|ENERGY EFFICIENCY
+3453|{n}D BIM & Architectural Viewer {n}
+3454|Interactive {n}D model of the site with SNiP inspection, night lighting and a construction crane
+3455|Page not found — QazGost AI
+3456|Done ✓
+3457|Skip
+3458|Work type
+3459|Close camera
+3460|Total
+3461|Premium
+3462|Work
+3463|Renovation
+3464|Standard
+3465|Economy
+3466|{a}_on_site.jpg
+3467|Enlarged {a} times
+3468|Reduced {a} times
+3469|Closer to you
+3470|The browser does not allow camera access. Open the site at a secure https address in Chrome or Safari
+3471|Turning on the camera
+3472|Fit
+3473|Up
+3474|Further from you
+3475|The rotation sensors are silent so far. Turn the phone — if the model does not move, drag it with your finger
+3476|Drag the model with a finger; use two fingers to rotate and resize
+3477|Keep the model in place when the phone turns
+3478|distance to model
+3479|Sensor access denied. You can move the model with your finger
+3480|The camera is in use by another app. Close it and open this mode again
+3481|m
+3482|Building model over the camera image. Drag with a finger; two fingers to scale and rotate
+3483|Model over camera
+3484|No camera found on this device
+3485|Actual size
+3486|Could not turn on the camera. Try again
+3487|Could not take the picture
+3488|No camera access. Allow the camera for this site in the browser settings and open this mode again
+3489|Down
+3490|Model fill density
+3491|Rotate left
+3492|Rotate right
+3493|Turn the phone — the model stays in place. Move it with one finger, rotate and resize with two
+3494|Show one more floor
+3495|Show one floor fewer
+3496|Position
+3497|Model position
+3498|Transparency
+3499|Move left
+3500|Move right
+3501|Layers
+3502|Model layers
+3503|Snapshot
+3504|Snapshot saved to downloads
+3505|Enlarge model
+3506|Shrink model
+3507|Model controls
+3508|Floors
+3509|{a} × {b} m
+3510|page {a} of {b}
+3511|The PDF has no layers, so lines are split by thickness: walls are usually drawn thicker than dimensions and hatching
+3512|The file does not specify units — we determined them from the extents, please check
+3513|set incorrectly
+3514|Extents
+3515|Extents exceed {n} m — apparently
+3516|Extents are under {n} m — apparently
+3517|Two lines (wall faces)
+3518|inches
+3519|units
+3520|Units taken from the file
+3521|Drawing units
+3522|or switch to "Single line"
+3523|How the walls are drawn
+3524|lines
+3525|Lines by thickness
+3526|scale
+3527|The scale is given in the drawing's title block. All model dimensions depend on it
+3528|Drawing scale, {n}
+3529|metres
+3530|millimetres
+3531|Single line (wall axis)
+3532|Tick at least one layer
+3533|Rooms
+3534|Preview: found walls in gold and openings in light blue over the drawing lines
+3535|Previous
+3536|Openings
+3537|Openings are found from gaps in walls: an empty gap is a door, one with glass lines inside is a window. After the transfer everything can be corrected manually
+3538|centimetres
+3539|Next
+3540|Drawing layers
+3541|Walls
+3542|No walls found. Tick other layers, check the
+3543|Wall thickness, mm
+3544|The file is very large: the first {n} lines were read
+3545|Common scales
+3546|{n}D model of the building. Rotate and zoom the model with the mouse or a finger
+3547|The browser could not enable {n}D graphics. Refresh the page or open it in Chrome
+3548|Show the whole model
+3549|DXF or PDF from CAD — we will find the walls ourselves. JPG, PNG and scans become an underlay for tracing
+3550|Floor {a}
+3551|{a}_{b}_plan.svg
+3552|{a}_volumes.xlsx
+3553|Scale set: the marked segment equals {a} m. Now trace the walls

@@ -1,0 +1,377 @@
+6906|No
+6907|Yes
+6908|walls {a} m × {b} m − openings {c} m² = {d} m²
+6909|area by outline {a} m²
+6910|{a} → {b} kg (L) / {c} per pack
+6911|Finishing
+6912|Room outline (floor)
+6913|Wallpaper
+6914|Tiles
+6915|Plaster layer
+6916|Average thickness on guide beacons; depends on how uneven the walls are
+6917|Primer
+6918|drying of gypsum plaster
+6919|drying of filler
+6920|no beacons: filler in {n} coat over the existing surface, Gaudi "Belosnezhka" paint
+6921|beacon-guided plaster, Fugen filler in {n} coats, Gaudi Standart paint
+6922|beacon-guided plaster, AlinEX Glatt Plus finish in {n} coats, Remalux paint
+6923|no beacons: filler in {n} coat, non-woven wallpaper
+6924|beacon-guided plaster, filler in {n} coats, non-woven wallpaper
+6925|beacon-guided plaster, Glatt Plus finish, vinyl wallpaper on non-woven backing
+6926|no beacons: porcelain stoneware {n}×{n} over the existing surface
+6927|beacon-guided plaster, marble-look porcelain stoneware {n}×{n}
+6928|beacon-guided plaster, premium porcelain stoneware {n}×{n}
+6929|{a} × {b} passes (before each coat)
+6930|{n} L/m² × {a} m² × {b} passes
+6931|Knauf: {n} kg/m² per {n} mm × {a} mm × {b} m²
+6932|{a} × {b} coats
+6933|≈{n} kg/m² per coat × {a} coats × {b} m²
+6934|{n} coats × {n} kg/m² × {a} m²
+6935|{a} strips of {n} m for {b} m of walls; a roll gives {c} strips {d} m high
+6936|pack per {n} m², walls {a} m²
+6937|+ {n}% for cutting
+6938|{n} kg/m² (notched trowel {n} mm) × {a} m²
+6939|Ceresit CE {n}: ≈{n} kg/m² for tiles {n}×{n} with a joint of {n}–{n} mm × {a} m²
+6940|Beacon-guided plaster in a layer of {a} mm; Rotband consumption {n} kg/m² per {n} mm (Knauf data)
+6941|Filler ≈{n} kg/m² per coat; paint in {n} coats at {n} kg/m²; primer {n} L/m² before each coat
+6942|Floor outline
+6943|Laminate
+6944|Porcelain stoneware
+6945|Screed thickness
+6946|Waterproofing (bathroom, kitchen)
+6947|drying of waterproofing
+6948|strength gain of the semi-dry screed before the covering
+6949|laminate class {n}–{n} over the existing base
+6950|semi-dry screed, laminate class {n}
+6951|semi-dry screed, laminate class {n} in a herringbone pattern
+6952|porcelain stoneware {n}×{n} over the existing base
+6953|semi-dry screed, marble-look porcelain stoneware {n}×{n}
+6954|semi-dry screed, premium porcelain stoneware {n}×{n}
+6955|floor {a} m² + upstand on walls {n} m × {b} m
+6956|{n} coats ≈{n} kg/m² × {a} m²
+6957|mortar {a} m³ ({b} m² × {c} mm), cement {n} kg/m³
+6958|mortar {a} m³ × {n} m³ of sand per {n} m³
+6959|{a} m² + {n}% for cutting
+6960|{a} m² + {n}% overlap
+6961|{n} kg/m² for tiles {n}×{n} × {a} m²
+6962|perimeter {a} m − doors {b} × {n} m
+6963|{a} m + {n}% for cutting
+6964|Screed {a} mm, mortar {n}:{n} (cement {n} kg per {n} m³). Tiles {n}×{n}: adhesive {n} kg/m², grout {n} kg/m² (Ceresit CE {n})
+6965|{n} luminaire per {n} m² × {a} m²
+6966|Ceiling outline (= floor)
+6967|Ceiling type
+6968|Stretch
+6969|Plasterboard for painting
+6970|Painting over the slab
+6971|Spotlights
+6972|None
+6973|{n} per {n} m²
+6974|Frame and sheathing
+6975|Stretch ceiling
+6976|Luminaires
+6977|matt stretch ceiling
+6978|satin stretch ceiling
+6979|glossy stretch ceiling
+6980|plasterboard, filler in {n} coat, Gaudi "Belosnezhka"
+6981|plasterboard, filler in {n} coats, Gaudi Standart
+6982|plasterboard, Glatt Plus finish, Remalux paint
+6983|over the slab: filler in {n} coat, Gaudi "Belosnezhka"
+6984|over the slab: filler in {n} coats, Gaudi Standart
+6985|over the slab: Glatt Plus finish, Remalux paint
+6986|{a} m² + {n}%, sheet {n} m²
+6987|≈{n} m of profile per {n} m² + perimeter track = {a} m, profile {n} m
+6988|{a} m² × {n} passes
+6989|{n} L/m² × {a} m² × {n}
+6990|{a} m² × {b} coats
+6991|≈{n} kg/m² × {a} coats × {b} m²
+6992|{a} sockets + {b} switches + {c} luminaires
+6993|Utilities
+6994|Room / apartment outline
+6995|{n} — by norm: {n} socket per {n} m of perimeter
+6996|{n} — by number of doors
+6997|Ceiling luminaires
+6998|{n} — {n} per {n} m²
+6999|New distribution board
+7000|Wall chasing
+7001|Cable laying
+7002|Distribution board
+7003|Electrical fittings
+7004|full rewiring with VVGng-LS cable {n}×{n}
+7005|rewiring + RCBOs for wet areas
+7006|× ≈{n} m of chase per point
+7007|× {n} m
+7008|× ≈{n} m of cable per point
+7009|× {n} m + {n}% allowance
+7010|{n} box per {n} points, points: {a}
+7011|one board
+7012|board with {n} breakers and an RCD
+7013|{n} groups: lighting, sockets by room, kitchen, bathroom, cooker, washing machine
+7014|main RCD
+7015|RCBOs for the bathroom and kitchen
+7016|{a} sockets (by norm {n} per {n} m of perimeter {b} m, if not set)
+7017|{a} switches
+7018|{a} sockets + {b} switches
+7019|{a} luminaires ({n} per {n} m², if not set)
+7020|Electrical: ≈{n} m of cable and ≈{n} m of chase per point; luminaires and chandeliers are supplied by the client (the estimate covers installation only)
+7021|{a} points set
+7022|shower
+7023|washing machine
+7024|water heater
+7025|heated towel rail
+7026|points
+7027|one mixer each for the basin, bath and shower
+7028|Plumbing and water supply
+7029|Bathroom / apartment outline
+7030|Toilet
+7031|Close-coupled
+7032|Wall-hung frame
+7033|Washbasin with vanity unit
+7034|Bathtub
+7035|Shower cabin
+7036|Washing machine
+7037|Water heater
+7038|Heated towel rail
+7039|Tapping into the riser
+7040|Water supply points
+7041|{n} — by the selected fixtures
+7042|Pipework
+7043|pressure testing of the system
+7044|budget close-coupled toilet
+7045|mid-range close-coupled toilet
+7046|top-range toilet
+7047|tapping into the cold/hot water riser
+7048|; ≈{n} m of pipe per point + {n}%
+7049|close-coupled toilet
+7050|wall-hung frame
+7051|wall-hung frame with toilet
+7052|shower cabin
+7053|washing machine (the machine itself is supplied by the client)
+7054|water heater {n} L
+7055|Plumbing: the "per point" work includes pipe laying; ≈{n} m of PPR pipe per point
+7056|{a} radiators set
+7057|heat loss ≈{n} W/m² × {a} m² = {b} kW; a radiator of {n} sections ≈{n} kW; not fewer than the number of windows ({c})
+7058|Heating
+7059|Heated area
+7060|{n} — by heat loss and number of windows
+7061|Heating pipes
+7062|pressure testing
+7063|bimetallic radiators, {n} sections
+7064|Air conditioning and ventilation
+7065|Outline of rooms
+7066|Split systems
+7067|{n} — one {n} BTU unit per {n} m²
+7068|Exhaust fans
+7069|Air conditioners
+7070|set
+7071|{n} BTU cools ≈{n} m², area {a} m²
+7072|bathrooms and kitchen
+7073|House outline
+7074|Length of the gas pipe in the house
+7075|Gas appliances
+7076|Design required
+7077|approval of the design by the gas service
+7078|Gas pipeline installation
+7079|Connection of appliances
+7080|design and approval
+7081|length by design
+7082|cooker and boiler
+7083|Gas: the works are carried out only by a licensed organization; the price is refined after the technical conditions are issued
+7084|waste ≈{a} m³ in place, {b} m³ loosened (×{n}); {n} m³ per trip
+7085|Room outline
+7086|Remove wallpaper
+7087|Remove plaster
+7088|Remove wall tiles
+7089|Remove floor covering
+7090|Laminate, linoleum
+7091|Screed removal
+7092|Demolition of half-brick partitions
+7093|m²
+7094|Removal of door units
+7095|Demolition of a building (building volume)
+7096|the demolition scope is the same in all scenarios
+7097|area of partitions
+7098|door units
+7099|building volume
+7100|Earthworks
+7101|Outline of the pit / plot
+7102|Excavation depth
+7103|Method
+7104|Mini excavator
+7105|By hand
+7106|Removal of surplus soil
+7107|Soil excavation
+7108|the scope of work is the same in all scenarios
+7109|{a} m³ ({b} m² × {c} m) ÷ {n} m³/h, minimum order {n} h
+7110|{a} m² × {b} m
+7111|{a} m³ without backfilling × {n} (loosening)
+7112|{a}% of the excavation
+7113|Strip foundation
+7114|Outline along the axis of the external walls
+7115|Strip width
+7116|Strip height
+7117|Above ground
+7118|Internal load-bearing walls
+7119|kg/m³
+7120|Typically {n}–{n} kg per {n} m³ of strip
+7121|Setting out of axes
+7122|Formwork and reinforcement
+7123|gain of {n}% of concrete strength
+7124|concrete M{n}, rebar A{n}C
+7125|setting out the axes on site
+7126|trench {a} m × {b} m × {c} m = {d} m³, {n} m³/h
+7127|soil displaced by the strip {a} m³ × {n}
+7128|cushion {n} cm across a width of {a} m × {b} m, compaction ×{n}
+7129|{n} sides × {a} m × (above-ground part {b} m + {n})
+7130|{a} m³ × {b} kg/m³ + {n}% for laps
+7131|{a} m × {b} m × {c} m (perimeter + internal walls)
+7132|{a} m³ + {n}% losses
+7133|trench cavities
+7134|Foundation: concrete is delivered straight from the mixer (no concrete pump); waterproofing and insulation of the strip are not included
+7135|Cast-in-place slab
+7136|Slab outline
+7137|Slab on grade
+7138|Floor slab
+7139|crushed stone cushion {n} cm × {a} m², compaction ×{n}
+7140|bottom {a} m² + sides {b} m × {c} m
+7141|sides {a} m × {b} m
+7142|{a} m³ × {b} kg/m³ + {n}%
+7143|({a} m × {b} m × {c} floors − openings {d} m²) × {e} m
+7144|Aerated block wall masonry
+7145|Outline of the external walls
+7146|Wall thickness
+7147|Partitions {n} mm
+7148|Wall masonry
+7149|aerated block D{n} on adhesive
+7150|+ {n}% breakage and cutting
+7151|≈{n} kg of adhesive per {n} m³ of masonry × {a} m³
+7152|{a} m² × {n} m + {n}%
+7153|Masonry: the reinforced belt and lintels are calculated in the "Cast-in-place slab" section
+7154|Steel structures, canopy
+7155|Outline of the canopy / frame
+7156|Fabrication and installation
+7157|Canopy: the price from listings includes metal, painting and installation; foundations for the posts are not included
+7158|Decking outline
+7159|Joists and decking
+7160|joists {n}×{n} at {n} m spacing ({n} m³/m²) + board {n} mm ({n} m³/m²) × {a} m² + {n}%
+7161|({a} m² + overhangs {b} m × {c} m) ÷ cos {d}° = {e} m²
+7162|Roofing
+7163|House outline in plan
+7164|Roof pitch
+7165|Roof overhang
+7166|Shape
+7167|Gable
+7168|Hip
+7169|New rafter system
+7170|Insulated (attic)
+7171|Removal of the old roof
+7172|Rafter system
+7173|Membrane and insulation
+7174|Roof covering
+7175|Gutters
+7176|"Venezia" metal tile
+7177|"SuperMonterrey" metal tile {n} mm
+7178|"SuperMonterrey" metal tile (Russia)
+7179|rafters and lathing ≈{n} m³ per {n} m² × {a} m² + {n}%
+7180|{a} m² + {n}% for laps
+7181|{a} m² + {n}%
+7182|{a} m² + {n}% overlap and cutting
+7183|hip: eaves along the whole perimeter
+7184|gable: eaves along the two long sides ≈ half the perimeter
+7185|{a} m × {b} m − openings {c} m² = {d} m²
+7186|Facade height
+7187|Scaffolding
+7188|drying of cement plaster
+7189|Final finish
+7190|painting the existing facade without new plaster
+7191|plaster over mesh and facade paint in {n} coats
+7192|plaster over mesh and decorative "bark beetle" plaster
+7193|{a} m × {b} m
+7194|{a} × {b} passes
+7195|{n} L/m² × {a} m² × {b}
+7196|{n} kg/m² at a layer of {n} mm × {a} m²
+7197|"bark beetle" {n} mm ≈{n} kg/m² × {a} m²
+7198|drying of the reinforcing layer
+7199|mineral wool board {n} mm, "wet facade"
+7200|{a} m² + {n}% for cutting
+7201|bonding {n} kg/m² + reinforcing layer {n} kg/m² × {a} m²
+7202|{n} dowels per {n} m² × {a} m²
+7203|Insulation: scaffolding is included in the "Facade works" section
+7204|windows in the outline: {a}
+7205|{n} — by number of windows in the outline
+7206|Sandwich panel reveals
+7207|Reveals and window sills
+7208|PVC window with installation
+7209|PVC window, premium profile
+7210|Windows: the list price is for a {n}×{n} m window; larger windows cost more in proportion to the area
+7211|doors in the outline: {a}
+7212|Apartment outline
+7213|Interior doors
+7214|{n} — by number of doors in the outline
+7215|Entrance door
+7216|Kitchen units
+7217|Furniture assembly
+7218|unit
+7219|entrance door
+7220|length of the kitchen units
+7221|pieces of furniture
+7222|Stair cladding
+7223|Stairwell outline
+7224|Steps
+7225|Cladding of steps
+7226|porcelain stoneware {n}×{n}
+7227|marble-look porcelain stoneware {n}×{n}
+7228|premium porcelain stoneware {n}×{n}
+7229|number of steps
+7230|≈{n} m² per step with riser × {a} + {n}%
+7231|{n} kg/m² × {a} m²
+7232|Site outline
+7233|Apartment
+7234|House
+7235|design project without visualization
+7236|design project and {n}D visualization
+7237|at least {n} detectors, {n} per {n} m² × {a} m²
+7238|{n} — by area
+7239|Alarm system installation
+7240|one control panel
+7241|{n} m of loop per detector × {a} + {n} m to the panel
+7242|loop + {n}% allowance
+7243|A fire alarm for commercial premises requires a design under Kazakhstan standards; this is an installation estimate
+7244|Cameras
+7245|System installation
+7246|recorder for up to {n} cameras
+7247|Outdoor works
+7248|Route (length — by perimeter or by parameter)
+7249|Route length
+7250|{n} — by the outline perimeter
+7251|Trench depth
+7252|below the frost depth
+7253|Trench
+7254|Pipe laying
+7255|Backfilling
+7256|trench {a} m × {n} m × {b} m = {c} m³, {n} m³/h
+7257|bedding {n} cm and cover {n} cm across a width of {n} m
+7258|route length
+7259|length + {n}%
+7260|trench minus the sand layer
+7261|Paving with paving stones
+7262|Outline of the paved area
+7263|Kerb along the perimeter
+7264|Road box and base
+7265|Laying
+7266|Kerb
+7267|road box {n} cm × {a} m² = {b} m³
+7268|soil from the road box × {n}
+7269|crushed stone {n} cm with compaction ×{n}
+7270|sand bed {n} cm × {n}
+7271|along the perimeter of the area
+7272|kerb {n} m, along the perimeter
+7273|Outline of the area / road
+7274|along the perimeter
+7275|kerb {n} m
+7276|Workers
+7277|Shifts
+7278|d
+7279|{a} ppl × {b} shifts
+7280|by scope of work
+7281|There is no standard process chart for this category: the estimate is calculated from labour input. For an exact calculation, describe the works to a QazGost engineer
+7282|Turnkey renovation

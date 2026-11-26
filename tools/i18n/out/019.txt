@@ -1,0 +1,181 @@
+6725|Not specified
+6726|Unblocked
+6727|Resolved in < {n} hours
+6728|Dashboard{a} — QazGost AI
+6729|tasks: {a}
+6730|no tasks
+6731|"Employees" tab
+6732|"Statistics" tab
+6733|{a}{b}: details
+6734|Crew leader: {a}
+6735|Direct call to the contracting company: {a}{b}. City: {c}. Phone: {d}.{e} {f}
+6736|{a}{b} {c} Request from {d}
+6737|(the AI service responded with an error)
+6738|AI defect detection service
+6739|JPG or PNG, up to {n} pictures. Capture the whole defect, in daylight
+6740|— {a}; no defects: {b}
+6741|{a} working days
+6742|
+6743|
+6744|
+6745|Open {a}
+6746|Delete {a}
+6747|Emergency: > {n} mm
+6748|Choose photos or drag them here
+6749|defects
+6750|days
+6751|Permissible: < {n} mm
+6752|Uploaded photos
+6753|AI vision model + measurement from the photo
+6754|Local analysis in the browser (approximate)
+6755|The model may have missed something or marked too much: choose the defect type and outline it on the photo. A crack will be measured and included in the report; an extra zone can be removed in the list below
+6756|The model is trained on cracks; corrosion and spalling are assessed by an engineer's inspection
+6757|unknown error
+6758|Extended recognition by the AI vision model is unavailable right now. On-device analysis is working: it finds cracks, spalling, exposed reinforcement, efflorescence, rust, stains, potholes, peeling finish, mould, knots, scratches and dents; it misses some defects (it is worst at mould, rust, potholes and defects on tiles and glass) and may mistake a joint, edge or shadow for a crack. Mark what was missed on the photo manually and remove what is extra
+6759|the service could not process the photo
+6760|cracks
+6761|Kr =
+6762|— Residential complex "Alatau"
+6763|VIDEO
+6764|You can add photo records, videos from the construction site, technical certificates and diagrams
+6765|Installation
+6766|Report
+6767|Delete report file
+6768|FILE
+6769|No report files attached yet
+6770|Rental of {a} for {b} shifts from {c}{d}. Site: {e}. Operator: {f}. Payment: {g}
+6771|at {a} (booking {b})
+6772|yes
+6773|Private owner
+6774|, equipment in the response: {a}
+6775|hours
+6776|hours
+6777|Building materials order for the site: {a}. Contents: {b}. Transport: {c}. Payment: {d}
+6778|Valdai {n} t
+6779|KAMAZ {n} t
+6780|DWG cannot be read directly: save it in AutoCAD or nanoCAD as DXF. Walls, doors and windows of one floor are taken from the drawing; reinforcement, details and utilities are not included in the model
+6781|. Points A and B are shown on the plan. Near point A the accuracy is centimetres; tens of metres away the model may drift; setting out axes requires a surveying instrument
+6782|Residential / site address
+6783|Ivanov Ivan Ivanovich
+6784|Abay St., bldg. {n}, apt. {n}
+6785|Profile photo • JPG, PNG (click to choose)
+6786|
+6787|
+6788|Client: {a} ·
+6789|(prices: {a})
+6790|Prices from the QazGost catalog{a}. Materials are counted in whole packs
+6791|Crack photo
+6792|choose from your computer
+6793|Drag files here or
+6794|Site photos (JPG, PNG) and drawings/estimates (PDF) are supported
+6795|Works: {a} ₸ Materials: {b} ₸ Total: {c} ₸ With {n}% reserve: {d} ₸ Prices as of {e}
+6796|QazGost estimate: {a} ({b}) {c}, {d} m²
+6797|Choose a site photo
+6798|up to {n} photos · the plan can be traced in step {n}; in the "Detailed" and "Full" modes AI will analyse the photos
+6799|Add a photo of the site or plan
+6800|E.g.: bathroom {n}×{n} m, remove old tiles, lay porcelain stoneware, install a shower cabin
+6801|Invalid key
+6802|Task description
+6803|Drop the files
+6804|section
+6805|sections
+6806|sections
+6807|The calculation runs on the QazGost server using process charts; nothing is made up or filled in "roughly"
+6808|{n} cell =
+6809|{a} sides
+6810|{a}{b} m
+6811|Scale refined by {a}: ×{b}
+6812|one side
+6813|% of the amount — prices from public price lists and listings; the rest is marked "estimate" with the method
+6814|AI helps to see defects and check the choice of works; prices and quantities in the estimate come only from the measurement and the reference catalog
+6815|— crew size is within the norm
+6816|, overdue
+6817|{n} m, manhole of {n} rings
+6818|Floor {n}, axis A–B
+6819|＋ Add photo or video
+6820|. The crew is busy: {a}
+6821|{a} KB
+6822|{a} MB
+6823|Open photo {a}
+6824|Work "{a}" will disappear from the schedule together with its photos and videos. This cannot be undone
+6825|Bank
+6826|BIC
+6827|Crew {n} — installation
+6828|Crews are created on the "Staff and equipment" tab
+6829|no one in the crew
+6830|The crew is busy on these days
+6831|Video
+6832|Give the crew a name
+6833|Give the project a name
+6834|Invoice date
+6835|Date taken
+6836|day
+6837|If there is text here, the work is marked with a ⚠ sign
+6838|Power Silicon plant
+6839|Files are uploading
+6840|An IIN is {n} digits
+6841|KBe
+6842|KAMAZ crane, aerial platform {n} m
+6843|People
+6844|People (
+6845|MB, video up to
+6846|MB. Several files can be selected at once
+6847|Location, floor
+6848|Installer, crane driver
+6849|Crew name
+6850|Project name
+6851|Write what the work is
+6852|E.g.: storm drainage system
+6853|not uploaded
+6854|did not upload
+6855|Not assigned
+6856|Not assigned
+6857|Optional. Visible only to the administrator and the manager
+6858|New crew
+6859|New work
+6860|New equipment
+6861|New worker
+6862|Account number (IIK)
+6863|The end is earlier than the start
+6864|Planned end
+6865|Signatory, basis
+6866|Caption
+6867|No pictures yet. Add photos and videos as the work goes on — they will be saved in this work with the date
+6868|Rule
+6869|Note
+6870|Project and company details
+6871|Empty — everything is clear
+6872|Worker
+6873|Disband
+6874|Now
+6875|Add workers to the staff first
+6876|Add equipment first
+6877|Create project
+6878|Crew members
+6879|Equipment (
+6880|no equipment assigned
+6881|remove
+6882|Remove from the list
+6883|Remove from the staff
+6884|Delete work
+6885|already in "
+6886|Enter the start date
+6887|Enter the end date
+6888|Enter the equipment name
+6889|Enter the last and first name
+6890|Photo up to
+6891|Work photo
+6892|What to clarify
+6893|Email
+6894|Example: "Client Ivanov, the fifteenth of September, septic tank installation"
+6895|User
+6896|Certificate of completed works KS-{n}
+6897|Export
+6898|Uploaded document
+6899|video
+6900|Online payment is not connected yet: the request is placed with no prepayment, and you agree payment directly with the contractor
+6901|— the line is thinner than {n} pixels of the photo; shoot closer for an exact opening
+6902|, the zone was accepted because a crack line is visible in the photo; check on site
+6903|(the crack is through or open)
+6904|less than {n}
+6905|+ works by inspection

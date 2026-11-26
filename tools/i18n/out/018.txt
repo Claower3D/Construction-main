@@ -1,0 +1,107 @@
+6374|{n} November {n}
+6375|{n}. Account and security
+6376|{n}. Your rights
+6377|{n}. Children
+6378|{n}. Orders and arrangements between users
+6379|{n}. Why we process data
+6380|{n}. Changes to the agreement
+6381|{n}. Changes to the policy
+6382|{n}. How we protect data
+6383|{n}. How to contact us
+6384|{n}. What data we collect
+6385|{n}. Who receives the data
+6386|{n}. Operator's contacts
+6387|{n}. Who may use the Service
+6388|{n}. User materials
+6389|{n}. About this document
+6390|{n}. General provisions
+6391|{n}. Legal basis for processing
+6392|{n}. Liability
+6393|{n}. Governing law and disputes
+6394|{n}. How long we keep data
+6395|{n}. Cross-border transfer
+6396|{n}. What the Service does
+6397|{n}. What is prohibited
+6398|OpenAI, L.L.C. (USA)
+6399|Railway Corporation (USA)
+6400|{a} — {b}. Data involved: {c}
+6401|the service owner {a}
+6402|Questions about the agreement: {a}
+6403|Requests about personal data and withdrawal of consent: {a}. Tell us which phone or email the account is registered with — this way we will find it without extra data. We will reply within the time limits set by the legislation of Kazakhstan
+6404|This policy describes how {a} (hereinafter — the Operator) collects, processes and protects the personal data of users of the QazGost AI service in accordance with the Law of the Republic of Kazakhstan of {n} May {n} No. {n}-V "On Personal Data and Their Protection"
+6405|By registering with the QazGost AI service, I freely, of my own will and in my own interest give consent to {a} (hereinafter — the Operator) to collect and process my personal data on the terms set out below, in accordance with the Law of the Republic of Kazakhstan of {n} May {n} No. {n}-V "On Personal Data and Their Protection"
+6406|The agreement is concluded between {a} (hereinafter — the Operator) and the person or organization registering with the QazGost AI service on the website and in the mobile apps (hereinafter — the Service, the User)
+6407|I can withdraw my consent by writing to the Operator: {a}. Withdrawal is not allowed if it contradicts the laws of the Republic of Kazakhstan or if there is an unfulfilled obligation
+6408|The contractor profile and equipment listings that I post are visible to other users of the service
+6409|In the questionnaire and profile: information you add yourself — experience, crew, equipment, organization details
+6410|The service stores sign-in data and settings in your browser (local storage). The service does not use advertising or analytics cookies
+6411|Under Article {n} of the Law of the Republic of Kazakhstan "On Personal Data and Their Protection" you have the right to
+6412|all account data and data that you add to the service
+6413|To government authorities — in the cases and in the manner established by the legislation of Kazakhstan
+6414|Citizens who have reached the age of {n} and have full legal capacity
+6415|Data is kept while you have an account or while it is needed for the purposes for which it was collected. After the account is deleted or consent is withdrawn, the data is destroyed or anonymized, except for information the law requires to be kept longer
+6416|Purpose
+6417|Access to data is separated by role: administrator sections are available only to the Operator's employees
+6418|To other users — within an order: the contractor sees the contacts of the client for the order they responded to, and the client sees the contractor's contacts. The contractor profile and equipment listings are visible to all users
+6419|If you suspect that someone else has gained access to your account, inform the Operator immediately
+6420|Server logs are kept no longer than needed to protect the service
+6421|By uploading photos, descriptions, profiles and listings, you confirm that you have the right to dispose of them and allow the Operator to store and process them so that the Service works: builds estimates and shows the contractor profile and equipment listing to other users
+6422|know what data of yours the Operator holds and receive a copy of it
+6423|AI analysis of photos and AI assistant replies
+6424|Individual entrepreneurs and legal entities — through a representative entitled to act on their behalf
+6425|The agreement is governed by the legislation of the Republic of Kazakhstan. The parties resolve disputes by negotiation and, if no agreement is reached, in court under the rules of the legislation of Kazakhstan
+6426|What data
+6427|What actions
+6428|Who the consent is given to
+6429|Interfering with the Service: collecting data automatically, guessing passwords, bypassing access restrictions
+6430|We do not sell personal data and do not pass it on for third-party advertising
+6431|We process personal data on the basis of the consent you give at registration, and without consent — only in cases expressly provided for by law
+6432|Do not share your password with other people. Actions performed in your account are considered yours
+6433|The new version is published on this page with its date. If the purposes of processing or the set of data change, we will ask for your consent again
+6434|The Operator notifies the authorized body and affected users of a personal data breach in the manner established by law
+6435|To keep the service secure and comply with the legislation of Kazakhstan
+6436|appeal against the Operator's actions to the authorized body for personal data protection — the Ministry of Artificial Intelligence and Digital Development of the Republic of Kazakhstan — or in court
+6437|cloud hosting: the application server and the database
+6438|To processors that help the service work (listed below). They receive only the data needed for their task
+6439|One person or organization — one account. Registration data must be accurate: full name or organization name, phone, email
+6440|The Operator may amend the agreement. The new version is published on this page with its date. The Operator gives advance notice of material changes by email or in the Service
+6441|The Operator may restrict or block an account if the User violates this agreement or the legislation of Kazakhstan
+6442|The liability of the parties is determined by the legislation of the Republic of Kazakhstan
+6443|unsubscribe from the newsletter at any time
+6444|By ticking the consent box at registration, you accept this agreement in full. If you do not agree with it, do not register and do not use the Service
+6445|withdraw consent to processing, except where withdrawal contradicts the law or there is an unfulfilled obligation
+6446|Passwords are stored only as a salted hash — the Operator does not see the password itself
+6447|The policy applies to the QazGost AI website and mobile apps
+6448|When using the service: photos and descriptions of sites, room dimensions, estimates, orders, responses, messages to the AI assistant
+6449|At registration: full name or organization name, phone number, email, city, role in the service (client, contractor, etc.)
+6450|To send news and offers — only if you have separately agreed to this
+6451|Publishing illegal or offensive materials and advertising unrelated to an order
+6452|Posting other people's personal data without the owner's consent
+6453|To calculate the estimate and work quantities and check defects
+6454|Registration and sign-in to the service; calculating estimates and checking defects; matching contractors and communication between the parties to an order; order notifications; service security; compliance with the legislation of Kazakhstan
+6455|Collection, recording, systematization, accumulation, storage, clarification, use, blocking, anonymization, destruction, as well as transfer: to the other party to my order — within that order, and to the processors listed below
+6456|information that I add myself: profile, equipment, photos and descriptions of sites, room dimensions, estimates, orders and responses, messages to the AI assistant
+6457|To connect the client and the contractor for an order, and to show the contractor profile and equipment listing
+6458|The Service is a platform where clients and contractors find each other. A contract for works, supply or equipment rental is concluded between users; the Operator is not a party to it unless expressly stated otherwise
+6459|The Service helps calculate the cost of construction and renovation works from photos and dimensions, check defects against the standards of Kazakhstan, find contractors, building materials and heavy equipment, and place and manage an order
+6460|The Service is intended for persons over {n}. If we learn that an account was created by a minor without the consent of a legal representative, we will delete the account and the data
+6461|The Service is provided as is. The Operator strives for accurate calculations and uninterrupted operation of the Service, but is not responsible for decisions made solely on the basis of a preliminary estimate or for the performance of contracts between users
+6462|Estimates, quantity calculations and defect conclusions generated by the Service are preliminary and for reference. They are based on standards, process charts and market prices as of the calculation date and are not design documentation, an expert opinion or a public offer. The final scope and cost of works are determined by the client and the contractor in their contract
+6463|The consent is valid while I have an account in the service or until it is withdrawn
+6464|Consent to receive news and offers is given separately and is not required for registration
+6465|The consent is recorded together with the date and the version of the document you agreed to
+6466|The connection to the service is encrypted (HTTPS)
+6467|To create an account, let you sign in and restore access
+6468|To notify you about orders, responses and changes in the service
+6469|Term and withdrawal
+6470|technical data: IP address, date and time of requests, browser information
+6471|Technical data: IP address, date and time of requests, browser information — in server logs, for protection against abuse
+6472|Cross-border transfer
+6473|demand that data be blocked or destroyed if it is processed in violation of the law
+6474|demand that data be corrected or supplemented
+6475|Providing someone else's or false data, impersonating another person or organization
+6476|The terms of payment features (wallet, secure deal) are governed by separate rules published in the Service when these features are connected
+6477|last name and first name (or organization name), phone number, email, city, role in the service
+6478|photos and descriptions of sites, the text of messages to the assistant — only when you use these features
+6479|Part of the data is processed outside the Republic of Kazakhstan
+6480|I agree to the transfer of data outside the Republic of Kazakhstan to the following processors

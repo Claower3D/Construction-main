@@ -1,0 +1,407 @@
+2376|Certificate
+2377|Certificate of completed works
+2378|Alatau
+2379|Alexey Melnikov (Geodesy)
+2380|Almaty, "Alatau" residential complex, Block B
+2381|Almaty, Medeu district, Dostyk St. {n}
+2382|Almaty, Dostyk Ave. {n}
+2383|Analysis of possible errors
+2384|JSC
+2385|JSC (Joint-stock company)
+2386|Equipment rental
+2387|Rebar {n} mm and cement M{n}
+2388|Steel rebar A{n}C {n} mm
+2389|Astana, "Nurly" business centre, office {n}
+2390|Astana, Dostyk St. {n}
+2391|Ready-mix concrete M{n} B{n}
+2392|Upcoming visits today
+2393|Concrete crew ({n} people + {n} rebar fixers)
+2394|Plumbing installation crew ({n} people)
+2395|Labourer crew ({n} people)
+2396|Electrician crew ({n} people)
+2397|Electrician crew (Craftsman Danil)
+2398|Crew: Alexander Excavator
+2399|Crew: Volodya Craftsman
+2400|Crew: Craftsman Vladimir, Craftsman Danil
+2401|Crew: Craftsman Vladimir, Craftsman Danil, Radion (Manipulator)
+2402|Crew: Worker {n}
+2403|Crew: Me
+2404|Drilling crew No. {n} ({n} engineers)
+2405|SANY SR{n}R drilling rig ({n} units)
+2406|"Nurly Tau" business centre
+2407|Within tolerance
+2408|In stock
+2409|Processing
+2410|In progress ({n})
+2411|On the way (Accept request)
+2412|This table stores all calculated estimates. You can export them to Excel or PDF
+2413|Your role in the company
+2414|Your projects and deadlines
+2415|Enter the name of the new stage
+2416|Enter the requisites of the construction company or sole proprietor
+2417|Entering new measurements
+2418|Verification by a QazGost engineer
+2419|Return the request to the manager to resolve issues with the client
+2420|Return to manager
+2421|Return to the manager for re-approval
+2422|Video recording
+2423|Tabs
+2424|Read the site passport on the left carefully
+2425|Water supply
+2426|Enter the control panel
+2427|Tie-in
+2428|All stages are already marked as completed
+2429|Choose a working organization
+2430|Organization selection
+2431|Export all expenses to CSV
+2432|Export database (Excel)
+2433|Height of the ring beam of floor {n}
+2434|Generation
+2435|Geodetic team ({n} engineers)
+2436|Chief engineer
+2437|Excavation depth
+2438|Order schedule
+2439|XCMG crawler crane {n} t ({n} units)
+2440|Next
+2441|Daniyar Aitzhanov (Pile testing)
+2442|Data for the contractor
+2443|Details / Estimate
+2444|Detection of structures and materials
+2445|Diesel generator {n} kW ({n} units)
+2446|Until {n} Aug
+2447|Until {n}:{n}
+2448|Before / During / After — automatic PDF
+2449|Before start ({n})
+2450|Add site
+2451|Add files to the as-built report
+2452|Adding tasks
+2453|Add new stages and press "Complete stage" (green button) to move the process forward
+2454|Document
+2455|Document / Estimate
+2456|Materials delivery and heavy equipment
+2457|Drainage
+2458|"Alatau {n}" residential complex
+2459|completed
+2460|Completed
+2461|Complete stage
+2462|Tomorrow, {n}:{n}
+2463|Upload photo records (JPG, PNG), videos (MP{n}), certificates (PDF, DOCX) and drawings (DWG, ZIP)
+2464|Upload images
+2465|Uploading site images
+2466|Upload photos from camera / gallery
+2467|Uploading drawings
+2468|Heavy equipment involved
+2469|Crews involved
+2470|Close calendar
+2471|Measurements
+2472|Measurements ({n})
+2473|Notes or progress for this stage
+2474|Stage notes
+2475|Busy
+2476|Run calculation
+2477|Register and sign in
+2478|The request has been returned to the manager for re-approval. Once the manager resolves the issues it will return to the engineer
+2479|Request under re-approval
+2480|Request passed to the contractor
+2481|Here you fill in all the information about the site
+2482|Here you can plan your tasks and inspections
+2483|All technical supervision sites are shown here
+2484|Earthworks / {n} people
+2485|AI will recognize the volumes and produce a draft estimate in a few seconds
+2486|Survey engineer
+2487|Estimating engineer
+2488|Engineering check
+2489|Engineers
+2490|Cast-in-place concrete inspection
+2491|IE
+2492|IE "Master Service"
+2493|IE "Satov A.V."
+2494|IE (Individual entrepreneur)
+2495|Final estimate
+2496|Final site estimate
+2497|Engineer dashboard v{n}
+2498|Task calendar
+2499|Karaganda, Ortalyk district {n}
+2500|Karaganda, Site No. {n}
+2501|Karaganda, Lenin St. {n}
+2502|Solid ceramic brick
+2503|External wall masonry, brick M{n}
+2504|Click to change organization
+2505|Key not configured
+2506|KamAZ crane-manipulator (Radion), JCB excavator
+2507|KamAZ {n} crane-manipulator (Radion)
+2508|Button for adding a new site card to the database
+2509|Work comment (task description)
+2510|Cottage settlement
+2511|"Severny" cottage settlement
+2512|Kuanysh Zhumagulov (Geology)
+2513|Laboratory control and certification
+2514|Storm drain
+2515|Local calculation
+2516|Low stock
+2517|Craftsman Vladimir, Craftsman Danil, Radion (Manipulator)
+2518|Material
+2519|Materials and stock (
+2520|Menu / Dashboard
+2521|My sites (
+2522|My calendar
+2523|Installation of steel structures and trusses
+2524|Under review by the engineer
+2525|Navigation
+2526|Press this button to quickly create a new task or work stage for the selected day
+2527|Click to attach photos or documents
+2528|Back to cards
+2529|Company / sole proprietor name
+2530|Site / inspection name
+2531|Name of works / materials
+2532|Find the address on {n}GIS 🗺️
+2533|e.g.: LLP "Astana Stroy Group"
+2534|E.g.: Plate load tests - Ivan Petrov
+2535|Not assigned
+2536|A request cannot be created with a past date
+2537|No events for today
+2538|A new request has arrived
+2539|New organization
+2540|New item of works / materials
+2541|New requests
+2542|New requests (
+2543|New work schedule from the engineer
+2544|NEW SITE
+2545|Norm
+2546|General construction / {n} people
+2547|Site
+2548|Sites
+2549|Waiting
+2550|Edit window
+2551|Crew payments
+2552|Paid
+2553|Volume determination
+2554|MAIN
+2555|Main installation works
+2556|Main construction and installation works
+2557|Responsible organization
+2558|Deviation
+2559|Send the full photo report to the client
+2560|Sending
+2561|Reports
+2562|Reports and certificates
+2563|Assessment of climate coefficients
+2564|Overhead assessment
+2565|Parameter
+2566|Site passport
+2567|First calculation
+2568|Passed by the engineer to the crew of craftsmen
+2569|Passed to contractors
+2570|Passed to a specialist
+2571|Pass to contractor
+2572|Switch between the calendar, overview, requests and sites
+2573|Switch between main data, stages and photos
+2574|Drag PDF or DWG files here for automatic analysis
+2575|PLAN
+2576|Area of cast-in-place slabs
+2577|On schedule
+2578|Preparatory and survey works
+2579|Describe the task for the crew or specialist in detail
+2580|Estimate items
+2581|Search by client / address
+2582|Search by name, BIN or city
+2583|After completion ({n})
+2584|Preview is not available for this file type
+2585|Profit
+2586|PROFIT
+2587|Acceptance
+2588|Acceptance of HVAC and electrical
+2589|Attach file
+2590|Accepted
+2591|Materials check
+2592|Risk check
+2593|Photo check
+2594|Project
+2595|Overdue
+2596|protocol
+2597|Data analysis process
+2598|Labourer / {n} people
+2599|Site recognition
+2600|Calculate estimate with AI
+2601|Calculation of volumes and areas
+2602|EDITING
+2603|Edit site
+2604|Self-check
+2605|KAMAZ dump truck {n} t ({n} units)
+2606|Plumbing
+2607|Building the photo report for the client
+2608|Reset demo
+2609|Available
+2610|Today, {n}:{n}
+2611|Septic tank
+2612|Utilities
+2613|Synchronized with SNiP RK
+2614|Download CSV
+2615|Download file
+2616|Downloading expenses CSV
+2617|Concealed works ({n})
+2618|Hide/show side menu
+2619|Estimates
+2620|The estimate for this site has not been calculated yet
+2621|The estimate has been calculated by AI. The request can now be passed to the contractor
+2622|Estimate documentation ({n} items)
+2623|Estimate calculations
+2624|Image #
+2625|Build photo report
+2626|Contractor's own crew
+2627|The event was saved only on this device: no active server session (sign in to your account)
+2628|Create stage
+2629|Matching with ESN RK
+2630|Due date
+2631|AI engine status
+2632|Amount (₸)
+2633|Generate PDF
+2634|Drawing / CAD
+2635|Technical measurements (
+2636|Technical supervision & SNiP RK expert review
+2637|Work type
+2638|Plaster layer thickness
+2639|LLP "QazGost"
+2640|LLP "Almaty City"
+2641|LLP "Inzhen-Stroy"
+2642|LLP (Limited liability partnership)
+2643|Exact site address
+2644|The manager must re-approve the terms / estimate with the client
+2645|thousand pcs
+2646|Notifications (
+2647|Delete this event from the calendar
+2648|Delete the task from the calendar
+2649|Delete stage
+2650|Management
+2651|Management / Engineering / {n} people
+2652|Crew management (
+2653|Site management
+2654|Management of construction sites, estimates and the team of specialists
+2655|service
+2656|Soft roofing, {n} layers
+2657|Strip foundation M{n}
+2658|Approve estimate
+2659|Technonicol insulation {n} mm
+2660|Expense tracking
+2661|Stage files (Photos / Documents)
+2662|Actual
+2663|ACTUAL
+2664|Final calculation
+2665|Form for closing a site with settlements (KS-{n})
+2666|Form for adding a new material
+2667|Form for adding a new crew
+2668|Form for adding an expense
+2669|Legal form
+2670|Generating the KS-{n} certificate PDF
+2671|Preparing the final estimate
+2672|Photo / Video
+2673|Photo / video record of the site
+2674|Photo report (Attach files)
+2675|Photo report for the client
+2676|The photo report has been built and sent to the client
+2677|Photo record
+2678|Cement M{n} ({n} kg bag)
+2679|Price (₸)
+2680|To start filling in stages and attaching photos or estimates, you must accept the site
+2681|Plate load soil testing rig ({n} units)
+2682|JCB {n}CX excavator ({n} shifts)
+2683|JCB {n}CX backhoe loader ({n} units)
+2684|Foundation expert review
+2685|Export crews to Excel
+2686|Export sites to Excel
+2687|Export sites and crews to XLSX
+2688|Export expenses
+2689|Export expenses to CSV
+2690|Export estimate
+2691|Export SNiP
+2692|Stage
+2693|Error {a}
+2694|Calculation error: {a}
+2695|Download error: {a}
+2696|auto
+2697|Select at least one system
+2698|Switches, pcs
+2699|Depth, m
+2700|Yes, cold and hot water
+2701|Route length, m
+2702|Site total
+2703|Manholes, pcs
+2704|region coefficient ×
+2705|m², duration about
+2706|No, cold water only
+2707|Calculate cost
+2708|Sockets, pcs
+2709|incl. VAT {n}%
+2710|Systems
+2711|duration
+2712|Cost of sewerage, water supply and electrical works under Kazakhstan norms, adjusted for the city. Empty fields are calculated automatically from the area
+2713|Calculating
+2714|Water outlets
+2715|Enter the site area
+2716|+ Add
+2717|+ Add to package
+2718|BIM model (Revit {n}D)
+2719|"{a}" added to the package
+2720|"{a}" removed from the package
+2721|Engineering request {a} passed to the Chief engineer and the CRM manager
+2722|Engineering: {a} ({b} sections)
+2723|Site: {a}, Area: {b} m², Storeys: {c}, City: {d}, Urgency: {e}. Package: {f}. Development time: ~{g} days
+2724|Design supervision
+2725|Isometric diagrams of cold and hot water, domestic and storm sewerage, pumping stations, filtration and water metering
+2726|Architectural section
+2727|Safety
+2728|In the package
+2729|Your engineering package for the site
+2730|Your package
+2731|Bill of materials and equipment
+2732|Back
+2733|Water supply and sewerage
+2734|You receive
+2735|Choose solutions from the catalog
+2736|Choose at least one engineering solution from the catalog
+2737|High-precision laser survey of premises, positioning of the building on the geodetic base, as-built drawings
+2738|Geodesy and measurements
+2739|Ready drawings in PDF and DWG (AutoCAD / Revit)
+2740|Defect list with exact volume calculation
+2741|Defect survey
+2742|days
+2743|Documentation
+2744|Drawings/plans available
+2745|Residential house
+2746|Request created
+2747|Instrumental survey of structures with an expert conclusion
+2748|Instrumental survey of the foundation, load-bearing walls and slabs with an official expert conclusion
+2749|Building information {n}D model with clash detection
+2750|Site information
+2751|As-built documentation
+2752|Approximate total
+2753|Comprehensive energy audit with an energy passport of the building, power grid measurements and energy saving recommendations
+2754|Structural section
+2755|Checking that construction works comply with the design
+2756|Laser {n}D scanning and measured drawings
+2757|Max. development time
+2758|My requests
+2759|for the amount of
+2760|Supervision
+2761|Site name
+2762|Chief project engineer assigned
+2763|Independent control of quality and concealed works {n}/{n}
+2764|Continuous independent construction audit: checks of concealed works, concrete grades, geometry and signing of KS-{n}/KS-{n} certificates
+2765|Your request number
+2766|Normative and market estimate of the site cost
+2767|Survey
+2768|HVAC (heating, ventilation)
+2769|Single-line diagrams of switchboards, load calculation, lightning protection, earthing, socket networks and lighting
+2770|from
+2771|Great
+2772|Submit a package request
+2773|Clear package
+2774|Package cleared
+2775|passed to the assigned Chief project engineer
+2776|Go to My requests
+2777|Preparation of as-built drawings, equipment passports, certificates of conformity and concealed works certificates for handover to the construction authority
+2778|Signature and stamp of a licensed chief engineer
+2779|Details
+2780|Fire safety
+2781|Fire safety (alarm / evacuation systems)
+2782|Full set of architectural drawings and {n}D facade solutions

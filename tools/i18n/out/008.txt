@@ -1,0 +1,374 @@
+2783|Full set of documents for handover to the construction authority
+2784|Work execution plan / Construction organization plan
+2785|Design of water supply, pumping stations and sewerage
+2786|Design of indoor climate, heating and supply ventilation
+2787|Design of the fire alarm, public address system, automatic fire suppression and evacuation calculation
+2788|Work execution plan and site layout plan
+2789|Design of structured cabling, video surveillance and access control
+2790|Design of power supply, lightning protection and lighting
+2791|Design
+2792|Design (design documents & BIM)
+2793|working days
+2794|Fire protection, alarm and fire suppression section
+2795|Development of architectural and construction solutions (floor plans, facades, sections, details, room schedules) under SNiP RK {n}
+2796|Development of the work execution plan and construction organization plan with detailed site layouts, traffic schedules for equipment and workers, and safety maps
+2797|Calculation and drawings of reinforced concrete and steel structures
+2798|Calculation of the bearing capacity of the foundation, columns, beams and slabs. Reinforced concrete and steel drawings with rebar and concrete specifications
+2799|Calculation of the normative and market estimate in Kazakhstan {n} rates, a detailed specification of all materials and resources
+2800|Regular site visits by the architect and structural engineer, keeping the design supervision log, making working changes to the drawings
+2801|Assembly of a single building information model in Revit/Navisworks, detection of utility clashes before construction starts
+2802|Structured cabling, video surveillance (CCTV), access control, intercom, local area network (LAN) and Wi-Fi coverage
+2803|Low-voltage systems
+2804|Estimate / BoQ (GESN/SNIP)
+2805|Estimate and permit documentation
+2806|Scope of works and specification
+2807|Preparation of an inspection report and defect list with an exact calculation of the required volumes of repair and restoration works
+2808|Completion time
+2809|Urgent (+{n}%)
+2810|Urgency
+2811|Construction supervision
+2812|Survey with a professional Fluke thermal imager
+2813|Survey of facades, roof and window junctions with a professional Fluke thermal imager to detect thermal bridges and heat leaks
+2814|Thermal imaging survey
+2815|Thermal calculation, hydraulics, layouts of heating, underfloor heating, supply and exhaust ventilation and air conditioning
+2816|Technical survey
+2817|Remove from package
+2818|Enter the site name
+2819|Expert review and survey
+2820|Express
+2821|Express (+{n}%)
+2822|Electrical
+2823|Energy survey and heat loss detection
+2824|Building energy audit
+2825|Energy efficiency
+2826|Number of storeys
+2827|/ shift
+2828|/ hour
+2829|+ Add equipment
+2830|+ List equipment
+2831|Status: {a}
+2832|Delete the listing "{a}"? Future bookings will be cancelled
+2833|Active
+2834|no name
+2835|Without operator
+2836|concrete
+2837|No bookings yet
+2838|Client bookings: confirm, complete or decline
+2839|Booking No.
+2840|Booking completed
+2841|Booking cancelled
+2842|Booking cancelled, dates released
+2843|Booking confirmed
+2844|
+2845|No equipment in the fleet yet
+2846|Your equipment bookings and their status with the owner
+2847|Your marketplace listings: status, prices and publication
+2848|The equipment owner will confirm the booking
+2849|Sign in with a server account to manage your equipment
+2850|Sign in to see requests for your equipment
+2851|Sign in to see your bookings
+2852|Total machines
+2853|Choose equipment in the catalog and book the dates you need
+2854|generator
+2855|grader
+2856|
+2857|
+2858|Awaiting confirmation
+2859|Completed
+2860|Complete
+2861|Fleet utilization
+2862|Requests for my equipment
+2863|No requests yet
+2864|To pay
+2865|To receive
+2866|roller
+2867|When a client books your equipment, the request will appear here
+2868|compressor
+2869|crane
+2870|My equipment fleet
+2871|Under repair
+2872|Could not load
+2873|Sign-in required
+2874|Listing deleted
+2875|Cancelled
+2876|Cancel
+2877|Cancel the booking? The dates will be released for other clients
+2878|Go to catalog
+2879|
+2880|Confirm or decline the request
+2881|Confirm
+2882|Confirmed
+2883|After the work is done, mark the booking as completed
+2884|Work completed
+2885|List your first machine — it will appear in the catalog and start receiving requests
+2886|dump truck
+2887|Available
+2888|Network unavailable
+2889|sh. ×
+2890|Shift, ₸
+2891|Unpublished
+2892|The equipment will be delivered on the specified date
+2893|transport
+2894|tractor unit
+2895|The price per shift must be greater than {n}
+2896|Prices updated
+2897|Hour, ₸
+2898|
+2899|(booking $
+2900|). Demo listings are shown: prices and statuses are illustrative, booking is unavailable
+2901|{n} shift
+2902|{n} t, bucket {n} m³
+2903|{n} hour
+2904|Kaspi or transfer to the owner after the shift
+2905|
+2906|{a} ₸ / hour
+2907|{a} km
+2908|{a} reviews
+2909|Rental of {a} for {b} shifts from {c}{d}
+2910|Heavy equipment rental: {a}
+2911|Booking placed: {a} shifts from {b}. The owner will confirm it on the requests tab
+2912|Request {a} passed to the platform manager
+2913|Listings found: {a}
+2914|Found: {a}
+2915|The server did not accept the listing: {a}
+2916|Server unavailable: {a}
+2917|Putzmeister concrete pump truck {n}m, output {n} m³/h
+2918|KAMAZ {n} concrete mixer truck ({n} m³ mixer)
+2919|Hyundai HD{n} telescopic aerial platform, {n} m, {n} kg
+2920|XCMG QY{n}K{n} truck crane, {n} t, boom {n} m + jib
+2921|Construction site address (delivery by GPS)
+2922|Heavy equipment rental with operator
+2923|Vogele Super {n}-{n} asphalt paver (width {n} m)
+2924|Liebherr {n} EC-B tower crane, {n} t, jib {n} m
+2925|Without signing in, the request goes to the platform manager and the dates will not be reserved with the owner
+2926|Bank transfer by invoice incl. VAT (for legal entities)
+2927|Free delivery
+2928|Concrete and mortar
+2929|
+2930|Bauer BG {n} drilling and piling rig (piles up to {n} m)
+2931|Owner
+2932|The owner did not provide a phone — make a booking and they will contact you
+2933|Choose a delivery date not earlier than today
+2934|SDMO diesel generator {n} kW, soundproofed
+2935|Year of manufacture, condition, minimum order, terms
+2936|XCMG GR{n} grader, {n} m, ripper
+2937|
+2938|Capacity / volume
+2939|Hitachi ZX{n} crawler excavator, {n} t, {n} m³, {n} m
+2940|Equipment delivery date
+2941|Demo listing: booking unavailable
+2942|A server account is required to publish. Without it the listing will not be saved
+2943|Road equipment
+2944|Awaiting owner confirmation
+2945|Loading equipment
+2946|Busy
+2947|Request with the manager
+2948|
+2949|Total rental cost
+2950|The equipment catalog is unavailable (
+2951|XCMG XS{n}J road roller, {n} t, {n} m
+2952|km from you
+2953|JCB JS{n}W wheeled excavator, {n} t, {n} m³
+2954|Number of shifts
+2955|Atlas Copco XAS {n} diesel compressor ({n} m³/min)
+2956|KAMAZ {n} crane-manipulator (crane {n} t, bed {n} t)
+2957|Maximum price per shift, ₸
+2958|Bobcat S{n} skid-steer loader + hydraulic breaker / sweeper
+2959|Kubota U-{n} mini excavator, {n} t, bucket {n} m³
+2960|E.g.: CAT {n}D, crawler
+2961|Invalid server response
+2962|Listing published in the marketplace
+2963|Publish
+2964|Processing
+2965|Paid delivery
+2966|No equipment found for your query
+2967|Loader
+2968|Try loosening the filters or changing the search category
+2969|Publication
+2970|Search radius, km
+2971|List your equipment
+2972|List heavy equipment
+2973|Listing is available only with a server account: sign in with a server account and try again. The listing was not saved
+2974|Distance
+2975|With crew
+2976|With driller
+2977|With driver
+2978|With driver-operator
+2979|With crane operator
+2980|With operator
+2981|With crew
+2982|Shacman F{n} dump truck, {n} t, volume {n} m³
+2983|Reset all filters
+2984|The session is invalid: sign in with a server account and try again
+2985|Payment method
+2986|Manitou MT {n} telescopic handler ({n} m, {n} t)
+2987|The owner's phone is visible after sign-in
+2988|Dispatcher phone
+2989|Equipment under repair
+2990|FAYMONVILLE low-bed trailer ({n} t, ramps)
+2991|CAT D{n}R heavy bulldozer, {n} t, blade {n} m
+2992|The listing has no price — contact the owner
+2993|Enter the name, phone and site address
+2994|Enter the equipment make and model
+2995|Enter a price per shift greater than {n}
+2996|XCMG ZL{n}G wheel loader, {n} t, {n} m³
+2997|Price per shift, ₸
+2998|The price per hour cannot be negative
+2999|Price per hour, ₸
+3000|hour
+3001|JCB {n}CX Super backhoe loader, equal-wheel
+3002|Power and generators
+3003|KAMAZ {n}-based auger rig (drilling up to {n} m)
+3004|{n} × {n} × {n} m
+3005|{n} m³
+3006|{n} bags
+3007|{n} t
+3008|{a}, coefficient ×{b}. {c}, about {d} days
+3009|Estimate_{a}.xlsx
+3010|{n} ₸ / m²
+3011|{n} ₸ / trip
+3012|{n} ₸ / shift
+3013|{n} t (A{n}C {n} mm)
+3014|{n}. Contract No. {n}/{n} — Office major renovation (LLP "Almaty Business") •
+3015|{n}. Contract No. {n}/{n} — Cast-in-place foundation (IE "StroyMaster") •
+3016|Balance topped up by {a} ₸
+3017|XCMG truck crane {n} t (reach {n} m)
+3018|Automatic calculation of work volumes and material BOM
+3019|Active works contracts
+3020|Fibreglass-reinforced filler + primer
+3021|Height / Thickness (m)
+3022|Length (m)
+3023|QazGost AI {n} interactive tool
+3024|Marketplace for heavy equipment rental and building materials procurement
+3025|Microcracks in the base plaster
+3026|System module
+3027|Required amount of rebar
+3028|Low (Superficial)
+3029|Total volume of concrete/soil
+3030|Sand and crushed stone bedding
+3031|Surface area
+3032|Signed with digital signature
+3033|Calculated volumes and consumption
+3034|Register of works contracts and electronic arbitration (E-Gov digital signature)
+3035|Available
+3036|SNiP RK {n}-{n}-{n} (cl. {n})
+3037|Width (m)
+3038|JCB {n}CX backhoe loader
+3039|{n} hours ago
+3040|+ Choose files
+3041|New request from the Client: {a}
+3042|Vision AI error: the image was not recognized as a construction site or drawing (identified as "{a}"). Please upload a real photo of a room, facade or plan
+3043|Image analysis via TensorFlow Vision
+3044|Roof estimate audit
+3045|No description
+3046|Yesterday
+3047|Files selected
+3048|Loading module
+3049|AI calculation under ESN RK norms in progress
+3050|Engineering solutions (Send to the engineer for review)
+3051|apartment
+3052|comfort
+3053|Under moderation by the manager (New request)
+3054|Request / site name
+3055|E.g.: Building a bathhouse {n}x{n}
+3056|Unassigned
+3057|Description (optional)
+3058|Sent to the engineer to review the order
+3059|Passed to the manager (In progress)
+3060|Passed to the manager (You confirmed)
+3061|Attach files (drawings, photos, documents)
+3062|Applying estimate norms (ESN RK)
+3063|Review of foundation design documentation
+3064|Recognition of load-bearing structures and geometry
+3065|Building heat loss calculation
+3066|Construction (Add to My sites)
+3067|Construction of a cottage {n} m²
+3068|Generate
+3069|Create request
+3070|Request type
+3071|Requires your confirmation (Engineer's reply received)
+3072|Enter the order details
+3073|Preparing the final report
+3074|, equipment
+3075|{a} {b} ago
+3076|{a} min ago
+3077|{a} million ₸
+3078|Add to response: {a}
+3079|Response to "{a}" sent{b}
+3080|Open in the marketplace: {a}
+3081|equipment: {a}
+3082|Remove from response: {a}
+3083|Add to response
+3084|In response
+3085|Within {n} km of the sites, hourly payment
+3086|Entire equipment marketplace
+3087|Work type, city or order number
+3088|Client requests from Astana, Almaty, Shymkent and the regions. Respond with a price — and add equipment for the stages
+3089|No contractor assigned
+3090|new
+3091|total budget
+3092|from the site
+3093|Response withdrawn
+3094|Response sent
+3095|Respond
+3096|Open orders
+3097|Withdraw
+3098|No orders match these conditions
+3099|Order search
+3100|Sample order to get to know the feed
+3101|with a large budget
+3102|Available equipment nearby
+3103|First
+3104|Equipment by stage
+3105|stage
+3106|stages
+3107|stages
+3108|Barbashin Maxim
+3109|Balance: {a} ₸
+3110|Wallet: {a} tenge
+3111|Notifications, {a} new
+3112|{n} hours
+3113|Without arbitration
+3114|Including Astana and Almaty
+3115|KPI dashboard and performance analytics
+3116|Thanks to AI price verification
+3117|Key financial indicators, speed of closing KS-{n}/{n} certificates and quality indices
+3118|Average supervision engineer response time
+3119|Average savings on estimates
+3120|Successful escrow deals
+3121|Interface language
+3122|Interface language
+3123|Sales Manager • Request intake
+3124|Budget (₸)
+3125|City, street, building
+3126|Start date
+3127|End date
+3128|If the work takes several days. For a single day — leave empty
+3129|Notes for the engineer
+3130|Client name
+3131|Client
+3132|Proposal attached ·
+3133|Media and documents
+3134|Request details, site specifics, deadlines
+3135|Calculation of materials, works and man-hours from the note text
+3136|Make a proposal from the note
+3137|Create lead
+3138|Service
+3139|Version of {a}
+3140|The official text of the document is in Russian
+3141|(tolerance
+3142|▭ Plane
+3143|LiDAR scanner
+3144|QazGost AI — point cloud analysis, room measurements, deviation check
+3145|{a} m
+3146|{a} m²
+3147|{a} m³
+3148|Unsupported format .{a}. Allowed: .las, .laz, .ply, .pcd, .xyz
+3149|Point cloud analysis
+3150|Analyse scan
+3151|Vertical
+3152|Height
+3153|Horizontal
+3154|Length
+3155|Length, width, height, area
+3156|Upload a LiDAR scan

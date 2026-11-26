@@ -1,0 +1,383 @@
+430|Ceramic wall tile {n}x{n} mm
+431|By WBS (Groups)
+432|Direct hanger for drywall ({n} pcs)
+433|Only Excel (.xlsx, .xls) and CSV (.csv) files are supported
+434|Customer support and moderation
+435|Cork laminate underlay {n} mm
+436|Suspected carding and fictitious volume
+437|Suspicious bulk rebar order ({n} t)
+438|White PVC window sill {n} mm ({n} m)
+439|Signed
+440|Signed with digital signature
+441|Action details
+442|Contracting company / Contractor
+443|Confirm deletion
+444|Item {n}-{n}-{n}
+445|Search by code, name or source file
+446|Search by number, name, counterparty, BIN/IIN, city
+447|Search by number, site, BIN
+448|Search a rate by code or name
+449|Shown
+450|Painting walls with water-based paint in {n} coats
+451|Full geographic coverage of Kazakhstan and {n} major cities
+452|Full access to system management
+453|Full package
+454|Full list
+455|Floors
+456|Users
+457|User user{n} (New account)
+458|Armstrong ceiling tile {n}x{n} mm
+459|Moderation subject & Counterparty
+460|claims
+461|Claims (
+462|Claim: cracks in the cast-in-place slab
+463|Linked
+464|Acceptance of works, volumes, VAT {n}%
+465|Caspian salt-marsh zone
+466|Caspian oil and gas cluster (+{n}%)
+467|Attached documents
+468|Posted
+469|Posted in the e-invoice system
+470|Construction licence check
+471|Tie wire Ø{n} mm ({n} m)
+472|Projects
+473|Laying cable VVGng-LS {n}x{n} in conduit
+474|Type II collapsible loams
+475|Track profile PN {n}x{n} ({n} m)
+476|User profile
+477|Ceiling profile PP {n}x{n} ({n} m)
+478|Stud profile PS {n}x{n} ({n} m)
+479|Load-bearing profiled sheet N-{n}, {n} mm
+480|Galvanized profiled sheet S-{n}, {n} mm
+481|Polymer-coated profiled sheet S-{n}, RAL
+482|Design documents passed state expert review
+483|Works
+484|Works (ESN RK)
+485|Bimetallic radiator {n} mm ({n} section)
+486|Steel panel radiator type {n}, {n}x{n} mm
+487|Placing orders and controlling estimates
+488|Washbasin {n} mm with pedestal
+489|Masonry mortar M-{n}
+490|Region of Kazakhstan
+491|Region B
+492|Region A
+493|Regional coefficients
+494|Editing a user
+495|Editing a rate
+496|Editing a role
+497|Edit
+498|trip
+499|Rating
+500|Risk
+501|Schneider double socket with earthing
+502|Roles
+503|Role
+504|A role with this key already exists
+505|Roofing felt RKP-{n} ({n} m²)
+506|roll
+507|Manual
+508|Wood screws {n}x{n} mm ({n} pcs)
+509|KAMAZ dump truck {n} t
+510|Plumbing
+511|Reset prices and rates to ESN RK defaults
+512|Reset all custom rates to the default bases
+513|Reset prices
+514|Pile field: {n} bored piles Ø{n} mm
+515|Case details & Expert comments
+516|LED panel light {n}x{n} W
+517|IE certificate + Licence III
+518|IE certificate + State licence, category III
+519|Summary
+520|Summary package
+521|Northern industrial
+522|North-Western agricultural
+523|Seismic zone, intensity {n}
+524|section
+525|Masonry mesh {n}x{n}x{n} mm ({n}x{n} m)
+526|Galvanized chain-link mesh {n}x{n} mm
+527|Cloud sync
+528|System code
+529|System code (ID)
+530|Download all .xlsx
+531|Download text report (.txt)
+532|Grohe bath mixer
+533|Estimate difference per site
+534|Estimate table
+535|SNiP RK {n}
+536|Total size of the Kazakhstan building norms database
+537|Save
+538|Disputes & Complaints
+539|Statement of the cost of completed works for stage {n}
+540|Avg. price per m²
+541|Medium
+542|Average API response
+543|Average price of works
+544|Deadlines, advances, warranties
+545|Urgent
+546|Urgent (
+547|Urgent cases
+548|Delivery of cable VVGng-LS delayed by {n} calendar days
+549|Status
+550|Access status
+551|CAPITAL HUB
+552|Page
+553|construction sites
+554|Amount
+555|Amount / Budget
+556|Amount incl. VAT (₸)
+557|Deal amount
+558|Dry mixes
+559|Invoice for payment
+560|INV-KZ-{n}/{n}
+561|Invoices (
+562|Invoices & e-invoices
+563|t
+564|Table
+565|Taraz (Zhambyl)
+566|Electric underfloor heating mat {n} m²
+567|Equipment
+568|Technical supervision and expert review
+569|Type
+570|Document type
+571|Operation type
+572|t
+573|LLP "Astana Build" (Rakhimov D.A.)
+574|LLP "QAZGOST AI"
+575|LLP "Almaty Business"
+576|LLP "KazCableTrade"
+577|LLP "KarStroy"
+578|LLP "Example Group"
+579|LLP "Example Developer"
+580|LLP "Example Engineering"
+581|LLP "Example MonolithStroy"
+582|LLP "TemirStroy Montazh"
+583|Needs review
+584|A technical supervision visit and ultrasonic concrete testing are required
+585|Cracks in the cast-in-place slab after formwork removal
+586|Paving slab {n}x{n}x{n} mm
+587|PEX pipe for underfloor heating {n} mm ({n} m)
+588|PVC sewer pipe {n} mm ({n} m)
+589|PP pipe {n} mm PN{n} ({n} m)
+590|Hollow section {n}x{n}x{n} mm
+591|tube
+592|Steel angle {n}x{n}x{n} mm
+593|Delete
+594|Delete document
+595|Delete this role
+596|ABB RCD {n}P {n}A/{n}mA
+597|Enter the {n}-letter region code (e.g. KST)
+598|Enter the price coefficient (e.g. {n})
+599|Enter the name of the new region of Kazakhstan
+600|Enter the item name
+601|Enter the reason for rejecting the request
+602|Laying porcelain tile on the floor
+603|Cersanit close-coupled toilet with cistern
+604|pack
+605|Role management
+606|Estimate base management, moderation, users and audit
+607|Charter + Licence II + Audit
+608|Installation of {n}-chamber PVC window units
+609|Cast-in-place floor slabs, floors {n}-{n}
+610|Cast-in-place floor slabs {n} mm thick
+611|Driven pile foundation
+612|Semi-dry sand-cement screed {n} mm
+613|Ust-Kamenogorsk (East Kazakhstan)
+614|Facade insulation with mineral wool slabs {n} mm
+615|Insulation
+616|Concrete curing and electric heating
+617|File
+618|The file contains no data or the format is not recognized. Check the column headers
+619|Plywood FK {n} mm
+620|Moisture-resistant plywood FSF {n} mm
+621|Facades
+622|Final reporting, documentation check, PDF export and archiving
+623|Financial audit for {n} confirmed
+624|Full name / Company name
+625|Photo record + KS-{n} certificate
+626|Foundation block FBS {n}
+627|Foundations
+628|Khamitov A. (CEO)
+629|Chronological log of all operations by administrators, moderators and the AI system
+630|Estimate base target: {n} items (ESN RK/SNiP {n})
+631|Target: {n}
+632|Target: {n} (Achieved!)
+633|White cement CEM I {n} ({n} kg)
+634|Cement M-{n} ({n} kg bag)
+635|Portland cement M-{n} ({n} kg bag)
+636|Price/Amount (price)
+637|Central industrial
+638|Prices are identical
+639|man-hours
+640|Rough finishing
+641|Final finishing
+642|Channel {n}P ({n} m)
+643|Base filler Knauf HP Start ({n} kg)
+644|Wall filling with gypsum compounds in {n} coats
+645|Finishing filler Vetonit LR+ ({n} kg)
+646|pcs
+647|Gypsum plaster Knauf Rotband ({n} kg)
+648|Wall plastering with cement-lime mortar
+649|Cement plaster Ceresit CT{n} ({n} kg)
+650|Shymkent (Metropolis)
+651|Crushed granite, {n}-{n} mm fraction
+652|Distribution board, {n} modules
+653|Welding electrodes MR-{n} Ø{n} mm ({n} kg)
+654|E-invoice for KS-{n} certificate No. {n}
+655|Power supply
+656|White alkyd enamel PF-{n} ({n} kg)
+657|Anti-corrosion metal enamel {n}-in-{n}
+658|Escrow holds
+659|Escrow tranches, Kaspi, bank
+660|E-invoice
+661|EINV-{n}-{n}
+662|Southern foothill
+663|Southern arid / Seismic {n}-{n}
+664|, what are we doing today
+665|AI Expert review
+666|AI check of structural and architectural drawings, supervision remarks and defect lists
+667|AI calculation under SNiP
+668|Platform KPIs
+669|PDF reports and export
+670|QazGost AI — home
+671|Dashboard{a}
+672|VIP Tenders
+673|WBS calculator of work costs based on ESN RK collections
+674|Automatic analysis of design documents for compliance with GOST and SNiP RK
+675|Analysis of deviations from the approved estimate and overrun control
+676|Craftsman profile
+677|Rental of excavators, cranes and dump trucks across Kazakhstan
+678|Documentation archive
+679|Estimate audit
+680|A base of {n}+ construction rate items across {n} regions of Kazakhstan
+681|Contractor base
+682|Your dashboard
+683|Back to all sections (Esc)
+684|Visual role tree of all construction organizations and companies on the platform
+685|Lead funnel, client cards, management of companies and crews
+686|All sections
+687|Choose a role and a tool. A site photo becomes an estimate, a defect report or an order for a crew
+688|Works selection & Estimate
+689|Choice of building type, number of storeys and contractor licence check
+690|Select
+691|CHOOSE DASHBOARD
+692|Export of KS-{n}/KS-{n} certificates, invoices, e-invoices and contract registers to Excel (.xlsx)
+693|Report generator
+694|Schedule
+695|Schedule of construction works and inspections
+696|Works contracts
+697|Contracts, KS-{n}/KS-{n} certificates, supervision reports and warranty obligations
+698|Documents & Excel export
+699|Role tree
+700|Role and structure tree
+701|Live stream of orders from all over Kazakhstan with no intermediaries or commissions
+702|Log journal
+703|Loading the tool
+704|Materials procurement
+705|Fill in
+706|Fill in profile
+707|Run AI
+708|Developer
+709|Technical supervision requests
+710|Requests closed by contractors and passed to the analyst for final reporting
+711|Role hierarchy (Tree)
+712|Price indices
+713|Engineering photo audit
+714|Interactive family tree of roles, departments, employees and crews of the company
+715|I look for orders, send offers and do the work
+716|How a contractor gets paid for orders
+717|How orders are paid now and when online payment will appear
+718|Visit calendar
+719|Inspection calendar
+720|Works calculator
+721|The camera finds cracks on site and calculates repair materials
+722|Capital construction of buildings, design documents, SNiP estimates and general contracting
+723|Specialist catalog
+724|Deal conversion, average estimate value and performance analytics
+725|Cost control
+726|Building materials price escalation coefficients by region of Kazakhstan
+727|Client personal data, site parameters, budget and requisites
+728|Local SNiP estimates, progress analytics and KS-{n}/KS-{n} certificates
+729|Lots & Tenders
+730|Lots and tenders
+731|Materials marketplace
+732|Menu
+733|Metrics of calculation speed, AI accuracy and server load
+734|Request moderation
+735|My construction sites
+736|To the home page
+737|To the home screen
+738|To the website
+739|Point the phone camera — cracks are highlighted, with an instant calculation of materials and work
+740|Find craftsmen
+741|Find equipment
+742|Start estimate
+743|Start photo estimate
+744|Start check
+745|SNiP and GOST RK norms
+746|Measure the room — an estimate based on process charts and sourced prices, three scenarios
+747|Wholesale and retail building materials from Kazakhstan plants: cement, brick, rebar, mixes
+748|Wholesale purchase of building materials with discounts up to {n}% for contractors
+749|Camera inspection: cracks in the frame, their length and a bill of materials
+750|Open CRM
+751|Open KPIs
+752|Open archive
+753|Open documents
+754|Open tree
+755|Open orders
+756|Open marketplace
+757|Open sections menu
+758|Open queue
+759|Open panel
+760|Open engineer panel
+761|Open price lists
+762|Open scanner
+763|Open equipment
+764|Sales reports
+765|Contractor verification queue, document and order checks
+766|Queue of engineer call-outs to sites for inspections
+767|Queue of completed requests
+768|Plan of on-site inspections and schedule for signing KS-{n} / KS-{n} certificates
+769|Inspection plan
+770|Search for heavy equipment rental and wholesale purchase of building materials
+771|Full audit of user logs, estimate changes and AI calls
+772|Portfolio, current sites and online handover of stages to the client
+773|ESN RK price lists
+774|I accept requests and develop design documentation
+775|Check defects
+776|Check of category I/II construction licences, BIN and chief engineer contacts
+777|View active requests, craftsmen responses and work statuses
+778|Contractor profile, IIN/BIN verification, skills and portfolio
+779|Company profile
+780|Design documents, bill of quantities, full-cycle estimates and VIP general contracting
+781|Publishing construction lots in "My Orders: Construction"
+782|Path
+783|SECTIONS
+784|Resolve dispute
+785|Timetable
+786|Timetable of measurement visits and installation stages
+787|Review of work quality claims and release of escrow
+788|Calculate
+789|Regional indices
+790|Contract register
+791|Craftsmen register
+792|Contractor register
+793|Register of verified specialists and construction companies by IIN/BIN
+794|Register of sites under construction with design and technical supervision
+795|Register of staff engineers, foremen and assigned work crews
+796|Ratings, reviews and craftsmen cards in a single Kazakhstan register
+797|Company requisites
+798|Role in the dashboard
+799|Sales summary
+800|Summary analytics by sites, crews, budgets and deadlines
+801|Summary financial indicators, site handover dynamics and KPIs
+802|Summary technical supervision dashboard, inspection statuses and charts
+803|The system is active and ready
+804|Crack scanner
+805|Download PDF
+806|Estimate based on process charts and market prices with sources
+807|Estimate calculation
+808|Estimates & PDF documents
+809|View orders
+810|View reports
+811|View statistics
+812|Create site

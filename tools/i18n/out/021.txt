@@ -1,0 +1,440 @@
+7283|November {n}
+7284|Price list "Proff-Remont", Almaty, {n}
+7285|Price list "Rekrovli", Almaty, {n}
+7286|Satu.kz, seller offers, {n}
+7287|OLX.kz, listings, {n}
+7288|Kaspi Listings, Almaty, {n}
+7289|Bizmedia.kz based on OLX data, June {n}
+7290|Price list "Silver-Remont", Almaty
+7291|QazGost estimate
+7292|Removal of plaster from walls
+7294|Removal of wall tiles
+7296|Removal of floor covering (laminate, linoleum, PVC tiles)
+7298|Removal of floor tiles
+7300|Stripping wallpaper from walls
+7301|Demolition of a half-brick partition
+7303|Removal of a timber door unit
+7305|Mechanized demolition of a building (by building volume)
+7307|Loading and removal of construction waste (dump truck up to {n} m³)
+7309|Deep-penetration priming of walls
+7311|Wall plastering on guide beacons
+7313|Filling and sanding of walls (one coat)
+7315|Wall painting in {n} coats
+7317|Hanging non-woven wallpaper
+7318|Hanging vinyl wallpaper on non-woven backing
+7319|Wall tiling
+7321|Installation of a plasterboard partition
+7323|Sound insulation in a plasterboard partition
+7325|Gypsum plaster Knauf Rotband, {n} kg
+7327|Acrylic primer Remalux, {n} L
+7329|Gypsum filler Knauf Fugen, {n} kg
+7330|Finishing filler AlinEX Glatt Plus, {n} kg
+7331|Interior paint Gaudi "Belosnezhka", {n} kg
+7332|Interior paint Gaudi Standart, {n} kg
+7333|Interior paint Remalux, {n} kg
+7334|Non-woven wallpaper Pure Rose, roll {n}×{n} m
+7335|Adhesive for non-woven wallpaper (pack per {n} m²)
+7337|Retail price of a pack of Quelyd/Metylan adhesive in Almaty
+7338|Moisture-resistant plasterboard sheet Knauf {n} mm, {n}×{n} m
+7340|Stud profile PS {n}×{n}, {n} m ({n} ₸/m)
+7342|Ceiling profile Knauf PP {n}×{n}, {n} m
+7343|Tile adhesive Ceresit CM {n} Plus, {n} kg
+7345|Grout Ceresit CE {n}, {n} kg
+7347|Mounting foam Makroflex Standard, {n} ml
+7350|Semi-dry floor screed
+7352|Self-levelling floor
+7354|Laying laminate (straight)
+7355|Laying laminate in a herringbone pattern
+7356|Laying tiles / porcelain stoneware on the floor
+7358|Installation of plastic skirting board
+7360|Coating waterproofing of the floor in {n} coats
+7362|Tilers' rate from Almaty listings {n}–{n} thousand ₸/m²
+7363|Cement M{n}, {n} kg
+7366|Washed sand with delivery
+7368|Satu: fine washed sand {n} ₸/m³, delivery by KAMAZ of {n} m³ is agreed separately; with delivery within Almaty ≈{n} ₸/m³
+7369|Laminate Super Natural Narrow, class {n}, {n} mm
+7370|Laminate Kastamonu Floorpan Black, class {n}, {n} mm
+7371|"French herringbone" laminate, class {n}, {n} mm
+7372|Sheet underlay {n} mm (pack {n} m² — {n} ₸)
+7374|PVC skirting board with end caps and corners
+7375|Satu: PVC skirting board VOX {n} mm, {n} m — {n} ₸ (≈{n} ₸/m); corners, end caps and connectors ≈{n} ₸ per metre
+7376|Porcelain stoneware {n}×{n} "Tian-Shan Ceramic"
+7377|Marble-look porcelain stoneware {n}×{n}
+7378|Porcelain stoneware {n}×{n} "Piastrella" MS {n}
+7379|Coating waterproofing, {n} kg
+7380|Satu: Ceresit CL {n} kg — {n} ₸, CR {n} kg — {n} ₸, CR {n} set — {n} ₸; the average price of the flexible compound per {n} kg is used
+7381|Matt stretch ceiling (membrane and installation)
+7383|Satin stretch ceiling (membrane and installation)
+7384|Glossy stretch ceiling (membrane and installation)
+7385|Single-level plasterboard ceiling
+7388|LED spotlight Gauss Frameless, {n} W
+7389|Chasing concrete/brick for cable (chase up to {n} mm)
+7391|Filling of chases
+7392|Socket installation
+7394|Switch installation
+7396|Junction box installation
+7398|Installation of the distribution board enclosure
+7400|Installation of a breaker in the board
+7401|Installation of an RCD / RCBO
+7403|Installation of a chandelier / ceiling luminaire
+7405|Cable VVGng-LS {n}×{n}
+7407|Socket / switch with frame and back box
+7408|Satu: Schneider AtlasDesign mechanism {n} A — {n} ₸; frame and back box ≈{n} ₸
+7409|Board ShchRN-{n} IEK, {n} breakers VA{n}-{n} A and RCD VD{n}-{n}
+7410|RCBO IEK AD{n}P {n} A {n} mA
+7412|Water supply piping (polypropylene)
+7414|Water supply piping per point (pipe replacement)
+7417|Installation of a close-coupled toilet
+7418|Installation of a wall-hung frame and toilet
+7420|Installation of a washbasin with vanity unit
+7423|Installation of an acrylic bathtub
+7424|Assembly and installation of a shower cabin with tray
+7426|Water heater installation
+7428|Heated towel rail installation
+7430|Washing machine connection
+7432|Installation and connection of a radiator
+7433|Pipe connection to a radiator
+7434|Close-coupled toilet "Standard"
+7435|Close-coupled toilet Santeri "Gratsiya"
+7436|Close-coupled toilet Santek "Animo", duroplast seat
+7437|Bimetallic radiator {n} mm, {n} sections
+7438|PPR pipe {n} mm with fittings and fixings
+7440|Satu: PPR pipe PN{n} Ø{n} — {n} ₸/m; fittings and fixings ≈{n} ₸ per metre of route
+7441|Creavit wall-hung frame with toilet and flush plate
+7442|Vanity unit with washbasin "Yenisei Classic" {n} cm
+7443|Single-lever basin mixer Aquadeus {n}
+7444|Acrylic bathtub VentoSpa AQUA LA {n}×{n}
+7445|Shower cabin Erlit {n}×{n} with tray
+7446|Water heater Ariston PRO{n} R ABS {n} L
+7447|Water heated towel rail "Lira" {n}×{n}, stainless steel
+7448|Split system {n} BTU with installation
+7450|Installation of an exhaust fan / grille
+7452|Electricians' and plumbers' rate from Almaty listings
+7453|Installation of an indoor gas pipeline
+7455|Benchmark from listings of licensed gas services; the exact price — after the technical conditions and design
+7456|Connection of a gas appliance (cooker, boiler)
+7458|Benchmark from listings of licensed gas services
+7459|Gas supply design for a private house
+7461|Benchmark from offers of Almaty design organizations
+7462|Ceiling painting in {n} coats
+7464|Wall painting {n} ₸/m² from the "Proff-Remont" price list plus a surcharge for overhead work
+7465|Laying cable in a chase / conduit
+7467|Electricians' rate from Almaty listings {n}–{n} ₸/m
+7468|Cable KPSng(A)-FRLS {n}×{n}×{n}
+7470|Retail price of fire-resistant cable for fire alarm systems
+7471|Roof insulation with mineral wool and vapour barrier
+7473|Roofers' rate from Almaty listings {n}–{n} thousand ₸/m²
+7474|Gutter system: gutter, pipes, fixings
+7475|Average price of a metal gutter system per metre of eaves
+7476|Facade mesh {n} g/m² (roll {n} m² — {n} ₸)
+7478|Disc dowel {n}×{n} with metal nail
+7480|Metal entrance door "Titan {n}"
+7482|PVC window {n}×{n} m with installation
+7484|PVC window {n}×{n} m, premium profile, with installation
+7485|Window sill with installation
+7486|Drip sill with installation
+7488|Sandwich panel reveals
+7489|Entrance door installation
+7491|Installation of an interior door with frame and architraves
+7492|Interior door NEAPOL, eco-veneer, with frame and architraves
+7493|Rebar A{n}C Ø{n}
+7496|Autoclaved aerated block D{n}
+7497|Aerated block adhesive STRONG, {n} kg
+7499|Aerated block wall masonry on adhesive
+7501|Masonry of aerated concrete partitions up to {n} mm
+7502|Strip foundation: formwork, reinforcement, concreting
+7503|Cast-in-place slab: formwork, reinforcement, concreting
+7504|Timber for formwork ({n} uses)
+7506|Board and plywood per {n} m² of formwork panel, allowing for three uses
+7507|Crushed stone {n}–{n} with delivery within Almaty
+7508|Mini excavator with operator
+7511|Manual soil excavation
+7513|A digger's shift {n}–{n} thousand ₸ at an output of {n}–{n} m³ from Almaty listings
+7514|Soil removal by dump truck
+7516|A KAMAZ trip ≈{n} ₸ per {n} m³ of loosened soil
+7517|Backfilling with compaction
+7519|Mini excavator and plate compactor at the equipment rate
+7521|Roof replacement: removal of the old covering and installation of the new one
+7522|Gutter system installation
+7523|Rafter system and lathing
+7525|Roofing crews' rate from Almaty listings {n}–{n} thousand ₸/m²
+7526|"Venezia" metal tile
+7527|"SuperMonterrey" metal tile, matt {n} mm
+7528|"SuperMonterrey" metal tile, matt, Russia
+7529|Mineral wool board MakWool P{n}, {n} mm ({n} ₸/m³)
+7530|Wind and moisture barrier membrane Izospan A (roll {n} m² — {n} ₸)
+7532|Sawn softwood board, grade {n}–{n}
+7534|Scaffolding rental and erection
+7536|Scaffolding rental for a month with erection, per m² of facade
+7537|Facade plastering over mesh
+7539|Kaspi listings "facade plastering", Almaty: {n}–{n} ₸/m², most often {n}
+7540|Decorative "bark beetle" facade plaster
+7542|Kaspi listings, Almaty: "bark beetle" from {n} ₸/m², with priming and reveals {n}–{n} thousand ₸/m²
+7543|Facade painting in {n} coats
+7545|Wall painting from the "Proff-Remont" price list {n} ₸/m² plus work at height
+7546|Facade insulation: adhesive, board, dowels, reinforcing layer
+7548|Facade mineral wool board IZOTERM P{n}, {n} mm ({n} ₸/m³)
+7550|Mineral wool adhesive and reinforcing compound Ceresit CT {n}, {n} kg
+7551|Cement facade plaster, {n} kg
+7552|Average price of {n} kg of cement plaster in Almaty
+7553|Decorative "bark beetle" plaster Ceresit CT {n}, {n} kg
+7554|Facade paint, {n} kg
+7555|Laying paving stones on a prepared base
+7557|Vibro-pressed paving stones {n} cm
+7558|Installation of a pavement kerb on concrete
+7559|Pavement kerb {n}×{n}×{n}
+7560|Average price from manufacturers in the Almaty region
+7561|Asphalt paving (material and laying)
+7562|Steel canopy / frame: fabrication and installation
+7563|Timber decking on joists
+7565|Carpenters' rate from Almaty listings {n}–{n} thousand ₸/m²
+7566|Laying an HDPE pressure pipe in a trench
+7568|Crews' rate from listings, excluding earthworks
+7569|HDPE pipe {n} mm for water
+7570|Retail price of pipe PE{n} SDR{n} Ø{n}
+7571|Alarm sensor installation
+7574|Average price of a smoke detector IP {n}
+7575|Control panel with battery
+7577|Average price of a panel for {n}–{n} loops
+7578|IP camera installation with cable laying
+7580|Kaspi listings, Almaty: camera installation {n}–{n} ₸; with cable laying — the upper half of the range
+7581|IP camera {n} MP
+7582|Average price of an entry-level IP camera
+7583|Video recorder with a {n} TB disk
+7585|Satu: {n}-channel Hikvision DS-{n}NI-Q{n}/M — {n}–{n} ₸ without a disk, DS-E{n}NI-Q{n} with a {n} TB SSD — {n} ₸
+7586|Interior design project for an apartment
+7588|Interior design project for a house
+7589|{n}D interior visualization
+7591|Surveyor's visit, setting out of axes
+7593|General labourer
+7596|General labourer's rate from Almaty listings {n}–{n} thousand ₸ per shift
+7597|Cladding a step with porcelain stoneware
+7600|Laying at {n} ₸/m² from the "Proff-Remont" price list with cutting and mitring, ≈{n} m² per step
+7601|Assembly and installation of cabinet furniture
+7603|Furniture assemblers' rate from Almaty listings
+7604|Custom kitchen units (chipboard/MDF)
+7606|Average price per linear metre from Almaty furniture workshops
+7607|Satu offers {n}–{n} ₸ per bag (November {n})
+7608|Satu offers {n}–{n} ₸/m (November {n})
+7609|Satu offers {n}–{n} ₸/m³, median {n} (November {n})
+7610|OLX Talgar {n} ₸/t, Satu {n} ₸/t (October–November {n})
+7611|Average of two D{n} offers: Kaspi {n} and Satu {n} ₸/m³
+7612|Satu, Almaty: close-coupled toilets {n}–{n} ₸ (November {n})
+7613|OLX listings, Almaty: {n}–{n} ₸ per bag of M{n}–M{n}
+7614|OLX listings {n}–{n} ₸/m²
+7615|Kaspi listings {n}–{n} ₸/m²
+7616|Kaspi listings {n}–{n} ₸/m², with material
+7617|Bizmedia/OLX: {n}–{n} ₸ per visit
+7618|OLX: air conditioner with installation from {n} ₸
+7619|Kaspi listings "aerated block masonry", Almaty
+7620|Kaspi, tiler in Almaty: floor from {n} ₸/m²; range of listings {n}–{n}
+7621|Kaspi, tiler in Almaty: walls from {n} ₸/m²
+7622|Satu: {n} mm, {n} sections — {n} and {n} ₸, the average is used
+7623|Satu, Almaty: from {n} ₸ (November {n})
+7624|Kaspi, tiler in Almaty: tile removal from {n} ₸/m²; at "Proff-Remont" floor removal overall is {n} ₸/m²
+7625|Satu, Almaty: {n} offers of {n}×{n} — {n}–{n} ₸/m², median {n} (November {n})
+7626|Satu, Almaty: {n}×{n} marble-look and white — {n}–{n} ₸/m²; page range {n}–{n}
+7627|Satu: dowels {n}×{n} — {n}–{n} ₸; mineral wool needs a metal nail (FIX PLAST — {n} ₸)
+7628|Kaspi, Almaty: interior door installation {n}–{n} ₸, more often {n}
+7629|Price list "Proff-Remont": removal of a timber door unit — {n} ₸, a metal one — {n} ₸
+7630|Satu: non-woven wallpaper {n}×{n} m — {n}–{n} ₸ per roll, premium collections — up to {n}
+7631|Satu and Kaspi, Almaty: shower cabin installation {n}–{n} ₸; at "Proff-Remont" — {n} ₸
+7632|Satu and Kaspi, Almaty: wall insulation with mineral wool board and a reinforcing layer {n}–{n} ₸/m², from {n} at companies
+7633|Satu, Almaty: kerb installation {n}–{n} ₸/lin. m, median of offers {n}
+7634|Kaspi, Almaty: waste removal {n}–{n} ₸ per trip; the upper bound is used — with loading
+7635|Kaspi, Almaty: crew work {n} ₸/m³; concrete, rebar and formwork are calculated as separate lines
+7636|Satu, Almaty: laminate class {n}, {n} mm — {n}–{n} ₸/m² (November {n})
+7637|Satu, Almaty: herringbone laminate class {n} — {n}–{n} ₸/m²
+7638|Sum of Satu prices: board ShchRN-{n} — {n} ₸, {n} breakers VA{n}-{n}P {n} A at {n} ₸, RCD VD{n}-{n}P {n} A — {n} ₸
+7639|Satu, Almaty: {n}–{n} ₸/m³ at the quarry; with delivery within Almaty and the region — {n} ₸/m³
+7640|Satu: Izospan A, roll {n} m² — {n} ₸ ({n} ₸/m²)
+7641|Satu: mesh {n} g/m², roll {n} m² — {n} ₸ ({n} ₸/m²)
+7642|Satu: underlay Solid {n} mm, pack {n} m² — {n} ₸ ({n} ₸/m²)
+7643|Price list "Proff-Remont": chase up to {n} mm — {n} ₸/lin. m, {n}–{n} mm — {n}; {n}–{n} mm is enough for cable VVG {n}×{n}
+7293|
+7295|
+7297|
+7299|
+7302|
+7304|
+7306|
+7308|
+7310|
+7312|
+7314|
+7316|
+7320|
+7322|
+7324|
+7326|
+7328|
+7336|
+7339|
+7341|
+7344|
+7346|
+7348|
+7349|
+7351|
+7353|
+7357|
+7359|
+7361|
+7364|
+7365|
+7367|
+7373|
+7382|
+7386|
+7387|
+7390|
+7393|
+7395|
+7397|
+7399|
+7402|
+7404|
+7406|
+7411|
+7413|
+7415|
+7416|
+7419|
+7421|
+7422|
+7425|
+7427|
+7429|
+7431|
+7439|
+7449|
+7451|
+7454|
+7457|
+7460|
+7463|
+7466|
+7469|
+7472|
+7477|
+7479|
+7481|
+7483|
+7487|
+7490|
+7494|
+7495|
+7498|
+7500|
+7505|
+7509|
+7510|
+7512|
+7515|
+7518|
+7520|
+7524|
+7531|
+7533|
+7535|
+7538|
+7541|
+7544|
+7547|
+7549|
+7556|
+7564|
+7567|
+7572|
+7573|
+7576|
+7579|
+7584|
+7587|
+7590|
+7592|
+7594|
+7595|
+7598|
+7599|
+7602|
+7605|
+7644|
+7645|
+7646|
+7647|
+7648|
+7649|
+7650|
+7651|
+7652|
+7653|
+7654|
+7655|
+7656|
+7657|
+7658|
+7659|
+7660|
+7661|
+7662|
+7663|
+7664|
+7665|
+7666|
+7667|
+7668|
+7669|
+7670|
+7671|
+7672|
+7673|
+7674|
+7675|
+7676|
+7677|
+7678|
+7679|
+7680|
+7681|
+7682|
+7683|
+7684|
+7685|
+7686|
+7687|
+7688|
+7689|
+7690|
+7691|
+7692|
+7693|
+7694|
+7695|
+7696|
+7697|
+7698|
+7699|
+7700|
+7701|
+7702|
+7703|
+7704|
+7705|
+7706|
+7707|
+7708|
+7709|
+7710|
+7711|
+7712|
+7713|
+7714|
+7715|
+7716|
+7717|
+7718|
+7719|
+7720|
+7721|
+7722|

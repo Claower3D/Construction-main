@@ -1,0 +1,330 @@
+330|SNiP'e göre hesaplar ve proje dokümantasyonu
+331|Metraj ve keşif kontrolü
+332|Kusurların kaydı
+333|Kusur raporu
+334|Otomatik kusur raporu
+335|Fotoğraftan kusur raporları
+336|Önerili rapor
+337|Tutanaklar
+338|Kusur tespit raporu
+339|Önerili fotoğraf raporu
+340|Kazakistan SNiP ve GOST standartlarına göre kusur kontrolü
+341|Kusuru kontrol et
+342|Fotoğraftan metraj hesabı
+343|SNiP'e göre hesap
+344|Fotoğraftan hesaplar
+345|Hassas BOM hesabı
+346|Üç fiyat senaryosu
+347|Onarım fiyatı
+348|Tekliflerin karşılaştırılması
+349|Tedarikçilerin karşılaştırılması
+350|Doğrudan iletişim
+351|İstenen tarihlere rezervasyon
+352|Proje teslimi
+353|Onaylar
+354|İş aşamaları
+355|Belge paketi
+356|Belgeler
+357|Geçmiş ve raporlama
+358|Teknik kontrol
+359|Avan proje ve uygulama projesi
+360|Mühendislik ve proje dokümanları
+361|Mühendislik ve proje
+362|Mühendislik hesaplayıcı
+363|Hesaplayıcı
+364|CRM ve keşiflerle eşitleme
+365|Güncel birim fiyatlar
+366|Kazakistan ESN veritabanı
+367|Keşifler
+368|Platformun tüm hizmetleri
+369|Hizmet kategorileri
+370|İşlerin hızlı ve doğru değerlendirilmesi için eksiksiz araç seti.
+371|Yükleniciler, yapı malzemeleri ve iş makineleri tek panelde
+372|Yükleniciler
+373|Yapı malzemeleri
+374|İş makineleri
+375|Malzemeler
+376|Kazakistan bölgelerine göre fiyatlarla malzeme ve iş makineleri
+377|İşler ve malzemeler
+378|Ekipler
+379|Ekipler ve siparişler
+380|İş türlerine göre ekipler
+381|Ekipler için siparişler
+382|Şehirdeki talepler
+383|Pazar yeri
+384|İş makineleri pazar yeri
+385|Yapı malzemeleri pazar yeri
+386|Malzeme kataloğu
+387|İş makinesi kiralama
+388|Sipariş ve teslimat
+389|Şantiyeye teslimat
+390|Etütler ve geoteknik
+391|Mühendislik jeolojisi etütleri
+392|Kazakistan SNiP ve SP'ye göre resmî raporlu saha ve laboratuvar deneyleri — proje, ekspertiz ve banka için.
+393|Etüt sipariş et
+394|Zemin laboratuvarı
+395|Kazık deneyleri
+396|Plaka yükleme deneyleri
+397|Statik sondalama (CPT)
+398|Sondaj ekipmanı
+399|35 m'ye kadar sondaj
+400|akredite test düzenekleri
+401|deformasyon modülü E
+402|500 t'ye kadar yük
+403|200 kN kuvvet
+404|ölçek 1:500
+405|QazGost mobil uygulama demosu
+406|Şantiyede — telefondan
+407|Keşifleri ve kusur raporlarını doğrudan şantiyede oluşturun. Hızlı, kullanışlı, dizüstü bilgisayarsız.
+408|Her telefonun tarayıcısında çalışır
+409|Android uygulaması
+410|Müdür, mühendis ve ekip için Android uygulamaları
+411|iPhone uygulaması hazırlanıyor
+412|iOS yakında
+413|Uygulamayı indir
+414|Sitede kal
+415|QazGost — Android uygulaması
+416|Tek uygulamada her şey: müşteri, uygulayıcı, mühendis, müdür ve yönetici. Fotoğraftan keşif, siparişler ve kusur kontrolü — telefondan.
+417|APK dosyası, {n} MB, sürüm {n}. Android, tarayıcıdan kuruluma izin vermenizi isteyecek.
+418|Android uygulamasını indir, APK dosyası {n} MB
+419|Android uygulaması: tüm roller tek uygulamada
+420|Telefondan başla
+421|Fotoğraf çek
+422|Keşif hazır
+423|Hazır
+424|Projelerim
+425|İyi günler
+426|Bugün ne yapıyoruz?
+427|Dokunun — arayüz canlı
+428|Uygulama bölümleri
+429|Kaydedilen keşifler ve kusur raporları
+430|Tadilat için ekip gerekiyor
+431|Hız
+432|Merhaba! QazGost Android uygulamasını kurmak istiyorum.
+433|Sık sorulan sorular
+434|Fotoğraftan maliyet tahmini nasıl çalışır?
+435|Odanın, duvarın veya cephenin fotoğrafını yükler ve alanı girersiniz. Hizmet iş türünü belirler, metrajları ve malzemeleri hesaplar ve maliyeti Kazakistan ESN fiyat veritabanına (23 864 kalem) göre bölge düzeltmesiyle tahmin eder. Üç fiyat seçeneği alırsınız: ekonomik, standart ve premium.
+436|Kusur kontrolü ne kadar doğru?
+437|Yapay sinir ağı etiketlenmiş çatlak fotoğraflarıyla eğitildi: çatlakları çerçeveyle işaretler ve her bölge için güven düzeyini gösterir. Korozyonu, kopmaları, tuz kusmasını ve nemi model henüz doğrulamıyor — bunları mühendis yerinde değerlendirir. Rapor, bir uzman onaylayana kadar ön rapor olarak işaretlenir.
+438|Uygulayıcı nasıl bulunur?
+439|Yüklenici kataloğunu açıp ekibi doğrudan arayın veya siparişi akışta yayımlayın — şehrinizdeki uygulayıcılar fiyat ve süre teklifleri gönderir. Talep ön ödemesiz gönderilir: fiyatı ve ödemeyi uygulayıcıyla doğrudan kararlaştırırsınız.
+440|Hangi ödeme yöntemleri destekleniyor?
+441|Platform üzerinden çevrimiçi ödeme henüz bağlanıyor. Şu anda siparişler, iş makinesi rezervasyonu ve malzemeler doğrudan uygulayıcıya veya tedarikçiye ödenir — Kaspi, havale veya tüzel kişiler için fatura ile.
+442|Platform ücretsiz mi?
+443|Maliyet tahmini, kusur kontrolü ve kataloglar ücretsizdir. Ücretli özellikler — yatırımcılar için modüller ve gelişmiş analitik — talep üzerine açılır, bize yazın.
+444|Mobil uygulama var mı?
+445|Site mobil tarayıcıda tam olarak çalışır. Mühendis ve CRM müdürü için ayrı uygulamalar Android'de mevcut, müşteri uygulaması hazırlanıyor.
+446|Yanıt bulamadınız mı? Sağ alt köşedeki asistan sohbetine veya WhatsApp'a yazın.
+447|Bize WhatsApp'tan yazın
+448|WhatsApp'tan yaz
+449|Merhaba! QazGost AI sitesinden yazıyorum. Platformla ilgili bir sorum var.
+450|© 2026 QazGost AI. Kazakistan'da yapıldı.
+451|Yapımcı
+452|Kullanıcı sözleşmesi
+453|Gizlilik politikası
+454|Veri işleme onayı
+455|Kişisel verilerin toplanması ve işlenmesine onay
+456|QazGost AI hizmetinin kullanım kuralları: kimler kullanabilir, hizmet ne yapar ve taraflar neden sorumludur.
+457|QazGost AI hangi kişisel verileri topluyor, neden topluyor, kime aktarıyor ve bunları nasıl yönetebilirsiniz.
+458|QazGost AI'ye kaydolurken ilgili kutuyu işaretleyerek verdiğiniz onayın metni.
+459|Operatör bilgileri
+460|Unvan
+461|BIN / IIN
+462|Adres
+463|Belgeyle ilgili sorular:
+464|QazGost AI'ye giriş
+465|QazGost AI'ye kayıt
+466|Keşifler, siparişler ve iş makineleri — kaldığınız yerden.
+467|Fotoğraftan keşif, kusur kontrolü ve ekipler için siparişler — tek panelde.
+468|Müşteri, ekip ve mühendis için tek hesap.
+469|Kayıt bir dakika sürer, ilk tahmini hemen yapabilirsiniz.
+470|Ücretsiz, bir dakika sürer
+471|Yeni hesap
+472|Hesap oluştur
+473|Hesap oluşturuluyor…
+474|Zaten hesabınız var mı?
+475|Hesabınız yok mu?
+476|Zaten giriş yaptınız
+477|Hesap:
+478|Parola
+479|Parolanız
+480|Parolayı göster
+481|Parolayı gizle
+482|Parolanızı mı unuttunuz?
+483|Giriş yapılıyor…
+484|Kimlik doğrulama hatası
+485|En az 6 karakter
+486|E-postayı kontrol edin
+487|İşaretli alanları kontrol edin
+488|+7'den sonra 10 rakam gerekli
+489|Adınızı veya kuruluş adını girin
+490|Sözleşmeyi kabul etmelisiniz
+491|Veri işleme onayı gerekli
+492|Hesap oluşturmak için sözleşmeyi kabul edin ve kişisel verilerin işlenmesine onay verin
+493|Hesap oluşturulamadı
+494|Siz kimsiniz
+495|Keşif hesaplıyorum, usta arıyorum
+496|Sipariş alıyorum, iş makinesi kiralıyorum
+497|Ad veya şirket adı
+498|Ad veya ekip / şirket adı
+499|«Master» ekibi veya Aidos Kim
+500|Telefon
+501|İletişim telefonu
+502|Kendi iş makinem var — pazar yerine ekle
+503|İş makinesi türü
+504|Marka ve model
+505|Plaka
+506|Kira, vardiya başına ₸
+507|Onaylar
+508|Haberleri ve teklifleri e-posta, SMS ve WhatsApp ile gönder (isteğe bağlı)
+509|Siparişler, teklifler ve iş takvimi
+510|Tüm tarifeler
+511|bölge katsayısı
+512|Profil formu, kataloglar ve sipariş akışı
+513|Hazır keşif
+514|Ekskavatör / hafriyat makinesi
+515|Mobil vinç / manipülatör
+516|Damperli kamyon / lowbed
+517|Yükleyici / Bobcat
+518|Beton pompası / mikser
+519|Sondaj makinesi
+520|Diğer iş makineleri
+521|Beton ekipmanı
+522|Damperli kamyonlar ve çekiciler
+523|Yükleyiciler
+524|CAT 320D, KamAZ 6520
+525|LinkVeAI
+526|Asistan
+527|QazGost AI mühendisi
+528|Çevrimiçi · saniyeler içinde yanıtlar
+529|Merhaba! Ben LinkVeAI — QazGost'un AI asistanıyım. İş ve malzeme fiyatlarını söyler, fotoğraftan keşif hesaplar, ekip veya iş makinesi bulurum. Nereden başlayalım?
+530|Merhaba! Ben LinkVeAI. Keşif mi hesaplayayım, fiyat mı söyleyeyim?
+531|Fiyat, keşif, ekip hakkında sorun…
+532|LinkVeAI için mesaj
+533|LinkVeAI ile sohbeti aç
+534|LinkVeAI ile sohbet — QazGost AI asistanı
+535|Sohbeti kapat
+536|LinkVeAI ile sohbeti küçült
+537|İpucunu gizle
+538|Sesi aç
+539|Sesi kapat
+540|Ses açık
+541|Yanıtları seslendir
+542|Sesle söyle
+543|Kaydı durdur
+544|Konuşun…
+545|Sizi dinliyor…
+546|Düşünüyor…
+547|Yanıtlıyor…
+548|Konuşuyor…
+549|LinkVeAI yazıyor
+550|Baştan başla
+551|Bağlantı koptu, yanıt ulaşmadı. İnterneti kontrol edip soruyu yeniden gönderin.
+552|Zemin şapı ne kadar?
+553|Duvarda çatlak var, ne yapmalı?
+554|Fotoğraftan keşif — nasıl çalışır?
+555|Kablo kesiti ve ısıtma nasıl hesaplanır?
+556|M500 çimento ne kadar?
+557|Bir vardiyalık ekskavatör ne kadar?
+558|60 m² duvar sıvası ne kadar?
+559|tenge
+560|Katalog yükleniyor
+561|Malzeme ara
+562|Malzeme ara: çimento, donatı, tuğla, alçıpan...
+563|Kazakistan'daki üretici fabrikalardan doğrudan tedarik. Toptan ve perakende fiyatlar, GOST/ST RK kalite belgeleri, miktar hesaplayıcı ve şantiyeye hızlı teslimat.
+564|Malzeme kategorisi
+565|Tüm kategoriler
+566|Tüm malzemeler
+567|Kategori
+568|Filtreler
+569|Katalog filtreleri
+570|Filtreleri sıfırla
+571|Sıralama
+572|Sıralama:
+573|Sonuçların sıralanması
+574|Popülerliğe göre
+575|Puana göre
+576|Önce ucuz
+577|Önce pahalı
+578|Önce yeniler
+579|En yüksek fiyat, ₸
+580|En yüksek fiyat (birim başına)
+581|Teslimat seçenekleri
+582|Teslimatlı
+583|Şantiyeye teslimatlı
+584|Yerinden teslim
+585|Depodan teslim alma
+586|Teslimat
+587|Toptan ihale (fiyat talebi)
+588|AI ihtiyaç hesaplayıcı (BOM)
+589|fiyat kataloğundaki malzeme
+590|ürün
+591|Ön ödemesiz
+592|onaydan sonra tedarikçiye ödeme
+593|Fiyat talep üzerine
+594|Fiyat belirtilmemiş — sahibiyle iletişime geçin
+595|Elektrik ve kablo
+596|Enerji
+597|Alçıpan ve ince işler
+598|Boya ve vernikler
+599|Prefabrik beton, bilezikler, rögar kapakları
+600|Prefabrik beton, bilezikler, rögar kapakları ve direkler (TABYS-ASM, Medina)
+601|Kum, kırmataş, beton
+602|Çatı ve cephe
+603|Isı ve su yalıtımı
+604|Su temini
+605|Donatı ve metal
+606|Bağlantı elemanları ve hırdavat
+607|Sıhhi tesisat ve borular
+608|Beton/harç
+609|Tuğla ve bloklar
+610|Çimento ve karışımlar
+611|Zemin kaplamaları
+612|Nakliye
+613|Vardiyalık ve saatlik ekskavatörler, vinçler, damperli kamyonlar ve beton pompaları. Rezervasyon ön ödemesiz: tarihi sahibi ayırır, ödemeyi onunla doğrudan kararlaştırırsınız.
+614|İş makinesi, model veya özelliklere göre ara (örneğin: Hitachi, 25t)...
+615|İş makinesi filtreleri
+616|İş makinesi ilanı ver
+617|Makine parkım
+618|Kiralamalarım
+619|İş makinesi talepleri
+620|Hafriyat
+621|Sondaj
+622|Kaldırma
+623|Yol
+624|Hafriyat makineleri
+625|Kaldırma makineleri
+626|Ekskavatörler ve yükleyiciler
+627|Mobil vinçler ve damperli kamyonlar
+628|Vinç
+629|Bugün müsait
+630|Yalnızca bugün müsait olanlar
+631|Bugün dolu — başka tarihler seçin
+632|Müsait
+633|Kirada
+634|Ekip bekliyor
+635|Operatörlü
+636|Vardiya fiyatı
+637|Vardiyalık
+638|Vardiyalık kiralama
+639|Saatlik
+640|Vardiya
+641|vardiya
+642|Sefer
+643|Sefer başına
+644|Limitsiz
+645|Sınırsız
+646|Arama yarıçapı
+647|Şehre göre arama
+648|Rezerve et
+649|Tarih seç
+650|ilan
+651|ödeme
+652|sahibine
+653|teslimat
+654|şantiyeye
+655|Değerlendirme yok
+656|kadar
+657|için
+658|km
+659|m²

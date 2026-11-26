@@ -1,0 +1,430 @@
+5831|Trenches for utilities
+5836|Laying paving stones
+5837|Smart home and automation
+5839|Structural strengthening
+5840|Door installation
+5841|Window installation
+5842|Plumbing installation
+5843|Roof insulation
+5844|Foundations and concrete
+5846|Filling and painting
+5850|Switchboard equipment
+5851|Excavator
+5852|Electrical and low-voltage systems
+5855|Concept design
+5856|Reinforcement cage A{n}C {n} mm
+5857|KNAUF moisture-resistant plasterboard {n} mm
+5858|Tikkurila acrylic facade paint {n} L
+5859|Republic of Kazakhstan
+5860|KAMAZ dump truck {n} tonnes (soil removal)
+5861|Automation and low-voltage
+5862|Ventilation and air conditioning
+5863|Timber structures
+5864|Roads and bridges
+5865|Stairs and balconies
+5866|Furniture and equipment
+5867|External networks
+5868|from {n} ₸/tap-in
+5869|from {n} ₸/sensor
+5870|from {n} ₸/unit
+5871|from {n} ₸/set
+5872|from {n} ₸/m
+5873|from {n} ₸/m²
+5874|from {n} ₸/m³
+5875|from {n} ₸/lin. m
+5876|from {n} ₸/device
+5877|from {n} ₸/shift
+5878|from {n} ₸/t
+5879|from {n} ₸/point
+5880|from {n} ₸/service
+5881|from {n} ₸/pc
+5882|Plumbing and water supply
+5883|Insulation
+5884|{a} - construction works package
+5885|{a} stages: {b}
+5886|Comprehensive calculation: {a}
+5887|Estimated duration: {a} working days
+5888|Outline perimeter: {a} m
+5889|Works: {a} | Materials: {b}
+5890|Calculation at the base rate of {a} ₸/m²
+5891|Calculation by category: {a}, area {b} m²
+5892|Regional coefficient: x{a}
+5893|Cost for {n} m²: {a} ₸
+5894|Scenario: {a} (x{b})
+5896|Automation / Smart home
+5897|ABB/Schneider circuit breakers
+5898|Design supervision with site visits
+5899|Design project album with samples
+5900|Anti-corrosion treatment
+5901|Anti-corrosion
+5902|Formwork rental (set)
+5903|Scaffolding rental
+5905|Rebar A{n}C d{n}-{n}
+5906|Masonry reinforcement with mesh
+5907|Mesh reinforcement + adhesive
+5908|Foundation reinforcement ({n} kg/m³)
+5909|Architecture
+5910|Architectural design (AR section)
+5912|Asphalt
+5914|Fine-grained asphalt concrete mix
+5915|Concrete B{n} (M{n}) for blinding
+5917|Concrete M{n} (B{n}) delivery
+5918|Concrete M{n} (B{n}) with delivery
+5919|Ready-mix concrete M{n} (B{n})
+5920|Concreting
+5921|Concrete blinding (h={n} mm, B{n})
+5923|High-strength bolts + installation
+5925|Concrete kerb BR {n}
+5927|Road kerb BR {n}
+5928|Kerbs
+5931|Rafter timber {n}x{n}
+5932|Sawn softwood timber {n}x{n}/{n}x{n}
+5933|Batten for roof lathing {n}x{n}/{n}x{n}
+5935|Budget materials, minimum scope of work
+5938|Acrylic bathtub {n}x{n}
+5939|VVGng {n}x{n}
+5940|Exhaust fan d{n}
+5941|Ventilation and air conditioning
+5942|Concrete vibration
+5944|Galvanized air duct
+5945|Tapping into the gas pipeline and commissioning
+5946|Removal
+5947|Soil removal by dump truck up to {n} km
+5948|Switches
+5950|{n}-gang switch
+5951|Levelling
+5952|Work at height (rope access)
+5953|Tying of rebar cages
+5955|Aerated concrete blocks D{n} ({n}x{n}x{n})
+5957|Deep cleaning after renovation
+5958|Sealing
+5959|Coating waterproofing
+5960|Floor waterproofing (wet areas)
+5962|Plasterboard
+5963|Ceiling plasterboard {n} mm
+5966|Anti-corrosion primer-enamel
+5967|Primer-enamel for metal
+5969|Wall priming ({n} coats)
+5971|Sensors
+5972|Smart home sensors (leak, motion)
+5973|Doors
+5974|Metal entrance door
+5975|Interior door with frame
+5977|Structural I-beam/channel
+5978|Decorative "bark beetle" plaster
+5979|Demolition + plumbing + electrical + tiles + ceiling
+5980|Demolition + electrical + plumbing + walls + floors + ceilings
+5981|Demolition of brick partitions
+5982|Tile removal
+5983|Removal of plumbing fixtures (set)
+5984|Removal of old windows/doors
+5985|Floor screed removal
+5986|Plaster removal
+5987|Removal of electrical wiring
+5989|Timber
+5990|Interior design
+5991|Trim pieces
+5992|Roads and yards
+5994|Sawn board {n}x{n}
+5995|Rafter board {n}x{n}/{n}x{n}
+5997|Disc dowels
+5998|Disc dowels ({n} pcs/m{n})
+6000|Procurement and supplier coordination
+6002|Joint grout (cement-based)
+6003|Earthworks
+6005|Detectors
+6007|Smoke fire detector
+6008|Surveys
+6009|Imitation timber / pine panelling AB
+6011|Injection waterproofing of cracks
+6012|TOTAL
+6013|Cable
+6015|Armoured cable VBbShv {n}x{n}
+6016|Cable VVGng-LS {n}x{n}
+6018|Twisted pair cable UTP Cat {n}
+6020|Fire-resistant cable KPSng(A)-FRLS
+6021|Frame
+6025|Porcelain stoneware {n}x{n}
+6027|Single ceramic brick M{n} ({n}x{n}x{n})
+6028|Brick wall masonry ({n} mm)
+6029|Masonry of aerated concrete blocks D{n} ({n} mm)
+6031|Aerated block adhesive ({n} kg)
+6033|Insulation adhesive ({n} kg)
+6034|Manholes
+6035|Supply
+6036|Air conditioner
+6037|Ridge, valley, trims
+6038|Structure
+6039|Structural solutions (KR section)
+6040|Smart home controller (Zigbee/Ethernet)
+6042|Controllers
+6043|Boiler
+6046|Wall-mounted gas boiler {n} kW
+6047|Wall-mounted gas boiler {n} kW
+6050|Interior paint
+6052|Ceiling paint
+6054|Facade paint
+6055|Fasteners
+6057|Laminate class {n}
+6058|Stairs and railings
+6061|Drainage channel with grating
+6064|Bitumen mastic
+6065|Materials (basic set)
+6067|Tyvek membrane or equivalent
+6069|Steel profile and channel for stairs
+6071|Coated metal tile
+6073|Basalt mineral wool {n} mm
+6075|Facade mineral wool {n} mm
+6077|Cast-in-place concrete paving with reinforcement
+6078|Installation of wireless sensors
+6079|Air duct installation
+6080|Gas boiler installation
+6081|Installation of a gas meter and fittings
+6082|Installation of a steel gas pipeline
+6083|Installation of a solid wood staircase
+6084|Installation and setup of a smart home controller
+6085|Installation of a steel staircase frame
+6086|Metal tile installation
+6087|Installation of outdoor sewerage d{n}-{n}
+6088|Installation of a load-bearing timber frame
+6089|Installation of stair railings and guards
+6090|Installation of EXIT light signs
+6091|Fire alarm system installation
+6092|Split system installation
+6093|Roof rafter system installation
+6094|Installation of outdoor luminaires and cable
+6095|Installation of smart relays and dimmers
+6096|Insulation installation (mineral wool {n} mm)
+6097|Insulation installation {n} mm
+6098|Mounting foam + sealing
+6100|Road marking
+6101|Contingencies ({n}% of the total)
+6102|Contingencies ({n}%)
+6103|Coating waterproofing (bitumen)
+6105|Vinyl wallpaper
+6106|Treatment
+6108|Backfilling
+6109|Backfilling of cavities with compaction
+6110|Roof lathing
+6111|Cladding
+6112|Cladding with panelling or imitation timber
+6114|Powder fire extinguisher OP-{n}
+6115|Fencing
+6117|PVC double-glazed window {n}x{n}
+6118|Formwork
+6119|Description taken into account (smart item selection)
+6120|Best price/quality ratio
+6121|Base
+6122|Ceiling cleaning and priming
+6123|Wall cleaning and priming
+6124|Surface cleaning
+6126|Vapour barrier
+6129|XPS polystyrene {n} mm
+6130|Lintels
+6131|Stainless steel railings
+6134|Sandblasting and metal protection
+6136|Construction sand (bedding)
+6137|Construction sand for the cushion
+6138|Sand bedding and backfilling
+6139|Printing and binding of design documentation
+6141|Grading
+6142|Site grading and profiling
+6143|Mechanized site grading
+6144|Layout solution ({n} options)
+6145|Vapour barrier film
+6146|Skirting board
+6147|PVC skirting board with cable duct
+6149|Paving stone tile {n} mm
+6151|Tile adhesive
+6153|Waste loading
+6154|Selection
+6155|Suspended plasterboard ceiling
+6156|Preparation
+6157|Connection
+6159|Underlay {n} mm
+6160|PVC window sill {n} mm
+6161|Lifting
+6162|Lifting materials to the floor
+6163|Wallpapering
+6165|Painting
+6166|Ceiling painting ({n} coats)
+6167|Wall painting ({n} coats)
+6168|Facade painting ({n} coats)
+6169|Polymer self-levelling epoxy floor
+6170|Full apartment renovation with furniture and appliances
+6171|Full cycle: ground → foundation → walls → roof → utilities → finishing
+6172|Lawn grass seeding with preparation
+6173|Premium materials, extended scope
+6175|Fire alarm control panel (PPKOP)
+6176|Devices
+6177|Wiring
+6178|Utilities design (HVAC, water and sewerage, electrical)
+6179|Design and approval of gas supply
+6180|Laying armoured cable in a trench
+6181|Laying cable VVGng {n}x{n}
+6182|Laying outdoor PE water supply d{n}-{n}
+6183|Laying fire-resistant cable KPSng
+6184|Laying low-voltage UTP cable
+6185|Rope access
+6186|Industrial floors
+6187|Foreman
+6188|UD/CD ceiling profile
+6192|Profile tube
+6193|Working documentation (floors, ceilings, electrical)
+6195|Aluminium radiator ({n} sections)
+6196|Radiators
+6197|Sewerage piping
+6198|Heating pipework
+6199|Cold/hot water piping (polypropylene)
+6200|Development
+6201|Soil excavation by excavator (group II)
+6202|Excavation of the road box
+6203|Excavation of trenches for utilities
+6204|Excavation of trenches/pit
+6206|Washbasin with pedestal
+6208|Masonry mortar M{n}
+6209|Relays
+6210|Apartment renovation (comprehensive)
+6211|Turnkey renovation + furniture
+6212|Bathroom renovation
+6214|Flush-mounted socket
+6215|Sockets
+6216|Manual soil finishing
+6218|Assembly and installation of the distribution board
+6220|Recessed LED luminaire
+6222|Lawn grass seeds
+6224|Fibreglass facade mesh {n} g/m²
+6225|Alarm system
+6226|Taps
+6228|Bath/basin tap
+6229|Screed mix (sand concrete M{n})
+6230|Plaster mix (Rotband or equivalent)
+6231|Topsoil stripping (h={n} mm)
+6232|Support during expert review of the design
+6234|Preparation of ABC-{n} estimate documentation
+6235|Specification of materials and plumbing fixtures
+6236|Split system {n} BTU
+6238|House construction (from the ground up)
+6239|Rafters
+6240|Timber treads and stringers
+6241|Screed
+6242|Meter
+6244|Gas meter with temperature correction
+6245|Corundum topping hardener
+6247|Trenches
+6249|Pavements
+6250|Underfloor heating pipe PEX {n} mm
+6252|Sewer pipe d{n}
+6254|PVC sewer pipe d{n}, outdoor
+6258|PP pipe d{n}-{n}
+6259|Reinforced PP pipe d{n}
+6260|PE pipe {n} SDR {n} d{n}
+5832|
+5833|
+5834|
+5835|
+5838|
+5845|
+5847|
+5848|
+5849|
+5853|
+5854|
+5895|
+5904|
+5911|
+5913|
+5916|
+5922|
+5924|
+5926|
+5929|
+5930|
+5934|
+5936|
+5937|
+5943|
+5949|
+5954|
+5956|
+5961|
+5964|
+5965|
+5968|
+5970|
+5976|
+5988|
+5993|
+5996|
+5999|
+6001|
+6004|
+6006|
+6010|
+6014|
+6017|
+6019|
+6022|
+6023|
+6024|
+6026|
+6030|
+6032|
+6041|
+6044|
+6045|
+6048|
+6049|
+6051|
+6053|
+6056|
+6059|
+6060|
+6062|
+6063|
+6066|
+6068|
+6070|
+6072|
+6074|
+6076|
+6099|
+6104|
+6107|
+6113|
+6116|
+6125|
+6127|
+6128|
+6132|
+6133|
+6135|
+6140|
+6148|
+6150|
+6152|
+6158|
+6164|
+6174|
+6189|
+6190|
+6191|
+6194|
+6205|
+6207|
+6213|
+6217|
+6219|
+6221|
+6223|
+6227|
+6233|
+6237|
+6243|
+6246|
+6248|
+6251|
+6253|
+6255|
+6256|
+6257|
