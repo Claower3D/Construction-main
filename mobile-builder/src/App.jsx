@@ -97,12 +97,23 @@ export default function App() {
   }, [session, signOut]);
 
   useEffect(() => { window.scrollTo(0, 0); }, [tab]);
+  // высота верхней полосы приложения: шапка календаря прилипает прямо под ней
+  const headBar = useRef(null);
+  useEffect(() => {
+    const el = headBar.current;
+    if (!el) return undefined;
+    const set = () => document.documentElement.style.setProperty('--vwb-sticky-top', `${el.offsetHeight}px`);
+    set();
+    const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(set) : null;
+    if (ro) ro.observe(el);
+    return () => { if (ro) ro.disconnect(); document.documentElement.style.removeProperty('--vwb-sticky-top'); };
+  }, [session]); // полоса появляется после входа
 
   if (!session) return <Login notice={notice} onDone={(s) => { setNotice(''); setSession(s); setTab('schedule'); }} />;
 
   return (
     <div className="vb-app">
-      <header className="vb-head">
+      <header className="vb-head" ref={headBar}>
         <div className="vb-head-title"><b>Застройщик</b><small>{session.user.name || session.user.email}</small></div>
         <button type="button" className="vb-out" onClick={() => signOut('')}>Выйти</button>
       </header>

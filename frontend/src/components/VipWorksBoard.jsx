@@ -518,6 +518,7 @@ export default function VipWorksBoard({ section = 'schedule', onToast, onProject
   const [showIin, setShowIin] = useState(false);
   const fileRef = useRef(null);
   const gridRef = useRef(null);
+  const headRef = useRef(null); // строка с месяцами и числами: едет вбок вместе с календарём
   const queue = useRef({ timer: null, busy: false, pending: null });
   const curRef = useRef(null);
   curRef.current = cur;
@@ -618,6 +619,55 @@ export default function VipWorksBoard({ section = 'schedule', onToast, onProject
     const i = timeline.days.findIndex((d) => d.iso === today);
     if (i >= 0) gridRef.current.scrollLeft = Math.max(0, i * CELL - gridRef.current.clientWidth / 2);
   }, [cur && cur.id, section, view, fact]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Где на календаре стоит полоса каждой работы (в пикселях от начала): по этому видно, какая ушла за край экрана.
+  const barSpans = useMemo(() => {
+    if (!timeline) return [];
+    return works.map((w) => {
+      const pos = barPosition(w, timeline);
+      const fr = fact ? factRange(w, today) : null;
+      const fpos = fr ? barPosition(fr, timeline) : null;
+      const from = Math.min(pos ? pos.offset : Infinity, fpos ? fpos.offset : Infinity);
+      const to = Math.max(pos ? pos.offset + pos.span : -Infinity, fpos ? fpos.offset + fpos.span : -Infinity);
+      if (!Number.isFinite(from)) return null;
+      const sp = { from: from * CELL, to: to * CELL, lo: from * CELL, hi: to * CELL }; // lo…hi — полоса вместе с подписью рядом с ней (на телефоне)
+      if (fact || !nameFits(w.title, pos.span * CELL - 4)) {
+        const need = Math.min(260, String(w.title || '').length * NAME_CHAR + 12);
+        const st = capStyle(w.title, from, to, timeline.days.length);
+        if ('right' in st) sp.lo = sp.from - need; else sp.hi = sp.to + need;
+      }
+      return sp;
+    });
+  }, [works, timeline, fact, today]);
+  // По букве на строку: l — полоса левее видимой части, r — правее, «-» — видна. Строка меняется редко, поэтому прокрутка не перерисовывает график.
+  const [edges, setEdges] = useState('');
+  useEffect(() => {
+    const el = gridRef.current;
+    if (section !== 'schedule' || view !== 'gantt' || !el) return undefined;
+    let raf = 0;
+    const measure = () => {
+      raf = 0;
+      const a = el.scrollLeft, b = a + el.clientWidth;
+      const phone = typeof window.matchMedia === 'function' && window.matchMedia('(max-width: 720px)').matches; // на телефоне рядом с полосой стоит подпись — стрелка её не закрывает
+      const sig = barSpans.map((sp) => (!sp ? '-' : (phone ? sp.hi : sp.to) <= a + 12 ? 'l' : (phone ? sp.lo : sp.from) >= b - 12 ? 'r' : '-')).join('');
+      setEdges((prev) => (prev === sig ? prev : sig));
+    };
+    const sync = () => { if (headRef.current) headRef.current.scrollLeft = el.scrollLeft; };
+    const onScroll = () => { sync(); if (!raf) raf = requestAnimationFrame(measure); };
+    sync();
+    measure();
+    el.addEventListener('scroll', onScroll, { passive: true });
+    const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(onScroll) : null;
+    if (ro) ro.observe(el);
+    return () => { el.removeEventListener('scroll', onScroll); if (ro) ro.disconnect(); if (raf) cancelAnimationFrame(raf); };
+  }, [barSpans, section, view, cur && cur.id]); // eslint-disable-line react-hooks/exhaustive-deps
+  const scrollGrid = (left) => {
+    const el = gridRef.current;
+    if (!el) return;
+    const x = Math.max(0, left);
+    if (typeof el.scrollTo === 'function') el.scrollTo({ left: x, behavior: 'smooth' }); else el.scrollLeft = x;
+  };
+  const todayIdx = timeline ? timeline.days.findIndex((d) => d.iso === today) : -1;
 
   // ── действия ──
   const saveWork = (w) => {
@@ -801,7 +851,10 @@ export default function VipWorksBoard({ section = 'schedule', onToast, onProject
           ) : view === 'gantt' ? (
             <div className="vwb-gantt" style={{ '--cell': `${CELL}px`, '--days': timeline.days.length }}>
               <div className="vwb-g-left">
-                <div className="vwb-g-corner">Работа</div>
+                <div className="vwb-g-corner">
+                  <span className="vwb-g-corner-t">Работа</span>
+                  {todayIdx >= 0 && <button type="button" className="vwb-g-today" onClick={() => scrollGrid((todayIdx + 0.5) * CELL - gridRef.current.clientWidth / 2)} title="Показать сегодняшний день на календаре">Сегодня</button>}
+                </div>
                 {works.map((w) => (
                   <button type="button" key={w.id} className="vwb-g-name" onClick={() => setModal({ type: 'work', isNew: false, item: w })} title="Открыть работу">
                     <span className="vwb-g-ico">
@@ -817,10 +870,16 @@ export default function VipWorksBoard({ section = 'schedule', onToast, onProject
                   </button>
                 ))}
               </div>
+              <div className="vwb-g-main">
+              {/* месяцы и числа вынесены из прокручиваемой области: они остаются на виду, когда список работ листают вниз */}
+              <div className="vwb-g-head" ref={headRef}>
+                <div className="vwb-g-head-in">
+                  <div className="vwb-g-months">{timeline.months.map((m) => <div key={m.key} style={{ width: m.span * CELL }}>{m.span >= 4 ? <span>{m.label}</span> : null}</div>)}</div>
+                  <div className="vwb-g-days">{timeline.days.map((d) => <div key={d.iso} className={cls(d.rest && 'we', d.iso === today && 'today', d.monthStart && 'ms')}><b>{d.day}</b><small>{d.rest ? 'вых' : d.weekday}</small></div>)}</div>
+                </div>
+              </div>
               <div className="vwb-g-scroll" ref={gridRef} tabIndex={0} aria-label="Календарь работ, прокручивается вбок">
                 <div className="vwb-g-inner">
-                  <div className="vwb-g-months">{timeline.months.map((m) => <div key={m.key} style={{ width: m.span * CELL }}>{m.span >= 4 ? m.label : ''}</div>)}</div>
-                  <div className="vwb-g-days">{timeline.days.map((d) => <div key={d.iso} className={cls(d.rest && 'we', d.iso === today && 'today', d.monthStart && 'ms')}><b>{d.day}</b><small>{d.rest ? 'вых' : d.weekday}</small></div>)}</div>
                   <div className="vwb-g-rows">
                     <div className="vwb-g-bg" aria-hidden="true">{timeline.days.map((d) => <i key={d.iso} className={cls(d.rest && 'we', d.iso === today && 'today', d.monthStart && 'ms')} />)}</div>
                     {works.map((w) => {
@@ -869,6 +928,15 @@ export default function VipWorksBoard({ section = 'schedule', onToast, onProject
                     })}
                   </div>
                 </div>
+              </div>
+              <div className="vwb-g-edges">
+                {works.map((w, n) => (
+                  <div className="vwb-g-edge" key={w.id}>
+                    {edges[n] === 'l' && <button type="button" className={cls('l', `s-${w.status}`)} onClick={() => scrollGrid(barSpans[n].from - 16)} aria-label="Полоса этой работы левее — показать" title="Полоса этой работы левее — показать">‹</button>}
+                    {edges[n] === 'r' && <button type="button" className={cls('r', `s-${w.status}`)} onClick={() => scrollGrid(barSpans[n].from - 16)} aria-label="Полоса этой работы правее — показать" title="Полоса этой работы правее — показать">›</button>}
+                  </div>
+                ))}
+              </div>
               </div>
             </div>
           ) : (

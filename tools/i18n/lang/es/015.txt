@@ -1,0 +1,3 @@
+8242|Mostrar el día de hoy en el calendario
+8243|La barra de este trabajo está más a la izquierda — mostrar
+8244|La barra de este trabajo está más a la derecha — mostrar

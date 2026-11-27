@@ -370,3 +370,6 @@ Satu: смесители для ванны от ≈7 000 ₸ (бюджетные
 📐 3D-модель нашего сооружения|📐 3D model of our building
 Модель вращается пальцем или мышью. Расположение внутри здания показано схемой.|Rotate the model with a finger or the mouse. The layout inside the building is shown schematically.
 Работы, которые сейчас идут: нажмите, чтобы показать на модели|Works in progress: tap to show on the model
+Показать сегодняшний день на календаре|Show today on the calendar
+Полоса этой работы левее — показать|This work’s bar is further left — show it
+Полоса этой работы правее — показать|This work’s bar is further right — show it

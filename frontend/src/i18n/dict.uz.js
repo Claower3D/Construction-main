@@ -3297,7 +3297,10 @@ export const T = {"сметы и дефектоскопия по нормам Р
 "+{n} м":"+{n} m",
 "📐 3D-модель нашего сооружения":"📐 Inshootimizning 3D modeli",
 "Модель вращается пальцем или мышью. Расположение внутри здания показано схемой.":"Model barmoq yoki sichqoncha bilan aylantiriladi. Bino ichidagi joylashuv sxema tarzida koʻrsatilgan.",
-"Работы, которые сейчас идут: нажмите, чтобы показать на модели":"Hozir bajarilayotgan ishlar: modelda koʻrsatish uchun bosing"};
+"Работы, которые сейчас идут: нажмите, чтобы показать на модели":"Hozir bajarilayotgan ishlar: modelda koʻrsatish uchun bosing",
+"Показать сегодняшний день на календаре":"Taqvimda bugungi kunni koʻrsatish",
+"Полоса этой работы левее — показать":"Bu ishning chizigʻi chaproqda — koʻrsatish",
+"Полоса этой работы правее — показать":"Bu ishning chizigʻi oʻngroqda — koʻrsatish"};
 
 export const TEMPLATES = [["Ошибка Vision AI: Изображение не распознано как строительный объект или чертеж (определено как \"{a}\"). Пожалуйста, загрузите реальное фото помещения, фасада или план","Vision AI xatosi: tasvir qurilish obyekti yoki chizma sifatida tanilmadi (\"{a}\" deb aniqlandi). Iltimos, xona, fasadning haqiqiy fotosuratini yoki rejani yuklang"],
 ["Работы «Стандарта»: {a} ₸/м² пола. Средняя цена базовых черновых и чистовых работ в РК — {n}–{n} тыс. ₸/м² (Bizmedia/OLX, июнь {n})","«Standart» ishlari: pol uchun {a} ₸/m². Qozogʻistonda asosiy qora va pardozlash ishlarining oʻrtacha narxi — {n}–{n} ming ₸/m² (Bizmedia/OLX, iyun {n})"],

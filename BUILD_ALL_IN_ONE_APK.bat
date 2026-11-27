@@ -17,11 +17,11 @@ call npm run build || goto :fail
 call npx cap sync android || goto :fail
 pushd android
 call gradlew.bat assembleDebug || (popd & goto :fail)
-copy /y app\build\outputs\apk\debug\app-debug.apk "%OUT%\QazGost-All-v1.2.apk" >nul
+copy /y app\build\outputs\apk\debug\app-debug.apk "%OUT%\QazGost-All-v1.3.apk" >nul
 popd
 popd
 echo.
-echo   Готово: %OUT%\QazGost-All-v1.2.apk
+echo   Готово: %OUT%\QazGost-All-v1.3.apk
 start "" "%OUT%"
 pause
 exit /b 0

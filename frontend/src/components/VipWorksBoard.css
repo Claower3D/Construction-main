@@ -626,12 +626,47 @@
 .vob-dots-list button:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
 .vob-preview .vob-model-note { margin: 8px 0 0; font-size: 0.86rem; color: #8a82a8; }
 
+/* Календарь: кнопка «Сегодня» в углу и стрелки у края строки, если полоса работы ушла за экран */
+/* Шапка календаря (угол, месяцы, числа) прилипает к верху экрана, пока листают список работ.
+   Для этого рамка графика обрезает содержимое через clip (а не hidden), а шапка стоит вне области с прокруткой вбок. */
+.vwb-gantt { overflow: clip; }
+.vwb-g-main { position: relative; flex: 1 1 auto; min-width: 0; }
+.vwb-g-head { position: sticky; top: var(--vwb-sticky-top, 0px); z-index: 6; overflow: hidden; background: #14112b; }
+.vwb-g-head-in { width: calc(var(--cell) * var(--days)); }
+.vwb-g-left { overflow: visible; }
+.vwb-g-corner { position: sticky; top: var(--vwb-sticky-top, 0px); z-index: 7; background: #171431; }
+.vwb-g-corner { display: flex; align-items: flex-end; justify-content: space-between; gap: 8px; }
+.vwb-g-today { flex: 0 0 auto; margin-bottom: -2px; padding: 4px 10px; border-radius: 999px; border: 1px solid rgba(252, 211, 77, 0.45); background: rgba(251, 191, 36, 0.12); color: #fde68a; font: inherit; font-size: 0.78rem; font-weight: 700; letter-spacing: 0; text-transform: none; cursor: pointer; }
+.vwb-g-today:hover { background: rgba(251, 191, 36, 0.24); }
+/* название месяца остаётся на виду, пока его дни на экране */
+.vwb-g-months div { overflow: visible; }
+.vwb-g-months span { position: sticky; left: 8px; display: inline-block; }
+.vwb-g-edges { position: absolute; left: 0; right: 0; top: 64px; pointer-events: none; }
+.vwb-g-edge { position: relative; height: 64px; }
+.vwb-g-edge button { position: absolute; top: 50%; width: 30px; height: 30px; margin-top: -15px; padding: 0 0 3px; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid rgba(185, 164, 255, 0.5); background: rgba(27, 19, 48, 0.94); color: #d8ccff; font: inherit; font-size: 1.25rem; font-weight: 700; line-height: 1; cursor: pointer; pointer-events: auto; }
+.vwb-g-edge button.l { left: 6px; }
+.vwb-g-edge button.r { right: 6px; }
+.vwb-g-edge button.s-progress { color: #fcd34d; border-color: rgba(252, 211, 77, 0.55); }
+.vwb-g-edge button.s-done { color: #86efac; border-color: rgba(134, 239, 172, 0.5); }
+.vwb-g-edge button:hover { background: #2a1f4d; }
+
 /* График: название работы на полосе и подпись рядом с ней — только на телефоне, где слева остаются одни иконки */
 .vwb-g-ico { position: relative; display: flex; flex: 0 0 auto; }
 .vwb-g-badge, .vwb-bar-item .vwb-bar-nm, .vwb-g-cap { display: none; }
 @media (max-width: 720px) {
   .vwb-g-left { flex: 0 0 60px; max-width: none; }
-  .vwb-g-corner { padding: 0; font-size: 0; }
+  .vwb-g-corner { padding: 0 0 6px; justify-content: center; }
+  .vwb-g-corner-t { display: none; }
+  .vwb-g-today { margin: 0; padding: 5px 0; width: 54px; font-size: 0.64rem; text-align: center; }
+  .vwb-g-edge { height: 56px; }
+  /* верх раздела на телефоне короче: календарь должен быть ближе к началу экрана */
+  .vwb-title { display: none; }
+  .vwb-toolbar { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; }
+  .vwb-toolbar .vwb-seg { display: flex; }
+  .vwb-toolbar .vwb-seg button { flex: 1 1 0; padding: 9px 4px; font-size: 0.86rem; }
+  .vwb-toolbar .vwb-fact-btn { padding: 9px 6px; font-size: 0.84rem; line-height: 1.15; }
+  .vwb-toolbar select.vip-input { width: 100%; min-width: 0; }
+  .vwb-toolbar .vwb-add { grid-column: 1 / -1; }
   .vwb-g-name { position: relative; height: 56px; padding: 0; gap: 0; justify-content: center; }
   .vwb-g-pic { flex-basis: 44px; width: 44px; height: 44px; }
   .vwb-g-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }

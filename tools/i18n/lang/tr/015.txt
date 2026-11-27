@@ -1,0 +1,3 @@
+8242|Takvimde bugünü göster
+8243|Bu işin çubuğu daha solda — göster
+8244|Bu işin çubuğu daha sağda — göster
