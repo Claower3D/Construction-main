@@ -1,0 +1,3 @@
+8239|📐 Modelo 3D de nuestra obra
+8240|El modelo se gira con el dedo o con el ratón. La distribución interior se muestra de forma esquemática.
+8241|Trabajos en curso: toque para mostrarlos en el modelo

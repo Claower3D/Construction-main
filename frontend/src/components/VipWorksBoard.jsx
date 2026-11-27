@@ -22,6 +22,15 @@ const pic = (w) => fileUrl(workPicture(w)); // картинка работы с 
 // section: 'schedule' — график и таблица работ; 'team' — компания, бригады, штат и техника; 'docs' — документы проекта.
 
 const CELL = 44; // ширина одного дня на графике, px
+// На телефоне слева в графике только иконки, а название работы стоит на её полосе; не помещается — рядом с полосой.
+const NAME_CHAR = 7.4; // средняя ширина буквы подписи, px
+const nameFits = (title, width) => String(title || '').length * NAME_CHAR + 22 <= width;
+/** Где поставить подпись рядом с полосой: справа от неё, а если там не хватает места до конца графика — слева */
+const capStyle = (title, fromCell, toCell, days) => {
+  const need = String(title || '').length * NAME_CHAR + 12;
+  const toLeft = toCell * CELL + need > days * CELL && fromCell * CELL - need > 0;
+  return toLeft ? { right: (days - fromCell) * CELL + 6 } : { left: toCell * CELL + 6 };
+};
 const DOC_ACCEPT = '.pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.webp';
 const DOC_KINDS = ['Договор', 'Смета', 'Акт (КС-2)', 'Справка (КС-3)', 'Счёт', 'Чертёж', 'Отчёт', 'Другое'];
 const cls = (...a) => a.filter(Boolean).join(' ');
@@ -795,9 +804,12 @@ export default function VipWorksBoard({ section = 'schedule', onToast, onProject
                 <div className="vwb-g-corner">Работа</div>
                 {works.map((w) => (
                   <button type="button" key={w.id} className="vwb-g-name" onClick={() => setModal({ type: 'work', isNew: false, item: w })} title="Открыть работу">
-                    {pic(w)
-                      ? <img className="vwb-g-pic" src={pic(w)} alt="" loading="lazy" />
-                      : <span className={cls('vwb-g-pic', 'art', `s-${w.status}`)}><WorkArt kind={workKind(w)} /></span>}
+                    <span className="vwb-g-ico">
+                      {pic(w)
+                        ? <img className="vwb-g-pic" src={pic(w)} alt="" loading="lazy" />
+                        : <span className={cls('vwb-g-pic', 'art', `s-${w.status}`)}><WorkArt kind={workKind(w)} /></span>}
+                      {w.check ? <i className="vwb-g-badge" aria-hidden="true">!</i> : null}
+                    </span>
                     <span className="vwb-g-text">
                       <b translate="no">{w.check ? <i className="vwb-g-flag" title={w.check}>!</i> : null}{w.title}</b>
                       <small>{formatRange(w.start, w.end)}{brigadeName(w.brigadeId) ? ` · ${brigadeName(w.brigadeId)}` : ' · без бригады'}</small>
@@ -831,9 +843,11 @@ export default function VipWorksBoard({ section = 'schedule', onToast, onProject
                                 <span>{fpos.span >= 2 ? (fr.shift > 0 ? `+${fr.shift} дн.` : fr.shift < 0 ? `−${-fr.shift} дн.` : fr.running ? 'идёт' : 'в срок') : ''}</span>
                               </button>
                             ) : pos && <span className="vwb-bar-wait" style={{ left: pos.offset * CELL + 8 }}>не начата</span>}
+                            {(pos || fpos) && <span className="vwb-g-cap" translate="no" style={capStyle(w.title, Math.min(pos ? pos.offset : Infinity, fpos ? fpos.offset : Infinity), Math.max(pos ? pos.offset + pos.span : 0, fpos ? fpos.offset + fpos.span : 0), timeline.days.length)}>{w.title}</span>}
                           </div>
                         );
                       }
+                      const named = pos ? nameFits(w.title, pos.span * CELL - 4) : false;
                       return (
                         <div className="vwb-g-row" key={w.id}>
                           {pos && (
@@ -844,10 +858,12 @@ export default function VipWorksBoard({ section = 'schedule', onToast, onProject
                               onClick={() => setModal({ type: 'work', isNew: false, item: w })}
                               title={`${w.title}: ${formatRange(w.start, w.end)}, ${durationDays(w.start, w.end)} дн. ${STATUS[w.status].label}${over ? ', срок вышел' : ''}${conflicts.has(w.id) ? `. Бригада занята: ${conflicts.get(w.id).join(', ')}` : ''}`}
                             >
-                              <span>{pos.span >= 2 ? `${STATUS[w.status].short}${over && pos.span >= 4 ? ' · срок вышел' : ''}` : ''}</span>
+                              <span className="vwb-bar-st">{pos.span >= 2 ? `${STATUS[w.status].short}${over && pos.span >= 4 ? ' · срок вышел' : ''}` : ''}</span>
+                              {named && <span className="vwb-bar-nm" translate="no">{w.title}</span>}
                               {(w.media || []).length > 0 && pos.span >= 2 && <em>📷 {(w.media || []).length}</em>}
                             </button>
                           )}
+                          {pos && !named && <span className="vwb-g-cap" translate="no" style={capStyle(w.title, pos.offset, pos.offset + pos.span, timeline.days.length)}>{w.title}</span>}
                         </div>
                       );
                     })}

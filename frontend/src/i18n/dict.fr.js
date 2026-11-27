@@ -2935,7 +2935,10 @@ export const T = {"сметы и дефектоскопия по нормам Р
 "Вся техника":"Tous les engins",
 "стены {n} м · конёк {n} м · выступ пола +{n} м · стальной каркас":"murs {n} m · faîtage {n} m · sol surélevé +{n} m · ossature acier",
 "выступ":"surélévation",
-"+{n} м":"+{n} m"};
+"+{n} м":"+{n} m",
+"📐 3D-модель нашего сооружения":"📐 Modèle 3D de notre ouvrage",
+"Модель вращается пальцем или мышью. Расположение внутри здания показано схемой.":"Le modèle se fait pivoter au doigt ou à la souris. La disposition intérieure est schématique.",
+"Работы, которые сейчас идут: нажмите, чтобы показать на модели":"Travaux en cours : touchez pour afficher sur le modèle"};
 
 export const TEMPLATES = [["Ошибка Vision AI: Изображение не распознано как строительный объект или чертеж (определено как \"{a}\"). Пожалуйста, загрузите реальное фото помещения, фасада или план","Erreur Vision AI : l'image n'a pas été reconnue comme un ouvrage ou un plan (identifiée comme \"{a}\"). Veuillez téléverser une vraie photo de pièce, de façade ou un plan"],
 ["Работы «Стандарта»: {a} ₸/м² пола. Средняя цена базовых черновых и чистовых работ в РК — {n}–{n} тыс. ₸/м² (Bizmedia/OLX, июнь {n})","Travaux « Standard » : {a} ₸/m² de sol. Prix moyen des travaux de base gros œuvre et finitions au Kazakhstan — {n}–{n} milliers de ₸/m² (Bizmedia/OLX, juin {n})"],

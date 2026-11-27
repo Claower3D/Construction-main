@@ -1,9 +1,10 @@
 import React, { lazy, Suspense, useMemo, useState } from 'react';
 import {
   STATUS, todayIso, formatDay, formatRange, isOverdue, projectSummary, budgetSummary, money,
-  workKind, workPicture, HANGAR, WORK_SHAPES, projectPlaces,
+  workKind, workPicture, WORK_SHAPES, projectPlaces,
 } from './vipSchedule';
 import { WorkArt, Avatar } from './VipVisuals';
+import { HangarCap } from './HangarPreview';
 import { fileUrl } from '../../services/vipApi';
 
 const pic = (w) => fileUrl(workPicture(w));
@@ -59,40 +60,31 @@ export default function VipObjectView({ project, onOpen }) {
         <div><span>Сроки</span><b>{summary.first ? `${formatDay(summary.first, true)} — ${formatDay(summary.last, true)}` : '—'}</b></div>
       </div>
 
-      {running.length > 0 && (
-        <div className="vob-now">
-          <span className="vwb-label">{`Сейчас в работе: ${running.length}`}</span>
-          <div className="vob-now-list">
-            {running.map((w) => (
-              <button type="button" key={w.id} className={picked === w.id ? 'active' : ''} onClick={() => setPicked(w.id)}>
-                {pic(w) ? <img src={pic(w)} alt="" loading="lazy" /> : <span className="art"><WorkArt kind={workKind(w)} /></span>}
-                <b translate="no">{w.title}</b>
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
       <div className="vob-model">
         <div className="vob-model-3d">
-          <div className="vob-model-cap">
-            <div className="vwb-seg vob-skin" role="group" aria-label="Вид модели">
-              <button type="button" className={skin ? 'active' : ''} aria-pressed={skin} onClick={() => setSkin(true)}>С обшивкой</button>
-              <button type="button" className={!skin ? 'active' : ''} aria-pressed={!skin} onClick={() => setSkin(false)}>Каркас</button>
-            </div>
-            <b>{`Ангар ${HANGAR.width} × ${HANGAR.length} м`}</b>
-            <span>{`стены ${HANGAR.eave} м · конёк ${HANGAR.ridge} м · выступ пола +${HANGAR.step.height} м · стальной каркас`}</span>
-          </div>
+          <HangarCap skin={skin} onSkin={setSkin} />
           <Suspense fallback={<div className="vob-3d vob-3d-wait" style={{ height: 440 }} role="status">Загружаем модель ангара…</div>}>
             <Hangar3D items={items} selected={current ? current.id : ''} skin={skin} height={440} />
           </Suspense>
+          {running.length > 0 && (
+            <div className="vob-dots">
+              <span className="vwb-label">{`Сейчас в работе: ${running.length}`}</span>
+              <div className="vob-dots-list" role="group" aria-label="Работы, которые сейчас идут: нажмите, чтобы показать на модели">
+                {running.map((w) => (
+                  <button type="button" key={w.id} translate="no" className={picked === w.id ? 'active' : ''} aria-pressed={picked === w.id} aria-label={w.title} title={w.title} onClick={() => setPicked(picked === w.id ? null : w.id)}>
+                    {pic(w) ? <img src={pic(w)} alt="" loading="lazy" /> : <WorkArt kind={workKind(w)} />}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+          <p className="vob-model-hint" role="status">
+            {current ? <><span>Подсвечено:</span> <b translate="no">{current.title}</b> — <span>{shapeLabel(places.get(current.id).shape)}</span>, <span>{places.get(current.id).label}</span></> : 'На модели показаны все работы объекта. Выберите работу в списке — она подсветится, и камера повернётся к ней. Модель вращается пальцем или мышью.'}
+          </p>
           <div className="vob-legend">
             <span><i className="s-progress" />в работе</span><span><i className="s-done" />выполнена</span><span><i className="s-plan" />запланирована</span><span><i className="pick" />выбранная работа</span>
           </div>
           <p className="vob-model-note">Расположение внутри здания (второй этаж, лестницы, оборудование) показано схемой. Точное место работы задаётся в её карточке, на плане.</p>
-          <p className="vob-model-hint" role="status">
-            {current ? <><span>Подсвечено:</span> <b translate="no">{current.title}</b> — <span>{shapeLabel(places.get(current.id).shape)}</span>, <span>{places.get(current.id).label}</span></> : 'На модели показаны все работы объекта. Выберите работу в списке — она подсветится, и камера повернётся к ней. Модель вращается пальцем или мышью.'}
-          </p>
         </div>
         <div className="vob-works" aria-label="Работы по объекту">
           <div className="vob-works-head"><b>Работы по объекту</b><span>{works.length}</span></div>

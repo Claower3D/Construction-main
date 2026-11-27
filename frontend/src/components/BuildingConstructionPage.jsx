@@ -5,6 +5,7 @@ import Building3DViewer from './Building3DViewerLazy';
 import { createPlatformOrder } from '../services/orderSyncService';
 import VipWorksBoard from './VipWorksBoard';
 import VipObjectView from './vip/VipObjectView';
+import HangarPreview from './vip/HangarPreview';
 import { Avatar } from './vip/VipVisuals';
 import { listProjects, getProject } from '../services/vipApi';
 import { HANGAR, projectSummary, budgetSummary, todayIso, STATUS, formatRange, money as fmtMoney, workKind } from './vip/vipSchedule';
@@ -1030,11 +1031,8 @@ export default function BuildingConstructionPage({ onBack, hideHeader = false })
             {/* Live 3D Preview of Selected Building Type */}
             <div className="vip-create-preview">
               <div className="preview-card">
-                <h4>📐 3D Архитектурная модель: {newObj.type}</h4>
-                <p>Предварительная визуализация габаритов ({newObj.floors} этажей, {Number(newObj.area).toLocaleString()} м²)</p>
-                <div className="preview-3d-box">
-                  <Building3DViewer sampleIndex={newObj.type === 'Жилой комплекс' ? 0 : newObj.type === 'Бизнес-центр' ? 1 : 2} />
-                </div>
+                <h4>📐 3D-модель нашего сооружения</h4>
+                <HangarPreview height={320} />
               </div>
             </div>
           </div>

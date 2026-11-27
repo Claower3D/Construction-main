@@ -1,0 +1,3 @@
+8239|📐 3D-Modell unseres Bauwerks
+8240|Das Modell lässt sich mit dem Finger oder der Maus drehen. Die Anordnung im Gebäude ist schematisch dargestellt.
+8241|Laufende Arbeiten: antippen, um sie im Modell zu zeigen

@@ -1,0 +1,3 @@
+8239|📐 Modèle 3D de notre ouvrage
+8240|Le modèle se fait pivoter au doigt ou à la souris. La disposition intérieure est schématique.
+8241|Travaux en cours : touchez pour afficher sur le modèle

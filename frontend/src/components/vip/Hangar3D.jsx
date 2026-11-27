@@ -424,7 +424,7 @@ export default function Hangar3D({ items = [], selected = '', skin = true, heigh
     };
     apiRef.current = api;
 
-    const homeDist = () => 98 * Math.min(2.4, Math.max(1, 1.15 / camera.aspect));
+    const homeDist = () => 98 * Math.min(2.4, Math.max(1, 1.25 / camera.aspect)); // узкий экран — камера дальше, здание целиком в кадре
     const resize = () => {
       const w = el.clientWidth || 600, h = el.clientHeight || 380;
       renderer.setSize(w, h, false);
@@ -434,8 +434,13 @@ export default function Hangar3D({ items = [], selected = '', skin = true, heigh
       // узкий экран телефона: отодвигаем камеру, чтобы ангар помещался целиком
       camera.updateProjectionMatrix();
       if (!picked) { // пока работа не выбрана, держим общий вид; выбранную не «отбрасываем» при повороте телефона
-        const dir = camera.position.clone().sub(controls.target).normalize();
-        camera.position.copy(controls.target).addScaledVector(dir, homeDist());
+        if (focus) { // камера ещё летит к общему виду: цель полёта пересчитываем под новый размер, иначе она остановится слишком близко
+          const dir = focus.pos.clone().sub(focus.target).normalize();
+          focus.pos = focus.target.clone().addScaledVector(dir, homeDist());
+        } else {
+          const dir = camera.position.clone().sub(controls.target).normalize();
+          camera.position.copy(controls.target).addScaledVector(dir, homeDist());
+        }
       }
     };
     resize();
