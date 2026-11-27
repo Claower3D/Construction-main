@@ -68,9 +68,12 @@ function buildShape(item, mat) {
     case 'stairs': {
       // Лестницы стоят в разных местах: первая — один этаж, в середине здания, со своей площадкой;
       // вторая — двухэтажная, у входа: марш на второй этаж, площадка, второй марш выше (у остальных, если их больше, вид первой).
-      const rise = HANGAR_INNER.floor2, run = 9, width = 1.8, steps = 14;
-      const ang = Math.atan2(rise, run), len = Math.hypot(rise, run);
-      const flight = (fx, fy, fz, dir) => { // марш от (fx, fy) вверх по ходу dir = ±1 вдоль здания
+      // Лестница начинается с того уровня пола, на котором стоит (на выступе пола — выше), и приходит на отметку этажа.
+      const F2 = HANGAR_INNER.floor2, width = 1.8;
+      const runOf = (rise) => 9 * rise / F2; // уклон марша один и тот же
+      const flight = (fx, fy, fz, dir, rise) => { // марш от (fx, fy) вверх на rise по ходу dir = ±1 вдоль здания
+        const run = runOf(rise), steps = Math.max(4, Math.round(14 * rise / F2));
+        const ang = Math.atan2(rise, run), len = Math.hypot(rise, run);
         for (const side of [-1, 1]) {
           const plate = new THREE.Mesh(new THREE.BoxGeometry(len, 0.55, 0.12), mat); // косоур — стальная полоса
           plate.position.set(fx + dir * run / 2, fy + 0.1 + rise / 2, fz + side * width / 2);
@@ -81,22 +84,28 @@ function buildShape(item, mat) {
         }
         for (let st = 0; st < steps; st++) g.add(box(run / steps * 0.92, 0.12, width, mat, fx + dir * (st + 0.5) * run / steps, fy + 0.15 + (st + 0.8) * rise / steps, fz));
       };
-      const deck = (cx, cy, cz, lx, lz, posts) => { // площадка с ограждением, при необходимости на стойках
+      const deck = (cx, cy, cz, lx, lz, posts, base = 0.4) => { // площадка с ограждением, при необходимости на стойках от уровня пола base
         g.add(box(lx, 0.16, lz, mat, cx, cy, cz));
         for (const sx of [-1, 1]) for (const sz of [-1, 1]) {
           g.add(beam(V(cx + sx * lx / 2, cy, cz + sz * lz / 2), V(cx + sx * lx / 2, cy + 1.2, cz + sz * lz / 2), 0.08, mat));
-          if (posts) g.add(beam(V(cx + sx * (lx / 2 - 0.2), 0.4, cz + sz * (lz / 2 - 0.2)), V(cx + sx * (lx / 2 - 0.2), cy, cz + sz * (lz / 2 - 0.2)), 0.2, mat));
+          if (posts) g.add(beam(V(cx + sx * (lx / 2 - 0.2), base, cz + sz * (lz / 2 - 0.2)), V(cx + sx * (lx / 2 - 0.2), cy, cz + sz * (lz / 2 - 0.2)), 0.2, mat));
         }
         g.add(beam(V(cx - lx / 2, cy + 1.2, cz - lz / 2), V(cx + lx / 2, cy + 1.2, cz - lz / 2), 0.08, mat), beam(V(cx - lx / 2, cy + 1.2, cz + lz / 2), V(cx + lx / 2, cy + 1.2, cz + lz / 2), 0.08, mat));
       };
-      const single = (sx, sz) => { flight(sx, 0.4, sz, 1); deck(sx + run + 1.6, 0.4 + rise, sz, 3.2, width + 1.4, true); };
+      const baseAt = (sx, sz) => 0.4 + Math.min(floorRise(sx + hl, sz + hw), F2 - 2); // уровень пола под лестницей
+      const single = (sx, sz) => {
+        const base = baseAt(sx, sz), rise = 0.4 + F2 - base, run = runOf(rise);
+        flight(sx, base, sz, 1, rise);
+        deck(sx + run + 1.6, 0.4 + F2, sz, 3.2, width + 1.4, true, 0.4 + floorRise(sx + run + 1.6 + hl, sz + hw));
+      };
       single(x, z);
       if (n >= 2) { // двухэтажная
         const bx = item.x2 - hl, bz = item.z2 - hw, lane = width + 0.4;
-        flight(bx, 0.4, bz, 1);
-        deck(bx + run + 1, 0.4 + rise, bz + lane / 2, 2, width * 2 + 0.6, false); // промежуточная площадка на уровне второго этажа
-        flight(bx + run, 0.4 + rise, bz + lane, -1);
-        deck(bx - 1.3, 0.4 + rise * 2, bz + lane, 2.6, width + 1.2, true); // верхняя площадка
+        const base = baseAt(bx, bz), rise = 0.4 + F2 - base, run = runOf(rise);
+        flight(bx, base, bz, 1, rise);
+        deck(bx + run + 1, 0.4 + F2, bz + lane / 2, 2, width * 2 + 0.6, false); // промежуточная площадка на уровне второго этажа
+        flight(bx + run, 0.4 + F2, bz + lane, -1, F2);
+        deck(bx + run - runOf(F2) - 1.3, 0.4 + F2 * 2, bz + lane, 2.6, width + 1.2, true, base); // верхняя площадка
       }
       for (let i = 2; i < Math.min(n, 4); i++) single(x - (i - 1) * 4, z + (i - 1) * (width + 1.4));
       break;
@@ -327,7 +336,7 @@ export default function Hangar3D({ items = [], selected = '', skin = true, heigh
       const edge = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(sl, S.height, S.width)), new THREE.LineBasicMaterial({ color: 0xfcd34d }));
       edge.position.set(cx, cy + 0.03, 0); edge.renderOrder = 5; edge.material.depthTest = false;
       scene.add(edge);
-      put(label(`выступ +${S.height} м`, '#fcd34d'), cx, 0.4 + S.height + 1.7, 0);
+      put(label(`выступ +${S.height} м`, '#fcd34d'), sx0 + Math.min(7, sl / 2), 0.4 + S.height + 1.7, S.width * 0.3); // ближе к началу выступа: не спорит с подписью «2 этаж»
     }
 
     // размеры и стороны света

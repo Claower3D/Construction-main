@@ -306,12 +306,16 @@ test('место и фигура работы на модели', () => {
   assert.equal(p.get('a').label, '1 этаж');
 });
 
-test('выступ пола у восточного торца: кровля ровная, пол поднят только внутри выступа', () => {
+test('выступ пола у восточного торца: кровля ровная, на выступе — вся площадь под вторым этажом и средняя лестница', () => {
   assert.equal(HANGAR.bump, undefined);
-  const s = HANGAR.step, z0 = (HANGAR.width - s.width) / 2;
-  assert.equal(floorRise(s.from + 1, z0 + 1), s.height); // внутри выступа
+  const s = HANGAR.step;
+  assert.deepEqual([s.from + s.length, s.width], [HANGAR.length, HANGAR.width]); // до восточного торца, от стены до стены
+  assert.ok(s.from < HANGAR_INNER.mezzFrom); // начинается раньше второго этажа
+  assert.equal(floorRise(HANGAR_INNER.mezzFrom + 1, 1), s.height); // под вторым этажом, у самой стены
   assert.equal(floorRise(HANGAR.length, HANGAR.width / 2), s.height); // у самого торца
+  const st = projectPlaces([{ id: 's', title: 'Сборка 2 лестничных маршей' }]).get('s');
+  assert.equal(floorRise(st.x, st.z), s.height); // лестница в середине здания стоит на выступе
+  assert.equal(floorRise(st.x2, st.z2), 0); // двухэтажная у входа — на основном полу
   assert.equal(floorRise(s.from - 1, HANGAR.width / 2), 0); // до выступа по длине
-  assert.equal(floorRise(s.from + 1, z0 - 1), 0); // сбоку от выступа
-  assert.equal(floorRise(30, 12), 0); // середина здания
+  assert.equal(floorRise(40, -1), 0); // снаружи здания
 });
