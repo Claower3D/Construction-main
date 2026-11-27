@@ -95,6 +95,9 @@ func main() {
 	mux.HandleFunc("/api/v1/auth/login", middleware.RateLimit(envInt("LOGIN_RATE_LIMIT", 30), time.Minute, authHnd.Login))
 	mux.HandleFunc("/api/v1/auth/register", middleware.RateLimit(envInt("REGISTER_RATE_LIMIT", 15), time.Minute, authHnd.Register))
 	mux.HandleFunc("/api/v1/auth/me", authHnd.GetMe) // self-validates token internally
+	// вход передаётся между доменами сайта одноразовым кодом (см. handlers/sso.go)
+	mux.HandleFunc("/api/v1/auth/sso/code", auth(middleware.RateLimit(30, time.Minute, authHnd.SsoCode)))
+	mux.HandleFunc("/api/v1/auth/sso/exchange", middleware.RateLimit(30, time.Minute, authHnd.SsoExchange))
 	// Смена пароля: нужен действующий вход и текущий пароль
 	mux.HandleFunc("/api/v1/auth/password", auth(middleware.RateLimit(10, time.Minute, authHnd.ChangePassword)))
 

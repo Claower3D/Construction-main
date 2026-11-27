@@ -237,3 +237,27 @@ func TestSPAHandlerServesAndroidApp(t *testing.T) {
 		t.Errorf("папка downloads показана списком")
 	}
 }
+
+// Мост входа между адресами сайта отдаётся как отдельная страница (а не приложение) и не кэшируется:
+// исправление в нём должно доходить до браузеров сразу.
+func TestSPAHandlerServesSsoBridgeFresh(t *testing.T) {
+	dist := t.TempDir()
+	if err := os.WriteFile(filepath.Join(dist, "index.html"), []byte("<!doctype html><title>QazGost</title>APP"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(dist, "sso.html"), []byte("<!doctype html><title>QazGost AI</title>BRIDGE"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	h := SPAHandler(dist)
+	w := httptest.NewRecorder()
+	h(w, httptest.NewRequest("GET", "/sso.html", nil))
+	if w.Code != http.StatusOK || !strings.Contains(w.Body.String(), "BRIDGE") || strings.Contains(w.Body.String(), "APP") {
+		t.Fatalf("мост должен отдаваться своим файлом: %d %q", w.Code, w.Body.String())
+	}
+	if cc := w.Header().Get("Cache-Control"); cc != "no-cache" {
+		t.Errorf("мост не должен кэшироваться, Cache-Control=%q", cc)
+	}
+	if ct := w.Header().Get("Content-Type"); !strings.HasPrefix(ct, "text/html") {
+		t.Errorf("Content-Type=%q", ct)
+	}
+}

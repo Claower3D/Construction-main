@@ -85,6 +85,7 @@ type Config struct {
 	UploadDir         string
 	FrontendURL       string
 	CorsOrigins       []string
+	SsoOrigins        []string // адреса сайта, между которыми передаётся вход (SSO_ORIGINS)
 	OpenAIKey         string
 	OpenAIDetailedKey string
 }
@@ -153,6 +154,17 @@ func LoadConfig() *Config {
 		}
 	}
 
+	// Вход передаётся только между собственными доменами сайта. Другой список — в SSO_ORIGINS (через запятую).
+	ssoOrigins := []string{"https://qazgost.kz", "https://qazgost.com"}
+	if env := os.Getenv("SSO_ORIGINS"); env != "" {
+		ssoOrigins = nil
+		for _, o := range strings.Split(env, ",") {
+			if trimmed := strings.TrimRight(strings.TrimSpace(o), "/"); trimmed != "" {
+				ssoOrigins = append(ssoOrigins, trimmed)
+			}
+		}
+	}
+
 	return &Config{
 		Port:              port,
 		Env:               env,
@@ -160,6 +172,7 @@ func LoadConfig() *Config {
 		UploadDir:         uploadDir,
 		FrontendURL:       frontendURL,
 		CorsOrigins:       corsOrigins,
+		SsoOrigins:        ssoOrigins,
 		OpenAIKey:         openAIKey,
 		OpenAIDetailedKey: openAIDetailedKey,
 	}

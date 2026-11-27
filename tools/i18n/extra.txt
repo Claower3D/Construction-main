@@ -378,3 +378,5 @@ Satu: смесители для ванны от ≈7 000 ₸ (бюджетные
 Будка|Booth
 два марша у грохота|two flights at the screen
 подкрановые пути|crane runway rails
+Пароль или права этого аккаунта изменились, поэтому сессия закрыта. Войдите снова.|The password or permissions of this account have changed, so the session was closed. Please sign in again.
+Проверяем, не вошли ли вы уже на втором адресе сайта…|Checking whether you are already signed in on our other site address…

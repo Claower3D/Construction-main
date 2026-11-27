@@ -208,6 +208,14 @@ func runMigrations() error {
 		// админка: подтверждение специалиста, принудительный выход после смены роли, журнал
 		`ALTER TABLE users ADD COLUMN IF NOT EXISTS verified_at TIMESTAMP NULL`,
 		`ALTER TABLE users ADD COLUMN IF NOT EXISTS sessions_revoked_unix BIGINT NOT NULL DEFAULT 0`,
+		// одноразовые коды передачи входа между доменами сайта (qazgost.kz ↔ qazgost.com); хранится только хеш кода
+		`CREATE TABLE IF NOT EXISTS sso_codes (
+			code_hash TEXT PRIMARY KEY,
+			user_id TEXT NOT NULL,
+			target TEXT NOT NULL,
+			expires_unix BIGINT NOT NULL,
+			session_exp BIGINT NOT NULL DEFAULT 0
+		)`,
 		`CREATE TABLE IF NOT EXISTS admin_audit (
 			id BIGSERIAL PRIMARY KEY,
 			at TIMESTAMP NOT NULL DEFAULT NOW(),
@@ -366,12 +374,6 @@ func UpdateUserPassword(id, passwordHash string, changedUnix int64) error {
 		return sql.ErrNoRows
 	}
 	return nil
-}
-
-// RevokeUserSessions запоминает момент, раньше которого выданные сессии пользователя не принимаются
-func RevokeUserSessions(id string, unix int64) error {
-	_, err := DB.Exec(`UPDATE users SET sessions_revoked_unix=GREATEST(sessions_revoked_unix,$1) WHERE id=$2`, unix, id)
-	return err
 }
 
 // PasswordChangeTimes возвращает id пользователей, менявших пароль, и время смены (unix)

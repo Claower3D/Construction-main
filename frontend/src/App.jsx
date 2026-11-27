@@ -36,6 +36,7 @@ const LiDARScanPage = lazy(() => import('./components/LiDARScanPage'));
 const LegalPage = lazy(() => import('./components/LegalPage'));
 const RegisterPage = lazy(() => import('./components/RegisterPage'));
 const LoginPage = lazy(() => import('./components/LoginPage'));
+import { canAskSibling, askSibling, ssoAfterLogin, ssoAfterLogout } from './utils/sso';
 const ChangePasswordPage = lazy(() => import('./components/ChangePasswordPage'));
 const NotFoundPage = lazy(() => import('./components/NotFoundPage'));
 
@@ -197,14 +198,14 @@ export default function App() {
         if (res.status === 401 && getAuthToken() === token) {
           let code = '';
           try { code = (await res.json()).code || ''; } catch (e) { /* ответ без тела */ }
-          // session_revoked — в аккаунт вошли с другого устройства (у администратора сессия одна) или сменили пароль
+          // session_revoked — у аккаунта сменили пароль или роль; вход с другого устройства сессию не закрывает
           expire(code === 'session_revoked' ? 'replaced' : '1');
         }
       } catch (e) { /* нет связи — оставляем как есть */ }
     };
     check(true);
-    // Раз в минуту и при возврате на вкладку спрашиваем сервер: так закрытая с другого устройства
-    // сессия гаснет здесь сама, а не продолжает выглядеть рабочей.
+    // Раз в минуту и при возврате на вкладку спрашиваем сервер: так отозванная сессия (сменили пароль
+    // или роль) гаснет здесь сама, а не продолжает выглядеть рабочей.
     const timer = setInterval(() => check(document.visibilityState === 'visible'), 60000);
     const onVisible = () => { if (document.visibilityState === 'visible') check(true); };
     document.addEventListener('visibilitychange', onVisible);
@@ -235,6 +236,7 @@ export default function App() {
   };
 
   const handleLogin = (user) => {
+    ssoAfterLogin(); // вошли с паролем — вход с соседнего адреса сайта снова разрешён
     setCurrentUser(user);
     setRole(user.role);
     navigateToDashboard(user.role);
@@ -248,10 +250,23 @@ export default function App() {
       localStorage.removeItem('qazgost_user_openai_key');
       localStorage.removeItem('qazgost_user_openai_account');
     } catch (e) { /* ignore */ }
+    ssoAfterLogout(); // человек вышел сам: с соседнего адреса сайта сюда автоматически не входим
     setCurrentUser(null);
     setRole('executor');
     navigateToLanding();
   };
+
+  // Вход между адресами сайта (qazgost.kz ↔ qazgost.com). Страница входа один раз за вкладку спрашивает
+  // соседний адрес: если человек там уже вошёл, он возвращается сюда вошедшим и пароль не вводит.
+  const [ssoChecking, setSsoChecking] = useState(() => viewFromPath(window.location.pathname) === 'login' && !currentUser && canAskSibling());
+  useEffect(() => {
+    if (currentView !== 'login' || currentUser) { setSsoChecking(false); return undefined; }
+    if (!canAskSibling()) { setSsoChecking(false); return undefined; }
+    let alive = true;
+    setSsoChecking(true);
+    askSibling().then((leaving) => { if (alive && !leaving) setSsoChecking(false); }, () => { if (alive) setSsoChecking(false); });
+    return () => { alive = false; };
+  }, [currentView, currentUser]);
 
   // Guard дашбордов: без входа — на лендинг + окно входа; панель чужой роли — на свою панель
   const dashboardBlocked = DASHBOARD_VIEWS.includes(currentView) && !canOpenDashboard(currentView, currentUser);
@@ -505,6 +520,7 @@ export default function App() {
           {currentView === 'login' && (
             <LoginPage
               currentUser={currentUser}
+              checking={ssoChecking}
               onLogin={handleLogin}
               onOpenRegister={() => openAuthFlow('register')}
               onOpenDashboard={navigateToDashboard}

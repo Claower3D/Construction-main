@@ -2946,7 +2946,9 @@ export const T = {"сметы и дефектоскопия по нормам Р
 "Грохот":"Vaglio",
 "Будка":"Cabina",
 "два марша у грохота":"due rampe presso il vaglio",
-"подкрановые пути":"binari del carroponte"};
+"подкрановые пути":"binari del carroponte",
+"Пароль или права этого аккаунта изменились, поэтому сессия закрыта. Войдите снова.":"La password o i permessi di questo account sono cambiati, quindi la sessione è stata chiusa. Accedi di nuovo.",
+"Проверяем, не вошли ли вы уже на втором адресе сайта…":"Stiamo verificando se hai già effettuato l’accesso sul secondo indirizzo del sito…"};
 
 export const TEMPLATES = [["Ошибка Vision AI: Изображение не распознано как строительный объект или чертеж (определено как \"{a}\"). Пожалуйста, загрузите реальное фото помещения, фасада или план","Errore Vision AI: l'immagine non è stata riconosciuta come opera edile o disegno (identificata come \"{a}\"). Carica una foto reale di un ambiente, di una facciata o una pianta"],
 ["Работы «Стандарта»: {a} ₸/м² пола. Средняя цена базовых черновых и чистовых работ в РК — {n}–{n} тыс. ₸/м² (Bizmedia/OLX, июнь {n})","Lavori «Standard»: {a} ₸/m² di pavimento. Prezzo medio dei lavori base al grezzo e di finitura in Kazakistan: {n}–{n} mila ₸/m² (Bizmedia/OLX, giugno {n})"],

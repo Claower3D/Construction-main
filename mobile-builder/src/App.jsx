@@ -88,7 +88,7 @@ export default function App() {
     const check = async () => {
       if (document.visibilityState === 'hidden') return;
       const ok = await sessionAccepted(session.token);
-      if (alive && !ok) signOut('Сессия закрыта: в аккаунт вошли с другого устройства или истёк её срок. Войдите снова.');
+      if (alive && !ok) signOut('Сессия закрыта: истёк её срок или у аккаунта сменили пароль. Войдите снова.');
     };
     check();
     const timer = setInterval(check, 60000);

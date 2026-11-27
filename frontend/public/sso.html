@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex,nofollow">
+<meta name="referrer" content="no-referrer">
+<title>QazGost AI</title>
+<style>html,body{height:100%;margin:0;background:#0d0a1c;color:#b9b2d6;font:15px/1.4 system-ui,sans-serif}body{display:flex;align-items:center;justify-content:center}</style>
+</head>
+<body>
+<p>QazGost AI…</p>
+<script>
+/*
+ * Мост входа между адресами сайта (qazgost.kz ↔ qazgost.com).
+ * Сюда соседний адрес приводит человека, который открыл у него страницу входа. Если здесь человек уже вошёл,
+ * страница берёт у сервера одноразовый код и возвращает его обратно; если нет — возвращает «none».
+ * Возврат возможен только на соседний адрес сайта: чужой сайт код получить не может.
+ * Сам код действует минуту, один раз, и только на том адресе, для которого выдан (см. go-backend/pkg/handlers/sso.go).
+ */
+(function () {
+  var host = location.hostname, port = location.port ? ':' + location.port : '';
+  var sibling = location.protocol === 'https:' && host === 'qazgost.kz' ? 'https://qazgost.com'
+    : location.protocol === 'https:' && host === 'qazgost.com' ? 'https://qazgost.kz'
+    : location.protocol === 'http:' && host === 'localhost' ? 'http://127.0.0.1' + port // проверка на компьютере разработчика
+    : location.protocol === 'http:' && host === '127.0.0.1' ? 'http://localhost' + port
+    : null;
+  var params = new URLSearchParams(location.hash.slice(1));
+  var state = params.get('state') || '', back = null;
+  try { back = new URL(params.get('return') || ''); } catch (e) { back = null; }
+  try { history.replaceState(null, '', location.pathname); } catch (e) { /* адрес останется как есть */ }
+  if (!sibling || !back || back.origin !== sibling || !/^[a-f0-9]{32}$/.test(state)) { location.replace('/'); return; }
+
+  var sent = false;
+  function reply(code) {
+    if (sent) return;
+    sent = true;
+    back.hash = 'sso=' + encodeURIComponent(code) + '&state=' + state;
+    location.replace(back.toString());
+  }
+  var token = null;
+  try { token = localStorage.getItem('auth_token'); } catch (e) { token = null; }
+  if (!token) { reply('none'); return; }
+  setTimeout(function () { reply('none'); }, 6000); // сервер не ответил — человек просто увидит страницу входа
+  fetch('/api/v1/auth/sso/code', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+    body: JSON.stringify({ target: sibling }),
+    cache: 'no-store'
+  }).then(function (res) { return res.ok ? res.json() : null; })
+    .then(function (data) { reply(data && typeof data.code === 'string' && /^[A-Za-z0-9_-]{20,100}$/.test(data.code) ? data.code : 'none'); })
+    .catch(function () { reply('none'); });
+})();
+</script>
+</body>
+</html>

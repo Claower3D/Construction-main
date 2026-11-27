@@ -405,13 +405,27 @@ func tokenRevoked(c *JWTClaims) bool {
 }
 
 func GenerateJWT(userID, email, role, secret string) (string, error) {
+	return GenerateJWTUntil(userID, email, role, secret, time.Now().Add(tokenLifetime).Unix())
+}
+
+// GenerateJWTUntil выдаёт сессию, которая заканчивается в момент exp (unix), но не позже обычного срока.
+// Нужна при передаче входа между адресами сайта: новая сессия живёт не дольше той, от которой получена,
+// поэтому передача не продлевает вход без пароля.
+func GenerateJWTUntil(userID, email, role, secret string, exp int64) (string, error) {
+	now := time.Now()
+	if limit := now.Add(tokenLifetime).Unix(); exp > limit {
+		exp = limit
+	}
+	if exp <= now.Unix() {
+		return "", fmt.Errorf("session already expired")
+	}
 	header := base64.RawURLEncoding.EncodeToString([]byte(`{"alg":"HS256","typ":"JWT"}`))
 	claims := JWTClaims{
 		UserID: userID,
 		Role:   role,
 		Email:  email,
-		Exp:    time.Now().Add(tokenLifetime).Unix(),
-		Iat:    time.Now().Unix(),
+		Exp:    exp,
+		Iat:    now.Unix(),
 	}
 	claimsBytes, err := json.Marshal(claims)
 	if err != nil {
