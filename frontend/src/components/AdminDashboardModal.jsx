@@ -482,7 +482,13 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
   const docFileInputRef = React.useRef(null);
 
   // Handle Excel/CSV file upload for documents import
+  // Наблюдателю панель открыта только на чтение. Кнопки изменения мы прячем,
+  // но предохранитель оставляем здесь: если какая-то кнопка останется видимой
+  // или сработает горячая клавиша, данные всё равно не изменятся.
+  const roBlocked = () => readOnly === true;
+
   const handleDocFileUpload = async (file) => {
+    if (roBlocked()) return;
     if (!file) return;
     const ext = file.name.split('.').pop().toLowerCase();
     if (!['xlsx', 'xls', 'csv'].includes(ext)) {
@@ -529,6 +535,7 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
   const handleDocDragOver = (e) => { e.preventDefault(); e.stopPropagation(); setDocUploadDragover(true); };
   const handleDocDragLeave = (e) => { e.preventDefault(); e.stopPropagation(); setDocUploadDragover(false); };
   const handleDocDrop = (e) => {
+    if (roBlocked()) return;
     e.preventDefault(); e.stopPropagation(); setDocUploadDragover(false);
     const file = e.dataTransfer.files[0];
     if (file) handleDocFileUpload(file);
@@ -536,6 +543,7 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
 
   // Add new document manually
   const handleAddDocManually = () => {
+    if (roBlocked()) return;
     if (!docForm.id.trim() || !docForm.objectName.trim()) {
       alert('Заполните обязательные поля: № документа и Объект / Назначение');
       return;
@@ -559,6 +567,7 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
 
   // Delete document
   const handleDeleteDoc = (docId) => {
+    if (roBlocked()) return;
     if (!window.confirm(`Удалить документ ${docId}?`)) return;
     setDocumentsList(prev => prev.filter(d => d.id !== docId));
     logAuditAction('DOCUMENTS', 'delete', `Удален документ: ${docId}`);
@@ -841,12 +850,14 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
 
   // Handlers for Prices Tab
   const handleOpenAddPrice = () => {
+    if (roBlocked()) return;
     setEditingPriceItem(null);
     setPriceForm({ id: `E${Math.floor(10 + Math.random() * 90)}-01-${Math.floor(100 + Math.random() * 900)}`, name: '', category: priceTypeFilter === 'all' ? 'Работы' : priceTypeFilter, unit: 'м²', price: 2500, region: 'Алматы' });
     setPriceModalOpen(true);
   };
 
   const handleOpenEditPrice = (item) => {
+    if (roBlocked()) return;
     setEditingPriceItem(item);
     setPriceForm({ ...item });
     setPriceModalOpen(true);
@@ -854,6 +865,7 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
 
   const handleSavePriceForm = (e) => {
     e.preventDefault();
+    if (roBlocked()) return;
     if (!priceForm.name.trim()) {
       alert('Укажите наименование позиции');
       return;
@@ -876,6 +888,7 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
   };
 
   const handleDeletePriceItem = (id) => {
+    if (roBlocked()) return;
     const item = pricesList.find((p) => p.id === id);
     const updated = pricesList.filter((p) => p.id !== id);
     setPricesList(updated);
@@ -887,6 +900,7 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
   };
 
   const handleImportExcelFile = async (e) => {
+    if (roBlocked()) return;
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -902,6 +916,7 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
   };
 
   const handleResetPrices = () => {
+    if (roBlocked()) return;
     if (window.confirm('Сбросить все пользовательские расценки к базам по умолчанию?')) {
       setPricesList(BASE_NORMS_LIST);
       logAuditAction('update', 'Сброс цен и расценок к базам по умолчанию ЭСН РК', 'Прайсы');
@@ -911,6 +926,7 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
 
   // Handlers for Moderation Queue
   const handleApproveModeration = (id) => {
+    if (roBlocked()) return;
     const item = moderationQueue.find((m) => m.id === id);
     setModerationQueue((prev) => prev.filter((m) => m.id !== id));
     setModSelectedIds((prev) => prev.filter((selectedId) => selectedId !== id));
@@ -921,6 +937,7 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
   };
 
   const handleRejectModeration = (id) => {
+    if (roBlocked()) return;
     const reason = window.prompt('Укажите причину отклонения заявки:');
     if (reason !== null) {
       const item = moderationQueue.find((m) => m.id === id);
@@ -934,6 +951,7 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
   };
 
   const handleApproveAllModeration = () => {
+    if (roBlocked()) return;
     if (moderationQueue.length === 0) return;
     if (window.confirm(`Вы уверены, что хотите одобрить все ${moderationQueue.length} заявок модерации в 1 клик?`)) {
       const count = moderationQueue.length;
@@ -959,6 +977,7 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
   };
 
   const handleApproveSelectedMod = () => {
+    if (roBlocked()) return;
     if (modSelectedIds.length === 0) return;
     if (window.confirm(`Одобрить выбранные заявки (${modSelectedIds.length} шт.)?`)) {
       const count = modSelectedIds.length;
@@ -970,6 +989,7 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
   };
 
   const handleRejectSelectedMod = () => {
+    if (roBlocked()) return;
     if (modSelectedIds.length === 0) return;
     const reason = window.prompt(`Причина отклонения ${modSelectedIds.length} выбранных заявок:`);
     if (reason !== null) {
@@ -983,12 +1003,14 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
 
   // Handlers for Users Tab
   const handleOpenAddUser = () => {
+    if (roBlocked()) return;
     setEditingUser(null);
     setUserForm({ id: `U-${Math.floor(100 + Math.random() * 900)}`, name: '', role: 'customer', email: '', phone: '', city: 'Алматы', status: 'active', source: 'Ручной', rating: '0.0' });
     setIsUserModalOpen(true);
   };
 
   const handleOpenEditUser = (user) => {
+    if (roBlocked()) return;
     setEditingUser(user);
     setUserForm({ ...user });
     setIsUserModalOpen(true);
@@ -996,6 +1018,7 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
 
   const handleSaveUserForm = (e) => {
     e.preventDefault();
+    if (roBlocked()) return;
     if (!userForm.name.trim()) return;
 
     const targetRole = rolesList.find(r => r.id === userForm.role);
@@ -1014,18 +1037,21 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
   };
 
   const handleOpenAddRole = () => {
+    if (roBlocked()) return;
     setEditingRole(null);
     setRoleForm({ id: '', name: '', icon: '👤', description: '' });
     setIsRoleModalOpen(true);
   };
 
   const handleOpenEditRole = (role) => {
+    if (roBlocked()) return;
     setEditingRole(role);
     setRoleForm({ ...role });
     setIsRoleModalOpen(true);
   };
 
   const handleDeleteRole = (roleId) => {
+    if (roBlocked()) return;
     if (['admin', 'customer', 'engineer', 'executor'].includes(roleId)) {
       alert("Нельзя удалить базовую системную роль!");
       return;
@@ -1039,6 +1065,7 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
 
   const handleSaveRoleForm = (e) => {
     e.preventDefault();
+    if (roBlocked()) return;
     if (!roleForm.name.trim() || !roleForm.id.trim()) return;
 
     if (editingRole) {
@@ -1057,6 +1084,7 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
   };
 
   const handleChangeRole = (userId, newRole) => {
+    if (roBlocked()) return;
     const targetRole = rolesList.find(r => r.id === newRole);
     const roleLabel = targetRole ? targetRole.name : newRole;
     const updated = usersList.map((u) => (u.id === userId ? { ...u, role: newRole, roleLabel } : u));
@@ -1071,6 +1099,7 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
   };
 
   const handleToggleLockUser = (userId) => {
+    if (roBlocked()) return;
     const updated = usersList.map((u) => {
       if (u.id === userId) {
         const nextStatus = u.status === 'blocked' ? 'active' : 'blocked';
@@ -1085,6 +1114,7 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
 
   // Handlers for Settings Tab (Regions & Audit)
   const handleEditRegionCoeff = (code) => {
+    if (roBlocked()) return;
     const reg = regions.find((r) => r.code === code);
     if (!reg) return;
     const newCoeff = window.prompt(`Введите новый коэффициент для региона ${reg.name}:`, reg.coeff);
@@ -1097,6 +1127,7 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
   };
 
   const handleAddRegion = () => {
+    if (roBlocked()) return;
     const name = window.prompt('Укажите название нового региона Казахстана:');
     if (!name) return;
     const code = window.prompt('Укажите 3-буквенный код региона (например, KST):', 'KST');
@@ -1135,8 +1166,8 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
   });
 
   return (
-    <div className={inline ? "admin-modal-inline" : "admin-modal-overlay"}>
-      <div className="admin-modal-container qg-admin-compact">
+    <div className={`${inline ? 'admin-modal-inline' : 'admin-modal-overlay'}${readOnly ? ' admin-ro' : ''}`}>
+      <div className={`admin-modal-container qg-admin-compact${readOnly ? ' admin-ro' : ''}`}>
         {/* Header Bar */}
         <div className="admin-header">
           <div className="admin-title-wrap">

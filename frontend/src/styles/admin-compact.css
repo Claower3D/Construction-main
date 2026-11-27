@@ -422,3 +422,34 @@
   }
   .admin-modal-container.qg-admin-compact .admin-stat-value { font-size: 19px !important; }
 }
+
+/* ── ТОЛЬКО ПРОСМОТР ──
+   Наблюдателю (сотруднику, которому владелец открыл просмотр) панель показывается
+   целиком, но кнопок, меняющих данные, у него нет: добавление, правка, удаление,
+   модерация, загрузка и сброс. Остаются вкладки, поиск, фильтры и выгрузка в Excel.
+   Это внешняя защита; сами действия дополнительно остановлены в коде панели,
+   а сервер в любом случае отвечает отказом на запись.
+   Селекторы длинные намеренно: выше по странице у этих кнопок стоит
+   display: inline-flex !important, и правило должно его перебить. */
+.admin-modal-container.qg-admin-compact.admin-ro .admin-body :is(
+  .admin-primary-btn, .admin-secondary-btn, .btn-table-action, .btn-edit-region,
+  .btn-reset-danger, .btn-excel-import, .doc-btn-choose-file, .doc-btn-submit,
+  .doc-btn-purple, .doc-btn-emerald, .doc-dropzone, .mod-actions, .mod-bulk-bar),
+.admin-modal-inline.admin-ro .nested-modal-overlay :is(
+  .admin-primary-btn, .admin-secondary-btn, .btn-table-action, .doc-btn-submit),
+.admin-modal-overlay.admin-ro .nested-modal-overlay :is(
+  .admin-primary-btn, .admin-secondary-btn, .btn-table-action, .doc-btn-submit) {
+  display: none !important;
+}
+
+/* Просмотр карточки — не изменение, её наблюдателю оставляем */
+.admin-modal-container.qg-admin-compact.admin-ro .admin-body .btn-table-action[title="Карточка дела"] {
+  display: inline-flex !important;
+}
+
+/* Поля и переключатели внутри таблиц наблюдателю не поддаются */
+.admin-modal-container.qg-admin-compact.admin-ro .admin-body :is(
+  .admin-table select, .admin-table input, .region-coeff-input) {
+  pointer-events: none !important;
+  opacity: 0.75;
+}
