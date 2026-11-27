@@ -27,7 +27,7 @@ async function api(method, path, body) {
   return data;
 }
 
-export default function AdminTeamPanel() {
+export default function AdminTeamPanel({ readOnly = false }) {
   const [companies, setCompanies] = useState([]);
   const [users, setUsers] = useState([]);
   const [total, setTotal] = useState(0);
@@ -84,6 +84,17 @@ export default function AdminTeamPanel() {
     } catch (err) { setError(err.message); } finally { setBusy(false); }
   };
 
+  // «Просмотр»: человек видит «Застройщика» и панель администратора, но ничего там не меняет
+  const setObserver = async (u, on) => {
+    try {
+      await api('PATCH', `/api/v1/admin/users/${encodeURIComponent(u.id)}`, { observer: on });
+      setNote(on
+        ? { title: 'Просмотр открыт', text: 'Человек видит «Застройщика» и панель администратора, но ничего там не меняет. Обновление дойдёт до него в течение минуты.' }
+        : { title: 'Просмотр закрыт', text: 'Доступ закрыт сразу, даже если человек сейчас в кабинете.' });
+      await load();
+    } catch (err) { setError(err.message); }
+  };
+
   const moveUser = async (u, companyId) => {
     try {
       await api('PATCH', `/api/v1/admin/users/${encodeURIComponent(u.id)}`, { companyId });
@@ -106,7 +117,7 @@ export default function AdminTeamPanel() {
       <section className="atp-section">
         <div className="atp-head">
           <h3>🏢 Фирмы <span className="atp-count">{companies.length}</span></h3>
-          <button type="button" className="atp-btn atp-btn--gold" onClick={() => { setCompanyForm({ ...EMPTY_COMPANY }); setUserForm(null); }}>+ Добавить фирму</button>
+          {!readOnly && <button type="button" className="atp-btn atp-btn--gold" onClick={() => { setCompanyForm({ ...EMPTY_COMPANY }); setUserForm(null); }}>+ Добавить фирму</button>}
         </div>
         {companyForm && (
           <form className="atp-form" onSubmit={saveCompany}>
@@ -137,7 +148,7 @@ export default function AdminTeamPanel() {
                 <div className="atp-company-sub">{[c.type, c.city, c.bin && `БИН ${c.bin}`].filter(Boolean).join(' · ') || '—'}</div>
                 <div className="atp-company-foot">
                   <span>👷 {c.people} чел.</span>
-                  <button type="button" className="atp-link" onClick={() => { setUserForm({ ...EMPTY_USER, companyId: c.id, city: c.city || '' }); setCompanyForm(null); }}>+ работник</button>
+                  {!readOnly && <button type="button" className="atp-link" onClick={() => { setUserForm({ ...EMPTY_USER, companyId: c.id, city: c.city || '' }); setCompanyForm(null); }}>+ работник</button>}
                 </div>
               </div>
             ))}
@@ -154,7 +165,7 @@ export default function AdminTeamPanel() {
               <option value="">Все роли</option>
               {[...ROLES, { key: 'admin', label: 'Администратор' }].map((r) => <option key={r.key} value={r.key}>{r.label}</option>)}
             </select>
-            <button type="button" className="atp-btn atp-btn--gold" onClick={() => { setUserForm({ ...EMPTY_USER }); setCompanyForm(null); }}>+ Добавить работника</button>
+            {!readOnly && <button type="button" className="atp-btn atp-btn--gold" onClick={() => { setUserForm({ ...EMPTY_USER }); setCompanyForm(null); }}>+ Добавить работника</button>}
           </div>
         </div>
         {userForm && (
@@ -186,20 +197,25 @@ export default function AdminTeamPanel() {
         <div className="atp-table-wrap">
           <table className="atp-table">
             <thead>
-              <tr><th>ФИО</th><th>Логин</th><th>Роль</th><th>Фирма</th><th>Вход</th></tr>
+              <tr><th>ФИО</th><th>Логин</th><th>Роль</th><th>Фирма</th><th title="Видит «Застройщика» и панель администратора, но ничего там не меняет">Просмотр всего</th><th>Вход</th></tr>
             </thead>
             <tbody>
-              {users.length === 0 && <tr><td colSpan={5} className="atp-empty">Никого не найдено.</td></tr>}
+              {users.length === 0 && <tr><td colSpan={6} className="atp-empty">Никого не найдено.</td></tr>}
               {users.map((u) => (
                 <tr key={u.id}>
                   <td><strong>{u.name || '—'}</strong>{u.phone ? <div className="atp-sub">{u.phone}</div> : null}</td>
                   <td>{u.email}</td>
                   <td>{ROLE_RU[u.role] || u.role}</td>
                   <td>
-                    <select value={u.companyId || ''} onChange={(e) => moveUser(u, e.target.value)} aria-label={`Фирма: ${u.name || u.email}`}>
+                    <select value={u.companyId || ''} onChange={(e) => moveUser(u, e.target.value)} aria-label={`Фирма: ${u.name || u.email}`} disabled={readOnly}>
                       <option value="">Без фирмы</option>
                       {companies.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
                     </select>
+                  </td>
+                  <td>
+                    {u.role === 'admin'
+                      ? <span className="atp-sub">видит всё</span>
+                      : <label className="atp-watch"><input type="checkbox" checked={!!u.observer} disabled={readOnly} onChange={(e) => setObserver(u, e.target.checked)} aria-label={`Просмотр всего: ${u.name || u.email}`} /><span>{u.observer ? 'открыт' : 'нет'}</span></label>}
                   </td>
                   <td>{u.invited ? <span className="atp-pill atp-pill--wait">ещё не входил</span> : <span className="atp-pill">активен</span>}</td>
                 </tr>

@@ -17,6 +17,7 @@ import (
 
 	"qazgost-ai/backend/pkg/config"
 	"qazgost-ai/backend/pkg/database"
+	"qazgost-ai/backend/pkg/middleware"
 )
 
 // Модуль «Строительство зданий и сооружений»: рабочие проекты с графиком работ, штатом, техникой,
@@ -437,7 +438,7 @@ func vipStaffOnly(w http.ResponseWriter, r *http.Request) bool {
 		writeError(w, http.StatusUnauthorized, "Войдите, чтобы открыть проекты")
 		return false
 	}
-	if !isStaff(role) {
+	if !isStaff(role) && !middleware.IsObserverRead(r) { // наблюдатель — только чтение
 		writeError(w, http.StatusForbidden, "Проекты строительства ведут администратор и менеджер")
 		return false
 	}

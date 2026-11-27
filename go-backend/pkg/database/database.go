@@ -88,6 +88,7 @@ func InitDB(dbURL string) error {
 	restoreTeamManagerRole()
 	ensureTeamEngineerSaken()
 	ensureSakenNoCRM()
+	ensureObserverSaken()
 
 	// Seed inserts orders 101/102 with explicit ids; keep SERIAL ahead of MAX(id),
 	// otherwise the 101st order fails with a duplicate key.
@@ -209,6 +210,8 @@ func runMigrations() error {
 		// админка: подтверждение специалиста, принудительный выход после смены роли, журнал
 		`ALTER TABLE users ADD COLUMN IF NOT EXISTS verified_at TIMESTAMP NULL`,
 		`ALTER TABLE users ADD COLUMN IF NOT EXISTS sessions_revoked_unix BIGINT NOT NULL DEFAULT 0`,
+		// наблюдатель: просмотр «Застройщика» и панели администратора без права менять
+		`ALTER TABLE users ADD COLUMN IF NOT EXISTS observer BOOLEAN NOT NULL DEFAULT FALSE`,
 		// одноразовые коды передачи входа между доменами сайта (qazgost.kz ↔ qazgost.com); хранится только хеш кода
 		`CREATE TABLE IF NOT EXISTS sso_codes (
 			code_hash TEXT PRIMARY KEY,

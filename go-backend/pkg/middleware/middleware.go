@@ -26,6 +26,8 @@ const (
 	ContextUserID ContextKey = "userID"
 	ContextEmail  ContextKey = "email"
 	ContextRole   ContextKey = "role"
+	// ContextObserver — запрос пропущен как просмотр наблюдателем (см. ObserverMiddleware)
+	ContextObserver ContextKey = "observer"
 )
 
 // ── PASSWORD HASHING (SHA-256 + salt, zero external deps) ──
@@ -357,6 +359,42 @@ func RoleMiddleware(secret string, allowedRoles []string, next http.HandlerFunc)
 		w.WriteHeader(http.StatusForbidden)
 		_ = json.NewEncoder(w).Encode(map[string]string{"error": "Недостаточно прав"})
 	})
+}
+
+// ObserverMiddleware — как RoleMiddleware, но наблюдателя пускает на чтение (GET и HEAD).
+// Наблюдателем пользователя делает администратор; проверка идёт по базе при каждом запросе,
+// поэтому снятый доступ закрывается сразу, а не когда истечёт сессия. Любая запись — 403.
+func ObserverMiddleware(secret string, allowedRoles []string, isObserver func(userID string) bool, next http.HandlerFunc) http.HandlerFunc {
+	return AuthMiddleware(secret, func(w http.ResponseWriter, r *http.Request) {
+		role, _ := r.Context().Value(ContextRole).(string)
+		for _, ar := range allowedRoles {
+			if ar == role {
+				next.ServeHTTP(w, r)
+				return
+			}
+		}
+		uid, _ := r.Context().Value(ContextUserID).(string)
+		reading := r.Method == http.MethodGet || r.Method == http.MethodHead
+		if uid != "" && isObserver != nil && isObserver(uid) {
+			if reading {
+				next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), ContextObserver, true)))
+				return
+			}
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusForbidden)
+			_ = json.NewEncoder(w).Encode(map[string]string{"error": "У вас только просмотр — изменения вносит администратор", "code": "read_only"})
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusForbidden)
+		_ = json.NewEncoder(w).Encode(map[string]string{"error": "Недостаточно прав"})
+	})
+}
+
+// IsObserverRead — запрос пропущен как просмотр наблюдателем (только чтение)
+func IsObserverRead(r *http.Request) bool {
+	on, _ := r.Context().Value(ContextObserver).(bool)
+	return on && (r.Method == http.MethodGet || r.Method == http.MethodHead)
 }
 
 // ── JWT ──

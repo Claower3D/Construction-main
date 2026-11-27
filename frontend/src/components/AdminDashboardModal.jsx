@@ -408,7 +408,7 @@ const BASE_NORMS_LIST = [
 ];
 
 
-export default function AdminDashboardModal({ isOpen, onClose, inline = false, startTab = 'overview', currentUser = null, userRole = 'admin' }) {
+export default function AdminDashboardModal({ isOpen, onClose, inline = false, startTab = 'overview', currentUser = null, userRole = 'admin', readOnly = false }) {
   // Navigation Tabs: overview | database | prices | moderation | users | settings
   const [activeTab, setActiveTab] = useState('overview');
   const [settingsSubTab, setSettingsSubTab] = useState('regions'); // regions | audit
@@ -1199,6 +1199,11 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
 
         {/* Modal Body Content */}
         <div className="admin-body">
+          {readOnly && (
+            <div className="admin-readonly-note" role="note" style={{ margin: '0 0 12px', padding: '10px 14px', borderRadius: '12px', border: '1px solid rgba(246, 196, 83, 0.45)', background: 'rgba(246, 196, 83, 0.1)', fontSize: '0.86rem', lineHeight: 1.4 }}>
+              <b style={{ color: '#f6c453' }}>Только просмотр.</b> Вы видите панель администратора; пользователей, роли и фирмы меняет администратор.
+            </div>
+          )}
           {/* Панель — макет: её данные живут в этой вкладке браузера, сервер их не знает */}
           {activeTab !== 'disputes' && (
           <DemoNotice title="Панель администратора пока макет">
@@ -2134,7 +2139,7 @@ export default function AdminDashboardModal({ isOpen, onClose, inline = false, s
           {/* TAB 5: USERS (👥 Пользователи)                                            */}
           {/* ========================================================================= */}
           {/* Настоящие данные сервера: фирмы и работники. Прежний макет с примерами убран. */}
-          {activeTab === 'users' && <AdminTeamPanel />}
+          {activeTab === 'users' && <AdminTeamPanel readOnly={readOnly} />}
 
           {/* ========================================================================= */}
           {/* TAB 6: SETTINGS & AUDIT LOG (⚙️ Управление)                             */}

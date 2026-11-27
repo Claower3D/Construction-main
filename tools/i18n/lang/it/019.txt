@@ -1,0 +1,17 @@
+8252|Solo visualizzazione — le modifiche le fa l’amministratore
+8253|Hai accesso in sola visualizzazione — le modifiche le fa l’amministratore
+8254|Solo visualizzazione.
+8255|Vedi l’intero progetto; le modifiche le fanno l’amministratore e il manager.
+8256|Vedi il pannello di amministrazione; utenti, ruoli e aziende li modifica l’amministratore.
+8257|Quando l’amministratore aggiungerà un progetto, apparirà qui. Hai accesso in sola visualizzazione.
+4424|Progetto e dati
+8258|apri la squadra
+8259|Vedere tutto
+8260|vede tutto
+8261|attivo
+8262|Visualizzazione attivata
+8263|Visualizzazione disattivata
+8264|La persona vede il modulo Costruttore e il pannello di amministrazione, ma non può modificare nulla. L’aggiornamento arriva entro un minuto.
+8265|L’accesso viene rimosso subito, anche se la persona è nell’area di lavoro in questo momento.
+8266|L’accesso è per l’amministratore, il manager e chi ha la sola visualizzazione. L’account è lo stesso del sito qazgost.kz.
+8267|Vede il modulo Costruttore e il pannello di amministrazione, ma non può modificare nulla

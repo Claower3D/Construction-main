@@ -1,0 +1,17 @@
+8252|Nur Ansicht — Änderungen nimmt der Administrator vor
+8253|Sie haben nur Leserechte — Änderungen nimmt der Administrator vor
+8254|Nur Ansicht.
+8255|Sie sehen das gesamte Projekt; Änderungen nehmen Administrator und Manager vor.
+8256|Sie sehen das Admin-Panel; Benutzer, Rollen und Firmen ändert der Administrator.
+8257|Sobald der Administrator ein Projekt hinzufügt, erscheint es hier. Sie haben nur Leserechte.
+4424|Projekt und Angaben
+8258|Zusammensetzung öffnen
+8259|Alles ansehen
+8260|sieht alles
+8261|aktiv
+8262|Ansicht freigegeben
+8263|Ansicht entzogen
+8264|Die Person sieht das Bauherren-Modul und das Admin-Panel, kann dort aber nichts ändern. Die Änderung kommt innerhalb einer Minute an.
+8265|Der Zugriff wird sofort entzogen, auch wenn die Person gerade angemeldet ist.
+8266|Zugang haben Administrator, Manager und Personen mit Leserechten. Das Konto ist dasselbe wie auf qazgost.kz.
+8267|Sieht das Bauherren-Modul und das Admin-Panel, kann dort aber nichts ändern

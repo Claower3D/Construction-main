@@ -279,7 +279,13 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, onOpe
 
   // Role filtering based on user permissions:
   // Исполнители (Радион, Владимир, Данил) видят ТОЛЬКО «Я Заказчик» и «Я Исполнитель»
+  // Наблюдатель: видит всё, что видит администратор, кроме CRM менеджера, и ничего не меняет
+  // в «Застройщике» и панели администратора (сервер пускает его туда только на чтение)
+  const isObserver = currentUser?.observer === true && !['admin', 'manager', 'crm'].includes(effectiveUserRole);
   const visibleRoles = (() => {
+    if (isObserver) {
+      return roles.filter(r => ['builder', 'customer', 'executor', 'engineer', 'admin'].includes(r.id));
+    }
     if (effectiveUserRole === 'executor' || effectiveUserRole === 'customer') {
       return roles.filter(r => r.id === 'customer' || r.id === 'executor');
     }
@@ -576,12 +582,13 @@ export default function AdminDashboardPage({ onBackToHome, onOpenEngineer, onOpe
                   onClose={handleBackToCardMenu} 
                   currentUser={currentUser} 
                   userRole={userRole} 
+                  readOnly={isObserver}
                 />
               )}
 
               {embeddedModule === 'builder' && (
                 <div style={{ height: '100%', width: '100%', minHeight: '80vh', position: 'relative' }}>
-                  <BuildingConstructionPage onBack={handleBackToCardMenu} hideHeader={false} />
+                  <BuildingConstructionPage onBack={handleBackToCardMenu} hideHeader={false} readOnly={isObserver} />
                 </div>
               )}
 

@@ -33,7 +33,8 @@ var AdminRoles = map[string]bool{
 
 func adminOnly(w http.ResponseWriter, r *http.Request) (id, email string, ok bool) {
 	uid, role := currentUser(r)
-	if uid == "" || role != "admin" {
+	// наблюдатель проходит только на чтение — это решает ObserverMiddleware
+	if uid == "" || (role != "admin" && !middleware.IsObserverRead(r)) {
 		writeError(w, http.StatusForbidden, "Раздел доступен только администратору")
 		return "", "", false
 	}
@@ -112,8 +113,9 @@ func (h *AdminHandler) Users(w http.ResponseWriter, r *http.Request) {
 			Role      *string `json:"role"`
 			Verified  *bool   `json:"verified"`
 			CompanyID *string `json:"companyId"` // "" — убрать из фирмы
+			Observer  *bool   `json:"observer"`  // просмотр «Застройщика» и панели администратора
 		}
-		if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 4<<10)).Decode(&body); err != nil || (body.Role == nil && body.Verified == nil && body.CompanyID == nil) {
+		if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 4<<10)).Decode(&body); err != nil || (body.Role == nil && body.Verified == nil && body.CompanyID == nil && body.Observer == nil) {
 			writeError(w, http.StatusBadRequest, "Укажите новую роль, фирму или отметку подтверждения")
 			return
 		}
@@ -160,6 +162,17 @@ func (h *AdminHandler) Users(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			database.AddAudit(actorID, actorEmail, "user_company", id, u.Email+": фирма → "+companyName)
+		}
+		if body.Observer != nil && *body.Observer != u.Observer {
+			if err := database.SetObserver(id, *body.Observer); err != nil {
+				writeError(w, http.StatusInternalServerError, "Не удалось сохранить доступ на просмотр")
+				return
+			}
+			state := "закрыт"
+			if *body.Observer {
+				state = "открыт"
+			}
+			database.AddAudit(actorID, actorEmail, "observer", id, u.Email+": просмотр «Застройщика» и панели администратора "+state)
 		}
 		if body.Verified != nil {
 			if err := database.SetUserVerified(id, *body.Verified); err != nil {

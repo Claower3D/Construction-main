@@ -98,6 +98,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	user.Token = token
+	user.Observer = database.IsObserver(user.ID)
 	w.WriteHeader(http.StatusOK)
 	_ = json.NewEncoder(w).Encode(map[string]interface{}{
 		"message": "Успешный вход",
@@ -186,6 +187,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 			}
 			existing.Token = token
 			w.WriteHeader(http.StatusOK)
+			existing.Observer = database.IsObserver(existing.ID)
 			_ = json.NewEncoder(w).Encode(map[string]interface{}{"message": "Пароль задан, вход выполнен", "token": token, "user": existing})
 			return
 		}
@@ -470,6 +472,7 @@ func (h *AuthHandler) GetMe(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	currentUser.Observer = database.IsObserver(currentUser.ID)
 	_ = json.NewEncoder(w).Encode(map[string]interface{}{
 		"user": currentUser,
 	})

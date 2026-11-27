@@ -46,3 +46,8 @@
 .atp-alert button { background: none; border: 0; color: inherit; cursor: pointer; font-size: 0.9rem; }
 .atp-alert--error { background: rgba(239, 68, 68, 0.14); border: 1px solid rgba(239, 68, 68, 0.5); color: #fecaca; }
 .atp-alert--ok { background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.5); color: #d1fae5; }
+
+/* «Просмотр всего»: человек видит «Застройщика» и панель администратора без права менять */
+.atp-watch { display: inline-flex; align-items: center; gap: 6px; font-size: 0.82rem; cursor: pointer; white-space: nowrap; }
+.atp-watch input { width: 16px; height: 16px; accent-color: #f6c453; cursor: pointer; }
+.atp-watch input:disabled { cursor: default; }

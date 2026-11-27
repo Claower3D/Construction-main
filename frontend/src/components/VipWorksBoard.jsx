@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import './VipWorksBoard.css';
 import {
@@ -40,8 +40,18 @@ const plural = (n, one, few, many) => { const a = Math.abs(n) % 100, b = a % 10;
 // ── Окно: закрывается клавишей Esc, нажатием мимо и кнопкой ──
 const openModals = []; // окно поверх окна: клавиша Esc закрывает только верхнее
 
+// Только просмотр: карточки открываются, но поля не правятся и кнопок записи нет
+const ReadOnly = createContext(false);
+const RO_NOTE = 'Только просмотр — изменения вносит администратор';
+
 function Modal({ title, onClose, children, wide = false, footer = null }) {
+  const ro = useContext(ReadOnly);
   const boxRef = useRef(null);
+  // поля в режиме просмотра гасим после каждой отрисовки: карточки общие с режимом правки
+  useEffect(() => {
+    if (!ro || !boxRef.current) return;
+    boxRef.current.querySelectorAll('.vwb-modal-body input, .vwb-modal-body select, .vwb-modal-body textarea').forEach((el) => { el.disabled = true; });
+  });
   const closeRef = useRef(onClose);
   closeRef.current = onClose;
   useEffect(() => {
@@ -71,8 +81,9 @@ function Modal({ title, onClose, children, wide = false, footer = null }) {
           <h3>{title}</h3>
           <button type="button" className="vwb-x" onClick={onClose} aria-label="Закрыть">×</button>
         </div>
-        <div className="vwb-modal-body">{children}</div>
-        {footer && <div className="vwb-modal-foot">{footer}</div>}
+        <div className={cls('vwb-modal-body', ro && 'vwb-ro')}>{children}</div>
+        {footer && !ro && <div className="vwb-modal-foot">{footer}</div>}
+        {footer && ro && <div className="vwb-modal-foot"><span className="vwb-ro-note">{RO_NOTE}</span><button type="button" className="vip-secondary-btn" onClick={onClose}>Закрыть</button></div>}
       </div>
     </div>,
     document.body,
@@ -498,7 +509,11 @@ function ProjectCard({ data, isNew, onSave, onClose }) {
 }
 
 // ── Основной экран ──
-export default function VipWorksBoard({ section = 'schedule', onToast, onProjects }) {
+export default function VipWorksBoard(props) {
+  return <ReadOnly.Provider value={!!props.readOnly}><Board {...props} /></ReadOnly.Provider>;
+}
+
+function Board({ section = 'schedule', onToast, onProjects, readOnly = false }) {
   const today = todayIso();
   const [list, setList] = useState([]);
   const [load, setLoad] = useState({ state: 'loading', error: '' });
@@ -575,6 +590,7 @@ export default function VipWorksBoard({ section = 'schedule', onToast, onProject
   }, []);
 
   const change = useCallback((mutate) => {
+    if (readOnly) { toast(RO_NOTE); return; } // сервер запись тоже не примет
     setCur((c) => {
       if (!c) return c;
       const data = mutate(JSON.parse(JSON.stringify(c.data)));
@@ -585,7 +601,7 @@ export default function VipWorksBoard({ section = 'schedule', onToast, onProject
       return { ...c, data };
     });
     setSave((s) => (s.state === 'conflict' ? s : { state: 'pending', error: '', at: '' }));
-  }, [flush]);
+  }, [flush, readOnly, toast]);
 
   useEffect(() => {
     const warn = (e) => { if (queue.current.pending || queue.current.busy) { e.preventDefault(); e.returnValue = ''; } };
@@ -683,6 +699,7 @@ export default function VipWorksBoard({ section = 'schedule', onToast, onProject
 
   const pickMachineView = (v) => { setMView(v); try { localStorage.setItem('qazgost_vip_machine_view', v); } catch { /* нет хранилища */ } };
   const addDocs = async (files) => {
+    if (readOnly) { toast(RO_NOTE); return; }
     for (const file of files) {
       if (!/\.(pdf|docx?|xlsx?|jpe?g|png|webp)$/i.test(file.name)) { toast(`⚠️ «${file.name}» не добавлен: подходят PDF, Word, Excel и фото`); continue; }
       if (file.size > 30 * 1048576) { toast(`⚠️ «${file.name}» больше 30 МБ`); continue; }
@@ -707,6 +724,7 @@ export default function VipWorksBoard({ section = 'schedule', onToast, onProject
   };
 
   const createNew = async (data) => {
+    if (readOnly) { toast(RO_NOTE); return; }
     try {
       const p = await createProject({ ...emptyProject(data.name, today), ...data });
       setModal(null);
@@ -715,6 +733,7 @@ export default function VipWorksBoard({ section = 'schedule', onToast, onProject
     } catch (e) { toast(`⚠️ Проект не создан: ${e.message}`); }
   };
   const importFile = async (file) => {
+    if (readOnly) { toast(RO_NOTE); return; }
     let doc;
     try { doc = JSON.parse(await file.text()); } catch { toast('⚠️ Файл не читается: нужен файл проекта .json'); return; }
     if (doc && doc.data && !doc.works) doc = doc.data; // файл, выгруженный вместе с номером версии
@@ -735,6 +754,7 @@ export default function VipWorksBoard({ section = 'schedule', onToast, onProject
     setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   };
   const removeProject = async () => {
+    if (readOnly) { setConfirm(null); toast(RO_NOTE); return; }
     const id = cur.id, name = project.name;
     setConfirm(null);
     try { queue.current.pending = null; await deleteProject(id); toast(`🗑️ Проект «${name}» удалён`); try { localStorage.removeItem('qazgost_vip_project'); } catch { /* нет хранилища */ } await refresh(); } catch (e) { toast(`⚠️ Проект не удалён: ${e.message}`); }
@@ -759,8 +779,8 @@ export default function VipWorksBoard({ section = 'schedule', onToast, onProject
         {hiddenInput}
         <div className="vwb-empty">
           <h3>Рабочих проектов пока нет</h3>
-          <p>Загрузите готовый проект из файла — с работами, штатом и техникой — или создайте пустой и заполните его здесь.</p>
-          <div className="vwb-actions">
+          <p>{readOnly ? 'Когда администратор добавит проект, он появится здесь. У вас просмотр без права менять.' : 'Загрузите готовый проект из файла — с работами, штатом и техникой — или создайте пустой и заполните его здесь.'}</p>
+          <div className="vwb-actions" hidden={readOnly}>
             <button type="button" className="vip-primary-btn" onClick={() => fileRef.current.click()}>⬆ Загрузить проект из файла</button>
             <button type="button" className="vip-secondary-btn" onClick={() => setModal({ type: 'project', isNew: true, item: { name: '', startDate: today } })}>＋ Создать пустой проект</button>
           </div>
@@ -773,8 +793,9 @@ export default function VipWorksBoard({ section = 'schedule', onToast, onProject
   const saveLabel = { idle: cur.updatedAt ? 'Сохранено на сервере' : '', pending: 'Есть несохранённые правки…', saving: 'Сохраняется…', saved: `Сохранено в ${save.at}`, error: 'Не сохранено', conflict: 'Не сохранено' }[save.state];
 
   return (
-    <div className="vip-content-section vwb">
+    <div className={cls('vip-content-section vwb', readOnly && 'vwb-ro')}>
       {hiddenInput}
+      {readOnly && <div className="vwb-ro-banner" role="note"><b>Только просмотр.</b> Вы видите проект целиком; изменения вносят администратор и менеджер.</div>}
       {/* проект и действия */}
       <div className="vwb-bar">
         <label className="vwb-project">
@@ -784,11 +805,11 @@ export default function VipWorksBoard({ section = 'schedule', onToast, onProject
           </select>
         </label>
         <div className="vwb-actions">
-          <button type="button" className="vip-secondary-btn" onClick={() => setModal({ type: 'project', isNew: false, item: project })}>✎ Проект и реквизиты</button>
-          <button type="button" className="vip-secondary-btn" onClick={() => setModal({ type: 'project', isNew: true, item: { name: '', startDate: today } })}>＋ Новый проект</button>
-          <button type="button" className="vip-secondary-btn" onClick={() => fileRef.current.click()}>⬆ Из файла</button>
+          <button type="button" className="vip-secondary-btn" onClick={() => setModal({ type: 'project', isNew: false, item: project })}>{readOnly ? 'Проект и реквизиты' : '✎ Проект и реквизиты'}</button>
+          <button type="button" className="vip-secondary-btn vwb-edit" onClick={() => setModal({ type: 'project', isNew: true, item: { name: '', startDate: today } })}>＋ Новый проект</button>
+          <button type="button" className="vip-secondary-btn vwb-edit" onClick={() => fileRef.current.click()}>⬆ Из файла</button>
           <button type="button" className="vip-secondary-btn" onClick={exportFile}>⬇ В файл</button>
-          <button type="button" className="vip-secondary-btn" onClick={() => setConfirm({ title: 'Удалить проект?', text: `Проект «${project.name}» со всеми работами, штатом и техникой будет удалён с сервера. Отменить это нельзя — при необходимости сначала сохраните его в файл.`, onYes: removeProject })}>🗑 Удалить</button>
+          <button type="button" className="vip-secondary-btn vwb-edit" onClick={() => setConfirm({ title: 'Удалить проект?', text: `Проект «${project.name}» со всеми работами, штатом и техникой будет удалён с сервера. Отменить это нельзя — при необходимости сначала сохраните его в файл.`, onYes: removeProject })}>🗑 Удалить</button>
         </div>
         <span className={cls('vwb-save', save.state)} role="status">{saveLabel}</span>
       </div>
@@ -954,7 +975,7 @@ export default function VipWorksBoard({ section = 'schedule', onToast, onProject
                       <td>{brigadeName(w.brigadeId) || <span className="vwb-muted">не назначена</span>}{conflicts.has(w.id) ? <span className="vwb-flag" title={`Пересекается: ${conflicts.get(w.id).join(', ')}`}>бригада занята</span> : null}</td>
                       <td>
                         <span className={cls('vwb-pill', `s-${w.status}`, isOverdue(w, today) && 'over')}>{STATUS[w.status].label}{isOverdue(w, today) ? ' · срок вышел' : ''}</span>
-                        {isOverdue(w, today) && <button type="button" className="vwb-link vwb-done" onClick={(e) => { e.stopPropagation(); markDone(w); }}>✓ отметить выполненной</button>}
+                        {isOverdue(w, today) && <button type="button" className="vwb-link vwb-done vwb-edit" onClick={(e) => { e.stopPropagation(); markDone(w); }}>✓ отметить выполненной</button>}
                       </td>
                       <td>{(w.media || []).length || '—'}</td>
                     </tr>
@@ -976,7 +997,7 @@ export default function VipWorksBoard({ section = 'schedule', onToast, onProject
           <div className="vwb-budget">
             <div className="vwb-budget-head">
               <h3>Бюджет на строительство</h3>
-              <button type="button" className="vwb-link" onClick={() => setModal({ type: 'project', isNew: false, item: project })}>изменить бюджет</button>
+              <button type="button" className="vwb-link vwb-edit" onClick={() => setModal({ type: 'project', isNew: false, item: project })}>изменить бюджет</button>
             </div>
             {budget.budget > 0 ? (
               <>
@@ -1041,7 +1062,7 @@ export default function VipWorksBoard({ section = 'schedule', onToast, onProject
                     <div className={cls('vwb-brigade', issues.length && 'bad')} key={b.id}>
                       <div className="vwb-brigade-head">
                         <h4>{b.name}</h4>
-                        <button type="button" className="vwb-link" onClick={() => setModal({ type: 'brigade', isNew: false, item: b })}>изменить состав</button>
+                        <button type="button" className="vwb-link" onClick={() => setModal({ type: 'brigade', isNew: false, item: b })}>{readOnly ? 'открыть состав' : 'изменить состав'}</button>
                       </div>
                       <span className={cls('vwb-pill', issues.length ? 'over' : 's-done')}>{b.members.length} чел. · {b.equipment.length} ед. техники{issues.length ? ` — ${issues.join('; ')}` : ''}</span>
                       <ul className="people">{b.members.map((id) => { const p = project.staff.find((x) => x.id === id); return p ? <li key={id}><Avatar person={p} size={40} /><span><b>{p.name}</b><small>{p.role || 'должность не указана'}</small></span></li> : null; })}</ul>
@@ -1161,14 +1182,14 @@ export default function VipWorksBoard({ section = 'schedule', onToast, onProject
                   {project.docs.map((doc, i) => (
                     <tr key={doc.id} className="plain">
                       <td>{i + 1}</td>
-                      <td><input className="vip-input" value={doc.title || ''} onChange={(e) => setDoc(doc.id, { title: e.target.value })} maxLength={200} aria-label="Название документа" /><small className="vwb-muted">{doc.name}</small></td>
-                      <td><select className="vip-input" value={DOC_KINDS.includes(doc.kind) ? doc.kind : 'Другое'} onChange={(e) => setDoc(doc.id, { kind: e.target.value })} aria-label="Вид документа">{DOC_KINDS.map((k) => <option key={k} value={k}>{k}</option>)}</select></td>
+                      <td><input className="vip-input" value={doc.title || ''} onChange={(e) => setDoc(doc.id, { title: e.target.value })} maxLength={200} aria-label="Название документа" disabled={readOnly} /><small className="vwb-muted">{doc.name}</small></td>
+                      <td><select className="vip-input" value={DOC_KINDS.includes(doc.kind) ? doc.kind : 'Другое'} onChange={(e) => setDoc(doc.id, { kind: e.target.value })} aria-label="Вид документа" disabled={readOnly}>{DOC_KINDS.map((k) => <option key={k} value={k}>{k}</option>)}</select></td>
                       <td>{doc.date ? `${formatDay(doc.date, true)} ${doc.date.slice(0, 4)}` : '—'}</td>
                       <td>{doc.size ? fmtSize(doc.size) : '—'}</td>
                       <td>{doc.addedBy || '—'}</td>
                       <td className="acts">
                         <a className="vip-secondary-btn" href={fileUrl(doc.url)} download={doc.name || doc.title} target="_blank" rel="noreferrer">⬇ Скачать</a>
-                        <button type="button" className="vwb-link" onClick={() => setConfirm({ title: 'Убрать документ?', text: `Документ «${doc.title || doc.name}» исчезнет из проекта.`, yes: 'Убрать', onYes: () => { change((d) => { d.docs = (d.docs || []).filter((x) => x.id !== doc.id); return d; }); setConfirm(null); } })}>убрать</button>
+                        <button type="button" className="vwb-link vwb-edit" onClick={() => setConfirm({ title: 'Убрать документ?', text: `Документ «${doc.title || doc.name}» исчезнет из проекта.`, yes: 'Убрать', onYes: () => { change((d) => { d.docs = (d.docs || []).filter((x) => x.id !== doc.id); return d; }); setConfirm(null); } })}>убрать</button>
                       </td>
                     </tr>
                   ))}

@@ -1,0 +1,17 @@
+8252|Lecture seule — les modifications sont faites par l’administrateur
+8253|Vous avez un accès en lecture seule — les modifications sont faites par l’administrateur
+8254|Lecture seule.
+8255|Vous voyez tout le projet ; les modifications sont faites par l’administrateur et le manager.
+8256|Vous voyez le panneau d’administration ; les utilisateurs, rôles et sociétés sont modifiés par l’administrateur.
+8257|Lorsque l’administrateur ajoutera un projet, il apparaîtra ici. Vous avez un accès en lecture seule.
+4424|Projet et coordonnées
+8258|ouvrir l’équipe
+8259|Tout voir
+8260|voit tout
+8261|activé
+8262|Accès en lecture accordé
+8263|Accès en lecture retiré
+8264|La personne voit le module Promoteur et le panneau d’administration, mais ne peut rien y modifier. La mise à jour lui parvient en moins d’une minute.
+8265|L’accès est retiré immédiatement, même si la personne est connectée en ce moment.
+8266|Accès réservé à l’administrateur, au manager et aux personnes ayant un accès en lecture. Le compte est le même que sur qazgost.kz.
+8267|Voit le module Promoteur et le panneau d’administration, mais ne peut rien y modifier
