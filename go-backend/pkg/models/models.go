@@ -63,6 +63,8 @@ type User struct {
 	Company      string    `json:"company,omitempty"`
 	Token        string    `json:"token,omitempty"`
 	CreatedAt    time.Time `json:"createdAt"`
+	// Observer — открыт просмотр «Застройщика» и панели администратора (без права менять)
+	Observer bool `json:"observer,omitempty"`
 
 	// Согласия при регистрации (Закон РК «О персональных данных и их защите», ст. 8):
 	// дата и версия текста — доказательство того, с чем пользователь согласился.

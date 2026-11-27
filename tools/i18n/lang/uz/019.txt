@@ -1,0 +1,17 @@
+8252|Faqat ko‘rish — o‘zgartirishlarni administrator kiritadi
+8253|Sizda faqat ko‘rish huquqi bor — o‘zgartirishlarni administrator kiritadi
+8254|Faqat ko‘rish.
+8255|Siz loyihani to‘liq ko‘rasiz; o‘zgartirishlarni administrator va menejer kiritadi.
+8256|Siz administrator panelini ko‘rasiz; foydalanuvchilar, rollar va firmalarni administrator o‘zgartiradi.
+8257|Administrator loyiha qo‘shganda, u shu yerda paydo bo‘ladi. Sizda faqat ko‘rish huquqi bor.
+4424|Loyiha va rekvizitlar
+8258|tarkibni ochish
+8259|Hammasini ko‘rish
+8260|hammasini ko‘radi
+8261|ochiq
+8262|Ko‘rish ochildi
+8263|Ko‘rish yopildi
+8264|Shaxs «Quruvchi» moduli va administrator panelini ko‘radi, lekin u yerda hech narsani o‘zgartira olmaydi. Yangilanish unga bir daqiqa ichida yetib boradi.
+8265|Shaxs hozir kabinetda bo‘lsa ham, kirish darhol yopiladi.
+8266|Kirish administrator, menejer va ko‘rish huquqi berilganlar uchun. Hisob qazgost.kz saytidagi bilan bir xil.
+8267|«Quruvchi» moduli va administrator panelini ko‘radi, lekin hech narsani o‘zgartira olmaydi

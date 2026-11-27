@@ -47,13 +47,15 @@ function realAsObject(item, data) {
   };
 }
 
-// Рабочие проекты (график, штат, техника) ведут администратор и менеджер; сервер проверяет роль сам
-function isOfficeStaff() {
+// Рабочие проекты (график, штат, техника) ведут администратор и менеджер; наблюдатель их только
+// смотрит. Сервер проверяет это сам: 'edit' — можно менять, 'view' — только просмотр, '' — нет доступа.
+function projectAccess() {
   try {
-    const role = JSON.parse(localStorage.getItem('app_currentUser') || '{}').role;
-    return role === 'admin' || role === 'manager';
+    const user = JSON.parse(localStorage.getItem('app_currentUser') || '{}');
+    if (user.role === 'admin' || user.role === 'manager') return 'edit';
+    return user.observer === true ? 'view' : '';
   } catch (e) {
-    return false;
+    return '';
   }
 }
 
@@ -282,10 +284,12 @@ const ACCREDITED_CONTRACTORS = [
   }
 ];
 
-export default function BuildingConstructionPage({ onBack, hideHeader = false }) {
+export default function BuildingConstructionPage({ onBack, hideHeader = false, readOnly: readOnlyProp = false }) {
   // Navigation tabs matching flowchart:
   // 'objects' (Мои объекты) | 'create' (Создать объект) | 'works_calc' (Выбор СМР & Оценка) | 'ai_audit' (Проверка инженером) | 'lots' (Лоты / Заказы) | 'docs' (Документы & PDF) | 'contractors' (Допуск подрядчиков)
-  const staff = isOfficeStaff();
+  const access = projectAccess();
+  const staff = access !== '';
+  const readOnly = readOnlyProp || access === 'view';
   const [activeTab, setActiveTab] = useState(staff ? 'schedule' : 'objects');
   const [realProjects, setRealProjects] = useState([]);
   const realTab = activeTab === 'schedule' || activeTab === 'team';
@@ -709,7 +713,7 @@ export default function BuildingConstructionPage({ onBack, hideHeader = false })
       </div>
 
       {/* ── РАБОЧИЕ ПРОЕКТЫ: график работ, штат и техника (данные на сервере) ── */}
-      {staff && (realTab || staffDocs) && <VipWorksBoard section={activeTab} onToast={showToast} onProjects={setRealProjects} />}
+      {staff && (realTab || staffDocs) && <VipWorksBoard section={activeTab} onToast={showToast} onProjects={setRealProjects} readOnly={readOnly} />}
 
       {/* ── 3. TAB 1: МОИ ОБЪЕКТЫ (OBJECTS DASHBOARD + 3D BIM PREVIEW) ── */}
       {activeTab === 'objects' && (

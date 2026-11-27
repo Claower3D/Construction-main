@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import VipWorksBoard from '@site/components/VipWorksBoard';
 import VipObjectView from '@site/components/vip/VipObjectView';
 import { listProjects, getProject } from '@site/services/vipApi';
-import { getSession, clearSession, signIn, sessionAccepted } from './session';
+import { getSession, clearSession, signIn, sessionAccepted, ROLES } from './session';
 
 // Приложение «VIP Застройщик»: те же экраны, что в модуле «Строительство зданий» на сайте.
 // Внизу четыре раздела: график работ, объект с моделью, люди и техника, документы.
@@ -44,7 +44,7 @@ function Login({ onDone, notice }) {
           </span>
         </label>
         <button type="submit" className="vip-primary-btn vb-submit" disabled={busy}>{busy ? 'Входим…' : 'Войти'}</button>
-        <p className="vb-note">Доступ — у администратора и менеджера. Учётная запись та же, что на сайте qazgost.kz.</p>
+        <p className="vb-note">Доступ — у администратора, менеджера и тех, кому открыт просмотр. Учётная запись та же, что на сайте qazgost.kz.</p>
       </form>
     </div>
   );
@@ -81,7 +81,7 @@ export default function App() {
 
   const signOut = useCallback((why = '') => { clearSession(); setSession(null); setNotice(why); }, []);
 
-  // сессию могли закрыть с другого устройства (у администратора она одна) — проверяем при запуске и возврате в приложение
+  // сессию могли закрыть (сменили пароль или права) — проверяем при запуске и возврате в приложение
   useEffect(() => {
     if (!session) return undefined;
     let alive = true;
@@ -121,7 +121,7 @@ export default function App() {
         {toast && <div className="vip-toast" role="status">{toast}</div>}
         {tab === 'object'
           ? <ObjectScreen onOpen={setTab} />
-          : <VipWorksBoard key={tab} section={tab} onToast={showToast} />}
+          : <VipWorksBoard key={tab} section={tab} onToast={showToast} readOnly={!ROLES.includes(session.user.role)} />}
       </main>
       <nav className="vb-nav" aria-label="Разделы">
         {TABS.map((t) => (

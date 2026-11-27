@@ -52,7 +52,9 @@ const ROLE_RESTRICTED_VIEWS = {
 function canOpenDashboard(view, user) {
   if (!user) return false;
   const allowed = ROLE_RESTRICTED_VIEWS[view];
-  return !allowed || allowed.includes(user.role);
+  if (!allowed || allowed.includes(user.role)) return true;
+  // наблюдатель: панель администратора открыта на просмотр; CRM менеджера для него закрыта
+  return view === 'admin' && user.observer === true;
 }
 
 // Вид по первому сегменту адреса. Раньше сравнивали по началу строки, и «/engineering»
@@ -200,6 +202,13 @@ export default function App() {
           try { code = (await res.json()).code || ''; } catch (e) { /* ответ без тела */ }
           // session_revoked — у аккаунта сменили пароль или роль; вход с другого устройства сессию не закрывает
           expire(code === 'session_revoked' ? 'replaced' : '1');
+        }
+        // доступ на просмотр («наблюдатель») администратор может открыть или закрыть в любой момент —
+        // подхватываем это без повторного входа
+        if (res.ok && getAuthToken() === token) {
+          let seen = null;
+          try { seen = (await res.json()).user || null; } catch (e) { /* ответ без тела */ }
+          if (seen && !stopped) setCurrentUser((u) => (u && !!u.observer !== !!seen.observer ? { ...u, observer: !!seen.observer } : u));
         }
       } catch (e) { /* нет связи — оставляем как есть */ }
     };

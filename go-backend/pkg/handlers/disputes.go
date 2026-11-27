@@ -18,7 +18,8 @@ func (h *DisputesHandler) GetDisputes(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	// Споры разбирают администратор и менеджер. Раздел пока без формы подачи, поэтому остальным
 	// отдаём пустой список: раньше любой вошедший пользователь получал все споры платформы.
-	if _, role := currentUser(r); !isStaff(role) {
+	// наблюдателю список открыт на просмотр (других действий у раздела нет)
+	if uid, role := currentUser(r); !isStaff(role) && !database.IsObserver(uid) {
 		_ = json.NewEncoder(w).Encode([]*models.Dispute{})
 		return
 	}

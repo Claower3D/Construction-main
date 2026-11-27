@@ -1,0 +1,17 @@
+8252|Yalnızca görüntüleme — değişiklikleri yönetici yapar
+8253|Yalnızca görüntüleme yetkiniz var — değişiklikleri yönetici yapar
+8254|Yalnızca görüntüleme.
+8255|Projenin tamamını görüyorsunuz; değişiklikleri yönetici ve müdür yapar.
+8256|Yönetici panelini görüyorsunuz; kullanıcıları, rolleri ve firmaları yönetici değiştirir.
+8257|Yönetici bir proje eklediğinde burada görünecek. Yalnızca görüntüleme yetkiniz var.
+4424|Proje ve bilgiler
+8258|ekibi aç
+8259|Tümünü görüntüleme
+8260|her şeyi görür
+8261|açık
+8262|Görüntüleme açıldı
+8263|Görüntüleme kapatıldı
+8264|Kişi “Yapımcı” modülünü ve yönetici panelini görür, ancak hiçbir şeyi değiştiremez. Güncelleme bir dakika içinde ona ulaşır.
+8265|Kişi şu anda panelde olsa bile erişim hemen kapatılır.
+8266|Erişim yöneticiye, müdüre ve görüntüleme izni verilenlere açıktır. Hesap, qazgost.kz sitesindekiyle aynıdır.
+8267|“Yapımcı” modülünü ve yönetici panelini görür, ancak hiçbir şeyi değiştiremez

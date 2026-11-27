@@ -685,3 +685,13 @@
   .vob-dots-list button { flex-basis: 40px; width: 40px; height: 40px; }
   .vob-dots-list button svg { width: 24px; height: 24px; }
 }
+
+/* ── Только просмотр (наблюдатель): всё видно, кнопок записи нет ── */
+.vwb-ro .vwb-add, .vwb-ro .vwb-edit, .vwb-ro .vwb-save { display: none !important; }
+.vwb-ro-banner { margin: 0 0 12px; padding: 10px 14px; border-radius: 12px; border: 1px solid rgba(246, 196, 83, 0.45); background: rgba(246, 196, 83, 0.1); color: var(--vip-text, #f3efff); font-size: 0.86rem; line-height: 1.4; }
+.vwb-ro-banner b { color: #f6c453; font-weight: 800; }
+.vwb-modal-body.vwb-ro .vip-secondary-btn, .vwb-modal-body.vwb-ro .vip-primary-btn, .vwb-modal-body.vwb-ro .vwb-link { display: none !important; }
+.vwb-modal-body.vwb-ro .vwb-form { pointer-events: none; }
+.vwb-modal-body.vwb-ro input:disabled, .vwb-modal-body.vwb-ro select:disabled, .vwb-modal-body.vwb-ro textarea:disabled,
+.vwb-ro input.vip-input:disabled, .vwb-ro select.vip-input:disabled { opacity: 1; color: inherit; -webkit-text-fill-color: currentColor; cursor: default; }
+.vwb-ro-note { margin-right: auto; font-size: 0.82rem; color: #f6c453; font-weight: 700; }

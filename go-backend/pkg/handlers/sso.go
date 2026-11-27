@@ -136,6 +136,7 @@ func (h *AuthHandler) SsoExchange(w http.ResponseWriter, r *http.Request) {
 	}
 	user.Token = token
 	w.Header().Set("Cache-Control", "no-store")
+	user.Observer = database.IsObserver(user.ID)
 	writeJSON(w, http.StatusOK, map[string]interface{}{"message": "Успешный вход", "token": token, "user": user})
 }
 

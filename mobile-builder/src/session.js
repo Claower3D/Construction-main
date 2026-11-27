@@ -5,6 +5,8 @@ import { apiHost } from '@site/services/vipApi';
 const K_TOKEN = 'auth_token';
 const K_USER = 'app_currentUser';
 export const ROLES = ['admin', 'manager']; // рабочие проекты ведут администратор и менеджер
+// наблюдатель (user.observer) проекты только смотрит — сервер пускает его лишь на чтение
+export const mayOpen = (user) => !!user && (ROLES.includes(user.role) || user.observer === true);
 
 const read = (k) => { try { return localStorage.getItem(k); } catch { return null; } };
 
@@ -20,7 +22,7 @@ export function getSession() {
   if (!token || !tokenAlive(token)) return null;
   try {
     const user = JSON.parse(read(K_USER) || 'null');
-    return user && ROLES.includes(user.role) ? { token, user } : null;
+    return mayOpen(user) ? { token, user } : null;
   } catch { return null; }
 }
 
@@ -45,7 +47,7 @@ export async function signIn(email, password) {
     throw new Error('Сервер временно недоступен, попробуйте через минуту.');
   }
   if (!data.token || !data.user) throw new Error('Сервер вернул неполный ответ, попробуйте ещё раз.');
-  if (!ROLES.includes(data.user.role)) throw new Error('Это приложение для администратора и менеджера. Войдите под рабочей учётной записью.');
+  if (!mayOpen(data.user)) throw new Error('Это приложение для администратора и менеджера. Войдите под рабочей учётной записью.');
   try { localStorage.setItem(K_TOKEN, data.token); localStorage.setItem(K_USER, JSON.stringify(data.user)); } catch { /* память недоступна */ }
   return { token: data.token, user: data.user };
 }
