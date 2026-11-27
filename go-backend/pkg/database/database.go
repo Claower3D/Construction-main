@@ -87,6 +87,7 @@ func InitDB(dbURL string) error {
 
 	restoreTeamManagerRole()
 	ensureTeamEngineerSaken()
+	ensureSakenNoCRM()
 
 	// Seed inserts orders 101/102 with explicit ids; keep SERIAL ahead of MAX(id),
 	// otherwise the 101st order fails with a duplicate key.
@@ -685,6 +686,54 @@ func restoreTeamManagerRole() {
 		AddAudit("system", "system", "role", id, email+": customer → manager (разовая правка)")
 		log.Printf("✅ [PostgreSQL] Роль менеджера возвращена: %s", email)
 	}
+}
+
+// ensureSakenNoCRM — разовая правка: Сакен (saken@qazgost.kz) — инженер без доступа к CRM
+// (роль engineer_nocrm) с паролем, который назначил владелец. Аккаунт есть — меняет роль и пароль
+// и закрывает старые сессии (в них записана прежняя роль); нет — заводит. Выполняется один раз:
+// потом Сакен может сменить пароль сам, а администратор — роль.
+// Пароль в коде не хранится — только его отпечаток (соль:хеш), как в базе.
+func ensureSakenNoCRM() {
+	const fix = "saken_engineer_nocrm_v1"
+	const email = "saken@qazgost.kz"
+	const hash = "9f3b54d29e56e2961a1be6061115fe93:57954dc5610dedb7fb1c7867cc3961625dc55ad842d026a7db618f7a0b233595"
+	if _, err := DB.Exec(`CREATE TABLE IF NOT EXISTS applied_fixes (name TEXT PRIMARY KEY, applied_at BIGINT NOT NULL DEFAULT 0)`); err != nil {
+		log.Printf("[PostgreSQL] applied_fixes: %v", err)
+		return
+	}
+	now := time.Now().Unix()
+	res, err := DB.Exec(`INSERT INTO applied_fixes (name, applied_at) VALUES ($1, $2) ON CONFLICT (name) DO NOTHING`, fix, now)
+	if err != nil {
+		log.Printf("[PostgreSQL] applied_fixes insert: %v", err)
+		return
+	}
+	if n, _ := res.RowsAffected(); n == 0 {
+		return // уже выполнялась
+	}
+	retry := func(what string, err error) {
+		log.Printf("[PostgreSQL] Saken without CRM (%s): %v", what, err)
+		DB.Exec(`DELETE FROM applied_fixes WHERE name = $1`, fix) // повторим при следующем запуске
+	}
+	var id string
+	err = DB.QueryRow(`SELECT id FROM users WHERE LOWER(email) = $1 LIMIT 1`, email).Scan(&id)
+	if err == nil {
+		if _, err := DB.Exec(`UPDATE users SET role = 'engineer_nocrm', password_hash = $1, name = 'Инженер Сакен',
+			sessions_revoked_unix = GREATEST(sessions_revoked_unix, $2) WHERE id = $3`, hash, now, id); err != nil {
+			retry("update", err)
+			return
+		}
+		AddAudit("system", "system", "role", id, email+": инженер без CRM, пароль назначен владельцем (разовая правка)")
+		log.Printf("✅ [PostgreSQL] %s: роль engineer_nocrm, пароль обновлён", email)
+		return
+	}
+	id = "usr_engineer_saken"
+	if _, err := DB.Exec(`INSERT INTO users (id, email, name, password_hash, role, phone, city, company, created_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
+		id, email, "Инженер Сакен", hash, "engineer_nocrm", "", "Караганда", "ТОО «GostBuild Инжиниринг»", time.Now()); err != nil {
+		retry("insert", err)
+		return
+	}
+	AddAudit("system", "system", "create", id, email+": инженер без CRM (разовая правка)")
+	log.Printf("✅ [PostgreSQL] Создан аккаунт инженера без CRM: %s", email)
 }
 
 // ensureTeamEngineerSaken — разовая правка: заводит именной аккаунт инженера команды Сакена

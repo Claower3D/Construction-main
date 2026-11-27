@@ -9,6 +9,7 @@ import './AdminTeamPanel.css';
 const ROLES = [
   { key: 'executor', label: 'Исполнитель (мастер)' },
   { key: 'engineer', label: 'Инженер' },
+  { key: 'engineer_nocrm', label: 'Инженер без CRM' },
   { key: 'company', label: 'Подрядчик (фирма)' },
   { key: 'manager', label: 'Менеджер' },
   { key: 'customer', label: 'Заказчик' },

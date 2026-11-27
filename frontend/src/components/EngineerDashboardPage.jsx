@@ -12,8 +12,10 @@ import { upsertCrmEvent } from '../services/orderSyncService';
 // Вкладки, наполненные образцами (локальное состояние, сервер не участвует)
 const DEMO_TABS = new Set(['overview', 'requests', 'objects', 'media', 'measures', 'estimates', 'teams', 'materials', 'reports', 'expenses', 'notifications']);
 
+import { canSeeCrm } from '../services/roleAccess';
 export default function EngineerDashboardPage({ onBackToHome, initialTab = 'calendar', currentUser, viewRole = 'engineer', hideHeader = false, sidebarToggleNode }) {
   const isExecutor = (currentUser?.role === 'executor') || (viewRole === 'executor');
+  const crmHidden = !canSeeCrm(currentUser) && !!currentUser; // инженер без CRM: ни сделок, ни календаря команды
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [activeTab, setActiveTab] = useState(initialTab || 'calendar'); // Dynamic tab state
   const [showTeamCalendar, setShowTeamCalendar] = useState(false); // календарь «мои задачи / моя фирма»
@@ -118,7 +120,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
       return merged;
     };
 
-    const crmEvents = parseEvents('qazgost_crm_calendar');
+    const crmEvents = crmHidden ? {} : parseEvents('qazgost_crm_calendar');
     const calEvents = parseEvents('qazgost_calendar_events');
     const executorEvents = parseEvents('qazgost_calendar_events_executor');
     const engineerEvents = parseEvents('qazgost_calendar_events_engineer');
@@ -265,7 +267,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
         const saved = localStorage.getItem('qazgost_engineer_requests');
         if (saved) setRequestsList(JSON.parse(saved));
         
-        const crmCal = JSON.parse(localStorage.getItem('qazgost_crm_calendar') || '{}');
+        const crmCal = crmHidden ? {} : JSON.parse(localStorage.getItem('qazgost_crm_calendar') || '{}');
         const calSaved = JSON.parse(localStorage.getItem('qazgost_calendar_events') || '{}');
         const merged = { ...calSaved };
         for (const day in crmCal) {
@@ -2014,7 +2016,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
           {/* ======================================================= */}
           {/* 12. OBJECTS TAB (🏗️ Объекты)                          */}
           {/* ======================================================= */}
-          {showTeamCalendar && (
+          {showTeamCalendar && !crmHidden && (
             <div className="crm-team-overlay" role="dialog" aria-modal="true" aria-label="Мой календарь">
               <button type="button" className="crm-team-close" onClick={() => setShowTeamCalendar(false)}>✕ Закрыть календарь</button>
               <CrmPage scope="team" currentUser={currentUser} onBackToHome={() => setShowTeamCalendar(false)} />
@@ -2035,7 +2037,7 @@ export default function EngineerDashboardPage({ onBackToHome, initialTab = 'cale
                       onChange={(e) => setObjectsSearch(e.target.value)}
                     />
                   </div>
-                  <button type="button" className="btn-primary-action btn-team-calendar" onClick={() => setShowTeamCalendar(true)}>📅 Мой календарь</button>
+                  {!crmHidden && <button type="button" className="btn-primary-action btn-team-calendar" onClick={() => setShowTeamCalendar(true)}>📅 Мой календарь</button>}
                   <button className="btn-primary-action" onClick={handleOpenCreateModal}>+ Новый объект</button>
                 </div>
               </div>

@@ -28,7 +28,7 @@ func NewAdminHandler() *AdminHandler { return &AdminHandler{} }
 
 // AdminRoles — роли, которые администратор может назначить
 var AdminRoles = map[string]bool{
-	"customer": true, "executor": true, "engineer": true, "company": true, "manager": true, "admin": true,
+	"customer": true, "executor": true, "engineer": true, RoleEngineerNoCRM: true, "company": true, "manager": true, "admin": true,
 }
 
 func adminOnly(w http.ResponseWriter, r *http.Request) (id, email string, ok bool) {

@@ -19,6 +19,7 @@ import PageLoader from './components/PageLoader';
 import { categoriesData } from './data/categoriesData';
 import { LEGAL_PATHS } from './data/legal';
 import { getAuthToken, jwtExpiry } from './services/platformUtils';
+import { toUiUser } from './services/roleAccess';
 
 // Тяжёлые разделы грузятся отдельными чанками только при переходе в них
 // (раньше всё приложение, включая three.js и xlsx, приходило одним JS-файлом ~2,3 МБ).
@@ -84,7 +85,7 @@ export default function App() {
     try {
       const saved = localStorage.getItem('app_currentUser');
       const parsed = saved ? JSON.parse(saved) : null;
-      return parsed && typeof parsed === 'object' ? parsed : null;
+      return parsed && typeof parsed === 'object' ? toUiUser(parsed) : null;
     } catch {
       // Повреждённое значение больше не роняет приложение (белый экран)
       localStorage.removeItem('app_currentUser');
@@ -227,7 +228,8 @@ export default function App() {
     window.scrollTo(0, 0);
   };
 
-  const handleLogin = (user) => {
+  const handleLogin = (rawUser) => {
+    const user = toUiUser(rawUser); // инженер без CRM открывает кабинет инженера
     setCurrentUser(user);
     setRole(user.role);
     navigateToDashboard(user.role);

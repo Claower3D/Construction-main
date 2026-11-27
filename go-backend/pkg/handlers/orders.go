@@ -23,7 +23,7 @@ func NewOrdersHandler() *OrdersHandler {
 // canSeeAllOrders: staff, engineers (technical supervision) and executors see the order board;
 // customers see only the orders they created.
 func canSeeAllOrders(role string) bool {
-	return isStaff(role) || role == "engineer" || role == "executor" || role == "company"
+	return isStaff(role) || isEngineer(role) || role == "executor" || role == "company"
 }
 
 // canModifyOrder: creator, admin/manager, engineers (technical supervision), or an executor whose company is the contractor
@@ -32,7 +32,7 @@ func canModifyOrder(r *http.Request, o *models.Order) bool {
 	if isStaff(role) || (uid != "" && o.CreatedBy == uid) {
 		return true
 	}
-	if role == "engineer" { // technical supervision works on every object
+	if isEngineer(role) { // technical supervision works on every object
 		return true
 	}
 	if role == "executor" {

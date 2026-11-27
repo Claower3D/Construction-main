@@ -15,6 +15,15 @@ func currentUser(r *http.Request) (id, role string) {
 	return id, role
 }
 
+// RoleEngineerNoCRM — инженер без доступа к CRM: всё, что может инженер (кабинет, технадзор, сметы,
+// заказы, команда), кроме чужих сделок CRM — их сервер ему не отдаёт, как заказчику.
+const RoleEngineerNoCRM = "engineer_nocrm"
+
+// isEngineer — инженер с CRM или без
+func isEngineer(role string) bool {
+	return role == "engineer" || role == RoleEngineerNoCRM
+}
+
 // isStaff reports whether the role may act on other users' data
 func isStaff(role string) bool {
 	return role == "admin" || role == "manager"

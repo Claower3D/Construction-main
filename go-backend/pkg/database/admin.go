@@ -127,7 +127,7 @@ func GetAdminOverview(days int) AdminOverview {
 	o.Users.New7 = scalarInt(`SELECT COUNT(*) FROM users WHERE created_at >= NOW() - INTERVAL '7 days'`)
 	o.Users.New30 = scalarInt(`SELECT COUNT(*) FROM users WHERE created_at >= NOW() - INTERVAL '30 days'`)
 	o.Users.PerDay = perDay("users", days)
-	o.Users.Unverified = scalarInt(`SELECT COUNT(*) FROM users WHERE role IN ('engineer','company','executor') AND verified_at IS NULL`)
+	o.Users.Unverified = scalarInt(`SELECT COUNT(*) FROM users WHERE role IN ('engineer','engineer_nocrm','company','executor') AND verified_at IS NULL`)
 	o.Users.Marketing = scalarInt(`SELECT COUNT(*) FROM users WHERE marketing_opt_in`)
 	o.Users.PassChanged = scalarInt(`SELECT COUNT(*) FROM users WHERE password_changed_unix > 0`)
 
@@ -207,7 +207,7 @@ func ListAdminUsers(q, role string, unverified bool, limit, offset int) ([]Admin
 		where = append(where, fmt.Sprintf("role = $%d", len(args)))
 	}
 	if unverified {
-		where = append(where, `role IN ('engineer','company','executor') AND verified_at IS NULL`)
+		where = append(where, `role IN ('engineer','engineer_nocrm','company','executor') AND verified_at IS NULL`)
 	}
 	cond := strings.Join(where, " AND ")
 	total := scalarInt(`SELECT COUNT(*) FROM users WHERE `+cond, args...)

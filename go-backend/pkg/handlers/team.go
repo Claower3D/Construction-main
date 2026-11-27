@@ -33,7 +33,7 @@ type teamCompany struct {
 	People   []database.TeamPerson `json:"people"`
 }
 
-var teamViewerRoles = map[string]bool{"admin": true, "manager": true, "engineer": true, "executor": true, "company": true}
+var teamViewerRoles = map[string]bool{"admin": true, "manager": true, "engineer": true, RoleEngineerNoCRM: true, "executor": true, "company": true}
 
 func (h *CRMHandler) GetTeam(w http.ResponseWriter, r *http.Request) {
 	uid, role := currentUser(r)
@@ -236,7 +236,7 @@ func (h *AdminHandler) Companies(w http.ResponseWriter, r *http.Request) {
 
 // inviteRoles — кого можно завести заранее. Администратора так не создать: аккаунт без пароля
 // занимает тот, кто войдёт первым, и для полного доступа это слишком рискованно.
-var inviteRoles = map[string]bool{"executor": true, "engineer": true, "company": true, "manager": true, "customer": true}
+var inviteRoles = map[string]bool{"executor": true, "engineer": true, RoleEngineerNoCRM: true, "company": true, "manager": true, "customer": true}
 
 func (h *AdminHandler) createUser(w http.ResponseWriter, r *http.Request, actorID, actorEmail string) {
 	var in struct {

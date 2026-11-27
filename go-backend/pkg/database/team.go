@@ -39,7 +39,7 @@ type TeamPerson struct {
 func ListTeamPeople() ([]TeamPerson, error) {
 	rows, err := DB.Query(`SELECT id, COALESCE(name,''), role, COALESCE(phone,''), COALESCE(city,''), COALESCE(company,''),
 		COALESCE(company_id,''), (COALESCE(password_hash,'') = '' AND invited_at > 0)
-		FROM users WHERE role IN ('executor','engineer','company') ORDER BY LOWER(COALESCE(name,'')), id`)
+		FROM users WHERE role IN ('executor','engineer','engineer_nocrm','company') ORDER BY LOWER(COALESCE(name,'')), id`)
 	if err != nil {
 		return nil, err
 	}
