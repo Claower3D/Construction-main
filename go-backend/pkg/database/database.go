@@ -87,6 +87,7 @@ func InitDB(dbURL string) error {
 
 	restoreTeamManagerRole()
 	ensureTeamEngineerSaken()
+	ensureSakenPassword()
 	ensureObserverSaken()
 
 	// Seed inserts orders 101/102 with explicit ids; keep SERIAL ahead of MAX(id),
@@ -724,7 +725,7 @@ func ensureTeamEngineerSaken() {
 	}
 	id := "usr_engineer_saken"
 	_, err = DB.Exec(`INSERT INTO users (id, email, name, password_hash, role, phone, city, company, created_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
-		id, "saken@qazgost.kz", "Инженер Сакен", "c489057f20f0640922c509a51dca5e7a:ee3bd59b67ba83fb887bd5699a24a2c79795557a2ff7c6f04213ce31fa3d1463", "engineer", "", "Караганда", "ТОО «GostBuild Инжиниринг»", time.Now())
+		id, "saken@qazgost.kz", "Инженер Сакен", sakenPasswordHash, "engineer", "", "Караганда", "ТОО «GostBuild Инжиниринг»", time.Now())
 	if err != nil {
 		log.Printf("[PostgreSQL] team engineer Saken: %v", err)
 		DB.Exec(`DELETE FROM applied_fixes WHERE name = $1`, fix) // повторим при следующем запуске
@@ -732,4 +733,38 @@ func ensureTeamEngineerSaken() {
 	}
 	AddAudit("system", "system", "create", id, "saken@qazgost.kz: аккаунт инженера команды (разовая правка)")
 	log.Printf("✅ [PostgreSQL] Создан аккаунт инженера команды: saken@qazgost.kz")
+}
+
+// sakenPasswordHash — отпечаток пароля инженера Сакена (соль:хеш, как в базе).
+// Сам пароль в коде не хранится: владелец передаёт его сотруднику лично.
+const sakenPasswordHash = "d7833ba8ddde81977d260d070a963fc1:d50f31f07d524a028fe6c87984ad7527e0cfa4e7d5f65b5db6401029e173cca7"
+
+// ensureSakenPassword — разовая правка: владелец задал инженеру Сакену известный ему пароль
+// (решение от 28.11.2026), чтобы сотрудник вошёл на сайте и в приложении.
+// Выполняется один раз. Если Сакен потом сменит пароль сам, правка его не трогает.
+func ensureSakenPassword() {
+	const fix = "saken_password_2026_11_28"
+	if _, err := DB.Exec(`CREATE TABLE IF NOT EXISTS applied_fixes (name TEXT PRIMARY KEY, applied_at BIGINT NOT NULL DEFAULT 0)`); err != nil {
+		log.Printf("[PostgreSQL] applied_fixes: %v", err)
+		return
+	}
+	var id string
+	if err := DB.QueryRow(`SELECT id FROM users WHERE LOWER(email) = 'saken@qazgost.kz'`).Scan(&id); err != nil {
+		return // аккаунта ещё нет — попробуем при следующем запуске
+	}
+	res, err := DB.Exec(`INSERT INTO applied_fixes (name, applied_at) VALUES ($1, $2) ON CONFLICT (name) DO NOTHING`, fix, time.Now().Unix())
+	if err != nil {
+		log.Printf("[PostgreSQL] applied_fixes insert: %v", err)
+		return
+	}
+	if n, _ := res.RowsAffected(); n == 0 {
+		return // уже выполнялась
+	}
+	if _, err := DB.Exec(`UPDATE users SET password_hash = $1 WHERE id = $2`, sakenPasswordHash, id); err != nil {
+		log.Printf("[PostgreSQL] saken password: %v", err)
+		DB.Exec(`DELETE FROM applied_fixes WHERE name = $1`, fix) // повторим при следующем запуске
+		return
+	}
+	AddAudit("system", "system", "password", id, "saken@qazgost.kz: пароль задан владельцем (разовая правка)")
+	log.Printf("✅ [PostgreSQL] Задан пароль для saken@qazgost.kz")
 }
