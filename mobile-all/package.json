@@ -1,7 +1,7 @@
 {
   "name": "qazgost-mobile-all",
   "private": true,
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "QazGost — одно приложение: заказчик, исполнитель, инженер, менеджер (CRM), застройщик (VIP) и администратор с выбором на старте",
   "scripts": {
     "build": "node scripts/assemble.mjs",
