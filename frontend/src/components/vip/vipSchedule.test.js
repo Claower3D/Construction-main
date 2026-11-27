@@ -263,7 +263,7 @@ test('календарь по факту по дням', () => {
   assert.equal(days['2026-11-13'][0].late, true); // идёт позже срока
 });
 
-import { guessShape, workFloor, workCount, projectPlaces, HANGAR, HANGAR_INNER, floorRise,
+import { guessShape, workFloor, workCount, projectPlaces, HANGAR, HANGAR_INNER, HANGAR_PLANT, hangarPlan, floorRise,
 } from './vipSchedule.js';
 test('место и фигура работы на модели', () => {
   assert.equal(guessShape({ title: 'Сборка 2 лестничных маршей' }), 'stairs');
@@ -301,21 +301,57 @@ test('место и фигура работы на модели', () => {
   assert.equal(p.get('e').label, 'снаружи здания');
   // две лестницы — две точки: первая в середине здания, вторая (двухэтажная) в начале, у входа
   const st = projectPlaces([{ id: 's', title: 'Сборка 2 лестничных маршей' }, { id: 't', title: 'Лестница', pos2: { x: 10, z: 20 } }]);
-  assert.deepEqual([st.get('s').x, st.get('s').z, st.get('s').x2, st.get('s').z2, st.get('s').auto2], [30, 12, 3, 4, true]);
+  assert.deepEqual([st.get('s').x, st.get('s').z, st.get('s').x2, st.get('s').z2, st.get('s').auto2], [31.5, 19.4, 9.4, 21.8, true]);
   assert.deepEqual([st.get('t').x2, st.get('t').z2, st.get('t').auto2], [10, 20, false]);
   assert.equal(p.get('a').label, '1 этаж');
 });
 
-test('выступ пола у восточного торца: кровля ровная, на выступе — вся площадь под вторым этажом и средняя лестница', () => {
+test('выступ пола — бетонное основание под этажеркой и её лестницей; остальное оборудование стоит на полу', () => {
   assert.equal(HANGAR.bump, undefined);
-  const s = HANGAR.step;
-  assert.deepEqual([s.from + s.length, s.width], [HANGAR.length, HANGAR.width]); // до восточного торца, от стены до стены
-  assert.ok(s.from < HANGAR_INNER.mezzFrom); // начинается раньше второго этажа
-  assert.equal(floorRise(HANGAR_INNER.mezzFrom + 1, 1), s.height); // под вторым этажом, у самой стены
-  assert.equal(floorRise(HANGAR.length, HANGAR.width / 2), s.height); // у самого торца
-  const st = projectPlaces([{ id: 's', title: 'Сборка 2 лестничных маршей' }]).get('s');
-  assert.equal(floorRise(st.x, st.z), s.height); // лестница в середине здания стоит на выступе
-  assert.equal(floorRise(st.x2, st.z2), 0); // двухэтажная у входа — на основном полу
-  assert.equal(floorRise(s.from - 1, HANGAR.width / 2), 0); // до выступа по длине
+  const s = HANGAR.step, p = HANGAR_PLANT;
+  const inside = (o) => [[o.x, o.z], [o.x + o.l, o.z], [o.x, o.z + o.w], [o.x + o.l, o.z + o.w]];
+  for (const [x, z] of [...inside(p.rack), ...inside(p.rackStair)]) assert.equal(floorRise(x, z), s.height, `этажерка и её лестница на выступе: ${x}, ${z}`);
+  for (const o of [p.screen, p.crusher, p.crusherStair, p.booth]) for (const [x, z] of inside(o)) assert.equal(floorRise(x, z), 0, `на полу: ${x}, ${z}`);
+  assert.equal(floorRise(p.rack.x + 2, 2), 0); // у северной стены выступа нет
   assert.equal(floorRise(40, -1), 0); // снаружи здания
+});
+
+test('оборудование стоит внутри здания, вдоль южной стены, и не налезает друг на друга', () => {
+  const p = HANGAR_PLANT;
+  const units = [p.booth, p.crusherStair, p.crusher, p.screen, p.rackStair, p.rack];
+  for (const o of units) assert.ok(o.x >= 0 && o.z >= 0 && o.x + o.l <= HANGAR.length && o.z + o.w <= HANGAR.width, JSON.stringify(o));
+  for (const o of [p.booth, p.crusherStair, p.crusher, p.screen]) assert.ok(o.z > HANGAR.width / 2, 'у южной стены'); // если смотреть изнутри на вход — слева
+  for (let i = 0; i < units.length; i++) for (let j = i + 1; j < units.length; j++) {
+    const a = units[i], b = units[j];
+    assert.ok(a.x + a.l <= b.x || b.x + b.l <= a.x || a.z + a.w <= b.z || b.z + b.w <= a.z, `${i} и ${j} пересекаются`);
+  }
+  assert.ok(p.booth.x < p.crusherStair.x && p.crusherStair.x < p.crusher.x && p.crusher.x < p.screen.x && p.screen.x < p.rack.x); // по ходу от входа
+  assert.ok(p.conveyor.x1 >= p.crusher.x + p.crusher.l && p.conveyor.x2 <= p.screen.x + p.screen.l && p.conveyor.y2 > p.conveyor.y1); // конвейер поднимается от дробилки к грохоту
+  assert.ok(Math.max(...p.rack.levels) < p.cranes.rail && HANGAR_INNER.floor2 === p.rack.levels[0]); // кран проходит над этажеркой; второй этаж — её первая площадка
+  assert.equal(hangarPlan().filter((o) => o.label).length, 5);
+});
+
+test('работы встают на свои места по фотографиям объекта', () => {
+  const p = HANGAR_PLANT;
+  const places = projectPlaces([
+    { id: 's', title: 'Сборка 2 лестничных маршей' }, { id: 'k', title: 'Сварка короба под дробилку' },
+    { id: 'b', title: 'Резка отверстий под будку' }, { id: 't', title: 'Резка отверстия под трубу' },
+    { id: 'e2', title: 'Заливка закладных, 2 этаж' }, { id: 'e3', title: 'Анкера, 2 этаж' }, { id: 'e4', title: 'Закладные под дозатор, 2 этаж' },
+  ]);
+  const within = (pt, o) => pt.x >= o.x && pt.x <= o.x + o.l && pt.z >= o.z && pt.z <= o.z + o.w;
+  const st = places.get('s');
+  assert.ok(st.x < p.screen.x && st.x > p.crusher.x + p.crusher.l && st.z >= p.screen.z); // первый марш начинается перед площадкой грохота, в середине здания
+  assert.ok(within({ x: st.x2, z: st.z2 }, p.crusherStair)); // двухэтажная — у входа, рядом с дробилкой
+  assert.ok(st.z2 > HANGAR.width / 2 && st.x2 < 15); // изнутри, лицом ко входу — слева
+  assert.ok(within(places.get('k'), p.crusher)); // короб — под дробилкой
+  assert.ok(within(places.get('b'), p.booth)); // отверстия — у будки
+  assert.ok(!within(places.get('t'), p.booth) && !within(places.get('t'), p.crusher)); // вторая «дырка» не сливается с первой и не попадает в оборудование
+  for (const id of ['e2', 'e3', 'e4']) assert.ok(places.get(id).floor === 2 && within(places.get(id), p.rack), `второй этаж — на этажерке: ${id}`);
+});
+
+test('рельсовый монтаж — полосы на полу цеха, а не подкрановые пути; мостовых кранов два', () => {
+  const r = projectPlaces([{ id: 'r', title: 'Рельсовый монтаж', volume: '6 полос: обнаружение, заварка, установка' }]).get('r');
+  assert.deepEqual([r.shape, r.floor, r.count, r.label], ['rails', 1, 6, '1 этаж']);
+  assert.ok(r.z < HANGAR.width / 2); // на свободной половине цеха, не под оборудованием
+  assert.ok(HANGAR_PLANT.cranes.at.length === 2 && HANGAR_PLANT.cranes.at.every((x) => x > 0 && x < HANGAR.length));
 });

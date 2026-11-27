@@ -1,0 +1,4 @@
+8245|Brecher
+8246|Siebmaschine
+8247|Kabine
+8248|zwei Treppenläufe am Sieb

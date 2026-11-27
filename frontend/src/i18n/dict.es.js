@@ -2941,7 +2941,12 @@ export const T = {"сметы и дефектоскопия по нормам Р
 "Работы, которые сейчас идут: нажмите, чтобы показать на модели":"Trabajos en curso: toque para mostrarlos en el modelo",
 "Показать сегодняшний день на календаре":"Mostrar el día de hoy en el calendario",
 "Полоса этой работы левее — показать":"La barra de este trabajo está más a la izquierda — mostrar",
-"Полоса этой работы правее — показать":"La barra de este trabajo está más a la derecha — mostrar"};
+"Полоса этой работы правее — показать":"La barra de este trabajo está más a la derecha — mostrar",
+"Дробилка":"Trituradora",
+"Грохот":"Criba",
+"Будка":"Caseta",
+"два марша у грохота":"dos tramos junto a la criba",
+"подкрановые пути":"carriles de la grúa puente"};
 
 export const TEMPLATES = [["Ошибка Vision AI: Изображение не распознано как строительный объект или чертеж (определено как \"{a}\"). Пожалуйста, загрузите реальное фото помещения, фасада или план","Error de Vision AI: la imagen no se reconoció como obra o plano (identificada como \"{a}\"). Sube una foto real de un espacio, de una fachada o un plano"],
 ["Работы «Стандарта»: {a} ₸/м² пола. Средняя цена базовых черновых и чистовых работ в РК — {n}–{n} тыс. ₸/м² (Bizmedia/OLX, июнь {n})","Trabajos «Estándar»: {a} ₸/m² de piso. Precio promedio de obra negra y acabados básicos en Kazajistán — {n}–{n} mil ₸/m² (Bizmedia/OLX, junio de {n})"],

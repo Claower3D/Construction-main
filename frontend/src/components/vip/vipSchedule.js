@@ -392,19 +392,43 @@ export function nameHue(full) {
 }
 
 // ── Места на модели ангара 25 × 70 м ──
+// Все координаты: x — метры от западного торца, где вход; z — метры от северной стены. Высоты — над полом.
 export const HANGAR = {
   width: 25, length: 70, eave: 20, ridge: 23, bays: 10,
-  // выступ пола вверх у восточного торца (кровля ровная) — от стены до стены, вся площадь под вторым этажом
-  // и лестница в середине здания перед ним: от какого метра по длине, длина, ширина по центру и высота над полом
-  step: { from: 28, length: 42, width: 25, height: 2 },
+  // выступ пола вверх — бетонное основание под этажеркой и её лестницей: от какого метра по длине, длина,
+  // от какого метра поперёк, ширина и высота над полом
+  step: { from: 45, length: 18, z: 10.8, width: 14.2, height: 2 },
 };
-/** На сколько метров пол в точке выше основного уровня: x — от западного торца, z — от северной стены */
+// Что стоит внутри здания — по фотографиям объекта. Оборудование идёт вдоль южной стены, по ходу от входа:
+// будка в углу, двухэтажная лестница и дробилка (если смотреть изнутри на вход — слева от него), наклонный
+// конвейер, площадка грохота с двумя маршами в середине, этажерка с бункерами у восточного торца. Сверху два мостовых крана.
+export const HANGAR_PLANT = {
+  booth: { x: 0.8, z: 19.6, l: 5.6, w: 4.6, h: 3.2 },
+  crusherStair: { x: 6.8, z: 20.2, l: 5.2, w: 3.2, levels: [4.7, 9.4] }, // два этажа: площадка дробилки и площадка питания
+  crusher: { x: 12, z: 18.8, l: 6, w: 5.5, h: 4.5, top: 9.4 },
+  conveyor: { x1: 18, y1: 4.6, x2: 36.6, y2: 8.9, z: 22.6, w: 1.6 },
+  screen: { x: 36, z: 18.5, l: 8, w: 5.6, levels: [5, 8.5], upper: { x: 36.4, l: 4.6 } },
+  rack: { x: 50.5, z: 11.5, l: 12, w: 13, levels: [7, 10, 12.5] },
+  rackStair: { x: 45.6, z: 11.5, l: 4.6, w: 3.2 },
+  cranes: { rail: 14.5, at: [41, 66.5] }, // отметка подкрановых рельсов и где стоят мосты; у каждого крана своя будка
+};
+/** На сколько метров пол в точке выше основного уровня (бетонное основание под этажеркой) */
 export function floorRise(x, z) {
   const s = HANGAR.step;
   if (!s || !(s.height > 0)) return 0;
-  const z0 = (HANGAR.width - s.width) / 2;
-  const inside = x >= s.from && x <= Math.min(HANGAR.length, s.from + s.length) && z >= z0 && z <= z0 + s.width;
+  const inside = x >= s.from && x <= Math.min(HANGAR.length, s.from + s.length) && z >= s.z && z <= Math.min(HANGAR.width, s.z + s.width);
   return inside ? s.height : 0;
+}
+/** Что показать на плане здания под точками работ: [{ kind: 'step' | 'f2' | 'unit' | 'line', x, z, l, w, label }] */
+export function hangarPlan() {
+  const p = HANGAR_PLANT, s = HANGAR.step;
+  const r = (o, label = '') => ({ kind: 'unit', x: o.x, z: o.z, l: o.l, w: o.w, label });
+  return [
+    { kind: 'step', x: s.from, z: s.z, l: s.length, w: Math.min(s.width, HANGAR.width - s.z), label: `выступ +${s.height} м` },
+    { kind: 'f2', x: p.rack.x, z: p.rack.z, l: p.rack.l, w: p.rack.w, label: '2 этаж' },
+    r(p.rackStair), r(p.screen, 'Грохот'), r(p.crusher, 'Дробилка'), r(p.crusherStair), r(p.booth, 'Будка'),
+    { kind: 'line', x: p.conveyor.x1, z: p.conveyor.z, l: p.conveyor.x2 - p.conveyor.x1, w: 0, label: '' },
+  ];
 }
 export const HANGAR_ZONES = [
   { id: 'all', label: 'Всё здание' },
@@ -452,8 +476,12 @@ export function buildFactDays(project, today) {
 }
 
 // ── Что и где показать на модели здания для каждой работы ──
-// Внутренний второй этаж (площадка) показан схемой: последние три пролёта у восточного торца, отметка +7 м.
-export const HANGAR_INNER = { floor2: 7, mezzFrom: 49 };
+// Второй этаж — первая площадка этажерки с бункерами, отметка +7 м.
+export const HANGAR_INNER = {
+  floor2: HANGAR_PLANT.rack.levels[0],
+  mezzFrom: HANGAR_PLANT.rack.x, mezzTo: HANGAR_PLANT.rack.x + HANGAR_PLANT.rack.l,
+  mezzZ: HANGAR_PLANT.rack.z, mezzW: HANGAR_PLANT.rack.w,
+};
 
 export const WORK_SHAPES = [
   { id: 'stairs', label: 'Лестничные марши' },
@@ -503,11 +531,16 @@ export function workCount(work, fallback = 1) {
   return Math.max(1, Math.min(24, n || fallback));
 }
 // точка по умолчанию [вдоль здания от западного торца, поперёк от северной стены], м
+// Места по фотографиям объекта: марши — у площадки грохота, короб — под дробилкой, отверстия — у будки, второй этаж — на этажерке.
 const SHAPE_SPOT = {
-  stairs: [30, 12], storm: [74, 29], sewer: [-9, 8], sheet_roof: [35, 12.5], sheet_wall: [28, 25], opening: [6, 21],
-  box: [41, 8], rails: [24, 16], embeds: [14, 5], heating: [35, 0.6], frame: [35, 12.5], pin: [35, 12.5],
+  stairs: [31.5, 19.4], storm: [74, 29], sewer: [-9, 8], sheet_roof: [35, 12.5], sheet_wall: [28, 25], opening: [2.4, 21.6],
+  box: [15, 21.6], rails: [26, 8], embeds: [14, 5], heating: [35, 0.6], frame: [35, 12.5], pin: [35, 12.5],
 };
-const SHAPE_SPOT_F2 = { opening: [60, 18], embeds: [58, 9], box: [60, 12.5], pin: [60, 12.5], rails: [60, 12.5] };
+const SHAPE_SPOT_F2 = { opening: [58.5, 21], embeds: [54.5, 15.5], box: [56.5, 18], pin: [56.5, 18], rails: [56.5, 18] };
+// на сколько сдвигать следующую работу с той же фигурой, чтобы они не слились: [вдоль, поперёк]
+const SHAPE_NEXT = { opening: [9.5, -9.5], box: [0, -8] };
+// вторая лестница — двухэтажная, у входа: точка на плане — середина её клетки
+const STAIR2 = [HANGAR_PLANT.crusherStair.x + HANGAR_PLANT.crusherStair.l / 2, HANGAR_PLANT.crusherStair.z + HANGAR_PLANT.crusherStair.w / 2];
 const OUTSIDE = new Set(['storm', 'sewer']);
 
 /**
@@ -529,14 +562,20 @@ export function projectPlaces(works) {
       const key = `${shape}:${floor}`;
       const n = taken.get(key) || 0;
       taken.set(key, n + 1);
-      if (n && !['storm', 'sewer', 'heating', 'sheet_roof', 'frame'].includes(shape)) x += (floor === 2 ? 5 : 13) * n;
+      if (n && !['storm', 'sewer', 'heating', 'sheet_roof', 'frame'].includes(shape)) {
+        const [dx, dz] = floor === 2 ? [4, 0] : SHAPE_NEXT[shape] || [13, 0];
+        x += dx * n; z += dz * n;
+      }
+      if (floor === 2) { // второй этаж есть только на этажерке
+        x = Math.max(HANGAR_INNER.mezzFrom + 1.5, Math.min(HANGAR_INNER.mezzTo - 1.5, x));
+        z = Math.max(HANGAR_INNER.mezzZ + 1.5, Math.min(HANGAR_INNER.mezzZ + HANGAR_INNER.mezzW - 1.5, z));
+      }
     }
-    if (floor === 2 && x < HANGAR_INNER.mezzFrom + 1) x = manual ? x : HANGAR_INNER.mezzFrom + 3;
     const where = shape === 'stairs' ? 'внутри здания' : floor ? `${floor} этаж` : OUTSIDE.has(shape) ? 'снаружи здания' : shape === 'sheet_roof' ? 'верх здания' : shape === 'sheet_wall' ? 'снаружи здания' : shape === 'heating' ? 'вдоль стен' : 'здание';
-    // лестниц обычно две и стоят они в разных местах: первая — в середине здания (один этаж),
-    // вторая — двухэтажная, в начале здания у входа (ворота в западном торце); у каждой своя точка на плане
+    // лестниц обычно две и стоят они в разных местах: первая — в середине здания, два марша у площадки грохота;
+    // вторая — двухэтажная, у входа рядом с дробилкой (изнутри, лицом ко входу — слева); у каждой своя точка на плане
     const manual2 = w.pos2 && Number.isFinite(Number(w.pos2.x)) && Number.isFinite(Number(w.pos2.z));
-    const second = shape === 'stairs' ? { x2: manual2 ? Number(w.pos2.x) : 3, z2: manual2 ? Number(w.pos2.z) : 4, auto2: !manual2 } : {};
+    const second = shape === 'stairs' ? { x2: manual2 ? Number(w.pos2.x) : STAIR2[0], z2: manual2 ? Number(w.pos2.z) : STAIR2[1], auto2: !manual2 } : {};
     out.set(w.id, { ...second, shape, floor, x, z, count: workCount(w, shape === 'stairs' ? 2 : shape === 'rails' ? 6 : shape === 'embeds' ? 6 : 1), auto: !manual, label: where });
   }
   return out;

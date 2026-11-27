@@ -6,7 +6,7 @@ import {
   todayIso, isIso, durationDays, formatDay, formatRange, isOverdue, buildTimeline, barPosition,
   brigadeConflicts, brigadeIssues, assignmentReport, projectSummary, shortName, nextId, emptyProject, importProblem,
   WEEKDAY_NAMES, restDayOf, factRange, budgetSummary, money, MACHINE_GROUPS, machineGroup, guessMachineGroup,
-  WORK_KINDS, workKind, guessWorkKind, workPicture, WORK_SHAPES, projectPlaces, HANGAR, HANGAR_INNER,
+  WORK_KINDS, workKind, guessWorkKind, workPicture, WORK_SHAPES, projectPlaces, hangarPlan, HANGAR,
 } from './vip/vipSchedule';
 import { Avatar, MachinePic, MachineArt, WorkArt, PhotoPicker, PlanPicker } from './vip/VipVisuals';
 import {
@@ -250,9 +250,8 @@ function WorkCard({ work, isNew, project, onSave, onDelete, onClose, userName })
           <PlanPicker
             value={d.pos || null}
             shown={{ x: place.x, z: place.z }}
-            second={place.shape === 'stairs' && place.count >= 2 ? { value: d.pos2 || null, shown: { x: place.x2, z: place.z2 }, onChange: (pos) => set('pos2', pos), names: ['лестница на один этаж', 'лестница двухэтажная, у входа'] } : null}
-            floor2From={HANGAR_INNER.mezzFrom}
-            step={HANGAR.step}
+            second={place.shape === 'stairs' && place.count >= 2 ? { value: d.pos2 || null, shown: { x: place.x2, z: place.z2 }, onChange: (pos) => set('pos2', pos), names: ['два марша у грохота', 'лестница двухэтажная, у входа'] } : null}
+            objects={hangarPlan()}
             length={HANGAR.length}
             width={HANGAR.width}
             onChange={(pos) => set('pos', pos)}

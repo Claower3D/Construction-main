@@ -1,0 +1,4 @@
+8245|Concasseur
+8246|Crible
+8247|Cabine
+8248|deux volées près du crible

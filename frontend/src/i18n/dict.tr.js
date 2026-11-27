@@ -3300,7 +3300,12 @@ export const T = {"сметы и дефектоскопия по нормам Р
 "Работы, которые сейчас идут: нажмите, чтобы показать на модели":"Devam eden işler: modelde göstermek için dokunun",
 "Показать сегодняшний день на календаре":"Takvimde bugünü göster",
 "Полоса этой работы левее — показать":"Bu işin çubuğu daha solda — göster",
-"Полоса этой работы правее — показать":"Bu işin çubuğu daha sağda — göster"};
+"Полоса этой работы правее — показать":"Bu işin çubuğu daha sağda — göster",
+"Дробилка":"Kırıcı",
+"Грохот":"Elek",
+"Будка":"Kabin",
+"два марша у грохота":"elek yanındaki iki merdiven kolu",
+"подкрановые пути":"vinç rayları"};
 
 export const TEMPLATES = [["Ошибка Vision AI: Изображение не распознано как строительный объект или чертеж (определено как \"{a}\"). Пожалуйста, загрузите реальное фото помещения, фасада или план","Vision AI hatası: Görüntü bir inşaat projesi veya çizim olarak tanınmadı (\"{a}\" olarak belirlendi). Lütfen odanın, cephenin gerçek fotoğrafını veya planı yükleyin"],
 ["Работы «Стандарта»: {a} ₸/м² пола. Средняя цена базовых черновых и чистовых работ в РК — {n}–{n} тыс. ₸/м² (Bizmedia/OLX, июнь {n})","«Standart» işçiliği: {a} ₸/m² zemin. Kazakistan'da temel kaba ve ince işlerin ortalama fiyatı {n}–{n} bin ₸/m² (Bizmedia/OLX, Haziran {n})"],

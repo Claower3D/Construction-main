@@ -1,0 +1,4 @@
+8245|Trituradora
+8246|Criba
+8247|Caseta
+8248|dos tramos junto a la criba
