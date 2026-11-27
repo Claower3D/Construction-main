@@ -1,0 +1,3 @@
+8239|📐 Inshootimizning 3D modeli
+8240|Model barmoq yoki sichqoncha bilan aylantiriladi. Bino ichidagi joylashuv sxema tarzida koʻrsatilgan.
+8241|Hozir bajarilayotgan ishlar: modelda koʻrsatish uchun bosing

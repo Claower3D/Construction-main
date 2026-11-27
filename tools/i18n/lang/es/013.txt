@@ -1,0 +1,3 @@
+8236|muros {n} m · cumbrera {n} m · suelo elevado +{n} m · estructura de acero
+8237|elevación
+8238|+{n} m

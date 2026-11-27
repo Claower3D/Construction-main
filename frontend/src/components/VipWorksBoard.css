@@ -218,3 +218,470 @@
 /* девять вкладок модуля помещаются в один ряд на обычном мониторе */
 .vip-construction-module .vip-flow-tabs-bar .vip-tab-btn { min-width: 132px; padding: 10px 12px; }
 .vwb-brigade > .vwb-pill { align-self: flex-start; }
+
+/* ══ Читаемость: крупнее текст, шире графы (экран смотрят с телефона) ══ */
+.vwb-label { font-size: 0.8rem; }
+.vwb-hint, .vwb-err { font-size: 0.86rem; }
+.vwb-link { font-size: 0.9rem; }
+.vwb-stat span { font-size: 0.86rem; }
+.vwb-stat small { font-size: 0.8rem; }
+.vwb-stat b { font-size: 1.6rem; }
+.vwb-title h2 { font-size: 1.45rem; }
+.vwb-title p { font-size: 0.95rem; }
+.vwb-seg button { font-size: 0.95rem; padding: 9px 16px; }
+.vwb-table td, .vwb-table th { font-size: 0.95rem; padding-top: 12px; padding-bottom: 12px; }
+.vwb-pill { font-size: 0.85rem; }
+.vwb-legend { font-size: 0.88rem; }
+.vwb-chip { font-size: 0.88rem; }
+.vwb-check { font-size: 0.95rem; align-items: center; }
+.vwb-brigade li b { font-size: 0.95rem; }
+.vwb-brigade li small { font-size: 0.84rem; }
+.vwb-work-link { font-size: 0.9rem; }
+.vwb-party dl { font-size: 0.92rem; }
+.vwb-warn, .vwb-rule { font-size: 0.92rem; }
+
+/* График: строка 64px, слева картинка работы */
+.vwb-g-left { flex-basis: 380px; max-width: 46%; }
+.vwb-g-corner { font-size: 0.8rem; }
+.vwb-g-name { flex-direction: row; align-items: center; justify-content: flex-start; gap: 12px; height: 64px; }
+.vwb-g-text { display: flex; flex-direction: column; min-width: 0; }
+.vwb-g-name b { font-size: 1rem; line-height: 1.25; }
+.vwb-g-name small { font-size: 0.84rem; }
+.vwb-g-pic { flex: 0 0 48px; width: 48px; height: 48px; border-radius: 10px; object-fit: cover; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.12); filter: saturate(0.75); }
+.vwb-g-pic.art { display: flex; align-items: center; justify-content: center; color: #b9a4ff; filter: none; }
+.vwb-g-pic.art svg { width: 30px; height: 30px; }
+.vwb-g-pic.art.s-progress { color: #fcd34d; border-color: rgba(252, 211, 77, 0.5); background: rgba(233, 162, 59, 0.14); }
+.vwb-g-pic.art.s-done { color: #86efac; }
+.vwb-g-pic.art.s-hold { color: #94a3b8; }
+.vwb-g-months { height: 30px; }
+.vwb-g-months div { font-size: 0.88rem; }
+.vwb-g-days { height: 34px; }
+.vwb-g-days b { font-size: 0.95rem; }
+.vwb-g-days small { font-size: 0.72rem; }
+.vwb-g-row { height: 64px; }
+.vwb-bar-item { top: 12px; height: 40px; font-size: 0.9rem; padding: 0 10px; border-radius: 10px; }
+
+/* Выходной день */
+.vwb-g-days .we { background: rgba(248, 113, 113, 0.16); }
+.vwb-g-days .we b, .vwb-g-days .we small { color: #fca5a5; font-weight: 800; }
+.vwb-g-bg i.we { background: repeating-linear-gradient(135deg, rgba(248, 113, 113, 0.13) 0 6px, rgba(248, 113, 113, 0.05) 6px 12px); }
+.vwb-legend i.we { background: repeating-linear-gradient(135deg, rgba(248, 113, 113, 0.7) 0 3px, rgba(248, 113, 113, 0.25) 3px 6px); }
+
+/* Календарь по факту */
+.vwb-fact-btn { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(252, 211, 77, 0.45); color: #fde68a; font: inherit; font-size: 0.95rem; font-weight: 700; padding: 9px 16px; border-radius: 10px; cursor: pointer; }
+.vwb-fact-btn:hover { background: rgba(252, 211, 77, 0.12); }
+.vwb-fact-btn.active { background: linear-gradient(135deg, #e9a23b, #c97f14); border-color: #fcd34d; color: #1b1330; }
+.vwb-bar-ghost { position: absolute; top: 12px; height: 40px; box-sizing: border-box; border-radius: 10px; border: 1px dashed rgba(185, 164, 255, 0.55); background: rgba(124, 58, 237, 0.1); }
+.vwb-bar-item.fact { top: 20px; height: 24px; font-size: 0.8rem; }
+.vwb-bar-item.fact.late { box-shadow: 0 0 0 2px #f87171; }
+.vwb-bar-wait { position: absolute; top: 22px; font-size: 0.8rem; color: #a39cc2; pointer-events: none; }
+.vwb-legend i.ghost { background: rgba(124, 58, 237, 0.15); border: 1px dashed rgba(185, 164, 255, 0.7); box-sizing: border-box; }
+.vwb-legend i.late { background: transparent; box-shadow: 0 0 0 2px #f87171; }
+
+/* Бюджет на строительство */
+.vwb-budget { margin-top: 18px; padding: 16px 18px; border: 1px solid var(--vwb-line); border-radius: 14px; background: rgba(255, 255, 255, 0.03); }
+.vwb-budget-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.vwb-budget-head h3 { font-size: 1.15rem; font-weight: 800; margin: 0; }
+.vwb-budget-nums { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.vwb-budget-nums span { display: block; font-size: 0.86rem; color: #a39cc2; }
+.vwb-budget-nums b { display: block; font-size: 1.25rem; font-weight: 800; color: #fff; }
+.vwb-budget-nums small { font-size: 0.8rem; color: var(--vwb-soft); }
+.vwb-budget-nums .bad b { color: #fca5a5; }
+.vwb-budget-track { position: relative; height: 16px; margin-top: 14px; border-radius: 8px; background: rgba(255, 255, 255, 0.08); overflow: hidden; }
+.vwb-budget-track i { position: absolute; left: 0; top: 0; bottom: 0; }
+.vwb-budget-track i.done { background: rgba(22, 163, 74, 0.85); }
+.vwb-budget-track i.paid { top: auto; height: 5px; background: #fbbf24; }
+
+/* Люди: фото и кружок с инициалами */
+.vv-avatar { flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; object-fit: cover; color: #fff; font-weight: 800; border: 1px solid rgba(255, 255, 255, 0.22); vertical-align: middle; }
+.vwb-chip.with-ava { display: inline-flex; align-items: center; gap: 6px; padding-left: 3px; }
+.vwb-brigade ul.people li { flex-direction: row; align-items: center; gap: 10px; padding-left: 8px; }
+.vwb-brigade ul.people li span { display: flex; flex-direction: column; min-width: 0; }
+.vwb-table td.ava { width: 56px; }
+.vv-photo-pick { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
+.vv-photo-btns { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+
+/* Техника: картинки, подгруппы, плитки */
+.vv-machine { display: block; width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border-radius: 10px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); filter: saturate(0.8); box-sizing: border-box; }
+.vv-machine-art { display: flex; align-items: center; justify-content: center; color: #cdbf8f; filter: none; }
+.vv-machine-art svg { width: 72%; height: 72%; }
+.vv-machine.mini { width: 64px; }
+.vv-machine.big { width: 150px; }
+.vwb-groups { display: flex; flex-wrap: wrap; gap: 8px; flex: 1 1 auto; }
+.vwb-group { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, 0.14); background: rgba(255, 255, 255, 0.04); color: #e9e5f7; font: inherit; font-size: 0.95rem; font-weight: 600; cursor: pointer; }
+.vwb-group svg { width: 30px; height: 19px; color: #cdbf8f; }
+.vwb-group b { color: #fcd34d; }
+.vwb-group.active { background: rgba(124, 58, 237, 0.35); border-color: #b9a4ff; }
+.vwb-mgroup { margin-top: 18px; }
+.vwb-mgroup h4 { display: flex; align-items: center; gap: 10px; font-size: 1.05rem; font-weight: 800; margin: 0 0 10px; }
+.vwb-mgroup h4 svg { width: 44px; height: 28px; color: #cdbf8f; }
+.vwb-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+.vwb-tile { display: flex; flex-direction: column; gap: 5px; padding: 10px; border-radius: 14px; border: 1px solid var(--vwb-line); background: rgba(255, 255, 255, 0.03); color: #e9e5f7; font: inherit; text-align: left; cursor: pointer; }
+.vwb-tile:hover, .vwb-tile:focus-visible { border-color: #b9a4ff; background: rgba(124, 58, 237, 0.12); }
+.vwb-tile b { font-size: 1rem; font-weight: 800; color: #fff; margin-top: 4px; overflow-wrap: anywhere; }
+.vwb-tile .plate { align-self: flex-start; padding: 2px 8px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.3); font-size: 0.86rem; font-weight: 700; letter-spacing: 0.5px; }
+.vwb-tile small { display: flex; align-items: center; gap: 6px; font-size: 0.84rem; color: #a39cc2; }
+
+/* Вид работ в карточке, документы */
+.vwb-kind-pick { display: flex; align-items: center; gap: 10px; }
+.vwb-kind-art { flex: 0 0 34px; width: 34px; height: 34px; color: #b9a4ff; }
+.vwb-kind-pick select { flex: 1 1 auto; min-width: 0; }
+.vwb-docs tbody tr.plain { cursor: default; }
+.vwb-docs td small { display: block; margin-top: 3px; font-size: 0.8rem; }
+.vwb-docs td.acts { white-space: nowrap; }
+.vwb-docs td.acts .vip-secondary-btn { display: inline-flex; text-decoration: none; margin-right: 10px; }
+.vwb-docs .vip-input { min-width: 150px; }
+
+@media (max-width: 720px) {
+  .vwb-g-left { flex-basis: 190px; max-width: 52%; }
+  .vwb-g-name { padding: 0 8px; gap: 8px; }
+  .vwb-g-pic { flex-basis: 40px; width: 40px; height: 40px; }
+  .vwb-g-name b { font-size: 0.92rem; white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  .vwb-g-name small { display: none; }
+  .vwb-budget-nums { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .vwb-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .vwb-fact-btn { flex: 1 1 100%; }
+  .vv-machine.big { width: 110px; }
+}
+
+/* ══ Карточка рабочего объекта с моделью ангара (вкладка «Мои объекты») ══ */
+.vob { border: 1px solid rgba(252, 211, 77, 0.35); border-radius: 18px; padding: 20px; background: linear-gradient(160deg, rgba(124, 58, 237, 0.12), rgba(11, 18, 32, 0.5)); margin-bottom: 26px; color: #e9e5f7; }
+.vob-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 14px; align-items: flex-start; }
+.vob-tag { display: inline-block; padding: 4px 10px; border-radius: 999px; background: rgba(252, 211, 77, 0.16); border: 1px solid rgba(252, 211, 77, 0.5); color: #fde68a; font-size: 0.85rem; font-weight: 700; }
+.vob-head h3 { font-size: 1.6rem; font-weight: 800; color: #fff; margin: 8px 0 4px; overflow-wrap: anywhere; }
+.vob-head p { margin: 0; font-size: 0.98rem; color: #cbc5e3; }
+.vob-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.vob-progress { margin-top: 16px; }
+.vob-progress-top { display: flex; justify-content: space-between; font-size: 0.95rem; margin-bottom: 6px; }
+.vob-progress-top b { color: #86efac; }
+.vob-track { height: 12px; border-radius: 6px; background: rgba(255, 255, 255, 0.08); overflow: hidden; }
+.vob-track i { display: block; height: 100%; background: linear-gradient(90deg, #16a34a, #86efac); }
+.vob-stats { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; margin-top: 14px; }
+.vob-stats div { background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 10px 12px; min-width: 0; }
+.vob-stats span { display: block; font-size: 0.84rem; color: #a39cc2; }
+.vob-stats b { display: block; font-size: 1.12rem; font-weight: 800; color: #fff; overflow-wrap: anywhere; }
+.vob-stats .bad b { color: #fca5a5; }
+.vob-model { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(280px, 1fr); gap: 16px; margin-top: 18px; }
+.vob-model-3d { min-width: 0; }
+.vob-model-cap { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; margin-bottom: 8px; }
+.vob-model-cap b { font-size: 1.05rem; color: #fff; }
+.vob-model-cap span { font-size: 0.9rem; color: #a39cc2; }
+.vob-3d { width: 100%; border-radius: 14px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.1); background: #0e1424; touch-action: none; }
+.vob-3d-wait { display: flex; align-items: center; justify-content: center; color: #a39cc2; }
+.vob-model-hint { margin: 8px 0 0; font-size: 0.92rem; color: #cbc5e3; }
+.vob-model-hint b { color: #fde68a; }
+.vob-works { min-width: 0; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 14px; background: rgba(11, 18, 32, 0.5); display: flex; flex-direction: column; max-height: 478px; }
+.vob-works-head { display: flex; justify-content: space-between; padding: 12px 14px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); font-size: 1rem; }
+.vob-works-head span { color: #fcd34d; font-weight: 800; }
+.vob-works ul { list-style: none; margin: 0; padding: 6px; overflow-y: auto; }
+.vob-works li button { display: flex; align-items: center; gap: 10px; width: 100%; padding: 8px; border-radius: 10px; border: 1px solid transparent; background: none; color: #e9e5f7; font: inherit; text-align: left; cursor: pointer; }
+.vob-works li button:hover { background: rgba(124, 58, 237, 0.14); }
+.vob-works li button.active { background: rgba(251, 191, 36, 0.14); border-color: #fbbf24; }
+.vob-works img, .vob-works .art { flex: 0 0 44px; width: 44px; height: 44px; border-radius: 9px; object-fit: cover; }
+.vob-works .art { display: flex; align-items: center; justify-content: center; background: rgba(255, 255, 255, 0.06); color: #b9a4ff; }
+.vob-works .art.s-progress { color: #fcd34d; }
+.vob-works .art.s-done { color: #86efac; }
+.vob-works .art svg { width: 28px; height: 28px; }
+.vob-works .t { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; }
+.vob-works .t b { font-size: 0.95rem; line-height: 1.25; }
+.vob-works .t small { font-size: 0.82rem; color: #a39cc2; }
+.vob-works em { flex: 0 0 auto; font-style: normal; font-size: 0.8rem; font-weight: 700; padding: 3px 8px; border-radius: 6px; background: rgba(124, 58, 237, 0.3); }
+.vob-works em.s-progress { background: #e9a23b; color: #1b1330; }
+.vob-works em.s-done { background: rgba(22, 163, 74, 0.5); }
+.vob-works em.s-hold { background: rgba(100, 116, 139, 0.5); }
+.vob-works em.over { background: rgba(248, 113, 113, 0.25); color: #fecaca; box-shadow: 0 0 0 1px #f87171; }
+.vob-people { margin-top: 16px; }
+.vob-people > div { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.vob-people > div > span { display: flex; flex-direction: column; align-items: center; gap: 3px; width: 62px; }
+.vob-people small { font-size: 0.78rem; color: #cbc5e3; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vip-obj-card .v-card-kind { display: inline-block; margin-left: 6px; padding: 1px 8px; border-radius: 999px; font-size: 0.75rem; font-weight: 700; border: 1px solid rgba(255, 255, 255, 0.25); color: #cbc5e3; }
+.vip-obj-card.real { border-color: rgba(252, 211, 77, 0.55); }
+.vip-obj-card.real .v-card-kind { border-color: rgba(252, 211, 77, 0.6); color: #fde68a; }
+@media (max-width: 900px) {
+  .vob-model { grid-template-columns: 1fr; }
+  .vob-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .vob-works { max-height: 360px; }
+}
+@media (max-width: 520px) {
+  .vob { padding: 14px; }
+  .vob-head h3 { font-size: 1.3rem; }
+  .vob-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .vob-actions > * { flex: 1 1 100%; justify-content: center; }
+}
+
+.vip-eng-emblem { display: inline-flex; align-items: center; gap: 10px; }
+.c-name.vip-eng-emblem .vv-avatar { border-radius: 12px; }
+
+/* Телефон: меньше полей вокруг, чтобы графику и модели хватало ширины */
+@media (max-width: 720px) {
+  .vip-construction-module { padding: 0.5rem 0.4rem 5rem; }
+  .vip-construction-module .vip-content-section { padding: 12px 10px; border-radius: 14px; }
+  .vwb-g-left { flex-basis: 46%; max-width: 46%; }
+  .vwb-g-name b { overflow-wrap: anywhere; }
+  .vob-works li button { flex-wrap: wrap; }
+  .vob-works .t { flex: 1 1 calc(100% - 60px); }
+  .vob-works em { margin-left: 54px; }
+  .vob-3d { height: 300px !important; }
+}
+
+/* значок «нужно уточнить» в строке графика */
+.vwb-g-flag { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; margin-right: 6px; border-radius: 50%; background: #fbbf24; color: #1b1330; font-style: normal; font-size: 0.78rem; font-weight: 900; vertical-align: 1px; }
+
+.vob-model-cap { align-items: center; }
+.vob-skin { margin-left: auto; }
+.vob-skin button { padding: 6px 12px; font-size: 0.88rem; }
+
+/* Штат на телефоне: карточки вместо широкой таблицы */
+@media (max-width: 720px) {
+  .vwb-staff { min-width: 0; display: block; }
+  .vwb-staff thead { display: none; }
+  .vwb-staff tbody { display: block; }
+  .vwb-staff tbody tr { display: grid; grid-template-columns: 56px minmax(0, 1fr); column-gap: 12px; row-gap: 2px; padding: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.06); }
+  .vwb-staff tbody tr.none { display: block; }
+  .vwb-staff td { display: block; padding: 0 !important; border: 0 !important; font-size: 0.92rem; color: #cbc5e3; grid-column: 2; min-width: 0; overflow-wrap: anywhere; }
+  .vwb-staff td.num { display: none; }
+  .vwb-staff td.ava { grid-column: 1; grid-row: 1 / span 5; width: auto; align-self: start; }
+  .vwb-staff td.name b { font-size: 1.02rem; color: #fff; }
+  .vwb-staff td.iin::before { content: 'ИИН: '; color: #8a82a8; }
+  .vwb-staff td.tech::before { content: '🚚 '; }
+  .vwb-staff td.brig { color: #fde68a; }
+}
+
+/* ══════════ Адаптация: широкий монитор, ноутбук, планшет, телефон ══════════ */
+/* Содержимое не растягивается на весь широкий монитор: колонка до 1440px по центру */
+.vip-construction-module { max-width: 1440px; margin-left: auto; margin-right: auto; }
+
+/* Шапка модуля — одна компактная строка */
+.vip-construction-module .vip-header-wrapper { padding: 14px 18px; margin-bottom: 14px; align-items: center; }
+.vip-construction-module .vip-main-title { font-size: 1.35rem; margin: 6px 0 2px; }
+.vip-construction-module .vip-subtitle { font-size: 0.88rem; margin: 0; }
+.vip-construction-module .vip-badge-row { gap: 6px; }
+
+/* Вкладки: одна строка, значок и название; подпись только на очень широком экране */
+.vip-construction-module .vip-flow-tabs-bar { gap: 6px; padding: 6px; margin-bottom: 16px; scrollbar-width: thin; scroll-snap-type: x proximity; }
+.vip-construction-module .vip-flow-tabs-bar .vip-tab-btn { flex: 1 0 auto; min-width: 0; padding: 10px 14px; gap: 8px; justify-content: center; scroll-snap-align: start; white-space: nowrap; }
+.vip-construction-module .vip-tab-btn .t-name { font-size: 0.95rem; white-space: nowrap; }
+.vip-construction-module .vip-tab-btn .t-sub { display: none; }
+.vip-construction-module .vip-tab-btn .icon { font-size: 1.15rem; }
+
+/* Панель проекта */
+.vwb-bar { align-items: center; gap: 8px 10px; padding-bottom: 12px; margin-bottom: 14px; }
+.vwb-project { display: flex; align-items: center; gap: 10px; flex: 0 1 380px; min-width: 220px; }
+.vwb-project .vwb-label { margin: 0; }
+.vwb-project select { flex: 1 1 auto; min-width: 0; }
+.vwb-actions .vip-secondary-btn { padding: 8px 12px; font-size: 0.88rem; }
+.vwb-title { margin-bottom: 12px; }
+.vwb-title p { max-width: 90ch; }
+
+/* Сводка: узкие плитки «подпись — число» в одну строку, без пустоты */
+.vwb-stats { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; margin-bottom: 14px; }
+.vwb-stat { padding: 10px 12px; }
+.vwb-stat b { font-size: 1.35rem; line-height: 1.2; }
+.vob-stats div { padding: 8px 12px; }
+
+/* Реквизиты свёрнуты: нужны редко, а занимали пол-экрана */
+.vwb-fold { border: 1px solid var(--vwb-line); border-radius: 14px; background: rgba(255, 255, 255, 0.03); margin-bottom: 18px; }
+.vwb-fold > summary { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; padding: 12px 16px; cursor: pointer; font-size: 1rem; font-weight: 700; color: #fff; list-style: none; }
+.vwb-fold > summary::-webkit-details-marker { display: none; }
+.vwb-fold > summary::before { content: '▸'; color: #b9a4ff; }
+.vwb-fold[open] > summary::before { content: '▾'; }
+.vwb-fold > summary small { font-size: 0.88rem; font-weight: 500; color: #a39cc2; }
+.vwb-fold .vwb-parties { padding: 0 14px 14px; margin: 0; }
+.vwb-party dd { overflow-wrap: anywhere; }
+
+/* Бригады и плитки техники: ровная сетка, карточки не шире 340px */
+.vwb-brigades { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+.vwb-tiles { grid-template-columns: repeat(auto-fill, minmax(190px, 230px)); }
+.vwb-brigade-head h4 { overflow-wrap: anywhere; }
+.vwb-brigade-head .vwb-link { white-space: nowrap; flex: 0 0 auto; }
+
+/* Ноутбук и планшет */
+@media (max-width: 1180px) {
+  .vwb-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .vip-construction-module .vip-flow-tabs-bar .vip-tab-btn { flex: 0 0 auto; }
+  .vwb-g-left { flex-basis: 300px; }
+}
+@media (max-width: 900px) {
+  .vip-construction-module .vip-subtitle, .vip-construction-module .vip-badge-row { display: none; }
+  .vip-construction-module .vip-main-title { margin: 0; font-size: 1.15rem; }
+  .vwb-actions { width: 100%; overflow-x: auto; flex-wrap: nowrap; padding-bottom: 2px; }
+  .vwb-actions .vip-secondary-btn { flex: 0 0 auto; white-space: nowrap; }
+  .vwb-project { flex: 1 1 100%; }
+  .vwb-g-left { flex-basis: 240px; }
+}
+/* Телефон */
+@media (max-width: 720px) {
+  .vwb-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+  .vwb-stat { padding: 8px; }
+  .vwb-stat span { font-size: 0.75rem; }
+  .vwb-stat b { font-size: 1.15rem; }
+  .vwb-stat small { display: none; }
+  .vwb-title h2 { font-size: 1.15rem; }
+  .vwb-title p { display: none; }
+  .vip-construction-module .vip-tab-btn .t-name { font-size: 0.9rem; }
+  .vip-construction-module .vip-flow-tabs-bar .vip-tab-btn { padding: 9px 12px; }
+  .vwb-toolbar { gap: 8px; }
+  .vwb-groups { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; }
+  .vwb-group { flex: 0 0 auto; white-space: nowrap; }
+  .vwb-budget { padding: 12px; }
+  .vwb-brigades { grid-template-columns: 1fr; }
+  .vwb-g-left { flex-basis: 46%; }
+  .vwb-legend { gap: 6px 12px; font-size: 0.8rem; }
+}
+
+/* Шапка модуля в одну строку: название, рядом значки; рекламная подпись убрана */
+.vip-construction-module .vip-header-left > div { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; min-width: 0; }
+.vip-construction-module .vip-main-title { order: -1; margin: 0; }
+.vip-construction-module .vip-subtitle { display: none; }
+.vip-construction-module .vip-header-wrapper { padding: 10px 16px; }
+/* Вкладки на компьютере переносятся во вторую строку, а не уезжают за край */
+@media (min-width: 1181px) {
+  .vip-construction-module .vip-flow-tabs-bar { flex-wrap: wrap; overflow: visible; }
+  .vip-construction-module .vip-flow-tabs-bar .vip-tab-btn { flex: 1 1 auto; padding: 9px 12px; }
+  .vip-construction-module .vip-tab-btn .t-name { font-size: 0.9rem; }
+}
+.vip-samples-note { margin: -4px 0 12px; font-size: 0.9rem; color: #a39cc2; }
+@media (min-width: 1181px) {
+  .vip-construction-module .vip-flow-tabs-bar { justify-content: center; }
+  .vip-construction-module .vip-flow-tabs-bar .vip-tab-btn { flex: 0 0 auto; padding: 9px 11px; gap: 6px; }
+  .vip-construction-module .vip-tab-btn .t-name { font-size: 0.88rem; }
+  .vip-construction-module .vip-tab-btn .icon { font-size: 1rem; }
+}
+.vob-skin { order: 2; }
+@media (max-width: 720px) { .vwb-staff td.empty { display: none; } }
+/* Работы объекта на вкладке оценки */
+.vip-real-works { margin-bottom: 22px; }
+.vip-real-works-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 16px; margin-bottom: 12px; }
+.vip-real-works-head h3 { font-size: 1.15rem; font-weight: 800; margin: 0; }
+.vip-real-works-head h3 span { color: #a39cc2; font-weight: 600; }
+.vip-real-works-head p { margin: 0; color: #a39cc2; font-size: 0.92rem; }
+.vip-real-works-head .vip-secondary-btn { margin-left: auto; }
+.vip-real-work { display: inline-flex; align-items: center; gap: 10px; }
+.vip-real-work svg { flex: 0 0 24px; width: 24px; height: 24px; color: #b9a4ff; }
+.vip-real-table tbody tr.plain { cursor: default; }
+.vip-real-table tfoot td { font-weight: 800; color: #fff; padding: 12px 16px; border-top: 1px solid rgba(255, 255, 255, 0.14); }
+.vip-real-sub { font-size: 1.05rem; font-weight: 800; margin: 20px 0 4px; }
+@media (max-width: 720px) {
+  .vip-real-table { min-width: 0; }
+  .vip-real-table thead { display: none; }
+  .vip-real-table tbody tr, .vip-real-table tfoot tr { display: flex; flex-wrap: wrap; gap: 4px 12px; padding: 10px 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.06); }
+  .vip-real-table td { padding: 0 !important; border: 0 !important; }
+  .vip-real-table tbody td:first-child { flex: 1 1 100%; }
+  .vip-real-works-head .vip-secondary-btn { margin-left: 0; }
+}
+
+/* ══ Модель: подпись выбранной работы, пояснения, план в карточке работы ══ */
+.vob-3d-wrap { position: relative; width: 100%; border-radius: 14px; overflow: hidden; }
+.vob-3d-tag { position: absolute; left: 0; top: 0; max-width: 220px; padding: 5px 10px; border-radius: 8px; background: #fbbf24; color: #1b1330; font-size: 0.86rem; font-weight: 800; line-height: 1.2; pointer-events: none; box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vob-3d-tag::after { content: ''; position: absolute; left: 50%; bottom: -6px; width: 12px; height: 12px; background: #fbbf24; transform: translateX(-50%) rotate(45deg); z-index: -1; }
+.vob-legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 10px; font-size: 0.88rem; color: #cbc5e3; }
+.vob-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.vob-legend i { width: 14px; height: 14px; border-radius: 4px; }
+.vob-legend i.s-progress { background: #e9a23b; } .vob-legend i.s-done { background: #22c55e; } .vob-legend i.s-plan { background: #8b7cf6; } .vob-legend i.pick { background: #fbbf24; box-shadow: 0 0 0 2px rgba(251, 191, 36, 0.35); }
+.vob-model-note { margin: 8px 0 0; font-size: 0.86rem; color: #8a82a8; }
+.vob-works { max-height: 590px; }
+.vv-plan svg { display: block; width: 100%; max-width: 620px; border-radius: 12px; cursor: crosshair; touch-action: manipulation; }
+.vv-plan-site { fill: #141b2b; }
+.vv-plan-house { fill: rgba(169, 187, 220, 0.16); stroke: #a9bbdc; stroke-width: 0.5; }
+.vv-plan-f2 { fill: rgba(124, 138, 165, 0.35); stroke: #cbd5e1; stroke-width: 0.3; stroke-dasharray: 1.2 0.8; }
+.vv-plan-axis { stroke: rgba(169, 187, 220, 0.25); stroke-width: 0.2; }
+.vv-plan text { fill: #a39cc2; font-size: 3.4px; font-weight: 600; pointer-events: none; }
+.vv-plan text.f2 { fill: #e2e8f0; }
+.vv-plan-step { fill: rgba(252, 211, 77, 0.14); stroke: #fcd34d; stroke-width: 0.3; }
+.vv-plan text.step { fill: #fde68a; font-size: 2.6px; }
+.vv-plan-unit { fill: rgba(135, 148, 174, 0.4); stroke: #aab6cf; stroke-width: 0.25; }
+.vv-plan-line { stroke: #aab6cf; stroke-width: 1.1; stroke-linecap: round; }
+.vv-plan text.unit { fill: #cbd5e1; font-size: 2.5px; }
+.vv-plan text.f2 { font-size: 3px; }
+.vv-plan-dot circle:first-child { fill: rgba(251, 191, 36, 0.3); stroke: #fbbf24; stroke-width: 0.5; }
+.vv-plan-dot circle:last-child { fill: #fbbf24; }
+.vv-plan-dot.auto circle:first-child { fill: rgba(185, 164, 255, 0.2); stroke: #b9a4ff; stroke-dasharray: 1 0.7; }
+.vv-plan-dot.auto circle:last-child { fill: #b9a4ff; }
+.vv-plan-foot { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-top: 6px; font-size: 0.86rem; color: #a39cc2; }
+/* значки стали двухцветными — чуть крупнее в строках */
+.vwb-g-pic.art svg { width: 34px; height: 34px; }
+.vob-works .art svg { width: 30px; height: 30px; }
+.vwb-g-pic.art { color: #c9b8ff; }
+@media (max-width: 720px) {
+  .vob-3d-wrap { height: 330px !important; }
+  .vob-3d { height: 100% !important; }
+  .vob-works { max-height: 420px; }
+}
+@media (max-width: 720px) { .vwb-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+/* две точки одной работы на плане (две лестницы) */
+.vv-plan-which { margin-bottom: 8px; display: inline-flex; flex-wrap: wrap; }
+.vv-plan-which button { display: inline-flex; align-items: center; gap: 8px; padding: 7px 12px; font-size: 0.9rem; }
+.vv-plan-which i { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: rgba(255, 255, 255, 0.16); font-style: normal; font-weight: 800; }
+.vv-plan-which button.active i { background: #1b1330; color: #fde68a; }
+.vv-plan text.num { fill: #fff; font-size: 3.6px; font-weight: 800; }
+.vv-plan-dot.on circle:first-child { stroke-width: 0.9; }
+.vv-plan-foot { flex-direction: column; }
+.vv-plan-gate { fill: #fbbf24; }
+.vv-plan text.gate { fill: #fde68a; font-size: 3px; }
+
+/* «Сейчас в работе» — кружки с иконками под моделью: нажатие показывает работу на модели */
+.vob-dots { margin-top: 12px; }
+.vob-dots-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+.vob-dots-list button { flex: 0 0 44px; width: 44px; height: 44px; padding: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; border-radius: 50%; border: 1px solid rgba(252, 211, 77, 0.45); background: rgba(233, 162, 59, 0.12); color: #fcd34d; cursor: pointer; transition: background 0.15s ease, box-shadow 0.15s ease; }
+.vob-dots-list button svg { width: 26px; height: 26px; }
+.vob-dots-list button img { width: 100%; height: 100%; object-fit: cover; }
+.vob-dots-list button:hover { background: rgba(233, 162, 59, 0.26); }
+.vob-dots-list button.active { background: #fbbf24; border-color: #fbbf24; color: #1b1330; box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.35); }
+.vob-dots-list button:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.vob-preview .vob-model-note { margin: 8px 0 0; font-size: 0.86rem; color: #8a82a8; }
+
+/* Календарь: кнопка «Сегодня» в углу и стрелки у края строки, если полоса работы ушла за экран */
+/* Шапка календаря (угол, месяцы, числа) прилипает к верху экрана, пока листают список работ.
+   Для этого рамка графика обрезает содержимое через clip (а не hidden), а шапка стоит вне области с прокруткой вбок. */
+.vwb-gantt { overflow: clip; }
+.vwb-g-main { position: relative; flex: 1 1 auto; min-width: 0; }
+.vwb-g-head { position: sticky; top: var(--vwb-sticky-top, 0px); z-index: 6; overflow: hidden; background: #14112b; }
+.vwb-g-head-in { width: calc(var(--cell) * var(--days)); }
+.vwb-g-left { overflow: visible; }
+.vwb-g-corner { position: sticky; top: var(--vwb-sticky-top, 0px); z-index: 7; background: #171431; }
+.vwb-g-corner { display: flex; align-items: flex-end; justify-content: space-between; gap: 8px; }
+.vwb-g-today { flex: 0 0 auto; margin-bottom: -2px; padding: 4px 10px; border-radius: 999px; border: 1px solid rgba(252, 211, 77, 0.45); background: rgba(251, 191, 36, 0.12); color: #fde68a; font: inherit; font-size: 0.78rem; font-weight: 700; letter-spacing: 0; text-transform: none; cursor: pointer; }
+.vwb-g-today:hover { background: rgba(251, 191, 36, 0.24); }
+/* название месяца остаётся на виду, пока его дни на экране */
+.vwb-g-months div { overflow: visible; }
+.vwb-g-months span { position: sticky; left: 8px; display: inline-block; }
+.vwb-g-edges { position: absolute; left: 0; right: 0; top: 64px; pointer-events: none; }
+.vwb-g-edge { position: relative; height: 64px; }
+.vwb-g-edge button { position: absolute; top: 50%; width: 30px; height: 30px; margin-top: -15px; padding: 0 0 3px; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid rgba(185, 164, 255, 0.5); background: rgba(27, 19, 48, 0.94); color: #d8ccff; font: inherit; font-size: 1.25rem; font-weight: 700; line-height: 1; cursor: pointer; pointer-events: auto; }
+.vwb-g-edge button.l { left: 6px; }
+.vwb-g-edge button.r { right: 6px; }
+.vwb-g-edge button.s-progress { color: #fcd34d; border-color: rgba(252, 211, 77, 0.55); }
+.vwb-g-edge button.s-done { color: #86efac; border-color: rgba(134, 239, 172, 0.5); }
+.vwb-g-edge button:hover { background: #2a1f4d; }
+
+/* График: название работы на полосе и подпись рядом с ней — только на телефоне, где слева остаются одни иконки */
+.vwb-g-ico { position: relative; display: flex; flex: 0 0 auto; }
+.vwb-g-badge, .vwb-bar-item .vwb-bar-nm, .vwb-g-cap { display: none; }
+@media (max-width: 720px) {
+  .vwb-g-left { flex: 0 0 60px; max-width: none; }
+  .vwb-g-corner { padding: 0 0 6px; justify-content: center; }
+  .vwb-g-corner-t { display: none; }
+  .vwb-g-today { margin: 0; padding: 5px 0; width: 54px; font-size: 0.64rem; text-align: center; }
+  .vwb-g-edge { height: 56px; }
+  /* верх раздела на телефоне короче: календарь должен быть ближе к началу экрана */
+  .vwb-title { display: none; }
+  .vwb-toolbar { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; }
+  .vwb-toolbar .vwb-seg { display: flex; }
+  .vwb-toolbar .vwb-seg button { flex: 1 1 0; padding: 9px 4px; font-size: 0.86rem; }
+  .vwb-toolbar .vwb-fact-btn { padding: 9px 6px; font-size: 0.84rem; line-height: 1.15; }
+  .vwb-toolbar select.vip-input { width: 100%; min-width: 0; }
+  .vwb-toolbar .vwb-add { grid-column: 1 / -1; }
+  .vwb-g-name { position: relative; height: 56px; padding: 0; gap: 0; justify-content: center; }
+  .vwb-g-pic { flex-basis: 44px; width: 44px; height: 44px; }
+  .vwb-g-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .vwb-g-badge { position: absolute; top: -5px; right: -5px; display: flex; align-items: center; justify-content: center; width: 18px; height: 18px; border-radius: 50%; background: #fbbf24; color: #1b1330; border: 2px solid #15122a; font-style: normal; font-size: 0.72rem; font-weight: 900; line-height: 1; }
+  .vwb-g-row { height: 56px; }
+  .vwb-bar-item, .vwb-bar-ghost { top: 8px; }
+  .vwb-bar-item.fact { top: 16px; }
+  .vwb-bar-wait { top: 18px; }
+  .vwb-bar-item .vwb-bar-st { display: none; }
+  .vwb-bar-item .vwb-bar-nm { display: block; font-size: 0.82rem; }
+  .vwb-g-cap { display: block; position: absolute; top: 19px; max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.82rem; font-weight: 600; line-height: 18px; color: #cbc5e3; pointer-events: none; }
+  .vob-dots-list button { flex-basis: 40px; width: 40px; height: 40px; }
+  .vob-dots-list button svg { width: 24px; height: 24px; }
+}

@@ -162,3 +162,219 @@ test('проверка файла проекта перед загрузкой',
   assert.match(importProblem({ name: 'x', works: [{ title: 'А', start: '29.10', end: '2026-11-01' }] }), /нет дат/);
   assert.match(importProblem({ name: 'x', works: [{ title: 'А', start: '2026-11-05', end: '2026-11-01' }] }), /раньше начала/);
 });
+
+// ── выходной, факт, бюджет, подгруппы, виды работ ──
+import {
+  restDayOf, factRange, budgetSummary, money, guessMachineGroup, machineGroup, guessWorkKind, workKind,
+  workPicture, initials, nameHue, workZone,
+} from './vipSchedule.js';
+
+test('выходной день: по умолчанию воскресенье, можно любой день недели', () => {
+  assert.equal(restDayOf({}), 0);
+  assert.equal(restDayOf({ restDay: 3 }), 3);
+  assert.equal(restDayOf({ restDay: 9 }), 0);
+  const sun = buildTimeline({ startDate: '2026-11-01', works: [] }, '2026-11-08');
+  assert.deepEqual(sun.days.filter((d) => d.rest).map((d) => d.iso).slice(0, 2), ['2026-11-01', '2026-11-08']);
+  const wed = buildTimeline({ startDate: '2026-11-01', restDay: 3, works: [] }, '2026-11-08');
+  assert.equal(wed.days.find((d) => d.rest).iso, '2026-11-04');
+});
+
+test('календарь по факту', () => {
+  const today = '2026-11-20';
+  assert.equal(factRange({ status: 'plan', start: '2026-11-25', end: '2026-11-28' }, today), null);
+  // идёт и уже опаздывает на 2 дня
+  assert.deepEqual(factRange({ status: 'progress', start: '2026-11-10', end: '2026-11-18' }, today), { start: '2026-11-10', end: today, running: true, shift: 2 });
+  // идёт, срок ещё не вышел — опоздания нет
+  assert.equal(factRange({ status: 'progress', start: '2026-11-10', end: '2026-11-25' }, today).shift, 0);
+  // выполнена с отметками: начали позже, закончили на 3 дня позже
+  assert.deepEqual(factRange({ status: 'done', start: '2026-11-01', end: '2026-11-05', factStart: '2026-11-02', factEnd: '2026-11-08' }, today), { start: '2026-11-02', end: '2026-11-08', running: false, shift: 3 });
+  // выполнена без отметок — по плану
+  assert.deepEqual(factRange({ status: 'done', start: '2026-11-01', end: '2026-11-05' }, today), { start: '2026-11-01', end: '2026-11-05', running: false, shift: 0 });
+  // «в работе» раньше плановой даты
+  assert.equal(factRange({ status: 'progress', start: '2026-11-25', end: '2026-11-28' }, today).start, today);
+  // фактические даты расширяют сетку
+  const t = buildTimeline({ works: [{ start: '2026-11-10', end: '2026-11-12', factStart: '2026-11-05', factEnd: '2026-11-20' }] }, '2026-11-11');
+  assert.equal(t.start, '2026-11-05');
+  assert.ok(t.end >= '2026-11-20');
+});
+
+test('бюджет на строительство', () => {
+  const b = budgetSummary({ budget: 1000, works: [{ cost: 400, paid: 100, status: 'done' }, { cost: 300, paid: 50, status: 'progress' }, { status: 'plan' }] });
+  assert.deepEqual(b, { budget: 1000, planned: 700, paid: 150, doneCost: 400, left: 850, paidPct: 15, donePct: 40, unpriced: 1 });
+  assert.equal(budgetSummary({ invoice: { amount: 500 }, works: [] }).budget, 500);
+  assert.equal(budgetSummary({ works: [{ cost: 70 }] }).budget, 70);
+  assert.equal(money(12500000), '12 500 000 ₸');
+});
+
+test('подгруппы техники', () => {
+  assert.equal(guessMachineGroup('Кран КАМАЗ 25 т'), 'crane');
+  assert.equal(guessMachineGroup('Манипулятор Hyundai'), 'manipulator');
+  assert.equal(guessMachineGroup('Автовышка 33 м'), 'lift');
+  assert.equal(guessMachineGroup('КАМАЗ самосвал'), 'truck');
+  assert.equal(guessMachineGroup('Экскаватор JCB'), 'earth');
+  assert.equal(guessMachineGroup('Генератор'), 'other');
+  assert.equal(guessMachineGroup('XCMG QY25K5S'), 'crane');
+  assert.equal(guessMachineGroup('Nissan X-Trail'), 'truck');
+  assert.equal(guessMachineGroup('DONGFENG RRR5040JGKE'), 'lift');
+  assert.equal(machineGroup({ name: 'Кран', group: 'truck' }), 'truck'); // выбор человека важнее подсказки
+  assert.equal(machineGroup({ name: 'Кран', group: 'ракета' }), 'crane');
+});
+
+test('виды работ и место на модели', () => {
+  assert.equal(guessWorkKind('Ливневая система'), 'drain');
+  assert.equal(guessWorkKind('Монтаж кровли'), 'roof');
+  assert.equal(guessWorkKind('Резка отверстий'), 'cut');
+  assert.equal(guessWorkKind('Резка отверстия под трубу'), 'cut');
+  assert.equal(guessWorkKind('Демонтаж и монтаж профлиста'), 'walls');
+  assert.equal(guessWorkKind('Профлист на крышу'), 'roof');
+  assert.equal(guessWorkKind('Сборка 2 лестничных маршей'), 'stairs');
+  assert.equal(guessWorkKind('Рельсовый монтаж'), 'rails');
+  assert.equal(guessWorkKind('Отопление: монтаж'), 'heat');
+  assert.equal(guessWorkKind('Монтаж вентиляции'), 'vent');
+  assert.equal(guessWorkKind('Монтаж сэндвич-панелей'), 'walls');
+  assert.equal(guessWorkKind('Сборка каркаса'), 'steel');
+  assert.equal(guessWorkKind('Что-то ещё'), 'other');
+  assert.equal(workKind({ title: 'Кровля', kind: 'weld' }), 'weld');
+  assert.equal(workZone({ title: 'Монтаж кровли' }), 'roof');
+  assert.equal(workZone({ title: 'Панели', place: 'восточный торец' }), 'wall-e');
+  assert.equal(workZone({ title: 'Кровля', zone: 'floor' }), 'floor');
+  assert.equal(workZone({ title: 'Что-то' }), 'all');
+});
+
+test('картинка работы и инициалы', () => {
+  assert.equal(workPicture({ media: [] }), null);
+  assert.equal(workPicture({ media: [{ kind: 'photo', url: '/a.jpg' }, { kind: 'video', url: '/v.mp4' }, { kind: 'photo', url: '/b.jpg' }] }), '/b.jpg');
+  assert.equal(initials('Иванов Иван Иванович'), 'ИИ');
+  assert.equal(initials(''), '?');
+  assert.equal(nameHue('Иванов'), nameHue('Иванов'));
+  assert.ok(nameHue('Иванов') >= 0 && nameHue('Иванов') < 360);
+});
+
+import { buildFactDays } from './vipSchedule.js';
+test('календарь по факту по дням', () => {
+  const days = buildFactDays({ works: [
+    { id: 'a', title: 'А', status: 'progress', start: '2026-11-10', end: '2026-11-12' },
+    { id: 'b', title: 'Б', status: 'done', start: '2026-11-11', end: '2026-11-11' },
+    { id: 'c', title: 'В', status: 'plan', start: '2026-11-11', end: '2026-11-11' },
+  ] }, '2026-11-14');
+  assert.deepEqual(Object.keys(days).sort(), ['2026-11-10', '2026-11-11', '2026-11-12', '2026-11-13', '2026-11-14']);
+  assert.deepEqual(days['2026-11-11'].map((x) => x.work.id), ['a', 'b']); // запланированная в факт не попадает
+  assert.equal(days['2026-11-12'][0].late, false);
+  assert.equal(days['2026-11-13'][0].late, true); // идёт позже срока
+});
+
+import { guessShape, workFloor, workCount, projectPlaces, HANGAR, HANGAR_INNER, HANGAR_PLANT, hangarPlan, floorRise,
+} from './vipSchedule.js';
+test('место и фигура работы на модели', () => {
+  assert.equal(guessShape({ title: 'Сборка 2 лестничных маршей' }), 'stairs');
+  assert.equal(guessShape({ title: 'Ливневая система' }), 'storm');
+  assert.equal(guessShape({ title: 'Канализация и септик' }), 'sewer');
+  assert.equal(guessShape({ title: 'Демонтаж и монтаж профлиста' }), 'sheet_wall');
+  assert.equal(guessShape({ title: 'Профлист на крышу, привозка связей' }), 'sheet_roof');
+  assert.equal(guessShape({ title: 'Резка отверстий под будку' }), 'opening');
+  assert.equal(guessShape({ title: 'Сварка короба под дробилку' }), 'box');
+  assert.equal(guessShape({ title: 'Рельсовый монтаж' }), 'rails');
+  assert.equal(guessShape({ title: 'Заливка закладных, 2 этаж' }), 'embeds');
+  assert.equal(guessShape({ title: 'Отопление: монтаж' }), 'heating');
+  assert.equal(guessShape({ title: 'Уборка' }), 'pin');
+  assert.equal(workFloor({ title: 'Заливка закладных, 2 этаж' }), 2);
+  assert.equal(workFloor({ title: 'Резка', place: '1 этаж' }), 1);
+  assert.equal(workFloor({ title: 'Резка', floor: 2, place: '1 этаж' }), 2);
+  assert.equal(workFloor({ title: 'Ливневая система' }), 0);
+  assert.equal(workCount({ title: 'Сборка 2 лестничных маршей' }), 2);
+  assert.equal(workCount({ title: 'Закладные', volume: '11 штук' }), 11);
+  assert.equal(workCount({ title: 'Рельсовый монтаж', volume: '6 полос: обнаружение' }), 6);
+  assert.equal(workCount({ title: 'Что-то' }, 3), 3);
+  const p = projectPlaces([
+    { id: 'a', title: 'Заливка закладных, 1 этаж', volume: '11 штук' },
+    { id: 'b', title: 'Обнаружение закладных в бетоне', volume: '10 штук' },
+    { id: 'c', title: 'Заливка закладных, 2 этаж' },
+    { id: 'd', title: 'Сборка 2 лестничных маршей', pos: { x: 50, z: 20 } },
+    { id: 'e', title: 'Ливневая система' },
+  ]);
+  assert.equal(p.get('a').shape, 'embeds');
+  assert.equal(p.get('a').count, 11);
+  assert.notDeepEqual([p.get('a').x, p.get('a').z], [p.get('b').x, p.get('b').z]); // одинаковые работы не сливаются
+  assert.equal(p.get('c').floor, 2);
+  assert.ok(p.get('c').x > HANGAR_INNER.mezzFrom); // второй этаж — на площадке
+  assert.deepEqual([p.get('d').x, p.get('d').z, p.get('d').auto], [50, 20, false]); // место, указанное человеком
+  assert.equal(p.get('e').label, 'снаружи здания');
+  // две лестницы — две точки: первая в середине здания, вторая (двухэтажная) в начале, у входа
+  const st = projectPlaces([{ id: 's', title: 'Сборка 2 лестничных маршей' }, { id: 't', title: 'Лестница', pos2: { x: 10, z: 20 } }]);
+  assert.deepEqual([st.get('s').x, st.get('s').z, st.get('s').x2, st.get('s').z2, st.get('s').auto2], [31.5, 19.4, 9.4, 21.8, true]);
+  assert.deepEqual([st.get('t').x2, st.get('t').z2, st.get('t').auto2], [10, 20, false]);
+  assert.equal(p.get('a').label, '1 этаж');
+});
+
+test('выступ пола — плита на всю дальнюю от входа половину здания, от стены до стены', () => {
+  assert.equal(HANGAR.bump, undefined);
+  const s = HANGAR.step, p = HANGAR_PLANT;
+  assert.deepEqual([s.from + s.length, s.z, s.width], [HANGAR.length, 0, HANGAR.width]); // до дальнего торца, на всю ширину
+  assert.ok(s.from > HANGAR.length * 0.35 && s.from <= HANGAR.length / 2); // около половины здания
+  const corners = (o) => [[o.x, o.z], [o.x + o.l, o.z], [o.x, o.z + o.w], [o.x + o.l, o.z + o.w]];
+  for (const o of [p.rack, p.rackStair, p.screen]) for (const [x, z] of corners(o)) assert.equal(floorRise(x, z), s.height, `на плите: ${x}, ${z}`);
+  for (const o of [p.crusher, p.crusherStair, p.booth]) for (const [x, z] of corners(o)) assert.equal(floorRise(x, z), 0, `на нижнем полу: ${x}, ${z}`);
+  assert.equal(floorRise(s.from + 1, 0.5), s.height); // у самой северной стены
+  assert.equal(floorRise(s.from + 1, HANGAR.width - 0.5), s.height); // у самой южной стены
+  assert.equal(floorRise(HANGAR.length, HANGAR.width / 2), s.height); // у дальнего торца
+  assert.equal(floorRise(s.from - 1, HANGAR.width / 2), 0); // перед плитой
+  assert.equal(floorRise(40, -1), 0); // снаружи здания
+  assert.deepEqual(hangarPlan()[0], { kind: 'step', x: s.from, z: 0, l: s.length, w: HANGAR.width, label: `выступ +${s.height} м` });
+});
+
+test('оборудование стоит внутри здания, вдоль южной стены, и не налезает друг на друга', () => {
+  const p = HANGAR_PLANT;
+  const units = [p.booth, p.crusherStair, p.crusher, p.screen, p.rackStair, p.rack];
+  for (const o of units) assert.ok(o.x >= 0 && o.z >= 0 && o.x + o.l <= HANGAR.length && o.z + o.w <= HANGAR.width, JSON.stringify(o));
+  for (const o of [p.booth, p.crusherStair, p.crusher, p.screen]) assert.ok(o.z > HANGAR.width / 2, 'у южной стены'); // если смотреть изнутри на вход — слева
+  for (let i = 0; i < units.length; i++) for (let j = i + 1; j < units.length; j++) {
+    const a = units[i], b = units[j];
+    assert.ok(a.x + a.l <= b.x || b.x + b.l <= a.x || a.z + a.w <= b.z || b.z + b.w <= a.z, `${i} и ${j} пересекаются`);
+  }
+  assert.ok(p.booth.x < p.crusherStair.x && p.crusherStair.x < p.crusher.x && p.crusher.x < p.screen.x && p.screen.x < p.rack.x); // по ходу от входа
+  assert.ok(p.conveyor.x1 >= p.crusher.x + p.crusher.l && p.conveyor.x2 <= p.screen.x + p.screen.l && p.conveyor.y2 > p.conveyor.y1); // конвейер поднимается от дробилки к грохоту
+  assert.ok(Math.max(...p.rack.levels) < p.cranes.rail && HANGAR_INNER.floor2 === p.rack.levels[0]); // кран проходит над этажеркой; второй этаж — её первая площадка
+  assert.equal(hangarPlan().filter((o) => o.label).length, 5);
+});
+
+test('работы встают на свои места по фотографиям объекта', () => {
+  const p = HANGAR_PLANT;
+  const places = projectPlaces([
+    { id: 's', title: 'Сборка 2 лестничных маршей' }, { id: 'k', title: 'Сварка короба под дробилку' },
+    { id: 'b', title: 'Резка отверстий под будку' }, { id: 't', title: 'Резка отверстия под трубу' },
+    { id: 'e2', title: 'Заливка закладных, 2 этаж' }, { id: 'e3', title: 'Анкера, 2 этаж' }, { id: 'e4', title: 'Закладные под дозатор, 2 этаж' },
+  ]);
+  const within = (pt, o) => pt.x >= o.x && pt.x <= o.x + o.l && pt.z >= o.z && pt.z <= o.z + o.w;
+  const st = places.get('s');
+  assert.ok(st.x < p.screen.x && st.x > p.crusher.x + p.crusher.l && st.z >= p.screen.z); // первый марш начинается перед площадкой грохота, в середине здания
+  assert.ok(within({ x: st.x2, z: st.z2 }, p.crusherStair)); // двухэтажная — у входа, рядом с дробилкой
+  assert.ok(st.z2 > HANGAR.width / 2 && st.x2 < 15); // изнутри, лицом ко входу — слева
+  assert.ok(within(places.get('k'), p.crusher)); // короб — под дробилкой
+  assert.ok(within(places.get('b'), p.booth)); // отверстия — у будки
+  assert.ok(!within(places.get('t'), p.booth) && !within(places.get('t'), p.crusher)); // вторая «дырка» не сливается с первой и не попадает в оборудование
+  for (const id of ['e2', 'e3', 'e4']) assert.ok(places.get(id).floor === 2 && within(places.get(id), p.rack), `второй этаж — на этажерке: ${id}`);
+});
+
+test('рельсовый монтаж — полосы на полу цеха, а не подкрановые пути; мостовых кранов два', () => {
+  const r = projectPlaces([{ id: 'r', title: 'Рельсовый монтаж', volume: '6 полос: обнаружение, заварка, установка' }]).get('r');
+  assert.deepEqual([r.shape, r.floor, r.count, r.label], ['rails', 1, 6, '1 этаж']);
+  assert.ok(r.z < HANGAR.width / 2); // на свободной половине цеха, не под оборудованием
+  assert.ok(HANGAR_PLANT.cranes.at.length === 2 && HANGAR_PLANT.cranes.at.every((x) => x > 0 && x < HANGAR.length));
+});
+
+test('работы на полу не лежат на краю выступа: каждая целиком на одном уровне', () => {
+  const p = projectPlaces([
+    { id: 'r', title: 'Рельсовый монтаж', volume: '6 полос' },
+    { id: 'a', title: 'Заливка закладных, 1 этаж', volume: '11 штук' }, { id: 'b', title: 'Обнаружение закладных в бетоне', volume: '10 штук' },
+    { id: 'o', title: 'Резка отверстий под будку' }, { id: 't', title: 'Резка отверстия под трубу' }, { id: 'k', title: 'Сварка короба под дробилку' },
+  ]);
+  // сколько места фигура занимает от своей точки: [назад, вперёд вдоль здания, к северной стене, к южной], м
+  const reach = { rails: [15, 15, 4.2, 4.2], embeds: [4, 4, 2.2, 2.2], opening: [1, 4.2, 0.8, 1.6], box: [2.1, 2.1, 1.7, 1.7] };
+  for (const [id, pl] of p) {
+    const [bx, fx, nz, sz] = reach[pl.shape];
+    const levels = new Set([[-bx, -nz], [fx, -nz], [-bx, sz], [fx, sz], [0, 0]].map(([ax, az]) => floorRise(pl.x + ax, pl.z + az)));
+    assert.equal(levels.size, 1, `${id} (${pl.shape}) лежит на двух уровнях`);
+    assert.ok(pl.x - bx >= 0 && pl.x + fx <= HANGAR.length && pl.z - nz >= 0 && pl.z + sz <= HANGAR.width, `${id} выходит за стены`);
+  }
+  assert.equal(floorRise(p.get('r').x, p.get('r').z), HANGAR.step.height); // рельсы — на плите
+});

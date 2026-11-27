@@ -345,3 +345,53 @@ func TestChangePassword(t *testing.T) {
 		t.Errorf("время смены пароля не сохранено: %v %v", times[reg.User.ID], err)
 	}
 }
+
+// Один аккаунт может быть открыт на нескольких устройствах сразу — и у администратора тоже:
+// второй вход первую сессию не закрывает.
+func TestLogin_SeveralDevicesAtOnce(t *testing.T) {
+	h := NewAuthHandler(&config.Config{JwtSecret: "test-secret-123"})
+	admin := fmt.Sprintf("multi_admin_%d@test.kz", time.Now().UnixNano())
+	plain := fmt.Sprintf("multi_user_%d@test.kz", time.Now().UnixNano())
+	for _, e := range []string{admin, plain} {
+		if w := postRegister(t, h, map[string]interface{}{"email": e, "password": "Right-pass-1", "name": "Проверка"}); w.Code != http.StatusCreated {
+			t.Fatalf("регистрация %s: %d %s", e, w.Code, w.Body.String())
+		}
+	}
+	t.Cleanup(func() { _, _ = database.DB.Exec(`DELETE FROM users WHERE email IN ($1,$2)`, admin, plain) })
+	if _, err := database.DB.Exec(`UPDATE users SET role='admin' WHERE email=$1`, admin); err != nil {
+		t.Fatal(err)
+	}
+	tokenOf := func(email string) string {
+		w := postLogin(h, email, "Right-pass-1")
+		if w.Code != http.StatusOK {
+			t.Fatalf("вход %s: %d %s", email, w.Code, w.Body.String())
+		}
+		var out struct {
+			Token string `json:"token"`
+		}
+		_ = json.Unmarshal(w.Body.Bytes(), &out)
+		return out.Token
+	}
+	me := func(token string) *httptest.ResponseRecorder {
+		w := httptest.NewRecorder()
+		r := httptest.NewRequest("GET", "/api/v1/auth/me", nil)
+		r.Header.Set("Authorization", "Bearer "+token)
+		h.GetMe(w, r)
+		return w
+	}
+	a1 := tokenOf(admin)
+	u1 := tokenOf(plain)
+	time.Sleep(1100 * time.Millisecond) // токены различаются с точностью до секунды
+	a2 := tokenOf(admin)
+	u2 := tokenOf(plain)
+	a3 := tokenOf(admin)
+	for name, tok := range map[string]string{"первая администратора": a1, "вторая администратора": a2, "третья администратора": a3, "первая пользователя": u1, "вторая пользователя": u2} {
+		if w := me(tok); w.Code != http.StatusOK {
+			t.Errorf("сессия «%s» должна работать: %d %s", name, w.Code, w.Body.String())
+		}
+	}
+	var revoked int64
+	if err := database.DB.QueryRow(`SELECT sessions_revoked_unix FROM users WHERE email=$1`, admin).Scan(&revoked); err != nil || revoked != 0 {
+		t.Errorf("вход не должен отзывать сессии: sessions_revoked_unix=%d err=%v", revoked, err)
+	}
+}

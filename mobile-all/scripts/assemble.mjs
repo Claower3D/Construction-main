@@ -1,4 +1,4 @@
-// Собирает пять мобильных приложений в одно: www/<приложение>/ + экран выбора www/index.html.
+// Собирает шесть мобильных приложений в одно: www/<приложение>/ + экран выбора www/index.html.
 // Запуск: npm run build (из папки mobile-all). Потом: npx cap sync android → сборка APK.
 import { execSync } from 'node:child_process';
 import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
@@ -10,7 +10,7 @@ const hub = resolve(here, '..');
 const root = resolve(hub, '..');
 const www = join(hub, 'www');
 
-const APPS = ['customer', 'executor', 'engineer', 'manager', 'admin'];
+const APPS = ['customer', 'executor', 'engineer', 'manager', 'builder', 'admin'];
 const only = process.argv.slice(2).filter((a) => APPS.includes(a));
 const list = only.length ? only : APPS;
 const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';

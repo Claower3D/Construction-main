@@ -25,6 +25,7 @@ import './styles/app-lux.css';
 import './utils/audioFX.js';
 import { initI18n, langReady } from './i18n';
 import { startUserDataSync } from './services/userDataSync';
+import { ssoOnStart } from './utils/sso';
 // 3D-наклон карточек (utils/cardTilt.js) отключён: MutationObserver на весь документ
 // и «прыгающие» карточки мешали чтению и нагружали CPU.
 
@@ -55,6 +56,11 @@ const start = () => {
   // Язык интерфейса (RU / KZ / EN): выбор посетителя или язык домена применяется сразу после монтирования
   initI18n();
 };
-Promise.race([langReady(), new Promise((resolve) => setTimeout(resolve, 2500))]).then(start, start);
-// Личные данные (календарь, объекты, уведомления, история смет…) — на сервер и на все устройства
-startUserDataSync();
+const boot = () => {
+  Promise.race([langReady(), new Promise((resolve) => setTimeout(resolve, 2500))]).then(start, start);
+  // Личные данные (календарь, объекты, уведомления, история смет…) — на сервер и на все устройства
+  startUserDataSync();
+};
+// Вход между адресами сайта (qazgost.kz ↔ qazgost.com): если страница открыта с кодом от соседнего адреса,
+// сначала входим по нему, потом рисуем сайт — без мелькания страницы входа. В остальных случаях это мгновенно.
+ssoOnStart().then(boot, boot);

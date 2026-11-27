@@ -1,9 +1,9 @@
 // Приложение QazGost для Android: одно приложение со всеми ролями (заказчик, исполнитель, инженер,
-// менеджер, администратор). В магазинах его пока нет, поэтому файл APK лежит на самом сайте:
+// менеджер, застройщик, администратор). В магазинах его пока нет, поэтому файл APK лежит на самом сайте:
 // frontend/public/downloads/. При выпуске новой версии положите новый файл рядом и поменяйте
 // три значения ниже — имя файла с номером версии нужно, чтобы телефон не взял старый файл из кэша.
-export const ANDROID_APP_VERSION = '1.1';
-export const ANDROID_APK_SIZE_MB = 19;
+export const ANDROID_APP_VERSION = '1.4';
+export const ANDROID_APK_SIZE_MB = 20;
 export const ANDROID_APK_URL = `/downloads/QazGost-${ANDROID_APP_VERSION}.apk`;
 export const ANDROID_APK_FILE = `QazGost-${ANDROID_APP_VERSION}.apk`;
 

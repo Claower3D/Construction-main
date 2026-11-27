@@ -5,18 +5,34 @@ import {
   STATUS, STATUS_ORDER, BRIGADE_PEOPLE, BRIGADE_MACHINES,
   todayIso, isIso, durationDays, formatDay, formatRange, isOverdue, buildTimeline, barPosition,
   brigadeConflicts, brigadeIssues, assignmentReport, projectSummary, shortName, nextId, emptyProject, importProblem,
+  WEEKDAY_NAMES, restDayOf, factRange, budgetSummary, money, MACHINE_GROUPS, machineGroup, guessMachineGroup,
+  WORK_KINDS, workKind, guessWorkKind, workPicture, WORK_SHAPES, projectPlaces, hangarPlan, HANGAR,
 } from './vip/vipSchedule';
+import { Avatar, MachinePic, MachineArt, WorkArt, PhotoPicker, PlanPicker } from './vip/VipVisuals';
 import {
   listProjects, getProject, createProject, saveProject, deleteProject,
-  uploadMedia, mediaProblem, MEDIA_ACCEPT, MEDIA_LIMITS,
+  uploadMedia, mediaProblem, MEDIA_ACCEPT, MEDIA_LIMITS, fileUrl,
 } from '../services/vipApi';
+
+const pic = (w) => fileUrl(workPicture(w)); // картинка работы с адресом сервера (нужно в приложении)
 
 // Рабочие проекты модуля «Строительство зданий и сооружений»: график работ (календарь с полосами),
 // таблица работ, карточка работы с фото и видео, штат, техника и бригады подрядчика.
 // Данные лежат на сервере (/api/v1/vip/*) и видны администратору и менеджеру с любого устройства.
-// section: 'schedule' — график и таблица работ; 'team' — компания, бригады, штат и техника.
+// section: 'schedule' — график и таблица работ; 'team' — компания, бригады, штат и техника; 'docs' — документы проекта.
 
-const CELL = 30; // ширина одного дня на графике, px
+const CELL = 44; // ширина одного дня на графике, px
+// На телефоне слева в графике только иконки, а название работы стоит на её полосе; не помещается — рядом с полосой.
+const NAME_CHAR = 7.4; // средняя ширина буквы подписи, px
+const nameFits = (title, width) => String(title || '').length * NAME_CHAR + 22 <= width;
+/** Где поставить подпись рядом с полосой: справа от неё, а если там не хватает места до конца графика — слева */
+const capStyle = (title, fromCell, toCell, days) => {
+  const need = String(title || '').length * NAME_CHAR + 12;
+  const toLeft = toCell * CELL + need > days * CELL && fromCell * CELL - need > 0;
+  return toLeft ? { right: (days - fromCell) * CELL + 6 } : { left: toCell * CELL + 6 };
+};
+const DOC_ACCEPT = '.pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.webp';
+const DOC_KINDS = ['Договор', 'Смета', 'Акт (КС-2)', 'Справка (КС-3)', 'Счёт', 'Чертёж', 'Отчёт', 'Другое'];
 const cls = (...a) => a.filter(Boolean).join(' ');
 const fmtSize = (b) => (b >= 1048576 ? `${(b / 1048576).toFixed(1)} МБ` : `${Math.max(1, Math.round(b / 1024))} КБ`);
 const plural = (n, one, few, many) => { const a = Math.abs(n) % 100, b = a % 10; return a > 10 && a < 20 ? many : b === 1 ? one : b >= 2 && b <= 4 ? few : many; };
@@ -39,7 +55,7 @@ function Modal({ title, onClose, children, wide = false, footer = null }) {
     };
     document.addEventListener('keydown', onKey, true);
     const prev = document.activeElement;
-    const first = boxRef.current && boxRef.current.querySelector('input, select, textarea, button');
+    const first = boxRef.current && (boxRef.current.querySelector('.vwb-form input, .vwb-form select, .vwb-form textarea') || boxRef.current.querySelector('input:not([type=file]), select, textarea, button'));
     if (first) first.focus();
     return () => {
       document.removeEventListener('keydown', onKey, true);
@@ -89,17 +105,32 @@ function Field({ label, children, hint, error, wide }) {
 // ── Карточка работы ──
 function WorkCard({ work, isNew, project, onSave, onDelete, onClose, userName }) {
   const today = todayIso();
-  const [d, setD] = useState(() => ({ place: '', volume: '', note: '', check: '', brigadeId: '', media: [], ...work }));
+  const [d, setD] = useState(() => ({ place: '', volume: '', note: '', check: '', brigadeId: '', media: [], factStart: '', factEnd: '', kind: '', zone: '', cost: 0, paid: 0, shape: '', floor: 0, pos: null, pos2: null, ...work }));
   const [errors, setErrors] = useState({});
   const [uploads, setUploads] = useState([]); // [{ key, name, pct, error }]
   const [askDelete, setAskDelete] = useState(false);
   const [viewer, setViewer] = useState(null);
   const fileRef = useRef(null);
   const set = (k, v) => setD((p) => ({ ...p, [k]: v }));
+  // Смена состояния сразу ставит отметки факта сегодняшним днём (их можно поправить): так «Календарь по факту»
+  // строится сам, без отдельного ввода дат
+  const setStatus = (status) => setD((p) => {
+    const next = { ...p, status };
+    if (status === 'progress' && !p.factStart) next.factStart = isIso(p.start) && p.start < today ? p.start : today;
+    if (status === 'done') {
+      if (!p.factStart) next.factStart = isIso(p.start) && p.start <= today ? p.start : today;
+      if (!p.factEnd) next.factEnd = today < next.factStart ? next.factStart : today;
+    }
+    if (status === 'plan') { next.factStart = ''; next.factEnd = ''; }
+    if (status === 'progress') next.factEnd = '';
+    return next;
+  });
   const brigade = (project.brigades || []).find((b) => b.id === d.brigadeId);
   const people = brigade ? (brigade.members || []).map((id) => (project.staff || []).find((p) => p.id === id)).filter(Boolean) : [];
   const machines = brigade ? (brigade.equipment || []).map((id) => (project.equipment || []).find((m) => m.id === id)).filter(Boolean) : [];
   const busy = uploads.some((u) => !u.error && u.pct < 1);
+  // место черновика на модели — с учётом остальных работ проекта
+  const place = useMemo(() => projectPlaces([...(project.works || []).filter((w) => w.id !== d.id), d]).get(d.id), [project.works, d]);
 
   // пересечение с другими работами той же бригады — считаем по черновику
   const clash = useMemo(() => {
@@ -113,9 +144,11 @@ function WorkCard({ work, isNew, project, onSave, onDelete, onClose, userName })
     if (!isIso(d.start)) e.start = 'Укажите дату начала';
     if (!isIso(d.end)) e.end = 'Укажите дату окончания';
     if (isIso(d.start) && isIso(d.end) && d.end < d.start) e.end = 'Окончание раньше начала';
+    if (d.factEnd && !d.factStart) e.factEnd = 'Сначала укажите, когда начали';
+    if (d.factEnd && d.factStart && d.factEnd < d.factStart) e.factEnd = 'Закончили раньше, чем начали';
     setErrors(e);
     if (Object.keys(e).length) return;
-    onSave({ ...d, title: d.title.trim() });
+    onSave({ ...d, title: d.title.trim(), cost: Number(d.cost) || 0, paid: Number(d.paid) || 0 });
   };
 
   const addFiles = async (files) => {
@@ -166,7 +199,7 @@ function WorkCard({ work, isNew, project, onSave, onDelete, onClose, userName })
           <input className="vip-input" type="date" value={d.end || ''} min={d.start || undefined} onChange={(e) => set('end', e.target.value)} />
         </Field>
         <Field label="Состояние">
-          <select className="vip-input" value={d.status || 'plan'} onChange={(e) => set('status', e.target.value)}>
+          <select className="vip-input" value={d.status || 'plan'} onChange={(e) => setStatus(e.target.value)}>
             {STATUS_ORDER.map((s) => <option key={s} value={s}>{STATUS[s].label}</option>)}
           </select>
         </Field>
@@ -178,11 +211,58 @@ function WorkCard({ work, isNew, project, onSave, onDelete, onClose, userName })
         </Field>
         {brigade && (
           <div className="vwb-crew wide">
-            <div><span className="vwb-label">Люди ({people.length})</span>{people.length ? people.map((p) => <span key={p.id} className="vwb-chip">{shortName(p.name)}{p.role ? ` · ${p.role}` : ''}</span>) : <span className="vwb-muted">в бригаде никого нет</span>}</div>
+            <div><span className="vwb-label">Люди ({people.length})</span>{people.length ? people.map((p) => <span key={p.id} className="vwb-chip with-ava"><Avatar person={p} size={22} />{shortName(p.name)}{p.role ? ` · ${p.role}` : ''}</span>) : <span className="vwb-muted">в бригаде никого нет</span>}</div>
             <div><span className="vwb-label">Техника ({machines.length})</span>{machines.length ? machines.map((m) => <span key={m.id} className="vwb-chip gold">{m.name}{m.plate ? ` · ${m.plate}` : ''}</span>) : <span className="vwb-muted">техника не закреплена</span>}</div>
             {clash.length > 0 && <div className="vwb-warn" role="alert">В эти дни бригада занята: {clash.map((w) => `«${w.title}» (${formatRange(w.start, w.end)})`).join(', ')}</div>}
           </div>
         )}
+        <Field label="Начали по факту" hint="Пусто — как в плане">
+          <input className="vip-input" type="date" value={d.factStart || ''} onChange={(e) => set('factStart', e.target.value)} />
+        </Field>
+        <Field label="Закончили по факту" error={errors.factEnd} hint="Пусто — работа ещё идёт или закончена по плану">
+          <input className="vip-input" type="date" value={d.factEnd || ''} min={d.factStart || undefined} onChange={(e) => set('factEnd', e.target.value)} />
+        </Field>
+        <Field label="Вид работ" hint="От него зависит картинка на графике">
+          <span className="vwb-kind-pick">
+            <WorkArt kind={d.kind || guessWorkKind(d.title)} className="vwb-kind-art" />
+            <select className="vip-input" value={d.kind || ''} onChange={(e) => set('kind', e.target.value)}>
+              <option value="">Подобрать по названию</option>
+              {WORK_KINDS.map((k) => <option key={k.id} value={k.id}>{k.label}</option>)}
+            </select>
+          </span>
+        </Field>
+        <Field label="Что показать на модели" hint={d.shape ? '' : `По названию: ${WORK_SHAPES.find((x) => x.id === place.shape).label}`}>
+          <select className="vip-input" value={d.shape || ''} onChange={(e) => set('shape', e.target.value)}>
+            <option value="">Подобрать по названию</option>
+            {WORK_SHAPES.map((x) => <option key={x.id} value={x.id}>{x.label}</option>)}
+          </select>
+        </Field>
+        <Field label="Этаж">
+          <select className="vip-input" value={d.floor || 0} onChange={(e) => set('floor', Number(e.target.value))}>
+            <option value={0}>Подобрать по названию</option>
+            <option value={1}>1 этаж</option>
+            <option value={2}>2 этаж</option>
+          </select>
+        </Field>
+        {/* не <label>: нажатие внутри подписи браузер передаёт первой кнопке в ней, и выбор места тут же сбрасывался бы */}
+        <div className="vwb-field wide">
+          <span className="vwb-label">Место на плане здания</span>
+          <PlanPicker
+            value={d.pos || null}
+            shown={{ x: place.x, z: place.z }}
+            second={place.shape === 'stairs' && place.count >= 2 ? { value: d.pos2 || null, shown: { x: place.x2, z: place.z2 }, onChange: (pos) => set('pos2', pos), names: ['два марша у грохота', 'лестница двухэтажная, у входа'] } : null}
+            objects={hangarPlan()}
+            length={HANGAR.length}
+            width={HANGAR.width}
+            onChange={(pos) => set('pos', pos)}
+          />
+        </div>
+        <Field label="Стоимость работы, ₸">
+          <input className="vip-input" type="number" min="0" step="1000" inputMode="numeric" value={d.cost || ''} onChange={(e) => set('cost', e.target.value)} placeholder="0" />
+        </Field>
+        <Field label="Оплачено, ₸">
+          <input className="vip-input" type="number" min="0" step="1000" inputMode="numeric" value={d.paid || ''} onChange={(e) => set('paid', e.target.value)} placeholder="0" />
+        </Field>
         <Field label="Примечание" wide>
           <textarea className="vip-input vwb-area" value={d.note || ''} onChange={(e) => set('note', e.target.value)} maxLength={2000} rows={2} />
         </Field>
@@ -216,8 +296,8 @@ function WorkCard({ work, isNew, project, onSave, onDelete, onClose, userName })
             {(d.media || []).map((m) => (
               <figure key={m.id} className="vwb-media">
                 {m.kind === 'video'
-                  ? <video src={m.url} controls preload="metadata" />
-                  : <button type="button" className="vwb-thumb" onClick={() => setViewer(m)} aria-label={`Открыть фото ${m.caption || m.name || ''}`}><img src={m.url} alt={m.caption || m.name || 'Фото работы'} loading="lazy" /></button>}
+                  ? <video src={fileUrl(m.url)} controls preload="metadata" />
+                  : <button type="button" className="vwb-thumb" onClick={() => setViewer(m)} aria-label={`Открыть фото ${m.caption || m.name || ''}`}><img src={fileUrl(m.url)} alt={m.caption || m.name || 'Фото работы'} loading="lazy" /></button>}
                 <figcaption>
                   <input className="vip-input" type="date" value={m.date || ''} onChange={(e) => setMedia(m.id, { date: e.target.value })} aria-label="Дата съёмки" />
                   <input className="vip-input" value={m.caption || ''} onChange={(e) => setMedia(m.id, { caption: e.target.value })} placeholder="Подпись" maxLength={300} aria-label="Подпись" />
@@ -229,7 +309,7 @@ function WorkCard({ work, isNew, project, onSave, onDelete, onClose, userName })
         )}
       {viewer && (
         <Modal title={viewer.caption || viewer.name || 'Фото'} onClose={() => setViewer(null)} wide>
-          <img className="vwb-viewer" src={viewer.url} alt={viewer.caption || viewer.name || 'Фото работы'} />
+          <img className="vwb-viewer" src={fileUrl(viewer.url)} alt={viewer.caption || viewer.name || 'Фото работы'} />
           <p className="vwb-hint">{viewer.date ? formatDay(viewer.date) : ''}</p>
         </Modal>
       )}
@@ -240,7 +320,7 @@ function WorkCard({ work, isNew, project, onSave, onDelete, onClose, userName })
 
 // ── Окна справочников ──
 function PersonCard({ person, isNew, onSave, onDelete, onClose }) {
-  const [d, setD] = useState({ role: '', iin: '', phone: '', note: '', ...person });
+  const [d, setD] = useState({ role: '', iin: '', phone: '', note: '', photo: '', ...person });
   const [err, setErr] = useState({});
   const submit = () => {
     const e = {};
@@ -257,6 +337,9 @@ function PersonCard({ person, isNew, onSave, onDelete, onClose }) {
         <button type="button" className="vip-primary-btn" onClick={submit}>Сохранить</button>
       </>
     )}>
+      <PhotoPicker value={d.photo} onChange={(url) => setD((p) => ({ ...p, photo: url }))} label="Фото работника">
+        <Avatar person={d} size={84} />
+      </PhotoPicker>
       <div className="vwb-form one">
         <Field label="Фамилия, имя, отчество" error={err.name}><input className="vip-input" value={d.name || ''} onChange={(e) => setD({ ...d, name: e.target.value })} maxLength={150} /></Field>
         <Field label="Должность"><input className="vip-input" value={d.role || ''} onChange={(e) => setD({ ...d, role: e.target.value })} maxLength={100} placeholder="Монтажник, водитель крана…" /></Field>
@@ -269,7 +352,7 @@ function PersonCard({ person, isNew, onSave, onDelete, onClose }) {
 }
 
 function MachineCard({ machine, isNew, staff, onSave, onDelete, onClose }) {
-  const [d, setD] = useState({ plate: '', driverId: '', note: '', ...machine });
+  const [d, setD] = useState({ plate: '', driverId: '', note: '', group: '', photo: '', ...machine });
   const [err, setErr] = useState('');
   const submit = () => { if (!String(d.name || '').trim()) { setErr('Укажите название техники'); return; } onSave({ ...d, name: d.name.trim() }); };
   return (
@@ -280,8 +363,17 @@ function MachineCard({ machine, isNew, staff, onSave, onDelete, onClose }) {
         <button type="button" className="vip-primary-btn" onClick={submit}>Сохранить</button>
       </>
     )}>
+      <PhotoPicker value={d.photo} onChange={(url) => setD((p) => ({ ...p, photo: url }))} label="Фото техники">
+        <MachinePic machine={d} group={machineGroup(d)} className="big" />
+      </PhotoPicker>
       <div className="vwb-form one">
         <Field label="Техника, автомобиль" error={err}><input className="vip-input" value={d.name || ''} onChange={(e) => setD({ ...d, name: e.target.value })} maxLength={150} placeholder="Кран КАМАЗ, автовышка 33 м…" /></Field>
+        <Field label="Подгруппа" hint={d.group ? '' : `По названию: ${MACHINE_GROUPS.find((g) => g.id === guessMachineGroup(d.name)).label}`}>
+          <select className="vip-input" value={d.group || ''} onChange={(e) => setD({ ...d, group: e.target.value })}>
+            <option value="">Подобрать по названию</option>
+            {MACHINE_GROUPS.map((g) => <option key={g.id} value={g.id}>{g.label}</option>)}
+          </select>
+        </Field>
         <Field label="Госномер"><input className="vip-input" value={d.plate || ''} onChange={(e) => setD({ ...d, plate: e.target.value })} maxLength={30} /></Field>
         <Field label="Водитель">
           <select className="vip-input" value={d.driverId || ''} onChange={(e) => setD({ ...d, driverId: e.target.value })}>
@@ -326,6 +418,7 @@ function BrigadeCard({ brigade, isNew, project, onSave, onDelete, onClose }) {
             return (
               <label key={p.id} className="vwb-check">
                 <input type="checkbox" checked={d.members.includes(p.id)} onChange={() => toggle('members', p.id)} />
+                <Avatar person={p} size={30} />
                 <span><b>{p.name}</b>{p.role ? ` — ${p.role}` : ''}{other ? <em> · уже в «{other.name}»</em> : null}</span>
               </label>
             );
@@ -355,7 +448,7 @@ const PARTY_FIELDS = [
 ];
 
 function ProjectCard({ data, isNew, onSave, onClose }) {
-  const [d, setD] = useState(() => JSON.parse(JSON.stringify({ object: '', address: '', startDate: '', endDate: '', note: '', client: {}, contractor: {}, invoice: {}, ...data })));
+  const [d, setD] = useState(() => JSON.parse(JSON.stringify({ object: '', address: '', startDate: '', endDate: '', note: '', client: {}, contractor: {}, invoice: {}, restDay: 0, budget: 0, ...data })));
   const [err, setErr] = useState({});
   const party = (key, title) => (
     <fieldset className="vwb-pick">
@@ -372,7 +465,7 @@ function ProjectCard({ data, isNew, onSave, onClose }) {
     if (!String(d.name || '').trim()) e.name = 'Дайте проекту название';
     if (d.startDate && d.endDate && d.endDate < d.startDate) e.endDate = 'Окончание раньше начала';
     setErr(e);
-    if (!Object.keys(e).length) onSave({ ...d, name: d.name.trim(), invoice: { ...d.invoice, amount: Number(d.invoice.amount) || 0 } });
+    if (!Object.keys(e).length) onSave({ ...d, name: d.name.trim(), restDay: Number(d.restDay) || 0, budget: Number(d.budget) || 0, invoice: { ...d.invoice, amount: Number(d.invoice.amount) || 0 } });
   };
   return (
     <Modal title={isNew ? 'Новый проект' : 'Проект и реквизиты'} onClose={onClose} wide footer={(
@@ -387,6 +480,14 @@ function ProjectCard({ data, isNew, onSave, onClose }) {
         <Field label="Адрес объекта"><input className="vip-input" value={d.address || ''} onChange={(e) => setD({ ...d, address: e.target.value })} maxLength={300} /></Field>
         <Field label="Начало работ"><input className="vip-input" type="date" value={d.startDate || ''} onChange={(e) => setD({ ...d, startDate: e.target.value })} /></Field>
         <Field label="Плановое окончание" error={err.endDate}><input className="vip-input" type="date" value={d.endDate || ''} onChange={(e) => setD({ ...d, endDate: e.target.value })} /></Field>
+        <Field label="Выходной день" hint="Один день в неделю — он выделен на графике">
+          <select className="vip-input" value={Number(d.restDay) || 0} onChange={(e) => setD({ ...d, restDay: Number(e.target.value) })}>
+            {[1, 2, 3, 4, 5, 6, 0].map((n) => <option key={n} value={n}>{WEEKDAY_NAMES[n][0].toUpperCase() + WEEKDAY_NAMES[n].slice(1)}</option>)}
+          </select>
+        </Field>
+        <Field label="Бюджет на строительство, ₸">
+          <input className="vip-input" type="number" min="0" step="100000" inputMode="numeric" value={d.budget || ''} onChange={(e) => setD({ ...d, budget: e.target.value })} placeholder="0" />
+        </Field>
         <Field label="Счёт на оплату №"><input className="vip-input" value={(d.invoice && d.invoice.number) || ''} onChange={(e) => setD({ ...d, invoice: { ...d.invoice, number: e.target.value } })} maxLength={40} /></Field>
         <Field label="Дата счёта"><input className="vip-input" type="date" value={(d.invoice && d.invoice.date) || ''} onChange={(e) => setD({ ...d, invoice: { ...d.invoice, date: e.target.value } })} /></Field>
         <Field label="Примечание" wide><textarea className="vip-input vwb-area" rows={2} value={d.note || ''} onChange={(e) => setD({ ...d, note: e.target.value })} maxLength={2000} /></Field>
@@ -404,6 +505,11 @@ export default function VipWorksBoard({ section = 'schedule', onToast, onProject
   const [cur, setCur] = useState(null); // { id, version, data, updatedAt }
   const [save, setSave] = useState({ state: 'idle', error: '', at: '' });
   const [view, setView] = useState('gantt');
+  const [fact, setFact] = useState(false); // календарь по факту: как работы идут на самом деле
+  const [mView, setMView] = useState(() => { try { return localStorage.getItem('qazgost_vip_machine_view') === 'list' ? 'list' : 'tiles'; } catch { return 'tiles'; } });
+  const [mGroup, setMGroup] = useState('');
+  const [docBusy, setDocBusy] = useState('');
+  const docRef = useRef(null);
   const [fBrigade, setFBrigade] = useState('');
   const [fStatus, setFStatus] = useState('');
   const [modal, setModal] = useState(null); // { type, item, isNew }
@@ -411,6 +517,7 @@ export default function VipWorksBoard({ section = 'schedule', onToast, onProject
   const [showIin, setShowIin] = useState(false);
   const fileRef = useRef(null);
   const gridRef = useRef(null);
+  const headRef = useRef(null); // строка с месяцами и числами: едет вбок вместе с календарём
   const queue = useRef({ timer: null, busy: false, pending: null });
   const curRef = useRef(null);
   curRef.current = cur;
@@ -491,6 +598,12 @@ export default function VipWorksBoard({ section = 'schedule', onToast, onProject
   const conflicts = useMemo(() => (project ? brigadeConflicts(project) : new Map()), [project]);
   const summary = useMemo(() => (project ? projectSummary(project, today) : null), [project, today]);
   const report = useMemo(() => (project ? assignmentReport(project) : null), [project]);
+  const budget = useMemo(() => (project ? budgetSummary(project) : null), [project]);
+  const machineGroups = useMemo(() => {
+    const count = {};
+    for (const m of (project && project.equipment) || []) { const g = machineGroup(m); count[g] = (count[g] || 0) + 1; }
+    return MACHINE_GROUPS.filter((g) => count[g.id]).map((g) => ({ ...g, count: count[g.id] }));
+  }, [project]);
   const brigadeName = useCallback((id) => ((project && project.brigades) || []).find((b) => b.id === id)?.name || '', [project]);
   const works = useMemo(() => {
     if (!project) return [];
@@ -504,7 +617,56 @@ export default function VipWorksBoard({ section = 'schedule', onToast, onProject
     if (section !== 'schedule' || view !== 'gantt' || !timeline || !gridRef.current) return;
     const i = timeline.days.findIndex((d) => d.iso === today);
     if (i >= 0) gridRef.current.scrollLeft = Math.max(0, i * CELL - gridRef.current.clientWidth / 2);
-  }, [cur && cur.id, section, view]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [cur && cur.id, section, view, fact]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Где на календаре стоит полоса каждой работы (в пикселях от начала): по этому видно, какая ушла за край экрана.
+  const barSpans = useMemo(() => {
+    if (!timeline) return [];
+    return works.map((w) => {
+      const pos = barPosition(w, timeline);
+      const fr = fact ? factRange(w, today) : null;
+      const fpos = fr ? barPosition(fr, timeline) : null;
+      const from = Math.min(pos ? pos.offset : Infinity, fpos ? fpos.offset : Infinity);
+      const to = Math.max(pos ? pos.offset + pos.span : -Infinity, fpos ? fpos.offset + fpos.span : -Infinity);
+      if (!Number.isFinite(from)) return null;
+      const sp = { from: from * CELL, to: to * CELL, lo: from * CELL, hi: to * CELL }; // lo…hi — полоса вместе с подписью рядом с ней (на телефоне)
+      if (fact || !nameFits(w.title, pos.span * CELL - 4)) {
+        const need = Math.min(260, String(w.title || '').length * NAME_CHAR + 12);
+        const st = capStyle(w.title, from, to, timeline.days.length);
+        if ('right' in st) sp.lo = sp.from - need; else sp.hi = sp.to + need;
+      }
+      return sp;
+    });
+  }, [works, timeline, fact, today]);
+  // По букве на строку: l — полоса левее видимой части, r — правее, «-» — видна. Строка меняется редко, поэтому прокрутка не перерисовывает график.
+  const [edges, setEdges] = useState('');
+  useEffect(() => {
+    const el = gridRef.current;
+    if (section !== 'schedule' || view !== 'gantt' || !el) return undefined;
+    let raf = 0;
+    const measure = () => {
+      raf = 0;
+      const a = el.scrollLeft, b = a + el.clientWidth;
+      const phone = typeof window.matchMedia === 'function' && window.matchMedia('(max-width: 720px)').matches; // на телефоне рядом с полосой стоит подпись — стрелка её не закрывает
+      const sig = barSpans.map((sp) => (!sp ? '-' : (phone ? sp.hi : sp.to) <= a + 12 ? 'l' : (phone ? sp.lo : sp.from) >= b - 12 ? 'r' : '-')).join('');
+      setEdges((prev) => (prev === sig ? prev : sig));
+    };
+    const sync = () => { if (headRef.current) headRef.current.scrollLeft = el.scrollLeft; };
+    const onScroll = () => { sync(); if (!raf) raf = requestAnimationFrame(measure); };
+    sync();
+    measure();
+    el.addEventListener('scroll', onScroll, { passive: true });
+    const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(onScroll) : null;
+    if (ro) ro.observe(el);
+    return () => { el.removeEventListener('scroll', onScroll); if (ro) ro.disconnect(); if (raf) cancelAnimationFrame(raf); };
+  }, [barSpans, section, view, cur && cur.id]); // eslint-disable-line react-hooks/exhaustive-deps
+  const scrollGrid = (left) => {
+    const el = gridRef.current;
+    if (!el) return;
+    const x = Math.max(0, left);
+    if (typeof el.scrollTo === 'function') el.scrollTo({ left: x, behavior: 'smooth' }); else el.scrollLeft = x;
+  };
+  const todayIdx = timeline ? timeline.days.findIndex((d) => d.iso === today) : -1;
 
   // ── действия ──
   const saveWork = (w) => {
@@ -512,12 +674,37 @@ export default function VipWorksBoard({ section = 'schedule', onToast, onProject
     setModal(null);
     toast(`✅ Работа «${w.title}» сохранена`);
   };
-  const markDone = (w) => { change((d) => { const x = d.works.find((y) => y.id === w.id); if (x) x.status = 'done'; return d; }); toast(`✅ «${w.title}» отмечена выполненной`); };
+  const markDone = (w) => { change((d) => { const x = d.works.find((y) => y.id === w.id); if (x) { x.status = 'done'; if (!x.factStart) x.factStart = x.start; if (!x.factEnd) x.factEnd = today < x.factStart ? x.factStart : today; } return d; }); toast(`✅ «${w.title}» отмечена выполненной`); };
   const removeWork = (id) => { change((d) => { d.works = d.works.filter((x) => x.id !== id); return d; }); setModal(null); toast('🗑️ Работа удалена из графика'); };
   const upsert = (key, item) => { change((d) => { const i = d[key].findIndex((x) => x.id === item.id); if (i >= 0) d[key][i] = item; else d[key].push(item); return d; }); setModal(null); };
   const removePerson = (id) => { change((d) => { d.staff = d.staff.filter((x) => x.id !== id); d.brigades.forEach((b) => { b.members = b.members.filter((x) => x !== id); }); d.equipment.forEach((m) => { if (m.driverId === id) m.driverId = ''; }); return d; }); setModal(null); };
   const removeMachine = (id) => { change((d) => { d.equipment = d.equipment.filter((x) => x.id !== id); d.brigades.forEach((b) => { b.equipment = b.equipment.filter((x) => x !== id); }); return d; }); setModal(null); };
   const removeBrigade = (id) => { change((d) => { d.brigades = d.brigades.filter((x) => x.id !== id); d.works.forEach((w) => { if (w.brigadeId === id) w.brigadeId = ''; }); return d; }); setModal(null); };
+
+  const pickMachineView = (v) => { setMView(v); try { localStorage.setItem('qazgost_vip_machine_view', v); } catch { /* нет хранилища */ } };
+  const addDocs = async (files) => {
+    for (const file of files) {
+      if (!/\.(pdf|docx?|xlsx?|jpe?g|png|webp)$/i.test(file.name)) { toast(`⚠️ «${file.name}» не добавлен: подходят PDF, Word, Excel и фото`); continue; }
+      if (file.size > 30 * 1048576) { toast(`⚠️ «${file.name}» больше 30 МБ`); continue; }
+      setDocBusy(file.name);
+      try {
+        // eslint-disable-next-line no-await-in-loop
+        const res = await uploadMedia(file);
+        const title = file.name.replace(/\.[^.]+$/, '');
+        const kind = /смет/i.test(title) ? 'Смета' : /кс-?2|акт/i.test(title) ? 'Акт (КС-2)' : /кс-?3|справк/i.test(title) ? 'Справка (КС-3)' : /договор/i.test(title) ? 'Договор' : /сч[её]т/i.test(title) ? 'Счёт' : /черт[её]ж|план|схем/i.test(title) ? 'Чертёж' : 'Другое';
+        change((d) => { d.docs = d.docs || []; d.docs.push({ id: nextId('d', d.docs), title, kind, url: res.url, name: res.name, size: res.size, date: today, addedAt: new Date().toISOString(), addedBy: userName || '' }); return d; });
+      } catch (e) { toast(`⚠️ «${file.name}» не загружен: ${e.message}`); }
+    }
+    setDocBusy('');
+  };
+  const setDoc = (id, patch) => change((d) => { d.docs = (d.docs || []).map((x) => (x.id === id ? { ...x, ...patch } : x)); return d; });
+  const downloadAllDocs = () => {
+    (project.docs || []).forEach((doc, i) => setTimeout(() => {
+      const a = document.createElement('a');
+      a.href = fileUrl(doc.url); a.download = doc.name || doc.title || 'document';
+      document.body.appendChild(a); a.click(); a.remove();
+    }, i * 350));
+  };
 
   const createNew = async (data) => {
     try {
@@ -616,7 +803,7 @@ export default function VipWorksBoard({ section = 'schedule', onToast, onProject
 
       <div className="vwb-title">
         <div>
-          <h2>{section === 'team' ? '👷 Штат и техника' : '📅 График работ'} — {project.name}</h2>
+          <h2>{section === 'team' ? '👷 Штат и техника' : section === 'docs' ? '📄 Документы' : '📅 График работ'} — {project.name}</h2>
           <p>
             {[project.object, project.address].filter(Boolean).join(' · ') || 'Объект не указан'}
             {project.contractor && project.contractor.name ? ` · подрядчик ${project.contractor.name}` : ''}
@@ -625,14 +812,14 @@ export default function VipWorksBoard({ section = 'schedule', onToast, onProject
         </div>
       </div>
 
-      <div className="vwb-stats">
+      {section === 'schedule' && <div className="vwb-stats">
         <div className="vwb-stat"><span>Работ</span><b>{summary.total}</b><small>{summary.first ? `${formatDay(summary.first, true)} — ${formatDay(summary.last, true)}` : 'нет дат'}</small></div>
         <div className="vwb-stat"><span>В работе</span><b>{summary.progress}</b><small>запланировано {summary.plan}</small></div>
         <div className="vwb-stat"><span>Выполнено</span><b>{summary.done}</b><small>{summary.donePct}% работ</small></div>
         <button type="button" className={cls('vwb-stat', 'btn', summary.overdue && 'bad')} onClick={() => { setFStatus(fStatus === 'overdue' ? '' : 'overdue'); }} aria-pressed={fStatus === 'overdue'}><span>Срок вышел</span><b>{summary.overdue}</b><small>нет отметки «выполнена»</small></button>
         <div className="vwb-stat"><span>Люди и техника</span><b>{(project.staff || []).length} / {(project.equipment || []).length}</b><small>бригад {(project.brigades || []).length}</small></div>
         <div className="vwb-stat"><span>Фото и видео</span><b>{summary.media}</b><small>{summary.check ? `уточнить: ${summary.check}` : 'вопросов нет'}</small></div>
-      </div>
+      </div>}
 
       {section === 'schedule' && (
         <>
@@ -641,6 +828,9 @@ export default function VipWorksBoard({ section = 'schedule', onToast, onProject
               <button type="button" className={view === 'gantt' ? 'active' : ''} aria-pressed={view === 'gantt'} onClick={() => setView('gantt')}>Календарь</button>
               <button type="button" className={view === 'table' ? 'active' : ''} aria-pressed={view === 'table'} onClick={() => setView('table')}>Таблица</button>
             </div>
+            <button type="button" className={cls('vwb-fact-btn', fact && 'active')} aria-pressed={fact} onClick={() => { setFact(!fact); setView('gantt'); }} title="Показать, как работы идут на самом деле: план остаётся бледной полосой">
+              {fact ? '✓ Календарь по факту' : 'Календарь по факту'}
+            </button>
             <select className="vip-input" value={fBrigade} onChange={(e) => setFBrigade(e.target.value)} aria-label="Бригада">
               <option value="">Все бригады</option>
               {(project.brigades || []).map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
@@ -660,23 +850,62 @@ export default function VipWorksBoard({ section = 'schedule', onToast, onProject
           ) : view === 'gantt' ? (
             <div className="vwb-gantt" style={{ '--cell': `${CELL}px`, '--days': timeline.days.length }}>
               <div className="vwb-g-left">
-                <div className="vwb-g-corner">Работа</div>
+                <div className="vwb-g-corner">
+                  <span className="vwb-g-corner-t">Работа</span>
+                  {todayIdx >= 0 && <button type="button" className="vwb-g-today" onClick={() => scrollGrid((todayIdx + 0.5) * CELL - gridRef.current.clientWidth / 2)} title="Показать сегодняшний день на календаре">Сегодня</button>}
+                </div>
                 {works.map((w) => (
                   <button type="button" key={w.id} className="vwb-g-name" onClick={() => setModal({ type: 'work', isNew: false, item: w })} title="Открыть работу">
-                    <b>{w.check ? '⚠ ' : ''}{w.title}</b>
-                    <small>{formatRange(w.start, w.end)}{brigadeName(w.brigadeId) ? ` · ${brigadeName(w.brigadeId)}` : ' · без бригады'}</small>
+                    <span className="vwb-g-ico">
+                      {pic(w)
+                        ? <img className="vwb-g-pic" src={pic(w)} alt="" loading="lazy" />
+                        : <span className={cls('vwb-g-pic', 'art', `s-${w.status}`)}><WorkArt kind={workKind(w)} /></span>}
+                      {w.check ? <i className="vwb-g-badge" aria-hidden="true">!</i> : null}
+                    </span>
+                    <span className="vwb-g-text">
+                      <b translate="no">{w.check ? <i className="vwb-g-flag" title={w.check}>!</i> : null}{w.title}</b>
+                      <small>{formatRange(w.start, w.end)}{brigadeName(w.brigadeId) ? ` · ${brigadeName(w.brigadeId)}` : ' · без бригады'}</small>
+                    </span>
                   </button>
                 ))}
               </div>
+              <div className="vwb-g-main">
+              {/* месяцы и числа вынесены из прокручиваемой области: они остаются на виду, когда список работ листают вниз */}
+              <div className="vwb-g-head" ref={headRef}>
+                <div className="vwb-g-head-in">
+                  <div className="vwb-g-months">{timeline.months.map((m) => <div key={m.key} style={{ width: m.span * CELL }}>{m.span >= 4 ? <span>{m.label}</span> : null}</div>)}</div>
+                  <div className="vwb-g-days">{timeline.days.map((d) => <div key={d.iso} className={cls(d.rest && 'we', d.iso === today && 'today', d.monthStart && 'ms')}><b>{d.day}</b><small>{d.rest ? 'вых' : d.weekday}</small></div>)}</div>
+                </div>
+              </div>
               <div className="vwb-g-scroll" ref={gridRef} tabIndex={0} aria-label="Календарь работ, прокручивается вбок">
                 <div className="vwb-g-inner">
-                  <div className="vwb-g-months">{timeline.months.map((m) => <div key={m.key} style={{ width: m.span * CELL }}>{m.span >= 4 ? m.label : ''}</div>)}</div>
-                  <div className="vwb-g-days">{timeline.days.map((d) => <div key={d.iso} className={cls(d.weekend && 'we', d.iso === today && 'today', d.monthStart && 'ms')}><b>{d.day}</b><small>{d.weekday}</small></div>)}</div>
                   <div className="vwb-g-rows">
-                    <div className="vwb-g-bg" aria-hidden="true">{timeline.days.map((d) => <i key={d.iso} className={cls(d.weekend && 'we', d.iso === today && 'today', d.monthStart && 'ms')} />)}</div>
+                    <div className="vwb-g-bg" aria-hidden="true">{timeline.days.map((d) => <i key={d.iso} className={cls(d.rest && 'we', d.iso === today && 'today', d.monthStart && 'ms')} />)}</div>
                     {works.map((w) => {
                       const pos = barPosition(w, timeline);
                       const over = isOverdue(w, today);
+                      if (fact) {
+                        const fr = factRange(w, today);
+                        const fpos = fr ? barPosition(fr, timeline) : null;
+                        return (
+                          <div className="vwb-g-row" key={w.id}>
+                            {pos && <span className="vwb-bar-ghost" style={{ left: pos.offset * CELL + 2, width: pos.span * CELL - 4 }} aria-hidden="true" />}
+                            {fpos ? (
+                              <button
+                                type="button"
+                                className={cls('vwb-bar-item', 'fact', fr.running ? 's-progress' : 's-done', fr.shift > 0 && 'late')}
+                                style={{ left: fpos.offset * CELL + 2, width: fpos.span * CELL - 4 }}
+                                onClick={() => setModal({ type: 'work', isNew: false, item: w })}
+                                title={`${w.title}. По плану: ${formatRange(w.start, w.end)}. По факту: ${formatRange(fr.start, fr.end)}${fr.running ? ' (идёт)' : ''}${fr.shift > 0 ? `, позже плана на ${fr.shift} дн.` : fr.shift < 0 ? `, раньше плана на ${-fr.shift} дн.` : ''}`}
+                              >
+                                <span>{fpos.span >= 2 ? (fr.shift > 0 ? `+${fr.shift} дн.` : fr.shift < 0 ? `−${-fr.shift} дн.` : fr.running ? 'идёт' : 'в срок') : ''}</span>
+                              </button>
+                            ) : pos && <span className="vwb-bar-wait" style={{ left: pos.offset * CELL + 8 }}>не начата</span>}
+                            {(pos || fpos) && <span className="vwb-g-cap" translate="no" style={capStyle(w.title, Math.min(pos ? pos.offset : Infinity, fpos ? fpos.offset : Infinity), Math.max(pos ? pos.offset + pos.span : 0, fpos ? fpos.offset + fpos.span : 0), timeline.days.length)}>{w.title}</span>}
+                          </div>
+                        );
+                      }
+                      const named = pos ? nameFits(w.title, pos.span * CELL - 4) : false;
                       return (
                         <div className="vwb-g-row" key={w.id}>
                           {pos && (
@@ -687,15 +916,26 @@ export default function VipWorksBoard({ section = 'schedule', onToast, onProject
                               onClick={() => setModal({ type: 'work', isNew: false, item: w })}
                               title={`${w.title}: ${formatRange(w.start, w.end)}, ${durationDays(w.start, w.end)} дн. ${STATUS[w.status].label}${over ? ', срок вышел' : ''}${conflicts.has(w.id) ? `. Бригада занята: ${conflicts.get(w.id).join(', ')}` : ''}`}
                             >
-                              <span>{pos.span >= 3 ? `${STATUS[w.status].short}${over ? ' · срок вышел' : ''}` : ''}</span>
+                              <span className="vwb-bar-st">{pos.span >= 2 ? `${STATUS[w.status].short}${over && pos.span >= 4 ? ' · срок вышел' : ''}` : ''}</span>
+                              {named && <span className="vwb-bar-nm" translate="no">{w.title}</span>}
                               {(w.media || []).length > 0 && pos.span >= 2 && <em>📷 {(w.media || []).length}</em>}
                             </button>
                           )}
+                          {pos && !named && <span className="vwb-g-cap" translate="no" style={capStyle(w.title, pos.offset, pos.offset + pos.span, timeline.days.length)}>{w.title}</span>}
                         </div>
                       );
                     })}
                   </div>
                 </div>
+              </div>
+              <div className="vwb-g-edges">
+                {works.map((w, n) => (
+                  <div className="vwb-g-edge" key={w.id}>
+                    {edges[n] === 'l' && <button type="button" className={cls('l', `s-${w.status}`)} onClick={() => scrollGrid(barSpans[n].from - 16)} aria-label="Полоса этой работы левее — показать" title="Полоса этой работы левее — показать">‹</button>}
+                    {edges[n] === 'r' && <button type="button" className={cls('r', `s-${w.status}`)} onClick={() => scrollGrid(barSpans[n].from - 16)} aria-label="Полоса этой работы правее — показать" title="Полоса этой работы правее — показать">›</button>}
+                  </div>
+                ))}
+              </div>
               </div>
             </div>
           ) : (
@@ -728,12 +968,39 @@ export default function VipWorksBoard({ section = 'schedule', onToast, onProject
             <span><i className="over" />Срок вышел, отметки нет</span>
             <span><i className="clash" />Бригада занята на другой работе</span>
             <span><i className="today" />Сегодня, {formatDay(today)}</span>
+            <span><i className="we" /><span>Выходной:</span>&nbsp;<span>{WEEKDAY_NAMES[restDayOf(project)]}</span></span>
+            {fact && <span><i className="ghost" />План</span>}
+            {fact && <span><i className="late" />Позже плана</span>}
+          </div>
+
+          <div className="vwb-budget">
+            <div className="vwb-budget-head">
+              <h3>Бюджет на строительство</h3>
+              <button type="button" className="vwb-link" onClick={() => setModal({ type: 'project', isNew: false, item: project })}>изменить бюджет</button>
+            </div>
+            {budget.budget > 0 ? (
+              <>
+                <div className="vwb-budget-nums">
+                  <div><span>Бюджет</span><b>{money(budget.budget)}</b></div>
+                  <div><span>Выполнено работ на</span><b>{money(budget.doneCost)}</b><small>{`${budget.donePct}% бюджета`}</small></div>
+                  <div><span>Оплачено</span><b>{money(budget.paid)}</b><small>{`${budget.paidPct}% бюджета`}</small></div>
+                  <div className={budget.left < 0 ? 'bad' : ''}><span>{budget.left < 0 ? 'Перерасход' : 'Остаток'}</span><b>{money(Math.abs(budget.left))}</b></div>
+                </div>
+                <div className="vwb-budget-track" role="img" aria-label={`Выполнено ${budget.donePct}%, оплачено ${budget.paidPct}%`}>
+                  <i className="done" style={{ width: `${budget.donePct}%` }} />
+                  <i className="paid" style={{ width: `${budget.paidPct}%` }} />
+                </div>
+                <p className="vwb-hint">Зелёная полоса — выполненные работы, золотая — оплата.{budget.unpriced ? ` Без стоимости работ: ${budget.unpriced} — укажите её в карточке работы.` : ''}</p>
+              </>
+            ) : <p className="vwb-muted">Бюджет не указан. Впишите его в «Проект и реквизиты», а стоимость и оплату — в карточках работ: здесь появятся остаток и доля выполненного.</p>}
           </div>
         </>
       )}
 
       {section === 'team' && (
         <>
+          <details className="vwb-fold">
+            <summary><span>Реквизиты подрядчика и заказчика</span><small>{[project.contractor && project.contractor.name, project.client && project.client.name].filter(Boolean).join(' · ') || 'не заполнены'}</small></summary>
           <div className="vwb-parties">
             {[['contractor', 'Подрядчик'], ['client', 'Заказчик']].map(([key, title]) => {
               const p = project[key] || {};
@@ -748,6 +1015,7 @@ export default function VipWorksBoard({ section = 'schedule', onToast, onProject
               );
             })}
           </div>
+          </details>
 
           <div className="vwb-subhead">
             <h3>Бригады <span className="vwb-muted">({(project.brigades || []).length})</span></h3>
@@ -776,8 +1044,8 @@ export default function VipWorksBoard({ section = 'schedule', onToast, onProject
                         <button type="button" className="vwb-link" onClick={() => setModal({ type: 'brigade', isNew: false, item: b })}>изменить состав</button>
                       </div>
                       <span className={cls('vwb-pill', issues.length ? 'over' : 's-done')}>{b.members.length} чел. · {b.equipment.length} ед. техники{issues.length ? ` — ${issues.join('; ')}` : ''}</span>
-                      <ul>{b.members.map((id) => { const p = project.staff.find((x) => x.id === id); return p ? <li key={id}><b>{p.name}</b><small>{p.role || 'должность не указана'}</small></li> : null; })}</ul>
-                      <ul className="m">{b.equipment.map((id) => { const m = project.equipment.find((x) => x.id === id); return m ? <li key={id}><b>{m.name}</b><small>{m.plate || 'без номера'}</small></li> : null; })}</ul>
+                      <ul className="people">{b.members.map((id) => { const p = project.staff.find((x) => x.id === id); return p ? <li key={id}><Avatar person={p} size={40} /><span><b>{p.name}</b><small>{p.role || 'должность не указана'}</small></span></li> : null; })}</ul>
+                      <ul className="m people">{b.equipment.map((id) => { const m = project.equipment.find((x) => x.id === id); return m ? <li key={id}><MachinePic machine={m} group={machineGroup(m)} className="mini" /><span><b>{m.name}</b><small>{m.plate || 'без номера'}</small></span></li> : null; })}</ul>
                       <div className="vwb-brigade-works">
                         <span className="vwb-label">Работы ({bw.length})</span>
                         {bw.length ? bw.map((w) => <button type="button" key={w.id} className={cls('vwb-work-link', conflicts.has(w.id) && 'clash')} onClick={() => setModal({ type: 'work', isNew: false, item: w })}>{w.title}<small>{formatRange(w.start, w.end)}</small></button>) : <span className="vwb-muted">работ не назначено</span>}
@@ -794,16 +1062,16 @@ export default function VipWorksBoard({ section = 'schedule', onToast, onProject
             <button type="button" className="vip-primary-btn vwb-add" onClick={() => setModal({ type: 'person', isNew: true, item: { id: nextId('p', project.staff), name: '' } })}>＋ Добавить работника</button>
           </div>
           <div className="vwb-table-wrap">
-            <table className="vip-table vwb-table">
-              <thead><tr><th>№</th><th>Фамилия, имя, отчество</th><th>Должность</th><th>ИИН</th><th>Бригада</th><th>Техника</th></tr></thead>
+            <table className="vip-table vwb-table vwb-staff">
+              <thead><tr><th>№</th><th>Фото</th><th>Фамилия, имя, отчество</th><th>Должность</th><th>ИИН</th><th>Бригада</th><th>Техника</th></tr></thead>
               <tbody>
-                {(project.staff || []).length === 0 && <tr className="none"><td colSpan={6}>В штате пока никого нет.</td></tr>}
+                {(project.staff || []).length === 0 && <tr className="none"><td colSpan={7}>В штате пока никого нет.</td></tr>}
                 {(project.staff || []).map((p, i) => (
                   <tr key={p.id} onClick={() => setModal({ type: 'person', isNew: false, item: p })} tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter') setModal({ type: 'person', isNew: false, item: p }); }}>
-                    <td>{i + 1}</td><td><b>{p.name}</b></td><td>{p.role || '—'}</td>
-                    <td>{p.iin ? (showIin ? p.iin : '•••• скрыт') : '—'}</td>
-                    <td>{report.brigadeOf.get(p.id)?.name || <span className="vwb-muted">без бригады</span>}</td>
-                    <td>{(project.equipment || []).filter((m) => m.driverId === p.id).map((m) => m.name).join(', ') || '—'}</td>
+                    <td className="num">{i + 1}</td><td className="ava"><Avatar person={p} size={44} /></td><td className="name"><b translate="no">{p.name}</b></td><td className={p.role ? 'role' : 'role empty'}>{p.role || '—'}</td>
+                    <td className={p.iin ? 'iin' : 'iin empty'}>{p.iin ? (showIin ? p.iin : '•••• скрыт') : '—'}</td>
+                    <td className="brig">{report.brigadeOf.get(p.id)?.name || <span className="vwb-muted">без бригады</span>}</td>
+                    <td className={(project.equipment || []).some((m) => m.driverId === p.id) ? 'tech' : 'tech empty'}>{(project.equipment || []).filter((m) => m.driverId === p.id).map((m) => m.name).join(', ') || '—'}</td>
                   </tr>
                 ))}
               </tbody>
@@ -814,21 +1082,100 @@ export default function VipWorksBoard({ section = 'schedule', onToast, onProject
             <h3>Техника <span className="vwb-muted">({(project.equipment || []).length})</span></h3>
             <button type="button" className="vip-primary-btn vwb-add" onClick={() => setModal({ type: 'machine', isNew: true, item: { id: nextId('m', project.equipment), name: '' } })}>＋ Добавить технику</button>
           </div>
-          <div className="vwb-table-wrap">
-            <table className="vip-table vwb-table">
-              <thead><tr><th>№</th><th>Техника, автомобиль</th><th>Госномер</th><th>Водитель</th><th>Бригада</th></tr></thead>
-              <tbody>
-                {(project.equipment || []).length === 0 && <tr className="none"><td colSpan={5}>Техника пока не добавлена.</td></tr>}
-                {(project.equipment || []).map((m, i) => (
-                  <tr key={m.id} onClick={() => setModal({ type: 'machine', isNew: false, item: m })} tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter') setModal({ type: 'machine', isNew: false, item: m }); }}>
-                    <td>{i + 1}</td><td><b>{m.name}</b></td><td>{m.plate || '—'}</td>
-                    <td>{(project.staff || []).find((p) => p.id === m.driverId)?.name || '—'}</td>
-                    <td>{report.machineBrigade.get(m.id)?.name || <span className="vwb-muted">резерв</span>}</td>
-                  </tr>
+          {(project.equipment || []).length > 0 && (
+            <div className="vwb-toolbar">
+              <div className="vwb-groups" role="group" aria-label="Подгруппа техники">
+                <button type="button" className={cls('vwb-group', !mGroup && 'active')} aria-pressed={!mGroup} onClick={() => setMGroup('')}>Вся техника <b>{project.equipment.length}</b></button>
+                {machineGroups.map((g) => (
+                  <button type="button" key={g.id} className={cls('vwb-group', mGroup === g.id && 'active')} aria-pressed={mGroup === g.id} onClick={() => setMGroup(mGroup === g.id ? '' : g.id)}>
+                    <MachineArt group={g.id} />{g.label} <b>{g.count}</b>
+                  </button>
                 ))}
-              </tbody>
-            </table>
+              </div>
+              <div className="vwb-seg" role="group" aria-label="Вид списка техники">
+                <button type="button" className={mView === 'tiles' ? 'active' : ''} aria-pressed={mView === 'tiles'} onClick={() => pickMachineView('tiles')}>Плитки</button>
+                <button type="button" className={mView === 'list' ? 'active' : ''} aria-pressed={mView === 'list'} onClick={() => pickMachineView('list')}>Список</button>
+              </div>
+            </div>
+          )}
+          {(project.equipment || []).length === 0 && <div className="vwb-empty small">Техника пока не добавлена.</div>}
+          {(mGroup && machineGroups.some((g) => g.id === mGroup) ? machineGroups.filter((g) => g.id === mGroup) : machineGroups).map((g) => {
+            const items = project.equipment.filter((m) => machineGroup(m) === g.id);
+            return (
+              <section className="vwb-mgroup" key={g.id} aria-label={g.label}>
+                <h4><MachineArt group={g.id} />{g.label} <span className="vwb-muted">({items.length})</span></h4>
+                {mView === 'tiles' ? (
+                  <div className="vwb-tiles">
+                    {items.map((m) => {
+                      const driver = (project.staff || []).find((p) => p.id === m.driverId);
+                      return (
+                        <button type="button" className="vwb-tile" key={m.id} onClick={() => setModal({ type: 'machine', isNew: false, item: m })}>
+                          <MachinePic machine={m} group={g.id} />
+                          <b>{m.name}</b>
+                          <span className="plate">{m.plate || 'без номера'}</span>
+                          <small>{driver ? <><Avatar person={driver} size={20} />{shortName(driver.name)}</> : 'водитель не закреплён'}</small>
+                          <small>{report.machineBrigade.get(m.id)?.name || 'резерв'}</small>
+                        </button>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="vwb-table-wrap">
+                    <table className="vip-table vwb-table">
+                      <thead><tr><th>Фото</th><th>Техника, автомобиль</th><th>Госномер</th><th>Водитель</th><th>Бригада</th></tr></thead>
+                      <tbody>
+                        {items.map((m) => (
+                          <tr key={m.id} onClick={() => setModal({ type: 'machine', isNew: false, item: m })} tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter') setModal({ type: 'machine', isNew: false, item: m }); }}>
+                            <td className="ava"><MachinePic machine={m} group={g.id} className="mini" /></td><td><b>{m.name}</b></td><td>{m.plate || '—'}</td>
+                            <td>{(project.staff || []).find((p) => p.id === m.driverId)?.name || '—'}</td>
+                            <td>{report.machineBrigade.get(m.id)?.name || <span className="vwb-muted">резерв</span>}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </section>
+            );
+          })}
+        </>
+      )}
+
+      {section === 'docs' && (
+        <>
+          <div className="vwb-subhead">
+            <h3>Документы проекта <span className="vwb-muted">({(project.docs || []).length})</span></h3>
+            <span className="vwb-hint">Договоры, сметы, акты КС-2 и КС-3, счета, чертежи: PDF, Word, Excel и фото до 30 МБ</span>
+            {(project.docs || []).length > 1 && <button type="button" className="vip-secondary-btn" onClick={downloadAllDocs}>⬇ Скачать все</button>}
+            <button type="button" className="vip-primary-btn vwb-add" disabled={!!docBusy} onClick={() => docRef.current && docRef.current.click()}>{docBusy ? 'Загружается…' : '＋ Добавить документы'}</button>
+            <input ref={docRef} type="file" accept={DOC_ACCEPT} multiple hidden onChange={(e) => { const f = [...e.target.files]; e.target.value = ''; addDocs(f); }} />
           </div>
+          {docBusy && <div className="vwb-warn" role="status"><span>Загружается файл:</span> {docBusy}</div>}
+          {(project.docs || []).length === 0 ? (
+            <div className="vwb-empty small">Документов пока нет. Нажмите «Добавить документы» и выберите сразу все файлы — они сохранятся в проекте и будут доступны с любого устройства.</div>
+          ) : (
+            <div className="vwb-table-wrap">
+              <table className="vip-table vwb-table vwb-docs">
+                <thead><tr><th>№</th><th>Документ</th><th>Вид</th><th>Дата</th><th>Размер</th><th>Кто добавил</th><th aria-label="Действия" /></tr></thead>
+                <tbody>
+                  {project.docs.map((doc, i) => (
+                    <tr key={doc.id} className="plain">
+                      <td>{i + 1}</td>
+                      <td><input className="vip-input" value={doc.title || ''} onChange={(e) => setDoc(doc.id, { title: e.target.value })} maxLength={200} aria-label="Название документа" /><small className="vwb-muted">{doc.name}</small></td>
+                      <td><select className="vip-input" value={DOC_KINDS.includes(doc.kind) ? doc.kind : 'Другое'} onChange={(e) => setDoc(doc.id, { kind: e.target.value })} aria-label="Вид документа">{DOC_KINDS.map((k) => <option key={k} value={k}>{k}</option>)}</select></td>
+                      <td>{doc.date ? `${formatDay(doc.date, true)} ${doc.date.slice(0, 4)}` : '—'}</td>
+                      <td>{doc.size ? fmtSize(doc.size) : '—'}</td>
+                      <td>{doc.addedBy || '—'}</td>
+                      <td className="acts">
+                        <a className="vip-secondary-btn" href={fileUrl(doc.url)} download={doc.name || doc.title} target="_blank" rel="noreferrer">⬇ Скачать</a>
+                        <button type="button" className="vwb-link" onClick={() => setConfirm({ title: 'Убрать документ?', text: `Документ «${doc.title || doc.name}» исчезнет из проекта.`, yes: 'Убрать', onYes: () => { change((d) => { d.docs = (d.docs || []).filter((x) => x.id !== doc.id); return d; }); setConfirm(null); } })}>убрать</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </>
       )}
 
@@ -837,7 +1184,7 @@ export default function VipWorksBoard({ section = 'schedule', onToast, onProject
       {modal && modal.type === 'machine' && <MachineCard machine={modal.item} isNew={modal.isNew} staff={project.staff || []} onSave={(m) => upsert('equipment', m)} onDelete={removeMachine} onClose={() => setModal(null)} />}
       {modal && modal.type === 'brigade' && <BrigadeCard brigade={modal.item} isNew={modal.isNew} project={project} onSave={(b) => upsert('brigades', b)} onDelete={removeBrigade} onClose={() => setModal(null)} />}
       {modal && modal.type === 'project' && <ProjectCard data={modal.item} isNew={modal.isNew} onSave={modal.isNew ? createNew : (d) => { change(() => d); setModal(null); toast('✅ Проект сохранён'); }} onClose={() => setModal(null)} />}
-      {confirm && <Confirm title={confirm.title} text={confirm.text} onYes={confirm.onYes} onNo={() => setConfirm(null)} />}
+      {confirm && <Confirm title={confirm.title} text={confirm.text} yes={confirm.yes} onYes={confirm.onYes} onNo={() => setConfirm(null)} />}
     </div>
   );
 }

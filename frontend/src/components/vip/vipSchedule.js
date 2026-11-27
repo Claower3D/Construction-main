@@ -92,6 +92,7 @@ export function buildTimeline(project, today, pad_ = 3) {
   const works = (project.works || []).filter((w) => isIso(w.start) && isIso(w.end));
   const starts = works.map((w) => w.start);
   const ends = works.map((w) => w.end);
+  for (const w of project.works || []) { if (isIso(w.factStart)) starts.push(w.factStart); if (isIso(w.factEnd)) ends.push(w.factEnd); }
   if (isIso(project.startDate)) starts.push(project.startDate);
   if (isIso(project.endDate)) ends.push(project.endDate);
   if (!starts.length) starts.push(today);
@@ -102,6 +103,7 @@ export function buildTimeline(project, today, pad_ = 3) {
   end = addDays(end, pad_);
   // не длиннее двух лет: график из тысяч столбцов бесполезен и тормозит
   if (dayNumber(end) - dayNumber(start) > 730) end = addDays(start, 730);
+  const restDay = restDayOf(project);
   const days = [];
   const months = [];
   for (let n = dayNumber(start); n <= dayNumber(end); n++) {
@@ -112,7 +114,7 @@ export function buildTimeline(project, today, pad_ = 3) {
     const last = months[months.length - 1];
     if (!last || last.key !== key) months.push({ key, label: `${MONTHS[t.getUTCMonth()]} ${t.getUTCFullYear()}`, span: 1 });
     else last.span += 1;
-    days.push({ iso, day: t.getUTCDate(), weekday: WEEKDAYS[wd], weekend: wd === 0 || wd === 6, monthStart: t.getUTCDate() === 1 });
+    days.push({ iso, day: t.getUTCDate(), weekday: WEEKDAYS[wd], weekend: wd === 0 || wd === 6, rest: wd === restDay, monthStart: t.getUTCDate() === 1 });
   }
   return { start, end, days, months };
 }
@@ -242,4 +244,342 @@ export function importProblem(doc) {
     if (w.end < w.start) return `У работы «${w.title}» дата окончания раньше начала`;
   }
   return '';
+}
+
+// ── Выходной день ──
+export const WEEKDAY_NAMES = ['воскресенье', 'понедельник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота'];
+
+/** Выходной день недели в проекте: 0 — воскресенье (по умолчанию) … 6 — суббота */
+export function restDayOf(project) {
+  const n = Number(project && project.restDay);
+  return Number.isInteger(n) && n >= 0 && n <= 6 ? n : 0;
+}
+
+// ── Календарь по факту ──
+/**
+ * Фактические сроки работы: { start, end, running, shift }.
+ * Начало — отметка «начали» или плановая дата; окончание — отметка «закончили», у идущей работы — сегодня,
+ * у выполненной без отметки — плановая дата. Запланированные и приостановленные без отметок — null.
+ * shift — на сколько дней окончание позже (+) или раньше (−) плана; у идущей считается только опоздание.
+ */
+export function factRange(work, today) {
+  const started = isIso(work.factStart);
+  if (!started && work.status !== 'progress' && work.status !== 'done') return null;
+  let start = started ? work.factStart : work.start;
+  if (!isIso(start)) return null;
+  if (!started && start > today) start = today; // «в работе» раньше плановой даты
+  const running = work.status !== 'done' && !isIso(work.factEnd);
+  let end = isIso(work.factEnd) ? work.factEnd : running ? today : work.end;
+  if (!isIso(end) || end < start) end = start;
+  const diff = isIso(work.end) ? dayNumber(end) - dayNumber(work.end) : 0;
+  return { start, end, running, shift: running ? Math.max(0, diff) : diff };
+}
+
+// ── Бюджет на строительство ──
+/** { budget, planned, paid, doneCost, left, paidPct, unpriced } — суммы в тенге */
+export function budgetSummary(project) {
+  const works = project.works || [];
+  const num = (v) => (Number.isFinite(Number(v)) && Number(v) > 0 ? Number(v) : 0);
+  const planned = works.reduce((s, w) => s + num(w.cost), 0);
+  const paid = works.reduce((s, w) => s + num(w.paid), 0);
+  const doneCost = works.filter((w) => w.status === 'done').reduce((s, w) => s + num(w.cost), 0);
+  const budget = num(project.budget) || num(project.invoice && project.invoice.amount) || planned;
+  return {
+    budget, planned, paid, doneCost,
+    left: budget - paid,
+    paidPct: budget ? Math.min(100, Math.round((paid / budget) * 100)) : 0,
+    donePct: budget ? Math.min(100, Math.round((doneCost / budget) * 100)) : 0,
+    unpriced: works.filter((w) => !num(w.cost)).length,
+  };
+}
+
+/** «12 500 000 ₸» */
+export function money(n) {
+  return `${Math.round(Number(n) || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} ₸`;
+}
+
+// ── Подгруппы техники ──
+export const MACHINE_GROUPS = [
+  { id: 'crane', label: 'Краны' },
+  { id: 'manipulator', label: 'Манипуляторы' },
+  { id: 'lift', label: 'Автовышки и подъёмники' },
+  { id: 'truck', label: 'Автомобили' },
+  { id: 'earth', label: 'Землеройная техника' },
+  { id: 'other', label: 'Прочая техника' },
+];
+const MACHINE_RULES = [
+  ['manipulator', /манипулятор|кму|борт.*кран|самопогруз/],
+  ['lift', /вышк|подъ[её]мник|агп|люльк|ножнич|телескоп|jgk/],
+  ['crane', /кран|\bqy\s?\d|xzj\d/],
+  ['earth', /экскаватор|бульдозер|погрузчик|грейдер|каток|трактор|бобкэт|bobcat|jcb|мини-?погруз|ямобур|бур/],
+  ['truck', /камаз|самосвал|газел|грузов|автомоб|машин|фургон|тягач|бортов|пикап|легков|микроавтобус|toyota|hyundai|isuzu|howo|shacman|зил|газ\b|уаз|лада|нива|subaru|mitsubishi|nissan|kia\b|lexus|ford|chevrolet|volkswagen|mercedes|bmw|audi|honda|mazda|renault|daewoo|dongfeng|faw\b|foton|jac\b/],
+];
+
+/** Подгруппа техники по названию (когда она не выбрана вручную) */
+export function guessMachineGroup(name) {
+  const s = String(name || '').toLowerCase();
+  for (const [id, re] of MACHINE_RULES) if (re.test(s)) return id;
+  return 'other';
+}
+export const machineGroup = (m) => (m && MACHINE_GROUPS.some((g) => g.id === m.group) ? m.group : guessMachineGroup(m && m.name));
+
+// ── Виды работ (для картинки на графике) ──
+export const WORK_KINDS = [
+  { id: 'steel', label: 'Металлоконструкции' },
+  { id: 'stairs', label: 'Лестницы и площадки' },
+  { id: 'rails', label: 'Рельсы и пути' },
+  { id: 'roof', label: 'Кровля' },
+  { id: 'walls', label: 'Стены и панели' },
+  { id: 'concrete', label: 'Бетон и фундамент' },
+  { id: 'floor', label: 'Полы' },
+  { id: 'earth', label: 'Земляные работы' },
+  { id: 'drain', label: 'Вода, ливнёвка, канализация' },
+  { id: 'electric', label: 'Электрика' },
+  { id: 'heat', label: 'Отопление' },
+  { id: 'vent', label: 'Вентиляция' },
+  { id: 'cut', label: 'Резка и отверстия' },
+  { id: 'weld', label: 'Сварка' },
+  { id: 'paint', label: 'Покраска и отделка' },
+  { id: 'doors', label: 'Ворота, двери, окна' },
+  { id: 'lift', label: 'Подъём и монтаж краном' },
+  { id: 'other', label: 'Другие работы' },
+];
+const WORK_RULES = [
+  ['cut', /резк|отверст|алмазн|сверл|штроб/],
+  ['drain', /ливн|канализ|септик|водопровод|водосток|водоотв|колод|дренаж|труб|сантех/],
+  ['roof', /кровл|крыш|конёк|конек|мембран/],
+  ['weld', /свар/],
+  ['electric', /электр|кабел|освещ|щит|провод|заземл|молниезащ/],
+  ['heat', /отоплен|радиатор|кот[её]л|теплов|теплотрасс/],
+  ['vent', /вентил|воздуховод|кондицион|дымоуд/],
+  ['stairs', /лестни|марш|перил|огражден/],
+  ['rails', /рельс|подкранов/],
+  ['doors', /ворот|двер|окн|витраж|остеклен/],
+  ['walls', /сэндвич|сендвич|панел|профлист|стен|кладк|обшивк|фасад|перегород/],
+  ['floor', /пол\b|полы|полов|стяжк|топпинг|покрыти/],
+  ['concrete', /бетон|фундамент|опалуб|армир|залив|плит|ростверк|анкер/],
+  ['earth', /грунт|котлован|землян|планировк|отсыпк|траншe|транше|засыпк/],
+  ['steel', /металлоконстр|каркас|колонн|ферм|балк|прогон|связ|монтаж мк|\bмк\b|стальн|лестни|рельс/],
+  ['paint', /покрас|окрас|грунтов|огнезащ|отделк|штукат|шпакл/],
+  ['lift', /кран|подъ[её]м|разгруз|погруз|монтаж/],
+];
+
+/** Вид работ по названию (когда он не выбран вручную) */
+export function guessWorkKind(title) {
+  const s = String(title || '').toLowerCase();
+  for (const [id, re] of WORK_RULES) if (re.test(s)) return id;
+  return 'other';
+}
+export const workKind = (w) => (w && WORK_KINDS.some((k) => k.id === w.kind) ? w.kind : guessWorkKind(w && w.title));
+
+/** Картинка работы на графике: последнее фото или null (тогда рисуется значок вида работ) */
+export function workPicture(work) {
+  const photos = (work.media || []).filter((m) => m.kind !== 'video' && m.url);
+  return photos.length ? photos[photos.length - 1].url : null;
+}
+
+// ── Люди ──
+/** Инициалы для кружка вместо фото: «Барбашин Максим Владимирович» → «БМ» */
+export function initials(full) {
+  const parts = String(full || '').trim().split(/\s+/).filter(Boolean);
+  return parts.slice(0, 2).map((p) => p[0].toUpperCase()).join('') || '?';
+}
+/** Постоянный оттенок кружка по имени (0…359) */
+export function nameHue(full) {
+  let h = 0;
+  for (const ch of String(full || '')) h = (h * 31 + ch.codePointAt(0)) % 360;
+  return h;
+}
+
+// ── Места на модели ангара 25 × 70 м ──
+// Все координаты: x — метры от западного торца, где вход; z — метры от северной стены. Высоты — над полом.
+export const HANGAR = {
+  width: 25, length: 70, eave: 20, ridge: 23, bays: 10,
+  // выступ пола вверх — плита на всю дальнюю от входа половину здания, от стены до стены: на ней стоят
+  // площадка грохота со своими маршами и этажерка. От какого метра по длине, длина, от какого метра поперёк,
+  // ширина и высота над полом
+  step: { from: 28, length: 42, z: 0, width: 25, height: 2 },
+};
+// Что стоит внутри здания — по фотографиям объекта. Высоты площадок — над тем полом, на котором стоит оборудование
+// (на выступе пол выше). Оборудование идёт вдоль южной стены, по ходу от входа:
+// будка в углу, двухэтажная лестница и дробилка (если смотреть изнутри на вход — слева от него), наклонный
+// конвейер, площадка грохота с двумя маршами в середине, этажерка с бункерами у восточного торца. Сверху два мостовых крана.
+export const HANGAR_PLANT = {
+  booth: { x: 0.8, z: 19.6, l: 5.6, w: 4.6, h: 3.2 },
+  crusherStair: { x: 6.8, z: 20.2, l: 5.2, w: 3.2, levels: [4.7, 9.4] }, // два этажа: площадка дробилки и площадка питания
+  crusher: { x: 12, z: 18.8, l: 6, w: 5.5, h: 4.5, top: 9.4 },
+  conveyor: { x1: 18, y1: 4.6, x2: 36.6, y2: 10.9, z: 22.6, w: 1.6 }, // y — над основным полом: поднимается к верхней площадке грохота
+  screen: { x: 36, z: 18.5, l: 8, w: 5.6, levels: [5, 8.5], upper: { x: 36.4, l: 4.6 } },
+  rack: { x: 50.5, z: 11.5, l: 12, w: 13, levels: [7, 10, 12.5] }, // отметки площадок — над основным полом
+  rackStair: { x: 45.6, z: 11.5, l: 4.6, w: 3.2 },
+  cranes: { rail: 14.5, at: [41, 66.5] }, // отметка подкрановых рельсов и где стоят мосты; у каждого крана своя будка
+};
+/** На сколько метров пол в точке выше основного уровня (плита на дальней от входа половине здания) */
+export function floorRise(x, z) {
+  const s = HANGAR.step;
+  if (!s || !(s.height > 0)) return 0;
+  const inside = x >= s.from && x <= Math.min(HANGAR.length, s.from + s.length) && z >= s.z && z <= Math.min(HANGAR.width, s.z + s.width);
+  return inside ? s.height : 0;
+}
+/** Что показать на плане здания под точками работ: [{ kind: 'step' | 'f2' | 'unit' | 'line', x, z, l, w, label }] */
+export function hangarPlan() {
+  const p = HANGAR_PLANT, s = HANGAR.step;
+  const r = (o, label = '') => ({ kind: 'unit', x: o.x, z: o.z, l: o.l, w: o.w, label });
+  return [
+    { kind: 'step', x: s.from, z: s.z, l: Math.min(s.length, HANGAR.length - s.from), w: Math.min(s.width, HANGAR.width - s.z), label: `выступ +${s.height} м` },
+    { kind: 'f2', x: p.rack.x, z: p.rack.z, l: p.rack.l, w: p.rack.w, label: '2 этаж' },
+    r(p.rackStair), r(p.screen, 'Грохот'), r(p.crusher, 'Дробилка'), r(p.crusherStair), r(p.booth, 'Будка'),
+    { kind: 'line', x: p.conveyor.x1, z: p.conveyor.z, l: p.conveyor.x2 - p.conveyor.x1, w: 0, label: '' },
+  ];
+}
+export const HANGAR_ZONES = [
+  { id: 'all', label: 'Всё здание' },
+  { id: 'frame', label: 'Каркас' },
+  { id: 'roof', label: 'Кровля' },
+  { id: 'wall-n', label: 'Стена длинная, северная' },
+  { id: 'wall-s', label: 'Стена длинная, южная' },
+  { id: 'wall-w', label: 'Торец западный' },
+  { id: 'wall-e', label: 'Торец восточный' },
+  { id: 'floor', label: 'Пол' },
+  { id: 'outside', label: 'Площадка вокруг' },
+];
+const KIND_ZONE = { roof: 'roof', steel: 'frame', stairs: 'frame', rails: 'floor', weld: 'frame', floor: 'floor', concrete: 'floor', earth: 'outside', drain: 'outside', walls: 'wall-s', doors: 'wall-w', lift: 'frame' };
+
+/** Место работы на модели: выбранное вручную или подсказанное видом работ и текстом «места» */
+export function workZone(work) {
+  if (work && HANGAR_ZONES.some((z) => z.id === work.zone)) return work.zone;
+  const s = `${(work && work.place) || ''} ${(work && work.title) || ''}`.toLowerCase();
+  if (/кровл|крыш|конёк|конек/.test(s)) return 'roof';
+  if (/торец/.test(s)) return /вост/.test(s) ? 'wall-e' : 'wall-w';
+  if (/север/.test(s)) return 'wall-n';
+  if (/юж/.test(s)) return 'wall-s';
+  if (/\bпол\b|полы|стяжк/.test(s)) return 'floor';
+  if (/снаружи|улиц|площадк|территор|ливн|колод|траншe|транше/.test(s)) return 'outside';
+  return KIND_ZONE[workKind(work)] || 'all';
+}
+
+/**
+ * Календарь по факту по дням: { 'ГГГГ-ММ-ДД': [{ work, fact, running, late }] }.
+ * late — этот день позже планового окончания работы. Не длиннее двух лет на работу.
+ */
+export function buildFactDays(project, today) {
+  const out = {};
+  for (const work of (project && project.works) || []) {
+    const fact = factRange(work, today);
+    if (!fact) continue;
+    const a = dayNumber(fact.start), b = Math.min(dayNumber(fact.end), a + 730);
+    for (let n = a; n <= b; n++) {
+      const iso = isoFromDayNumber(n);
+      (out[iso] = out[iso] || []).push({ work, fact, running: fact.running, late: isIso(work.end) && iso > work.end });
+    }
+  }
+  for (const list of Object.values(out)) list.sort((x, y) => Number(y.late) - Number(x.late) || String(x.work.start).localeCompare(String(y.work.start)));
+  return out;
+}
+
+// ── Что и где показать на модели здания для каждой работы ──
+// Второй этаж — первая площадка этажерки с бункерами, отметка +7 м.
+export const HANGAR_INNER = {
+  floor2: HANGAR_PLANT.rack.levels[0],
+  mezzFrom: HANGAR_PLANT.rack.x, mezzTo: HANGAR_PLANT.rack.x + HANGAR_PLANT.rack.l,
+  mezzZ: HANGAR_PLANT.rack.z, mezzW: HANGAR_PLANT.rack.w,
+};
+
+export const WORK_SHAPES = [
+  { id: 'stairs', label: 'Лестничные марши' },
+  { id: 'storm', label: 'Ливнёвка и колодец' },
+  { id: 'sewer', label: 'Канализация и септик' },
+  { id: 'sheet_roof', label: 'Кровля' },
+  { id: 'sheet_wall', label: 'Обшивка стены' },
+  { id: 'opening', label: 'Отверстие, проём' },
+  { id: 'box', label: 'Короб, оборудование' },
+  { id: 'rails', label: 'Рельсы' },
+  { id: 'embeds', label: 'Закладные детали' },
+  { id: 'heating', label: 'Отопление' },
+  { id: 'frame', label: 'Каркас здания' },
+  { id: 'pin', label: 'Отметка места' },
+];
+const SHAPE_RULES = [
+  ['stairs', /лестни|марш/],
+  ['storm', /ливн|водосток|водоотв/],
+  ['sewer', /канализ|септик/],
+  ['heating', /отоплен|радиатор|котельн|теплотрасс/],
+  ['rails', /рельс/],
+  ['embeds', /закладн|анкер/],
+  ['opening', /отверст|про[её]м|сверл/],
+  ['box', /короб|дробилк|бункер|оборудован|станок|будк/],
+  ['sheet_roof', /кровл|крыш|конёк|конек/],
+  ['sheet_wall', /профлист|сэндвич|сендвич|панел|обшивк|фасад/],
+  ['frame', /каркас|колонн|ферм|балк|прогон|связ/],
+];
+/** Что нарисовать на модели, если это не выбрано вручную */
+export function guessShape(work) {
+  const s = `${(work && work.title) || ''}`.toLowerCase();
+  for (const [id, re] of SHAPE_RULES) if (re.test(s)) return id;
+  return /крыш|кровл/.test(String((work && work.place) || '').toLowerCase()) ? 'sheet_roof' : 'pin';
+}
+/** Этаж работы: выбранный вручную, либо из текста «2 этаж», либо 0 — не внутри по этажам */
+export function workFloor(work) {
+  const f = Number(work && work.floor);
+  if (f === 1 || f === 2) return f;
+  const m = `${(work && work.place) || ''} ${(work && work.title) || ''}`.match(/(\d)\s*-?\s*(?:й|ой)?\s*этаж/i);
+  return m && (m[1] === '1' || m[1] === '2') ? Number(m[1]) : 0;
+}
+/** Сколько штук нарисовать: «2 лестничных маршей», «11 штук», «6 полос» */
+export function workCount(work, fallback = 1) {
+  const s = `${(work && work.title) || ''} ${(work && work.volume) || ''}`.toLowerCase();
+  const m = s.match(/(\d{1,2})\s*(?:штук|шт\b|полос|лестни|марш|отверст|короб)/);
+  const n = m ? Number(m[1]) : fallback;
+  return Math.max(1, Math.min(24, n || fallback));
+}
+// точка по умолчанию [вдоль здания от западного торца, поперёк от северной стены], м
+// Места по фотографиям объекта: марши — у площадки грохота, короб — под дробилкой, отверстия — у будки, второй этаж — на этажерке.
+// Ни одна работа не должна лежать на краю выступа пола (28-й метр): рельсы — целиком на плите, закладные — на нижнем полу.
+const SHAPE_SPOT = {
+  stairs: [31.5, 19.4], storm: [74, 29], sewer: [-9, 8], sheet_roof: [35, 12.5], sheet_wall: [28, 25], opening: [2.4, 21.6],
+  box: [15, 21.6], rails: [49, 5.5], embeds: [10, 5], heating: [35, 0.6], frame: [35, 12.5], pin: [35, 12.5],
+};
+const SHAPE_SPOT_F2 = { opening: [58.5, 21], embeds: [54.5, 15.5], box: [56.5, 18], pin: [56.5, 18], rails: [56.5, 18] };
+// на сколько сдвигать следующую работу с той же фигурой, чтобы они не слились: [вдоль, поперёк]
+const SHAPE_NEXT = { opening: [19.6, -3.1], box: [0, -8] };
+// вторая лестница — двухэтажная, у входа: точка на плане — середина её клетки
+const STAIR2 = [HANGAR_PLANT.crusherStair.x + HANGAR_PLANT.crusherStair.l / 2, HANGAR_PLANT.crusherStair.z + HANGAR_PLANT.crusherStair.w / 2];
+const OUTSIDE = new Set(['storm', 'sewer']);
+
+/**
+ * Места всех работ проекта на модели: Map(id работы → { shape, floor, x, z, count, auto, label }).
+ * x — метры от западного торца (0…70), z — от северной стены (0…25); снаружи здания значения выходят за эти пределы.
+ * Работы с одинаковой фигурой на одном этаже, поставленные автоматически, раздвигаются, чтобы не слиться.
+ */
+export function projectPlaces(works) {
+  const out = new Map();
+  const taken = new Map();
+  for (const w of works || []) {
+    const shape = WORK_SHAPES.some((x) => x.id === w.shape) ? w.shape : guessShape(w);
+    let floor = workFloor(w);
+    if (!floor && ['opening', 'embeds', 'box', 'rails', 'pin', 'stairs'].includes(shape)) floor = 1;
+    if (OUTSIDE.has(shape) || shape === 'sheet_roof' || shape === 'sheet_wall' || shape === 'heating' || shape === 'frame') floor = 0;
+    const manual = w.pos && Number.isFinite(Number(w.pos.x)) && Number.isFinite(Number(w.pos.z));
+    let [x, z] = (floor === 2 && SHAPE_SPOT_F2[shape]) || SHAPE_SPOT[shape];
+    if (manual) { x = Number(w.pos.x); z = Number(w.pos.z); } else {
+      const key = `${shape}:${floor}`;
+      const n = taken.get(key) || 0;
+      taken.set(key, n + 1);
+      if (n && !['storm', 'sewer', 'heating', 'sheet_roof', 'frame'].includes(shape)) {
+        const [dx, dz] = floor === 2 ? [4, 0] : SHAPE_NEXT[shape] || [13, 0];
+        x += dx * n; z += dz * n;
+      }
+      if (floor === 2) { // второй этаж есть только на этажерке
+        x = Math.max(HANGAR_INNER.mezzFrom + 1.5, Math.min(HANGAR_INNER.mezzTo - 1.5, x));
+        z = Math.max(HANGAR_INNER.mezzZ + 1.5, Math.min(HANGAR_INNER.mezzZ + HANGAR_INNER.mezzW - 1.5, z));
+      }
+    }
+    const where = shape === 'stairs' ? 'внутри здания' : floor ? `${floor} этаж` : OUTSIDE.has(shape) ? 'снаружи здания' : shape === 'sheet_roof' ? 'верх здания' : shape === 'sheet_wall' ? 'снаружи здания' : shape === 'heating' ? 'вдоль стен' : 'здание';
+    // лестниц обычно две и стоят они в разных местах: первая — в середине здания, два марша у площадки грохота;
+    // вторая — двухэтажная, у входа рядом с дробилкой (изнутри, лицом ко входу — слева); у каждой своя точка на плане
+    const manual2 = w.pos2 && Number.isFinite(Number(w.pos2.x)) && Number.isFinite(Number(w.pos2.z));
+    const second = shape === 'stairs' ? { x2: manual2 ? Number(w.pos2.x) : STAIR2[0], z2: manual2 ? Number(w.pos2.z) : STAIR2[1], auto2: !manual2 } : {};
+    out.set(w.id, { ...second, shape, floor, x, z, count: workCount(w, shape === 'stairs' ? 2 : shape === 'rails' ? 6 : shape === 'embeds' ? 6 : 1), auto: !manual, label: where });
+  }
+  return out;
 }

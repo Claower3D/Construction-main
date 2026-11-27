@@ -1,0 +1,8 @@
+8074|Grues
+8075|Camions-grues
+8072|Nacelles élévatrices
+8073|Véhicules
+8224|Engins à béton
+8225|Engins de forage
+8226|Groupes électrogènes et énergie
+8119|Tous les engins

@@ -93,6 +93,9 @@ function ConsentPrivacy({ lang }) {
     return (
       <span translate="no">
         Doy mi consentimiento para el {docLink('/consent', 'tratamiento de mis datos personales')}, incluida su transferencia al extranjero, conforme al {docLink('/privacy', 'aviso de privacidad')}
+      </span>
+    );
+  }
   if (lang === 'de') {
     return (
       <span translate="no">

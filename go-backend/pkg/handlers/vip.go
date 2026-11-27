@@ -28,6 +28,7 @@ const (
 	vipMaxProjects = 200
 	vipMaxPhoto    = 20 << 20
 	vipMaxVideo    = 200 << 20
+	vipMaxDoc      = 30 << 20
 	// VipMediaBodyLimit — предел тела запроса загрузки (видео + служебные поля формы)
 	VipMediaBodyLimit = vipMaxVideo + (1 << 20)
 )
@@ -61,6 +62,7 @@ type vipPerson struct {
 	IIN   string `json:"iin"`
 	Phone string `json:"phone"`
 	Note  string `json:"note"`
+	Photo string `json:"photo"` // фото работника: ссылка на файл, загруженный через модуль
 }
 
 type vipMachine struct {
@@ -69,6 +71,8 @@ type vipMachine struct {
 	Plate    string `json:"plate"`
 	DriverID string `json:"driverId"`
 	Note     string `json:"note"`
+	Group    string `json:"group"` // подгруппа: crane | manipulator | lift | truck | earth | other
+	Photo    string `json:"photo"`
 }
 
 type vipBrigade struct {
@@ -103,6 +107,34 @@ type vipWork struct {
 	Note      string     `json:"note"`
 	Check     string     `json:"check"` // что уточнить (пусто — всё ясно)
 	Media     []vipMedia `json:"media"`
+	FactStart string     `json:"factStart"`      // когда работу начали на самом деле
+	FactEnd   string     `json:"factEnd"`        // когда закончили на самом деле
+	Kind      string     `json:"kind"`           // вид работ — для картинки на графике
+	Zone      string     `json:"zone"`           // место на модели здания
+	Cost      float64    `json:"cost"`           // стоимость работы по плану, ₸
+	Paid      float64    `json:"paid"`           // оплачено, ₸
+	Shape     string     `json:"shape"`          // что нарисовать на модели: stairs, storm, rails…
+	Floor     int        `json:"floor"`          // этаж: 1, 2 или 0 — подобрать по названию
+	Pos       *vipPos    `json:"pos,omitempty"`  // место на плане здания, м; пусто — подобрать автоматически
+	Pos2      *vipPos    `json:"pos2,omitempty"` // место второй части работы (вторая лестница)
+}
+
+// vipPos — точка на плане: x от западного торца, z от северной стены (снаружи здания — за пределами 0…70 и 0…25)
+type vipPos struct {
+	X float64 `json:"x"`
+	Z float64 `json:"z"`
+}
+
+type vipFile struct {
+	ID      string `json:"id"`
+	Title   string `json:"title"`
+	Kind    string `json:"kind"` // смета, акт, договор… — свободная подпись
+	URL     string `json:"url"`
+	Name    string `json:"name"`
+	Size    int64  `json:"size"`
+	Date    string `json:"date"`
+	AddedAt string `json:"addedAt"`
+	AddedBy string `json:"addedBy"`
 }
 
 type vipInvoice struct {
@@ -125,6 +157,9 @@ type vipProject struct {
 	Equipment  []vipMachine `json:"equipment"`
 	Brigades   []vipBrigade `json:"brigades"`
 	Works      []vipWork    `json:"works"`
+	RestDay    int          `json:"restDay"` // выходной день недели: 0 — воскресенье … 6 — суббота
+	Budget     float64      `json:"budget"`  // бюджет на строительство, ₸
+	Docs       []vipFile    `json:"docs"`
 }
 
 var (
@@ -132,6 +167,10 @@ var (
 	vipIDRe    = regexp.MustCompile(`^[A-Za-z0-9_-]{1,40}$`)
 	vipMediaRe = regexp.MustCompile(`^/uploads/vip/[a-f0-9]{24}\.(jpg|jpeg|png|webp|heic|mp4|mov|m4v|webm)$`)
 	vipStatus  = map[string]bool{"plan": true, "progress": true, "done": true, "hold": true}
+	vipPhotoRe = regexp.MustCompile(`^/uploads/vip/[a-f0-9]{24}\.(jpg|jpeg|png|webp|heic)$`)
+	vipDocRe   = regexp.MustCompile(`^/uploads/vip/[a-f0-9]{24}\.(pdf|xlsx|xls|docx|doc|jpg|jpeg|png|webp)$`)
+	vipSlugRe  = regexp.MustCompile(`^[a-z0-9_-]{0,24}$`)
+	vipGroups  = map[string]bool{"crane": true, "manipulator": true, "lift": true, "truck": true, "earth": true, "other": true}
 )
 
 // clean trims the text, drops control characters (PostgreSQL не хранит нулевой байт) and cuts to max runes
@@ -206,6 +245,39 @@ func (p *vipProject) validate() string {
 	if p.Works == nil {
 		p.Works = []vipWork{}
 	}
+	if p.RestDay < 0 || p.RestDay > 6 {
+		p.RestDay = 0
+	}
+	if p.Budget < 0 || p.Budget > 1e13 {
+		return "Некорректный бюджет проекта"
+	}
+	if len(p.Docs) > 500 {
+		return "В проекте больше 500 документов — удалите лишние"
+	}
+	if p.Docs == nil {
+		p.Docs = []vipFile{}
+	}
+	docs := map[string]bool{}
+	for i := range p.Docs {
+		d := &p.Docs[i]
+		if !vipIDRe.MatchString(d.ID) || docs[d.ID] {
+			return "У документов должны быть разные номера записей"
+		}
+		docs[d.ID] = true
+		if !vipDocRe.MatchString(d.URL) {
+			return "Документы добавляются только загрузкой через модуль"
+		}
+		d.Title, d.Kind, d.Name, d.AddedBy, d.AddedAt = vipClean(d.Title, 200), vipClean(d.Kind, 60), vipClean(d.Name, 150), vipClean(d.AddedBy, 120), vipClean(d.AddedAt, 30)
+		if d.Title == "" {
+			d.Title = d.Name
+		}
+		if d.Date != "" && !vipValidDate(d.Date) {
+			d.Date = ""
+		}
+		if d.Size < 0 {
+			d.Size = 0
+		}
+	}
 
 	people := map[string]bool{}
 	for i := range p.Staff {
@@ -217,6 +289,9 @@ func (p *vipProject) validate() string {
 		s.Name, s.Role, s.IIN, s.Phone, s.Note = vipClean(s.Name, 150), vipClean(s.Role, 100), vipClean(s.IIN, 12), vipClean(s.Phone, 40), vipClean(s.Note, 500)
 		if s.Name == "" {
 			return "У работника не указано имя"
+		}
+		if !vipPhotoRe.MatchString(s.Photo) {
+			s.Photo = ""
 		}
 		if s.IIN != "" && !regexp.MustCompile(`^\d{12}$`).MatchString(s.IIN) {
 			return "ИИН работника «" + s.Name + "» должен состоять из 12 цифр"
@@ -232,6 +307,12 @@ func (p *vipProject) validate() string {
 		m.Name, m.Plate, m.Note = vipClean(m.Name, 150), vipClean(m.Plate, 30), vipClean(m.Note, 500)
 		if m.Name == "" {
 			return "У техники не указано название"
+		}
+		if !vipGroups[m.Group] {
+			m.Group = ""
+		}
+		if !vipPhotoRe.MatchString(m.Photo) {
+			m.Photo = ""
 		}
 		if m.DriverID != "" && !people[m.DriverID] {
 			m.DriverID = "" // водителя удалили из штата
@@ -270,6 +351,36 @@ func (p *vipProject) validate() string {
 		}
 		if !vipStatus[w.Status] {
 			w.Status = "plan"
+		}
+		if w.FactStart != "" && !vipValidDate(w.FactStart) {
+			w.FactStart = ""
+		}
+		if w.FactEnd != "" && (!vipValidDate(w.FactEnd) || w.FactStart == "" || w.FactEnd < w.FactStart) {
+			w.FactEnd = ""
+		}
+		if !vipSlugRe.MatchString(w.Kind) {
+			w.Kind = ""
+		}
+		if !vipSlugRe.MatchString(w.Zone) {
+			w.Zone = ""
+		}
+		if w.Cost < 0 || w.Cost > 1e13 {
+			w.Cost = 0
+		}
+		if w.Paid < 0 || w.Paid > 1e13 {
+			w.Paid = 0
+		}
+		if !vipSlugRe.MatchString(w.Shape) {
+			w.Shape = ""
+		}
+		if w.Floor < 0 || w.Floor > 2 {
+			w.Floor = 0
+		}
+		if w.Pos != nil && !(w.Pos.X >= -30 && w.Pos.X <= 100 && w.Pos.Z >= -30 && w.Pos.Z <= 55) {
+			w.Pos = nil // NaN и точки далеко за площадкой
+		}
+		if w.Pos2 != nil && !(w.Pos2.X >= -30 && w.Pos2.X <= 100 && w.Pos2.Z >= -30 && w.Pos2.Z <= 55) {
+			w.Pos2 = nil
 		}
 		if w.BrigadeID != "" && !brigades[w.BrigadeID] {
 			w.BrigadeID = "" // бригаду удалили
@@ -475,11 +586,22 @@ func (h *VipHandler) Projects(w http.ResponseWriter, r *http.Request) {
 var (
 	vipPhotoExt = map[string]bool{".jpg": true, ".jpeg": true, ".png": true, ".webp": true, ".heic": true}
 	vipVideoExt = map[string]bool{".mp4": true, ".mov": true, ".m4v": true, ".webm": true}
+	vipDocExt   = map[string]bool{".pdf": true, ".xlsx": true, ".xls": true, ".docx": true, ".doc": true}
 )
 
 // vipLooksLike checks the first bytes: an image must be an image, a video must be MP4/MOV/WebM
 func vipLooksLike(head []byte, ext string) bool {
 	ct := http.DetectContentType(head)
+	if vipDocExt[ext] {
+		switch ext {
+		case ".pdf":
+			return strings.HasPrefix(string(head), "%PDF-")
+		case ".xlsx", ".docx":
+			return strings.HasPrefix(string(head), "PK\x03\x04")
+		default: // старые .doc и .xls
+			return strings.HasPrefix(string(head), "\xD0\xCF\x11\xE0")
+		}
+	}
 	if vipPhotoExt[ext] {
 		if ext == ".heic" {
 			return len(head) >= 12 && string(head[4:8]) == "ftyp"
@@ -533,8 +655,10 @@ func (h *VipHandler) UploadMedia(w http.ResponseWriter, r *http.Request) {
 			kind, limit = "photo", vipMaxPhoto
 		case vipVideoExt[ext]:
 			kind, limit = "video", vipMaxVideo
+		case vipDocExt[ext]:
+			kind, limit = "doc", vipMaxDoc
 		default:
-			writeError(w, http.StatusBadRequest, "Подходят фото (JPG, PNG, WEBP, HEIC) и видео (MP4, MOV, WEBM)")
+			writeError(w, http.StatusBadRequest, "Подходят фото (JPG, PNG, WEBP, HEIC), видео (MP4, MOV, WEBM) и документы (PDF, Word, Excel)")
 			return
 		}
 		head := make([]byte, 512)
@@ -543,6 +667,8 @@ func (h *VipHandler) UploadMedia(w http.ResponseWriter, r *http.Request) {
 		if n == 0 || !vipLooksLike(head, ext) {
 			if kind == "photo" {
 				writeError(w, http.StatusBadRequest, "Файл не является фотографией")
+			} else if kind == "doc" {
+				writeError(w, http.StatusBadRequest, "Файл не является документом PDF, Word или Excel")
 			} else {
 				writeError(w, http.StatusBadRequest, "Файл не является видео MP4, MOV или WEBM")
 			}
@@ -577,7 +703,7 @@ func (h *VipHandler) UploadMedia(w http.ResponseWriter, r *http.Request) {
 		switch {
 		case errors.As(werr, &tooBig), size > limit:
 			_ = os.Remove(dstPath)
-			writeError(w, http.StatusRequestEntityTooLarge, fmt.Sprintf("Файл больше допустимого: фото до %d МБ, видео до %d МБ", vipMaxPhoto>>20, vipMaxVideo>>20))
+			writeError(w, http.StatusRequestEntityTooLarge, fmt.Sprintf("Файл больше допустимого: фото до %d МБ, видео до %d МБ, документ до %d МБ", vipMaxPhoto>>20, vipMaxVideo>>20, vipMaxDoc>>20))
 			return
 		case werr != nil || cerr != nil:
 			_ = os.Remove(dstPath)

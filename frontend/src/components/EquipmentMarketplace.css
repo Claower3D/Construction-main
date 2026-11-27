@@ -1547,3 +1547,12 @@
 a.luxury-compare-btn { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; }
 .em-fleet-card-footer { flex-wrap: wrap; gap: 10px; }
 .em-fleet-actions-row .em-btn-glass-sm { white-space: nowrap; }
+
+/* Подгруппы техники: чипы с рисунком и разделы с заголовками */
+.em-chip.em-chip--group { display: inline-flex; align-items: center; gap: 8px; }
+.em-chip--group svg { width: 32px; height: 20px; flex: 0 0 auto; }
+.em-chip--group b { font-weight: 800; opacity: 0.85; }
+.em-groups { display: flex; flex-direction: column; gap: 26px; }
+.em-group-head { display: flex; align-items: center; gap: 12px; margin: 0 0 12px; font-size: 1.2rem; font-weight: 800; color: #fff; }
+.em-group-head svg { width: 52px; height: 32px; color: #cdbf8f; flex: 0 0 auto; }
+.em-group-head span { color: #a39cc2; font-weight: 600; font-size: 1rem; }

@@ -1,0 +1,3 @@
+8236|Wände {n} m · First {n} m · Bodenerhöhung +{n} m · Stahlrahmen
+8237|Erhöhung
+8238|+{n} m

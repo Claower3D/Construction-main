@@ -2,7 +2,12 @@
 // Доступны администратору и менеджеру: остальным сервер отвечает 403.
 import { authHeaders, jsonAuthHeaders } from './platformUtils';
 
-const BASE = '/api/v1/vip';
+// На сайте адреса относительные. В мобильном приложении сервер другой: его адрес задаётся при сборке (VITE_API_HOST).
+const HOST = ((typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_API_HOST) || '').replace(/\/+$/, '');
+const BASE = `${HOST}/api/v1/vip`;
+/** Адрес загруженного файла (фото, видео, документа): в приложении к нему добавляется адрес сервера */
+export const fileUrl = (u) => (HOST && typeof u === 'string' && u.startsWith('/uploads/') ? HOST + u : u);
+export const apiHost = () => HOST;
 
 export class VipError extends Error {
   constructor(message, status, code) {

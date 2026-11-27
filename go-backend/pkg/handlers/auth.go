@@ -84,6 +84,12 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	}
 	loginFailures.Reset(email)
 
+	// Один аккаунт может быть открыт на нескольких устройствах и доменах сразу: новый вход прежние сессии
+	// не закрывает. Сессии закрываются только при смене пароля или роли. Входы администратора пишем в журнал.
+	if user.Role == "admin" {
+		database.AddAudit(user.ID, user.Email, "admin_sign_in", user.ID, "вход администратора")
+	}
+
 	token, err := middleware.GenerateJWT(user.ID, user.Email, user.Role, h.cfg.JwtSecret)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -448,7 +454,11 @@ func (h *AuthHandler) GetMe(w http.ResponseWriter, r *http.Request) {
 	claims, err := middleware.ValidateJWT(tokenStr, h.cfg.JwtSecret)
 	if err != nil {
 		w.WriteHeader(http.StatusUnauthorized)
-		_ = json.NewEncoder(w).Encode(map[string]string{"error": "Сессия истекла"})
+		body := map[string]string{"error": "Сессия истекла"}
+		if strings.Contains(err.Error(), "revoked") {
+			body = map[string]string{"error": "Сессия закрыта: пароль или права аккаунта изменились", "code": "session_revoked"}
+		}
+		_ = json.NewEncoder(w).Encode(body)
 		return
 	}
 

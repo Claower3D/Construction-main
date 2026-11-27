@@ -160,6 +160,9 @@ func SPAHandler(dist string) http.HandlerFunc {
 		case err == nil && !info.IsDir():
 			if hashedAsset.MatchString(clean) {
 				w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
+			} else if strings.ToLower(path.Ext(clean)) == ".html" {
+				// отдельные страницы сборки (например, мост входа между доменами /sso.html) — всегда свежие
+				w.Header().Set("Cache-Control", "no-cache")
 			} else {
 				w.Header().Set("Cache-Control", "public, max-age=86400")
 			}

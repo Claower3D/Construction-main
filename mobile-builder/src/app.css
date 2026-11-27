@@ -1,0 +1,56 @@
+/* Приложение «VIP Застройщик»: оболочка вокруг экранов модуля «Строительство зданий» с сайта */
+@font-face { font-family: 'Golos Text'; font-style: normal; font-display: swap; font-weight: 400 900; src: url('./assets/fonts/golos-text-cyrillic-ext-wght-normal.woff2') format('woff2-variations'); unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F; }
+@font-face { font-family: 'Golos Text'; font-style: normal; font-display: swap; font-weight: 400 900; src: url('./assets/fonts/golos-text-cyrillic-wght-normal.woff2') format('woff2-variations'); unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
+@font-face { font-family: 'Golos Text'; font-style: normal; font-display: swap; font-weight: 400 900; src: url('./assets/fonts/golos-text-latin-ext-wght-normal.woff2') format('woff2-variations'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: 'Golos Text'; font-style: normal; font-display: swap; font-weight: 400 900; src: url('./assets/fonts/golos-text-latin-wght-normal.woff2') format('woff2-variations'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+
+:root { --font-main: 'Golos Text', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; color-scheme: dark; }
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: #0f0d1a; color: #f8fafc; font-family: var(--font-main); -webkit-text-size-adjust: 100%; }
+body { background: radial-gradient(120% 60% at 50% 0%, #2a1f55 0%, #15122a 55%, #0f0d1a 100%) fixed; min-height: 100vh; }
+button, input, select, textarea { font-family: inherit; }
+h1, h2, h3, h4, p { margin: 0; }
+
+.vb-app { min-height: 100vh; display: flex; flex-direction: column; }
+.vb-head { position: sticky; top: 0; z-index: 30; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: calc(env(safe-area-inset-top, 0px) + 10px) 14px 10px; background: rgba(15, 13, 26, 0.92); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
+.vb-head-title { display: flex; flex-direction: column; min-width: 0; }
+.vb-head-title b { font-size: 1.1rem; font-weight: 800; }
+.vb-head-title small { font-size: 0.82rem; color: #a39cc2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vb-out { flex: 0 0 auto; min-height: 40px; padding: 0 14px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.16); background: rgba(255, 255, 255, 0.05); color: #e9e5f7; font-size: 0.92rem; font-weight: 600; }
+.vb-main.vip-construction-module { flex: 1 1 auto; min-height: 0; padding: 10px 8px calc(env(safe-area-inset-bottom, 0px) + 88px); max-width: 900px; width: 100%; }
+.vb-main .vip-content-section { margin-bottom: 0; }
+
+/* нижнее меню */
+.vb-nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); padding: 6px 6px calc(env(safe-area-inset-bottom, 0px) + 6px); background: rgba(15, 13, 26, 0.96); backdrop-filter: blur(14px); border-top: 1px solid rgba(255, 255, 255, 0.1); }
+.vb-nav button { display: flex; flex-direction: column; align-items: center; gap: 3px; min-height: 56px; padding: 6px 2px; border: 0; border-radius: 12px; background: none; color: #a39cc2; font-size: 0.74rem; font-weight: 600; line-height: 1.1; }
+.vb-nav button svg { width: 26px; height: 26px; }
+.vb-nav button.active { color: #1b1330; background: linear-gradient(135deg, #f6c453, #e09b2d); }
+
+/* кнопки и поля — как на сайте */
+.vb-app .vip-primary-btn, .vb-login .vip-primary-btn { background: linear-gradient(135deg, #f6c453, #e09b2d); color: #1b1330; border: 0; font-weight: 800; min-height: 44px; border-radius: 12px; padding: 0 16px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+.vb-app .vip-primary-btn:disabled, .vb-login .vip-primary-btn:disabled { opacity: 0.6; }
+.vb-app .vip-secondary-btn { min-height: 42px; border-radius: 10px; padding: 0 12px; background: rgba(11, 18, 32, 0.9); border: 1px solid rgba(255, 255, 255, 0.14); color: #f8fafc; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+.vb-app .vip-input, .vb-login .vip-input { min-height: 44px; font-size: 1rem; }
+.vb-app .vip-toast { position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 84px); top: auto; transform: translateX(-50%); z-index: 100600; max-width: 92vw; padding: 10px 14px; border-radius: 12px; background: #1b1330; border: 1px solid rgba(252, 211, 77, 0.5); color: #fff; font-size: 0.95rem; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); }
+/* окно карточки не уходит под нижнее меню */
+.vwb-overlay { z-index: 100500; }
+.vb-object .vob { border: 0; padding: 4px; background: none; margin: 0; }
+
+/* вход */
+.vb-login { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: calc(env(safe-area-inset-top, 0px) + 20px) 16px 24px; }
+.vb-login-card { width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 14px; padding: 22px 18px; border-radius: 18px; background: rgba(14, 22, 38, 0.8); border: 1px solid rgba(255, 255, 255, 0.1); }
+.vb-brand { display: flex; align-items: center; gap: 10px; font-size: 1.05rem; font-weight: 700; }
+.vb-brand b { color: #fcd34d; }
+.vb-brand-mark { display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 11px; background: linear-gradient(135deg, #f6c453, #e09b2d); color: #1b1330; font-weight: 900; font-size: 1.2rem; }
+.vb-login-card h1 { font-size: 1.6rem; font-weight: 800; }
+.vb-lead { color: #cbc5e3; font-size: 0.98rem; }
+.vb-field { display: flex; flex-direction: column; gap: 6px; }
+.vb-field > span:first-child { font-size: 0.86rem; color: #a39cc2; font-weight: 600; }
+.vb-field .vip-input { width: 100%; }
+.vb-pass { display: flex; gap: 8px; }
+.vb-pass .vip-input { flex: 1 1 auto; min-width: 0; }
+.vb-eye { flex: 0 0 auto; min-height: 44px; padding: 0 12px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.16); background: rgba(255, 255, 255, 0.05); color: #cbc5e3; font-size: 0.88rem; }
+.vb-submit { width: 100%; font-size: 1.05rem; }
+.vb-alert { padding: 10px 12px; border-radius: 10px; background: rgba(248, 113, 113, 0.14); border: 1px solid rgba(248, 113, 113, 0.5); color: #fecaca; font-size: 0.95rem; }
+.vb-alert.info { background: rgba(252, 211, 77, 0.1); border-color: rgba(252, 211, 77, 0.45); color: #fde68a; }
+.vb-note { font-size: 0.86rem; color: #8a82a8; }

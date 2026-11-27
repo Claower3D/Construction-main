@@ -278,3 +278,54 @@ func TestVipMediaUpload(t *testing.T) {
 		t.Fatalf("слишком большой файл не должен оставаться на диске")
 	}
 }
+
+// Новые поля проекта: фото людей и техники, подгруппа техники, выходной, факт, бюджет, документы.
+// Чужие ссылки и неизвестные значения не сохраняются.
+func TestVipProjectExtraFields(t *testing.T) {
+	const photo = "/uploads/vip/0123456789abcdef01234567.jpg"
+	p := vipProject{
+		Name: "Завод", RestDay: 3, Budget: 5e8,
+		Staff:     []vipPerson{{ID: "p1", Name: "Иванов", Photo: photo}, {ID: "p2", Name: "Петров", Photo: "https://evil.example/x.jpg"}},
+		Equipment: []vipMachine{{ID: "m1", Name: "Кран", Group: "crane", Photo: photo}, {ID: "m2", Name: "КАМАЗ", Group: "ракета", Photo: "/uploads/vip/0123456789abcdef01234567.mp4"}},
+		Works: []vipWork{
+			{ID: "w1", Title: "Кровля", Start: "2026-11-01", End: "2026-11-05", FactStart: "2026-11-02", FactEnd: "2026-11-07", Kind: "roof", Zone: "roof-n", Cost: 100, Paid: 40},
+			{ID: "w2", Title: "Пол", Start: "2026-11-01", End: "2026-11-05", FactEnd: "2026-11-07", Kind: "<b>", Zone: "Зона", Cost: -5, Shape: "<x>", Floor: 9, Pos: &vipPos{X: 5000, Z: 1}},
+			{ID: "w3", Title: "Лестница", Start: "2026-11-01", End: "2026-11-05", Shape: "stairs", Floor: 2, Pos: &vipPos{X: 50.5, Z: 20}, Pos2: &vipPos{X: 40, Z: 3}},
+		},
+		Docs: []vipFile{{ID: "d1", URL: "/uploads/vip/0123456789abcdef01234567.pdf", Name: "smeta.pdf"}},
+	}
+	if msg := p.validate(); msg != "" {
+		t.Fatalf("проект должен приниматься: %s", msg)
+	}
+	if p.RestDay != 3 || p.Budget != 5e8 {
+		t.Errorf("выходной и бюджет: %d %v", p.RestDay, p.Budget)
+	}
+	if p.Staff[0].Photo != photo || p.Staff[1].Photo != "" {
+		t.Errorf("фото людей: %q %q", p.Staff[0].Photo, p.Staff[1].Photo)
+	}
+	if p.Equipment[0].Group != "crane" || p.Equipment[0].Photo != photo || p.Equipment[1].Group != "" || p.Equipment[1].Photo != "" {
+		t.Errorf("техника: %+v", p.Equipment)
+	}
+	if w := p.Works[0]; w.FactStart != "2026-11-02" || w.FactEnd != "2026-11-07" || w.Kind != "roof" || w.Zone != "roof-n" || w.Cost != 100 || w.Paid != 40 {
+		t.Errorf("работа 1: %+v", w)
+	}
+	if w := p.Works[1]; w.FactEnd != "" || w.Kind != "" || w.Zone != "" || w.Cost != 0 {
+		t.Errorf("работа 2 должна очиститься: %+v", w)
+	}
+	if w := p.Works[1]; w.Shape != "" || w.Floor != 0 || w.Pos != nil {
+		t.Errorf("место работы 2 должно очиститься: %+v", w)
+	}
+	if w := p.Works[2]; w.Shape != "stairs" || w.Floor != 2 || w.Pos == nil || w.Pos.X != 50.5 || w.Pos.Z != 20 || w.Pos2 == nil || w.Pos2.X != 40 {
+		t.Errorf("место работы 3: %+v", w)
+	}
+	if p.Docs[0].Title != "smeta.pdf" {
+		t.Errorf("документ без названия получает имя файла: %q", p.Docs[0].Title)
+	}
+	bad := vipProject{Name: "Завод", Docs: []vipFile{{ID: "d1", URL: "https://evil.example/a.pdf"}}}
+	if bad.validate() == "" {
+		t.Error("документ с чужой ссылкой должен отклоняться")
+	}
+	if !vipLooksLike([]byte("%PDF-1.7 ..."), ".pdf") || vipLooksLike([]byte("<html>"), ".pdf") || !vipLooksLike([]byte("PK\x03\x04...."), ".xlsx") {
+		t.Error("проверка содержимого документов")
+	}
+}

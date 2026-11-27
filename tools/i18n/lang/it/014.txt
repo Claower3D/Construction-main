@@ -1,0 +1,3 @@
+8239|📐 Modello 3D della nostra struttura
+8240|Il modello si ruota con il dito o con il mouse. La disposizione interna è schematica.
+8241|Lavori in corso: tocca per mostrarli sul modello

@@ -1,0 +1,8 @@
+8074|Vinçler
+8075|Vinçli kamyonlar
+8072|Sepetli platformlar
+8073|Araçlar
+8224|Beton makineleri
+8225|Sondaj makineleri
+8226|Jeneratörler ve enerji
+8119|Tüm makineler

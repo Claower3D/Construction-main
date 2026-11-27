@@ -6,7 +6,7 @@ import './RegisterPage.css';
 
 // Страница входа /login — в той же стилистике, что и /register.
 // loginUser(email, password) → onLogin(user). Поля входа всегда пустые: никаких вписанных аккаунтов.
-export default function LoginPage({ currentUser, onLogin, onOpenRegister, onOpenDashboard }) {
+export default function LoginPage({ currentUser, onLogin, onOpenRegister, onOpenDashboard, checking = false }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -17,14 +17,17 @@ export default function LoginPage({ currentUser, onLogin, onOpenRegister, onOpen
   // а снимаем её отдельным эффектом — чтобы после обновления страницы объяснение не повторялось.
   const [notice] = useState(() => {
     try {
-      return sessionStorage.getItem('qazgost_session_expired')
-        ? 'Сессия истекла. Войдите снова — так мы защищаем ваш аккаунт.'
-        : null;
+      const why = sessionStorage.getItem('qazgost_session_expired');
+      if (why === 'replaced') return 'Пароль или права этого аккаунта изменились, поэтому сессия закрыта. Войдите снова.';
+      return why ? 'Сессия истекла. Войдите снова — так мы защищаем ваш аккаунт.' : null;
     } catch { return null; }
   });
+  // Пока страница спрашивает соседний адрес сайта (checking), браузер может на мгновение уйти туда и
+  // вернуться — отметку снимаем только когда проверка закончилась, иначе объяснение потерялось бы.
   useEffect(() => {
+    if (checking) return;
     try { sessionStorage.removeItem('qazgost_session_expired'); } catch { /* хранилище недоступно */ }
-  }, []);
+  }, [checking]);
 
   useEffect(() => {
     const prev = document.title;
@@ -74,7 +77,8 @@ export default function LoginPage({ currentUser, onLogin, onOpenRegister, onOpen
         <form className="rg-card rg-card--single" onSubmit={handleSubmit} aria-labelledby="lg-form-title">
           <h2 id="lg-form-title" className="rg-card-title">Вход</h2>
 
-          {notice && !error && <div className="rg-alert rg-alert--info" role="status" data-testid="session-expired">{notice}</div>}
+          {checking && <div className="rg-alert rg-alert--info" role="status" data-testid="sso-checking">Проверяем, не вошли ли вы уже на втором адресе сайта…</div>}
+          {notice && !error && !checking && <div className="rg-alert rg-alert--info" role="status" data-testid="session-expired">{notice}</div>}
           {error && <div className="rg-alert" role="alert">{error}</div>}
 
           <div className="rg-field">
@@ -86,6 +90,7 @@ export default function LoginPage({ currentUser, onLogin, onOpenRegister, onOpen
               autoComplete="email"
               placeholder="you@example.kz"
               required
+              disabled={checking}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
@@ -101,6 +106,7 @@ export default function LoginPage({ currentUser, onLogin, onOpenRegister, onOpen
                 autoComplete="current-password"
                 placeholder="Ваш пароль"
                 required
+                disabled={checking}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
@@ -120,7 +126,7 @@ export default function LoginPage({ currentUser, onLogin, onOpenRegister, onOpen
             </p>
           </div>
 
-          <button type="submit" className="rg-submit" disabled={loading}>
+          <button type="submit" className="rg-submit" disabled={loading || checking}>
             {loading ? 'Входим…' : 'Войти'}
           </button>
 

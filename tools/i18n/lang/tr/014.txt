@@ -1,0 +1,3 @@
+8239|📐 Yapımızın 3D modeli
+8240|Modeli parmakla veya fareyle döndürün. Bina içi yerleşim şematik olarak gösterilmiştir.
+8241|Devam eden işler: modelde göstermek için dokunun

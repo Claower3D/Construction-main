@@ -1,0 +1,8 @@
+8074|Kranlar
+8075|Manipulyatorlar
+8072|Avtovishkalar va koʻtargichlar
+8073|Avtomobillar
+8224|Beton texnikasi
+8225|Burgʻulash texnikasi
+8226|Generatorlar va energetika
+8119|Barcha texnika
