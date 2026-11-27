@@ -135,7 +135,8 @@ function addTwoFlights(g, mat, bx, bz, base, lv1, lv2) {
 function addStairs(g, mat, x, z, x2, z2, both = true) {
   const { screen, crusherStair: t } = HANGAR_PLANT;
   const hl = HANGAR.length / 2, hw = HANGAR.width / 2;
-  addTwoFlights(g, mat, x - hl, z - hw, 0.4 + floorRise(x, z), 0.4 + screen.levels[0], 0.4 + screen.levels[1]);
+  const sb = 0.4 + floorRise(screen.x + 1, screen.z + 1); // пол под площадкой грохота
+  addTwoFlights(g, mat, x - hl, z - hw, 0.4 + floorRise(x, z), sb + screen.levels[0], sb + screen.levels[1]);
   if (both) addStairTower(g, mat, x2 - hl - t.l / 2, z2 - hw - t.w / 2, t.l, t.w, 0.4 + floorRise(x2, z2), t.levels.map((v) => 0.4 + v));
 }
 
@@ -178,14 +179,17 @@ function buildShape(item, mat) {
       break;
     }
     case 'heating': {
-      // подача и обратка вдоль стен, регистры в каждом пролёте
+      // подача и обратка вдоль стен, регистры в каждом пролёте; на выступе пола всё идёт выше — по его уровню
+      const S = HANGAR.step, edge = S && S.height > 0 ? S.from - hl : hl, up = S && S.height > 0 ? S.height : 0;
       for (const side of [-1, 1]) {
         const zz = side * (hw - 0.7);
-        g.add(tube(V(-hl + 1, 0.9, zz), V(hl - 1, 0.9, zz), 0.1, mat));
-        g.add(tube(V(-hl + 1, 1.5, zz), V(hl - 1, 1.5, zz), 0.1, mat));
-        for (let i = 0; i < 10; i++) g.add(box(3.4, 1.0, 0.25, mat, -hl + 3.5 + i * 7, 1.2, zz));
+        for (const yy of [0.9, 1.5]) {
+          g.add(tube(V(-hl + 1, yy, zz), V(Math.min(edge, hl - 1), yy, zz), 0.1, mat));
+          if (edge < hl - 1) g.add(tube(V(edge, yy, zz), V(edge, yy + up, zz), 0.1, mat), tube(V(edge, yy + up, zz), V(hl - 1, yy + up, zz), 0.1, mat));
+        }
+        for (let i = 0; i < 10; i++) { const rx = -hl + 3.5 + i * 7; g.add(box(3.4, 1.0, 0.25, mat, rx, 1.2 + floorRise(rx + hl, side < 0 ? 0.7 : Wd - 0.7), zz)); }
       }
-      g.add(tube(V(hl - 1, 0.9, -hw + 0.7), V(hl - 1, 0.9, hw - 0.7), 0.1, mat));
+      g.add(tube(V(hl - 1, 0.9 + floorRise(L - 1, Wd / 2), -hw + 0.7), V(hl - 1, 0.9 + floorRise(L - 1, Wd / 2), hw - 0.7), 0.1, mat));
       center = V(0, 1.5, 0);
       break;
     }
@@ -360,7 +364,7 @@ export default function Hangar3D({ items = [], selected = '', skin = true, heigh
     const put = (s, x, y, z) => { s.position.set(x, y, z); scene.add(s); return s; };
     const pyramid = (rTop, rBottom, h, mat, x, y, z) => { const m = new THREE.Mesh(new THREE.CylinderGeometry(rTop, rBottom, h, 4), mat); m.rotation.y = Math.PI / 4; m.position.set(x, y, z); return m; };
 
-    // выступ пола вверх — бетонное основание под этажеркой и её лестницей
+    // выступ пола вверх — плита на всю дальнюю от входа половину здания; на ней стоят грохот и этажерка
     const S = HANGAR.step;
     if (S && S.height > 0) {
       const sx0 = mx(S.from), sx1 = Math.min(hl, sx0 + S.length), sz0 = mz(S.z), sz1 = Math.min(hw, sz0 + S.width);
@@ -369,7 +373,7 @@ export default function Hangar3D({ items = [], selected = '', skin = true, heigh
       const edge = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(sl, S.height, sw)), new THREE.LineBasicMaterial({ color: 0xfcd34d }));
       edge.position.set(cx, cy + 0.03, cz); edge.renderOrder = 5; edge.material.depthTest = false;
       scene.add(edge);
-      put(label(`выступ +${S.height} м`, '#fcd34d'), sx0 + 1.5, 0.4 + S.height + 1.4, sz0 - 1.5);
+      put(label(`выступ +${S.height} м`, '#fcd34d'), sx0 + Math.min(6, sl / 2), 0.4 + S.height + 1.4, sz0 + Math.min(4, sw / 2)); // у края плиты, на свободной стороне цеха
     }
 
     // этажерка с двумя бункерами: три площадки на колоннах, бункеры в пролёте со стороны цеха, рядом лестничная башня
@@ -398,17 +402,17 @@ export default function Hangar3D({ items = [], selected = '', skin = true, heigh
 
     // площадка грохота: два уровня; марши к ней — отдельная работа (или показаны серым, если такой работы нет)
     {
-      const c = P.screen, x0 = mx(c.x), x1 = mx(c.x + c.l), z0 = mz(c.z), z1 = mz(c.z + c.w), y1 = 0.4 + c.levels[0], y2 = 0.4 + c.levels[1];
+      const c = P.screen, x0 = mx(c.x), x1 = mx(c.x + c.l), z0 = mz(c.z), z1 = mz(c.z + c.w), base = 0.4 + floorRise(c.x + 1, c.z + 1), y1 = base + c.levels[0], y2 = base + c.levels[1];
       const ux0 = mx(c.upper.x), ux1 = ux0 + c.upper.l, uz0 = z0 + 1.6, ucx = (ux0 + ux1) / 2, ucz = (uz0 + z1) / 2;
-      for (const cx of [x0 + 0.2, x1 - 0.2]) for (const cz of [z0 + 0.2, z1 - 0.2]) plant.add(beam(V(cx, 0.4, cz), V(cx, y1, cz), 0.42, plantMat));
-      plant.add(beam(V(x0 + 0.2, 0.4, z0 + 0.2), V(x1 - 0.2, y1 - 0.5, z0 + 0.2), 0.13, plantMat), beam(V(x1 - 0.2, 0.4, z0 + 0.2), V(x0 + 0.2, y1 - 0.5, z0 + 0.2), 0.13, plantMat));
+      for (const cx of [x0 + 0.2, x1 - 0.2]) for (const cz of [z0 + 0.2, z1 - 0.2]) plant.add(beam(V(cx, base, cz), V(cx, y1, cz), 0.42, plantMat));
+      plant.add(beam(V(x0 + 0.2, base, z0 + 0.2), V(x1 - 0.2, y1 - 0.5, z0 + 0.2), 0.13, plantMat), beam(V(x1 - 0.2, base, z0 + 0.2), V(x0 + 0.2, y1 - 0.5, z0 + 0.2), 0.13, plantMat));
       addDeck(plant, plantMat, x0, x1, z0, z1, y1, 'e', 0.22);
       for (const cx of [ux0, ux1]) for (const cz of [uz0, z1 - 0.2]) plant.add(beam(V(cx, y1, cz), V(cx, y2, cz), 0.3, plantMat));
       addDeck(plant, plantMat, ux0, ux1, uz0, z1, y2, 'nw', 0.22);
       const scr = box(4.3, 1.3, 2.5, binMat, ucx + 0.2, y1 + 1.55, ucz); scr.rotation.z = 0.24; plant.add(scr); // грохот — наклонный короб
       const ex = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.42, 2.8, 16), craneMat); ex.rotation.x = Math.PI / 2; ex.position.set(ucx + 0.2, y1 + 1.7, ucz); plant.add(ex); // вибратор
       plant.add(pyramid(1.9, 0.6, 1.5, binMat, ucx, y2 - 1.0, ucz)); // приёмная воронка
-      plant.add(beam(V(ucx - 0.4, y1 - 0.3, ucz), V(x0 + 0.9, 1.3, ucz), 0.7, binMat), beam(V(ucx + 0.8, y1 - 0.3, ucz), V(x1 - 1.6, 1.3, ucz), 0.7, binMat)); // течки вниз
+      plant.add(beam(V(ucx - 0.4, y1 - 0.3, ucz), V(x0 + 0.9, base + 0.9, ucz), 0.7, binMat), beam(V(ucx + 0.8, y1 - 0.3, ucz), V(x1 - 1.6, base + 0.9, ucz), 0.7, binMat)); // течки вниз
       put(label('Грохот', '#cbd5e1'), ucx, y2 + 2.6, ucz);
     }
 
@@ -421,9 +425,9 @@ export default function Hangar3D({ items = [], selected = '', skin = true, heigh
       plant.add(beam(a.clone().add(V(0, 1.15, -half - 0.8)), b.clone().add(V(0, 1.15, -half - 0.8)), 0.07, plantMat));
       for (let i = 0; i <= 8; i++) { const q = a.clone().lerp(b, i / 8).add(V(0, 0.05, -half - 0.8)); plant.add(beam(q, q.clone().add(V(0, 1.1, 0)), 0.06, plantMat)); }
       for (const tt of [0.22, 0.5, 0.78]) {
-        const q = a.clone().lerp(b, tt);
-        for (const dz of [-half, half]) plant.add(beam(V(q.x, 0.4, q.z + dz), V(q.x, q.y - 0.15, q.z + dz), 0.3, plantMat));
-        plant.add(beam(V(q.x, 0.4, q.z - half), V(q.x, q.y - 0.4, q.z + half), 0.1, plantMat), beam(V(q.x, 0.4, q.z + half), V(q.x, q.y - 0.4, q.z - half), 0.1, plantMat));
+        const q = a.clone().lerp(b, tt), fy = 0.4 + floorRise(q.x + hl, c.z); // пол под опорой
+        for (const dz of [-half, half]) plant.add(beam(V(q.x, fy, q.z + dz), V(q.x, q.y - 0.15, q.z + dz), 0.3, plantMat));
+        plant.add(beam(V(q.x, fy, q.z - half), V(q.x, q.y - 0.4, q.z + half), 0.1, plantMat), beam(V(q.x, fy, q.z + half), V(q.x, q.y - 0.4, q.z - half), 0.1, plantMat));
       }
       plant.add(tube(V(mx(P.crusher.x + 1), 0.4 + P.crusher.top + 0.6, hw - 0.9), V(mx(P.rack.x - 3), railY - 1.6, hw - 0.9), 0.4, plantMat));
     }
@@ -495,7 +499,7 @@ export default function Hangar3D({ items = [], selected = '', skin = true, heigh
     const gate = new THREE.Mesh(new THREE.PlaneGeometry(6, 7), gateMat); // вход — ворота в западном торце
     gate.rotation.y = Math.PI / 2; gate.position.set(-hl - 0.45, 3.5, 0);
     const gate2 = new THREE.Mesh(new THREE.PlaneGeometry(5, 5.5), gateMat); // вторые ворота — в восточном торце, ближе к северной стене
-    gate2.rotation.y = Math.PI / 2; gate2.position.set(hl + 0.45, 2.75, -hw * 0.3);
+    gate2.rotation.y = Math.PI / 2; gate2.position.set(hl + 0.45, 2.75 + floorRise(L - 1, Wd * 0.35), -hw * 0.3); // на уровне пола у этого торца
     scene.add(north, south, west, east, gate, gate2); skins.push(north, south, west, east, gate, gate2);
     const slopeLen = Math.hypot(hw, ridge - eave);
     for (const side of [-1, 1]) {

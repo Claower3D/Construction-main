@@ -306,14 +306,20 @@ test('место и фигура работы на модели', () => {
   assert.equal(p.get('a').label, '1 этаж');
 });
 
-test('выступ пола — бетонное основание под этажеркой и её лестницей; остальное оборудование стоит на полу', () => {
+test('выступ пола — плита на всю дальнюю от входа половину здания, от стены до стены', () => {
   assert.equal(HANGAR.bump, undefined);
   const s = HANGAR.step, p = HANGAR_PLANT;
-  const inside = (o) => [[o.x, o.z], [o.x + o.l, o.z], [o.x, o.z + o.w], [o.x + o.l, o.z + o.w]];
-  for (const [x, z] of [...inside(p.rack), ...inside(p.rackStair)]) assert.equal(floorRise(x, z), s.height, `этажерка и её лестница на выступе: ${x}, ${z}`);
-  for (const o of [p.screen, p.crusher, p.crusherStair, p.booth]) for (const [x, z] of inside(o)) assert.equal(floorRise(x, z), 0, `на полу: ${x}, ${z}`);
-  assert.equal(floorRise(p.rack.x + 2, 2), 0); // у северной стены выступа нет
+  assert.deepEqual([s.from + s.length, s.z, s.width], [HANGAR.length, 0, HANGAR.width]); // до дальнего торца, на всю ширину
+  assert.ok(s.from > HANGAR.length * 0.35 && s.from <= HANGAR.length / 2); // около половины здания
+  const corners = (o) => [[o.x, o.z], [o.x + o.l, o.z], [o.x, o.z + o.w], [o.x + o.l, o.z + o.w]];
+  for (const o of [p.rack, p.rackStair, p.screen]) for (const [x, z] of corners(o)) assert.equal(floorRise(x, z), s.height, `на плите: ${x}, ${z}`);
+  for (const o of [p.crusher, p.crusherStair, p.booth]) for (const [x, z] of corners(o)) assert.equal(floorRise(x, z), 0, `на нижнем полу: ${x}, ${z}`);
+  assert.equal(floorRise(s.from + 1, 0.5), s.height); // у самой северной стены
+  assert.equal(floorRise(s.from + 1, HANGAR.width - 0.5), s.height); // у самой южной стены
+  assert.equal(floorRise(HANGAR.length, HANGAR.width / 2), s.height); // у дальнего торца
+  assert.equal(floorRise(s.from - 1, HANGAR.width / 2), 0); // перед плитой
   assert.equal(floorRise(40, -1), 0); // снаружи здания
+  assert.deepEqual(hangarPlan()[0], { kind: 'step', x: s.from, z: 0, l: s.length, w: HANGAR.width, label: `выступ +${s.height} м` });
 });
 
 test('оборудование стоит внутри здания, вдоль южной стены, и не налезает друг на друга', () => {
@@ -354,4 +360,21 @@ test('рельсовый монтаж — полосы на полу цеха, �
   assert.deepEqual([r.shape, r.floor, r.count, r.label], ['rails', 1, 6, '1 этаж']);
   assert.ok(r.z < HANGAR.width / 2); // на свободной половине цеха, не под оборудованием
   assert.ok(HANGAR_PLANT.cranes.at.length === 2 && HANGAR_PLANT.cranes.at.every((x) => x > 0 && x < HANGAR.length));
+});
+
+test('работы на полу не лежат на краю выступа: каждая целиком на одном уровне', () => {
+  const p = projectPlaces([
+    { id: 'r', title: 'Рельсовый монтаж', volume: '6 полос' },
+    { id: 'a', title: 'Заливка закладных, 1 этаж', volume: '11 штук' }, { id: 'b', title: 'Обнаружение закладных в бетоне', volume: '10 штук' },
+    { id: 'o', title: 'Резка отверстий под будку' }, { id: 't', title: 'Резка отверстия под трубу' }, { id: 'k', title: 'Сварка короба под дробилку' },
+  ]);
+  // сколько места фигура занимает от своей точки: [назад, вперёд вдоль здания, к северной стене, к южной], м
+  const reach = { rails: [15, 15, 4.2, 4.2], embeds: [4, 4, 2.2, 2.2], opening: [1, 4.2, 0.8, 1.6], box: [2.1, 2.1, 1.7, 1.7] };
+  for (const [id, pl] of p) {
+    const [bx, fx, nz, sz] = reach[pl.shape];
+    const levels = new Set([[-bx, -nz], [fx, -nz], [-bx, sz], [fx, sz], [0, 0]].map(([ax, az]) => floorRise(pl.x + ax, pl.z + az)));
+    assert.equal(levels.size, 1, `${id} (${pl.shape}) лежит на двух уровнях`);
+    assert.ok(pl.x - bx >= 0 && pl.x + fx <= HANGAR.length && pl.z - nz >= 0 && pl.z + sz <= HANGAR.width, `${id} выходит за стены`);
+  }
+  assert.equal(floorRise(p.get('r').x, p.get('r').z), HANGAR.step.height); // рельсы — на плите
 });
